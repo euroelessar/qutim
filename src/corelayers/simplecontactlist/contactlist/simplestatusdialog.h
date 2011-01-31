@@ -4,29 +4,29 @@
 #include <QDialog>
 
 namespace Ui {
-    class SimpleStatusDialog;
+class SimpleStatusDialog;
 }
 
 namespace Core
 {
-	namespace SimpleContactList
-	{
+namespace SimpleContactList
+{
 
-		class SimpleStatusDialog : public QDialog
-		{
-			Q_OBJECT
+class SimpleStatusDialog : public QDialog
+{
+	Q_OBJECT
 
-		public:
-			explicit SimpleStatusDialog(const QString &status, QWidget *parent = 0);
-			~SimpleStatusDialog();
-			QString statusText() const;
-		protected:
-			void changeEvent(QEvent *e);
+public:
+	explicit SimpleStatusDialog(const QString &status, QWidget *parent = 0);
+	~SimpleStatusDialog();
+	QString statusText() const;
+protected:
+	void changeEvent(QEvent *e);
 
-		private:
-			Ui::SimpleStatusDialog *ui;
-		};
+private:
+	Ui::SimpleStatusDialog *ui;
+};
 
-	}
+}
 }
 #endif // SIMPLESTATUSDIALOG_H

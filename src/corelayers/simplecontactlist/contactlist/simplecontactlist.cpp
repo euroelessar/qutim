@@ -28,6 +28,7 @@
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
 #include <qutim/systemintegration.h>
+#include <QMenuBar>
 
 namespace Core
 {
@@ -94,7 +95,11 @@ struct ModulePrivate
 	TreeView *view;
 	AbstractContactModel *model;
 	ActionToolBar *mainToolBar;
+#ifdef Q_WS_S60
+	QAction *statusBtn;
+#else
 	QPushButton *statusBtn;
+#endif
 	QPushButton *searchBtn;
 	QLineEdit *searchBar;
 	QHash<Account *, QAction *> actions;
@@ -131,7 +136,7 @@ Module::Module() : p(new ModulePrivate)
 
 	int size = Config().group("contactList").value("toolBarIconSize",16);
 
-#if defined(Q_WS_MAEMO_5) || defined(Q_WS_S60)
+#if defined(Q_WS_MAEMO_5)
 	size = 48; //TODO use relative sizes table 
 #endif
 
@@ -174,8 +179,16 @@ Module::Module() : p(new ModulePrivate)
 	gen->setType(512);
 	addAction(gen);
 
+#ifdef Q_WS_S60
+	QAction *action = new QAction(tr("Actions"),this);
+	action->setSoftKeyRole(QAction::PositiveSoftKey);
+	action->setMenu(menu());
+	p->widget->addAction(action);
+#endif
+//#else
 	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
 	addButton(gen);
+//#endif
 
 	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
 	p->view = new TreeView(p->model, p->widget);
@@ -203,11 +216,7 @@ Module::Module() : p(new ModulePrivate)
 
 	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 
-	p->statusBtn = new QPushButton(Icon("im-user-online"),
-								   tr("Status"),
-								   p->widget);
 	QMenu *statusMenu = new QMenu(p->widget);
-	p->statusBtn->setMenu(statusMenu);
 
 	p->searchBtn = new QPushButton(p->widget);
 	p->searchBtn->setIcon(Icon("edit-find"));
@@ -217,19 +226,33 @@ Module::Module() : p(new ModulePrivate)
 	Shortcut *key = new Shortcut("find",p->searchBtn);
 	key->setContext(Qt::ApplicationShortcut);
 	connect(key,SIGNAL(activated()),p->searchBtn,SLOT(toggle()));
-	key = new Shortcut("contactListGlobalStatus",p->statusBtn);
-	connect(key,SIGNAL(activated()),p->statusBtn,SLOT(showMenu()));
-
-	p->statusBtn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	p->searchBtn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
 
 	p->searchBar = new QLineEdit(p->widget);
+#ifdef Q_WS_S60
+
+	p->statusBtn = new QAction(tr("Status"),this);
+	p->statusBtn->setSoftKeyRole(QAction::NegativeSoftKey);
+	p->statusBtn->setMenu(statusMenu);
+	p->widget->addAction(p->statusBtn);
+
+	p->searchBtn->setVisible(false); //TODO remove button
+#else
+	p->statusBtn = new QPushButton(Icon("im-user-online"),
+								   tr("Status"),
+								   p->widget);
+	p->statusBtn->setMenu(statusMenu);
+	key = new Shortcut("contactListGlobalStatus",p->statusBtn);
+	connect(key,SIGNAL(activated()),p->statusBtn,SLOT(showMenu()));
+	p->statusBtn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	bottom_layout->addWidget(p->statusBtn);
+
 	p->searchBar->setVisible(false);
 	connect(p->searchBtn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
+#endif
 	connect(p->searchBar, SIGNAL(textChanged(QString)), p->model, SLOT(filterList(QString)));
 
 	layout->addWidget(p->searchBar);
-	bottom_layout->addWidget(p->statusBtn);
 	bottom_layout->addWidget(p->searchBtn);
 	bottom_layout->setSpacing(0);
 	bottom_layout->setMargin(0);;
@@ -336,7 +359,7 @@ void Module::changeVisibility()
 	if (p->widget->isActiveWindow()) {
 		QTimer::singleShot( 0, p->widget, SLOT(hide()) );
 	} else {
-		p->widget->show();
+		SystemIntegration::show(p->widget);
 		p->widget->setWindowState(p->widget->windowState() & ~Qt::WindowMinimized);
 		p->widget->activateWindow();
 		p->widget->raise();

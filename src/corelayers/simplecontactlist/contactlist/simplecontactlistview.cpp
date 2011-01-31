@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <QApplication>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -143,7 +144,7 @@ void TreeView::onSelectTagsTriggered()
 	if (!m->selectedTags().isEmpty())
 		tags = m->selectedTags();
 	dialog->setSelectedTags(tags);
-	dialog->show();
+	SystemIntegration::show(dialog);
 	centerizeWidget(dialog);
 	if (dialog->exec()) {
 		m->filterList(dialog->selectedTags());
