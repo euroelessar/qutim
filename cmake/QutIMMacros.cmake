@@ -268,7 +268,8 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 
 	#static resources should be added directly to qutim executable
 	if( QUTIM_${plugin_name}_STATIC )
-	QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
+	list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
+	#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
 	else()
 	QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
 	endif()
@@ -287,10 +288,10 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
 	set( QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_STATIC_PLUGIN -DQUTIM_PLUGIN_INSTANCE=\"qt_plugin_instance_${plugin_name}\"" )
 	list( APPEND QUTIM_ADDITIONAL_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
-	list( APPEND QUTIM_ADDITIONAL_SOURCES "${QUTIM_${plugin_name}_RCC_STATIC}" )
 	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${plugin_name} )
 	endif( QUTIM_${plugin_name}_STATIC )
 	set( QUTIM_ADDITIONAL_SOURCES "${QUTIM_ADDITIONAL_SOURCES}" CACHE INTERNAL "" )
+	set( QUTIM_ADDITIONAL_RCC "${QUTIM_ADDITIONAL_RCC}" CACHE INTERNAL "" )
 	set( QUTIM_ADDITIONAL_LIBRARIES "${QUTIM_ADDITIONAL_LIBRARIES}" CACHE INTERNAL "" )
 
 	#more effective compile flags

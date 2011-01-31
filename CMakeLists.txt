@@ -97,10 +97,6 @@ set( QUTIM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE FILEPATH "Path to qutim 
 option( QUTIM_COPY_PLUGINS_TO_BINARY_DIR "Copy plugins to qutim build directory" OFF )
 set( QUTIM_LIBRARIES libqutim )
 
-QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
-QT4_WRAP_UI (UIS_H ${FORMS})
-QT4_ADD_RESOURCES (RCC ${RESOURCES})
-
 # For Apple set the icns file containing icons
 IF(APPLE)
   # set how it shows up in the Info.plist file
@@ -113,10 +109,18 @@ ENDIF(APPLE)
 
 set( QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
 set( QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
+set( QUTIM_ADDITIONAL_RCC "" CACHE INTERNAL "" FORCE )
 add_subdirectory(src/corelayers)
 foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+
+message(STATUS ${QUTIM_ADDITIONAL_RCC})
+list(APPEND RESOURCES ${QUTIM_ADDITIONAL_RCC})
+
+QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
+QT4_WRAP_UI (UIS_H ${FORMS})
+QT4_ADD_RESOURCES (RCC ${RESOURCES})
 
 #QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
 #	"User interface for mobile devices like Nokia 5800"
