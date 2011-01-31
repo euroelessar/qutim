@@ -18,6 +18,7 @@
 
 #include <QMainWindow>
 #include <qutim/settingslayer.h>
+#include <slidingstackedwidget.h>
 
 class QListWidgetItem;
 class QStackedWidget;
@@ -58,6 +59,7 @@ private slots:
 	void onWidgetDestroyed(QObject *obj);
 	void slideUp();
 	void slideDown(QWidget *w);
+	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
 };
 
 }

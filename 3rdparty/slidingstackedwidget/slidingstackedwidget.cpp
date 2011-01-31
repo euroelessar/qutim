@@ -1,5 +1,5 @@
 #include "slidingstackedwidget.h"
-
+#include "fingerswipegesture.h"
 
 SlidingStackedWidget::SlidingStackedWidget(QWidget *parent)
     : QStackedWidget(parent)
@@ -27,6 +27,10 @@ SlidingStackedWidget::SlidingStackedWidget(QWidget *parent)
 	m_wrap=false;
 	m_pnow=QPoint(0,0);
 	m_active=false;
+
+	fingerSwipeGestureType = (Qt::GestureType)0;
+	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
+	grabGesture(fingerSwipeGestureType);
 }
 
 
@@ -186,20 +190,58 @@ void SlidingStackedWidget::slideInWgt(QWidget * newwidget,SlideDirection  direct
 
 
 void SlidingStackedWidget::animationDoneSlot(void) {
-    //when ready, call the QStackedWidget slot setCurrentIndex(int)
-    setCurrentIndex(m_next);  //this function is inherit from QStackedWidget
-    //then hide the outshifted widget now, and  (may be done already implicitely by QStackedWidget)
-    widget(m_now)->hide();
-    //then set the position of the outshifted widget now back to its original
-    widget(m_now)->move(m_pnow);
-    //so that the application could also still call the QStackedWidget original functions/slots for changings
-    //widget(m_now)->update();
-    //setCurrentIndex(m_next);  //this function is inherit from QStackedWidget
-    m_active=false;
-    emit animationFinished();
+	//when ready, call the QStackedWidget slot setCurrentIndex(int)
+	setCurrentIndex(m_next);  //this function is inherit from QStackedWidget
+	//then hide the outshifted widget now, and  (may be done already implicitely by QStackedWidget)
+	widget(m_now)->hide();
+	//then set the position of the outshifted widget now back to its original
+	widget(m_now)->move(m_pnow);
+	//so that the application could also still call the QStackedWidget original functions/slots for changings
+	//widget(m_now)->update();
+	//setCurrentIndex(m_next);  //this function is inherit from QStackedWidget
+	m_active=false;
+	emit animationFinished();
 }
 
+bool SlidingStackedWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::TouchBegin) {
 
+		event->accept();
+		return true;
+	}
+
+	if (event->type() == QEvent::Gesture) {
+		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+
+		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
+		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+		    if (swipe->state() == Qt::GestureFinished) {
+			    if (swipe->isLeftToRight())
+			    {
+				    emit fingerGesture(LeftToRight);
+			    }
+			    else if (swipe->isRightToLeft())
+			    {
+				    emit fingerGesture(RightToLeft);
+			    }
+			    else if (swipe->isBottomToTop())
+			    {
+				    emit fingerGesture(BottomToTop);
+			    }
+			    else if (swipe->isTopToBottom())
+			    {
+				    emit fingerGesture(TopToBottom);
+			    }
+			}
+
+			ge->setAccepted(gesture, true);
+			return true;
+		    }
+	}
+
+	return QStackedWidget::event(event);
+}
 
 /* REFERENCES
 

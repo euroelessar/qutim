@@ -115,10 +115,11 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(m_recieverList,SIGNAL(triggered()),m_chatInput,SLOT(send()));
 
 	setAttribute(Qt::WA_AcceptTouchEvents);
-	fingerSwipeGestureType = (Qt::GestureType)0;
-	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
-	grabGesture(fingerSwipeGestureType);
+	//fingerSwipeGestureType = (Qt::GestureType)0;
+	//fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
+	//grabGesture(fingerSwipeGestureType);
 	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
+	connect(m_stack,SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
 
 	FloatingButton *chatNext=new FloatingButton(3,view);
 	FloatingButton *sessionListNext=new FloatingButton(0,m_sessionList);
@@ -136,12 +137,12 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 #if defined(Q_WS_MAEMO_5)
 	connect(m_kb_qwerty,SIGNAL(input(QString)),this,SLOT(processInput(QString)));
 
-    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
-    	if (scroller)
-    	{
-		scroller->setEnabled(true);
-		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
-	}
+//    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
+//    	if (scroller)
+//    	{
+//		scroller->setEnabled(true);
+//		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
+//	}
 #endif
 	connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
 	orientationChanged();
@@ -300,35 +301,35 @@ ChatSessionImpl *StackedChatWidget::currentSession() const
 
 bool StackedChatWidget::event(QEvent *event)
 {
-	if (event->type() == QEvent::TouchBegin) {
+//	if (event->type() == QEvent::TouchBegin) {
 
-		event->accept();
-		return true;
-	}
+//		event->accept();
+//		return true;
+//	}
 
-	if (event->type() == QEvent::Gesture) {
-		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+//	if (event->type() == QEvent::Gesture) {
+//		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
 
-		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
-		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
-		    if (swipe->state() == Qt::GestureFinished) {
-			    if (swipe->isLeftToRight())
-			    {
-				    m_stack->slideInPrev();
-				    m_contactView->blockSignals(true);
-			    }
-			    else if (swipe->isRightToLeft())
-			    {
-				    m_stack->slideInNext();
-				    m_contactView->blockSignals(true);
-			    }
+//		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
+//		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+//		    if (swipe->state() == Qt::GestureFinished) {
+//			    if (swipe->isLeftToRight())
+//			    {
+//				    m_stack->slideInPrev();
+//				    m_contactView->blockSignals(true);
+//			    }
+//			    else if (swipe->isRightToLeft())
+//			    {
+//				    m_stack->slideInNext();
+//				    m_contactView->blockSignals(true);
+//			    }
 
-			}
+//			}
 
-			ge->setAccepted(gesture, true);
-			return true;
-		    }
-	}
+//			ge->setAccepted(gesture, true);
+//			return true;
+//		    }
+//	}
 
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
@@ -384,6 +385,21 @@ void StackedChatWidget::onCurrentChanged(int index)
 	if(index != m_stack->indexOf(m_chatWidget))
 		currentSession()->setActive(false);
 	m_toolbar->setVisible(index == m_stack->indexOf(m_chatWidget));
+}
+
+void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
+{
+    if (direction==SlidingStackedWidget::LeftToRight)
+    {
+	m_stack->slideInPrev();
+	m_contactView->blockSignals(true);
+    }
+    else if (direction==SlidingStackedWidget::RightToLeft)
+    {
+	m_stack->slideInNext();
+	m_contactView->blockSignals(true);
+    }
+
 }
 
 void StackedChatWidget::animationFinished()
