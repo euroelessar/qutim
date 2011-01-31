@@ -85,9 +85,8 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 
 QIcon AvatarFilter::icon(const QString &path, const QIcon &overlayIcon)
 {
-	if(path.isEmpty() && !overlayIcon.availableSizes().count())
-		return QIcon();
-
+	if(path.isEmpty())
+		return overlayIcon;
 	return QIcon(new AvatarIconEngine(path,overlayIcon));
 }
 
