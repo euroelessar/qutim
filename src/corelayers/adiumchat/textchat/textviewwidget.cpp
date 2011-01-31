@@ -28,6 +28,11 @@ TextViewWidget::TextViewWidget()
 {
 //	m_textEdit = new QTextEdit(this);
 	setReadOnly(true);
+
+//	setAutoFillBackground(true);
+//	QPalette p = palette();
+//	p.setColor(QPalette::Base,Qt::white);
+//	setPalette(p);
 	
 //	new QVBoxLayout(this);
 //	layout()->addWidget(m_textEdit);

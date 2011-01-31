@@ -31,10 +31,19 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 
 	QAction *action = new QAction(tr("Request details"), actionBox);
 	connect(action, SIGNAL(triggered()), SLOT(onRequestButton()));
+	action->setSoftKeyRole(QAction::PositiveSoftKey);
 	actionBox->addAction(action);
 	saveAction = new QAction(tr("Save"), actionBox);
+	saveAction->setSoftKeyRole(QAction::PositiveSoftKey);
 	connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
 	actionBox->addAction(saveAction);
+
+#ifdef Q_WS_S60
+	action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	actionBox->addAction(action);
+#endif
 }
 
 void MobileContactInfoWindow::setObject(QObject *obj, RequestType type)

@@ -239,7 +239,7 @@ void ActionToolBar::contextMenuEvent(QContextMenuEvent* event)
 
 void ActionToolBar::setMoveHookEnabled(bool enabled)
 {
-#ifndef Q_WS_X11 //use alt modificator instead!
+#if !(defined(Q_WS_X11) || defined(Q_WS_S60)) //use alt modificator instead!
 	d_func()->moveHookEnabled = enabled;
 #else
 	Q_UNUSED(enabled);

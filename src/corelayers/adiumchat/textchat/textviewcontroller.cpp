@@ -55,6 +55,8 @@ TextViewController::TextViewController()
 #ifdef Q_WS_MAEMO_5
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
 	m_font.setPointSize(cfg.value(QLatin1String("size"), 15));
+#elif defined(Q_WS_S60)
+	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
 #else
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("verdana")));
 	m_font.setPointSize(cfg.value(QLatin1String("size"), 10));

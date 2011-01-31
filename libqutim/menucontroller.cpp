@@ -287,7 +287,8 @@ DynamicMenu::~DynamicMenu()
 void DynamicMenu::onAboutToShow()
 {
 	QMenu *menu = qobject_cast<QMenu*>(sender());
-	Q_ASSERT(menu);
+	if(!menu) //on Symbian it's may be doesn't work ((
+		return;
 	foreach (QAction *action, menu->actions()) {
 		ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {

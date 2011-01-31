@@ -57,3 +57,19 @@ qutim_add_plugin(textchat
 	DEPENDS adiumchat
 	LINK_LIBRARIES adiumchat
 )
+
+FIND_PACKAGE( Qt4 COMPONENTS QtDeclarative)
+
+return()
+qutim_add_plugin(qmlchat
+	EXTENSION
+	EXTENSION_HEADER qmlchat/quickchatviewfactory.h
+	EXTENSION_CLASS Core::AdiumChat::QuickChatViewFactory
+	DISPLAY_NAME "Qt Quick view"
+	SOURCE_DIR qmlchat
+	DESCRIPTION "Modern chat view based on power of QtQuick"
+	DEPENDS adiumchat
+	LINK_LIBRARIES adiumchat ${QT_QTDECLARATIVE_LIBRARY}
+)
+
+

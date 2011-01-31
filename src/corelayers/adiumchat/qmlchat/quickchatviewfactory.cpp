@@ -1,7 +1,7 @@
 /****************************************************************************
- *  iconloader.cpp
+ *  quickchatviewfactory.cpp
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,33 +13,31 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "iconloader.h"
-#include "objectgenerator.h"
-#include "servicemanager.h"
-#include <QPointer>
-#include <QDebug>
+#include "quickchatviewfactory.h"
 
-namespace qutim_sdk_0_3
+namespace Core {
+namespace AdiumChat {
+
+QuickChatViewFactory::QuickChatViewFactory()
 {
-IconLoader::IconLoader()
-{
+
 }
 
-IconLoader::~IconLoader()
+QObject* QuickChatViewFactory::createViewController()
 {
+
 }
 
-IconLoader *IconLoader::instance()
+QWidget* QuickChatViewFactory::createViewWidget()
 {
-	static QPointer<IconLoader> self;
-	if(self.isNull() && ObjectGenerator::isInited())
-		self = qobject_cast<IconLoader*>(ServiceManager::getByName("IconLoader"));
-	return self.data();
+
 }
 
-void IconLoader::virtual_hook(int id, void *data)
+QuickChatViewFactory::~QuickChatViewFactory()
 {
-	Q_UNUSED(id);
-	Q_UNUSED(data);
+
 }
-}
+
+	
+} // namespace AdiumChat
+} // namespace Core

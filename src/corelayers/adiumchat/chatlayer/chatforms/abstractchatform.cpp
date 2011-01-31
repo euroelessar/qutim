@@ -22,6 +22,7 @@
 #include <qutim/debug.h>
 #include <chatlayer/chatsessionimpl.h>
 #include <QPlainTextEdit>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -79,7 +80,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 #ifdef Q_WS_MAEMO_5
 		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 #endif
-		widget->show();
+		SystemIntegration::show(widget);
 	}
 	if (active)
 	{

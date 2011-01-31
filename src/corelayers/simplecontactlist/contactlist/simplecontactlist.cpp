@@ -27,6 +27,7 @@
 #include <qutim/settingslayer.h>
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -130,7 +131,7 @@ Module::Module() : p(new ModulePrivate)
 
 	int size = Config().group("contactList").value("toolBarIconSize",16);
 
-#ifdef Q_WS_MAEMO_5
+#if defined(Q_WS_MAEMO_5) || defined(Q_WS_S60)
 	size = 48; //TODO use relative sizes table 
 #endif
 
@@ -277,7 +278,7 @@ Module::Module() : p(new ModulePrivate)
 	p->widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 #endif
-	p->widget->show();
+	SystemIntegration::show(p->widget);
 }
 
 void Module::onStatusChanged()

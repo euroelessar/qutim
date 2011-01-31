@@ -97,7 +97,14 @@ QUTIM_WRAP_CPP( MOC_SRC ${HDR})
 # ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtdwm/")
 
 # This project will generate library
-ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} ${HDR} )
+
+SET(LIBQUTIM_TYPE "SHARED")
+IF(LIBQUTIM_BUILD_TYPE STREQUAL "STATIC")
+	SET(LIBQUTIM_TYPE "STATIC")
+	MESSAGE(STATUS "Libqutim will be linked staticaly")
+ENDIF()
+
+ADD_LIBRARY(libqutim ${LIBQUTIM_TYPE} ${SRC} ${MOC_SRC} ${HDR} )
 
 #if( CMAKE_COMPILER_IS_GNUCXX )
 #	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )

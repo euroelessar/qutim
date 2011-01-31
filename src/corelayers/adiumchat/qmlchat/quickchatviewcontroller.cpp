@@ -1,7 +1,7 @@
 /****************************************************************************
- *  iconloader.cpp
+ *  quickchatviewcontroller.cpp
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,33 +13,35 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "iconloader.h"
-#include "objectgenerator.h"
-#include "servicemanager.h"
-#include <QPointer>
-#include <QDebug>
+#include "quickchatviewcontroller.h"
 
-namespace qutim_sdk_0_3
+namespace Core {
+namespace AdiumChat {
+
+void QuickChatViewController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
-IconLoader::IconLoader()
-{
+
 }
 
-IconLoader::~IconLoader()
+void QuickChatViewController::clear()
 {
+	
 }
 
-IconLoader *IconLoader::instance()
+ChatSessionImpl* QuickChatViewController::getSession() const
 {
-	static QPointer<IconLoader> self;
-	if(self.isNull() && ObjectGenerator::isInited())
-		self = qobject_cast<IconLoader*>(ServiceManager::getByName("IconLoader"));
-	return self.data();
+
 }
 
-void IconLoader::virtual_hook(int id, void *data)
+void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 {
-	Q_UNUSED(id);
-	Q_UNUSED(data);
+
 }
+
+QuickChatViewController::~QuickChatViewController()
+{
+
 }
+
+} // namespace AdiumChat
+} // namespace Core
