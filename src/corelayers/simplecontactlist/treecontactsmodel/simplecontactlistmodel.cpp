@@ -505,34 +505,7 @@ void Model::contactStatusChanged(Status status)
 
 		// The item is already visible, so we need to move it in the right place
 		// and update its content
-		QList<ContactItem *> &contacts = item->parent->visible;
-		int from = contacts.indexOf(item);
-		int to;
-		if (statusTypeChanged) {
-			QList<ContactItem *>::const_iterator it =
-					qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-			to = it - contacts.constBegin();
-		} else {
-			to = from;
-		}
-
-		if (from == to) {
-			if (show) {
-				QModelIndex index = createIndex(item->index(), 0, item);
-				emit dataChanged(index, index);
-			}
-		} else {
-			if (to == -1 || to >= contacts.count())
-				continue;
-			QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-				if (from < to)
-					--to;
-				contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();
-			}
-		}
+		updateContact(item_data);
 	}
 }
 
@@ -546,34 +519,7 @@ void Model::contactNameChanged(const QString &name)
 	const QList<ContactItem *> &items = item_data->items;
 	if (items.isEmpty() || !isVisible(items.first()))
 		return;
-	for(int i = 0; i < items.size(); i++)
-	{
-		ContactItem *item = items.at(i);
-		QList<ContactItem *> &contacts = item->parent->visible;
-		QList<ContactItem *>::const_iterator it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-
-		int to = it - contacts.constBegin();
-		int from = contacts.indexOf(item);
-
-		QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-
-		if (from == to) {
-			QModelIndex index = createIndex(item->index(), 0, item);
-			emit dataChanged(index, index);
-		} else {
-			if (to == -1 || to >= contacts.count())
-				continue;
-
-			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-				if (from < to)
-					--to;
-				contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();
-			}
-		}
-	}
+	updateContact(item_data);
 }
 
 void Model::onContactInListChanged(bool)
@@ -657,11 +603,13 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 	//if(!contact->isInList())
 	//	tags << tr("Not in list");
 
+	int counter = item_data->status.type() == Status::Offline ? 0 : 1;
 	QSet<QString> to_add = tags - item_data->tags;
 	for (int i = 0, size = item_data->items.size(); i < size; i++) {
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
+		item->parent->online -= counter;
 		hideContact(item, true, false);
 		delete item;
 		i--;
@@ -669,6 +617,7 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
 		TagItem *tag = ensureTag(*it);
+		tag->online += counter;
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		if (show) {
@@ -1048,6 +997,39 @@ TagItem *Model::ensureTag(const QString &name)
 
 	}
 	return tag;
+}
+
+void Model::updateContact(ContactData::Ptr contact)
+{
+	const QList<ContactItem *> &items = contact->items;
+	for(int i = 0; i < items.size(); i++)
+	{
+		ContactItem *item = items.at(i);
+		QList<ContactItem *> &contacts = item->parent->visible;
+		QList<ContactItem *>::const_iterator it =
+				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+
+		int to = it - contacts.constBegin();
+		int from = contacts.indexOf(item);
+
+		QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
+
+		if (from == to) {
+			QModelIndex index = createIndex(item->index(), 0, item);
+			emit dataChanged(index, index);
+		} else {
+			if (to == -1 || to > contacts.count())
+				continue;
+
+			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+				if (from < to)
+					--to;
+				contacts.move(from,to);
+				//item_data->items.move(from,to); //FIXME
+				endMoveRows();
+			}
+		}
+	}
 }
 
 void Model::initialize()

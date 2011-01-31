@@ -76,6 +76,7 @@ private:
 	void removeFromContactList(Contact *contact, bool deleted);
 	void hideTag(TagItem *item);
 	void showTag(TagItem *item);
+	void updateContact(ContactData::Ptr contact);
 	void initialize();
 	void saveConfig();
 	TagItem *ensureTag(const QString &name);
