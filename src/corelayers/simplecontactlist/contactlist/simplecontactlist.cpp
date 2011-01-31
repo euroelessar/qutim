@@ -180,7 +180,7 @@ Module::Module() : p(new ModulePrivate)
 	addAction(gen);
 
 #ifdef Q_WS_S60
-	QAction *action = new QAction(tr("Actions"),this);
+	QAction *action = new QAction(tr("Actions"),p->widget);
 	action->setSoftKeyRole(QAction::PositiveSoftKey);
 	action->setMenu(menu());
 	p->widget->addAction(action);
@@ -231,7 +231,7 @@ Module::Module() : p(new ModulePrivate)
 	p->searchBar = new QLineEdit(p->widget);
 #ifdef Q_WS_S60
 
-	p->statusBtn = new QAction(tr("Status"),this);
+	p->statusBtn = new QAction(tr("Status"),p->widget);
 	p->statusBtn->setSoftKeyRole(QAction::NegativeSoftKey);
 	p->statusBtn->setMenu(statusMenu);
 	p->widget->addAction(p->statusBtn);
