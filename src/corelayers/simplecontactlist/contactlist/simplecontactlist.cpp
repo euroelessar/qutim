@@ -44,15 +44,22 @@ public:
 	}
 };
 
-class MyWidget : public QMainWindow
+class MyWidget : public
+#ifdef Q_WS_S60
+		QWidget
+#else
+		QMainWindow
+#endif
 {
 public:
 	MyWidget()
 	{
-		resize(150,0);//hack
 		connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 		setWindowIcon(Icon("qutim"));
+#ifndef Q_SW_S60
+		resize(150,0);//hack
 		setAttribute(Qt::WA_AlwaysShowToolTips);
+#endif
 	}
 	void loadGeometry()
 	{
@@ -83,9 +90,11 @@ public:
 
 	virtual ~MyWidget()
 	{
+#ifndef QUTIM_MOBILE_UI
 		Config config;
 		config.beginGroup("contactList");
 		config.setValue("geometry", saveGeometry());
+#endif
 	}
 };
 
@@ -120,32 +129,40 @@ Module::Module() : p(new ModulePrivate)
 							   QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
 							   QKeySequence("Ctrl+M")
 							   );
-
 	p->widget = new MyWidget;
-	p->widget->setCentralWidget(new QWidget(p->widget));
-	p->widget->setUnifiedTitleAndToolBarOnMac(true);
+#ifdef Q_WS_S60
+	QWidget *w = p->widget;
+#else
+	QWidget *w = new QWidget(p->widget);
+#endif
 	p->widget->installEventFilter(this);
-	QVBoxLayout *layout = new QVBoxLayout(p->widget->centralWidget());
+	QVBoxLayout *layout = new QVBoxLayout(w);
 	layout->setMargin(0);
 	layout->setSpacing(0);
+
+
+#ifndef Q_WS_S60
+	p->widget->setCentralWidget(w);
+	p->widget->setUnifiedTitleAndToolBarOnMac(true);
 
 	if (QtWin::isCompositionEnabled()) {
 		QtWin::extendFrameIntoClientArea(p->widget);
 		p->widget->setContentsMargins(0, 0, 0, 0);
 	}
 
-	int size = Config().group("contactList").value("toolBarIconSize",16);
-
 #if defined(Q_WS_MAEMO_5)
-	size = 48; //TODO use relative sizes table 
+	int size = 48; //TODO use relative sizes table
+#else
+	int size = 16;
 #endif
+	size = Config().group("contactList").value("toolBarIconSize",size);
 
 	QSize toolbar_size (size,size);
-
 	p->mainToolBar = new ActionToolBar(p->widget);
 	p->mainToolBar->setWindowTitle(tr("Main Toolbar"));
 
 #ifndef QUTIM_MOBILE_UI
+	p->widget->loadGeometry();
 	p->widget->addToolBar(Qt::TopToolBarArea,p->mainToolBar);
 #else
 	connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
@@ -160,6 +177,11 @@ Module::Module() : p(new ModulePrivate)
 #ifdef Q_WS_WIN
 	p->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
+
+#endif
+	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
+	p->view = new TreeView(p->model, p->widget);
+	layout->addWidget(p->view);
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -179,20 +201,10 @@ Module::Module() : p(new ModulePrivate)
 	gen->setType(512);
 	addAction(gen);
 
-#ifdef Q_WS_S60
-	QAction *action = new QAction(tr("Actions"),p->widget);
-	action->setSoftKeyRole(QAction::PositiveSoftKey);
-	action->setMenu(menu());
-	p->widget->addAction(action);
-#endif
-//#else
+#ifndef Q_WS_S60
 	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
 	addButton(gen);
-//#endif
-
-	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
-	p->view = new TreeView(p->model, p->widget);
-	layout->addWidget(p->view);
+#endif
 
 	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
 	gen->addHandler(ActionCreatedHandler,this);
@@ -214,7 +226,7 @@ Module::Module() : p(new ModulePrivate)
 
 	p->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 
-	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
+	QHBoxLayout *bottom_layout = new QHBoxLayout(w);
 
 	QMenu *statusMenu = new QMenu(p->widget);
 
@@ -230,6 +242,10 @@ Module::Module() : p(new ModulePrivate)
 
 	p->searchBar = new QLineEdit(p->widget);
 #ifdef Q_WS_S60
+	QAction *action = new QAction(tr("Actions"),p->widget);
+	action->setSoftKeyRole(QAction::PositiveSoftKey);
+	action->setMenu(menu());
+	p->widget->addAction(action);
 
 	p->statusBtn = new QAction(tr("Status"),p->widget);
 	p->statusBtn->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -293,7 +309,6 @@ Module::Module() : p(new ModulePrivate)
 
 	statusMenu->addSeparator();
 
-	p->widget->loadGeometry();
 #ifdef Q_WS_MAEMO_5
 	p->statusBtn->setMaximumHeight(50);
 	p->searchBtn->setMaximumHeight(50);
@@ -337,7 +352,11 @@ void Module::addContact(qutim_sdk_0_3::Contact *contact)
 
 void Module::addButton(ActionGenerator *generator)
 {
-	p->mainToolBar->addAction(generator);
+#ifdef Q_WS_S60
+	addAction(generator);
+#else
+	p->mainToolBar->addAction(generator);	
+#endif
 }
 
 void Module::show()
@@ -447,7 +466,7 @@ void Module::showStatusDialog()
 	SimpleStatusDialog *dialog = new SimpleStatusDialog(text,p->widget);
 	connect(dialog,SIGNAL(accepted()),SLOT(changeStatusTextAccepted()));
 	centerizeWidget(dialog);
-	dialog->show();
+	SystemIntegration::show(dialog);
 }
 
 void Module::changeStatusTextAccepted()
@@ -531,7 +550,7 @@ bool Module::eventFilter(QObject *obj, QEvent *event)
 
 void Module::orientationChanged()
 {
-#ifdef QUTIM_MOBILE_UI
+#if defined(QUTIM_MOBILE_UI) && !defined(Q_WS_S60)
 	QRect screenGeometry = QApplication::desktop()->screenGeometry();
 	if (screenGeometry.width() > screenGeometry.height())
 	{
