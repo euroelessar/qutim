@@ -1,0 +1,36 @@
+{
+   "Maemo": [
+    {
+     "label": "Chat font",
+     "label-bg_BG": "Шрифт на съобщенията",
+     "label-ru_RU": "Шрифт сообщений",
+     "parameter": "font",
+     "selector": "body",
+     "type": "font",
+     "value": "16pt Nokia Sans"
+    }
+	 /*,
+    {
+     "label": "Show avatars",
+     "label-ru_RU": "Показывать аватары участников",
+     "parameter": "display",
+     "selector": ".avatar",
+     "true": "block",
+     "false": "none",
+     "type": "boolean",
+     "value": "block"
+    },
+    {
+     "label": "Avatar size",
+     "label-ru_RU": "Размер аватар",
+     "parameter": "width",
+     "selector": ".avatar",
+     "min": "32",
+     "max": "64",
+     "step": "16",
+     "type": "numeric",
+     "value": "32"
+    }
+	 */
+   ]
+  }
