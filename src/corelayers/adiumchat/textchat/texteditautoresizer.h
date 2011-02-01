@@ -38,7 +38,7 @@
  ** $QT_END_LICENSE$
  **
  ****************************************************************************/
-#ifdef Q_WS_MAEMO_5
+
  #include <QtGui/qplaintextedit.h>
  #include <QtGui/qtextedit.h>
  #include <QtGui/qabstractkineticscroller.h>
@@ -46,7 +46,7 @@
 
  #ifndef TEXTEDITAUTORESIZER_H
  #define TEXTEDITAUTORESIZER_H
-
+#ifdef Q_WS_MAEMO_5
  class TextEditAutoResizer : public QObject
  {
      Q_OBJECT
