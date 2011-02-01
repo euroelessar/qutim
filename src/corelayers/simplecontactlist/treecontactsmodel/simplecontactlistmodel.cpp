@@ -505,7 +505,7 @@ void Model::contactStatusChanged(Status status)
 
 		// The item is already visible, so we need to move it in the right place
 		// and update its content
-		updateContact(item_data);
+		updateContact(item, statusTypeChanged);
 	}
 }
 
@@ -519,7 +519,8 @@ void Model::contactNameChanged(const QString &name)
 	const QList<ContactItem *> &items = item_data->items;
 	if (items.isEmpty() || !isVisible(items.first()))
 		return;
-	updateContact(item_data);
+	for(int i = 0; i < items.size(); i++)
+		updateContact(items.at(i), true);
 }
 
 void Model::onContactInListChanged(bool)
@@ -999,35 +1000,35 @@ TagItem *Model::ensureTag(const QString &name)
 	return tag;
 }
 
-void Model::updateContact(ContactData::Ptr contact)
+void Model::updateContact(ContactItem *item, bool placeChanged)
 {
-	const QList<ContactItem *> &items = contact->items;
-	for(int i = 0; i < items.size(); i++)
-	{
-		ContactItem *item = items.at(i);
-		QList<ContactItem *> &contacts = item->parent->visible;
+	QList<ContactItem *> &contacts = item->parent->visible;
+	int from = contacts.indexOf(item);
+	int to;
+
+	if (placeChanged) {
 		QList<ContactItem *>::const_iterator it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+		to = it - contacts.constBegin();
+	} else {
+		to = from;
+	}
 
-		int to = it - contacts.constBegin();
-		int from = contacts.indexOf(item);
+	QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
 
-		QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
+	if (from == to) {
+		QModelIndex index = createIndex(item->index(), 0, item);
+		emit dataChanged(index, index);
+	} else {
+		if (to == -1 || to > contacts.count())
+			return;
 
-		if (from == to) {
-			QModelIndex index = createIndex(item->index(), 0, item);
-			emit dataChanged(index, index);
-		} else {
-			if (to == -1 || to > contacts.count())
-				continue;
-
-			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-				if (from < to)
-					--to;
-				contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();
-			}
+		if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+			if (from < to)
+				--to;
+			contacts.move(from,to);
+			//item_data->items.move(from,to); //FIXME
+			endMoveRows();
 		}
 	}
 }
