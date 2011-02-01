@@ -14,6 +14,8 @@ namespace Core
 		virtual QMovie *loadMovie(const QString &name);
 		virtual QString iconPath(const QString &name, uint iconSize);
 		virtual QString moviePath(const QString &name, uint iconSize);
+	private:
+		QStringList m_icons;
 	};
 
 }

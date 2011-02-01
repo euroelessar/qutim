@@ -18,38 +18,16 @@ QString nameInResource (const QString &name)
 ResourceIconLoader::ResourceIconLoader()
 {
 	//TODO implement custom resource loading logic
+	QDir dir(QLatin1String(":/icons"));
+	m_icons = dir.entryList(QDir::Files, QDir::Name);
+	for (int i = 0; i < m_icons.size(); i++)
+		m_icons.chop(4);
 }
 
 QIcon ResourceIconLoader::loadIcon(const QString &originName)
 {
-	QIcon icon;
-	QString name = nameInResource(originName);
-	if (QFile::exists(name)) {
-		icon = QIcon(name);
-		debug() << "Loaded icon" << name;
-		return icon;
-	}
-	//fallbacks, TODO add cache support
-	QDir dir(":/icons");
-	QStringList entries = dir.entryList(QDir::Files,QDir::Name | QDir::Reversed);
-
-	for (int i = 0; i != entries.count(); i++) {
-		name = entries.at(i).section('/', -1, -1);
-		int index = name.lastIndexOf(QLatin1Char('.'));
-		if (index < 0)
-			continue;
-		name.truncate(index);
-		if ((name.size() < originName.size()
-				&& originName.startsWith(name)
-				&& originName.at(name.size()) == '-')) {
-			icon = QIcon(nameInResource(name));
-			break;
-		}
-	}
-
-	debug() << "Loaded fallback icon" << name << originName;
-
-	return icon;
+	// TODO: implement IconEngine, look XdgIconEngine for details
+	return QIcon(iconPath(originName));
 }
 
 QMovie *ResourceIconLoader::loadMovie(const QString &)
@@ -58,8 +36,32 @@ QMovie *ResourceIconLoader::loadMovie(const QString &)
 	return 0;
 }
 
+struct ResourceIconNameComparator
+{
+	// Return true if a is less then b
+	bool operator()(const QString &a, const QStringRef &b)
+	{
+		return a < b;
+	}
+	bool operator()(const QStringRef &a, const QString &b)
+	{
+		return a < b;
+	}
+
+};
+
 QString ResourceIconLoader::iconPath(const QString &name, uint iconSize)
 {
+	Q_UNUSED(iconSize);
+	int index = name.length();
+	ResourceIconNameComparator comp;
+	QStringList::const_iterator it;
+	while (index != -1) {
+		it = qBinaryFind(m_icons.constBegin(), m_icons.constEnd(), QStringRef(&name, 0, index), comp);
+		if (it != m_icons.constEnd())
+			return nameInResource(*it);
+		index = name.lastIndexOf('-', index - 1);
+	}
 	return QString();
 }
 
