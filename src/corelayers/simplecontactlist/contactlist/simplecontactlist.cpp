@@ -316,7 +316,10 @@ Module::Module() : p(new ModulePrivate)
 	p->widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 #endif
+
+#ifndef Q_WS_S60
 	SystemIntegration::show(p->widget);
+#endif
 }
 
 void Module::onStatusChanged()
@@ -337,7 +340,6 @@ void Module::onStatusChanged()
 
 Module::~Module()
 {
-	delete p->widget;
 }
 
 QWidget *Module::widget()

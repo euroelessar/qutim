@@ -40,6 +40,7 @@ class ADIUMCHAT_EXPORT AbstractChatForm : public QObject
 	Q_CLASSINFO("Service", "ChatForm")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "ChatViewFactory")
 public:
 	explicit AbstractChatForm();
 	~AbstractChatForm();

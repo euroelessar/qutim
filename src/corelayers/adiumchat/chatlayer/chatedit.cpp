@@ -51,6 +51,7 @@ ChatEdit::ChatEdit(QWidget *parent) :
 	m_session(0),
 	m_sendKey(SendCtrlEnter)
 {
+	setMinimumHeight(QFontMetrics(font()).height()*2);
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
 
@@ -58,7 +59,6 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 {
 	m_session = session;
 	setDocument(session->getInputField());
-	setMinimumHeight(QFontMetrics(font()).height()*2);
 	setFocus();
 }
 

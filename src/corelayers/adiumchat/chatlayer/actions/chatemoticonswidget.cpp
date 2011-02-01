@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -30,6 +31,7 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setAutoFillBackground(true);
 
 	setWidget(new QWidget(this));
 
@@ -119,7 +121,10 @@ void EmoAction::triggerEmoticons()
 {
 	if (!emoticons_widget)
 	{
-		emoticons_widget = new ChatEmoticonsWidget(qApp->activeWindow());
+		emoticons_widget = new ChatEmoticonsWidget();
+#ifdef Q_WS_MAEMO_5
+		emoticons_widget->setParent(qApp->activeWindow());
+#endif
 		emoticons_widget->loadTheme();
 		connect(emoticons_widget, SIGNAL(insertSmile(QString)),
 			this,SLOT(onInsertSmile(QString)));
@@ -142,9 +147,9 @@ void EmoAction::triggerEmoticons()
 	    emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
 
 	}
-
-#endif
 		emoticons_widget->show();
+#endif
+		SystemIntegration::show(emoticons_widget);
 	}
 }
 

@@ -36,6 +36,18 @@ qutim_add_plugin(stackedchatform
 	LINK_LIBRARIES adiumchat
 )
 
+qutim_add_plugin(symbianchatform
+	EXTENSION
+	EXTENSION_HEADER symbianchatform/stackedchatform.h
+	EXTENSION_CLASS Core::AdiumChat::Symbian::StackedChatForm
+	DISPLAY_NAME "Symbian"
+	SOURCE_DIR symbianchatform
+	DESCRIPTION "Stacked chatform for S60 devices"
+	DEPENDS adiumchat
+	LINK_LIBRARIES adiumchat
+)
+
+
 qutim_add_plugin(webkitchat
 	EXTENSION
 	EXTENSION_HEADER webkitchat/webkitviewfactory.h

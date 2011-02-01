@@ -13,7 +13,9 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactList : public ContactList
 {
     Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)
+#ifndef Q_WS_S60
 	Q_CLASSINFO("Uses", "ChatLayer")
+#endif
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "MetaContactManager")
 	Q_CLASSINFO("Uses", "ContactDelegate")

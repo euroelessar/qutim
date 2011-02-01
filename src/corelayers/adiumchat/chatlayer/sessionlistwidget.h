@@ -40,6 +40,7 @@ private slots:
 	void onTitleChanged(const QString &title);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
+	void onCloseSessionTriggered();
 private:
 	QScopedPointer<SessionListWidgetPrivate> d_ptr;
 };

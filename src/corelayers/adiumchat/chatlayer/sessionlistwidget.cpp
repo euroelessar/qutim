@@ -23,6 +23,11 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	d_ptr(new SessionListWidgetPrivate)
 {
 	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onActivated(QListWidgetItem*)));
+
+	QAction *action = new QAction(tr("Close chat"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
+	addAction(action);
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -114,7 +119,7 @@ void SessionListWidget::onTitleChanged(const QString &title)
 
 bool SessionListWidget::event(QEvent *event)
 {
-#ifndef Q_WS_MAEMO_5
+#ifndef QUTIM_MOBILE_UI
 	if (event->type() == QEvent::ToolTip) {
 		if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
 			int index = indexAt(help->pos()).row();
@@ -147,7 +152,12 @@ bool SessionListWidget::event(QEvent *event)
 #endif
 	if (event->type() == QEvent::ContextMenu) {
 		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
-		session(row(itemAt(ev->pos())))->unit()->showMenu(ev->globalPos());
+		ChatSessionImpl *s = session(row(itemAt(ev->pos())));
+		if(s) {
+			s->unit()->showMenu(ev->globalPos());
+			return true;
+		}
+
 	}
 	return QListWidget::event(event);
 }
@@ -208,6 +218,13 @@ void SessionListWidget::closeCurrentSession()
 	if(currentItem()) {
 		removeItem(currentIndex().row());
 	}
+}
+
+void SessionListWidget::onCloseSessionTriggered()
+{
+	ChatSessionImpl *s = currentSession();
+	if(s)
+		removeSession(s);
 }
 
 
