@@ -45,5 +45,6 @@
         <file>icons/user-online.png</file>
         <file>icons/user-properties.png</file>
         <file>icons/view-choose.png</file>
+        <file>icons/document-properties.png</file>
     </qresource>
 </RCC>
