@@ -3,6 +3,7 @@
 
 #include <QListWidget>
 #include <qutim/messagesession.h>
+#include <chatforms/abstractchatwidget.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -11,7 +12,7 @@ using namespace qutim_sdk_0_3;
 
 class ChatSessionImpl;
 class SessionListWidgetPrivate;
-class SessionListWidget : public QListWidget
+class ADIUMCHAT_EXPORT SessionListWidget : public QListWidget
 {
     Q_OBJECT
 	Q_DECLARE_PRIVATE(SessionListWidget)

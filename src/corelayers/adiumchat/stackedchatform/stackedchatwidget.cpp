@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
-#include "sessionlistwidget.h"
+#include <chatlayer/sessionlistwidget.h>
 #include "fingerswipegesture.h"
 #include "floatingbutton.h"
 #include <chatlayer/chatedit.h>
@@ -417,6 +417,7 @@ void StackedChatWidget::showContactList()
 
 void StackedChatWidget::processInput(QString sInput)
 {
+	Q_UNUSED(sInput);
 #ifdef Q_WS_MAEMO_5
 	m_chatInput->setFocus();
 
