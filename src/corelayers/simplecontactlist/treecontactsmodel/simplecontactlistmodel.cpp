@@ -17,6 +17,7 @@
 #include <qutim/mimeobjectdata.h>
 #include <qutim/event.h>
 #include <QApplication>
+#include <qutim/systemintegration.h>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 #define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
@@ -860,7 +861,7 @@ void Model::onTagsEditAction(QObject *controller)
 
 	editor->setTags(tags());
 	editor->load();
-	editor->show();
+	SystemIntegration::show(editor);
 }
 
 void Model::onContactRenameResult(const QString &name)
