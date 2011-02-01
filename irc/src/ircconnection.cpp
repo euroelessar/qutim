@@ -419,7 +419,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listStarted();
 		else
-			m_account->log(tr("End of /LIST"), true, "LIST");
+			m_account->log(tr("Start of /LIST"), isUserInputtedCommand("LIST"), "LIST");
 	} else if (cmd == 322) { // RPL_LIST
 		QString channel = params.value(1);
 		QString users = params.value(2);
@@ -431,13 +431,13 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 						   .arg(channel)
 						   .arg(users)
 						   .arg(topic),
-						   true,
+						   isUserInputtedCommand("LIST"),
 						   "LIST");
 	} else if (cmd == 323) { // RPL_LISTEND
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listEnded();
 		else
-			m_account->log(tr("End of /LIST"), true, "LIST");
+			m_account->log(tr("End of /LIST"), isUserInputtedCommand("LIST", true), "LIST");
 	} else if (cmd == 521) { // ERR_LISTSYNTAX
 		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
 		if (m_account->d->channelListForm)
@@ -518,6 +518,21 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 	}
 }
 
+bool IrcConnection::isUserInputtedCommand(const QString &command, bool clearCommand)
+{
+	removeOldCommands();
+	int i = 0;
+	foreach (const LastCommand &itr, m_lastCommands) {
+		if (command == itr.cmd) {
+			if (clearCommand)
+				m_lastCommands.removeAt(i);
+			return true;
+		}
+		++i;
+	}
+	return false;
+}
+
 void IrcConnection::removeAlias(const QString &name)
 {
 	qDeleteAll(m_aliases.values(name));
@@ -573,8 +588,16 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 			if (!found)
 				break;
 		}
-		if (i == 0 && !found) // A suitable alias has not found
-			command = cmdName.toUpper() + " " + cmdParamsStr;
+		LastCommand lastCmd;
+		lastCmd.time = QDateTime::currentDateTime().toTime_t();
+		if (i == 0 && !found) { // A suitable alias has not found
+			lastCmd.cmd = cmdName.toUpper();
+			command = lastCmd.cmd + " " + cmdParamsStr;
+		} else {
+			lastCmd.cmd = lastCmdName.toLatin1();
+		}
+		removeOldCommands();
+		m_lastCommands.push_back(lastCmd);
 	}
 	if (!command.isEmpty()) {
 		QByteArray data = m_codec->fromUnicode(command) + "\r\n";
@@ -744,6 +767,18 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 	str = str.arg(cmd);
 	debug() << str.toStdString().c_str() << "message on the channel" << channel
 			<< "the account is not connected to";
+}
+
+void IrcConnection::removeOldCommands() const
+{
+	uint curTime = QDateTime::currentDateTime().toTime_t();
+	int j = 0;
+	for (int c = m_lastCommands.count(); j < c; ++j) {
+		if (curTime - m_lastCommands.at(j).time < 30)
+			break;
+	}
+	if (j != 0)
+		m_lastCommands = m_lastCommands.mid(j);
 }
 
 void IrcConnection::readData()

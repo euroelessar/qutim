@@ -69,6 +69,7 @@ public:
 	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
+	bool isUserInputtedCommand(const QString &command, bool clearCommand = false);
 	static void registerAlias(IrcCommandAlias *alias) { m_aliases.insert(alias->name(), alias); }
 	static void removeAlias(const QString &name);
 	static void removeAlias(IrcCommandAlias *alias);
@@ -77,6 +78,7 @@ private:
 	void tryNextNick();
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
+	void removeOldCommands() const;
 private slots:
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
@@ -95,6 +97,12 @@ private:
 	QString m_fullName;
 	QTextCodec *m_codec;
 	int m_hostLookupId;
+	struct LastCommand
+	{
+		uint time;
+		QString cmd;
+	};
+	mutable QList<LastCommand> m_lastCommands;
 	static QMultiHash<QString, IrcCommandAlias*> m_aliases;
 };
 
