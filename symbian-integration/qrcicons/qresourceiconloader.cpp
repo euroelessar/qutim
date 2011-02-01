@@ -21,13 +21,13 @@ ResourceIconLoader::ResourceIconLoader()
 	QDir dir(QLatin1String(":/icons"));
 	m_icons = dir.entryList(QDir::Files, QDir::Name);
 	for (int i = 0; i < m_icons.size(); i++)
-		m_icons.chop(4);
+		m_icons[i].chop(4);
 }
 
 QIcon ResourceIconLoader::loadIcon(const QString &originName)
 {
 	// TODO: implement IconEngine, look XdgIconEngine for details
-	return QIcon(iconPath(originName));
+	return QIcon(iconPath(originName,0));
 }
 
 QMovie *ResourceIconLoader::loadMovie(const QString &)
@@ -41,11 +41,11 @@ struct ResourceIconNameComparator
 	// Return true if a is less then b
 	bool operator()(const QString &a, const QStringRef &b)
 	{
-		return a < b;
+		return QStringRef(&a) < b;
 	}
 	bool operator()(const QStringRef &a, const QString &b)
 	{
-		return a < b;
+		return a < QStringRef(&b);
 	}
 
 };
