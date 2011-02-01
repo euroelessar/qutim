@@ -80,8 +80,9 @@ void VConnection::connectToHost(const QString& passwd)
 	Q_UNUSED(passwd)
 	if (d->webView)
 		return;
-	d->webView = new QWebView(qApp->activeWindow());
+	d->webView = new QWebView();
 #ifdef Q_WS_MAEMO_5
+	d->webView->setParent(qApp->activeWindow());
 	d->webView->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 	d->webView->setWindowFlags(d->webView->windowFlags() | Qt::Window);
