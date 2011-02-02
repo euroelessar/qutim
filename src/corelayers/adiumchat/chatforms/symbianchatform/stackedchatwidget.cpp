@@ -108,6 +108,9 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 
 	m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
 	m_chatWidget->addAction(m_unitActions);
+
+	m_chatWidget->setVisible(false);
+	m_sessionList->setVisible(false);
 }
 
 void StackedChatWidget::loadSettings()
