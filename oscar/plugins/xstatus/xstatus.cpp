@@ -29,6 +29,7 @@
 #include "xstatussender.h"
 #include "xstatussettings.h"
 #include <QApplication>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -425,15 +426,15 @@ void XStatusHandler::onSetCustomStatus(QObject *object)
 	Q_ASSERT(qobject_cast<IcqAccount*>(object) != 0);
 	IcqAccount *account = reinterpret_cast<IcqAccount*>(object);
 	CustomStatusDialog *dialog = new CustomStatusDialog(account);
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
-	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 
 #ifdef Q_WS_MAEMO_5	
 	dialog->setParent(QApplication::activeWindow());
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::Window);
 	dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
-	dialog->show();
+	SystemIntegration::show(dialog);
 }
 
 void XStatusHandler::onCustomDialogAccepted()

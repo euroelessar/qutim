@@ -19,6 +19,7 @@
 #include <qutim/icon.h>
 #include <qutim/configbase.h>
 #include "icqaccount.h"
+#include <QPushButton>
 
 namespace qutim_sdk_0_3 {
 
@@ -31,8 +32,6 @@ CustomStatusDialog::CustomStatusDialog(IcqAccount *account, QWidget *parent) :
 	Config config = m_account->config("xstatus");
 	ui.setupUi(this);
 	setWindowIcon(Icon("user-status-xstatus"));
-	ui.chooseButton->setIcon(Icon("dialog-ok-apply"));
-	ui.cancelButton->setIcon(Icon("dialog-cancel"));
 	ui.birthBox->setVisible(false);
 	ui.birthBox->setChecked(config.value("birth", false));
 
@@ -50,7 +49,6 @@ CustomStatusDialog::CustomStatusDialog(IcqAccount *account, QWidget *parent) :
 	connect(ui.iconList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), SLOT(onChooseClicked()));
 	connect(ui.iconList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
 			SLOT(onCurrentItemChanged(QListWidgetItem*)));
-	connect(ui.chooseButton, SIGNAL(clicked()), SLOT(onChooseClicked()));
 	connect(ui.awayEdit, SIGNAL(textChanged()), SLOT(onAwayTextChanged()));
 }
 
@@ -85,7 +83,7 @@ void CustomStatusDialog::setCurrentRow(int row)
 	}
 }
 
-void CustomStatusDialog::onChooseClicked()
+void CustomStatusDialog::accept()
 {
 	XStatus status = this->status();
 	if (!status.name.isEmpty()) {
@@ -96,16 +94,16 @@ void CustomStatusDialog::onChooseClicked()
 		config.endGroup();
 		config.setValue("birth", ui.birthBox->isChecked());
 	}
-	accept();
+	QDialog::accept();
 }
 
 void CustomStatusDialog::onAwayTextChanged()
 {
 	QString xstat = ui.awayEdit->toPlainText();
 	if (xstat.length() > 6500)
-		ui.chooseButton->setEnabled(false);
+		ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 	else
-		ui.chooseButton->setEnabled(true);
+		ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

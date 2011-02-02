@@ -40,6 +40,7 @@
 #include "roster/jsoftwaredetection.h"
 #include <jreen/pubsubmanager.h>
 #include <jreen/connectionbosh.h>
+#include <qutim/debug.h>
 
 namespace Jabber {
 
@@ -173,7 +174,6 @@ JAccount::JAccount(const QString &id) :
 	d->softwareDetection = new JSoftwareDetection(this);
 
 	d->client.presence().addExtension(new VCardUpdate());
-	loadSettings();
 
 	jreen::Disco *disco = d->client.disco();
 	disco->setSoftwareVersion(QLatin1String("qutIM"),
@@ -221,6 +221,7 @@ JAccount::JAccount(const QString &id) :
 			ext->init(this, d->params);
 		}
 	}
+	loadSettings();
 }
 
 JAccount::~JAccount()
@@ -250,11 +251,7 @@ void JAccount::loadSettings()
 	Q_D(JAccount);
 	Config general = config();
 	general.beginGroup("general");
-	d->client.setPassword(general.value("passwd", QString(), Config::Crypted));
-	if(!general.value("autoDetect",true)) {
-		d->client.setPort(general.value("port", 5222));
-		d->client.setServer(general.value("server",d->client.server()));
-	}
+
 	d->priority = general.value("priority", 15);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
@@ -273,6 +270,12 @@ void JAccount::loadSettings()
 	}
 	general.endGroup();
 	d->client.setJID(jid);
+	d->client.setPassword(general.value("passwd", QString(), Config::Crypted));
+	if(!general.value("autoDetect",true)) {
+		d->client.setPort(general.value("port", 5222));
+		d->client.setServer(general.value("server",d->client.server()));
+		debug() << d->client.server();
+	}
 
 	general.endGroup();
 }

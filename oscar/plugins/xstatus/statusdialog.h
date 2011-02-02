@@ -35,9 +35,10 @@ public:
 	QString caption() const { return ui.captionEdit->text(); }
 	QString message() const { return ui.awayEdit->toPlainText(); }
 	XStatus status() const { return xstatusList()->value(ui.iconList->currentRow()); }
+public slots:
+	void accept();
 private slots:
 	void onCurrentItemChanged(QListWidgetItem * current);
-	void onChooseClicked();
 	void onAwayTextChanged();
 private:
 	void setCurrentRow(int row);
