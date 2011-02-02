@@ -28,7 +28,7 @@
 #include <QDesktopServices>
 #include <QCoreApplication>
 #include <chatlayer/messagemodifier.h>
-#include <chatlayer/javascriptclient.h>
+#include "javascriptclient.h"
 #include <qutim/configbase.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>

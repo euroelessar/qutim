@@ -1,7 +1,7 @@
 #ifndef SIMPLETAGSEDITOR_H
 #define SIMPLETAGSEDITOR_H
 
-#include <QDialog>a>
+#include <QDialog>
 #include <qutim/libqutim_global.h>
 #include <QSet>
 

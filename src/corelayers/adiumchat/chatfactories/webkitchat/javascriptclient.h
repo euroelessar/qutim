@@ -18,14 +18,13 @@
 #define JAVASCRIPTCLIENT_H
 
 #include <QObject>
-#include "chatlayer_global.h"
 namespace Core
 {
 namespace AdiumChat
 {
 class ChatSessionImpl;
 
-class ADIUMCHAT_EXPORT JavaScriptClient : public QObject
+class JavaScriptClient : public QObject
 {
 	Q_OBJECT
 public:

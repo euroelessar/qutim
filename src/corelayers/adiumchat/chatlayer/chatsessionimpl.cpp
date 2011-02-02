@@ -28,7 +28,6 @@
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
 #include "chatviewfactory.h"
-#include <QWebPage>
 
 namespace Core
 {
