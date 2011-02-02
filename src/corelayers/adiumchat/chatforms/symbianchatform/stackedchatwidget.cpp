@@ -51,8 +51,6 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
 	view->setParent(m_chatWidget);
 
-	m_stack->addWidget(m_sessionList);
-	m_stack->addWidget(m_chatWidget);
 	//TODO move to chatform
 	//FIXME Create session list and chat when it's realy needed
 	if (QObject *obj = ServiceManager::getByName("ContactList")) {
@@ -102,6 +100,14 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
 	grabGesture(fingerSwipeGestureType);
 	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
+
+	QAction *sendAct = new QAction(tr("Send"),m_chatWidget);
+	sendAct->setSoftKeyRole(QAction::NegativeSoftKey);
+	m_chatWidget->addAction(sendAct);
+	connect(sendAct,SIGNAL(triggered()),m_chatInput,SLOT(send()));
+
+	m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
+	m_chatWidget->addAction(m_unitActions);
 }
 
 void StackedChatWidget::loadSettings()
@@ -134,13 +140,10 @@ void StackedChatWidget::addAction(ActionGenerator *gen)
 void StackedChatWidget::addSession(ChatSessionImpl *session)
 {
 	if(!m_sessionList->count()) {
-		QAction *sendAct = new QAction(tr("Send"),m_chatWidget);
-		sendAct->setSoftKeyRole(QAction::NegativeSoftKey);
-		m_chatWidget->addAction(sendAct);
-		connect(sendAct,SIGNAL(triggered()),m_chatInput,SLOT(send()));
-
-		m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
-		m_chatWidget->addAction(m_unitActions);
+		m_sessionList->setVisible(true);
+		m_chatWidget->setVisible(true);
+		m_stack->addWidget(m_sessionList);
+		m_stack->addWidget(m_chatWidget);
 	}
 
 	m_sessionList->addSession(session);
@@ -162,8 +165,10 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	session->deleteLater();
 
 	if(!m_sessionList->count()) {
-		foreach(QAction *act, m_chatWidget->actions())
-			act->deleteLater();
+			m_sessionList->setVisible(false);
+			m_chatWidget->setVisible(false);
+			m_stack->removeWidget(m_sessionList);
+			m_stack->removeWidget(m_chatWidget);
 	}
 
 	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));

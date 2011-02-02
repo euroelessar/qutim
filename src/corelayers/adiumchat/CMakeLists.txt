@@ -14,38 +14,7 @@ qutim_add_plugin(adiumchat
 	INCLUDE_DIRS ${QT_QTWEBKIT_INCLUDE_DIR}
 )
 
-qutim_add_plugin(tabbedchatform
-	EXTENSION
-	EXTENSION_HEADER tabbedchatform/tabbedchatform.h
-	EXTENSION_CLASS Core::AdiumChat::TabbedChatForm
-	DISPLAY_NAME "Classic"
-	SOURCE_DIR tabbedchatform
-	DESCRIPTION "Default qutIM chatform implementation for adiumchat"
-	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat
-)
-
-qutim_add_plugin(stackedchatform
-	EXTENSION
-	EXTENSION_HEADER stackedchatform/stackedchatform.h
-	EXTENSION_CLASS Core::AdiumChat::StackedChatForm
-	DISPLAY_NAME "Mobile"
-	SOURCE_DIR stackedchatform
-	DESCRIPTION "Stacked chatform for mobile devices"
-	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat
-)
-
-qutim_add_plugin(symbianchatform
-	EXTENSION
-	EXTENSION_HEADER symbianchatform/stackedchatform.h
-	EXTENSION_CLASS Core::AdiumChat::Symbian::StackedChatForm
-	DISPLAY_NAME "Symbian"
-	SOURCE_DIR symbianchatform
-	DESCRIPTION "Stacked chatform for S60 devices"
-	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat
-)
+add_subdirectory(chatforms)
 
 
 qutim_add_plugin(webkitchat
