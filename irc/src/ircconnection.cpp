@@ -373,7 +373,6 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		IrcContact *contact = account->getContact(name, false);
 		if (contact) {
 			emit contact->quit(params.value(0));
-			contact->deleteLater();
 		} else {
 			debug() << "QUIT message from the unknown contact" << name;
 		}
