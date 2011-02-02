@@ -1,39 +1,39 @@
- #ifndef QFINGERSWIPEGESTURE_H
- #define QFINGERSWIPEGESTURE_H
+#ifndef QFINGERSWIPEGESTURE_H
+#define QFINGERSWIPEGESTURE_H
 
- #include <QGesture>
- #include <QGestureRecognizer>
- #include <QPointF>
+#include <QGesture>
+#include <QGestureRecognizer>
+#include <QPointF>
 
- class FingerSwipeGestureRecognizer : public QGestureRecognizer
- {
- public:
-	 FingerSwipeGestureRecognizer();
+class FingerSwipeGestureRecognizer : public QGestureRecognizer
+{
+public:
+	FingerSwipeGestureRecognizer();
 
-	 QGesture *create(QObject *target);
-	 QGestureRecognizer::Result recognize(QGesture *state, QObject *watched, QEvent *event);
-	 void reset(QGesture *state);
- };
+	QGesture *create(QObject *target);
+	QGestureRecognizer::Result recognize(QGesture *state, QObject *watched, QEvent *event);
+	void reset(QGesture *state);
+};
 
- class FingerSwipeGesture : public QGesture
- {
- public:
-	 FingerSwipeGesture(QObject *parent = 0);
-	 virtual ~FingerSwipeGesture();
+class FingerSwipeGesture : public QGesture
+{
+public:
+	FingerSwipeGesture(QObject *parent = 0);
+	virtual ~FingerSwipeGesture();
 
-	 bool isLeftToRight() const;
-	 bool isRightToLeft() const;
-	 bool isBottomToTop() const;
-	 bool isTopToBottom() const;
+	bool isLeftToRight() const;
+	bool isRightToLeft() const;
+	bool isBottomToTop() const;
+	bool isTopToBottom() const;
 
- private:
-	 QPointF m_startPos;
-	 QPointF m_lastPos;
-	 QPointF m_currentPos;
-	 bool m_triggered;
-	 bool m_cancelled;
+private:
+	QPointF m_startPos;
+	QPointF m_lastPos;
+	QPointF m_currentPos;
+	bool m_triggered;
+	bool m_cancelled;
 
-	 friend class FingerSwipeGestureRecognizer;
- };
+	friend class FingerSwipeGestureRecognizer;
+};
 
- #endif
+#endif

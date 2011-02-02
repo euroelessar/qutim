@@ -25,7 +25,7 @@ class QStackedWidget;
 class QActionGroup;
 class QModelIndex;
 namespace qutim_sdk_0_3 {
-	class ActionToolBar;
+class ActionToolBar;
 }
 
 namespace Core

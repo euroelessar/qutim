@@ -85,12 +85,12 @@ void SlidingStackedWidget::slideInIdx(int idx, SlideDirection direction) {
 		offset = 1;
 	}
 
-//	QWidget *nextWidget = widget(idx);
-//	if (!nextWidget || !nextWidget->isEnabled()){
-//		slideInIdx(idx+offset);
-//	}
-//	else
-		slideInWgt(widget(idx),direction);
+	//	QWidget *nextWidget = widget(idx);
+	//	if (!nextWidget || !nextWidget->isEnabled()){
+	//		slideInIdx(idx+offset);
+	//	}
+	//	else
+	slideInWgt(widget(idx),direction);
 	//widget() is a function inherited from QStackedWidget
 }
 
@@ -237,7 +237,7 @@ bool SlidingStackedWidget::event(QEvent *event)
 
 			ge->setAccepted(gesture, true);
 			return true;
-		    }
+		}
 	}
 
 	return QStackedWidget::event(event);

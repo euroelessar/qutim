@@ -103,8 +103,8 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	connect(p->backAct,SIGNAL(triggered()),SLOT(slideUp()));
 	connect(p->closeAct,SIGNAL(triggered()),SLOT(close()));
 	connect(p->stackedWidget,
-		SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),
-		this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
+			SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),
+			this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
 
 	loadSettings(settings);
 }
@@ -298,7 +298,7 @@ void MobileSettingsWindow::fingerGesture( enum SlidingStackedWidget::SlideDirect
 {
     if (direction==SlidingStackedWidget::LeftToRight)
     {
-	slideUp();
+		slideUp();
     }
 
 }
