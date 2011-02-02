@@ -47,13 +47,13 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, const QString &host, bool create = false);
-	void send(const QString &command, bool highPriority = false,
+	void send(const QString &command, bool highPriority = true,
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd,
-						 const QString &param, bool highPriority = false);
+						 const QString &param, bool highPriority = true);
 	void sendCtpcReply(const QString &contact, const QString &cmd,
-					   const QString &params, bool highPriority = false);
+					   const QString &params, bool highPriority = true);
 	void setName(const QString &name) const;
 	IrcProtocol *protocol();
 	const IrcProtocol *protocol() const;

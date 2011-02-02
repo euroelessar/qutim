@@ -56,11 +56,11 @@ public:
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
 	void registerCtpcHandler(IrcCtpcHandler *handler);
-	void send(QString command, bool highPriority = false,
+	void send(QString command, bool highPriority = true,
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams());
-	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = false);
-	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = false);
+	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
+	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
 	void disconnectFromHost(bool force = false);
 	QTcpSocket *socket();
 	void loadSettings();

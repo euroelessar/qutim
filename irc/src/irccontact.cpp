@@ -53,7 +53,7 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 	setHostMask(host);
 	//IrcAvatar::instance()->requestAvatar(this);
 	if (account->d->conn->autoRequestWhois())
-		account->send("WHOIS :" + nick);
+		account->send("WHOIS :" + nick, false);
 }
 
 IrcContact::~IrcContact()
