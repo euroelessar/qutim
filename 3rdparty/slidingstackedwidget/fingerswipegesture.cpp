@@ -117,13 +117,21 @@
 
  bool FingerSwipeGesture::isLeftToRight() const
  {
-
      return m_startPos.x()+80 < m_currentPos.x();
-
  }
 
 bool FingerSwipeGesture::isRightToLeft() const
  {
      return m_startPos.x() > m_currentPos.x()+80;
  }
+
+bool FingerSwipeGesture::isBottomToTop() const
+{
+    return m_startPos.y()+80 < m_currentPos.y();
+}
+
+bool FingerSwipeGesture::isTopToBottom() const
+{
+    return m_startPos.y() > m_currentPos.y()+80;
+}
 

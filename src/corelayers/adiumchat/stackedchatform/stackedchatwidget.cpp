@@ -63,8 +63,21 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	m_chatWidget = new QWidget(m_stack);
 	setCentralWidget(m_stack);
+
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
-	view->setParent(m_chatWidget);
+
+	QScrollArea *chatViewScrollArea = new QScrollArea();
+
+	QWidget *chatViewWidget = new QWidget;
+
+	view->setParent(chatViewWidget);
+
+	QVBoxLayout *chatViewLayout = new QVBoxLayout(chatViewWidget);
+	chatViewLayout->addWidget(view);
+	chatViewLayout->setMargin(0);
+
+	chatViewScrollArea->setWidget(chatViewWidget);
+	chatViewScrollArea->setWidgetResizable(true);
 
 	m_stack->addWidget(m_sessionList);
 	m_stack->addWidget(m_chatWidget);
@@ -85,7 +98,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
 	vSplitter->setObjectName(QLatin1String("vSplitter"));
-	vSplitter->addWidget(view);
+	vSplitter->addWidget(chatViewScrollArea);
 	vSplitter->addWidget(chatInputWidget);
 
 	QVBoxLayout *layout = new QVBoxLayout(m_chatWidget);
@@ -115,33 +128,34 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(m_recieverList,SIGNAL(triggered()),m_chatInput,SLOT(send()));
 
 	setAttribute(Qt::WA_AcceptTouchEvents);
-	fingerSwipeGestureType = (Qt::GestureType)0;
-	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
-	grabGesture(fingerSwipeGestureType);
+	//fingerSwipeGestureType = (Qt::GestureType)0;
+	//fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
+	//grabGesture(fingerSwipeGestureType);
 	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
+	connect(m_stack,SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
 
-	FloatingButton *chatNext=new FloatingButton(3,view);
+	FloatingButton *chatNext=new FloatingButton(3,m_chatWidget);
 	FloatingButton *sessionListNext=new FloatingButton(0,m_sessionList);
 	FloatingButton *contactViewNext=new FloatingButton(0,m_contactView);
 	connect(chatNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 	connect(sessionListNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 	connect(contactViewNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 
-	FloatingButton *chatClose=new FloatingButton(1,view);
+	FloatingButton *chatClose=new FloatingButton(1,m_chatWidget);
 	connect(chatClose,SIGNAL(clicked()),m_sessionList,SLOT(closeCurrentSession()));
 
-	FloatingButton *showContactList=new FloatingButton(2,view);
+	FloatingButton *showContactList=new FloatingButton(2,m_chatWidget);
 	connect(showContactList,SIGNAL(clicked()),this,SLOT(showContactList()));
 
 #if defined(Q_WS_MAEMO_5)
 	connect(m_kb_qwerty,SIGNAL(input(QString)),this,SLOT(processInput(QString)));
 
-    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
-    	if (scroller)
-    	{
-		scroller->setEnabled(true);
-		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
-	}
+//    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
+//    	if (scroller)
+//    	{
+//		scroller->setEnabled(true);
+//		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
+//	}
 #endif
 	connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
 	orientationChanged();
@@ -300,35 +314,35 @@ ChatSessionImpl *StackedChatWidget::currentSession() const
 
 bool StackedChatWidget::event(QEvent *event)
 {
-	if (event->type() == QEvent::TouchBegin) {
+//	if (event->type() == QEvent::TouchBegin) {
 
-		event->accept();
-		return true;
-	}
+//		event->accept();
+//		return true;
+//	}
 
-	if (event->type() == QEvent::Gesture) {
-		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+//	if (event->type() == QEvent::Gesture) {
+//		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
 
-		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
-		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
-		    if (swipe->state() == Qt::GestureFinished) {
-			    if (swipe->isLeftToRight())
-			    {
-				    m_stack->slideInPrev();
-				    m_contactView->blockSignals(true);
-			    }
-			    else if (swipe->isRightToLeft())
-			    {
-				    m_stack->slideInNext();
-				    m_contactView->blockSignals(true);
-			    }
+//		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
+//		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+//		    if (swipe->state() == Qt::GestureFinished) {
+//			    if (swipe->isLeftToRight())
+//			    {
+//				    m_stack->slideInPrev();
+//				    m_contactView->blockSignals(true);
+//			    }
+//			    else if (swipe->isRightToLeft())
+//			    {
+//				    m_stack->slideInNext();
+//				    m_contactView->blockSignals(true);
+//			    }
 
-			}
+//			}
 
-			ge->setAccepted(gesture, true);
-			return true;
-		    }
-	}
+//			ge->setAccepted(gesture, true);
+//			return true;
+//		    }
+//	}
 
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
@@ -384,6 +398,21 @@ void StackedChatWidget::onCurrentChanged(int index)
 	if(index != m_stack->indexOf(m_chatWidget))
 		currentSession()->setActive(false);
 	m_toolbar->setVisible(index == m_stack->indexOf(m_chatWidget));
+}
+
+void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
+{
+    if (direction==SlidingStackedWidget::LeftToRight)
+    {
+	m_stack->slideInPrev();
+	m_contactView->blockSignals(true);
+    }
+    else if (direction==SlidingStackedWidget::RightToLeft)
+    {
+	m_stack->slideInNext();
+	m_contactView->blockSignals(true);
+    }
+
 }
 
 void StackedChatWidget::animationFinished()

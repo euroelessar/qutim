@@ -16,6 +16,7 @@
 
 #include "textviewwidget.h"
 #include "textviewcontroller.h"
+#include "texteditautoresizer.h"
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
@@ -47,6 +48,9 @@ TextViewWidget::TextViewWidget()
 //	policy.setVerticalPolicy(QSizePolicy::Ignored);
 //	setSizePolicy(policy);
 //	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+#ifdef Q_WS_MAEMO_5
+	new TextEditAutoResizer(this);
+#endif
 }
 
 void TextViewWidget::setViewController(QObject *object)

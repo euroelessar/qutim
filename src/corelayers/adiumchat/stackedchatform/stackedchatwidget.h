@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <chatforms/abstractchatwidget.h>
+#include <slidingstackedwidget.h>
 #ifdef Q_WS_MAEMO_5
 #include <kb_qwerty.h>
 #endif
@@ -62,6 +63,7 @@ protected slots:
 	void onUnreadChanged();
 	void onCurrentChanged(int index);
 	void animationFinished();
+	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
 	void processInput(QString);
 	void orientationChanged();
 	void showContactList();

@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QEasingCurve>
 
+
 /*!
 Description
         SlidingStackedWidget is a class that is derived from QtStackedWidget
@@ -51,10 +52,12 @@ public slots:
 signals:
         //! this is used for internal purposes in the class engine
         void animationFinished(void);
+	void fingerGesture(SlidingStackedWidget::SlideDirection);
 
 protected slots:
-        //! this is used for internal purposes in the class engine
+	//! this is used for internal purposes in the class engine
         void animationDoneSlot(void);
+	bool event(QEvent *event);
 
 protected:
         //! this is used for internal purposes in the class engine
@@ -71,9 +74,9 @@ protected:
         QPoint m_pnow;
         bool m_active;
 
-        QList<QWidget*> blockedPageList;
+	QList<QWidget*> blockedPageList;
 
-
+	Qt::GestureType fingerSwipeGestureType;
 
 };
 
