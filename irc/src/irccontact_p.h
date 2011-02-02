@@ -37,11 +37,13 @@ private:
 	IrcContact *q;
 	QString nick;
 	QString hostMask;
+	QString hostUser;
 	QString domain;
 	QString host;
 	QSet<QChar> modes;
 	QString avatar;
 	QString awayMsg;
+	QString realName;
 	mutable QAtomicInt m_ref;
 };
 

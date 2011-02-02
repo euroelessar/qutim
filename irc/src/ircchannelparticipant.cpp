@@ -70,6 +70,11 @@ QString IrcChannelParticipant::avatar() const
 	return d->contact->avatar();
 }
 
+Status IrcChannelParticipant::status() const
+{
+	return d->contact->status();
+}
+
 IrcContact *IrcChannelParticipant::contact()
 {
 	return d->contact;
@@ -135,6 +140,11 @@ void IrcChannelParticipant::removeMode(QChar mode)
 QString IrcChannelParticipant::hostMask() const
 {
 	return d->contact->hostMask();
+}
+
+QString IrcChannelParticipant::hostUser() const
+{
+	return d->contact->hostUser();
 }
 
 QString IrcChannelParticipant::domain() const

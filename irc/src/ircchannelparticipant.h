@@ -44,6 +44,7 @@ public:
 	virtual QString id() const;
 	virtual QString name() const;
 	virtual QString avatar() const;
+	virtual Status status() const;
 	IrcContact *contact();
 	const IrcContact *contact() const;
 	IrcChannel *channel();
@@ -54,6 +55,7 @@ public:
 	void setMode(QChar mode);
 	void removeMode(QChar mode);
 	QString hostMask() const; // ~sokol@h255-255-255-255.net.pnz.ru
+	QString hostUser() const; // ~sokol
 	QString domain() const; // h255-255-255-255.net.pnz.ru
 	QString host() const; // net.pnz.ru
 signals:

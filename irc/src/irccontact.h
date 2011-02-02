@@ -41,8 +41,10 @@ public:
 	IrcAccount *account();
 	QSet<QChar> modes();
 	QString hostMask() const; // ~sokol@h255-255-255-255.net.pnz.ru
+	QString hostUser() const; // ~sokol
 	QString domain() const; // h255-255-255-255.net.pnz.ru
 	QString host() const; // net.pnz.ru
+	QString realName() const;
 signals:
 	void quit(const QString &message);
 private slots:
@@ -54,7 +56,10 @@ private:
 	friend class IrcAccount;
 	void handleMode(const QString &who, const QString &mode, const QString &param);
 	void setAway(const QString &awayMsg);
-	void setHost(const QString &host);
+	void setHostMask(const QString &hostMask);
+	void setHost(const QString &host, int pos = 0);
+	void setHostUser(const QString &user);
+	void setRealName(const QString &name);
 	QScopedPointer<IrcContactPrivate> d;
 };
 

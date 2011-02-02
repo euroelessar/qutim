@@ -148,7 +148,7 @@ IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, boo
 	if (create && !contact)
 		contact = d->newContact(nick, host);
 	if (contact)
-		contact->setHost(host);
+		contact->setHostMask(host);
 	return contact;
 }
 

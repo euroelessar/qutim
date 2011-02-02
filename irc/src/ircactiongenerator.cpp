@@ -75,6 +75,9 @@ void IrcActionsManager::onIrcActionTriggered(QAction *action, QObject *controlle
 		QString tmp = participant->hostMask();
 		if (!tmp.isEmpty())
 			extParams.insert('m', tmp);
+		tmp = participant->hostUser();
+		if (!tmp.isEmpty())
+			extParams.insert('u', tmp);
 		tmp = participant->domain();
 		if (!tmp.isEmpty())
 			extParams.insert('d', tmp);
