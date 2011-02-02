@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 #include <chatlayer/chatedit.h>
-#include <stackedchatform/stackedchatwidget.h>
+#include "../stackedchatwidget.h"
 
 namespace Ui {
 class StackedChatBehavior;

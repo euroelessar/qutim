@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 #include <chatlayer/chatedit.h>
-#include <tabbedchatform/tabbedchatwidget.h>
+#include "../tabbedchatwidget.h"
 
 namespace Ui {
 class TabbedChatBehavior;
