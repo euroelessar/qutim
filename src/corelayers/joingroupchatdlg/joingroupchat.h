@@ -20,6 +20,7 @@
 #include <QDialog>
 #include <qutim/actiongenerator.h>
 #include <qutim/dataforms.h>
+#include <slidingstackedwidget.h>
 
 class QHBoxLayout;
 class QListWidgetItem;
@@ -56,6 +57,7 @@ private slots:
 	void onItemActivated(const QModelIndex &index);
 	void onBackActionTriggered();
 	void onBookmarksChanged();
+	void onFingerGesture(SlidingStackedWidget::SlideDirection);
 private:
 	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
 	Account *currentAccount();

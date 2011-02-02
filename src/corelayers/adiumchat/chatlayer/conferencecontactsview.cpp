@@ -22,6 +22,10 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	setSizePolicy(sizePolicy);
 	setAcceptDrops(true);
 	connect(this,SIGNAL(activated(QModelIndex)),SLOT(onActivated(QModelIndex)));
+
+	QAction *action = new QAction(tr("Private"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	addAction(action);
 }
 
 void ConferenceContactsView::setSession(ChatSessionImpl *session)

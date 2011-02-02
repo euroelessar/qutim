@@ -82,12 +82,12 @@ void AbstractChatForm::onSessionActivated(bool active)
 #endif
 		SystemIntegration::show(widget);
 	}
+
+	if (!widget->contains(session))
+		widget->addSession(session);
+
 	if (active)
-	{
-		if (!widget->contains(session))
-			widget->addSession(session);
 		widget->activate(session);
-	}
 }
 
 void AbstractChatForm::onSettingsChanged()

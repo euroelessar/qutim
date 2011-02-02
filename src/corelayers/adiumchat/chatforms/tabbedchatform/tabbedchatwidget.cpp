@@ -233,6 +233,8 @@ void TabbedChatWidget::addAction(ActionGenerator *gen)
 
 void TabbedChatWidget::addSession(ChatSessionImpl *session)
 {
+	if(!session->isActive())
+		return;
 	m_tabBar->addSession(session);
 	connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged()));

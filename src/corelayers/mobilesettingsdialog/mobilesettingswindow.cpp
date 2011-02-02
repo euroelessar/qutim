@@ -296,8 +296,7 @@ void MobileSettingsWindow::slideDown(QWidget *w)
 
 void MobileSettingsWindow::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
 {
-    if (direction==SlidingStackedWidget::LeftToRight)
-    {
+	if (direction==SlidingStackedWidget::LeftToRight) {
 		slideUp();
     }
 
