@@ -17,6 +17,7 @@
 #include "xtraz.h"
 #include "icqaccount.h"
 #include "connection.h"
+#include "xstatus.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -59,6 +60,7 @@ void XStatusRequester::updateXStatus(IcqContact *contact)
 		return;
 	}
 	if (r->m_contacts.isEmpty() &&
+		QDateTime::currentDateTime().toTime_t() - r->m_lastTime >= TIMEOUT_BETWEEN_REQUESTS &&
 		account->connection()->testRate(MessageFamily, MessageSrvSend, false))
 	{
 		Q_ASSERT(!r->m_timer.isActive());
@@ -100,9 +102,10 @@ void XStatusRequester::statusChanged(const qutim_sdk_0_3::Status &current, const
 	}
 }
 
-XStatusRequester::XStatusRequester(IcqAccount *account)
+XStatusRequester::XStatusRequester(IcqAccount *account) :
+	m_lastTime(0)
 {
-	m_timer.setInterval(5000);
+	m_timer.setInterval(TIMEOUT_BETWEEN_REQUESTS * 1000);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(updateXStatus()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
@@ -117,6 +120,7 @@ void XStatusRequester::updateXStatusImpl(IcqContact *contact)
 	request.setValue("senderId", account->id());
 	SNAC snac = request.snac(contact);
 	account->connection()->send(snac, 10);
+	m_lastTime = QDateTime::currentDateTime().toTime_t();
 }
 
 } } // namespace qutim_sdk_0_3::oscar

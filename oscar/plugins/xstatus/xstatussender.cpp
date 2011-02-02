@@ -46,6 +46,7 @@ void XStatusSender::sendXStatus(IcqContact *contact, quint64 cookie)
 		return;
 	}
 	if (r->m_contacts.isEmpty() &&
+		QDateTime::currentDateTime().toTime_t() - r->m_lastTime >= TIMEOUT_BETWEEN_REQUESTS &&
 		account->connection()->testRate(MessageFamily, MessageResponse, false))
 	{
 		Q_ASSERT(!r->m_timer.isActive());
@@ -92,9 +93,10 @@ void XStatusSender::statusChanged(const qutim_sdk_0_3::Status &current, const qu
 	}
 }
 
-XStatusSender::XStatusSender(IcqAccount *account)
+XStatusSender::XStatusSender(IcqAccount *account) :
+	m_lastTime(0)
 {
-	m_timer.setInterval(5000);
+	m_timer.setInterval(TIMEOUT_BETWEEN_REQUESTS * 1000);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendXStatus()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
@@ -113,6 +115,7 @@ void XStatusSender::sendXStatusImpl(IcqContact *contact, quint64 cookie)
 	response.setValue("desc", extStatus.value("description").toString());
 	SNAC snac = response.snac(contact, cookie);
 	account->connection()->send(snac);
+	m_lastTime = QDateTime::currentDateTime().toTime_t();
 }
 
 } } // namespace qutim_sdk_0_3::oscar

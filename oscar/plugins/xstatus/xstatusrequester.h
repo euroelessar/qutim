@@ -51,6 +51,7 @@ private:
 	void updateXStatusImpl(IcqContact *contact);
 	QList<QPointer<IcqContact> > m_contacts;
 	QTimer m_timer;
+	uint m_lastTime; // unix time when the last xstraz packet was sent
 };
 
 } } // namespace qutim_sdk_0_3::oscar
