@@ -113,7 +113,7 @@ void OscarRate::update(const SNAC &sn)
 	m_lastTimeDiff = sn.read<quint32>();
 	m_currentState = sn.read<quint8>();
 	m_time = QDateTime::currentDateTime().addMSecs(-m_lastTimeDiff);
-	quint32 diff = m_maxLevel - m_clearLevel;
+	quint32 diff = m_maxLevel - m_alertLevel;
 	m_priorityDiff = diff / 100;
 	m_defaultPriority = m_clearLevel + diff / 2;
 }
@@ -423,6 +423,9 @@ void AbstractConnection::send(SNAC &snac, quint8 priority)
 {
 	Q_D(AbstractConnection);
 	OscarRate *rate = d->ratesHash.value(snac.family() << 16 | snac.subtype());
+	if (!rate)
+		// The first rate class is used by default.
+		rate = d->rates.value(1);
 	if (rate)
 		rate->send(snac, priority);
 	else
@@ -590,6 +593,8 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			OscarRate *rate = new OscarRate(sn, this);
 			if (!rate->isEmpty())
 				d->rates.insert(rate->groupId(), rate);
+			else
+				delete rate;
 		}
 		// Rate groups
 		while (sn.dataSize() >= 4) {
