@@ -96,15 +96,15 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	m_recieverList->setIcon(Icon("view-choose"));
 
 	setAttribute(Qt::WA_AcceptTouchEvents);
-	fingerSwipeGestureType = static_cast<Qt::GestureType>(0);
-	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
-	grabGesture(fingerSwipeGestureType);
-	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
+	connect(m_stack, SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),
+			this, SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
+	connect(m_stack, SIGNAL(animationFinished()),
+			this, SLOT(animationFinished()));
 
 	QAction *sendAct = new QAction(tr("Send"),m_chatWidget);
 	sendAct->setSoftKeyRole(QAction::NegativeSoftKey);
 	m_chatWidget->addAction(sendAct);
-	connect(sendAct,SIGNAL(triggered()),m_chatInput,SLOT(send()));
+	connect(sendAct, SIGNAL(triggered()), m_chatInput, SLOT(send()));
 
 	m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
 	m_chatWidget->addAction(m_unitActions);
@@ -118,8 +118,6 @@ void StackedChatWidget::loadSettings()
 
 StackedChatWidget::~StackedChatWidget()
 {
-	if (QObject *obj = ServiceManager::getByName("ContactList"))
-		obj->metaObject()->invokeMethod(obj, "show");
 }
 
 QPlainTextEdit *StackedChatWidget::getInputField() const
@@ -230,30 +228,6 @@ bool StackedChatWidget::event(QEvent *event)
 		return true;
 	}
 
-	if (event->type() == QEvent::Gesture) {
-		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
-
-		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
-		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
-		    if (swipe->state() == Qt::GestureFinished) {
-			    if (swipe->isLeftToRight())
-			    {
-				    m_stack->slideInPrev();
-				    m_contactView->blockSignals(true);
-			    }
-			    else if (swipe->isRightToLeft())
-			    {
-				    m_stack->slideInNext();
-				    m_contactView->blockSignals(true);
-			    }
-
-			}
-
-			ge->setAccepted(gesture, true);
-			return true;
-		    }
-	}
-
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 		bool active = event->type() == QEvent::WindowActivate;
@@ -262,6 +236,21 @@ bool StackedChatWidget::event(QEvent *event)
 		m_sessionList->currentSession()->setActive(active);
 	}
 	return AbstractChatWidget::event(event);
+}
+
+void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
+{
+	if (direction==SlidingStackedWidget::LeftToRight)
+	{
+		m_stack->slideInPrev();
+		m_contactView->blockSignals(true);
+	}
+	else if (direction==SlidingStackedWidget::RightToLeft)
+	{
+		m_stack->slideInNext();
+		m_contactView->blockSignals(true);
+	}
+
 }
 
 void StackedChatWidget::activateWindow()

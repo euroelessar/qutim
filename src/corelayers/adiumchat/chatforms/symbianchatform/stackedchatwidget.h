@@ -3,14 +3,13 @@
 
 #include <QWidget>
 #include <chatforms/abstractchatwidget.h>
-
+#include <slidingstackedwidget.h>
 
 namespace qutim_sdk_0_3
 {
 class ActionBox;
 }
 
-class SlidingStackedWidget;
 class QVBoxLayout;
 
 namespace Core
@@ -52,6 +51,7 @@ protected slots:
 	void onUnreadChanged();
 	void onCurrentChanged(int index);
 	void animationFinished();
+	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
 private:
 	ChatViewWidget *m_view;
 	SessionListWidget *m_sessionList;
@@ -62,7 +62,6 @@ private:
 	QWidget *m_chatWidget;
 	QAction *m_unitActions;
 	ConferenceContactsView *m_contactView;
-	Qt::GestureType fingerSwipeGestureType;
 	MenuController *m_menu;
 };
 
