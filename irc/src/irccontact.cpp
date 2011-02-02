@@ -15,6 +15,7 @@
 
 #include "irccontact_p.h"
 #include "ircaccount_p.h"
+#include "ircconnection.h"
 #include "ircavatar.h"
 #include <qutim/messagesession.h>
 #include "QApplication"
@@ -51,6 +52,8 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 	d->nick = nick;
 	setHostMask(host);
 	//IrcAvatar::instance()->requestAvatar(this);
+	if (account->d->conn->autoRequestWhois())
+		account->send("WHOIS :" + nick);
 }
 
 IrcContact::~IrcContact()

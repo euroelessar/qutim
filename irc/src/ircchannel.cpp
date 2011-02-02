@@ -106,9 +106,9 @@ bool IrcChannel::sendMessage(const Message &message)
 	if (text.startsWith('/')) {
 		QHash<QChar, QString> extParams;
 		extParams.insert('n', d->name);
-		account()->send(text.mid(1), IrcCommandAlias::Channel, extParams);
+		account()->send(text.mid(1), true, IrcCommandAlias::Channel, extParams);
 	} else {
-		account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(text));
+		account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(text), true);
 	}
 	return true;
 }

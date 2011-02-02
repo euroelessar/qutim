@@ -21,6 +21,7 @@
 #include "ircprotocol.h"
 #include "ircaccount.h"
 #include <QTcpSocket>
+#include <QTimer>
 
 class QHostInfo;
 
@@ -55,10 +56,11 @@ public:
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
 	void registerCtpcHandler(IrcCtpcHandler *handler);
-	void send(QString command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
-			  const ExtendedParams &extParams = ExtendedParams()) const;
-	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
-	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
+	void send(QString command, bool highPriority = false,
+			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
+			  const ExtendedParams &extParams = ExtendedParams());
+	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = false);
+	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = false);
 	void disconnectFromHost(bool force = false);
 	QTcpSocket *socket();
 	void loadSettings();
@@ -70,6 +72,7 @@ public:
 							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
 	bool isUserInputtedCommand(const QString &command, bool clearCommand = false);
+	bool autoRequestWhois() const { return m_autoRequestWhois; }
 	static void registerAlias(IrcCommandAlias *alias) { m_aliases.insert(alias->name(), alias); }
 	static void removeAlias(const QString &name);
 	static void removeAlias(IrcCommandAlias *alias);
@@ -78,12 +81,13 @@ private:
 	void tryNextNick();
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
-	void removeOldCommands() const;
+	void removeOldCommands();
 private slots:
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
 	void hostFound(const QHostInfo &host);
+	void sendNextMessage();
 private:
 	QTcpSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
@@ -102,7 +106,12 @@ private:
 		uint time;
 		QString cmd;
 	};
-	mutable QList<LastCommand> m_lastCommands;
+	QList<LastCommand> m_lastCommands;
+	QStringList m_messagesQueue;
+	QStringList m_lowPriorityMessagesQueue;
+	QTimer m_messagesTimer;
+	uint m_lastMessageTime; // unix time when the last message had been sent
+	bool m_autoRequestWhois;
 	static QMultiHash<QString, IrcCommandAlias*> m_aliases;
 };
 

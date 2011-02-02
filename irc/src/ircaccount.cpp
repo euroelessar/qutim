@@ -152,19 +152,23 @@ IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, boo
 	return contact;
 }
 
-void IrcAccount::send(const QString &command, IrcCommandAlias::Type aliasType, const QHash<QChar, QString> &extParams) const
+void IrcAccount::send(const QString &command, bool highPriority,
+					  IrcCommandAlias::Type aliasType,
+					  const QHash<QChar, QString> &extParams) const
 {
-	d->conn->send(command, aliasType, extParams);
+	d->conn->send(command, highPriority, aliasType, extParams);
 }
 
-void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params)
+void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd,
+								 const QString &params, bool highPriority)
 {
-	d->conn->sendCtpcRequest(contact, cmd, params);
+	d->conn->sendCtpcRequest(contact, cmd, params, highPriority);
 }
 
-void IrcAccount::sendCtpcReply(const QString &contact, const QString &cmd, const QString &params)
+void IrcAccount::sendCtpcReply(const QString &contact, const QString &cmd,
+							   const QString &params, bool highPriority)
 {
-	d->conn->sendCtpcReply(contact, cmd, params);
+	d->conn->sendCtpcReply(contact, cmd, params, highPriority);
 }
 
 void IrcAccount::setName(const QString &name) const

@@ -64,6 +64,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	m_socket = new QTcpSocket(this);
 	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	m_account = account;
+	m_messagesTimer.setInterval(500);
+	connect(&m_messagesTimer, SIGNAL(timeout()), SLOT(sendNextMessage()));
 	connect(m_socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
@@ -624,7 +626,7 @@ void IrcConnection::removeAlias(IrcCommandAlias *alias)
 	}
 }
 
-void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const ExtendedParams &extParams) const
+void IrcConnection::send(QString command, bool highPriority , IrcCommandAlias::Type aliasType, const ExtendedParams &extParams)
 {
 	if (aliasType != IrcCommandAlias::Disabled) {
 		bool found;
@@ -671,26 +673,30 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 		m_lastCommands.push_back(lastCmd);
 	}
 	if (!command.isEmpty()) {
-		QByteArray data = m_codec->fromUnicode(command) + "\r\n";
-		debug(VeryVerbose) << ">>>>" << data.trimmed();
-		m_socket->write(data);
+		if (highPriority)
+			m_messagesQueue.push_back(command);
+		else
+			m_lowPriorityMessagesQueue.push_back(command);
+		if (!m_messagesTimer.isActive())
+			m_messagesTimer.start();
+		sendNextMessage();
 	}
 }
 
-void IrcConnection::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params)
+void IrcConnection::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
 {
 	QString ctpc(cmd);
 	if (!params.isEmpty())
 		ctpc += " " + params;
-	send(QString("PRIVMSG %1 :\001%2\001").arg(contact).arg(ctpc));
+	send(QString("PRIVMSG %1 :\001%2\001").arg(contact).arg(ctpc), highPriority);
 }
 
-void IrcConnection::sendCtpcReply(const QString &contact, const QString &cmd, const QString &params)
+void IrcConnection::sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
 {
 	QString ctpc(cmd);
 	if (!params.isEmpty())
 		ctpc += " " + params;
-	send(QString("NOTICE %1 :\001%2\001").arg(contact).arg(ctpc));
+	send(QString("NOTICE %1 :\001%2\001").arg(contact).arg(ctpc), highPriority);
 }
 
 void IrcConnection::disconnectFromHost(bool force)
@@ -722,7 +728,6 @@ void IrcConnection::loadSettings()
 	m_servers.clear();
 	m_currentServer = 0;
 	Config cfg = m_account->config();
-	Config protoCfg = m_account->protocol()->config();
 	// List of servers.
 	cfg.beginArray("servers");
 	for (int i = 0; i < cfg.arraySize(); ++i) {
@@ -738,18 +743,19 @@ void IrcConnection::loadSettings()
 	cfg.endArray();
 	// User nickname
 	m_nicks = cfg.value("nicks").toStringList();
-	if (m_nicks.isEmpty())
-		m_nicks = protoCfg.value("nicks").toStringList();
 	if (m_nick.isEmpty())
 		m_nick = m_nicks.value(0);
 	// User fullname.
 	m_fullName = cfg.value("fullName").toString();
-	if (m_fullName.isEmpty())
-		m_fullName = protoCfg.value("fullName").toString();
 	m_codec = QTextCodec::codecForName(cfg.value("codec", "utf8").toLatin1());
 	if (!m_codec)
 		m_codec = QTextCodec::codecForName("utf8");
 	Q_ASSERT(m_codec);
+#ifndef QUTIM_MOBILE_UI
+	m_autoRequestWhois = cfg.value("autoRequestWhois", true);
+#else
+	m_autoRequestWhois = cfg.value("autoRequestWhois", false);
+#endif
 }
 
 void IrcConnection::tryConnectToNextServer()
@@ -793,8 +799,32 @@ void IrcConnection::tryNextNick()
 	if (++m_currentNick >= m_nicks.size())
 		tryConnectToNextServer(); // TODO: Or should we stop connecting?
 	m_nick = m_nicks.at(m_currentNick);
-	send(QString("NICK %1").arg(m_nick));
-	send(QString("USER %1 %2 * :%3").arg(m_nick).arg(0).arg(m_fullName.isEmpty() ? m_nick : m_fullName));
+	send(QString("NICK %1\nUSER %1 %2 * :%3")
+		 .arg(m_nick).arg(0)
+		 .arg(m_fullName.isEmpty() ? m_nick : m_fullName));
+}
+
+void IrcConnection::sendNextMessage()
+{
+	uint currentTime = QDateTime::currentDateTime().toTime_t();
+	if (currentTime - m_lastMessageTime <= 2)
+		return;
+
+	QString command;
+	if (!m_messagesQueue.isEmpty())
+		command = m_messagesQueue.takeFirst();
+	else if (!m_lowPriorityMessagesQueue.isEmpty())
+		command = m_lowPriorityMessagesQueue.takeFirst();
+	else
+		return;
+
+	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
+	debug(VeryVerbose) << ">>>>" << data.trimmed();
+	m_socket->write(data);
+
+	m_lastMessageTime = QDateTime::currentDateTime().toTime_t();
+	if (m_messagesQueue.isEmpty() && m_lowPriorityMessagesQueue.isEmpty())
+		m_messagesTimer.stop();
 }
 
 void IrcConnection::handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text)
@@ -840,7 +870,7 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 			<< "the account is not connected to";
 }
 
-void IrcConnection::removeOldCommands() const
+void IrcConnection::removeOldCommands()
 {
 	uint curTime = QDateTime::currentDateTime().toTime_t();
 	int j = 0;
