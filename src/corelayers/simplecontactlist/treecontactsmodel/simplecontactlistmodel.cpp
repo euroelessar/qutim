@@ -1007,6 +1007,9 @@ void Model::updateContact(ContactItem *item, bool placeChanged)
 	int from = contacts.indexOf(item);
 	int to;
 
+	if (from == -1)
+		return; // Don't try to move or update a hidden contact
+
 	if (placeChanged) {
 		QList<ContactItem *>::const_iterator it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
