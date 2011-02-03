@@ -52,15 +52,15 @@ Q_DECLARE_FLAGS(ActionHandlerTypes,ActionHandlerType)
 class LIBQUTIM_EXPORT ActionCreatedEvent : public QEvent
 {
 public:
-	ActionCreatedEvent(QAction *action, ActionGenerator *gen);
+	ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *controller);
 	static QEvent::Type eventType();
 	QAction *action() const { return m_action; }
 	ActionGenerator *generator() const { return m_gen; }
-	//		MenuController *controller() const;
+	QObject *controller() const {return m_con;}
 private:
 	QAction *m_action;
 	ActionGenerator *m_gen;
-	//		MenuController *m_con;
+	QObject *m_con;
 };
 
 class LIBQUTIM_EXPORT ActionVisibilityChangedEvent : public QEvent
@@ -135,6 +135,8 @@ void MyObject::onAction(QObject *obj)
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);
 	void setShortcut(const QKeySequence &shortcut);
+	QList<QAction*> actions(QObject *object) const;
+	QMap<const QObject*, QAction*> actions() const;
 protected:
 	QAction *prepareAction(QAction *action) const;
 	virtual QObject *generateHelper() const;

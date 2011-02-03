@@ -130,6 +130,7 @@ QAction *DynamicMenu::ensureAction(const ActionGenerator *gen)
 	if (!action) {
 		action = gen->generate<QAction>();
 		(*actionsCache())[gen].insert(controller, action);
+		ActionGeneratorPrivate::get(gen)->sendActionCreatedEvent(action, controller);
 	}
 	return action;
 }
@@ -335,10 +336,6 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 		ActionGeneratorPrivate::get(gen)->show(action,controller);
 	}
 #endif
-#ifdef Q_OS_SYMBIAN
-	//workaround about buggy softkeys
-	d_func()->menu->onAboutToShow();
-#endif
 	return d_func()->menu->menu();
 }
 
@@ -526,9 +523,8 @@ void ActionContainerPrivate::ensureAction(const ActionInfo &info)
 		if (!action)
 			return;
 		actionsCache()->operator[](info.gen).insert(controller,action);
+		info.gen_p->sendActionCreatedEvent(action, controller);
 	}
-	//small hack
-	const_cast<ActionGenerator*>(info.gen)->showImpl(action,controller);
 	actions.append(action);
 }
 

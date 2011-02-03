@@ -55,6 +55,7 @@ public:
 	void show(QAction *act,QObject *con);
 	void hide(QAction *act,QObject *con);
 	QList<QKeySequence> shortCuts;
+	void sendActionCreatedEvent(QAction *action, QObject *controller) const;
 };
 
 class ActionGeneratorLocalizationHelper : public QObject

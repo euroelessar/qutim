@@ -6,6 +6,7 @@
 #include <qutim/buddy.h>
 #include <qutim/inforequest.h>
 #include <qutim/actionbox.h>
+#include <qutim/status.h>
 
 class QLabel;
 class QGridLayout;
@@ -57,8 +58,10 @@ public slots:
 	void show(QObject *object);
 private slots:
 	void onShow(QObject *controller);
+	void onAccountStatusChanged(qutim_sdk_0_3::Status);
 private:
 	QPointer<MobileContactInfoWindow> info;
+	ActionGenerator *m_gen;
 };
 
 }

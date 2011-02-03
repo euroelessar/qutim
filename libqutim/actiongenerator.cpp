@@ -57,8 +57,11 @@ void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
 	m_actions.remove(static_cast<QAction*>(obj));
 }
 
-ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen) :
-	QEvent(eventType()), m_action(action), m_gen(gen)
+ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con) :
+	QEvent(eventType()),
+	m_action(action),
+	m_gen(gen),
+	m_con(con)
 {
 }
 
@@ -231,6 +234,13 @@ void ActionGenerator::removeHandler(int type, QObject* obj)
 	d->subcribers.operator[](type).removeAll(obj);
 }
 
+void ActionGeneratorPrivate::sendActionCreatedEvent(QAction *action, QObject *controller) const
+{
+	foreach (QObject *subcriber,subcribers.value(ActionCreatedHandler)) {
+		ActionCreatedEvent event(action, q_ptr , controller);
+		qApp->sendEvent(subcriber,&event);
+	}
+}
 
 QAction *ActionGenerator::prepareAction(QAction *action) const
 {
@@ -249,11 +259,6 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setShortcuts(d->shortCuts);
 	localizationHelper()->addAction(action, d);
 	action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
-
-	foreach (QObject *subcriber,d->subcribers.value(ActionCreatedHandler)) {
-		ActionCreatedEvent event(action,const_cast<ActionGenerator*>(this));
-		qApp->sendEvent(subcriber,&event);
-	}
 
 	if (!handler()->actions().contains(action))
 		handler()->addAction(action);
@@ -367,6 +372,16 @@ void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
 		qApp->sendEvent(subcriber,&ev);
 	}
 	q_ptr->hideImpl(act,con);
+}
+
+QList<QAction *> ActionGenerator::actions(QObject *object) const
+{
+	return actionsCache()->value(this).values(object);
+}
+
+QMap<const QObject*, QAction*> ActionGenerator::actions() const
+{
+	return actionsCache()->value(this);
 }
 
 }

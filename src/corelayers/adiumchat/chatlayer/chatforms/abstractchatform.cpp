@@ -69,26 +69,12 @@ void AbstractChatForm::onSessionActivated(bool active)
 		return;
 	QString key = getWidgetId(session);
 	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
-	debug() << widget << key;
-	if (!widget)
-	{
-		if (!active)
-			return;
-		widget = createWidget(key);
-		widget->addActions(m_actions);
-		m_chatwidgets.insert(key,widget);
-		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
-#ifdef Q_WS_MAEMO_5
-		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
-#endif
-		SystemIntegration::show(widget);
-	}
-	debug() << "session created" << active;
 	if (!widget->contains(session))
 		widget->addSession(session);
-
-	if (active)
+	if (active) {
+		SystemIntegration::show(widget);
 		widget->activate(session);
+	}
 }
 
 void AbstractChatForm::onSettingsChanged()
@@ -136,7 +122,22 @@ QWidget* AbstractChatForm::chatWidget(ChatSession* session) const
 
 void AbstractChatForm::onSessionCreated(ChatSession *session)
 {
-	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(session);
+	QString key = getWidgetId(s);
+	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
+	debug() << widget << key;
+	if (!widget) {
+		widget = createWidget(key);
+		widget->addActions(m_actions);
+		m_chatwidgets.insert(key,widget);
+		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
+#ifdef Q_WS_MAEMO_5
+		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+#endif
+	}
+	if (!widget->contains(s))
+		widget->addSession(s);
+	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 }
 
 AbstractChatForm::~AbstractChatForm()
