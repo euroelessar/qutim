@@ -4,6 +4,7 @@
 #include <qutim/event.h>
 #include "protocol/account/jaccount.h"
 #include <jreen/mood.h>
+#include <qutim/systemintegration.h>
 
 namespace Jabber {
 
@@ -91,11 +92,7 @@ namespace Jabber {
 		Q_ASSERT(qobject_cast<Account*>(obj));
 		Account *account = reinterpret_cast<Account*>(obj);
 		JMoodChooserWindow *w = new JMoodChooserWindow(account, m_currentText, m_currentMood);
-#ifdef QUTIM_MOBILE_UI
-		w->showMaximized();
-#else
-		w->show();
-#endif
+		SystemIntegration::show(w);
 		w->setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 

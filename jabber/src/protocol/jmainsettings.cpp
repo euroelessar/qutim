@@ -10,6 +10,9 @@ JMainSettings::JMainSettings() : ui(new Ui::JMainSettings)
 {
 	ui->setupUi(this);
 	listenChildrenStates();
+#ifdef QUTIM_MOBILE_UI
+	ui->formLayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
+#endif
 }
 
 void JMainSettings::setController(QObject *controller)

@@ -19,6 +19,11 @@
 #include "vkontakte_global.h"
 #include <qutim/debug.h>
 
+namespace qutim_sdk_0_3
+{
+class SettingsItem;
+}
+
 class VkontakteProtocolPrivate;
 class LIBVKONTAKTE_EXPORT VkontakteProtocol : public Protocol
 {
@@ -40,6 +45,7 @@ private:
 	static VkontakteProtocol *self;
 	QScopedPointer<VkontakteProtocolPrivate> d_ptr;
 	friend class VAccountCreator;
+	SettingsItem *m_mainSettings;
 };
 
 #endif // VKONTAKTEPROTOCOL_H

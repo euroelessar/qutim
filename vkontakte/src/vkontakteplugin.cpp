@@ -17,7 +17,6 @@
 #include <qutim/debug.h>
 #include "vkontakteprotocol.h"
 #include "ui/vaccountcreator.h"
-#include "ui/vaccountsettings.h"
 #include <qutim/settingslayer.h>
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
@@ -55,15 +54,10 @@ void VkontaktePlugin::init()
 }
 bool VkontaktePlugin::load()
 {
-	m_mainSettings =  new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,Icon("im-jabber"),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
-	Settings::registerItem<VAccount>(m_mainSettings);
 	return true;
 }
 bool VkontaktePlugin::unload()
 {
-	Settings::removeItem(m_mainSettings);
-	delete m_mainSettings;
-	m_mainSettings = 0;
 	return false;
 }
 

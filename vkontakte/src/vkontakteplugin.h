@@ -31,8 +31,6 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-private:
-	SettingsItem *m_mainSettings;
 };
 
 #endif // VKONTAKTEPLUGIN_H

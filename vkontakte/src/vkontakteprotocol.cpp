@@ -28,6 +28,8 @@
 #include <qutim/messagesession.h>
 #include "vmessages.h"
 #include "vconnection.h"
+#include <qutim/settingslayer.h>
+#include "ui/vaccountsettings.h"
 
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
@@ -41,6 +43,10 @@ VkontakteProtocol::VkontakteProtocol() :
 
 VkontakteProtocol::~VkontakteProtocol()
 {
+	Settings::removeItem(m_mainSettings);
+	delete m_mainSettings;
+	m_mainSettings = 0;
+
 	foreach (VAccount *acc, *d_func()->accounts)
 		acc->saveSettings();
 	self = 0;
@@ -95,6 +101,9 @@ void VkontakteProtocol::loadAccounts()
 		connect(acc,SIGNAL(destroyed(QObject*)),d,SLOT(onAccountDestroyed(QObject*)));
 		emit accountCreated(acc);
 	}
+
+	m_mainSettings = new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,Icon("im-jabber"),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
+	Settings::registerItem<VAccount>(m_mainSettings);
 }
 
 QVariant VkontakteProtocol::data(DataType type)
