@@ -409,6 +409,11 @@ void Module::onAccountCreated(Account *account)
 		addContact(contact);
 	}
 	connect(account,SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	//symbian softkeys workaround: try to recreate it
+#ifdef Q_WS_S60
+	p->widget->removeAction(p->statusBtn);
+	p->widget->addAction(p->statusBtn);
+#endif
 }
 
 inline bool isStatusChange(const qutim_sdk_0_3::Status &status)
@@ -544,6 +549,12 @@ bool Module::eventFilter(QObject *obj, QEvent *event)
 				action->setText(Status(type).name());
 			}
 			p->status_action->setText(tr("Set Status Text"));
+
+#ifdef Q_WS_S60
+	p->widget->removeAction(p->statusBtn);
+	p->widget->addAction(p->statusBtn);
+#endif
+
 			event->accept();
 		}
 	}
