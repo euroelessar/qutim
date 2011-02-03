@@ -18,6 +18,7 @@
 #include "chatunitadaptor.h"
 #include <qutim/protocol.h>
 #include <qutim/contact.h>
+#include <qutim/conference.h>
 #include <QCryptographicHash>
 #include <QDBusError>
 #include <QDebug>
@@ -45,6 +46,8 @@ AccountAdaptor::AccountAdaptor(const QDBusConnection &dbus, const QDBusObjectPat
 			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
+			this, SLOT(onConferenceCreated(qutim_sdk_0_3::Conference*)));
 	accountHash()->insert(account, m_path);
 	foreach (Contact *contact, qFindChildren<Contact*>(account))
 		ChatUnitAdaptor::ensurePath(m_dbus, contact);
@@ -73,4 +76,10 @@ void AccountAdaptor::onContactCreated(Contact *contact)
 {
 	QDBusObjectPath path = ChatUnitAdaptor::ensurePath(m_dbus, contact);
 	emit contactCreated(path, contact->id());
+}
+
+void AccountAdaptor::onConferenceCreated(Conference *conference)
+{
+	QDBusObjectPath path = ChatUnitAdaptor::ensurePath(m_dbus, conference);
+	emit contactCreated(path, conference->id());
 }
