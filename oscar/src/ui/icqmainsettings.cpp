@@ -122,6 +122,8 @@ void IcqMainSettings::loadImpl()
 	Config general = cfg.group("general");
 	QString codecName = general.value("codec", QTextCodec::codecForLocale()->name());
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
+	if (!codec)
+		codec = QTextCodec::codecForLocale();
 	QString codecNameLower = codecName.toLower();
 
 	foreach (QString itr, codecs()) {

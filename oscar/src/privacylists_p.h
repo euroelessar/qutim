@@ -39,22 +39,13 @@ private:
 class PrivacyActionGenerator : public ActionGenerator
 {
 public:
-	PrivacyActionGenerator(Visibility visibility, bool invisibleMode = false);
+	PrivacyActionGenerator(Visibility visibility);
 	virtual ~PrivacyActionGenerator();
 protected:
 	virtual QObject *generateHelper() const;
 	virtual void showImpl(QAction *action, QObject *object);
 private:
 	Visibility m_visibility;
-	bool m_invisibleMode;
-};
-
-class SeparatorGenerator : public ActionGenerator
-{
-public:
-	SeparatorGenerator(const LocalizedString &text, int priority, int type);
-protected:
-	virtual QObject *generateHelper() const;
 };
 
 class PrivacyLists : public QObject, public FeedbagItemHandler
@@ -67,14 +58,14 @@ public:
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void setVisibility(IcqAccount *account, int visibility);
-	int getCurrentMode(IcqAccount *account, bool invisibleMode);
+	Visibility getCurrentMode(IcqAccount *account, bool invisibleMode);
 protected:
 	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onModifyPrivateList(QAction *action, QObject *object);
 	void onModifyPrivacy(QAction *action, QObject *object);
 	void accountAdded(qutim_sdk_0_3::Account *account);
-	void statusChanged(const qutim_sdk_0_3::Status &status);
+	void statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous);
 private:
 	static PrivacyLists *self;
 };

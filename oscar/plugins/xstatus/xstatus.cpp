@@ -224,6 +224,7 @@ bool XStatusHandler::load()
 	m_aboutToBeChanged = Event::registerType("icq-xstatus-about-to-be-changed");
 	m_changed = Event::registerType("icq-xstatus-changed");
 	m_change = Event::registerType("icq-change-xstatus");
+
 	{
 		Capability cap(0xb7074378, 0xf50c7777, 0x97775778, 0x502d0575);
 		OscarStatusData status(OscarFFC, Status::FreeChat);
@@ -245,14 +246,20 @@ bool XStatusHandler::load()
 		OscarStatus::registerStatus(data);
 		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
 	}
-	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-status-xstatus"),
-					QT_TRANSLATE_NOOP("Status", "Custom status"),
-					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
+
+	static ActionGenerator gen(Icon("user-status-xstatus"),
+							   QT_TRANSLATE_NOOP("Status", "Custom status"),
+							   this, SLOT(onSetCustomStatus(QObject*)));
+	gen.setPriority(25);
+	gen.setType(0x0004);
+	MenuController::addAction<IcqAccount>(&gen);
+
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 	connect(IcqProtocol::instance(), SIGNAL(settingsUpdated()), SLOT(loadSettings()));
+
 	proto->installEventFilter(this);
 	return true;
 }

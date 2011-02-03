@@ -57,14 +57,10 @@ void PrivacyLists::onModifyPrivateList(QAction *action, QObject *object)
 }
 
 
-PrivacyActionGenerator::PrivacyActionGenerator(Visibility visibility, bool invisibleMode) :
+PrivacyActionGenerator::PrivacyActionGenerator(Visibility visibility) :
 	ActionGenerator(QIcon(), LocalizedString(), PrivacyLists::instance(), SLOT(onModifyPrivacy(QAction*,QObject*))),
-	m_visibility(visibility), m_invisibleMode(invisibleMode)
+	m_visibility(visibility)
 {
-	if (invisibleMode)
-		setType(actionType+0x20000);
-	else
-		setType(actionType+0x10000);
 	setPriority(100 - visibility);
 }
 
@@ -75,21 +71,33 @@ PrivacyActionGenerator::~PrivacyActionGenerator()
 QObject *PrivacyActionGenerator::generateHelper() const
 {
 	static QActionGroup group(0);
-	static QActionGroup invisibleGroup(0);
 	QAction *action = prepareAction(new QAction(NULL));
 	action->setCheckable(true);
-	if (!m_invisibleMode)
-		group.addAction(action);
-	else
-		invisibleGroup.addAction(action);
+	group.addAction(action);
 	return action;
 }
 
 void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
 {
+	if (action->menu())
+		return;
+
 	Q_ASSERT(qobject_cast<IcqAccount*>(object) != 0);
 	IcqAccount *account = reinterpret_cast<IcqAccount*>(object);
-	action->setChecked(PrivacyLists::instance()->getCurrentMode(account, m_invisibleMode) == m_visibility);
+
+	bool isInvisible = account->status() == Status::Invisible;
+	if (isInvisible && m_visibility != AllowPermitList && m_visibility != BlockAllUsers) {
+		action->setVisible(false);
+		return;
+	}
+	action->setVisible(true);
+
+	QList<FeedbagItem> items = account->feedbag()->type(SsiVisibility);
+	Visibility curVisibility = !items.isEmpty() ? (Visibility)items.first().field<quint8>(0x00CA) : NoVisibility;
+	if (curVisibility == NoVisibility)
+		curVisibility = PrivacyLists::instance()->getCurrentMode(account, isInvisible);
+	action->setChecked(curVisibility == m_visibility);
+
 	switch (m_visibility) {
 	case AllowAllUsers:
 		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible for all"));
@@ -111,42 +119,24 @@ void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
 		return;
 	}
 	action->setProperty("visibility", m_visibility);
-	action->setProperty("invisibleMode", m_invisibleMode);
 }
 
 void PrivacyLists::onModifyPrivacy(QAction *action, QObject *object)
 {
 	Q_ASSERT(qobject_cast<IcqAccount*>(object) != 0);
 	IcqAccount *account = reinterpret_cast<IcqAccount*>(object);
+	// Set new visibility
+	Visibility visibility = (Visibility)action->property("visibility").toInt();
+	setVisibility(account, visibility);
+	// Store it into the config
 	Config cfg = account->config("privacy");
-	Visibility visibility = static_cast<Visibility>(action->property("visibility").toInt());
-	bool invisibleMode = action->property("invisibleMode").toBool();
-	if (invisibleMode) {
+	if (account->status() == Status::Invisible) {
 		account->setProperty("invisibleMode", visibility);
-		cfg.setValue("invisibleMode", static_cast<int>(visibility));
+		cfg.setValue("invisibleMode", visibility);
 	} else {
 		account->setProperty("visibility", visibility);
-		cfg.setValue("visibility", static_cast<int>(visibility));
+		cfg.setValue("visibility", visibility);
 	}
-	if (invisibleMode == (account->status() == Status::Invisible))
-		setVisibility(account, visibility);
-}
-
-SeparatorGenerator::SeparatorGenerator(const LocalizedString &text, int priority, int type) :
-	ActionGenerator(QIcon(), text, 0, 0)
-{
-	setPriority(priority);
-	setType(type);
-}
-
-QObject *SeparatorGenerator::generateHelper() const
-{
-	QAction *action = prepareAction(new QAction(NULL));
-	action->setEnabled(true);
-	QFont font = action->font();
-	font.setBold(true);
-	action->setFont(font);
-	return action;
 }
 
 PrivacyLists::PrivacyLists() :
@@ -158,6 +148,7 @@ PrivacyLists::PrivacyLists() :
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+
 	typedef QSharedPointer<ActionGenerator> ActionPointer;
 	static QList<ActionPointer> contactMenuList;
 	contactMenuList
@@ -172,21 +163,17 @@ PrivacyLists::PrivacyLists() :
 						QT_TRANSLATE_NOOP("ContactList", "Remove from ignore list")));
 	foreach (const ActionPointer &action, contactMenuList)
 		MenuController::addAction<IcqContact>(action.data());
+
 	static QList<ActionPointer> accountMenuList;
-	accountMenuList
-			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Visible mode:"), 105, actionType+0x10000))
-			<< ActionPointer(new PrivacyActionGenerator(AllowAllUsers))
+	accountMenuList << ActionPointer(new PrivacyActionGenerator(AllowAllUsers))
 			<< ActionPointer(new PrivacyActionGenerator(BlockAllUsers))
 			<< ActionPointer(new PrivacyActionGenerator(AllowPermitList))
 			<< ActionPointer(new PrivacyActionGenerator(BlockDenyList))
-			<< ActionPointer(new PrivacyActionGenerator(AllowContactList))
-			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Invisible mode:"), 105, actionType+0x20000))
-			<< ActionPointer(new PrivacyActionGenerator(AllowPermitList, true))
-			<< ActionPointer(new PrivacyActionGenerator(BlockAllUsers, true));
-	Q_UNUSED(QT_TRANSLATE_NOOP("MetaController", "Additional"));
+			<< ActionPointer(new PrivacyActionGenerator(AllowContactList));
 	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
 	foreach (const ActionPointer &action, accountMenuList)
-		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Additional" << "Privacy status");
+		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Privacy status");
+
 	IcqProtocol::instance()->installEventFilter(this);
 }
 
@@ -259,30 +246,23 @@ void PrivacyLists::setVisibility(IcqAccount *account, int visibility)
 	item.update();
 }
 
-int PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
+Visibility PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
 {
-	int current;
-	if (account->status() != Status::Offline && invisibleMode == (account->status() == Status::Invisible)) {
-		QList<FeedbagItem> items = account->feedbag()->type(SsiVisibility);
-		if (items.isEmpty())
-			current = NoVisibility;
-		else
-			current = items.first().field<quint8>(0x00CA);
-	} else {
-		QVariant currentVariant = invisibleMode ? account->property("invisibleMode") :
-								  account->property("visibility");
-		if (currentVariant.isNull()) {
-			Config cfg = account->config("privacy");
-			if (invisibleMode) {
-				current = cfg.value("invisibleMode", static_cast<int>(AllowPermitList));
-				account->setProperty("invisibleMode", current);
-			} else {
-				current = cfg.value("visibility", static_cast<int>(AllowContactList));
-				account->setProperty("visibility", current);
-			}
+	Visibility current;
+	QVariant currentVariant = invisibleMode ?
+							  account->property("invisibleMode") :
+							  account->property("visibility");
+	if (currentVariant.isNull()) {
+		Config cfg = account->config("privacy");
+		if (invisibleMode) {
+			current = cfg.value("invisibleMode", AllowPermitList);
+			account->setProperty("invisibleMode", current);
 		} else {
-			current = currentVariant.toInt();
+			current = cfg.value("visibility", AllowContactList);
+			account->setProperty("visibility", current);
 		}
+	} else {
+		current = (Visibility)currentVariant.toInt();
 	}
 	return current;
 }
@@ -311,17 +291,17 @@ bool PrivacyLists::eventFilter(QObject *obj, QEvent *e)
 void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)
 {
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(statusChanged(qutim_sdk_0_3::Status)));
+			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
-void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status)
+void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous)
 {
 	if (status == Status::Connecting || status == Status::Offline)
 		return;
 	IcqAccount *account = qobject_cast<IcqAccount*>(sender());
 	Q_ASSERT(account);
-	if (account->status() == Status::Offline ||
-		((status == Status::Invisible) != (account->status() == Status::Invisible)))
+	if (previous == Status::Offline ||
+		((status == Status::Invisible) != (previous == Status::Invisible)))
 	{
 		setVisibility(account, getCurrentMode(account, status == Status::Invisible));
 	}
