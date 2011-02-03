@@ -51,6 +51,8 @@ TextViewController::TextViewController()
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
+	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),  QLatin1String("black")));
+
 	cfg.beginGroup(QLatin1String("font"));
 #ifdef Q_WS_MAEMO_5
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
@@ -95,6 +97,7 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 	bool shouldScroll = isNearBottom();
 	QTextCharFormat defaultFormat;
 	defaultFormat.setFont(m_font);
+	defaultFormat.setForeground(m_baseColor);
 	cursor.setCharFormat(defaultFormat);
 	cursor.movePosition(QTextCursor::End);
 	QString currentSender = makeName(msg);
@@ -141,6 +144,7 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			m_cache.insert(msg.id(), new int(cursor.position()));
 		debug() << msg.text() << msg.id();
 		cursor.insertImage(QLatin1String(showReceived ? "bullet-received" : "bullet-send"));
+
 		cursor.insertText(QLatin1String(" "), defaultFormat);
 		appendText(cursor, msg.text(), defaultFormat);
 	}

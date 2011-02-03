@@ -69,6 +69,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 		return;
 	QString key = getWidgetId(session);
 	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
+	debug() << widget << key;
 	if (!widget)
 	{
 		if (!active)
@@ -82,7 +83,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 #endif
 		SystemIntegration::show(widget);
 	}
-
+	debug() << "session created" << active;
 	if (!widget->contains(session))
 		widget->addSession(session);
 

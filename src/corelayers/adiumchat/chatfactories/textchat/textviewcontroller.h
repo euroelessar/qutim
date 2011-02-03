@@ -101,6 +101,7 @@ private:
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;
+	QColor m_baseColor;
 	QSet<QString> m_images;
 	QHash<QString, int> m_hash;
 	QList<EmoticonTrack> m_emoticons;

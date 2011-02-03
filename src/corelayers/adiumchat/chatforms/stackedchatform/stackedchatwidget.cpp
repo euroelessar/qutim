@@ -223,6 +223,7 @@ void StackedChatWidget::addAction(ActionGenerator *gen)
 
 void StackedChatWidget::addSession(ChatSessionImpl *session)
 {
+	debug() << Q_FUNC_INFO;
 	m_sessionList->addSession(session);
 	connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged()));
