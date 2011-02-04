@@ -33,13 +33,11 @@ namespace Symbian
 
 StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	AbstractChatWidget(parent),
-	m_sessionList(new SessionListWidget(this)),
 	m_chatInput(new ChatEdit(this)),
 	m_recieverList(new QAction(tr("Send to"),this)),
 	m_stack(new SlidingStackedWidget(this)),
 	m_chatWidget(new QWidget(m_stack)),
 	m_unitActions(new QAction(tr("Actions"),m_chatWidget)),
-	m_contactView(new ConferenceContactsView(this)),
 	m_menu(new MenuController(this))
 {
 	QWidget *widget = new QWidget(this);
@@ -60,6 +58,8 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 		m_stack->setCurrentWidget(w);
 	}
 	m_stack->setWrap(true);
+	m_sessionList = new SessionListWidget(this);
+	m_contactView = new ConferenceContactsView(this);
 
 	QWidget *chatInputWidget = new QWidget(m_chatWidget);
 	chatInputWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);

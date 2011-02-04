@@ -35,6 +35,8 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	request(0),
 	actionBox(new ActionBox(this))
 {
+	setAttribute(Qt::WA_MergeSoftkeysRecursively);
+
 	scrollArea = new QScrollArea(this);
 	scrollArea->setWidgetResizable(true);
 	scrollArea->setFrameShape(QFrame::NoFrame);
@@ -57,12 +59,10 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
 	actionBox->addAction(saveAction);
 
-#ifdef Q_WS_S60
 	action = new QAction(tr("Close"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
-	actionBox->addAction(action);
-#endif
+	addAction(action);
 }
 
 void MobileContactInfoWindow::setObject(QObject *obj, RequestType type)

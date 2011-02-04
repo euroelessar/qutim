@@ -30,6 +30,7 @@
 #include <qutim/json.h>
 #include <QStringBuilder>
 #include <QDebug>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -80,7 +81,12 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit) : m_unit(unit)
 	setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 	setWindowFlags(windowFlags() | Qt::Window);
-	show();
+
+	QAction *action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	addAction(action);
+	SystemIntegration::show(this);
 }
 
 void HistoryWindow::setUnit(const ChatUnit *unit)
