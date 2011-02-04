@@ -59,6 +59,7 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
 	actionBox->addAction(saveAction);
 
+	//Symbian close button
 	action = new QAction(tr("Close"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));

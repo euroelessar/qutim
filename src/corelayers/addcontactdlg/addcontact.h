@@ -3,6 +3,7 @@
 #include <QScopedPointer>
 #include <QDialog>
 #include <qutim/account.h>
+#include <qutim/status.h>
 
 namespace Core {
 	using namespace qutim_sdk_0_3;
@@ -38,10 +39,16 @@ namespace Core {
 		Q_CLASSINFO("Uses", "ContactList")
 	public:
 		AddContactModule();
+		~AddContactModule();
 	protected:
 		bool event(QEvent *ev);
 	private slots:
 		void show();
+		void onAccountStatusChanged(qutim_sdk_0_3::Status);
+		void onContactAddRemoveAction(QObject*);
+	private:
+		QScopedPointer<ActionGenerator> m_addRemoveGen;
+		QScopedPointer<ActionGenerator> m_addUserGen;
 	};
 }
 #endif // ADDCONTACT_H

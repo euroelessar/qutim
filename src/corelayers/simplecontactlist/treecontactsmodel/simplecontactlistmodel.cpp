@@ -63,12 +63,6 @@ struct ModelPrivate
 	InitData *initData;
 };
 
-AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
-	ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction(QObject*)))
-{
-	addHandler(ActionVisibilityChangedHandler,model);
-}
-
 Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate)
 {
 	p->showMessageIcon = false;
@@ -90,7 +84,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 							  QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
 							  this, SLOT(onTagsEditAction(QObject*)));
 	MenuController::addAction<Contact>(gen);
-	MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
 }
 
 Model::~Model()
@@ -672,14 +665,6 @@ void Model::onContactRenameAction(QObject *controller)
 	dialog->setProperty("contact", qVariantFromValue(contact));
 	centerizeWidget(dialog);
 	dialog->open(this, SLOT(onContactRenameResult(QString)));
-}
-
-void Model::onContactAddRemoveAction(QObject *obj)
-{
-	Contact *contact = qobject_cast<Contact*>(obj);
-	if (!contact)
-		return;
-	contact->setInList(!contact->isInList());
 }
 
 QStringList Model::tags() const
