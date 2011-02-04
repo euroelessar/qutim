@@ -15,6 +15,7 @@
 #include <qutim/debug.h>
 //jreen
 #include <jreen/client.h>
+#include <qutim/systemintegration.h>
 
 namespace Jabber
 {
@@ -34,7 +35,7 @@ void JServiceBrowserModule::init(Account *account, const JabberParams &)
 void JServiceBrowserModule::showWindow()
 {
 	JServiceBrowser *browser = new JServiceBrowser(m_account);
-	browser->show();
+	SystemIntegration::show(browser);
 }
 
 struct JServiceBrowserPrivate
@@ -95,6 +96,11 @@ JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *
 	if (!p->showFeatures)
 		p->ui->splitter->setSizes(QList<int>() << 100 << 0);
 	//		searchServer(QString::fromStdString(p->account->client()->jid().server()));
+
+	QAction *action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	addAction(action);
 }
 
 JServiceBrowser::~JServiceBrowser()
