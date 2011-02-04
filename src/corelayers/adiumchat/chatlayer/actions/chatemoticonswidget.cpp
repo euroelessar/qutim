@@ -31,11 +31,16 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	viewport()->setAutoFillBackground(true); //Symbian workaround
 
-	setWidget(new QWidget(this));
+	QWidget *w = new QWidget(this);
+	setWidget(w);
+	new FlowLayout(w);
+	w->setAutoFillBackground(true);
 
-	new FlowLayout(widget());
+	QAction *action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	addAction(action);
 }
 
 void ChatEmoticonsWidget::loadTheme()
@@ -68,9 +73,7 @@ void ChatEmoticonsWidget::showEvent(QShowEvent *)
 
 	foreach (QWidget *widget,m_active_emoticons) {
 		QLabel *label = static_cast<QLabel *>(widget);
-#ifndef Q_WS_S60
 		label->movie()->start(); //FIXME on s60 retarding and eats battery
-#endif
 	}
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
