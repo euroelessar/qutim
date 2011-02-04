@@ -243,5 +243,6 @@
         <file>icons/user-status-worried.png</file>
         <file>icons/user-status-wrong_number.png</file>
         <file>icons/user-status-xstatus.png</file>
+        <file>icons/view-history.png</file>
     </qresource>
 </RCC>
