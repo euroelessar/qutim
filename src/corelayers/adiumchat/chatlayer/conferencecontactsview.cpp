@@ -39,7 +39,7 @@ void ConferenceContactsView::setSession(ChatSessionImpl *session)
 		isContactsViewVisible = true;
 
 	setVisible(isContactsViewVisible);
-	connect(session,SIGNAL(buddiesChanged()),SLOT(onBuddiesChanged()));
+	//connect(session,SIGNAL(buddiesChanged()),SLOT(onBuddiesChanged()));
 }
 
 bool ConferenceContactsView::event(QEvent *event)
@@ -84,13 +84,15 @@ void ConferenceContactsView::onActivated(const QModelIndex &index)
 		ChatLayer::get(buddy, true)->activate();
 }
 
-void ConferenceContactsView::onBuddiesChanged()
-{
-	if (qobject_cast<Conference*>(m_session->getUnit()))
-		setVisible(true);
-	else
-		setVisible(model()->rowCount(QModelIndex()) > 0);
-}
+//move to chatforms
+//void ConferenceContactsView::onBuddiesChanged()
+//{
+//	//
+//	//if (qobject_cast<Conference*>(m_session->getUnit()))
+//	//	setVisible(true);
+//	//else
+//	//	setVisible(model()->rowCount(QModelIndex()) > 0);
+//}
 
 }
 }
