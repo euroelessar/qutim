@@ -4,13 +4,14 @@
 #include <qutim/protocol.h>
 #include <qutim/status.h>
 #include <jreen/presence.h>
+#include <jreen/abstractroster.h>
 
 namespace Jabber
 {
 
 using namespace qutim_sdk_0_3;
 
-struct JProtocolPrivate;
+class JProtocolPrivate;
 class JAccount;
 
 class JProtocol : public Protocol
@@ -18,6 +19,7 @@ class JProtocol : public Protocol
 	Q_OBJECT
 	Q_CLASSINFO("Protocol", "jabber")
 	Q_CLASSINFO("Uses", "AuthorizationService")
+	Q_DECLARE_PRIVATE(JProtocol)
 public:
 	JProtocol();
 	virtual ~JProtocol();
@@ -43,7 +45,10 @@ private:
 	void loadActions();
 	virtual void loadAccounts();
 	static JProtocol *self;
-	QScopedPointer<JProtocolPrivate> p;
+	QScopedPointer<JProtocolPrivate> d_ptr;
+
+	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(qutim_sdk_0_3::Status))
+	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType))
 };
 
 namespace JStatus //TODO may be need class JStatus

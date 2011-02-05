@@ -147,6 +147,7 @@ void JContact::setInList(bool inList)
 void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
 {
 	d_func()->subscription = subscription;
+	emit subscriptionChanged(subscription);
 }
 
 jreen::AbstractRosterItem::SubscriptionType JContact::subscription() const

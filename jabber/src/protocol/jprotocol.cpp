@@ -31,17 +31,63 @@ enum JActionType
 	BanAction
 };
 
-struct JProtocolPrivate
+class JProtocolPrivate
 {
-	inline JProtocolPrivate() : accounts(new QHash<QString, JAccount *>) {}
+	Q_DECLARE_PUBLIC(JProtocol)
+public:
+	inline JProtocolPrivate(JProtocol *q) :
+		accounts(new QHash<QString, JAccount *>),
+		q_ptr(q)
+	{
+	}
 	inline ~JProtocolPrivate() { delete accounts; }
 	QHash<QString, JAccount *> *accounts;
+	JProtocol *q_ptr;
 	SettingsItem *mainSettings;
+	QScopedPointer<ActionGenerator> subscribeGen;
+	void checkSubscribe(JContact *c, QAction *a)
+	{
+		a->setEnabled(c->account()->status() != Status::Offline);
+		LocalizedString str;
+		switch(c->subscription()) {
+		case jreen::AbstractRosterItem::Both:
+		case jreen::AbstractRosterItem::To:
+			str = QT_TRANSLATE_NOOP("Jabber", "Remove subscription");
+			break;
+		case jreen::AbstractRosterItem::From:
+		case jreen::AbstractRosterItem::None:
+		case jreen::AbstractRosterItem::Invalid:
+			str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
+			break;
+		default:
+			break;
+		}
+		a->setText(str);
+	}
+	void _q_status_changed(qutim_sdk_0_3::Status)
+	{
+		QMap<QObject*, QAction*> actions = subscribeGen->actions();
+		QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
+		for(;it != actions.constEnd(); it++) {
+			//TODO may be possible use reinterpret_cast?
+			JContact *c = qobject_cast<JContact*>(it.key());
+			Q_ASSERT(c);
+			checkSubscribe(c, it.value());
+		}
+	}
+	void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)
+	{
+		Q_Q(JProtocol);
+		JContact *c = qobject_cast<JContact*>(q->sender());
+		Q_ASSERT(c);
+		foreach (QAction *a, subscribeGen->actions(q->sender()))
+			checkSubscribe(c,a);
+	}
 };
 
 JProtocol *JProtocol::self = 0;
 
-JProtocol::JProtocol() : p(new JProtocolPrivate)
+JProtocol::JProtocol() : d_ptr(new JProtocolPrivate(this))
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -55,23 +101,24 @@ JProtocol::~JProtocol()
 QList<Account *> JProtocol::accounts() const
 {
 	QList<Account *> accounts;
-	foreach (JAccount *account, p->accounts->values())
+	foreach (JAccount *account, d_ptr->accounts->values())
 		accounts.append(account);
 	return accounts;
 }
 
 Account *JProtocol::account(const QString &id) const
 {
-	return p->accounts->value(id);
+	return d_func()->accounts->value(id);
 }
 
 void JProtocol::loadActions()
 {
-	p->mainSettings = new GeneralSettingsItem<JMainSettings>(Settings::Protocol,
+	Q_D(JProtocol);
+	d->mainSettings = new GeneralSettingsItem<JMainSettings>(Settings::Protocol,
 															 Icon("im-jabber"),
 															 QT_TRANSLATE_NOOP("Settings", "Main settings"));
 
-	Settings::registerItem<JAccount>(p->mainSettings);
+	Settings::registerItem<JAccount>(d->mainSettings);
 
 	Settings::registerItem<JMUCSession>(new GeneralSettingsItem<JConferenceConfig>(
 	                                        Settings::Protocol,
@@ -118,13 +165,13 @@ void JProtocol::loadActions()
 	generator->addProperty("actionType",SaveRemoveBookmarkAction);
 	MenuController::addAction<JMUCSession>(generator);
 
-	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Change Subscription") ,
-									this, SLOT(onChangeSubscription(QObject*)));
-	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(0);
-	generator->setPriority(0);
-	generator->addProperty("actionType",ChangeSubcriptionAction);
-	MenuController::addAction<JContact>(generator);
+	d->subscribeGen.reset(new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Subscription") ,
+											  this, SLOT(onChangeSubscription(QObject*))));
+	d->subscribeGen->addHandler(ActionCreatedHandler,this);
+	d->subscribeGen->setType(0);
+	d->subscribeGen->setPriority(0);
+	d->subscribeGen->addProperty("actionType",ChangeSubcriptionAction);
+	MenuController::addAction<JContact>(d->subscribeGen.data());
 
 	QList<Status> statuses;
 	statuses << Status(Status::Online)
@@ -249,13 +296,14 @@ void JProtocol::loadAccounts()
 
 void JProtocol::addAccount(JAccount *account, bool isEmit)
 {
-	p->accounts->insert(account->id(), account);
+	Q_D(JProtocol);
+	d->accounts->insert(account->id(), account);
 	if(isEmit)
 		emit accountCreated(account);
 
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(removeAccount(QObject*)));
-	p->mainSettings->connect(SIGNAL(saved()),
+	d->mainSettings->connect(SIGNAL(saved()),
 							 account, SLOT(loadSettings()));
 }
 
@@ -331,7 +379,22 @@ Status JStatus::presenceToStatus(jreen::Presence::Type presence)
 
 bool JProtocol::event(QEvent *ev)
 {
-	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+	Q_D(JProtocol);
+	if (ev->type() == ActionCreatedEvent::eventType()) {
+		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
+		QAction *action = event->action();
+		QObject *controller = event->controller();
+		if (event->generator() == d->subscribeGen.data()) {
+			JContact *c = qobject_cast<JContact*>(controller);
+			Q_ASSERT(c);
+			d->checkSubscribe(c, action);
+			connect(c->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
+			connect(c, SIGNAL(subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType)),
+					this, SLOT(_q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)));
+		}
+		return true;
+	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
 		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
 		QAction *action = event->action();		
 		JActionType type = static_cast<JActionType>(action->property("actionType").toInt());
@@ -363,22 +426,6 @@ bool JProtocol::event(QEvent *ev)
 				break;
 			}
 			case ChangeSubcriptionAction: {
-				JContact *contact = qobject_cast<JContact*>(event->controller());
-				LocalizedString str;
-				switch(contact->subscription()) {
-				case jreen::AbstractRosterItem::Both:
-				case jreen::AbstractRosterItem::To:
-					str = QT_TRANSLATE_NOOP("Jabber", "Remove subscription");
-					break;
-				case jreen::AbstractRosterItem::From:
-				case jreen::AbstractRosterItem::None:
-				case jreen::AbstractRosterItem::Invalid:
-					str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
-					break;
-				default:
-					break;
-				}
-				action->setText(str);
 				break;
 			}
 			case KickAction: {
@@ -410,6 +457,8 @@ bool JProtocol::event(QEvent *ev)
 void JProtocol::removeAccount(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
-	p->accounts->remove(p->accounts->key(acc));
+	d_ptr->accounts->remove(d_ptr->accounts->key(acc));
 }
 }
+
+#include <jprotocol.moc>

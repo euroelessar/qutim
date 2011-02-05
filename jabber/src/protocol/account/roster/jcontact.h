@@ -61,6 +61,8 @@ public:
 	void setAvatar(const QString &hex);
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
+signals:
+	void subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType subscription);
 public slots:
 	void requestSubscription();
 	void removeSubscription();
