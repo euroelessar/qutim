@@ -70,7 +70,11 @@ LIST( APPEND HDR ../3rdparty/qtscroller/qtflickgesture_p.h
 )
 
 # TODO make static lib with webkit support
+IF(SYMBIAN)
 ADD_DEFINITIONS( -DQTSCROLLER_NO_WEBKIT)
+ELSE()
+	SET( QT_USE_QTWEBKIT TRUE ) #TODO remove it then 4.8 released
+ENDIF()
 
 IF(APPLE)
 	LIST( APPEND SRC_MM ../3rdparty/qtscroller/qtscroller_mac.mm )

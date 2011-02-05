@@ -4,6 +4,7 @@
 #include <QWebView>
 #include <QWebFrame>
 #include <QVBoxLayout>
+#include <qtscroller.h>
 
 namespace Core
 {
@@ -22,6 +23,7 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 	m_view->installEventFilter(this);
 	setFrameStyle(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
+	QtScroller::grabGesture(m_view);
 }
 
 void WebkitChatViewWidget::setViewController(QObject *controller)
