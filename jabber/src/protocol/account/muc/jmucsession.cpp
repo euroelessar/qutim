@@ -576,7 +576,11 @@ void JMUCSession::closeConfigDialog()
 
 bool JMUCSession::enabledConfiguring()
 {
+	//TODO add signal configuring changed
 	Q_D(JMUCSession);
+	if(!isJoined())
+		return false;
+
 	MUCRoom::Affiliation affiliation = d->room->affiliation();
 	return affiliation == MUCRoom::AffiliationOwner
 	        || affiliation == MUCRoom::AffiliationAdmin;

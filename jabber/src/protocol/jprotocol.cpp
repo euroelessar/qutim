@@ -45,6 +45,7 @@ public:
 	JProtocol *q_ptr;
 	SettingsItem *mainSettings;
 	QScopedPointer<ActionGenerator> subscribeGen;
+	QScopedPointer<ActionGenerator> roomConfigGen;
 	void checkSubscribe(JContact *c, QAction *a)
 	{
 		a->setEnabled(c->account()->status() != Status::Offline);
@@ -64,6 +65,10 @@ public:
 		}
 		a->setText(str);
 	}
+	void checkRoomConfig(JMUCSession *s, QAction *a)
+	{
+		a->setEnabled(s->enabledConfiguring());
+	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
 		QMap<QObject*, QAction*> actions = subscribeGen->actions();
@@ -74,11 +79,27 @@ public:
 			Q_ASSERT(c);
 			checkSubscribe(c, it.value());
 		}
+		//actions = roomConfigGen->actions();
+		//it = actions.begin();
+		//for(;it != actions.constEnd(); it++) {
+		//	//TODO may be possible use reinterpret_cast?
+		//	JMUCSession *s = qobject_cast<JMUCSession*>(it.key());
+		//	Q_ASSERT(s);
+		//	checkRoomConfig(s, it.value());
+		//}
+	}
+	void _q_conference_join_changed()
+	{
+		Q_Q(JProtocol);
+		JMUCSession *s = qobject_cast<JMUCSession*>(q->sender());
+		Q_ASSERT(s);
+		foreach (QAction *a, roomConfigGen->actions(s))
+			checkRoomConfig(s, a);
 	}
 	void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)
 	{
 		Q_Q(JProtocol);
-		JContact *c = qobject_cast<JContact*>(q->sender());
+		JContact *c = qobject_cast<JContact*>(c);
 		Q_ASSERT(c);
 		foreach (QAction *a, subscribeGen->actions(q->sender()))
 			checkSubscribe(c,a);
@@ -150,12 +171,11 @@ void JProtocol::loadActions()
 	generator->addProperty("actionType",JoinLeaveAction);
 	MenuController::addAction<JMUCSession>(generator);
 
-	generator = new ActionGenerator(Icon("preferences-other"), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
-									this, SLOT(onShowConfigDialog(QObject*)));
-	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(ActionTypeChatButton);
-	generator->addProperty("actionType",RoomConfigAction);
-	MenuController::addAction<JMUCSession>(generator);
+	d->roomConfigGen.reset(new ActionGenerator(Icon("preferences-other"), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
+											   this, SLOT(onShowConfigDialog(QObject*))));
+	d->roomConfigGen->addHandler(ActionCreatedHandler, this);
+	d->roomConfigGen->setType(ActionTypeChatButton);
+	MenuController::addAction<JMUCSession>(d->roomConfigGen.data());
 
 	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
 									this, SLOT(onSaveRemoveBookmarks(QObject*)));
@@ -170,7 +190,6 @@ void JProtocol::loadActions()
 	d->subscribeGen->addHandler(ActionCreatedHandler,this);
 	d->subscribeGen->setType(0);
 	d->subscribeGen->setPriority(0);
-	d->subscribeGen->addProperty("actionType",ChangeSubcriptionAction);
 	MenuController::addAction<JContact>(d->subscribeGen.data());
 
 	QList<Status> statuses;
@@ -384,15 +403,21 @@ bool JProtocol::event(QEvent *ev)
 		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
 		QAction *action = event->action();
 		QObject *controller = event->controller();
+		ChatUnit *u = qobject_cast<ChatUnit*>(controller);
+		Q_ASSERT(u);
 		if (event->generator() == d->subscribeGen.data()) {
-			JContact *c = qobject_cast<JContact*>(controller);
-			Q_ASSERT(c);
+			JContact *c = static_cast<JContact*>(u);
 			d->checkSubscribe(c, action);
-			connect(c->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-					this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 			connect(c, SIGNAL(subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType)),
 					this, SLOT(_q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)));
+		} else if (event->generator() == d->roomConfigGen.data()) {
+			JMUCSession *s = static_cast<JMUCSession*>(u);
+			d->checkRoomConfig(s, action);
+			connect(s, SIGNAL(joinedChanged(bool)),
+					this, SLOT(_q_conference_join_changed()));
 		}
+		connect(u->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 		return true;
 	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
 		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
@@ -413,8 +438,6 @@ bool JProtocol::event(QEvent *ev)
 				break;
 			}
 			case RoomConfigAction: {
-				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
-				action->setVisible(room->enabledConfiguring());
 				break;
 			}
 			case SaveRemoveBookmarkAction: {
