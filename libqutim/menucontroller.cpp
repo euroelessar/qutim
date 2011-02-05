@@ -600,7 +600,7 @@ void ActionHandler::onActionDestoyed(QObject *obj)
 	m_actions.removeAll(action);
 	ActionGeneratorMap::iterator it;
 	for (it = actionsCache()->begin();it!=actionsCache()->end();it++) {
-		if (const QObject *key = it->key(action))
+		if (QObject *key = it->key(action))
 			it->remove(key);
 	}
 }

@@ -136,7 +136,7 @@ void MyObject::onAction(QObject *obj)
 	void setToolTip(const LocalizedString &toolTip);
 	void setShortcut(const QKeySequence &shortcut);
 	QList<QAction*> actions(QObject *object) const;
-	QMap<const QObject*, QAction*> actions() const;
+	QMap<QObject*, QAction*> actions() const;
 protected:
 	QAction *prepareAction(QAction *action) const;
 	virtual QObject *generateHelper() const;

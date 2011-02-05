@@ -292,10 +292,10 @@ bool MobileContactInfo::event(QEvent *ev)
 
 void MobileContactInfo::onAccountStatusChanged(qutim_sdk_0_3::Status)
 {
-	QMap<const QObject*, QAction*> actions = m_gen->actions();
-	QMap<const QObject*, QAction*>::const_iterator it = actions.constBegin();
+	QMap<QObject*, QAction*> actions = m_gen->actions();
+	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
 	for(;it != actions.constEnd(); it++) {
-		checkAction(const_cast<QObject*>(it.key()),it.value());
+		checkAction(it.key(),it.value());
 	}
 }
 

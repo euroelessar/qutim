@@ -23,7 +23,7 @@ namespace qutim_sdk_0_3
 {
 
 typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
-typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap;
+typedef QMap<const ActionGenerator*,QMap<QObject*, QAction*> > ActionGeneratorMap;
 
 ActionGeneratorMap *actionsCache();
 

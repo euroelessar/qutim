@@ -87,13 +87,13 @@ bool AddContactModule::event(QEvent *ev)
 
 void AddContactModule::onAccountStatusChanged(Status)
 {
-	QMap<const QObject*, QAction*> actions = m_addRemoveGen->actions();
-	QMap<const QObject*, QAction*>::const_iterator it = actions.constBegin();
+	QMap<QObject*, QAction*> actions = m_addRemoveGen->actions();
+	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
 	for(;it != actions.constEnd(); it++) {
 		//TODO may be possible use reinterpret_cast?
-		const Contact *contact = qobject_cast<const Contact*>(it.key());
+		Contact *contact = qobject_cast<Contact*>(it.key());
 		Q_ASSERT(contact);
-		checkContact(it.value(), const_cast<Contact*>(contact));
+		checkContact(it.value(), contact);
 	}
 }
 

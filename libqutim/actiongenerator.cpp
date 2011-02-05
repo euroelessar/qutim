@@ -379,7 +379,7 @@ QList<QAction *> ActionGenerator::actions(QObject *object) const
 	return actionsCache()->value(this).values(object);
 }
 
-QMap<const QObject*, QAction*> ActionGenerator::actions() const
+QMap<QObject*, QAction*> ActionGenerator::actions() const
 {
 	return actionsCache()->value(this);
 }
