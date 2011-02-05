@@ -52,6 +52,30 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarico
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
 
+# add QtScroller
+LIST( APPEND SRC ../3rdparty/qtscroller/qtflickgesture.cpp
+	../3rdparty/qtscroller/qtscroller.cpp
+	../3rdparty/qtscroller/qtscrollerfilter.cpp
+	../3rdparty/qtscroller/qtscrollerproperties.cpp
+	../3rdparty/qtscroller/qtscrollevent.cpp
+)
+LIST( APPEND HDR ../3rdparty/qtscroller/qtflickgesture_p.h
+	../3rdparty/qtscroller/qtscroller.h
+	../3rdparty/qtscroller/qtscroller_p.h
+	../3rdparty/qtscroller/qtscrollerfilter_p.h
+	../3rdparty/qtscroller/qtscrollerproperties.h
+	../3rdparty/qtscroller/qtscrollerproperties_p.h
+	../3rdparty/qtscroller/qtscrollevent.h
+	../3rdparty/qtscroller/qtscrollevent_p.h
+)
+
+# TODO make static lib with webkit support
+ADD_DEFINITIONS( -DQTSCROLLER_NO_WEBKIT)
+
+IF(APPLE)
+	LIST( APPEND SRC ../3rdparty/qtscroller/qtscroller_mac.mm )
+ENDIF()
+
 # MinGW special options
 # Not sure if those applicable for linux
 if(MINGW)

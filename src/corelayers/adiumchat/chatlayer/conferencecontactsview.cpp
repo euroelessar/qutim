@@ -5,6 +5,7 @@
 #include <QDropEvent>
 #include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
+#include <qtscroller.h>
 
 namespace Core
 {
@@ -26,6 +27,8 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	QAction *action = new QAction(tr("Private"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	addAction(action);
+	QtScroller::grabGesture(viewport());
+	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 void ConferenceContactsView::setSession(ChatSessionImpl *session)

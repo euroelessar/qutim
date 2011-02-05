@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
+#include <qtscroller.h>
 
 namespace Core
 {
@@ -35,6 +36,7 @@ TextViewWidget::TextViewWidget()
 	QPalette p = palette();
 	p.setColor(QPalette::Base,Qt::white);
 	setPalette(p);
+	QtScroller::grabGesture(viewport());
 	
 //	new QVBoxLayout(this);
 //	layout()->addWidget(m_textEdit);

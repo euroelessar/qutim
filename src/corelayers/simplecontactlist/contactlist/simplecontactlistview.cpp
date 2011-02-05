@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QApplication>
 #include <qutim/systemintegration.h>
+#include <qtscroller.h>
 
 namespace Core
 {
@@ -35,6 +36,8 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 	setAcceptDrops(true);
 	setDropIndicatorShown(true);
 #endif
+	QtScroller::grabGesture(viewport());
+	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	Config group = Config().group("contactList");
 	m_closedTags = group.value("closedTags", QStringList()).toSet();

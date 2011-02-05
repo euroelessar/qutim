@@ -8,6 +8,7 @@
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
 #include <avatarfilter.h>
+#include <qtscroller.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -28,6 +29,7 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
 	addAction(action);
+	QtScroller::grabGesture(viewport());
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -150,15 +152,15 @@ bool SessionListWidget::event(QEvent *event)
 		}
 	} else 
 #endif
-	if (event->type() == QEvent::ContextMenu) {
-		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
-		ChatSessionImpl *s = session(row(itemAt(ev->pos())));
-		if(s) {
-			s->unit()->showMenu(ev->globalPos());
-			return true;
-		}
+		if (event->type() == QEvent::ContextMenu) {
+			QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
+			ChatSessionImpl *s = session(row(itemAt(ev->pos())));
+			if(s) {
+				s->unit()->showMenu(ev->globalPos());
+				return true;
+			}
 
-	}
+		}
 	return QListWidget::event(event);
 }
 
