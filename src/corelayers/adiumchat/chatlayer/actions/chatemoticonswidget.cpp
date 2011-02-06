@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
@@ -31,9 +32,15 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	setFrameStyle(QFrame::NoFrame);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	setWidget(new QWidget(this));
+	QWidget *w = new QWidget(this);
+	setWidget(w);
+	new FlowLayout(w);
+	w->setAutoFillBackground(true);
 
-	new FlowLayout(widget());
+	QAction *action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	addAction(action);
 }
 
 void ChatEmoticonsWidget::loadTheme()
@@ -66,7 +73,7 @@ void ChatEmoticonsWidget::showEvent(QShowEvent *)
 
 	foreach (QWidget *widget,m_active_emoticons) {
 		QLabel *label = static_cast<QLabel *>(widget);
-		label->movie()->start();
+		label->movie()->start(); //FIXME on s60 retarding and eats battery
 	}
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
@@ -119,7 +126,10 @@ void EmoAction::triggerEmoticons()
 {
 	if (!emoticons_widget)
 	{
-		emoticons_widget = new ChatEmoticonsWidget(qApp->activeWindow());
+		emoticons_widget = new ChatEmoticonsWidget();
+#ifdef Q_WS_MAEMO_5
+		emoticons_widget->setParent(qApp->activeWindow());
+#endif
 		emoticons_widget->loadTheme();
 		connect(emoticons_widget, SIGNAL(insertSmile(QString)),
 			this,SLOT(onInsertSmile(QString)));
@@ -142,9 +152,9 @@ void EmoAction::triggerEmoticons()
 	    emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
 
 	}
-
-#endif
 		emoticons_widget->show();
+#endif
+		SystemIntegration::show(emoticons_widget);
 	}
 }
 

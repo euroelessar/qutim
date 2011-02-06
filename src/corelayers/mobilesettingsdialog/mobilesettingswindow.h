@@ -18,13 +18,14 @@
 
 #include <QMainWindow>
 #include <qutim/settingslayer.h>
+#include <slidingstackedwidget.h>
 
 class QListWidgetItem;
 class QStackedWidget;
 class QActionGroup;
 class QModelIndex;
 namespace qutim_sdk_0_3 {
-	class ActionToolBar;
+class ActionToolBar;
 }
 
 namespace Core
@@ -58,6 +59,7 @@ private slots:
 	void onWidgetDestroyed(QObject *obj);
 	void slideUp();
 	void slideDown(QWidget *w);
+	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
 };
 
 }

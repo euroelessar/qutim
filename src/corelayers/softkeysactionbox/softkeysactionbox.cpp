@@ -13,8 +13,6 @@ SoftkeysActionBoxModule::SoftkeysActionBoxModule()
 
 void SoftkeysActionBoxModule::addAction(QAction *action)
 {
-	debug() << "SoftkeysActionBox Added action" << action;
-
 	QWidget *p = this;
 	while (p->parentWidget() && !p->isWindow()) {
 		p = p->parentWidget();

@@ -42,6 +42,7 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAttribute(Qt::WA_MergeSoftkeysRecursively);
 
 	connect(ui->stackedWidget, SIGNAL(currentChanged(int)),
 			SLOT(onCurrentChanged(int)));
@@ -60,12 +61,20 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 	connect(m_closeAction,SIGNAL(triggered()),SLOT(close()));
 
 	m_backAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Back"),this);
-	m_backAction->setSoftKeyRole(QAction::NegativeSoftKey);
+	m_backAction->setSoftKeyRole(QAction::PositiveSoftKey);
 	ui->actionBox->addAction(m_backAction);
 	connect(m_backAction,SIGNAL(triggered()),SLOT(onBackActionTriggered()));
 
 	connect(ui->joinPage,SIGNAL(joined()),SLOT(close()));
 	connect(ui->bookmarksPage,SIGNAL(bookmarksChanged()),SLOT(onBookmarksChanged()));
+	connect(ui->stackedWidget, SIGNAL(fingerGesture(SlidingStackedWidget::SlideDirection)),
+			this, SLOT(onFingerGesture(SlidingStackedWidget::SlideDirection)));
+}
+
+void JoinGroupChat::onFingerGesture(SlidingStackedWidget::SlideDirection direction)
+{
+	 if (direction==SlidingStackedWidget::LeftToRight)
+		 onBackActionTriggered();
 }
 
 JoinGroupChat::~JoinGroupChat()

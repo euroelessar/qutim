@@ -9,15 +9,15 @@ namespace qutim_sdk_0_3
 Buddy::Buddy(Account *account) :
 	ChatUnit(*new BuddyPrivate(this), account)
 {
-	connect(this,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 Buddy::Buddy(BuddyPrivate &d, Account *account) :
 	ChatUnit(d, account)
 {
-	connect(this,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 Buddy::~Buddy()
@@ -91,12 +91,13 @@ bool Buddy::event(QEvent *ev)
 	return ChatUnit::event(ev);
 }
 
-void Buddy::onStatusChanged(const Status &now, const Status &old)
+void BuddyPrivate::_q_status_changed(const Status &now, const Status &old)
 {
+	Q_Q(Buddy);
 	if(now.type() != Status::Offline && old.type() == Status::Offline)
-		setChatState(ChatStateInActive);
+		 q->setChatState(ChatStateInActive);
 	else if(now.type() == Status::Offline)
-		setChatState(ChatStateGone);
+		q->setChatState(ChatStateGone);
 }
 
 //void Buddy::setStatus(const Status &status)
@@ -108,3 +109,5 @@ void Buddy::onStatusChanged(const Status &now, const Status &old)
 //}
 
 }
+
+#include "buddy.moc"

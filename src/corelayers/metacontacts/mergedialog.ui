@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Core::MetaContacts::MergeDialog</class>
- <widget class="QWidget" name="Core::MetaContacts::MergeDialog">
+ <widget class="QDialog" name="Core::MetaContacts::MergeDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -69,5 +69,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Core::MetaContacts::MergeDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

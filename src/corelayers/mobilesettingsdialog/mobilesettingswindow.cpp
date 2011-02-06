@@ -30,6 +30,7 @@
 #include <slidingstackedwidget.h>
 #include <qutim/actionbox.h>
 #include <qutim/debug.h>
+#include <qtscroller.h>
 
 namespace Core
 {
@@ -69,6 +70,11 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	p->stackedWidget->addWidget(p->categoryListWidget);
 	p->stackedWidget->addWidget(p->settingsListWidget);
 
+	p->categoryListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	p->settingsListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	QtScroller::grabGesture(p->categoryListWidget);
+	QtScroller::grabGesture(p->settingsListWidget);
+
 	p->actionBox = new ActionBox(this);
 	p->backAct = new QAction(tr("Back"),this);
 	p->backAct->setSoftKeyRole(QAction::PositiveSoftKey);
@@ -102,6 +108,10 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 			);
 	connect(p->backAct,SIGNAL(triggered()),SLOT(slideUp()));
 	connect(p->closeAct,SIGNAL(triggered()),SLOT(close()));
+	connect(p->stackedWidget,
+			SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),
+			this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
+
 	loadSettings(settings);
 }
 
@@ -288,6 +298,14 @@ void MobileSettingsWindow::slideDown(QWidget *w)
 {
 	p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(w));
 	p->backAct->setVisible(p->slideMap.value(w));
+}
+
+void MobileSettingsWindow::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
+{
+	if (direction==SlidingStackedWidget::LeftToRight) {
+		slideUp();
+    }
+
 }
 
 }

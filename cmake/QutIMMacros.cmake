@@ -1,11 +1,17 @@
 #qutIM artwork install helper
 
 if(SYMBIAN)
-	function(QUTIM_TARGET_LINK_LIBRARIES)
+	function(qutim_add_executable)
+		symbian_add_executable(${ARGN})
+	endfunction()
+	function(qutim_target_link_libraries)
 		symbian_target_link_libraries(${ARGN})
 	endfunction()
 else(SYMBIAN)
-	function(QUTIM_TARGET_LINK_LIBRARIES)
+	function(qutim_add_executable)
+		add_executable(${ARGN})
+	endfunction()
+	function(qutim_target_link_libraries)
 		target_link_libraries(${ARGN})
 	endfunction()
 endif(SYMBIAN)
@@ -188,17 +194,17 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	)
 
 	if( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
-	set( QUTIM_${plugin_name}_STATIC TRUE )
+		set( QUTIM_${plugin_name}_STATIC TRUE )
 	endif( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
 
 	if( QUTIM_${plugin_name}_STATIC )
-	set( QUTIM_${plugin_name}_LIBRARY_TYPE STATIC )
+		set( QUTIM_${plugin_name}_LIBRARY_TYPE STATIC )
 	else( QUTIM_${plugin_name}_STATIC )
-	set( QUTIM_${plugin_name}_LIBRARY_TYPE SHARED )
+		set( QUTIM_${plugin_name}_LIBRARY_TYPE SHARED )
 	endif( QUTIM_${plugin_name}_STATIC )
 
 	if( NOT QUTIM_${plugin_name}_SOURCE_DIR )
-	set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+		set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 	endif( NOT QUTIM_${plugin_name}_SOURCE_DIR )
 
 	file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCE_DIR}/*.cpp" )
@@ -259,7 +265,14 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 
 	QUTIM_WRAP_CPP( QUTIM_${plugin_name}_MOC_SRC ${QUTIM_${plugin_name}_HDR} )
 	QT4_WRAP_UI( QUTIM_${plugin_name}_UI_H ${QUTIM_${plugin_name}_UI} )
+
+	#static resources should be added directly to qutim executable
+	if( QUTIM_${plugin_name}_STATIC )
+	list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
+	#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
+	else()
 	QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
+	endif()
 
 	# This project will generate library
 	add_library( ${plugin_name} ${QUTIM_${plugin_name}_LIBRARY_TYPE} ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
@@ -278,6 +291,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${plugin_name} )
 	endif( QUTIM_${plugin_name}_STATIC )
 	set( QUTIM_ADDITIONAL_SOURCES "${QUTIM_ADDITIONAL_SOURCES}" CACHE INTERNAL "" )
+	set( QUTIM_ADDITIONAL_RCC "${QUTIM_ADDITIONAL_RCC}" CACHE INTERNAL "" )
 	set( QUTIM_ADDITIONAL_LIBRARIES "${QUTIM_ADDITIONAL_LIBRARIES}" CACHE INTERNAL "" )
 
 	#more effective compile flags
@@ -285,12 +299,17 @@ Q_IMPORT_PLUGIN(${plugin_name})
 		set(QUTIM_${plugin_name}_COMPILE_FLAGS
 			"${QUTIM_${plugin_name}_COMPILE_FLAGS} /W3")
 	else()
-		set(QUTIM_${plugin_name}_COMPILE_FLAGS
-			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
-		if(NOT WIN32)
+		if(SYMBIAN)
+			#disable stupid warnings
+			set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -w")
+		else()
 			set(QUTIM_${plugin_name}_COMPILE_FLAGS
-			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
-		endif(NOT WIN32)
+				"${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
+			if(NOT WIN32)
+				set(QUTIM_${plugin_name}_COMPILE_FLAGS
+				"${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
+			endif(NOT WIN32)
+		endif()
 	endif()
 	if( NOT QUTIM_${plugin_name}_DEBUG_ID )
 		string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef QUTIM_${plugin_name}_DEBUG_ID)

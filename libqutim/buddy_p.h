@@ -6,11 +6,16 @@
 
 namespace qutim_sdk_0_3
 {
-	class BuddyPrivate : public ChatUnitPrivate
-	{
-	public:
-		BuddyPrivate(Buddy *b) : ChatUnitPrivate(b) {}
-	};
+
+class BuddyPrivate : public ChatUnitPrivate
+{
+	Q_DECLARE_PUBLIC(Buddy)
+public:
+	BuddyPrivate(Buddy *b) : ChatUnitPrivate(b) {}
+	void _q_status_changed(const qutim_sdk_0_3::Status &now,const qutim_sdk_0_3::Status &old);
+
+};
+
 }
 
 #endif // BUDDY_P_H

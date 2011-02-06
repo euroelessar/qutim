@@ -21,25 +21,25 @@
 
 namespace qutim_sdk_0_3
 {
-	IconLoader::IconLoader()
-	{
-	}
+IconLoader::IconLoader()
+{
+}
 
-	IconLoader::~IconLoader()
-	{
-	}
+IconLoader::~IconLoader()
+{
+}
 
-	IconLoader *IconLoader::instance()
-	{
-		static QPointer<IconLoader> self;
-		if(self.isNull() && ObjectGenerator::isInited())
-			self = qobject_cast<IconLoader*>(ServiceManager::getByName("IconLoader"));
-		return self.data();
-	}
+IconLoader *IconLoader::instance()
+{
+	static QPointer<IconLoader> self;
+	if(self.isNull() && ObjectGenerator::isInited())
+		self = qobject_cast<IconLoader*>(ServiceManager::getByName("IconLoader"));
+	return self.data();
+}
 
-	void IconLoader::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
+void IconLoader::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
 }

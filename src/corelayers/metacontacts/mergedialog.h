@@ -16,7 +16,7 @@
 #ifndef MERGEDIALOG_H
 #define MERGEDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace qutim_sdk_0_3
 {
@@ -34,12 +34,12 @@ namespace Ui {
     class MergeDialog;
 }
 class MetaContactImpl;
-class MergeDialog : public QWidget
+class MergeDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit MergeDialog(QWidget *parent = 0);
+	explicit MergeDialog(QWidget *parent = 0);
     ~MergeDialog();
 	void setMetaContact(MetaContactImpl *contact);
 protected:

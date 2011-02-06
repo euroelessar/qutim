@@ -1,4 +1,4 @@
-if(NOT DEFINED QT_SOFTKEYS_ENABLED)
+if(NOT SYMBIAN) #TODO add define checker
 	message(STATUS "Softkeys is unsupported by platform. Softkeys action box will be skipped.")
 	return()
 endif()

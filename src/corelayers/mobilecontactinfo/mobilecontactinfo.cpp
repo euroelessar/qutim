@@ -8,14 +8,35 @@
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QApplication>
+#include <qutim/systemintegration.h>
+#include <qutim/debug.h>
 
 namespace Core
 {
+
+void checkAction(QObject *controller, QAction *action)
+{
+	InfoRequestCheckSupportEvent info_event;
+	qApp->sendEvent(controller, &info_event);
+	if (info_event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
+		if (info_event.supportType() == InfoRequestCheckSupportEvent::Read)
+			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
+		else if (info_event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
+			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
+		action->setEnabled(true);
+	} else {
+		action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"));
+		action->setEnabled(false);
+	}
+}
+
 MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	QScrollArea(parent),
 	request(0),
 	actionBox(new ActionBox(this))
 {
+	setAttribute(Qt::WA_MergeSoftkeysRecursively);
+
 	scrollArea = new QScrollArea(this);
 	scrollArea->setWidgetResizable(true);
 	scrollArea->setFrameShape(QFrame::NoFrame);
@@ -31,10 +52,18 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 
 	QAction *action = new QAction(tr("Request details"), actionBox);
 	connect(action, SIGNAL(triggered()), SLOT(onRequestButton()));
+	action->setSoftKeyRole(QAction::PositiveSoftKey);
 	actionBox->addAction(action);
 	saveAction = new QAction(tr("Save"), actionBox);
+	saveAction->setSoftKeyRole(QAction::PositiveSoftKey);
 	connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
 	actionBox->addAction(saveAction);
+
+	//Symbian close button
+	action = new QAction(tr("Close"),this);
+	action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(action, SIGNAL(triggered()), SLOT(close()));
+	addAction(action);
 }
 
 void MobileContactInfoWindow::setObject(QObject *obj, RequestType type)
@@ -206,14 +235,15 @@ void MobileContactInfoWindow::onSaveButton()
 
 MobileContactInfo::MobileContactInfo()
 {
-	ActionGenerator *gen = new ActionGenerator(Icon("dialog-information"), LocalizedString(), this, SLOT(onShow(QObject*)));
-	gen->setType(ActionTypeContactList | ActionTypeChatButton | ActionTypeContactInfo | 0x7000);
-	gen->addHandler(ActionVisibilityChangedHandler,this);
-	MenuController::addAction<Buddy>(gen);
-	gen = new ActionGenerator(Icon("dialog-information"), LocalizedString(), this, SLOT(onShow(QObject*)));
-	gen->setType(ActionTypeContactList | ActionTypeContactInfo | 0x7000);
-	gen->addHandler(ActionVisibilityChangedHandler,this);
-	MenuController::addAction<Account>(gen);
+	m_gen = new ActionGenerator(Icon("dialog-information"),
+								QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"),
+								this,
+								SLOT(onShow(QObject*))
+								);
+	m_gen->setType(ActionTypeContactList | ActionTypeChatButton | ActionTypeContactInfo | 0x7000);
+	m_gen->addHandler(ActionCreatedHandler, this);
+	MenuController::addAction<Buddy>(m_gen);
+	MenuController::addAction<Account>(m_gen);
 }
 
 void MobileContactInfo::show(QObject *object)
@@ -225,17 +255,13 @@ void MobileContactInfo::show(QObject *object)
 		return;
 	if (!info) {
 		info = new MobileContactInfoWindow(qApp->activeWindow());
-		info->setParent(QApplication::activeWindow());
 #ifdef Q_WS_MAEMO_5
+		info->setParent(QApplication::activeWindow());
 		info->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 		info->setWindowFlags(info->windowFlags() | Qt::Window);
 		centerizeWidget(info);
-#ifdef QUTIM_MOBILE_UI
-		info->showMaximized();
-#else
-		info->show();
-#endif
+		SystemIntegration::show(info);
 		info->setAttribute(Qt::WA_DeleteOnClose, true);
 	} else {
 		info->raise();
@@ -250,25 +276,27 @@ void MobileContactInfo::onShow(QObject *controller)
 
 bool MobileContactInfo::event(QEvent *ev)
 {
-	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
-		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
-		if (event->isVisible()) {
-			QObject *controller = event->controller();
-			QAction *action = event->action();
-			InfoRequestCheckSupportEvent info_event;
-			qApp->sendEvent(controller, &info_event);
-			if (info_event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
-				if (info_event.supportType() == InfoRequestCheckSupportEvent::Read)
-					action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
-				else if (info_event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
-					action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
-				action->setVisible(true);
-			} else {
-				action->setVisible(false);
-				return true;
-			}
-		}
+	if (ev->type() == ActionCreatedEvent::eventType()) {
+		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
+		QObject *controller = event->controller();
+		QAction *action = event->action();
+		if(Account *a = qobject_cast<Account*>(controller)) {
+			connect(a, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+		} else
+			checkAction(controller,action);
+		return true;
 	}
 	return QObject::event(ev);
 }
+
+void MobileContactInfo::onAccountStatusChanged(qutim_sdk_0_3::Status)
+{
+	QMap<QObject*, QAction*> actions = m_gen->actions();
+	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
+	for(;it != actions.constEnd(); it++) {
+		checkAction(it.key(),it.value());
+	}
+}
+
 }

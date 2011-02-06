@@ -47,7 +47,7 @@ BookmarksPage::BookmarksPage(QWidget *parent) :
 
 	m_removeAction = new QAction(this);
 	m_removeAction->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Remove"));
-	m_removeAction->setSoftKeyRole(QAction::PositiveSoftKey);
+	m_removeAction->setSoftKeyRole(QAction::NegativeSoftKey);
 	m_removeAction->setVisible(false);
 	connect(m_removeAction,SIGNAL(triggered()),SLOT(onRemove()));
 	addAction(m_removeAction);

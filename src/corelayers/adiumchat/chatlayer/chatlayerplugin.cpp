@@ -33,12 +33,12 @@ namespace AdiumChat
 {
 
 template<typename T>
-T findParent(QWidget *w)
+T findParent(QObject *w)
 {
 	while(w) {
 		if(T parent = qobject_cast<T>(w))
 			return parent;
-		w = w->parentWidget();
+		w = w->parent();
 	}
 	return 0;
 }
@@ -111,8 +111,7 @@ bool ChatLayerPlugin::unload()
 
 void ChatLayerPlugin::onClearChat(QObject *controller)
 {
-	QWidget *widget = qobject_cast<QWidget*>(controller);
-	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(widget))
+	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller))
 		chat->currentSession()->clearChat();
 }
 
@@ -121,8 +120,7 @@ void ChatLayerPlugin::onInsertEmoticon(QAction *act,QObject *controller)
 	QString str = act->property("emoticon").toString();
 	if(str.isEmpty())
 		return;
-	QWidget *widget = qobject_cast<QWidget*>(controller);
-	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(widget))
+	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller))
 		chat->getInputField()->insertPlainText(str);
 }
 

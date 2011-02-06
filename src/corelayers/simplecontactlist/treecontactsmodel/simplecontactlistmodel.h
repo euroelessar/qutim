@@ -15,12 +15,6 @@ class Model;
 
 struct ChangeEvent;
 
-class AddRemoveContactActionGenerator : public ActionGenerator
-{
-public:
-	AddRemoveContactActionGenerator(Model *model);
-};
-
 class Model : public AbstractContactModel
 {
 	Q_OBJECT
@@ -62,7 +56,6 @@ protected slots:
 	void hideShowOffline();
 	void onContactRenameAction(QObject*);
 	void onContactRenameResult(const QString &name);
-	void onContactAddRemoveAction(QObject*);
 	void onTagsEditAction(QObject*);
 	void onContactInListChanged(bool isInList);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
@@ -76,6 +69,7 @@ private:
 	void removeFromContactList(Contact *contact, bool deleted);
 	void hideTag(TagItem *item);
 	void showTag(TagItem *item);
+	void updateContact(ContactItem *item, bool placeChanged);
 	void initialize();
 	void saveConfig();
 	TagItem *ensureTag(const QString &name);

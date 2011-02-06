@@ -35,6 +35,8 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
 # Add SlidingStackedWidget
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/fingerswipegesture.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/fingerswipegesture.h" )
 
 # Add flowlayout code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.cpp" )
@@ -49,6 +51,34 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfil
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
+
+# add QtScroller
+LIST( APPEND SRC ../3rdparty/qtscroller/qtflickgesture.cpp
+	../3rdparty/qtscroller/qtscroller.cpp
+	../3rdparty/qtscroller/qtscrollerfilter.cpp
+	../3rdparty/qtscroller/qtscrollerproperties.cpp
+	../3rdparty/qtscroller/qtscrollevent.cpp
+)
+LIST( APPEND HDR ../3rdparty/qtscroller/qtflickgesture_p.h
+	../3rdparty/qtscroller/qtscroller.h
+	../3rdparty/qtscroller/qtscroller_p.h
+	../3rdparty/qtscroller/qtscrollerfilter_p.h
+	../3rdparty/qtscroller/qtscrollerproperties.h
+	../3rdparty/qtscroller/qtscrollerproperties_p.h
+	../3rdparty/qtscroller/qtscrollevent.h
+	../3rdparty/qtscroller/qtscrollevent_p.h
+)
+
+# TODO make static lib with webkit support
+IF(SYMBIAN)
+ADD_DEFINITIONS( -DQTSCROLLER_NO_WEBKIT)
+ELSE()
+	SET( QT_USE_QTWEBKIT TRUE ) #TODO remove it then 4.8 released
+ENDIF()
+
+IF(APPLE)
+	LIST( APPEND SRC_MM ../3rdparty/qtscroller/qtscroller_mac.mm )
+ENDIF()
 
 # MinGW special options
 # Not sure if those applicable for linux
@@ -97,7 +127,14 @@ QUTIM_WRAP_CPP( MOC_SRC ${HDR})
 # ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtdwm/")
 
 # This project will generate library
-ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} ${HDR} )
+
+SET(LIBQUTIM_TYPE "SHARED")
+IF(LIBQUTIM_BUILD_TYPE STREQUAL "STATIC")
+	SET(LIBQUTIM_TYPE "STATIC")
+	MESSAGE(STATUS "Libqutim will be linked staticaly")
+ENDIF()
+
+ADD_LIBRARY(libqutim ${LIBQUTIM_TYPE} ${SRC} ${MOC_SRC} ${HDR} ${SRC_MM})
 
 #if( CMAKE_COMPILER_IS_GNUCXX )
 #	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )
@@ -125,9 +162,12 @@ SET_TARGET_PROPERTIES ( libqutim PROPERTIES PREFIX "")
 IF(APPLE)
 	FIND_LIBRARY(CARBON_LIBRARY Carbon)
 	FIND_LIBRARY(CORE_SERVICES_LIBRARY CoreServices )
+	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 	MARK_AS_ADVANCED (CARBON_LIBRARY
-					 CORE_SERVICES_LIBRARY)
-	LIST(APPEND EXTRA_LIBS ${CARBON_LIBRARY} ${APP_SERVICES_LIBRARY})
+		CORE_SERVICES_LIBRARY
+		COCOA_LIBRARY
+	)
+	LIST(APPEND EXTRA_LIBS ${CARBON_LIBRARY} ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY})
 ENDIF (APPLE)
 
 IF(WIN32)

@@ -17,6 +17,7 @@
 #include <qutim/mimeobjectdata.h>
 #include <qutim/event.h>
 #include <QApplication>
+#include <qutim/systemintegration.h>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 #define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
@@ -62,12 +63,6 @@ struct ModelPrivate
 	InitData *initData;
 };
 
-AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
-	ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction(QObject*)))
-{
-	addHandler(ActionVisibilityChangedHandler,model);
-}
-
 Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate)
 {
 	p->showMessageIcon = false;
@@ -89,7 +84,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 							  QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
 							  this, SLOT(onTagsEditAction(QObject*)));
 	MenuController::addAction<Contact>(gen);
-	MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
 }
 
 Model::~Model()
@@ -505,34 +499,7 @@ void Model::contactStatusChanged(Status status)
 
 		// The item is already visible, so we need to move it in the right place
 		// and update its content
-		QList<ContactItem *> &contacts = item->parent->visible;
-		int from = contacts.indexOf(item);
-		int to;
-		if (statusTypeChanged) {
-			QList<ContactItem *>::const_iterator it =
-					qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-			to = it - contacts.constBegin();
-		} else {
-			to = from;
-		}
-
-		if (from == to) {
-			if (show) {
-				QModelIndex index = createIndex(item->index(), 0, item);
-				emit dataChanged(index, index);
-			}
-		} else {
-			if (to == -1 || to >= contacts.count())
-				continue;
-			QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-				if (from < to)
-					--to;
-				contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();
-			}
-		}
+		updateContact(item, statusTypeChanged);
 	}
 }
 
@@ -547,33 +514,7 @@ void Model::contactNameChanged(const QString &name)
 	if (items.isEmpty() || !isVisible(items.first()))
 		return;
 	for(int i = 0; i < items.size(); i++)
-	{
-		ContactItem *item = items.at(i);
-		QList<ContactItem *> &contacts = item->parent->visible;
-		QList<ContactItem *>::const_iterator it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-
-		int to = it - contacts.constBegin();
-		int from = contacts.indexOf(item);
-
-		QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-
-		if (from == to) {
-			QModelIndex index = createIndex(item->index(), 0, item);
-			emit dataChanged(index, index);
-		} else {
-			if (to == -1 || to >= contacts.count())
-				continue;
-
-			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-				if (from < to)
-					--to;
-				contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();
-			}
-		}
-	}
+		updateContact(items.at(i), true);
 }
 
 void Model::onContactInListChanged(bool)
@@ -657,11 +598,13 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 	//if(!contact->isInList())
 	//	tags << tr("Not in list");
 
+	int counter = item_data->status.type() == Status::Offline ? 0 : 1;
 	QSet<QString> to_add = tags - item_data->tags;
 	for (int i = 0, size = item_data->items.size(); i < size; i++) {
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
+		item->parent->online -= counter;
 		hideContact(item, true, false);
 		delete item;
 		i--;
@@ -669,6 +612,7 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
 		TagItem *tag = ensureTag(*it);
+		tag->online += counter;
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		if (show) {
@@ -721,14 +665,6 @@ void Model::onContactRenameAction(QObject *controller)
 	dialog->setProperty("contact", qVariantFromValue(contact));
 	centerizeWidget(dialog);
 	dialog->open(this, SLOT(onContactRenameResult(QString)));
-}
-
-void Model::onContactAddRemoveAction(QObject *obj)
-{
-	Contact *contact = qobject_cast<Contact*>(obj);
-	if (!contact)
-		return;
-	contact->setInList(!contact->isInList());
 }
 
 QStringList Model::tags() const
@@ -910,7 +846,7 @@ void Model::onTagsEditAction(QObject *controller)
 
 	editor->setTags(tags());
 	editor->load();
-	editor->show();
+	SystemIntegration::show(editor);
 }
 
 void Model::onContactRenameResult(const QString &name)
@@ -1048,6 +984,42 @@ TagItem *Model::ensureTag(const QString &name)
 
 	}
 	return tag;
+}
+
+void Model::updateContact(ContactItem *item, bool placeChanged)
+{
+	QList<ContactItem *> &contacts = item->parent->visible;
+	int from = contacts.indexOf(item);
+	int to;
+
+	if (from == -1)
+		return; // Don't try to move or update a hidden contact
+
+	if (placeChanged) {
+		QList<ContactItem *>::const_iterator it =
+				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+		to = it - contacts.constBegin();
+	} else {
+		to = from;
+	}
+
+	QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
+
+	if (from == to) {
+		QModelIndex index = createIndex(item->index(), 0, item);
+		emit dataChanged(index, index);
+	} else {
+		if (to == -1 || to > contacts.count())
+			return;
+
+		if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+			if (from < to)
+				--to;
+			contacts.move(from,to);
+			//item_data->items.move(from,to); //FIXME
+			endMoveRows();
+		}
+	}
 }
 
 void Model::initialize()

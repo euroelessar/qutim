@@ -130,6 +130,7 @@ QAction *DynamicMenu::ensureAction(const ActionGenerator *gen)
 	if (!action) {
 		action = gen->generate<QAction>();
 		(*actionsCache())[gen].insert(controller, action);
+		ActionGeneratorPrivate::get(gen)->sendActionCreatedEvent(action, controller);
 	}
 	return action;
 }
@@ -287,7 +288,8 @@ DynamicMenu::~DynamicMenu()
 void DynamicMenu::onAboutToShow()
 {
 	QMenu *menu = qobject_cast<QMenu*>(sender());
-	Q_ASSERT(menu);
+	if(!menu) //on Symbian it's may be doesn't work ((
+		return;
 	foreach (QAction *action, menu->actions()) {
 		ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {
@@ -333,10 +335,6 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 		QObject *controller = d_func()->menu->m_owners.value(gen);
 		ActionGeneratorPrivate::get(gen)->show(action,controller);
 	}
-#endif
-#ifdef Q_OS_SYMBIAN
-	//workaround about buggy softkeys
-	d_func()->menu->onAboutToShow();
 #endif
 	return d_func()->menu->menu();
 }
@@ -525,9 +523,8 @@ void ActionContainerPrivate::ensureAction(const ActionInfo &info)
 		if (!action)
 			return;
 		actionsCache()->operator[](info.gen).insert(controller,action);
+		info.gen_p->sendActionCreatedEvent(action, controller);
 	}
-	//small hack
-	const_cast<ActionGenerator*>(info.gen)->showImpl(action,controller);
 	actions.append(action);
 }
 
@@ -603,7 +600,7 @@ void ActionHandler::onActionDestoyed(QObject *obj)
 	m_actions.removeAll(action);
 	ActionGeneratorMap::iterator it;
 	for (it = actionsCache()->begin();it!=actionsCache()->end();it++) {
-		if (const QObject *key = it->key(action))
+		if (QObject *key = it->key(action))
 			it->remove(key);
 	}
 }

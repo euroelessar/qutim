@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>SimpleTagsEditor</class>
- <widget class="QWidget" name="SimpleTagsEditor">
+ <widget class="QDialog" name="SimpleTagsEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>232</width>
-    <height>262</height>
+    <width>280</width>
+    <height>353</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,13 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" colspan="2">
     <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
     <widget class="QLineEdit" name="lineEdit">
@@ -43,5 +50,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SimpleTagsEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>139</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -61,7 +61,7 @@ void AbstractChatWidget::setTitle(ChatSessionImpl *s)
 		if (Buddy *b = qobject_cast<Buddy*>(u))
 			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
 	}
-	setWindowTitle(title);
+	setWindowFilePath(title);
 	setWindowIcon(icon);
 }
 

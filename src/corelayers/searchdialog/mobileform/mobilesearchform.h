@@ -21,51 +21,51 @@
 
 namespace Core {
 
-	class MobileSearchForm : public AbstractSearchForm
+class MobileSearchForm : public AbstractSearchForm
+{
+	Q_OBJECT
+public:
+	enum SearchState
 	{
-		Q_OBJECT
-	public:
-		enum SearchState
-		{
-			SearchingState,
-			ReadyState,
-			ErrorState,
-			DoneState
-		};
-		MobileSearchForm(const QList<AbstractSearchFactory*> &factories,
-						 const QString &title = QString(),
-						 const QIcon &icon = QIcon(),
-						 QWidget *parent = 0);
-
-	private slots:
-		void startSearch();
-		void cancelSearch();
-		void updateRequest(int row);
-		void updateService();
-		void done(bool ok);
-		void updateFields();
-		void updateServiceBox();
-		void updateActionButtons();	
-		void actionButtonClicked();
-		void onNegativeActionTriggered();
-	private:
-		void setState(SearchState search);
-		Ui::MobileSearchForm ui;
-		QAction *m_negative_action;
-		QList<QAction *> m_actions;
-		SearchState m_search_state;
+		SearchingState,
+		ReadyState,
+		ErrorState,
+		DoneState
 	};
+	MobileSearchForm(const QList<AbstractSearchFactory*> &factories,
+					 const QString &title = QString(),
+					 const QIcon &icon = QIcon(),
+					 QWidget *parent = 0);
 
-	class MobileSearchFormFactory : public AbstractSearchFormFactory
-	{
-		Q_OBJECT
-	public:
-		AbstractSearchForm *createForm(const QList<AbstractSearchFactory*> &factories,
-									   const QString &title = QString(),
-									   const QIcon &icon = QIcon(),
-									   QWidget *parent = 0);
+private slots:
+	void startSearch();
+	void cancelSearch();
+	void updateRequest(int row);
+	void updateService();
+	void done(bool ok);
+	void updateFields();
+	void updateServiceBox();
+	void updateActionButtons();
+	void actionButtonClicked();
+	void onNegativeActionTriggered();
+private:
+	void setState(SearchState search);
+	Ui::MobileSearchForm ui;
+	QAction *m_action;
+	QList<QAction *> m_actions;
+	SearchState m_search_state;
+};
 
-	};
+class MobileSearchFormFactory : public AbstractSearchFormFactory
+{
+	Q_OBJECT
+public:
+	AbstractSearchForm *createForm(const QList<AbstractSearchFactory*> &factories,
+								   const QString &title = QString(),
+								   const QIcon &icon = QIcon(),
+								   QWidget *parent = 0);
+
+};
 }
 
 #endif // MOBILESEARCHFORM_H

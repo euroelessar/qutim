@@ -25,7 +25,7 @@ namespace MetaContacts {
 using namespace qutim_sdk_0_3;
 
 MergeDialog::MergeDialog(QWidget *parent) :
-    QWidget(parent),
+	QDialog(parent),
     ui(new Ui::MergeDialog)
 {
     ui->setupUi(this);
@@ -41,8 +41,6 @@ MergeDialog::MergeDialog(QWidget *parent) :
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 	connect(m_model, SIGNAL(removeContactTriggered(qutim_sdk_0_3::Contact*)),
 			this, SLOT(removeContact(qutim_sdk_0_3::Contact*)));
-	connect(ui->buttonBox, SIGNAL(accepted()),
-			this, SLOT(close()));
 }
 
 MergeDialog::~MergeDialog()
