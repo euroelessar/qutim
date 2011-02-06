@@ -49,9 +49,9 @@ signals:
 	void nameChanged(const QString &current, const QString &previous);
 protected:
 	bool event(QEvent *ev);
-protected slots:
-	//HACK temporary, only for testing
-	void onStatusChanged(const qutim_sdk_0_3::Status &now,const qutim_sdk_0_3::Status &old);
+private:
+	//TODO move to protocols
+	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(const qutim_sdk_0_3::Status &now,const qutim_sdk_0_3::Status &old))
 };
 }
 
