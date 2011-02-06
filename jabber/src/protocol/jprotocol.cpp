@@ -46,6 +46,7 @@ public:
 	SettingsItem *mainSettings;
 	QScopedPointer<ActionGenerator> subscribeGen;
 	QScopedPointer<ActionGenerator> roomConfigGen;
+	QScopedPointer<ActionGenerator> joinGroupChatGen;
 	void checkSubscribe(JContact *c, QAction *a)
 	{
 		a->setEnabled(c->account()->status() != Status::Offline);
@@ -68,6 +69,14 @@ public:
 	void checkRoomConfig(JMUCSession *s, QAction *a)
 	{
 		a->setEnabled(s->enabledConfiguring());
+	}
+	void checkRoomJoined(JMUCSession *s, QAction *a)
+	{
+		a->setEnabled(s->account()->status() != Status::Offline);
+		a->setText(!s->isJoined() ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
+								   QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
+		a->setIcon(!s->isJoined() ? Icon("im-user") :
+								   Icon("im-user-offline"));
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
@@ -95,13 +104,15 @@ public:
 		Q_ASSERT(s);
 		foreach (QAction *a, roomConfigGen->actions(s))
 			checkRoomConfig(s, a);
+		foreach (QAction *a, joinGroupChatGen->actions(s))
+			checkRoomJoined(s, a);
 	}
 	void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)
 	{
 		Q_Q(JProtocol);
-		JContact *c = qobject_cast<JContact*>(c);
+		JContact *c = qobject_cast<JContact*>(q->sender());
 		Q_ASSERT(c);
-		foreach (QAction *a, subscribeGen->actions(q->sender()))
+		foreach (QAction *a, subscribeGen->actions(c))
 			checkSubscribe(c,a);
 	}
 };
@@ -163,13 +174,12 @@ void JProtocol::loadActions()
 	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 	//								this, SLOT(onConvertToMuc(QObject*))));
 
-	generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
-	                                 this, SLOT(onJoinLeave(QObject*)));
-	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(ActionTypeAdditional);
-	generator->setPriority(3);
-	generator->addProperty("actionType",JoinLeaveAction);
-	MenuController::addAction<JMUCSession>(generator);
+	d->joinGroupChatGen.reset(new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
+												  this, SLOT(onJoinLeave(QObject*))));
+	d->joinGroupChatGen->addHandler(ActionVisibilityChangedHandler,this);
+	d->joinGroupChatGen->setType(ActionTypeAdditional);
+	d->joinGroupChatGen->setPriority(3);
+	MenuController::addAction<JMUCSession>(d->joinGroupChatGen.data());
 
 	d->roomConfigGen.reset(new ActionGenerator(Icon("preferences-other"), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 											   this, SLOT(onShowConfigDialog(QObject*))));
@@ -209,8 +219,6 @@ void JProtocol::loadActions()
 		Status::remember(status, "jabber");
 		MenuController::addAction(new StatusActionGenerator(status), &JAccount::staticMetaObject);
 	}
-
-
 }
 
 void JProtocol::onKickUser(QObject *obj)
@@ -322,6 +330,8 @@ void JProtocol::addAccount(JAccount *account, bool isEmit)
 
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(removeAccount(QObject*)));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 	d->mainSettings->connect(SIGNAL(saved()),
 							 account, SLOT(loadSettings()));
 }
@@ -403,21 +413,17 @@ bool JProtocol::event(QEvent *ev)
 		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
 		QAction *action = event->action();
 		QObject *controller = event->controller();
-		ChatUnit *u = qobject_cast<ChatUnit*>(controller);
-		Q_ASSERT(u);
 		if (event->generator() == d->subscribeGen.data()) {
-			JContact *c = static_cast<JContact*>(u);
+			JContact *c = qobject_cast<JContact*>(controller);
+			Q_ASSERT(c);
 			d->checkSubscribe(c, action);
 			connect(c, SIGNAL(subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType)),
 					this, SLOT(_q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)));
-		} else if (event->generator() == d->roomConfigGen.data()) {
-			JMUCSession *s = static_cast<JMUCSession*>(u);
-			d->checkRoomConfig(s, action);
+		}
+		else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
 			connect(s, SIGNAL(joinedChanged(bool)),
 					this, SLOT(_q_conference_join_changed()));
 		}
-		connect(u->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 		return true;
 	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
 		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
@@ -426,15 +432,6 @@ bool JProtocol::event(QEvent *ev)
 		if (event->isVisible()) {
 			switch (type) {
 			case JoinLeaveAction: {
-				Conference *room = qobject_cast<JMUCSession*>(event->controller());
-				if (!room->isJoined()) {
-					action->setText(QT_TRANSLATE_NOOP("Jabber", "Join conference"));
-					action->setIcon(Icon("im-user"));
-				}
-				else {
-					action->setText(QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
-					action->setIcon(Icon("im-user-offline"));
-				}
 				break;
 			}
 			case RoomConfigAction: {

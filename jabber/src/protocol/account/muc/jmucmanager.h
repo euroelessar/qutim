@@ -20,6 +20,7 @@
 #include <qutim/chatunit.h>
 #include <jreen/presence.h>
 #include <qutim/dataforms.h>
+#include <qutim/status.h>
 
 namespace qutim_sdk_0_3 
 {
@@ -33,21 +34,19 @@ class PrivacyItem;
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
-using namespace jreen;
-
 class JAccount;
 class JBookmarkManager;
-struct JMUCManagerPrivate;
+class JMUCManagerPrivate;
 class JMUCSession;
 
 class JMUCManager : public QObject
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(JMUCManager)
 public:
 	JMUCManager(JAccount *account, QObject *parent = 0);
 	~JMUCManager();
-	ChatUnit *muc(const jreen::JID &jid);
+	qutim_sdk_0_3::ChatUnit *muc(const jreen::JID &jid);
 	JBookmarkManager *bookmarkManager();
 	void syncBookmarks();
 	void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
@@ -58,15 +57,16 @@ public:
 signals:
 	void conferenceCreated(qutim_sdk_0_3::Conference*);
 private slots:
+	//TODO rewrite on private slots
 	void onListReceived(const QString &name, const QList<jreen::PrivacyItem> &items);
 	void onActiveListChanged(const QString &name);
 	void bookmarksChanged();
 	void closeMUCSession();
 protected:
-	void createActions(JMUCSession *room);
 	void closeMUCSession(JMUCSession *room);
 private:
-	QScopedPointer<JMUCManagerPrivate> p;
+	QScopedPointer<JMUCManagerPrivate> d_ptr;
+	Q_PRIVATE_SLOT(d_func() , void _q_status_changed(qutim_sdk_0_3::Status))
 };
 }
 
