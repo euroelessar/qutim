@@ -21,8 +21,6 @@ public:
 	virtual ~ConferenceContactsView();
 protected:
 	virtual bool event(QEvent *event);
-private slots:
-	void onActivated(const QModelIndex &);
 private:
 	QScopedPointer<ConferenceContactsViewPrivate> d_ptr;
 	Q_PRIVATE_SLOT(d_func(), void _q_activated(const QModelIndex &))
