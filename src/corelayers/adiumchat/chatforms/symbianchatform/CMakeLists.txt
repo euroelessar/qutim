@@ -1,5 +1,6 @@
-if(not SYMBIAN)
+if(NOT SYMBIAN)
 	message(STATUS "Symbian chatform will be skipped")
+	return()
 endif()
 
 qutim_add_plugin(symbianchatform
