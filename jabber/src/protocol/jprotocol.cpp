@@ -47,6 +47,7 @@ public:
 	QScopedPointer<ActionGenerator> subscribeGen;
 	QScopedPointer<ActionGenerator> roomConfigGen;
 	QScopedPointer<ActionGenerator> joinGroupChatGen;
+	QScopedPointer<ActionGenerator> bookmarksGen;
 	void checkSubscribe(JContact *c, QAction *a)
 	{
 		a->setEnabled(c->account()->status() != Status::Offline);
@@ -70,13 +71,19 @@ public:
 	{
 		a->setEnabled(s->enabledConfiguring());
 	}
+	void checkBookMark(JMUCSession *s, QAction *a)
+	{
+		a->setEnabled(s->account()->status() != Status::Offline);
+		a->setText(!s->bookmark().isValid() ? QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") :
+											 QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+	}
 	void checkRoomJoined(JMUCSession *s, QAction *a)
 	{
 		a->setEnabled(s->account()->status() != Status::Offline);
 		a->setText(!s->isJoined() ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
-								   QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
+									QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
 		a->setIcon(!s->isJoined() ? Icon("im-user") :
-								   Icon("im-user-offline"));
+									Icon("im-user-offline"));
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
@@ -96,6 +103,14 @@ public:
 		//	Q_ASSERT(s);
 		//	checkRoomConfig(s, it.value());
 		//}
+		actions = bookmarksGen->actions();
+		it = actions.begin();
+		for(;it != actions.constEnd(); it++) {
+			//TODO may be possible use reinterpret_cast?
+			JMUCSession *s = qobject_cast<JMUCSession*>(it.key());
+			Q_ASSERT(s);
+			checkBookMark(s, it.value());
+		}
 	}
 	void _q_conference_join_changed()
 	{
@@ -106,6 +121,14 @@ public:
 			checkRoomConfig(s, a);
 		foreach (QAction *a, joinGroupChatGen->actions(s))
 			checkRoomJoined(s, a);
+	}
+	void _q_conference_bookmark_changed()
+	{
+		Q_Q(JProtocol);
+		JMUCSession *s = qobject_cast<JMUCSession*>(q->sender());
+		Q_ASSERT(s);
+		foreach (QAction *a, bookmarksGen->actions(s))
+			checkBookMark(s, a);
 	}
 	void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)
 	{
@@ -187,17 +210,16 @@ void JProtocol::loadActions()
 	d->roomConfigGen->setType(ActionTypeChatButton);
 	MenuController::addAction<JMUCSession>(d->roomConfigGen.data());
 
-	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
-									this, SLOT(onSaveRemoveBookmarks(QObject*)));
-	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(ActionTypeAdditional);
-	generator->setPriority(0);
-	generator->addProperty("actionType",SaveRemoveBookmarkAction);
-	MenuController::addAction<JMUCSession>(generator);
+	d->bookmarksGen.reset(new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
+											  this, SLOT(onSaveRemoveBookmarks(QObject*))));
+	d->bookmarksGen->addHandler(ActionCreatedHandler, this);
+	d->bookmarksGen->setType(ActionTypeAdditional);
+	d->bookmarksGen->setPriority(0);
+	MenuController::addAction<JMUCSession>(d->bookmarksGen.data());
 
 	d->subscribeGen.reset(new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Subscription") ,
 											  this, SLOT(onChangeSubscription(QObject*))));
-	d->subscribeGen->addHandler(ActionCreatedHandler,this);
+	d->subscribeGen->addHandler(ActionCreatedHandler, this);
 	d->subscribeGen->setType(0);
 	d->subscribeGen->setPriority(0);
 	MenuController::addAction<JContact>(d->subscribeGen.data());
@@ -421,8 +443,12 @@ bool JProtocol::event(QEvent *ev)
 					this, SLOT(_q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)));
 		}
 		else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
-			connect(s, SIGNAL(joinedChanged(bool)),
-					this, SLOT(_q_conference_join_changed()));
+			if(event->generator() == d->bookmarksGen.data())
+				connect(s, SIGNAL(bookmarkChanged(jreen::Bookmark::Conference)),
+						this, SLOT(_q_conference_bookmark_changed()));
+			else
+				connect(s, SIGNAL(joinedChanged(bool)),
+						this, SLOT(_q_conference_join_changed()));
 		}
 		return true;
 	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
@@ -438,11 +464,6 @@ bool JProtocol::event(QEvent *ev)
 				break;
 			}
 			case SaveRemoveBookmarkAction: {
-				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
-				if (!room->bookmark().isValid())
-					action->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
-				else
-					action->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
 				break;
 			}
 			case ChangeSubcriptionAction: {

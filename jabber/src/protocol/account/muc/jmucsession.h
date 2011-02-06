@@ -95,6 +95,7 @@ private slots:
 	void closeConfigDialog();
 signals:
 	void initClose();
+	void bookmarkChanged(const jreen::Bookmark::Conference &bookmark);
 private:
 	QScopedPointer<JMUCSessionPrivate> d_ptr;
 	friend class JSessionConvertor;

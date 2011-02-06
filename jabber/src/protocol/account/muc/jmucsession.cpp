@@ -547,6 +547,8 @@ void JMUCSession::setBookmark(const jreen::Bookmark::Conference &bookmark)
 		d->title = id();
 	if (d->title != previous)
 		emit titleChanged(d->title, previous);
+
+	emit bookmarkChanged(bookmark);
 }
 
 jreen::Bookmark::Conference JMUCSession::bookmark()
