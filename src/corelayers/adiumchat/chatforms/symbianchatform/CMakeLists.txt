@@ -1,3 +1,7 @@
+if(not SYMBIAN)
+	message(STATUS "Symbian chatform will be skipped")
+endif()
+
 qutim_add_plugin(symbianchatform
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/stackedchatform.h

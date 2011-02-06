@@ -10,18 +10,22 @@ namespace AdiumChat
 {
 
 class ChatSessionImpl;
+class ConferenceContactsViewPrivate;
 class ADIUMCHAT_EXPORT ConferenceContactsView : public QListView
 {
     Q_OBJECT
+	Q_DECLARE_PRIVATE(ConferenceContactsView)
 public:
     explicit ConferenceContactsView(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
+	virtual ~ConferenceContactsView();
 protected:
 	virtual bool event(QEvent *event);
 private slots:
 	void onActivated(const QModelIndex &);
 private:
-	ChatSessionImpl *m_session;
+	QScopedPointer<ConferenceContactsViewPrivate> d_ptr;
+	Q_PRIVATE_SLOT(d_func(), void _q_activated(const QModelIndex &))
 };
 
 }

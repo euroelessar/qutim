@@ -9,6 +9,7 @@
 #include <QToolButton>
 #include <QPushButton>
 #include <qutim/systemintegration.h>
+#include <QMessageBox>
 
 namespace Core
 {
@@ -101,6 +102,14 @@ void AddContactModule::onContactAddRemoveAction(QObject *obj)
 {
 	Contact *contact = qobject_cast<Contact*>(obj);
 	Q_ASSERT(contact);
+	if(contact->isInList()) {
+		int ret = QMessageBox::question(qApp->activeWindow(),
+										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
+										tr("Are you sure you want to delete a contact %1 from the roster").arg(contact->title()));
+		if(ret != QMessageBox::Ok)
+			return;
+
+	}
 	contact->setInList(!contact->isInList());
 }
 
