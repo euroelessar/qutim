@@ -14,8 +14,8 @@
 *****************************************************************************/
 
 #include "spellchecker.h"
-#include "libqutim/servicemanager.h"
-#include "libqutim/objectgenerator.h"
+#include "servicemanager.h"
+#include "objectgenerator.h"
 
 namespace qutim_sdk_0_3 {
 

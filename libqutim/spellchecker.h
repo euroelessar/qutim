@@ -16,7 +16,7 @@
 #ifndef SPELLCHECKER_H
 #define SPELLCHECKER_H
 
-#include "libqutim/libqutim_global.h"
+#include "libqutim_global.h"
 
 namespace qutim_sdk_0_3 {
 
