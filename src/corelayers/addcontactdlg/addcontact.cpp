@@ -105,7 +105,9 @@ void AddContactModule::onContactAddRemoveAction(QObject *obj)
 	if(contact->isInList()) {
 		int ret = QMessageBox::question(qApp->activeWindow(),
 										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
-										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()));
+										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
+										QMessageBox::Ok,
+										QMessageBox::Cancel);
 		if(ret != QMessageBox::Ok)
 			return;
 
