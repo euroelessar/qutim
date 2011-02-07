@@ -214,7 +214,11 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		m_stack->removeWidget(m_contactView);
 
 	m_recieverList->setMenu(session->menu());
+	//FIXME Symbian workaround
+	m_chatWidget->removeAction(m_unitActions);
 	m_unitActions->setMenu(session->getUnit()->menu());
+	m_chatWidget->addAction(m_unitActions);
+
 	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 }
 
@@ -230,26 +234,16 @@ bool StackedChatWidget::event(QEvent *event)
 		event->accept();
 		return true;
 	}
-
-	if (event->type() == QEvent::WindowActivate
-			|| event->type() == QEvent::WindowDeactivate) {
-		bool active = event->type() == QEvent::WindowActivate;
-		if (!m_sessionList->currentSession())
-			return false;
-		m_sessionList->currentSession()->setActive(active);
-	}
 	return AbstractChatWidget::event(event);
 }
 
 void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
 {
-	if (direction==SlidingStackedWidget::LeftToRight)
-	{
+	if (direction==SlidingStackedWidget::LeftToRight) {
 		m_stack->slideInPrev();
 		m_contactView->blockSignals(true);
 	}
-	else if (direction==SlidingStackedWidget::RightToLeft)
-	{
+	else if (direction==SlidingStackedWidget::RightToLeft) {
 		m_stack->slideInNext();
 		m_contactView->blockSignals(true);
 	}
