@@ -5,7 +5,6 @@
 #include <QDropEvent>
 #include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
-#include <qtscroller.h>
 
 namespace Core
 {
@@ -26,6 +25,13 @@ public:
 		if (buddy)
 			ChatLayer::get(buddy, true)->activate();
 	}
+	void _q_init_scrolling()
+	{
+		if(QObject *scroller = ServiceManager::getByName("Scroller"))
+			QMetaObject::invokeMethod(scroller,
+									  "enableScrolling",
+									  Q_ARG(QObject*, q_func()->viewport()));
+	}
 };
 
 ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
@@ -42,7 +48,8 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	QAction *action = new QAction(tr("Private"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	addAction(action);
-	QtScroller::grabGesture(viewport());
+
+	QTimer::singleShot(0, this, SLOT(q_init_scrolling()));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 

@@ -33,6 +33,8 @@ class TextViewWidget : public QTextEdit, public Core::AdiumChat::ChatViewWidget
 public:
     TextViewWidget();
 	virtual void setViewController(QObject *controller);
+private slots:
+	void initScrolling();
 private:
 //	QTextEdit *m_textEdit;
 };

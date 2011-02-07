@@ -7,8 +7,8 @@
 #include <qutim/icon.h>
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
+#include <qutim/servicemanager.h>
 #include <avatarfilter.h>
-#include <qtscroller.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -29,7 +29,6 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
 	addAction(action);
-	QtScroller::grabGesture(viewport());
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -54,6 +53,16 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
 			this,
 			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
+}
+
+void SessionListWidget::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller,
+								  "enableScrolling",
+								  Q_ARG(QObject*, viewport()));
 }
 
 void SessionListWidget::removeSession(ChatSessionImpl *session)

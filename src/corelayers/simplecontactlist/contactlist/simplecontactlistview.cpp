@@ -13,7 +13,8 @@
 #include <QLabel>
 #include <QApplication>
 #include <qutim/systemintegration.h>
-#include <qtscroller.h>
+#include <qutim/servicemanager.h>
+#include <QTimer>
 
 namespace Core
 {
@@ -34,11 +35,10 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 #ifndef QUTIM_MOBILE_UI
 	setDragEnabled(true);
 	setAcceptDrops(true);
-	setDropIndicatorShown(true);
+	setDropIndicatorShown(true);	
 #endif
-	QtScroller::grabGesture(viewport());
-	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
 	Config group = Config().group("contactList");
 	m_closedTags = group.value("closedTags", QStringList()).toSet();
 
@@ -47,6 +47,13 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 	connect(model, SIGNAL(tagVisibilityChanged(QModelIndex,QString,bool)),
 			SLOT(onTagVisibilityChanged(QModelIndex,QString,bool)));
 	setModel(model);
+}
+
+void TreeView::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));
+	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 void TreeView::onClick(const QModelIndex &index)

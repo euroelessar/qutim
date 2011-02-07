@@ -18,6 +18,7 @@ public:
 	virtual void setViewController(QObject *controller);
 private slots:
 	void scrollBarWorkaround();
+	void initScrolling();
 protected:
 	bool event(QEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);

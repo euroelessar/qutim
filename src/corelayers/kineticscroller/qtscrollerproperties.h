@@ -45,7 +45,6 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QMetaType>
 #include <QtCore/QVariant>
-#include <libqutim/libqutim_global.h>
 
 #if (QT_VERSION < QT_VERSION_CHECK(4, 7, 0))
 #  include <QEasingCurve>
@@ -56,7 +55,7 @@ class QtScroller;
 class QtScrollerPrivate;
 class QtScrollerPropertiesPrivate;
 
-class LIBQUTIM_EXPORT QtScrollerProperties
+class QtScrollerProperties
 {
 public:
     QtScrollerProperties();

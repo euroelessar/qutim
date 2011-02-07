@@ -45,14 +45,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointF>
 #include "qtscrollerproperties.h"
-#include <libqutim/libqutim_global.h>
 
 class QWidget;
 class QtScrollerPrivate;
 class QtScrollerProperties;
 class QtFlickGestureRecognizer;
 
-class LIBQUTIM_EXPORT QtScroller : public QObject
+class QtScroller : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)

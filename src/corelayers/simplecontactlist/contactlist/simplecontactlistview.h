@@ -23,6 +23,7 @@ protected:
 	void startDrag(Qt::DropActions supportedActions);
 protected slots:
 	void onClick(const QModelIndex &index);
+	void initScrolling();
 	void onResetTagsTriggered();
 	void onSelectTagsTriggered();
 	void onCollapsed(const QModelIndex &index);
