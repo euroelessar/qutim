@@ -107,8 +107,8 @@ void SessionListWidget::onRemoveSession(QObject *obj)
 	Q_D(SessionListWidget);
 	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
 	int index = d->sessions.indexOf(s);
-	d->sessions.removeAll(s);
-	delete item(index);
+	d->sessions.removeAll(s);	
+	delete takeItem(index);
 }
 
 void SessionListWidget::removeItem(int index)

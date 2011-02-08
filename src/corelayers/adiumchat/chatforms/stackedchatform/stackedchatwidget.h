@@ -85,7 +85,6 @@ private:
 	QWidget *m_chatWidget;
 	QToolBar *m_additionalToolBar;
 	QMenuBar *menuBar;
-	Qt::GestureType fingerSwipeGestureType;
 #ifdef Q_WS_MAEMO_5
 	kb_Qwerty *m_kb_qwerty;
 #endif
