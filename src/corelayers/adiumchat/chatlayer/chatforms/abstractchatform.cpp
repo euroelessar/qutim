@@ -68,12 +68,12 @@ void AbstractChatForm::onSessionActivated(bool active)
 	if (!session)
 		return;
 	QString key = getWidgetId(session);
-	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
-	if (!widget->contains(session))
-		widget->addSession(session);
+	AbstractChatWidget *w = widget(key);
+	if (!w->contains(session))
+		w->addSession(session);
 	if (active) {
-		SystemIntegration::show(widget);
-		widget->activate(session);
+		SystemIntegration::show(w);
+		w->activate(session);
 	}
 }
 
@@ -119,13 +119,9 @@ QWidget* AbstractChatForm::chatWidget(ChatSession* session) const
 	return findWidget(session);
 }
 
-
-void AbstractChatForm::onSessionCreated(ChatSession *session)
+AbstractChatWidget *AbstractChatForm::widget(const QString &key)
 {
-	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(session);
-	QString key = getWidgetId(s);
 	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
-	debug() << widget << key;
 	if (!widget) {
 		widget = createWidget(key);
 		widget->addActions(m_actions);
@@ -135,8 +131,17 @@ void AbstractChatForm::onSessionCreated(ChatSession *session)
 		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 #endif
 	}
-	if (!widget->contains(s))
-		widget->addSession(s);
+	debug() << widget << key;
+	return widget;
+}
+
+void AbstractChatForm::onSessionCreated(ChatSession *session)
+{
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(session);
+	QString key = getWidgetId(s);
+	AbstractChatWidget *w = widget(key);
+	if (!w->contains(s))
+		w->addSession(s);
 	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 }
 

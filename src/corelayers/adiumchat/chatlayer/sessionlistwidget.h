@@ -33,6 +33,7 @@ signals:
 	void remove(ChatSessionImpl *session);
 protected:
 	virtual bool event(QEvent *event);
+	void changeEvent(QEvent *ev);
 	void chatStateChanged(ChatState state,ChatSessionImpl *session);
 private slots:
 	void onActivated(QListWidgetItem*);

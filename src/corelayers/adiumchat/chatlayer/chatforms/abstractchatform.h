@@ -51,6 +51,7 @@ public:
 	Q_INVOKABLE void removeAction(qutim_sdk_0_3::ActionGenerator *gen);
 protected:
 	virtual AbstractChatWidget *createWidget(const QString &key) = 0;
+	Q_INVOKABLE AbstractChatWidget *widget(const QString &key);
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 	void onChatWidgetDestroyed(QObject *object);

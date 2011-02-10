@@ -106,6 +106,7 @@ struct ModulePrivate
 	ActionToolBar *mainToolBar;
 #ifdef Q_WS_S60
 	QAction *statusBtn;
+	QAction *actionsBtn;
 #else
 	QPushButton *statusBtn;
 #endif
@@ -242,10 +243,10 @@ Module::Module() : p(new ModulePrivate)
 
 	p->searchBar = new QLineEdit(p->widget);
 #ifdef Q_WS_S60
-	QAction *action = new QAction(tr("Actions"),p->widget);
-	action->setSoftKeyRole(QAction::PositiveSoftKey);
-	action->setMenu(menu());
-	p->widget->addAction(action);
+	p->actionsBtn = new QAction(tr("Actions"),p->widget);
+	p->actionsBtn->setSoftKeyRole(QAction::PositiveSoftKey);
+	p->actionsBtn->setMenu(menu());
+	p->widget->addAction(p->actionsBtn);
 
 	p->statusBtn = new QAction(tr("Status"),p->widget);
 	p->statusBtn->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -332,6 +333,7 @@ void Module::onStatusChanged()
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
+			status.setProperty("changeReason",Status::ByUser);
 			status.setSubtype(0);
 			account->setStatus(status);
 		}
@@ -535,19 +537,18 @@ void Module::onAccountDestroyed(QObject *obj)
 
 bool Module::eventFilter(QObject *obj, QEvent *event)
 {
-	if (obj->metaObject() == &QMainWindow::staticMetaObject) {
-		if (event->type() == QEvent::LanguageChange) {
-			foreach (QAction *action,p->statusActions) {
-				//FIXME on symbian somehow not translated
-				//TODO make bugreport, viv need help
-				Status last = p->statusBtn->property("lastStatus").value<Status>();
-				p->statusBtn->setText(last.name());
-				Status::Type type = static_cast<Status::Type>(action->data().toInt());
-				action->setText(Status(type).name());
-			}
-			p->status_action->setText(tr("Set Status Text"));
-			event->accept();
+	if (event->type() == QEvent::LanguageChange) {
+		foreach (QAction *action,p->statusActions) {
+			Status last = p->statusBtn->property("lastStatus").value<Status>();
+			p->statusBtn->setText(last.name());
+			Status::Type type = static_cast<Status::Type>(action->data().toInt());
+			action->setText(Status(type).name());
 		}
+		p->status_action->setText(tr("Set Status Text"));
+#ifdef Q_WS_S60
+		p->actionsBtn->setText(tr("Actions"));
+#endif
+		event->accept();
 	}
 	return MenuController::eventFilter(obj,event);
 }

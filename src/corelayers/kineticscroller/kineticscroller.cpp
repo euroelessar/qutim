@@ -28,7 +28,7 @@ KineticScroller::KineticScroller()
 
 void KineticScroller::enableScrolling(QObject *widget)
 {
-	QtScroller::grabGesture(widget);
+	QtScroller::grabGesture(widget, QtScroller::LeftMouseButtonGesture);
 }
 
 } // namespace Core

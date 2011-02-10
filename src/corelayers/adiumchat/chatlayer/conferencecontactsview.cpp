@@ -19,6 +19,7 @@ public:
 	ConferenceContactsViewPrivate(ConferenceContactsView *q) : q_ptr(q), session(0) {}
 	ConferenceContactsView *q_ptr;
 	ChatSessionImpl *session;
+	QAction *action;
 	void _q_activated(const QModelIndex &index)
 	{
 		Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
@@ -38,6 +39,7 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	QListView(parent),
 	d_ptr(new ConferenceContactsViewPrivate(this))
 {
+	Q_D(ConferenceContactsView);
 	setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -45,12 +47,14 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	setAcceptDrops(true);
 	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_activated(QModelIndex)));
 
-	QAction *action = new QAction(tr("Private"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
-	addAction(action);
+	d->action = new QAction(tr("Private"),this);
+	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
+	addAction(d->action);
 
 	QTimer::singleShot(0, this, SLOT(q_init_scrolling()));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+	setWindowTitle(tr("Conference participants"));
 }
 
 void ConferenceContactsView::setSession(ChatSessionImpl *session)
@@ -107,6 +111,13 @@ bool ConferenceContactsView::event(QEvent *event)
 ConferenceContactsView::~ConferenceContactsView()
 {
 
+}
+
+void ConferenceContactsView::changeEvent(QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		d_func()->action->setText(tr("Private"));
+	}
 }
 
 //move to chatforms

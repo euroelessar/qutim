@@ -17,18 +17,22 @@ class SessionListWidgetPrivate
 {
 public:
 	ChatSessionList sessions;
+	QAction *action;
 };
 
 SessionListWidget::SessionListWidget(QWidget *parent) :
 	QListWidget(parent),
 	d_ptr(new SessionListWidgetPrivate)
 {
+	Q_D(SessionListWidget);
 	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onActivated(QListWidgetItem*)));
 
-	QAction *action = new QAction(tr("Close chat"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
-	connect(action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
-	addAction(action);
+	d->action = new QAction(tr("Close chat"), this);
+	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(d->action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
+	addAction(d->action);
+
+	setWindowTitle(tr("Session list"));
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -238,6 +242,12 @@ void SessionListWidget::onCloseSessionTriggered()
 		removeSession(s);
 }
 
+void SessionListWidget::changeEvent(QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		d_func()->action->setText(tr("Close chat"));
+	}
+}
 
 } // namespace AdiumChat
 } // namespace Core

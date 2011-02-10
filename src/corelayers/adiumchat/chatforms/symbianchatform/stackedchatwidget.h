@@ -46,6 +46,9 @@ public slots:
 	virtual void loadSettings();
 protected:
 	bool event(QEvent *event);
+	void changeEvent(QEvent *ev);
+	void setTitle(ChatSessionImpl *s);
+	void onAboutToChangeIndex(int index); //Symbian softkeys workaround
 protected slots:	
 	void onSessionActivated(bool active);
 	void onUnreadChanged();
@@ -60,8 +63,10 @@ private:
 	QAction *m_recieverList;
 	SlidingStackedWidget *m_stack;
 	QWidget *m_chatWidget;
-	QAction *m_unitActions;
-	ConferenceContactsView *m_contactView;
+	QPointer<QAction> m_unitActions;
+	QAction *m_sendAct;
+	ConferenceContactsView *m_confContactView;
+	QWidget *m_contactList;
 	MenuController *m_menu;
 };
 

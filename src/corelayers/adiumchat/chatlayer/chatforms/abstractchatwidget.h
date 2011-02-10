@@ -49,6 +49,7 @@ public:
 	virtual bool contains(ChatSessionImpl *session) const = 0;
 	virtual ~AbstractChatWidget() {}
 	virtual ChatSessionImpl *currentSession() const = 0;
+	static QString titleForSession(ChatSessionImpl *s);
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
 	void addSessions(const ChatSessionList &sessions);
