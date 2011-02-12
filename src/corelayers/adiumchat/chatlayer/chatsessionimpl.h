@@ -60,6 +60,7 @@ public:
 	virtual MessageList unread() const;
 	QAbstractItemModel *getModel() const;
 	virtual void setActive(bool active = true);
+	void setSessionActive(bool active = true);
 	virtual void setChatUnit(ChatUnit* unit);
 	virtual bool isActive();
 	QMenu *menu();

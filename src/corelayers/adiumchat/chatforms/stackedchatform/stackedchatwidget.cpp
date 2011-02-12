@@ -235,9 +235,10 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 		m_chatInput->setDocument(0);
 	}
 
-	session->setActive(false);
 	if(m_flags & DeleteSessionOnClose)
 		session->deleteLater();
+	else
+		session->setActive(false);
 
 	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 
@@ -262,8 +263,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		session->markRead();
 
 	bool isActivateWindow = false;
-	if (qApp->activeWindow() != this)
-	{
+	if (qApp->activeWindow() != this) {
 		activateWindow();
 		isActivateWindow = true;
 	}
