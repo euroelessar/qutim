@@ -16,7 +16,9 @@
 
 #include "textviewwidget.h"
 #include "textviewcontroller.h"
+#ifdef Q_WS_MAEMO_5
 #include "texteditautoresizer.h"
+#endif
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
