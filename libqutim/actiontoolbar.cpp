@@ -21,6 +21,7 @@
 #include "menucontroller_p.h"
 #include "actiontoolbar_p.h"
 #include "config.h"
+#include "actiongenerator_p.h"
 
 namespace qutim_sdk_0_3
 {	
@@ -167,6 +168,7 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 		Q_ASSERT(action);
 		if(!action->parent())
 			action->setParent(this);
+		ActionGeneratorPrivate::get(generator)->sendActionCreatedEvent(action, this);
 		actionsCache()->operator[](generator).insert(this,action);
 	}
 	//action->setData(d->data);

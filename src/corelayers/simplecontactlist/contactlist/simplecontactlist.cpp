@@ -45,11 +45,11 @@ public:
 };
 
 class MyWidget : public
-#ifdef Q_WS_S60
+		#ifdef Q_WS_S60
 		QWidget
-#else
+		#else
 		QMainWindow
-#endif
+		#endif
 {
 public:
 	MyWidget()
@@ -100,6 +100,7 @@ public:
 
 struct ModulePrivate
 {
+	~ModulePrivate() {}
 	MyWidget *widget;
 	TreeView *view;
 	AbstractContactModel *model;
@@ -115,6 +116,7 @@ struct ModulePrivate
 	QHash<Account *, QAction *> actions;
 	QAction *status_action;
 	QList<QAction *> statusActions;
+	QScopedPointer<ActionGenerator> tagsGenerator;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -207,10 +209,10 @@ Module::Module() : p(new ModulePrivate)
 	addButton(gen);
 #endif
 
-	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
-	gen->addHandler(ActionCreatedHandler,this);
-	gen->setPriority(-127);
-	addButton(gen);
+	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
+	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
+	p->tagsGenerator->setPriority(-127);
+	addButton(p->tagsGenerator.data());
 
 	// TODO: choose another, non-kopete icon
 	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
@@ -518,13 +520,15 @@ bool Module::event(QEvent *ev)
 		}
 	} else if (ev->type() == ActionCreatedEvent::eventType()) {
 		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
-		QAction *action = event->action();
-		QMenu *menu = new QMenu(p->view);
-		QAction *act = menu->addAction(tr("Select tags"));
-		connect(act, SIGNAL(triggered()), p->view, SLOT(onSelectTagsTriggered()));
-		act = menu->addAction(tr("Reset"));
-		connect(act, SIGNAL(triggered()), p->view, SLOT(onResetTagsTriggered()));
-		action->setMenu(menu);
+		if (event->generator() == p->tagsGenerator.data()) {
+			QAction *action = event->action();
+			QMenu *menu = new QMenu(p->view);
+			QAction *act = menu->addAction(tr("Select tags"));
+			connect(act, SIGNAL(triggered()), p->view, SLOT(onSelectTagsTriggered()));
+			act = menu->addAction(tr("Reset"));
+			connect(act, SIGNAL(triggered()), p->view, SLOT(onResetTagsTriggered()));
+			action->setMenu(menu);
+		}
 	}
 	return QObject::event(ev);
 }
