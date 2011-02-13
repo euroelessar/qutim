@@ -67,7 +67,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 void ChatSessionImpl::clearChat()
 {
 	Q_D(ChatSessionImpl);
-	d->getController()->clear();
+	d->getController()->clearChat();
 }
 
 ChatSessionImpl::~ChatSessionImpl()

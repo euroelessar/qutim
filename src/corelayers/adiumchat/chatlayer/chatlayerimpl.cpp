@@ -38,6 +38,8 @@ namespace AdiumChat
 
 void init()
 {
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ChatForm"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ChatViewFactory"));
 	Shortcut::registerSequence("chatCloseSession",
 							   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
 							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),

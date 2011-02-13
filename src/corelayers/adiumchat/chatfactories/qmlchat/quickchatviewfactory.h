@@ -17,8 +17,9 @@
 #define QUICKCHATVIEWFACTORY_H
 
 #include <QWidget>
-#include <chatviewfactory.h>
+#include <chatlayer/chatviewfactory.h>
 
+class QDeclarativeEngine;
 namespace Core {
 namespace AdiumChat {
 
@@ -30,6 +31,8 @@ public:
 	virtual QWidget *createViewWidget();
 	virtual QObject *createViewController();
     virtual ~QuickChatViewFactory();
+private:
+	QDeclarativeEngine *m_engine;
 };
 
 } // namespace AdiumChat

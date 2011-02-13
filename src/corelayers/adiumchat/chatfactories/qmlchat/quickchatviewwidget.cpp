@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "quickchatviewwidget.h"
+#include "quickchatviewcontroller.h"
 
 namespace Core {
 namespace AdiumChat {
@@ -21,6 +22,17 @@ namespace AdiumChat {
 QuickChatViewWidget::QuickChatViewWidget()
 {
 }
+
+void QuickChatViewWidget::setViewController(QObject* object)
+{
+	QuickChatViewController* controller = qobject_cast<QuickChatViewController*>(object);
+	if (controller) {
+		setScene(controller);
+	} else {
+		setScene(new QGraphicsScene(this));
+	}
+}
+
 
 } // namespace AdiumChat
 } // namespace Core

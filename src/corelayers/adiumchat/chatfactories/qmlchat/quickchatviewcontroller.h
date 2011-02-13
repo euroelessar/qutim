@@ -16,21 +16,31 @@
 #ifndef QUICKCHATVIEWCONTROLLER_H
 #define QUICKCHATVIEWCONTROLLER_H
 
-#include <chatviewfactory.h>
-#include <QtDeclarative/QDeclarativeComponent>
+#include <QGraphicsScene>
+#include <chatlayer/chatviewfactory.h>
+#include <QVariant>
 
+class QDeclarativeEngine;
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatViewController : public QDeclarativeComponent, public ChatViewController
+class QuickChatViewController : public QGraphicsScene, public ChatViewController
 {
     Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 public:
+	QuickChatViewController(/*QDeclarativeEngine *engine*/);
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
-	virtual void clear();
+	virtual void clearChat();
     virtual ~QuickChatViewController();
+signals:
+	void messageAppended(const QVariant &message);
+private:
+	ChatSessionImpl *m_session;
+	QString m_themeName;
+	QDeclarativeEngine *m_engine;
 };
 
 } // namespace AdiumChat

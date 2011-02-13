@@ -14,23 +14,27 @@
 *****************************************************************************/
 
 #include "quickchatviewfactory.h"
+#include "quickchatviewcontroller.h"
+#include "quickchatviewwidget.h"
+#include <QDeclarativeEngine>
 
 namespace Core {
 namespace AdiumChat {
 
-QuickChatViewFactory::QuickChatViewFactory()
+QuickChatViewFactory::QuickChatViewFactory() :
+	m_engine(new QDeclarativeEngine(this))
 {
 
 }
 
 QObject* QuickChatViewFactory::createViewController()
 {
-
+	return new QuickChatViewController(/*m_engine*/);
 }
 
 QWidget* QuickChatViewFactory::createViewWidget()
 {
-
+	return new QuickChatViewWidget();
 }
 
 QuickChatViewFactory::~QuickChatViewFactory()

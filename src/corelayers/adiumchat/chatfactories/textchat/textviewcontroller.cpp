@@ -337,7 +337,7 @@ bool TextViewController::shouldBreak(const QDateTime &time)
 	return false;
 }
 
-void TextViewController::clear()
+void TextViewController::clearChat()
 {
 	debug() << Q_FUNC_INFO;
 	QTextDocument::clear();

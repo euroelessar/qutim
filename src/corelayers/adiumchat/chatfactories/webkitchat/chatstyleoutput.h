@@ -89,7 +89,7 @@ public:
 	void loadTheme(const QString &name, const QString &variant = QString());
 	bool event(QEvent *);
 	bool virtual eventFilter(QObject *obj, QEvent *ev);
-	virtual void clear();
+	virtual void clearChat();
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void loadSettings();

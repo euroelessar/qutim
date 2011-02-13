@@ -51,7 +51,7 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
 	addAction(d->action);
 
-	QTimer::singleShot(0, this, SLOT(q_init_scrolling()));
+	QTimer::singleShot(0, this, SLOT(_q_init_scrolling()));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	setWindowTitle(tr("Conference participants"));
