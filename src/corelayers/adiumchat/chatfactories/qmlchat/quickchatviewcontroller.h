@@ -19,8 +19,10 @@
 #include <QGraphicsScene>
 #include <chatlayer/chatviewfactory.h>
 #include <QVariant>
+#include <QPointer>
 
 class QDeclarativeEngine;
+class QDeclarativeItem;
 namespace Core {
 namespace AdiumChat {
 
@@ -35,12 +37,14 @@ public:
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
     virtual ~QuickChatViewController();
+	QDeclarativeItem *rootItem() const;
 signals:
 	void messageAppended(const QVariant &message);
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
+	QPointer<QDeclarativeItem> m_item;
 };
 
 } // namespace AdiumChat

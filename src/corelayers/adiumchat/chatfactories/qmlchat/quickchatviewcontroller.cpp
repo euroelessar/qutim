@@ -21,6 +21,7 @@
 #include <QStringBuilder>
 #include <QDeclarativeItem>
 #include <qutim/debug.h>
+#include <qutim/account.h>
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 
@@ -30,13 +31,17 @@ namespace AdiumChat {
 QVariant messageToVariant(const Message &mes)
 {
 	//TODO Optimize if posible
-	QVariant unit = qVariantFromValue<ChatUnit*>(const_cast<ChatUnit *>(mes.chatUnit()));
 	QVariantMap map;
-	map.insert(QLatin1String("id"), mes.id());
+	map.insert(QLatin1String("mid"), mes.id());
 	map.insert(QLatin1String("time"), mes.time());
-	map.insert(QLatin1String("unit"), unit);
-	map.insert(QLatin1String("in"), mes.isIncoming());
-	map.insert(QLatin1String("text"), mes.text());
+	QObject *unit = const_cast<ChatUnit*>(mes.chatUnit());
+	if (unit) {
+		map.insert(QLatin1String("chatUnit"), qVariantFromValue<QObject*>(unit));
+		QObject *account = const_cast<Account*>(mes.chatUnit()->account());
+		map.insert(QLatin1String("account"), qVariantFromValue<QObject*>(account));
+	}
+	map.insert(QLatin1String("isIncoming"), mes.isIncoming());
+	map.insert(QLatin1String("body"), mes.text());
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
@@ -86,10 +91,10 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 	QGraphicsScene::clear();
 	QDeclarativeComponent component(m_engine, main);
 	QObject *obj = component.create();
-	QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(obj);
-	addItem(item);
+	m_item = qobject_cast<QDeclarativeItem*>(obj);
+	addItem(m_item);
 
-	QDeclarativeContext *context = m_engine->contextForObject(obj);
+	//QDeclarativeContext *context = m_engine->contextForObject(obj);
 
 	//context->setContextProperty(QLatin1String("controller"), this);
 
@@ -99,6 +104,11 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 QuickChatViewController::~QuickChatViewController()
 {
 
+}
+
+QDeclarativeItem *QuickChatViewController::rootItem() const
+{
+	return m_item;
 }
 
 } // namespace AdiumChat
