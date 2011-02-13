@@ -60,8 +60,6 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 void ConferenceContactsView::setSession(ChatSessionImpl *session)
 {
 	Q_D(ConferenceContactsView);
-	if(d->session)
-		d->session->disconnect(this);
 	d->session = session;
 	setModel(session->getModel());
 	bool isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
