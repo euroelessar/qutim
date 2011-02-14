@@ -43,7 +43,13 @@ QVariant messageToVariant(const Message &mes)
 	}
 	map.insert(QLatin1String("isIncoming"), mes.isIncoming());
 	map.insert(QLatin1String("isDelivered"), mes.isIncoming());
-	map.insert(QLatin1String("body"), mes.text());
+
+	//handle /me
+	bool isMe = mes.text().startsWith(QLatin1String("/me "));
+	QString body = isMe ? mes.text().mid(4) : mes.text();
+	if (isMe)
+		map.insert(QLatin1String("action"), true);
+	map.insert(QLatin1String("body"), body);
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
@@ -62,6 +68,13 @@ QVariant messageToVariant(const Message &mes)
 		}
 	} else
 		map.insert(QLatin1String("sender"), sender);
+	//add correct avatar
+	if (!mes.property("avatar").isValid()) {
+		if (mes.isIncoming()) {
+			if (Buddy *b = qobject_cast<Buddy*>(mes.chatUnit()))
+				map.insert(QLatin1String("avatar"), b->avatar());
+		}
+	}
 
 	return map;
 }

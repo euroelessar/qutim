@@ -1,5 +1,7 @@
 FIND_PACKAGE( Qt4 COMPONENTS QtDeclarative)
 
+QUTIM_ADD_ARTWORK(qmlchat)
+
 qutim_add_plugin(qmlchat
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/quickchatviewfactory.h
