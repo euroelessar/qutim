@@ -24,6 +24,7 @@
 #include <qutim/account.h>
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
+#include <qutim/conference.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -41,10 +42,27 @@ QVariant messageToVariant(const Message &mes)
 		map.insert(QLatin1String("account"), qVariantFromValue<QObject*>(account));
 	}
 	map.insert(QLatin1String("isIncoming"), mes.isIncoming());
+	map.insert(QLatin1String("isDelivered"), mes.isIncoming());
 	map.insert(QLatin1String("body"), mes.text());
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
+
+	//add correct sender name
+	QString sender = mes.property("senderName", QString());
+	if (sender.isEmpty()) {
+		if (mes.isIncoming())
+			map.insert(QLatin1String("sender"), mes.chatUnit()->title());
+		else {
+			Conference *c = qobject_cast<Conference*>(mes.chatUnit());
+			if (c && c->me())
+				map.insert(QLatin1String("sender"), c->me()->title());
+			else
+				map.insert(QLatin1String("sender"), mes.chatUnit()->account()->name());
+		}
+	} else
+		map.insert(QLatin1String("sender"), sender);
+
 	return map;
 }
 
@@ -109,6 +127,16 @@ QuickChatViewController::~QuickChatViewController()
 QDeclarativeItem *QuickChatViewController::rootItem() const
 {
 	return m_item;
+}
+
+bool QuickChatViewController::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (ev->type() == MessageReceiptEvent::eventType()) {
+		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+		emit messageDelivered(msgEvent->id());
+		return true;
+	}
+	return QGraphicsScene::eventFilter(obj, ev);
 }
 
 } // namespace AdiumChat

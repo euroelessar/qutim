@@ -38,8 +38,11 @@ public:
 	virtual void clearChat();
     virtual ~QuickChatViewController();
 	QDeclarativeItem *rootItem() const;
+protected:
+	bool eventFilter(QObject *, QEvent *);
 signals:
 	void messageAppended(const QVariant &message);
+	void messageDelivered(int mid);
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
