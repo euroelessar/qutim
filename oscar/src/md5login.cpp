@@ -16,6 +16,7 @@
 
 #include "md5login.h"
 #include "icqaccount.h"
+#include "util.h"
 #include "qutim/notificationslayer.h"
 #include <QCryptographicHash>
 #include <QUrl>
@@ -116,8 +117,9 @@ void Md5Login::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		snac.appendTLV<QByteArray>(0x0001, m_conn->account()->id().toUtf8());
 		{
 			quint32 length = qFromBigEndian<quint32>((uchar *) sn.data().constData());
+			QByteArray password = Util::asciiCodec()->fromUnicode(m_password);
 			QByteArray key = sn.data().mid(2, length);
-			key += QCryptographicHash::hash(m_password.toUtf8(), QCryptographicHash::Md5);
+			key += QCryptographicHash::hash(password, QCryptographicHash::Md5);
 			key += "AOL Instant Messenger (SM)";
 			snac.appendTLV(0x0025, QCryptographicHash::hash(key, QCryptographicHash::Md5));
 		}
