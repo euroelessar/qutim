@@ -7,6 +7,7 @@
 namespace qutim_sdk_0_3 {
 
 class Account;
+class Contact;
 
 namespace oscar {
 
@@ -21,15 +22,17 @@ enum Visibility
 	BlockDenyList    = 4,
 	AllowContactList = 5
 };
-
 class PrivateListActionGenerator : public ActionGenerator
 {
 public:
+	typedef QSharedPointer<PrivateListActionGenerator> Ptr;
 	PrivateListActionGenerator(quint16 type, const QIcon &icon,
 				const LocalizedString &text1, const LocalizedString &text2);
 	virtual ~PrivateListActionGenerator();
+	void updateActions(QObject *obj, bool isPrivacyItemAdded) const;
 protected:
-	virtual void showImpl(QAction*, QObject*);
+	virtual void createImpl(QAction *action, QObject *obj) const;
+	virtual QObject *generateHelper() const;
 private:
 	quint16 m_type;
 	LocalizedString m_text;
@@ -39,11 +42,12 @@ private:
 class PrivacyActionGenerator : public ActionGenerator
 {
 public:
+	typedef QSharedPointer<PrivacyActionGenerator> Ptr;
 	PrivacyActionGenerator(Visibility visibility);
 	virtual ~PrivacyActionGenerator();
 protected:
+	virtual void createImpl(QAction *action, QObject *obj) const;
 	virtual QObject *generateHelper() const;
-	virtual void showImpl(QAction *action, QObject *object);
 private:
 	Visibility m_visibility;
 };
@@ -67,7 +71,13 @@ private slots:
 	void accountAdded(qutim_sdk_0_3::Account *account);
 	void statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous);
 private:
+	bool handleVisibility(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
+	bool handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
+private:
 	static PrivacyLists *self;
+	QHash<quint16, PrivateListActionGenerator::Ptr> contactMenuHash;
+	QHash<Visibility, PrivacyActionGenerator::Ptr> accountMenuHash;
+	Visibility m_currentVisibility;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

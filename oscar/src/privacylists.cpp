@@ -25,23 +25,26 @@ PrivateListActionGenerator::~PrivateListActionGenerator()
 {
 }
 
-void PrivateListActionGenerator::showImpl(QAction *action, QObject *object)
+void PrivateListActionGenerator::updateActions(QObject *obj, bool isPrivacyItemAdded) const
 {
-	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
-	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
-	action->setVisible(contact->isInList());
-	if (!action->isVisible())
+	foreach (QAction *action, actions(obj))
+		action->setText(isPrivacyItemAdded ? m_text2 : m_text);
+}
+
+void PrivateListActionGenerator::createImpl(QAction *action, QObject *obj) const
+{
+	IcqContact *contact = qobject_cast<IcqContact*>(obj);
+	if (!contact)
 		return;
 	IcqAccount *account = contact->account();
-	Status::Type status = account->status().type();
-	action->setVisible(status != Status::Offline && status != Status::Connecting);
-	if (!action->isVisible())
-		return;
-	if (!account->feedbag()->containsItem(m_type, contact->id()))
-		action->setText(m_text);
-	else
-		action->setText(m_text2);
+	action->setText(account->feedbag()->containsItem(m_type, contact->id()) ? m_text2 : m_text);
+}
+
+QObject *PrivateListActionGenerator::generateHelper() const
+{
+	QAction *action = prepareAction(new QAction(NULL));
 	action->setProperty("itemType", m_type);
+	return action;
 }
 
 void PrivacyLists::onModifyPrivateList(QAction *action, QObject *object)
@@ -56,9 +59,27 @@ void PrivacyLists::onModifyPrivateList(QAction *action, QObject *object)
 		item.update();
 }
 
+static LocalizedString visibilityToString(Visibility visibility)
+{
+	switch (visibility) {
+	case AllowAllUsers:
+		return QT_TRANSLATE_NOOP("Privacy", "Visible for all");
+	case BlockAllUsers:
+		return QT_TRANSLATE_NOOP("Privacy", "Invisible for all");
+	case AllowPermitList:
+		return QT_TRANSLATE_NOOP("Privacy", "Visible only for visible list");
+	case BlockDenyList:
+		return QT_TRANSLATE_NOOP("Privacy", "Invisible only for invisible list");
+	case AllowContactList:
+		return QT_TRANSLATE_NOOP("Privacy", "Visible only for contact list");
+	default:
+		return QT_TRANSLATE_NOOP("Privacy", "Unknown privacy");
+	}
+}
 
 PrivacyActionGenerator::PrivacyActionGenerator(Visibility visibility) :
-	ActionGenerator(QIcon(), LocalizedString(), PrivacyLists::instance(), SLOT(onModifyPrivacy(QAction*,QObject*))),
+	ActionGenerator(QIcon(), LocalizedString(visibilityToString(visibility)),
+					PrivacyLists::instance(), SLOT(onModifyPrivacy(QAction*,QObject*))),
 	m_visibility(visibility)
 {
 	setPriority(100 - visibility);
@@ -68,22 +89,11 @@ PrivacyActionGenerator::~PrivacyActionGenerator()
 {
 }
 
-QObject *PrivacyActionGenerator::generateHelper() const
+void PrivacyActionGenerator::createImpl(QAction *action, QObject *obj) const
 {
-	static QActionGroup group(0);
-	QAction *action = prepareAction(new QAction(NULL));
-	action->setCheckable(true);
-	group.addAction(action);
-	return action;
-}
-
-void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
-{
-	if (action->menu())
+	IcqAccount *account = qobject_cast<IcqAccount*>(obj);
+	if (!account)
 		return;
-
-	Q_ASSERT(qobject_cast<IcqAccount*>(object) != 0);
-	IcqAccount *account = reinterpret_cast<IcqAccount*>(object);
 
 	bool isInvisible = account->status() == Status::Invisible;
 	if (isInvisible && m_visibility != AllowPermitList && m_visibility != BlockAllUsers) {
@@ -97,28 +107,16 @@ void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
 	if (curVisibility == NoVisibility)
 		curVisibility = PrivacyLists::instance()->getCurrentMode(account, isInvisible);
 	action->setChecked(curVisibility == m_visibility);
+}
 
-	switch (m_visibility) {
-	case AllowAllUsers:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible for all"));
-		break;
-	case BlockAllUsers:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Invisible for all"));
-		break;
-	case AllowPermitList:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible only for visible list"));
-		break;
-	case BlockDenyList:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Invisible only for invisible list"));
-		break;
-	case AllowContactList:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible only for contact list"));
-		break;
-	default:
-		action->setText(QT_TRANSLATE_NOOP("Privacy", "Unknown privacy"));
-		return;
-	}
+QObject *PrivacyActionGenerator::generateHelper() const
+{
+	static QActionGroup group(0);
+	QAction *action = prepareAction(new QAction(NULL));
+	action->setCheckable(true);
 	action->setProperty("visibility", m_visibility);
+	group.addAction(action);
+	return action;
 }
 
 void PrivacyLists::onModifyPrivacy(QAction *action, QObject *object)
@@ -148,33 +146,43 @@ PrivacyLists::PrivacyLists() :
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+	IcqProtocol::instance()->installEventFilter(this);
 
-	typedef QSharedPointer<ActionGenerator> ActionPointer;
-	static QList<ActionPointer> contactMenuList;
-	contactMenuList
-			<< ActionPointer(new PrivateListActionGenerator(SsiPermit, Icon("im-visible-contact-icq"),
-						QT_TRANSLATE_NOOP("ContactList", "Add to visible list"),
-						QT_TRANSLATE_NOOP("ContactList", "Remove from visible list")))
-			<< ActionPointer(new PrivateListActionGenerator(SsiDeny, Icon("im-invisible-contact-icq"),
-						QT_TRANSLATE_NOOP("ContactList", "Add to invisible list"),
-						QT_TRANSLATE_NOOP("ContactList", "Remove from invisible list")))
-			<< ActionPointer(new PrivateListActionGenerator(SsiIgnore, Icon("im-ignore-contact-icq"),
-						QT_TRANSLATE_NOOP("ContactList", "Add to ignore list"),
-						QT_TRANSLATE_NOOP("ContactList", "Remove from ignore list")));
-	foreach (const ActionPointer &action, contactMenuList)
+	// Create privacy actions for contacts.
+#define ADD_PRIVACY_ACTION(Type, IconName, Text1, Text2) \
+	contactMenuHash.insert(Type, PrivateListActionGenerator::Ptr( \
+			new PrivateListActionGenerator(Type, Icon(IconName), Text1, Text2)))
+
+	ADD_PRIVACY_ACTION(SsiPermit, "im-visible-contact-icq",
+					   QT_TRANSLATE_NOOP("ContactList", "Add to visible list"),
+					   QT_TRANSLATE_NOOP("ContactList", "Remove from visible list"));
+	ADD_PRIVACY_ACTION(SsiDeny, "im-invisible-contact-icq",
+					   QT_TRANSLATE_NOOP("ContactList", "Add to invisible list"),
+					   QT_TRANSLATE_NOOP("ContactList", "Remove from invisible list"));
+	ADD_PRIVACY_ACTION(SsiIgnore, "im-ignore-contact-icq",
+					   QT_TRANSLATE_NOOP("ContactList", "Add to ignore list"),
+					   QT_TRANSLATE_NOOP("ContactList", "Remove from ignore list"));
+
+#undef ADD_PRIVACY_ACTION
+
+	foreach (const PrivateListActionGenerator::Ptr &action, contactMenuHash)
 		MenuController::addAction<IcqContact>(action.data());
 
-	static QList<ActionPointer> accountMenuList;
-	accountMenuList << ActionPointer(new PrivacyActionGenerator(AllowAllUsers))
-			<< ActionPointer(new PrivacyActionGenerator(BlockAllUsers))
-			<< ActionPointer(new PrivacyActionGenerator(AllowPermitList))
-			<< ActionPointer(new PrivacyActionGenerator(BlockDenyList))
-			<< ActionPointer(new PrivacyActionGenerator(AllowContactList));
-	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
-	foreach (const ActionPointer &action, accountMenuList)
-		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Privacy status");
+	//  Create privacy actions for accounts.
+#define ADD_PRIVACY_ACTION(Visibility) \
+	accountMenuHash.insert(Visibility, PrivacyActionGenerator::Ptr(new PrivacyActionGenerator(Visibility)))
 
-	IcqProtocol::instance()->installEventFilter(this);
+	ADD_PRIVACY_ACTION(AllowAllUsers);
+	ADD_PRIVACY_ACTION(BlockAllUsers);
+	ADD_PRIVACY_ACTION(AllowPermitList);
+	ADD_PRIVACY_ACTION(BlockDenyList);
+	ADD_PRIVACY_ACTION(AllowContactList);
+
+#undef ADD_PRIVACY_ACTION
+
+	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
+	foreach (const PrivacyActionGenerator::Ptr &action, accountMenuHash)
+		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Privacy status");
 }
 
 bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -182,12 +190,47 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	Q_UNUSED(feedbag);
 	if (error != FeedbagError::NoError)
 		return false;
+	switch (item.type()) {
+	case SsiVisibility:
+		return handleVisibility(feedbag, item, type);
+	case SsiPermit:
+	case SsiDeny:
+	case SsiIgnore:
+		return handlePrivacyListItem(feedbag, item, type);
+	default:
+		return false;
+	}
+}
+
+bool PrivacyLists::handleVisibility(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type)
+{
+	if (type != Feedbag::Remove) {
+		Visibility newVisibility = (Visibility)item.field<quint8>(0x00CA);
+		PrivacyActionGenerator::Ptr actionGen = accountMenuHash.value(newVisibility);
+		if (actionGen) {
+			foreach (QAction *action, actionGen->actions(feedbag->account()))
+				action->setChecked(true);
+		}
+		m_currentVisibility = newVisibility;
+	} else if (m_currentVisibility != NoVisibility) {
+		PrivacyActionGenerator::Ptr actionGen = accountMenuHash.value(m_currentVisibility);
+		Q_ASSERT(actionGen);
+		foreach (QAction *action, actionGen->actions(feedbag->account()))
+			action->setChecked(false);
+		m_currentVisibility = NoVisibility;
+	}
+	return true;
+}
+
+bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type)
+{
 	QString name;
 	QString icon;
+	bool isItemAdded = type != Feedbag::Remove;
 	switch (item.type()) {
 	case SsiPermit: {
 		name = "visible";
-		if (type != Feedbag::Remove) {
+		if (isItemAdded) {
 			icon = "im-visible-contact-icq";
 			debug() << item.name() << "has been added to visible list";
 		} else {
@@ -197,7 +240,7 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	}
 	case SsiDeny: {
 		name = "invisible";
-		if (type != Feedbag::Remove) {
+		if (isItemAdded) {
 			icon = "im-invisible-contact-icq";
 			debug() << item.name() << "has been added to invisible list";
 		} else {
@@ -207,7 +250,7 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	}
 	case SsiIgnore: {
 		name = "ignore";
-		if (type != Feedbag::Remove) {
+		if (isItemAdded) {
 			icon = "im-ignore-contact-icq";
 			debug() << item.name() << "has been added to ignore list";
 		} else {
@@ -221,6 +264,7 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	IcqContact *contact = feedbag->account()->getContact(item.name());
 	if (!contact)
 		return true;
+	// Update contact's status
 	Status status = contact->status();
 	if (!icon.isEmpty()) {
 		QVariantHash clientInfo;
@@ -233,6 +277,8 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 		status.removeExtendedInfo(name);
 	}
 	contact->setStatus(status);
+	// Update contact's actions.
+	contactMenuHash.value(item.type())->updateActions(contact, isItemAdded);
 	return true;
 }
 
@@ -296,14 +342,35 @@ void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)
 
 void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous)
 {
-	if (status == Status::Connecting || status == Status::Offline)
-		return;
 	IcqAccount *account = qobject_cast<IcqAccount*>(sender());
 	Q_ASSERT(account);
-	if (previous == Status::Offline ||
-		((status == Status::Invisible) != (previous == Status::Invisible)))
+	bool wasOffline = previous == Status::Offline || previous == Status::Connecting;
+	bool isOffline = status == Status::Offline || status == Status::Connecting;
+	// Update account's actions
+	bool isInvisible = status == Status::Invisible;
+	if (previous == Status::Connecting || (isInvisible != (previous == Status::Invisible)))
 	{
-		setVisibility(account, getCurrentMode(account, status == Status::Invisible));
+		setVisibility(account, getCurrentMode(account, isInvisible));
+		foreach (QAction *action, accountMenuHash.value(AllowAllUsers)->actions(account))
+			action->setVisible(!isInvisible);
+		foreach (QAction *action, accountMenuHash.value(BlockDenyList)->actions(account))
+			action->setVisible(!isInvisible);
+		foreach (QAction *action, accountMenuHash.value(AllowContactList)->actions(account))
+			action->setVisible(!isInvisible);
+	}
+	// Update contacts' actions
+	if (wasOffline != isOffline) {
+		foreach (const PrivateListActionGenerator::Ptr &gen, contactMenuHash) {
+			typedef QMap<QObject*, QAction*> Map;
+			Map actions = gen->actions();
+			Map::iterator itr = actions.begin(), end = actions.end();
+			for (; itr != end; ++itr) {
+				IcqContact *contact = qobject_cast<IcqContact*>(itr.key());
+				if (!contact || contact->account() != account)
+					continue;
+				(*itr)->setVisible(wasOffline);
+			}
+		}
 	}
 }
 
