@@ -44,6 +44,10 @@ QVariant messageToVariant(const Message &mes)
 	map.insert(QLatin1String("isIncoming"), mes.isIncoming());
 	map.insert(QLatin1String("isDelivered"), mes.isIncoming());
 
+	//define action and service property if it not defined
+	map.insert(QLatin1String("action"), mes.property("action",false));
+	map.insert(QLatin1String("service"), mes.property("service",false));
+
 	//handle /me
 	bool isMe = mes.text().startsWith(QLatin1String("/me "));
 	QString body = isMe ? mes.text().mid(4) : mes.text();
