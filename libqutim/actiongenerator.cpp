@@ -348,6 +348,10 @@ void ActionGenerator::setShortcut(const QKeySequence &shortcut)
 	d->shortCuts.append(shortcut);
 }
 
+void ActionGenerator::createImpl(QAction *action,QObject *obj) const
+{
+}
+
 void ActionGenerator::showImpl(QAction *,QObject *)
 {
 }
