@@ -28,7 +28,7 @@ class CookiePrivate: public QSharedData
 {
 public:
 	CookiePrivate(quint64 _id = 0):
-		id(_id)
+		id(_id), member(0)
 	{
 		timer.setSingleShot(true);
 	}
@@ -36,6 +36,8 @@ public:
 	quint64 id;
 	IcqContact *contact;
 	IcqAccount *account;
+	mutable QObject *receiver;
+	mutable QLatin1String member;
 	mutable QTimer timer;
 };
 
@@ -93,10 +95,10 @@ void Cookie::lock(QObject *receiver, const char *member, int msec) const
 	Q_ASSERT(d->account);
 	Q_ASSERT(!isEmpty());
 	d->account->d_func()->cookies.insert(d->id, *this);
-	if (receiver)
-		QObject::connect(d->account, SIGNAL(cookieTimeout(Cookie)), receiver, member);
 	d->timer.setProperty("cookieId", d->id);
 	QObject::connect(&d->timer, SIGNAL(timeout()), d->account, SLOT(onCookieTimeout()));
+	d->receiver = receiver;
+	d->member = QLatin1String(member);
 	d->timer.start(msec);
 }
 
@@ -107,6 +109,8 @@ bool Cookie::unlock() const
 	Cookie cookie = d->account->d_func()->cookies.take(d->id);
 	if (!cookie.isEmpty()) {
 		cookie.d_func()->timer.stop();
+		d->receiver = 0;
+		d->member = QLatin1String(0);
 		return true;
 	} else {
 		return false;
@@ -150,6 +154,16 @@ IcqAccount *Cookie::account() const
 void Cookie::setAccount(IcqAccount *account)
 {
 	d_func()->account = account;
+}
+
+QObject *Cookie::receiver()
+{
+	return d_func()->receiver;
+}
+
+const char *Cookie::member()
+{
+	return d_func()->member.latin1();
 }
 
 quint64 Cookie::generateId()

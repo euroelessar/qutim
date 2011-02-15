@@ -48,6 +48,8 @@ public:
 	void setContact(IcqContact *contact);
 	IcqAccount *account() const;
 	void setAccount(IcqAccount *account);
+	QObject *receiver();
+	const char *member();
 	static quint64 generateId();
 private:
 	QExplicitlySharedDataPointer<CookiePrivate> d_ptr;

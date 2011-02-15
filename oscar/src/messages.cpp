@@ -206,7 +206,6 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	// Server sends ICBM service parameters to client
 	case MessageFamily << 16 | MessageSrvReplyIcbm: {
-		debug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
 		quint32 dw_flags = 0x00000303;
 		// TODO: Find description
 #ifdef DBG_CAPHTML
@@ -798,7 +797,7 @@ void MessageSender::sendMessage(MessageData &message)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(contact, Channel2MessageData(0, tlv));
 		if (message.msgs.isEmpty())
-			msgData.setCookie(cookie, this, SLOT(messageTimeout(Cookie)));
+			msgData.setCookie(cookie, this, "messageTimeout(Cookie)");
 		m_account->connection()->send(msgData, 80);
 	}
 }

@@ -27,6 +27,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/objectgenerator.h>
 #include <QTimer>
+#include <QMetaMethod>
 
 namespace qutim_sdk_0_3 {
 
@@ -454,7 +455,15 @@ void IcqAccount::onCookieTimeout()
 	Q_ASSERT(id != 0);
 	Cookie cookie = d->cookies.take(id);
 	Q_ASSERT(!cookie.isEmpty());
-	emit cookieTimeout(cookie);
+	QObject *receiver = cookie.receiver();
+	const char *member = cookie.member();
+	if (receiver && member) {
+		const QMetaObject *metaObject = receiver->metaObject();
+		int index = metaObject->indexOfMethod(QMetaObject::normalizedSignature(member));
+		if (index != -1) {
+			metaObject->method(index).invoke(receiver, Qt::AutoConnection, Q_ARG(Cookie, cookie));
+		}
+	}
 	// cookie.unlock(); // Commented out as this cookie is already unlocked
 }
 

@@ -63,7 +63,6 @@ public:
 	void setProxy(const QNetworkProxy &proxy);
 signals:
 	void avatarChanged(const QString &avatar);
-	void cookieTimeout(const Cookie &cookie);
 	void loginFinished();
 	void settingsUpdated();
 	void proxyUpdated(const QNetworkProxy &proxy);
