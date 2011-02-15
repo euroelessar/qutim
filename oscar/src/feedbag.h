@@ -161,6 +161,8 @@ signals:
 	void reloadingStarted();
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+private slots:
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 private:
 	friend class FeedbagPrivate;
 	friend class FeedbagItem;

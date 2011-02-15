@@ -147,6 +147,11 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
 {
 	FeedbagPrivate *d = feedbag->d.data();
+	Status::Type status = d->account->status().type();
+	if (status == Status::Offline || status == Status::Connecting) {
+		warning() << "Trying to send the feedbag item while offline:" << item;
+		return;
+	}
 	if (operation == Feedbag::Add) {
 		quint16 limit = d->limits.value(item.type());
 		if (limit > 0 && d->items.value(item.type()).count() <= limit) {
@@ -537,6 +542,8 @@ Feedbag::Feedbag(IcqAccount *acc):
 		itemsItr->insert(item.d->id(), item);
 	}
 	cfg.endGroup();
+	connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 Feedbag::~Feedbag()
@@ -887,6 +894,12 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	}
+}
+
+void Feedbag::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+{
+	if (current == Status::Offline && previous != Status::Offline)
+		d->ssiQueue.clear();
 }
 
 FeedbagItemHandler::~FeedbagItemHandler()
