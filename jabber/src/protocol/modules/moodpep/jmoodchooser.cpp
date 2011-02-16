@@ -26,14 +26,10 @@ JMoodChooserWindow::JMoodChooserWindow(Account *account, const QString &text,
 			SLOT(onCurrentItemChanged(QListWidgetItem*)));
 	ui->textEdit->setPlainText(text);
 	// Load available moods
-
-	//		QHashIterator<QString, LocalizedString> itr(JPersonMoodConverter::moods());
 	const QList<LocalizedString> titles = JPersonMoodConverter::moods();
 	jreen::Mood tmp;
 	QListWidgetItem *current = 0;
 	for (int i = 0; i < titles.size(); i++) {
-		//		while (itr.hasNext()) {
-		//			itr.next();
 		tmp.setType(static_cast<jreen::Mood::Type>(i));
 		QListWidgetItem *item = new QListWidgetItem(Icon("user-status-" + tmp.typeName()),
 													titles[i], ui->moodsWidget);

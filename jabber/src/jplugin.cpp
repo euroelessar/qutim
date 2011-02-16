@@ -105,14 +105,14 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
 				 new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
 				 ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
-	//			new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
-	//			ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
-	//			new GeneralGenerator<JActivityChooser, JabberExtension>(),
-	//			ExtensionIcon(""));
+	/*addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
+				QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
+				new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
+				ExtensionIcon(""));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
+				QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
+				new GeneralGenerator<JActivityChooser, JabberExtension>(),
+				ExtensionIcon(""));*/
 }
 
 bool JPlugin::load()
