@@ -152,7 +152,8 @@ IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, boo
 	return contact;
 }
 
-void IrcAccount::send(const QString &cmd, bool highPriority,
+void IrcAccount::send(const QString &cmd,
+					  bool highPriority,
 					  IrcCommandAlias::Type aliasType,
 					  const QHash<QChar, QString> &extParams) const
 {
@@ -165,7 +166,7 @@ void IrcAccount::send(const QString &cmd, bool highPriority,
 		int i = 0;
 		for (; i < 10; ++i) {
 			found = false;
-			cmdName = command.mid(0, command.indexOf(' '));
+			cmdName = command.section(' ', 0, 0);
 			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
 				break;
 			cmdParamsStr = command.mid(cmdName.length() + 1);
@@ -201,6 +202,24 @@ void IrcAccount::send(const QString &cmd, bool highPriority,
 		d->removeOldCommands();
 		d->lastCommands.push_back(lastCmd);
 	}
+	d->conn->send(command, highPriority);
+}
+
+void IrcAccount::send(IrcCommandAlias *alias,
+					  bool highPriority,
+					  IrcCommandAlias::Type aliasType,
+					  QStringList params,
+					  const ExtendedParams &extParams) const
+{
+	QString command = alias->generate(aliasType, params, extParams);
+	if (command.isEmpty())
+		return;
+	d->removeOldCommands();
+	LastCommand lastCmd = {
+		QDateTime::currentDateTime().toTime_t(),
+		command.section(' ', 0, 0).toLatin1()
+	};
+	d->lastCommands.push_back(lastCmd);
 	d->conn->send(command, highPriority);
 }
 

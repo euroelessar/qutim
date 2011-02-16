@@ -94,7 +94,7 @@ void IrcActionsManager::onIrcActionTriggered(QAction *action, QObject *controlle
 		type = IrcCommandAlias::Channel;
 	}
 	Q_ASSERT(account);
-	account->send(command->generate(type, QStringList(), extParams));
+	account->send(command, true, type, QStringList(), extParams);
 }
 
 } // namespace irc

@@ -50,6 +50,10 @@ public:
 	void send(const QString &command, bool highPriority = true,
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams()) const;
+	void send(IrcCommandAlias *alias, bool highPriority = true,
+			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
+			  QStringList params = QStringList(),
+			  const ExtendedParams &extParams = ExtendedParams()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd,
 						 const QString &param, bool highPriority = true);
 	void sendCtpcReply(const QString &contact, const QString &cmd,

@@ -239,6 +239,13 @@ void IrcCommandAlias::initStandartAliases()
 	ADD_MODE("-h", 57, "dehop", QT_TR_NOOP("Take HalfOp"));
 	ADD_MODE("+v", 56, "voice", QT_TR_NOOP("Give voice"));
 	ADD_MODE("-v", 55, "devoice", QT_TR_NOOP("Take voice"));
+
+	// Other commands
+	cmd = new IrcCommandAlias("whois", "WHOIS %o", Participant | PrivateChat);
+	gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Send WHOIS request"), cmd);
+	MenuController::addAction<IrcChannelParticipant>(gen);
+	gen->setType(0x00001);
+	registerAlias(cmd);
 }
 
 } } // namespace qutim_sdk_0_3::irc
