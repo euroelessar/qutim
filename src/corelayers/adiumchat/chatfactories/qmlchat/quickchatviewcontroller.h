@@ -40,9 +40,10 @@ public:
 	QDeclarativeItem *rootItem() const;
 public slots:
 	void loadSettings();
+protected slots:
+	void loadHistory();
 protected:
 	bool eventFilter(QObject *, QEvent *);
-	void loadHistory();
 signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);

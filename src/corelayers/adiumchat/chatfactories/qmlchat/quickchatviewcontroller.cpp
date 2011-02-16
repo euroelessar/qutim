@@ -30,6 +30,29 @@
 namespace Core {
 namespace AdiumChat {
 
+QString makeUrls (QString html) //TODO temporary
+{
+	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+							  Qt::CaseInsensitive);
+	Q_ASSERT(linkRegExp.isValid());
+	int pos = 0;
+	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
+	{
+		QString link = linkRegExp.cap(0);
+		QString tmplink = link;
+		if (tmplink.toLower().startsWith("www."))
+			tmplink.prepend("http://");
+		else if(!tmplink.contains("//"))
+			tmplink.prepend("mailto:");
+		static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
+		tmplink = hrefTemplate.arg(tmplink, link);
+		html.replace(pos, link.length(), tmplink);
+		pos += tmplink.count();
+	}
+	return html;
+}
+
 QVariant messageToVariant(const Message &mes)
 {
 	//TODO Optimize if posible
@@ -54,7 +77,7 @@ QVariant messageToVariant(const Message &mes)
 	QString body = isMe ? mes.text().mid(4) : mes.text();
 	if (isMe)
 		map.insert(QLatin1String("action"), true);
-	map.insert(QLatin1String("body"), body);
+	map.insert(QLatin1String("body"), makeUrls(body));
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
@@ -187,7 +210,7 @@ void QuickChatViewController::loadSettings()
 	//context->setContextProperty(QLatin1String("controller"), this);
 
 	m_engine->rootContext()->setContextProperty(QLatin1String("controller"), this);
-	loadHistory();
+	QTimer::singleShot(0, this, SLOT(loadHistory())); //TODO use component::StatusChange
 }
 
 } // namespace AdiumChat

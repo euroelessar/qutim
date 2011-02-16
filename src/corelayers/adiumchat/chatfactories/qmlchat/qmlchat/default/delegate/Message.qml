@@ -1,14 +1,30 @@
 import QtQuick 1.0
 
-//TODO rewrite delivered
-
-Text {
-	width: parent.width
-
+Item {
+	id: messageBody
 	property string body: "body"
 	property bool delivered: false
-	id: messageBody
-	text: delivered ? " <img src=../images/bullet-received.png align=center> " + body : "<img src=../images/bullet-send.png align=center> " + body
-	wrapMode: "WordWrap"
+	width: parent.width
+	height: childrenRect.height
 
+	Image {
+		anchors.left: parent.left
+		anchors.top: parent.top
+		id: status
+		source: delivered ? "images/bullet-received.png" : "images/bullet-send.png"
+	}
+
+	TextEdit {
+		id: text
+		textFormat: "RichText"
+		readOnly: true
+		selectByMouse: true
+		text: body
+		wrapMode: "WordWrap"
+
+		anchors.top: parent.top
+		anchors.right: parent.right
+		anchors.left: status.right
+		anchors.leftMargin: 5
+	}
 }

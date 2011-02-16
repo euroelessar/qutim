@@ -19,7 +19,8 @@ Component {
 			} else if (service) {
 				var component = Qt.createComponent("ServiceDelegate.qml");
 				delegate = component.createObject(message);
-				delegate.text =  "(" + time + "): " + body;
+				delegate.body = body;
+				delegate.time = time;
 			} else if (append) {
 				var component = Qt.createComponent("Message.qml");
 				delegate = component.createObject(message);

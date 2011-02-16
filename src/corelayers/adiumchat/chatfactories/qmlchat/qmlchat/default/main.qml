@@ -3,8 +3,8 @@ import "delegate"
 
 Rectangle {
 	id: main
-	width: 50
-	height: 40
+	width: 300
+	height: 200
 
 	ListModel {
 		id: messageModel
