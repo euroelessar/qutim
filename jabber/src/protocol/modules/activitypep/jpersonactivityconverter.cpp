@@ -32,7 +32,7 @@ static void init_specific_names(ActivityNames &names)
 	names.append(QT_TRANSLATE_NOOP("Activity", "Commuting"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Cooking"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Cycling"));
-	names.append(QT_TRANSLATE_NOOP("Activity", "Cancing"));
+	names.append(QT_TRANSLATE_NOOP("Activity", "Dancing"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Day off"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Doing maintenance"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Doing the dishes"));
@@ -44,8 +44,8 @@ static void init_specific_names(ActivityNames &names)
 	names.append(QT_TRANSLATE_NOOP("Activity", "Getting a haircut"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Going out"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Hanging out"));
-	names.append(QT_TRANSLATE_NOOP("Activity", "Having a_beer"));
-	names.append(QT_TRANSLATE_NOOP("Activity", "Having a_snack"));
+	names.append(QT_TRANSLATE_NOOP("Activity", "Having a beer"));
+	names.append(QT_TRANSLATE_NOOP("Activity", "Having a snack"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Having breakfast"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Having coffee"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Having dinner"));
