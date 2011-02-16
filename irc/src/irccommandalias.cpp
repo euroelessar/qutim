@@ -1,7 +1,7 @@
 /****************************************************************************
  *  irccommandalias.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,12 +14,25 @@
  *****************************************************************************/
 
 #include "irccommandalias.h"
+#include "ircactiongenerator.h"
+#include "ircprotocol.h"
+#include "ircchannelparticipant.h"
+#include <qutim/menucontroller.h>
 #include <QRegExp>
 #include <QStringList>
+#include <QDateTime>
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
+
+class IrcPingAlias : public IrcCommandAlias
+{
+public:
+	IrcPingAlias();
+	virtual QString generate(IrcCommandAlias::Type aliasType, const QStringList &params,
+							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
+};
 
 class IrcCommandAliasPrivate : public QSharedData
 {
@@ -97,6 +110,135 @@ QString IrcCommandAlias::generate(IrcCommandAlias::Type aliasType, const QString
 Lerr:
 	if (error) *error = QObject::tr("Not enough parameters for command %1").arg(d->name);
 	return QString();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
+// Initialization of the standart aliases
+///////////////////////////////////////////////////////////////////////////////////
+
+IrcPingAlias::IrcPingAlias() :
+	IrcCommandAlias("ping", QString())
+{
+}
+
+QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringList &params,
+							   const QHash<QChar, QString> &extParams, QString *error) const
+{
+	Q_UNUSED(aliasType);
+	Q_UNUSED(error);
+	QString user = extParams.value('o');
+	if (user.isEmpty())
+		user = params.value(0);
+	if (user.isEmpty())
+		return QString();
+	QDateTime current = QDateTime::currentDateTime();
+	QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
+	return QString("PRIVMSG %1 :\001PING %2\001").arg(user).arg(timeStamp);
+}
+
+#define ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+	cmd = new IrcCommandAlias(NAME, "MODE %n +b "MODE ADDITIONALCMD, IrcCommandAlias::Participant); \
+	gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
+	gen->setType(TYPE); \
+	MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
+
+#define ADD_BAN_CMD_EXT(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+	ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+	gen->enableAutoDeleteOfCommand();
+
+
+#define REGISTER_CTPC_CMD(TITLE) \
+	gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
+	gen->setType(0x00002); \
+	gen->setPriority(80); \
+	MenuController::addAction<IrcChannelParticipant>(gen); \
+	registerAlias(cmd);
+
+#define CREATE_CTPC_CMD(NAME, CMD, TITLE) \
+	cmd = new IrcCommandAlias(NAME, "PRIVMSG %o :\001" CMD "\001", \
+							  IrcCommandAlias::Participant | \
+							  IrcCommandAlias::PrivateChat); \
+	REGISTER_CTPC_CMD(TITLE)
+
+#define ADD_MODE(MODE, PRIORITY, NAME, TITLE)\
+	cmd = new IrcCommandAlias(NAME, "MODE %n "MODE" %o", IrcCommandAlias::Participant);\
+	gen = new IrcActionGenerator(QIcon(), TITLE, cmd);\
+	gen->setPriority(PRIORITY);\
+	MenuController::addAction<IrcChannelParticipant>(gen, modesGroup);\
+	registerAlias(cmd);
+
+inline void registerAlias(IrcCommandAlias *alias)
+{
+	IrcProtocol::registerCommandAlias(alias);
+}
+
+void IrcCommandAlias::initStandartAliases()
+{
+	IrcCommandAlias *cmd = 0;
+	IrcActionGenerator *gen = 0;
+
+	registerAlias(new IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
+	registerAlias(new IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
+								  IrcCommandAlias::Console));
+	registerAlias(new IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
+								  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
+	registerAlias(new IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
+	registerAlias(new IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
+	registerAlias(new IrcCommandAlias("kick", "KICK %n %0",
+								  IrcCommandAlias::Channel));
+	registerAlias(new IrcCommandAlias("ban", "MODE %n +b %0",
+								  IrcCommandAlias::Channel));
+	registerAlias(new IrcCommandAlias("msg", "PRIVMSG %0"));
+	registerAlias(new IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
+	registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
+	registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
+	registerAlias(new IrcCommandAlias("avatar", "PRIVMSG %1 :\001AVATAR\001"));
+
+	// Kick and ban commands
+
+	const QList<QByteArray> kickBanGroup = QList<QByteArray>() << QT_TR_NOOP("Kick / Ban").original();
+
+	cmd = new IrcCommandAlias("kick", "KICK %n %o", IrcCommandAlias::Participant);
+	gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Kick"), cmd);
+	gen->setType(0x00001);
+	MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
+	registerAlias(cmd);
+
+	ADD_BAN_CMD("%o", 0x00001, "kickban", QT_TR_NOOP("Kickban"), "\nKICK %n %o")
+	registerAlias(cmd);
+
+	ADD_BAN_CMD("%o", 0x00001, "ban", QT_TR_NOOP("Ban"), "")
+	registerAlias(cmd);
+
+	// Extended ban commands
+	ADD_BAN_CMD_EXT("*!*@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!*@*.host"), "")
+	ADD_BAN_CMD_EXT("*!*@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!*@domain"), "")
+	ADD_BAN_CMD_EXT("*!%u@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!user@*.host"), "")
+	ADD_BAN_CMD_EXT("*!%u@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!user@domain"), "")
+
+	// Exntended kickban commands
+	ADD_BAN_CMD_EXT("*!*@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@*.host"), "\nKICK %n %o")
+	ADD_BAN_CMD_EXT("*!*@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@domain"), "\nKICK %n %o")
+	ADD_BAN_CMD_EXT("*!%u@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@*.host"), "\nKICK %n %o")
+	ADD_BAN_CMD_EXT("*!%u@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@domain"), "\nKICK %n %o")
+
+	// CTPC commands
+	cmd = new IrcPingAlias;
+	REGISTER_CTPC_CMD(QT_TR_NOOP("Ping"));
+	CREATE_CTPC_CMD("clientinfo", "CLIENTINFO", QT_TR_NOOP("Request client information"));
+	CREATE_CTPC_CMD("version", "VERSION", QT_TR_NOOP("Request version"));
+	CREATE_CTPC_CMD("time", "TIME", QT_TR_NOOP("Request time"));
+	CREATE_CTPC_CMD("avatar", "AVATAR", QT_TR_NOOP("Avatar"));
+
+	// Modes commands
+	const QList<QByteArray> modesGroup = QList<QByteArray>() << QT_TR_NOOP("Modes").original();
+	ADD_MODE("+o", 60, "op", QT_TR_NOOP("Give Op"));
+	ADD_MODE("-o", 59, "deop", QT_TR_NOOP("Take Op"));
+	ADD_MODE("+h", 58, "hop", QT_TR_NOOP("Give HalfOp"));
+	ADD_MODE("-h", 57, "dehop", QT_TR_NOOP("Take HalfOp"));
+	ADD_MODE("+v", 56, "voice", QT_TR_NOOP("Give voice"));
+	ADD_MODE("-v", 55, "devoice", QT_TR_NOOP("Take voice"));
 }
 
 } } // namespace qutim_sdk_0_3::irc

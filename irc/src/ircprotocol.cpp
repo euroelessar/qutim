@@ -34,6 +34,7 @@ namespace irc {
 
 IrcProtocol *IrcProtocol::self = 0;
 bool IrcProtocolPrivate::enableColoring;
+QMultiHash<QString, IrcCommandAlias*> IrcProtocolPrivate::aliases;
 
 IrcProtocol::IrcProtocol() :
 	d(new IrcProtocolPrivate)
@@ -41,6 +42,14 @@ IrcProtocol::IrcProtocol() :
 	Q_ASSERT(!self);
 	self = this;
 	updateSettings();
+	IrcAccount::registerLogMsgColor("ERROR", "red");
+	IrcAccount::registerLogMsgColor("Notice", "magenta");
+	IrcAccount::registerLogMsgColor("MOTD", "green");
+	IrcAccount::registerLogMsgColor("Welcome", "green");
+	IrcAccount::registerLogMsgColor("Support", "green");
+	IrcAccount::registerLogMsgColor("Users", "green");
+	IrcAccount::registerLogMsgColor("Away", "green");
+	IrcCommandAlias::initStandartAliases();
 }
 
 IrcProtocol::~IrcProtocol()
@@ -119,17 +128,27 @@ ChatSession *IrcProtocol::activeSession() const
 
 void IrcProtocol::registerCommandAlias(IrcCommandAlias *alias)
 {
-	IrcConnection::registerAlias(alias);
+	IrcProtocolPrivate::aliases.insert(alias->name(), alias);
 }
 
 void IrcProtocol::removeCommandAlias(const QString &name)
 {
-	IrcConnection::removeAlias(name);
+	qDeleteAll(IrcProtocolPrivate::aliases.values(name));
+	IrcProtocolPrivate::aliases.remove(name);
 }
 
 void IrcProtocol::removeCommandAlias(IrcCommandAlias *alias)
 {
-	IrcConnection::removeAlias(alias);
+	QHash<QString, IrcCommandAlias*>::iterator itr = IrcProtocolPrivate::aliases.begin();
+	QHash<QString, IrcCommandAlias*>::iterator endItr = IrcProtocolPrivate::IrcProtocolPrivate::aliases.end();
+	while (itr != endItr) {
+		if (*itr == alias) {
+			delete alias;
+			IrcProtocolPrivate::aliases.erase(itr);
+			return;
+		}
+		++itr;
+	}
 }
 
 static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003((\\d{0,2})(,\\d{1,2}|)|))");

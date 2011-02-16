@@ -1,7 +1,7 @@
 /****************************************************************************
  *  irccommandalias.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -42,6 +42,7 @@ public:
 	QString name() const;
 	virtual QString generate(IrcCommandAlias::Type aliasType, const QStringList &params,
 							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
+	static void initStandartAliases();
 private:
 	Q_DISABLE_COPY(IrcCommandAlias);
 	QScopedPointer<IrcCommandAliasPrivate> d;

@@ -31,12 +31,19 @@ namespace irc {
 class IrcConnection;
 class IrcContact;
 
+struct LastCommand
+{
+	uint time;
+	QString cmd;
+};
+
 class IrcAccountPrivate
 {
 public:
 	IrcContact *newContact(const QString &nick, const QString &host);
 	IrcChannel *newChannel(const QString &name);
 	void removeContact(IrcContact *contact);
+	void removeOldCommands();
 	friend class IrcAccount;
 	IrcAccount *q;
 	IrcConnection *conn;
@@ -47,6 +54,7 @@ public:
 	QPointer<IrcChannelListForm> channelListForm;
 	QString avatar;
 	QScopedPointer<IrcGroupChatManager> groupManager;
+	QList<LastCommand> lastCommands;
 
 	static QHash<QString, QString> logMsgColors;
 };

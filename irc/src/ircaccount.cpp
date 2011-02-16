@@ -14,7 +14,7 @@
  *****************************************************************************/
 
 #include "ircaccount_p.h"
-#include "ircprotocol.h"
+#include "ircprotocol_p.h"
 #include "ircconnection.h"
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
@@ -152,11 +152,56 @@ IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, boo
 	return contact;
 }
 
-void IrcAccount::send(const QString &command, bool highPriority,
+void IrcAccount::send(const QString &cmd, bool highPriority,
 					  IrcCommandAlias::Type aliasType,
 					  const QHash<QChar, QString> &extParams) const
 {
-	d->conn->send(command, highPriority, aliasType, extParams);
+	QString command = cmd;
+	if (aliasType != IrcCommandAlias::Disabled) {
+		bool found;
+		QString lastCmdName;
+		QString cmdName; // Current command name
+		QString cmdParamsStr; // Current parameters
+		int i = 0;
+		for (; i < 10; ++i) {
+			found = false;
+			cmdName = command.mid(0, command.indexOf(' '));
+			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
+				break;
+			cmdParamsStr = command.mid(cmdName.length() + 1);
+			QStringList params; // Parameters from the command line
+			params << cmdParamsStr;
+			params += cmdParamsStr.split(' ', QString::SkipEmptyParts);
+			foreach (IrcCommandAlias *alias, IrcProtocolPrivate::aliases) {
+				if (cmdName.compare(alias->name(), Qt::CaseInsensitive) == 0) {
+					QString error;
+					QString newCommand = alias->generate(aliasType, params, extParams, &error);
+					if (!error.isEmpty()) {
+						log(error, true, "ERROR");
+						return;
+					} else if (!newCommand.isEmpty()) {
+						command = newCommand;
+						lastCmdName = cmdName;
+						found = true;
+					}
+					break;
+				}
+			}
+			if (!found)
+				break;
+		}
+		LastCommand lastCmd;
+		lastCmd.time = QDateTime::currentDateTime().toTime_t();
+		if (i == 0 && !found) { // A suitable alias has not been found
+			lastCmd.cmd = cmdName.toUpper();
+			command = lastCmd.cmd + " " + cmdParamsStr;
+		} else {
+			lastCmd.cmd = lastCmdName.toLatin1();
+		}
+		d->removeOldCommands();
+		d->lastCommands.push_back(lastCmd);
+	}
+	d->conn->send(command, highPriority);
 }
 
 void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd,
@@ -194,7 +239,7 @@ ChatSession *IrcAccount::activeSession() const
 	return session && session->getUnit()->account() == this ? session : 0;
 }
 
-void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString &type)
+void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString &type) const
 {
 	QString plainText;
 	QString html = IrcProtocol::ircFormatToHtml(msg, &plainText);
@@ -228,6 +273,33 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 	d->log += str;
 }
 
+bool IrcAccount::isUserInputtedCommand(const QString &command, bool clearCommand)
+{
+	d->removeOldCommands();
+	int i = 0;
+	foreach (const LastCommand &itr, d->lastCommands) {
+		if (command == itr.cmd) {
+			if (clearCommand)
+				d->lastCommands.removeAt(i);
+			return true;
+		}
+		++i;
+	}
+	return false;
+}
+
+void IrcAccountPrivate::removeOldCommands()
+{
+	uint curTime = QDateTime::currentDateTime().toTime_t();
+	int j = 0;
+	for (int c = lastCommands.count(); j < c; ++j) {
+		if (curTime - lastCommands.at(j).time < 30)
+			break;
+	}
+	if (j != 0)
+		lastCommands = lastCommands.mid(j);
+}
+
 void IrcAccount::registerLogMsgColor(const QString &type, const QString &color)
 {
 	IrcAccountPrivate::logMsgColors.insert(type, color);
@@ -236,6 +308,7 @@ void IrcAccount::registerLogMsgColor(const QString &type, const QString &color)
 void IrcAccount::updateSettings()
 {
 	d->conn->loadSettings();
+	emit settingsUpdated();
 }
 
 void IrcAccount::showConsole()

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircconnection.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -20,7 +20,8 @@
 #include "irccontact_p.h"
 #include "ircchannelparticipant.h"
 #include "ircavatar.h"
-#include "ircactiongenerator.h"
+#include "ircwhoisreplieshandler.h"
+#include "ircstandartctpchandler.h"
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>
@@ -36,27 +37,6 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
-QMultiHash<QString, IrcCommandAlias*> IrcConnection::m_aliases;
-
-IrcPingAlias::IrcPingAlias() :
-	IrcCommandAlias("ping", QString())
-{
-}
-
-QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringList &params,
-							   const QHash<QChar, QString> &extParams, QString *error) const
-{
-	Q_UNUSED(aliasType);
-	Q_UNUSED(error);	
-	QString user = extParams.value('o');
-	if (user.isEmpty())
-		user = params.value(0);
-	if (user.isEmpty())
-		return QString();
-	QDateTime current = QDateTime::currentDateTime();
-	QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
-	return QString("PRIVMSG %1 :\001PING %2\001").arg(user).arg(timeStamp);
-}
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent), m_hostLookupId(0)
@@ -74,6 +54,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerHandler(gen->generate<IrcServerMessageHandler>());
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcCtpcHandler>())
 		registerCtpcHandler(gen->generate<IrcCtpcHandler>());
+	registerHandler(new IrcWhoisRepliesHandler);
 
 	m_cmds
 		<< 432  // ERR_ERRONEUSNICKNAME
@@ -107,165 +88,19 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 263  // RPL_TRYAGAIN
 		<< 301  // RPL_AWAY
 		<< 305  // RPL_UNAWAY
-		<< 306  // RPL_NOWAWAY
-		<< 311  // RPL_WHOISUSER
-		<< 314  // RPL_WHOWASUSER
-		<< 312  // RPL_WHOISSERVER
-		<< 313  // RPL_WHOISOPERATOR
-		<< 317  // RPL_WHOISIDLE
-		<< 318  // RPL_ENDOFWHOIS
-		<< 319  // RPL_WHOISCHANNELS
-		<< 330  // WHOISLOGGEDINAS
-		<< 671; // WHOISSECURITECONNECTION
+		<< 306;  // RPL_NOWAWAY
 	registerHandler(this);
 
-	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO" << "VERSION" << "TIME";
-	registerCtpcHandler(this);
+	registerCtpcHandler(new IrcStandartCtpcHandler(this));
 	registerCtpcHandler(IrcAvatar::instance());
-
-	static bool init = false;
-	if (!init) {
-		//const int AdminCmdActionType = 0x00001;
-		const int CtpcActionType = 0x00002;
-
-		IrcCommandAlias *cmd = 0;
-		IrcActionGenerator *gen = 0;
-
-		IrcAccount::registerLogMsgColor("ERROR", "red");
-		IrcAccount::registerLogMsgColor("Notice", "magenta");
-		IrcAccount::registerLogMsgColor("MOTD", "green");
-		IrcAccount::registerLogMsgColor("Welcome", "green");
-		IrcAccount::registerLogMsgColor("Support", "green");
-		IrcAccount::registerLogMsgColor("Users", "green");
-		IrcAccount::registerLogMsgColor("Away", "green");
-
-		registerAlias(new IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
-		registerAlias(new IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
-									  IrcCommandAlias::Console));
-		registerAlias(new IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
-									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
-		registerAlias(new IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
-		registerAlias(new IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
-		registerAlias(new IrcCommandAlias("kick", "KICK %n %0",
-									  IrcCommandAlias::Channel));
-		registerAlias(new IrcCommandAlias("ban", "MODE %n +b %0",
-									  IrcCommandAlias::Channel));
-		registerAlias(new IrcCommandAlias("msg", "PRIVMSG %0"));
-		registerAlias(new IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
-		registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
-		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
-		registerAlias(new IrcCommandAlias("avatar", "PRIVMSG %1 :\001AVATAR\001"));
-
-		// Kick and ban commands
-
-#define ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
-		cmd = new IrcCommandAlias(NAME, "MODE %n +b "MODE ADDITIONALCMD, IrcCommandAlias::Participant); \
-		gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
-		gen->setType(TYPE); \
-		MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
-
-#define ADD_BAN_CMD_EXT(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
-		ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
-		gen->enableAutoDeleteOfCommand();
-
-		const QList<QByteArray> kickBanGroup = QList<QByteArray>() << QT_TR_NOOP("Kick / Ban").original();
-
-		cmd = new IrcCommandAlias("kick", "KICK %n %o", IrcCommandAlias::Participant);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Kick"), cmd);
-		gen->setType(0x00001);
-		MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
-		registerAlias(cmd);
-
-		ADD_BAN_CMD("%o", 0x00001, "kickban", QT_TR_NOOP("Kickban"), "\nKICK %n %o")
-		registerAlias(cmd);
-
-		ADD_BAN_CMD("%o", 0x00001, "ban", QT_TR_NOOP("Ban"), "")
-		registerAlias(cmd);
-
-		// Extended ban commands
-
-		ADD_BAN_CMD_EXT("*!*@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!*@*.host"), "")
-		ADD_BAN_CMD_EXT("*!*@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!*@domain"), "")
-		ADD_BAN_CMD_EXT("*!%u@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!user@*.host"), "")
-		ADD_BAN_CMD_EXT("*!%u@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!user@domain"), "")
-
-		// Exntended kickban commands
-
-		ADD_BAN_CMD_EXT("*!*@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@*.host"), "\nKICK %n %o")
-		ADD_BAN_CMD_EXT("*!*@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@domain"), "\nKICK %n %o")
-		ADD_BAN_CMD_EXT("*!%u@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@*.host"), "\nKICK %n %o")
-		ADD_BAN_CMD_EXT("*!%u@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@domain"), "\nKICK %n %o")
-
-#undef ADD_BAN_CMD
-#undef ADD_BAN_CMD_EXT
-
-		// CTPC commands
-
-		cmd = new IrcPingAlias;
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Ping"), cmd);
-		gen->setType(CtpcActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
-
-		cmd = new IrcCommandAlias("clientinfo", "PRIVMSG %o :\001CLIENTINFO\001",
-								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request client information"), cmd);
-		gen->setType(CtpcActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
-
-		cmd = new IrcCommandAlias("version", "PRIVMSG %o :\001VERSION\001",
-								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request version"), cmd);
-		gen->setType(CtpcActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
-
-		cmd = new IrcCommandAlias("time", "PRIVMSG %o :\001TIME\001",
-								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request time"), cmd);
-		gen->setType(CtpcActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
-
-		cmd = new IrcCommandAlias("avatar", "PRIVMSG %o :\001AVATAR\001",
-								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request avatar"), cmd);
-		gen->setType(CtpcActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
-
-		// Modes commands
-
-#define ADD_MODE(MODE, PRIORITY, NAME, TITLE)\
-		cmd = new IrcCommandAlias(NAME, "MODE %n "MODE" %o", IrcCommandAlias::Participant);\
-		gen = new IrcActionGenerator(QIcon(), TITLE, cmd);\
-		gen->setPriority(PRIORITY);\
-		MenuController::addAction<IrcChannelParticipant>(gen, modesGroup);\
-		registerAlias(cmd);
-
-		const QList<QByteArray> modesGroup = QList<QByteArray>() << QT_TR_NOOP("Modes").original();
-
-		ADD_MODE("+o", 60, "op", QT_TR_NOOP("Give Op"));
-		ADD_MODE("-o", 59, "deop", QT_TR_NOOP("Take Op"));
-		ADD_MODE("+h", 58, "hop", QT_TR_NOOP("Give HalfOp"));
-		ADD_MODE("-h", 57, "dehop", QT_TR_NOOP("Take HalfOp"));
-		ADD_MODE("+v", 56, "voice", QT_TR_NOOP("Give voice"));
-		ADD_MODE("-v", 55, "devoice", QT_TR_NOOP("Take voice"));
-
-#undef ADD_MODE
-
-		init = true;
-	}
 }
 
 IrcConnection::~IrcConnection()
 {
+	foreach (IrcServerMessageHandler *handler, m_handlers)
+		delete handler;
+	foreach (IrcCtpcHandler *handler, m_ctpcHandlers)
+		delete handler;
 }
 
 void IrcConnection::connectToNetwork()
@@ -429,7 +264,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listStarted();
 		else
-			m_account->log(tr("Start of /LIST"), isUserInputtedCommand("LIST"), "LIST");
+			m_account->log(tr("Start of /LIST"), m_account->isUserInputtedCommand("LIST"), "LIST");
 	} else if (cmd == 322) { // RPL_LIST
 		QString channel = params.value(1);
 		QString users = params.value(2);
@@ -441,13 +276,13 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 						   .arg(channel)
 						   .arg(users)
 						   .arg(topic),
-						   isUserInputtedCommand("LIST"),
+						   m_account->isUserInputtedCommand("LIST"),
 						   "LIST");
 	} else if (cmd == 323) { // RPL_LISTEND
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listEnded();
 		else
-			m_account->log(tr("End of /LIST"), isUserInputtedCommand("LIST", true), "LIST");
+			m_account->log(tr("End of /LIST"), m_account->isUserInputtedCommand("LIST", true), "LIST");
 	} else if (cmd == 521) { // ERR_LISTSYNTAX
 		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
 		if (m_account->d->channelListForm)
@@ -465,212 +300,23 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 			QString awayMsg = params.value(2);
 			contact->setAway(awayMsg);
 			if (!awayMsg.isEmpty())
-				m_account->log(tr("%1 set away message \"%2\"").arg(nick).arg(awayMsg),isUserInputtedCommand("WHOIS") , "Away");
+				m_account->log(tr("%1 set away message \"%2\"").arg(nick).arg(awayMsg),
+							   m_account->isUserInputtedCommand("WHOIS"),
+							   "Away");
 			else
-				m_account->log(tr("%1 removed away message").arg(nick), isUserInputtedCommand("WHOIS"), "Away");
+				m_account->log(tr("%1 removed away message").arg(nick),
+							   m_account->isUserInputtedCommand("WHOIS"),
+							   "Away");
 		}
 	} else if (cmd == 305) { // RPL_UNAWAY
 		m_account->log(tr("You are no longer marked as being away"), false, "Away");
 	} else if (cmd == 306) { // RPL_NOWAWAY
 		m_account->log(tr("You have been marked as being away"), false, "Away");
-	} else if (cmd == 311 || cmd == 314) { // RPL_WHOISUSER or RPL_WHOWASUSER
-		QString nick = params.value(1);
-		QString user = params.value(2);
-		QString host = params.value(3);
-		QString realName = params.value(5);
-		m_account->log(tr("%1 is %2@%3 (%4)")
-					   .arg(nick)
-					   .arg(user)
-					   .arg(host)
-					   .arg(realName),
-					   isUserInputtedCommand("WHOIS"), "Whois");
-		IrcContact *contact = account->getContact(nick, false);
-		if (contact) {
-			contact->setHost(host);
-			contact->setHostUser(user);
-			contact->setRealName(realName);
-		}
-	} else if (cmd == 312) { // RPL_WHOISSERVER
-		m_account->log(tr("%1 is online via %2 (%3)")
-					   .arg(params.value(1))
-					   .arg(params.value(2))
-					   .arg(params.value(3)),
-					   isUserInputtedCommand("WHOIS"), "Whois");
-	} else if (cmd == 313) { // RPL_WHOISOPERATOR
-		QString nick = params.value(1);
-		m_account->log(tr("%1 is an IRC operator").arg(nick),
-					   isUserInputtedCommand("WHOIS"), "Whois");
-		IrcContact *contact = m_account->getContact(nick, false);
-		if (contact)
-			contact->handleMode("ChanServ", "o", "");
-	} else if (cmd == 317) { // RPL_WHOISIDLE
-		QString nick = params.value(1);
-		bool userRequest = isUserInputtedCommand("WHOIS");
-		QDateTime idleSince = QDateTime::currentDateTime();
-		idleSince.addSecs(-params.value(2).toUInt());
-		m_account->log(tr("%1 has been idle since")
-					   .arg(nick)
-					   .arg(idleSince.toString(Qt::DefaultLocaleShortDate)),
-					   userRequest, "Whois");
-		if (uint signOnUnix = params.value(3).toUInt()) {
-			QDateTime signOn = QDateTime::fromTime_t(signOnUnix);
-			m_account->log(tr("%1 has been online since")
-						   .arg(name)
-						   .arg(signOn.toString(Qt::DefaultLocaleShortDate)),
-						   userRequest, "Whois");
-		}
-	} else if (cmd == 318) { // RPL_ENDOFWHOIS
-		// Nothing to do...
-	} else if (cmd == 319) { // RPL_WHOISCHANNELS
-		QString str = tr("%1 is a user on channels: ").arg(params.value(1));
-		QStringList channels = params;
-		channels.removeFirst();
-		channels.removeFirst();
-		str += channels.join(", ");
-		m_account->log(str, isUserInputtedCommand("WHOIS"), "Whois");
-	} else if (cmd == 330) { // WHOISLOGGEDINAS
-		m_account->log(tr("%1 is logged in as %2")
-					   .arg(params.value(1))
-					   .arg(params.value(2)),
-					   isUserInputtedCommand("WHOIS"), "Whois");
-	} else if (cmd == 671) { // WHOISSECURITECONNECTION
-		m_account->log(tr("%1 is using a secure connection").arg(params.value(1)),
-					   isUserInputtedCommand("WHOIS"), "Whois");
 	}
 }
 
-void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
-									  const QString &receiver, const QString &cmd, const QString &params)
+void IrcConnection::send(QString command, bool highPriority)
 {
-	Q_UNUSED(account);
-	Q_UNUSED(senderHost);
-	Q_UNUSED(receiver);
-	if (cmd == "PING") {
-		sendCtpcReply(sender, "PING", params);
-	} else if (cmd == "ACTION") {
-		handleTextMessage(sender, senderHost, receiver, QLatin1String("/me ") + params);
-	} else if (cmd == "CLIENTINFO") {
-		QStringList tags = m_ctpcHandlers.keys();
-		QString params = QString("IRC plugin for qutIM %1 - http://qutim.org - Supported tags: %2")
-						 .arg(qutimVersionStr()).arg(tags.join(","));
-		sendCtpcReply(sender, "CLIENTINFO", params);
-	} else if (cmd == "VERSION") {
-		QString params = QString("IRC plugin %1, qutim %2")
-						 .arg(qutimIrcVersionStr())
-						 .arg(qutimVersionStr());
-		sendCtpcReply(sender, "VERSION", params);
-	} else if (cmd == "TIME") {
-		sendCtpcReply(sender, "TIME", QDateTime::currentDateTime().toString("ddd MMM dd hh:mm:ss yyyy"));
-	}
-}
-
-void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
-									   const QString &receiver, const QString &cmd, const QString &params)
-{
-	Q_UNUSED(account);
-	Q_UNUSED(senderHost);
-	Q_UNUSED(receiver);
-	if (cmd == "PING") {
-		QDateTime current = QDateTime::currentDateTime();
-		double receivedStamp = params.toDouble();
-		if (receivedStamp >= 0) {
-			double currentStamp = (double)current.time().msec() / 1000 + current.toTime_t();
-			double diff = currentStamp - receivedStamp;
-			account->log(tr("Received CTCP-PING reply from %1: %2 seconds", "", diff)
-						 .arg(sender)
-						 .arg(diff, 0, 'f', 3),
-						 true, "CTPC");
-		}
-	} else if (cmd == "CLIENTINFO" || cmd == "VERSION" || "TIME") {
-		account->log(tr("Received CTCP-%1 reply from %2: %3")
-					 .arg(cmd)
-					 .arg(sender)
-					 .arg(params),
-					 true, "CTPC");
-	}
-}
-
-bool IrcConnection::isUserInputtedCommand(const QString &command, bool clearCommand)
-{
-	removeOldCommands();
-	int i = 0;
-	foreach (const LastCommand &itr, m_lastCommands) {
-		if (command == itr.cmd) {
-			if (clearCommand)
-				m_lastCommands.removeAt(i);
-			return true;
-		}
-		++i;
-	}
-	return false;
-}
-
-void IrcConnection::removeAlias(const QString &name)
-{
-	qDeleteAll(m_aliases.values(name));
-	m_aliases.remove(name);
-}
-
-void IrcConnection::removeAlias(IrcCommandAlias *alias)
-{
-	QHash<QString, IrcCommandAlias*>::iterator itr = m_aliases.begin();
-	QHash<QString, IrcCommandAlias*>::iterator endItr = m_aliases.end();
-	while (itr != endItr) {
-		if (*itr == alias) {
-			delete alias;
-			m_aliases.erase(itr);
-			return;
-		}
-		++itr;
-	}
-}
-
-void IrcConnection::send(QString command, bool highPriority , IrcCommandAlias::Type aliasType, const ExtendedParams &extParams)
-{
-	if (aliasType != IrcCommandAlias::Disabled) {
-		bool found;
-		QString lastCmdName;
-		QString cmdName; // Current command name
-		QString cmdParamsStr; // Current parameters
-		int i = 0;
-		for (; i < 10; ++i) {
-			found = false;			
-			cmdName = command.mid(0, command.indexOf(' '));
-			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
-				break;
-			cmdParamsStr = command.mid(cmdName.length() + 1);
-			QStringList params; // Parameters from the command line
-			params << cmdParamsStr;
-			params += cmdParamsStr.split(' ', QString::SkipEmptyParts);
-			foreach (IrcCommandAlias *alias, m_aliases) {
-				if (cmdName.compare(alias->name(), Qt::CaseInsensitive) == 0) {
-					QString error;
-					QString newCommand = alias->generate(aliasType, params, extParams, &error);
-					if (!error.isEmpty()) {
-						m_account->log(error, true, "ERROR");
-						return;
-					} else if (!newCommand.isEmpty()) {
-						command = newCommand;
-						lastCmdName = cmdName;
-						found = true;
-					}
-					break;
-				}
-			}
-			if (!found)
-				break;
-		}
-		LastCommand lastCmd;
-		lastCmd.time = QDateTime::currentDateTime().toTime_t();
-		if (i == 0 && !found) { // A suitable alias has not found
-			lastCmd.cmd = cmdName.toUpper();
-			command = lastCmd.cmd + " " + cmdParamsStr;
-		} else {
-			lastCmd.cmd = lastCmdName.toLatin1();
-		}
-		removeOldCommands();
-		m_lastCommands.push_back(lastCmd);
-	}
 	if (!command.isEmpty()) {
 		if (highPriority)
 			m_messagesQueue.push_back(command);
@@ -867,18 +513,6 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 	str = str.arg(cmd);
 	debug() << str.toStdString().c_str() << "message on the channel" << channel
 			<< "the account is not connected to";
-}
-
-void IrcConnection::removeOldCommands()
-{
-	uint curTime = QDateTime::currentDateTime().toTime_t();
-	int j = 0;
-	for (int c = m_lastCommands.count(); j < c; ++j) {
-		if (curTime - m_lastCommands.at(j).time < 30)
-			break;
-	}
-	if (j != 0)
-		m_lastCommands = m_lastCommands.mid(j);
 }
 
 void IrcConnection::readData()

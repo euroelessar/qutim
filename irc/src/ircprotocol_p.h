@@ -18,6 +18,7 @@
 
 #include "ircaccount.h"
 #include "ircprotocol.h"
+#include "irccommandalias.h"
 #include <qutim/messagesession.h>
 
 namespace qutim_sdk_0_3 {
@@ -39,6 +40,7 @@ public:
 	};
 	QPointer<ChatSession> activeSession;
 	static bool enableColoring;
+	static QMultiHash<QString, IrcCommandAlias*> aliases;
 };
 
 } } // namespace qutim_sdk_0_3::irc

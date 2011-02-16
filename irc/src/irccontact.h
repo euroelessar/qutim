@@ -54,6 +54,7 @@ private:
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
 	friend class IrcAccount;
+	friend class IrcWhoisRepliesHandler;
 	void handleMode(const QString &who, const QString &mode, const QString &param);
 	void setAway(const QString &awayMsg);
 	void setHostMask(const QString &hostMask);

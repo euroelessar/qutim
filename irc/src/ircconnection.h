@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircconnection.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -28,14 +28,6 @@ class QHostInfo;
 namespace qutim_sdk_0_3 {
 
 namespace irc {
-
-class IrcPingAlias : public IrcCommandAlias
-{
-public:
-	IrcPingAlias();
-	virtual QString generate(IrcCommandAlias::Type aliasType, const QStringList &params,
-							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
-};
 	
 struct IrcServer
 {
@@ -46,19 +38,17 @@ struct IrcServer
 	//bool ssl;
 };
 
-class IrcConnection : public QObject, public IrcServerMessageHandler, public IrcCtpcHandler
+class IrcConnection : public QObject, public IrcServerMessageHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler qutim_sdk_0_3::irc::IrcCtpcHandler)
+	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler)
 public:
 	explicit IrcConnection(IrcAccount *account, QObject *parent = 0);
 	virtual ~IrcConnection();
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
 	void registerCtpcHandler(IrcCtpcHandler *handler);
-	void send(QString command, bool highPriority = true,
-			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
-			  const ExtendedParams &extParams = ExtendedParams());
+	void send(QString command, bool highPriority = true);
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
 	void disconnectFromHost(bool force = false);
@@ -66,22 +56,14 @@ public:
 	void loadSettings();
 	void handleMessage(IrcAccount *account, const QString &name, const QString &host,
 					   const IrcCommand &cmd, const QStringList &params);
-	void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
-						   const QString &receiver, const QString &cmd, const QString &params);
-	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
-							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
-	bool isUserInputtedCommand(const QString &command, bool clearCommand = false);
 	bool autoRequestWhois() const { return m_autoRequestWhois; }
-	static void registerAlias(IrcCommandAlias *alias) { m_aliases.insert(alias->name(), alias); }
-	static void removeAlias(const QString &name);
-	static void removeAlias(IrcCommandAlias *alias);
+	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
+	QStringList supportedCtpcTags() { return m_ctpcHandlers.keys(); }
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
-	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
-	void removeOldCommands();
 private slots:
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
@@ -101,18 +83,11 @@ private:
 	QString m_fullName;
 	QTextCodec *m_codec;
 	int m_hostLookupId;
-	struct LastCommand
-	{
-		uint time;
-		QString cmd;
-	};
-	QList<LastCommand> m_lastCommands;
 	QStringList m_messagesQueue;
 	QStringList m_lowPriorityMessagesQueue;
 	QTimer m_messagesTimer;
 	uint m_lastMessageTime; // unix time when the last message had been sent
 	bool m_autoRequestWhois;
-	static QMultiHash<QString, IrcCommandAlias*> m_aliases;
 };
 
 } } // namespace qutim_sdk_0_3::irc
