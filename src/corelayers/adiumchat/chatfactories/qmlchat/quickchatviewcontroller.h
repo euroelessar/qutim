@@ -38,16 +38,21 @@ public:
 	virtual void clearChat();
     virtual ~QuickChatViewController();
 	QDeclarativeItem *rootItem() const;
+public slots:
+	void loadSettings();
 protected:
 	bool eventFilter(QObject *, QEvent *);
+	void loadHistory();
 signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
+	void clearChatField();
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QPointer<QDeclarativeItem> m_item;
+	bool m_storeServiceMessages;
 };
 
 } // namespace AdiumChat

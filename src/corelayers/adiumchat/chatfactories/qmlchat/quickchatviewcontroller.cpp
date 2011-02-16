@@ -25,6 +25,7 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <qutim/conference.h>
+#include <qutim/history.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -87,25 +88,50 @@ QuickChatViewController::QuickChatViewController(/*QDeclarativeEngine *engine*/)
 	m_session(0),
 	m_themeName(QLatin1String("default")),
 //	m_engine(engine) //TODO use one engine for all controllers
-	m_engine(new QDeclarativeEngine(this))
+	m_engine(new QDeclarativeEngine(this)),
+	m_storeServiceMessages(true)
 {
+
+	Config cfg = Config(QLatin1String("appearance")).group(QLatin1String("chat"));
+	cfg.beginGroup(QLatin1String("history"));
+	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
+	cfg.endGroup();
 
 }
 
 	
 void QuickChatViewController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
+	bool isService = msg.property("service", false);
+	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
+		History::instance()->store(msg);
 	emit messageAppended(messageToVariant(msg));
 }
 
 void QuickChatViewController::clearChat()
 {
-	
+	emit clearChatField();
 }
 
 ChatSessionImpl* QuickChatViewController::getSession() const
 {
 	return m_session;
+}
+
+void QuickChatViewController::loadHistory()
+{
+	debug() << Q_FUNC_INFO;
+	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
+	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
+	MessageList messages = History::instance()->read(m_session->getUnit(), max_num);
+	foreach (Message mess, messages) {
+		mess.setProperty("silent", true);
+		mess.setProperty("store", false);
+		mess.setProperty("history", true);
+		if (!mess.chatUnit()) //TODO FIXME
+			mess.setChatUnit(m_session->getUnit());
+		appendMessage(mess);
+	}
 }
 
 void QuickChatViewController::setChatSession(ChatSessionImpl* session)
@@ -119,21 +145,7 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 	}
 	m_session = session;
 	m_session->installEventFilter(this);
-	
-	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
-	QString main = path % QLatin1Literal("/main.qml");
-
-	QGraphicsScene::clear();
-	QDeclarativeComponent component(m_engine, main);
-	QObject *obj = component.create();
-	m_item = qobject_cast<QDeclarativeItem*>(obj);
-	addItem(m_item);
-
-	//QDeclarativeContext *context = m_engine->contextForObject(obj);
-
-	//context->setContextProperty(QLatin1String("controller"), this);
-
-	m_engine->rootContext()->setContextProperty(QLatin1String("controller"), this);
+	loadSettings();
 }
 
 QuickChatViewController::~QuickChatViewController()
@@ -154,6 +166,28 @@ bool QuickChatViewController::eventFilter(QObject *obj, QEvent *ev)
 		return true;
 	}
 	return QGraphicsScene::eventFilter(obj, ev);
+}
+
+void QuickChatViewController::loadSettings()
+{
+	ConfigGroup cfg = Config("appearance/quickChat").group("style");
+	m_themeName = cfg.value<QString>("name","default");
+
+	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
+	QString main = path % QLatin1Literal("/main.qml");
+
+	QGraphicsScene::clear();
+	QDeclarativeComponent component(m_engine, main);
+	QObject *obj = component.create();
+	m_item = qobject_cast<QDeclarativeItem*>(obj);
+	addItem(m_item);
+
+	//QDeclarativeContext *context = m_engine->contextForObject(obj);
+
+	//context->setContextProperty(QLatin1String("controller"), this);
+
+	m_engine->rootContext()->setContextProperty(QLatin1String("controller"), this);
+	loadHistory();
 }
 
 } // namespace AdiumChat

@@ -4,69 +4,35 @@ Component {
 	id: container
 	//TODO separate this items and move to component.createObject
 	Item {
-		id: commonMessage
+		id: message
 		width: parent.width
-		height: Math.max(messageText.height + messageText.y, messageSender.height + messageSender.y)
-		Item {
-			id: messageHeader
-			anchors.left: parent.left
-			anchors.right: parent.right
-			anchors.top: parent.top
-			anchors.topMargin: 15
-
-			Text {
-				id: messageSender
-				color: isIncoming ? "#ff6600" : "#0078ff"
-				text: sender
-				font.bold: true
-				anchors.top: parent.top
-				anchors.left: parent.left
-			}
-
-			Text {
-				id: messageTime
-				color: "#808080"
-				text: time
-				font.italic: true
-				anchors.right: parent.right
-				anchors.top: parent.top
-			}
-
-			Image {
-				id: messageStatus
-				anchors.left: parent.left
-				anchors.top: messageSender.bottom
-				source: isDelivered ? "../images/bullet-received.png" : "../images/bullet-send.png"
-			}
-			Text {
-				anchors.left: messageStatus.right
-				anchors.leftMargin: 5
-				//anchors.bottom: parent.bottom
-				anchors.top: messageStatus.top
-				anchors.right: parent.right
-				id: messageText
-				text: body
-				wrapMode: "WordWrap"
-			}
-		}
+		property bool delivered: isDelivered
+		height: childrenRect.height + 5
+		//height: Math.max(messageText.height + messageText.y, messageSender.height + messageSender.y)
 
 		Component.onCompleted: {
 			if (action) {
-				messageSender.text = sender + " " + body;
-				messageText.visible = false;
-				messageStatus.visible = false;
-				commonMessage.height = messageHeader.anchors.topMargin + messageHeader.height + messageHeader.y;
+				var component = Qt.createComponent("ActionDelegate.qml");
+				var delegate = component.createObject(message);
+				delegate.text =  "<b>" + sender + "</b>: " + body;
+				delegate.incoming = isIncoming;
 			} else if (service) {
-				messageSender.text = body;
-				messageSender.color = "gray";
-				messageSender.font.bold = false;
-				messageText.visible = false;
-				messageStatus.visible = false;
+				var component = Qt.createComponent("ServiceDelegate.qml");
+				var delegate = component.createObject(message);
+				delegate.text =  "(" + time + "): " + body;
 			} else if (append) {
-				messageSender.visible = false;
-				messageTime.visible = false;
-				messageStatus.anchors.top = messageHeader.top
-				//commonMessage.height = messageText.height
+				var component = Qt.createComponent("Message.qml");
+				var delegate = component.createObject(message);
+				delegate.body =  body;
+				delegate.delivered = message.delivered;
+			} else {
+				var component = Qt.createComponent("CommonMessageDelegate.qml");
+				var delegate = component.createObject(message);
+				delegate.body =  body;
+				delegate.time = time;
+				delegate.sender = sender;
+				delegate.incoming = isIncoming;
+				delegate.delivered = message.delivered;
 			}
 		}
 	}
