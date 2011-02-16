@@ -11,8 +11,4 @@ Text {
 	text: delivered ? " <img src=../images/bullet-received.png align=center> " + body : "<img src=../images/bullet-send.png align=center> " + body
 	wrapMode: "WordWrap"
 
-	Binding {
-		target: message
-		property: delivered
-	}
 }

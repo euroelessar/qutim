@@ -2,10 +2,10 @@ import Qt 4.7
 
 Item {
 	id: message
-	property string sender: "Sauron"
-	property date time: "2010.02.02"
+	property string sender
+	property date time
 	property bool incoming: true
-	property string body: "Message text"
+	property string body
 	property bool delivered: false
 
 	width: parent.width

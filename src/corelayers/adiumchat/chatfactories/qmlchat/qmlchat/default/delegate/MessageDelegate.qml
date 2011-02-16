@@ -7,27 +7,27 @@ Component {
 		id: message
 		width: parent.width
 		property bool delivered: isDelivered
+		property variant delegate
 		height: childrenRect.height + 5
-		//height: Math.max(messageText.height + messageText.y, messageSender.height + messageSender.y)
 
 		Component.onCompleted: {
 			if (action) {
 				var component = Qt.createComponent("ActionDelegate.qml");
-				var delegate = component.createObject(message);
+				delegate = component.createObject(message);
 				delegate.text =  "<b>" + sender + "</b>: " + body;
 				delegate.incoming = isIncoming;
 			} else if (service) {
 				var component = Qt.createComponent("ServiceDelegate.qml");
-				var delegate = component.createObject(message);
+				delegate = component.createObject(message);
 				delegate.text =  "(" + time + "): " + body;
 			} else if (append) {
 				var component = Qt.createComponent("Message.qml");
-				var delegate = component.createObject(message);
+				delegate = component.createObject(message);
 				delegate.body =  body;
 				delegate.delivered = message.delivered;
 			} else {
 				var component = Qt.createComponent("CommonMessageDelegate.qml");
-				var delegate = component.createObject(message);
+				delegate = component.createObject(message);
 				delegate.body =  body;
 				delegate.time = time;
 				delegate.sender = sender;
@@ -35,5 +35,12 @@ Component {
 				delegate.delivered = message.delivered;
 			}
 		}
+
+		onDeliveredChanged: {
+			if (delegate == "undefined" || delegate.delivered == "undefined")
+				return;
+			delegate.delivered = message.delivered;
+		}
+
 	}
 }
