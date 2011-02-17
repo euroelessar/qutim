@@ -5,6 +5,7 @@ TextEdit {
 	property bool delivered: false
 	property date time
 	property string body: "body"
+	property string sender: ""
 	width: parent.width
 	readOnly: true
 	selectByMouse: true

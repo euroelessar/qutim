@@ -1,77 +1,63 @@
 import Qt 4.7
 
-Rectangle {
+Item {
 	id: background
 	width: 250
-	height: 90
-	color:"transparent"
+	height: childrenRect.height + 5
 
 	BorderImage {
+		id: image
 		source: "images/background.png"
 		border.left: 32; border.top: 32
 		border.right: 32; border.bottom: 32
-		opacity:0.9
-		anchors.fill:parent
+		opacity:0.8
+		anchors.fill: parent
 	}
 
 	Text {
-		id: title
-		text: popupTitle
-		color: "#FFF"
-		font.pointSize: 11
-		wrapMode: "WordWrap"
+		id: header
+		text:  popupTitle
+		color: "white"
 		font.bold: true
+		font.pointSize: 10
 
 		anchors {
+			top: parent.top
 			left: parent.left
 			right: parent.right
-			top: parent.top
-			leftMargin: 20
+			topMargin: 10
+			leftMargin: 15
 			rightMargin: 15
-			topMargin:15
 		}
 	}
 
-
-	Item {
-		id: body
+	Image {
+		id: avatar
+		source: (popupImage != "") ? popupImage : "images/buddyicon.png"
+		width: 32
+		height: 32
+		fillMode: Image.PreserveAspectCrop
 		anchors {
-			top: title.bottom
+			top: header.bottom
 			left: parent.left
+			topMargin: 15
+			leftMargin: 15
+			bottomMargin: 10
+		}
+	}
+
+	Text {
+		id: body
+		color: "white"
+		font.pointSize: 10
+		wrapMode: "WordWrap"
+		text: popupBody
+		anchors {
+			top: avatar.top
+			left: avatar.right
 			right: parent.right
-			bottom: parent.bottom
-			topMargin: 10
-		}
-		Image {
-			id: avatar
-			source: (popupImage != "") ? popupImage : "images/buddyicon.png"
-			width: 32
-			height: 32
-			fillMode: Image.PreserveAspectCrop
-			anchors {
-				top: parent.top
-				left: parent.left
-				leftMargin: 10
-			}
-		}
-		Text {
-			id: bodyText
-			text: popupBody
-			color: "#FFF"
-			font.pointSize: 10
-			wrapMode: "WrapAnywhere"
-			anchors {
-				left: avatar.right
-				leftMargin: 10
-				top: parent.top
-				bottom: parent.bottom
-				right:parent.right
-				rightMargin: 7
-			}
-			onTextChanged: {
-				show_timer.restart();
-				background.height = (body.y + body.height + 15); //hack
-			}
+			leftMargin: 5
+			rightMargin: 15
 		}
 	}
 
@@ -95,4 +81,5 @@ Rectangle {
 		}
 
 	}
+
 }

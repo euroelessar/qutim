@@ -3,7 +3,7 @@ import Qt 4.7
 Rectangle {
 	id: background
 	width: 250
-	height: 75
+	height: childrenRect.height + 5
 	color:palatte.shadow
 	gradient: Gradient {
 		GradientStop { position: 0.0; color: Qt.lighter(palatte.highlight,1.65) }
@@ -15,70 +15,51 @@ Rectangle {
 	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
 
 	Text {
-		id: title
-		text: popupTitle
+		id: header
+		text:  popupTitle
 		color: palatte.text
-		font.pointSize: 10
-		wrapMode: "WordWrap"
 		font.bold: true
 		style: Text.Outline; styleColor: palatte.light
+		font.pointSize: 10
+
 		anchors {
+			top: parent.top
 			left: parent.left
 			right: parent.right
-			top: parent.top
+			topMargin: 10
 			leftMargin: 15
 			rightMargin: 15
-			topMargin:5
 		}
 	}
 
-
-	Item {
-		id: body
+	Image {
+		id: avatar
+		source: (popupImage != "") ? popupImage : "images/buddyicon.png"
+		width: 32
+		height: 32
+		fillMode: Image.PreserveAspectCrop
 		anchors {
-			top: title.bottom
+			top: header.bottom
 			left: parent.left
-			right: parent.right
-			bottom: parent.bottom
-			topMargin: 10
+			topMargin: 15
+			leftMargin: 15
+			bottomMargin: 10
 		}
-		Image {
-			id: avatar
-			source: (popupImage != "") ? popupImage : "images/buddyicon.png"
-			width: 32
-			height: 32
-			fillMode: Image.PreserveAspectCrop
-			anchors {
-				top: parent.top
-				left: parent.left
-				leftMargin: 10
-			}
-		}
-		Text {
-			id: bodyText
-			text: popupBody
-			color: palatte.text
-			font.pointSize: 10
-			wrapMode: "WordWrap"
-			anchors {
-				left: avatar.right
-				leftMargin: 5
-				top: parent.top
-				bottom: parent.bottom
-				right:parent.right
-				rightMargin: 7
-			}
-			onTextChanged: {
-				show_timer.restart();
-				background.height = (body.y + body.height + 15); //hack
-			}
+	}
 
-//			effect: DropShadow {
-//				color: "white"
-//				blurRadius: 8
-//				offset.x: 0
-//				offset.y: 0
-//			}
+	Text {
+		id: body
+		color: palatte.text
+		font.pointSize: 10
+		wrapMode: "WordWrap"
+		text: popupBody
+		style: Text.Outline; styleColor: palatte.light
+		anchors {
+			top: avatar.top
+			left: avatar.right
+			right: parent.right
+			leftMargin: 5
+			rightMargin: 15
 		}
 	}
 
@@ -102,4 +83,5 @@ Rectangle {
 		}
 
 	}
+
 }
