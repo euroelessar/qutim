@@ -22,7 +22,8 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-IrcWhoisRepliesHandler::IrcWhoisRepliesHandler()
+IrcWhoisRepliesHandler::IrcWhoisRepliesHandler(QObject *parent) :
+	QObject(parent)
 {
 	m_cmds
 		<< 311  // RPL_WHOISUSER

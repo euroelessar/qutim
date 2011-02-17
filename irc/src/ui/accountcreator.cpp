@@ -127,6 +127,7 @@ inline ServerData IrcAccWizardPage::currentServer()
 	server.protectedByPassword = ui->protectedByPasswordBox->isChecked();
 	server.password = ui->passwordEdit->text();
 	server.savePassword = ui->passwordBox->isChecked();
+	server.ssl = ui->sslBox->isChecked();
 	return server;
 }
 
@@ -152,12 +153,14 @@ void IrcAccWizardPage::onCurrentServerChanged(int row)
 		ui->protectedByPasswordBox->setChecked(server.protectedByPassword);
 		ui->passwordEdit->setText(server.password);
 		ui->passwordBox->setChecked(server.savePassword);
+		ui->sslBox->setChecked(server.ssl);
 	} else {
 		ui->serverEdit->clear();
 		ui->portBox->setValue(6667);
 		ui->protectedByPasswordBox->setChecked(false);
 		ui->passwordEdit->clear();
 		ui->passwordBox->setChecked(false);
+		ui->sslBox->setChecked(false);
 	}
 	ui->updateServerButton->setEnabled(isServerChecked);
 	ui->removeServerButton->setEnabled(isServerChecked);
@@ -255,6 +258,7 @@ void IrcAccountCreationWizard::finished()
 		cfg.setValue("hostName", server.hostName);
 		cfg.setValue<int>("port", server.port);
 		cfg.setValue("protectedByPassword", server.protectedByPassword);
+		cfg.setValue("ssl", server.ssl);
 		if (server.protectedByPassword && server.savePassword)
 			cfg.setValue("password", server.password, Config::Crypted);
 	}

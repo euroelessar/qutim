@@ -41,7 +41,7 @@ static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent), m_hostLookupId(0)
 {
-	m_socket = new QTcpSocket(this);
+	m_socket = new QSslSocket(this);
 	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	m_account = account;
 	m_messagesTimer.setInterval(500);
@@ -49,12 +49,14 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	connect(m_socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
+	connect(m_socket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
+	connect(m_socket, SIGNAL(encrypted()), SLOT(encrypted()));
 	// Register handlers
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcServerMessageHandler>())
 		registerHandler(gen->generate<IrcServerMessageHandler>());
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcCtpcHandler>())
 		registerCtpcHandler(gen->generate<IrcCtpcHandler>());
-	registerHandler(new IrcWhoisRepliesHandler);
+	registerHandler(new IrcWhoisRepliesHandler(this));
 
 	m_cmds
 		<< 432  // ERR_ERRONEUSNICKNAME
@@ -97,12 +99,6 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 
 IrcConnection::~IrcConnection()
 {
-	foreach (IrcServerMessageHandler *handler, m_handlers) {
-		if (handler != this)
-			delete handler;
-	}
-	foreach (IrcCtpcHandler *handler, m_ctpcHandlers)
-		delete handler;
 }
 
 void IrcConnection::connectToNetwork()
@@ -381,7 +377,8 @@ void IrcConnection::loadSettings()
 		cfg.setArrayIndex(i);
 		IrcServer server;
 		server.hostName = cfg.value("hostName", QString());
-		server.port = cfg.value("port", 6667);
+		server.ssl = cfg.value("ssl", false);
+		server.port = cfg.value("port", server.ssl ? 6667 : 6697);
 		server.protectedByPassword = cfg.value("protectedByPassword", false);
 		if (server.protectedByPassword)
 			server.password = cfg.value("password", QString(), Config::Crypted);
@@ -423,7 +420,10 @@ void IrcConnection::tryConnectToNextServer()
 	}
 	m_currentNick = -1;
 	IrcServer server = m_servers.at(m_currentServer);
-	m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
+	if (server.ssl)
+		m_socket->connectToHostEncrypted(server.hostName, server.port);
+	else
+		m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
 }
 
 void IrcConnection::hostFound(const QHostInfo &host)
@@ -587,6 +587,26 @@ void IrcConnection::error(QAbstractSocket::SocketError error)
 	debug() << "Connection error:" << error;
 	Notifications::send(Notifications::System, m_account,
 						tr("Network error: %1").arg(m_socket->errorString()));
+	m_account->log(m_socket->errorString(), false, "ERROR");
+}
+
+void IrcConnection::sslErrors(const QList<QSslError> &errors)
+{
+	QString notification;
+	foreach (const QSslError &error, errors) {
+		m_account->log(error.errorString(), false, "ERROR");
+		if (!notification.isNull())
+			notification.append("\n");
+		notification.append(error.errorString());
+	}
+	Notifications::send(Notifications::System, m_account,
+						tr("SSL error: %1")
+						.arg(notification));
+}
+
+void IrcConnection::encrypted()
+{
+	m_account->log(tr("SSL handshake completed"), false, "Notice");
 }
 
 } } // namespace qutim_sdk_0_3::irc

@@ -140,7 +140,7 @@ void IrcProtocol::removeCommandAlias(const QString &name)
 void IrcProtocol::removeCommandAlias(IrcCommandAlias *alias)
 {
 	QHash<QString, IrcCommandAlias*>::iterator itr = IrcProtocolPrivate::aliases.begin();
-	QHash<QString, IrcCommandAlias*>::iterator endItr = IrcProtocolPrivate::IrcProtocolPrivate::aliases.end();
+	QHash<QString, IrcCommandAlias*>::iterator endItr = IrcProtocolPrivate::aliases.end();
 	while (itr != endItr) {
 		if (*itr == alias) {
 			delete alias;

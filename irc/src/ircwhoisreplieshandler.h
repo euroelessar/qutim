@@ -27,7 +27,7 @@ class IrcWhoisRepliesHandler : public QObject, public IrcServerMessageHandler
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler)
 public:
-	IrcWhoisRepliesHandler();
+	IrcWhoisRepliesHandler(QObject *parent = 0);
 	virtual ~IrcWhoisRepliesHandler();
 	virtual void handleMessage(class IrcAccount *account, const QString &name, const QString &host,
 							   const IrcCommand &cmd, const QStringList &params);

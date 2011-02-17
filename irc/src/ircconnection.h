@@ -20,7 +20,7 @@
 #include "ircctpchandler.h"
 #include "ircprotocol.h"
 #include "ircaccount.h"
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QTimer>
 
 class QHostInfo;
@@ -35,7 +35,7 @@ struct IrcServer
 	quint16 port;
 	bool protectedByPassword;
 	QString password;
-	//bool ssl;
+	bool ssl;
 };
 
 class IrcConnection : public QObject, public IrcServerMessageHandler
@@ -70,8 +70,10 @@ private slots:
 	void error(QAbstractSocket::SocketError);
 	void hostFound(const QHostInfo &host);
 	void sendNextMessage();
+	void sslErrors(const QList<QSslError> &errors);
+	void encrypted();
 private:
-	QTcpSocket *m_socket;
+	QSslSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
 	QMultiMap<QString, IrcCtpcHandler*> m_ctpcHandlers;
 	IrcAccount *m_account;
