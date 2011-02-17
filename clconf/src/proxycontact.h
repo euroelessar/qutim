@@ -37,18 +37,15 @@ public:
 	virtual bool sendMessage(const Message &message);
 	Conference *conference() const { return m_conf; }
 private slots:
-	void onJoined();
-	void onLeft();
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 								const qutim_sdk_0_3::Status &previous);
+	void updateStatus();
 protected:
 	bool event(QEvent *ev);
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
-	void updateStatus();
 	Status m_status;
 	QPointer<Conference> m_conf;
-	bool m_conn;
 	quint16 m_realUnitRequestEvent;
 };
 
