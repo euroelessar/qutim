@@ -1,9 +1,16 @@
 import Qt 4.7
 
-Item {
+Rectangle {
 	id: background
 	width: 250
 	height: childrenRect.height + 5
+	color:palatte.shadow
+	gradient: Gradient {
+		GradientStop { position: 0.0; color: Qt.lighter(palatte.highlight,1.65) }
+		GradientStop { position: 1.0; color: palatte.base }
+	}
+	border.width: 1
+	border.color: palatte.shadow
 
 	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
 

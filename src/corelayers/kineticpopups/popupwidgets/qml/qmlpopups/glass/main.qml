@@ -5,20 +5,14 @@ Item {
 	width: 250
 	height: childrenRect.height + 5
 
-	BorderImage {
-		id: image
-		source: "images/background.png"
-		border.left: 32; border.top: 32
-		border.right: 32; border.bottom: 32
-		opacity:0.8
-		anchors.fill: parent
-	}
+	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
 
 	Text {
 		id: header
 		text:  popupTitle
-		color: "white"
+		color: palatte.text
 		font.bold: true
+		style: Text.Outline; styleColor: palatte.light
 		font.pointSize: 10
 
 		anchors {
@@ -48,10 +42,11 @@ Item {
 
 	Text {
 		id: body
-		color: "white"
+		color: palatte.text
 		font.pointSize: 10
 		wrapMode: "WordWrap"
 		text: popupBody
+		style: Text.Outline; styleColor: palatte.light
 		anchors {
 			top: avatar.top
 			left: avatar.right
