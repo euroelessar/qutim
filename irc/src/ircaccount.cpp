@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqaccount.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -38,13 +38,6 @@ IrcContact *IrcAccountPrivate::newContact(const QString &nick, const QString &ho
 			   SLOT(onContactNickChanged(QString)));
 	contacts.insert(nick, contact);
 	return contact;
-}
-
-IrcChannel *IrcAccountPrivate::newChannel(const QString &name)
-{
-	IrcChannel *channel = new IrcChannel(q, name);
-	channels.insert(name, channel);
-	return channel;
 }
 
 IrcAccount::IrcAccount(const QString &network) :
@@ -134,9 +127,11 @@ ChatUnit *IrcAccount::getUnit(const QString &name, bool create)
 
 IrcChannel *IrcAccount::getChannel(const QString &name, bool create)
 {
-	IrcChannel *channel = d->channels.value(name);
+	QString nameLower = name.toLower();
+	IrcChannel *channel = d->channels.value(nameLower);
 	if (create && !channel) {
-		channel = d->newChannel(name);
+		channel = new IrcChannel(this, name);
+		d->channels.insert(nameLower, channel);
 		emit conferenceCreated(channel);
 	}
 	return channel;
