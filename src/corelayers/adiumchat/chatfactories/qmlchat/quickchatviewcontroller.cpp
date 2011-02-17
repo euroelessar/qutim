@@ -27,6 +27,7 @@
 #include <qutim/conference.h>
 #include <qutim/history.h>
 #include <qutim/emoticons.h>
+#include <qutim/notificationslayer.h>
 #include <QImageReader>
 
 namespace Core {
@@ -62,7 +63,7 @@ QVariant messageToVariant(const Message &mes)
 	//TODO Optimize if posible
 	QVariantMap map;
 	map.insert(QLatin1String("mid"), mes.id());
-	map.insert(QLatin1String("time"), mes.time());
+	map.insert(QLatin1String("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
 	QObject *unit = const_cast<ChatUnit*>(mes.chatUnit());
 	if (unit) {
 		map.insert(QLatin1String("chatUnit"), qVariantFromValue<QObject*>(unit));
@@ -79,7 +80,12 @@ QVariant messageToVariant(const Message &mes)
 	//handle /me
 	bool isMe = mes.text().startsWith(QLatin1String("/me "));
 	QString body = isMe ? mes.text().mid(4) : mes.text();
-	if (isMe)
+	if (body.isEmpty()) {
+		//handle service
+		//FIXME remake with notifications api
+		Notifications::Type type = static_cast<Notifications::Type>(mes.property("service", 0));
+		body = Notifications::toString(type).arg(map.value("sender").toString());
+	} else if (isMe)
 		map.insert(QLatin1String("action"), true);
 	map.insert(QLatin1String("body"), makeUrls(body));
 

@@ -211,16 +211,11 @@ QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 
 void ChatSessionImpl::setActive(bool active)
 {
-	setSessionActive(active);
-	emit activated(active);
-}
-
-void ChatSessionImpl::setSessionActive(bool active)
-{
 	Q_D(ChatSessionImpl);
 	if (d->active == active)
 		return;
 	d->active = active;
+	emit activated(active);
 }
 
 bool ChatSessionImpl::isActive()

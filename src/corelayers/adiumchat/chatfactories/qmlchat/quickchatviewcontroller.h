@@ -18,6 +18,7 @@
 
 #include <QGraphicsScene>
 #include <chatlayer/chatviewfactory.h>
+#include <chatlayer/chatsessionimpl.h>
 #include <QVariant>
 #include <QPointer>
 
@@ -31,7 +32,7 @@ class QuickChatViewController : public QGraphicsScene, public ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
-	Q_PROPERTY(Core::AdiumChat::ChatSessionImpl* session READ getSession NOTIFY sessionChanged)
+	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
 public:
 	QuickChatViewController(QDeclarativeEngine *engine);
 	virtual void setChatSession(ChatSessionImpl *session);

@@ -82,7 +82,10 @@ Rectangle {
 					myMessage.append = true;
 			}
 			messageModel.append(myMessage);
-			messageView.incrementCurrentIndex();
+			if (!myMessage.isIncoming)
+				messageView.currentIndex = messageView.count - 1;
+
+			console.log ("Session" + controller.session);
 		}
 		onMessageDelivered: {
 			for (var i = messageModel.count-1;i!=-1;i--) {
@@ -91,6 +94,13 @@ Rectangle {
 					break;
 				}
 			}
+		}
+	}
+
+	Connections {
+		target:  controller.session
+		onActivated: {
+			console.log("Activated : " + active);
 		}
 	}
 
