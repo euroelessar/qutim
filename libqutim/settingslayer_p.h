@@ -20,6 +20,7 @@
 #include "settingswidget.h"
 #include <QFormLayout>
 #include <QLabel>
+#include <QMultiMap>
 
 class QLineEdit;
 namespace qutim_sdk_0_3
@@ -125,7 +126,7 @@ public slots:
 	void onButtonClicked(bool toggled);
 };
 
-typedef QMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
+typedef QMultiMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
 
 }
 
