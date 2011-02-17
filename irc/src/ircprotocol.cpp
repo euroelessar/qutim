@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Ircprotocol.cpp
+ *  ircprotocol.cpp
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -19,10 +19,14 @@
 #include "ircchannelparticipant.h"
 #include "ircconnection.h"
 #include "ircchannel_p.h"
-#include <QStringList>
-#include <QPointer>
+#include "ui/ircaccountmainsettings.h"
+#include "ui/ircaccountnicksettings.h"
 #include <qutim/actiongenerator.h>
 #include <qutim/statusactiongenerator.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
+#include <QStringList>
+#include <QPointer>
 #include <QRegExp>
 #include <QTextDocument>
 
@@ -50,6 +54,18 @@ IrcProtocol::IrcProtocol() :
 	IrcAccount::registerLogMsgColor("Users", "green");
 	IrcAccount::registerLogMsgColor("Away", "green");
 	IrcCommandAlias::initStandartAliases();
+
+
+	Settings::registerItem<IrcAccount>(
+			new GeneralSettingsItem<IrcAccountNickSettingsWidget>(
+					Settings::Protocol,
+					Icon("im-irc"),
+					QT_TRANSLATE_NOOP_UTF8("Settings", "User information")));
+	Settings::registerItem<IrcAccount>(
+			new GeneralSettingsItem<IrcAccountMainSettingsWidget>(
+					Settings::Protocol,
+					Icon("im-irc"),
+					QT_TRANSLATE_NOOP_UTF8("Settings", "Servers")));
 }
 
 IrcProtocol::~IrcProtocol()

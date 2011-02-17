@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #ifndef IRCCONNECTION_H
-#define iRCCONNECTION_H
+#define IRCCONNECTION_H
 
 #include "ircservermessagehandler.h"
 #include "ircctpchandler.h"

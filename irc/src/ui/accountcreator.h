@@ -1,7 +1,7 @@
 /****************************************************************************
  *  accountcreator.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -16,14 +16,8 @@
 #ifndef ACCOUNTCREATOR_H
 #define ACCOUNTCREATOR_H
 
-#include "qutim/protocol.h"
-#include "ircconnection.h"
-#include <QWizardPage>
-
-namespace Ui {
-	class AddAccountForm;
-	class EditNickForm;
-}
+#include "ircaccountmainsettings.h"
+#include "ircaccountnicksettings.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -31,50 +25,26 @@ namespace irc {
 
 class IrcAccountCreationWizard;
 
-struct ServerData : public IrcServer
-{
-	bool savePassword;
-};
-	
-class IrcAccWizardPage: public QWizardPage
+class IrcAccWizardPage: public IrcAccountMainSettings
 {
 	Q_OBJECT
 public:
 	IrcAccWizardPage(IrcAccountCreationWizard *accountWizard, QWidget *parent = 0);
 	~IrcAccWizardPage();
-	QString networkName() const;
-	QList<ServerData> servers() const { return m_servers; }
-	bool validatePage();
 	bool isComplete() const;
-private slots:
-	void onAddServer();
-	void onEditServer();
-	void onRemoveServer();
-	void onMoveUpServer();
-	void onMoveDownServer();
-	void onCurrentServerChanged(int row);
-	void onPasswordProtectionChanged(bool checked);
+	bool validatePage();
 private:
-	ServerData currentServer();
-	void moveServer(int row, int newRow);
 	IrcAccountCreationWizard *m_accountWizard;
-	Ui::AddAccountForm *ui;
-	QList<ServerData> m_servers;
 };
 
-class IrcNickWizardPage: public QWizardPage
+class IrcNickWizardPage: public IrcAccountNickSettings
 {
 	Q_OBJECT
 public:
 	IrcNickWizardPage(IrcAccountCreationWizard *accountWizard, QWidget *parent = 0);
 	~IrcNickWizardPage();
-	QString fullName() const;
-	QStringList nicks() const;
-	QString password() const;
-	QString encoding() const;
 	bool validatePage();
 private:
-	Ui::EditNickForm *ui;
 	IrcAccountCreationWizard *m_accountWizard;
 };
 
