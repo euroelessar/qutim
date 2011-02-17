@@ -165,8 +165,8 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 	if(m_session) {
 		m_session->disconnect(this);
 		m_session->removeEventFilter(this);
-	}
-	m_session = session;
+	} else
+		m_session = session;
 	m_session->installEventFilter(this);
 	loadSettings();
 }
