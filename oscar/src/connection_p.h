@@ -32,6 +32,7 @@ class OscarRate: public QObject
 	Q_OBJECT
 public:
 	OscarRate(const SNAC &sn, AbstractConnection *conn);
+	virtual ~OscarRate() {}
 	void update(const SNAC &sn);
 	const QList<quint32> &snacTypes()
 	{
