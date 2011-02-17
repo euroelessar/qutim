@@ -29,7 +29,7 @@ QuickChatViewFactory::QuickChatViewFactory() :
 
 QObject* QuickChatViewFactory::createViewController()
 {
-	return new QuickChatViewController(/*m_engine*/);
+	return new QuickChatViewController(m_engine);
 }
 
 QWidget* QuickChatViewFactory::createViewWidget()

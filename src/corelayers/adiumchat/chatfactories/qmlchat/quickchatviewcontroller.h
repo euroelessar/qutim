@@ -23,6 +23,7 @@
 
 class QDeclarativeEngine;
 class QDeclarativeItem;
+class QDeclarativeContext;
 namespace Core {
 namespace AdiumChat {
 
@@ -30,14 +31,16 @@ class QuickChatViewController : public QGraphicsScene, public ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
+	Q_PROPERTY(Core::AdiumChat::ChatSessionImpl* session READ getSession NOTIFY sessionChanged)
 public:
-	QuickChatViewController(/*QDeclarativeEngine *engine*/);
+	QuickChatViewController(QDeclarativeEngine *engine);
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
     virtual ~QuickChatViewController();
 	QDeclarativeItem *rootItem() const;
+	Q_INVOKABLE QString parseEmoticons(const QString &) const;
 public slots:
 	void loadSettings();
 protected slots:
@@ -48,10 +51,12 @@ signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
 	void clearChatField();
+	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
+	QDeclarativeContext *m_context;
 	QPointer<QDeclarativeItem> m_item;
 	bool m_storeServiceMessages;
 };

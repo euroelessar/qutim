@@ -26,9 +26,13 @@
 #include <QDeclarativeEngine>
 #include <qutim/conference.h>
 #include <qutim/history.h>
+#include <qutim/emoticons.h>
+#include <QImageReader>
 
 namespace Core {
 namespace AdiumChat {
+
+using namespace qutim_sdk_0_3;
 
 QString makeUrls (QString html) //TODO temporary
 {
@@ -107,14 +111,15 @@ QVariant messageToVariant(const Message &mes)
 	return map;
 }
 
-QuickChatViewController::QuickChatViewController(/*QDeclarativeEngine *engine*/) :
+QuickChatViewController::QuickChatViewController(QDeclarativeEngine *engine) :
 	m_session(0),
 	m_themeName(QLatin1String("default")),
-//	m_engine(engine) //TODO use one engine for all controllers
-	m_engine(new QDeclarativeEngine(this)),
+	//	m_engine(engine) //TODO use one engine for all controllers
+	m_engine(engine),
 	m_storeServiceMessages(true)
 {
-
+	m_context = new QDeclarativeContext(m_engine, this);
+	m_context->setContextProperty("controller", this);
 	Config cfg = Config(QLatin1String("appearance")).group(QLatin1String("chat"));
 	cfg.beginGroup(QLatin1String("history"));
 	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
@@ -122,7 +127,7 @@ QuickChatViewController::QuickChatViewController(/*QDeclarativeEngine *engine*/)
 
 }
 
-	
+
 void QuickChatViewController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
 	bool isService = msg.property("service", false);
@@ -169,6 +174,7 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 		m_session = session;
 	m_session->installEventFilter(this);
 	loadSettings();
+	emit sessionChanged(session);
 }
 
 QuickChatViewController::~QuickChatViewController()
@@ -200,18 +206,48 @@ void QuickChatViewController::loadSettings()
 	QString main = path % QLatin1Literal("/main.qml");
 
 	QGraphicsScene::clear();
-	QDeclarativeComponent component(m_engine, main);
-	QObject *obj = component.create();
+	QDeclarativeComponent component (m_engine, main);
+	QObject *obj = component.create(m_context);
 	m_item = qobject_cast<QDeclarativeItem*>(obj);
 	addItem(m_item);
+	loadHistory();
+}
 
-	//QDeclarativeContext *context = m_engine->contextForObject(obj);
 
-	//context->setContextProperty(QLatin1String("controller"), this);
-
-	m_engine->rootContext()->setContextProperty(QLatin1String("controller"), this);
-	QTimer::singleShot(0, this, SLOT(loadHistory())); //TODO use component::StatusChange
+QString QuickChatViewController::parseEmoticons(const QString &text) const
+{
+	//TODO Write flexible textfield with animated emoticons, copy/paste and follow links support
+	QString result;
+	QList<EmoticonsTheme::Token> tokens = Emoticons::theme().tokenize(text);
+	for (QList<EmoticonsTheme::Token>::iterator it = tokens.begin(); it != tokens.end(); it++) {
+		switch(it->type) {
+		case EmoticonsTheme::Image: {
+			QImageReader reader(it->imgPath);
+			QSize size = reader.size();
+			if (!size.isValid()) {
+				size = reader.read().size();
+				if (!size.isValid())
+					break;
+			}
+			QString imgHtml = QLatin1Literal("<img src=\"")
+					% it->imgPath
+					% QLatin1Literal("\" width=\"")
+					% QString::number(size.width())
+					% QLatin1Literal("\" height=\"")
+					% QString::number(size.height())
+					% QLatin1Literal("\" alt=\"%4\" title=\"%4\" />");
+			result += imgHtml;
+			break;
+		}
+		case EmoticonsTheme::Text:
+			result += it->text;
+		default:
+			break;
+		}
+	}
+	return result;
 }
 
 } // namespace AdiumChat
 } // namespace Core
+

@@ -73,6 +73,7 @@ Rectangle {
 			var myMessage = message;
 			var index = messageModel.count-1;
 			myMessage.append = false;
+			myMessage.body = controller.parseEmoticons(message.body);
 			//TODO add date format
 			//myMessage.time = Qt.formatDateTime(message.time, "dd.yy.hh");
 			if (index != -1) {
