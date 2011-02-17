@@ -319,6 +319,11 @@ void IrcAccountPrivate::removeOldCommands()
 		lastCommands = lastCommands.mid(j);
 }
 
+IrcGroupChatManager *IrcAccount::groupChatManager()
+{
+	return reinterpret_cast<IrcGroupChatManager*>(Account::groupChatManager());
+}
+
 void IrcAccount::registerLogMsgColor(const QString &type, const QString &color)
 {
 	IrcAccountPrivate::logMsgColors.insert(type, color);

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircprotocol.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -30,6 +30,7 @@ namespace irc {
 
 class IrcProtocolPrivate;
 class IrcAccount;
+class IrcChannel;
 
 class IrcProtocol: public Protocol
 {
@@ -52,11 +53,13 @@ public:
 public slots:
 	void updateSettings();
 protected:
+	bool event(QEvent *ev);
 	void loadAccounts();
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
 	void onJoinLeftChannel(QObject *channel);
+	void onAutojoinChecked(QObject *channel);
 private:
 	QScopedPointer<IrcProtocolPrivate> d;
 	static IrcProtocol *self;

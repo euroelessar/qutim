@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircgroupchatmanager.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 class IrcAccount;
+class IrcChannel;
 
 struct IrcBookmark
 {
@@ -49,8 +50,10 @@ public:
 	virtual QList<DataItem> bookmarks() const;
 	virtual QList<DataItem> recent() const;
 	void updateRecent(const QString &channel, const QString &password);
+	void setAutoJoin(IrcChannel *channel, bool autojoin = true);
 private:
 	void saveBookmarkToConfig(Config &cfg, const IrcBookmark &bookmark);
+	void addBookmark(const IrcBookmark &bookmark, const QString &oldName = QString());
 	IrcBookmark loadBookmarkFromConfig(Config &cfg);
 	QHash<QString, IrcBookmark> m_bookmarks;
 	QList<IrcBookmark> m_recent;

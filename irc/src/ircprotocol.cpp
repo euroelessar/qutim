@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircprotocol.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -19,6 +19,7 @@
 #include "ircchannelparticipant.h"
 #include "ircconnection.h"
 #include "ircchannel_p.h"
+#include "ircgroupchatmanager.h"
 #include "ui/ircaccountmainsettings.h"
 #include "ui/ircaccountnicksettings.h"
 #include <qutim/actiongenerator.h>
@@ -55,7 +56,6 @@ IrcProtocol::IrcProtocol() :
 	IrcAccount::registerLogMsgColor("Away", "green");
 	IrcCommandAlias::initStandartAliases();
 
-
 	Settings::registerItem<IrcAccount>(
 			new GeneralSettingsItem<IrcAccountNickSettingsWidget>(
 					Settings::Protocol,
@@ -66,6 +66,12 @@ IrcProtocol::IrcProtocol() :
 					Settings::Protocol,
 					Icon("im-irc"),
 					QT_TRANSLATE_NOOP_UTF8("Settings", "Servers")));
+
+	d->autojoinAction = new ActionGenerator(QIcon(), QT_TR_NOOP("Auto-join"),
+											this, SLOT(onAutojoinChecked(QObject*)));
+	d->autojoinAction->setCheckable(true);
+	d->autojoinAction->addHandler(ActionCreatedHandler, this);
+	MenuController::addAction<IrcChannel>(d->autojoinAction);
 }
 
 IrcProtocol::~IrcProtocol()
@@ -300,6 +306,25 @@ void IrcProtocol::updateSettings()
 		acc->updateSettings();
 }
 
+bool IrcProtocol::event(QEvent *ev)
+{
+	if (ev->type() == ActionCreatedEvent::eventType()) {
+		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
+		if (d->autojoinAction == event->generator()) {
+			IrcChannel *channel = qobject_cast<IrcChannel*>(event->controller());
+			if (!channel)
+				return false;
+
+			event->action()->setChecked(channel->autoJoin());
+			connect(channel, SIGNAL(autoJoinChanged(bool)),
+					event->action(), SLOT(setChecked(bool)));
+			return true;
+		}
+		return false;
+	}
+	return QObject::event(ev);
+}
+
 QVariant IrcProtocol::data(DataType type)
 {
 	switch (type) {
@@ -335,6 +360,15 @@ void IrcProtocol::onJoinLeftChannel(QObject *channel_helper)
 		channel->leave();
 	else
 		channel->join();
+}
+
+void IrcProtocol::onAutojoinChecked(QObject *channel_helper)
+{
+	IrcChannel *channel = qobject_cast<IrcChannel*>(channel_helper);
+	if (!channel)
+		return;
+
+	channel->setAutoJoin(!channel->autoJoin());
 }
 
 } } // namespace qutim_sdk_0_3::irc

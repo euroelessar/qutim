@@ -131,8 +131,10 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (status == Status::Connecting) {
 			account->setStatus(Status::Online);
 			foreach (IrcChannel *channel, account->d->channels) {
-				if (channel->d->autojoin)
+				if (channel->d->autojoin || channel->d->reconnect) {
 					channel->join();
+					channel->d->reconnect = false;
+				}
 			}
 		}
 		QString msg;
@@ -356,7 +358,7 @@ void IrcConnection::disconnectFromHost(bool force)
 	foreach (IrcChannel *channel, m_account->d->channels) {
 		if (channel->isJoined()) {
 			channel->leave(true);
-			channel->setAutoJoin();
+			channel->d->reconnect = true;
 		}
 	}
 }
@@ -443,8 +445,10 @@ void IrcConnection::tryNextNick()
 		debug() << "Set at least one nick before connecting";
 		return;
 	}
-	if (++m_currentNick >= m_nicks.size())
+	if (++m_currentNick >= m_nicks.size()) {
 		tryConnectToNextServer(); // TODO: Or should we stop connecting?
+		return;
+	}
 	m_nick = m_nicks.at(m_currentNick);
 	send(QString("NICK %1\nUSER %1 %2 * :%3")
 		 .arg(m_nick).arg(0)

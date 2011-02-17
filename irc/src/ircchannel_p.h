@@ -43,6 +43,7 @@ public:
 	bool autojoin;
 	QString lastPassword;
 	QString bookmarkName;
+	bool reconnect;
 };
 
 } } // namespace qutim_sdk_0_3::irc

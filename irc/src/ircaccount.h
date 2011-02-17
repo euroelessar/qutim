@@ -29,6 +29,7 @@ namespace irc {
 
 class IrcAccountPrivate;
 class IrcChannel;
+class IrcGroupChatManager;
 
 typedef QHash<QChar, QString> ExtendedParams;
 
@@ -64,6 +65,7 @@ public:
 	ChatSession *activeSession() const;
 	void log(const QString &msg, bool addToActiveSession = false, const QString &type = QString()) const;
 	bool isUserInputtedCommand(const QString &command, bool clearCommand = false);
+	IrcGroupChatManager *groupChatManager();
 	static void registerLogMsgColor(const QString &type, const QString &color);
 signals:
 	void avatarChanged(const QString &avatar);

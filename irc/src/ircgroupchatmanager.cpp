@@ -1,7 +1,7 @@
 /****************************************************************************
  *  ircgroupchatmanager.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,7 +14,7 @@
  *****************************************************************************/
 
 #include "ircgroupchatmanager.h"
-#include "ircchannel.h"
+#include "ircchannel_p.h"
 #include "ircaccount_p.h"
 
 namespace qutim_sdk_0_3 {
@@ -35,7 +35,7 @@ IrcGroupChatManager::IrcGroupChatManager(IrcAccount *account) :
 
 		if (bookmark.autojoin) {
 			IrcChannel *channel = account->getChannel(bookmark.channel, true);
-			channel->setAutoJoin(true);
+			channel->d->autojoin = true;
 			channel->setBookmarkName(bookmark.name);
 		}
 	}
@@ -101,7 +101,7 @@ bool IrcGroupChatManager::join(const DataItem &fields)
 bool IrcGroupChatManager::storeBookmark(const DataItem &fields, const DataItem &oldFields)
 {
 	QString oldName = oldFields.subitem("name").data<QString>();
-	m_bookmarks.remove(oldName);
+	IrcBookmark oldBookmark = m_bookmarks.take(oldName);
 	IrcBookmark bookmark;
 	bookmark.channel = fields.subitem("channel").data<QString>();
 	if (bookmark.channel.length() <= 1)
@@ -109,22 +109,28 @@ bool IrcGroupChatManager::storeBookmark(const DataItem &fields, const DataItem &
 	bookmark.name = fields.subitem("name").data<QString>();
 	bookmark.password = fields.subitem("password").data<QString>();
 	bookmark.autojoin = fields.subitem("autojoin").data<bool>();
-	m_bookmarks.insert(bookmark.getName(), bookmark);
-
-	Config cfg = account()->config("bookmarks");
-	cfg.remove(oldName);
-	cfg.beginGroup(bookmark.getName());
-	saveBookmarkToConfig(cfg, bookmark);
-	cfg.endGroup();
+	addBookmark(bookmark, oldName);
+	if (bookmark.autojoin != oldBookmark.autojoin) {
+		IrcChannel *channel = account()->getChannel(bookmark.getName(), true);
+		channel->d->autojoin = true;
+		emit channel->autoJoinChanged(true);
+	}
 	return true;
 }
 
 bool IrcGroupChatManager::removeBookmark(const DataItem &fields)
 {
 	QString name = fields.subitem("name").data<QString>();
-	m_bookmarks.remove(name);
+	IrcBookmark bookmark = m_bookmarks.take(name);
 	Config cfg = account()->config("bookmarks");
 	cfg.remove(name);
+	if (bookmark.autojoin) {
+		IrcChannel *channel = account()->getChannel(bookmark.getName());
+		if (channel) {
+			channel->d->autojoin = false;
+			emit channel->autoJoinChanged(false);
+		}
+	}
 	return true;
 }
 
@@ -170,6 +176,17 @@ void IrcGroupChatManager::updateRecent(const QString &channel, const QString &pa
 	cfg.endArray();
 }
 
+void IrcGroupChatManager::setAutoJoin(IrcChannel *channel, bool autojoin)
+{
+	IrcBookmark bookmark = m_bookmarks.take(channel->title());
+	if (bookmark.channel.isEmpty()) {
+		bookmark.channel = channel->id();
+		bookmark.password = channel->d->lastPassword;
+	}
+	bookmark.autojoin = autojoin;
+	addBookmark(bookmark);
+}
+
 void IrcGroupChatManager::saveBookmarkToConfig(Config &cfg, const IrcBookmark &bookmark)
 {
 	if (!bookmark.name.isEmpty())
@@ -190,6 +207,16 @@ IrcBookmark IrcGroupChatManager::loadBookmarkFromConfig(Config &cfg)
 	return bookmark;
 }
 
+void IrcGroupChatManager::addBookmark(const IrcBookmark &bookmark, const QString &oldName)
+{
+	m_bookmarks.insert(bookmark.getName(), bookmark);
+	Config cfg = account()->config("bookmarks");
+	if (!oldName.isNull())
+		cfg.remove(oldName);
+	cfg.beginGroup(bookmark.getName());
+	saveBookmarkToConfig(cfg, bookmark);
+	cfg.endGroup();
+}
 
 } // namespace irc
 } // namespace qutim_sdk_0_3

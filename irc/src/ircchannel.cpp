@@ -135,7 +135,16 @@ bool IrcChannel::isJoined() const
 
 void IrcChannel::setAutoJoin(bool autojoin)
 {
+	if (autojoin == d->autojoin)
+		return;
 	d->autojoin = autojoin;
+	account()->groupChatManager()->setAutoJoin(this, autojoin);
+	emit autoJoinChanged(autojoin);
+}
+
+bool IrcChannel::autoJoin()
+{
+	return d->autojoin;
 }
 
 void IrcChannel::setBookmarkName(const QString &name)

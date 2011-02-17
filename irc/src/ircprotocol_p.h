@@ -1,7 +1,7 @@
 /****************************************************************************
  *  irqprotocol_p.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -39,6 +39,7 @@ public:
 		QHash<QString, IrcAccount *> *accounts;
 	};
 	QPointer<ChatSession> activeSession;
+	ActionGenerator *autojoinAction;
 	static bool enableColoring;
 	static QMultiHash<QString, IrcCommandAlias*> aliases;
 };

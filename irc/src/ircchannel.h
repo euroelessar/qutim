@@ -47,17 +47,21 @@ public:
 	virtual ChatUnitList lowerUnits();
 	bool isJoined() const;
 	void setAutoJoin(bool autojoin = true);
-	void setBookmarkName(const QString &name);
+	bool autoJoin();
 	const IrcAccount *account() const;
 	IrcAccount *account();
 	IrcChannelParticipant *participant(const QString &nick);
 	QList<IrcChannelParticipant*> participants();
+signals:
+	void autoJoinChanged(bool enabled);
 private slots:
 	void onMyNickChanged(const QString &nick);
 	void onParticipantNickChanged(const QString &nick);
 	void onContactQuit(const QString &message);
 private:
 	friend class IrcConnection;
+	friend class IrcGroupChatManager;
+	void setBookmarkName(const QString &name);
 	void handleUserList(const QStringList &users);
 	void handleJoin(const QString &nick, const QString &host);
 	void handlePart(const QString &nick, const QString &message);
