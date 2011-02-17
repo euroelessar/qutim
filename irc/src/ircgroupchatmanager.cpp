@@ -16,6 +16,7 @@
 #include "ircgroupchatmanager.h"
 #include "ircchannel_p.h"
 #include "ircaccount_p.h"
+#include <qutim/messagesession.h>
 
 namespace qutim_sdk_0_3 {
 namespace irc {
@@ -33,11 +34,9 @@ IrcGroupChatManager::IrcGroupChatManager(IrcAccount *account) :
 			continue;
 		m_bookmarks.insert(name, bookmark);
 
-		if (bookmark.autojoin) {
-			IrcChannel *channel = account->getChannel(bookmark.channel, true);
-			channel->d->autojoin = true;
-			channel->setBookmarkName(bookmark.name);
-		}
+		IrcChannel *channel = account->getChannel(bookmark.channel, true);
+		channel->d->autojoin = bookmark.autojoin;
+		channel->setBookmarkName(bookmark.getName());
 	}
 	cfg.endGroup();
 
@@ -93,7 +92,8 @@ bool IrcGroupChatManager::join(const DataItem &fields)
 	if (channelName.length() <= 1)
 		return false;
 	IrcChannel *channel = account()->getChannel(channelName, true);
-	channel->setBookmarkName(fields.subitem("name").data<QString>());
+	QString name = fields.subitem("name").data<QString>();
+	channel->setBookmarkName(name.isEmpty() ? channelName : name);
 	channel->join(fields.subitem("password").data<QString>());
 	return true;
 }
@@ -110,8 +110,9 @@ bool IrcGroupChatManager::storeBookmark(const DataItem &fields, const DataItem &
 	bookmark.password = fields.subitem("password").data<QString>();
 	bookmark.autojoin = fields.subitem("autojoin").data<bool>();
 	addBookmark(bookmark, oldName);
+	IrcChannel *channel = account()->getChannel(bookmark.getName(), true);
+	channel->setBookmarkName(bookmark.getName());
 	if (bookmark.autojoin != oldBookmark.autojoin) {
-		IrcChannel *channel = account()->getChannel(bookmark.getName(), true);
 		channel->d->autojoin = true;
 		emit channel->autoJoinChanged(true);
 	}
@@ -124,13 +125,22 @@ bool IrcGroupChatManager::removeBookmark(const DataItem &fields)
 	IrcBookmark bookmark = m_bookmarks.take(name);
 	Config cfg = account()->config("bookmarks");
 	cfg.remove(name);
-	if (bookmark.autojoin) {
-		IrcChannel *channel = account()->getChannel(bookmark.getName());
-		if (channel) {
+
+	IrcChannel *channel = account()->getChannel(bookmark.getName());
+	if (channel) {
+		if (!channel->isJoined()) { // If the channel is not joined, we don't need it
+			if (ChatSession *session = ChatLayer::get(channel))
+				// The channel window is open, wait until user would close it
+				QObject::connect(session, SIGNAL(destroyed()), channel, SLOT(deleteLater()));
+			else
+				channel->deleteLater();
+		} else if (channel->d->autojoin) {
 			channel->d->autojoin = false;
 			emit channel->autoJoinChanged(false);
 		}
+		channel->setBookmarkName(QString());
 	}
+
 	return true;
 }
 

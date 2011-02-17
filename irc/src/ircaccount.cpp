@@ -35,7 +35,7 @@ IrcContact *IrcAccountPrivate::newContact(const QString &nick, const QString &ho
 	IrcContact *contact = new IrcContact(q, nick, host);
 	q->connect(contact, SIGNAL(destroyed()), SLOT(onContactRemoved()));
 	q->connect(contact, SIGNAL(nameChanged(QString,QString)),
-			   SLOT(onContactNickChanged(QString)));
+			   SLOT(onContactNickChanged(QString,QString)));
 	contacts.insert(nick, contact);
 	return contact;
 }
@@ -359,13 +359,14 @@ bool IrcAccount::event(QEvent *ev)
 	return Account::event(ev);
 }
 
-void IrcAccountPrivate::removeContact(IrcContact *contact)
+template<typename T>
+void removeObject(QHash<QString, T *> &hash, T *obj)
 {
-	QHash<QString, IrcContact *>::iterator itr = contacts.begin();
-	QHash<QString, IrcContact *>::iterator endItr = contacts.end();
+	typename QHash<QString, T *>::iterator itr = hash.begin();
+	typename QHash<QString, T *>::iterator endItr = hash.end();
 	while (itr != endItr) {
-		if (*itr == contact) {
-			contacts.erase(itr);
+		if (*itr == obj) {
+			hash.erase(itr);
 			break;
 		}
 		++itr;
@@ -375,18 +376,19 @@ void IrcAccountPrivate::removeContact(IrcContact *contact)
 
 void IrcAccount::onContactRemoved()
 {
-	d->removeContact(reinterpret_cast<IrcContact*>(sender()));
+	removeObject<IrcContact>(d->contacts, reinterpret_cast<IrcContact*>(sender()));
 }
 
-void IrcAccount::onContactNickChanged(const QString &nick)
+void IrcAccount::onChannelRemoved()
+{
+	removeObject<IrcChannel>(d->channels, reinterpret_cast<IrcChannel*>(sender()));
+}
+
+void IrcAccount::onContactNickChanged(const QString &nick, const QString &oldNick)
 {
 	Q_ASSERT(qobject_cast<IrcContact*>(sender()));
 	IrcContact *contact = reinterpret_cast<IrcContact*>(sender());
-	d->removeContact(contact);
-	if (d->contacts.contains(nick)) {
-		// It should never happen but anyway:
-		d->contacts.take(nick)->deleteLater();
-	}
+	d->contacts.remove(oldNick);
 	Q_ASSERT(contact->id() == nick);
 	d->contacts.insert(nick, contact);
 }

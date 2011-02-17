@@ -41,7 +41,6 @@ class IrcAccountPrivate
 {
 public:
 	IrcContact *newContact(const QString &nick, const QString &host);
-	void removeContact(IrcContact *contact);
 	void removeOldCommands();
 	friend class IrcAccount;
 	IrcAccount *q;

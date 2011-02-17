@@ -79,11 +79,19 @@ void IrcChannel::leave()
 
 void IrcChannel::leave(bool force)
 {
-	if (force) {
-		clear(ChatLayer::instance()->getSession(this, false));
-	} else {
+	ChatSession *session = ChatLayer::instance()->getSession(this, false);
+	if (force)
+		clear(session);
+	else
 		account()->send(QString("PART %1").arg(d->name));
-		d->autojoin = false;
+
+	// If the channel is not in bookmarks, delete it
+	if (d->bookmarkName.isEmpty()) {
+		if (session)
+			// The channel window is open, wait until user would close it
+			connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		else
+			deleteLater();
 	}
 }
 

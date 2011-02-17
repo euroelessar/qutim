@@ -78,7 +78,8 @@ protected:
 	virtual bool event(QEvent *ev);
 private slots:
 	void onContactRemoved();
-	void onContactNickChanged(const QString &nick);
+	void onContactNickChanged(const QString &nick, const QString &oldNick);
+	void onChannelRemoved();
 private:
 	friend class IrcContact;
 	friend class IrcChannelParticipant;
