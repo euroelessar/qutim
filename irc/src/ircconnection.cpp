@@ -97,8 +97,10 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 
 IrcConnection::~IrcConnection()
 {
-	foreach (IrcServerMessageHandler *handler, m_handlers)
-		delete handler;
+	foreach (IrcServerMessageHandler *handler, m_handlers) {
+		if (handler != this)
+			delete handler;
+	}
 	foreach (IrcCtpcHandler *handler, m_ctpcHandlers)
 		delete handler;
 }
