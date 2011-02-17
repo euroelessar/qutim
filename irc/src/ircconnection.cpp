@@ -136,6 +136,11 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 					channel->d->reconnect = false;
 				}
 			}
+			if (!m_nickPassword.isEmpty()) {
+				send(QString("PRIVMSG NickServ :IDENTIFY %1 %2")
+					 .arg(m_nicks.value(0))
+					 .arg(m_nickPassword));
+			}
 		}
 		QString msg;
 		if (cmd == 4) {
@@ -260,6 +265,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		m_account->log(tr("End of message of the day"), false, "MOTD");
 	} else if (cmd == 372) { // RPL_MOTD
 		m_account->log(params.value(1), false, "MOTD");
+
 	} else if (cmd == 321) { // RPL_LISTSTART
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listStarted();
@@ -393,6 +399,7 @@ void IrcConnection::loadSettings()
 		m_nick = m_nicks.value(0);
 	// User fullname.
 	m_fullName = cfg.value("fullName").toString();
+	m_nickPassword = cfg.value("nickPassword").toString();
 	m_codec = QTextCodec::codecForName(cfg.value("codec", "utf8").toLatin1());
 	if (!m_codec)
 		m_codec = QTextCodec::codecForName("utf8");

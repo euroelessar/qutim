@@ -83,6 +83,7 @@ private:
 	QString m_nick;
 	int m_currentNick;
 	QString m_fullName;
+	QString m_nickPassword;
 	QTextCodec *m_codec;
 	int m_hostLookupId;
 	QStringList m_messagesQueue;
