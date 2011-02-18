@@ -17,9 +17,4 @@
 
 namespace qutim_sdk_0_3 {
 
-Notification::Notification(QObject *parent) :
-    QObject(parent)
-{
-}
-
 } // namespace qutim_sdk_0_3

@@ -19,8 +19,12 @@
 //#include <QObject>
 
 ////Notifications API Draft
-//class QAction;
 //namespace qutim_sdk_0_3 {
+
+//class RemoteAction
+//{
+
+//};
 
 //class NotificationBackend;
 //class Notification : public QObject
@@ -36,9 +40,9 @@
 //	void setBody(const QString &body);
 //	void setSubject(const QString &summary);
 //	void setImagePath(const QString &path);
-//	void addAction(QAction *);
-//	void removeAction(QAction *);
-//	QList<QAction*> actions() const;
+//	void addAction(RemoteAction);
+//	void removeAction(RemoteAction);
+//	QList<RemoteAction> actions() const;
 //	QString body() const;
 //	QString subject() const;
 //	Type type() const;
