@@ -173,6 +173,14 @@ void JMUCSession::leave()
 	d->room->leave();
 	d->isJoined = false;
 	setChatState(ChatStateGone);
+	ChatSession *session = ChatLayer::get(this, false);
+	//remove users
+	foreach (QString name, d->users.keys()) {
+		JMUCUser *user = d->users.take(name);
+		if (session)
+			session->removeContact(user);
+		user->deleteLater();
+	}
 }
 
 bool JMUCSession::isJoined()
@@ -191,6 +199,8 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	Q_D(JMUCSession);
 
 	if (account()->status() == Status::Offline)
+		return false;
+	if (!isJoined())
 		return false;
 
 	if (message.text().startsWith("/nick ")) {
@@ -446,7 +456,6 @@ void JMUCSession::onServiceMessage(const jreen::Message &msg)
 void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 {
 	Q_UNUSED(nick);
-	Q_D(JMUCSession);
 	qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % subject);
 	msg.setChatUnit(this);
 	msg.setTime(QDateTime::currentDateTime());
