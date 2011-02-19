@@ -37,6 +37,8 @@ using namespace qutim_sdk_0_3;
 
 QString makeUrls (QString html) //TODO temporary
 {
+	html = Qt::escape(html);
+	html.replace("\n", "<br />");
 	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
 							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
 							  Qt::CaseInsensitive);
