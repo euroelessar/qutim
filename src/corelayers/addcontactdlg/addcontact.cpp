@@ -81,6 +81,8 @@ bool AddContactModule::event(QEvent *ev)
 		checkContact(event->action(),contact);
 		connect(contact->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 				this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+		connect(contact, SIGNAL(inListChanged(bool)),
+				this, SLOT(inListChanged(bool)));
 		ev->accept();
 	}
 	return QObject::event(ev);
@@ -96,6 +98,15 @@ void AddContactModule::onAccountStatusChanged(Status)
 		Q_ASSERT(contact);
 		checkContact(it.value(), contact);
 	}
+}
+
+void AddContactModule::inListChanged(bool)
+{
+	Contact *c = qobject_cast<Contact*>(sender());
+	Q_ASSERT(c);
+	QList<QAction*> actions = m_addRemoveGen->actions(c);
+	foreach (QAction *a, actions)
+		checkContact(a, c);
 }
 
 void AddContactModule::onContactAddRemoveAction(QObject *obj)
