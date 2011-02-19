@@ -1,4 +1,4 @@
-import QtQuick 1.0
+import Qt 4.7
 import "delegate"
 
 Rectangle {
@@ -8,51 +8,51 @@ Rectangle {
 
 	ListModel {
 		id: messageModel
-//		ListElement {
-//			sender: "Sauron";
-//			isIncoming: false;
-//			body: "Service message";
-//			time : "2010.03.04";
-//			isDelivered : false
-//			service: true
-//			action: false
-//		}
-//		ListElement {
-//			sender: "Sauron";
-//			isIncoming: true;
-//			body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
-//			time : "2010.03.04";
-//			isDelivered : true
-//			service: false
-//			action: false
-//		}
-//		ListElement {
-//			sender: "Sauron";
-//			isIncoming: true;
-//			body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
-//			time : "2010.03.04";
-//			isDelivered : true
-//			service: false
-//			action: false
-//			append: true
-//		}
-//		ListElement {
-//			sender: "SauronTheDark";
-//			isIncoming: false;
-//			body: "Text";
-//			time : "Time";
-//			isDelivered : false
-//			service: false
-//			action: true
-//		}
-//		ListElement {
-//			sender: "Sauron";
-//			isIncoming: false;
-//			body: "Text";
-//			time : "Time";
-//			isDelivered : false
-//			service: true
-//		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: false;
+			body: "Service message";
+			time : "2010.03.04";
+			isDelivered : false
+			service: true
+			action: false
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: true;
+			body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
+			time : "2010.03.04";
+			isDelivered : true
+			service: false
+			action: false
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: true;
+			body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
+			time : "2010.03.04";
+			isDelivered : true
+			service: false
+			action: false
+			append: true
+		}
+		ListElement {
+			sender: "SauronTheDark";
+			isIncoming: false;
+			body: "Text";
+			time : "Time";
+			isDelivered : false
+			service: false
+			action: true
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: false;
+			body: "Text";
+			time : "Time";
+			isDelivered : false
+			service: true
+		}
 	}
 
 	MessageDelegate {
