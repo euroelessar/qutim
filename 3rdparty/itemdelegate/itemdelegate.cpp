@@ -13,13 +13,13 @@
 ***************************************************************************
 *****************************************************************************/
 
-#include <libqutim/debug.h>
+#include "../../libqutim/debug.h"
 #include "itemdelegate.h"
 #include <QPainter>
 #include <QApplication>
 #include <QLatin1Literal>
 #include <qtextlayout.h>
-#include <libqutim/localizedstring.h>
+#include "../../libqutim/localizedstring.h"
 #include <QTreeView>
 #include <QListView>
 

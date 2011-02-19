@@ -1,5 +1,5 @@
 #include "chatedit.h"
-#include <chatlayer/chatsessionimpl.h>
+#include "chatsessionimpl.h"
 #include <QDateTime>
 #include <QTextBlock>
 #include <QTextDocumentFragment>

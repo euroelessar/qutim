@@ -15,13 +15,13 @@
  ****************************************************************************/
 
 #include "chatlayerplugin.h"
-#include "chatlayer/chatlayerimpl.h"
+#include "chatlayerimpl.h"
 #include "timemodifier/timemodifier.h"
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
 #include <QWidgetAction>
-#include "chatlayer/actions/chatemoticonswidget.h"
+#include "actions/chatemoticonswidget.h"
 #include <QPlainTextEdit>
 #include "chatforms/abstractchatwidget.h"
 #include <qutim/shortcut.h>

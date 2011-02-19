@@ -45,7 +45,7 @@
 #include <QLayout>
 #include <QRect>
 #include <QWidgetItem>
-#include "libqutim/libqutim_global.h"
+#include "../../libqutim/libqutim_global.h"
 
 //! [0]
 class LIBQUTIM_EXPORT FlowLayout : public QLayout

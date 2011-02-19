@@ -1,10 +1,10 @@
 #include "profilecreationwizard.h"
-#include "libqutim/profilecreatorpage.h"
-#include "libqutim/objectgenerator.h"
-#include "libqutim/systeminfo.h"
+#include <qutim/profilecreatorpage.h>
+#include <qutim/objectgenerator.h>
+#include <qutim/systeminfo.h>
 #include "profilecreationpage.h"
-#include "libqutim/jsonfile.h"
-#include "libqutim/config.h"
+#include <qutim/jsonfile.h>
+#include <qutim/config.h>
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>

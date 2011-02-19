@@ -1,7 +1,7 @@
 #ifndef TIMEMODIFIER_H
 #define TIMEMODIFIER_H
 
-#include "../chatlayer/messagemodifier.h"
+#include "../messagemodifier.h"
 
 namespace qutim_sdk_0_3
 {
