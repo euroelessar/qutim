@@ -25,7 +25,6 @@ QuickChatViewWidget::QuickChatViewWidget()
 	setOptimizationFlags(QGraphicsView::DontSavePainterState);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	setFrameStyle(0);
 
 	// These seem to give the best performance
 	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
