@@ -193,7 +193,7 @@ Module::Module() : p(new ModulePrivate)
 											   );
 	gen->setPriority(1);
 	gen->setType(ActionTypeAdditional);
-	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
+	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));	
 	addAction(gen);
 
 	gen = new ActionGenerator(Icon("application-exit"),
@@ -206,7 +206,8 @@ Module::Module() : p(new ModulePrivate)
 
 #ifndef Q_WS_S60
 	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
-	addButton(gen);
+	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
+	addButton(gen);	
 #endif
 
 	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));

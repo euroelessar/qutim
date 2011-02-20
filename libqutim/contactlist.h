@@ -22,7 +22,7 @@
 namespace qutim_sdk_0_3 {
 
 //Dummy
-//TODO create API
+//TODO rename to MainMenu
 class LIBQUTIM_EXPORT ContactList : public MenuController
 {
     Q_OBJECT

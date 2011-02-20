@@ -52,6 +52,7 @@ void ChatEmoticonsWidget::loadTheme()
 	clearEmoticonsPreview();
 	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
 		QLabel *label = new QLabel();
+		label->setFocusPolicy(Qt::StrongFocus);
 		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
 		label->setMovie(emoticon);
 		label->setToolTip(it.value().first());
