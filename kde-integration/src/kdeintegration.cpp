@@ -13,6 +13,7 @@
 #include <qutim/event.h>
 #include <QCoreApplication>
 #include <KAboutData>
+#include <kcmdlineargs.h>
 #include <QDebug>
 
 namespace qutim_sdk_0_3
@@ -55,6 +56,15 @@ namespace KdeIntegration
 		aboutData.setBugAddress("euroelessar@ya.ru");
 		aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 		KGlobal::setActiveComponent(KComponentData(aboutData));
+		
+		// Don't know better way to know application arguments from here
+		QStringList args = QCoreApplication::arguments();
+		int argc = args.count();
+		char **argv = (char *) malloc(sizeof(char *) * argc);
+		for (int i = 0; i < argc; i++)
+			argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
+		// Whe shouldn't free memory because KCmdLineArgs stores pointers internally to it
+		KCmdLineArgs::init(argc, argv, KGlobal::activeComponent().aboutData());
 
 		ExtensionIcon kdeIcon("kde");
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
