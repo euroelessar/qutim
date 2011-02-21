@@ -24,7 +24,7 @@
 #include "protocol.h"
 #include "servicemanager.h"
 #include "startupmodule.h"
-#include "libqutim/icon.h"
+#include "icon.h"
 #include "varianthook_p.h"
 #include "debug.h"
 #include <QPluginLoader>
