@@ -15,14 +15,26 @@
 
 #ifndef QUICKCHATVIEWWIDGET_H
 #define QUICKCHATVIEWWIDGET_H
+#include <QGraphicsView>
+#include <chatlayer/chatviewfactory.h>
+#include <QPointer>
 
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatViewWidget
+class QuickChatViewController;
+class QuickChatViewWidget : public QGraphicsView, public Core::AdiumChat::ChatViewWidget
 {
+	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
     QuickChatViewWidget();
+    virtual void setViewController(QObject* controller);
+protected:
+	void resizeEvent(QResizeEvent *event);
+	void updateView();
+private:
+	QPointer<QuickChatViewController> m_controller;
 };
 
 } // namespace AdiumChat

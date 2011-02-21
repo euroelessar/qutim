@@ -29,8 +29,8 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-using namespace std;
-ofstream logfile;
+//using namespace std;
+//ofstream logfile;
 
 //#ifdef Q_OS_SYMBIAN
 //void SymbianLoggingHandler(QtMsgType type, const char *msg) {

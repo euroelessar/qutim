@@ -244,9 +244,10 @@ void TabbedChatWidget::removeSession(ChatSessionImpl *session)
 {
 	if(contains(session))
 		m_tabBar->removeSession(session);
-	session->setActive(false);
-	if(m_flags & DeleteSessionOnClose)
+	if(m_flags & DeleteSessionOnClose) {
 		session->deleteLater();
+	} else
+		session->setActive(false);
 
 	if(!m_tabBar->count())
 		deleteLater();

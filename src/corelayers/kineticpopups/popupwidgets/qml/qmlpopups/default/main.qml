@@ -1,84 +1,63 @@
 import Qt 4.7
 
-Rectangle {
+Item {
 	id: background
 	width: 250
-	height: 75
-	color:palatte.shadow
-	gradient: Gradient {
-		GradientStop { position: 0.0; color: Qt.lighter(palatte.highlight,1.65) }
-		GradientStop { position: 1.0; color: palatte.base }
-	}
-	border.width: 1
-	border.color: palatte.shadow
+	height: childrenRect.height + 5
 
-	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
+	BorderImage {
+		id: image
+		source: "images/background.png"
+		border.left: 32; border.top: 32
+		border.right: 32; border.bottom: 32
+		opacity:0.8
+		anchors.fill: parent
+	}
 
 	Text {
-		id: title
-		text: popupTitle
-		color: palatte.text
-		font.pointSize: 10
-		wrapMode: "WordWrap"
+		id: header
+		text:  popupTitle
+		color: "white"
 		font.bold: true
-		style: Text.Outline; styleColor: palatte.light
+		font.pointSize: 10
+
 		anchors {
+			top: parent.top
 			left: parent.left
 			right: parent.right
-			top: parent.top
+			topMargin: 10
 			leftMargin: 15
 			rightMargin: 15
-			topMargin:5
 		}
 	}
 
-
-	Item {
-		id: body
+	Image {
+		id: avatar
+		source: (popupImage != "") ? popupImage : "images/buddyicon.png"
+		width: 32
+		height: 32
+		fillMode: Image.PreserveAspectCrop
 		anchors {
-			top: title.bottom
+			top: header.bottom
 			left: parent.left
-			right: parent.right
-			bottom: parent.bottom
-			topMargin: 10
+			topMargin: 15
+			leftMargin: 15
+			bottomMargin: 10
 		}
-		Image {
-			id: avatar
-			source: (popupImage != "") ? popupImage : "images/buddyicon.png"
-			width: 32
-			height: 32
-			fillMode: Image.PreserveAspectCrop
-			anchors {
-				top: parent.top
-				left: parent.left
-				leftMargin: 10
-			}
-		}
-		Text {
-			id: bodyText
-			text: popupBody
-			color: palatte.text
-			font.pointSize: 10
-			wrapMode: "WordWrap"
-			anchors {
-				left: avatar.right
-				leftMargin: 5
-				top: parent.top
-				bottom: parent.bottom
-				right:parent.right
-				rightMargin: 7
-			}
-			onTextChanged: {
-				show_timer.restart();
-				background.height = (body.y + body.height + 15); //hack
-			}
+	}
 
-//			effect: DropShadow {
-//				color: "white"
-//				blurRadius: 8
-//				offset.x: 0
-//				offset.y: 0
-//			}
+	Text {
+		id: body
+		color: "white"
+		font.pointSize: 10
+		wrapMode: "WordWrap"
+		text: popupBody
+		anchors {
+			top: avatar.top
+			left: avatar.right
+			right: parent.right
+			leftMargin: 5
+			rightMargin: 15
 		}
 	}
 
@@ -102,4 +81,5 @@ Rectangle {
 		}
 
 	}
+
 }

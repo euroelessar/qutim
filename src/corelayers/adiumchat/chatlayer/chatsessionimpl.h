@@ -78,4 +78,5 @@ private:
 
 }
 }
+
 #endif // CHATSESSIONIMPL_H

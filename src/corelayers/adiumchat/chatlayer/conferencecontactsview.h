@@ -21,9 +21,11 @@ public:
 	virtual ~ConferenceContactsView();
 protected:
 	virtual bool event(QEvent *event);
+	void changeEvent(QEvent *);
 private:
 	QScopedPointer<ConferenceContactsViewPrivate> d_ptr;
 	Q_PRIVATE_SLOT(d_func(), void _q_activated(const QModelIndex &))
+	Q_PRIVATE_SLOT(d_func(), void _q_init_scrolling())
 };
 
 }

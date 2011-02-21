@@ -29,9 +29,11 @@ struct NotificationsLayerPrivate;
 
 namespace Notifications
 {
+//TODO Rewrite
 //note: title is set on type and sender, customTitle override this
 enum Type
 {
+	Invalid = 0x000,
 	Online = 0x001,
 	Offline = 0x002,
 	StatusChange = 0x004,
@@ -44,6 +46,7 @@ enum Type
 	BlockedMessage = 0x200,
 	Count = 0x400
 };
+
 LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
 LIBQUTIM_EXPORT void send(Type type, QObject *sender,
 						  const QString &body = QString(),
@@ -131,5 +134,7 @@ LIBQUTIM_EXPORT void setTheme(const QString &name);
 LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
 }
 }
+
+Q_ENUMS(Notifications::Type)
 
 #endif // NOTIFICATIONSLAYER_H

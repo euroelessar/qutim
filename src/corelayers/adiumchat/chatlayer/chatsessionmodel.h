@@ -54,6 +54,7 @@ public:
 private slots:
 	void onNameChanged(const QString &name);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onContactDestroyed(QObject *obj);
 private:
 	QList<Buddy*> m_units;
 };

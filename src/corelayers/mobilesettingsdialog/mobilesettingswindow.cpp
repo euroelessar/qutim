@@ -30,7 +30,7 @@
 #include <slidingstackedwidget.h>
 #include <qutim/actionbox.h>
 #include <qutim/debug.h>
-#include <qtscroller.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -72,8 +72,6 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 
 	p->categoryListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	p->settingsListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-	QtScroller::grabGesture(p->categoryListWidget);
-	QtScroller::grabGesture(p->settingsListWidget);
 
 	p->actionBox = new ActionBox(this);
 	p->backAct = new QAction(tr("Back"),this);

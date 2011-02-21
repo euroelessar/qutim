@@ -62,7 +62,7 @@ public:
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
-	virtual void clear();
+	virtual void clearChat();
 	void setTextEdit(QTextEdit *edit);
 	int scrollBarPosition() const { return m_scrollBarPosition; }
 	void setScrollBarPosition(int pos) { m_scrollBarPosition = pos; }

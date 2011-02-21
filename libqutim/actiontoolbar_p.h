@@ -29,32 +29,30 @@ class QAction;
 
 namespace qutim_sdk_0_3
 {
-	class ActionToolBar;
-	class ActionGenerator;
+class ActionToolBar;
+class ActionGenerator;
 
-	typedef QList<ActionGenerator*> SizeList;
-	
-	class ActionToolBarPrivate : QObject
-	{
-		Q_OBJECT
-		Q_DECLARE_PUBLIC(ActionToolBar)
-	public:
-		ActionToolBarPrivate();
-		virtual ~ActionToolBarPrivate();
-		QMenu *initContextMenu();
-		QList<ActionGenerator *> generators;
-		QList<QPointer<QAction> > actions;
-		QVariant data;
-		QPoint dragPos;
-		bool moveHookEnabled;
-		ActionToolBar *q_ptr;
-		QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);
-		QSize size;
-		int style;
-	public slots:
-		void sizeActionTriggered(QAction*);
-		void styleActionTriggered(QAction*);	
-	};
+typedef QList<ActionGenerator*> SizeList;
+
+class ActionToolBarPrivate
+{
+	Q_DECLARE_PUBLIC(ActionToolBar)
+public:
+	ActionToolBarPrivate();
+	virtual ~ActionToolBarPrivate();
+	QMenu *initContextMenu();
+	QList<ActionGenerator *> generators;
+	QList<QPointer<QAction> > actions;
+	QVariant data;
+	QPoint dragPos;
+	bool moveHookEnabled;
+	ActionToolBar *q_ptr;
+	QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);
+	QSize size;
+	int style;
+	void _q_size_action_triggered(QAction*);
+	void _q_style_action_triggered(QAction*);
+};
 }
 
 #endif // ACTIONTOOLBAR_P_H

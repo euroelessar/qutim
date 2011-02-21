@@ -4,7 +4,7 @@
 #include <QWebView>
 #include <QWebFrame>
 #include <QVBoxLayout>
-#include <qtscroller.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -23,7 +23,15 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 	m_view->installEventFilter(this);
 	setFrameStyle(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
-	QtScroller::grabGesture(m_view);
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
+}
+
+void WebkitChatViewWidget::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller,
+								  "enableScrolling",
+								  Q_ARG(QObject*, m_view));
 }
 
 void WebkitChatViewWidget::setViewController(QObject *controller)

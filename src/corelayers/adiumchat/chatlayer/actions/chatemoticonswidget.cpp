@@ -3,7 +3,7 @@
 #include <QHash>
 #include <QStyle>
 #include <QMovie>
-#include "3rdparty/flowlayout/flowlayout.h"
+#include <flowlayout.h>
 #include <qutim/emoticons.h>
 #include <QEvent>
 #include <qutim/debug.h>
@@ -28,14 +28,16 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	move(80,0);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
+
+#ifndef QUTIM_MOBILE_UI
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
+#endif
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	QWidget *w = new QWidget(this);
 	setWidget(w);
 	new FlowLayout(w);
-	w->setAutoFillBackground(true);
 
 	QAction *action = new QAction(tr("Close"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -50,6 +52,7 @@ void ChatEmoticonsWidget::loadTheme()
 	clearEmoticonsPreview();
 	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
 		QLabel *label = new QLabel();
+		label->setFocusPolicy(Qt::StrongFocus);
 		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
 		label->setMovie(emoticon);
 		label->setToolTip(it.value().first());
@@ -77,7 +80,6 @@ void ChatEmoticonsWidget::showEvent(QShowEvent *)
 	}
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
-	debug() << layout->heightForWidth(width());
 }
 
 void ChatEmoticonsWidget::hideEvent(QHideEvent *)
@@ -124,8 +126,7 @@ void EmoAction::onInsertSmile(const QString &code)
 }
 void EmoAction::triggerEmoticons()
 {
-	if (!emoticons_widget)
-	{
+	if (!emoticons_widget) {
 		emoticons_widget = new ChatEmoticonsWidget();
 #ifdef Q_WS_MAEMO_5
 		emoticons_widget->setParent(qApp->activeWindow());
@@ -135,26 +136,22 @@ void EmoAction::triggerEmoticons()
 			this,SLOT(onInsertSmile(QString)));
 	}
 
-	if (emoticons_widget->isVisible())
-	{
+	if (emoticons_widget->isVisible()) {
 		emoticons_widget->hide();
 	}
-	else
-	{
+	else {
 #ifdef Q_WS_MAEMO_5
 	QRect screenGeometry = QApplication::desktop()->screenGeometry();
-	if (screenGeometry.width() > screenGeometry.height())
-	{
+	if (screenGeometry.width() > screenGeometry.height()) {
 	   emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
 	}
-	else
-	{
+	else {
 	    emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
-
-	}
-		emoticons_widget->show();
+	}		
+	emoticons_widget->show();
+#else
+	SystemIntegration::show(emoticons_widget);
 #endif
-		SystemIntegration::show(emoticons_widget);
 	}
 }
 

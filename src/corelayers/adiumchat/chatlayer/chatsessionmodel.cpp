@@ -72,6 +72,7 @@ void ChatSessionModel::addContact(Buddy *b)
 	connect(b, SIGNAL(titleChanged(QString,QString)), this, SLOT(onNameChanged(QString)));
 	connect(b, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(b, SIGNAL(destroyed(QObject*)), this, SLOT(onContactDestroyed(QObject*)));
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, b);
 	endInsertRows();
@@ -108,5 +109,13 @@ void ChatSessionModel::onStatusChanged(const qutim_sdk_0_3::Status &)
 	int index = m_units.indexOf(b);
 	dataChanged(createIndex(index, 0, b), createIndex(index, 0, b));
 }
+
+
+void ChatSessionModel::onContactDestroyed(QObject *obj)
+{
+	removeContact(reinterpret_cast<Buddy*>(obj));
+}
+
 }
 }
+

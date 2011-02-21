@@ -37,7 +37,6 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	m_recieverList(new QAction(tr("Send to"),this)),
 	m_stack(new SlidingStackedWidget(this)),
 	m_chatWidget(new QWidget(m_stack)),
-	m_unitActions(new QAction(tr("Actions"),m_chatWidget)),
 	m_menu(new MenuController(this))
 {
 	QWidget *widget = new QWidget(this);
@@ -52,14 +51,13 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	//TODO move to chatform
 	//FIXME Create session list and chat when it's realy needed
 	if (QObject *obj = ServiceManager::getByName("ContactList")) {
-		QWidget *w;
-		obj->metaObject()->invokeMethod(obj, "widget",Q_RETURN_ARG(QWidget*, w));
-		m_stack->addWidget(w);
-		m_stack->setCurrentWidget(w);
+		obj->metaObject()->invokeMethod(obj, "widget",Q_RETURN_ARG(QWidget*, m_contactList));
+		m_stack->addWidget(m_contactList);
+		m_stack->setCurrentWidget(m_contactList);
 	}
 	m_stack->setWrap(true);
 	m_sessionList = new SessionListWidget(this);
-	m_contactView = new ConferenceContactsView(this);
+	m_confContactView = new ConferenceContactsView(this);
 
 	QWidget *chatInputWidget = new QWidget(m_chatWidget);
 	chatInputWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -101,16 +99,15 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	connect(m_stack, SIGNAL(animationFinished()),
 			this, SLOT(animationFinished()));
 
-	QAction *sendAct = new QAction(tr("Send"),m_chatWidget);
-	sendAct->setSoftKeyRole(QAction::NegativeSoftKey);
-	m_chatWidget->addAction(sendAct);
-	connect(sendAct, SIGNAL(triggered()), m_chatInput, SLOT(send()));
-
-	m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
-	m_chatWidget->addAction(m_unitActions);
+	m_sendAct = new QAction(tr("Send"),m_chatWidget);
+	m_sendAct->setSoftKeyRole(QAction::NegativeSoftKey);
+	m_chatWidget->addAction(m_sendAct);
+	connect(m_sendAct, SIGNAL(triggered()), m_chatInput, SLOT(send()));
 
 	m_chatWidget->setVisible(false);
 	m_sessionList->setVisible(false);
+
+	setWindowIcon(Icon("qutim-trayicon"));
 }
 
 void StackedChatWidget::loadSettings()
@@ -160,19 +157,21 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	if(session == m_sessionList->currentSession()) {
 		m_view->setViewController(0);
 		m_chatInput->setDocument(0);
+		//FIXME Symbian workaround
+		if (m_unitActions) {
+			m_chatWidget->removeAction(m_unitActions);
+			m_unitActions->deleteLater();
+		}
 	}
 
 	session->setActive(false);
 	session->deleteLater();
 
 	if(!m_sessionList->count()) {
-			m_sessionList->setVisible(false);
-			m_chatWidget->setVisible(false);
-			m_stack->removeWidget(m_sessionList);
-			m_stack->removeWidget(m_chatWidget);
+		m_stack->slideInIdx(m_stack->indexOf(m_contactList));
+	} else {
+		m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 	}
-
-	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 }
 
 void StackedChatWidget::onSessionActivated(bool active)
@@ -205,16 +204,16 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 	m_sessionList->setCurrentSession(session);
 	m_chatInput->setSession(session);
-	m_contactView->setSession(session);
+	m_confContactView->setSession(session);
 	m_view->setViewController(session->getController());
 
-	if(m_contactView->isVisible())
-		m_stack->addWidget(m_contactView);
+	if(m_confContactView->isVisible())
+		m_stack->addWidget(m_confContactView);
 	else
-		m_stack->removeWidget(m_contactView);
+		m_stack->removeWidget(m_confContactView);
 
 	m_recieverList->setMenu(session->menu());
-	m_unitActions->setMenu(session->getUnit()->menu());
+
 	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 }
 
@@ -225,33 +224,18 @@ ChatSessionImpl *StackedChatWidget::currentSession() const
 
 bool StackedChatWidget::event(QEvent *event)
 {
-	if (event->type() == QEvent::TouchBegin) {
-
-		event->accept();
-		return true;
-	}
-
-	if (event->type() == QEvent::WindowActivate
-			|| event->type() == QEvent::WindowDeactivate) {
-		bool active = event->type() == QEvent::WindowActivate;
-		if (!m_sessionList->currentSession())
-			return false;
-		m_sessionList->currentSession()->setActive(active);
-	}
 	return AbstractChatWidget::event(event);
 }
 
 void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
 {
-	if (direction==SlidingStackedWidget::LeftToRight)
-	{
+	if (direction==SlidingStackedWidget::LeftToRight) {
 		m_stack->slideInPrev();
-		m_contactView->blockSignals(true);
+		m_confContactView->blockSignals(true);
 	}
-	else if (direction==SlidingStackedWidget::RightToLeft)
-	{
+	else if (direction==SlidingStackedWidget::RightToLeft) {
 		m_stack->slideInNext();
-		m_contactView->blockSignals(true);
+		m_confContactView->blockSignals(true);
 	}
 
 }
@@ -270,13 +254,50 @@ void StackedChatWidget::onUnreadChanged()
 
 void StackedChatWidget::onCurrentChanged(int index)
 {
-	if(index != m_stack->indexOf(m_chatWidget))
+	if (index != m_stack->indexOf(m_chatWidget)) {
 		currentSession()->setActive(false);
+	}
+	setWindowFilePath(m_stack->currentWidget()->windowTitle());
+	//FIXME Symbian workaround
+	onAboutToChangeIndex(index);
+}
+
+void StackedChatWidget::onAboutToChangeIndex(int index)
+{
+	if (index != m_stack->indexOf(m_chatWidget)) {
+		if (m_unitActions) {
+			//FIXME Symbian workaround
+			m_chatWidget->removeAction(m_unitActions);
+			m_unitActions->deleteLater();
+		}
+	} else  {
+		if (!m_unitActions && currentSession()) {
+			//FIXME Symbian workaround
+			m_unitActions = new QAction (tr("Actions"), m_chatWidget);
+			m_unitActions->setMenu(currentSession()->getUnit()->menu());
+			m_unitActions->setSoftKeyRole(QAction::PositiveSoftKey);
+			m_chatWidget->addAction(m_unitActions);
+		}
+	}
 }
 
 void StackedChatWidget::animationFinished()
 {
-	m_contactView->blockSignals(false);
+	m_confContactView->blockSignals(false);
+}
+
+void StackedChatWidget::changeEvent(QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		if (m_unitActions)
+			m_unitActions->setText(tr("Actions"));
+		m_sendAct->setText(tr("Send"));
+	}
+}
+
+void StackedChatWidget::setTitle(ChatSessionImpl *s)
+{
+	m_chatWidget->setWindowTitle(titleForSession(s));
 }
 
 } // namespace Symbian

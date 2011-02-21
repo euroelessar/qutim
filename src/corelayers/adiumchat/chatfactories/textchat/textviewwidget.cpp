@@ -16,16 +16,21 @@
 
 #include "textviewwidget.h"
 #include "textviewcontroller.h"
+#ifdef Q_WS_MAEMO_5
 #include "texteditautoresizer.h"
+#endif
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
-#include <qtscroller.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
 namespace AdiumChat
 {
+
+using namespace qutim_sdk_0_3;
+
 TextViewWidget::TextViewWidget()
 {
 //	m_textEdit = new QTextEdit(this);
@@ -36,7 +41,7 @@ TextViewWidget::TextViewWidget()
 	QPalette p = palette();
 	p.setColor(QPalette::Base,Qt::white);
 	setPalette(p);
-	QtScroller::grabGesture(viewport());
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
 	
 //	new QVBoxLayout(this);
 //	layout()->addWidget(m_textEdit);
@@ -54,6 +59,14 @@ TextViewWidget::TextViewWidget()
 #ifdef Q_WS_MAEMO_5
 	new TextEditAutoResizer(this);
 #endif
+}
+
+void TextViewWidget::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller,
+								  "enableScrolling",
+								  Q_ARG(QObject*, viewport()));
 }
 
 void TextViewWidget::setViewController(QObject *object)

@@ -1,7 +1,7 @@
 #ifndef MODULEMANAGERIMPL_H
 #define MODULEMANAGERIMPL_H
 
-#include "libqutim/modulemanager.h"
+#include <qutim/modulemanager.h>
 
 using namespace qutim_sdk_0_3;
 

@@ -81,6 +81,8 @@ bool AddContactModule::event(QEvent *ev)
 		checkContact(event->action(),contact);
 		connect(contact->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 				this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+		connect(contact, SIGNAL(inListChanged(bool)),
+				this, SLOT(inListChanged(bool)));
 		ev->accept();
 	}
 	return QObject::event(ev);
@@ -98,6 +100,15 @@ void AddContactModule::onAccountStatusChanged(Status)
 	}
 }
 
+void AddContactModule::inListChanged(bool)
+{
+	Contact *c = qobject_cast<Contact*>(sender());
+	Q_ASSERT(c);
+	QList<QAction*> actions = m_addRemoveGen->actions(c);
+	foreach (QAction *a, actions)
+		checkContact(a, c);
+}
+
 void AddContactModule::onContactAddRemoveAction(QObject *obj)
 {
 	Contact *contact = qobject_cast<Contact*>(obj);
@@ -105,7 +116,9 @@ void AddContactModule::onContactAddRemoveAction(QObject *obj)
 	if(contact->isInList()) {
 		int ret = QMessageBox::question(qApp->activeWindow(),
 										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
-										tr("Are you sure you want to delete a contact %1 from the roster").arg(contact->title()));
+										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
+										QMessageBox::Ok,
+										QMessageBox::Cancel);
 		if(ret != QMessageBox::Ok)
 			return;
 

@@ -1,14 +1,14 @@
 #include "profilecreationpage.h"
 #include "ui_profilecreationpage.h"
-#include "libqutim/cryptoservice.h"
-#include "libqutim/objectgenerator.h"
-#include "libqutim/extensioninfo.h"
+#include <qutim/cryptoservice.h>
+#include <qutim/objectgenerator.h>
+#include <qutim/extensioninfo.h>
 #include <QDebug>
 #include <QStringBuilder>
 #include <QCryptographicHash>
-#include "libqutim/json.h"
-#include "libqutim/systeminfo.h"
-#include "libqutim/config.h"
+#include <qutim/json.h>
+#include <qutim/systeminfo.h>
+#include <qutim/config.h>
 #include <QMessageBox>
 
 using namespace qutim_sdk_0_3;

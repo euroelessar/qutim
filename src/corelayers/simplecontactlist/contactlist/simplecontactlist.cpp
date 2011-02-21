@@ -45,11 +45,11 @@ public:
 };
 
 class MyWidget : public
-#ifdef Q_WS_S60
+		#ifdef Q_WS_S60
 		QWidget
-#else
+		#else
 		QMainWindow
-#endif
+		#endif
 {
 public:
 	MyWidget()
@@ -100,12 +100,14 @@ public:
 
 struct ModulePrivate
 {
+	~ModulePrivate() {}
 	MyWidget *widget;
 	TreeView *view;
 	AbstractContactModel *model;
 	ActionToolBar *mainToolBar;
 #ifdef Q_WS_S60
 	QAction *statusBtn;
+	QAction *actionsBtn;
 #else
 	QPushButton *statusBtn;
 #endif
@@ -114,6 +116,7 @@ struct ModulePrivate
 	QHash<Account *, QAction *> actions;
 	QAction *status_action;
 	QList<QAction *> statusActions;
+	QScopedPointer<ActionGenerator> tagsGenerator;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -190,7 +193,7 @@ Module::Module() : p(new ModulePrivate)
 											   );
 	gen->setPriority(1);
 	gen->setType(ActionTypeAdditional);
-	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
+	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));	
 	addAction(gen);
 
 	gen = new ActionGenerator(Icon("application-exit"),
@@ -203,13 +206,14 @@ Module::Module() : p(new ModulePrivate)
 
 #ifndef Q_WS_S60
 	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
-	addButton(gen);
+	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
+	addButton(gen);	
 #endif
 
-	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
-	gen->addHandler(ActionCreatedHandler,this);
-	gen->setPriority(-127);
-	addButton(gen);
+	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
+	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
+	p->tagsGenerator->setPriority(-127);
+	addButton(p->tagsGenerator.data());
 
 	// TODO: choose another, non-kopete icon
 	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
@@ -242,10 +246,10 @@ Module::Module() : p(new ModulePrivate)
 
 	p->searchBar = new QLineEdit(p->widget);
 #ifdef Q_WS_S60
-	QAction *action = new QAction(tr("Actions"),p->widget);
-	action->setSoftKeyRole(QAction::PositiveSoftKey);
-	action->setMenu(menu());
-	p->widget->addAction(action);
+	p->actionsBtn = new QAction(tr("Actions"),p->widget);
+	p->actionsBtn->setSoftKeyRole(QAction::PositiveSoftKey);
+	p->actionsBtn->setMenu(menu());
+	p->widget->addAction(p->actionsBtn);
 
 	p->statusBtn = new QAction(tr("Status"),p->widget);
 	p->statusBtn->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -332,6 +336,7 @@ void Module::onStatusChanged()
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
+			status.setProperty("changeReason",Status::ByUser);
 			status.setSubtype(0);
 			account->setStatus(status);
 		}
@@ -516,13 +521,15 @@ bool Module::event(QEvent *ev)
 		}
 	} else if (ev->type() == ActionCreatedEvent::eventType()) {
 		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
-		QAction *action = event->action();
-		QMenu *menu = new QMenu(p->view);
-		QAction *act = menu->addAction(tr("Select tags"));
-		connect(act, SIGNAL(triggered()), p->view, SLOT(onSelectTagsTriggered()));
-		act = menu->addAction(tr("Reset"));
-		connect(act, SIGNAL(triggered()), p->view, SLOT(onResetTagsTriggered()));
-		action->setMenu(menu);
+		if (event->generator() == p->tagsGenerator.data()) {
+			QAction *action = event->action();
+			QMenu *menu = new QMenu(p->view);
+			QAction *act = menu->addAction(tr("Select tags"));
+			connect(act, SIGNAL(triggered()), p->view, SLOT(onSelectTagsTriggered()));
+			act = menu->addAction(tr("Reset"));
+			connect(act, SIGNAL(triggered()), p->view, SLOT(onResetTagsTriggered()));
+			action->setMenu(menu);
+		}
 	}
 	return QObject::event(ev);
 }
@@ -535,19 +542,18 @@ void Module::onAccountDestroyed(QObject *obj)
 
 bool Module::eventFilter(QObject *obj, QEvent *event)
 {
-	if (obj->metaObject() == &QMainWindow::staticMetaObject) {
-		if (event->type() == QEvent::LanguageChange) {
-			foreach (QAction *action,p->statusActions) {
-				//FIXME on symbian somehow not translated
-				//TODO make bugreport, viv need help
-				Status last = p->statusBtn->property("lastStatus").value<Status>();
-				p->statusBtn->setText(last.name());
-				Status::Type type = static_cast<Status::Type>(action->data().toInt());
-				action->setText(Status(type).name());
-			}
-			p->status_action->setText(tr("Set Status Text"));
-			event->accept();
+	if (event->type() == QEvent::LanguageChange) {
+		foreach (QAction *action,p->statusActions) {
+			Status last = p->statusBtn->property("lastStatus").value<Status>();
+			p->statusBtn->setText(last.name());
+			Status::Type type = static_cast<Status::Type>(action->data().toInt());
+			action->setText(Status(type).name());
 		}
+		p->status_action->setText(tr("Set Status Text"));
+#ifdef Q_WS_S60
+		p->actionsBtn->setText(tr("Actions"));
+#endif
+		event->accept();
 	}
 	return MenuController::eventFilter(obj,event);
 }

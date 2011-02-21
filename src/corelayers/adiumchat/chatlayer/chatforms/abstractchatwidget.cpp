@@ -51,19 +51,35 @@ void AbstractChatWidget::setTitle(ChatSessionImpl *s)
 		title = tr("Chat with %1 (have %2 unread messages)").arg(u->title()).arg(s->unread().count());
 	else
 		title = tr("Chat with %1").arg(u->title());
-	bool isContactsViewVisible;
 	if (Conference *c = qobject_cast<Conference *>(u)) {
 		icon = Icon("meeting-attending"); //TODO
 		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-		isContactsViewVisible = true;
 	} else {
-		isContactsViewVisible = s->getModel()->rowCount(QModelIndex()) > 0;
 		if (Buddy *b = qobject_cast<Buddy*>(u))
 			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
 	}
 	setWindowFilePath(title);
 	setWindowIcon(icon);
 }
+
+QString AbstractChatWidget::titleForSession(ChatSessionImpl *s)
+{
+	ChatUnit *u = s->getUnit();
+	QString title;
+	if(s->unread().count())
+		title = tr("Chat with %1 (have %2 unread messages)").arg(u->title()).arg(s->unread().count());
+	else
+		title = tr("Chat with %1").arg(u->title());
+	bool isContactsViewVisible;
+	if (Conference *c = qobject_cast<Conference *>(u)) {
+		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
+		isContactsViewVisible = true;
+	} else {
+		isContactsViewVisible = s->getModel()->rowCount(QModelIndex()) > 0;
+	}
+	return title;
+}
+
 
 }
 }

@@ -21,6 +21,9 @@
 #include "menucontroller_p.h"
 #include "actiontoolbar_p.h"
 #include "config.h"
+#include "actiongenerator_p.h"
+#include <QShortcut>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {	
@@ -86,21 +89,23 @@ ActionToolBarPrivate::ActionToolBarPrivate()
 QMenu *ActionToolBarPrivate::initContextMenu()
 {
 	Q_Q(ActionToolBar);
-	QMenu *contextMenu = new QMenu(tr("ToolBar appearance"));
+	QMenu *contextMenu = new QMenu(q->tr("ToolBar appearance"));
 	QActionGroup *group;
-	QMenu *sizeMenu = new QMenu(tr("Icon size"), contextMenu);
+	QMenu *sizeMenu = new QMenu(q->tr("Icon size"), contextMenu);
 	group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
 	contextMenu->addMenu(sizeMenu);
-	connect(group,SIGNAL(triggered(QAction*)),SLOT(sizeActionTriggered(QAction*)));
+	q->connect(group,SIGNAL(triggered(QAction*)),
+			   q, SLOT(_q_size_action_triggered(QAction*)));
 
-	QMenu *styleMenu = new QMenu(tr("Tool button style"), contextMenu);
+	QMenu *styleMenu = new QMenu(q->tr("Tool button style"), contextMenu);
 	group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
 	contextMenu->addMenu(styleMenu);
-	connect(group,SIGNAL(triggered(QAction*)),SLOT(styleActionTriggered(QAction*)));
+	q->connect(group,SIGNAL(triggered(QAction*)),
+			   q, SLOT(_q_style_action_triggered(QAction*)));
 	return contextMenu;
 }
 
-void ActionToolBarPrivate::sizeActionTriggered(QAction *action)
+void ActionToolBarPrivate::_q_size_action_triggered(QAction *action)
 {
 	Q_Q(ActionToolBar);
 	int s = action->property("intData").toInt();
@@ -113,7 +118,7 @@ void ActionToolBarPrivate::sizeActionTriggered(QAction *action)
 	cfg.sync();
 }
 
-void ActionToolBarPrivate::styleActionTriggered(QAction *action)
+void ActionToolBarPrivate::_q_style_action_triggered(QAction *action)
 {
 	Q_Q(ActionToolBar);
 	style = action->property("intData").toInt();
@@ -167,6 +172,7 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 		Q_ASSERT(action);
 		if(!action->parent())
 			action->setParent(this);
+		ActionGeneratorPrivate::get(generator)->sendActionCreatedEvent(action, this);
 		actionsCache()->operator[](generator).insert(this,action);
 	}
 	//action->setData(d->data);
@@ -176,12 +182,17 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	bool hasMenu = !!action->menu();
 	QWidget::insertAction(before,action);
 	if (hasMenu) {
-		QList<QToolButton *> buttons = findChildren<QToolButton*>();
-		for (int i = buttons.size() - 1; i >= 0; i--) {
-			if (buttons.at(i)->defaultAction() == action) {
-				buttons.at(i)->setPopupMode(QToolButton::InstantPopup);
-				break;
+		QToolButton *button = qobject_cast<QToolButton*>(widgetForAction(action));
+		if (button) {
+			button->setPopupMode(QToolButton::InstantPopup);
+			//HACK a little spike for menu actions
+			foreach (QKeySequence key, action->shortcuts()) {
+				debug() << "added action:" << key;
+				QShortcut *shortCut = new QShortcut(this);
+				shortCut->setKey(key);
+				connect(shortCut, SIGNAL(activated()), button, SLOT(click()));
 			}
+			action->setShortcut(QKeySequence());
 		}
 	}
 	return action;
@@ -295,3 +306,5 @@ void ActionToolBar::showEvent(QShowEvent* event)
 // 	}
 
 }
+
+#include "actiontoolbar.moc"

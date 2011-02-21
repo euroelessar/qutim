@@ -59,6 +59,8 @@ protected:
 	void showEvent(QShowEvent *event);
 private:
 	QScopedPointer<ActionToolBarPrivate> d_ptr;
+//	Q_PRIVATE_SLOT(d_func(), void _q_size_action_triggered(QAction*);
+//	Q_PRIVATE_SLOT(d_func(), void _q_style_action_triggered(QAction*))
 };
 }
 

@@ -10,7 +10,7 @@
 #ifndef QTWIN_H
 #define QTWIN_H
 
-#include "libqutim/libqutim_global.h"
+#include "../../libqutim/libqutim_global.h"
 #include <QColor>
 #include <QWidget>
 /**

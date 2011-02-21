@@ -31,6 +31,7 @@ Conference::Conference(Account *account) :
 			this, SLOT(_q_joined()));
 	connect(this, SIGNAL(left()),
 			this, SLOT(_q_leaved()));
+	d_func()->isJoined = false;
 }
 
 Conference::~Conference()

@@ -7,8 +7,8 @@
 #include <qutim/icon.h>
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
+#include <qutim/servicemanager.h>
 #include <avatarfilter.h>
-#include <qtscroller.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -17,19 +17,22 @@ class SessionListWidgetPrivate
 {
 public:
 	ChatSessionList sessions;
+	QAction *action;
 };
 
 SessionListWidget::SessionListWidget(QWidget *parent) :
 	QListWidget(parent),
 	d_ptr(new SessionListWidgetPrivate)
 {
+	Q_D(SessionListWidget);
 	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onActivated(QListWidgetItem*)));
 
-	QAction *action = new QAction(tr("Close chat"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
-	connect(action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
-	addAction(action);
-	QtScroller::grabGesture(viewport());
+	d->action = new QAction(tr("Close chat"), this);
+	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(d->action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
+	addAction(d->action);
+
+	setWindowTitle(tr("Session list"));
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -54,6 +57,16 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
 			this,
 			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
+}
+
+void SessionListWidget::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller,
+								  "enableScrolling",
+								  Q_ARG(QObject*, viewport()));
 }
 
 void SessionListWidget::removeSession(ChatSessionImpl *session)
@@ -98,8 +111,8 @@ void SessionListWidget::onRemoveSession(QObject *obj)
 	Q_D(SessionListWidget);
 	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
 	int index = d->sessions.indexOf(s);
-	d->sessions.removeAll(s);
-	delete item(index);
+	d->sessions.removeAll(s);	
+	delete takeItem(index);
 }
 
 void SessionListWidget::removeItem(int index)
@@ -229,6 +242,12 @@ void SessionListWidget::onCloseSessionTriggered()
 		removeSession(s);
 }
 
+void SessionListWidget::changeEvent(QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		d_func()->action->setText(tr("Close chat"));
+	}
+}
 
 } // namespace AdiumChat
 } // namespace Core

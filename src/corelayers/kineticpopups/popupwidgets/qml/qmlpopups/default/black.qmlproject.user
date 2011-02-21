@@ -1,0 +1,50 @@
+<!DOCTYPE QtCreatorProject>
+<qtcreator>
+ <data>
+  <variable>ProjectExplorer.Project.ActiveTarget</variable>
+  <value type="int">0</value>
+ </data>
+ <data>
+  <variable>ProjectExplorer.Project.EditorSettings</variable>
+  <valuemap type="QVariantMap">
+   <value key="EditorConfiguration.Codec" type="QByteArray">UTF-8</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>ProjectExplorer.Project.Target.0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName" type="QString">Просмотр QML</value>
+   <value key="ProjectExplorer.ProjectConfiguration.DisplayName" type="QString">Просмотр QML</value>
+   <value key="ProjectExplorer.ProjectConfiguration.Id" type="QString">QmlProjectManager.QmlTarget</value>
+   <value key="ProjectExplorer.Target.ActiveBuildConfiguration" type="int">-1</value>
+   <value key="ProjectExplorer.Target.ActiveDeployConfiguration" type="int">-1</value>
+   <value key="ProjectExplorer.Target.ActiveRunConfiguration" type="int">0</value>
+   <value key="ProjectExplorer.Target.BuildConfigurationCount" type="int">0</value>
+   <value key="ProjectExplorer.Target.DeployConfigurationCount" type="int">0</value>
+   <valuemap key="ProjectExplorer.Target.RunConfiguration.0" type="QVariantMap">
+    <value key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName" type="QString">Просмотр QML</value>
+    <value key="ProjectExplorer.ProjectConfiguration.DisplayName" type="QString">Просмотр QML</value>
+    <value key="ProjectExplorer.ProjectConfiguration.Id" type="QString">QmlProjectManager.QmlRunConfiguration</value>
+    <value key="QmlProjectManager.QmlRunConfiguration.MainScript" type="QString"></value>
+    <value key="QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments" type="QString"></value>
+    <value key="QmlProjectManager.QmlRunConfiguration.QtVersion" type="int">2</value>
+    <value key="RunConfiguration.QmlDebugServerPort" type="uint">3768</value>
+    <value key="RunConfiguration.UseCppDebugger" type="bool">true</value>
+    <value key="RunConfiguration.UseQmlDebugger" type="bool">false</value>
+   </valuemap>
+   <value key="ProjectExplorer.Target.RunConfigurationCount" type="int">1</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>ProjectExplorer.Project.TargetCount</variable>
+  <value type="int">1</value>
+ </data>
+ <data>
+  <variable>ProjectExplorer.Project.Updater.EnvironmentId</variable>
+  <value type="QString">{d213a5e3-ae4c-4484-ae20-d7799bc66f63}</value>
+ </data>
+ <data>
+  <variable>ProjectExplorer.Project.Updater.FileVersion</variable>
+  <value type="int">8</value>
+ </data>
+</qtcreator>

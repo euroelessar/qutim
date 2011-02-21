@@ -50,6 +50,8 @@ LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
 FIND_PACKAGE(X11)
 
 INCLUDE_DIRECTORIES (.
+	..
+	../3rdparty
 	src
 	${CMAKE_CURRENT_BINARY_DIR}
 	include
@@ -107,9 +109,12 @@ IF(APPLE)
   SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
 ENDIF(APPLE)
 
+#additional resources path
+set (QUTIM_ADDITIONAL_RESOURCES_PATH "" CACHE PATH "Path to additional resources")
+
 set( QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
 set( QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
-set( QUTIM_ADDITIONAL_RCC "" CACHE INTERNAL "" FORCE )
+set( QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FORCE )
 add_subdirectory(src/corelayers)
 foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )

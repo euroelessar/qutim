@@ -41,11 +41,12 @@
 
 #ifndef TEXTEDITAUTORESIZER_H
 #define TEXTEDITAUTORESIZER_H
-#ifdef Q_WS_MAEMO_5
 
  #include <QtGui/qplaintextedit.h>
  #include <QtGui/qtextedit.h>
+#ifdef Q_WS_MAEMO_5
  #include <QtGui/qabstractkineticscroller.h>
+#endif
  #include <qutim/debug.h>
 
  class TextEditAutoResizer : public QObject
@@ -93,11 +94,13 @@
          if (pw->parentWidget()) {
              if (QAbstractScrollArea *area = qobject_cast<QAbstractScrollArea *>(
 		     pw->parentWidget()->parentWidget())) {
+#ifdef Q_WS_MAEMO_5
                  if (QAbstractKineticScroller * scroller=
 		     area->property("kineticScroller").value<QAbstractKineticScroller *>()) {
 		     scroller->ensureVisible(QPoint(edit->width(),edit->height()),0,0);
                  }
                  break;
+#endif
              }
          }
          pos = pw->mapToParent(pos);
@@ -105,5 +108,5 @@
      }
  }
 
- #endif
+
 #endif

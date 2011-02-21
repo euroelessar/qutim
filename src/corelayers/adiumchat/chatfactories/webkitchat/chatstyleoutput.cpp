@@ -286,7 +286,7 @@ void ChatStyleOutput::setCustomCSS(const QString &css)
 	reloadStyle();
 }
 
-void ChatStyleOutput::clear()
+void ChatStyleOutput::clearChat()
 {
 	preparePage(m_session);
 }

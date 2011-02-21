@@ -2,7 +2,7 @@
 #define PROFILECREATIONWIZARD_H
 
 #include <QWizard>
-#include "libqutim/modulemanager.h"
+#include <qutim/modulemanager.h>
 
 namespace Core
 {

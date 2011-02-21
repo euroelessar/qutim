@@ -1,17 +1,17 @@
 #include "modulemanagerimpl.h"
-#include "libqutim/jsonfile.h"
+#include <qutim/jsonfile.h>
 #include <QVariant>
 #include <QFile>
 #include <QDebug>
 #include <QScriptValue>
 #include <QScriptEngine>
 #include <QTimer>
-#include "libqutim/protocol.h"
+#include <qutim/protocol.h>
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
-#include "libqutim/config.h"
-#include <libqutim/notificationslayer.h>
-#include <libqutim/systemintegration.h>
+#include <qutim/config.h>
+#include <qutim/notificationslayer.h>
+#include <qutim/systemintegration.h>
 
 namespace Core
 {
