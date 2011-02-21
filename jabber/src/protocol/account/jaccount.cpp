@@ -274,7 +274,6 @@ void JAccount::loadSettings()
 	if(!general.value("autoDetect",true)) {
 		d->client.setPort(general.value("port", 5222));
 		d->client.setServer(general.value("server",d->client.server()));
-		debug() << d->client.server();
 	}
 
 	general.endGroup();

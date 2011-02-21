@@ -218,7 +218,7 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 			return true;
 		}
 	}
-	jreen::Message jMsg(jreen::Message::Groupchat, message.chatUnit()->id(), message.text());
+	jreen::Message jMsg(jreen::Message::Groupchat, d->jid.bareJID(), message.text());
 	jMsg.setID(d->account->client()->getID());
 	d->messages.insert(jMsg.id(), message.id());
 	d->account->client()->send(jMsg);
