@@ -60,7 +60,7 @@ namespace KdeIntegration
 		// Don't know better way to know application arguments from here
 		QStringList args = QCoreApplication::arguments();
 		int argc = args.count();
-		char **argv = (char *) malloc(sizeof(char *) * argc);
+		char **argv = (char **) malloc(sizeof(char *) * argc);
 		for (int i = 0; i < argc; i++)
 			argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
 		// Whe shouldn't free memory because KCmdLineArgs stores pointers internally to it
