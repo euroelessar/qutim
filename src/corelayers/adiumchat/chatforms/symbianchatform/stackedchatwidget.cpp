@@ -165,7 +165,7 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	}
 
 	session->setActive(false);
-	//session->deleteLater();
+	session->deleteLater();
 
 	if(!m_sessionList->count()) {
 		m_stack->slideInIdx(m_stack->indexOf(m_contactList));
@@ -219,7 +219,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 ChatSessionImpl *StackedChatWidget::currentSession() const
 {
-	return m_sessionList->currentSession();
+	return m_currentSession;
 }
 
 bool StackedChatWidget::event(QEvent *event)
@@ -255,7 +255,8 @@ void StackedChatWidget::onUnreadChanged()
 void StackedChatWidget::onCurrentChanged(int index)
 {
 	if (index != m_stack->indexOf(m_chatWidget)) {
-		currentSession()->setActive(false);
+		if (m_currentSession)
+			m_currentSession->setActive(false);
 	}
 	setWindowFilePath(m_stack->currentWidget()->windowTitle());
 	//FIXME Symbian workaround
