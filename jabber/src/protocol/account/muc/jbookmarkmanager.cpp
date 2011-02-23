@@ -46,8 +46,9 @@ JBookmarkManager::~JBookmarkManager()
 
 void JBookmarkManager::onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark)
 {
+	debug() << "BookmarksReceived";
 	if (bookmark) {
-		debug() <<  Q_FUNC_INFO << bookmark->conferences().count();
+		debug() <<  "count" << bookmark->conferences().count();
 		QList<Bookmark::Conference> tmpList(p->bookmarks);
 		p->bookmarks = bookmark->conferences();
 		foreach (const Bookmark::Conference &bookmark, tmpList) {
@@ -65,9 +66,13 @@ void JBookmarkManager::onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark)
 	//			++num;
 	//		}
 	if (!p->isLoaded) {
-		foreach (Bookmark::Conference bookmark, p->bookmarks)
+		foreach (Bookmark::Conference bookmark, p->bookmarks) {
+			debug() << "check bookmark:" << bookmark.jid().full() << bookmark.autojoin();
 			if (bookmark.autojoin())
-				p->account->conferenceManager()->join(bookmark.jid(), bookmark.nick(), bookmark.password());
+				p->account->conferenceManager()->join(bookmark.jid(),
+													  bookmark.nick(),
+													  bookmark.password());
+		}
 	}
 	p->isLoaded = true;
 	emit serverBookmarksChanged();
@@ -266,6 +271,7 @@ QList<DataItem> JBookmarkManager::recent() const
 
 void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::Conference> &list)
 {
+	debug() << "WriteToCache";
 	Config config = p->account->config();
 	int size = config.beginArray(type);
 	for (int i = 0; i < list.size(); i++) {
@@ -276,12 +282,17 @@ void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::C
 		config.setValue("nick", bookmark.nick());
 		config.setValue("password", bookmark.password(), Config::Crypted);
 		config.setValue("autojoin", bookmark.autojoin());
+		debug() << "save" << bookmark.name() << bookmark.jid().full();
 	}
-	for (int i = list.size() - 1; i >= size; i--)
-		config.remove(i);
-	config.endArray();
-	if (type == "bookmarks")
+	if (type == "bookmarks") {
+		debug() << "sizes" << size << list.size();
+		for (int i = list.size() - 1; i >= size; i--) {
+			debug() << "remove element at" << i;
+			config.remove(i);
+		}
 		emit bookmarksChanged();
+	}
+	config.endArray();
 }
 
 void JBookmarkManager::saveToServer()
