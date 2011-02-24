@@ -210,11 +210,21 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 		area->setFrameShape(QScrollArea::NoFrame);
 		area->setWidget(w);
 		area->setWidgetResizable(true);
+		if(QObject *scroller = ServiceManager::getByName("Scroller"))
+			QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, area->viewport()));
 		p->stackedWidget->addWidget(area);
 		w->setController(p->controller);
 		w->load();
+
+#ifdef QUTIM_MOBILE_UI
+		//simple hack for form layouts
+		foreach(QFormLayout *l, w->findChildren<QFormLayout*>()) {
+			l->setRowWrapPolicy(QFormLayout::WrapAllRows);
+		}
+#endif
+
 		p->slideMap.insert(area,p->settingsListWidget);
-		p->scrollAreas.insert(w,area);
+		p->scrollAreas.insert(w,area);		
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
 		connect(w,SIGNAL(destroyed(QObject*)),SLOT(onWidgetDestroyed(QObject*)));
 	}

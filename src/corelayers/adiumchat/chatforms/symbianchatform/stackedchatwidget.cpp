@@ -154,7 +154,7 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	if(contains(session))
 		m_sessionList->removeSession(session);
 
-	if(session == m_sessionList->currentSession()) {
+	if(session == m_currentSession) {
 		m_view->setViewController(0);
 		m_chatInput->setDocument(0);
 		//FIXME Symbian workaround
@@ -199,7 +199,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		}
 		m_currentSession->setActive(false);
 	}
-	emit currentSessionChanged(session,m_currentSession);
+	emit currentSessionChanged(session, m_currentSession);
 	m_currentSession = session;
 
 	m_sessionList->setCurrentSession(session);
@@ -219,7 +219,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 ChatSessionImpl *StackedChatWidget::currentSession() const
 {
-	return m_sessionList->currentSession();
+	return m_currentSession;
 }
 
 bool StackedChatWidget::event(QEvent *event)
@@ -255,7 +255,8 @@ void StackedChatWidget::onUnreadChanged()
 void StackedChatWidget::onCurrentChanged(int index)
 {
 	if (index != m_stack->indexOf(m_chatWidget)) {
-		currentSession()->setActive(false);
+		if (m_currentSession)
+			m_currentSession->setActive(false);
 	}
 	setWindowFilePath(m_stack->currentWidget()->windowTitle());
 	//FIXME Symbian workaround

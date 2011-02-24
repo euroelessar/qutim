@@ -420,125 +420,126 @@ quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
 
 quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 {
-	UTF16Char ch;
+	//TODO rewrite on Cocoa
+//	UTF16Char ch;
 
-	if ( k == Qt::Key_Up )
-		ch = 0xF700;
-	else if ( k == Qt::Key_Down )
-		ch = 0xF701;
-	else if ( k == Qt::Key_Left )
-		ch = 0xF702;
-	else if ( k == Qt::Key_Right )
-		ch = 0xF703;
-	else if ( k >= Qt::Key_F1 && k <= Qt::Key_F35 )
-		ch = k - Qt::Key_F1 + 0xF704;
-	else if ( k == Qt::Key_Insert )
-		ch = 0xF727;
-	else if ( k == Qt::Key_Delete )
-		ch = 0xF728;
-	else if ( k == Qt::Key_Home )
-		ch = 0xF729;
-	else if ( k == Qt::Key_End )
-		ch = 0xF72B;
-	else if ( k == Qt::Key_PageUp )
-		ch = 0xF72C;
-	else if ( k == Qt::Key_PageDown )
-		ch = 0xF72D;
-	else if ( k == Qt::Key_Print )
-		ch = 0xF72E;
-	else if ( k == Qt::Key_ScrollLock )
-		ch = 0xF72F;
-	else if ( k == Qt::Key_Pause )
-		ch = 0xF730;
-	else if ( k == Qt::Key_SysReq )
-		ch = 0xF731;
-	else if ( k == Qt::Key_Stop )
-		ch = 0xF734;
-	else if ( k == Qt::Key_Menu )
-		ch = 0xF735;
-	else if ( k == Qt::Key_Select )
-		ch = 0xF741;
-	else if ( k == Qt::Key_Execute )
-		ch = 0xF742;
-	else if ( k == Qt::Key_Help )
-		ch = 0xF746;
-	else if ( k == Qt::Key_Mode_switch )
-		ch = 0xF747;
-	else if ( k == Qt::Key_Escape )
-		ch = 27;
-	else if ( k == Qt::Key_Return )
-		ch = 13;
-	else if ( k == Qt::Key_Enter )
-		ch = 3;
-	else if ( k == Qt::Key_Tab )
-		ch = 9;
-	else
-		ch = k;
+//	if ( k == Qt::Key_Up )
+//		ch = 0xF700;
+//	else if ( k == Qt::Key_Down )
+//		ch = 0xF701;
+//	else if ( k == Qt::Key_Left )
+//		ch = 0xF702;
+//	else if ( k == Qt::Key_Right )
+//		ch = 0xF703;
+//	else if ( k >= Qt::Key_F1 && k <= Qt::Key_F35 )
+//		ch = k - Qt::Key_F1 + 0xF704;
+//	else if ( k == Qt::Key_Insert )
+//		ch = 0xF727;
+//	else if ( k == Qt::Key_Delete )
+//		ch = 0xF728;
+//	else if ( k == Qt::Key_Home )
+//		ch = 0xF729;
+//	else if ( k == Qt::Key_End )
+//		ch = 0xF72B;
+//	else if ( k == Qt::Key_PageUp )
+//		ch = 0xF72C;
+//	else if ( k == Qt::Key_PageDown )
+//		ch = 0xF72D;
+//	else if ( k == Qt::Key_Print )
+//		ch = 0xF72E;
+//	else if ( k == Qt::Key_ScrollLock )
+//		ch = 0xF72F;
+//	else if ( k == Qt::Key_Pause )
+//		ch = 0xF730;
+//	else if ( k == Qt::Key_SysReq )
+//		ch = 0xF731;
+//	else if ( k == Qt::Key_Stop )
+//		ch = 0xF734;
+//	else if ( k == Qt::Key_Menu )
+//		ch = 0xF735;
+//	else if ( k == Qt::Key_Select )
+//		ch = 0xF741;
+//	else if ( k == Qt::Key_Execute )
+//		ch = 0xF742;
+//	else if ( k == Qt::Key_Help )
+//		ch = 0xF746;
+//	else if ( k == Qt::Key_Mode_switch )
+//		ch = 0xF747;
+//	else if ( k == Qt::Key_Escape )
+//		ch = 27;
+//	else if ( k == Qt::Key_Return )
+//		ch = 13;
+//	else if ( k == Qt::Key_Enter )
+//		ch = 3;
+//	else if ( k == Qt::Key_Tab )
+//		ch = 9;
+//	else
+//		ch = k;
 
-	KeyboardLayoutRef layout;
-	KeyboardLayoutKind layoutKind;
-	KLGetCurrentKeyboardLayout( &layout );
-	KLGetKeyboardLayoutProperty( layout, kKLKind, const_cast< const void ** >( reinterpret_cast< void ** >( &layoutKind ) ) );
+//	KeyboardLayoutRef layout;
+//	KeyboardLayoutKind layoutKind;
+//	KLGetCurrentKeyboardLayout( &layout );
+//	KLGetKeyboardLayoutProperty( layout, kKLKind, const_cast< const void ** >( reinterpret_cast< void ** >( &layoutKind ) ) );
 
-	if ( layoutKind == kKLKCHRKind )
-	{
-		if ( ch > 255 )
-			return 0;
+//	if ( layoutKind == kKLKCHRKind )
+//	{
+//		if ( ch > 255 )
+//			return 0;
 
-		char *data;
-		KLGetKeyboardLayoutProperty( layout, kKLKCHRData, const_cast< const void ** >( reinterpret_cast< void ** >( &data ) ) );
-		int ct = *reinterpret_cast< short * >( data + 258 );
-		for ( int i = 0; i < ct; i++ )
-		{
-			char *keyTable = data + 260 + 128 * i;
-			for ( int j = 0; j < 128; j++ )
-				if ( keyTable[j] == ch )
-					return j;
-		}
+//		char *data;
+//		KLGetKeyboardLayoutProperty( layout, kKLKCHRData, const_cast< const void ** >( reinterpret_cast< void ** >( &data ) ) );
+//		int ct = *reinterpret_cast< short * >( data + 258 );
+//		for ( int i = 0; i < ct; i++ )
+//		{
+//			char *keyTable = data + 260 + 128 * i;
+//			for ( int j = 0; j < 128; j++ )
+//				if ( keyTable[j] == ch )
+//					return j;
+//		}
 
-		return 0;
-	}
+//		return 0;
+//	}
 
-	char *data;
-	KLGetKeyboardLayoutProperty( layout, kKLuchrData, const_cast< const void ** >( reinterpret_cast< void ** >( &data ) ) );
-	UCKeyboardLayout *header = reinterpret_cast< UCKeyboardLayout * >( data );
-	UCKeyboardTypeHeader *table = header->keyboardTypeList;
+//	char *data;
+//	KLGetKeyboardLayoutProperty( layout, kKLuchrData, const_cast< const void ** >( reinterpret_cast< void ** >( &data ) ) );
+//	UCKeyboardLayout *header = reinterpret_cast< UCKeyboardLayout * >( data );
+//	UCKeyboardTypeHeader *table = header->keyboardTypeList;
 
-	for ( quint32 i=0; i < header->keyboardTypeCount; i++ )
-	{
-		UCKeyStateRecordsIndex *stateRec = 0;
-		if ( table[i].keyStateRecordsIndexOffset != 0 )
-		{
-			stateRec = reinterpret_cast< UCKeyStateRecordsIndex * >( data + table[i].keyStateRecordsIndexOffset );
-			if ( stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat )
-				stateRec = 0;
-		}
+//	for ( quint32 i=0; i < header->keyboardTypeCount; i++ )
+//	{
+//		UCKeyStateRecordsIndex *stateRec = 0;
+//		if ( table[i].keyStateRecordsIndexOffset != 0 )
+//		{
+//			stateRec = reinterpret_cast< UCKeyStateRecordsIndex * >( data + table[i].keyStateRecordsIndexOffset );
+//			if ( stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat )
+//				stateRec = 0;
+//		}
 
-		UCKeyToCharTableIndex *charTable = reinterpret_cast< UCKeyToCharTableIndex * >( data + table[i].keyToCharTableIndexOffset );
-		if ( charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat )
-			continue;
+//		UCKeyToCharTableIndex *charTable = reinterpret_cast< UCKeyToCharTableIndex * >( data + table[i].keyToCharTableIndexOffset );
+//		if ( charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat )
+//			continue;
 
-		for ( quint32 j=0; j < charTable->keyToCharTableCount; j++ )
-		{
-			UCKeyOutput *keyToChar = reinterpret_cast< UCKeyOutput * >( data + charTable->keyToCharTableOffsets[j] );
-			for ( quint32 k=0; k < charTable->keyToCharTableSize; k++ )
-			{
-				if (keyToChar[k] & kUCKeyOutputTestForIndexMask)
-				{
-					long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
-					if ( stateRec && idx < stateRec->keyStateRecordCount )
-					{
-						UCKeyStateRecord *rec = reinterpret_cast< UCKeyStateRecord * >( data + stateRec->keyStateRecordOffsets[idx] );
-						if ( rec->stateZeroCharData == ch )
-							return k;
-					}
-				}
-				else if ( !( keyToChar[k] & kUCKeyOutputSequenceIndexMask ) && keyToChar[k] < 0xFFFE )
-					if ( keyToChar[k] == ch )
-						return k;
-			}
-		}
-	}
+//		for ( quint32 j=0; j < charTable->keyToCharTableCount; j++ )
+//		{
+//			UCKeyOutput *keyToChar = reinterpret_cast< UCKeyOutput * >( data + charTable->keyToCharTableOffsets[j] );
+//			for ( quint32 k=0; k < charTable->keyToCharTableSize; k++ )
+//			{
+//				if (keyToChar[k] & kUCKeyOutputTestForIndexMask)
+//				{
+//					long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
+//					if ( stateRec && idx < stateRec->keyStateRecordCount )
+//					{
+//						UCKeyStateRecord *rec = reinterpret_cast< UCKeyStateRecord * >( data + stateRec->keyStateRecordOffsets[idx] );
+//						if ( rec->stateZeroCharData == ch )
+//							return k;
+//					}
+//				}
+//				else if ( !( keyToChar[k] & kUCKeyOutputSequenceIndexMask ) && keyToChar[k] < 0xFFFE )
+//					if ( keyToChar[k] == ch )
+//						return k;
+//			}
+//		}
+//	}
 
 	return 0;
 }

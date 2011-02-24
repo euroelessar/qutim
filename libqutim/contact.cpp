@@ -20,41 +20,41 @@
 
 namespace qutim_sdk_0_3
 {
-	Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)
-	{
-	}
-	
-	Contact::Contact(ContactPrivate &d, Account *account) : Buddy(d, account)
-	{
-	}
+Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)
+{
+}
 
-	Contact::~Contact()
-	{
-//		if(Account *account = qobject_cast<Account *>(parent()))
-//		{
-//			ConfigGroup data = account->config("contacts").group(id()).group("data");
-//			foreach(const QByteArray &name, dynamicPropertyNames())
-//				data.setValue(name, property(name));
-//			data.sync();
-//		}
-	}
+Contact::Contact(ContactPrivate &d, Account *account) : Buddy(d, account)
+{
+}
 
-	QStringList Contact::tags() const
-	{
-		return QStringList();
+Contact::~Contact()
+{
+	//		if(Account *account = qobject_cast<Account *>(parent()))
+	//		{
+	//			ConfigGroup data = account->config("contacts").group(id()).group("data");
+	//			foreach(const QByteArray &name, dynamicPropertyNames())
+	//				data.setValue(name, property(name));
+	//			data.sync();
+	//		}
+}
+
+QStringList Contact::tags() const
+{
+	return QStringList();
+}
+
+ChatUnit *Contact::upperUnit()
+{
+	return d_func()->metaContact;
+}
+
+bool Contact::event(QEvent *e)
+{
+	if (e->type() == MetaContactChangeEvent::eventType()) {
+		MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(e);
+		d_func()->metaContact = metaEvent->newMetaContact();
 	}
-	
-	ChatUnit *Contact::upperUnit()
-	{
-		return d_func()->metaContact;
-	}
-	
-	bool Contact::event(QEvent *e)
-	{
-		if (e->type() == MetaContactChangeEvent::eventType()) {
-			MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(e);
-			d_func()->metaContact = metaEvent->newMetaContact();
-		}
-		return Buddy::event(e);
-	}
+	return Buddy::event(e);
+}
 }

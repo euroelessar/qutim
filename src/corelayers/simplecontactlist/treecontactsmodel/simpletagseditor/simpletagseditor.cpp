@@ -19,8 +19,12 @@ SimpleTagsEditor::SimpleTagsEditor(Contact *contact) :
 
 SimpleTagsEditor::~SimpleTagsEditor()
 {
-	save();
 	delete ui;
+}
+
+void SimpleTagsEditor::accept()
+{
+	save();
 }
 
 void SimpleTagsEditor::changeEvent(QEvent *e)

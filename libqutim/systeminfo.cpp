@@ -363,19 +363,19 @@ void init(SystemInfoPrivate *d)
 	//			d->os_version_id = (*halGet)()
 	//		}
 	d->os_name = "Symbian";
-	QFile modelFile;
-	modelFile.setFileName("z:/resource/versions/model.txt");
-	if (modelFile.open(QFile::ReadOnly)) {
-		d->os_version = QString::fromUtf8(modelFile.readAll());
-	} else {
-		modelFile.setFileName("z:/resource/versions/model.txt");
-		if (modelFile.open(QFile::ReadOnly)) {
-		}
-	}
-	if (d->os_version.isEmpty())
-		d->os_full = d->os_name;
-	else
-		d->os_full = d->os_name + " (" + d->os_version + ")";
+//	QFile modelFile;
+//	modelFile.setFileName("z:/resource/versions/model.txt");
+//	if (modelFile.open(QFile::ReadOnly)) {
+//		d->os_version = QString::fromUtf8(modelFile.readAll());
+//	} else {
+//		modelFile.setFileName("z:/resource/versions/model.txt");
+//		if (modelFile.open(QFile::ReadOnly)) {
+//		}
+//	}
+//	if (d->os_version.isEmpty())
+//		d->os_full = d->os_name;
+//	else
+//		d->os_full = d->os_name + " (" + d->os_version + ")";
 #endif
 }
 

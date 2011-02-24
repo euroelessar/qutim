@@ -24,6 +24,7 @@ public:
 	SimpleTagsEditor(Contact *contact);
 	~SimpleTagsEditor();
 	void setTags (QStringList tags);
+	void accept();
 public slots:
 	void load();
 private slots:

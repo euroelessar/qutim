@@ -57,12 +57,10 @@ signals:
 protected slots:
 	//! this is used for internal purposes in the class engine
 	void animationDoneSlot(void);
-	bool event(QEvent *event);
-
 protected:
 	//! this is used for internal purposes in the class engine
 	void slideInWgt(QWidget * widget, enum SlideDirection direction=Automatic);
-
+	bool event(QEvent *event);
 	QWidget *m_mainwindow;
 
 	int m_speed;

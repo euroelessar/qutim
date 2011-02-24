@@ -206,7 +206,6 @@ void SlidingStackedWidget::animationDoneSlot(void) {
 bool SlidingStackedWidget::event(QEvent *event)
 {
 	if (event->type() == QEvent::TouchBegin) {
-
 		event->accept();
 		return true;
 	}
@@ -237,6 +236,17 @@ bool SlidingStackedWidget::event(QEvent *event)
 
 			ge->setAccepted(gesture, true);
 			return true;
+		}
+	}
+
+	//for debug
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+		if (keyEvent->modifiers() == Qt::ControlModifier) {
+			if (keyEvent->key() == Qt::Key_Left) {
+				emit fingerGesture(LeftToRight);
+			} else if (keyEvent->key() == Qt::Key_Right)
+				emit fingerGesture(RightToLeft);
 		}
 	}
 
