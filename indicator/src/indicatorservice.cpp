@@ -32,6 +32,8 @@ IndicatorService::IndicatorService() :
 	connect(qutim_sdk_0_3::ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
 	//QImage icon = qutim_sdk_0_3::Icon("qutim").pixmap(64).toImage();
+	
+	qApp->setQuitOnLastWindowClosed(false);
 
 	/* Quit Button */
 	quitButton->setNameProperty(QT_TRANSLATE_NOOP("Plugin", "Close qutIM"));

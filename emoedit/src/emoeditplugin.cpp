@@ -64,12 +64,15 @@ bool EmoEditPlugin::load()
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	foreach (ChatSession *session, ChatLayer::instance()->sessions())
 		onSessionCreated(session);
-	m_theme.reset(new EmoticonsTheme());
+	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
 	return true;
 }
 
 bool EmoEditPlugin::unload()
 {
+	if(!ChatLayer::instance())
+		return false;
+
 	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
 		disconnect(session, 0, this, 0);
 		if (session && session->getInputField())
@@ -114,11 +117,14 @@ void EmoEditPlugin::onSessionDestroyed(QObject *obj)
 
 void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 {
+	qDebug() << Q_FUNC_INFO << m_inParsingState;
 	if (m_inParsingState)
 		return;
 	m_inParsingState = true;
 	if (!doc)
 		doc = qobject_cast<QTextDocument*>(sender());
+	QTextCursor cursor(doc);
+	cursor.beginEditBlock();
 	QTextBlock block = doc->firstBlock();
 	while (block.length() > 0) {
 		QString text = block.text();
@@ -129,7 +135,7 @@ void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 			continue;
 		}
 		QTextBlock nextBlock = block.next();
-		QTextCursor cursor(block);
+		cursor.setPosition(block.position());
 		for (int i = 0; i < tokens.size(); i++) {
 			const EmoticonsTheme::Token &token = tokens.at(i);
 			if (token.type == EmoticonsTheme::Image) {
@@ -147,6 +153,7 @@ void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 		}
 		block = nextBlock;
 	}
+	cursor.endEditBlock();
 	m_inParsingState = false;
 }
 

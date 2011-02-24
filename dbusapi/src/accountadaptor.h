@@ -54,6 +54,7 @@ signals:
 	void contactCreated(const QDBusObjectPath &path, const QString &id);
 private slots:
 	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+	void onConferenceCreated(qutim_sdk_0_3::Conference *conference);
 private:
 	QDBusConnection m_dbus;
 	Account *m_account;

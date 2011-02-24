@@ -102,7 +102,18 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 	Status::ChangeReason reason = static_cast<Status::ChangeReason>(now.property("changeReason",static_cast<int>(Status::ByUser)));
 	Account *a = qobject_cast<Account*>(sender());
 	Q_ASSERT(a);
-	if(now.type() == Status::Offline && reason == Status::ByNetworkError) {
+
+	bool needReconnect = false;
+	switch(reason) {
+	case Status::ByAuthorizationFailed:
+	case Status::ByNetworkError:
+		needReconnect = true;
+		break;
+	default:
+		break;
+	}
+
+	if(now.type() == Status::Offline && needReconnect) {
 		int timeout = now.property("reconnectTimeout",5);
 
 		QTimer *statusTimer = new QTimer(this);

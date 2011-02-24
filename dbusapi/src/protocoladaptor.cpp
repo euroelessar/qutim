@@ -28,8 +28,10 @@ ProtocolAdaptor::ProtocolAdaptor(const QDBusConnection &dbus, Protocol *parent) 
 	connect(parent, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), 
 			this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	QString path = QLatin1String("/Protocol/");
-	path += parent->id().replace('-', '_');
+	path += parent->id().replace('-', '_').replace(' ', '_');
 	m_path = QDBusObjectPath(path);
+	foreach (Account *account, parent->accounts())
+		onAccountCreated(account);
 }
 
 void ProtocolAdaptor::onAccountCreated(qutim_sdk_0_3::Account *account)

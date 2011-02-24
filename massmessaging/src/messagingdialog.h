@@ -20,26 +20,26 @@
 
 namespace Ui
 {
-	class Dialog;
+class Dialog;
 }
 
 namespace MassMessaging
 {
-	class Manager;
-	class MessagingDialog : public QDialog
-	{
-		Q_OBJECT
-	public:
-		MessagingDialog();
-		~MessagingDialog();
-	public slots:
-		void updateProgressBar(const uint &completed, const uint &total, const QString &message);
-	private slots:
-		void onSendButtonClicked();
-		void onManagerFinished(bool ok);
-	private:
-		 Ui::Dialog *ui;
-		 Manager *m_manager;
-	};
+class Manager;
+class MessagingDialog : public QDialog
+{
+	Q_OBJECT
+public:
+	MessagingDialog();
+	~MessagingDialog();
+public slots:
+	void updateProgressBar(const uint &completed, const uint &total, const QString &message);
+private slots:
+	void onSendButtonClicked();
+	void onManagerFinished(bool ok);
+private:
+	Ui::Dialog *ui;
+	Manager *m_manager;
+};
 }
 #endif // MESSAGINGDIALOG_H

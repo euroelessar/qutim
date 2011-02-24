@@ -74,7 +74,7 @@ namespace MacIntegration
 	{
 		if (QAction *a = qobject_cast<QAction *>(sender())) {
 			Status::Type type = static_cast<Status::Type>(a->data().value<int>());
-			foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all().values()) {
+			foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 				foreach(Account *account, proto->accounts()) {
 					Status status = account->status();
 					status.setType(type);
