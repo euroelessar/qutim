@@ -182,7 +182,7 @@ DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isB
 		//TODO, add validator
 		//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
 		conferenceItem.setProperty("mandatory", true);
-		if (!isBookmark)
+		if (isBookmark)
 			conferenceItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(conferenceItem);
 	}
