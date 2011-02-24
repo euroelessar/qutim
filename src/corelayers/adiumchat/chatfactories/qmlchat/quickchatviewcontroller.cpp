@@ -66,7 +66,7 @@ QVariant messageToVariant(const Message &mes)
 	QVariantMap map;
 	map.insert(QLatin1String("mid"), mes.id());
 	map.insert(QLatin1String("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
-	QObject *unit = const_cast<ChatUnit*>(mes.chatUnit());
+	QObject *unit = mes.chatUnit();
 	if (unit) {
 		map.insert(QLatin1String("chatUnit"), qVariantFromValue<QObject*>(unit));
 		QObject *account = const_cast<Account*>(mes.chatUnit()->account());
