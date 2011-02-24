@@ -173,8 +173,7 @@ DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isB
 	}
 	{
 		qutim_sdk_0_3::DataItem nameItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name());
-		if (!isBookmark)
-			nameItem.setProperty("showInBookmarkInfo", false);
+		nameItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(nameItem);
 	}
 	{
@@ -183,6 +182,8 @@ DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isB
 		//TODO, add validator
 		//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
 		conferenceItem.setProperty("mandatory", true);
+		if (!isBookmark)
+			conferenceItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(conferenceItem);
 	}
 	{

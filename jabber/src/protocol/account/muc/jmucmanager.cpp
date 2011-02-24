@@ -51,7 +51,7 @@ public:
 		foreach (JMUCSession *session, rooms) {
 			jreen::MUCRoom *room = session->room();
 			if (!room->isJoined() && room->presence() != Presence::Unavailable
-				&& !roomsToConnect.contains(session)) {
+					&& !roomsToConnect.contains(session)) {
 				session->join();
 			}
 		}
@@ -198,9 +198,9 @@ void JMUCManager::join(const QString &conference, const QString &nick, const QSt
 	ChatSession *session = ChatLayer::get(room, true);
 	connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
 	connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
-//	I think that it should be called by plugins, but not by protocol itself,
-//	because it's rather slow method due to a lot of gui initialization
-//	session->activate();
+	//	I think that it should be called by plugins, but not by protocol itself,
+	//	because it's rather slow method due to a lot of gui initialization
+	//	session->activate();
 
 	bookmarkManager()->saveRecent(conference,nick,password);
 }
