@@ -31,6 +31,7 @@
 #include <qutim/icon.h>
 #include <itemdelegate.h>
 #include "joinpage.h"
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -69,6 +70,9 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 	connect(ui->bookmarksPage,SIGNAL(bookmarksChanged()),SLOT(onBookmarksChanged()));
 	connect(ui->stackedWidget, SIGNAL(fingerGesture(SlidingStackedWidget::SlideDirection)),
 			this, SLOT(onFingerGesture(SlidingStackedWidget::SlideDirection)));
+
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, ui->bookmarksView->viewport()));
 }
 
 void JoinGroupChat::onFingerGesture(SlidingStackedWidget::SlideDirection direction)
