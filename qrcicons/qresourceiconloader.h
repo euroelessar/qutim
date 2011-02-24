@@ -3,7 +3,7 @@
 #include <libqutim/iconloader.h>
 #include <QStringList>
 
-namespace Core
+namespace Embedded
 {
 using namespace qutim_sdk_0_3;
 
@@ -19,6 +19,6 @@ private:
 	QStringList m_icons;
 };
 
-}
+} //namespace Embedded
 
 #endif // RESOURCEICONLOADER_H

@@ -6,7 +6,7 @@
 #include <libqutim/debug.h>
 #include <QFile>
 
-namespace Core
+namespace Embedded
 {
 
 QString nameInResource (const QString &name)
@@ -71,4 +71,4 @@ QString ResourceIconLoader::moviePath(const QString &, uint)
 	return QString();
 }
 
-}
+} //namespace Embedded
