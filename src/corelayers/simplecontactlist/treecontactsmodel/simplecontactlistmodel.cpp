@@ -13,7 +13,6 @@
 #include <QInputDialog>
 #include <QMimeData>
 #include <QMessageBox>
-#include "simpletagseditor/simpletagseditor.h"
 #include <qutim/mimeobjectdata.h>
 #include <qutim/event.h>
 #include <QApplication>
@@ -79,10 +78,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 	ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
 											   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
 											   this, SLOT(onContactRenameAction(QObject*)));
-	MenuController::addAction<Contact>(gen);
-	gen = new ActionGenerator(Icon("feed-subscribe"),
-							  QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
-							  this, SLOT(onTagsEditAction(QObject*)));
 	MenuController::addAction<Contact>(gen);
 }
 
@@ -834,19 +829,6 @@ bool Model::event(QEvent *ev)
 		}
 	}
 	return QObject::event(ev);
-}
-
-void Model::onTagsEditAction(QObject *controller)
-{
-	Contact *contact = qobject_cast<Contact*>(controller);
-	if (!contact)
-		return;
-	SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
-	centerizeWidget(editor);
-
-	editor->setTags(tags());
-	editor->load();
-	SystemIntegration::show(editor);
 }
 
 void Model::onContactRenameResult(const QString &name)

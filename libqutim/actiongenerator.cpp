@@ -20,6 +20,7 @@
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
 #include <QtCore/QCoreApplication>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -207,21 +208,6 @@ void ActionGenerator::setMenuController(MenuController *controller)
 	Q_UNUSED(controller);
 }
 
-// 	MenuController *ActionGenerator::controller() const
-// 	{
-// 		return 0;
-// 	}
-
-void ActionGenerator::addCreationHandler(QObject *obj)
-{
-	addHandler(ActionCreatedHandler,obj);
-}
-
-void ActionGenerator::removeCreationHandler(QObject* obj)
-{
-	removeHandler(ActionCreatedHandler,obj);
-}
-
 void ActionGenerator::addHandler(int type, QObject* obj)
 {
 	Q_D(ActionGenerator);
@@ -239,6 +225,18 @@ void ActionGeneratorPrivate::sendActionCreatedEvent(QAction *action, QObject *co
 	foreach (QObject *subcriber,subcribers.value(ActionCreatedHandler)) {
 		ActionCreatedEvent event(action, q_ptr , controller);
 		qApp->sendEvent(subcriber,&event);
+	}
+	QPair<QObject*, QByteArray> receiver;
+	foreach (receiver, receivers) {
+		const QMetaObject *meta = receiver.first->metaObject();
+		const char *member = receiver.second.constData() + 1;
+		int index = meta->indexOfMethod(member);
+		if (index == -1) {
+			qWarning("ActionGeneratorPrivate::onActionCreated: No such method %s::%s",
+					 meta->className(), member);
+		}
+		QMetaMethod method = meta->method(index);
+		method.invoke(receiver.first, Q_ARG(QAction*, action), Q_ARG(QObject*, controller));
 	}
 }
 
@@ -348,8 +346,9 @@ void ActionGenerator::setShortcut(const QKeySequence &shortcut)
 	d->shortCuts.append(shortcut);
 }
 
-void ActionGenerator::createImpl(QAction *,QObject *) const
+void ActionGenerator::createImpl(QAction *action,QObject *controller) const
 {
+	d_func()->sendActionCreatedEvent(action, controller);
 }
 
 void ActionGenerator::showImpl(QAction *,QObject *)
@@ -386,6 +385,20 @@ QList<QAction *> ActionGenerator::actions(QObject *object) const
 QMap<QObject*, QAction*> ActionGenerator::actions() const
 {
 	return actionsCache()->value(this);
+}
+
+void ActionGenerator::subscribe(QObject *object, const char *method)
+{
+	if (!method || !object)
+		return;
+	QByteArray member = QMetaObject::normalizedSignature(method);
+	QPair<QObject*, QByteArray> pair(object, member);
+	d_func()->receivers.append(pair);
+}
+
+ActionGenerator *ActionGenerator::get(QAction *action)
+{
+	return action->data().value<ActionGenerator*>();
 }
 
 }

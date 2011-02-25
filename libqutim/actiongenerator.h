@@ -27,6 +27,7 @@ namespace qutim_sdk_0_3
 class ActionGenerator;
 class ActionGeneratorPrivate;
 class MenuController;
+class ActionToolBar;
 
 //TBD list of all action roles
 enum ActionType
@@ -126,17 +127,17 @@ void MyObject::onAction(QObject *obj)
 	int priority() const;
 	ActionGenerator *setPriority(int priority);
 	void setMenuController(MenuController *controller);
-	//MenuController *controller() const;
+	void subscribe(QObject *object, const char *method);
+	//void unsubscribe(QObject *object); //TODO implement me
 	void addHandler(int type,QObject *obj);
 	void removeHandler(int type,QObject *obj);
-	Q_DECL_DEPRECATED void addCreationHandler(QObject *obj);
-	Q_DECL_DEPRECATED void removeCreationHandler(QObject *obj);
 	void setCheckable(bool checkable);
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);
 	void setShortcut(const QKeySequence &shortcut);
 	QList<QAction*> actions(QObject *object) const;
 	QMap<QObject*, QAction*> actions() const;
+	static ActionGenerator *get(QAction *);
 protected:
 	QAction *prepareAction(QAction *action) const;
 	virtual QObject *generateHelper() const;
@@ -147,6 +148,7 @@ protected:
 	virtual void hideImpl(QAction *action,QObject *obj);
 private:
 	friend class MenuController;
+	friend class ActionToolBar;
 	friend class MenuControllerPrivate;
 	friend class DynamicMenu;
 	friend class ActionContainerPrivate;

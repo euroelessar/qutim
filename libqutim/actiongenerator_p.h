@@ -36,6 +36,7 @@ enum ActionConnectionType
 
 class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 {
+	Q_DECLARE_PUBLIC(ActionGenerator)
 public:
 	ActionGeneratorPrivate() : q_ptr(0),type(0), priority(0), connectionType(ActionConnectionSimple) {}
 	ActionGenerator *q_ptr;
@@ -44,6 +45,7 @@ public:
 	LocalizedString toolTip;
 	QPointer<QObject> receiver;
 	QMap<int, QList<QObject* > > subcribers;
+	QList<QPair<QObject*, QByteArray> > receivers;
 	QByteArray member;
 	int type;
 	int priority;

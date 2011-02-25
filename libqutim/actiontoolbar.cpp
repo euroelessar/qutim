@@ -172,7 +172,7 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 		Q_ASSERT(action);
 		if(!action->parent())
 			action->setParent(this);
-		ActionGeneratorPrivate::get(generator)->sendActionCreatedEvent(action, this);
+		generator->createImpl(action, this);
 		actionsCache()->operator[](generator).insert(this,action);
 	}
 	//action->setData(d->data);
