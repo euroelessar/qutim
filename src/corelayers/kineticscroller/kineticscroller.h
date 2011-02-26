@@ -25,7 +25,12 @@ class KineticScroller : public QObject
 	Q_OBJECT
 public:
     KineticScroller();
+	virtual ~KineticScroller();
 	Q_INVOKABLE void enableScrolling(QObject *widget);
+public slots:
+	void loadSettings();
+private:
+	int m_scrollingType;
 };
 
 } // namespace Core
