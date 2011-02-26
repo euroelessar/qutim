@@ -55,8 +55,6 @@ public:
 	MobileContactInfo();
 public slots:
 	void show(QObject *object);
-private slots:
-	void onAccountStatusChanged(qutim_sdk_0_3::Status);
 private:
 	QPointer<MobileContactInfoWindow> info;
 };
