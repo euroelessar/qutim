@@ -1,5 +1,5 @@
 /****************************************************************************
- *  simpleactionsplugin.h
+ *  utils.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -13,26 +13,23 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef SIMPLEACTIONSPLUGIN_H
-#define SIMPLEACTIONSPLUGIN_H
-#include <qutim/plugin.h>
+#ifndef UTILS_H
+#define UTILS_H
+#include "libqutim_global.h"
 
-namespace Core {
-
-class SimpleActions;
-class SimpleActionsPlugin : public qutim_sdk_0_3::Plugin
+namespace qutim_sdk_0_3
 {
-    Q_OBJECT
-	Q_CLASSINFO("Uses", "ContactInfo")
-public:
-	SimpleActionsPlugin();
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-private:
-	SimpleActions *m_actions;
-};
+template<typename T>
+Q_INLINE_TEMPLATE T sender_cast(QObject *sender)
+{
+#ifdef QT_DEBUG
+	T t = qobject_cast<T>(sender);
+	Q_ASSERT(t);
+	return t;
+#else
+	return reinterpret_cast<T>(sender);
+#endif
+}
+} //namespace qutim_sdk_0_3
 
-} // namespace Core
-
-#endif // SIMPLEACTIONSPLUGIN_H
+#endif // UTILS_H

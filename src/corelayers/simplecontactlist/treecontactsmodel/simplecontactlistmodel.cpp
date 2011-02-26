@@ -10,7 +10,6 @@
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
 #include <QBasicTimer>
-#include <QInputDialog>
 #include <QMimeData>
 #include <QMessageBox>
 #include <qutim/mimeobjectdata.h>
@@ -75,10 +74,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	ConfigGroup group = Config().group("contactList");
 	p->showOffline = group.value("showOffline", true);
-	ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
-											   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
-											   this, SLOT(onContactRenameAction(QObject*)));
-	MenuController::addAction<Contact>(gen);
 }
 
 Model::~Model()
@@ -648,20 +643,6 @@ void Model::filterList(const QStringList &tags)
 	filterAllList();
 }
 
-void Model::onContactRenameAction(QObject *controller)
-{
-	Contact *contact = qobject_cast<Contact*>(controller);
-	if (!contact)
-		return;
-	QInputDialog *dialog = new QInputDialog(QApplication::activeModalWidget());
-	dialog->setAttribute(Qt::WA_QuitOnClose, false);
-	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
-	dialog->setInputMode(QInputDialog::TextInput);
-	dialog->setProperty("contact", qVariantFromValue(contact));
-	centerizeWidget(dialog);
-	dialog->open(this, SLOT(onContactRenameResult(QString)));
-}
-
 QStringList Model::tags() const
 {
 	QStringList all_tags;
@@ -829,13 +810,6 @@ bool Model::event(QEvent *ev)
 		}
 	}
 	return QObject::event(ev);
-}
-
-void Model::onContactRenameResult(const QString &name)
-{
-	Contact *contact = sender()->property("contact").value<Contact*>();
-	if (contact->name() != name)
-		contact->setName(name);
 }
 
 void Model::filterAllList()

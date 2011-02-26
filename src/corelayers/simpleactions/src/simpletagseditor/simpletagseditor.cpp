@@ -25,6 +25,7 @@ SimpleTagsEditor::~SimpleTagsEditor()
 void SimpleTagsEditor::accept()
 {
 	save();
+	QDialog::accept();
 }
 
 void SimpleTagsEditor::changeEvent(QEvent *e)

@@ -22,6 +22,7 @@ class QAction;
 namespace qutim_sdk_0_3
 {
 class ActionGenerator;
+class Status;
 }
 
 namespace Core {
@@ -37,9 +38,16 @@ private slots:
 	void onTagsEditAction(QObject*);
 	void onCopyIdCreated(QAction *, QObject *);
 	void onCopyIdTriggered(QObject *obj);
-private:
+	void onContactRenameCreated(QAction *, QObject *);
+	void onContactRenameAction(QObject*);
+	void onShowInfoAction(QObject *obj);
+	void onShowInfoActionCreated(QAction *, QObject *);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);
+private:;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactRenameGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_showInfoGen;
 };
 
 } // namespace Core

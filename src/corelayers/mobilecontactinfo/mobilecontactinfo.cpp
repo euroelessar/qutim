@@ -14,22 +14,6 @@
 namespace Core
 {
 
-void checkAction(QObject *controller, QAction *action)
-{
-	InfoRequestCheckSupportEvent info_event;
-	qApp->sendEvent(controller, &info_event);
-	if (info_event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
-		if (info_event.supportType() == InfoRequestCheckSupportEvent::Read)
-			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
-		else if (info_event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
-			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
-		action->setEnabled(true);
-	} else {
-		action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"));
-		action->setEnabled(false);
-	}
-}
-
 MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	QScrollArea(parent),
 	request(0),
@@ -235,15 +219,6 @@ void MobileContactInfoWindow::onSaveButton()
 
 MobileContactInfo::MobileContactInfo()
 {
-	m_gen = new ActionGenerator(Icon("dialog-information"),
-								QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"),
-								this,
-								SLOT(onShow(QObject*))
-								);
-	m_gen->setType(ActionTypeContactList | ActionTypeChatButton | ActionTypeContactInfo | 0x7000);
-	m_gen->addHandler(ActionCreatedHandler, this);
-	MenuController::addAction<Buddy>(m_gen);
-	MenuController::addAction<Account>(m_gen);
 }
 
 void MobileContactInfo::show(QObject *object)
@@ -267,36 +242,6 @@ void MobileContactInfo::show(QObject *object)
 		info->raise();
 	}
 	info->setObject(object, type);
-}
-
-void MobileContactInfo::onShow(QObject *controller)
-{
-	show(controller);
-}
-
-bool MobileContactInfo::event(QEvent *ev)
-{
-	if (ev->type() == ActionCreatedEvent::eventType()) {
-		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
-		QObject *controller = event->controller();
-		QAction *action = event->action();
-		if(Account *a = qobject_cast<Account*>(controller)) {
-			connect(a, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-		} else
-			checkAction(controller,action);
-		return true;
-	}
-	return QObject::event(ev);
-}
-
-void MobileContactInfo::onAccountStatusChanged(qutim_sdk_0_3::Status)
-{
-	QMap<QObject*, QAction*> actions = m_gen->actions();
-	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
-	for(;it != actions.constEnd(); it++) {
-		checkAction(it.key(),it.value());
-	}
 }
 
 }
