@@ -216,8 +216,10 @@ void QuickChatViewController::loadSettings()
 	QDeclarativeComponent component (m_engine, main);
 	QObject *obj = component.create(m_context);
 
-	setRootItem(qobject_cast<QDeclarativeItem*>(obj));
+	m_item = qobject_cast<QDeclarativeItem*>(obj);
+	addItem(m_item);
 	loadHistory();
+	emit rootItemChanged();
 }
 
 void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
@@ -230,7 +232,6 @@ void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
 	}
 	m_item = rootItem;
 	addItem(m_item);
-	emit rootItemChanged();
 }
 
 QString QuickChatViewController::parseEmoticons(const QString &text) const
