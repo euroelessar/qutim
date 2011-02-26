@@ -6,6 +6,7 @@ Component {
 	Item {
 		id: message
 		width: parent.width
+		x: -parent.width
 		property bool delivered: isDelivered
 		property variant delegate
 		height: childrenRect.height + 5
@@ -49,11 +50,13 @@ Component {
 
 		states: State {
 			name: "show"
+			PropertyChanges { target: message; x: 0 }
 			PropertyChanges { target: message; opacity: 1 }
 		}
 
 		transitions: Transition {
-			NumberAnimation { properties: "opacity"; duration: 100 }
+			NumberAnimation { properties: "x"; duration: 400 }
+			NumberAnimation { properties: "opacity"; duration: 200 }
 		}
 
 	}
