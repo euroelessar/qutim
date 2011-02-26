@@ -200,8 +200,7 @@ DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isB
 	}
 	{
 		qutim_sdk_0_3::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin()));
-		if (isBookmark)
-			autoJoinItem.setProperty("showInBookmarkInfo", false);
+		autoJoinItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(autoJoinItem);
 	}
 	return item;
