@@ -123,9 +123,11 @@ void ChatAppearance::loadImpl()
 		Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
 		return;
 	}
-	ConfigGroup quickChat = Config("appearance/qmlChat").group("style");
-	m_currentStyleName = quickChat.value<QString>("name","default");
+	ConfigGroup quickChat = Config("appearance/qmlChat");
 	ui->openGLBox->setChecked(quickChat.value("openGL",false));
+	quickChat.beginGroup(QLatin1String("style"));
+	m_currentStyleName = quickChat.value<QString>("name","default");
+	quickChat.endGroup();
 	getThemes();
 	int index = ui->chatBox->findText(m_currentStyleName);
 	isLoad = true;
@@ -140,9 +142,9 @@ void ChatAppearance::loadImpl()
 void ChatAppearance::saveImpl()
 {
 	Config config("appearance/qmlChat");
+	config.setValue("openGL", ui->openGLBox->isChecked());
 	config.beginGroup("style");
 	config.setValue("name",m_currentStyleName);
-	config.setValue("openGL", ui->openGLBox->isChecked());
 	config.endGroup();
 	config.sync();
 }

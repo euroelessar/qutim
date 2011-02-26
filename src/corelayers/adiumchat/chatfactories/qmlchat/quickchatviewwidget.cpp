@@ -29,7 +29,7 @@ QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
 {
 #ifndef QT_NO_OPENGL
 	if (Config("appearance/qmlChat").value("openGL", false))
-		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+		setViewport(new QGLWidget(QGLFormat(QGLFormat::defaultFormat())));
 #endif
 	setOptimizationFlags(QGraphicsView::DontSavePainterState);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
