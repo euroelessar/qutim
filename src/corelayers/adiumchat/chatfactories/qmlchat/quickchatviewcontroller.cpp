@@ -213,14 +213,25 @@ void QuickChatViewController::loadSettings()
 	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
 	QString main = path % QLatin1Literal("/main.qml");
 
-	QGraphicsScene::clear();
 	QDeclarativeComponent component (m_engine, main);
 	QObject *obj = component.create(m_context);
-	m_item = qobject_cast<QDeclarativeItem*>(obj);
-	addItem(m_item);
+
+	setRootItem(qobject_cast<QDeclarativeItem*>(obj));
 	loadHistory();
 }
 
+void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
+{
+	if (m_item == rootItem)
+		return;
+	if (m_item) {
+		removeItem(m_item);
+		m_item->deleteLater();
+	}
+	m_item = rootItem;
+	addItem(m_item);
+	emit rootItemChanged();
+}
 
 QString QuickChatViewController::parseEmoticons(const QString &text) const
 {

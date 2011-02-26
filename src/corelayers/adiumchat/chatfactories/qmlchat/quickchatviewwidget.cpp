@@ -70,8 +70,8 @@ void QuickChatViewWidget::updateView()
 				declarativeItemRoot->setWidth(width());
 			if (!qFuzzyCompare(height(), declarativeItemRoot->height()))
 				declarativeItemRoot->setHeight(height());
+			setSceneRect(declarativeItemRoot->boundingRect());
 		}
-		setSceneRect(declarativeItemRoot->boundingRect());
 	}
 }
 

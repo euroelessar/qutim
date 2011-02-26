@@ -33,6 +33,7 @@ class QuickChatViewController : public QGraphicsScene, public ChatViewController
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
+	Q_PROPERTY(QDeclarativeItem* rootItem READ rootItem NOTIFY rootItemChanged)
 public:
 	QuickChatViewController(QDeclarativeEngine *engine);
 	virtual void setChatSession(ChatSessionImpl *session);
@@ -48,11 +49,13 @@ protected slots:
 	void loadHistory();
 protected:
 	bool eventFilter(QObject *, QEvent *);
+	void setRootItem(QDeclarativeItem *rootItem);
 signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
 	void clearChatField();
 	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
+	void rootItemChanged();
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
