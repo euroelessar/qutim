@@ -35,7 +35,7 @@ class QuickChatViewController : public QGraphicsScene, public ChatViewController
 	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
 	Q_PROPERTY(QDeclarativeItem* rootItem READ rootItem NOTIFY rootItemChanged)
 public:
-	QuickChatViewController(QDeclarativeEngine *engine);
+	QuickChatViewController(QDeclarativeEngine *engine, QObject *parent = 0);
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
@@ -45,6 +45,7 @@ public:
 	Q_INVOKABLE QString parseEmoticons(const QString &) const;
 public slots:
 	void loadSettings();
+	void loadTheme(const QString &name);
 protected slots:
 	void loadHistory();
 protected:
@@ -55,7 +56,7 @@ signals:
 	void messageDelivered(int mid);
 	void clearChatField();
 	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
-	void rootItemChanged();
+	void rootItemChanged(QDeclarativeItem* rootItem);
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;

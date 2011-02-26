@@ -9,6 +9,7 @@ Component {
 		property bool delivered: isDelivered
 		property variant delegate
 		height: childrenRect.height + 5
+		opacity: 0
 
 		Component.onCompleted: {
 			var formattedTime = Qt.formatDateTime(time, "dd.MM.yyyy (hh:mm:ss)");
@@ -36,12 +37,23 @@ Component {
 				delegate.incoming = isIncoming;
 				delegate.delivered = message.delivered;
 			}
+
+			message.state = "show";
 		}
 
 		onDeliveredChanged: {
 			if (delegate == "undefined" || delegate.delivered == "undefined")
 				return;
 			delegate.delivered = message.delivered;
+		}
+
+		states: State {
+			name: "show"
+			PropertyChanges { target: message; opacity: 1 }
+		}
+
+		transitions: Transition {
+			NumberAnimation { properties: "opacity"; duration: 100 }
 		}
 
 	}

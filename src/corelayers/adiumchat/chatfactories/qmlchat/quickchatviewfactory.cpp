@@ -17,6 +17,9 @@
 #include "quickchatviewcontroller.h"
 #include "quickchatviewwidget.h"
 #include <QDeclarativeEngine>
+#include "settings/chatappearance.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -24,7 +27,9 @@ namespace AdiumChat {
 QuickChatViewFactory::QuickChatViewFactory() :
 	m_engine(new QDeclarativeEngine(this))
 {
-
+	m_appearanceSettings = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"),
+																   QT_TRANSLATE_NOOP("Settings","Chat"));
+	Settings::registerItem(m_appearanceSettings);
 }
 
 QObject* QuickChatViewFactory::createViewController()
@@ -39,7 +44,8 @@ QWidget* QuickChatViewFactory::createViewWidget()
 
 QuickChatViewFactory::~QuickChatViewFactory()
 {
-
+	Settings::removeItem(m_appearanceSettings);
+	delete m_appearanceSettings;
 }
 
 	

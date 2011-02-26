@@ -19,6 +19,11 @@
 #include <QWidget>
 #include <chatlayer/chatviewfactory.h>
 
+namespace qutim_sdk_0_3
+{
+class SettingsItem;
+}
+
 class QDeclarativeEngine;
 namespace Core {
 namespace AdiumChat {
@@ -26,6 +31,7 @@ namespace AdiumChat {
 class QuickChatViewFactory : public ChatViewFactory
 {
     Q_OBJECT
+	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	QuickChatViewFactory();
 	virtual QWidget *createViewWidget();
@@ -33,6 +39,7 @@ public:
     virtual ~QuickChatViewFactory();
 private:
 	QDeclarativeEngine *m_engine;
+	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
 };
 
 } // namespace AdiumChat

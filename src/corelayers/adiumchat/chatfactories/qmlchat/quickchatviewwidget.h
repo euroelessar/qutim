@@ -19,6 +19,7 @@
 #include <chatlayer/chatviewfactory.h>
 #include <QPointer>
 
+class QDeclarativeItem;
 namespace Core {
 namespace AdiumChat {
 
@@ -28,11 +29,13 @@ class QuickChatViewWidget : public QGraphicsView, public Core::AdiumChat::ChatVi
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
-    QuickChatViewWidget();
+	QuickChatViewWidget(QWidget *parent = 0);
     virtual void setViewController(QObject* controller);
 protected:
 	void resizeEvent(QResizeEvent *event);
 	void updateView();
+private slots:
+	void onRootChanged(QDeclarativeItem *root);
 private:
 	QPointer<QuickChatViewController> m_controller;
 };

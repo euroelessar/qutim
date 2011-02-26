@@ -119,7 +119,8 @@ QVariant messageToVariant(const Message &mes)
 	return map;
 }
 
-QuickChatViewController::QuickChatViewController(QDeclarativeEngine *engine) :
+QuickChatViewController::QuickChatViewController(QDeclarativeEngine *engine, QObject *parent) :
+	QGraphicsScene(parent),
 	m_session(0),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
@@ -208,18 +209,20 @@ bool QuickChatViewController::eventFilter(QObject *obj, QEvent *ev)
 void QuickChatViewController::loadSettings()
 {
 	ConfigGroup cfg = Config("appearance/quickChat").group("style");
-	m_themeName = cfg.value<QString>("name","default");
+	loadTheme(cfg.value<QString>("name","default"));
+}
 
+void QuickChatViewController::loadTheme(const QString &name)
+{
+	m_themeName = name;
 	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
 	QString main = path % QLatin1Literal("/main.qml");
 
 	QDeclarativeComponent component (m_engine, main);
 	QObject *obj = component.create(m_context);
 
-	m_item = qobject_cast<QDeclarativeItem*>(obj);
-	addItem(m_item);
+	setRootItem(qobject_cast<QDeclarativeItem*>(obj));
 	loadHistory();
-	emit rootItemChanged();
 }
 
 void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
@@ -232,6 +235,7 @@ void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
 	}
 	m_item = rootItem;
 	addItem(m_item);
+	emit rootItemChanged(m_item);
 }
 
 QString QuickChatViewController::parseEmoticons(const QString &text) const

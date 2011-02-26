@@ -24,7 +24,8 @@
 namespace Core {
 namespace AdiumChat {
 
-QuickChatViewWidget::QuickChatViewWidget()
+QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
+	QGraphicsView(parent)
 {
 #ifndef QT_NO_OPENGL
 	if (Config("appearance/qmlChat").value("openGL", true))
@@ -43,13 +44,18 @@ QuickChatViewWidget::QuickChatViewWidget()
 
 void QuickChatViewWidget::setViewController(QObject* object)
 {
+	if (m_controller == object)
+		return;
+	if (m_controller)
+		m_controller->disconnect(this);
 	QuickChatViewController* controller = qobject_cast<QuickChatViewController*>(object);
 	m_controller = controller;
 	if (controller) {
 		controller->setItemIndexMethod(QGraphicsScene::NoIndex);
 		controller->setStickyFocus(true);  //### needed for correct focus handling
 		setScene(controller);
-		updateView();
+		connect(controller, SIGNAL(rootItemChanged()),
+				this, SLOT(onRootChanged(QDeclarativeItem*)));
 	} else {
 		setScene(new QGraphicsScene(this));
 	}
@@ -70,9 +76,14 @@ void QuickChatViewWidget::updateView()
 				declarativeItemRoot->setWidth(width());
 			if (!qFuzzyCompare(height(), declarativeItemRoot->height()))
 				declarativeItemRoot->setHeight(height());
+			setSceneRect(declarativeItemRoot->boundingRect());
 		}
-		setSceneRect(declarativeItemRoot->boundingRect());
 	}
+}
+
+void QuickChatViewWidget::onRootChanged(QDeclarativeItem *)
+{
+	updateView();
 }
 
 } // namespace AdiumChat
