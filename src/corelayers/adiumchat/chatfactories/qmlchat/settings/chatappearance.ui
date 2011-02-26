@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>chatAppearance</class>
- <widget class="QWidget" name="chatAppearance">
+ <class>quickChatAppearance</class>
+ <widget class="QWidget" name="quickChatAppearance">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,6 +14,13 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="openGLBox">
+     <property name="text">
+      <string>Enable openGL acceleration</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QComboBox" name="chatBox"/>
    </item>

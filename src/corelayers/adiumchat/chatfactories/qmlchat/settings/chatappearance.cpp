@@ -85,7 +85,7 @@ private:
 	FakeChatUnit *m_unit;
 };
 
-ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance),m_controller(0)
+ChatAppearance::ChatAppearance(): ui(new Ui::quickChatAppearance),m_controller(0)
 {
 	ui->setupUi(this);
 	m_widget = new QuickChatViewWidget(this);
@@ -100,6 +100,7 @@ ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance),m_controller(0)
 		m_widget->setViewController(m_controller);
 		account->setParent(this);
 	}
+	connect(ui->openGLBox, SIGNAL(stateChanged(int)), SLOT(onStateChanged(int)));
 }
 
 ChatAppearance::~ChatAppearance()
@@ -111,14 +112,20 @@ void ChatAppearance::cancelImpl()
 
 }
 
+void ChatAppearance::onStateChanged(int)
+{
+	emit modifiedChanged(true);
+}
+
 void ChatAppearance::loadImpl()
 {
 	if (!m_controller) {
 		Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
 		return;
 	}
-	ConfigGroup adium_chat = Config("appearance/qmlChat").group("style");
-	m_currentStyleName = adium_chat.value<QString>("name","default");
+	ConfigGroup quickChat = Config("appearance/qmlChat").group("style");
+	m_currentStyleName = quickChat.value<QString>("name","default");
+	ui->openGLBox->setChecked(quickChat.value("openGL",false));
 	getThemes();
 	int index = ui->chatBox->findText(m_currentStyleName);
 	isLoad = true;
@@ -135,6 +142,7 @@ void ChatAppearance::saveImpl()
 	Config config("appearance/qmlChat");
 	config.beginGroup("style");
 	config.setValue("name",m_currentStyleName);
+	config.setValue("openGL", ui->openGLBox->isChecked());
 	config.endGroup();
 	config.sync();
 }

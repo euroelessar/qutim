@@ -28,7 +28,7 @@ QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
 	QGraphicsView(parent)
 {
 #ifndef QT_NO_OPENGL
-	if (Config("appearance/qmlChat").value("openGL", true))
+	if (Config("appearance/qmlChat").value("openGL", false))
 		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
 #endif
 	setOptimizationFlags(QGraphicsView::DontSavePainterState);

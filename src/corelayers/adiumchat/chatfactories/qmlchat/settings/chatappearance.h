@@ -21,7 +21,7 @@
 
 namespace Ui
 {
-	class chatAppearance;
+	class quickChatAppearance;
 }
 namespace Core
 {
@@ -45,10 +45,11 @@ public:
 	virtual ~ChatAppearance();
 private slots:
 	void onThemeChanged(int index);
+	void onStateChanged(int);
 private:
 	void getThemes();
 	void makePage();
-	Ui::chatAppearance *ui;
+	Ui::quickChatAppearance *ui;
 	QStringList m_themes;
 	QString m_currentStyleName;
 	QuickChatViewController *m_controller;
