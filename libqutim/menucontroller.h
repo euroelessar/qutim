@@ -162,10 +162,9 @@ doStuff();
 }
 	  \endcode
 	*/
+	static QObject *get(QAction *);
 	template <typename T>
-	Q_DECL_DEPRECATED static T *getController(QObject *obj);
-	template <typename T>
-	Q_DECL_DEPRECATED static T *getController(QAction *act);
+	static T get(QAction *);
 public slots:
 	/*!
 	  Show menu at position \a pos and delete it after closing.
@@ -247,30 +246,12 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::MenuController::MenuFlags)
 
 namespace qutim_sdk_0_3
 {
-template <>
-Q_INLINE_TEMPLATE MenuController *MenuController::getController<MenuController>(QObject *obj)
-{
-	QAction *action = qobject_cast<QAction *>(obj);
-	return action ? action->data().value<MenuController*>() : 0;
-}
 
-template <typename T>
-Q_INLINE_TEMPLATE T *MenuController::getController(QAction *action)
+template<typename T>
+Q_INLINE_TEMPLATE T MenuController::get(QAction *action)
 {
-	MenuController *controller = qVariantValue<MenuController*>(action->data());
-	debug() << Q_FUNC_INFO << controller;
-	return qobject_cast<T*>(controller);
+	return qobject_cast<T>(MenuController::get(action));
 }
-
-template <typename T>
-Q_INLINE_TEMPLATE T *MenuController::getController(QObject *obj)
-{
-	QAction *action = qobject_cast<QAction *>(obj);
-	T *controller = action ? getController<T>(action) : 0;
-	debug() << Q_FUNC_INFO << controller;
-	return controller;
-}
-
 
 }
 

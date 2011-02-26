@@ -256,7 +256,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setToolTip(d->toolTip);
 	action->setShortcuts(d->shortCuts);
 	localizationHelper()->addAction(action, d);
-	action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
+	//action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 
 	if (!handler()->actions().contains(action))
 		handler()->addAction(action);
@@ -398,7 +398,16 @@ void ActionGenerator::subscribe(QObject *object, const char *method)
 
 ActionGenerator *ActionGenerator::get(QAction *action)
 {
-	return action->data().value<ActionGenerator*>();
+	return localizationHelper()->getGenerator(action);
+}
+
+ActionGenerator * ActionGeneratorLocalizationHelper::getGenerator(QAction *action) const
+{
+	const ActionGeneratorPrivate *p = m_actions.value(action);
+	if (p)
+		return m_actions.value(action)->q_ptr;
+	else
+		return 0;
 }
 
 }

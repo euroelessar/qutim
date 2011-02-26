@@ -35,8 +35,11 @@ public:
 private slots:
 	void onTagsEditCreated(QAction *, QObject *);
 	void onTagsEditAction(QObject*);
+	void onCopyIdCreated(QAction *, QObject *);
+	void onCopyIdTriggered(QObject *obj);
 private:
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
 };
 
 } // namespace Core

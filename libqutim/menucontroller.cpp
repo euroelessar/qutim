@@ -112,8 +112,8 @@ ActionEntry *DynamicMenu::findEntry(ActionEntry &entries, const ActionInfo &info
 			QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
 			connect(menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 			connect(menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
-			QAction *action = menu->menuAction();
-			action->setData(qVariantFromValue(const_cast<ActionGenerator*>(info.gen)));
+			//QAction *action = menu->menuAction();
+			//action->setData(qVariantFromValue(const_cast<ActionGenerator*>(info.gen)));
 			//action->setData(pack_helper(info.hash.at(i), info.hash.size()));
 			it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
 		}
@@ -249,7 +249,7 @@ void DynamicMenu::onActionAdded(const ActionInfo &info)
 		int *lastTypeRef = 0;
 		for (int i = 0; i < actions.size(); i++) {
 			QAction *action = actions.at(i);
-			ActionGenerator *gen = action->data().value<ActionGenerator*>();
+			ActionGenerator *gen = ActionGenerator::get(action);
 			if (gen && actionGeneratorLessThan(info.gen, gen)) {
 				if (gen->type() != info.gen->type()) {
 					if (i > 0 && actions.at(i - 1)->isSeparator()) {
@@ -291,7 +291,7 @@ void DynamicMenu::onAboutToShow()
 	if(!menu) //on Symbian it's may be doesn't work ((
 		return;
 	foreach (QAction *action, menu->actions()) {
-		ActionGenerator *gen = action->data().value<ActionGenerator*>();
+		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
 			if (!action->isSeparator())
 				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
@@ -307,7 +307,7 @@ void DynamicMenu::onAboutToHide()
 	QMenu *menu = qobject_cast<QMenu*>(sender());
 	Q_ASSERT(menu);
 	foreach (QAction *action, menu->actions()) {
-		ActionGenerator *gen = action->data().value<ActionGenerator*>();
+		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
 			continue;
 		}
@@ -326,7 +326,7 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 	d_func()->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
 	//maemo does not use QMenu in main menu. Only the action in menu.
 	foreach (QAction *action, d_func()->menu->menu()->actions()) {
-		ActionGenerator *gen = action->data().value<ActionGenerator*>();
+		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
 			if (!action->isSeparator())
 				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
@@ -441,7 +441,7 @@ QAction* ActionContainer::action(int index) const
 {
 	Q_D(const ActionContainer);
 	QAction *action = d->actions.at(index);
-	ActionGenerator *gen = action->data().value<ActionGenerator*>();
+	ActionGenerator *gen = ActionGenerator::get(action);
 	if (gen)
 		ActionGeneratorPrivate::get(gen)->show(action,d->controller);
 	return action;
@@ -555,7 +555,7 @@ ActionHandler::ActionHandler() : QObject(0)
 
 void ActionHandler::onActionTriggered(QAction *action)
 {
-	const ActionGenerator *gen = action->data().value<ActionGenerator*>();
+	const ActionGenerator *gen = ActionGenerator::get(action);
 	if (!gen) {
 		qWarning("ActionHandler::onActionTriggered: Invalid ActionGenerator");
 		return;
@@ -618,6 +618,15 @@ void ActionHandler::actionTriggered()
 	QAction *action = qobject_cast<QAction*>(sender());
 	Q_ASSERT(action);
 	onActionTriggered(action);
+}
+
+QObject *MenuController::get(QAction *action)
+{
+	ActionGenerator *gen = ActionGenerator::get(action);
+	if (gen)
+		return actionsCache()->value(gen).key(action);
+	else
+		return 0;
 }
 
 }

@@ -12,8 +12,6 @@
 #include <QToolButton>
 #include <QMenu>
 #include <QCoreApplication>
-#include <QApplication>
-#include <QDesktopWidget>
 #include <QTimer>
 #include <QPushButton>
 #include <QLineEdit>
@@ -22,27 +20,20 @@
 #include <qutim/metacontactmanager.h>
 #include <QMainWindow>
 #include "simplestatusdialog.h"
-#include <QClipboard>
 #include <qutim/servicemanager.h>
 #include <qutim/settingslayer.h>
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
 #include <qutim/systemintegration.h>
 #include <QMenuBar>
+#include <QApplication>
+#include <QDesktopWidget>
+
 
 namespace Core
 {
 namespace SimpleContactList
 {
-class CopyIdGenerator : public ActionGenerator
-{
-public:
-	CopyIdGenerator(QObject *obj) :
-		ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
-	{
-		setType(ActionTypeContactList|ActionTypeAdditional);
-	}
-};
 
 class MyWidget : public
 		#ifdef Q_WS_S60
@@ -221,12 +212,6 @@ Module::Module() : p(new ModulePrivate)
 	gen->setChecked(!p->model->showOffline());
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
 	addButton(gen);
-
-	//TODO move to another class
-	gen = new CopyIdGenerator(this);
-	gen->setPriority(-100);
-	gen->addHandler(ActionVisibilityChangedHandler,this);
-	MenuController::addAction<ChatUnit>(gen);
 
 	p->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 
@@ -495,14 +480,6 @@ void Module::changeStatusTextAccepted()
 	config.sync();
 }
 
-void Module::onCopyIdTriggered(QObject *obj)
-{
-	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
-	Q_ASSERT(unit);
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText(unit->id());
-}
-
 void Module::onQuitTriggered(QObject *)
 {
 	qApp->quit();
@@ -510,16 +487,7 @@ void Module::onQuitTriggered(QObject *)
 
 bool Module::event(QEvent *ev)
 {
-	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
-		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
-		if (event->isVisible()) {
-			QAction *action = event->action();
-			ChatUnit *unit = qobject_cast<ChatUnit*>(event->controller());
-			Q_ASSERT(unit);
-			QString id =  unit->account()->protocol()->data(Protocol::ProtocolIdName).toString();
-			action->setText(QObject::tr("Copy %1 to clipboard").arg(id));
-		}
-	} else if (ev->type() == ActionCreatedEvent::eventType()) {
+	if (ev->type() == ActionCreatedEvent::eventType()) {
 		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
 		if (event->generator() == p->tagsGenerator.data()) {
 			QAction *action = event->action();

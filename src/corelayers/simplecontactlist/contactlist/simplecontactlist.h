@@ -39,7 +39,6 @@ private slots:
 	void onSearchButtonToggled(bool toggled);
 	void showStatusDialog();
 	void changeStatusTextAccepted();
-	void onCopyIdTriggered(QObject *obj);
 	void onQuitTriggered(QObject*);
 	void orientationChanged();
 private:
