@@ -54,6 +54,7 @@ void QuickChatViewWidget::setViewController(QObject* object)
 		controller->setItemIndexMethod(QGraphicsScene::NoIndex);
 		controller->setStickyFocus(true);  //### needed for correct focus handling
 		setScene(controller);
+		updateView();
 		connect(controller, SIGNAL(rootItemChanged()),
 				this, SLOT(onRootChanged(QDeclarativeItem*)));
 	} else {
