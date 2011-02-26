@@ -40,15 +40,9 @@ class AddContactModule : public QObject
 public:
 	AddContactModule();
 	~AddContactModule();
-protected:
-	bool event(QEvent *ev);
 private slots:
 	void show();
-	void onAccountStatusChanged(qutim_sdk_0_3::Status);
-	void onContactAddRemoveAction(QObject*);
-	void inListChanged(bool);
 private:
-	QScopedPointer<ActionGenerator> m_addRemoveGen;
 	QScopedPointer<ActionGenerator> m_addUserGen;
 };
 }

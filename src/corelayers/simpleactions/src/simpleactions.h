@@ -42,11 +42,15 @@ private slots:
 	void onContactRenameAction(QObject*);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
+	void onContactAddRemoveActionCreated(QAction *, QObject *);
+	void onContactAddRemoveAction(QObject*);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);
+	void inListChanged(bool);
 private:;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactRenameGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactAddRemoveGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_showInfoGen;
 };
 

@@ -29,7 +29,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QInputDialog>
-
+#include <QMessageBox>
 
 namespace Core {
 
@@ -51,6 +51,19 @@ void checkAction(QObject *controller, QAction *action)
 		action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"));
 		action->setEnabled(false);
 	}
+}
+}
+
+namespace AddRemove
+{
+void checkContact(QAction *action, Contact *contact)
+{
+	action->setEnabled(contact->account()->status() != Status::Offline);
+	bool isInList = contact->isInList();
+	action->setText(isInList ? QT_TRANSLATE_NOOP("AddContact", "Remove from roster") :
+							   QT_TRANSLATE_NOOP("AddContact", "Add to roster"));
+	action->setIcon(isInList ? Icon("list-remove") :
+							   Icon("list-add"));
 }
 }
 
@@ -94,6 +107,13 @@ SimpleActions::SimpleActions()
 	m_showInfoGen->subscribe(this, SLOT(onShowInfoActionCreated(QAction*,QObject*)));
 	MenuController::addAction<Buddy>(m_showInfoGen.data());
 	MenuController::addAction<Account>(m_showInfoGen.data());
+
+	m_contactAddRemoveGen.reset(new ActionGenerator(QIcon(),
+											 QT_TRANSLATE_NOOP("AddContact", "Unavailable"),
+											 this, SLOT(onContactAddRemoveAction(QObject*))));
+	m_contactAddRemoveGen->setType(ActionTypeAdditional);
+	m_contactAddRemoveGen->subscribe(this, SLOT(onContactAddRemoveActionCreated(QAction*,QObject*)));
+	MenuController::addAction<Contact>(m_contactAddRemoveGen.data());
 }
 
 SimpleActions::~SimpleActions()
@@ -166,11 +186,50 @@ void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
 {
 	QMap<QObject*, QAction*> actions = m_showInfoGen->actions();
 	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
-	for(;it != actions.constEnd(); it++) {
+	for(;it != actions.constEnd(); it++)
 		ShowInfo::checkAction(it.key(),it.value());
-	}
+
+	actions = m_contactAddRemoveGen->actions();
+	it = actions.constBegin();
+	for(;it != actions.constEnd(); it++)
+		AddRemove::checkContact(it.value(), sender_cast<Contact*>(it.key()));
 }
 
-} // namespace Core
+void SimpleActions::onContactAddRemoveActionCreated(QAction *a, QObject *o)
+{
+	Contact *contact = sender_cast<Contact*>(o);
+	AddRemove::checkContact(a, contact);
+	connect(contact->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(contact, SIGNAL(inListChanged(bool)),
+			this, SLOT(inListChanged(bool)));
+}
 
+void SimpleActions::onContactAddRemoveAction(QObject *obj)
+{
+	Contact *contact = sender_cast<Contact*>(obj);
+	if(contact->isInList()) {
+		int ret = QMessageBox::question(qApp->activeWindow(),
+										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
+										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
+										QMessageBox::Ok,
+										QMessageBox::Cancel);
+		if(ret != QMessageBox::Ok)
+			return;
+
+	}
+	contact->setInList(!contact->isInList());
+}
+
+void SimpleActions::inListChanged(bool)
+{
+	Contact *c = qobject_cast<Contact*>(sender());
+	Q_ASSERT(c);
+	QList<QAction*> actions = m_contactAddRemoveGen->actions(c);
+	foreach (QAction *a, actions)
+		AddRemove::checkContact(a, c);
+}
+
+
+} // namespace Core
 

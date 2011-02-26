@@ -9,20 +9,9 @@
 #include <QToolButton>
 #include <QPushButton>
 #include <qutim/systemintegration.h>
-#include <QMessageBox>
 
 namespace Core
 {
-
-void checkContact(QAction *action, Contact *contact)
-{
-	action->setEnabled(contact->account()->status() != Status::Offline);
-	bool isInList = contact->isInList();
-	action->setText(isInList ? QT_TRANSLATE_NOOP("AddContact", "Remove from roster") :
-							   QT_TRANSLATE_NOOP("AddContact", "Add to roster"));
-	action->setIcon(isInList ? Icon("list-remove") :
-							   Icon("list-add"));
-}
 
 bool isSupportAddContact()
 {
@@ -59,71 +48,11 @@ AddContactModule::AddContactModule()
 		Q_ASSERT(controller);
 		controller->addAction(m_addUserGen.data());
 	}
-
-	m_addRemoveGen.reset(new ActionGenerator(QIcon(),
-											 QT_TRANSLATE_NOOP("AddContact", "Unavailable"),
-											 this, SLOT(onContactAddRemoveAction(QObject*))));
-	m_addRemoveGen->addHandler(ActionCreatedHandler, this);
-	MenuController::addAction<Contact>(m_addRemoveGen.data());
 }
 
 AddContactModule::~AddContactModule()
 {
 
-}
-
-bool AddContactModule::event(QEvent *ev)
-{
-	if (ev->type() == ActionCreatedEvent::eventType()) {
-		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
-		Contact *contact = qobject_cast<Contact*>(event->controller());
-		Q_ASSERT(contact);
-		checkContact(event->action(),contact);
-		connect(contact->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-		connect(contact, SIGNAL(inListChanged(bool)),
-				this, SLOT(inListChanged(bool)));
-		ev->accept();
-	}
-	return QObject::event(ev);
-}
-
-void AddContactModule::onAccountStatusChanged(Status)
-{
-	QMap<QObject*, QAction*> actions = m_addRemoveGen->actions();
-	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
-	for(;it != actions.constEnd(); it++) {
-		//TODO may be possible use reinterpret_cast?
-		Contact *contact = qobject_cast<Contact*>(it.key());
-		Q_ASSERT(contact);
-		checkContact(it.value(), contact);
-	}
-}
-
-void AddContactModule::inListChanged(bool)
-{
-	Contact *c = qobject_cast<Contact*>(sender());
-	Q_ASSERT(c);
-	QList<QAction*> actions = m_addRemoveGen->actions(c);
-	foreach (QAction *a, actions)
-		checkContact(a, c);
-}
-
-void AddContactModule::onContactAddRemoveAction(QObject *obj)
-{
-	Contact *contact = qobject_cast<Contact*>(obj);
-	Q_ASSERT(contact);
-	if(contact->isInList()) {
-		int ret = QMessageBox::question(qApp->activeWindow(),
-										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
-										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
-										QMessageBox::Ok,
-										QMessageBox::Cancel);
-		if(ret != QMessageBox::Ok)
-			return;
-
-	}
-	contact->setInList(!contact->isInList());
 }
 
 void AddContactModule::show()
