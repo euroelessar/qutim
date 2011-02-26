@@ -69,7 +69,7 @@ QVariant messageToVariant(const Message &mes)
 	QObject *unit = mes.chatUnit();
 	if (unit) {
 		map.insert(QLatin1String("chatUnit"), qVariantFromValue<QObject*>(unit));
-		QObject *account = const_cast<Account*>(mes.chatUnit()->account());
+		QObject *account = mes.chatUnit()->account();
 		map.insert(QLatin1String("account"), qVariantFromValue<QObject*>(account));
 	}
 	map.insert(QLatin1String("isIncoming"), mes.isIncoming());

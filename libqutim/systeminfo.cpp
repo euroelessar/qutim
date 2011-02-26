@@ -363,6 +363,7 @@ void init(SystemInfoPrivate *d)
 	//			d->os_version_id = (*halGet)()
 	//		}
 	d->os_name = "Symbian";
+	d->os_full = "Symbian";
 //	QFile modelFile;
 //	modelFile.setFileName("z:/resource/versions/model.txt");
 //	if (modelFile.open(QFile::ReadOnly)) {

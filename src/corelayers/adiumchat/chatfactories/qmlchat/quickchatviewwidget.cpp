@@ -15,13 +15,21 @@
 
 #include "quickchatviewwidget.h"
 #include "quickchatviewcontroller.h"
+#include <qutim/config.h>
 #include <QDeclarativeItem>
+#ifndef QT_NO_OPENGL
+#	include <QtOpenGL/QtOpenGL>
+#endif
 
 namespace Core {
 namespace AdiumChat {
 
 QuickChatViewWidget::QuickChatViewWidget()
 {
+#ifndef QT_NO_OPENGL
+	if (Config("appearance/qmlChat").value("openGL", true))
+		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+#endif
 	setOptimizationFlags(QGraphicsView::DontSavePainterState);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -63,6 +71,7 @@ void QuickChatViewWidget::updateView()
 			if (!qFuzzyCompare(height(), declarativeItemRoot->height()))
 				declarativeItemRoot->setHeight(height());
 		}
+		setSceneRect(declarativeItemRoot->boundingRect());
 	}
 }
 

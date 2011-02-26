@@ -11,6 +11,7 @@ Component {
 		height: childrenRect.height + 5
 
 		Component.onCompleted: {
+			var formattedTime = Qt.formatDateTime(time, "dd.MM.yyyy (hh:mm:ss)");
 			if (action) {
 				var component = Qt.createComponent("ActionDelegate.qml");
 				delegate = component.createObject(message);
@@ -20,7 +21,7 @@ Component {
 				var component = Qt.createComponent("ServiceDelegate.qml");
 				delegate = component.createObject(message);
 				delegate.body = body;
-				delegate.time = time;
+				delegate.time = formattedTime;
 			} else if (append) {
 				var component = Qt.createComponent("Message.qml");
 				delegate = component.createObject(message);
@@ -30,7 +31,7 @@ Component {
 				var component = Qt.createComponent("CommonMessageDelegate.qml");
 				delegate = component.createObject(message);
 				delegate.body =  body;
-				delegate.time = time;
+				delegate.time = formattedTime;
 				delegate.sender = sender;
 				delegate.incoming = isIncoming;
 				delegate.delivered = message.delivered;

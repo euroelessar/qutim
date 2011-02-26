@@ -10,7 +10,7 @@ class StatusActionGeneratorPrivate : public ActionGeneratorPrivate
 {
 public:
 	Status status;
-	Status::Type type;
+	Status::Type statusType;
 };
 
 class StatusActionHandler : public QObject

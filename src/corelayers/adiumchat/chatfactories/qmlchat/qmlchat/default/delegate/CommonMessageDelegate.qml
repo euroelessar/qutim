@@ -3,7 +3,7 @@ import Qt 4.7
 Item {
 	id: message
 	property string sender
-	property date time
+	property string time
 	property bool incoming: true
 	property string body
 	property bool delivered: false
