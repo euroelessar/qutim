@@ -31,7 +31,7 @@
 #include <QLibrary>
 
 #ifdef Q_OS_SYMBIAN
-//#include <hal.h>
+#include <QTextCodec>
 #endif
 
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)

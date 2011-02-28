@@ -58,7 +58,8 @@ TextViewController::TextViewController()
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
 	m_font.setPointSize(cfg.value(QLatin1String("size"), 15));
 #elif defined(Q_WS_S60)
-	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
+	m_font.setFamily(cfg.value(QLatin1String("family"), m_font.family()));
+	m_font.setPointSize(cfg.value(QLatin1String("size"), m_font.pointSize()));
 #else
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("verdana")));
 	m_font.setPointSize(cfg.value(QLatin1String("size"), 10));
