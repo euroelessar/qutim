@@ -362,21 +362,31 @@ void init(SystemInfoPrivate *d)
 	//		if (halGet) {
 	//			d->os_version_id = (*halGet)()
 	//		}
-	d->os_name = "Symbian";
-	d->os_full = "Symbian";
-//	QFile modelFile;
-//	modelFile.setFileName("z:/resource/versions/model.txt");
-//	if (modelFile.open(QFile::ReadOnly)) {
-//		d->os_version = QString::fromUtf8(modelFile.readAll());
-//	} else {
-//		modelFile.setFileName("z:/resource/versions/model.txt");
-//		if (modelFile.open(QFile::ReadOnly)) {
-//		}
-//	}
-//	if (d->os_version.isEmpty())
-//		d->os_full = d->os_name;
-//	else
-//		d->os_full = d->os_name + " (" + d->os_version + ")";
+	d->os_name = QLatin1String("Symbian");
+	QFile productFile(QLatin1String("z:/resource/versions/product.txt"));
+	if (productFile.open(QFile::ReadOnly)) {
+		const QTextCodec * const codec = QTextCodec::codecForName("utf-16");
+		QByteArray data = productFile.readAll();
+		QString text = codec->toUnicode(data, data.size());
+		QString manufacturer;
+		QString model;
+		foreach (QString line, text.split(QLatin1Char('\n'))) {
+			if (line.endsWith(QLatin1Char('\r')))
+				line.chop(1);
+			if (line.startsWith(QLatin1String("Manufacturer=")))
+				manufacturer = line.section(QLatin1Char('='), 1);
+			else if (line.startsWith(QLatin1String("Model=")))
+				model = line.section(QLatin1Char('='), 1);
+		}
+		d->os_version = manufacturer;
+		if (!d->os_version.isEmpty())
+			d->os_version += QLatin1String(" ");
+		d->os_version += model;
+	}
+	if (d->os_version.isEmpty())
+		d->os_full = d->os_name;
+	else
+		d->os_full = d->os_name + " (" + d->os_version + ")";
 #endif
 }
 
