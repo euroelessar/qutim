@@ -404,14 +404,18 @@ void JRoster::saveSettings()
 
 void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 {
-	m_items.value(contact->id())->setGroups(groups);
-	synchronize();
+	if (jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+		i->setGroups(groups);
+		synchronize();
+	}
 }
 
 void JRoster::setName(const JContact *contact, const QString &name)
 {
-	m_items.value(contact->id())->setName(name);
-	synchronize();
+	if (jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+		i->setName(name);
+		synchronize();
+	}
 }
 
 } //namespace jabber
