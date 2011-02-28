@@ -15,6 +15,7 @@
 
 #include "debug.h"
 #include "config.h"
+#include "objectgenerator.h"
 #include <QTime>
 
 namespace qutim_sdk_0_3
@@ -61,8 +62,28 @@ namespace qutim_sdk_0_3
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, coreData, init_core_data(x.data()))
 //	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, libData, init_lib_data(x))
 
+	struct DebugData
+	{
+		DebugData() : inited(false), level(DebugInfo) {}
+		bool inited;
+		DebugLevel level;
+	};
+	
+	Q_GLOBAL_STATIC(DebugData, debugData)
+	
 	QDebug debug_helper(quint64 ptr, DebugLevel level, QtMsgType type)
 	{
+		Q_UNUSED(ptr);
+		DebugData *d = debugData();
+		if (!d->inited && ObjectGenerator::isInited()) {
+			d->inited = true;
+			Config cfg;
+			cfg.beginGroup(QLatin1String("debug"));
+			d->level = cfg.value(QLatin1String("level"), DebugInfo);
+		}
+		if (d->level > level)
+			return QDebug(devnull());
+		
 		return QDebug(type)
 				<< qPrintable(QTime::currentTime().toString(QLatin1String("[hh:mm:ss]")));
 //		const QMetaObject *meta = reinterpret_cast<const QMetaObject*>(ptr);
