@@ -1,12 +1,11 @@
 /*#include "ApiJumpList.h"
-#include <atlbase.h>
+#include "ApiJumpList.h"
 #include <ShObjIdl.h>
 #include <propvarutil.h>
 #include <Propkey.h>
 #include <wchar.h>
 #include <xstring>
 
-#include <atlbase.h>
 #include <comdef.h>
 
 using std::wstring;

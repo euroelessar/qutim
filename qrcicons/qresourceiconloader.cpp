@@ -6,7 +6,7 @@
 #include <libqutim/debug.h>
 #include <QFile>
 
-namespace Core
+namespace Embedded
 {
 
 QString nameInResource (const QString &name)
@@ -19,9 +19,10 @@ ResourceIconLoader::ResourceIconLoader()
 {
 	//TODO implement custom resource loading logic
 	QDir dir(QLatin1String(":/icons"));
-	m_icons = dir.entryList(QDir::Files, QDir::Name);
+	m_icons = dir.entryList(QDir::Files);
 	for (int i = 0; i < m_icons.size(); i++)
 		m_icons[i].chop(4);
+	qSort(m_icons);
 }
 
 QIcon ResourceIconLoader::loadIcon(const QString &originName)
@@ -57,6 +58,7 @@ QString ResourceIconLoader::iconPath(const QString &name, uint iconSize)
 	ResourceIconNameComparator comp;
 	QStringList::const_iterator it;
 	while (index != -1) {
+		QString text = QStringRef(&name, 0, index).toString();
 		it = qBinaryFind(m_icons.constBegin(), m_icons.constEnd(), QStringRef(&name, 0, index), comp);
 		if (it != m_icons.constEnd())
 			return nameInResource(*it);
@@ -71,4 +73,4 @@ QString ResourceIconLoader::moviePath(const QString &, uint)
 	return QString();
 }
 
-}
+} //namespace Embedded

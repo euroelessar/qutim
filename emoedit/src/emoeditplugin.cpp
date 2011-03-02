@@ -117,7 +117,7 @@ void EmoEditPlugin::onSessionDestroyed(QObject *obj)
 
 void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 {
-	qDebug() << Q_FUNC_INFO << m_inParsingState;
+	//qDebug() << Q_FUNC_INFO << m_inParsingState;
 	if (m_inParsingState)
 		return;
 	m_inParsingState = true;
