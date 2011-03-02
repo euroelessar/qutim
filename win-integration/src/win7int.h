@@ -1,11 +1,11 @@
 #ifndef WIN7INT_H
 #define WIN7INT_H
 
-#include <QGraphicsView>
 #include <QList>
 #include <qutim/messagesession.h>
 #include <qutim/plugin.h>
-#include <WinThings/TaskbarPreviews.h>
+
+#define WI_CONFIG "win-integration"
 
 class WPreviews;
 
@@ -57,50 +57,5 @@ private:
 #define AUTHORS_LIST_X  10
 #define AUTHORS_LIST_Y  62
 #define ICON_SIZE       64
-
-namespace qutim_sdk_0_3
-{
-	class ChatSession;
-}
-
-class WPreviews : public PreviewProvider
-{
-	Q_OBJECT
-
-	typedef QList<qutim_sdk_0_3::ChatSession *> SessionsList;
-
-	QGraphicsPixmapItem *qutimIconItem;
-	QGraphicsPixmapItem *sceneBgItem;
-	QGraphicsTextItem   *textUnreadChats;
-	QGraphicsTextItem   *textUnreadConfs;
-	QGraphicsTextItem   *textUnreadTitle;
-	QGraphicsTextItem   *textUnreadAuthorsTitle;
-	QGraphicsTextItem   *textUnreadAuthorsList;
-	QGraphicsView *grView;
-	QPixmap  sceneBgImage;
-	QPixmap  livePreview;
-	QSize    currentBgSize;
-	QSize    lastWidgetSize;
-	QWidget *lastChatWidget;
-	SessionsList sessions;
-	unsigned unreadChats, unreadConfs;
-	Win7Int2 *parent;
-
-	bool cfg_showSenders;
-	bool cfg_showMsgCount;
-
-public:
-	WPreviews(Win7Int2 *parent = 0);
-	~WPreviews();
-	QPixmap IconicPreview(unsigned tabid, QWidget *owner, QSize);
-	QPixmap LivePreview  (unsigned tabid, QWidget *owner);
-	void updateNumbers   (unsigned confs, unsigned chats);
-	void reloadSettings();
-
-public slots:
-	void onUnreadChanged(qutim_sdk_0_3::MessageList);
-	void onSessionDestroyed(QObject *);
-	void prepareLivePreview();
-};
 
 #endif // WIN7INT_H

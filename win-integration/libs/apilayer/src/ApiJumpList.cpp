@@ -1,4 +1,4 @@
-#include "ApiJumpList.h"
+/*#include "ApiJumpList.h"
 #include <atlbase.h>
 #include <ShObjIdl.h>
 #include <propvarutil.h>
@@ -85,7 +85,7 @@ bool BeginList(unsigned *maxSlots, unsigned *count, Task *removedFromCategories)
 		else
 			for(unsigned i = 0; i < *count; i++){
 				//removedFromCategories[i].title = '1';
-				// TODO: заполнять
+				// TODO: Р·Р°РїРѕР»РЅСЏС‚СЊ
 			}
 
 	return true;
