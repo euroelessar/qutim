@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <qutim/plugin.h>
+#include <qutim/settingslayer.h>
 
 namespace Logger
 {
@@ -16,6 +17,10 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+protected slots:
+	void reloadSettings();
+private:
+	SettingsItem *m_settingsItem;
 };
 
 }
