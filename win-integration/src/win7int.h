@@ -9,6 +9,11 @@
 
 class WPreviews;
 
+namespace qutim_sdk_0_3
+{
+	class SettingsItem;
+}
+
 class Win7Int2 : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
@@ -23,7 +28,7 @@ class Win7Int2 : public qutim_sdk_0_3::Plugin
 	QWidget   *previousWindow;
 	unsigned   previousTabId;
 	static Win7Int2  *pluginInstance;
-	SettingsItem* settingsItem;
+	qutim_sdk_0_3::SettingsItem* settingsItem;
 	WPreviews *previews;
 
 	bool cfg_displayCount;
