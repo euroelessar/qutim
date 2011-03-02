@@ -1,12 +1,11 @@
+/*#include "ApiJumpList.h"
 #include "ApiJumpList.h"
-#include <atlbase.h>
 #include <ShObjIdl.h>
 #include <propvarutil.h>
 #include <Propkey.h>
 #include <wchar.h>
 #include <xstring>
 
-#include <atlbase.h>
 #include <comdef.h>
 
 using std::wstring;
@@ -85,7 +84,7 @@ bool BeginList(unsigned *maxSlots, unsigned *count, Task *removedFromCategories)
 		else
 			for(unsigned i = 0; i < *count; i++){
 				//removedFromCategories[i].title = '1';
-				// TODO: заполнять
+				// TODO: Р·Р°РїРѕР»РЅСЏС‚СЊ
 			}
 
 	return true;

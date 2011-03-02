@@ -1,5 +1,4 @@
 #include <ShObjIdl.h>
-#include <atlbase.h>
 #include "ApiOverlayIcon.h"
 
 void SetOverlayIcon(HWND hwnd, HICON hicon, wchar_t *descr)

@@ -4,8 +4,6 @@
 #include <qutim/settingswidget.h>
 #include "ui_wsettings.h"
 
-#define WI_CONFIG "win-integration"
-
 class WSettingsWidget : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT

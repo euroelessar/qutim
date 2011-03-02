@@ -156,12 +156,24 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	int id = m_ids.value(sender, 0);
 	if (id != 0) {
 		NotificationData notification = m_notifications.value(id);
+#ifndef QUTIM_MOBILE_UI
 		text = notification.body + "\n" + text;
+#else
+		text = text + "\n" + notification.body;
+#endif
 		dataList = notification.data;
 	}
 	dataList << data;
 
 	icon = QLatin1String("qutim");
+
+	int timeout;
+
+#ifndef QUTIM_MOBILE_UI
+	timeout = 5000;
+#else
+	timeout = 500000;
+#endif
 
 	QDBusPendingReply<uint> reply = interface->Notify(
 			QCoreApplication::applicationName(),
@@ -171,7 +183,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 			text,
 			actions,
 			hints,
-			5000);
+			timeout);
 
 	vibrate(50);
 
@@ -217,8 +229,8 @@ void DBusBackend::loadSettings()
 void DBusBackend::onActionInvoked(quint32 id, const QString &action)
 {
 	NotificationData notification = m_notifications.value(id);
-	QObject *sender = notification.sender;
-	if (action == "openChat") {
+	QPointer<QObject> sender = notification.sender;
+	if (action == "openChat" || action == "default") {
 		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
 		if (unit) {
 			ChatUnit *metaContact = unit->metaContact();
@@ -272,14 +284,23 @@ void DBusBackend::enableVibration()
 				     MCE_REQUEST_IF, QDBusConnection::systemBus(),
 				     this);
 	mDbusInterface->call(MCE_ENABLE_VIBRATOR);
+	mDbusInterface->call(MCE_ENABLE_LED);
+	display_off=false;
+	QDBusConnection::systemBus().connect(MCE_SERVICE, MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
+					MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
+		mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
 #endif
 }
 
 void DBusBackend::vibrate(int aTimeout)
 {
 #ifdef Q_WS_MAEMO_5
+    if (display_off)
+    {
 	mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
 	QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
+	mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
+    }
 #endif
 }
 
@@ -288,5 +309,29 @@ void DBusBackend::stopVibration()
 {
 #ifdef Q_WS_MAEMO_5
 	mDbusInterface->call(MCE_DEACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
+#endif
+}
+
+void DBusBackend::displayStateChanged(const QDBusMessage &message)
+{
+#ifdef Q_WS_MAEMO_5
+	QString state = message.arguments().at(0).toString();
+	setDisplayState(state);
+#endif
+}
+
+void DBusBackend::setDisplayState(const QString &state)
+{
+#ifdef Q_WS_MAEMO_5
+    	if (!state.isEmpty()) {
+		if (state == MCE_DISPLAY_ON_STRING)
+		{
+			display_off=false;
+		}
+		else if (state == MCE_DISPLAY_OFF_STRING)
+		{
+			display_off=true;
+		}
+	}
 #endif
 }

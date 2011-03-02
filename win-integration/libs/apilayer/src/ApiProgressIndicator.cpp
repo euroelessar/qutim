@@ -1,4 +1,3 @@
-#include <atlbase.h>
 #include <ShObjIdl.h>
 #include "ApiProgressIndicator.h"
 

@@ -72,7 +72,7 @@ bool FloatiesPlugin::load()
 		widget->show();
 	}
 	
-	qApp->installEventFilter(this);
+	Event::eventManager()->installEventFilter(this);
 	return true;
 }
 
@@ -80,7 +80,7 @@ bool FloatiesPlugin::unload()
 {
 	if (!m_model)
 		return false;
-	qApp->removeEventFilter(this);
+	Event::eventManager()->removeEventFilter(this);
 	Config cfg;
 	cfg.beginGroup("floaties");
 	int size = cfg.beginArray("entities");
