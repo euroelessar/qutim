@@ -1,3 +1,6 @@
+// I don't like msvc's "safe" functions, so I force silence
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include "logger.h"
 #include <qutim/config.h>
 #include <qutim/systeminfo.h>
