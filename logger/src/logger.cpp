@@ -65,7 +65,7 @@ bool LoggerPlugin::load()
 	Config config = Config().group(QLatin1String("Logger"));
 	QString path = config.value(QLatin1String("path"),
 								SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
-	bool enable = config.value(QLatin1String("enable"), true);
+	bool enable = config.value(QLatin1String("enable"), false);
 	reloadSettings();
 	qInstallMsgHandler(SimpleLoggingHandler);
 	debug() << tr("New session started, happy debuging ^_^");
