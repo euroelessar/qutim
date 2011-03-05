@@ -3,7 +3,9 @@
 #include "accountcreatorprotocols.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
+#include <qutim/systemintegration.h>
 #include <QApplication>
+#include <QTimer>
 
 namespace Core
 {
@@ -31,22 +33,24 @@ bool AccountCreator::load()
 			return true;
 	}
 
-#ifdef Q_OS_SYMBIAN
-	return true; //FIXME strange segfault
-#endif
-
-	AccountCreatorWizard *wizard = new AccountCreatorWizard();
-	wizard->setParent(QApplication::activeWindow());
-	wizard->setWindowFlags(wizard->windowFlags() | Qt::Window);
-	wizard->setAttribute(Qt::WA_DeleteOnClose);
-#if defined(QUTIM_MOBILE_UI)
-	wizard->showMaximized();
-#else
-	centerizeWidget(wizard);
-	wizard->show();
-#endif
+//#ifdef Q_WS_S60
+	QTimer::singleShot(0, this, SLOT(showWizard()));
+//#endif
 	return true;
 }
+
+
+void AccountCreator::showWizard()
+{
+	AccountCreatorWizard *wizard = new AccountCreatorWizard();
+#ifdef Q_WS_MAEMO5
+	wizard->setParent(QApplication::activeWindow());
+	wizard->setWindowFlags(wizard->windowFlags() | Qt::Window);
+#endif
+	wizard->setAttribute(Qt::WA_DeleteOnClose);
+	SystemIntegration::show(wizard);
+}
+
 
 bool AccountCreator::unload()
 {

@@ -8,6 +8,7 @@
 #include <QScrollBar>
 #include <qutim/debug.h>
 #include <itemdelegate.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -58,6 +59,9 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 
 	setTitle(tr("Select protocol"));
 	connect(ui->protocolList,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(protocolActivated(QListWidgetItem*)));
+
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, ui->protocolList->viewport()));
 }
 
 AccountCreatorProtocols::~AccountCreatorProtocols()

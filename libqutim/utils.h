@@ -27,7 +27,7 @@ Q_INLINE_TEMPLATE T sender_cast(QObject *sender)
 	Q_ASSERT(t);
 	return t;
 #else
-	return reinterpret_cast<T>(sender);
+	return static_cast<T>(static_cast<void*>(sender));
 #endif
 }
 } //namespace qutim_sdk_0_3
