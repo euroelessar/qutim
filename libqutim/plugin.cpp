@@ -59,11 +59,15 @@ namespace qutim_sdk_0_3
 		return *this;
 	}
 
+	PluginInfo &PluginInfo::addAuthor(const QString &ocsUsername)
+	{
+		return addAuthor(PersonInfo(ocsUsername));
+	}
+
 	PluginInfo &PluginInfo::addAuthor(const LocalizedString &name, const LocalizedString &task,
 									  const QString &email, const QString &web)
 	{
-		d->authors.append(PersonInfo(name, task, email, web));
-		return *this;
+		return addAuthor(PersonInfo(name, task, email, web));
 	}
 
 	PluginInfo &PluginInfo::setName(const LocalizedString &name)
@@ -150,6 +154,13 @@ namespace qutim_sdk_0_3
 		if (p->is_inited)
 			return;
 		Q_UNUSED(p->info.addAuthor(name, task, email, web));
+	}
+	
+	void Plugin::addAuthor(const QString &ocsUsername)
+	{
+		if (p->is_inited)
+			return;
+		p->info.addAuthor(ocsUsername);
 	}
 
 	void Plugin::setInfo(const LocalizedString &name, const LocalizedString &description,

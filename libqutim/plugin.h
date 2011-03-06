@@ -39,6 +39,7 @@ namespace qutim_sdk_0_3
 		~PluginInfo();
 		PluginInfo &operator =(const PluginInfo &other);
 		PluginInfo &addAuthor(const PersonInfo &author);
+		PluginInfo &addAuthor(const QString &ocsUsername);
 		PluginInfo &addAuthor(const LocalizedString &name, const LocalizedString &task,
 							  const QString &email = QString(), const QString &web = QString());
 		PluginInfo &setName(const LocalizedString &name);
@@ -98,6 +99,7 @@ namespace qutim_sdk_0_3
 		// Should be called at init
 		void addAuthor(const LocalizedString &name, const LocalizedString &task,
 					   const QString &email = QString(), const QString &web = QString());
+		void addAuthor(const QString &ocsUsername);
 		void setInfo(const LocalizedString &name, const LocalizedString &description,
 					 quint32 version = 0, ExtensionIcon icon = ExtensionIcon());
 		void addExtension(const LocalizedString &name, const LocalizedString &description,

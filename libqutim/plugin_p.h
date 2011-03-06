@@ -17,18 +17,23 @@
 #define PLUGIN_P_H
 
 #include "plugin.h"
+#include <QVariant>
 
 namespace qutim_sdk_0_3
 {
 	class PersonInfoData : public QSharedData
 	{
 	public:
+		typedef QSharedDataPointer<PersonInfoData> Ptr;
 		PersonInfoData();
 		PersonInfoData(const PersonInfoData &other);
-		LocalizedString name;
-		LocalizedString task;
-		QString email;
-		QString web;
+		QVariant data(const QString &key) const;
+//		static PersonInfo unique(const PersonInfo &info);
+		QString ocsUsername;
+		mutable LocalizedString name;
+		mutable LocalizedString task;
+		mutable QString email;
+		mutable QString web;
 	};
 
 	class PluginInfoData : public QSharedData

@@ -42,7 +42,7 @@ PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
 	{
 	public:
 		/**
-		* @brief Contructor
+		* @brief Constructor
 		*
 		* @param name Person's name
 		* @param task Person's task
@@ -53,9 +53,16 @@ PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
 				   const LocalizedString &task = LocalizedString(),
 				   const QString &email = QString(), const QString &web = QString());
 		/**
+		* @brief Constructor
+		*
+		* @param ocsUsername The person's Open Collaboration Services username.
+		*/
+		PersonInfo(const QString &ocsUsername);
+		/**
 		* @brief Constructs copy of @a other
 		*/
 		PersonInfo(const PersonInfo &other);
+		PersonInfo(const QSharedDataPointer<PersonInfoData> &p);
 		/**
 		* @brief Destructor
 		*/
@@ -107,13 +114,14 @@ PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
 		*
 		* @return Person's e-mail
 		*/
-		const QString &email() const;
+		QString email() const;
 		/**
 		* @brief Person's web address
 		*
 		* @return Person's web address
 		*/
-		const QString &web() const;
+		QString web() const;
+		QString ocsUsername() const;
 #ifndef Q_QDOC
 	private:
 		QSharedDataPointer<PersonInfoData> d;
