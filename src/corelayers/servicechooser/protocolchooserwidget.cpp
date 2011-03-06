@@ -30,98 +30,103 @@
 
 namespace Core
 {
-	ProtocolChooserWidget::ProtocolChooserWidget() :
+ProtocolChooserWidget::ProtocolChooserWidget() :
 	ui(new Ui::ServiceChooser),
 	m_model(new QStandardItemModel)
-	{
-		ui->setupUi(this);
-		ui->treeView->setModel(m_model);
-		ui->treeView->setItemDelegate(new  ItemDelegate(ui->treeView));
-		ui->treeView->setAnimated(false);
-		ui->treeView->setExpandsOnDoubleClick(false);
-		connect(ui->treeView,SIGNAL(activated(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
-		
-		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
-	}
-	ProtocolChooserWidget::~ProtocolChooserWidget()
-	{
-		delete ui;
-	}
+{
+	ui->setupUi(this);
+	ui->treeView->setModel(m_model);
+	ui->treeView->setItemDelegate(new  ItemDelegate(ui->treeView));
+	ui->treeView->setAnimated(false);
+	ui->treeView->setExpandsOnDoubleClick(false);
+	connect(ui->treeView,SIGNAL(activated(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 
-	void ProtocolChooserWidget::loadImpl()
-	{
-		clear();
-		ConfigGroup group = Config().group("protocols");
-		QVariantMap selected = group.value("list", QVariantMap());
-		QStandardItem *parent_item = m_model->invisibleRootItem();
-		
-		ExtensionInfoList exts = extensionList();
-		for (int i = 0; i < exts.size(); i++) {
-			const ExtensionInfo &info = exts.at(i);
-			const QMetaObject *meta = info.generator()->metaObject();
-			QString name = QString::fromLatin1(MetaObjectBuilder::info(meta, "Protocol"));
-			if (name.isEmpty())
-				continue;
-			
-			if (!m_protocol_items.contains(name)) {
-				ServiceItem *item = new ServiceItem(Icon("applications-system") ,name);
-				item->setData(true,ServiceItem::ExclusiveRole);
-				parent_item->appendRow(item);
-				m_protocol_items.insert(name,item);
-			}
-			QIcon icon = Icon("applications-system");
-			//TODO Make normal names for the implementation of protocols			
-			ServiceItem *item = new ServiceItem(icon,info.name());
-			//ServiceItem *item = new ServiceItem(icon,info.name());
+	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
+}
+ProtocolChooserWidget::~ProtocolChooserWidget()
+{
+	delete ui;
+}
 
-			item->setToolTip(ServiceChooser::html(info));
-			item->setCheckable(true);
-			item->setData(info.description().toString(),DescriptionRole);
-			if (selected.value(name).toString() == ServiceChooser::className(info))
-				item->setCheckState(Qt::Checked);
-			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
-			m_protocol_items.value(name)->appendRow(item);
-			}
-	}
-	void ProtocolChooserWidget::cancelImpl()
-	{
+void ProtocolChooserWidget::loadImpl()
+{
+	clear();
+	ConfigGroup group = Config().group("protocols");
+	QVariantMap selected = group.value("list", QVariantMap());
+	QStandardItem *parent_item = m_model->invisibleRootItem();
 
-	}
-	void ProtocolChooserWidget::saveImpl()
-	{
-		Config group = Config().group("protocols/list");
-		QHash<QString, ServiceItem *>::const_iterator it;
-		for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
-			QVariant service;
-			for (int i =0;i!=it.value()->rowCount();i++) {
-				Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
-				if (state == Qt::Checked) {
-					service = it.value()->child(i)->data(ServiceItem::ClassNameRole);
-					break;
-				}
-			}
-			group.setValue(it.key(),service);
+	ExtensionInfoList exts = extensionList();
+	for (int i = 0; i < exts.size(); i++) {
+		const ExtensionInfo &info = exts.at(i);
+		const QMetaObject *meta = info.generator()->metaObject();
+		QString name = QString::fromLatin1(MetaObjectBuilder::info(meta, "Protocol"));
+		if (name.isEmpty())
+			continue;
+
+		if (!m_protocol_items.contains(name)) {
+			ServiceItem *item = new ServiceItem(Icon("applications-system") ,name);
+			item->setData(true,ServiceItem::ExclusiveRole);
+			parent_item->appendRow(item);
+			m_protocol_items.insert(name,item);
 		}
-		Notifications::send(tr("To take effect you must restart qutIM"));
-	}
+		QIcon icon = Icon("applications-system");
+		//TODO Make normal names for the implementation of protocols
+		ServiceItem *item = new ServiceItem(icon,info.name());
+		//ServiceItem *item = new ServiceItem(icon,info.name());
 
-	void ProtocolChooserWidget::clear()
-	{
-		m_model->clear();
-		m_protocol_items.clear();
+		item->setToolTip(ServiceChooser::html(info));
+		item->setCheckable(true);
+		item->setData(info.description().toString(),DescriptionRole);
+		if (selected.value(name).toString() == ServiceChooser::className(info))
+			item->setCheckState(Qt::Checked);
+		item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
+		m_protocol_items.value(name)->appendRow(item);
 	}
-	
-	void ProtocolChooserWidget::onItemChanged(QStandardItem* )
-	{
-		emit modifiedChanged(true);
+}
+void ProtocolChooserWidget::cancelImpl()
+{
+
+}
+void ProtocolChooserWidget::saveImpl()
+{
+	Config group = Config().group("protocols/list");
+	QHash<QString, ServiceItem *>::const_iterator it;
+	for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
+		QVariant service;
+		for (int i =0;i!=it.value()->rowCount();i++) {
+			Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
+			if (state == Qt::Checked) {
+				service = it.value()->child(i)->data(ServiceItem::ClassNameRole);
+				break;
+			}
+		}
+		group.setValue(it.key(),service);
 	}
-	
-	void ProtocolChooserWidget::onItemClicked(QModelIndex index)
-	{
-	    if (ui->treeView->isExpanded(index))
+	Notifications::send(tr("To take effect you must restart qutIM"));
+}
+
+void ProtocolChooserWidget::clear()
+{
+	m_model->clear();
+	m_protocol_items.clear();
+}
+
+void ProtocolChooserWidget::onItemChanged(QStandardItem* )
+{
+	emit modifiedChanged(true);
+}
+
+void ProtocolChooserWidget::onItemClicked(QModelIndex index)
+{
+	if (ui->treeView->isExpanded(index))
 		ui->treeView->collapse(index);
-	    else
+	else
 		ui->treeView->expand(index);
+
+	QStandardItem *item = m_model->itemFromIndex(index);
+	if (item) {
+		item->setCheckState(item->checkState() == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
 	}
+}
 
 }

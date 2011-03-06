@@ -35,7 +35,7 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 #ifndef QUTIM_MOBILE_UI
 	setDragEnabled(true);
 	setAcceptDrops(true);
-	setDropIndicatorShown(true);	
+	setDropIndicatorShown(true);
 #endif
 
 	QTimer::singleShot(0, this, SLOT(initScrolling()));

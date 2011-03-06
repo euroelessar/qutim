@@ -39,8 +39,8 @@ ServiceChooserWidget::ServiceChooserWidget() :
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setAnimated(false);
 	ui->treeView->setExpandsOnDoubleClick(false);
-	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 
+	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 }
 ServiceChooserWidget::~ServiceChooserWidget()
@@ -135,6 +135,11 @@ void ServiceChooserWidget::onItemClicked(QModelIndex index)
 		ui->treeView->collapse(index);
 	else
 		ui->treeView->expand(index);
+
+	QStandardItem *item = m_model->itemFromIndex(index);
+	if (item) {
+		item->setCheckState(item->checkState() == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
+	}
 }
 
 }

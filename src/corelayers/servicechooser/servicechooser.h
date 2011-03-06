@@ -21,22 +21,22 @@
 
 namespace qutim_sdk_0_3
 {
-	class ExtensionInfo;
+class ExtensionInfo;
 }
 
 namespace Core
 {
-	using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-	class ServiceChooser : public QObject, public qutim_sdk_0_3::StartupModule
-	{
-		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
-	public:
-		ServiceChooser(QObject* parent = 0);
-		static const char *className(const ExtensionInfo &info);
-		static QString html(const ExtensionInfo &info);
-	};
+class ServiceChooser : public QObject, public qutim_sdk_0_3::StartupModule
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+public:
+	ServiceChooser(QObject* parent = 0);
+	static const char *className(const ExtensionInfo &info);
+	static QString html(const ExtensionInfo &info);
+};
 
 }
 #endif // SERVICECHOOSER_H

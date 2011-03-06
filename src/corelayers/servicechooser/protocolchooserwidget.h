@@ -18,15 +18,15 @@
 #include <qutim/settingswidget.h>
 #include <QModelIndex>
 #include <QHash>
+#include <QModelIndex>
 
 namespace qutim_sdk_0_3 
 {
-	class ExtensionInfo;
+class ExtensionInfo;
 }
-
 namespace Ui
 {
-	class ServiceChooser;
+class ServiceChooser;
 }
 
 class QStandardItem;
@@ -34,27 +34,27 @@ class QStandardItemModel;
 namespace Core
 {
 
-	class ServiceItem;
-	using namespace qutim_sdk_0_3;
+class ServiceItem;
+using namespace qutim_sdk_0_3;
 
-	class ProtocolChooserWidget : public SettingsWidget
-	{
-		Q_OBJECT
-	public:
-		ProtocolChooserWidget();
-		virtual void loadImpl();
-		virtual void saveImpl();
-		virtual void cancelImpl();
-		virtual ~ProtocolChooserWidget();
-	private slots:
-		void onItemChanged(QStandardItem*);
-		void onItemClicked(QModelIndex index);
-	private:
-		void clear();
-		Ui::ServiceChooser *ui;
-		QStandardItemModel *m_model; 
-		QHash<QString, ServiceItem *> m_protocol_items;
-	};
+class ProtocolChooserWidget : public SettingsWidget
+{
+	Q_OBJECT
+public:
+	ProtocolChooserWidget();
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+	virtual ~ProtocolChooserWidget();
+private slots:
+	void onItemChanged(QStandardItem*);
+	void onItemClicked(QModelIndex index);
+private:
+	void clear();
+	Ui::ServiceChooser *ui;
+	QStandardItemModel *m_model;
+	QHash<QString, ServiceItem *> m_protocol_items;
+};
 
 }
 #endif // PROTOCOLCHOOSERWIDGET_H
