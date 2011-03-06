@@ -64,4 +64,4 @@ public slots:
 #define AUTHORS_LIST_Y  62
 #define ICON_SIZE       64
 
-#endif THUMBNAILSRENDERER_H
+#endif // THUMBNAILSRENDERER_H

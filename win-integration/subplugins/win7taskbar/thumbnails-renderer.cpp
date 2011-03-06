@@ -81,7 +81,7 @@ void WThumbnailsProvider::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 	textUnreadAuthorsList->setHtml(result);
 }
 
-QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *owner, QSize size)
+QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 {
 	grView->resize(size);
 	//qutimIconItem->setPos(size.width()-ICON_SIZE, size.height()-ICON_SIZE);
@@ -113,13 +113,12 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *owner, QSize size)
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
-	QTimer::singleShot(50, this, SLOT(prepareLivePreview()));
+	QTimer::singleShot(1, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);
 }
 
-QPixmap WThumbnailsProvider::LivePreview(unsigned, QWidget *owner)
+QPixmap WThumbnailsProvider::LivePreview(unsigned, QWidget *)
 {
-	QTimer::singleShot(0, this, SLOT(prepareLivePreview()));
 	return livePreview;
 }
 
