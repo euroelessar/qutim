@@ -1,3 +1,6 @@
+#ifndef TASKBARPREVIEWS_H
+#define TASKBARPREVIEWS_H
+
 #include "global.h"
 #include <QWidget>
 #include <QMap>
@@ -135,3 +138,4 @@ signals:
 	void tabActivated(unsigned id);
 };
 
+#endif // TASKBARPREVIEWS_H

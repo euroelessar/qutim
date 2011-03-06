@@ -1,5 +1,5 @@
 #include "wsettings.h"
-#include "win7int.h"
+#include "winint.h"
 #include <QTimer>
 #include <qutim/config.h>
 
@@ -42,7 +42,7 @@ void WSettingsWidget::saveImpl()
 	cfg.setValue("tt_enabled",            ui->cb_tt_enabled->           isChecked());
 	cfg.setValue("tt_showLastSenders",    ui->cb_tt_showLastSenders->   isChecked());
 	cfg.setValue("tt_showNewMsgCount",    ui->cb_tt_showNewMsgCount->   isChecked());
-	QTimer::singleShot(500, Win7Int2::instance(), SLOT(reloadSettings()));
+	QTimer::singleShot(500, WinIntegration::instance(), SLOT(reloadSettings()));
 }
 
 void WSettingsWidget::cancelImpl()
