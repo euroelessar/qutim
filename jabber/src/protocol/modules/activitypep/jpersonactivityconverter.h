@@ -4,7 +4,7 @@
 #include <sdk/jabber.h>
 #include <qutim/localizedstring.h>
 #include <qutim/extensionicon.h>
-#include "jreen/activity.h"
+#include <jreen/activity.h>
 
 namespace Jabber {
 
