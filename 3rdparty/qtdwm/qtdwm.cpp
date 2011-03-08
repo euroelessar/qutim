@@ -8,9 +8,9 @@
 ****************************************************************************/
 
 #include "qtdwm.h"
+#include "qtdwm_p.h"
 #include <QLibrary>
 #include <QApplication>
-#include <QWidget>
 #include <QList>
 #include <QPointer>
 
@@ -51,22 +51,6 @@ static PtrDwmExtendFrameIntoClientArea pDwmExtendFrameIntoClientArea = 0;
 static PtrDwmGetColorizationColor pDwmGetColorizationColor = 0;
 
 
-/*
- * Internal helper class that notifies windows if the
- * DWM compositing state changes and updates the widget
- * flags correspondingly.
- */
-class WindowNotifier : public QWidget
-{
-public:
-    WindowNotifier() { winId(); }
-    void addWidget(QWidget *widget) { widgets.append(widget); }
-    void removeWidget(QWidget *widget) { widgets.removeAll(widget); }
-    bool winEvent(MSG *message, long *result);
-
-private:
-    QWidgetList widgets;
-};
 
 static bool resolveLibs()
 {

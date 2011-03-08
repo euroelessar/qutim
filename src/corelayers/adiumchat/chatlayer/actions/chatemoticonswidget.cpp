@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <qutim/systemintegration.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -23,15 +24,17 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	QScrollArea(parent)
 {
 #ifndef Q_WS_MAEMO_5
+# ifdef QUTIM_MOBILE_UI
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	resize(screenGeometry.width() * 0.8, screenGeometry.height() * 0.8);
+# else
 	resize(400,400);
+# endif
+	setMinimumSize(size());
+	setFrameStyle(QFrame::NoFrame);
 #else
 	move(80,0);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#endif
-
-#ifndef QUTIM_MOBILE_UI
-	setMinimumSize(size());
-	setFrameStyle(QFrame::NoFrame);
 #endif
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -43,6 +46,10 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
+
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));
+
 }
 
 void ChatEmoticonsWidget::loadTheme()
@@ -71,14 +78,26 @@ void ChatEmoticonsWidget::clearEmoticonsPreview()
 	m_active_emoticons.clear();
 }
 
-void ChatEmoticonsWidget::showEvent(QShowEvent *)
+void ChatEmoticonsWidget::play()
 {
-
 	foreach (QWidget *widget,m_active_emoticons) {
 		QLabel *label = static_cast<QLabel *>(widget);
 		label->movie()->start(); //FIXME on s60 retarding and eats battery
 	}
-#ifndef QUTIM_MOBILE_UI
+}
+
+void ChatEmoticonsWidget::stop()
+{
+	foreach (QWidget *widget,m_active_emoticons) {
+		QLabel *label = static_cast<QLabel *>(widget);
+		label->movie()->stop();
+	}
+}
+
+void ChatEmoticonsWidget::showEvent(QShowEvent *)
+{
+	play();
+#ifndef Q_WS_MAEMO_5
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
 #endif
@@ -86,10 +105,7 @@ void ChatEmoticonsWidget::showEvent(QShowEvent *)
 
 void ChatEmoticonsWidget::hideEvent(QHideEvent *)
 {
-	foreach (QWidget *widget,m_active_emoticons) {
-		QLabel *label = static_cast<QLabel *>(widget);
-		label->movie()->stop();
-	}
+	stop();
 }
 
 bool ChatEmoticonsWidget::eventFilter(QObject *obj, QEvent *event)
@@ -104,7 +120,7 @@ bool ChatEmoticonsWidget::eventFilter(QObject *obj, QEvent *event)
 EmoAction::EmoAction(QObject *parent) :
 	QAction(parent)
 {
-#ifndef QUTIM_MOBILE_UI
+#ifndef Q_WS_MAEMO_5
 	QMenu *menu = new QMenu(parentWidget());
 	setMenu(menu);
 	QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
@@ -127,36 +143,42 @@ void EmoAction::onInsertSmile(const QString &code)
 }
 void EmoAction::triggerEmoticons()
 {
+#ifdef Q_WS_MAEMO_5
 	if (!m_emoticons_widget) {
 		m_emoticons_widget = new ChatEmoticonsWidget();
-		m_emoticons_widget->setVisible(false);
-#ifdef Q_WS_MAEMO_5
-		emoticons_widget->setParent(qApp->activeWindow());
-#endif
 		m_emoticons_widget->loadTheme();
 		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
+		emoticons_widget->setParent(qApp->activeWindow());
 	}
-
 	if (m_emoticons_widget->isVisible()) {
 		m_emoticons_widget->hide();
-	}
-	else {
-#ifdef Q_WS_MAEMO_5
+	} else {
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
 		if (screenGeometry.width() > screenGeometry.height()) {
 			//smith, please use relative coordinates
-			emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
+			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
 		}
 		else {
-			emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
+			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
 		}
-		emoticons_widget->show();
-#else
-		SystemIntegration::show(m_emoticons_widget);
-#endif
+		m_emoticons_widget->show();
 	}
+#else
+	if (!m_emoticons_widget) {
+		m_emoticons_widget = new ChatEmoticonsWidget();
+		m_emoticons_widget->loadTheme();
+		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
+				this,SLOT(onInsertSmile(QString)));
+		SystemIntegration::show(m_emoticons_widget);
+		m_emoticons_widget->play();
+
+	} else
+		m_emoticons_widget->deleteLater();
+#endif
+
 }
 
 }
 }
+

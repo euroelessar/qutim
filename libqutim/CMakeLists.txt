@@ -31,6 +31,7 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
 # Add qtdwm code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm_p.h" )
 
 # Add SlidingStackedWidget
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
