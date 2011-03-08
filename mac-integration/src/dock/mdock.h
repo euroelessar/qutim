@@ -22,6 +22,7 @@ namespace MacIntegration
 		public:
 			MDock();
 			~MDock();
+			void dockIconClickEvent();
 		private slots:
 			void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 			void onSessionDestroyed();

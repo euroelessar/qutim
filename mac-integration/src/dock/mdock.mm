@@ -1,6 +1,7 @@
 #include "mdock.h"
 #include <qutim/icon.h>
 #include <qutim/extensioninfo.h>
+#include <qutim/servicemanager.h>
 #include <qutim/debug.h>
 #include <QApplication>
 #include <QLabel>
@@ -8,9 +9,24 @@
 
 extern void qt_mac_set_dock_menu(QMenu *);
 
+@interface DockIconHandler : NSObject
+{
+	@public
+		MacIntegration::MDock *macDock;
+}
+- (void)handleDockClickEvent:(NSAppleEventDescriptor*)event withReplyEvent:(NSAppleEventDescriptor*)replyEvent;
+@end
+
+@implementation DockIconHandler
+- (void)handleDockClickEvent:(NSAppleEventDescriptor*)event withReplyEvent:(NSAppleEventDescriptor*)replyEvent
+{
+	if (macDock)
+		macDock->dockIconClickEvent();
+}
+@end
+
 namespace MacIntegration
 {
-	// TODO add dock behaviour
 	struct MDockPrivate
 	{ 
 		QMenu *dockMenu;
@@ -19,17 +35,8 @@ namespace MacIntegration
 		QHash<ChatSession *, int> unreadSessions;
 		QHash<ChatSession *, QAction *> aliveSessions;
 		QIcon standartIcon;
+		DockIconHandler *dockHandler;
 	};
-
-	void MDock::setBadgeLabel(const QString &message)
-	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSString* mac_message = [[NSString alloc] initWithUTF8String: message.toUtf8().constData()];
-		NSDockTile *dockTile = [NSApp dockTile];
-		[dockTile setBadgeLabel: mac_message];
-		[dockTile display];
-		[pool release];
-	}
 
 	MDock::MDock() : d_ptr(new MDockPrivate())
 	{
@@ -50,11 +57,28 @@ namespace MacIntegration
 		qt_mac_set_dock_menu(d->dockMenu);
 		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 				this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+		d->dockHandler = [[DockIconHandler alloc] init];
+		d->dockHandler->macDock = this;
+		[[NSAppleEventManager sharedAppleEventManager]
+			setEventHandler:d->dockHandler
+			andSelector:@selector(handleDockClickEvent:withReplyEvent:)
+			forEventClass:kCoreEventClass
+			andEventID:kAEReopenApplication];
 		qApp->setQuitOnLastWindowClosed(false);
 	}  
 
 	MDock::~MDock()
 	{
+	}
+
+	void MDock::setBadgeLabel(const QString &message)
+	{
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		NSString* mac_message = [[NSString alloc] initWithUTF8String: message.toUtf8().constData()];
+		NSDockTile *dockTile = [NSApp dockTile];
+		[dockTile setBadgeLabel: mac_message];
+		[dockTile display];
+		[pool release];
 	}
 
 	void MDock::createStatusAction(Status::Type type)
@@ -88,6 +112,7 @@ namespace MacIntegration
 	void MDock::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	{
 		Q_D(MDock);
+		d->chatMenu->setEnabled(true);
 		QAction *action = new QAction(session->getUnit()->title(), d->chatMenu);
 		action->setCheckable(true);
 		connect(action, SIGNAL(triggered()), session, SLOT(activate()));
@@ -99,10 +124,13 @@ namespace MacIntegration
 	} 
 
 	void MDock::onSessionDestroyed()
-	{ 
+	{
+		Q_D(MDock);
 		ChatSession *session = static_cast<ChatSession*>(sender());
-		delete d_func()->aliveSessions.take(session);
+		delete d->aliveSessions.take(session);
 		onUnreadChanged(MessageList());
+		if (d->aliveSessions.isEmpty())
+			d->chatMenu->setEnabled(false);
 	}
 	
 	void MDock::onActivatedSession(bool state)
@@ -129,6 +157,18 @@ namespace MacIntegration
 				d->aliveSessions.value(s)->setText(d->aliveSessions.value(s)->text().remove("✉ "));
 			}
 		setBadgeLabel(!uCount ? QString() : QString::number(uCount));
+	}
+
+	void MDock::dockIconClickEvent()
+	{
+		Q_D(MDock);
+		if (d->unreadSessions.isEmpty()) {
+			if (QObject *obj = ServiceManager::getByName("ContactList"))
+				if (QWidget *cl = qobject_cast<QWidget *>(obj))
+					cl->setVisible(true);//metaObject()->invokeMethod(obj, "changeVisibility");
+		} else {
+			d->unreadSessions.keys().first()->activate();
+		}
 	}
 
 	void MDock::onStatusChanged(const qutim_sdk_0_3::Status &status)

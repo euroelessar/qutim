@@ -1,6 +1,7 @@
 #include "mplugin.h"
 #include "dock/mdock.h"
 #include "growl/growlbackend.h"
+#include "idle/midle.h"
 
 namespace MacIntegration
 {
@@ -24,6 +25,8 @@ namespace MacIntegration
 				QT_TRANSLATE_NOOP("Plugin", "Mac OS X dock integration"));
 		addExtension<GrowlBackend>(QT_TRANSLATE_NOOP("plugin","Growl notifications"),
 				QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
+		addExtension<MIdle>(QT_TRANSLATE_NOOP("Plugin", "IdleManager"),
+				QT_TRANSLATE_NOOP("Plugin", "Mac OS X idle manager"));
 	}
 
 	bool MPlugin::load()
