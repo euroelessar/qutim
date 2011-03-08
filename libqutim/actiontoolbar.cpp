@@ -24,6 +24,9 @@
 #include "actiongenerator_p.h"
 #include <QShortcut>
 #include "debug.h"
+#ifdef Q_OS_WIN
+#	include <qt_windows.h>
+#endif
 
 namespace qutim_sdk_0_3
 {	
@@ -228,8 +231,15 @@ QVariant ActionToolBar::data() const
 void ActionToolBar::mousePressEvent(QMouseEvent *event)
 {
 	Q_D(ActionToolBar);
-	if(d->moveHookEnabled && event->button() == Qt::LeftButton)
+	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
+#ifndef Q_OS_WIN
 		d->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
+#else
+		ReleaseCapture();
+		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
+		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
+#endif
+	}
 }
 
 void ActionToolBar::mouseMoveEvent(QMouseEvent *event)

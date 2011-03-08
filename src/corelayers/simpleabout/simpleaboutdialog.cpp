@@ -19,6 +19,8 @@
 #include <qutim/plugin.h>
 #include <qutim/debug.h>
 #include <QHash>
+#include <QFile>
+#include <QRegExp>
 
 using namespace qutim_sdk_0_3;
 
@@ -54,20 +56,30 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 		persons.append(it.value());
 	qSort(persons.begin(), persons.end(), personLessThen);
 	QString html;
-	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(qutimVersionStr()),
-	                                        QLatin1String(qVersion()));
 	for (int i = 0; i < persons.size(); i++) {
+		html += QLatin1String("<p><div><b>");
 		html += persons.at(i).first.name();
-		html += QLatin1String("<br>");
+		html += QLatin1String("</b></div><div>");
 		html += persons.at(i).first.task();
-		html += QLatin1String("<br><a href=\"mailto:\"");
+		html += QLatin1String("</div><div><a href=\"mailto:\"");
 		html += persons.at(i).first.email();
 		html += QLatin1String("\">");
 		html += persons.at(i).first.email();
-		html += QLatin1String("</a><p>");
+		html += QLatin1String("</a></div></p>");
 	}
-	ui->label->setTextFormat(Qt::RichText);
-	ui->label->setText(html);
+	ui->textedit_content->setHtml(html);
+	ui->label_version->setText(qutimVersionStr());
+	ui->label_qtuses ->setText(tr("Uses Qt %1.").arg(QLatin1String(qVersion())));
+	QFile licenseFile(":/GPL.txt");
+	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2.</div>"
+								"<div>qutIM resources such as themes, icons, sounds may come along with a "
+								"different license.</div><br><hr><br>").arg(qutimVersionStr());
+	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		license += licenseFile.readAll().replace("<", "&lt;").replace(">", "&gt;");  // 'cause of: <signature of Ty Coon>, 1 April 1989
+	else
+		license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
+	license.replace(QRegExp("\\n\\n"), "<br><br>");
+	ui->textedit_license->setHtml(license);
 }
 
 SimpleAboutDialog::~SimpleAboutDialog()
