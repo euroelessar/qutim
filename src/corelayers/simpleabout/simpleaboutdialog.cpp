@@ -19,6 +19,7 @@
 #include <qutim/plugin.h>
 #include <qutim/debug.h>
 #include <QHash>
+#include <qutim/servicemanager.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -68,6 +69,9 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	}
 	ui->label->setTextFormat(Qt::RichText);
 	ui->label->setText(html);
+
+	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, ui->scrollArea->viewport()));
 }
 
 SimpleAboutDialog::~SimpleAboutDialog()

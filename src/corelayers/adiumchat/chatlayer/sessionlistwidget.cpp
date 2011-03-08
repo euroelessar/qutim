@@ -33,6 +33,8 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	addAction(d->action);
 
 	setWindowTitle(tr("Session list"));
+
+	setIconSize(QSize(48,48));
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -43,11 +45,6 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 		icon = AvatarFilter::icon(b->avatar(),icon);
 	item->setIcon(icon);
 	d_func()->sessions.append(session);
-
-#ifndef QUTIM_MOBILE_UI
-	setIconSize(QSize(32,32));
-#endif
-
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));

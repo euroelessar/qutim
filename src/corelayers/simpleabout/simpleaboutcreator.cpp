@@ -32,6 +32,7 @@ SimpleAboutCreator::SimpleAboutCreator()
 		                                           QT_TRANSLATE_NOOP("Core", "About qutIM"),
 		                                           this,
 		                                           SLOT(showWidget()));
+		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
 	}
 }

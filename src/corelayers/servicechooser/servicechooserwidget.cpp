@@ -136,10 +136,12 @@ void ServiceChooserWidget::onItemClicked(QModelIndex index)
 	else
 		ui->treeView->expand(index);
 
+#ifdef QUTIM_MOBILE_UI
 	QStandardItem *item = m_model->itemFromIndex(index);
 	if (item) {
 		item->setCheckState(item->checkState() == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
 	}
+#endif
 }
 
 }

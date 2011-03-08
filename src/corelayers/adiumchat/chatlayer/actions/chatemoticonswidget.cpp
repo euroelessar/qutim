@@ -129,6 +129,7 @@ void EmoAction::triggerEmoticons()
 {
 	if (!m_emoticons_widget) {
 		m_emoticons_widget = new ChatEmoticonsWidget();
+		m_emoticons_widget->setVisible(false);
 #ifdef Q_WS_MAEMO_5
 		emoticons_widget->setParent(qApp->activeWindow());
 #endif
