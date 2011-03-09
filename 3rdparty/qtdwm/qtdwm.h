@@ -13,6 +13,7 @@
 #include "../../libqutim/libqutim_global.h"
 #include <QColor>
 #include <QWidget>
+
 /**
   * This is a helper class for using the Desktop Window Manager
   * functionality on Windows 7 and Windows Vista. On other platforms

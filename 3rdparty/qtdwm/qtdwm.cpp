@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include "qtdwm.h"
+#include "qtdwm_p.h"
 #include <QLibrary>
 #include <QApplication>
 #include <QWidget>
@@ -51,22 +52,36 @@ static PtrDwmExtendFrameIntoClientArea pDwmExtendFrameIntoClientArea = 0;
 static PtrDwmGetColorizationColor pDwmGetColorizationColor = 0;
 
 
-/*
- * Internal helper class that notifies windows if the
- * DWM compositing state changes and updates the widget
- * flags correspondingly.
- */
-class WindowNotifier : public QWidget
+WindowNotifier::WindowNotifier()
 {
-public:
-    WindowNotifier() { winId(); }
-    void addWidget(QWidget *widget) { widgets.append(widget); }
-    void removeWidget(QWidget *widget) { widgets.removeAll(widget); }
-    bool winEvent(MSG *message, long *result);
+	winId();
+}
 
-private:
-    QWidgetList widgets;
-};
+void WindowNotifier::addWidget(QWidget *widget)
+{
+	widgets.append(widget);
+	connect(widget, SIGNAL(destroyed(QObject*)), SLOT(removeWidget(QObject*)));
+}
+
+void WindowNotifier::removeWidget(QObject *widget)
+{
+	widgets.removeAll(static_cast<QWidget *>(widget));
+}
+
+/* Notify all enabled windows that the DWM state changed */
+bool WindowNotifier::winEvent(MSG *message, long *result)
+{
+	 if (message && message->message == WM_DWMCOMPOSITIONCHANGED) {
+		bool compositionEnabled = QtDWM::isCompositionEnabled();
+		  foreach(QWidget * widget, widgets) {
+				if (widget) {
+					 widget->setAttribute(Qt::WA_NoSystemBackground, compositionEnabled);
+				}
+				widget->update();
+		  }
+	 }
+	 return QWidget::winEvent(message, result);
+}
 
 static bool resolveLibs()
 {
@@ -78,6 +93,14 @@ static bool resolveLibs()
         pDwmGetColorizationColor = (PtrDwmGetColorizationColor)dwmLib.resolve("DwmGetColorizationColor");
     }
     return pDwmIsCompositionEnabled != 0;
+}
+
+WindowNotifier *QtDWM::windowNotifier()
+{
+	 static WindowNotifier *windowNotifierInstance = 0;
+	 if (!windowNotifierInstance)
+		  windowNotifierInstance = new WindowNotifier;
+	 return windowNotifierInstance;
 }
 
 #endif
@@ -198,29 +221,3 @@ QColor QtDWM::colorizatinColor()
 #endif
     return resultColor;
 }
-
-#ifdef Q_WS_WIN
-WindowNotifier *QtDWM::windowNotifier()
-{
-    static WindowNotifier *windowNotifierInstance = 0;
-    if (!windowNotifierInstance)
-        windowNotifierInstance = new WindowNotifier;
-    return windowNotifierInstance;
-}
-
-
-/* Notify all enabled windows that the DWM state changed */
-bool WindowNotifier::winEvent(MSG *message, long *result)
-{
-    if (message && message->message == WM_DWMCOMPOSITIONCHANGED) {
-		bool compositionEnabled = QtDWM::isCompositionEnabled();
-        foreach(QWidget * widget, widgets) {
-            if (widget) {
-                widget->setAttribute(Qt::WA_NoSystemBackground, compositionEnabled);
-            }
-            widget->update();
-        }
-    }
-    return QWidget::winEvent(message, result);
-}
-#endif

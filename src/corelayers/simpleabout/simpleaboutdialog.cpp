@@ -78,7 +78,7 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 		license += licenseFile.readAll().replace("<", "&lt;").replace(">", "&gt;");  // 'cause of: <signature of Ty Coon>, 1 April 1989
 	else
 		license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
-	license.replace(QRegExp("\\n\\n"), "<br><br>");
+	license.replace("\\n\\n", "<br><br>");
 	ui->textedit_license->setHtml(license);
 }
 
