@@ -39,6 +39,7 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	ui(new Ui::SimpleAboutDialog)
 {
 	ui->setupUi(this);
+	setAttribute(Qt::WA_DeleteOnClose);
 	StringPersonHash authors;
 	StringPersonHash::iterator it;
 	foreach (Plugin *plugin, pluginsList()) {
@@ -81,6 +82,14 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	else
 		license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
 	license.replace(QLatin1String("\n\n"), "<br><br>");
+	const char * const authorsStr  = "Dear translators, please, replace this string with your names like this:"
+			" [RU : Russian Federation] <br><br> Vasya Pupkin <br> <a href=\"mailto:vasya@example.com\">mailto:vasya@example.com</a>"
+			" <br><br> Petya Pomazok <br> <a href=\"mailto:petya@example.org\">petya@example.org</a>";
+	QString translatedStr = tr(authorsStr);
+	if (translatedStr != QLatin1String(authorsStr))
+		ui->texteditTranslators->setHtml(translatedStr);
+	else
+		ui->tabWidget->removeTab(1);
 	ui->texteditLicense->setHtml(license);
 }
 
