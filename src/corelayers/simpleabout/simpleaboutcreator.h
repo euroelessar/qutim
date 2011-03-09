@@ -29,8 +29,8 @@ class SimpleAboutCreator : public QObject
 	Q_CLASSINFO("Service", "AboutDialog")
 	Q_CLASSINFO("Uses", "ContactList")
 public:
-    SimpleAboutCreator();
-    ~SimpleAboutCreator();
+	SimpleAboutCreator();
+	~SimpleAboutCreator();
 public slots:
 	void showWidget();
 private:

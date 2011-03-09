@@ -35,10 +35,10 @@ bool personLessThen(const PersonIntPair &a, const PersonIntPair &b)
 }
 
 SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SimpleAboutDialog)
+	QDialog(parent),
+	ui(new Ui::SimpleAboutDialog)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	StringPersonHash authors;
 	StringPersonHash::iterator it;
 	foreach (Plugin *plugin, pluginsList()) {
@@ -57,33 +57,35 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	qSort(persons.begin(), persons.end(), personLessThen);
 	QString html;
 	for (int i = 0; i < persons.size(); i++) {
+		const PersonInfo &info = persons.at(i).first;
 		html += QLatin1String("<p><div><b>");
-		html += persons.at(i).first.name();
+		html += Qt::escape(info.name());
 		html += QLatin1String("</b></div><div>");
-		html += persons.at(i).first.task();
+		html += Qt::escape(info.task());
 		html += QLatin1String("</div><div><a href=\"mailto:\"");
-		html += persons.at(i).first.email();
+		html += Qt::escape(info.email());
 		html += QLatin1String("\">");
-		html += persons.at(i).first.email();
+		html += Qt::escape(info.email());
 		html += QLatin1String("</a></div></p>");
 	}
-	ui->textedit_content->setHtml(html);
-	ui->label_version->setText(qutimVersionStr());
-	ui->label_qtuses ->setText(tr("Uses Qt %1.").arg(QLatin1String(qVersion())));
-	QFile licenseFile(":/GPL.txt");
-	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2.</div>"
+	ui->texteditDevelopers->setHtml(html);
+	ui->labelVersion->setText(qutimVersionStr());
+	ui->labelQtVer ->setText(tr("Based on Qt %1 (%2 bit).").arg(QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize)));
+	QFile licenseFile(":/GPL");
+	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
+								" or (at your option) any later version.</div>"
 								"<div>qutIM resources such as themes, icons, sounds may come along with a "
 								"different license.</div><br><hr><br>").arg(qutimVersionStr());
 	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text))
-		license += licenseFile.readAll().replace("<", "&lt;").replace(">", "&gt;");  // 'cause of: <signature of Ty Coon>, 1 April 1989
+		license += Qt::escape(QLatin1String(licenseFile.readAll()));
 	else
 		license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
 	license.replace(QLatin1String("\n\n"), "<br><br>");
-	ui->textedit_license->setHtml(license);
+	ui->texteditLicense->setHtml(license);
 }
 
 SimpleAboutDialog::~SimpleAboutDialog()
 {
-    delete ui;
+	delete ui;
 }
 }

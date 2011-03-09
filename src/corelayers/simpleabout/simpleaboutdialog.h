@@ -20,21 +20,21 @@
 #include <QDialog>
 
 namespace Ui {
-    class SimpleAboutDialog;
+	class SimpleAboutDialog;
 }
 
 namespace Core
 {
 class SimpleAboutDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit SimpleAboutDialog(QWidget *parent = 0);
-    ~SimpleAboutDialog();
+	explicit SimpleAboutDialog(QWidget *parent = 0);
+	~SimpleAboutDialog();
 
 private:
-    Ui::SimpleAboutDialog *ui;
+	Ui::SimpleAboutDialog *ui;
 };
 }
 
