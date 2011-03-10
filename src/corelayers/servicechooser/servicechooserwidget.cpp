@@ -67,6 +67,7 @@ void ServiceChooserWidget::loadImpl()
 	QStandardItem *parent_item = m_model->invisibleRootItem();
 
 	ExtensionInfoList exts = extensionList();
+	QStringList helper;
 	for (int i = 0; i < exts.size(); i++) {
 		const ExtensionInfo &info = exts.at(i);
 		const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
@@ -74,9 +75,11 @@ void ServiceChooserWidget::loadImpl()
 		if (serviceName && *serviceName) {
 			if (!m_service_items.contains(serviceName)) {
 				QString localizedName = QT_TRANSLATE_NOOP("Service",serviceName).toString();
+				int index = qLowerBound(helper, localizedName) - helper.constBegin();
+				helper.insert(index, localizedName);
 				ServiceItem *item = new ServiceItem(Icon(serviceIcon(serviceName)),localizedName);
 				item->setData(true,ServiceItem::ExclusiveRole);
-				parent_item->appendRow(item);
+				parent_item->insertRow(index, item);
 				m_service_items.insert(serviceName,item);
 			}
 			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("applications-system");

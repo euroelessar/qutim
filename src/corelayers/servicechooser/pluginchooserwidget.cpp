@@ -55,6 +55,7 @@ void PluginChooserWidget::loadImpl()
 	QStandardItem *parent_item = m_model->invisibleRootItem();
 
 	QList<QPointer<Plugin> > plugins = pluginsList();
+	QStringList helper;
 	for (int i = 0; i < plugins.size(); i++)
 	{
 		const PluginInfo &info = plugins.at(i)->info();
@@ -64,13 +65,16 @@ void PluginChooserWidget::loadImpl()
 			QIcon icon = info.icon();
 			if (icon.isNull() || !icon.availableSizes().count())
 				icon = Icon("applications-system");
-			ServiceItem *item = new ServiceItem(icon, info.name());
+			QString name = info.name();
+			int index = qLowerBound(helper, name) - helper.constBegin();
+			helper.insert(index, name);
+			ServiceItem *item = new ServiceItem(icon, name);
 			item->setToolTip(html(info));
 			item->setCheckable(true);
 			item->setData(true,ServiceItem::ExclusiveRole);
 			item->setData(info.description().toString(), DescriptionRole);
 			item->setCheckState((group.value(class_name, true) ? Qt::Checked : Qt::Unchecked));
-			parent_item->appendRow(item);
+			parent_item->insertRow(index, item);
 			m_plugin_items.insert(class_name, item);
 			m_plugins.insert(class_name, plugins.at(i));
 		}
