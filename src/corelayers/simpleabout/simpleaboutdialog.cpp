@@ -30,7 +30,7 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
     ui(new Ui::SimpleAboutDialog)
 {
     ui->setupUi(this);
-	QVector<PersonIntPair> persons = PersonInfo::authors();
+	QList<PersonInfo> persons = PersonInfo::authors();
 	QString html;
 	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(qutimVersionStr()),
 	                                        QLatin1String(qVersion()));
