@@ -249,8 +249,10 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	//		}
 	if (d->receiver)
 		action->setParent(d->receiver);
-	action->setIcon(d->icon);
-	action->setText(d->text);
+	if (!d->icon.isNull())
+		action->setIcon(d->icon);
+	if (!d->text.original().isEmpty())
+		action->setText(d->text);
 	action->setCheckable(d->data->checkable);
 	action->setChecked(d->data->checked);
 	action->setToolTip(d->toolTip);
