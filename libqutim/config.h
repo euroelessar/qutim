@@ -166,9 +166,38 @@ namespace qutim_sdk_0_3
 		void setValue(const QString &key, const char (&value)[N], ValueFlags type = Normal);
 		
 		void sync();
+		
+		typedef void (*SaveOperator)(QVariant &, const void *);
+	    typedef void (*LoadOperator)(const QVariant &, void *);
+		static void registerType(int type, SaveOperator saveOp, LoadOperator loadOp);
 	private:
 		QExplicitlySharedDataPointer<ConfigPrivate> d_ptr;
 	};
+	
+	template <typename T>
+	void configSaveHelper(QVariant &var, const T *t)
+	{
+		var = qVariantFromValue(t);
+	}
+	
+	template <typename T>
+	void configLoadHelper(const QVariant &var, T *t)
+	{
+		*t = var.value<T>();
+	}
+	
+	template <typename T>
+	void registerConfigType(T * /* dummy */ = 0)
+	{
+		typedef void (*SavePtr)(QVariant &, const T *);
+	    typedef void (*LoadPtr)(const QVariant &, T *);
+		SavePtr sptr = configSaveHelper<T>();
+		LoadPtr lptr = configLoadHelper<T>();
+		
+		Config::registerType(qRegisterMetaType<T>(),
+		                     reinterpret_cast<Config::SaveOperator>(sptr),
+		                     reinterpret_cast<Config::LoadOperator>(lptr));
+	}
 	
 	typedef Config ConfigBase;
 	typedef Config ConfigGroup;
