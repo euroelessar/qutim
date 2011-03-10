@@ -6,6 +6,8 @@
 #include "iconloader/kdeiconloader.h"
 #include "notification/kdenotificationlayer.h"
 #include "tray/kdetrayicon.h"
+#include "aboutkde/aboutkdedialog.h"
+#include "aboutapp/kdeaboutappdialog.h"
 #include "quetzalgui.h"
 #include <kdeversion.h>
 #include <KIcon>
@@ -46,13 +48,13 @@ void KdePlugin::init()
 						 QByteArray(),
 						 ki18n("qutIM Instant Messenger"),
 						 QCoreApplication::applicationVersion().toUtf8());
+	aboutData.setProgramIconName(QLatin1String("qutim"));
 	aboutData.setHomepage("http://qutim.org");
 
-	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@gmail.com");
-	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "sauron@citadelspb.com");
+//	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@gmail.com");
+//	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "sauron@citadelspb.com");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
 	aboutData.addLicense(KAboutData::License_GPL_V2);
-	aboutData.addLicense(KAboutData::License_GPL_V3);
 	aboutData.setBugAddress("euroelessar@ya.ru");
 	aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 	KGlobal::setActiveComponent(KComponentData(aboutData));
@@ -94,6 +96,12 @@ void KdePlugin::init()
 	addExtension<KdeTrayIcon>(QT_TRANSLATE_NOOP("Plugin", "KDE Status Notifier"),
 							  QT_TRANSLATE_NOOP("Plugin", "Using new KDE DBus tray specification"),
 							  kdeIcon);
+	addExtension<AboutKdeDialog, StartupModule>(QT_TRANSLATE_NOOP("Plugin", "About KDE dialog"),
+	                                            QT_TRANSLATE_NOOP("Plugin", "Show \"About KDE\" menu option"),
+	                                            kdeIcon);
+	addExtension<KdeAboutAppDialog>(QT_TRANSLATE_NOOP("Plugin", "KDE About application dialog"),
+	                                QT_TRANSLATE_NOOP("Plugin", "Use kde-specific application about dialog"),
+	                                kdeIcon);
 }
 
 bool KdePlugin::load()
@@ -116,6 +124,13 @@ bool KdePlugin::eventFilter(QObject *obj, QEvent *ev)
 		}
 	}
 	return QObject::eventFilter(obj, ev);
+}
+
+Q_GLOBAL_STATIC(KHelpMenu, kdeHelpMenu)
+
+KHelpMenu *KdePlugin::helpMenu()
+{
+	return kdeHelpMenu();
 }
 }
 
