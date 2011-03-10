@@ -25,35 +25,12 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-typedef QPair<PersonInfo, int> PersonIntPair;
-typedef QHash<QString, PersonIntPair> StringPersonHash;
-
-bool personLessThen(const PersonIntPair &a, const PersonIntPair &b)
-{
-	return a.second > b.second || (a.second == b.second && a.first.name() < b.first.name());
-}
-
 SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SimpleAboutDialog)
 {
     ui->setupUi(this);
-	StringPersonHash authors;
-	StringPersonHash::iterator it;
-	foreach (Plugin *plugin, pluginsList()) {
-		foreach (const PersonInfo &person, plugin->info().authors()) {
-			it = authors.find(person.name());
-			if (it == authors.end())
-				it = authors.insert(person.name(), qMakePair(person, 0));
-			it.value().second += plugin->avaiableExtensions().size();
-		}
-	}
-	QVector<PersonIntPair> persons;
-	persons.reserve(authors.size());
-	it = authors.begin();
-	for (; it != authors.end(); it++)
-		persons.append(it.value());
-	qSort(persons.begin(), persons.end(), personLessThen);
+	QVector<PersonIntPair> persons = PersonInfo::authors();
 	QString html;
 	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(qutimVersionStr()),
 	                                        QLatin1String(qVersion()));
