@@ -35,13 +35,13 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(qutimVersionStr()),
 	                                        QLatin1String(qVersion()));
 	for (int i = 0; i < persons.size(); i++) {
-		html += persons.at(i).first.name();
+		html += persons.at(i).name();
 		html += QLatin1String("<br>");
-		html += persons.at(i).first.task();
+		html += persons.at(i).task();
 		html += QLatin1String("<br><a href=\"mailto:\"");
-		html += persons.at(i).first.email();
+		html += persons.at(i).email();
 		html += QLatin1String("\">");
-		html += persons.at(i).first.email();
+		html += persons.at(i).email();
 		html += QLatin1String("</a><p>");
 	}
 	ui->label->setTextFormat(Qt::RichText);
