@@ -39,12 +39,12 @@ namespace Jabber
 	
 	int JPersonTuneConverter::entityType() const
 	{
-		return jreen::Tune::staticExtensionType();
+		return Jreen::Tune::staticExtensionType();
 	}
 	
-	QSharedPointer<jreen::StanzaExtension> JPersonTuneConverter::convertTo(const QVariantHash &map) const
+	QSharedPointer<Jreen::StanzaExtension> JPersonTuneConverter::convertTo(const QVariantHash &map) const
 	{
-		jreen::Tune *tune = new jreen::Tune();
+		Jreen::Tune *tune = new Jreen::Tune();
 		bool ok = true;
 		tune->setArtist(map.value(QLatin1String("artist")).toString());
 		tune->setLength(map.value(QLatin1String("length")).toInt(&ok) * ok + ok - 1);
@@ -53,7 +53,7 @@ namespace Jabber
 		tune->setTitle(map.value(QLatin1String("title")).toString());
 		tune->setTrack(map.value(QLatin1String("track")).toString());
 		tune->setUri(map.value(QLatin1String("uri")).toUrl());
-		return jreen::StanzaExtension::Ptr(tune);
+		return Jreen::StanzaExtension::Ptr(tune);
 	}
 	
 #define ADD_TAG(Tag, IsValid, ValueMethod)\
@@ -72,9 +72,9 @@ namespace Jabber
 		return uri.toString();
 	}
 
-	QVariantHash JPersonTuneConverter::convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const
+	QVariantHash JPersonTuneConverter::convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const
 	{
-		jreen::Tune *tune = jreen::se_cast<jreen::Tune*>(entity.data());
+		Jreen::Tune *tune = Jreen::se_cast<Jreen::Tune*>(entity.data());
 		Q_ASSERT(tune);
 		QVariantHash data;
 		QString description;

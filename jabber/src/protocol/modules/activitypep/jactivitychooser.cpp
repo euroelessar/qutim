@@ -5,132 +5,132 @@
 #include <qutim/event.h>
 #include <qutim/actiongenerator.h>
 #include "protocol/account/jaccount.h"
-#include "jreen/activity.h"
+#include <jreen/activity.h>
 #include <qutim/debug.h>
 
 namespace Jabber {
 
 struct ActivityGroup
 {
-	ActivityGroup(jreen::Activity::General general_) :
+	ActivityGroup(Jreen::Activity::General general_) :
 		general(general_)
 	{}
-	jreen::Activity::General general;
-	QList<jreen::Activity::Specific> items;
+	Jreen::Activity::General general;
+	QList<Jreen::Activity::Specific> items;
 };
 typedef QList<ActivityGroup> ActivityGroups;
 
 static void init_activity_groups(ActivityGroups &activities)
 {
 	{
-		ActivityGroup group(jreen::Activity::DoingChores);
-		group.items.push_back(jreen::Activity::BuyingGroceries);
-		group.items.push_back(jreen::Activity::Cleaning);
-		group.items.push_back(jreen::Activity::Cooking);
-		group.items.push_back(jreen::Activity::DoingMaintenance);
-		group.items.push_back(jreen::Activity::DoingTheDishes);
-		group.items.push_back(jreen::Activity::DoingTheLaundry);
-		group.items.push_back(jreen::Activity::Gardening);
-		group.items.push_back(jreen::Activity::RunningAnErrand);
-		group.items.push_back(jreen::Activity::WalkingTheDog);
+		ActivityGroup group(Jreen::Activity::DoingChores);
+		group.items.push_back(Jreen::Activity::BuyingGroceries);
+		group.items.push_back(Jreen::Activity::Cleaning);
+		group.items.push_back(Jreen::Activity::Cooking);
+		group.items.push_back(Jreen::Activity::DoingMaintenance);
+		group.items.push_back(Jreen::Activity::DoingTheDishes);
+		group.items.push_back(Jreen::Activity::DoingTheLaundry);
+		group.items.push_back(Jreen::Activity::Gardening);
+		group.items.push_back(Jreen::Activity::RunningAnErrand);
+		group.items.push_back(Jreen::Activity::WalkingTheDog);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Drinking);
-		group.items.push_back(jreen::Activity::HavingABeer);
-		group.items.push_back(jreen::Activity::HavingCoffee);
-		group.items.push_back(jreen::Activity::HavingTea);
+		ActivityGroup group(Jreen::Activity::Drinking);
+		group.items.push_back(Jreen::Activity::HavingABeer);
+		group.items.push_back(Jreen::Activity::HavingCoffee);
+		group.items.push_back(Jreen::Activity::HavingTea);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Eating);
-		group.items.push_back(jreen::Activity::HavingASnack);
-		group.items.push_back(jreen::Activity::HavingBreakfast);
-		group.items.push_back(jreen::Activity::HavingDinner);
-		group.items.push_back(jreen::Activity::HavingLunch);
+		ActivityGroup group(Jreen::Activity::Eating);
+		group.items.push_back(Jreen::Activity::HavingASnack);
+		group.items.push_back(Jreen::Activity::HavingBreakfast);
+		group.items.push_back(Jreen::Activity::HavingDinner);
+		group.items.push_back(Jreen::Activity::HavingLunch);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Exercising);
-		group.items.push_back(jreen::Activity::Cycling);
-		group.items.push_back(jreen::Activity::Dancing);
-		group.items.push_back(jreen::Activity::Hiking);
-		group.items.push_back(jreen::Activity::Jogging);
-		group.items.push_back(jreen::Activity::PlayingSports);
-		group.items.push_back(jreen::Activity::Running);
-		group.items.push_back(jreen::Activity::Skiing);
-		group.items.push_back(jreen::Activity::Swimming);
-		group.items.push_back(jreen::Activity::WorkingOut);
+		ActivityGroup group(Jreen::Activity::Exercising);
+		group.items.push_back(Jreen::Activity::Cycling);
+		group.items.push_back(Jreen::Activity::Dancing);
+		group.items.push_back(Jreen::Activity::Hiking);
+		group.items.push_back(Jreen::Activity::Jogging);
+		group.items.push_back(Jreen::Activity::PlayingSports);
+		group.items.push_back(Jreen::Activity::Running);
+		group.items.push_back(Jreen::Activity::Skiing);
+		group.items.push_back(Jreen::Activity::Swimming);
+		group.items.push_back(Jreen::Activity::WorkingOut);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Grooming);
-		group.items.push_back(jreen::Activity::AtTheSpa);
-		group.items.push_back(jreen::Activity::BrushingTeeth);
-		group.items.push_back(jreen::Activity::GettingAHaircut);
-		group.items.push_back(jreen::Activity::Shaving);
-		group.items.push_back(jreen::Activity::TakingABath);
-		group.items.push_back(jreen::Activity::TakingAShower);
+		ActivityGroup group(Jreen::Activity::Grooming);
+		group.items.push_back(Jreen::Activity::AtTheSpa);
+		group.items.push_back(Jreen::Activity::BrushingTeeth);
+		group.items.push_back(Jreen::Activity::GettingAHaircut);
+		group.items.push_back(Jreen::Activity::Shaving);
+		group.items.push_back(Jreen::Activity::TakingABath);
+		group.items.push_back(Jreen::Activity::TakingAShower);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::HavingAppointment);
+		ActivityGroup group(Jreen::Activity::HavingAppointment);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Inactive);
-		group.items.push_back(jreen::Activity::DayOff);
-		group.items.push_back(jreen::Activity::HangingOut);
-		group.items.push_back(jreen::Activity::Hiding);
-		group.items.push_back(jreen::Activity::OnVacation);
-		group.items.push_back(jreen::Activity::Praying);
-		group.items.push_back(jreen::Activity::ScheduledHoliday);
-		group.items.push_back(jreen::Activity::Sleeping);
-		group.items.push_back(jreen::Activity::Thinking);
+		ActivityGroup group(Jreen::Activity::Inactive);
+		group.items.push_back(Jreen::Activity::DayOff);
+		group.items.push_back(Jreen::Activity::HangingOut);
+		group.items.push_back(Jreen::Activity::Hiding);
+		group.items.push_back(Jreen::Activity::OnVacation);
+		group.items.push_back(Jreen::Activity::Praying);
+		group.items.push_back(Jreen::Activity::ScheduledHoliday);
+		group.items.push_back(Jreen::Activity::Sleeping);
+		group.items.push_back(Jreen::Activity::Thinking);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Relaxing);
-		group.items.push_back(jreen::Activity::Fishing);
-		group.items.push_back(jreen::Activity::Gaming);
-		group.items.push_back(jreen::Activity::GoingOut);
-		group.items.push_back(jreen::Activity::Partying);
-		group.items.push_back(jreen::Activity::Reading);
-		group.items.push_back(jreen::Activity::Rehearsing);
-		group.items.push_back(jreen::Activity::Shopping);
-		group.items.push_back(jreen::Activity::Smoking);
-		group.items.push_back(jreen::Activity::Socializing);
-		group.items.push_back(jreen::Activity::Sunbathing);
-		group.items.push_back(jreen::Activity::WatchingTv);
-		group.items.push_back(jreen::Activity::WatchingAMovie);
+		ActivityGroup group(Jreen::Activity::Relaxing);
+		group.items.push_back(Jreen::Activity::Fishing);
+		group.items.push_back(Jreen::Activity::Gaming);
+		group.items.push_back(Jreen::Activity::GoingOut);
+		group.items.push_back(Jreen::Activity::Partying);
+		group.items.push_back(Jreen::Activity::Reading);
+		group.items.push_back(Jreen::Activity::Rehearsing);
+		group.items.push_back(Jreen::Activity::Shopping);
+		group.items.push_back(Jreen::Activity::Smoking);
+		group.items.push_back(Jreen::Activity::Socializing);
+		group.items.push_back(Jreen::Activity::Sunbathing);
+		group.items.push_back(Jreen::Activity::WatchingTv);
+		group.items.push_back(Jreen::Activity::WatchingAMovie);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Talking);
-		group.items.push_back(jreen::Activity::InRealLife);
-		group.items.push_back(jreen::Activity::OnThePhone);
-		group.items.push_back(jreen::Activity::OnVideoPhone);
+		ActivityGroup group(Jreen::Activity::Talking);
+		group.items.push_back(Jreen::Activity::InRealLife);
+		group.items.push_back(Jreen::Activity::OnThePhone);
+		group.items.push_back(Jreen::Activity::OnVideoPhone);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Traveling);
-		group.items.push_back(jreen::Activity::Commuting);
-		group.items.push_back(jreen::Activity::Cycling);
-		group.items.push_back(jreen::Activity::Driving);
-		group.items.push_back(jreen::Activity::InACar);
-		group.items.push_back(jreen::Activity::OnABus);
-		group.items.push_back(jreen::Activity::OnAPlane);
-		group.items.push_back(jreen::Activity::OnATrain);
-		group.items.push_back(jreen::Activity::OnATrip);
-		group.items.push_back(jreen::Activity::Walking);
+		ActivityGroup group(Jreen::Activity::Traveling);
+		group.items.push_back(Jreen::Activity::Commuting);
+		group.items.push_back(Jreen::Activity::Cycling);
+		group.items.push_back(Jreen::Activity::Driving);
+		group.items.push_back(Jreen::Activity::InACar);
+		group.items.push_back(Jreen::Activity::OnABus);
+		group.items.push_back(Jreen::Activity::OnAPlane);
+		group.items.push_back(Jreen::Activity::OnATrain);
+		group.items.push_back(Jreen::Activity::OnATrip);
+		group.items.push_back(Jreen::Activity::Walking);
 		activities.push_back(group);
 	}
 	{
-		ActivityGroup group(jreen::Activity::Working);
-		group.items.push_back(jreen::Activity::Coding);
-		group.items.push_back(jreen::Activity::InAMeeting);
-		group.items.push_back(jreen::Activity::Studying);
-		group.items.push_back(jreen::Activity::Writing);
+		ActivityGroup group(Jreen::Activity::Working);
+		group.items.push_back(Jreen::Activity::Coding);
+		group.items.push_back(Jreen::Activity::InAMeeting);
+		group.items.push_back(Jreen::Activity::Studying);
+		group.items.push_back(Jreen::Activity::Writing);
 		activities.push_back(group);
 	}
 }
@@ -160,7 +160,7 @@ JActivityChooserWindow::JActivityChooserWindow(Account *account,
 	// Load available activities
 	QTreeWidgetItem *current = 0;
 	foreach (const ActivityGroup &activity, *allActivityGroups()) {
-		QString generalName = jreen::Activity::generalName(activity.general);
+		QString generalName = Jreen::Activity::generalName(activity.general);
 		QString generalIconName = QLatin1String("user-status-") + generalName;
 		QTreeWidgetItem *generalItem = new QTreeWidgetItem(ui->activitiesWidget);
 		generalItem->setData(0, Qt::DisplayRole, JPersonActivityConverter::generalTitle(activity.general).toString());
@@ -168,8 +168,8 @@ JActivityChooserWindow::JActivityChooserWindow(Account *account,
 		generalItem->setData(0, Qt::UserRole+1, generalName);
 		bool isGeneralCurrent = current == 0 && generalName == currentGeneral;
 
-		foreach (jreen::Activity::Specific specific, activity.items) {
-			QString specificName = jreen::Activity::specificName(specific);
+		foreach (Jreen::Activity::Specific specific, activity.items) {
+			QString specificName = Jreen::Activity::specificName(specific);
 			QString iconName = generalIconName + QLatin1Char('-') + specificName + QLatin1String("-jabber");
 			QTreeWidgetItem *item = new QTreeWidgetItem();
 			item->setData(0, Qt::DisplayRole, JPersonActivityConverter::specificTitle(specific).toString());

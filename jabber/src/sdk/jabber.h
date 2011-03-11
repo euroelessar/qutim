@@ -5,7 +5,7 @@
 #include <QtCore/QVariantMap>
 #include <QtCore/QSharedPointer>
 
-namespace jreen
+namespace Jreen
 {
 class Client;
 class StanzaExtension;
@@ -116,16 +116,16 @@ public:
 	
 	virtual QString name() const = 0;
 	virtual int entityType() const = 0;
-	virtual QSharedPointer<jreen::StanzaExtension> convertTo(const QVariantHash &map) const = 0;
-	virtual QVariantHash convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const = 0;
+	virtual QSharedPointer<Jreen::StanzaExtension> convertTo(const QVariantHash &map) const = 0;
+	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const = 0;
 };
 }
 
 Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")
 Q_DECLARE_INTERFACE(Jabber::MessageFilterFactory,	"org.qutim.jabber.MessageFilterFactory")
 Q_DECLARE_INTERFACE(Jabber::PersonEventConverter,	"org.qutim.jabber.PersonEventConverter")
-Q_DECLARE_INTERFACE(jreen::Client,			"org.qutim.jreen.Client")
-Q_DECLARE_INTERFACE(jreen::PubSub::Manager,	"org.qutim.jreen.PubSub.Manager")
+Q_DECLARE_INTERFACE(Jreen::Client,			"org.qutim.Jreen.Client")
+Q_DECLARE_INTERFACE(Jreen::PubSub::Manager,	"org.qutim.Jreen.PubSub.Manager")
 Q_DECLARE_INTERFACE(gloox::Adhoc,			"net.camaya.gloox.Adhoc")
 Q_DECLARE_INTERFACE(gloox::VCardManager,	"net.camaya.gloox.VCardManager")
 

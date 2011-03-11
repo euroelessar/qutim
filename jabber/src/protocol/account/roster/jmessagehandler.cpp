@@ -15,7 +15,7 @@
 
 namespace Jabber
 {
-//jreen
+//Jreen
 
 JMessageSessionHandler::JMessageSessionHandler(JAccount *account) :
 	m_account(account)
@@ -27,12 +27,12 @@ JMessageSessionHandler::~JMessageSessionHandler()
 {
 }
 
-void JMessageSessionHandler::handleMessageSession(jreen::MessageSession *session)
+void JMessageSessionHandler::handleMessageSession(Jreen::MessageSession *session)
 {
 	Q_ASSERT(session);
 	session->registerMessageFilter(new JMessageReceiptFilter(m_account,session));
-	QObject::connect(session, SIGNAL(newMessage(jreen::Message)),
-					 m_account->roster(), SLOT(onNewMessage(jreen::Message)));
+	QObject::connect(session, SIGNAL(newMessage(Jreen::Message)),
+					 m_account->roster(), SLOT(onNewMessage(Jreen::Message)));
 }
 
 class JMessageSessionManagerPrivate
@@ -44,14 +44,14 @@ public:
 };
 
 JMessageSessionManager::JMessageSessionManager(JAccount *account) :
-	jreen::MessageSessionManager(account->client()),
+	Jreen::MessageSessionManager(account->client()),
 	d_ptr(new JMessageSessionManagerPrivate(this))
 {
 	Q_D(JMessageSessionManager);
 	d->account = account;
-	QList<jreen::Message::Type> types;
-	types.append(jreen::Message::Chat);
-	types.append(jreen::Message::Headline);
+	QList<Jreen::Message::Type> types;
+	types.append(Jreen::Message::Chat);
+	types.append(Jreen::Message::Headline);
 
 	registerMessageSessionHandler(new JMessageSessionHandler(account),types);
 }
@@ -61,45 +61,45 @@ JMessageSessionManager::~JMessageSessionManager()
 
 }
 
-void JMessageSessionManager::handleMessage(const jreen::Message &message)
+void JMessageSessionManager::handleMessage(const Jreen::Message &message)
 {
 	debug() << "handle message";
-	return jreen::MessageSessionManager::handleMessage(message);
+	return Jreen::MessageSessionManager::handleMessage(message);
 }
 
 void JMessageSessionManager::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	jreen::JID jid(message.chatUnit()->id());
-	jreen::MessageSession *s = session(jid,
-									   jreen::Message::Chat,
+	Jreen::JID jid(message.chatUnit()->id());
+	Jreen::MessageSession *s = session(jid,
+									   Jreen::Message::Chat,
 									   true);
 
-	jreen::Message msg(jreen::Message::Chat,
+	Jreen::Message msg(Jreen::Message::Chat,
 					   jid,
 					   message.text(),
 					   message.property("subject").toString());
 	msg.setID(QString::number(message.id()));
 	s->sendMessage(msg);
-	//We will close the session at jreen together with a session in qutim
+	//We will close the session at Jreen together with a session in qutim
 	s->setParent(ChatLayer::get(const_cast<ChatUnit*>(message.chatUnit()),true));
 }
 
 JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
-											 jreen::MessageSession *session) :
-	jreen::MessageFilter(session),
+											 Jreen::MessageSession *session) :
+	Jreen::MessageFilter(session),
 	m_account(account)
 {
 
 }
 
-void JMessageReceiptFilter::filter(jreen::Message &message)
+void JMessageReceiptFilter::filter(Jreen::Message &message)
 {
-	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
+	Jreen::Receipt *receipt = message.findExtension<Jreen::Receipt>().data();
 	ChatUnit *unit = m_account->roster()->contact(message.from(),true);
-	if(message.containsExtension<jreen::Error>())
+	if(message.containsExtension<Jreen::Error>())
 		return;
 	if(receipt) {
-		if(receipt->type() == jreen::Receipt::Received) {
+		if(receipt->type() == Jreen::Receipt::Received) {
 			QString id = receipt->id();
 			if(id.isEmpty())
 				id = message.id(); //for slowpoke client such as Miranda			
@@ -108,31 +108,31 @@ void JMessageReceiptFilter::filter(jreen::Message &message)
 								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
 		} else {
 			//TODO send this request only when message marked as read
-			jreen::Message request(jreen::Message::Chat,
+			Jreen::Message request(Jreen::Message::Chat,
 								   message.from());
 			//for slowpoke clients
 			request.setID(message.id());
 			//correct behaviour
-			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
+			request.addExtension(new Jreen::Receipt(Jreen::Receipt::Received,message.id()));
 			m_account->client()->send(request);
 		}
 	}
-	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
+	Jreen::ChatState *state = message.findExtension<Jreen::ChatState>().data();
 	if(state) {
 		if(unit)
 			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
 	}
 }
 
-void JMessageReceiptFilter::decorate(jreen::Message &message)
+void JMessageReceiptFilter::decorate(Jreen::Message &message)
 {
-	jreen::Receipt *receipt = new jreen::Receipt(jreen::Receipt::Request);
+	Jreen::Receipt *receipt = new Jreen::Receipt(Jreen::Receipt::Request);
 	message.addExtension(receipt);
 }
 
 int JMessageReceiptFilter::filterType() const
 {
-	return jreen::Message::Chat;
+	return Jreen::Message::Chat;
 }
 
 void JMessageReceiptFilter::reset()

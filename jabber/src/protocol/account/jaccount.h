@@ -19,7 +19,7 @@
 #include <qutim/account.h>
 #include <jreen/presence.h>
 
-namespace jreen
+namespace Jreen
 {
 class Client;
 class JID;
@@ -56,16 +56,16 @@ public:
 	QString name() const;
 	void setNick(const QString &nick);
 	QString password(bool *ok = 0);
-	jreen::Client *client() const;
+	Jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;
 	JVCardManager *vCardManager() const;
 	JRoster *roster() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
-	jreen::PrivateXml *privateXml();
-	jreen::PrivacyManager *privacyManager();
-	jreen::PubSub::Manager *pubSubManager();
+	Jreen::PrivateXml *privateXml();
+	Jreen::PrivacyManager *privacyManager();
+	Jreen::PubSub::Manager *pubSubManager();
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
 	QString getAvatarPath();
@@ -79,14 +79,14 @@ public:
 public slots:
 	void loadSettings();
 private:
-	//jreen
+	//Jreen
 	friend class JRoster;
 	friend class JRosterPrivate;
 	friend class JServerDiscoInfo;
 	QScopedPointer<JAccountPrivate> d_ptr;
 
 	Q_PRIVATE_SLOT(d_func(),void _q_connected());
-	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(jreen::Client::DisconnectReason));
+	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(Jreen::Client::DisconnectReason));
 	Q_PRIVATE_SLOT(d_func(),void _q_init_extensions(const QSet<QString> &features));
 	Q_PRIVATE_SLOT(d_func(),void _q_on_module_loaded(int i));
 };

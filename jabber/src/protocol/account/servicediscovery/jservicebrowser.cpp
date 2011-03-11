@@ -13,7 +13,7 @@
 #include <qutim/protocol.h>
 #include "ui_jservicebrowser.h"
 #include <qutim/debug.h>
-//jreen
+//Jreen
 #include <jreen/client.h>
 #include <qutim/systemintegration.h>
 
@@ -151,7 +151,7 @@ void JServiceBrowser::setInfo(int id)
 	QString category = tr("category: ");
 	if (!di.identities().isEmpty()) {
 		tooltip += QLatin1Literal("<br/><b>") % tr("Identities:") % QLatin1Literal("</b><br/>");
-		foreach(jreen::Disco::Identity identity, di.identities()) {
+		foreach(Jreen::Disco::Identity identity, di.identities()) {
 			JDiscoItem di;
 			di.setJID(di.jid());
 			di.addIdentity(identity);
@@ -327,9 +327,9 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 	if (di.hasIdentity("server")) {
 		service_icon = "network-server";
 	} else if (di.hasIdentity("conference", "text")) {
-		if (jreen::JID(di.jid()).node().isEmpty())
+		if (Jreen::JID(di.jid()).node().isEmpty())
 			service_icon = "conference-server";
-		else if (jreen::JID(di.jid()).resource().isEmpty())
+		else if (Jreen::JID(di.jid()).resource().isEmpty())
 			service_icon = "conference";
 		else
 			service_icon = "conference-user";

@@ -27,7 +27,7 @@ QString JJidValidator::server() const
 QValidator::State JJidValidator::validate(QString &str, int &) const
 {
 	Q_D(const JJidValidator);
-	jreen::JID jid;
+	Jreen::JID jid;
 	if (d->server.isEmpty()) {
 		jid.setJID(str);
 		if (str.indexOf('@') == str.size()-1)
@@ -52,7 +52,7 @@ QValidator::State JJidValidator::validate(QString &str, int &) const
 void JJidValidator::fixup(QString &str) const
 {
 	Q_D(const JJidValidator);
-	jreen::JID jid;
+	Jreen::JID jid;
 	if (d->server.isEmpty()) {
 		if (jid.setJID(str))
 			str = jid.bare();

@@ -4,10 +4,10 @@
 #include <qutim/contact.h>
 #include <jreen/presence.h>
 #include "../roster/jmessagesessionowner.h"
-//jreen
+//Jreen
 #include <jreen/abstractroster.h>
 
-namespace jreen
+namespace Jreen
 {
 class Presence;
 }
@@ -40,10 +40,10 @@ public:
 	void setContactName(const QString &name);
 	void setTags(const QStringList &tags);
 	void setContactTags(const QStringList &tags);
-	//jreen
-	void setStatus(const jreen::Presence presence);
-	void setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription);
-	jreen::AbstractRosterItem::SubscriptionType subscription() const;
+	//Jreen
+	void setStatus(const Jreen::Presence presence);
+	void setContactSubscription(Jreen::AbstractRosterItem::SubscriptionType subscription);
+	Jreen::AbstractRosterItem::SubscriptionType subscription() const;
 	QString name() const;
 	QStringList tags() const;
 	Status status() const;
@@ -62,7 +62,7 @@ public:
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 signals:
-	void subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType subscription);
+	void subscriptionChanged(Jreen::AbstractRosterItem::SubscriptionType subscription);
 public slots:
 	void requestSubscription();
 	void removeSubscription();

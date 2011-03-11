@@ -33,7 +33,7 @@ public:
 	void setNode(const QString &node);
 	void setError(const QString &error);
 	void setExpandable(bool expand);
-	void addIdentity(const jreen::Disco::Identity &identity);
+	void addIdentity(const Jreen::Disco::Identity &identity);
 	bool hasIdentity(const QString &category, const QString &type = QString()) const;
 	void addFeature(const QString &feature);
 	bool hasFeature(const QString &feature) const;
@@ -43,7 +43,7 @@ public:
 	QString node() const;
 	QString error() const;
 	bool isExpandable() const;
-	QList<jreen::Disco::Identity> identities() const;
+	QList<Jreen::Disco::Identity> identities() const;
 	QList<Action> actions() const;
 	QSet<QString> features() const;
 private:

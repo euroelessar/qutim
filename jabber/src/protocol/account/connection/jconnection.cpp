@@ -137,7 +137,7 @@
 
 //void JConnection::initExtensions()
 //{
-//	p->params.addItem<jreen::Client>(p->account->client());
+//	p->params.addItem<Jreen::Client>(p->account->client());
 ////	p->params.addItem<Adhoc>(p->adhoc);
 ////	p->params.addItem<VCardManager>(p->vCardManager->manager());
 ////	p->params.addItem<SIManager>(p->siManager);

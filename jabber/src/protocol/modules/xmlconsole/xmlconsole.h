@@ -15,7 +15,7 @@ class XmlConsole;
 
 namespace Jabber
 {
-class XmlConsole : public QWidget, public JabberExtension, public jreen::XmlStreamHandler
+class XmlConsole : public QWidget, public JabberExtension, public Jreen::XmlStreamHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(Jabber::JabberExtension)
@@ -34,7 +34,6 @@ protected:
 	void changeEvent(QEvent *e);
 private:
 	void stackProcess(const QByteArray &data, bool incoming);
-	//		void process(const QByteArray &data, bool incoming);
 
 	struct XmlNode
 	{
@@ -49,7 +48,7 @@ private:
 		Type type;
 		bool incoming;
 		QSet<QString> xmlns;
-		jreen::JID jid;
+		Jreen::JID jid;
 		QSet<QString> attributes;
 		QTextBlock block;
 		int lineCount;
@@ -69,28 +68,6 @@ private:
 		ReadStanza,
 		ReadCustom
 	};
-
-	//		struct Environment
-	//		{
-	//			Environment() : bodyColor(0), tagColor(0), attributeColor(0), paramColor(0)
-	//			{
-	//				html.reserve(1024 * 16);
-	//			}
-	//			void appendText(const QString &text, const QLatin1String &color);
-	//			void appendAttribute(const QString &name, const QStringRef &value);
-
-	//			QXmlStreamReader reader;
-	//			State state;
-	//			int depth;
-	//			XmlNode current;
-	//			QString html;
-	//			QXmlStreamReader::TokenType last;
-	//			QString xmlns;
-	//			QLatin1String bodyColor;
-	//			QLatin1String tagColor;
-	//			QLatin1String attributeColor;
-	//			QLatin1String paramColor;
-	//		};
 
 	struct StackToken
 	{
@@ -167,13 +144,10 @@ private:
 	};
 
 	Ui::XmlConsole *m_ui;
-	jreen::Client *m_client;
+	Jreen::Client *m_client;
 	QList<XmlNode> m_nodes;
-	//		Environment m_incoming;
-	//		Environment m_outgoing;
 	StackEnvironment m_stackIncoming;
 	StackEnvironment m_stackOutgoing;
-	//		QLatin1String m_bracketsColor;
 	QColor m_stackBracketsColor;
 	int m_filter;
 	

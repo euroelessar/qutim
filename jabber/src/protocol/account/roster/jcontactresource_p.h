@@ -3,7 +3,7 @@
 
 #include "jcontactresource.h"
 #include <qutim/contact.h>
-//jreen
+//Jreen
 #include <jreen/presence.h>
 
 namespace Jabber
@@ -13,11 +13,11 @@ class JContactResourcePrivate
 public:
 	JContactResourcePrivate(qutim_sdk_0_3::ChatUnit *c) :
 		contact(c),
-		presence(jreen::Presence::Unavailable,jreen::JID(c->id())) {}
+		presence(Jreen::Presence::Unavailable,Jreen::JID(c->id())) {}
 	qutim_sdk_0_3::ChatUnit *contact;
 	QString id;
 	QString name;
-	jreen::Presence presence;
+	Jreen::Presence presence;
 	QSet<QString> features;
 	QHash<QString, QVariantHash> extInfo;
 };

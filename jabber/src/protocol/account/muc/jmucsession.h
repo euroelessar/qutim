@@ -42,20 +42,20 @@ class JMUCSession : public qutim_sdk_0_3::Conference
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JMUCSession)
 public:
-	JMUCSession(const jreen::JID &room, const QString &password, JAccount *account);
+	JMUCSession(const Jreen::JID &room, const QString &password, JAccount *account);
 	//			JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread);
 	~JMUCSession();
 	QString id() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	bool sendPrivateMessage(const qutim_sdk_0_3::Message &message);
-	void setBookmark(const jreen::Bookmark::Conference &bookmark);
-	jreen::Bookmark::Conference bookmark();
+	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
+	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
 	bool isJoined();
 	bool isAutoJoin();
 	void setAutoJoin(bool join);
 	bool isError();
-	jreen::MUCRoom *room();
+	Jreen::MUCRoom *room();
 	qutim_sdk_0_3::Buddy *me() const;
 	ChatUnit *participant(const QString &nick);
 	QString title() const;
@@ -69,11 +69,11 @@ protected:
 	void loadSettings();
 	//			// MUCRoomHandler
 protected slots:
-	void onParticipantPresence(const jreen::Presence &presence, const jreen::MUCRoom::Participant *part);
-	void onMessage(const jreen::Message &msg, bool priv);
+	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
+	void onMessage(const Jreen::Message &msg, bool priv);
 	void onSubjectChanged(const QString &subject, const QString &nick);
-	void onServiceMessage(const jreen::Message &msg);
-	void onError(jreen::Error::Ptr error);
+	void onServiceMessage(const Jreen::Message &msg);
+	void onError(Jreen::Error::Ptr error);
 	//			bool handleMUCRoomCreation(gloox::MUCRoom *room);
 	//			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
 	//										const std::string &reason);
@@ -95,7 +95,7 @@ private slots:
 	void closeConfigDialog();
 signals:
 	void initClose();
-	void bookmarkChanged(const jreen::Bookmark::Conference &bookmark);
+	void bookmarkChanged(const Jreen::Bookmark::Conference &bookmark);
 private:
 	QScopedPointer<JMUCSessionPrivate> d_ptr;
 	friend class JSessionConvertor;

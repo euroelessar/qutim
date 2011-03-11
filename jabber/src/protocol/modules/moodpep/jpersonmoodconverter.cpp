@@ -131,22 +131,22 @@ namespace Jabber
 	
 	int JPersonMoodConverter::entityType() const
 	{
-		return jreen::Mood::staticExtensionType();
+		return Jreen::Mood::staticExtensionType();
 	}
 	
-	QSharedPointer<jreen::StanzaExtension> JPersonMoodConverter::convertTo(const QVariantHash &map) const
+	QSharedPointer<Jreen::StanzaExtension> JPersonMoodConverter::convertTo(const QVariantHash &map) const
 	{
 		QString mood = map.value(QLatin1String("mood")).toString();
 		QString text = map.value(QLatin1String("description")).toString();
-		return jreen::StanzaExtension::Ptr(new jreen::Mood(mood, text));
+		return Jreen::StanzaExtension::Ptr(new Jreen::Mood(mood, text));
 	}
 	
-	QVariantHash JPersonMoodConverter::convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const
+	QVariantHash JPersonMoodConverter::convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const
 	{
-		jreen::Mood *mood = jreen::se_cast<jreen::Mood*>(entity.data());
+		Jreen::Mood *mood = Jreen::se_cast<Jreen::Mood*>(entity.data());
 		QVariantHash data;
 		data.insert(QLatin1String("id"), QLatin1String("mood"));
-		if (mood->type() <= jreen::Mood::Invalid)
+		if (mood->type() <= Jreen::Mood::Invalid)
 			return data;
 		data.insert(QLatin1String("mood"), mood->typeName());
 		data.insert(QLatin1String("title"), qVariantFromValue(moodsNames()->value(mood->type())));

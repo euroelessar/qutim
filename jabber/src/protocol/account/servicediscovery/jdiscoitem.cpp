@@ -16,7 +16,7 @@ public:
 	QString jid;
 	QString node;
 	QString error;
-	QList<jreen::Disco::Identity> identities;
+	QList<Jreen::Disco::Identity> identities;
 	QSet<QString> features;
 	QList<JDiscoItem::Action> actions;
 	bool expand;
@@ -65,14 +65,14 @@ void JDiscoItem::setExpandable(bool expand)
 	d->expand = expand;
 }
 
-void JDiscoItem::addIdentity(const jreen::Disco::Identity &identity)
+void JDiscoItem::addIdentity(const Jreen::Disco::Identity &identity)
 {
 	d->identities << identity;
 }
 
 bool JDiscoItem::hasIdentity(const QString &category, const QString &type) const
 {
-	foreach (const jreen::Disco::Identity &identity, d->identities)
+	foreach (const Jreen::Disco::Identity &identity, d->identities)
 		if (identity.category == category && (type.isEmpty() || identity.type == type))
 			return true;
 	return false;
@@ -118,7 +118,7 @@ bool JDiscoItem::isExpandable() const
 	return d->expand;
 }
 
-QList<jreen::Disco::Identity> JDiscoItem::identities() const
+QList<Jreen::Disco::Identity> JDiscoItem::identities() const
 {
 	return d->identities;
 }

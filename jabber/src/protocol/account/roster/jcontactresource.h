@@ -6,7 +6,7 @@
 #include <QSet>
 #include "../roster/jmessagesessionowner.h"
 
-namespace jreen
+namespace Jreen
 {
 class Presence;
 }
@@ -41,7 +41,7 @@ public:
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	void setPriority(int priority);
 	int priority();
-	void setStatus(const jreen::Presence presence);
+	void setStatus(const Jreen::Presence presence);
 	Status status() const;
 	virtual bool event(QEvent *ev);
 	QSet<QString> features() const;

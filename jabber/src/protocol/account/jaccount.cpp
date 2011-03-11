@@ -80,13 +80,13 @@ void JAccountPrivate::applyStatus(const Status &status)
 	client.setPresence(JStatus::statusToPresence(status), status.text(), priority);
 }
 
-void JAccountPrivate::setPresence(jreen::Presence presence)
+void JAccountPrivate::setPresence(Jreen::Presence presence)
 {
 	Q_Q(JAccount);
 	Status now = JStatus::presenceToStatus(presence.subtype());
 	now.setText(presence.status());
 	q->setAccountStatus(now);
-	if(presence.subtype() == jreen::Presence::Unavailable)
+	if(presence.subtype() == Jreen::Presence::Unavailable)
 		client.disconnectFromServer(false);
 }
 
@@ -107,7 +107,7 @@ void JAccountPrivate::_q_on_module_loaded(int i)
 		_q_connected();
 }
 
-void JAccountPrivate::_q_disconnected(jreen::Client::DisconnectReason reason)
+void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
 	Status s = Status::instance(Status::Offline, "jabber");
@@ -164,10 +164,10 @@ JAccount::JAccount(const QString &id) :
 	d->loadedModules = 0;
 	d->roster = new JRoster(this);
 	d->privacyManager = new PrivacyManager(&d->client);
-	jreen::Capabilities::Ptr caps = d->client.presence().findExtension<jreen::Capabilities>();
+	Jreen::Capabilities::Ptr caps = d->client.presence().findExtension<Jreen::Capabilities>();
 	caps->setNode(QLatin1String("http://qutim.org/"));
-	d->privateXml = new jreen::PrivateXml(&d->client);
-	d->pubSubManager = new jreen::PubSub::Manager(&d->client);
+	d->privateXml = new Jreen::PrivateXml(&d->client);
+	d->pubSubManager = new Jreen::PubSub::Manager(&d->client);
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
@@ -175,19 +175,19 @@ JAccount::JAccount(const QString &id) :
 
 	d->client.presence().addExtension(new VCardUpdate());
 
-	jreen::Disco *disco = d->client.disco();
+	Jreen::Disco *disco = d->client.disco();
 	disco->setSoftwareVersion(QLatin1String("qutIM"),
 							  qutimVersionStr(),
 							  SystemInfo::getFullName());
 
-	disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"),
+	disco->addIdentity(Jreen::Disco::Identity(QLatin1String("client"),
 											  QLatin1String("type"),
 											  QLatin1String("qutIM"),
 											  QLatin1String("en")));
 	QString qutim = tr("qutIM", "Local qutIM's name");
 	QString lang = tr("en", "Default language");
 	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
-		disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
+		disco->addIdentity(Jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
 	
 	connect(d->roster, SIGNAL(loaded()), &d->signalMapper, SLOT(map()));
 	connect(d->privacyManager, SIGNAL(listsReceived()), &d->signalMapper, SLOT(map()));
@@ -200,15 +200,15 @@ JAccount::JAccount(const QString &id) :
 	
 	d->roster->loadFromStorage();
 	
-	connect(&d->client, SIGNAL(disconnected(jreen::Client::DisconnectReason)),
-			this, SLOT(_q_disconnected(jreen::Client::DisconnectReason)));
+	connect(&d->client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
+			this, SLOT(_q_disconnected(Jreen::Client::DisconnectReason)));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			this ,SLOT(_q_init_extensions(QSet<QString>)));
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	
-	d->params.addItem<jreen::Client>(&d->client);
-	d->params.addItem<jreen::PubSub::Manager>(d->pubSubManager);
+	d->params.addItem<Jreen::Client>(&d->client);
+	d->params.addItem<Jreen::PubSub::Manager>(d->pubSubManager);
 	//	d->params.addItem<Adhoc>(p->adhoc);
 	//	d->params.addItem<VCardManager>(p->vCardManager->manager());
 	//	d->params.addItem<SIManager>(p->siManager);
@@ -239,7 +239,7 @@ ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
 	Q_D(JAccount);
 	ChatUnit *unit = 0;
-	jreen::JID jid = unitId;
+	Jreen::JID jid = unitId;
 	if (!!(unit = d->conferenceManager->muc(jid)))
 		return unit;
 	return d->roster->contact(jid, create);
@@ -256,12 +256,12 @@ void JAccount::loadSettings()
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
 	if (general.hasChildKey("photoHash")) {
-		jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<jreen::VCardUpdate>();
+		Jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<Jreen::VCardUpdate>();
 		update->setPhotoHash(general.value("photoHash", QString()));
 	}
 
-	jreen::JID jid(id());
-	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
+	Jreen::JID jid(id());
+	jid.setResource(general.value("resource",QLatin1String("qutIM/Jreen")));
 	general.beginGroup("bosh");
 	if (general.value("use", false)) {
 		QString host = general.value("host", jid.domain());
@@ -347,10 +347,10 @@ JMessageSessionManager *JAccount::messageSessionManager() const
 	return d_func()->messageSessionManager;
 }
 
-jreen::Client *JAccount::client() const
+Jreen::Client *JAccount::client() const
 {
 	//it may be dangerous
-	return const_cast<jreen::Client*>(&d_func()->client);
+	return const_cast<Jreen::Client*>(&d_func()->client);
 }
 
 JSoftwareDetection *JAccount::softwareDetection() const
@@ -368,17 +368,17 @@ JMUCManager *JAccount::conferenceManager()
 	return d_func()->conferenceManager;
 }
 
-jreen::PrivateXml *JAccount::privateXml()
+Jreen::PrivateXml *JAccount::privateXml()
 {
 	return d_func()->privateXml;
 }
 
-jreen::PrivacyManager *JAccount::privacyManager()
+Jreen::PrivacyManager *JAccount::privacyManager()
 {
 	return d_func()->privacyManager;
 }
 
-jreen::PubSub::Manager *JAccount::pubSubManager()
+Jreen::PubSub::Manager *JAccount::pubSubManager()
 {
 	return d_func()->pubSubManager;
 }
@@ -439,10 +439,10 @@ bool JAccount::checkFeature(const QString &feature) const
 bool JAccount::checkIdentity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
-	const jreen::Disco::IdentityList identities = d->client.serverIdentities();
+	const Jreen::Disco::IdentityList identities = d->client.serverIdentities();
 	bool ok = false;
 	for (int i = 0; !ok && i < identities.size(); i++) {
-		const jreen::Disco::Identity &identity = identities[i];
+		const Jreen::Disco::Identity &identity = identities[i];
 		ok |= (identity.category == category && identity.type == type);
 	}
 	return ok;
@@ -451,9 +451,9 @@ bool JAccount::checkIdentity(const QString &category, const QString &type) const
 QString JAccount::identity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
-	const jreen::Disco::IdentityList identities = d->client.serverIdentities();
+	const Jreen::Disco::IdentityList identities = d->client.serverIdentities();
 	for (int i = 0; i < identities.size(); i++) {
-		const jreen::Disco::Identity &identity = identities[i];
+		const Jreen::Disco::Identity &identity = identities[i];
 		if (identity.category == category && identity.type == type)
 			return identity.name;
 	}

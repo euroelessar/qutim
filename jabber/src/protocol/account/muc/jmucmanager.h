@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 class Conference;
 }
 
-namespace jreen
+namespace Jreen
 {
 class PrivacyItem;
 }
@@ -46,11 +46,11 @@ class JMUCManager : public QObject
 public:
 	JMUCManager(JAccount *account, QObject *parent = 0);
 	~JMUCManager();
-	qutim_sdk_0_3::ChatUnit *muc(const jreen::JID &jid);
+	qutim_sdk_0_3::ChatUnit *muc(const Jreen::JID &jid);
 	JBookmarkManager *bookmarkManager();
 	void syncBookmarks();
 	void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
-	void setPresenceToRooms(jreen::Presence::Type presence);
+	void setPresenceToRooms(Jreen::Presence::Type presence);
 	void leave(const QString &room);
 	bool event(QEvent *event);
 	void appendMUCSession(JMUCSession *room);
@@ -58,7 +58,7 @@ signals:
 	void conferenceCreated(qutim_sdk_0_3::Conference*);
 private slots:
 	//TODO rewrite on private slots
-	void onListReceived(const QString &name, const QList<jreen::PrivacyItem> &items);
+	void onListReceived(const QString &name, const QList<Jreen::PrivacyItem> &items);
 	void onActiveListChanged(const QString &name);
 	void bookmarksChanged();
 	void closeMUCSession();

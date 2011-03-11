@@ -7,7 +7,7 @@
 namespace Jabber
 {
 
-using namespace jreen;
+using namespace Jreen;
 
 JAccountWizardPage::JAccountWizardPage(JAccountWizard *accountWizard, JAccountType type, QWidget *parent)
 	: QWizardPage(parent), m_accountWizard(accountWizard), m_type(type), ui(new Ui::JAccountWizardPage)

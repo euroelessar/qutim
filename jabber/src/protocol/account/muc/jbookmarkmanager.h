@@ -25,19 +25,19 @@ class JBookmarkManager : public QObject, public qutim_sdk_0_3::GroupChatManager
 public:
 	JBookmarkManager(JAccount *account);
 	~JBookmarkManager();
-	QList<jreen::Bookmark::Conference> bookmarksList() const;
-	QList<jreen::Bookmark::Conference> recentList() const;
-	jreen::Bookmark::Conference find(const QString &name, bool recent = false) const;
-	int find(const jreen::Bookmark::Conference &bookmark, bool recent = false) const;
-	//			jreen::Bookmark::Conference find(const QString &name, const QString &nick, bool recent = false) const;
+	QList<Jreen::Bookmark::Conference> bookmarksList() const;
+	QList<Jreen::Bookmark::Conference> recentList() const;
+	Jreen::Bookmark::Conference find(const QString &name, bool recent = false) const;
+	int find(const Jreen::Bookmark::Conference &bookmark, bool recent = false) const;
+	//			Jreen::Bookmark::Conference find(const QString &name, const QString &nick, bool recent = false) const;
 	int indexOfBookmark(const QString &name) const;
 	void saveBookmark(int index, const QString &name, const QString &conference,
 					  const QString &nick, const QString &password, bool autojoin = false);
 	void saveRecent(const QString &conference, const QString &nick, const QString &password);
-	bool removeBookmark(const jreen::Bookmark::Conference &bookmark);
+	bool removeBookmark(const Jreen::Bookmark::Conference &bookmark);
 	void sync();
 	void clearRecent();
-	DataItem fields(const jreen::Bookmark::Conference &bookmark, bool isBookmark = true) const;
+	DataItem fields(const Jreen::Bookmark::Conference &bookmark, bool isBookmark = true) const;
 
 	// Group chat manager
 	DataItem fields() const;
@@ -50,16 +50,16 @@ signals:
 	void serverBookmarksChanged();
 	void bookmarksChanged();
 protected slots:
-	void onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark);
+	void onBookmarksReceived(const Jreen::Bookmark::Ptr &bookmark);
 protected:
-	QList<jreen::Bookmark::Conference> readFromCache(const QString &type);
-	void writeToCache(const QString &type, const QList<jreen::Bookmark::Conference> &list);
+	QList<Jreen::Bookmark::Conference> readFromCache(const QString &type);
+	void writeToCache(const QString &type, const QList<Jreen::Bookmark::Conference> &list);
 	void saveToServer();
 private:
 	QScopedPointer<JBookmarkManagerPrivate> p;
 };
 }
 
-Q_DECLARE_METATYPE(jreen::Bookmark::Conference)
+Q_DECLARE_METATYPE(Jreen::Bookmark::Conference)
 
 #endif // JBOOKMARKMANAGER_H

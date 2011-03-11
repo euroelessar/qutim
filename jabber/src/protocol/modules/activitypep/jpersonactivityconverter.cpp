@@ -113,29 +113,29 @@ QString JPersonActivityConverter::name() const
 
 int JPersonActivityConverter::entityType() const
 {
-	return jreen::Activity::staticExtensionType();
+	return Jreen::Activity::staticExtensionType();
 }
 
-QSharedPointer<jreen::StanzaExtension> JPersonActivityConverter::convertTo(const QVariantHash &map) const
+QSharedPointer<Jreen::StanzaExtension> JPersonActivityConverter::convertTo(const QVariantHash &map) const
 {
 	QString general = map.value(QLatin1String("general")).toString();
 	QString specific = map.value(QLatin1String("specific")).toString();
 	QString text = map.value(QLatin1String("description")).toString();
-	return jreen::StanzaExtension::Ptr(new jreen::Activity(general, specific, text));
+	return Jreen::StanzaExtension::Ptr(new Jreen::Activity(general, specific, text));
 }
 
-QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const
+QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const
 {
-	jreen::Activity *activity = jreen::se_cast<jreen::Activity*>(entity.data());
+	Jreen::Activity *activity = Jreen::se_cast<Jreen::Activity*>(entity.data());
 	QVariantHash data;
 	QString title;
 	QString iconName;
 	data.insert(QLatin1String("id"), QLatin1String("activity"));
-	if (activity->general() <= jreen::Activity::InvalidGeneral)
+	if (activity->general() <= Jreen::Activity::InvalidGeneral)
 		return data;
 	data.insert(QLatin1String("general"), activity->generalName());
 	iconName = QLatin1String("user-status-") + activity->generalName();
-	if (activity->specific() <= jreen::Activity::InvalidSpecific) {
+	if (activity->specific() <= Jreen::Activity::InvalidSpecific) {
 		title = generalNames()->value(activity->general());
 	} else {
 		data.insert(QLatin1String("specific"), activity->specificName());
@@ -153,12 +153,12 @@ QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<jreen::S
 	return data;
 }
 
-qutim_sdk_0_3::LocalizedString JPersonActivityConverter::generalTitle(jreen::Activity::General general)
+qutim_sdk_0_3::LocalizedString JPersonActivityConverter::generalTitle(Jreen::Activity::General general)
 {
 	return generalNames()->value(general);
 }
 
-qutim_sdk_0_3::LocalizedString JPersonActivityConverter::specificTitle(jreen::Activity::Specific specific)
+qutim_sdk_0_3::LocalizedString JPersonActivityConverter::specificTitle(Jreen::Activity::Specific specific)
 {
 	return specificNames()->value(specific);
 }

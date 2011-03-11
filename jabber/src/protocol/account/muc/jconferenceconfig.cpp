@@ -6,7 +6,7 @@
 
 namespace Jabber
 {
-using namespace jreen;
+using namespace Jreen;
 struct JConferenceConfigPrivate
 {
 //	Ui::RoomConfig *ui;
@@ -36,8 +36,8 @@ void JConferenceConfig::setController(QObject *controller)
 	if (!session)
 		return;
 	p->room = session->room();
-	connect(p->room, SIGNAL(configurationReceived(jreen::DataForm::Ptr)),
-			this, SLOT(onConfigurationReceived(jreen::DataForm::Ptr)));
+	connect(p->room, SIGNAL(configurationReceived(Jreen::DataForm::Ptr)),
+			this, SLOT(onConfigurationReceived(Jreen::DataForm::Ptr)));
 }
 
 void JConferenceConfig::loadImpl()
@@ -54,7 +54,7 @@ void JConferenceConfig::cancelImpl()
 {
 }
 
-void JConferenceConfig::onConfigurationReceived(const jreen::DataForm::Ptr &form)
+void JConferenceConfig::onConfigurationReceived(const Jreen::DataForm::Ptr &form)
 {
 	QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
 	if (p->form) {

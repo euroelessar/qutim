@@ -35,9 +35,7 @@ void JPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("zodiac.nv@gmail.com"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("euroelessar@ya.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("sauron@qutim.org"));

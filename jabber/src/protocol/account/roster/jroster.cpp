@@ -17,7 +17,7 @@
 #include <qutim/notificationslayer.h>
 #include <qutim/rosterstorage.h>
 #include <QApplication>
-//jreen
+//Jreen
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
 #include <jreen/nickname.h>
@@ -50,7 +50,7 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 	contact->setContactName(data.value(QLatin1String("name")).toString());
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
-	contact->setContactSubscription(static_cast<jreen::AbstractRosterItem::SubscriptionType>(s10n));
+	contact->setContactSubscription(static_cast<Jreen::AbstractRosterItem::SubscriptionType>(s10n));
 	contacts.insert(id, contact);
 	emit account->contactCreated(contact);
 	return contact;
@@ -77,12 +77,12 @@ JRoster::JRoster(JAccount *account) :
 	d->ignoreChanges = false;
 	d->storage = RosterStorage::instance();
 	d->account->setContactsFactory(d);
-	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
-			this,SLOT(handleNewPresence(jreen::Presence)));
-	connect(d->account->client(),SIGNAL(disconnected(jreen::Client::DisconnectReason)),
+	connect(d->account->client(),SIGNAL(newPresence(Jreen::Presence)),
+			this,SLOT(handleNewPresence(Jreen::Presence)));
+	connect(d->account->client(),SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
 			this,SLOT(onDisconnected()));
-//	connect(d->account->client(),SIGNAL(newMessage(jreen::Message)),
-//			this,SLOT(onNewMessage(jreen::Message)));
+//	connect(d->account->client(),SIGNAL(newMessage(Jreen::Message)),
+//			this,SLOT(onNewMessage(Jreen::Message)));
 }
 
 JRoster::~JRoster()
@@ -93,13 +93,13 @@ JRoster::~JRoster()
 void JRoster::loadFromStorage()
 {
 	Q_D(JRoster);
-	QList<jreen::AbstractRosterItem::Ptr> items;
+	QList<Jreen::AbstractRosterItem::Ptr> items;
 	QString version = d->storage->load(d->account);
 	QHashIterator<QString, JContact*> contacts = d->contacts;
 	while (contacts.hasNext()) {
 		contacts.next();
 		JContact *contact = contacts.value();
-		items << jreen::AbstractRosterItem::Ptr(new jreen::AbstractRosterItem(
+		items << Jreen::AbstractRosterItem::Ptr(new Jreen::AbstractRosterItem(
 				contact->id(), contact->name(), contact->tags(), contact->subscription()));
 	}
 	d->ignoreChanges = true;
@@ -107,7 +107,7 @@ void JRoster::loadFromStorage()
 	d->ignoreChanges = false;
 }
 
-void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
+void JRoster::onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item)
 {
 	Q_D(JRoster);
 	if (d->ignoreChanges)
@@ -122,7 +122,7 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 							tr("Contact %1 has been added to roster").arg(contact->title()));
 	}
 }
-void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
+void JRoster::onItemUpdated(QSharedPointer<Jreen::AbstractRosterItem> item)
 {
 	Q_D(JRoster);
 	if (d->ignoreChanges)
@@ -143,7 +143,7 @@ void JRoster::onItemRemoved(const QString &jid)
 		return;
 	d->storage->removeContact(contact, version());
 	contact->setContactInList(false);
-	contact->setContactSubscription(jreen::AbstractRosterItem::None);
+	contact->setContactSubscription(Jreen::AbstractRosterItem::None);
 	if(d->showNotifications) {
 		Notifications::send(Notifications::System,
 							contact,
@@ -151,7 +151,7 @@ void JRoster::onItemRemoved(const QString &jid)
 	}
 }
 
-void JRoster::onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items)
+void JRoster::onLoaded(const QList<QSharedPointer<Jreen::AbstractRosterItem> > &items)
 {
 	Q_D(JRoster);
 	d->showNotifications = false;
@@ -159,7 +159,7 @@ void JRoster::onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &
 	d->showNotifications = true;
 }
 
-JContact *JRoster::createContact(const jreen::JID &id)
+JContact *JRoster::createContact(const Jreen::JID &id)
 {
 	Q_D(JRoster);
 	JContact *contact = new JContact(id.bare(),d->account);
@@ -170,7 +170,7 @@ JContact *JRoster::createContact(const jreen::JID &id)
 	return contact;
 }
 
-ChatUnit *JRoster::contact(const jreen::JID &jid, bool create)
+ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 {
 	Q_D(JRoster);
 	QString bare = jid.bare();
@@ -196,7 +196,7 @@ ChatUnit *JRoster::contact(const jreen::JID &jid, bool create)
 	return 0;
 }
 
-void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item)
+void JRoster::fillContact(JContact *contact, QSharedPointer<Jreen::AbstractRosterItem> item)
 {
 	QString name = item->name();
 	contact->setContactName(name);
@@ -207,27 +207,27 @@ void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRoste
 	contact->setContactSubscription(item->subscriptionType());
 }
 
-void JRoster::handleNewPresence(jreen::Presence presence)
+void JRoster::handleNewPresence(Jreen::Presence presence)
 {
 	Q_D(JRoster);
 
 	switch(presence.subtype())
 	{
-	case jreen::Presence::Subscribe:
-	case jreen::Presence::Unsubscribe:
-	case jreen::Presence::Unsubscribed:
-	case jreen::Presence::Subscribed:
+	case Jreen::Presence::Subscribe:
+	case Jreen::Presence::Unsubscribe:
+	case Jreen::Presence::Unsubscribed:
+	case Jreen::Presence::Subscribed:
 		handleSubscription(presence);
 		break;
-	case jreen::Presence::Error:
-	case jreen::Presence::Probe:
+	case Jreen::Presence::Error:
+	case Jreen::Presence::Probe:
 		return;
 	default:
 		break;
 	}
 
-	const jreen::Error *error = presence.error();
-	jreen::JID from = presence.from();
+	const Jreen::Error *error = presence.error();
+	Jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
 		return;
@@ -235,7 +235,7 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 	JContact *c = d->contacts.value(from.bare());
 	if (c) {
 		c->setStatus(presence);		
-		jreen::VCardUpdate::Ptr vcard = presence.findExtension<jreen::VCardUpdate>();
+		Jreen::VCardUpdate::Ptr vcard = presence.findExtension<Jreen::VCardUpdate>();
 		if(vcard && vcard->hasPhotoInfo() && !error) {
 			QString hash = vcard->photoHash();
 			debug() << "vCard update" << (c->avatarHash() != hash) << c->id() << c->avatarHash() << hash;
@@ -256,12 +256,12 @@ void JRoster::onDisconnected()
 {
 	Q_D(JRoster);
 	foreach (JContact *c, d->contacts) {
-		jreen::Presence unavailable(jreen::Presence::Unavailable, c->id());
+		Jreen::Presence unavailable(Jreen::Presence::Unavailable, c->id());
 		c->setStatus(unavailable);
 	}
 }
 
-void JRoster::onNewMessage(jreen::Message message)
+void JRoster::onNewMessage(Jreen::Message message)
 {
 	Q_D(JRoster);
 	//temporary
@@ -270,7 +270,7 @@ void JRoster::onNewMessage(jreen::Message message)
 	if(!contact) {
 		contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
 		contact->setInList(false);
-		if(jreen::Nickname::Ptr nick = message.findExtension<jreen::Nickname>())
+		if(Jreen::Nickname::Ptr nick = message.findExtension<Jreen::Nickname>())
 			contact->setName(nick->nick());
 		chatUnit = contact;
 	}
@@ -278,7 +278,7 @@ void JRoster::onNewMessage(jreen::Message message)
 	if(message.body().isEmpty())
 		return;
 	qutim_sdk_0_3::Message coreMessage;
-	if(const jreen::DelayedDelivery *d = message.when())
+	if(const Jreen::DelayedDelivery *d = message.when())
 		coreMessage.setTime(d->dateTime());
 	else
 		coreMessage.setTime(QDateTime::currentDateTime());
@@ -289,7 +289,7 @@ void JRoster::onNewMessage(jreen::Message message)
 	ChatLayer::get(contact,true)->appendMessage(coreMessage);
 }
 
-void JRoster::handleSubscription(jreen::Presence subscription)
+void JRoster::handleSubscription(Jreen::Presence subscription)
 {
 	Q_D(JRoster);
 	QString bare = subscription.from().bare();
@@ -298,14 +298,14 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 	if (contact) {
 		name = contact->name();
 	} else {
-		jreen::Nickname *nickname = subscription.findExtension<jreen::Nickname>().data();
+		Jreen::Nickname *nickname = subscription.findExtension<Jreen::Nickname>().data();
 		if(nickname)
 			name = nickname->nick();
 	}
 
 	switch(subscription.subtype())
 	{
-	case jreen::Presence::Subscribe: {
+	case Jreen::Presence::Subscribe: {
 		contact = static_cast<JContact*>(this->contact(bare,true));
 		contact->setContactName(name);
 		contact->setContactInList(false);
@@ -315,7 +315,7 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
-	case jreen::Presence::Unsubscribe: { //how to handle it?
+	case Jreen::Presence::Unsubscribe: { //how to handle it?
 		QString text = tr("Received a request for removal from the subscribers");
 		Authorization::Reply request(Authorization::Reply::Reject,
 									 contact,
@@ -323,7 +323,7 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
-	case jreen::Presence::Unsubscribed: {
+	case Jreen::Presence::Unsubscribed: {
 		QString text = tr("You have been removed from the list of subscribers");
 		Authorization::Reply request(Authorization::Reply::Rejected,
 									 contact,
@@ -331,7 +331,7 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
-	case jreen::Presence::Subscribed: {
+	case Jreen::Presence::Subscribed: {
 		QString text = tr("You have been added to the list of subscribers");
 		Authorization::Reply request(Authorization::Reply::Accepted,
 									 contact,
@@ -348,7 +348,7 @@ void JRoster::addContact(const JContact *contact)
 {
 	Q_D(JRoster);
 	add(contact->id(),contact->name(),contact->tags());
-	jreen::Presence presence (jreen::Presence::Subscribed,
+	Jreen::Presence presence (Jreen::Presence::Subscribed,
 							  contact->id()
 							  );
 	d->account->client()->send(presence);
@@ -359,7 +359,7 @@ void JRoster::removeContact(const JContact *contact)
 	Q_D(JRoster);
 	remove(contact->id());
 	removeSubscription(contact);
-	jreen::Presence presence (jreen::Presence::Unsubscribed,
+	Jreen::Presence presence (Jreen::Presence::Unsubscribed,
 							  contact->id()
 							  );
 	d->account->client()->send(presence);
@@ -375,17 +375,17 @@ void JRoster::onContactDestroyed(QObject *obj)
 void JRoster::removeSubscription(const JContact *contact)
 {
 	Q_D(JRoster);
-	jreen::Presence presence(jreen::Presence::Unsubscribe,
+	Jreen::Presence presence(Jreen::Presence::Unsubscribe,
 							 contact->id()
 							 );
 	d->account->client()->send(presence);
 	synchronize();
 }
 
-void JRoster::requestSubscription(const jreen::JID &id,const QString &reason)
+void JRoster::requestSubscription(const Jreen::JID &id,const QString &reason)
 {
 	Q_D(JRoster);
-	jreen::Presence presence(jreen::Presence::Subscribe,
+	Jreen::Presence presence(Jreen::Presence::Subscribe,
 							 id,
 							 reason
 							 );
@@ -404,7 +404,7 @@ void JRoster::saveSettings()
 
 void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 {
-	if (jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+	if (Jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
 		i->setGroups(groups);
 		synchronize();
 	}
@@ -412,7 +412,7 @@ void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 
 void JRoster::setName(const JContact *contact, const QString &name)
 {
-	if (jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+	if (Jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
 		i->setName(name);
 		synchronize();
 	}

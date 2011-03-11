@@ -48,15 +48,15 @@ private:
 	QScopedPointer<JProtocolPrivate> d_ptr;
 
 	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(qutim_sdk_0_3::Status))
-	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType))
+	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType))
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_join_changed())
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_bookmark_changed())
 };
 
 namespace JStatus //TODO may be need class JStatus
 {
-	jreen::Presence::Type statusToPresence(const Status &status);
-	Status presenceToStatus(jreen::Presence::Type presence);
+	Jreen::Presence::Type statusToPresence(const Status &status);
+	Status presenceToStatus(Jreen::Presence::Type presence);
 }
 
 

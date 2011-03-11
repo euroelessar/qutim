@@ -5,7 +5,7 @@
 #include <string>
 #include <list>
 
-namespace jreen
+namespace Jreen
 {
 class VCard;
 }
@@ -59,7 +59,7 @@ public:
 	~JInfoRequest();
 	DataItem item(const QString &name) const;
 	State state() const;
-	void setFetchedVCard(jreen::VCard *vcard);
+	void setFetchedVCard(Jreen::VCard *vcard);
 private:
 	void addItem(DataType type, DataItem &group, const QVariant &data);
 	void addMultilineItem(DataType type, DataItem &group, const QString &data);

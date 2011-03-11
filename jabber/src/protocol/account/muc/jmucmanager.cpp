@@ -25,7 +25,7 @@
 #include <qutim/icon.h>
 #include <qutim/status.h>
 #include "../roster/jsoftwaredetection.h"
-//jreen
+//Jreen
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 
@@ -33,7 +33,7 @@ namespace Jabber
 {
 
 using namespace qutim_sdk_0_3;
-using namespace jreen;
+using namespace Jreen;
 
 class JMUCManagerPrivate
 {
@@ -49,7 +49,7 @@ public:
 	void connectAll()
 	{
 		foreach (JMUCSession *session, rooms) {
-			jreen::MUCRoom *room = session->room();
+			Jreen::MUCRoom *room = session->room();
 			if (!room->isJoined() && room->presence() != Presence::Unavailable
 					&& !roomsToConnect.contains(session)) {
 				session->join();
@@ -74,8 +74,8 @@ JMUCManager::JMUCManager(JAccount *account, QObject *parent) :
 	d->bookmarkManager = new JBookmarkManager(d->account);
 	//d->inviteManager = new JInviteManager(d->account);
 	connect(d->bookmarkManager, SIGNAL(bookmarksChanged()), SLOT(bookmarksChanged()));
-	connect(d->account->privacyManager(), SIGNAL(listReceived(QString,QList<jreen::PrivacyItem>)),
-			this, SLOT(onListReceived(QString,QList<jreen::PrivacyItem>)));
+	connect(d->account->privacyManager(), SIGNAL(listReceived(QString,QList<Jreen::PrivacyItem>)),
+			this, SLOT(onListReceived(QString,QList<Jreen::PrivacyItem>)));
 	connect(d->account->privacyManager(), SIGNAL(activeListChanged(QString)),
 			this, SLOT(onActiveListChanged(QString)));
 	connect(d->account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
@@ -86,17 +86,17 @@ JMUCManager::~JMUCManager()
 {
 }
 
-void JMUCManager::onListReceived(const QString &name, const QList<jreen::PrivacyItem> &items)
+void JMUCManager::onListReceived(const QString &name, const QList<Jreen::PrivacyItem> &items)
 {
 	Q_D(JMUCManager);
-	jreen::PrivacyManager *manager = d->account->privacyManager();
+	Jreen::PrivacyManager *manager = d->account->privacyManager();
 	qDebug() << Q_FUNC_INFO << name << manager->activeList();
 	if (name == manager->activeList()) {
 		QSet<QString> badList;
-		QSet<jreen::JID> conferences;
+		QSet<Jreen::JID> conferences;
 		foreach (JMUCSession *muc, d->rooms)
 			conferences << muc->room()->id();
-		QMutableSetIterator<jreen::JID> it(conferences);
+		QMutableSetIterator<Jreen::JID> it(conferences);
 		for (int i = 0; i < items.size() && !conferences.isEmpty(); i++) {
 			it.toFront();
 			while (it.hasNext()) {
@@ -115,12 +115,12 @@ void JMUCManager::onListReceived(const QString &name, const QList<jreen::Privacy
 			return;
 		}
 		QSetIterator<QString> it2(badList);
-		QList<jreen::PrivacyItem> newList = items;
+		QList<Jreen::PrivacyItem> newList = items;
 		while (it2.hasNext()) {
 			QString domain = it2.next();
-			jreen::JID jid;
+			Jreen::JID jid;
 			jid.setDomain(domain);
-			jreen::PrivacyItem item;
+			Jreen::PrivacyItem item;
 			item.setAction(PrivacyItem::Allow);
 			item.setOrder(0);
 			item.setJID(jid);
@@ -174,7 +174,7 @@ void JMUCManager::join(const QString &conference, const QString &nick, const QSt
 	}
 	if (!room) {
 		Q_ASSERT(!nick.isEmpty()); // Room doesn't exist. Nickname is required.
-		jreen::JID jid = conference;
+		Jreen::JID jid = conference;
 		jid.setResource(nick);
 		room = new JMUCSession(jid, password, d->account);
 		const QList<Bookmark::Conference> bookmarks = d->bookmarkManager->bookmarksList();
@@ -185,7 +185,7 @@ void JMUCManager::join(const QString &conference, const QString &nick, const QSt
 			}
 		}
 		d->rooms.insert(conference, room);
-		jreen::PrivacyManager *manager = d->account->privacyManager();
+		Jreen::PrivacyManager *manager = d->account->privacyManager();
 		emit conferenceCreated(room);
 		d->roomsToConnect << room;
 		manager->requestList(manager->activeList());
@@ -222,10 +222,10 @@ void JMUCManager::appendMUCSession(JMUCSession *room)
 	d_func()->rooms.insert(room->id(), room);
 }
 
-void JMUCManager::setPresenceToRooms(jreen::Presence::Type presence)
+void JMUCManager::setPresenceToRooms(Jreen::Presence::Type presence)
 {
 	Q_D(JMUCManager);
-	if (presence == jreen::Presence::Unavailable) {
+	if (presence == Jreen::Presence::Unavailable) {
 		foreach (JMUCSession *room, d->rooms) {
 			if(room->isJoined()) {
 				room->setAutoJoin(true);
@@ -239,7 +239,7 @@ void JMUCManager::setPresenceToRooms(jreen::Presence::Type presence)
 	}
 }
 
-ChatUnit *JMUCManager::muc(const jreen::JID &jid)
+ChatUnit *JMUCManager::muc(const Jreen::JID &jid)
 {
 	if (JMUCSession *muc = d_func()->rooms.value(jid.bare())) {
 		if (jid.isBare())

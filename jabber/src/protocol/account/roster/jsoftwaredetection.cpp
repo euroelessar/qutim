@@ -46,8 +46,8 @@ QString fromConfigNode(QString node)
 JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 {
 	m_account = account;
-	jreen::Client *client = account->client();
-	connect(client,SIGNAL(newPresence(jreen::Presence)),SLOT(handlePresence(jreen::Presence)));
+	Jreen::Client *client = account->client();
+	connect(client,SIGNAL(newPresence(Jreen::Presence)),SLOT(handlePresence(Jreen::Presence)));
 	
 	
 	Config cache(QLatin1String("jabberhash"));
@@ -94,7 +94,7 @@ void JSoftwareDetection::timerEvent(QTimerEvent *ev)
 	}
 }
 
-void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
+void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 {
 	QString jid = presence.from().full();
 	ChatUnit *unit = m_account->getUnit(jid, false);
@@ -104,8 +104,8 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 			return;
 
 		QString node;
-		if (jreen::Capabilities *caps = presence.findExtension<jreen::Capabilities>().data()) {
-			qDebug() << "handle caps" << caps->node();
+		if (Jreen::Capabilities *caps = presence.findExtension<Jreen::Capabilities>().data()) {
+//			qDebug() << "handle caps" << caps->node();
 			QString capsNode = caps->node();
 			if(capsNode == QLatin1String("http://www.android.com/gtalk/client/caps")) {
 				QString software = "GTalk (Android)";
@@ -131,16 +131,16 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 				QString qNode = node;
 				unit->setProperty("node", qNode);
 				SoftwareInfoHash::iterator it = m_hash.find(qNode);
-				qDebug() << "find from hash" << m_hash.count();
+//				qDebug() << "find from hash" << m_hash.count();
 				if (it != m_hash.end()) {
 					SoftwareInfo &info = *it;
 					resource->setFeatures(info.features);
-					qDebug() << info.name;
+//					qDebug() << info.name;
 					if (!info.finished) {
-						qDebug() << "Send software version request";
-						jreen::IQ iq(jreen::IQ::Get, presence.from());
-						iq.addExtension(new jreen::SoftwareVersion());
-						m_account->client()->send(iq,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);
+//						qDebug() << "Send software version request";
+						Jreen::IQ iq(Jreen::IQ::Get, presence.from());
+						iq.addExtension(new Jreen::SoftwareVersion());
+						m_account->client()->send(iq,this,SLOT(handleIQ(Jreen::IQ,int)),RequestSoftware);
 					} else {
 						updateClientData(resource, info.description, info.name, info.version, info.os, info.icon);
 					}
@@ -150,17 +150,17 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 		}
 
 		setClientInfo(resource, "", "unknown-client");
-		jreen::IQ iq(jreen::IQ::Get,presence.from());
-		iq.addExtension(new jreen::Disco::Info(node));
-		m_account->client()->send(iq,this,SLOT(handleIQ(jreen::IQ,int)),RequestDisco);
+		Jreen::IQ iq(Jreen::IQ::Get,presence.from());
+		iq.addExtension(new Jreen::Disco::Info(node));
+		m_account->client()->send(iq,this,SLOT(handleIQ(Jreen::IQ,int)),RequestDisco);
 	}
 }
 
-void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
+void JSoftwareDetection::handleIQ(const Jreen::IQ &iq, int context)
 {	
 	if (context == RequestSoftware) {
-		if (const jreen::Error *error = iq.error()) {
-			if (error->condition() != jreen::Error::ServiceUnavailable)
+		if (const Jreen::Error *error = iq.error()) {
+			if (error->condition() != Jreen::Error::ServiceUnavailable)
 				return;
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
@@ -174,7 +174,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			}
 			return;
 		}
-		if (jreen::SoftwareVersion::Ptr soft = iq.findExtension<jreen::SoftwareVersion>()) {
+		if (Jreen::SoftwareVersion::Ptr soft = iq.findExtension<Jreen::SoftwareVersion>()) {
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
 				QString node = resource->property("node").toString();
@@ -198,7 +198,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			}
 		}
 	} else if(context == RequestDisco) {
-		jreen::Disco::Info *discoInfo = iq.findExtension<jreen::Disco::Info>().data();
+		Jreen::Disco::Info *discoInfo = iq.findExtension<Jreen::Disco::Info>().data();
 		if(!discoInfo)
 			return;
 		iq.accept();
@@ -208,7 +208,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		info.features = discoInfo->features();
 
 		QString jid = iq.from().full();
-		jreen::DataForm::Ptr form = discoInfo->form();
+		Jreen::DataForm::Ptr form = discoInfo->form();
 
 		if (form && form->typeName() == QLatin1String("urn:xmpp:dataforms:softwareinfo")) {
 			QString software = form->field(QLatin1String("software")).value();
@@ -232,7 +232,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			info.description = client;
 			info.finished = true;
 		} else {
-			foreach (const jreen::Disco::Identity &identity, discoInfo->identities()) {
+			foreach (const Jreen::Disco::Identity &identity, discoInfo->identities()) {
 				if (identity.category == QLatin1String("client")) {
 					info.name = identity.name;
 					info.icon = getClientIcon(info.name);
@@ -249,9 +249,9 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 				unit->setProperty("node", node);
 
 			if (!info.finished) {
-				jreen::IQ get(jreen::IQ::Get,unit->id());
-				get.addExtension(new jreen::SoftwareVersion());
-				m_account->client()->send(get,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);
+				Jreen::IQ get(Jreen::IQ::Get,unit->id());
+				get.addExtension(new Jreen::SoftwareVersion());
+				m_account->client()->send(get,this,SLOT(handleIQ(Jreen::IQ,int)),RequestSoftware);
 			} else {
 				updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
 			}

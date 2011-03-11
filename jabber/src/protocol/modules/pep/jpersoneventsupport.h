@@ -59,7 +59,7 @@ namespace Jabber
 		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
 		virtual bool eventFilter(QObject *obj, QEvent *ev);
 	protected slots:
-		void onEventReceived(const jreen::PubSub::Event::Ptr &event, const jreen::JID &from);
+		void onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from);
 //		void handleTag(const std::string &jid, gloox::Tag *tag);
 		
 //		// wow... reimplemented from gloox::PubSub::ResultHandler
@@ -119,7 +119,7 @@ namespace Jabber
 //											 const gloox::Error  *error = 0) { Q_UNUSED(error); }
 	private:
 		qutim_sdk_0_3::Account *m_account;
-		jreen::PubSub::Manager *m_manager;
+		Jreen::PubSub::Manager *m_manager;
 		quint16 m_eventId;
 		QMap<int, PersonEventConverter*> m_converters;
 	};
