@@ -24,6 +24,7 @@
 #include <kaboutdata.h>
 #include <kglobal.h>
 #include <kcomponentdata.h>
+#include <kdeversion.h>
 #include <QHash>
 
 using namespace qutim_sdk_0_3;
@@ -76,8 +77,12 @@ void KdeAboutAppDialog::showWidget()
 		m_data->addAuthor(ki18n(info.name().toString().toUtf8()),
 		                  ki18n(info.task().toString().toUtf8()),
 		                  info.email().toUtf8(),
-		                  info.web().toUtf8(),
-		                  info.ocsUsername().toUtf8());
+		                  info.web().toUtf8()
+#if KDE_VERSION >= KDE_MAKE_VERSION(4, 6, 0)
+		                  ,
+		                  info.ocsUsername().toUtf8()
+#endif
+		                  );
 	}
 	m_widget = new KAboutApplicationDialog(m_data);
 	m_widget->show();
