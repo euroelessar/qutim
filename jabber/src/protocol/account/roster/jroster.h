@@ -5,7 +5,7 @@
 #include <qutim/configbase.h>
 #include <qutim/messagesession.h>
 #include "metacontacts.h"
-//jreen
+//Jreen
 #include <jreen/abstractroster.h>
 #include <jreen/message.h>
 
@@ -17,7 +17,7 @@ class JAccount;
 class JContact;
 
 class JRosterPrivate;
-class JRoster : public jreen::AbstractRoster
+class JRoster : public Jreen::AbstractRoster
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JRoster)
@@ -26,10 +26,10 @@ public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
 	void loadFromStorage();
-	ChatUnit *contact(const jreen::JID &id, bool create = false);
+	ChatUnit *contact(const Jreen::JID &id, bool create = false);
 	void addContact(const JContact *contact);
 	void removeContact(const JContact *contact);
-	void requestSubscription(const jreen::JID &id, const QString &reason = QString());
+	void requestSubscription(const Jreen::JID &id, const QString &reason = QString());
 	void removeSubscription(const JContact *contact);
 	void setName(const JContact *contact, const QString &name);
 	void setGroups(const JContact *contact, const QStringList &groups);
@@ -37,19 +37,19 @@ public slots:
 	void loadSettings();
 	void saveSettings();
 protected:
-	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
-	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
+	virtual void onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item);
+	virtual void onItemUpdated(QSharedPointer<Jreen::AbstractRosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
-	virtual void onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items);
-	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
+	virtual void onLoaded(const QList<QSharedPointer<Jreen::AbstractRosterItem> > &items);
+	void fillContact(JContact *contact, QSharedPointer<Jreen::AbstractRosterItem> item);
 protected slots:
-	void handleNewPresence(jreen::Presence);
-	void handleSubscription(jreen::Presence subscribe); //TODO may be need a separated subscription manager?
+	void handleNewPresence(Jreen::Presence);
+	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
-	void onNewMessage(jreen::Message message); //TODO move this method to JMessageManager
+	void onNewMessage(Jreen::Message message); //TODO move this method to JMessageManager
 	void onContactDestroyed(QObject *obj);
 private:
-	JContact *createContact(const jreen::JID &id);
+	JContact *createContact(const Jreen::JID &id);
 	QScopedPointer<JRosterPrivate> d_ptr;
 };
 

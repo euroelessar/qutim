@@ -7,7 +7,7 @@
 
 namespace Jabber
 {
-using namespace jreen;
+using namespace Jreen;
 struct JBookmarkManagerPrivate
 {
 	JAccount *account;
@@ -27,8 +27,8 @@ JBookmarkManager::JBookmarkManager(JAccount *account) :
 	p->storage = new BookmarkStorage(account->client());
 	p->storage->setPrivateXml(account->privateXml());
 	p->storage->setPubSubManager(account->pubSubManager());
-	connect(p->storage, SIGNAL(bookmarksReceived(jreen::Bookmark::Ptr)),
-			this, SLOT(onBookmarksReceived(jreen::Bookmark::Ptr)));
+	connect(p->storage, SIGNAL(bookmarksReceived(Jreen::Bookmark::Ptr)),
+			this, SLOT(onBookmarksReceived(Jreen::Bookmark::Ptr)));
 	//		p->storage->registerBookmarkHandler(this);
 	Config config = p->account->config();
 	config.beginGroup(QLatin1String("bookmarks"));
@@ -44,7 +44,7 @@ JBookmarkManager::~JBookmarkManager()
 
 }
 
-void JBookmarkManager::onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark)
+void JBookmarkManager::onBookmarksReceived(const Jreen::Bookmark::Ptr &bookmark)
 {
 	debug() << "BookmarksReceived";
 	if (bookmark) {
@@ -122,7 +122,7 @@ void JBookmarkManager::saveRecent(const QString &conference, const QString &nick
 	writeToCache("recent", p->recent);
 }
 
-bool JBookmarkManager::removeBookmark(const jreen::Bookmark::Conference &bookmark)
+bool JBookmarkManager::removeBookmark(const Jreen::Bookmark::Conference &bookmark)
 {
 	if (p->bookmarks.removeOne(bookmark)) {
 		debug() << p->bookmarks.size();

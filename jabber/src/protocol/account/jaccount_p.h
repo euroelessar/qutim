@@ -3,14 +3,14 @@
 
 #include "jaccount.h"
 #include "muc/jbookmarkmanager.h"
-//jreen
+//Jreen
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
 #include "vcard/jvcardmanager.h"
 #include <sdk/jabber.h>
 #include <QSignalMapper>
-namespace jreen
+namespace Jreen
 {
 class Client;
 }
@@ -25,15 +25,15 @@ class JAccountPrivate
 public:
 	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
 	inline ~JAccountPrivate() {}
-	//jreen
-	jreen::Client client;
+	//Jreen
+	Jreen::Client client;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
-	jreen::PrivacyManager *privacyManager;
+	Jreen::PrivacyManager *privacyManager;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;
-	jreen::PubSub::Manager *pubSubManager;
-	jreen::PrivateXml *privateXml;
+	Jreen::PubSub::Manager *pubSubManager;
+	Jreen::PrivateXml *privateXml;
 	JMessageHandler *messageHandler;
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
@@ -49,8 +49,8 @@ public:
 	int priority;
 	
 	void applyStatus(const Status &status);
-	void setPresence(jreen::Presence);
-	void _q_disconnected(jreen::Client::DisconnectReason);
+	void setPresence(Jreen::Presence);
+	void _q_disconnected(Jreen::Client::DisconnectReason);
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);
 	void _q_connected();

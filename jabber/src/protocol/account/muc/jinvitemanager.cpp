@@ -7,7 +7,7 @@
 //#include <gloox/mucroom.h>
 //#include <QStringBuilder>
 //#include <QMessageBox>
-////jreen
+////Jreen
 //#include <jreen/client.h>
 
 //namespace Jabber

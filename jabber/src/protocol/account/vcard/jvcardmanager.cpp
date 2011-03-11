@@ -29,8 +29,8 @@ JVCardManager::JVCardManager(JAccount *account)
 {
 	Q_D(JVCardManager);
 	d->account = account;
-	connect(account->client(),SIGNAL(newIQ(jreen::IQ)),
-			SLOT(handleIQ(jreen::IQ)));
+	connect(account->client(),SIGNAL(newIQ(Jreen::IQ)),
+			SLOT(handleIQ(Jreen::IQ)));
 }
 
 JVCardManager::~JVCardManager()
@@ -45,29 +45,29 @@ void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 		debug() << "fetch vcard";
 		d->contacts.insert(contact, request);
 		//fetch iq
-		jreen::IQ iq(jreen::IQ::Get,contact);
-		iq.addExtension(new jreen::VCard());
-		d->account->client()->send(iq,this,SLOT(onIqReceived(jreen::IQ,int)),0);
+		Jreen::IQ iq(Jreen::IQ::Get,contact);
+		iq.addExtension(new Jreen::VCard());
+		d->account->client()->send(iq,this,SLOT(onIqReceived(Jreen::IQ,int)),0);
 	}
 }
 
-void JVCardManager::storeVCard(jreen::VCard *vcard)
+void JVCardManager::storeVCard(Jreen::VCard *vcard)
 {
 	//Q_D(JVCardManager);
 	//d->manager->storeVCard(vcard, this);
 }
 
-void JVCardManager::handleIQ(const jreen::IQ &iq)
+void JVCardManager::handleIQ(const Jreen::IQ &iq)
 {
 	Q_D(JVCardManager);
 	debug() << "handle IQ";
-	if(!iq.containsExtension<jreen::VCard>())
+	if(!iq.containsExtension<Jreen::VCard>())
 		return;
 	iq.accept();
 	QString id = iq.from().full();
 	QString avatarHash;
-	jreen::VCard *vcard = iq.findExtension<jreen::VCard>().data();
-	const jreen::VCard::Photo &photo = vcard->photo();
+	Jreen::VCard *vcard = iq.findExtension<Jreen::VCard>().data();
+	const Jreen::VCard::Photo &photo = vcard->photo();
 	if (!photo.data().isEmpty()) {
 		avatarHash = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1).toHex();
 		QDir dir(d->account->getAvatarPath());
@@ -87,8 +87,8 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 			nick = d->account->id();
 		if (d->account->name() != nick)
 			d->account->setNick(nick);
-		jreen::Presence presence = d->account->client()->presence();
-		jreen::VCardUpdate::Ptr update = presence.findExtension<jreen::VCardUpdate>();
+		Jreen::Presence presence = d->account->client()->presence();
+		Jreen::VCardUpdate::Ptr update = presence.findExtension<Jreen::VCardUpdate>();
 		if (update->photoHash() != avatarHash) {
 			d->account->config("general").setValue("photoHash", avatarHash);
 			update->setPhotoHash(avatarHash);
@@ -120,7 +120,7 @@ JAccount * JVCardManager::account() const
 	return d_func()->account;
 }
 
-void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
+void JVCardManager::onIqReceived(const Jreen::IQ &iq, int)
 {
 	debug() << "vcard received";
 	handleIQ(iq);

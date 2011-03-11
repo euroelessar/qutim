@@ -78,7 +78,7 @@ int JContactResource::priority()
 	return d_func()->presence.priority();
 }
 
-void JContactResource::setStatus(const jreen::Presence presence)
+void JContactResource::setStatus(const Jreen::Presence presence)
 {
 	Q_D(JContactResource);
 	Status current = status();
@@ -99,11 +99,11 @@ bool JContactResource::event(QEvent *ev)
 {
 	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-		jreen::ChatState::State state = static_cast<jreen::ChatState::State>(chatEvent->chatState());
+		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
 
-		jreen::Message msg(jreen::Message::Chat,
+		Jreen::Message msg(Jreen::Message::Chat,
 						   d_func()->id);
-		msg.addExtension(new jreen::ChatState(state));
+		msg.addExtension(new Jreen::ChatState(state));
 		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
 		account->messageSessionManager()->send(msg);
 		return true;

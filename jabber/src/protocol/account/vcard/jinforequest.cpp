@@ -86,7 +86,7 @@ class JInfoRequestPrivate
 {
 public:
 	InfoRequest::State state;
-	const jreen::VCard *vcard;
+	const Jreen::VCard *vcard;
 	DataItem *item;
 	QMap<QString, DataItem> items;
 };
@@ -105,7 +105,7 @@ JInfoRequest::~JInfoRequest()
 {
 }
 
-void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
+void JInfoRequest::setFetchedVCard(Jreen::VCard *vcard)
 {
 	Q_D(JInfoRequest);
 	DataItem item;
@@ -127,14 +127,14 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 		//// telephone
 		{
 			if (!vcard->telephones().empty()) {
-				foreach (jreen::VCard::Telephone phone, vcard->telephones())
+				foreach (Jreen::VCard::Telephone phone, vcard->telephones())
 				{
 					DataType type;
-					if (phone.testType(jreen::VCard::Telephone::Home))
+					if (phone.testType(Jreen::VCard::Telephone::Home))
 						type = HomePhone;
-					else if (phone.testType(jreen::VCard::Telephone::Work))
+					else if (phone.testType(Jreen::VCard::Telephone::Work))
 						type = WorkPhone;
-					else if (phone.testType(jreen::VCard::Telephone::Cell))
+					else if (phone.testType(Jreen::VCard::Telephone::Cell))
 						type = MobilePhone;
 					else
 						type = Phone;
@@ -147,12 +147,12 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 		//// email
 		{
 			if (!vcard->emails().empty()) {
-				foreach (jreen::VCard::EMail email, vcard->emails())
+				foreach (Jreen::VCard::EMail email, vcard->emails())
 				{
 					DataType type;
-					if (email.testType(jreen::VCard::EMail::Home))
+					if (email.testType(Jreen::VCard::EMail::Home))
 						type = PersonalEmail;
-					else if (email.testType(jreen::VCard::EMail::Work))
+					else if (email.testType(Jreen::VCard::EMail::Work))
 						type = WorkEmail;
 					else
 						type = Email;

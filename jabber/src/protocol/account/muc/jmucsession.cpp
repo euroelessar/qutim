@@ -41,7 +41,7 @@
 #include <qutim/debug.h>
 #include <QInputDialog>
 
-using namespace jreen;
+using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber
@@ -50,15 +50,15 @@ class JMUCSessionPrivate
 {
 public:
 	QPointer<JAccount> account;
-	jreen::MUCRoom *room;
-	jreen::JID jid;
+	Jreen::MUCRoom *room;
+	Jreen::JID jid;
 	QString title;
 	QString topic;
 	QHash<QString, quint64> messages;
 	QHash<QString, JMUCUser *> users;
 	bool isJoined;
 	bool isAutoRejoin;
-	jreen::Bookmark::Conference bookmark;
+	Jreen::Bookmark::Conference bookmark;
 	QPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
@@ -66,27 +66,27 @@ public:
 	QString *thread;
 };
 
-JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccount *account) :
+JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccount *account) :
 	Conference(account), d_ptr(new JMUCSessionPrivate)
 {
 	Q_D(JMUCSession);
 	d->jid = room.bareJID();
 	d->account = account;
-	d->room = new jreen::MUCRoom(account->client(), room);
-	connect(d->room, SIGNAL(presenceReceived(jreen::Presence,const jreen::MUCRoom::Participant*)),
-			this, SLOT(onParticipantPresence(jreen::Presence,const jreen::MUCRoom::Participant*)));
-	connect(d->room, SIGNAL(presenceReceived(jreen::Presence,const jreen::MUCRoom::Participant*)),
-			d->account->softwareDetection(), SLOT(handlePresence(jreen::Presence)));
-	connect(d->room, SIGNAL(messageReceived(jreen::Message,bool)),
-			this, SLOT(onMessage(jreen::Message,bool)));
-	connect(d->room, SIGNAL(serviceMessageReceived(jreen::Message)),
-			this, SLOT(onServiceMessage(jreen::Message)));
+	d->room = new Jreen::MUCRoom(account->client(), room);
+	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
+			this, SLOT(onParticipantPresence(Jreen::Presence,const Jreen::MUCRoom::Participant*)));
+	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
+			d->account->softwareDetection(), SLOT(handlePresence(Jreen::Presence)));
+	connect(d->room, SIGNAL(messageReceived(Jreen::Message,bool)),
+			this, SLOT(onMessage(Jreen::Message,bool)));
+	connect(d->room, SIGNAL(serviceMessageReceived(Jreen::Message)),
+			this, SLOT(onServiceMessage(Jreen::Message)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
 	connect(d->room, SIGNAL(leaved()), this, SIGNAL(left()));
 	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
-	connect(d->room, SIGNAL(error(jreen::Error::Ptr)),
-			this, SLOT(onError(jreen::Error::Ptr)));
+	connect(d->room, SIGNAL(error(Jreen::Error::Ptr)),
+			this, SLOT(onError(Jreen::Error::Ptr)));
 	//	if (!password.isEmpty())
 	//		d->room->setPassword(password);
 	d->isJoined = false;
@@ -218,7 +218,7 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 			return true;
 		}
 	}
-	jreen::Message jMsg(jreen::Message::Groupchat, d->jid.bareJID(), message.text());
+	Jreen::Message jMsg(Jreen::Message::Groupchat, d->jid.bareJID(), message.text());
 	jMsg.setID(d->account->client()->getID());
 	d->messages.insert(jMsg.id(), message.id());
 	d->account->client()->send(jMsg);
@@ -230,14 +230,14 @@ bool JMUCSession::sendPrivateMessage(const qutim_sdk_0_3::Message &message)
 	Q_D(JMUCSession);
 	if (account()->status() == Status::Offline)
 		return false;
-	jreen::Message jMsg(jreen::Message::Chat, message.chatUnit()->id(), message.text());
+	Jreen::Message jMsg(Jreen::Message::Chat, message.chatUnit()->id(), message.text());
 	jMsg.setID(d->account->client()->getID());
 	d->account->client()->send(jMsg);
 	return true;
 }
 
-void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
-										const jreen::MUCRoom::Participant *participant)
+void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
+										const Jreen::MUCRoom::Participant *participant)
 {
 	Q_D(JMUCSession);
 	QString nick = presence.from().resource();
@@ -381,7 +381,7 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 	}
 }
 
-void JMUCSession::onMessage(const jreen::Message &msg, bool priv)
+void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 {
 	Q_D(JMUCSession);
 	//	Q_ASSERT(room == d->room);
@@ -433,7 +433,7 @@ void JMUCSession::onMessage(const jreen::Message &msg, bool priv)
 	}
 }
 
-void JMUCSession::onServiceMessage(const jreen::Message &msg)
+void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
 	//TODO add capthca handler
 	ChatSession *chatSession = ChatLayer::get(this, true);
@@ -545,7 +545,7 @@ void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 //	Q_ASSERT(room == d_func()->room);
 //}
 
-void JMUCSession::setBookmark(const jreen::Bookmark::Conference &bookmark)
+void JMUCSession::setBookmark(const Jreen::Bookmark::Conference &bookmark)
 {
 	Q_D(JMUCSession);
 	d->bookmark = bookmark;
@@ -560,7 +560,7 @@ void JMUCSession::setBookmark(const jreen::Bookmark::Conference &bookmark)
 	emit bookmarkChanged(bookmark);
 }
 
-jreen::Bookmark::Conference JMUCSession::bookmark()
+Jreen::Bookmark::Conference JMUCSession::bookmark()
 {
 	return d_func()->bookmark;
 }
@@ -612,7 +612,7 @@ bool JMUCSession::isError()
 	return d_func()->isError;
 }
 
-jreen::MUCRoom *JMUCSession::room()
+Jreen::MUCRoom *JMUCSession::room()
 {
 	return d_func()->room;
 }
@@ -659,7 +659,7 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 	//	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
 }
 
-void JMUCSession::onError(jreen::Error::Ptr error)
+void JMUCSession::onError(Jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
 	debug() << "error" << error->condition();

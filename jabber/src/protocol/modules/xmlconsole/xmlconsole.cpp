@@ -12,7 +12,7 @@
 #include <qutim/systemintegration.h>
 //#include <QElapsedTimer>
 
-using namespace jreen;
+using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber
@@ -21,13 +21,10 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	QWidget(parent),
 	m_ui(new Ui::XmlConsole),
 	m_client(0),
-	//	    m_bracketsColor(0),
 	m_filter(0x1f)
 {
 	m_ui->setupUi(this);
-	qDebug("%s", Q_FUNC_INFO);
-	//		m_incoming.depth = 0;
-	//		m_outgoing.depth = 0;
+	
 	QPalette pal = palette();
 	pal.setColor(QPalette::Base, Qt::black);
 	pal.setColor(QPalette::Text, Qt::white);
@@ -35,10 +32,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	QTextDocument *doc = m_ui->xmlBrowser->document();
 	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
 	doc->clear();
-	//		doc->rootFrame()->set
-	//		doc->setHtml(QLatin1String("<body bgcolor='#000000'></body>"));
-	//		QTextCursor cur(doc);
-	//		cur.movePosition(QTextCursor::Start);
+	
 	QTextFrameFormat format = doc->rootFrame()->frameFormat();
 	format.setBackground(QColor(Qt::black));
 	format.setMargin(0);
@@ -82,16 +76,6 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	custom->setChecked(true);
 	connect(group, SIGNAL(triggered(QAction*)), this, SLOT(onActionGroupTriggered(QAction*)));
 	m_ui->filterButton->setMenu(menu);
-	//		m_bracketsColor = QLatin1String("#666666");
-	//		m_incoming.bodyColor = QLatin1String("#bb66bb");
-	//		m_incoming.tagColor = QLatin1String("#006666");
-	//		m_incoming.attributeColor = QLatin1String("#009933");
-	//		m_incoming.paramColor = QLatin1String("#cc0000");
-	//		m_outgoing.bodyColor = QLatin1String("#999999");
-	//		m_outgoing.tagColor = QLatin1String("#22aa22");
-	//		m_outgoing.attributeColor = QLatin1String("#ffff33");
-	//		m_outgoing.paramColor = QLatin1String("#dd8811");
-	//		doc->setDocumentMargin(0);
 	m_stackBracketsColor = QColor(0x666666);
 	m_stackIncoming.bodyColor = QColor(0xbb66bb);
 	m_stackIncoming.tagColor = QColor(0x006666);
@@ -115,7 +99,6 @@ XmlConsole::~XmlConsole()
 
 void XmlConsole::init(Account *account, const JabberParams &params)
 {
-	qDebug("%s", Q_FUNC_INFO);
 	m_client = params.item<Client>();
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
 										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
@@ -131,13 +114,6 @@ void XmlConsole::show()
 
 void XmlConsole::handleStreamBegin()
 {
-	//		m_incoming.reader.clear();
-	//		m_outgoing.reader.clear();
-	//		m_incoming.depth = 0;
-	//		m_outgoing.depth = 0;
-	//		m_incoming.xmlns.clear();
-	//		m_outgoing.xmlns.clear();
-
 	m_stackIncoming.reader.clear();
 	m_stackOutgoing.reader.clear();
 	m_stackIncoming.depth = 0;
@@ -150,11 +126,6 @@ void XmlConsole::handleStreamBegin()
 
 void XmlConsole::handleStreamEnd()
 {
-	//		m_incoming.reader.clear();
-	//		m_outgoing.reader.clear();
-	//		m_incoming.depth = 0;
-	//		m_outgoing.depth = 0;
-
 	m_stackIncoming.reader.clear();
 	m_stackOutgoing.reader.clear();
 	m_stackIncoming.depth = 0;
@@ -168,69 +139,24 @@ void XmlConsole::handleStreamEnd()
 void XmlConsole::handleIncomingData(const char *data, qint64 size)
 {
 	stackProcess(QByteArray::fromRawData(data, size), true);
-	//		process(QByteArray::fromRawData(data, size), true);
 }
 
 void XmlConsole::handleOutgoingData(const char *data, qint64 size)
 {
 	stackProcess(QByteArray::fromRawData(data, size), false);
-	//		process(QByteArray::fromRawData(data, size), false);
 }
-
-//	QString generate_space(int depth)
-//	{
-//		depth *= 2;
-//		QString space;
-//		while (depth--)
-//			space += QLatin1String("&nbsp;");
-//		return space;
-//	}
 
 QString generate_stacked_space(int depth)
 {
 	return QString(depth * 2, QLatin1Char(' '));
 }
 
-//	void XmlConsole::Environment::appendText(const QString &text, const QLatin1String &color)
-//	{
-//		html.append(QLatin1String("<font color="));
-//		html.append(color);
-//		html.append(QLatin1String(">"));
-//		html.append(text);
-//		html.append(QLatin1String("</font>"));
-//	}
-
-//	void XmlConsole::Environment::appendAttribute(const QString &name, const QStringRef &value)
-//	{
-//		html.append(QLatin1String(" <font color='"));
-//		html.append(attributeColor);
-//		html.append(QLatin1String("'>"));
-//		html.append(Qt::escape(name));
-//		html.append(QLatin1String("</font>=<font color='"));
-//		html.append(paramColor);
-//		html.append(QLatin1String("'>'"));
-//		html.append(Qt::escape(value.toString()));
-//		html.append(QLatin1String("'</font>"));
-//	}
-
-//	struct MethodLiveCounter
-//	{
-//		MethodLiveCounter(const char *m, qint64 &t) : method(m), time(t) { timer.start(); }
-//		~MethodLiveCounter() { time += timer.elapsed(); debug() << method << "worked" << time << "ms"; }
-//		QElapsedTimer timer;
-//		const char *method;
-//		qint64 &time;
-//	};
-
 void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 {
-	//		static qint64 t = 0;
-	//		MethodLiveCounter counter(Q_FUNC_INFO, t);
 	StackEnvironment *d = &(incoming ? m_stackIncoming : m_stackOutgoing);
 	d->reader.addData(data);
 	StackToken *token;
 	while (d->reader.readNext() > QXmlStreamReader::Invalid) {
-		//			debug() << d->depth << d->reader.tokenString();
 		switch(d->reader.tokenType()) {
 		case QXmlStreamReader::StartElement:
 			d->depth++;
@@ -248,7 +174,6 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 				token->startTag.empty = true;
 			else if (d->depth > 1)
 				d->tokens << new StackToken(d->reader);
-			//				debug() << __LINE__ << d->depth << d->tokens.size();
 			if (d->depth == 2) {
 				QTextCursor cursor(m_ui->xmlBrowser->document());
 				cursor.movePosition(QTextCursor::End);
@@ -356,110 +281,6 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 	}
 }
 
-//	void XmlConsole::process(const QByteArray &data, bool incoming)
-//	{
-//		static qint64 t = 0;
-//		MethodLiveCounter counter(Q_FUNC_INFO, t);
-//		Environment *d = &(incoming ? m_incoming : m_outgoing);
-//		d->reader.addData(data);
-//		while (d->reader.readNext() > QXmlStreamReader::Invalid) {
-//			switch(d->reader.tokenType()) {
-//			case QXmlStreamReader::StartElement:
-//				if (d->last == QXmlStreamReader::StartElement)
-//					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
-//				if (d->depth == 1) {
-//					d->html.resize(0);
-//					d->current.type = XmlNode::Custom;
-//					if (d->reader.name() == QLatin1String("iq"))
-//						d->current.type = XmlNode::Iq;
-//					else if (d->reader.name() == QLatin1String("presence"))
-//						d->current.type = XmlNode::Presence;
-//					else if (d->reader.name() == QLatin1String("message"))
-//						d->current.type = XmlNode::Message;
-//					d->current.incoming = incoming;
-//					d->current.time = QDateTime::currentDateTime();
-//					d->current.xmlns.clear();
-//					d->current.xmlns << d->reader.namespaceUri().toString();
-//					d->current.attributes.clear();
-//					foreach (const QXmlStreamAttribute &attrb, d->reader.attributes())
-//						d->current.attributes << attrb.value().toString();
-//					QLatin1String jid = QLatin1String(incoming ? "from" : "to");
-//					d->current.jid = d->reader.attributes().value(jid).toString();
-//				}
-//				if (!d->html.isEmpty())
-//					d->html.append(QLatin1String("<br/>"));
-//				d->html.append(generate_space(d->depth));
-//				d->appendText(QLatin1String("&lt;"), m_bracketsColor);
-//				d->appendText(Qt::escape(d->reader.name().toString()), d->tagColor);
-//				if (d->xmlns != d->reader.namespaceUri() || d->depth == 1) {
-//					d->xmlns = d->reader.namespaceUri().toString();
-//					d->appendAttribute(QLatin1String("xmlns"), d->reader.namespaceUri());
-//				}
-//				foreach (const QXmlStreamAttribute &attr, d->reader.attributes())
-//					d->appendAttribute(attr.name().toString(), attr.value());
-//				d->depth++;
-//				break;
-//			case QXmlStreamReader::EndElement:
-//				d->depth--;
-//				if (d->last == QXmlStreamReader::StartElement) {
-//					// &#47; is equal for '/'
-//					d->appendText(QLatin1String("&#47;&gt;"), m_bracketsColor);
-//				} else {
-//					if (d->last != QXmlStreamReader::Characters) {
-//						d->html.append("<br/>");
-//						d->html.append(generate_space(d->depth));
-//					}
-//					d->appendText(QLatin1String("&lt;&#47;"), m_bracketsColor);
-//					d->appendText(Qt::escape(d->reader.name().toString()), d->tagColor);
-//					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
-//				}
-//				if (d->depth == 1) {
-//					QTextDocument *doc = m_ui->xmlBrowser->document();
-//					QTextCursor cur(doc);
-//					cur.beginEditBlock();
-//					cur.movePosition(QTextCursor::End);
-////					if (!m_nodes.isEmpty())
-//						cur.insertBlock();
-
-//					d->current.block = cur.block();
-//					d->current.lineCount = cur.block().lineCount();
-//					d->html.append(QLatin1String("<br/><br/>"));
-//					cur.insertHtml(d->html);
-//					cur.endEditBlock();
-
-//					m_nodes << d->current;
-//				}
-//				break;
-//			case QXmlStreamReader::Characters: {
-//				if (d->last == QXmlStreamReader::EndElement)
-//					break;
-//				if (d->last == QXmlStreamReader::StartElement)
-//					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
-//				QString text = Qt::escape(d->reader.text().toString());
-//				if (text.contains(QLatin1Char('\n'))) {
-//					QString space = generate_space(d->depth);
-//					space.prepend("<br/>");
-//					d->html.append(space);
-//					text.replace(QLatin1String("\n"), space);
-//					text.append("<br/>");
-//					text.append(generate_space(d->depth - 1));
-//				}
-//				d->appendText(text, d->bodyColor);
-//				break; }
-//			default:
-//				break;
-//			}
-//			if (d->last != QXmlStreamReader::EndElement
-//			        || d->reader.tokenType() != QXmlStreamReader::Characters) {
-//				d->last = d->reader.tokenType();
-//			}
-//		}
-//		if (!incoming && d->depth > 1) {
-//			qFatal("outgoing depth %d on\n\"%s\"", d->depth,
-//				   qPrintable(QString::fromUtf8(data, data.size())));
-//		}
-//	}
-
 void XmlConsole::changeEvent(QEvent *e)
 {
 	QWidget::changeEvent(e);
@@ -487,10 +308,8 @@ void Jabber::XmlConsole::onActionGroupTriggered(QAction *action)
 
 void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 {
-	qDebug() << Q_FUNC_INFO;
 	int filterType = m_filter & 0xf0;
 	JID filterJid = (filterType == ByJid) ? text : QString();
-	qDebug() << ("0x" + QString::number(filterType, 16));
     for (int i = 0; i < m_nodes.size(); i++) {
 		XmlNode &node = m_nodes[i];
 		bool ok = true;

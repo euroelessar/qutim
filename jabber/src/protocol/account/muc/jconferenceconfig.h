@@ -25,7 +25,7 @@ protected:
 	virtual void saveImpl();
 	virtual void cancelImpl();
 protected slots:
-	void onConfigurationReceived(const jreen::DataForm::Ptr &form);
+	void onConfigurationReceived(const Jreen::DataForm::Ptr &form);
 	void onDataChanged();
 private:
 	QScopedPointer<JConferenceConfigPrivate> p;

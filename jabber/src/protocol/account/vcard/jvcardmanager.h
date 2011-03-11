@@ -5,7 +5,7 @@
 #include <QSharedPointer>
 #include <jreen/vcard.h>
 
-namespace jreen
+namespace Jreen
 {
 class JID;
 class IQ;
@@ -27,11 +27,11 @@ public:
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	bool containsRequest(const QString &contact);
-	void storeVCard(jreen::VCard *vcard);
+	void storeVCard(Jreen::VCard *vcard);
 	JAccount *account() const;
 protected slots:
-	void handleIQ(const jreen::IQ &iq);
-	void onIqReceived(const jreen::IQ &,int);
+	void handleIQ(const Jreen::IQ &iq);
+	void onIqReceived(const Jreen::IQ &,int);
 private:
 	QScopedPointer<JVCardManagerPrivate> d_ptr;
 };

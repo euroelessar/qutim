@@ -4,7 +4,7 @@
 #include <QObject>
 #include <jreen/disco.h>
 
-namespace jreen
+namespace Jreen
 {
 class IQ;
 class JID;
@@ -29,14 +29,14 @@ public:
 	//int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
 	int getInfo(QObject *receiver, const JDiscoItem &di);
 	int getItems(QObject *receiver, const JDiscoItem &di);
-	void handleDiscoInfo(const jreen::JID &from, QSharedPointer<jreen::Disco::Info> info, int context);
-	void handleDiscoItems(const jreen::JID &from, QSharedPointer<jreen::Disco::Items> items, int context);
-	void handleDiscoError(const jreen::JID &from, QSharedPointer<jreen::Error> error, int context);
+	void handleDiscoInfo(const Jreen::JID &from, QSharedPointer<Jreen::Disco::Info> info, int context);
+	void handleDiscoItems(const Jreen::JID &from, QSharedPointer<Jreen::Disco::Items> items, int context);
+	void handleDiscoError(const Jreen::JID &from, QSharedPointer<Jreen::Error> error, int context);
 private slots:
-	void handleIQ(const jreen::IQ &iq);
-	void handleIQ(const jreen::IQ &iq,int context);
+	void handleIQ(const Jreen::IQ &iq);
+	void handleIQ(const Jreen::IQ &iq,int context);
 protected:
-	void addDiscoIdentity(JDiscoItem &di,const jreen::Disco::Identity &identity);
+	void addDiscoIdentity(JDiscoItem &di,const Jreen::Disco::Identity &identity);
 	void setActions(JDiscoItem &di);
 private:
 	QScopedPointer<JServicePrivate> p;

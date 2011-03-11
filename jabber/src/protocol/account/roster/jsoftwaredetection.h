@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3 {
 class ChatUnit;
 }
 
-namespace jreen
+namespace Jreen
 {
 class Presence;
 class IQ;
@@ -62,8 +62,8 @@ public:
 protected:
 	void timerEvent(QTimerEvent *ev);
 protected slots:
-	void handlePresence(const jreen::Presence &presence);
-	void handleIQ(const jreen::IQ &iq, int context);
+	void handlePresence(const Jreen::Presence &presence);
+	void handleIQ(const Jreen::IQ &iq, int context);
 private:
 	void updateCache(const QString &node, const SoftwareInfo &info, bool fixed = false);
 	void updateClientData(JContactResource *resource, const QString &client,

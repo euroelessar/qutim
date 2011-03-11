@@ -29,7 +29,7 @@
 
 namespace Jabber
 {
-	using namespace jreen;
+	using namespace Jreen;
 	using namespace qutim_sdk_0_3;
 	
 //	typedef QMap<Account*, JPersonEventSupport*> SupportMap;
@@ -95,8 +95,8 @@ namespace Jabber
 		m_account = account;
 		m_manager = params.item<PubSub::Manager>();
 //		client->registerStanzaExtension(new PubSub::Event(reinterpret_cast<Tag*>(0)));
-		connect(m_manager, SIGNAL(eventReceived(jreen::PubSub::Event::Ptr,jreen::JID)),
-				this, SLOT(onEventReceived(jreen::PubSub::Event::Ptr,jreen::JID)));
+		connect(m_manager, SIGNAL(eventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)),
+				this, SLOT(onEventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)));
 		account->installEventFilter(this);
 		m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 		foreach (const ObjectGenerator *ext, ObjectGenerator::module<PersonEventConverter>()) {
@@ -123,16 +123,16 @@ namespace Jabber
 
 				if (needSet && converter) {
 					QVariantHash data = customEvent->at<QVariantHash>(1);
-					QList<jreen::StanzaExtension::Ptr> items;
+					QList<Jreen::StanzaExtension::Ptr> items;
 					items << converter->convertTo(data);
-					m_manager->publishItems(items, jreen::JID());
+					m_manager->publishItems(items, Jreen::JID());
 				}
 			}
 		}
 		return false;
 	}
 	
-	void JPersonEventSupport::onEventReceived(const jreen::PubSub::Event::Ptr &event, const jreen::JID &from)
+	void JPersonEventSupport::onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from)
 	{
 		QObject *receiver = 0;
 		JContact *contact = 0;
@@ -144,7 +144,7 @@ namespace Jabber
 		}
 		if (!receiver)
 			return;
-		const QList<jreen::StanzaExtension::Ptr> items = event->items();
+		const QList<Jreen::StanzaExtension::Ptr> items = event->items();
 		for (int i = 0; i < items.size(); i++) {
 			if (PersonEventConverter *converter = m_converters.value(items[i]->extensionType())) {
 				QVariantHash data = converter->convertFrom(items[i]);

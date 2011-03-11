@@ -53,13 +53,13 @@ public:
 		a->setEnabled(c->account()->status() != Status::Offline);
 		LocalizedString str;
 		switch(c->subscription()) {
-		case jreen::AbstractRosterItem::Both:
-		case jreen::AbstractRosterItem::To:
+		case Jreen::AbstractRosterItem::Both:
+		case Jreen::AbstractRosterItem::To:
 			str = QT_TRANSLATE_NOOP("Jabber", "Remove subscription");
 			break;
-		case jreen::AbstractRosterItem::From:
-		case jreen::AbstractRosterItem::None:
-		case jreen::AbstractRosterItem::Invalid:
+		case Jreen::AbstractRosterItem::From:
+		case Jreen::AbstractRosterItem::None:
+		case Jreen::AbstractRosterItem::Invalid:
 			str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
 			break;
 		default:
@@ -130,7 +130,7 @@ public:
 		foreach (QAction *a, bookmarksGen->actions(s))
 			checkBookMark(s, a);
 	}
-	void _q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)
+	void _q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType)
 	{
 		Q_Q(JProtocol);
 		JContact *c = qobject_cast<JContact*>(q->sender());
@@ -310,7 +310,7 @@ void JProtocol::onSaveRemoveBookmarks(QObject *obj)
 							  QString());
 	} else {
 		manager->removeBookmark(room->bookmark());
-		room->setBookmark(jreen::Bookmark::Conference());
+		room->setBookmark(Jreen::Bookmark::Conference());
 	}
 }
 
@@ -319,13 +319,13 @@ void JProtocol::onChangeSubscription(QObject *obj)
 	JContact *contact = qobject_cast<JContact*>(obj);
 	Q_ASSERT(contact);
 	switch(contact->subscription()) {
-	case jreen::AbstractRosterItem::Both:
-	case jreen::AbstractRosterItem::To:
+	case Jreen::AbstractRosterItem::Both:
+	case Jreen::AbstractRosterItem::To:
 		contact->removeSubscription();
 		break;
-	case jreen::AbstractRosterItem::From:
-	case jreen::AbstractRosterItem::None:
-	case jreen::AbstractRosterItem::Invalid:
+	case Jreen::AbstractRosterItem::From:
+	case Jreen::AbstractRosterItem::None:
+	case Jreen::AbstractRosterItem::Invalid:
 		contact->requestSubscription();
 		break;
 	default:
@@ -338,7 +338,7 @@ void JProtocol::loadAccounts()
 	loadActions();
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &id, accounts) {
-		jreen::JID jid = id;
+		Jreen::JID jid = id;
 		addAccount(new JAccount(jid.bare()), true);
 	}
 }
@@ -370,58 +370,58 @@ QVariant JProtocol::data(DataType type)
 	}
 }
 
-jreen::Presence::Type JStatus::statusToPresence(const Status &status)
+Jreen::Presence::Type JStatus::statusToPresence(const Status &status)
 {
-	jreen::Presence::Type presence;
+	Jreen::Presence::Type presence;
 	switch (status.type()) {
 	case Status::Offline:
-		presence = jreen::Presence::Unavailable;
+		presence = Jreen::Presence::Unavailable;
 		break;
 	case Status::Online:
-		presence = jreen::Presence::Available;
+		presence = Jreen::Presence::Available;
 		break;
 	case Status::Away:
-		presence = jreen::Presence::Away;
+		presence = Jreen::Presence::Away;
 		break;
 	case Status::FreeChat:
-		presence = jreen::Presence::Chat;
+		presence = Jreen::Presence::Chat;
 		break;
 	case Status::DND:
-		presence = jreen::Presence::DND;
+		presence = Jreen::Presence::DND;
 		break;
 	case Status::NA:
-		presence = jreen::Presence::XA;
+		presence = Jreen::Presence::XA;
 		break;
 	case Status::Invisible:
-		presence = jreen::Presence::XA;
+		presence = Jreen::Presence::XA;
 		break;
 	default:
-		presence = jreen::Presence::Invalid;
+		presence = Jreen::Presence::Invalid;
 	}
 	return presence;
 }
 
-Status JStatus::presenceToStatus(jreen::Presence::Type presence)
+Status JStatus::presenceToStatus(Jreen::Presence::Type presence)
 {
 	Status::Type status;
 	switch (presence) {
-	case jreen::Presence::Available:
+	case Jreen::Presence::Available:
 		status = Status::Online;
 		break;
-	case jreen::Presence::Away:
+	case Jreen::Presence::Away:
 		status = Status::Away;
 		break;
-	case jreen::Presence::Chat:
+	case Jreen::Presence::Chat:
 		status = Status::FreeChat;
 		break;
-	case jreen::Presence::DND:
+	case Jreen::Presence::DND:
 		status = Status::DND;
 		break;
-	case jreen::Presence::XA:
+	case Jreen::Presence::XA:
 		status = Status::NA;
 		break;
-	case jreen::Presence::Error:
-	case jreen::Presence::Unavailable:
+	case Jreen::Presence::Error:
+	case Jreen::Presence::Unavailable:
 	default: //TODO probe,subscribe etc. isn't offline status
 		status = Status::Offline;
 	}
@@ -439,12 +439,12 @@ bool JProtocol::event(QEvent *ev)
 			JContact *c = qobject_cast<JContact*>(controller);
 			Q_ASSERT(c);
 			d->checkSubscribe(c, action);
-			connect(c, SIGNAL(subscriptionChanged(jreen::AbstractRosterItem::SubscriptionType)),
-					this, SLOT(_q_subscription_changed(jreen::AbstractRosterItem::SubscriptionType)));
+			connect(c, SIGNAL(subscriptionChanged(Jreen::AbstractRosterItem::SubscriptionType)),
+					this, SLOT(_q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType)));
 		}
 		else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
 			if(event->generator() == d->bookmarksGen.data())
-				connect(s, SIGNAL(bookmarkChanged(jreen::Bookmark::Conference)),
+				connect(s, SIGNAL(bookmarkChanged(Jreen::Bookmark::Conference)),
 						this, SLOT(_q_conference_bookmark_changed()));
 			else
 				connect(s, SIGNAL(joinedChanged(bool)),

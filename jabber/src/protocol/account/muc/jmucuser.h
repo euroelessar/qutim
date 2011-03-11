@@ -6,7 +6,7 @@
 
 namespace Jabber
 {
-using namespace jreen;
+using namespace Jreen;
 
 class JAccount;
 class JMUCSession;
