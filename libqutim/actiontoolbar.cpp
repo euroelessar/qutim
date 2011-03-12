@@ -25,7 +25,7 @@
 #include <QShortcut>
 #include "debug.h"
 #ifdef Q_OS_WIN
-#	include <qt_windows.h>
+# include <qt_windows.h>
 #endif
 
 namespace qutim_sdk_0_3

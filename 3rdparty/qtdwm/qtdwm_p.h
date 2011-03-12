@@ -24,10 +24,10 @@ class WindowNotifier : public QWidget
 public:
 	 WindowNotifier();
 	 void addWidget(QWidget *widget);
+#ifdef Q_WS_WIN
 	 bool winEvent(MSG *message, long *result);
 
 public slots:
-#ifdef Q_WS_WIN
 	 void removeWidget(QObject *widget);
 #endif
 

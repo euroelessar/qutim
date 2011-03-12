@@ -2,12 +2,11 @@
     <qresource prefix="/">
         <file alias="icons/qutim_64.png">share/icons/hicolor/64x64/apps/qutim.png</file>
         <file alias="icons/user-identity.png">share/icons/hicolor/64x64/places/user-identity.png</file>
-	<file alias="GPL">GPL</file>
+        <file alias="GPL">GPL</file>
         <file alias="devels/degtep.json">devels/degtep.json</file>
         <file alias="devels/euroelessar.json">devels/euroelessar.json</file>
         <file alias="devels/reindeer.json">devels/reindeer.json</file>
         <file alias="devels/sauron.json">devels/sauron.json</file>
         <file alias="devels/viv.json">devels/viv.json</file>
-        <file alias="GPL">GPL</file>
     </qresource>
 </RCC>

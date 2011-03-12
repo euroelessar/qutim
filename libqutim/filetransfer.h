@@ -29,10 +29,13 @@ class FileTransferFactory;
 class FileTransferManager;
 class FileTransferEnginePrivate;
 class FileTransferManagerPrivate;
+class FileTransferJobPrivate;
 
 //class FileTransferJob : public QObject
 //{
 //	Q_OBJECT
+//	Q_DECLARE_PRIVATE(FileTransferJob)
+//	Q_ENUMS(Direction ErrorType State)
 //	Q_PROPERTY(QString fileName READ fileName NOTIFY fileNameChanged)
 //	Q_PROPERTY(int filesCount READ filesCount)
 //	Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
@@ -49,18 +52,23 @@ class FileTransferManagerPrivate;
 	
 //	// Some file/dir
 //	virtual void send(const QUrl &url) = 0;
-//	virtual QString fileName() = 0;
-//	virtual int filesCount();
-//	virtual int currentIndex();
+//	QString fileName() const;
+//	int filesCount() const;
+//	int currentIndex() const;
 //	virtual int fileSize() = 0;
 //	virtual int filePosition() = 0;
-//	virtual State state() = 0;
+//	State state() const;
+//protected:
+//	void setState(State state);
+//	void setFileName(int index, const QString &name);
 //signals:
 //	void fileNameChanged(const QString &);
 //	void fileNameChanged(int);
 //	void error(qutim_sdk_0_3::FileTransferJob::ErrorType);
 //	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
 //	void finished();
+//private:
+//	QScopedPointer<FileTransferJobPrivate> d_ptr;
 //};
 
 
