@@ -33,6 +33,7 @@ MobileAboutCreator::MobileAboutCreator()
 		                                           QT_TRANSLATE_NOOP("Core", "About qutIM"),
 		                                           this,
 		                                           SLOT(showWidget()));
+		gen->setPriority(1);
 		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
 	}

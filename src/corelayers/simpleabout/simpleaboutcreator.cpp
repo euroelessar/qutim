@@ -33,7 +33,7 @@ SimpleAboutCreator::SimpleAboutCreator()
 													this,
 													SLOT(showWidget()));
 		gen->setPriority(1);
-		gen->setType(512);
+		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
 	}
 }
