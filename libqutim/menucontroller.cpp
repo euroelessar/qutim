@@ -293,8 +293,8 @@ void DynamicMenu::onAboutToShow()
 	foreach (QAction *action, menu->actions()) {
 		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
-			if (!action->isSeparator())
-				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
+//			if (!action->isSeparator())
+//				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
 			continue;
 		}
 		QObject *controller = m_owners.value(gen);
@@ -557,7 +557,7 @@ void ActionHandler::onActionTriggered(QAction *action)
 {
 	const ActionGenerator *gen = ActionGenerator::get(action);
 	if (!gen) {
-		qWarning("ActionHandler::onActionTriggered: Invalid ActionGenerator");
+//		qWarning("ActionHandler::onActionTriggered: Invalid ActionGenerator");
 		return;
 	}
 	const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(gen);

@@ -14,42 +14,28 @@
  ***************************************************************************
  ****************************************************************************/
 
-#include "simpleaboutcreator.h"
-#include "simpleaboutdialog.h"
-#include <qutim/servicemanager.h>
-#include <qutim/icon.h>
-#include <qutim/debug.h>
-#include <qutim/menucontroller.h>
+#ifndef SIMPLEABOUTDIALOG_H
+#define SIMPLEABOUTDIALOG_H
+
+#include <QDialog>
+
+namespace Ui {
+    class MobileAboutDialog;
+}
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
-
-SimpleAboutCreator::SimpleAboutCreator()
+class MobileAboutDialog : public QDialog
 {
-	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
-		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),
-													QT_TRANSLATE_NOOP("Core", "About qutIM"),
-													this,
-													SLOT(showWidget()));
-		gen->setPriority(1);
-		gen->setType(512);
-		menu->addAction(gen);
-	}
+    Q_OBJECT
+
+public:
+    explicit MobileAboutDialog(QWidget *parent = 0);
+    ~MobileAboutDialog();
+
+private:
+    Ui::MobileAboutDialog *ui;
+};
 }
 
-SimpleAboutCreator::~SimpleAboutCreator()
-{
-}
-
-void SimpleAboutCreator::showWidget()
-{
-	if (m_widget) {
-		m_widget->show();
-		m_widget->raise();
-		return;
-	}
-	m_widget = new SimpleAboutDialog();
-	m_widget->show();
-}
-}
+#endif // SIMPLEABOUTDIALOG_H

@@ -18,23 +18,26 @@
 #define SIMPLEABOUTDIALOG_H
 
 #include <QDialog>
+#include <qutim/personinfo.h>
 
 namespace Ui {
-    class SimpleAboutDialog;
+	class SimpleAboutDialog;
 }
 
 namespace Core
 {
 class SimpleAboutDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit SimpleAboutDialog(QWidget *parent = 0);
-    ~SimpleAboutDialog();
+	explicit SimpleAboutDialog(QWidget *parent = 0);
+	~SimpleAboutDialog();
+
+	QString toHtml(const QList<qutim_sdk_0_3::PersonInfo> &persons, bool useTask);
 
 private:
-    Ui::SimpleAboutDialog *ui;
+	Ui::SimpleAboutDialog *ui;
 };
 }
 
