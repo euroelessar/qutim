@@ -219,9 +219,9 @@ QList<PersonInfo> PersonInfo::translators()
 		QString localizedWebs = webs.toString();
 		if (localizedWebs == QLatin1String(webs.original()))
 			localizedWebs.clear();
-		QStringList nameList = localizedNames.split(QLatin1Char(' '));
-		QStringList emailList = localizedEmails.split(QLatin1Char(' '), QString::KeepEmptyParts);
-		QStringList webList = localizedWebs.split(QLatin1Char(' '), QString::KeepEmptyParts);
+		QStringList nameList = localizedNames.split(QLatin1Char(','));
+		QStringList emailList = localizedEmails.split(QLatin1Char(','), QString::KeepEmptyParts);
+		QStringList webList = localizedWebs.split(QLatin1Char(','), QString::KeepEmptyParts);
 		for (int i = 0; i < nameList.size(); i++) {
 			persons << PersonInfo(nameList.at(i).toUtf8(),
 			                      task,
