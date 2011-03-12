@@ -19,7 +19,9 @@
 #include "libqutim_global.h"
 #include <QHostAddress>
 #include <QStringList>
+#include <QSharedData>
 
+class QDir;
 class QUrl;
 
 namespace qutim_sdk_0_3
@@ -30,46 +32,84 @@ class FileTransferManager;
 class FileTransferEnginePrivate;
 class FileTransferManagerPrivate;
 class FileTransferJobPrivate;
+class FileTransferInfoPrivate;
 
-//class FileTransferJob : public QObject
-//{
-//	Q_OBJECT
-//	Q_DECLARE_PRIVATE(FileTransferJob)
-//	Q_ENUMS(Direction ErrorType State)
-//	Q_PROPERTY(QString fileName READ fileName NOTIFY fileNameChanged)
-//	Q_PROPERTY(int filesCount READ filesCount)
-//	Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
-//	Q_PROPERTY(int fileSize READ fileSize NOTIFY fileSizeChanged)
-//	Q_PROPERTY(int filePosition READ filePosition NOTIFY filePositionChanged)
-//	Q_PROPERTY(qutim_sdk_0_3::FileTransferJob::State state READ state NOTIFY stateChanged)
-//public:
-//	enum Direction { Send, Receive };
-//	enum ErrorType { NetworkError, Canceled, NotSupported };
-//	enum State { Initiation, Started, Finished, Error };
+class LIBQUTIM_EXPORT FileTransferInfo
+{
+public:
+	FileTransferInfo();
+	FileTransferInfo(const FileTransferInfo &other);
+	~FileTransferInfo();
+	FileTransferInfo &operator =(const FileTransferInfo &other);
 	
-//	FileTransferJob(ChatUnit *unit, Direction direction);
-//	virtual ~FileTransferJob();
+	QString fileName() const;
+	void setFileName(const QString &fileName);
+	qint64 fileSize() const;
+	void setFileSize(qint64 fileSize);
+private:
+	QSharedDataPointer<FileTransferInfoPrivate> d_ptr;
+};
+
+class LIBQUTIM_EXPORT FileTransferJob : public QObject
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(FileTransferJob)
+	Q_ENUMS(Direction ErrorType State)
+	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+	Q_PROPERTY(QString fileName READ fileName NOTIFY fileNameChanged)
+	Q_PROPERTY(int filesCount READ filesCount)
+	Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
+	Q_PROPERTY(qint64 totalSize READ totalSize NOTIFY totalSizeChanged)
+	Q_PROPERTY(qint64 fileSize READ fileSize NOTIFY fileSizeChanged)
+	Q_PROPERTY(qint64 progress READ progress NOTIFY progressChanged)
+	Q_PROPERTY(qutim_sdk_0_3::FileTransferJob::State state READ state NOTIFY stateChanged)
+public:
+	enum Direction { Send, Receive };
+	enum ErrorType { NetworkError, Canceled, NotSupported, NoError };
+	enum State { Initiation, Started, Finished, Error };
 	
-//	// Some file/dir
-//	virtual void send(const QUrl &url) = 0;
-//	QString fileName() const;
-//	int filesCount() const;
-//	int currentIndex() const;
-//	virtual int fileSize() = 0;
-//	virtual int filePosition() = 0;
-//	State state() const;
-//protected:
-//	void setState(State state);
-//	void setFileName(int index, const QString &name);
-//signals:
-//	void fileNameChanged(const QString &);
-//	void fileNameChanged(int);
-//	void error(qutim_sdk_0_3::FileTransferJob::ErrorType);
-//	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
-//	void finished();
-//private:
-//	QScopedPointer<FileTransferJobPrivate> d_ptr;
-//};
+	FileTransferJob(ChatUnit *unit, Direction direction);
+	virtual ~FileTransferJob();
+	
+	// Send some file or dir
+	void send(const QUrl &url, const QString &title);
+	void stop();
+	QString title() const;
+	QString fileName() const;
+	int filesCount() const;
+	int currentIndex() const;
+	qint64 fileSize() const;
+	qint64 progress() const;
+	qint64 totalSize() const;
+	State state() const;
+	ErrorType error() const;
+protected:
+	virtual void doSend(const QDir &dir, const QStringList &files) = 0;
+	virtual void doStop() = 0;
+	// For incoming only
+	void init(int filesCount, qint64 totalSize, const QString &title);
+	void setCurrentIndex(int index);
+	void setFileProgress(qint64 fileProgress);
+	void setError(ErrorType error);
+	void setState(State state);
+	void setFileInfo(int index, const FileTransferInfo &info);
+	virtual void virtual_hook(int id, void *data);
+signals:
+#if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
+private: // don't tell moc, doxygen or kdevelop, but those signals are in fact private
+#endif
+	void titleChanged(const QString &);
+	void fileNameChanged(const QString &);
+	void fileSizeChanged(qint64);
+	void progressChanged(qint64);
+	void totalSizeChanged(qint64);
+	void currentIndexChanged(int);
+	void error(qutim_sdk_0_3::FileTransferJob::ErrorType);
+	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
+	void finished();
+private:
+	QScopedPointer<FileTransferJobPrivate> d_ptr;
+};
 
 
 class LIBQUTIM_EXPORT FileTransferEngine : public QObject
