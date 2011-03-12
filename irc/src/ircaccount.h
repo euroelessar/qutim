@@ -48,6 +48,7 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, const QString &host, bool create = false);
+	IrcContact *getContact(const QString &nick, bool create = false);
 	void send(const QString &command, bool highPriority = true,
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams()) const;
