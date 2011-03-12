@@ -107,6 +107,23 @@ IF(APPLE)
   SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   # include the icns file in the target
   SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
+
+  GET_FILENAME_COMPONENT(qt_lib_path "${QT_QTGUI_LIBRARY_RELEASE}" PATH)
+  set (qt_menu_nib "${qt_lib_path}/Resources/qt_menu.nib")
+  set(qt_menu_nib_sources "${qt_menu_nib}/classes.nib" "${qt_menu_nib}/info.nib" "${qt_menu_nib}/keyedobjects.nib" )
+  SET_SOURCE_FILES_PROPERTIES(${qt_menu_nib_sources} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/qt_menu.nib)
+  SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
+ENDIF(APPLE)
+
+IF (APPLE)
+	IF (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+		set (QUTIM_BUNDLE_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/qutim.app")
+		add_custom_target(qutim-bundle ALL)
+		add_dependencies(qutim-bundle qutim translations)
+	ELSE(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+		message (WARNING "You have to use Unix Makefiles generator to automatically bundle deploying")
+		set (QUTIM_BUNDLE_LOCATION "")
+	ENDIF(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
 ENDIF(APPLE)
 
 #additional resources path
@@ -138,7 +155,15 @@ QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	"qutIM will be compiled without multiply profiles by default"
 	ON
 )
-SET( QUTIM_GUI_TYPE "" CACHE STRING "qutIM GUI TYPE" )
+IF (APPLE)
+	set (DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
+	IF (NOT CMAKE_BUILD_TYPE)
+		set (CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+	ENDIF(NOT CMAKE_BUILD_TYPE)
+ELSE (APPLE)
+	set (DEFAULT_QUTIM_GUI_TYPE "")
+ENDIF (APPLE)
+SET( QUTIM_GUI_TYPE ${DEFAULT_QUTIM_GUI_TYPE} CACHE STRING "qutIM GUI TYPE" )
 IF( QUTIM_GUI_TYPE )
 	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
 ENDIF()
@@ -181,6 +206,35 @@ qutim_target_link_libraries (qutim
 	${QUTIM_ADDITIONAL_LIBRARIES}
 	libqutim
 	)
+
+IF (APPLE AND QUTIM_BUNDLE_LOCATION)
+
+	add_custom_command(TARGET qutim-bundle POST_BUILD
+		COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy
+			${QT_PLUGINS_DIR}/bearer/libqcorewlanbearer.dylib
+			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/bearer/libqcorewlanbearer.dylib
+		COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy
+			${QT_PLUGINS_DIR}/bearer/libqgenericbearer.dylib
+			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/bearer/libqgenericbearer.dylib
+		COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy
+			${QT_PLUGINS_DIR}/iconengines/libqsvgicon.dylib
+			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/iconengines/libqsvgicon.dylib
+		COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy
+			${QT_PLUGINS_DIR}/imageformats/libqgif.dylib 
+			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/imageformats/libqgif.dylib 
+		COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy
+			${QT_PLUGINS_DIR}/imageformats/libqsvg.dylib
+			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/imageformats/libqsvg.dylib
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
+			${QUTIM_BUNDLE_LOCATION}
+		)
+
+ENDIF (APPLE AND QUTIM_BUNDLE_LOCATION)
 
 if( LANGUAGE )
 	LANGUAGE_UPDATE( core ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )

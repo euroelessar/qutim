@@ -341,6 +341,24 @@ Q_IMPORT_PLUGIN(${plugin_name})
 				${QUTIM_BINARY_DIR}/plugins/${CMAKE_SHARED_LIBRARY_PREFIX}${plugin_name}${CMAKE_SHARED_LIBRARY_SUFFIX}
 		)
 	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
+	IF (APPLE AND NOT QUTIM_${plugin_name}_STATIC AND QUTIM_BUNDLE_LOCATION)
+		IF (NOT EXISTS "${QUTIM_BUNDLE_LOCATION}/Contents/Resources/qt.conf")
+			file (WRITE "${QUTIM_BUNDLE_LOCATION}/Contents/Resources/qt.conf"
+"[Paths]
+Plugins = PlugIns"
+)
+		ENDIF (NOT EXISTS "${QUTIM_BUNDLE_LOCATION}/Contents/Resources/qt.conf")
+		add_dependencies(qutim-bundle ${plugin_name})
+		get_target_property ( ${plugin_name}_LOCATION ${plugin_name} LOCATION )
+		add_custom_command(
+			TARGET ${plugin_name}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
+				ARGS -E copy ${${plugin_name}_LOCATION}
+				${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/${CMAKE_SHARED_LIBRARY_PREFIX}${plugin_name}${CMAKE_SHARED_LIBRARY_SUFFIX}
+
+			)
+	ENDIF(APPLE AND NOT QUTIM_${plugin_name}_STATIC AND QUTIM_BUNDLE_LOCATION)
 
 	# Link with QT
 	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
