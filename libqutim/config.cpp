@@ -736,6 +736,10 @@ namespace qutim_sdk_0_3
 		d_func()->sync();
 	}
 	
+	void Config::registerType(int type, SaveOperator saveOp, LoadOperator loadOp)
+	{
+	}
+	
 	class ConfigBackendPrivate
 	{
 	public:

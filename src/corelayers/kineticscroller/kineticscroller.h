@@ -16,6 +16,7 @@
 #ifndef KINETICSCROLLER_H
 #define KINETICSCROLLER_H
 #include <QObject>
+#include <QSet>
 
 namespace Core {
 
@@ -29,7 +30,10 @@ public:
 	Q_INVOKABLE void enableScrolling(QObject *widget);
 public slots:
 	void loadSettings();
+protected slots:
+	void onWidgetDeath(QObject *widget);
 private:
+	QSet<QObject*> m_widgets;
 	int m_scrollingType;
 };
 

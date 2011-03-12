@@ -1,16 +1,16 @@
 /****************************************************************************
- *  settingswidget.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
+*  settingswidget.cpp
+*
+*  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+*
+***************************************************************************
+*                                                                         *
+*   This library is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
 *****************************************************************************/
 
 #include "settingswidget.h"
@@ -29,213 +29,233 @@
 
 namespace qutim_sdk_0_3
 {
-	static struct WidgetMetaInfo
-	{
-		const QMetaObject *meta;
-		const char *property;
-		const char *signal;
-	} widget_infos[] =  {
-#if	!defined(Q_OS_SYMBIAN)	 //staticMetaObject doesn't link on Symbian platform
-		{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
-		{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
-		{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
-		{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(QDateTime)) },
-		{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(QString)) },
-		{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
-		{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
-#endif
-	};
+class AbstractWidgetInfo
+{
+public:
+	AbstractWidgetInfo(const char *p, const char *s) : property(p), signal(s) {}
+	~AbstractWidgetInfo() {}
+	virtual bool handle(QObject *obj) = 0;
+	const char * const property;
+	const char * const signal;
+};
 
-	struct WidgetInfo
-	{
-		QPointer<QWidget> obj;
-		const char *property;
-		QVariant value;
-		bool is_changed;
-	};
+template <typename T>
+class WidgetMetaInfo : public AbstractWidgetInfo
+{
+public:
+	WidgetMetaInfo(const char *p, const char *s) : AbstractWidgetInfo(p, s) {}
+	virtual bool handle(QObject *obj) { return qobject_cast<T*>(obj) != NULL; }
+};
 
-	struct SettingsWidgetPrivate
-	{
-		QSignalMapper *mapper;
-		QList<WidgetInfo> infos;
-		uint changed_num;
-		bool sleep; // Used to block signal sending on widget changing it's status
-		void clearValues();
-	};
+static AbstractWidgetInfo * widget_infos[] = {
+	new WidgetMetaInfo<QAbstractButton>("checked",      SIGNAL(toggled(bool))),
+	new WidgetMetaInfo<QAbstractSlider>("value",        SIGNAL(valueChanged(int))),
+	new WidgetMetaInfo<QComboBox>      ("currentIndex", SIGNAL(currentIndexChanged(int))),
+	new WidgetMetaInfo<QDateTimeEdit>  ("dateTime",     SIGNAL(dateTimeChanged(QDateTime))),
+	new WidgetMetaInfo<QLineEdit>      ("text",         SIGNAL(textChanged(QString))),
+	new WidgetMetaInfo<QListWidget>    ("currentRow",   SIGNAL(currentRowChanged(int))),
+	new WidgetMetaInfo<QSpinBox>       ("value",        SIGNAL(valueChanged(int)))
+};
 
-	void SettingsWidgetPrivate::clearValues()
+//static struct WidgetMetaInfo
+//{
+//	const QMetaObject *meta;
+//	const char *property;
+//	const char *signal;
+//} widget_infos[] =  {
+//#if	!defined(Q_OS_SYMBIAN)	 //staticMetaObject doesn't link on Symbian platform
+//	{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
+//	{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
+//	{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
+//	{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(QDateTime)) },
+//	{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(QString)) },
+//	{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
+//	{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
+//#endif
+//};
+
+struct WidgetInfo
+{
+	QPointer<QWidget> obj;
+	const char *property;
+	QVariant value;
+	bool is_changed;
+};
+
+struct SettingsWidgetPrivate
+{
+	QSignalMapper *mapper;
+	QList<WidgetInfo> infos;
+	uint changed_num;
+	bool sleep; // Used to block signal sending on widget changing it's status
+	void clearValues();
+};
+
+void SettingsWidgetPrivate::clearValues()
+{
+	for(int i = 0, size = infos.size(); i < size; i++)
 	{
-		for(int i = 0, size = infos.size(); i < size; i++)
-		{
-			WidgetInfo &info = infos[i];
-			if(info.obj)
-				info.value = info.obj->property(info.property);
-			else
-				info.value.clear();
-			info.is_changed = false;
-		}
-		changed_num = 0;
+		WidgetInfo &info = infos[i];
+		if(info.obj)
+			info.value = info.obj->property(info.property);
+		else
+			info.value.clear();
+		info.is_changed = false;
 	}
+	changed_num = 0;
+}
 
-	SettingsWidget::SettingsWidget() : p(new SettingsWidgetPrivate)
-	{
-		p->mapper = new QSignalMapper(this);
-		connect(p->mapper, SIGNAL(mapped(int)), this, SLOT(onStateChanged(int)));
-		p->changed_num = 0;
-		p->sleep = true;
-	}
+SettingsWidget::SettingsWidget() : p(new SettingsWidgetPrivate)
+{
+	p->mapper = new QSignalMapper(this);
+	connect(p->mapper, SIGNAL(mapped(int)), this, SLOT(onStateChanged(int)));
+	p->changed_num = 0;
+	p->sleep = true;
+}
 
-	SettingsWidget::~SettingsWidget()
-	{
-	}
+SettingsWidget::~SettingsWidget()
+{
+}
 
-	bool SettingsWidget::isModified() const
-	{
-		return p->changed_num > 0;
-	}
+bool SettingsWidget::isModified() const
+{
+	return p->changed_num > 0;
+}
 
-	void SettingsWidget::load()
-	{
-		p->sleep = true;
-		loadImpl();
-		p->clearValues();
-		p->sleep = false;
-	}
+void SettingsWidget::load()
+{
+	p->sleep = true;
+	loadImpl();
+	p->clearValues();
+	p->sleep = false;
+}
 
-	void SettingsWidget::save()
-	{
+void SettingsWidget::save()
+{
 //		if(!isModified())
 //			return;
-		p->sleep = true;
-		saveImpl();
-		p->clearValues();
-		p->sleep = false;
-		emit saved();
-	}
+	p->sleep = true;
+	saveImpl();
+	p->clearValues();
+	p->sleep = false;
+	emit saved();
+}
 
-	void SettingsWidget::cancel()
+void SettingsWidget::cancel()
+{
+	if(!isModified())
+		return;
+	p->sleep = true;
+	for(int i = 0, size = p->infos.size(); i < size; i++)
 	{
-		if(!isModified())
-			return;
-		p->sleep = true;
-		for(int i = 0, size = p->infos.size(); i < size; i++)
-		{
-			WidgetInfo &info = p->infos[i];
-			if(info.obj && info.is_changed)
-				 info.obj->setProperty(info.property, info.value);
-			info.is_changed = false;
-		}
-		cancelImpl();
-		p->changed_num = 0;
-		p->sleep = false;
+		WidgetInfo &info = p->infos[i];
+		if(info.obj && info.is_changed)
+			 info.obj->setProperty(info.property, info.value);
+		info.is_changed = false;
 	}
+	cancelImpl();
+	p->changed_num = 0;
+	p->sleep = false;
+}
 
 #ifdef Q_CC_MSVC
 #   pragma warning (push)
 #   pragma warning (disable : 4996) // MSVC thinks that QList is unsafe
 #endif
-	void SettingsWidget::listenChildrenStates(const QWidgetList &exceptions)
-	{
-		QWidgetList widgets;
-		if(!exceptions.isEmpty())
-		{
-			QWidgetList ls1 = findChildren<QWidget *>();
-			QWidgetList ls2 = exceptions;
-			std::sort(ls1.begin(), ls1.end());
-			std::sort(ls2.begin(), ls2.end());
-			std::set_difference(ls1.begin(), ls1.end(), ls2.begin(), ls2.end(),
-								std::insert_iterator<QWidgetList>(widgets, widgets.begin()));
-		}
-		else
-			widgets = findChildren<QWidget *>();
-		foreach(QWidget *widget, widgets)
-			lookForWidgetState(widget);
+void SettingsWidget::listenChildrenStates(const QWidgetList &exceptions)
+{
+	QWidgetList widgets;
+	if (!exceptions.isEmpty()) {
+		QWidgetList ls1 = findChildren<QWidget *>();
+		QWidgetList ls2 = exceptions;
+		std::sort(ls1.begin(), ls1.end());
+		std::sort(ls2.begin(), ls2.end());
+		std::set_difference(ls1.begin(), ls1.end(), ls2.begin(), ls2.end(),
+							std::insert_iterator<QWidgetList>(widgets, widgets.begin()));
+	} else {
+		widgets = findChildren<QWidget *>();
 	}
+	foreach (QWidget *widget, widgets)
+		lookForWidgetState(widget);
+}
 #ifdef Q_CC_MSVC
 #   pragma warning (pop)
 #endif
 
-	const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *property, const char *signal)
-	{
-		const QMetaObject *meta = widget->metaObject();
-		WidgetInfo info = { widget, NULL, QVariant(), false };
-		bool free_signal = false;
-		// Firstly try to search this widget in predefined classes
-		if(!signal && !property)
-		{
-			for(int i = 0, size = sizeof(widget_infos) / sizeof(WidgetMetaInfo); i < size; i++)
-			{
-				if(widget_infos[i].meta->cast(widget))
-				{
-					info.property = widget_infos[i].property;
-					signal = widget_infos[i].signal;
-					break;
-				}
+const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *property, const char *signal)
+{
+	const QMetaObject *meta = widget->metaObject();
+	WidgetInfo info = { widget, NULL, QVariant(), false };
+	bool free_signal = false;
+	// Firstly try to search this widget in predefined classes
+	if (!signal && !property) {
+		for (int i = 0, size = sizeof(widget_infos) / sizeof(AbstractWidgetInfo*); i < size; i++) {
+			if (widget_infos[i]->handle(widget)) {
+				info.property = widget_infos[i]->property;
+				signal = widget_infos[i]->signal;
+				break;
 			}
 		}
-		// Then try to find "User" property with signal or signal by property
-		if(!signal)
-		{
-			for(int i = 0, size = meta->propertyCount(); i < size; i++)
-			{
-				QMetaProperty prop = meta->property(i);
-				if(prop.hasNotifySignal()
-					&& ((property && !qstrcmp(prop.name(), property))
-						|| (!property && prop.isUser())))
-					{
-					info.property = prop.name();
-					const char *sig = prop.notifySignal().signature();
-					int len = strlen(sig);
-					char *str = (char *)qMalloc(sizeof(char) * (len + 2));
-					str[0] = QSIGNAL_CODE;
-					qstrcpy(str + 1, sig);
-					signal = str;
-					free_signal = true;
-					break;
-				}
+	}
+	// Then try to find "User" property with signal or signal by property
+	if (!signal) {
+		for (int i = 0, size = meta->propertyCount(); i < size; i++) {
+			QMetaProperty prop = meta->property(i);
+			if (prop.hasNotifySignal()
+				&& ((property && !qstrcmp(prop.name(), property))
+					|| (!property && prop.isUser()))) {
+				info.property = prop.name();
+				const char *sig = prop.notifySignal().signature();
+				int len = strlen(sig);
+				char *str = (char *)qMalloc(sizeof(char) * (len + 2));
+				str[0] = QSIGNAL_CODE;
+				qstrcpy(str + 1, sig);
+				signal = str;
+				free_signal = true;
+				break;
 			}
 		}
-		bool result(signal);
-		if(result)
-		{
-			p->mapper->setMapping(widget, p->infos.size());
-			connect(widget, signal, p->mapper, SLOT(map()));
-			p->infos << info;
-		}
-		if(free_signal)
-			qFree((void *)signal);
-		return result ? info.property : 0;
 	}
+	bool result(signal);
+	if (result) {
+		p->mapper->setMapping(widget, p->infos.size());
+		connect(widget, signal, p->mapper, SLOT(map()));
+		p->infos << info;
+	}
+	if (free_signal)
+		qFree((void *)signal);
+	return result ? info.property : 0;
+}
 
-	void SettingsWidget::onStateChanged(int index)
-	{
-		if(index < 0 || index >= p->infos.size() || p->sleep)
-			return;
-		WidgetInfo &info = p->infos[index];
-		QVariant value = info.obj->property(info.property);
-		bool equal = info.value == value;
-		if(equal && info.is_changed)
-			p->changed_num--;
-		else if(!info.is_changed && !equal)
-			p->changed_num++;
-		else
-			return;
-		info.is_changed = !equal;
-		if(p->changed_num == 0 && equal)
-			emit modifiedChanged(false);
-		else if(p->changed_num == 1 && !equal)
-			emit modifiedChanged(true);
-	}
+void SettingsWidget::onStateChanged(int index)
+{
+	if (index < 0 || index >= p->infos.size() || p->sleep)
+		return;
+	WidgetInfo &info = p->infos[index];
+	QVariant value = info.obj->property(info.property);
+	bool equal = info.value == value;
+	if (equal && info.is_changed)
+		p->changed_num--;
+	else if (!info.is_changed && !equal)
+		p->changed_num++;
+	else
+		return;
+	info.is_changed = !equal;
+	if (p->changed_num == 0 && equal)
+		emit modifiedChanged(false);
+	else if (p->changed_num == 1 && !equal)
+		emit modifiedChanged(true);
+}
 
-	void SettingsWidget::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
+void SettingsWidget::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
 
-	void SettingsWidget::setController(QObject *controller)
-	{
-		Q_UNUSED(controller);
-	}
+void SettingsWidget::setController(QObject *controller)
+{
+	Q_UNUSED(controller);
+}
 
 }

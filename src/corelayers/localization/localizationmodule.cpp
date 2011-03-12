@@ -22,6 +22,7 @@
 #include <qutim/thememanager.h>
 #include <QtCore/QLocale>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QResource>
 
 namespace Core
 {
@@ -94,12 +95,16 @@ namespace Core
 	}
 	
 	Q_GLOBAL_STATIC(QList<QTranslator *>, translatorsCache)
+	Q_GLOBAL_STATIC(QStringList, authorsCache)
 
 	void LocalizationModule::loadLanguage(const QStringList &langs)
 	{
 		QList<QTranslator *> &translators = *translatorsCache();
 		foreach (QTranslator *translator, translators)
 			qApp->removeTranslator(translator);
+		foreach (const QString &path, *authorsCache())
+			QResource::unregisterResource(path);
+		authorsCache()->clear();
 		qDeleteAll(translators);
 		translators.clear();
 		QStringList paths;
@@ -126,6 +131,12 @@ namespace Core
 					qApp->installTranslator(translator);
 					translators << translator;
 				}
+			}
+
+			files = dir.entryList(QStringList() << "*.rcc", QDir::Files);
+			foreach (const QString &file, files) {
+				if (QResource::registerResource(dir.filePath(file)))
+					authorsCache()->append(file);
 			}
 		}
 	}

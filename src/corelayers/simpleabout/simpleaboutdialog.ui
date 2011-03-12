@@ -207,11 +207,11 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QTextEdit" name="texteditDevelopers">
+        <widget class="QTextBrowser" name="texteditDevelopers">
          <property name="styleSheet">
           <string notr="true"/>
          </property>
-         <property name="readOnly">
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
@@ -227,8 +227,8 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QTextEdit" name="texteditTranslators">
-         <property name="readOnly">
+        <widget class="QTextBrowser" name="texteditTranslators">
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
@@ -247,8 +247,8 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QTextEdit" name="texteditLicense">
-         <property name="readOnly">
+        <widget class="QTextBrowser" name="texteditLicense">
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>

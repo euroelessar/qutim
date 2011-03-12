@@ -15,6 +15,8 @@ class ChatEmoticonsWidget : public QScrollArea
 	Q_OBJECT
 public:
 	ChatEmoticonsWidget(QWidget *parent = 0);
+	void play();
+	void stop();
 public slots:
 	void loadTheme();
 	void clearEmoticonsPreview();

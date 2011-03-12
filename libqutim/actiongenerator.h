@@ -37,7 +37,7 @@ enum ActionType
 	ActionTypeAdditional = 0x04, //Additional modifier
 	ActionTypeAccount = 0x8,
 	ActionTypePreferences = 0x10, //QAction::PreferencesRole
-	ActionTypeContactInfo = 0x20
+	ActionTypeContactInfo = 0x20,
 };
 
 Q_DECLARE_FLAGS(ActionsType,ActionType)

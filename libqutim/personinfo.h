@@ -122,6 +122,9 @@ PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
 		*/
 		QString web() const;
 		QString ocsUsername() const;
+
+		static QList<PersonInfo> authors();
+		static QList<PersonInfo> translators();
 #ifndef Q_QDOC
 	private:
 		QSharedDataPointer<PersonInfoData> d;
