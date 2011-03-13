@@ -197,8 +197,8 @@ void FileTransferJob::send(const QUrl &url, const QString &title)
 		files << d->files.last().fileName();
 	}
 	doSend();
-//	if (Games::scope()->init())
-//		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
+	//	if (Games::scope()->init())
+	//		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
 }
 
 void FileTransferJob::send(const QDir &baseDir, const QStringList &files, const QString &title)
@@ -564,123 +564,123 @@ void FileTransferManager::virtual_hook(int id, void *data)
 }
 
 
-	class FileTransferEnginePrivate
-	{
-	public:
-		ChatUnit *chatUnit;
-		FileTransferFactory *factory;
-		FileTransferEngine::Direction direction;
-	};
+class FileTransferEnginePrivate
+{
+public:
+	ChatUnit *chatUnit;
+	FileTransferFactory *factory;
+	FileTransferEngine::Direction direction;
+};
 
-	class FileTransferManagerPrivate
-	{
-	};
+class FileTransferManagerPrivate
+{
+};
 
-	struct FileTransferData
-	{
-		QList<FileTransferFactory *> factories;
-		QPointer<FileTransferManager> manager;
-	};
+struct FileTransferData
+{
+	QList<FileTransferFactory *> factories;
+	QPointer<FileTransferManager> manager;
+};
 
-	void init(FileTransferData *data)
-	{
-		GeneratorList gens = ObjectGenerator::module<FileTransferFactory>();
-		foreach(const ObjectGenerator *gen, gens)
-			data->factories << gen->generate<FileTransferFactory>();
-		gens = ObjectGenerator::module<FileTransferManager>();
-		if (!gens.isEmpty())
-			data->manager = gens.first()->generate<FileTransferManager>();
+void init(FileTransferData *data)
+{
+	GeneratorList gens = ObjectGenerator::module<FileTransferFactory>();
+	foreach(const ObjectGenerator *gen, gens)
+		data->factories << gen->generate<FileTransferFactory>();
+	gens = ObjectGenerator::module<FileTransferManager>();
+	if (!gens.isEmpty())
+		data->manager = gens.first()->generate<FileTransferManager>();
+}
+
+Q_GLOBAL_STATIC_WITH_INITIALIZER(FileTransferData, data, init(x.data()));
+
+FileTransferEngine::FileTransferEngine(ChatUnit *chatUnit, Direction direction, FileTransferFactory *factory) :
+	QObject(factory), d_ptr(new FileTransferEnginePrivate)
+{
+	Q_D(FileTransferEngine);
+	d->chatUnit = chatUnit;
+	d->factory = factory;
+	d->direction = direction;
+}
+
+FileTransferEngine::~FileTransferEngine()
+{
+}
+
+ChatUnit *FileTransferEngine::chatUnit() const
+{
+	return d_func()->chatUnit;
+}
+
+int FileTransferEngine::localPort() const
+{
+	return -1;
+}
+
+int FileTransferEngine::remotePort() const
+{
+	return -1;
+}
+
+QHostAddress FileTransferEngine::remoteAddress() const
+{
+	return QHostAddress();
+}
+
+FileTransferEngine::Direction FileTransferEngine::direction() const
+{
+	return d_func()->direction;
+}
+
+void FileTransferEngine::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
+
+FileTransferFactory::FileTransferFactory()
+{
+}
+
+FileTransferFactory::~FileTransferFactory()
+{
+}
+
+FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate)
+{
+}
+
+FileTransferManager::~FileTransferManager()
+{
+}
+
+FileTransferManager *FileTransferManager::instance()
+{
+	return data()->manager;
+}
+
+bool FileTransferManager::checkAbility(ChatUnit *unit)
+{
+	foreach (FileTransferFactory *factory, data()->factories) {
+		if (factory->check(unit))
+			return true;
 	}
+	return false;
+}
 
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(FileTransferData, data, init(x.data()));
-
-	FileTransferEngine::FileTransferEngine(ChatUnit *chatUnit, Direction direction, FileTransferFactory *factory) :
-			QObject(factory), d_ptr(new FileTransferEnginePrivate)
-	{
-		Q_D(FileTransferEngine);
-		d->chatUnit = chatUnit;
-		d->factory = factory;
-		d->direction = direction;
-	}
-
-	FileTransferEngine::~FileTransferEngine()
-	{
-	}
-
-	ChatUnit *FileTransferEngine::chatUnit() const
-	{
-		return d_func()->chatUnit;
-	}
-
-	int FileTransferEngine::localPort() const
-	{
-		return -1;
-	}
-
-	int FileTransferEngine::remotePort() const
-	{
-		return -1;
-	}
-
-	QHostAddress FileTransferEngine::remoteAddress() const
-	{
-		return QHostAddress();
-	}
-
-	FileTransferEngine::Direction FileTransferEngine::direction() const
-	{
-		return d_func()->direction;
-	}
-
-	void FileTransferEngine::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
-
-	FileTransferFactory::FileTransferFactory()
-	{
-	}
-
-	FileTransferFactory::~FileTransferFactory()
-	{
-	}
-
-	FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate)
-	{
-	}
-
-	FileTransferManager::~FileTransferManager()
-	{
-	}
-
-	FileTransferManager *FileTransferManager::instance()
-	{
-		return data()->manager;
-	}
-
-	bool FileTransferManager::checkAbility(ChatUnit *unit)
-	{
-		foreach (FileTransferFactory *factory, data()->factories) {
-			if (factory->check(unit))
-				return true;
-		}
-		return false;
-	}
-
-	FileTransferEngine *FileTransferManager::getEngine(ChatUnit *unit, FileTransferEngine *last)
-	{
-		if (last && last->direction() == FileTransferEngine::Receive)
-			return 0;
-
-		FileTransferFactory *lastFactory = last ? last->d_func()->factory : 0;
-		FileTransferData *d = data();
-		int index = lastFactory ? d->factories.indexOf(lastFactory) : -1;
-		index++;
-		for (; index < d->factories.size(); index++) {
-			if (d->factories.at(index)->check(unit))
-				return d->factories.at(index)->create(unit);
-		}
+FileTransferEngine *FileTransferManager::getEngine(ChatUnit *unit, FileTransferEngine *last)
+{
+	if (last && last->direction() == FileTransferEngine::Receive)
 		return 0;
+
+	FileTransferFactory *lastFactory = last ? last->d_func()->factory : 0;
+	FileTransferData *d = data();
+	int index = lastFactory ? d->factories.indexOf(lastFactory) : -1;
+	index++;
+	for (; index < d->factories.size(); index++) {
+		if (d->factories.at(index)->check(unit))
+			return d->factories.at(index)->create(unit);
 	}
+	return 0;
+}
 }

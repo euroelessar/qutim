@@ -55,7 +55,7 @@ void QuickChatViewWidget::setViewController(QObject* object)
 		controller->setStickyFocus(true);  //### needed for correct focus handling
 		setScene(controller);
 		updateView();
-		connect(controller, SIGNAL(rootItemChanged()),
+		connect(controller, SIGNAL(rootItemChanged(QDeclarativeItem*)),
 				this, SLOT(onRootChanged(QDeclarativeItem*)));
 	} else {
 		setScene(new QGraphicsScene(this));

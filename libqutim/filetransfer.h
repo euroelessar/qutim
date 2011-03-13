@@ -166,7 +166,7 @@ protected:
 	QScopedPointer<FileTransferFactoryPrivate> d_ptr;
 };
 
-class FileTransferManager : public QObject
+class LIBQUTIM_EXPORT FileTransferManager : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferManager)
