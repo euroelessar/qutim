@@ -1,7 +1,7 @@
 /****************************************************************************
  *  filetransfer.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -137,7 +137,7 @@ private:
 	OftConnection *m_conn;
 };
 
-class OftConnection : public FileTransferEngine
+class OftConnection : public FileTransferJob
 {
 	Q_OBJECT
 public:
@@ -146,27 +146,19 @@ public:
 	inline IcqContact *contact() const { return m_contact; }
 	quint64 cookie() const { return m_cookie; }
 	OftFileTransferFactory *transfer() const { return m_transfer; }
-	virtual int progress() const;
-	virtual int currentFile() const;
-	virtual QStringList files() const;
-	virtual QStringList remoteFiles() const;
-	virtual void setFiles(const QStringList &files);
-	virtual qint64 totalSize() const;
-	virtual qint64 fileSize() const;
-	virtual int localPort() const;
-	virtual int remotePort() const;
-	virtual QHostAddress remoteAddress() const;
-	virtual State state() const;
-	virtual void start();
-	virtual void cancel();
+	int localPort() const;
+	int remotePort() const;
+	QHostAddress remoteAddress() const;
+protected:
+	virtual void doSend();
+	virtual void doStop();
 private:
 	void close(bool error = true);
 	void initProxyConnection();
 	void handleRendezvous(quint16 reqType, const TLVMap &tlvs);
 	void setSocket(OftSocket *socket);
-	bool startFileSending();
-	void startFileReceiving();
-	void setState(State state) { m_state = state; emit stateChanged(state); }
+	void startFileSending();
+	void startFileReceiving(const int index);
 private slots:
 	void sendFileRequest(bool fileinfo = true);
 	void connected();
@@ -189,26 +181,27 @@ private:
 	quint16 m_stage;
 	bool m_proxy;
 	OftHeader m_header;
-	QString m_current;
-	QStringList m_files;
-	QStringList m_remoteFiles;
-	qint64 m_totalSize;
-	State m_state;
-	int m_currentIndex;
 	bool m_connInited;
+	QString m_outputDir;
 };
 
-class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
+class OftFileTransferFactory : public Games::FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	explicit OftFileTransferFactory();
-	virtual void processMessage(IcqContact *contact, const Capability &guid,
-								const QByteArray &data, quint16 reqType, quint64 cookie);
-	virtual bool check(ChatUnit *unit);
-	virtual FileTransferEngine *create(ChatUnit *unit);
+	virtual void processMessage(IcqContact *contact,
+								const oscar::Capability &guid,
+								const QByteArray &data,
+								quint16 reqType,
+								quint64 cookie);
+	virtual bool checkAbility(ChatUnit *unit);
+	bool checkAbility(IcqContact *contact);
+	virtual bool startObserve(ChatUnit *unit);
+	virtual bool stopObserve(ChatUnit *unit);
+	virtual FileTransferJob *create(ChatUnit *unit);
 	void removeConnection(quint64 cookie);
 private:
 	QHash<quint64, OftConnection*> m_connections;

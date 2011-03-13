@@ -147,6 +147,11 @@ IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, boo
 	return contact;
 }
 
+IrcContact *IrcAccount::getContact(const QString &nick, bool create)
+{
+	return getContact(nick, QString(), create);
+}
+
 void IrcAccount::send(const QString &cmd,
 					  bool highPriority,
 					  IrcCommandAlias::Type aliasType,

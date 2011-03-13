@@ -1,7 +1,7 @@
 /****************************************************************************
  *  oscarplugin.cpp
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -22,7 +22,7 @@
 #include "authorization_p.h"
 #include "privacylists_p.h"
 #include "ui/accountcreator.h"
-#include "filetransfer.h"
+#include "oscarfiletransfer_p.h"
 #include "contactsearch_p.h"
 #include "oscarproxy.h"
 #include <qutim/icon.h>
@@ -68,7 +68,7 @@ void OscarPlugin::init()
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
-				 new GeneralGenerator<OftFileTransferFactory, MessagePlugin>(),
+				 new SingletonGenerator<OftFileTransferFactory, MessagePlugin>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "MetaInfo icq service"),
 				 QT_TRANSLATE_NOOP("Plugin", "MetaInfo icq service"),

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  filetransfer.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,14 +13,14 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "filetransfer.h"
+#include "oscarfiletransfer_p.h"
 #include "buddycaps.h"
 #include "icqcontact.h"
 #include "tlv.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"
 #include <QHostAddress>
-
+#include <QDir>
 #include <QTimer>
 
 namespace qutim_sdk_0_3 {
@@ -319,7 +319,7 @@ OftServer::OftServer(OftConnection *conn) :
 void OftServer::listen()
 {
 	QTcpServer::listen();
-	emit m_conn->localPortChanged(serverPort());
+	//emit m_conn->localPortChanged(serverPort());
 }
 
 void OftServer::incomingConnection(int socketDescriptor)
@@ -334,65 +334,19 @@ void OftServer::incomingConnection(int socketDescriptor)
 }
 
 OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager) :
-	FileTransferEngine(contact, direction, manager), m_server(this), m_transfer(manager),
-	m_contact(contact), m_cookie(cookie), m_proxy(false), m_state(StateNotStarted),
-	m_currentIndex(-1), m_connInited(false)
+	FileTransferJob(contact, direction, manager),
+	m_server(this),
+	m_transfer(manager),
+	m_contact(contact),
+	m_cookie(cookie),
+	m_proxy(false),
+	m_connInited(false)
 {
 }
 
 OftConnection::~OftConnection()
 {
 	m_transfer->removeConnection(m_cookie);
-}
-
-int OftConnection::progress() const
-{
-	if (m_data && m_header.size)
-		return m_header.bytesReceived / ((float)m_header.size / 100);
-	return 0;
-}
-
-int OftConnection::currentFile() const
-{
-	return m_currentIndex;
-}
-
-QStringList OftConnection::files() const
-{
-	return m_files;
-}
-
-QStringList OftConnection::remoteFiles() const
-{
-	return m_remoteFiles;
-}
-
-void OftConnection::setFiles(const QStringList &files)
-{
-	m_files = files;
-	if (direction() == Receive) {
-		startFileReceiving();
-	} else {
-		m_totalSize = 0;
-		foreach (const QString &file, m_files) {
-			QFileInfo info(file);
-			m_totalSize += info.size();
-		}
-		//emit filesSizeChanged(m_totalSize);
-	}
-	emit filesChanged(m_files);
-}
-
-qint64 OftConnection::totalSize() const
-{
-	return m_totalSize;
-}
-
-qint64 OftConnection::fileSize() const
-{
-	if (m_data)
-		return m_header.size;
-	return 0;
 }
 
 int OftConnection::localPort() const
@@ -418,54 +372,45 @@ QHostAddress OftConnection::remoteAddress() const
 	return QHostAddress();
 }
 
-OftConnection::State OftConnection::state() const
+void OftConnection::doSend()
 {
-	return m_state;
-}
-
-void OftConnection::start()
-{
-	if (state() != StateNotStarted)
-		return;
-	if (direction() == Send) {
-		m_stage = 1;
-		if (!m_proxy) {
-			sendFileRequest();
-		} else {
-			setSocket(new OftSocket(this));
-			initProxyConnection();
-		}
+	m_stage = 1;
+	if (!m_proxy) {
+		sendFileRequest();
 	} else {
-		if (m_connInited)
-			startFileReceiving();
+		setSocket(new OftSocket(this));
+		initProxyConnection();
 	}
 }
 
-void OftConnection::cancel()
+void OftConnection::doStop()
 {
-	if (m_state != StateStarted || m_state != StateAccepted)
+	if (state() != Finished || state() != Error)
 		return;
 	Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 	ServerMessage message(m_contact, data);
 	m_contact->account()->connection()->send(message);
 	close(false);
-	setState(StateCancelLocal);
+	// FIXME: The next two lines probably should be moved to libqutim
+	setState(Error);
+	setError(Canceled);
 }
 
-void OftConnection::close(bool e)
+void OftConnection::close(bool error)
 {
 	if (m_socket) {
-		if (!e)
+		if (!error)
 			m_socket->close();
 		m_socket->deleteLater();
 	}
 	if (m_data)
 		m_data.reset();
-	if (e) {
+	if (error) {
 		Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 		ServerMessage message(m_contact, data);
 		m_contact->account()->connection()->send(message);
-		emit error(ErrorTryNext);
+		setState(Error);
+		setError(NetworkError);
 	}
 }
 
@@ -488,7 +433,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		m_proxy = tlvs.value<quint8>(0x0010);
 		DataUnit tlv2711(tlvs.value(0x2711));
 		bool multipleFiles = tlv2711.read<quint16>() > 1;
-		quint16 files = tlv2711.read<quint16>();
+		quint16 filesCount = tlv2711.read<quint16>();
 		quint32 totalSize = tlv2711.read<quint32>();
 		Q_UNUSED(multipleFiles);
 		QTextCodec *codec = 0;
@@ -499,16 +444,12 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 			if (!codec)
 				codec = defaultCodec();
 		}
-		QString name = codec->toUnicode(tlv2711.readAll());
-		name.chop(1);
+		QString title = codec->toUnicode(tlv2711.readAll());
+		title.chop(1);
 		QString errorStr;
 		if (m_stage == 1) {
-			if (direction() == Receive) {
-				m_remoteFiles << name;
-				for (int i = 1; i < files; ++i)
-					m_remoteFiles << QString();
-				emit remoteFilesChanged(m_remoteFiles);
-				m_totalSize = totalSize;
+			if (direction() == Incoming) {
+				init(filesCount, totalSize, title);
 				setSocket(new OftSocket(this));
 				if (!m_proxy) {
 					m_socket->directConnect(clientIP, port);
@@ -522,7 +463,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				errorStr = "Stage 1 oscar file transfer request is forbidden during file sending";
 			}
 		} else if (m_stage == 2) {
-			if (direction() == Send) {
+			if (direction() == Outgoing) {
 				m_server.close();
 				if (m_socket) {
 					debug() << "Sender has sent the request for reverse connection (stage 2)"
@@ -542,7 +483,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				errorStr = "Stage 2 oscar file transfer request is forbidden during file receiving";
 			}
 		} else if (m_stage == 3) {
-			if (direction() == Receive) {
+			if (direction() == Incoming) {
 				m_proxy = true;
 				setSocket(new OftSocket(this));
 				m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
@@ -562,7 +503,8 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 	} else if (reqType == MsgCancel) {
 		debug() << m_contact->id() << "canceled file transfing";
 		close(false);
-		setState(StateCancelRemote);
+		setState(Error);
+		setError(Canceled);
 	}
 }
 
@@ -582,7 +524,7 @@ void OftConnection::setSocket(OftSocket *socket)
 			if (m_socket->bytesAvailable() > 0)
 				onNewData();
 		}
-		emit localPortChanged(socket->localPort());
+		// emit localPortChanged(socket->localPort());
 	} else {
 		socket->deleteLater();
 		debug() << "Cannot change socket in an initialized oscar file transfer connection";
@@ -616,11 +558,12 @@ void OftConnection::sendFileRequest(bool fileinfo)
 	if (fileinfo) {
 		{
 			// file info
+			const int count = filesCount();
 			DataUnit tlv2711;
-			tlv2711.append<quint16>(m_files.size() >= 2 ? 2 : 1);
-			tlv2711.append<quint16>(m_files.size()); // count
-			tlv2711.append<quint32>(m_totalSize);
-			tlv2711.append(QFileInfo(m_files.first()).fileName(), defaultCodec()); // ???
+			tlv2711.append<quint16>(count >= 2 ? 2 : 1);
+			tlv2711.append<quint16>(count); // count
+			tlv2711.append<quint32>(totalSize());
+			tlv2711.append(title(), defaultCodec()); // ???
 			tlv2711.append<quint8>(0);
 			data.appendTLV(0x2711, tlv2711);
 		}
@@ -637,9 +580,9 @@ void OftConnection::sendFileRequest(bool fileinfo)
 
 void OftConnection::connected()
 {
-	emit remoteAddressChanged(m_socket->peerAddress());
-	emit remotePortChanged(m_socket->peerPort());
-	if (direction() == Receive) {
+	// emit remoteAddressChanged(m_socket->peerAddress());
+	// emit remotePortChanged(m_socket->peerPort());
+	if (direction() == Incoming) {
 		Channel2BasicMessageData data(MsgAccept, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 		ServerMessage message(m_contact, data);
 		m_contact->account()->connection()->send(message);
@@ -651,11 +594,11 @@ void OftConnection::connected()
 void OftConnection::onError(QAbstractSocket::SocketError error)
 {
 	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
-	if (m_stage == 1 && direction() == Receive && !connClosed) {
+	if (m_stage == 1 && direction() == Incoming && !connClosed) {
 		m_stage = 2;
 		m_socket->deleteLater();
 		sendFileRequest(false);
-	} else if (m_stage == 2 && !direction() == Send && !connClosed) {
+	} else if (m_stage == 2 && !direction() == Outgoing && !connClosed) {
 		m_stage = 3;
 		m_proxy = true;
 		m_socket->close();
@@ -664,7 +607,7 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {
 			debug() << "File transfer connection closed";
-			setState(StateDone);
+			setState(Finished);
 			close(false);
 		} else {
 			debug() << "File transfer connection error" << m_socket->errorString();
@@ -687,7 +630,7 @@ void OftConnection::onNewData()
 											m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
 	m_data->write(buf);
-	emit progressChanged(progress());
+	setFileProgress(m_header.bytesReceived);
 	if (m_header.bytesReceived == m_header.size) {
 		disconnect(m_socket.data(), SIGNAL(newData()), this, SLOT(onNewData()));
 		m_data.reset();
@@ -707,58 +650,46 @@ void OftConnection::onSendData()
 											m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
 	m_socket->write(buf);
-	emit progressChanged(progress());
+	setFileProgress(m_header.bytesReceived);
 	if (m_header.bytesReceived == m_header.size) {
 		disconnect(m_socket.data(), SIGNAL(bytesWritten(qint64)), this, SLOT(onSendData()));
 		m_data.reset();
 	}
 }
 
-bool OftConnection::startFileSending()
+void OftConnection::startFileSending()
 {
-	++m_currentIndex;
-	if (m_currentIndex < 0 || m_currentIndex >= m_files.size())
-		return false;
-	m_current = m_files.at(m_currentIndex);
-	if (m_current.isNull())
-		return false;
-	QFileInfo file(m_current);
-	m_data.reset(new QFile(m_current));
+	int index = currentIndex()+1;
+	if (index < 0 || index >= filesCount()) {
+		close(false);
+		setState(Finished);
+	}
+	m_data.reset(setCurrentIndex(index));
+	QFileInfo file(baseDir().absoluteFilePath(fileName()));
 	m_header.type = OftPrompt;
 	m_header.cookie = m_cookie;
 	m_header.modTime = file.lastModified().toTime_t();
-	m_header.size = file.size();
-	m_header.fileName = file.fileName();
+	m_header.size = fileSize();
+	m_header.fileName = fileName();
 	m_header.checksum = fileChecksum(m_data.data(), m_header.size);
 	m_header.receivedChecksum = 0xFFFF0000;
 	m_header.bytesReceived = 0;
 	m_header.writeData(m_socket.data());
-	m_header.filesLeft = m_files.count() - m_currentIndex;
-	setState(StateAccepted);
-	emit currentFileChanged(m_currentIndex);
-	emit fileSizeChanged(file.size());
-	return true;
+	m_header.filesLeft = filesCount() - index;
+	setState(Started);
 }
 
-void OftConnection::startFileReceiving()
+void OftConnection::startFileReceiving(const int index)
 {
-	if (m_currentIndex < 0 || m_currentIndex >= m_files.size())
+	if (index < 0 || index >= filesCount())
 		return;
-	m_current = m_files.at(m_currentIndex);
-	if (m_current.isNull())
-		return;
-	QFile *file = new QFile(m_current);
-	m_data.reset(file);
-	bool exist = file->exists() && file->size() <= m_header.size;
-	if (!m_data->open(exist ? QFile::ReadOnly : QFile::WriteOnly)) {
-		close();
-		return;
-	}
+	m_data.reset(setCurrentIndex(index));
+	QFile *file = qobject_cast<QFile*>(m_data.data());
+	bool exist = file && file->exists() && file->size() <= m_header.size;
 	if (exist) {
 		m_header.receivedChecksum = fileChecksum(file);
 		m_header.bytesReceived = file->size();
 		m_header.type = OftReceiverResume;
-		m_data->close();
 	} else {
 		m_header.type = OftAcknowledge;
 		onNewData();
@@ -767,10 +698,8 @@ void OftConnection::startFileReceiving()
 	m_header.writeData(m_socket.data());
 	if (exist)
 		m_socket->dataReaded();
-	setState(StateStarted);
+	setState(Started);
 	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
-	emit currentFileChanged(m_currentIndex);
-	emit fileSizeChanged(m_header.size);
 }
 
 void OftConnection::onHeaderReaded()
@@ -778,7 +707,7 @@ void OftConnection::onHeaderReaded()
 	if (m_socket->lastHeader().isFinished()) {
 		m_header = m_socket->lastHeader();
 		QString error;
-		if (direction() == Receive) {
+		if (direction() == Incoming) {
 			if (m_header.type & OftReceiver)
 				error = QString("Oft message type %1 is not allowed during receiving");
 		} else {
@@ -797,23 +726,26 @@ void OftConnection::onHeaderReaded()
 				debug() << "Prompt messages are not allowed during resuming receiving";
 				return;
 			}
+
 			m_connInited = true;
-			m_currentIndex = m_header.totalFiles - m_header.filesLeft;
-			if (m_currentIndex < 0 || m_currentIndex >= m_remoteFiles.count()) {
+
+			int currentIndex = m_header.totalFiles - m_header.filesLeft;
+			if (currentIndex < 0 || currentIndex >= filesCount()) {
 				debug() << "Sender sent wrong OftPrompt filetransfer request";
 				close();
 				break;
 			}
-			m_remoteFiles.replace(m_currentIndex, m_header.fileName);
-			emit remoteFilesChanged(m_remoteFiles);
-			startFileReceiving();
+
+			FileTransferInfo fileInfo;
+			fileInfo.setFileName(m_header.fileName);
+			fileInfo.setFileSize(m_header.size);
+			setFileInfo(currentIndex, fileInfo);
+
+			startFileReceiving(currentIndex);
 			break;
 		}
 		case OftDone: { // Receiver has informed us about received file
-			if (!startFileSending()) {
-				close(false);
-				setState(StateDone);
-			}
+			startFileSending();
 			break;
 		}
 		case OftReceiverResume: { // Receiver wants to resume old file transfer
@@ -861,10 +793,9 @@ void OftConnection::onHeaderReaded()
 			m_socket->dataReaded();
 			if (m_data->open(QFile::ReadOnly)) {
 				connect(m_socket.data(), SIGNAL(bytesWritten(qint64)), this, SLOT(onSendData()));
-				setState(StateStarted);
+				setState(Started);
 				onSendData();
 			} else {
-				debug() << "File" << m_current << "is not opened";
 				close();
 			}
 			break;
@@ -879,7 +810,7 @@ void OftConnection::onHeaderReaded()
 quint32 OftConnection::chunkChecksum(const char *buffer, int len, quint32 oldChecksum, int offset)
 {
 	// code adapted from miranda's oft_calc_checksum
-	quint16 checksum = (oldChecksum >> 16) & 0xffff;
+	quint32 checksum = (oldChecksum >> 16) & 0xffff;
 	for (int i = 0; i < len; i++)
 	{
 		quint16 val = buffer[i];
@@ -918,13 +849,16 @@ quint32 OftConnection::fileChecksum(QIODevice* file, int bytes)
 }
 
 OftFileTransferFactory::OftFileTransferFactory():
-	FileTransferFactory()
+	FileTransferFactory(tr("Oscar file transfer protocol"), CanSendMultiple)
 {
 	m_capabilities << ICQ_CAPABILITY_AIMSENDFILE;
 }
 
-void OftFileTransferFactory::processMessage(IcqContact *contact, const Capability &guid,
-									 const QByteArray &data, quint16 reqType, quint64 cookie)
+void OftFileTransferFactory::processMessage(IcqContact *contact,
+											const oscar::Capability &guid,
+											const QByteArray &data,
+											quint16 reqType,
+											quint64 cookie)
 {
 	Q_UNUSED(guid);
 	TLVMap tlvs = DataUnit(data).read<TLVMap>();
@@ -935,28 +869,50 @@ void OftFileTransferFactory::processMessage(IcqContact *contact, const Capabilit
 	}
 	bool newRequest = reqType == MsgRequest && !conn;
 	if (newRequest) {
-		conn = new OftConnection(contact, FileTransferEngine::Receive, cookie, this);
+		conn = new OftConnection(contact, FileTransferJob::Incoming, cookie, this);
 		m_connections.insert(cookie, conn);
 	}
 	if (conn) {
 		conn->handleRendezvous(reqType, tlvs);
-		if (newRequest)
-			FileTransferManager::instance()->receive(conn);
+		if (conn->title().isNull())
+			// We were waiting stage 1 message, but the contact had sent us something else.
+			conn->deleteLater();
 	} else {
 		debug() << "Skipped oscar file transfer request with unknown cookie";
 	}
 }
 
-bool OftFileTransferFactory::check(ChatUnit *unit)
+bool OftFileTransferFactory::checkAbility(ChatUnit *unit)
 {
 	IcqContact *contact = qobject_cast<IcqContact*>(unit);
+	return checkAbility(contact);
+}
+
+bool OftFileTransferFactory::checkAbility(IcqContact *contact)
+{
 	return contact && contact->capabilities().match(ICQ_CAPABILITY_AIMSENDFILE);
 }
 
-FileTransferEngine *OftFileTransferFactory::create(ChatUnit *unit)
+bool OftFileTransferFactory::startObserve(ChatUnit *unit)
 {
-	OftConnection *conn = new OftConnection(reinterpret_cast<IcqContact*>(unit), FileTransferEngine::Send,
-											Cookie::generateId(), this);
+	return false;
+}
+
+bool OftFileTransferFactory::stopObserve(ChatUnit *unit)
+{
+	return false;
+}
+
+FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
+{
+	IcqContact *contact = qobject_cast<IcqContact*>(unit);
+	if (!checkAbility(contact))
+		return 0;
+	OftConnection *conn =
+			new OftConnection(contact,
+							  FileTransferJob::Outgoing,
+							  Cookie::generateId(),
+							  this);
 	m_connections.insert(conn->cookie(), conn);
 	return conn;
 }
