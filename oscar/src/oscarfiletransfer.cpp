@@ -30,22 +30,23 @@ namespace oscar {
 const int BUFFER_SIZE = 4096;
 using namespace Util;
 
-OftHeader::OftHeader()
+OftHeader::OftHeader() :
+	encrypt(false),
+	compress(false),
+	totalFiles(1),
+	filesLeft(1),
+	totalParts(1),
+	partsLeft(1),
+	totalSize(0),
+	checksum(0xFFFF0000),
+	receivedResourceForkChecksum(0xFFFF0000),
+	resourceForkChecksum(0xFFFF0000),
+	bytesReceived(0),
+	receivedChecksum(0xFFFF0000),
+	identification("Cool FileXfer"),
+	flags(0x20),
+	m_state(ReadHeader)
 {
-	m_state = ReadHeader;
-	encrypt = false;
-	compress = false;
-	checksum = 0xFFFF0000;
-	resourceForkChecksum = 0xFFFF0000;
-	receivedChecksum = 0xFFFF0000;
-	identification = "Cool FileXfer";
-	bytesReceived = 0;
-	flags = 0x20;
-	totalFiles = 1;
-	filesLeft = 1;
-	totalParts = 1;
-	partsLeft = 1;
-	totalSize = 0;
 }
 
 void OftHeader::readData(QIODevice *dev)
@@ -108,6 +109,14 @@ void OftHeader::readData(QIODevice *dev)
 	}
 }
 
+static void resizeArray(QByteArray &data, int size)
+{
+	int oldSize = data.size();
+	data.resize(size);
+	if (oldSize < size)
+		memset(data.data()+oldSize, 0, size-oldSize);
+}
+
 void OftHeader::writeData(QIODevice *dev)
 {
 	DataUnit data;
@@ -132,7 +141,7 @@ void OftHeader::writeData(QIODevice *dev)
 	data.append<quint32>(receivedChecksum);
 	{
 		QByteArray ident = identification.toLatin1();
-		ident.resize(32);
+		resizeArray(ident, 32);
 		data.append(ident);
 	}
 	data.append<quint8>(flags);
@@ -140,19 +149,20 @@ void OftHeader::writeData(QIODevice *dev)
 	data.append<quint8>(0x11);
 	{
 		QByteArray dummy;
-		dummy.resize(69);
+		resizeArray(dummy, 69);
 		data.append(dummy);
 	}
-	macFileInfo.resize(16);
+	resizeArray(macFileInfo, 16);
 	data.append(macFileInfo);
-	data.append<quint16>(CodecAnsi);
+	data.append<quint16>(CodecUtf16Be);
 	data.append<quint16>(0);
 	{
-		QByteArray name = defaultCodec()->fromUnicode(fileName);
+		QByteArray name = utf16Codec()->fromUnicode(fileName);
+		name = name.mid(2);
 		if (name.size() < 64)
-			name.resize(64);
+			resizeArray(name, 64);
 		else
-			name.append("\0");
+			name.append("\0\0");
 		data.append(name);
 	}
 	DataUnit header;
@@ -663,6 +673,7 @@ void OftConnection::startFileSending()
 	if (index < 0 || index >= filesCount()) {
 		close(false);
 		setState(Finished);
+		return;
 	}
 	m_data.reset(setCurrentIndex(index));
 	QFileInfo file(baseDir().absoluteFilePath(fileName()));
@@ -674,6 +685,7 @@ void OftConnection::startFileSending()
 	m_header.checksum = fileChecksum(m_data.data(), m_header.size);
 	m_header.receivedChecksum = 0xFFFF0000;
 	m_header.bytesReceived = 0;
+	m_header.totalSize = totalSize();
 	m_header.writeData(m_socket.data());
 	m_header.filesLeft = filesCount() - index;
 	setState(Started);
