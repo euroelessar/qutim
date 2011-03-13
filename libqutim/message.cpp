@@ -122,7 +122,9 @@ static quint64 message_id = 0;
 class MessagePrivate : public DynamicPropertyData
 {
 public:
-	MessagePrivate() : in(false), chatUnit(0), id(++message_id) { text.clear(); }
+	MessagePrivate() : 
+	    time(QDateTime::currentDateTime()), in(false),
+	    chatUnit(0), id(++message_id) {}
 	MessagePrivate(const MessagePrivate &o) :
 		DynamicPropertyData(o), text(o.text), time(o.time),
 		in(o.in), chatUnit(o.chatUnit), id(++message_id) {}

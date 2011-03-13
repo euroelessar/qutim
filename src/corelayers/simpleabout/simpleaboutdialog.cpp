@@ -40,7 +40,7 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 		ui->texteditTranslators->setHtml(toHtml(translators, false));
 	ui->labelVersion->setText(QLatin1String(qutimVersionStr()));
 	ui->labelQtVer ->setText(tr("Based on Qt %1 (%2 bit).")
-	                         .arg(QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize)));
+	                         .arg(QLatin1String(qVersion()), QString::number(QSysInfo::WordSize)));
 	QFile licenseFile(":/GPL");
 	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
 								" or (at your option) any later version.</div>"
