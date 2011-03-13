@@ -490,6 +490,10 @@ void FileTransferFactory::virtual_hook(int id, void *data)
 
 FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate(this))
 {
+	Games::scope()->manager = this;
+	Games::scope()->inited = true;
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>())
+		Games::scope()->factories << gen->generate<FileTransferFactory>();
 }
 
 FileTransferManager::~FileTransferManager()
