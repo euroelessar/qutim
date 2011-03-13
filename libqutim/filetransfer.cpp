@@ -201,6 +201,21 @@ void FileTransferJob::send(const QUrl &url, const QString &title)
 //		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
 }
 
+void FileTransferJob::send(const QDir &baseDir, const QStringList &files, const QString &title)
+{
+	Q_D(FileTransferJob);
+	d->dir = baseDir;
+	d->title = title;
+	for (int i = 0; i < files.size(); i++) {
+		QFileInfo info = d->dir.filePath(files.at(i));
+		FileTransferInfo ftInfo;
+		ftInfo.setFileName(files.at(i));
+		ftInfo.setFileSize(info.size());
+		d->files << ftInfo;
+	}
+	doSend();
+}
+
 void FileTransferJob::stop()
 {
 	doStop();

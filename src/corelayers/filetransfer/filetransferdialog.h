@@ -16,20 +16,22 @@ class FileTransferDialog : public QDialog
 {
     Q_OBJECT
 public:
-	FileTransferDialog(FileTransferEngine *engine);
+	FileTransferDialog(FileTransferJob *job);
     ~FileTransferDialog();
 	void setPath(const QString &path);
+	void setJob(FileTransferJob *job);
+	QIODevice *openFile();
 protected:
     void changeEvent(QEvent *e);
 private slots:
-	void currentFileUpdated(int current);
-	void totalSizeChanged(qint64 size);
-	void fileSizeChanged(qint64 size);
-	void remoteFilesChanged(QStringList files);
+	void onFileNameChanged(const QString &fileName);
+	void onTotalSizeChanged(qint64 size);
+	void onFileSizeChanged(qint64 size);
+	void onProgressChanged(qint64 progress);
 private:
-	FileTransferEngine *m_engine;
+	FileTransferJob *m_job;
     Ui::FileTransferDialog *ui;
-	QFileInfo m_path;
+	QString m_path;
 };
 }
 

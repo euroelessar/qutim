@@ -78,11 +78,14 @@ public:
 	virtual ~FileTransferJob();
 	
 	// Send some file or dir
-	void send(const QUrl &url, const QString &title);
+	void send(const QUrl &url, const QString &title = QString());
+	void send(const QDir &baseDir, const QStringList &files, const QString &title);
 	void stop();
 	Direction direction() const;
 	QString title() const;
 	QString fileName() const;
+	// For outgoing only
+	QDir baseDir() const;
 	FileTransferInfo info(int index) const;
 	int filesCount() const;
 	int currentIndex() const;
@@ -96,8 +99,6 @@ protected:
 	virtual void doStop() = 0;
 	// For incoming only
 	void init(int filesCount, qint64 totalSize, const QString &title);
-	// For outgoing only
-	QDir baseDir() const;
 	// Device for local files to read/write
 	QIODevice *setCurrentIndex(int index);
 	void setFileProgress(qint64 fileProgress);
