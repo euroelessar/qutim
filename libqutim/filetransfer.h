@@ -123,7 +123,7 @@ private:
 	QScopedPointer<FileTransferJobPrivate> d_ptr;
 };
 
-class FileTransferObserver : public QObject
+class LIBQUTIM_EXPORT FileTransferObserver : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferObserver)
@@ -143,7 +143,7 @@ namespace Games
 class FileTransferFactoryPrivate;
 class FileTransferManagerPrivate;
 
-class FileTransferFactory : public QObject
+class LIBQUTIM_EXPORT FileTransferFactory : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferFactory)

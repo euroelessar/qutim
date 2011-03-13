@@ -196,6 +196,7 @@ void FileTransferJob::send(const QUrl &url, const QString &title)
 		d->addFile(info);
 		files << d->files.last().fileName();
 	}
+	d->devices.resize(files.size());
 	doSend();
 	//	if (Games::scope()->init())
 	//		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
@@ -213,6 +214,7 @@ void FileTransferJob::send(const QDir &baseDir, const QStringList &files, const 
 		ftInfo.setFileSize(info.size());
 		d->files << ftInfo;
 	}
+	d->devices.resize(files.size());
 	doSend();
 }
 
@@ -282,6 +284,7 @@ void FileTransferJob::init(int filesCount, qint64 totalSize, const QString &titl
 {
 	Q_D(FileTransferJob);
 	d->files.resize(filesCount);
+	d->devices.resize(filesCount);
 	d->totalSize = totalSize;
 	d->title = title;
 	emit titleChanged(title);
