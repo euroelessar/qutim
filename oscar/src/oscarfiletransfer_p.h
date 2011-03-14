@@ -100,7 +100,7 @@ public:
 	OftHeader &lastHeader() { return m_lastHeader; }
 	ReadingState readingState() const { return m_state; }
 	void directConnect(const QHostAddress &addr, quint16 port);
-	void proxyConnect(const QString &uin, quint64 cookie, const QHostAddress &addr,
+	void proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr,
 					  quint16 port, quint16 m_clientPort = 0);
 	const QHostAddress &proxyIP() { return m_proxyIP; }
 	quint16 proxyPort() { return m_proxyPort; }
@@ -185,7 +185,7 @@ private:
 	QString m_outputDir;
 };
 
-class OftFileTransferFactory : public Games::FileTransferFactory, public MessagePlugin
+class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)

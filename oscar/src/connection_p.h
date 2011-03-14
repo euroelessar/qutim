@@ -79,8 +79,7 @@ private:
 class AbstractConnectionPrivate
 {
 public:
-	// max value is 0x7fff, min is 0
-	inline quint16 seqNum() { seqnum++; return (seqnum &= 0x7fff); }
+	inline quint16 seqNum() { return seqnum++; }
 	inline quint32 nextId() { return id++; }
 	Socket *socket;
 	FLAP flap;
