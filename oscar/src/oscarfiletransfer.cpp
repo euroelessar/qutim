@@ -462,6 +462,11 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		if (m_stage == 1) {
 			if (direction() == Incoming) {
 				init(filesCount, totalSize, title);
+				if (!m_proxy && clientIP.isNull()) {
+					// The receiver has not sent us its IP, so skip that stage
+					startStage2();
+					return;
+				}
 				setSocket(new OftSocket(this));
 				if (!m_proxy) {
 					m_socket->directConnect(clientIP, port);
@@ -480,6 +485,11 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				if (m_socket) {
 					debug() << "Sender has sent the request for reverse connection (stage 2)"
 							<< "but the connection already initialized at stage 1";
+					return;
+				}
+				if (!m_proxy && clientIP.isNull()) {
+					// The sender has not sent us its IP, so skip that stage
+					startStage3();
 					return;
 				}
 				setSocket(new OftSocket(this));
@@ -607,15 +617,9 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 {
 	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
 	if (m_stage == 1 && direction() == Incoming && !connClosed) {
-		m_stage = 2;
-		m_socket->deleteLater();
-		sendFileRequest(false);
+		startStage2();
 	} else if (m_stage == 2 && !direction() == Outgoing && !connClosed) {
-		m_stage = 3;
-		m_proxy = true;
-		m_socket->close();
-		initProxyConnection();
-		sendFileRequest(false);
+		startStage3();
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {
 			debug() << "File transfer connection closed";
@@ -714,6 +718,22 @@ void OftConnection::startFileReceiving(const int index)
 		m_socket->dataReaded();
 	setState(Started);
 	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
+}
+
+void OftConnection::startStage2()
+{
+	m_stage = 2;
+	m_socket->deleteLater();
+	sendFileRequest(false);
+}
+
+void OftConnection::startStage3()
+{
+	m_stage = 3;
+	m_proxy = true;
+	m_socket->close();
+	initProxyConnection();
+	sendFileRequest(false);
 }
 
 void OftConnection::onHeaderReaded()

@@ -159,6 +159,8 @@ private:
 	void setSocket(OftSocket *socket);
 	void startFileSending();
 	void startFileReceiving(const int index);
+	void startStage2();
+	void startStage3();
 private slots:
 	void sendFileRequest(bool fileinfo = true);
 	void connected();
