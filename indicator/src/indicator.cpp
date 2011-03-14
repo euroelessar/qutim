@@ -1,6 +1,6 @@
 /****************************************************************************
  * indicator.cpp
- *  Copyright © 2010, Vsevolod Velichko <torkvema@gmail.com>.
+ *  Copyright © 2010-2011, Vsevolod Velichko <torkvema@gmail.com>.
  *  Licence: GPLv3 or later
  *
  ****************************************************************************
@@ -29,7 +29,7 @@ void IndicatorPlugin::init ()
 			);
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Indicator"),
 			QT_TRANSLATE_NOOP("Plugin", "Ubuntu Indicator applet integration"),
-			PLUGIN_VERSION(0, 0, 1, 0),
+			PLUGIN_VERSION(0, 0, 1, 1),
 			icon
 			);
 	addExtension<IndicatorService>(QT_TRANSLATE_NOOP("Plugin", "Indicator"),

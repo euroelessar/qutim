@@ -1,6 +1,6 @@
 /****************************************************************************
  * indicatorservice.cpp
- *  Copyright © 2010, Vsevolod Velichko <torkvema@gmail.com>.
+ *  Copyright © 2010-2011, Vsevolod Velichko <torkvema@gmail.com>.
  *  Licence: GPLv3 or later
  *
  ****************************************************************************
@@ -67,6 +67,17 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	connect(session, SIGNAL(unreadChanged(const qutim_sdk_0_3::MessageList&)), SLOT(onUnreadChanged(const qutim_sdk_0_3::MessageList&)));
 	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 	connect(indicator, SIGNAL(display(QIndicate::Indicator*)), SLOT(onIndicatorDisplay(QIndicate::Indicator*)), Qt::QueuedConnection);
+
+	QString name = session->getUnit()->title();
+	qDebug() << "Setting indicator name: " << name;
+	indicator->setNameProperty(name);
+	indicator->setTimeProperty(QDateTime::currentDateTime());
+	indicator->setDrawAttentionProperty(false);
+	indicator->setCountProperty(session->unread().count());
+	indicator->setIconProperty(QImage());
+	indicator->setIndicatorProperty("subtype", "im");
+	indicator->setIndicatorProperty("sender", name);
+	indicator->show();
 }
 
 void IndicatorService::onSessionDestroyed()
@@ -98,15 +109,12 @@ void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &message
 		return;
 	qDebug() << "[Indicator] Indicator has been found. Displaying.";
 	QDateTime time = messages.last().time();
-	QString name = session->getUnit()->title();
 	qDebug() << "Setting indicator time: " << time;
-	qDebug() << "Setting indicator name: " << name;
 	indicator->setTimeProperty(time);
-	indicator->setNameProperty(name);
 	indicator->setDrawAttentionProperty(true);
-	indicator->setCountProperty(messages.size());
-	indicator->setIndicatorProperty("subtype", "im");
-	indicator->setIndicatorProperty("sender", name);
+	QImage icon = qutim_sdk_0_3::Icon("mail-unread-new").pixmap(64).toImage();
+	indicator->setIconProperty(icon);
+	indicator->setCountProperty(session->unread().count());
 	// TODO: ->setIconProperty(QImage)
 	indicator->show();
 }
@@ -115,7 +123,7 @@ void IndicatorService::onAccountCreated(qutim_sdk_0_3::Account *)
 {
 }
 
-void IndicatorService::onAccountDestroyed(QObject *obj)
+void IndicatorService::onAccountDestroyed(QObject *)
 {
 }
 
@@ -134,7 +142,11 @@ void IndicatorService::onSessionActivated(bool active)
 	QIndicate::Indicator *indicator = sessionIndicators.value(session);
 	if (!indicator)
 		return;
-	indicator->hide();
+	indicator->setTimeProperty(QDateTime::currentDateTime());
+	indicator->setDrawAttentionProperty(false);
+	indicator->setCountProperty(session->unread().count());
+	indicator->setIconProperty(QImage());
+	//indicator->hide();
 }
 
 void IndicatorService::onIndicatorDisplay(QIndicate::Indicator* indicator)
