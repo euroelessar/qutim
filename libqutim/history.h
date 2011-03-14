@@ -22,26 +22,47 @@
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
-	class HistoryRequestRulePrivate;
+	class HistoryRequestPrivate;
+	class HistoryReplyPrivate;
+	class HistoryRequest;
 	
-//	class HistoryRequest : public QObject
+//	class HistoryReply : public QObject
 //	{
+//		Q_OBJECT
+//		Q_DECLARE_PRIVATE(HistoryReply)
+//	public:
+//		HistoryReply();
+//		~HistoryReply();
+		
+//		HistoryRequest request() const;
+//		virtual MessageList messages() const;
+//	signals:
+//		void ready();
+//	private:
+//		QScopedPointer<HistoryReplyPrivate> d_ptr;
 //	};
-//	
-//	class HistoryRequestRule
+	
+//	class HistoryRequest
 //	{
 //	public:
+//		HistoryRequest();
+//		HistoryRequest(const HistoryRequest &other);
+//		~HistoryRequest();
+//		HistoryRequest &operator =(const HistoryRequest &other);
+		
+//		HistoryReply *send();
 //	private:
+//		QSharedDataPointer<HistoryRequestPrivate> d_ptr;
 //	};
-//
+
 //	class LIBQUTIM_EXPORT HistoryEngine : public QObject
 //	{
 //		Q_OBJECT
 //	public:
 //		HistoryEngine();
 //		virtual ~HistoryEngine();
-//		virtual void store(const Message &msg) = 0;
-//		virtual HistoryRequest *request(const HistoryRequestRule &rule);
+//		virtual HistoryReply *store(const Message &msg) = 0;
+//		virtual HistoryReply *request(const HistoryRequest &rule) = 0;
 //	};
 	
 	class LIBQUTIM_EXPORT History : public QObject
