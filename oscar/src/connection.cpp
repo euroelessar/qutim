@@ -481,8 +481,7 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 
 void AbstractConnection::setSeqNum(quint16 seqnum)
 {
-	// Have a look at seqNum method to understand reasons
-	d_func()->seqnum = (seqnum > 0) ? (seqnum - 1) : 0x7fff;
+	d_func()->seqnum = seqnum;
 }
 
 void AbstractConnection::processNewConnection()

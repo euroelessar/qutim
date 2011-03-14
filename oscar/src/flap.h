@@ -32,7 +32,7 @@ public:
 	inline quint8 channel() const { return m_channel; }
 	inline void setChannel(quint8 channel) { m_channel = channel; }
 	inline quint16 seqNum() const { return m_sequence_number; }
-	inline void setSeqNum(quint8 seqnum) { m_sequence_number = seqnum; }
+	inline void setSeqNum(quint16 seqnum) { m_sequence_number = seqnum; }
 	QByteArray toByteArray() const;
 	operator QByteArray() const { return toByteArray(); };
 	QByteArray header() const;
