@@ -29,6 +29,7 @@ class SettingsWidget;
 class SettingsItem;
 class SettingsItemPrivate;
 class MenuController;
+class DataItem;
 
 typedef QList<SettingsItem *> SettingsItemList;
 
@@ -93,6 +94,7 @@ namespace Settings
 class LIBQUTIM_EXPORT SettingsItem
 {
 	Q_DISABLE_COPY(SettingsItem);
+	Q_DECLARE_PRIVATE(SettingsItem)
 public:
 	SettingsItem(SettingsItemPrivate &d);
 	SettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text);
@@ -108,7 +110,7 @@ public:
 	void setPriority(int priority);
 protected:
 	virtual const ObjectGenerator *generator() const = 0;
-	QScopedPointer<SettingsItemPrivate> p;
+	QScopedPointer<SettingsItemPrivate> d_ptr;
 };
 
 template<typename T>
@@ -133,6 +135,7 @@ protected:
 class AutoSettingsItemPrivate;
 class LIBQUTIM_EXPORT AutoSettingsItem : public SettingsItem
 {
+	Q_DECLARE_PRIVATE(AutoSettingsItem)
 public:
 	class EntryPrivate;
 	class LIBQUTIM_EXPORT Entry
@@ -190,6 +193,20 @@ signals:
 	void pathChanged(const QString &path);
 private:
 	QScopedPointer<AutoSettingsFileChooserPrivate> d_ptr;
+};
+
+class DataSettingsItemPrivate;
+class LIBQUTIM_EXPORT DataSettingsItem : public SettingsItem
+{
+	Q_DECLARE_PRIVATE(DataSettingsItem)
+public:
+	DataSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text);
+	DataSettingsItem(Settings::Type type, const LocalizedString &text);
+	virtual ~DataSettingsItem();
+	void setConfig(const QString &config, const QString &group);
+	void setDataItem(const DataItem &item);
+private:
+	virtual const ObjectGenerator *generator() const;
 };
 
 class LIBQUTIM_EXPORT SettingsLayer : public QObject

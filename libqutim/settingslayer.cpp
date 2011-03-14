@@ -17,6 +17,7 @@
 #include "objectgenerator.h"
 #include <QtGui/QApplication>
 #include "settingswidget.h"
+#include "dataforms.h"
 #include <QVariant>
 #include <QCheckBox>
 #include <QRadioButton>
@@ -33,71 +34,77 @@
 namespace qutim_sdk_0_3
 {
 
-SettingsItem::SettingsItem(SettingsItemPrivate &d) : p(&d)
+SettingsItem::SettingsItem(SettingsItemPrivate &d) : d_ptr(&d)
 {
-	p->text.setContext("Settings");
+	d_ptr->text.setContext("Settings");
 }
 
-SettingsItem::SettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text) : p(new SettingsItemPrivate)
+SettingsItem::SettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text) : d_ptr(new SettingsItemPrivate)
 {
-	p->type = type;
-	p->icon = icon;
-	p->text = text;
+	Q_D(SettingsItem);
+	d->type = type;
+	d->icon = icon;
+	d->text = text;
 }
 
-SettingsItem::SettingsItem(Settings::Type type, const LocalizedString &text) : p(new SettingsItemPrivate)
+SettingsItem::SettingsItem(Settings::Type type, const LocalizedString &text) : d_ptr(new SettingsItemPrivate)
 {
-	p->type = type;
-	p->text = text;
+	Q_D(SettingsItem);
+	d->type = type;
+	d->text = text;
 }
 
 SettingsItem::~SettingsItem()
 {
+	Q_D(SettingsItem);
 	clearWidget();
-	if (p->gen)
-		delete p->gen;
+	if (d->gen)
+		delete d->gen;
 }
 
 Settings::Type SettingsItem::type() const
 {
-	if(p->type < Settings::General || p->type > Settings::Special)
+	Q_D(const SettingsItem);
+	if(d->type < Settings::General || d->type > Settings::Special)
 		return Settings::Invalid;
-	return p->type;
+	return d->type;
 }
 
 QIcon SettingsItem::icon() const
 {
 	// TODO: If icon is null choose it by type
-	return p->icon;
+	return d_func()->icon;
 }
 
 LocalizedString SettingsItem::text() const
 {
-	return p->text;
+	return d_func()->text;
 }
 
 SettingsWidget *SettingsItem::widget() const
 {
-	if(!p->gen)
-		p->gen = generator();
-	if(p->gen && p->widget.isNull()) {
-		p->widget = p->gen->generate<SettingsWidget>();
-		foreach (const ConnectInfo &info, p->connections)
-			QObject::connect(p->widget, info.signal, info.receiver, info.member);
+	Q_D(const SettingsItem);
+	if(!d->gen)
+		d->gen = generator();
+	if(d->gen && d->widget.isNull()) {
+		d->widget = d->gen->generate<SettingsWidget>();
+		foreach (const ConnectInfo &info, d->connections)
+			QObject::connect(d->widget, info.signal, info.receiver, info.member);
 	}
-	return p->widget;
+	return d->widget;
 }
 
 void SettingsItem::clearWidget()
 {
-	if(!p->widget.isNull())
-		delete p->widget.data();
+	Q_D(SettingsItem);
+	if(!d->widget.isNull())
+		delete d->widget.data();
 }
 
 void SettingsItem::connect(const char *signal, QObject *receiver, const char *member)
 {
 	Q_ASSERT(signal && receiver && member);
-	p->connections << ConnectInfo(signal, receiver, member);
+	d_func()->connections << ConnectInfo(signal, receiver, member);
 }
 
 AutoSettingsWidget::AutoSettingsWidget(AutoSettingsItemPrivate *pr) : p(pr), g(new AutoSettingsWidgetPrivate)
@@ -201,7 +208,7 @@ const QString &AutoSettingsItem::Entry::name() const
 AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text)
 	: SettingsItem(*new AutoSettingsItemPrivate)
 {
-	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+	Q_D(AutoSettingsItem);
 	d->type = type;
 	d->icon = icon;
 	d->text = text;
@@ -211,7 +218,7 @@ AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const
 AutoSettingsItem::AutoSettingsItem(Settings::Type type, const LocalizedString &text)
 	: SettingsItem(*new AutoSettingsItemPrivate)
 {
-	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+	Q_D(AutoSettingsItem);
 	d->type = type;
 	d->text = text;
 	d->gen = new AutoSettingsGenerator(d);
@@ -223,14 +230,14 @@ AutoSettingsItem::~AutoSettingsItem()
 
 void AutoSettingsItem::setConfig(const QString &config, const QString &group)
 {
-	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+	Q_D(AutoSettingsItem);
 	d->config = config;
 	d->group = group;
 }
 
 AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const LocalizedString &text, const ObjectGenerator *gen)
 {
-	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+	Q_D(AutoSettingsItem);
 	if(!gen->extends<QWidget>())
 		return 0;
 	Entry *entry = new Entry(text, gen);
@@ -240,7 +247,7 @@ AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const LocalizedString &text,
 
 const ObjectGenerator *AutoSettingsItem::generator() const
 {
-	return p->gen;
+	return d_func()->gen;
 }
 
 QStringList AutoSettingsComboBox::items() const
@@ -295,6 +302,79 @@ void AutoSettingsFileChooserPrivate::onButtonClicked(bool)
 	q->setPath(QFileDialog::getSaveFileName(q, QT_TRANSLATE_NOOP("Settings","Open File"),
 											q->path(),
 											QT_TRANSLATE_NOOP("Settings","Log file (*.log)")));
+}
+
+class DataSettingsWidgetPrivate
+{
+public:
+};
+
+DataSettingsWidget::DataSettingsWidget(DataSettingsItemPrivate *pr) : p(pr), g(new DataSettingsWidgetPrivate)
+{
+	AbstractDataForm *form = AbstractDataForm::get(p->item);
+	form->setParent(this);
+	QGridLayout *layout = new QGridLayout(this);
+	setLayout(layout);
+	layout->addWidget(form);
+}
+
+DataSettingsWidget::~DataSettingsWidget()
+{
+}
+
+void DataSettingsWidget::loadImpl()
+{
+	Config cfg(p->config);
+	cfg.beginGroup(p->group);
+}
+
+void DataSettingsWidget::saveImpl()
+{
+	Config cfg(p->config);
+	cfg.beginGroup(p->group);
+}
+
+void DataSettingsWidget::cancelImpl()
+{
+	loadImpl();
+}
+
+DataSettingsItem::DataSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text) :
+    SettingsItem(*new DataSettingsItemPrivate)
+{
+	Q_D(DataSettingsItem);
+	d->icon = icon;
+	d->text = text;
+	d->type = type;
+}
+
+DataSettingsItem::DataSettingsItem(Settings::Type type, const LocalizedString &text) :
+    SettingsItem(*new DataSettingsItemPrivate)
+{
+	Q_D(DataSettingsItem);
+	d->text = text;
+	d->type = type;
+}
+
+DataSettingsItem::~DataSettingsItem()
+{
+}
+
+void DataSettingsItem::setConfig(const QString &config, const QString &group)
+{
+	Q_D(DataSettingsItem);
+	d->config = config;
+	d->group = group;
+}
+
+void DataSettingsItem::setDataItem(const DataItem &item)
+{
+	d_func()->item = item;
+}
+
+const ObjectGenerator *DataSettingsItem::generator() const
+{
+	return d_func()->gen;
 }
 
 SettingsLayer::SettingsLayer()
@@ -444,12 +524,12 @@ void SettingsLayer::show(MenuController *controller)
 
 int SettingsItem::priority() const
 {
-	return p->priority;
+	return d_ptr->priority;
 }
 
 void SettingsItem::setPriority(int priority)
 {
-	p->priority = priority;
+	d_ptr->priority = priority;
 }
 
 
