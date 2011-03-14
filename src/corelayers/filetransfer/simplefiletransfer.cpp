@@ -104,7 +104,7 @@ bool SimpleFileTransfer::event(QEvent *ev)
 			return true;
 		}
 	}
-	return Games::FileTransferManager::event(ev);
+	return FileTransferManager::event(ev);
 }
 
 }

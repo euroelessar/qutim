@@ -25,9 +25,9 @@
 
 namespace qutim_sdk_0_3
 {
+
 #define REMEMBER_ALL_ABILITIES 1
-namespace Games
-{
+
 struct FileTransferScope
 {
 	struct Observer
@@ -69,7 +69,6 @@ public:
 	void handleJob(FileTransferJob *job, FileTransferJob *oldJob) { q_func()->handleJob(job, oldJob); }
 	FileTransferManager *q_ptr;
 };
-}
 
 class FileTransferInfoPrivate : public QSharedData
 {
@@ -140,7 +139,7 @@ public:
 	qint64 progress;
 	qint64 fileProgress;
 	qint64 totalSize;
-	Games::FileTransferFactory *factory;
+	FileTransferFactory *factory;
 	FileTransferJob *q_ptr;
 	QDir dir;
 };
@@ -157,12 +156,12 @@ void FileTransferJobPrivate::addFile(const QFileInfo &info)
 QIODevice *FileTransferJobPrivate::device(int index)
 {
 	if (!devices[index])
-		devices[index] = Games::FileTransferManager::openFile(q_func());
+		devices[index] = FileTransferManager::openFile(q_func());
 	return devices[index];
 }
 
 FileTransferJob::FileTransferJob(ChatUnit *unit, FileTransferJob::Direction direction,
-                                 Games::FileTransferFactory *factory) :
+                                 FileTransferFactory *factory) :
     QObject(unit), d_ptr(new FileTransferJobPrivate(direction, this))
 {
 	Q_D(FileTransferJob);
@@ -198,8 +197,8 @@ void FileTransferJob::send(const QUrl &url, const QString &title)
 	}
 	d->devices.resize(files.size());
 	doSend();
-	//	if (Games::scope()->init())
-	//		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
+	//	if (scope()->init())
+	//		FileTransferManagerPrivate::get(scope()->manager)->handleJob(this, 0);
 }
 
 void FileTransferJob::send(const QDir &baseDir, const QStringList &files, const QString &title)
@@ -289,8 +288,8 @@ void FileTransferJob::init(int filesCount, qint64 totalSize, const QString &titl
 	d->title = title;
 	emit titleChanged(title);
 	emit totalSizeChanged(totalSize);
-	if (Games::scope()->init())
-		Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(this, 0);
+	if (scope()->init())
+		FileTransferManagerPrivate::get(scope()->manager)->handleJob(this, 0);
 }
 
 QDir FileTransferJob::baseDir() const
@@ -329,16 +328,16 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 		d->error = err;
 		FileTransferJob *job = 0;
 		if (d->direction == Outgoing) {
-			QList<Games::FileTransferFactory*> &list = Games::scope()->factories;
+			QList<FileTransferFactory*> &list = scope()->factories;
 			for (int i = list.indexOf(d->factory) + 1; !job && i < list.size(); i++) {
-				Games::FileTransferFactory *factory = list.at(i);
+				FileTransferFactory *factory = list.at(i);
 				if (factory->checkAbility(d->unit)) {
 					job = factory->create(d->unit);
 					FileTransferJobPrivate *p = job->d_func();
 					p->files = d->files;
 					p->dir = d->dir;
 					job->doSend();
-					Games::FileTransferManagerPrivate::get(Games::scope()->manager)->handleJob(job, this);
+					FileTransferManagerPrivate::get(scope()->manager)->handleJob(job, this);
 				}
 			}
 		}
@@ -382,17 +381,17 @@ public:
 	static FileTransferObserverPrivate *get(FileTransferObserver *o) { return o->d_func(); }
 	void emitAbilityChanged(bool ability) { emit q_func()->abilityChanged(ability); }
 	FileTransferObserver *q_ptr;
-	Games::FileTransferScope::Observer *scope;
+	FileTransferScope::Observer *scope;
 };
 
 FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
     d_ptr(new FileTransferObserverPrivate(this))
 {
 	Q_D(FileTransferObserver);
-	d->scope = &Games::scope()->observers[unit];
+	d->scope = &scope()->observers[unit];
 	if (d->scope->list.isEmpty()) {
 		d->scope->unit = unit;
-		QList<Games::FileTransferFactory*> &list = Games::scope()->factories;
+		QList<FileTransferFactory*> &list = scope()->factories;
 #ifdef REMEMBER_ALL_ABILITIES
 		d->scope->setCount = 0;
 		d->scope->abilities.resize(list.size());
@@ -418,8 +417,8 @@ FileTransferObserver::~FileTransferObserver()
 	Q_D(FileTransferObserver);
 	d->scope->list.removeOne(this);
 	if (d->scope->list.isEmpty()) {
-		Games::scope()->observers.remove(d->scope->unit);
-		QList<Games::FileTransferFactory*> &list = Games::scope()->factories;
+		scope()->observers.remove(d->scope->unit);
+		QList<FileTransferFactory*> &list = scope()->factories;
 		for (int i = 0; i < list.size(); i++)
 			list.at(i)->stopObserve(d->scope->unit);
 	}
@@ -434,8 +433,6 @@ bool FileTransferObserver::checkAbility() const
 #endif
 }
 
-namespace Games
-{
 class FileTransferFactoryPrivate
 {
 public:
@@ -466,7 +463,7 @@ void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
 {
 	FileTransferScope::Observer &scp = scope()->observers[unit];
 #ifdef REMEMBER_ALL_ABILITIES
-	QList<Games::FileTransferFactory*> &list = Games::scope()->factories;
+	QList<FileTransferFactory*> &list = scope()->factories;
 	int index = list.indexOf(this);
 	bool changed = scp.abilities.testBit(index) != canSend;
 	if (!changed)
@@ -485,7 +482,7 @@ void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
 		// Need recalc abilities
 		bool oldAbility = scp.ability;
 		scp.ability = false;
-		QList<Games::FileTransferFactory*> &list = Games::scope()->factories;
+		QList<FileTransferFactory*> &list = scope()->factories;
 		for (int i = 0; !scp.ability && i < list.size(); i++)
 			scp.ability |= list.at(i)->checkAbility(scp.unit);
 		if (scp.ability == oldAbility)
@@ -508,10 +505,10 @@ void FileTransferFactory::virtual_hook(int id, void *data)
 
 FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate(this))
 {
-	Games::scope()->manager = this;
-	Games::scope()->inited = true;
+	scope()->manager = this;
+	scope()->inited = true;
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>())
-		Games::scope()->factories << gen->generate<FileTransferFactory>();
+		scope()->factories << gen->generate<FileTransferFactory>();
 }
 
 FileTransferManager::~FileTransferManager()
@@ -528,7 +525,7 @@ bool FileTransferManager::checkAbility(ChatUnit *unit)
 		return it.value().ability;
 #endif
 	}
-	QList<Games::FileTransferFactory*> &list = scope()->factories;
+	QList<FileTransferFactory*> &list = scope()->factories;
 	bool ok = false;
 	for (int i = 0; !ok && i < list.size(); i++)
 		ok |= list.at(i)->checkAbility(unit);
@@ -539,9 +536,9 @@ FileTransferJob *FileTransferManager::send(ChatUnit *unit, const QUrl &url, cons
 {
 	if (!scope()->init())
 		return 0;
-	QList<Games::FileTransferFactory*> &list = scope()->factories;
+	QList<FileTransferFactory*> &list = scope()->factories;
 	for (int i = 0; i < list.size(); i++) {
-		Games::FileTransferFactory *factory = list.at(i);
+		FileTransferFactory *factory = list.at(i);
 		if (factory->checkAbility(unit)) {
 			FileTransferJob *job = factory->create(unit);
 			job->send(url, title);
@@ -564,126 +561,5 @@ void FileTransferManager::virtual_hook(int id, void *data)
 	Q_UNUSED(id);
 	Q_UNUSED(data);
 }
-}
 
-
-class FileTransferEnginePrivate
-{
-public:
-	ChatUnit *chatUnit;
-	FileTransferFactory *factory;
-	FileTransferEngine::Direction direction;
-};
-
-class FileTransferManagerPrivate
-{
-};
-
-struct FileTransferData
-{
-	QList<FileTransferFactory *> factories;
-	QPointer<FileTransferManager> manager;
-};
-
-void init(FileTransferData *data)
-{
-	GeneratorList gens = ObjectGenerator::module<FileTransferFactory>();
-	foreach(const ObjectGenerator *gen, gens)
-		data->factories << gen->generate<FileTransferFactory>();
-	gens = ObjectGenerator::module<FileTransferManager>();
-	if (!gens.isEmpty())
-		data->manager = gens.first()->generate<FileTransferManager>();
-}
-
-Q_GLOBAL_STATIC_WITH_INITIALIZER(FileTransferData, data, init(x.data()));
-
-FileTransferEngine::FileTransferEngine(ChatUnit *chatUnit, Direction direction, FileTransferFactory *factory) :
-	QObject(factory), d_ptr(new FileTransferEnginePrivate)
-{
-	Q_D(FileTransferEngine);
-	d->chatUnit = chatUnit;
-	d->factory = factory;
-	d->direction = direction;
-}
-
-FileTransferEngine::~FileTransferEngine()
-{
-}
-
-ChatUnit *FileTransferEngine::chatUnit() const
-{
-	return d_func()->chatUnit;
-}
-
-int FileTransferEngine::localPort() const
-{
-	return -1;
-}
-
-int FileTransferEngine::remotePort() const
-{
-	return -1;
-}
-
-QHostAddress FileTransferEngine::remoteAddress() const
-{
-	return QHostAddress();
-}
-
-FileTransferEngine::Direction FileTransferEngine::direction() const
-{
-	return d_func()->direction;
-}
-
-void FileTransferEngine::virtual_hook(int id, void *data)
-{
-	Q_UNUSED(id);
-	Q_UNUSED(data);
-}
-
-FileTransferFactory::FileTransferFactory()
-{
-}
-
-FileTransferFactory::~FileTransferFactory()
-{
-}
-
-FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate)
-{
-}
-
-FileTransferManager::~FileTransferManager()
-{
-}
-
-FileTransferManager *FileTransferManager::instance()
-{
-	return data()->manager;
-}
-
-bool FileTransferManager::checkAbility(ChatUnit *unit)
-{
-	foreach (FileTransferFactory *factory, data()->factories) {
-		if (factory->check(unit))
-			return true;
-	}
-	return false;
-}
-
-FileTransferEngine *FileTransferManager::getEngine(ChatUnit *unit, FileTransferEngine *last)
-{
-	if (last && last->direction() == FileTransferEngine::Receive)
-		return 0;
-
-	FileTransferFactory *lastFactory = last ? last->d_func()->factory : 0;
-	FileTransferData *d = data();
-	int index = lastFactory ? d->factories.indexOf(lastFactory) : -1;
-	index++;
-	for (; index < d->factories.size(); index++) {
-		if (d->factories.at(index)->check(unit))
-			return d->factories.at(index)->create(unit);
-	}
-	return 0;
-}
 }

@@ -8,7 +8,7 @@ using namespace qutim_sdk_0_3;
 namespace Core
 {
 
-class SimpleFileTransfer : public Games::FileTransferManager
+class SimpleFileTransfer : public FileTransferManager
 {
 	Q_OBJECT
 	Q_CLASSINFO("Uses", "IconLoader")
