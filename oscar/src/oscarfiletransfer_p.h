@@ -185,7 +185,7 @@ private:
 	QString m_outputDir;
 };
 
-class OftFileTransferFactory : public Games::FileTransferFactory, public MessagePlugin
+class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)
