@@ -197,9 +197,11 @@ void OftSocket::directConnect(const QHostAddress &addr, quint16 port)
 	connectToHost(addr, port);
 }
 
-void OftSocket::proxyConnect(const QString &uin, quint64 cookie, const QHostAddress &addr,
+void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr,
 							 quint16 port, quint16 clientPort)
 {
+	if (addr.isNull())
+		addr = QHostAddress("64.12.201.185"); // ars.oscar.aol.com
 	m_state = clientPort == 0 ? ProxyInit : ProxyReceive;
 	m_lastHeader = OftHeader();
 	m_len = 0;
@@ -427,7 +429,7 @@ void OftConnection::close(bool error)
 void OftConnection::initProxyConnection()
 {
 	// Connect to ars.oscar.aol.com
-	m_socket->proxyConnect(m_contact->account()->id(), m_cookie, QHostAddress("64.12.201.185"), 5190);
+	m_socket->proxyConnect(m_contact->account()->id(), m_cookie, QHostAddress(), 5190);
 }
 
 void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
