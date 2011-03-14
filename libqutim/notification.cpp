@@ -14,7 +14,133 @@
 *****************************************************************************/
 
 #include "notification.h"
+#include "dynamicpropertydata_p.h"
 
 namespace qutim_sdk_0_3 {
+class NotificationPrivate
+{
+public:
+	NotificationRequest request;
+	QAtomicInt ref;
+};
 
+Notification::Notification(QObject *parent) : QObject(parent)
+{
+}
+
+Notification::~Notification()
+{
+}
+
+NotificationRequest Notification::request() const
+{
+	return d_func()->request;
+}
+
+void Notification::close()
+{
+	emit finished();
+	deleteLater();
+}
+
+class NotificationRequestPrivate : public DynamicPropertyData
+{
+public:
+};
+
+NotificationRequest::NotificationRequest(const Message &msg)
+{
+}
+
+NotificationRequest::NotificationRequest(Notification::Type type)
+{
+}
+
+NotificationRequest::NotificationRequest(const NotificationRequest &other)
+{
+}
+
+NotificationRequest::~NotificationRequest()
+{
+}
+
+NotificationRequest &NotificationRequest::operator =(const NotificationRequest &other)
+{
+}
+
+void NotificationRequest::setObject(QObject *obj)
+{
+}
+
+QObject *NotificationRequest::object() const
+{
+}
+
+void NotificationRequest::setData(const QVariant &data)
+{
+}
+
+QVariant NotificationRequest::data() const
+{
+}
+
+void NotificationRequest::setImage(const QPixmap &pixmap)
+{
+}
+
+QPixmap NotificationRequest::image() const
+{
+}
+
+void NotificationRequest::setTitle(const QString &title)
+{
+}
+
+QString NotificationRequest::title() const
+{
+}
+
+void NotificationRequest::setText(const QString &text)
+{
+}
+
+QString NotificationRequest::text() const
+{
+}
+
+QVariant NotificationRequest::property(const char *name, const QVariant &def) const
+{
+}
+
+void NotificationRequest::setProperty(const char *name, const QVariant &value)
+{
+}
+
+void NotificationRequest::addAction(const ActionGenerator *action)
+{
+}
+
+void NotificationRequest::addAction(Notification::Type type, const ActionGenerator *action)
+{
+}
+
+QList<const ActionGenerator *> NotificationRequest::actions() const
+{
+}
+
+NotificationBackend::NotificationBackend()
+{
+}
+
+NotificationBackend::~NotificationBackend()
+{
+}
+
+void NotificationBackend::ref(Notification *notification)
+{
+}
+
+void NotificationBackend::deref(Notification *notification)
+{
+}
 } // namespace qutim_sdk_0_3
