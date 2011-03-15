@@ -119,7 +119,7 @@ void XStatusRequester::updateXStatusImpl(IcqContact *contact)
 	request.setValue("trans", "1");
 	request.setValue("senderId", account->id());
 	SNAC snac = request.snac(contact);
-	account->connection()->send(snac, 10);
+	account->connection()->send(snac, false);
 	m_lastTime = QDateTime::currentDateTime().toTime_t();
 }
 

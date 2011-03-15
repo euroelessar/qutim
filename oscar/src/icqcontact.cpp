@@ -60,7 +60,7 @@ void ChatStateUpdater::sendState()
 	}
 	QHash<IcqContact*, ChatState>::iterator itr = m_states.begin();
 	IcqContact *contact = itr.key();
-	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn, false)) {
+	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn)) {
 		sendState(contact, itr.value());
 		m_states.erase(itr);
 		if (m_states.isEmpty())
@@ -86,7 +86,7 @@ void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
 	sn.append<quint16>(1); // channel?
 	sn.append<quint8>(contact->id());
 	sn.append<quint16>(type);
-	contact->account()->connection()->send(sn, 50);
+	contact->account()->connection()->send(sn);
 }
 
 Q_GLOBAL_STATIC(ChatStateUpdater, chatStateUpdater);

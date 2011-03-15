@@ -770,7 +770,7 @@ void MessageSender::sendMessage(MessageData &message)
 	Cookie cookie(message.contact, message.msgs.isEmpty() ? message.id : Cookie::generateId());
 	if (message.channel == 1) {
 		ServerMessage msgData(contact, Channel1MessageData(msg, CodecUtf16Be), cookie);
-		m_account->connection()->send(msgData, 80);
+		m_account->connection()->send(msgData);
 	} else {
 		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
 		tlv.append<quint16>(msg, LittleEndian);
@@ -780,7 +780,7 @@ void MessageSender::sendMessage(MessageData &message)
 		ServerMessage msgData(contact, Channel2MessageData(0, tlv));
 		if (message.msgs.isEmpty())
 			msgData.setCookie(cookie, this, "messageTimeout(Cookie)");
-		m_account->connection()->send(msgData, 80);
+		m_account->connection()->send(msgData);
 	}
 }
 
