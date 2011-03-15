@@ -83,7 +83,7 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 void IndicatorService::onSessionDestroyed()
 {
 	qDebug() << "[Indicator] onSessionDestroyed";
-	qutim_sdk_0_3::ChatSession *session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
+	qutim_sdk_0_3::ChatSession *session = static_cast<qutim_sdk_0_3::ChatSession*>(sender());
 	if (!session)
 		return;
 	HashIndicator::Iterator it = sessionIndicators.find(session);
