@@ -121,8 +121,9 @@ void OscarRate::update(const SNAC &sn)
 void OscarRate::send(const SNAC &snac, quint8 priority)
 {
 	Q_ASSERT(priority <= 100);
+	priority = 100 - priority;
 	quint8 oldPriority = m_queue.isEmpty() ? 100 : m_queue.begin().key();
-	m_queue.insert(100 - priority, snac);
+	m_queue.insert(priority, snac);
 	if (priority < oldPriority) {
 		m_timer.stop();
 		sendNextPackets();
@@ -133,7 +134,7 @@ bool OscarRate::testRate(bool priority)
 {
 	quint32 timeDiff = getTimeDiff(QDateTime::currentDateTime());
 	quint32 newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-	return newLevel > minLevel(priority ? 30 : 95);
+	return newLevel > minLevel(priority ? 30 : 0);
 }
 
 void OscarRate::sendNextPackets()

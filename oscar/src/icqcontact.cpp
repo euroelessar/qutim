@@ -34,22 +34,15 @@ namespace oscar {
 
 ChatStateUpdater::ChatStateUpdater()
 {
-	m_timer.setInterval(2000);
+	m_timer.setInterval(500);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendState()));
 }
 
 void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 {
-	if (m_states.isEmpty() &&
-		contact->account()->connection()->testRate(MessageFamily, MessageMtn, false))
-	{
-		Q_ASSERT(!m_timer.isActive());
-		sendState(contact, state);
-	} else {
-		m_states.insert(contact, state);
-		if (!m_timer.isActive())
-			m_timer.start();
-	}
+	m_states.insert(contact, state);
+	if (!m_timer.isActive())
+		m_timer.start();
 }
 
 void ChatStateUpdater::sendState()
@@ -93,7 +86,7 @@ void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
 	sn.append<quint16>(1); // channel?
 	sn.append<quint8>(contact->id());
 	sn.append<quint16>(type);
-	contact->account()->connection()->send(sn, 20);
+	contact->account()->connection()->send(sn, 50);
 }
 
 Q_GLOBAL_STATIC(ChatStateUpdater, chatStateUpdater);
