@@ -46,6 +46,7 @@ public:
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
 	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
 	inline void remove(FeedbagItem item);
+	bool isSendingAllowed(const FeedbagItem &item, Feedbag::ModifyType operation);
 	quint16 id() const { return itemType == SsiGroup ? groupId : itemId; }
 	QString configId() const { return QString::number((quint64)(itemType << 16 | id()) << 32 | groupId); }
 	QString recordName;
@@ -147,18 +148,6 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
 {
 	FeedbagPrivate *d = feedbag->d.data();
-	Status::Type status = d->account->status().type();
-	if (status == Status::Offline || status == Status::Connecting) {
-		warning() << "Trying to send the feedbag item while offline:" << item;
-		return;
-	}
-	if (operation == Feedbag::Add) {
-		quint16 limit = d->limits.value(item.type());
-		if (limit > 0 && d->items.value(item.type()).count() <= limit) {
-			warning() << "Limit for feedbag item type" << item.type() << "exceeded";
-			return;
-		}
-	}
 	d->ssiQueue.enqueue(FeedbagQueueItem(item, operation));
 	SNAC snac(ListsFamily, operation);
 	snac.append<quint16>(recordName);
@@ -175,6 +164,24 @@ void FeedbagItemPrivate::remove(FeedbagItem item)
 	item.d->tlvs.clear();
 	isInList = false;
 	send(item, Feedbag::Remove);
+}
+
+bool FeedbagItemPrivate::isSendingAllowed(const FeedbagItem &item, Feedbag::ModifyType operation)
+{
+	FeedbagPrivate *d = feedbag->d.data();
+	Status::Type status = d->account->status().type();
+	if (status == Status::Offline || status == Status::Connecting) {
+		warning() << "Trying to send the feedbag item while offline:" << item;
+		return false;
+	}
+	if (operation == Feedbag::Add) {
+		quint16 limit = d->limits.value(item.type());
+		if (limit > 0 && d->items.value(item.type()).count() >= limit) {
+			warning() << "Limit for feedbag item type" << item.type() << "exceeded";
+			return false;
+		}
+	}
+	return true;
 }
 
 FeedbagItem::FeedbagItem():
@@ -199,7 +206,6 @@ FeedbagItem::FeedbagItem(const FeedbagItem &item) :
 
 FeedbagItem::~FeedbagItem()
 {
-
 }
 
 const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
@@ -210,24 +216,30 @@ const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
 
 void FeedbagItem::update()
 {
-	bool modify = feedbag()->isModifyStarted();
 	FeedbagItem item = *this;
+	Feedbag::ModifyType op = d->isInList ? Feedbag::Modify : Feedbag::Add;
+	if (!d->isSendingAllowed(item, op))
+		return;
+	Feedbag *f = feedbag();
+	bool modify = f->isModifyStarted();
 	if (!modify)
-		feedbag()->beginModify();
-	d->send(item, d->isInList ? Feedbag::Modify : Feedbag::Add);
+		f->beginModify();
+	d->send(item, op);
 	d->isInList = true;
 	if (!modify)
-		feedbag()->endModify();
+		f->endModify();
 }
 
 void FeedbagItem::remove()
 {
 	Q_ASSERT(isInList());
+	FeedbagItem item = *this;
 	Feedbag *f = feedbag();
+	if (!d->isSendingAllowed(item, Feedbag::Remove))
+		return;
 	bool modify = f->isModifyStarted();
 	if (!modify)
 		f->beginModify();
-	FeedbagItem item = *this;
 	item.d->tlvs.clear();
 	d->isInList = false;
 	d->send(item, Feedbag::Remove);

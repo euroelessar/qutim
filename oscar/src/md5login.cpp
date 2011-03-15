@@ -36,6 +36,7 @@ Md5Login::Md5Login(const QString &password, IcqAccount *account) :
 	m_infos << SNACInfo(AuthorizationFamily, SignonLoginReply)
 			<< SNACInfo(AuthorizationFamily, SignonAuthKey);
 	registerHandler(this);
+	setSeqNum(generateFlapSequence());
 	socket()->setProxy(account->connection()->socket()->proxy());
 	QList<SNACInfo> outgoingSnacs;
 	outgoingSnacs << SNACInfo(AuthorizationFamily, SignonLoginRequest)

@@ -22,10 +22,13 @@
 #include "icqaccount.h"
 #include <QTimer>
 #include <QDateTime>
+#include <QQueue>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+#define MINIMIZE_RATE_MEMORY_USAGE 1
 
 class OscarRate: public QObject
 {
@@ -34,44 +37,33 @@ public:
 	OscarRate(const SNAC &sn, AbstractConnection *conn);
 	virtual ~OscarRate() {}
 	void update(const SNAC &sn);
-	const QList<quint32> &snacTypes()
-	{
-		return m_snacTypes;
-	}
-	void addSnacType(quint32 snacType)
-	{
-		m_snacTypes << snacType;
-	}
-	quint16 groupId()
-	{
-		return m_groupId;
-	}
-	void send(const SNAC &snac, quint8 priority);
-	bool isEmpty()
-	{
-		return m_windowSize <= 1;
-	}
+	quint16 groupId() { return m_groupId; }
+	void send(const SNAC &snac, bool priority);
+	bool isEmpty() { return m_windowSize <= 1; }
 	bool testRate(bool priority);
-private slots:
-	void sendNextPackets();
+	bool startTimeout();
+protected:
+	void timerEvent(QTimerEvent *event);
 private:
+	void sendNextPackets();
 	quint32 getTimeDiff(const QDateTime &dateTime);
-	quint32 minLevel(quint8 priority);
+private:
 	quint16 m_groupId;
 	quint32 m_windowSize;
 	quint32 m_clearLevel;
-	quint32 m_alertLevel;
-	quint32 m_limitLevel;
-	quint32 m_disconnectLevel;
 	quint32 m_currentLevel;
 	quint32 m_maxLevel;
 	quint32 m_lastTimeDiff;
+#if !MINIMIZE_RATE_MEMORY_USAGE
+	quint32 m_alertLevel;
+	quint32 m_limitLevel;
+	quint32 m_disconnectLevel;
 	quint8 m_currentState;
+#endif
 	QDateTime m_time;
-	QList<quint32> m_snacTypes;
-	QMultiMap<quint8, SNAC> m_queue;
-	QTimer m_timer;
-	quint32 m_priorityDiff;
+	QQueue<SNAC> m_lowPriorityQueue;
+	QQueue<SNAC> m_highPriorityQueue;
+	QBasicTimer m_timer;
 	quint32 m_defaultPriority;
 	AbstractConnection *m_conn;
 };

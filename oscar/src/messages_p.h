@@ -47,6 +47,8 @@ private:
 	QString handleChannel4Message(IcqContact *contact, const TLVMap &tlvs);
 	QString handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
 	void sendMetaInfoRequest(IcqAccount *account, quint16 type);
+	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
+private:
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 	QMultiHash<Tlv2711Type, Tlv2711Plugin *> m_tlvs2711Plugins;
 	bool m_detectCodec;
@@ -58,15 +60,11 @@ class MessageSender : public QObject
 public:
 	MessageSender(IcqAccount *account);
 	bool appendMessage(IcqContact *contact, const Message &message);
-	void appendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
 private slots:
 	void sendMessage();
-	void sendResponse();
 	void messageTimeout(const Cookie &cookie);
 private:
 	IcqAccount *m_account;
-
-	// Data for outgoing messages
 	struct MessageData
 	{
 		MessageData(IcqContact *contact, const Message &message);
@@ -81,18 +79,6 @@ private:
 	void sendMessage(MessageData &message);
 	QList<MessageData> m_messages;
 	QTimer m_messagesTimer;
-
-	// Data for channel2 responses
-	struct Channel2Response
-	{
-		IcqContact *contact;
-		quint8 type;
-		quint8 flags;
-		Cookie cookie;
-	};
-	void sendResponse(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
-	QList<Channel2Response> m_responses;
-	QTimer m_responseTimer;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

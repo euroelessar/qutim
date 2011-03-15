@@ -97,35 +97,39 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 {
 	m_groupId = sn.read<quint16>();
 	update(sn);
-	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
-	m_timer.setSingleShot(true);
 }
 
 void OscarRate::update(const SNAC &sn)
 {
 	m_windowSize = sn.read<quint32>();
 	m_clearLevel = sn.read<quint32>();
+#if !MINIMIZE_RATE_MEMORY_USAGE
 	m_alertLevel = sn.read<quint32>();
 	m_limitLevel = sn.read<quint32>();
 	m_disconnectLevel = sn.read<quint32>();
+#else
+	sn.skipData(12);
+#endif
 	m_currentLevel = sn.read<quint32>();
 	m_maxLevel = sn.read<quint32>();
 	m_lastTimeDiff = sn.read<quint32>();
+#if !MINIMIZE_RATE_MEMORY_USAGE
 	m_currentState = sn.read<quint8>();
+#else
+	sn.skipData(1);
+#endif
 	m_time = QDateTime::currentDateTime().addMSecs(-m_lastTimeDiff);
-	quint32 diff = m_maxLevel - m_alertLevel;
-	m_priorityDiff = diff / 100;
-	m_defaultPriority = m_clearLevel + diff / 2;
+	m_defaultPriority = (m_clearLevel + m_maxLevel) / 2;
 }
 
-void OscarRate::send(const SNAC &snac, quint8 priority)
+void OscarRate::send(const SNAC &snac, bool priority)
 {
-	Q_ASSERT(priority <= 100);
-	quint8 oldPriority = m_queue.isEmpty() ? 100 : m_queue.begin().key();
-	m_queue.insert(100 - priority, snac);
-	if (priority < oldPriority) {
-		m_timer.stop();
+	QQueue<SNAC> &queue = priority ? m_highPriorityQueue : m_lowPriorityQueue;
+	queue.enqueue(snac);
+	if (!m_timer.isActive()) {
 		sendNextPackets();
+		if (!queue.isEmpty())
+			m_timer.start(500, this);
 	}
 }
 
@@ -133,31 +137,39 @@ bool OscarRate::testRate(bool priority)
 {
 	quint32 timeDiff = getTimeDiff(QDateTime::currentDateTime());
 	quint32 newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-	return newLevel > minLevel(priority ? 30 : 95);
+	return newLevel > (priority ? m_clearLevel : m_defaultPriority);
+}
+
+void OscarRate::timerEvent(QTimerEvent *event)
+{
+	if (event->timerId() == m_timer.timerId())
+		sendNextPackets();
 }
 
 void OscarRate::sendNextPackets()
 {
-	Q_ASSERT(!m_queue.isEmpty());
+	Q_ASSERT(!m_highPriorityQueue.isEmpty() || !m_lowPriorityQueue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
 	quint32 timeDiff = getTimeDiff(dateTime);
 
 	quint32 newLevel;
-	while (!m_queue.isEmpty()) {
-		newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-		if (newLevel < minLevel(m_queue.begin().key()))
+	forever {
+		bool priority = !m_highPriorityQueue.isEmpty();
+		if (!priority && m_lowPriorityQueue.isEmpty()) {
+			m_timer.stop();
 			break;
-		SNAC snac = *m_queue.begin();
-		m_queue.erase(m_queue.begin());
+		}
+
+		newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
+		if (newLevel < (priority ? m_clearLevel : m_defaultPriority))
+			break;
+
+		SNAC snac = priority ? m_highPriorityQueue.dequeue() : m_lowPriorityQueue.dequeue();
 		m_lastTimeDiff = timeDiff;
 		m_time = dateTime;
 		timeDiff = 0;
 		m_currentLevel = qMin(newLevel, m_maxLevel);
 		m_conn->sendSnac(snac);
-	}
-	if (!m_queue.isEmpty()) {
-		quint32 timeout = (minLevel(m_queue.begin().key()) - (m_currentLevel * (m_windowSize - 1) / m_windowSize)) * m_windowSize;
-		m_timer.start(timeout);
 	}
 }
 
@@ -169,20 +181,6 @@ quint32 OscarRate::getTimeDiff(const QDateTime &dateTime)
 		return 86400000 - m_time.time().msec() + dateTime.time().msec();
 	else // That should never happen
 		return 86400000;
-}
-
-quint32 OscarRate::minLevel(quint8 priority)
-{
-	switch (priority) {
-	case 100:
-		return m_maxLevel;
-	case 50:
-		return m_defaultPriority;
-	case 0:
-		return m_clearLevel;
-	default:
-		return m_clearLevel + priority * m_priorityDiff;
-	}
 }
 
 AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
@@ -422,7 +420,7 @@ const FLAP &AbstractConnection::flap()
 	return d_func()->flap;
 }
 
-void AbstractConnection::send(SNAC &snac, quint8 priority)
+void AbstractConnection::send(SNAC &snac, bool priority)
 {
 	Q_D(AbstractConnection);
 	OscarRate *rate = d->ratesHash.value(snac.family() << 16 | snac.subtype());
@@ -593,10 +591,10 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint16 groupCount = sn.read<quint16>();
 		for (int i = 0; i < groupCount; ++i) {
 			OscarRate *rate = new OscarRate(sn, this);
-			if (!rate->isEmpty())
+			if (rate->isEmpty())
+				continue;
+			if (rate->groupId() == 1) // the first rate class will be used by default anyway
 				d->rates.insert(rate->groupId(), rate);
-			else
-				delete rate;
 		}
 		// Rate groups
 		while (sn.dataSize() >= 4) {
@@ -609,7 +607,6 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			}
 			for (int j = 0; j < count; ++j) {
 				quint32 snacType = sn.read<quint32>();
-				rateItr.value()->addSnacType(snacType);
 				d->ratesHash.insert(snacType, *rateItr);
 			}
 		}

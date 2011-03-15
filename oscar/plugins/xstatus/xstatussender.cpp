@@ -114,7 +114,7 @@ void XStatusSender::sendXStatusImpl(IcqContact *contact, quint64 cookie)
 	response.setValue("title", extStatus.value("title").toString());
 	response.setValue("desc", extStatus.value("description").toString());
 	SNAC snac = response.snac(contact, cookie);
-	account->connection()->send(snac);
+	account->connection()->send(snac, false);
 	m_lastTime = QDateTime::currentDateTime().toTime_t();
 }
 
