@@ -127,6 +127,7 @@ void IcqContactPrivate::setCapabilities(const Capabilities &caps)
 			flags |= srvrelay_support;
 	}
 	capabilities = caps;
+	emit q_ptr->capabilitiesChanged(caps);
 }
 
 FeedbagItem IcqContactPrivate::getNotInListGroup()

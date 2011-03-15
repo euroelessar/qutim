@@ -929,12 +929,24 @@ bool OftFileTransferFactory::checkAbility(IcqContact *contact)
 
 bool OftFileTransferFactory::startObserve(ChatUnit *unit)
 {
-	return false;
+	if (!qobject_cast<IcqContact*>(unit))
+		return false;
+	connect(unit,
+			SIGNAL(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)),
+			this,
+			SLOT(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)));
+	return true;
 }
 
 bool OftFileTransferFactory::stopObserve(ChatUnit *unit)
 {
-	return false;
+	if (!qobject_cast<IcqContact*>(unit))
+		return false;
+	disconnect(unit,
+			   SIGNAL(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)),
+			   this,
+			   SLOT(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)));
+	return true;
 }
 
 FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
@@ -954,6 +966,14 @@ FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
 void OftFileTransferFactory::removeConnection(quint64 cookie)
 {
 	m_connections.remove(cookie);
+}
+
+void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities)
+{
+	IcqContact *contact = qobject_cast<IcqContact*>(sender());
+	if (!contact)
+		return;
+	changeAvailability(contact, capabilities.match(ICQ_CAPABILITY_AIMSENDFILE));
 }
 
 } } // namespace qutim_sdk_0_3::oscar

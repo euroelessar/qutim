@@ -58,6 +58,8 @@ public:
 	void setStatus(Status status);
 	ChatState chatState() const;
 	QList<FeedbagItem> feedbagItems() const;
+signals:
+	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
 private:
 	virtual bool event(QEvent *);
 	void setAvatar(const QString &avatar);

@@ -205,6 +205,8 @@ public:
 	virtual bool stopObserve(ChatUnit *unit);
 	virtual FileTransferJob *create(ChatUnit *unit);
 	void removeConnection(quint64 cookie);
+private slots:
+	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
 private:
 	QHash<quint64, OftConnection*> m_connections;
 };
