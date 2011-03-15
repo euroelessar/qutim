@@ -86,11 +86,7 @@ void IndicatorService::onSessionDestroyed()
 	qutim_sdk_0_3::ChatSession *session = static_cast<qutim_sdk_0_3::ChatSession*>(sender());
 	if (!session)
 		return;
-	HashIndicator::Iterator it = sessionIndicators.find(session);
-	if (it == sessionIndicators.end())
-		return;
-	sessionIndicators.erase(it);
-	delete it.value();
+	delete sessionIndicators.take(session);
 }
 
 void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
