@@ -19,6 +19,7 @@
 #include "tlv.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"
+#include "icqprotocol.h"
 #include <QHostAddress>
 #include <QDir>
 #include <QTimer>
@@ -354,11 +355,12 @@ OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 c
 	m_proxy(false),
 	m_connInited(false)
 {
+	m_transfer->addConnection(this);
 }
 
 OftConnection::~OftConnection()
 {
-	m_transfer->removeConnection(m_cookie);
+	m_transfer->removeConnection(this);
 }
 
 int OftConnection::localPort() const
@@ -886,6 +888,11 @@ OftFileTransferFactory::OftFileTransferFactory():
 	FileTransferFactory(tr("Oscar file transfer protocol"), CanSendMultiple)
 {
 	m_capabilities << ICQ_CAPABILITY_AIMSENDFILE;
+	foreach (IcqAccount *account, IcqProtocol::instance()->accountsHash())
+		onAccountCreated(account);
+	connect(IcqProtocol::instance(),
+			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 }
 
 void OftFileTransferFactory::processMessage(IcqContact *contact,
@@ -896,7 +903,7 @@ void OftFileTransferFactory::processMessage(IcqContact *contact,
 {
 	Q_UNUSED(guid);
 	TLVMap tlvs = DataUnit(data).read<TLVMap>();
-	OftConnection *conn = m_connections.value(cookie);
+	OftConnection *conn = connection(contact->account(), cookie);
 	if (conn && conn->contact() != contact) {
 		debug() << "Cannot create two oscar file transfer with the same cookie" << cookie;
 		return;
@@ -904,7 +911,6 @@ void OftFileTransferFactory::processMessage(IcqContact *contact,
 	bool newRequest = reqType == MsgRequest && !conn;
 	if (newRequest) {
 		conn = new OftConnection(contact, FileTransferJob::Incoming, cookie, this);
-		m_connections.insert(cookie, conn);
 	}
 	if (conn) {
 		conn->handleRendezvous(reqType, tlvs);
@@ -959,13 +965,7 @@ FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
 							  FileTransferJob::Outgoing,
 							  Cookie::generateId(),
 							  this);
-	m_connections.insert(conn->cookie(), conn);
 	return conn;
-}
-
-void OftFileTransferFactory::removeConnection(quint64 cookie)
-{
-	m_connections.remove(cookie);
 }
 
 void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities)
@@ -974,6 +974,42 @@ void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Cap
 	if (!contact)
 		return;
 	changeAvailability(contact, capabilities.match(ICQ_CAPABILITY_AIMSENDFILE));
+}
+
+void OftFileTransferFactory::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	m_connections.insert(account, AccountConnections());
+	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
+}
+
+void OftFileTransferFactory::onAccountDestroyed(QObject *account)
+{
+	Connections::iterator itr = m_connections.find(static_cast<Account*>(account));
+	Q_ASSERT(itr != m_connections.end());
+	foreach (OftConnection *conn, *itr)
+		conn->deleteLater();
+	m_connections.erase(itr);
+}
+
+OftConnection *OftFileTransferFactory::connection(IcqAccount *account, quint64 cookie)
+{
+	return m_connections.value(account).value(cookie);
+}
+
+void OftFileTransferFactory::addConnection(OftConnection *connection)
+{
+	IcqAccount *account = connection->contact()->account();
+	Connections::iterator itr = m_connections.find(account);
+	Q_ASSERT(itr != m_connections.end());
+	itr->insert(connection->cookie(), connection);
+}
+
+void OftFileTransferFactory::removeConnection(OftConnection *connection)
+{
+	IcqAccount *account = connection->contact()->account();
+	Connections::iterator itr = m_connections.find(account);
+	Q_ASSERT(itr != m_connections.end());
+	itr->remove(connection->cookie());
 }
 
 } } // namespace qutim_sdk_0_3::oscar

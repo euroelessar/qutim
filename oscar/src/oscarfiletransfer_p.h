@@ -26,6 +26,8 @@
 
 namespace qutim_sdk_0_3 {
 
+class Account;
+
 namespace oscar {
 
 class OftFileTransferFactory;
@@ -204,11 +206,19 @@ public:
 	virtual bool startObserve(ChatUnit *unit);
 	virtual bool stopObserve(ChatUnit *unit);
 	virtual FileTransferJob *create(ChatUnit *unit);
-	void removeConnection(quint64 cookie);
 private slots:
 	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountDestroyed(QObject *account);
 private:
-	QHash<quint64, OftConnection*> m_connections;
+	friend class OftConnection;
+	OftConnection *connection(IcqAccount *account, quint64 cookie);
+	void addConnection(OftConnection *connection);
+	void removeConnection(OftConnection *connection);
+private:
+	typedef QHash<quint64, OftConnection*> AccountConnections;
+	typedef QHash<Account*, AccountConnections> Connections;
+	Connections m_connections;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
