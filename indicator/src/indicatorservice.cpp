@@ -63,7 +63,7 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	QIndicate::Indicator *indicator = new QIndicate::Indicator;
 	sessionIndicators.insert(session, indicator);
 	
-	connect(session, SIGNAL(destroyed()), SLOT(onSessionDestroyed()));
+	connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 	connect(session, SIGNAL(unreadChanged(const qutim_sdk_0_3::MessageList&)), SLOT(onUnreadChanged(const qutim_sdk_0_3::MessageList&)));
 	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 	connect(indicator, SIGNAL(display(QIndicate::Indicator*)), SLOT(onIndicatorDisplay(QIndicate::Indicator*)), Qt::QueuedConnection);
@@ -80,13 +80,11 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	indicator->show();
 }
 
-void IndicatorService::onSessionDestroyed()
+void IndicatorService::onSessionDestroyed(QObject *session)
 {
 	qDebug() << "[Indicator] onSessionDestroyed";
-	qutim_sdk_0_3::ChatSession *session = static_cast<qutim_sdk_0_3::ChatSession*>(sender());
-	if (!session)
-		return;
-	delete sessionIndicators.take(session);
+	qutim_sdk_0_3::ChatSession *_session = static_cast<qutim_sdk_0_3::ChatSession*>(session);
+	delete sessionIndicators.take(_session);
 }
 
 void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)

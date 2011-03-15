@@ -19,7 +19,7 @@
 #include <qindicateindicator.h>
 #include <qindicateserver.h>
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 
