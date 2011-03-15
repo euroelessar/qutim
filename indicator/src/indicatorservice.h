@@ -38,7 +38,7 @@ public:
 protected slots:
 	/* Tray layer slots */
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onSessionDestroyed();
+	void onSessionDestroyed(QObject* session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
 	////// void onActivated(QSystemTrayIcon::ActivationReason);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
