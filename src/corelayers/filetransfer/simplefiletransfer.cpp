@@ -1,3 +1,19 @@
+/****************************************************************************
+ *  simplefiletransfer.cpp
+ *
+ *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "simplefiletransfer.h"
 #include <qutim/actiongenerator.h>
 #include <qutim/menucontroller.h>
@@ -21,61 +37,60 @@ public:
 	}
 };
 
-SimpleFileTransfer::SimpleFileTransfer()
+SimpleFileTransfer::SimpleFileTransfer() :
+	m_model(new FileTransferJobModel(this))
 {
 	MenuController::addAction<ChatUnit>(new FileTransferActionGenerator(this));
 }
 
 QIODevice *SimpleFileTransfer::doOpenFile(FileTransferJob *job)
 {
-	FileTransferDialog *dialog = m_jobs.value(job);
-	if (dialog)
-		return dialog->openFile();
-	return 0;
+	if (!m_model->containsJob(job))
+		return 0;
+
+	QString path;
+	if (job->direction() == FileTransferJob::Incoming) {
+		path = m_paths.value(job);
+		if (path.isNull()) {
+			if (job->filesCount() == 1) {
+				path = QFileDialog::getSaveFileName(0, QString(),
+													  QDir::home().filePath(job->fileName()));
+			} else {
+				path = QFileDialog::getExistingDirectory(0, QString(), QDir::homePath());
+			}
+			if (path.isEmpty()) {
+				job->stop();
+				return 0;
+			}
+			m_paths.insert(job, path);
+		}
+
+		QFileInfo info = path;
+		if (info.isFile())
+			path = info.absoluteFilePath();
+		else
+			path = QDir(path).filePath(job->fileName());
+	} else {
+		path = job->baseDir().filePath(job->fileName());
+	}
+	return new QFile(path);
 }
 
 void SimpleFileTransfer::handleJob(FileTransferJob *job, FileTransferJob *oldJob)
 {
-	FileTransferDialog *dialog = m_jobs.take(oldJob);
-	if (dialog)
-		dialog->setJob(job);
-	else
-		dialog = new FileTransferDialog(job);
-	SystemIntegration::show(dialog);
-	m_jobs.insert(job, dialog);
+	if (oldJob)
+		m_paths.insert(job, m_paths.take(oldJob));
+	connect(job, SIGNAL(destroyed(QObject*)), SLOT(onJobDestroyed(QObject*)));
+	m_model->handleJob(job, oldJob);
+	openFileTransferDialog();
 }
 
-//	void SimpleFileTransfer::send(ChatUnit *unit, const QStringList &files)
-//	{
-//		FileTransferEngine *engine = getEngine(unit);
-//		if (!engine)
-//			return;
-//		engine->setFiles(files);
-//		engine->start();
-//		FileTransferDialog *dialog = new FileTransferDialog(engine);
-//#ifdef QUTIM_MOBILE_UI
-//		dialog->showMaximized();
-//#else
-//		dialog->show();
-//#endif
-//	}
-
-//	void SimpleFileTransfer::receive(FileTransferEngine *engine)
-//	{
-//		QString path;
-//		if (engine->remoteFiles().count() == 1) {
-//			path = QFileDialog::getSaveFileName(0, QString(), QDir::homePath() + "/" + engine->remoteFiles().first());
-//		} else {
-//			path = QFileDialog::getExistingDirectory(0, QString(), QDir::homePath());
-//		}
-//		if (!path.isEmpty()) {
-//			FileTransferDialog *dialog = new FileTransferDialog(engine);
-//			dialog->setPath(path);
-//			dialog->show();
-//		} else {
-//			engine->cancel();
-//		}
-//	}
+void SimpleFileTransfer::openFileTransferDialog()
+{
+	if (!m_dialog)
+		m_dialog = new FileTransferDialog(m_model);
+	SystemIntegration::show(m_dialog.data());
+}
 
 void SimpleFileTransfer::onSendFile(QObject *controller)
 {
@@ -88,10 +103,9 @@ void SimpleFileTransfer::onSendFile(QObject *controller)
 	}
 }
 
-void SimpleFileTransfer::onDialogDeath(QObject *obj)
+void SimpleFileTransfer::onJobDestroyed(QObject *obj)
 {
-	FileTransferDialog *dialog = static_cast<FileTransferDialog*>(obj);
-	m_jobs.remove(m_jobs.key(dialog));
+	m_paths.remove(static_cast<FileTransferJob*>(obj));
 }
 
 bool SimpleFileTransfer::event(QEvent *ev)

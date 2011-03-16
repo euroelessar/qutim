@@ -1,8 +1,25 @@
+/****************************************************************************
+ *  filetransferdialog.h
+ *
+ *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #ifndef FILETRANSFERDIALOG_H
 #define FILETRANSFERDIALOG_H
 
 #include <QDialog>
 #include <QFileInfo>
+#include <QAbstractItemModel>
 #include <qutim/filetransfer.h>
 
 namespace Ui {
@@ -16,23 +33,16 @@ class FileTransferDialog : public QDialog
 {
     Q_OBJECT
 public:
-	FileTransferDialog(FileTransferJob *job);
+	FileTransferDialog(QAbstractItemModel *model);
     ~FileTransferDialog();
-	void setPath(const QString &path);
-	void setJob(FileTransferJob *job);
-	QIODevice *openFile();
+	void setModel(QAbstractItemModel *model);
 protected:
     void changeEvent(QEvent *e);
 private slots:
-	void onFileNameChanged(const QString &fileName);
-	void onTotalSizeChanged(qint64 size);
-	void onFileSizeChanged(qint64 size);
-	void onProgressChanged(qint64 progress);
 private:
-	FileTransferJob *m_job;
     Ui::FileTransferDialog *ui;
-	QString m_path;
 };
+
 }
 
 #endif // FILETRANSFERDIALOG_H
