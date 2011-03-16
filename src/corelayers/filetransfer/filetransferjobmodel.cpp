@@ -228,14 +228,14 @@ QString bytesToString(quint64 bytes)
 		if (mb >= 1) {
 			double gb = mb / 1024;
 			if (gb >= 1)
-				return QT_TR_NOOP("%1 GB").toString().arg(gb, 0, 'f', 2, ' ');
+				return QObject::tr("%1 GB").arg(gb, 0, 'f', 2, ' ');
 			else
-				return QT_TR_NOOP("%1 MB").toString().arg(mb, 0, 'f', 2, ' ');
+				return QObject::tr("%1 MB").arg(mb, 0, 'f', 2, ' ');
 		} else {
-			return QT_TR_NOOP("%1 KB").toString().arg(kb, 0, 'f', 2, ' ');
+			return QObject::tr("%1 KB").arg(kb, 0, 'f', 2, ' ');
 		}
 	} else {
-		return QT_TR_NOOP("%1 B").toString().arg(bytes);
+		return QObject::tr("%1 B").arg(bytes);
 	}
 }
 

@@ -108,11 +108,39 @@ void SimpleFileTransfer::handleJob(FileTransferJob *job, FileTransferJob *oldJob
 	openFileTransferDialog();
 }
 
+FileTransferJob *SimpleFileTransfer::getCurrentJob()
+{
+	Q_ASSERT(m_dialog);
+	int row = m_dialog->currentJob();
+	if (row == -1)
+		return 0;
+	return m_model->getJob(row);
+}
+
 void SimpleFileTransfer::openFileTransferDialog()
 {
 	if (!m_dialog)
-		m_dialog = new FileTransferDialog(m_model);
+		m_dialog = new FileTransferDialog(m_model, this);
 	SystemIntegration::show(m_dialog.data());
+}
+
+void SimpleFileTransfer::closeFileTransferDialog()
+{
+	m_dialog->deleteLater();
+}
+
+void SimpleFileTransfer::stopCurrentAction()
+{
+	FileTransferJob *job = getCurrentJob();
+	if (job)
+		job->stop();
+}
+
+void SimpleFileTransfer::removeCurrentAction()
+{
+	FileTransferJob *job = getCurrentJob();
+	if (job)
+		job->deleteLater();
 }
 
 void SimpleFileTransfer::onSendFile(QObject *controller)

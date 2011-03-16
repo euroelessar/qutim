@@ -16,12 +16,15 @@
 
 #include "filetransferdialog.h"
 #include "filetransferjobdelegate.h"
+#include "simplefiletransfer.h"
 #include "ui_filetransferdialog.h"
 #include <QFileDialog>
+#include <qutim/actionbox.h>
 
 namespace Core
 {
-FileTransferDialog::FileTransferDialog(QAbstractItemModel *model) :
+
+FileTransferDialog::FileTransferDialog(QAbstractItemModel *model, SimpleFileTransfer *manager) :
     ui(new Ui::FileTransferDialog)
 {
 	ui->setupUi(this);
@@ -29,6 +32,24 @@ FileTransferDialog::FileTransferDialog(QAbstractItemModel *model) :
 	setAttribute(Qt::WA_QuitOnClose, false);
 	setModel(model);
 	ui->jobsView->setItemDelegate(new FileTransferJobDelegate(this));
+
+	ActionBox *actions = new ActionBox(this);
+	{
+		QAction *action = new QAction(QObject::tr("Stop"), actions);
+		QObject::connect(action, SIGNAL(triggered()), manager, SLOT(stopCurrentAction()));
+		actions->addAction(action);
+	}
+	{
+		QAction *action = new QAction(QObject::tr("Remove"), actions);
+		QObject::connect(action, SIGNAL(triggered()), manager, SLOT(removeCurrentAction()));
+		actions->addAction(action);
+	}
+	{
+		QAction *action = new QAction(QObject::tr("Close"), actions);
+		QObject::connect(action, SIGNAL(triggered()), manager, SLOT(closeFileTransferDialog()));
+		actions->addAction(action);
+	}
+	ui->verticalLayout->addWidget(actions);
 }
 
 FileTransferDialog::~FileTransferDialog()
@@ -39,6 +60,11 @@ FileTransferDialog::~FileTransferDialog()
 void FileTransferDialog::setModel(QAbstractItemModel *model)
 {
 	ui->jobsView->setModel(model);
+}
+
+int FileTransferDialog::currentJob()
+{
+	return ui->jobsView->currentIndex().row();
 }
 
 void FileTransferDialog::changeEvent(QEvent *e)

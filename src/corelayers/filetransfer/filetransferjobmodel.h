@@ -40,6 +40,7 @@ public:
 	virtual ~FileTransferJobModel();
 	void handleJob(FileTransferJob *job, FileTransferJob *oldJob);
 	bool containsJob(FileTransferJob *job) { return m_jobs.contains(job); }
+	FileTransferJob *getJob(int row) { return m_jobs.value(row); }
 protected:
 	enum Columns
 	{
@@ -57,7 +58,6 @@ protected:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
 private:
 	void removeJob(int row);
 private slots:

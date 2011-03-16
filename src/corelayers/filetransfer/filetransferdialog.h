@@ -29,13 +29,16 @@ namespace Ui {
 namespace Core
 {
 using namespace qutim_sdk_0_3;
+class SimpleFileTransfer;
+
 class FileTransferDialog : public QDialog
 {
     Q_OBJECT
 public:
-	FileTransferDialog(QAbstractItemModel *model);
+	FileTransferDialog(QAbstractItemModel *model, SimpleFileTransfer *manager);
     ~FileTransferDialog();
 	void setModel(QAbstractItemModel *model);
+	int currentJob();
 protected:
     void changeEvent(QEvent *e);
 private slots:
