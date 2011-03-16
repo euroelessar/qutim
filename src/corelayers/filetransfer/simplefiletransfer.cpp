@@ -20,6 +20,7 @@
 #include <qutim/icon.h>
 #include <qutim/buddy.h>
 #include <qutim/systemintegration.h>
+#include <qutim/servicemanager.h>
 #include <QFileDialog>
 #include <QUrl>
 
@@ -41,6 +42,16 @@ SimpleFileTransfer::SimpleFileTransfer() :
 	m_model(new FileTransferJobModel(this))
 {
 	MenuController::addAction<ChatUnit>(new FileTransferActionGenerator(this));
+
+	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
+	if (contactList) {
+		static ActionGenerator gen(Icon("download-tranfermanager"),
+								   QT_TR_NOOP("Manage file transfers"),
+								   this,
+								   SLOT(openFileTransferDialog()));
+		gen.setType(ActionTypeContactList);
+		contactList->addAction(&gen);
+	}
 }
 
 QIODevice *SimpleFileTransfer::doOpenFile(FileTransferJob *job)
