@@ -15,8 +15,21 @@
 *****************************************************************************/
 
 #include "filetransferjobmodel.h"
+#include "filetransferjobdelegate.h"
+#include <qutim/localizedstring.h>
+#include <qutim/icon.h>
 
 namespace Core {
+
+static LocalizedString headers[]= {
+	QT_TR_NOOP("Direction"),
+	QT_TR_NOOP("Title"),
+	QT_TR_NOOP("File name"),
+	QT_TR_NOOP("File size"),
+	QT_TR_NOOP("Total size"),
+	QT_TR_NOOP("Progress"),
+	QT_TR_NOOP("State")
+};
 
 FileTransferJobModel::FileTransferJobModel(QObject *parent) :
 	QAbstractListModel(parent)
@@ -114,25 +127,9 @@ QVariant FileTransferJobModel::headerData(int section, Qt::Orientation orientati
 {
 	if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
 		return QVariant();
-	switch (section)
-	{
-	case Direction:
-		return tr("Direction");
-	case Title:
-		return tr("Title");
-	case FileName:
-		return tr("File name");
-	case FileSize:
-		return tr("File size");
-	case TotalSize:
-		return tr("Total size");
-	case Progress:
-		return tr("Progress");
-	case State:
-		return tr("State");
-	default:
-		return QVariant();
-	}
+	if (section >= 0 && section < LastColumn)
+		return qVariantFromValue(headers[section]);
+	return QVariant();
 }
 
 int FileTransferJobModel::rowCount(const QModelIndex &parent) const
@@ -149,54 +146,97 @@ int FileTransferJobModel::columnCount(const QModelIndex &parent) const
 
 QVariant FileTransferJobModel::data(const QModelIndex &index, int role) const
 {
-	if (role != Qt::DisplayRole)
-		return QVariant();
 	FileTransferJob *job = m_jobs.value(index.row());
 	if (!job)
 		return QVariant();
+
+	if (role == Qt::DecorationRole) {
+		if (index.column() == Direction)
+			return Icon(job->direction() == FileTransferJob::Outgoing ?
+						"go-up-filetransfer" :
+						"go-down-filetransfer");
+	}
+
+	if (role == FileTransferJobRole)
+		return qVariantFromValue(job);
+
+	if (role == DescriptionRole) {
+		QVariantMap map;
+		QString name = job->fileName();
+		if (!name.isEmpty())
+			map.insert(headers[FileName], name);
+		map.insert(headers[State], getState(job));
+		return map;
+	}
+
+	if (role != Qt::DisplayRole)
+		return QVariant();
+
 	switch (index.column())
 	{
-	case Direction:
-		return job->direction() == FileTransferJob::Incoming ?
-				tr("Incoming") :
-				tr("Outgoing");
 	case Title:
 		return job->title();
 	case FileName:
 		return job->fileName();
 	case FileSize:
-		return job->fileSize();
+		return bytesToString(job->fileSize());
 	case TotalSize:
-		return job->totalSize();
+		return bytesToString(job->totalSize());
 	case Progress:
 		return job->progress() * 100 / job->totalSize();
 	case State: {
-		switch (job->state())
-		{
-		case FileTransferJob::Initiation:
-			return tr("Initiation");
-		case FileTransferJob::Started:
-			return tr("Started");
-		case FileTransferJob::Finished:
-			return tr("Finished");
-		case FileTransferJob::Error:
-			switch (job->error())
-			{
-			case FileTransferJob::NetworkError:
-				return tr("Network error");
-			case FileTransferJob::Canceled:
-				return tr("Canceled");
-			case FileTransferJob::NotSupported:
-				return tr("Not supported");
-			default:
-				return QVariant();
-			}
-		}
+		return getState(job);
 	}
 	default:
 		return QVariant();
 	}
 	return QVariant();
+}
+
+QString FileTransferJobModel::getState(FileTransferJob *job) const
+{
+	switch (job->state())
+	{
+	case FileTransferJob::Initiation:
+		return tr("Initiation");
+	case FileTransferJob::Started:
+		return tr("Started");
+	case FileTransferJob::Finished:
+		return tr("Finished");
+	case FileTransferJob::Error:
+		switch (job->error())
+		{
+		case FileTransferJob::NetworkError:
+			return tr("Network error");
+		case FileTransferJob::Canceled:
+			return tr("Canceled");
+		case FileTransferJob::NotSupported:
+			return tr("Not supported");
+		default:
+			return QString();
+		}
+	default:
+		return QString();
+	}
+}
+
+QString bytesToString(quint64 bytes)
+{
+	double kb = (double)bytes / 10240;
+	if (kb >= 1) {
+		double mb = kb / 1024;
+		if (mb >= 1) {
+			double gb = mb / 1024;
+			if (gb >= 1)
+				return QT_TR_NOOP("%1 GB").toString().arg(gb, 0, 'f', 2, ' ');
+			else
+				return QT_TR_NOOP("%1 MB").toString().arg(mb, 0, 'f', 2, ' ');
+		} else {
+			return QT_TR_NOOP("%1 KB").toString().arg(kb, 0, 'f', 2, ' ');
+		}
+	} else {
+		return QT_TR_NOOP("%1 B").toString().arg(bytes);
+	}
 }
 
 } // namespace Core

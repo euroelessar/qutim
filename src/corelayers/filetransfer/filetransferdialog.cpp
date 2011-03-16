@@ -15,6 +15,7 @@
 *****************************************************************************/
 
 #include "filetransferdialog.h"
+#include "filetransferjobdelegate.h"
 #include "ui_filetransferdialog.h"
 #include <QFileDialog>
 
@@ -27,6 +28,7 @@ FileTransferDialog::FileTransferDialog(QAbstractItemModel *model) :
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_QuitOnClose, false);
 	setModel(model);
+	ui->jobsView->setItemDelegate(new FileTransferJobDelegate(this));
 }
 
 FileTransferDialog::~FileTransferDialog()

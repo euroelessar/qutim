@@ -6,22 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>423</height>
+    <width>362</width>
+    <height>262</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>250</width>
+    <height>250</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>File transfer manager</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableView" name="jobsView">
-     <property name="showGrid">
-      <bool>false</bool>
+    <widget class="QListView" name="jobsView">
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
      </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
     </widget>
    </item>
   </layout>
