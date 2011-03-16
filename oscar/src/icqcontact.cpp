@@ -335,6 +335,7 @@ void IcqContact::setStatus(Status status)
 	d->status = status;
 	if (status == Status::Offline) {
 		d->clearCapabilities();
+		emit capabilitiesChanged(Capabilities());
 		d->onlineSince = QDateTime();
 		d->awaySince = QDateTime();
 		d->regTime = QDateTime();
