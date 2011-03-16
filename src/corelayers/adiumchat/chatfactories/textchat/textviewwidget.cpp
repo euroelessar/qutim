@@ -35,6 +35,7 @@ TextViewWidget::TextViewWidget()
 {
 //	m_textEdit = new QTextEdit(this);
 	setReadOnly(true);
+	setOpenExternalLinks(true);
 
 	//white background for all Qt styles
 	setAutoFillBackground(true);

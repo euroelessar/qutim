@@ -51,7 +51,8 @@ TextViewController::TextViewController()
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
-	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),  QLatin1String("black")));
+	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),     QLatin1String("black")));
+	m_urlColor     .setNamedColor(cfg.value(QLatin1String("urlColor"),      QLatin1String("#0033aa")));
 
 	cfg.beginGroup(QLatin1String("font"));
 #ifdef Q_WS_MAEMO_5
@@ -113,13 +114,13 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		cursor.insertText(currentSender, format);
 		cursor.insertText(QLatin1String(" "), format);
 		format.setFontWeight(QFont::Normal);
-		appendText(cursor, text, format);
+		appendText(cursor, text, format, true);
 		m_lastSender.clear();
 	} else if (isService) {
 		cursor.insertText(QLatin1String("\n"));
 		QTextCharFormat format = defaultFormat;
 		format.setForeground(m_serviceColor);
-		cursor.insertText(msg.text(), format);
+		appendText(cursor, msg.text(), format, false);
 		m_lastSender.clear();
 	} else {
 		if (m_isLastIncoming != msg.isIncoming() || currentSender != m_lastSender || shouldBreak(msg.time())) {
@@ -147,7 +148,7 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		cursor.insertImage(QLatin1String(showReceived ? "bullet-received" : "bullet-send"));
 
 		cursor.insertText(QLatin1String(" "), defaultFormat);
-		appendText(cursor, msg.text(), defaultFormat);
+		appendText(cursor, msg.text(), defaultFormat, true);
 	}
 	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
 		History::instance()->store(msg);
@@ -156,37 +157,92 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 	cursor.endEditBlock();
 }
 
-void TextViewController::appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format)
+QList<TextViewController::Token> TextViewController::makeUrls(const QString &html)
 {
-	const QList<EmoticonsTheme::Token> tokens = Emoticons::theme().tokenize(text);
-	QString objectReplacement(QChar::ObjectReplacementCharacter);
-	QTextCharFormat emoticonFormat;
-	emoticonFormat.setObjectType(EmoticonObjectType);
-	int emoticonIndex;
-	for (int i = 0; i < tokens.size(); i++) {
-		const EmoticonsTheme::Token &token = tokens.at(i);
-		switch(token.type) {
-		case EmoticonsTheme::Image:
-			if (m_animateEmoticons) {
-				emoticonIndex = addEmoticon(token.imgPath);
-				emoticonFormat.setProperty(QTextFormat::UserProperty, emoticonIndex);
-				m_emoticons.at(emoticonIndex).movie->indexes << cursor.position();
-				cursor.insertText(objectReplacement, emoticonFormat);
+	QList<Token> result;
+	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+							  Qt::CaseInsensitive);
+	Q_ASSERT(linkRegExp.isValid());
+	int pos = 0;
+	int lastPos = 0;
+	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
+	{
+		Token tok = { html.midRef(lastPos, pos - lastPos), QString() };
+		if (!tok.text.isEmpty()) {
+			if (!result.isEmpty() && result.last().url.isEmpty()) {
+				QStringRef tmp = result.last().text;
+				result.last().text = QStringRef(tmp.string(), tmp.position(), tmp.size() + tok.text.size());
 			} else {
-				if (!m_images.contains(token.imgPath)) {
-					addResource(ImageResource, QUrl(token.imgPath), QPixmap(token.imgPath));
-					m_images.insert(token.imgPath);
-				}
-				QTextImageFormat imageFormat;
-				imageFormat.setName(token.imgPath);
-				imageFormat.setToolTip(token.text);
-				cursor.insertImage(imageFormat);
+				result << tok;
 			}
-			break;
-		case EmoticonsTheme::Text:
-			cursor.insertText(token.text);
-		default:
-			break;
+		}
+		QString link = linkRegExp.cap(0);
+		tok.text = html.midRef(pos, link.size());
+		pos += link.size();
+		if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))
+			link.prepend(QLatin1String("http://"));
+		else if(!link.contains(QLatin1String("//")))
+			link.prepend(QLatin1String("mailto:"));
+		tok.url = link;
+		result << tok;
+		lastPos = pos;
+	}
+	if (!result.isEmpty() && result.last().url.isEmpty()) {
+		result.last().text = html.midRef(result.last().text.position());
+	} else {
+		Token tok = { html.midRef(lastPos), QString() };
+		result << tok;
+	}
+	return result;
+}
+
+void TextViewController::appendText(QTextCursor &cursor, const QString &text,
+                                    const QTextCharFormat &format, bool emo)
+{
+	QTextCharFormat urlFormat = format;
+	urlFormat.setForeground(m_urlColor);
+	urlFormat.setFontUnderline(true);
+	urlFormat.setAnchor(true);
+	foreach (const Token &textToken, makeUrls(text)) {
+		if (!textToken.url.isEmpty()) {
+			urlFormat.setAnchorHref(textToken.url);
+			cursor.insertText(textToken.text.toString(), urlFormat);
+			continue;
+		} else if (!emo) {
+			cursor.insertText(textToken.text.toString(), format);
+			continue;
+		}
+		const QList<EmoticonsTheme::Token> tokens = Emoticons::theme().tokenize(textToken.text.toString());
+		QString objectReplacement(QChar::ObjectReplacementCharacter);
+		QTextCharFormat emoticonFormat;
+		emoticonFormat.setObjectType(EmoticonObjectType);
+		int emoticonIndex;
+		for (int i = 0; i < tokens.size(); i++) {
+			const EmoticonsTheme::Token &token = tokens.at(i);
+			switch(token.type) {
+			case EmoticonsTheme::Image:
+				if (m_animateEmoticons) {
+					emoticonIndex = addEmoticon(token.imgPath);
+					emoticonFormat.setProperty(QTextFormat::UserProperty, emoticonIndex);
+					m_emoticons.at(emoticonIndex).movie->indexes << cursor.position();
+					cursor.insertText(objectReplacement, emoticonFormat);
+				} else {
+					if (!m_images.contains(token.imgPath)) {
+						addResource(ImageResource, QUrl(token.imgPath), QPixmap(token.imgPath));
+						m_images.insert(token.imgPath);
+					}
+					QTextImageFormat imageFormat;
+					imageFormat.setName(token.imgPath);
+					imageFormat.setToolTip(token.text);
+					cursor.insertImage(imageFormat);
+				}
+				break;
+			case EmoticonsTheme::Text:
+				cursor.insertText(token.text, format);
+			default:
+				break;
+			}
 		}
 	}
 }

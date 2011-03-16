@@ -56,12 +56,19 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController QTextObjectInterface)
 public:
+	struct Token
+	{
+		QStringRef text;
+		QString url;
+	};
+
     TextViewController();
 	virtual ~TextViewController();
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
-	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
+	QList<Token> makeUrls(const QString &html);
+	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
 	void setTextEdit(QTextEdit *edit);
 	int scrollBarPosition() const { return m_scrollBarPosition; }
@@ -102,6 +109,7 @@ private:
 	QColor m_outgoingColor;
 	QColor m_serviceColor;
 	QColor m_baseColor;
+	QColor m_urlColor;
 	QSet<QString> m_images;
 	QHash<QString, int> m_hash;
 	QList<EmoticonTrack> m_emoticons;

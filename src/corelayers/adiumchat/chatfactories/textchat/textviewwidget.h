@@ -19,14 +19,14 @@
 
 #include <chatlayer/chatviewfactory.h>
 #include <QFrame>
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QTextDocument>
 
 namespace Core
 {
 namespace AdiumChat
 {
-class TextViewWidget : public QTextEdit, public Core::AdiumChat::ChatViewWidget
+class TextViewWidget : public QTextBrowser, public Core::AdiumChat::ChatViewWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
