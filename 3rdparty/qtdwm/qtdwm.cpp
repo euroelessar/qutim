@@ -15,7 +15,7 @@
 #include <QList>
 #include <QPointer>
 
-#ifndef Q_WS_WIN
+#ifdef Q_WS_WIN
 
 #include <qt_windows.h>
 
