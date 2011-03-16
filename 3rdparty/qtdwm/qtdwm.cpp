@@ -15,7 +15,7 @@
 #include <QList>
 #include <QPointer>
 
-#ifdef Q_WS_WIN
+#ifndef Q_WS_WIN
 
 #include <qt_windows.h>
 
@@ -27,18 +27,18 @@
 
 typedef struct _DWM_BLURBEHIND
 {
-    DWORD dwFlags;
-    BOOL fEnable;
-    HRGN hRgnBlur;
-    BOOL fTransitionOnMaximized;
+	DWORD dwFlags;
+	BOOL fEnable;
+	HRGN hRgnBlur;
+	BOOL fTransitionOnMaximized;
 } DWM_BLURBEHIND, *PDWM_BLURBEHIND;
 
 typedef struct _MARGINS
 {
-    int cxLeftWidth;
-    int cxRightWidth;
-    int cyTopHeight;
-    int cyBottomHeight;
+	int cxLeftWidth;
+	int cxRightWidth;
+	int cyTopHeight;
+	int cyBottomHeight;
 } MARGINS, *PMARGINS;
 
 typedef HRESULT (WINAPI *PtrDwmIsCompositionEnabled)(BOOL* pfEnabled);
@@ -60,14 +60,14 @@ class BlurManager
 public:
 	BlurManager(QWidget *p)
 	{
-		widget_ptr = p;
+		m_widgetPtr = p;
 	}
 
 	virtual ~BlurManager(){}
 	virtual void reenable() = 0;
 
 protected:
-	QWidget *widget_ptr;
+	QWidget *m_widgetPtr;
 };
 
 class BlurBehindManager : public BlurManager
@@ -83,7 +83,7 @@ public:
 
 	virtual void reenable()
 	{
-		pDwmEnableBlurBehindWindow(widget_ptr->winId(), &BlurBehindStruct);
+		pDwmEnableBlurBehindWindow(m_widgetPtr->winId(), &BlurBehindStruct);
 	}
 
 	~BlurBehindManager()
@@ -104,9 +104,9 @@ public:
 		qMemCopy(&margins, m, sizeof(MARGINS));
 	}
 
-	void reenable()
+	virtual void reenable()
 	{
-		pDwmExtendFrameIntoClientArea(widget_ptr->winId(), &margins);
+		pDwmExtendFrameIntoClientArea(m_widgetPtr->winId(), &margins);
 	}
 
 private:
@@ -152,14 +152,14 @@ bool WindowNotifier::winEvent(MSG *message, long *result)
 
 static bool resolveLibs()
 {
-    if (!pDwmIsCompositionEnabled) {
-        QLibrary dwmLib(QString::fromAscii("dwmapi"));
-        pDwmIsCompositionEnabled =(PtrDwmIsCompositionEnabled)dwmLib.resolve("DwmIsCompositionEnabled");
-        pDwmExtendFrameIntoClientArea = (PtrDwmExtendFrameIntoClientArea)dwmLib.resolve("DwmExtendFrameIntoClientArea");
-        pDwmEnableBlurBehindWindow = (PtrDwmEnableBlurBehindWindow)dwmLib.resolve("DwmEnableBlurBehindWindow");
-        pDwmGetColorizationColor = (PtrDwmGetColorizationColor)dwmLib.resolve("DwmGetColorizationColor");
-    }
-    return pDwmIsCompositionEnabled != 0;
+	if (!pDwmIsCompositionEnabled) {
+		QLibrary dwmLib(QString::fromAscii("dwmapi"));
+		pDwmIsCompositionEnabled =(PtrDwmIsCompositionEnabled)dwmLib.resolve("DwmIsCompositionEnabled");
+		pDwmExtendFrameIntoClientArea = (PtrDwmExtendFrameIntoClientArea)dwmLib.resolve("DwmExtendFrameIntoClientArea");
+		pDwmEnableBlurBehindWindow = (PtrDwmEnableBlurBehindWindow)dwmLib.resolve("DwmEnableBlurBehindWindow");
+		pDwmGetColorizationColor = (PtrDwmGetColorizationColor)dwmLib.resolve("DwmGetColorizationColor");
+	}
+	return pDwmIsCompositionEnabled != 0;
 }
 
 WindowNotifier *QtDWM::windowNotifier()
@@ -185,15 +185,15 @@ WindowNotifier *QtDWM::windowNotifier()
 bool QtDWM::isCompositionEnabled()
 {
 #ifdef Q_WS_WIN
-    if (resolveLibs()) {
-        HRESULT hr = S_OK;
-        BOOL isEnabled = false;
-        hr = pDwmIsCompositionEnabled(&isEnabled);
-        if (SUCCEEDED(hr))
-            return isEnabled;
-    }
+	if (resolveLibs()) {
+		HRESULT hr = S_OK;
+		BOOL isEnabled = false;
+		hr = pDwmIsCompositionEnabled(&isEnabled);
+		if (SUCCEEDED(hr))
+			return isEnabled;
+	}
 #endif
-    return false;
+	return false;
 }
 
 /*!
@@ -204,28 +204,28 @@ bool QtDWM::isCompositionEnabled()
 bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
 {
 	Q_UNUSED(enable);
-    Q_ASSERT(widget);
-    bool result = false;
+	Q_ASSERT(widget);
+	bool result = false;
 #ifdef Q_WS_WIN
-    if (resolveLibs()) {
-        DWM_BLURBEHIND bb = {0, 0, 0, 0};
-        HRESULT hr = S_OK;
-        bb.fEnable = enable;
-        bb.dwFlags = DWM_BB_ENABLE;
-        bb.hRgnBlur = NULL;
-        widget->setAttribute(Qt::WA_TranslucentBackground, enable);
-        widget->setAttribute(Qt::WA_NoSystemBackground, enable);
-        hr = pDwmEnableBlurBehindWindow(widget->winId(), &bb);
-        if (SUCCEEDED(hr)) {
-            result = true;
+	if (resolveLibs()) {
+		DWM_BLURBEHIND bb = {0, 0, 0, 0};
+		HRESULT hr = S_OK;
+		bb.fEnable = enable;
+		bb.dwFlags = DWM_BB_ENABLE;
+		bb.hRgnBlur = NULL;
+		widget->setAttribute(Qt::WA_TranslucentBackground, enable);
+		widget->setAttribute(Qt::WA_NoSystemBackground, enable);
+		hr = pDwmEnableBlurBehindWindow(widget->winId(), &bb);
+		if (SUCCEEDED(hr)) {
+			result = true;
 				windowNotifier()->addWidget(widget, new BlurBehindManager(widget, &bb));
-        }
-    }
+		}
+	}
 #else
 	Q_UNUSED(widget);
 	Q_UNUSED(enable);
 #endif
-    return result;
+	return result;
 }
 
 /*!
@@ -236,7 +236,7 @@ bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
   * remove the frame from the window.
   *
   * \note you should not call enableBlurBehindWindow before calling
-  *       this functions
+  *	   this functions
   *
   * \a enable tells if the blur should be enabled or not
   */
@@ -245,17 +245,17 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
 	Q_ASSERT(widget);
 	bool result = false;
 #ifdef Q_WS_WIN
-    if (resolveLibs()) {
-        QLibrary dwmLib(QString::fromAscii("dwmapi"));
-        HRESULT hr = S_OK;
-        MARGINS m = {left, top, right, bottom};
-        hr = pDwmExtendFrameIntoClientArea(widget->winId(), &m);
-        if (SUCCEEDED(hr)) {
-            result = true;
+	if (resolveLibs()) {
+		QLibrary dwmLib(QString::fromAscii("dwmapi"));
+		HRESULT hr = S_OK;
+		MARGINS m = {left, top, right, bottom};
+		hr = pDwmExtendFrameIntoClientArea(widget->winId(), &m);
+		if (SUCCEEDED(hr)) {
+			result = true;
 				windowNotifier()->addWidget(widget, new ExtendedFrameManager(widget, &m));
-        }
-        widget->setAttribute(Qt::WA_TranslucentBackground, result);
-    }
+		}
+		widget->setAttribute(Qt::WA_TranslucentBackground, result);
+	}
 #else
 	Q_UNUSED(widget);
 	Q_UNUSED(left);
@@ -263,7 +263,7 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
 	Q_UNUSED(right);
 	Q_UNUSED(bottom);
 #endif
-    return result;
+	return result;
 }
 
 /*!
@@ -273,18 +273,18 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
   */
 QColor QtDWM::colorizatinColor()
 {
-    QColor resultColor = QApplication::palette().window().color();
+	QColor resultColor = QApplication::palette().window().color();
 
 #ifdef Q_WS_WIN
-    if (resolveLibs()) {
-        DWORD color = 0;
-        BOOL opaque = FALSE;
-        QLibrary dwmLib(QString::fromAscii("dwmapi"));
-        HRESULT hr = S_OK;
-        hr = pDwmGetColorizationColor(&color, &opaque);
-        if (SUCCEEDED(hr))
-            resultColor = QColor(color);
-    }
+	if (resolveLibs()) {
+		DWORD color = 0;
+		BOOL opaque = FALSE;
+		QLibrary dwmLib(QString::fromAscii("dwmapi"));
+		HRESULT hr = S_OK;
+		hr = pDwmGetColorizationColor(&color, &opaque);
+		if (SUCCEEDED(hr))
+			resultColor = QColor(color);
+	}
 #endif
-    return resultColor;
+	return resultColor;
 }
