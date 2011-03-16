@@ -52,35 +52,102 @@ static PtrDwmExtendFrameIntoClientArea pDwmExtendFrameIntoClientArea = 0;
 static PtrDwmGetColorizationColor pDwmGetColorizationColor = 0;
 
 
+/*
+  Used to reenable blur or reextend frame on composition toggling.
+*/
+class BlurManager
+{
+public:
+	BlurManager(QWidget *p)
+	{
+		widget_ptr = p;
+	}
+
+	virtual ~BlurManager(){}
+	virtual void reenable() = 0;
+
+protected:
+	QWidget *widget_ptr;
+};
+
+class BlurBehindManager : public BlurManager
+{
+public:
+	BlurBehindManager(QWidget *w, const DWM_BLURBEHIND *bbStruct)
+		: BlurManager(w)
+	{
+		qMemCopy(&BlurBehindStruct, bbStruct, sizeof(DWM_BLURBEHIND));
+		if (BlurBehindStruct.hRgnBlur)
+			CombineRgn(BlurBehindStruct.hRgnBlur, bbStruct->hRgnBlur, NULL, RGN_COPY);
+	}
+
+	virtual void reenable()
+	{
+		pDwmEnableBlurBehindWindow(widget_ptr->winId(), &BlurBehindStruct);
+	}
+
+	~BlurBehindManager()
+	{
+		DeleteObject(BlurBehindStruct.hRgnBlur);
+	}
+
+private:
+	DWM_BLURBEHIND BlurBehindStruct;
+};
+
+class ExtendedFrameManager : public BlurManager
+{
+public:
+	ExtendedFrameManager(QWidget *w, MARGINS *m)
+		: BlurManager(w)
+	{
+		qMemCopy(&margins, m, sizeof(MARGINS));
+	}
+
+	void reenable()
+	{
+		pDwmExtendFrameIntoClientArea(widget_ptr->winId(), &margins);
+	}
+
+private:
+	MARGINS margins;
+};
+
 WindowNotifier::WindowNotifier()
 {
 	winId();
 }
 
-void WindowNotifier::addWidget(QWidget *widget)
+void WindowNotifier::addWidget(QWidget *widget, BlurManager *bm)
 {
-	widgets.append(widget);
+	widgets[widget] = bm;
 	connect(widget, SIGNAL(destroyed(QObject*)), SLOT(removeWidget(QObject*)));
 }
 
 void WindowNotifier::removeWidget(QObject *widget)
 {
-	widgets.removeAll(static_cast<QWidget *>(widget));
+	QWidget *key = static_cast<QWidget *>(widget);
+	delete widgets[key];
+	widgets.remove(key);
 }
 
 /* Notify all enabled windows that the DWM state changed */
 bool WindowNotifier::winEvent(MSG *message, long *result)
 {
-	 if (message && message->message == WM_DWMCOMPOSITIONCHANGED) {
+	if (message && message->message == WM_DWMCOMPOSITIONCHANGED) {
 		bool compositionEnabled = QtDWM::isCompositionEnabled();
-		  foreach(QWidget * widget, widgets) {
-				if (widget) {
-					 widget->setAttribute(Qt::WA_NoSystemBackground, compositionEnabled);
-				}
-				widget->update();
-		  }
-	 }
-	 return QWidget::winEvent(message, result);
+		WidgetsMap::iterator i = widgets.begin();
+		while (i != widgets.end()) {
+			QWidget * w = i.key();
+			if (w) {
+				w->setAttribute(Qt::WA_NoSystemBackground, compositionEnabled);
+				w->update();
+				i.value()->reenable();
+			}
+			++i;
+		}
+	}
+	return QWidget::winEvent(message, result);
 }
 
 static bool resolveLibs()
@@ -151,7 +218,7 @@ bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
         hr = pDwmEnableBlurBehindWindow(widget->winId(), &bb);
         if (SUCCEEDED(hr)) {
             result = true;
-            windowNotifier()->addWidget(widget);
+				windowNotifier()->addWidget(widget, new BlurBehindManager(widget, &bb));
         }
     }
 #else
@@ -185,7 +252,7 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
         hr = pDwmExtendFrameIntoClientArea(widget->winId(), &m);
         if (SUCCEEDED(hr)) {
             result = true;
-            windowNotifier()->addWidget(widget);
+				windowNotifier()->addWidget(widget, new ExtendedFrameManager(widget, &m));
         }
         widget->setAttribute(Qt::WA_TranslucentBackground, result);
     }

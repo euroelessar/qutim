@@ -11,6 +11,10 @@
 #define QTDWM_P_H
 
 #include <QWidget>
+#include <QMap>
+
+class BlurManager;
+typedef QMap<QWidget *, BlurManager*> WidgetsMap;
 
 /*
  * Internal helper class that notifies windows if the
@@ -22,17 +26,17 @@ class WindowNotifier : public QWidget
 	Q_OBJECT
 
 public:
-	 WindowNotifier();
-	 void addWidget(QWidget *widget);
+	WindowNotifier();
+	void addWidget(QWidget *widget, BlurManager *bm);
 #ifdef Q_WS_WIN
-	 bool winEvent(MSG *message, long *result);
+	bool winEvent(MSG *message, long *result);
 
 public slots:
-	 void removeWidget(QObject *widget);
+	void removeWidget(QObject *widget);
 #endif
 
 private:
-	 QWidgetList widgets;
+	WidgetsMap widgets;
 };
 
 #endif // QTDWM_P_H
