@@ -38,10 +38,10 @@ TextViewWidget::TextViewWidget()
 	setOpenExternalLinks(true);
 
 	//white background for all Qt styles
-	setAutoFillBackground(true);
-	QPalette p = palette();
-	p.setColor(QPalette::Base,Qt::white);
-	setPalette(p);
+	viewport()->setAutoFillBackground(true);
+	QPalette p = viewport()->palette();
+	p.setColor(QPalette::Base, Qt::white);
+	viewport()->setPalette(p);
 	QTimer::singleShot(0, this, SLOT(initScrolling()));
 	
 //	new QVBoxLayout(this);
