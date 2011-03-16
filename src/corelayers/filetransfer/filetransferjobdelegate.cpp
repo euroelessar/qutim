@@ -51,8 +51,7 @@ void FileTransferJobDelegate::paint(QPainter* painter,
 	QStyleOptionProgressBar opt;
 	opt.state = QStyle::State_Enabled;
 	opt.direction = QApplication::layoutDirection();
-	opt.rect = option.rect.adjusted(0, option.rect.height() - ProgressBarHeight - 5,
-									0, -5);
+	opt.rect = option.rect.adjusted(0, option.rect.height() - ProgressBarHeight - 5, 0, -5);
 	opt.fontMetrics = QApplication::fontMetrics();
 	opt.minimum = 0;
 	opt.maximum = job->totalSize();

@@ -127,10 +127,12 @@ class LIBQUTIM_EXPORT FileTransferObserver : public QObject
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferObserver)
 	Q_PROPERTY(bool ability READ checkAbility NOTIFY abilityChanged)
+	Q_PROPERTY(ChatUnit *chatUnit READ chatUnit)
 public:
 	FileTransferObserver(ChatUnit *unit);
 	~FileTransferObserver();
 	bool checkAbility() const;
+	ChatUnit *chatUnit() const;
 signals:
 	void abilityChanged(bool);
 protected:

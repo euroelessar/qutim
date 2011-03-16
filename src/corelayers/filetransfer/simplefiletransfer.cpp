@@ -15,7 +15,6 @@
 *****************************************************************************/
 
 #include "simplefiletransfer.h"
-#include <qutim/actiongenerator.h>
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
 #include <qutim/buddy.h>
@@ -26,22 +25,35 @@
 
 namespace Core
 {
-class FileTransferActionGenerator : public ActionGenerator
+
+FileTransferActionGenerator::FileTransferActionGenerator(SimpleFileTransfer *manager) :
+	ActionGenerator(Icon("document-save"),
+					QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
+					manager,
+					SLOT(onSendFile(QObject*))),
+	m_manager(manager)
 {
-public:
-	FileTransferActionGenerator(QObject *receiver) :
-		ActionGenerator(Icon("document-save"), QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
-			receiver, SLOT(onSendFile(QObject*)))
-	{
-		setType(ActionTypeChatButton | ActionTypeContactList);
-		addHandler(ActionVisibilityChangedHandler, receiver);
-	}
-};
+	setType(ActionTypeChatButton | ActionTypeContactList);
+}
+
+void FileTransferActionGenerator::createImpl(QAction *action, QObject *obj) const
+{
+	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	if (!unit)
+		return;
+	FileTransferObserver *observer = new FileTransferObserver(unit);
+	QObject::connect(action, SIGNAL(destroyed()),
+					 observer, SLOT(deleteLater()));
+	QObject::connect(observer, SIGNAL(abilityChanged(bool)),
+					 m_manager, SLOT(onUnitTrasferAbilityChanged(bool)));
+	action->setEnabled(observer->checkAbility());
+}
 
 SimpleFileTransfer::SimpleFileTransfer() :
 	m_model(new FileTransferJobModel(this))
 {
-	MenuController::addAction<ChatUnit>(new FileTransferActionGenerator(this));
+	m_sendFileActionGen = new FileTransferActionGenerator(this);
+	MenuController::addAction<ChatUnit>(m_sendFileActionGen);
 
 	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 	if (contactList) {
@@ -119,16 +131,16 @@ void SimpleFileTransfer::onJobDestroyed(QObject *obj)
 	m_paths.remove(static_cast<FileTransferJob*>(obj));
 }
 
+void SimpleFileTransfer::onUnitTrasferAbilityChanged(bool ability)
+{
+	FileTransferObserver *observer = qobject_cast<FileTransferObserver*>(sender());
+	Q_ASSERT(observer);
+	foreach (QAction *action, m_sendFileActionGen->actions(observer->chatUnit()))
+		action->setEnabled(ability);
+}
+
 bool SimpleFileTransfer::event(QEvent *ev)
 {
-	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
-		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
-		if (event->isVisible()) {
-			ChatUnit *buddy = qobject_cast<ChatUnit*>(event->controller());
-			event->action()->setEnabled(buddy && checkAbility(buddy));
-			return true;
-		}
-	}
 	return FileTransferManager::event(ev);
 }
 

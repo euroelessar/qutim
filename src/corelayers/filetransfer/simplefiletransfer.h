@@ -19,12 +19,24 @@
 
 #include <QPointer>
 #include <qutim/filetransfer.h>
+#include <qutim/actiongenerator.h>
 #include "filetransferdialog.h"
 #include "filetransferjobmodel.h"
 
 using namespace qutim_sdk_0_3;
 namespace Core
 {
+
+class SimpleFileTransfer;
+
+class FileTransferActionGenerator : public ActionGenerator
+{
+public:
+	FileTransferActionGenerator(SimpleFileTransfer *manager);
+	void createImpl(QAction *action, QObject *obj) const;
+private:
+	SimpleFileTransfer *m_manager;
+};
 
 class SimpleFileTransfer : public FileTransferManager
 {
@@ -39,10 +51,12 @@ private slots:
 	void openFileTransferDialog();
 	void onSendFile(QObject *controller);
 	void onJobDestroyed(QObject *obj);
+	void onUnitTrasferAbilityChanged(bool);
 private:
 	QHash<FileTransferJob*, QString> m_paths;
 	FileTransferJobModel *m_model;
 	QPointer<FileTransferDialog> m_dialog;
+	ActionGenerator *m_sendFileActionGen;
 };
 
 }

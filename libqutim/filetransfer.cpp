@@ -433,6 +433,11 @@ bool FileTransferObserver::checkAbility() const
 #endif
 }
 
+ChatUnit *FileTransferObserver::chatUnit() const
+{
+	return d_func()->scope->unit;
+}
+
 class FileTransferFactoryPrivate
 {
 public:
@@ -468,8 +473,8 @@ void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
 	bool changed = scp.abilities.testBit(index) != canSend;
 	if (!changed)
 		return;
-	scp.setCount = (scp.abilities.toggleBit(index) << 1) - 1;
-	if (scp.setCount == 0 || (scp.setCount == 1 && !canSend)) {
+	scp.setCount -= (scp.abilities.toggleBit(index) << 1) - 1;
+	if (scp.setCount == 0 || (scp.setCount == 1 && canSend)) {
 		for (int i = 0; i < scp.list.size(); i++) {
 			FileTransferObserver *obs = scp.list.at(i);
 			FileTransferObserverPrivate::get(obs)->emitAbilityChanged(scp.setCount > 0);
