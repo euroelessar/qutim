@@ -74,6 +74,7 @@ protected slots:
 	void onSubjectChanged(const QString &subject, const QString &nick);
 	void onServiceMessage(const Jreen::Message &msg);
 	void onError(Jreen::Error::Ptr error);
+	void onNickSelected(const QString &nick);
 	//			bool handleMUCRoomCreation(gloox::MUCRoom *room);
 	//			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
 	//										const std::string &reason);
