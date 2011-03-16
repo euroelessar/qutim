@@ -664,20 +664,39 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 	Q_D(JMUCSession);
 	debug() << "error" << error->condition();
 	if(error->condition() == Error::Conflict) {
-		Notifications::send(Notifications::System,
-							this,
-							QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"));
+		QString message = QCoreApplication::translate("Jabber", "You are already in conference with another nick");
+		Notifications::send(Notifications::System, this, message);
+		QString resource = d->account->client()->jid().resource();
+		if (!d->room->nick().endsWith(resource)) {
+			QString nick = d->room->nick();
+			nick += QLatin1Char('/');
+			nick += resource;
+			onNickSelected(nick);
+			return;
+		}
 
-		QString nick = QInputDialog::getText(QApplication::activeWindow(),
-											 QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"),
-											 QT_TRANSLATE_NOOP("Jabber","Please select another nickname"));
-		////TODO add regexp
-		if(nick.isEmpty())
-			leave();
-		d->room->setNick(nick);
-		d->room->join();
+		QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
+		dialog->setWindowTitle(message);
+	    dialog->setLabelText(QCoreApplication::translate("Jabber", "Please select another nickname"));
+	    dialog->setTextValue(d->room->nick());
+		dialog->show();
+		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onNickSelected(QString)));
+		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	} else if(error->condition() == Error::Forbidden) {
 		leave();
+	}
+}
+
+void JMUCSession::onNickSelected(const QString &nick)
+{
+	////TODO add regexp
+	if(nick.isEmpty()) {
+		leave();
+	} else {
+		Q_D(JMUCSession);
+		d->room->leave();
+		d->room->setNick(nick);
+		d->room->join();
 	}
 }
 
