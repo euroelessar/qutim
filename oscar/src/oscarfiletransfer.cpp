@@ -23,6 +23,7 @@
 #include <QHostAddress>
 #include <QDir>
 #include <QTimer>
+#include <QApplication>
 
 namespace qutim_sdk_0_3 {
 
@@ -399,7 +400,7 @@ void OftConnection::doSend()
 
 void OftConnection::doStop()
 {
-	if (state() != Finished || state() != Error)
+	if (state() == Finished || state() == Error)
 		return;
 	Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 	ServerMessage message(m_contact, data);
@@ -653,8 +654,12 @@ void OftConnection::onNewData()
 		disconnect(m_socket.data(), SIGNAL(newData()), this, SLOT(onNewData()));
 		m_data.reset();
 		m_header.type = OftDone;
+		--m_header.filesLeft;
 		m_header.writeData(m_socket.data());
 		m_socket->dataReaded();
+		if (m_header.filesLeft == 0) {
+			setState(Finished);
+		}
 	}
 }
 
@@ -878,6 +883,7 @@ quint32 OftConnection::fileChecksum(QIODevice* file, int bytes)
 		data = file->read(qMin(BUFFER_SIZE, bytes - totalRead));
 		checksum = chunkChecksum(data.constData(), data.size(), checksum, totalRead);
 		totalRead += data.size();
+		QApplication::processEvents();
 	}
 	if (!isOpen)
 		file->close();
