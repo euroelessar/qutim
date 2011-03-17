@@ -20,6 +20,9 @@
 #include <QDateTime>
 #include <QScrollBar>
 #include <QPainter>
+#include <QDesktopServices>
+#include <QPlainTextEdit>
+#include <qutim/servicemanager.h>
 #include <qutim/chatunit.h>
 #include <qutim/message.h>
 #include <qutim/messagesession.h>
@@ -111,7 +114,15 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		QTextCharFormat format = defaultFormat;
 		format.setFontWeight(QFont::Bold);
 		format.setForeground(msg.isIncoming() ? m_incomingColor : m_outgoingColor);
+		if (msg.isIncoming()) {
+			format.setAnchor(true);
+			format.setAnchorHref(QLatin1String("nick:///") + QUrl::toPercentEncoding(currentSender));
+		}
 		cursor.insertText(currentSender, format);
+		if (msg.isIncoming()) {
+			format.setAnchor(false);
+			format.setAnchorHref(QString());
+		}
 		cursor.insertText(QLatin1String(" "), format);
 		format.setFontWeight(QFont::Normal);
 		appendText(cursor, text, format, true);
@@ -128,7 +139,15 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			QTextCharFormat format = defaultFormat;
 			format.setFontWeight(QFont::Bold);
 			format.setForeground(msg.isIncoming() ? m_incomingColor : m_outgoingColor);
+			if (msg.isIncoming()) {
+				format.setAnchor(true);
+				format.setAnchorHref(QLatin1String("nick:///") + QUrl::toPercentEncoding(currentSender));
+			}
 			cursor.insertText(currentSender, format);
+			if (msg.isIncoming()) {
+				format.setAnchor(false);
+				format.setAnchorHref(QString());
+			}
 			cursor.insertText(QLatin1String(" "), format);
 			format.setFontWeight(QFont::Normal);
 			QString timeFormat = QLatin1String((msg.time().date() == m_lastTime.date())
@@ -144,7 +163,6 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			showReceived = true;
 		if (!showReceived)
 			m_cache.insert(msg.id(), new int(cursor.position()));
-		debug() << msg.text() << msg.id();
 		cursor.insertImage(QLatin1String(showReceived ? "bullet-received" : "bullet-send"));
 
 		cursor.insertText(QLatin1String(" "), defaultFormat);
@@ -305,6 +323,31 @@ void TextViewController::ensureScrolling()
 	}
 }
 
+void TextViewController::onAnchorClicked(const QUrl &url)
+{
+	Q_ASSERT(m_textEdit);
+	if (url.scheme() == QLatin1String("nick")) {
+		QObject *form = ServiceManager::getByName("ChatForm");
+		QObject *obj = 0;
+		if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
+									  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session)) && obj) {
+			QTextCursor cursor;
+			if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+				cursor = edit->textCursor();
+			else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+				cursor = edit->textCursor();
+			else
+				return;
+			bool atStart = cursor.atStart();
+			cursor.insertText(url.path().mid(1));
+			cursor.insertText(QLatin1String(atStart ? ": " : " "));
+			static_cast<QWidget*>(obj)->setFocus();
+		}
+	} else {
+		QDesktopServices::openUrl(url);
+	}
+}
+
 void TextViewController::animate()
 {
 	EmoticonMovie *movie = static_cast<EmoticonMovie*>(sender());
@@ -401,9 +444,13 @@ void TextViewController::clearChat()
 	init();
 }
 
-void TextViewController::setTextEdit(QTextEdit *edit)
+void TextViewController::setTextEdit(QTextBrowser *edit)
 {
+	if (m_textEdit)
+		disconnect(m_textEdit, 0, this, 0);
 	m_textEdit = edit;
+	if (m_textEdit)
+		connect(m_textEdit, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->setPaused(!edit);
 }

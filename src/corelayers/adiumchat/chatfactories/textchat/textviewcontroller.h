@@ -19,7 +19,7 @@
 
 #include <chatlayer/chatviewfactory.h>
 #include <QTextDocument>
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QCache>
 #include <QPointer>
 #include <QDateTime>
@@ -70,7 +70,7 @@ public:
 	QList<Token> makeUrls(const QString &html);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
-	void setTextEdit(QTextEdit *edit);
+	void setTextEdit(QTextBrowser *edit);
 	int scrollBarPosition() const { return m_scrollBarPosition; }
 	void setScrollBarPosition(int pos) { m_scrollBarPosition = pos; }
 	bool isNearBottom();
@@ -85,6 +85,7 @@ public:
 public slots:
 	void ensureScrolling();
 protected slots:
+	void onAnchorClicked(const QUrl &url);
 	void animate();
 private:
 	void init();
@@ -93,7 +94,7 @@ private:
 	QString makeName(const qutim_sdk_0_3::Message &mes);
 	bool shouldBreak(const QDateTime &time);
 	
-	QPointer<QTextEdit> m_textEdit;
+	QPointer<QTextBrowser> m_textEdit;
 	ChatSessionImpl *m_session;
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
