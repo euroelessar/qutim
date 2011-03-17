@@ -76,11 +76,13 @@ FileTransferDialog::FileTransferDialog(FileTransferJobModel *model) :
 	ActionBox *actions = new ActionBox(this);
 	{
 		QAction *action = new QAction(QObject::tr("Remove finished tasks"), actions);
+		action->setSoftKeyRole(QAction::PositiveSoftKey);
 		QObject::connect(action, SIGNAL(triggered()), SLOT(onRemoveFinishedJobs()));
 		actions->addAction(action);
 	}
 	{
 		QAction *action = new QAction(QObject::tr("Close"), actions);
+		action->setSoftKeyRole(QAction::NegativeSoftKey);
 		QObject::connect(action, SIGNAL(triggered()), this, SLOT(deleteLater()));
 		actions->addAction(action);
 	}
