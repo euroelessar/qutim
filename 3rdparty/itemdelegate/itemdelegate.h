@@ -43,6 +43,7 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	void setCommandLinkStyle(bool style = true);
+	void setUserDefinedEditorSupport(bool support = true);
 	virtual void updateEditorGeometry(QWidget *editor,
 									  const QStyleOptionViewItem &option,
 									  const QModelIndex &index) const;
@@ -56,6 +57,7 @@ protected:
 	QRect drawCheck(QPainter *painter,
 				   const QStyleOptionViewItem &option,
 				   const QRect &rect, Qt::CheckState state) const;
+	QSize getEditorSize(const QWidget *widget, const QModelIndex &index) const;
 	virtual bool eventFilter(QObject *obj, QEvent *event);
 private:
 	QScopedPointer<ItemDelegatePrivate> d_ptr;

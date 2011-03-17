@@ -47,13 +47,8 @@ public:
 	virtual QIODevice *doOpenFile(FileTransferJob *job);
 	virtual void handleJob(FileTransferJob *job, FileTransferJob *oldJob);
 	bool event(QEvent *ev);
-private:
-	FileTransferJob *getCurrentJob();
 private slots:
 	void openFileTransferDialog();
-	void closeFileTransferDialog();
-	void stopCurrentAction();
-	void removeCurrentAction();
 	void onSendFile(QObject *controller);
 	void onJobDestroyed(QObject *obj);
 	void onUnitTrasferAbilityChanged(bool);

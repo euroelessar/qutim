@@ -23,6 +23,7 @@ AccountCreatorList::AccountCreatorList() :
 
 	ui->listWidget->installEventFilter(this);
 	ItemDelegate *delegate = new ItemDelegate(this);
+	delegate->setUserDefinedEditorSupport();
 	ui->listWidget->setItemDelegate(delegate);
 
 #ifndef QUTIM_MOBILE_UI

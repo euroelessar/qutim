@@ -279,6 +279,11 @@ FileTransferJob::ErrorType FileTransferJob::error() const
 	return d_func()->error;
 }
 
+ChatUnit *FileTransferJob::chatUnit() const
+{
+	return d_func()->unit;
+}
+
 void FileTransferJob::init(int filesCount, qint64 totalSize, const QString &title)
 {
 	Q_D(FileTransferJob);

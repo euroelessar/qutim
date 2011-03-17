@@ -24,6 +24,7 @@ const int ProgressBarHeight = 20;
 FileTransferJobDelegate::FileTransferJobDelegate(QObject* parent) :
 	ItemDelegate(parent)
 {
+	setUserDefinedEditorSupport(true);
 }
 
 QSize FileTransferJobDelegate::sizeHint(const QStyleOptionViewItem& option,

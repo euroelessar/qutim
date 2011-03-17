@@ -68,6 +68,7 @@ class LIBQUTIM_EXPORT FileTransferJob : public QObject
 	Q_PROPERTY(qint64 fileSize READ fileSize NOTIFY fileSizeChanged)
 	Q_PROPERTY(qint64 progress READ progress NOTIFY progressChanged)
 	Q_PROPERTY(qutim_sdk_0_3::FileTransferJob::State state READ state NOTIFY stateChanged)
+	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *chatUnit READ chatUnit)
 public:
 	enum Direction { Outgoing, Incoming };
 	enum ErrorType { NetworkError, Canceled, NotSupported, NoError };
@@ -93,6 +94,7 @@ public:
 	qint64 totalSize() const;
 	State state() const;
 	ErrorType error() const;
+	ChatUnit *chatUnit() const;
 protected:
 	virtual void doSend() = 0;
 	virtual void doStop() = 0;

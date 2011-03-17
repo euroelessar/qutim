@@ -18,6 +18,7 @@
 #include "filetransferjobdelegate.h"
 #include <qutim/localizedstring.h>
 #include <qutim/icon.h>
+#include <qutim/chatunit.h>
 
 namespace Core {
 
@@ -27,12 +28,13 @@ static LocalizedString headers[]= {
 	QT_TR_NOOP("File name"),
 	QT_TR_NOOP("File size"),
 	QT_TR_NOOP("Total size"),
+	QT_TR_NOOP("Contact"),
 	QT_TR_NOOP("Progress"),
 	QT_TR_NOOP("State")
 };
 
 FileTransferJobModel::FileTransferJobModel(QObject *parent) :
-	QAbstractListModel(parent)
+	QAbstractListModel(parent), m_rowBeingRemoved(-1)
 {
 }
 
@@ -56,7 +58,7 @@ void FileTransferJobModel::handleJob(FileTransferJob *job, FileTransferJob *oldJ
 		if (m_jobs.contains(job))
 			return;
 
-		int row = m_jobs.size()-1;
+		int row = m_jobs.size();
 		beginInsertRows(QModelIndex(), row, row);
 		m_jobs.push_back(job);
 		endInsertRows();
@@ -90,18 +92,16 @@ void FileTransferJobModel::handleJob(FileTransferJob *job, FileTransferJob *oldJ
 			SLOT(removeJob(QObject*)));
 }
 
-void FileTransferJobModel::removeJob(int row)
-{
-	beginRemoveRows(QModelIndex(), row, row);
-	m_jobs.removeAt(row);
-	endRemoveRows();
-}
-
 void FileTransferJobModel::removeJob(QObject *job)
 {
 	int row = m_jobs.indexOf(static_cast<FileTransferJob*>(job));
 	Q_ASSERT(row >= 0);
-	removeJob(row);
+	// Tell data() to skip this row.
+	m_rowBeingRemoved = row;
+	beginRemoveRows(QModelIndex(), row, row);
+	m_jobs.takeAt(row)->deleteLater();
+	endRemoveRows();
+	m_rowBeingRemoved = -1;
 }
 
 void FileTransferJobModel::updateJob()
@@ -146,6 +146,9 @@ int FileTransferJobModel::columnCount(const QModelIndex &parent) const
 
 QVariant FileTransferJobModel::data(const QModelIndex &index, int role) const
 {
+	if (index.row() == m_rowBeingRemoved)
+		return QVariant();
+
 	FileTransferJob *job = m_jobs.value(index.row());
 	if (!job)
 		return QVariant();
@@ -166,6 +169,10 @@ QVariant FileTransferJobModel::data(const QModelIndex &index, int role) const
 		if (!name.isEmpty())
 			map.insert(headers[FileName], name);
 		map.insert(headers[State], getState(job));
+		map.insert(job->direction() == FileTransferJob::Incoming ?
+				   tr("From") :
+				   tr("To"),
+				   job->chatUnit()->title());
 		return map;
 	}
 
@@ -184,9 +191,10 @@ QVariant FileTransferJobModel::data(const QModelIndex &index, int role) const
 		return bytesToString(job->totalSize());
 	case Progress:
 		return job->progress() * 100 / job->totalSize();
-	case State: {
+	case State:
 		return getState(job);
-	}
+	case Contact:
+		return job->chatUnit()->title();
 	default:
 		return QVariant();
 	}
@@ -222,7 +230,7 @@ QString FileTransferJobModel::getState(FileTransferJob *job) const
 
 QString bytesToString(quint64 bytes)
 {
-	double kb = (double)bytes / 10240;
+	double kb = (double)bytes / 1024;
 	if (kb >= 1) {
 		double mb = kb / 1024;
 		if (mb >= 1) {

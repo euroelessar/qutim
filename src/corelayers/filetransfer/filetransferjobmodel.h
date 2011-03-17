@@ -41,7 +41,8 @@ public:
 	void handleJob(FileTransferJob *job, FileTransferJob *oldJob);
 	bool containsJob(FileTransferJob *job) { return m_jobs.contains(job); }
 	FileTransferJob *getJob(int row) { return m_jobs.value(row); }
-protected:
+	QList<FileTransferJob*> allJobs() { return m_jobs; }
+
 	enum Columns
 	{
 		Title = 0,
@@ -49,8 +50,9 @@ protected:
 		FileName = 1,
 		FileSize = 2,
 		TotalSize = 3,
-		Progress = 4,
-		State = 5,
+		Contact = 4,
+		Progress = 5,
+		State = 6,
 		LastColumn = State
 	};
 	virtual QVariant headerData(int section, Qt::Orientation orientation,
@@ -58,8 +60,6 @@ protected:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-private:
-	void removeJob(int row);
 private slots:
 	void removeJob(QObject *job);
 	void updateJob();
@@ -67,6 +67,7 @@ private slots:
 	QString getState(FileTransferJob *job) const;
 private:
 	QList<FileTransferJob*> m_jobs;
+	int m_rowBeingRemoved; // Holds the row that are currently being removed
 };
 
 QString bytesToString(quint64 bytes);

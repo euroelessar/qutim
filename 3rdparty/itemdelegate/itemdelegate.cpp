@@ -33,6 +33,7 @@ public:
 	QRect checkRect(const QStyleOptionViewItem& option,const QRect &rect) const;
 	int padding;
 	bool commandLinkStyle;
+	bool editorSupport;
 };
 
 //small hack from Qt sources
@@ -61,17 +62,20 @@ QStyle *getStyle(const QStyleOptionViewItem& option)
 	return QApplication::style();
 }
 
-QString description(const QModelIndex& index)
+QString description(const QModelIndex& index, QFontMetrics metrics, int width = 0, int firstLineWidth = 0)
 {
 	QVariant data = index.data(DescriptionRole);
 	QString desc = data.toString();
-	if (data.canConvert<LocalizedString>()) {
-		desc = data.value<LocalizedString>();
-	}else if (data.canConvert<QVariantMap>()) {
+	if (data.canConvert<QVariantMap>()) {
 		QVariantMap fields = data.toMap();
 		QVariantMap::const_iterator it;
-		for (it = fields.constBegin();it!=fields.constEnd();it++) {
-			desc += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
+		for (it = fields.constBegin(); it != fields.constEnd(); ++it) {
+			QString newLine = it.key() % QLatin1Literal(": ") % it.value().toString();
+			if (width) {
+				newLine = metrics.elidedText(newLine, Qt::ElideRight, firstLineWidth);
+				firstLineWidth = width;
+			}
+			desc += newLine % QLatin1Literal(" \n");
 		}
 		desc.remove(desc.length()-2,2); //remove last \n
 	}
@@ -84,6 +88,7 @@ ItemDelegate::ItemDelegate(QObject* parent):
 	Q_D(ItemDelegate);
 	d->padding = 6;
 	d->commandLinkStyle = false;
+	d->editorSupport = false;
 }
 
 ItemDelegate::~ItemDelegate()
@@ -100,9 +105,6 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	QStyle *style = getStyle(opt);
 
 	QString title = index.data(Qt::DisplayRole).toString();
-	//fix trouble with localized strings
-	if (title.isEmpty())
-		title = index.data(Qt::DisplayRole).value<LocalizedString>();
 
 	if (isSeparator(index)) {
 		opt.features &= ~QStyleOptionViewItemV2::Alternate;
@@ -138,15 +140,14 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
 		}
 		QFont font = opt.font;
-		const QFont orig_font = font;
+		painter->save();
 		font.setBold(true);
 		painter->setFont(font);
 		painter->drawText(rect,
 						  Qt::AlignVCenter,
 						  title
 						  );
-		painter->setFont(orig_font);
-
+		painter->restore();
 	}
 	else {
 		drawFocus(painter,opt,option.rect);
@@ -158,10 +159,9 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		if (value.isValid()) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
 			QRect checkRect = drawCheck(painter,option,rect,state);
-			rect.adjust(checkRect.width(),0,0,0);
+			rect.adjust(checkRect.width() + d->padding,0,0,0);
 		}
 
-		rect.adjust(d->padding,0,0,0);
 		QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
 		item_icon.paint(painter,
 						rect.left(),
@@ -172,29 +172,30 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		rect.adjust(d->padding + option.decorationSize.width(),0,0,0);
 		rect.setBottom(rect.bottom() - d->padding);
 
-		const QFont orig_font = painter->font();
-		const QPen orig_pen = painter->pen();
-		QFont title_font = orig_font;
+		painter->save();
+		QFont title_font = opt.font;
 		title_font.setBold(true);
-		painter->setFont(title_font);
+		QFont description_font = opt.font;
+		description_font.setPointSize(opt.font.pointSize() - 1);
+
+		int titleWidth = rect.width() - getEditorSize(getWidget(opt), index).width();
+		title = elidedText(title_font, titleWidth, Qt::ElideRight, title);
+
 		QRect bounding;
-		QString desc = description(index);
+		QString desc = description(index, description_font, rect.width(), titleWidth);
+		painter->setFont(title_font);
 		painter->drawText(rect,
 						  (desc.isEmpty() ? Qt::AlignVCenter : Qt::AlignTop) | Qt::AlignLeft,
 						  title,
 						  &bounding);
-		painter->setFont(orig_font);
-		painter->setPen(orig_pen);
 
 		if (!desc.isEmpty()) {
 			rect.adjust(0,bounding.height() + 0.5*d->padding,0,0);
-			QFont description_font = orig_font;
-			description_font.setPointSize(orig_font.pointSize() - 1);
 			painter->setFont(description_font);
 			painter->drawText(rect, Qt::AlignTop | Qt::AlignLeft | Qt::TextWordWrap, desc);
 		}
-		painter->setFont(orig_font);
-		painter->setPen(orig_pen);
+
+		painter->restore();
 	}
 }
 
@@ -206,26 +207,23 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 		return value.toSize();
 
 	const QWidget *widget = getWidget(option);
-	//HACK black magic
-	//fix trouble with sizeHint change
 	//add event filter for any itemView's that use this delegate
 	const_cast<QWidget*>(widget)->installEventFilter(const_cast<ItemDelegate*>(this));
+	//HACK black magic
+	//fix trouble with sizeHint change
 	QRect rect = option.rect;
-	if(!rect.isValid())
-		rect = widget->geometry();
-	////another black magic, get editor actually size
-	//if(const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(widget)) {
-	//	if(QWidget *editor = view->indexWidget(index)) {
-	//		debug() << editor->size().width();
-	//		rect.adjust(0,0,-editor->size().width(),0);
-	//	}
-	//}
+	if(!rect.isValid()) {
+		if (const QAbstractScrollArea *area = qobject_cast<const QAbstractScrollArea*>(widget))
+			rect = area->viewport()->geometry();
+		else
+			rect = widget->geometry();
+	}
 	rect.adjust(d->padding,0,0,0);
 
 	QRect check = d->checkRect(index,option,rect);
 	if (check.isValid())
 		rect.adjust(check.width()+d->padding,0,0,0);
-	rect.adjust(2*d->padding + option.decorationSize.width(),0,0,0);
+	rect.adjust(d->padding + option.decorationSize.width(),0,0,0);
 
 	QFontMetrics metrics = option.fontMetrics;
 	if (!isSeparator(index)) {
@@ -235,11 +233,15 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 		metrics = QFontMetrics(font);
 	}
 
-	QRect bounding = metrics.boundingRect(rect, Qt::AlignTop | Qt::AlignLeft,
+	QString desc = description(index,
+							   metrics,
+							   rect.width(),
+							   rect.width() - getEditorSize(widget, index).width());
+	QRect bounding = metrics.boundingRect(rect,
+										  (desc.isEmpty() ? Qt::AlignVCenter : Qt::AlignTop) | Qt::AlignLeft,
 										  index.data(Qt::DisplayRole).toString());
 	int height = bounding.height();
 
-	QString desc = description(index);
 	if (!isSeparator(index) && !desc.isEmpty() && !isTitle(index)) {
 		QFont desc_font = option.font;
 		desc_font.setPointSize(desc_font.pointSize()-1);
@@ -247,8 +249,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 
 		bounding = metrics.boundingRect(rect,
 										Qt::AlignTop | Qt::AlignLeft | Qt::TextWordWrap,
-										desc
-										);
+										desc);
 		height += bounding.height();
 		height += 3*d->padding;
 	}
@@ -259,10 +260,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 QRect ItemDelegatePrivate::checkRect(const QModelIndex& index,const QStyleOptionViewItem &o, const QRect &rect) const
 {
 	QVariant value = index.data(Qt::CheckStateRole);
-	if (!value.isValid())
-		return QRect();
-	else
-		return checkRect(o,rect);
+	return value.isValid() ? checkRect(o,rect) : QRect();
 }
 
 QRect ItemDelegatePrivate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) const
@@ -369,6 +367,21 @@ QRect ItemDelegate::drawCheck(QPainter *painter,
 	}
 	getStyle(option)->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &checkOption, painter,getWidget(option));
 	return checkOption.rect;
+}
+
+void ItemDelegate::setUserDefinedEditorSupport(bool support)
+{
+	d_func()->editorSupport = support;
+}
+
+QSize ItemDelegate::getEditorSize(const QWidget *widget, const QModelIndex &index) const
+{
+	if (d_func()->editorSupport) {
+		if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(widget))
+			if (QWidget *editor = view->indexWidget(index))
+				return editor->size();
+	}
+	return QSize();
 }
 
 bool ItemDelegate::eventFilter(QObject *obj, QEvent *event)
