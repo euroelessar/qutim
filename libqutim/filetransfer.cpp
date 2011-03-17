@@ -33,7 +33,7 @@ struct FileTransferScope
 	struct Observer
 	{
 		QList<FileTransferObserver *> list;
-		ChatUnit *unit;
+		QPointer<ChatUnit> unit;
 #ifdef REMEMBER_ALL_ABILITIES
 		QBitArray abilities;
 		int setCount;
@@ -48,6 +48,7 @@ struct FileTransferScope
 	FileTransferManager *manager;
 	bool inited;
 };
+typedef QMap<ChatUnit*, FileTransferScope::Observer> FileTransferObserverMap;
 
 bool FileTransferScope::init()
 {
@@ -386,14 +387,16 @@ public:
 	static FileTransferObserverPrivate *get(FileTransferObserver *o) { return o->d_func(); }
 	void emitAbilityChanged(bool ability) { emit q_func()->abilityChanged(ability); }
 	FileTransferObserver *q_ptr;
-	FileTransferScope::Observer *scope;
+	FileTransferObserverMap::Iterator scope;
 };
 
 FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
     d_ptr(new FileTransferObserverPrivate(this))
 {
 	Q_D(FileTransferObserver);
-	d->scope = &scope()->observers[unit];
+	d->scope = scope()->observers.find(unit);
+	if (d->scope == scope()->observers.end())
+		d->scope = scope()->observers.insert(unit, FileTransferScope::Observer());
 	if (d->scope->list.isEmpty()) {
 		d->scope->unit = unit;
 		QList<FileTransferFactory*> &list = scope()->factories;
@@ -422,10 +425,12 @@ FileTransferObserver::~FileTransferObserver()
 	Q_D(FileTransferObserver);
 	d->scope->list.removeOne(this);
 	if (d->scope->list.isEmpty()) {
-		scope()->observers.remove(d->scope->unit);
-		QList<FileTransferFactory*> &list = scope()->factories;
-		for (int i = 0; i < list.size(); i++)
-			list.at(i)->stopObserve(d->scope->unit);
+		if (d->scope->unit) {
+			QList<FileTransferFactory*> &list = scope()->factories;
+			for (int i = 0; i < list.size(); i++)
+				list.at(i)->stopObserve(d->scope->unit);
+		}
+		scope()->observers.erase(d->scope);
 	}
 }
 
