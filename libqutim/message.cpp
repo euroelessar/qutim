@@ -132,7 +132,7 @@ public:
 	QString text;
 	QDateTime time;
 	bool in;
-	ChatUnit *chatUnit;
+	QPointer<ChatUnit> chatUnit;
 	quint64 id;
 	QVariant getText() const { return text; }
 	void setText(const QVariant &val) { text = val.toString(); }
@@ -141,7 +141,7 @@ public:
 	QVariant getIn() const { return in;}
 	void setIn(const QVariant &input) { in = input.toBool(); }
 	void setChatUnit (const QVariant &val) { chatUnit = val.value<ChatUnit *>(); }
-	QVariant getChatUnit() const { return QVariant::fromValue(chatUnit); }
+	QVariant getChatUnit() const { return QVariant::fromValue(chatUnit.data()); }
 };
 
 namespace CompiledProperty

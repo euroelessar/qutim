@@ -390,8 +390,12 @@ void TextViewController::init()
 	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")), pixmap);
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->deleteLater();
+	m_cache.clear();
 	m_images.clear();
 	m_emoticons.clear();
+	m_lastSender.clear();
+	m_lastTime = QDateTime();
+	m_isLastIncoming = false;
 }
 
 void TextViewController::loadHistory()
