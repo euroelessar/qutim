@@ -400,7 +400,8 @@ void OftConnection::doSend()
 
 void OftConnection::doStop()
 {
-	if (state() == Finished || state() == Error)
+	State state = this->state();
+	if (state == Finished || state == Error)
 		return;
 	Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 	ServerMessage message(m_contact, data);
@@ -409,6 +410,12 @@ void OftConnection::doStop()
 	// FIXME: The next two lines probably should be moved to libqutim
 	setState(Error);
 	setError(Canceled);
+}
+
+void OftConnection::doReceive()
+{
+	if (this->state() && m_connInited && direction() == Incoming)
+		startFileReceiving(m_header.totalFiles - m_header.filesLeft);
 }
 
 void OftConnection::close(bool error)
@@ -716,6 +723,10 @@ void OftConnection::startFileReceiving(const int index)
 		m_header.bytesReceived = file->size();
 		m_header.type = OftReceiverResume;
 	} else {
+		if (!file->open(QIODevice::WriteOnly)) {
+			close(true); // TODO: it is not a network error
+			return;
+		}
 		m_header.type = OftAcknowledge;
 		onNewData();
 	}
@@ -782,7 +793,8 @@ void OftConnection::onHeaderReaded()
 			fileInfo.setFileSize(m_header.size);
 			setFileInfo(currentIndex, fileInfo);
 
-			startFileReceiving(currentIndex);
+			if (isAccepted())
+				startFileReceiving(currentIndex);
 			break;
 		}
 		case OftDone: { // Receiver has informed us about received file

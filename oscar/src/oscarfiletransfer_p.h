@@ -154,6 +154,7 @@ public:
 protected:
 	virtual void doSend();
 	virtual void doStop();
+	virtual void doReceive();
 private:
 	void close(bool error = true);
 	void initProxyConnection();
