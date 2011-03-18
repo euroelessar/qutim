@@ -80,7 +80,7 @@ public:
 	// Send some file or dir
 	void send(const QUrl &url, const QString &title = QString());
 	void send(const QDir &baseDir, const QStringList &files, const QString &title);
-	void stop();
+
 	Direction direction() const;
 	QString title() const;
 	QString fileName() const;
@@ -95,9 +95,15 @@ public:
 	State state() const;
 	ErrorType error() const;
 	ChatUnit *chatUnit() const;
+	bool isAccepted();
+public slots:
+	void stop();
+	// Accept incoming job
+	void accept();
 protected:
 	virtual void doSend() = 0;
 	virtual void doStop() = 0;
+	virtual void doReceive() = 0;
 	// For incoming only
 	void init(int filesCount, qint64 totalSize, const QString &title);
 	// Device for local files to read/write
@@ -120,6 +126,7 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 	void error(qutim_sdk_0_3::FileTransferJob::ErrorType, qutim_sdk_0_3::FileTransferJob *newJob);
 	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
 	void finished();
+	void accepted();
 private:
 	QScopedPointer<FileTransferJobPrivate> d_ptr;
 };

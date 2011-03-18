@@ -124,13 +124,15 @@ class FileTransferJobPrivate
 	Q_DECLARE_PUBLIC(FileTransferJob)
 public:
 	FileTransferJobPrivate(FileTransferJob::Direction d, FileTransferJob *q) :
-	    direction(d), error(FileTransferJob::NoError),
-	    state(FileTransferJob::Initiation), currentIndex(-1),
-	    progress(0), fileProgress(0), totalSize(0), q_ptr(q) {}
+		accepted(d == FileTransferJob::Outgoing),
+		direction(d), error(FileTransferJob::NoError),
+		state(FileTransferJob::Initiation), currentIndex(-1),
+		progress(0), fileProgress(0), totalSize(0), q_ptr(q) {}
 	void addFile(const QFileInfo &info);
 	QIODevice *device(int index);
 	ChatUnit *unit;
 	QString title;
+	bool accepted;
 	FileTransferJob::Direction direction;
 	FileTransferJob::ErrorType error;
 	FileTransferJob::State state;
@@ -218,11 +220,6 @@ void FileTransferJob::send(const QDir &baseDir, const QStringList &files, const 
 	doSend();
 }
 
-void FileTransferJob::stop()
-{
-	doStop();
-}
-
 FileTransferJob::Direction FileTransferJob::direction() const
 {
 	return d_func()->direction;
@@ -283,6 +280,23 @@ FileTransferJob::ErrorType FileTransferJob::error() const
 ChatUnit *FileTransferJob::chatUnit() const
 {
 	return d_func()->unit;
+}
+
+bool FileTransferJob::isAccepted()
+{
+	return d_func()->accepted;
+}
+
+void FileTransferJob::stop()
+{
+	doStop();
+}
+
+void FileTransferJob::accept()
+{
+	d_func()->accepted = true;
+	doReceive();
+	emit accepted();
 }
 
 void FileTransferJob::init(int filesCount, qint64 totalSize, const QString &title)
