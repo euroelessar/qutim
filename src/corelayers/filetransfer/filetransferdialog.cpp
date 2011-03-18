@@ -21,6 +21,9 @@
 #include "ui_filetransferdialog.h"
 #include <QFileDialog>
 #include <QToolButton>
+#include <QMenu>
+#include <QUrl>
+#include <QDesktopServices>
 #include <qutim/actionbox.h>
 #include <qutim/icon.h>
 
@@ -42,15 +45,14 @@ ActionWidget::ActionWidget(FileTransferJob *job, QWidget *parent) :
 	m_stopButton->setToolTip(tr("Stop the task"));
 	m_stopButton->setIcon(Icon("media-playback-stop-filetransfer"));
 	m_stopButton->setProperty("actionWidget", qVariantFromValue(this));
-	connect(m_stopButton, SIGNAL(clicked()), parent, SLOT(onStopTransferJob()));
+	connect(m_stopButton, SIGNAL(clicked()), job, SLOT(stop()));
 	l->addWidget(m_stopButton, 0, 1);
 
 	QToolButton *removeButton = new QToolButton(this);
 	removeButton->setText(tr("Remove"));
 	removeButton->setToolTip(tr("Remove the task"));
 	removeButton->setIcon(Icon("edit-delete-filetransfer"));
-	removeButton->setProperty("actionWidget", qVariantFromValue(this));
-	connect(removeButton, SIGNAL(clicked()), parent, SLOT(onRemoveTransferJob()));
+	connect(removeButton, SIGNAL(clicked()), job, SLOT(deleteLater()));
 	l->addWidget(removeButton, 0, 2);
 
 	onStateChanged(job->state());
@@ -70,23 +72,39 @@ FileTransferDialog::FileTransferDialog(FileTransferJobModel *model) :
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_QuitOnClose, false);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)),SLOT(customContextMenuRequested(QPoint)));
+	connect(ui->jobsView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onOpenFileAction(QModelIndex)));
 	setModel(model);
 	ui->jobsView->setItemDelegate(new FileTransferJobDelegate(this));
 
 	ActionBox *actions = new ActionBox(this);
 	{
 		QAction *action = new QAction(QObject::tr("Remove finished tasks"), actions);
+#if QUTIM_MOBILE_UI
 		action->setSoftKeyRole(QAction::PositiveSoftKey);
+#endif
 		QObject::connect(action, SIGNAL(triggered()), SLOT(onRemoveFinishedJobs()));
 		actions->addAction(action);
 	}
 	{
 		QAction *action = new QAction(QObject::tr("Close"), actions);
+#if QUTIM_MOBILE_UI
 		action->setSoftKeyRole(QAction::NegativeSoftKey);
+#endif
 		QObject::connect(action, SIGNAL(triggered()), this, SLOT(deleteLater()));
 		actions->addAction(action);
 	}
 	ui->verticalLayout->addWidget(actions);
+
+	m_removeAction = new QAction(tr("Remove"), this);
+	connect(m_removeAction, SIGNAL(triggered()), SLOT(onRemoveJob()));
+	m_stopAction = new QAction(tr("Stop"), this);
+	connect(m_stopAction, SIGNAL(triggered()), SLOT(onStopJob()));
+	m_openDirAction = new QAction(tr("Open containing folder"), this);
+	connect(m_openDirAction, SIGNAL(triggered()), SLOT(onOpenDirAction()));
+	m_openFileAction = new QAction(tr("Open"), this);
+	connect(m_openFileAction, SIGNAL(triggered()), SLOT(onOpenFileAction()));
 }
 
 FileTransferDialog::~FileTransferDialog()
@@ -133,6 +151,12 @@ void FileTransferDialog::createActionWidget(int row)
 	m_actionWidgets.insert(row, widget);
 }
 
+FileTransferJob *FileTransferDialog::getSelectedJob()
+{
+	int row = ui->jobsView->currentIndex().row();
+	return m_model->getJob(row);
+}
+
 void FileTransferDialog::rowsInserted(const QModelIndex &parent, int start, int end)
 {
 	Q_UNUSED(parent);
@@ -147,26 +171,6 @@ void FileTransferDialog::rowsRemoved(const QModelIndex &parent, int start, int e
 		m_actionWidgets.takeAt(end)->deleteLater();
 }
 
-void FileTransferDialog::onStopTransferJob()
-{
-	ActionWidget *actionWidget = sender()->property("actionWidget").value<ActionWidget*>();
-	if (!actionWidget)
-		return;
-	FileTransferJob *job = m_model->getJob(m_actionWidgets.indexOf(actionWidget));
-	if (job)
-		job->stop();
-}
-
-void FileTransferDialog::onRemoveTransferJob()
-{
-	ActionWidget *actionWidget = sender()->property("actionWidget").value<ActionWidget*>();
-	if (!actionWidget)
-		return;
-	FileTransferJob *job = m_model->getJob(m_actionWidgets.indexOf(actionWidget));
-	if (job)
-		job->deleteLater();
-}
-
 void FileTransferDialog::onRemoveFinishedJobs()
 {
 	foreach (FileTransferJob *job, m_model->allJobs()) {
@@ -174,6 +178,77 @@ void FileTransferDialog::onRemoveFinishedJobs()
 		if (state == FileTransferJob::Finished || state == FileTransferJob::Error)
 			job->deleteLater();
 	}
+}
+
+void FileTransferDialog::customContextMenuRequested(const QPoint &pos)
+{
+	FileTransferJob *job = getSelectedJob();
+	if (!job)
+		return;
+
+	FileTransferJob::State state = job->state();
+	QMenu *menu = new QMenu(this);
+	setAttribute(Qt::WA_DeleteOnClose, true);
+	if (job->direction() == FileTransferJob::Incoming &&
+		state == FileTransferJob::Finished)
+	{
+		menu->addAction(m_openFileAction);
+		if (job->filesCount() == 1)
+			menu->addAction(m_openDirAction);
+	}
+	if (state == FileTransferJob::Initiation ||
+		state == FileTransferJob::Started)
+	{
+		menu->addAction(m_stopAction);
+	}
+	menu->addAction(m_removeAction);
+	menu->move(ui->jobsView->mapToGlobal(pos));
+	menu->show();
+}
+
+void FileTransferDialog::onRemoveJob()
+{
+	FileTransferJob *job = getSelectedJob();
+	if (job)
+		job->deleteLater();
+}
+
+void FileTransferDialog::onStopJob()
+{
+	FileTransferJob *job = getSelectedJob();
+	if (job)
+		job->stop();
+}
+
+void FileTransferDialog::onOpenFileAction(const QModelIndex &index)
+{
+	FileTransferJob *job = m_model->getJob(index.row());
+	if (!job)
+		return;
+	if (job->direction() == FileTransferJob::Incoming &&
+		job->state() == FileTransferJob::Finished)
+	{
+		QString path = job->property("localPath").toString();
+		QDesktopServices::openUrl(QUrl(path));
+	}
+}
+
+void FileTransferDialog::onOpenFileAction()
+{
+	FileTransferJob *job = getSelectedJob();
+	if (!job)
+		return;
+	QString path = job->property("localPath").toString();
+	QDesktopServices::openUrl(QUrl(path));
+}
+
+void FileTransferDialog::onOpenDirAction()
+{
+	FileTransferJob *job = getSelectedJob();
+	if (!job)
+		return;
+	QString path = job->property("localPath").toString();
+	QDesktopServices::openUrl(QUrl(QFileInfo(path).absolutePath()));
 }
 
 }

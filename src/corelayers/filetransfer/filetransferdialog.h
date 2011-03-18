@@ -57,16 +57,25 @@ protected:
     void changeEvent(QEvent *e);
 private:
 	void createActionWidget(int row);
+	FileTransferJob *getSelectedJob();
 private slots:
 	void rowsInserted(const QModelIndex &parent, int start, int end);
 	void rowsRemoved(const QModelIndex &parent, int start, int end);
-	void onStopTransferJob();
-	void onRemoveTransferJob();
 	void onRemoveFinishedJobs();
+	void customContextMenuRequested(const QPoint &pos);
+	void onRemoveJob();
+	void onStopJob();
+	void onOpenFileAction(const QModelIndex &index);
+	void onOpenFileAction();
+	void onOpenDirAction();
 private:
     Ui::FileTransferDialog *ui;
 	QList<ActionWidget*> m_actionWidgets;
 	FileTransferJobModel *m_model;
+	QAction *m_removeAction;
+	QAction *m_stopAction;
+	QAction *m_openFileAction;
+	QAction *m_openDirAction;
 };
 
 }

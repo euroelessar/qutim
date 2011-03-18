@@ -20,6 +20,7 @@
 #include <qutim/buddy.h>
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
+#include <QMessageBox>
 #include <QFileDialog>
 #include <QUrl>
 
@@ -73,23 +74,13 @@ QIODevice *SimpleFileTransfer::doOpenFile(FileTransferJob *job)
 
 	QString path;
 	if (job->direction() == FileTransferJob::Incoming) {
-		path = m_paths.value(job);
-		if (path.isNull()) {
-			if (job->filesCount() == 1) {
-				path = QFileDialog::getSaveFileName(0, QString(),
-													  QDir::home().filePath(job->fileName()));
-			} else {
-				path = QFileDialog::getExistingDirectory(0, QString(), QDir::homePath());
-			}
-			if (path.isEmpty()) {
-				job->stop();
-				return 0;
-			}
-			m_paths.insert(job, path);
-		}
+		path = job->property("localPath").toString();
+
+		if (path.isNull())
+			return 0;
 
 		QFileInfo info = path;
-		if (info.isFile())
+		if (!info.isDir())
 			path = info.absoluteFilePath();
 		else
 			path = QDir(path).filePath(job->fileName());
@@ -99,13 +90,47 @@ QIODevice *SimpleFileTransfer::doOpenFile(FileTransferJob *job)
 	return new QFile(path);
 }
 
+void SimpleFileTransfer::doConfirmDownloading(FileTransferJob *job)
+{
+	QString path = job->property("localPath").toString();
+	if (!path.isEmpty())
+		return;
+
+	int result = QMessageBox::question(
+			m_dialog.data(),
+			tr("Incoming file"),
+			tr("%1 wants to send you %2 (%3)")
+				.arg(job->chatUnit()->title())
+				.arg(job->title())
+				.arg(bytesToString(job->totalSize())),
+			tr("Accept"),
+			tr("Ignore"));
+	if (result != 0)
+		return;
+
+	if (job->filesCount() == 1) {
+		path = QFileDialog::getSaveFileName(0, QString(),
+											  QDir::home().filePath(job->fileName()));
+	} else {
+		path = QFileDialog::getExistingDirectory(0, QString(), QDir::homePath());
+	}
+
+	if (path.isEmpty()) {
+		job->stop();
+	} else {
+		job->setProperty("localPath", path);
+		job->accept();
+	}
+}
+
 void SimpleFileTransfer::handleJob(FileTransferJob *job, FileTransferJob *oldJob)
 {
 	if (oldJob)
-		m_paths.insert(job, m_paths.take(oldJob));
-	connect(job, SIGNAL(destroyed(QObject*)), SLOT(onJobDestroyed(QObject*)));
+		job->setProperty("localPath", oldJob->property("localPath"));
 	m_model->handleJob(job, oldJob);
 	openFileTransferDialog();
+	if (job->direction() == FileTransferJob::Incoming)
+		doConfirmDownloading(job);
 }
 
 void SimpleFileTransfer::openFileTransferDialog()
@@ -124,11 +149,6 @@ void SimpleFileTransfer::onSendFile(QObject *controller)
 		QUrl url = QUrl::fromLocalFile(file);
 		send(unit, url);
 	}
-}
-
-void SimpleFileTransfer::onJobDestroyed(QObject *obj)
-{
-	m_paths.remove(static_cast<FileTransferJob*>(obj));
 }
 
 void SimpleFileTransfer::onUnitTrasferAbilityChanged(bool ability)

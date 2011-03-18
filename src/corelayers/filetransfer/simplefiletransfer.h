@@ -46,14 +46,13 @@ public:
 	explicit SimpleFileTransfer();
 	virtual QIODevice *doOpenFile(FileTransferJob *job);
 	virtual void handleJob(FileTransferJob *job, FileTransferJob *oldJob);
+	void doConfirmDownloading(FileTransferJob *job);
 	bool event(QEvent *ev);
 private slots:
 	void openFileTransferDialog();
 	void onSendFile(QObject *controller);
-	void onJobDestroyed(QObject *obj);
 	void onUnitTrasferAbilityChanged(bool);
 private:
-	QHash<FileTransferJob*, QString> m_paths;
 	FileTransferJobModel *m_model;
 	QPointer<FileTransferDialog> m_dialog;
 	ActionGenerator *m_sendFileActionGen;

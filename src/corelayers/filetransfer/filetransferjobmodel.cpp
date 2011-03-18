@@ -23,7 +23,6 @@
 namespace Core {
 
 static LocalizedString headers[]= {
-	QT_TR_NOOP("Direction"),
 	QT_TR_NOOP("Title"),
 	QT_TR_NOOP("File name"),
 	QT_TR_NOOP("File size"),
