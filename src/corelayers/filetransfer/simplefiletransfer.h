@@ -34,6 +34,8 @@ class FileTransferActionGenerator : public ActionGenerator
 public:
 	FileTransferActionGenerator(SimpleFileTransfer *manager);
 	void createImpl(QAction *action, QObject *obj) const;
+	void showImpl(QAction *action,QObject *obj);
+
 private:
 	SimpleFileTransfer *m_manager;
 };
@@ -46,12 +48,15 @@ public:
 	explicit SimpleFileTransfer();
 	virtual QIODevice *doOpenFile(FileTransferJob *job);
 	virtual void handleJob(FileTransferJob *job, FileTransferJob *oldJob);
-	void doConfirmDownloading(FileTransferJob *job);
+	void confirmDownloading(FileTransferJob *job);
 	bool event(QEvent *ev);
+private:
+	void sendFile(ChatUnit *unit, FileTransferFactory *factory = 0);
 private slots:
 	void openFileTransferDialog();
 	void onSendFile(QObject *controller);
 	void onUnitTrasferAbilityChanged(bool);
+	void onSendThroughSpecificFactory();
 private:
 	FileTransferJobModel *m_model;
 	QPointer<FileTransferDialog> m_dialog;

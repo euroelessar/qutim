@@ -23,6 +23,7 @@
 
 class QDir;
 class QUrl;
+class QIcon;
 
 namespace qutim_sdk_0_3
 {
@@ -128,6 +129,7 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 	void finished();
 	void accepted();
 private:
+	friend class FileTransferManager;
 	QScopedPointer<FileTransferJobPrivate> d_ptr;
 };
 
@@ -161,12 +163,17 @@ public:
 	FileTransferFactory(const LocalizedString &name, Capabilities capabilities);
 	~FileTransferFactory();
 	Capabilities capabilities() const;
+	LocalizedString name() const;
+	LocalizedString description() const;
+	QIcon icon() const;
 	virtual bool checkAbility(ChatUnit *unit) = 0;
 	virtual bool startObserve(ChatUnit *unit) = 0;
 	virtual bool stopObserve(ChatUnit *unit) = 0;
 	virtual FileTransferJob *create(ChatUnit *unit) = 0;
 protected:
 	void changeAvailability(ChatUnit *unit, bool canSend);
+	void setDescription(const LocalizedString &description);
+	void setIcon(const QIcon &icon);
 	virtual void virtual_hook(int id, void *data);
 	QScopedPointer<FileTransferFactoryPrivate> d_ptr;
 };
@@ -181,8 +188,13 @@ public:
 	~FileTransferManager();
 	
 	static bool checkAbility(ChatUnit *unit);
-	static FileTransferJob *send(ChatUnit *unit, const QUrl &url, const QString &title = QString());
+	// If the factory is null, the file/directory will be sent through
+	// the most appropriate factory
+	static FileTransferJob *send(ChatUnit *unit, const QUrl &url,
+								 const QString &title = QString(),
+								 FileTransferFactory *factory = 0);
 	static QIODevice *openFile(FileTransferJob *job);
+	static QList<FileTransferFactory*> factories();
 protected:
 	virtual QIODevice *doOpenFile(FileTransferJob *job) = 0;
 	virtual void handleJob(FileTransferJob *job, FileTransferJob *oldJob) = 0;

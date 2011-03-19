@@ -127,7 +127,9 @@ public:
 		accepted(d == FileTransferJob::Outgoing),
 		direction(d), error(FileTransferJob::NoError),
 		state(FileTransferJob::Initiation), currentIndex(-1),
-		progress(0), fileProgress(0), totalSize(0), q_ptr(q) {}
+		progress(0), fileProgress(0), totalSize(0), q_ptr(q),
+		skipToNextFactoryAtError(true)
+	{}
 	void addFile(const QFileInfo &info);
 	QIODevice *device(int index);
 	ChatUnit *unit;
@@ -145,6 +147,7 @@ public:
 	FileTransferFactory *factory;
 	FileTransferJob *q_ptr;
 	QDir dir;
+	bool skipToNextFactoryAtError;
 };
 
 void FileTransferJobPrivate::addFile(const QFileInfo &info)
@@ -347,7 +350,8 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 	if (d->error != err) {
 		d->error = err;
 		FileTransferJob *job = 0;
-		if (d->direction == Outgoing) {
+		if (d->skipToNextFactoryAtError && d->direction == Outgoing) {
+			d->skipToNextFactoryAtError = false;
 			QList<FileTransferFactory*> &list = scope()->factories;
 			for (int i = list.indexOf(d->factory) + 1; !job && i < list.size(); i++) {
 				FileTransferFactory *factory = list.at(i);
@@ -356,6 +360,7 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 					FileTransferJobPrivate *p = job->d_func();
 					p->files = d->files;
 					p->dir = d->dir;
+					p->devices.resize(p->files.size());
 					job->doSend();
 					FileTransferManagerPrivate::get(scope()->manager)->handleJob(job, this);
 				}
@@ -467,11 +472,12 @@ class FileTransferFactoryPrivate
 public:
 	LocalizedString name;
 	LocalizedString description;
+	QIcon icon;
 	FileTransferFactory::Capabilities capabilities;
 };
 
 FileTransferFactory::FileTransferFactory(const LocalizedString &name,
-                                         FileTransferFactory::Capabilities capabilities) :
+										 FileTransferFactory::Capabilities capabilities) :
     d_ptr(new FileTransferFactoryPrivate)
 {
 	Q_D(FileTransferFactory);
@@ -486,6 +492,21 @@ FileTransferFactory::~FileTransferFactory()
 FileTransferFactory::Capabilities FileTransferFactory::capabilities() const
 {
 	return d_func()->capabilities;
+}
+
+LocalizedString FileTransferFactory::name() const
+{
+	return d_func()->name;
+}
+
+LocalizedString FileTransferFactory::description() const
+{
+	return d_func()->description;
+}
+
+QIcon FileTransferFactory::icon() const
+{
+	return d_func()->icon;
 }
 
 void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
@@ -526,6 +547,16 @@ void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
 #endif
 }
 
+void FileTransferFactory::setDescription(const LocalizedString &description)
+{
+	d_func()->description = description;
+}
+
+void FileTransferFactory::setIcon(const QIcon &icon)
+{
+	d_func()->icon = icon;
+}
+
 void FileTransferFactory::virtual_hook(int id, void *data)
 {
 	Q_UNUSED(id);
@@ -561,20 +592,33 @@ bool FileTransferManager::checkAbility(ChatUnit *unit)
 	return ok;
 }
 
-FileTransferJob *FileTransferManager::send(ChatUnit *unit, const QUrl &url, const QString &title)
+FileTransferJob *FileTransferManager::send(ChatUnit *unit, const QUrl &url, const QString &title, FileTransferFactory *factory)
 {
 	if (!scope()->init())
 		return 0;
-	QList<FileTransferFactory*> &list = scope()->factories;
-	for (int i = 0; i < list.size(); i++) {
-		FileTransferFactory *factory = list.at(i);
-		if (factory->checkAbility(unit)) {
-			FileTransferJob *job = factory->create(unit);
-			job->send(url, title);
-			scope()->manager->handleJob(job, 0);
-			return job;
+
+	bool specificFactory = factory;
+	if (!factory) {
+		QList<FileTransferFactory*> &list = scope()->factories;
+		for (int i = 0; i < list.size(); i++) {
+			FileTransferFactory *current = list.at(i);
+			if (current->checkAbility(unit)) {
+				factory = current;
+				break;
+			}
 		}
+	} else if (!factory->checkAbility(unit)) {
+		return 0;
 	}
+
+	if (factory) {
+		FileTransferJob *job = factory->create(unit);
+		job->send(url, title);
+		job->d_func()->skipToNextFactoryAtError = !specificFactory;
+		scope()->manager->handleJob(job, 0);
+		return job;
+	}
+
 	return 0;
 }
 
@@ -583,6 +627,11 @@ QIODevice *FileTransferManager::openFile(FileTransferJob *job)
 	if (!scope()->init())
 		return 0;
 	return scope()->manager->doOpenFile(job);
+}
+
+QList<FileTransferFactory*> FileTransferManager::factories()
+{
+	return scope()->factories;
 }
 
 void FileTransferManager::virtual_hook(int id, void *data)
