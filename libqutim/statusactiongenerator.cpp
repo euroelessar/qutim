@@ -17,7 +17,7 @@ void StatusActionHandler::changeStatus(QAction *action, QObject *controller)
 		Status origin = action->property("status").value<Status>();
 		current.setType(origin.type());
 		current.setSubtype(origin.subtype());
-		current.setProperty("changeReason",Status::ByUser);
+		current.setProperty("changeReason", Status::ByUser);
 		account->setStatus(current);
 	}
 }

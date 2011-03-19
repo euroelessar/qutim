@@ -21,8 +21,9 @@
 #include <qutim/icon.h>
 #include "mergedialog.h"
 #include <qutim/systemintegration.h>
-#include <qutim/contactlist.h>
+#include <qutim/servicemanager.h>
 #include "factory.h"
+#include <QTimer>
 
 namespace Core
 {
@@ -35,22 +36,8 @@ Manager::Manager() :
 	m_factory(new Factory(this)),
 	m_blockUpdate(false)
 {
-	ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),
-											   QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),
-											   this,
-											   SLOT(onSplitTriggered(QObject*)));
-	gen->setType(ActionTypeContactList);
-	MenuController::addAction<MetaContactImpl>(gen);
-	gen = new ActionGenerator(Icon("list-add-user"),
-							  QT_TRANSLATE_NOOP("MetaContact","Manage metacontacts"),
-							  this,
-							  SLOT(onCreateTriggered(QObject*)));
-	gen->setType(ActionTypeContactList);
-	MenuController::addAction<MetaContactImpl>(gen);
-	MenuController::addAction<ContactList>(gen);
-
 	connect(this, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)), SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
-
+	QTimer::singleShot(0, this, SLOT(initActions()));
 	setContactsFactory(m_factory.data());
 }
 
@@ -107,6 +94,26 @@ void Manager::onContactCreated(qutim_sdk_0_3::Contact *contact)
 		m_storage->addContact(contact);
 	}
 }
+
+void Manager::initActions()
+{
+	if (MenuController *cl = ServiceManager::getByName<MenuController*>("ContactList")) {	
+		ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),
+												QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),
+												this,
+												SLOT(onSplitTriggered(QObject*)));
+		gen->setType(ActionTypeContactList);
+		MenuController::addAction<MetaContactImpl>(gen);
+		gen = new ActionGenerator(Icon("list-add-user"),
+								QT_TRANSLATE_NOOP("MetaContact","Manage metacontacts"),
+								this,
+								SLOT(onCreateTriggered(QObject*)));
+		gen->setType(ActionTypeContactList);
+		MenuController::addAction<MetaContactImpl>(gen);
+		cl->addAction(gen);
+	}
+}
+
 
 }
 }

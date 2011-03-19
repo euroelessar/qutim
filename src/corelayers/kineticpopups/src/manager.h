@@ -41,7 +41,7 @@ class KINETICPOPUPS_EXPORT Manager
 {
 	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 public:
-			Manager();
+	Manager();
 	Popup *getById (const QString &id) const;
 	Popup *getByNumber (const int &number) const;
 	void loadSettings();

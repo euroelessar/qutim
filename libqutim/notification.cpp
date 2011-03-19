@@ -15,6 +15,7 @@
 
 #include "notification.h"
 #include "dynamicpropertydata_p.h"
+#include "message.h"
 
 namespace qutim_sdk_0_3 {
 class NotificationPrivate
@@ -46,9 +47,15 @@ void Notification::close()
 class NotificationRequestPrivate : public DynamicPropertyData
 {
 public:
+	NotificationRequestPrivate() : DynamicPropertyData() {}
+	QObject *object;
+	QPixmap pixmap;
+	QString text;
+	QString title;
+	QVariant data;
 };
 
-NotificationRequest::NotificationRequest(const Message &msg)
+NotificationRequest::NotificationRequest(const Message &msg) : d_ptr(new NotificationRequestPrivate)
 {
 }
 
@@ -70,10 +77,12 @@ NotificationRequest &NotificationRequest::operator =(const NotificationRequest &
 
 void NotificationRequest::setObject(QObject *obj)
 {
+	d_ptr->object = obj;
 }
 
 QObject *NotificationRequest::object() const
 {
+	return d_ptr->object;
 }
 
 void NotificationRequest::setData(const QVariant &data)

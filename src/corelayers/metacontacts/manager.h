@@ -43,6 +43,7 @@ public:
 protected:
 	virtual void loadContacts();
 private slots:
+	void initActions();
 	void onSplitTriggered(QObject*);
 	void onCreateTriggered(QObject*);
 	void onContactCreated(qutim_sdk_0_3::Contact*);

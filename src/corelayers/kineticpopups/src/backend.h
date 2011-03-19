@@ -18,6 +18,7 @@
 
 #include <qutim/notificationslayer.h>
 #include <QWidget>
+#include <qutim/notification.h>
 
 #if defined(KINETICPOPUPS_LIBRARY)
 #  define KINETICPOPUPS_EXPORT Q_DECL_EXPORT
@@ -42,6 +43,15 @@ public:
 	Backend ();
 };
 
+namespace Game
+{
+class Backend : public qutim_sdk_0_3::NotificationBackend
+{
+public:
+	virtual void handleNotification(Notification *notification);
+};
+}
+
 class KINETICPOPUPS_EXPORT AbstractPopupWidget : public QWidget
 {
 	Q_OBJECT	
@@ -51,6 +61,7 @@ public:
 				 const QString& body,
 				 QObject *sender,
 				 const QVariant &data) = 0;
+	//virtual void setData(Notification *notification) = 0;
 signals:
 	void sizeChanged(const QSize &size);
 	void activated();

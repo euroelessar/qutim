@@ -3,6 +3,7 @@
 
 #include <QTreeView>
 #include <QPersistentModelIndex>
+#include "simplecontactlist_global.h"
 
 namespace Core
 {
@@ -11,7 +12,7 @@ namespace SimpleContactList
 
 class AbstractContactModel;
 
-class TreeView : public QTreeView
+class SIMPLECONTACTLIST_EXPORT TreeView : public QTreeView
 {
 	Q_OBJECT
 public:

@@ -78,7 +78,7 @@ public:
 	
 	void setObject(QObject *obj);
 	QObject *object() const;
-	void setData(const QVariant &data);
+	void setData(const QVariant &data); //Are you sure that it need? Property is not enough?
 	QVariant data() const;
 	void setImage(const QPixmap &pixmap);
 	QPixmap image() const;

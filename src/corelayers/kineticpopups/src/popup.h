@@ -21,6 +21,10 @@
 #include <QRect>
 #include <QVariant>
 
+namespace qutim_sdk_0_3
+{
+class Notification;
+}
 
 class QFinalState;
 class QPropertyAnimation;
@@ -36,6 +40,7 @@ class Popup : public QObject
 	Q_OBJECT
 public:
 	Popup(const QString &id); //0 - persistant
+    Popup(qutim_sdk_0_3::Notification *, QObject* parent = 0);
 	virtual ~Popup();
 	void setId(const QString &id);
 	void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);

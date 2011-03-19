@@ -85,5 +85,12 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 	popup->send();
 }
 
+void Game::Backend::handleNotification(qutim_sdk_0_3::Notification* notification)
+{
+	NotificationRequest request = notification->request();
+	
+}
+
+
 }
 }

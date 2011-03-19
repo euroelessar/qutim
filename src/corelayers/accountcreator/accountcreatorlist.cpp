@@ -206,8 +206,8 @@ void AccountCreatorList::onAccountRemoveTriggered()
 	if (!account)
 		return;
 
-	int ret = QMessageBox::question(this, tr("Delete account"),
-									tr("Are you sure want to delete %1").arg(account->name()),
+	int ret = QMessageBox::question(this, tr("Remove account"),
+									tr("Are you sure want to remove %1").arg(account->name()),
 									QMessageBox::Yes | QMessageBox::No,
 									QMessageBox::No);
 	if (ret == QMessageBox::Yes)

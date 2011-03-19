@@ -24,12 +24,19 @@
 #include <qutim/debug.h>
 #include <QStateMachine>
 #include <qutim/objectgenerator.h>
-#include <libqutim/servicemanager.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
 namespace KineticPopups
 {
+
+Popup::Popup(Notification* , QObject* parent): QObject(parent)
+{
+
+}
+
+
 Popup::Popup ( const QString& id )
 	:	m_popup(0),
 	m_id ( id ),
