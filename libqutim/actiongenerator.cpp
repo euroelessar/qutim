@@ -46,16 +46,26 @@ bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
 	return false;
 }
 
-void ActionGeneratorLocalizationHelper::addAction(QAction *action,
-												  const ActionGeneratorPrivate *data)
+void ActionGeneratorLocalizationHelper::addAction(QAction *action, const ActionGeneratorPrivate *data)
 {
 	m_actions.insert(action, data);
 	connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
 }
 
+void ActionGeneratorLocalizationHelper::addAction(QObject *obj, QAction *action)
+{
+	connect(obj, SIGNAL(destroyed()), action, SLOT(deleteLater()));
+	if (const ActionGeneratorPrivate *data = m_actions.value(action))
+		(*actionsCache())[data->q_ptr].insert(obj, action);
+}
+
 void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
 {
-	m_actions.remove(static_cast<QAction*>(obj));
+	QAction *action = static_cast<QAction*>(obj);
+	if (const ActionGeneratorPrivate *data = m_actions.take(action)) {
+		QMap<QObject*, QAction*> &map = (*actionsCache())[data->q_ptr];
+		map.remove(map.key(action));
+	}
 }
 
 ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con) :
@@ -348,7 +358,13 @@ void ActionGenerator::setShortcut(const QKeySequence &shortcut)
 	d->shortCuts.append(shortcut);
 }
 
-void ActionGenerator::createImpl(QAction *action,QObject *controller) const
+void ActionGenerator::create(QAction *action, QObject *obj) const
+{
+	localizationHelper()->addAction(obj, action);
+	createImpl(action, obj);
+}
+
+void ActionGenerator::createImpl(QAction *action, QObject *controller) const
 {
 	d_func()->sendActionCreatedEvent(action, controller);
 }
@@ -406,10 +422,7 @@ ActionGenerator *ActionGenerator::get(QAction *action)
 ActionGenerator * ActionGeneratorLocalizationHelper::getGenerator(QAction *action) const
 {
 	const ActionGeneratorPrivate *p = m_actions.value(action);
-	if (p)
-		return m_actions.value(action)->q_ptr;
-	else
-		return 0;
+	return p ? p->q_ptr : 0;
 }
 
 }

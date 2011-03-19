@@ -143,6 +143,7 @@ protected:
 	virtual QObject *generateHelper() const;
 	virtual const QMetaObject *metaObject() const;
 	virtual bool hasInterface(const char *id) const;
+	void create(QAction *action,QObject *obj) const;
 	virtual void createImpl(QAction *action,QObject *obj) const;
 	virtual void showImpl(QAction *action,QObject *obj); //obj usally is controller, default implementation do nothing
 	virtual void hideImpl(QAction *action,QObject *obj);

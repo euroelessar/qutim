@@ -129,8 +129,7 @@ QAction *DynamicMenu::ensureAction(const ActionGenerator *gen)
 	QAction *action = actionsCache()->value(gen).value(controller);
 	if (!action) {
 		action = gen->generate<QAction>();
-		(*actionsCache())[gen].insert(controller, action);
-		gen->createImpl(action, controller);		
+		gen->create(action, controller);
 	}
 	return action;
 }
@@ -522,8 +521,7 @@ void ActionContainerPrivate::ensureAction(const ActionInfo &info)
 		action = info.gen->generate<QAction>();
 		if (!action)
 			return;
-		actionsCache()->operator[](info.gen).insert(controller,action);
-		info.gen->createImpl(action, controller);
+		info.gen->create(action, controller);
 	}
 	actions.append(action);
 }

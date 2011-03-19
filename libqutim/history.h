@@ -22,48 +22,59 @@
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
+	
+#ifdef EXPERIMENTAL_HISTORY_API	
 	class HistoryRequestPrivate;
 	class HistoryReplyPrivate;
 	class HistoryRequest;
 	
-//	class HistoryReply : public QObject
-//	{
-//		Q_OBJECT
-//		Q_DECLARE_PRIVATE(HistoryReply)
-//	public:
-//		HistoryReply();
-//		~HistoryReply();
+	class HistoryReply : public QObject
+	{
+		Q_OBJECT
+		Q_DECLARE_PRIVATE(HistoryReply)
+	public:
+		HistoryReply();
+		~HistoryReply();
 		
-//		HistoryRequest request() const;
-//		virtual MessageList messages() const;
-//	signals:
-//		void ready();
-//	private:
-//		QScopedPointer<HistoryReplyPrivate> d_ptr;
-//	};
+		HistoryRequest request() const;
+		MessageList messages() const;
+		int totalCount() const;
+		int firstIndex() const;
+		int lastIndex() const;
+	signals:
+		void ready();
+	protected:
+		void setMessages(const MessageList &messages);
+		void setCount(int count);
+		void setBoundaries(int first, int last);
+	private:
+		QScopedPointer<HistoryReplyPrivate> d_ptr;
+	};
 	
-//	class HistoryRequest
-//	{
-//	public:
-//		HistoryRequest();
-//		HistoryRequest(const HistoryRequest &other);
-//		~HistoryRequest();
-//		HistoryRequest &operator =(const HistoryRequest &other);
+	class HistoryRequest
+	{
+	public:
+		HistoryRequest(ChatUnit *unit);
+		HistoryRequest(const HistoryRequest &other);
+		~HistoryRequest();
+		HistoryRequest &operator =(const HistoryRequest &other);
+//		enum Type { MessagesCount,  };
 		
-//		HistoryReply *send();
-//	private:
-//		QSharedDataPointer<HistoryRequestPrivate> d_ptr;
-//	};
+		HistoryReply *send();
+	private:
+		QSharedDataPointer<HistoryRequestPrivate> d_ptr;
+	};
 
-//	class LIBQUTIM_EXPORT HistoryEngine : public QObject
-//	{
-//		Q_OBJECT
-//	public:
-//		HistoryEngine();
-//		virtual ~HistoryEngine();
-//		virtual HistoryReply *store(const Message &msg) = 0;
-//		virtual HistoryReply *request(const HistoryRequest &rule) = 0;
-//	};
+	class LIBQUTIM_EXPORT HistoryEngine : public QObject
+	{
+		Q_OBJECT
+	public:
+		HistoryEngine();
+		virtual ~HistoryEngine();
+		virtual HistoryReply *store(const Message &msg) = 0;
+		virtual HistoryReply *request(const HistoryRequest &rule) = 0;
+	};
+#endif // EXPERIMENTAL_HISTORY_API	
 	
 	class LIBQUTIM_EXPORT History : public QObject
 	{

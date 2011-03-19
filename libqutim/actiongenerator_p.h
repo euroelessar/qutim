@@ -67,6 +67,7 @@ public:
 	ActionGeneratorLocalizationHelper();
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	void addAction(QAction *action, const ActionGeneratorPrivate *data);
+	void addAction(QObject *obj, QAction *action);
 	ActionGenerator *getGenerator(QAction*) const;
 public slots:
 	void onActionDeath(QObject *obj);
