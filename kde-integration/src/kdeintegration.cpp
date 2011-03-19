@@ -72,9 +72,10 @@ void KdePlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("euroelessar@gmail.com"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Sidorov Aleksey"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("sauron@citadelspb.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+			  QT_TRANSLATE_NOOP("Task","Author"),
+			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("sauron.me"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "KDE integration"),
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
 			KDE_VERSION << 8, kdeIcon);

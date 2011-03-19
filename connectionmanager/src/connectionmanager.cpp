@@ -10,6 +10,7 @@
 #include "managersettings.h"
 #include <qutim/icon.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/utils.h>
 #include <QTimer>
 
 namespace ConnectionManager
@@ -113,39 +114,61 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		break;
 	}
 
-	if(now.type() == Status::Offline && needReconnect) {
-		int timeout = now.property("reconnectTimeout",5);
+	if(needReconnect) {
+		int timeout = now.property("reconnectTimeout", 15);
 
-		QTimer *statusTimer = new QTimer(this);
-		statusTimer->setProperty("account",qVariantFromValue(a));
-		statusTimer->setProperty("status",qVariantFromValue(old));
+		QTimer *statusTimer = getTimer(a);
 		old.setProperty("changeReason",Status::ByUser);
-		connect(statusTimer,SIGNAL(timeout()),SLOT(onStatusChangeTimeout()));
+		old.setProperty("reconnectTimeout", timeout *2);
+		statusTimer->setProperty("status",qVariantFromValue(old));
+		connect(statusTimer, SIGNAL(timeout()), SLOT(onStatusChangeTimeout()));
 		statusTimer->setSingleShot(true);
 		statusTimer->start(timeout*1000);
 
 		QString timeoutStr = timeout ? tr("within %1 seconds").arg(timeout) :
 									   tr("immediately");
 
+		now.setType(Status::Connecting);
+		now.setProperty("reconnectTimeout", 2 *timeout);
+		now.setProperty("changeReason", Status::ByIdle);
+		a->setStatus(now);
+
 		Notifications::send(Notifications::System,this,
 							tr("%1 will be reconnected %2").arg(a->name(),timeoutStr),
 							tr("ConnectionManager"));
 	} else {
-		int timeout = now.property("reconnectTimeout",0);
-		if(timeout) {
-			now.setProperty("reconnectTimeout",0);
-			a->setStatus(now);
+		if (a->status().property("changeReason", 0) == Status::ByUser) {
+			QTimer *timer = getTimer(a, false);
+			if(timer) {
+				removeTimer(timer);
+			}
 		}
 	}
 }
 
 void ConnectionManager::onStatusChangeTimeout()
 {
-	QObject *timer = sender();
+	QTimer *timer = sender_cast<QTimer*>(sender());
 	Status status = timer->property("status").value<Status>();
-	Account *account = timer->property("account").value<Account*>();
+	Account *account = m_timers.key(timer);
 	Q_ASSERT(account);
 	account->setStatus(status);
+	removeTimer(timer);
+}
+
+
+QTimer *ConnectionManager::getTimer(Account *account, bool create)
+{
+	if (!m_timers.contains(account) && create) {
+		QTimer *timer = new QTimer(this);
+		m_timers.insert(account, timer);
+	}
+	return m_timers.value(account);
+}
+
+void ConnectionManager::removeTimer(QTimer *timer)
+{
+	m_timers.remove(m_timers.key(timer));
 	timer->deleteLater();
 }
 
