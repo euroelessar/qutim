@@ -70,6 +70,10 @@ void OscarPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
 				 new SingletonGenerator<OftFileTransferFactory, MessagePlugin>(),
 				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer settings"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer settings"),
+				 new SingletonGenerator<OscarFileTransferSettings, SettingsExtension>(),
+				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "MetaInfo icq service"),
 				 QT_TRANSLATE_NOOP("Plugin", "MetaInfo icq service"),
 				 new SingletonGenerator<MetaInfo, SNACHandler>(),

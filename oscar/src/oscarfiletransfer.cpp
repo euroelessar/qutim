@@ -29,6 +29,9 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+QHash<quint16, OftServer*> OftFileTransferFactory::m_servers;
+bool OftFileTransferFactory::m_allowAnyPort;
+
 const int BUFFER_SIZE = 4096;
 using namespace Util;
 
@@ -177,26 +180,32 @@ void OftHeader::writeData(QIODevice *dev)
 OftSocket::OftSocket(QObject *parent) :
 	QTcpSocket(parent)
 {
-	m_state = ReadHeader;
-	connect(this, SIGNAL(readyRead()), SLOT(readData()));
-	m_len = 0;
+	init();
 }
 
 OftSocket::OftSocket(int socketDescriptor, QObject *parent) :
 	QTcpSocket(parent)
 {
-	m_state = ReadHeader;
 	setSocketDescriptor(socketDescriptor);
+	init();
+}
+
+void OftSocket::init()
+{
 	connect(this, SIGNAL(readyRead()), SLOT(readData()));
+	connect(this, SIGNAL(connected()), this, SLOT(connected()));
+	m_state = ReadHeader;
 	m_len = 0;
+	m_timer.setInterval(FILETRANSFER_WAITING_TIMEOUT);
+	m_timer.setSingleShot(true);
+	connect(&m_timer, SIGNAL(timeout()), SLOT(onTimeout()));
 }
 
 void OftSocket::directConnect(const QHostAddress &addr, quint16 port)
 {
 	m_state = ReadHeader;
-	QObject::disconnect(this, SIGNAL(connected()), this, SLOT(connected()));
-	QObject::connect(this, SIGNAL(connected()), this, SIGNAL(initialized()));
 	connectToHost(addr, port);
+	m_timer.start();
 }
 
 void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr,
@@ -207,8 +216,6 @@ void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress ad
 	m_state = clientPort == 0 ? ProxyInit : ProxyReceive;
 	m_lastHeader = OftHeader();
 	m_len = 0;
-	QObject::disconnect(this, SIGNAL(connected()), this, SIGNAL(initialized()));
-	QObject::connect(this, SIGNAL(connected()), this, SLOT(connected()));
 	m_uin = uin;
 	m_cookie = cookie;
 	m_proxyPort = clientPort;
@@ -216,6 +223,7 @@ void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress ad
 	debug().nospace() << "Trying to connect to the proxy "
 			<< addr.toString().toLocal8Bit().constData()
 			<< ":" << 5190;
+	m_timer.start();
 }
 
 void OftSocket::dataReaded()
@@ -303,37 +311,63 @@ void OftSocket::readData()
 
 void OftSocket::connected()
 {
-	Q_ASSERT(m_state & Proxy);
-	DataUnit data;
-	data.append<quint8>(m_uin, asciiCodec()); // uin or screen name
-	if (m_state == ProxyReceive)
-		data.append<quint16>(m_proxyPort);
-	data.append<quint64>(m_cookie);
-	data.appendTLV(0x0001, ICQ_CAPABILITY_AIMSENDFILE); // capability
-	DataUnit header;
-	header.append<quint16>(10 + data.dataSize());
-	header.append<quint16>(0x044A); // proto version
-	header.append<quint16>(m_state == ProxyInit ? 0x0002 : 0x0004); // request cmd
-	header.append<quint32>(0); // unknown
-	header.append<quint16>(0); // flags
-	header.append(data.data());
-	write(header.data());
-	flush();
+	m_timer.stop();
+	if (m_state & Proxy) {
+		DataUnit data;
+		data.append<quint8>(m_uin, asciiCodec()); // uin or screen name
+		if (m_state == ProxyReceive)
+			data.append<quint16>(m_proxyPort);
+		data.append<quint64>(m_cookie);
+		data.appendTLV(0x0001, ICQ_CAPABILITY_AIMSENDFILE); // capability
+		DataUnit header;
+		header.append<quint16>(10 + data.dataSize());
+		header.append<quint16>(0x044A); // proto version
+		header.append<quint16>(m_state == ProxyInit ? 0x0002 : 0x0004); // request cmd
+		header.append<quint32>(0); // unknown
+		header.append<quint16>(0); // flags
+		header.append(data.data());
+		write(header.data());
+		flush();
+	} else {
+		emit initialized();
+	}
 }
 
 void OftSocket::disconnected()
 {
 }
 
-OftServer::OftServer(OftConnection *conn) :
-	m_conn(conn)
+void OftSocket::onTimeout()
 {
+	emit timeout();
+	close();
+}
+
+OftServer::OftServer(quint16 port) :
+	m_port(port)
+{
+	m_timer.setInterval(FILETRANSFER_WAITING_TIMEOUT);
+	m_timer.setSingleShot(true);
+	connect(&m_timer, SIGNAL(timeout()), SLOT(onTimeout()));
 }
 
 void OftServer::listen()
 {
+	m_timer.start();
 	QTcpServer::listen();
 	//emit m_conn->localPortChanged(serverPort());
+}
+
+void OftServer::close()
+{
+	m_conn = 0;
+	m_timer.stop();
+	QTcpServer::close();
+}
+
+void OftServer::setConnection(OftConnection *conn)
+{
+	m_conn = conn;
 }
 
 void OftServer::incomingConnection(int socketDescriptor)
@@ -343,13 +377,20 @@ void OftServer::incomingConnection(int socketDescriptor)
 			<< socket->peerAddress().toString().toLatin1().constData()
 			<< ":" << socket->peerPort();
 	m_conn->setSocket(socket);
+	emit closed(m_conn);
 	m_conn->connected();
+	close();
+	m_timer.stop();
+}
+
+void OftServer::onTimeout()
+{
+	emit timeout(m_conn);
 	close();
 }
 
 OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager) :
 	FileTransferJob(contact, direction, manager),
-	m_server(this),
 	m_transfer(manager),
 	m_contact(contact),
 	m_cookie(cookie),
@@ -368,7 +409,7 @@ int OftConnection::localPort() const
 {
 	if (m_socket && m_socket->isOpen())
 		return m_socket->localPort();
-	if (m_server.isListening())
+	if (m_server && m_server->isListening())
 		return m_socket->localPort();
 	return 0;
 }
@@ -400,16 +441,10 @@ void OftConnection::doSend()
 
 void OftConnection::doStop()
 {
-	State state = this->state();
-	if (state == Finished || state == Error)
-		return;
 	Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
 	ServerMessage message(m_contact, data);
 	m_contact->account()->connection()->send(message);
 	close(false);
-	// FIXME: The next two lines probably should be moved to libqutim
-	setState(Error);
-	setError(Canceled);
 }
 
 void OftConnection::doReceive()
@@ -486,12 +521,13 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				} else {
 					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
 				}
+				connect(m_socket.data(), SIGNAL(timeout()), SLOT(startStage2()));
 			} else {
 				errorStr = "Stage 1 oscar file transfer request is forbidden during file sending";
 			}
 		} else if (m_stage == 2) {
 			if (direction() == Outgoing) {
-				m_server.close();
+				m_server->close();
 				if (m_socket) {
 					debug() << "Sender has sent the request for reverse connection (stage 2)"
 							<< "but the connection already initialized at stage 1";
@@ -511,6 +547,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				} else {
 					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190);
 				}
+				connect(m_socket.data(), SIGNAL(timeout()), SLOT(startStage3()));
 			} else {
 				errorStr = "Stage 2 oscar file transfer request is forbidden during file receiving";
 			}
@@ -519,6 +556,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				m_proxy = true;
 				setSocket(new OftSocket(this));
 				m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
+				connect(m_socket.data(), SIGNAL(timeout()), SLOT(close()));
 			} else {
 				errorStr = "Stage 3 oscar file transfer request is forbidden during file sending";
 			}
@@ -574,10 +612,17 @@ void OftConnection::sendFileRequest(bool fileinfo)
 		proxyAddr = m_socket->proxyIP().toIPv4Address();
 		port = m_socket->proxyPort();
 	} else {
-		m_server.listen(); // ???
-		clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
+		m_server = OftFileTransferFactory::getFreeServer();
+		if (m_server) {
+			m_server->listen();
+			connect(m_server.data(), SIGNAL(timeout(OftConnection*)), SLOT(close()));
+			clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
+			port = m_server->serverPort();
+		} else {
+			clientAddr = 0;
+			port = 0;
+		}
 		proxyAddr = clientAddr;
-		port = m_server.serverPort();
 	}
 	data.appendTLV<quint16>(0x000A, m_stage);
 	data.appendTLV<quint32>(0x0002, proxyAddr);
@@ -723,8 +768,12 @@ void OftConnection::startFileReceiving(const int index)
 		m_header.bytesReceived = file->size();
 		m_header.type = OftReceiverResume;
 	} else {
-		if (!file->open(QIODevice::WriteOnly)) {
-			close(true); // TODO: it is not a network error
+		if (!m_data->open(QIODevice::WriteOnly)) {
+			close(false);
+			setState(Error);
+			setError(IOError);
+			if (file)
+				setErrorString(tr("Could not open %1").arg(file->fileName()));
 			return;
 		}
 		m_header.type = OftAcknowledge;
@@ -903,14 +952,18 @@ quint32 OftConnection::fileChecksum(QIODevice* file, int bytes)
 }
 
 OftFileTransferFactory::OftFileTransferFactory():
-	FileTransferFactory(tr("Oscar file transfer protocol"), CanSendMultiple)
+	FileTransferFactory(tr("Oscar"), CanSendMultiple)
 {
+	reloadSettings();
 	m_capabilities << ICQ_CAPABILITY_AIMSENDFILE;
 	foreach (IcqAccount *account, IcqProtocol::instance()->accountsHash())
 		onAccountCreated(account);
 	connect(IcqProtocol::instance(),
 			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	connect(IcqProtocol::instance(),
+			SIGNAL(settingsUpdated()),
+			SLOT(reloadSettings()));
 }
 
 void OftFileTransferFactory::processMessage(IcqContact *contact,
@@ -986,6 +1039,22 @@ FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
 	return conn;
 }
 
+OftServer *OftFileTransferFactory::getFreeServer()
+{
+	if (m_allowAnyPort) {
+		OftServer *server = new OftServer(0);
+		connect(server, SIGNAL(closed(OftConnection*)),
+				server, SLOT(deleteLater()));
+		return server;
+	} else {
+		foreach (OftServer *server, m_servers) {
+			if (server->isListening())
+				return server;
+		}
+	}
+	return 0;
+}
+
 void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities)
 {
 	IcqContact *contact = qobject_cast<IcqContact*>(sender());
@@ -1009,6 +1078,42 @@ void OftFileTransferFactory::onAccountDestroyed(QObject *account)
 	m_connections.erase(itr);
 }
 
+void OftFileTransferFactory::reloadSettings()
+{
+	Config cfg = IcqProtocol::instance()->config("filetransfer");
+	m_allowAnyPort = cfg.value("allowAnyPort", false);
+	if (!m_allowAnyPort) {
+		QSet<quint16> oldServers = m_servers.keys().toSet();
+
+		// Update servers list
+		QVariantList ports;
+		ports << 7341 << 13117 << 21746;
+		ports = cfg.value("localPorts", ports);
+		foreach (const QVariant &portVar, ports) {
+			bool ok;
+			quint16 port = portVar.toInt(&ok);
+			if (!ok)
+				continue;
+			if (!m_servers.contains(port))
+				m_servers.insert(port, new OftServer(port));
+			oldServers.remove(port);
+		}
+
+		// Remove disabled servers
+		foreach (quint16 port, oldServers) {
+			OftServer *server = m_servers.take(port);
+			if (server->isListening())
+				connect(server, SIGNAL(closed(OftConnection*)),
+						server, SLOT(deleteLater()));
+			else
+				server->deleteLater();
+		}
+	} else {
+		qDeleteAll(m_servers);
+		m_servers.clear();
+	}
+}
+
 OftConnection *OftFileTransferFactory::connection(IcqAccount *account, quint64 cookie)
 {
 	return m_connections.value(account).value(cookie);
@@ -1028,6 +1133,60 @@ void OftFileTransferFactory::removeConnection(OftConnection *connection)
 	Connections::iterator itr = m_connections.find(account);
 	Q_ASSERT(itr != m_connections.end());
 	itr->remove(connection->cookie());
+}
+
+void OscarFileTransferSettings::loadSettings(DataItem &item, Config cfg)
+{
+	cfg.beginGroup("filetransfer");
+	bool allowAnyPort = cfg.value("allowAnyPort", false);
+	DataItem settings("filetransferSettings", tr("File transfer"), QVariant());
+	{
+		DataItem item("allowAnyPort",
+					  tr("Accept incoming connections on any port"),
+					  allowAnyPort);
+		item.setDataChangedHandler(
+				this,
+				SLOT(onAllowAnyPortChanged(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*))
+				);
+		settings.addSubitem(item);
+	}
+	{
+		// TODO: That item must have type QList<quint16>
+		QVariant def = QVariantList() << 7341 << 13117 << 21746;
+		QString ports = cfg.value("localPorts", def).toStringList().join(", ");
+		DataItem item("localPorts", tr("Local ports"), ports);
+		item.setProperty("enabled", !allowAnyPort);
+		settings.addSubitem(item);
+	}
+	item.addSubitem(settings);
+	cfg.endGroup();
+}
+
+void OscarFileTransferSettings::saveSettings(const DataItem &item, Config cfg)
+{
+	DataItem subitem = item.subitem("filetransferSettings");
+	cfg.beginGroup("filetransfer");
+	cfg.setValue("allowAnyPort", subitem.subitem("allowAnyPort").data(false));
+
+	QString ports = subitem.subitem("localPorts", true).data<QString>();
+	QVariantList portsVar;
+	foreach (const QString &portStr, ports.split(',')) {
+		quint16 port = portStr.trimmed().toInt();
+		if (port)
+			portsVar.push_back(port);
+	}
+	cfg.setValue("localPorts", portsVar);
+
+	cfg.endGroup();
+}
+
+void OscarFileTransferSettings::onAllowAnyPortChanged(const QString &fieldName, const QVariant &data,
+												   AbstractDataForm *dataForm)
+{
+	Q_UNUSED(fieldName);
+	// TODO: it probably works only with the default data form backend
+	if (QObject *object = dataForm->findChild<QObject*>("localPorts"))
+		object->setProperty("enabled", !data.toBool());
 }
 
 } } // namespace qutim_sdk_0_3::oscar

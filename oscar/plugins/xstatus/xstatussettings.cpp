@@ -26,15 +26,21 @@ XStatusSettings::XStatusSettings()
 void XStatusSettings::loadSettings(DataItem &item, Config cfg)
 {
 	cfg.beginGroup("xstatus");
-	item << DataItem("xstatusAutorequest", tr("Ask for XStatuses automatically"),
-					 cfg.value("xstatusAutorequest", true));
+	DataItem subitem("xstatusSettings", tr("Extended status"), QVariant());
+	{
+		subitem << DataItem("xstatusAutorequest",
+							tr("Ask for XStatuses automatically"),
+							cfg.value("xstatusAutorequest", true));
+	}
+	item.addSubitem(subitem);
 	cfg.endGroup();
 }
 
 void XStatusSettings::saveSettings(const DataItem &item, Config cfg)
 {
+	DataItem subitem = item.subitem("xstatusSettings");
 	cfg.beginGroup("xstatus");
-	cfg.setValue("xstatusAutorequest", item.subitem("xstatusAutorequest").data<bool>());
+	cfg.setValue("xstatusAutorequest", subitem.subitem("xstatusAutorequest").data<bool>());
 	cfg.endGroup();
 }
 

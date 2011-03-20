@@ -141,9 +141,13 @@ void IcqMainSettings::loadImpl()
 
 codecNameFound:
 	DataItem item;
-	item.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
-	item.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
-							 !general.value("avatars", true)));
+	{
+		DataItem subitem("mainSettings", tr("Main"), QVariant());
+		subitem.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
+		subitem.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
+									!general.value("avatars", true)));
+		item.addSubitem(subitem);
+	}
 	foreach (SettingsExtension *extension, settingsExtensions())
 		extension->loadSettings(item, cfg);
 	m_extSettings.reset(AbstractDataForm::get(item));
@@ -167,6 +171,7 @@ void IcqMainSettings::saveImpl()
 			extension->saveSettings(item, cfg);
 
 		cfg.beginGroup("general");
+		item = item.subitem("mainSettings");
 		cfg.setValue("avatars", !item.subitem("avatars").data<bool>());
 		QString codecName = item.subitem("codec").data<QString>();
 		if (codecName == systemCodec)

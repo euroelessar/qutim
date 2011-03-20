@@ -17,6 +17,7 @@
 #define OSCAR_FILETRANSFER_H
 
 #include "messages.h"
+#include "settingsextension.h"
 #include <qutim/filetransfer.h>
 #include <QTcpSocket>
 #include <QFile>
@@ -32,6 +33,8 @@ namespace oscar {
 
 class OftFileTransferFactory;
 class OftConnection;
+
+const int FILETRANSFER_WAITING_TIMEOUT = 45000;
 
 enum OftPacketType
 {
@@ -111,13 +114,16 @@ signals:
 	void initialized();
 	void headerReaded(const OftHeader &header);
 	void newData();
+	void timeout();
 public slots:
 	void dataReaded();
 private slots:
 	void readData();
 	void connected();
 	void disconnected();
+	void onTimeout();
 private:
+	void init();
 	ReadingState m_state;
 	OftHeader m_lastHeader;
 	QString m_uin;
@@ -125,18 +131,29 @@ private:
 	QHostAddress m_proxyIP;
 	quint16 m_proxyPort;
 	quint16 m_len;
+	QTimer m_timer;
 };
 
 class OftServer : public QTcpServer
 {
 	Q_OBJECT
 public:
-	explicit OftServer(OftConnection *conn);
+	explicit OftServer(quint16 port);
 	void listen();
+	void close();
+	void setConnection(OftConnection *conn);
+	OftConnection *conn() { return m_conn; }
+signals:
+	void closed(OftConnection *conn);
+	void timeout(OftConnection *conn);
 protected:
 	void incomingConnection(int socketDescriptor);
+private slots:
+	void onTimeout();
 private:
 	OftConnection *m_conn;
+	quint16 m_port;
+	QTimer m_timer;
 };
 
 class OftConnection : public FileTransferJob
@@ -156,15 +173,16 @@ protected:
 	virtual void doStop();
 	virtual void doReceive();
 private:
-	void close(bool error = true);
+	void close(bool error);
 	void initProxyConnection();
 	void handleRendezvous(quint16 reqType, const TLVMap &tlvs);
 	void setSocket(OftSocket *socket);
 	void startFileSending();
 	void startFileReceiving(const int index);
+private slots:
+	void close() { close(true); }
 	void startStage2();
 	void startStage3();
-private slots:
 	void sendFileRequest(bool fileinfo = true);
 	void connected();
 	void onError(QAbstractSocket::SocketError);
@@ -178,7 +196,7 @@ private:
 	friend class OftServer;
 	friend class OftFileTransferFactory;
 	QPointer<OftSocket> m_socket;
-	OftServer m_server;
+	QPointer<OftServer> m_server;
 	QScopedPointer<QIODevice> m_data;
 	OftFileTransferFactory *m_transfer;
 	IcqContact *m_contact;
@@ -207,10 +225,12 @@ public:
 	virtual bool startObserve(ChatUnit *unit);
 	virtual bool stopObserve(ChatUnit *unit);
 	virtual FileTransferJob *create(ChatUnit *unit);
+	static OftServer *getFreeServer();
 private slots:
 	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountDestroyed(QObject *account);
+	void reloadSettings();
 private:
 	friend class OftConnection;
 	OftConnection *connection(IcqAccount *account, quint64 cookie);
@@ -220,6 +240,20 @@ private:
 	typedef QHash<quint64, OftConnection*> AccountConnections;
 	typedef QHash<Account*, AccountConnections> Connections;
 	Connections m_connections;
+	static QHash<quint16, OftServer*> m_servers;
+	static bool m_allowAnyPort;
+};
+
+class OscarFileTransferSettings : public QObject, public SettingsExtension
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SettingsExtension)
+public:
+	virtual void loadSettings(DataItem &item, Config cfg);
+	virtual void saveSettings(const DataItem &item, Config cfg);
+private slots:
+	void onAllowAnyPortChanged(const QString &fieldName, const QVariant &data,
+							   qutim_sdk_0_3::AbstractDataForm *dataForm);
 };
 
 } } // namespace qutim_sdk_0_3::oscar
