@@ -120,7 +120,7 @@ bool LoggerPlugin::unload()
 		}
 		qInstallMsgHandler(NULL);
 		Settings::removeItem(m_settingsItem);
-		m_settingsItem = NULL;
+		m_settingsItem = 0;
 		return true;
 	}
 	return false;
