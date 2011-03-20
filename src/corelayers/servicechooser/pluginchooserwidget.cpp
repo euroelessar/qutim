@@ -41,7 +41,7 @@ PluginChooserWidget::PluginChooserWidget() :
 	ui->treeView->setIndentation(0);
 
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
-#ifndef Q_WS_S60
+#ifdef Q_WS_S60
 	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 #endif
 }

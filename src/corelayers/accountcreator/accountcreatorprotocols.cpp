@@ -45,7 +45,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 		QIcon icon = info.icon();
 		if (icon.isNull())
 			icon = Icon(QLatin1String("im-") + info.name());
-		if (!icon.actualSize(QSize(1,1)).isNull())
+		if (!icon.actualSize(QSize(1,1)).isValid())
 			icon = Icon("applications-internet");
 
 		QListWidgetItem *item = new QListWidgetItem(ui->protocolList);

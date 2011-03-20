@@ -97,7 +97,7 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 {
 	Icon protoIcon(QLatin1String("im-") + account->protocol()->id()); //FIXME wtf?
 	debug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
-	if (!protoIcon.actualSize(QSize(1,1)).isNull())
+	if (!protoIcon.actualSize(QSize(1,1)).isValid())
 		protoIcon = Icon("applications-internet");
 
 	QListWidgetItem *accountItem = new QListWidgetItem(ui->listWidget);
