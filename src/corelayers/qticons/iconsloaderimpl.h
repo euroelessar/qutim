@@ -36,6 +36,7 @@ public:
 	virtual QString moviePath(const QString &name, uint iconSize);
 public slots:
 	void onSettingsChanged();
+	void initSettings();
 };
 }
 

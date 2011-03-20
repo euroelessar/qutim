@@ -56,7 +56,6 @@ public:
 	QPixmap pixmap;
 	QString text;
 	QString title;
-	QVariant data;
 	QList<const ActionGenerator*> actions;
 };
 
@@ -107,16 +106,6 @@ void NotificationRequest::setObject(QObject *obj)
 QObject *NotificationRequest::object() const
 {
 	return d_ptr->object;
-}
-
-void NotificationRequest::setData(const QVariant &data)
-{
-	d_ptr->data = data;
-}
-
-QVariant NotificationRequest::data() const
-{
-	return d_ptr->data;
 }
 
 void NotificationRequest::setImage(const QPixmap &pixmap)

@@ -5,6 +5,7 @@
 #include <qutim/settingslayer.h>
 #include <qutim/debug.h>
 #include <QFormLayout>
+#include <qutim/icon.h>
 
 namespace Core
 {
@@ -55,8 +56,8 @@ void IconLoaderSettings::onCurrentIndexChanged(int index)
 IconLoaderImpl::IconLoaderImpl()
 {
 	onSettingsChanged();
-	SettingsItem *item = new GeneralSettingsItem<IconLoaderSettings>(Settings::Appearance, QIcon(),
-	                                                                 QT_TRANSLATE_NOOP("Settings", "Icons theme"));
+	SettingsItem *item = new GeneralSettingsItem<IconLoaderSettings>(Settings::Appearance, loadIcon("preferences-desktop-icons"),
+																	 QT_TRANSLATE_NOOP("Settings", "Icons theme"));
 //	item->setConfig(QString(), QLatin1String("appearance"));
 //	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
 //	entry->setName(QLatin1String("theme"));
@@ -111,4 +112,11 @@ void IconLoaderImpl::onSettingsChanged()
 	}
 	iconManager()->setCurrentTheme(theme->id());
 }
+
+void IconLoaderImpl::initSettings()
+{
+
+}
+
+
 }

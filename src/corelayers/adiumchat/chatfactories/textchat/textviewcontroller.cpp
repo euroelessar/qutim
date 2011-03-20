@@ -179,6 +179,7 @@ QList<TextViewController::Token> TextViewController::makeUrls(const QString &htm
 {
 	QList<Token> result;
 	static QRegExp linkRegExp("(^|[^\"])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
+
 	Q_ASSERT(linkRegExp.isValid());
 	int pos = 0;
 	int lastPos = 0;
