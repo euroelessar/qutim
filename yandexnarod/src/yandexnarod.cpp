@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
  *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *                     2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -17,20 +18,33 @@
 #include "yandexnarod.h"
 #include "requestauthdialog.h"
 #include "yandexnarodauthorizator.h"
+#include "yandexnaroduploadjob.h"
 #include <qutim/actiongenerator.h>
 #include <qutim/contact.h>
 #include <qutim/message.h>
 #include <qutim/account.h>
+#include <qutim/protocol.h>
 #include <qutim/settingslayer.h>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 
+struct YandexNarodScope
+{
+	QNetworkAccessManager *networkManager;
+	YandexNarodAuthorizator *authorizator;
+};
+
+static inline YandexNarodScope *scope()
+{
+	static YandexNarodScope scope;
+	return &scope;
+}
+
 void YandexNarodPlugin::init()
 {
-	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "YandexNarod"),
 			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
-			PLUGIN_VERSION(0, 2, 0, 0));
+			PLUGIN_VERSION(0, 2, 1, 0));
 	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("sauron@citadelspb.com"),
@@ -38,28 +52,31 @@ void YandexNarodPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("euroelessar@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("alexey.prokhin@yandex.ru"));
 	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("boiler@co.ru"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Narod"),
+				 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
+				 new SingletonGenerator<YandexNarodFactory>(),
+				 ExtensionIcon(""));
 }
 
 bool YandexNarodPlugin::load()
 {
-	MenuController::addAction<ChatUnit>(
-			new ActionGenerator(QIcon(),
-								QT_TRANSLATE_NOOP("Yandex", "Send file via Yandex.Narod"),
-								this, SLOT(onActionClicked(QObject*))));
 	SettingsItem *settings = new GeneralSettingsItem<YandexNarodSettings>(
 			Settings::Plugin,
 			QIcon(),
 			QT_TRANSLATE_NOOP("Yandex", "Yandex Narod"));
 	settings->connect(SIGNAL(testclick()), this,  SLOT(on_btnTest_clicked()));
 	Settings::registerItem(settings);
-	m_networkManager = new QNetworkAccessManager(this);
+	scope()->networkManager = new QNetworkAccessManager(this);
 	loadCookies();
-	m_authorizator = new YandexNarodAuthorizator(m_networkManager);
-	connect(m_authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
-	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
+	scope()->authorizator = new YandexNarodAuthorizator(scope()->networkManager);
+	connect(scope()->authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
+	connect(scope()->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
 
 	return true;
 }
@@ -72,7 +89,7 @@ bool YandexNarodPlugin::unload()
 void YandexNarodPlugin::loadCookies()
 {
 	Config cookies = Config().group("yandex");
-	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
+	QNetworkCookieJar *cookieJar = scope()->networkManager->cookieJar();
 	QList<QNetworkCookie> cookieList;
 	int count = cookies.beginArray("cookies");
 	for (int i = 0; i < count; i++) {
@@ -101,7 +118,7 @@ void YandexNarodPlugin::saveCookies()
 	cookies.remove("cookies");
 	cookies.beginArray("cookies");
 
-	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
+	QNetworkCookieJar *cookieJar = scope()->networkManager->cookieJar();
 	int i = 0;
 	foreach (QNetworkCookie netcook, cookieJar->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (netcook.isSessionCookie())
@@ -120,11 +137,7 @@ void YandexNarodPlugin::saveCookies()
 
 void YandexNarodPlugin::onActionClicked(QObject *obj)
 {
-	ChatUnit *contact = qobject_cast<ChatUnit *>(obj);
-	Q_ASSERT(contact);
-
-	new YandexNarodUploadDialog(m_networkManager, m_authorizator, contact);
-
+	Q_UNUSED(obj);
 //	m_uploadWidget = new YandexNarodUploadDialog();
 //	connect(m_uploadWidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
 //
@@ -195,6 +208,73 @@ void YandexNarodPlugin::onFileURL(const QString &)
 //		message.setText(sendmsg);
 //		contact->account()->getUnitForSession(contact)->sendMessage(message);
 //	}
+}
+
+YandexNarodFactory::YandexNarodFactory() :
+	FileTransferFactory(tr("Yandex.Narod"), 0)
+{
+	setIcon(QIcon(":/icons/yandexnarodplugin.png"));
+	foreach (Protocol *protocol, Protocol::all()) {
+		foreach (Account *account, protocol->accounts())
+			onAccountAdded(account);
+		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+				SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+	}
+}
+
+bool YandexNarodFactory::checkAbility(ChatUnit *unit)
+{
+	Q_ASSERT(unit);
+	Status status = unit->account()->status();
+	return status != Status::Offline && status != Status::Connecting;
+}
+
+bool YandexNarodFactory::startObserve(ChatUnit *unit)
+{
+	Q_ASSERT(unit);
+	m_observedUnits.insert(unit->account(), unit);
+	return true;
+}
+
+bool YandexNarodFactory::stopObserve(ChatUnit *unit)
+{
+	Q_ASSERT(unit);
+	Observers::iterator itr = m_observedUnits.begin();
+	while (itr != m_observedUnits.end()) {
+		if (*itr == unit)
+			itr = m_observedUnits.erase(itr);
+		else
+			++itr;
+	}
+	return true;
+}
+
+FileTransferJob *YandexNarodFactory::create(ChatUnit *unit)
+{
+	return new YandexNarodUploadJob(unit, this);
+}
+
+QNetworkAccessManager *YandexNarodFactory::networkManager()
+{
+	return scope()->networkManager;
+}
+
+YandexNarodAuthorizator *YandexNarodFactory::authorizator()
+{
+	return scope()->authorizator;
+}
+
+void YandexNarodFactory::onAccountAdded(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+}
+
+void YandexNarodFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	bool isOnline = status != Status::Offline && status != Status::Connecting;
+	foreach (ChatUnit *unit, m_observedUnits.values(sender()))
+		changeAvailability(unit, isOnline);
 }
 
 QUTIM_EXPORT_PLUGIN(YandexNarodPlugin)

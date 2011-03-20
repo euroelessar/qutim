@@ -22,7 +22,7 @@
 #include "ui_yandexnarodmanage.h"
 
 #include "yandexnarodnetman.h"
-#include "uploaddialog.h"
+#include "yandexnaroduploadjob.h"
 
 class YandexNarodManager : public QWidget, public Ui::yandexnarodManageClass
 {
@@ -37,7 +37,7 @@ private:
 
 	YandexNarodNetMan *netman;
 	YandexNarodNetMan *upnetman;
-	YandexNarodUploadDialog* uploadwidget;
+	YandexNarodUploadJob* uploadwidget;
 	QStringList cooks;
 	QList<QIcon> fileicons;
 	QHash<QString, int> fileiconstyles;

@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
  *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *                     2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -23,7 +24,6 @@
 #include "yandexnarodmanage.h"
 #include "yandexnarodsettings.h"
 #include "yandexnarodauthorizator.h"
-#include "uploaddialog.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -35,13 +35,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-
 private:
 	void loadCookies();
-
-	QNetworkAccessManager *m_networkManager;
-	YandexNarodAuthorizator *m_authorizator;
-
 private slots:
 	void saveCookies();
 	void onActionClicked(QObject*);
@@ -51,6 +46,25 @@ private slots:
 	void actionStart();
 //	void setCooks(QStringList cs) { cooks = cs; }
 	void onFileURL(const QString &);
-
 };
+
+class YandexNarodFactory : public FileTransferFactory
+{
+	Q_OBJECT
+public:
+	YandexNarodFactory();
+	virtual bool checkAbility(ChatUnit *unit);
+	virtual bool startObserve(ChatUnit *unit);
+	virtual bool stopObserve(ChatUnit *unit);
+	virtual FileTransferJob *create(ChatUnit *unit);
+	static QNetworkAccessManager *networkManager();
+	static YandexNarodAuthorizator *authorizator();
+private slots:
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onAccountAdded(qutim_sdk_0_3::Account *account);
+private:
+	typedef QMultiMap<QObject*, ChatUnit*> Observers;
+	Observers m_observedUnits;
+};
+
 #endif

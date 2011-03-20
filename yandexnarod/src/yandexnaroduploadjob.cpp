@@ -1,8 +1,9 @@
 /****************************************************************************
- *  uploaddialog.cpp
+ *  yandexnaroduploadjob.cpp
  *
  *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
  *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *                     2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,25 +15,26 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include <qutim/configbase.h>
+#include "yandexnaroduploadjob.h"
+#include "yandexnarod.h"
+#include <qutim/config.h>
 #include <qutim/json.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
 #include <qutim/account.h>
 #include <QFileDialog>
 #include <QNetworkCookieJar>
-#include "uploaddialog.h"
 
 using namespace qutim_sdk_0_3;
 
-YandexNarodBuffer::YandexNarodBuffer(const QString &fileName, const QByteArray &boundary, QObject *parent) :
-		QIODevice(parent)
+YandexNarodBuffer::YandexNarodBuffer(const QString &fileName, QIODevice *file,
+									 const QByteArray &boundary, QObject *parent) :
+	QIODevice(parent)
 {
-	QFileInfo info(fileName);
 	QByteArray data;
 	data.append("--").append(boundary).append("\r\n");
 	data.append("Content-Disposition: form-data; name=\"file\"; filename=\"")
-			.append(info.fileName().toUtf8()).append("\"\r\n");
+			.append(fileName).append("\"\r\n");
 	data.append("Content-Transfer-Encoding: binary\r\n");
 	data.append("\r\n");
 
@@ -40,7 +42,9 @@ YandexNarodBuffer::YandexNarodBuffer(const QString &fileName, const QByteArray &
 	buffer->setData(data);
 	m_devices.append(buffer);
 
-	m_devices.append(new QFile(fileName, this));
+	m_devices.append(file);
+	file->setParent(this);
+	connect(file, SIGNAL(destroyed()), SLOT(deleteLater()));
 
 	data.clear();
 	data.append("\r\n--").append(boundary).append("--\r\n");
@@ -92,18 +96,13 @@ qint64 YandexNarodBuffer::writeData(const char *data, qint64 len)
 	return -1;
 }
 
-YandexNarodUploadDialog::YandexNarodUploadDialog(
-		QNetworkAccessManager *networkManager, YandexNarodAuthorizator *authorizator,
-		qutim_sdk_0_3::ChatUnit *contact)
-			: m_contact(contact), m_networkManager(networkManager), m_authorizator(authorizator)
+YandexNarodUploadJob::YandexNarodUploadJob(qutim_sdk_0_3::ChatUnit *contact,
+										   YandexNarodFactory *factory) :
+	FileTransferJob(contact, Outgoing, factory)
 {
-	ui.setupUi(this);
-	m_finished = false;
-	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
-	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SLOT(close()));
-	qutim_sdk_0_3::centerizeWidget(this);
-	setAttribute(Qt::WA_QuitOnClose, false);
-	setAttribute(Qt::WA_DeleteOnClose, true);
+	m_timer.setInterval(1000);
+	m_timer.setSingleShot(true);
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(someStrangeSlot()));
 
 	m_request.setRawHeader("Cache-Control", "no-cache");
 	m_request.setRawHeader("Accept", "*/*");
@@ -111,94 +110,86 @@ YandexNarodUploadDialog::YandexNarodUploadDialog(
 	userAgent += qutimVersionStr();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	m_request.setRawHeader("User-Agent", userAgent);
-
-	ConfigGroup group = Config().group("yandex").group("narod");
-
-	m_filePath = QFileDialog::getOpenFileName(
-			this,
-			contact ? tr("Choose file for %1").arg(contact->title()) : tr("Choose file for uploading"),
-			group.value("lastdir", QString()));
-
-	if (m_filePath.isEmpty()) {
-		deleteLater();
-	} else {
-		m_timer.setInterval(1000);
-		m_timer.setSingleShot(true);
-		connect(&m_timer, SIGNAL(timeout()), this, SLOT(someStrangeSlot()));
-
-		QFileInfo info(m_filePath);
-
-		ui.labelFile->setText(ui.labelFile->text() + " " + info.fileName());
-		group.setValue("lastdir", info.dir().path());
-		if (!m_authorizator->isAuthorized()) {
-			ui.labelStatus->setText(tr("Authorizing..."));
-			connect(m_authorizator, SIGNAL(result(YandexNarodAuthorizator::Result,QString)),
-					this, SLOT(authorizationResult(YandexNarodAuthorizator::Result,QString)));
-			m_authorizator->requestAuthorization();
-		} else
-			start();
-
-		show();
-	}
 }
 
-YandexNarodUploadDialog::~YandexNarodUploadDialog()
+YandexNarodUploadJob::~YandexNarodUploadJob()
 {
 }
 
-bool YandexNarodUploadDialog::processReply(QNetworkReply *reply)
+void YandexNarodUploadJob::doSend()
+{
+	YandexNarodAuthorizator *authorizator = YandexNarodFactory::authorizator();
+	if (!authorizator->isAuthorized()) {
+		setStateString(tr("Authorizing..."));
+		connect(authorizator, SIGNAL(result(YandexNarodAuthorizator::Result,QString)),
+				this, SLOT(authorizationResult(YandexNarodAuthorizator::Result,QString)));
+		authorizator->requestAuthorization();
+	} else {
+		sendImpl();
+	}
+}
+
+void YandexNarodUploadJob::doStop()
+{
+	// TODO: I am not sure that it's correct
+	m_timer.stop();
+	delete m_data.data();
+}
+
+void YandexNarodUploadJob::doReceive()
+{
+	// Nothing to do
+}
+
+void YandexNarodUploadJob::sendImpl()
+{
+	setStateString(QT_TR_NOOP("Getting storage..."));
+	m_request.setUrl(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
+
+	QNetworkCookieJar *cookieJar = YandexNarodFactory::networkManager()->cookieJar();
+	foreach(const QNetworkCookie &cookie, cookieJar->cookiesForUrl(m_request.url())) {
+		m_request.setRawHeader("Cookie", cookie.toRawForm(QNetworkCookie::NameAndValueOnly));
+		debug() << cookie;
+	}
+
+	debug() << "Cookie" << m_request.rawHeader("Cookie");
+	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
+	connect(reply, SIGNAL(finished()), this, SLOT(storageReply()));
+}
+
+bool YandexNarodUploadJob::processReply(QNetworkReply *reply)
 {
 	reply->deleteLater();
 	if (reply->error() == QNetworkReply::NoError)
 		return true;
 
 	debug() << reply->request().url() << QString::fromUtf8(reply->readAll());
-	ui.labelStatus->setText(reply->errorString());
+	setError(NetworkError);
+	setErrorString(reply->errorString());
 	return false;
 }
 
-void YandexNarodUploadDialog::authorizationResult(YandexNarodAuthorizator::Result result, const QString &error)
+void YandexNarodUploadJob::authorizationResult(YandexNarodAuthorizator::Result result, const QString &error)
 {
-	if (result == YandexNarodAuthorizator::Success)
-		start();
-	else
-		ui.labelStatus->setText(m_authorizator->resultString(result, error));
-}
-
-void YandexNarodUploadDialog::start()
-{
-	ui.labelStatus->setText(tr("Getting storage..."));
-
-	m_request.setUrl(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
-
-	foreach(QNetworkCookie cookie, m_networkManager->cookieJar()->cookiesForUrl(m_request.url())) {
-		m_request.setRawHeader("Cookie", cookie.toRawForm(QNetworkCookie::NameAndValueOnly));
-		debug() << cookie;
+	if (result == YandexNarodAuthorizator::Success) {
+		sendImpl();
+	} else {
+		setError(NetworkError);
+		setErrorString(YandexNarodFactory::authorizator()->resultString(result, error));
 	}
-
-	debug() << "Cookie" << m_request.rawHeader("Cookie");
-
-	QNetworkReply *reply = m_networkManager->get(m_request);
-
-	connect(reply, SIGNAL(finished()), this, SLOT(storageReply()));
-
-	ui.progressBar->setValue(0);
 }
 
-void YandexNarodUploadDialog::storageReply()
+void YandexNarodUploadJob::storageReply()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	if (!processReply(reply))
 		return;
 
-	ui.labelStatus->setText(tr("Uploading..."));
-
 	QByteArray data = reply->readAll();
 	QVariantMap map = m_someData = Json::parse(data).toMap();
 
 	debug() << "storage" << map;
-
 	debug() << "storage" << reply->rawHeader("Set-Cookie");
 
 	QUrl url(map.value("url").toString());
@@ -206,38 +197,41 @@ void YandexNarodUploadDialog::storageReply()
 	m_request.setUrl(url);
 
 	int boundaryTemp[] = { qrand(), qrand(), qrand() };
-
 	QByteArray boundary = QByteArray::fromRawData(reinterpret_cast<char *>(boundaryTemp),
 												  sizeof(boundaryTemp)).toHex();
+	m_data = setCurrentIndex(0);
+	m_data = new YandexNarodBuffer(fileName(), m_data, boundary, this);
+	if (!m_data->open(QIODevice::ReadOnly)) {
+		setError(IOError);
+		setErrorString(tr("Could not open file %1").arg(fileName()));
+		return;
+	}
 
-	QIODevice *device = new YandexNarodBuffer(m_filePath, boundary, this);
-
-
-	device->open(QIODevice::ReadOnly);
+	setState(Started);
 
 	QNetworkRequest request(m_request);
 	request.setRawHeader("Content-Type", "multipart/form-data, boundary=" + boundary);
-	request.setRawHeader("Content-Length", QString::number(device->size()).toLatin1());
+	request.setRawHeader("Content-Length", QString::number(m_data->size()).toLatin1());
 
-	QNetworkReply *uploadNetworkReply = m_networkManager->post(request, device);
-
-	connect(device, SIGNAL(destroyed()), uploadNetworkReply, SLOT(deleteLater()));
+	QNetworkReply *uploadNetworkReply = YandexNarodFactory::networkManager()->post(request, m_data);
+	connect(m_data, SIGNAL(destroyed()), uploadNetworkReply, SLOT(deleteLater()));
 	connect(uploadNetworkReply, SIGNAL(finished()), this, SLOT(uploadReply()));
 
 	m_timer.start();
 }
 
-void YandexNarodUploadDialog::someStrangeSlot()
+void YandexNarodUploadJob::someStrangeSlot()
 {
 	QUrl url(m_someData.value("purl").toString());
 	url.addQueryItem("tid", m_someData.value("hash").toString());
 //	url.addQueryItem("type", "json");
 	m_request.setUrl(url);
-	connect(m_networkManager->get(m_request), SIGNAL(finished()),
-			this, SLOT(progressReply()));
+	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
+	connect(m_data, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
+	connect(reply, SIGNAL(finished()), SLOT(progressReply()));
 }
 
-void YandexNarodUploadDialog::uploadReply()
+void YandexNarodUploadJob::uploadReply()
 {
 	m_timer.stop();
 	debug() << "uploadReply";
@@ -246,10 +240,8 @@ void YandexNarodUploadDialog::uploadReply()
 	if (!processReply(reply))
 		return;
 
-
 	QByteArray data = reply->readAll();
 	QVariantMap map = Json::parse(data).toMap();
-
 
 	debug() << "upload" << data << map;
 	debug() << reply->rawHeaderList();
@@ -258,7 +250,7 @@ void YandexNarodUploadDialog::uploadReply()
 	someStrangeSlot();
 }
 
-void YandexNarodUploadDialog::progressReply()
+void YandexNarodUploadJob::progressReply()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
@@ -283,15 +275,9 @@ void YandexNarodUploadDialog::progressReply()
 
 	debug() << "progress" << reply->request().url() << data << map;
 	debug() << "progress" << reply->rawHeader("Set-Cookie");
-
-	QVariantMap time = map.value("time").toMap();
-
-	ui.labelETime->setText(tr("Will finish in: %1m %2s")
-						   .arg(time.value("min").toString(),
-								time.value("sec").toString()));
-	ui.progressBar->setValue(map.value("ipercent").toInt());
-
-//	(time.value("min").toInt() * 60 + time.value("sec").toInt()) 100.0 - map.value("percent").toDouble()
+	int newProgress = fileSize() * (map.value("percent").toDouble() / 100.0);
+	if (newProgress > progress())
+		setFileProgress(newProgress);
 
 	QString status = map.value("status").toString();
 	if (status == "upload") {
@@ -304,8 +290,7 @@ void YandexNarodUploadDialog::progressReply()
 //		"random": "1263553668S4gHxbB2nJSd2clhhfYimsfM",
 //		"time": { "min": "0","sec": "01" }
 //		}
-	} else if (status == "done" && !m_finished) {
-		m_finished = true;
+	} else if (status == "done" && state() != Finished) {
 //		{
 //		"tid": "1263553646SvsF9FFimF5thmoM2kGTwxL9",
 //		"status": "done",
@@ -317,11 +302,11 @@ void YandexNarodUploadDialog::progressReply()
 //		"time": { "min": "0","sec": "00" }
 //		}
 
-		ui.labelStatus->setText(tr("Upload complete."));
-		ui.btnUploadCancel->setText(tr("Finish"));
+		setState(Finished);
 		QVariantMap varMap = map.value("files").toList().value(0).toMap();
-		qDebug() << "done" << m_contact << varMap;
-		if (!varMap.isEmpty() && m_contact) {
+		if (!varMap.isEmpty() && chatUnit()) {
+			debug() << "done" << chatUnit()->title() << varMap;
+
 			QString url(QLatin1String("http://narod.ru/disk/"));
 			url += varMap.value("hash").toString();
 			url += QLatin1Char('/');
@@ -335,24 +320,8 @@ void YandexNarodUploadDialog::progressReply()
 			sendmsg.replace("%N", varMap.value("name").toString());
 			sendmsg.replace("%U", url);
 			sendmsg.replace("%S", varMap.value("size").toString());
-			m_contact->account()->getUnitForSession(m_contact)->sendMessage(sendmsg);
+
+			chatUnit()->account()->getUnitForSession(chatUnit())->sendMessage(sendmsg);
 		}
 	}
-}
-
-void YandexNarodUploadDialog::progress(qint64 cBytes, qint64 totalBytes) {
-	ui.labelStatus->setText("Uploading...");
-	ui.labelProgress->setText("Progress: "+QString::number(cBytes)+" / "+QString::number(totalBytes));
-	ui.progressBar->setMaximum(totalBytes);
-	ui.progressBar->setValue(cBytes);
-
-	setWindowTitle("[" + ui.progressBar->text() + "] - Uploading...");
-	
-	QTime etime(0,0,0);
-	ui.labelETime->setText("Elapsed time: " + etime.toString("hh:mm:ss") );
-	
-//	float speed_kbsec = (cBytes / (utime.elapsed()/1000))/1024;
-//	if (speed_kbsec>0) ui.labelSpeed->setText("Speed: "+QString::number(speed_kbsec)+" kb/sec");
-	
-	if (cBytes == totalBytes) ui.labelStatus->setText("Upload complete.");
 }

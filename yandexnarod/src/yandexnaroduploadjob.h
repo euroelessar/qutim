@@ -1,8 +1,9 @@
 /****************************************************************************
- *  uploaddialog.h
+ *  yandexnaroduploadjob.h
  *
  *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
  *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *                     2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,78 +15,62 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef UPLOADDIALOG_H
-#define UPLOADDIALOG_H
+#ifndef YANDEXNARODUPLOADJOB_H
+#define YANDEXNARODUPLOADJOB_H
 
+#include "yandexnarodauthorizator.h"
 #include <QDialog>
 #include <QTime>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QBuffer>
 #include <QTimer>
-#include "yandexnarodauthorizator.h"
-#include "ui_uploaddialog.h"
 #include <qutim/contact.h>
+#include <qutim/filetransfer.h>
+
+using namespace qutim_sdk_0_3;
+class YandexNarodFactory;
 
 class YandexNarodBuffer : public QIODevice
 {
 	Q_OBJECT
 public:
-	YandexNarodBuffer(const QString &fileName, const QByteArray &boundary, QObject *parent);
-	~YandexNarodBuffer();
-
+	YandexNarodBuffer(const QString &fileName, QIODevice *file,
+					  const QByteArray &boundary, QObject *parent);
+	virtual ~YandexNarodBuffer();
 	virtual bool open(OpenMode mode);
 	virtual qint64 size() const;
-
 protected:
 	virtual qint64 readData(char *data, qint64 maxlen);
 	virtual qint64 writeData(const char *data, qint64 len);
-
 private:
 	QList<QIODevice *> m_devices;
 };
 
-class YandexNarodUploadDialog : public QDialog
+class YandexNarodUploadJob : public FileTransferJob
 {
-	Q_OBJECT;
-
+	Q_OBJECT
 public:
-	YandexNarodUploadDialog(QNetworkAccessManager *networkManager,
-							YandexNarodAuthorizator *authorizator,
-							qutim_sdk_0_3::ChatUnit *contact = 0);
-	~YandexNarodUploadDialog();
-
-	qutim_sdk_0_3::ChatUnit *contact() { return m_contact; }
-
-	void start();
-
-private:
-	bool processReply(QNetworkReply *reply);
-
-	QString m_filePath;
-	QPointer<qutim_sdk_0_3::ChatUnit> m_contact;
-	QNetworkAccessManager *m_networkManager;
-	YandexNarodAuthorizator *m_authorizator;
-	QNetworkRequest m_request;
-	QVariantMap m_someData;
-	Ui::uploadDialogClass ui;
-	QTimer m_timer;
-	bool m_finished;
-
-signals:
-	void canceled();
-
+	YandexNarodUploadJob(ChatUnit *contact, YandexNarodFactory *factory);
+	virtual ~YandexNarodUploadJob();
+protected:
+	virtual void doSend();
+	virtual void doStop();
+	virtual void doReceive();
 public slots:
 	void authorizationResult(YandexNarodAuthorizator::Result, const QString &error);
 	void someStrangeSlot();
 	void storageReply();
 	void uploadReply();
 	void progressReply();
-
-	void progress(qint64, qint64);
-	void setStatus(QString str) { ui.labelStatus->setText(str); }
-	void setFilename(QString str) { ui.labelFile->setText("File: "+str); this->setWindowTitle(tr("Uploading")+" - "+str); }
-	void setDone() { ui.btnUploadCancel->setText(tr("Done")); }
-
+private:
+	void sendImpl();
+	bool processReply(QNetworkReply *reply);
+private:
+	QNetworkRequest m_request;
+	QVariantMap m_someData;
+	QTimer m_timer;
+	QPointer<QIODevice> m_data;
 };
+
 #endif
