@@ -51,7 +51,7 @@ public:
 	NotificationRequestPrivate() : DynamicPropertyData() {}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object),pixmap(o.pixmap),text(o.text),
-		title(o.title), data(o.data) {}
+		title(o.title) {}
 	QObject *object;
 	QPixmap pixmap;
 	QString text;
