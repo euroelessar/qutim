@@ -9,7 +9,7 @@ AccountCreatorWizard::AccountCreatorWizard()
 	AccountCreatorProtocols *protocolsPage = new AccountCreatorProtocols(this);
 	setPage(AccountCreatorProtocols::Id, protocolsPage);
 	setWindowTitle(tr("Add a new account"));
-	resize(600,400);
+	resize(800,600);
 	setOption(QWizard::NoBackButtonOnStartPage, true);
 
 //#ifdef QUTIM_MOBILE_UI
