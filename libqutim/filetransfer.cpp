@@ -138,6 +138,8 @@ public:
 	FileTransferJob::Direction direction;
 	FileTransferJob::ErrorType error;
 	FileTransferJob::State state;
+	LocalizedString errorString;
+	LocalizedString stateString;
 	QVector<FileTransferInfo> files;
 	QVector<QIODevice*> devices;
 	int currentIndex;
@@ -275,9 +277,51 @@ FileTransferJob::State FileTransferJob::state() const
 	return d_func()->state;
 }
 
+LocalizedString FileTransferJob::stateString()
+{
+	Q_D(FileTransferJob);
+	if (!d->stateString.isNull())
+		return d->stateString;
+
+	switch (d->state)
+	{
+	case FileTransferJob::Initiation:
+		return tr("Initiation");
+	case FileTransferJob::Started:
+		return tr("Started");
+	case FileTransferJob::Finished:
+		return tr("Finished");
+	case FileTransferJob::Error:
+		return tr("Error");
+	default:
+		return tr("Unknown");
+	}
+}
+
 FileTransferJob::ErrorType FileTransferJob::error() const
 {
 	return d_func()->error;
+}
+
+LocalizedString FileTransferJob::errorString()
+{
+	Q_D(FileTransferJob);
+	if (!d->errorString.isNull())
+		return d->errorString;
+
+	switch (d->error)
+	{
+	case FileTransferJob::NetworkError:
+		return tr("Network error");
+	case FileTransferJob::Canceled:
+		return tr("Canceled");
+	case FileTransferJob::NotSupported:
+		return tr("Not supported");
+	case FileTransferJob::IOError:
+		return tr("Input/output error");
+	default:
+		return tr("Unknown");
+	}
 }
 
 ChatUnit *FileTransferJob::chatUnit() const
@@ -292,7 +336,12 @@ bool FileTransferJob::isAccepted()
 
 void FileTransferJob::stop()
 {
-	doStop();
+	Q_D(FileTransferJob);
+	if (d->state != Finished && d->state != Error) {
+		doStop();
+		setState(Error);
+		setError(Canceled);
+	}
 }
 
 void FileTransferJob::accept()
@@ -338,7 +387,7 @@ void FileTransferJob::setFileProgress(qint64 fileProgress)
 {
 	Q_D(FileTransferJob);
 	qint64 delta = fileProgress - d->fileProgress;
-	Q_ASSERT(delta > 0);
+	Q_ASSERT(delta >= 0);
 	d->fileProgress = fileProgress;
 	d->progress += delta;
 	emit progressChanged(d->progress);
@@ -349,6 +398,7 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 	Q_D(FileTransferJob);
 	if (d->error != err) {
 		d->error = err;
+		d->errorString = LocalizedString();
 		FileTransferJob *job = 0;
 		if (d->skipToNextFactoryAtError && d->direction == Outgoing) {
 			d->skipToNextFactoryAtError = false;
@@ -367,7 +417,14 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 			}
 		}
 		emit error(d->error, job);
+		emit errorStringChanged(errorString());
 	}
+}
+
+void FileTransferJob::setErrorString(const LocalizedString &error)
+{
+	d_func()->errorString = error;
+	emit errorStringChanged(errorString());
 }
 
 void FileTransferJob::setState(FileTransferJob::State state)
@@ -375,8 +432,16 @@ void FileTransferJob::setState(FileTransferJob::State state)
 	Q_D(FileTransferJob);
 	if (d->state != state) {
 		d->state = state;
+		d->stateString = LocalizedString();
 		emit stateChanged(state);
+		emit stateStringChanged(stateString());
 	}
+}
+
+void FileTransferJob::setStateString(const LocalizedString &state)
+{
+	d_func()->stateString = state;
+	emit stateStringChanged(stateString());
 }
 
 void FileTransferJob::setFileInfo(int index, const FileTransferInfo &info)

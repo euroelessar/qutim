@@ -72,7 +72,7 @@ class LIBQUTIM_EXPORT FileTransferJob : public QObject
 	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *chatUnit READ chatUnit)
 public:
 	enum Direction { Outgoing, Incoming };
-	enum ErrorType { NetworkError, Canceled, NotSupported, NoError };
+	enum ErrorType { NetworkError, Canceled, NotSupported, IOError, NoError };
 	enum State { Initiation, Started, Finished, Error };
 	
 	FileTransferJob(ChatUnit *unit, Direction direction, FileTransferFactory *factory);
@@ -94,7 +94,9 @@ public:
 	qint64 progress() const;
 	qint64 totalSize() const;
 	State state() const;
+	LocalizedString stateString();
 	ErrorType error() const;
+	LocalizedString errorString();
 	ChatUnit *chatUnit() const;
 	bool isAccepted();
 public slots:
@@ -111,7 +113,9 @@ protected:
 	QIODevice *setCurrentIndex(int index);
 	void setFileProgress(qint64 fileProgress);
 	void setError(ErrorType error);
+	void setErrorString(const LocalizedString &error);
 	void setState(State state);
+	void setStateString(const LocalizedString &state);
 	void setFileInfo(int index, const FileTransferInfo &info);
 	virtual void virtual_hook(int id, void *data);
 signals:
@@ -125,7 +129,9 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 	void totalSizeChanged(qint64);
 	void currentIndexChanged(int);
 	void error(qutim_sdk_0_3::FileTransferJob::ErrorType, qutim_sdk_0_3::FileTransferJob *newJob);
+	void errorStringChanged(const qutim_sdk_0_3::LocalizedString &);
 	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
+	void stateStringChanged(const qutim_sdk_0_3::LocalizedString &);
 	void finished();
 	void accepted();
 private:

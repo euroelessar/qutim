@@ -63,7 +63,6 @@ public:
 private slots:
 	void removeJob(QObject *job);
 	void updateJob();
-	void handleError(qutim_sdk_0_3::FileTransferJob::ErrorType, qutim_sdk_0_3::FileTransferJob *newJob);
 	QString getState(FileTransferJob *job) const;
 private:
 	QList<FileTransferJob*> m_jobs;

@@ -49,19 +49,21 @@ void FileTransferJobDelegate::paint(QPainter* painter,
 	if (!job)
 		return;
 
+	quint64 progress = job->progress();
+	quint64 size = job->totalSize();
 	QStyleOptionProgressBar opt;
 	opt.state = QStyle::State_Enabled;
 	opt.direction = QApplication::layoutDirection();
 	opt.rect = option.rect.adjusted(0, option.rect.height() - ProgressBarHeight - 5, 0, -5);
 	opt.fontMetrics = QApplication::fontMetrics();
 	opt.minimum = 0;
-	opt.maximum = job->totalSize();
+	opt.maximum = 100;
 	opt.textAlignment = Qt::AlignCenter;
 	opt.textVisible = true;
-	opt.progress = job->progress();
+	opt.progress = size > 0 ? (progress * 100 / size) : 0;
 	opt.text = QString("%1 / %2")
-			   .arg(bytesToString(opt.progress))
-			   .arg(bytesToString(opt.maximum));
+			   .arg(bytesToString(progress))
+			   .arg(bytesToString(size));
 	QApplication::style()->drawControl(QStyle::CE_ProgressBar, &opt, painter);
 }
 

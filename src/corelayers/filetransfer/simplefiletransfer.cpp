@@ -213,7 +213,10 @@ void SimpleFileTransfer::handleJob(FileTransferJob *job, FileTransferJob *oldJob
 
 void SimpleFileTransfer::sendFile(ChatUnit *unit, FileTransferFactory *factory)
 {
-	QString file = QFileDialog::getOpenFileName(0, QString(), QDir::homePath());
+	QString file = QFileDialog::getOpenFileName(
+			0,
+			tr("Choose file for %1").arg(unit->title()),
+			QDir::homePath());
 	if (!file.isEmpty()) {
 		QUrl url = QUrl::fromLocalFile(file);
 		send(unit, url, QString(), factory);

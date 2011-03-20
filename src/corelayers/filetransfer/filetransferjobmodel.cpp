@@ -79,13 +79,11 @@ void FileTransferJobModel::handleJob(FileTransferJob *job, FileTransferJob *oldJ
 			SIGNAL(progressChanged(qint64)),
 			SLOT(updateJob()));
 	connect(job,
-			SIGNAL(stateChanged(qutim_sdk_0_3::FileTransferJob::State)),
+			SIGNAL(stateStringChanged(qutim_sdk_0_3::LocalizedString)),
 			SLOT(updateJob()));
 	connect(job,
-			SIGNAL(error(qutim_sdk_0_3::FileTransferJob::ErrorType,
-						 qutim_sdk_0_3::FileTransferJob*)),
-			SLOT(handleError(qutim_sdk_0_3::FileTransferJob::ErrorType,
-							 qutim_sdk_0_3::FileTransferJob*)));
+			SIGNAL(errorStringChanged(qutim_sdk_0_3::LocalizedString)),
+			SLOT(updateJob()));
 	connect(job,
 			SIGNAL(destroyed(QObject*)),
 			SLOT(removeJob(QObject*)));
@@ -109,16 +107,6 @@ void FileTransferJobModel::updateJob()
 	Q_ASSERT(row >= 0);
 	QModelIndex index = this->index(row);
 	emit dataChanged(index, index.sibling(0, LastColumn));
-}
-
-void FileTransferJobModel::handleError(qutim_sdk_0_3::FileTransferJob::ErrorType, qutim_sdk_0_3::FileTransferJob *newJob)
-{
-	if (newJob)
-		return;
-	int row = m_jobs.indexOf(static_cast<FileTransferJob*>(sender()));
-	Q_ASSERT(row >= 0);
-	QModelIndex index = this->index(row, State);
-	emit dataChanged(index, index);
 }
 
 QVariant FileTransferJobModel::headerData(int section, Qt::Orientation orientation,
@@ -202,29 +190,9 @@ QVariant FileTransferJobModel::data(const QModelIndex &index, int role) const
 
 QString FileTransferJobModel::getState(FileTransferJob *job) const
 {
-	switch (job->state())
-	{
-	case FileTransferJob::Initiation:
-		return tr("Initiation");
-	case FileTransferJob::Started:
-		return tr("Started");
-	case FileTransferJob::Finished:
-		return tr("Finished");
-	case FileTransferJob::Error:
-		switch (job->error())
-		{
-		case FileTransferJob::NetworkError:
-			return tr("Network error");
-		case FileTransferJob::Canceled:
-			return tr("Canceled");
-		case FileTransferJob::NotSupported:
-			return tr("Not supported");
-		default:
-			return QString();
-		}
-	default:
-		return QString();
-	}
+	if (job->state() == FileTransferJob::Error)
+		return job->errorString();
+	return job->stateString();
 }
 
 QString bytesToString(quint64 bytes)
