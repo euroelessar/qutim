@@ -14,7 +14,7 @@ namespace MacIntegration
 	class MDock : public MenuController
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Service", "TrayIcon")
+		Q_CLASSINFO("Service", "DockManager")
 		Q_CLASSINFO("Uses", "ContactList")
 		Q_CLASSINFO("Uses", "ChatLayer")
 		Q_CLASSINFO("Uses", "IconLoader")
@@ -27,7 +27,8 @@ namespace MacIntegration
 			void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 			void onSessionDestroyed();
 			void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
-			void onStatusChanged(const qutim_sdk_0_3::Status &);
+			void onAccountCreated(qutim_sdk_0_3::Account *account);
+			void setStatusIcon();
 			void onStatusChanged();
 			void onActivatedSession(bool state);
 		protected:
