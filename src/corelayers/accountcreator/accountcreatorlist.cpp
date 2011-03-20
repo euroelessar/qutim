@@ -97,7 +97,7 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 {
 	Icon protoIcon(QLatin1String("im-") + account->protocol()->id()); //FIXME wtf?
 	debug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
-	if (!protoIcon.availableSizes().count())
+	if (!protoIcon.actualSize(QSize(1,1)).isNull())
 		protoIcon = Icon("applications-internet");
 
 	QListWidgetItem *accountItem = new QListWidgetItem(ui->listWidget);
@@ -147,36 +147,6 @@ void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
 			return;
 		}
 	}
-}
-
-bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
-{
-	//if (ev->type() ==  QEvent::ContextMenu) {
-	//	if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
-	//		QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
-	//		QModelIndex index = widget->indexAt(event->pos());
-	//		Account *account = index.data(Qt::UserRole).value<Account *>();
-	//		if (account) {
-	//			QMenu *menu = new QMenu();
-	//			menu->setAttribute(Qt::WA_DeleteOnClose,true);
-	//			QAction *act = new QAction(menu);
-	//			act->setText(tr("Properties"));
-	//			act->setIcon(Icon("document-properties"));
-	//			act->setData(qVariantFromValue(account));
-	//			connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
-	//			menu->addAction(act);
-
-	//			act = new QAction(menu);
-	//			act->setText(tr("Remove account"));
-	//			act->setIcon(Icon("list-remove-user"));
-	//			act->setData(qVariantFromValue(account));
-	//			connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
-	//			menu->addAction(act);
-	//			menu->popup(QCursor::pos());
-	//		}
-	//	}
-	//}
-	return SettingsWidget::eventFilter(obj,ev);
 }
 
 void AccountCreatorList::listViewClicked(QListWidgetItem *item)

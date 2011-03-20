@@ -45,8 +45,8 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 		QIcon icon = info.icon();
 		if (icon.isNull())
 			icon = Icon(QLatin1String("im-") + info.name());
-	if (!icon.availableSizes().count())
-		icon = Icon("applications-internet");
+		if (!icon.actualSize(QSize(1,1)).isNull())
+			icon = Icon("applications-internet");
 
 		QListWidgetItem *item = new QListWidgetItem(ui->protocolList);
 		item->setData(Qt::UserRole + 1, reinterpret_cast<qptrdiff>(wizard));

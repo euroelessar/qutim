@@ -29,7 +29,6 @@ protected:
 	virtual void saveImpl();
 	virtual void cancelImpl();
 	void changeEvent(QEvent *e);
-	virtual bool eventFilter(QObject *, QEvent *);
 private slots:
 	void addAccount(qutim_sdk_0_3::Account *account);
 	void removeAccount(qutim_sdk_0_3::Account *account);
