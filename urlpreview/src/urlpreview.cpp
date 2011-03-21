@@ -111,27 +111,29 @@ void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 			html = html.replace(oldLink, link);
 		}
 	} else {
-		QTextDocument doc(html);
-		const QRegExp &linkRegExp = getLinkRegExp();
-		QTextCursor cursor(&doc);
-		while (true) {
-			cursor = doc.find(linkRegExp, cursor);
-			if (cursor.isNull())
-				break;
-			QString link = cursor.selectedText();
-			checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), message->id());
-			cursor.removeSelectedText();
-			cursor.insertHtml(link);
-		}
-		qDebug() << html << doc.toHtml();
-		html = doc.toHtml();
+		//QTextDocument doc(html);
+		//const QRegExp &linkRegExp = getLinkRegExp();
+		//QTextCursor cursor(&doc);
+		//while (true) {
+		//	cursor = doc.find(linkRegExp, cursor);
+		//	if (cursor.isNull())
+		//		break;
+		//	QString link = cursor.selectedText();
+		//	checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), message->id());
+		//	cursor.removeSelectedText();
+		//	cursor.insertHtml(link);
+		//}
+		//qDebug() << html << doc.toHtml();
+		//html = doc.toHtml();
 	}
 	message->setProperty("html",html);
 }
 
 const QRegExp &UrlPreviewPlugin::getLinkRegExp()
 {
-	static QRegExp linkRegExp("(^|[^\"\'])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
+	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+							  Qt::CaseInsensitive);
 	Q_ASSERT(linkRegExp.isValid());
 	return linkRegExp;
 }
