@@ -61,7 +61,8 @@ namespace MacIntegration
 		bool isInactiveEnabled;
 		int inactiveInterval;
 		MIdle::Reason currentReason;
-		QHash<Account *, Status::Type> idleAccounts;
+		QHash<Account *, Status> idleAccounts;
+		QHash<Status::Type, QString> idleMessages;
 	};
 
 	MIdle::MIdle() : d_ptr(new MIdlePrivate())
@@ -117,9 +118,11 @@ namespace MacIntegration
 						&& !(status.type() == Status::DND && reason == Screensaver))
 					continue;
 				if (!d->idleAccounts.keys().contains(account))
-					d->idleAccounts.insert(account, status.type());
+					d->idleAccounts.insert(account, status);
 				status.setType(statusType);
 				status.setSubtype(0);
+				status.setText(d->idleMessages.value(statusType, ""));
+				status.setProperty("changeReason", Status::ByIdle);
 				account->setStatus(status);
 			}
 		}
@@ -132,11 +135,7 @@ namespace MacIntegration
 		foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 			foreach(Account *account, proto->accounts()) {
 				if (d->idleAccounts.contains(account)) {
-					Status::Type type = d->idleAccounts.take(account);
-					Status status = account->status();
-					status.setType(type);
-					status.setSubtype(0);
-					account->setStatus(status);
+					account->setStatus(d->idleAccounts.take(account));
 				}
 			}
 		}
@@ -151,5 +150,7 @@ namespace MacIntegration
 		d->isInactiveEnabled   = conf.value("na-enabled",   true);
 		d->awayInterval = conf.value("away-secs", AWAY_DEF_SECS);
 		d->inactiveInterval = conf.value("na-secs",   NA_DEF_SECS);
+		d->idleMessages.insert(Status::Away, conf.value("away-text", ""));
+		d->idleMessages.insert(Status::NA, conf.value("na-text", ""));
 	}
 }

@@ -150,7 +150,7 @@ GrowlBackend::GrowlBackend() : m_wrapper(new GrowlNotificationWrapper)
 void GrowlBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender, const QString& body,
 		const QVariant& data)
 {
-	QString text = Qt::escape(body);
+	QString text(body);
 	QString sender_id = sender ? sender->property("id").toString() : QString();
 	QString sender_name = sender ? sender->property("name").toString() : QString();
 	if(sender_name.isEmpty())

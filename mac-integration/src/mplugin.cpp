@@ -2,6 +2,8 @@
 #include "dock/mdock.h"
 #include "growl/growlbackend.h"
 #include "idle/midle.h"
+#include "spellchecker/mspellchecker.h"
+#include "menu/mmenu.h"
 
 namespace MacIntegration
 {
@@ -27,6 +29,10 @@ namespace MacIntegration
 				QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
 		addExtension<MIdle>(QT_TRANSLATE_NOOP("Plugin", "IdleManager"),
 				QT_TRANSLATE_NOOP("Plugin", "Mac OS X idle manager"));
+		addExtension<MSpellChecker>(QT_TRANSLATE_NOOP("Plugin", "SpellChecker"),
+				QT_TRANSLATE_NOOP("Plugin", "Mac OS X spell checker"));
+		addExtension<MMenu>(QT_TRANSLATE_NOOP("Plugin", "MainMenu"),
+				QT_TRANSLATE_NOOP("Plugin", "Mac OS X main menu"));
 	}
 
 	bool MPlugin::load()

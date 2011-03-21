@@ -35,6 +35,7 @@ namespace MacIntegration
 		QHash<ChatSession *, int> unreadSessions;
 		QHash<ChatSession *, QAction *> aliveSessions;
 		QIcon standartIcon;
+		QIcon offlineIcon;
 		DockIconHandler *dockHandler;
 	};
 
@@ -42,6 +43,7 @@ namespace MacIntegration
 	{
 		Q_D(MDock);
 		d->standartIcon = Icon("qutim");
+		d->offlineIcon = Icon("qutim-offline");
 		d->dockMenu = new QMenu;
 		d->statusGroup = new QActionGroup(this);
 		createStatusAction(Status::Online);
@@ -57,13 +59,19 @@ namespace MacIntegration
 		qt_mac_set_dock_menu(d->dockMenu);
 		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 				this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+		setStatusIcon();
+		foreach (qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+			connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), 
+					this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+			connect(proto, SIGNAL(accountRemoved(qutim_sdk_0_3::Account *)), this, SLOT(setStatusIcon()));
+		}
 		d->dockHandler = [[DockIconHandler alloc] init];
 		d->dockHandler->macDock = this;
 		[[NSAppleEventManager sharedAppleEventManager]
-			setEventHandler:d->dockHandler
-			andSelector:@selector(handleDockClickEvent:withReplyEvent:)
-			forEventClass:kCoreEventClass
-			andEventID:kAEReopenApplication];
+				setEventHandler:d->dockHandler
+				andSelector:@selector(handleDockClickEvent:withReplyEvent:)
+				forEventClass:kCoreEventClass
+				andEventID:kAEReopenApplication];
 		qApp->setQuitOnLastWindowClosed(false);
 	}  
 
@@ -162,35 +170,59 @@ namespace MacIntegration
 	void MDock::dockIconClickEvent()
 	{
 		Q_D(MDock);
-		if (d->unreadSessions.isEmpty()) {
-			if (QObject *obj = ServiceManager::getByName("ContactList"))
-				if (QWidget *cl = qobject_cast<QWidget *>(obj))
-					cl->setVisible(true);//metaObject()->invokeMethod(obj, "changeVisibility");
-		} else {
+		if (QObject *obj = ServiceManager::getByName("ContactList"))
+			QMetaObject::invokeMethod(obj, "show");
+		if (!d->unreadSessions.isEmpty())
 			d->unreadSessions.keys().first()->activate();
-		}
 	}
 
-	void MDock::onStatusChanged(const qutim_sdk_0_3::Status &status)
+	void MDock::onAccountCreated(qutim_sdk_0_3::Account *account)
 	{
-		/*Account *account = qobject_cast<Account*>(sender());
-		  if (account == m_activeAccount || !m_activeAccount) {
-		  m_activeAccount = account;
-		  if (account->status().type() == Status::Offline) {
-		  m_activeAccount = 0;
-		  }
-		  d->standartIcon = status.icon();
-		  }
-		  if (!m_activeAccount) {
-		  foreach (Account *acc, m_accounts) {
-		  if (acc->status().type() != Status::Offline) {
-		  m_activeAccount = acc;
-		  d->standartIcon = acc->status().icon();
-		  break;
-		  }
-		  }
-		  }
-		  if (!m_isMail)
-		  m_icon->setIcon(d->standartIcon);*/
-	} 
+		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				this, SLOT(setStatusIcon()));
+	}
+
+	void MDock::setStatusIcon()
+	{
+		Q_D(MDock);
+		bool isOnline = false;
+		bool start = true;
+		Status::Type globalStatus;
+		bool isStatusGlobal = true;
+		foreach(qutim_sdk_0_3::Protocol *protocol, qutim_sdk_0_3::Protocol::all()) {
+			foreach(qutim_sdk_0_3::Account *account, protocol->accounts()) {
+				Status::Type type = account->status().type();
+				switch (type) {
+					case Status::Online:
+					case Status::FreeChat:
+					case Status::Away:
+					case Status::NA:
+					case Status::DND:
+					case Status::Invisible:
+						isOnline = true;
+						break;
+					default:
+						isOnline = isOnline;
+				}
+				if (start)
+					globalStatus = type;
+				start = false;
+				if (type != globalStatus)
+					isStatusGlobal = false;
+			}
+		}
+		if (isOnline)
+			qApp->setWindowIcon(d->standartIcon);
+		else
+			qApp->setWindowIcon(d->offlineIcon);
+		if (isStatusGlobal)
+			foreach(QAction *action, d->statusGroup->actions()) {
+				Status::Type type = static_cast<Status::Type>(action->data().value<int>());
+				if (type == globalStatus)
+					action->setChecked(true);
+			}
+		else
+			foreach(QAction *action, d->statusGroup->actions())
+				action->setChecked(false);;
+	}
 }
