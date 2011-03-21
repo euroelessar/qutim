@@ -131,7 +131,7 @@ void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 
 const QRegExp &UrlPreviewPlugin::getLinkRegExp()
 {
-	static QRegExp linkRegExp("(^|[^\"])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
+	static QRegExp linkRegExp("(^|[^\"\'])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
 	Q_ASSERT(linkRegExp.isValid());
 	return linkRegExp;
 }
