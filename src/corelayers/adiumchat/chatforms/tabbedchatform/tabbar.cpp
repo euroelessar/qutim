@@ -311,17 +311,17 @@ void TabBar::closeCurrentTab()
 
 void TabBar::showNextTab()
 {
-	int index = currentIndex()+1;
-	if (index >= count())
-		index = 0;
+	if (count() == 0)
+		return;
+	int index = (currentIndex() + 1) % count();
 	setCurrentIndex(index);
 }
 
 void TabBar::showPreviousTab()
 {
-	int index = currentIndex()-1;
-	if (index >= count())
-		index = count() - 1;
+	if (count() == 0)
+		return;
+	int index = (count() + currentIndex() - 1) % count();
 	setCurrentIndex(index);
 }
 
