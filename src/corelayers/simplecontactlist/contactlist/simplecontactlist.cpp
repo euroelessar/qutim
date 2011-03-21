@@ -28,7 +28,7 @@
 #include <QMenuBar>
 #include <QApplication>
 #include <QDesktopWidget>
-
+#include <QWidgetAction>
 
 namespace Core
 {
@@ -250,18 +250,30 @@ Module::Module() : p(new ModulePrivate)
 	key = new Shortcut("contactListGlobalStatus",p->statusBtn);
 	connect(key,SIGNAL(activated()),p->statusBtn,SLOT(showMenu()));
 	p->statusBtn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	bottom_layout->addWidget(p->statusBtn);
 
 	p->searchBar->setVisible(false);
 	connect(p->searchBtn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
 #endif
-	connect(p->searchBar, SIGNAL(textChanged(QString)), p->model, SLOT(filterList(QString)));
 
+#ifdef Q_OS_MAC
+	p->statusBtn->setVisible(false);
+	p->searchBtn->setVisible(false);
+	p->view->setAlternatingRowColors(false);
+	p->searchBar->setVisible(false);
+	p->searchBar->setVisible(true);
+	QWidgetAction *widgetAction = new QWidgetAction(p->widget);
+	widgetAction->setDefaultWidget(p->searchBar);
+	p->mainToolBar->addAction(widgetAction);
+#else
 	layout->addWidget(p->searchBar);
+	bottom_layout->addWidget(p->statusBtn);
 	bottom_layout->addWidget(p->searchBtn);
 	bottom_layout->setSpacing(0);
 	bottom_layout->setMargin(0);;
 	layout->addLayout(bottom_layout);
+#endif
+
+	connect(p->searchBar, SIGNAL(textChanged(QString)), p->model, SLOT(filterList(QString)));
 
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
@@ -347,7 +359,11 @@ void Module::addButton(ActionGenerator *generator)
 #ifdef Q_WS_S60
 	addAction(generator);
 #else
-	p->mainToolBar->addAction(generator);	
+#ifdef Q_OS_MAC
+	//addAction(generator);
+#else
+	p->mainToolBar->addAction(generator);
+#endif
 #endif
 }
 

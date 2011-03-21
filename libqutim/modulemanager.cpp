@@ -645,7 +645,9 @@ namespace qutim_sdk_0_3
 		}
 		foreach (QObject *service, p->serviceOrder)
 			usedExtensions << service->metaObject()->className();
+#ifndef Q_OS_MAC
 		qApp->setWindowIcon(Icon("qutim"));
+#endif
 
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());

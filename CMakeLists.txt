@@ -103,6 +103,10 @@ set( QUTIM_LIBRARIES libqutim )
 IF(APPLE)
   # set how it shows up in the Info.plist file
   SET(MACOSX_BUNDLE_ICON_FILE qutim.icns)
+  SET(MACOSX_BUNDLE_INFO_STRING "Module based instant messenger")
+  SET(MACOSX_BUNDLE_LONG_VERSION_STRING "0.3 alpha (0.2.60)")
+  SET(MACOSX_BUNDLE_BUNDLE_NAME "qutIM")
+  SET(MACOSX_BUNDLE_BUNDLE_VERSION "0.3 alpha")
   # set where in the bundle to put the icns file
   SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   # include the icns file in the target
