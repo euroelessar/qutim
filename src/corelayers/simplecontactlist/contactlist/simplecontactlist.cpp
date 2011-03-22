@@ -253,6 +253,9 @@ Module::Module() : p(new ModulePrivate)
 
 	p->searchBar->setVisible(false);
 	connect(p->searchBtn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
+#ifndef Q_OS_MAC
+	bottom_layout->addWidget(p->statusBtn);
+#endif
 #endif
 
 #ifdef Q_OS_MAC
@@ -266,7 +269,6 @@ Module::Module() : p(new ModulePrivate)
 	p->mainToolBar->addAction(widgetAction);
 #else
 	layout->addWidget(p->searchBar);
-	bottom_layout->addWidget(p->statusBtn);
 	bottom_layout->addWidget(p->searchBtn);
 	bottom_layout->setSpacing(0);
 	bottom_layout->setMargin(0);;
