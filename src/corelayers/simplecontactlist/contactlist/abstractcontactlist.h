@@ -20,6 +20,7 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactList : public MenuController
 	Q_CLASSINFO("Uses", "MetaContactManager")
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
+	Q_CLASSINFO("Uses", "ContactListWidget")
 public:
 	explicit AbstractContactList() {};
 	virtual ~AbstractContactList() {};
@@ -29,9 +30,6 @@ public:
 
 class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget
 {
-	Q_CLASSINFO("Service", "ContactListWidget")
-	Q_CLASSINFO("Uses", "ContactDelegate")
-	Q_CLASSINFO("Uses", "ContactModel")
 public:
 	virtual ~AbstractContactListWidget() {};
 	virtual void addButton(ActionGenerator *generator) = 0;

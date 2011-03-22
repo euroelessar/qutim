@@ -28,3 +28,5 @@ qutim_add_plugin(treecontactsmodel
 	DESCRIPTION "Simple contactlist model"
 	LINK_LIBRARIES simplecontactlist
 )
+
+add_subdirectory(widgets)
