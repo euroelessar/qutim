@@ -47,7 +47,7 @@ public:
 	{
 		connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 		setWindowIcon(Icon("qutim"));
-#ifndef Q_SW_S60
+#ifndef Q_WS_S60
 		resize(150,0);//hack
 		setAttribute(Qt::WA_AlwaysShowToolTips);
 #endif

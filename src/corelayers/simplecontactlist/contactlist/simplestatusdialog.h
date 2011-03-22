@@ -2,6 +2,7 @@
 #define SIMPLESTATUSDIALOG_H
 
 #include <QDialog>
+#include "simplecontactlist_global.h"
 
 namespace Ui {
 class SimpleStatusDialog;
@@ -12,7 +13,7 @@ namespace Core
 namespace SimpleContactList
 {
 
-class SimpleStatusDialog : public QDialog
+class SIMPLECONTACTLIST_EXPORT SimpleStatusDialog : public QDialog
 {
 	Q_OBJECT
 
