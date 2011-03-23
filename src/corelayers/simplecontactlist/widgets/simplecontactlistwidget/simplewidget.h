@@ -34,7 +34,7 @@ protected:
 	QAction *createGlobalStatusAction(Status::Type type);
 	bool event(QEvent *event);
 private slots:
-	void initActionGenerators();
+	void init();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountDestroyed(QObject *obj);

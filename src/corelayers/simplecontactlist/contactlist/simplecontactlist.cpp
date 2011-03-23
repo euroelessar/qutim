@@ -86,19 +86,6 @@ Module::Module() : p(new ModulePrivate)
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
-
-	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
-	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
-	p->tagsGenerator->setPriority(-127);
-	addButton(p->tagsGenerator.data());
-
-	// TODO: choose another, non-kopete icon
-	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
-	gen->setCheckable(true);
-	gen->setChecked(!p->model->showOffline());
-	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
-	addButton(gen);
-
 	//TODO move to model
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
@@ -108,7 +95,8 @@ Module::Module() : p(new ModulePrivate)
 			onAccountCreated(account);
 		}
 	}
-	SystemIntegration::show(p->widget);
+
+	QTimer::singleShot(0, this, SLOT(init()));
 }
 
 Module::~Module()
@@ -193,6 +181,22 @@ bool Module::event(QEvent *ev)
 	}
 	return QObject::event(ev);
 }
+
+void Module::init()
+{
+	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
+	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
+	p->tagsGenerator->setPriority(-127);
+	addButton(p->tagsGenerator.data());
+
+	// TODO: choose another, non-kopete icon
+	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
+	gen->setCheckable(true);
+	gen->setChecked(!p->model->showOffline());
+	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
+	addButton(gen);
+}
+
 
 }
 }

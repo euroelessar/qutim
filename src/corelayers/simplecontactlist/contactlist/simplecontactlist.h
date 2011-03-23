@@ -33,6 +33,7 @@ private slots:
 	void onConfigureClicked(QObject*);
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onQuitTriggered(QObject *);
+	void init();
 private:
 	QScopedPointer<ModulePrivate> p;
 };

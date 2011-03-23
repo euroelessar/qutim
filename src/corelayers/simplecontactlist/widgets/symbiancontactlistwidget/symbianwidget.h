@@ -39,7 +39,7 @@ protected:
 	QAction *createGlobalStatusAction(Status::Type type);
 	bool event(QEvent *event);
 private slots:
-	void initActionGenerators();
+	void init();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountDestroyed(QObject *obj);
@@ -50,6 +50,7 @@ private:
 	TreeView *m_view;
 	AbstractContactModel *m_model;
 	QAction *m_statusBtn;
+	QAction *m_actionsBtn;
 	QLineEdit *m_searchBar;
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;

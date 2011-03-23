@@ -269,12 +269,6 @@ void DynamicMenu::onActionAdded(const ActionInfo &info)
 	}
 }
 
-void DynamicMenu::onMenuOwnerChanged(const MenuController *)
-{
-	//epic fail v2
-	//addActions(allActions());
-}
-
 DynamicMenu::~DynamicMenu()
 {
 	dynamicMenuSet()->remove(this);
@@ -354,7 +348,7 @@ void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArra
 		int flags = owner->d_func()->flags;
 		while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
 			flags = owner->d_func()->flags;
-		if (owner && owner->d_func()->menu)
+		if (owner)
 			menu->addAction(this, info);
 	}
 }
@@ -402,8 +396,6 @@ void MenuController::setMenuOwner(MenuController *controller)
 {
 	Q_D(MenuController);
 	d->owner = controller;
-	if (d->menu)
-		d->menu->onMenuOwnerChanged(controller);
 }
 
 void MenuController::setMenuFlags(const MenuFlags &flags)

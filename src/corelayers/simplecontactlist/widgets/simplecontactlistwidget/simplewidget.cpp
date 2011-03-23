@@ -116,6 +116,11 @@ SimpleWidget::SimpleWidget()
 	m_statusBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
 	m_searchBar->setVisible(false);
+
+	#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+	m_searchBar->setPlaceholderText(tr("Search contact"));
+	#endif
+
 	connect(m_searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
 	bottom_layout->addWidget(m_statusBtn);
 
@@ -174,7 +179,7 @@ SimpleWidget::SimpleWidget()
 	orientationChanged();
 #endif
 
-	QTimer::singleShot(0, this, SLOT(initActionGenerators()));
+	QTimer::singleShot(0, this, SLOT(init()));
 }
 
 SimpleWidget::~SimpleWidget()
@@ -349,13 +354,14 @@ bool SimpleWidget::event(QEvent *event)
 	return QMainWindow::event(event);
 }
 
-void SimpleWidget::initActionGenerators()
+void SimpleWidget::init()
 {
 	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
 	ActionGenerator *gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), controller);
 	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
 	QAction *before = m_mainToolBar->actions().count() ? m_mainToolBar->actions().first() : 0;
 	m_mainToolBar->insertAction(before, gen);
+	SystemIntegration::show(this);
 }
 
 } // namespace SimpleContactList

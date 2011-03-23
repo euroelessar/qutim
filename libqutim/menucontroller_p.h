@@ -84,7 +84,6 @@ public:
 	QAction *ensureAction(const ActionGenerator *gen);
 public slots:
 	void onActionAdded(const ActionInfo &info);
-	void onMenuOwnerChanged(const MenuController *owner);
 private slots:
 	void onAboutToShow();
 	void onAboutToHide();
