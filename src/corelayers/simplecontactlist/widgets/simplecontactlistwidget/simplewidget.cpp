@@ -234,7 +234,7 @@ QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
 
 void SimpleWidget::onSearchButtonToggled(bool toggled)
 {
-	m_searchBtn->setVisible(toggled);
+	m_searchBar->setVisible(toggled);
 	if (toggled) {
 		m_searchBar->setFocus(Qt::PopupFocusReason);
 	}
