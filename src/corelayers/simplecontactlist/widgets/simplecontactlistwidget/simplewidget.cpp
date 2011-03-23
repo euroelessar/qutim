@@ -21,6 +21,7 @@
 #include <qutim/metacontact.h>
 #include <QDesktopWidget>
 #include <qutim/actiongenerator.h>
+#include <QTimer>
 
 namespace Core {
 namespace SimpleContactList {
@@ -172,6 +173,8 @@ SimpleWidget::SimpleWidget()
 			this, SLOT(orientationChanged()));
 	orientationChanged();
 #endif
+
+	QTimer::singleShot(0, this, SLOT(initActionGenerators()));
 }
 
 SimpleWidget::~SimpleWidget()
@@ -351,7 +354,8 @@ void SimpleWidget::initActionGenerators()
 	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
 	ActionGenerator *gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), controller);
 	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
-	addButton(gen);
+	QAction *before = m_mainToolBar->actions().count() ? m_mainToolBar->actions().first() : 0;
+	m_mainToolBar->insertAction(before, gen);
 }
 
 } // namespace SimpleContactList
