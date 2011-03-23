@@ -16,8 +16,6 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactList : public MenuController
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "MetaContactManager")
-	Q_CLASSINFO("Uses", "ContactDelegate")
-	Q_CLASSINFO("Uses", "ContactModel")
 	Q_CLASSINFO("Uses", "ContactListWidget")
 public:
 	explicit AbstractContactList() {};

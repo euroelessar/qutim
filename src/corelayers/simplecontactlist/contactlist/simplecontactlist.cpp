@@ -17,7 +17,6 @@
 #include <QLineEdit>
 #include <qutim/qtwin.h>
 #include <qutim/shortcut.h>
-#include <qutim/metacontactmanager.h>
 #include <QMainWindow>
 #include "simplestatusdialog.h"
 #include <qutim/servicemanager.h>
@@ -30,6 +29,7 @@
 #include <QDesktopWidget>
 #include <QWidgetAction>
 #include <qutim/utils.h>
+#include "tagsfilterdialog.h"
 
 namespace Core
 {
@@ -40,8 +40,8 @@ struct ModulePrivate
 {
 	~ModulePrivate() {}
 	QWidget *widget;
-	AbstractContactListWidget *contactListWidget;
 	AbstractContactModel *model;
+	AbstractContactListWidget *contactListWidget;
 	QScopedPointer<ActionGenerator> tagsGenerator;
 };
 
@@ -67,7 +67,6 @@ Module::Module() : p(new ModulePrivate)
 	QObject *object = ServiceManager::getByName("ContactListWidget");
 	p->widget = sender_cast<QWidget*>(object);
 	p->contactListWidget = sender_cast<AbstractContactListWidget*>(object);
-	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -86,16 +85,8 @@ Module::Module() : p(new ModulePrivate)
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
-	//TODO move to model
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, proto->accounts()) {
-			onAccountCreated(account);
-		}
-	}
 
+	p->model = sender_cast<AbstractContactModel*>(ServiceManager::getByName("ContactModel"));
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 
@@ -106,11 +97,6 @@ Module::~Module()
 QWidget *Module::widget()
 {
 	return p->widget;
-}
-
-void Module::addContact(qutim_sdk_0_3::Contact *contact)
-{
-	p->model->addContact(contact);
 }
 
 void Module::addButton(ActionGenerator *generator)
@@ -150,16 +136,6 @@ void Module::onConfigureClicked(QObject*)
 	Settings::showWidget();
 }
 
-void Module::onAccountCreated(Account *account)
-{
-	foreach (Contact *contact, account->findChildren<Contact *>()) {
-		//FIXME move to model
-		addContact(contact);
-	}
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-}
-
 void Module::onQuitTriggered(QObject *)
 {
 	qApp->quit();
@@ -173,9 +149,9 @@ bool Module::event(QEvent *ev)
 			QAction *action = event->action();
 			QMenu *menu = new QMenu(p->widget);
 			QAction *act = menu->addAction(tr("Select tags"));
-			connect(act, SIGNAL(triggered()), p->widget, SLOT(onSelectTagsTriggered()));
+			connect(act, SIGNAL(triggered()), this, SLOT(onSelectTagsTriggered()));
 			act = menu->addAction(tr("Reset"));
-			connect(act, SIGNAL(triggered()), p->widget, SLOT(onResetTagsTriggered()));
+			connect(act, SIGNAL(triggered()), this, SLOT(onResetTagsTriggered()));
 			action->setMenu(menu);
 		}
 	}
@@ -197,6 +173,26 @@ void Module::init()
 	addButton(gen);
 }
 
+void Module::onResetTagsTriggered()
+{
+	p->model->filterList(QStringList());
+}
+
+void Module::onSelectTagsTriggered()
+{
+	QStringList tags = p->model->tags();
+	TagsFilterDialog *dialog = new TagsFilterDialog(tags, p->widget);
+	if (!p->model->selectedTags().isEmpty())
+		tags = p->model->selectedTags();
+	dialog->setSelectedTags(tags);
+	SystemIntegration::show(dialog);
+	centerizeWidget(dialog);
+	if (dialog->exec()) {
+		p->model->filterList(dialog->selectedTags());
+	}
+	dialog->deleteLater();
+}
 
 }
 }
+

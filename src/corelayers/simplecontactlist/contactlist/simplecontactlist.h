@@ -28,12 +28,12 @@ public slots:
 	void show();
 	void hide();
 	void changeVisibility();
-	void addContact(qutim_sdk_0_3::Contact *contact);
 private slots:
 	void onConfigureClicked(QObject*);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onQuitTriggered(QObject *);
 	void init();
+	void onResetTagsTriggered();
+	void onSelectTagsTriggered();
 private:
 	QScopedPointer<ModulePrivate> p;
 };

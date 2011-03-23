@@ -2,7 +2,6 @@
 #include "simplecontactlistitem.h"
 #include "abstractcontactmodel.h"
 #include <qutim/messagesession.h>
-#include "tagsfilterdialog.h"
 #include <QtGui/QContextMenuEvent>
 #include <QHeaderView>
 #include <qutim/icon.h>
@@ -136,30 +135,6 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 	//			if (drag->exec(supportedActions, defaultDropAction) == Qt::MoveAction)
 	//				d->clearOrRemove();
 	//			{}
-}
-
-void TreeView::onResetTagsTriggered()
-{
-	AbstractContactModel *m = qobject_cast<AbstractContactModel*>(model());
-	Q_ASSERT(m);
-	m->filterList(QStringList());
-}
-
-void TreeView::onSelectTagsTriggered()
-{
-	AbstractContactModel *m = qobject_cast<AbstractContactModel*>(model());
-	Q_ASSERT(m);
-	QStringList tags = m->tags();
-	TagsFilterDialog *dialog = new TagsFilterDialog(tags,this);
-	if (!m->selectedTags().isEmpty())
-		tags = m->selectedTags();
-	dialog->setSelectedTags(tags);
-	SystemIntegration::show(dialog);
-	centerizeWidget(dialog);
-	if (dialog->exec()) {
-		m->filterList(dialog->selectedTags());
-	}
-	dialog->deleteLater();
 }
 
 void TreeView::onCollapsed(const QModelIndex &index)

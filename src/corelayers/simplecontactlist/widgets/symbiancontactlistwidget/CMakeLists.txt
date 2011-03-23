@@ -1,6 +1,6 @@
 if(NOT SYMBIAN)
 	message(STATUS "Symbian contactlist widget will be skipped")
-	#return()
+	return()
 endif()
 
 qutim_add_plugin(symbiancontactlistwidget

@@ -25,8 +25,6 @@ protected:
 protected slots:
 	void onClick(const QModelIndex &index);
 	void initScrolling();
-	void onResetTagsTriggered();
-	void onSelectTagsTriggered();
 	void onCollapsed(const QModelIndex &index);
 	void onExpanded(const QModelIndex &index);
 	void onTagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);

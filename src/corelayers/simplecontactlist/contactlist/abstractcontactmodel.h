@@ -23,6 +23,7 @@
 namespace qutim_sdk_0_3
 {
 class Contact;
+class Account;
 }
 
 namespace Core {
@@ -35,15 +36,17 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 public:
     explicit AbstractContactModel(QObject *parent = 0);
 	virtual ~AbstractContactModel();
-	virtual void addContact(qutim_sdk_0_3::Contact *contact) = 0;
-	virtual void removeContact(qutim_sdk_0_3::Contact *contact) = 0;
 	virtual QStringList selectedTags() const;
 	virtual QStringList tags() const;
 public slots:
+	virtual void addContact(qutim_sdk_0_3::Contact *contact) = 0;
+	virtual void removeContact(qutim_sdk_0_3::Contact *contact) = 0;
 	virtual bool showOffline() const;
 	virtual void hideShowOffline();
 	virtual void filterList(const QString &name);
 	virtual void filterList(const QStringList &tags);
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
 signals:
 	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 };

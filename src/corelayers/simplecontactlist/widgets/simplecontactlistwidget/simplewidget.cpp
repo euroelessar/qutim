@@ -87,6 +87,7 @@ SimpleWidget::SimpleWidget()
 #endif
 
 	m_model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
+	Q_ASSERT(m_model);
 	m_view = new TreeView(m_model, this);
 	layout->addWidget(m_view);
 	m_view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
@@ -262,8 +263,7 @@ void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 void SimpleWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 {
-	Account *account = qobject_cast<Account *>(sender());
-	Q_ASSERT(account);
+	Account *account = sender_cast<Account *>(sender());
 	QAction *action = m_actions.value(account);
 	Q_ASSERT(action);
 	action->setIcon(status.icon());
