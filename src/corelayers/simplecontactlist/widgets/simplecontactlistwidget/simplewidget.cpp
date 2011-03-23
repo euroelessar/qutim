@@ -346,7 +346,14 @@ bool SimpleWidget::event(QEvent *event)
 	return QMainWindow::event(event);
 }
 
-
+void SimpleWidget::initActionGenerators()
+{
+	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
+	ActionGenerator *gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), controller);
+	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
+	addButton(gen);
+}
 
 } // namespace SimpleContactList
 } // namespace Core
+

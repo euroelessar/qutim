@@ -87,10 +87,6 @@ Module::Module() : p(new ModulePrivate)
 	gen->setType(512);
 	addAction(gen);
 
-	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
-	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
-	addButton(gen);
-
 	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
 	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
 	p->tagsGenerator->setPriority(-127);
