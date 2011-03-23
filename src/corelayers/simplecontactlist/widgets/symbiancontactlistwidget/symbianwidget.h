@@ -1,6 +1,13 @@
-#ifndef SIMPLEWIDGET_H
-#define SIMPLEWIDGET_H
-#include <QMainWindow>
+/****************************************************************************
+ *  symbianwidget.h
+ *
+ *  (c) LLC INRUSCOM, Russia
+ *
+*****************************************************************************/
+
+#ifndef SYMBIANWIDGET_H
+#define SYMBIANWIDGET_H
+#include <QWidget>
 #include <abstractcontactlist.h>
 #include <simplecontactlistview.h>
 #include <qutim/status.h>
@@ -17,7 +24,7 @@ class QAction;
 namespace Core {
 namespace SimpleContactList {
 
-class SimpleWidget : public QMainWindow, public AbstractContactListWidget
+class SymbianWidget  : public QWidget, public AbstractContactListWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::SimpleContactList::AbstractContactListWidget)
@@ -25,9 +32,7 @@ class SimpleWidget : public QMainWindow, public AbstractContactListWidget
 	Q_CLASSINFO("Uses", "ContactModel")
 	Q_CLASSINFO("Service", "ContactListWidget")
 public:
-	SimpleWidget();
-	~SimpleWidget();
-	void loadGeometry();
+    SymbianWidget();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
 protected:
@@ -39,16 +44,12 @@ private slots:
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountDestroyed(QObject *obj);
 	void onStatusChanged();
-	void onSearchButtonToggled(bool toggled);
 	void showStatusDialog();
 	void changeStatusTextAccepted();
-	void orientationChanged();
 private:
 	TreeView *m_view;
 	AbstractContactModel *m_model;
-	ActionToolBar *m_mainToolBar;
-	QPushButton *m_statusBtn;
-	QPushButton *m_searchBtn;
+	QAction *m_statusBtn;
 	QLineEdit *m_searchBar;
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;
@@ -58,4 +59,4 @@ private:
 } // namespace SimpleContactList
 } // namespace Core
 
-#endif // SIMPLEWIDGET_H
+#endif // SYMBIANWIDGET_H
