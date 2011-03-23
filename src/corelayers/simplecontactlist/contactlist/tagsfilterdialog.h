@@ -7,31 +7,31 @@
 class QListWidgetItem;
 
 namespace Ui {
-    class TagsFilterDialog;
+class TagsFilterDialog;
 }
 
 namespace Core
 {
-	namespace SimpleContactList
-	{
+namespace SimpleContactList
+{
 
-		class TagsFilterDialog : public QDialog
-		{
-			Q_OBJECT
+class TagsFilterDialog : public QDialog
+{
+	Q_OBJECT
 
-		public:
-			explicit TagsFilterDialog(const QStringList &tags, QWidget *parent = 0);
-			~TagsFilterDialog();
-			QStringList selectedTags() const;
-			void setSelectedTags(const QStringList &);
-		protected:
-			void changeEvent(QEvent *e);
+public:
+	explicit TagsFilterDialog(const QStringList &tags, QWidget *parent = 0);
+	~TagsFilterDialog();
+	QStringList selectedTags() const;
+	void setSelectedTags(const QStringList &);
+protected:
+	void changeEvent(QEvent *e);
 
-		private:
-			Ui::TagsFilterDialog *ui;
-			QHash<QString, QListWidgetItem*> m_items;
-		};
+private:
+	Ui::TagsFilterDialog *ui;
+	QHash<QString, QListWidgetItem*> m_items;
+};
 
-	}
+}
 }
 #endif // TAGSFILTERDIALOG_H
