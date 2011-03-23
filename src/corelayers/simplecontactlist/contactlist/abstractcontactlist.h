@@ -13,9 +13,7 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactList : public MenuController
     Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)
 	Q_CLASSINFO("Service", "ContactList")
-#ifndef Q_WS_S60
 	Q_CLASSINFO("Uses", "ChatLayer")
-#endif
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "MetaContactManager")
 	Q_CLASSINFO("Uses", "ContactDelegate")

@@ -20,6 +20,7 @@
 #include <QLineEdit>
 #include <qutim/metacontact.h>
 #include <QDesktopWidget>
+#include <qutim/actiongenerator.h>
 
 namespace Core {
 namespace SimpleContactList {
@@ -44,9 +45,11 @@ SimpleWidget::SimpleWidget()
 {
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	setWindowIcon(Icon("qutim"));
+
 	resize(150,0);//hack
 	setAttribute(Qt::WA_AlwaysShowToolTips);
 	loadGeometry();
+
 	QWidget *w = new QWidget(this);
 	setCentralWidget(w);
 	setUnifiedTitleAndToolBarOnMac(true);
@@ -55,13 +58,17 @@ SimpleWidget::SimpleWidget()
 	layout->setMargin(0);
 	layout->setSpacing(0);
 
-
 	if (QtWin::isCompositionEnabled()) {
 		QtWin::extendFrameIntoClientArea(this);
 		setContentsMargins(0, 0, 0, 0);
 	}
 
-	int size = Config().group("contactList").value("toolBarIconSize", 22);
+#if defined(Q_WS_MAEMO_5)
+	int size = 48; //TODO use relative sizes table
+#else
+	int size = 22;
+#endif
+	size = Config().group("contactList").value("toolBarIconSize", size);
 
 	QSize toolbar_size (size,size);
 	m_mainToolBar = new ActionToolBar(this);
@@ -150,6 +157,21 @@ SimpleWidget::SimpleWidget()
 	m_status_action->setData(last_status);
 
 	statusMenu->addSeparator();
+
+#ifdef Q_WS_MAEMO_5
+	m_statusBtn->setMaximumHeight(50);
+	m_searchBtn->setMaximumHeight(50);
+	m_widget->setAttribute(Qt::WA_Maemo5StackedWindow);
+	m_widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
+#endif
+
+	//TODO, Smith, separate it to another plugin!
+#ifdef QUTIM_MOBILE_UI
+	connect(QApplication::desktop(), SIGNAL(resized(int)),
+			this, SLOT(orientationChanged()));
+	orientationChanged();
+#endif
 }
 
 SimpleWidget::~SimpleWidget()
@@ -295,6 +317,36 @@ void SimpleWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
+void SimpleWidget::orientationChanged()
+{
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	if (screenGeometry.width() > screenGeometry.height()) {
+		addToolBar(Qt::LeftToolBarArea,m_mainToolBar);
+		m_mainToolBar->setOrientation(Qt::Vertical);
+	}
+	else {
+		addToolBar(Qt::TopToolBarArea,m_mainToolBar);
+		m_mainToolBar->setOrientation(Qt::Horizontal);
+
+	}
+}
+
+bool SimpleWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::LanguageChange) {
+		foreach (QAction *action,m_statusActions) {
+			Status last = m_statusBtn->property("lastStatus").value<Status>();
+			m_statusBtn->setText(last.name());
+			Status::Type type = static_cast<Status::Type>(action->data().toInt());
+			action->setText(Status(type).name());
+		}
+		m_status_action->setText(tr("Set Status Text"));
+		event->accept();
+	}
+	return QMainWindow::event(event);
+}
+
+
+
 } // namespace SimpleContactList
 } // namespace Core
-

@@ -32,7 +32,9 @@ public:
 	virtual void removeButton(ActionGenerator *generator);
 protected:
 	QAction *createGlobalStatusAction(Status::Type type);
+	bool event(QEvent *event);
 private slots:
+	void initActionGenerators();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountDestroyed(QObject *obj);
@@ -41,6 +43,7 @@ private slots:
 	void showStatusDialog();
 	void changeStatusTextAccepted();
 	void addContact(qutim_sdk_0_3::Contact *contact);
+	void orientationChanged();
 private:
 	TreeView *m_view;
 	AbstractContactModel *m_model;
