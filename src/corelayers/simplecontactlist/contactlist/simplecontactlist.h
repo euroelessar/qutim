@@ -3,12 +3,12 @@
 
 #include <qutim/actiontoolbar.h>
 #include <qutim/status.h>
-#include <qutim/contact.h>
 #include "abstractcontactlist.h"
 
 namespace qutim_sdk_0_3
 {
 class Account;
+class Contact;
 }
 
 using namespace qutim_sdk_0_3;
@@ -19,7 +19,7 @@ namespace SimpleContactList
 {
 struct ModulePrivate;
 
-class Module : public MenuController
+class SIMPLECONTACTLIST_EXPORT Module : public MenuController
 {
 	Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)
@@ -37,11 +37,10 @@ public slots:
 	void show();
 	void hide();
 	void changeVisibility();
+	void addContact(qutim_sdk_0_3::Contact *);
 private slots:
 	void onConfigureClicked(QObject*);
 	void onQuitTriggered(QObject *);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
-	void addContact(qutim_sdk_0_3::Contact *contact);
 	void init();
 	void onResetTagsTriggered();
 	void onSelectTagsTriggered();

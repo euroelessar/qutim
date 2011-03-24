@@ -38,19 +38,28 @@ ActionHandler *handler()
 }
 Q_GLOBAL_STATIC(QSet<DynamicMenu*>, dynamicMenuSet)
 
-MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate(this))
+MenuControllerPrivate::MenuControllerPrivate(MenuController *c):
+	owner(0), flags(0xffff), q_ptr(c)
 {
 }
 
-MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) : QObject(parent), d_ptr(&mup)
+MenuController::MenuController(QObject *parent) :
+	QObject(parent), d_ptr(new MenuControllerPrivate(this))
 {
+	Q_D(MenuController);
+	d->menu = new DynamicMenu(d);
+}
+
+MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) :
+	QObject(parent), d_ptr(&mup)
+{
+	Q_D(MenuController);
+	d->menu = new DynamicMenu(d);
 }
 
 MenuController::~MenuController()
 {
-	d_func()->q_ptr = 0;
-	//		foreach (ActionInfo info,d_func()->actions)
-	//			delete info.gen;
+	d_func()->menu->deleteLater();
 }
 
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
@@ -314,13 +323,11 @@ void DynamicMenu::onAboutToHide()
 QMenu *MenuController::menu(bool deleteOnClose) const
 {
 	Q_UNUSED(deleteOnClose);
-	if (!d_func()->menu) {
-		d_func()->menu = new DynamicMenu(d_func());
-	}
+	Q_D(const MenuController);
 #ifdef Q_WS_MAEMO_5
-	d_func()->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
+	d->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
 	//maemo does not use QMenu in main menu. Only the action in menu.
-	foreach (QAction *action, d_func()->menu->menu()->actions()) {
+	foreach (QAction *action, d->menu->menu()->actions()) {
 		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
 			if (!action->isSeparator())
@@ -331,7 +338,7 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 		ActionGeneratorPrivate::get(gen)->show(action,controller);
 	}
 #endif
-	return d_func()->menu->menu();
+	return d->menu->menu();
 }
 
 void MenuController::showMenu(const QPoint &pos)
@@ -398,6 +405,7 @@ void MenuController::setMenuOwner(MenuController *controller)
 {
 	Q_D(MenuController);
 	d->owner = controller;
+	d->menu->addActions(d->menu->allActions());
 }
 
 void MenuController::setMenuFlags(const MenuFlags &flags)

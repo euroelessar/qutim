@@ -21,6 +21,7 @@
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
 #include <QtCore/QEvent>
+#include <QAction>
 
 namespace qutim_sdk_0_3
 {
@@ -135,6 +136,8 @@ void MyObject::onAction(QObject *obj)
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);
 	void setShortcut(const QKeySequence &shortcut);
+	void setMenuRole(QAction::MenuRole role);
+	QAction::MenuRole menuRole() const;
 	QList<QAction*> actions(QObject *object) const;
 	QMap<QObject*, QAction*> actions() const;
 	static ActionGenerator *get(QAction *);

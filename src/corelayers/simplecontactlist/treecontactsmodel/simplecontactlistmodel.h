@@ -28,8 +28,6 @@ public:
 	virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-	void addContact(Contact *contact);
-	void removeContact(Contact *contact);
 	bool containsContact(Contact *contact) const;
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -46,6 +44,8 @@ public:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	bool event(QEvent *ev);
 public slots:
+	void addContact(qutim_sdk_0_3::Contact *contact);
+	void removeContact(qutim_sdk_0_3::Contact *contact);
 	void filterList(const QStringList &tags);
 	void filterList(const QString &filter);
 protected slots:
@@ -58,6 +58,7 @@ protected slots:
 	void onContactInListChanged(bool isInList);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
+	void onAccountCreated(qutim_sdk_0_3::Account *);
 protected:
 	void timerEvent(QTimerEvent *ev);
 private:

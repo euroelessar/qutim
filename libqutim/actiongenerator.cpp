@@ -267,6 +267,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setChecked(d->data->checked);
 	action->setToolTip(d->toolTip);
 	action->setShortcuts(d->shortCuts);
+	action->setMenuRole(d->menuRole);
 	localizationHelper()->addAction(action, d);
 	//action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 
@@ -425,4 +426,16 @@ ActionGenerator * ActionGeneratorLocalizationHelper::getGenerator(QAction *actio
 	return p ? p->q_ptr : 0;
 }
 
+void ActionGenerator::setMenuRole(QAction::MenuRole role)
+{
+	d_func()->menuRole = role;
 }
+
+QAction::MenuRole ActionGenerator::menuRole() const
+{
+	return d_func()->menuRole;
+}
+
+}
+
+

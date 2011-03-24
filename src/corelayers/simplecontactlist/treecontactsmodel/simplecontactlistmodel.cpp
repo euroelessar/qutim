@@ -16,6 +16,7 @@
 #include <qutim/event.h>
 #include <QApplication>
 #include <qutim/systemintegration.h>
+#include <qutim/protocol.h>
 #include <QTimer>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
@@ -435,6 +436,7 @@ void Model::removeFromContactList(Contact *contact, bool deleted)
 		delete item;
 	}
 	p->contacts.remove(contact);
+	p->unreadContacts.remove(contact);
 }
 
 void Model::contactDeleted(QObject *obj)
@@ -758,6 +760,10 @@ void Model::timerEvent(QTimerEvent *timerEvent)
 	} else if (timerEvent->timerId() == p->unreadTimer.timerId()) {
 		foreach (Contact *contact, p->unreadContacts) {
 			ContactData::Ptr item_data = p->contacts.value(contact);
+			//if (!item_data) {//FIXME why p->contacts doesn't contains contact
+			//	qDebug() << "Unread" << contact <<  p->unreadContacts;
+			//	continue;
+			//}
 			for (int i = 0; i < item_data->items.size(); i++) {
 				ContactItem *item = item_data->items.at(i);
 				QModelIndex index = createIndex(item->index(), 0, item);
@@ -1016,8 +1022,26 @@ void Model::init()
 {
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+
+	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+
+	foreach(Protocol *proto, Protocol::all()) {
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach(Account *account, proto->accounts())
+			onAccountCreated(account);
+	}
+}
+
+void Model::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	foreach (Contact *contact, account->findChildren<Contact*>())
+		addContact(contact);
+	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 }
 
 }
 }
+
 

@@ -31,6 +31,7 @@
 #include <QWidgetAction>
 #include <qutim/utils.h>
 #include "tagsfilterdialog.h"
+#include <qutim/contact.h>
 
 namespace Core
 {
@@ -164,15 +165,6 @@ bool Module::event(QEvent *ev)
 
 void Module::init()
 {
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-
-	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, proto->accounts())
-			onAccountCreated(account);
-	}
-
 	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
 	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
 	p->tagsGenerator->setPriority(-127);
@@ -206,21 +198,11 @@ void Module::onSelectTagsTriggered()
 	dialog->deleteLater();
 }
 
-void Module::onAccountCreated(qutim_sdk_0_3::Account *account)
-{
-	foreach (Contact *contact, account->findChildren<Contact *>()) {
-		addContact(contact);
-	}
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-}
-
 void Module::addContact(qutim_sdk_0_3::Contact *contact)
 {
-	p->model->addContact(contact);
+	p->model->metaObject()->invokeMethod(p->model, "addContact",
+								   Q_ARG(qutim_sdk_0_3::Contact*, contact));
 }
-
-
 
 }
 }

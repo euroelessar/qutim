@@ -1,3 +1,9 @@
+if(NOT APPLE)
+	message(STATUS "Mac Os X contactlist widget will be skipped")
+	return()
+endif()
+
+
 qutim_add_plugin(maccontactlistwidget
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/macwidget.h

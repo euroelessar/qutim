@@ -25,6 +25,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <abstractcontactmodel.h>
+#include <simplecontactlist.h>
 
 namespace Core {
 namespace SimpleContactList {
@@ -106,6 +107,8 @@ SymbianWidget::SymbianWidget()
 
 	statusMenu->addSeparator();
 	QTimer::singleShot(0, this, SLOT(init()));
+
+	setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 

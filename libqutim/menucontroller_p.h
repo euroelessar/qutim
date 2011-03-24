@@ -57,13 +57,12 @@ class MenuControllerPrivate
 public:
 	Q_DECLARE_PUBLIC(MenuController)
 	typedef MenuController::MenuFlag MenuFlag;
-	MenuControllerPrivate(MenuController *c)
-		: owner(0), flags(0xffff), q_ptr(c) {}
+	MenuControllerPrivate(MenuController *c);
 	QList<ActionInfo> actions;
 	MenuController *owner;
 	int flags;
 	MenuController *q_ptr;
-	mutable QPointer<DynamicMenu> menu;
+	mutable DynamicMenu *menu;
 	static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 	static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 };

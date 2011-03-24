@@ -51,6 +51,7 @@ public:
 	int priority;
 	ActionConnectionType connectionType;
 	ActionData *data;
+	QAction::MenuRole menuRole;
 	static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 	static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
 	void ensureConnectionType();
