@@ -66,8 +66,8 @@ Module::Module() : p(new ModulePrivate)
 							   );
 
 	QObject *object = ServiceManager::getByName("ContactListWidget");
-	p->widget = sender_cast<QWidget*>(object);
-	p->contactListWidget = sender_cast<AbstractContactListWidget*>(object);
+	p->widget = qobject_cast<QWidget*>(object);
+	p->contactListWidget = qobject_cast<AbstractContactListWidget*>(object);
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
