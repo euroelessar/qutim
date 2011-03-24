@@ -24,6 +24,7 @@
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
 #include <qutim/systemintegration.h>
+#include <qutim/metacontactmanager.h>
 #include <QMenuBar>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -87,6 +88,16 @@ Module::Module() : p(new ModulePrivate)
 	addAction(gen);
 
 	p->model = sender_cast<AbstractContactModel*>(ServiceManager::getByName("ContactModel"));
+
+	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+
+	foreach(Protocol *proto, Protocol::all()) {
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach(Account *account, proto->accounts())
+			onAccountCreated(account);
+	}
+
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 
@@ -193,6 +204,21 @@ void Module::onSelectTagsTriggered()
 	dialog->deleteLater();
 }
 
-}
+void Module::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	foreach (Contact *contact, account->findChildren<Contact *>()) {
+		addContact(contact);
+	}
+	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 }
 
+void Module::addContact(qutim_sdk_0_3::Contact *contact)
+{
+	p->model->addContact(contact);
+}
+
+
+
+}
+}

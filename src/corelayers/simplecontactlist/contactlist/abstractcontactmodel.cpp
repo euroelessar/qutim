@@ -14,6 +14,8 @@
 *****************************************************************************/
 
 #include "abstractcontactmodel.h"
+#include <qutim/metacontactmanager.h>
+#include <qutim/protocol.h>
 #include <qutim/contact.h>
 
 namespace Core {

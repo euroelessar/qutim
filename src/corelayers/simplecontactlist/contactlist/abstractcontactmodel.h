@@ -38,9 +38,9 @@ public:
 	virtual ~AbstractContactModel();
 	virtual QStringList selectedTags() const;
 	virtual QStringList tags() const;
-public slots:
 	virtual void addContact(qutim_sdk_0_3::Contact *contact) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Contact *contact) = 0;
+public slots:
 	virtual bool showOffline() const;
 	virtual void hideShowOffline();
 	virtual void filterList(const QString &name);

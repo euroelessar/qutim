@@ -16,8 +16,6 @@
 #include <qutim/event.h>
 #include <QApplication>
 #include <qutim/systemintegration.h>
-#include <QTimer>
-#include <qutim/protocol.h>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 #define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
@@ -76,10 +74,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	ConfigGroup group = Config().group("contactList");
 	p->showOffline = group.value("showOffline", true);
-
-	QTimer::singleShot(0, this, SLOT(loadContacts()));
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 }
 
 Model::~Model()
@@ -763,7 +757,6 @@ void Model::timerEvent(QTimerEvent *timerEvent)
 	} else if (timerEvent->timerId() == p->unreadTimer.timerId()) {
 		foreach (Contact *contact, p->unreadContacts) {
 			ContactData::Ptr item_data = p->contacts.value(contact);
-			//Sokol, please help! Here is segfault
 			for (int i = 0; i < item_data->items.size(); i++) {
 				ContactItem *item = item_data->items.at(i);
 				QModelIndex index = createIndex(item->index(), 0, item);
@@ -1018,24 +1011,5 @@ bool Model::showOffline() const
 	return p->showOffline;
 }
 
-void Model::onAccountCreated(qutim_sdk_0_3::Account *account)
-{
-	foreach (Contact *contact, account->findChildren<Contact *>()) {
-		addContact(contact);
-	}
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-}
-
-void Model::loadContacts()
-{
-	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, proto->accounts())
-			onAccountCreated(account);
-	}
-}
-
 }
 }
-

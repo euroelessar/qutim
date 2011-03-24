@@ -6,6 +6,11 @@
 #include <qutim/contact.h>
 #include "abstractcontactlist.h"
 
+namespace qutim_sdk_0_3
+{
+class Account;
+}
+
 using namespace qutim_sdk_0_3;
 
 namespace Core
@@ -31,6 +36,8 @@ public slots:
 private slots:
 	void onConfigureClicked(QObject*);
 	void onQuitTriggered(QObject *);
+	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void addContact(qutim_sdk_0_3::Contact *contact);
 	void init();
 	void onResetTagsTriggered();
 	void onSelectTagsTriggered();
