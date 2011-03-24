@@ -1,5 +1,5 @@
-#include "mspellsettings.h"
-#include "mspellchecker.h"
+#include "macspellsettings.h"
+#include "macspellchecker.h"
 #include <QComboBox>
 #include <QFormLayout>
 #include <qutim/config.h>
@@ -7,7 +7,7 @@
 
 namespace MacIntegration
 {
-	MSpellSettings::MSpellSettings()
+	MacSpellSettings::MacSpellSettings()
 	{
 		QFormLayout *layout = new QFormLayout(this);
 		m_languagesBox = new QComboBox(this);
@@ -15,19 +15,19 @@ namespace MacIntegration
 		lookForWidgetState(m_languagesBox);
 	}
 
-	MSpellSettings::~MSpellSettings()
+	MacSpellSettings::~MacSpellSettings()
 	{
 	}
 
-	void MSpellSettings::loadImpl()
+	void MacSpellSettings::loadImpl()
 	{
 		m_languagesBox->clear();
 		m_languagesBox->addItem("System", "system");
 		int current = -1, i = 0;
 		Config group = Config().group("speller");
 		QString currentLang = group.value("language", QString());
-		foreach (const QString &lang, MSpellChecker::instance()->languages()) {
-			m_languagesBox->addItem(MSpellChecker::toPrettyLanguageName(lang), lang);
+		foreach (const QString &lang, MacSpellChecker::instance()->languages()) {
+			m_languagesBox->addItem(MacSpellChecker::toPrettyLanguageName(lang), lang);
 			if (current == -1 && lang == currentLang)
 				current = i;
 			++i;
@@ -36,11 +36,11 @@ namespace MacIntegration
 		m_languagesBox->setCurrentIndex(current);
 	}
 
-	void MSpellSettings::saveImpl()
+	void MacSpellSettings::saveImpl()
 	{
 		QString lang = m_languagesBox->itemData(m_languagesBox->currentIndex()).toString();
 		Config group = Config().group("speller");
 		group.setValue("language", lang);
-		MSpellChecker::instance()->loadSettings(lang);
+		MacSpellChecker::instance()->loadSettings(lang);
 	}
 }

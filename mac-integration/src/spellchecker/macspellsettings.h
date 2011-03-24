@@ -1,5 +1,5 @@
-#ifndef MSPELLSETTINGS_H
-#define MSPELLSETTINGS_H
+#ifndef MACSPELLSETTINGS_H
+#define MACSPELLSETTINGS_H
 
 #include <qutim/settingswidget.h>
 
@@ -8,13 +8,13 @@ class QComboBox;
 
 namespace MacIntegration
 {
-	class MSpellSettings : public SettingsWidget
+	class MacSpellSettings : public SettingsWidget
 	{
 		Q_OBJECT
-			Q_DISABLE_COPY(MSpellSettings)
+			Q_DISABLE_COPY(MacSpellSettings)
 		public:
-			explicit MSpellSettings();
-			virtual ~MSpellSettings();
+			explicit MacSpellSettings();
+			virtual ~MacSpellSettings();
 		protected:
 			void loadImpl();
 			void saveImpl();
@@ -24,4 +24,4 @@ namespace MacIntegration
 	};
 }
 
-#endif // MSPELLSETTINGS_H
+#endif // MACSPELLSETTINGS_H

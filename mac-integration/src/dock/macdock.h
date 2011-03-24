@@ -1,28 +1,31 @@
-#ifndef MDOCK_H
-#define MDOCK_H
+#ifndef MACDOCK_H
+#define MACDOCK_H
 
 #include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <QSystemTrayIcon>
+#include <QBasicTimer>
 
 namespace MacIntegration
 {
 	using namespace qutim_sdk_0_3;
 
-	struct MDockPrivate;
+	struct MacDockPrivate;
 
-	class MDock : public MenuController
+	class MacDock : public MenuController
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Service", "DockManager")
+		Q_CLASSINFO("Service", "TrayIcon")
 		Q_CLASSINFO("Uses", "ContactList")
 		Q_CLASSINFO("Uses", "ChatLayer")
 		Q_CLASSINFO("Uses", "IconLoader")
-		Q_DECLARE_PRIVATE(MDock)
+		Q_DECLARE_PRIVATE(MacDock)
 		public:
-			MDock();
-			~MDock();
+			MacDock();
+			~MacDock();
 			void dockIconClickEvent();
+			void loadSettings();
 		private slots:
 			void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 			void onSessionDestroyed();
@@ -31,12 +34,18 @@ namespace MacIntegration
 			void setStatusIcon();
 			void onStatusChanged();
 			void onActivatedSession(bool state);
+			void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
 		protected:
-			void createStatusAction(Status::Type type);
+			void createDockDeps();
+			void removeTrayDeps();
+			void createStatusAction(Status::Type type, QMenu *parent);
+			void createStatuses(QMenu *parent);
+			void createTrayDeps();
 			void setBadgeLabel(const QString &string);
+			virtual void timerEvent(QTimerEvent *timer);
 		private:
-			QScopedPointer<MDockPrivate> d_ptr;
+			QScopedPointer<MacDockPrivate> d_ptr;
 	};
 }
 
-#endif // MDOCK_H
+#endif // MACDOCK_H

@@ -1,5 +1,5 @@
-#include "mspellchecker.h"
-#include "mspellsettings.h"
+#include "macspellchecker.h"
+#include "macspellsettings.h"
 #include <QStringList>
 #include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
@@ -11,13 +11,13 @@
 
 namespace MacIntegration
 {
-	MSpellChecker *MSpellChecker::self = 0;
+	MacSpellChecker *MacSpellChecker::self = 0;
 
-	MSpellChecker::MSpellChecker()
+	MacSpellChecker::MacSpellChecker()
 	{
 		Q_ASSERT(!self);
 		self = this;
-		Settings::registerItem(new GeneralSettingsItem<MSpellSettings>(Settings::General, Icon("tools-check-spelling"),
+		Settings::registerItem(new GeneralSettingsItem<MacSpellSettings>(Settings::General, Icon("tools-check-spelling"),
 				QT_TRANSLATE_NOOP("Settings", "Spell checker")));
 		QString lang = Config().group("speller").value("language", QString());
 		if (lang == QLatin1String("system"))
@@ -25,11 +25,11 @@ namespace MacIntegration
 		loadSettings(lang);
 	}  
 
-	MSpellChecker::~MSpellChecker()
+	MacSpellChecker::~MacSpellChecker()
 	{
 	}
 
-	bool MSpellChecker::isCorrect(const QString &word) const
+	bool MacSpellChecker::isCorrect(const QString &word) const
 	{
 		NSString *mac_word = [[NSString alloc] initWithUTF8String:word.toUtf8().constData()];
 		NSRange r = {0, 0};
@@ -42,7 +42,7 @@ namespace MacIntegration
 			return false;
 	}
 
-	QStringList MSpellChecker::suggest(const QString &word) const
+	QStringList MacSpellChecker::suggest(const QString &word) const
 	{ 
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		NSString* mac_word = [[NSString alloc] initWithUTF8String:word.toUtf8().constData()];
@@ -70,14 +70,14 @@ namespace MacIntegration
 		return result;
 	}
 
-	void MSpellChecker::store(const QString &word) const
+	void MacSpellChecker::store(const QString &word) const
 	{
 		NSString* mac_word = [[NSString alloc] initWithUTF8String:word.toUtf8().constData()];
 		[[NSSpellChecker sharedSpellChecker] learnWord:mac_word];
 		[mac_word release];
 	}
 
-	void MSpellChecker::storeReplacement(const QString &bad, const QString &good)
+	void MacSpellChecker::storeReplacement(const QString &bad, const QString &good)
 	{
 		NSString* mac_good_word = [[NSString alloc] initWithUTF8String:good.toUtf8().constData()];
 		NSString* mac_bad_word = [[NSString alloc] initWithUTF8String:bad.toUtf8().constData()];
@@ -87,7 +87,7 @@ namespace MacIntegration
 		[mac_bad_word release];
 	}
 
-	QStringList MSpellChecker::languages()
+	QStringList MacSpellChecker::languages()
 	{
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		NSArray* const array = [[NSSpellChecker sharedSpellChecker] availableLanguages];
@@ -110,7 +110,7 @@ namespace MacIntegration
 		return result;
 	}
 
-	QString MSpellChecker::toPrettyLanguageName(const QString &lang)
+	QString MacSpellChecker::toPrettyLanguageName(const QString &lang)
 	{
 		QString localeName = lang.mid(0, lang.indexOf('-'));
 		QString type = lang.mid(localeName.length()+1);
@@ -123,7 +123,7 @@ namespace MacIntegration
 		return name;
 	}
 
-	void MSpellChecker::loadSettings(const QString &lang)
+	void MacSpellChecker::loadSettings(const QString &lang)
 	{
 		NSString* mac_lang = [[NSString alloc] initWithUTF8String:lang.toUtf8().constData()];
 		[[NSSpellChecker sharedSpellChecker] setLanguage:mac_lang];

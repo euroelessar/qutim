@@ -1,4 +1,4 @@
-#ifndef MIDLE_H
+#ifndef MACIDLE_H
 #define MIDLE_H
 
 #include <QObject>
@@ -8,13 +8,13 @@ namespace MacIntegration
 {
 	using namespace qutim_sdk_0_3;
 
-	struct MIdlePrivate;
+	struct MacIdlePrivate;
 
-	class MIdle : public QObject
+	class MacIdle : public QObject
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Service", "AutoAway")
-		Q_DECLARE_PRIVATE(MIdle)
+		Q_DECLARE_PRIVATE(MacIdle)
 		public:
 			enum Reason {
 				Screensaver,
@@ -22,16 +22,16 @@ namespace MacIntegration
 				Inactive,
 				NoIdle
 			};
-			MIdle();
-			~MIdle();
+			MacIdle();
+			~MacIdle();
 			void setIdleOn(Reason reason);
 			void setIdleOff();
 			void reloadSettings();
 		private slots:
 			void onTimeout();
 		private:
-			QScopedPointer<MIdlePrivate> d_ptr;
+			QScopedPointer<MacIdlePrivate> d_ptr;
 	};
 }
 
-#endif // MIDLE_H
+#endif // MACIDLE_H

@@ -1,6 +1,6 @@
-#include "midle.h"
-#include "midle-global.h"
-#include "midlewidget.h"
+#include "macidle.h"
+#include "macidle-global.h"
+#include "macidlewidget.h"
 #include <qutim/account.h>
 #include <qutim/status.h>
 #include <qutim/settingslayer.h>
@@ -9,7 +9,7 @@
 
 @interface IdleHandler : NSObject {
 	@public
-		MacIntegration::MIdle *idleManager;
+		MacIntegration::MacIdle *idleManager;
 }
 	- (void)screenSaverStarted;
 	- (void)screenSaverStopped;
@@ -39,7 +39,7 @@
 
 - (void)screenSaverStarted
 {
-	idleManager->setIdleOn(MacIntegration::MIdle::Screensaver);
+	idleManager->setIdleOn(MacIntegration::MacIdle::Screensaver);
 }
 
 - (void)screenSaverStopped
@@ -48,11 +48,11 @@
 }
 @end
 
-MacIntegration::MIdle* pIdleStatusChanger = 0;
+MacIntegration::MacIdle* pIdleStatusChanger = 0;
 
 namespace MacIntegration
 {
-	struct MIdlePrivate
+	struct MacIdlePrivate
 	{ 
 		IdleHandler *idleHandler;
 		QTimer *timer;
@@ -60,20 +60,20 @@ namespace MacIntegration
 		int awayInterval;
 		bool isInactiveEnabled;
 		int inactiveInterval;
-		MIdle::Reason currentReason;
+		MacIdle::Reason currentReason;
 		QHash<Account *, Status> idleAccounts;
 		QHash<Status::Type, QString> idleMessages;
 	};
 
-	MIdle::MIdle() : d_ptr(new MIdlePrivate())
+	MacIdle::MacIdle() : d_ptr(new MacIdlePrivate())
 	{
-		Q_D(MIdle);
+		Q_D(MacIdle);
 		reloadSettings();
 		d->idleHandler = [[IdleHandler alloc] init];
 		d->timer = new QTimer();
 		connect(d->timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 		d->timer->start(1000);
-		SettingsItem* settings = new GeneralSettingsItem<MIdleWidget>(
+		SettingsItem* settings = new GeneralSettingsItem<MacIdleWidget>(
 				Settings::General,
 				Icon("user-away-extended"),
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
@@ -81,13 +81,13 @@ namespace MacIntegration
 		pIdleStatusChanger = this;
 	}  
 
-	MIdle::~MIdle()
+	MacIdle::~MacIdle()
 	{
 	}
 
-	void MIdle::onTimeout()
+	void MacIdle::onTimeout()
 	{
-		Q_D(MIdle);
+		Q_D(MacIdle);
 		if (d->currentReason == Screensaver)
 			return;
 		CFTimeInterval currentIdle = [d->idleHandler currentIdle];
@@ -102,9 +102,9 @@ namespace MacIntegration
 		}
 	}
 
-	void MIdle::setIdleOn(MIdle::Reason reason)
+	void MacIdle::setIdleOn(MacIdle::Reason reason)
 	{
-		Q_D(MIdle);
+		Q_D(MacIdle);
 		Status::Type statusType;
 		if (reason == Inactive || reason == Screensaver)
 			statusType = Status::NA;
@@ -129,9 +129,9 @@ namespace MacIntegration
 		d->currentReason = reason;
 	}
  
-	void MIdle::setIdleOff()
+	void MacIdle::setIdleOff()
  	{
-		Q_D(MIdle);
+		Q_D(MacIdle);
 		foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 			foreach(Account *account, proto->accounts()) {
 				if (d->idleAccounts.contains(account)) {
@@ -142,9 +142,9 @@ namespace MacIntegration
 		d->currentReason = NoIdle;
 	}
 
-	void MIdle::reloadSettings()
+	void MacIdle::reloadSettings()
 	{
-		Q_D(MIdle);
+		Q_D(MacIdle);
 		Config conf(AA_CONFIG_GROUP);
 		d->isAwayEnabled = conf.value("away-enabled", true);
 		d->isInactiveEnabled   = conf.value("na-enabled",   true);

@@ -1,13 +1,13 @@
 #include <qutim/status.h>
 #include <qutim/config.h>
-#include "midlewidget.h"
-#include "ui_midlewidget.h"
-#include "midle-global.h"
-#include "midle.h"
+#include "macidlewidget.h"
+#include "ui_macidlewidget.h"
+#include "macidle-global.h"
+#include "macidle.h"
 #include <QMessageBox>
 
-MIdleWidget::MIdleWidget() :
-    ui(new Ui::MIdleWidget)
+MacIdleWidget::MacIdleWidget() :
+    ui(new Ui::MacIdleWidget)
 {
     ui->setupUi(this);
 	 Status status;
@@ -17,12 +17,12 @@ MIdleWidget::MIdleWidget() :
 	 ui->naCheckBox->setText(ui->naCheckBox->text().arg(status.name().toString()));
 }
 
-MIdleWidget::~MIdleWidget()
+MacIdleWidget::~MacIdleWidget()
 {
     delete ui;
 }
 
-void MIdleWidget::loadImpl()
+void MacIdleWidget::loadImpl()
 {
 	Config conf = Config(AA_CONFIG_GROUP);
 	ui->awayCheckBox->setChecked(conf.value("away-enabled", true));
@@ -39,7 +39,7 @@ void MIdleWidget::loadImpl()
 	lookForWidgetState(ui->naTextBox);
 }
 
-void MIdleWidget::saveImpl()
+void MacIdleWidget::saveImpl()
 {
 	Config conf = Config(AA_CONFIG_GROUP);
 	conf.setValue("away-enabled", ui->awayCheckBox->isChecked());
@@ -52,12 +52,12 @@ void MIdleWidget::saveImpl()
 	pIdleStatusChanger->reloadSettings();
 }
 
-void MIdleWidget::cancelImpl()
+void MacIdleWidget::cancelImpl()
 {
 
 }
 
-void MIdleWidget::changeEvent(QEvent *e)
+void MacIdleWidget::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {

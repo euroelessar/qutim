@@ -4,17 +4,17 @@
 #include <qutim/settingswidget.h>
 
 namespace Ui {
-    class MIdleWidget;
+    class MacIdleWidget;
 }
 
 using namespace qutim_sdk_0_3;
 
-class MIdleWidget : public SettingsWidget
+class MacIdleWidget : public SettingsWidget
 {
 	Q_OBJECT
 public:
-	MIdleWidget();
-	~MIdleWidget();
+	MacIdleWidget();
+	~MacIdleWidget();
 
 protected:
 	virtual void loadImpl();
@@ -25,7 +25,7 @@ protected:
 	void changeEvent(QEvent *e);
 
 private:
-	Ui::MIdleWidget *ui;
+	Ui::MacIdleWidget *ui;
 };
 
 #endif // IDLESTATUSWIDGET_H
