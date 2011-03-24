@@ -16,6 +16,7 @@
 #include <qutim/event.h>
 #include <QApplication>
 #include <qutim/systemintegration.h>
+#include <QTimer>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 #define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
@@ -70,10 +71,10 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 	p->qutimAboutToQuitEvent = Event::registerType("aboutToQuit");
 	p->initData->qutimStartupEvent = Event::registerType("startup");
 	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	ConfigGroup group = Config().group("contactList");
 	p->showOffline = group.value("showOffline", true);
+
+	QTimer::singleShot(0, this, SLOT(init()));
 }
 
 Model::~Model()
@@ -1011,5 +1012,12 @@ bool Model::showOffline() const
 	return p->showOffline;
 }
 
+void Model::init()
+{
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+}
+
 }
 }
+

@@ -24,53 +24,53 @@
 
 namespace qutim_sdk_0_3
 {
-	class ModuleManagerPrivate;
+class ModuleManagerPrivate;
 
-	/**
-	 * ModuleManager class used to manage plug-ins and extensions/
-	 * ModuleManagerImpl inherit this class and used to hide core layers and protect those.
-	 */
-	class LIBQUTIM_EXPORT ModuleManager : public QObject
+/**
+  * ModuleManager class used to manage plug-ins and extensions/
+  * ModuleManagerImpl inherit this class and used to hide core layers and protect those.
+  */
+class LIBQUTIM_EXPORT ModuleManager : public QObject
+{
+	Q_OBJECT
+protected:
+	// Constructor
+	ModuleManager(QObject *parent = 0);
+	// Destructor
+	virtual ~ModuleManager();
+
+	// Fields
+	QMultiMap<Plugin *, ExtensionInfo> getExtensions(const QMetaObject *service_meta) const;
+	QMultiMap<Plugin *, ExtensionInfo> getExtensions(const char *interface_id) const;
+
+	// Methods
+	void loadPlugins(const QStringList &additional_paths = QStringList());
+	QObject *initExtension(const QMetaObject *service_meta);
+
+	// Virtual Methods
+	virtual ExtensionInfoList coreExtensions() const = 0;
+	virtual void initExtensions();
+
+	// Inline Methods
+	template<typename T>
+	inline QMultiMap<Plugin *, ExtensionInfo> getExtensions()
 	{
-		Q_OBJECT
-	protected:
-		// Constructor
-		ModuleManager(QObject *parent = 0);
-		// Destructor
-		virtual ~ModuleManager();
+		return getExtensions(&T::staticMetaObject);
+	}
 
-		// Fields
-		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const QMetaObject *service_meta) const;
-		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const char *interface_id) const;
-
-		// Methods
-		void loadPlugins(const QStringList &additional_paths = QStringList());
-		QObject *initExtension(const QMetaObject *service_meta);
-
-		// Virtual Methods
-		virtual ExtensionInfoList coreExtensions() const = 0;
-		virtual void initExtensions();
-
-		// Inline Methods
-		template<typename T>
-		inline QMultiMap<Plugin *, ExtensionInfo> getExtensions()
-		{
-			return getExtensions(&T::staticMetaObject);
-		}
-
-		template<typename T>
-		inline T *initExtension()
-		{
-			return static_cast<T *>(initExtension(&T::staticMetaObject));
-		}
-	protected slots:
-		void onQuit();
-	protected:
-		virtual void virtual_hook(int id, void *data);
-	private:
-		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *);
-		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *);
-	};
+	template<typename T>
+	inline T *initExtension()
+	{
+		return static_cast<T *>(initExtension(&T::staticMetaObject));
+	}
+protected slots:
+	void onQuit();
+protected:
+	virtual void virtual_hook(int id, void *data);
+private:
+	friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *);
+	friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *);
+};
 
 //	LIBQUTIM_EXPORT void registerModule(const char *name, const char *description, const char *face, const QMetaObject *meta, int min = 0, int max = -1);
 //	inline void registerModule(const char *name, const char *description, const char *face, int min = 0, int max = -1)

@@ -21,15 +21,16 @@ class SimpleWidget : public QMainWindow, public AbstractContactListWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::SimpleContactList::AbstractContactListWidget)
+	Q_CLASSINFO("Service", "ContactListWidget")
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
-	Q_CLASSINFO("Service", "ContactListWidget")
 public:
 	SimpleWidget();
 	~SimpleWidget();
 	void loadGeometry();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
+	AbstractContactModel *model() const;
 protected:
 	QAction *createGlobalStatusAction(Status::Type type);
 	bool event(QEvent *event);

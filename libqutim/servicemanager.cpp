@@ -4,22 +4,22 @@
 
 namespace qutim_sdk_0_3 {
 
-	ServiceManager::ServiceManager()
-	{
-	}
+ServiceManager::ServiceManager()
+{
+}
 
-	ServiceManager::~ServiceManager()
-	{
-	}
+ServiceManager::~ServiceManager()
+{
+}
 
-	QObject *ServiceManager::getByName(const QByteArray &name)
-	{
-		return services().value(name);
-	}
+QObject *ServiceManager::getByName(const QByteArray &name)
+{
+	return services().value(name);
+}
 
-	QList<QByteArray> ServiceManager::names()
-	{
-		return services().keys();
-	}
+QList<QByteArray> ServiceManager::names()
+{
+	return services().keys();
+}
 
 } // namespace qutim_sdk_0_3

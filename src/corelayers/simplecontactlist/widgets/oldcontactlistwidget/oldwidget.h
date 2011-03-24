@@ -21,9 +21,9 @@ class OldWidget : public QMainWindow, public AbstractContactListWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::SimpleContactList::AbstractContactListWidget)
+	Q_CLASSINFO("Service", "ContactListWidget")
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
-	Q_CLASSINFO("Service", "ContactListWidget")
 public:
 	OldWidget();
 	~OldWidget();

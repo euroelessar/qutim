@@ -238,7 +238,6 @@ void OldWidget::onAccountDestroyed(QObject *obj)
 	m_actions.take(account)->deleteLater();
 }
 
-
-
 } // namespace SimpleContactList
 } // namespace Core
+

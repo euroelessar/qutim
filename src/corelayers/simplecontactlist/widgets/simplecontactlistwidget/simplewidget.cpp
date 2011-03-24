@@ -364,6 +364,12 @@ void SimpleWidget::init()
 	SystemIntegration::show(this);
 }
 
+AbstractContactModel *SimpleWidget::model() const
+{
+	return m_model;
+}
+
+
 } // namespace SimpleContactList
 } // namespace Core
 

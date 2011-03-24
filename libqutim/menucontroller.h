@@ -157,7 +157,7 @@ public:
 	  \code
 void MyObject::onAction()
 {
-Account *account = MenuController::getController<Account>(sender());
+Account *account = MenuController::get<Account>(sender());
 doStuff();
 }
 	  \endcode

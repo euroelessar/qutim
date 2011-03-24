@@ -49,6 +49,7 @@ public slots:
 	void filterList(const QStringList &tags);
 	void filterList(const QString &filter);
 protected slots:
+	void init();
 	void contactDeleted(QObject *obj);
 	void contactStatusChanged(qutim_sdk_0_3::Status status);
 	void contactNameChanged(const QString &name);

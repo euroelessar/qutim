@@ -66,8 +66,8 @@ Module::Module() : p(new ModulePrivate)
 							   );
 
 	QObject *object = ServiceManager::getByName("ContactListWidget");
-	p->widget = sender_cast<QWidget*>(object);
-	p->contactListWidget = sender_cast<AbstractContactListWidget*>(object);
+	p->widget = qobject_cast<QWidget*>(object);
+	p->contactListWidget = qobject_cast<AbstractContactListWidget*>(object);
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -87,16 +87,9 @@ Module::Module() : p(new ModulePrivate)
 	gen->setType(512);
 	addAction(gen);
 
-	p->model = sender_cast<AbstractContactModel*>(ServiceManager::getByName("ContactModel"));
-
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-
-	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, proto->accounts())
-			onAccountCreated(account);
-	}
+	object = ServiceManager::getByName("ContactModel");
+	p->model = dynamic_cast<AbstractContactModel*>(object);
+	qDebug() << object << p->model << qobject_cast<QAbstractItemModel*>(object);
 
 	QTimer::singleShot(0, this, SLOT(init()));
 }
@@ -171,6 +164,15 @@ bool Module::event(QEvent *ev)
 
 void Module::init()
 {
+	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+
+	foreach(Protocol *proto, Protocol::all()) {
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach(Account *account, proto->accounts())
+			onAccountCreated(account);
+	}
+
 	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
 	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
 	p->tagsGenerator->setPriority(-127);

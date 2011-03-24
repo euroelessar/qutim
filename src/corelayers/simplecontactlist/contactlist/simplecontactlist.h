@@ -19,14 +19,18 @@ namespace SimpleContactList
 {
 struct ModulePrivate;
 
-class Module : public AbstractContactList
+class Module : public MenuController
 {
 	Q_OBJECT
+	Q_PROPERTY(QWidget* widget READ widget)
+	Q_CLASSINFO("Service", "ContactList")
+	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "ContactListWidget")
 public:
 	Module();
 	virtual ~Module();
-	virtual void addButton(ActionGenerator *generator);
-	virtual QWidget *widget();
+	Q_INVOKABLE void addButton(ActionGenerator *generator);
+	Q_INVOKABLE QWidget *widget();
 protected:
 	bool event(QEvent *);
 public slots:

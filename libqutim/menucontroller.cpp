@@ -172,7 +172,9 @@ inline QMenu *create_menu(MenuController *controller)
 	QString title = controller->property("title").toString();
 	if (title.isEmpty())
 		title = controller->property("id").toString();
-	return menu_creator_hook ? menu_creator_hook(title, 0) : new QMenu(title);
+	QMenu *menu = menu_creator_hook ? menu_creator_hook(title, 0) : new QMenu(title);
+	//menu->setProperty("menuController", qVariantFromValue(controller));
+	return menu;
 }
 
 DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
