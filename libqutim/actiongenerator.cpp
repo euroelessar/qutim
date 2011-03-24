@@ -116,6 +116,13 @@ void ActionGeneratorPrivate::ensureConnectionType()
 		connectionType = ActionConnectionSimple;
 }
 
+ActionGeneratorPrivate::ActionGeneratorPrivate():
+	q_ptr(0),type(0), priority(0),
+	connectionType(ActionConnectionSimple)
+{
+	iconVisibleInMenu = qApp->testAttribute(Qt::AA_DontShowIconsInMenus);
+}
+
 ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
 								 const QObject *receiver, const char *member)
 	: ObjectGenerator(*new ActionGeneratorPrivate)
@@ -268,6 +275,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setToolTip(d->toolTip);
 	action->setShortcuts(d->shortCuts);
 	action->setMenuRole(d->menuRole);
+	action->setIconVisibleInMenu(d->iconVisibleInMenu);
 	localizationHelper()->addAction(action, d);
 	//action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 
@@ -436,6 +444,18 @@ QAction::MenuRole ActionGenerator::menuRole() const
 	return d_func()->menuRole;
 }
 
+
+void ActionGenerator::setIconVisibleInMenu(bool visible)
+{
+	d_func()->iconVisibleInMenu = visible;
 }
 
+bool ActionGenerator::iconVisibleInMenu() const
+{
+	return d_func()->iconVisibleInMenu;
+}
+
+
+
+}
 

@@ -138,6 +138,8 @@ void MyObject::onAction(QObject *obj)
 	void setShortcut(const QKeySequence &shortcut);
 	void setMenuRole(QAction::MenuRole role);
 	QAction::MenuRole menuRole() const;
+	void setIconVisibleInMenu(bool visible);
+	bool iconVisibleInMenu() const;
 	QList<QAction*> actions(QObject *object) const;
 	QMap<QObject*, QAction*> actions() const;
 	static ActionGenerator *get(QAction *);

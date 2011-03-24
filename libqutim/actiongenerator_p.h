@@ -38,7 +38,7 @@ class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 {
 	Q_DECLARE_PUBLIC(ActionGenerator)
 public:
-	ActionGeneratorPrivate() : q_ptr(0),type(0), priority(0), connectionType(ActionConnectionSimple) {}
+	ActionGeneratorPrivate();
 	ActionGenerator *q_ptr;
 	QIcon icon;
 	LocalizedString text;
@@ -52,6 +52,7 @@ public:
 	ActionConnectionType connectionType;
 	ActionData *data;
 	QAction::MenuRole menuRole;
+	bool iconVisibleInMenu;
 	static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 	static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
 	void ensureConnectionType();
