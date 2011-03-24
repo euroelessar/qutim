@@ -45,8 +45,6 @@ public slots:
 	virtual void hideShowOffline();
 	virtual void filterList(const QString &name);
 	virtual void filterList(const QStringList &tags);
-private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
 signals:
 	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 };

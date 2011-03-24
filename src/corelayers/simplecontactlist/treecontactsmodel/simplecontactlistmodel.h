@@ -57,6 +57,8 @@ protected slots:
 	void onContactInListChanged(bool isInList);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void loadContacts();
 protected:
 	void timerEvent(QTimerEvent *ev);
 private:
