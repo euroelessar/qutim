@@ -275,7 +275,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setToolTip(d->toolTip);
 	action->setShortcuts(d->shortCuts);
 	action->setMenuRole(d->menuRole);
-	action->setIconVisibleInMenu(d->iconVisibleInMenu);
+	//action->setIconVisibleInMenu(d->iconVisibleInMenu);
 	localizationHelper()->addAction(action, d);
 	//action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 

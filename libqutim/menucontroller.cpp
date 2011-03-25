@@ -46,20 +46,18 @@ MenuControllerPrivate::MenuControllerPrivate(MenuController *c):
 MenuController::MenuController(QObject *parent) :
 	QObject(parent), d_ptr(new MenuControllerPrivate(this))
 {
-	Q_D(MenuController);
-	d->menu = new DynamicMenu(d);
 }
 
 MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) :
 	QObject(parent), d_ptr(&mup)
 {
-	Q_D(MenuController);
-	d->menu = new DynamicMenu(d);
 }
 
 MenuController::~MenuController()
 {
-	d_func()->menu->deleteLater();
+	Q_D(MenuController);
+	if (d->menu)
+		d->menu->deleteLater();
 }
 
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
@@ -324,6 +322,8 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 {
 	Q_UNUSED(deleteOnClose);
 	Q_D(const MenuController);
+	if (!d->menu)
+		d->menu = new DynamicMenu(d);
 #ifdef Q_WS_MAEMO_5
 	d->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
 	//maemo does not use QMenu in main menu. Only the action in menu.
@@ -405,7 +405,8 @@ void MenuController::setMenuOwner(MenuController *controller)
 {
 	Q_D(MenuController);
 	d->owner = controller;
-	d->menu->addActions(d->menu->allActions());
+	if (d->menu)
+		d->menu->addActions(d->menu->allActions());
 }
 
 void MenuController::setMenuFlags(const MenuFlags &flags)

@@ -62,7 +62,7 @@ public:
 	MenuController *owner;
 	int flags;
 	MenuController *q_ptr;
-	mutable DynamicMenu *menu;
+	mutable QPointer<DynamicMenu> menu;
 	static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 	static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 };
