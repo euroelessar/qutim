@@ -42,7 +42,7 @@ void ConnectionManager::init()
 	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "ConnectionManager"),
 			QT_TRANSLATE_NOOP("Plugin", "Used to monitor the availability of network."),
-			PLUGIN_VERSION(0, 1, 0, 0));
+			PLUGIN_VERSION(0, 2, 0, 0));
 	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
@@ -139,9 +139,8 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 	} else {
 		if (a->status().property("changeReason", 0) == Status::ByUser) {
 			QTimer *timer = getTimer(a, false);
-			if(timer) {
+			if(timer)
 				removeTimer(timer);
-			}
 		}
 	}
 }
@@ -151,8 +150,8 @@ void ConnectionManager::onStatusChangeTimeout()
 	QTimer *timer = sender_cast<QTimer*>(sender());
 	Status status = timer->property("status").value<Status>();
 	Account *account = m_timers.key(timer);
-	Q_ASSERT(account);
-	account->setStatus(status);
+	if (account)
+		account->setStatus(status);
 	removeTimer(timer);
 }
 
@@ -169,6 +168,7 @@ QTimer *ConnectionManager::getTimer(Account *account, bool create)
 void ConnectionManager::removeTimer(QTimer *timer)
 {
 	m_timers.remove(m_timers.key(timer));
+	timer->stop();
 	timer->deleteLater();
 }
 
