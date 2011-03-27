@@ -1,7 +1,7 @@
 /****************************************************************************
  *  vkontakteplugin.cpp
  *
- *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -29,7 +29,7 @@ void VkontaktePlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Vkontakte"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
 			PLUGIN_VERSION(0, 0, 1, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("sauron@citadelspb.com"));
 // 	addAuthor(QT_TRANSLATE_NOOP("Author", "Rustam Chakin"),

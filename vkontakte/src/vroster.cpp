@@ -1,7 +1,7 @@
 /****************************************************************************
  *  vroster.cpp
  *
- *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *                     by Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
