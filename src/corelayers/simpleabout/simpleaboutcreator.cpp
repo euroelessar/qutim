@@ -33,6 +33,7 @@ SimpleAboutCreator::SimpleAboutCreator()
 													this,
 													SLOT(showWidget()));
 		gen->setPriority(1);
+		gen->setMenuRole(QAction::AboutRole);
 		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
 	}

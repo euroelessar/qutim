@@ -75,6 +75,7 @@ Module::Module() : p(new ModulePrivate)
 											   this,
 											   SLOT(onConfigureClicked(QObject*))
 											   );
+	gen->setMenuRole(QAction::PreferencesRole);
 	gen->setPriority(1);
 	gen->setType(ActionTypeAdditional);
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));	
@@ -84,6 +85,7 @@ Module::Module() : p(new ModulePrivate)
 							  QT_TRANSLATE_NOOP("ContactList","&Quit"),
 							  this,
 							  SLOT(onQuitTriggered(QObject*)));
+	gen->setMenuRole(QAction::QuitRole);
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
