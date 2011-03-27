@@ -1,7 +1,7 @@
 /*
     sessionhelper.h
 
-  (c) 2011 by Aleksey Sidorov <sauron@citadelspb.com>
+  (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *

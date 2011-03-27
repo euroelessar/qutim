@@ -1,7 +1,7 @@
 /*
   sessionhelper.cpp
 
-  (c) 2011 by Aleksey Sidorov <sauron@citadelspb.com>
+  (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *
@@ -28,7 +28,7 @@ void SessionHelper::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Session helper"),
 			QT_TRANSLATE_NOOP("Plugin", "Activates the session when certain events"),
 			PLUGIN_VERSION(0, 1, 0, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));

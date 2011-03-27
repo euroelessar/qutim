@@ -16,7 +16,7 @@ void KineticPopupsPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM popups based on QTextDocument"),
 			PLUGIN_VERSION(0, 1, 0, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));

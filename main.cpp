@@ -2,7 +2,7 @@
  *  main.cpp
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                2009 by Aleksey Sidorov <sauron@citadelspb.com>
+ *                2009 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
