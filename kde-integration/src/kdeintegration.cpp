@@ -52,7 +52,7 @@ void KdePlugin::init()
 	aboutData.setHomepage("http://qutim.org");
 
 //	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@gmail.com");
-//	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "sauron@citadelspb.com");
+//	aboutData.addAuthor(ki18n("Sidorov Aleksey"), ki18n("Developer"), "sauron@citadelspb.com");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
 	aboutData.addLicense(KAboutData::License_GPL_V2);
 	aboutData.setBugAddress("euroelessar@ya.ru");
@@ -72,7 +72,7 @@ void KdePlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("euroelessar@gmail.com"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));

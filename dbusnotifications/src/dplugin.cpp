@@ -15,7 +15,7 @@ void DPlugin::init()
 		QT_TRANSLATE_NOOP("Plugin", "Notification system based on Freedesktop DBus protocol"),
 		PLUGIN_VERSION(0, 0, 1, 0),
 		dIcon);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));

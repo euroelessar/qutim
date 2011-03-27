@@ -2,7 +2,7 @@
     UrlPreviewPlugin
 
   Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
-  (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+  (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *
@@ -34,7 +34,7 @@ void UrlPreviewPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("boiler@co.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));

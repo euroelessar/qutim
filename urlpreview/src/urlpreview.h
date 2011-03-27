@@ -2,7 +2,7 @@
     UrlPreviewPlugin
 
   Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
-  (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+  (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *

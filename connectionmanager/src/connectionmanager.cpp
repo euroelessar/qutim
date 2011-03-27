@@ -43,7 +43,7 @@ void ConnectionManager::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "ConnectionManager"),
 			QT_TRANSLATE_NOOP("Plugin", "Used to monitor the availability of network."),
 			PLUGIN_VERSION(0, 2, 0, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));
