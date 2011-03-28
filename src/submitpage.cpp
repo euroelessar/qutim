@@ -67,10 +67,9 @@ bool SubmitPage::validatePage()
 	QRect size = qApp->desktop()->screenGeometry();
 	QLocale locale = QLocale::system();
 
-	QByteArray lang = qgetenv("LANGUAGE");
-	if (lang.isEmpty())
-		lang = qgetenv("LANG");
-	if (!lang.isEmpty()) {
+	//QByteArray lang = qgetenv("LANGUAGE");
+	//if (lang.isEmpty())
+	//	lang = qgetenv("LANG");
 
 	QUrl url(QLatin1String("http://qutim.org/stats"));
 	url.addQueryItem(QLatin1String("os"), SystemInfo::getVersion());
@@ -83,7 +82,7 @@ bool SubmitPage::validatePage()
 	url.addQueryItem(QLatin1String("height"), QString::number(size.height()));
 	url.addQueryItem(QLatin1String("country"), QLocale::countryToString(locale.country()));
 	url.addQueryItem(QLatin1String("language"), QLocale::languageToString(locale.language()));
-	url.addQueryItem(QLatin1String("lang"), lang);
+	//url.addQueryItem(QLatin1String("lang"), lang);
 
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 	QNetworkRequest request(url);
