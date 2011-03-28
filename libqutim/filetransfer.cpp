@@ -17,6 +17,7 @@
 #include "objectgenerator.h"
 #include "servicemanager.h"
 #include "chatunit.h"
+#include "config.h"
 #include <QUrl>
 #include <QFileInfo>
 #include <QDir>
@@ -57,6 +58,26 @@ bool FileTransferScope::init()
 		manager = ServiceManager::getByName<FileTransferManager*>("FileTransferManager");
 	}
 	return manager != NULL;
+}
+
+static QList<FileTransferFactory*> sortFactories(const QStringList &names,
+												 const QList<FileTransferFactory*> &factories)
+{
+	// Put all factories in a hash with class name as the key.
+	QMultiHash<QString, FileTransferFactory*> factoriesHash;
+	foreach (FileTransferFactory *factory, factories)
+		factoriesHash.insert(factory->metaObject()->className(), factory);
+
+	// Sort factories
+	QList<FileTransferFactory*> newFactories;
+	foreach (const QString &name, names) {
+		FileTransferFactory *factory = factoriesHash.take(name);
+		if (factory)
+			newFactories.push_back(factory);
+	}
+	newFactories += factoriesHash.values();
+	Q_ASSERT(newFactories.count() == factories.count());
+	return newFactories;
 }
 
 Q_GLOBAL_STATIC(FileTransferScope, scope)
@@ -634,6 +655,9 @@ FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivat
 	scope()->inited = true;
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>())
 		scope()->factories << gen->generate<FileTransferFactory>();
+	QStringList names = Config().value("filetransfer/factories").toStringList();
+	if (!names.isEmpty())
+		scope()->factories = sortFactories(names, scope()->factories);
 }
 
 FileTransferManager::~FileTransferManager()
@@ -697,6 +721,43 @@ QIODevice *FileTransferManager::openFile(FileTransferJob *job)
 QList<FileTransferFactory*> FileTransferManager::factories()
 {
 	return scope()->factories;
+}
+
+void FileTransferManager::updateFactories(const QStringList &factoryClassNames)
+{
+	Config().setValue("filetransfer/factories", factoryClassNames);
+	if (factoryClassNames.isEmpty())
+		return;
+
+	QList<FileTransferFactory*> &oldFactories = scope()->factories;
+	QList<FileTransferFactory*> newFactories = sortFactories(factoryClassNames, oldFactories);
+
+#ifdef REMEMBER_ALL_ABILITIES
+	int factoriesCount = newFactories.count();
+
+	QVector<int> indexesMap;
+	indexesMap.reserve(factoriesCount);
+	foreach (FileTransferFactory *factory, oldFactories) {
+		int index = newFactories.indexOf(factory);
+		Q_ASSERT(index >= 0);
+		indexesMap.push_back(index);
+	}
+
+	typedef QMap<ChatUnit*, FileTransferScope::Observer>::Iterator Iter;
+	Iter itr = scope()->observers.begin();
+	Iter end = scope()->observers.end();
+	for (; itr != end; ++itr) {
+		QBitArray &oldAbilities = itr->abilities;
+		QBitArray newAbilities(factoriesCount);
+		for (int i = 0; i < factoriesCount; ++i) {
+			if (oldAbilities.testBit(i))
+				newAbilities.setBit(indexesMap.at(i), true);
+		}
+		oldAbilities = newAbilities;
+	}
+#endif
+
+	oldFactories = newFactories;
 }
 
 void FileTransferManager::virtual_hook(int id, void *data)

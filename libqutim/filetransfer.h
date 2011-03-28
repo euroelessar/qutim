@@ -201,6 +201,11 @@ public:
 								 FileTransferFactory *factory = 0);
 	static QIODevice *openFile(FileTransferJob *job);
 	static QList<FileTransferFactory*> factories();
+	// This method must be called by the file transfer settings layer
+	// whenever the user has changed an order of the file transfer
+	// factories.
+	// TODO: come up with a more appropriate name
+	static void updateFactories(const QStringList &factoryClassNames);
 protected:
 	virtual QIODevice *doOpenFile(FileTransferJob *job) = 0;
 	virtual void handleJob(FileTransferJob *job, FileTransferJob *oldJob) = 0;
