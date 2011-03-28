@@ -81,7 +81,7 @@ FileTransferDialog::FileTransferDialog(FileTransferJobModel *model) :
 	ActionBox *actions = new ActionBox(this);
 	{
 		QAction *action = new QAction(QObject::tr("Remove finished tasks"), actions);
-#if QUTIM_MOBILE_UI
+#ifdef QUTIM_MOBILE_UI
 		action->setSoftKeyRole(QAction::PositiveSoftKey);
 #endif
 		QObject::connect(action, SIGNAL(triggered()), SLOT(onRemoveFinishedJobs()));
@@ -89,7 +89,7 @@ FileTransferDialog::FileTransferDialog(FileTransferJobModel *model) :
 	}
 	{
 		QAction *action = new QAction(QObject::tr("Close"), actions);
-#if QUTIM_MOBILE_UI
+#ifdef QUTIM_MOBILE_UI
 		action->setSoftKeyRole(QAction::NegativeSoftKey);
 #endif
 		QObject::connect(action, SIGNAL(triggered()), this, SLOT(deleteLater()));

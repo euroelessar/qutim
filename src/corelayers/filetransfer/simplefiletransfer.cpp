@@ -137,7 +137,7 @@ SimpleFileTransfer::SimpleFileTransfer() :
 	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 	if (contactList) {
 		static ActionGenerator gen(Icon("download-tranfermanager"),
-								   QT_TR_NOOP("Manage file transfers"),
+								   QT_TRANSLATE_NOOP("FileTransfer", "Manage file transfers"),
 								   this,
 								   SLOT(openFileTransferDialog()));
 		gen.setType(ActionTypeContactList);

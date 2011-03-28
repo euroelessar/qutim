@@ -20,6 +20,8 @@
 # include <security.h>
 #endif
 
+#include "submitpage.h"
+
 namespace qutim_sdk_0_3
 {
 	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
@@ -119,9 +121,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		}
 	}
 
-	QWizardPage *p = new QWizardPage(this);
-	p->setTitle(tr("Congratulations"));
-	p->setSubTitle(tr("You've just created a profile for qutIM. Click Finish to proceed to adding user accounts"));
+	SubmitPage *p = new SubmitPage(this);
 	addPage(p);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
