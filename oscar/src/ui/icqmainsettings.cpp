@@ -45,62 +45,62 @@ static QStringList codecs()
 	static QStringList codecs;
 	if (codecs.isEmpty()) {
 		codecs << systemCodec
-				<< "Apple Roman"
-				<< "Big5"
-				<< "Big5-HKSCS"
-				<< "EUC-JP"
-				<< "EUC-KR"
-				<< "GB18030-0"
-				<< "IBM 850"
-				<< "IBM 866"
-				<< "IBM 874"
-				<< "ISO 2022-JP"
-				<< "ISO 8859-1"
-				<< "ISO 8859-2"
-				<< "ISO 8859-3"
-				<< "ISO 8859-4"
-				<< "ISO 8859-5"
-				<< "ISO 8859-6"
-				<< "ISO 8859-7"
-				<< "ISO 8859-8"
-				<< "ISO 8859-9"
-				<< "ISO 8859-10"
-				<< "ISO 8859-13"
-				<< "ISO 8859-14"
-				<< "ISO 8859-15"
-				<< "ISO 8859-16"
-				<< "Iscii-Bng"
-				<< "Iscii-Dev"
-				<< "Iscii-Gjr"
-				<< "Iscii-Knd"
-				<< "Iscii-Mlm"
-				<< "Iscii-Ori"
-				<< "Iscii-Pnj"
-				<< "Iscii-Tlg"
-				<< "Iscii-Tml"
-				<< "JIS X 0201"
-				<< "JIS X 0208"
-				<< "KOI8-R"
-				<< "KOI8-U"
-				<< "MuleLao-1"
-				<< "ROMAN8"
-				<< "Shift-JIS"
-				<< "TIS-620"
-				<< "TSCII"
-				/*<< "UTF-8"
-				<< "UTF-16"
-				<< "UTF-16BE"
-				<< "UTF-16LE"*/
-				<< "Windows-1250"
-				<< "Windows-1251"
-				<< "Windows-1252"
-				<< "Windows-1253"
-				<< "Windows-1254"
-				<< "Windows-1255"
-				<< "Windows-1256"
-				<< "Windows-1257"
-				<< "Windows-1258"
-				<< "WINSAMI2";
+			   << "Apple Roman"
+			   << "Big5"
+			   << "Big5-HKSCS"
+			   << "EUC-JP"
+			   << "EUC-KR"
+			   << "GB18030-0"
+			   << "IBM 850"
+			   << "IBM 866"
+			   << "IBM 874"
+			   << "ISO 2022-JP"
+			   << "ISO 8859-1"
+			   << "ISO 8859-2"
+			   << "ISO 8859-3"
+			   << "ISO 8859-4"
+			   << "ISO 8859-5"
+			   << "ISO 8859-6"
+			   << "ISO 8859-7"
+			   << "ISO 8859-8"
+			   << "ISO 8859-9"
+			   << "ISO 8859-10"
+			   << "ISO 8859-13"
+			   << "ISO 8859-14"
+			   << "ISO 8859-15"
+			   << "ISO 8859-16"
+			   << "Iscii-Bng"
+			   << "Iscii-Dev"
+			   << "Iscii-Gjr"
+			   << "Iscii-Knd"
+			   << "Iscii-Mlm"
+			   << "Iscii-Ori"
+			   << "Iscii-Pnj"
+			   << "Iscii-Tlg"
+			   << "Iscii-Tml"
+			   << "JIS X 0201"
+			   << "JIS X 0208"
+			   << "KOI8-R"
+			   << "KOI8-U"
+			   << "MuleLao-1"
+			   << "ROMAN8"
+			   << "Shift-JIS"
+			   << "TIS-620"
+			   << "TSCII"
+				  /*<< "UTF-8"
+			  << "UTF-16"
+			  << "UTF-16BE"
+			  << "UTF-16LE"*/
+			   << "Windows-1250"
+			   << "Windows-1251"
+			   << "Windows-1252"
+			   << "Windows-1253"
+			   << "Windows-1254"
+			   << "Windows-1255"
+			   << "Windows-1256"
+			   << "Windows-1257"
+			   << "Windows-1258"
+			   << "WINSAMI2";
 	}
 	return codecs;
 }
@@ -108,8 +108,9 @@ static QStringList codecs()
 IcqMainSettings::IcqMainSettings() :
 	m_layout(new QVBoxLayout(this))
 {
+	m_layout->setMargin(0);
 	/*foreach(int codec, QTextCodec::availableMibs())
-	 ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
+  ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
 }
 
 IcqMainSettings::~IcqMainSettings()
@@ -139,8 +140,8 @@ void IcqMainSettings::loadImpl()
 		}
 	}
 
-codecNameFound:
-	DataItem item;
+	codecNameFound:
+		DataItem item;
 	{
 		DataItem subitem("mainSettings", tr("Main"), QVariant());
 		subitem.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));

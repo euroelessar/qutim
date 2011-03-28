@@ -44,17 +44,6 @@ IcqProtocol::IcqProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
-	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
-			Settings::Protocol,
-			Icon("im-icq"),
-			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
-	Settings::registerItem<IcqAccount>(
-			new GeneralSettingsItem<IcqAccountMainSettingsWidget>(
-					Settings::Protocol,
-					Icon("im-icq"),
-					QT_TRANSLATE_NOOP_UTF8("Settings", "Icq account settings")));
-
-	updateSettings();
 }
 
 IcqProtocol::~IcqProtocol()
@@ -65,6 +54,18 @@ IcqProtocol::~IcqProtocol()
 void IcqProtocol::loadAccounts()
 {
 	Q_D(IcqProtocol);
+
+	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
+							   Settings::Protocol,
+							   Icon("im-icq"),
+							   QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
+	Settings::registerItem<IcqAccount>(
+				new GeneralSettingsItem<IcqAccountMainSettingsWidget>(
+					Settings::Protocol,
+					Icon("im-icq"),
+					QT_TRANSLATE_NOOP_UTF8("Settings", "Icq account settings")));
+	updateSettings();
+
 	Q_UNUSED(OscarStatus());
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uin, accounts) {
@@ -126,12 +127,12 @@ void IcqProtocol::updateSettings()
 QVariant IcqProtocol::data(DataType type)
 {
 	switch (type) {
-		case ProtocolIdName:
-			return "UIN";
-		case ProtocolContainsContacts:
-			return true;
-		default:
-			return QVariant();
+	case ProtocolIdName:
+		return "UIN";
+	case ProtocolContainsContacts:
+		return true;
+	default:
+		return QVariant();
 	}
 }
 
