@@ -18,18 +18,20 @@ using namespace qutim_sdk_0_3;
 @implementation GrowlInterface
 
 -(id) init {
-  if ((self = [super init])) {
-	[GrowlApplicationBridge setGrowlDelegate:self];
-  }
-  return self;
+	if ((self = [super init])) {
+		[GrowlApplicationBridge setGrowlDelegate:self];
+	}
+	return self;
 }
 
 -(void) dealloc {
-  [super dealloc];
+	[super dealloc];
 }
 
 -(NSDictionary*) registrationDictionaryForGrowl {
-	NSArray* array = [NSArray arrayWithObjects:@"User is online", @"User is offline", @"User status is changed", @"Birthday", @"Qutim startup", @"Message get", @"Message send", @"System message", @"User is typing", @"Blocked message", @"Count", nil];  // Valid notification names.
+	NSArray* array = [NSArray arrayWithObjects:@"User is online", @"User is offline", @"User status is changed",
+			@"Birthday", @"Qutim startup", @"Message get", @"Message send", @"System message", @"User is typing",
+			@"Blocked message", @"Count", nil];  // Valid notification names.
 
 	NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithInt:1],
@@ -45,102 +47,99 @@ using namespace qutim_sdk_0_3;
 }
 
 -(void) growlNotificationWasClicked:(id)clickContext {
-  if (clickContext) {
-	[self ClickCallback];
-  }
-  return;
+	if (clickContext) {
+		[self ClickCallback];
+	}
+	return;
 }
 
 -(void) SendGrowlAlert:(NSString*)message type:(NSString*)type title:(NSString*)title image:(NSData*)image {
-  [GrowlApplicationBridge notifyWithTitle:title
-						  description:message
-						  notificationName:type
-						  iconData:image
-						  priority:0
-						  isSticky:NO
-						  clickContext:@"click_callback"];  // String sent to our callback.
+	[GrowlApplicationBridge notifyWithTitle:title
+		description:message
+		notificationName:type
+		iconData:image
+		priority:0
+		isSticky:NO
+		clickContext:@"click_callback"];  // String sent to our callback.
 }
 
 -(void) ClickCallback {
-qutim_sdk_0_3::debug() << "Growl notification clicked!";
-  return;
+	qutim_sdk_0_3::debug() << "Growl notification clicked!";
+	return;
 }
 
 @end
 
 class GrowlNotificationWrapper {
- public:
-  GrowlNotificationWrapper() {
-	growl_interface_ = [[GrowlInterface alloc] init];
-  }
+	public:
+		GrowlNotificationWrapper() {
+			growl_interface_ = [[GrowlInterface alloc] init];
+		}
 
-  ~GrowlNotificationWrapper() {
-	[growl_interface_ release];
-  }
-  void showMessage(Notifications::Type type,
-				   const QString& summary,
-				   const QString& message,
-				   const QImage& image) {
+		~GrowlNotificationWrapper() {
+			[growl_interface_ release];
+		}
+		void showMessage(Notifications::Type type, const QString& summary, const QString& message, const QImage& image) {
+			if (!type)
+				return;
+			NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
+			NSString* mac_summary = [[NSString alloc] initWithUTF8String:summary.toUtf8().constData()];
+			NSString* mac_type;
+			switch (type) {
+				case 0x001:
+					mac_type = @"User is online";
+					break;
+				case 0x002:
+					mac_type = @"User is offline";
+					break;
+				case 0x004:
+					mac_type = @"User status is changed";
+					break;
+				case 0x008:
+					mac_type = @"Birthday";
+					break;
+				case 0x010:
+					mac_type = @"Qutim startup";
+					break;
+				case 0x020:
+					mac_type = @"Message get";
+					break;
+				case 0x040:
+					mac_type = @"Message send";
+					break;
+				case 0x080:
+					mac_type = @"System message";
+					break;
+				case 0x100:
+					mac_type = @"User is typing";
+					break;
+				case 0x200:
+					mac_type = @"Blocked message";
+					break;
+				case 0x400:
+					mac_type = @"Count";
+					break;
+			}
 
-	if (!type)
-		return;
-	NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
-	NSString* mac_summary = [[NSString alloc] initWithUTF8String:summary.toUtf8().constData()];
-	NSString* mac_type;
-	switch (type) {
-	case 0x001:
-		mac_type = @"User is online";
-		break;
-	case 0x002:
-		mac_type = @"User is offline";
-		break;
-	case 0x004:
-		mac_type = @"User status is changed";
-		break;
-	case 0x008:
-		mac_type = @"Birthday";
-		break;
-	case 0x010:
-		mac_type = @"Qutim startup";
-		break;
-	case 0x020:
-		mac_type = @"Message get";
-		break;
-	case 0x040:
-		mac_type = @"Message send";
-		break;
-	case 0x080:
-		mac_type = @"System message";
-		break;
-	case 0x100:
-		mac_type = @"User is typing";
-		break;
-	case 0x200:
-		mac_type = @"Blocked message";
-		break;
-	case 0x400:
-		mac_type = @"Count";
-		break;
-	}
+			NSData* image_data = nil;
+			// Growl expects raw TIFF data.
+			// This is nasty but it keeps the API nice.
+			if (!image.isNull()) {
+				QByteArray tiff_data;
+				QBuffer tiff(&tiff_data);
+				image.save(&tiff, "TIFF");
+				image_data = [NSData dataWithBytes:tiff_data.constData() length:tiff_data.size()];
+			}
 
-	NSData* image_data = nil;
-	// Growl expects raw TIFF data.
-	// This is nasty but it keeps the API nice.
-	if (!image.isNull()) {
-	  QByteArray tiff_data;
-	  QBuffer tiff(&tiff_data);
-	  image.save(&tiff, "TIFF");
-	  image_data = [NSData dataWithBytes:tiff_data.constData() length:tiff_data.size()];
-	}
+			[growl_interface_ SendGrowlAlert:mac_message type:mac_type title:mac_summary image:image_data];
 
-	[growl_interface_ SendGrowlAlert:mac_message type:mac_type title:mac_summary image:image_data];
+			[mac_message release];
+			[mac_summary release];
+			[mac_type release];
+		}
 
-	[mac_message release];
-	[mac_summary release];
-  }
-
- private:
-  GrowlInterface* growl_interface_;
+	private:
+		GrowlInterface* growl_interface_;
 };
 
 GrowlBackend::GrowlBackend() : m_wrapper(new GrowlNotificationWrapper)
@@ -149,9 +148,9 @@ GrowlBackend::GrowlBackend() : m_wrapper(new GrowlNotificationWrapper)
 }
 
 void GrowlBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender, const QString& body,
-				   const QVariant& data)
+		const QVariant& data)
 {
-	QString text = Qt::escape(body);
+	QString text(body);
 	QString sender_id = sender ? sender->property("id").toString() : QString();
 	QString sender_name = sender ? sender->property("name").toString() : QString();
 	if(sender_name.isEmpty())

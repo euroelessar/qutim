@@ -1,6 +1,6 @@
 /****************************************************************************
  * indicator.h
- *  Copyright © 2010, Vsevolod Velichko <torkvema@gmail.com>.
+ *  Copyright © 2010-2011, Vsevolod Velichko <torkvema@gmail.com>.
  *  Licence: GPLv3 or later
  *
  ****************************************************************************

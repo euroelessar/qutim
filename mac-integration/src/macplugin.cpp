@@ -1,15 +1,17 @@
-#include "mplugin.h"
-#include "dock/mdock.h"
+#include "macplugin.h"
+#include "dock/macdock.h"
 #include "growl/growlbackend.h"
+#include "idle/macidle.h"
+#include "spellchecker/macspellchecker.h"
 
 namespace MacIntegration
 {
-	MPlugin::MPlugin()
+	MacPlugin::MacPlugin()
 	{
 		qDebug("%s", Q_FUNC_INFO);
 	}
 
-	void MPlugin::init()
+	void MacPlugin::init()
 	{
 		qDebug("%s", Q_FUNC_INFO);
 		ExtensionIcon macIcon("mac");
@@ -20,22 +22,26 @@ namespace MacIntegration
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
 				QT_TRANSLATE_NOOP("Task", "Author"),
 				QLatin1String("daschenko@gmail.com"));
-		addExtension<MDock>(QT_TRANSLATE_NOOP("Plugin", "DockIntegration"),
+		addExtension<MacDock>(QT_TRANSLATE_NOOP("Plugin", "DockIntegration"),
 				QT_TRANSLATE_NOOP("Plugin", "Mac OS X dock integration"));
 		addExtension<GrowlBackend>(QT_TRANSLATE_NOOP("plugin","Growl notifications"),
 				QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
+		addExtension<MacIdle>(QT_TRANSLATE_NOOP("Plugin", "IdleManager"),
+				QT_TRANSLATE_NOOP("Plugin", "Mac OS X idle manager"));
+		addExtension<MacSpellChecker>(QT_TRANSLATE_NOOP("Plugin", "SpellChecker"),
+				QT_TRANSLATE_NOOP("Plugin", "Mac OS X spell checker"));
 	}
 
-	bool MPlugin::load()
+	bool MacPlugin::load()
 	{
 		return true;
 	}
 
-	bool MPlugin::unload()
+	bool MacPlugin::unload()
 	{
 		return false;
 	}
 
 } // MacIntegration namespace
 
-QUTIM_EXPORT_PLUGIN(MacIntegration::MPlugin)
+QUTIM_EXPORT_PLUGIN(MacIntegration::MacPlugin)

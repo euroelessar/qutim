@@ -1,7 +1,7 @@
 /*
     UnreadMessagesKeeper
 
-  (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+  (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *

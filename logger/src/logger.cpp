@@ -1,3 +1,6 @@
+// I don't like msvc's "safe" functions, so I force silence
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include "logger.h"
 #include <qutim/config.h>
 #include <qutim/systeminfo.h>
@@ -48,7 +51,7 @@ void LoggerPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Logger"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple file based logger for debug"),
 			PLUGIN_VERSION(0, 1, 0, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));
@@ -62,7 +65,7 @@ bool LoggerPlugin::load()
 	Config config = Config().group(QLatin1String("Logger"));
 	QString path = config.value(QLatin1String("path"),
 								SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
-	bool enable = config.value(QLatin1String("enable"), true);
+	bool enable = config.value(QLatin1String("enable"), false);
 	reloadSettings();
 	qInstallMsgHandler(SimpleLoggingHandler);
 	debug() << tr("New session started, happy debuging ^_^");
@@ -117,7 +120,7 @@ bool LoggerPlugin::unload()
 		}
 		qInstallMsgHandler(NULL);
 		Settings::removeItem(m_settingsItem);
-		m_settingsItem = NULL;
+		m_settingsItem = 0;
 		return true;
 	}
 	return false;

@@ -1,6 +1,6 @@
 /****************************************************************************
  * indicatorservice.h
- *  Copyright © 2010, Vsevolod Velichko <torkvema@gmail.com>.
+ *  Copyright © 2010-2011, Vsevolod Velichko <torkvema@gmail.com>.
  *  Licence: GPLv3 or later
  *
  ****************************************************************************
@@ -19,7 +19,7 @@
 #include <qindicateindicator.h>
 #include <qindicateserver.h>
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 
@@ -38,7 +38,7 @@ public:
 protected slots:
 	/* Tray layer slots */
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onSessionDestroyed();
+	void onSessionDestroyed(QObject* session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
 	////// void onActivated(QSystemTrayIcon::ActivationReason);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
