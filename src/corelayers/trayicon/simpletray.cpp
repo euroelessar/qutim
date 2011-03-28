@@ -1,12 +1,17 @@
 #include "simpletray.h"
-#include <qutim/icon.h>
+#include "simpletraysettings.h"
 #include <qutim/extensioninfo.h>
 #include "qutim/metaobjectbuilder.h"
 #include <qutim/servicemanager.h>
 #include <QApplication>
 #include <QWidgetAction>
 #include <QToolButton>
+#include <QDateTime>
+#include <QPainter>
+#include <QPixmap>
+#include <QString>
 #include <qutim/debug.h>
+#include <qutim/settingslayer.h>
 
 namespace Core
 {
@@ -58,6 +63,31 @@ namespace Core
 		mutable QPointer<QAction> m_action;
 	};
 
+#ifdef Q_WS_WIN
+	class ClEventFilter : public QObject
+	{
+		SimpleTray *tray_;
+		QWidget *widget_;
+
+	public:
+		ClEventFilter(SimpleTray *t, QWidget *w)
+			: QObject(t)
+		{
+			tray_   = t;
+			widget_ = w;
+		}
+
+		bool eventFilter(QObject *obj, QEvent *ev)
+		{
+			if (QEvent::ActivationChange == ev->type() && obj == widget_) {
+				if (!widget_->isActiveWindow())
+					tray_->clActivationStateChanged(widget_->isActiveWindow());
+			}
+			return false;
+		}
+	};
+#endif
+
 	SimpleTray::SimpleTray()
 	{
 		if (!QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -68,8 +98,8 @@ namespace Core
 		m_isMail = false;
 		m_icon = new QSystemTrayIcon(this);
 		m_icon->setIcon(m_currentIcon = Icon("qutim"));
-		m_mailIcon = Icon("mail-unread-new");
 		m_icon->show();
+		m_mailIcon = Icon("mail-unread-new");
 		connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 				this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
 		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
@@ -94,14 +124,37 @@ namespace Core
 		setMenuOwner(qobject_cast<MenuController*>(ServiceManager::getByName("ContactList")));
 		m_icon->setContextMenu(menu());
 		qApp->setQuitOnLastWindowClosed(false);
+
+#ifdef Q_WS_WIN
+		QWidget *clWindow = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
+		clWindow->installEventFilter(new ClEventFilter(this, clWindow));
+		activationStateChangedTime = QDateTime::currentMSecsSinceEpoch();
+#endif
+
+		SettingsItem *settingsItem = new GeneralSettingsItem<SimpletraySettings>(
+			Settings::Plugin,	QIcon(),
+			QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
+		Settings::registerItem(settingsItem);
+	}
+
+	void SimpleTray::clActivationStateChanged(bool activated)
+	{
+		activationStateChangedTime = activated ? 0 : QDateTime::currentMSecsSinceEpoch();
 	}
 
 	void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 	{
 		if (reason == QSystemTrayIcon::Trigger) {
 			if (m_sessions.isEmpty()) {
-				if (QObject *obj = ServiceManager::getByName("ContactList"))
+				if (QObject *obj = ServiceManager::getByName("ContactList")) {
+#ifdef Q_WS_WIN
+					if (QDateTime::currentMSecsSinceEpoch() - activationStateChangedTime < 200) { // tested - enough
+						obj->metaObject()->invokeMethod(obj, "changeVisibility");
+						clActivationStateChanged(true);
+					}
+#endif
 					obj->metaObject()->invokeMethod(obj, "changeVisibility");
+				}
 			} else {
 				m_sessions.first()->activate();
 			}
@@ -120,10 +173,54 @@ namespace Core
 		onUnreadChanged(MessageList());
 	}
 
+	QIcon SimpleTray::unreadIcon()
+	{
+		static QVector<QIcon> icons;
+		int number = 0;
+		switch (Config(traySettingsFilename).value("showNumber", DontShow))
+		{
+		default :
+		case DontShow : return m_mailIcon;
+
+		case ShowMsgsNumber :
+			foreach (ChatSession *s, m_sessions)
+				number += s->unread().size();
+			break;
+
+		case ShowSessNumber :
+			foreach (ChatSession *s, m_sessions)
+				if (!s->unread().empty())
+					number++;
+			break;
+		}
+
+		number--;
+		if (number >= icons.size())
+			icons.resize(number+1);
+		if (icons[number].isNull())
+			generateIconSizes(m_mailIcon, icons[number], number+1);
+		return icons[number];
+	}
+
+	void SimpleTray::generateIconSizes(const QIcon &backing, QIcon &icon, int number)
+	{
+		QFont f = QApplication::font();
+		foreach (QSize sz, backing.availableSizes()) {
+			QPixmap px(backing.pixmap(sz));
+			QPainter p(&px);
+			f.setPixelSize(px.height()/1.5);
+			p.setFont(f);
+			p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+			icon.addPixmap(px);
+		}
+	}
+
 	void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 	{
+		Config cfg(traySettingsFilename);
 		ChatSession *session = static_cast<ChatSession*>(sender());
 		Q_ASSERT(session != NULL);
+
 		MessageList::iterator itr = unread.begin();
 		while (itr != unread.end()) {
 			if (itr->property("silent", false))
@@ -131,26 +228,31 @@ namespace Core
 			else
 				++itr;
 		}
-		bool empty = m_sessions.isEmpty();
+
+		//bool empty = m_sessions.isEmpty();
 		if (unread.isEmpty()) {
 			m_sessions.removeOne(session);
-		} else if (!m_sessions.contains(session)) {
+		} else if (!m_sessions.contains(session))// {
 			m_sessions.append(session);
-		} else {
+		/*} else {
 			return;
 		}
 		if (empty == m_sessions.isEmpty())
-			return;
+			return;*/
+
 		if (m_sessions.isEmpty()) {
 			if (m_iconTimer.isActive())
 				m_iconTimer.stop();
 			m_icon->setIcon(m_currentIcon);
 			m_isMail = false;
 		} else {
-			if (!m_iconTimer.isActive())
+			if (!m_iconTimer.isActive() && cfg.value("blink", true) && cfg.value("showIcon", true))
 				m_iconTimer.start(500, this);
-			m_icon->setIcon(m_mailIcon);
-			m_isMail = true;
+			if (cfg.value("showIcon", true)) {
+				m_generatedIcon = unreadIcon();
+				m_icon->setIcon(m_generatedIcon);
+				m_isMail = true;
+			}
 		}
 	}
 
@@ -159,7 +261,7 @@ namespace Core
 		if (timer->timerId() != m_iconTimer.timerId()) {
 			QObject::timerEvent(timer);
 		} else {
-			m_icon->setIcon(m_isMail ? m_mailIcon : m_currentIcon);
+			m_icon->setIcon(m_isMail ? m_generatedIcon : m_currentIcon);
 			m_isMail = !m_isMail;
 		}
 	}

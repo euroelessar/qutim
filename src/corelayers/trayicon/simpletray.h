@@ -6,11 +6,13 @@
 #include <qutim/protocol.h>
 #include <QSystemTrayIcon>
 #include <QBasicTimer>
+#include <QPixmap>
+#include <qutim/icon.h>
 
 namespace Core
 {
 	using namespace qutim_sdk_0_3;
-	
+
 	class ProtocolSeparatorActionGenerator;
 	class StatusAction: public QAction
 	{
@@ -21,7 +23,7 @@ namespace Core
 	public slots:
 		void onStatusChanged(qutim_sdk_0_3::Status status);
 	};
-	
+
 	class SimpleTray : public MenuController
 	{
 		Q_OBJECT
@@ -29,8 +31,10 @@ namespace Core
 		Q_CLASSINFO("Uses", "ContactList")
 		Q_CLASSINFO("Uses", "ChatLayer")
 		Q_CLASSINFO("Uses", "IconLoader")
+
 	public:
 		SimpleTray();
+		void clActivationStateChanged(bool activated);
 
 	private slots:
 		void onActivated(QSystemTrayIcon::ActivationReason);
@@ -40,9 +44,15 @@ namespace Core
 		void onAccountDestroyed(QObject *obj);
 		void onAccountCreated(qutim_sdk_0_3::Account *);
 		void onStatusChanged(const qutim_sdk_0_3::Status &);
+
 	protected:
 		virtual void timerEvent(QTimerEvent *);
+		QIcon unreadIcon();
+
 	private:
+		void generateIconSizes(const QIcon &backing, QIcon &icon, int number);
+
+		qint64 activationStateChangedTime;
 		void validateProtocolActions();
 		QSystemTrayIcon *m_icon;
 		QMap<Account*, ActionGenerator*> m_actions;
@@ -52,6 +62,7 @@ namespace Core
 		QList<Protocol*> m_protocols;
 		QList<ChatSession*> m_sessions;
 		QIcon m_currentIcon;
+		QIcon m_generatedIcon;
 		QBasicTimer m_iconTimer;
 		QIcon m_mailIcon;
 		bool m_isMail;
