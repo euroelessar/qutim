@@ -2,47 +2,51 @@
 #include "winint.h"
 #include <QTimer>
 #include <qutim/config.h>
+#include <QSysInfo>
 
 using namespace qutim_sdk_0_3;
 using namespace Ui;
 
 WSettingsWidget::WSettingsWidget()
-	: ui(new Ui::WSettingsForm)
+	: SettingsWidget(), ui(new Ui::WSettingsForm)
 {
 	this->ui->setupUi(this);
-	connect(ui->cb_oi_enabled,         SIGNAL(clicked()), SLOT(onCbStateChanged()));
-	connect(ui->cb_oi_showNewMsgCount, SIGNAL(clicked()), SLOT(onCbStateChanged()));
-	connect(ui->cb_tt_enabled,         SIGNAL(clicked()), SLOT(onCbStateChanged()));
+	connect(ui->cb_oi_enabled,          SIGNAL(clicked()), SLOT(onCbStateChanged()));
+	connect(ui->cb_oi_showNewMsgNumber, SIGNAL(clicked()), SLOT(onCbStateChanged()));
+	connect(ui->cb_tt_enabled,          SIGNAL(clicked()), SLOT(onCbStateChanged()));
+	connect(this, SIGNAL(saved()), WinIntegration::instance(), SLOT(onSettingsSaved()));
+	if (!WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar))
+		ui->tabWidget->removeTab(1); // WARNING: magic numer
 }
 
 void WSettingsWidget::loadImpl()
 {
-	Config cfg(WI_CONFIG);
-	ui->cb_oi_enabled->           setChecked(cfg.value("oi_enabled",            true));
-	ui->cb_oi_addNewConfMsgCount->setChecked(cfg.value("oi_addNewConfMsgCount", false));
-	ui->cb_oi_showNewMsgCount->   setChecked(cfg.value("oi_showNewMsgCount",    true));
-	ui->cb_tt_enabled->           setChecked(cfg.value("tt_enabled",            true));
-	ui->cb_tt_showLastSenders->   setChecked(cfg.value("tt_showLastSenders",    true));
-	ui->cb_tt_showNewMsgCount->   setChecked(cfg.value("tt_showNewMsgCount",    true));
+	Config cfg(WI_ConfigName);
+	if (WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar)) {
+		ui->cb_oi_enabled->           setChecked(cfg.value("oi_enabled",             true));
+		ui->cb_oi_addNewConfMsgNumber->setChecked(cfg.value("oi_addNewConfMsgNumber", false));
+		ui->cb_oi_showNewMsgNumber->  setChecked(cfg.value("oi_showNewMsgNumber",    true));
+		ui->cb_tt_enabled->           setChecked(cfg.value("tt_enabled",             true));
+		ui->cb_tt_showNewMsgNumber->  setChecked(cfg.value("tt_showNewMsgCount",     true));
+		lookForWidgetState(ui->cb_oi_enabled);
+		lookForWidgetState(ui->cb_oi_addNewConfMsgNumber);
+		lookForWidgetState(ui->cb_oi_showNewMsgNumber);
+		lookForWidgetState(ui->cb_tt_enabled);
+		lookForWidgetState(ui->cb_tt_showNewMsgNumber);
+	}
 	onCbStateChanged();
-	lookForWidgetState(ui->cb_oi_enabled);
-	lookForWidgetState(ui->cb_oi_addNewConfMsgCount);
-	lookForWidgetState(ui->cb_oi_showNewMsgCount);
-	lookForWidgetState(ui->cb_tt_enabled);
-	lookForWidgetState(ui->cb_tt_showLastSenders);
-	lookForWidgetState(ui->cb_tt_showNewMsgCount);
 }
 
 void WSettingsWidget::saveImpl()
 {
-	Config cfg(WI_CONFIG);
-	cfg.setValue("oi_enabled",            ui->cb_oi_enabled->           isChecked());
-	cfg.setValue("oi_addNewConfMsgCount", ui->cb_oi_addNewConfMsgCount->isChecked());
-	cfg.setValue("oi_showNewMsgCount",    ui->cb_oi_showNewMsgCount->   isChecked());
-	cfg.setValue("tt_enabled",            ui->cb_tt_enabled->           isChecked());
-	cfg.setValue("tt_showLastSenders",    ui->cb_tt_showLastSenders->   isChecked());
-	cfg.setValue("tt_showNewMsgCount",    ui->cb_tt_showNewMsgCount->   isChecked());
-	QTimer::singleShot(500, WinIntegration::instance(), SLOT(reloadSettings()));
+	Config cfg(WI_ConfigName);
+	if (WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar)) {
+		cfg.setValue("oi_enabled",             ui->cb_oi_enabled->            isChecked());
+		cfg.setValue("oi_addNewConfMsgNumber", ui->cb_oi_addNewConfMsgNumber->isChecked());
+		cfg.setValue("oi_showNewMsgNumber",    ui->cb_oi_showNewMsgNumber->   isChecked());
+		cfg.setValue("tt_enabled",             ui->cb_tt_enabled->            isChecked());
+		cfg.setValue("tt_showNewMsgNumber",    ui->cb_tt_showNewMsgNumber->   isChecked());
+	}
 }
 
 void WSettingsWidget::cancelImpl()
@@ -52,22 +56,22 @@ void WSettingsWidget::cancelImpl()
 
 void WSettingsWidget::onCbStateChanged()
 {
-	if (!ui->cb_oi_enabled->isChecked()) {
-		ui->cb_oi_showNewMsgCount->   setDisabled(true);
-		ui->cb_oi_addNewConfMsgCount->setDisabled(true);
-	} else {
-		ui->cb_oi_showNewMsgCount->setEnabled(true);
-		if (!ui->cb_oi_showNewMsgCount->isChecked())
-			ui->cb_oi_addNewConfMsgCount->setDisabled(true);
-		else
-			ui->cb_oi_addNewConfMsgCount->setEnabled(true);
-	}
+	if (WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar)) {
+		if (!ui->cb_oi_enabled->isChecked()) {
+			ui->cb_oi_showNewMsgNumber->   setDisabled(true);
+			ui->cb_oi_addNewConfMsgNumber->setDisabled(true);
+		} else {
+			ui->cb_oi_showNewMsgNumber->setEnabled(true);
+			if (!ui->cb_oi_showNewMsgNumber->isChecked())
+				ui->cb_oi_addNewConfMsgNumber->setDisabled(true);
+			else
+				ui->cb_oi_addNewConfMsgNumber->setEnabled(true);
+		}
 
-	if (!ui->cb_tt_enabled->isChecked()) {
-		ui->cb_tt_showLastSenders->setDisabled(true);
-		ui->cb_tt_showNewMsgCount->setDisabled(true);
-	} else {
-		ui->cb_tt_showLastSenders->setEnabled(true);
-		ui->cb_tt_showNewMsgCount->setEnabled(true);
+		if (!ui->cb_tt_enabled->isChecked()) {
+			ui->cb_tt_showNewMsgNumber->setDisabled(true);
+		} else {
+			ui->cb_tt_showNewMsgNumber->setEnabled(true);
+		}
 	}
 }

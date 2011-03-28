@@ -15,8 +15,9 @@ public slots:
 	void reloadSettings();
 
 private:
-	bool cfg_displayCount;
+	bool cfg_displayNumber;
 	bool cfg_addConfs;
+	bool cfg_enabled;
 };
 
 #endif // WOVERLAYICON_H

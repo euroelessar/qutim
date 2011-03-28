@@ -5,6 +5,8 @@
 #include <QGraphicsTextItem>
 #include <QTimer>
 #include <qutim/configbase.h>
+#include <qutim/debug.h>
+#include <QMessageBox>
 
 using namespace qutim_sdk_0_3;
 
@@ -58,13 +60,13 @@ void WThumbnailsProvider::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 	if (-1 == sessIndex) {
 		if (sess) {
 			sessions.push_front(sess);
-			connect(sess, SIGNAL(destroyed(QObject*)), this, SLOT(onSessionDestroyed(QObject*)));
+			connect(sess, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		}
 	} else
 		sessions.move(sessIndex, 0);
 	QString result("");
 	int listSize  = sessions.size(), index = 0;
-	while (index < lastSendersCount && index < listSize && cfg_showSenders) {
+	while (index < lastSendersCount && index < listSize) {
 		ChatUnit    *unit;
 		ChatSession *session;
 		unsigned     unread;
@@ -86,7 +88,7 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 	grView->resize(size);
 	//qutimIconItem->setPos(size.width()-ICON_SIZE, size.height()-ICON_SIZE);
 	if (unreadConfs || unreadChats) {
-		textUnreadTitle->setHtml     (tr("<b>You have new messages:</b>"));
+		textUnreadTitle->setHtml     (tr("<b>You have new messages.</b>"));
 		textUnreadTitle->setTextWidth(size.width() - UNREAD_TITLE_X*2);
 		if (cfg_showMsgCount) {
 			textUnreadChats->setHtml     (tr("&middot; %n message(s) from chats.",       "", unreadChats));
@@ -96,16 +98,11 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 		} else {
 			textUnreadConfs->setPlainText(QString()); // clear "You have no new messages."
 		}
-		if (cfg_showSenders) {
-			textUnreadAuthorsTitle->setPlainText(tr("Last received from:"));
-			textUnreadAuthorsTitle->setTextWidth(size.width() - AUTHORS_TITLE_X*2);
-			textUnreadAuthorsList-> setTextWidth(size.width() - AUTHORS_LIST_X *2);
-		}
+		textUnreadAuthorsTitle->setPlainText(tr("Last received from:"));
+		textUnreadAuthorsTitle->setTextWidth(size.width() - AUTHORS_TITLE_X*2);
+		textUnreadAuthorsList-> setTextWidth(size.width() - AUTHORS_LIST_X *2);
 	} else {
-		if (cfg_showMsgCount || cfg_showSenders)
-			textUnreadConfs->setPlainText(tr("You have no new messages."));
-		else
-			textUnreadConfs->setPlainText(QString());
+		textUnreadConfs->setPlainText(tr("You have no new messages."));
 		textUnreadTitle->       setPlainText(QString());
 		textUnreadChats->       setPlainText(QString());
 		textUnreadAuthorsTitle->setPlainText(QString());
@@ -113,7 +110,7 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
-	QTimer::singleShot(1, this, SLOT(prepareLivePreview()));
+	QTimer::singleShot(0, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);
 }
 
@@ -138,16 +135,10 @@ void WThumbnailsProvider::onSessionDestroyed(QObject *s)
 
 void WThumbnailsProvider::reloadSettings()
 {
-	Config cfg(WI_CONFIG);
-	cfg_showMsgCount = cfg.value("tt_showNewMsgCount", true);
-	cfg_showSenders  = cfg.value("tt_showLastSenders", true);
-	if (!cfg_showSenders)
-		textUnreadAuthorsList-> setPlainText(QString());
-		textUnreadAuthorsTitle->setPlainText(QString());
+	Config cfg(WI_ConfigName);
+	cfg_showMsgCount = cfg.value("tt_showNewMsgNumber", true);
 	if (!cfg_showMsgCount) {
 		textUnreadChats->setPlainText(QString());
 		textUnreadConfs->setPlainText(QString());
 	}
-	if (!cfg_showMsgCount && !cfg_showSenders)
-		textUnreadTitle->setPlainText(QString());
 }

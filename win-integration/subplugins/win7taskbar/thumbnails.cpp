@@ -3,21 +3,28 @@
 #include "../../src/winint.h"
 #include <WinThings/TaskbarPreviews.h>
 #include <qutim/messagesession.h>
+#include <qutim/config.h>
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
 WThumbnails::WThumbnails()
+	: pp(0), chatWindow(0), tabId(0)
 {
-	pp         = new WThumbnailsProvider(this);
-	chatWindow = 0;
-	tabId      = 0;
-	connect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), pp, SLOT(onUnreadChanged(uint,uint)));
-	connect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), SLOT(onUnreadChanged(uint,uint)));
+	reloadSetting();
+	if (cfg_enabled) {
+		pp = new WThumbnailsProvider(this);
+		pp->reloadSettings();
+		connect(WinIntegration::instance(), SIGNAL(reloadSettigs()),          pp, SLOT(reloadSettings()));
+		connect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), pp, SLOT(onUnreadChanged(uint,uint)));
+		connect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)),     SLOT(onUnreadChanged(uint,uint)));
+	}
 }
 
 WThumbnails::~WThumbnails()
 {
-	delete pp;
+	if (pp)
+		delete pp;
 	TaskbarPreviews::tabsClear();
 }
 
@@ -46,8 +53,10 @@ void WThumbnails::onSessionActivated(bool)
 	if (newWindow) {
 		tabId = TaskbarPreviews::tabAddVirtual(pp, chatWindow, chatWindow->windowTitle());
 		connect(chatWindow, SIGNAL(destroyed(QObject*)), SLOT(onChatwindowDestruction(QObject*)));
-	} else
+	} else {
 		TaskbarPreviews::tabSetTitle(tabId, chatWindow->windowTitle());
+		QTimer::singleShot(0, pp, SLOT(prepareLivePreview()));
+	}
 }
 
 void WThumbnails::onUnreadChanged(unsigned, unsigned)
@@ -58,4 +67,12 @@ void WThumbnails::onUnreadChanged(unsigned, unsigned)
 QWidget *WThumbnails::currentWindow()
 {
 	return chatWindow;
+}
+
+void WThumbnails::reloadSetting()
+{
+	Config cfg(WI_ConfigName);
+	cfg_enabled         = cfg.value("tt_enabled", true);
+	cfg_showLastSenders = cfg.value("tt_showLastSenders",  true);
+	cfg_showMsgNumber   = cfg.value("tt_showNewMsgNumber", true);
 }

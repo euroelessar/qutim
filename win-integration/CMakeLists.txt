@@ -9,7 +9,7 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		DISPLAY_NAME   "Windows Integration"
 		DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
 		GROUP          "Plugins"
-		LINK_LIBRARIES wapiqtwrapper
+		LINK_LIBRARIES wapiqtwrapper ${QT_QTDECLARATIVE_LIBRARY}
 		INCLUDE_DIRS   "libs/include"
 	)
 	if(MSVC)

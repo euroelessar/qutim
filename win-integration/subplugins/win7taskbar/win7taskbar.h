@@ -11,7 +11,7 @@ class Win7Features : public qutim_sdk_0_3::Plugin
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "WinIntegration/Win7Features")
 	Q_CLASSINFO("DependsOn", "WinIntegration")
-	Q_CLASSINFO("Service",   "Dock")
+	//Q_CLASSINFO("Service",   "Dock")
 
 public:
 	void init();
@@ -19,7 +19,7 @@ public:
 	bool unload();
 
 private:
-	WThumbnails *thumbnails;
+	WThumbnails  *thumbnails;
 	WOverlayIcon *overlayIcon;
 };
 

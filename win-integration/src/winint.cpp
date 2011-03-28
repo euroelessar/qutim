@@ -1,7 +1,11 @@
 #include "winint.h"
 #include "wsettings.h"
-#include "trayicon.h"
 #include <QDir>
+#include <QSysInfo>
+#include <QFileInfo>
+#include <QLibrary>
+#include <QtDeclarative/qdeclarative.h>
+#include <QGraphicsDropShadowEffect>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <qutim/extensionicon.h>
@@ -16,6 +20,7 @@ using namespace qutim_sdk_0_3;
 WinIntegration *WinIntegration::pluginInstance = 0;
 
 WinIntegration::WinIntegration()
+	: subPlugins_(0)
 {
 	pluginInstance = this;
 	// being run from Explorer
@@ -37,10 +42,6 @@ void WinIntegration::init()
 								"icon than default plugin."),
 		PLUGIN_VERSION(2, 0, 0, 9999),
 		ExtensionIcon());
-	addExtension<NotSimpleTray>(QT_TRANSLATE_NOOP("Plugin", "Windows Notification Area Icon"),
-									 QT_TRANSLATE_NOOP("Plugin", "Provides a bit more usable notification area "
-															 "icon than default plugin."),
-									 ExtensionIcon());
 }
 
 bool WinIntegration::load()
@@ -50,12 +51,24 @@ bool WinIntegration::load()
 		QT_TRANSLATE_NOOP("Plugin", "Windows Integration"));
 	Settings::registerItem(settingsItem);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	QSysInfo::WinVersion wv = QSysInfo::windowsVersion();
+	switch (wv) {
+	case QSysInfo::WV_WINDOWS7 : Win7SmallFeatures(true);
+	case QSysInfo::WV_VISTA :    VistaSmallFeatures(true);
+	default:                     XpSmallFeatures(true);
+	}
 	return true;
 }
 
 bool WinIntegration::unload()
 {
 	Settings::removeItem(settingsItem);
+	QSysInfo::WinVersion wv = QSysInfo::windowsVersion();
+	switch (wv) {
+	case QSysInfo::WV_WINDOWS7 : Win7SmallFeatures(false);
+	case QSysInfo::WV_VISTA :    VistaSmallFeatures(false);
+	default:                     XpSmallFeatures(false);
+	}
 	return true;
 }
 
@@ -101,6 +114,65 @@ void WinIntegration::onUnreadChanged(qutim_sdk_0_3::MessageList)
 			unreadChats += unreadSize;
 	}
 	emit unreadChanged(unreadChats, unreadConfs);
+}
+
+void WinIntegration::Win7SmallFeatures(bool)
+{
+
+}
+
+void WinIntegration::VistaSmallFeatures(bool enable)
+{
+	typedef HRESULT (WINAPI * WerExclFunctions_t)(PCWSTR, BOOL);
+	typedef HRESULT (WINAPI * RegisterApplicationRestart_t)(PCWSTR, DWORD);
+	typedef HRESULT (WINAPI * UnregisterApplicationRestart_t)();
+
+	WerExclFunctions_t pWerAddExcludedApplication, pWerRemoveExcludedApplication;
+	RegisterApplicationRestart_t   pRegisterApplicationRestart;
+	UnregisterApplicationRestart_t pUnregisterApplicationRestart;
+	QLibrary wer_dll("wer.dll"), kernel32_dll("kernel32.dll");
+
+	pWerAddExcludedApplication    = static_cast<WerExclFunctions_t>(wer_dll.resolve("WerAddExcludedApplication"));
+	pWerRemoveExcludedApplication = static_cast<WerExclFunctions_t>(wer_dll.resolve("WerRemoveExcludedApplication"));
+	pRegisterApplicationRestart   = static_cast<RegisterApplicationRestart_t>  (kernel32_dll.resolve("RegisterApplicationRestart"));
+	pUnregisterApplicationRestart = static_cast<UnregisterApplicationRestart_t>(kernel32_dll.resolve("UnregisterApplicationRestart"));
+
+	static void * restart = ServiceManager::getByName("CrashHandler"); // TODO: is there such services?
+	if (enable) {
+		pWerAddExcludedApplication(QFileInfo(qApp->applicationFilePath()).fileName().toStdWString().c_str(), 0);
+		if (!restart)
+			pRegisterApplicationRestart(L"", 0);
+	} else {
+		pWerRemoveExcludedApplication(QFileInfo(qApp->applicationFilePath()).fileName().toStdWString().c_str(), 0);
+		if (!restart)
+			pUnregisterApplicationRestart();
+	}
+	qmlRegisterType<QGraphicsDropShadowEffect>("qutimCustomEffects", 1, 0, "DropShadow"); // TODO: remove, shouldn't be there
+}
+
+void WinIntegration::XpSmallFeatures(bool)
+{
+
+}
+
+void WinIntegration::enabledPlugin(SubPlugins plugin)
+{
+	subPlugins_ |= plugin;
+}
+
+void WinIntegration::disabledPlugin(SubPlugins plugin)
+{
+	subPlugins_ =~ plugin;
+}
+
+bool WinIntegration::isPluginEnabled(SubPlugins plugin)
+{
+	return subPlugins_ & plugin;
+}
+
+void WinIntegration::onSettingsSaved()
+{
+	emit reloadSettigs();
 }
 
 QUTIM_EXPORT_PLUGIN(WinIntegration)

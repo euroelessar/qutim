@@ -23,11 +23,16 @@ public slots:
 	void onSessionActivated(bool);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *);
 	void onUnreadChanged(unsigned, unsigned);
+	void reloadSetting();
 
 private:
 	QWidget *chatWindow;
 	unsigned tabId;
 	WThumbnailsProvider *pp;
+
+	bool cfg_enabled;
+	bool cfg_showMsgNumber;
+	bool cfg_showLastSenders;
 };
 
 #endif

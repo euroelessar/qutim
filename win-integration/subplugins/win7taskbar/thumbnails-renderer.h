@@ -34,7 +34,6 @@ class WThumbnailsProvider : public PreviewProvider
 	unsigned unreadChats, unreadConfs;
 	WThumbnails *parentThumbs;
 
-	bool cfg_showSenders;
 	bool cfg_showMsgCount;
 
 public:
@@ -43,9 +42,9 @@ public:
 	QPixmap IconicPreview(unsigned tabid, QWidget *owner, QSize);
 	QPixmap LivePreview  (unsigned tabid, QWidget *owner);
 	void updateNumbers   (unsigned confs, unsigned chats);
-	void reloadSettings();
 
 public slots:
+	void reloadSettings();
 	void onUnreadChanged(unsigned chats, unsigned confs);
 	void onUnreadChanged(qutim_sdk_0_3::MessageList);
 	void onSessionDestroyed(QObject *);

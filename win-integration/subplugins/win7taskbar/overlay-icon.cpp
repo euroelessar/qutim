@@ -11,6 +11,7 @@ using namespace qutim_sdk_0_3;
 WOverlayIcon::WOverlayIcon()
 {
 	reloadSettings();
+	connect(WinIntegration::instance(), SIGNAL(reloadSettigs()), SLOT(reloadSettings()));
 }
 
 void WOverlayIcon::onUnreadChanged(unsigned unreadChats, unsigned unreadConfs)
@@ -26,7 +27,7 @@ void WOverlayIcon::onUnreadChanged(unsigned unreadChats, unsigned unreadConfs)
 	else
 		icon = Icon("mail-unread-new").pixmap(16, 16);
 	QPainter painter(&icon);
-	if(cfg_displayCount && count){
+	if(cfg_displayNumber && count){
 		QFont font;
 		font.setWeight(QFont::DemiBold);
 		font.setFamily("Segoe UI");
@@ -40,7 +41,14 @@ void WOverlayIcon::onUnreadChanged(unsigned unreadChats, unsigned unreadConfs)
 
 void WOverlayIcon::reloadSettings()
 {
-	Config cfg(WI_CONFIG);
-	cfg_addConfs     = cfg.value("oi_addConfs",     false);
-	cfg_displayCount = cfg.value("oi_displayCount", true);
+	Config cfg(WI_ConfigName);
+	cfg_addConfs      = cfg.value("oi_addNewConfMsgNumber", false);
+	cfg_displayNumber = cfg.value("oi_showNewMsgNumber",    true);
+	cfg_enabled       = cfg.value("oi_enabled",             true);
+	if (cfg_enabled) {
+		connect   (WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), this, SLOT(onUnreadChanged(uint,uint)), Qt::UniqueConnection);
+	} else {
+		disconnect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), this, SLOT(onUnreadChanged(uint,uint)));
+		OverlayIcon::clear(WinIntegration::oneOfChatWindows());
+	}
 }
