@@ -27,7 +27,7 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 	setSubTitle(tr("You've just created a profile for qutIM. Click Finish to proceed to adding user accounts"));
 
 	QVBoxLayout *l = new QVBoxLayout(this);
-	m_submitBox = new QCheckBox(tr("Are you want to report about this setup?"), this);
+	m_submitBox = new QCheckBox(tr("ld you like to send details about your current setup?"), this);
 	QLabel *label = new QLabel(tr("Information to be transferred to the qutIM's authors:"), this);
 	m_information = new QTextBrowser(this);
 	QRect size = qApp->desktop()->screenGeometry();
