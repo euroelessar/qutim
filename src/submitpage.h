@@ -9,6 +9,8 @@
 #define SUBMITPAGE_H
 
 #include <QWizardPage>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 class QTextBrowser;
 class QCheckBox;
@@ -22,6 +24,16 @@ public:
 private:
 	QCheckBox *m_submitBox;
 	QTextBrowser *m_information;
+};
+
+class RequestHelper : public QNetworkAccessManager
+{
+	Q_OBJECT
+public:
+	RequestHelper(QObject *parent = 0);
+public slots:
+	void onFinished();
+	void onError(QNetworkReply::NetworkError);
 };
 
 } // namespace Core

@@ -11,11 +11,11 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <qutim/systeminfo.h>
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QLocale>
+#include <qutim/debug.h>
 
 namespace Core {
 
@@ -64,6 +64,13 @@ bool SubmitPage::validatePage()
 	if (m_submitBox->checkState() != Qt::Checked)
 		return QWizardPage::validatePage();
 
+	new RequestHelper;
+
+	return QWizardPage::validatePage();
+}
+
+RequestHelper::RequestHelper(QObject *parent) : QNetworkAccessManager(parent)
+{
 	QRect size = qApp->desktop()->screenGeometry();
 	QLocale locale = QLocale::system();
 
@@ -71,7 +78,9 @@ bool SubmitPage::validatePage()
 	//if (lang.isEmpty())
 	//	lang = qgetenv("LANG");
 
-	QUrl url(QLatin1String("http://qutim.org/stats"));
+	//QUrl url(QLatin1String("http://qutim.org/stats"));
+	QUrl url(QLatin1String("http://q.nico-izo.ru/stats.php")); //temporary
+
 	url.addQueryItem(QLatin1String("os"), SystemInfo::getVersion());
 	url.addQueryItem(QLatin1String("short"), SystemInfo::getName());
 	url.addQueryItem(QLatin1String("full"), SystemInfo::getFullName());
@@ -84,11 +93,22 @@ bool SubmitPage::validatePage()
 	url.addQueryItem(QLatin1String("language"), QLocale::languageToString(locale.language()));
 	//url.addQueryItem(QLatin1String("lang"), lang);
 
-	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 	QNetworkRequest request(url);
-	manager->get(request);
-	return QWizardPage::validatePage();
+	QNetworkReply *reply = get(request);
+	connect(reply, SIGNAL(finished()), SLOT(onFinished()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+			this, SLOT(onError(QNetworkReply::NetworkError)));
 }
 
+void RequestHelper::onFinished()
+{
+	deleteLater();
+}
+
+void RequestHelper::onError(QNetworkReply::NetworkError code)
+{
+	debug() << code;
+	deleteLater();
+}
 
 } // namespace Core
