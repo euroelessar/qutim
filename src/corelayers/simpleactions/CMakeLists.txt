@@ -1,5 +1,5 @@
 qutim_add_plugin( simpleactions
-	EXTENSION
+	SUBPLUGIN
 	DISPLAY_NAME "Simple Actions"
 	DESCRIPTION "Default actionset for contacts"
 	SOURCE_DIR src
