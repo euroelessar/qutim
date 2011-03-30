@@ -29,6 +29,7 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 #include <qutim/debug.h>
+#include <qutim/iconloader.h>
 
 namespace Core
 {
@@ -101,7 +102,7 @@ void TextPopupWidget::setData(const QString& title, const QString& body,
 	Contact *c = qobject_cast<Contact *>(sender);
 	QString image_path = c ? c->avatar() : QString();
 	if(image_path.isEmpty())
-		image_path = QLatin1String(":/icons/qutim_64");
+		image_path = IconLoader::instance()->iconPath(QLatin1String("qutim"), 64);
 	QString popup_data = popup_settings.content;
 	QString text;
 //	if (true)

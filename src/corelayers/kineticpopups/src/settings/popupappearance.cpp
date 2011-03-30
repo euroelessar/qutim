@@ -24,6 +24,7 @@ Boston, MA 02110-1301, USA.
 #include <qutim/servicemanager.h>
 #include "manager.h"
 #include "backend.h"
+#include <qutim/iconloader.h>
 
 namespace Core
 {
@@ -36,7 +37,7 @@ PopupAppearance::PopupAppearance ()
 	ui->setupUi(this);
 	connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
 	setProperty("name",tr("Preview"));
-	setProperty("avatar",QLatin1String(":/icons/qutim_64"));
+	setProperty("avatar", IconLoader::instance()->iconPath(QLatin1String("qutim"), 64));
 
 	m_popup_widget = ServiceManager::getByName<PopupGenerator*>("PopupWidget")->generate();
 	Q_ASSERT(m_popup_widget);

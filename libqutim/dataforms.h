@@ -112,7 +112,7 @@ class DataItemPrivate;
   item.setProperty("alternatives", qVariantFromValue(alternatives));
   root << item;
  }
- root << DataItem("image", tr("Image"), QImage(":/icons/qutim_64.png"));
+ root << DataItem("image", tr("Image"), Icon(QLatin1String("qutim")).pixmap(64));
  root << DataItem("string", tr("String"), "Text field");
  {
   DataItem item("multiline", tr("Multiline"), "Multiline");

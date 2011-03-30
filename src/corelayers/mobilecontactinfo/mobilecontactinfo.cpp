@@ -100,7 +100,7 @@ void MobileContactInfoWindow::setRequest(InfoRequest *req)
 		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
 		avatarItem.setProperty("hideTitle", true);
 		avatarItem.setProperty("imageSize", QSize(64, 64));
-		avatarItem.setProperty("defaultImage", QPixmap(":/icons/qutim_64.png"));
+		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
 		if (!readWrite)
 			avatarItem.setReadOnly(true);
 		avatarWidget.reset(AbstractDataForm::get(avatarItem));
