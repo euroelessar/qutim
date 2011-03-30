@@ -123,6 +123,12 @@ static QString lsbRelease(const QStringList& args)
 	while(process.waitForReadyRead())
 		ret += stream.readAll();
 
+	ret = ret.trimmed();
+	if (ret.startsWith(QLatin1Char('\"')) && ret.endsWith(QLatin1Char('\"'))) {
+		ret.remove(0, 1);
+		ret.chop(1);
+	}
+
 	process.close();
 	return ret.trimmed();
 }
@@ -290,7 +296,17 @@ void init(SystemInfoPrivate *d)
 	if(strcmp(fmt, str))
 		d->timezone_str = str;
 #endif
-#if defined(Q_WS_X11)
+
+#if defined(Q_OS_FREEBSD)
+	QProcess processUname;
+	processUname.start(QLatin1String("uname"),
+	                   QStringList() << QLatin1String("-r") << QLatin1String("-p"));
+	if(!processUname.waitForFinished(1000))
+		return false;
+	d->os_name = QLatin1String("FreeBSD");
+	d->os_version = processUname.readAllStandardOutput();
+	d->os_full = d->os_name % QLatin1Char(' ') % d->os_version;
+#elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 
 	d->os_full = lsbRelease(QStringList() << "--description" << "--short");
