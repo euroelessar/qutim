@@ -58,6 +58,7 @@ protected:
 private:
 	void createActionWidget(int row);
 	FileTransferJob *getSelectedJob();
+	void openPath(const QString &file);
 private slots:
 	void rowsInserted(const QModelIndex &parent, int start, int end);
 	void rowsRemoved(const QModelIndex &parent, int start, int end);

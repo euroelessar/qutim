@@ -157,6 +157,11 @@ FileTransferJob *FileTransferDialog::getSelectedJob()
 	return m_model->getJob(row);
 }
 
+void FileTransferDialog::openPath(const QString &path)
+{
+	QDesktopServices::openUrl(QLatin1String("file:///") + path);
+}
+
 void FileTransferDialog::rowsInserted(const QModelIndex &parent, int start, int end)
 {
 	Q_UNUSED(parent);
@@ -229,7 +234,7 @@ void FileTransferDialog::onOpenFileAction(const QModelIndex &index)
 		job->state() == FileTransferJob::Finished)
 	{
 		QString path = job->property("localPath").toString();
-		QDesktopServices::openUrl(QUrl(path));
+		openPath(path);
 	}
 }
 
@@ -239,7 +244,7 @@ void FileTransferDialog::onOpenFileAction()
 	if (!job)
 		return;
 	QString path = job->property("localPath").toString();
-	QDesktopServices::openUrl(QUrl(path));
+	openPath(path);
 }
 
 void FileTransferDialog::onOpenDirAction()
@@ -248,7 +253,7 @@ void FileTransferDialog::onOpenDirAction()
 	if (!job)
 		return;
 	QString path = job->property("localPath").toString();
-	QDesktopServices::openUrl(QUrl(QFileInfo(path).absolutePath()));
+	openPath(QFileInfo(path).absolutePath());
 }
 
 }
