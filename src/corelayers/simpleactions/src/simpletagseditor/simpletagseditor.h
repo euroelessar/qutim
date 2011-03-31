@@ -23,7 +23,6 @@ class SimpleTagsEditor : public QDialog {
 public:
 	SimpleTagsEditor(Contact *contact);
 	~SimpleTagsEditor();
-	void setTags (QStringList tags);
 	void accept();
 public slots:
 	void load();
@@ -35,7 +34,6 @@ protected:
 private:
 	Ui::SimpleTagsEditor *ui;
 	Contact *m_contact;
-	QStringList m_additional_tags;
 };
 
 }
