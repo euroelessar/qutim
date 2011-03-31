@@ -48,7 +48,7 @@ public:
 	static void registerCommandAlias(IrcCommandAlias *alias);
 	static void removeCommandAlias(const QString &name);
 	static void removeCommandAlias(IrcCommandAlias *alias);
-	static QString ircFormatToHtml(const QString &msg, QString *plainText = 0);
+	static QString ircFormatToHtml(const QString &msg);
 	static QString ircFormatToPlainText(const QString &msg);
 public slots:
 	void updateSettings();

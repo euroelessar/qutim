@@ -487,8 +487,8 @@ void IrcConnection::sendNextMessage()
 
 void IrcConnection::handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text)
 {
-	QString plainText;
-	QString html = IrcProtocol::ircFormatToHtml(text, &plainText);
+	QString plainText = IrcProtocol::ircFormatToPlainText(text);
+	QString html = IrcProtocol::ircFormatToHtml(text);
 	bool isPrivate = (to == m_nick);
 	Message msg(plainText);
 	msg.setIncoming(true);

@@ -202,7 +202,7 @@ QString IrcProtocolPrivate::getColorByMircCode(const QString &code)
 		return QString();
 }
 
-QString IrcProtocol::ircFormatToHtml(const QString &msg_helper, QString *plainText)
+QString IrcProtocol::ircFormatToHtml(const QString &msg_helper)
 {
 	// \002 bold
 	// \037 underlined
@@ -212,10 +212,6 @@ QString IrcProtocol::ircFormatToHtml(const QString &msg_helper, QString *plainTe
 	QString msg = Qt::escape(msg_helper);
 	QString result;
 	result.reserve(msg.size() + 20);
-	if (plainText) {
-		plainText->clear();
-		plainText->reserve(msg.size());
-	}
 	QStringList resettingTags; // list of tags for resetting format
 	bool bold = false;
 	bool underlined = false;
@@ -223,7 +219,6 @@ QString IrcProtocol::ircFormatToHtml(const QString &msg_helper, QString *plainTe
 	int pos = 0, oldPos = 0;
 	while ((pos = formatRx.indexIn(msg, pos)) != -1) {
 		QString tmp = msg.mid(oldPos, pos - oldPos);
-		if (plainText) *plainText += tmp;
 		result += tmp;
 		QChar f = formatRx.cap(1).at(0);
 		if (f == '\002') { // bold
@@ -278,14 +273,12 @@ QString IrcProtocol::ircFormatToHtml(const QString &msg_helper, QString *plainTe
 		oldPos = pos;
 	}
 	QString tmp = msg.mid(oldPos);
-	if (plainText) *plainText += tmp;
 	result += tmp;
 	return result;
 }
 
-QString IrcProtocol::ircFormatToPlainText(const QString &msg_helper)
+QString IrcProtocol::ircFormatToPlainText(const QString &msg)
 {
-	QString msg = Qt::escape(msg_helper);
 	QString result;
 	result.reserve(msg.size());
 	int pos = 0, oldPos = 0;

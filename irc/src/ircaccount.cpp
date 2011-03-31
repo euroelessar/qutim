@@ -260,8 +260,8 @@ ChatSession *IrcAccount::activeSession() const
 
 void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString &type) const
 {
-	QString plainText;
-	QString html = IrcProtocol::ircFormatToHtml(msg, &plainText);
+	QString plainText = IrcProtocol::ircFormatToPlainText(msg);
+	QString html = IrcProtocol::ircFormatToHtml(msg);
 	// Add to an active session.
 	if (addToActiveSession) {
 		ChatSession *session = activeSession();
