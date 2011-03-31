@@ -160,7 +160,9 @@ void UrlPreviewPlugin::checkLink(QString &link, ChatUnit *from, qint64 id)
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
-	link += " <span id='urlpreview"+uid+"'></span>";
+	link += " <span id='urlpreview"+uid+"'></span> ";
+
+	debug() << "url" << link;
 }
 
 void UrlPreviewPlugin::authenticationRequired(QNetworkReply* , QAuthenticator* )
