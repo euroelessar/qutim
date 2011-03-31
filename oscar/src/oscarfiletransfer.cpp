@@ -1083,7 +1083,6 @@ void OftFileTransferFactory::onAccountCreated(qutim_sdk_0_3::Account *account)
 void OftFileTransferFactory::onAccountDestroyed(QObject *account)
 {
 	Connections::iterator itr = m_connections.find(static_cast<Account*>(account));
-	Q_ASSERT(itr != m_connections.end());
 	foreach (OftConnection *conn, *itr)
 		conn->deleteLater();
 	m_connections.erase(itr);
