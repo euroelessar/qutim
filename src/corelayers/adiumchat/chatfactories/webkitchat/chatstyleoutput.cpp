@@ -126,8 +126,14 @@ void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 bool ChatStyleOutput::event(QEvent *ev)
 {
 	if (ev->type() == MessageEventHook::eventType()) {
-		qDebug() << Q_FUNC_INFO;
-		mainFrame()->evaluateJavaScript(m_scriptForInvoke);
+		qDebug() << Q_FUNC_INFO << m_scriptForInvoke;
+		//test workaround
+		//QStringList scripts = m_scriptForInvoke.split(";");
+		//foreach (QString script, scripts)
+		//	mainFrame()->evaluateJavaScript(script);
+
+
+		QVariant var = mainFrame()->evaluateJavaScript(m_scriptForInvoke);
 		m_scriptForInvoke.clear();
 //		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
 //		d_func()->getController()->appendMessage(messageEvent->message);
@@ -336,9 +342,10 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 
 void ChatStyleOutput::postEvaluateJavaScript(const QString &script)
 {
-	if (m_scriptForInvoke.isEmpty())
-		QCoreApplication::postEvent(this, new MessageEventHook, -5);
-	m_scriptForInvoke += script;
+	//if (m_scriptForInvoke.isEmpty())
+	//	QCoreApplication::postEvent(this, new MessageEventHook, -5);
+	//m_scriptForInvoke += script;
+	mainFrame()->evaluateJavaScript(script);
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
