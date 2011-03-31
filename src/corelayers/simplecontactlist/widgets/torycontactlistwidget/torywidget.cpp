@@ -88,21 +88,29 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->view->setAlternatingRowColors(false);
 
 	d->globalStatus = new QAction(Icon("im-user-offline"), tr("Global status"), this);
-	d->mainToolBar->addAction(d->globalStatus);
 	d->statusTextAction = new QAction(Icon("im-status-message-edit"), tr("Set Status Text"), this);
 	connect(d->statusTextAction, SIGNAL(triggered()), SLOT(showStatusDialog()));
-	d->globalStatus->setMenu(new QMenu());
+	QMenu *globMenu = new QMenu(this);
 	d->globalStatus->setMenuRole(QAction::PreferencesRole);
-	d->globalStatus->menu()->addAction(d->statusTextAction);
-	d->globalStatus->menu()->addSeparator();
+	globMenu->addAction(d->statusTextAction);
+	globMenu->addSeparator();
 	d->statusGroup = new QActionGroup(this);
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::Online));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::FreeChat));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::Away));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::DND));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::NA));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::Invisible));
-	d->globalStatus->menu()->addAction(createGlobalStatus(Status::Offline));
+	globMenu->addAction(createGlobalStatus(Status::Online));
+	globMenu->addAction(createGlobalStatus(Status::FreeChat));
+	globMenu->addAction(createGlobalStatus(Status::Away));
+	globMenu->addAction(createGlobalStatus(Status::DND));
+	globMenu->addAction(createGlobalStatus(Status::NA));
+	globMenu->addAction(createGlobalStatus(Status::Invisible));
+	globMenu->addAction(createGlobalStatus(Status::Offline));
+	d->mainToolBar->addAction(d->globalStatus);
+	d->globalStatus->setMenu(globMenu);
+
+	// Get rid of the delay before the action menu pops up
+	// TODO: it should probably be moved to ActionToolBar
+	QToolButton *button = qobject_cast<QToolButton*>(d->mainToolBar->widgetForAction(d->globalStatus));
+	if (button) {
+		button->setPopupMode(QToolButton::InstantPopup);
+	}
 
 	QString lastStatus = Config().group("contactList").value("lastStatus", QString());
 	d->statusTextAction->setData(lastStatus);
@@ -197,17 +205,20 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	Q_D(ToryWidget);
 	if (!d->accountsContainer) {
-		d->accountsContainer = new QHBoxLayout(this);
+		QWidget *accountsWidget = new QWidget(this);
+		d->accountsContainer = new QHBoxLayout(accountsWidget);
+		d->accountsContainer->setMargin(0);
 		if (QLayout *layout = centralWidget()->layout())
-			qobject_cast<QVBoxLayout *>(layout)->addLayout(d->accountsContainer);
+			layout->addWidget(accountsWidget);
+		accountsWidget->installEventFilter(this);
 	}
 	QToolButton *button = new QToolButton(this);
 	button->setMenu(account->menu());
 	button->setIcon(account->status().icon());
 	button->setToolTip(account->id());
-	button->setPopupMode(QToolButton::InstantPopup);
 	button->setAutoRaise(true);
 	button->installEventFilter(this);
+
 	d->accountsContainer->addWidget(button);
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
@@ -232,23 +243,12 @@ void ToryWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	bool isOnline = false;
 	foreach(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::Account::all()) {
 		Status::Type type = account->status().type();
-		switch (type) {
-		case Status::Online:
-		case Status::FreeChat:
-		case Status::Away:
-		case Status::NA:
-		case Status::DND:
-		case Status::Invisible:
+		if (type != Status::Offline && type != Status::Connecting) {
 			isOnline = true;
 			break;
-		default:
-			isOnline = isOnline;
 		}
 	}
-	if (isOnline)
-		d->globalStatus->setIcon(Icon("im-user-online"));
-	else
-		d->globalStatus->setIcon(Icon("im-user-offline"));
+	d->globalStatus->setIcon(Icon(isOnline ? "im-user-online" : "im-user-offline"));
 }
 
 void ToryWidget::onAccountDestroyed(QObject *obj)
@@ -287,8 +287,17 @@ bool ToryWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if (event->type() == QEvent::MouseButtonPress) {
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+		QMenu *menu = 0;
 		if (mouseEvent->button() == Qt::RightButton)
-			d_func()->globalStatus->menu()->popup(mouseEvent->globalPos());
+			menu = d_func()->globalStatus->menu();
+		else if (QToolButton *btn = qobject_cast<QToolButton*>(obj))
+			menu = btn->menu();
+
+		if (menu) {
+			menu->popup(mouseEvent->globalPos());
+			return true;
+		}
 		return QMainWindow::eventFilter(obj, event);
 	} else {
 		return QMainWindow::eventFilter(obj, event);
