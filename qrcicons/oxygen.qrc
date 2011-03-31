@@ -11,8 +11,6 @@
         <file>icons/edit-clear-list.png</file>
         <file>icons/edit-clear-locationbar-rtl.png</file>
         <file>icons/face-smile.png</file>
-        <file>icons/go-next.png</file>
-        <file>icons/go-previous.png</file>
         <file>icons/help-hint.png</file>
         <file>icons/im-ban-user.png</file>
         <file>icons/im-kick-user.png</file>
@@ -245,5 +243,7 @@
         <file>icons/user-status-wrong_number.png</file>
         <file>icons/user-status-xstatus.png</file>
         <file>icons/view-history.png</file>
+        <file>icons/edit-delete.png</file>
+        <file>icons/media-playback-stop.png</file>
     </qresource>
 </RCC>
