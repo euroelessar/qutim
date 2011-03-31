@@ -71,6 +71,16 @@ void ChatLayerPlugin::init()
 	addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(
 				QT_TRANSLATE_NOOP("Plugin", "Time modifier"),
 				QT_TRANSLATE_NOOP("Plugin", "Modifier for %time% and %timeOpened% param, based on Apple's documentation"));
+
+	//temporary
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Perova Gala"),
+			  QT_TRANSLATE_NOOP("Task", "Artist"),
+			  QLatin1String("naitmara@mail.ru"),
+			  QLatin1String("http://dawsnest.ru"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Rederick Asher"),
+			  QT_TRANSLATE_NOOP("Task", "Artist"),
+			  QLatin1String("chaoticblack@gmail.com"),
+			  QLatin1String("litsovet.ru"));
 }
 
 bool ChatLayerPlugin::load()
