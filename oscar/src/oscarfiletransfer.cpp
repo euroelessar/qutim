@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QApplication>
 
+// TODO: run fileChecksum() in a separated thread
+
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -393,6 +395,7 @@ OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 c
 	FileTransferJob(contact, direction, manager),
 	m_transfer(manager),
 	m_contact(contact),
+	m_account(contact->account()),
 	m_cookie(cookie),
 	m_proxy(false),
 	m_connInited(false)
@@ -527,7 +530,8 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 			}
 		} else if (m_stage == 2) {
 			if (direction() == Outgoing) {
-				m_server->close();
+				if (m_server)
+					m_server->close();
 				if (m_socket) {
 					debug() << "Sender has sent the request for reverse connection (stage 2)"
 							<< "but the connection already initialized at stage 1";
@@ -614,6 +618,7 @@ void OftConnection::sendFileRequest(bool fileinfo)
 	} else {
 		m_server = OftFileTransferFactory::getFreeServer();
 		if (m_server) {
+			m_server->setConnection(this);
 			m_server->listen();
 			connect(m_server.data(), SIGNAL(timeout(OftConnection*)), SLOT(close()));
 			clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
@@ -741,6 +746,12 @@ void OftConnection::startFileSending()
 		return;
 	}
 	m_data.reset(setCurrentIndex(index));
+	if (!m_data) {
+		setState(Error);
+		setError(IOError);
+		close(false);
+		return;
+	}
 	QFileInfo file(baseDir().absoluteFilePath(fileName()));
 	m_header.type = OftPrompt;
 	m_header.cookie = m_cookie;
@@ -944,7 +955,7 @@ quint32 OftConnection::fileChecksum(QIODevice* file, int bytes)
 		data = file->read(qMin(BUFFER_SIZE, bytes - totalRead));
 		checksum = chunkChecksum(data.constData(), data.size(), checksum, totalRead);
 		totalRead += data.size();
-		QApplication::processEvents();
+		//QApplication::processEvents(); // This call causes crashes
 	}
 	if (!isOpen)
 		file->close();
@@ -1048,7 +1059,7 @@ OftServer *OftFileTransferFactory::getFreeServer()
 		return server;
 	} else {
 		foreach (OftServer *server, m_servers) {
-			if (server->isListening())
+			if (!server->isListening())
 				return server;
 		}
 	}
@@ -1121,7 +1132,7 @@ OftConnection *OftFileTransferFactory::connection(IcqAccount *account, quint64 c
 
 void OftFileTransferFactory::addConnection(OftConnection *connection)
 {
-	IcqAccount *account = connection->contact()->account();
+	IcqAccount *account = connection->m_account;
 	Connections::iterator itr = m_connections.find(account);
 	Q_ASSERT(itr != m_connections.end());
 	itr->insert(connection->cookie(), connection);
@@ -1129,7 +1140,7 @@ void OftFileTransferFactory::addConnection(OftConnection *connection)
 
 void OftFileTransferFactory::removeConnection(OftConnection *connection)
 {
-	IcqAccount *account = connection->contact()->account();
+	IcqAccount *account = connection->m_account;
 	Connections::iterator itr = m_connections.find(account);
 	Q_ASSERT(itr != m_connections.end());
 	itr->remove(connection->cookie());

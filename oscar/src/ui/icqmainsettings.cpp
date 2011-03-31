@@ -143,7 +143,7 @@ void IcqMainSettings::loadImpl()
 	codecNameFound:
 		DataItem item;
 	{
-		DataItem subitem("mainSettings", tr("Main"), QVariant());
+		DataItem subitem("mainSettings", tr("General"), QVariant());
 		subitem.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
 		subitem.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
 									!general.value("avatars", true)));

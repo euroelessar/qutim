@@ -17,6 +17,7 @@
 #define OSCAR_FILETRANSFER_H
 
 #include "messages.h"
+#include "icqcontact.h"
 #include "settingsextension.h"
 #include <qutim/filetransfer.h>
 #include <QTcpSocket>
@@ -162,7 +163,7 @@ class OftConnection : public FileTransferJob
 public:
 	OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *transfer);
 	virtual ~OftConnection();
-	inline IcqContact *contact() const { return m_contact; }
+	inline IcqContact *contact() const { return m_contact.data(); }
 	quint64 cookie() const { return m_cookie; }
 	OftFileTransferFactory *transfer() const { return m_transfer; }
 	int localPort() const;
@@ -199,7 +200,8 @@ private:
 	QPointer<OftServer> m_server;
 	QScopedPointer<QIODevice> m_data;
 	OftFileTransferFactory *m_transfer;
-	IcqContact *m_contact;
+	QPointer<IcqContact> m_contact;
+	QPointer<IcqAccount> m_account;
 	quint64 m_cookie;
 	quint16 m_stage;
 	bool m_proxy;
