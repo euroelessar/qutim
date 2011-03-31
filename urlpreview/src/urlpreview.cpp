@@ -161,8 +161,6 @@ void UrlPreviewPlugin::checkLink(QString &link, ChatUnit *from, qint64 id)
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
 	link += " <span id='urlpreview"+uid+"'></span>";
-
-	debug() << "url" << link;
 }
 
 void UrlPreviewPlugin::authenticationRequired(QNetworkReply* , QAuthenticator* )
@@ -249,8 +247,6 @@ void UrlPreviewPlugin::netmanFinished(QNetworkReply* reply)
 	QString js = "urlpreview"+uid+".innerHTML = \""+pstr.replace("\"", "\\\"")+"\";";
 	ChatUnit *unit = reply->property("unit").value<ChatUnit *>();
 	ChatSession *session = ChatLayer::get(unit);
-
-	qDebug() << js;
 
 	session->metaObject()->invokeMethod(session,
 										"evaluateJavaScript",
