@@ -1,4 +1,4 @@
-find_package(Qt4 COMPONENTS QtNetwork QtXml QtXmlPatterns QtWebkit)
+find_package(Qt4 COMPONENTS QtNetwork QtXml QtXmlPatterns)
 
 qutim_add_plugin( yandexnarod
 	DISPLAY_NAME "YandexNarod"
