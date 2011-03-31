@@ -78,8 +78,8 @@ RequestHelper::RequestHelper(QObject *parent) : QNetworkAccessManager(parent)
 	//if (lang.isEmpty())
 	//	lang = qgetenv("LANG");
 
-	//QUrl url(QLatin1String("http://qutim.org/stats"));
-	QUrl url(QLatin1String("http://q.nico-izo.ru/stats.php")); //temporary
+	QUrl url(QLatin1String("http://qutim.org/stats"));
+	//QUrl url(QLatin1String("http://q.nico-izo.ru/stats.php")); //temporary
 
 	url.addQueryItem(QLatin1String("os"), SystemInfo::getVersion());
 	url.addQueryItem(QLatin1String("short"), SystemInfo::getName());
