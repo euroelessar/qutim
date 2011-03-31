@@ -128,7 +128,6 @@ void SimpleActions::onTagsEditAction(QObject *controller)
 		return;
 	SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
 	centerizeWidget(editor);
-	editor->setTags(contact->tags());
 	editor->load();
 	SystemIntegration::show(editor);
 }
