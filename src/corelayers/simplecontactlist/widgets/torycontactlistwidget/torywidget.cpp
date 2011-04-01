@@ -208,6 +208,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 		QWidget *accountsWidget = new QWidget(this);
 		d->accountsContainer = new QHBoxLayout(accountsWidget);
 		d->accountsContainer->setMargin(0);
+		d->accountsContainer->setSpacing(0);
 		if (QLayout *layout = centralWidget()->layout())
 			layout->addWidget(accountsWidget);
 		accountsWidget->installEventFilter(this);
