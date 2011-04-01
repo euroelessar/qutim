@@ -49,7 +49,10 @@ QByteArray Channel1MessageData::fromUnicode(const QString &message, Channel1Code
 		codec = utf16Codec();
 	else
 		codec = asciiCodec();
-	return codec->fromUnicode(message);
+	QByteArray data = codec->fromUnicode(message);
+	if (charset == CodecUtf16Be)
+		data = data.mid(2); // Remove BOM which are shown by some clients as an unknown symbol
+	return data;
 }
 
 void Channel1MessageData::init(const QByteArray &message, Channel1Codec charset)
