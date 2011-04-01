@@ -35,7 +35,7 @@ MergeDialog::MergeDialog(QWidget *parent) :
 	
 	connect(ui->searchField, SIGNAL(textChanged(QString)),
 			m_model, SLOT(searchContacts(QString)));
-	connect(ui->treeView, SIGNAL(activated(QModelIndex)),
+	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),
 			m_model, SLOT(activated(QModelIndex)));
 	connect(m_model, SIGNAL(addContactTriggered(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
