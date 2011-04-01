@@ -91,9 +91,10 @@ void KdePlugin::init()
 	addExtension<KdeIconLoader>(QT_TRANSLATE_NOOP("Plugin", "KDE Icon engine"),
 								QT_TRANSLATE_NOOP("Plugin", "Uses KDE Icon engine for providing icons"),
 								kdeIcon);
-	addExtension<KDENotificationLayer>(QT_TRANSLATE_NOOP("Plugin", "KDE Notifications"),
-									   QT_TRANSLATE_NOOP("Plugin", "Uses KDE notifications"),
-									   kdeIcon);
+	//deprecated
+	//addExtension<KDENotificationLayer>(QT_TRANSLATE_NOOP("Plugin", "KDE Notifications"),
+	//								   QT_TRANSLATE_NOOP("Plugin", "Uses KDE notifications"),
+	//								   kdeIcon);
 	addExtension<KdeTrayIcon>(QT_TRANSLATE_NOOP("Plugin", "KDE Status Notifier"),
 							  QT_TRANSLATE_NOOP("Plugin", "Using new KDE DBus tray specification"),
 							  kdeIcon);
