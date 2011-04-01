@@ -10,12 +10,14 @@
 #include <qutim/systeminfo.h>
 #include <qutim/config.h>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <qutim/debug.h>
 
 using namespace qutim_sdk_0_3;
 namespace qutim_sdk_0_3
 {
-	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
-	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
+LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
+LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 }
 
 namespace Core
@@ -31,6 +33,10 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	registerField("configDir", ui->configEdit);
 	registerField("historyDir", ui->historyEdit);
 	registerField("dataDir", ui->dataEdit);
+
+	connect(ui->dataButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
+	connect(ui->configButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
+	connect(ui->historyButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
 }
 
 void ProfileCreationPage::initializePage()
@@ -48,7 +54,7 @@ void ProfileCreationPage::initializePage()
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<CryptoService>()) {
 		const ExtensionInfo info = gen->info();
 		if (!m_singleProfile
-			|| info.generator()->metaObject()->className() == QLatin1String("Core::NoCryptoService")) {
+				|| info.generator()->metaObject()->className() == QLatin1String("Core::NoCryptoService")) {
 			ui->cryptoBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
 			if (first) {
 				ui->cryptoBox->setCurrentIndex(0);
@@ -94,10 +100,10 @@ bool ProfileCreationPage::validatePage()
 	QFile file(SystemInfo::getDir(SystemInfo::ConfigDir).absoluteFilePath("profilehash"));
 	if (file.exists()) {
 		int ret = QMessageBox::question(this,
-		tr("Warning"),
-		tr("Profile already exists, overwrite?"),
-		QMessageBox::Yes,
-		QMessageBox::No);
+										tr("Warning"),
+										tr("Profile already exists, overwrite?"),
+										QMessageBox::Yes,
+										QMessageBox::No);
 		if(ret != QMessageBox::Yes)
 			return false;
 	}
@@ -208,4 +214,24 @@ void ProfileCreationPage::changeEvent(QEvent *e)
         break;
     }
 }
+
+void ProfileCreationPage::onPathSelectTriggered()
+{
+	QLineEdit *edit = 0;
+	QObject *s = sender();
+
+	if (s == ui->configButton)
+		edit = ui->configEdit;
+	else if (s == ui->historyButton)
+		edit = ui->historyEdit;
+	else if (s == ui->dataButton)
+		edit = ui->dataEdit;
+	else
+		return;
+
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Select path"), edit->text());
+	if (!dir.isEmpty())
+		edit->setText(dir);
+}
+
 }

@@ -25,7 +25,7 @@ protected slots:
 	void on_idEdit_textChanged(const QString &text);
 	void on_cryptoBox_currentIndexChanged(int index);
 	void on_configBox_currentIndexChanged(int index);
-
+	void onPathSelectTriggered();
 protected:
 	void rebaseDirs();
 	void changeEvent(QEvent *e);

@@ -45,8 +45,8 @@ bool SimpleActionsPlugin::load()
 
 bool SimpleActionsPlugin::unload()
 {
-	Q_ASSERT(m_actions);
-	m_actions->deleteLater();
+	if (m_actions)
+		m_actions->deleteLater();
 	return true;
 }
 
