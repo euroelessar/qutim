@@ -353,6 +353,11 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		qWarning("Unknown message channel: %d", int(channel));
 	}
 	if (!message.isEmpty()) {
+		// qip always requires a message response, even if it has sent
+		// us the message on the channel 1.
+		// TODO: maybe there is another SNAC for the message responses?
+		if (contact->d_func()->flags & srvrelay_support)
+			sendChannel2Response(contact, MsgPlain, 0, cookie);
 		Message m;
 		if (tlvs.contains(0x0016))
 			m.setTime(QDateTime::fromTime_t(tlvs.value(0x0016).read<quint32>()));
@@ -527,7 +532,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 
 		if (type == MsgPlain && ack != 2) // Plain message
 		{
-			sendChannel2Response(contact, type, flags, msgCookie);
+			//sendChannel2Response(contact, type, flags, msgCookie); // That was moved to handleMessage().
 			QByteArray message_data = data.read<QByteArray, quint16>(LittleEndian);
 			message_data.resize(message_data.size() - 1);
 			QColor foreground(data.read<quint8>(),
@@ -768,8 +773,9 @@ void MessageSender::sendMessage(MessageData &message)
 	// with wrong encoding
 	QByteArray msg = message.msgs.takeFirst();
 	Cookie cookie(message.contact, message.msgs.isEmpty() ? message.id : Cookie::generateId());
+	SNAC msgData;
 	if (message.channel == 1) {
-		ServerMessage msgData(contact, Channel1MessageData(msg, CodecUtf16Be), cookie);
+		msgData = ServerMessage(contact, Channel1MessageData(msg, CodecUtf16Be), cookie);
 		m_account->connection()->send(msgData);
 	} else {
 		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
@@ -777,11 +783,11 @@ void MessageSender::sendMessage(MessageData &message)
 		tlv.appendColors();
 		if (message.utfEnabled)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
-		ServerMessage msgData(contact, Channel2MessageData(0, tlv));
-		if (message.msgs.isEmpty())
-			msgData.setCookie(cookie, this, "messageTimeout(Cookie)");
-		m_account->connection()->send(msgData);
+		msgData = ServerMessage(contact, Channel2MessageData(0, tlv));
 	}
+	if (message.msgs.isEmpty() && (d->flags & srvrelay_support))
+		msgData.setCookie(cookie, this, "messageTimeout(Cookie)");
+	m_account->connection()->send(msgData);
 }
 
 void MessageSender::messageTimeout(const Cookie &cookie)
