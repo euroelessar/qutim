@@ -154,6 +154,7 @@ private:
 private slots:
 	void on_lineEdit_textChanged(const QString &);
 	void onActionGroupTriggered(QAction *action);
+	void on_saveButton_clicked();
 };
 }
 

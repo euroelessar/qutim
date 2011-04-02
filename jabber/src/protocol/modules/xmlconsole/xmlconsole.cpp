@@ -9,6 +9,8 @@
 #include <QDebug>
 #include <QTextLayout>
 #include <QPlainTextDocumentLayout>
+#include <QFileDialog>
+#include <QTextDocumentWriter>
 #include <qutim/systemintegration.h>
 //#include <QElapsedTimer>
 
@@ -156,9 +158,14 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 	StackEnvironment *d = &(incoming ? m_stackIncoming : m_stackOutgoing);
 	d->reader.addData(data);
 	StackToken *token;
+//	debug() << incoming << data;
+//	debug() << "==================================================================";
 	while (d->reader.readNext() > QXmlStreamReader::Invalid) {
+//		QDebug dbg = debug() << incoming << d->reader.tokenString();
 		switch(d->reader.tokenType()) {
 		case QXmlStreamReader::StartElement:
+//			dbg << d->reader.name().toString() << d->depth
+//					<< d->reader.attributes().value(QLatin1String("from")).toString();
 			d->depth++;
 			if (d->depth > 1) {
 				if (!d->tokens.isEmpty() && d->tokens.last()->type == QXmlStreamReader::Characters)
@@ -167,6 +174,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 			}
 			break;
 		case QXmlStreamReader::EndElement:
+//			dbg << d->reader.name().toString() << d->depth;
 			if (d->tokens.isEmpty())
 				break;
 			token = d->tokens.last();
@@ -275,6 +283,9 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 			break;
 		}
 	}
+//	QDebug dbg = debug() << d->reader.tokenString();
+//	if (d->reader.tokenType() == QXmlStreamReader::Invalid)
+//		dbg << d->reader.error() << d->reader.errorString();
 	if (!incoming && d->depth > 1) {
 		qFatal("outgoing depth %d on\n\"%s\"", d->depth,
 			   qPrintable(QString::fromUtf8(data, data.size())));
@@ -334,4 +345,14 @@ void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 	QAbstractTextDocumentLayout *layout = m_ui->xmlBrowser->document()->documentLayout();
 	Q_ASSERT(qobject_cast<QPlainTextDocumentLayout*>(layout));
 	qobject_cast<QPlainTextDocumentLayout*>(layout)->requestUpdate();
+}
+
+void Jabber::XmlConsole::on_saveButton_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save XMPP log to file"),
+	                                                QString(), tr("OpenDocument Format (*.odf);;HTML file (*.html);;Plain text (*.txt)"));
+	if (!fileName.isEmpty()) {
+		QTextDocumentWriter writer(fileName);
+		writer.write(m_ui->xmlBrowser->document());
+	}
 }
