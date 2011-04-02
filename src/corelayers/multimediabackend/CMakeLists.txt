@@ -1,9 +1,9 @@
-find_package( Qt4 COMPONENTS QtMultimedia)
+find_package( Qt4 COMPONENTS QtMultimedia QtMultimediaKit )
 
-if( NOT QT_QTMULTIMEDIA_FOUND )
+if( NOT (QT_QTMULTIMEDIA_FOUND OR QT_QTMULTIMEDIAKIT_FOUND) )
 	message( "QtMultimedia not found. Can't build multimediabackend" )
 	return()
-endif( NOT QT_QTMULTIMEDIA_FOUND )
+endif()
 
 qutim_add_plugin( multimediabackend
 	EXTENSION

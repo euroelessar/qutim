@@ -20,6 +20,7 @@
 #include <QDataStream>
 #include <QtEndian>
 #include <QEventLoop>
+#include <QTimer>
 #include <QDebug>
 
 namespace Core
@@ -109,12 +110,13 @@ void MultimediaSoundThread::finishedPlaying(QAudio::State state)
 {   
 	if(state == QAudio::IdleState) {
 		QAudioOutput *audio = qobject_cast<QAudioOutput*>(sender());
-		QFile *file = audio->findChild<QFile*>();
 		audio->stop();
-		file->close();
+		if (QFile *file = audio->findChild<QFile*>()) {
+			file->deleteLater();
+			file->close();
+		}
 		audio->deleteLater();
-		file->deleteLater();
-		quit();
+		QTimer::singleShot(0, this, SLOT(quit()));
 	}
 }
 }
