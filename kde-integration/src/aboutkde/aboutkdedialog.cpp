@@ -37,7 +37,7 @@ public:
 	virtual QObject *generateHelper() const
 	{
 		return KStandardAction::aboutKDE(KdeIntegration::KdePlugin::helpMenu(),
-		                                 SLOT(aboutKDE()), 0) ;
+		                                 SLOT(aboutKDE()), 0);
 	}
 };
 
@@ -50,6 +50,6 @@ AboutKdeDialog::AboutKdeDialog()
 		return;
 	gen = new AboutKdeActionGenerator();
 	gen->setPriority(0);
-	gen->setType(512);
+	gen->setType(ActionTypePreferences);
 	menu->addAction(gen);
 }

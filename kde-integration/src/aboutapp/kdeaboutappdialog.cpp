@@ -37,7 +37,7 @@ KdeAboutAppDialog::KdeAboutAppDialog()
 		                                           this,
 		                                           SLOT(showWidget()));
 		gen->setPriority(1);
-		gen->setType(512);
+		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
 	}
 	m_data = 0;
@@ -78,12 +78,13 @@ void KdeAboutAppDialog::showWidget()
 		                  ki18n(info.task().toString().toUtf8()),
 		                  info.email().toUtf8(),
 		                  info.web().toUtf8()
-#if KDE_VERSION >= KDE_MAKE_VERSION(4, 6, 0)
+#if KDE_IS_VERSION(4, 6, 0)
 		                  ,
 		                  info.ocsUsername().toUtf8()
 #endif
 		                  );
 	}
 	m_widget = new KAboutApplicationDialog(m_data);
+	m_widget->setAttribute(Qt::WA_DeleteOnClose);
 	m_widget->show();
 }
