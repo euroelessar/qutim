@@ -2,6 +2,7 @@
 #define RESOURCEICONLOADER_H
 #include <libqutim/iconloader.h>
 #include <QStringList>
+#include <QHash>
 
 namespace Embedded
 {
@@ -16,9 +17,9 @@ public:
 	virtual QString iconPath(const QString &name, uint iconSize);
 	virtual QString moviePath(const QString &name, uint iconSize);
 private:
-	QString nameInResource (const QString &name);
-	QStringList m_icons;
-	QString m_themePath;
+	typedef QHash<QStringRef, QString> IconHash;
+	IconHash m_icons;
+	QString m_buffer;
 };
 
 } //namespace Embedded
