@@ -328,6 +328,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifdef QUTIM_TEST_PERFOMANCE
 			instanceTime = timer.elapsed(); timer.restart();
 #endif
+
 #endif // defined(Q_OS_SYMBIAN)
 			if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 				plugin->init();

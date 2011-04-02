@@ -92,15 +92,15 @@ ActionToolBarPrivate::ActionToolBarPrivate()
 QMenu *ActionToolBarPrivate::initContextMenu()
 {
 	Q_Q(ActionToolBar);
-	QMenu *contextMenu = new QMenu(q->tr("ToolBar appearance"));
+	QMenu *contextMenu = new QMenu(QObject::tr("ToolBar appearance"));
 	QActionGroup *group;
-	QMenu *sizeMenu = new QMenu(q->tr("Icon size"), contextMenu);
+	QMenu *sizeMenu = new QMenu(QObject::tr("Icon size"), contextMenu);
 	group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
 	contextMenu->addMenu(sizeMenu);
 	q->connect(group,SIGNAL(triggered(QAction*)),
 			   q, SLOT(_q_size_action_triggered(QAction*)));
 
-	QMenu *styleMenu = new QMenu(q->tr("Tool button style"), contextMenu);
+	QMenu *styleMenu = new QMenu(QObject::tr("Tool button style"), contextMenu);
 	group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
 	contextMenu->addMenu(styleMenu);
 	q->connect(group,SIGNAL(triggered(QAction*)),

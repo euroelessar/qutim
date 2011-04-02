@@ -23,13 +23,13 @@
 namespace Core {
 
 static LocalizedString headers[]= {
-	QT_TR_NOOP("Title"),
-	QT_TR_NOOP("File name"),
-	QT_TR_NOOP("File size"),
-	QT_TR_NOOP("Total size"),
-	QT_TR_NOOP("Contact"),
-	QT_TR_NOOP("Progress"),
-	QT_TR_NOOP("State")
+	QT_TRANSLATE_NOOP("FileTransfer", "Title"),
+	QT_TRANSLATE_NOOP("FileTransfer", "File name"),
+	QT_TRANSLATE_NOOP("FileTransfer", "File size"),
+	QT_TRANSLATE_NOOP("FileTransfer", "Total size"),
+	QT_TRANSLATE_NOOP("FileTransfer", "Contact"),
+	QT_TRANSLATE_NOOP("FileTransfer", "Progress"),
+	QT_TRANSLATE_NOOP("FileTransfer", "State")
 };
 
 FileTransferJobModel::FileTransferJobModel(QObject *parent) :

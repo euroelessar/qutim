@@ -242,6 +242,8 @@ void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection
 
 void StackedChatWidget::activateWindow()
 {
+	if (m_stack == m_chatWidget && m_currentSession)
+		m_currentSession->setActive(isActiveWindow());
 	AbstractChatWidget::activateWindow();
 }
 
@@ -271,6 +273,8 @@ void StackedChatWidget::onAboutToChangeIndex(int index)
 			m_chatWidget->removeAction(m_unitActions);
 			m_unitActions->deleteLater();
 		}
+		if (currentSession())
+			currentSession()->setActive(false);
 	} else  {
 		if (!m_unitActions && currentSession()) {
 			//FIXME Symbian workaround

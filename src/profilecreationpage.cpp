@@ -84,15 +84,38 @@ ProfileCreationPage::~ProfileCreationPage()
     delete ui;
 }
 
+bool ProfileCreationPage::createDirs(QString &path)
+{
+	QDir dir;
+	if (!dir.mkpath(ui->configEdit->text())) {
+		path = ui->configEdit->text();
+		return false;
+	} else if (!dir.mkpath(ui->historyEdit->text())) {
+		path = ui->historyEdit->text();
+		return false;
+	} else if (!dir.mkpath(ui->dataEdit->text())) {
+		path = ui->dataEdit->text();
+		return false;
+	}
+	return true;
+}
+
 bool ProfileCreationPage::validatePage()
 {
 	//FIXME Elessar, WTF? why the generators are run on several times?
 	if (m_is_valid)
 		return true; //dummy
-	QDir dir;
-	dir.mkpath(ui->configEdit->text());
-	dir.mkpath(ui->historyEdit->text());
-	dir.mkpath(ui->dataEdit->text());
+
+	QString str;
+	if (!createDirs(str)) {
+		QMessageBox::warning(this,
+							 tr("Error"),
+							 tr("Unable to create directory %1. "
+								"Maybe you are trying to create a directory "
+								"in a protected system directory").arg(str));
+		return false;
+	}
+
 	QVector<QDir> &systemDirs = *system_info_dirs();
 	systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(ui->configEdit->text());
 	systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(ui->historyEdit->text());

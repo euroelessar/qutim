@@ -4,6 +4,7 @@
 #include <QWizardPage>
 #include <QDir>
 
+class QLineEdit;
 namespace Ui {
 	class ProfileCreationPage;
 }
@@ -28,6 +29,7 @@ protected slots:
 	void onPathSelectTriggered();
 protected:
 	void rebaseDirs();
+	bool createDirs(QString &);
 	void changeEvent(QEvent *e);
 
 private:

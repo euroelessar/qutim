@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
-    <height>321</height>
+    <width>302</width>
+    <height>319</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -112,6 +112,13 @@
       <string>Send Key</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2"/>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="notifyBox">
+     <property name="text">
+      <string>Show notifications in active chat</string>
+     </property>
     </widget>
    </item>
   </layout>

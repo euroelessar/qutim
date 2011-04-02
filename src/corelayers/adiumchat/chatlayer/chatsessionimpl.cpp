@@ -56,6 +56,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
+	d->notificationsInActiveChat = cfg.value("notificationsInActiveChat", false);
 	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 
@@ -134,7 +135,7 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 		}
 	}
 
-	if (!silent && !d->active)
+	if (!silent && (d->notificationsInActiveChat || !d->active))
 		Notifications::send(message);
 
 	if(!message.property("fake",false)) {
