@@ -46,4 +46,30 @@ namespace qutim_sdk_0_3
 			return QString::fromUtf8(m_str);
 		return QCoreApplication::translate(m_ctx.constData(), m_str.constData(), 0, QCoreApplication::UnicodeUTF8);
 	}
+
+	QDataStream &operator<<(QDataStream &out, const LocalizedString &str)
+	{
+		out << 1;
+		out << str.m_ctx;
+		out << str.m_str;
+		return out;
+	}
+
+	QDataStream &operator>>(QDataStream &in, LocalizedString &str)
+	{
+		int ver = 1;
+		in >> ver;
+		Q_ASSERT(ver == 1);
+		in >> str.m_ctx;
+		in >> str.m_str;
+		return in;
+	}
+
+	struct StaticConstructor
+	{
+		StaticConstructor()
+		{
+			qRegisterMetaTypeStreamOperators<LocalizedString>("qutim_sdk_0_3::LocalizedString");
+		}
+	} staticConstructor;
 }

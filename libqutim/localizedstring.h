@@ -63,6 +63,8 @@ namespace qutim_sdk_0_3
 		inline bool operator<=(const LocalizedString &s) const { return !operator>(s); }
 		inline bool operator>=(const LocalizedString &s) const { return !operator<(s); }
 	private:
+		friend QDataStream &operator<<(QDataStream &out, const LocalizedString &str);
+		friend QDataStream &operator>>(QDataStream &in, LocalizedString &str);
 		QByteArray m_ctx;
 		QByteArray m_str;
 	};
