@@ -779,7 +779,6 @@ void MessageSender::sendMessage(MessageData &message)
 	SNAC msgData;
 	if (message.channel == 1) {
 		msgData = ServerMessage(contact, Channel1MessageData(msg, CodecUtf16Be), cookie);
-		m_account->connection()->send(msgData);
 	} else {
 		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
 		tlv.append<quint16>(msg, LittleEndian);
