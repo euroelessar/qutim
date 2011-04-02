@@ -104,11 +104,13 @@ void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 		const QRegExp &linkRegExp = getLinkRegExp();
 		int pos = 0;
 		while (((pos = linkRegExp.indexIn(html, pos)) != -1)) {
+			static int uid = 1;
 			QString link = linkRegExp.cap(0);
 			QString oldLink = link;
-			checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), message->id());
+			checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), uid);
 			pos += link.count();
 			html = html.replace(oldLink, link);
+			uid++;
 		}
 	} else {
 		//QTextDocument doc(html);
@@ -158,7 +160,7 @@ void UrlPreviewPlugin::checkLink(QString &link, ChatUnit *from, qint64 id)
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
-	link += "<span id='urlpreview"+uid+"'></span>";
+	link += " <span id='urlpreview"+uid+"'></span> ";
 
 	debug() << "url" << link;
 }
@@ -247,6 +249,7 @@ void UrlPreviewPlugin::netmanFinished(QNetworkReply* reply)
 	QString js = "urlpreview"+uid+".innerHTML = \""+pstr.replace("\"", "\\\"")+"\";";
 	ChatUnit *unit = reply->property("unit").value<ChatUnit *>();
 	ChatSession *session = ChatLayer::get(unit);
+
 	session->metaObject()->invokeMethod(session,
 										"evaluateJavaScript",
 										Q_ARG(QString,js)

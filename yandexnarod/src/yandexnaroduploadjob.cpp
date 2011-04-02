@@ -21,6 +21,7 @@
 #include <qutim/json.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
+#include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <QFileDialog>
 #include <QNetworkCookieJar>
@@ -321,7 +322,13 @@ void YandexNarodUploadJob::progressReply()
 			sendmsg.replace("%U", url);
 			sendmsg.replace("%S", varMap.value("size").toString());
 
-			chatUnit()->account()->getUnitForSession(chatUnit())->sendMessage(sendmsg);
+			//Append message to chatunit
+			Message msg(sendmsg);
+			msg.setIncoming(false);
+			msg.setProperty("service", true);
+			chatUnit()->account()->getUnitForSession(chatUnit())->sendMessage(msg);
+			if (ChatSession *s = ChatLayer::get(chatUnit(), false))
+				s->appendMessage(msg);
 		}
 	}
 }

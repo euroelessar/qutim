@@ -33,8 +33,6 @@ public:
 	bool getRemember() { return ui.cbRemember->isChecked(); }
 	QString getCode() { return ui.editCaptcha->text(); }
 	void setCaptcha(QString);
-
-
 private:
 	Ui::requestAuthDialogClass ui;
 

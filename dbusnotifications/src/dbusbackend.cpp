@@ -167,12 +167,10 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 
 	icon = QLatin1String("qutim");
 
-	int timeout;
-
 #ifndef QUTIM_MOBILE_UI
-	timeout = 5000;
+	int timeout = 5000;
 #else
-	timeout = 500000;
+	int timeout = 500000;
 #endif
 
 	QDBusPendingReply<uint> reply = interface->Notify(

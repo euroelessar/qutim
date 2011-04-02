@@ -7,7 +7,7 @@
 #include <QTimer>
 
 // CLASS DECLARATION
-class XQVibraPrivate: public CBase, public MHWRMVibraObserver 
+class XQVibraPrivate : public CBase, public MHWRMVibraObserver 
 {
 
 public:
