@@ -20,6 +20,7 @@ StackedChatBehavior::StackedChatBehavior() :
 	connect(ui->storeBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 	connect(ui->recentBox,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
 	connect(ui->groupUntil,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
+	connect(ui->notifyBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 }
 
 StackedChatBehavior::~StackedChatBehavior()
@@ -47,6 +48,7 @@ void StackedChatBehavior::loadImpl()
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
+	ui->notifyBox->setChecked(chat.value<bool>("notificationsInActiveChat", false));
 }
 
 void StackedChatBehavior::saveImpl()
@@ -57,6 +59,7 @@ void StackedChatBehavior::saveImpl()
 	history.setValue("maxDisplayMessages",ui->recentBox->value());
 	Config chat = appearance.group("chat");
 	chat.setValue("groupUntil",ui->groupUntil->value());
+	chat.setValue("notificationsInActiveChat", ui->notifyBox->isChecked());
 	appearance.sync();
 }
 

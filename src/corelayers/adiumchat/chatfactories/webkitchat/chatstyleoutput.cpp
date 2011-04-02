@@ -126,8 +126,14 @@ void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 bool ChatStyleOutput::event(QEvent *ev)
 {
 	if (ev->type() == MessageEventHook::eventType()) {
-		qDebug() << Q_FUNC_INFO;
-		mainFrame()->evaluateJavaScript(m_scriptForInvoke);
+		qDebug() << Q_FUNC_INFO << m_scriptForInvoke;
+		//test workaround
+		//QStringList scripts = m_scriptForInvoke.split(";");
+		//foreach (QString script, scripts)
+		//	mainFrame()->evaluateJavaScript(script);
+
+
+		QVariant var = mainFrame()->evaluateJavaScript(m_scriptForInvoke);
 		m_scriptForInvoke.clear();
 //		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
 //		d_func()->getController()->appendMessage(messageEvent->message);
@@ -336,9 +342,10 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 
 void ChatStyleOutput::postEvaluateJavaScript(const QString &script)
 {
-	if (m_scriptForInvoke.isEmpty())
-		QCoreApplication::postEvent(this, new MessageEventHook, -5);
-	m_scriptForInvoke += script;
+	//if (m_scriptForInvoke.isEmpty())
+	//	QCoreApplication::postEvent(this, new MessageEventHook, -5);
+	//m_scriptForInvoke += script;
+	mainFrame()->evaluateJavaScript(script);
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
@@ -621,7 +628,9 @@ void ChatStyleOutput::makeUrls(QString &html,const Message& message)
 
 void ChatStyleOutput::makeUrls(QString &html)
 {
-	static QRegExp linkRegExp("(^|[^\"])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
+	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+							  Qt::CaseInsensitive);
 	Q_ASSERT(linkRegExp.isValid());
 	int pos = 0;
 	while(((pos = linkRegExp.indexIn(html, pos)) != -1))

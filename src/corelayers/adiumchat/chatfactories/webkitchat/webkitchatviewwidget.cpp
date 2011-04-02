@@ -40,15 +40,22 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 	if(m_view->page()) {
 		QWebFrame *frame = m_view->page()->mainFrame();
 		if(frame->scrollBarValue(Qt::Vertical) == frame->scrollBarMaximum(Qt::Vertical))
-			frame->setProperty("scrollbarAtEnd",true);
-		else
+			frame->setProperty("scrollbarAtEnd", true);
+		else {
 			frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
+			frame->setProperty("scrollbarAtEnd", false);
+		}
 	}
 
-	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
-	if(new_page) {
+	ChatStyleOutput *newPage = qobject_cast<ChatStyleOutput*>(controller);
+	if(newPage) {
+		//nice hack for new sessions
+		QWebFrame *frame = newPage->mainFrame();
+		if (!frame->property("scrollbarPos").toBool())
+			frame->setProperty("scrollbarAtEnd",true);
+
 		m_view->page()->setView(0);
-		m_view->setPage(new_page);
+		m_view->setPage(newPage);
 		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
 	} else
 		m_view->setPage(0);

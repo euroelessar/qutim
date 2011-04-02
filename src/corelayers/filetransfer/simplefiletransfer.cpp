@@ -188,7 +188,7 @@ void SimpleFileTransfer::confirmDownloading(FileTransferJob *job)
 
 	if (job->filesCount() == 1) {
 		path = QFileDialog::getSaveFileName(0, QString(),
-											  QDir::home().filePath(job->fileName()));
+											  QDir::home().filePath(job->title()));
 	} else {
 		path = QFileDialog::getExistingDirectory(0, QString(), QDir::homePath());
 	}

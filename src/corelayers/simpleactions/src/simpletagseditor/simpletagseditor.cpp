@@ -1,6 +1,8 @@
 #include "simpletagseditor.h"
 #include <qutim/contact.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
+#include <qutim/account.h>
 #include "ui_simpletagseditor.h"
 
 namespace Core {
@@ -42,19 +44,32 @@ void SimpleTagsEditor::changeEvent(QEvent *e)
 
 void SimpleTagsEditor::load()
 {
-	QStringList tags = m_contact->tags();
+	QStringList tags;
+	// Try to request tag list from the contact model
+	if (QObject *model = ServiceManager::getByName("ContactModel")) {
+		model->metaObject()->invokeMethod(model, "tags",
+				Qt::AutoConnection, Q_RETURN_ARG(QStringList, tags));
+	}
+
+	if (tags.isEmpty()) {
+		// There is no ContactModel service, or it does not have
+		// tags() method, so we pass all contacts to gather tag list.
+		// It is slow, but it's better than nothing.
+		QSet<QString> tagsSet;
+		foreach (Account *account, Account::all()) {
+			foreach (Contact *contact, account->findChildren<Contact*>()) {
+				tagsSet += contact->tags().toSet();
+			}
+		}
+		tags = tagsSet.toList();
+	}
+
+	QStringList contactTags = m_contact->tags();
 	ui->listWidget->clear();
 	foreach (const QString &tag, tags) {
 		QListWidgetItem *item = new QListWidgetItem(tag,ui->listWidget);
-		item->setCheckState(Qt::Checked);
+		item->setCheckState(contactTags.contains(tag) ? Qt::Checked : Qt::Unchecked);
 	}
-	foreach (const QString &tag, m_additional_tags) {
-		if (!tags.contains(tag)) {
-			QListWidgetItem *item = new QListWidgetItem(tag,ui->listWidget);
-			item->setCheckState(Qt::Unchecked);
-		}
-	}
-
 }
 
 void SimpleTagsEditor::save()
@@ -65,11 +80,6 @@ void SimpleTagsEditor::save()
 			tags << ui->listWidget->item(index)->text();
 	}
 	m_contact->setTags(tags.toList());
-}
-
-void SimpleTagsEditor::setTags(QStringList tags)
-{
-	m_additional_tags = tags;
 }
 
 void Core::SimpleTagsEditor::on_addButton_clicked()

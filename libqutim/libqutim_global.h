@@ -41,8 +41,8 @@
 #	endif
 #endif
 
-#define QUTIM_VERSION_STR "0.2.60.0"
-#define QUTIM_VERSION 0x00023c00
+#define QUTIM_VERSION_STR "0.2.80.0"
+#define QUTIM_VERSION 0x00025000
 #define QUTIM_VERSION_CHECK(major, minor, secminor, patch) ((major<<24)|(minor<<16)|(secminor<<8)|(patch))
 
 namespace qutim_sdk_0_3

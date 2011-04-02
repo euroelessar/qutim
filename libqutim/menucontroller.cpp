@@ -57,7 +57,7 @@ MenuController::~MenuController()
 {
 	Q_D(MenuController);
 	if (d->menu)
-		d->menu->deleteLater();
+		delete d->menu;
 }
 
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)

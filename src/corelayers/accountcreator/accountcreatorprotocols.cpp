@@ -58,7 +58,8 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 	}
 
 	setTitle(tr("Select protocol"));
-	connect(ui->protocolList,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(protocolActivated(QListWidgetItem*)));
+	connect(ui->protocolList, SIGNAL(itemClicked(QListWidgetItem*)),
+			this, SLOT(protocolActivated(QListWidgetItem*)));
 
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
 		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, ui->protocolList->viewport()));

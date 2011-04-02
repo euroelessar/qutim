@@ -18,6 +18,7 @@ namespace Core {
 
 class SubmitPage : public QWizardPage
 {
+	Q_OBJECT
 public:
     SubmitPage(QWidget *parent = 0);
 	virtual bool validatePage();

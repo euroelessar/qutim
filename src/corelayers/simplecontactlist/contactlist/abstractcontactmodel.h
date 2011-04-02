@@ -37,7 +37,7 @@ public:
     explicit AbstractContactModel(QObject *parent = 0);
 	virtual ~AbstractContactModel();
 	virtual QStringList selectedTags() const;
-	virtual QStringList tags() const;
+	Q_INVOKABLE virtual QStringList tags() const;
 public slots:
 	virtual bool showOffline() const;
 	virtual void hideShowOffline();

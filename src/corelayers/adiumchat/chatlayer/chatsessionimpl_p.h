@@ -62,6 +62,7 @@ public:
 	//additional info and flags
 	bool active;
 	bool sendToLastActiveResource;
+	bool notificationsInActiveChat;
 	QTimer inactive_timer;
 	MessageList unread;
 	ChatState myself_chat_state;

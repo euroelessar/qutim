@@ -158,7 +158,7 @@ static DataItem getCurrentSettingsImpl(const Config &cfg)
 	NetworkProxyInfo *proxy = NetworkProxyInfo::proxy(type);
 	DataItem item = proxy ? proxy->settings(cfg) : DataItem();
 	if (item.subitem("type").isNull())
-		item << DataItem("type", QT_TR_NOOP("Type"), type);
+		item << DataItem("type", QT_TRANSLATE_NOOP("NetworkProxy", "Type"), type);
 	return item;
 }
 
