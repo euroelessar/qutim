@@ -368,8 +368,9 @@ void init(SystemInfoPrivate *d)
 		special_info |= SuiteHomeServer;
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 			| (quint8(osvi.wProductType) << 8)  | special_info;
-	d->os_version = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
-	d->os_full = d->os_name + " " + d->os_version;
+	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id).section(' ', 1);
+	d->os_name = d->os_full.section(' ', 0, 0);
+	d->os_version = d->os_full.section(' ', 1);
 #endif
 #ifdef Q_OS_SYMBIAN
 	//		QLibrary hal("hal.dll");
