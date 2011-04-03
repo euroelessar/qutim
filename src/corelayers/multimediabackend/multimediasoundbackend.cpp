@@ -110,11 +110,7 @@ void MultimediaSoundThread::finishedPlaying(QAudio::State state)
 {   
 	if(state == QAudio::IdleState) {
 		QAudioOutput *audio = qobject_cast<QAudioOutput*>(sender());
-		audio->stop();
-		if (QFile *file = audio->findChild<QFile*>()) {
-			file->deleteLater();
-			file->close();
-		}
+		Q_ASSERT(audio);
 		audio->deleteLater();
 		QTimer::singleShot(0, this, SLOT(quit()));
 	}
