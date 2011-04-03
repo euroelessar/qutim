@@ -75,7 +75,7 @@ ProfileDialog::~ProfileDialog()
 
 Config ProfileDialog::profilesInfo()
 {
-	QFileInfo profilesInfo(ProfilesConfigPath());
+	QFileInfo profilesInfo(profilesConfigPath());
 	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
 		return Config(QVariantMap());
 	} else {
@@ -86,10 +86,10 @@ Config ProfileDialog::profilesInfo()
 	}
 }
 
-QString ProfileDialog::ProfilesConfigPath()
+QString ProfileDialog::profilesConfigPath()
 {
 	QDir dir = qApp->applicationDirPath();
-	if (!dir.exists("profiles") || !dir.cd("profiles")) {
+	if (!dir.exists("profiles.json") && (!dir.exists("profiles") || !dir.cd("profiles"))) {
 #if defined(Q_OS_WIN)
 		dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
 #elif defined(Q_OS_MAC)
@@ -120,6 +120,7 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 	QString configDir = config.value("configDir", QString());
 	QFile file(configDir + "/profilehash");
 	if (service && file.open(QIODevice::ReadOnly)) {
+		QString errors;
 		service->setPassword(password, QVariant());
 		QByteArray data = service->decrypt(file.readAll()).toByteArray();
 		QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
@@ -131,14 +132,14 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 		QByteArray cryptoCheck;
 		in >> id >> hash >> cryptoCheck;
 		if (passwordHash != hash)
-			qCritical("Wrong password");
+			errors += tr("Password is mismatched.") + '\n';
 		if (QLatin1String(cryptoCheck) != crypto)
-			qCritical("Wrong crypto service");
+			errors += tr("Crypto service is unknown.") + '\n';
 		if (id != config.value("id", QString()))
-			qCritical("Wrong profile id");
-		if (passwordHash != hash
-			|| QLatin1String(cryptoCheck) != crypto
-			|| id != config.value("id", QString())) {
+			errors += tr("Wrong profile id.") + '\n';
+		if (!errors.isEmpty()) {
+			errors.chop(1);
+			QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"), errors);
 			delete service;
 			return false;
 		}
@@ -168,7 +169,8 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 
 		return true;
 	} else {
-		qCritical("Can't open file with hash");
+		QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"),
+		                      tr("Can't open file with hash"));
 		delete service;
 		return false;
 	}
@@ -178,7 +180,7 @@ void ProfileDialog::login(const QString &password)
 {
 	QVariant variant = ui->profileList->currentItem()->data(Qt::UserRole + 1);
 	Config config = variant.value<Config>();
-	JsonFile file(ProfilesConfigPath());
+	JsonFile file(profilesConfigPath());
 	QVariant var;
 	QVariantMap varMap;
 	file.load(var);

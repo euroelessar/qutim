@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <qutim/debug.h>
+#include "profiledialog.h"
 
 using namespace qutim_sdk_0_3;
 namespace qutim_sdk_0_3
@@ -27,6 +28,22 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
     ui->setupUi(this);
+	QDir dir = QApplication::applicationDirPath();
+	QFileInfo dirInfo = dir.absolutePath();
+	if (!dirInfo.isWritable()) {
+		ui->portableBox->setVisible(false);
+		ui->portableBox->setChecked(false);
+	} else if (dir.cd(QLatin1String("profiles"))) {
+		ui->portableBox->setVisible(false);
+		ui->portableBox->setChecked(true);
+	} else {
+		Config cfg = ProfileDialog::profilesInfo();
+		// We don't have portable profiles, but have some system-wide
+		if (cfg.beginArray(QLatin1String("list")) > 0) {
+			ui->portableBox->setVisible(false);
+			ui->portableBox->setChecked(false);
+		}
+	}
 	registerField("name", ui->nameEdit);
 	registerField("id", ui->idEdit);
 	registerField("portable", ui->portableBox);
@@ -75,8 +92,7 @@ void ProfileCreationPage::initializePage()
 		}
 	}
 	Q_ASSERT_X(ui->cryptoBox->count() > 0, "ProfileCreationPage::initializePage", "Have not been found any config plugin");
-	if (m_singleProfile)
-		rebaseDirs();
+	rebaseDirs();
 }
 
 ProfileCreationPage::~ProfileCreationPage()
@@ -192,9 +208,11 @@ void ProfileCreationPage::on_configBox_currentIndexChanged(int index)
 
 void ProfileCreationPage::rebaseDirs()
 {
-	QString profiles = QLatin1String(m_singleProfile ? "" : "profiles/");
-	if (!m_singleProfile)
+	QString profiles;
+	if (!m_singleProfile) {
+		profiles += QLatin1String("profiles/");
 		profiles += ui->idEdit->text();
+	}
 	if (ui->portableBox->isChecked()) {
 		QDir dir = qApp->applicationDirPath();
 		ui->dataEdit->setText(dir.absoluteFilePath("share"));

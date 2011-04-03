@@ -23,6 +23,7 @@ public:
 	ProfileDialog(Config &config, ModuleManager *parent = 0);
 	~ProfileDialog();
 	static Config profilesInfo();
+	static QString profilesConfigPath();
 	static bool acceptProfileInfo(Config &config, const QString &password);
 
 protected slots:
@@ -34,7 +35,6 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
-	static QString ProfilesConfigPath();
 	ModuleManager *m_manager;
 	Ui::ProfileDialog *ui;
 };
