@@ -25,6 +25,7 @@
 #include <QStringBuilder>
 #include <QWebPage>
 #include "../chatlayer/chatlayerimpl.h"
+#include <qutim/thememanager.h>
 namespace Core
 {
 namespace AdiumChat
@@ -81,6 +82,11 @@ struct ChatStyleGeneratorPrivate
 		QFile fileAccess;
 
 		style.templateHtml = readStyleFile(templateFile, &fileAccess);
+		if (style.templateHtml.isEmpty()) {
+			QDir dir = ThemeManager::path(QLatin1String("webkitstyle"), QLatin1String("default"));
+			templateFile = dir.filePath(QLatin1String("Contents/Resources/Template.html"));
+			style.templateHtml = readStyleFile(templateFile, &fileAccess);
+		}
 		style.headerHtml = readStyleFile(headerFile, &fileAccess);
 		style.footerHtml = readStyleFile(footerFile, &fileAccess);
 		style.incomingHtml = readStyleFile(incomingFile, &fileAccess);
