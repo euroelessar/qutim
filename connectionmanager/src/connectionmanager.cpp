@@ -148,7 +148,7 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		}
 	}
 
-	if (now.type() != Status::Offline && now.type() != Status::Connecting) {
+	if (now.type() != Status::Connecting) {
 		Config cfg = a->config("lastStatus");
 		cfg.setValue("type", now.type());
 		cfg.setValue("subtype", now.subtype());
