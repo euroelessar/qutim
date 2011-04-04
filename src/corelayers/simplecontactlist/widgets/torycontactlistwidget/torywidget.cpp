@@ -80,6 +80,9 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->mainToolBar->setMovable(false);
 	d->mainToolBar->setMoveHookEnabled(true);
 	d->mainToolBar->setObjectName(QLatin1String("contactListBar"));
+#ifdef Q_WS_WIN
+	d->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
+#endif
 
 	d->model = ServiceManager::getByName<AbstractContactModel *>("ContactModel");
 	d->view = new TreeView(d->model, this);
@@ -209,6 +212,8 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 		d->accountsContainer = new QHBoxLayout(accountsWidget);
 		d->accountsContainer->setMargin(0);
 		d->accountsContainer->setSpacing(0);
+		QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+		d->accountsContainer->addItem(horizontalSpacer);
 		if (QLayout *layout = centralWidget()->layout())
 			layout->addWidget(accountsWidget);
 		accountsWidget->installEventFilter(this);
