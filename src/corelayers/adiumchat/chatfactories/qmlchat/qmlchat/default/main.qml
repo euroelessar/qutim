@@ -176,9 +176,10 @@ Rectangle {
 				txt = qsTr("is composing");
 			else if (state == "ChatStatePaused")
 				txt = qsTr("is paused");
-			controller.appendText(controller.unit.title + ":");
 
-			//chatStateText.text = controller.unit.title + " " + txt;
+			//controller.appendText(controller.unit.title + ":");
+
+			chatStateText.text = controller.unit.title + " " + txt;
 
 			chatStateText.opacity = 1;
 			stateTimer.start();
