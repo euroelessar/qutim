@@ -51,7 +51,6 @@ struct ModelPrivate
 	bool showMessageIcon;
 	QIcon unreadIcon;
 	quint16 realUnitRequestEvent;
-	quint16 qutimAboutToQuitEvent;
 
 	struct InitData
 	{
@@ -69,13 +68,10 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 	Event::eventManager()->installEventFilter(this);
 	p->initData = new ModelPrivate::InitData;
 	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	p->qutimAboutToQuitEvent = Event::registerType("aboutToQuit");
 	p->initData->qutimStartupEvent = Event::registerType("startup");
 	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 	ConfigGroup group = Config().group("contactList");
 	p->showOffline = group.value("showOffline", true);
-
-	QTimer::singleShot(0, this, SLOT(init()));
 }
 
 Model::~Model()
@@ -744,6 +740,7 @@ void Model::processEvent(ChangeEvent *ev)
 			p->tags.move(globalFrom, globalTo);
 			endMoveRows();
 		}
+		saveTagOrder();
 	}
 }
 
@@ -789,8 +786,6 @@ bool Model::eventFilter(QObject *obj, QEvent *ev)
 		Event *event = static_cast<Event*>(ev);
 		if (p->initData && event->id == p->initData->qutimStartupEvent)
 			initialize();
-		else if (event->id == p->qutimAboutToQuitEvent)
-			saveConfig();
 		return false;
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
@@ -987,15 +982,25 @@ void Model::updateContact(ContactItem *item, bool placeChanged)
 
 void Model::initialize()
 {
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+
+	foreach(Protocol *proto, Protocol::all()) {
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach(Account *account, proto->accounts())
+			onAccountCreated(account);
+	}
+
 	ModelPrivate::InitData *initData = p->initData;
 	p->initData = 0;
-	Config cfg = Config().group("contactList");
 	// ensure correct order of tags
 	QSet<QString> tags;
 	foreach (Contact *contact, initData->contacts)
 		foreach (const QString &tag, contact->tags())
 			tags.insert(tag);
-	foreach (const QString &tag, cfg.value("tags", QStringList()))
+	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
 		if (tags.contains(tag))
 			ensureTag(tag);
 	// add contacts to the contact list
@@ -1004,7 +1009,7 @@ void Model::initialize()
 	delete initData;
 }
 
-void Model::saveConfig()
+void Model::saveTagOrder()
 {
 	Config group = Config().group("contactList");
 	QStringList tags;
@@ -1016,21 +1021,6 @@ void Model::saveConfig()
 bool Model::showOffline() const
 {
 	return p->showOffline;
-}
-
-void Model::init()
-{
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-
-	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, proto->accounts())
-			onAccountCreated(account);
-	}
 }
 
 void Model::onAccountCreated(qutim_sdk_0_3::Account *account)

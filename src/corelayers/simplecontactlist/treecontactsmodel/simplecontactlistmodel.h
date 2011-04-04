@@ -49,7 +49,6 @@ public slots:
 	void filterList(const QStringList &tags);
 	void filterList(const QString &filter);
 protected slots:
-	void init();
 	void contactDeleted(QObject *obj);
 	void contactStatusChanged(qutim_sdk_0_3::Status status);
 	void contactNameChanged(const QString &name);
@@ -70,7 +69,7 @@ private:
 	void showTag(TagItem *item);
 	void updateContact(ContactItem *item, bool placeChanged);
 	void initialize();
-	void saveConfig();
+	void saveTagOrder();
 	TagItem *ensureTag(const QString &name);
 	//			QModelIndex createIndex(
 	QScopedPointer<ModelPrivate> p;

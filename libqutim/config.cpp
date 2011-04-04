@@ -680,15 +680,15 @@ namespace qutim_sdk_0_3
 	QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type) const
 	{
 		Q_D(const Config);
-		const ConfigLevel::Ptr &level = d->levels.at(0);
-		if (level->atoms.isEmpty())
+		if (d->levels.at(0)->atoms.isEmpty())
 			return def;
 		QString name = key;
 		int slashIndex = name.lastIndexOf('/');
 		if (slashIndex != -1) {
 			const_cast<Config*>(this)->beginGroup(name.mid(0, slashIndex));
-			name = name.mid(slashIndex);
+			name = name.mid(slashIndex+1);
 		}
+		const ConfigLevel::Ptr &level = d->levels.at(0);
 		QVariant var;
 		QList<ConfigAtom::Ptr> &atoms = d->current()->atoms;
 		for (int i = 0; i < atoms.size(); i++) {
