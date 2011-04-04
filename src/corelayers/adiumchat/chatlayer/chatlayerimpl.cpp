@@ -106,7 +106,13 @@ ChatLayerImpl::~ChatLayerImpl()
 
 QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 {
-	Q_UNUSED(unit);
+	if (state != ChatStateComposing) {
+		QVariant status = unit->property("status");
+		if (!status.isNull() && status.canConvert<Status>()) {
+			return status.value<Status>().icon();
+		}
+	}
+
 	QString icon_name;
 	switch (state) {
 	//FIXME icon names

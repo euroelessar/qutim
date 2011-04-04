@@ -110,8 +110,8 @@ void TabBar::addSession(ChatSessionImpl *session)
 	p->sessions.append(session);
 	ChatUnit *u = session->getUnit();
 	QIcon icon = ChatLayerImpl::iconForState(u->chatState(),u);
-	p->sessionList->addAction(icon,session->getUnit()->title());
-	addTab(icon,session->getUnit()->title());
+	p->sessionList->addAction(icon,u->title());
+	addTab(icon, u->title());
 
 #if defined(Q_WS_MAC)
 	if (closableActiveTab()) {
@@ -123,10 +123,14 @@ void TabBar::addSession(ChatSessionImpl *session)
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
-	connect(session->getUnit(),
+	connect(u,
 			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
 			this,
 			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(u,
+			SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this,
+			SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
@@ -224,6 +228,15 @@ void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::Cha
 		chatStateChanged(now,s);
 }
 
+void TabBar::onStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
+	Q_ASSERT(unit);
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
+	if(s)
+		statusChanged(status,s);
+}
+
 bool TabBar::event(QEvent *event)
 {
 	if (event->type() == QEvent::ToolTip) {
@@ -262,8 +275,20 @@ void TabBar::chatStateChanged(ChatState state, ChatSessionImpl *session)
 {
 	if(session->unread().count())
 		return;
-	QIcon icon = ChatLayerImpl::iconForState(state,session->getUnit());
-	setTabIcon(indexOf(session),icon);
+	QIcon icon = ChatLayerImpl::iconForState(state, session->getUnit());
+	setSessionIcon(session, icon);
+}
+
+void TabBar::statusChanged(const Status &status, ChatSessionImpl *session)
+{
+	if(session->unread().count())
+		return;
+	setSessionIcon(session, status.icon());
+}
+
+void TabBar::setSessionIcon(ChatSessionImpl *session, const QIcon &icon)
+{
+	setTabIcon(indexOf(session), icon);
 	p->sessionList->actions().at(indexOf(session))->setIcon(icon);
 }
 

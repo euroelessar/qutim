@@ -43,7 +43,9 @@ class TabBar : public QTabBar
 		void mouseMoveEvent(QMouseEvent *event);
 		void leaveEvent(QEvent *event);
 		virtual bool event(QEvent *event);
-		void chatStateChanged(ChatState state,ChatSessionImpl *session);
+		void chatStateChanged(ChatState state, ChatSessionImpl *session);
+		void statusChanged(const Status &status, ChatSessionImpl *session);
+		void setSessionIcon(ChatSessionImpl *session, const QIcon &icon);
 	private slots:
 		void onCurrentChanged(int index);
 		void onCloseRequested(int index);
@@ -54,6 +56,7 @@ class TabBar : public QTabBar
 		void onContextMenu(const QPoint &pos);
 		void onSessionListActionTriggered(QAction *);
 		void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
+		void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	private:
 		QScopedPointer<TabBarPrivate> p;
 };
