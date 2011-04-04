@@ -49,12 +49,17 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 
 	static int id_counter = 0;
 	QString text = Qt::escape(body);
-	QString sender_id = sender ? sender->property("id").toString() : QString();
-	QString sender_name = sender ? sender->property("name").toString() : QString();
-	if(sender_name.isEmpty())
-		sender_name = sender_id;
+	QString sender_id;
+	QString sender_name;
+	if (sender) {
+		sender_id = sender->property("id").toString();
+		sender_name = sender->property("title").toString();
+		if (sender_name.isEmpty())
+			sender_name = sender->property("name").toString();
+		if(sender_name.isEmpty())
+			sender_name = sender_id;
+	}
 	QString title = Notifications::toString(type).arg(sender_name);
-
 
 	if (data.canConvert<Message>() && (type & Notifications::MessageSend & Notifications::MessageGet)) {
 		const Message &msg = data.value<Message>();
