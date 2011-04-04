@@ -17,11 +17,15 @@ namespace ConnectionManager
 {
 void changeState(Account *account, bool isOnline)
 {
-	bool auto_connect = account->config().value("autoConnect",true);
+	Config cfg = account->config();
+	bool auto_connect = cfg.value("autoConnect",true);
 	if (isOnline) {
 		if (auto_connect) {
 			Status status = account->status();
-			status.setType(Status::Online);
+			cfg.beginGroup("lastStatus");
+			status.setType(cfg.value("type", Status::Online));
+			status.setSubtype(cfg.value("subtype", 0));
+			cfg.endGroup();
 			account->setStatus(status);
 		}
 	}
@@ -142,6 +146,12 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 			if(timer)
 				removeTimer(timer);
 		}
+	}
+
+	if (now.type() != Status::Offline && now.type() != Status::Connecting) {
+		Config cfg = a->config("lastStatus");
+		cfg.setValue("type", now.type());
+		cfg.setValue("subtype", now.subtype());
 	}
 }
 
