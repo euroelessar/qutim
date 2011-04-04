@@ -1,0 +1,3 @@
+[submodule "plugman/3rdparty/quasar"]
+	path = plugman/3rdparty/quasar
+	url = git://gitorious.org/libquasar/libquasar.git

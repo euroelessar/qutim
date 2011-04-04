@@ -1,102 +1,58 @@
 #include "plugman.h"
-#include <QDebug>
+#include <qutim/debug.h>
 #include <QAction>
 #include <QDir>
 #include <QProgressBar>
 #include <QProcess>
-#include <qutim/iconmanagerinterface.h>
+#include <QNetworkReply>
+#include <qutim/icon.h>
+#include <qutim/menucontroller.h>
+#include <qutim/actiongenerator.h>
+#include <qutim/servicemanager.h>
+#include <qutim/systeminfo.h>
+#include <attica/content.h>
+#include <attica/downloaditem.h>
+#include <quasar/tar.h>
+#include <quasar/zip.h>
 
-bool plugMan::init ( PluginSystemInterface *plugin_system )
+using namespace qutim_sdk_0_3;
+using namespace PackageManager;
+using namespace Attica;
+
+void PackageManagerPlugin::init()
 {
-    qRegisterMetaType<TreeModelItem> ( "TreeModelItem" );
-
-    PluginInterface::init ( plugin_system );
-    isPlugManagerOpened = false;
-
-    return true;
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Package manager"),
+	        QT_TRANSLATE_NOOP("Plugin", "Provides possibility to Get Hot New Stuff from open community"),
+	        PLUGIN_VERSION(0, 0, 0, 1),
+	        ExtensionIcon());
+	addAuthor(QLatin1String("euroelessar"));
+//	addAuthor(QLatin1String("sauron"));
 }
 
-void plugMan::release()
+bool PackageManagerPlugin::load()
 {
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
-    if (settings.value("needUpdate", false ).toBool()) {
-       QProcess::startDetached(qAppName());
-    }
-    settings.setValue("needUpdate",false);
-    settings.setValue("locked", false);
+	m_gen = new ActionGenerator(qutim_sdk_0_3::Icon("download"),
+	                            QT_TRANSLATE_NOOP("PackageManager", "Manage packages"),
+	                            this, SLOT(onManagerButtonClicked()));
+	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList"))
+		menu->addAction(m_gen);
+//	m_emoticonsEngine = new PackageEngine(QStringList(QLatin1String("Emoticon Theme")),
+//	                                      QLatin1String("emoticons"));
+//	m_stylesEngine = new PackageEngine(QStringList(QLatin1String("Kopete Style 0.11"))
+//	                                   << QLatin1String("Kopete Style 0.12+"),
+//	                                   QLatin1String("emoticons"));
+	return true;
 }
 
-void plugMan::processEvent ( PluginEvent  &event)
+bool PackageManagerPlugin::unload()
 {
-    eventitem = *(TreeModelItem*)(event.args.at(0));
+	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList"))
+		return menu->removeAction(m_gen);
+	return false;
 }
 
-QWidget *plugMan::settingsWidget()
+void PackageManagerPlugin::onManagerButtonClicked()
 {
-    settingswidget = new plugmanSettings(m_profile_name);
-    return settingswidget;
 }
 
-void plugMan::setProfileName ( const QString &profile_name )
-{
-    QAction *plugman_action = new QAction(SystemsCity::IconManager()->getIcon("network"),tr("Manage packages"),this);
-    SystemsCity::PluginSystem()->registerMainMenuAction(plugman_action);
-    connect(plugman_action, SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
-    m_profile_name = profile_name;
-}
-
-QString plugMan::name()
-{
-    return "Plugin's manager";
-}
-
-QString plugMan::description()
-{
-    return "Simple add-ons manager for qutIM";
-}
-
-QIcon *plugMan::icon()
-{
-	QIcon *icon = new QIcon (SystemsCity::IconManager()->getIconPath("package")); //FIXME КОСТЫЛЬ
-	return icon;
-}
-
-QString plugMan::type()
-{
-    return "other";
-}
-
-
-void plugMan::removeSettingsWidget()
-{
-    delete settingswidget;
-    settingswidget = 0;
-}
-
-void plugMan::saveSettings()
-{
-    settingswidget->saveSettings();
-}
-
-
-void plugMan::onManagerBtnClicked() {
-    if (!isPlugManagerOpened) {
-        plugManager *m_manager = new plugManager ();
-        connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
-        SystemsCity::PluginSystem()->centerizeWidget(m_manager);
-        m_manager->show();
-        isPlugManagerOpened = true;
-    }
-}
-
-void plugMan::onManagerClose()
-{
-    isPlugManagerOpened = false;
-}
-
-
-
-
-Q_EXPORT_PLUGIN2 ( plugman,plugMan );
-
-
+QUTIM_EXPORT_PLUGIN(PackageManager::PackageManagerPlugin)

@@ -1,39 +1,33 @@
 #ifndef PLUGMAN_H
 #define PLUGMAN_H
-#include <qutim/plugininterface.h>
-#include "pluginstaller.h"
-#include "plugmansettings.h"
-#include "plugmanager.h"
+#include <qutim/plugin.h>
+#include <attica/provider.h>
+#include <attica/providermanager.h>
+#include <QNetworkAccessManager>
+//#include "packageengine.h"
 
-//Менеджер тем оформления и плагинов
+namespace qutim_sdk_0_3 {
+class ActionGenerator;
+}
 
-using namespace qutim_sdk_0_2;
-
-class plugMan : public QObject, SimplePluginInterface
+namespace PackageManager
+{
+class PackageManagerPlugin : public qutim_sdk_0_3::Plugin
 {
     Q_OBJECT
-    Q_INTERFACES ( qutim_sdk_0_2::PluginInterface )
-        public:
-            bool init ( PluginSystemInterface *plugin_system ); //инициализация нашего плагина
-    void release();
+public:
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
 
-    virtual void processEvent ( PluginEvent &event );
-    virtual QWidget *settingsWidget(); //указатель для настройки
-    virtual void setProfileName ( const QString &profile_name ); //установка текущего профиля
-    QString name(); //Функция, возращающая имя плагина
-    QString description(); //Функция, возращающая описание
-    QString type(); //installer
-    QIcon *icon(); //Функция, возращающая иконку
-    virtual void removeSettingsWidget();
-    virtual void saveSettings();
+public slots:
+	void onManagerButtonClicked();
+
 private:
-    QString m_profile_name;
-    QString m_account_name;
-    plugmanSettings *settingswidget;
-    TreeModelItem eventitem;
-    bool isPlugManagerOpened;
-private slots:
-    void onManagerBtnClicked();
-    void onManagerClose();
+	qutim_sdk_0_3::ActionGenerator *m_gen;
+//	PackageEngine *m_emoticonsEngine;
+//	PackageEngine *m_stylesEngine;
 };
+}
+
 #endif
