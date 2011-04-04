@@ -25,29 +25,36 @@
 class QDeclarativeEngine;
 class QDeclarativeItem;
 class QDeclarativeContext;
+
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatViewController : public QGraphicsScene, public ChatViewController
+class QuickChatController : public QGraphicsScene, public ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
 	Q_PROPERTY(QDeclarativeItem* rootItem READ rootItem NOTIFY rootItemChanged)
+	Q_PROPERTY(QObject* unit READ unit NOTIFY sessionChanged)
+	Q_PROPERTY(QString chatState READ chatState NOTIFY chatStateChanged)
 public:
-	QuickChatViewController(QDeclarativeEngine *engine, QObject *parent = 0);
+	QuickChatController(QDeclarativeEngine *engine, QObject *parent = 0);
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
-    virtual ~QuickChatViewController();
+	virtual ~QuickChatController();
 	QDeclarativeItem *rootItem() const;
 	Q_INVOKABLE QString parseEmoticons(const QString &) const;
+	QObject *unit() const;
+	QString chatState() const;
 public slots:
 	void loadSettings();
 	void loadTheme(const QString &name);
+	void appendText(const QString &string);
 protected slots:
 	void loadHistory();
+	void onChatStateChanged(qutim_sdk_0_3::ChatState state);
 protected:
 	bool eventFilter(QObject *, QEvent *);
 	void setRootItem(QDeclarativeItem *rootItem);
@@ -57,6 +64,7 @@ signals:
 	void clearChatField();
 	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
 	void rootItemChanged(QDeclarativeItem* rootItem);
+	void chatStateChanged(QString state);
 private:
 	ChatSessionImpl *m_session;
 	QString m_themeName;
@@ -68,5 +76,7 @@ private:
 
 } // namespace AdiumChat
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::AdiumChat::QuickChatController*);
 
 #endif // QUICKCHATVIEWCONTROLLER_H

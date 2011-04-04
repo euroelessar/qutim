@@ -48,7 +48,7 @@ void QuickChatViewWidget::setViewController(QObject* object)
 		return;
 	if (m_controller)
 		m_controller->disconnect(this);
-	QuickChatViewController* controller = qobject_cast<QuickChatViewController*>(object);
+	QuickChatController* controller = qobject_cast<QuickChatController*>(object);
 	m_controller = controller;
 	if (controller) {
 		controller->setItemIndexMethod(QGraphicsScene::NoIndex);

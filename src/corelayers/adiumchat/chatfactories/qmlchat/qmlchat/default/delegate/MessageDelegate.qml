@@ -55,8 +55,8 @@ Component {
 		}
 
 		transitions: Transition {
-			NumberAnimation { properties: "x"; duration: 400 }
-			NumberAnimation { properties: "opacity"; duration: 200 }
+			//NumberAnimation { properties: "x"; duration: 400 }
+			//NumberAnimation { properties: "opacity"; duration: 200 }
 		}
 
 	}

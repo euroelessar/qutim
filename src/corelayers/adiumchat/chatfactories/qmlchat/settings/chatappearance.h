@@ -32,7 +32,7 @@ namespace AdiumChat
 using namespace qutim_sdk_0_3;
 class ChatVariable;
 class ChatViewController;
-class QuickChatViewController;
+class QuickChatController;
 class QuickChatViewWidget;
 class ChatAppearance : public SettingsWidget
 {
@@ -52,7 +52,7 @@ private:
 	Ui::quickChatAppearance *ui;
 	QStringList m_themes;
 	QString m_currentStyleName;
-	QuickChatViewController *m_controller;
+	QuickChatController *m_controller;
 	QuickChatViewWidget *m_widget;
 	bool isLoad;
 };

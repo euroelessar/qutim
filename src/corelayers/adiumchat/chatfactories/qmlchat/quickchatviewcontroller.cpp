@@ -29,17 +29,22 @@
 #include <qutim/emoticons.h>
 #include <qutim/notificationslayer.h>
 #include <QImageReader>
+#include <qutim/servicemanager.h>
+#include <QPlainTextEdit>
+#include <chatforms/abstractchatform.h>
 
 namespace Core {
 namespace AdiumChat {
 
 using namespace qutim_sdk_0_3;
 
-QString makeUrls (QString html) //TODO temporary
+static QString makeUrls (QString html) //TODO temporary
 {
 	html = Qt::escape(html);
 	html.replace("\n", "<br />");
-	static QRegExp linkRegExp("(^|[^\"])(([a-z0-9_\\.-]+@([a-z0-9_-]+\\.)+[a-z]+)|(([a-z]+://|www\\.)(([a-zа-яё0-9_-]+\\.)*[a-zа-яё0-9_-]+([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-f]{2})*)))", Qt::CaseInsensitive);
+	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+							  Qt::CaseInsensitive);
 	Q_ASSERT(linkRegExp.isValid());
 	int pos = 0;
 	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
@@ -58,7 +63,7 @@ QString makeUrls (QString html) //TODO temporary
 	return html;
 }
 
-QVariant messageToVariant(const Message &mes)
+static QVariant messageToVariant(const Message &mes)
 {
 	//TODO Optimize if posible
 	QVariantMap map;
@@ -80,12 +85,7 @@ QVariant messageToVariant(const Message &mes)
 	//handle /me
 	bool isMe = mes.text().startsWith(QLatin1String("/me "));
 	QString body = isMe ? mes.text().mid(4) : mes.text();
-	if (body.isEmpty()) {
-		//handle service
-		//FIXME remake with notifications api
-		Notifications::Type type = static_cast<Notifications::Type>(mes.property("service", 0));
-		body = Notifications::toString(type).arg(map.value("sender").toString());
-	} else if (isMe)
+	if (isMe)
 		map.insert(QLatin1String("action"), true);
 	map.insert(QLatin1String("body"), makeUrls(body));
 
@@ -117,7 +117,30 @@ QVariant messageToVariant(const Message &mes)
 	return map;
 }
 
-QuickChatViewController::QuickChatViewController(QDeclarativeEngine *engine, QObject *parent) :
+static QString chatStateToString(ChatState state)
+{
+	QString stateStr;
+	switch (state) {
+	case ChatStateActive:
+		stateStr = QLatin1String("ChatStateActive");
+		break;
+	case ChatStateInActive:
+		stateStr = QLatin1String("ChatStateInActive");
+		break;
+	case ChatStateGone:
+		stateStr = QLatin1String("ChatStateGone");
+		break;
+	case ChatStateComposing:
+		stateStr = QLatin1String("ChatStateComposing");
+		break;
+	case ChatStatePaused:
+		stateStr = QLatin1String("ChatStatePaused");
+		break;
+	};
+	return stateStr;
+}
+
+QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *parent) :
 	QGraphicsScene(parent),
 	m_session(0),
 	m_themeName(QLatin1String("default")),
@@ -131,29 +154,30 @@ QuickChatViewController::QuickChatViewController(QDeclarativeEngine *engine, QOb
 	cfg.beginGroup(QLatin1String("history"));
 	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
 	cfg.endGroup();
-
 }
 
 
-void QuickChatViewController::appendMessage(const qutim_sdk_0_3::Message& msg)
+void QuickChatController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
+	if (msg.text().isEmpty())
+		return;
 	bool isService = msg.property("service", false);
 	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
 		History::instance()->store(msg);
 	emit messageAppended(messageToVariant(msg));
 }
 
-void QuickChatViewController::clearChat()
+void QuickChatController::clearChat()
 {
 	emit clearChatField();
 }
 
-ChatSessionImpl* QuickChatViewController::getSession() const
+ChatSessionImpl* QuickChatController::getSession() const
 {
 	return m_session;
 }
 
-void QuickChatViewController::loadHistory()
+void QuickChatController::loadHistory()
 {
 	debug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
@@ -169,11 +193,11 @@ void QuickChatViewController::loadHistory()
 	}
 }
 
-void QuickChatViewController::setChatSession(ChatSessionImpl* session)
+void QuickChatController::setChatSession(ChatSessionImpl* session)
 {
 	if (m_session == session)
 		return;
-	
+
 	if(m_session) {
 		m_session->disconnect(this);
 		m_session->removeEventFilter(this);
@@ -182,19 +206,22 @@ void QuickChatViewController::setChatSession(ChatSessionImpl* session)
 	m_session->installEventFilter(this);
 	loadSettings();
 	emit sessionChanged(session);
+
+	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
 }
 
-QuickChatViewController::~QuickChatViewController()
+QuickChatController::~QuickChatController()
 {
 
 }
 
-QDeclarativeItem *QuickChatViewController::rootItem() const
+QDeclarativeItem *QuickChatController::rootItem() const
 {
 	return m_item;
 }
 
-bool QuickChatViewController::eventFilter(QObject *obj, QEvent *ev)
+bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
 {
 	if (ev->type() == MessageReceiptEvent::eventType()) {
 		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
@@ -204,13 +231,13 @@ bool QuickChatViewController::eventFilter(QObject *obj, QEvent *ev)
 	return QGraphicsScene::eventFilter(obj, ev);
 }
 
-void QuickChatViewController::loadSettings()
+void QuickChatController::loadSettings()
 {
 	ConfigGroup cfg = Config("appearance/quickChat").group("style");
 	loadTheme(cfg.value<QString>("name","default"));
 }
 
-void QuickChatViewController::loadTheme(const QString &name)
+void QuickChatController::loadTheme(const QString &name)
 {
 	m_themeName = name;
 	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
@@ -223,7 +250,7 @@ void QuickChatViewController::loadTheme(const QString &name)
 	loadHistory();
 }
 
-void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
+void QuickChatController::setRootItem(QDeclarativeItem *rootItem)
 {
 	if (m_item == rootItem)
 		return;
@@ -236,7 +263,7 @@ void QuickChatViewController::setRootItem(QDeclarativeItem *rootItem)
 	emit rootItemChanged(m_item);
 }
 
-QString QuickChatViewController::parseEmoticons(const QString &text) const
+QString QuickChatController::parseEmoticons(const QString &text) const
 {
 	//TODO Write flexible textfield with animated emoticons, copy/paste and follow links support
 	QString result;
@@ -268,6 +295,38 @@ QString QuickChatViewController::parseEmoticons(const QString &text) const
 		}
 	}
 	return result;
+}
+
+QObject *QuickChatController::unit() const
+{
+	return m_session ? m_session->unit() : 0;
+}
+
+QString QuickChatController::chatState() const
+{
+	return chatStateToString(m_session ? m_session->unit()->chatState() : ChatStateGone);
+}
+
+void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
+{
+	emit chatStateChanged(chatStateToString(state));
+}
+
+void QuickChatController::appendText(const QString &text)
+{
+	debug() << Q_FUNC_INFO << text << m_session;
+	AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
+	QObject *obj = form->textEdit(m_session);
+	QTextCursor cursor;
+	if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+		cursor = edit->textCursor();
+	else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+		cursor = edit->textCursor();
+	else
+		return;
+	cursor.insertText(text);
+	cursor.insertText(" ");
+	static_cast<QWidget*>(obj)->setFocus();
 }
 
 } // namespace AdiumChat

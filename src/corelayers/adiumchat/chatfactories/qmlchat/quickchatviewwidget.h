@@ -23,7 +23,7 @@ class QDeclarativeItem;
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatViewController;
+class QuickChatController;
 class QuickChatViewWidget : public QGraphicsView, public Core::AdiumChat::ChatViewWidget
 {
 	Q_OBJECT
@@ -37,7 +37,7 @@ protected:
 private slots:
 	void onRootChanged(QDeclarativeItem *root);
 private:
-	QPointer<QuickChatViewController> m_controller;
+	QPointer<QuickChatController> m_controller;
 };
 
 } // namespace AdiumChat

@@ -94,7 +94,7 @@ ChatAppearance::ChatAppearance(): ui(new Ui::quickChatAppearance),m_controller(0
 		FakeAccount *account = new FakeAccount("Noname", Protocol::all().begin().value());
 		FakeChatUnit *unit = account->getFakeUnit();
 		ChatSessionImpl *session = new ChatSessionImpl(unit, ChatLayer::instance());
-		m_controller = new QuickChatViewController(new QDeclarativeEngine(this), this);
+		m_controller = new QuickChatController(new QDeclarativeEngine(this), this);
 		m_controller->setChatSession(session);
 		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onThemeChanged(int)));
 		m_widget->setViewController(m_controller);
