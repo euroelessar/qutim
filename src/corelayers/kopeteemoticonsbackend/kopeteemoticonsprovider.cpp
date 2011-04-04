@@ -40,15 +40,14 @@ KopeteEmoticonsProvider::KopeteEmoticonsProvider()
 void KopeteEmoticonsProvider::getThemeName()
 {
 	QDir dir (m_theme_path);
-	QStringList fileList = dir.entryList(QDir::Files);
-	QFile file;
-	file.setFileName(m_theme_path + "/emoticons.xml");
+	QFile file(m_theme_path + "/emoticons.xml");
 	if (!file.open(QIODevice::ReadOnly))
 		return;
 	QDomDocument doc;
-	if(!doc.setContent(&file))
-		return;
-	m_theme_name = doc.documentElement().attribute("title");
+	if (doc.setContent(&file))
+		m_theme_name = doc.documentElement().attribute("title");
+	if (m_theme_name.isEmpty())
+		m_theme_name = dir.dirName();
 }
 
 void KopeteEmoticonsProvider::setThemePath(const QString& themePath)
@@ -60,7 +59,13 @@ void KopeteEmoticonsProvider::setThemePath(const QString& themePath)
 void KopeteEmoticonsProvider::loadTheme()
 {
 	QDir dir (m_theme_path);
-	QStringList fileList = dir.entryList(QDir::Files);
+	QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+	QMap<QString, QString> files;
+	for (int i = 0; i < fileList.size(); ++i) {
+		const QFileInfo &info = fileList.at(i);
+		files.insert(info.baseName(), info.absoluteFilePath());
+		files.insert(info.fileName(), info.absoluteFilePath());
+	}
 	QFile file;
 	file.setFileName(m_theme_path + "/emoticons.xml");
 	if (!file.open(QIODevice::ReadOnly))
@@ -69,29 +74,24 @@ void KopeteEmoticonsProvider::loadTheme()
 	if(!doc.setContent(&file))
 		return;
 	m_theme_name = doc.documentElement().attribute("title");
+	if (m_theme_name.isEmpty())
+		m_theme_name = dir.dirName();
 	QDomElement rootElement = doc.documentElement();
 	int emoticonCount = rootElement.childNodes().count();
 	QDomElement emoticon = rootElement.firstChild().toElement();
-	for ( int i = 0; i < emoticonCount ; i++ ) {
-		if ( emoticon.tagName() == "emoticon") {
-			//HACK for STUPID old themes!
-			QString regexp = "(^";
-			regexp += QRegExp::escape(emoticon.attribute("file"));
-			regexp += "\\.\\w+$)|(^";
-			regexp += QRegExp::escape(emoticon.attribute("file"));
-			regexp += "$)";
-			QStringList fileName = fileList.filter(QRegExp(regexp));
-			if ( !fileName.isEmpty()) {
+	for (int i = 0; i < emoticonCount; ++i) {
+		if (emoticon.tagName() == QLatin1String("emoticon")) {
+			QString fileName = files.value(emoticon.attribute(QLatin1String("file")));
+			if (!fileName.isEmpty()) {
 				QStringList strings;
 				int stringCount = emoticon.childNodes().count();
 				QDomElement emoticonString = emoticon.firstChild().toElement();
-				for(int j = 0; j < stringCount; j++) {
-					if ( emoticonString.tagName() == "string") {
+				for (int j = 0; j < stringCount; j++) {
+					if (emoticonString.tagName() == QLatin1String("string"))
 						strings.append(emoticonString.text());
-					}
 					emoticonString = emoticonString.nextSibling().toElement();
 				}
-				appendEmoticon(m_theme_path + "/" + fileName.first(),strings); //FIXME
+				appendEmoticon(fileName, strings);
 			}
 		}
 		emoticon = emoticon.nextSibling().toElement();
