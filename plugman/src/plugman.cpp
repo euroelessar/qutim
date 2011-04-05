@@ -1,4 +1,5 @@
 #include "plugman.h"
+#include "packagemodel.h"
 #include <qutim/debug.h>
 #include <QAction>
 #include <QDir>
@@ -14,6 +15,8 @@
 #include <attica/downloaditem.h>
 #include <quasar/tar.h>
 #include <quasar/zip.h>
+
+#include <QListView>
 
 using namespace qutim_sdk_0_3;
 using namespace PackageManager;
@@ -53,6 +56,12 @@ bool PackageManagerPlugin::unload()
 
 void PackageManagerPlugin::onManagerButtonClicked()
 {
+	PackageEngine *engine = new PackageEngine(QStringList(QLatin1String("Emoticon Theme")),
+	                                          QLatin1String("emoticons"));
+	QListView *view = new QListView();
+	engine->setParent(view);
+	view->setModel(new PackageModel(engine));
+	view->show();
 }
 
 QUTIM_EXPORT_PLUGIN(PackageManager::PackageManagerPlugin)
