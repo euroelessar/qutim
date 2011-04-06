@@ -112,6 +112,8 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 			return status.value<Status>().icon();
 		}
 	}
+	if (qobject_cast<const Conference*>(unit))
+		return Icon("view-conversation-balloon");
 
 	QString icon_name;
 	switch (state) {
