@@ -22,6 +22,7 @@
 #include <attica/provider.h>
 #include <attica/providermanager.h>
 #include "packageentry.h"
+#include <QStringList>
 
 class PackageEngine : public QObject
 {
