@@ -245,5 +245,6 @@
         <file>icons/view-history.png</file>
         <file>icons/edit-delete.png</file>
         <file>icons/media-playback-stop.png</file>
+        <file>icons/view-conversation-balloon.png</file>
     </qresource>
 </RCC>
