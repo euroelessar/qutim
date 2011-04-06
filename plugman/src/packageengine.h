@@ -21,10 +21,7 @@
 #include <attica/content.h>
 #include <attica/provider.h>
 #include <attica/providermanager.h>
-
-class PackageRequest
-{
-};
+#include "packageentry.h"
 
 class PackageEngine : public QObject
 {
@@ -32,21 +29,25 @@ class PackageEngine : public QObject
 public:
     PackageEngine(const QStringList &categories, const QString &path);
 	~PackageEngine();
-
+	
+	bool isInitialized();
 	qint64 requestContents(const QString& search = QString(),
 	                       Attica::Provider::SortMode mode = Attica::Provider::Rating,
 	                       uint page = 0, uint pageSize = 10);
-	void installContent(const Attica::Content &content);
+	void install(const PackageEntry &entry);
+	void loadPreview(const PackageEntry &entry);
 	
 signals:
 	void engineInitialized();
-	void contentsReceived(const Attica::Content::List &list, qint64 id);
+	void contentsReceived(const PackageEntry::List &list, qint64 id);
+	void previewLoaded(const QString &id, const QPixmap &preview);
 	
 private slots:
     void onProviderAdded(Attica::Provider provider);
 	void onCategoriesJobFinished(Attica::BaseJob *job);
 	void onContentJobFinished(Attica::BaseJob *job);
 	void onDownloadJobFinished(Attica::BaseJob *job);
+	void onPreviewRequestFinished();
 	void onNetworkRequestFinished();
 	
 private:
@@ -54,6 +55,7 @@ private:
 	QNetworkAccessManager m_networkManager;
 	QString m_path;
 	QStringList m_categoriesNames;
+	QHash<QString, PackageEntry> m_entries;
 	Attica::Category::List m_categories;
 	Attica::ProviderManager m_manager;
 	Attica::Provider m_provider;

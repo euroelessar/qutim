@@ -16,6 +16,8 @@
 
 #include "packageengine.h"
 #include <QNetworkReply>
+#include <QPixmap>
+#include <QDirIterator>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <attica/downloaditem.h>
@@ -26,7 +28,7 @@ using namespace Attica;
 using namespace qutim_sdk_0_3;
 
 PackageEngine::PackageEngine(const QStringList &categories, const QString &path)
-    : m_categoriesNames(categories), m_path(path)
+    : m_categoriesNames(categories)
 {
 	m_path = SystemInfo::getDir(SystemInfo::ShareDir).filePath(path);
 	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)), this, SLOT(onProviderAdded(Attica::Provider)));
@@ -36,6 +38,11 @@ PackageEngine::PackageEngine(const QStringList &categories, const QString &path)
 
 PackageEngine::~PackageEngine()
 {
+}
+
+bool PackageEngine::isInitialized()
+{
+	return !m_categories.isEmpty();
 }
 
 void PackageEngine::onProviderAdded(Attica::Provider provider)
@@ -81,17 +88,33 @@ void PackageEngine::onContentJobFinished(Attica::BaseJob *baseJob)
 {
 	baseJob->deleteLater();
 	ListJob<Content> *job = static_cast<ListJob<Content>*>(baseJob);
-	Content::List list = job->itemList();
+	Content::List contents = job->itemList();
+	PackageEntry::List list;
+	for (int i = 0; i < list.size(); ++i) {
+		const Content &content = contents.at(i);
+		m_entries[content.id()].setContent(content);
+	}
 	qint64 id = job->property("jobId").toLongLong();
 	debug() << Q_FUNC_INFO;
 	emit contentsReceived(list, id);
 }
 
-void PackageEngine::installContent(const Attica::Content &content)
+void PackageEngine::install(const PackageEntry &entry)
 {
+	Attica::Content content = entry.content();
 	ItemJob<DownloadItem> *contentJob = m_provider.downloadLink(content.id());
+	contentJob->setProperty("contentId", entry.id());
 	connect(contentJob, SIGNAL(finished(Attica::BaseJob*)), SLOT(onDownloadJobFinished(Attica::BaseJob*)));
 	contentJob->start();
+}
+
+void PackageEngine::loadPreview(const PackageEntry &entry)
+{
+	Attica::Content content = entry.content();
+	QNetworkRequest request(QUrl::fromUserInput(content.smallPreviewPicture()));
+	QNetworkReply *reply = m_networkManager.get(request);
+	reply->setProperty("contentId", content.id());
+	connect(reply, SIGNAL(finished()), SLOT(onPreviewRequestFinished()));
 }
 
 void PackageEngine::onDownloadJobFinished(Attica::BaseJob *baseJob)
@@ -102,7 +125,18 @@ void PackageEngine::onDownloadJobFinished(Attica::BaseJob *baseJob)
 	debug() << item.mimeType() << item.url();
 	QNetworkRequest request(item.url());
 	QNetworkReply *reply = m_networkManager.get(request);
+	reply->setProperty("contentId", job->property("contentId"));
 	connect(reply, SIGNAL(finished()), this, SLOT(onNetworkRequestFinished()));
+}
+
+void PackageEngine::onPreviewRequestFinished()
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+	reply->deleteLater();
+	Q_ASSERT(reply);
+	QString id = reply->property("contentId").toString();
+	QPixmap pixmap = QPixmap::fromImage(QImage::fromData(reply->readAll()));
+	emit previewLoaded(id, pixmap);
 }
 
 void PackageEngine::onNetworkRequestFinished()
@@ -112,6 +146,7 @@ void PackageEngine::onNetworkRequestFinished()
 	Q_ASSERT(reply);
 	QString mimeType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 	QString fileName = QDir::temp().filePath(reply->url().path().section('/', -1, -1));
+	PackageEntry entry = m_entries[reply->property("contentId").toString()];
 	debug() << Q_FUNC_INFO;
 	debug() << mimeType << fileName;
 	{
@@ -137,5 +172,44 @@ void PackageEngine::onNetworkRequestFinished()
 		return;
     }
 	archive->open(QIODevice::ReadOnly);
-	archive->directory()->copyTo(m_path);
+	
+	QDir tmp = QDir::temp();
+	QString subpath = QLatin1String("qutim-plugman-") + QString::number(qrand());
+	if (!tmp.mkdir(subpath)) {
+		critical() << "Can't create subdirectory at temporary path" << tmp;
+		return;
+	}
+	if (!tmp.cd(subpath)) {
+		critical() << "Can't enter subdirectory at temporary path" << tmp;
+		return;
+	}
+	archive->directory()->copyTo(tmp.absolutePath());
+	QDir dir = m_path;
+	QDirIterator it(tmp.absolutePath(), QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	QStringList files;
+	QList<QString> dirsToRemove;
+	dirsToRemove << tmp.absolutePath();
+	while (it.hasNext()) {
+		QString fileName = tmp.relativeFilePath(it.next());
+		QString filePath = dir.absoluteFilePath(fileName);
+		QFileInfo info = it.fileInfo();
+		if (info.isDir()) {
+			if (!dir.exists(fileName))
+				dir.mkpath(fileName);
+			dirsToRemove << filePath;
+			files << (filePath + '/');
+		} else {
+			if (QFile::rename(info.absoluteFilePath(), filePath)) {
+				files << filePath;
+			} else {
+				warning() << "Can't move file" << info.absoluteFilePath() << "to" << filePath;
+				QFile::remove(info.absoluteFilePath());
+			}
+		}
+	}
+	tmp.cdUp();
+	while (!dirsToRemove.isEmpty())
+		tmp.rmpath(dirsToRemove.takeLast());
+	entry.setInstalledFiles(files);
+	entry.setInstalledVersion(entry.content().version());
 }
