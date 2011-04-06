@@ -72,7 +72,8 @@ void AbstractChatForm::onSessionActivated(bool active)
 	if (active) {
 		if (!w->contains(session))
 			w->addSession(session);
-		SystemIntegration::show(w);
+		if (w->isHidden())
+			SystemIntegration::show(w);
 		w->activate(session);
 	}
 }

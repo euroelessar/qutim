@@ -50,10 +50,16 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 
 	//TODO move to chatform
 	//FIXME Create session list and chat when it's realy needed
-	if (QObject *obj = ServiceManager::getByName("ContactList")) {
-		obj->metaObject()->invokeMethod(obj, "widget",Q_RETURN_ARG(QWidget*, m_contactList));
+	if (MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList")) {
+		controller->metaObject()->invokeMethod(controller, "widget",Q_RETURN_ARG(QWidget*, m_contactList));
 		m_stack->addWidget(m_contactList);
 		m_stack->setCurrentWidget(m_contactList);
+
+		ActionGenerator *gen = new ActionGenerator(QIcon(),
+												   QT_TRANSLATE_NOOP("ChatWidget", "Toggle fullscreen"),
+												   this,
+												   SLOT(onToggleFullscreen()));
+		controller->addAction(gen);
 	}
 	m_stack->setWrap(true);
 	m_sessionList = new SessionListWidget(this);
@@ -303,6 +309,16 @@ void StackedChatWidget::changeEvent(QEvent *ev)
 void StackedChatWidget::setTitle(ChatSessionImpl *s)
 {
 	m_chatWidget->setWindowTitle(titleForSession(s));
+}
+
+void StackedChatWidget::onToggleFullscreen()
+{
+	if (isFullScreen()) {
+		showMaximized();
+	} else {
+		setWindowFlags(windowFlags() | Qt::WindowSoftkeysVisibleHint);
+		showFullScreen();
+	}
 }
 
 } // namespace Symbian

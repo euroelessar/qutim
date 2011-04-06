@@ -55,6 +55,7 @@ protected slots:
 	void onCurrentChanged(int index);
 	void animationFinished();
 	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
+	void onToggleFullscreen();
 private:
 	ChatViewWidget *m_view;
 	SessionListWidget *m_sessionList;
