@@ -304,7 +304,7 @@ void init(SystemInfoPrivate *d)
 	if(!processUname.waitForFinished(1000))
 		return false;
 	d->os_name = QLatin1String("FreeBSD");
-	d->os_version = processUname.readAllStandardOutput();
+	d->os_version = processUname.readAll();
 	d->os_full = d->os_name % QLatin1Char(' ') % d->os_version;
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach

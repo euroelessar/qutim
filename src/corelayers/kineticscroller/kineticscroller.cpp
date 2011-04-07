@@ -65,7 +65,13 @@ void KineticScroller::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup(QLatin1String("kineticScrolling"));
-	m_scrollingType = cfg.value(QLatin1String("type"), QtScroller::LeftMouseButtonGesture + 1) - 1;
+#ifdef QUTIM_MOBILE_UI
+	m_scrollingType = 0;
+#else
+	m_scrollingType = -1;
+#endif
+
+	m_scrollingType = cfg.value(QLatin1String("type"), m_scrollingType + 1) - 1;
 	QVariantList vars = cfg.value(QLatin1String("properties"), QVariantList());
 	QtScrollerProperties::unsetDefaultScrollerProperties();
 	QtScrollerProperties props;
@@ -79,12 +85,12 @@ void KineticScroller::loadSettings()
 	QSetIterator<QObject*> it(m_widgets);
 	while (it.hasNext()) {
 		QObject *widget = it.next();
-		if (QtScroller::grabbedGesture(widget) != gesture) {
+		//if (QtScroller::grabbedGesture(widget) != gesture) {
 			if (m_scrollingType == -1)
 				QtScroller::ungrabGesture(widget);
 			else
 				QtScroller::grabGesture(widget, gesture);
-		}
+		//}
 		QtScroller *scroller = QtScroller::scroller(widget);
 		scroller->setScrollerProperties(props);
 	}

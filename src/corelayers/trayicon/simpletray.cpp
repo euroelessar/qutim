@@ -15,6 +15,17 @@
 
 namespace Core
 {
+
+static QIcon iconForStatus(const Status &status)
+{
+	if (status.type() == Status::Offline)
+		return Icon("qutim-offline");
+	else if (status.type() == Status::Connecting)
+		return Icon("qutim-offline");
+	else
+		return Icon("qutim-online");
+}
+
 class ProtocolSeparatorActionGenerator : public ActionGenerator
 {
 public:
@@ -97,7 +108,7 @@ SimpleTray::SimpleTray()
 	m_activeAccount = 0;
 	m_isMail = false;
 	m_icon = new QSystemTrayIcon(this);
-	m_icon->setIcon(m_currentIcon = Icon("qutim"));
+	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
 	m_icon->show();
 	m_mailIcon = Icon("mail-unread-new");
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
@@ -326,7 +337,7 @@ void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
 	if (!m_activeAccount) {
 		if (account->status().type() != Status::Offline)
 			m_activeAccount = account;
-		m_currentIcon = account->status().icon();
+		m_currentIcon = iconForStatus(account->status());
 		if (!m_isMail)
 			m_icon->setIcon(m_currentIcon);
 	}
@@ -341,13 +352,13 @@ void SimpleTray::onStatusChanged(const qutim_sdk_0_3::Status &status)
 		if (account->status().type() == Status::Offline) {
 			m_activeAccount = 0;
 		}
-		m_currentIcon = status.icon();
+		m_currentIcon =iconForStatus(status);
 	}
 	if (!m_activeAccount) {
 		foreach (Account *acc, m_accounts) {
 			if (acc->status().type() != Status::Offline) {
 				m_activeAccount = acc;
-				m_currentIcon = acc->status().icon();
+				m_currentIcon = iconForStatus(acc->status());
 				break;
 			}
 		}
