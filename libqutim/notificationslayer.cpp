@@ -316,6 +316,7 @@ QStringList themeList()
 {
 	p->ensureSound();
 	QSet<QString> themes;
+	themes << QT_TRANSLATE_NOOP("Sound", "No sound");
 	foreach (SoundThemeBackend *backend, p->soundThemeBackends) {
 		foreach (const QString &theme, backend->themeList())
 			themes << theme;

@@ -1,0 +1,16 @@
+{
+	"Logger": {
+			"enable": false,
+	},
+	"services": {
+		"list": {
+			"ContactInfo": "Core::ContactInfo",
+			"ContactList": "Core::SimpleContactList::Module",
+			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
+			"DataFormsBackend": "Core::DefaultDataFormsBackend",
+			"Popup": "DBusBackend",
+			"PopupWidget": "Core::KineticPopups::QmlPopupGenerator",
+			"Sound": "PhononSoundBackend",
+		}
+	}
+}
