@@ -306,6 +306,16 @@ void init(SystemInfoPrivate *d)
 	d->os_name = QLatin1String("FreeBSD");
 	d->os_version = processUname.readAll();
 	d->os_full = d->os_name % QLatin1Char(' ') % d->os_version;
+#elif defined(Q_OS_HAIKU)
+	QProcess processUname;
+	processUname.start(QLatin1String("uname"),
+	QStringList() << QLatin1String("-n") << QLatin1String("-v"));
+	if(!processUname.waitForFinished(1000)) {
+	return;
+	}
+	d->os_name = QLatin1String("Haiku");
+	d->os_version = processUname.readAll();
+	d->os_full = d->os_name + QLatin1Char(' ') + d->os_version;
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 
@@ -368,9 +378,13 @@ void init(SystemInfoPrivate *d)
 		special_info |= SuiteHomeServer;
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 			| (quint8(osvi.wProductType) << 8)  | special_info;
-	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id).section(' ', 1);
-	d->os_name = d->os_full.section(' ', 0, 0);
-	d->os_version = d->os_full.section(' ', 1);
+
+	d->os_version = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
+	d->os_full = d->os_name + " " + d->os_version;
+
+	//d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id).section(' ', 1);
+	//d->os_name = d->os_full.section(' ', 0, 0);
+	//d->os_version = d->os_full.section(' ', 1);
 #endif
 #ifdef Q_OS_SYMBIAN
 	//		QLibrary hal("hal.dll");

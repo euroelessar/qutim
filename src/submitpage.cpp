@@ -33,16 +33,16 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 	QRect size = qApp->desktop()->screenGeometry();
 	QLocale locale = QLocale::system();
 
-	m_information->setHtml(tr("<b>OS:</b> %1 <br />"
-							  "<b>Short:</b> %2 <br />"
+	m_information->setHtml(tr("<b>Short:</b> %1 <br />"
+							  "<b>Version:</b> %2 <br />"
 							  "<b>Full:</b> %3 <br />"
 							  "<b>qutIM Version:</b> %4 <br />"
 							  "<b>Qt Version:</b> %5 (%6 bit) <br />"
 							  "<b>Screen resolution:</b> %7 x %8 <br />"
 							  "<b>Country:</b> %9<br />"
 							  "<b>Language:</b> %10 <br />"
-							  ).arg(SystemInfo::getVersion())
-						   .arg(SystemInfo::getName())
+							  ).arg(SystemInfo::getName())
+						   .arg(SystemInfo::getVersion())
 						   .arg(SystemInfo::getFullName())
 						   .arg(qutimVersionStr())
 						   .arg(QLatin1String(qVersion()))
