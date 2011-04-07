@@ -44,6 +44,10 @@
 # include <arpa/inet.h>
 #endif
 
+#ifdef Q_OS_HAIKU
+#define QT_NO_IPV6
+#endif
+
 #ifndef QT_NO_IPV6
 # define HAVE_IPV6
 # ifndef s6_addr
