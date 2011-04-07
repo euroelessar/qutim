@@ -158,23 +158,24 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 	OsInfo osInfo[] = {
 		{ OsUseFile,		"/etc/altlinux-release",	"Alt Linux"		},
 		{ OsUseFile,		"/etc/mandrake-release",	"Mandrake Linux"	},
-		{ OsUseName,		"/usr/lib/libQtMaemo5.so.4",	"Maemo 5"		},
+		{ OsUseName,		"/usr/lib/libQtMaemo5.so.4","Maemo 5"		},
 		{ OsAppendFile,		"/etc/debian_version",		"Debian GNU/Linux"	},
 		{ OsUseFile,		"/etc/gentoo-release",		"Gentoo Linux"		},
 		{ OsAppendFile,		"/etc/mopslinux-version",	"MOPSLinux"		},
 		{ OsAppendFile,		"/etc/slackware-version",	"Slackware Linux"	},
-		{ OsUseFile,		"/etc/pld-release",		"PLD Linux"		},
+		{ OsUseFile,		"/etc/pld-release",			"PLD Linux"		},
 		{ OsUseName,		"/etc/aurox-release",		"Aurox Linux"		},
 		{ OsUseFile,		"/etc/arch-release",		"Arch Linux"		},
-		{ OsAppendFile,		"/etc/lfs-release",		"LFS Linux"		},
+		{ OsAppendFile,		"/etc/lfs-release",			"LFS Linux"		},
 
 		// untested
 		{ OsUseFile,		"/etc/SuSE-release",		"SuSE Linux"		},
 		{ OsUseFile,		"/etc/conectiva-release",	"Conectiva Linux"	},
-		{ OsUseFile,		"/etc/.installed",		"Caldera Linux"		},
+		{ OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
 		{ OsAppendFile,		"/etc/agilialinux-version",	"AgiliaLinux"		},
 		// from libastral
 		{ OsUseFile,		"/etc/meego-release",		"MeeGo"			},
+		{ OsUseName,		"/etc/exherbo-release",		"Exherbo Linux"	 },
 
 
 		// many distros use the /etc/redhat-release for compatibility, so RedHat will be the last :)
