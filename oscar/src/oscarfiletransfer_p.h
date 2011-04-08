@@ -35,7 +35,7 @@ namespace oscar {
 class OftFileTransferFactory;
 class OftConnection;
 
-const int FILETRANSFER_WAITING_TIMEOUT = 45000;
+const int FILETRANSFER_WAITING_TIMEOUT = 15000;
 
 enum OftPacketType
 {

@@ -214,7 +214,7 @@ void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress ad
 							 quint16 port, quint16 clientPort)
 {
 	if (addr.isNull())
-		addr = QHostAddress("64.12.201.185"); // ars.oscar.aol.com
+		addr = QHostAddress("205.188.210.217"); // ars.oscar.aol.com
 	m_state = clientPort == 0 ? ProxyInit : ProxyReceive;
 	m_lastHeader = OftHeader();
 	m_len = 0;
