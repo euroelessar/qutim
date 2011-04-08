@@ -10,7 +10,7 @@ Component {
 		property bool delivered: isDelivered
 		property variant delegate
 		height: childrenRect.height + 5
-		opacity: 0
+		opacity: 1
 
 		Component.onCompleted: {
 			var formattedTime = Qt.formatDateTime(time, "dd.MM.yyyy (hh:mm:ss)");

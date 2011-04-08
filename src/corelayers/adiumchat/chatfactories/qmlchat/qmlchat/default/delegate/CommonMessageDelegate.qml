@@ -23,6 +23,16 @@ Item {
 			text: message.sender
 			color: message.incoming ? "#ff6600" : "#0078ff"
 			font.bold: true
+			MouseArea {
+				id: area
+				anchors.fill: parent
+
+				acceptedButtons: Qt.LeftButton
+				onPressed: {
+					console.log("pressed");
+					controller.appendText(message.sender + ":");
+				}
+			}
 		}
 		Text {
 			anchors.right: parent.right

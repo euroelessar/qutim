@@ -8,51 +8,51 @@ Rectangle {
 
 	ListModel {
 		id: messageModel
-//				ListElement {
-//					sender: "Sauron";
-//					isIncoming: false;
-//					body: "Service message";
-//					time : "2010.03.04";
-//					isDelivered : false
-//					service: true
-//					action: false
-//				}
-//				ListElement {
-//					sender: "Sauron";
-//					isIncoming: true;
-//					body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
-//					time : "2010.03.04";
-//					isDelivered : true
-//					service: false
-//					action: false
-//				}
-//				ListElement {
-//					sender: "Sauron";
-//					isIncoming: true;
-//					body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
-//					time : "2010.03.04";
-//					isDelivered : true
-//					service: false
-//					action: false
-//					append: true
-//				}
-//				ListElement {
-//					sender: "SauronTheDark";
-//					isIncoming: false;
-//					body: "Text";
-//					time : "2010.03.04";
-//					isDelivered : false
-//					service: false
-//					action: true
-//				}
-//				ListElement {
-//					sender: "Sauron";
-//					isIncoming: false;
-//					body: "Text";
-//					time : "2010.03.04";
-//					isDelivered : false
-//					service: true
-//				}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: false;
+			body: "Service message";
+			time : "2010.03.04";
+			isDelivered : false
+			service: true
+			action: false
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: true;
+			body: "<a href=\"http://qutim.org\">Link me</a>";
+			time : "2010.03.04";
+			isDelivered : true
+			service: false
+			action: false
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: true;
+			body: "У попа была собака, он её любил, она съела кусок мяса, он её убил";
+			time : "2010.03.04";
+			isDelivered : true
+			service: false
+			action: false
+			append: true
+		}
+		ListElement {
+			sender: "SauronTheDark";
+			isIncoming: false;
+			body: "Text";
+			time : "2010.03.04";
+			isDelivered : false
+			service: false
+			action: true
+		}
+		ListElement {
+			sender: "Sauron";
+			isIncoming: false;
+			body: "Text";
+			time : "2010.03.04";
+			isDelivered : false
+			service: true
+		}
 	}
 
 	MessageDelegate {
@@ -76,12 +76,13 @@ Rectangle {
 		}
 	}
 
-
 	ListView {
 		id: messageView
 		anchors.margins: 10
 		model: messageModel
+
 		anchors.fill: parent
+
 		delegate: messageDelegate
 
 		highlight: highlight
@@ -98,21 +99,25 @@ Rectangle {
 		transitions: Transition {
 			NumberAnimation { properties: "opacity"; duration: 400 }
 		}
-	}
 
-	Text {
-		id: chatStateText
-		text: ""
-		color: "gray"
-		opacity: 1
-		anchors.bottom: messageView.bottom
-		anchors.left: messageView.left
-		anchors.right: messageView.right
+		Text {
+			id: chatStateText
 
-		Behavior on opacity {
-			NumberAnimation { properties: "opacity"; duration: 500 }
+			text: ""
+			color: "gray"
+			opacity: 1
+
+			anchors.bottom: messageView.bottom
+			anchors.left: messageView.left
+			anchors.right: messageView.right
+
+			horizontalAlignment: Text.AlignHCenter
+
+			Behavior on opacity {
+				NumberAnimation { properties: "opacity"; duration: 500 }
+			}
+
 		}
-
 	}
 
 	ScrollBar {
@@ -136,6 +141,8 @@ Rectangle {
 			var index = messageModel.count-1;
 			myMessage.append = false;
 			myMessage.body = controller.parseEmoticons(message.body);
+			console.log("Unit:" + message.unit)
+
 			if (index != -1) {
 				var prevMessage = messageModel.get(index);
 				if ((prevMessage.sender == message.sender) && !(prevMessage.action || prevMessage.service))
