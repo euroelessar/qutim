@@ -161,7 +161,7 @@ class OftConnection : public FileTransferJob
 {
 	Q_OBJECT
 public:
-	OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *transfer);
+	OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *transfer, bool forceProxy);
 	virtual ~OftConnection();
 	inline IcqContact *contact() const { return m_contact.data(); }
 	quint64 cookie() const { return m_cookie; }
@@ -244,6 +244,7 @@ private:
 	Connections m_connections;
 	static QHash<quint16, OftServer*> m_servers;
 	static bool m_allowAnyPort;
+	bool m_forceProxy;
 };
 
 class OscarFileTransferSettings : public QObject, public SettingsExtension

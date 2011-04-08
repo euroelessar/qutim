@@ -391,13 +391,13 @@ void OftServer::onTimeout()
 	close();
 }
 
-OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager) :
+OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager, bool forceProxy) :
 	FileTransferJob(contact, direction, manager),
 	m_transfer(manager),
 	m_contact(contact),
 	m_account(contact->account()),
 	m_cookie(cookie),
-	m_proxy(false),
+	m_proxy(forceProxy),
 	m_connInited(false)
 {
 	m_transfer->addConnection(this);
@@ -490,7 +490,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		QHostAddress verifiedIP(tlvs.value<quint32>(0x0004));
 		Q_UNUSED(verifiedIP);
 		quint16 port = tlvs.value<quint16>(0x0005);
-		m_proxy = tlvs.value<quint8>(0x0010);
+		m_proxy = tlvs.contains(0x0010);
 		DataUnit tlv2711(tlvs.value(0x2711));
 		bool multipleFiles = tlv2711.read<quint16>() > 1;
 		quint16 filesCount = tlv2711.read<quint16>();
@@ -636,7 +636,7 @@ void OftConnection::sendFileRequest(bool fileinfo)
 	data.appendTLV<quint16>(0x0005, port);
 	data.appendTLV<quint16>(0x0017, port ^ 0x0FFFF);
 	if (m_proxy)
-		data.appendTLV<quint8>(0x0010, 1);
+		data.appendTLV(0x0010);
 	if (fileinfo) {
 		{
 			// file info
@@ -992,7 +992,7 @@ void OftFileTransferFactory::processMessage(IcqContact *contact,
 	}
 	bool newRequest = reqType == MsgRequest && !conn;
 	if (newRequest) {
-		conn = new OftConnection(contact, FileTransferJob::Incoming, cookie, this);
+		conn = new OftConnection(contact, FileTransferJob::Incoming, cookie, this, m_forceProxy);
 	}
 	if (conn) {
 		conn->handleRendezvous(reqType, tlvs);
@@ -1046,7 +1046,8 @@ FileTransferJob *OftFileTransferFactory::create(ChatUnit *unit)
 			new OftConnection(contact,
 							  FileTransferJob::Outgoing,
 							  Cookie::generateId(),
-							  this);
+							  this,
+							  m_forceProxy);
 	return conn;
 }
 
@@ -1092,6 +1093,7 @@ void OftFileTransferFactory::reloadSettings()
 {
 	Config cfg = IcqProtocol::instance()->config("filetransfer");
 	m_allowAnyPort = cfg.value("allowAnyPort", false);
+	m_forceProxy = cfg.value("alwaysUseProxy", false);
 	if (!m_allowAnyPort) {
 		QSet<quint16> oldServers = m_servers.keys().toSet();
 
@@ -1151,6 +1153,12 @@ void OscarFileTransferSettings::loadSettings(DataItem &item, Config cfg)
 	bool allowAnyPort = cfg.value("allowAnyPort", false);
 	DataItem settings("filetransferSettings", tr("File transfer"), QVariant());
 	{
+		DataItem item("alwaysUseProxy",
+					  tr("Always use file transfer proxy"),
+					  cfg.value("alwaysUseProxy", false));
+		settings.addSubitem(item);
+	}
+	{
 		DataItem item("allowAnyPort",
 					  tr("Accept incoming connections on any port"),
 					  allowAnyPort);
@@ -1176,6 +1184,7 @@ void OscarFileTransferSettings::saveSettings(const DataItem &item, Config cfg)
 {
 	DataItem subitem = item.subitem("filetransferSettings");
 	cfg.beginGroup("filetransfer");
+	cfg.setValue("alwaysUseProxy", subitem.subitem("alwaysUseProxy").data(false));
 	cfg.setValue("allowAnyPort", subitem.subitem("allowAnyPort").data(false));
 
 	QString ports = subitem.subitem("localPorts", true).data<QString>();
