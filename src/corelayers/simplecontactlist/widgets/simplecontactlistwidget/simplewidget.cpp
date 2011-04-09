@@ -188,6 +188,8 @@ SimpleWidget::~SimpleWidget()
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());
+	config.endGroup();
+	config.sync();
 }
 
 void SimpleWidget::addButton(ActionGenerator *generator)
