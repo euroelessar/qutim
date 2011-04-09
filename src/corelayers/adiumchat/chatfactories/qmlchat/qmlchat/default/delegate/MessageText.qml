@@ -1,31 +1,5 @@
 import Qt 4.7
 
-//Text {
-//	id: message
-//	textFormat: "RichText"
-//	wrapMode: "WordWrap"
-//	onLinkActivated: Qt.openUrlExternally(link)
-
-////	MouseArea {
-////		id: area
-////		property bool selectMode: false
-////		anchors.fill: parent
-////		hoverEnabled: true
-////		//acceptedButtons: Qt.NoButton
-////		onPressAndHold: console.log("Hold!!!");
-////	}
-
-////	TextEdit {
-////		id: edit
-////		text: message.text
-////		anchors.fill: message
-////		font: message.font
-////		opacity:  0
-////		readOnly: true
-////		selectByMouse: true
-////	}
-//}
-
 MouseArea {
 	id: area
 

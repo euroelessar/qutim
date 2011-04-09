@@ -24,36 +24,36 @@
 
 namespace qutim_sdk_0_3
 {
-	class ExtensionInfoData;
+class ExtensionInfoData;
 
-	class LIBQUTIM_EXPORT ExtensionInfo
-	{
-	public:
-		ExtensionInfo(const LocalizedString &name = LocalizedString(),
-					  const LocalizedString &description = LocalizedString(),
-					  const ObjectGenerator *generator = 0, ExtensionIcon icon = ExtensionIcon());
-		ExtensionInfo(const ExtensionInfo &other);
-		~ExtensionInfo();
-		ExtensionInfo &operator =(const ExtensionInfo &other);
-		ExtensionInfo &setName(const LocalizedString &name);
-		ExtensionInfo &setDescription(const LocalizedString &description);
-		ExtensionInfo &setIcon(const ExtensionIcon &icon);
-		ExtensionInfo &setGenerator(const ObjectGenerator *generator);
-		QList<PersonInfo> authors() const;
-		LocalizedString name() const;
-		LocalizedString description() const;
-		const ObjectGenerator *generator() const;
-		ExtensionIcon icon() const;
-	private:
-		QSharedDataPointer<ExtensionInfoData> d;
-	public:
-		typedef ExtensionInfoData Data;
-		Data *data() const;
-	};
+class LIBQUTIM_EXPORT ExtensionInfo
+{
+public:
+	ExtensionInfo(const LocalizedString &name = LocalizedString(),
+				  const LocalizedString &description = LocalizedString(),
+				  const ObjectGenerator *generator = 0, ExtensionIcon icon = ExtensionIcon());
+	ExtensionInfo(const ExtensionInfo &other);
+	~ExtensionInfo();
+	ExtensionInfo &operator =(const ExtensionInfo &other);
+	ExtensionInfo &setName(const LocalizedString &name);
+	ExtensionInfo &setDescription(const LocalizedString &description);
+	ExtensionInfo &setIcon(const ExtensionIcon &icon);
+	ExtensionInfo &setGenerator(const ObjectGenerator *generator);
+	QList<PersonInfo> authors() const;
+	LocalizedString name() const;
+	LocalizedString description() const;
+	const ObjectGenerator *generator() const;
+	ExtensionIcon icon() const;
+private:
+	QSharedDataPointer<ExtensionInfoData> d;
+public:
+	typedef ExtensionInfoData Data;
+	Data *data() const;
+};
 
-	typedef QList<ExtensionInfo> ExtensionInfoList;
+typedef QList<ExtensionInfo> ExtensionInfoList;
 
-	LIBQUTIM_EXPORT ExtensionInfoList extensionList();
+LIBQUTIM_EXPORT ExtensionInfoList extensionList();
 
 //	TODO: Add possibility for getting ExtensionInfoList of avalaible modules
 //
