@@ -66,6 +66,15 @@
 #include <CoreServices/CoreServices.h>
 #endif
 
+// Haiku!
+#if defined(Q_WS_HAIKU)
+#include <sys/utsname.h>
+#include <Path.h>
+#include <FindDirectory.h>
+#include <AppFileInfo.h>
+#include <File.h>
+#endif
+
 #include "systeminfo.h"
 
 //typedef QString (*_qutim_system_info_hook)(const QString &os_full, const QString &os_name, const QString &os_version);
@@ -308,15 +317,35 @@ void init(SystemInfoPrivate *d)
 	d->os_version = processUname.readAll();
 	d->os_full = d->os_name % QLatin1Char(' ') % d->os_version;
 #elif defined(Q_OS_HAIKU)
-	QProcess processUname;
-	processUname.start(QLatin1String("uname"),
-	QStringList() << QLatin1String("-n") << QLatin1String("-v"));
-	if(!processUname.waitForFinished(1000)) {
-	return;
+	// Native Haiku detect, using libBe
+	BPath path;
+	if ( find_directory(B_BEOS_LIB_DIRECTORY, &path) == B_OK ) {
+		path.Append("libbe.so");
+
+		BAppFileInfo appFileInfo;
+		version_info versionInfo;
+		BFile file;
+		if ( file.SetTo(path.Path(), B_READ_ONLY) == B_OK
+			&& appFileInfo.SetTo(&file) == B_OK
+			&& appFileInfo.GetVersionInfo(&versionInfo, B_APP_VERSION_KIND) == B_OK
+			&& versionInfo.short_info[0] != '\0') {
+				d->os_name = versionInfo.short_info;
+			}
 	}
-	d->os_name = QLatin1String("Haiku");
-	d->os_version = processUname.readAll();
-	d->os_full = d->os_name + QLatin1Char(' ') + d->os_version;
+
+	utsname uname_info;
+	if (uname(&uname_info) == 0) {
+		d->os_full = uname_info.sysname;
+		long revision = 0;
+		if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
+			
+			char version[16];
+			snprintf(version, sizeof(version), "%ld", revision);
+			d->os_full += " (" + d->os_name + " Rev. ";
+			d->os_full += version;
+			d->os_full += ")";
+		}
+	}
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 
