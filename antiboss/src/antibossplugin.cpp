@@ -64,8 +64,7 @@ bool AntiBossPlugin::eventFilter(QObject *obj, QEvent *ev)
 	if (ev->type() == QEvent::ShowToParent) {
 		QWidget *w = qobject_cast<QWidget*>(obj);
 		if (w && w->isWindow() && w->windowType() != Qt::Desktop) {
-			if (!m_widgets.contains(w))
-				m_widgets.append(w);
+			m_widgets.insert(w->windowState(), w);
 			w->hide();
 		}
 	}
@@ -79,18 +78,20 @@ void AntiBossPlugin::showHide()
 			icon->setVisible(m_hidden);
 	}
 	if (m_hidden) {
-		foreach (QWidget *widget, m_widgets) {
-			if (widget)
-				widget->show();
+		qApp->removeEventFilter(this);
+		QMultiHash<Qt::WindowStates, QPointer<QWidget> >::const_iterator it = m_widgets.constBegin();
+		for (;it!=m_widgets.constEnd();it++) {
+			Qt::WindowStates state = it.key();
+			it.value()->show();
+			it.value()->setWindowState(state);
 		}
 		m_widgets.clear();
-		qApp->removeEventFilter(this);
 	} else {
 		QWidgetList widgets = QApplication::topLevelWidgets();
 		foreach (QWidget *widget, widgets) {
 			if (widget->isVisible()) {
 				widget->hide();
-				m_widgets.append(widget);
+				m_widgets.insert(widget->windowState(), widget);
 			}
 		}
 		qApp->installEventFilter(this);
