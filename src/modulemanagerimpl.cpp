@@ -13,6 +13,9 @@
 #include <qutim/notificationslayer.h>
 #include <qutim/systemintegration.h>
 
+#include <qutim/debug.h>
+#include <qutim/systeminfo.h>
+
 namespace Core
 {
 ModuleManagerImpl::ModuleManagerImpl()
@@ -57,5 +60,6 @@ void ModuleManagerImpl::initExtensions()
 {
 	ModuleManager::initExtensions();
 	Notifications::send(Notifications::Startup, 0);
+	debug() << SystemInfo::getPath(SystemInfo::SystemShareDir);
 }
 }
