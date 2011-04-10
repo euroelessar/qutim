@@ -18,14 +18,13 @@ namespace Core
 
 static QIcon iconForStatus(const Status &status)
 {
-	return Icon("qutim");
 	//TODO create icon
-	//if (status.type() == Status::Offline)
-	//	return Icon("qutim-offline");
-	//else if (status.type() == Status::Connecting)
-	//	return Icon("qutim-offline");
-	//else
-	//	return Icon("qutim-online");
+	if (status.type() == Status::Offline)
+		return Icon("qutim-offline");
+	else if (status.type() == Status::Connecting)
+		return Icon("qutim-offline");
+	else
+		return Icon("qutim-online");
 }
 
 class ProtocolSeparatorActionGenerator : public ActionGenerator
