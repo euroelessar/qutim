@@ -264,9 +264,13 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			}
 		} else {
 			JMUCUser *user = d->users.take(nick);
-			if (ChatSession *session = ChatLayer::get(this, false))
+			if (ChatSession *session = ChatLayer::get(this, false)) {
 				session->removeContact(user);
-			user->deleteLater();
+			}
+			if (ChatSession *session = ChatLayer::get(user, false)) {
+				user->setParent(session);
+			} else
+				user->deleteLater();
 		}
 	} else if (participant->isNickChanged()) {
 		QString newNick = participant->newNick();
