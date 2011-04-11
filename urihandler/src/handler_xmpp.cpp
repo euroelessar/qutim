@@ -18,51 +18,51 @@ Protocol *XmppHandler::protocol()
 
 void XmppHandler::newUri(QUrl &)
 {
-	currentParams_.clear();
-	currentAction_ = NotSpecified;
+	m_currentParams.clear();
+	m_currentAction = NotSpecified;
 	if (!uri().hasQuery())
-		currentAction_ = NotSpecified;
+		m_currentAction = NotSpecified;
 	else if (uri().hasQueryItem("message"))
-		currentAction_ = SendMessage;
+		m_currentAction = SendMessage;
 	else if (uri().hasQueryItem("roster"))
-		currentAction_ = AddToRoster;
+		m_currentAction = AddToRoster;
 	else if (uri().hasQueryItem("remove"))
-		currentAction_ = RemoveFromRoster;
+		m_currentAction = RemoveFromRoster;
 	else if (uri().hasQueryItem("subscribe"))
-		currentAction_ = Subscribe;
+		m_currentAction = Subscribe;
 	else if (uri().hasQueryItem("unsubscribe"))
-		currentAction_ = Unsubscribe;
+		m_currentAction = Unsubscribe;
 	else
-		currentAction_ = NotSpecified;
+		m_currentAction = NotSpecified;
 
-	switch (currentAction_) {
+	switch (m_currentAction) {
 	case SendMessage :
 		//currentParams_["subject"] = uri.queryItemValue("subject");
-		currentParams_["body"] = uri().queryItemValue("body");
+		m_currentParams["body"] = uri().queryItemValue("body");
 		//currentParams_["thread"]  = uri.queryItemValue("thread");
 		break;
 	case AddToRoster :
-		currentParams_["name"]  = uri().queryItemValue("name");
-		currentParams_["group"] = uri().queryItemValue("group");
+		m_currentParams["name"]  = uri().queryItemValue("name");
+		m_currentParams["group"] = uri().queryItemValue("group");
 		break;
 	}
-	currentParams_["_contact_id_"] = uri().toString(QUrl::RemoveScheme | QUrl::RemoveQuery);
+	m_currentParams["_contact_id_"] = uri().toString(QUrl::RemoveScheme | QUrl::RemoveQuery);
 }
 
 AbstractHandler::UriAction XmppHandler::action()
 {
-	return currentAction_;
+	return m_currentAction;
 }
 
 AbstractHandler::ActionDescription XmppHandler::description()
 {
 	ActionDescription descr;
-	if (currentParams_.value("name").length())
-		descr.append(ActionDescriptionItem(QObject::tr("Name of contact is being added"), currentParams_.value("name")));
-	if (currentParams_.value("group").length())
-		descr.append(ActionDescriptionItem(QObject::tr("Group of contact is being added"), currentParams_.value("group")));
-	if (currentParams_.value("body").length()) {
-		QString body = currentParams_.value("body");
+	if (m_currentParams.value("name").length())
+		descr.append(ActionDescriptionItem(QObject::tr("Name of contact is being added"), m_currentParams.value("name")));
+	if (m_currentParams.value("group").length())
+		descr.append(ActionDescriptionItem(QObject::tr("Group of contact is being added"), m_currentParams.value("group")));
+	if (m_currentParams.value("body").length()) {
+		QString body = m_currentParams.value("body");
 		const int maxBodyLen = 50;
 		if (body.length() > maxBodyLen) {
 			body.truncate(maxBodyLen);
@@ -73,13 +73,13 @@ AbstractHandler::ActionDescription XmppHandler::description()
 	return descr;
 }
 
-void XmppHandler::open_impl(qutim_sdk_0_3::Account *acc)
+void XmppHandler::openImpl(qutim_sdk_0_3::Account *acc)
 {
-	switch (currentAction_) {
+	switch (m_currentAction) {
 	default:
 	case SendMessage : {
-		ChatUnit *unit = acc->getUnit(currentParams_["_contact_id_"], true);
-		Message msg(currentParams_["body"]);
+		ChatUnit *unit = acc->getUnit(m_currentParams["_contact_id_"], true);
+		Message msg(m_currentParams["body"]);
 		msg.setChatUnit(unit);
 		msg.setIncoming(false);
 		unit->sendMessage(msg);

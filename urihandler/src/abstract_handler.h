@@ -16,7 +16,7 @@ class AbstractHandler
 {
 public:
 	void open(QUrl &url);
-	virtual ~AbstractHandler(){}
+	virtual ~AbstractHandler() {}
 
 protected:
 	enum OpenUriError
@@ -44,17 +44,18 @@ protected:
 	typedef QList<ActionDescriptionItem> ActionDescription;
 
 	virtual qutim_sdk_0_3::Protocol* protocol() = 0;
-	virtual void open_impl(qutim_sdk_0_3::Account *acc) = 0;
+	virtual void openImpl(qutim_sdk_0_3::Account *acc) = 0;
 	virtual ActionDescription description() { return ActionDescription(); }
 	virtual void newUri(QUrl &uri) = 0;
 	virtual UriAction action() = 0;
 	virtual OpenUriError testUri(){ return ValidToOpen; }
 
-	qutim_sdk_0_3::Account *ask(UriAction action, QString &id, ActionDescription &description);
-	QUrl &uri() { return uri_; };
+	qutim_sdk_0_3::Account *ask(UriAction action, const QString &id,
+								const ActionDescription &description);
+	QUrl &uri() { return m_uri; }
 
 private:
-	QUrl uri_;
+	QUrl m_uri;
 };
 
 #endif // ABSTRACT_HADLER_H

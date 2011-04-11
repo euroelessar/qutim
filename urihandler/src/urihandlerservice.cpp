@@ -1,12 +1,12 @@
 #include "urihandlerservice.h"
 #include "handler_xmpp.h"
 
-UriHandlerService *instance = 0;
+static UriHandlerService *instance = 0;
 
 void UriHandlerService::open(const QString &uriString)
 {
 	QUrl uri(uriString);
-	AbstractHandler *h = handlers_[uri.scheme()];
+	AbstractHandler *h = m_handlers[uri.scheme()];
 	if (h)
 		h->open(uri);
 }
@@ -18,15 +18,15 @@ UriHandlerService::UriHandlerService()
 
 UriHandlerService::~UriHandlerService()
 {
-	qDeleteAll(handlers_.values());
-	handlers_.clear();
+	qDeleteAll(m_handlers.values());
+	m_handlers.clear();
 	instance = 0;
 }
 
 bool UriHandlerService::addHandlerImpl(const QString &scheme, AbstractHandler *h)
 {
 	if (instance) {
-		instance->handlers_[scheme] = h;
+		instance->m_handlers[scheme] = h;
 		return true;
 	} else
 		return false;
@@ -35,8 +35,8 @@ bool UriHandlerService::addHandlerImpl(const QString &scheme, AbstractHandler *h
 bool UriHandlerService::removeHandler(const QString &scheme)
 {
 	if (instance) {
-		delete instance->handlers_[scheme];
-		instance->handlers_.remove(scheme);
+		delete instance->m_handlers[scheme];
+		instance->m_handlers.remove(scheme);
 		return true;
 	} else
 		return false;

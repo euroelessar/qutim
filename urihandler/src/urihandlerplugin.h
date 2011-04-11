@@ -5,6 +5,7 @@
 
 class UriHandlerPlugin : public qutim_sdk_0_3::Plugin
 {
+	Q_OBJECT
 public:
 	void init();
 	bool load();

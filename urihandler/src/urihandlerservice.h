@@ -16,7 +16,6 @@ class UHSERVICE_EXPORTS UriHandlerService : public QObject
 	Q_OBJECT
 	Q_CLASSINFO("Service", "UriHandler")
 	Q_CLASSINFO("Uses",    "ChatLayer")
-
 public:
 	UriHandlerService();
 	~UriHandlerService();
@@ -30,8 +29,7 @@ public:
 
 private:
 	typedef QMap<QString, AbstractHandler*> HandlersMap;
-
-	HandlersMap handlers_;
+	HandlersMap m_handlers;
 	static bool addHandlerImpl(const QString &scheme, AbstractHandler *h);
 };
 

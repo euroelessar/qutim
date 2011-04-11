@@ -23,7 +23,7 @@ void AbstractHandler::open(QUrl &uri)
 		if (uri.isEmpty() || !uri.isValid())
 			status = Invalid;
 	if (status == OpenUriOk) {
-		uri_ = uri;
+		m_uri = uri;
 		newUri(uri);
 		status = testUri();
 	}
@@ -31,9 +31,9 @@ void AbstractHandler::open(QUrl &uri)
 	QString message;
 	switch (status) {
 	case ValidToOpen : {
-		Account *acc = ask(action(), uri.toString(QUrl::RemoveScheme | QUrl::RemoveQuery), description());
+		 Account *acc = ask(action(), uri.toString(QUrl::RemoveScheme | QUrl::RemoveQuery), description());
 		if (acc)
-			open_impl(acc);
+			openImpl(acc);
 		break;
 	}
 	case Invalid :
@@ -52,8 +52,9 @@ void AbstractHandler::open(QUrl &uri)
 	// else all's ok
 }
 
-Account *AbstractHandler::ask(UriAction action, QString &id, ActionDescription &descriptionStrings)
+Account *AbstractHandler::ask(UriAction action, const QString &id, const ActionDescription &actionDescription)
 {
+	ActionDescription descriptionStrings = actionDescription;
 	AccSelectionDlg dialog;
 	QString description;
 	QString question;
@@ -84,7 +85,7 @@ Account *AbstractHandler::ask(UriAction action, QString &id, ActionDescription &
 	}
 	dialog.setQuestion(question);
 	dialog.setDescription(description);
-	dialog.setAccsList(protocol()->accounts());
+	dialog.setAccountList(protocol()->accounts());
 
 	int result = dialog.exec();
 	if (result)

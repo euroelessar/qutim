@@ -32,7 +32,7 @@ Account* AccSelectionDlg::selectedAcc()
 	return ui->accounts->itemData(ui->accounts->currentIndex()).value<Account*>();
 }
 
-void AccSelectionDlg::setAccsList(QList<qutim_sdk_0_3::Account *> accounts)
+void AccSelectionDlg::setAccountList(QList<qutim_sdk_0_3::Account *> accounts)
 {
 	foreach (Account *acc, accounts) {
 		ui->accounts->addItem(QString("%1 <%2>").arg(acc->name(), acc->id()), QVariant::fromValue(acc));

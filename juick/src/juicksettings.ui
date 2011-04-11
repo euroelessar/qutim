@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>300</height>
+    <width>282</width>
+    <height>243</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="user_label">
      <property name="text">
@@ -22,11 +25,11 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <layout class="QHBoxLayout" name="user_layout">
+    <layout class="QVBoxLayout" name="user_layout">
      <item>
-      <widget class="QCheckBox" name="user_bold">
+      <widget class="QCheckBox" name="user_under">
        <property name="text">
-        <string>Bold</string>
+        <string>Underline</string>
        </property>
       </widget>
      </item>
@@ -38,9 +41,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="user_under">
+      <widget class="QCheckBox" name="user_bold">
        <property name="text">
-        <string>Underline</string>
+        <string>Bold</string>
        </property>
       </widget>
      </item>
@@ -54,11 +57,11 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <layout class="QHBoxLayout" name="post_layout">
+    <layout class="QVBoxLayout" name="post_layout">
      <item>
-      <widget class="QCheckBox" name="post_bold">
+      <widget class="QCheckBox" name="post_under">
        <property name="text">
-        <string>Bold</string>
+        <string>Underline</string>
        </property>
       </widget>
      </item>
@@ -70,9 +73,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="post_under">
+      <widget class="QCheckBox" name="post_bold">
        <property name="text">
-        <string>Underline</string>
+        <string>Bold</string>
        </property>
       </widget>
      </item>

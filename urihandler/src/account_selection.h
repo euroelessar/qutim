@@ -23,7 +23,7 @@ public:
 	void setQuestion(const QString &q);
 	void setDescription(const QString &d);
 	qutim_sdk_0_3::Account *selectedAcc();
-	void setAccsList(QList<qutim_sdk_0_3::Account*> accs);
+	void setAccountList(QList<qutim_sdk_0_3::Account*> accs);
 
 private:
 	Ui::AccSelectionDlg *ui;

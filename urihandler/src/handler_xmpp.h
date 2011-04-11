@@ -6,13 +6,13 @@
 class XmppHandler : public AbstractHandler
 {
 	virtual qutim_sdk_0_3::Protocol* protocol();
-	virtual void open_impl(qutim_sdk_0_3::Account *acc);
+	virtual void openImpl(qutim_sdk_0_3::Account *acc);
 	virtual ActionDescription description();
 	virtual void newUri(QUrl &uri);
 	virtual UriAction action();
 
-	UriAction currentAction_;
-	QMap<QString, QString> currentParams_;
+	UriAction m_currentAction;
+	QMap<QString, QString> m_currentParams;
 };
 
 #endif // HANDLER_XMPP_H
