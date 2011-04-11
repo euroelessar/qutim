@@ -111,7 +111,7 @@ SimpleTray::SimpleTray()
 	m_icon = new QSystemTrayIcon(this);
 	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
 	m_icon->show();
-	m_mailIcon = Icon("mail-unread-new");
+	m_mailIcon = Icon("qutim-new-message");
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 			this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
