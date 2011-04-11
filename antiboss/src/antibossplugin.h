@@ -36,7 +36,7 @@ public slots:
 private:
 	bool m_hidden;
 	GlobalShortcut *m_shortcut;
-	QList<QPointer<QWidget> > m_widgets;
+	QMultiHash<Qt::WindowStates, QPointer<QWidget> > m_widgets;
 };
 
 #endif // ANTIBOSSPLUGIN_H

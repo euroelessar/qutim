@@ -41,6 +41,8 @@ namespace MacIntegration
 		QSystemTrayIcon *tray;
 		QIcon standartIcon;
 		QIcon offlineIcon;
+		QIcon standartTrayIcon;
+		QIcon offlineTrayIcon;
 		QIcon *currentTrayIcon;
 		QIcon mailIcon;
 		DockIconHandler *dockHandler;
@@ -52,6 +54,8 @@ namespace MacIntegration
 		Q_D(MacDock);
 		d->standartIcon = Icon("qutim");
 		d->offlineIcon = Icon("qutim-offline");
+		d->standartTrayIcon = Icon("qutim-trayicon-bw");
+		d->offlineTrayIcon = Icon("qutim-trayicon-offline-bw");
 		d->mailIcon = Icon("mail-unread-new");
 		createDockDeps();
 		d->tray = 0;
@@ -300,14 +304,14 @@ namespace MacIntegration
 		if (isOnline) {
 			qApp->setWindowIcon(d->standartIcon);
 			if (d->isTrayAvailable) {
-				d->tray->setIcon(d->standartIcon);
-				d->currentTrayIcon = &d->standartIcon;
+				d->tray->setIcon(d->standartTrayIcon);
+				d->currentTrayIcon = &d->standartTrayIcon;
 			}
 		} else {
 			qApp->setWindowIcon(d->offlineIcon);
 			if (d->isTrayAvailable) {
-				d->tray->setIcon(d->offlineIcon);
-				d->currentTrayIcon = &d->offlineIcon;
+				d->tray->setIcon(d->offlineTrayIcon);
+				d->currentTrayIcon = &d->offlineTrayIcon;
 			}
 		}
 		if (isStatusGlobal) {
