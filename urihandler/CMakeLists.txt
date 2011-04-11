@@ -1,3 +1,6 @@
+return()
+#TODO move to labs
+
 qutim_add_plugin( urihandler
 	DISPLAY_NAME "UriHandler"
 	DESCRIPTION "Allows qutIM to open link of some types."

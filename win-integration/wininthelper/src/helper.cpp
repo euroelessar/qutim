@@ -1,5 +1,7 @@
-#include <WinSock2.h>
+#include <winsock2.h>
 #include <string>
+
+typedef LONG LSTATUS; //fucking winAPI
 
 using namespace std;
 
@@ -39,7 +41,7 @@ int AssociaterMain()
 	HKEY xmppKey, iconKey, cmdKey, appKey;
 	LSTATUS st = RegCreateKeyExA(HKEY_CLASSES_ROOT, "xmpp", 0, 0, 0, KEY_WRITE, 0, &xmppKey, 0);
 	if (st == ERROR_SUCCESS) {
-		char *xmppDefValue = "URL:Jabber ID (XMPP)";
+		const char *xmppDefValue = "URL:Jabber ID (XMPP)";
 		wchar_t thisPath[MAX_PATH];
 
 		GetModuleFileNameW(0, thisPath, MAX_PATH);
@@ -57,8 +59,8 @@ int AssociaterMain()
 		RegCloseKey(cmdKey);
 		RegCloseKey(iconKey);
 
-		char *friendlyNameVal = "Applications\\wininthelper.exe";
-		char *firendlyName    = "QutIM";
+		const char *friendlyNameVal = "Applications\\wininthelper.exe";
+		const char *firendlyName    = "QutIM";
 		RegCreateKeyExA(HKEY_CLASSES_ROOT, friendlyNameVal, 0, 0, 0, KEY_WRITE, 0, &appKey, 0);
 		RegSetValueExA(appKey, "FriendlyAppName", 0, REG_SZ, reinterpret_cast<const BYTE*>(firendlyName), strlen(firendlyName)+1);
 		RegCloseKey(appKey);
