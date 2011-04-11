@@ -97,8 +97,7 @@ void JAccountPrivate::_q_connected()
 	vCardManager->fetchVCard(q->id());
 	conferenceManager->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager->bookmarkManager());	
-	//client.setPingInterval(q->config().group("general").value("pingInterval", 30000));
-	client.setKeepAliveInterval(q->config().group("general").value("keepAliveInterval", 30000));
+	client.setPingInterval(q->config().group("general").value("pingInterval", 30000));
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
