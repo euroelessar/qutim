@@ -1,4 +1,5 @@
 #include "winint.h"
+#include "cmd-server.h"
 #include "wsettings.h"
 #include <QDir>
 #include <QSysInfo>
@@ -29,6 +30,7 @@ WinIntegration::WinIntegration()
 		console = FindWindowW(L"ConsoleWindowClass", L"qutim");
 	if (console)
 		ShowWindow(console, SW_HIDE);
+	CmdServer::instance()->registerHandler("winint2", this);
 }
 
 void WinIntegration::init()
@@ -162,7 +164,7 @@ void WinIntegration::enabledPlugin(SubPlugins plugin)
 
 void WinIntegration::disabledPlugin(SubPlugins plugin)
 {
-	subPlugins_ =~ plugin;
+	subPlugins_ &= ~plugin;
 }
 
 bool WinIntegration::isPluginEnabled(SubPlugins plugin)
@@ -173,6 +175,14 @@ bool WinIntegration::isPluginEnabled(SubPlugins plugin)
 void WinIntegration::onSettingsSaved()
 {
 	emit reloadSettigs();
+}
+
+void WinIntegration::updateAssocs()
+{
+	QWidget *window = dynamic_cast<QWidget*>(sender());
+	if (window)
+		window = window->window();
+	ShellExecuteA(window->winId(), "runas", "wininthelper.exe", "assocreg", 0, 0);
 }
 
 QUTIM_EXPORT_PLUGIN(WinIntegration)

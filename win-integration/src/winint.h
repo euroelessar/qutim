@@ -3,6 +3,7 @@
 
 #include <qutim/plugin.h>
 #include <qutim/messagesession.h>
+#include "links-openner.h"
 
 const char *const WI_ConfigName = "win-integration";
 
@@ -31,9 +32,6 @@ class WININT_EXPORTS WinIntegration : public qutim_sdk_0_3::Plugin
 	Q_CLASSINFO("Uses",      "ChatLayer")
 	Q_CLASSINFO("Uses",      "ContactList")
 
-	static WinIntegration *pluginInstance;
-	qutim_sdk_0_3::SettingsItem* settingsItem;
-
 public:
 	WinIntegration();
 	void init();
@@ -53,12 +51,16 @@ public slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 	void onUnreadChanged(qutim_sdk_0_3::MessageList);
 	void onSettingsSaved();
+	void updateAssocs();
 
 private:
 	SubPlugins subPlugins_;
 	void Win7SmallFeatures(bool);
 	void VistaSmallFeatures(bool);
 	void XpSmallFeatures(bool);
+	static WinIntegration *pluginInstance;
+	qutim_sdk_0_3::SettingsItem* settingsItem;
+	LinksOpenner links;
 };
 
 #endif // WIN7INT_H

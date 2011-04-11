@@ -52,7 +52,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="updateAssocs">
               <property name="font">
                <font>
                 <kerning>true</kerning>
@@ -62,7 +62,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Refresh associations</string>
+               <string>Update associations</string>
               </property>
              </widget>
             </item>

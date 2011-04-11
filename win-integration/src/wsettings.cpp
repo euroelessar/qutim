@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <qutim/config.h>
 #include <QSysInfo>
+#include <QWindowsVistaStyle>
 
 using namespace qutim_sdk_0_3;
 using namespace Ui;
@@ -15,24 +16,26 @@ WSettingsWidget::WSettingsWidget()
 	connect(ui->cb_oi_showNewMsgNumber, SIGNAL(clicked()), SLOT(onCbStateChanged()));
 	connect(ui->cb_tt_enabled,          SIGNAL(clicked()), SLOT(onCbStateChanged()));
 	connect(this, SIGNAL(saved()), WinIntegration::instance(), SLOT(onSettingsSaved()));
+	connect(ui->updateAssocs, SIGNAL(clicked()), WinIntegration::instance(), SLOT(updateAssocs()));
 	if (!WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar))
 		ui->tabWidget->removeTab(1); // WARNING: magic numer
+	ui->updateAssocs->setIcon(QWindowsVistaStyle().standardIcon(QStyle::SP_VistaShield));
+	lookForWidgetState(ui->cb_oi_enabled);
+	lookForWidgetState(ui->cb_oi_addNewConfMsgNumber);
+	lookForWidgetState(ui->cb_oi_showNewMsgNumber);
+	lookForWidgetState(ui->cb_tt_enabled);
+	lookForWidgetState(ui->cb_tt_showNewMsgNumber);
 }
 
 void WSettingsWidget::loadImpl()
 {
 	Config cfg(WI_ConfigName);
 	if (WinIntegration::instance()->isPluginEnabled(WI_Win7Taskbar)) {
-		ui->cb_oi_enabled->           setChecked(cfg.value("oi_enabled",             true));
+		ui->cb_oi_enabled->            setChecked(cfg.value("oi_enabled",             true));
 		ui->cb_oi_addNewConfMsgNumber->setChecked(cfg.value("oi_addNewConfMsgNumber", false));
-		ui->cb_oi_showNewMsgNumber->  setChecked(cfg.value("oi_showNewMsgNumber",    true));
-		ui->cb_tt_enabled->           setChecked(cfg.value("tt_enabled",             true));
-		ui->cb_tt_showNewMsgNumber->  setChecked(cfg.value("tt_showNewMsgCount",     true));
-		lookForWidgetState(ui->cb_oi_enabled);
-		lookForWidgetState(ui->cb_oi_addNewConfMsgNumber);
-		lookForWidgetState(ui->cb_oi_showNewMsgNumber);
-		lookForWidgetState(ui->cb_tt_enabled);
-		lookForWidgetState(ui->cb_tt_showNewMsgNumber);
+		ui->cb_oi_showNewMsgNumber->   setChecked(cfg.value("oi_showNewMsgNumber",    true));
+		ui->cb_tt_enabled->            setChecked(cfg.value("tt_enabled",             true));
+		ui->cb_tt_showNewMsgNumber->   setChecked(cfg.value("tt_showNewMsgCount",     true));
 	}
 	onCbStateChanged();
 }
@@ -75,3 +78,5 @@ void WSettingsWidget::onCbStateChanged()
 		}
 	}
 }
+
+
