@@ -312,7 +312,7 @@ void init(SystemInfoPrivate *d)
 	processUname.start(QLatin1String("uname"),
 	                   QStringList() << QLatin1String("-r") << QLatin1String("-p"));
 	if(!processUname.waitForFinished(1000))
-		return false;
+		return;
 	d->os_name = QLatin1String("FreeBSD");
 	d->os_version = processUname.readAll();
 	d->os_full = d->os_name % QLatin1Char(' ') % d->os_version;

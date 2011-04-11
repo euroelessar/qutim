@@ -91,6 +91,7 @@ quint64 ChatUnit::sendMessage(const QString &text)
 {
 	Message message(text);
 	message.setIncoming(false);
+	message.setChatUnit(this);
 	bool ok = sendMessage(message);
 	return ok ? message.id() : Q_UINT64_C(~0);
 }
