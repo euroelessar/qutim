@@ -105,7 +105,14 @@ public:
 	}
 	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
 	inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
-	bool isValid() { return QFileInfo(fileName).lastModified() == lastModified; }
+	bool isValid() {
+		//FIXME Elessar it's doesn't work!
+		//QFileInfo info(fileName);
+		//if (!info.exists())
+		//	return false;
+		//else
+			return QFileInfo(fileName).lastModified() == lastModified;
+	}
 	void sync();
 	void makeDirty() { dirty = true; /*Q_ASSERT(!"Haha! I've caught you!");*/ }
 	QString fileName;
