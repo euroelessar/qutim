@@ -58,8 +58,8 @@ ExtensionInfoList ModuleManagerImpl::coreExtensions() const
 
 void ModuleManagerImpl::initExtensions()
 {
+	debug() << SystemInfo::getPath(SystemInfo::SystemShareDir);
 	ModuleManager::initExtensions();
 	Notifications::send(Notifications::Startup, 0);
-	debug() << SystemInfo::getPath(SystemInfo::SystemShareDir);
 }
 }

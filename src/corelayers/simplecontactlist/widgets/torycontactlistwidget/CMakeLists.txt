@@ -1,3 +1,6 @@
+return()
+#temporary switch off. Euroelessar, system config doesn't work!
+
 qutim_add_plugin(torycontactlistwidget
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/torywidget.h
