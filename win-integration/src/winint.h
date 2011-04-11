@@ -57,7 +57,7 @@ private:
 	SubPlugins subPlugins_;
 	void Win7SmallFeatures(bool);
 	void VistaSmallFeatures(bool);
-	void XpSmallFeatures(bool);
+	void XpSmallFeatures(bool); // win2k && winXP
 	static WinIntegration *pluginInstance;
 	qutim_sdk_0_3::SettingsItem* settingsItem;
 	LinksOpenner links;

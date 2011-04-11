@@ -54,7 +54,7 @@ bool WinIntegration::load()
 	Settings::registerItem(settingsItem);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	QSysInfo::WinVersion wv = QSysInfo::windowsVersion();
-	switch (wv) {
+	switch (wv) { // falling through is not a mistake
 	case QSysInfo::WV_WINDOWS7 : Win7SmallFeatures(true);
 	case QSysInfo::WV_VISTA :    VistaSmallFeatures(true);
 	default:                     XpSmallFeatures(true);
@@ -134,10 +134,10 @@ void WinIntegration::VistaSmallFeatures(bool enable)
 	UnregisterApplicationRestart_t pUnregisterApplicationRestart;
 	QLibrary wer_dll("wer.dll"), kernel32_dll("kernel32.dll");
 
-	pWerAddExcludedApplication    = static_cast<WerExclFunctions_t>(wer_dll.resolve("WerAddExcludedApplication"));
-	pWerRemoveExcludedApplication = static_cast<WerExclFunctions_t>(wer_dll.resolve("WerRemoveExcludedApplication"));
-	pRegisterApplicationRestart   = static_cast<RegisterApplicationRestart_t>  (kernel32_dll.resolve("RegisterApplicationRestart"));
-	pUnregisterApplicationRestart = static_cast<UnregisterApplicationRestart_t>(kernel32_dll.resolve("UnregisterApplicationRestart"));
+	pWerAddExcludedApplication    = reinterpret_cast<WerExclFunctions_t>(wer_dll.resolve("WerAddExcludedApplication"));
+	pWerRemoveExcludedApplication = reinterpret_cast<WerExclFunctions_t>(wer_dll.resolve("WerRemoveExcludedApplication"));
+	pRegisterApplicationRestart   = reinterpret_cast<RegisterApplicationRestart_t>  (kernel32_dll.resolve("RegisterApplicationRestart"));
+	pUnregisterApplicationRestart = reinterpret_cast<UnregisterApplicationRestart_t>(kernel32_dll.resolve("UnregisterApplicationRestart"));
 
 	static void * restart = ServiceManager::getByName("CrashHandler"); // TODO: is there such services?
 	if (enable) {
@@ -149,7 +149,7 @@ void WinIntegration::VistaSmallFeatures(bool enable)
 		if (!restart)
 			pUnregisterApplicationRestart();
 	}
-	qmlRegisterType<QGraphicsDropShadowEffect>("qutimCustomEffects", 1, 0, "DropShadow"); // TODO: remove, shouldn't be there
+	qmlRegisterType<QGraphicsDropShadowEffect>("qutimCustomEffects", 1, 0, "DropShadow"); // TODO: remove, shouldn't be there, made for myself only
 }
 
 void WinIntegration::XpSmallFeatures(bool)

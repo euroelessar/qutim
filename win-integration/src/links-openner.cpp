@@ -20,5 +20,6 @@ LinksOpenner::LinksOpenner(QObject *parent) :
 void LinksOpenner::commandReceived(QString openedJid)
 {
 	QObject *handler = ServiceManager::getByName("UriHandler");
-	QMetaObject::invokeMethod(handler, "open", Q_ARG(QString, openedJid));
+	if (handler)
+		QMetaObject::invokeMethod(handler, "open", Q_ARG(QString, openedJid));
 }
