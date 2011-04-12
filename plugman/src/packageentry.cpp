@@ -16,13 +16,16 @@
 
 #include "packageentry.h"
 #include <QStringList>
+#include <QPixmap>
 
 class PackageEntryData : public QSharedData
 {
 public:
-	PackageEntryData() {}
+	PackageEntryData() : status(PackageEntry::Invalid) {}
 	
 	Attica::Content content;
+	PackageEntry::Status status;
+	QPixmap smallPreview;
 	QStringList installedFiles;
 	QString installedVersion;
 };
@@ -63,6 +66,26 @@ Attica::Content PackageEntry::content() const
 void PackageEntry::setContent(const Attica::Content &content)
 {
 	d->content = content;
+}
+
+PackageEntry::Status PackageEntry::status() const
+{
+	return d->status;
+}
+
+void PackageEntry::setStatus(PackageEntry::Status status)
+{
+	d->status = status;
+}
+
+QPixmap PackageEntry::smallPreview() const
+{
+	return d->smallPreview;
+}
+
+void PackageEntry::setSmallPreview(const QPixmap &preview)
+{
+	d->smallPreview = preview;
 }
 
 QStringList PackageEntry::installedFiles() const

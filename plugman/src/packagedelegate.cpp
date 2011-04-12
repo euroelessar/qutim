@@ -16,6 +16,9 @@
 
 #include "packagedelegate.h"
 #include "packageentry.h"
+#include <qutim/debug.h>
+
+using namespace qutim_sdk_0_3;
 
 // From KNewStuff
 enum {
@@ -28,10 +31,13 @@ PackageDelegate::PackageDelegate(QObject *parent) :
 {
 }
 
-void PackageDelegate::paint(QPainter *painter,  const QStyleOptionViewItem &option,
+void PackageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                             const QModelIndex &index) const
 {
-	PackageEntry entry = index.data(Qt::UserRole).value<PackageEntry>();
+	Q_UNUSED(painter);
+	Q_UNUSED(option);
+	Q_UNUSED(index);
+//	PackageEntry entry = index.data(Qt::UserRole).value<PackageEntry>();
 }
 
 QSize PackageDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -45,4 +51,11 @@ QSize PackageDelegate::sizeHint(const QStyleOptionViewItem &option,
     size.setHeight(qMax(option.fontMetrics.height() * 7, int(PreviewHeight)));
     return size;
 
+}
+
+void PackageDelegate::updateEditorGeometry(QWidget *editor,
+                                           const QStyleOptionViewItem &option,
+                                           const QModelIndex &index) const
+{
+	editor->setGeometry(option.rect);
 }

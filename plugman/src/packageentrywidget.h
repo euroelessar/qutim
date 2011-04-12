@@ -14,23 +14,26 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef PACKAGEDELEGATE_H
-#define PACKAGEDELEGATE_H
+#ifndef PACKAGEENTRYWIDGET_H
+#define PACKAGEENTRYWIDGET_H
 
-#include <QAbstractItemDelegate>
+#include <QWidget>
+#include <QPushButton>
+#include <QLabel>
+#include "packageentry.h"
 
-class PackageDelegate : public QAbstractItemDelegate
+class PackageEntryWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PackageDelegate(QObject *parent = 0);
+    explicit PackageEntryWidget(const PackageEntry &entry);
 	
-    virtual void paint(QPainter *painter,  const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual void updateEditorGeometry(QWidget *editor,
-									  const QStyleOptionViewItem &option,
-									  const QModelIndex &index) const;
+	void updateData();
+private:
+	QLabel *m_previewLabel;
+	QLabel *m_detailsLabel;
+	QPushButton *m_installButton;
+	PackageEntry m_entry;
 };
 
-#endif // PACKAGEDELEGATE_H
+#endif // PACKAGEENTRYWIDGET_H

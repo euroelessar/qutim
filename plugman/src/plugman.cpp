@@ -1,5 +1,6 @@
 #include "plugman.h"
 #include "packagemodel.h"
+#include "packagedownloaddialog.h"
 #include <qutim/debug.h>
 #include <QAction>
 #include <QDir>
@@ -58,10 +59,9 @@ void PackageManagerPlugin::onManagerButtonClicked()
 {
 	PackageEngine *engine = new PackageEngine(QStringList(QLatin1String("Emoticon Theme")),
 	                                          QLatin1String("emoticons"));
-	QListView *view = new QListView();
-	engine->setParent(view);
-	view->setModel(new PackageModel(engine));
-	view->show();
+	QDialog *dialog = new PackageDownloadDialog(engine);
+	engine->setParent(dialog);
+	dialog->show();
 }
 
 QUTIM_EXPORT_PLUGIN(PackageManager::PackageManagerPlugin)

@@ -90,9 +90,11 @@ void PackageEngine::onContentJobFinished(Attica::BaseJob *baseJob)
 	ListJob<Content> *job = static_cast<ListJob<Content>*>(baseJob);
 	Content::List contents = job->itemList();
 	PackageEntry::List list;
-	for (int i = 0; i < list.size(); ++i) {
+	for (int i = 0; i < contents.size(); ++i) {
 		const Content &content = contents.at(i);
-		m_entries[content.id()].setContent(content);
+		PackageEntry &entry = m_entries[content.id()];
+		entry.setContent(content);
+		list.append(entry);
 	}
 	qint64 id = job->property("jobId").toLongLong();
 	debug() << Q_FUNC_INFO;

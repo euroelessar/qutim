@@ -14,47 +14,34 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef PACKAGEMODEL_H
-#define PACKAGEMODEL_H
+#ifndef PACKAGEDOWNLOADDIALOG_H
+#define PACKAGEDOWNLOADDIALOG_H
 
-#include <QAbstractListModel>
-#include <QPixmap>
+#include <QDialog>
 #include "packageengine.h"
+#include "packagemodel.h"
+#include "packageentrywidget.h"
 
-struct PackageItem
-{
-	Attica::Content content;
-	QPixmap preview;
-};
+namespace Ui {
+    class PackageDownloadDialog;
+}
 
-class PackageModel : public QAbstractListModel
+class PackageDownloadDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit PackageModel(PackageEngine *engine);
-	
-	void setFilter(const QString &filter);
-	void setSortMode(Attica::Provider::SortMode mode);
-	
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
-public slots:
-	void requestNextPage();
-	
-private slots:
-	void onContentsReceived(const PackageEntry::List &list, qint64 id);
-	void onPreviewLoaded(const QString &id, const QPixmap &preview);
+    explicit PackageDownloadDialog(PackageEngine *engine);
+    ~PackageDownloadDialog();
+
+protected slots:
+    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	void onRowsInserted(const QModelIndex &parent, int first, int last);
 	
 private:
-	PackageEngine *m_engine;
-	QString m_filter;
-	Attica::Provider::SortMode m_mode;
-	QHash<QString, int> m_indexes;
-	PackageEntry::List m_contents;
-	int m_pageSize;
-	int m_pagesCount;
-	qint64 m_requestId;
+    Ui::PackageDownloadDialog *ui;
+	PackageModel *m_model;
+	QVector<PackageEntryWidget*> m_widgets;
 };
 
-#endif // PACKAGEMODEL_H
+#endif // PACKAGEDOWNLOADDIALOG_H

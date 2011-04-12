@@ -77,12 +77,10 @@ QVariant PackageModel::data(const QModelIndex &index, int role) const
 	const PackageEntry &entry = m_contents.at(index.row());
 	switch (role) {
 	case Qt::DecorationRole:
-		return m_images.value(entry.id());
+		return entry.smallPreview();
 	case Qt::DisplayRole:
 		return entry.content().name();
 	case Qt::UserRole:
-		if (m_requestId == -1 && index.row() == m_contents.size() - 1)
-			const_cast<PackageModel*>(this)->requestNextPage();
 		return qVariantFromValue(entry);
 	default:
 		return QVariant();
@@ -100,7 +98,7 @@ void PackageModel::onContentsReceived(const PackageEntry::List &list, qint64 id)
 		const PackageEntry &entry = list.at(i);
 		m_indexes.insert(entry.id(), m_contents.size());
 		m_contents.append(entry);
-		if (!m_images.contains(entry.id())) {
+		if (entry.smallPreview().isNull()) {
 			debug() << "Request preview" << entry.content().name();
 			m_engine->loadPreview(entry);
 		}
@@ -111,9 +109,9 @@ void PackageModel::onContentsReceived(const PackageEntry::List &list, qint64 id)
 
 void PackageModel::onPreviewLoaded(const QString &id, const QPixmap &preview)
 {
-	m_images[id] = preview;
 	int index = m_indexes.value(id, -1);
 	if (index != -1) {
+		m_contents[index].setSmallPreview(preview);
 		QModelIndex modelIndex = QAbstractListModel::index(index);
 		emit dataChanged(modelIndex, modelIndex);
 	}
@@ -121,5 +119,7 @@ void PackageModel::onPreviewLoaded(const QString &id, const QPixmap &preview)
 
 void PackageModel::requestNextPage()
 {
+	if (m_requestId != -1)
+		return;
 	m_requestId = m_engine->requestContents(m_filter, m_mode, m_pagesCount, m_pageSize);
 }

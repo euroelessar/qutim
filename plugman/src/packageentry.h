@@ -26,6 +26,15 @@ class PackageEntry
 {
 public:
 	typedef QList<PackageEntry> List;
+	enum Status
+	{
+		Invalid = -1,
+		Installable,
+		Updateable,
+		Installing,
+		Updating,
+		Installed
+	};
 	
 	PackageEntry();
 	PackageEntry(const PackageEntry &o);
@@ -36,6 +45,10 @@ public:
 	QString id() const;
 	Attica::Content content() const;
 	void setContent(const Attica::Content &content);
+	Status status() const;
+	void setStatus(Status status);
+	QPixmap smallPreview() const;
+	void setSmallPreview(const QPixmap &preview);
 	QStringList installedFiles() const;
 	void setInstalledFiles(const QStringList &files);
 	QString installedVersion() const;
