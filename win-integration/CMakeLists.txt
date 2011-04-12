@@ -33,6 +33,12 @@ if(WINTHINGS_APILAYER_LIBRARY)
 			ENDIF()
 		ENDIF()
 	ENDFOREACH()
+
+	INSTALL(DIRECTORY share
+		DESTINATION .
+			COMPONENT Core
+	)
+
 else()
 	message(STATUS "'Windows Integration' plugin will be skipped.")
 endif()
