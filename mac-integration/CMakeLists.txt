@@ -12,3 +12,9 @@ qutim_add_plugin( macintegration
 	INCLUDE_DIRS ${GROWL_LIBRARIES}/Headers
 	LINK_LIBRARIES ${GROWL_LIBRARIES} ${COCOA_LIBRARIES}
 )
+
+#reinder, please update this paths
+INSTALL(DIRECTORY share/config
+	DESTINATION share/qutim
+		COMPONENT Core
+)
