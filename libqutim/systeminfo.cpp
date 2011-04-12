@@ -389,7 +389,7 @@ void init(SystemInfoPrivate *d)
 		d->timezone_str += QChar(w);
 	}
 	d->os_full = QString();
-	d->os_name = "Windows";
+	d->os_name = QLatin1String("Windows");
 	OSVERSIONINFOEX osvi;
 	BOOL bOsVersionInfoEx;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -409,12 +409,8 @@ void init(SystemInfoPrivate *d)
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 			| (quint8(osvi.wProductType) << 8)  | special_info;
 
-	d->os_version = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
-	d->os_full = d->os_name + " " + d->os_version;
-
-	//d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id).section(' ', 1);
-	//d->os_name = d->os_full.section(' ', 0, 0);
-	//d->os_version = d->os_full.section(' ', 1);
+	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
+	d->os_version = d->os_full.section(' ', 1);
 #endif
 #ifdef Q_OS_SYMBIAN
 	//		QLibrary hal("hal.dll");
@@ -524,6 +520,7 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 		switch (version) {
 		case 0x0500:
 			str += " 2000";
+			break;
 		case 0x0501:
 			str += " XP";
 			if(winflag & 0x01)
@@ -536,6 +533,7 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 				str += " Home Server";
 			else
 				str += " Server 2003";
+			break;
 		case 0x0600:
 			if( product == VER_NT_WORKSTATION) {
 				str += " Vista";
@@ -544,6 +542,7 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 			}
 			else
 				str += " Server 2008";
+			break;
 		case 0x0601:
 			if(product == VER_NT_WORKSTATION)
 				str += " 7";
@@ -555,6 +554,7 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 			str += QString::number(version >> 8);
 			str += ".";
 			str += QString::number(version & 0xff);
+			break;
 		case 0x0000:
 			break;
 		}
