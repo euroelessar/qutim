@@ -57,10 +57,8 @@ bool PackageManagerPlugin::unload()
 
 void PackageManagerPlugin::onManagerButtonClicked()
 {
-	PackageEngine *engine = new PackageEngine(QStringList(QLatin1String("Emoticon Theme")),
-	                                          QLatin1String("emoticons"));
-	QDialog *dialog = new PackageDownloadDialog(engine);
-	engine->setParent(dialog);
+	QDialog *dialog = new PackageDownloadDialog(QStringList(QLatin1String("Emoticon Theme")),
+	                                            QLatin1String("emoticons"));
 	dialog->show();
 }
 

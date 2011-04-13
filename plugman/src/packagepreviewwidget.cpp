@@ -14,30 +14,40 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef PACKAGEENTRYWIDGET_H
-#define PACKAGEENTRYWIDGET_H
-
-#include <QWidget>
-#include <QPushButton>
-#include <QLabel>
-#include "packageentry.h"
 #include "packagepreviewwidget.h"
+#include <QPainter>
 
-class PackageEntryWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit PackageEntryWidget(const PackageEntry &entry);
-	
-	PackageEntry entry() const { return m_entry; }
-	void updateData();
-signals:
-	void buttonClicked();
-private:
-	PackagePreviewWidget *m_previewLabel;
-	QLabel *m_detailsLabel;
-	QPushButton *m_installButton;
-	PackageEntry m_entry;
+// From KNewStuff
+enum {
+	PreviewWidth  = 96,
+	PreviewHeight = 72
 };
 
-#endif // PACKAGEENTRYWIDGET_H
+PackagePreviewWidget::PackagePreviewWidget(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
+QSize PackagePreviewWidget::minimumSizeHint() const
+{
+	return QSize(PreviewWidth, PreviewHeight);
+}
+
+QSize PackagePreviewWidget::sizeHint() const
+{
+	return QSize(PreviewWidth, PreviewHeight);
+}
+
+void PackagePreviewWidget::setPreview(const QPixmap &preview)
+{
+	if (m_preview.cacheKey() == preview.cacheKey())
+		return;
+	m_preview = preview;
+	update();
+}
+
+void PackagePreviewWidget::paintEvent(QPaintEvent *)
+{
+	QPainter p(this);
+	p.drawPixmap(0, 0, m_preview);
+}

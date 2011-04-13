@@ -14,30 +14,24 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef PACKAGEENTRYWIDGET_H
-#define PACKAGEENTRYWIDGET_H
+#ifndef PACKAGEPREVIEWWIDGET_H
+#define PACKAGEPREVIEWWIDGET_H
 
 #include <QWidget>
-#include <QPushButton>
-#include <QLabel>
-#include "packageentry.h"
-#include "packagepreviewwidget.h"
+#include <QPixmap>
 
-class PackageEntryWidget : public QWidget
+class PackagePreviewWidget : public QWidget
 {
-    Q_OBJECT
 public:
-    explicit PackageEntryWidget(const PackageEntry &entry);
+    PackagePreviewWidget(QWidget *parent = 0);
 	
-	PackageEntry entry() const { return m_entry; }
-	void updateData();
-signals:
-	void buttonClicked();
+	QSize minimumSizeHint() const;
+	QSize sizeHint() const;
+	void setPreview(const QPixmap &preview);
+	void paintEvent(QPaintEvent *ev);
+	
 private:
-	PackagePreviewWidget *m_previewLabel;
-	QLabel *m_detailsLabel;
-	QPushButton *m_installButton;
-	PackageEntry m_entry;
+	QPixmap m_preview;
 };
 
-#endif // PACKAGEENTRYWIDGET_H
+#endif // PACKAGEPREVIEWWIDGET_H

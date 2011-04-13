@@ -18,20 +18,45 @@
 #include "packagedelegate.h"
 #include "ui_packagedownloaddialog.h"
 #include <qutim/debug.h>
+#include <QSignalMapper>
+#include <QScrollBar>
 
 using namespace qutim_sdk_0_3;
 
-PackageDownloadDialog::PackageDownloadDialog(PackageEngine *engine) :
+enum ItemsType
+{
+	NewestItems = Attica::Provider::Newest,
+	MostRatingItems = Attica::Provider::Rating,
+	MostDownloadsItems = Attica::Provider::Downloads,
+	InstalledItems = -1
+};
+
+PackageDownloadDialog::PackageDownloadDialog(const QStringList &categories, const QString &path) :
     ui(new Ui::PackageDownloadDialog)
 {
     ui->setupUi(this);
-	m_model = new PackageModel(engine);
+	m_engine = new PackageEngine(categories, path, this);
+	m_model = new PackageModel(m_engine);
 	ui->listView->setModel(m_model);
 	ui->listView->setItemDelegate(new PackageDelegate);
+	ui->listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	connect(ui->listView->verticalScrollBar(), SIGNAL(valueChanged(int)),
+	        SLOT(onScrollBarValueChanged(int)));
 	connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)),
 	        this, SLOT(onRowsInserted(QModelIndex,int,int)));
 	connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
 	        this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+	QSignalMapper *mapper = new QSignalMapper(this);
+	connect(ui->newestButton, SIGNAL(clicked()), mapper, SLOT(map()));
+	mapper->setMapping(ui->newestButton, NewestItems);
+	connect(ui->ratingButton, SIGNAL(clicked()), mapper, SLOT(map()));
+	mapper->setMapping(ui->ratingButton, MostRatingItems);
+	connect(ui->mostDownloadsButton, SIGNAL(clicked()), mapper, SLOT(map()));
+	mapper->setMapping(ui->mostDownloadsButton, MostDownloadsItems);
+	connect(ui->installedButton, SIGNAL(clicked()), mapper, SLOT(map()));
+	mapper->setMapping(ui->installedButton, InstalledItems);
+	connect(mapper, SIGNAL(mapped(int)), SLOT(onTypeChecked(int)));
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 PackageDownloadDialog::~PackageDownloadDialog()
@@ -54,7 +79,40 @@ void PackageDownloadDialog::onRowsInserted(const QModelIndex &parent, int first,
 		QModelIndex index = m_model->index(i, 0, parent);
 		PackageEntry entry = index.data(Qt::UserRole).value<PackageEntry>();
 		PackageEntryWidget *widget = new PackageEntryWidget(entry);
+		connect(widget, SIGNAL(buttonClicked()), SLOT(onWidgetButtonClicked()));
 		m_widgets[i] = widget;
 		ui->listView->setIndexWidget(index, widget);
 	}
+}
+
+void PackageDownloadDialog::onWidgetButtonClicked()
+{
+	PackageEntryWidget *widget = static_cast<PackageEntryWidget*>(sender());
+	Q_ASSERT(qobject_cast<PackageEntryWidget*>(static_cast<QObject*>(widget)));
+	if (widget->entry().status() == PackageEntry::Installed)
+		m_engine->remove(widget->entry());
+	else
+		m_engine->install(widget->entry());
+}
+
+void PackageDownloadDialog::onTypeChecked(int type)
+{
+	switch (type) {
+	case MostRatingItems:
+	case MostDownloadsItems:
+	case NewestItems:
+		m_model->setSortMode(static_cast<Attica::Provider::SortMode>(type));
+		break;
+	case InstalledItems:
+		
+		break;
+	default:
+		break;
+	}
+}
+
+void PackageDownloadDialog::onScrollBarValueChanged(int value)
+{
+	if (value == ui->listView->verticalScrollBar()->maximum())
+		m_model->requestNextPage();
 }

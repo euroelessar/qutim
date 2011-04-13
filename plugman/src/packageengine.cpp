@@ -20,6 +20,7 @@
 #include <QDirIterator>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
+#include <qutim/jsonfile.h>
 #include <attica/downloaditem.h>
 #include <quasar/tar.h>
 #include <quasar/zip.h>
@@ -27,17 +28,81 @@
 using namespace Attica;
 using namespace qutim_sdk_0_3;
 
-PackageEngine::PackageEngine(const QStringList &categories, const QString &path)
-    : m_categoriesNames(categories)
+PackageEngine::PackageEngine(const QStringList &categories, const QString &path, QObject *parent)
+    : QObject(parent), m_categoriesNames(categories)
 {
 	m_path = SystemInfo::getDir(SystemInfo::ShareDir).filePath(path);
 	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)), this, SLOT(onProviderAdded(Attica::Provider)));
 	m_manager.loadDefaultProviders();
 	m_idCounter = qrand();
+	
+	JsonFile file(m_path + QLatin1String("/cache.json"));
+	QVariant var;
+	if (file.load(var)) {
+		foreach (var, var.toList()) {
+			QVariantMap data = var.toMap();
+			Attica::Content content;
+			PackageEntry entry;
+			content.setId(data.value(QLatin1String("id")).toString());
+			content.setName(data.value(QLatin1String("name")).toString());
+			content.setRating(data.value(QLatin1String("rating")).toInt());
+			content.setDownloads(data.value(QLatin1String("downloads")).toInt());
+			content.setCreated(data.value(QLatin1String("created")).toDateTime());
+			content.setUpdated(data.value(QLatin1String("updated")).toDateTime());
+			QMapIterator<QString, QVariant> it(data.value(QLatin1String("attributes")).toMap());
+			while (it.hasNext()) {
+				it.next();
+				content.addAttribute(it.key(), it.value().toString());
+			}
+			entry.setContent(content);
+			entry.setInstalledFiles(data.value(QLatin1String("installedFiles")).toStringList());
+			entry.setInstalledVersion(data.value(QLatin1String("installedVersion")).toString());
+			QString status = data.value(QLatin1String("status")).toString();
+			if (status == QLatin1String("updateable"))
+				entry.setStatus(PackageEntry::Updateable);
+			else
+				entry.setStatus(PackageEntry::Installed);
+			m_entries.insert(entry.id(), entry);
+		}
+	}
 }
 
 PackageEngine::~PackageEngine()
 {
+	QVariantList entries;
+	foreach (const PackageEntry &entry, m_entries) {
+		if (entry.status() != PackageEntry::Installed
+		        && entry.status() != PackageEntry::Updating
+		        && entry.status() != PackageEntry::Updateable) {
+			continue;
+		}
+		QVariantMap data;
+		data.insert(QLatin1String("id"), entry.id());
+		data.insert(QLatin1String("name"), entry.content().name());
+		data.insert(QLatin1String("rating"), entry.content().rating());
+		data.insert(QLatin1String("downloads"), entry.content().downloads());
+		data.insert(QLatin1String("created"), entry.content().created().toString(Qt::ISODate));
+		data.insert(QLatin1String("updated"), entry.content().updated().toString(Qt::ISODate));
+		QVariantMap attributes;
+		QMapIterator<QString, QString> it(entry.content().attributes());
+		while (it.hasNext()) {
+			it.next();
+			attributes.insert(it.key(), it.value());
+		}
+		data.insert(QLatin1String("attributes"), attributes);
+		data.insert(QLatin1String("installedFiles"), entry.installedFiles());
+		data.insert(QLatin1String("installedVersion"), entry.installedVersion());
+		QString status;
+		if (entry.status() == PackageEntry::Installed)
+			status = QLatin1String("installed");
+		else
+			status = QLatin1String("updateable");
+		data.insert(QLatin1String("status"), status);
+		entries.append(data);
+	}
+
+	JsonFile file(m_path + QLatin1String("/cache.json"));
+	file.save(entries);
 }
 
 bool PackageEngine::isInitialized()
@@ -94,6 +159,13 @@ void PackageEngine::onContentJobFinished(Attica::BaseJob *baseJob)
 		const Content &content = contents.at(i);
 		PackageEntry &entry = m_entries[content.id()];
 		entry.setContent(content);
+		if (entry.status() == PackageEntry::Installed && entry.installedVersion() != content.version()) {
+			entry.setStatus(PackageEntry::Updateable);
+			emit entryChanged(entry.id());
+		} else if (entry.status() == PackageEntry::Invalid) {
+			entry.setStatus(PackageEntry::Installable);
+			emit entryChanged(entry.id());
+		}
 		list.append(entry);
 	}
 	qint64 id = job->property("jobId").toLongLong();
@@ -101,13 +173,36 @@ void PackageEngine::onContentJobFinished(Attica::BaseJob *baseJob)
 	emit contentsReceived(list, id);
 }
 
+void PackageEngine::remove(const PackageEntry &entry)
+{
+	PackageEntry entryHook = entry;
+	const QDir dir;
+	const QStringList files = entry.installedFiles();
+	for (int i = files.size() - 1; i >= 0; --i) {
+		if (files.at(i).endsWith('/'))
+			dir.rmpath(files.at(i));
+		else
+			QFile::remove(files.at(i));
+	}
+	entryHook.setInstalledFiles(QStringList());
+	entryHook.setInstalledVersion(QString());
+	entryHook.setStatus(PackageEntry::Installable);
+	emit entryChanged(entry.id());
+}
+
 void PackageEngine::install(const PackageEntry &entry)
 {
+	PackageEntry entryHook = entry;
 	Attica::Content content = entry.content();
 	ItemJob<DownloadItem> *contentJob = m_provider.downloadLink(content.id());
 	contentJob->setProperty("contentId", entry.id());
 	connect(contentJob, SIGNAL(finished(Attica::BaseJob*)), SLOT(onDownloadJobFinished(Attica::BaseJob*)));
 	contentJob->start();
+	if (entry.status() == PackageEntry::Installed)
+		entryHook.setStatus(PackageEntry::Updating);
+	else
+		entryHook.setStatus(PackageEntry::Installing);
+	emit entryChanged(entry.id());
 }
 
 void PackageEngine::loadPreview(const PackageEntry &entry)
@@ -186,14 +281,18 @@ void PackageEngine::onNetworkRequestFinished()
 		return;
 	}
 	archive->directory()->copyTo(tmp.absolutePath());
-	QDir dir = m_path;
-	QDirIterator it(tmp.absolutePath(), QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	bool before = blockSignals(true);
+	remove(entry);
+	blockSignals(before);
 	QStringList files;
+	QDir dir = m_path;
 	QList<QString> dirsToRemove;
 	dirsToRemove << tmp.absolutePath();
+	QDirIterator it(tmp.absolutePath(), QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 	while (it.hasNext()) {
 		QString fileName = tmp.relativeFilePath(it.next());
 		QString filePath = dir.absoluteFilePath(fileName);
+		debug() << fileName << filePath;
 		QFileInfo info = it.fileInfo();
 		if (info.isDir()) {
 			if (!dir.exists(fileName))
@@ -212,6 +311,10 @@ void PackageEngine::onNetworkRequestFinished()
 	tmp.cdUp();
 	while (!dirsToRemove.isEmpty())
 		tmp.rmpath(dirsToRemove.takeLast());
+	entry.setStatus(PackageEntry::Installed);
 	entry.setInstalledFiles(files);
 	entry.setInstalledVersion(entry.content().version());
+	delete archive;
+	QFile::remove(fileName);
+	emit entryChanged(entry.id());
 }

@@ -28,13 +28,14 @@ class PackageEngine : public QObject
 {
 	Q_OBJECT
 public:
-    PackageEngine(const QStringList &categories, const QString &path);
+    PackageEngine(const QStringList &categories, const QString &path, QObject *parent = 0);
 	~PackageEngine();
 	
 	bool isInitialized();
 	qint64 requestContents(const QString& search = QString(),
 	                       Attica::Provider::SortMode mode = Attica::Provider::Rating,
 	                       uint page = 0, uint pageSize = 10);
+	void remove(const PackageEntry &entry);
 	void install(const PackageEntry &entry);
 	void loadPreview(const PackageEntry &entry);
 	
@@ -42,6 +43,7 @@ signals:
 	void engineInitialized();
 	void contentsReceived(const PackageEntry::List &list, qint64 id);
 	void previewLoaded(const QString &id, const QPixmap &preview);
+	void entryChanged(const QString &id);
 	
 private slots:
     void onProviderAdded(Attica::Provider provider);

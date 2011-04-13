@@ -45,6 +45,7 @@ public slots:
 private slots:
 	void onContentsReceived(const PackageEntry::List &list, qint64 id);
 	void onPreviewLoaded(const QString &id, const QPixmap &preview);
+	void onEntryChanged(const QString &id);
 	
 private:
 	PackageEngine *m_engine;

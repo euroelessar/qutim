@@ -29,6 +29,7 @@ PackageModel::PackageModel(PackageEngine *engine)
 	        SLOT(onContentsReceived(PackageEntry::List,qint64)));
 	connect(engine, SIGNAL(previewLoaded(QString,QPixmap)),
 	        SLOT(onPreviewLoaded(QString,QPixmap)));
+	connect(engine, SIGNAL(entryChanged(QString)), SLOT(onEntryChanged(QString)));
 	if (m_engine->isInitialized()) {
 		requestNextPage();
 	} else {
@@ -115,6 +116,15 @@ void PackageModel::onPreviewLoaded(const QString &id, const QPixmap &preview)
 		QModelIndex modelIndex = QAbstractListModel::index(index);
 		emit dataChanged(modelIndex, modelIndex);
 	}
+}
+
+void PackageModel::onEntryChanged(const QString &id)
+{
+	int index = m_indexes.value(id, -1);
+	if (index == -1)
+		return;
+	QModelIndex modelIndex = QAbstractListModel::index(index);
+	emit dataChanged(modelIndex, modelIndex);
 }
 
 void PackageModel::requestNextPage()

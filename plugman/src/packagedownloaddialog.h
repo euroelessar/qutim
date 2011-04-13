@@ -31,15 +31,19 @@ class PackageDownloadDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PackageDownloadDialog(PackageEngine *engine);
+    explicit PackageDownloadDialog(const QStringList &categories, const QString &path);
     ~PackageDownloadDialog();
 
 protected slots:
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 	void onRowsInserted(const QModelIndex &parent, int first, int last);
+	void onWidgetButtonClicked();
+	void onTypeChecked(int type);
+	void onScrollBarValueChanged(int value);
 	
 private:
     Ui::PackageDownloadDialog *ui;
+	PackageEngine *m_engine;
 	PackageModel *m_model;
 	QVector<PackageEntryWidget*> m_widgets;
 };

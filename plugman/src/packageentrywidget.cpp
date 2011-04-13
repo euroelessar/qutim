@@ -17,6 +17,7 @@
 #include "packageentrywidget.h"
 #include <qutim/icon.h>
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include <QStringBuilder>
 
 using namespace qutim_sdk_0_3;
@@ -30,31 +31,46 @@ enum {
 PackageEntryWidget::PackageEntryWidget(const PackageEntry &entry)
     : m_entry(entry)
 {
-	QGridLayout *layout = new QGridLayout(this);
+//	QGridLayout *layout = new QGridLayout(this);
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	QVBoxLayout *buttonsLayout = new QVBoxLayout();
+	connect(this, SIGNAL(destroyed()), buttonsLayout, SLOT(deleteLater()));
+	setLayout(layout);
 //	layout->setMargin(4);
-	m_previewLabel = new QLabel(this);
+	m_previewLabel = new PackagePreviewWidget(this);
 //	m_previewLabel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 //	m_previewLabel->resize(PreviewWidth, PreviewHeight);
-	m_previewLabel->setMinimumSize(PreviewWidth, PreviewHeight);
-	m_previewLabel->setMaximumSize(PreviewWidth, PreviewHeight);
+//	m_previewLabel->setMinimumSize(PreviewWidth, PreviewHeight);
+//	m_previewLabel->setMaximumSize(PreviewWidth, PreviewHeight);
+	m_previewLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_detailsLabel = new QLabel(this);
+	m_detailsLabel->setWordWrap(true);
+	m_detailsLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	m_detailsLabel->setTextFormat(Qt::RichText);
 	m_installButton = new QPushButton(this);
-	layout->addWidget(m_previewLabel,  0, 0, 1,  1, Qt::AlignCenter);
-	layout->addWidget(m_detailsLabel,  0, 1, 1,  1, Qt::AlignLeft | Qt::AlignTop);
-	layout->addWidget(m_installButton, 0, 2, 1,  1, Qt::AlignRight | Qt::AlignTop);
+	m_installButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	connect(m_installButton, SIGNAL(clicked()), SIGNAL(buttonClicked()));
+	layout->addWidget(m_previewLabel);
+	layout->addWidget(m_detailsLabel, 10);
+	layout->addLayout(buttonsLayout);
+	buttonsLayout->addWidget(m_installButton);
+//	layout->setColumnStretch(1, 10);
+//	layout->addWidget(m_previewLabel,  0, 0, 1,  1, Qt::AlignLeft | Qt::AlignTop);
+//	layout->addWidget(m_detailsLabel,  0, 1, 1,  1, Qt::AlignLeft | Qt::AlignTop);
+//	layout->addWidget(m_installButton, 0, 2, 1,  1, Qt::AlignRight | Qt::AlignTop);
 	updateData();
 }
 
 void PackageEntryWidget::updateData()
 {
 	const Attica::Content content = m_entry.content();
-	const QPixmap * const pixmap = m_previewLabel->pixmap();
+//	const QPixmap * const pixmap = m_previewLabel->pixmap();
 	
-	if (!m_entry.smallPreview().isNull()) {
-		if (!pixmap || pixmap->cacheKey() != m_entry.smallPreview().cacheKey())
-			m_previewLabel->setPixmap(m_entry.smallPreview());
-	}
+//	if (!m_entry.smallPreview().isNull()) {
+//		if (!pixmap || pixmap->cacheKey() != m_entry.smallPreview().cacheKey())
+//			m_previewLabel->setPixmap(m_entry.smallPreview());
+//	}
+	m_previewLabel->setPreview(m_entry.smallPreview());
 	
 	QString info;
 	const QUrl url = content.detailpage();
@@ -81,7 +97,7 @@ void PackageEntryWidget::updateData()
 		                               % authorName % QLatin1Literal("</a>"));
 	}
 	info += QLatin1String("</p>");
-	info += QLatin1Literal("<p>") % content.summary() % QLatin1Literal("</p>");
+	info += QLatin1Literal("<p>") % content.description() % QLatin1Literal("</p>");
 	m_detailsLabel->setText(info);
 	
 	QString text;
@@ -90,8 +106,8 @@ void PackageEntryWidget::updateData()
 	
 	switch (m_entry.status()) {
 	default:
-		// Fall through
-		// break;
+		text = QString("Invalid - %1").arg(m_entry.status());
+		break;
 	case PackageEntry::Installable:
 		text = tr("Install");
 		icon = Icon(QLatin1String("dialog-ok"));
