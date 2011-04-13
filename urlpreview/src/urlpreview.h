@@ -51,6 +51,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+public slots:
+	void loadSettings();
 private slots:
 	void sessionCreated(qutim_sdk_0_3::ChatSession*);
 	void processMessage(qutim_sdk_0_3::Message*);
@@ -63,10 +65,12 @@ private:
 	QNetworkAccessManager *m_netman;
 	PreviewFlags m_flags;
 	QString m_template;
-	QString m_image_template;
-	QString m_youtube_template;
-	QSize m_max_image_size;
-	quint64 m_maxfilesize;
+	QString m_imageTemplate;
+	QString m_youtubeTemplate;
+	QSize m_maxImageSize;
+	quint64 m_maxFileSize;
 };
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(UrlPreview::PreviewFlags)
 #endif

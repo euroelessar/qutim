@@ -16,6 +16,7 @@
 
 #include "urlpreview.h"
 #include <qutim/debug.h>
+#include <qutim/config.h>
 #include <qutim/messagesession.h>
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
@@ -61,15 +62,28 @@ bool UrlPreviewPlugin::load()
 			SLOT(netmanSslErrors(QNetworkReply*,QList<QSslError>))
 			);
 
-	//TODO
-	m_flags = static_cast<PreviewFlags>(PreviewImages | PreviewYoutube);
-	m_max_image_size =  QSize(800,600);
-	m_maxfilesize = 100000;
-	m_template = "<br><b>"+tr("URL Preview")+"</b>: <i>%TYPE%, %SIZE% "+tr("bytes")+"</i><br>";
-	m_image_template = "<img src=\"%URL%\" style=\"display: none;\" onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } this.style.display='';\"><br>";
-	m_youtube_template = "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
-
+	loadSettings();
 	return true;
+}
+
+void UrlPreviewPlugin::loadSettings()
+{
+	Config cfg;
+	cfg.beginGroup(QLatin1String("urlpreview"));
+	m_flags = cfg.value(QLatin1String("falgs"), PreviewImages | PreviewYoutube);
+	m_maxImageSize.setWidth(cfg.value(QLatin1String("maxWidth"), 800));
+	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
+	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
+	m_template = cfg.value(QLatin1String("template"), "<br><b>" + tr("URL Preview")
+	                       + "</b>: <i>%TYPE%, %SIZE% " + tr("bytes") + "</i><br>");
+	m_imageTemplate = cfg.value(QLatin1String("imageTemplate"), "<img src=\"%URL%\" style=\"display: none;\" "
+	                             "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
+	                             "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
+	                             "this.style.display='';\"><br>");
+	m_youtubeTemplate = cfg.value(QLatin1String("youtubeTemplate"),
+	                               "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
+	                               "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
+	                               "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>");
 }
 
 bool UrlPreviewPlugin::unload()
@@ -101,17 +115,22 @@ void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 	QString html = message->property("html").toString();
 	if (html.isEmpty()) {
 		html = Qt::escape(message->text());
+		QString newHtml;
 		const QRegExp &linkRegExp = getLinkRegExp();
 		int pos = 0;
+		int lastPos = 0;
 		while (((pos = linkRegExp.indexIn(html, pos)) != -1)) {
+			html.midRef(lastPos, pos - lastPos).appendTo(&newHtml);
 			static int uid = 1;
 			QString link = linkRegExp.cap(0);
-			QString oldLink = link;
+			const QString oldLink = link;
 			checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), uid);
-			pos += link.count();
-			html = html.replace(oldLink, link);
+			newHtml += link;
 			uid++;
+			pos = lastPos = pos + oldLink.size();
 		}
+		html.midRef(lastPos, html.size() - lastPos).appendTo(&newHtml);
+		html = newHtml;
 	} else {
 		//QTextDocument doc(html);
 		//const QRegExp &linkRegExp = getLinkRegExp();
@@ -133,9 +152,19 @@ void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 
 const QRegExp &UrlPreviewPlugin::getLinkRegExp()
 {
+#if 0
 	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
 							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
 							  Qt::CaseInsensitive);
+#else
+	static QRegExp linkRegExp("([a-z]+(\\+[a-z]+)?://|www\\.)"
+	                          "[\\w-]+(\\.[\\w-]+)*\\.\\w+"
+	                          "(:\\d+)?"
+	                          "(/[\\w\\+\\.\\[\\]!%\\$/\\(\\),&=~-]*"
+	                          "(\\?[\\w\\+\\.\\[\\]!%\\$/\\(\\),&=~-]*)?"
+	                          "(#[\\w\\+\\.\\[\\]!%\\$/\\(\\),&=~-]*)?)?",
+	                          Qt::CaseInsensitive, QRegExp::RegExp2);
+#endif
 	Q_ASSERT(linkRegExp.isValid());
 	return linkRegExp;
 }
@@ -146,9 +175,10 @@ void UrlPreviewPlugin::checkLink(QString &link, ChatUnit *from, qint64 id)
 	if (link.toLower().startsWith("www."))
 		link.prepend("http://");
 
-	QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
+	static QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
+	Q_ASSERT(urlrx.isValid());
 	if (urlrx.indexIn(link)>-1 && (m_flags)) {
-		link = "http://www.youtube.com/v/"+urlrx.cap(1);
+		link = QLatin1String("http://www.youtube.com/v/") + urlrx.cap(1);
 	}
 
 	QString uid = QString::number(id);
@@ -220,7 +250,7 @@ void UrlPreviewPlugin::netmanFinished(QNetworkReply* reply)
 		if (type == "application/x-shockwave-flash") {
 			show_preview_head=false;
 			pstr.replace("%TYPE%", tr("YouTube video"));
-			pstr += m_youtube_template;
+			pstr += m_youtubeTemplate;
 			pstr.replace("%YTID%", urlrx.cap(1));
 			pstr.replace("%SIZE%", tr("Unknown"));
 		}
@@ -237,12 +267,12 @@ void UrlPreviewPlugin::netmanFinished(QNetworkReply* reply)
 	}
 
 	typerx.setPattern("^image/");
-	if (type.contains(typerx) && size<m_maxfilesize) {
-		QString amsg = m_image_template;
+	if (type.contains(typerx) && size<m_maxFileSize) {
+		QString amsg = m_imageTemplate;
 		amsg.replace("%URL%", url);
 		amsg.replace("%UID%", uid);
-		amsg.replace("%MAXW%", QString::number(m_max_image_size.width()));
-		amsg.replace("%MAXH%", QString::number(m_max_image_size.height()));
+		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
+		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
 		pstr += amsg;
 	}
 
