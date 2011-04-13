@@ -505,6 +505,7 @@ QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Messa
 	// TODO: find icon to add here
 	html = html.replace("%senderStatusIcon%", "");
 	html = html.replace("%messageDirection%", mes.text().isRightToLeft() ? "rtl" : "ltr" );
+	html.replace(QLatin1String("%highlight%"), QLatin1String(shouldHighlight(mes) ? "highlight" : ""));
 	processMessage(html, session, mes);
 	return html;
 }
@@ -530,6 +531,7 @@ QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Messa
 
 	// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
 	html = html.replace("%messageDirection%", mes.text().isRightToLeft() ? "rtl" : "ltr" );
+	html.replace(QLatin1String("%highlight%"), QLatin1String(shouldHighlight(mes) ? "highlight" : ""));
 
 	processMessage(html,session,mes);
 	return html;
@@ -648,6 +650,16 @@ void ChatStyleOutput::makeUrls(QString &html)
 	}
 }
 
+bool ChatStyleOutput::shouldHighlight(const Message &msg)
+{
+	if (msg.isIncoming()) {
+		const Conference *conf = qobject_cast<const Conference*>(msg.chatUnit());
+		if (conf && conf->me())
+			return msg.text().contains(conf->me()->title());
+	}
+	return false;
+}
+
 QString ChatStyleOutput::makeName(const Message &mes)
 {
 	QString sender_name = mes.property("senderName",QString());
@@ -656,12 +668,10 @@ QString ChatStyleOutput::makeName(const Message &mes)
 			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
 			if (conf && conf->me()) {
 				sender_name = conf->me()->title();
-			}
-			else {
+			} else {
 				sender_name = mes.chatUnit()->account()->name();
 			}
-		}
-		else {
+		} else {
 			sender_name = mes.chatUnit()->title();
 		}
 	}

@@ -110,6 +110,7 @@ private:
 	void makeSenderColors(QString &html, const Message &message);
 	void makeUrls(QString& html, const Message& message);//create url list under message body
 	void makeUrls(QString &html); //TODO separate to adiumchat SDK
+	bool shouldHighlight(const Message &msg);
 	QString makeName(const Message &mes);
 	QString makeId(const Message &mes);
 	void makeBackground(QString &html);
