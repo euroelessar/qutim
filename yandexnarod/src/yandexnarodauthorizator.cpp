@@ -17,16 +17,20 @@
 #include "requestauthdialog.h"
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
+#include <qutim/json.h>
 #include <QtCore/QDateTime>
 #include <QtNetwork/QNetworkCookieJar>
 #include <QtGui/QWidget>
 
 using namespace qutim_sdk_0_3;
 
+#define CLIENT_ID "ecc5ea995f054a6a9acf6a64318bce33"
+
 YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) :
 	QObject(parent), m_networkManager(parent)
 {
 	m_stage = Need;
+#if 0
 	foreach (const QNetworkCookie &cookie,
 			 parent->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
@@ -34,13 +38,21 @@ YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) 
 			break;
 		}
 	}
-
+#else
+	Config config;
+	config.beginGroup(QLatin1String("yandex"));
+	m_token = config.value(QLatin1String("token"), QString(), Config::Crypted);
+	
+	if (!m_token.isEmpty())
+		m_stage = Already;
+#endif
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), SLOT(onRequestFinished(QNetworkReply*)));
 }
 
 YandexNarodAuthorizator::YandexNarodAuthorizator(QWidget *parent) :
 		QObject(parent), m_networkManager(new QNetworkAccessManager(this))
 {
+	m_stage = Need;
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), SLOT(onRequestFinished(QNetworkReply*)));
 }
 
@@ -90,6 +102,8 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 			emit result(Success);
 		return;
 	}
+	
+#if 0
 	QByteArray post = "login=" + QUrl::toPercentEncoding(login)
 					  + "&passwd=" + QUrl::toPercentEncoding(password)
 					  + "&twoweeks=yes";
@@ -100,16 +114,25 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 	userAgent += qutimVersionStr();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	request.setRawHeader("User-Agent", userAgent);
+#else
+	QByteArray post = "grant_type=password&client_id=" CLIENT_ID
+	        "&username=" + QUrl::toPercentEncoding(login)
+	        + "&password=" + QUrl::toPercentEncoding(password);
+	debug() << post;
+	QNetworkRequest request(QUrl("https://oauth.yandex.ru/token"));
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+#endif
 	m_reply = m_networkManager->post(request, post);
 }
 
 void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 {
+	reply->deleteLater();
 	debug() << Q_FUNC_INFO << m_reply.data() << reply;
 	if (reply != m_reply)
 		return;
 
-	reply->deleteLater();
+#if 0
 	if (reply->error() != QNetworkReply::NoError) {
 		debug() << reply->error() << reply->errorString();
 		emit result(Error, reply->errorString());
@@ -136,4 +159,30 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 
 	m_stage = Need;
 	emit result(Failure);
+#else
+	QVariantMap data = Json::parse(reply->readAll()).toMap();
+	QVariantMap::Iterator error = data.find(QLatin1String("error"));
+	if (error != data.end() || reply->error() != QNetworkReply::NoError) {
+		QString errorStr = error.value().toString();
+		m_stage = Need;
+		if (errorStr == QLatin1String("unsupported_grant_type"))
+			emit result(Error, tr("Unsupported grant type. Inform developers."));
+		else if (errorStr == QLatin1String("invalid_request"))
+			emit result(Error, tr("Invalid request. Inform developers."));
+		else
+			emit result(Error, tr("Invalid login or/and password"));
+		return;
+	}
+	QString accessToken = data.value(QLatin1String("access_token")).toString();
+	QDateTime expiresAt;
+	QVariantMap::Iterator expiresIn = data.find(QLatin1String("expires_in"));
+	if (expiresIn != data.end()) {
+		expiresAt = QDateTime::currentDateTime();
+		expiresAt.addSecs(expiresIn.value().toInt());
+	}
+	m_token = accessToken;
+	m_stage = Already;
+	emit result(Success);
+	emit needSaveCookies();
+#endif
 }

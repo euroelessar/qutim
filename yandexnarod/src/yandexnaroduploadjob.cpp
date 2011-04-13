@@ -105,12 +105,14 @@ YandexNarodUploadJob::YandexNarodUploadJob(qutim_sdk_0_3::ChatUnit *contact,
 	m_timer.setSingleShot(true);
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(someStrangeSlot()));
 
+#if 0
 	m_request.setRawHeader("Cache-Control", "no-cache");
 	m_request.setRawHeader("Accept", "*/*");
 	QByteArray userAgent = "qutIM/";
 	userAgent += qutimVersionStr();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	m_request.setRawHeader("User-Agent", userAgent);
+#endif
 }
 
 YandexNarodUploadJob::~YandexNarodUploadJob()
@@ -145,6 +147,7 @@ void YandexNarodUploadJob::doReceive()
 void YandexNarodUploadJob::sendImpl()
 {
 	setStateString(QT_TR_NOOP("Getting storage..."));
+#if 0
 	m_request.setUrl(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
 
 	QNetworkCookieJar *cookieJar = YandexNarodFactory::networkManager()->cookieJar();
@@ -155,6 +158,10 @@ void YandexNarodUploadJob::sendImpl()
 
 	debug() << "Cookie" << m_request.rawHeader("Cookie");
 	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
+#else
+	YandexRequest request(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
+	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(request);
+#endif
 	connect(reply, SIGNAL(finished()), this, SLOT(storageReply()));
 }
 
@@ -195,7 +202,6 @@ void YandexNarodUploadJob::storageReply()
 
 	QUrl url(map.value("url").toString());
 	url.addQueryItem("tid", map.value("hash").toString());
-	m_request.setUrl(url);
 
 	int boundaryTemp[] = { qrand(), qrand(), qrand() };
 	QByteArray boundary = QByteArray::fromRawData(reinterpret_cast<char *>(boundaryTemp),
@@ -209,8 +215,13 @@ void YandexNarodUploadJob::storageReply()
 	}
 
 	setState(Started);
-
+	
+#if 0
 	QNetworkRequest request(m_request);
+	request.setUrl(url);
+#else
+	YandexRequest request(url);
+#endif
 	request.setRawHeader("Content-Type", "multipart/form-data, boundary=" + boundary);
 	request.setRawHeader("Content-Length", QString::number(m_data->size()).toLatin1());
 
@@ -226,8 +237,13 @@ void YandexNarodUploadJob::someStrangeSlot()
 	QUrl url(m_someData.value("purl").toString());
 	url.addQueryItem("tid", m_someData.value("hash").toString());
 //	url.addQueryItem("type", "json");
+#if 0
 	m_request.setUrl(url);
 	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
+#else
+	YandexRequest request(url);
+	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(request);
+#endif
 	connect(m_data, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
 	connect(reply, SIGNAL(finished()), SLOT(progressReply()));
 }

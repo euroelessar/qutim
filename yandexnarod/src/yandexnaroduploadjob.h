@@ -67,7 +67,9 @@ private:
 	void sendImpl();
 	bool processReply(QNetworkReply *reply);
 private:
+#if 0
 	QNetworkRequest m_request;
+#endif
 	QVariantMap m_someData;
 	QTimer m_timer;
 	QPointer<QIODevice> m_data;

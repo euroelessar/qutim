@@ -29,6 +29,7 @@ public:
 	explicit YandexNarodAuthorizator(QNetworkAccessManager *parent);
 	explicit YandexNarodAuthorizator(QWidget *parent);
 
+	QString token() const { return m_token; }
 	bool isAuthorized() { return m_stage == Already; }
 	void requestAuthorization();
 	void requestAuthorization(const QString &login, const QString &password);
@@ -45,6 +46,7 @@ signals:
 private:
 	enum Stage { Need, TryingNow, Already };
 	Stage m_stage;
+	QString m_token;
 	QNetworkAccessManager *m_networkManager;
 	QPointer<QNetworkReply> m_reply;
 };

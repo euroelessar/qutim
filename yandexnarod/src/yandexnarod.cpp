@@ -114,6 +114,7 @@ void YandexNarodPlugin::loadCookies()
 
 void YandexNarodPlugin::saveCookies()
 {
+#if 0
 	Config cookies = Config().group("yandex");
 	cookies.remove("cookies");
 	cookies.beginArray("cookies");
@@ -133,6 +134,11 @@ void YandexNarodPlugin::saveCookies()
 		cookie.setValue("value", netcook.value(), Config::Crypted);
 	}
 	cookies.sync();
+#else
+	Config config;
+	config.beginGroup(QLatin1String("yandex"));
+	config.setValue(QLatin1String("token"), scope()->authorizator->token(), Config::Crypted);
+#endif
 }
 
 void YandexNarodPlugin::onActionClicked(QObject *obj)
@@ -275,6 +281,18 @@ void YandexNarodFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &sta
 	bool isOnline = status != Status::Offline && status != Status::Connecting;
 	foreach (ChatUnit *unit, m_observedUnits.values(sender()))
 		changeAvailability(unit, isOnline);
+}
+
+YandexRequest::YandexRequest(const QUrl &url)
+{
+	QUrl tmp = url;
+	tmp.addQueryItem(QLatin1String("oauth_token"), scope()->authorizator->token());
+	setUrl(tmp);
+	debug() << tmp;
+//	QByteArray token = scope()->authorizator->token().toLatin1();
+//	setRawHeader("Authorization", "OAuth " + token);
+//	debug() << token;
+//	setRawHeader("Authorization", token);
 }
 
 QUTIM_EXPORT_PLUGIN(YandexNarodPlugin)

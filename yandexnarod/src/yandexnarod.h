@@ -67,4 +67,10 @@ private:
 	Observers m_observedUnits;
 };
 
+class YandexRequest : public QNetworkRequest
+{
+public:
+	YandexRequest(const QUrl &url = QUrl());
+};
+
 #endif
