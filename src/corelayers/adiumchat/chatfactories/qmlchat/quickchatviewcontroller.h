@@ -66,7 +66,7 @@ signals:
 	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	ChatSessionImpl *m_session;
+	QPointer<ChatSessionImpl> m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;

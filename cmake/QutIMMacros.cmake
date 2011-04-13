@@ -72,6 +72,13 @@ macro(QUTIM_ADD_ARTWORK_DIR art_dir)
 	ENDFOREACH()
 endmacro()
 
+option(QUTIM_DEVELOPER_BUILD "Install devel stuff" ON)
+macro(qutim_add_devel_component compname)
+	if(QUTIM_DEVELOPER_BUILD)
+		cpack_add_component(compname)
+	endif()
+endmacro()
+
 IF(WIN32)
 	SET(QUTIM_SHARE_DIR_DEF share)
 ELSEIF(APPLE)
@@ -186,7 +193,7 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 		GROUP ${QUTIM_${plugin_name}_GROUP}
 	)
 
-	cpack_add_component( "${plugin_name}Devel"
+	qutim_add_devel_component( "${plugin_name}Devel"
 		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
 		DESCRIPTION "${plugin_name} development files"}
 		DEPENDS ${QUTIM_${plugin_name}_DEPENDS}

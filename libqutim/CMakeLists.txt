@@ -148,7 +148,7 @@ IF(WIN32)
 ENDIF()
 
 
-# Link with QT
+# Link with Qt
 qutim_target_link_libraries( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
 
 install( TARGETS libqutim 
@@ -175,7 +175,14 @@ if(DOXYGEN_FOUND)
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         COMMENT "Building documentation"
         SOURCE doc/Doxyfile.in doc/DoxygenLayout.xml)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/html ${CMAKE_CURRENT_BINARY_DIR}/doc/qch DESTINATION share/qutim/doc COMPONENT CoreDevel)
+
+	install( DIRECTORY
+		${CMAKE_CURRENT_BINARY_DIR}/doc/html
+		${CMAKE_CURRENT_BINARY_DIR}/doc/qch
+		DESTINATION share/qutim/doc
+		COMPONENT CoreDevel
+	)
+
     add_dependencies(libqutim ${DOC_TARGET})
 endif()
 

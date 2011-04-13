@@ -279,7 +279,14 @@ CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
 	DESCRIPTION "TODO"
 )
-CPACK_ADD_COMPONENT(CoreDevel
+
+if(QUTIM_DEVELOPER_BUILD)
+	message(STATUS "Selected developer build. Development tools will be installed")
+else()
+	message(STATUS "Development tools will not be installed")
+endif()
+
+qutim_add_devel_component(CoreDevel
 	DISPLAY_NAME "Core Devel"
 	DESCRIPTION "Common devel files"
 )
