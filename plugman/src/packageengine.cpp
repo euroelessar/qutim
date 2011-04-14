@@ -34,10 +34,11 @@ PackageEngine::PackageEngine(const QStringList &categories, const QString &path,
 	m_path = SystemInfo::getDir(SystemInfo::ShareDir).filePath(path);
 	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)), this, SLOT(onProviderAdded(Attica::Provider)));
 	if (m_manager.defaultProviderFiles().isEmpty()) {
-		m_manager.addProviderFileToDefaultProviders(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
-		m_manager.addProviderFileToDefaultProviders(QUrl(QLatin1String("http://qutim.org/ocs/providers.xml")));
+		m_manager.addProviderFile(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
+		m_manager.addProviderFile(QUrl(QLatin1String("http://qutim.org/ocs/providers.xml")));
+	} else {
+		m_manager.loadDefaultProviders();
 	}
-	m_manager.loadDefaultProviders();
 	m_idCounter = qrand();
 	
 	JsonFile file(m_path + QLatin1String("/cache.json"));
