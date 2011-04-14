@@ -9,6 +9,8 @@ body {
 
 div {
 	overflow: auto;
+	padding: 1px;
+	letter-spacing: 0.05em;
 }
 
 a:link { color: #007fff; text-decoration: none;}
@@ -24,8 +26,10 @@ a:active { color: #6D98AB; text-decoration: none; }
 	font: 8pt Arial;
 }
 
+
+
 .statusMessage{
-	color: #3caa3c;
+	color: #509d1f;
 
 }
 
@@ -55,6 +59,7 @@ a:active { color: #6D98AB; text-decoration: none; }
 .inNextContentSender {
 	color: #005afa;
 	 /*text-align: right; */
+	font-weight: 500;
 }
 
 .outContentSender,
@@ -67,10 +72,25 @@ text-align: right;
 	color: #20060f;
 }
 
-
 .inContentMessage,
 .inNextContentMessage {
 	 color: #20060f; 
+}
+.inContentMessage.highlight, .inNextContentMessage.highlight {
+	color: #ff8482 !important;
+	font-weight: bold;
+}
+
+.inContentSender.highlight,
+.inNextContentSender.highlight {
+	color: #005afa;
+	 /*text-align: right; */
+	font-weight: bold;
+}
+
+.outContentSender span,
+.outNextContentSender span {
+	color: #437ee0 !important;
 }
 
 .randomNick12 {
