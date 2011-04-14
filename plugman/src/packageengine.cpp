@@ -224,7 +224,7 @@ void PackageEngine::onDownloadJobFinished(Attica::BaseJob *baseJob)
 	baseJob->deleteLater();
 	ItemJob<DownloadItem> *job = static_cast<ItemJob<DownloadItem>*>(baseJob);
 	DownloadItem item = job->result();
-	debug() << item.mimeType() << item.url();
+	debug() << item.url();
 	QNetworkRequest request(item.url());
 	QNetworkReply *reply = m_networkManager.get(request);
 	reply->setProperty("contentId", job->property("contentId"));
