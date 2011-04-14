@@ -94,6 +94,8 @@ void PackageModel::onContentsReceived(const PackageEntry::List &list, qint64 id)
 		return;
 	debug() << "Contents received" << list.size();
 	m_requestId = -1;
+	if (list.size() == 0)
+		return;
 	beginInsertRows(QModelIndex(), m_contents.size(), m_contents.size() + list.size() - 1);
 	for (int i = 0; i < list.size(); ++i) {
 		const PackageEntry &entry = list.at(i);
