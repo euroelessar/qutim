@@ -68,43 +68,6 @@ protected:
 	bool s;
 };
 
-namespace Game {
-
-class MessageFilter
-{
-public:
-	enum Answer
-	{
-		Accept,
-		Reject,
-		Error
-	};
-	virtual ~MessageFilter();
-	virtual Answer decorate(Message &message) = 0;
-	virtual Answer filter(Message &message) = 0;
-};
-
-class MessageHandler : public QObject
-{
-public:
-	void addFilter(MessageFilter *filter, int priority);
-	void removeFilter(MessageFilter *filter);
-	static MessageHandler *instance();
-	bool handleMessage(Message &message);
-	bool sendMessage(Message &message);
-protected:
-	MessageHandler();
-	~MessageHandler();
-};
-
-inline MessageHandler *messageHandler()
-{
-	return MessageHandler::instance();
-}
-
-} //namespace Game
-
-
 LIBQUTIM_EXPORT QString unescape(const QString &html);
 
 typedef QList<Message> MessageList;

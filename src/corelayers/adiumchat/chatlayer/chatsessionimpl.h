@@ -48,7 +48,7 @@ public:
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
 	virtual void addContact ( Buddy* c );
-	virtual qint64 appendMessage(Message &message);
+	virtual qint64 doAppendMessage(Message &message);
 	virtual void removeContact ( Buddy* c );
 	QObject *getController() const;
 	Account *getAccount() const;

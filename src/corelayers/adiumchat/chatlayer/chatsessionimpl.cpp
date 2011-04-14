@@ -85,7 +85,7 @@ void ChatSessionImpl::addContact(Buddy* c)
 	emit buddiesChanged();
 }
 
-qint64 ChatSessionImpl::appendMessage(Message &message)
+qint64 ChatSessionImpl::doAppendMessage(Message &message)
 {
 	Q_D(ChatSessionImpl);
 	if (!message.chatUnit()) {

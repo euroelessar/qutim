@@ -42,12 +42,14 @@ public:
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
-	virtual qint64 appendMessage(qutim_sdk_0_3::Message &message) = 0;
+	qint64 appendMessage(qutim_sdk_0_3::Message &message);
 	virtual bool isActive() = 0;
 	virtual void setActive(bool active) = 0;
 	inline void activate() { setActive(true); }
 	inline qint64 appendMessage(const QString &text)
 	{ Message msg(text); return appendMessage(msg); }
+protected:
+	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
 signals:
 	void messageReceived(qutim_sdk_0_3::Message *message);
 	void messageSent(qutim_sdk_0_3::Message *message);
@@ -59,6 +61,7 @@ protected:
 	ChatSession(ChatLayer *chat);
 	virtual ~ChatSession();
 	virtual void virtual_hook(int id, void *data);
+	friend class MessageHandlerHook;
 private:
 	QScopedPointer<ChatSessionPrivate> p;
 };

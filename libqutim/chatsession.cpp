@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "messagesession.h"
+#include "messagehandler.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
 #include "account.h"
@@ -21,6 +22,21 @@
 
 namespace qutim_sdk_0_3
 {
+typedef QMap<Message*, ChatSession*> MessageHookMap;
+Q_GLOBAL_STATIC(MessageHookMap, messageHookMap)
+
+class MessageHandlerHook : public MessageHandler
+{
+public:
+	virtual Result doHandle(Message &message, QString *)
+	{
+		ChatSession *session = messageHookMap()->value(&message);
+		if (session)
+			session->doAppendMessage(message);
+		return Accept;
+	}
+};
+
 struct ChatSessionPrivate
 {
 };
@@ -28,6 +44,7 @@ struct ChatSessionPrivate
 struct ChatLayerPrivate
 {
 	QPointer<ChatLayer> self;
+	QScopedPointer<MessageHandlerHook> handlerHook;
 };
 
 static ChatLayerPrivate *p = new ChatLayerPrivate;
@@ -40,6 +57,20 @@ ChatSession::~ChatSession()
 {
 }
 
+qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
+{
+	QString reason;
+	messageHookMap()->insert(&message, this);
+	if (MessageHandler::Accept != MessageHandler::handle(message, &reason)) {
+		// TODO optional user notification
+//		Notifications:￼end(result)
+		messageHookMap()->remove(&message);
+		return -1;
+	}
+	messageHookMap()->remove(&message);
+	return message.id();
+}
+
 void ChatSession::virtual_hook(int id, void *data)
 {
 	Q_UNUSED(id);
@@ -48,10 +79,15 @@ void ChatSession::virtual_hook(int id, void *data)
 
 ChatLayer::ChatLayer()
 {
+	p->handlerHook.reset(new MessageHandlerHook);
+	MessageHandler::registerHandler(p->handlerHook.data(),
+	                                MessageHandler::ChatInPriority,
+	                                MessageHandler::ChatOutPriority);
 }
 
 ChatLayer::~ChatLayer()
 {
+	p->handlerHook.reset(0);
 }
 
 ChatLayer *ChatLayer::instance()
