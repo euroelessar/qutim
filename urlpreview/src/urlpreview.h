@@ -19,30 +19,10 @@
 #define urlpreviewPLUGIN_H
 #include <qutim/plugin.h>
 
-class QSslError;
-class QAuthenticator;
-class QNetworkReply;
-class QNetworkAccessManager;
-
-namespace qutim_sdk_0_3 {
-class ChatUnit;
-class ChatSession;
-class Message;
-}
-
 namespace UrlPreview {
 
-using namespace qutim_sdk_0_3;
-
-enum PreviewFlag
-{
-	PreviewImages = 0x1,
-	PreviewYoutube = 0x2,
-	DisableTextHtml = 0x4,
-};
-Q_DECLARE_FLAGS(PreviewFlags,PreviewFlag);
-
-class UrlPreviewPlugin : public Plugin
+class UrlHandler;
+class UrlPreviewPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "UrlPreview")
@@ -51,26 +31,9 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-public slots:
-	void loadSettings();
-private slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
-	void processMessage(qutim_sdk_0_3::Message*);
-	void netmanFinished ( QNetworkReply * );
-	void authenticationRequired ( QNetworkReply * , QAuthenticator * );
-	void netmanSslErrors ( QNetworkReply * , const QList<QSslError> & );
 private:
-	static const QRegExp &getLinkRegExp();
-	void checkLink(QString &url, ChatUnit *from, qint64 id);
-	QNetworkAccessManager *m_netman;
-	PreviewFlags m_flags;
-	QString m_template;
-	QString m_imageTemplate;
-	QString m_youtubeTemplate;
-	QSize m_maxImageSize;
-	quint64 m_maxFileSize;
+	QPointer<UrlHandler> m_handler;
 };
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(UrlPreview::PreviewFlags)
 #endif
