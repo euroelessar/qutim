@@ -59,12 +59,11 @@ void EmoticonsSelector::saveImpl()
 
 void EmoticonsSelector::currentIndexChanged(const QString& text)
 {
-	QHash<QString, QStringList> theme_map = Emoticons::theme(text).emoticonsMap();
-	QHash<QString, QStringList>::const_iterator it;
 	clearEmoticonsPreview();
-	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
+	const QStringList emoticons = Emoticons::theme(text).emoticonsIndexes();
+	for (int i = 0; i < emoticons.size(); ++i) {
 		QLabel *label = new QLabel(this);
-		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
+		QMovie *emoticon = new QMovie (emoticons.at(i), QByteArray(), label);
 		label->setMovie(emoticon);
 		ui->emoticons->layout()->addWidget(label);
 		m_active_emoticons.append(label);

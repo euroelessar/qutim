@@ -54,15 +54,16 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 
 void ChatEmoticonsWidget::loadTheme()
 {
-	QHash<QString, QStringList> theme_map = Emoticons::theme().emoticonsMap();
-	QHash<QString, QStringList>::const_iterator it;
+	EmoticonsTheme theme = Emoticons::theme();
+	const QStringList emoticons = theme.emoticonsIndexes();
+	const QHash<QString, QStringList> hash = theme.emoticonsMap();
 	clearEmoticonsPreview();
-	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
+	for (int i = 0; i < emoticons.size(); ++i) {
 		QLabel *label = new QLabel();
 		label->setFocusPolicy(Qt::StrongFocus);
-		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
+		QMovie *emoticon = new QMovie (emoticons.at(i), QByteArray(), label);
 		label->setMovie(emoticon);
-		label->setToolTip(it.value().first());
+		label->setToolTip(hash.value(emoticons.at(i)).first());
 		widget()->layout()->addWidget(label);
 		m_active_emoticons.append(label);
 

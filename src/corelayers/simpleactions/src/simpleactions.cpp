@@ -39,6 +39,8 @@ namespace ShowInfo
 {
 void checkAction(QObject *controller, QAction *action)
 {
+	if (!controller || !action)
+		return;
 	InfoRequestCheckSupportEvent info_event;
 	qApp->sendEvent(controller, &info_event);
 	if (info_event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
