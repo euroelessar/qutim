@@ -18,6 +18,7 @@
 #include <qutim/icon.h>
 #include <qutim/conference.h>
 #include <QAbstractItemModel>
+#include <3rdparty/avatarfilter/avatarfilter.h>
 
 namespace Core
 {
@@ -55,11 +56,18 @@ void AbstractChatWidget::setTitle(ChatSessionImpl *s)
 		icon = Icon("meeting-attending"); //TODO
 		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
 	} else {
-		if (Buddy *b = qobject_cast<Buddy*>(u))
-			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
+		if (Buddy *b = qobject_cast<Buddy*>(u)) {
+			if (b->avatar().isEmpty())
+				icon = Icon("view-choose");
+			else {
+				QIcon overlay = b->status().icon();
+				icon = AvatarFilter::icon(b->avatar(), overlay);
+			}
+		}
 	}
-	setWindowFilePath(title);
-	setWindowIcon(icon);
+
+	window()->setWindowFilePath(title);
+	window()->setWindowIcon(icon);
 }
 
 QString AbstractChatWidget::titleForSession(ChatSessionImpl *s)
