@@ -76,6 +76,7 @@ namespace qutim_sdk_0_3
 		if (d->eventLoop)
 			d->eventLoop->quit();
 		emit entered(password, remember);
+		emit finished(d->result);
 	}
 
 	void PasswordDialog::reject()
@@ -87,6 +88,7 @@ namespace qutim_sdk_0_3
 		if (d->eventLoop)
 			d->eventLoop->quit();
 		emit rejected();
+		emit finished(d->result);
 	}
 
 	int PasswordDialog::exec()

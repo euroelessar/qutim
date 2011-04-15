@@ -44,8 +44,12 @@ namespace qutim_sdk_0_3
 		int result() const;
 
 	signals:
+#if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
+private: // don't tell moc, doxygen or kdevelop, but those signals are in fact private
+#endif
 		void rejected();
 		void entered(const QString &password, bool remember);
+		void finished(int result);
 
 	protected:
 		void apply(const QString &password, bool remember);
