@@ -3,6 +3,7 @@
 
 #include "jaccount.h"
 #include "muc/jbookmarkmanager.h"
+#include <qutim/passworddialog.h>
 //Jreen
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
@@ -44,6 +45,7 @@ public:
 	QList<JabberExtension *> extensions;
 	JabberParams params;
 	QPointer<JMUCManager> conferenceManager;
+	QPointer<PasswordDialog> passwordDialog;
 	QSignalMapper signalMapper;
 	int loadedModules;
 	int priority;
@@ -54,6 +56,7 @@ public:
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);
 	void _q_connected();
+	void _q_on_password_finished(int result);
 
 	//old code
 	Identities identities;

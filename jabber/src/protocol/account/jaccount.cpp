@@ -25,7 +25,6 @@
 #include "muc/jmucmanager.h"
 #include "muc/jmucuser.h"
 #include <qutim/systeminfo.h>
-#include <qutim/passworddialog.h>
 #include <qutim/debug.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
@@ -46,6 +45,9 @@ namespace Jabber {
 
 class JPasswordValidator : public QValidator
 {
+public:
+	JPasswordValidator(QObject *parent = 0) : QValidator(parent) {}
+	
 	State validate(QString &input, int &pos) const
 	{
 		Q_UNUSED(pos);
@@ -98,6 +100,23 @@ void JAccountPrivate::_q_connected()
 	conferenceManager->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager->bookmarkManager());	
 	client.setPingInterval(q->config().group("general").value("pingInterval", 30000));
+}
+
+void JAccountPrivate::_q_on_password_finished(int result)
+{
+	Q_Q(JAccount);
+	Q_ASSERT(q->sender() == passwordDialog);
+	passwordDialog->deleteLater();
+	if (result != PasswordDialog::Accepted)
+		return;
+	if (passwordDialog->remember()) {
+		Config cfg = q->config(QLatin1String("general"));
+		cfg.setValue("passwd", passwordDialog->password(), Config::Crypted);
+	}
+	status = passwordDialog->property("status").value<Status>();
+	client.setPassword(passwordDialog->password());
+	client.connectToServer();
+	q->setAccountStatus(Status::instance(Status::Connecting, "jabber"));
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
@@ -326,7 +345,8 @@ QString JAccount::password(bool *ok)
 		if (ok)
 			*ok = false;
 		PasswordDialog *dialog = PasswordDialog::request(this);
-		JPasswordValidator *validator = new JPasswordValidator();
+		JPasswordValidator *validator = new JPasswordValidator(dialog);
+		connect(dialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
 		dialog->setValidator(validator);
 		if (dialog->exec() == PasswordDialog::Accepted) {
 			if (ok)
@@ -390,15 +410,19 @@ void JAccount::setStatus(Status status)
 	Status old = this->status();
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
-		if(d->client.password().isEmpty()) {
-			bool ok;
-			d->client.setPassword(password(&ok));
-			if(!ok)
-				return;
+		if (d->passwordDialog) {
+			/* nothing */
+		} else if(d->client.password().isEmpty()) {
+			d->passwordDialog = PasswordDialog::request(this);
+			d->passwordDialog->setProperty("status", qVariantFromValue(status));
+			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog);
+			connect(d->passwordDialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
+			d->passwordDialog->setValidator(validator);
+		} else {
+			d->client.connectToServer();
+			d->status = status;
+			setAccountStatus(Status::instance(Status::Connecting, "jabber"));
 		}
-		d->client.connectToServer();
-		d->status = status;
-		setAccountStatus(Status::instance(Status::Connecting, "jabber"));
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;
 		if (force)
