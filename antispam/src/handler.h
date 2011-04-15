@@ -30,6 +30,8 @@ public slots:
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
     virtual Result doHandle(qutim_sdk_0_3::Message& message, QString* reason);
+private slots:
+	void authServiceEnabled();
 private:
 	bool m_enabled;
 	QString m_question;

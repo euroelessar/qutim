@@ -13,7 +13,7 @@ using namespace qutim_sdk_0_3;
 
 inline SettingsItem *item()
 {
-	static GeneralSettingsItem<SettingsWidget> item(Settings::General,
+	static GeneralSettingsItem<SettingsWidget> item(Settings::Plugin,
 													Icon("mail-signature-unknown"),
 													QT_TRANSLATE_NOOP("Antispam", "Antispam"));
 	return &item;

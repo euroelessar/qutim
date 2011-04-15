@@ -18,14 +18,20 @@
 #include <qutim/config.h>
 #include "settingswidget.h"
 #include <qutim/debug.h>
+#include <qutim/servicemanager.h>
+#include <qutim/authorizationdialog.h>
+
+#include <QTimer>
 
 namespace Antispam {
 
 using namespace qutim_sdk_0_3;
+using namespace Authorization;
 
 Handler::Handler()
 {
 	loadSettings();
+	QTimer::singleShot(0, this, SLOT(authServiceEnabled()));
 }
 
 void Handler::loadSettings()
@@ -69,7 +75,24 @@ MessageHandler::Result Handler::doHandle(Message& message, QString* reason)
 
 bool Handler::eventFilter(QObject *obj, QEvent *event)
 {
+	if (event->type() == Reply::eventType()) {
+		Authorization::Reply *reply = static_cast<Authorization::Reply*>(event);
+		Contact *contact = reply->contact();
+		bool trusted = contact->property("trusted").toBool();
+		if (reply->replyType() == Reply::New && !trusted) {
+			Message msg(m_question);
+			msg.setChatUnit(contact);
+			contact->sendMessage(msg);
+			return true;
+		}
+	}
 	return QObject::eventFilter(obj, event);
+}
+
+void Handler::authServiceEnabled()
+{
+	if (QObject *obj = ServiceManager::getByName("AuthorizationService"))
+		obj->installEventFilter(this);
 }
 
 } // namespace Antispam
