@@ -667,7 +667,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
 	debug() << "error" << error->condition();
-	if(error->condition() == Error::Conflict) {
+	if (error->condition() == Error::Conflict) {
 		QString message = QCoreApplication::translate("Jabber", "You are already in conference with another nick");
 		Notifications::send(Notifications::System, this, message);
 		QString resource = d->account->client()->jid().resource();
@@ -686,7 +686,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 		dialog->show();
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onNickSelected(QString)));
 		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
-	} else if(error->condition() == Error::Forbidden) {
+	} else if (error->condition() == Error::Forbidden) {
 		leave();
 	}
 }
@@ -698,9 +698,9 @@ void JMUCSession::onNickSelected(const QString &nick)
 		leave();
 	} else {
 		Q_D(JMUCSession);
-		d->room->leave();
+		leave();
 		d->room->setNick(nick);
-		d->room->join();
+		join();
 	}
 }
 

@@ -59,9 +59,18 @@ public:
 			roomsToConnect.at(i)->join();
 		roomsToConnect.clear();
 	}
-	void _q_status_changed(qutim_sdk_0_3::Status)
+	void leaveAll()
 	{
-
+		foreach (JMUCSession *room, rooms) {
+			room->leave();
+		}
+	}
+	void _q_status_changed(qutim_sdk_0_3::Status status)
+	{		
+		if (status == Status::Offline)
+			leaveAll();
+		else if (status != Status::Connecting)
+			connectAll();
 	}
 };
 
