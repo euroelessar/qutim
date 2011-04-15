@@ -39,18 +39,16 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 							  "<b>qutIM Version:</b> %4 <br />"
 							  "<b>Qt Version:</b> %5 (%6 bit) <br />"
 							  "<b>Screen resolution:</b> %7 x %8 <br />"
-							  "<b>Country:</b> %9<br />"
-							  "<b>Language:</b> %10 <br />"
+							  "<b>System locale:</b> %9<br />"
 							  ).arg(SystemInfo::getName())
 						   .arg(SystemInfo::getVersion())
 						   .arg(SystemInfo::getFullName())
-						   .arg(qutimVersionStr())
+						   .arg(QLatin1String(qutimVersionStr()))
 						   .arg(QLatin1String(qVersion()))
 						   .arg(QString::number(QSysInfo::WordSize))
 						   .arg(size.width())
 						   .arg(size.height())
-						   .arg(QLocale::countryToString(locale.country()))
-						   .arg(QLocale::languageToString(locale.language())));
+						   .arg(locale.name()));
 
 	l->addWidget(m_submitBox);
 	l->addWidget(label);
@@ -89,8 +87,7 @@ RequestHelper::RequestHelper(QObject *parent) : QNetworkAccessManager(parent)
 	url.addQueryItem(QLatin1String("wordSize"), QString::number(QSysInfo::WordSize));
 	url.addQueryItem(QLatin1String("width"), QString::number(size.width()));
 	url.addQueryItem(QLatin1String("height"), QString::number(size.height()));
-	url.addQueryItem(QLatin1String("country"), QLocale::countryToString(locale.country()));
-	url.addQueryItem(QLatin1String("language"), QLocale::languageToString(locale.language()));
+	url.addQueryItem(QLatin1String("locale"), locale.name());
 	//url.addQueryItem(QLatin1String("lang"), lang);
 
 	QNetworkRequest request(url);

@@ -144,7 +144,7 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 	}
 	fileName = QDir::cleanPath(fileName);
 
-	ConfigSource::Ptr result = sourceHash()->value(path);
+	ConfigSource::Ptr result = sourceHash()->value(fileName);
 	if (result && result->isValid())
 		return result;
 
@@ -169,7 +169,7 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 		fileName += QLatin1Char('.');
 		fileName += QLatin1String(backend->name());
 
-		result = sourceHash()->value(path);
+		result = sourceHash()->value(fileName);
 		if (result && result->isValid())
 			return result;
 		info.setFile(fileName);
@@ -207,7 +207,7 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 		}
 		d->data->map = new QVariantMap();
 	}
-	sourceHash()->insert(path, result);
+	sourceHash()->insert(fileName, result);
 	return result;
 }
 
@@ -226,6 +226,11 @@ public:
 class PostConfigSaver : public QObject
 {
 public:
+	PostConfigSaver()
+	{
+		qAddPostRoutine(cleanup);
+	}
+
 	virtual bool event(QEvent *ev)
 	{
 		if (ev->type() == PostConfigSaveEvent::eventType()) {
@@ -236,9 +241,16 @@ public:
 		}
 		return QObject::event(ev);
 	}
+private:
+	static void cleanup();
 };
 
 Q_GLOBAL_STATIC(PostConfigSaver, postConfigSaver)
+
+void PostConfigSaver::cleanup()
+{
+	QCoreApplication::sendPostedEvents(postConfigSaver(), PostConfigSaveEvent::eventType());
+}
 
 class ConfigPrivate : public QSharedData
 {
