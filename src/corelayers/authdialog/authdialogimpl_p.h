@@ -2,6 +2,9 @@
 #define AUTHDIALOGIMPL_P_H
 #include "ui_authdialog.h"
 #include <qutim/contact.h>
+#include <qutim/systemintegration.h>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 namespace Core {
 
@@ -15,12 +18,20 @@ public:
 		ui(new Ui::AuthDialog)
 	{
 		ui->setupUi(this);
+		m_contactActionsBtn = new QPushButton(tr("Actions"), this);
+#ifndef Q_WS_S60
+		ui->buttonBox->addButton(m_contactActionsBtn, QDialogButtonBox::ActionRole);
+#else
+		int index = ui->verticalLayout->indexOf(ui->buttonBox);
+		ui->verticalLayout->insertWidget(index, m_contactActionsBtn);
+#endif
 		setAttribute(Qt::WA_DeleteOnClose);
-	};
+	}
 	void show(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
 	{
 		m_isIncoming = incoming;
 		m_contact = contact;
+		m_contactActionsBtn->setMenu(contact->menu());
 		ui->requestMessage->setText(text);
 		QString title;
 		if (incoming) {
@@ -34,24 +45,21 @@ public:
 		ui->requestTitle->setText(title);
 		setWindowTitle(title);
 		centerizeWidget(this);
-#ifdef QUTIM_MOBILE_UI
-		QDialog::showMaximized();
-#else
-		QDialog::show();
-#endif
+		SystemIntegration::show(this);
 		raise();
 	}
 	QString text() const
 	{
 		return ui->requestMessage->toPlainText();
 	}
-	bool isIncoming() {return m_isIncoming;}
-	Contact *contact() {return m_contact;}
+	bool isIncoming() { return m_isIncoming; }
+	Contact *contact() { return m_contact; }
 	virtual ~AuthDialogPrivate() {
 		delete ui;
-	};
+	}
 private:
 	Ui::AuthDialog *ui;
+	QPushButton *m_contactActionsBtn;
 	bool m_isIncoming;
 	Contact *m_contact;
 };
