@@ -1,15 +1,27 @@
 #include "antispamplugin.h"
-#include "captchasender.h"
 #include <qutim/debug.h>
 #include <qutim/messagesession.h>
+#include "handler.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
+#include "settingswidget.h"
 
 namespace Antispam
 {
 
+using namespace qutim_sdk_0_3;
+
+inline SettingsItem *item()
+{
+	static GeneralSettingsItem<SettingsWidget> item(Settings::General,
+													Icon("mail-signature-unknown"),
+													QT_TRANSLATE_NOOP("Antispam", "Antispam"));
+	return &item;
+}
+
 void AntispamPlugin::init()
 {
 	debug() << Q_FUNC_INFO;
-	m_captcha_sender = 0;
 	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
@@ -20,31 +32,21 @@ void AntispamPlugin::init()
 }
 bool AntispamPlugin::load()
 {
-	m_captcha_sender = new CaptchaSender(this);
-	ChatLayer *layer = ChatLayer::instance();
-	connect(layer,
-			SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
-			);
-	foreach (qutim_sdk_0_3::ChatSession *session, layer->sessions())
-		sessionCreated(session);
+	if (!m_handler)
+		m_handler = new Handler;
+	MessageHandler::registerHandler(m_handler.data(), 0, MessageHandler::HighPriority + 100500);
+	Settings::registerItem(item());
+	item()->connect(SIGNAL(saved()), m_handler, SLOT(loadSettings()));
 	return true;
 }
 bool AntispamPlugin::unload()
 {
-	disconnect(ChatLayer::instance(), 0, this, 0);
-	delete m_captcha_sender;
-	m_captcha_sender = 0;
+	if (m_handler) {
+		m_handler->deleteLater();
+		MessageHandler::unregisterHandler(m_handler.data());
+	}
+	Settings::removeItem(item());
 	return true;
-}
-
-void AntispamPlugin::sessionCreated(qutim_sdk_0_3::ChatSession* session)
-{
-	connect(session,
-			SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),
-			m_captcha_sender,
-			SLOT(messageReceived(qutim_sdk_0_3::Message*))
-			);
 }
 
 }

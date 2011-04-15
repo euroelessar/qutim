@@ -1,29 +1,24 @@
 #ifndef ANTISPAMPLUGIN_H
 #define ANTISPAMPLUGIN_H
 #include <qutim/plugin.h>
-
-namespace qutim_sdk_0_3 {
-class ChatSession;
-}
+#include <QPointer>
 
 namespace Antispam {
 
-class CaptchaSender;
-
 using namespace qutim_sdk_0_3;
 
+class Handler;
 class AntispamPlugin : public Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Antispam")
+	Q_CLASSINFO("Uses", "IconLoader")
 public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-protected slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
 private:
-	CaptchaSender *m_captcha_sender;
+	QPointer<Handler> m_handler;
 };
 
 }
