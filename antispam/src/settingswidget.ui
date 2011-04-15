@@ -29,6 +29,9 @@
      <property name="text">
       <string>Question:</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -39,6 +42,9 @@
      <property name="text">
       <string>Answers (semicolon as a separator):</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -48,6 +54,9 @@
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Message on correct answer:</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

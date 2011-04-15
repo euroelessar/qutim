@@ -29,82 +29,82 @@ using namespace qutim_sdk_0_3;
 
 namespace KdeIntegration
 {
-	class ProtocolSeparatorActionGenerator : public ActionGenerator
+class ProtocolSeparatorActionGenerator : public ActionGenerator
+{
+public:
+	ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
+		ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
 	{
-	public:
-		ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
-				ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
-		{
-			setType(-1);
-			m_proto = proto;
-		}
+		setType(-1);
+		m_proto = proto;
+	}
 
-		virtual QObject *generateHelper() const
-		{
-//			if (m_proto->accounts().isEmpty())
-//				return NULL;
-			if (m_action)
-				return m_action;
-			
-			m_action = prepareAction(new QAction(NULL));
-			ensureVisibility();
-
-			QFont font = m_action->font();
-			font.setBold(true);
-			m_action->setFont(font);
+	virtual QObject *generateHelper() const
+	{
+		//			if (m_proto->accounts().isEmpty())
+		//				return NULL;
+		if (m_action)
 			return m_action;
-		}
-		
-		virtual ~ProtocolSeparatorActionGenerator()
-		{
-		}
-		
-		void ensureVisibility() const
-		{
-			if (m_action)
-				m_action->setVisible(!m_proto->accounts().isEmpty());
-		}
 
-	private:
-		Protocol *m_proto;
-		mutable QPointer<QAction> m_action;
-	};
-	
-	void StatusAction::onStatusChanged(Status status)
+		m_action = prepareAction(new QAction(NULL));
+		ensureVisibility();
+
+		QFont font = m_action->font();
+		font.setBold(true);
+		m_action->setFont(font);
+		return m_action;
+	}
+
+	virtual ~ProtocolSeparatorActionGenerator()
 	{
-		setIcon(status.icon());
+	}
+
+	void ensureVisibility() const
+	{
+		if (m_action)
+			m_action->setVisible(!m_proto->accounts().isEmpty());
+	}
+
+private:
+	Protocol *m_proto;
+	mutable QPointer<QAction> m_action;
+};
+
+void StatusAction::onStatusChanged(Status status)
+{
+	setIcon(status.icon());
+}
+
+StatusAction::StatusAction(QObject* parent): QAction(parent)
+{
+	
+}
+
+class AccountMenuActionGenerator : public ActionGenerator
+{
+public:
+	AccountMenuActionGenerator(Account *account) :
+		ActionGenerator(QIcon(), account->id(), 0, 0)
+	{
+		m_account = account;
+		setType(-1);
 	}
 	
-	StatusAction::StatusAction(QObject* parent): QAction(parent)
+	virtual QObject *generateHelper() const
 	{
-	
+		StatusAction *action = new StatusAction(0);
+		prepareAction(action);
+		action->setIcon(m_account->status().icon());
+		QMenu *menu = m_account->menu(false);
+		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		action->setMenu(menu);
+		return action;
 	}
-	
-	class AccountMenuActionGenerator : public ActionGenerator
-	{
-	public:
-		AccountMenuActionGenerator(Account *account) :
-				ActionGenerator(QIcon(), account->id(), 0, 0)
-		{
-			m_account = account;
-			setType(-1);
-		}
-	
-		virtual QObject *generateHelper() const
-		{
-			StatusAction *action = new StatusAction(0);
-			prepareAction(action);
-			action->setIcon(m_account->status().icon());
-			QMenu *menu = m_account->menu(false);
-			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
-			QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-							 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-			action->setMenu(menu);
-			return action;
-		}
-	private:
-		Account *m_account;
-	};
+private:
+	Account *m_account;
+};
 }
 
 using namespace KdeIntegration;
@@ -144,13 +144,13 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	}
 	
 	m_item->setCategory(KStatusNotifierItem::Communications);
-//	if (contactList) {
-//		QWidget *widget = contactList->property("widget").value<QWidget*>();
-//		m_item->setAssociatedWidget(widget);
-//	}
+	//	if (contactList) {
+	//		QWidget *widget = contactList->property("widget").value<QWidget*>();
+	//		m_item->setAssociatedWidget(widget);
+	//	}
 	m_item->setContextMenu(kmenu);
-	m_item->setIconByName("qutim");
-	m_item->setAttentionIconByName("mail-unread-new");
+	m_item->setIconByName("qutim-offline");
+	m_item->setAttentionIconByName("qutim-message-new");
 	qApp->setQuitOnLastWindowClosed(false);
 }
 
@@ -243,15 +243,18 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 		}
 		m_currentIcon = status.icon();
 	}
+	QString iconName = QLatin1String("qutim-offline");
 	if (!m_activeAccount) {
 		foreach (Account *acc, m_accounts) {
 			if (acc->status().type() != Status::Offline) {
 				m_activeAccount = acc;
 				m_currentIcon = acc->status().icon();
+				iconName = QLatin1String("qutim-online");
 				break;
 			}
 		}
 	}
+	m_item->setIconByName(iconName);
 	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
 }
 
@@ -260,8 +263,8 @@ QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)
 	QIcon icon;
 	icon.addPixmap(source.pixmap(16));
 	icon.addPixmap(source.pixmap(32));
-//	icon.addPixmap(source.pixmap(64));
-//	icon.addPixmap(source.pixmap(128));
+	//	icon.addPixmap(source.pixmap(64));
+	//	icon.addPixmap(source.pixmap(128));
 	return source;
 }
 
