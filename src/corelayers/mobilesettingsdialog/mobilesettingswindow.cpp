@@ -183,8 +183,11 @@ void MobileSettingsWindow::onCategoryActivated(QListWidgetItem *i)
 	p->settingsListWidget->clear();
 	SettingsItemList list = p->items.values(p->categoryMap.key(i));
 	foreach (SettingsItem *item,list) {
-		QListWidgetItem *list_item = new QListWidgetItem(item->icon(),item->text(),p->settingsListWidget);
-		list_item->setData(Qt::UserRole,reinterpret_cast<qptrdiff>(item));
+		QIcon icon = item->icon();
+		if (!icon.actualSize(QSize(1,1)).isValid())
+			icon = Icon("applications-system");
+		QListWidgetItem *listItem = new QListWidgetItem(icon, item->text(), p->settingsListWidget);
+		listItem->setData(Qt::UserRole,reinterpret_cast<qptrdiff>(item));
 	}
 	int currentRow = 0; //TODO save current row
 	p->settingsListWidget->setCurrentRow(currentRow);

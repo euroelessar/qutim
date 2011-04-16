@@ -200,8 +200,11 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 	p->listWidget->clear();
 	SettingsItemList list = p->items.values(p->actionMap.key(a));
 	foreach (SettingsItem *item,list) {
-		QListWidgetItem *list_item = new QListWidgetItem(item->icon(),item->text(),p->listWidget);
-		list_item->setData(Qt::UserRole,reinterpret_cast<qptrdiff>(item));
+		QIcon icon = item->icon();
+		if (!icon.actualSize(QSize(1,1)).isValid())
+			icon = Icon("applications-system");
+		QListWidgetItem *listItem = new QListWidgetItem(icon, item->text(), p->listWidget);
+		listItem->setData(Qt::UserRole,reinterpret_cast<qptrdiff>(item));
 	}
 	if (p->listWidget->count() > 1)
 		p->listWidget->show();

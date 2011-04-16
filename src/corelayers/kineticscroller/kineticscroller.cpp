@@ -65,8 +65,10 @@ void KineticScroller::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup(QLatin1String("kineticScrolling"));
-#ifdef QUTIM_MOBILE_UI
+#if defined(QUTIM_MOBILE_UI) || !defined(Q_WS_S60)
 	m_scrollingType = 0;
+#elif defined(Q_WS_S60)
+	m_scrollingType = 1;
 #else
 	m_scrollingType = -1;
 #endif
