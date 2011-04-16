@@ -143,7 +143,9 @@ void AddContact::on_cancelButton_clicked()
 void AddContact::onStartChatClicked()
 {
 	Q_D(AddContact);
-	ChatLayer::instance()->getSession(d->account, d->ui->editId->text(), true)->activate();
+	ChatSession *session = ChatLayer::instance()->getSession(d->account, d->ui->editId->text(), true);
+	if (session)
+		session->activate();
 }
 
 void AddContact::onShowInfoClicked()
@@ -151,7 +153,8 @@ void AddContact::onShowInfoClicked()
 	Q_D(AddContact);
 	QObject *obj = ServiceManager::getByName("ContactInfo");
 	ChatUnit *unit = d->account->getUnit(d->ui->editId->text(), true);
-	QMetaObject::invokeMethod(obj, "show", Q_ARG(QObject*, unit));
+	if (unit)
+		QMetaObject::invokeMethod(obj, "show", Q_ARG(QObject*, unit));
 }
 
 void AddContact::changeState(const qutim_sdk_0_3::Status &status)
