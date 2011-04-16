@@ -198,6 +198,7 @@ void OftSocket::init()
 	connect(this, SIGNAL(connected()), this, SLOT(connected()));
 	m_state = ReadHeader;
 	m_len = 0;
+	m_hostReqId = 0;
 	m_timer.setInterval(FILETRANSFER_WAITING_TIMEOUT);
 	m_timer.setSingleShot(true);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(onTimeout()));
@@ -207,24 +208,53 @@ void OftSocket::directConnect(const QHostAddress &addr, quint16 port)
 {
 	m_state = ReadHeader;
 	connectToHost(addr, port);
+	m_clientPort = port;
 	m_timer.start();
+	debug().nospace() << "Trying to establish a direct connection to "
+			<< addr.toString().toLocal8Bit().constData()
+			<< ":" << port;
 }
 
-void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr,
-							 quint16 port, quint16 clientPort)
+void OftSocket::proxyConnect(const QString &uin, quint64 cookie)
 {
-	if (addr.isNull())
-		addr = QHostAddress("205.188.210.217"); // ars.oscar.aol.com
-	m_state = clientPort == 0 ? ProxyInit : ProxyReceive;
+	m_state = ProxyInit;
 	m_lastHeader = OftHeader();
 	m_len = 0;
 	m_uin = uin;
 	m_cookie = cookie;
-	m_proxyPort = clientPort;
+	m_proxyPort = 0;
+	m_hostReqId = QHostInfo::lookupHost("ars.oscar.aol.com", this, SLOT(proxyFound(QHostInfo)));
+}
+
+void OftSocket::proxyFound(const QHostInfo &proxyInfo)
+{
+	m_hostReqId = 0;
+	QList<QHostAddress> addresses = proxyInfo.addresses();
+	if (!addresses.isEmpty()) {
+		connectToProxy(addresses.at(qrand() % addresses.size()), 5190);
+	} else {
+		setErrorString(tr("The file transfer proxy server is not available"));
+		emit error(QAbstractSocket::ProxyNotFoundError);
+	}
+}
+
+void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr, quint16 port)
+{
+	m_state = ProxyReceive;
+	m_lastHeader = OftHeader();
+	m_len = 0;
+	m_uin = uin;
+	m_cookie = cookie;
+	m_proxyPort = port;
+	connectToProxy(addr, port);
+}
+
+void OftSocket::connectToProxy(const QHostAddress &addr, quint16 port)
+{
 	connectToHost(addr, port);
 	debug().nospace() << "Trying to connect to the proxy "
 			<< addr.toString().toLocal8Bit().constData()
-			<< ":" << 5190;
+			<< ":" << port;
 	m_timer.start();
 }
 
@@ -271,6 +301,7 @@ void OftSocket::readData()
 				str = "Accept Period Timed Out";
 			else
 				str = QString("Unknown rendezvous proxy error: %1").arg(code);
+			debug() << "Rendezvous proxy error:" << str;
 			setSocketError(QAbstractSocket::ProxyProtocolError);
 			setErrorString(str);
 			emit error(QAbstractSocket::ProxyProtocolError);
@@ -341,6 +372,8 @@ void OftSocket::disconnected()
 
 void OftSocket::onTimeout()
 {
+	if (m_hostReqId != 0)
+		QHostInfo::abortHostLookup(m_hostReqId);
 	emit timeout();
 	close();
 }
@@ -357,6 +390,7 @@ void OftServer::listen()
 {
 	m_timer.start();
 	QTcpServer::listen();
+	debug() << "Started listening for incoming connections on port" << serverPort();
 	//emit m_conn->localPortChanged(serverPort());
 }
 
@@ -438,7 +472,7 @@ void OftConnection::doSend()
 		sendFileRequest();
 	} else {
 		setSocket(new OftSocket(this));
-		initProxyConnection();
+		m_socket->proxyConnect(m_account->id(), m_cookie);
 	}
 }
 
@@ -474,12 +508,6 @@ void OftConnection::close(bool error)
 	}
 }
 
-void OftConnection::initProxyConnection()
-{
-	// Connect to ars.oscar.aol.com
-	m_socket->proxyConnect(m_contact->account()->id(), m_cookie, QHostAddress(), 5190);
-}
-
 void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 {
 	if (reqType == MsgRequest) {
@@ -487,9 +515,9 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		m_stage = tlvs.value<quint16>(0x000A);
 		QHostAddress proxyIP(tlvs.value<quint32>(0x0002));
 		QHostAddress clientIP(tlvs.value<quint32>(0x0003));
-		QHostAddress verifiedIP(tlvs.value<quint32>(0x0004));
-		Q_UNUSED(verifiedIP);
+		m_clientVerifiedIP = QHostAddress(tlvs.value<quint32>(0x0004));
 		quint16 port = tlvs.value<quint16>(0x0005);
+		bool forceProxy = m_proxy;
 		m_proxy = tlvs.contains(0x0010);
 		DataUnit tlv2711(tlvs.value(0x2711));
 		bool multipleFiles = tlv2711.read<quint16>() > 1;
@@ -506,28 +534,13 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		}
 		QString title = codec->toUnicode(tlv2711.readAll());
 		title.chop(1);
+
 		QString errorStr;
 		if (m_stage == 1) {
-			if (direction() == Incoming) {
+			if (direction() == Incoming)
 				init(filesCount, totalSize, title);
-				if (!m_proxy && clientIP.isNull()) {
-					// The receiver has not sent us its IP, so skip that stage
-					startStage2();
-					return;
-				}
-				setSocket(new OftSocket(this));
-				if (!m_proxy) {
-					m_socket->directConnect(clientIP, port);
-					debug().nospace() << "Trying to connect to the receiver "
-							<< clientIP.toString().toLocal8Bit().constData()
-							<< ":" << port;
-				} else {
-					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
-				}
-				connect(m_socket.data(), SIGNAL(timeout()), SLOT(startStage2()));
-			} else {
+			else
 				errorStr = "Stage 1 oscar file transfer request is forbidden during file sending";
-			}
 		} else if (m_stage == 2) {
 			if (direction() == Outgoing) {
 				if (m_server)
@@ -537,41 +550,43 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 							<< "but the connection already initialized at stage 1";
 					return;
 				}
-				if (!m_proxy && clientIP.isNull()) {
-					// The sender has not sent us its IP, so skip that stage
-					startStage3();
-					return;
-				}
-				setSocket(new OftSocket(this));
-				if (!m_proxy) {
-					m_socket->directConnect(clientIP, port);
-					debug().nospace() << "Trying to connect to the sender "
-							<< clientIP.toString().toLocal8Bit().constData()
-							<< ":" << port;
-				} else {
-					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190);
-				}
-				connect(m_socket.data(), SIGNAL(timeout()), SLOT(startStage3()));
 			} else {
 				errorStr = "Stage 2 oscar file transfer request is forbidden during file receiving";
 			}
 		} else if (m_stage == 3) {
-			if (direction() == Incoming) {
+			if (direction() == Incoming)
 				m_proxy = true;
-				setSocket(new OftSocket(this));
-				m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
-				connect(m_socket.data(), SIGNAL(timeout()), SLOT(close()));
-			} else {
+			else
 				errorStr = "Stage 3 oscar file transfer request is forbidden during file sending";
-			}
 		} else {
 			errorStr = QString("Unknown file transfer request at stage %1").arg(m_stage);
 		}
+
 		if (!errorStr.isEmpty()) {
 			debug() << errorStr;
 			close();
 			return;
 		}
+
+		if (!m_proxy && clientIP.isNull()) {
+			// The conntact has not sent us its IP, so skip that stage
+			startNextStage();
+			return;
+		}
+		setSocket(new OftSocket(this));
+		if (!m_proxy && forceProxy) {
+			// The contact wants a direct connection which
+			// is forbidden by the user
+			m_proxy = true;
+			m_clientVerifiedIP = QHostAddress::Null;
+			startNextStage();
+			return;
+		}
+		if (!m_proxy)
+			m_socket->directConnect(clientIP, port);
+		else
+			m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, port);
+		connect(m_socket.data(), SIGNAL(timeout()), SLOT(startNextStage()));
 	} else if (reqType == MsgAccept) {
 		debug() << m_contact->id() << "accepted file transfing";
 	} else if (reqType == MsgCancel) {
@@ -605,7 +620,7 @@ void OftConnection::setSocket(OftSocket *socket)
 	}
 }
 
-void OftConnection::sendFileRequest(bool fileinfo)
+void OftConnection::sendFileRequest()
 {
 	IcqAccount *account = contact()->account();
 	Channel2BasicMessageData data(MsgRequest, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
@@ -620,7 +635,8 @@ void OftConnection::sendFileRequest(bool fileinfo)
 		if (m_server) {
 			m_server->setConnection(this);
 			m_server->listen();
-			connect(m_server.data(), SIGNAL(timeout(OftConnection*)), SLOT(close()));
+			// That does not work well with all clients
+			// connect(m_server.data(), SIGNAL(timeout(OftConnection*)), SLOT(close()));
 			clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
 			port = m_server->serverPort();
 		} else {
@@ -637,7 +653,7 @@ void OftConnection::sendFileRequest(bool fileinfo)
 	data.appendTLV<quint16>(0x0017, port ^ 0x0FFFF);
 	if (m_proxy)
 		data.appendTLV(0x0010);
-	if (fileinfo) {
+	if (m_stage == 1) {
 		{
 			// file info
 			const int count = filesCount();
@@ -658,6 +674,7 @@ void OftConnection::sendFileRequest(bool fileinfo)
 	}
 	ServerMessage message(m_contact, data);
 	m_contact->account()->connection()->send(message);
+	debug() << "A stage" << m_stage << "file transfer request has been sent";
 }
 
 void OftConnection::connected()
@@ -677,9 +694,9 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 {
 	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
 	if (m_stage == 1 && direction() == Incoming && !connClosed) {
-		startStage2();
+		startNextStage();
 	} else if (m_stage == 2 && !direction() == Outgoing && !connClosed) {
-		startStage3();
+		startNextStage();
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {
 			debug() << "File transfer connection closed";
@@ -777,7 +794,7 @@ void OftConnection::startFileReceiving(const int index)
 	if (exist) {
 		m_header.receivedChecksum = fileChecksum(file);
 		m_header.bytesReceived = file->size();
-		m_header.type = OftReceiverResume;
+		m_header.type = m_header.bytesReceived == m_header.size ? OftDone : OftReceiverResume;
 	} else {
 		if (!m_data->open(QIODevice::WriteOnly)) {
 			close(false);
@@ -798,20 +815,39 @@ void OftConnection::startFileReceiving(const int index)
 	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
 }
 
-void OftConnection::startStage2()
+void OftConnection::startNextStage()
 {
-	m_stage = 2;
-	m_socket->deleteLater();
-	sendFileRequest(false);
-}
-
-void OftConnection::startStage3()
-{
-	m_stage = 3;
-	m_proxy = true;
-	m_socket->close();
-	initProxyConnection();
-	sendFileRequest(false);
+	if (m_stage == 1) {
+		if (!m_clientVerifiedIP.isNull()) {
+			Q_ASSERT(!m_proxy);
+			m_socket->close();
+			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
+			m_clientVerifiedIP = QHostAddress::Null;
+		} else {
+			m_stage = 2;
+			if (m_proxy) {
+				m_socket->close();
+				m_socket->proxyConnect(m_account->id(), m_cookie);
+			} else {
+				m_socket->deleteLater();
+				sendFileRequest();
+			}
+		}
+	} else if (m_stage = 2) {
+		if (!m_clientVerifiedIP.isNull()) {
+			Q_ASSERT(m_proxy);
+			m_socket->close();
+			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
+			m_clientVerifiedIP = QHostAddress::Null;
+		} else {
+			m_stage = 3;
+			m_proxy = true;
+			m_socket->close();
+			m_socket->proxyConnect(m_account->id(), m_cookie);
+		}
+	} else {
+		close();
+	}
 }
 
 void OftConnection::onHeaderReaded()

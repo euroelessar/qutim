@@ -25,6 +25,7 @@
 #include <QFileInfo>
 #include <QTcpServer>
 #include <QPointer>
+#include <QHostInfo>
 
 namespace qutim_sdk_0_3 {
 
@@ -106,10 +107,11 @@ public:
 	OftHeader &lastHeader() { return m_lastHeader; }
 	ReadingState readingState() const { return m_state; }
 	void directConnect(const QHostAddress &addr, quint16 port);
-	void proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr,
-					  quint16 port, quint16 m_clientPort = 0);
+	void proxyConnect(const QString &uin, quint64 cookie);
+	void proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr, quint16 port);
 	const QHostAddress &proxyIP() { return m_proxyIP; }
 	quint16 proxyPort() { return m_proxyPort; }
+	quint16 clientPort() { return m_clientPort; }
 signals:
 	void proxyInitialized();
 	void initialized();
@@ -118,11 +120,14 @@ signals:
 	void timeout();
 public slots:
 	void dataReaded();
+protected:
+	void connectToProxy(const QHostAddress &address, quint16 port);
 private slots:
 	void readData();
 	void connected();
 	void disconnected();
 	void onTimeout();
+	void proxyFound(const QHostInfo &proxyInfo);
 private:
 	void init();
 	ReadingState m_state;
@@ -132,7 +137,9 @@ private:
 	QHostAddress m_proxyIP;
 	quint16 m_proxyPort;
 	quint16 m_len;
+	int m_hostReqId;
 	QTimer m_timer;
+	quint16 m_clientPort;
 };
 
 class OftServer : public QTcpServer
@@ -175,16 +182,14 @@ protected:
 	virtual void doReceive();
 private:
 	void close(bool error);
-	void initProxyConnection();
 	void handleRendezvous(quint16 reqType, const TLVMap &tlvs);
 	void setSocket(OftSocket *socket);
 	void startFileSending();
 	void startFileReceiving(const int index);
 private slots:
 	void close() { close(true); }
-	void startStage2();
-	void startStage3();
-	void sendFileRequest(bool fileinfo = true);
+	void startNextStage();
+	void sendFileRequest();
 	void connected();
 	void onError(QAbstractSocket::SocketError);
 	void onHeaderReaded();
@@ -208,6 +213,7 @@ private:
 	OftHeader m_header;
 	bool m_connInited;
 	QString m_outputDir;
+	QHostAddress m_clientVerifiedIP;
 };
 
 class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
