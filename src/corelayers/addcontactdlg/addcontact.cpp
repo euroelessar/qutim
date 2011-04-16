@@ -55,6 +55,17 @@ AddContactModule::~AddContactModule()
 
 }
 
+void AddContactModule::show(Account *account, const QString &id,
+                            const QString &name, const QStringList &tags)
+{
+	AddContact *addContact = new AddContact(account);
+	addContact->setContactId(id);
+	addContact->setContactName(name);
+	addContact->setContactTags(tags);
+	centerizeWidget(addContact);
+	SystemIntegration::show(addContact);
+}
+
 void AddContactModule::show()
 {
 	AddContact *addContact = new AddContact();
@@ -108,6 +119,21 @@ AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_p
 
 AddContact::~AddContact()
 {
+}
+
+void AddContact::setContactId(const QString &id)
+{
+	d_func()->ui->editId->setText(id);
+}
+
+void AddContact::setContactName(const QString &name)
+{
+	d_func()->ui->editName->setText(name);
+}
+
+void AddContact::setContactTags(const QStringList &tags)
+{
+	Q_UNUSED(tags);
 }
 
 void AddContact::setAccount()

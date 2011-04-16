@@ -21,7 +21,7 @@
 #include <QMetaMethod>
 #include "debug.h"
 #include "settingslayer.h"
-#include <qutim/event.h>
+#include "event.h"
 #include <QCoreApplication>
 
 namespace qutim_sdk_0_3
