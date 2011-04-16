@@ -12,7 +12,7 @@ struct QuetzalActionInfo
 Q_DECLARE_METATYPE(QuetzalActionInfo)
 
 QuetzalActionGenerator::QuetzalActionGenerator(PurpleMenuAction *action, void *node)
-	: ActionGenerator(QIcon(), LocalizedString(action->label), QuetzalEventLoop::instance(), SLOT(onAction())),
+	: ActionGenerator(QIcon(), LocalizedString(action->label), QuetzalEventLoop::instance(), SLOT(onAction(QAction*))),
 	m_info(new QuetzalActionInfo)
 {
 	m_info->cb = action->callback;
@@ -27,15 +27,14 @@ Q_EXTERN_C void purple_plugin_action_free(PurplePluginAction *action)
 }
 
 QuetzalActionGenerator::QuetzalActionGenerator(PurplePluginAction *action)
-	: ActionGenerator(QIcon(), LocalizedString(action->label), QuetzalEventLoop::instance(), SLOT(onAction()))
+	: ActionGenerator(QIcon(), LocalizedString(action->label), QuetzalEventLoop::instance(), SLOT(onAction(QAction*)))
 {
 	m_action = QSharedPointer<PurplePluginAction>(action, purple_plugin_action_free);
 }
 
 // Yeah it's bad, I know
-void QuetzalEventLoop::onAction()
+void QuetzalEventLoop::onAction(QAction *action)
 {
-	QAction *action = qobject_cast<QAction *>(sender());
 	QVariant var = action->property("actionInfo");
 	if (var.canConvert<QuetzalActionInfo>()) {
 		QuetzalActionInfo info = var.value<QuetzalActionInfo>();

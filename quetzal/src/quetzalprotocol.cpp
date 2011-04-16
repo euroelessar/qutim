@@ -73,34 +73,61 @@ void initActions()
 			<< new StatusActionGenerator(Status(Status::Offline));
 	foreach (ActionGenerator *action, actions)
 		MenuController::addAction(action, &QuetzalAccount::staticMetaObject);
+//	QList<QLatin1String> ids;
+//	foreach (Protocol *genericProto, Protocol::all()) {
+//		if (QuetzalProtocol *proto = qobject_cast<QuetzalProtocol*>(genericProto))
+//			ids << QLatin1String(proto->plugin()->info->id);
+//	}
+	GList *accounts = purple_accounts_get_all();
+	for (; accounts; accounts = g_list_next(accounts)) {
+		PurpleAccount *purpleAccount = reinterpret_cast<PurpleAccount*>(accounts->data);
+		// Disable auto-connect for every account
+		if (purple_presence_is_online(purpleAccount->presence))
+			purple_account_disconnect(purpleAccount);
+//		const char *protocolId = purple_account_get_protocol_id(purpleAccount);
+//		if (ids.contains(QLatin1String(protocolId)))
+//			continue;
+	}
+
 	inited = true;
-	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
-	path += "/purple";
-	QByteArray nativePath = QDir::toNativeSeparators(path).toUtf8();
-	purple_util_set_user_dir(nativePath.constData());
-	path += "/icons";
-	nativePath = QDir::toNativeSeparators(path).toUtf8();
-	purple_buddy_icons_set_cache_dir(nativePath.constData());
+//	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
+//	path += "/purple";
+//	QByteArray nativePath = QDir::toNativeSeparators(path).toUtf8();
+//	purple_util_set_user_dir(nativePath.constData());
+//	path += "/icons";
+//	nativePath = QDir::toNativeSeparators(path).toUtf8();
+//	purple_buddy_icons_set_cache_dir(nativePath.constData());
 }
 
 void QuetzalProtocol::addAccount(PurpleAccount *purpleAccount)
 {
-	QuetzalAccount *account = new QuetzalAccount(purpleAccount->username, this);
+	QuetzalAccount *account = new QuetzalAccount(purpleAccount, this);
 	registerAccount(account);
+	purple_accounts_add(purpleAccount);
 
-	Config cfg = config("general");
-	QStringList accounts = cfg.value("accounts", QStringList());
-	accounts << account->id();
-	cfg.setValue("accounts", accounts);
+//	Config cfg = config("general");
+//	QStringList accounts = cfg.value("accounts", QStringList());
+//	accounts << account->id();
+//	cfg.setValue("accounts", accounts);
 }
 
 void QuetzalProtocol::loadAccounts()
 {
 	initActions();
-	QStringList accounts = config("general").value("accounts", QStringList());
-	debug() << id() << accounts;
-	foreach(const QString &id, accounts)
-		registerAccount(new QuetzalAccount(id, this));
+	GList *accounts = purple_accounts_get_all();
+	for (; accounts; accounts = g_list_next(accounts)) {
+		PurpleAccount *purpleAccount = reinterpret_cast<PurpleAccount*>(accounts->data);
+		const char *protocolId = purple_account_get_protocol_id(purpleAccount);
+		if (qstrcmp(m_plugin->info->id, protocolId))
+			continue;
+		QuetzalAccount *account = new QuetzalAccount(purpleAccount, this);
+		registerAccount(account);
+	}
+	
+//	QStringList accounts = config("general").value("accounts", QStringList());
+//	debug() << id() << accounts;
+//	foreach(const QString &id, accounts)
+//		registerAccount(new QuetzalAccount(id, this));
 }
 
 void QuetzalProtocol::onAccountRemoved(QObject *object)

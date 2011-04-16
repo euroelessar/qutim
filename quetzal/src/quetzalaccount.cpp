@@ -149,8 +149,19 @@ void QuetzalContactsFactory::serialize(Contact *contact, QVariantMap &data)
 	data.insert(QLatin1String("quetzal_settings"), settings);
 }
 
+QString quetzal_fix_id(QuetzalProtocol *protocol, const char *username)
+{
+	/* if (protocol->id() == QLatin1String("irc")) {
+	} else */
+	if (protocol->id() == QLatin1String("jabber")) {
+		QString id = QString::fromUtf8(username);
+		return id.section(QLatin1Char('/'), 0, 0);
+	}
+	return QString::fromUtf8(username);
+}
+
 QuetzalAccount::QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol) :
-		Account(account->username, protocol)
+		Account(quetzal_fix_id(protocol, account->username), protocol)
 {
 	m_isLoading = false;
 	m_account = account;
@@ -165,6 +176,7 @@ QuetzalAccount::QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol
 
 QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : Account(id, protocol)
 {
+	Q_ASSERT(!"Shouldn't use this constructor");
 	m_isLoading = false;
 	Config cfg = config();
 	QString purpleId = id;
@@ -370,6 +382,9 @@ void QuetzalAccount::save()
 {
 	if (m_isLoading)
 		return;
+	// Test it
+	else
+		return;
 	Config cfg = config();
 	cfg.beginGroup(QLatin1String("general"));
 	cfg.setValue(QLatin1String("alias"), purple_account_get_alias(m_account));
@@ -404,6 +419,8 @@ void QuetzalAccount::save(PurpleBuddy *buddy)
 	}
 	if (!contact)
 		return;
+	// Test it
+	return;
 	if (!m_isLoading) {
 		if (created)
 			RosterStorage::instance()->addContact(contact);
@@ -422,11 +439,15 @@ void QuetzalAccount::remove(PurpleBuddy *buddy)
 	if (!contact)
 		return;
 	if (contact->removeBuddy(buddy) == 0) {
+		// Test it
+		return;
 		RosterStorage::instance()->removeContact(contact);
 //		FIXME: What should we do?
 //		m_contacts.remove(contact->id());
 //		contact->deleteLater();
 	} else if (!m_isLoading) {
+		// Test it
+		return;
 		RosterStorage::instance()->updateContact(contact);
 	}
 //	ConfigGroup group = config("contactlist");
@@ -441,6 +462,8 @@ void QuetzalAccount::save(PurpleChat *chat)
 		guard->chat = chat;
 		chat->node.ui_data = new QuetzalChatGuard::Ptr(guard);
 	}
+	// Test it
+	return;
 	if (!m_isLoading && !m_chatTimer.isActive())
 		m_chatTimer.start(5000, this);
 //	debug() << Q_FUNC_INFO << chat->alias;
@@ -457,6 +480,8 @@ void QuetzalAccount::remove(PurpleChat *chat)
 		(*guard)->chat = 0;
 		delete guard;
 	}
+	// Test it
+	return;
 	if (!m_chatTimer.isActive())
 		m_chatTimer.start(5000, this);
 //	debug() << Q_FUNC_INFO << chat->alias;
@@ -572,9 +597,9 @@ int QuetzalAccount::sendRawData(const QByteArray &data)
 	return -1;
 }
 
-QList<MenuController::Action> QuetzalAccount::dynamicActions() const
+MenuController::ActionList QuetzalAccount::dynamicActions() const
 {
-	QList<MenuController::Action> actions;
+	MenuController::ActionList actions;
 	if (!m_account->gc)
 		return actions;
 	GList *menu = m_account->gc->prpl->info->actions(m_account->gc->prpl, m_account->gc);
@@ -583,8 +608,9 @@ QList<MenuController::Action> QuetzalAccount::dynamicActions() const
 	for (GList *it = menu; it; it = it->next, i--) {
 		PurplePluginAction *action = reinterpret_cast<PurplePluginAction*>(it->data);
 		action->context = m_account->gc;
-		actions << MenuController::Action((new QuetzalActionGenerator(action))
-										  ->setType(2)->setPriority(i), off);
+		ActionGenerator *gen = new QuetzalActionGenerator(action);
+		gen->setType(2)->setPriority(i);
+		actions << (MenuController::Action){ gen, off };
 	}
 	g_list_free(menu);
 	return actions;

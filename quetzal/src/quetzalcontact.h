@@ -48,7 +48,7 @@ public:
 	virtual void setInList(bool inList);
 
 protected:
-	QList<MenuController::Action> dynamicActions() const;
+	MenuController::ActionList dynamicActions() const;
 signals:
 
 public slots:

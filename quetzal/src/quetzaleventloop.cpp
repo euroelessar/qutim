@@ -38,34 +38,30 @@ QuetzalEventLoop *QuetzalEventLoop::instance()
 	return m_self;
 }
 
-static QBasicAtomicInt quetzal_eventloop_timer_count = Q_BASIC_ATOMIC_INITIALIZER(0);
-
-static GSourceFunc quetzal_accounts_save_cb = NULL;
+//static GSourceFunc quetzal_accounts_save_cb = NULL;
 
 uint QuetzalEventLoop::addTimer(guint interval, GSourceFunc function, gpointer data)
 {
-	// This hook is used for plugin to know when accounts's data should be saved
-	if (!quetzal_accounts_save_cb && interval == 5000)
-		quetzal_accounts_save_cb = function;
+//	// This hook is used for plugin to know when accounts's data should be saved
+//	if (!quetzal_accounts_save_cb && interval == 5000)
+//		quetzal_accounts_save_cb = function;
 	bool isMainThread = QThread::currentThread() == qApp->thread();
 	int id = -1;
 	if (isMainThread) {
 		id = QObject::startTimer(interval);
 	} else {
-		int localId = quetzal_eventloop_timer_count.fetchAndAddOrdered(1);
 		QMetaObject::invokeMethod(this, "startTimer", Qt::BlockingQueuedConnection,
-								  Q_ARG(int, interval), Q_ARG(int, localId));
-		id = m_evil.take(localId);
+								  Q_ARG(int, interval), Q_ARG(int*, &id));
 	}
 	QMutexLocker locker(&m_timerMutex);
 	m_timers.insert(id, new TimerInfo(function, data));
 	return static_cast<uint>(id);
 }
 
-void QuetzalEventLoop::startTimer(int interval, int id)
+void QuetzalEventLoop::startTimer(int interval, int *id)
 {
 	QMutexLocker locker(&m_timerMutex);
-	m_evil.insert(id, QObject::startTimer(interval));
+	*id = QObject::startTimer(interval);
 }
 
 gboolean QuetzalEventLoop::removeTimer(guint handle)
@@ -92,8 +88,8 @@ void QuetzalEventLoop::timerEvent(QTimerEvent *event)
 	}
 	TimerInfo info = *it.value();
 	m_timerMutex.unlock();
-	if (info.function == quetzal_accounts_save_cb)
-		purple_blist_schedule_save();
+//	if (info.function == quetzal_accounts_save_cb)
+//		purple_blist_schedule_save();
 	gboolean result = (*info.function)(info.data);
 	if (!result) {
 		QMutexLocker locker(&m_timerMutex);

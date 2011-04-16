@@ -68,7 +68,7 @@ public:
 	void timerEvent(QTimerEvent *);
 protected:
 	void fillStatusActions();
-	QList<MenuController::Action> dynamicActions() const;
+	MenuController::ActionList dynamicActions() const;
 	void fillPassword(const QuetzalAccountPasswordInfo &info, const QString &password);
 
 private slots:

@@ -21,6 +21,8 @@
 #include <QMap>
 #include <QMutex>
 
+class QAction;
+
 class QuetzalEventLoop : public QObject
 {
 	Q_OBJECT
@@ -48,9 +50,9 @@ public:
 	guint addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data);
 	gboolean removeIO(guint handle);
 	int getIOError(int fd, int *error);
-	Q_INVOKABLE void startTimer(int interval, int id);
+	Q_INVOKABLE void startTimer(int interval, int *id);
 public slots:
-	void onAction();
+	void onAction(QAction *action);
 protected:
 	virtual void timerEvent(QTimerEvent *event);
 private slots:
@@ -60,7 +62,6 @@ private:
 	explicit QuetzalEventLoop(QObject *parent = 0);
 	static QuetzalEventLoop *m_self;
 	QMutex m_timerMutex;
-	QMap<int, int> m_evil;
 	QMap<int, TimerInfo *> m_timers;
 	QMap<guint, FileInfo *> m_files;
 	guint m_socketId;

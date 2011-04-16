@@ -360,14 +360,15 @@ void QuetzalContact::setInList(bool inList)
 {
 }
 
-void quetzal_menu_add(QList<MenuController::Action> &actions, void *node,
+void quetzal_menu_add(MenuController::ActionList &actions, void *node,
 					  GList *menu, const QList<QByteArray> &off, int type)
 {
 	int i = 0;
 	for (GList *it = menu; it; it = it->next, i--) {
 		PurpleMenuAction *action = (PurpleMenuAction *)it->data;
-		actions << MenuController::Action((new QuetzalActionGenerator(action, node))
-										  ->setType(type)->setPriority(i), off);
+		ActionGenerator *gen = new QuetzalActionGenerator(action, node);
+		gen->setType(type)->setPriority(i);
+		actions << (MenuController::Action){ gen, off };
 		QList<QByteArray> offs = off;
 		offs.append(action->label);
 		quetzal_menu_add(actions, node, action->children, offs, ActionGenerator::GeneralType);
@@ -376,23 +377,23 @@ void quetzal_menu_add(QList<MenuController::Action> &actions, void *node,
 	}
 }
 
-QList<MenuController::Action> QuetzalContact::dynamicActions() const
+MenuController::ActionList QuetzalContact::dynamicActions() const
 {
-	QList<MenuController::Action> actions;
-	// Is it effective now?
-//	if (!m_buddy->account->gc)
-//		return actions;
-//	PurpleBlistNode *node = const_cast<PurpleBlistNode *>(&m_buddy->node);
-//	GList *menu = NULL;
-//	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-//	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, blist_node_menu)) {
-//		menu = prpl->blist_node_menu(node);
-//		quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 2);
-//		g_list_free(menu);
-//	}
-//	menu = purple_blist_node_get_extended_menu(node);
-//	quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 3);
-//	g_list_free(menu);
+	MenuController::ActionList actions;
+	PurpleBuddy *buddy = m_buddies.value(0);
+	if (!buddy || !buddy->account->gc)
+		return actions;
+	PurpleBlistNode *node = const_cast<PurpleBlistNode *>(&buddy->node);
+	GList *menu = NULL;
+	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(buddy->account->gc->prpl);
+	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, blist_node_menu)) {
+		menu = prpl->blist_node_menu(node);
+		quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 2);
+		g_list_free(menu);
+	}
+	menu = purple_blist_node_get_extended_menu(node);
+	quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 3);
+	g_list_free(menu);
 	return actions;
 }
 

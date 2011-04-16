@@ -510,10 +510,10 @@ static PurpleCoreUiOps quetzal_core_uiops =
 
 void QuetzalPlugin::initLibPurple()
 {
-	m_tmpDir = QDir::tempPath();
-	m_tmpDir += "/purple/";
-	m_tmpDir += QString::number(qrand());
-	purple_util_set_user_dir(QDir::toNativeSeparators(m_tmpDir).toUtf8().constData());
+//	m_tmpDir = QDir::tempPath();
+//	m_tmpDir += "/purple/";
+//	m_tmpDir += QString::number(qrand());
+//	purple_util_set_user_dir(QDir::toNativeSeparators(m_tmpDir).toUtf8().constData());
 	/* Set a custom user directory (optional) */
 //	purple_util_set_user_dir("/dev/null");
 
@@ -591,12 +591,11 @@ void QuetzalPlugin::init()
 	if (!lib.load()) {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN)
 		// So try to guess purple path
-		QStringList mayBePaths = QStringList() << QLatin1String("/usr/lib")
+		QStringList mayBePaths(QLatin1String("/usr/lib"));
 #ifdef Q_WS_MAEMO_5
-								 << QLatin1String("/opt/maemo/usr/lib")
+		mayBePaths << QLatin1String("/opt/maemo/usr/lib");
 #endif
-								 ;
-		QStringList filter = QStringList() << QLatin1String("libpurple.so*");
+		QStringList filter(QLatin1String("libpurple.so*"));
 		bool ok = false;
 		foreach (const QString &path, mayBePaths) {
 			QDir dir(path);
@@ -640,10 +639,10 @@ void QuetzalPlugin::init()
 
 void QuetzalPlugin::clearTemporaryDir()
 {
-	if (m_tmpDir.isEmpty())
-		return;
+//	if (m_tmpDir.isEmpty())
+//		return;
 	
-	m_tmpDir.clear();
+//	m_tmpDir.clear();
 }
 
 void QuetzalPlugin::onFinished(void *data)

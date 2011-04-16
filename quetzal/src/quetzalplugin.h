@@ -34,7 +34,7 @@ private slots:
 	void onFinished(void *data);
 private:
 	void initLibPurple();
-	QString m_tmpDir;
+//	QString m_tmpDir;
 };
 
 #endif // PURPLEPROTOCOLPLUGIN_H
