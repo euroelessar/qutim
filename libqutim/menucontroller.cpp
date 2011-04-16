@@ -21,6 +21,8 @@
 #include <QMetaMethod>
 #include "debug.h"
 #include "settingslayer.h"
+#include <qutim/event.h>
+#include <QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -184,7 +186,7 @@ inline QMenu *create_menu(MenuController *controller)
 	return menu;
 }
 
-DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
+DynamicMenu::DynamicMenu(MenuControllerPrivate *d) :
 	m_d(d), m_entry(create_menu(d->q_ptr))
 {
 	dynamicMenuSet()->insert(this);
@@ -292,6 +294,15 @@ void DynamicMenu::onAboutToShow()
 	QMenu *menu = qobject_cast<QMenu*>(sender());
 	if(!menu) //on Symbian it's may be doesn't work ((
 		return;
+	if (dynamicActionsList.isEmpty()) {
+		foreach (const MenuController::Action &action, m_d->dynamicActions()) {
+			dynamicActionsList << action.generator;
+			m_d->q_func()->addAction(action.generator, action.menu);
+//			onActionAdded(ActionInfo(action.generator,
+//			                         ActionGeneratorPrivate::get(action.generator),
+//			                         action.menu));
+		}
+	}
 	foreach (QAction *action, menu->actions()) {
 		ActionGenerator *gen = ActionGenerator::get(action);
 		if (!gen) {
@@ -316,6 +327,15 @@ void DynamicMenu::onAboutToHide()
 		QObject *controller = m_owners.value(gen);
 		ActionGeneratorPrivate::get(gen)->hide(action,controller);
 	}
+	if (!dynamicActionsList.isEmpty()) {
+		MenuController *controller = m_d->q_func();
+		foreach (ActionGenerator *gen, dynamicActionsList)
+			controller->removeAction(gen);
+		QVariant var = qVariantFromValue(DynamicActionList(new DynamicActionListKiller(dynamicActionsList)));
+		Event *ev = new Event("dynamic-action-list-hook", var);
+		QCoreApplication::postEvent(Event::eventManager(), ev, -2);
+		dynamicActionsList.clear();
+	}
 }
 
 QMenu *MenuController::menu(bool deleteOnClose) const
@@ -323,7 +343,7 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 	Q_UNUSED(deleteOnClose);
 	Q_D(const MenuController);
 	if (!d->menu)
-		d->menu = new DynamicMenu(d);
+		d->menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d));
 #ifdef Q_WS_MAEMO_5
 	d->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
 	//maemo does not use QMenu in main menu. Only the action in menu.
@@ -413,6 +433,11 @@ void MenuController::setMenuFlags(const MenuFlags &flags)
 {
 	Q_D(MenuController);
 	d->flags = flags;
+}
+
+MenuController::ActionList MenuController::dynamicActions() const
+{
+	return ActionList();
 }
 
 void MenuController::virtual_hook(int id, void *data)

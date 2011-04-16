@@ -63,15 +63,25 @@ public:
 	int flags;
 	MenuController *q_ptr;
 	mutable QPointer<DynamicMenu> menu;
+	MenuController::ActionList dynamicActions() const { return q_func()->dynamicActions(); }
 	static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 	static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 };
+
+struct DynamicActionListKiller
+{
+	DynamicActionListKiller(const QList<ActionGenerator *> &a) : actions(a) {}
+	~DynamicActionListKiller() { qDeleteAll(actions); }
+	QList<ActionGenerator *> actions;
+};
+
+typedef QSharedPointer<DynamicActionListKiller> DynamicActionList;
 
 class DynamicMenu : public QObject
 {
 	Q_OBJECT
 public:
-	DynamicMenu(const MenuControllerPrivate *d);
+	DynamicMenu(MenuControllerPrivate *d);
 	virtual ~DynamicMenu();
 
 	inline QMenu *menu() { return m_menu; }
@@ -88,9 +98,10 @@ private slots:
 	void onAboutToHide();
 private:
 	QList<ActionInfo> allActions() const;
-	const MenuControllerPrivate * const m_d;
+	MenuControllerPrivate * const m_d;
 	QMenu *m_menu;
 	ActionEntry m_entry;
+	QList<ActionGenerator *> dynamicActionsList;
 	mutable QMap<const ActionGenerator*, QObject*> m_owners;
 	friend class MenuController;
 };
@@ -130,5 +141,7 @@ private:
 
 ActionHandler *handler();
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::DynamicActionList)
 
 #endif // MENUCONTROLLER_P_H

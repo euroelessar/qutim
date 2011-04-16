@@ -108,7 +108,7 @@ void JsonHistoryRunnable::run()
 		file.write("\n]");
 		file.close();
 		lastModified = QFileInfo(fileName).lastModified();
-		d->cache.insert(fileName, (JsonHistoryScope::EndValue){ lastModified, end });
+		d->cache.insert(fileName, JsonHistoryScope::EndValue(lastModified, end));
 	//	It will produce something like this:
 	//	{
 	//	 "datetime": "2009-06-20T01:42:22",

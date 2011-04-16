@@ -78,7 +78,12 @@ public:
 	Q_DECLARE_FLAGS(MenuFlags, MenuFlag)
 
 #ifndef Q_QDOC
-	typedef QPair<ActionGenerator *, QList<QByteArray> > Action;
+	struct Action
+	{
+		ActionGenerator *generator;
+		QList<QByteArray> menu;
+	};
+	typedef QList<Action> ActionList;
 #endif
 	/*!
 	  Constructs MenuController with \a parent.
@@ -177,6 +182,9 @@ protected:
 	*/
 	void setMenuOwner(MenuController *controller);
 	void setMenuFlags(const MenuFlags &flags);
+#ifndef Q_QDOC
+	virtual ActionList dynamicActions() const;
+#endif
 	virtual void virtual_hook(int id, void *data);
 	QScopedPointer<MenuControllerPrivate> d_ptr;
 };

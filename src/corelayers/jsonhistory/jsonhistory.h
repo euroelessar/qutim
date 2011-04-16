@@ -49,6 +49,7 @@ struct JsonHistoryScope
 	
 	struct EndValue
 	{
+		EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
 		QDateTime lastModified;
 		uint end;
 	};
