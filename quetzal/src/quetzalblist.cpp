@@ -16,6 +16,7 @@
 #include "quetzalaccount.h"
 #include "quetzalblist.h"
 #include <qutim/debug.h>
+#include <qutim/servicemanager.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -96,6 +97,13 @@ void quetzal_set_visible(PurpleBuddyList *list, gboolean show)
 
 void quetzal_request_add_buddy(PurpleAccount *account, const char *username, const char *group, const char *alias)
 {
+	QObject *addContact = ServiceManager::getByName("AddContact");
+	if (!addContact)
+		return;
+	Account *genAccount = reinterpret_cast<Account*>(account->ui_data);
+	QMetaObject::invokeMethod(addContact, "show",
+	                          Q_ARG(Account*, genAccount), Q_ARG(QString, username),
+	                          Q_ARG(QString, alias), Q_ARG(QStringList, QStringList(group)));
 }
 
 void quetzal_request_add_chat(PurpleAccount *account, PurpleGroup *group, const char *alias, const char *name)

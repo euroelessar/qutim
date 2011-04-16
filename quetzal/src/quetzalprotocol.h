@@ -38,6 +38,7 @@ public:
 	void addAccount(PurpleAccount *account);
     virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }
+	virtual QVariant data(DataType type);
 	static QHash<PurplePlugin *, QuetzalProtocol *> &protocols()
 	{
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;

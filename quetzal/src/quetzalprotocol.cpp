@@ -53,6 +53,20 @@ Account *QuetzalProtocol::account(const QString &id) const
 	return m_accounts.value(id);
 }
 
+QVariant QuetzalProtocol::data(DataType type)
+{
+	switch (type) {
+	case ProtocolIdName:
+		return QLatin1String("ID");
+	case ProtocolContainsContacts: {
+		PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(m_plugin);
+		return info->add_buddy != NULL;
+	}
+	default:
+		return QVariant();
+	}
+}
+
 void initActions()
 {
 	static bool inited = false;

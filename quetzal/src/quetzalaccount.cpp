@@ -600,9 +600,11 @@ int QuetzalAccount::sendRawData(const QByteArray &data)
 MenuController::ActionList QuetzalAccount::dynamicActions() const
 {
 	MenuController::ActionList actions;
-	if (!m_account->gc)
+	if (!m_account->gc || status() == Status::Connecting)
 		return actions;
 	GList *menu = m_account->gc->prpl->info->actions(m_account->gc->prpl, m_account->gc);
+	if (!menu)
+		return actions;
 	QList<QByteArray> off;
 	int i = 0;
 	for (GList *it = menu; it; it = it->next, i--) {
