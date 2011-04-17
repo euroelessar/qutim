@@ -26,7 +26,12 @@ AccountCreatorList::AccountCreatorList() :
 	delegate->setUserDefinedEditorSupport();
 	ui->listWidget->setItemDelegate(delegate);
 
-	int width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+#ifdef Q_WS_S60
+	int width = style()->pixelMetric(QStyle::QStyle::PM_ListViewIconSize);
+#else
+	int width = style()->pixelMetric(QStyle::QStyle::PM_ToolBarIconSize);
+#endif
+
 	QSize size = QSize(width, width);
 	ui->listWidget->setIconSize(size);
 
@@ -47,8 +52,7 @@ AccountCreatorList::AccountCreatorList() :
 	foreach(Protocol *protocol, Protocol::all()) {
 		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
 		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, protocol->accounts())
-		{
+		foreach(Account *account, protocol->accounts())	{
 			addAccount(account);
 		}
 	}

@@ -299,8 +299,13 @@ void ContactDelegate::reloadSettings()
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");	
 
+#ifdef Q_WS_S60
+	p->statusIconSize = cfg.value("statusIconSize",
+								  qApp->style()->pixelMetric(QStyle::PM_IconViewIconSize));
+#else
 	p->statusIconSize = cfg.value("statusIconSize",
 								  qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));
+#endif
 	p->extIconSize = cfg.value("extIconSize",
 							   qApp->style()->pixelMetric(QStyle::PM_ListViewIconSize));
 	ContactDelegate::ShowFlags flags = cfg.value("showFlags",

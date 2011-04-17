@@ -379,7 +379,7 @@ const ObjectGenerator *DataSettingsItem::generator() const
 
 SettingsLayer::SettingsLayer()
 {
-	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "SettingsLayer"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "Settings Window"));
 }
 
 SettingsLayer::~SettingsLayer()

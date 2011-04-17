@@ -25,7 +25,7 @@ AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*
 	d->mode = Qt::IgnoreAspectRatio;	
 	d->radius = 5;
 	#ifdef QUTIM_MOBILE_UI
-	d->radius = 10;
+	d->radius = 15;
 	#endif
 }
 
