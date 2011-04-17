@@ -90,6 +90,7 @@ public:
 	bool event(QEvent *);
 	bool virtual eventFilter(QObject *obj, QEvent *ev);
 	virtual void clearChat();
+	virtual QString quote();
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void loadSettings();
@@ -132,6 +133,7 @@ private:
 	QString m_scriptForInvoke;
 	bool skipOneMerge;
 	QString previous_sender; // null if outcoming
+	QString m_lastIncomingMessage;
 	QDateTime lastDate;
 	int groupUntil;
 	bool separator;

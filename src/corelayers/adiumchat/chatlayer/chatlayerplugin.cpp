@@ -95,6 +95,11 @@ bool ChatLayerPlugin::load()
 							   "ChatWidget",
 							   QKeySequence("alt+e")
 							   );
+	Shortcut::registerSequence("quote",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Quote"),
+							   "ChatWidget",
+							   QKeySequence("alt+q")
+							   );
 	Shortcut::registerSequence("clearChat",
 							   QT_TRANSLATE_NOOP("ChatLayer", "Clear Chat"),
 							   "ChatWidget",
@@ -104,13 +109,22 @@ bool ChatLayerPlugin::load()
 	ActionGenerator *gen = new EmoActionGenerator(this);
 	gen->setShortcut(Shortcut::getSequence(QLatin1String("showEmoticons")).key);
 	form->addAction(gen);
+
+	gen = new ActionGenerator(Icon("insert-text-quote"),
+							  QT_TRANSLATE_NOOP("ChatLayer","Quote"),
+							  this,
+							  SLOT(onQuote(QObject*)));
+	gen->setShortcut(Shortcut::getSequence(QLatin1String("quote")).key);
+	form->addAction(gen);
+
 	gen = new ActionGenerator(Icon("edit-clear-list"),
-											   QT_TRANSLATE_NOOP("ChatLayer","Clear chat"),
-											   this,
-											   SLOT(onClearChat(QObject*)));
+							  QT_TRANSLATE_NOOP("ChatLayer","Clear chat"),
+							  this,
+							  SLOT(onClearChat(QObject*)));
 	gen->setToolTip(QT_TRANSLATE_NOOP("ChatLayer","Clear chat field"));
 	gen->setShortcut(Shortcut::getSequence(QLatin1String("clearChat")).key);
 	form->addAction(gen);
+
 	return true;
 }
 
@@ -132,6 +146,20 @@ void ChatLayerPlugin::onInsertEmoticon(QAction *act,QObject *controller)
 		return;
 	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller))
 		chat->getInputField()->insertPlainText(str);
+}
+
+void ChatLayerPlugin::onQuote(QObject *controller)
+{
+	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller)) {
+		ChatSessionImpl *session = chat->currentSession();
+		QString quote = session->quote();
+		if (quote.isEmpty())
+			return;
+		quote = QLatin1String(chat->getInputField()->textCursor().atStart() ? "> " : "\n> ") +
+				quote.replace('\n', "\n> ") +
+				QLatin1Char('\n');
+		chat->getInputField()->insertPlainText(quote);
+	}
 }
 
 }

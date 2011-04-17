@@ -34,6 +34,7 @@ public:
 protected slots:
 	void onClearChat(QObject *controller);
 	void onInsertEmoticon(QAction*,QObject*);
+	void onQuote(QObject *controller);
 };
 }
 }

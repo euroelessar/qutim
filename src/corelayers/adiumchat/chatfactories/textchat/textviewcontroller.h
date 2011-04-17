@@ -70,6 +70,7 @@ public:
 	QList<Token> makeUrls(const QString &html);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
+	virtual QString quote();
 	void setTextEdit(QTextBrowser *edit);
 	int scrollBarPosition() const { return m_scrollBarPosition; }
 	void setScrollBarPosition(int pos) { m_scrollBarPosition = pos; }
@@ -99,6 +100,7 @@ private:
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;
+	QString m_lastIncomingMessage;
 	bool m_isLastIncoming;
 	bool m_storeServiceMessages;
 	bool m_animateEmoticons;

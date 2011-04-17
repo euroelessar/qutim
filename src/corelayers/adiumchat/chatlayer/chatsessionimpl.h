@@ -72,6 +72,7 @@ signals:
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void clearChat();
+	QString quote();
 private:
 	QScopedPointer<ChatSessionImplPrivate> d_ptr;
 };

@@ -71,6 +71,11 @@ void ChatSessionImpl::clearChat()
 	d->getController()->clearChat();
 }
 
+QString ChatSessionImpl::quote()
+{
+	return d_func()->getController()->quote();
+}
+
 ChatSessionImpl::~ChatSessionImpl()
 {
 	Q_D(ChatSessionImpl);

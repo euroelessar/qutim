@@ -157,6 +157,8 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		m_lastSender = currentSender;
 		m_lastTime = msg.time();
 		m_isLastIncoming = msg.isIncoming();
+		if (m_isLastIncoming)
+			m_lastIncomingMessage = msg.text();
 		cursor.insertText(QLatin1String("\n"));
 		bool showReceived = msg.isIncoming();
 		if (msg.property("history", false))
@@ -447,6 +449,12 @@ void TextViewController::clearChat()
 	debug() << Q_FUNC_INFO;
 	QTextDocument::clear();
 	init();
+}
+
+QString TextViewController::quote()
+{
+	QTextCursor cursor = m_textEdit->textCursor();
+	return cursor.hasSelection() ? cursor.selectedText() : m_lastIncomingMessage;
 }
 
 void TextViewController::setTextEdit(QTextBrowser *edit)

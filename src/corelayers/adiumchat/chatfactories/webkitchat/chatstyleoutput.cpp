@@ -297,6 +297,14 @@ void ChatStyleOutput::clearChat()
 	preparePage(m_session);
 }
 
+QString ChatStyleOutput::quote()
+{
+	QString quote = selectedText();
+	if (quote.isEmpty())
+		quote = m_lastIncomingMessage;
+	return quote;
+}
+
 ChatStyleOutput::~ChatStyleOutput()
 {
 }
@@ -419,20 +427,19 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 	else {
 		QString currentSender;
 		if (message.isIncoming()) {
-			currentSender = message.property("senderName",message.chatUnit()->title());
-		}
-		else {
-			currentSender = message.property("senderName",message.chatUnit()->account()->name());
+			currentSender = message.property("senderName", message.chatUnit()->title());
+			m_lastIncomingMessage = message.text();
+		} else {
+			currentSender = message.property("senderName", message.chatUnit()->account()->name());
 		}
 
 		same_from = (!skipOneMerge) && (previous_sender == currentSender);
-		debug() << previous_sender << currentSender << skipOneMerge;
 		if (lastDate.isNull())
 			lastDate = message.time();
 		if (lastDate.secsTo(message.time()) > groupUntil)
 			same_from = false;
 		lastDate = message.time();
-		item =  makeMessage(m_session, message, same_from, id);
+		item = makeMessage(m_session, message, same_from, id);
 		previous_sender = currentSender;
 		skipOneMerge = false;
 	}
@@ -457,7 +464,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 		History::instance()->store(message);
 }
 
-void ChatStyleOutput::setVariant ( const QString& _variantName )
+void ChatStyleOutput::setVariant(const QString &_variantName )
 {
 	m_current_variant = _variantName;
 	reloadStyle();
