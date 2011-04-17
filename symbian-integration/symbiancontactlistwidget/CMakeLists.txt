@@ -1,4 +1,5 @@
 qutim_add_plugin(symbiancontactlistwidget
+	GROUP "Symbian integration Plugin"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/symbianwidget.h
 	EXTENSION_CLASS Core::SimpleContactList::SymbianWidget

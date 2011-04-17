@@ -1,6 +1,7 @@
 return()
 
 qutim_add_plugin(symbianvibra
+	GROUP "Symbian integration Plugin"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/symbianvibration.h
 	EXTENSION_CLASS Symbian::Vibration
