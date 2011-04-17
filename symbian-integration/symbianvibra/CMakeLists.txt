@@ -1,3 +1,5 @@
+return()
+
 qutim_add_plugin(symbianvibra
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/symbianvibration.h
