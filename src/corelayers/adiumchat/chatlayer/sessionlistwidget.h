@@ -3,7 +3,7 @@
 
 #include <QListWidget>
 #include <qutim/messagesession.h>
-#include <chatforms/abstractchatwidget.h>
+#include <qutim/adiumchat/abstractchatwidget.h>
 
 namespace Core {
 namespace AdiumChat {
