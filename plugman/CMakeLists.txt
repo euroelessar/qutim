@@ -25,10 +25,13 @@ endforeach(header)
 include_directories( ${LIBATTICA_INCLUDE_DIR}
 	"${CMAKE_CURRENT_BINARY_DIR}/include"
 )
-add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/quasar" )
 
 qutim_add_plugin( package_manager
 	DISPLAY_NAME "Package Manager"
 	DESCRIPTION "Provides possibility to Get Hot New Stuff from open community"
 	LINK_LIBRARIES ${LIBATTICA_LIBRARIES} quasar
 )
+
+if (${PACKAGE_MANAGER})
+	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/quasar" )
+endif()
