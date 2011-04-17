@@ -28,7 +28,7 @@ AccountCreatorList::AccountCreatorList() :
 
 #ifdef Q_WS_S60
 	int width = style()->pixelMetric(QStyle::QStyle::PM_ListViewIconSize);
-#elif Q_WS_WIN32
+#elif defined(Q_WS_WIN32)
 	int width = 22;
 #else
 	int width = style()->pixelMetric(QStyle::QStyle::PM_ToolBarIconSize);

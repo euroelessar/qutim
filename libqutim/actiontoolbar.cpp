@@ -55,11 +55,11 @@ static SizeList init_size_map()
 	list << createGenerator(22,
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
-#endif
+#else
 	list << createGenerator(style->pixelMetric(QStyle::PM_ToolBarIconSize),
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
-#else
+#endif
 	list << createGenerator(style->pixelMetric(QStyle::PM_IconViewIconSize),
 							QT_TRANSLATE_NOOP("ActionToolBar", "Big"),
 							true);
