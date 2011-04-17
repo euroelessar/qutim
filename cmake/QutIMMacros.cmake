@@ -89,11 +89,18 @@ ENDIF()
 SET(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}" CACHE DESCRIPTION "qutIM share dir")
 
 macro(QUTIM_ADD_ARTWORK art)
-	MESSAGE(STATUS "Added artwork: ${art} to ${QUTIM_SHARE_DIR}")
-	INSTALL(DIRECTORY ${art}
-		DESTINATION ${QUTIM_SHARE_DIR}
-		COMPONENT Artwork
-	)
+	GET_FILENAME_COMPONENT(_basename ${art} NAME_WE)
+	string( TOUPPER ${_basename} ARTNAME)
+	option(${ARTNAME} "" ON)
+	if(NOT "${ARTNAME}")
+		MESSAGE(STATUS "[-] ${ARTNAME}: Directory ${_basename} will be skipped")
+	else()
+		MESSAGE(STATUS "[+] ${ARTNAME}: Directory ${_basename} will be installed to ${QUTIM_SHARE_DIR}")
+		INSTALL(DIRECTORY ${art}
+			DESTINATION ${QUTIM_SHARE_DIR}
+			COMPONENT Artwork
+		)
+	endif()
 endmacro()
 
 # Argument-parsing macro from http://www.cmake.org/Wiki/CMakeMacroParseArguments
@@ -418,4 +425,15 @@ macro(qutim_generate_includes include_dir)
 			)
 		endif( NOT EXISTS "${QUTIM_INCLUDE_DIR}/${include_dir}/${_basename}.h" )
 	endforeach( header )
+endmacro()
+
+macro(qutim_add_extensions_dir dir)
+file( GLOB qutim_core_extensions "${dir}" "${dir}/*" )
+foreach( extension ${qutim_core_extensions} )
+    if( IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
+		GET_FILENAME_COMPONENT(_basename ${extension} NAME_WE)
+		string( TOUPPER ${_basename} PLUGIN)
+		add_subdirectory("${extension}/" "${CMAKE_CURRENT_BINARY_DIR}/${_basename}")
+    endif()
+endforeach( extension )
 endmacro()
