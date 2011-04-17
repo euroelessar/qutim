@@ -47,7 +47,7 @@ void SettingsWidget::loadImpl()
 	ui->questionEdit->setText(cfg.value("question",  tr("Beer, wine, vodka, champagne: after which drink in this sequence I should stop?")));
 	ui->successEdit->setText(cfg.value("success", tr("We are ready to drink with you!")));
 	ui->answerEdit->setText(cfg.value("answers", tr("vodka;Vodka")));
-	ui->authHandleBox->setCheckState(cfg.value("handleAuth", false) ? Qt::Checked : Qt::Unchecked);
+	ui->authHandleBox->setCheckState(cfg.value("handleAuth", true) ? Qt::Checked : Qt::Unchecked);
 	cfg.endGroup();
 }
 

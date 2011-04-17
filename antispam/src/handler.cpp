@@ -41,7 +41,7 @@ void Handler::loadSettings()
 	m_question = cfg.value("question", tr("Beer, wine, vodka, champagne: after which drink in this sequence I should stop?"));
 	m_success = cfg.value("success", tr("We are ready to drink with you!"));
 	m_answers = cfg.value("answers", tr("vodka;Vodka")).split(QLatin1String(";"));
-	m_handleAuth =  cfg.value("handleAuth", false);
+	m_handleAuth =  cfg.value("handleAuth", true);
 	cfg.endGroup();
 	if (QObject *obj = ServiceManager::getByName("AuthorizationService")) {
 		if (m_enabled && m_handleAuth)
