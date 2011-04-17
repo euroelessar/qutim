@@ -114,20 +114,21 @@ ADD_LIBRARY(libqutim ${LIBQUTIM_TYPE} ${SRC} ${MOC_SRC} ${HDR} ${SRC_MM})
 #endif( CMAKE_COMPILER_IS_GNUCXX )
 
 file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim" )
-file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
+file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
-    if( NOT ${header} MATCHES ".*_p\\.h" )
-		if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-			file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
-		"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
-	"
-			)
-		endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-	LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
+	if( NOT ${header} MATCHES ".*_p\\.h" )
+#		if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+#			file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
+#		"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
+#	"
+#			)
+#		endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+		LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
 set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
 set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include" CACHE INTERNAL "" )
+QUTIM_GENERATE_INCLUDES("qutim" "${QUTIM_INSTALL_HEADERS}")
 
 # Set tagret properties
 SET_TARGET_PROPERTIES ( libqutim PROPERTIES PREFIX "")

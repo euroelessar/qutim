@@ -299,9 +299,9 @@ void ContactDelegate::reloadSettings()
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");	
 
-#ifdef Q_WS_S60
+#ifdef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",
-								  qApp->style()->pixelMetric(QStyle::PM_IconViewIconSize));
+								  qApp->style()->pixelMetric(QStyle::PM_ListViewIconSize));
 #else
 	p->statusIconSize = cfg.value("statusIconSize",
 								  qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));

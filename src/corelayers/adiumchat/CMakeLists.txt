@@ -12,3 +12,17 @@ qutim_add_plugin(adiumchat
 
 add_subdirectory(chatforms)
 add_subdirectory(chatfactories)
+
+set(DEVEL_HEADERS
+	chatlayer/chatviewfactory.h
+	chatlayer/chatsessionimpl.h
+	chatlayer/chatforms/abstractchatwidget.h
+	chatlayer/chatforms/abstractchatform.h
+	chatlayer/sessionlistwidget.h
+	chatlayer/conferencecontactsview.h
+	chatlayer/chatlayerimpl.h
+	chatlayer/chatedit.h
+	chatlayer/chatlayer_global.h
+
+)
+qutim_generate_includes("qutim/adiumchat" ${DEVEL_HEADERS})

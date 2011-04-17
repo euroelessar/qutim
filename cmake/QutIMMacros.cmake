@@ -384,3 +384,18 @@ macro (QUTIM_ADD_LIBRARY library_name)
 	)
 	endif( WIN32 )
 endmacro (QUTIM_ADD_LIBRARY)
+
+macro(qutim_generate_includes include_dir)
+	foreach( header ${ARGN} )
+		GET_FILENAME_COMPONENT(_basename ${header} NAME_WE)
+		GET_FILENAME_COMPONENT(_abs_FILE ${header} ABSOLUTE)
+		#MESSAGE(STATUS ${_abs_FILE})
+
+		if( NOT EXISTS "${QUTIM_INCLUDE_DIR}/${include_dir}/${_basename}.h" )
+			file( WRITE "${QUTIM_INCLUDE_DIR}/${include_dir}/${_basename}.h"
+		"#include \"${_abs_FILE}\"
+				"
+			)
+		endif( NOT EXISTS "${QUTIM_INCLUDE_DIR}/${include_dir}/${_basename}.h" )
+	endforeach( header )
+endmacro()

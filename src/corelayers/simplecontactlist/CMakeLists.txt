@@ -29,4 +29,13 @@ qutim_add_plugin(treecontactsmodel
 	LINK_LIBRARIES simplecontactlist
 )
 
+set(DEVEL_HEADERS
+	contactlist/abstractcontactlist.h
+	contactlist/abstractcontactmodel.h
+	contactlist/simplecontactlistview.h
+	contactlist/simplestatusdialog.h
+	contactlist/simplecontactlist.h
+)
+qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
+
 add_subdirectory(widgets)
