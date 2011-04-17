@@ -26,6 +26,7 @@
 #include <QTcpServer>
 #include <QPointer>
 #include <QHostInfo>
+#include <QThread>
 
 namespace qutim_sdk_0_3 {
 
@@ -164,6 +165,21 @@ private:
 	QTimer m_timer;
 };
 
+class OftChecksumThread : public QThread
+{
+	Q_OBJECT
+public:
+	OftChecksumThread(QIODevice *file, int bytes = 0);
+	static quint32 chunkChecksum(const char *buffer, int len, quint32 checksum, int offset);
+protected:
+	void run();
+signals:
+	void done(quint32 checksum);
+private:
+	QIODevice *file;
+	int bytes;
+};
+
 class OftConnection : public FileTransferJob
 {
 	Q_OBJECT
@@ -186,6 +202,7 @@ private:
 	void setSocket(OftSocket *socket);
 	void startFileSending();
 	void startFileReceiving(const int index);
+	void startFileReceivingImpl(bool resume);
 private slots:
 	void close() { close(true); }
 	void startNextStage();
@@ -195,9 +212,9 @@ private slots:
 	void onHeaderReaded();
 	void onNewData();
 	void onSendData();
-private:
-	static quint32 fileChecksum(QIODevice *file, int bytes = 0);
-	static quint32 chunkChecksum(const char *buffer, int len, quint32 checksum, int offset);
+	void startFileSendingImpl(quint32 checksum);
+	void startFileReceivingImpl(quint32 checksum);
+	void resumeFileReceivingImpl(quint32 checksum);
 private:
 	friend class OftServer;
 	friend class OftFileTransferFactory;

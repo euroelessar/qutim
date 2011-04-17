@@ -25,8 +25,6 @@
 #include <QTimer>
 #include <QApplication>
 
-// TODO: run fileChecksum() in a separated thread
-
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -425,6 +423,54 @@ void OftServer::onTimeout()
 	close();
 }
 
+OftChecksumThread::OftChecksumThread(QIODevice *f, int b) :
+	file(f), bytes(b)
+{
+	start();
+}
+
+quint32 OftChecksumThread::chunkChecksum(const char *buffer, int len, quint32 oldChecksum, int offset)
+{
+	// code adapted from miranda's oft_calc_checksum
+	quint32 checksum = (oldChecksum >> 16) & 0xffff;
+	for (int i = 0; i < len; i++)
+	{
+		quint16 val = buffer[i];
+		//quint32 oldchecksum = checksum;
+		if (((i + offset) & 1) == 0)
+			val = val << 8;
+		if (checksum < val)
+			checksum -= val + 1;
+		else // simulate carry
+			checksum -= val;
+	}
+	checksum = ((checksum & 0x0000ffff) + (checksum >> 16));
+	checksum = ((checksum & 0x0000ffff) + (checksum >> 16));
+	return (quint32)checksum << 16;
+}
+
+void OftChecksumThread::run()
+{
+	quint32 checksum = 0xFFFF0000;
+	QByteArray data;
+	data.reserve(BUFFER_SIZE);
+	int totalRead = 0;
+	if (bytes <= 0)
+		bytes = file->size();
+	bool isOpen = file->isOpen();
+	if (!isOpen)
+		file->open(QIODevice::ReadOnly);
+	while (totalRead < bytes) {
+		data = file->read(qMin(BUFFER_SIZE, bytes - totalRead));
+		checksum = chunkChecksum(data.constData(), data.size(), checksum, totalRead);
+		totalRead += data.size();
+		//QApplication::processEvents(); // This call causes crashes
+	}
+	if (!isOpen)
+		file->close();
+	emit done(checksum);
+}
+
 OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager, bool forceProxy) :
 	FileTransferJob(contact, direction, manager),
 	m_transfer(manager),
@@ -718,9 +764,10 @@ void OftConnection::onNewData()
 	if (m_socket->bytesAvailable() <= 0)
 		return;
 	QByteArray buf = m_socket->read(m_header.size - m_header.bytesReceived);
-	m_header.receivedChecksum = OftConnection::chunkChecksum(buf.constData(), buf.size(),
-											m_header.receivedChecksum,
-											m_header.bytesReceived);
+	m_header.receivedChecksum =
+			OftChecksumThread::chunkChecksum(buf.constData(), buf.size(),
+											 m_header.receivedChecksum,
+											 m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
 	m_data->write(buf);
 	setFileProgress(m_header.bytesReceived);
@@ -742,9 +789,10 @@ void OftConnection::onSendData()
 	if (!m_data && m_socket->bytesToWrite())
 		return;
 	QByteArray buf = m_data->read(BUFFER_SIZE);
-	m_header.receivedChecksum = OftConnection::chunkChecksum(buf.constData(), buf.size(),
-											m_header.receivedChecksum,
-											m_header.bytesReceived);
+	m_header.receivedChecksum =
+			OftChecksumThread::chunkChecksum(buf.constData(), buf.size(),
+											 m_header.receivedChecksum,
+											 m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
 	m_socket->write(buf);
 	setFileProgress(m_header.bytesReceived);
@@ -769,18 +817,26 @@ void OftConnection::startFileSending()
 		close(false);
 		return;
 	}
+
+	OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.size);
+	connect(checksum, SIGNAL(done(quint32)), SLOT(startFileSendingImpl(quint32)));
+}
+
+void OftConnection::startFileSendingImpl(quint32 checksum)
+{
+	sender()->deleteLater();
 	QFileInfo file(baseDir().absoluteFilePath(fileName()));
 	m_header.type = OftPrompt;
 	m_header.cookie = m_cookie;
 	m_header.modTime = file.lastModified().toTime_t();
 	m_header.size = fileSize();
 	m_header.fileName = fileName();
-	m_header.checksum = fileChecksum(m_data.data(), m_header.size);
+	m_header.checksum = checksum;
 	m_header.receivedChecksum = 0xFFFF0000;
 	m_header.bytesReceived = 0;
 	m_header.totalSize = totalSize();
 	m_header.writeData(m_socket.data());
-	m_header.filesLeft = filesCount() - index;
+	m_header.filesLeft = filesCount() - currentIndex();
 	setState(Started);
 }
 
@@ -792,9 +848,10 @@ void OftConnection::startFileReceiving(const int index)
 	QFile *file = qobject_cast<QFile*>(m_data.data());
 	bool exist = file && file->exists() && file->size() <= m_header.size;
 	if (exist) {
-		m_header.receivedChecksum = fileChecksum(file);
 		m_header.bytesReceived = file->size();
 		m_header.type = m_header.bytesReceived == m_header.size ? OftDone : OftReceiverResume;
+		OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.size);
+		connect(checksum, SIGNAL(done(quint32)), SLOT(startFileReceivingImpl(quint32)));
 	} else {
 		if (!m_data->open(QIODevice::WriteOnly)) {
 			close(false);
@@ -806,13 +863,35 @@ void OftConnection::startFileReceiving(const int index)
 		}
 		m_header.type = OftAcknowledge;
 		onNewData();
+		startFileReceivingImpl(false);
 	}
+}
+
+void OftConnection::startFileReceivingImpl(quint32 checksum)
+{
+	sender()->deleteLater();
+	m_header.receivedChecksum = checksum;
+	startFileReceivingImpl(true);
+}
+
+void OftConnection::startFileReceivingImpl(bool resume)
+{
 	m_header.cookie = m_cookie;
 	m_header.writeData(m_socket.data());
-	if (exist)
+	if (resume)
 		m_socket->dataReaded();
 	setState(Started);
 	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
+}
+
+void OftConnection::resumeFileReceivingImpl(quint32 checksum)
+{
+	if (checksum != m_header.receivedChecksum) { // receiver's file is corrupt
+		m_header.receivedChecksum = 0xffff0000;
+		m_header.bytesReceived = 0;
+	}
+	m_header.type = OftSenderResume;
+	m_header.writeData(m_socket.data());
 }
 
 void OftConnection::startNextStage()
@@ -903,13 +982,9 @@ void OftConnection::onHeaderReaded()
 				close();
 				return;
 			}
-			quint32 checksum = fileChecksum(m_data.data(), m_header.bytesReceived);
-			if (checksum != m_header.receivedChecksum) { // receiver's file is corrupt
-				m_header.receivedChecksum = 0xffff0000;
-				m_header.bytesReceived = 0;
-			}
-			m_header.type = OftSenderResume;
-			m_header.writeData(m_socket.data());
+
+			OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.bytesReceived);
+			connect(checksum, SIGNAL(done(quint32)), SLOT(resumeFileReceivingImpl(quint32)));
 			break;
 		}
 		case OftSenderResume: { // Sender responded at our resuming request
@@ -954,48 +1029,6 @@ void OftConnection::onHeaderReaded()
 			m_socket->dataReaded();
 		}
 	}
-}
-
-quint32 OftConnection::chunkChecksum(const char *buffer, int len, quint32 oldChecksum, int offset)
-{
-	// code adapted from miranda's oft_calc_checksum
-	quint32 checksum = (oldChecksum >> 16) & 0xffff;
-	for (int i = 0; i < len; i++)
-	{
-		quint16 val = buffer[i];
-		//quint32 oldchecksum = checksum;
-		if (((i + offset) & 1) == 0)
-			val = val << 8;
-		if (checksum < val)
-			checksum -= val + 1;
-		else // simulate carry
-			checksum -= val;
-	}
-	checksum = ((checksum & 0x0000ffff) + (checksum >> 16));
-	checksum = ((checksum & 0x0000ffff) + (checksum >> 16));
-	return (quint32)checksum << 16;
-}
-
-quint32 OftConnection::fileChecksum(QIODevice* file, int bytes)
-{
-	quint32 checksum = 0xFFFF0000;
-	QByteArray data;
-	data.reserve(BUFFER_SIZE);
-	int totalRead = 0;
-	if (bytes <= 0)
-		bytes = file->size();
-	bool isOpen = file->isOpen();
-	if (!isOpen)
-		file->open(QIODevice::ReadOnly);
-	while (totalRead < bytes) {
-		data = file->read(qMin(BUFFER_SIZE, bytes - totalRead));
-		checksum = chunkChecksum(data.constData(), data.size(), checksum, totalRead);
-		totalRead += data.size();
-		//QApplication::processEvents(); // This call causes crashes
-	}
-	if (!isOpen)
-		file->close();
-	return checksum;
 }
 
 OftFileTransferFactory::OftFileTransferFactory():
