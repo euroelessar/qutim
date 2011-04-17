@@ -12,22 +12,26 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 Authorization *Authorization::self = 0;
+const int actionType = 34644;
 
-AuthorizeActionGenerator::AuthorizeActionGenerator() :
-	ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("ContactList", "Ask authorization"),
-		Authorization::instance(), SLOT(onSendRequestClicked(QObject*)))
+inline static LocalizedString authActionText(bool authorized)
 {
-	setPriority(50);
-	setType(34644);
+	return authorized ?
+			QT_TRANSLATE_NOOP("ContactList", "Reask authorization") :
+			QT_TRANSLATE_NOOP("ContactList", "Ask authorization");
 }
 
-void AuthorizeActionGenerator::showImpl(QAction *action, QObject *object)
+AuthorizeActionGenerator::AuthorizeActionGenerator() :
+	ActionGenerator(QIcon(), LocalizedString(),
+					Authorization::instance(),
+					SLOT(onSendRequestClicked(QObject*)))
 {
-	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
-	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
-	Status::Type status = contact->account()->status().type();
-	action->setVisible(status != Status::Offline && status != Status::Connecting &&
-					   !contact->property("authorizedBy").toBool());
+	setType(actionType);
+}
+
+void AuthorizeActionGenerator::createImpl(QAction *action, QObject *obj) const
+{
+	action->setText(authActionText(obj->property("authorizedBy").toBool()));
 }
 
 Authorization::Authorization() :
@@ -38,7 +42,14 @@ Authorization::Authorization() :
 	m_infos << SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse);
 	m_types << SsiBuddy;
-	MenuController::addAction<IcqContact>(new AuthorizeActionGenerator);
+
+	m_authActionGen = new AuthorizeActionGenerator;
+	MenuController::addAction<IcqContact>(m_authActionGen);
+
+	ActionGenerator *gen = new ActionGenerator(QIcon(), tr("Grant authorization"),
+											   this, SLOT(onGrantAuthClicked(QObject*)));
+	gen->setType(actionType);
+	MenuController::addAction<IcqContact>(gen);
 }
 
 void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
@@ -66,7 +77,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		IcqContact *contact = conn->account()->getContact(uin);
 		if (contact) {
 			if (isAccepted)
-				contact->setProperty("authorizedBy", true);
+				onAuthChanged(contact, true);
 			if(reason.isEmpty())
 				reason = isAccepted ? QT_TRANSLATE_NOOP("ContactList", "Authorization request accepted")
 									: QT_TRANSLATE_NOOP("ContactList", "Authorization request declined");
@@ -98,7 +109,7 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 	}
 	IcqContact *contact = feedbag->account()->getContact(item.name());
 	Q_ASSERT(contact);
-	contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
+	onAuthChanged(contact, !item.containsField(SsiBuddyReqAuth));
 	return false;
 }
 
@@ -109,6 +120,24 @@ void Authorization::onSendRequestClicked(QObject *object)
 	QEvent *event = new qutim_sdk_0_3::Authorization::Request(contact,
 															  QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"));
 	qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
+}
+
+void Authorization::onGrantAuthClicked(QObject *object)
+{
+	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
+	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
+	SNAC snac(ListsFamily, ListsGrantAuth);
+	snac.append<quint8>(contact->id());
+	snac.append<quint16>(0); // reason length
+	snac.append(0x00); // unknown
+	contact->account()->connection()->send(snac);
+}
+
+void Authorization::onAuthChanged(IcqContact *contact, bool auth)
+{
+	contact->setProperty("authorizedBy", auth);
+	foreach (QAction *action, m_authActionGen->actions(contact))
+		action->setText(authActionText(auth));
 }
 
 } } // namespace qutim_sdk_0_3::oscar

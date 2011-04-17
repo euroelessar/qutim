@@ -14,7 +14,7 @@ class AuthorizeActionGenerator : public ActionGenerator
 public:
 	AuthorizeActionGenerator();
 protected:
-	virtual void showImpl(QAction *action, QObject *object);
+	virtual void createImpl(QAction *action,QObject *obj) const;
 };
 
 class Authorization : public QObject, public SNACHandler, public FeedbagItemHandler
@@ -30,8 +30,12 @@ protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 private slots:
 	void onSendRequestClicked(QObject *object);
+	void onGrantAuthClicked(QObject *object);
+private:
+	void onAuthChanged(IcqContact *contact, bool auth);
 private:
 	static Authorization *self;
+	ActionGenerator *m_authActionGen;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
