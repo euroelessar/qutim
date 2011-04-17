@@ -8,7 +8,7 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		winint2
 		DISPLAY_NAME   "Windows Integration"
 		DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
-		GROUP          "Plugins"
+		GROUP "Windows Seven Integration"
 		LINK_LIBRARIES wapiqtwrapper ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTNETWORK_LIBRARY}
 		INCLUDE_DIRS   "libs/include" ${QT_QTNETWORK_INCLUDE_DIR}
 	)
@@ -21,18 +21,7 @@ if(WINTHINGS_APILAYER_LIBRARY)
 
 	FILE(GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/subplugins" "${CMAKE_CURRENT_SOURCE_DIR}/subplugins/*")
 
-	FOREACH(PLUGIN ${PLUGINS})
-		IF(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/subplugins/${PLUGIN}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/subplugins/${PLUGIN}/CMakeLists.txt")
-			STRING(TOUPPER WININT_${PLUGIN} PLUGIN_NAME)
-			OPTION(${PLUGIN_NAME} "" ON)
-			IF(NOT DEFINED "NO_${PLUGIN_NAME}")
-				MESSAGE("+ Windows Integration subplugin '${PLUGIN_NAME}' added to build.")
-				ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/subplugins/${PLUGIN} ${CMAKE_CURRENT_BINARY_DIR}/subplugins/${PLUGIN})
-			ELSE()
-				MESSAGE("- Windows Integration subplugin '${PLUGIN_NAME}' will be skipped.")
-			ENDIF()
-		ENDIF()
-	ENDFOREACH()
+	qutim_add_extensions_dir(subplugins)
 
 	INSTALL(DIRECTORY share
 		DESTINATION .
