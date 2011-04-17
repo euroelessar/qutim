@@ -307,7 +307,7 @@ void ContactDelegate::reloadSettings()
 								  qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));
 #endif
 	p->extIconSize = cfg.value("extIconSize",
-							   qApp->style()->pixelMetric(QStyle::PM_ListViewIconSize));
+							   qApp->style()->pixelMetric(QStyle::PM_SmallIconSize));
 	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
 												 ContactDelegate::ShowStatusText |
 												 ContactDelegate::ShowExtendedInfoIcons |
