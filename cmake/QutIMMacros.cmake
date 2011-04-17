@@ -88,19 +88,27 @@ ELSE()
 ENDIF()
 SET(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}" CACHE DESCRIPTION "qutIM share dir")
 
-macro(QUTIM_ADD_ARTWORK art)
-	GET_FILENAME_COMPONENT(_basename ${art} NAME_WE)
-	string( TOUPPER ${_basename} ARTNAME)
-	option(${ARTNAME} "" ON)
-	if(NOT "${ARTNAME}")
-		MESSAGE(STATUS "[-] ${ARTNAME}: Directory ${_basename} will be skipped")
-	else()
-		MESSAGE(STATUS "[+] ${ARTNAME}: Directory ${_basename} will be installed to ${QUTIM_SHARE_DIR}")
-		INSTALL(DIRECTORY ${art}
-			DESTINATION ${QUTIM_SHARE_DIR}
-			COMPONENT Artwork
-		)
-	endif()
+macro(qutim_add_artwork category_dir)
+	file(GLOB artworks ${category_dir} "${category_dir}/*")
+	get_filename_component(category ${category_dir} NAME_WE)
+	get_filename_component(_abs_PATH ${category_dir} ABSOLUTE)
+	FOREACH(art ${artworks})
+		get_filename_component(_abs_FILE ${art} ABSOLUTE)
+		if(IS_DIRECTORY ${_abs_FILE} AND NOT ${_abs_PATH} STREQUAL ${_abs_FILE})
+			get_filename_component(_basename ${art} NAME_WE)
+			string( TOUPPER ${category}/${_basename} ARTNAME)
+			option(${ARTNAME} "" ON)
+			if(NOT "${ARTNAME}")
+				message(STATUS "[.] ${ARTNAME}: Directory ${_basename} will be skipped")
+			else()
+				message(STATUS "[*] ${ARTNAME}: Directory ${_basename} will be installed to ${QUTIM_SHARE_DIR}/${category}/${_basename}")
+				install(DIRECTORY ${art}
+					DESTINATION ${QUTIM_SHARE_DIR}/${category}
+					COMPONENT ${category}
+				)
+			endif()
+ 		endif()
+	endforeach()
 endmacro()
 
 # Argument-parsing macro from http://www.cmake.org/Wiki/CMakeMacroParseArguments
