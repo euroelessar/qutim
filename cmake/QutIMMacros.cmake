@@ -182,7 +182,6 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	"SUBPLUGIN;EXTENSION;STATIC;DISABLED"
 	${ARGN}
 	)
-	set(${PLUGIN}_OFF CACHE INTERNAL "")
 
 	if( NOT QUTIM_${plugin_name}_GROUP )
 		set( QUTIM_${plugin_name}_GROUP Plugin )
@@ -201,7 +200,6 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	option(${PLUGIN} "${QUTIM_${plugin_name}_DESCRIPTION}" ${BUILD_DEFAULT})
 
 	#message(STATUS "${PLUGIN_${PLUGIN_NAME}} - "${QUTIM_${plugin_name}_DESCRIPTION}" : ${DEFAULT}")
-	set(${PLUGIN}_OFF TRUE)
 	if(NOT "${PLUGIN}")
 		message(STATUS "[-] ${PLUGIN}: ${QUTIM_${plugin_name}_GROUP} ${QUTIM_${plugin_name}_DISPLAY_NAME} will be skipped")
 		return()
