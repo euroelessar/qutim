@@ -5,5 +5,6 @@ qutim_add_plugin(qrcicons
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Resource Icon Loader"
 	DESCRIPTION "Very simple icon loader from compiled resources for embedded devices"
+	DISABLED TRUE
 )
 
