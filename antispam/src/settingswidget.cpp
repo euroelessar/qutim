@@ -31,6 +31,7 @@ SettingsWidget::SettingsWidget() :
 	connect(ui->questionEdit, SIGNAL(textChanged()), SLOT(onModifiedChanged()));
 	connect(ui->successEdit, SIGNAL(textChanged()), SLOT(onModifiedChanged()));
 	connect(ui->enabledBox, SIGNAL(stateChanged(int)), SLOT(onModifiedChanged()));
+	connect(ui->authHandleBox, SIGNAL(stateChanged(int)), SLOT(onModifiedChanged()));
 }
 
 SettingsWidget::~SettingsWidget()
@@ -46,6 +47,7 @@ void SettingsWidget::loadImpl()
 	ui->questionEdit->setText(cfg.value("question",  tr("Beer, wine, vodka, champagne: after which drink in this sequence I should stop?")));
 	ui->successEdit->setText(cfg.value("success", tr("We are ready to drink with you!")));
 	ui->answerEdit->setText(cfg.value("answers", tr("vodka;Vodka")));
+	ui->authHandleBox->setCheckState(cfg.value("handleAuth", false) ? Qt::Checked : Qt::Unchecked);
 	cfg.endGroup();
 }
 
@@ -57,6 +59,7 @@ void SettingsWidget::saveImpl()
 	cfg.setValue("question", ui->questionEdit->toPlainText());
 	cfg.setValue("answers", ui->answerEdit->toPlainText());
 	cfg.setValue("success", ui->successEdit->toPlainText());
+	cfg.setValue("handleAuth", ui->authHandleBox->checkState() == Qt::Checked);
 	cfg.endGroup();
 }
 
@@ -70,6 +73,7 @@ void SettingsWidget::onModifiedChanged()
 	ui->questionEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
 	ui->answerEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
 	ui->successEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
+	ui->authHandleBox->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
 	emit modifiedChanged(true);
 }
 

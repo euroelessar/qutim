@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>298</height>
+    <width>396</width>
+    <height>311</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,6 +21,13 @@
     <widget class="QCheckBox" name="enabledBox">
      <property name="text">
       <string>Enabled</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="authHandleBox">
+     <property name="text">
+      <string>Handle auth requests</string>
      </property>
     </widget>
    </item>

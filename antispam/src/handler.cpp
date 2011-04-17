@@ -30,8 +30,7 @@ using namespace Authorization;
 
 Handler::Handler()
 {
-	loadSettings();
-	QTimer::singleShot(0, this, SLOT(authServiceEnabled()));
+	QTimer::singleShot(0, this, SLOT(loadSettings()));
 }
 
 void Handler::loadSettings()
@@ -42,7 +41,14 @@ void Handler::loadSettings()
 	m_question = cfg.value("question", tr("Beer, wine, vodka, champagne: after which drink in this sequence I should stop?"));
 	m_success = cfg.value("success", tr("We are ready to drink with you!"));
 	m_answers = cfg.value("answers", tr("vodka;Vodka")).split(QLatin1String(";"));
+	m_handleAuth =  cfg.value("handleAuth", false);
 	cfg.endGroup();
+	if (QObject *obj = ServiceManager::getByName("AuthorizationService")) {
+		if (m_enabled && m_handleAuth)
+			obj->installEventFilter(this);
+		else
+			obj->removeEventFilter(this);
+	}
 }
 
 MessageHandler::Result Handler::doHandle(Message& message, QString* reason)
@@ -87,12 +93,6 @@ bool Handler::eventFilter(QObject *obj, QEvent *event)
 		}
 	}
 	return QObject::eventFilter(obj, event);
-}
-
-void Handler::authServiceEnabled()
-{
-	if (QObject *obj = ServiceManager::getByName("AuthorizationService"))
-		obj->installEventFilter(this);
 }
 
 } // namespace Antispam
