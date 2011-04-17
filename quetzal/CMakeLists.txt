@@ -2,7 +2,6 @@ CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( Quetzal )
 
 find_package( PkgConfig )
-
 if( PKG_CONFIG_FOUND )
 	pkg_check_modules( PURPLE purple>=2.6.0 )
 	include_directories( ${PURPLE_INCLUDE_DIRS} )
