@@ -153,6 +153,7 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
+	reply->deleteLater();
 	QString url = reply->url().toString();
 	QByteArray typeheader;
 	QString type;
@@ -232,10 +233,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	ChatUnit *unit = reply->property("unit").value<ChatUnit *>();
 	ChatSession *session = ChatLayer::get(unit);
 
-	session->metaObject()->invokeMethod(session,
-										"evaluateJavaScript",
-										Q_ARG(QString,js)
-										);
+	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }
 
 void UrlHandler::authenticationRequired(QNetworkReply *, QAuthenticator *)
