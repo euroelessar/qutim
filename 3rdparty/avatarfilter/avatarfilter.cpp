@@ -8,11 +8,13 @@
 
 namespace qutim_sdk_0_3
 {
+
 class AvatarFilterPrivate
 {
 public:
 	QSize defaultSize;
 	Qt::AspectRatioMode mode;
+	int radius;
 };
 
 AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) :
@@ -20,7 +22,11 @@ AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*
 {
 	Q_D(AvatarFilter);
 	d->defaultSize = defaultSize;
-	d->mode = Qt::IgnoreAspectRatio;
+	d->mode = Qt::IgnoreAspectRatio;	
+	d->radius = 5;
+	#ifdef QUTIM_MOBILE_UI
+	d->radius = 10;
+	#endif
 }
 
 AvatarFilter::~AvatarFilter()
@@ -58,11 +64,11 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 			painter.setRenderHint(QPainter::Antialiasing);
 			pen.setWidth(0);
 			painter.setPen(pen);
-			painter.setBrush(QBrush(QColor(255,255,255)));
+			painter.setBrush(QBrush(QColor(255,255,255)));	
 			painter.drawRoundedRect(QRectF(QPointF(0, 0),
 										   QSize(d->defaultSize.width() - 1,
 												 d->defaultSize.height() -1 )),
-									5, 5);
+									d->radius, d->radius);
 			painter.end();
 			QPixmapCache::insert(alphaKey, alpha);
 		}

@@ -60,6 +60,7 @@ private slots:
 	void slideUp();
 	void slideDown(QWidget *w);
 	void fingerGesture(enum SlidingStackedWidget::SlideDirection);
+	void initScrolling();
 };
 
 }

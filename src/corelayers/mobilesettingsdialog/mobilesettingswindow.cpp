@@ -112,6 +112,7 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 			this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
 
 	loadSettings(settings);
+	QTimer::singleShot(0, this, SLOT(initScrolling()));
 }
 
 
@@ -319,6 +320,14 @@ void MobileSettingsWindow::fingerGesture( enum SlidingStackedWidget::SlideDirect
 		slideUp();
     }
 
+}
+
+void MobileSettingsWindow::initScrolling()
+{
+	if(QObject *scroller = ServiceManager::getByName("Scroller")) {
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, p->categoryListWidget->viewport()));
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, p->settingsListWidget->viewport()));
+	}
 }
 
 }

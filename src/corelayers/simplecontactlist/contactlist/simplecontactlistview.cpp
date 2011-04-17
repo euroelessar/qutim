@@ -51,8 +51,7 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 void TreeView::initScrolling()
 {
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
-		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));
-	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));	
 }
 
 void TreeView::onClick(const QModelIndex &index)

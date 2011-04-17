@@ -19,6 +19,7 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
+#include <QAbstractItemView>
 
 namespace Core {
 
@@ -57,8 +58,11 @@ void KineticScroller::enableScrolling(QObject *widget)
 		return;
 	m_widgets.insert(widget);
 	connect(widget, SIGNAL(destroyed(QObject*)), SLOT(onWidgetDeath(QObject*)));
-	if (m_scrollingType != -1)
+	if (m_scrollingType != -1) {
 		QtScroller::grabGesture(widget, static_cast<QtScroller::ScrollerGestureType>(m_scrollingType));
+		if (QAbstractItemView *view = qobject_cast<QAbstractItemView*>(widget->parent()))
+			view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	}
 }
 
 void KineticScroller::loadSettings()

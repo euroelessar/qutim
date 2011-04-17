@@ -12,6 +12,8 @@ typedef QMap<int,LocalizedString> SizeMap;
 
 void size_map_init(SizeMap &map)
 {
+	//TODO rewrite!
+
 	//map.insert(-1,QT_TRANSLATE_NOOP("ContactList","Other"));
 	map.insert(0,QT_TRANSLATE_NOOP("ContactList","Default (depends on platform)"));
 	map.insert(16,QT_TRANSLATE_NOOP("ContactList","Small (16x16)"));
