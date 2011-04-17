@@ -1,7 +1,5 @@
-return()
-#temporary switch off. Euroelessar, system config doesn't work!
-
 qutim_add_plugin(torycontactlistwidget
+	GROUP "ContactWidget"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/torywidget.h
 	EXTENSION_CLASS Core::SimpleContactList::ToryWidget
@@ -10,4 +8,5 @@ qutim_add_plugin(torycontactlistwidget
 	DESCRIPTION "Tory contactlist"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
+	DISABLED TRUE
 )

@@ -1,4 +1,5 @@
 qutim_add_plugin(simplecontactlistwidget
+	GROUP "ContactWidget"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/simplewidget.h
 	EXTENSION_CLASS Core::SimpleContactList::SimpleWidget

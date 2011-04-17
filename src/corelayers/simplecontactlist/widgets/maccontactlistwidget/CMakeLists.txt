@@ -5,6 +5,7 @@ endif()
 
 
 qutim_add_plugin(maccontactlistwidget
+	GROUP "ContactWidget"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/macwidget.h
 	EXTENSION_CLASS Core::SimpleContactList::MacWidget

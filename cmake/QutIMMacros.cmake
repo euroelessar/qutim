@@ -179,12 +179,32 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
 	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
-	"SUBPLUGIN;EXTENSION;STATIC"
+	"SUBPLUGIN;EXTENSION;STATIC;DISABLED"
 	${ARGN}
 	)
+
 	if( NOT QUTIM_${plugin_name}_GROUP )
-	set( QUTIM_${plugin_name}_GROUP Plugin )
+		set( QUTIM_${plugin_name}_GROUP Plugin )
 	endif( NOT QUTIM_${plugin_name}_GROUP )
+
+	set(BUILD_DEFAULT "ON")
+	if("${QUTIM_ENABLE_ALL_PLUGINS}" STREQUAL "OFF")
+		set(BUILD_DEFAULT "OFF")
+	else()
+		if(QUTIM_${plugin_name}_DISABLED STREQUAL "TRUE")
+			set(BUILD_DEFAULT "OFF")
+		endif()
+	endif()
+
+	string( TOUPPER ${plugin_name} PLUGIN)
+	option(${PLUGIN} "${QUTIM_${plugin_name}_DESCRIPTION}" ${BUILD_DEFAULT})
+
+	#message(STATUS "${PLUGIN_${PLUGIN_NAME}} - "${QUTIM_${plugin_name}_DESCRIPTION}" : ${DEFAULT}")
+	if(NOT "${PLUGIN}")
+		message(STATUS "[-] ${PLUGIN}: ${QUTIM_${plugin_name}_GROUP} ${QUTIM_${plugin_name}_DISPLAY_NAME} will be skipped")
+		return()
+	endif()
+	message(STATUS "[+] ${PLUGIN}: ${QUTIM_${plugin_name}_GROUP} ${QUTIM_${plugin_name}_DISPLAY_NAME} added to build")
 
 	cpack_add_component( ${plugin_name}
 		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}

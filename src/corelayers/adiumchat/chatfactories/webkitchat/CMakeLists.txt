@@ -1,6 +1,7 @@
 FIND_PACKAGE( Qt4 COMPONENTS QtWebkit)
 
 qutim_add_plugin(webkitchat
+	GROUP "ChatFactory"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/webkitviewfactory.h
 	EXTENSION_CLASS Core::AdiumChat::WebkitViewFactory

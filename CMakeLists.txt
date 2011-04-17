@@ -137,9 +137,6 @@ set( QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
 set( QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
 set( QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FORCE )
 add_subdirectory(src/corelayers)
-foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
-    add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
-endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
 message(STATUS ${QUTIM_ADDITIONAL_RCC})
 list(APPEND RESOURCES ${QUTIM_ADDITIONAL_RCC})
@@ -292,10 +289,10 @@ qutim_add_devel_component(CoreDevel
 )
 
 #additional artwork sources
-SET(QUTIM_ADDITIONAL_ART_PATH "" CACHE PATH "Path to additional artwork")
-IF(NOT QUTIM_ADDITIONAL_ART_PATH STREQUAL "")
-	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
-ENDIF()
+#SET(QUTIM_ADDITIONAL_ART_PATH "" CACHE PATH "Path to additional artwork")
+#IF(NOT QUTIM_ADDITIONAL_ART_PATH STREQUAL "")
+#	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
+#ENDIF()
 
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
@@ -329,3 +326,7 @@ IF(WIN32)
 		DESCRIPTION ""
 	)
 ENDIF(WIN32)
+
+foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
+endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )

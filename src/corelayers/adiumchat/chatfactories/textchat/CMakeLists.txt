@@ -1,4 +1,5 @@
 qutim_add_plugin(textchat
+	GROUP "ChatFactory"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/textviewfactory.h
 	EXTENSION_CLASS Core::AdiumChat::TextViewFactory

@@ -3,6 +3,7 @@ FIND_PACKAGE( Qt4 COMPONENTS QtDeclarative QtOpenGL)
 QUTIM_ADD_ARTWORK(qmlchat)
 
 qutim_add_plugin(qmlchat
+	GROUP "ChatFactory"
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/quickchatviewfactory.h
 	EXTENSION_CLASS Core::AdiumChat::QuickChatViewFactory
