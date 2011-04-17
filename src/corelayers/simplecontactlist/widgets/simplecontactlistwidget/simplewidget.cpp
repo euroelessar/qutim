@@ -65,13 +65,14 @@ SimpleWidget::SimpleWidget()
 	}
 
 #if defined(Q_WS_MAEMO_5)
-	int size = 48; //TODO use relative sizes table
+	//int size = 48; //TODO use relative sizes table
+	//smith, please test it!
+	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #else
-	int size = 22;
+	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #endif
-	size = Config().group("contactList").value("toolBarIconSize", size);
-
 	QSize toolbar_size (size,size);
+
 	m_mainToolBar = new ActionToolBar(this);
 	m_mainToolBar->setWindowTitle(tr("Main Toolbar"));
 	addToolBar(Qt::TopToolBarArea, m_mainToolBar);

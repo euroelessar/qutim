@@ -27,12 +27,15 @@
 #ifdef Q_OS_WIN
 # include <qt_windows.h>
 #endif
+#include <QApplication>
+#include <QStyle>
 
 namespace qutim_sdk_0_3
 {	
-static ActionGenerator *createGenerator(int data, const LocalizedString &text)
+static ActionGenerator *createGenerator(int data, const LocalizedString &text, bool showIconSize = false)
 {
-	ActionGenerator *action = new ActionGenerator(QIcon(), text, 0);
+	QString title = showIconSize ? text.toString() + QString("(%1, %1)").arg(data) : text.toString();
+	ActionGenerator *action = new ActionGenerator(QIcon(), title, 0);
 	action->addProperty("intData", data);
 	action->setCheckable(true);
 	return action;
@@ -42,10 +45,20 @@ static SizeList init_size_map()
 {
 	//TODO list sizes from IconBackend
 	SizeList list;
-	list << createGenerator(16, QT_TRANSLATE_NOOP("ActionToolBar","Small (16x16)"));
-	list << createGenerator(22, QT_TRANSLATE_NOOP("ActionToolBar","Medium (22x22)"));
-	list << createGenerator(32, QT_TRANSLATE_NOOP("ActionToolBar","Big (32x32)"));
-	list << createGenerator(64, QT_TRANSLATE_NOOP("ActionToolBar","Huge (64x64)"));
+	QStyle *style = qApp->style();
+
+	list << createGenerator(style->pixelMetric(QStyle::PM_SmallIconSize),
+							QT_TRANSLATE_NOOP("ActionToolBar", "Small"),
+							true);
+	list << createGenerator(style->pixelMetric(QStyle::PM_ToolBarIconSize),
+							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
+							true);
+	list << createGenerator(style->pixelMetric(QStyle::PM_IconViewIconSize),
+							QT_TRANSLATE_NOOP("ActionToolBar", "Big"),
+							true);
+	list << createGenerator(64, //TODO
+							QT_TRANSLATE_NOOP("ActionToolBar", "Huge"),
+							true);
 	return list;
 }
 
@@ -144,6 +157,9 @@ ActionToolBar::ActionToolBar(const QString &title, QWidget *parent)
 	d->q_ptr = this;
 	d->moveHookEnabled = false;
 	setObjectName(QLatin1String("ActionToolBar"));
+
+	int width = qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+	QToolBar::setIconSize(QSize(width, width));
 }
 
 ActionToolBar::ActionToolBar(QWidget *parent)

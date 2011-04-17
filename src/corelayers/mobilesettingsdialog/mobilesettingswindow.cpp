@@ -89,10 +89,11 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	l->addWidget(p->stackedWidget);
 	l->addWidget(p->actionBox);
 
-#ifndef QUTIM_MOBILE_UI
-	p->categoryListWidget->setIconSize(QSize(32,32));
-	p->settingsListWidget->setIconSize(QSize(32,32));
-#endif
+	int width = style()->pixelMetric(QStyle::PM_LargeIconSize);
+	QSize size = QSize(width, width);
+
+	p->categoryListWidget->setIconSize(size);
+	p->settingsListWidget->setIconSize(size);
 
 	setCentralWidget(w);
 	//connections
@@ -224,8 +225,9 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 		foreach(QFormLayout *l, w->findChildren<QFormLayout*>()) {
 			l->setRowWrapPolicy(QFormLayout::WrapAllRows);
 		}
+		foreach (QLabel *label, w->findChildren<QLabel*>())
+			label->setWordWrap(true);
 #endif
-
 		p->slideMap.insert(area,p->settingsListWidget);
 		p->scrollAreas.insert(w,area);		
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));

@@ -26,9 +26,9 @@ AccountCreatorList::AccountCreatorList() :
 	delegate->setUserDefinedEditorSupport();
 	ui->listWidget->setItemDelegate(delegate);
 
-#ifndef QUTIM_MOBILE_UI
-	ui->listWidget->setIconSize(QSize(22,22));
-#endif
+	int width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+	QSize size = QSize(width, width);
+	ui->listWidget->setIconSize(size);
 
 	connect(ui->listWidget,
 			SIGNAL(itemActivated(QListWidgetItem*)),
@@ -44,8 +44,7 @@ AccountCreatorList::AccountCreatorList() :
 	addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
 	addItem->setData(SeparatorRole,true);
 
-	foreach(Protocol *protocol, Protocol::all())
-	{
+	foreach(Protocol *protocol, Protocol::all()) {
 		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
 		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
 		foreach(Account *account, protocol->accounts())

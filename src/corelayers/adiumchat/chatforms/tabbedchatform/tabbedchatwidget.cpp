@@ -115,7 +115,6 @@ void TabbedChatWidget::loadSettings()
 			spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
 			m_toolbar->addWidget(spacer);
 			m_toolbar->addAction(m_sessionList);
-			m_toolbar->setIconSize(QSize(22,22));
 			setUnifiedTitleAndToolBar(true);
 		} else {
 			m_layout->addWidget(m_toolbar);
