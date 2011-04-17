@@ -17,6 +17,7 @@ endif( QUTIM_BINARY_DIR )
 
 LIST (APPEND CMAKE_MODULE_PATH "cmake")
 LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
+option ( QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON )
 
 INCLUDE (MacroEnsureVersion)
 find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork)
@@ -39,14 +40,7 @@ file( GLOB PROTOCOLS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SO
 
 foreach( PROTOCOL ${PROTOCOLS} )
 	if( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}/CMakeLists.txt" )
-		string( TOUPPER ${PROTOCOL} PROTOCOL_NAME)
-		option( ${PROTOCOL_NAME} "" ${QUTIM_ENABLE_ALL_PLUGINS} )
-		if( ${PROTOCOL_NAME} )
-			message( "+ protocol '${PROTOCOL_NAME}' added to build" )
-			add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}" "${CMAKE_CURRENT_BINARY_DIR}/${PROTOCOL}" ) 
-		else( ${PROTOCOL_NAME} )
-			message( "- protocol '${PROTOCOL_NAME}' will be skipped" )
-		endif( ${PROTOCOL_NAME} )
+		add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}" "${CMAKE_CURRENT_BINARY_DIR}/${PROTOCOL}" )
 	endif( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}/CMakeLists.txt" )
 endforeach( PROTOCOL )
 

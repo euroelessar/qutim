@@ -336,6 +336,11 @@ void JAccount::setNick(const QString &nick)
 	emit nameChanged(nick, previous);
 }
 
+QString JAccount::getPassword() const
+{
+	return d_func()->client.password();
+}
+
 QString JAccount::password(bool *ok)
 {
 	Q_D(JAccount);
@@ -344,21 +349,22 @@ QString JAccount::password(bool *ok)
 	if (d->client.password().isEmpty()) {
 		if (ok)
 			*ok = false;
-		PasswordDialog *dialog = PasswordDialog::request(this);
-		JPasswordValidator *validator = new JPasswordValidator(dialog);
-		connect(dialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
-		dialog->setValidator(validator);
-		if (dialog->exec() == PasswordDialog::Accepted) {
+		if (!d->passwordDialog) {
+			d->passwordDialog = PasswordDialog::request(this);
+			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog);
+			connect(d->passwordDialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
+			d->passwordDialog->setValidator(validator);
+		}
+		if (d->passwordDialog->exec() == PasswordDialog::Accepted) {
 			if (ok)
 				*ok = true;
-			d->client.setPassword(dialog->password());
-			if (dialog->remember()) {
+			d->client.setPassword(d->passwordDialog->password());
+			if (d->passwordDialog->remember()) {
 				config().group("general").setValue("passwd", d->client.password(), Config::Crypted);
 				config().sync();
 			}
+			d->passwordDialog->deleteLater();
 		}
-		delete validator;
-		delete dialog;
 	}
 	return d->client.password();
 }

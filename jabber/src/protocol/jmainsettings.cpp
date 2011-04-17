@@ -32,7 +32,7 @@ void JMainSettings::loadImpl()
 	Config general = m_account->config("general");
 	ui->resourceEdit->setText(general.value("resource",m_account->client()->jid().resource()));
 	ui->avatarRequestCheck->setChecked(!general.value("getAvatars", true));
-	ui->passwdEdit->setText(m_account->password());
+	ui->passwdEdit->setText(m_account->getPassword());
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
 	ui->autodetectBox->setCheckState(state);

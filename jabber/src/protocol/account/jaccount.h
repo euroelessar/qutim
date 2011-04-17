@@ -56,6 +56,7 @@ public:
 	QString name() const;
 	void setNick(const QString &nick);
 	QString password(bool *ok = 0);
+	QString getPassword() const;
 	Jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;
