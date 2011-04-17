@@ -302,6 +302,8 @@ void ContactDelegate::reloadSettings()
 #ifdef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",
 								  qApp->style()->pixelMetric(QStyle::PM_ListViewIconSize));
+#elif defined(Q_WS_WIN32)
+	p->statusIconSize = cfg.value("statusIconSize", 22);
 #else
 	p->statusIconSize = cfg.value("statusIconSize",
 								  qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));
