@@ -12,7 +12,7 @@ class AbstractContactModel;
 class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget
 {
 public:
-	virtual ~AbstractContactListWidget() {};
+	virtual ~AbstractContactListWidget() {}
 	virtual void addButton(ActionGenerator *generator) = 0;
 	virtual void removeButton(ActionGenerator *generator) = 0;
 };

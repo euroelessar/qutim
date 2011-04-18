@@ -104,7 +104,7 @@ macro(qutim_add_artwork category_dir)
 				message(STATUS "[*] ${ARTNAME}: Directory ${_basename} will be installed to ${QUTIM_SHARE_DIR}/${category}/${_basename}")
 				install(DIRECTORY ${art}
 					DESTINATION ${QUTIM_SHARE_DIR}/${category}
-					COMPONENT ${category}
+					COMPONENT Artwork #${category}
 				)
 			endif()
  		endif()
