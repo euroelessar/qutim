@@ -115,6 +115,7 @@ void TabbedChatWidget::loadSettings()
 			spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
 			m_toolbar->addWidget(spacer);
 			m_toolbar->addAction(m_sessionList);
+			m_toolbar->setIconSize(QSize(22, 22));
 			setUnifiedTitleAndToolBar(true);
 		} else {
 			m_layout->addWidget(m_toolbar);
@@ -137,14 +138,14 @@ void TabbedChatWidget::loadSettings()
 			btn->setAutoRaise(false);
 
 			tabBar = new QWidget(this);
-			tabBar->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+			tabBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 			QHBoxLayout *l = new QHBoxLayout(tabBar);
 			l->setMargin(0);
 			btn = new QToolButton(this);
 			btn->setDefaultAction(m_sessionList);
 			btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			btn->setAutoRaise(true);
-			btn->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+			btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			btn->setPopupMode(QToolButton::InstantPopup);
 			l->addWidget(m_tabBar);
 			l->addWidget(btn);

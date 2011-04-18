@@ -32,8 +32,25 @@ public:
 		ExtensionsForMimeType, // /etc/mime.types
 		TimeZone,
 		TimeZoneName,
-		TimeZoneShortName
+		TimeZoneShortName,
+		IconSize //default icon size
 	};
+
+	enum IconSize
+	{
+		//By size
+		IconSizeSmall,
+		IconSizeMedium,
+		IconSizeLarge,
+		IconSizeHuge,
+		//By Role
+		IconSizeToolBar,
+		IconSizeContactsView,
+		IconSizeListView,
+		IconSizeIconView
+
+	};
+
 	enum Priority
 	{
 		BaseSystem = 0, // Unix

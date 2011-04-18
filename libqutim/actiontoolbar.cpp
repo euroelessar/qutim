@@ -51,7 +51,7 @@ static SizeList init_size_map()
 							QT_TRANSLATE_NOOP("ActionToolBar", "Small"),
 							true);
 	//hack for windows
-#if defined (Q_WS_WIN32) || defined(Q_WS_MAC)
+#if !defined (QUTIM_MOBILE_UI)
 	list << createGenerator(22,
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
@@ -165,8 +165,10 @@ ActionToolBar::ActionToolBar(const QString &title, QWidget *parent)
 	d->moveHookEnabled = false;
 	setObjectName(QLatin1String("ActionToolBar"));
 
+#ifdef QT_WS_MAEMO5
 	int width = qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 	QToolBar::setIconSize(QSize(width, width));
+#endif
 }
 
 ActionToolBar::ActionToolBar(QWidget *parent)

@@ -32,6 +32,7 @@
 #include <qutim/servicemanager.h>
 #include <QPlainTextEdit>
 #include <chatforms/abstractchatform.h>
+#include <qutim/adiumchat/chatlayerimpl.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -315,18 +316,7 @@ void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
 void QuickChatController::appendText(const QString &text)
 {
 	debug() << Q_FUNC_INFO << text << m_session;
-	AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
-	QObject *obj = form->textEdit(m_session);
-	QTextCursor cursor;
-	if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
-		cursor = edit->textCursor();
-	else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
-		cursor = edit->textCursor();
-	else
-		return;
-	cursor.insertText(text);
-	cursor.insertText(" ");
-	static_cast<QWidget*>(obj)->setFocus();
+	ChatLayerImpl::insertText(m_session, text % QLatin1Literal(" "));
 }
 
 } // namespace AdiumChat

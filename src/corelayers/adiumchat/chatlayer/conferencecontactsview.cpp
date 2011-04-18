@@ -5,6 +5,8 @@
 #include <QDropEvent>
 #include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
+#include <qutim/servicemanager.h>
+#include <qutim/adiumchat/chatlayerimpl.h>
 
 namespace Core
 {
@@ -33,6 +35,14 @@ public:
 									  "enableScrolling",
 									  Q_ARG(QObject*, q_func()->viewport()));
 	}
+	void _q_insert_nick()
+	{
+		Q_Q(ConferenceContactsView);
+		QModelIndex index = q->currentIndex();
+		Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+		if (buddy)
+			ChatLayerImpl::insertText(session, buddy->title() + QLatin1String(" "));
+	}
 };
 
 ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
@@ -47,8 +57,9 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	setAcceptDrops(true);
 	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_activated(QModelIndex)));
 
-	d->action = new QAction(tr("Private"),this);
+	d->action = new QAction(tr("Insert Nick"),this);
 	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_insert_nick()));
 	addAction(d->action);
 
 	QTimer::singleShot(0, this, SLOT(_q_init_scrolling()));

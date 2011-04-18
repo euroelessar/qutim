@@ -24,6 +24,8 @@
 #include <qutim/servicemanager.h>
 #include "chatsessionimpl.h"
 #include "conferencetabcompletion.h"
+#include "chatforms/abstractchatform.h"
+#include <QPlainTextEdit>
 
 namespace Core
 {
@@ -137,6 +139,22 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 		break;
 	}
 	return Icon(icon_name);
+}
+
+void ChatLayerImpl::insertText(ChatSessionImpl *session, const QString &text, bool setFocus)
+{
+	AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
+	QObject *obj = form->textEdit(session);
+	QTextCursor cursor;
+	if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+		cursor = edit->textCursor();
+	else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+		cursor = edit->textCursor();
+	else
+		return;
+	cursor.insertText(text);
+	if (setFocus)
+		static_cast<QWidget*>(obj)->setFocus();
 }
 
 void ChatLayerImpl::onChatSessionActivated(bool activated)
