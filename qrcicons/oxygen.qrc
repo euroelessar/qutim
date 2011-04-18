@@ -284,5 +284,7 @@
         <file>icons/view-refresh.png</file>
         <file>icons/view-user-offline-kopete.png</file>
         <file>icons/insert-text.png</file>
+        <file>webkitstyle/Tory/Contents/Resources/Images/bullet-received.png</file>
+        <file>webkitstyle/Tory/Contents/Resources/Images/bullet-send.png</file>
     </qresource>
 </RCC>
