@@ -51,7 +51,7 @@ static SizeList init_size_map()
 							QT_TRANSLATE_NOOP("ActionToolBar", "Small"),
 							true);
 	//hack for windows
-#ifdef Q_WS_WIN32
+#if defined (Q_WS_WIN32) || defined(Q_WS_MAC)
 	list << createGenerator(22,
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
