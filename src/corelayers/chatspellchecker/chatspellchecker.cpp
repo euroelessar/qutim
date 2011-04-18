@@ -63,7 +63,9 @@ bool ChatSpellChecker::isCorrect(const QString &word)
 
 void ChatSpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
+	Q_ASSERT(session);
 	QTextDocument *inputField = session->getInputField();
+	Q_ASSERT(inputField);
 	SpellHighlighter *highlighter = new SpellHighlighter(this, inputField);
 	if (m_chatForm) {
 		connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
@@ -88,36 +90,39 @@ void ChatSpellChecker::onSessionActivated(bool activated)
 										Q_RETURN_ARG(QObject*, tmp),
 										Q_ARG(qutim_sdk_0_3::ChatSession *, session));
 	QWidget *textEdit = qobject_cast<QWidget*>(tmp);
-	if (!textEdit &&
-		!qobject_cast<QPlainTextEdit*>(textEdit) &&
-		!qobject_cast<QTextEdit*>(textEdit))
-	{
+	if (!qobject_cast<QPlainTextEdit*>(textEdit) &&
+		!qobject_cast<QTextEdit*>(textEdit)) {
 		return;
 	}
 
 	textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-	if (activated)
+	if (activated) {
 		connect(textEdit, SIGNAL(customContextMenuRequested(QPoint)),
-				this, SLOT(onTextEditContextMenuRequested(QPoint)));
-	else
+				this, SLOT(onTextEditContextMenuRequested(QPoint)),
+		        Qt::UniqueConnection);
+	} else {
+		textEdit->setContextMenuPolicy(Qt::DefaultContextMenu);
 		disconnect(textEdit, SIGNAL(customContextMenuRequested(QPoint)),
 				   this, SLOT(onTextEditContextMenuRequested(QPoint)));
+	}
 }
 
 void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 {
 	QPoint globalPos;
 	QMenu *menu = 0;
-	if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(sender())) {
+	QObject *object = sender();
+	if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
 		menu = textEdit->createStandardContextMenu();
 		m_cursor = textEdit->cursorForPosition(pos);
-	} else if (QTextEdit *tmp = qobject_cast<QTextEdit*>(sender())) {
+	} else if (QTextEdit *tmp = qobject_cast<QTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
 		menu = tmp->createStandardContextMenu(globalPos);
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else {
-		Q_ASSERT(0);
+		Q_ASSERT(!"Unknown object type, check connection");
+		return;
 	}
 
 	QTextBlock block = m_cursor.block();
@@ -142,8 +147,8 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 			menu->insertSeparator(before);
 	}
 
-	menu->exec(globalPos);
-	delete menu;
+	menu->popup(globalPos);
+	menu->setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void ChatSpellChecker::onSuggestionActionTriggered()
