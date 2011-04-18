@@ -60,8 +60,15 @@ void Rtf::parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText
         reader->readDocument(rtfMsg);
 		if (plainText)
 			*plainText = reader->getText();
-		if (html)
-			*html = reader->getHtml();
+		if (html) {
+			QString plainHtml = reader->getHtml();
+			int index = plainHtml.indexOf(QLatin1String("<body"));
+			int lastIndex = plainHtml.lastIndexOf(QLatin1String("</body"));
+			*html = QLatin1String("<span");
+			// length of "<body" is equal to 5
+			html->append(html->midRef(index + 5, lastIndex - index - 5));
+			html->append(QLatin1String("</span>"));
+		}
     } else {
 		if (plainText)
 			plainText->clear();
