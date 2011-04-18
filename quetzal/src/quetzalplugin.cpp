@@ -450,6 +450,8 @@ void quetzal_connection_signing_on_cb(PurpleConnection *gc)
 	QObject *object = reinterpret_cast<QObject*>(acc->ui_data);
 	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object))
 		account->handleSigningOn();
+	else
+		purple_account_disconnect(acc);
 }
 
 void quetzal_connection_signed_on_cb(PurpleConnection *gc)

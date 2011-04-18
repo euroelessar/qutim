@@ -96,8 +96,17 @@ void initActions()
 	for (; accounts; accounts = g_list_next(accounts)) {
 		PurpleAccount *purpleAccount = reinterpret_cast<PurpleAccount*>(accounts->data);
 		// Disable auto-connect for every account
-		if (purple_presence_is_online(purpleAccount->presence))
+		PurplePresence *presence = purpleAccount->presence;
+		if (purple_presence_is_online(presence)) {
 			purple_account_disconnect(purpleAccount);
+			for (GList *it = purple_presence_get_statuses(presence); it; it = it->next) {
+				PurpleStatus *status = reinterpret_cast<PurpleStatus *>(it->data);
+				if (!purple_status_is_online(status)) {
+					purple_presence_set_status_active(presence, purple_status_get_id(status), TRUE);
+					break;
+				}
+			}
+		}
 //		const char *protocolId = purple_account_get_protocol_id(purpleAccount);
 //		if (ids.contains(QLatin1String(protocolId)))
 //			continue;
