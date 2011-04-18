@@ -74,6 +74,8 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 		}
 		int cropSize = qMin(pixmap.width(), pixmap.height());
 		pixmap = pixmap.copy(0, 0, cropSize, cropSize);
+		if (cropSize > d->defaultSize.width() * 2)
+			pixmap = pixmap.scaled(d->defaultSize * 2, d->mode, Qt::FastTransformation);
 		pixmap = pixmap.scaled(d->defaultSize, d->mode, Qt::SmoothTransformation);
 		pixmap.setAlphaChannel(alpha);
 		QPixmapCache::insert(key, pixmap);
