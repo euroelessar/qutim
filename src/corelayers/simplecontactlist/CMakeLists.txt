@@ -29,6 +29,16 @@ qutim_add_plugin(treecontactsmodel
 	LINK_LIBRARIES simplecontactlist
 )
 
+qutim_add_plugin(separatedcontactsmodel
+	EXTENSION
+	EXTENSION_HEADER separatedcontactsmodel/separatedcontactlistmodel.h
+	EXTENSION_CLASS Core::SimpleContactList::SeparatedModel
+	SOURCE_DIR separatedcontactsmodel
+	DISPLAY_NAME "Separated contacts model"
+	DESCRIPTION "Simple separated contactlist model"
+	LINK_LIBRARIES simplecontactlist
+)
+
 set(DEVEL_HEADERS
 	contactlist/abstractcontactlist.h
 	contactlist/abstractcontactmodel.h
@@ -37,5 +47,6 @@ set(DEVEL_HEADERS
 	contactlist/simplecontactlist.h
 )
 qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
+
 
 add_subdirectory(widgets)

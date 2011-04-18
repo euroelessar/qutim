@@ -19,6 +19,7 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 #include "simplecontactlist_global.h"
+#include "simplecontactlistitem.h"
 
 namespace qutim_sdk_0_3
 {
@@ -28,6 +29,7 @@ class Account;
 
 namespace Core {
 namespace SimpleContactList {
+
 
 class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 {
@@ -45,6 +47,8 @@ public slots:
 	virtual void filterList(const QStringList &tags);
 signals:
 	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
+
+
 };
 
 } // namespace SimpleContactList

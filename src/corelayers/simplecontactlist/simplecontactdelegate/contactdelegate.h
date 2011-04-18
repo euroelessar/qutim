@@ -22,7 +22,8 @@ enum ContactItemType
 {
 	InvalidType = 0,
 	TagType = 100,
-	ContactType = 101
+	ContactType = 101,
+	AccountType = 102
 };
 
 struct ContactDelegatePrivate;

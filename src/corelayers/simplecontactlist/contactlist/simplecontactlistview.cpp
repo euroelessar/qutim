@@ -58,9 +58,8 @@ void TreeView::onClick(const QModelIndex &index)
 {
 	ContactItemType type = getItemType(index);
 	if (type == ContactType) {
-		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		Contact *contact = item->data->contact;
-		if (ChatSession *session = ChatLayer::get(contact, true))
+		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
+		if (ChatSession *session = ChatLayer::get(buddy, true))
 			session->activate();
 	}
 }
@@ -70,10 +69,9 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 	QModelIndex index = indexAt(event->pos());
 	ContactItemType type = getItemType(index);
 	if (type == ContactType) {
-		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		Contact *contact = item->data->contact;
-		qDebug("%s", qPrintable(contact->id()));
-		contact->menu(true)->popup(event->globalPos());
+		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
+		qDebug("%s", qPrintable(buddy->id()));
+		buddy->menu(true)->popup(event->globalPos());
 	}
 }
 
@@ -120,14 +118,13 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 		defaultDropAction = Qt::CopyAction;
 	if (drag->exec(supportedActions, defaultDropAction) == Qt::IgnoreAction
 			&& getItemType(index) == ContactType) {
-		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
 		if (QWidget *widget = QApplication::topLevelAt(QCursor::pos())) {
 			if (widget->window() == this->window())
 				return;
 		}
 		Event ev("contact-list-drop",
 				 QCursor::pos() - point,
-				 qVariantFromValue(item->data->contact));
+				 index.data(BuddyRole));
 		ev.send();
 	}
 	//			qDebug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);

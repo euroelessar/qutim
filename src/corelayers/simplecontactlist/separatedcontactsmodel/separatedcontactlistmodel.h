@@ -10,13 +10,24 @@ namespace Core
 {
 namespace SimpleContactList
 {
-struct SeparatedModelPrivate;
-class Model;
+struct ModelPrivate;
+class SeparatedModel;
 
 struct ChangeEvent;
 class ContactItem;
+class TagItem;
 
-class TagItem : protected ItemHelper
+class AccountItem : public ItemHelper
+{
+public:
+	inline AccountItem() : ItemHelper(AccountType) {}
+	Account *account;
+	QList<TagItem*> tags;
+	QList<TagItem *> visibleTags;
+	QHash<QString, TagItem *> tagsHash;
+};
+
+class TagItem : public ItemHelper
 {
 public:
 	inline TagItem() : ItemHelper(TagType), online(0) {}
@@ -24,6 +35,7 @@ public:
 	int online;
 	QString name;
 	QList<ContactItem *> contacts;
+	AccountItem *parent;
 };
 
 class ContactData : public QSharedData
@@ -51,12 +63,12 @@ public:
 	ContactData::Ptr data;
 };
 
-class Model : public AbstractContactModel
+class SeparatedModel : public AbstractContactModel
 {
 	Q_OBJECT
 public:
-	Model(QObject *parent = 0);
-	virtual ~Model();
+	SeparatedModel(QObject *parent = 0);
+	virtual ~SeparatedModel();
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -94,6 +106,7 @@ protected slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountDestroyed(QObject *);
 protected:
 	void timerEvent(QTimerEvent *ev);
 private:
@@ -106,9 +119,9 @@ private:
 	void updateContact(ContactItem *item, bool placeChanged);
 	void initialize();
 	void saveTagOrder();
-	TagItem *ensureTag(const QString &name);
+	TagItem *ensureTag(Account *account, const QString &name);
 	//			QModelIndex createIndex(
-	QScopedPointer<SeparatedModelPrivate> p;
+	QScopedPointer<ModelPrivate> p;
 };
 }
 }
