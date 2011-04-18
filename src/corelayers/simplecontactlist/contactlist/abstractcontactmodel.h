@@ -35,6 +35,7 @@ namespace SimpleContactList {
 
 class AbstractContactModelPrivate;
 class ChangeEvent;
+class ItemHelper;
 
 class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 {
@@ -78,6 +79,8 @@ protected:
 	void updateContactTags(TagContainer *p, typename ContactData::Ptr item_data, const QStringList &tags);
 	template<typename ContactItem>
 	bool isVisible(ContactItem *item);
+	template<typename TagContainer, typename TagItem, typename ContactItem>
+	void moveTag(ChangeEvent *ev);
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	int columnCount(const QModelIndex &) const;
@@ -86,6 +89,8 @@ protected:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 					  int row, int column, const QModelIndex &parent);
 	void timerEvent(QTimerEvent *timerEvent);
+	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
+	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
 private slots:
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);

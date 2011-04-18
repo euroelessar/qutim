@@ -20,6 +20,7 @@
 #include <qutim/event.h>
 #include <qutim/chatsession.h>
 #include <qutim/metacontact.h>
+#include <qutim/mimeobjectdata.h>
 #include <QApplication>
 #include <QTimer>
 #include <QMimeData>
@@ -129,6 +130,8 @@ Qt::DropActions AbstractContactModel::supportedDropActions() const
 bool AbstractContactModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 										int row, int column, const QModelIndex &parent)
 {
+	Q_UNUSED(row);
+	Q_UNUSED(column);
 	Q_D(AbstractContactModel);
 	if (action == Qt::IgnoreAction)
 		return true;
@@ -137,30 +140,27 @@ bool AbstractContactModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 	if (parentType != ContactType && parentType != TagType)
 		return false;
 
-	qptrdiff internalId = 0;
-	QByteArray encodedData;
+	QString mimetype;
 	bool isContact = data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL);
 	if (isContact)
-		encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
+		mimetype = QUTIM_MIME_CONTACT_INTERNAL;
 	else if (data->hasFormat(QUTIM_MIME_TAG_INTERNAL))
-		encodedData = data->data(QUTIM_MIME_TAG_INTERNAL);
+		mimetype = QUTIM_MIME_TAG_INTERNAL;
 	else
 		return false;
 
-	QDataStream stream(&encodedData, QIODevice::ReadOnly);
-	stream >> row >> column >> internalId;
-	QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
-	if (isContact && getItemType(index) != ContactType)
+	ItemHelper *item = decodeMimeData(data, mimetype);
+	if (isContact && item->type != ContactType)
 		return false;
 
 	ChangeEvent *ev = new ChangeEvent;
-	ev->child = reinterpret_cast<ItemHelper*>(index.internalPointer());
+	ev->child = item;
 	ev->parent = reinterpret_cast<ItemHelper*>(parent.internalPointer());
-	if (getItemType(index) == TagType)
+	if (item->type == TagType)
 		ev->type = ChangeEvent::MoveTag;
-	else if (getItemType(parent) == TagType)
+	else if (item->type == TagType)
 		ev->type = ChangeEvent::ChangeTags;
-	else if(getItemType(parent) == ContactType)
+	else if(item->type == ContactType)
 		ev->type = ChangeEvent::MergeContacts;
 	d->events << ev;
 	d->timer.start(1, this);
@@ -188,6 +188,24 @@ void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
 		return;
 	}
 	AbstractContactModel::timerEvent(timerEvent);
+}
+
+void AbstractContactModel::setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index)
+{
+	QByteArray encodedData;
+	encodedData.resize(sizeof(ptrdiff_t));
+	void *internalId = index.internalPointer();
+	qMemCopy(encodedData.data(), &internalId, sizeof(void*));
+	mimeData->setData(type, encodedData);
+}
+
+ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, const QString &type)
+{
+	QByteArray encodedData = mimeData->data(type);
+	Q_ASSERT(encodedData.size() == sizeof(void*));
+	void *internalId = *reinterpret_cast<void**>(encodedData.data());
+	ItemHelper *item = reinterpret_cast<ItemHelper*>(internalId);
+	return item;
 }
 
 void AbstractContactModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)

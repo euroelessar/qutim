@@ -246,10 +246,7 @@ QMimeData *TreeModel::mimeData(const QModelIndexList &indexes) const
 		return mimeData;
 	}
 
-	QByteArray encodedData;
-	QDataStream stream(&encodedData, QIODevice::WriteOnly);
-	stream << index.row() << index.column() << qptrdiff(index.internalPointer());
-	mimeData->setData(type, encodedData);
+	setEncodedData(mimeData, type, index);
 
 	return mimeData;
 }
@@ -399,7 +396,6 @@ void TreeModel::updateContactData(Contact *contact)
 
 void TreeModel::processEvent(ChangeEvent *ev)
 {
-	Q_D(TreeModel);
 	ContactItem *item = reinterpret_cast<ContactItem*>(ev->child);
 	if (ev->type == ChangeEvent::ChangeTags) {
 		TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
@@ -457,32 +453,7 @@ void TreeModel::processEvent(ChangeEvent *ev)
 				meta->addContact(item->data->contact);
 		}
 	} else if (ev->type == ChangeEvent::MoveTag) {
-		int to = -2, globalTo = -2;
-		if (ev->parent->type == ContactType) {
-			TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;
-			to = d->visibleTags.indexOf(tag) + 1;
-			globalTo = d->tags.indexOf(tag) + 1;
-		} else if (ev->parent->type == TagType) {
-			TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
-			to = d->visibleTags.indexOf(tag);
-			globalTo = d->tags.indexOf(tag);
-		} else {
-			Q_ASSERT(!"Not implemented");
-		}
-		TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
-		int from = d->visibleTags.indexOf(tag);
-		int globalFrom = d->tags.indexOf(tag);
-		Q_ASSERT(from >= 0 && to >= 0 && globalTo >= 0 && globalFrom >= 0);
-		if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
-			if (from < to) {
-				Q_ASSERT(globalFrom < globalTo);
-				--to;
-				--globalTo;
-			}
-			d->visibleTags.move(from, to);
-			d->tags.move(globalFrom, globalTo);
-			endMoveRows();
-		}
+		moveTag<TreeModelPrivate, TagItem, ContactItem>(ev);
 		saveTagOrder();
 	}
 }

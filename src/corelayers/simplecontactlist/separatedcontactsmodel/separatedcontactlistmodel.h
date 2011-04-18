@@ -109,7 +109,7 @@ private:
 	friend class TagItem;
 	friend class ContactItem;
 	void removeFromContactList(Contact *contact, bool deleted);
-	void saveTagOrder();
+	void saveTagOrder(AccountItem *accountItem);
 };
 
 }

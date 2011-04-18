@@ -251,10 +251,7 @@ QMimeData *SeparatedModel::mimeData(const QModelIndexList &indexes) const
 		return mimeData;
 	}
 
-	QByteArray encodedData;
-	QDataStream stream(&encodedData, QIODevice::WriteOnly);
-	stream << index.row() << index.column() << qptrdiff(index.internalPointer());
-	mimeData->setData(type, encodedData);
+	setEncodedData(mimeData, type, index);
 
 	return mimeData;
 }
@@ -265,6 +262,18 @@ bool SeparatedModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	ContactItemType parentType = getItemType(parent);
 	if (parentType != ContactType && parentType != TagType)
 		return false;
+
+	if (data->hasFormat(QUTIM_MIME_TAG_INTERNAL)) {
+		TagItem *tag = reinterpret_cast<TagItem*>(decodeMimeData(data, QUTIM_MIME_TAG_INTERNAL));
+		TagItem *parentTag = 0;
+		if (parentType == ContactType)
+			parentTag = reinterpret_cast<ContactItem*>(parent.internalPointer())->parent;
+		else
+			parentTag = reinterpret_cast<TagItem*>(parent.internalPointer());
+		Q_ASSERT(tag != 0 && parentTag != 0);
+		if (tag->parent != parentTag->parent)
+			return false;
+	}
 
 	return AbstractContactModel::dropMimeData(data, action, row, column, parent);
 }
@@ -403,13 +412,22 @@ void SeparatedModel::init()
 	SeparatedModelPrivate::InitData *initData = d->initData;
 	d->initData = 0;
 	// ensure correct order of tags
-	/*QSet<QString> tags;
-	foreach (Contact *contact, initData->contacts)
-		foreach (const QString &tag, contact->tags())
-			tags.insert(tag);
-	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
-		if (tags.contains(tag))
-			ensureTag<TagItem>(tag);*/
+	Config cfg = Config().group("contactList");
+	foreach (AccountItem *accountItem, d->accounts) {
+		Account *account = accountItem->account;
+		cfg.beginGroup(account->id());
+		QSet<QString> tags;
+		foreach (Contact *contact, initData->contacts) {
+			if (account != contact->account())
+				continue;
+			foreach (const QString &tag, contact->tags())
+				tags.insert(tag);
+		}
+		foreach (const QString &tag, cfg.value("tags", QStringList()))
+			if (tags.contains(tag))
+				ensureTag<TagItem>(accountItem, tag);
+		cfg.endGroup();
+	}
 	// add contacts to the contact list
 	foreach (Contact *contact, initData->contacts)
 		addContact(contact);
@@ -455,33 +473,10 @@ void SeparatedModel::processEvent(ChangeEvent *ev)
 		item->data->contact->setTags(tags.toList());
 		debug() << "Moving contact from" << item->data->tags << "to" << tags;
 	} else if (ev->type == ChangeEvent::MoveTag) {
-		/*int to = -2, globalTo = -2;
-		if (ev->parent->type == ContactType) {
-			TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;
-			to = p->visibleTags.indexOf(tag) + 1;
-			globalTo = p->tags.indexOf(tag) + 1;
-		} else if (ev->parent->type == TagType) {
-			TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
-			to = p->visibleTags.indexOf(tag);
-			globalTo = p->tags.indexOf(tag);
-		} else {
-			Q_ASSERT(!"Not implemented");
-		}
-		TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
-		int from = p->visibleTags.indexOf(tag);
-		int globalFrom = p->tags.indexOf(tag);
-		Q_ASSERT(from >= 0 && to >= 0 && globalTo >= 0 && globalFrom >= 0);
-		if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
-			if (from < to) {
-				Q_ASSERT(globalFrom < globalTo);
-				--to;
-				--globalTo;
-			}
-			p->visibleTags.move(from, to);
-			p->tags.move(globalFrom, globalTo);
-			endMoveRows();
-		}
-		saveTagOrder();*/
+		moveTag<AccountItem, TagItem, ContactItem>(ev);
+		TagItem *tagItem = reinterpret_cast<TagItem*>(ev->child);
+		Q_ASSERT(tagItem->type == TagType);
+		saveTagOrder(tagItem->parent);
 	}
 }
 
@@ -499,13 +494,14 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
 
-void SeparatedModel::saveTagOrder()
+void SeparatedModel::saveTagOrder(AccountItem *accountItem)
 {
-	/*Config group = Config().group("contactList");
+	QString groupName = "contactList/" + accountItem->account->id();
+	Config group = Config().group(groupName);
 	QStringList tags;
-	foreach (TagItem *tag, p->tags)
+	foreach (TagItem *tag, accountItem->tags)
 		tags << tag->name;
-	group.setValue("tags", tags);*/
+	group.setValue("tags", tags);
 }
 
 }

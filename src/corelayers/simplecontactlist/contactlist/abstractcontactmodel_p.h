@@ -381,6 +381,42 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 	}
 }
 
+template<typename TagContainer, typename TagItem, typename ContactItem>
+void AbstractContactModel::moveTag(ChangeEvent *ev)
+{
+	TagContainer *p;
+	int to = -2, globalTo = -2;
+	if (ev->parent->type == ContactType) {
+		TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;
+		p = tag->getTagContainer(this);
+		to = p->visibleTags.indexOf(tag) + 1;
+		globalTo = p->tags.indexOf(tag) + 1;
+	} else if (ev->parent->type == TagType) {
+		TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
+		p = tag->getTagContainer(this);
+		to = p->visibleTags.indexOf(tag);
+		globalTo = p->tags.indexOf(tag);
+	} else {
+		Q_ASSERT(!"Not implemented");
+	}
+	TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
+	Q_ASSERT(p == tag->getTagContainer(this));
+	int from = p->visibleTags.indexOf(tag);
+	int globalFrom = p->tags.indexOf(tag);
+	Q_ASSERT(from >= 0 && to >= 0 && globalTo >= 0 && globalFrom >= 0);
+	QModelIndex parentIndex = tag->parentIndex(this);
+	if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+		if (from < to) {
+			Q_ASSERT(globalFrom < globalTo);
+			--to;
+			--globalTo;
+		}
+		p->visibleTags.move(from, to);
+		p->tags.move(globalFrom, globalTo);
+		endMoveRows();
+	}
+}
+
 } }
 
 #endif // ABSTRACTCONTACTMODEL_P_H
