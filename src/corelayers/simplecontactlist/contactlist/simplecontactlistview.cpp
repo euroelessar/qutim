@@ -39,12 +39,12 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 
 	QTimer::singleShot(0, this, SLOT(initScrolling()));
 	Config group = Config().group("contactList");
-	m_closedTags = group.value("closedTags", QStringList()).toSet();
+	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
 
 	connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(onCollapsed(QModelIndex)));
 	connect(this, SIGNAL(expanded(QModelIndex)), SLOT(onExpanded(QModelIndex)));
-	connect(model, SIGNAL(tagVisibilityChanged(QModelIndex,QString,bool)),
-			SLOT(onTagVisibilityChanged(QModelIndex,QString,bool)));
+	connect(model, SIGNAL(indexVisibilityChanged(QModelIndex,QString,bool)),
+			SLOT(onIndexVisibilityChanged(QModelIndex,QString,bool)));
 	setModel(model);
 }
 
@@ -135,26 +135,26 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 
 void TreeView::onCollapsed(const QModelIndex &index)
 {
-	QString name = m_visibleTags.value(index.internalId());
+	QString name = m_visibleIndexes.value(index.internalId());
 	if (!name.isNull())
-		m_closedTags.insert(name);
+		m_closedIndexes.insert(name);
 }
 
 void TreeView::onExpanded(const QModelIndex &index)
 {
-	QString name = m_visibleTags.value(index.internalId());
+	QString name = m_visibleIndexes.value(index.internalId());
 	if (!name.isNull())
-		m_closedTags.remove(name);
+		m_closedIndexes.remove(name);
 }
 
-void TreeView::onTagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown)
+void TreeView::onIndexVisibilityChanged(const QModelIndex &index, const QString &name, bool shown)
 {
 	if (shown) {
-		if (!m_closedTags.contains(name))
+		if (!m_closedIndexes.contains(name))
 			setExpanded(index, true);
-		m_visibleTags.insert(index.internalId(), name);
+		m_visibleIndexes.insert(index.internalId(), name);
 	} else {
-		m_visibleTags.remove(index.internalId());
+		m_visibleIndexes.remove(index.internalId());
 	}
 }
 
@@ -166,7 +166,7 @@ void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
 TreeView::~TreeView()
 {
 	Config group = Config().group("contactList");
-	group.setValue("closedTags", QStringList(m_closedTags.toList()));
+	group.setValue("closedTags", QStringList(m_closedIndexes.toList()));
 }
 
 }

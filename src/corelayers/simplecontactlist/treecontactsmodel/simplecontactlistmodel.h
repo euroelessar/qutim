@@ -22,6 +22,8 @@ public:
 	inline TagItem() : ItemHelper(TagType), online(0) {}
 	inline TreeModelPrivate *getTagContainer(AbstractContactModel *m);
 	inline void setTagContainer(void *) { }
+	inline QString getName() { return name; }
+	inline QModelIndex parentIndex(void *) { return QModelIndex(); }
 	QList<ContactItem *> visible;
 	int online;
 	QString name;

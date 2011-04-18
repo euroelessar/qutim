@@ -29,6 +29,18 @@ public:
 	InitData *initData;
 };
 
+inline QModelIndex TagItem::parentIndex(AbstractContactModel *m)
+{
+	SeparatedModel *model = reinterpret_cast<SeparatedModel*>(m);
+	int index = model->d_func()->accounts.indexOf(parent);
+	return model->createIndex(index, 0, parent);
+}
+
+inline QString TagItem::getName()
+{
+	return parent->account->id() + "/" + name;
+}
+
 inline int ContactItem::parentIndex(void *)
 {
 	return parent->parent->visibleTags.indexOf(parent);
@@ -343,11 +355,13 @@ AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 	Q_D(SeparatedModel);
 	AccountItem *item = new AccountItem;
 	item->account = account;
+	item->id = account->id();
 	int index = d->accounts.count();
 	beginInsertRows(QModelIndex(), index, index);
 	d->accounts.push_back(item);
 	d->accountHash.insert(account, item);
 	endInsertRows();
+	emit indexVisibilityChanged(createIndex(index, 0, item), item->id, true);
 
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		addContact(contact);
@@ -363,6 +377,7 @@ void SeparatedModel::onAccountDestroyed(QObject *obj)
 	Q_D(SeparatedModel);
 	AccountItem *item = d->accountHash.take(reinterpret_cast<Account*>(obj));
 	int index = d->accounts.indexOf(item);
+	emit indexVisibilityChanged(createIndex(index, 0, item), item->id, true);
 	beginRemoveRows(QModelIndex(), index, index);
 	d->accounts.removeAt(index);
 	foreach (TagItem *tag, item->tags) {

@@ -22,6 +22,7 @@ class AccountItem : public ItemHelper
 public:
 	inline AccountItem() : ItemHelper(AccountType) {}
 	Account *account;
+	QString id;
 	QList<TagItem*> tags;
 	QList<TagItem *> visibleTags;
 	QHash<QString, TagItem *> tagsHash;
@@ -31,8 +32,10 @@ class TagItem : public ItemHelper
 {
 public:
 	inline TagItem() : ItemHelper(TagType), online(0) {}
-	inline AccountItem *getTagContainer(void *) { return parent; }
+	inline AccountItem *getTagContainer(void*) { return parent; }
 	inline void setTagContainer(AccountItem *p) { parent = p; }
+	inline QModelIndex parentIndex(AbstractContactModel *m);
+	QString getName();
 	QList<ContactItem *> visible;
 	int online;
 	QString name;
@@ -103,6 +106,7 @@ protected:
 	void processEvent(ChangeEvent *ev);
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
+	friend class TagItem;
 	friend class ContactItem;
 	void removeFromContactList(Contact *contact, bool deleted);
 	void saveTagOrder();

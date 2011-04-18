@@ -51,7 +51,7 @@ public slots:
 	void filterList(const QString &name);
 	void filterList(const QStringList &tags);
 signals:
-	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
+	void indexVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 protected:
 	AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent = 0);
 	template<typename TagContainer, typename TagItem, typename ContactItem>

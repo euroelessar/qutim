@@ -121,10 +121,10 @@ void AbstractContactModel::hideTag(TagItem *item)
 	int index = p->visibleTags.indexOf(item);
 	if (index == -1)
 		return; // The tag is already hidden
-	beginRemoveRows(QModelIndex(), index, index);
+	beginRemoveRows(item->parentIndex(this), index, index);
 	p->visibleTags.removeAt(index);
 	endRemoveRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
+	emit indexVisibilityChanged(createIndex(index, 0, item), item->getName(), false);
 	if (item->contacts.isEmpty()) {
 		p->tagsHash.remove(item->name);
 		p->tags.removeOne(item);
@@ -153,10 +153,10 @@ void AbstractContactModel::showTag(TagItem *item)
 			++index;
 	}
 	// We can add the tag to the contact list now
-	beginInsertRows(QModelIndex(), index, index);
+	beginInsertRows(item->parentIndex(this), index, index);
 	p->visibleTags.insert(index, item);
 	endInsertRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, true);
+	emit indexVisibilityChanged(createIndex(index, 0, item), item->getName(), true);
 }
 
 template<typename TagItem, typename TagContainer>
