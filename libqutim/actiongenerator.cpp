@@ -21,6 +21,8 @@
 #include <QtGui/QAction>
 #include <QtCore/QCoreApplication>
 #include "debug.h"
+#include <QLatin1Literal>
+
 
 namespace qutim_sdk_0_3
 {

@@ -294,7 +294,7 @@ qutim_add_devel_component(CoreDevel
 
 #additional artwork sources
 SET(QUTIM_ADDITIONAL_ART_PATH "" CACHE PATH "Path to additional artwork")
-IF(NOT QUTIM_ADDITIONAL_ART_PATH STREQUAL "")
+IF(QUTIM_ADDITIONAL_ART_PATH)
 	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
 ENDIF()
 
