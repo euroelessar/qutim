@@ -1,4 +1,5 @@
 #include "simplecontactlistmodel.h"
+#include "abstractcontactmodel_p.h"
 #include <qutim/notificationslayer.h>
 #include <QDebug>
 #include <qutim/messagesession.h>
@@ -34,8 +35,9 @@ struct ChangeEvent
 
 };
 
-struct TreeModelPrivate
+class TreeModelPrivate : public AbstractContactModelPrivate
 {
+public:
 	QList<TagItem *> tags;
 	QList<TagItem *> visibleTags;
 	QHash<QString, TagItem *> tagsHash;
@@ -62,16 +64,17 @@ struct TreeModelPrivate
 	InitData *initData;
 };
 
-TreeModel::TreeModel(QObject *parent) : AbstractContactModel(parent), p(new TreeModelPrivate)
+TreeModel::TreeModel(QObject *parent) : AbstractContactModel(new TreeModelPrivate, parent)
 {
-	p->showMessageIcon = false;
+	Q_D(TreeModel);
+	d->showMessageIcon = false;
 	Event::eventManager()->installEventFilter(this);
-	p->initData = new TreeModelPrivate::InitData;
-	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	p->initData->qutimStartupEvent = Event::registerType("startup");
-	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
+	d->initData = new TreeModelPrivate::InitData;
+	d->realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	d->initData->qutimStartupEvent = Event::registerType("startup");
+	d->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 	ConfigGroup group = Config().group("contactList");
-	p->showOffline = group.value("showOffline", true);
+	d->showOffline = group.value("showOffline", true);
 }
 
 TreeModel::~TreeModel()
@@ -80,6 +83,7 @@ TreeModel::~TreeModel()
 
 QModelIndex TreeModel::index(int row, int, const QModelIndex &parent) const
 {
+	Q_D(const TreeModel);
 	if(row < 0)
 		return QModelIndex();
 	switch(getItemType(parent))
@@ -93,19 +97,20 @@ QModelIndex TreeModel::index(int row, int, const QModelIndex &parent) const
 	case ContactType:
 		return QModelIndex();
 	default:
-		if(p->visibleTags.size() <= row)
+		if(d->visibleTags.size() <= row)
 			return QModelIndex();
-		return createIndex(row, 0, p->visibleTags.at(row));
+		return createIndex(row, 0, d->visibleTags.at(row));
 	}
 }
 
 QModelIndex TreeModel::parent(const QModelIndex &child) const
 {
+	Q_D(const TreeModel);
 	switch(getItemType(child))
 	{
 	case ContactType: {
 		ContactItem *item = reinterpret_cast<ContactItem *>(child.internalPointer());
-		return createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
+		return createIndex(d->visibleTags.indexOf(item->parent), 0, item->parent);
 	}
 	case TagType:
 	default:
@@ -115,6 +120,7 @@ QModelIndex TreeModel::parent(const QModelIndex &child) const
 
 int TreeModel::rowCount(const QModelIndex &parent) const
 {
+	Q_D(const TreeModel);
 	switch(getItemType(parent))
 	{
 	case TagType:
@@ -122,7 +128,7 @@ int TreeModel::rowCount(const QModelIndex &parent) const
 	case ContactType:
 		return 0;
 	default:
-		return p->visibleTags.size();
+		return d->visibleTags.size();
 	}
 }
 
@@ -133,6 +139,7 @@ int TreeModel::columnCount(const QModelIndex &) const
 
 bool TreeModel::hasChildren(const QModelIndex &parent) const
 {
+	Q_D(const TreeModel);
 	switch(getItemType(parent))
 	{
 	case TagType:
@@ -140,12 +147,13 @@ bool TreeModel::hasChildren(const QModelIndex &parent) const
 	case ContactType:
 		return false;
 	default:
-		return !p->visibleTags.isEmpty();
+		return !d->visibleTags.isEmpty();
 	}
 }
 
 QVariant TreeModel::data(const QModelIndex &index, int role) const
 {
+	Q_D(const TreeModel);
 	switch(getItemType(index))
 	{
 	case ContactType:
@@ -159,8 +167,8 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 			return name.isEmpty() ? item->data->contact->id() : name;
 		}
 		case Qt::DecorationRole:
-			if (p->showMessageIcon && p->unreadContacts.contains(item->data->contact))
-				return p->unreadIcon;
+			if (d->showMessageIcon && d->unreadContacts.contains(item->data->contact))
+				return d->unreadIcon;
 			else
 				return item->data->contact->status().icon();
 		case ItemTypeRole:
@@ -204,8 +212,9 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	Q_D(const TreeModel);
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
-		if (p->selectedTags.isEmpty())
+		if (d->selectedTags.isEmpty())
 			return tr("All tags");
 		else
 			return tr("Custom tags");
@@ -216,25 +225,26 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int rol
 
 void TreeModel::addContact(Contact *contact)
 {
+	Q_D(TreeModel);
 	//TODO implement more powerfull logic
 	//			if (!contact->isInList())
 	//				return;
 
-	if (p->initData) {
-		if (p->initData->contacts.contains(contact))
+	if (d->initData) {
+		if (d->initData->contacts.contains(contact))
 			return;
-		p->initData->contacts << contact;
+		d->initData->contacts << contact;
 		return;
 	}
 
-	if (p->contacts.contains(contact))
+	if (d->contacts.contains(contact))
 		return;
 
 	MetaContact *meta = qobject_cast<MetaContact*>(contact);
 
 	if (!meta) {
 		meta = static_cast<MetaContact*>(contact->metaContact());
-		if (meta && p->contacts.contains(meta))
+		if (meta && d->contacts.contains(meta))
 			return;
 		else if (meta)
 			contact = meta;
@@ -244,7 +254,7 @@ void TreeModel::addContact(Contact *contact)
 		meta->installEventFilter(this);
 		foreach (ChatUnit *unit, meta->lowerUnits()) {
 			Contact *subContact = qobject_cast<Contact*>(unit);
-			if (subContact && p->contacts.contains(subContact))
+			if (subContact && d->contacts.contains(subContact))
 				removeContact(subContact);
 		}
 	}
@@ -269,10 +279,10 @@ void TreeModel::addContact(Contact *contact)
 	item_data->tags = QSet<QString>::fromList(tags);
 	item_data->status = contact->status();
 	int counter = item_data->status.type() == Status::Offline ? 0 : 1;
-	p->contacts.insert(contact, item_data);
+	d->contacts.insert(contact, item_data);
 	for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 	{
-		TagItem *tag = ensureTag<TagItem>(p.data(), *it);
+		TagItem *tag = ensureTag<TagItem>(d, *it);
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		bool show = isVisible(item);
@@ -288,7 +298,7 @@ void TreeModel::addContact(Contact *contact)
 
 bool TreeModel::containsContact(Contact *contact) const
 {
-	return p->contacts.contains(contact);
+	return d_func()->contacts.contains(contact);
 }
 
 bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -357,6 +367,7 @@ QMimeData *TreeModel::mimeData(const QModelIndexList &indexes) const
 bool TreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 						 int row, int column, const QModelIndex &parent)
 {
+	Q_D(TreeModel);
 	if (action == Qt::IgnoreAction)
 		return true;
 
@@ -389,8 +400,8 @@ bool TreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 		ev->type = ChangeEvent::ChangeTags;
 	else if(getItemType(parent) == ContactType)
 		ev->type = ChangeEvent::MergeContacts;
-	p->events << ev;
-	p->timer.start(1, this);
+	d->events << ev;
+	d->timer.start(1, this);
 
 	return true;
 	// We should return false
@@ -399,8 +410,9 @@ bool TreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 void TreeModel::removeFromContactList(Contact *contact, bool deleted)
 {
+	Q_D(TreeModel);
 	Q_UNUSED(deleted);
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	int counter = item_data->status.type() == Status::Offline ? 0 : -1;
@@ -410,8 +422,8 @@ void TreeModel::removeFromContactList(Contact *contact, bool deleted)
 		hideContact<TreeModelPrivate, TagItem>(item, true, false);
 		delete item;
 	}
-	p->contacts.remove(contact);
-	p->unreadContacts.remove(contact);
+	d->contacts.remove(contact);
+	d->unreadContacts.remove(contact);
 }
 
 void TreeModel::contactDeleted(QObject *obj)
@@ -422,12 +434,13 @@ void TreeModel::contactDeleted(QObject *obj)
 
 void TreeModel::removeContact(Contact *contact)
 {
+	Q_D(TreeModel);
 	Q_ASSERT(contact);
 	if (MetaContact *meta = qobject_cast<MetaContact*>(contact)) {
 		contact->removeEventFilter(this);
 		foreach (ChatUnit *unit, meta->lowerUnits()) {
 			Contact *subContact = qobject_cast<Contact*>(unit);
-			if (subContact && !p->contacts.contains(subContact))
+			if (subContact && !d->contacts.contains(subContact))
 				addContact(subContact);
 		}
 	}
@@ -437,8 +450,9 @@ void TreeModel::removeContact(Contact *contact)
 
 void TreeModel::contactStatusChanged(Status status)
 {
+	Q_D(TreeModel);
 	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	bool statusTypeChanged = status.type() != item_data->status.type();
@@ -473,9 +487,10 @@ void TreeModel::contactStatusChanged(Status status)
 
 void TreeModel::contactNameChanged(const QString &name)
 {
+	Q_D(TreeModel);
 	Q_UNUSED(name);
 	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	const QList<ContactItem *> &items = item_data->items;
@@ -500,6 +515,7 @@ void TreeModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 
 void TreeModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 {
+	Q_D(TreeModel);
 	ChatSession *session = qobject_cast<ChatSession*>(sender());
 	QSet<Contact*> contacts;
 	QSet<ChatUnit*> chatUnits;
@@ -508,7 +524,7 @@ void TreeModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 		if (chatUnits.contains(unit) || !unit)
 			continue;
 		chatUnits.insert(unit);
-		Event event(p->realUnitRequestEvent);
+		Event event(d->realUnitRequestEvent);
 		QCoreApplication::sendEvent(unit, &event);
 		Contact *contact = event.at<Contact*>(0);
 		while (unit && !contact) {
@@ -522,25 +538,25 @@ void TreeModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 			contacts.insert(contact);
 	}
 	if (contacts.isEmpty())
-		p->unreadBySession.remove(session);
+		d->unreadBySession.remove(session);
 	else
-		p->unreadBySession.insert(session, contacts);
-	foreach (const QSet<Contact*> &contactsSet, p->unreadBySession)
+		d->unreadBySession.insert(session, contacts);
+	foreach (const QSet<Contact*> &contactsSet, d->unreadBySession)
 		contacts |= contactsSet;
 
-	if (!contacts.isEmpty() && !p->unreadTimer.isActive())
-		p->unreadTimer.start(500, this);
+	if (!contacts.isEmpty() && !d->unreadTimer.isActive())
+		d->unreadTimer.start(500, this);
 	else if (contacts.isEmpty())
-		p->unreadTimer.stop();
+		d->unreadTimer.stop();
 
-	if (!p->showMessageIcon) {
-		p->unreadContacts = contacts;
+	if (!d->showMessageIcon) {
+		d->unreadContacts = contacts;
 	} else {
-		QSet<Contact*> needUpdate = p->unreadContacts;
+		QSet<Contact*> needUpdate = d->unreadContacts;
 		needUpdate.subtract(contacts);
-		p->unreadContacts = contacts;
+		d->unreadContacts = contacts;
 		foreach (Contact *contact, needUpdate) {
-			ContactData::Ptr item_data = p->contacts.value(contact);
+			ContactData::Ptr item_data = d->contacts.value(contact);
 			for (int i = 0; i < item_data->items.size(); i++) {
 				ContactItem *item = item_data->items.at(i);
 				QModelIndex index = createIndex(item->index(), 0, item);
@@ -552,8 +568,9 @@ void TreeModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 
 void TreeModel::contactTagsChanged(const QStringList &tags_helper)
 {
+	Q_D(TreeModel);
 	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	bool show = isVisible(item_data->items.value(0));
@@ -579,7 +596,7 @@ void TreeModel::contactTagsChanged(const QStringList &tags_helper)
 		size--;
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
-		TagItem *tag = ensureTag<TagItem>(p.data(), *it);
+		TagItem *tag = ensureTag<TagItem>(d, *it);
 		tag->online += counter;
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
@@ -595,47 +612,52 @@ void TreeModel::contactTagsChanged(const QStringList &tags_helper)
 
 void TreeModel::hideShowOffline()
 {
+	Q_D(TreeModel);
 	ConfigGroup group = Config().group("contactList");
 	bool show = !group.value("showOffline", true);
 	group.setValue("showOffline", show);
 	group.sync();
-	if (p->showOffline == show)
+	if (d->showOffline == show)
 		return;
-	p->showOffline = show;
+	d->showOffline = show;
 	filterAllList();
 }
 
 void TreeModel::filterList(const QString &filter)
 {
-	if (filter == p->lastFilter)
+	Q_D(TreeModel);
+	if (filter == d->lastFilter)
 		return;
-	p->lastFilter = filter;
+	d->lastFilter = filter;
 	filterAllList();
 }
 
 void TreeModel::filterList(const QStringList &tags)
 {
-	if (tags == p->selectedTags)
+	Q_D(TreeModel);
+	if (tags == d->selectedTags)
 		return;
-	p->selectedTags = tags;
+	d->selectedTags = tags;
 	filterAllList();
 }
 
 QStringList TreeModel::tags() const
 {
+	Q_D(const TreeModel);
 	QStringList all_tags;
-	foreach (const TagItem *tag,p->tags)
+	foreach (const TagItem *tag,d->tags)
 		all_tags.append(tag->name);
 	return all_tags;
 }
 
 QStringList TreeModel::selectedTags() const
 {
-	return p->selectedTags;
+	return d_func()->selectedTags;
 }
 
 void TreeModel::processEvent(ChangeEvent *ev)
 {
+	Q_D(TreeModel);
 	ContactItem *item = reinterpret_cast<ContactItem*>(ev->child);
 	if (ev->type == ChangeEvent::ChangeTags) {
 		TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
@@ -696,18 +718,18 @@ void TreeModel::processEvent(ChangeEvent *ev)
 		int to = -2, globalTo = -2;
 		if (ev->parent->type == ContactType) {
 			TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;
-			to = p->visibleTags.indexOf(tag) + 1;
-			globalTo = p->tags.indexOf(tag) + 1;
+			to = d->visibleTags.indexOf(tag) + 1;
+			globalTo = d->tags.indexOf(tag) + 1;
 		} else if (ev->parent->type == TagType) {
 			TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
-			to = p->visibleTags.indexOf(tag);
-			globalTo = p->tags.indexOf(tag);
+			to = d->visibleTags.indexOf(tag);
+			globalTo = d->tags.indexOf(tag);
 		} else {
 			Q_ASSERT(!"Not implemented");
 		}
 		TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
-		int from = p->visibleTags.indexOf(tag);
-		int globalFrom = p->tags.indexOf(tag);
+		int from = d->visibleTags.indexOf(tag);
+		int globalFrom = d->tags.indexOf(tag);
 		Q_ASSERT(from >= 0 && to >= 0 && globalTo >= 0 && globalFrom >= 0);
 		if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
 			if (from < to) {
@@ -715,8 +737,8 @@ void TreeModel::processEvent(ChangeEvent *ev)
 				--to;
 				--globalTo;
 			}
-			p->visibleTags.move(from, to);
-			p->tags.move(globalFrom, globalTo);
+			d->visibleTags.move(from, to);
+			d->tags.move(globalFrom, globalTo);
 			endMoveRows();
 		}
 		saveTagOrder();
@@ -725,17 +747,18 @@ void TreeModel::processEvent(ChangeEvent *ev)
 
 void TreeModel::timerEvent(QTimerEvent *timerEvent)
 {
-	if (timerEvent->timerId() == p->timer.timerId()) {
-		for (int i = 0; i < p->events.size(); i++) {
-			processEvent(p->events.at(i));
-			delete p->events.at(i);
+	Q_D(TreeModel);
+	if (timerEvent->timerId() == d->timer.timerId()) {
+		for (int i = 0; i < d->events.size(); i++) {
+			processEvent(d->events.at(i));
+			delete d->events.at(i);
 		}
-		p->events.clear();
-		p->timer.stop();
+		d->events.clear();
+		d->timer.stop();
 		return;
-	} else if (timerEvent->timerId() == p->unreadTimer.timerId()) {
-		foreach (Contact *contact, p->unreadContacts) {
-			ContactData::Ptr item_data = p->contacts.value(contact);
+	} else if (timerEvent->timerId() == d->unreadTimer.timerId()) {
+		foreach (Contact *contact, d->unreadContacts) {
+			ContactData::Ptr item_data = d->contacts.value(contact);
 			//if (!item_data) {//FIXME why p->contacts doesn't contains contact
 			//	qDebug() << "Unread" << contact <<  p->unreadContacts;
 			//	continue;
@@ -746,7 +769,7 @@ void TreeModel::timerEvent(QTimerEvent *timerEvent)
 				emit dataChanged(index, index);
 			}
 		}
-		p->showMessageIcon = !p->showMessageIcon;
+		d->showMessageIcon = !d->showMessageIcon;
 		return;
 	}
 	QAbstractItemModel::timerEvent(timerEvent);
@@ -754,6 +777,7 @@ void TreeModel::timerEvent(QTimerEvent *timerEvent)
 
 bool TreeModel::eventFilter(QObject *obj, QEvent *ev)
 {
+	Q_D(TreeModel);
 	if (ev->type() == MetaContactChangeEvent::eventType()) {
 		MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(ev);
 		if (metaEvent->oldMetaContact() && !metaEvent->newMetaContact())
@@ -763,7 +787,7 @@ bool TreeModel::eventFilter(QObject *obj, QEvent *ev)
 		return false;
 	} else if (ev->type() == Event::eventType()) {
 		Event *event = static_cast<Event*>(ev);
-		if (p->initData && event->id == p->initData->qutimStartupEvent)
+		if (d->initData && event->id == d->initData->qutimStartupEvent)
 			initialize();
 		return false;
 	}
@@ -772,9 +796,10 @@ bool TreeModel::eventFilter(QObject *obj, QEvent *ev)
 
 void TreeModel::filterAllList()
 {
-	for (int i = 0; i < p->tags.size(); i++) {
-		TagItem *tag = p->tags.at(i);
-		bool tagFiltered = !p->selectedTags.isEmpty() && !p->selectedTags.contains(tag->name);
+	Q_D(TreeModel);
+	for (int i = 0; i < d->tags.size(); i++) {
+		TagItem *tag = d->tags.at(i);
+		bool tagFiltered = !d->selectedTags.isEmpty() && !d->selectedTags.contains(tag->name);
 		foreach (ContactItem *item, tag->contacts)
 			hideContact<TreeModelPrivate, TagItem>(item, tagFiltered || !isVisible(item));
 	}
@@ -782,23 +807,25 @@ void TreeModel::filterAllList()
 
 bool TreeModel::isVisible(ContactItem *item)
 {
+	Q_D(TreeModel);
 	if (!item) {
 		qWarning() << Q_FUNC_INFO << "item is null";
 		return true;
 	}
 	Contact *contact = item->data->contact;
-	if (!p->lastFilter.isEmpty()) {
-		return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
-				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
-	} else if (!p->selectedTags.isEmpty() && !p->selectedTags.contains(item->parent->name)) {
+	if (!d->lastFilter.isEmpty()) {
+		return contact->id().contains(d->lastFilter,Qt::CaseInsensitive)
+				|| contact->name().contains(d->lastFilter,Qt::CaseInsensitive);
+	} else if (!d->selectedTags.isEmpty() && !d->selectedTags.contains(item->parent->name)) {
 		return false;
 	} else {
-		return p->showOffline || contact->status().type() != Status::Offline;
+		return d->showOffline || contact->status().type() != Status::Offline;
 	}
 }
 
 void TreeModel::initialize()
 {
+	Q_D(TreeModel);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
@@ -810,8 +837,8 @@ void TreeModel::initialize()
 			onAccountCreated(account);
 	}
 
-	TreeModelPrivate::InitData *initData = p->initData;
-	p->initData = 0;
+	TreeModelPrivate::InitData *initData = d->initData;
+	d->initData = 0;
 	// ensure correct order of tags
 	QSet<QString> tags;
 	foreach (Contact *contact, initData->contacts)
@@ -819,7 +846,7 @@ void TreeModel::initialize()
 			tags.insert(tag);
 	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
 		if (tags.contains(tag))
-			ensureTag<TagItem>(p.data(), tag);
+			ensureTag<TagItem>(d, tag);
 	// add contacts to the contact list
 	foreach (Contact *contact, initData->contacts)
 		addContact(contact);
@@ -828,16 +855,17 @@ void TreeModel::initialize()
 
 void TreeModel::saveTagOrder()
 {
+	Q_D(TreeModel);
 	Config group = Config().group("contactList");
 	QStringList tags;
-	foreach (TagItem *tag, p->tags)
+	foreach (TagItem *tag, d->tags)
 		tags << tag->name;
 	group.setValue("tags", tags);
 }
 
 bool TreeModel::showOffline() const
 {
-	return p->showOffline;
+	return d_func()->showOffline;
 }
 
 void TreeModel::onAccountCreated(qutim_sdk_0_3::Account *account)

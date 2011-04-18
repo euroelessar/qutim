@@ -10,7 +10,7 @@ namespace Core
 {
 namespace SimpleContactList
 {
-struct TreeModelPrivate;
+class TreeModelPrivate;
 class TreeModel;
 
 struct ChangeEvent;
@@ -56,6 +56,7 @@ public:
 class TreeModel : public AbstractContactModel
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(TreeModel)
 public:
 	TreeModel(QObject *parent = 0);
 	virtual ~TreeModel();
@@ -104,12 +105,11 @@ private:
 	void removeFromContactList(Contact *contact, bool deleted);
 	void initialize();
 	void saveTagOrder();
-	QScopedPointer<TreeModelPrivate> p;
 };
 
 TreeModelPrivate *TagItem::getTagContainer(AbstractContactModel *m)
 {
-	return reinterpret_cast<TreeModel*>(m)->p.data();
+	return reinterpret_cast<TreeModel*>(m)->d_func();
 }
 
 }

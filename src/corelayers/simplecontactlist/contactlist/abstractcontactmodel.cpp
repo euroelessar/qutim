@@ -13,7 +13,7 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "abstractcontactmodel.h"
+#include "abstractcontactmodel_p.h"
 #include <qutim/metacontactmanager.h>
 #include <qutim/protocol.h>
 #include <qutim/contact.h>
@@ -23,8 +23,8 @@ namespace SimpleContactList {
 
 using namespace qutim_sdk_0_3;
 
-AbstractContactModel::AbstractContactModel(QObject *parent) :
-    QAbstractItemModel(parent)
+AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
+	QAbstractItemModel(parent), d_ptr(d)
 {
 }
 

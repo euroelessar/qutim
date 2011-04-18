@@ -10,7 +10,7 @@ namespace Core
 {
 namespace SimpleContactList
 {
-struct SeparatedModelPrivate;
+class SeparatedModelPrivate;
 class SeparatedModel;
 
 struct ChangeEvent;
@@ -68,6 +68,7 @@ public:
 class SeparatedModel : public AbstractContactModel
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(SeparatedModel)
 public:
 	SeparatedModel(QObject *parent = 0);
 	virtual ~SeparatedModel();
@@ -113,11 +114,9 @@ protected:
 private:
 	void filterAllList();
 	bool isVisible(ContactItem *item);
-	bool hideContact(ContactItem *item, bool hide, bool replacing = true);
 	void removeFromContactList(Contact *contact, bool deleted);
 	void initialize();
 	void saveTagOrder();
-	QScopedPointer<SeparatedModelPrivate> p;
 };
 }
 }

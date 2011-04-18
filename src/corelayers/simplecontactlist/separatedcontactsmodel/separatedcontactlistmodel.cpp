@@ -1,4 +1,5 @@
 #include "separatedcontactlistmodel.h"
+#include "abstractcontactmodel_p.h"
 #include <qutim/notificationslayer.h>
 #include <qutim/messagesession.h>
 #include <qutim/status.h>
@@ -33,8 +34,9 @@ struct ChangeEvent
 
 };
 
-struct SeparatedModelPrivate
+class SeparatedModelPrivate : public AbstractContactModelPrivate
 {
+public:
 	QList<AccountItem*> accounts;
 	QHash<Account*, AccountItem*> accountHash;
 	QMap<Contact *, ContactData::Ptr> contacts;
@@ -60,16 +62,17 @@ struct SeparatedModelPrivate
 	InitData *initData;
 };
 
-SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(parent), p(new SeparatedModelPrivate)
+SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(new SeparatedModelPrivate, parent)
 {
-	p->showMessageIcon = false;
+	Q_D(SeparatedModel);
+	d->showMessageIcon = false;
 	Event::eventManager()->installEventFilter(this);
-	p->initData = new SeparatedModelPrivate::InitData;
-	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	p->initData->qutimStartupEvent = Event::registerType("startup");
-	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
+	d->initData = new SeparatedModelPrivate::InitData;
+	d->realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	d->initData->qutimStartupEvent = Event::registerType("startup");
+	d->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 	ConfigGroup group = Config().group("contactList");
-	p->showOffline = group.value("showOffline", true);
+	d->showOffline = group.value("showOffline", true);
 }
 
 SeparatedModel::~SeparatedModel()
@@ -78,6 +81,7 @@ SeparatedModel::~SeparatedModel()
 
 QModelIndex SeparatedModel::index(int row, int, const QModelIndex &parent) const
 {
+	Q_D(const SeparatedModel);
 	if(row < 0)
 		return QModelIndex();
 	switch(getItemType(parent))
@@ -97,14 +101,15 @@ QModelIndex SeparatedModel::index(int row, int, const QModelIndex &parent) const
 	case ContactType:
 		return QModelIndex();
 	default:
-		if(p->accounts.size() <= row)
+		if(d->accounts.size() <= row)
 			return QModelIndex();
-		return createIndex(row, 0, p->accounts.at(row));
+		return createIndex(row, 0, d->accounts.at(row));
 	}
 }
 
 QModelIndex SeparatedModel::parent(const QModelIndex &child) const
 {
+	Q_D(const SeparatedModel);
 	switch(getItemType(child))
 	{
 	case ContactType: {
@@ -114,7 +119,7 @@ QModelIndex SeparatedModel::parent(const QModelIndex &child) const
 	}
 	case TagType: {
 		TagItem *item = reinterpret_cast<TagItem *>(child.internalPointer());
-		return createIndex(p->accounts.indexOf(item->parent), 0, item->parent);
+		return createIndex(d->accounts.indexOf(item->parent), 0, item->parent);
 	} default:
 		return QModelIndex();
 	}
@@ -122,6 +127,7 @@ QModelIndex SeparatedModel::parent(const QModelIndex &child) const
 
 int SeparatedModel::rowCount(const QModelIndex &parent) const
 {
+	Q_D(const SeparatedModel);
 	switch(getItemType(parent))
 	{
 	case TagType:
@@ -131,7 +137,7 @@ int SeparatedModel::rowCount(const QModelIndex &parent) const
 	case AccountType:
 		return reinterpret_cast<AccountItem *>(parent.internalPointer())->visibleTags.size();
 	default:
-		return p->accounts.size();
+		return d->accounts.size();
 	}
 }
 
@@ -142,6 +148,7 @@ int SeparatedModel::columnCount(const QModelIndex &) const
 
 bool SeparatedModel::hasChildren(const QModelIndex &parent) const
 {
+	Q_D(const SeparatedModel);
 	switch(getItemType(parent))
 	{
 	case TagType:
@@ -151,12 +158,13 @@ bool SeparatedModel::hasChildren(const QModelIndex &parent) const
 	case AccountType:
 		return !reinterpret_cast<AccountItem *>(parent.internalPointer())->visibleTags.isEmpty();
 	default:
-		return !p->accounts.isEmpty();
+		return !d->accounts.isEmpty();
 	}
 }
 
 QVariant SeparatedModel::data(const QModelIndex &index, int role) const
 {
+	Q_D(const SeparatedModel);
 	switch(getItemType(index))
 	{
 	case ContactType:
@@ -170,8 +178,8 @@ QVariant SeparatedModel::data(const QModelIndex &index, int role) const
 			return name.isEmpty() ? item->data->contact->id() : name;
 		}
 		case Qt::DecorationRole:
-			if (p->showMessageIcon && p->unreadContacts.contains(item->data->contact))
-				return p->unreadIcon;
+			if (d->showMessageIcon && d->unreadContacts.contains(item->data->contact))
+				return d->unreadIcon;
 			else
 				return item->data->contact->status().icon();
 		case ItemTypeRole:
@@ -233,8 +241,9 @@ QVariant SeparatedModel::data(const QModelIndex &index, int role) const
 
 QVariant SeparatedModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	Q_D(const SeparatedModel);
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
-		if (p->selectedTags.isEmpty())
+		if (d->selectedTags.isEmpty())
 			return tr("All tags");
 		else
 			return tr("Custom tags");
@@ -266,18 +275,19 @@ bool contactLessThan (ContactItem *a, ContactItem *b) {
 
 void SeparatedModel::addContact(Contact *contact)
 {
+	Q_D(SeparatedModel);
 	//TODO implement more powerfull logic
 	//			if (!contact->isInList())
 	//				return;
 
-	if (p->initData) {
-		if (p->initData->contacts.contains(contact))
+	if (d->initData) {
+		if (d->initData->contacts.contains(contact))
 			return;
-		p->initData->contacts << contact;
+		d->initData->contacts << contact;
 		return;
 	}
 
-	if (p->contacts.contains(contact))
+	if (d->contacts.contains(contact))
 		return;
 
 	connect(contact, SIGNAL(destroyed(QObject*)),
@@ -295,7 +305,7 @@ void SeparatedModel::addContact(Contact *contact)
 	if(tags.isEmpty())
 		tags << tr("Without tags");
 
-	AccountItem *accountItem = p->accountHash.value(contact->account());
+	AccountItem *accountItem = d->accountHash.value(contact->account());
 	if (!accountItem)
 		accountItem = onAccountCreated(contact->account());
 
@@ -304,7 +314,7 @@ void SeparatedModel::addContact(Contact *contact)
 	item_data->tags = QSet<QString>::fromList(tags);
 	item_data->status = contact->status();
 	int counter = item_data->status.type() == Status::Offline ? 0 : 1;
-	p->contacts.insert(contact, item_data);
+	d->contacts.insert(contact, item_data);
 	for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 	{
 		TagItem *tag = ensureTag<TagItem>(accountItem, *it);
@@ -313,7 +323,7 @@ void SeparatedModel::addContact(Contact *contact)
 		bool show = isVisible(item);
 		tag->online += counter;
 		if (show) {
-			hideContact(item, false, false);
+			hideContact<AccountItem, TagItem>(item, false, false);
 		} else {
 			tag->contacts.append(item);
 			item_data->items.append(item);
@@ -323,7 +333,7 @@ void SeparatedModel::addContact(Contact *contact)
 
 bool SeparatedModel::containsContact(Contact *contact) const
 {
-	return p->contacts.contains(contact);
+	return d_func()->contacts.contains(contact);
 }
 
 bool SeparatedModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -392,6 +402,7 @@ QMimeData *SeparatedModel::mimeData(const QModelIndexList &indexes) const
 bool SeparatedModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 						 int row, int column, const QModelIndex &parent)
 {
+	Q_D(SeparatedModel);
 	if (action == Qt::IgnoreAction)
 		return true;
 
@@ -424,8 +435,8 @@ bool SeparatedModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 		ev->type = ChangeEvent::ChangeTags;
 	else if(getItemType(parent) == ContactType)
 		ev->type = ChangeEvent::MergeContacts;
-	p->events << ev;
-	p->timer.start(1, this);
+	d->events << ev;
+	d->timer.start(1, this);
 
 	return true;
 	// We should return false
@@ -434,19 +445,20 @@ bool SeparatedModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 void SeparatedModel::removeFromContactList(Contact *contact, bool deleted)
 {
+	Q_D(SeparatedModel);
 	Q_UNUSED(deleted);
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	int counter = item_data->status.type() == Status::Offline ? 0 : -1;
 	for(int i = 0; i < item_data->items.size(); i++) {
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
-		hideContact(item, true, false);
+		hideContact<AccountItem, TagItem>(item, true, false);
 		delete item;
 	}
-	p->contacts.remove(contact);
-	p->unreadContacts.remove(contact);
+	d->contacts.remove(contact);
+	d->unreadContacts.remove(contact);
 }
 
 void SeparatedModel::contactDeleted(QObject *obj)
@@ -457,12 +469,13 @@ void SeparatedModel::contactDeleted(QObject *obj)
 
 void SeparatedModel::removeContact(Contact *contact)
 {
+	Q_D(SeparatedModel);
 	Q_ASSERT(contact);
 	if (MetaContact *meta = qobject_cast<MetaContact*>(contact)) {
 		contact->removeEventFilter(this);
 		foreach (ChatUnit *unit, meta->lowerUnits()) {
 			Contact *subContact = qobject_cast<Contact*>(unit);
-			if (subContact && !p->contacts.contains(subContact))
+			if (subContact && !d->contacts.contains(subContact))
 				addContact(subContact);
 		}
 	}
@@ -472,8 +485,9 @@ void SeparatedModel::removeContact(Contact *contact)
 
 void SeparatedModel::contactStatusChanged(Status status)
 {
+	Q_D(SeparatedModel);
 	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	bool statusTypeChanged = status.type() != item_data->status.type();
@@ -489,7 +503,7 @@ void SeparatedModel::contactStatusChanged(Status status)
 		ContactItem *item = items.at(i);
 		item->parent->online += counter;
 
-		if (!hideContact(item, !show)) {
+		if (!hideContact<AccountItem, TagItem>(item, !show)) {
 			if (!show)
 				// The item is already hidden and it should stay that way.
 				return;
@@ -508,9 +522,10 @@ void SeparatedModel::contactStatusChanged(Status status)
 
 void SeparatedModel::contactNameChanged(const QString &name)
 {
+	Q_D(SeparatedModel);
 	Q_UNUSED(name);
 	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
 	const QList<ContactItem *> &items = item_data->items;
@@ -535,6 +550,7 @@ void SeparatedModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 
 void SeparatedModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 {
+	Q_D(SeparatedModel);
 	ChatSession *session = qobject_cast<ChatSession*>(sender());
 	QSet<Contact*> contacts;
 	QSet<ChatUnit*> chatUnits;
@@ -543,7 +559,7 @@ void SeparatedModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 		if (chatUnits.contains(unit) || !unit)
 			continue;
 		chatUnits.insert(unit);
-		Event event(p->realUnitRequestEvent);
+		Event event(d->realUnitRequestEvent);
 		QCoreApplication::sendEvent(unit, &event);
 		Contact *contact = event.at<Contact*>(0);
 		while (unit && !contact) {
@@ -557,25 +573,25 @@ void SeparatedModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 			contacts.insert(contact);
 	}
 	if (contacts.isEmpty())
-		p->unreadBySession.remove(session);
+		d->unreadBySession.remove(session);
 	else
-		p->unreadBySession.insert(session, contacts);
-	foreach (const QSet<Contact*> &contactsSet, p->unreadBySession)
+		d->unreadBySession.insert(session, contacts);
+	foreach (const QSet<Contact*> &contactsSet, d->unreadBySession)
 		contacts |= contactsSet;
 
-	if (!contacts.isEmpty() && !p->unreadTimer.isActive())
-		p->unreadTimer.start(500, this);
+	if (!contacts.isEmpty() && !d->unreadTimer.isActive())
+		d->unreadTimer.start(500, this);
 	else if (contacts.isEmpty())
-		p->unreadTimer.stop();
+		d->unreadTimer.stop();
 
-	if (!p->showMessageIcon) {
-		p->unreadContacts = contacts;
+	if (!d->showMessageIcon) {
+		d->unreadContacts = contacts;
 	} else {
-		QSet<Contact*> needUpdate = p->unreadContacts;
+		QSet<Contact*> needUpdate = d->unreadContacts;
 		needUpdate.subtract(contacts);
-		p->unreadContacts = contacts;
+		d->unreadContacts = contacts;
 		foreach (Contact *contact, needUpdate) {
-			ContactData::Ptr item_data = p->contacts.value(contact);
+			ContactData::Ptr item_data = d->contacts.value(contact);
 			for (int i = 0; i < item_data->items.size(); i++) {
 				ContactItem *item = item_data->items.at(i);
 				QModelIndex index = createIndex(item->index(), 0, item);
@@ -587,12 +603,13 @@ void SeparatedModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 
 void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 {
+	Q_D(SeparatedModel);
 	Contact *contact = qobject_cast<Contact *>(sender());
 	Q_ASSERT(contact);
-	ContactData::Ptr item_data = p->contacts.value(contact);
+	ContactData::Ptr item_data = d->contacts.value(contact);
 	if(!item_data)
 		return;
-	AccountItem *accountItem = p->accountHash.value(contact->account());
+	AccountItem *accountItem = d->accountHash.value(contact->account());
 	Q_ASSERT(accountItem);
 	bool show = isVisible(item_data->items.value(0));
 	QSet<QString> tags;
@@ -611,7 +628,7 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 		if(tags.contains(item->parent->name))
 			continue;
 		item->parent->online -= counter;
-		hideContact(item, true, false);
+		hideContact<AccountItem, TagItem>(item, true, false);
 		delete item;
 		i--;
 		size--;
@@ -622,7 +639,7 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		if (show) {
-			hideContact(item, false, false);
+			hideContact<AccountItem, TagItem>(item, false, false);
 		} else {
 			tag->contacts.append(item);
 			item_data->items.append(item);
@@ -633,36 +650,40 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 
 void SeparatedModel::hideShowOffline()
 {
+	Q_D(SeparatedModel);
 	ConfigGroup group = Config().group("contactList");
 	bool show = !group.value("showOffline", true);
 	group.setValue("showOffline", show);
 	group.sync();
-	if (p->showOffline == show)
+	if (d->showOffline == show)
 		return;
-	p->showOffline = show;
+	d->showOffline = show;
 	filterAllList();
 }
 
 void SeparatedModel::filterList(const QString &filter)
 {
-	if (filter == p->lastFilter)
+	Q_D(SeparatedModel);
+	if (filter == d->lastFilter)
 		return;
-	p->lastFilter = filter;
+	d->lastFilter = filter;
 	filterAllList();
 }
 
 void SeparatedModel::filterList(const QStringList &tags)
 {
-	if (tags == p->selectedTags)
+	Q_D(SeparatedModel);
+	if (tags == d->selectedTags)
 		return;
-	p->selectedTags = tags;
+	d->selectedTags = tags;
 	filterAllList();
 }
 
 QStringList SeparatedModel::tags() const
 {
+	Q_D(const SeparatedModel);
 	QStringList all_tags;
-	foreach (const AccountItem *acc, p->accounts)
+	foreach (const AccountItem *acc, d->accounts)
 		foreach (const TagItem *tag, acc->tags)
 			all_tags.append(tag->name);
 	return all_tags;
@@ -670,7 +691,7 @@ QStringList SeparatedModel::tags() const
 
 QStringList SeparatedModel::selectedTags() const
 {
-	return p->selectedTags;
+	return d_func()->selectedTags;
 }
 
 void SeparatedModel::processEvent(ChangeEvent *ev)
@@ -719,17 +740,18 @@ void SeparatedModel::processEvent(ChangeEvent *ev)
 
 void SeparatedModel::timerEvent(QTimerEvent *timerEvent)
 {
-	if (timerEvent->timerId() == p->timer.timerId()) {
-		for (int i = 0; i < p->events.size(); i++) {
-			processEvent(p->events.at(i));
-			delete p->events.at(i);
+	Q_D(SeparatedModel);
+	if (timerEvent->timerId() == d->timer.timerId()) {
+		for (int i = 0; i < d->events.size(); i++) {
+			processEvent(d->events.at(i));
+			delete d->events.at(i);
 		}
-		p->events.clear();
-		p->timer.stop();
+		d->events.clear();
+		d->timer.stop();
 		return;
-	} else if (timerEvent->timerId() == p->unreadTimer.timerId()) {
-		foreach (Contact *contact, p->unreadContacts) {
-			ContactData::Ptr item_data = p->contacts.value(contact);
+	} else if (timerEvent->timerId() == d->unreadTimer.timerId()) {
+		foreach (Contact *contact, d->unreadContacts) {
+			ContactData::Ptr item_data = d->contacts.value(contact);
 			//if (!item_data) {//FIXME why p->contacts doesn't contains contact
 			//	qDebug() << "Unread" << contact <<  p->unreadContacts;
 			//	continue;
@@ -740,7 +762,7 @@ void SeparatedModel::timerEvent(QTimerEvent *timerEvent)
 				emit dataChanged(index, index);
 			}
 		}
-		p->showMessageIcon = !p->showMessageIcon;
+		d->showMessageIcon = !d->showMessageIcon;
 		return;
 	}
 	QAbstractItemModel::timerEvent(timerEvent);
@@ -748,6 +770,7 @@ void SeparatedModel::timerEvent(QTimerEvent *timerEvent)
 
 bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 {
+	Q_D(SeparatedModel);
 	if (ev->type() == MetaContactChangeEvent::eventType()) {
 		MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(ev);
 		if (metaEvent->oldMetaContact() && !metaEvent->newMetaContact())
@@ -757,7 +780,7 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 		return false;
 	} else if (ev->type() == Event::eventType()) {
 		Event *event = static_cast<Event*>(ev);
-		if (p->initData && event->id == p->initData->qutimStartupEvent)
+		if (d->initData && event->id == d->initData->qutimStartupEvent)
 			initialize();
 		return false;
 	}
@@ -766,36 +789,39 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 
 void SeparatedModel::filterAllList()
 {
-	for (int i = 0; i < p->accounts.size(); i++) {
-		AccountItem *acc = p->accounts.at(i);
+	Q_D(SeparatedModel);
+	for (int i = 0; i < d->accounts.size(); i++) {
+		AccountItem *acc = d->accounts.at(i);
 		for (int j = 0; j < acc->tags.size(); j++) {
 			TagItem *tag = acc->tags.at(j);
-			bool tagFiltered = !p->selectedTags.isEmpty() && !p->selectedTags.contains(tag->name);
+			bool tagFiltered = !d->selectedTags.isEmpty() && !d->selectedTags.contains(tag->name);
 			foreach (ContactItem *item, tag->contacts)
-				hideContact(item, tagFiltered || !isVisible(item));
+				hideContact<AccountItem, TagItem>(item, tagFiltered || !isVisible(item));
 		}
 	}
 }
 
 bool SeparatedModel::isVisible(ContactItem *item)
 {
+	Q_D(SeparatedModel);
 	if (!item) {
 		qWarning() << Q_FUNC_INFO << "item is null";
 		return true;
 	}
 	Contact *contact = item->data->contact;
-	if (!p->lastFilter.isEmpty()) {
-		return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
-				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
-	} else if (!p->selectedTags.isEmpty() && !p->selectedTags.contains(item->parent->name)) {
+	if (!d->lastFilter.isEmpty()) {
+		return contact->id().contains(d->lastFilter,Qt::CaseInsensitive)
+				|| contact->name().contains(d->lastFilter,Qt::CaseInsensitive);
+	} else if (!d->selectedTags.isEmpty() && !d->selectedTags.contains(item->parent->name)) {
 		return false;
 	} else {
-		return p->showOffline || contact->status().type() != Status::Offline;
+		return d->showOffline || contact->status().type() != Status::Offline;
 	}
 }
 
 void SeparatedModel::initialize()
 {
+	Q_D(SeparatedModel);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
@@ -807,8 +833,8 @@ void SeparatedModel::initialize()
 			onAccountCreated(account);
 	}
 
-	SeparatedModelPrivate::InitData *initData = p->initData;
-	p->initData = 0;
+	SeparatedModelPrivate::InitData *initData = d->initData;
+	d->initData = 0;
 	// ensure correct order of tags
 	/*QSet<QString> tags;
 	foreach (Contact *contact, initData->contacts)
@@ -834,17 +860,18 @@ void SeparatedModel::saveTagOrder()
 
 bool SeparatedModel::showOffline() const
 {
-	return p->showOffline;
+	return d_func()->showOffline;
 }
 
 AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
+	Q_D(SeparatedModel);
 	AccountItem *item = new AccountItem;
 	item->account = account;
-	int index = p->accounts.count();
+	int index = d->accounts.count();
 	beginInsertRows(QModelIndex(), index, index);
-	p->accounts.push_back(item);
-	p->accountHash.insert(account, item);
+	d->accounts.push_back(item);
+	d->accountHash.insert(account, item);
 	endInsertRows();
 
 	foreach (Contact *contact, account->findChildren<Contact*>())
@@ -858,10 +885,11 @@ AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 void SeparatedModel::onAccountDestroyed(QObject *obj)
 {
-	AccountItem *item = p->accountHash.take(reinterpret_cast<Account*>(obj));
-	int index = p->accounts.indexOf(item);
+	Q_D(SeparatedModel);
+	AccountItem *item = d->accountHash.take(reinterpret_cast<Account*>(obj));
+	int index = d->accounts.indexOf(item);
 	beginRemoveRows(QModelIndex(), index, index);
-	p->accounts.removeAt(index);
+	d->accounts.removeAt(index);
 	foreach (TagItem *tag, item->tags) {
 		foreach (ContactItem *contact, tag->contacts) {
 			contact->data->items.removeOne(contact);

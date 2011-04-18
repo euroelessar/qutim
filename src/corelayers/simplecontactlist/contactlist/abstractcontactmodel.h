@@ -19,7 +19,6 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 #include "simplecontactlist_global.h"
-#include "simplecontactlistitem.h"
 
 namespace qutim_sdk_0_3
 {
@@ -30,13 +29,15 @@ class Account;
 namespace Core {
 namespace SimpleContactList {
 
+class AbstractContactModelPrivate;
 
 class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
+	Q_DECLARE_PRIVATE(AbstractContactModel)
 public:
-    explicit AbstractContactModel(QObject *parent = 0);
+
 	virtual ~AbstractContactModel();
 	virtual QStringList selectedTags() const;
 	Q_INVOKABLE virtual QStringList tags() const;
@@ -48,6 +49,7 @@ public slots:
 signals:
 	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 protected:
+	AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent = 0);
 	template<typename TagContainer, typename TagItem, typename ContactItem>
 	bool hideContact(ContactItem *item, bool hide, bool replacing = true);
 	template<typename TagContainer, typename TagItem>
@@ -58,6 +60,8 @@ protected:
 	TagItem *ensureTag(TagContainer *p, const QString &name);
 	template<typename TagContainer, typename ContactItem>
 	void updateContact(ContactItem *item, bool placeChanged);
+protected:
+	QScopedPointer<AbstractContactModelPrivate> d_ptr;
 };
 
 template<typename ContactItem>
@@ -231,7 +235,6 @@ void AbstractContactModel::updateContact(ContactItem *item, bool placeChanged)
 		}
 	}
 }
-
 
 } // namespace SimpleContactList
 } // namespace Core
