@@ -47,7 +47,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 		return true;
 }
 
-SimpleWidget::SimpleWidget()
+SevenWidget::SevenWidget()
 {
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(save()));
 	setWindowIcon(Icon("show-menu"));
@@ -135,7 +135,7 @@ SimpleWidget::SimpleWidget()
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 
-void SimpleWidget::save()
+void SevenWidget::save()
 {
 	Config config;
 	config.beginGroup("contactList");
@@ -143,12 +143,12 @@ void SimpleWidget::save()
 	config.sync();
 }
 
-SimpleWidget::~SimpleWidget()
+SevenWidget::~SevenWidget()
 {
 	save();
 }
 
-void SimpleWidget::addButton(ActionGenerator *generator)
+void SevenWidget::addButton(ActionGenerator *generator)
 {
 	//nice hack
 	m_controller->addAction(generator);
@@ -156,12 +156,12 @@ void SimpleWidget::addButton(ActionGenerator *generator)
 	m_toolFrameWindow->addAction(a.at(0));
 }
 
-void SimpleWidget::removeButton(ActionGenerator *generator)
+void SevenWidget::removeButton(ActionGenerator *generator)
 {
 	m_controller->removeAction(generator);
 }
 
-void SimpleWidget::loadGeometry()
+void SevenWidget::loadGeometry()
 {
 	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
 	if (geom.isNull()) {
@@ -188,7 +188,7 @@ void SimpleWidget::loadGeometry()
 	}
 }
 
-QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
+QAction *SevenWidget::createGlobalStatusAction(Status::Type type)
 {
 	Status s = Status(type);
 	QAction *act = new QAction(s.icon(), s.name(), m_statusBtn);
@@ -199,7 +199,7 @@ QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
 	return act;
 }
 
-void SimpleWidget::onSearchButtonToggled(bool toggled)
+void SevenWidget::onSearchButtonToggled(bool toggled)
 {
 	m_searchBar->setVisible(toggled);
 	if (toggled) {
@@ -210,7 +210,7 @@ void SimpleWidget::onSearchButtonToggled(bool toggled)
 }
 
 
-void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
+void SevenWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	//TODO add account icon
 	QAction *action = new QAction(account->status().icon(), account->id(), m_statusBtn);
@@ -222,7 +222,7 @@ void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	m_statusBtn->menu()->addAction(action);
 }
 
-void SimpleWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void SevenWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = sender_cast<Account *>(sender());
 	QAction *action = m_actions.value(account);
@@ -235,13 +235,13 @@ void SimpleWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	}
 }
 
-void SimpleWidget::onAccountDestroyed(QObject *obj)
+void SevenWidget::onAccountDestroyed(QObject *obj)
 {
 	Account *account = reinterpret_cast<Account*>(obj);
 	m_actions.take(account)->deleteLater();
 }
 
-void SimpleWidget::onStatusChanged()
+void SevenWidget::onStatusChanged()
 {
 	if (QAction *a = sender_cast<QAction *>(sender())) {
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
@@ -258,7 +258,7 @@ void SimpleWidget::onStatusChanged()
 	}
 }
 
-void SimpleWidget::showStatusDialog()
+void SevenWidget::showStatusDialog()
 {
 	QString text = m_status_action->data().toString();
 	SimpleStatusDialog *dialog = new SimpleStatusDialog(text, this);
@@ -267,7 +267,7 @@ void SimpleWidget::showStatusDialog()
 	SystemIntegration::show(dialog);
 }
 
-void SimpleWidget::changeStatusTextAccepted()
+void SevenWidget::changeStatusTextAccepted()
 {
 	SimpleStatusDialog *dialog = qobject_cast<SimpleStatusDialog *>(sender());
 	Q_ASSERT(dialog);
@@ -286,11 +286,11 @@ void SimpleWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
-void SimpleWidget::orientationChanged()
+void SevenWidget::orientationChanged()
 {
 }
 
-bool SimpleWidget::event(QEvent *event)
+bool SevenWidget::event(QEvent *event)
 {
 	if (event->type() == QEvent::LanguageChange) {
 		foreach (QAction *action,m_statusActions) {
@@ -305,7 +305,7 @@ bool SimpleWidget::event(QEvent *event)
 	return QWidget::event(event);
 }
 
-void SimpleWidget::init()
+void SevenWidget::init()
 {	
 	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
 	m_toolFrameWindow->setMenu(controller->menu());
@@ -313,7 +313,7 @@ void SimpleWidget::init()
 	SystemIntegration::show(m_toolFrameWindow);
 }
 
-AbstractContactModel *SimpleWidget::model() const
+AbstractContactModel *SevenWidget::model() const
 {
 	return m_model;
 }

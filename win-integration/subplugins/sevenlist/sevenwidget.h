@@ -1,5 +1,5 @@
-#ifndef SIMPLEWIDGET_H
-#define SIMPLEWIDGET_H
+#ifndef SEVENWIDGET_H
+#define SEVENWIDGET_H
 #include <QMainWindow>
 #include <qutim/simplecontactlist/abstractcontactlist.h>
 #include <qutim/simplecontactlist/simplecontactlistview.h>
@@ -18,15 +18,16 @@ class QAction;
 namespace Core {
 namespace SimpleContactList {
 
-class SimpleWidget : public QWidget, public AbstractContactListWidget
+class SevenWidget : public QWidget, public AbstractContactListWidget
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::SimpleContactList::AbstractContactListWidget)
 	Q_CLASSINFO("Service", "ContactListWidget")
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
 public:
-	SimpleWidget();
-	~SimpleWidget();
+	SevenWidget();
+	~SevenWidget();
 	void loadGeometry();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
@@ -60,4 +61,4 @@ private:
 } // namespace SimpleContactList
 } // namespace Core
 
-#endif // SIMPLEWIDGET_H
+#endif // SEVENWIDGET_H
