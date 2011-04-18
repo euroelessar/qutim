@@ -388,7 +388,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				outgoingFont.setForeground(Qt::blue);
 				outgoingFont.setFontWeight(QFont::Bold);
 //				QTextCharFormat foundFont = cursor.charFormat();
-				outgoingFont.setBackground(Qt::yellow);
+//				outgoingFont.setBackground(Qt::yellow);
 				QString serviceMessageTitle = tr("Service message");
 				QString resultString( "<span style='background: #ffff00'>\\1</span>" );
 				cursor.beginEditBlock();
