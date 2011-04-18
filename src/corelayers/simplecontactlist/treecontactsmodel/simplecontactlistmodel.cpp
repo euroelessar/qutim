@@ -34,8 +34,11 @@ struct ChangeEvent
 
 };
 
-struct TreeModelPrivate : public TagsContainerItem
+struct TreeModelPrivate
 {
+	QList<TagItem *> tags;
+	QList<TagItem *> visibleTags;
+	QHash<QString, TagItem *> tagsHash;
 	QMap<Contact *, ContactData::Ptr> contacts;
 	QList<ChangeEvent*> events;
 	QBasicTimer timer;
@@ -211,27 +214,6 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int rol
 	return QVariant();
 }
 
-bool contactLessThan (ContactItem *a, ContactItem *b) {
-	int result;
-
-	//int unreadA = 0;
-	//int unreadB = 0;
-	//ChatSession *session = ChatLayer::get(a->data->contact,false);
-	//if(session)
-	//	unreadA = session->unread().count();
-	//session = ChatLayer::get(b->data->contact,false);
-	//if(session)
-	//	unreadB = session->unread().count();
-	//result = unreadA - unreadB;
-	//if(result)
-	//	return result < 0;
-
-	result = a->data->status.type() - b->data->status.type();
-	if (result)
-		return result < 0;
-	return a->data->contact->title().compare(b->data->contact->title(), Qt::CaseInsensitive) < 0;
-};
-
 void TreeModel::addContact(Contact *contact)
 {
 	//TODO implement more powerfull logic
@@ -290,13 +272,13 @@ void TreeModel::addContact(Contact *contact)
 	p->contacts.insert(contact, item_data);
 	for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 	{
-		TagItem *tag = ensureTag(*it);
+		TagItem *tag = ensureTag<TagItem>(p.data(), *it);
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		bool show = isVisible(item);
 		tag->online += counter;
 		if (show) {
-			hideContact(item, false, false);
+			hideContact<TreeModelPrivate, TagItem>(item, false, false);
 		} else {
 			tag->contacts.append(item);
 			item_data->items.append(item);
@@ -425,7 +407,7 @@ void TreeModel::removeFromContactList(Contact *contact, bool deleted)
 	for(int i = 0; i < item_data->items.size(); i++) {
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
-		hideContact(item, true, false);
+		hideContact<TreeModelPrivate, TagItem>(item, true, false);
 		delete item;
 	}
 	p->contacts.remove(contact);
@@ -472,7 +454,7 @@ void TreeModel::contactStatusChanged(Status status)
 		ContactItem *item = items.at(i);
 		item->parent->online += counter;
 
-		if (!hideContact(item, !show)) {
+		if (!hideContact<TreeModelPrivate, TagItem>(item, !show)) {
 			if (!show)
 				// The item is already hidden and it should stay that way.
 				return;
@@ -485,7 +467,7 @@ void TreeModel::contactStatusChanged(Status status)
 
 		// The item is already visible, so we need to move it in the right place
 		// and update its content
-		updateContact(item, statusTypeChanged);
+		updateContact<TreeModelPrivate>(item, statusTypeChanged);
 	}
 }
 
@@ -500,7 +482,7 @@ void TreeModel::contactNameChanged(const QString &name)
 	if (items.isEmpty() || !isVisible(items.first()))
 		return;
 	for(int i = 0; i < items.size(); i++)
-		updateContact(items.at(i), true);
+		updateContact<TreeModelPrivate>(items.at(i), true);
 }
 
 void TreeModel::onContactInListChanged(bool)
@@ -591,18 +573,18 @@ void TreeModel::contactTagsChanged(const QStringList &tags_helper)
 		if(tags.contains(item->parent->name))
 			continue;
 		item->parent->online -= counter;
-		hideContact(item, true, false);
+		hideContact<TreeModelPrivate, TagItem>(item, true, false);
 		delete item;
 		i--;
 		size--;
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
-		TagItem *tag = ensureTag(*it);
+		TagItem *tag = ensureTag<TagItem>(p.data(), *it);
 		tag->online += counter;
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		if (show) {
-			hideContact(item, false, false);
+			hideContact<TreeModelPrivate, TagItem>(item, false, false);
 		} else {
 			tag->contacts.append(item);
 			item_data->items.append(item);
@@ -794,7 +776,7 @@ void TreeModel::filterAllList()
 		TagItem *tag = p->tags.at(i);
 		bool tagFiltered = !p->selectedTags.isEmpty() && !p->selectedTags.contains(tag->name);
 		foreach (ContactItem *item, tag->contacts)
-			hideContact(item, tagFiltered || !isVisible(item));
+			hideContact<TreeModelPrivate, TagItem>(item, tagFiltered || !isVisible(item));
 	}
 }
 
@@ -812,145 +794,6 @@ bool TreeModel::isVisible(ContactItem *item)
 		return false;
 	} else {
 		return p->showOffline || contact->status().type() != Status::Offline;
-	}
-}
-
-bool TreeModel::hideContact(ContactItem *item, bool hide, bool replacing)
-{
-	TagItem *tag = item->parent;
-	Q_ASSERT(tag);
-	Q_ASSERT(!replacing || tag->contacts.contains(item));
-	if (!hide)
-		showTag(tag);
-	int row = p->visibleTags.indexOf(tag);
-	QModelIndex tagIndex = createIndex(row, 0, tag);
-	if (hide) {
-		int index = tag->visible.indexOf(item);
-		if (row == -1 || index == -1) {
-			if (!replacing) {
-				item->parent->contacts.removeOne(item);
-				item->data->items.removeOne(item);
-			}
-			return false;
-		}
-		beginRemoveRows(tagIndex, index, index);
-		tag->visible.removeAt(index);
-		if (!replacing) {
-			item->parent->contacts.removeOne(item);
-			item->data->items.removeOne(item);
-		}
-		endRemoveRows();
-		if (tag->visible.isEmpty())
-			hideTag(tag);
-	} else {
-		Q_ASSERT(row >= 0);
-		Q_ASSERT(isVisible(item));
-		if (tag->visible.contains(item))
-			return false;
-		QList<ContactItem *> &contacts = tag->visible;
-		QList<ContactItem *>::const_iterator contacts_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		int index = contacts_it - contacts.constBegin();
-
-		beginInsertRows(tagIndex, index, index);
-		if (!replacing) {
-			item->parent->contacts.append(item);
-			item->data->items.append(item);
-		}
-		contacts.insert(index, item);
-		endInsertRows();
-	}
-	return true;
-}
-
-void TreeModel::hideTag(TagItem *item)
-{
-	Q_ASSERT(p->tags.contains(item));
-	int index = p->visibleTags.indexOf(item);
-	if (index == -1)
-		return; // The tag is already hidden
-	beginRemoveRows(QModelIndex(), index, index);
-	p->visibleTags.removeAt(index);
-	endRemoveRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
-	if (item->contacts.isEmpty()) {
-		p->tagsHash.remove(item->name);
-		p->tags.removeOne(item);
-		delete item;
-	}
-}
-
-void TreeModel::showTag(TagItem *item)
-{
-	Q_ASSERT(p->tags.contains(item));
-	int index = p->visibleTags.indexOf(item);
-	if (index >= 0)
-		return; // The tag is already in the contact list
-	// A wierd way to find out tag's index, but
-	// we need it to ensure the right order of tags.
-	index = 0;
-	for (int j = 0, tc = p->tags.count(), vc = p->visibleTags.count(); j < tc && index != vc; ++j) {
-		TagItem *currentTag = p->tags.at(j);
-		if (currentTag == item)
-			break; // The index is found.
-		if (currentTag == p->visibleTags.at(index))
-			// We found a visible tag that is before our tag,
-			// thus increase the index.
-			++index;
-	}
-	// We can add the tag to the contact list now
-	beginInsertRows(QModelIndex(), index, index);
-	p->visibleTags.insert(index, item);
-	endInsertRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, true);
-}
-
-TagItem *TreeModel::ensureTag(const QString &name)
-{
-	TagItem *tag = 0;
-	if(!(tag = p->tagsHash.value(name, 0))) {
-		tag = new TagItem;
-		tag->name = name;
-		p->tagsHash.insert(tag->name, tag);
-		p->tags << tag;
-
-	}
-	return tag;
-}
-
-void TreeModel::updateContact(ContactItem *item, bool placeChanged)
-{
-	QList<ContactItem *> &contacts = item->parent->visible;
-	int from = contacts.indexOf(item);
-	int to;
-
-	if (from == -1)
-		return; // Don't try to move or update a hidden contact
-
-	if (placeChanged) {
-		QList<ContactItem *>::const_iterator it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		to = it - contacts.constBegin();
-	} else {
-		to = from;
-	}
-
-	QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-
-	if (from == to) {
-		QModelIndex index = createIndex(item->index(), 0, item);
-		emit dataChanged(index, index);
-	} else {
-		if (to == -1 || to > contacts.count())
-			return;
-
-		if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-			if (from < to)
-				--to;
-			contacts.move(from,to);
-			//item_data->items.move(from,to); //FIXME
-			endMoveRows();
-		}
 	}
 }
 
@@ -976,7 +819,7 @@ void TreeModel::initialize()
 			tags.insert(tag);
 	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
 		if (tags.contains(tag))
-			ensureTag(tag);
+			ensureTag<TagItem>(p.data(), tag);
 	// add contacts to the contact list
 	foreach (Contact *contact, initData->contacts)
 		addContact(contact);

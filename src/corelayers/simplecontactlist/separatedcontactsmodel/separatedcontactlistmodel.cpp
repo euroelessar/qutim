@@ -295,9 +295,9 @@ void SeparatedModel::addContact(Contact *contact)
 	if(tags.isEmpty())
 		tags << tr("Without tags");
 
-	Account *account = contact->account();
-	if (!p->accountHash.contains(account))
-		onAccountCreated(account);
+	AccountItem *accountItem = p->accountHash.value(contact->account());
+	if (!accountItem)
+		accountItem = onAccountCreated(contact->account());
 
 	ContactData::Ptr item_data(new ContactData);
 	item_data->contact = contact;
@@ -307,7 +307,7 @@ void SeparatedModel::addContact(Contact *contact)
 	p->contacts.insert(contact, item_data);
 	for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 	{
-		TagItem *tag = ensureTag(account, *it);
+		TagItem *tag = ensureTag<TagItem>(accountItem, *it);
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
 		bool show = isVisible(item);
@@ -502,7 +502,7 @@ void SeparatedModel::contactStatusChanged(Status status)
 
 		// The item is already visible, so we need to move it in the right place
 		// and update its content
-		updateContact(item, statusTypeChanged);
+		updateContact<AccountItem>(item, statusTypeChanged);
 	}
 }
 
@@ -517,7 +517,7 @@ void SeparatedModel::contactNameChanged(const QString &name)
 	if (items.isEmpty() || !isVisible(items.first()))
 		return;
 	for(int i = 0; i < items.size(); i++)
-		updateContact(items.at(i), true);
+		updateContact<AccountItem>(items.at(i), true);
 }
 
 void SeparatedModel::onContactInListChanged(bool)
@@ -592,7 +592,8 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 	ContactData::Ptr item_data = p->contacts.value(contact);
 	if(!item_data)
 		return;
-	Account *account = contact->account();
+	AccountItem *accountItem = p->accountHash.value(contact->account());
+	Q_ASSERT(accountItem);
 	bool show = isVisible(item_data->items.value(0));
 	QSet<QString> tags;
 	tags = QSet<QString>::fromList(tags_helper);
@@ -616,7 +617,7 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 		size--;
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
-		TagItem *tag = ensureTag(account, *it);
+		TagItem *tag = ensureTag<TagItem>(accountItem, *it);
 		tag->online += counter;
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
@@ -793,151 +794,6 @@ bool SeparatedModel::isVisible(ContactItem *item)
 	}
 }
 
-bool SeparatedModel::hideContact(ContactItem *item, bool hide, bool replacing)
-{
-	TagItem *tag = item->parent;
-	AccountItem *p = tag->parent;
-	Q_ASSERT(tag);
-	Q_ASSERT(!replacing || tag->contacts.contains(item));
-	if (!hide)
-		showTag(tag);
-	int row = p->visibleTags.indexOf(tag);
-	QModelIndex tagIndex = createIndex(row, 0, tag);
-	if (hide) {
-		int index = tag->visible.indexOf(item);
-		if (row == -1 || index == -1) {
-			if (!replacing) {
-				item->parent->contacts.removeOne(item);
-				item->data->items.removeOne(item);
-			}
-			return false;
-		}
-		beginRemoveRows(tagIndex, index, index);
-		tag->visible.removeAt(index);
-		if (!replacing) {
-			item->parent->contacts.removeOne(item);
-			item->data->items.removeOne(item);
-		}
-		endRemoveRows();
-		if (tag->visible.isEmpty())
-			hideTag(tag);
-	} else {
-		Q_ASSERT(row >= 0);
-		Q_ASSERT(isVisible(item));
-		if (tag->visible.contains(item))
-			return false;
-		QList<ContactItem *> &contacts = tag->visible;
-		QList<ContactItem *>::const_iterator contacts_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		int index = contacts_it - contacts.constBegin();
-
-		beginInsertRows(tagIndex, index, index);
-		if (!replacing) {
-			item->parent->contacts.append(item);
-			item->data->items.append(item);
-		}
-		contacts.insert(index, item);
-		endInsertRows();
-	}
-	return true;
-}
-
-void SeparatedModel::hideTag(TagItem *item)
-{
-	AccountItem *p = item->parent;
-	Q_ASSERT(p->tags.contains(item));
-	int index = p->visibleTags.indexOf(item);
-	if (index == -1)
-		return; // The tag is already hidden
-	beginRemoveRows(QModelIndex(), index, index);
-	p->visibleTags.removeAt(index);
-	endRemoveRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
-	if (item->contacts.isEmpty()) {
-		p->tagsHash.remove(item->name);
-		p->tags.removeOne(item);
-		delete item;
-	}
-}
-
-void SeparatedModel::showTag(TagItem *item)
-{
-	AccountItem *p = item->parent;
-	Q_ASSERT(p->tags.contains(item));
-	int index = p->visibleTags.indexOf(item);
-	if (index >= 0)
-		return; // The tag is already in the contact list
-	// A wierd way to find out tag's index, but
-	// we need it to ensure the right order of tags.
-	index = 0;
-	for (int j = 0, tc = p->tags.count(), vc = p->visibleTags.count(); j < tc && index != vc; ++j) {
-		TagItem *currentTag = p->tags.at(j);
-		if (currentTag == item)
-			break; // The index is found.
-		if (currentTag == p->visibleTags.at(index))
-			// We found a visible tag that is before our tag,
-			// thus increase the index.
-			++index;
-	}
-	// We can add the tag to the contact list now
-	beginInsertRows(QModelIndex(), index, index);
-	p->visibleTags.insert(index, item);
-	endInsertRows();
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, true);
-}
-
-TagItem *SeparatedModel::ensureTag(Account *account, const QString &name)
-{
-	AccountItem *accountItem = p->accountHash.value(account);
-	Q_ASSERT(accountItem);
-	TagItem *tag = 0;
-	if(!(tag = accountItem->tagsHash.value(name, 0))) {
-		tag = new TagItem;
-		tag->name = name;
-		tag->parent = accountItem;
-		accountItem->tagsHash.insert(tag->name, tag);
-		accountItem->tags << tag;
-	}
-	return tag;
-}
-
-void SeparatedModel::updateContact(ContactItem *item, bool placeChanged)
-{
-	QList<ContactItem *> &contacts = item->parent->visible;
-	AccountItem *p = item->parent->parent;
-	int from = contacts.indexOf(item);
-	int to;
-
-	if (from == -1)
-		return; // Don't try to move or update a hidden contact
-
-	if (placeChanged) {
-		QList<ContactItem *>::const_iterator it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		to = it - contacts.constBegin();
-	} else {
-		to = from;
-	}
-
-	QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
-
-	if (from == to) {
-		QModelIndex index = createIndex(item->index(), 0, item);
-		emit dataChanged(index, index);
-	} else {
-		if (to == -1 || to > contacts.count())
-			return;
-
-		if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
-			if (from < to)
-				--to;
-			contacts.move(from,to);
-			//item_data->items.move(from,to); //FIXME
-			endMoveRows();
-		}
-	}
-}
-
 void SeparatedModel::initialize()
 {
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
@@ -960,7 +816,7 @@ void SeparatedModel::initialize()
 			tags.insert(tag);
 	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
 		if (tags.contains(tag))
-			ensureTag(tag);*/
+			ensureTag<TagItem>(tag);*/
 	// add contacts to the contact list
 	foreach (Contact *contact, initData->contacts)
 		addContact(contact);
@@ -981,7 +837,7 @@ bool SeparatedModel::showOffline() const
 	return p->showOffline;
 }
 
-void SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	AccountItem *item = new AccountItem;
 	item->account = account;
@@ -997,6 +853,7 @@ void SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(onAccountDestroyed(QObject*)));
+	return item;
 }
 
 void SeparatedModel::onAccountDestroyed(QObject *obj)

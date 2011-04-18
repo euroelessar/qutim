@@ -10,7 +10,7 @@ namespace Core
 {
 namespace SimpleContactList
 {
-struct ModelPrivate;
+struct SeparatedModelPrivate;
 class SeparatedModel;
 
 struct ChangeEvent;
@@ -31,6 +31,8 @@ class TagItem : public ItemHelper
 {
 public:
 	inline TagItem() : ItemHelper(TagType), online(0) {}
+	inline AccountItem *getTagContainer(void *) { return parent; }
+	inline void setTagContainer(AccountItem *p) { parent = p; }
 	QList<ContactItem *> visible;
 	int online;
 	QString name;
@@ -90,7 +92,6 @@ public:
 
 	void processEvent(ChangeEvent *ev);
 	bool eventFilter(QObject *obj, QEvent *ev);
-	bool event(QEvent *ev);
 public slots:
 	void addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
@@ -105,7 +106,7 @@ protected slots:
 	void onContactInListChanged(bool isInList);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	AccountItem *onAccountCreated(qutim_sdk_0_3::Account *);
 	void onAccountDestroyed(QObject *);
 protected:
 	void timerEvent(QTimerEvent *ev);
@@ -114,14 +115,9 @@ private:
 	bool isVisible(ContactItem *item);
 	bool hideContact(ContactItem *item, bool hide, bool replacing = true);
 	void removeFromContactList(Contact *contact, bool deleted);
-	void hideTag(TagItem *item);
-	void showTag(TagItem *item);
-	void updateContact(ContactItem *item, bool placeChanged);
 	void initialize();
 	void saveTagOrder();
-	TagItem *ensureTag(Account *account, const QString &name);
-	//			QModelIndex createIndex(
-	QScopedPointer<ModelPrivate> p;
+	QScopedPointer<SeparatedModelPrivate> p;
 };
 }
 }

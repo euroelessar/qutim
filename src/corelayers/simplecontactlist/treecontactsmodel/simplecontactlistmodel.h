@@ -10,8 +10,8 @@ namespace Core
 {
 namespace SimpleContactList
 {
-struct SeparatedModelPrivate;
-class Model;
+struct TreeModelPrivate;
+class TreeModel;
 
 struct ChangeEvent;
 class ContactItem;
@@ -20,6 +20,8 @@ class TagItem : protected ItemHelper
 {
 public:
 	inline TagItem() : ItemHelper(TagType), online(0) {}
+	inline TreeModelPrivate *getTagContainer(AbstractContactModel *m);
+	inline void setTagContainer(void *) { }
 	QList<ContactItem *> visible;
 	int online;
 	QString name;
@@ -51,12 +53,12 @@ public:
 	ContactData::Ptr data;
 };
 
-class Model : public AbstractContactModel
+class TreeModel : public AbstractContactModel
 {
 	Q_OBJECT
 public:
-	Model(QObject *parent = 0);
-	virtual ~Model();
+	TreeModel(QObject *parent = 0);
+	virtual ~TreeModel();
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -78,7 +80,6 @@ public:
 
 	void processEvent(ChangeEvent *ev);
 	bool eventFilter(QObject *obj, QEvent *ev);
-	bool event(QEvent *ev);
 public slots:
 	void addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
@@ -97,19 +98,20 @@ protected slots:
 protected:
 	void timerEvent(QTimerEvent *ev);
 private:
+	friend class TagItem;
 	void filterAllList();
 	bool isVisible(ContactItem *item);
-	bool hideContact(ContactItem *item, bool hide, bool replacing = true);
 	void removeFromContactList(Contact *contact, bool deleted);
-	void hideTag(TagItem *item);
-	void showTag(TagItem *item);
-	void updateContact(ContactItem *item, bool placeChanged);
 	void initialize();
 	void saveTagOrder();
-	TagItem *ensureTag(const QString &name);
-	//			QModelIndex createIndex(
-	QScopedPointer<SeparatedModelPrivate> p;
+	QScopedPointer<TreeModelPrivate> p;
 };
+
+TreeModelPrivate *TagItem::getTagContainer(AbstractContactModel *m)
+{
+	return reinterpret_cast<TreeModel*>(m)->p.data();
+}
+
 }
 }
 
