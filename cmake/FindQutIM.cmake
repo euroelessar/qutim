@@ -16,7 +16,12 @@ if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 else( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
   
     find_path( QUTIM_INCLUDE_DIR NAMES "qutim/libqutim_global.h" )
-    find_library( QUTIM_LIBRARIES libqutim HINTS ${QUTIM_LIBRARIES_DIR} )
+
+	if(WINDOWS)
+		find_library( QUTIM_LIBRARIES libqutim HINTS ${QUTIM_LIBRARIES_DIR} )
+	else()
+		find_library( QUTIM_LIBRARIES qutim HINTS ${QUTIM_LIBRARIES_DIR} )
+	endif()
 	    
     if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 	set( QutIM_FOUND TRUE )
