@@ -22,7 +22,7 @@ qutim_add_plugin(simplecontactdelegate
 qutim_add_plugin(treecontactsmodel
 	EXTENSION
 	EXTENSION_HEADER treecontactsmodel/simplecontactlistmodel.h
-	EXTENSION_CLASS Core::SimpleContactList::Model
+	EXTENSION_CLASS Core::SimpleContactList::TreeModel
 	SOURCE_DIR treecontactsmodel
 	DISPLAY_NAME "Tree contacts model"
 	DESCRIPTION "Simple contactlist model"
