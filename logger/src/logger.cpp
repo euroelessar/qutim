@@ -43,6 +43,7 @@ void SimpleLoggingHandler(QtMsgType type, const char *msg)
 //		logfile << QTime::currentTime().toString().toLatin1().data() <<  " Fatal: " << msg << "\n";
 		abort();
 	}
+	//fflush(stdin);
 }
 
 void LoggerPlugin::init()
