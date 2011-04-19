@@ -174,7 +174,7 @@ endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
 macro ( __PREPARE_QUTIM_PLUGIN src_dir )
-	CMAKE_POLICY(SET CMP0017 NEW)
+	#CMAKE_POLICY(SET CMP0017 NEW)
 	if ( NOT QUTIM_PLUGIN )
 		if ( NOT QT4_INSTALLED )
 			# Require QT 4.6
