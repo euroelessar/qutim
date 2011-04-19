@@ -1,4 +1,8 @@
 #qutIM artwork install helper
+CMAKE_POLICY(SET CMP0011 NEW)
+CMAKE_POLICY(SET CMP0012 NEW)
+CMAKE_POLICY(SET CMP0013 NEW)
+CMAKE_POLICY(SET CMP0014 NEW)
 
 if(SYMBIAN)
 	function(qutim_add_executable)
@@ -170,6 +174,7 @@ endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
 macro ( __PREPARE_QUTIM_PLUGIN src_dir )
+	CMAKE_POLICY(SET CMP0017 NEW)
 	if ( NOT QUTIM_PLUGIN )
 		if ( NOT QT4_INSTALLED )
 			# Require QT 4.6
@@ -204,10 +209,8 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 		set( QUTIM_${plugin_name}_GROUP Plugin )
 	endif( NOT QUTIM_${plugin_name}_GROUP )
 
-	set(BUILD_DEFAULT "ON")
-	if(NOT "${QUTIM_ENABLE_ALL_PLUGINS}")
-		set(BUILD_DEFAULT "OFF")
-	else()
+	set(BUILD_DEFAULT ${QUTIM_ENABLE_ALL_PLUGINS})
+	if(${BUILD_DEFAULT})
 		if(QUTIM_${plugin_name}_DISABLED)
 			set(BUILD_DEFAULT "OFF")
 		endif()
