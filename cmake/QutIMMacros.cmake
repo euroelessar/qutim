@@ -1,8 +1,12 @@
-#qutIM artwork install helper
-CMAKE_POLICY(SET CMP0011 NEW)
-CMAKE_POLICY(SET CMP0012 NEW)
-CMAKE_POLICY(SET CMP0013 NEW)
-CMAKE_POLICY(SET CMP0014 NEW)
+if(POLICY CMP0011)
+	CMAKE_POLICY(SET CMP0011 NEW)
+endif()
+if(POLICY CMP0012)
+	CMAKE_POLICY(SET CMP0012 NEW)
+endif()
+if(POLICY CMP0017)
+	CMAKE_POLICY(SET CMP0017 NEW)
+endif()
 
 if(SYMBIAN)
 	function(qutim_add_executable)
@@ -326,6 +330,7 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 	# This project will generate library
 	add_library( ${plugin_name} ${QUTIM_${plugin_name}_LIBRARY_TYPE} ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
 		 ${QUTIM_${plugin_name}_HDR} ${QUTIM_${plugin_name}_UI_H} ${QUTIM_${plugin_name}_RCC} )
+
 #    set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-D${plugin_name}_MAKE" )
 	if( QUTIM_${plugin_name}_STATIC )
 	if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
@@ -367,6 +372,9 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_PLUGIN_ID=${QUTIM_${plugin_name}_DEBUG_ID}")
 	set_target_properties(${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}")
 
+	# Link with Qt
+	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+
 	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
 		install( TARGETS ${plugin_name}
 			RUNTIME DESTINATION bin/plugins
@@ -406,9 +414,6 @@ Plugins = PlugIns"
 
 			)
 	ENDIF(APPLE AND NOT QUTIM_${plugin_name}_STATIC AND QUTIM_BUNDLE_LOCATION)
-
-	# Link with QT
-	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
 
 	if( LANGUAGE AND NOT QUTIM_${plugin_name}_SUBPLUGIN AND NOT QUTIM_${plugin_name}_EXTENSION )
 	language_update( ${plugin_name} ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )

@@ -19,17 +19,6 @@ qutim_add_plugin(simplecontactdelegate
 	DESCRIPTION "Just simple"
 )
 
-qutim_add_plugin(plaincontactsmodel
-	EXTENSION
-	EXTENSION_HEADER plaincontactsmodel/plaincontactlistmodel.h
-	EXTENSION_CLASS Core::SimpleContactList::PlainModel
-	SOURCE_DIR plaincontactsmodel
-	DISPLAY_NAME "Plain contacts model"
-	DESCRIPTION "Simple plain contactlist model"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
-)
-
 qutim_add_plugin(treecontactsmodel
 	EXTENSION
 	EXTENSION_HEADER treecontactsmodel/simplecontactlistmodel.h
@@ -37,6 +26,17 @@ qutim_add_plugin(treecontactsmodel
 	SOURCE_DIR treecontactsmodel
 	DISPLAY_NAME "Tree contacts model"
 	DESCRIPTION "Simple contactlist model"
+	DEPENDS simplecontactlist
+	LINK_LIBRARIES simplecontactlist
+)
+
+qutim_add_plugin(plaincontactsmodel
+	EXTENSION
+	EXTENSION_HEADER plaincontactsmodel/plaincontactlistmodel.h
+	EXTENSION_CLASS Core::SimpleContactList::PlainModel
+	SOURCE_DIR plaincontactsmodel
+	DISPLAY_NAME "Plain contacts model"
+	DESCRIPTION "Simple plain contactlist model"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
 )
