@@ -444,14 +444,39 @@ static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
 //	serv_join_chat(gc, comps);
 }
 
+class QuetzalConnectionKillerEvent : public QEvent
+{
+public:
+	QuetzalConnectionKillerEvent(PurpleAccount *account) 
+	    : m_account(account), QEvent(eventType())
+	{
+	}
+	
+	~QuetzalConnectionKillerEvent()
+	{
+		purple_account_disconnect(m_account);
+	}
+
+	static Type eventType()
+	{
+		static Type type = static_cast<Type>(registerEventType());
+		return type;
+	}
+	
+private:
+	PurpleAccount *m_account;
+};
+
 void quetzal_connection_signing_on_cb(PurpleConnection *gc)
 {
 	PurpleAccount *acc = purple_connection_get_account(gc);
 	QObject *object = reinterpret_cast<QObject*>(acc->ui_data);
-	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object))
+	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object)) {
 		account->handleSigningOn();
-	else
-		purple_account_disconnect(acc);
+	} else {
+		QEvent *ev = new QuetzalConnectionKillerEvent(acc);
+		QCoreApplication::postEvent(QuetzalEventLoop::instance(), ev, -1);
+	}
 }
 
 void quetzal_connection_signed_on_cb(PurpleConnection *gc)
