@@ -46,7 +46,6 @@ protected:
 private:
 	Status m_status;
 	QPointer<Conference> m_conf;
-	quint16 m_realUnitRequestEvent;
 };
 
 #endif // PROXYCONTACT_H

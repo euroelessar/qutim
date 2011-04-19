@@ -32,6 +32,8 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 private slots:
 	void onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+protected:
+	bool event(QEvent *ev);
 private:
 	Account *m_account;
 };
