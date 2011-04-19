@@ -84,6 +84,9 @@ void ContactDelegate::paint(QPainter *painter,
 					  -p->verticalPadding);
 
 	switch (type) {
+	case AccountType:
+		// TODO: implement me
+		// fall through for now
 	case TagType: {
 		QStyleOptionButton buttonOption;
 
@@ -117,19 +120,27 @@ void ContactDelegate::paint(QPainter *painter,
 		font.setBold(true);
 		painter->setFont(font);
 
-		QString count = index.data(ContactsCountRole).toString();
-		QString online_count = index.data(OnlineContactsCountRole).toString();
+		if (type == TagType) {
+			QString count = index.data(ContactsCountRole).toString();
+			QString online_count = index.data(OnlineContactsCountRole).toString();
 
-		QString txt = name % QLatin1Literal(" (")
-				% online_count
-				% QLatin1Char('/')
-				% count
-				% QLatin1Char(')');
+			QString txt = name % QLatin1Literal(" (")
+					% online_count
+					% QLatin1Char('/')
+					% count
+					% QLatin1Char(')');
 
-		painter->drawText(title_rect,
-						  Qt::AlignVCenter,
-						  txt
-						  );
+			painter->drawText(title_rect,
+							  Qt::AlignVCenter,
+							  txt
+							  );
+		} else {
+			// TODO: remove that when AccountType will be properly supported
+			painter->drawText(title_rect,
+							  Qt::AlignVCenter,
+							  name
+							  );
+		}
 		break;
 	}
 	case ContactType: {
