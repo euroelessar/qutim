@@ -35,7 +35,7 @@ KineticScroller::KineticScroller()
 	settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 
 	QStringList list;
-	list.append(tr("No scrolling"));
+	//list.append(tr("No scrolling"));
 	list.append(tr("Touch"));
 	list.append(tr("Left mouse button"));
 	list.append(tr("Middle mouse button"));
@@ -69,15 +69,13 @@ void KineticScroller::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup(QLatin1String("kineticScrolling"));
-#if defined(QUTIM_MOBILE_UI) || !defined(Q_WS_S60)
-	m_scrollingType = 0;
-#elif defined(Q_WS_S60)
-	m_scrollingType = 1;
+#if defined(Q_WS_S60)
+	m_scrollingType = QtScroller::LeftMouseButtonGesture;
 #else
-	m_scrollingType = -1;
+	m_scrollingType = QtScroller::TouchGesture;
 #endif
 
-	m_scrollingType = cfg.value(QLatin1String("type"), m_scrollingType + 1) - 1;
+	m_scrollingType = cfg.value(QLatin1String("type"), m_scrollingType);
 	QVariantList vars = cfg.value(QLatin1String("properties"), QVariantList());
 	QtScrollerProperties::unsetDefaultScrollerProperties();
 	QtScrollerProperties props;
