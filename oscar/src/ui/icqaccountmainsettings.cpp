@@ -26,6 +26,9 @@ IcqAccountMainSettings::IcqAccountMainSettings(IcqAccount *account, QWidget *par
 		ui->uinEdit->setValidator(validator);
 	}
 	reloadSettings();
+#if BOS_SERVER_SUPPORTS_SSL
+	ui->sslBox->setText(tr("Use SSL (experimental)");
+#endif
 }
 
 IcqAccountMainSettings::~IcqAccountMainSettings()

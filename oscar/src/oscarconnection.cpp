@@ -152,7 +152,7 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 	Socket *s = socket();
 	if (s->state() != QAbstractSocket::UnconnectedState)
 		s->abort();
-#ifdef OSCAR_SSL_SUPPORT
+#if defined(OSCAR_SSL_SUPPORT) && BOS_SERVER_SUPPORTS_SSL
 	if (isSslEnabled()) {
 		socket()->connectToHostEncrypted(host, port);
 	} else

@@ -222,6 +222,8 @@ const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;
 
+#define BOS_SERVER_SUPPORTS_SSL 0
+
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQ_GLOBAL_H

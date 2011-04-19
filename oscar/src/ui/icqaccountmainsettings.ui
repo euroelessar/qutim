@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
-    <height>231</height>
+    <width>474</width>
+    <height>229</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,7 +103,7 @@
    <item row="5" column="0" colspan="2">
     <widget class="QCheckBox" name="sslBox">
      <property name="text">
-      <string>Use ssl (experimental)</string>
+      <string>Use SSL authorization (experimental)</string>
      </property>
     </widget>
    </item>
