@@ -44,7 +44,7 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 	Q_DECLARE_PRIVATE(AbstractContactModel)
 public:
 	virtual ~AbstractContactModel();
-	QStringList selectedTags() const;
+	QSet<QString> selectedTags() const;
 	Q_INVOKABLE virtual QStringList tags() const;
 public slots:
 	bool showOffline() const;
@@ -81,6 +81,8 @@ protected:
 	bool isVisible(ContactItem *item);
 	template<typename TagContainer, typename TagItem, typename ContactItem>
 	void moveTag(ChangeEvent *ev);
+	template<typename ContactItem>
+	void showContactMergeDialog(ContactItem *parent, ContactItem *child);
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	int columnCount(const QModelIndex &) const;

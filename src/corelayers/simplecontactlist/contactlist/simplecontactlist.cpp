@@ -190,7 +190,7 @@ void Module::onSelectTagsTriggered()
 	QStringList tags = p->model->tags();
 	TagsFilterDialog *dialog = new TagsFilterDialog(tags, p->widget);
 	if (!p->model->selectedTags().isEmpty())
-		tags = p->model->selectedTags();
+		tags = p->model->selectedTags().toList();
 	dialog->setSelectedTags(tags);
 	SystemIntegration::show(dialog);
 	centerizeWidget(dialog);

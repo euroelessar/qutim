@@ -35,10 +35,11 @@ inline TreeModelPrivate *TagItem::getTagContainer(AbstractContactModel *m)
 	return reinterpret_cast<TreeModel*>(m)->d_func();
 }
 
-inline int ContactItem::parentIndex(AbstractContactModel *m)
+inline QModelIndex ContactItem::parentIndex(AbstractContactModel *m)
 {
-	TreeModelPrivate *p = reinterpret_cast<TreeModel*>(m)->d_func();
-	return p->visibleTags.indexOf(parent);
+	TreeModel *model = reinterpret_cast<TreeModel*>(m);
+	int row = model->d_func()->visibleTags.indexOf(parent);
+	return model->createIndex(row, 0, parent);
 }
 
 TreeModel::TreeModel(QObject *parent) : AbstractContactModel(new TreeModelPrivate, parent)
@@ -408,50 +409,8 @@ void TreeModel::processEvent(ChangeEvent *ev)
 		item->data->contact->setTags(tags.toList());
 		debug() << "Moving contact from" << item->data->tags << "to" << tags;
 	} else if (ev->type == ChangeEvent::MergeContacts) { // MetaContacts
-		ContactItem *parentItem = reinterpret_cast<ContactItem*>(ev->parent);
-		if (item->data->contact == parentItem->data->contact)
-			return;
-		MetaContact *childMeta = qobject_cast<MetaContact*>(item->data->contact);
-		MetaContact *meta = qobject_cast<MetaContact*>(parentItem->data->contact);
-
-		QString text;
-		if (!childMeta && !meta) {
-			text = tr("Would you like to merge contacts \"%1\" <%2> and \"%3\" <%4>?");
-			text = text.arg(item->data->contact->name(),
-							item->data->contact->id(),
-							parentItem->data->contact->name(),
-							parentItem->data->contact->id());
-		} else if (childMeta && meta) {
-			text = tr("Would you like to merge metacontacts \"%1\" and \"%2\"?");
-			text = text.arg(childMeta->title(), meta->title());
-		} else {
-			text = tr("Would you like to add \"%1\" <%2> to metacontact \"%3\"?");
-			Contact *c = (meta ? item : parentItem)->data->contact;
-			MetaContact *m = meta ? meta : childMeta;
-			text = text.arg(c->name(), c->id(), m->name());
-		}
-
-		if (QMessageBox::Yes == QMessageBox::question(qobject_cast<QWidget*>(QObject::parent()),
-													  tr("Contacts' merging"), text,
-													  QMessageBox::Yes | QMessageBox::No)) {
-			if (childMeta && !meta) {
-				meta = childMeta;
-				childMeta = 0;
-			} else if (!meta) {
-				meta = MetaContactManager::instance()->createContact();
-				meta->addContact(parentItem->data->contact);
-			} else if (childMeta && meta) {
-				foreach (ChatUnit *unit, childMeta->lowerUnits()) {
-					Contact *contact = qobject_cast<Contact*>(unit);
-					if (contact)
-						meta->addContact(contact);
-				}
-				childMeta->deleteLater();
-				return;
-			}
-			if (!childMeta)
-				meta->addContact(item->data->contact);
-		}
+		ContactItem *parent = reinterpret_cast<ContactItem*>(ev->parent);
+		showContactMergeDialog(parent, item);
 	} else if (ev->type == ChangeEvent::MoveTag) {
 		moveTag<TreeModelPrivate, TagItem, ContactItem>(ev);
 		saveTagOrder();

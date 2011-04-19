@@ -64,7 +64,7 @@ void AbstractContactModel::hideShowOffline()
 	filterAllList();
 }
 
-QStringList AbstractContactModel::selectedTags() const
+QSet<QString> AbstractContactModel::selectedTags() const
 {
 	return d_func()->selectedTags;
 }
@@ -83,9 +83,10 @@ void AbstractContactModel::filterList(const QString &filter)
 	filterAllList();
 }
 
-void AbstractContactModel::filterList(const QStringList &tags)
+void AbstractContactModel::filterList(const QStringList &tags_helper)
 {
 	Q_D(AbstractContactModel);
+	QSet<QString> tags = QSet<QString>::fromList(tags_helper);
 	if (tags == d->selectedTags)
 		return;
 	d->selectedTags = tags;

@@ -39,6 +39,16 @@ qutim_add_plugin(separatedcontactsmodel
 	LINK_LIBRARIES simplecontactlist
 )
 
+qutim_add_plugin(plaincontactsmodel
+	EXTENSION
+	EXTENSION_HEADER plaincontactsmodel/plaincontactlistmodel.h
+	EXTENSION_CLASS Core::SimpleContactList::PlainModel
+	SOURCE_DIR plaincontactsmodel
+	DISPLAY_NAME "Plain contacts model"
+	DESCRIPTION "Simple plain contactlist model"
+	LINK_LIBRARIES simplecontactlist
+)
+
 set(DEVEL_HEADERS
 	contactlist/abstractcontactlist.h
 	contactlist/abstractcontactmodel.h

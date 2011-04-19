@@ -4,6 +4,8 @@
 #include <qutim/metacontactmanager.h>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/protocol.h>
+#include <qutim/event.h>
+#include <QCoreApplication>
 #include <QMimeData>
 #include <QTimer>
 
@@ -27,6 +29,8 @@ public:
 	// Pointer to variables that are solely used at startup.
 	// See SeparatedModel::init()
 	InitData *initData;
+
+	quint16 realAccountRequestEvent;
 };
 
 inline QModelIndex TagItem::parentIndex(AbstractContactModel *m)
@@ -41,15 +45,18 @@ inline QString TagItem::getName()
 	return parent->account->id() + "/" + name;
 }
 
-inline int ContactItem::parentIndex(void *)
+inline QModelIndex ContactItem::parentIndex(AbstractContactModel *m)
 {
-	return parent->parent->visibleTags.indexOf(parent);
+	SeparatedModel *model = reinterpret_cast<SeparatedModel*>(m);
+	int row = parent->parent->visibleTags.indexOf(parent);
+	return model->createIndex(row, 0, parent);
 }
 
 SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(new SeparatedModelPrivate, parent)
 {
 	Q_D(SeparatedModel);
 	d->initData = new SeparatedModelPrivate::InitData;
+	d->realAccountRequestEvent = Event::registerType("real-account-request");
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 
@@ -164,6 +171,17 @@ void SeparatedModel::addContact(Contact *contact)
 		return;
 	}
 
+	Account *account = contact->account();
+	Event event(d->realAccountRequestEvent);
+	QCoreApplication::sendEvent(account, &event);
+	Account *realAccount = event.at<Account*>(0);
+	if (realAccount)
+		account = realAccount;
+	AccountItem *accountItem = d->accountHash.value(account);
+	if (!accountItem)
+		// This call must be before the following contact existence check
+		accountItem = onAccountCreated(account);
+
 	if (d->contacts.contains(contact))
 		return;
 
@@ -181,10 +199,6 @@ void SeparatedModel::addContact(Contact *contact)
 	QStringList tags = contact->tags();
 	if(tags.isEmpty())
 		tags << tr("Without tags");
-
-	AccountItem *accountItem = d->accountHash.value(contact->account());
-	if (!accountItem)
-		accountItem = onAccountCreated(contact->account());
 
 	ContactData::Ptr item_data(new ContactData);
 	item_data->contact = contact;
@@ -274,6 +288,9 @@ bool SeparatedModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 		if (tag->parent != parentTag->parent)
 			return false;
 	}
+
+	if (parentType == ContactType && data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL))
+		return false; // The model does not suppport metacontacts merging yet.
 
 	return AbstractContactModel::dropMimeData(data, action, row, column, parent);
 }
@@ -482,7 +499,6 @@ void SeparatedModel::processEvent(ChangeEvent *ev)
 
 bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 {
-	/*Q_D(SeparatedModel);
 	if (ev->type() == MetaContactChangeEvent::eventType()) {
 		MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(ev);
 		if (metaEvent->oldMetaContact() && !metaEvent->newMetaContact())
@@ -490,7 +506,7 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 		else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
 			removeContact(metaEvent->contact());
 		return false;
-	}*/
+	}
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
 

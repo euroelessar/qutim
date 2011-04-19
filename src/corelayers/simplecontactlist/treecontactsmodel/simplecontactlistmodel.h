@@ -50,8 +50,12 @@ public:
 	inline ContactItem() : ItemHelper(ContactType) {}
 	inline ContactItem(const ContactData::Ptr &other_data) : ItemHelper(ContactType), data(other_data) {}
 	inline ContactItem(const ContactItem &other) : ItemHelper(ContactType), parent(other.parent), data(other.data) {}
-	inline int index() const { return parent->contacts.indexOf(const_cast<ContactItem *>(this)); }
-	inline int parentIndex(AbstractContactModel *m);
+	inline int index() { return parent->visible.indexOf(this); }
+	inline QModelIndex parentIndex(AbstractContactModel *m);
+	inline Contact *getContact() { return data->contact; }
+	inline Status getStatus() { return data->status; }
+	inline QList<ContactItem*> &siblings(void*) { return parent->visible; }
+	inline bool isInSelectedTag(const QSet<QString> &selectedTags) { return selectedTags.contains(parent->name); }
 	TagItem *parent;
 	ContactData::Ptr data;
 };

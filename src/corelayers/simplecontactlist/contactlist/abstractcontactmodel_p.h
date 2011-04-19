@@ -3,8 +3,11 @@
 
 #include "abstractcontactmodel.h"
 #include "simplecontactlistitem.h"
+#include <qutim/metacontactmanager.h>
+#include <qutim/metacontact.h>
 #include <QBasicTimer>
 #include <qutim/icon.h>
+#include <QMessageBox>
 
 namespace qutim_sdk_0_3
 {
@@ -28,7 +31,7 @@ struct ChangeEvent
 class AbstractContactModelPrivate
 {
 public:
-	QStringList selectedTags;
+	QSet<QString> selectedTags;
 	QString lastFilter;
 	QList<ChangeEvent*> events;
 	QMap<ChatSession*, QSet<Contact*> > unreadBySession;
@@ -47,20 +50,20 @@ bool contactLessThan(ContactItem *a, ContactItem *b) {
 
 	//int unreadA = 0;
 	//int unreadB = 0;
-	//ChatSession *session = ChatLayer::get(a->data->contact,false);
+	//ChatSession *session = ChatLayer::get(a->getContact(),false);
 	//if(session)
 	//	unreadA = session->unread().count();
-	//session = ChatLayer::get(b->data->contact,false);
+	//session = ChatLayer::get(b->getContact(),false);
 	//if(session)
 	//	unreadB = session->unread().count();
 	//result = unreadA - unreadB;
 	//if(result)
 	//	return result < 0;
 
-	result = a->data->status.type() - b->data->status.type();
+	result = a->getStatus().type() - b->getStatus().type();
 	if (result)
 		return result < 0;
-	return a->data->contact->title().compare(b->data->contact->title(), Qt::CaseInsensitive) < 0;
+	return a->getContact()->title().compare(b->getContact()->title(), Qt::CaseInsensitive) < 0;
 };
 
 template<typename TagContainer, typename TagItem, typename ContactItem>
@@ -71,8 +74,8 @@ bool AbstractContactModel::hideContact(ContactItem *item, bool hide, bool replac
 	Q_ASSERT(!replacing || tag->contacts.contains(item));
 	if (!hide)
 		showTag<TagContainer, TagItem>(tag);
-	int row = item->parentIndex(this);
-	QModelIndex tagIndex = createIndex(row, 0, tag);
+	QModelIndex tagIndex = item->parentIndex(this);;
+	int row = tagIndex.row();
 	if (hide) {
 		int index = tag->visible.indexOf(item);
 		if (row == -1 || index == -1) {
@@ -177,7 +180,7 @@ TagItem *AbstractContactModel::ensureTag(TagContainer *p, const QString &name)
 template<typename ContactItem>
 void AbstractContactModel::updateContact(ContactItem *item, bool placeChanged)
 {
-	QList<ContactItem *> &contacts = item->parent->visible;
+	QList<ContactItem *> &contacts = item->siblings(this);
 	int from = contacts.indexOf(item);
 	int to;
 
@@ -193,10 +196,10 @@ void AbstractContactModel::updateContact(ContactItem *item, bool placeChanged)
 		to = from;
 	}
 
-	QModelIndex parentIndex = createIndex(item->parentIndex(this), 0, item->parent);
+	QModelIndex parentIndex = item->parentIndex(this);
 
 	if (from == to) {
-		QModelIndex index = createIndex(item->index(), 0, item);
+		QModelIndex index = createIndex(item->siblings(this).indexOf(item), 0, item);
 		emit dataChanged(index, index);
 	} else {
 		if (to == -1 || to > contacts.count())
@@ -216,28 +219,27 @@ QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) c
 {
 	Q_D(const AbstractContactModel);
 	ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
+	Contact *contact = item->getContact();
 	switch(role)
 	{
 	case Qt::EditRole:
 	case Qt::DisplayRole: {
-		QString name = item->data->contact->name();
-		return name.isEmpty() ? item->data->contact->id() : name;
+		QString name = contact->name();
+		return name.isEmpty() ? contact->id() : name;
 	}
 	case Qt::DecorationRole:
-		if (d->showMessageIcon && d->unreadContacts.contains(item->data->contact))
+		if (d->showMessageIcon && d->unreadContacts.contains(contact))
 			return d->unreadIcon;
 		else
-			return item->data->contact->status().icon();
+			return contact->status().icon();
 	case ItemTypeRole:
 		return ContactType;
 	case StatusRole:
-		return qVariantFromValue(item->data->contact->status());
+		return qVariantFromValue(contact->status());
 	case AvatarRole:
-		return item->data->contact->avatar();
+		return contact->avatar();
 	case BuddyRole: {
-		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-		Buddy *buddy = item->data->contact;
-		return qVariantFromValue(buddy);
+		return qVariantFromValue<Buddy*>(contact);
 	}
 	default:
 		return QVariant();
@@ -370,14 +372,14 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 		qWarning() << Q_FUNC_INFO << "item is null";
 		return true;
 	}
-	Contact *contact = item->data->contact;
+	Contact *contact = item->getContact();
 	if (!d->lastFilter.isEmpty()) {
 		return contact->id().contains(d->lastFilter,Qt::CaseInsensitive)
 				|| contact->name().contains(d->lastFilter,Qt::CaseInsensitive);
-	} else if (!d->selectedTags.isEmpty() && !d->selectedTags.contains(item->parent->name)) {
+	} else if (!d->selectedTags.isEmpty() && !item->isInSelectedTag(d->selectedTags)) {
 		return false;
 	} else {
-		return d->showOffline || item->data->status.type() != Status::Offline;
+		return d->showOffline || item->getStatus().type() != Status::Offline;
 	}
 }
 
@@ -414,6 +416,54 @@ void AbstractContactModel::moveTag(ChangeEvent *ev)
 		p->visibleTags.move(from, to);
 		p->tags.move(globalFrom, globalTo);
 		endMoveRows();
+	}
+}
+
+template<typename ContactItem>
+void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactItem *child)
+{
+	if (child->getContact() == parent->getContact())
+		return;
+	MetaContact *childMeta = qobject_cast<MetaContact*>(child->getContact());
+	MetaContact *meta = qobject_cast<MetaContact*>(parent->getContact());
+
+	QString text;
+	if (!childMeta && !meta) {
+		text = tr("Would you like to merge contacts \"%1\" <%2> and \"%3\" <%4>?");
+		text = text.arg(child->getContact()->name(),
+						child->getContact()->id(),
+						parent->getContact()->name(),
+						parent->getContact()->id());
+	} else if (childMeta && meta) {
+		text = tr("Would you like to merge metacontacts \"%1\" and \"%2\"?");
+		text = text.arg(childMeta->title(), meta->title());
+	} else {
+		text = tr("Would you like to add \"%1\" <%2> to metacontact \"%3\"?");
+		Contact *c = (meta ? child : parent)->getContact();
+		MetaContact *m = meta ? meta : childMeta;
+		text = text.arg(c->name(), c->id(), m->name());
+	}
+
+	if (QMessageBox::Yes == QMessageBox::question(qobject_cast<QWidget*>(QObject::parent()),
+												  tr("Contacts' merging"), text,
+												  QMessageBox::Yes | QMessageBox::No)) {
+		if (childMeta && !meta) {
+			meta = childMeta;
+			childMeta = 0;
+		} else if (!meta) {
+			meta = MetaContactManager::instance()->createContact();
+			meta->addContact(parent->getContact());
+		} else if (childMeta && meta) {
+			foreach (ChatUnit *unit, childMeta->lowerUnits()) {
+				Contact *contact = qobject_cast<Contact*>(unit);
+				if (contact)
+					meta->addContact(contact);
+			}
+			childMeta->deleteLater();
+			return;
+		}
+		if (!childMeta)
+			meta->addContact(child->getContact());
 	}
 }
 
