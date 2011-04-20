@@ -69,7 +69,6 @@ void Channel1MessageData::init(const QByteArray &message, Channel1Codec charset)
 Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie):
 	m_cookie(cookie)
 {
-	Q_ASSERT(!cookie.isEmpty());
 	setMaxSize(0x1f18);
 	append<quint16>(0x1B, LittleEndian);
 	append<quint16>(protocol_version, LittleEndian);
@@ -103,7 +102,6 @@ void Tlv2711::appendColors()
 Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie):
 	m_cookie(cookie)
 {
-	Q_ASSERT(!cookie.isEmpty());
 	append(command);
 	append(m_cookie);
 	append(guid);
@@ -148,7 +146,6 @@ ServerMessage::ServerMessage(IcqContact *contact, const Channel2BasicMessageData
 
 void ServerMessage::init(IcqContact *contact, qint16 channel, const Cookie &cookie)
 {
-	Q_ASSERT(!cookie.isEmpty());
 	append(cookie); // cookie
 	append<quint16>(channel); // message channel
 	append<quint8>(contact->id()); // uid or screenname
@@ -157,7 +154,6 @@ void ServerMessage::init(IcqContact *contact, qint16 channel, const Cookie &cook
 ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie) :
 	SNAC(MessageFamily, MessageResponse)
 {
-	Q_ASSERT(!cookie.isEmpty());
 	append(cookie);
 	append<quint16>(format);
 	append<quint8>(contact->id());
