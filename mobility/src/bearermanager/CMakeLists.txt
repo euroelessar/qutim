@@ -1,7 +1,4 @@
-if(${CONNECTIONMANAGER})
-	message(STATUS "BearerManager conflict with ConnectionManager. Skipped")
-	return()
-endif()
+return() #TODO
 
 qutim_check_component(Bearer)
 

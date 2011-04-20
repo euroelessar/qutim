@@ -36,24 +36,7 @@ void changeState(Account *account, bool isOnline)
 	}
 }
 
-ConnectionManager::~ConnectionManager()
-{
-
-}
-
-void ConnectionManager::init()
-{
-	debug() << Q_FUNC_INFO;
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "ConnectionManager"),
-			QT_TRANSLATE_NOOP("Plugin", "Used to monitor the availability of network."),
-			PLUGIN_VERSION(0, 2, 0, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
-			  QLatin1String("sauron.me"));
-}
-
-bool ConnectionManager::load()
+ConnectionManager::ConnectionManager()
 {
 #ifdef HAVE_NETWORK_MANAGER
 	m_network_conf_manager = new QNetworkConfigurationManager(this);
@@ -71,16 +54,14 @@ bool ConnectionManager::load()
 
 	m_item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
 	Settings::registerItem(m_item);
-	return true;
 }
 
-bool ConnectionManager::unload()
+ConnectionManager::~ConnectionManager()
 {
 #ifdef HAVE_NETWORK_MANAGER
 	m_network_conf_manager->deleteLater();
 #endif
 	Settings::removeItem(m_item);
-	return true;
 }
 
 void ConnectionManager::onOnlineStateChanged(bool isOnline)
@@ -184,4 +165,3 @@ void ConnectionManager::removeTimer(QTimer *timer)
 
 }
 
-QUTIM_EXPORT_PLUGIN(ConnectionManager::ConnectionManager)
