@@ -60,7 +60,8 @@ void ProxyAccount::onStatusChanged(const qutim_sdk_0_3::Status &current, const q
 }
 
 bool ProxyAccount::event(QEvent *ev)
-{	if (ev->type() == Event::eventType()) {
+{
+	if (ev->type() == Event::eventType()) {
 		Event *event = static_cast<Event*>(ev);
 		static quint16 realAccountRequestEvent = Event::registerType("real-account-request");
 		if (event->id == realAccountRequestEvent) {
@@ -69,5 +70,5 @@ bool ProxyAccount::event(QEvent *ev)
 			return true;
 		}
 	}
-
+	return Account::event(ev);
 }
