@@ -1,3 +1,8 @@
+if(${CONNECTIONMANAGER})
+	message(STATUS "BearerManager conflict with ConnectionManager. Skipped")
+	return()
+endif()
+
 qutim_check_component(Bearer)
 
 qutim_add_plugin(bearermanager
