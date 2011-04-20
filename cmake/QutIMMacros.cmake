@@ -205,30 +205,13 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
 	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
-	"SUBPLUGIN;EXTENSION;STATIC;DISABLED;"
+	"SUBPLUGIN;EXTENSION;STATIC;"
 	${ARGN}
 	)
 
 	if( NOT QUTIM_${plugin_name}_GROUP )
 		set( QUTIM_${plugin_name}_GROUP Plugin )
 	endif( NOT QUTIM_${plugin_name}_GROUP )
-
-	set(BUILD_DEFAULT ${QUTIM_ENABLE_ALL_PLUGINS})
-	if(${BUILD_DEFAULT})
-		if(QUTIM_${plugin_name}_DISABLED)
-			set(BUILD_DEFAULT "OFF")
-		endif()
-	endif()
-
-	string( TOUPPER ${plugin_name} PLUGIN)
-	option(${PLUGIN} "${QUTIM_${plugin_name}_DESCRIPTION}" ${BUILD_DEFAULT})
-
-	#message(STATUS "${PLUGIN_${PLUGIN_NAME}} - "${QUTIM_${plugin_name}_DESCRIPTION}" : ${DEFAULT}")
-	if(NOT "${PLUGIN}")
-		message(STATUS "[-] ${PLUGIN}: ${QUTIM_${plugin_name}_GROUP} ${QUTIM_${plugin_name}_DISPLAY_NAME} will be skipped")
-		return()
-	endif()
-	message(STATUS "[+] ${PLUGIN}: ${QUTIM_${plugin_name}_GROUP} ${QUTIM_${plugin_name}_DISPLAY_NAME} added to build")
 
 	cpack_add_component( ${plugin_name}
 		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
@@ -450,10 +433,13 @@ file( GLOB qutim_core_extensions "${dir}" "${dir}/*" )
 foreach( extension ${qutim_core_extensions} )
     if( IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
 		GET_FILENAME_COMPONENT(_basename ${extension} NAME_WE)
-		string( TOUPPER ${_basename} PLUGIN)
-		option(${PLUGIN} "" ${QUTIM_ENABLE_ALL_PLUGINS})
-		if(${PLUGIN})
+		string( TOUPPER ${_basename} SUBDIR_NAME)
+		option(${SUBDIR_NAME} "" ${QUTIM_ENABLE_ALL_PLUGINS})
+		if(${SUBDIR_NAME})
 			add_subdirectory("${extension}/" "${CMAKE_CURRENT_BINARY_DIR}/${_basename}")
+			message(STATUS "[+] ${SUBDIR_NAME}: extension added to build")
+		else()
+			message(STATUS "[-] ${SUBDIR_NAME}: extension will be skipped")
 		endif()
     endif()
 endforeach( extension )

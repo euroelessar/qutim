@@ -7,11 +7,4 @@ qutim_add_plugin( kineticpopups
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
 )
 
-file( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/popupwidgets/*" )
-
-foreach( PLUGIN ${PLUGINS} )
-	if( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}/CMakeLists.txt" )
-		add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}" "${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN}" )
-	endif( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}/CMakeLists.txt" )
-endforeach( PLUGIN )
-
+qutim_add_extensions_dir(popupwidgets)
