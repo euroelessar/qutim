@@ -282,6 +282,8 @@ QVariant AbstractContactModel::accountData(const QModelIndex &index, int role) c
 		return AccountType;
 	case Qt::DecorationRole:
 		return item->account->status().icon();
+	case AccountRole:
+		return qVariantFromValue(item->account);
 	default:
 		return QVariant();
 	}

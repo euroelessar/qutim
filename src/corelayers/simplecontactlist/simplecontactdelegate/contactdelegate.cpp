@@ -275,11 +275,12 @@ bool ContactDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 	if (event->type() == QEvent::ToolTip) {
 #ifdef Q_WS_MAEMO_5
 		return true;
-#endif
+#else
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		if (buddy)
 			ToolTip::instance()->showText(event->globalPos(), buddy, view);
 		return true;
+#endif
 	} else {
 		return QAbstractItemDelegate::helpEvent(event, view, option, index);
 	}
@@ -294,14 +295,17 @@ void ContactDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &o
 	style->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter, widget);
 }
 
-void ContactDelegate::setShowFlags(ShowFlags flags)
-{
-	p->showFlags = flags;
-}
-
 void ContactDelegate::setExtInfo(const QHash<QString, bool> &info)
 {
 	p->extInfo = info;
+}
+
+void ContactDelegate::setFlag(ShowFlags flag, bool on)
+{
+	if (on)
+		p->showFlags |= flag;
+	else
+		p->showFlags &= ~flag;
 }
 
 void ContactDelegate::reloadSettings()
@@ -321,11 +325,9 @@ void ContactDelegate::reloadSettings()
 #endif
 	p->extIconSize = cfg.value("extIconSize",
 							   qApp->style()->pixelMetric(QStyle::PM_SmallIconSize));
-	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
-												 ContactDelegate::ShowStatusText |
-												 ContactDelegate::ShowExtendedInfoIcons |
-												 ContactDelegate::ShowAvatars);
-	setShowFlags(flags);
+	setFlag(ShowStatusText, cfg.value("showStatusText", true));
+	setFlag(ShowExtendedInfoIcons, cfg.value("showExtendedInfoIcons", true));
+	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
 	cfg.beginGroup("extendedStatuses");

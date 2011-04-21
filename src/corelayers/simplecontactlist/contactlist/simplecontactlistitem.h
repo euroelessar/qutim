@@ -29,7 +29,9 @@ enum ContactItemRole
 	ContactsCountRole,
 	OnlineContactsCountRole,
 	AvatarRole,
-	ItemTypeRole
+	ItemTypeRole,
+	AccountRole,
+	Color,
 };
 Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 

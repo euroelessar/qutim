@@ -15,7 +15,9 @@ enum ContactItemRole
 	ContactsCountRole,
 	OnlineContactsCountRole,
 	AvatarRole,
-	ItemTypeRole
+	ItemTypeRole,
+	AccountRole,
+	Color,
 };
 Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 enum ContactItemType
@@ -58,8 +60,8 @@ protected:
 						const QRect &rect, const QPixmap &pixmap) const;
 	void drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
 				   const QRect &rect) const;
-	void setShowFlags(ShowFlags flags);
 	void setExtInfo(const QHash<QString, bool> &info);
+	void setFlag(ContactDelegate::ShowFlags flag, bool on);
 private:
 	QScopedPointer<ContactDelegatePrivate> p;
 };

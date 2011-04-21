@@ -27,10 +27,6 @@ SimpleContactlistSettings::SimpleContactlistSettings() :
 		ui(new Ui::SimpleContactlistSettings)
 {
 	ui->setupUi(this);
-	connect(ui->avatarsBox,SIGNAL(toggled(bool)),SLOT(onAvatarBoxToggled(bool)));
-	connect(ui->extendedInfoBox,SIGNAL(toggled(bool)),SLOT(onExtendedInfoBoxToggled(bool)));
-	connect(ui->statusBox,SIGNAL(toggled(bool)),SLOT(onStatusBoxToggled(bool)));
-	connect(ui->sizesBox,SIGNAL(currentIndexChanged(int)),SLOT(onModified()));
 	// Load extended statuses list
 	foreach (Protocol *protocol, Protocol::all()) {
 		ExtendedInfosEvent event;
@@ -45,11 +41,11 @@ SimpleContactlistSettings::SimpleContactlistSettings() :
 			QCheckBox *box = new QCheckBox(desc, this);
 			box->setObjectName(id);
 			connect(ui->extendedInfoBox, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
-			connect(box, SIGNAL(clicked()), SLOT(onModified()));
 			ui->layout->addRow(box);
 			m_statusesBoxes.insert(id, box);
 		}
 	}
+	listenChildrenStates();
 }
 
 SimpleContactlistSettings::~SimpleContactlistSettings()
@@ -66,10 +62,10 @@ void SimpleContactlistSettings::loadImpl()
 {
 	reloadCombobox();
 	Config config = Config("appearance").group("contactList");
-	m_flags = static_cast<ContactDelegate::ShowFlags>(config.value("showFlags",
-															ContactDelegate::ShowStatusText |
-															ContactDelegate::ShowExtendedInfoIcons |
-															ContactDelegate::ShowAvatars));
+	ui->avatarsBox->setChecked(config.value("showAvatars", true));
+	ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
+	ui->statusBox->setChecked(config.value("showStatusText", true));
+
 	// Load extendes statuses
 	config.beginGroup("extendedStatuses");
 	foreach (QCheckBox *checkBox, m_statusesBoxes) {
@@ -93,15 +89,14 @@ void SimpleContactlistSettings::loadImpl()
 	}
 	else
 		ui->sizesBox->setCurrentIndex(index);
-	ui->avatarsBox->setChecked(m_flags & ContactDelegate::ShowAvatars);
-	ui->extendedInfoBox->setChecked(m_flags & ContactDelegate::ShowExtendedInfoIcons);
-	ui->statusBox->setChecked(m_flags & ContactDelegate::ShowStatusText);
 }
 
 void SimpleContactlistSettings::saveImpl()
 {
 	Config config = Config("appearance").group("contactList");
-	config.setValue("showFlags",m_flags);
+	config.setValue("showStatusText", ui->statusBox->isChecked());
+	config.setValue("showExtendedInfoIcons", ui->extendedInfoBox->isChecked());
+	config.setValue("showAvatars", ui->avatarsBox->isChecked());
 	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
 	if (size == 0)
 		config.remove("statusIconSize");
@@ -124,35 +119,6 @@ void SimpleContactlistSettings::reloadCombobox()
 		ui->sizesBox->addItem(it->toString());
 		ui->sizesBox->setItemData(ui->sizesBox->count()-1,it.key());
 	}
-}
-
-void SimpleContactlistSettings::setFlag(ContactDelegate::ShowFlags flag, bool on)
-{
-	if (on) 
-		m_flags |= flag;
-	else 
-		m_flags &= ~flag;
-}
-
-void SimpleContactlistSettings::onAvatarBoxToggled(bool toggled)
-{
-	setFlag(ContactDelegate::ShowAvatars,toggled);
-	emit modifiedChanged(true);
-}
-void SimpleContactlistSettings::onExtendedInfoBoxToggled(bool toggled)
-{
-	setFlag(ContactDelegate::ShowExtendedInfoIcons,toggled);
-	emit modifiedChanged(true);
-}
-void SimpleContactlistSettings::onStatusBoxToggled(bool toggled)
-{
-	setFlag(ContactDelegate::ShowStatusText,toggled);
-	emit modifiedChanged(true);
-}
-
-void SimpleContactlistSettings::onModified()
-{
-	emit modifiedChanged(true);
 }
 
 }
