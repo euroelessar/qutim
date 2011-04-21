@@ -54,9 +54,7 @@ public:
 		UserTyping,
 		System
 	};
-	Notification(QObject *parent);
-	~Notification();
-	
+	~Notification();	
 	NotificationRequest request() const;
 public slots:
 	void close();
@@ -64,18 +62,24 @@ signals:
 	void ignored();
 	void finished();
 protected:
+	Notification(QObject *parent,const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
+	friend class NotificationRequest;
+	friend class NotificationBackend;
 };
 
 class LIBQUTIM_EXPORT NotificationRequest
 {
 public:
+	NotificationRequest();
 	NotificationRequest(const Message &msg);
 	NotificationRequest(Notification::Type type);
 	NotificationRequest(const NotificationRequest &other);
 	~NotificationRequest();
 	NotificationRequest &operator =(const NotificationRequest &other);
-	
+	/*! Send new notification.
+	  */
+	Notification *send();
 	void setObject(QObject *obj);
 	QObject *object() const;
 	void setImage(const QPixmap &pixmap);
@@ -96,6 +100,31 @@ private:
 	QSharedDataPointer<NotificationRequestPrivate> d_ptr;
 };
 
+class LIBQUTIM_EXPORT NotificationHandler
+{
+public:
+	enum Result
+	{
+		Accept,
+		Reject,
+		Error
+	};
+	enum Priority
+	{
+		LowPriority       = 0x00000100,
+		NormalPriortity   = 0x00010000,
+		HighPriority      = 0x01000000
+	};
+	virtual ~NotificationHandler();
+
+	static void registerHandler(NotificationHandler *handler,
+								int priority = NormalPriortity);
+	static void unregisterHandler(NotificationHandler *handler);
+	static Result handle(NotificationRequest &request);
+protected:
+	virtual Result doHandle() = 0;
+};
+
 class LIBQUTIM_EXPORT NotificationBackend : public QObject
 {
 	Q_OBJECT
@@ -103,7 +132,8 @@ class LIBQUTIM_EXPORT NotificationBackend : public QObject
 public:
 	NotificationBackend();
 	~NotificationBackend();
-	
+	static void registerBackend(NotificationBackend *backend);
+	static void unRegisterBackend(NotificationBackend *backend);
 	virtual void handleNotification(Notification *notification) = 0;
 protected:
 	void ref(Notification *notification);

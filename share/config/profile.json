@@ -11,6 +11,17 @@
 			"Popup": "DBusBackend",
 			"PopupWidget": "Core::KineticPopups::QmlPopupGenerator",
 			"Sound": "PhononSoundBackend",
+			"ContactInfo": "Core::ContactInfo",
+			"SearchLayer": "Core::SearchLayer",
+		}
+	}
+
+   "plugins": {
+		"list": {
+
+		}
+		"script": {
+			"ignorer": {}
 		}
 	}
 }

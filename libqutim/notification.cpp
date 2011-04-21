@@ -26,8 +26,12 @@ public:
 	QAtomicInt ref;
 };
 
-Notification::Notification(QObject *parent) : QObject(parent)
+Notification::Notification(QObject *parent, const NotificationRequest &request) :
+	QObject(parent),
+	d_ptr(new NotificationPrivate)
 {
+	Q_D(Notification);
+	d->request = request;
 }
 
 Notification::~Notification()
@@ -61,26 +65,33 @@ public:
 
 namespace CompiledProperty
 {
-static QList<QByteArray> names = QList<QByteArray>()
-<< "text"
-<< "title"
-<< "object"
-<< "image"
-<< "actions";
+static QList<QByteArray> names = QList<QByteArray>() << "text"
+													 << "title"
+													 << "object"
+													 << "image"
+													 << "actions";
 static QList<Getter> getters   = QList<Getter>()
 ;
 static QList<Setter> setters   = QList<Setter>()
 ;
 }
 
-NotificationRequest::NotificationRequest(const Message &msg) : d_ptr(new NotificationRequestPrivate)
+NotificationRequest::NotificationRequest() :
+	d_ptr(new NotificationRequestPrivate)
+{
+
+}
+
+NotificationRequest::NotificationRequest(const Message &msg) :
+	d_ptr(new NotificationRequestPrivate)
 {
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
 	setProperty("message", qVariantFromValue(msg));
 }
 
-NotificationRequest::NotificationRequest(Notification::Type type) : d_ptr(new NotificationRequestPrivate)
+NotificationRequest::NotificationRequest(Notification::Type type) :
+	d_ptr(new NotificationRequestPrivate)
 {
 }
 
@@ -161,6 +172,11 @@ QList<const ActionGenerator *> NotificationRequest::actions() const
 	return d_ptr->actions;
 }
 
+Notification *NotificationRequest::send()
+{
+
+}
+
 NotificationBackend::NotificationBackend()
 {
 }
@@ -176,4 +192,15 @@ void NotificationBackend::ref(Notification *notification)
 void NotificationBackend::deref(Notification *notification)
 {
 }
+
+void NotificationBackend::registerBackend(NotificationBackend *backend)
+{
+
+}
+
+void NotificationBackend::unRegisterBackend(NotificationBackend *backend)
+{
+
+}
+
 } // namespace qutim_sdk_0_3
