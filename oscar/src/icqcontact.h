@@ -55,7 +55,7 @@ public:
 	IcqAccount *account();
 	const Capabilities &capabilities() const;
 	const DirectConnectionInfo &dcInfo() const;
-	void setStatus(Status status);
+	void setStatus(const Status &status);
 	ChatState chatState() const;
 	QList<FeedbagItem> feedbagItems() const;
 signals:

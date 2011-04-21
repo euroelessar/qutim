@@ -302,8 +302,10 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
-	if (status.type() == Status::Offline)
+	if (status.type() == Status::Offline) {
+		status.removeExtendedInfo("xstatus"); // Offline contacts cannot have xstatus
 		return;
+	}
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	qint8 moodIndex = -1;
 	if (statusNoteData.contains(0x0e)) {

@@ -235,9 +235,10 @@ void IcqAccount::setStatus(Status status_helper)
 		} else {
 			status.setProperty("changeReason", Status::ByFatalError);
 		}
-		OscarStatus stat;
 		foreach(IcqContact *contact, d->contacts) {
-			contact->setStatus(stat);
+			OscarStatus status = contact->status();
+			status.setType(Status::Offline);
+			contact->setStatus(status);
 			foreach (RosterPlugin *plugin, d->rosterPlugins)
 				plugin->statusChanged(contact, status, TLVMap());
 		}
