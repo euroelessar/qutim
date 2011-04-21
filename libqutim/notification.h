@@ -24,6 +24,7 @@
 ////Notifications API Draft
 namespace qutim_sdk_0_3
 {
+
 class NotificationBackend;
 class NotificationPrivate;
 class NotificationRequest;
@@ -54,7 +55,8 @@ public:
 		UserTyping,
 		System
 	};
-	~Notification();	
+	static Notification *send(const Message &msg);
+	~Notification();
 	NotificationRequest request() const;
 public slots:
 	void close();
@@ -62,7 +64,7 @@ signals:
 	void ignored();
 	void finished();
 protected:
-	Notification(QObject *parent,const NotificationRequest &request);
+	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
 	friend class NotificationRequest;
 	friend class NotificationBackend;
@@ -132,8 +134,6 @@ class LIBQUTIM_EXPORT NotificationBackend : public QObject
 public:
 	NotificationBackend();
 	~NotificationBackend();
-	static void registerBackend(NotificationBackend *backend);
-	static void unRegisterBackend(NotificationBackend *backend);
 	virtual void handleNotification(Notification *notification) = 0;
 protected:
 	void ref(Notification *notification);

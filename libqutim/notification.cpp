@@ -19,6 +19,10 @@
 #include "chatunit.h"
 
 namespace qutim_sdk_0_3 {
+
+typedef QList<NotificationBackend*> NotificationBackendList;
+Q_GLOBAL_STATIC(NotificationBackendList, backendList)
+
 class NotificationPrivate
 {
 public:
@@ -26,8 +30,13 @@ public:
 	QAtomicInt ref;
 };
 
-Notification::Notification(QObject *parent, const NotificationRequest &request) :
-	QObject(parent),
+Notification *Notification::send(const Message &msg)
+{
+	NotificationRequest request(msg);
+	return request.send();
+}
+
+Notification::Notification(const NotificationRequest &request) :
 	d_ptr(new NotificationPrivate)
 {
 	Q_D(Notification);
@@ -174,33 +183,31 @@ QList<const ActionGenerator *> NotificationRequest::actions() const
 
 Notification *NotificationRequest::send()
 {
+	//TODO Notification handlers
 
+	Notification *notification = new Notification(*this);
+	foreach (NotificationBackend *backend, *backendList())
+		backend->handleNotification(notification);
 }
 
 NotificationBackend::NotificationBackend()
 {
+	backendList()->append(this);
 }
 
 NotificationBackend::~NotificationBackend()
 {
+	backendList()->removeAll(this);
 }
 
 void NotificationBackend::ref(Notification *notification)
 {
+	notification->d_func()->ref.ref();
 }
 
 void NotificationBackend::deref(Notification *notification)
 {
-}
-
-void NotificationBackend::registerBackend(NotificationBackend *backend)
-{
-
-}
-
-void NotificationBackend::unRegisterBackend(NotificationBackend *backend)
-{
-
+	notification->d_func()->ref.deref();
 }
 
 } // namespace qutim_sdk_0_3

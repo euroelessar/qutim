@@ -22,6 +22,7 @@
 #include "message.h"
 #include "configbase.h"
 #include <QFileInfo>
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {
@@ -79,6 +80,12 @@ inline void ensure_notifications_private()
 
 namespace Notifications
 {
+
+Notification::Type toNewType(Notifications::Type old)
+{
+	return static_cast<Notification::Type>(old);
+}
+
 void send(Type type, QObject *sender,
 		  const QString &body, const QVariant &data)
 {
@@ -92,6 +99,18 @@ void send(Type type, QObject *sender,
 	if (p->popupBackend)
 		p->popupBackend->show(type, sender, body, data);
 	Sound::play(type);
+
+	//new backends
+	//hack for messages
+	if (data.canConvert<Message>()) {
+		Notification::send(data.value<Message>());
+	} else {
+		NotificationRequest request(toNewType(type));
+		request.setObject(sender);
+		request.setText(body);
+		request.setTitle(QObject::tr("Notify"));
+		request.send();
+	}
 }
 
 
