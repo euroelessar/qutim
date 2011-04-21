@@ -4,7 +4,6 @@
 #include "speller/kdespellerlayer.h"
 #include "speller/kdespellersettings.h"
 #include "iconloader/kdeiconloader.h"
-#include "notification/kdenotificationlayer.h"
 #include "tray/kdetrayicon.h"
 #include "aboutkde/aboutkdedialog.h"
 #include "aboutapp/kdeaboutappdialog.h"

@@ -118,7 +118,7 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		now.setProperty("changeReason", Status::ByIdle);
 		a->setStatus(now);
 
-		Notifications::send(Notifications::System,this,
+		Notifications::send(Notification::System,this,
 							tr("%1 will be reconnected %2").arg(a->name(),timeoutStr),
 							tr("ConnectionManager"));
 	} else {

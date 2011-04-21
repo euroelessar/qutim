@@ -56,10 +56,10 @@ const QDBusArgument& operator>> (const QDBusArgument& arg, DBusNotifyImageData &
 }
 
 DBusBackend::DBusBackend() :
-		interface(new org::freedesktop::Notifications(
-				"org.freedesktop.Notifications",
-				"/org/freedesktop/Notifications",
-				QDBusConnection::sessionBus()))
+	interface(new org::freedesktop::Notifications(
+			"org.freedesktop.Notifications",
+			"/org/freedesktop/Notifications",
+			QDBusConnection::sessionBus()))
 {
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
@@ -95,8 +95,8 @@ DBusBackend::DBusBackend() :
 	loadSettings();
 }
 
-void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender, const QString& body,
-				   const QVariant& data)
+void DBusBackend::show(qutim_sdk_0_3::Notification::Type type, QObject* sender, const QString& body,
+					   const QVariant& data)
 {
 	if(!(m_showFlags & type))
 		return;
@@ -109,7 +109,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	QList<QVariant> dataList;
 
 	QString icon;
-	if (data.canConvert<Message>() && (type & (Notifications::MessageSend | Notifications::MessageGet))) {
+	if (data.canConvert<Message>() && (type & (Notification::OutgoingMessage | Notification::IncomingMessage))) {
 		const Message &msg = data.value<qutim_sdk_0_3::Message>();
 		title = qutim_sdk_0_3::Notifications::toString(type).arg(msg.chatUnit()->title());
 		if (const Buddy *b = qobject_cast<const Buddy*>(msg.chatUnit()))
@@ -132,11 +132,13 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 
 	QStringList actions;
 	if (m_capabilities.contains(QLatin1String("actions"))) {
-		if (type & Notifications::MessageSend ||
-			type & Notifications::MessageGet ||
-			type & Notifications::Typing ||
-			type & Notifications::StatusChange ||
-			type & Notifications::BlockedMessage)
+		if (type & Notification::OutgoingMessage ||
+				type & Notification::IncomingMessage ||
+				type & Notification::ChatIncomingMessage ||
+				type & Notification::ChatOutgoingMessage ||
+				type & Notification::UserTyping ||
+				type & Notification::UserChangedStatus ||
+				type & Notification::BlockedMessage)
 		{
 			actions << "openChat" << tr("Open chat")
 					<< "ignore" << tr("Ignore");
@@ -174,14 +176,14 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 #endif
 
 	QDBusPendingReply<uint> reply = interface->Notify(
-			QCoreApplication::applicationName(),
-			id,
-			icon, //QString(), //QLatin1String("qutim"),
-			title,
-			text,
-			actions,
-			hints,
-			timeout);
+				QCoreApplication::applicationName(),
+				id,
+				icon, //QString(), //QLatin1String("qutim"),
+				title,
+				text,
+				actions,
+				hints,
+				timeout);
 
 	vibrate(50);
 
@@ -193,9 +195,9 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 		m_notifications.remove(id);
 
 	Q_UNUSED(reply);
-//	QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(reply, this);
-//	connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-//			SLOT(callFinished(QDBusPendingCallWatcher*)));
+	//	QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(reply, this);
+	//	connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+	//			SLOT(callFinished(QDBusPendingCallWatcher*)));
 }
 
 DBusBackend::~DBusBackend()
@@ -221,7 +223,7 @@ void DBusBackend::capabilitiesCallFinished(QDBusPendingCallWatcher* watcher)
 void DBusBackend::loadSettings()
 {
 	Config behavior = Config("behavior").group("notifications/popups");
-	m_showFlags = behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend);
+	m_showFlags = behavior.value("showFlags", 0xfffffff &~ Notification::ChatOutgoingMessage);
 }
 
 void DBusBackend::onActionInvoked(quint32 id, const QString &action)
@@ -259,12 +261,12 @@ void DBusBackend::ignore(NotificationData &notification)
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 {
 	/*
-		The reasons:
-		1 - The notification expired.
-		2 - The notification was dismissed by the user.
-		3 - The notification was closed by a call to CloseNotification.
-		4 - Undefined/reserved reasons.
-	*/
+  The reasons:
+  1 - The notification expired.
+  2 - The notification was dismissed by the user.
+  3 - The notification was closed by a call to CloseNotification.
+  4 - Undefined/reserved reasons.
+ */
 
 	QHash<quint32, NotificationData>::iterator itr = m_notifications.find(id);
 	if (itr != m_notifications.end()) {
@@ -279,14 +281,14 @@ void DBusBackend::enableVibration()
 {
 #ifdef Q_WS_MAEMO_5
 	mDbusInterface = new QDBusInterface(MCE_SERVICE, MCE_REQUEST_PATH,
-				     MCE_REQUEST_IF, QDBusConnection::systemBus(),
-				     this);
+										MCE_REQUEST_IF, QDBusConnection::systemBus(),
+										this);
 	mDbusInterface->call(MCE_ENABLE_VIBRATOR);
 	mDbusInterface->call(MCE_ENABLE_LED);
 	display_off=false;
 	QDBusConnection::systemBus().connect(MCE_SERVICE, MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
-					MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
-		mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
+										 MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
+	mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
 #endif
 }
 
@@ -295,9 +297,9 @@ void DBusBackend::vibrate(int aTimeout)
 #ifdef Q_WS_MAEMO_5
     if (display_off)
     {
-	mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
-	QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
-	mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
+		mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
+		QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
+		mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
     }
 #endif
 }
@@ -321,7 +323,7 @@ void DBusBackend::displayStateChanged(const QDBusMessage &message)
 void DBusBackend::setDisplayState(const QString &state)
 {
 #ifdef Q_WS_MAEMO_5
-    	if (!state.isEmpty()) {
+	if (!state.isEmpty()) {
 		if (state == MCE_DISPLAY_ON_STRING)
 		{
 			display_off=false;

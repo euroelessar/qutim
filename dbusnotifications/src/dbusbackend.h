@@ -17,7 +17,7 @@ class DBusBackend : public qutim_sdk_0_3::PopupBackend
 {
 	Q_OBJECT
 public:
-	virtual void show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
+	virtual void show(qutim_sdk_0_3::Notification::Type type, QObject* sender,
 					  const QString& body, const QVariant& data);
 	DBusBackend();
 	virtual ~DBusBackend();

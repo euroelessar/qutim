@@ -27,6 +27,7 @@ namespace ConnectionManager
 		Q_OBJECT
 		Q_CLASSINFO("DebugName", "ConnectionManager")
 		Q_CLASSINFO("Service", "Bearer")
+		Q_CLASSINFO("Uses", "SettingsLayer")
 	public:
 		ConnectionManager();
 		virtual ~ConnectionManager();

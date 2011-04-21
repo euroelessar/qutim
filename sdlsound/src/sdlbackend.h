@@ -33,7 +33,7 @@ public:
 	virtual ~SDLSoundBackend();
 	virtual void playSound(const QString &filename);
 	virtual QStringList supportedFormats();
-	
+
 	static void channelFinished(int channel);
 private:
 	QCache<QString, SDLSoundData> m_cache;

@@ -33,6 +33,7 @@
 #include <QPlainTextEdit>
 #include <QScriptValueIterator>
 #include <QDebug>
+#include <QMetaEnum>
 
 using namespace qutim_sdk_0_3;
 
@@ -174,7 +175,7 @@ QScriptValue notificationsSend(QScriptContext *ctxt, QScriptEngine *e)
 		return e->newVariant(QVariant(false));
 	QScriptValue arg = ctxt->argument(0);
 	if (arg.isNumber() && ctxt->argumentCount() > 1) {
-		Notifications::Type type = static_cast<Notifications::Type>(arg.toInt32());
+		Notification::Type type = static_cast<Notification::Type>(arg.toInt32());
 		QObject *sender = ctxt->argument(1).toQObject();
 		QString body;
 		QVariant data;
@@ -389,16 +390,27 @@ void ScriptEngine::initApi()
 	}
 	{
 		QScriptValue notifications = newObject();
-		notifications.setProperty("Online", Notifications::Online);
-		notifications.setProperty("Offline", Notifications::Offline);
-		notifications.setProperty("StatusChange", Notifications::StatusChange);
-		notifications.setProperty("Birthday", Notifications::Birthday);
-		notifications.setProperty("Startup", Notifications::Startup);
-		notifications.setProperty("MessageGet", Notifications::MessageGet);
-		notifications.setProperty("MessageSend", Notifications::MessageSend);
-		notifications.setProperty("System", Notifications::System);
-		notifications.setProperty("Typing", Notifications::Typing);
-		notifications.setProperty("BlockedMessage", Notifications::BlockedMessage);
+		QMetaObject meta = Notification::staticMetaObject;
+		for (int i = 0; i < meta.enumeratorCount(); ++i) {
+			QMetaEnum e = meta.enumerator(i);
+			if (e.name() == QLatin1String("Type")) {
+				for (int j = 0;j != e.keyCount(); j++)
+					notifications.setProperty(e.key(j), e.value(j));
+			}
+		}
+
+		//O-o
+		//notifications.setProperty("Online", Notifications::Online);
+		//notifications.setProperty("Offline", Notifications::Offline);
+		//notifications.setProperty("StatusChange", Notifications::StatusChange);
+		//notifications.setProperty("Birthday", Notifications::Birthday);
+		//notifications.setProperty("Startup", Notifications::Startup);
+		//notifications.setProperty("MessageGet", Notifications::MessageGet);
+		//notifications.setProperty("MessageSend", Notifications::MessageSend);
+		//notifications.setProperty("System", Notifications::System);
+		//notifications.setProperty("Typing", Notifications::Typing);
+		//notifications.setProperty("BlockedMessage", Notifications::BlockedMessage);
+
 		notifications.setProperty("send", newFunction(notificationsSend, 1));
 		client.setProperty("notifications", notifications);
 	}
