@@ -1,6 +1,5 @@
 qutim_add_plugin(sevenwidget
 	EXTENSION
-	DISABLED
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/sevenwidget.h
 	EXTENSION_CLASS Core::SimpleContactList::SevenWidget
 	DISPLAY_NAME "Seven"
