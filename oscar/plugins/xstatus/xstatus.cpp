@@ -197,30 +197,44 @@ XStatus::XStatus(const LocalizedString &status_, const QString &icon_,
 {
 }
 
-void XStatusHandler::init()
+void XStatusPlugin::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "OscarXStatus"),
 			QT_TRANSLATE_NOOP("Plugin", "Additional statuses for oscar protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("alexey.prokhin@yandex.ru"));
-	addExtension<XStatusHandler, Tlv2711Plugin, RosterPlugin>
-		(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
-		 QT_TRANSLATE_NOOP("Plugin", "Additional statuses for oscar protocol"),
-		 ExtensionIcon("im-icq"));
-	addExtension<XStatusSettings, SettingsExtension>
-		(QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
-		 QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
-		 ExtensionIcon("im-icq"));
+	addAuthor(
+			QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+			QT_TRANSLATE_NOOP("Task", "Author"),
+			QLatin1String("alexey.prokhin@yandex.ru"));
+	addExtension(
+			QT_TRANSLATE_NOOP("Plugin", "ICQ"),
+			QT_TRANSLATE_NOOP("Plugin", "Additional statuses for oscar protocol"),
+			new SingletonGenerator<XStatusHandler, Tlv2711Plugin, RosterPlugin>,
+			ExtensionIcon("im-icq"));
+	addExtension<XStatusSettings, SettingsExtension>(
+			QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
+			QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
+			ExtensionIcon("im-icq"));
 }
 
-bool XStatusHandler::load()
+bool XStatusPlugin::load()
 {
 	Protocol *proto = Protocol::all().value("icq");
 	if (!proto || proto->metaObject() != &IcqProtocol::staticMetaObject)
 		return false;
 	
+	return true;
+}
+
+bool XStatusPlugin::unload()
+{
+	return false;
+}
+
+XStatusHandler::XStatusHandler()
+{
+	m_tlvs2711Types << Tlv2711Type(MSG_XSTRAZ_SCRIPT, xtrazNotify);
+
 	m_aboutToBeChanged = Event::registerType("icq-xstatus-about-to-be-changed");
 	m_changed = Event::registerType("icq-xstatus-changed");
 	m_change = Event::registerType("icq-change-xstatus");
@@ -260,18 +274,8 @@ bool XStatusHandler::load()
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 	connect(IcqProtocol::instance(), SIGNAL(settingsUpdated()), SLOT(loadSettings()));
 
-	proto->installEventFilter(this);
-	return true;
-}
-
-bool XStatusHandler::unload()
-{
-	return false;
-}
-
-XStatusHandler::XStatusHandler()
-{
-	m_tlvs2711Types << Tlv2711Type(MSG_XSTRAZ_SCRIPT, xtrazNotify);
+	IcqProtocol::instance()->installEventFilter(this);
+	loadSettings();
 }
 
 void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie)
@@ -427,7 +431,7 @@ bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
 			setAcountXstatus(account, customEvent->at<QVariantHash>(0));
 		}
 	}
-	return Plugin::eventFilter(obj, e);
+	return QObject::eventFilter(obj, e);
 }
 
 void XStatusHandler::onSetCustomStatus(QObject *object)
@@ -477,4 +481,4 @@ void XStatusHandler::loadSettings()
 
 } } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::XStatusHandler);
+QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::XStatusPlugin);
