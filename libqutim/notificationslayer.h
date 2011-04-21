@@ -132,6 +132,7 @@ LIBQUTIM_EXPORT QString currentThemeName();
 LIBQUTIM_EXPORT QStringList themeList();
 LIBQUTIM_EXPORT void setTheme(const QString &name);
 LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
+
 }
 }
 

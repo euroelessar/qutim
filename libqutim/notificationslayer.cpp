@@ -22,7 +22,7 @@
 #include "message.h"
 #include "configbase.h"
 #include <QFileInfo>
-#include "notification.h"
+#include "notificationslayer_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -71,11 +71,14 @@ void ensure_notifications_private_helper()
 {
 	p = new NotificationsLayerPrivate;
 	p->soundIsInited = false;
+	static SoundHandler handler;
+	Q_UNUSED(handler);
 }
 
 inline void ensure_notifications_private()
 {
-	if (!p) ensure_notifications_private_helper();
+	if (!p)
+		ensure_notifications_private_helper();
 }
 
 namespace Notifications
@@ -83,7 +86,87 @@ namespace Notifications
 
 Notification::Type toNewType(Notifications::Type old)
 {
-	return static_cast<Notification::Type>(old);
+	Notification::Type type;
+	switch (old) {
+	case Notifications::System:
+		type = Notification::System;
+		break;
+	case Notifications::StatusChange:
+		type = Notification::UserChangedStatus;
+		break;
+	case Notifications::MessageGet:
+		type = Notification::IncomingMessage;
+		break;
+	case Notifications::MessageSend:
+		type = Notification::OutgoingMessage;
+		break;
+	case Notifications::Typing:
+		type = Notification::UserTyping;
+		break;
+	case Notifications::BlockedMessage:
+		type = Notification::BlockedMessage;
+		break;
+	case Notifications::Birthday:
+		type = Notification::UserHasBirthday;
+		break;
+	case Notifications::Online:
+		type = Notification::UserOnline;
+		break;
+	case Notifications::Offline:
+		type = Notification::UserOffline;
+		break;
+	case Notifications::Startup:
+		type = Notification::AppStartup;
+		break;
+	default:
+		type = Notification::System;
+		break;
+	}
+	return type;
+}
+
+Notifications::Type toOldType(Notification::Type newType)
+{
+	Notifications::Type type;
+	switch(newType)
+	{
+	case Notification::IncomingMessage:
+	case Notification::ChatIncomingMessage:
+		type = Notifications::MessageGet;
+		break;
+	case Notification::OutgoingMessage:
+	case Notification::ChatOutgoingMessage:
+		type = Notifications::MessageSend;
+		break;
+	case Notification::AppStartup:
+		type = Notifications::Startup;
+		break;
+	case Notification::BlockedMessage:
+		type = Notifications::BlockedMessage;
+		break;
+	case Notification::ChatUserJoined:
+	case Notification::UserOnline:
+		type = Notifications::Online;
+		break;
+	case Notification::ChatUserLeaved:
+	case Notification::UserOffline:
+		type = Notifications::Offline;
+		break;
+	case Notification::UserChangedStatus:
+		type = Notifications::StatusChange;
+		break;
+	case Notification::UserHasBirthday:
+		type = Notifications::Birthday;
+		break;
+	case Notification::UserTyping:
+		type = Notifications::Typing;
+		break;
+	case Notification::FileTransferCompleted:
+	case Notification::System:
+	default:
+		type = Notifications::System;
+	}
+	return type;
 }
 
 void send(Type type, QObject *sender,
@@ -98,7 +181,6 @@ void send(Type type, QObject *sender,
 
 	if (p->popupBackend)
 		p->popupBackend->show(type, sender, body, data);
-	Sound::play(type);
 
 	//new backends
 	//hack for messages
@@ -355,5 +437,11 @@ void setTheme(const SoundTheme &theme)
 	setTheme(theme.themeName());
 }
 }
+
+void SoundHandler::handleNotification(Notification *notification)
+{
+	Sound::play(Notifications::toOldType(notification->request().type()));
+}
+
 }
 

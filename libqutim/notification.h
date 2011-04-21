@@ -90,6 +90,8 @@ public:
 	QString title() const;
 	void setText(const QString &text);
 	QString text() const;
+	void setType(Notification::Type type);
+	Notification::Type type() const;
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
 	T property(const char *name, const T &def) const
@@ -133,7 +135,7 @@ class LIBQUTIM_EXPORT NotificationBackend : public QObject
 	Q_CLASSINFO("Type", "NoType")
 public:
 	NotificationBackend();
-	~NotificationBackend();
+	virtual ~NotificationBackend();
 	virtual void handleNotification(Notification *notification) = 0;
 protected:
 	void ref(Notification *notification);

@@ -17,6 +17,7 @@
 #include "dynamicpropertydata_p.h"
 #include "message.h"
 #include "chatunit.h"
+#include "chatsession.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -64,24 +65,26 @@ public:
 	NotificationRequestPrivate() : DynamicPropertyData() {}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object),pixmap(o.pixmap),text(o.text),
-		title(o.title) {}
+		title(o.title),type(o.type) {}
 	QObject *object;
 	QPixmap pixmap;
 	QString text;
 	QString title;
+	Notification::Type type;
 	QList<const ActionGenerator*> actions;
 };
 
 namespace CompiledProperty
 {
-static QList<QByteArray> names = QList<QByteArray>() << "text"
+static QList<QByteArray> names = QList<QByteArray>() << "type"
+													 << "text"
 													 << "title"
 													 << "object"
 													 << "image"
 													 << "actions";
-static QList<Getter> getters   = QList<Getter>()
+static QList<Getter> getters   = QList<Getter>() //TODO
 ;
-static QList<Setter> setters   = QList<Setter>()
+static QList<Setter> setters   = QList<Setter>() //TODO
 ;
 }
 
@@ -96,16 +99,25 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 {
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
+	if (ChatLayer::get(msg.chatUnit(), false))
+		d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
+										 Notification::ChatOutgoingMessage;
+	else
+		d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
+										 Notification::OutgoingMessage;
+
 	setProperty("message", qVariantFromValue(msg));
 }
 
 NotificationRequest::NotificationRequest(Notification::Type type) :
 	d_ptr(new NotificationRequestPrivate)
 {
+	d_ptr->type = type;
 }
 
 NotificationRequest::NotificationRequest(const NotificationRequest &other)
 {
+	d_ptr = other.d_ptr;
 }
 
 NotificationRequest::~NotificationRequest()
@@ -156,6 +168,16 @@ void NotificationRequest::setText(const QString &text)
 QString NotificationRequest::text() const
 {
 	return d_ptr->text;
+}
+
+void NotificationRequest::setType(Notification::Type type)
+{
+	d_ptr->type = type;
+}
+
+Notification::Type NotificationRequest::type() const
+{
+	return d_ptr->type;
 }
 
 QVariant NotificationRequest::property(const char *name, const QVariant &def) const
