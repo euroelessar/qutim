@@ -398,6 +398,8 @@ void play(Notifications::Type type)
 
 QString currentThemeName()
 {
+	//TODO rewrite!
+	ensure_notifications_private();
 	p->ensureSound();
 	ConfigGroup config = Config("appearance").group("sound");
 	QString name = config.value<QString>("theme", QString());
@@ -415,6 +417,7 @@ QString currentThemeName()
 
 QStringList themeList()
 {
+	ensure_notifications_private();
 	p->ensureSound();
 	QSet<QString> themes;
 	themes << QT_TRANSLATE_NOOP("Sound", "No sound");

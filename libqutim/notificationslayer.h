@@ -47,12 +47,12 @@ enum Type
 	Count = 0x400
 };
 
-LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
-LIBQUTIM_EXPORT void send(Type type, QObject *sender,
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(Type type, QObject *sender,
 						  const QString &body = QString(),
 						  const QVariant &data = QVariant());
-LIBQUTIM_EXPORT void send(const Message &message);
-LIBQUTIM_EXPORT QString toString(Notifications::Type type);
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const Message &message);
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 }
 
 class LIBQUTIM_EXPORT PopupBackend : public QObject
