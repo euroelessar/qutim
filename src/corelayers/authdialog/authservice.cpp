@@ -55,7 +55,7 @@ void AuthService::handleReply(Reply *reply)
 	}
 	case Reply::Accepted:
 	case Reply::Rejected:
-		Notifications::send(Notifications::System,reply->contact(),reply->body());
+		Notifications::send(Notification::System, reply->contact(), reply->body());
 		break;
 	default:
 		break;

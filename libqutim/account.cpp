@@ -98,7 +98,7 @@ void Account::setStatus(Status status)
 	case Status::ByFatalError:
 		break;
 	case Status::ByAuthorizationFailed:
-		Notifications::send(Notifications::System,
+		Notifications::send(Notification::System,
 							this,
 							QT_TRANSLATE_NOOP("Account", "Authorization failed"));
 		break;

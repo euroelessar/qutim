@@ -26,22 +26,34 @@ namespace Core
 OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString &path, QString variant)
 {
 	m_themeName = name;
-	const Notifications::Type xmlEventTypes[] = {
-		Notifications::Online,
-		Notifications::Offline,
-		Notifications::StatusChange,
-		Notifications::Birthday,
-		Notifications::Startup,
-		Notifications::MessageGet,
-		Notifications::MessageSend,
-		Notifications::System,
-		Notifications::Typing,
-		Notifications::BlockedMessage,
+	const Notification::Type xmlEventTypes[] = {
+		Notification::UserOnline,
+		Notification::UserOffline,
+		Notification::UserChangedStatus,
+		Notification::UserHasBirthday,
+		Notification::AppStartup,
+		Notification::IncomingMessage,
+		Notification::ChatIncomingMessage,
+		Notification::OutgoingMessage,
+		Notification::ChatOutgoingMessage,
+		Notification::System,
+		Notification::UserTyping,
+		Notification::BlockedMessage,
 	};
 	const char* const xmlEventNames[] = { 
-		"c_online", "c_offline", "c_changed_status", "c_birth",
-		"start", "m_get", "m_send", "sys_event", "c_typing", 
-		"c_blocked_message", "sys_custom"
+		"c_online",
+		"c_offline",
+		"c_changed_status",
+		"c_birth",
+		"start",
+		"m_get",
+		"m_chat_get",
+		"m_send",
+		"m_chat_send",
+		"sys_event",
+		"c_typing",
+		"c_blocked_message",
+		"sys_custom"
 	};
 	QDir dir(path);
 	if (variant.isEmpty())
@@ -82,13 +94,13 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 	}
 }
 
-bool OldSoundThemeProvider::setSoundPath(Notifications::Type sound, const QString &file)
+bool OldSoundThemeProvider::setSoundPath(Notification::Type sound, const QString &file)
 {
 	m_map.insert(sound, file);
 	return true;
 }
 
-QString OldSoundThemeProvider::soundPath(Notifications::Type sound)
+QString OldSoundThemeProvider::soundPath(Notification::Type sound)
 {
 	return m_map.value(sound);
 }

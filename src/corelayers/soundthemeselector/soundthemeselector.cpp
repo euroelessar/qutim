@@ -5,6 +5,7 @@
 #include <qutim/localizedstring.h>
 #include <qutim/icon.h>
 #include <QAbstractItemDelegate>
+#include <QMetaEnum>
 
 namespace Core
 {
@@ -72,47 +73,36 @@ void SoundThemeSelector::fillModel(const SoundTheme &theme)
 	headers.append(QT_TRANSLATE_NOOP("SoundTheme", "Preview"));
 	m_model->setHorizontalHeaderLabels(headers);
 
-	//TODO move to libqutim
-	LocalizedString strings[] =
-	{
-		QT_TRANSLATE_NOOP("Notifications", "User online"),
-		QT_TRANSLATE_NOOP("Notifications", "User offline"),
-		QT_TRANSLATE_NOOP("Notifications", "Status changed"),
-		QT_TRANSLATE_NOOP("Notifications", "User has birthday today!"),
-		QT_TRANSLATE_NOOP("Notifications", "qutIM Launched"),
-		QT_TRANSLATE_NOOP("Notifications", "Message recieved"),
-		QT_TRANSLATE_NOOP("Notifications", "Message sent"),
-		QT_TRANSLATE_NOOP("Notifications", "System notification"),
-		QT_TRANSLATE_NOOP("Notifications", "Typing"),
-		QT_TRANSLATE_NOOP("Notifications", "Message blocked"),
-		QT_TRANSLATE_NOOP("Notifications", "Count")
-	};
+	QMetaObject meta = Notification::staticMetaObject;
+	for (int i = 0; i < meta.enumeratorCount(); ++i) {
+		QMetaEnum e = meta.enumerator(i);
+		if (e.name() == QLatin1String("Type")) {
+			for (int j = 0;j != e.keyCount(); j++) {
+				Notification::Type type = static_cast<Notification::Type>(e.value(j));
+				QList<QStandardItem *> items;
 
-	for (int i = 0, size = sizeof(strings)/sizeof(LocalizedString); i < size; i++) {
-		Notifications::Type type = static_cast<Notifications::Type>(1 << i);
-		QList<QStandardItem *> items;
+				QStandardItem *item = new QStandardItem(Notification::typeString(type));
+				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Type"));
+				items << item;
 
-		QStandardItem *item = new QStandardItem(strings[i]);
-		item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Type"));
-		items << item;
+				QString path = theme.path(type);
 
-		QString path = theme.path(type);
+				item = new QStandardItem(path.section("/",-1));
+				item->setToolTip(path);
+				items << item;
 
-		item = new QStandardItem(path.section("/",-1));
-		item->setToolTip(path);
-		items << item;
+				item = new QStandardItem();
+				item->setEditable(false);
+				item->setIcon(Icon("media-playback-start"));
+				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
+				item->setEnabled(!theme.path(type).isNull());
+				item->setData(type,Qt::UserRole);
+				items << item;
 
-		item = new QStandardItem();
-		item->setEditable(false);
-		item->setIcon(Icon("media-playback-start"));
-		item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
-		item->setEnabled(!theme.path(type).isNull());
-		item->setData(type,Qt::UserRole);
-		items << item;
-
-		m_model->appendRow(items);
+				m_model->appendRow(items);
+			}
+		}
 	}
-
 }
 
 void SoundThemeSelector::onClicked(const QModelIndex &index)
@@ -123,7 +113,7 @@ void SoundThemeSelector::onClicked(const QModelIndex &index)
 
 	if (type) {
 		SoundTheme theme =  Sound::theme(ui->themeSelector->currentText());
-		theme.play(static_cast<Notifications::Type>(type));
+		theme.play(static_cast<Notification::Type>(type));
 	}
 }
 

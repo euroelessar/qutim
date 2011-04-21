@@ -131,7 +131,7 @@ void Manager::loadSettings()
 	appendMode = behavior.value<bool>("appendMode",true);
 	updateMode = behavior.value<bool>("updateMode",false);
 	animationDuration = behavior.value("animationDuration",600);
-	showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend));
+	showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff &~ Notification::IncomingMessage));
 	margin = behavior.value("margin",20);
 
 	Config general = Config("appearance").group("qmlpopups/general");

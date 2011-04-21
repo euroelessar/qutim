@@ -13,7 +13,7 @@ namespace SimpleContactList
 class TreeModelPrivate;
 class TreeModel;
 
-struct ChangeEvent;
+class ChangeEvent;
 class ContactItem;
 
 class TagItem : protected ItemHelper

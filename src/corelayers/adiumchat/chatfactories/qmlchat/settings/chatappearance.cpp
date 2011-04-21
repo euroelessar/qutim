@@ -120,7 +120,7 @@ void ChatAppearance::onStateChanged(int)
 void ChatAppearance::loadImpl()
 {
 	if (!m_controller) {
-		Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
+		Notifications::send(Notification::System, this, tr("Unable to create chat session"));
 		return;
 	}
 	ConfigGroup quickChat = Config("appearance/qmlChat");
@@ -173,7 +173,7 @@ void ChatAppearance::onThemeChanged(int index)
 void ChatAppearance::makePage()
 {
 	if (!m_controller) {
-		Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
+		Notifications::send(Notification::System, this, tr("Unable to create chat session"));
 		return;
 	}
 	Message message(tr("Preview message"));

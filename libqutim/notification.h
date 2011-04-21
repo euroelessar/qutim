@@ -39,25 +39,26 @@ class LIBQUTIM_EXPORT Notification : public QObject
 public:
 	enum Type
 	{
-		IncomingMessage,
-		OutgoingMessage,
-		AppStartup,
-		BlockedMessage,
-		ChatUserJoined,
-		ChatUserLeaved,
-		ChatIncomingMessage,
-		ChatOutgoingMessage,
-		FileTransferCompleted,
-		UserOnline,
-		UserOffline,
-		UserChangedStatus,
-		UserHasBirthday,
-		UserTyping,
-		System
+		IncomingMessage			=	0x0001,
+		OutgoingMessage			=	0x0002,
+		AppStartup				=	0x0004,
+		BlockedMessage			=	0x0008,
+		ChatUserJoined			=	0x0010,
+		ChatUserLeaved			=	0x0020,
+		ChatIncomingMessage		=	0x0040,
+		ChatOutgoingMessage		=	0x0080,
+		FileTransferCompleted	=	0x0100,
+		UserOnline				=	0x0200,
+		UserOffline				=	0x0400,
+		UserChangedStatus		=	0x0800,
+		UserHasBirthday			=	0x1000,
+		UserTyping				=	0x2000,
+		System					=	0x4000
 	};
 	static Notification *send(const Message &msg);
 	~Notification();
 	NotificationRequest request() const;
+	static LocalizedString typeString(Type type);
 public slots:
 	void close();
 signals:

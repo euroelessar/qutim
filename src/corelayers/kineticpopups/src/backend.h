@@ -38,9 +38,9 @@ class Backend : public PopupBackend
 	Q_OBJECT
 	Q_CLASSINFO("Uses", "PopupWidget")
 public:
-	virtual void show(Notifications::Type type, QObject* sender,
+	virtual void show(Notification::Type type, QObject* sender,
 					  const QString& body, const QVariant& data);
-	Backend ();
+	Backend();
 };
 
 namespace Game

@@ -84,92 +84,7 @@ inline void ensure_notifications_private()
 namespace Notifications
 {
 
-Notification::Type toNewType(Notifications::Type old)
-{
-	Notification::Type type;
-	switch (old) {
-	case Notifications::System:
-		type = Notification::System;
-		break;
-	case Notifications::StatusChange:
-		type = Notification::UserChangedStatus;
-		break;
-	case Notifications::MessageGet:
-		type = Notification::IncomingMessage;
-		break;
-	case Notifications::MessageSend:
-		type = Notification::OutgoingMessage;
-		break;
-	case Notifications::Typing:
-		type = Notification::UserTyping;
-		break;
-	case Notifications::BlockedMessage:
-		type = Notification::BlockedMessage;
-		break;
-	case Notifications::Birthday:
-		type = Notification::UserHasBirthday;
-		break;
-	case Notifications::Online:
-		type = Notification::UserOnline;
-		break;
-	case Notifications::Offline:
-		type = Notification::UserOffline;
-		break;
-	case Notifications::Startup:
-		type = Notification::AppStartup;
-		break;
-	default:
-		type = Notification::System;
-		break;
-	}
-	return type;
-}
-
-Notifications::Type toOldType(Notification::Type newType)
-{
-	Notifications::Type type;
-	switch(newType)
-	{
-	case Notification::IncomingMessage:
-	case Notification::ChatIncomingMessage:
-		type = Notifications::MessageGet;
-		break;
-	case Notification::OutgoingMessage:
-	case Notification::ChatOutgoingMessage:
-		type = Notifications::MessageSend;
-		break;
-	case Notification::AppStartup:
-		type = Notifications::Startup;
-		break;
-	case Notification::BlockedMessage:
-		type = Notifications::BlockedMessage;
-		break;
-	case Notification::ChatUserJoined:
-	case Notification::UserOnline:
-		type = Notifications::Online;
-		break;
-	case Notification::ChatUserLeaved:
-	case Notification::UserOffline:
-		type = Notifications::Offline;
-		break;
-	case Notification::UserChangedStatus:
-		type = Notifications::StatusChange;
-		break;
-	case Notification::UserHasBirthday:
-		type = Notifications::Birthday;
-		break;
-	case Notification::UserTyping:
-		type = Notifications::Typing;
-		break;
-	case Notification::FileTransferCompleted:
-	case Notification::System:
-	default:
-		type = Notifications::System;
-	}
-	return type;
-}
-
-void send(Type type, QObject *sender,
+void send(Notification::Type type, QObject *sender,
 		  const QString &body, const QVariant &data)
 {
 	ensure_notifications_private();
@@ -187,7 +102,7 @@ void send(Type type, QObject *sender,
 	if (data.canConvert<Message>()) {
 		Notification::send(data.value<Message>());
 	} else {
-		NotificationRequest request(toNewType(type));
+		NotificationRequest request(type);
 		request.setObject(sender);
 		request.setText(body);
 		request.setTitle(QObject::tr("Notify"));
@@ -198,60 +113,60 @@ void send(Type type, QObject *sender,
 
 void send(const QString &body, const QVariant &data)
 {
-	send(System, 0, body, data);
+	send(Notification::System, 0, body, data);
 }
 
 
 void send(const Message& message)
 {
-	Type type = static_cast<Type>(message.property("service").toInt());
+	Notification::Type type = static_cast<Notification::Type>(message.property("service").toInt());
 	if (!type)
-		type = message.isIncoming() ? MessageGet : MessageSend;
+		type = message.isIncoming() ? Notification::IncomingMessage :
+									  Notification::OutgoingMessage;
 	send(type, const_cast<ChatUnit *>(message.chatUnit()->buddy()),
 		 message.text(),
 		 QVariant::fromValue(message));
 }
 
-QString toString(Notifications::Type type)
+QString toString(Notification::Type type)
 {
 	QString title;
-	switch ( type )
-	{
-	case Notifications::System:
-		title = QObject::tr("System message from %1:");
-		break;
-	case Notifications::StatusChange:
-		title = QObject::tr("%1 changed status");
-		break;
-	case Notifications::MessageGet:
+	switch(type) {
+	case Notification::IncomingMessage:
+	case Notification::ChatIncomingMessage:
 		title = QObject::tr("Message from %1:");
 		break;
-	case Notifications::MessageSend:
+	case Notification::OutgoingMessage:
+	case Notification::ChatOutgoingMessage:
 		title = QObject::tr("Message to %1:");
 		break;
-	case Notifications::Typing:
-		title = QObject::tr("%1 is typing");
-		break;
-	case Notifications::BlockedMessage:
-		title = QObject::tr("Blocked message from %1");
-		break;
-	case Notifications::Birthday:
-		title = QObject::tr("%1 has birthday today!!");
-		break;
-	case Notifications::Online:
-		title = QObject::tr("%1 is online");
-		break;
-	case Notifications::Offline:
-		title = QObject::tr("%1 is offline");
-		break;
-	case Notifications::Startup:
+	case Notification::AppStartup:
 		title = QObject::tr("qutIM launched");
 		break;
-	case Notifications::Count:
-		title = QObject::tr("Count");
+	case Notification::BlockedMessage:
+		title = QObject::tr("Blocked message from %1");
 		break;
+	case Notification::ChatUserJoined:
+	case Notification::UserOnline:
+		title = QObject::tr("%1 is online");
+		break;
+	case Notification::ChatUserLeaved:
+	case Notification::UserOffline:
+		title = QObject::tr("%1 is offline");
+		break;
+	case Notification::UserChangedStatus:
+		title = QObject::tr("%1 changed status");
+		break;
+	case Notification::UserHasBirthday:
+		title = QObject::tr("%1 has birthday today!!");
+		break;
+	case Notification::UserTyping:
+		title = QObject::tr("%1 is typing");
+		break;
+	case Notification::FileTransferCompleted:
+	case Notification::System:
 	default:
-		return title;
+		title = QObject::tr("System notify");
 	}
 	return title;
 }
@@ -289,12 +204,12 @@ SoundTheme &SoundTheme::operator =(const SoundTheme &other)
 	return *this;
 }
 
-QString SoundTheme::path(Notifications::Type type) const
+QString SoundTheme::path(Notification::Type type) const
 {
 	return isNull() ? QString() : d->provider->soundPath(type);
 }
 
-void SoundTheme::play(Notifications::Type type) const
+void SoundTheme::play(Notification::Type type) const
 {
 	QString filePath = path(type);
 	if (filePath.isEmpty())
@@ -314,7 +229,7 @@ bool SoundTheme::save()
 	return !isNull() && d->provider->saveTheme();
 }
 
-void SoundTheme::setPath(Notifications::Type type, QString path)
+void SoundTheme::setPath(Notification::Type type, QString path)
 {
 	Q_UNUSED(type);
 	Q_UNUSED(path);
@@ -338,7 +253,7 @@ SoundThemeProvider::~SoundThemeProvider()
 {
 }
 
-bool SoundThemeProvider::setSoundPath(Notifications::Type sound, const QString &file)
+bool SoundThemeProvider::setSoundPath(Notification::Type sound, const QString &file)
 {
 	Q_UNUSED(sound);
 	Q_UNUSED(file);
@@ -391,7 +306,7 @@ SoundTheme theme(const QString &name)
 	return SoundTheme(0);
 }
 
-void play(Notifications::Type type)
+void play(Notification::Type type)
 {
 	theme().play(type);
 }
@@ -443,7 +358,7 @@ void setTheme(const SoundTheme &theme)
 
 void SoundHandler::handleNotification(Notification *notification)
 {
-	Sound::play(Notifications::toOldType(notification->request().type()));
+	Sound::play(notification->request().type());
 }
 
 }

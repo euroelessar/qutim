@@ -26,19 +26,23 @@ namespace Core
 		ui->animationSpeed->setItemData(5,1500);
 		
 		//TODO move to libqutim
-		LocalizedString strings[] = 
+		LocalizedString strings[] =
 		{
+			QT_TRANSLATE_NOOP("Notifications", "Incoming Message"),
+			QT_TRANSLATE_NOOP("Notifications", "Outgoing Message"),
+			QT_TRANSLATE_NOOP("Notifications", "qutIM Startup"),
+			QT_TRANSLATE_NOOP("Notifications", "Blocked Message"),
+			QT_TRANSLATE_NOOP("Notifications", "User joined chat"),
+			QT_TRANSLATE_NOOP("Notifications", "User leaved chat"),
+			QT_TRANSLATE_NOOP("Notifications", "Incoming chat message"),
+			QT_TRANSLATE_NOOP("Notifications", "Outgoing chat message"),
+			QT_TRANSLATE_NOOP("Notifications", "File transfer completed"),
 			QT_TRANSLATE_NOOP("Notifications", "User online"),
 			QT_TRANSLATE_NOOP("Notifications", "User offline"),
-			QT_TRANSLATE_NOOP("Notifications", "Status changed"),
-			QT_TRANSLATE_NOOP("Notifications", "User has birthday today!"),
-			QT_TRANSLATE_NOOP("Notifications", "qutIM Launched"),
-			QT_TRANSLATE_NOOP("Notifications", "Message recieved"),
-			QT_TRANSLATE_NOOP("Notifications", "Message sent"),
-			QT_TRANSLATE_NOOP("Notifications", "System notification"),
-			QT_TRANSLATE_NOOP("Notifications", "Typing"),
-			QT_TRANSLATE_NOOP("Notifications", "Message blocked"),
-			QT_TRANSLATE_NOOP("Notifications", "Count")
+			QT_TRANSLATE_NOOP("Notifications", "User changed status"),
+			QT_TRANSLATE_NOOP("Notifications", "User has birthday!"),
+			QT_TRANSLATE_NOOP("Notifications", "User typing"),
+			QT_TRANSLATE_NOOP("Notifications", "System")
 		};
 
 		m_model = new QStandardItemModel(this);
@@ -50,7 +54,7 @@ namespace Core
 		ui->notificationsView->setModel(m_model);
 
 		for (int i = 0, size = sizeof(strings)/sizeof(LocalizedString); i < size; i++) {
-			addNotification(strings[i], static_cast<Notifications::Type>(i));
+			addNotification(strings[i], static_cast<Notification::Type>(i));
 		}
 
 		ui->notificationsView->resizeColumnToContents(0);

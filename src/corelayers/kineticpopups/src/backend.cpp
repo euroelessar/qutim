@@ -39,7 +39,7 @@ Backend::Backend ()
 	Q_UNUSED(QT_TRANSLATE_NOOP("Service","PopupWidget"));
 }
 
-void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
+void Backend::show(Notification::Type type, QObject* sender, const QString& body,
 				   const QVariant& data)
 {
 	Manager *manager =  Manager::self();
@@ -61,7 +61,7 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 	}
 	QString title = Notifications::toString(type).arg(sender_name);
 
-	if (data.canConvert<Message>() && (type & Notifications::MessageSend & Notifications::MessageGet)) {
+	if (data.canConvert<Message>() && (type & Notification::IncomingMessage & Notification::OutgoingMessage)) {
 		const Message &msg = data.value<Message>();
 		title = Notifications::toString(type).arg(msg.chatUnit()->title());
 	} else if (data.canConvert<QString>()) {

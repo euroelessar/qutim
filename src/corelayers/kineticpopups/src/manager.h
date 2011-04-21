@@ -35,11 +35,12 @@ enum AnimationFlag
 	NoAnimation = 0x0,
 	Slide = 0x1,
 	Opacity = 0x2
-		  };
+};
 Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
+
 class KINETICPOPUPS_EXPORT Manager
 {
-	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
+	Q_DECLARE_FLAGS(NotificationTypes, Notification::Type)
 public:
 	Manager();
 	Popup *getById (const QString &id) const;

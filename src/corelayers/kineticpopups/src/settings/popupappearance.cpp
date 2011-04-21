@@ -104,16 +104,16 @@ void PopupAppearance::onCurrentIndexChanged(int index)
 void PopupAppearance::onTestButtonClicked(bool )
 {
 	Manager::self()->themeName = ui->comboBox->itemData(ui->comboBox->currentIndex()).toString();
-	Notifications::send(tr("Preview"),tr("This is a simple popup"));
-	Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
-	Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
+	Notifications::send(tr("Preview"), tr("This is a simple popup"));
+	Notifications::send(qutim_sdk_0_3::Notification::IncomingMessage, this, tr("Simple message"));
+	Notifications::send(qutim_sdk_0_3::Notification::OutgoingMessage, this, tr("Another message"));
 	Manager::self()->themeName = m_current_theme;
 }
 
 void PopupAppearance::preview()
 {
 	m_popup_widget->setTheme(m_current_theme);
-	m_popup_widget->setData(tr("Preview"),tr("Simple kinetic popup widget."), this, QVariant());
+	m_popup_widget->setData(tr("Preview"), tr("Simple kinetic popup widget."), this, QVariant());
 }
 
 }

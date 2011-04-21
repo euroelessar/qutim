@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QVariant>
 #include <QSharedDataPointer>
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {
@@ -31,28 +32,13 @@ namespace Notifications
 {
 //TODO Rewrite
 //note: title is set on type and sender, customTitle override this
-enum Type
-{
-	Invalid = 0x000,
-	Online = 0x001,
-	Offline = 0x002,
-	StatusChange = 0x004,
-	Birthday = 0x008,
-	Startup = 0x010,
-	MessageGet = 0x020,
-	MessageSend = 0x040,
-	System = 0x080,
-	Typing = 0x100,
-	BlockedMessage = 0x200,
-	Count = 0x400
-};
 
 Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(Type type, QObject *sender,
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(Notification::Type type, QObject *sender,
 						  const QString &body = QString(),
 						  const QVariant &data = QVariant());
 Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const Message &message);
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notifications::Type type);
+Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notification::Type type);
 }
 
 class LIBQUTIM_EXPORT PopupBackend : public QObject
@@ -60,7 +46,7 @@ class LIBQUTIM_EXPORT PopupBackend : public QObject
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
 public:
-	virtual void show(Notifications::Type type,
+	virtual void show(Notification::Type type,
 					  QObject *sender,
 					  const QString &body,
 					  const QVariant &data) = 0;
@@ -90,9 +76,9 @@ public:
 	SoundTheme(SoundThemeData *data);
 	~SoundTheme();
 	SoundTheme &operator =(const SoundTheme &other);
-	QString path(Notifications::Type type) const;
-	void setPath(Notifications::Type type, QString path);
-	void play(Notifications::Type type) const;
+	QString path(Notification::Type type) const;
+	void setPath(Notification::Type type, QString path);
+	void play(Notification::Type type) const;
 	bool isNull() const;
 	QString themeName() const;
 	bool save();
@@ -107,8 +93,8 @@ class LIBQUTIM_EXPORT SoundThemeProvider
 public:
 	SoundThemeProvider();
 	virtual ~SoundThemeProvider();
-	virtual bool setSoundPath(Notifications::Type sound, const QString &file);
-	virtual QString soundPath(Notifications::Type sound) = 0;
+	virtual bool setSoundPath(Notification::Type sound, const QString &file);
+	virtual QString soundPath(Notification::Type sound) = 0;
 	virtual QString themeName() = 0;
 	virtual bool saveTheme();
 protected:
@@ -127,7 +113,7 @@ public:
 namespace Sound
 {
 LIBQUTIM_EXPORT SoundTheme theme(const QString &name = QString());
-LIBQUTIM_EXPORT void play(Notifications::Type type);
+LIBQUTIM_EXPORT void play(Notification::Type type);
 LIBQUTIM_EXPORT QString currentThemeName();
 LIBQUTIM_EXPORT QStringList themeList();
 LIBQUTIM_EXPORT void setTheme(const QString &name);
@@ -135,7 +121,5 @@ LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
 
 }
 }
-
-Q_ENUMS(Notifications::Type)
 
 #endif // NOTIFICATIONSLAYER_H

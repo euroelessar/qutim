@@ -111,7 +111,7 @@ void ChatEdit::send()
 	message.setTime(QDateTime::currentDateTime());
 
 	if (!unit->sendMessage(message)) {
-		Notifications::send(Notifications::System,
+		Notifications::send(Notification::System,
 							this,
 							tr("Unable to send message to %1").arg(unit->title()));
 	}

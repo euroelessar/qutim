@@ -18,6 +18,7 @@
 #include "message.h"
 #include "chatunit.h"
 #include "chatsession.h"
+#include <QMetaEnum>
 
 namespace qutim_sdk_0_3 {
 
@@ -57,6 +58,40 @@ void Notification::close()
 {
 	emit finished();
 	deleteLater();
+}
+
+LocalizedString Notification::typeString(Type type)
+{
+	QMetaObject meta = Notification::staticMetaObject;
+
+	//convert flag to number
+	int index = 0;
+	int flag = 1;
+	for (; index != meta.enumerator(0).keyCount(); index++) {
+		if (flag == type)
+			break;
+		flag <<= 1;
+	}
+
+	LocalizedString strings[] =
+	{
+		QT_TRANSLATE_NOOP("Notification", "Incoming Message"),
+		QT_TRANSLATE_NOOP("Notification", "Outgoing Message"),
+		QT_TRANSLATE_NOOP("Notification", "qutIM Startup"),
+		QT_TRANSLATE_NOOP("Notification", "Blocked Message"),
+		QT_TRANSLATE_NOOP("Notification", "User joined chat"),
+		QT_TRANSLATE_NOOP("Notification", "User leaved chat"),
+		QT_TRANSLATE_NOOP("Notification", "Incoming chat message"),
+		QT_TRANSLATE_NOOP("Notification", "Outgoing chat message"),
+		QT_TRANSLATE_NOOP("Notification", "File transfer completed"),
+		QT_TRANSLATE_NOOP("Notification", "User online"),
+		QT_TRANSLATE_NOOP("Notification", "User offline"),
+		QT_TRANSLATE_NOOP("Notification", "User changed status"),
+		QT_TRANSLATE_NOOP("Notification", "User has birthday!"),
+		QT_TRANSLATE_NOOP("Notification", "User typing"),
+		QT_TRANSLATE_NOOP("Notification", "System")
+	};
+	return strings[index];
 }
 
 class NotificationRequestPrivate : public DynamicPropertyData
@@ -210,6 +245,7 @@ Notification *NotificationRequest::send()
 	Notification *notification = new Notification(*this);
 	foreach (NotificationBackend *backend, *backendList())
 		backend->handleNotification(notification);
+	return notification;
 }
 
 NotificationBackend::NotificationBackend()

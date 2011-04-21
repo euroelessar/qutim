@@ -27,12 +27,12 @@ class OldSoundThemeProvider : public SoundThemeProvider
 {
 public:
     OldSoundThemeProvider(const QString &name, const QString &path, QString variant);
-	virtual bool setSoundPath(Notifications::Type sound, const QString &file);
-	virtual QString soundPath(Notifications::Type sound);
+	virtual bool setSoundPath(Notification::Type sound, const QString &file);
+	virtual QString soundPath(Notification::Type sound);
 	virtual QString themeName();
 	virtual bool saveTheme();
 protected:
-	QMap<Notifications::Type, QString> m_map;
+	QMap<Notification::Type, QString> m_map;
 	QString m_filePath;
 	QString m_themeName;
 };

@@ -248,16 +248,16 @@ QAbstractItemModel* ChatSessionImpl::getModel() const
 void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk_0_3::Status old, bool silent)
 {
 	Q_Q(ChatSessionImpl);
-	Notifications::Type type = Notifications::StatusChange;
+	Notification::Type type = Notification::UserChangedStatus;
 	QString title = now.name().toString();
 
 	switch(now.type()) {
 	case Status::Offline: {
-		type = Notifications::Offline;
+		type = Notification::UserOffline;
 		break;
 	}
 	case Status::Online: {
-		type = Notifications::Online;
+		type = Notification::UserOnline;
 		break;
 	}
 	default: {
