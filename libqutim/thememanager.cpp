@@ -65,4 +65,32 @@ namespace qutim_sdk_0_3
 	void addPath(const QString &path_, const QString &category)
 	{
 	}
+
+	QList<QDir> ThemeManager::categoryDirs(const QString &category)
+	{
+		QList<QDir> list;
+		QDir dir = SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir);
+		if (dir.cd(category))
+			list << dir;
+
+		dir = SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir);
+		if (dir.cd(category))
+			list << dir;
+
+		dir = QDir(":/" + category);
+		if (dir.exists())
+			list << dir;
+
+		foreach (QDir dir, data()->paths) {
+			if (dir.cd(category))
+				list << dir;
+		}
+
+		foreach (QDir dir, data()->categoryPaths) {
+			if (dir.cd(category))
+				list << dir;
+		}
+
+		return list;
+	}
 }

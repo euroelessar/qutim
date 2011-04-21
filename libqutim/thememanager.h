@@ -2,6 +2,7 @@
 #define THEMEMANAGER_H
 
 #include "libqutim_global.h"
+#include <QDir>
 
 namespace qutim_sdk_0_3
 {
@@ -12,6 +13,7 @@ namespace qutim_sdk_0_3
 		static QString path(const QString &category, const QString &themeName);
 		static QStringList list(const QString &category);
 		static void addPath(const QString &path_, const QString &category = QString());
+		static QList<QDir> categoryDirs(const QString &category);
 	private:
 		ThemeManager();
 		~ThemeManager();
