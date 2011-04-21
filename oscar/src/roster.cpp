@@ -390,7 +390,8 @@ void Roster::handleUserOffline(IcqAccount *account, const SNAC &snac)
 	TLVMap tlvs = snac.read<TLVMap, quint16>();
 	//tlvs.value(0x0001); // User class
 	contact->d_func()->clearCapabilities();
-	OscarStatus status(OscarOffline);
+	OscarStatus status = contact->status();
+	status.setType(Status::Offline);
 	setStatus(contact, status, tlvs);
 }
 

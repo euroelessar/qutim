@@ -426,7 +426,6 @@ void OftServer::onTimeout()
 OftChecksumThread::OftChecksumThread(QIODevice *f, int b) :
 	file(f), bytes(b)
 {
-	start();
 }
 
 quint32 OftChecksumThread::chunkChecksum(const char *buffer, int len, quint32 oldChecksum, int offset)
@@ -557,7 +556,7 @@ void OftConnection::close(bool error)
 void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 {
 	if (reqType == MsgRequest) {
-		debug() << m_contact->id() << "sent file transfer request";
+		debug() << m_contact->id() << "has sent file transfer request";
 		m_stage = tlvs.value<quint16>(0x000A);
 		QHostAddress proxyIP(tlvs.value<quint32>(0x0002));
 		QHostAddress clientIP(tlvs.value<quint32>(0x0003));
@@ -820,6 +819,7 @@ void OftConnection::startFileSending()
 
 	OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.size);
 	connect(checksum, SIGNAL(done(quint32)), SLOT(startFileSendingImpl(quint32)));
+	checksum->start();
 }
 
 void OftConnection::startFileSendingImpl(quint32 checksum)
@@ -852,6 +852,7 @@ void OftConnection::startFileReceiving(const int index)
 		m_header.type = m_header.bytesReceived == m_header.size ? OftDone : OftReceiverResume;
 		OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.size);
 		connect(checksum, SIGNAL(done(quint32)), SLOT(startFileReceivingImpl(quint32)));
+		checksum->start();
 	} else {
 		if (!m_data->open(QIODevice::WriteOnly)) {
 			close(false);
@@ -897,8 +898,7 @@ void OftConnection::resumeFileReceivingImpl(quint32 checksum)
 void OftConnection::startNextStage()
 {
 	if (m_stage == 1) {
-		if (!m_clientVerifiedIP.isNull()) {
-			Q_ASSERT(!m_proxy);
+		if (!m_proxy && !m_clientVerifiedIP.isNull()) {
 			m_socket->close();
 			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
 			m_clientVerifiedIP = QHostAddress::Null;
@@ -913,8 +913,7 @@ void OftConnection::startNextStage()
 			}
 		}
 	} else if (m_stage = 2) {
-		if (!m_clientVerifiedIP.isNull()) {
-			Q_ASSERT(m_proxy);
+		if (!m_proxy && !m_clientVerifiedIP.isNull()) {
 			m_socket->close();
 			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
 			m_clientVerifiedIP = QHostAddress::Null;
@@ -985,6 +984,7 @@ void OftConnection::onHeaderReaded()
 
 			OftChecksumThread *checksum = new OftChecksumThread(m_data.data(), m_header.bytesReceived);
 			connect(checksum, SIGNAL(done(quint32)), SLOT(resumeFileReceivingImpl(quint32)));
+			checksum->start();
 			break;
 		}
 		case OftSenderResume: { // Sender responded at our resuming request
@@ -1212,8 +1212,8 @@ void OftFileTransferFactory::removeConnection(OftConnection *connection)
 {
 	IcqAccount *account = connection->m_account;
 	Connections::iterator itr = m_connections.find(account);
-	Q_ASSERT(itr != m_connections.end());
-	itr->remove(connection->cookie());
+	if (itr != m_connections.end());
+		itr->remove(connection->cookie());
 }
 
 void OscarFileTransferSettings::loadSettings(DataItem &item, Config cfg)

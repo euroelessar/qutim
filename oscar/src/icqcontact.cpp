@@ -329,7 +329,7 @@ void IcqContact::setAvatar(const QString &avatar)
 	emit avatarChanged(avatar);
 }
 
-void IcqContact::setStatus(Status status)
+void IcqContact::setStatus(const Status &status)
 {
 	Q_D(IcqContact);
 	Status previous = d->status;
