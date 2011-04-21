@@ -79,7 +79,7 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     connect(p->pingTimer.data(),SIGNAL(timeout()),this,SLOT(sendPing()));
     registerPacketHandler(this);
     MrimUserAgent qutimAgent(QApplication::applicationName(),QApplication::applicationVersion(),
-                         "(git)",PROTO_VERSION_MAJOR,PROTO_VERSION_MINOR); //TODO: real build version
+							 "(git)",PROTO_VERSION_MAJOR,PROTO_VERSION_MINOR); //TODO: real build version
     p->selfID = qutimAgent;
     p->messages = new MrimMessages(this);
 	registerPacketHandler(p->messages);
@@ -210,42 +210,42 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
     switch (packet.msgType())
     {
     case MRIM_CS_HELLO_ACK:
-        {
-            quint32 pingTimeout = 0;
-            packet.readTo(pingTimeout);
+	{
+		quint32 pingTimeout = 0;
+		packet.readTo(pingTimeout);
 
-            if (p->pingTimer->isActive())
-            {
-                p->pingTimer->stop();
-            }
-            p->pingTimer->setInterval(pingTimeout*1000);
-            login();
-        }
-        break;
+		if (p->pingTimer->isActive())
+		{
+			p->pingTimer->stop();
+		}
+		p->pingTimer->setInterval(pingTimeout*1000);
+		login();
+	}
+	break;
     case MRIM_CS_LOGIN_ACK:
         p->pingTimer->start();
 		p->account->setAccountStatus(p->status);
         emit loggedIn();
         break;
     case MRIM_CS_LOGIN_REJ:
-        {
-            QString reason;
-            packet.readTo(&reason);
-            loginRejected(reason);
-        }
-        break;        
+	{
+		QString reason;
+		packet.readTo(&reason);
+		loginRejected(reason);
+	}
+	break;
     case MRIM_CS_LOGOUT:
-        {
-            quint32 reason = 0;
-            packet.readTo(reason);
+	{
+		quint32 reason = 0;
+		packet.readTo(reason);
 
-            if (reason == LOGOUT_NO_RELOGIN_FLAG)
-            {
-				Notifications::send(Notifications::System,p->account,tr("Another client with same login connected!"));
-                //TODO: do not relogin
-            }
-        }
-        break;
+		if (reason == LOGOUT_NO_RELOGIN_FLAG)
+		{
+			Notifications::send(Notification::System, p->account, tr("Another client with same login connected!"));
+			//TODO: do not relogin
+		}
+	}
+	break;
     case MRIM_CS_CONNECTION_PARAMS:
         //do nothing
         break;
@@ -262,7 +262,7 @@ MrimConnection::ConnectionState MrimConnection::state() const
     QAbstractSocket::SocketState IMState =  p->IMSocket()->state();
 
     if (srvReqState == QAbstractSocket::UnconnectedState &&
-        IMState == QAbstractSocket::UnconnectedState)
+			IMState == QAbstractSocket::UnconnectedState)
     {
         return Unconnected;
     }
@@ -354,8 +354,8 @@ bool MrimConnection::processPacket()
 	return handled;
 }
 
- void MrimConnection::registerPacketHandler(PacketHandler *handler)
- {
+void MrimConnection::registerPacketHandler(PacketHandler *handler)
+{
     Q_ASSERT(handler);
     QList<quint32> msgTypes = handler->handledTypes();
 
@@ -363,12 +363,12 @@ bool MrimConnection::processPacket()
     {
         p->handlers[type] = handler;
     }
- }
+}
 
 MrimConnection::FeatureFlags MrimConnection::protoFeatures() const
 {
 	return FeatureFlagBaseSmiles
-#ifndef NO_RTF_SUPPORT
+		#ifndef NO_RTF_SUPPORT
 			| FeatureFlagRtfMessage;
 #endif
 }
@@ -438,8 +438,8 @@ Status MrimConnection::setStatus(const Status &status)
 	bool isConnecting = !isConnected && !isUnconnected;
 	if (status.type() == Status::Offline) {
 		p->status = status;
-//		if (isConnecting)
-			close();
+		//		if (isConnecting)
+		close();
 		return p->status;
 	} else {
 		p->status = status;
@@ -459,8 +459,8 @@ Status MrimConnection::setStatus(const Status &status)
 void MrimConnection::loginRejected(const QString &reason)
 {
 	p->account->setAccountStatus(MrimStatus(Status::Offline));
-	Notifications::send(Notifications::System, p->account,
-						tr("Authentication failed!\nReason: %1").arg(reason));
+	Notifications::send(Notification::System, p->account,
+					   tr("Authentication failed!\nReason: %1").arg(reason));
 }
 
 void MrimConnection::sendPacket(MrimPacket &packet)

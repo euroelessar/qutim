@@ -78,7 +78,7 @@ void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
     it2 = info.find(QLatin1String("MESSAGES.UNREAD"));
 	if (it != info.end() && it2 != info.end()) {
 		QString text = tr("Messages in mailbox: %1\nUnread messages: %2").arg(it.value(), it2.value());
-		Notifications::send(Notifications::System, this, text);
+		Notifications::send(Notification::System, this, text);
 	}
     it = info.find(QLatin1String("MRIM.NICKNAME"));
 	if (it != info.end()) {

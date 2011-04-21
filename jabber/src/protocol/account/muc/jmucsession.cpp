@@ -669,7 +669,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 	debug() << "error" << error->condition();
 	if (error->condition() == Error::Conflict) {
 		QString message = QCoreApplication::translate("Jabber", "You are already in conference with another nick");
-		Notifications::send(Notifications::System, this, message);
+		Notifications::send(Notification::System, this, message);
 		QString resource = d->account->client()->jid().resource();
 		if (!d->room->nick().endsWith(resource)) {
 			QString nick = d->room->nick();

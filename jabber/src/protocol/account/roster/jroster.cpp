@@ -117,7 +117,7 @@ void JRoster::onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item)
 	fillContact(contact, item);
 	d->storage->addContact(contact, version());
 	if(d->showNotifications) {
-		Notifications::send(Notifications::System,
+		Notifications::send(Notification::System,
 							contact,
 							tr("Contact %1 has been added to roster").arg(contact->title()));
 	}
@@ -145,7 +145,7 @@ void JRoster::onItemRemoved(const QString &jid)
 	contact->setContactInList(false);
 	contact->setContactSubscription(Jreen::AbstractRosterItem::None);
 	if(d->showNotifications) {
-		Notifications::send(Notifications::System,
+		Notifications::send(Notification::System,
 							contact,
 							tr("Contact %1 has been removed from roster").arg(contact->title()));
 	}

@@ -153,7 +153,7 @@ void MrimMessages::handleMessageStatus(MrimPacket &packet)
 
     if (!errString.isEmpty()) {
         errString.prepend(tr("Message was not delivered!")+"\n");
-		Notifications::send(Notifications::System,p->conn->account(), errString);
+		Notifications::send(Notification::System, p->conn->account(), errString);
     }
 }
 

@@ -185,8 +185,8 @@ void VWallSessionPrivate::processMultimediaMessage(Message &mess, const QVariant
 	QString html = tr("Multimedia message: %1").arg(orig_type) + QLatin1String("\n") + mess.text();
 	QString thumb_src = data.value("thumb_src").toString();
 	if (thumb_src.isEmpty()) {
-		mess.setProperty("title",mess.property("senderName"));
-		mess.setProperty("service",Notifications::System);
+		mess.setProperty("title", mess.property("senderName"));
+		mess.setProperty("service", Notification::System);
 	}
 
 	html += thumb_src;
