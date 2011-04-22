@@ -10,21 +10,21 @@
 #include <mce/dbus-names.h>
 #endif
 
-QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image);
-const QDBusArgument& operator>> (const QDBusArgument& arg, QImage& image);
+QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
+const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
 
-class DBusBackend : public qutim_sdk_0_3::PopupBackend
+class DBusBackend : public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "Popup")
+	Q_CLASSINFO("Type", "Popup")
 public:
-	virtual void show(qutim_sdk_0_3::Notification::Type type, QObject* sender,
-					  const QString& body, const QVariant& data);
 	DBusBackend();
 	virtual ~DBusBackend();
+	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
 	void capabilitiesCallFinished(QDBusPendingCallWatcher* watcher);
-	void loadSettings();
 	void onActionInvoked(quint32 id, const QString &action_key);
 	void onNotificationClosed(quint32 id, quint32 reason);
 	void enableVibration();
@@ -37,12 +37,12 @@ private:
 	{
 		QPointer<QObject> sender;
 		QString body;
-		QList<QVariant> data;
+		QList<QPointer<qutim_sdk_0_3::Notification> > notifications;
+		QMultiHash<QString, qutim_sdk_0_3::NotificationAction> actions;
 	};
-	void ignore(NotificationData &notification);
+	void ignore(NotificationData &data);
 private:
 	QScopedPointer<org::freedesktop::Notifications> interface;
-	int m_showFlags;
 	QHash<quint32, NotificationData> m_notifications;
 	QHash<QObject*, quint32> m_ids;
 	QDBusInterface *mDbusInterface;

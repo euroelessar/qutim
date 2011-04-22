@@ -1,13 +1,13 @@
 #include "dbusbackend.h"
-#include <QTextDocument>
-#include <QVariant>
 #include <qutim/message.h>
 #include <qutim/buddy.h>
 #include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/messagesession.h>
-#include <QBuffer>
 #include <qutim/emoticons.h>
+#include <QTextDocument>
+#include <QVariant>
+#include <QBuffer>
 #include <QDBusPendingReply>
 
 #ifdef Q_WS_MAEMO_5
@@ -91,83 +91,47 @@ DBusBackend::DBusBackend() :
 				this, SLOT(onNotificationClosed(quint32,quint32)));
 
 	enableVibration();
-	
-	loadSettings();
 }
 
-void DBusBackend::show(qutim_sdk_0_3::Notification::Type type, QObject* sender, const QString& body,
-					   const QVariant& data)
+void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
-	if(!(m_showFlags & type))
-		return;
-	QString text = Qt::escape(body);
-	QString sender_id = sender ? sender->property("id").toString() : QString();
-	QString sender_name = sender ? sender->property("name").toString() : QString();
-	if(sender_name.isEmpty())
-		sender_name = sender_id;
-	QString title = Notifications::toString(type).arg(sender_name);
-	QList<QVariant> dataList;
+	ref(notification);
+	NotificationRequest request = notification->request();
+	NotificationData data;
 
-	QString icon;
-	if (data.canConvert<Message>() && (type & (Notification::OutgoingMessage | Notification::IncomingMessage))) {
-		const Message &msg = data.value<qutim_sdk_0_3::Message>();
-		title = qutim_sdk_0_3::Notifications::toString(type).arg(msg.chatUnit()->title());
-		if (const Buddy *b = qobject_cast<const Buddy*>(msg.chatUnit()))
-			icon = b->avatar();
-	} else if (data.canConvert<QString>()) {
-		title = data.toString();
-	}
-	if(sender && icon.isEmpty())
-		icon = sender->property("avatar").toString();
-	if (!icon.isEmpty() && QFileInfo(icon).exists()) {
-		QUrl url(icon);
-		url.setScheme(QLatin1String("file"));
-		icon = url.toString();
-	} else {
-		icon = QString();
-	}
-	//if (!icon.isEmpty()) {
-	//	text = QLatin1String("<image alt=\"avatar\" src=\"file://") + icon + QLatin1String("\"/>");
-	//}
-
-	QStringList actions;
-	if (m_capabilities.contains(QLatin1String("actions"))) {
-		if (type & Notification::OutgoingMessage ||
-				type & Notification::IncomingMessage ||
-				type & Notification::ChatIncomingMessage ||
-				type & Notification::ChatOutgoingMessage ||
-				type & Notification::UserTyping ||
-				type & Notification::UserChangedStatus ||
-				type & Notification::BlockedMessage)
-		{
-			actions << "openChat" << tr("Open chat")
-					<< "ignore" << tr("Ignore");
-		} else if (qobject_cast<QWidget *>(sender)) {
-			actions << "open" << tr("Open");
-		}
-	}
+	QString text = Qt::escape(request.text());
 
 	QVariantMap hints;
-	if (!icon.isNull()) {
-		DBusNotifyImageData imageData = { QPixmap(icon) };
+	if (!request.image().isNull()) {
+		DBusNotifyImageData imageData = { request.image() };
 		hints["image_data"] = qVariantFromValue(imageData);
 	}
 	hints["desktop-entry"] = QLatin1String("qutim");
-	hints["sound-file"] = Sound::theme().path(type);
+	hints["sound-file"] = Sound::theme().path(request.type());
 
-	int id = m_ids.value(sender, 0);
+	int id = m_ids.value(request.object(), 0);
 	if (id != 0) {
-		NotificationData notification = m_notifications.value(id);
+		data = m_notifications.value(id);
 #ifndef QUTIM_MOBILE_UI
-		text = notification.body + "\n" + text;
+		data.body = data.body + "\n" + text;
 #else
-		text = text + "\n" + notification.body;
+		data.body = text + "\n" + data.body;
 #endif
-		dataList = notification.data;
+	} else {
+		data.sender = request.object();
+		data.body = text;
 	}
-	dataList << data;
 
-	icon = QLatin1String("qutim");
+	data.notifications << notification;
+
+	QStringList actions;
+	if (m_capabilities.contains(QLatin1String("actions"))) {
+		foreach (const NotificationAction &action, request.actions()) {
+			QString name = action.title().original();
+			data.actions.insert(name, action);
+			actions << name << action.title();
+		}
+	}
 
 #ifndef QUTIM_MOBILE_UI
 	int timeout = 5000;
@@ -178,8 +142,8 @@ void DBusBackend::show(qutim_sdk_0_3::Notification::Type type, QObject* sender, 
 	QDBusPendingReply<uint> reply = interface->Notify(
 				QCoreApplication::applicationName(),
 				id,
-				icon, //QString(), //QLatin1String("qutim"),
-				title,
+				QLatin1String("qutim"),
+				request.title(),
 				text,
 				actions,
 				hints,
@@ -187,10 +151,9 @@ void DBusBackend::show(qutim_sdk_0_3::Notification::Type type, QObject* sender, 
 
 	vibrate(50);
 
-	NotificationData notification = { sender, text, dataList };
 	quint32 newId = reply.value();
-	m_notifications.insert(newId, notification);
-	m_ids.insert(sender, newId);
+	m_notifications.insert(newId, data);
+	m_ids.insert(request.object(), newId);
 	if (id != newId)
 		m_notifications.remove(id);
 
@@ -199,6 +162,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notification::Type type, QObject* sender, 
 	//	connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
 	//			SLOT(callFinished(QDBusPendingCallWatcher*)));
 }
+
 
 DBusBackend::~DBusBackend()
 {
@@ -220,59 +184,38 @@ void DBusBackend::capabilitiesCallFinished(QDBusPendingCallWatcher* watcher)
 	m_capabilities = QSet<QString>::fromList(reply.argumentAt<0>());
 }
 
-void DBusBackend::loadSettings()
+void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 {
-	Config behavior = Config("behavior").group("notifications/popups");
-	m_showFlags = behavior.value("showFlags", 0xfffffff &~ Notification::ChatOutgoingMessage);
+	NotificationData data = m_notifications.value(id);
+	foreach (const NotificationAction &action, data.actions.values(name))
+		action.trigger();
 }
 
-void DBusBackend::onActionInvoked(quint32 id, const QString &action)
+inline void DBusBackend::ignore(NotificationData &data)
 {
-	NotificationData notification = m_notifications.value(id);
-	QPointer<QObject> sender = notification.sender;
-	if (action == "openChat" || action == "default") {
-		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
-		if (unit) {
-			ChatUnit *metaContact = unit->metaContact();
-			if (metaContact)
-				unit = metaContact;
-			ChatLayer::get(unit,true)->activate();
-		}
-	} else if (action == "ignore") {
-		ignore(notification);
-	} else if (action == "open") {
-		if (QWidget *widget = qobject_cast<QWidget *>(sender))
-			widget->raise();
-	}
-}
-
-void DBusBackend::ignore(NotificationData &notification)
-{
-	ChatUnit *unit = qobject_cast<ChatUnit *>(notification.sender);
-	ChatSession *sess;
-	if (unit && (sess = ChatLayer::get(unit,false))) {
-		foreach (const QVariant &data, notification.data) {
-			if (data.canConvert<Message>())
-				sess->markRead(data.value<Message>().id());
-		}
-	}
+	Q_UNUSED(data);
+	/*foreach (const QPointer<Notification> &notification, data.notifications)
+		if (notification)
+			notification->ignore();*/
 }
 
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 {
 	/*
-  The reasons:
-  1 - The notification expired.
-  2 - The notification was dismissed by the user.
-  3 - The notification was closed by a call to CloseNotification.
-  4 - Undefined/reserved reasons.
- */
+	  The reasons:
+	  1 - The notification expired.
+	  2 - The notification was dismissed by the user.
+	  3 - The notification was closed by a call to CloseNotification.
+	  4 - Undefined/reserved reasons.
+	 */
 
 	QHash<quint32, NotificationData>::iterator itr = m_notifications.find(id);
 	if (itr != m_notifications.end()) {
 		if (reason == 2)
 			ignore(*itr);
 		m_ids.remove(itr->sender);
+		foreach (QPointer<Notification> notification, itr->notifications)
+			deref(notification.data());
 		m_notifications.erase(itr);
 	}
 }
