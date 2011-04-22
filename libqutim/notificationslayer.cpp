@@ -98,16 +98,16 @@ void send(Notification::Type type, QObject *sender,
 		p->popupBackend->show(type, sender, body, data);
 
 	//new backends
-	//hack for messages
+	Notification *notification = 0;
 	if (data.canConvert<Message>()) {
-		Notification::send(data.value<Message>());
+		notification = Notification::send(data.value<Message>());
 	} else {
 		NotificationRequest request(type);
 		request.setObject(sender);
 		request.setText(body);
-		request.setTitle(QObject::tr("Notify"));
-		request.send();
-	}
+		request.setTitle(Notification::typeString(type));
+		notification = request.send();
+	}	
 }
 
 
@@ -358,7 +358,9 @@ void setTheme(const SoundTheme &theme)
 
 void SoundHandler::handleNotification(Notification *notification)
 {
+	ref(notification);
 	Sound::play(notification->request().type());
+	deref(notification);
 }
 
 }

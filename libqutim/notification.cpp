@@ -245,6 +245,8 @@ Notification *NotificationRequest::send()
 	Notification *notification = new Notification(*this);
 	foreach (NotificationBackend *backend, *backendList())
 		backend->handleNotification(notification);
+
+	//TODO ref and deref impl
 	return notification;
 }
 
@@ -265,7 +267,8 @@ void NotificationBackend::ref(Notification *notification)
 
 void NotificationBackend::deref(Notification *notification)
 {
-	notification->d_func()->ref.deref();
+	if (!notification->d_func()->ref.deref())
+		emit notification->finished();
 }
 
 } // namespace qutim_sdk_0_3
