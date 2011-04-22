@@ -56,18 +56,11 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController QTextObjectInterface)
 public:
-	struct Token
-	{
-		QStringRef text;
-		QString url;
-	};
-
     TextViewController();
 	virtual ~TextViewController();
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
-	QList<Token> makeUrls(const QString &html);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
 	virtual QString quote();

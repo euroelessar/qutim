@@ -18,6 +18,15 @@ namespace AdiumChat
 class ChatSessionImpl;
 class ChatViewWidget;
 class ChatViewController;
+
+struct UrlToken
+{
+	QStringRef text;
+	QString url;
+};
+
+typedef QList<UrlToken> UrlTokenList;
+
 class ADIUMCHAT_EXPORT ChatViewFactory : public QObject
 {
 	Q_OBJECT
@@ -28,6 +37,7 @@ public:
 	virtual QWidget *createViewWidget() = 0;
 	virtual QObject *createViewController() = 0;
 	static ChatViewFactory *instance();
+	static UrlTokenList parseUrls(const QString &text);
 };
 
 class ChatViewWidget

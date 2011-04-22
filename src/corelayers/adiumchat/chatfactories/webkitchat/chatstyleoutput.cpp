@@ -629,32 +629,47 @@ void ChatStyleOutput::makeUrls(QString &html,const Message& message)
 				urls.append(list.at(i).toUrl());
 		}
 	}
+	if (urls.isEmpty())
+		return;
 	QList<QUrl>::const_iterator it;
-	for (it=urls.constBegin();it!=urls.constEnd();it++) {
-		html = html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
-	}
+	const QString urlTemplate(QLatin1String("<br /><a href=\"%1\">%2</a>"));
+	for (it=urls.constBegin();it!=urls.constEnd();it++)
+		html.append(urlTemplate.arg(it->toEncoded(),it->toString()));
 }
 
 void ChatStyleOutput::makeUrls(QString &html)
 {
-	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
-							  Qt::CaseInsensitive);
-	Q_ASSERT(linkRegExp.isValid());
-	int pos = 0;
-	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
-	{
-		QString link = linkRegExp.cap(0);
-		QString tmplink = link;
-		if (tmplink.toLower().startsWith("www."))
-			tmplink.prepend("http://");
-		else if(!tmplink.contains("//"))
-			tmplink.prepend("mailto:");
-		static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
-		tmplink = hrefTemplate.arg(tmplink, link);
-		html.replace(pos, link.length(), tmplink);
-		pos += tmplink.count();
+	const QString hrefTemplate(QLatin1String("<a href='%1' target='_blank'>%2</a>"));
+	QString result;
+	foreach (const UrlToken &token, ChatViewFactory::parseUrls(html)) {
+		if (token.url.isEmpty()) {
+			result += token.text.toString();
+		} else {
+			QByteArray url = QUrl::fromUserInput(token.url).toEncoded();
+			result += hrefTemplate.arg(QString::fromLatin1(url, url.size()), token.text.toString());
+		}
 	}
+	html = result;
+	
+	
+//	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+//							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+//							  Qt::CaseInsensitive);
+//	Q_ASSERT(linkRegExp.isValid());
+//	int pos = 0;
+//	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
+//	{
+//		QString link = linkRegExp.cap(0);
+//		QString tmplink = link;
+//		if (tmplink.toLower().startsWith("www."))
+//			tmplink.prepend("http://");
+//		else if(!tmplink.contains("//"))
+//			tmplink.prepend("mailto:");
+//		static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
+//		tmplink = hrefTemplate.arg(tmplink, link);
+//		html.replace(pos, link.length(), tmplink);
+//		pos += tmplink.count();
+//	}
 }
 
 bool ChatStyleOutput::shouldHighlight(const Message &msg)

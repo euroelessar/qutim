@@ -177,47 +177,6 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 	cursor.endEditBlock();
 }
 
-QList<TextViewController::Token> TextViewController::makeUrls(const QString &html)
-{
-	QList<Token> result;
-	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
-							  Qt::CaseInsensitive);
-
-	Q_ASSERT(linkRegExp.isValid());
-	int pos = 0;
-	int lastPos = 0;
-	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
-	{
-		Token tok = { html.midRef(lastPos, pos - lastPos), QString() };
-		if (!tok.text.isEmpty()) {
-			if (!result.isEmpty() && result.last().url.isEmpty()) {
-				QStringRef tmp = result.last().text;
-				result.last().text = QStringRef(tmp.string(), tmp.position(), tmp.size() + tok.text.size());
-			} else {
-				result << tok;
-			}
-		}
-		QString link = linkRegExp.cap(0);
-		tok.text = html.midRef(pos, link.size());
-		pos += link.size();
-		if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))
-			link.prepend(QLatin1String("http://"));
-		else if(!link.contains(QLatin1String("//")))
-			link.prepend(QLatin1String("mailto:"));
-		tok.url = link;
-		result << tok;
-		lastPos = pos;
-	}
-	if (!result.isEmpty() && result.last().url.isEmpty()) {
-		result.last().text = html.midRef(result.last().text.position());
-	} else {
-		Token tok = { html.midRef(lastPos), QString() };
-		result << tok;
-	}
-	return result;
-}
-
 void TextViewController::appendText(QTextCursor &cursor, const QString &text,
                                     const QTextCharFormat &format, bool emo)
 {
@@ -225,7 +184,7 @@ void TextViewController::appendText(QTextCursor &cursor, const QString &text,
 	urlFormat.setForeground(m_urlColor);
 	urlFormat.setFontUnderline(true);
 	urlFormat.setAnchor(true);
-	foreach (const Token &textToken, makeUrls(text)) {
+	foreach (const UrlToken &textToken, ChatViewFactory::parseUrls(text)) {
 		if (!textToken.url.isEmpty()) {
 			urlFormat.setAnchorHref(textToken.url);
 			cursor.insertText(textToken.text.toString(), urlFormat);
