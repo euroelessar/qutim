@@ -105,7 +105,6 @@ void send(Notification::Type type, QObject *sender,
 		NotificationRequest request(type);
 		request.setObject(sender);
 		request.setText(body);
-		request.setTitle(Notification::typeString(type));
 		notification = request.send();
 	}	
 }

@@ -19,17 +19,50 @@
 #include "chatunit.h"
 #include "chatsession.h"
 #include <QMetaEnum>
+#include <QMetaMethod>
+#include <QMultiMap>
 
 namespace qutim_sdk_0_3 {
 
 typedef QList<NotificationBackend*> NotificationBackendList;
 Q_GLOBAL_STATIC(NotificationBackendList, backendList)
 
+typedef QHash<Notification::Type, NotificationAction> ActionHash;
+Q_GLOBAL_STATIC(ActionHash, globalActions)
+
+typedef QMultiMap<int, NotificationFilter*> HandlerMap;
+Q_GLOBAL_STATIC(HandlerMap, handlers)
+
 class NotificationPrivate
 {
 public:
 	NotificationRequest request;
 	QAtomicInt ref;
+};
+
+class NotificationRequestPrivate : public DynamicPropertyData
+{
+public:
+	NotificationRequestPrivate() : DynamicPropertyData() {}
+	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
+		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
+		title(o.title), type(o.type), actions(o.actions) {}
+	QObject *object;
+	QPixmap pixmap;
+	QString text;
+	QString title;
+	Notification::Type type;
+	QList<NotificationAction> actions;
+};
+
+class NotificationActionPrivate : public QSharedData
+{
+public:
+	QIcon icon;
+	LocalizedString title;
+	QPointer<QObject> receiver;
+	QByteArray method;
+	QPointer<Notification> notification;
 };
 
 Notification *Notification::send(const Message &msg)
@@ -43,6 +76,13 @@ Notification::Notification(const NotificationRequest &request) :
 {
 	Q_D(Notification);
 	d->request = request;
+
+	QList<NotificationAction> &actions = d->request.d_ptr->actions;
+	QList<NotificationAction>::iterator itr = actions.begin();
+	while (itr != actions.end()) {
+		itr->d->notification = this;
+		++itr;
+	}
 }
 
 Notification::~Notification()
@@ -94,20 +134,89 @@ LocalizedString Notification::typeString(Type type)
 	return strings[index];
 }
 
-class NotificationRequestPrivate : public DynamicPropertyData
+NotificationAction::NotificationAction(const QIcon &icon, const LocalizedString &title,
+									   QObject *receiver, const char *method) :
+	d(new NotificationActionPrivate)
 {
-public:
-	NotificationRequestPrivate() : DynamicPropertyData() {}
-	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
-		DynamicPropertyData(o), object(o.object),pixmap(o.pixmap),text(o.text),
-		title(o.title),type(o.type) {}
-	QObject *object;
-	QPixmap pixmap;
-	QString text;
-	QString title;
-	Notification::Type type;
-	QList<const ActionGenerator*> actions;
-};
+	d->icon = icon;
+	d->title = title;
+	d->receiver = receiver;
+	d->method = method;
+}
+
+NotificationAction::NotificationAction(const LocalizedString &title,
+									   QObject *receiver, const char *method) :
+	d(new NotificationActionPrivate)
+{
+	d->title = title;
+	d->receiver = receiver;
+	d->method = method;
+}
+
+NotificationAction::NotificationAction(const NotificationAction &action) :
+	d(action.d)
+{
+}
+
+NotificationAction::~NotificationAction()
+{
+}
+
+const NotificationAction &NotificationAction::operator=(const NotificationAction &rhs)
+{
+	this->d = rhs.d;
+	return *this;
+}
+
+QIcon NotificationAction::icon() const
+{
+	return d->icon;
+}
+
+LocalizedString NotificationAction::title() const
+{
+	return d->title;
+}
+
+QObject *NotificationAction::receiver() const
+{
+	return d->receiver;
+}
+
+const char *NotificationAction::method() const
+{
+	return d->method.constData();
+}
+
+void NotificationAction::trigger() const
+{
+	if (!d->receiver || !d->notification)
+		return;
+
+	const QMetaObject *meta = d->receiver->metaObject();
+	const char *name = d->method.constData();
+	const char type = name[0];
+	++name;
+
+	int index;
+	switch (type) {
+	case '0':
+		index = meta->indexOfMethod(name);
+		break;
+	case '1':
+		index = meta->indexOfSlot(name);
+		break;
+	case '2':
+		index = meta->indexOfSignal(name);
+		break;
+	default:
+		break;
+	}
+
+	if (index != -1)
+		meta->method(index).invoke(d->receiver,
+								   Q_ARG(NotificationRequest, d->notification->request()));
+}
 
 namespace CompiledProperty
 {
@@ -134,6 +243,15 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 {
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
+
+#if 1
+	// TODO: remove that workaround when chat layer will be ported to new notification API
+	QVariant service = msg.property("service");
+	if (service.type() == QVariant::Int)
+		d_ptr->type = static_cast<Notification::Type>(service.toInt());
+	else
+#endif
+
 	if (ChatLayer::get(msg.chatUnit(), false))
 		d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
 										 Notification::ChatOutgoingMessage;
@@ -225,22 +343,34 @@ void NotificationRequest::setProperty(const char *name, const QVariant &value)
 	d_ptr->setProperty(name, value, CompiledProperty::names, CompiledProperty::setters);
 }
 
-void NotificationRequest::addAction(const ActionGenerator *action)
+void NotificationRequest::addAction(const NotificationAction &action_helper)
 {
+	NotificationAction action = action_helper;
+	d_ptr->actions.push_back(action);
 }
 
-void NotificationRequest::addAction(Notification::Type type, const ActionGenerator *action)
+void NotificationRequest::addAction(Notification::Type type, const NotificationAction &action)
 {
+	globalActions()->insert(type, action);
 }
 
-QList<const ActionGenerator *> NotificationRequest::actions() const
+QList<NotificationAction> NotificationRequest::actions() const
 {
-	return d_ptr->actions;
+	QList<NotificationAction> actions = d_ptr->actions;
+	actions += globalActions()->values(d_ptr->type);
+	return actions;
 }
 
 Notification *NotificationRequest::send()
 {
-	//TODO Notification handlers
+	HandlerMap::iterator itr = handlers()->end();
+	HandlerMap::iterator begin = handlers()->begin();
+	while (itr != begin) {
+		--itr;
+		NotificationFilter::Result res = (*itr)->filter(*this);
+		if (res  == NotificationFilter::Error || res  == NotificationFilter::Reject)
+			return 0;
+	}
 
 	Notification *notification = new Notification(*this);
 	foreach (NotificationBackend *backend, *backendList())
@@ -248,6 +378,28 @@ Notification *NotificationRequest::send()
 
 	//TODO ref and deref impl
 	return notification;
+}
+
+NotificationFilter::~NotificationFilter()
+{
+
+}
+
+void NotificationFilter::registerFilter(NotificationFilter *handler, int priority)
+{
+	handlers()->insert(priority, handler);
+}
+
+void NotificationFilter::unregisterFilter(NotificationFilter *handler)
+{
+	HandlerMap::iterator itr = handlers()->begin();
+	HandlerMap::iterator end = handlers()->end();
+	while (itr != end) {
+		if (*itr == handler)
+			itr = handlers()->erase(itr);
+		else
+			break;
+	}
 }
 
 NotificationBackend::NotificationBackend()

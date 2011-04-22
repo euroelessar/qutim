@@ -29,6 +29,7 @@ class NotificationBackend;
 class NotificationPrivate;
 class NotificationRequest;
 class NotificationRequestPrivate;
+class NotificationActionPrivate;
 class Message;
 
 class LIBQUTIM_EXPORT Notification : public QObject
@@ -71,6 +72,26 @@ protected:
 	friend class NotificationBackend;
 };
 
+class LIBQUTIM_EXPORT NotificationAction
+{
+public:
+	NotificationAction(const QIcon &icon, const LocalizedString &title,
+					   QObject *receiver, const char *method);
+	NotificationAction(const LocalizedString &title,
+					   QObject *receiver, const char *method);
+	NotificationAction(const NotificationAction &action);
+	~NotificationAction();
+	const NotificationAction &operator=(const NotificationAction &rhs);
+	QIcon icon() const;
+	LocalizedString title() const;
+	QObject *receiver() const;
+	const char *method() const;
+	void trigger() const;
+private:
+	friend class Notification;
+	QSharedDataPointer<NotificationActionPrivate> d;
+};
+
 class LIBQUTIM_EXPORT NotificationRequest
 {
 public:
@@ -98,14 +119,15 @@ public:
 	T property(const char *name, const T &def) const
 	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }
 	void setProperty(const char *name, const QVariant &value);
-	void addAction(const ActionGenerator *action);
-	static void addAction(Notification::Type type, const ActionGenerator *action);
-	QList<const ActionGenerator *> actions() const;
+	void addAction(const NotificationAction &action);
+	static void addAction(Notification::Type type, const NotificationAction &action);
+	QList<NotificationAction> actions() const;
 private:
+	friend class Notification;
 	QSharedDataPointer<NotificationRequestPrivate> d_ptr;
 };
 
-class LIBQUTIM_EXPORT NotificationHandler
+class LIBQUTIM_EXPORT NotificationFilter
 {
 public:
 	enum Result
@@ -120,14 +142,14 @@ public:
 		NormalPriortity   = 0x00010000,
 		HighPriority      = 0x01000000
 	};
-	virtual ~NotificationHandler();
+	virtual ~NotificationFilter();
 
-	static void registerHandler(NotificationHandler *handler,
+	static void registerFilter(NotificationFilter *handler,
 								int priority = NormalPriortity);
-	static void unregisterHandler(NotificationHandler *handler);
-	static Result handle(NotificationRequest &request);
+	static void unregisterFilter(NotificationFilter *handler);
 protected:
-	virtual Result doHandle() = 0;
+	friend class NotificationRequest;
+	virtual Result filter(NotificationRequest &request) = 0;
 };
 
 class LIBQUTIM_EXPORT NotificationBackend : public QObject
@@ -146,5 +168,6 @@ protected:
 } // namespace qutim_sdk_0_3
 
 //Q_ENUMS(qutim_sdk_0_3::Notification::Type)
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter");
 
 #endif // NOTIFICATION_H
