@@ -94,9 +94,9 @@ NotificationRequest Notification::request() const
 	return d_func()->request;
 }
 
-void Notification::close()
+void Notification::accept()
 {
-	emit finished();
+	emit accepted();
 	deleteLater();
 }
 
@@ -420,7 +420,7 @@ void NotificationBackend::ref(Notification *notification)
 void NotificationBackend::deref(Notification *notification)
 {
 	if (!notification->d_func()->ref.deref())
-		emit notification->finished();
+		notification->deleteLater();
 }
 
 } // namespace qutim_sdk_0_3

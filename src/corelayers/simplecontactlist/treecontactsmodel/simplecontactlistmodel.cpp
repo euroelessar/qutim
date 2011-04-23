@@ -134,7 +134,6 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 void TreeModel::addContact(Contact *contact)
 {
 	Q_D(TreeModel);
-	debug() << "add contact start";
 	//TODO implement more powerfull logic
 	//			if (!contact->isInList())
 	//				return;
@@ -203,7 +202,6 @@ void TreeModel::addContact(Contact *contact)
 			item_data->items.append(item);
 		}
 	}
-	debug() << "add end start";
 }
 
 bool TreeModel::containsContact(Contact *contact) const

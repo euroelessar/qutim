@@ -38,6 +38,7 @@ class LIBQUTIM_EXPORT Notification : public QObject
 	Q_DECLARE_PRIVATE(Notification)
 	Q_ENUMS(Type)
 public:
+	typedef QSharedPointer<Notification> Ptr; //FIXME find usable pointer!
 	enum Type
 	{
 		IncomingMessage			=	0x0001,
@@ -61,16 +62,16 @@ public:
 	NotificationRequest request() const;
 	static LocalizedString typeString(Type type);
 public slots:
-	void close();
+	void accept();
 signals:
-	void ignored();
-	void finished();
+	void accepted();
 protected:
 	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
 	friend class NotificationRequest;
 	friend class NotificationBackend;
 };
+typedef QList<Notification*> NotificationList;
 
 class LIBQUTIM_EXPORT NotificationAction
 {
@@ -159,6 +160,7 @@ class LIBQUTIM_EXPORT NotificationBackend : public QObject
 public:
 	NotificationBackend();
 	virtual ~NotificationBackend();
+	//TODO rewrite on Notification::Ptr
 	virtual void handleNotification(Notification *notification) = 0;
 protected:
 	void ref(Notification *notification);
