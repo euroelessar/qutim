@@ -29,6 +29,7 @@ void PackageManagerPlugin::init()
 	        QT_TRANSLATE_NOOP("Plugin", "Provides possibility to Get Hot New Stuff from open community"),
 	        PLUGIN_VERSION(0, 0, 0, 1),
 	        ExtensionIcon());
+	setCapabilities(Loadable);
 	addAuthor(QLatin1String("euroelessar"));
 //	addAuthor(QLatin1String("sauron"));
 }

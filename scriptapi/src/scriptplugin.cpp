@@ -32,6 +32,7 @@ void ScriptPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Script API"),
 			QT_TRANSLATE_NOOP("Plugin", "Added ability to create plugins at JavaScript"),
 			PLUGIN_VERSION(0, 0, 1, 0), ExtensionIcon("network-wireless"));
+	setCapabilities(Loadable);
 }
 
 bool ScriptPlugin::load()

@@ -77,6 +77,7 @@ void ScriptPluginWrapper::init()
 			qscriptvalue_cast<LocalizedString>(plugin.property("description")),
 			plugin.property("value").toInt32(),
 			ExtensionIcon(plugin.property("icon").toString()));
+	setCapabilities(Loadable);
 	QScriptValue authors = plugin.property("authors");
 	int length = authors.property(QLatin1String("length")).toInt32();
 	for (int i = 0; i < length; i++) {

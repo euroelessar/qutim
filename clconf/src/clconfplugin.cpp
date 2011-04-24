@@ -33,6 +33,7 @@ void ClConfPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Plugin adds your conferences to the contact list"),
 			PLUGIN_VERSION(0, 0, 1, 0),
 			ExtensionIcon());
+	setCapabilities(Loadable);
 }
 
 bool ClConfPlugin::load()

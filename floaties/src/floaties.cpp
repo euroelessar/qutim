@@ -32,6 +32,7 @@ void FloatiesPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of floaty contacts"),
 			PLUGIN_VERSION(0, 2, 0, 0),
 			ExtensionIcon("bookmark-new"));
+	setCapabilities(Loadable);
 	m_eventId = Event::registerType("contact-list-drop");
 	m_model = 0;
 //	m_action = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Floaties", "Remove from Desktop"),

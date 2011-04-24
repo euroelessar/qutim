@@ -55,6 +55,7 @@ void EmoEditPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Add emoticons to text edit widget"),
 			PLUGIN_VERSION(0, 0, 1, 0),
 			ExtensionIcon());
+	setCapabilities(Loadable);
 	m_inParsingState = false;
 }
 

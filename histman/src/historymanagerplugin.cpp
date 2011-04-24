@@ -30,6 +30,7 @@ void HistoryManagerPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Plugin makes possible to import history to qutIM from different messengers"),
 			PLUGIN_VERSION(0, 2, 0, 0),
 			ExtensionIcon("view-history"));
+	setCapabilities(Loadable);
 }
 
 bool HistoryManagerPlugin::load()

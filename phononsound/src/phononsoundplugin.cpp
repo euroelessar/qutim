@@ -26,6 +26,7 @@ void PhononSoundPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on KDE sound engine"),
 			PLUGIN_VERSION(0, 1, 0, 0),
 			ExtensionIcon());
+	setCapabilities(Loadable);
 	addExtension<PhononSoundBackend>(
 			QT_TRANSLATE_NOOP("Plugin", "Phonon sound engine"),
 			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on KDE sound engine"),

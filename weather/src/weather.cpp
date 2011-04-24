@@ -30,6 +30,7 @@ void WeatherPlugin::init()
 				QT_TRANSLATE_NOOP("Plugin", "Plugin shows a current weather in your city."),
 				PLUGIN_VERSION( 0, 0, 1, 0 ),
 				ExtensionIcon( QIcon( ":/icons/weather.png" ) ) );
+	setCapabilities(Loadable);
 	ActionGenerator *gen = new ActionGenerator(QIcon(":/icons/weather.png"),
 											   QT_TRANSLATE_NOOP("Weather", "Get weather"),
 											   SLOT(getWeather()));

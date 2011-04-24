@@ -33,6 +33,7 @@ void AntiBossPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Plugin makes your chatting invisible for boss"),
 			PLUGIN_VERSION(0, 0, 1, 0),
 			ExtensionIcon());
+	setCapabilities(Loadable);
 	GlobalShortcut::registerSequence("antiboss",
 									 QT_TRANSLATE_NOOP("AntiBoss", "Show/hide all windows"),
 									 QT_TRANSLATE_NOOP("AntiBoss", "Antiboss"),

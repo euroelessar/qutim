@@ -29,6 +29,7 @@ void NowPlaying::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Now Playing"),
 			QT_TRANSLATE_NOOP("Plugin", "Now playing plugin"),
 			PLUGIN_VERSION(0, 1, 0, 0));
+	setCapabilities(Loadable);
 	addAuthor(QT_TRANSLATE_NOOP("Author","Kazlauskas Ian"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("nayzak90@googlemail.com"));

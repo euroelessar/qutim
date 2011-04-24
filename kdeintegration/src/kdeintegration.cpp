@@ -7,6 +7,7 @@
 #include "tray/kdetrayicon.h"
 #include "aboutkde/aboutkdedialog.h"
 #include "aboutapp/kdeaboutappdialog.h"
+#include "sysintegration/kdesystemintegration.h"
 #include "quetzalgui.h"
 #include <kdeversion.h>
 #include <KIcon>
@@ -78,6 +79,9 @@ void KdePlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "KDE integration"),
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
 			KDE_VERSION << 8, kdeIcon);
+	addExtension<KdeSystemIntegration>(QT_TRANSLATE_NOOP("Plugin", "KDE Integration"),
+	                                   QT_TRANSLATE_NOOP("Plugin", "Full-featured integration with KDE"),
+	                                   kdeIcon);
 	addExtension<KdeEmoticons>(QT_TRANSLATE_NOOP("Plugin", "KDE Emoticons"),
 							   QT_TRANSLATE_NOOP("Plugin", "Using KDE emoticons packs"),
 							   kdeIcon);

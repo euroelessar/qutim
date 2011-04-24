@@ -144,6 +144,7 @@ void DBusPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "DBus API"),
 			QT_TRANSLATE_NOOP("Plugin", "Added ability to control qutIM by DBus"),
 			PLUGIN_VERSION(0, 0, 1, 0), ExtensionIcon("network-wireless"));
+	setCapabilities(Loadable);
 }
 
 bool DBusPlugin::load()
