@@ -19,6 +19,7 @@
 #include "icq_global.h"
 #include "util.h"
 #include "icqaccount.h"
+#include "buddycaps.h"
 #include <qutim/icon.h>
 #include "ui/icqmainsettings.h"
 #include "ui/icqaccountmainsettings.h"
@@ -115,8 +116,9 @@ void IcqProtocol::addAccount(IcqAccount *account)
 void IcqProtocol::updateSettings()
 {
 	Q_D(IcqProtocol);
+	Config cfg = config("general");
 	QString localeCodecName = QLatin1String(QTextCodec::codecForLocale()->name());
-	QString codecName = config("general").value("codec", localeCodecName);
+	QString codecName = cfg.value("codec", localeCodecName);
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	Util::setAsciiCodec(codec ? codec : QTextCodec::codecForLocale());
 	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)

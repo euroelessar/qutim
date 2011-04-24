@@ -152,9 +152,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->caps.append(ICQ_CAPABILITY_SRVxRELAY);
 	// Short capability support
 	d->caps.append(ICQ_CAPABILITY_SHORTCAPS);
-	// AIM contacts support
-	if (Config().value("aimContacts", true))
-		d->caps.append(ICQ_CAPABILITY_AIM_SUPPORT);
 
 	// qutIM version info
 	DataUnit version;
@@ -431,6 +428,11 @@ void IcqAccount::updateSettings()
 	Q_D(IcqAccount);
 	Config cfg = config("general");
 	d->name = cfg.value("nick", QString());
+	// AIM contacts support
+	if (cfg.value("aimContacts", false))
+		setCapability(ICQ_CAPABILITY_AIM_SUPPORT, "aimContacts");
+	else
+		removeCapability("aimContacts");
 	emit settingsUpdated();
 }
 

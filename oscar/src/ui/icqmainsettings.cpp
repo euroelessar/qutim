@@ -148,7 +148,7 @@ void IcqMainSettings::loadImpl()
 		subitem.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
 									!general.value("avatars", true)));
 		subitem.addSubitem(DataItem("aimContacts", tr("Support AIM contacts"),
-									!general.value("aimContacts", true)));
+									general.value("aimContacts", false)));
 		item.addSubitem(subitem);
 	}
 	foreach (SettingsExtension *extension, settingsExtensions())
