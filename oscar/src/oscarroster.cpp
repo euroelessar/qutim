@@ -299,7 +299,7 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
 		statusId = status_data.read<quint16>();
-		if (!status.setStatusFlag(statusId))
+		if (!status.setStatusFlag(statusId & 0x0fff))
 			status.setStatusType(Status::Online);
 	} else {
 		status.setStatusType(Status::Online);
