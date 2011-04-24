@@ -167,7 +167,7 @@ QuetzalAccount::QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol
 	m_account = account;
 	m_account->ui_data = this;
 	fillStatusActions();
-	setContactsFactory(new QuetzalContactsFactory(this));
+//	setContactsFactory(new QuetzalContactsFactory(this));
 	if (!purple_account_get_enabled(m_account, "qutim"))
 		purple_account_set_enabled(m_account, "qutim", TRUE);
 //	purple_accounts_add(account);
@@ -225,6 +225,11 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 //		purple_account_connect(m_account);
 //	} else
 //		purple_account_set_enabled(m_account, "qutim", FALSE);
+}
+
+QuetzalAccount::~QuetzalAccount()
+{
+	QObject::d_ptr->metaObject = 0;
 }
 
 QuetzalContact *QuetzalAccount::createContact(const QString &id)

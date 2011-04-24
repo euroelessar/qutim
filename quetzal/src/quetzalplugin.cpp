@@ -75,8 +75,10 @@ void quetzal_create_conversation(PurpleConversation *conv)
 //	debug() << Q_FUNC_INFO << unit;
 	if (conv->type == PURPLE_CONV_TYPE_IM) {
 //		PurpleConvIm *data = purple_conversation_get_im_data(conv);
+		const char *id = conv->name;
 		PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(acc->purple()->gc->prpl);
-		const char *id = info->normalize(acc->purple(), conv->name);
+		if (info->normalize)
+			id = info->normalize(acc->purple(), conv->name);
 		unit = acc->getUnit(id, true);
 		ChatSession *session = ChatLayer::get(unit, true);
 		QuetzalConversationHandler::Ptr handler =
@@ -87,7 +89,7 @@ void quetzal_create_conversation(PurpleConversation *conv)
 			session->setProperty("quetzal_handler", qVariantFromValue(handler));
 		}
 		conv->ui_data = handler.data();
-		qDebug() << conv->name << info->normalize(acc->purple(), conv->name);
+//		qDebug() << conv->name << info->normalize(acc->purple(), conv->name);
 		handler->conversations << conv;
 //		unit = new QuetzalConversation(conv);
 	} else if (!unit) {

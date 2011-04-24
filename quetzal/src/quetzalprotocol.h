@@ -39,6 +39,7 @@ public:
     virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }
 	virtual QVariant data(DataType type);
+	virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
 	static QHash<PurplePlugin *, QuetzalProtocol *> &protocols()
 	{
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;
@@ -71,15 +72,6 @@ public:
 	virtual const QMetaObject *metaObject() const
 	{
 		return m_meta;
-	}
-	virtual const char *iid() const
-	{
-		return 0;
-	}
-	virtual bool hasInterface(const char *id) const
-	{
-		Q_UNUSED(id);
-		return false;
 	}
 	inline PurplePlugin *plugin() const { return m_protocol; }
 protected:

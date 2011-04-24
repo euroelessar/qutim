@@ -129,7 +129,7 @@ private:
 	void identify_NaimIcq();
 private:
 	IcqContact *m_contact;
-	Capabilities m_client_caps;
+	oscar::Capabilities m_client_caps;
 	quint16 m_client_proto;
 	quint32 m_info;
 	quint32 m_ext_info;
@@ -140,9 +140,9 @@ private:
 	QString m_client;
 
 private:
-	static const Capability ICQ_CAPABILITY_ICQJSINxVER;
-	static const Capability ICQ_CAPABILITY_ICQJS7xVER;
-	static const Capability ICQ_CAPABILITY_SIMxVER;
+	static const oscar::Capability ICQ_CAPABILITY_ICQJSINxVER;
+	static const oscar::Capability ICQ_CAPABILITY_ICQJS7xVER;
+	static const oscar::Capability ICQ_CAPABILITY_SIMxVER;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ClientIdentify::CapabilityFlags);

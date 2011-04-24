@@ -14,6 +14,7 @@ void VPhotoAlbumPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Photoalbum"),
 			QT_TRANSLATE_NOOP("Plugin", "Vkontakte photoalbum support for qutIM"),
 			PLUGIN_VERSION(0, 0, 1, 0));
+	setCapabilities(Loadable);
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("sauron@citadelspb.com"),

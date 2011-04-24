@@ -43,6 +43,7 @@ class QuetzalAccount : public Account
 public:
 	QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol);
 	QuetzalAccount(const QString &id, QuetzalProtocol *protocol);
+	~QuetzalAccount();
 	QuetzalContact *createContact(const QString &id);
 	virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
