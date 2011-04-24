@@ -18,7 +18,7 @@
 
 #include "xtraz.h"
 #include "messages.h"
-#include "roster.h"
+#include "oscarroster.h"
 #include "oscarstatus.h"
 #include <QXmlStreamReader>
 #include <qutim/plugin.h>

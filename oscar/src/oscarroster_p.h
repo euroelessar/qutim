@@ -17,7 +17,7 @@
 #ifndef ROSTER_P_H
 #define ROSTER_P_H
 
-#include "roster.h"
+#include "oscarroster.h"
 #include "snachandler.h"
 #include "icqcontact.h"
 #include "feedbag.h"

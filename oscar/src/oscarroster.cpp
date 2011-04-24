@@ -14,7 +14,7 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "roster_p.h"
+#include "oscarroster_p.h"
 #include "icqcontact_p.h"
 #include "icqaccount_p.h"
 #include "icqprotocol.h"
@@ -264,7 +264,7 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		//              2 = Enable offline status message notification
 		//              4 = Enable Avatars for offline contacts
 		//              8 = Use reject for not authorized contacts
-		snac.appendTLV<quint16>(0x05, 7);
+		//snac.appendTLV<quint16>(0x05, 7);
 		conn->send(snac);
 		break;
 	}
@@ -301,6 +301,8 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 		statusId = status_data.read<quint16>();
 		if (!status.setStatusFlag(statusId))
 			status.setStatusType(Status::Online);
+	} else {
+		status.setStatusType(Status::Online);
 	}
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));

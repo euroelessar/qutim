@@ -18,7 +18,7 @@
 #include "icqprotocol.h"
 #include "icqcontact_p.h"
 #include "oscarconnection.h"
-#include "roster_p.h"
+#include "oscarroster_p.h"
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "inforequest_p.h"
@@ -152,6 +152,9 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->caps.append(ICQ_CAPABILITY_SRVxRELAY);
 	// Short capability support
 	d->caps.append(ICQ_CAPABILITY_SHORTCAPS);
+	// AIM contacts support
+	if (Config().value("aimContacts", true))
+		d->caps.append(ICQ_CAPABILITY_AIM_SUPPORT);
 
 	// qutIM version info
 	DataUnit version;

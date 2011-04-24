@@ -147,6 +147,8 @@ void IcqMainSettings::loadImpl()
 		subitem.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
 		subitem.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
 									!general.value("avatars", true)));
+		subitem.addSubitem(DataItem("aimContacts", tr("Support AIM contacts"),
+									!general.value("aimContacts", true)));
 		item.addSubitem(subitem);
 	}
 	foreach (SettingsExtension *extension, settingsExtensions())
@@ -178,6 +180,7 @@ void IcqMainSettings::saveImpl()
 		if (codecName == systemCodec)
 			codecName = QTextCodec::codecForLocale()->name();
 		cfg.setValue("codec", codecName);
+		cfg.setValue("aimContacts", item.subitem("aimContacts").data<bool>());
 		cfg.endGroup();
 
 		m_extSettings->clearState();

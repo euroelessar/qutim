@@ -20,7 +20,7 @@
 #include <QList>
 #include <QByteArray>
 #include "capability.h"
-#include "roster.h"
+#include "oscarroster.h"
 #include <qutim/plugin.h>
 
 namespace qutim_sdk_0_3 {

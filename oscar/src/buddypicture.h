@@ -20,7 +20,7 @@
 #include "icqcontact.h"
 #include "snachandler.h"
 #include "feedbag.h"
-#include "roster.h"
+#include "oscarroster.h"
 
 namespace qutim_sdk_0_3 {
 
