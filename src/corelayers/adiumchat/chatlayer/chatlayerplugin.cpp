@@ -67,6 +67,7 @@ void ChatLayerPlugin::init()
 	LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer");
 	LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles");
 	setInfo(name, description, QUTIM_VERSION);
+	setCapabilities(Loadable);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
 	addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(
 				QT_TRANSLATE_NOOP("Plugin", "Time modifier"),

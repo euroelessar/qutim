@@ -104,11 +104,6 @@ protected:
 	{
 		return &AutoSettingsWidget::staticMetaObject;
 	}
-	virtual bool hasInterface(const char *id) const
-	{
-		Q_UNUSED(id);
-		return false;
-	}
 private:
 	AutoSettingsItemPrivate *p;
 	mutable QPointer<QObject> m_object;
@@ -167,11 +162,6 @@ protected:
 	virtual const QMetaObject *metaObject() const
 	{
 		return &DataSettingsWidget::staticMetaObject;
-	}
-	virtual bool hasInterface(const char *id) const
-	{
-		Q_UNUSED(id);
-		return false;
 	}
 private:
 	DataSettingsItemPrivate *p;

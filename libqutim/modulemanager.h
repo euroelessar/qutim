@@ -38,10 +38,9 @@ protected:
 	ModuleManager(QObject *parent = 0);
 	// Destructor
 	virtual ~ModuleManager();
-
-	// Fields
-	QMultiMap<Plugin *, ExtensionInfo> getExtensions(const QMetaObject *service_meta) const;
-	QMultiMap<Plugin *, ExtensionInfo> getExtensions(const char *interface_id) const;
+	
+	ExtensionInfoList extensions(const char *interfaceId) const;
+	ExtensionInfoList extensions(const QMetaObject *meta) const;
 
 	// Methods
 	void loadPlugins(const QStringList &additional_paths = QStringList());

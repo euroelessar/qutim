@@ -22,13 +22,8 @@ namespace qutim_sdk_0_3
 template<typename T>
 Q_INLINE_TEMPLATE T sender_cast(QObject *sender)
 {
-#ifdef QT_DEBUG
-	T t = qobject_cast<T>(sender);
-	Q_ASSERT(t);
-	return t;
-#else
-	return static_cast<T>(static_cast<void*>(sender));
-#endif
+	Q_ASSERT(qobject_cast<T>(sender));
+	return static_cast<T>(sender);
 }
 } //namespace qutim_sdk_0_3
 

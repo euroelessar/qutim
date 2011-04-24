@@ -2,7 +2,7 @@
  *
  *  This file is part of qutIM
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,33 +14,8 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef SYSTEMINTEGRATION_P_H
-#define SYSTEMINTEGRATION_P_H
+#ifndef EXTENSIONSEARCH_P_H
+#define EXTENSIONSEARCH_P_H
 
-#include "systemintegration.h"
 
-namespace qutim_sdk_0_3
-{
-	class DefaultSystemIntegration : public SystemIntegration
-	{
-	public:
-		DefaultSystemIntegration();
-		virtual ~DefaultSystemIntegration();
-		
-		virtual void init();
-		virtual bool isAvailable() const;
-		
-		virtual int priority();
-		
-		
-	protected:
-		virtual QVariant doGetValue(Attribute attr, const QVariant &data) const;
-		virtual QVariant doProcess(Operation act, const QVariant &data) const;
-		virtual bool canHandle(Attribute attribute) const;
-		virtual bool canHandle(Operation operation) const;
-		
-	private:
-		QList<SystemIntegration*> m_integrations;
-	};
-}
-#endif // SYSTEMINTEGRATION_P_H
+#endif // EXTENSIONSEARCH_P_H

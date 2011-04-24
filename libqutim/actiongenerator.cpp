@@ -297,10 +297,9 @@ const QMetaObject *ActionGenerator::metaObject() const
 	return &QAction::staticMetaObject;
 }
 
-bool ActionGenerator::hasInterface(const char *id) const
+QList<QByteArray> ActionGenerator::interfaces() const
 {
-	Q_UNUSED(id);
-	return false;
+	return QList<QByteArray>();
 }
 
 MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu) :

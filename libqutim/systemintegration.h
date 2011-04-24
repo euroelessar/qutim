@@ -22,8 +22,9 @@
 
 namespace qutim_sdk_0_3
 {
-class LIBQUTIM_EXPORT SystemIntegration
+class LIBQUTIM_EXPORT SystemIntegration : public QObject
 {
+	Q_OBJECT
 public:
 	enum Attribute {
 		UserLogin,
@@ -33,10 +34,16 @@ public:
 		TimeZone,
 		TimeZoneName,
 		TimeZoneShortName,
-		IconSize //default icon size
+		IconSize, //default icon size
+		CurrentProxyInfo
+	};
+	
+	enum Operation
+	{
+		ShowWidget
 	};
 
-	enum IconSize
+	enum IconSizeEnum
 	{
 		//By size
 		IconSizeSmall,
@@ -48,7 +55,6 @@ public:
 		IconSizeContactsView,
 		IconSizeListView,
 		IconSizeIconView
-
 	};
 
 	enum Priority
@@ -61,21 +67,23 @@ public:
 	SystemIntegration();
 	virtual ~SystemIntegration();
 
-	static SystemIntegration *instance();
-
 	virtual void init() = 0;
 	virtual bool isAvailable() const = 0;
-
 	virtual int priority() = 0;
+	
 	static void show(QWidget *widget);
-	virtual QVariant value(Attribute attr, const QVariant &data = QVariant()) const = 0;
-	//	virtual QVariant process(Operation act, const QVariantList &args = QVariantList()) const = 0;
+	static QVariant value(Attribute attr, const QVariant &data = QVariant());
+	static QVariant process(Operation act, const QVariant &data = QVariant());
 //	virtual void show(QWidget *widget);
+
 protected:
+	virtual QVariant doGetValue(Attribute attr, const QVariant &data) const = 0;
+	virtual QVariant doProcess(Operation act, const QVariant &data) const = 0;
+	virtual bool canHandle(Attribute attribute) const = 0;
+	virtual bool canHandle(Operation operation) const = 0;
 	virtual void virtual_hook(int, void *);
+	friend struct IntegrationData;
 };
 }
 
 #endif // SYSTEMINTEGRATION_H
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::SystemIntegration, "org.qutim.SystemIntegration")

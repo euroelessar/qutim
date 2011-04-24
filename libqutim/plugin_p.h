@@ -45,6 +45,9 @@ namespace qutim_sdk_0_3
 		LocalizedString name;
 		LocalizedString description;
 		quint32 version;
+		int inited : 1;
+		int loaded : 1;
+		PluginInfo::Capabilities capabilities;
 		ExtensionIcon icon;
 		QString fileName;
 	};
@@ -64,10 +67,9 @@ namespace qutim_sdk_0_3
 	class PluginPrivate
 	{
 	public:
-		PluginPrivate() : is_inited(false) {}
+		PluginPrivate() {}
 		PluginInfo info;
 		QList<ExtensionInfo> extensions;
-		bool is_inited;
 		// TODO: make method real
 		bool validate();
 	};

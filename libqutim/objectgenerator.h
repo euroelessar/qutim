@@ -88,24 +88,29 @@ namespace qutim_sdk_0_3
 		*/
 		template<typename T>
 		inline T *generate() const
-		{ return extends<T>() ? qobject_cast<T *>(generateHelper2()) : 0; }
-		/**
-		* @brief Generate object
-		*
-		* @param super Meta info of superiour class
-		* @return Generated object or null if object doesn't extends class
-		* represented by superiour meta info error
-		*/
-		inline QObject *generate(const QMetaObject *super) const
-		{ return extends(super) ? generateHelper2() : 0; }
-		/**
-		* @brief Generate object
-		*
-		* @param id Identification of needed interface
-		* @return Generated object or null if class doesn't implement interface
-		*/
-		inline QObject *generate(const char *id) const
-		{ return extends(id) ? generateHelper2() : 0; }
+		{
+			QObject *object = generateHelper2();
+			T *t = qobject_cast<T *>(object);
+			if (!t) delete object;
+			return t ? t : 0;
+		}
+//		/**
+//		* @brief Generate object
+//		*
+//		* @param super Meta info of superiour class
+//		* @return Generated object or null if object doesn't extends class
+//		* represented by superiour meta info error
+//		*/
+//		inline QObject *generate(const QMetaObject *super) const
+//		{ return extends(super) ? generateHelper2() : 0; }
+//		/**
+//		* @brief Generate object
+//		*
+//		* @param id Identification of needed interface
+//		* @return Generated object or null if class doesn't implement interface
+//		*/
+//		inline QObject *generate(const char *id) const
+//		{ return extends(id) ? generateHelper2() : 0; }
 		/**
 		* @brief QMetaObject class, which represents object with meta info
 		* of generator's object
@@ -119,7 +124,9 @@ namespace qutim_sdk_0_3
 		* @param id Identification of interface
 		* @return @b True if object implements interface, else @b false
 		*/
-		virtual bool hasInterface(const char *id) const = 0;
+		bool hasInterface(const char *id) const;
+		
+		virtual QList<QByteArray> interfaces() const;
 
 		// TODO: There should be a way for getting interfaces list
 //		virtual QList<const char *> interfaces() const = 0;
@@ -230,27 +237,29 @@ namespace qutim_sdk_0_3
 		* @param id Identification of interface
 		* @return @b True if any interface of I[0-9] has identification @b id
 		*/
-		virtual bool hasInterface(const char *id) const
+		virtual QList<QByteArray> interfaces() const
 		{
-			return checkInterface<I0>(id)
-			        | checkInterface<I1>(id)
-			        | checkInterface<I2>(id)
-			        | checkInterface<I3>(id)
-			        | checkInterface<I4>(id)
-			        | checkInterface<I5>(id)
-			        | checkInterface<I6>(id)
-			        | checkInterface<I7>(id)
-			        | checkInterface<I8>(id)
-			        | checkInterface<I9>(id);
+			QList<QByteArray> result;
+			addInterface<I0>(result);
+			addInterface<I1>(result);
+			addInterface<I2>(result);
+			addInterface<I3>(result);
+			addInterface<I4>(result);
+			addInterface<I5>(result);
+			addInterface<I6>(result);
+			addInterface<I7>(result);
+			addInterface<I8>(result);
+			addInterface<I9>(result);
+			return result;
 		}
 	private:
 		template<typename Interface>
-		Q_INLINE_TEMPLATE bool checkInterface(const char *id, T *pointer = 0) const
+		Q_INLINE_TEMPLATE void addInterface(QList<QByteArray> &result, T *pointer = 0) const
 		{
 			register Interface *i = pointer;
 			Q_UNUSED(i);
-			return qobject_interface_iid<Interface *>()
-			        && !qstrcmp(qobject_interface_iid<Interface *>(), id);
+			if (qobject_interface_iid<Interface*>())
+				result << qobject_interface_iid<Interface*>();
 		}
 	};
 

@@ -32,6 +32,13 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT PluginInfo
 	{
 	public:
+		// Keep in sync with Plugin::Capability
+		enum Capability
+		{
+			Loadable = 0x01
+		};
+		Q_DECLARE_FLAGS(Capabilities, Capability)
+		
 		PluginInfo(const LocalizedString &name = LocalizedString(),
 				   const LocalizedString &description = LocalizedString(),
 				   quint32 version = 0, ExtensionIcon icon = ExtensionIcon());
@@ -46,6 +53,8 @@ namespace qutim_sdk_0_3
 		PluginInfo &setDescription(const LocalizedString &description);
 		PluginInfo &setIcon(const ExtensionIcon &icon);
 		PluginInfo &setVersion(quint32 version);
+		Capabilities capabilities() const;
+		PluginInfo &setCapabilities(Capabilities capabilities);
 		QList<PersonInfo> authors() const;
 		LocalizedString name() const;
 		LocalizedString description() const;
@@ -88,6 +97,12 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(Plugin)
 		Q_DECLARE_PRIVATE(Plugin)
 	public:
+		// Keep in sync with PluginInfo::Capability
+		enum Capability
+		{
+			Loadable = 0x01
+		};
+		Q_DECLARE_FLAGS(Capabilities, Capability)
 		Plugin();
 		virtual ~Plugin();
 		PluginInfo info() const;
@@ -102,6 +117,7 @@ namespace qutim_sdk_0_3
 		void addAuthor(const QString &ocsUsername);
 		void setInfo(const LocalizedString &name, const LocalizedString &description,
 					 quint32 version = 0, ExtensionIcon icon = ExtensionIcon());
+		void setCapabilities(Capabilities capabilities);
 		void addExtension(const LocalizedString &name, const LocalizedString &description,
 						  const ObjectGenerator *generator, ExtensionIcon icon = ExtensionIcon());
 		template<typename T>
@@ -133,6 +149,9 @@ namespace qutim_sdk_0_3
 
 	LIBQUTIM_EXPORT QList<QPointer<Plugin> > pluginsList();
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::PluginInfo::Capabilities)
+Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 
 #ifdef QUTIM_STATIC_PLUGIN
 # define QUTIM_EXPORT_PLUGIN_HELPER(PluginInstance, Class) \

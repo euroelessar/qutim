@@ -13,6 +13,7 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include <qglobal.h>
 #include "modulemanager_p.h"
 #include "plugin_p.h"
 #include "cryptoservice.h"
@@ -38,6 +39,7 @@
 #include <QLibrary>
 #include <QDesktopServices>
 #include <QTime>
+#include <QQueue>
 #include "objectgenerator.h"
 
 // Is there any other way to init CryptoService from ModuleManager?
@@ -95,14 +97,30 @@ QHash<QByteArray, QObject *> &services()
 
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 {
+	Q_ASSERT((module == 0) ^ (iid == 0));
 	GeneratorList list;
 	if (!managerSelf || !p)
 		return list;
-	const ExtensionInfoList &extensions = p->extensions;
-	for(int i = 0; i < extensions.size(); i++) {
-		const ObjectGenerator *gen = extensions.at(i).generator();
-		if ((module && gen->extends(module)) || (iid && gen->extends(iid)))
-			list << gen;
+	if (module && !iid)
+		iid = module->className();
+	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
+	ExtensionNode *node = p->nodes.value(id);
+	if (!node)
+		return list;
+	// BFS
+	QSet<ExtensionInfo::Data*> used;
+	QQueue<ExtensionNode*> queue;
+	queue.enqueue(node);
+	while (!queue.isEmpty()) {
+		node = queue.dequeue();
+		for (int i = 0; i < node->infos.size(); ++i) {
+			if (!used.contains(node->infos.at(i).data())) {
+				used.insert(node->infos.at(i).data());
+				list << node->infos.at(i).generator();
+			}
+		}
+		for (int i = 0; i < node->children.size(); ++i)
+				queue.enqueue(node->children.at(i));
 	}
 	return list;
 }
@@ -113,6 +131,39 @@ ProtocolMap allProtocols()
 	if(ObjectGenerator::isInited())
 		map = *p->protocols;
 	return map;
+}
+
+static ExtensionNode *ensureNode(const QMetaObject *meta)
+{
+	QByteArray id = QByteArray::fromRawData(meta->className(), qstrlen(meta->className()));
+	ExtensionNodeHash::Iterator it = p->nodes.find(id);
+	if (it != p->nodes.end())
+		return it.value();
+	ExtensionNode *parent = meta->superClass() ? ensureNode(meta->superClass()) : 0;
+	id.detach();
+	ExtensionNode *node = p->nodes.insert(id, new ExtensionNode).value();
+	if (parent)
+		parent->children << node;
+	return node;
+}
+
+static ExtensionNode *ensureNode(const QByteArray &id)
+{
+	ExtensionNodeHash::Iterator it = p->nodes.find(id);
+	if (it != p->nodes.end())
+		return it.value();
+	return p->nodes.insert(id, new ExtensionNode).value();
+}
+
+static void addExtension(const ExtensionInfo &info)
+{
+	const QMetaObject *meta = info.generator()->metaObject();
+	debug() << meta->className();
+	Q_ASSERT(meta);
+	ensureNode(meta)->infos << info;
+	const QList<QByteArray> interfaces = info.generator()->interfaces();
+	for (int i = 0; i < interfaces.size(); ++i)
+		ensureNode(interfaces.at(i))->infos << info;
 }
 
 #ifndef NO_COMMANDS
@@ -199,7 +250,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 			plugin->init();
 			if (plugin->p->validate()) {
-				plugin->p->is_inited = true;
+				plugin->p->info.data()->inited = 1;
 				p->plugins.append(plugin);
 				p->extensions << plugin->avaiableExtensions();
 			}
@@ -338,7 +389,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					   qPrintable(files[i].fileName()), libLoadTime, verifyTime, instanceTime, initTime);
 #endif
 				if (plugin->p->validate()) {
-					plugin->p->is_inited = true;
+					plugin->p->info.data()->inited = 1;
 					p->plugins.append(plugin);
 					p->extensions << plugin->avaiableExtensions();
 					foreach(ExtensionInfo info, plugin->avaiableExtensions())
@@ -397,87 +448,55 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	}
 #endif // NO_COMMANDS
 
-	foreach (const ExtensionInfo &info, p->extensions)
+	foreach (const ExtensionInfo &info, p->extensions) {
+		addExtension(info);
 		p->extensionsHash.insert(info.generator()->metaObject()->className(), info);
+	}
 }
 
-/**
-  * Selects all available extensions by QMetaObject criterion
-  */
-QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const QMetaObject *service_meta) const
+ExtensionInfoList ModuleManager::extensions(const char *iid) const
 {
-	p->meta_modules.insert(service_meta);
-	QMultiMap<Plugin *, ExtensionInfo> result;
-	if (!service_meta)
-		return result;
-	for (int i = -1; i < p->plugins.size(); i++) {
-		Plugin *plugin;
-		ExtensionInfoList extensions;
-		if (i < 0) {
-			plugin = 0;
-			extensions = managerSelf->coreExtensions();
-		} else {
-			plugin = p->plugins.at(i);
-			if(!plugin)
-				continue;
-			extensions = plugin->avaiableExtensions();
+	ExtensionInfoList list;
+	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
+	ExtensionNode *node = p->nodes.value(id);
+	if (!node)
+		return list;
+	// BFS
+	QSet<ExtensionInfo::Data*> used;
+	QQueue<ExtensionNode*> queue;
+	queue.enqueue(node);
+	while (!queue.isEmpty()) {
+		node = queue.dequeue();
+		for (int i = 0; i < node->infos.size(); ++i) {
+			if (!used.contains(node->infos.at(i).data())) {
+				used.insert(node->infos.at(i).data());
+				list << node->infos.at(i);
+			}
 		}
-		for (int j = 0; j < extensions.size(); j++)
-		{
-			if(extensions.at(j).generator()->extends(service_meta))
-				result.insert(plugin, extensions.at(j));
-		}
+		for (int i = 0; i < node->children.size(); ++i)
+			queue.enqueue(node->children.at(i));
 	}
-	return result;
+	return list;
 }
 
-/**
-  * Selects all available extensions by char* interface id criterion
-  */
-QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const char *interface_id) const
+ExtensionInfoList ModuleManager::extensions(const QMetaObject *meta) const
 {
-	QMultiMap<Plugin *, ExtensionInfo> result;
-	if(!interface_id)
-		return result;
-	for(int i = -1; i < p->plugins.size(); i++)
-	{
-		Plugin *plugin;
-		ExtensionInfoList extensions;
-		if(i < 0)
-		{
-			plugin = 0;
-			extensions = managerSelf->coreExtensions();
-		}
-		else
-		{
-			plugin = p->plugins.at(i);
-			if(!plugin)
-				continue;
-			extensions = plugin->avaiableExtensions();
-		}
-		for(int j = 0; j < extensions.size(); j++)
-		{
-			if(extensions.at(j).generator()->extends(interface_id))
-				result.insert(plugin, extensions.at(j));
-		}
-	}
-	return result;
+	return extensions(meta->className());
 }
 
 /**
   * Initializes specific extension. To select extension type QMetaObject used.
   */
-QObject *ModuleManager::initExtension(const QMetaObject *service_meta)
+QObject *ModuleManager::initExtension(const QMetaObject *meta)
 {
-	QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(service_meta);
-	QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
-	for(; it != exts.end(); it++)
-	{
-		QObject *obj = it.value().generator()->generate();
-		qDebug("Found %s for %s", it.value().generator()->metaObject()->className(), service_meta->className());
+	const ExtensionInfoList exts = extensions(meta);
+	for (int i = 0; i < exts.size(); ++i) {
+		const ObjectGenerator *generator = exts.at(i).generator();
+		QObject *obj = generator->generate();
+		qDebug("Found %s for %s", generator->metaObject()->className(), meta->className());
 		return obj;
 	}
-	qWarning("%s extension isn't found", service_meta->className());
+	qWarning("%s extension isn't found", meta->className());
 	return 0;
 }
 
@@ -528,18 +547,17 @@ void ModuleManager::initExtensions()
 	// TODO: remove old API and this hack
 	QList<ConfigBackend*> &configBackends = get_config_backends();
 	if (configBackends.isEmpty()) {
-		QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
-		QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
-		for(; it != exts.end(); it++)
-		{
-			const QMetaObject *meta = it.value().generator()->metaObject();
+		const ExtensionInfoList exts = extensions(ConfigBackend::staticMetaObject.className());
+		for (int i = 0; i < exts.size(); ++i) {
+			const ExtensionInfo &info = exts.at(i);
+			const QMetaObject *meta = info.generator()->metaObject();
 			QByteArray name = MetaObjectBuilder::info(meta, "Extension");
 			if (name.isEmpty()) {
 				qWarning("%s has no 'Extension' class info", meta->className());
 				continue;
 			}
 			qDebug("Found '%s' for '%s'", meta->className(), name.constData());
-			configBackends << it.value().generator()->generate<ConfigBackend>();
+			configBackends << info.generator()->generate<ConfigBackend>();
 		}
 	}
 	QSet<PluginInfo::Data*> disabledPlugins;
@@ -585,7 +603,7 @@ void ModuleManager::initExtensions()
 				usedExtensions << meta->className();
 			}
 		}
-		const ExtensionInfoList &exts = p->extensions;
+		const ExtensionInfoList exts = extensions(Protocol::staticMetaObject.className()); //p->extensions;
 		ExtensionInfoList::const_iterator it2 = exts.constBegin();
 		for(; it2 != exts.end(); it2++) {
 			//				Plugin *plugin = p->extsPlugins.value(it2->name());
@@ -595,9 +613,7 @@ void ModuleManager::initExtensions()
 
 			const ObjectGenerator *gen = it2->generator();
 			const QMetaObject *meta = gen->metaObject();
-			if (!gen->extends<Protocol>())
-				continue;
-			QString name = QString::fromLatin1(MetaObjectBuilder::info(meta, "Protocol"));
+			QString name = QLatin1String(MetaObjectBuilder::info(meta, "Protocol"));
 			if (name.isEmpty() || p->protocols->contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
@@ -651,10 +667,8 @@ void ModuleManager::initExtensions()
 #endif
 
 	{
-		QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
-		QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
-		for(; it != exts.end(); it++)
-		{
+		const ExtensionInfoList exts = extensions(qobject_interface_iid<StartupModule *>());
+		for (int i = 0; i < exts.size(); ++i) {
 			//				Plugin *plugin = it.key();
 			//				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
 			//					continue;
@@ -662,9 +676,9 @@ void ModuleManager::initExtensions()
 			QTime timer;
 			timer.start();
 #endif
-			it.value().generator()->generate<StartupModule>();
+			exts.at(i).generator()->generate<StartupModule>();
 #ifdef QUTIM_TEST_PERFOMANCE
-			qDebug("Startup: \"%s\", %d ms", it.value().generator()->metaObject()->className(), timer.elapsed());
+			qDebug("Startup: \"%s\", %d ms", exts.at(i).generator()->metaObject()->className(), timer.elapsed());
 #endif
 		}
 	}
@@ -687,22 +701,31 @@ void ModuleManager::initExtensions()
 		Plugin *plugin = p->plugins.at(i);
 		//			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
 		if (plugin && !disabledPlugins.contains(plugin->info().data())) {
+			if (plugin->info().capabilities() & Plugin::Loadable) {
 #ifdef QUTIM_TEST_PERFOMANCE
-			QTime timer;
-			timer.start();
+				QTime timer;
+				timer.start();
 #endif
-			plugin->load();
+				if (plugin->load()) {
+					plugin->info().data()->loaded = 1;
+				} else {
 #ifdef QUTIM_TEST_PERFOMANCE
-			qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
+					qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
 #endif
-			if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
-				QList<Plugin*> plugins = factory->loadPlugins();
-				for (int j = 0; j < plugins.size(); j++) {
-					Plugin *subPlugin = plugins.at(j);
-					if (!pluginsConfig.value(subPlugin->metaObject()->className(), true))
-						disabledPlugins << subPlugin->info().data();
-					subPlugin->init();
-					p->plugins << subPlugin;
+					continue;
+				}
+#ifdef QUTIM_TEST_PERFOMANCE
+				qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
+#endif
+				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
+					QList<Plugin*> plugins = factory->loadPlugins();
+					for (int j = 0; j < plugins.size(); j++) {
+						Plugin *subPlugin = plugins.at(j);
+						if (!pluginsConfig.value(subPlugin->metaObject()->className(), true))
+							disabledPlugins << subPlugin->info().data();
+						subPlugin->init();
+						p->plugins << subPlugin;
+					}
 				}
 			}
 		}
@@ -715,7 +738,7 @@ void ModuleManager::onQuit()
 {
 	Event("aboutToQuit").send();
 	foreach(Plugin *plugin, p->plugins) {
-		if (plugin) {
+		if (plugin && plugin->info().data()->loaded) {
 			plugin->unload();
 		}
 	}

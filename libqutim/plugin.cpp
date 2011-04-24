@@ -20,12 +20,14 @@
 namespace qutim_sdk_0_3
 {
 	PluginInfoData::PluginInfoData()
+	    : version(PLUGIN_VERSION(0, 0, 0, 1)), inited(0), loaded(0)
 	{
 	}
 
-	PluginInfoData::PluginInfoData(const PluginInfoData &other)
-			: QSharedData(other), authors(other.authors), name(other.name),
-			description(other.description), version(other.version), icon(other.icon)
+	PluginInfoData::PluginInfoData(const PluginInfoData &o)
+	    : QSharedData(o), authors(o.authors), name(o.name), description(o.description),
+	      version(o.version), inited(o.inited), loaded(o.loaded),
+	      capabilities(o.capabilities), icon(o.icon)
 	{
 	}
 
@@ -93,6 +95,17 @@ namespace qutim_sdk_0_3
 		d->version = version;
 		return *this;
 	}
+	
+	PluginInfo::Capabilities PluginInfo::capabilities() const
+	{
+		return d->capabilities;
+	}
+	
+	PluginInfo &PluginInfo::setCapabilities(PluginInfo::Capabilities capabilities)
+	{
+		d->capabilities = capabilities;
+		return *this;
+	}
 
 	QList<PersonInfo> PluginInfo::authors() const
 	{
@@ -151,14 +164,14 @@ namespace qutim_sdk_0_3
 	void Plugin::addAuthor(const LocalizedString &name, const LocalizedString &task,
 						   const QString &email, const QString &web)
 	{
-		if (p->is_inited)
+		if (p->info.data()->inited)
 			return;
 		Q_UNUSED(p->info.addAuthor(name, task, email, web));
 	}
 	
 	void Plugin::addAuthor(const QString &ocsUsername)
 	{
-		if (p->is_inited)
+		if (p->info.data()->inited)
 			return;
 		p->info.addAuthor(ocsUsername);
 	}
@@ -166,18 +179,26 @@ namespace qutim_sdk_0_3
 	void Plugin::setInfo(const LocalizedString &name, const LocalizedString &description,
 						 quint32 version, ExtensionIcon icon)
 	{
-		if (p->is_inited)
+		if (p->info.data()->inited)
 			return;
 		p->info.setName(name);
 		p->info.setDescription(description);
 		p->info.setVersion(version);
 		p->info.setIcon(icon);
 	}
+	
+	void Plugin::setCapabilities(Capabilities capabilities)
+	{
+		if (p->info.data()->inited)
+			return;
+		p->info.setCapabilities(static_cast<PluginInfo::Capabilities>(int(capabilities)));
+	}
 
 	void Plugin::addExtension(const LocalizedString &name, const LocalizedString &description,
 							  const ObjectGenerator *generator, ExtensionIcon icon)
 	{
-		if (p->is_inited)
+		Q_ASSERT_X(!p->info.data()->inited, "Plugin::addExtension", "This method must be called only from Plugin::init()");
+		if (p->info.data()->inited)
 			return;
 		Q_ASSERT_X(generator->metaObject(), "Plugin::addExtension", "ObjectGenerator must contain QMetaObject");
 		p->extensions << ExtensionInfo(name, description, generator, icon);

@@ -30,6 +30,7 @@ void SimpleActionsPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Simple Actions"),
 			QT_TRANSLATE_NOOP("Plugin", "Default actionset for contacts"),
 			PLUGIN_VERSION(0, 1, 0, 0));
+	setCapabilities(Loadable);
 	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),

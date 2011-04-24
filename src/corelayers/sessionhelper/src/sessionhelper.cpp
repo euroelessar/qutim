@@ -28,6 +28,7 @@ void SessionHelper::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Session helper"),
 			QT_TRANSLATE_NOOP("Plugin", "Activates the session when certain events"),
 			PLUGIN_VERSION(0, 1, 0, 0));
+	setCapabilities(Loadable);
 	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("sauron@citadelspb.com"),

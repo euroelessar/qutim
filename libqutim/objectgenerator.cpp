@@ -53,6 +53,16 @@ namespace qutim_sdk_0_3
 			meta = meta->superClass();
 		return super && meta == super;
 	}
+	
+	bool ObjectGenerator::hasInterface(const char *id) const
+	{
+		return interfaces().contains(QByteArray::fromRawData(id, qstrlen(id)));
+	}
+	
+	QList<QByteArray> ObjectGenerator::interfaces() const
+	{
+		return QList<QByteArray>();
+	}
 
 	bool ObjectGenerator::isInited()
 	{

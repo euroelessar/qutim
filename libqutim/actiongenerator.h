@@ -147,7 +147,7 @@ protected:
 	QAction *prepareAction(QAction *action) const;
 	virtual QObject *generateHelper() const;
 	virtual const QMetaObject *metaObject() const;
-	virtual bool hasInterface(const char *id) const;
+	virtual QList<QByteArray> interfaces() const;
 	void create(QAction *action,QObject *obj) const;
 	virtual void createImpl(QAction *action,QObject *obj) const;
 	virtual void showImpl(QAction *action,QObject *obj); //obj usally is controller, default implementation do nothing

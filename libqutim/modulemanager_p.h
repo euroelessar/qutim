@@ -12,6 +12,20 @@ enum ModuleFlag
 };
 Q_DECLARE_FLAGS(ModuleFlags, ModuleFlag)
 
+struct ExtensionNode
+{
+	QList<ExtensionNode*> children;
+	ExtensionInfoList infos;
+};
+
+struct PluginData
+{
+	QWeakPointer<Plugin> plugin;
+	PluginInfo info;
+};
+
+typedef QHash<QByteArray, ExtensionNode*> ExtensionNodeHash;
+
 /**
   * ModuleManagerPrivate class used to hide inner structure of ModuleManager to provide binary compatibility between different versions.
   */
@@ -35,6 +49,18 @@ public:
 	QSet<QByteArray> interface_modules;
 	QSet<const QMetaObject *> meta_modules;
 	QList<const ExtensionInfo> modules;
+	ExtensionNodeHash nodes;
+};
+
+class LazyGenerator : public ObjectGenerator
+{
+public:
+	LazyGenerator(PluginData *plugin, int id);
+
+	virtual const QMetaObject *metaObject() const;
+	virtual QList<QByteArray> interfaces() const;
+protected:
+	virtual QObject *generateHelper() const;
 };
 
 bool isCoreInited();

@@ -178,6 +178,7 @@ protected:
 
 } // namespace qutim_sdk_0_3
 
+//Q_DECLARE_METATYPE(qutim_sdk_0_3::NetworkProxyInfo)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NetworkProxyManager, "org.qutim.core.NetworkProxyManager");
 
 #endif // NETWORKPROXY_H

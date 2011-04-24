@@ -14,6 +14,7 @@ void AccountCreator::init()
 	LocalizedString name = QT_TRANSLATE_NOOP("Plugin","Account creator");
 	LocalizedString description = QT_TRANSLATE_NOOP("Plugin","Default qutIM account creator");
 	setInfo(name, description, QUTIM_VERSION);
+	setCapabilities(Loadable);
 	// 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Account creator wizard"),
 	// 				QT_TRANSLATE_NOOP("Plugin", "Account creator wizard"),
 	// 				new GeneralGenerator<AccountPageCreator>()
