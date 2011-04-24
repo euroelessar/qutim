@@ -26,7 +26,7 @@ typedef QMultiHash<PopupWidget*, qutim_sdk_0_3::Notification*> NotificationHash;
 class WidgetPlacer;
 class Backend : public qutim_sdk_0_3::NotificationBackend
 {
-	Q_CLASSINFO("Service", "Popup-NG")
+	Q_CLASSINFO("Service", "Popup")
 	Q_CLASSINFO("Type", "Popup")
 	Q_OBJECT
 public:

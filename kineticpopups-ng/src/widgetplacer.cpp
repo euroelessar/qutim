@@ -69,7 +69,7 @@ public:
 		case WidgetPlacer::BottomRight:
 		default:
 			QPoint topLeft(desktopRect.bottomRight().x() - margin - size.width(),
-						   actualGeometry(beforeWidget).topRight().y() - 2 * margin - size.height());
+						   actualGeometry(beforeWidget).topRight().y() - margin - size.height());
 			return QRect(topLeft, size);
 		}
 	}
@@ -224,6 +224,7 @@ void WidgetPlacer::loadSettings()
 	d->corner = cfg.value("corner", BottomRight);
 	d->duration = cfg.value("duration", 600);
 	d->margin = cfg.value("margin", 20);
+	cfg.endGroup();
 }
 
 } // namespace KineticPopups

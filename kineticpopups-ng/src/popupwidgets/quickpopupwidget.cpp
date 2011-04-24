@@ -14,33 +14,142 @@
 *****************************************************************************/
 
 #include "quickpopupwidget.h"
-#include <QLabel>
 #include <QVBoxLayout>
+#include <QStringBuilder>
+#include <QAction>
+
+#include <QDeclarativeView>
+#include <QDeclarativeContext>
+
+#include <qutim/config.h>
+#include <qutim/thememanager.h>
+#include <qutim/debug.h>
+#include <qutim/utils.h>
 
 namespace KineticPopups {
 
 using namespace qutim_sdk_0_3;
 
-QuickPopupWidget::QuickPopupWidget(QWidget* parent): PopupWidget(parent)
+QuickNotify::QuickNotify(Notification* notify) : 
+	QObject(notify),
+	m_notify(notify)
+{
+	foreach (const char *name, notify->dynamicPropertyNames())
+		setProperty(name, notify->property(name));
+
+	//add Actions
+	foreach (NotificationAction action, notify->request().actions()) {
+		QAction *notifyAction = new QAction(action.icon(), action.title(), this);
+		connect(notifyAction, SIGNAL(triggered()), action.receiver(), action.method());
+		m_actions.append(notifyAction);
+	}
+}
+
+QString QuickNotify::text() const
+{
+	return m_notify->request().text();
+}
+
+QString QuickNotify::title() const
+{
+	return m_notify->request().title();
+}
+
+Notification::Type QuickNotify::type() const
+{
+	return m_notify->request().type();
+}
+
+QObject* QuickNotify::object() const
+{
+	return m_notify->request().object();
+}
+
+QObjectList QuickNotify::actions() const
+{
+	return m_actions;
+}
+
+PopupAttributes::PopupAttributes(QObject* parent) : 
+	QObject(parent),
+	m_frameStyle(Tool)
+{
+	setObjectName(QLatin1String("attributes"));
+}
+
+PopupAttributes::FrameStyle PopupAttributes::frameStyle() const
+{
+	return m_frameStyle;
+}
+
+void PopupAttributes::setFrameStyle(FrameStyle frameStyle)
+{
+	if (frameStyle == m_frameStyle)
+		return;
+	m_frameStyle = frameStyle;
+	emit frameStyleChanged(m_frameStyle);
+}
+
+QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
+	PopupWidget(parent),
+	m_view(new QDeclarativeView(this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
-	setWindowFlags(Qt::WindowStaysOnTopHint);
-	setLayout(new QVBoxLayout(this));
+
+	//transparency
+	setAttribute(Qt::WA_NoSystemBackground);
+	setAttribute(Qt::WA_TranslucentBackground);
+	m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
+	m_view->viewport()->setAutoFillBackground(false);
+
+	QVBoxLayout *l = new QVBoxLayout(this);
+	l->addWidget(m_view);
+	l->setMargin(0);
+	setLayout(l);
+	connect(m_view, SIGNAL(sceneResized(QSize)), SIGNAL(sizeChanged(QSize)));
+	m_view->setResizeMode(QDeclarativeView::SizeViewToRootObject);
+	m_view->rootContext()->setContextProperty(QLatin1String("popup"), this);
+
+	//TODO optimize!
+	Config cfg("behavior");
+	cfg.beginGroup("popup");
+	loadTheme(cfg.value("themeName", "default"));
+	m_timeout.setInterval(cfg.value("timeout", 30000));
+	cfg.endGroup();
+
+	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(ignore()));
+}
+
+void QuickPopupWidget::loadTheme(const QString &themeName)
+{
+	QString themePath = ThemeManager::path(QLatin1String("quickpopup"), themeName);
+	QString filename = themePath % QLatin1Literal("/main.qml");
+	m_view->setSource(QUrl::fromLocalFile(filename));//url - main.qml
+	if (m_view->status() == QDeclarativeView::Error)
+		ignore();
+
+	PopupAttributes *attributes = m_view->rootObject()->findChild<PopupAttributes*>("attributes");
+	if (attributes) {
+		connect(attributes, SIGNAL(frameStyleChanged(KineticPopups::PopupAttributes::FrameStyle)),
+				this, SLOT(onAtributesChanged()));
+	}
+	setPopupAttributes(attributes);
+
+	//reload notifications
+	//TODO
 }
 
 NotificationList QuickPopupWidget::notifications() const
 {
-	return m_notifyList;
+	return m_notifyHash.keys();
 }
 
 void QuickPopupWidget::addNotification(Notification* notify)
 {
-	m_notifyList.append(notify);
-	QLabel *lbl = new QLabel(notify->request().text().left(100), this);
-	lbl->setWordWrap(true);
-	layout()->addWidget(lbl);
-	setWindowTitle(notify->request().title());
-	emit sizeChanged(sizeHint());
+	QuickNotify *quick = new QuickNotify(notify);
+	m_notifyHash.insert(notify, quick);
+	emit notifyAdded(quick);
+	m_timeout.start();
 }
 
 QuickPopupWidget::~QuickPopupWidget()
@@ -50,8 +159,45 @@ QuickPopupWidget::~QuickPopupWidget()
 
 QSize QuickPopupWidget::sizeHint() const
 {
-	return QSize(250, 50);
+	return m_view->sizeHint();
 }
 
+void QuickPopupWidget::ignore()
+{
+	finished();
+}
+
+void QuickPopupWidget::accept()
+{
+	//foreach (Notification *notify, m_notifyHash.keys())
+	//	notify->accept();
+	finished();
+}
+
+void QuickPopupWidget::onAtributesChanged()
+{
+	PopupAttributes *attributes = qobject_cast<PopupAttributes*>(sender());
+	setPopupAttributes(attributes);
+}
+
+void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
+{
+	PopupAttributes::FrameStyle style = attributes ? attributes->frameStyle() :
+													 PopupAttributes::ToolTip;
+
+	Qt::WindowFlags flags = Qt::WindowStaysOnTopHint;
+	switch(style) {
+	case PopupAttributes::ToolTip:
+		flags |= Qt::ToolTip;
+		break;
+	case PopupAttributes::Tool:
+		flags |= Qt::Tool;
+		break;
+	case PopupAttributes::Normal:
+		break;
+	}
+	setWindowFlags(flags);
+	emit sizeChanged(sizeHint());
+}
 
 } // namespace KineticPopups

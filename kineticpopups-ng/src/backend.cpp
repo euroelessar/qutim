@@ -25,6 +25,11 @@ Backend::Backend() :
 	m_placer(new WidgetPlacer(this))
 {
 	debug() << Q_FUNC_INFO;
+
+	qmlRegisterUncreatableType<Notification>("qutIM", 0, 3,
+											 "Notification",
+											 tr("Unable to create notification inside QtQuick"));
+	qmlRegisterType<PopupAttributes>("qutIM", 0, 3, "PopupAttributes");
 }
 
 void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
