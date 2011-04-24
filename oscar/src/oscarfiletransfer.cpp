@@ -213,13 +213,12 @@ void OftSocket::directConnect(const QHostAddress &addr, quint16 port)
 			<< ":" << port;
 }
 
-void OftSocket::proxyConnect(const QString &uin, quint64 cookie)
+void OftSocket::proxyConnect(const QString &uin)
 {
 	m_state = ProxyInit;
 	m_lastHeader = OftHeader();
 	m_len = 0;
 	m_uin = uin;
-	m_cookie = cookie;
 	m_proxyPort = 0;
 	m_hostReqId = QHostInfo::lookupHost("ars.oscar.aol.com", this, SLOT(proxyFound(QHostInfo)));
 }
@@ -236,13 +235,12 @@ void OftSocket::proxyFound(const QHostInfo &proxyInfo)
 	}
 }
 
-void OftSocket::proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr, quint16 port)
+void OftSocket::proxyConnect(const QString &uin, QHostAddress addr, quint16 port)
 {
 	m_state = ProxyReceive;
 	m_lastHeader = OftHeader();
 	m_len = 0;
 	m_uin = uin;
-	m_cookie = cookie;
 	m_proxyPort = port;
 	connectToProxy(addr, port);
 }
@@ -517,7 +515,7 @@ void OftConnection::doSend()
 		sendFileRequest();
 	} else {
 		setSocket(new OftSocket(this));
-		m_socket->proxyConnect(m_account->id(), m_cookie);
+		m_socket->proxyConnect(m_account->id());
 	}
 }
 
@@ -630,7 +628,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		if (!m_proxy)
 			m_socket->directConnect(clientIP, port);
 		else
-			m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, port);
+			m_socket->proxyConnect(m_account->id(), proxyIP, port);
 		connect(m_socket.data(), SIGNAL(timeout()), SLOT(startNextStage()));
 	} else if (reqType == MsgAccept) {
 		debug() << m_contact->id() << "accepted file transfing";
@@ -647,6 +645,7 @@ void OftConnection::setSocket(OftSocket *socket)
 	if (!m_socket) {
 		m_socket = socket;
 		m_socket->setParent(this);
+		m_socket->setCookie(m_cookie);
 		connect(m_socket.data(), SIGNAL(proxyInitialized()), SLOT(sendFileRequest()));
 		connect(m_socket.data(), SIGNAL(initialized()), SLOT(connected()));
 		connect(m_socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
@@ -906,7 +905,7 @@ void OftConnection::startNextStage()
 			m_stage = 2;
 			if (m_proxy) {
 				m_socket->close();
-				m_socket->proxyConnect(m_account->id(), m_cookie);
+				m_socket->proxyConnect(m_account->id());
 			} else {
 				m_socket->deleteLater();
 				sendFileRequest();
@@ -921,7 +920,7 @@ void OftConnection::startNextStage()
 			m_stage = 3;
 			m_proxy = true;
 			m_socket->close();
-			m_socket->proxyConnect(m_account->id(), m_cookie);
+			m_socket->proxyConnect(m_account->id());
 		}
 	} else {
 		close();
@@ -1212,7 +1211,7 @@ void OftFileTransferFactory::removeConnection(OftConnection *connection)
 {
 	IcqAccount *account = connection->m_account;
 	Connections::iterator itr = m_connections.find(account);
-	if (itr != m_connections.end());
+	if (itr != m_connections.end())
 		itr->remove(connection->cookie());
 }
 

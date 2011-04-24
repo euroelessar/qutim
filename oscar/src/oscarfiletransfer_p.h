@@ -108,11 +108,12 @@ public:
 	OftHeader &lastHeader() { return m_lastHeader; }
 	ReadingState readingState() const { return m_state; }
 	void directConnect(const QHostAddress &addr, quint16 port);
-	void proxyConnect(const QString &uin, quint64 cookie);
-	void proxyConnect(const QString &uin, quint64 cookie, QHostAddress addr, quint16 port);
+	void proxyConnect(const QString &uin);
+	void proxyConnect(const QString &uin, QHostAddress addr, quint16 port);
 	const QHostAddress &proxyIP() { return m_proxyIP; }
 	quint16 proxyPort() { return m_proxyPort; }
 	quint16 clientPort() { return m_clientPort; }
+	void setCookie(quint64 cookie) { m_cookie = cookie; }
 signals:
 	void proxyInitialized();
 	void initialized();
