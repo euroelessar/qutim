@@ -169,7 +169,8 @@ protected:
 
 } // namespace qutim_sdk_0_3
 
-//Q_ENUMS(qutim_sdk_0_3::Notification::Type)
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter");
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
+Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
 
 #endif // NOTIFICATION_H
