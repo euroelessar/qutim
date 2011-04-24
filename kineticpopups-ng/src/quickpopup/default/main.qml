@@ -4,8 +4,8 @@ import qutIM 0.3
 Rectangle {
 	id: main
 
-	width: 250
-	height: childrenRect.height + 10
+	width: 300
+	height: childrenRect.height + 15
 	color: "transparent"
 
 	PopupAttributes {
@@ -17,44 +17,68 @@ Rectangle {
 		border.left: 5; border.top: 5
 		border.right: 5; border.bottom: 5
 		source: "images/background.png"
+		opacity: 0.8
 	}
 
-	Text {
-		id: title
+	Image {
+		id: image
+		source: "images/qutim.svg"
+		width: 50
+		fillMode: Image.PreserveAspectFit
 
 		anchors {
 			top: main.top
 			left: main.left
+			topMargin: 15
+			leftMargin: 5
+		}
+	}
+
+	Text {
+		id: title
+		text: "Title"
+
+		anchors {
+			top: main.top
+			left: image.right
 			right: main.right
-			topMargin: 5
+			topMargin: 10
 			leftMargin: 5
 			rightMargin: 5
 		}
 
-		wrapMode: Text.WrapAnywhere
+		elide: Text.ElideMiddle
 		color: "white"
 		font.bold: true
+		style: Text.Sunken
+		styleColor: "black"
+		font.pixelSize: text.font.pixelSize + 2
 	}
 
 	Text {
 		id: text
-		wrapMode: Text.WrapAnywhere
+		wrapMode: Text.Wrap
 
 		anchors {
 			top: title.bottom
 			left: title.left
 			right: title.right
-			topMargin: 5
+			topMargin: -15
 		}
 
 		color: "white"
+		style: Text.Sunken
+		styleColor: "black"
 	}
 
     MouseArea {
 		anchors.fill: main
+		acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: {
-			console.log("Test Enum: " + Notification.IncomingMessage);
-			popup.accept();
+			if (mouse.button == Qt.RightButton)
+				popup.ignore();
+			else
+				popup.accept();
         }
     }
 

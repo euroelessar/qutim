@@ -51,11 +51,11 @@ public:
 	enum FrameStyle
 	{
 		ToolTip,
-		Normal,
-		Tool,
-		AeroBlur,
-		AeroToolTipBlur,
-		AeroPopupBlur
+		Normal, /** \ Normal window */
+		Tool, /** \note Unsupported on X11 platform */
+		ToolTipBlurAero,  /** \note Only Win7 Supported */
+		ToolBlurAero,  /** \note Only Win7 Supported */
+		AeroBlur  /** \note Only Win7 Supported */
 	};
 public:
 	PopupAttributes(QObject *parent = 0);

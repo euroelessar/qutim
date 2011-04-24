@@ -25,6 +25,7 @@
 #include <qutim/thememanager.h>
 #include <qutim/debug.h>
 #include <qutim/utils.h>
+#include <qutim/qtwin.h>
 
 namespace KineticPopups {
 
@@ -52,7 +53,10 @@ QString QuickNotify::text() const
 
 QString QuickNotify::title() const
 {
-	return m_notify->request().title();
+	QString title = m_notify->request().title();
+	if (title.isEmpty())
+		title = tr("Notification from qutIM");
+	return title;
 }
 
 Notification::Type QuickNotify::type() const
@@ -187,9 +191,13 @@ void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
 
 	Qt::WindowFlags flags = Qt::WindowStaysOnTopHint;
 	switch(style) {
+	case PopupAttributes::ToolTipBlurAero:
+		QtWin::extendFrameIntoClientArea(this);
 	case PopupAttributes::ToolTip:
-		flags |= Qt::ToolTip;
+		flags |= Qt::ToolTip | Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
 		break;
+	case PopupAttributes::ToolBlurAero:
+		QtWin::enableBlurBehindWindow(this,true);
 	case PopupAttributes::Tool:
 		flags |= Qt::Tool;
 		break;
