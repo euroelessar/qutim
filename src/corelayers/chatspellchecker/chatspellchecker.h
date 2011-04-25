@@ -45,6 +45,7 @@ private:
 class ChatSpellChecker : public QObject, public StartupModule
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
 	ChatSpellChecker();
 	bool isCorrect(const QString &word);
