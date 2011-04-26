@@ -4,6 +4,7 @@
 #include <qutim/metacontactmanager.h>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/protocol.h>
+#include <qutim/servicemanager.h>
 #include <QMimeData>
 #include <QMessageBox>
 #include <QTimer>
@@ -47,7 +48,7 @@ inline QModelIndex ContactItem::parentIndex(AbstractContactModel *m)
 TreeModel::TreeModel(QObject *parent) : AbstractContactModel(new TreeModelPrivate, parent)
 {
 	Q_D(TreeModel);
-	if (!ObjectGenerator::isInited()) {
+	if (!ServiceManager::isInited()) {
 		d->initData = new TreeModelPrivate::InitData;
 		QTimer::singleShot(0, this, SLOT(init()));
 	}
@@ -365,7 +366,7 @@ void TreeModel::init()
 	delete initData;
 }
 
-void TreeModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+void TreeModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts_helper)
 {
 	Q_D(TreeModel);
 	foreach(Protocol *proto, Protocol::all()) {
@@ -374,7 +375,13 @@ void TreeModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
 			onAccountCreated(account);
 	}
 
-	d->initData = 0;
+	QList<qutim_sdk_0_3::Contact*> contacts;
+	if (d->initData) {
+		contacts = d->initData->contacts;
+		d->initData = 0;
+	} else {
+		contacts = contacts_helper;
+	}
 
 	// ensure correct order of tags
 	QSet<QString> tags;

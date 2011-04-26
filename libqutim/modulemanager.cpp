@@ -663,6 +663,7 @@ void ModuleManager::initExtensions()
 	}
 	foreach (QObject *service, p->serviceOrder)
 		usedExtensions << service->metaObject()->className();
+	p->isServicesInited = true;
 #ifndef Q_OS_MAC
 	qApp->setWindowIcon(Icon("qutim"));
 #endif

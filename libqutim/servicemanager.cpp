@@ -90,4 +90,9 @@ bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionIn
 	return true;
 }
 
+bool ServiceManager::isInited()
+{
+	return moduleManagerPrivate()->isServicesInited;
+}
+
 } // namespace qutim_sdk_0_3

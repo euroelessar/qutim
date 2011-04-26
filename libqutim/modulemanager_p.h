@@ -33,10 +33,15 @@ typedef QMultiHash<QByteArray, ExtensionInfo> ServiceHash;
 class ModuleManagerPrivate
 {
 public:
-	inline ModuleManagerPrivate() : is_inited(false), protocols_hash(new QHash<QString, QPointer<Protocol> >()) {}
+	inline ModuleManagerPrivate() :
+			is_inited(false),
+			isServicesInited(false),
+			protocols_hash(new QHash<QString, QPointer<Protocol> >())
+	{}
 	inline ~ModuleManagerPrivate() { delete protocols_hash; }
 	QList<QPointer<Plugin> > plugins;
 	bool is_inited;
+	bool isServicesInited;
 	union { // This union is intended to be used as reinterpret_cast =)
 		QHash<QString, QPointer<Protocol> > *protocols_hash;
 		QHash<QString, Protocol *> *protocols;

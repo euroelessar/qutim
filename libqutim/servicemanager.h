@@ -41,6 +41,7 @@ public:
 	  * return false.
 	  */
 	static bool setImplementation(const QByteArray &name, const ExtensionInfo &info);
+	static bool isInited();
 signals:
 	/*! Notify a change of service.
 	  */

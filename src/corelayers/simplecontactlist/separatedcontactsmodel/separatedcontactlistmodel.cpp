@@ -5,6 +5,7 @@
 #include <qutim/mimeobjectdata.h>
 #include <qutim/protocol.h>
 #include <qutim/event.h>
+#include <qutim/servicemanager.h>
 #include <QCoreApplication>
 #include <QMimeData>
 #include <QTimer>
@@ -58,7 +59,7 @@ SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(new Separ
 {
 	Q_D(SeparatedModel);
 	d->realAccountRequestEvent = Event::registerType("real-account-request");
-	if (!ObjectGenerator::isInited()) {
+	if (!ServiceManager::isInited()) {
 		d->initData = new SeparatedModelPrivate::InitData;
 		QTimer::singleShot(0, this, SLOT(init()));
 	}
@@ -440,7 +441,7 @@ void SeparatedModel::init()
 	delete initData;
 }
 
-void SeparatedModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+void SeparatedModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts_helper)
 {
 	Q_D(SeparatedModel);
 	foreach(Protocol *proto, Protocol::all()) {
@@ -450,7 +451,13 @@ void SeparatedModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
 			addAccount(account, d->initData);
 	}
 
-	d->initData = 0;
+	QList<qutim_sdk_0_3::Contact*> contacts;
+	if (d->initData) {
+		contacts = d->initData->contacts;
+		d->initData = 0;
+	} else {
+		contacts = contacts_helper;
+	}
 
 	// ensure correct order of tags
 	Config cfg = Config().group("contactList");
