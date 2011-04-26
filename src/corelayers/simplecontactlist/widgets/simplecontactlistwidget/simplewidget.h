@@ -30,6 +30,7 @@ public:
 	void loadGeometry();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
+	virtual TreeView *contactView();
 	AbstractContactModel *model() const;
 protected:
 	QAction *createGlobalStatusAction(Status::Type type);

@@ -43,6 +43,8 @@ class PlainModel : public AbstractContactModel
 public:
 	PlainModel(QObject *parent = 0);
 	virtual ~PlainModel();
+	virtual QList<Contact*> contacts() const;
+	void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts);
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -27,6 +27,7 @@
 #include "servicechooser.h"
 #include <qutim/configbase.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -82,7 +83,9 @@ void ServiceChooserWidget::loadImpl()
 				parent_item->insertRow(index, item);
 				m_service_items.insert(serviceName,item);
 			}
-			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("applications-system");
+			QIcon icon = !info.icon().name().isEmpty() ?
+						 info.icon() :
+						 Icon("applications-system");
 			ServiceItem *item = new ServiceItem(icon,info.name());
 
 			item->setToolTip(ServiceChooser::html(info));
@@ -90,7 +93,7 @@ void ServiceChooserWidget::loadImpl()
 			item->setData(info.description().toString(),DescriptionRole);
 			if (selected.value(serviceName).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
-			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
+			item->setData(qVariantFromValue(info), ServiceItem::ExtentionInfoRole);
 
 			m_service_items.value(serviceName)->appendRow(item);
 		}
@@ -102,23 +105,21 @@ void ServiceChooserWidget::cancelImpl()
 }
 void ServiceChooserWidget::saveImpl()
 {
-	ConfigGroup group = Config().group("services");
-	QVariantMap selected;
+	bool showNotification = false;
 	QHash<QByteArray, ServiceItem *>::const_iterator it;
-	for (it = m_service_items.constBegin();it!=m_service_items.constEnd();it++) {
-		QVariant service;
-		for (int i =0;i!=it.value()->rowCount();i++) {
+	for (it = m_service_items.constBegin(); it != m_service_items.constEnd(); ++it) {
+		ExtensionInfo service;
+		for (int i = 0; i != it.value()->rowCount(); ++i) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
 			if (state == Qt::Checked) {
-				service = it.value()->child(i)->data(ServiceItem::ClassNameRole);
+				service = it.value()->child(i)->data(ServiceItem::ExtentionInfoRole).value<ExtensionInfo>();
 				break;
 			}
 		}
-		selected.insert(it.key(),service);
+		showNotification = !ServiceManager::setImplementation(it.key(), service) || showNotification;
 	}
-	group.setValue("list", selected);
-	group.sync();
-	Notifications::send(tr("To take effect you must restart qutIM"));
+	if (showNotification)
+		Notifications::send(tr("To take effect you must restart qutIM"));
 }
 
 void ServiceChooserWidget::clear()

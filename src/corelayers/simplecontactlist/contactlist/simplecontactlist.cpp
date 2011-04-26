@@ -94,6 +94,8 @@ Module::Module() : p(new ModulePrivate)
 	p->model = dynamic_cast<AbstractContactModel*>(object);
 	qDebug() << object << p->model << qobject_cast<QAbstractItemModel*>(object);
 
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 
@@ -202,8 +204,26 @@ void Module::onSelectTagsTriggered()
 
 void Module::addContact(qutim_sdk_0_3::Contact *contact)
 {
+#if 1
 	p->model->metaObject()->invokeMethod(p->model, "addContact",
 								   Q_ARG(qutim_sdk_0_3::Contact*, contact));
+#else
+	p->model->addContact(contact);
+#endif
+}
+
+void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
+{
+	Q_UNUSED(old);
+	if (old == p->model && name == "ContactModel") {
+		QList<Contact*> contacts = p->model->contacts();
+		p->model = dynamic_cast<AbstractContactModel*>(now);
+		Q_ASSERT(p->model);
+		TreeView *view = p->contactListWidget->contactView();
+		Q_ASSERT(view);
+		view->setModel(p->model);
+		p->model->setContacts(contacts);
+	}
 }
 
 }

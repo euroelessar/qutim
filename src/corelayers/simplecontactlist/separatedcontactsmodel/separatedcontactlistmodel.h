@@ -80,6 +80,8 @@ class SeparatedModel : public AbstractContactModel
 public:
 	SeparatedModel(QObject *parent = 0);
 	virtual ~SeparatedModel();
+	virtual QList<Contact*> contacts() const;
+	virtual void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts);
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -105,6 +107,7 @@ protected slots:
 	void onAccountDestroyed(QObject *);
 	void init();
 protected:
+	AccountItem *addAccount(qutim_sdk_0_3::Account *account, bool addContacts);
 	void filterAllList();
 	void updateContactData(Contact *contact);
 	void processEvent(ChangeEvent *ev);

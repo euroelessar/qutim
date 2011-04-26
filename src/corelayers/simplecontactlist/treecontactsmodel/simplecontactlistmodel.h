@@ -67,6 +67,8 @@ class TreeModel : public AbstractContactModel
 public:
 	TreeModel(QObject *parent = 0);
 	virtual ~TreeModel();
+	virtual QList<Contact*> contacts() const;
+	virtual void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts);
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -91,6 +93,7 @@ protected slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void init();
 protected:
+	void addAccount(qutim_sdk_0_3::Account *account);
 	void filterAllList();
 	void updateContactData(Contact *contact);
 	void processEvent(ChangeEvent *ev);

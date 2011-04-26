@@ -41,11 +41,14 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
+	Q_CLASSINFO("RuntimeSwitch", "yes")
 	Q_DECLARE_PRIVATE(AbstractContactModel)
 public:
 	virtual ~AbstractContactModel();
 	QSet<QString> selectedTags() const;
 	Q_INVOKABLE virtual QStringList tags() const;
+	Q_INVOKABLE virtual QList<qutim_sdk_0_3::Contact*> contacts() const = 0;
+	Q_INVOKABLE virtual void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts) = 0;
 public slots:
 	bool showOffline() const;
 	void hideShowOffline();

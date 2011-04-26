@@ -32,6 +32,7 @@ public:
 	~ToryWidget();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
+	virtual TreeView *contactView();
 private slots:
 	void showStatusDialog();
 	void changeStatusTextAccepted();

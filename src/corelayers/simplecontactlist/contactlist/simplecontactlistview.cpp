@@ -38,14 +38,22 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 #endif
 
 	QTimer::singleShot(0, this, SLOT(initScrolling()));
-	Config group = Config().group("contactList");
-	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
 
 	connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(onCollapsed(QModelIndex)));
 	connect(this, SIGNAL(expanded(QModelIndex)), SLOT(onExpanded(QModelIndex)));
+
+	setModel(model);
+}
+
+void TreeView::setModel(AbstractContactModel *model)
+{
+	storeClosedTags();
+	Config group = Config().group("contactList").group(model->metaObject()->className());
+	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
+	m_visibleIndexes.clear();
 	connect(model, SIGNAL(indexVisibilityChanged(QModelIndex,QString,bool)),
 			SLOT(onIndexVisibilityChanged(QModelIndex,QString,bool)));
-	setModel(model);
+	QTreeView::setModel(model);
 }
 
 void TreeView::initScrolling()
@@ -165,7 +173,14 @@ void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
 
 TreeView::~TreeView()
 {
-	Config group = Config().group("contactList");
+	storeClosedTags();
+}
+
+void TreeView::storeClosedTags()
+{
+	if (!model())
+		return;
+	Config group = Config().group("contactList").group(model()->metaObject()->className());
 	group.setValue("closedTags", QStringList(m_closedIndexes.toList()));
 }
 

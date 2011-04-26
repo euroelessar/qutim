@@ -203,6 +203,11 @@ void SimpleWidget::removeButton(ActionGenerator *)
 	//m_mainToolBar->removeAction(generator);
 }
 
+TreeView *SimpleWidget::contactView()
+{
+	return m_view;
+}
+
 void SimpleWidget::loadGeometry()
 {
 	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());

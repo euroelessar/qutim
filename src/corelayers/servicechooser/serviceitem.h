@@ -25,7 +25,7 @@ namespace Core
 	public:
 		enum ServiceItemRole {
 			ExclusiveRole = Qt::UserRole + 2,
-			ClassNameRole
+			ExtentionInfoRole
 		};
 		ServiceItem(const QIcon &icon,const QString &text);
 		virtual void setData(const QVariant& value, int role = Qt::UserRole + 1);

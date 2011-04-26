@@ -6,6 +6,8 @@
 namespace Core {
 namespace SimpleContactList {
 
+class TreeView;
+
 using namespace qutim_sdk_0_3;
 
 class AbstractContactModel;
@@ -15,6 +17,7 @@ public:
 	virtual ~AbstractContactListWidget() {}
 	virtual void addButton(ActionGenerator *generator) = 0;
 	virtual void removeButton(ActionGenerator *generator) = 0;
+	virtual TreeView *contactView() { Q_ASSERT(!"Implement me"); return 0; }
 };
 
 } // namespace SimpleContactList

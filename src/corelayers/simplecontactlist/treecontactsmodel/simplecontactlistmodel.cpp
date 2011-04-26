@@ -16,6 +16,8 @@ namespace SimpleContactList
 class TreeModelPrivate : public AbstractContactModelPrivate
 {
 public:
+	TreeModelPrivate() : initData(0) {}
+
 	QList<TagItem *> tags;
 	QList<TagItem *> visibleTags;
 	QHash<QString, TagItem *> tagsHash;
@@ -45,12 +47,19 @@ inline QModelIndex ContactItem::parentIndex(AbstractContactModel *m)
 TreeModel::TreeModel(QObject *parent) : AbstractContactModel(new TreeModelPrivate, parent)
 {
 	Q_D(TreeModel);
-	d->initData = new TreeModelPrivate::InitData;
-	QTimer::singleShot(0, this, SLOT(init()));
+	if (!ObjectGenerator::isInited()) {
+		d->initData = new TreeModelPrivate::InitData;
+		QTimer::singleShot(0, this, SLOT(init()));
+	}
 }
 
 TreeModel::~TreeModel()
 {
+}
+
+QList<Contact*> TreeModel::contacts() const
+{
+	return d_func()->contacts.keys();
 }
 
 QModelIndex TreeModel::index(int row, int, const QModelIndex &parent) const
@@ -351,26 +360,33 @@ QStringList TreeModel::tags() const
 void TreeModel::init()
 {
 	Q_D(TreeModel);
+	TreeModelPrivate::InitData *initData = d->initData;
+	setContacts(initData->contacts);
+	delete initData;
+}
+
+void TreeModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+{
+	Q_D(TreeModel);
 	foreach(Protocol *proto, Protocol::all()) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach(Account *account, proto->accounts())
 			onAccountCreated(account);
 	}
 
-	TreeModelPrivate::InitData *initData = d->initData;
 	d->initData = 0;
+
 	// ensure correct order of tags
 	QSet<QString> tags;
-	foreach (Contact *contact, initData->contacts)
+	foreach (Contact *contact, contacts)
 		foreach (const QString &tag, contact->tags())
 			tags.insert(tag);
 	foreach (const QString &tag, Config().value("contactList/tags", QStringList()))
 		if (tags.contains(tag))
 			ensureTag<TagItem>(d, tag);
 	// add contacts to the contact list
-	foreach (Contact *contact, initData->contacts)
+	foreach (Contact *contact, contacts)
 		addContact(contact);
-	delete initData;
 }
 
 void TreeModel::filterAllList()
@@ -444,6 +460,11 @@ void TreeModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		addContact(contact);
+	addAccount(account);
+}
+
+void TreeModel::addAccount(qutim_sdk_0_3::Account *account)
+{
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 }
