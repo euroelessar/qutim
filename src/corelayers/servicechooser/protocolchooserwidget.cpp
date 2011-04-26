@@ -79,7 +79,7 @@ void ProtocolChooserWidget::loadImpl()
 		item->setData(info.description().toString(),DescriptionRole);
 		if (selected.value(name).toString() == ServiceChooser::className(info))
 			item->setCheckState(Qt::Checked);
-		item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
+		item->setData(ServiceChooser::className(info),ServiceItem::ExtentionInfoRole);
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }
@@ -96,7 +96,7 @@ void ProtocolChooserWidget::saveImpl()
 		for (int i =0;i!=it.value()->rowCount();i++) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
 			if (state == Qt::Checked) {
-				service = it.value()->child(i)->data(ServiceItem::ClassNameRole);
+				service = it.value()->child(i)->data(ServiceItem::ExtentionInfoRole);
 				break;
 			}
 		}

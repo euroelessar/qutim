@@ -18,6 +18,8 @@ namespace SimpleContactList
 class SeparatedModelPrivate : public AbstractContactModelPrivate
 {
 public:
+	SeparatedModelPrivate() : initData(0) {}
+
 	QList<AccountItem*> accounts;
 	QHash<Account*, AccountItem*> accountHash;
 	QMap<Contact *, ContactData::Ptr> contacts;
@@ -55,13 +57,20 @@ inline QModelIndex ContactItem::parentIndex(AbstractContactModel *m)
 SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(new SeparatedModelPrivate, parent)
 {
 	Q_D(SeparatedModel);
-	d->initData = new SeparatedModelPrivate::InitData;
 	d->realAccountRequestEvent = Event::registerType("real-account-request");
-	QTimer::singleShot(0, this, SLOT(init()));
+	if (!ObjectGenerator::isInited()) {
+		d->initData = new SeparatedModelPrivate::InitData;
+		QTimer::singleShot(0, this, SLOT(init()));
+	}
 }
 
 SeparatedModel::~SeparatedModel()
 {
+}
+
+QList<Contact*> SeparatedModel::contacts() const
+{
+	return d_func()->contacts.keys();
 }
 
 QModelIndex SeparatedModel::index(int row, int, const QModelIndex &parent) const
@@ -180,7 +189,7 @@ void SeparatedModel::addContact(Contact *contact)
 	AccountItem *accountItem = d->accountHash.value(account);
 	if (!accountItem)
 		// This call must be before the following contact existence check
-		accountItem = onAccountCreated(account);
+		accountItem = addAccount(account, false);
 
 	if (d->contacts.contains(contact))
 		return;
@@ -378,6 +387,11 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 
 AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
+	return addAccount(account, true);
+}
+
+AccountItem *SeparatedModel::addAccount(qutim_sdk_0_3::Account *account, bool addContacts)
+{
 	Q_D(SeparatedModel);
 	AccountItem *item = new AccountItem;
 	item->account = account;
@@ -389,8 +403,10 @@ AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 	endInsertRows();
 	emit indexVisibilityChanged(createIndex(index, 0, item), item->id, true);
 
-	foreach (Contact *contact, account->findChildren<Contact*>())
-		addContact(contact);
+	if (addContacts) {
+		foreach (Contact *contact, account->findChildren<Contact*>())
+			addContact(contact);
+	}
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 	connect(account, SIGNAL(destroyed(QObject*)),
@@ -419,22 +435,30 @@ void SeparatedModel::onAccountDestroyed(QObject *obj)
 void SeparatedModel::init()
 {
 	Q_D(SeparatedModel);
+	SeparatedModelPrivate::InitData *initData = d->initData;
+	setContacts(initData->contacts);
+	delete initData;
+}
+
+void SeparatedModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+{
+	Q_D(SeparatedModel);
 	foreach(Protocol *proto, Protocol::all()) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach(Account *account, proto->accounts())
-			onAccountCreated(account);
+			addAccount(account, d->initData);
 	}
 
-	SeparatedModelPrivate::InitData *initData = d->initData;
 	d->initData = 0;
+
 	// ensure correct order of tags
 	Config cfg = Config().group("contactList");
 	foreach (AccountItem *accountItem, d->accounts) {
 		Account *account = accountItem->account;
 		cfg.beginGroup(account->id());
 		QSet<QString> tags;
-		foreach (Contact *contact, initData->contacts) {
+		foreach (Contact *contact, contacts) {
 			if (account != contact->account())
 				continue;
 			foreach (const QString &tag, contact->tags())
@@ -446,9 +470,8 @@ void SeparatedModel::init()
 		cfg.endGroup();
 	}
 	// add contacts to the contact list
-	foreach (Contact *contact, initData->contacts)
+	foreach (Contact *contact, contacts)
 		addContact(contact);
-	delete initData;
 }
 
 void SeparatedModel::filterAllList()

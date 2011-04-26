@@ -150,6 +150,11 @@ void ToryWidget::removeButton(ActionGenerator *)
 	//d_func()->mainToolBar->removeAction(generator);
 }
 
+TreeView *ToryWidget::contactView()
+{
+	return d_func()->view;
+}
+
 QAction *ToryWidget::createGlobalStatus(Status::Type type)
 {
 	Status s = Status(type);

@@ -32,11 +32,17 @@ inline bool ContactItem::isInSelectedTag(QSet<QString> &selectedTags)
 
 PlainModel::PlainModel(QObject *parent) : AbstractContactModel(new PlainModelPrivate, parent)
 {
-	QTimer::singleShot(0, this, SLOT(init()));
+	if (!ObjectGenerator::isInited())
+		QTimer::singleShot(0, this, SLOT(init()));
 }
 
 PlainModel::~PlainModel()
 {
+}
+
+QList<Contact*> PlainModel::contacts() const
+{
+	return d_func()->contactHash.keys();
 }
 
 QModelIndex PlainModel::index(int row, int, const QModelIndex &parent) const
@@ -266,6 +272,12 @@ void PlainModel::init()
 		foreach(Account *account, proto->accounts())
 			onAccountCreated(account);
 	}
+}
+
+void PlainModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+{
+	foreach (Contact *contact, contacts)
+		addContact(contact);
 }
 
 void PlainModel::filterAllList()

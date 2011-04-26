@@ -44,6 +44,7 @@ private slots:
 	void init();
 	void onResetTagsTriggered();
 	void onSelectTagsTriggered();
+	void onServiceChanged(const QByteArray &name, QObject *now, QObject *old);
 private:
 	QScopedPointer<ModulePrivate> p;
 };

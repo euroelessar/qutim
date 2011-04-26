@@ -22,24 +22,7 @@
 
 namespace qutim_sdk_0_3 {
 
-class LIBQUTIM_EXPORT ServiceManager
-{
-public:
-	static QObject *getByName(const QByteArray &name);
-	template<typename T>
-	static inline T getByName(const QByteArray &name)
-	{ return qobject_cast<T>(ServiceManager::getByName(name)); }
-	static QList<QByteArray> names();
-private:
-	ServiceManager();
-	~ServiceManager();
-	Q_DISABLE_COPY(ServiceManager)
-};
-
-namespace game
-{
-
-class ServiceManager : public QObject
+class LIBQUTIM_EXPORT ServiceManager : public QObject
 {
 	Q_OBJECT
 public:
@@ -51,27 +34,27 @@ public:
 	static ServiceManager *instance();
 	/*! List info about all implementations of service with \param name
 	  */
-	ExtensionInfoList listImplementations(const QByteArray &name);
+	static ExtensionInfoList listImplementations(const QByteArray &name);
 	/*! Set an implementation with \param info for service with \param name.
 	  * When \param info is empty, service is turned off.
-	  * If this is impossible \return true.
+	  * Returns true, if the service has been successfully switched. Otherwise,
+	  * return false.
 	  */
-	bool setImplementation(const QByteArray &name, const ExtensionInfo &info);
+	static bool setImplementation(const QByteArray &name, const ExtensionInfo &info);
 signals:
 	/*! Notify a change of service.
 	  */
-	void serviceChanged(QObject *now, QObject *old);
+	void serviceChanged(const QByteArray &name, QObject *now, QObject *old);
 	void initFinished();
 private:
-	ServiceManager() {}
-	~ServiceManager() {}
+	ServiceManager();
+	~ServiceManager();
+	Q_DISABLE_COPY(ServiceManager)
 };
 
 inline ServiceManager *serviceManager()
 {
 	return ServiceManager::instance();
-}
-
 }
 
 } // namespace qutim_sdk_0_3

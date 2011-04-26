@@ -133,6 +133,11 @@ ProtocolMap allProtocols()
 	return map;
 }
 
+ModuleManagerPrivate *moduleManagerPrivate()
+{
+	return p;
+}
+
 static ExtensionNode *ensureNode(const QMetaObject *meta)
 {
 	QByteArray id = QByteArray::fromRawData(meta->className(), qstrlen(meta->className()));
@@ -500,10 +505,9 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
 	return 0;
 }
 
-typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
 void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
-				 QObjectList &order, const ServiceHash &hash,
-				 QSet<QByteArray> &used, QVariantMap &selected)
+				 QObjectList &order, QSet<QByteArray> &used,
+				 QVariantMap &selected)
 {
 	if (used.contains(name))
 		return;
@@ -517,7 +521,7 @@ void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
 			gen = 0;
 	}
 	if (!gen)
-		gen = hash.value(name);
+		gen = p->allServices.value(name).generator();
 	if (!gen)
 		qFatal("\"%s\" service has not been found", name.constData());
 	const QMetaObject *meta = gen->metaObject();
@@ -525,7 +529,7 @@ void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
 		QMetaClassInfo info = meta->classInfo(i);
 		selected.insert(stringName, QString::fromLatin1(meta->className()));
 		if (!qstrcmp(info.name(), "Uses"))
-			initService(info.value(), services, order, hash, used, selected);
+			initService(info.value(), services, order, used, selected);
 	}
 #ifdef QUTIM_TEST_PERFOMANCE
 	QTime timer;
@@ -642,23 +646,20 @@ void ModuleManager::initExtensions()
 	{
 		ConfigGroup group = Config().group("services");
 		QVariantMap selected = group.value("list", QVariantMap());
-		ServiceHash serviceGens;
 		const ExtensionInfoList &exts = p->extensions;
 		for (int i = 0; i < exts.size(); i++) {
 			const ExtensionInfo &info = exts.at(i);
 			const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
 			if (serviceName && *serviceName) {
 				QByteArray name = serviceName;
-				serviceGens.insert(name, info.generator());
+				p->allServices.insert(name, info);
 			}
 		}
 		QSet<QByteArray> used;
-		ServiceHash::iterator it;
-		for (it = serviceGens.begin(); it != serviceGens.end(); it++)
-			initService(it.key(), p->services, p->serviceOrder, serviceGens, used, selected);
+		foreach (const QByteArray &service, p->allServices.keys())
+			initService(service, p->services, p->serviceOrder, used, selected);
 		qDebug() << "Inited Services" << used;
 		group.setValue("list", selected);
-		group.sync();
 	}
 	foreach (QObject *service, p->serviceOrder)
 		usedExtensions << service->metaObject()->className();
