@@ -214,6 +214,9 @@ private:
 	QHash<QString, bool> m_extInfo;
 	int m_statusIconSize;
 	int m_extIconSize;
+	int m_avatarSize;
+	int m_tagIconSize;
+	int m_accountIconSize;
 	QString m_css;
 };
 

@@ -23,6 +23,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/thememanager.h>
 #include <qutim/settingslayer.h>
+#include <3rdparty/avatarfilter/avatarfilter.h>
 #include <QDir>
 #include <QFile>
 #include <QScrollBar>
@@ -36,7 +37,7 @@
 #include <QLatin1Literal>
 #include "settings/olddelegatesettings.h"
 
-bool contactInfoLessThan (const QVariantHash &a, const QVariantHash &b) {
+bool contactInfoLessThan(const QVariantHash &a, const QVariantHash &b) {
 	QString priority = QLatin1String("priorityInContactList");
 	int p1 = a.value(priority).toInt();
 	int p2 = b.value(priority).toInt();
@@ -265,12 +266,14 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 	QFontMetrics fontMetrics(font);
 	QRect rect = option.rect;
 	rect.adjust(m_margin, m_margin, 0, 0);
+	QRect status_rect = rect;
+	int height = 0;
 
-	QList<QIcon> icons;
+	QList<QPixmap> pixmaps;
 	if (type == TagType && treeView) {
 		bool isExpanded = treeView->isExpanded(index);
 		Icon icon(isExpanded ? "expanded" : "collapsed");
-		if (icon.pixmap(m_extIconSize).isNull()) {
+		if (icon.pixmap(m_avatarSize).isNull()) {
 			QStyleOption branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
@@ -284,24 +287,30 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
 			getStyle(option)->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, widget);
 		} else {
-			icons << icon;
+			pixmaps << icon.pixmap(m_tagIconSize, m_tagIconSize);
 		}
 	} else if (type == ContactType) {
-		icons << index.data(Qt::DecorationRole).value<QIcon>();
-		if (m_showFlags & ShowAvatars)
-			icons << QIcon(index.data(AvatarRole).toString());
+		QPixmap statusPixmap = index.data(Qt::DecorationRole)
+							   .value<QIcon>()
+							   .pixmap(m_statusIconSize);
+		if (!statusPixmap.isNull()) {
+			status_rect.adjust(m_statusIconSize + m_margin, 0, 0, 0);
+			pixmaps << statusPixmap;
+		}
+		if (m_showFlags & ShowAvatars) {
+			height = m_avatarSize;
+			pixmaps << AvatarFilter::icon(index.data(AvatarRole).toString()).pixmap(m_avatarSize);
+		}
 	} else if (type == AccountType) {
-		icons << Icon("qutim");
+		pixmaps << Icon("qutim").pixmap(m_accountIconSize);
 	}
-	foreach (const QIcon &icon, icons) {
-		if (icon.isNull())
+	foreach (const QPixmap &pixmap, pixmaps) {
+		if (pixmap.isNull())
 			continue;
-		QSize iconSize = icon.actualSize(QSize(m_statusIconSize, m_statusIconSize));
-		painter->drawPixmap(QRect(rect.topLeft(), iconSize), icon.pixmap(iconSize, QIcon::Normal, QIcon::On));
-		rect.adjust(iconSize.width() + m_margin, 0, 0, 0);
+		painter->drawPixmap(QRect(rect.topLeft(), pixmap.size()), pixmap);
+		rect.adjust(pixmap.width() + m_margin, 0, 0, 0);
 	}
 
-	int height = 0;
 	QRect title_rect = rect;
 	if (m_showFlags & ShowExtendedInfoIcons) {
 		QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
@@ -332,7 +341,7 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 			title_rect.adjust(0, 0, -m_extIconSize - m_margin * 2, 0);
 			painter->drawPixmap(QRect(title_rect.topRight(), QSize(m_extIconSize, m_extIconSize)), pixmap);
 		}
-		height = m_extIconSize;
+		height = qMax(m_extIconSize, height);
 	}
 
 	title_rect.adjust(0, 0, -m_margin, 0);
@@ -367,7 +376,6 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 		painter->setFont(statusFont);
 		painter->setPen(statusColor);
 		fontMetrics = QFontMetrics(statusFont);
-		QRect status_rect = rect;
 		status_rect.adjust(0, height + m_margin, 0, 0);
 		statusText = statusText.remove(QLatin1Char('\n'));
 		statusText = fontMetrics.elidedText(statusText, Qt::ElideRight, status_rect.width());
@@ -416,10 +424,25 @@ QSize ContactListItemDelegate::sizeHint(const QStyleOptionViewItem &option2, con
 	}
 
 	int height = size(opt, index, index.data(Qt::DisplayRole)).height();
-	height = qMax(height, m_statusIconSize);
 
-	if (m_showFlags & ShowExtendedInfoIcons)
-		height = qMax(height, m_extIconSize);
+	int iconSize = 0;
+	if (type == ContactType)
+		iconSize = m_statusIconSize;
+	else if (type == TagType)
+		iconSize = m_tagIconSize;
+	else if (type == AccountType)
+		iconSize = m_accountIconSize;
+	height = qMax(height, iconSize);
+
+	if (m_showFlags & ShowAvatars && QFileInfo(index.data(AvatarRole).toString()).exists())
+		height = qMax(height, m_avatarSize);
+
+	if (m_showFlags & ShowExtendedInfoIcons &&
+		m_extIconSize > height &&
+		!status.extendedInfos().isEmpty())
+	{
+		height = m_extIconSize;
+	}
 
 	if (m_showFlags & ShowStatusText && !status.text().isEmpty()) {
 		QFontMetrics metrics = QFontMetrics(m_styleType == QutimStyle ? q->status_font : optFont);
@@ -1113,17 +1136,18 @@ void ContactListItemDelegate::reloadSettings()
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
 
+	int smallIconSize = qApp->style()->pixelMetric(QStyle::PM_SmallIconSize);
 #ifdef QUTIM_MOBILE_UI
 	m_statusIconSize = cfg.value("statusIconSize",
 								 qApp->style()->pixelMetric(QStyle::PM_ListViewIconSize));
-#elif defined (Q_WS_WIN32) || defined(Q_WS_MAC)
-	m_statusIconSize = cfg.value("statusIconSize", 22);
 #else
-	m_statusIconSize = cfg.value("statusIconSize",
-								 qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));
+	m_statusIconSize = cfg.value("statusIconSize", smallIconSize);
 #endif
-	m_extIconSize = cfg.value("extIconSize",
-							  qApp->style()->pixelMetric(QStyle::PM_SmallIconSize));
+	m_extIconSize = cfg.value("extIconSize", smallIconSize);
+	m_avatarSize = cfg.value("avatarSize", smallIconSize);
+	m_accountIconSize = cfg.value("accountIconSize", smallIconSize);
+	m_tagIconSize = cfg.value("tagIconSize", smallIconSize);
+
 	setFlag(ShowStatusText, cfg.value("showStatusText", true));
 	setFlag(ShowExtendedInfoIcons, cfg.value("showExtendedInfoIcons", true));
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
