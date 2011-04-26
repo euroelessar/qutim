@@ -101,22 +101,22 @@ set( QUTIM_LIBRARIES libqutim )
 
 # For Apple set the icns file containing icons
 IF(APPLE)
-  # set how it shows up in the Info.plist file
-  SET(MACOSX_BUNDLE_ICON_FILE qutim.icns)
-  SET(MACOSX_BUNDLE_INFO_STRING "Module based instant messenger")
-  SET(MACOSX_BUNDLE_LONG_VERSION_STRING "0.3 beta (0.2.80)")
-  SET(MACOSX_BUNDLE_BUNDLE_NAME "qutIM")
-  SET(MACOSX_BUNDLE_BUNDLE_VERSION "0.3 beta")
-  # set where in the bundle to put the icns file
-  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-  # include the icns file in the target
-  SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
+	# set how it shows up in the Info.plist file
+	SET(MACOSX_BUNDLE_ICON_FILE qutim.icns)
+	SET(MACOSX_BUNDLE_INFO_STRING "Module based instant messenger")
+	SET(MACOSX_BUNDLE_LONG_VERSION_STRING "0.3 beta (0.2.80)")
+	SET(MACOSX_BUNDLE_BUNDLE_NAME "qutIM")
+	SET(MACOSX_BUNDLE_BUNDLE_VERSION "0.3 beta")
+	# set where in the bundle to put the icns file
+	SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	# include the icns file in the target
+	SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
 
-  GET_FILENAME_COMPONENT(qt_lib_path "${QT_QTGUI_LIBRARY_RELEASE}" PATH)
-  set (qt_menu_nib "${qt_lib_path}/Resources/qt_menu.nib")
-  set(qt_menu_nib_sources "${qt_menu_nib}/classes.nib" "${qt_menu_nib}/info.nib" "${qt_menu_nib}/keyedobjects.nib" )
-  SET_SOURCE_FILES_PROPERTIES(${qt_menu_nib_sources} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/qt_menu.nib)
-  SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
+	GET_FILENAME_COMPONENT(qt_lib_path ${QT_QTGUI_LIBRARY_RELEASE} ABSOLUTE)
+	set (qt_menu_nib "${qt_lib_path}/Resources/qt_menu.nib")
+	set(qt_menu_nib_sources "${qt_menu_nib}/classes.nib" "${qt_menu_nib}/info.nib" "${qt_menu_nib}/keyedobjects.nib" )
+	SET_SOURCE_FILES_PROPERTIES(${qt_menu_nib_sources} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/qt_menu.nib)
+	SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
 ENDIF(APPLE)
 
 IF (APPLE)
@@ -214,27 +214,32 @@ qutim_target_link_libraries (qutim
 
 IF (APPLE AND QUTIM_BUNDLE_LOCATION)
 
+	macro(_deploy_plugins_dir _plugin)
+		set(plugin_dir "${QT_PLUGINS_DIR}/${_plugin}")
+		file(GLOB plugins ${plugin_dir} "${plugin_dir}/*.dylib")
+		get_filename_component(category ${plugin_dir} NAME_WE)
+		get_filename_component(_abs_FILE ${plugin_dir} ABSOLUTE)
+		foreach(plugin ${plugins})
+			get_filename_component(_abs_PATH ${plugin} ABSOLUTE)
+			get_filename_component(name ${plugin} NAME)
+			#TODO remove this hack
+			if(NOT ${_abs_PATH} STREQUAL ${_abs_FILE})
+				message(${name})
+				add_custom_command(TARGET qutim-bundle POST_BUILD
+					COMMAND ${CMAKE_COMMAND}
+						ARGS -E copy
+						${_abs_PATH}
+						${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/${category}/${name}
+				)
+			endif()
+		endforeach()
+	endmacro()
+
+	_deploy_plugins_dir(bearer)
+	_deploy_plugins_dir(imageformats)
+	_deploy_plugins_dir(iconengines)
+
 	add_custom_command(TARGET qutim-bundle POST_BUILD
-		COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy
-			${QT_PLUGINS_DIR}/bearer/libqcorewlanbearer.dylib
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/bearer/libqcorewlanbearer.dylib
-		COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy
-			${QT_PLUGINS_DIR}/bearer/libqgenericbearer.dylib
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/bearer/libqgenericbearer.dylib
-		COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy
-			${QT_PLUGINS_DIR}/iconengines/libqsvgicon.dylib
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/iconengines/libqsvgicon.dylib
-		COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy
-			${QT_PLUGINS_DIR}/imageformats/libqgif.dylib 
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/imageformats/libqgif.dylib 
-		COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy
-			${QT_PLUGINS_DIR}/imageformats/libqsvg.dylib
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/imageformats/libqsvg.dylib
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
 			${QUTIM_BUNDLE_LOCATION}
 		)
