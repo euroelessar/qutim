@@ -34,7 +34,7 @@ struct FileTransferScope
 	struct Observer
 	{
 		QList<FileTransferObserver *> list;
-		QPointer<ChatUnit> unit;
+		ChatUnit *unit;
 #ifdef REMEMBER_ALL_ABILITIES
 		QBitArray abilities;
 		int setCount;
@@ -97,7 +97,7 @@ class FileTransferInfoPrivate : public QSharedData
 public:
 	FileTransferInfoPrivate() : fileSize(0) {}
 	FileTransferInfoPrivate(const FileTransferInfoPrivate &o) :
-	    QSharedData(o), fileName(o.fileName), fileSize(o.fileSize) {}
+		QSharedData(o), fileName(o.fileName), fileSize(o.fileSize) {}
 	QString fileName;
 	qint64 fileSize;
 };
@@ -491,9 +491,26 @@ public:
 	FileTransferObserverPrivate(FileTransferObserver *q) : q_ptr(q), scope(0) {}
 	static FileTransferObserverPrivate *get(FileTransferObserver *o) { return o->d_func(); }
 	void emitAbilityChanged(bool ability) { emit q_func()->abilityChanged(ability); }
+	void _q_clearObserverData(QObject *obj);
 	FileTransferObserver *q_ptr;
 	FileTransferObserverMap::Iterator scope;
+	bool isEmpty;
 };
+
+void FileTransferObserverPrivate::_q_clearObserverData(QObject *unit)
+{
+	Q_Q(FileTransferObserver);
+	scope->list.removeOne(q);
+	if (scope->list.isEmpty()) {
+		if (unit) {
+			QList<FileTransferFactory*> &list = qutim_sdk_0_3::scope()->factories;
+			for (int i = 0; i < list.size(); i++)
+				list.at(i)->stopObserve(reinterpret_cast<ChatUnit*>(unit));
+		}
+		qutim_sdk_0_3::scope()->observers.erase(scope);
+	}
+	isEmpty = true;
+}
 
 FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
     d_ptr(new FileTransferObserverPrivate(this))
@@ -523,34 +540,33 @@ FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
 #endif
 	}
 	d->scope->list.append(this);
+	connect(unit, SIGNAL(destroyed(QObject*)),
+			SLOT(_q_clearObserverData(QObject*)));
 }
 
 FileTransferObserver::~FileTransferObserver()
 {
 	Q_D(FileTransferObserver);
-	d->scope->list.removeOne(this);
-	if (d->scope->list.isEmpty()) {
-		if (d->scope->unit) {
-			QList<FileTransferFactory*> &list = scope()->factories;
-			for (int i = 0; i < list.size(); i++)
-				list.at(i)->stopObserve(d->scope->unit);
-		}
-		scope()->observers.erase(d->scope);
-	}
+	if (!d->isEmpty)
+		d->_q_clearObserverData(d->scope->unit);
 }
 
 bool FileTransferObserver::checkAbility() const
 {
+	Q_D(const FileTransferObserver);
+	if (d->isEmpty)
+		return false;
 #ifdef REMEMBER_ALL_ABILITIES
-	return d_func()->scope->setCount > 0;
+	return d->scope->setCount > 0;
 #else
-	return d_func()->scope->ability;
+	return d->scope->ability;
 #endif
 }
 
 ChatUnit *FileTransferObserver::chatUnit() const
 {
-	return d_func()->scope->unit;
+	Q_D(const FileTransferObserver);
+	return d->isEmpty ? 0 : d->scope->unit;
 }
 
 class FileTransferFactoryPrivate
@@ -767,3 +783,5 @@ void FileTransferManager::virtual_hook(int id, void *data)
 }
 
 }
+
+#include "filetransfer.moc"

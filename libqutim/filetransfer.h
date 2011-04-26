@@ -153,6 +153,7 @@ public:
 signals:
 	void abilityChanged(bool);
 protected:
+	Q_PRIVATE_SLOT(d_func(), void _q_clearObserverData(QObject *unit));
 	QScopedPointer<FileTransferObserverPrivate> d_ptr;
 };
 
