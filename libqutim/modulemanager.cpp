@@ -28,6 +28,7 @@
 #include "icon.h"
 #include "varianthook_p.h"
 #include "debug.h"
+#include "servicemanager_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -90,11 +91,6 @@ bool isCoreInited()
 	return managerSelf && p && p->is_inited;
 }
 
-QHash<QByteArray, QObject *> &services()
-{
-	return p->services;
-}
-
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 {
 	Q_ASSERT((module == 0) ^ (iid == 0));
@@ -131,11 +127,6 @@ ProtocolMap allProtocols()
 	if(ObjectGenerator::isInited())
 		map = *p->protocols;
 	return map;
-}
-
-ModuleManagerPrivate *moduleManagerPrivate()
-{
-	return p;
 }
 
 static ExtensionNode *ensureNode(const QMetaObject *meta)
@@ -505,44 +496,6 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
 	return 0;
 }
 
-void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
-				 QObjectList &order, QSet<QByteArray> &used,
-				 QVariantMap &selected)
-{
-	if (used.contains(name))
-		return;
-	used.insert(name);
-	QString stringName = QString::fromLatin1(name, name.size());
-	QString previous = selected.value(stringName).toString();
-	const ObjectGenerator *gen = 0;
-	if (!previous.isEmpty()) {
-		gen = p->extensionsHash.value(previous.toLatin1()).generator();
-		if (!gen || name != MetaObjectBuilder::info(gen->metaObject(), "Service"))
-			gen = 0;
-	}
-	if (!gen)
-		gen = p->allServices.value(name).generator();
-	if (!gen)
-		qFatal("\"%s\" service has not been found", name.constData());
-	const QMetaObject *meta = gen->metaObject();
-	for (int i = 0, size = meta->classInfoCount(); i < size; i++) {
-		QMetaClassInfo info = meta->classInfo(i);
-		selected.insert(stringName, QString::fromLatin1(meta->className()));
-		if (!qstrcmp(info.name(), "Uses"))
-			initService(info.value(), services, order, used, selected);
-	}
-#ifdef QUTIM_TEST_PERFOMANCE
-	QTime timer;
-	timer.start();
-#endif
-	QObject *obj = gen->generate<QObject>();
-	order.prepend(obj);
-	services.insert(name, obj);
-#ifdef QUTIM_TEST_PERFOMANCE
-	qDebug("Service \"%s\": %d ms", obj->metaObject()->className(), timer.elapsed());
-#endif
-}
-
 /**
   * Don't know
   */
@@ -643,27 +596,7 @@ void ModuleManager::initExtensions()
 			}
 		}
 	}
-	{
-		ConfigGroup group = Config().group("services");
-		QVariantMap selected = group.value("list", QVariantMap());
-		const ExtensionInfoList &exts = p->extensions;
-		for (int i = 0; i < exts.size(); i++) {
-			const ExtensionInfo &info = exts.at(i);
-			const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
-			if (serviceName && *serviceName) {
-				QByteArray name = serviceName;
-				p->allServices.insert(name, info);
-			}
-		}
-		QSet<QByteArray> used;
-		foreach (const QByteArray &service, p->allServices.keys())
-			initService(service, p->services, p->serviceOrder, used, selected);
-		qDebug() << "Inited Services" << used;
-		group.setValue("list", selected);
-	}
-	foreach (QObject *service, p->serviceOrder)
-		usedExtensions << service->metaObject()->className();
-	p->isServicesInited = true;
+	ServiceManagerPrivate::get(ServiceManager::instance())->init();
 #ifndef Q_OS_MAC
 	qApp->setWindowIcon(Icon("qutim"));
 #endif
@@ -745,9 +678,7 @@ void ModuleManager::onQuit()
 		}
 	}
 	qDeleteAll(p->plugins);
-	qDeleteAll(p->serviceOrder);
-	p->serviceOrder.clear();
-	p->services.clear();
+	ServiceManagerPrivate::get(ServiceManager::instance())->deinit();
 	qDeleteAll(*(p->protocols));
 }
 

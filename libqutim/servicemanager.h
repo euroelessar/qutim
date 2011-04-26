@@ -20,12 +20,17 @@
 #include "libqutim_global.h"
 #include "extensioninfo.h"
 
-namespace qutim_sdk_0_3 {
+namespace qutim_sdk_0_3
+{
+
+class ServiceManagerPrivate;
 
 class LIBQUTIM_EXPORT ServiceManager : public QObject
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(ServiceManager)
 public:
+	static bool isInited();
 	static QObject *getByName(const QByteArray &name);
 	template<typename T>
 	static inline T getByName(const QByteArray &name)
@@ -41,22 +46,19 @@ public:
 	  * return false.
 	  */
 	static bool setImplementation(const QByteArray &name, const ExtensionInfo &info);
-	static bool isInited();
+
 signals:
 	/*! Notify a change of service.
 	  */
-	void serviceChanged(const QByteArray &name, QObject *now, QObject *old);
-	void initFinished();
+	void serviceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
+	void serviceChanged(QObject *newObject, QObject *oldObject);
+
 private:
 	ServiceManager();
 	~ServiceManager();
-	Q_DISABLE_COPY(ServiceManager)
-};
 
-inline ServiceManager *serviceManager()
-{
-	return ServiceManager::instance();
-}
+	QScopedPointer<ServiceManagerPrivate> d_ptr;
+};
 
 } // namespace qutim_sdk_0_3
 

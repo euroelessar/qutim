@@ -25,7 +25,6 @@ struct PluginData
 };
 
 typedef QHash<QByteArray, ExtensionNode*> ExtensionNodeHash;
-typedef QMultiHash<QByteArray, ExtensionInfo> ServiceHash;
 
 /**
   * ModuleManagerPrivate class used to hide inner structure of ModuleManager to provide binary compatibility between different versions.
@@ -52,7 +51,6 @@ public:
 	QHash<QByteArray, ExtensionInfo> extensionsHash;
 	QHash<QString, Plugin*> extsPlugins;
 	ExtensionInfoList extensions;
-	ServiceHash allServices;
 	QSet<QByteArray> interface_modules;
 	QSet<const QMetaObject *> meta_modules;
 	QList<const ExtensionInfo> modules;
@@ -71,10 +69,8 @@ protected:
 };
 
 bool isCoreInited();
-QHash<QByteArray, QObject *> &services();
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid);
 ProtocolMap allProtocols();
-ModuleManagerPrivate *moduleManagerPrivate();
 
 }
 
