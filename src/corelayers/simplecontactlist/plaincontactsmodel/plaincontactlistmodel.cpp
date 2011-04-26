@@ -291,7 +291,8 @@ void PlainModel::updateContactData(Contact *contact)
 {
 	Q_D(PlainModel);
 	ContactItem *item = d->contactHash.value(contact);
-	Q_ASSERT(item);
+	if (!item)
+		return;
 	QModelIndex index = createIndex(d->contacts.indexOf(item), 0, item);
 	emit dataChanged(index, index);
 }

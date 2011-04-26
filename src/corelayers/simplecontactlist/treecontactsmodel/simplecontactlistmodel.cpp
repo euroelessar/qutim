@@ -404,6 +404,8 @@ void TreeModel::updateContactData(Contact *contact)
 {
 	Q_D(TreeModel);;
 	ContactData::Ptr item_data = d->contacts.value(contact);
+	if (!item_data)
+		return;
 	for (int i = 0; i < item_data->items.size(); i++) {
 		ContactItem *item = item_data->items.at(i);
 		QModelIndex index = createIndex(item->index(), 0, item);
