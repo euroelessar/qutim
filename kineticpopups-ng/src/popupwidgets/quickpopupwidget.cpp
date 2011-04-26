@@ -41,9 +41,17 @@ QuickNotify::QuickNotify(Notification* notify) :
 	//add Actions
 	foreach (NotificationAction action, notify->request().actions()) {
 		QAction *notifyAction = new QAction(action.icon(), action.title(), this);
-		connect(notifyAction, SIGNAL(triggered()), action.receiver(), action.method());
+		connect(notifyAction, SIGNAL(triggered()), SLOT(onActionTriggered()));
+		notifyAction->setData(qVariantFromValue(action));
 		m_actions.append(notifyAction);
 	}
+}
+
+void QuickNotify::onActionTriggered()
+{
+	QAction *action = sender_cast<QAction*>(sender());
+	NotificationAction notify = action->data().value<NotificationAction>();
+	notify.trigger();
 }
 
 QString QuickNotify::text() const

@@ -5,14 +5,18 @@ Rectangle {
 	id: main
 
 	width: 300
-	height: childrenRect.height + 15
+	height: childrenRect.height
 	color: "transparent"
 
 	PopupAttributes {
+		id: attributes
+		property int trimLength: 80
+
 		frameStyle: PopupAttributes.ToolTip
 	}
 
 	BorderImage {
+		id: borderImage
 		anchors.fill: main
 		border.left: 5; border.top: 5
 		border.right: 5; border.bottom: 5
@@ -23,7 +27,7 @@ Rectangle {
 	Image {
 		id: image
 		source: "images/qutim.svg"
-		width: 50
+		width: 30
 		fillMode: Image.PreserveAspectFit
 
 		anchors {
@@ -32,17 +36,19 @@ Rectangle {
 			topMargin: 15
 			leftMargin: 5
 		}
+
+
 	}
 
 	Text {
-		id: title
-		text: "Title"
+		id: subject
+		//text: "Title"
 
 		anchors {
 			top: main.top
 			left: image.right
 			right: main.right
-			topMargin: 10
+			topMargin: 5
 			leftMargin: 5
 			rightMargin: 5
 		}
@@ -52,18 +58,19 @@ Rectangle {
 		font.bold: true
 		style: Text.Sunken
 		styleColor: "black"
-		font.pixelSize: text.font.pixelSize + 2
+		font.pixelSize: body.font.pixelSize + 2
 	}
 
 	Text {
-		id: text
+		id: body
 		wrapMode: Text.Wrap
+		//text: "Body Вот тестирую текст, много разного текста, он должен нормально отображаться"
 
 		anchors {
-			top: title.bottom
-			left: title.left
-			right: title.right
-			topMargin: -15
+			top: subject.bottom
+			left: subject.left
+			right: subject.right
+			//topMargin: -15
 		}
 
 		color: "white"
@@ -71,22 +78,106 @@ Rectangle {
 		styleColor: "black"
 	}
 
-    MouseArea {
+	ListView {
+		id: actions
+
+		z: 10
+		height: 30
+		orientation: ListView.Horizontal
+		spacing: 10
+
+		anchors {
+			top: body.bottom
+			left: body.left
+			right: body.right
+		}
+		delegate: Text {
+			id: actionDelegate
+			text: model.modelData.text
+
+			color: "white"
+			style: Text.Sunken
+			styleColor: "black"
+			font.italic: true
+			font.underline: true
+
+			MouseArea {
+				id: actionArea
+				anchors.fill: parent
+
+				hoverEnabled: true
+				acceptedButtons: Qt.LeftButton
+
+				onClicked: {
+					console.log("Action: " + model.modelData);
+					model.modelData.trigger();
+					mouse.accepted = true;
+				}
+			}
+
+			states: [
+				State {
+					name: "hovered"
+					when: actionArea.containsMouse
+					PropertyChanges {
+						target: actionDelegate
+						font.underline: false
+					}
+				},
+				State {
+					name: "leaved"
+					when: !actionArea.containsMouse
+					PropertyChanges {
+						target: actionDelegate
+						font.underline: true
+					}
+				},
+				State {
+					name: "pressed"
+					when: actionArea.pressed
+					PropertyChanges {
+						target: actionDelegate
+						font.underline: false
+						font.bold: true
+					}
+				}
+			]
+		}
+	}
+
+	MouseArea {
+		id: acceptIgnoreArea
 		anchors.fill: main
 		acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onClicked: {
+		onClicked: {
+			console.log("Clicked");
 			if (mouse.button == Qt.RightButton)
 				popup.ignore();
 			else
 				popup.accept();
-        }
-    }
+		}
+	}
 
 	Connections {
 		target: popup
 		onNotifyAdded: {
-			text.text = text.text + "<br />" + notify.text;
-			title.text = notify.title;
+			var str = body.text;
+			if (str.length && notify.text.length && str.length < attributes.trimLength)
+				str = str + "<br /> ";
+			str = str + notify.text;
+			//trim
+			if (str.length > attributes.trimLength)
+				str = str.substring(0, attributes.trimLength - 3) + "...";
+			body.text = str;
+
+
+			subject.text = notify.title;
+			actions.model = notify.actions;
+
+			//TODO write image provider for avatars
+			console.log ("Avatarpath " + body.text.length + " " + attributes.trimLength);
+			if(notify.avatar != "undefined")
+				image.source = notify.avatar;
 		}
 	}
 }

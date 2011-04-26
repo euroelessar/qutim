@@ -37,6 +37,8 @@ public:
 	QObject* object() const;
 	qutim_sdk_0_3::Notification::Type type() const;
 	QObjectList actions() const;
+private slots:
+	void onActionTriggered();
 private:
 	qutim_sdk_0_3::Notification *m_notify;
 	QObjectList m_actions;
