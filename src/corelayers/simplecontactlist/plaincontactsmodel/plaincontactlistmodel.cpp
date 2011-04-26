@@ -4,6 +4,7 @@
 #include <qutim/metacontactmanager.h>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/protocol.h>
+#include <qutim/servicemanager.h>
 #include <QMimeData>
 #include <QMessageBox>
 #include <QTimer>
@@ -32,7 +33,7 @@ inline bool ContactItem::isInSelectedTag(QSet<QString> &selectedTags)
 
 PlainModel::PlainModel(QObject *parent) : AbstractContactModel(new PlainModelPrivate, parent)
 {
-	if (!ObjectGenerator::isInited())
+	if (!ServiceManager::isInited())
 		QTimer::singleShot(0, this, SLOT(init()));
 }
 
