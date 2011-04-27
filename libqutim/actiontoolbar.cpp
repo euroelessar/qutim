@@ -261,6 +261,7 @@ void ActionToolBar::mousePressEvent(QMouseEvent *event)
 		ReleaseCapture();
 		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
 		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
+	}
 #endif
 	QToolBar::mousePressEvent(event);
 }
