@@ -97,7 +97,7 @@ void TabbedChatWidget::loadSettings()
 							 | AdiumToolbar
 							 | TabsOnBottom
 #ifdef Q_WS_MAC
-							 | MenuBar
+//							 | MenuBar
 #endif
 							 );
 
