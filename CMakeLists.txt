@@ -112,8 +112,11 @@ IF(APPLE)
 	# include the icns file in the target
 	SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
 
-	GET_FILENAME_COMPONENT(qt_lib_path ${QT_QTGUI_LIBRARY_RELEASE} ABSOLUTE)
-	set (qt_menu_nib "${qt_lib_path}/Resources/qt_menu.nib")
+	#TODO rewrite on find path
+	#GET_FILENAME_COMPONENT(qt_lib_path "${QT_QTGUI_LIBRARY_RELEASE}/" ABSOLUTE)
+	set(qt_menu_nib "${QT_QTGUI_LIBRARY_RELEASE}/Resources/qt_menu.nib")
+	#GET_FILENAME_COMPONENT(qt_menu_nib "${_qt_menu_nib}" ABSOLUTE)
+	#set(qt_menu_nib "${qt_lib_path}/Resources/qt_menu.nib")
 	set(qt_menu_nib_sources "${qt_menu_nib}/classes.nib" "${qt_menu_nib}/info.nib" "${qt_menu_nib}/keyedobjects.nib" )
 	SET_SOURCE_FILES_PROPERTIES(${qt_menu_nib_sources} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/qt_menu.nib)
 	SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
@@ -268,7 +271,7 @@ INSTALL(TARGETS qutim
 
 QUTIM_ADD_ARTWORK_DIR(share/qutim)
 
-IF(NOT WIN32)
+IF(UNIX AND NOT APPLE)
 	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
 		DESTINATION share
 			COMPONENT Core
