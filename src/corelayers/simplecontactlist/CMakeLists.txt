@@ -1,6 +1,6 @@
 include_directories(.)
 
-qutim_add_plugin(simplecontactlist
+qutim_add_plugin(contactlist
 	EXTENSION
 	EXTENSION_HEADER contactlist/simplecontactlist.h
 	EXTENSION_CLASS Core::SimpleContactList::Module

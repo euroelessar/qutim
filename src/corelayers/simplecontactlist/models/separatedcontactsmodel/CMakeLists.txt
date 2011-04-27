@@ -5,6 +5,6 @@ qutim_add_plugin(separatedcontactsmodel
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Separated contacts model"
 	DESCRIPTION "Simple separated contactlist model"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )
