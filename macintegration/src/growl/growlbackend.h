@@ -1,18 +1,20 @@
 #ifndef GROWLBACKEND_H
 #define GROWLBACKEND_H
 
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 class GrowlNotificationWrapper;
-class GrowlBackend : public qutim_sdk_0_3::PopupBackend
+class GrowlBackend : public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
-	public:
-		virtual void show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
-				const QString& body, const QVariant& data);
-		GrowlBackend();
-		virtual ~GrowlBackend();
-	private:
-		QScopedPointer<GrowlNotificationWrapper> m_wrapper;
+	Q_CLASSINFO("Service", "Popup")
+	Q_CLASSINFO("Type", "Popup")
+public:
+	GrowlBackend();
+	virtual ~GrowlBackend();
+protected:
+	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+private:
+	QScopedPointer<GrowlNotificationWrapper> m_wrapper;
 };
 
 #endif // GROWLBACKEND_H

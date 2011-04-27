@@ -14,7 +14,7 @@ qutim_add_plugin( macintegration
 )
 
 #reinder, please update this paths
-INSTALL(DIRECTORY share/config
-	DESTINATION share/qutim
-		COMPONENT Core
-)
+#INSTALL(DIRECTORY share/config
+#	DESTINATION share/qutim
+#		COMPONENT Core
+#)
