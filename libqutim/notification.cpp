@@ -96,6 +96,7 @@ NotificationRequest Notification::request() const
 
 void Notification::accept()
 {
+	debug() << "Accepted";
 	emit accepted();
 	deleteLater();
 }
@@ -151,6 +152,12 @@ NotificationAction::NotificationAction(const LocalizedString &title,
 	d->title = title;
 	d->receiver = receiver;
 	d->method = method;
+}
+
+NotificationAction::NotificationAction() :
+	d(new NotificationActionPrivate)
+{
+
 }
 
 NotificationAction::NotificationAction(const NotificationAction &action) :
@@ -216,6 +223,8 @@ void NotificationAction::trigger() const
 	if (index != -1)
 		meta->method(index).invoke(d->receiver,
 								   Q_ARG(NotificationRequest, d->notification->request()));
+	else
+		warning() << "Invalid action triggered";
 }
 
 namespace CompiledProperty

@@ -76,6 +76,7 @@ typedef QList<Notification*> NotificationList;
 class LIBQUTIM_EXPORT NotificationAction
 {
 public:
+	NotificationAction();
 	NotificationAction(const QIcon &icon, const LocalizedString &title,
 					   QObject *receiver, const char *method);
 	NotificationAction(const LocalizedString &title,
@@ -171,6 +172,7 @@ protected:
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
+Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationAction)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
 
 #endif // NOTIFICATION_H
