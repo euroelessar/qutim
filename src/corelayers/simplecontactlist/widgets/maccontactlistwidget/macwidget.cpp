@@ -55,7 +55,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	QVBoxLayout *layout = new QVBoxLayout(w);
-	layout->setMargin(0);
+	layout->setMargin(1);
 	layout->setSpacing(0);
 
 	if (QtWin::isCompositionEnabled()) {
@@ -81,7 +81,8 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->view = new TreeView(d->model, this);
 	layout->addWidget(d->view);
 	d->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate *>("ContactDelegate"));
-	d->view->setAlternatingRowColors(false);
+	d->view->setAlternatingRowColors(true);
+	d->view->setFrameShape(QFrame::NoFrame);
 	//d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	d->searchBar = new QLineEdit(this);

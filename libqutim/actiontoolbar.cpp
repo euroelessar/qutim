@@ -254,23 +254,25 @@ QVariant ActionToolBar::data() const
 
 void ActionToolBar::mousePressEvent(QMouseEvent *event)
 {
+#ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
-#ifndef Q_OS_WIN
-		d->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
-#else
+		//d->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
 		ReleaseCapture();
 		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
 		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
 #endif
-	}
+	QToolBar::mousePressEvent(event);
 }
 
 void ActionToolBar::mouseMoveEvent(QMouseEvent *event)
 {
+#ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if(d->moveHookEnabled && event->buttons() & Qt::LeftButton)
 		QWidget::window()->move(event->globalPos() - d->dragPos);
+#endif
+	QToolBar::mouseMoveEvent(event);
 }
 
 void ActionToolBar::contextMenuEvent(QContextMenuEvent* event)
@@ -284,11 +286,7 @@ void ActionToolBar::contextMenuEvent(QContextMenuEvent* event)
 
 void ActionToolBar::setMoveHookEnabled(bool enabled)
 {
-#if defined(Q_WS_WIN32) //use alt modificator instead!
 	d_func()->moveHookEnabled = enabled;
-#else
-	Q_UNUSED(enabled);
-#endif
 }
 
 void ActionToolBar::changeEvent(QEvent *e)
