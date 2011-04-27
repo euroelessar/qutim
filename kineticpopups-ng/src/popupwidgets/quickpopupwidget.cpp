@@ -126,7 +126,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	Config cfg("behavior");
 	cfg.beginGroup("popup");
 	loadTheme(cfg.value("themeName", "default"));
-	m_timeout.setInterval(cfg.value("timeout", 30000));
+	m_timeout.setInterval(cfg.value("timeout", 5000));
 	cfg.endGroup();
 
 	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(ignore()));
@@ -198,14 +198,20 @@ void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
 													 PopupAttributes::ToolTip;
 
 	Qt::WindowFlags flags = Qt::WindowStaysOnTopHint;
+	//set flags
 	switch(style) {
+	case PopupAttributes::AeroBlur:
+		flags |= Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint;
+		break;
 	case PopupAttributes::ToolTipBlurAero:
-		QtWin::extendFrameIntoClientArea(this);
+		flags |= Qt::ToolTip;
+		break;
 	case PopupAttributes::ToolTip:
 		flags |= Qt::ToolTip | Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
 		break;
 	case PopupAttributes::ToolBlurAero:
-		QtWin::enableBlurBehindWindow(this,true);
+		flags |= Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint
+				| Qt::WindowShadeButtonHint;
 	case PopupAttributes::Tool:
 		flags |= Qt::Tool;
 		break;
@@ -213,6 +219,20 @@ void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
 		break;
 	}
 	setWindowFlags(flags);
+
+	//enable aero
+	switch(style) {
+	case PopupAttributes::ToolBlurAero:
+	case PopupAttributes::AeroBlur:
+		QtWin::extendFrameIntoClientArea(this);
+		break;
+	case PopupAttributes::ToolTipBlurAero:
+		QtWin::enableBlurBehindWindow(this, true);
+		break;
+	default:
+		break;
+	}
+
 	emit sizeChanged(sizeHint());
 }
 

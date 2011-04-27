@@ -12,7 +12,7 @@ Rectangle {
 		id: attributes
 		property int trimLength: 80
 
-		frameStyle: PopupAttributes.ToolTip
+		frameStyle: PopupAttributes.ToolTipBlurAero
 	}
 
 	BorderImage {

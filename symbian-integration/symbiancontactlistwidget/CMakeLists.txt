@@ -6,6 +6,6 @@ qutim_add_plugin(symbiancontactlistwidget
 	DISPLAY_NAME "Symbian"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Symbian specific qutIM contactlist widget implementation"
-	DEPENDS symbiancontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )

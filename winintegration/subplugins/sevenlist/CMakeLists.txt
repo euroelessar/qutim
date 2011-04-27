@@ -6,6 +6,6 @@ qutim_add_plugin(sevenwidget
 	GROUP "Windows Seven Integration"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Windows seven specific implementation with button's in caption"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )
