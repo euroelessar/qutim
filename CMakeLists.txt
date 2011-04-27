@@ -224,7 +224,6 @@ IF (APPLE AND QUTIM_BUNDLE_LOCATION)
 			get_filename_component(name ${plugin} NAME)
 			#TODO remove this hack
 			if(NOT ${_abs_PATH} STREQUAL ${_abs_FILE})
-				message(${name})
 				add_custom_command(TARGET qutim-bundle POST_BUILD
 					COMMAND ${CMAKE_COMMAND}
 						ARGS -E copy

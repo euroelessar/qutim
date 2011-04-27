@@ -108,7 +108,7 @@ void ContactDelegate::paint(QPainter *painter,
 			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
 			branchOption.palette = option.palette;
 			branchOption.state = QStyle::State_Children;
-			title_rect.adjust(branchOption.rect.width() +p->horizontalPadding,0,0,0);
+			title_rect.adjust(branchOption.rect.width() + 2 * p->horizontalPadding,0,0,0);
 
 			if (view->isExpanded(index))
 				branchOption.state |= QStyle::State_Open;
