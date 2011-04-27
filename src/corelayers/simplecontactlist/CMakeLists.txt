@@ -1,6 +1,6 @@
 include_directories(.)
 
-qutim_add_plugin(simplecontactlist
+qutim_add_plugin(contactlist
 	EXTENSION
 	EXTENSION_HEADER contactlist/simplecontactlist.h
 	EXTENSION_CLASS Core::SimpleContactList::Module
@@ -26,8 +26,8 @@ qutim_add_plugin(treecontactsmodel
 	SOURCE_DIR treecontactsmodel
 	DISPLAY_NAME "Tree contacts model"
 	DESCRIPTION "Simple contactlist model"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )
 
 qutim_add_plugin(plaincontactsmodel
@@ -37,8 +37,8 @@ qutim_add_plugin(plaincontactsmodel
 	SOURCE_DIR plaincontactsmodel
 	DISPLAY_NAME "Plain contacts model"
 	DESCRIPTION "Simple plain contactlist model"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )
 
 qutim_add_plugin(separatedcontactsmodel
@@ -48,8 +48,8 @@ qutim_add_plugin(separatedcontactsmodel
 	SOURCE_DIR separatedcontactsmodel
 	DISPLAY_NAME "Separated contacts model"
 	DESCRIPTION "Simple separated contactlist model"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	DEPENDS contactlist
+	LINK_LIBRARIES contactlist
 )
 
 set(DEVEL_HEADERS
