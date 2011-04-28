@@ -1,9 +1,9 @@
 find_library(COCOA_LIBRARIES Cocoa)
 
-qutim_add_plugin(dock
+qutim_add_plugin(macdock
 	EXTENSION
 	EXTENSION_CLASS MacIntegration::MacDock
-	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/mackdock.h
+	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/macdock.h
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Dock integration"
 	DESCRIPTION "Mac OS X dock integration"

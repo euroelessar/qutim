@@ -1,6 +1,6 @@
 if(NOT APPLE)
 	message(STATUS "Macintegration plugin will be skipped")
-	#return()
+	return()
 endif()
 
 qutim_add_extensions_dir(.)

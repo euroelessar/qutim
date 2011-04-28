@@ -15,22 +15,22 @@ class MacIdle : public QObject
 	Q_OBJECT
 	Q_CLASSINFO("Service", "AutoAway")
 	Q_DECLARE_PRIVATE(MacIdle)
-	public:
-		enum Reason {
-			Screensaver,
-			Away,
-			Inactive,
-			NoIdle
-		};
-		MacIdle();
-		~MacIdle();
-		void setIdleOn(Reason reason);
-		void setIdleOff();
-		void reloadSettings();
-	private slots:
-		void onTimeout();
-	private:
-		QScopedPointer<MacIdlePrivate> d_ptr;
+public:
+	enum Reason {
+		Screensaver,
+		Away,
+		Inactive,
+		NoIdle
+	};
+	MacIdle();
+	~MacIdle();
+	void setIdleOn(Reason reason);
+	void setIdleOff();
+	void reloadSettings();
+private slots:
+	void onTimeout();
+private:
+	QScopedPointer<MacIdlePrivate> d_ptr;
 };
 }
 

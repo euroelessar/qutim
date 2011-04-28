@@ -10,11 +10,11 @@ MacIdleWidget::MacIdleWidget() :
     ui(new Ui::MacIdleWidget)
 {
     ui->setupUi(this);
-	 Status status;
-	 status.setType(Status::Away);
-	 ui->awayCheckBox->setText(ui->awayCheckBox->text().arg(status.name().toString()));
-	 status.setType(Status::NA);
-	 ui->naCheckBox->setText(ui->naCheckBox->text().arg(status.name().toString()));
+	Status status;
+	status.setType(Status::Away);
+	ui->awayCheckBox->setText(ui->awayCheckBox->text().arg(status.name().toString()));
+	status.setType(Status::NA);
+	ui->naCheckBox->setText(ui->naCheckBox->text().arg(status.name().toString()));
 }
 
 MacIdleWidget::~MacIdleWidget()

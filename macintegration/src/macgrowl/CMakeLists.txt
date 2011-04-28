@@ -1,6 +1,6 @@
 find_library(GROWL_LIBRARIES Growl)
 
-qutim_add_plugin(growl
+qutim_add_plugin(macgrowl
 	EXTENSION
 	EXTENSION_CLASS GrowlBackend
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/growlbackend.h

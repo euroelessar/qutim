@@ -1,6 +1,6 @@
 find_library(COCOA_LIBRARIES Cocoa)
 
-qutim_add_plugin(MacIdle
+qutim_add_plugin(macidle
 	EXTENSION
 	EXTENSION_CLASS MacIntegration::MacIdle
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/macidle.h

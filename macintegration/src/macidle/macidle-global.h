@@ -3,7 +3,7 @@
 #define AA_CONFIG_GROUP "auto-away"
 
 namespace MacIntegration {
-	class MacIdle;
+class MacIdle;
 };
 
 extern MacIntegration::MacIdle* pIdleStatusChanger;

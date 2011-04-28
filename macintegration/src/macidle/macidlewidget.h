@@ -4,7 +4,7 @@
 #include <qutim/settingswidget.h>
 
 namespace Ui {
-    class MacIdleWidget;
+class MacIdleWidget;
 }
 
 using namespace qutim_sdk_0_3;
