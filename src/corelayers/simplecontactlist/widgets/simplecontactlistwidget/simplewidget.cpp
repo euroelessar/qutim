@@ -2,7 +2,7 @@
 #include <QPushButton>
 #include <QAction>
 #include <qutim/qtwin.h>
-#include <abstractcontactmodel.h>
+#include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
 #include <QHBoxLayout>
@@ -13,7 +13,7 @@
 #include <qutim/account.h>
 #include <qutim/contact.h>
 #include <qutim/systemintegration.h>
-#include <simplestatusdialog.h>
+#include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
 #include <QApplication>
@@ -22,6 +22,7 @@
 #include <QDesktopWidget>
 #include <qutim/actiongenerator.h>
 #include <QTimer>
+#include <QKeyEvent>
 
 namespace Core {
 namespace SimpleContactList {
@@ -92,6 +93,7 @@ SimpleWidget::SimpleWidget()
 	m_view = new TreeView(m_model, this);
 	layout->addWidget(m_view);
 	m_view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
+	m_view->installEventFilter(this);
 
 	QHBoxLayout *bottom_layout = new QHBoxLayout(w);
 
@@ -377,6 +379,27 @@ AbstractContactModel *SimpleWidget::model() const
 	return m_model;
 }
 
+bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (obj == m_view) {
+		if (ev->type() == QEvent::KeyPress) {
+			QKeyEvent *event = static_cast<QKeyEvent*>(ev);
+			if (m_view->hasFocus() && m_searchBar->isHidden())
+				m_pressedKeys.append(event->text());
+
+			if (m_pressedKeys.count() > 2) {
+				m_searchBtn->setChecked(true);
+				m_searchBar->setText(m_pressedKeys);
+				m_pressedKeys.clear();
+			}
+			ev->accept();
+		} else if (ev->type() == QEvent::FocusOut && m_searchBar->isHidden()) {
+			m_pressedKeys.clear();
+			m_searchBtn->setChecked(false);
+		}
+	}
+	QMainWindow::eventFilter(obj, ev);
+}
 
 } // namespace SimpleContactList
 } // namespace Core

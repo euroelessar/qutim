@@ -35,6 +35,7 @@ public:
 protected:
 	QAction *createGlobalStatusAction(Status::Type type);
 	bool event(QEvent *event);
+	bool eventFilter(QObject *, QEvent *);
 private slots:
 	void init();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
@@ -55,6 +56,7 @@ private:
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;
 	QList<QAction *> m_statusActions;
+	QString m_pressedKeys;
 };
 
 } // namespace SimpleContactList

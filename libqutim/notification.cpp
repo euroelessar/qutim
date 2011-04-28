@@ -43,7 +43,7 @@ public:
 class NotificationRequestPrivate : public DynamicPropertyData
 {
 public:
-	NotificationRequestPrivate() : DynamicPropertyData() {}
+	NotificationRequestPrivate() : DynamicPropertyData(), object(0) {}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
 		title(o.title), type(o.type), actions(o.actions) {}
