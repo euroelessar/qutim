@@ -27,6 +27,7 @@ public:
 	PopupWidget(QWidget *parent = 0);
 	virtual qutim_sdk_0_3::NotificationList notifications() const = 0;
 	virtual void addNotification(qutim_sdk_0_3::Notification *notify) = 0;
+	virtual void loadTheme(const QString &) {}
 	virtual ~PopupWidget();
 signals:
 	void sizeChanged(QSize size);

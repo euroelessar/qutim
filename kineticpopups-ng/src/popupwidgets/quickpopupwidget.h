@@ -79,6 +79,7 @@ public:
 	virtual ~QuickPopupWidget();
 	virtual QSize sizeHint() const;
 	void setPopupAttributes(PopupAttributes *attributes = 0);
+	virtual void loadTheme(const QString &themePath);
 signals:
 	void notifyAdded(QObject *notify);
 public slots:
@@ -86,8 +87,6 @@ public slots:
 	void accept();
 	//TODO
 	//void reject();
-protected:
-	void loadTheme(const QString &themePath);
 private slots:
 	void onAtributesChanged();
 private:

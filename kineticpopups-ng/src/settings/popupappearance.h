@@ -1,5 +1,5 @@
 /****************************************************************************
- *  backend.h
+ *  popupappearance.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -13,40 +13,39 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef CORE_KINETICPOPUPS_BACKEND_H
-#define CORE_KINETICPOPUPS_BACKEND_H
-#include <qutim/notification.h>
-#include <QHash>
+#ifndef POPUPAPPEARANCE_H
+#define POPUPAPPEARANCE_H
+#include <QWidget>
+#include "../popupwidgets/quickpopupwidget.h"
+#include <qutim/settingswidget.h>
 
-namespace qutim_sdk_0_3 {
-class SettingsItem;
+namespace Ui
+{
+class AppearanceSettings;
 }
 
-namespace KineticPopups {
-
-class PopupWidget;
-typedef QMultiHash<PopupWidget*, qutim_sdk_0_3::Notification*> NotificationHash;
-
-class WidgetPlacer;
-class Backend : public qutim_sdk_0_3::NotificationBackend
+namespace KineticPopups
 {
-	Q_CLASSINFO("Service", "Popup")
-	Q_CLASSINFO("Type", "Popup")
-	Q_CLASSINFO("Uses", "SettingsLayer")
+
+class AbstractPopupWidget;
+class PopupAppearance : public qutim_sdk_0_3::SettingsWidget
+{
 	Q_OBJECT
 public:
-	Backend();
-	virtual ~Backend();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
-protected slots:
-	void onPopupDestroyed(QObject *obj);
-	bool split(qutim_sdk_0_3::Notification *notify);
+	PopupAppearance();
+	virtual ~PopupAppearance();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
+private slots:
+	void onCurrentIndexChanged(int index);
+	void onTestButtonClicked();
 private:
-	WidgetPlacer *m_placer;
-	NotificationHash m_activeNotifyHash;
-	qutim_sdk_0_3::SettingsItem *m_item;
+	void getThemes();
+	void preview();
+	Ui::AppearanceSettings *ui;
 };
 
-} // namespace KineticPopups
+} //namespace KineticPopups
 
-#endif // CORE_KINETICPOPUPS_BACKEND_H
+#endif // POPUPAPPEARANCE_H

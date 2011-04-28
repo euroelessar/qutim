@@ -4,12 +4,12 @@ if(NOT QT_QTDECLARATIVE_FOUND)
 	return()
 endif()
 
-qutim_add_plugin(kineticpopupsng
+qutim_add_plugin(kineticpopups
 	EXTENSION
 	EXTENSION_CLASS KineticPopups::Backend
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/backend.h
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-	DISPLAY_NAME "Kinetic popups (New implementation)"
+	DISPLAY_NAME "Kinetic popups"
 	DESCRIPTION "Growl-like popups, based on power of Qt Quick"
 	COMPILE_FLAGS "-DKINETICPOPUPS_LIBRARY"
 	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}

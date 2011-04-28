@@ -16,6 +16,10 @@
 #include <qutim/debug.h>
 #include "widgetplacer.h"
 #include "popupwidgets/quickpopupwidget.h"
+#include "settings/popupappearance.h"
+
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace KineticPopups {
 
@@ -24,12 +28,23 @@ using namespace qutim_sdk_0_3;
 Backend::Backend() :
 	m_placer(new WidgetPlacer(this))
 {
-	debug() << Q_FUNC_INFO;
+	m_item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance,
+													  Icon("dialog-information"),
+													  QT_TRANSLATE_NOOP("Settings","Popups"));
+	Settings::registerItem(m_item);
 
 	qmlRegisterUncreatableType<Notification>("qutIM", 0, 3,
 											 "Notification",
 											 tr("Unable to create notification inside QtQuick"));
 	qmlRegisterType<PopupAttributes>("qutIM", 0, 3, "PopupAttributes");
+
+
+}
+
+Backend::~Backend()
+{
+	Settings::removeItem(m_item);
+	delete m_item;
 }
 
 void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
