@@ -70,7 +70,8 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_layout = new QVBoxLayout(centralWidget);
 	m_layout->addWidget(hSplitter);
 #ifdef Q_WS_MAC
-	m_layout->setMargin(1);
+	m_layout->setMargin(0);
+	m_layout->setSpacing(1);
 #endif
 
 	m_view = qobject_cast<ChatViewWidget*>(view);
@@ -154,12 +155,12 @@ void TabbedChatWidget::loadSettings()
 		if(m_flags & TabsOnBottom) {
 			m_layout->addWidget(tabBar);
 			m_tabBar->setShape(QTabBar::RoundedSouth);
+			setContentsMargins(1, 1, 1, 1);
 		} else {
 			m_layout->insertWidget(0, tabBar);
 			m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
-			m_layout->setContentsMargins(1, 0, 1, 1);
-			m_layout->setSpacing(1);
+			setContentsMargins(0, 0, 0, 1);
 #endif
 		}
 
