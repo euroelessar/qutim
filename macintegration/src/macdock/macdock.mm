@@ -28,8 +28,9 @@ extern void qt_mac_set_dock_menu(QMenu *);
 
 namespace MacIntegration
 {
-struct MacDockPrivate
+class MacDockPrivate
 {
+public:
 	QMenu *dockMenu;
 	QMenu *trayMenu;
 	QHash<QMenu *, QActionGroup *> statusGroups;

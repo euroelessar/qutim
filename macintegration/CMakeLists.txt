@@ -3,7 +3,7 @@ if(NOT APPLE)
 	return()
 endif()
 
-qutim_add_extensions_dir(.)
+add_subdirectory(src)
 
 #reinder, please update this paths
 #INSTALL(DIRECTORY share/config

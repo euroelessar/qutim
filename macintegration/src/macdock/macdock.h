@@ -11,8 +11,7 @@ namespace MacIntegration
 {
 using namespace qutim_sdk_0_3;
 
-struct MacDockPrivate;
-
+class MacDockPrivate;
 class MacDock : public MenuController
 {
 	Q_OBJECT
