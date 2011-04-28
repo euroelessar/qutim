@@ -24,30 +24,31 @@
 #ifndef Q_QDOC
 namespace qutim_sdk_0_3
 {
-	struct AbstractContactPrivate;
-	class MetaContact;
-	class Message;
+struct AbstractContactPrivate;
+class MetaContact;
+class Message;
 
-    class LIBQUTIM_EXPORT AbstractContact : public ChatUnit
-	{
-		Q_OBJECT
-        Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-	public:
-        AbstractContact(const QString &id, Account *parent = 0);
-		virtual ~AbstractContact();
-		QString id();
-		virtual QString name() const;
-		virtual Status status() const;
-		MetaContact *metaContact();
-		virtual bool sendMessage(const Message &message) = 0;
-		virtual void setName(const QString &name) = 0;
-	signals:
-		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
-		void nameChanged(const QString &current, const QString &previous);
-	private:
-		QScopedPointer<AbstractContactPrivate> p;
-	};
+//Remove me
+class LIBQUTIM_EXPORT AbstractContact : public ChatUnit
+{
+	Q_OBJECT
+	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+	Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+public:
+	AbstractContact(const QString &id, Account *parent = 0);
+	virtual ~AbstractContact();
+	QString id();
+	virtual QString name() const;
+	virtual Status status() const;
+	MetaContact *metaContact();
+	virtual bool sendMessage(const Message &message) = 0;
+	virtual void setName(const QString &name) = 0;
+signals:
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void nameChanged(const QString &current, const QString &previous);
+private:
+	QScopedPointer<AbstractContactPrivate> p;
+};
 }
 #endif
 

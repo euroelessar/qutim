@@ -18,37 +18,37 @@
 
 namespace qutim_sdk_0_3
 {
-	struct AbstractContactPrivate
-	{
-		QString id;
-	};
+struct AbstractContactPrivate
+{
+	QString id;
+};
 
-    AbstractContact::AbstractContact(const QString &id, Account *parent) : ChatUnit(parent), p(new AbstractContactPrivate)
-	{
-		p->id = id;
-	}
+AbstractContact::AbstractContact(const QString &id, Account *parent) : ChatUnit(parent), p(new AbstractContactPrivate)
+{
+	p->id = id;
+}
 
-	AbstractContact::~AbstractContact()
-	{
-	}
+AbstractContact::~AbstractContact()
+{
+}
 
-	QString AbstractContact::id()
-	{
-		return p->id;
-	}
+QString AbstractContact::id()
+{
+	return p->id;
+}
 
-	QString AbstractContact::name() const
-	{
-		return p->id;
-	}
+QString AbstractContact::name() const
+{
+	return p->id;
+}
 
-	Status AbstractContact::status() const
-	{
-		return Status::Online;
-	}
+Status AbstractContact::status() const
+{
+	return Status::Online;
+}
 
-	MetaContact *AbstractContact::metaContact()
-	{
-		return 0;
-	}
+MetaContact *AbstractContact::metaContact()
+{
+	return 0;
+}
 }
