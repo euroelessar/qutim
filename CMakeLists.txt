@@ -235,9 +235,29 @@ IF (APPLE AND QUTIM_BUNDLE_LOCATION)
 		endforeach()
 	endmacro()
 
-	_deploy_plugins_dir(bearer)
-	_deploy_plugins_dir(imageformats)
-	_deploy_plugins_dir(iconengines)
+	macro(_mac_deploy_plugin _dir _plugin)
+		set(plugin "${_dir}/lib${_plugin}.dylib") #evil hack
+		get_filename_component(_absfile "${QT_PLUGINS_DIR}/${plugin}" ABSOLUTE)
+		if(EXISTS ${_absfile})
+			message(STATUS "found ${_dir}/${_plugin} plugin.")
+			add_custom_command(TARGET qutim-bundle POST_BUILD
+				COMMAND ${CMAKE_COMMAND}
+					ARGS -E copy
+					${_absfile}
+					${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/${plugin}
+			)
+		endif()
+	endmacro()
+
+	_mac_deploy_plugin(bearer qcorewlanbearer)
+	_mac_deploy_plugin(bearer qgenericbearer)
+
+	_mac_deploy_plugin(iconengines qsvgicon)
+
+	_mac_deploy_plugin(imageformats qgif)
+	_mac_deploy_plugin(imageformats qsvg)
+	_mac_deploy_plugin(imageformats qjpeg)
+	_mac_deploy_plugin(imageformats qmng)
 
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
