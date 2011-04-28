@@ -6,6 +6,6 @@ qutim_add_plugin(simplecontactlistwidget
 	DISPLAY_NAME "Simple"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Default qutIM contactlist widget implementation with global status button"
-	DEPENDS contactlist
-	LINK_LIBRARIES contactlist
+	DEPENDS simplecontactlist
+	LINK_LIBRARIES simplecontactlist
 )

@@ -5,6 +5,6 @@ qutim_add_plugin(plaincontactsmodel
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Plain contacts model"
 	DESCRIPTION "Simple plain contactlist model"
-	DEPENDS contactlist
-	LINK_LIBRARIES contactlist
+	DEPENDS simplecontactlist
+	LINK_LIBRARIES simplecontactlist
 )
