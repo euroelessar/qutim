@@ -111,8 +111,10 @@ IF(APPLE)
 	SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	# include the icns file in the target
 	SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
-
-	find_path(qtmenu_nib_path NAMES "classes.nib" "info.nib"  PATHS "${QT_QTGUI_LIBRARY_RELEASE}/Resources/qt_menu.nib")
+	GET_FILENAME_COMPONENT(qt_lib_path ${QT_QTGUI_LIBRARY_RELEASE} PATH)
+	find_path(qtmenu_nib_path NAMES "classes.nib" "info.nib"  PATHS "${QT_QTGUI_LIBRARY_RELEASE}/Resources/qt_menu.nib"
+		"${qt_lib_path}/Resources/qt_menu.nib"
+	)
 	set(qt_menu_nib_sources "${qtmenu_nib_path}/classes.nib" "${qtmenu_nib_path}/info.nib" "${qtmenu_nib_path}/keyedobjects.nib" )
 	SET_SOURCE_FILES_PROPERTIES(${qt_menu_nib_sources} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/qt_menu.nib)
 	SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
