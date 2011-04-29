@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include <QWidgetAction>
 #include <QTimer>
+#include <QKeyEvent>
 
 namespace Core {
 namespace SimpleContactList {
@@ -38,6 +39,7 @@ struct MacWidgetPrivate
 	QHash<Account *, QAction *> accountActions;
 	QHash<ChatSession *, QAction *> aliveSessions;
 	QMenuBar *menuBar;
+	QString pressedKeys;
 };
 
 MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
@@ -64,7 +66,9 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	}
 
 	int size = 22;
-	size = Config().group("contactList").value("toolBarIconSize", size);
+	Config cfg;
+	cfg.beginGroup("contactlist");
+	size = cfg.value("toolBarIconSize", size);
 
 	QSize toolbar_size (size,size);
 	d->mainToolBar = new ActionToolBar(this);
@@ -81,15 +85,17 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->view = new TreeView(d->model, this);
 	layout->addWidget(d->view);
 	d->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate *>("ContactDelegate"));
-	d->view->setAlternatingRowColors(true);
+	d->view->setAlternatingRowColors(cfg.value("alternatingRowColors", false));
 	d->view->setFrameShape(QFrame::NoFrame);
+	d->view->setFrameShadow(QFrame::Plain);
 	//d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	d->searchBar = new QLineEdit(this);
-	QWidgetAction *widgetAction = new QWidgetAction(this);
-	widgetAction->setDefaultWidget(d->searchBar);
-	d->mainToolBar->addAction(widgetAction);
+	layout->insertWidget(0, d->searchBar);
 	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	d->searchBar->setVisible(false);
+	d->view->installEventFilter(this);
+	d->searchBar->installEventFilter(this);
 
 	qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
 #ifdef Q_OS_MAC
@@ -250,6 +256,36 @@ void MacWidget::initMenu()
 	if (MenuController *cl = ServiceManager::getByName<MenuController *>("ContactList"))
 		d_func()->menu.value("file")->menu()->addActions(cl->menu()->actions());
 }
+
+bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
+{
+	Q_D(MacWidget);
+	if (obj == d->view) {
+		if (ev->type() == QEvent::KeyPress) {
+			QKeyEvent *event = static_cast<QKeyEvent*>(ev);
+			if (d->view->hasFocus() && d->searchBar->isHidden())
+				d->pressedKeys.append(event->text());
+
+			if (d->pressedKeys.count() > 1) {
+				d->searchBar->show();
+				d->searchBar->setText(d->pressedKeys);
+				d->searchBar->setFocus();
+			}
+			ev->accept();
+		} else if (ev->type() == QEvent::FocusOut && d->searchBar->isHidden()) {
+			d->pressedKeys.clear();
+		}
+	} else if (obj == d->searchBar) {
+		if (ev->type() == QEvent::FocusOut) {
+			d->pressedKeys.clear();
+			d->searchBar->clear();
+			d->searchBar->hide();
+		} else if (ev->type() == QEvent::FocusIn)
+			d->pressedKeys.clear();
+	}
+	return QMainWindow::eventFilter(obj, ev);
+}
+
 } // namespace SimpleContactList
 } // namespace Core
 
