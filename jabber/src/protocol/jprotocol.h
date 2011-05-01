@@ -48,7 +48,7 @@ private:
 	QScopedPointer<JProtocolPrivate> d_ptr;
 
 	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(qutim_sdk_0_3::Status))
-	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType))
+	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(Jreen::RosterItem::SubscriptionType))
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_join_changed())
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_bookmark_changed())
 };
