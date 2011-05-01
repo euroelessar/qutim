@@ -53,13 +53,13 @@ public:
 		a->setEnabled(c->account()->status() != Status::Offline);
 		LocalizedString str;
 		switch(c->subscription()) {
-		case Jreen::AbstractRosterItem::Both:
-		case Jreen::AbstractRosterItem::To:
+		case Jreen::RosterItem::Both:
+		case Jreen::RosterItem::To:
 			str = QT_TRANSLATE_NOOP("Jabber", "Remove subscription");
 			break;
-		case Jreen::AbstractRosterItem::From:
-		case Jreen::AbstractRosterItem::None:
-		case Jreen::AbstractRosterItem::Invalid:
+		case Jreen::RosterItem::From:
+		case Jreen::RosterItem::None:
+		case Jreen::RosterItem::Invalid:
 			str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
 			break;
 		default:
@@ -130,7 +130,7 @@ public:
 		foreach (QAction *a, bookmarksGen->actions(s))
 			checkBookMark(s, a);
 	}
-	void _q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType)
+	void _q_subscription_changed(Jreen::RosterItem::SubscriptionType)
 	{
 		Q_Q(JProtocol);
 		JContact *c = qobject_cast<JContact*>(q->sender());
@@ -319,13 +319,13 @@ void JProtocol::onChangeSubscription(QObject *obj)
 	JContact *contact = qobject_cast<JContact*>(obj);
 	Q_ASSERT(contact);
 	switch(contact->subscription()) {
-	case Jreen::AbstractRosterItem::Both:
-	case Jreen::AbstractRosterItem::To:
+	case Jreen::RosterItem::Both:
+	case Jreen::RosterItem::To:
 		contact->removeSubscription();
 		break;
-	case Jreen::AbstractRosterItem::From:
-	case Jreen::AbstractRosterItem::None:
-	case Jreen::AbstractRosterItem::Invalid:
+	case Jreen::RosterItem::From:
+	case Jreen::RosterItem::None:
+	case Jreen::RosterItem::Invalid:
 		contact->requestSubscription();
 		break;
 	default:
@@ -439,8 +439,8 @@ bool JProtocol::event(QEvent *ev)
 			JContact *c = qobject_cast<JContact*>(controller);
 			Q_ASSERT(c);
 			d->checkSubscribe(c, action);
-			connect(c, SIGNAL(subscriptionChanged(Jreen::AbstractRosterItem::SubscriptionType)),
-					this, SLOT(_q_subscription_changed(Jreen::AbstractRosterItem::SubscriptionType)));
+			connect(c, SIGNAL(subscriptionChanged(Jreen::RosterItem::SubscriptionType)),
+					this, SLOT(_q_subscription_changed(Jreen::RosterItem::SubscriptionType)));
 		}
 		else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
 			if(event->generator() == d->bookmarksGen.data())

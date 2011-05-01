@@ -73,6 +73,7 @@ JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccou
 	d->jid = room.bareJID();
 	d->account = account;
 	d->room = new Jreen::MUCRoom(account->client(), room);
+	d->room->setPassword(password);
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
 			this, SLOT(onParticipantPresence(Jreen::Presence,const Jreen::MUCRoom::Participant*)));
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),

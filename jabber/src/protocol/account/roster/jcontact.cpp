@@ -37,7 +37,7 @@ public:
 	QString avatar;
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
-	Jreen::AbstractRosterItem::SubscriptionType subscription;
+	Jreen::RosterItem::SubscriptionType subscription;
 	Status status;
 };
 
@@ -144,13 +144,13 @@ void JContact::setInList(bool inList)
 		d->account->roster()->removeContact(this);
 }
 
-void JContact::setContactSubscription(Jreen::AbstractRosterItem::SubscriptionType subscription)
+void JContact::setContactSubscription(Jreen::RosterItem::SubscriptionType subscription)
 {
 	d_func()->subscription = subscription;
 	emit subscriptionChanged(subscription);
 }
 
-Jreen::AbstractRosterItem::SubscriptionType JContact::subscription() const
+Jreen::RosterItem::SubscriptionType JContact::subscription() const
 {
 	return d_func()->subscription;
 }
@@ -174,19 +174,19 @@ bool JContact::event(QEvent *ev)
 		//TODO move to public method
 		LocalizedString subscriptionStr;
 		switch(d->subscription) {
-		case Jreen::AbstractRosterItem::None:
+		case Jreen::RosterItem::None:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","None");
 			break;
-		case Jreen::AbstractRosterItem::From:
+		case Jreen::RosterItem::From:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","From");
 			break;
-		case Jreen::AbstractRosterItem::To:
+		case Jreen::RosterItem::To:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","To");
 			break;
-		case Jreen::AbstractRosterItem::Both:
+		case Jreen::RosterItem::Both:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Both");
 			break;
-		case Jreen::AbstractRosterItem::Remove:
+		case Jreen::RosterItem::Remove:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
 			break;
 		default:

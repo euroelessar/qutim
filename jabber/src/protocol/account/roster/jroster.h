@@ -37,11 +37,11 @@ public slots:
 	void loadSettings();
 	void saveSettings();
 protected:
-	virtual void onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item);
-	virtual void onItemUpdated(QSharedPointer<Jreen::AbstractRosterItem> item);
+	virtual void onItemAdded(QSharedPointer<Jreen::RosterItem> item);
+	virtual void onItemUpdated(QSharedPointer<Jreen::RosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
-	virtual void onLoaded(const QList<QSharedPointer<Jreen::AbstractRosterItem> > &items);
-	void fillContact(JContact *contact, QSharedPointer<Jreen::AbstractRosterItem> item);
+	virtual void onLoaded(const QList<QSharedPointer<Jreen::RosterItem> > &items);
+	void fillContact(JContact *contact, QSharedPointer<Jreen::RosterItem> item);
 protected slots:
 	void handleNewPresence(Jreen::Presence);
 	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?

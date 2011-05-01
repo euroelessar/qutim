@@ -42,8 +42,8 @@ public:
 	void setContactTags(const QStringList &tags);
 	//Jreen
 	void setStatus(const Jreen::Presence presence);
-	void setContactSubscription(Jreen::AbstractRosterItem::SubscriptionType subscription);
-	Jreen::AbstractRosterItem::SubscriptionType subscription() const;
+	void setContactSubscription(Jreen::RosterItem::SubscriptionType subscription);
+	Jreen::RosterItem::SubscriptionType subscription() const;
 	QString name() const;
 	QStringList tags() const;
 	Status status() const;
@@ -62,7 +62,7 @@ public:
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 signals:
-	void subscriptionChanged(Jreen::AbstractRosterItem::SubscriptionType subscription);
+	void subscriptionChanged(Jreen::RosterItem::SubscriptionType subscription);
 public slots:
 	void requestSubscription();
 	void removeSubscription();

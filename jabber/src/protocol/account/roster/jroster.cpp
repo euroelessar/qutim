@@ -50,7 +50,7 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 	contact->setContactName(data.value(QLatin1String("name")).toString());
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
-	contact->setContactSubscription(static_cast<Jreen::AbstractRosterItem::SubscriptionType>(s10n));
+	contact->setContactSubscription(static_cast<Jreen::RosterItem::SubscriptionType>(s10n));
 	contacts.insert(id, contact);
 	emit account->contactCreated(contact);
 	return contact;
@@ -93,13 +93,13 @@ JRoster::~JRoster()
 void JRoster::loadFromStorage()
 {
 	Q_D(JRoster);
-	QList<Jreen::AbstractRosterItem::Ptr> items;
+	QList<Jreen::RosterItem::Ptr> items;
 	QString version = d->storage->load(d->account);
 	QHashIterator<QString, JContact*> contacts = d->contacts;
 	while (contacts.hasNext()) {
 		contacts.next();
 		JContact *contact = contacts.value();
-		items << Jreen::AbstractRosterItem::Ptr(new Jreen::AbstractRosterItem(
+		items << Jreen::RosterItem::Ptr(new Jreen::RosterItem(
 				contact->id(), contact->name(), contact->tags(), contact->subscription()));
 	}
 	d->ignoreChanges = true;
@@ -107,7 +107,7 @@ void JRoster::loadFromStorage()
 	d->ignoreChanges = false;
 }
 
-void JRoster::onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item)
+void JRoster::onItemAdded(QSharedPointer<Jreen::RosterItem> item)
 {
 	Q_D(JRoster);
 	if (d->ignoreChanges)
@@ -122,7 +122,7 @@ void JRoster::onItemAdded(QSharedPointer<Jreen::AbstractRosterItem> item)
 							tr("Contact %1 has been added to roster").arg(contact->title()));
 	}
 }
-void JRoster::onItemUpdated(QSharedPointer<Jreen::AbstractRosterItem> item)
+void JRoster::onItemUpdated(QSharedPointer<Jreen::RosterItem> item)
 {
 	Q_D(JRoster);
 	if (d->ignoreChanges)
@@ -143,7 +143,7 @@ void JRoster::onItemRemoved(const QString &jid)
 		return;
 	d->storage->removeContact(contact, version());
 	contact->setContactInList(false);
-	contact->setContactSubscription(Jreen::AbstractRosterItem::None);
+	contact->setContactSubscription(Jreen::RosterItem::None);
 	if(d->showNotifications) {
 		Notifications::send(Notification::System,
 							contact,
@@ -151,7 +151,7 @@ void JRoster::onItemRemoved(const QString &jid)
 	}
 }
 
-void JRoster::onLoaded(const QList<QSharedPointer<Jreen::AbstractRosterItem> > &items)
+void JRoster::onLoaded(const QList<QSharedPointer<Jreen::RosterItem> > &items)
 {
 	Q_D(JRoster);
 	d->showNotifications = false;
@@ -196,7 +196,7 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 	return 0;
 }
 
-void JRoster::fillContact(JContact *contact, QSharedPointer<Jreen::AbstractRosterItem> item)
+void JRoster::fillContact(JContact *contact, QSharedPointer<Jreen::RosterItem> item)
 {
 	QString name = item->name();
 	contact->setContactName(name);
@@ -204,7 +204,7 @@ void JRoster::fillContact(JContact *contact, QSharedPointer<Jreen::AbstractRoste
 	contact->setContactTags(tags);
 	if (!contact->isInList())
 		contact->setContactInList(true);
-	contact->setContactSubscription(item->subscriptionType());
+	contact->setContactSubscription(item->subscription());
 }
 
 void JRoster::handleNewPresence(Jreen::Presence presence)
@@ -404,7 +404,7 @@ void JRoster::saveSettings()
 
 void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 {
-	if (Jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+	if (Jreen::RosterItem::Ptr i = item(contact->id())) {
 		i->setGroups(groups);
 		synchronize();
 	}
@@ -412,7 +412,7 @@ void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 
 void JRoster::setName(const JContact *contact, const QString &name)
 {
-	if (Jreen::AbstractRosterItem::Ptr i = item(contact->id())) {
+	if (Jreen::RosterItem::Ptr i = item(contact->id())) {
 		i->setName(name);
 		synchronize();
 	}
