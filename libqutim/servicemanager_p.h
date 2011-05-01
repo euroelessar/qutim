@@ -34,13 +34,14 @@ public:
 	ServiceManager *q_ptr;
 	ServiceHash infoHash;
 	CheckedServiceHash checked;
-	QHash<QByteArray, QObject*> hash;
+	QHash<QByteArray, QSharedPointer<ServicePointerData> > hash;
 	QList<QObject*> initializationOrder;
 	bool inited;
 	
 	void init();
 	void init(const QByteArray &service, const ExtensionInfo &info, QSet<QByteArray> &used);
 	void deinit();
+	QObject* &data(const QByteArray &name);
 	static ServiceManagerPrivate *get(ServiceManager *q) { return q->d_func(); }
 };
 

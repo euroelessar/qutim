@@ -29,10 +29,8 @@ SpellChecker::~SpellChecker()
 
 SpellChecker *SpellChecker::instance()
 {
-	static SpellChecker *speller = 0;
-	if (!speller && ObjectGenerator::isInited())
-		speller = ServiceManager::getByName<SpellChecker*>("SpellChecker");
-	return speller;
+	static ServicePointer<SpellChecker> speller;
+	return speller.data();
 }
 
 void SpellChecker::virtual_hook(int id, void *data)

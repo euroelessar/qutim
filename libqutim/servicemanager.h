@@ -25,6 +25,17 @@ namespace qutim_sdk_0_3
 
 class ServiceManagerPrivate;
 
+class LIBQUTIM_EXPORT ServicePointerData : public QSharedData
+{
+	Q_DISABLE_COPY(ServicePointerData)
+public:
+	typedef QWeakPointer<ServicePointerData> Ptr;
+	ServicePointerData();
+
+	QByteArray name;
+	QObject *object;
+};
+
 class LIBQUTIM_EXPORT ServiceManager : public QObject
 {
 	Q_OBJECT
@@ -56,8 +67,35 @@ signals:
 private:
 	ServiceManager();
 	~ServiceManager();
-
+	static ServicePointerData::Ptr getData(const QMetaObject *meta);
+	static ServicePointerData::Ptr getData(const QByteArray &name);
+	
+	template<typename T> friend class ServicePointer;
 	QScopedPointer<ServiceManagerPrivate> d_ptr;
+};
+
+template<typename T>
+class LIBQUTIM_EXPORT ServicePointer
+{
+public:
+	inline ServicePointer() : d(ServiceManager::getData(&T::staticMetaObject)) {}
+	inline ServicePointer(Qt::Initialization) {}
+	inline ServicePointer(const QByteArray &name) : d(ServiceManager::getData(name)) {}
+	inline ServicePointer(const ServicePointer &o) : d(o.d) {}
+	inline ServicePointer &operator =(const ServicePointer &o) { d = o.d; return *this; }
+	inline ~ServicePointer() {}
+
+	inline QByteArray name() const { return d ? d.data()->name : QByteArray(); }
+	inline T *data() const { return qobject_cast<T*>(d ? d.data()->object : 0); }
+	inline T *operator ->() const { Q_ASSERT(d); return data(); }
+	inline T &operator *() const { Q_ASSERT(d); return *data(); }
+	inline operator bool() const { return d && d.data()->object; }
+	inline operator T*() const { return data(); }
+	inline bool operator !() const { return !operator bool(); }
+	inline bool isNull() const { return d.isNull(); }
+
+private:
+	ServicePointerData::Ptr d;
 };
 
 } // namespace qutim_sdk_0_3

@@ -43,11 +43,11 @@ struct ChatSessionPrivate
 
 struct ChatLayerPrivate
 {
-	QPointer<ChatLayer> self;
+	ServicePointer<ChatLayer> self;
 	QScopedPointer<MessageHandlerHook> handlerHook;
 };
 
-static ChatLayerPrivate *p = new ChatLayerPrivate;
+Q_GLOBAL_STATIC(ChatLayerPrivate, p)
 
 ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
 {
@@ -79,24 +79,20 @@ void ChatSession::virtual_hook(int id, void *data)
 
 ChatLayer::ChatLayer()
 {
-	p->handlerHook.reset(new MessageHandlerHook);
-	MessageHandler::registerHandler(p->handlerHook.data(),
+	p()->handlerHook.reset(new MessageHandlerHook);
+	MessageHandler::registerHandler(p()->handlerHook.data(),
 	                                MessageHandler::ChatInPriority,
 	                                MessageHandler::ChatOutPriority);
 }
 
 ChatLayer::~ChatLayer()
 {
-	p->handlerHook.reset(0);
+	p()->handlerHook.reset(0);
 }
 
 ChatLayer *ChatLayer::instance()
 {
-	if(p->self.isNull() && ObjectGenerator::isInited()) {
-		p->self = qobject_cast<ChatLayer*>(ServiceManager::getByName("ChatLayer"));
-		Q_ASSERT(p->self);
-	}
-	return p->self;
+	return p()->self.data();
 }
 
 ChatSession *ChatLayer::getSession(Account *acc, QObject *obj, bool create)

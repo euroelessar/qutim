@@ -21,6 +21,7 @@
 #include <qutim/settingslayer.h>
 #include <qutim/messagesession.h>
 #include <qutim/spellchecker.h>
+#include <qutim/servicemanager.h>
 #include <QSyntaxHighlighter>
 #include <QTextCursor>
 #include <QMetaMethod>
@@ -35,10 +36,10 @@ class SpellHighlighter : public QSyntaxHighlighter
 {
 	Q_OBJECT
 public:
-	explicit SpellHighlighter(ChatSpellChecker *checker, QTextDocument *doc);
+	explicit SpellHighlighter(QTextDocument *doc);
 	virtual void highlightBlock(const QString &text);
 private:
-	ChatSpellChecker *m_speller;
+	qutim_sdk_0_3::ServicePointer<SpellChecker> m_speller;
 	QTextCharFormat m_format;
 };
 
@@ -48,7 +49,6 @@ class ChatSpellChecker : public QObject, public StartupModule
 	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
 	ChatSpellChecker();
-	bool isCorrect(const QString &word);
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 	void onInputFieldDestroyed(QObject *obj);
@@ -57,11 +57,12 @@ private slots:
 	void onSuggestionActionTriggered();
 	void onAddToDictionaryTriggered();
 	void onDictionaryChanged();
+	void onServiceChanged(const QByteArray &name);
 private:
 	void insertAction(QMenu *menu, QAction *before, const QString &text, const char *slot);
 private:
-	SpellChecker *m_speller;
-	QObject *m_chatForm;
+	ServicePointer<QObject> m_chatForm;
+	ServicePointer<SpellChecker> m_speller;
 	QTextCursor m_cursor;
 	QString m_word;
 	int m_wordBegin, m_wordEnd;
