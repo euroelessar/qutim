@@ -286,7 +286,7 @@ void JAccount::loadSettings()
 	if (general.value("use", false)) {
 		QString host = general.value("host", jid.domain());
 		int port = general.value("port", 5280);
-		d->client.setConnectionImpl(new ConnectionBOSH(host, port));
+		d->client.setConnection(new ConnectionBOSH(host, port));
 	}
 	general.endGroup();
 	d->client.setJID(jid);
