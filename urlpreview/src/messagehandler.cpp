@@ -220,7 +220,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	}
 
 	typerx.setPattern("^image/");
-	if (type.contains(typerx) && size<m_maxFileSize) {
+	if (type.contains(typerx) && 0 < size && size < m_maxFileSize) {
 		QString amsg = m_imageTemplate;
 		amsg.replace("%URL%", url);
 		amsg.replace("%UID%", uid);
