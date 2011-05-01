@@ -55,7 +55,7 @@ void KdePlugin::init()
 //	aboutData.addAuthor(ki18n("Sidorov Aleksey"), ki18n("Developer"), "sauron@citadelspb.com");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
 	aboutData.addLicense(KAboutData::License_GPL_V2);
-	aboutData.setBugAddress("euroelessar@ya.ru");
+	aboutData.setBugAddress("https://bugs.launchpad.net/qutim/+filebug");
 	aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 	KGlobal::setActiveComponent(KComponentData(aboutData));
 

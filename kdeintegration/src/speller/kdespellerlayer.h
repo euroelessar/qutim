@@ -42,6 +42,7 @@ public:
 protected slots:
 	void loadSettings();
 private:
+	SettingsItem *m_settingsItem;
 	bool m_autodetect;
 	QString m_dictionary;
 };

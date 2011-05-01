@@ -23,15 +23,17 @@ Q_GLOBAL_STATIC(Speller, speller)
 
 KdeSpellerLayer::KdeSpellerLayer()
 {
-	Settings::registerItem(new GeneralSettingsItem<KdeSpellerSettings>(
-			Settings::General,
-			KIcon("tools-check-spelling"),
-			QT_TRANSLATE_NOOP("Settings", "Spell checker")));
+	m_settingsItem = new GeneralSettingsItem<KdeSpellerSettings>(
+	            Settings::General,
+				KIcon("tools-check-spelling"),
+				QT_TRANSLATE_NOOP("Settings", "Spell checker"));
+	Settings::registerItem(m_settingsItem);
 	loadSettings();
 }
 
 KdeSpellerLayer::~KdeSpellerLayer()
 {
+	Settings::removeItem(m_settingsItem);
 }
 
 Speller *KdeSpellerLayer::spellerInstance()
