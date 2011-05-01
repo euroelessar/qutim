@@ -23,6 +23,7 @@
 #include <chatlayer/chatsessionimpl.h>
 #include <QPlainTextEdit>
 #include <qutim/systemintegration.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -31,6 +32,8 @@ namespace AdiumChat
 
 AbstractChatForm::AbstractChatForm()
 {
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QObject*,QObject*)),
+	        SLOT(onServiceChanged(QObject*,QObject*)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
@@ -87,6 +90,35 @@ void AbstractChatForm::onSettingsChanged()
 	}
 }
 
+void AbstractChatForm::onServiceChanged(QObject *newObject, QObject *oldObject)
+{
+	if (this != newObject)
+		return;
+	AbstractChatForm *form = qobject_cast<AbstractChatForm*>(oldObject);
+	if (!form)
+		return;
+	QHashIterator<QString, AbstractChatWidget*> it(form->m_chatwidgets);
+	QSet<ChatSessionImpl*> sessions;
+	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
+		if (ChatSessionImpl *impl = qobject_cast<ChatSessionImpl*>(session))
+			sessions << impl;
+	}
+
+	while (it.hasNext()) {
+		it.next();
+		AbstractChatWidget *oldWidget = form->widget(it.key());
+		AbstractChatWidget *newWidget = widget(it.key());
+		QMutableSetIterator<ChatSessionImpl*> jt(sessions);
+		while (jt.hasNext()) {
+			ChatSessionImpl *session = jt.next();
+			if (oldWidget->contains(session)) {
+				newWidget->addSession(session);
+				jt.remove();
+			}
+		}
+		SystemIntegration::show(newWidget);
+	}
+}
 
 AbstractChatWidget *AbstractChatForm::findWidget(ChatSession *sess) const
 {

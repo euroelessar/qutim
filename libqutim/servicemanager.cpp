@@ -23,6 +23,10 @@
 namespace qutim_sdk_0_3
 {
 
+ServicePointerData::ServicePointerData() : object(0)
+{
+}
+
 void ServiceManagerPrivate::init()
 {
 	Config cfg;
@@ -73,7 +77,7 @@ void ServiceManagerPrivate::init(const QByteArray &service, const ExtensionInfo 
 	}
 	QObject *object = info.generator()->generate();
 	initializationOrder << object;
-	hash.insert(service, object);
+	data(service) = object;
 }
 
 void ServiceManagerPrivate::deinit()
@@ -82,6 +86,13 @@ void ServiceManagerPrivate::deinit()
 		delete initializationOrder.at(i);
 	initializationOrder.clear();
 	hash.clear();
+}
+
+QObject* &ServiceManagerPrivate::data(const QByteArray &name)
+{
+	QSharedPointer<ServicePointerData> &d = hash[name];
+	if (!d) d = QSharedPointer<ServicePointerData>::create();
+	return d->object;
 }
 
 ServiceManager::ServiceManager() : d_ptr(new ServiceManagerPrivate(this))
@@ -105,7 +116,7 @@ bool ServiceManager::isInited()
 
 QObject *ServiceManager::getByName(const QByteArray &name)
 {
-	return ServiceManagerPrivate::get(instance())->hash.value(name);
+	return ServiceManagerPrivate::get(instance())->data(name);
 }
 
 QList<QByteArray> ServiceManager::names()
@@ -142,9 +153,9 @@ bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionIn
 		cfg.setValue(QLatin1String(name), QLatin1String(info.generator()->metaObject()->className()));
 	}
 	d->checked.insert(name, info);
-	QObject *oldObject = d->hash.value(name);
-	QObject *object = info.generator() ? info.generator()->generate() : 0;
-	d->hash.insert(name, object);
+	QObject * &object = d->data(name);
+	QObject *oldObject = info.generator() ? info.generator()->generate() : 0;
+	qSwap(oldObject, object);
 	int index = d->initializationOrder.indexOf(oldObject);
 	if (!oldObject && object) {
 		d->initializationOrder << object;
@@ -159,6 +170,20 @@ bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionIn
 	emit instance()->serviceChanged(object, oldObject);
 	oldObject->deleteLater();
 	return true;
+}
+
+ServicePointerData::Ptr ServiceManager::getData(const QMetaObject *meta)
+{
+	return getData(MetaObjectBuilder::info(meta, "Service"));
+}
+
+ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
+{
+	ServiceManagerPrivate *d = ServiceManagerPrivate::get(instance());
+	QSharedPointer<ServicePointerData> &data = d->hash[name];
+	if (!data)
+		data = QSharedPointer<ServicePointerData>::create();
+	return data.toWeakRef();
 }
 
 } // namespace qutim_sdk_0_3

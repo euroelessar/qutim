@@ -22,8 +22,7 @@
 
 namespace Core {
 
-SpellHighlighter::SpellHighlighter(ChatSpellChecker *speller, QTextDocument *doc) :
-		QSyntaxHighlighter(doc), m_speller(speller)
+SpellHighlighter::SpellHighlighter(QTextDocument *doc) : QSyntaxHighlighter(doc)
 {
 	m_format.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
 	m_format.setUnderlineColor(Qt::red);
@@ -31,6 +30,9 @@ SpellHighlighter::SpellHighlighter(ChatSpellChecker *speller, QTextDocument *doc
 
 void SpellHighlighter::highlightBlock(const QString &text)
 {
+	if (!m_speller)
+		return;
+
 	static QRegExp expression(QLatin1String("\\b\\w+\\b"));
 
 	int index = text.indexOf(expression);
@@ -42,23 +44,14 @@ void SpellHighlighter::highlightBlock(const QString &text)
 	}
 }
 
-ChatSpellChecker::ChatSpellChecker()
+ChatSpellChecker::ChatSpellChecker() : m_chatForm("ChatForm")
 {
-	m_speller = SpellChecker::instance();
-	if (!m_speller) {
-		deleteLater();
-		return;
-	}
-	m_chatForm = ServiceManager::getByName("ChatForm");
-	connect(m_speller, SIGNAL(dictionaryChanged()), SLOT(onDictionaryChanged()));
+	if (m_speller)
+		connect(m_speller, SIGNAL(dictionaryChanged()), SLOT(onDictionaryChanged()));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-}
-
-bool ChatSpellChecker::isCorrect(const QString &word)
-{
-	Q_ASSERT(m_speller);
-	return m_speller->isCorrect(word);
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+	        SLOT(onServiceChanged(QByteArray)));
 }
 
 void ChatSpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
@@ -66,7 +59,7 @@ void ChatSpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	Q_ASSERT(session);
 	QTextDocument *inputField = session->getInputField();
 	Q_ASSERT(inputField);
-	SpellHighlighter *highlighter = new SpellHighlighter(this, inputField);
+	SpellHighlighter *highlighter = new SpellHighlighter(inputField);
 	if (m_chatForm) {
 		connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 		// We use m_highlighter only in onAddToDictionaryTriggered
@@ -124,27 +117,29 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 		Q_ASSERT(!"Unknown object type, check connection");
 		return;
 	}
-
-	QTextBlock block = m_cursor.block();
-	const QString blockText = block.text();
-	if (!blockText.isEmpty()) {
-		static QRegExp separator("\\b");
-		int posInBlock = m_cursor.position() - block.position();
-		m_wordBegin = blockText.lastIndexOf(separator, posInBlock);
-		if (m_wordBegin != -1) {
-			m_wordEnd = blockText.indexOf(separator, posInBlock);
-			m_word = blockText.mid(m_wordBegin, m_wordEnd - m_wordBegin);
+	
+	if (m_speller) {
+		QTextBlock block = m_cursor.block();
+		const QString blockText = block.text();
+		if (!blockText.isEmpty()) {
+			static QRegExp separator("\\b");
+			int posInBlock = m_cursor.position() - block.position();
+			m_wordBegin = blockText.lastIndexOf(separator, posInBlock);
+			if (m_wordBegin != -1) {
+				m_wordEnd = blockText.indexOf(separator, posInBlock);
+				m_word = blockText.mid(m_wordBegin, m_wordEnd - m_wordBegin);
+			}
 		}
-	}
-
-	if (!m_word.isEmpty() && !isCorrect(m_word)) {
-		QAction *before = !menu->actions().isEmpty() ? menu->actions().first() : 0;
-		Q_ASSERT(m_speller);
-		foreach (const QString &suggestion, m_speller->suggest(m_word).mid(0, 5))
-			insertAction(menu, before, suggestion, SLOT(onSuggestionActionTriggered()));
-		insertAction(menu, before, tr("Add to dictionary"), SLOT(onAddToDictionaryTriggered()));
-		if (before)
-			menu->insertSeparator(before);
+	
+		if (!m_word.isEmpty() && !m_speller->isCorrect(m_word)) {
+			QAction *before = !menu->actions().isEmpty() ? menu->actions().first() : 0;
+			Q_ASSERT(m_speller);
+			foreach (const QString &suggestion, m_speller->suggest(m_word).mid(0, 5))
+				insertAction(menu, before, suggestion, SLOT(onSuggestionActionTriggered()));
+			insertAction(menu, before, tr("Add to dictionary"), SLOT(onAddToDictionaryTriggered()));
+			if (before)
+				menu->insertSeparator(before);
+		}
 	}
 
 	menu->popup(globalPos);
@@ -164,7 +159,8 @@ void ChatSpellChecker::onSuggestionActionTriggered()
 
 void ChatSpellChecker::onAddToDictionaryTriggered()
 {
-	Q_ASSERT(m_speller);
+	if (!m_speller)
+		return;
 	m_speller->store(m_word);
 	SpellHighlighter *highlighter = m_highlighters.value(m_cursor.document());
 	Q_ASSERT(highlighter);
@@ -173,6 +169,15 @@ void ChatSpellChecker::onAddToDictionaryTriggered()
 
 void ChatSpellChecker::onDictionaryChanged()
 {
+	foreach (SpellHighlighter *highlighter, m_highlighters)
+		highlighter->rehighlight();
+}
+
+void ChatSpellChecker::onServiceChanged(const QByteArray &name)
+{
+	if (name != "SpellChecker")
+		return;
+	connect(m_speller, SIGNAL(dictionaryChanged()), SLOT(onDictionaryChanged()));
 	foreach (SpellHighlighter *highlighter, m_highlighters)
 		highlighter->rehighlight();
 }
