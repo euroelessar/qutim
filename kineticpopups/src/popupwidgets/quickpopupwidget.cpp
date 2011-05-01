@@ -107,6 +107,8 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	m_view(new QDeclarativeView(this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAttribute(Qt::WA_ShowWithoutActivating);
+	setAttribute(Qt::WA_X11NetWmWindowTypeToolTip);
 
 	//transparency
 	setAttribute(Qt::WA_NoSystemBackground);

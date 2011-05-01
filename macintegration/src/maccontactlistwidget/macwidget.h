@@ -42,6 +42,7 @@ private slots:
 	void onSessionDestroyed();
 	void onActivatedSession(bool state);
 	void initMenu();
+	void onTextChanged(const QString &text);
 protected:
 	void loadGeometry();
 	void addMenu(const QString &title, const QString &id);

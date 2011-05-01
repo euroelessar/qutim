@@ -93,6 +93,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->searchBar = new QLineEdit(this);
 	layout->insertWidget(0, d->searchBar);
 	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
 	d->searchBar->setVisible(false);
 	d->view->installEventFilter(this);
 	d->searchBar->installEventFilter(this);
@@ -278,12 +279,17 @@ bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
 	} else if (obj == d->searchBar) {
 		if (ev->type() == QEvent::FocusOut) {
 			d->pressedKeys.clear();
-			d->searchBar->clear();
-			d->searchBar->hide();
+			//d->searchBar->clear();
+			//d->searchBar->hide();
 		} else if (ev->type() == QEvent::FocusIn)
 			d->pressedKeys.clear();
 	}
 	return QMainWindow::eventFilter(obj, ev);
+}
+
+void MacWidget::onTextChanged(const QString &text)
+{
+	d_func()->searchBar->setVisible(!text.isEmpty());
 }
 
 } // namespace SimpleContactList
