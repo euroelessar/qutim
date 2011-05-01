@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "notification.h"
+#include "notificationslayer_p.h"
 #include "dynamicpropertydata_p.h"
 #include "message.h"
 #include "chatunit.h"
@@ -23,6 +24,8 @@
 #include <QMultiMap>
 
 namespace qutim_sdk_0_3 {
+
+static SoundHandler handler; //TODO move to other place
 
 typedef QList<NotificationBackend*> NotificationBackendList;
 Q_GLOBAL_STATIC(NotificationBackendList, backendList)
@@ -98,7 +101,7 @@ void Notification::accept()
 {
 	debug() << "Accepted";
 	emit accepted();
-	deleteLater();
+	//deleteLater(); //TODO
 }
 
 LocalizedString Notification::typeString(Type type)
@@ -382,9 +385,10 @@ Notification *NotificationRequest::send()
 	}
 
 	Notification *notification = new Notification(*this);
+	notification->d_func()->ref.ref();
 	foreach (NotificationBackend *backend, *backendList())
 		backend->handleNotification(notification);
-
+	notification->d_func()->ref.deref();
 	//TODO ref and deref impl
 	return notification;
 }

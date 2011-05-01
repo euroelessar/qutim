@@ -41,7 +41,7 @@ void SoundBackend::virtual_hook(int type, void *data)
 
 struct NotificationsLayerPrivate
 {
-	QPointer<SoundBackend> soundBackend;
+	ServicePointer<SoundBackend> soundBackend;
 	QList<SoundThemeBackend*> soundThemeBackends;
 	QHash<QString, SoundThemeData*> soundThemeCache;
 	bool soundIsInited;
@@ -49,7 +49,6 @@ struct NotificationsLayerPrivate
 	{
 		if (!ObjectGenerator::isInited())
 			return;
-		soundBackend = qobject_cast<SoundBackend*>(ServiceManager::getByName("Sound"));
 		GeneratorList exts = ObjectGenerator::module<SoundThemeBackend>();
 		foreach (const ObjectGenerator *gen, exts)
 			soundThemeBackends << gen->generate<SoundThemeBackend>();
@@ -65,8 +64,6 @@ void ensure_notifications_private_helper()
 {
 	p = new NotificationsLayerPrivate;
 	p->soundIsInited = false;
-	static SoundHandler handler;
-	Q_UNUSED(handler);
 }
 
 inline void ensure_notifications_private()
