@@ -61,6 +61,7 @@ void ModuleManagerImpl::initExtensions()
 	debug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
 	ModuleManager::initExtensions();
 
-	Notifications::send(Notification::AppStartup, 0);
+	NotificationRequest request(Notification::AppStartup);
+	request.send();
 }
 }

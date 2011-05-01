@@ -26,11 +26,6 @@
 
 namespace qutim_sdk_0_3
 {
-void PopupBackend::virtual_hook(int type, void *data)
-{
-	Q_UNUSED(type);
-	Q_UNUSED(data);
-}
 
 SoundBackend::SoundBackend()
 {
@@ -46,7 +41,6 @@ void SoundBackend::virtual_hook(int type, void *data)
 
 struct NotificationsLayerPrivate
 {
-	QPointer<PopupBackend> popupBackend;
 	QPointer<SoundBackend> soundBackend;
 	QList<SoundThemeBackend*> soundThemeBackends;
 	QHash<QString, SoundThemeData*> soundThemeCache;
@@ -88,15 +82,6 @@ void send(Notification::Type type, QObject *sender,
 		  const QString &body, const QVariant &data)
 {
 	ensure_notifications_private();
-	//TODO add checks
-	if (!ObjectGenerator::isInited())
-		return;
-	if (p->popupBackend.isNull())
-		p->popupBackend = qobject_cast<PopupBackend*>(ServiceManager::getByName("Popup"));
-
-	if (p->popupBackend)
-		p->popupBackend->show(type, sender, body, data);
-
 	//new backends
 	Notification *notification = 0;
 	if (data.canConvert<Message>()) {
@@ -353,6 +338,11 @@ void setTheme(const SoundTheme &theme)
 {
 	setTheme(theme.themeName());
 }
+}
+
+SoundHandler::SoundHandler()
+{
+
 }
 
 void SoundHandler::handleNotification(Notification *notification)

@@ -27,8 +27,8 @@ bool AuthService::event(QEvent *event)
 		debug() << "New request";
 		Request *request = static_cast<Request*>(event);
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
-		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
-		connect(dialog,SIGNAL(rejected()),SLOT(onRejected()));
+		connect(dialog,SIGNAL(accepted()), SLOT(onAccepted()));
+		connect(dialog,SIGNAL(rejected()), SLOT(onRejected()));
 		dialog->show(request->contact(),
 					 request->body(),
 					 false);
@@ -46,17 +46,21 @@ void AuthService::handleReply(Reply *reply)
 	switch(reply->replyType()) {
 	case Reply::New: {
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
-		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
-		connect(dialog,SIGNAL(rejected()),SLOT(onRejected()));
+		connect(dialog,SIGNAL(accepted()), SLOT(onAccepted()));
+		connect(dialog,SIGNAL(rejected()), SLOT(onRejected()));
 		dialog->show(reply->contact(),
 					 reply->body(),
 					 true);
 		break;
 	}
 	case Reply::Accepted:
-	case Reply::Rejected:
-		Notifications::send(Notification::System, reply->contact(), reply->body());
+	case Reply::Rejected: {
+		NotificationRequest request(Notification::System);
+		request.setObject(reply->contact());
+		request.setText(reply->body());
+		request.send();
 		break;
+	}
 	default:
 		break;
 	}
@@ -68,7 +72,7 @@ void AuthService::onAccepted()
 	Contact *c = dialog->contact();
 	if(dialog->isIncoming()) {
 		debug() << "Send reply";
-		Reply event = Reply(Reply::Accept,c);
+		Reply event = Reply(Reply::Accept, c);
 		qApp->sendEvent(c,&event);
 	}
 	else {
@@ -83,8 +87,8 @@ void AuthService::onRejected()
 	AuthDialogPrivate *dialog = qobject_cast<AuthDialogPrivate*>(sender());
 	Contact *c = dialog->contact();
 	if(dialog->isIncoming()) {
-		Reply event = Reply(Reply::Reject,c);
-		qApp->sendEvent(c,&event);
+		Reply event = Reply(Reply::Reject, c);
+		qApp->sendEvent(c, &event);
 	} else
 		c->deleteLater(); //remove temporary contact
 }

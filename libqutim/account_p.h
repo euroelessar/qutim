@@ -26,16 +26,16 @@
 
 namespace qutim_sdk_0_3
 {
-	class AccountPrivate : public MenuControllerPrivate
-	{
-	public:
-		AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
-		QPointer<Protocol> protocol;
-		QString id;
-		Status status;
-		GroupChatManager *groupChatManager;
-		ContactsFactory *contactsFactory;
-	};
+class AccountPrivate : public MenuControllerPrivate
+{
+public:
+	AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
+	QPointer<Protocol> protocol;
+	QString id;
+	Status status;
+	GroupChatManager *groupChatManager;
+	ContactsFactory *contactsFactory;
+};
 }
 
 #endif // ACCOUNT_P_H

@@ -97,11 +97,12 @@ void Account::setStatus(Status status)
 	case Status::ByNetworkError:
 	case Status::ByFatalError:
 		break;
-	case Status::ByAuthorizationFailed:
-		Notifications::send(Notification::System,
-							this,
-							QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+	case Status::ByAuthorizationFailed: {
+		NotificationRequest request(Notification::System);
+		request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+		request.send();
 		break;
+	}
 	}
 
 	Status old = d->status;

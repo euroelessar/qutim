@@ -41,26 +41,13 @@ Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const Message &message);
 Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notification::Type type);
 }
 
-class LIBQUTIM_EXPORT PopupBackend : public QObject
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service", "Popup")
-public:
-	virtual void show(Notification::Type type,
-					  QObject *sender,
-					  const QString &body,
-					  const QVariant &data) = 0;
-protected:
-	virtual void virtual_hook(int type, void *data);
-};
-
 class LIBQUTIM_EXPORT SoundBackend : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Sound")
 public:
 	SoundBackend();
-	virtual ~SoundBackend() {};
+	virtual ~SoundBackend() {}
 	virtual void playSound(const QString &filename) = 0;
 	virtual QStringList supportedFormats() = 0;
 protected:

@@ -141,7 +141,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	}
 
 	if (!silent && (d->notificationsInActiveChat || !d->active))
-		Notifications::send(message);
+		Notification::send(message);
 
 	if(!message.property("fake",false)) {
 //		qApp->postEvent(this, new MessageEventHook(message), Qt::LowEventPriority);

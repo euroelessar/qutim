@@ -23,6 +23,7 @@ class SoundHandler : public NotificationBackend
 {
 	Q_CLASSINFO("Type", "Sound")
 public:
+	SoundHandler();
 	virtual void handleNotification(Notification *notification);
 };
 
