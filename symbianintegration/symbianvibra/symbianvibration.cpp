@@ -5,22 +5,20 @@ namespace Symbian
 {
 using namespace qutim_sdk_0_3;
 
-Vibration::Vibration() : m_vibra(new XQVibra(this))
+Vibration::Vibration() : m_vibra(CHWRMVibra::NewL())
 {
 }
 
 Vibration::~Vibration()
 {
+	delete m_vibra;
 }
 
-void Vibration::show(Notifications::Type type, QObject *sender, const QString &body, const QVariant &data)
+void Vibration::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
-	Q_UNUSED(type);
-	Q_UNUSED(sender);
-	Q_UNUSED(body);
-	Q_UNUSED(data);
+	Q_UNUSED(notification);
 	// Think about better value
-	m_vibra->start(300);
+	m_vibra->StartVibraL(300);
 }
 
 } //namespace Symbian

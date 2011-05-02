@@ -2,22 +2,24 @@
 #define RESOURCEICONLOADER_H
 #include <qutim/notificationslayer.h>
 #include <QStringList>
-#include "3rdparty/xqvibra/xqvibra.h"
+#include <hwrmvibra.h>
 
 namespace Symbian
 {
 using namespace qutim_sdk_0_3;
 
-class Vibration : public qutim_sdk_0_3::PopupBackend
+class Vibration : public qutim_sdk_0_3::NotificationBackend
 {
+	Q_OBJECT
+	Q_CLASSINFO("Service", "Popup")
+	Q_CLASSINFO("Type", "Popup")
 public:
 	Vibration();
 	~Vibration();
 
-	virtual void show(qutim_sdk_0_3::Notifications::Type type, QObject *sender,
-					  const QString &body, const QVariant &data);
+	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 private:
-	XQVibra *m_vibra;
+	CHWRMVibra *m_vibra;
 };
 
 } //namespace Embedded

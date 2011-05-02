@@ -1,5 +1,3 @@
-return()
-
 qutim_add_plugin(symbianvibra
 	GROUP "Symbian integration Plugin"
 	EXTENSION
