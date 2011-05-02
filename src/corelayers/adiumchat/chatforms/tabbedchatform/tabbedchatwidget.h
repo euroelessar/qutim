@@ -26,10 +26,10 @@ enum ChatFlag
 	SwitchDesktopOnActivate	=       0x08,
 	DeleteSessionOnClose	=		0x10,
 	TabsOnBottom			=		0x20,
-	MenuBar					=		0x40,
+	MenuBar					=		0x40
 };
 
-Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
+Q_DECLARE_FLAGS(ChatFlags, ChatFlag)
 
 class ChatViewWidget;
 class TabBar;
@@ -56,6 +56,7 @@ public slots:
 	virtual void loadSettings();
 protected:
 	bool event(QEvent *event);
+	bool eventFilter(QObject *obj, QEvent *event);
 protected slots:	
 	void onSessionActivated(bool active);
 	void ensureToolBar();

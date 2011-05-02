@@ -5,10 +5,10 @@ SlidingStackedWidget::SlidingStackedWidget(QWidget *parent)
     : QStackedWidget(parent)
 {
     if (parent!=0) {
-		m_mainwindow=parent;
+		m_mainwindow = parent;
 	}
 	else {
-		m_mainwindow=this;
+		m_mainwindow = this;
 		qDebug()<<"ATTENTION: untested mainwindow case !";
 	}
 	//parent should not be 0; not tested for any other case yet !!
@@ -132,19 +132,19 @@ void SlidingStackedWidget::slideInWgt(QWidget * newwidget,SlideDirection  direct
 	//has correct geometry information when sliding in first time
 	widget(next)->setGeometry ( 0,  0, offsetx, offsety );
 
-	if (direction==BottomToTop)  {
+	if (direction == BottomToTop)  {
 		offsetx=0;
 		offsety=-offsety;
 	}
-	else if (direction==TopToBottom) {
+	else if (direction == TopToBottom) {
 		offsetx=0;
 		//offsety=offsety;
 	}
-	else if (direction==RightToLeft) {
+	else if (direction == RightToLeft) {
 		offsetx=-offsetx;
 		offsety=0;
 	}
-	else if (direction==LeftToRight) {
+	else if (direction == LeftToRight) {
 		//offsetx=offsetx;
 		offsety=0;
 	}
@@ -214,24 +214,20 @@ bool SlidingStackedWidget::event(QEvent *event)
 		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
 
 		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
-		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
-		    if (swipe->state() == Qt::GestureFinished) {
-			    if (swipe->isLeftToRight())
-			    {
-				    emit fingerGesture(LeftToRight);
-			    }
-			    else if (swipe->isRightToLeft())
-			    {
-				    emit fingerGesture(RightToLeft);
-			    }
-			    else if (swipe->isBottomToTop())
-			    {
-				    emit fingerGesture(BottomToTop);
-			    }
-			    else if (swipe->isTopToBottom())
-			    {
-				    emit fingerGesture(TopToBottom);
-			    }
+			FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+			if (swipe->state() == Qt::GestureFinished) {
+				if (swipe->isLeftToRight()) {
+					emit fingerGesture(LeftToRight);
+				}
+				else if (swipe->isRightToLeft()) {
+					emit fingerGesture(RightToLeft);
+				}
+				else if (swipe->isBottomToTop()) {
+					emit fingerGesture(BottomToTop);
+				}
+				else if (swipe->isTopToBottom()) {
+					emit fingerGesture(TopToBottom);
+				}
 			}
 
 			ge->setAccepted(gesture, true);

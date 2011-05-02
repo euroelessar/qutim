@@ -134,4 +134,3 @@ bool FingerSwipeGesture::isTopToBottom() const
 {
     return m_startPos.y() > m_currentPos.y()+80;
 }
-

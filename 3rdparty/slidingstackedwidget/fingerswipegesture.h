@@ -25,7 +25,6 @@ public:
 	bool isRightToLeft() const;
 	bool isBottomToTop() const;
 	bool isTopToBottom() const;
-
 private:
 	QPointF m_startPos;
 	QPointF m_lastPos;

@@ -19,6 +19,7 @@
 #include <QToolButton>
 #include <QMenuBar>
 #include <qutim/account.h>
+#include <QSwipeGesture>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -85,7 +86,10 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 
 	loadSettings();
 
-	connect(m_tabBar,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
+	connect(m_tabBar, SIGNAL(remove(ChatSessionImpl*)), SLOT(removeSession(ChatSessionImpl*)));
+
+	centralWidget->grabGesture(Qt::SwipeGesture);
+	centralWidget->installEventFilter(this);
 }
 
 void TabbedChatWidget::loadSettings()
@@ -213,9 +217,6 @@ TabbedChatWidget::~TabbedChatWidget()
 		group.setValue(splitter->objectName(), splitter->saveState());
 	}
 	group.sync();
-	delete m_tabBar;
-	delete m_chatInput;
-	delete m_contactView;
 }
 
 QPlainTextEdit *TabbedChatWidget::getInputField() const
@@ -315,6 +316,24 @@ bool TabbedChatWidget::event(QEvent *event)
 		m_tabBar->currentSession()->setActive(active);
 	}
 	return AbstractChatWidget::event(event);
+}
+
+bool TabbedChatWidget::eventFilter(QObject *obj, QEvent *event)
+{
+	if (event->type() == QEvent::Gesture) {
+		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+		if (QGesture *gesture = ge->gesture(Qt::SwipeGesture)) {
+			QSwipeGesture *swipe = static_cast<QSwipeGesture*>(gesture);
+			if (swipe->state() == Qt::GestureFinished) {
+				if (swipe->horizontalDirection() == QSwipeGesture::Left)
+					m_tabBar->showNextTab();
+				else
+					m_tabBar->showPreviousTab();
+				ge->accept(gesture);
+			}
+		}
+	}
+	return QMainWindow::eventFilter(obj, event);
 }
 
 void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)

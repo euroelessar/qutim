@@ -335,6 +335,7 @@ void TabBar::closeCurrentTab()
 
 void TabBar::showNextTab()
 {
+	debug() << Q_FUNC_INFO;
 	if (count() == 0)
 		return;
 	int index = (currentIndex() + 1) % count();
@@ -343,6 +344,7 @@ void TabBar::showNextTab()
 
 void TabBar::showPreviousTab()
 {
+	debug() << Q_FUNC_INFO;
 	if (count() == 0)
 		return;
 	int index = (count() + currentIndex() - 1) % count();
