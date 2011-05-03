@@ -212,18 +212,18 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	//HACK black magic
 	//fix trouble with sizeHint change
 	QRect rect = option.rect;
-	if(!rect.isValid()) {
+	if (!rect.isValid()) {
 		if (const QAbstractScrollArea *area = qobject_cast<const QAbstractScrollArea*>(widget))
 			rect = area->viewport()->geometry();
 		else
 			rect = widget->geometry();
 	}
-	rect.adjust(d->padding,0,0,0);
+	rect.adjust(d->padding, 0, 0, 0);
 
-	QRect check = d->checkRect(index,option,rect);
+	QRect check = d->checkRect(index, option, rect);
 	if (check.isValid())
-		rect.adjust(check.width()+d->padding,0,0,0);
-	rect.adjust(d->padding + option.decorationSize.width(),0,0,0);
+		rect.adjust(check.width() + d->padding, 0, 0, 0);
+	rect.adjust(d->padding + option.decorationSize.width(), 0, 0, 0);
 
 	QFontMetrics metrics = option.fontMetrics;
 	if (!isSeparator(index)) {
@@ -353,7 +353,7 @@ QRect ItemDelegate::drawCheck(QPainter *painter,
 {
 	QStyleOptionViewItem checkOption(option);
 	checkOption.state = checkOption.state & ~QStyle::State_HasFocus;
-	checkOption.rect = d_func()->checkRect(option,rect);
+	checkOption.rect = d_func()->checkRect(option, rect);
 	switch (state) {
 	case Qt::Unchecked:
 		checkOption.state |= QStyle::State_Off;
