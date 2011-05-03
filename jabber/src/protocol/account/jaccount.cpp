@@ -28,6 +28,7 @@
 #include <qutim/debug.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
+#include <qutim/libqutim_version.h>
 #include <jreen/jid.h>
 #include <jreen/dataform.h>
 #include <jreen/disco.h>
@@ -197,7 +198,7 @@ JAccount::JAccount(const QString &id) :
 
 	Jreen::Disco *disco = d->client.disco();
 	disco->setSoftwareVersion(QLatin1String("qutIM"),
-							  qutimVersionStr(),
+							  versionString(),
 							  SystemInfo::getFullName());
 
 	disco->addIdentity(Jreen::Disco::Identity(QLatin1String("client"),

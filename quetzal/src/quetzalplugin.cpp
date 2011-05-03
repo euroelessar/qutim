@@ -159,7 +159,9 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
 		PurpleConvChat *data = PURPLE_CONV_CHAT(chat->purple());
 		// Version older then 2.7.10
-		if (purple_version_check(2, 7, 10) && g_str_equal(conv->account->protocol_id, "prpl-jabber")) {
+		// do always
+//		if (purple_version_check(2, 7, 10) && 
+		if (g_str_equal(conv->account->protocol_id, "prpl-jabber")) {
 			if (!(flags & (PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM)) && who && *who) {
 				// It looks like our outgoing message
 				chat->setMe(who);

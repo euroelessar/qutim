@@ -23,6 +23,7 @@
 #include "oscarstatus.h"
 #include "inforequest_p.h"
 #include "metainfo/updateaccountinfometarequest.h"
+#include <qutim/libqutim_version.h>
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/objectgenerator.h>
@@ -157,7 +158,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	DataUnit version;
 	version.append(QByteArray("qutim"));
 	version.append<quint8>(SystemInfo::getSystemTypeID());
-	version.append<quint32>(qutimVersion());
+	version.append<quint32>(qutim_sdk_0_3::version());
 	version.append<quint8>(0x00);
 	version.append<quint32>(SystemInfo::getSystemVersionID());
 	version.append<quint8>(0x00); // 5 bytes more to 16

@@ -16,6 +16,7 @@
 #include "ircstandartctpchandler.h"
 #include "ircaccount.h"
 #include "ircconnection.h"
+#include <qutim/libqutim_version.h>
 #include <QDateTime>
 
 namespace qutim_sdk_0_3 {
@@ -40,13 +41,13 @@ void IrcStandartCtpcHandler::handleCtpcRequest(IrcAccount *account, const QStrin
 		m_conn->handleTextMessage(sender, senderHost, receiver, QLatin1String("/me ") + params);
 	} else if (cmd == "CLIENTINFO") {
 		QString params = QString("IRC plugin for qutIM %1 - http://qutim.org - Supported tags: %2")
-						 .arg(qutimVersionStr())
+						 .arg(versionString())
 						 .arg(m_conn->supportedCtpcTags().join(","));
 		account->sendCtpcReply(sender, "CLIENTINFO", params);
 	} else if (cmd == "VERSION") {
 		QString params = QString("IRC plugin %1, qutim %2")
 						 .arg(qutimIrcVersionStr())
-						 .arg(qutimVersionStr());
+						 .arg(versionString());
 		account->sendCtpcReply(sender, "VERSION", params);
 	} else if (cmd == "TIME") {
 		account->sendCtpcReply(sender, "TIME", QDateTime::currentDateTime().toString("ddd MMM dd hh:mm:ss yyyy"));
