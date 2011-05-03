@@ -55,8 +55,8 @@ MacDock::MacDock() : d_ptr(new MacDockPrivate())
 	Q_D(MacDock);
 	d->standartIcon = Icon("qutim");
 	d->offlineIcon = Icon("qutim-offline");
-	d->standartTrayIcon = Icon("qutim-offline-mono");
-	d->offlineTrayIcon = Icon("qutim-online-mono");
+	d->standartTrayIcon = Icon("qutim-online-mono");
+	d->offlineTrayIcon = Icon("qutim-offline-mono");
 	d->mailIcon = Icon("qutim-message-new-mono");
 	createDockDeps();
 	d->tray = 0;
