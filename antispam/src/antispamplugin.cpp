@@ -28,7 +28,7 @@ void AntispamPlugin::init()
 			  QLatin1String("sauron.me"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Antispam"),
 			QT_TRANSLATE_NOOP("Plugin", "Blocks messages from unknown contacts by question-answer pair"),
-			QUTIM_VERSION_CHECK(0, 0, 1, 0));
+			QUTIM_MAKE_VERSION(0, 0, 1, 0));
 	setCapabilities(Loadable);
 }
 bool AntispamPlugin::load()

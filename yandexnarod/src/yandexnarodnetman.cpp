@@ -19,6 +19,7 @@
 #include <QXmlQuery>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
+#include <qutim/libqutim_version.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -85,7 +86,7 @@ void YandexNarodNetMan::loadSettings() {
 	m_networkRequest.setRawHeader("Cache-Control", "no-cache");
 	m_networkRequest.setRawHeader("Accept", "*/*");
 	QByteArray userAgent = "qutIM/";
-	userAgent += qutimVersionStr();
+	userAgent += versionString();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	m_networkRequest.setRawHeader("User-Agent", userAgent);
 }
