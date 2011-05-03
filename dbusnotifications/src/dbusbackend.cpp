@@ -110,7 +110,7 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 	hints["sound-file"] = Sound::theme().path(request.type());
 
 	int id = m_ids.value(request.object(), 0);
-	if (id != 0) {
+	if (id) {
 		data = m_notifications.value(id);
 #ifndef QUTIM_MOBILE_UI
 		data.body = data.body + "\n" + text;
@@ -151,7 +151,7 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 
 	vibrate(50);
 
-	quint32 newId = reply.value();
+	int newId = reply.value();
 	m_notifications.insert(newId, data);
 	m_ids.insert(request.object(), newId);
 	if (id != newId)

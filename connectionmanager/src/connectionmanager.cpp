@@ -38,6 +38,7 @@ void changeState(Account *account, bool isOnline)
 
 ConnectionManager::ConnectionManager()
 {
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "BearerManager"));
 #ifdef HAVE_NETWORK_MANAGER
 	m_network_conf_manager = new QNetworkConfigurationManager(this);
 	connect(m_network_conf_manager.data(),SIGNAL(onlineStateChanged(bool)),SLOT(onOnlineStateChanged(bool)));

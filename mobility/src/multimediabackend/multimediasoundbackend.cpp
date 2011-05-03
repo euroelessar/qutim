@@ -38,7 +38,7 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 
 QStringList MultimediaSoundBackend::supportedFormats()
 {
-	return QStringList() << "wav";
+	return QStringList() << "wav"; //WTF Oo
 }
 
 MultimediaSoundThread::MultimediaSoundThread(const QString &filename, QObject *parent) :
