@@ -6,6 +6,7 @@
 *****************************************************************************/
 
 #include "submitpage.h"
+#include <qutim/libqutim_version.h>
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QLabel>
@@ -43,7 +44,7 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 							  ).arg(SystemInfo::getName())
 						   .arg(SystemInfo::getVersion())
 						   .arg(SystemInfo::getFullName())
-						   .arg(QLatin1String(qutimVersionStr()))
+						   .arg(QLatin1String(versionString()))
 						   .arg(QLatin1String(qVersion()))
 						   .arg(QString::number(QSysInfo::WordSize))
 						   .arg(size.width())
@@ -82,7 +83,7 @@ RequestHelper::RequestHelper(QObject *parent) : QNetworkAccessManager(parent)
 	url.addQueryItem(QLatin1String("os"), SystemInfo::getVersion());
 	url.addQueryItem(QLatin1String("short"), SystemInfo::getName());
 	url.addQueryItem(QLatin1String("full"), SystemInfo::getFullName());
-	url.addQueryItem(QLatin1String("version"), qutimVersionStr());
+	url.addQueryItem(QLatin1String("version"), versionString());
 	url.addQueryItem(QLatin1String("qt"), QLatin1String(qVersion()));
 	url.addQueryItem(QLatin1String("wordSize"), QString::number(QSysInfo::WordSize));
 	url.addQueryItem(QLatin1String("width"), QString::number(size.width()));

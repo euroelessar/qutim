@@ -31,7 +31,7 @@ PROJECT_NAME           = libqutim
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = @QUTIM_VERSION@
+PROJECT_NUMBER         = @CMAKE_QUTIM_VERSION_STRING@
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -909,7 +909,7 @@ QCH_FILE               = ../qch/qutim.qch
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = org.qutim.@QUTIM_VERSION@
+QHP_NAMESPACE          = org.qutim.@CMAKE_QUTIM_VERSION_STRING@
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see
@@ -955,7 +955,7 @@ GENERATE_ECLIPSEHELP   = @LIBQUTIM_DOC_GENERATE_ECLIPSEHELP@
 # the directory name containing the HTML and XML files should also have
 # this name.
 
-ECLIPSE_DOC_ID         = org.qutim.@QUTIM_VERSION@
+ECLIPSE_DOC_ID         = org.qutim.@CMAKE_QUTIM_VERSION_STRING@
 
 # The DISABLE_INDEX tag can be used to turn on/off the condensed index at
 # top of each HTML page. The value NO (the default) enables the index and

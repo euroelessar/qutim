@@ -5,6 +5,12 @@ ENDIF (COMMAND cmake_policy)
 PROJECT( qutim )
 SET(QT_MIN_VERSION "4.6.0")
 
+set(CMAKE_QUTIM_VERSION_MAJOR    0  CACHE INT "Major qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_MINOR    2  CACHE INT "Minor qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_SECMINOR 80 CACHE INT "Secminor qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_PATCH    0  CACHE INT "Release qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_STRING "${CMAKE_QUTIM_VERSION_MAJOR}.${CMAKE_QUTIM_VERSION_MINOR}.${CMAKE_QUTIM_VERSION_SECMINOR}.${CMAKE_QUTIM_VERSION_PATCH}" CACHE STRING "qutIM version string" FORCE)
+
 ADD_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
 if( UNIX )
@@ -90,7 +96,7 @@ endif(MINGW)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 
 find_package( QutIM REQUIRED )
-include_directories( ${QUTIM_INCLUDE_DIR} )
+include_directories( ${QUTIM_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/libqutim/include/qutim_hook" )
 
 REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 

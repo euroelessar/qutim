@@ -38,14 +38,14 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 		ui->tabWidget->removeTab(1);
 	else
 		ui->texteditTranslators->setHtml(toHtml(translators, false));
-	ui->labelVersion->setText(QLatin1String(qutimVersionStr()));
+	ui->labelVersion->setText(QLatin1String(versionString()));
 	ui->labelQtVer ->setText(tr("Based on Qt %1 (%2 bit).")
 	                         .arg(QLatin1String(qVersion()), QString::number(QSysInfo::WordSize)));
 	QFile licenseFile(":/GPL");
 	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
 								" or (at your option) any later version.</div>"
 								"<div>qutIM resources such as themes, icons, sounds may come along with a "
-								"different license.</div><br><hr><br>").arg(qutimVersionStr());
+								"different license.</div><br><hr><br>").arg(versionString());
 	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		license += Qt::escape(QLatin1String(licenseFile.readAll()));
 	} else {

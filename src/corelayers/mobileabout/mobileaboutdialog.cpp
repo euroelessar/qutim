@@ -33,7 +33,7 @@ MobileAboutDialog::MobileAboutDialog(QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 	QList<PersonInfo> persons = PersonInfo::authors();
 	QString html;
-	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(qutimVersionStr()),
+	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(versionString()),
 	                                        QLatin1String(qVersion()));
 	for (int i = 0; i < persons.size(); i++) {
 		html += persons.at(i).name();

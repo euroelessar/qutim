@@ -1,7 +1,6 @@
 # libqutim project for cmake
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( libqutim )
-SET( QUTIM_VERSION 0.2.60.0 )
 
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
@@ -90,6 +89,7 @@ INCLUDE_DIRECTORIES(
 	../3rdparty/qtdwm/
 	../3rdparty/qticonloader/
 	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook
 )
 
 # Generate moc files
@@ -109,11 +109,20 @@ ENDIF()
 
 ADD_LIBRARY(libqutim ${LIBQUTIM_TYPE} ${SRC} ${MOC_SRC} ${HDR} ${SRC_MM})
 
+set_target_properties(libqutim PROPERTIES
+	PREFIX ""
+	VERSION ${CMAKE_QUTIM_VERSION_STRING}
+	SOVERSION ${CMAKE_QUTIM_VERSION_MAJOR}
+	DEFINE_SYMBOL LIBQUTIM_LIBRARY
+)
+
 #if( CMAKE_COMPILER_IS_GNUCXX )
 #	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )
 #endif( CMAKE_COMPILER_IS_GNUCXX )
 
 file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim" )
+file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook" )
+configure_file( version.h.cmake "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
 file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
 	if( NOT ${header} MATCHES ".*_p\\.h" )
@@ -126,12 +135,12 @@ foreach( header ${QUTIM_INCLUDE_HEADERS} )
 		LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
+
+list( APPEND QUTIM_INSTALL_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
 set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
 set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include" CACHE INTERNAL "" )
 QUTIM_GENERATE_INCLUDES("qutim" "${QUTIM_INSTALL_HEADERS}")
-
-# Set tagret properties
-SET_TARGET_PROPERTIES ( libqutim PROPERTIES PREFIX "")
+QUTIM_GENERATE_INCLUDES("qutim_hook" "${CMAKE_CURRENT_SOURCE_DIR}/libqutim_global.h")
 
 IF(APPLE)
 	FIND_LIBRARY(CARBON_LIBRARY Carbon)

@@ -16,12 +16,13 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
+#include "libqutim_version.h"
 #include "extensioninfo.h"
 #include <QtCore/QtPlugin>
 #include <QtCore/QObject>
 #include <QtCore/QSharedDataPointer>
 
-#define PLUGIN_VERSION(major, minor, secminor, patch) QUTIM_VERSION_CHECK(major, minor, secminor, patch)
+#define PLUGIN_VERSION(major, minor, secminor, patch) QUTIM_MAKE_VERSION(major, minor, secminor, patch)
 
 namespace qutim_sdk_0_3
 {
@@ -170,7 +171,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 	static const char *qutim_plugin_verification_data = \
 	"pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
 	"debugid="QUTIM_EXPORT_STRING(QUTIM_PLUGIN_ID)"\0" \
-	"libqutim="QUTIM_VERSION_STR"\0"; \
+	"libqutim="QUTIM_VERSION_STRING"\0"; \
 	Q_EXTERN_C Q_DECL_EXPORT \
 	const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
 	{ return qutim_plugin_verification_data; }

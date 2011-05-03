@@ -29,6 +29,7 @@
 #include "varianthook_p.h"
 #include "debug.h"
 #include "servicemanager_p.h"
+#include "version.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -61,16 +62,6 @@
 namespace qutim_sdk_0_3
 {
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
-
-const char *qutimVersionStr()
-{
-	return QUTIM_VERSION_STR;
-}
-
-quint32 qutimVersion()
-{
-	return QUTIM_VERSION;
-}
 
 // Static Fields
 static ModuleManager *managerSelf = NULL;
@@ -180,7 +171,7 @@ static void printVersion()
 {
 	QString version;
 	QTextStream str(&version);
-	str << "\n  " << qApp->applicationName() << ' ' << qutimVersionStr()
+	str << "\n  " << qApp->applicationName() << ' ' << versionString()
 		<< " based on Qt " << qVersion() << "\n\n";
 	foreach (Plugin *plugin, p->plugins) {
 		PluginInfo info = plugin->info();
@@ -222,7 +213,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	p = new ModuleManagerPrivate;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
-	qApp->setApplicationVersion(qutimVersionStr());
+	qApp->setApplicationVersion(versionString());
 	qApp->setOrganizationDomain("qutim.org");
 	//		qApp->setOrganizationName("qutIM");
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onQuit()));
