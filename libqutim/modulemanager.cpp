@@ -29,7 +29,7 @@
 #include "varianthook_p.h"
 #include "debug.h"
 #include "servicemanager_p.h"
-#include "version.h"
+#include "libqutim_version.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
