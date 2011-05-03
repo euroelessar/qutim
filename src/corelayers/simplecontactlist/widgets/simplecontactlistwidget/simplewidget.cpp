@@ -398,7 +398,7 @@ bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 			m_searchBtn->setChecked(false);
 		}
 	}
-	QMainWindow::eventFilter(obj, ev);
+	return QMainWindow::eventFilter(obj, ev);
 }
 
 } // namespace SimpleContactList

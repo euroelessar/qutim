@@ -13,7 +13,7 @@ namespace SimpleContactList
 class PlainModelPrivate;
 class PlainModel;
 
-struct ChangeEvent;
+class ChangeEvent;
 class ContactItem;
 
 class ContactItem  : public ItemHelper

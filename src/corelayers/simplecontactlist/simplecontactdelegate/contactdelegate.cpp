@@ -38,6 +38,7 @@ struct ContactDelegatePrivate
 	QHash<QString, bool> extInfo;
 	int statusIconSize;
 	int extIconSize;
+	bool liteMode;
 };
 
 bool contactInfoLessThan (const QVariantHash &a, const QVariantHash &b) {
@@ -88,24 +89,25 @@ void ContactDelegate::paint(QPainter *painter,
 		// TODO: implement me
 		// fall through for now
 	case TagType: {
-		QStyleOptionButton buttonOption;
-
-		buttonOption.state = option.state;
+		if (!p->liteMode) {
+			QStyleOptionButton buttonOption;
+			buttonOption.state = option.state;
 #ifdef Q_WS_MAC
-		buttonOption.features = QStyleOptionButton::Flat;
-		buttonOption.state |= QStyle::State_Raised;
-		buttonOption.state &= ~QStyle::State_HasFocus;
+			buttonOption.features = QStyleOptionButton::Flat;
+			buttonOption.state |= QStyle::State_Raised;
+			buttonOption.state &= ~QStyle::State_HasFocus;
 #endif
 
-		buttonOption.rect = option.rect;
-		buttonOption.palette = option.palette;
-		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+			buttonOption.rect = option.rect;
+			buttonOption.palette = option.palette;
+			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+		}
 
-		if(const QTreeView *view = qobject_cast<const QTreeView*>(widget)) {
+		if (const QTreeView *view = qobject_cast<const QTreeView*>(widget)) {
 			QStyleOption branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
-			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
+			branchOption.rect = QRect(p->horizontalPadding + r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
 			branchOption.palette = option.palette;
 			branchOption.state = QStyle::State_Children;
 			title_rect.adjust(branchOption.rect.width() + 2 * p->horizontalPadding,0,0,0);
@@ -130,6 +132,7 @@ void ContactDelegate::paint(QPainter *painter,
 					% count
 					% QLatin1Char(')');
 
+			txt = QFontMetrics(font).elidedText(txt, Qt::ElideMiddle, title_rect.width());
 			painter->drawText(title_rect,
 							  Qt::AlignVCenter,
 							  txt
@@ -148,8 +151,7 @@ void ContactDelegate::paint(QPainter *painter,
 		QRect bounding;
 		Status status = index.data(StatusRole).value<Status>();
 
-		if (p->showFlags & ShowExtendedInfoIcons)
-		{
+		if (p->showFlags & ShowExtendedInfoIcons) {
 			QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
 
 			QList<QVariantHash> list;
@@ -312,16 +314,14 @@ void ContactDelegate::reloadSettings()
 {
 	debug() << "reload settings";
 	Config cfg("appearance");
-	cfg = cfg.group("contactList");	
+	cfg = cfg.group("contactList");
+	p->liteMode = cfg.value("liteMode", false);
 
 #ifdef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",
 								  32);
-#elif defined (Q_WS_WIN32) || defined(Q_WS_MAC)
-	p->statusIconSize = cfg.value("statusIconSize", 22);
 #else
-	p->statusIconSize = cfg.value("statusIconSize",
-								  qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize));
+	p->statusIconSize = cfg.value("statusIconSize", 22);
 #endif
 	p->extIconSize = cfg.value("extIconSize",
 							   qApp->style()->pixelMetric(QStyle::PM_SmallIconSize));

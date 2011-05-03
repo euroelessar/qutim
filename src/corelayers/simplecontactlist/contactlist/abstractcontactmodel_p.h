@@ -20,8 +20,9 @@ namespace qutim_sdk_0_3
 namespace Core {
 namespace SimpleContactList {
 
-struct ChangeEvent
+class ChangeEvent
 {
+public:
 	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
 	ItemHelper *parent;
