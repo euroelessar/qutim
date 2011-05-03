@@ -15,6 +15,5 @@ macro(qutim_check_component component)
 endmacro()
 
 include_directories(${QT_MOBILITY_INCLUDE_DIR} ${QT_MOBILITY_PARENT_INCLUDE_DIR})
-link_directories(${QT_MOBILITY_LIBRARY_DIR})
 
 qutim_add_extensions_dir(src)

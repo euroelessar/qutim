@@ -1,5 +1,3 @@
-return() #TODO
-
 qutim_check_component(Bearer)
 
 qutim_add_plugin(bearermanager
@@ -7,6 +5,6 @@ qutim_add_plugin(bearermanager
 	DISPLAY_NAME "Bearer Manager"
 	DESCRIPTION ""
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-	LINK_LIBRARIES ${QT_MOBILITY_MULTIMEDIAKIT_LIBRARY}
+	LINK_LIBRARIES ${QT_MOBILITY_BEARER_LIBRARY}
 	INCLUDE_DIRS ${QT_MOBILITY_BEARER_INCLUDE_DIR}
 )
