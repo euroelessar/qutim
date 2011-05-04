@@ -7,6 +7,7 @@ qutim_add_plugin(macgrowl
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Growl notifications"
 	DESCRIPTION "Default Mac Os X Notifications"
+	ICON "growl"
 	INCLUDE_DIRS ${GROWL_LIBRARIES}/Headers
 	LINK_LIBRARIES ${GROWL_LIBRARIES} ${COCOA_LIBRARIES}
 ) 
