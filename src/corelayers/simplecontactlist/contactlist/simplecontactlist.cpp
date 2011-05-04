@@ -115,7 +115,7 @@ void Module::addButton(ActionGenerator *generator)
 
 void Module::show()
 {
-	p->widget->show();
+	SystemIntegration::show(p->widget);
 	p->widget->setWindowState(p->widget->windowState() & ~Qt::WindowMinimized);
 	p->widget->activateWindow();
 	p->widget->raise();
@@ -131,13 +131,8 @@ void Module::changeVisibility()
 	//			if (p->widget->isVisible() && !p->widget->isMinimized()) {
 	if (p->widget->isActiveWindow()) {
 		QTimer::singleShot( 0, p->widget, SLOT(hide()) );
-	} else {
-		SystemIntegration::show(p->widget);
-		p->widget->setWindowState(p->widget->windowState() & ~Qt::WindowMinimized);
-		p->widget->activateWindow();
-		p->widget->raise();
-	}
-
+	} else
+		show();
 }
 
 void Module::onConfigureClicked(QObject*)
