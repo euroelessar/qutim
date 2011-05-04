@@ -17,9 +17,9 @@ SoundThemeSelector::SoundThemeSelector() :
 	m_model(new QStandardItemModel(this))
 {
 	ui->setupUi(this);
-	connect(ui->themeSelector,SIGNAL(currentIndexChanged(QString)),SLOT(currentIndexChanged(QString)));
+	connect(ui->themeSelector, SIGNAL(currentIndexChanged(QString)), SLOT(currentIndexChanged(QString)));
 	ui->treeView->setModel(m_model);
-	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onClicked(QModelIndex)));
+	connect(ui->treeView, SIGNAL(clicked(QModelIndex)), SLOT(onClicked(QModelIndex)));
 }
 
 SoundThemeSelector::~SoundThemeSelector()
@@ -60,16 +60,13 @@ void SoundThemeSelector::currentIndexChanged(const QString& text)
 	emit modifiedChanged(true);
 	m_model->clear();
 	fillModel(Sound::theme(text));
-	ui->treeView->resizeColumnToContents(0);
 	ui->treeView->resizeColumnToContents(1);
-	ui->treeView->resizeColumnToContents(2);
 }
 
 void SoundThemeSelector::fillModel(const SoundTheme &theme)
 {
 	QStringList headers;
 	headers.append(QT_TRANSLATE_NOOP("Notifications", "Type"));
-	headers.append(QT_TRANSLATE_NOOP("SoundTheme", "Filename"));
 	headers.append(QT_TRANSLATE_NOOP("SoundTheme", "Preview"));
 	m_model->setHorizontalHeaderLabels(headers);
 
@@ -83,12 +80,7 @@ void SoundThemeSelector::fillModel(const SoundTheme &theme)
 
 				QStandardItem *item = new QStandardItem(Notification::typeString(type));
 				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Type"));
-				items << item;
-
-				QString path = theme.path(type);
-
-				item = new QStandardItem(path.section("/",-1));
-				item->setToolTip(path);
+				item->setSelectable(false);
 				items << item;
 
 				item = new QStandardItem();
@@ -97,17 +89,19 @@ void SoundThemeSelector::fillModel(const SoundTheme &theme)
 				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
 				item->setEnabled(!theme.path(type).isNull());
 				item->setData(type,Qt::UserRole);
+				item->setSelectable(false);
 				items << item;
 
 				m_model->appendRow(items);
 			}
 		}
 	}
+	ui->treeView->header()->setResizeMode(0, QHeaderView::Stretch);
 }
 
 void SoundThemeSelector::onClicked(const QModelIndex &index)
 {
-	if ((index.column() != 2) || !index.data(Qt::ItemIsEnabled).toBool())
+	if ((index.column() != 1) || !index.data(Qt::ItemIsEnabled).toBool())
 		return;
 	int type = index.data(Qt::UserRole).value<int>();
 
