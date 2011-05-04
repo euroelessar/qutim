@@ -59,10 +59,12 @@ MessageHandler::Result Handler::doHandle(Message& message, QString* reason)
 	Contact *contact = qobject_cast<Contact*>(message.chatUnit());
 	if (!contact || contact->isInList() || contact->property("trusted").toBool())
 		return MessageHandler::Accept;
+	else if (contact->property("notified").toBool())
+		return MessageHandler::Reject;
 
 	//check message body
 	foreach (QString answer, m_answers) {
-		if (message.text().contains(answer)) {
+		if (message.text().compare(answer, Qt::CaseInsensitive) == 0) {
 			Message msg(m_success);
 			msg.setChatUnit(contact);
 			contact->sendMessage(msg);
@@ -74,6 +76,7 @@ MessageHandler::Result Handler::doHandle(Message& message, QString* reason)
 	Message msg(m_question);
 	msg.setChatUnit(contact);
 	contact->sendMessage(msg);
+	contact->setProperty("notified", true);
 	reason->append(QObject::tr("Message from %1 blocked  on suspicion of spam.").
 				   arg(contact->title()));
 	return MessageHandler::Error;
