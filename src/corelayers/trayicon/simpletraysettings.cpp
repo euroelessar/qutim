@@ -8,7 +8,7 @@ using namespace qutim_sdk_0_3;
 const char * traySettingsFilename = "simpletray";
 
 SimpletraySettings::SimpletraySettings(QWidget *parent) :
-	SettingsWidget(),
+	SettingsWidget(parent),
 	ui(new Ui::SimpletraySettings)
 {
 	ui->setupUi(this);
@@ -31,11 +31,17 @@ void SimpletraySettings::loadImpl()
 	ui->cb_showIcon->setChecked(cfg.value("showIcon", true));
 	ui->cb_showIcon->click();
 	ui->cb_showIcon->click(); // HACK: this CB should emit clicked(bool)
-	const int option = cfg.value("showNumber", DontShow);
+	const int option = cfg.value("showNumber", CounterDontShow);
 	switch (option) {
-	case ShowMsgsNumber : ui->rb_showMsgsNumber->setChecked(true); break;
-	case ShowSessNumber : ui->rb_showSessNumber->setChecked(true); break;
-	default : ui->rb_dontShowNumber->setChecked(true); break;
+	case CounterShowMessages:
+		ui->rb_showMsgsNumber->setChecked(true);
+		break;
+	case CounterShowSessions:
+		ui->rb_showSessNumber->setChecked(true);
+		break;
+	default:
+		ui->rb_dontShowNumber->setChecked(true);
+		break;
 	}
 }
 
@@ -46,11 +52,11 @@ void SimpletraySettings::saveImpl()
 	cfg.setValue("showIcon", ui->cb_showIcon->isChecked());
 	int option;
 	if (ui->rb_showMsgsNumber->isChecked())
-		option = ShowMsgsNumber;
+		option = CounterShowMessages;
 	else if (ui->rb_showSessNumber->isChecked())
-		option = ShowSessNumber;
+		option = CounterShowSessions;
 	else
-		option = DontShow;
+		option = CounterDontShow;
 	cfg.setValue("showNumber", option);
 }
 

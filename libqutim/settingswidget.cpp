@@ -105,7 +105,9 @@ void SettingsWidgetPrivate::clearValues()
 	changed_num = 0;
 }
 
-SettingsWidget::SettingsWidget() : p(new SettingsWidgetPrivate)
+SettingsWidget::SettingsWidget(QWidget *parent) :
+	QWidget(parent),
+	p(new SettingsWidgetPrivate)
 {
 	p->mapper = new QSignalMapper(this);
 	connect(p->mapper, SIGNAL(mapped(int)), this, SLOT(onStateChanged(int)));

@@ -30,7 +30,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_PROPERTY(bool modified READ isModified NOTIFY modifiedChanged)
 	public:
-		SettingsWidget();
+		SettingsWidget(QWidget *parent = 0);
 		virtual ~SettingsWidget();
 		bool isModified() const;
 		virtual void setController(QObject *controller);

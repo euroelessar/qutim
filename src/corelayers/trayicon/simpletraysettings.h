@@ -12,20 +12,17 @@ namespace Core {
 
 extern const char * traySettingsFilename;
 
-enum MsgNumberOption {
-	DontShow,
-	ShowMsgsNumber,
-	ShowSessNumber
-};
-
 class SimpletraySettings : public qutim_sdk_0_3::SettingsWidget
 {
-	Q_OBJECT
-
+	Q_OBJECT	
 public:
+	enum Option {
+		CounterDontShow,
+		CounterShowMessages,
+		CounterShowSessions
+	};
 	explicit SimpletraySettings(QWidget *parent = 0);
 	~SimpletraySettings();
-
 protected:
 	void loadImpl();
 	void saveImpl();

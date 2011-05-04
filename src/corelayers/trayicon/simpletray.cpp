@@ -185,46 +185,54 @@ void SimpleTray::onSessionDestroyed()
 	onUnreadChanged(MessageList());
 }
 
+static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
+{
+	QFont f = QApplication::font();
+	QPixmap px(backing.pixmap(size));
+	QPainter p(&px);
+	f.setPixelSize(px.height()/1.5);
+	p.setFont(f);
+	p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+	icon.addPixmap(px);
+	return icon;
+}
+
 QIcon SimpleTray::unreadIcon()
 {
-	static QVector<QIcon> icons;
 	int number = 0;
-	switch (Config(traySettingsFilename).value("showNumber", DontShow))
-	{
-	default :
-	case DontShow : return m_mailIcon;
+	Config cfg(traySettingsFilename);
+	SimpletraySettings::Option option = cfg.value("showNumber",
+												  SimpletraySettings::CounterDontShow);
 
-	case ShowMsgsNumber :
+	switch (option) {
+	default :
+	case SimpletraySettings::CounterDontShow:
+		return m_mailIcon;
+	case SimpletraySettings::CounterShowMessages:
 		foreach (ChatSession *s, m_sessions)
 			number += s->unread().size();
-		break;
-
-	case ShowSessNumber :
+		break;		
+	case SimpletraySettings::CounterShowSessions:
 		foreach (ChatSession *s, m_sessions)
 			if (!s->unread().empty())
 				number++;
 		break;
 	}
 
-	number--;
-	if (number >= icons.size())
-		icons.resize(number+1);
-	if (icons[number].isNull())
-		generateIconSizes(m_mailIcon, icons[number], number+1);
-	return icons[number];
+	QIcon icon;
+	generateIconSizes(m_mailIcon, icon, number);
+	return icon;
 }
 
 void SimpleTray::generateIconSizes(const QIcon &backing, QIcon &icon, int number)
 {
-	QFont f = QApplication::font();
 	foreach (QSize sz, backing.availableSizes()) {
-		QPixmap px(backing.pixmap(sz));
-		QPainter p(&px);
-		f.setPixelSize(px.height()/1.5);
-		p.setFont(f);
-		p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
-		icon.addPixmap(px);
+		addIcon(backing, icon, sz, number);
 	}
+	//for SVG icons
+	QRect geometry = m_icon->geometry();
+	QSize size = geometry.size();
+	addIcon(backing, icon, size, number);
 }
 
 void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
