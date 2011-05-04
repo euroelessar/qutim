@@ -19,48 +19,48 @@
 
 namespace qutim_sdk_0_3
 {
-	class ExtensionIconData : public QSharedData
-	{
-	public:
-		ExtensionIconData() {}
-		ExtensionIconData(const ExtensionIconData &o) : QSharedData(o), name(o.name), icon(o.icon) {}
-		mutable QString name;
-		mutable QIcon icon;
-	};
+class ExtensionIconData : public QSharedData
+{
+public:
+	ExtensionIconData() {}
+	ExtensionIconData(const ExtensionIconData &o) : QSharedData(o), name(o.name), icon(o.icon) {}
+	mutable QString name;
+	mutable QIcon icon;
+};
 
-	ExtensionIcon::ExtensionIcon(const QString &name) : p(new ExtensionIconData)
-	{
-		p->name = name;
-	}
+ExtensionIcon::ExtensionIcon(const QString &name) : p(new ExtensionIconData)
+{
+	p->name = name;
+}
 
-	ExtensionIcon::ExtensionIcon(const QIcon &icon) : p(new ExtensionIconData)
-	{
-		p->icon = icon;
-	}
+ExtensionIcon::ExtensionIcon(const QIcon &icon) : p(new ExtensionIconData)
+{
+	p->icon = icon;
+}
 
-	ExtensionIcon::ExtensionIcon(const ExtensionIcon &other) : p(other.p)
-	{
-	}
+ExtensionIcon::ExtensionIcon(const ExtensionIcon &other) : p(other.p)
+{
+}
 
-	ExtensionIcon::~ExtensionIcon()
-	{
-	}
+ExtensionIcon::~ExtensionIcon()
+{
+}
 
-	ExtensionIcon &ExtensionIcon::operator =(const ExtensionIcon &other)
-	{
-		p = other.p;
-		return *this;
-	}
+ExtensionIcon &ExtensionIcon::operator =(const ExtensionIcon &other)
+{
+	p = other.p;
+	return *this;
+}
 
-	QIcon ExtensionIcon::toIcon() const
-	{
-		if (p->icon.isNull() && !p->name.isEmpty() && ObjectGenerator::isInited())
-			p->icon = Icon(p->name);
-		return p->icon;
-	}
+QIcon ExtensionIcon::toIcon() const
+{
+	if (p->icon.isNull() && !p->name.isEmpty() && ObjectGenerator::isInited())
+		p->icon = Icon(p->name);
+	return p->icon;
+}
 
-	QString ExtensionIcon::name() const
-	{
-		return p->name;
-	}
+QString ExtensionIcon::name() const
+{
+	return p->name;
+}
 }

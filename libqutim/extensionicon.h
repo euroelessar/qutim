@@ -23,22 +23,22 @@
 
 namespace qutim_sdk_0_3
 {
-	class ExtensionIconData;
+class ExtensionIconData;
 
-	class LIBQUTIM_EXPORT ExtensionIcon
-	{
-	public:
-		ExtensionIcon(const QString &name = QString());
-		ExtensionIcon(const QIcon &icon);
-		ExtensionIcon(const ExtensionIcon &other);
-		~ExtensionIcon();
-		ExtensionIcon &operator =(const ExtensionIcon &other);
-		operator QIcon() const { return toIcon(); }
-		QIcon toIcon() const;
-		QString name() const;
-	private:
-		QSharedDataPointer<ExtensionIconData> p;
-	};
+class LIBQUTIM_EXPORT ExtensionIcon
+{
+public:
+	ExtensionIcon(const QString &name = QString());
+	ExtensionIcon(const QIcon &icon);
+	ExtensionIcon(const ExtensionIcon &other);
+	~ExtensionIcon();
+	ExtensionIcon &operator =(const ExtensionIcon &other);
+	operator QIcon() const { return toIcon(); }
+	QIcon toIcon() const;
+	QString name() const;
+private:
+	QSharedDataPointer<ExtensionIconData> p;
+};
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ExtensionIcon);
