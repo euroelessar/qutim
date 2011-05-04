@@ -5,12 +5,12 @@
 
 namespace qutim_sdk_0_3 {
 
-	class LIBQUTIM_EXPORT StartupModule
-	{
-	public:
-		StartupModule();
-		virtual ~StartupModule();
-	};
+class LIBQUTIM_EXPORT StartupModule
+{
+public:
+	StartupModule();
+	virtual ~StartupModule();
+};
 
 } // namespace qutim_sdk_0_3
 

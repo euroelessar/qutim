@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationssettings.h
+ *  notificationsettings.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -13,46 +13,28 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSSETTINGS_H
-#define NOTIFICATIONSSETTINGS_H
-
-#include <QObject>
-#include <qutim/startupmodule.h>
+#ifndef CORE_NOTIFICATIONSETTINGS_H
+#define CORE_NOTIFICATIONSETTINGS_H
+#include <qutim/settingswidget.h>
 #include <qutim/notification.h>
 
-namespace qutim_sdk_0_3 {
-class SettingsItem;
-}
+class QCheckBox;
+namespace Core {
 
-namespace Core
+class NotificationSettings : public qutim_sdk_0_3::SettingsWidget
 {
-
-class NotifyEnabler;
-class NotificationsSettings : public QObject, public qutim_sdk_0_3::StartupModule
-{
-	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+    Q_OBJECT
 public:
-	explicit NotificationsSettings(QObject *parent = 0);
-	~NotificationsSettings();
-private:
-	qutim_sdk_0_3::SettingsItem *m_settings;
-	NotifyEnabler *m_enabler;
-};
-
-class NotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
-{
-	Q_OBJECT
-public:
-	NotifyEnabler(QObject *parent = 0);
-public slots:
-	void loadSettings();
+    explicit NotificationSettings(QWidget *parent = 0);
+    virtual void loadImpl();
+    virtual void cancelImpl();
+    virtual void saveImpl();
 protected:
-    virtual Result filter(qutim_sdk_0_3::NotificationRequest& request);
+	void addNotify(qutim_sdk_0_3::Notification::Type type, bool set);
 private:
-	int m_flags;
+	QMap<qutim_sdk_0_3::Notification::Type, QCheckBox*> m_boxMap;
 };
 
-}
+} // namespace Core
 
-#endif // NOTIFICATIONSSETTINGS_H
+#endif // CORE_NOTIFICATIONSETTINGS_H

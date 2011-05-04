@@ -61,6 +61,7 @@ public:
 	~Notification();
 	NotificationRequest request() const;
 	static LocalizedString typeString(Type type);
+	static LocalizedStringList typeStrings();
 public slots:
 	void accept();
 signals:

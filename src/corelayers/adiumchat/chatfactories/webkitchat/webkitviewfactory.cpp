@@ -38,7 +38,7 @@ QWidget *WebkitViewFactory::createViewWidget()
 QObject *WebkitViewFactory::createViewController()
 {
 	ChatStyleOutput *output = new ChatStyleOutput();
-	m_appearanceSettings->connect(SIGNAL(saved()),output,SLOT(loadSettings()));
+	m_appearanceSettings->connect(SIGNAL(saved()), output, SLOT(loadSettings()));
 	return output;
 }
 

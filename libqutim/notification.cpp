@@ -104,6 +104,27 @@ void Notification::accept()
 	//deleteLater(); //TODO
 }
 
+LocalizedStringList Notification::typeStrings()
+{
+	LocalizedStringList list;
+	list << QT_TRANSLATE_NOOP("Notification", "Incoming Message")
+		 << QT_TRANSLATE_NOOP("Notification", "Outgoing Message")
+		 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
+		 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
+		 << QT_TRANSLATE_NOOP("Notification", "User joined chat")
+		 << QT_TRANSLATE_NOOP("Notification", "User leaved chat")
+		 << QT_TRANSLATE_NOOP("Notification", "Incoming chat message")
+		 << QT_TRANSLATE_NOOP("Notification", "Outgoing chat message")
+		 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
+		 << QT_TRANSLATE_NOOP("Notification", "User online")
+		 << QT_TRANSLATE_NOOP("Notification", "User offline")
+		 << QT_TRANSLATE_NOOP("Notification", "User changed status")
+		 << QT_TRANSLATE_NOOP("Notification", "User has birthday!")
+		 << QT_TRANSLATE_NOOP("Notification", "User typing")
+		 << QT_TRANSLATE_NOOP("Notification", "System");
+	return list;
+}
+
 LocalizedString Notification::typeString(Type type)
 {
 	QMetaObject meta = Notification::staticMetaObject;
@@ -117,25 +138,7 @@ LocalizedString Notification::typeString(Type type)
 		flag <<= 1;
 	}
 
-	LocalizedString strings[] =
-	{
-		QT_TRANSLATE_NOOP("Notification", "Incoming Message"),
-		QT_TRANSLATE_NOOP("Notification", "Outgoing Message"),
-		QT_TRANSLATE_NOOP("Notification", "qutIM Startup"),
-		QT_TRANSLATE_NOOP("Notification", "Blocked Message"),
-		QT_TRANSLATE_NOOP("Notification", "User joined chat"),
-		QT_TRANSLATE_NOOP("Notification", "User leaved chat"),
-		QT_TRANSLATE_NOOP("Notification", "Incoming chat message"),
-		QT_TRANSLATE_NOOP("Notification", "Outgoing chat message"),
-		QT_TRANSLATE_NOOP("Notification", "File transfer completed"),
-		QT_TRANSLATE_NOOP("Notification", "User online"),
-		QT_TRANSLATE_NOOP("Notification", "User offline"),
-		QT_TRANSLATE_NOOP("Notification", "User changed status"),
-		QT_TRANSLATE_NOOP("Notification", "User has birthday!"),
-		QT_TRANSLATE_NOOP("Notification", "User typing"),
-		QT_TRANSLATE_NOOP("Notification", "System")
-	};
-	return strings[index];
+	return typeStrings().at(index);
 }
 
 NotificationAction::NotificationAction(const QIcon &icon, const LocalizedString &title,
@@ -264,12 +267,12 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 	else
 #endif
 
-	if (ChatLayer::get(msg.chatUnit(), false))
-		d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
-										 Notification::ChatOutgoingMessage;
-	else
-		d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
-										 Notification::OutgoingMessage;
+		if (ChatLayer::get(msg.chatUnit(), false))
+			d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
+											 Notification::ChatOutgoingMessage;
+		else
+			d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
+											 Notification::OutgoingMessage;
 
 	setProperty("message", qVariantFromValue(msg));
 }
