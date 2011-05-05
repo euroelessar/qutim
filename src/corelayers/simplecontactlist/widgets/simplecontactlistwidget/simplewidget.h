@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <abstractcontactlist.h>
 #include <simplecontactlistview.h>
+#include <qutim/servicemanager.h>
 #include <qutim/status.h>
 
 namespace qutim_sdk_0_3
@@ -37,21 +38,22 @@ protected:
 	bool event(QEvent *event);
 	bool eventFilter(QObject *, QEvent *);
 private slots:
+	void onServiceChanged(const QByteArray &name, QObject *now, QObject *old);
 	void init();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountDestroyed(QObject *obj);
 	void onStatusChanged();
-	void onSearchButtonToggled(bool toggled);
+	void onSearchActivated();
+	void onTextChanged(const QString &text);
 	void showStatusDialog();
 	void changeStatusTextAccepted();
 	void orientationChanged();
 private:
 	TreeView *m_view;
-	AbstractContactModel *m_model;
+	ServicePointer<AbstractContactModel> m_model;
 	ActionToolBar *m_mainToolBar;
 	QPushButton *m_statusBtn;
-	QPushButton *m_searchBtn;
 	QLineEdit *m_searchBar;
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;

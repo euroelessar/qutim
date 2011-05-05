@@ -3,7 +3,6 @@
 #include <QAction>
 #include <qutim/qtwin.h>
 #include <qutim/simplecontactlist/abstractcontactmodel.h>
-#include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
 #include <QHBoxLayout>
 #include <qutim/icon.h>
@@ -46,6 +45,8 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 SimpleWidget::SimpleWidget()
 {
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
 
 	resize(150,0);//hack
@@ -88,53 +89,35 @@ SimpleWidget::SimpleWidget()
 	m_mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
-	m_model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
-	Q_ASSERT(m_model);
+	m_searchBar = new QLineEdit(this);
+	m_searchBar->setVisible(false);
+	layout->addWidget(m_searchBar);
+	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
+	connect(m_searchBar, SIGNAL(textChanged(QString)), SLOT(onTextChanged(QString)));
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+	m_searchBar->setPlaceholderText(tr("Search contact"));
+#endif
+
 	m_view = new TreeView(m_model, this);
 	layout->addWidget(m_view);
 	m_view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 	m_view->installEventFilter(this);
 
-	QHBoxLayout *bottom_layout = new QHBoxLayout(w);
-
 	QMenu *statusMenu = new QMenu(this);
 
-	m_searchBtn = new QPushButton(this);
-	m_searchBtn->setIcon(Icon("edit-find"));
-	m_searchBtn->setCheckable(true);
-
 	// make shortcuts
-	Shortcut *key = new Shortcut("find", m_searchBtn);
-	key->setContext(Qt::ApplicationShortcut);
-	connect(key, SIGNAL(activated()), m_searchBtn, SLOT(toggle()));
-	m_searchBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+	Shortcut *key = new Shortcut("find", this);
+	connect(key, SIGNAL(activated()), SLOT(onSearchActivated()));
 
-	m_searchBar = new QLineEdit(this);
 
 	m_statusBtn = new QPushButton(Icon("im-user-online"),
-								   tr("Status"),
-								   this);
+								  tr("Status"),
+								  this);
 	m_statusBtn->setMenu(statusMenu);
 	key = new Shortcut("contactListGlobalStatus", m_statusBtn);
 	connect(key,SIGNAL(activated()), m_statusBtn, SLOT(showMenu()));
 	m_statusBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-	m_searchBar->setVisible(false);
-
-	#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-	m_searchBar->setPlaceholderText(tr("Search contact"));
-	#endif
-
-	connect(m_searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
-	bottom_layout->addWidget(m_statusBtn);
-
-	layout->addWidget(m_searchBar);
-	bottom_layout->addWidget(m_searchBtn);
-	bottom_layout->setSpacing(0);
-	bottom_layout->setMargin(0);;
-	layout->addLayout(bottom_layout);
-
-	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
+	layout->addWidget(m_statusBtn);
 
 	foreach(Protocol *proto, Protocol::all()) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -157,10 +140,10 @@ SimpleWidget::SimpleWidget()
 	statusMenu->addSeparator();
 
 	m_status_action = statusMenu->addAction(Icon("im-status-message-edit"),
-											 tr("Set Status Text"),
-											 this,
-											 SLOT(showStatusDialog())
-											 );
+											tr("Set Status Text"),
+											this,
+											SLOT(showStatusDialog())
+											);
 
 	QString last_status = Config().group("contactList").value("lastStatus",QString());
 	m_statusBtn->setToolTip(last_status);
@@ -248,16 +231,11 @@ QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
 	return act;
 }
 
-void SimpleWidget::onSearchButtonToggled(bool toggled)
+void SimpleWidget::onSearchActivated()
 {
-	m_searchBar->setVisible(toggled);
-	if (toggled) {
-		m_searchBar->setFocus(Qt::PopupFocusReason);
-	}
-	else
-		m_searchBar->clear();
+	m_searchBar->setVisible(true);
+	m_searchBar->setFocus(Qt::PopupFocusReason);
 }
-
 
 void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
@@ -379,6 +357,12 @@ AbstractContactModel *SimpleWidget::model() const
 	return m_model;
 }
 
+void SimpleWidget::onTextChanged(const QString &text)
+{
+	if (text.isEmpty())
+		m_searchBar->hide();
+}
+
 bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 {
 	if (obj == m_view) {
@@ -387,18 +371,27 @@ bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 			if (m_view->hasFocus() && m_searchBar->isHidden())
 				m_pressedKeys.append(event->text());
 
-			if (m_pressedKeys.count() > 2) {
-				m_searchBtn->setChecked(true);
+			if (m_pressedKeys.count() > 1) {
+				onSearchActivated();
 				m_searchBar->setText(m_pressedKeys);
 				m_pressedKeys.clear();
 			}
 			ev->accept();
 		} else if (ev->type() == QEvent::FocusOut && m_searchBar->isHidden()) {
 			m_pressedKeys.clear();
-			m_searchBtn->setChecked(false);
 		}
 	}
 	return QMainWindow::eventFilter(obj, ev);
+}
+
+void SimpleWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *)
+{
+	if (name == "ContactModel") {
+		m_view->setModel(m_model);
+		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
+	} else if (name == "ContactDelegate") {
+		m_view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));
+	}
 }
 
 } // namespace SimpleContactList

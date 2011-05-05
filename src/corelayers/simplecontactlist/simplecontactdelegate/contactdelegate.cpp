@@ -108,7 +108,7 @@ void ContactDelegate::paint(QPainter *painter,
 			branchOption.rect = QRect(option.rect.left() + p->horizontalPadding,
 									  option.rect.top(),
 									  p->statusIconSize,
-									  p->statusIconSize);
+									  option.rect.height());
 			branchOption.palette = option.palette;
 			branchOption.state = QStyle::State_Children;
 			title_rect.adjust(branchOption.rect.width() + p->horizontalPadding, 0, 0, 0);
