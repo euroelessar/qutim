@@ -43,6 +43,7 @@ private:
 class NotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::NotificationFilter)
 public:
 	NotifyEnabler(QObject *parent = 0);
 public slots:
