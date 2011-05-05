@@ -217,6 +217,10 @@ TabbedChatWidget::~TabbedChatWidget()
 		group.setValue(splitter->objectName(), splitter->saveState());
 	}
 	group.sync();
+
+	delete m_tabBar;
+	delete m_chatInput;
+	delete m_contactView;
 }
 
 QPlainTextEdit *TabbedChatWidget::getInputField() const
