@@ -30,6 +30,7 @@ class KdeSpellerLayer : public SpellChecker
 	Q_OBJECT
 	Q_CLASSINFO("Service", "SpellChecker")
 	Q_CLASSINFO("Uses", "ChatLayer")
+	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	KdeSpellerLayer();
 	~KdeSpellerLayer();
