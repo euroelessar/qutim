@@ -26,6 +26,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+private:
+	QWeakPointer<IndicatorService> m_service;
 };
 
 #endif /* end of include guard: INDICATOR_GS5D2FLA */

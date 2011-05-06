@@ -32,21 +32,23 @@ void IndicatorPlugin::init ()
 			PLUGIN_VERSION(0, 0, 1, 1),
 			icon
 			);
-	addExtension<IndicatorService>(QT_TRANSLATE_NOOP("Plugin", "Indicator"),
-			QT_TRANSLATE_NOOP("Plugin", "Ubuntu Indicator applet integration")
-			);
+	setCapabilities(Loadable);
 }
 
 bool IndicatorPlugin::load ()
 {
+	if (!m_service)
+		m_service = new IndicatorService();
 	qDebug() << "[Indicator] Plugin load";
 	return true;
 }
 
 bool IndicatorPlugin::unload ()
 {
+	if (m_service)
+		delete m_service.data();
 	qDebug() << "[Indicator] Plugin unload";
-	return false;
+	return true;
 }
 
 QUTIM_EXPORT_PLUGIN(IndicatorPlugin)

@@ -14,6 +14,9 @@
 #ifndef INDICATORSERVICE_23DW9H42
 #define INDICATORSERVICE_23DW9H42
 
+#ifndef DESKTOPDIR
+# define DESKTOPDIR ""
+#endif
 #define QUTIM_DESKTOP_FILE DESKTOPDIR "/qutim.desktop"
 
 #include <qindicateindicator.h>
@@ -28,10 +31,6 @@ typedef QHash<qutim_sdk_0_3::ChatSession*, QIndicate::Indicator*> HashIndicator;
 class IndicatorService : public qutim_sdk_0_3::MenuController
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "TrayIcon")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "IconLoader")
 public:
 	explicit IndicatorService();
 	virtual ~IndicatorService();
