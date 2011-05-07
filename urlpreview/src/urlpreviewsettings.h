@@ -1,8 +1,7 @@
 /*
-    UrlPreviewPlugin
+	UrlPreviewPlugin
 
-  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
-  (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+  Copyright (c) 2011 by Nicolay Izoderov <nico-izo@yandex.ru>
 
  ***************************************************************************
  *                                                                         *
@@ -14,32 +13,26 @@
  ***************************************************************************
 */
 
+#ifndef URLPREVIEWSETTINGS_H
+#define URLPREVIEWSETTINGS_H
 
-#ifndef urlpreviewPLUGIN_H
-#define urlpreviewPLUGIN_H
-#include <qutim/plugin.h>
+#include <qutim/settingswidget.h>
+#include "ui_urlpreviewsettings.h"
 
-namespace qutim_sdk_0_3
-{
-	class SettingsItem;
-}
-
-namespace UrlPreview {
-
-class UrlHandler;
-class UrlPreviewPlugin : public qutim_sdk_0_3::Plugin
+class UrlPreviewSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
-	Q_CLASSINFO("DebugName", "UrlPreview")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
-public:
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-private:
-	QPointer<UrlHandler> m_handler;
-};
-}
 
+public:
+	UrlPreviewSettings();
+protected:
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+signals:
+	void reloadSettings();
+private:
+        Ui::UrlPreviewSettingsForm *ui;
+
+};
 #endif

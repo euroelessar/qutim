@@ -15,8 +15,10 @@
 */
 
 #include "urlpreview.h"
+#include "urlpreviewsettings.h"
 #include <qutim/debug.h>
 #include <qutim/config.h>
+#include <qutim/settingslayer.h>
 #include "messagehandler.h"
 
 namespace UrlPreview
@@ -38,20 +40,32 @@ void UrlPreviewPlugin::init()
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Nicolay Izoderov"),
+			  QT_TRANSLATE_NOOP("Task","Developer"),
+			  QLatin1String("nico-izo@ya.ru"));
+
+	m_settingsItem = new GeneralSettingsItem<UrlPreviewSettings>(
+				Settings::Plugin,	QIcon(),
+				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
 }
 
 bool UrlPreviewPlugin::load()
 {
+	Settings::registerItem(m_settingsItem);
+
 	if (!m_handler)
 		m_handler = new UrlHandler;
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
+	m_settingsItem->connect(SIGNAL(saved()), m_handler, SLOT(loadSettings()));
 	return true;
 }
 
 bool UrlPreviewPlugin::unload()
 {
+	Settings::removeItem(m_settingsItem);
+
 	if (m_handler) {
 		m_handler->unregisterHandler(m_handler);
 		m_handler->deleteLater();

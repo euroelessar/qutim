@@ -45,22 +45,23 @@ UrlHandler::UrlHandler() :
 
 void UrlHandler::loadSettings()
 {
-	Config cfg;
-	cfg.beginGroup(QLatin1String("urlpreview"));
-	m_flags = cfg.value(QLatin1String("falgs"), PreviewImages | PreviewYoutube);
+	Config cfg("urlpreview");
+	//cfg.beginGroup(QLatin1String);
+	m_flags = cfg.value(QLatin1String("flags"), PreviewImages | PreviewYoutube);
 	m_maxImageSize.setWidth(cfg.value(QLatin1String("maxWidth"), 800));
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
-	m_template = cfg.value(QLatin1String("template"), "<br><b>" + tr("URL Preview")
-						   + "</b>: <i>%TYPE%, %SIZE% " + tr("bytes") + "</i><br>");
-	m_imageTemplate = cfg.value(QLatin1String("imageTemplate"), "<img src=\"%URL%\" style=\"display: none;\" "
+	m_template = "<br><b>" + tr("URL Preview") + "</b>: <i>%TYPE%, %SIZE% " + tr("bytes") + "</i><br>";
+	m_imageTemplate = "<img src=\"%URL%\" style=\"display: none;\" "
 								 "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
 								 "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
-								 "this.style.display='';\"><br>");
-	m_youtubeTemplate = cfg.value(QLatin1String("youtubeTemplate"),
-								   "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
+								 "this.style.display='';\"><br>";
+	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
-								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>");
+								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
+
+	m_enableYoutubePreview = cfg.value("youtubePreview", true);
+	m_enableImagesPreview = cfg.value("imagesPreview", true);
 
 }
 
@@ -198,7 +199,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	}
 
 	QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
-	if (urlrx.indexIn(url)==0 && (m_flags & PreviewYoutube)) {
+	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
 		if (type == "application/x-shockwave-flash") {
 			show_preview_head=false;
@@ -220,7 +221,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	}
 
 	typerx.setPattern("^image/");
-	if (type.contains(typerx) && 0 < size && size < m_maxFileSize) {
+	if (type.contains(typerx) && 0 < size && size < m_maxFileSize && m_enableImagesPreview) {
 		QString amsg = m_imageTemplate;
 		amsg.replace("%URL%", url);
 		amsg.replace("%UID%", uid);
