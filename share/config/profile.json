@@ -17,7 +17,8 @@
 			"ContactInfo": "Core::ContactInfo",
 			"SearchLayer": "Core::SearchLayer",
 			"SettingsLayer": "Core::XSettingsLayerImpl",
-			"ContactModel": "Core::SimpleContactList::TreeModel"
+			"ContactModel": "Core::SimpleContactList::TreeModel",
+			"TrayIcon": "Core::SimpleTray"
 		}
 	},
    "plugins": {

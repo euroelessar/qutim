@@ -52,7 +52,7 @@ uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
 #include <QDebug>
 
 typedef QHash<QString, QVariantHash> ExtendedStatus;
-Q_DECLARE_METATYPE(ExtendedStatus);
+Q_DECLARE_METATYPE(ExtendedStatus)
 
 namespace qutim_sdk_0_3
 {
@@ -103,7 +103,7 @@ static void init_list(StatusPrivateList &list)
 	}
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusPrivateList, statusList, init_list(*x));
+Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusPrivateList, statusList, init_list(*x))
 
 static QSharedDataPointer<StatusPrivate> get_status_private(Status::Type type)
 {
@@ -315,7 +315,7 @@ QString Status::iconName(Type type, const QString &protocol)
 
 
 typedef QHash<StatusHashKey, Status> StatusHash;
-Q_GLOBAL_STATIC(StatusHash, statusHash);
+Q_GLOBAL_STATIC(StatusHash, statusHash)
 
 Status Status::instance(Type type, const char *proto, int subtype)
 {

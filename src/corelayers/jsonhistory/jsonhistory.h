@@ -41,8 +41,9 @@ private:
 	JsonHistoryScope *d;
 };
 
-struct JsonHistoryScope
+class JsonHistoryScope
 {
+public:
 	uint findEnd(QFile &file);
 	QString getFileName(const Message &message) const;
 	QDir getAccountDir(const ChatUnit *unit) const;
