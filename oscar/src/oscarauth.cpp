@@ -33,7 +33,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include <QtCrypto/QtCrypto>
+#include <QtCrypto>
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
