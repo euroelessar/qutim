@@ -26,44 +26,11 @@
 
 using namespace qutim_sdk_0_3;
 
-QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status)
-{
-	out << status.type() << status.text() << status.subtype() << status.icon();
-	QHash<QString, QVariantHash>::const_iterator it = status.extendedInfos().constBegin();
-	out << status.extendedInfos().count();
-	for (; it != status.extendedInfos().constEnd(); it++)
-		out << it.key() << it.value();
-	return out;
-}
-
-QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status)
-{
-	int type;
-	QString text;
-	int subtype;
-	QIcon icon;
-	int count;
-	in >> type >> text >> subtype >> icon >> count;
-	status.setType(static_cast<qutim_sdk_0_3::Status::Type>(type));
-	status.setText(text);
-	status.setIcon(icon);
-
-	for (int i = 0; i < count; i++) {
-		QString key;
-		QVariantHash hash;
-		in >> key >> hash;
-		status.setExtendedInfo(key, hash);
-	}
-	return in;
-}
-
-
 BearerManager::BearerManager(QObject *parent) :
 	QObject(parent),
 	m_confManager(new QNetworkConfigurationManager(this))
 {
 	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "BearerManager"));
-	qRegisterMetaTypeStreamOperators<Status>("qutim_sdk_0_3::Status");
 
 	foreach (Protocol *p, Protocol::all()) {
 		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
@@ -149,8 +116,8 @@ BearerManager::~BearerManager()
 	for (; it != m_statusHash.constEnd(); it++) {
 		Account *account = it.key();
 		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
-		debug() << account->id() << it.value();
-		debug() << cfg.value(account->id(), Status());
+		debug() << account->id() << it.value() << account->status().icon().name();
+		debug() << cfg.value(account->id(), Status()).icon().name();
 	}
 	cfg.endGroup();
 	cfg.sync();
