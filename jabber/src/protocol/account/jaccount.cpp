@@ -139,7 +139,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 		break;
 	case Client::AuthorizationError: {
 		s.setProperty("changeReason", Status::ByAuthorizationFailed);
-		q->setPasswd(QString());
+		//q->setPasswd(QString());
 		break;
 	}
 	case Client::HostUnknown:
