@@ -47,7 +47,6 @@ void UrlPreviewSettings::saveImpl()
 	cfg.setValue("maxHeight", ui->maxHeight->value());
 	cfg.setValue("youtubePreview", ui->youtubePreview->isChecked());
 	cfg.setValue("imagesPreview", ui->imagesPreview->isChecked());
-	emit reloadSettings();
 }
 
 void UrlPreviewSettings::cancelImpl()
