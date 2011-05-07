@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include <QByteArray>
-#include <qutim/icon.h>
+#include "icon.h"
 
 namespace qutim_sdk_0_3
 {
