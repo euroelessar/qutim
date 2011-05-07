@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include <QByteArray>
+#include <qutim/icon.h>
 
 namespace qutim_sdk_0_3
 {
@@ -427,4 +428,35 @@ QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Status &status)
 {
 	return operator <<(dbg, status.type());
+}
+
+QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status)
+{
+	out << status.type() << status.text() << status.subtype() << status.icon().name();
+	QHash<QString, QVariantHash>::const_iterator it = status.extendedInfos().constBegin();
+	out << status.extendedInfos().count();
+	for (; it != status.extendedInfos().constEnd(); it++)
+		out << it.key() << it.value();
+	return out;
+}
+
+QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status)
+{
+	int type;
+	QString text;
+	int subtype;
+	QString icon;
+	int count;
+	in >> type >> text >> subtype >> icon >> count;
+	status.setType(static_cast<qutim_sdk_0_3::Status::Type>(type));
+	status.setText(text);
+	status.setIcon(qutim_sdk_0_3::Icon(icon));
+
+	for (int i = 0; i < count; i++) {
+		QString key;
+		QVariantHash hash;
+		in >> key >> hash;
+		status.setExtendedInfo(key, hash);
+	}
+	return in;
 }

@@ -210,6 +210,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	qDebug() << QIcon::themeSearchPaths();
 	Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
 	VariantHook::init();
+	qRegisterMetaTypeStreamOperators<Status>();
 	p = new ModuleManagerPrivate;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
