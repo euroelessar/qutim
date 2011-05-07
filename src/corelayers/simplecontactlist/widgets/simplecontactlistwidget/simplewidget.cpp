@@ -71,7 +71,7 @@ SimpleWidget::SimpleWidget()
 	//smith, please test it!
 	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #else
-	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+	int size = 16;
 #endif
 	QSize toolbar_size (size,size);
 
