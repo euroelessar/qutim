@@ -59,6 +59,8 @@ private:
 	QString m_youtubeTemplate;
 	QSize m_maxImageSize;
 	quint64 m_maxFileSize;
+	bool m_enableYoutubePreview;
+	bool m_enableImagesPreview;
 };
 
 } // namespace UrlPreview
