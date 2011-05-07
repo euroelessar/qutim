@@ -4,18 +4,22 @@
 	},
 	"services": {
 		"list": {
+			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
 			"ChatForm": "Core::AdiumChat::TabbedChatForm",
 			"ContactInfo": "Core::ContactInfo",
 			"ContactList": "Core::SimpleContactList::Module",
 			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
+			"ContactDelegate": "Core::ContactDelegate",
 			"DataFormsBackend": "Core::DefaultDataFormsBackend",
+			"IconLoader": "Core::IconLoaderImpl",
 			"Popup": "DBusBackend",
 			"Sound": "PhononSoundBackend",
 			"ContactInfo": "Core::ContactInfo",
 			"SearchLayer": "Core::SearchLayer",
+			"SettingsLayer": "Core::XSettingsLayerImpl",
+			"ContactModel": "Core::SimpleContactList::TreeModel"
 		}
-	}
-
+	},
    "plugins": {
 		"list": {
 			"ScriptPluginWrapper::ignorer": false
