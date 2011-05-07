@@ -15,19 +15,143 @@
 
 #include "bearermanager.h"
 #include <QNetworkConfigurationManager>
+#include <QNetworkConfiguration>
+
+#include <qutim/account.h>
+#include <qutim/protocol.h>
+#include <qutim/debug.h>
+#include <qutim/utils.h>
+
+#include <QTimer>
+
+using namespace qutim_sdk_0_3;
+
+QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status)
+{
+	out << status.type() << status.text() << status.subtype() << status.icon();
+	QHash<QString, QVariantHash>::const_iterator it = status.extendedInfos().constBegin();
+	out << status.extendedInfos().count();
+	for (; it != status.extendedInfos().constEnd(); it++)
+		out << it.key() << it.value();
+	return out;
+}
+
+QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status)
+{
+	int type;
+	QString text;
+	int subtype;
+	QIcon icon;
+	int count;
+	in >> type >> text >> subtype >> icon >> count;
+	status.setType(static_cast<qutim_sdk_0_3::Status::Type>(type));
+	status.setText(text);
+	status.setIcon(icon);
+
+	for (int i = 0; i < count; i++) {
+		QString key;
+		QVariantHash hash;
+		in >> key >> hash;
+		status.setExtendedInfo(key, hash);
+	}
+	return in;
+}
+
 
 BearerManager::BearerManager(QObject *parent) :
 	QObject(parent),
 	m_confManager(new QNetworkConfigurationManager(this))
 {
 	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "BearerManager"));
+	qRegisterMetaTypeStreamOperators<Status>("qutim_sdk_0_3::Status");
+
+	foreach (Protocol *p, Protocol::all()) {
+		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
+				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+
+		foreach (Account *a, p->accounts())
+			onAccountCreated(a);
+	}
 
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
-	emit onlineStateChanged(m_confManager->isOnline());
+}
+
+void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
+{
+	if (isOnline)
+		a->setStatus(s);
+	else {
+		Status status = a->status();
+		status.setType(Status::Offline);
+		status.setProperty("changeReason", Status::ByNetworkError);
+		a->setStatus(status);
+	}
 }
 
 void BearerManager::onOnlineStatusChanged(bool isOnline)
 {
-	//TODO handle status
+	StatusHash::const_iterator it = m_statusHash.constBegin();
+	for (; it != m_statusHash.constEnd(); it++)
+		changeStatus(it.key(), isOnline, it.value());
 	emit onlineStateChanged(isOnline);
+}
+
+void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	Config cfg;
+	debug() << cfg.value("status");
+	cfg.beginGroup("status");
+	Status s = cfg.value<Status>(account->id());
+	qDebug() << account->id() << s << cfg.value<QByteArray>(account->id());
+
+	//simple spike for stupid distros!
+
+	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
+	foreach (QNetworkConfiguration conf, list) {
+		debug() << conf.bearerName();
+	}
+
+	bool isOnline = true;
+	if (list.count())
+		isOnline = m_confManager->isOnline();
+
+	changeStatus(account, isOnline, s);
+
+	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+}
+
+void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	Account *account = sender_cast<Account*>(sender());
+	if (status.property("changeReason", Status::ByUser) == Status::ByUser)
+		m_statusHash.insert(account, status);
+}
+
+void BearerManager::onAccountDestroyed(QObject* obj)
+{
+	onAccountRemoved(static_cast<Account*>(obj));
+}
+
+void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
+{
+	m_statusHash.remove(account);
+}
+
+BearerManager::~BearerManager()
+{
+	StatusHash::const_iterator it = m_statusHash.constBegin();
+	Config cfg;
+	cfg.beginGroup("status");
+	for (; it != m_statusHash.constEnd(); it++) {
+		Account *account = it.key();
+		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
+		debug() << account->id() << it.value();
+		debug() << cfg.value(account->id(), Status());
+	}
+	cfg.endGroup();
+	cfg.sync();
 }

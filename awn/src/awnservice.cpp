@@ -36,17 +36,14 @@ AWNService::AWNService()
                                           this,
                                           SLOT(onItemRemoved(QDBusObjectPath)));
     QDBusMessage mes = m_awn->call("GetCapabilities");
-    if(mes.type()==QDBusMessage::ReplyMessage)
-    {
+	if(mes.type()==QDBusMessage::ReplyMessage) {
         QDBusReply<QStringList> r;
         r = mes;
         m_capabilities = r.value();
         qDebug() << "[AWN] dock capabilities: " << m_capabilities;
     }
-    else
-    {
+	else {
         qDebug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
-        deleteLater();
         return;
     }
     if(! m_capabilities.contains("dock-item-icon-file")  ||
@@ -90,7 +87,7 @@ AWNService::~AWNService()
 {
     if (m_iconTimer)
         m_iconTimer->stop();
-    setDockIcon("qutim");
+	//setDockIcon("qutim"); //WTF ? Oooo fucking code style!!
     foreach(int id, m_menus)
         removeDockMenu(id);
     if(m_awn)

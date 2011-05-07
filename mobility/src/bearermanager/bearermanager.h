@@ -17,6 +17,14 @@
 #define BEARERMANAGER_H
 
 #include <QObject>
+#include <QHash>
+#include <qutim/status.h>
+
+namespace qutim_sdk_0_3 {
+class Account;
+}
+
+typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
 
 class QNetworkConfigurationManager;
 class BearerManager : public QObject
@@ -26,12 +34,20 @@ class BearerManager : public QObject
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
     explicit BearerManager(QObject *parent = 0);
+	virtual ~BearerManager();
 signals:
 	void onlineStateChanged(bool isOnline);
 private slots:
 	void onOnlineStatusChanged(bool isOnline);
-private:
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountRemoved(qutim_sdk_0_3::Account *account);
+	void onAccountDestroyed(QObject *obj);
+	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+private:	
+	void changeStatus(qutim_sdk_0_3::Account *a, bool isOnline,
+					  const qutim_sdk_0_3::Status &status);
 	QNetworkConfigurationManager *m_confManager;
+	StatusHash m_statusHash;
 };
 
 #endif // BEARERMANAGER_H
