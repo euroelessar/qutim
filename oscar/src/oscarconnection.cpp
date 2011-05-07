@@ -54,13 +54,17 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
-	if (m_md5login)
-		delete m_md5login;
-	m_md5login = new Md5Login(password, account());
-	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
-	connect(m_md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
-	// Start connecting after the status has been updated.
-	QTimer::singleShot(0, m_md5login, SLOT(login()));
+	m_auth = new OscarAuth(m_account);
+//	connect(m_auth, SIGNAL(disconnected()), m_auth, SLOT(deleteLater()));
+//	connect(m_auth, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
+	QTimer::singleShot(0, m_auth.data(), SLOT(login()));
+//	if (m_md5login)
+//		delete m_md5login;
+//	m_md5login = new Md5Login(password, account());
+//	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
+//	connect(m_md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
+//	// Start connecting after the status has been updated.
+//	QTimer::singleShot(0, m_md5login, SLOT(login()));
 }
 
 void OscarConnection::processNewConnection()
@@ -141,10 +145,12 @@ void OscarConnection::sendUserInfo(bool force)
 
 QAbstractSocket::SocketState OscarConnection::state() const
 {
-	if (m_md5login)
-		return m_md5login->socket()->state();
+//	if (m_md5login)
+//		return m_md5login->socket()->state();
 	return socket()->state();
 }
+
+#define BOS_SERVER_SUPPORTS_SSL
 
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
@@ -152,7 +158,7 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 	Socket *s = socket();
 	if (s->state() != QAbstractSocket::UnconnectedState)
 		s->abort();
-#if defined(OSCAR_SSL_SUPPORT) && BOS_SERVER_SUPPORTS_SSL
+#if defined(OSCAR_SSL_SUPPORT) && defined(BOS_SERVER_SUPPORTS_SSL)
 	if (isSslEnabled()) {
 		socket()->connectToHostEncrypted(host, port);
 	} else
@@ -177,14 +183,21 @@ void OscarConnection::onError(ConnectionError error)
 		  error == SocketError &&
 		  socket()->error() == QAbstractSocket::RemoteHostClosedError))
 	{
-		Notifications::send(errorString());
+		QString str = errorString();
+		foreach (const QSslError &error, socket()->sslErrors()) {
+			str += '\n';
+			str += error.errorString();
+		}
+
+		qDebug() << str;
+		Notifications::send(str);
 	}
 	AbstractConnection::onError(error);
 }
 
 void OscarConnection::md5Error(ConnectionError e)
 {
-	setError(e, m_md5login->errorString());
+//	setError(e, m_md5login->errorString());
 	onDisconnect();
 }
 

@@ -194,9 +194,10 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->aliveTimer.setInterval(180000);
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
-#if OSCAR_SSL_SUPPORT
+//#if OSCAR_SSL_SUPPORT
+	d->socket->setProtocol(QSsl::TlsV1);
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
-#endif
+//#endif
 	d->account = account;
 	setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	connect(d->account, SIGNAL(proxyUpdated(QNetworkProxy)),

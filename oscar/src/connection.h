@@ -17,8 +17,12 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-//#ifdef OSCAR_SSL_SUPPORT
 #include <QSslSocket>
+#ifdef QT_NO_OPENSSL
+# include <QTcpSocket>
+#endif
+//#ifdef OSCAR_SSL_SUPPORT
+//#include <QSslSocket>
 //#else
 //#include <QTcpSocket>
 //#endif
@@ -28,6 +32,10 @@
 #include "snachandler.h"
 #include "flap.h"
 #include <qutim/dataforms.h>
+
+#ifndef OSCAR_SSL_SUPPORT
+# define OSCAR_SSL_SUPPORT
+#endif
 
 namespace qutim_sdk_0_3 {
 

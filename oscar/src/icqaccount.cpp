@@ -246,14 +246,14 @@ void IcqAccount::setStatus(Status status_helper)
 	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {
-			QString pass = d->password();
-			if (!pass.isEmpty()) {
+//			QString pass = d->password();
+//			if (!pass.isEmpty()) {
 				status.setType(Status::Connecting);
 				status.initIcon("icq");
-				d->conn->connectToLoginServer(pass);
-			} else {
-				status = Status::Offline;
-			}
+				d->conn->connectToLoginServer(QString());
+//			} else {
+//				status = Status::Offline;
+//			}
 		} else {
 			d->conn->sendStatus(status);
 		}

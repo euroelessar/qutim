@@ -911,7 +911,7 @@ void OftConnection::startNextStage()
 				sendFileRequest();
 			}
 		}
-	} else if (m_stage = 2) {
+	} else if (m_stage == 2) {
 		if (!m_proxy && !m_clientVerifiedIP.isNull()) {
 			m_socket->close();
 			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
