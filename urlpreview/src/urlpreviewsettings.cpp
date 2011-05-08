@@ -57,3 +57,8 @@ void UrlPreviewSettings::cancelImpl()
 {
 	loadImpl();
 }
+
+UrlPreviewSettings::~UrlPreviewSettings()
+{
+	delete ui;
+}

@@ -24,6 +24,7 @@ class UrlPreviewSettings : public qutim_sdk_0_3::SettingsWidget
 	Q_OBJECT
 public:
 	UrlPreviewSettings();
+	~UrlPreviewSettings();
 protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
