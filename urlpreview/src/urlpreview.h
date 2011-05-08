@@ -38,7 +38,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QPointer<UrlHandler> m_handler;
+	QWeakPointer<UrlHandler> m_handler;
 };
 }
 

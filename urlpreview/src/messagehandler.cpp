@@ -31,13 +31,13 @@ using namespace qutim_sdk_0_3;
 UrlHandler::UrlHandler() :
 	m_netman(new QNetworkAccessManager(this))
 {
-	connect(m_netman,SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+	connect(m_netman, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
 			SLOT(authenticationRequired(QNetworkReply*,QAuthenticator*))
 			);
-	connect(m_netman,SIGNAL(finished(QNetworkReply*)),
+	connect(m_netman, SIGNAL(finished(QNetworkReply*)),
 			SLOT(netmanFinished(QNetworkReply*))
 			);
-	connect(m_netman,SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
+	connect(m_netman, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
 			SLOT(netmanSslErrors(QNetworkReply*,QList<QSslError>))
 			);
 	loadSettings();
@@ -45,8 +45,8 @@ UrlHandler::UrlHandler() :
 
 void UrlHandler::loadSettings()
 {
-	Config cfg("urlpreview");
-	//cfg.beginGroup(QLatin1String);
+	Config cfg;
+	cfg.beginGroup("urlPreview");
 	m_flags = cfg.value(QLatin1String("flags"), PreviewImages | PreviewYoutube);
 	m_maxImageSize.setWidth(cfg.value(QLatin1String("maxWidth"), 800));
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
@@ -62,7 +62,7 @@ void UrlHandler::loadSettings()
 
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
-
+	cfg.endGroup();
 }
 
 UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
@@ -192,17 +192,17 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	QString uid = reply->property("uid").toString();
 
 	QString pstr;
-	bool show_preview_head=true;
+	bool showPreviewHead = true;
 	QRegExp typerx("^text/html");
 	if (type.contains(typerx)) {
-		show_preview_head=false;
+		showPreviewHead = false;
 	}
 
 	QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
 	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
 		if (type == "application/x-shockwave-flash") {
-			show_preview_head=false;
+			showPreviewHead = false;
 			pstr.replace("%TYPE%", tr("YouTube video"));
 			pstr += m_youtubeTemplate;
 			pstr.replace("%YTID%", urlrx.cap(1));
@@ -213,7 +213,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		}
 	}
 
-	if (show_preview_head) {
+	if (showPreviewHead) {
 		QString sizestr = size ? QString::number(size) : tr("Unknown");
 		pstr = m_template;
 		pstr.replace("%TYPE%", type);

@@ -31,22 +31,26 @@ UrlPreviewSettings::UrlPreviewSettings()
 
 void UrlPreviewSettings::loadImpl()
 {
-	Config cfg("urlpreview");
+	Config cfg;
+	cfg.beginGroup("urlPreview");
 	ui->maxFileSize->setValue(cfg.value("maxFileSize", 100000));
 	ui->maxWidth->setValue(cfg.value("maxWidth", 800));
 	ui->maxHeight->setValue(cfg.value("maxHeight", 600));
 	ui->youtubePreview->setChecked(cfg.value("youtubePreview", true));
 	ui->imagesPreview->setChecked(cfg.value("imagesPreview", true));
+	cfg.endGroup();
 }
 
 void UrlPreviewSettings::saveImpl()
 {
-	Config cfg("urlpreview");
+	Config cfg;
+	cfg.beginGroup("urlPreview");
 	cfg.setValue("maxFileSize", ui->maxFileSize->value());
 	cfg.setValue("maxWidth", ui->maxWidth->value());
 	cfg.setValue("maxHeight", ui->maxHeight->value());
 	cfg.setValue("youtubePreview", ui->youtubePreview->isChecked());
 	cfg.setValue("imagesPreview", ui->imagesPreview->isChecked());
+	cfg.endGroup();
 }
 
 void UrlPreviewSettings::cancelImpl()

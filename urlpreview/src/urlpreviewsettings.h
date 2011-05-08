@@ -22,7 +22,6 @@
 class UrlPreviewSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
-
 public:
 	UrlPreviewSettings();
 protected:
@@ -32,7 +31,6 @@ protected:
 signals:
 	void reloadSettings();
 private:
-        Ui::UrlPreviewSettingsForm *ui;
-
+	Ui::UrlPreviewSettingsForm *ui;
 };
 #endif

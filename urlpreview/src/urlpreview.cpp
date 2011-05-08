@@ -43,19 +43,18 @@ void UrlPreviewPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author","Nicolay Izoderov"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("nico-izo@ya.ru"));
-
-	m_settingsItem = new GeneralSettingsItem<UrlPreviewSettings>(
-				Settings::Plugin,	QIcon(),
-				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
 }
 
 bool UrlPreviewPlugin::load()
 {
+	m_settingsItem = new GeneralSettingsItem<UrlPreviewSettings>(
+				Settings::Plugin,	QIcon(),
+				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
 	Settings::registerItem(m_settingsItem);
 
 	if (!m_handler)
 		m_handler = new UrlHandler;
-	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
+	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
 	m_settingsItem->connect(SIGNAL(saved()), m_handler, SLOT(loadSettings()));
@@ -65,10 +64,11 @@ bool UrlPreviewPlugin::load()
 bool UrlPreviewPlugin::unload()
 {
 	Settings::removeItem(m_settingsItem);
+	delete m_settingsItem;
 
 	if (m_handler) {
-		m_handler->unregisterHandler(m_handler);
-		m_handler->deleteLater();
+		m_handler.data()->unregisterHandler(m_handler);
+		m_handler.data()->deleteLater();
 		return true;
 	}
 	return false;
@@ -76,4 +76,4 @@ bool UrlPreviewPlugin::unload()
 
 }
 
-QUTIM_EXPORT_PLUGIN(UrlPreview::UrlPreviewPlugin);
+QUTIM_EXPORT_PLUGIN(UrlPreview::UrlPreviewPlugin)
