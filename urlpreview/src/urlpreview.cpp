@@ -57,7 +57,7 @@ bool UrlPreviewPlugin::load()
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
-	m_settingsItem->connect(SIGNAL(saved()), m_handler, SLOT(loadSettings()));
+	m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 	return true;
 }
 
@@ -67,7 +67,7 @@ bool UrlPreviewPlugin::unload()
 	delete m_settingsItem;
 
 	if (m_handler) {
-		m_handler.data()->unregisterHandler(m_handler);
+		m_handler.data()->unregisterHandler(m_handler.data());
 		m_handler.data()->deleteLater();
 		return true;
 	}
