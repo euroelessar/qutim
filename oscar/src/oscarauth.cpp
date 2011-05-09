@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
+** the Free Software Foundation, either version 2 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -44,6 +44,97 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+class OscarResponse
+{
+public:
+	enum ResultCode
+	{
+		Success = 200,
+		MoreAuthenticationRequired = 330,
+		InvalidRequest = 400,
+		AuthorizationRequired  = 401,
+		MethodNoAllowed = 405,
+		RequestTimeout = 408,
+		SourceRateLimitReached = 430,
+		InvalidKey = 440,
+		KeyUsageLimitReached = 441,
+		KeyInvalidIP = 442,
+		MissingRequiredParameter = 460,
+		SourceRequired = 461,
+		ParameterError = 462,
+		GenericServerError = 500
+	};
+	
+	OscarResponse(const QByteArray &json);
+	~OscarResponse();
+	
+	Config data() const;
+	ResultCode result() const;
+	AbstractConnection::ConnectionError error() const;
+	QString resultString() const;
+
+private:
+	QVariantMap m_data;
+	ResultCode m_result;
+	QString m_resultString;
+};
+
+OscarResponse::OscarResponse(const QByteArray &json)
+{
+	QVariantMap data = Json::parse(json).toMap();
+	QVariantMap response = data.value(QLatin1String("response")).toMap();
+	m_result = static_cast<ResultCode>(response.value(QLatin1String("statusCode")).toInt());
+	m_resultString = response.value(QLatin1String("statusText")).toString();
+	m_data = response.value(QLatin1String("data")).toMap();
+}
+
+OscarResponse::~OscarResponse()
+{
+}
+
+Config OscarResponse::data() const
+{
+	return Config(m_data);
+}
+
+OscarResponse::ResultCode OscarResponse::result() const
+{
+	return m_result;
+}
+
+AbstractConnection::ConnectionError OscarResponse::error() const
+{
+	switch (m_result) {
+	case Success:
+		return AbstractConnection::NoError;
+	case MoreAuthenticationRequired:
+	case InvalidRequest:
+		return AbstractConnection::InternalError;
+	case AuthorizationRequired:
+		return AbstractConnection::MismatchNickOrPassword;
+	case MethodNoAllowed:
+	case RequestTimeout:
+		return AbstractConnection::InternalError;
+	case SourceRateLimitReached:
+		return AbstractConnection::RateLimitExceeded;
+	case InvalidKey:
+	case KeyUsageLimitReached:
+	case KeyInvalidIP:
+	case MissingRequiredParameter:
+	case SourceRequired:
+	case ParameterError:
+	case GenericServerError:
+		return AbstractConnection::InternalError;
+	default:
+		return AbstractConnection::SocketError;
+	}
+}
+
+QString OscarResponse::resultString() const
+{
+	return m_resultString;
+}
+
 OscarAuth::OscarAuth(IcqAccount *account) :
     QObject(account), m_account(account), m_state(Invalid)
 {
@@ -62,15 +153,11 @@ void OscarAuth::login()
 			return;
 		}
 	}
-	QString password;
-	{
-		password = cfg.value(QLatin1String("passwd"), QString(), Config::Crypted);
-		if (password.isEmpty()) {
-			PasswordDialog *dialog = PasswordDialog::request(m_account);
-			connect(dialog, SIGNAL(finished(int)), SLOT(onPasswordDialogFinished(int)));
-			return;
-		}
-		m_password = password;
+	m_password = cfg.value(QLatin1String("passwd"), QString(), Config::Crypted);
+	if (m_password.isEmpty()) {
+		PasswordDialog *dialog = PasswordDialog::request(m_account);
+		connect(dialog, SIGNAL(finished(int)), SLOT(onPasswordDialogFinished(int)));
+		return;
 	}
 	clientLogin(true);
 }
@@ -92,16 +179,27 @@ void OscarAuth::onPasswordDialogFinished(int result)
 void OscarAuth::onClienLoginFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-	reply->deleteLater();
 	Q_ASSERT(reply);
-	QVariantMap replyData = Json::parse(reply->readAll()).toMap();
-	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << replyData;
-	QVariantMap response = replyData.value(QLatin1String("response")).toMap().value(QLatin1String("data")).toMap();
-	QVariantMap tokenData = response.value(QLatin1String("token")).toMap();
-	QByteArray token = tokenData.value(QLatin1String("a")).toByteArray();
-	int expiresIn = tokenData.value(QLatin1String("expiresIn")).toInt();
+	reply->deleteLater();
+	if (reply->error() != QNetworkReply::NoError) {
+		m_errorString = reply->errorString();
+		emit error(AbstractConnection::SocketError);
+		return;
+	}
+	OscarResponse response(reply->readAll());
+	if (response.result() != OscarResponse::Success) {
+		m_errorString = response.resultString();
+		emit error(response.error());
+		return;
+	}
+	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << response.resultString();
+	Config data = response.data();
+	data.beginGroup(QLatin1String("token"));
+	QByteArray token = data.value(QLatin1String("a"), QByteArray());
+	int expiresIn = data.value(QLatin1String("expiresIn"), 0);
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
-	QByteArray sessionSecret = response.value(QLatin1String("sessionSecret")).toByteArray();
+	data.endGroup();
+	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
 	{
 		QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), m_password.toUtf8());
 		hash.update(sessionSecret);
@@ -167,14 +265,23 @@ void OscarAuth::onStartSessionFinished()
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 	Q_ASSERT(reply);
 	reply->deleteLater();
-	QVariantMap replyData = Json::parse(reply->readAll()).toMap();
-	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << replyData;
-	replyData = replyData.value(QLatin1String("response")).toMap();
-	replyData = replyData.value(QLatin1String("data")).toMap();
+	if (reply->error() != QNetworkReply::NoError) {
+		m_errorString = reply->errorString();
+		emit error(AbstractConnection::SocketError);
+		return;
+	}
+	OscarResponse response(reply->readAll());
+	if (response.result() != OscarResponse::Success) {
+		m_errorString = response.resultString();
+		emit error(response.error());
+		return;
+	}
+	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << response.resultString();
+	Config data = response.data();
 	OscarConnection *connection = static_cast<OscarConnection*>(m_account->connection());
-	QString host = replyData.value(QLatin1String("host")).toString();
-	int port = replyData.value(QLatin1String("port")).toInt();
-	QByteArray cookie = QByteArray::fromBase64(replyData.value(QLatin1String("cookie")).toByteArray());
+	QString host = data.value(QLatin1String("host"), QString());
+	int port = data.value(QLatin1String("port"), 443);
+	QByteArray cookie = QByteArray::fromBase64(data.value(QLatin1String("cookie"), QByteArray()));
 	qDebug() << host << port;
 	connection->connectToBOSS(host, port, cookie);
 }

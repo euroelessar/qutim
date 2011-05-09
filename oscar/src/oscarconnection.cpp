@@ -54,15 +54,19 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
+	if (m_auth)
+		delete m_auth.data();
 	m_auth = new OscarAuth(m_account);
 //	connect(m_auth, SIGNAL(disconnected()), m_auth, SLOT(deleteLater()));
-//	connect(m_auth, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
+	connect(m_auth.data(), SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
+	        SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 	QTimer::singleShot(0, m_auth.data(), SLOT(login()));
 //	if (m_md5login)
 //		delete m_md5login;
 //	m_md5login = new Md5Login(password, account());
 //	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
-//	connect(m_md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
+//	connect(m_md5login, SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
+//	this, SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 //	// Start connecting after the status has been updated.
 //	QTimer::singleShot(0, m_md5login, SLOT(login()));
 }
@@ -150,7 +154,7 @@ QAbstractSocket::SocketState OscarConnection::state() const
 	return socket()->state();
 }
 
-#define BOS_SERVER_SUPPORTS_SSL
+//#define BOS_SERVER_SUPPORTS_SSL
 
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
@@ -197,6 +201,7 @@ void OscarConnection::onError(ConnectionError error)
 
 void OscarConnection::md5Error(ConnectionError e)
 {
+	setError(e, m_auth.data()->errorString());
 //	setError(e, m_md5login->errorString());
 	onDisconnect();
 }

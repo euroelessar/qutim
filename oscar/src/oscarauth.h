@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
+** the Free Software Foundation, either version 2 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -54,6 +54,7 @@ public:
     explicit OscarAuth(IcqAccount *account);
 	
 	State state() const { return m_state; }
+	QString errorString() const { return m_errorString; }
 	
 public slots:
 	void login();
@@ -64,6 +65,7 @@ protected:
 	
 signals:
 	void stateChanged(qutim_sdk_0_3::oscar::OscarAuth::State);
+	void error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
 	
 private slots:
 	void onPasswordDialogFinished(int result);
@@ -81,6 +83,7 @@ private:
 	State m_state;
 	QNetworkAccessManager m_manager;
 	QString m_password;
+	QString m_errorString;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

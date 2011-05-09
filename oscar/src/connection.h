@@ -166,7 +166,7 @@ public:
 	void registerInitializationSnacs(const QList<SNACInfo> &snacs, bool append = true);
 	void registerInitializationSnac(quint16 family, quint16 subtype);
 signals:
-	void error(ConnectionError error);
+	void error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
 	void disconnected();
 protected:
 	AbstractConnection(AbstractConnectionPrivate *d);
