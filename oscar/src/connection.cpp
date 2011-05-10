@@ -384,7 +384,7 @@ const ClientInfo &AbstractConnection::clientInfo()
 
 bool AbstractConnection::isSslEnabled()
 {
-#ifdef OSCAR_SSL_SUPPORT
+#if defined(OSCAR_SSL_SUPPORT) && BOS_SERVER_SUPPORTS_SSL
 	return d_func()->account->config("connection").value("ssl", false);
 #else
 	return false;

@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -37,7 +37,7 @@
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
-#define ICQ_START_SESSION_URL "https://api.icq.net/aim/startOSCARSession"
+#define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
 
 
 namespace qutim_sdk_0_3 {

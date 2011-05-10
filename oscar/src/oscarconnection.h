@@ -51,7 +51,7 @@ protected:
 private slots:
 	void onDisconnect();
 	void onError(ConnectionError error);
-	void md5Error(ConnectionError error);
+	void md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
 	void accountInfoReceived(bool ok);
 private:
 	void setIdle(bool allow);
