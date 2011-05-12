@@ -67,18 +67,24 @@ signals:
 private:
 	ServiceManager();
 	~ServiceManager();
+	template <typename T>
+	static ServicePointerData::Ptr getData();
 	static ServicePointerData::Ptr getData(const QMetaObject *meta);
 	static ServicePointerData::Ptr getData(const QByteArray &name);
+	template <typename T>
+	static ServicePointerData::Ptr getDataHelper(QObject *);
+	template <typename T>
+	static ServicePointerData::Ptr getDataHelper(void *);
 	
 	template<typename T> friend class ServicePointer;
 	QScopedPointer<ServiceManagerPrivate> d_ptr;
 };
 
 template<typename T>
-class LIBQUTIM_EXPORT ServicePointer
+class ServicePointer
 {
 public:
-	inline ServicePointer() : d(ServiceManager::getData(&T::staticMetaObject)) {}
+	inline ServicePointer() : d(ServiceManager::getData<T>()) {}
 	inline ServicePointer(Qt::Initialization) {}
 	inline ServicePointer(const QByteArray &name) : d(ServiceManager::getData(name)) {}
 	inline ServicePointer(const ServicePointer &o) : d(o.d) {}
@@ -97,6 +103,24 @@ public:
 private:
 	ServicePointerData::Ptr d;
 };
+
+template <typename T>
+Q_INLINE_TEMPLATE ServicePointerData::Ptr ServiceManager::getData()
+{
+	return getDataHelper<T>(reinterpret_cast<T*>(0));
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE ServicePointerData::Ptr ServiceManager::getDataHelper(QObject *)
+{
+	return getData(&T::staticMetaObject);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE ServicePointerData::Ptr ServiceManager::getDataHelper(void *)
+{
+	return getData(qobject_interface_iid<T*>());
+}
 
 } // namespace qutim_sdk_0_3
 
