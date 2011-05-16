@@ -8,7 +8,7 @@ add_library( hmac STATIC
 	${HMAC_PATH}/sha2.c
 	${HMAC_PATH}/sha2.h
 )
-set_target_properties(hmac PROPERTIES COMPILE_FLAGS ${CMAKE_SHARED_LIBRARY_CXX_FLAGS})
+set_target_properties(hmac PROPERTIES COMPILE_FLAGS "${CMAKE_SHARED_LIBRARY_CXX_FLAGS}")
 include_directories(${HMAC_PATH})
 
 SET( QT_USE_QTNETWORK TRUE )
