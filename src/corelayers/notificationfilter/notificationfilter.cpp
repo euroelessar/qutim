@@ -111,12 +111,14 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 	case Notification::BlockedMessage:
 		{
 			NotificationAction action(QObject::tr("Open chat"),
-									  this, SLOT(onOpenChatClicked(NotificationRequest)));
+									  this,
+									  SLOT(onOpenChatClicked(qutim_sdk_0_3::NotificationRequest)));
 			request.addAction(action);
 		}
 		{
 			NotificationAction action(QObject::tr("Ignore"),
-									  this, SLOT(onIgnoreChatClicked(NotificationRequest)));
+									  this,
+									  SLOT(onIgnoreChatClicked(qutim_sdk_0_3::NotificationRequest)));
 			request.addAction(action);
 		}
 		break;

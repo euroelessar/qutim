@@ -210,6 +210,7 @@ void NotificationAction::trigger() const
 	const char *name = d->method.constData();
 	const char type = name[0];
 	++name;
+	name = QMetaObject::normalizedSignature(name).constData();
 
 	int index;
 	switch (type) {
@@ -230,7 +231,7 @@ void NotificationAction::trigger() const
 		meta->method(index).invoke(d->receiver,
 								   Q_ARG(NotificationRequest, d->notification->request()));
 	else
-		warning() << "Invalid action triggered";
+		warning() << "An invalid action has been triggered" << name;
 }
 
 namespace CompiledProperty
