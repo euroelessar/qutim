@@ -29,7 +29,6 @@
 #include <qutim/debug.h>
 #include "ui/icqmainsettings.h"
 #include <qutim/settingslayer.h>
-#include <QtCrypto>
 
 namespace qutim_sdk_0_3 {
 
@@ -95,10 +94,6 @@ void OscarPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar proxy support"),
 				 new SingletonGenerator<OscarProxyManager, NetworkProxyManager>(),
 				 ExtensionIcon("im-icq"));
-
-	QCA::init();
-	debug() << QCA::supportedFeatures();
-	debug() << QCA::pluginDiagnosticText();
 }
 
 bool OscarPlugin::load()

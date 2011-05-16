@@ -33,7 +33,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include <QtCrypto>
+#include "hmac_sha2.h"
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
@@ -138,7 +138,6 @@ QString OscarResponse::resultString() const
 OscarAuth::OscarAuth(IcqAccount *account) :
     QObject(account), m_account(account), m_state(Invalid)
 {
-	QCA::init();
 }
 
 void OscarAuth::login()
@@ -201,9 +200,16 @@ void OscarAuth::onClienLoginFinished()
 	data.endGroup();
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
 	{
-		QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), m_password.toUtf8());
-		hash.update(sessionSecret);
-		sessionSecret = hash.final().toByteArray().toBase64();
+		char mac[SHA256_DIGEST_SIZE+1];
+		mac[SHA256_DIGEST_SIZE] = 0;
+		QByteArray pass = m_password.toUtf8();
+		hmac_sha256(reinterpret_cast<unsigned char*>(pass.data()),
+					pass.length(),
+					reinterpret_cast<unsigned char*>(sessionSecret.data()),
+					sessionSecret.length(),
+					reinterpret_cast<unsigned char*>(&mac),
+					SHA256_DIGEST_SIZE);
+		sessionSecret = QByteArray(mac).toBase64();
 	}
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
@@ -267,6 +273,7 @@ void OscarAuth::onStartSessionFinished()
 	reply->deleteLater();
 	if (reply->error() != QNetworkReply::NoError) {
 		m_errorString = reply->errorString();
+		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(AbstractConnection::SocketError);
 		return;
 	}
@@ -321,7 +328,6 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 {
 	QList<QPair<QString, QString> > items = url.queryItems();
 	qSort(items);
-	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
 	QByteArray array = method;
 	array += '&';
 	QString str;
@@ -338,8 +344,16 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 	}
 	str.chop(1);
 	array += QUrl::toPercentEncoding(str, QByteArray(), "&=");
-	hash.update(array);
-	return hash.final().toByteArray().toBase64();
+
+	char mac[SHA256_DIGEST_SIZE+1];
+	mac[SHA256_DIGEST_SIZE] = 0;
+	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
+				sessionSecret.length(),
+				reinterpret_cast<unsigned char*>(array.data()),
+				array.length(),
+				reinterpret_cast<unsigned char*>(&mac),
+				SHA256_DIGEST_SIZE);
+	return QByteArray(mac).toBase64();
 }
 
 } } // namespace qutim_sdk_0_3::oscar
