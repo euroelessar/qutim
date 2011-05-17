@@ -77,6 +77,7 @@ class SeparatedModel : public AbstractContactModel
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(SeparatedModel)
+	Q_CLASSINFO("SettingsDescription", "Show accounts, tags and contacts")
 public:
 	SeparatedModel(QObject *parent = 0);
 	virtual ~SeparatedModel();

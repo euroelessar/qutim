@@ -45,6 +45,7 @@ private slots:
 	void onSearchButtonToggled(bool toggled);
 	void onStatusChanged();
 	void initMenu();
+	void onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
 protected:
 	void loadGeometry();
 	QAction *createGlobalStatus(Status::Type type);

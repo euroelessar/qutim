@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 #include <contactdelegate.h>
+#include <simplecontactlistsettings.h>
 
 class QCheckBox;
 
@@ -16,17 +17,19 @@ namespace Core
 
 using namespace qutim_sdk_0_3;
 
-class SimpleContactlistSettings : public SettingsWidget
+class SimpleContactlistSettings : public ContactListSettingsExtention
 {
-    Q_OBJECT
+	Q_OBJECT
+	Q_INTERFACES(Core::ContactListSettingsExtention)
+	Q_CLASSINFO("ServiceSettings", "Core::ContactDelegate")
 public:
-    explicit SimpleContactlistSettings();
-    ~SimpleContactlistSettings();
-    virtual void loadImpl();
-    virtual void cancelImpl();
-    virtual void saveImpl();
+	explicit SimpleContactlistSettings();
+	~SimpleContactlistSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
 private:
-    Ui::SimpleContactlistSettings *ui;
+	Ui::SimpleContactlistSettings *ui;
 	void reloadCombobox();
 	QHash<QString, QCheckBox *> m_statusesBoxes;
 };

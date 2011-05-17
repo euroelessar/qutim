@@ -48,17 +48,37 @@ bool contactInfoLessThan (const QVariantHash &a, const QVariantHash &b) {
 	return p1 > p2;
 }
 
+ContactDelegatePlugin::ContactDelegatePlugin()
+{
+}
+
+void ContactDelegatePlugin::init()
+{
+	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
+	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "ContactDelegate");
+	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Just simple");
+	setInfo(name, description, QUTIM_VERSION, icon);
+	addExtension<Core::ContactDelegate>(name, description, icon);
+	addExtension<Core::SimpleContactlistSettings, ContactListSettingsExtention>(name, description, icon);
+}
+
+bool ContactDelegatePlugin::load()
+{
+	return true;
+}
+
+bool ContactDelegatePlugin::unload()
+{
+	return false;
+}
+
 ContactDelegate::ContactDelegate(QObject *parent) :
 	QAbstractItemDelegate(parent),p(new ContactDelegatePrivate)
 {
 	p->horizontalPadding = 5;
 	p->verticalPadding = 3;
-	SettingsItem *item = new GeneralSettingsItem<SimpleContactlistSettings>(Settings::General,
-																			Icon("preferences-contact-list"),
-																			QT_TRANSLATE_NOOP("ContactList","ContactList"));
-	item->connect(SIGNAL(saved()),this, SLOT(reloadSettings()));
-	Settings::registerItem(item);
 	reloadSettings();
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
 }
 
 ContactDelegate::~ContactDelegate()
@@ -341,3 +361,4 @@ void ContactDelegate::reloadSettings()
 }
 
 Q_DECLARE_METATYPE(QTreeView*)
+QUTIM_EXPORT_PLUGIN(Core::ContactDelegatePlugin)

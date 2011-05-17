@@ -40,6 +40,7 @@ class PlainModel : public AbstractContactModel
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(PlainModel)
+	Q_CLASSINFO("SettingsDescription", "Show only contacts")
 public:
 	PlainModel(QObject *parent = 0);
 	virtual ~PlainModel();

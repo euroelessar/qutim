@@ -2,6 +2,7 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "abstractcontactmodel.h"
+#include "simplecontactlistsettings.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
@@ -96,6 +97,11 @@ Module::Module() : p(new ModulePrivate)
 
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
+
+	Settings::registerItem(new GeneralSettingsItem<ContactListSettings>(Settings::General,
+																		Icon("preferences-contact-list"),
+																		QT_TRANSLATE_NOOP("ContactList", "Contact list")));
+
 	QTimer::singleShot(0, this, SLOT(init()));
 }
 

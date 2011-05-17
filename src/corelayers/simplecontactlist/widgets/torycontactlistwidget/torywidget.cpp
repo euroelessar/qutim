@@ -34,7 +34,7 @@ namespace SimpleContactList {
 struct ToryWidgetPrivate
 {
 	TreeView *view;
-	AbstractContactModel *model;
+	ServicePointer<AbstractContactModel> model;
 	ActionToolBar *mainToolBar;
 	QHBoxLayout *accountsContainer;
 	QLineEdit *searchBar;
@@ -84,7 +84,6 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
-	d->model = ServiceManager::getByName<AbstractContactModel *>("ContactModel");
 	d->view = new TreeView(d->model, this);
 	layout->addWidget(d->view);
 	d->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate *>("ContactDelegate"));
@@ -126,6 +125,10 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->mainToolBar->addAction(searchBtn);
 	layout->insertWidget(0, d->searchBar);
 	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+
+	connect(ServiceManager::instance(),
+			SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 
 	foreach(Protocol *protocol, Protocol::all())
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
@@ -325,6 +328,17 @@ void ToryWidget::initMenu()
 	QAction *before = d->mainToolBar->actions().count() ? d->mainToolBar->actions().first() : 0;
 	d->mainToolBar->insertAction(before, gen);
 	SystemIntegration::show(this);
+}
+
+void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
+{
+	Q_D(ToryWidget);
+	if (name == "ContactModel") {
+		d->view->setModel(d->model);
+		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	} else if (name == "ContactDelegate") {
+		d->view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));
+	}
 }
 
 void ToryWidget::onActivatedSession(bool state)

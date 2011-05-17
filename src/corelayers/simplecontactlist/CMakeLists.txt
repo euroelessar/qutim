@@ -11,12 +11,11 @@ qutim_add_plugin(simplecontactlist
 )
 
 qutim_add_plugin(simplecontactdelegate
-	EXTENSION
-	EXTENSION_HEADER simplecontactdelegate/contactdelegate.h
-	EXTENSION_CLASS Core::ContactDelegate
 	SOURCE_DIR simplecontactdelegate
 	DISPLAY_NAME "ContactDelegate"
 	DESCRIPTION "Just simple"
+	DEPENDS simplecontactlist
+	LINK_LIBRARIES simplecontactlist
 )
 
 set(DEVEL_HEADERS
@@ -25,6 +24,7 @@ set(DEVEL_HEADERS
 	contactlist/simplecontactlistview.h
 	contactlist/simplestatusdialog.h
 	contactlist/simplecontactlist.h
+	contactlist/simplecontactlistsettings.h
 )
 qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
 

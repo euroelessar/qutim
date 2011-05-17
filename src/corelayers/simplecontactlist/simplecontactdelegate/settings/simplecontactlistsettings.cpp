@@ -4,6 +4,7 @@
 #include <qutim/localizedstring.h>
 #include <qutim/status.h>
 #include <qutim/protocol.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -109,6 +110,9 @@ void SimpleContactlistSettings::saveImpl()
 	foreach (QCheckBox *checkBox, m_statusesBoxes)
 		config.setValue(checkBox->objectName(), checkBox->isChecked());
 	config.endGroup();
+
+	if (ContactDelegate *delegate = ServiceManager::getByName<ContactDelegate*>("ContactDelegate"))
+		delegate->reloadSettings();
 }
 
 void SimpleContactlistSettings::reloadCombobox()

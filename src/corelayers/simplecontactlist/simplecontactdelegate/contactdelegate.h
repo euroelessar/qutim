@@ -2,7 +2,9 @@
 #define CONTACTDELEGATE_H
 
 #include <QAbstractItemDelegate>
-#include <libqutim/libqutim_global.h>
+#include <qutim/libqutim_global.h>
+#include <qutim/plugin.h>
+
 namespace Core
 {
 
@@ -30,11 +32,23 @@ enum ContactItemType
 
 struct ContactDelegatePrivate;
 
+class ContactDelegatePlugin: public Plugin
+{
+	Q_OBJECT
+	Q_CLASSINFO("DebugName", "ContactDelegate")
+public:
+	ContactDelegatePlugin();
+	void init();
+	bool load();
+	bool unload();
+};
+
 class ContactDelegate : public QAbstractItemDelegate
 {
-    Q_OBJECT
-    Q_CLASSINFO("Service","ContactDelegate")
+	Q_OBJECT
+	Q_CLASSINFO("Service","ContactDelegate")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("SettingsDescription", "Default style")
 public:
 	enum ShowFlag
 	{

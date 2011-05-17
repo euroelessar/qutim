@@ -35,6 +35,7 @@ PlainModel::PlainModel(QObject *parent) : AbstractContactModel(new PlainModelPri
 {
 	if (!ServiceManager::isInited())
 		QTimer::singleShot(0, this, SLOT(init()));
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show only contacts"));
 }
 
 PlainModel::~PlainModel()

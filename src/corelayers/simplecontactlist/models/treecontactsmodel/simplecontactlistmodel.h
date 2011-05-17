@@ -64,6 +64,7 @@ class TreeModel : public AbstractContactModel
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(TreeModel)
+	Q_CLASSINFO("SettingsDescription", "Show tags and contacts")
 public:
 	TreeModel(QObject *parent = 0);
 	virtual ~TreeModel();

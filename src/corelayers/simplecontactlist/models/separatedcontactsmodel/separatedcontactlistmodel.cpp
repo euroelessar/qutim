@@ -63,6 +63,7 @@ SeparatedModel::SeparatedModel(QObject *parent) : AbstractContactModel(new Separ
 		d->initData = new SeparatedModelPrivate::InitData;
 		QTimer::singleShot(0, this, SLOT(init()));
 	}
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show accounts, tags and contacts"));
 }
 
 SeparatedModel::~SeparatedModel()
