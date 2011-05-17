@@ -11,6 +11,7 @@ qutim_add_plugin(simplecontactlist
 )
 
 qutim_add_plugin(simplecontactdelegate
+	SUBPLUGIN
 	SOURCE_DIR simplecontactdelegate
 	DISPLAY_NAME "ContactDelegate"
 	DESCRIPTION "Just simple"
