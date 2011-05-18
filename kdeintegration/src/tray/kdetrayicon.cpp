@@ -27,6 +27,10 @@
 
 using namespace qutim_sdk_0_3;
 
+#define ICON_ONLINE QLatin1String("qutim-online")
+#define ICON_OFFLINE QLatin1String("qutim-offline")
+#define ICON_NEW_MESSAGE QLatin1String("mail-message-new-qutim")
+
 namespace KdeIntegration
 {
 class ProtocolSeparatorActionGenerator : public ActionGenerator
@@ -149,8 +153,8 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	//		m_item->setAssociatedWidget(widget);
 	//	}
 	m_item->setContextMenu(kmenu);
-	m_item->setIconByName("qutim-offline");
-	m_item->setAttentionIconByName("qutim-message-new");
+	m_item->setIconByName(ICON_OFFLINE);
+	m_item->setAttentionIconByName(ICON_NEW_MESSAGE);
 	qApp->setQuitOnLastWindowClosed(false);
 }
 
@@ -243,13 +247,13 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 		}
 		m_currentIcon = status.icon();
 	}
-	QString iconName = QLatin1String("qutim-offline");
+	QString iconName = ICON_OFFLINE;
 	if (!m_activeAccount) {
 		foreach (Account *acc, m_accounts) {
 			if (acc->status().type() != Status::Offline) {
 				m_activeAccount = acc;
 				m_currentIcon = acc->status().icon();
-				iconName = QLatin1String("qutim-online");
+				iconName = ICON_ONLINE;
 				break;
 			}
 		}
