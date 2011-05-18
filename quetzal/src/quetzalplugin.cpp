@@ -623,9 +623,18 @@ void QuetzalPlugin::init()
 #if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN)
 		// So try to guess purple path
 		QStringList mayBePaths(QLatin1String("/usr/lib"));
+#ifdef PURPLE_LIBDIR
+		mayBePaths << QString::fromLocal8Bit(PURPLE_LIBDIR);
+#endif
+#if QT_POINTER_SIZE == 8
+		mayBePaths << QLatin1String("/usr/lib64");
+#elif QT_POINTER_SIZE == 4
+		mayBePaths << QLatin1String("/usr/lib32");
+#endif
 #ifdef Q_WS_MAEMO_5
 		mayBePaths << QLatin1String("/opt/maemo/usr/lib");
 #endif
+		mayBePaths.removeDuplicates();
 		QStringList filter(QLatin1String("libpurple.so*"));
 		bool ok = false;
 		foreach (const QString &path, mayBePaths) {

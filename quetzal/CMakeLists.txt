@@ -24,6 +24,7 @@ IF (NOT PURPLE_FOUND)
 ENDIF()
 
 SET( QT_USE_QTNETWORK TRUE )
+ADD_DEFINITIONS( -DPURPLE_LIBDIR="${PURPLE_LIBDIR}" )
 qutim_add_plugin( quetzal
 	DISPLAY_NAME "Quetzal"
 	DESCRIPTION "'Quetzal' is set of protocols, powered by libpurple"
