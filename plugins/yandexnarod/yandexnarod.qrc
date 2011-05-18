@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>icons/yandexnarodlogo.png</file>
+        <file>icons/yandexnarodplugin.png</file>
+        <file>icons/yandexnarod-icons-files.png</file>
+        <file>icons/upload.png</file>
+        <file>icons/clipboard.png</file>
+        <file>icons/close.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/reload.png</file>
+    </qresource>
+</RCC>

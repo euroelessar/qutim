@@ -1,0 +1,76 @@
+/****************************************************************************
+ *  messaging.cpp
+ *
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
+#include "messaging.h"
+#include <qutim/actiongenerator.h>
+#include <qutim/icon.h>
+#include <qutim/debug.h>
+#include <qutim/menucontroller.h>
+#include <qutim/systemintegration.h>
+#include  <qutim/servicemanager.h>
+#include "messagingdialog.h"
+#include <QApplication>
+
+namespace MassMessaging
+{
+
+void MassMessaging::init()
+{
+	debug() << Q_FUNC_INFO;
+	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+			  QT_TRANSLATE_NOOP("Task","Author"),
+			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("sauron.me"));
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "MassMessaging"),
+			QT_TRANSLATE_NOOP("Plugin", "Simple messaging to contact list"),
+			PLUGIN_VERSION(0, 1, 0, 0));
+	setCapabilities(Loadable);
+}
+
+bool MassMessaging::load()
+{
+	ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
+											   QT_TRANSLATE_NOOP("MassMessaging", "&Mass Messaging"),
+											   this,
+											   SLOT(onActionTriggered())
+											   );
+	gen->setType(ActionTypeAdditional);
+	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
+	if (contactList)
+		contactList->addAction(gen);
+
+	return true;
+}
+bool MassMessaging::unload()
+{
+	return false;
+}
+
+void MassMessaging::onActionTriggered()
+{
+	if (!m_dialog) {
+		m_dialog = new MessagingDialog();
+		centerizeWidget(m_dialog);
+	}
+#ifdef Q_WS_MAEMO_5
+	m_dialog->setParent(QApplication::activeWindow());
+	m_dialog->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
+	m_dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
+	SystemIntegration::show(m_dialog);
+}
+}
+
+QUTIM_EXPORT_PLUGIN(MassMessaging::MassMessaging)

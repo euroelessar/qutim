@@ -1,0 +1,5 @@
+.directory
+*.user
+.DS_Store
+*.kde4
+

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/def-bg.png</file>
+        <file>res/dialogtitle.png</file>
+    </qresource>
+</RCC>
