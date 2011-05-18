@@ -31,6 +31,7 @@
 #include <QVariant>
 #include <qutim/debug.h>
 #include <qutim/status.h>
+#include <qutim/plugin.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -94,12 +95,23 @@ enum SelectionTypes
 	Down   = 5000000
 };
 
+class OldContactDelegatePlugin : public qutim_sdk_0_3::Plugin
+{
+	Q_OBJECT
+	Q_CLASSINFO("DebugName", "OldContactDelegate")
+public:
+	OldContactDelegatePlugin();
+	void init();
+	bool load();
+	bool unload();
+};
 
 class ContactListItemDelegate : public QAbstractItemDelegate
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service","ContactDelegate")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("SettingsDescription", "qutIM 0.2 style")
 public:
 	explicit ContactListItemDelegate(QObject *parent = 0);
 	virtual ~ContactListItemDelegate();
@@ -116,6 +128,7 @@ public slots:
 				   const QStyleOptionViewItem &option,
 				   const QModelIndex &index);
 	QString styleSheet() const { return m_css; }
+	void reloadSettings();
 signals:
 	void styleSheetChanged(const QString &css);
 private:
@@ -136,8 +149,6 @@ private:
 	static int statusToID(const Status &status);
 	QAbstractItemView *getContactListView();
 	inline void setFlag(ShowFlags flag, bool on = true);
-private slots:
-	void reloadSettings();
 private:
 	struct StyleVar
 	{

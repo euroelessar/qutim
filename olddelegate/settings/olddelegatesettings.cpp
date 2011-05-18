@@ -128,6 +128,9 @@ void OldDelegateSettings::saveImpl()
 		config.setValue(checkBox->objectName(), checkBox->isChecked());
 	config.setValue("oldDelegateTheme", ui->themeBox->currentText());
 	config.endGroup();
+
+	if (ContactListItemDelegate *delegate = ServiceManager::getByName<ContactListItemDelegate*>("ContactDelegate"))
+		delegate->reloadSettings();
 }
 
 void OldDelegateSettings::reloadCombobox()

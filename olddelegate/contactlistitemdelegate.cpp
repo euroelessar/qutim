@@ -44,19 +44,36 @@ bool contactInfoLessThan(const QVariantHash &a, const QVariantHash &b) {
 	return p1 > p2;
 }
 
+OldContactDelegatePlugin::OldContactDelegatePlugin()
+{
+}
+
+void OldContactDelegatePlugin::init()
+{
+	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
+	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Old contact delegate");
+	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Port of contact list delegate from 0.2");
+	setInfo(name, description, QUTIM_VERSION, icon);
+	addExtension<ContactListItemDelegate>(name, description, icon);
+	addExtension<OldDelegateSettings, Core::ContactListSettingsExtention>(name, description, icon);
+}
+
+bool OldContactDelegatePlugin::load()
+{
+	return true;
+}
+
+bool OldContactDelegatePlugin::unload()
+{
+	return false;
+}
+
 ContactListItemDelegate::ContactListItemDelegate(QObject *parent) : QAbstractItemDelegate(parent)
 {
 	m_margin = 1;
 	m_styleType = LightStyle;
-
-	SettingsItem *item =
-			new GeneralSettingsItem<OldDelegateSettings>(Settings::General,
-														 Icon("preferences-contact-list"),
-														 QT_TRANSLATE_NOOP("ContactList","ContactList"));
-	item->connect(SIGNAL(saved()),this, SLOT(reloadSettings()));
-	Settings::registerItem(item);
-
 	reloadSettings();
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "qutIM 0.2 style"));
 }
 
 ContactListItemDelegate::~ContactListItemDelegate()
@@ -1174,3 +1191,5 @@ void ContactListItemDelegate::setFlag(ShowFlags flag, bool on)
 	else
 		m_showFlags &= ~flag;
 }
+
+QUTIM_EXPORT_PLUGIN(OldContactDelegatePlugin)

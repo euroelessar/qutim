@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 #include <contactlistitemdelegate.h>
+#include <qutim/simplecontactlist/simplecontactlistsettings.h>
 
 class QCheckBox;
 
@@ -13,10 +14,11 @@ namespace Ui {
 
 using namespace qutim_sdk_0_3;
 
-class OldDelegateSettings : public SettingsWidget
+class OldDelegateSettings : public Core::ContactListSettingsExtention
 {
     Q_OBJECT
-
+	Q_INTERFACES(Core::ContactListSettingsExtention)
+	Q_CLASSINFO("ServiceSettings", "ContactListItemDelegate")
 public:
 	explicit OldDelegateSettings();
 	~OldDelegateSettings();
