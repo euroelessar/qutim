@@ -1,4 +1,6 @@
 CMakeLists.txt.user
-qtcreator-build
 .directory
+.DS_Store
+*.kde4
+qtcreator-build
 *.user
