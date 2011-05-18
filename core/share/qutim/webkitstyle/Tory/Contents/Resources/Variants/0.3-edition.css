@@ -1,0 +1,27 @@
+@importi url("../main.css");
+
+.in, .inAction {
+	color: #ff6600;
+}
+
+.out, .outAction {
+	color: #0078ff;
+}
+
+.message {
+	padding-left: 10pt;
+}
+
+.delivered {
+	display: inline;
+	padding-left: 10pt;
+	margin-left: -10pt;
+	background: url('../Images/bullet-received.png') left center no-repeat;
+}
+
+.notDelivered {
+	display: inline;
+	padding-left: 10pt;
+	margin-left: -10pt;
+	background: url('../Images/bullet-send.png') left center no-repeat;
+}

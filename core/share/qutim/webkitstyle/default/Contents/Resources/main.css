@@ -1,0 +1,46 @@
+body {
+	font: 10pt Arial;
+}
+
+.remark {
+	margin-top: 0.3em;
+	padding-bottom: 4pt;
+}
+
+.inContact, .outContact, .inActionContact, .outActionContact {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.inContact, .inActionContact, .inActionMessage {
+	color: #ff6600;
+}
+
+.outContact, .outActionContact, .outActionMessage {
+	color: #0078ff;
+}
+
+.inTime, .outTime, .statusTime {
+	color: gray;
+	font-size: 0.8em;
+	float: right;
+	padding-left: 3pt;
+	vertical-align: bottom;
+	margin-top: 2pt;
+}
+
+.statusMessage {
+	color: gray;
+}
+
+.delivered {
+	display: inline;
+	padding-left: 6pt;
+	background: url('Images/bullet-received.png') left center no-repeat;
+}
+
+.notDelivered {
+	display: inline;
+	padding-left: 6pt;
+	background: url('Images/bullet-send.png') left center no-repeat;
+}

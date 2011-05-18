@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=qutIM
+Name[ru]=qutIM
+GenericName=qutIM Instant Messenger
+GenericName[ru]=Клиент сервисов мгновенных сообщений qutIM
+Comment=Communicate over IM
+Comment[ru]=Общение через сеть мгновенных сообщений
+Exec=qutim
+Icon=qutim
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;Qt;
+X-DBUS-ServiceName=org.qutim

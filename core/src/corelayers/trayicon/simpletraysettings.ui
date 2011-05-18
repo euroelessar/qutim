@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimpletraySettings</class>
+ <widget class="QWidget" name="SimpletraySettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>441</width>
+    <height>263</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Icon</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="rb_showMsgsNumber">
+        <property name="text">
+         <string>Show number of new messages</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="rb_showSessNumber">
+        <property name="text">
+         <string>Show number of chats with new messages</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="rb_dontShowNumber">
+        <property name="text">
+         <string>Show only icon</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Other</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="cb_showIcon">
+        <property name="text">
+         <string>Show mail icon if there are new messages</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="cb_blink">
+        <property name="text">
+         <string>Blink icon</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cb_showIcon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_blink</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_showIcon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>rb_dontShowNumber</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_showIcon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>rb_showMsgsNumber</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_showIcon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>rb_showSessNumber</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>77</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

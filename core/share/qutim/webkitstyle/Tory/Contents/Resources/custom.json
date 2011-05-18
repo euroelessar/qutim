@@ -1,0 +1,24 @@
+{
+   "Tory": [
+    {
+     "label": "Chat font",
+     "label-bg_BG": "Шрифт на съобщенията",
+     "label-ru_RU": "Шрифт сообщений",
+     "parameter": "font",
+     "selector": "body",
+     "type": "font",
+     "value": "8pt Verdana"
+    },
+    {
+     "false": "0s",
+     "label": "Animated new messages",
+     "label-bg_BG": "Анимация на новите съобщения",
+     "label-ru_RU": "Анимация новых сообщений",
+     "parameter": "-webkit-animation-duration",
+     "selector": ".highlight",
+     "true": "1.2s",
+     "type": "boolean",
+     "value": "0s"
+    }
+   ]
+  }

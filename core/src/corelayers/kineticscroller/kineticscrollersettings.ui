@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>KineticScrollerSettings</class>
+ <widget class="QWidget" name="KineticScrollerSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="comboBox">
+     <item>
+      <property name="text">
+       <string>No scrolling</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Touch</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Left mouse button</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Middle mouse button</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Right mouse button</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Mouse press delay, secs:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Drag start distance, metres:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Drag velocity smoothing factor, 1/secs:</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
