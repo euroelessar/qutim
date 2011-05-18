@@ -11,8 +11,8 @@ using namespace qutim_sdk_0_3;
 class Vibration : public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "Popup")
-	Q_CLASSINFO("Type", "Popup")
+	Q_CLASSINFO("Service", "VibrationAlert")
+	Q_CLASSINFO("Type", "VibrationAlert")
 public:
 	Vibration();
 	~Vibration();
