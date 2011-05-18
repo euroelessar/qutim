@@ -39,14 +39,24 @@ struct ContactDelegatePrivate
 	int statusIconSize;
 	int extIconSize;
 	bool liteMode;
+	SettingsItem *settingsItem;
 };
 
-bool contactInfoLessThan (const QVariantHash &a, const QVariantHash &b) {
-	QString priority = QLatin1String("priorityInContactList");
-	int p1 = a.value(priority).toInt();
-	int p2 = b.value(priority).toInt();
-	return p1 > p2;
-}
+struct ContactInfoComparator
+{
+	ContactInfoComparator() : propertyName(QLatin1String("priorityInContactList"))
+	{
+	}
+	
+	bool operator()(const QVariantHash &a, const QVariantHash &b)
+	{
+		int p1 = a.value(propertyName).toInt();
+		int p2 = b.value(propertyName).toInt();
+		return p1 > p2;
+	}
+	
+	const QString propertyName;
+};
 
 ContactDelegatePlugin::ContactDelegatePlugin()
 {
@@ -77,13 +87,18 @@ ContactDelegate::ContactDelegate(QObject *parent) :
 {
 	p->horizontalPadding = 5;
 	p->verticalPadding = 3;
+	p->settingsItem = new GeneralSettingsItem<SimpleContactlistSettings>(
+	            Settings::General, Icon("preferences-contact-list"),
+	            QT_TRANSLATE_NOOP("ContactList","ContactList"));
+	p->settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+	Settings::registerItem(p->settingsItem);
 	reloadSettings();
-	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
 }
 
 ContactDelegate::~ContactDelegate()
 {
-
+	Settings::removeItem(p->settingsItem);
 }
 
 void ContactDelegate::paint(QPainter *painter,
@@ -92,7 +107,7 @@ void ContactDelegate::paint(QPainter *painter,
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
-	const QWidget *widget = p->getWidget(option);
+	const QWidget *widget = opt.widget;
 
 	ContactItemType type = static_cast<ContactItemType>(index.data(ItemTypeRole).toInt());
 
@@ -173,14 +188,9 @@ void ContactDelegate::paint(QPainter *painter,
 		Status status = index.data(StatusRole).value<Status>();
 
 		if (p->showFlags & ShowExtendedInfoIcons) {
-			QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
-
-			QList<QVariantHash> list;
-			foreach (const QVariantHash &data, extStatuses) {
-				QList<QVariantHash>::iterator search_it =
-						qLowerBound(list.begin(), list.end(), data, contactInfoLessThan);
-				list.insert(search_it,data);
-			}
+			QList<QVariantHash> list = status.extendedInfos().values();
+			ContactInfoComparator comparator;
+			qSort(list.begin(), list.end(), comparator);
 
 			QString icon = QLatin1String("icon");
 			QString showIcon = QLatin1String("showIcon");
