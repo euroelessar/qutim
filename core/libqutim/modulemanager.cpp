@@ -245,38 +245,38 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		}
 	}
 
-#if	defined(Q_OS_SYMBIAN)
-	//simple S60 plugins loader
-	QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
-
-	// "qutim" is the folder where plugins are exported
-	// by Qt macro Q_EXPORT_PLUGIN2(qutim, YourPlugin);
-	pluginsDir.cd("qutim");
+	QStringList paths;
 	p->extensions << coreExtensions();
 
-	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-		// Create plugin loader
-		QPluginLoader* loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
-		// Load plugin
-		if (!loader->load()) {
-			QMessageBox msg;
-			msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
-			msg.exec();
-			delete loader;
-			continue;
-		}
-		// init plugin
-		QObject *object = loader->instance();
+#if	defined(Q_OS_SYMBIAN)
+	// simple S60 plugins loader
+	QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
+	paths << pluginsDir.filePath("qutim");
+
+//	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+//		// Create plugin loader
+//		QPluginLoader* loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
+//		// Load plugin
+//		if (!loader->load()) {
+//			QMessageBox msg;
+//			msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
+//			msg.exec();
+//			delete loader;
+//			continue;
+//		}
+//		// init plugin
+//		QObject *object = loader->instance();
 #else // defined(Q_OS_SYMBIAN)
-	QStringList paths = additional_paths;
+	paths = additional_paths;
 	QDir root_dir = QApplication::applicationDirPath();
-	// 1. Windows, ./plugins
+//	1. Windows, ./plugins
 	QString plugin_path = root_dir.canonicalPath();
 	plugin_path += QDir::separator();
 	plugin_path += "plugins";
 	paths << plugin_path;
 	root_dir.cdUp();
-	// 2. Linux, /usr/lib/qutim/plugins
+
+//	2. Linux, /usr/lib/qutim/plugins
 	plugin_path = root_dir.canonicalPath();
 	plugin_path += QDir::separator();
 	plugin_path += "lib";
@@ -285,7 +285,8 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	plugin_path += QDir::separator();
 	plugin_path += "plugins";
 	paths << plugin_path;
-	// 2.5 Some Linux system, 64 bit, /usr/lib64/qutim/plugins
+
+//	2.5 Some Linux system, 64 bit, /usr/lib64/qutim/plugins
 	plugin_path = root_dir.canonicalPath();
 	plugin_path += QDir::separator();
 	plugin_path += "lib64";
@@ -295,112 +296,128 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	plugin_path += "plugins";
 	paths << plugin_path;
 
-	// 3. MacOS X, ../PlugIns
+//	3. MacOS X, ../PlugIns
 #ifdef Q_OS_MAC
 	plugin_path = root_dir.canonicalPath();
 	plugin_path += QDir::separator();
 	plugin_path += "PlugIns";
 	paths << plugin_path;
-#endif
-	// 4. Safe way, ~/.local/share/qutim/plugins
-	//		plugin_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-	//		plugin_path += QDir::separator();
-	//		plugin_path += "plugins";
-	//		paths << plugin_path;
-	//		// 6. From config
-	//		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
-	//		paths << config_paths;
+#endif // Q_OS_MAC
+	
+// 4. Safe way, ~/.local/share/qutim/plugins
+//		plugin_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+//		plugin_path += QDir::separator();
+//		plugin_path += "plugins";
+//		paths << plugin_path;
+//		// 6. From config
+//		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
+//		paths << config_paths;
+	
+#endif // defined(Q_OS_SYMBIAN)
+
 	paths.removeDuplicates();
-	QSet<QString> plugin_paths_list;
-	p->extensions << coreExtensions();
+	QSet<QString> pluginPathsList;
+
 	foreach (const QString &path, paths) {
 		QDir plugins_dir = path;
 		QFileInfoList files = plugins_dir.entryInfoList(QDir::AllEntries);
-		for (int i = 0; i < files.count(); ++i) {
-			QString filename = files[i].canonicalFilePath();
-			if(plugin_paths_list.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
-				continue;
-			plugin_paths_list << filename;
-			// Just don't load old plugins
-			typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
-			typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
-			QutimPluginVerificationFunction verificationFunction = NULL;
-			QtPluginVerificationFunction qtVerificationFunction = NULL;
+		QFileInfoList nextTry;
+		while (!files.isEmpty() || !nextTry.isEmpty()) {
+			if (files.size() == nextTry.size())
+				break;
+			if (!nextTry.isEmpty()) {
+				qSwap(nextTry, files);
+				nextTry.clear();
+			}
+			for (int i = 0; i < files.count(); ++i) {
+				QString filename = files[i].canonicalFilePath();
+				if(pluginPathsList.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
+					continue;
+				pluginPathsList << filename;
+#ifndef Q_OS_SYMBIAN
+				// Just don't load old plugins
+				typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
+				typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
+				QutimPluginVerificationFunction verificationFunction = NULL;
+				QtPluginVerificationFunction qtVerificationFunction = NULL;
 #ifdef QUTIM_TEST_PERFOMANCE
-			QTime timer;
-			int libLoadTime, verifyTime, instanceTime, initTime;
-#endif
-			{
+				QTime timer;
+				int libLoadTime, verifyTime, instanceTime, initTime;
+#endif // QUTIM_TEST_PERFOMANCE
+				{
 #ifdef QUTIM_TEST_PERFOMANCE
-				timer.start();
-#endif
-				QScopedPointer<QLibrary> lib(new QLibrary(filename));
-				if (lib->load()) {
+					timer.start();
+#endif // QUTIM_TEST_PERFOMANCE
+					QScopedPointer<QLibrary> lib(new QLibrary(filename));
+					if (lib->load()) {
 #ifdef QUTIM_TEST_PERFOMANCE
-					libLoadTime = timer.elapsed(); timer.restart();
-#endif
-					verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
-								lib->resolve("qutim_plugin_query_verification_data"));
-					qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
-								lib->resolve("qt_plugin_query_verification_data"));
+						libLoadTime = timer.elapsed();
+						timer.restart();
+#endif // QUTIM_TEST_PERFOMANCE
+						verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
+						            lib->resolve("qutim_plugin_query_verification_data"));
+						qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
+						            lib->resolve("qt_plugin_query_verification_data"));
 #ifdef QUTIM_TEST_PERFOMANCE
-					verifyTime = timer.elapsed(); timer.restart();
-#endif
-					if (!verificationFunction || !qtVerificationFunction) {
-						lib->unload();
-						qDebug("'%s' has no valid verification data", qPrintable(filename));
+						verifyTime = timer.elapsed();
+						timer.restart();
+#endif // QUTIM_TEST_PERFOMANCE
+						if (!verificationFunction || !qtVerificationFunction) {
+							lib->unload();
+							qDebug("'%s' has no valid verification data", qPrintable(filename));
+							continue;
+						}
+						QString error;
+						if (!checkQtPluginData(qtVerificationFunction(), &error)
+						        || !checkQutIMPluginData(verificationFunction(), &error)) {
+							qDebug("Error while loading plugin '%s': %s",
+							       qPrintable(filename), qPrintable(error));
+						}
+					} else {
+						qDebug("%s", qPrintable(lib->errorString()));
+						nextTry << files[i];
+						pluginPathsList.remove(filename);
 						continue;
 					}
-					QString error;
-					if (!checkQtPluginData(qtVerificationFunction(), &error)
-							|| !checkQutIMPluginData(verificationFunction(), &error)) {
-						qDebug("Error while loading plugin '%s': %s",
-							   qPrintable(filename), qPrintable(error));
+				}
+#endif // Q_OS_SYMBIAN
+				QPluginLoader *loader = new QPluginLoader(filename);
+				QObject *object = loader->instance();
+#ifdef QUTIM_TEST_PERFOMANCE
+				instanceTime = timer.elapsed(); timer.restart();
+#endif // QUTIM_TEST_PERFOMANCE
+				
+				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+					plugin->init();
+#ifdef QUTIM_TEST_PERFOMANCE
+					initTime = timer.elapsed();
+					qDebug("\"%s\":\nload: %d ms, verify: %d ms, instance: %d ms, init: %d ms",
+					       qPrintable(files[i].fileName()), libLoadTime, verifyTime, instanceTime, initTime);
+#endif // QUTIM_TEST_PERFOMANCE
+					if (plugin->p->validate()) {
+						plugin->p->info.data()->inited = 1;
+						p->plugins.append(plugin);
+						p->extensions << plugin->avaiableExtensions();
+						foreach(ExtensionInfo info, plugin->avaiableExtensions())
+							p->extsPlugins.insert(info.name(), plugin);
+					} else {
+						delete object;
 					}
 				} else {
-					qDebug("%s", qPrintable(lib->errorString()));
-					continue;
-				}
-			}
-			QPluginLoader *loader = new QPluginLoader(filename);
-			QObject *object = loader->instance();
-#ifdef QUTIM_TEST_PERFOMANCE
-			instanceTime = timer.elapsed(); timer.restart();
-#endif
-
-#endif // defined(Q_OS_SYMBIAN)
-			if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
-				plugin->init();
-#ifdef QUTIM_TEST_PERFOMANCE
-				initTime = timer.elapsed();
-				qDebug("\"%s\":\nload: %d ms, verify: %d ms, instance: %d ms, init: %d ms",
-					   qPrintable(files[i].fileName()), libLoadTime, verifyTime, instanceTime, initTime);
-#endif
-				if (plugin->p->validate()) {
-					plugin->p->info.data()->inited = 1;
-					p->plugins.append(plugin);
-					p->extensions << plugin->avaiableExtensions();
-					foreach(ExtensionInfo info, plugin->avaiableExtensions())
-						p->extsPlugins.insert(info.name(), plugin);
-				} else {
-					delete object;
-				}
-			} else {
-				if (object)
-					delete object;
-				else {
-					qWarning("%s", qPrintable(loader->errorString()));
+					if (object)
+						delete object;
+					else {
+						qWarning("%s", qPrintable(loader->errorString()));
 #ifdef Q_OS_SYMBIAN
-					QMessageBox msg;
-					msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
-					msg.exec();
+						QMessageBox msg;
+						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
+						msg.exec();
 #endif
+					}
+					loader->unload();
 				}
-				loader->unload();
 			}
-#ifndef Q_OS_SYMBIAN
 		}
-#endif
 	}
 
 #ifndef NO_COMMANDS	
@@ -418,21 +435,17 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		// Skip program name
 		it++;
 		for (; it != itend; it++) {
-			if (*it == QLatin1String("-v")
-					|| *it == QLatin1String("--version")) {
+			if (*it == QLatin1String("-v") || *it == QLatin1String("--version")) {
 				printVersion();
 				qApp->quit();
 				return;
 			}
-			if (*it == QLatin1String("-h")
-					|| *it == QLatin1String("--help")) {
+			if (*it == QLatin1String("-h") || *it == QLatin1String("--help")) {
 				printHelp(handlers);
 				qApp->quit();
 				return;
 			}
-#ifndef Q_OS_SYMBIAN
 		}
-#endif
 	}
 #endif // NO_COMMANDS
 
