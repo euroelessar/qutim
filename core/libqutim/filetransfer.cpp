@@ -33,7 +33,8 @@ struct FileTransferScope
 {
 	struct Observer
 	{
-		QList<FileTransferObserver *> list;
+		Observer();
+		QList<QWeakPointer<FileTransferObserver> > list;
 		ChatUnit *unit;
 #ifdef REMEMBER_ALL_ABILITIES
 		QBitArray abilities;
@@ -81,6 +82,16 @@ static QList<FileTransferFactory*> sortFactories(const QStringList &names,
 }
 
 Q_GLOBAL_STATIC(FileTransferScope, scope)
+
+FileTransferScope::Observer::Observer()
+    : abilities(scope()->factories.size()),
+#ifdef REMEMBER_ALL_ABILITIES
+      setCount(0)
+#else
+      ability(0)
+#endif
+{
+}
 
 class FileTransferManagerPrivate
 {
@@ -623,8 +634,9 @@ void FileTransferFactory::changeAvailability(ChatUnit *unit, bool canSend)
 	scp.setCount -= (scp.abilities.toggleBit(index) << 1) - 1;
 	if (scp.setCount == 0 || (scp.setCount == 1 && canSend)) {
 		for (int i = 0; i < scp.list.size(); i++) {
-			FileTransferObserver *obs = scp.list.at(i);
-			FileTransferObserverPrivate::get(obs)->emitAbilityChanged(scp.setCount > 0);
+			FileTransferObserver *obs = scp.list.at(i).data();
+			if (obs)
+				FileTransferObserverPrivate::get(obs)->emitAbilityChanged(scp.setCount > 0);
 		}
 	}
 #else
