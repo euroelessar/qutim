@@ -12,4 +12,4 @@
 	url = git://gitorious.org/libquasar/libquasar.git
 [submodule "jabber/jreen"]
 	path = protocols/jabber/jreen
-	url = git://gitorious.org/jreen/jreen.git
+	url = git://github.com/euroelessar/jreen.git
