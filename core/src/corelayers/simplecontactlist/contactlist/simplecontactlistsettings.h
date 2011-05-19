@@ -4,7 +4,7 @@
 #include "simplecontactlist_global.h"
 #include <qutim/settingswidget.h>
 #include <qutim/servicemanager.h>
-#include <QRadioButton>]
+#include <QRadioButton>
 #include <QGroupBox>
 #include <QHash>
 #include <QSet>

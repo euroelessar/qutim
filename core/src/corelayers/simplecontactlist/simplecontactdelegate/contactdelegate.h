@@ -19,9 +19,10 @@ enum ContactItemRole
 	AvatarRole,
 	ItemTypeRole,
 	AccountRole,
-	Color,
+	Color
 };
-Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
+Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole)
+
 enum ContactItemType
 {
 	InvalidType = 0,
@@ -56,7 +57,7 @@ public:
 		ShowExtendedInfoIcons = 0x2,
 		ShowAvatars = 0x4
 	};
-	Q_DECLARE_FLAGS(ShowFlags, ShowFlag);
+	Q_DECLARE_FLAGS(ShowFlags, ShowFlag)
 	explicit ContactDelegate(QObject *parent = 0);
 	~ContactDelegate();
 	void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -82,7 +83,7 @@ private:
 
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ContactItemRoles);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ContactItemRoles)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ContactDelegate::ShowFlags)
 
 #endif // CONTACTDELEGATE_H

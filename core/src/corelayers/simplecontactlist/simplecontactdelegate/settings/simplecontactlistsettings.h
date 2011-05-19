@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 #include <contactdelegate.h>
-#include <simplecontactlistsettings.h>
+#include <qutim/simplecontactlist/simplecontactlistsettings.h>
 
 class QCheckBox;
 

@@ -41,7 +41,7 @@ enum ShowFlag
 	ShowExtendedInfoIcons = 0x2,
 	ShowAvatars = 0x4
 };
-Q_DECLARE_FLAGS(ShowFlags, ShowFlag);
+Q_DECLARE_FLAGS(ShowFlags, ShowFlag)
 
 enum ContactItemRole
 {
@@ -52,9 +52,9 @@ enum ContactItemRole
 	AvatarRole,
 	ItemTypeRole,
 	AccountRole,
-	Color,
+	Color
 };
-Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
+Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole)
 enum ContactItemType
 {
 	InvalidType = 0,
@@ -74,7 +74,7 @@ enum OscarStatusEnum
 	OscarOccupied       = 0x0010,
 	OscarInvisible      = 0x0100,
 	// Qutim Status Flags
-	OscarOffline        = 0x8000,
+	OscarOffline        = 0x8000
 };
 
 enum QipStatusEnum
