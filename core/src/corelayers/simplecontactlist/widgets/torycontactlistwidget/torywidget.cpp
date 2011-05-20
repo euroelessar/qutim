@@ -46,7 +46,7 @@ struct ToryWidgetPrivate
 
 ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 {
-	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "qutIM 0.2 style"));
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "qutIM 0.2 style"));
 	Q_D(ToryWidget);
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	setWindowIcon(Icon("qutim"));

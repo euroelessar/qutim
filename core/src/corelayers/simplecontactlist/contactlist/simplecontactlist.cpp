@@ -43,8 +43,7 @@ struct ModulePrivate
 {
 	~ModulePrivate() {}
 	ServicePointer<QWidget> widget;
-	AbstractContactModel *model;
-	AbstractContactListWidget *contactListWidget;
+	ServicePointer<AbstractContactModel> model;
 	QScopedPointer<ActionGenerator> tagsGenerator;
 	QList<ActionGenerator*> toolBarButtons;
 };
@@ -89,10 +88,6 @@ Module::Module() : p(new ModulePrivate)
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
-
-	QObject *object = ServiceManager::getByName("ContactModel");
-	p->model = dynamic_cast<AbstractContactModel*>(object);
-	qDebug() << object << p->model << qobject_cast<QAbstractItemModel*>(object);
 
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
@@ -219,14 +214,14 @@ void Module::addContact(qutim_sdk_0_3::Contact *contact)
 void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
 {
 	Q_UNUSED(old);
-	if (old == p->model && name == "ContactModel") {
-		QList<Contact*> contacts = p->model->contacts();
-		p->model = dynamic_cast<AbstractContactModel*>(now);
-		Q_ASSERT(p->model);
-		TreeView *view = p->contactListWidget->contactView();
-		Q_ASSERT(view);
-		view->setModel(p->model);
-		p->model->setContacts(contacts);
+	if (name == "ContactModel") {
+		AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
+		if (!widget)
+			return;
+		widget->contactView()->setModel(p->model);
+		AbstractContactModel *oldModel = qobject_cast<AbstractContactModel*>(old);
+		if (oldModel)
+			p->model->setContacts(oldModel->contacts());
 	} else if (name == "ContactListWidget") {
 		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
 		if (w) {

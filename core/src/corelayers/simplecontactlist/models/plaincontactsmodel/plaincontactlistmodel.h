@@ -36,9 +36,10 @@ public:
 	Status status;
 };
 
-class PlainModel : public AbstractContactModel
+class PlainModel : public Core::SimpleContactList::AbstractContactModel
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::SimpleContactList::AbstractContactModel)
 	Q_DECLARE_PRIVATE(PlainModel)
 	Q_CLASSINFO("SettingsDescription", "Show only contacts")
 public:

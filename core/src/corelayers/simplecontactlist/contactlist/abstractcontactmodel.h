@@ -109,4 +109,6 @@ protected:
 } // namespace SimpleContactList
 } // namespace Core
 
+Q_DECLARE_INTERFACE(Core::SimpleContactList::AbstractContactModel, "org.qutim.core.simplecontactlist.AbstractContactModel")
+
 #endif // ABSTRACTCONTACTMODEL_H
