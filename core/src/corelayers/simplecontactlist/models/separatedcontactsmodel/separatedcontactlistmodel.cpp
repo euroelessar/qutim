@@ -403,7 +403,6 @@ AccountItem *SeparatedModel::addAccount(qutim_sdk_0_3::Account *account, bool ad
 	d->accounts.push_back(item);
 	d->accountHash.insert(account, item);
 	endInsertRows();
-	emit indexVisibilityChanged(createIndex(index, 0, item), item->id, true);
 
 	if (addContacts) {
 		foreach (Contact *contact, account->findChildren<Contact*>())
@@ -421,7 +420,6 @@ void SeparatedModel::onAccountDestroyed(QObject *obj)
 	Q_D(SeparatedModel);
 	AccountItem *item = d->accountHash.take(reinterpret_cast<Account*>(obj));
 	int index = d->accounts.indexOf(item);
-	emit indexVisibilityChanged(createIndex(index, 0, item), item->id, true);
 	beginRemoveRows(QModelIndex(), index, index);
 	d->accounts.removeAt(index);
 	foreach (TagItem *tag, item->tags) {

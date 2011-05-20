@@ -81,8 +81,8 @@ ContactListSettings::ContactListSettings()
 {
 	m_layout = new QVBoxLayout(this);
 	addService("ContactModel", tr("Model"));
+	addService("ContactListWidget", tr("Widget style"));
 	addService("ContactDelegate", tr("Contacts style"));
-	//addService("ContactListWidget", tr("Widget style"));
 
 	m_layout->addItem(new QSpacerItem(0, 20, QSizePolicy::Preferred, QSizePolicy::Expanding));
 

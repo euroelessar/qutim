@@ -32,6 +32,7 @@ enum ContactItemRole
 	ItemTypeRole,
 	AccountRole,
 	Color,
+	TagName
 };
 Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 

@@ -50,10 +50,10 @@ void TreeView::setModel(AbstractContactModel *model)
 	storeClosedTags();
 	Config group = Config().group("contactList").group(model->metaObject()->className());
 	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
-	m_visibleIndexes.clear();
-	connect(model, SIGNAL(indexVisibilityChanged(QModelIndex,QString,bool)),
-			SLOT(onIndexVisibilityChanged(QModelIndex,QString,bool)));
+	connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+			SLOT(onRowsInserted(QModelIndex,int,int)));
 	QTreeView::setModel(model);
+	checkTag(QModelIndex(), model);
 }
 
 void TreeView::initScrolling()
@@ -143,26 +143,28 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 
 void TreeView::onCollapsed(const QModelIndex &index)
 {
-	QString name = m_visibleIndexes.value(index.internalId());
-	if (!name.isNull())
+	QString name = index.data(TagName).toString();
+	if (!name.isEmpty()) {
 		m_closedIndexes.insert(name);
+		storeClosedTags();
+	}
 }
 
 void TreeView::onExpanded(const QModelIndex &index)
 {
-	QString name = m_visibleIndexes.value(index.internalId());
-	if (!name.isNull())
+	QString name = index.data(TagName).toString();
+	if (!name.isEmpty()) {
 		m_closedIndexes.remove(name);
+		storeClosedTags();
+	}
 }
 
-void TreeView::onIndexVisibilityChanged(const QModelIndex &index, const QString &name, bool shown)
+void TreeView::onRowsInserted(const QModelIndex &parent, int first, int last)
 {
-	if (shown) {
-		if (!m_closedIndexes.contains(name))
+	for (; first <= last; ++first) {
+		QModelIndex index = model()->index(first, 0, parent);
+		if (!m_closedIndexes.contains(index.data(TagName).toString()))
 			setExpanded(index, true);
-		m_visibleIndexes.insert(index.internalId(), name);
-	} else {
-		m_visibleIndexes.remove(index.internalId());
 	}
 }
 
@@ -173,7 +175,6 @@ void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
 
 TreeView::~TreeView()
 {
-	storeClosedTags();
 }
 
 void TreeView::storeClosedTags()
@@ -182,6 +183,16 @@ void TreeView::storeClosedTags()
 		return;
 	Config group = Config().group("contactList").group(model()->metaObject()->className());
 	group.setValue("closedTags", QStringList(m_closedIndexes.toList()));
+}
+
+void TreeView::checkTag(const QModelIndex &parent, QAbstractItemModel *model)
+{
+	for (int i = 0, c = model->rowCount(parent); i != c; ++i) {
+		QModelIndex index = model->index(i, 0, parent);
+		checkTag(index, model);
+		if (!m_closedIndexes.contains(index.data(TagName).toString()))
+			setExpanded(index, true);
+	}
 }
 
 }

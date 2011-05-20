@@ -27,6 +27,7 @@ private:
 	Q_PRIVATE_SLOT(d_func(), void _q_activated(const QModelIndex &))
 	Q_PRIVATE_SLOT(d_func(), void _q_init_scrolling())
 	Q_PRIVATE_SLOT(d_func(), void _q_insert_nick())
+	Q_PRIVATE_SLOT(d_func(), void _q_service_changed(const QByteArray &, QObject *))
 };
 
 }

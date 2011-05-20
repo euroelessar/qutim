@@ -338,7 +338,6 @@ QObject *MenuActionGenerator::generateHelper() const
 		action->setMenu(d->data->menu);
 	} else if (d->data->controller) {
 		QMenu *menu = d->data->controller->menu(false);
-		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		action->setMenu(menu);
 	}
 	//		const ActionGenerator *gen = this;
