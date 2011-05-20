@@ -43,6 +43,12 @@ public:
 		if (buddy)
 			ChatLayerImpl::insertText(session, buddy->title() + QLatin1String(" "));
 	}
+
+	void _q_service_changed(const QByteArray &name, QObject *service)
+	{
+		if (name == "ContactDelegate")
+			q_func()->setItemDelegate(qobject_cast<QAbstractItemDelegate*>(service));
+	}
 };
 
 ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
@@ -66,6 +72,9 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	setWindowTitle(tr("Conference participants"));
+
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+			SLOT(_q_service_changed(QByteArray,QObject*)));
 }
 
 void ConferenceContactsView::setSession(ChatSessionImpl *session)
