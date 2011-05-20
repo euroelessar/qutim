@@ -25,6 +25,7 @@ class SimpleWidget : public QMainWindow, public AbstractContactListWidget
 	Q_CLASSINFO("Service", "ContactListWidget")
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
+	Q_CLASSINFO("SettingsDescription", "Default style")
 public:
 	SimpleWidget();
 	~SimpleWidget();

@@ -26,6 +26,7 @@ class ToryWidget : public QMainWindow, public AbstractContactListWidget
 	Q_CLASSINFO("Uses", "ContactDelegate")
 	Q_CLASSINFO("Uses", "ContactModel")
 	Q_CLASSINFO("Service", "ContactListWidget")
+	Q_CLASSINFO("SettingsDescription", "qutIM 0.2 style")
 	Q_DECLARE_PRIVATE(ToryWidget)
 public:
 	ToryWidget();

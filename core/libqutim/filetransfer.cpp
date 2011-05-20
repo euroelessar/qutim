@@ -553,6 +553,7 @@ FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
 	d->scope->list.append(this);
 	connect(unit, SIGNAL(destroyed(QObject*)),
 			SLOT(_q_clearObserverData(QObject*)));
+	d->isEmpty = false;
 }
 
 FileTransferObserver::~FileTransferObserver()

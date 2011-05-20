@@ -94,8 +94,6 @@ AWNService::~AWNService()
         delete m_awn;
     if(m_item)
         delete m_item;
-    if(m_cwc)
-        delete m_cwc;
     QDir t(QDir::tempPath()+"/qutim-awn");
     foreach(QString s,t.entryList(QDir::Files|QDir::NoDotAndDotDot))
         QFile::remove(t.absoluteFilePath(s));

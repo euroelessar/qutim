@@ -46,6 +46,7 @@ struct ToryWidgetPrivate
 
 ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 {
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "qutIM 0.2 style"));
 	Q_D(ToryWidget);
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	setWindowIcon(Icon("qutim"));
@@ -130,8 +131,12 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 			SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 
-	foreach(Protocol *protocol, Protocol::all())
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+	foreach(Protocol *protocol, Protocol::all()) {
+		foreach (Account *account, protocol->accounts())
+			onAccountCreated(account);
+		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)),
+				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+	}
 	QTimer timer;
 	timer.singleShot(0, this, SLOT(initMenu()));
 }
@@ -231,7 +236,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	button->setIcon(account->status().icon());
 	button->setToolTip(account->id());
 	button->setAutoRaise(true);
-	button->installEventFilter(this);
+	button->setPopupMode(QToolButton::InstantPopup);
 
 	d->accountsContainer->addWidget(button);
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
@@ -301,21 +306,14 @@ bool ToryWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if (event->type() == QEvent::MouseButtonPress) {
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-
 		QMenu *menu = 0;
-		if (mouseEvent->button() == Qt::RightButton)
+		if (mouseEvent->button() == Qt::RightButton) {
 			menu = d_func()->globalStatus->menu();
-		else if (QToolButton *btn = qobject_cast<QToolButton*>(obj))
-			menu = btn->menu();
-
-		if (menu) {
 			menu->popup(mouseEvent->globalPos());
 			return true;
 		}
-		return QMainWindow::eventFilter(obj, event);
-	} else {
-		return QMainWindow::eventFilter(obj, event);
 	}
+	return QMainWindow::eventFilter(obj, event);
 }
 
 

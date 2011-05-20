@@ -126,6 +126,8 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	connect(p->buttonBox,SIGNAL(accepted()),SLOT(save()));
 	connect(p->buttonBox,SIGNAL(rejected()),SLOT(cancel()));
 	loadSettings(settings);
+	if (p->group->actions().count())
+		p->group->actions().first()->trigger();
 }
 
 
@@ -135,6 +137,7 @@ void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 		item->clearWidget();
 	p->items.clear();
 	loadSettings(settings);
+	onCurrentItemChanged(p->listWidget->currentItem());
 }
 
 XSettingsWindow::~XSettingsWindow()
@@ -155,8 +158,6 @@ void XSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& settin
 		p->items.insertMulti(item->type(),item);
 	}
 	ensureActions();
-	if (p->group->actions().count())
-		p->group->actions().first()->trigger();
 }
 
 QAction* XSettingsWindow::get(Settings::Type type)
@@ -183,8 +184,10 @@ void XSettingsWindow::ensureActions()
 		//small spike
 		if (!p->toolBar->actions().contains(a)) {
 			p->toolBar->addAction(a);
-			if (type == Settings::General)
-				p->toolBar->addSeparator();
+			if (type == Settings::General) {
+				QAction *sep = p->toolBar->addSeparator();
+				p->actionMap.insertMulti(Settings::General, sep);
+			}
 		}
 	}
 	p->toolBar->setVisible(p->actionMap.count() > 1);

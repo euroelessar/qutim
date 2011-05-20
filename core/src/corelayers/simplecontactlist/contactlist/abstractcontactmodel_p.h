@@ -128,7 +128,6 @@ void AbstractContactModel::hideTag(TagItem *item)
 	beginRemoveRows(item->parentIndex(this), index, index);
 	p->visibleTags.removeAt(index);
 	endRemoveRows();
-	emit indexVisibilityChanged(createIndex(index, 0, item), item->getName(), false);
 	if (item->contacts.isEmpty()) {
 		p->tagsHash.remove(item->name);
 		p->tags.removeOne(item);
@@ -160,7 +159,6 @@ void AbstractContactModel::showTag(TagItem *item)
 	beginInsertRows(item->parentIndex(this), index, index);
 	p->visibleTags.insert(index, item);
 	endInsertRows();
-	emit indexVisibilityChanged(createIndex(index, 0, item), item->getName(), true);
 }
 
 template<typename TagItem, typename TagContainer>
@@ -263,6 +261,8 @@ QVariant AbstractContactModel::tagData(const QModelIndex &index, int role) const
 		return item->contacts.count();
 	case OnlineContactsCountRole:
 		return item->online;
+	case TagName:
+		return item->getName();
 	default:
 		return QVariant();
 	}
@@ -285,6 +285,8 @@ QVariant AbstractContactModel::accountData(const QModelIndex &index, int role) c
 		return item->account->status().icon();
 	case AccountRole:
 		return qVariantFromValue(item->account);
+	case TagName:
+		return item->id;
 	default:
 		return QVariant();
 	}

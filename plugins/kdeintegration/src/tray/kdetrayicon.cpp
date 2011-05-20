@@ -100,7 +100,6 @@ public:
 		prepareAction(action);
 		action->setIcon(m_account->status().icon());
 		QMenu *menu = m_account->menu(false);
-		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		action->setMenu(menu);
@@ -145,6 +144,8 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 		m_protocolActions.append(gen);
 		gen->setPriority(1 - i * 2);
 		addAction(gen);
+		foreach (Account *account, m_protocols.at(i)->accounts())
+			onAccountCreated(account);
 	}
 	
 	m_item->setCategory(KStatusNotifierItem::Communications);

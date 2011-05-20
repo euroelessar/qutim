@@ -42,10 +42,10 @@ namespace SimpleContactList
 struct ModulePrivate
 {
 	~ModulePrivate() {}
-	QWidget *widget;
-	AbstractContactModel *model;
-	AbstractContactListWidget *contactListWidget;
+	ServicePointer<QWidget> widget;
+	ServicePointer<AbstractContactModel> model;
 	QScopedPointer<ActionGenerator> tagsGenerator;
+	QList<ActionGenerator*> toolBarButtons;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -67,9 +67,7 @@ Module::Module() : p(new ModulePrivate)
 							   QKeySequence("Ctrl+M")
 							   );
 
-	QObject *object = ServiceManager::getByName("ContactListWidget");
-	p->widget = qobject_cast<QWidget*>(object);
-	p->contactListWidget = qobject_cast<AbstractContactListWidget*>(object);
+	p->widget = ServicePointer<QWidget>("ContactListWidget");
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -90,10 +88,6 @@ Module::Module() : p(new ModulePrivate)
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
-
-	object = ServiceManager::getByName("ContactModel");
-	p->model = dynamic_cast<AbstractContactModel*>(object);
-	qDebug() << object << p->model << qobject_cast<QAbstractItemModel*>(object);
 
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
@@ -116,7 +110,11 @@ QWidget *Module::widget()
 
 void Module::addButton(ActionGenerator *generator)
 {
-	p->contactListWidget->addButton(generator);
+	if (!p->toolBarButtons.contains(generator))
+		p->toolBarButtons << generator;
+	AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
+	if (w)
+		w->addButton(generator);
 }
 
 void Module::show()
@@ -176,7 +174,7 @@ void Module::init()
 	addButton(p->tagsGenerator.data());
 
 	// TODO: choose another, non-kopete icon
-	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
+	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), this, SLOT(onHideShowOffline()));
 	gen->setCheckable(true);
 	gen->setChecked(!p->model->showOffline());
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
@@ -216,15 +214,26 @@ void Module::addContact(qutim_sdk_0_3::Contact *contact)
 void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
 {
 	Q_UNUSED(old);
-	if (old == p->model && name == "ContactModel") {
-		QList<Contact*> contacts = p->model->contacts();
-		p->model = dynamic_cast<AbstractContactModel*>(now);
-		Q_ASSERT(p->model);
-		TreeView *view = p->contactListWidget->contactView();
-		Q_ASSERT(view);
-		view->setModel(p->model);
-		p->model->setContacts(contacts);
+	if (name == "ContactModel") {
+		AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
+		if (!widget)
+			return;
+		widget->contactView()->setModel(p->model);
+		AbstractContactModel *oldModel = qobject_cast<AbstractContactModel*>(old);
+		if (oldModel)
+			p->model->setContacts(oldModel->contacts());
+	} else if (name == "ContactListWidget") {
+		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
+		if (w) {
+			foreach (ActionGenerator *gen, p->toolBarButtons)
+				w->addButton(gen);
+		}
 	}
+}
+
+void Module::onHideShowOffline()
+{
+	p->model->hideShowOffline();
 }
 
 }

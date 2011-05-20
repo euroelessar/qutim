@@ -59,6 +59,7 @@ class SimpleTray : public MenuController
 
 public:
 	SimpleTray();
+	~SimpleTray();
 	void clActivationStateChanged(bool activated);
 
 private slots:
@@ -91,6 +92,7 @@ private:
 	QBasicTimer m_iconTimer;
 	QIcon m_mailIcon;
 	bool m_isMail;
+	SettingsItem *m_settingsItem;
 };
 }
 

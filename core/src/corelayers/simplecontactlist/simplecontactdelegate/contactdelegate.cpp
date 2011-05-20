@@ -39,7 +39,6 @@ struct ContactDelegatePrivate
 	int statusIconSize;
 	int extIconSize;
 	bool liteMode;
-	SettingsItem *settingsItem;
 };
 
 struct ContactInfoComparator
@@ -87,18 +86,12 @@ ContactDelegate::ContactDelegate(QObject *parent) :
 {
 	p->horizontalPadding = 5;
 	p->verticalPadding = 3;
-	p->settingsItem = new GeneralSettingsItem<SimpleContactlistSettings>(
-	            Settings::General, Icon("preferences-contact-list"),
-	            QT_TRANSLATE_NOOP("ContactList","ContactList"));
-	p->settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
-	Settings::registerItem(p->settingsItem);
 	reloadSettings();
 	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
 }
 
 ContactDelegate::~ContactDelegate()
 {
-	Settings::removeItem(p->settingsItem);
 }
 
 void ContactDelegate::paint(QPainter *painter,

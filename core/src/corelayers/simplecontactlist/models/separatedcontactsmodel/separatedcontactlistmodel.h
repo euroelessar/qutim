@@ -73,9 +73,10 @@ public:
 	ContactData::Ptr data;
 };
 
-class SeparatedModel : public AbstractContactModel
+class SeparatedModel : public Core::SimpleContactList::AbstractContactModel
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::SimpleContactList::AbstractContactModel)
 	Q_DECLARE_PRIVATE(SeparatedModel)
 	Q_CLASSINFO("SettingsDescription", "Show accounts, tags and contacts")
 public:

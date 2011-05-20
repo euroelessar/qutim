@@ -60,9 +60,10 @@ public:
 	ContactData::Ptr data;
 };
 
-class TreeModel : public AbstractContactModel
+class TreeModel : public Core::SimpleContactList::AbstractContactModel
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::SimpleContactList::AbstractContactModel)
 	Q_DECLARE_PRIVATE(TreeModel)
 	Q_CLASSINFO("SettingsDescription", "Show tags and contacts")
 public:
