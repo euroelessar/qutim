@@ -231,7 +231,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	button->setIcon(account->status().icon());
 	button->setToolTip(account->id());
 	button->setAutoRaise(true);
-	button->installEventFilter(this);
+	button->setPopupMode(QToolButton::InstantPopup);
 
 	d->accountsContainer->addWidget(button);
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
@@ -301,21 +301,14 @@ bool ToryWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if (event->type() == QEvent::MouseButtonPress) {
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-
 		QMenu *menu = 0;
-		if (mouseEvent->button() == Qt::RightButton)
+		if (mouseEvent->button() == Qt::RightButton) {
 			menu = d_func()->globalStatus->menu();
-		else if (QToolButton *btn = qobject_cast<QToolButton*>(obj))
-			menu = btn->menu();
-
-		if (menu) {
 			menu->popup(mouseEvent->globalPos());
 			return true;
 		}
-		return QMainWindow::eventFilter(obj, event);
-	} else {
-		return QMainWindow::eventFilter(obj, event);
 	}
+	return QMainWindow::eventFilter(obj, event);
 }
 
 
