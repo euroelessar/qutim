@@ -176,7 +176,7 @@ void Module::init()
 	addButton(p->tagsGenerator.data());
 
 	// TODO: choose another, non-kopete icon
-	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
+	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), this, SLOT(onHideShowOffline()));
 	gen->setCheckable(true);
 	gen->setChecked(!p->model->showOffline());
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
@@ -225,6 +225,11 @@ void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old
 		view->setModel(p->model);
 		p->model->setContacts(contacts);
 	}
+}
+
+void Module::onHideShowOffline()
+{
+	p->model->hideShowOffline();
 }
 
 }
