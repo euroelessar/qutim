@@ -100,7 +100,6 @@ public:
 		prepareAction(action);
 		action->setIcon(m_account->status().icon());
 		QMenu *menu = m_account->menu(false);
-		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		action->setMenu(menu);
