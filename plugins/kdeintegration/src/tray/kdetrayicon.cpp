@@ -145,6 +145,8 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 		m_protocolActions.append(gen);
 		gen->setPriority(1 - i * 2);
 		addAction(gen);
+		foreach (Account *account, m_protocols.at(i)->accounts())
+			onAccountCreated(account);
 	}
 	
 	m_item->setCategory(KStatusNotifierItem::Communications);

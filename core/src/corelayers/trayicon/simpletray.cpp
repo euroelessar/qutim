@@ -156,6 +156,8 @@ SimpleTray::SimpleTray()
 		m_protocolActions.append(gen);
 		gen->setPriority(1 - i * 2);
 		addAction(gen);
+		foreach (Account *account, m_protocols.at(i)->accounts())
+			onAccountCreated(account);
 	}
 
 	setMenuOwner(qobject_cast<MenuController*>(ServiceManager::getByName("ContactList")));
@@ -168,10 +170,16 @@ SimpleTray::SimpleTray()
 	activationStateChangedTime = QDateTime::currentMSecsSinceEpoch();
 #endif
 
-	SettingsItem *settingsItem = new GeneralSettingsItem<SimpletraySettings>(
+	m_settingsItem = new GeneralSettingsItem<SimpletraySettings>(
 				Settings::Plugin, Icon("user-desktop"),
 				QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
-	Settings::registerItem(settingsItem);
+	Settings::registerItem(m_settingsItem);
+}
+
+SimpleTray::~SimpleTray()
+{
+	Settings::removeItem(m_settingsItem);
+	delete m_settingsItem;
 }
 
 void SimpleTray::clActivationStateChanged(bool activated)
