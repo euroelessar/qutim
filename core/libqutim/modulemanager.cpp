@@ -322,13 +322,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		QDir plugins_dir = path;
 		QFileInfoList files = plugins_dir.entryInfoList(QDir::AllEntries);
 		QFileInfoList nextTry;
-		while (!files.isEmpty() || !nextTry.isEmpty()) {
-			if (files.size() == nextTry.size())
-				break;
-			if (!nextTry.isEmpty()) {
-				qSwap(nextTry, files);
-				nextTry.clear();
-			}
+		forever {
 			for (int i = 0; i < files.count(); ++i) {
 				QString filename = files[i].canonicalFilePath();
 				if(pluginPathsList.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
@@ -416,6 +410,12 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					}
 					loader->unload();
 				}
+			}
+			if (!nextTry.isEmpty() && nextTry.size() != files.size()) {
+				qSwap(nextTry, files);
+				nextTry.clear();
+			} else {
+				break;
 			}
 		}
 	}
