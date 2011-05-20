@@ -42,10 +42,11 @@ namespace SimpleContactList
 struct ModulePrivate
 {
 	~ModulePrivate() {}
-	QWidget *widget;
+	ServicePointer<QWidget> widget;
 	AbstractContactModel *model;
 	AbstractContactListWidget *contactListWidget;
 	QScopedPointer<ActionGenerator> tagsGenerator;
+	QList<ActionGenerator*> toolBarButtons;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -67,9 +68,7 @@ Module::Module() : p(new ModulePrivate)
 							   QKeySequence("Ctrl+M")
 							   );
 
-	QObject *object = ServiceManager::getByName("ContactListWidget");
-	p->widget = qobject_cast<QWidget*>(object);
-	p->contactListWidget = qobject_cast<AbstractContactListWidget*>(object);
+	p->widget = ServicePointer<QWidget>("ContactListWidget");
 
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -91,7 +90,7 @@ Module::Module() : p(new ModulePrivate)
 	gen->setType(512);
 	addAction(gen);
 
-	object = ServiceManager::getByName("ContactModel");
+	QObject *object = ServiceManager::getByName("ContactModel");
 	p->model = dynamic_cast<AbstractContactModel*>(object);
 	qDebug() << object << p->model << qobject_cast<QAbstractItemModel*>(object);
 
@@ -116,7 +115,11 @@ QWidget *Module::widget()
 
 void Module::addButton(ActionGenerator *generator)
 {
-	p->contactListWidget->addButton(generator);
+	if (!p->toolBarButtons.contains(generator))
+		p->toolBarButtons << generator;
+	AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
+	if (w)
+		w->addButton(generator);
 }
 
 void Module::show()
@@ -224,6 +227,12 @@ void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old
 		Q_ASSERT(view);
 		view->setModel(p->model);
 		p->model->setContacts(contacts);
+	} else if (name == "ContactListWidget") {
+		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
+		if (w) {
+			foreach (ActionGenerator *gen, p->toolBarButtons)
+				w->addButton(gen);
+		}
 	}
 }
 

@@ -46,6 +46,7 @@ struct ToryWidgetPrivate
 
 ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 {
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "qutIM 0.2 style"));
 	Q_D(ToryWidget);
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	setWindowIcon(Icon("qutim"));
@@ -130,8 +131,12 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 			SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 
-	foreach(Protocol *protocol, Protocol::all())
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+	foreach(Protocol *protocol, Protocol::all()) {
+		foreach (Account *account, protocol->accounts())
+			onAccountCreated(account);
+		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)),
+				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+	}
 	QTimer timer;
 	timer.singleShot(0, this, SLOT(initMenu()));
 }

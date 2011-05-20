@@ -28,11 +28,11 @@ protected slots:
 	void initScrolling();
 	void onCollapsed(const QModelIndex &index);
 	void onExpanded(const QModelIndex &index);
-	void onIndexVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
+	void onRowsInserted(const QModelIndex &parent, int first, int last);
 private:
 	void storeClosedTags();
+	void checkTag(const QModelIndex &parent, QAbstractItemModel *model);
 	QSet<QString> m_closedIndexes;
-	QHash<quint64, QString> m_visibleIndexes;
 };
 
 }
