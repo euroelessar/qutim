@@ -27,6 +27,8 @@ class QHostInfo;
 
 namespace qutim_sdk_0_3 {
 
+class PasswordDialog;
+
 namespace irc {
 	
 struct IrcServer
@@ -72,6 +74,7 @@ private slots:
 	void sendNextMessage();
 	void sslErrors(const QList<QSslError> &errors);
 	void encrypted();
+	void passwordEntered(const QString &password, bool remember);
 private:
 	QSslSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
@@ -91,6 +94,7 @@ private:
 	QTimer m_messagesTimer;
 	uint m_lastMessageTime; // unix time when the last message had been sent
 	bool m_autoRequestWhois;
+	QWeakPointer<PasswordDialog> m_passDialog;
 };
 
 } } // namespace qutim_sdk_0_3::irc

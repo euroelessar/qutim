@@ -31,6 +31,7 @@
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/passworddialog.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -583,10 +584,24 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 	debug(Verbose) << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
 		IrcServer server = m_servers.at(m_currentServer);
-		if (server.protectedByPassword)
-			send(QString("PASS %1").arg(server.password));
+		if (server.protectedByPassword) {
+			if (m_passDialog) {
+				return;
+			} else if (server.password.isEmpty()) {
+				m_passDialog = PasswordDialog::request(m_account);
+				QObject::connect(m_passDialog.data(), SIGNAL(entered(QString,bool)),
+								 this, SLOT(passwordEntered(QString,bool)));
+				QObject::connect(m_passDialog.data(), SIGNAL(rejected()),
+								 m_passDialog.data(), SLOT(deleteLater()));
+				return;
+			} else {
+				send(QString("PASS %1").arg(server.password));
+			}
+		}
 		tryNextNick();
 	} else if (state == QAbstractSocket::UnconnectedState) {
+		if (m_passDialog)
+			m_passDialog.data()->deleteLater();
 		m_account->setStatus(Status::Offline);
 	}
 }
@@ -616,6 +631,22 @@ void IrcConnection::sslErrors(const QList<QSslError> &errors)
 void IrcConnection::encrypted()
 {
 	m_account->log(tr("SSL handshake completed"), false, "Notice");
+}
+
+void IrcConnection::passwordEntered(const QString &password, bool remember)
+{
+	Q_ASSERT(sender() == m_passDialog.data());
+	if (remember) {
+		Config cfg = m_account->config();
+		cfg.beginArray("servers");
+		cfg.setArrayIndex(m_currentServer);
+		cfg.setValue("password", password, Config::Crypted);
+		cfg.endArray();
+		m_servers[m_currentServer].password = password;
+	}
+	m_passDialog.data()->deleteLater();
+	send(QString("PASS %1").arg(password));
+	tryNextNick();
 }
 
 } } // namespace qutim_sdk_0_3::irc
