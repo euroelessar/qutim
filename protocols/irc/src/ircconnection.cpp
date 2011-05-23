@@ -583,11 +583,9 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 	debug(Verbose) << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
 		IrcServer server = m_servers.at(m_currentServer);
-		if (server.protectedByPassword) {
+		if (server.protectedByPassword)
 			send(QString("PASS %1").arg(server.password));
-		} else {
-			tryNextNick();
-		}
+		tryNextNick();
 	} else if (state == QAbstractSocket::UnconnectedState) {
 		m_account->setStatus(Status::Offline);
 	}
