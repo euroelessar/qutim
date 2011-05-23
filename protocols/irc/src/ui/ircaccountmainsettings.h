@@ -31,11 +31,6 @@ namespace irc {
 
 class IrcAccount;
 
-struct ServerData : public IrcServer
-{
-	bool savePassword;
-};
-
 class IrcAccountMainSettings: public QWizardPage
 {
 	Q_OBJECT
@@ -43,7 +38,7 @@ public:
 	IrcAccountMainSettings(QWidget *parent = 0);
 	~IrcAccountMainSettings();
 	QString networkName() const;
-	QList<ServerData> servers() const { return m_servers; }
+	QList<IrcServer> servers() const { return m_servers; }
 	void saveToConfig(Config &cfg);
 	void reloadSettings(IrcAccount *account);
 	QWidgetList editableWidgets();
@@ -59,12 +54,12 @@ private slots:
 	void onCurrentServerChanged(int row);
 	void onPasswordProtectionChanged(bool checked);
 private:
-	void addServer(const ServerData &server);
+	void addServer(const IrcServer &server);
 private:
-	ServerData currentServer();
+	IrcServer currentServer();
 	void moveServer(int row, int newRow);
 	Ui::AddAccountForm *ui;
-	QList<ServerData> m_servers;
+	QList<IrcServer> m_servers;
 	QPointer<SettingsWidget> m_widget;
 };
 
