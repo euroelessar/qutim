@@ -62,13 +62,13 @@ void IrcAccountMainSettings::saveToConfig(Config &cfg)
 {
 	cfg.beginArray("servers");
 	int i = 0;
-	foreach (const ServerData &server, m_servers) {
+	foreach (const IrcServer &server, m_servers) {
 		cfg.setArrayIndex(i++);
 		cfg.setValue("hostName", server.hostName);
 		cfg.setValue<int>("port", server.port);
 		cfg.setValue("protectedByPassword", server.protectedByPassword);
 		cfg.setValue("ssl", server.ssl);
-		if (server.protectedByPassword && server.savePassword)
+		if (server.protectedByPassword)
 			cfg.setValue("password", server.password, Config::Crypted);
 	}
 	cfg.endArray();
@@ -82,7 +82,7 @@ void IrcAccountMainSettings::reloadSettings(IrcAccount *account)
 	cfg.beginArray("servers");
 	for (int i = 0; i < cfg.arraySize(); ++i) {
 		cfg.setArrayIndex(i);
-		ServerData server;
+		IrcServer server;
 		server.hostName = cfg.value("hostName", QString());
 		server.ssl = cfg.value("ssl", false);
 		server.port = cfg.value("port", server.ssl ? 6667 : 6697);
@@ -117,7 +117,7 @@ void IrcAccountMainSettings::onAddServer()
 	emit completeChanged();
 }
 
-void IrcAccountMainSettings::addServer(const ServerData &server)
+void IrcAccountMainSettings::addServer(const IrcServer &server)
 {
 	QListWidgetItem *item = new QListWidgetItem(QString("%1:%2").arg(server.hostName).arg(server.port), ui->serversWidget);
 	QListWidgetItem *nullItem = ui->serversWidget->takeItem(m_servers.size());
@@ -132,7 +132,7 @@ void IrcAccountMainSettings::onEditServer()
 {
 	int row = ui->serversWidget->currentRow();
 	Q_ASSERT(row >= 0 && row < m_servers.size());
-	ServerData server = currentServer();
+	IrcServer server = currentServer();
 	m_servers[row] = server;
 	ui->serversWidget->currentItem()->setText(QString("%1:%2").arg(server.hostName).arg(server.port));
 	if (m_widget && !m_widget->isModified())
@@ -160,14 +160,13 @@ void IrcAccountMainSettings::onMoveDownServer()
 	moveServer(row, row+1);
 }
 
-inline ServerData IrcAccountMainSettings::currentServer()
+inline IrcServer IrcAccountMainSettings::currentServer()
 {
-	ServerData server;
+	IrcServer server;
 	server.hostName = ui->serverEdit->text();
 	server.port = ui->portBox->value();
 	server.protectedByPassword = ui->protectedByPasswordBox->isChecked();
 	server.password = ui->passwordEdit->text();
-	server.savePassword = ui->passwordBox->isChecked();
 	server.ssl = ui->sslBox->isChecked();
 	return server;
 }
@@ -178,7 +177,7 @@ void IrcAccountMainSettings::moveServer(int row, int newRow)
 	Q_ASSERT(newRow >= 0 && newRow < m_servers.size());
 	QListWidgetItem *item = ui->serversWidget->takeItem(row);
 	ui->serversWidget->insertItem(newRow, item);
-	ServerData server = m_servers.takeAt(row);
+	IrcServer server = m_servers.takeAt(row);
 	m_servers.insert(newRow, server);
 	ui->serversWidget->setCurrentItem(item);
 }
@@ -188,19 +187,17 @@ void IrcAccountMainSettings::onCurrentServerChanged(int row)
 	int serversCount = m_servers.size();
 	bool isServerChecked = row >= 0 && row < serversCount;
 	if (isServerChecked) {
-		ServerData server = m_servers.at(row);
+		IrcServer server = m_servers.at(row);
 		ui->serverEdit->setText(server.hostName);
 		ui->portBox->setValue(server.port);
 		ui->protectedByPasswordBox->setChecked(server.protectedByPassword);
 		ui->passwordEdit->setText(server.password);
-		ui->passwordBox->setChecked(server.savePassword);
 		ui->sslBox->setChecked(server.ssl);
 	} else {
 		ui->serverEdit->clear();
 		ui->portBox->setValue(6667);
 		ui->protectedByPasswordBox->setChecked(false);
 		ui->passwordEdit->clear();
-		ui->passwordBox->setChecked(false);
 		ui->sslBox->setChecked(false);
 	}
 	ui->updateServerButton->setEnabled(isServerChecked);
@@ -211,7 +208,6 @@ void IrcAccountMainSettings::onCurrentServerChanged(int row)
 
 void IrcAccountMainSettings::onPasswordProtectionChanged(bool checked)
 {
-	ui->passwordBox->setEnabled(checked);
 	ui->passwordEdit->setEnabled(checked);
 	ui->passwordLabel->setEnabled(checked);
 }
