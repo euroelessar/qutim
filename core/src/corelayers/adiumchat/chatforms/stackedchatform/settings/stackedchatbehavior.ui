@@ -98,6 +98,13 @@
          </property>
         </widget>
        </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="notifyBox">
+         <property name="text">
+          <string>Notifications in active chat</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
