@@ -58,6 +58,7 @@ public:
 		System					=	0x4000
 	};
 	static Notification *send(const Message &msg);
+	static Notification *send(const QString &text);
 	~Notification();
 	NotificationRequest request() const;
 	static LocalizedString typeString(Type type);
