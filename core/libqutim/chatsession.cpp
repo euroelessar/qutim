@@ -19,6 +19,7 @@
 #include "servicemanager.h"
 #include "account.h"
 #include <QPointer>
+#include <QBasicTimer>
 
 namespace qutim_sdk_0_3
 {
@@ -41,13 +42,13 @@ struct ChatSessionPrivate
 {
 };
 
-struct ChatLayerPrivate
+struct ChatLayerData
 {
 	ServicePointer<ChatLayer> self;
 	QScopedPointer<MessageHandlerHook> handlerHook;
 };
 
-Q_GLOBAL_STATIC(ChatLayerPrivate, p)
+Q_GLOBAL_STATIC(ChatLayerData, p)
 
 ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
 {
@@ -77,7 +78,15 @@ void ChatSession::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 
-ChatLayer::ChatLayer()
+class ChatLayerPrivate
+{
+public:
+	ChatLayerPrivate() : alerted(false) {}
+	bool alerted;
+	QBasicTimer alertTimer;
+};
+
+ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
 	p()->handlerHook.reset(new MessageHandlerHook);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
@@ -122,6 +131,44 @@ ChatUnit *ChatLayer::getUnitForSession(ChatUnit *unit) const
 ChatSession* ChatLayer::get(ChatUnit* unit, bool create)
 {
 	return instance() ? instance()->getSession(unit,create) : 0;
+}
+
+bool ChatLayer::isAlerted() const
+{
+	return d_func()->alerted;
+}
+
+void ChatLayer::alert(bool on)
+{
+	Q_D(ChatLayer);
+	if (d->alerted == on)
+		return;
+	d->alerted = on;
+	d->alertTimer.stop();
+	emit alertStatusChanged(on);
+}
+
+void ChatLayer::alert(int msecs)
+{
+	Q_D(ChatLayer);
+	d->alertTimer.start(msecs, this);
+	if (!d->alerted) {
+		d->alerted = true;
+		emit alertStatusChanged(true);
+	}
+}
+
+bool ChatLayer::event(QEvent *ev)
+{
+	if (ev->type() == QEvent::Timer) {
+		QTimerEvent *timerEvent = static_cast<QTimerEvent*>(ev);
+		if (timerEvent->timerId() == d_func()->alertTimer.timerId()) {
+			d_func()->alertTimer.stop();
+			alert(false);
+			return true;
+		}
+	}
+	return QObject::event(ev);
 }
 
 void ChatLayer::virtual_hook(int id, void *data)

@@ -121,7 +121,7 @@ QObject *ServiceManager::getByName(const QByteArray &name)
 
 QList<QByteArray> ServiceManager::names()
 {
-	return ServiceManagerPrivate::get(instance())->hash.keys();
+	return ServiceManagerPrivate::get(instance())->infoHash.keys();
 }
 
 ExtensionInfoList ServiceManager::listImplementations(const QByteArray &name)

@@ -26,6 +26,7 @@ namespace qutim_sdk_0_3
 class Account;
 class ChatLayer;
 struct ChatSessionPrivate;
+class ChatLayerPrivate;
 
 class LIBQUTIM_EXPORT ChatSession : public QObject
 {
@@ -69,7 +70,9 @@ private:
 class LIBQUTIM_EXPORT ChatLayer : public QObject
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(ChatLayer)
 	Q_CLASSINFO("Service", "ChatLayer")
+	Q_PROPERTY(bool alertStatus READ isAlerted WRITE alert NOTIFY alertStatusChanged)
 public:
 	static ChatLayer *instance();
 
@@ -80,13 +83,20 @@ public:
 	Q_INVOKABLE inline qutim_sdk_0_3::ChatSession *session(QObject *obj, bool create = true);
 	static ChatSession *get(ChatUnit *unit, bool create = true);
 	Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatSession*> sessions() = 0;
+	bool isAlerted() const;
+	void alert(bool on);
+	void alert(int msecs);
+	bool event(QEvent *);
+	
 signals:
 	void sessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void alertStatusChanged(bool);
 protected:
 	ChatUnit *getUnitForSession(ChatUnit *unit) const;
 	ChatLayer();
 	virtual ~ChatLayer();
 	virtual void virtual_hook(int id, void *data);
+	QScopedPointer<ChatLayerPrivate> d_ptr;
 };
 
 ChatSession *ChatLayer::session(QObject *obj, bool create)
