@@ -91,7 +91,7 @@ void TabbedChatBehavior::loadImpl()
 	ui->menuBox->setChecked(m_flags & MenuBar);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
-	ui->notifyBox->setChecked(chat.value<bool>("notificationsInActiveChat", false));
+	ui->notifyBox->setChecked(chat.value<bool>("notificationsInActiveChat", true));
 }
 
 void TabbedChatBehavior::saveImpl()
