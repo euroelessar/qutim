@@ -55,8 +55,8 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->chatUnit = unit;
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
-	d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
-	d->notificationsInActiveChat = cfg.value("notificationsInActiveChat", false);
+	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
+	d->notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 

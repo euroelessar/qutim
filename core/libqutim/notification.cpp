@@ -74,6 +74,13 @@ Notification *Notification::send(const Message &msg)
 	return request.send();
 }
 
+Notification *Notification::send(const QString &text)
+{
+	NotificationRequest request(System);
+	request.setText(text);
+	return request.send();
+}
+
 Notification::Notification(const NotificationRequest &request) :
 	d_ptr(new NotificationPrivate)
 {
