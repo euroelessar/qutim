@@ -23,12 +23,15 @@ namespace qutim_sdk_0_3
 {
 class ShortcutPrivate;
 class GlobalShortcutPrivate;
+
+// REMOVE ME, it's ugly
 struct KeySequence
 {
 	QString id;
 	LocalizedString name;
 	LocalizedString group;
 	QKeySequence key;
+	Qt::ShortcutContext context;
 };
 
 class LIBQUTIM_EXPORT Shortcut : public QShortcut

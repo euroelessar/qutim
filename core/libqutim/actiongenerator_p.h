@@ -3,6 +3,7 @@
 
 #include "actiongenerator.h"
 #include "objectgenerator_p.h"
+#include "shortcut_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -59,21 +60,25 @@ public:
 	void show(QAction *act,QObject *con);
 	void hide(QAction *act,QObject *con);
 	QList<QKeySequence> shortCuts;
+	QString shortCut;
 	void sendActionCreatedEvent(QAction *action, QObject *controller) const;
 };
 
-class ActionGeneratorLocalizationHelper : public QObject
+class ActionGeneratorHelper : public QObject
 {
 	Q_OBJECT
 public:
-	ActionGeneratorLocalizationHelper();
+	ActionGeneratorHelper();
+	~ActionGeneratorHelper();
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	void addAction(QAction *action, const ActionGeneratorPrivate *data);
 	void addAction(QObject *obj, QAction *action);
+	void updateSequence(const QString &id, const QKeySequence &key);
 	ActionGenerator *getGenerator(QAction*) const;
 public slots:
 	void onActionDeath(QObject *obj);
 private:
+	QMultiHash<QString, QAction *> m_shortcuts;
 	QMap<QAction*, const ActionGeneratorPrivate*> m_actions;
 };
 
@@ -87,5 +92,7 @@ private:
 //		void onSubscriberDeath(QObject *subscriber);
 //	};
 }
+
+Q_DECLARE_METATYPE(QSharedPointer<QShortcut>)
 
 #endif // ACTIONGENERATOR_P_H

@@ -108,14 +108,14 @@ bool ChatLayerPlugin::load()
 							   );
 
 	ActionGenerator *gen = new EmoActionGenerator(this);
-	gen->setShortcut(Shortcut::getSequence(QLatin1String("showEmoticons")).key);
+	gen->setShortcut(QLatin1String("showEmoticons"));
 	form->addAction(gen);
 
 	gen = new ActionGenerator(Icon("insert-text-quote"),
 							  QT_TRANSLATE_NOOP("ChatLayer","Quote"),
 							  this,
 							  SLOT(onQuote(QObject*)));
-	gen->setShortcut(Shortcut::getSequence(QLatin1String("quote")).key);
+	gen->setShortcut(QLatin1String("quote"));
 	form->addAction(gen);
 
 	gen = new ActionGenerator(Icon("edit-clear-list"),
@@ -123,7 +123,7 @@ bool ChatLayerPlugin::load()
 							  this,
 							  SLOT(onClearChat(QObject*)));
 	gen->setToolTip(QT_TRANSLATE_NOOP("ChatLayer","Clear chat field"));
-	gen->setShortcut(Shortcut::getSequence(QLatin1String("clearChat")).key);
+	gen->setShortcut(QLatin1String("clearChat"));
 	form->addAction(gen);
 
 	return true;

@@ -13,11 +13,9 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "shortcut.h"
-#include "configbase.h"
+#include "shortcut_p.h"
+#include "config.h"
 #include "dglobalhotkey_p.h"
-#include <QPointer>
-#include <QSet>
 
 namespace qutim_sdk_0_3
 {
@@ -48,16 +46,9 @@ namespace qutim_sdk_0_3
 		QList<int> contexts;
 		QSet<GlobalShortcut*> shortcuts;
 	};
-
-	typedef QHash<QString, GeneralShortcutInfo *> ShortcutInfoHash;
-
-	struct ShortcutSelf
-	{
-		ShortcutInfoHash hash;
-		void init();
-		void updateSequence(const QString &id, const QKeySequence &secuence);
-	};
-
+	
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, self, x->init())
+	
 	void ShortcutSelf::init()
 	{
 		struct _Info
@@ -148,25 +139,35 @@ namespace qutim_sdk_0_3
 		}
 	}
 	
-	void ShortcutSelf::updateSequence(const QString &id, const QKeySequence &secuence)
+	void ShortcutSelf::updateSequence(const QString &id, const QKeySequence &sequence)
 	{
 		GeneralShortcutInfo *generalInfo = hash.value(id);
-		if (!generalInfo || generalInfo->key == secuence)
+		if (!generalInfo || generalInfo->key == sequence)
 			return;
-		generalInfo->key = secuence;
-		if (generalInfo->global) {
+		generalInfo->key = sequence;
+		if (!generalInfo->global) {
 			ShortcutInfo *info = static_cast<ShortcutInfo*>(generalInfo);
 			foreach (Shortcut *shortcut, info->shortcuts)
-				shortcut->setKey(secuence);
+				shortcut->setKey(sequence);
+			foreach (ShortcutHandler handler, handlers)
+				handler(id, sequence);
 		} else {
 			// TODO
 //			GlobalShortcutInfo *info = static_cast<GlobalShortcutInfo*>(generalInfo)->shortcuts;
 //			foreach (GlobalShortcut *shortcut, info->shortcuts)
-//				shortcut->setKey(secuence);
+//				shortcut->setKey(sequence);
 		}
 	}
-
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, self, x->init())
+	
+	void ShortcutSelf::addUpdateHandler(ShortcutHandler handler)
+	{
+		self()->addUpdateHandler(handler);
+	}
+	
+	void ShortcutSelf::removeUpdateHandler(ShortcutHandler handler)
+	{
+		self()->removeUpdateHandler(handler);
+	}
 
 	class ShortcutPrivate
 	{
@@ -178,7 +179,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_DECLARE_PUBLIC(GlobalShortcut)
 	public:
-				GlobalShortcutPrivate(GlobalShortcut *q) : info(0), q_ptr(q) {}
+		GlobalShortcutPrivate(GlobalShortcut *q) : info(0), q_ptr(q) {}
 		GlobalShortcutInfo *info;
 		GlobalShortcut *q_ptr;
 	};
@@ -316,13 +317,14 @@ namespace qutim_sdk_0_3
 	KeySequence Shortcut::getSequence(const QString &id)
 	{
 		KeySequence sequence;
-		GeneralShortcutInfo *info = self()->hash.value(id);
-		if (!info->inited || info->global)
+		ShortcutInfo *info = static_cast<ShortcutInfo*>(self()->hash.value(id));
+		if (!info || !info->inited || info->global)
 			return sequence;
 		sequence.id = id;
 		sequence.name = info->name;
 		sequence.group = info->group;
 		sequence.key = info->key;
+		sequence.context = info->context;
 		return sequence;
 	}
 
@@ -347,7 +349,7 @@ namespace qutim_sdk_0_3
 	{
 		KeySequence sequence;
 		GeneralShortcutInfo *info = self()->hash.value(id);
-		if (!info->inited || !info->global)
+		if (!info || !info->inited || !info->global)
 			return sequence;
 		sequence.id = id;
 		sequence.name = info->name;

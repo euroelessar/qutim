@@ -26,14 +26,25 @@
 
 namespace qutim_sdk_0_3
 {
-Q_GLOBAL_STATIC(ActionGeneratorLocalizationHelper, localizationHelper)
+Q_GLOBAL_STATIC(ActionGeneratorHelper, localizationHelper)
 
-ActionGeneratorLocalizationHelper::ActionGeneratorLocalizationHelper()
+void action_sequence_update_handler(const QString &id, const QKeySequence &key)
 {
-	qApp->installEventFilter(this);
+	localizationHelper()->updateSequence(id, key);
 }
 
-bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
+ActionGeneratorHelper::ActionGeneratorHelper()
+{
+	qApp->installEventFilter(this);
+	ShortcutSelf::addUpdateHandler(action_sequence_update_handler);
+}
+
+ActionGeneratorHelper::~ActionGeneratorHelper()
+{
+	ShortcutSelf::removeUpdateHandler(action_sequence_update_handler);
+}
+
+bool ActionGeneratorHelper::eventFilter(QObject *, QEvent *ev)
 {
 	if (ev->type() == QEvent::LanguageChange) {
 		QMap<QAction*, const ActionGeneratorPrivate*>::iterator it = m_actions.begin();
@@ -48,33 +59,61 @@ bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
 	return false;
 }
 
-void ActionGeneratorLocalizationHelper::addAction(QAction *action, const ActionGeneratorPrivate *data)
+void ActionGeneratorHelper::addAction(QAction *action, const ActionGeneratorPrivate *data)
 {
 	m_actions.insert(action, data);
+	if (!data->shortCut.isEmpty()) {
+		KeySequence sequence = Shortcut::getSequence(data->shortCut);
+		action->setShortcut(sequence.key);
+		action->setShortcutContext(sequence.context);
+		m_shortcuts.insert(data->shortCut, action);
+	}
 	connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
 }
 
-void ActionGeneratorLocalizationHelper::addAction(QObject *obj, QAction *action)
+void ActionGeneratorHelper::addAction(QObject *obj, QAction *action)
 {
 	connect(obj, SIGNAL(destroyed()), action, SLOT(deleteLater()));
 	if (const ActionGeneratorPrivate *data = m_actions.value(action))
 		(*actionsCache())[data->q_ptr].insert(obj, action);
 }
 
-void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
+void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence &key)
+{
+	QMultiHash<QString, QAction *>::const_iterator it = m_shortcuts.constFind(id);
+	if (it == m_shortcuts.constEnd())
+		return;
+	do {
+		it.value()->setShortcut(key);
+		++it;
+	} while (it != m_shortcuts.constEnd() && it.key() == id);
+}
+
+void ActionGeneratorHelper::onActionDeath(QObject *obj)
 {
 	QAction *action = static_cast<QAction*>(obj);
 	if (const ActionGeneratorPrivate *data = m_actions.take(action)) {
 		QMap<QObject*, QAction*> &map = (*actionsCache())[data->q_ptr];
 		map.remove(map.key(action));
+		if (!data->shortCut.isEmpty()) {
+			int count = m_shortcuts.remove(data->shortCut, action);
+			Q_ASSERT(count && "ActionGenerator's shortcut was changed after QAction's creation");
+			// Hack for release build
+			if (count == 0) {
+				QMultiHash<QString, QAction *>::iterator it = m_shortcuts.begin();
+				for (; it != m_shortcuts.end(); ++it) {
+					if (it.value() == action) {
+						m_shortcuts.erase(it);
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 
-ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con) :
-	QEvent(eventType()),
-	m_action(action),
-	m_gen(gen),
-	m_con(con)
+ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con)
+    : QEvent(eventType()), m_action(action), m_gen(gen), m_con(con)
 {
 }
 
@@ -275,7 +314,8 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	action->setCheckable(d->data->checkable);
 	action->setChecked(d->data->checked);
 	action->setToolTip(d->toolTip);
-	action->setShortcuts(d->shortCuts);
+	if (d->shortCut.isEmpty())
+		action->setShortcuts(d->shortCuts);
 	action->setMenuRole(d->menuRole);
 	//action->setIconVisibleInMenu(d->iconVisibleInMenu);
 	localizationHelper()->addAction(action, d);
@@ -363,8 +403,16 @@ void ActionGenerator::setToolTip(const LocalizedString& toolTip)
 void ActionGenerator::setShortcut(const QKeySequence &shortcut)
 {
 	Q_D(ActionGenerator);
+	d->shortCut.clear();
 	d->shortCuts.clear();
 	d->shortCuts.append(shortcut);
+}
+
+void ActionGenerator::setShortcut(const QString &id)
+{
+	Q_D(ActionGenerator);
+	d->shortCuts.clear();
+	d->shortCut = id;
 }
 
 void ActionGenerator::create(QAction *action, QObject *obj) const
@@ -428,7 +476,7 @@ ActionGenerator *ActionGenerator::get(QAction *action)
 	return localizationHelper()->getGenerator(action);
 }
 
-ActionGenerator * ActionGeneratorLocalizationHelper::getGenerator(QAction *action) const
+ActionGenerator * ActionGeneratorHelper::getGenerator(QAction *action) const
 {
 	const ActionGeneratorPrivate *p = m_actions.value(action);
 	return p ? p->q_ptr : 0;

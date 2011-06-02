@@ -347,7 +347,7 @@ void SimpleWidget::init()
 {
 	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
 	ActionGenerator *gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), controller);
-	gen->setShortcut(Shortcut::getSequence("contactListActivateMainMenu").key);
+	gen->setShortcut(QLatin1String("contactListActivateMainMenu"));
 	QAction *before = m_mainToolBar->actions().count() ? m_mainToolBar->actions().first() : 0;
 	m_mainToolBar->insertAction(before, gen);
 	SystemIntegration::show(this);
