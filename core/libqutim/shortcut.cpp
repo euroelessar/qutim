@@ -161,12 +161,13 @@ namespace qutim_sdk_0_3
 	
 	void ShortcutSelf::addUpdateHandler(ShortcutHandler handler)
 	{
-		self()->addUpdateHandler(handler);
+		if (!self()->handlers.contains(handler))
+			self()->handlers.append(handler);
 	}
 	
 	void ShortcutSelf::removeUpdateHandler(ShortcutHandler handler)
 	{
-		self()->removeUpdateHandler(handler);
+		self()->handlers.removeOne(handler);
 	}
 
 	class ShortcutPrivate
