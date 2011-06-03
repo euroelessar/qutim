@@ -188,7 +188,7 @@ void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
 	QMap<QObject*, QAction*> actions = m_showInfoGen->actions();
 	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
 	for(;it != actions.constEnd(); it++)
-		ShowInfo::checkAction(it.key(),it.value());
+		ShowInfo::checkAction(it.key(), it.value());
 
 	actions = m_contactAddRemoveGen->actions();
 	it = actions.constBegin();

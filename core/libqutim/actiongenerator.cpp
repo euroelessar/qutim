@@ -71,11 +71,37 @@ void ActionGeneratorHelper::addAction(QAction *action, const ActionGeneratorPriv
 	connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
 }
 
+struct ActionGeneratorHelpKiller
+{
+	typedef QSharedPointer<ActionGeneratorHelpKiller> Ptr;
+	
+	ActionGeneratorHelpKiller() {}
+	~ActionGeneratorHelpKiller()
+	{
+		for (int i = 0; i < generators.size(); ++i) {
+			QMap<QObject*, QAction*> &map = (*actionsCache())[generators[i]];
+			map.take(obj)->deleteLater();
+		}
+	}
+
+	QObject *obj;
+	QList<const ActionGenerator *> generators;
+};
+
 void ActionGeneratorHelper::addAction(QObject *obj, QAction *action)
 {
 	connect(obj, SIGNAL(destroyed()), action, SLOT(deleteLater()));
-	if (const ActionGeneratorPrivate *data = m_actions.value(action))
+	if (const ActionGeneratorPrivate *data = m_actions.value(action)) {
 		(*actionsCache())[data->q_ptr].insert(obj, action);
+		ActionGeneratorHelpKiller::Ptr killer;
+		killer = obj->property("libqutim_actionkiller").value<ActionGeneratorHelpKiller::Ptr>();
+		if (!killer) {
+			killer = ActionGeneratorHelpKiller::Ptr::create();
+			killer->obj = obj;
+			obj->setProperty("libqutim_actionkiller", qVariantFromValue(killer));
+		}
+		killer->generators.append(data->q_ptr);
+	}
 }
 
 void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence &key)
@@ -503,7 +529,6 @@ bool ActionGenerator::iconVisibleInMenu() const
 	return d_func()->iconVisibleInMenu;
 }
 
-
-
 }
 
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ActionGeneratorHelpKiller::Ptr)
