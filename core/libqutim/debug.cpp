@@ -59,7 +59,7 @@ namespace qutim_sdk_0_3
 //		debugAreaSet()->insert(reinterpret_cast<qptrdiff>(data));
 //	}
 
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, coreData, init_core_data(x.data()))
+//	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, coreData, init_core_data(x.data()))
 //	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, libData, init_lib_data(x))
 
 	struct DebugData

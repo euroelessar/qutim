@@ -65,6 +65,7 @@ void QuetzalChat::setTopic(const QString &topic)
 
 void QuetzalChat::addUsers(GList *cbuddies, gboolean new_arrivals)
 {
+	Q_UNUSED(new_arrivals);
 	QuetzalAccount *account = reinterpret_cast<QuetzalAccount*>(m_conv->account->ui_data);
 	for (; cbuddies; cbuddies = cbuddies->next) {
 		PurpleConvChatBuddy *buddy = reinterpret_cast<PurpleConvChatBuddy *>(cbuddies->data);

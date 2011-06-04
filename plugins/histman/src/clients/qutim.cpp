@@ -357,6 +357,7 @@ QString qutimExporter::name()
 
 void qutimExporter::writeMessages(const QHash<QString, Protocol> &data)
 {
+	Q_UNUSED(data);
 }
 
 }

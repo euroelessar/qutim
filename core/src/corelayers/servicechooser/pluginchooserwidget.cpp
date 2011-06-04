@@ -114,7 +114,7 @@ void PluginChooserWidget::saveImpl()
 		}
 	}
 	if (needRestart)
-		Notifications::send(tr("To take effect you must restart qutIM"));
+		Notification::send(tr("To take effect you must restart qutIM"));
 }
 
 void PluginChooserWidget::clear()

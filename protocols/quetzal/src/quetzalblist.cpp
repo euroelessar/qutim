@@ -22,6 +22,7 @@ using namespace qutim_sdk_0_3;
 
 void quetzal_new_list(PurpleBuddyList *list)
 {
+	Q_UNUSED(list);
 	debug() << "new_list";
 }
 
@@ -34,6 +35,7 @@ void quetzal_debug_pair(const char *key,
 
 void quetzal_new_node(PurpleBlistNode *node)
 {
+	Q_UNUSED(node);
 //	debug() << "new_node" << node->type;
 //	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
 //		debug() << "BUDDY";
@@ -85,14 +87,19 @@ void quetzal_update(PurpleBuddyList *list, PurpleBlistNode *node)
 
 void quetzal_remove(PurpleBuddyList *list, PurpleBlistNode *node)
 {
+	Q_UNUSED(list);
+	Q_UNUSED(node);
 }
 
 void quetzal_destroy(PurpleBuddyList *list)
 {
+	Q_UNUSED(list);
 }
 
 void quetzal_set_visible(PurpleBuddyList *list, gboolean show)
 {
+	Q_UNUSED(list);
+	Q_UNUSED(show);
 }
 
 void quetzal_request_add_buddy(PurpleAccount *account, const char *username, const char *group, const char *alias)
@@ -108,6 +115,10 @@ void quetzal_request_add_buddy(PurpleAccount *account, const char *username, con
 
 void quetzal_request_add_chat(PurpleAccount *account, PurpleGroup *group, const char *alias, const char *name)
 {
+	Q_UNUSED(account);
+	Q_UNUSED(group);
+	Q_UNUSED(alias);
+	Q_UNUSED(name);
 }
 
 void quetzal_request_add_group(void)

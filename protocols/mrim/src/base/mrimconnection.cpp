@@ -241,7 +241,10 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
 
 		if (reason == LOGOUT_NO_RELOGIN_FLAG)
 		{
-			Notifications::send(Notification::System, p->account, tr("Another client with same login connected!"));
+			NotificationRequest request(Notification::System);
+			request.setObject(p->account);
+			request.setText(tr("Another client with same login connected!"));
+			request.send();
 			//TODO: do not relogin
 		}
 	}
@@ -459,8 +462,10 @@ Status MrimConnection::setStatus(const Status &status)
 void MrimConnection::loginRejected(const QString &reason)
 {
 	p->account->setAccountStatus(MrimStatus(Status::Offline));
-	Notifications::send(Notification::System, p->account,
-					   tr("Authentication failed!\nReason: %1").arg(reason));
+	NotificationRequest request(Notification::System);
+	request.setObject(p->account);
+	request.setText(tr("Authentication failed!\nReason: %1").arg(reason));
+	request.send();
 }
 
 void MrimConnection::sendPacket(MrimPacket &packet)

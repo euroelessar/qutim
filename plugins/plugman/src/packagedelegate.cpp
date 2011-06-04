@@ -57,5 +57,6 @@ void PackageDelegate::updateEditorGeometry(QWidget *editor,
                                            const QStyleOptionViewItem &option,
                                            const QModelIndex &index) const
 {
+	Q_UNUSED(index);
 	editor->setGeometry(option.rect);
 }

@@ -208,7 +208,10 @@ void IcqInfoRequest::onDone(bool ok)
 		if (error == AbstractMetaRequest::ProtocolError ||
 			error == AbstractMetaRequest::Timeout)
 		{
-			Notifications::send(Notification::System, m_account, m_metaReq->errorString());
+			NotificationRequest request(Notification::System);
+			request.setObject(m_account);
+			request.setText(m_metaReq->errorString());
+			request.send();
 		}
 	}
 	emit stateChanged(m_state);

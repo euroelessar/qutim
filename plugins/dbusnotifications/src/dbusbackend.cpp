@@ -244,6 +244,8 @@ void DBusBackend::vibrate(int aTimeout)
 		QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
 		mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
     }
+#else
+	Q_UNUSED(aTimeout);
 #endif
 }
 
@@ -260,6 +262,8 @@ void DBusBackend::displayStateChanged(const QDBusMessage &message)
 #ifdef Q_WS_MAEMO_5
 	QString state = message.arguments().at(0).toString();
 	setDisplayState(state);
+#else
+	Q_UNUSED(message);
 #endif
 }
 
@@ -276,5 +280,7 @@ void DBusBackend::setDisplayState(const QString &state)
 			display_off=true;
 		}
 	}
+#else
+	Q_UNUSED(state);
 #endif
 }

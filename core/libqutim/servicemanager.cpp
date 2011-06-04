@@ -130,13 +130,13 @@ ExtensionInfoList ServiceManager::listImplementations(const QByteArray &name)
 }
 
 // TODO: Try to investigate
-static bool checkSwitchSupport(const QMetaObject *meta)
-{
-	const char *switchSupport = MetaObjectBuilder::info(meta, "RuntimeSwitch");
-	return switchSupport &&
-			(QString::compare(switchSupport, "yes", Qt::CaseInsensitive) == 0 ||
-			qstrcmp(switchSupport, "1") == 0);
-}
+//static bool checkSwitchSupport(const QMetaObject *meta)
+//{
+//	const char *switchSupport = MetaObjectBuilder::info(meta, "RuntimeSwitch");
+//	return switchSupport &&
+//			(QString::compare(switchSupport, "yes", Qt::CaseInsensitive) == 0 ||
+//			qstrcmp(switchSupport, "1") == 0);
+//}
 
 bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionInfo &info)
 {

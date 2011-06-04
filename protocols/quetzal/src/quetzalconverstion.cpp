@@ -64,4 +64,5 @@ bool QuetzalConversation::sendMessage(const Message &message)
 
 void QuetzalConversation::update(PurpleConvUpdateType type)
 {
+	Q_UNUSED(type);
 }

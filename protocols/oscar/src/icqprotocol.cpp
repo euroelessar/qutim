@@ -25,6 +25,7 @@
 #include "ui/icqaccountmainsettings.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
+#include <qutim/systeminfo.h>
 #include <QStringList>
 #include <QPointer>
 
@@ -45,6 +46,10 @@ IcqProtocol::IcqProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
+	
+	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
+	path += QLatin1String("/sslcerts/*.pem");
+	qDebug() << Q_FUNC_INFO << path << QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
 }
 
 IcqProtocol::~IcqProtocol()

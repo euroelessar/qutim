@@ -53,6 +53,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 
 void OscarConnection::connectToLoginServer(const QString &password)
 {
+	Q_UNUSED(password);
 	setError(NoError);
 	if (m_auth)
 		delete m_auth.data();
@@ -194,7 +195,7 @@ void OscarConnection::onError(ConnectionError error)
 		}
 
 		qDebug() << str;
-		Notifications::send(str);
+		Notification::send(str);
 	}
 	AbstractConnection::onError(error);
 }

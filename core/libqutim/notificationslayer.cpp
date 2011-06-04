@@ -94,19 +94,14 @@ void send(Notification::Type type, QObject *sender,
 
 void send(const QString &body, const QVariant &data)
 {
-	send(Notification::System, 0, body, data);
+	Notification::send(body);
+	Q_UNUSED(data);
 }
 
 
-void send(const Message& message)
+void send(const Message &message)
 {
-	Notification::Type type = static_cast<Notification::Type>(message.property("service").toInt());
-	if (!type)
-		type = message.isIncoming() ? Notification::IncomingMessage :
-									  Notification::OutgoingMessage;
-	send(type, const_cast<ChatUnit *>(message.chatUnit()->buddy()),
-		 message.text(),
-		 QVariant::fromValue(message));
+	Notification::send(message);
 }
 
 QString toString(Notification::Type type)

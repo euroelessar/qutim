@@ -61,6 +61,7 @@ inline QDateTime kde_get_date_time()
 
 QVariant KdeSystemIntegration::doGetValue(Attribute attr, const QVariant &data) const
 {
+	Q_UNUSED(data);
 	switch (attr) {
 	case UserLogin:
 		return KUser(KUser::UseRealUserID).loginName();
@@ -79,6 +80,7 @@ QVariant KdeSystemIntegration::doGetValue(Attribute attr, const QVariant &data) 
 
 QVariant KdeSystemIntegration::doProcess(Operation act, const QVariant &data) const
 {
+	Q_UNUSED(data);
 	switch (act) {
 	default:
 		return QVariant();
@@ -92,5 +94,6 @@ bool KdeSystemIntegration::canHandle(Attribute attribute) const
 
 bool KdeSystemIntegration::canHandle(Operation operation) const
 {
+	Q_UNUSED(operation);
 	return false;
 }

@@ -39,6 +39,7 @@ using namespace qutim_sdk_0_3;
 
 QScriptValue scriptConsoleLog(QScriptContext *ctxt, QScriptEngine *e)
 {
+	Q_UNUSED(e);
 	QString message;
 	for (int i = 0; i < ctxt->argumentCount(); i++) {
 		if (!message.isEmpty())
@@ -172,30 +173,22 @@ void statusFromScriptValue(const QScriptValue &obj, Status &s)
 QScriptValue notificationsSend(QScriptContext *ctxt, QScriptEngine *e)
 {
 	if (ctxt->argumentCount() < 1)
-		return e->newVariant(QVariant(false));
+		return e->undefinedValue();
 	QScriptValue arg = ctxt->argument(0);
 	if (arg.isNumber() && ctxt->argumentCount() > 1) {
-		Notification::Type type = static_cast<Notification::Type>(arg.toInt32());
-		QObject *sender = ctxt->argument(1).toQObject();
-		QString body;
-		QVariant data;
+		NotificationRequest request;
+		request.setType(static_cast<Notification::Type>(arg.toInt32()));
+		request.setObject(ctxt->argument(1).toQObject());
 		if (ctxt->argumentCount() > 2)
-			body = ctxt->argument(2).toString();
-		if (ctxt->argumentCount() > 3)
-			data = ctxt->argument(3).toVariant();
-		Notifications::send(type, sender, body, data);
+			request.setText(ctxt->argument(2).toString());
+		return e->newQObject(request.send());
 	} else if (arg.isString()) {
-		QVariant data;
-		if (ctxt->argumentCount() > 1)
-			data = ctxt->argument(1).toVariant();
-		Notifications::send(arg.toString(), data);
+		return e->newQObject(Notification::send(arg.toString()));
 	} else if (arg.isObject()) {
 		Message msg = qscriptvalue_cast<Message>(arg);
-		Notifications::send(msg);
-	} else {
-		return e->newVariant(QVariant(false));
+		return e->newQObject(Notification::send(msg));
 	}
-	return e->newVariant(QVariant(true));
+	return e->undefinedValue();
 }
 
 QScriptValue translateNoopHook(QScriptContext *ctxt, QScriptEngine *e)

@@ -331,6 +331,7 @@ void ToryWidget::initMenu()
 void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
 {
 	Q_D(ToryWidget);
+	Q_UNUSED(old);
 	if (name == "ContactModel") {
 		d->view->setModel(d->model);
 		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
@@ -341,7 +342,7 @@ void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject 
 
 void ToryWidget::onActivatedSession(bool state)
 {
-
+	Q_UNUSED(state);
 }
 
 void ToryWidget::onSessionCreated(qutim_sdk_0_3::ChatSession*)

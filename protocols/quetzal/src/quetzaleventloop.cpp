@@ -140,6 +140,8 @@ gboolean QuetzalEventLoop::removeIO(guint handle)
 
 int QuetzalEventLoop::getIOError(int fd, int *error)
 {
+	Q_UNUSED(fd);
+	Q_UNUSED(error);
 	return 0;
 }
 

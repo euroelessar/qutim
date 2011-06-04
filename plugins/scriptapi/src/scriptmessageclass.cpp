@@ -35,6 +35,10 @@ QScriptClass::QueryFlags ScriptMessageClass::queryProperty(const QScriptValue &o
 														   const QScriptString &name,
 														   QueryFlags flags, uint *id)
 {
+	Q_UNUSED(object);
+	Q_UNUSED(name);
+	Q_UNUSED(flags);
+	Q_UNUSED(id);
 	return HandlesReadAccess | HandlesWriteAccess;
 }
 
@@ -58,6 +62,9 @@ void ScriptMessageClass::setProperty(QScriptValue &object, const QScriptString &
 QScriptValue::PropertyFlags ScriptMessageClass::propertyFlags(
 		const QScriptValue &object, const QScriptString &name, uint id)
 {
+	Q_UNUSED(object);
+	Q_UNUSED(name);
+	Q_UNUSED(id);
 	return 0;
 }
 

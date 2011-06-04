@@ -136,6 +136,8 @@ void SimpleActions::onTagsEditAction(QObject *controller)
 
 void SimpleActions::onTagsEditCreated(QAction *a, QObject *o)
 {
+	Q_UNUSED(a);
+	Q_UNUSED(o);
 }
 
 void SimpleActions::onCopyIdCreated(QAction *action, QObject *obj)

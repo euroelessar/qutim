@@ -31,6 +31,7 @@ std::map<std::string, RtfCommand*> RtfReader::ourKeywordMap;
 static const int rtfStreamBufferSize = 4096;
 
 RtfReader::RtfReader(const std::string &encoding) {
+	Q_UNUSED(encoding);
 }
 
 RtfReader::~RtfReader() {

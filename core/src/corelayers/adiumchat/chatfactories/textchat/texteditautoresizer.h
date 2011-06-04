@@ -91,18 +91,17 @@
      QPoint pos = edit->pos();
      QWidget *pw = edit->parentWidget();
      while (pw) {
-         if (pw->parentWidget()) {
-             if (QAbstractScrollArea *area = qobject_cast<QAbstractScrollArea *>(
-		     pw->parentWidget()->parentWidget())) {
 #ifdef Q_WS_MAEMO_5
-                 if (QAbstractKineticScroller * scroller=
-		     area->property("kineticScroller").value<QAbstractKineticScroller *>()) {
-		     scroller->ensureVisible(QPoint(edit->width(),edit->height()),0,0);
+         if (pw->parentWidget()) {
+             if (QAbstractScrollArea *area = qobject_cast<QAbstractScrollArea *>(pw->parentWidget()->parentWidget())) {
+                 if (QAbstractKineticScroller * scroller
+				         = area->property("kineticScroller").value<QAbstractKineticScroller *>()) {
+					 scroller->ensureVisible(QPoint(edit->width(),edit->height()),0,0);
                  }
                  break;
-#endif
              }
          }
+#endif
          pos = pw->mapToParent(pos);
          pw = pw->parentWidget();
      }

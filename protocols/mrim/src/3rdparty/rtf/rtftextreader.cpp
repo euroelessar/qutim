@@ -16,11 +16,16 @@ RtfTextReader::~RtfTextReader() {
 
 void RtfTextReader::addCharData(const char *data, size_t len, bool convert)
 {
+	Q_UNUSED(convert);
 	m_cursor.insertText(m_codec->toUnicode(data, len));
 }
 
 void RtfTextReader::insertImage(const std::string &mimeType, const std::string &fileName, size_t startOffset, size_t size)
 {
+	Q_UNUSED(mimeType);
+	Q_UNUSED(fileName);
+	Q_UNUSED(startOffset);
+	Q_UNUSED(size);
 }
 
 void RtfTextReader::setEncoding(int code)
@@ -33,6 +38,8 @@ void RtfTextReader::setEncoding(int code)
 
 void RtfTextReader::switchDestination(DestinationType destination, bool on)
 {
+	Q_UNUSED(destination);
+	Q_UNUSED(on);
 }
 
 void RtfTextReader::setAlignment()

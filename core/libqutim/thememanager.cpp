@@ -62,8 +62,10 @@ namespace qutim_sdk_0_3
 		return theme_list;
 	}
 	
-	void addPath(const QString &path_, const QString &category)
+	void ThemeManager::addPath(const QString &path_, const QString &category)
 	{
+		Q_UNUSED(path_);
+		Q_UNUSED(category);
 	}
 
 	QList<QDir> ThemeManager::categoryDirs(const QString &category)

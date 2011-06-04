@@ -358,6 +358,7 @@ bool QuetzalContact::isInList() const
 
 void QuetzalContact::setInList(bool inList)
 {
+	Q_UNUSED(inList);
 }
 
 void quetzal_menu_add(MenuController::ActionList &actions, void *node,

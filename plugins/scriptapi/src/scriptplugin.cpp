@@ -20,6 +20,28 @@
 #include <QDebug>
 #include <qutim/thememanager.h>
 
+ScriptHelperWidget::ScriptHelperWidget()
+{
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	m_textEdit = new QPlainTextEdit(this);
+	QPushButton *button = new QPushButton(this);
+	layout->addWidget(m_textEdit);
+	layout->addWidget(button);
+	connect(button, SIGNAL(clicked()), SLOT(onButtonClicked()));
+    m_engine.importExtension(QLatin1String("qt.core"));
+	m_engine.importExtension(QLatin1String("qt.gui"));
+	m_engine.importExtension(QLatin1String("qutim"));
+}
+
+void ScriptHelperWidget::onButtonClicked()
+{
+	m_engine.evaluate(m_textEdit->toPlainText());
+	if (m_engine.hasUncaughtException()) {
+		qDebug() << m_engine.uncaughtException().toString();
+		qDebug() << m_engine.uncaughtExceptionBacktrace().join("\n");
+	}
+}
+
 ScriptPlugin::ScriptPlugin()
 {
 }
@@ -38,6 +60,8 @@ void ScriptPlugin::init()
 bool ScriptPlugin::load()
 {
 	qDebug() << Q_FUNC_INFO << ThemeManager::list("scripts");
+	ScriptHelperWidget *widget = new ScriptHelperWidget;
+	widget->show();
 	return true;
 }
 

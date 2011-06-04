@@ -276,6 +276,7 @@ ChatUnit *QuetzalAccount::getUnit(const QString &unitId, bool create)
 
 void QuetzalAccount::createNode(PurpleBlistNode *node)
 {
+	Q_UNUSED(node);
 //	qDebug() << Q_FUNC_INFO << m_isLoading;
 //	if (m_isLoading)
 //		return;

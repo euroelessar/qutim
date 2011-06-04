@@ -59,7 +59,7 @@ struct XStatus
 	Capability capability;
 };
 
-const int TIMEOUT_BETWEEN_REQUESTS = 5;
+enum { TIMEOUT_BETWEEN_REQUESTS = 5 };
 
 typedef QList<XStatus> XStatusList;
 XStatusList *xstatusList();

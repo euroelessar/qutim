@@ -256,6 +256,7 @@ void quetzal_chat_update_user(PurpleConversation *conv, const char *user)
 
 void quetzal_present(PurpleConversation *conv)
 {
+	Q_UNUSED(conv);
 }
 
 gboolean quetzal_has_focus(PurpleConversation *conv)
@@ -270,20 +271,31 @@ gboolean quetzal_has_focus(PurpleConversation *conv)
 
 gboolean quetzal_custom_smiley_add(PurpleConversation *conv, const char *smile, gboolean remote)
 {
+	Q_UNUSED(conv);
+	Q_UNUSED(smile);
+	Q_UNUSED(remote);
 	return FALSE;
 }
 
 void quetzal_custom_smiley_write(PurpleConversation *conv, const char *smile,
 							const guchar *data, gsize size)
 {
+	Q_UNUSED(conv);
+	Q_UNUSED(smile);
+	Q_UNUSED(data);
+	Q_UNUSED(size);
 }
 
 void quetzal_custom_smiley_close(PurpleConversation *conv, const char *smile)
 {
+	Q_UNUSED(conv);
+	Q_UNUSED(smile);
 }
 
 void quetzal_send_confirm(PurpleConversation *conv, const char *message)
 {
+	Q_UNUSED(conv);
+	Q_UNUSED(message);
 }
 
 
@@ -350,6 +362,11 @@ void quetzal_notify_added(PurpleAccount *account,
 						  const char *alias,
 						  const char *message)
 {
+	Q_UNUSED(account);
+	Q_UNUSED(remote_user);
+	Q_UNUSED(id);
+	Q_UNUSED(alias);
+	Q_UNUSED(message);
 }
 
 void quetzal_status_changed(PurpleAccount *account,
@@ -367,6 +384,11 @@ void quetzal_request_add(PurpleAccount *account,
 						 const char *alias,
 						 const char *message)
 {
+	Q_UNUSED(account);
+	Q_UNUSED(remote_user);
+	Q_UNUSED(id);
+	Q_UNUSED(alias);
+	Q_UNUSED(message);
 }
 
 void *quetzal_request_authorize(PurpleAccount *account,
@@ -379,11 +401,21 @@ void *quetzal_request_authorize(PurpleAccount *account,
 								PurpleAccountRequestAuthorizationCb deny_cb,
 								void *user_data)
 {
+	Q_UNUSED(account);
+	Q_UNUSED(remote_user);
+	Q_UNUSED(id);
+	Q_UNUSED(alias);
+	Q_UNUSED(message);
+	Q_UNUSED(on_list);
+	Q_UNUSED(authorize_cb);
+	Q_UNUSED(deny_cb);
+	Q_UNUSED(user_data);
 	return 0;
 }
 
 void quetzal_close_account_request(void *ui_handle)
 {
+	Q_UNUSED(ui_handle);
 }
 
 PurpleAccountUiOps quetzal_accounts_uiops =
@@ -435,24 +467,26 @@ static void quetzal_conversation_update(PurpleConversation *conv, PurpleConvUpda
 	}
 }
 
-static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
-{
-//	PurpleAccount *acc = purple_connection_get_account(gc);
-//	QuetzalAccount *account = reinterpret_cast<QuetzalAccount *>(acc->ui_data);
-//	QDialog *dialog = new QuetzalJoinChatDialog(gc);
-//	dialog->show();
-//	GHashTable *comps = NULL;
-//	PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
-//	if (info->chat_info_defaults != NULL)
-//		comps = info->chat_info_defaults(gc, "talks@conference.qutim.org/Yahoo");
-//	serv_join_chat(gc, comps);
-}
+//static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
+//{
+//	Q_UNUSED(gc);
+//	Q_UNUSED(z);
+////	PurpleAccount *acc = purple_connection_get_account(gc);
+////	QuetzalAccount *account = reinterpret_cast<QuetzalAccount *>(acc->ui_data);
+////	QDialog *dialog = new QuetzalJoinChatDialog(gc);
+////	dialog->show();
+////	GHashTable *comps = NULL;
+////	PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+////	if (info->chat_info_defaults != NULL)
+////		comps = info->chat_info_defaults(gc, "talks@conference.qutim.org/Yahoo");
+////	serv_join_chat(gc, comps);
+//}
 
 class QuetzalConnectionKillerEvent : public QEvent
 {
 public:
 	QuetzalConnectionKillerEvent(PurpleAccount *account) 
-	    : m_account(account), QEvent(eventType())
+	    : QEvent(eventType()), m_account(account)
 	{
 	}
 	
@@ -687,6 +721,7 @@ void QuetzalPlugin::clearTemporaryDir()
 
 void QuetzalPlugin::onFinished(void *data)
 {
+	Q_UNUSED(data);
 //	qDebug() << __LINE__;
 }
 

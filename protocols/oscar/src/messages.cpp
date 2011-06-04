@@ -524,6 +524,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 		data.skipData(12);
 		quint8 type = data.read<quint8>();
 		quint8 flags = data.read<quint8>();
+		Q_UNUSED(flags);
 		quint16 status = data.read<quint16>(LittleEndian);
 		quint16 priority = data.read<quint16>(LittleEndian);
 		Q_UNUSED(status);

@@ -342,8 +342,10 @@ Q_IMPORT_PLUGIN(${plugin_name})
 			set(QUTIM_${plugin_name}_COMPILE_FLAGS
 				"${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
 			if(NOT WIN32)
-				set(QUTIM_${plugin_name}_COMPILE_FLAGS
-				"${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
+				set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
+				if(DEVELOPER)
+					set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -Werror")
+				endif(DEVELOPER)
 			endif(NOT WIN32)
 		endif()
 	endif()

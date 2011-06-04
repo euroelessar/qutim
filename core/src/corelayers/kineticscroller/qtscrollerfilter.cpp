@@ -118,7 +118,7 @@ bool QtScrollerFilter::eventFilter(QObject *o, QEvent *e)
 
 bool QtScrollerFilter::eventFilter_QWebView(QWebView *view, QEvent *event)
 {
-    switch (event->type()) {
+    switch (int(event->type())) {
     case QtScrollPrepareEvent::ScrollPrepare: {
         QtScrollPrepareEvent *se = static_cast<QtScrollPrepareEvent *>(event);
         scrollingFrames[view] = 0;
@@ -193,7 +193,7 @@ QWebFrame *QtScrollerFilter::scrollingFrameAt_QWebView(QWebView *view, const QPo
 
 bool QtScrollerFilter::eventFilter_QAbstractScrollArea(QAbstractScrollArea *area, QEvent *event)
 {
-    switch (event->type()) {
+    switch (int(event->type())) {
     case QtScrollPrepareEvent::ScrollPrepare:
     {
         QtScrollPrepareEvent *se = static_cast<QtScrollPrepareEvent *>(event);
@@ -297,7 +297,7 @@ void QtScrollerFilter::stateChanged_QAbstractItemView(QAbstractItemView *view, Q
 
 bool QtScrollerFilter::eventFilter_QAbstractItemView(QAbstractItemView *view, QEvent *event)
 {
-    switch (event->type()) {
+    switch (int(event->type())) {
     case QtScrollPrepareEvent::ScrollPrepare:
         static_cast<HackedAbstractItemView *>(view)->hackedExecuteDelayedItemsLayout();
         break;

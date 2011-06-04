@@ -18,8 +18,27 @@
 #define DBUSPLUGIN_H
 
 #include <qutim/plugin.h>
+#include <QVBoxLayout>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QScriptEngine>
 
 using namespace qutim_sdk_0_3;
+
+class ScriptHelperWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    ScriptHelperWidget();
+    virtual ~ScriptHelperWidget() {}
+	
+public slots:
+	void onButtonClicked();
+	
+private:
+	QPlainTextEdit *m_textEdit;
+	QScriptEngine m_engine;
+};
 
 class ScriptPlugin : public Plugin, public PluginFactory
 {

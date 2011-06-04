@@ -219,7 +219,10 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		}
 	} else if (cmd == "ERROR") {
 		m_account->log(params.value(0), false, "ERROR");
-		Notifications::send(Notification::System, m_account, params.value(0));
+		NotificationRequest request(Notification::System);
+		request.setObject(m_account);
+		request.setText(params.value(0));
+		request.send();
 		m_account->setStatus(Status(Status::Offline));
 	} else if (cmd == 332) { // RPL_TOPIC
 		IrcChannel *channel = account->getChannel(params.value(1), false);
@@ -425,7 +428,10 @@ void IrcConnection::tryConnectToNextServer()
 	if (!error.isEmpty()) {
 		debug() << error;
 		m_account->setStatus(Status::Offline);
-		Notifications::send(Notification::System, m_account, error);
+		NotificationRequest request(Notification::System);
+		request.setObject(m_account);
+		request.setText(error);
+		request.send();
 		return;
 	}
 	m_currentNick = -1;
@@ -609,8 +615,10 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 void IrcConnection::error(QAbstractSocket::SocketError error)
 {
 	debug() << "Connection error:" << error;
-	Notifications::send(Notification::System, m_account,
-						tr("Network error: %1").arg(m_socket->errorString()));
+	NotificationRequest request(Notification::System);
+	request.setObject(m_account);
+	request.setText(tr("Network error: %1").arg(m_socket->errorString()));
+	request.send();
 	m_account->log(m_socket->errorString(), false, "ERROR");
 }
 
@@ -623,9 +631,10 @@ void IrcConnection::sslErrors(const QList<QSslError> &errors)
 			notification.append("\n");
 		notification.append(error.errorString());
 	}
-	Notifications::send(Notification::System, m_account,
-						tr("SSL error: %1")
-						.arg(notification));
+	NotificationRequest request(Notification::System);
+	request.setObject(m_account);
+	request.setText(tr("SSL error: %1").arg(notification));
+	request.send();
 }
 
 void IrcConnection::encrypted()

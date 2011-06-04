@@ -216,8 +216,8 @@ void NotificationAction::trigger() const
 	const QMetaObject *meta = d->receiver->metaObject();
 	const char *name = d->method.constData();
 	const char type = name[0];
-	++name;
-	name = QMetaObject::normalizedSignature(name).constData();
+	QByteArray tmp = QMetaObject::normalizedSignature(name + 1);
+	name = tmp.constData();
 
 	int index;
 	switch (type) {
@@ -234,11 +234,12 @@ void NotificationAction::trigger() const
 		break;
 	}
 
-	if (index != -1)
+	if (index != -1) {
 		meta->method(index).invoke(d->receiver,
 								   Q_ARG(NotificationRequest, d->notification->request()));
-	else
+	} else {
 		warning() << "An invalid action has been triggered" << name;
+	}
 }
 
 namespace CompiledProperty
@@ -270,18 +271,19 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 #if 1
 	// TODO: remove that workaround when chat layer will be ported to new notification API
 	QVariant service = msg.property("service");
-	if (service.type() == QVariant::Int)
+	if (service.type() == QVariant::Int) {
 		d_ptr->type = static_cast<Notification::Type>(service.toInt());
-	else
+	} else
 #endif
-
-		if (ChatLayer::get(msg.chatUnit(), false))
+	{
+		if (ChatLayer::get(msg.chatUnit(), false)) {
 			d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
 											 Notification::ChatOutgoingMessage;
-		else
+		} else {
 			d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
 											 Notification::OutgoingMessage;
-
+		}
+	}
 	setProperty("message", qVariantFromValue(msg));
 }
 

@@ -757,6 +757,9 @@ void Config::sync()
 
 void Config::registerType(int type, SaveOperator saveOp, LoadOperator loadOp)
 {
+	Q_UNUSED(type);
+	Q_UNUSED(saveOp);
+	Q_UNUSED(loadOp);
 }
 
 class ConfigBackendPrivate

@@ -111,17 +111,18 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		statusTimer->setSingleShot(true);
 		statusTimer->start(timeout*1000);
 
-		QString timeoutStr = timeout ? tr("within %1 seconds").arg(timeout) :
-									   tr("immediately");
+		QString timeoutStr = timeout ? tr("within %n seconds", "reconnect at", timeout)
+		                             : tr("immediately");
 
 		now.setType(Status::Connecting);
 		now.setProperty("reconnectTimeout", 2 *timeout);
 		now.setProperty("changeReason", Status::ByIdle);
 		a->setStatus(now);
-
-		Notifications::send(Notification::System,this,
-							tr("%1 will be reconnected %2").arg(a->name(),timeoutStr),
-							tr("ConnectionManager"));
+		
+		NotificationRequest request(Notification::System);
+		request.setObject(this);
+		request.setText(tr("%1 will be reconnected %2").arg(a->name(),timeoutStr));
+		request.send();
 	} else {
 		if (a->status().property("changeReason", 0) == Status::ByUser) {
 			QTimer *timer = getTimer(a, false);
