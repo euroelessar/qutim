@@ -49,8 +49,8 @@
 ////	p->siManager = new SIManager(p->client, true);
 ////	loadSettings();
 
-////	p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
-////	p->client->registerStanzaExtension(new VCardUpdate());
+////	p->client->registerPayload(new Receipt(Receipt::Invalid));
+////	p->client->registerPayload(new VCardUpdate());
 ////	p->client->addPresenceExtension(new VCardUpdate(p->avatarHash.toStdString()));
 ////	Capabilities *caps = new Capabilities(p->client->disco());
 ////	caps->setNode("http://qutim.org");
@@ -260,12 +260,12 @@
 //		general.setValue("avatarhash", p->avatarHash);
 //		general.sync();
 
-//		StanzaExtensionList *extensions = (StanzaExtensionList *) &(p->client->presence().extensions());
-//		StanzaExtensionList::iterator it = extensions->begin();
-//		StanzaExtensionList::iterator it2;
+//		PayloadList *extensions = (PayloadList *) &(p->client->presence().extensions());
+//		PayloadList::iterator it = extensions->begin();
+//		PayloadList::iterator it2;
 //		while (it != extensions->end()) {
 //			it2 = it++;
-//			if ((*it2)->extensionType() == ExtVCardUpdate) {
+//			if ((*it2)->payloadType() == ExtVCardUpdate) {
 //				delete (*it2);
 //				extensions->erase(it2);
 //			}

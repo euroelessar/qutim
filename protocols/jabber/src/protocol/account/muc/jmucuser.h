@@ -36,6 +36,9 @@ public:
 	QString realJid() const;
 	void setRealJid(const QString &jid);
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
+public slots:
+	void kick(const QString &reason = QString());
+	void ban(const QString &reason = QString());
 protected:
 	bool event(QEvent *ev);
 	friend class JMUCSession;

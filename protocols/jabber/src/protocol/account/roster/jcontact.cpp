@@ -66,7 +66,7 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
 
-	d->account->messageSessionManager()->sendMessage(message);
+	d->account->messageSessionManager()->sendMessage(this, message);
 	return true;
 }
 
@@ -269,7 +269,7 @@ void JContact::addResource(const QString &resource)
 
 void JContact::setStatus(const Jreen::Presence presence)
 {
-	const Jreen::Error *error = presence.error();
+	Jreen::Error::Ptr error = presence.error();
 	QString resource = presence.from().resource();
 	Jreen::Presence::Type type = presence.subtype();
 

@@ -222,7 +222,7 @@ void JMUCManager::closeMUCSession()
 
 void JMUCManager::closeMUCSession(JMUCSession *room)
 {
-
+	Q_UNUSED(room);
 }
 
 void JMUCManager::appendMUCSession(JMUCSession *room)

@@ -113,18 +113,18 @@ QString JPersonActivityConverter::name() const
 
 int JPersonActivityConverter::entityType() const
 {
-	return Jreen::Activity::staticExtensionType();
+	return Jreen::Activity::staticPayloadType();
 }
 
-QSharedPointer<Jreen::StanzaExtension> JPersonActivityConverter::convertTo(const QVariantHash &map) const
+QSharedPointer<Jreen::Payload> JPersonActivityConverter::convertTo(const QVariantHash &map) const
 {
 	QString general = map.value(QLatin1String("general")).toString();
 	QString specific = map.value(QLatin1String("specific")).toString();
 	QString text = map.value(QLatin1String("description")).toString();
-	return Jreen::StanzaExtension::Ptr(new Jreen::Activity(general, specific, text));
+	return Jreen::Payload::Ptr(new Jreen::Activity(general, specific, text));
 }
 
-QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const
+QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<Jreen::Payload> &entity) const
 {
 	Jreen::Activity *activity = Jreen::se_cast<Jreen::Activity*>(entity.data());
 	QVariantHash data;

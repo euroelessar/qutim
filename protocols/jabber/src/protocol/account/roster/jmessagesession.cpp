@@ -91,7 +91,7 @@
 
 ////void JMessageReceiptFilter::filter(gloox::Message &msg)
 ////{
-////	if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
+////	if (const Receipt *receipt = msg.payload<Receipt>(ExtReceipt)) {
 ////		if (receipt->rcpt() == Receipt::Request) {
 ////			gloox::Message message(msg.subtype(), msg.from(), gloox::EmptyString,
 ////								   gloox::EmptyString, msg.thread());

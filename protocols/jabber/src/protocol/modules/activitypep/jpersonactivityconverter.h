@@ -19,8 +19,8 @@ public:
 	virtual ~JPersonActivityConverter();
 	virtual QString name() const;
 	virtual int entityType() const;
-	virtual QSharedPointer<Jreen::StanzaExtension> convertTo(const QVariantHash &map) const;
-	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const;
+	virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const;
+	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::Payload> &entity) const;
 	static qutim_sdk_0_3::LocalizedString generalTitle(Jreen::Activity::General general);
 	static qutim_sdk_0_3::LocalizedString specificTitle(Jreen::Activity::Specific specific);
 };

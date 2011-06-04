@@ -77,11 +77,11 @@ JRoster::JRoster(JAccount *account) :
 	d->ignoreChanges = false;
 	d->storage = RosterStorage::instance();
 	d->account->setContactsFactory(d);
-	connect(d->account->client(),SIGNAL(newPresence(Jreen::Presence)),
+	connect(d->account->client(),SIGNAL(presenceReceived(Jreen::Presence)),
 			this,SLOT(handleNewPresence(Jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
 			this,SLOT(onDisconnected()));
-//	connect(d->account->client(),SIGNAL(newMessage(Jreen::Message)),
+//	connect(d->account->client(),SIGNAL(messageReceived(Jreen::Message)),
 //			this,SLOT(onNewMessage(Jreen::Message)));
 }
 
@@ -117,9 +117,10 @@ void JRoster::onItemAdded(QSharedPointer<Jreen::RosterItem> item)
 	fillContact(contact, item);
 	d->storage->addContact(contact, version());
 	if(d->showNotifications) {
-		Notifications::send(Notification::System,
-							contact,
-							tr("Contact %1 has been added to roster").arg(contact->title()));
+		NotificationRequest request(Notification::System);
+		request.setObject(contact);
+		request.setText(tr("Contact %1 has been added to roster").arg(contact->title()));
+		request.send();
 	}
 }
 void JRoster::onItemUpdated(QSharedPointer<Jreen::RosterItem> item)
@@ -145,9 +146,10 @@ void JRoster::onItemRemoved(const QString &jid)
 	contact->setContactInList(false);
 	contact->setContactSubscription(Jreen::RosterItem::None);
 	if(d->showNotifications) {
-		Notifications::send(Notification::System,
-							contact,
-							tr("Contact %1 has been removed from roster").arg(contact->title()));
+		NotificationRequest request(Notification::System);
+		request.setObject(contact);
+		request.setText(tr("Contact %1 has been removed from roster").arg(contact->title()));
+		request.send();
 	}
 }
 
@@ -226,7 +228,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 		break;
 	}
 
-	const Jreen::Error *error = presence.error();
+	const Jreen::Error::Ptr error = presence.error();
 	Jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
@@ -235,7 +237,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 	JContact *c = d->contacts.value(from.bare());
 	if (c) {
 		c->setStatus(presence);		
-		Jreen::VCardUpdate::Ptr vcard = presence.findExtension<Jreen::VCardUpdate>();
+		Jreen::VCardUpdate::Ptr vcard = presence.payload<Jreen::VCardUpdate>();
 		if(vcard && vcard->hasPhotoInfo() && !error) {
 			QString hash = vcard->photoHash();
 			debug() << "vCard update" << (c->avatarHash() != hash) << c->id() << c->avatarHash() << hash;
@@ -270,7 +272,7 @@ void JRoster::onNewMessage(Jreen::Message message)
 	if(!contact) {
 		contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
 		contact->setInList(false);
-		if(Jreen::Nickname::Ptr nick = message.findExtension<Jreen::Nickname>())
+		if(Jreen::Nickname::Ptr nick = message.payload<Jreen::Nickname>())
 			contact->setName(nick->nick());
 		chatUnit = contact;
 	}
@@ -298,7 +300,7 @@ void JRoster::handleSubscription(Jreen::Presence subscription)
 	if (contact) {
 		name = contact->name();
 	} else {
-		Jreen::Nickname *nickname = subscription.findExtension<Jreen::Nickname>().data();
+		Jreen::Nickname *nickname = subscription.payload<Jreen::Nickname>().data();
 		if(nickname)
 			name = nickname->nick();
 	}

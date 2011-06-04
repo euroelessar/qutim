@@ -8,10 +8,10 @@ class JDiscoItemData : public QSharedData
 
 public:
 	JDiscoItemData() : expand(true) {}
-	JDiscoItemData(const JDiscoItemData &o) :
-		name(o.name), jid(o.jid), node(o.node), error(o.error),
-		identities(o.identities), features(o.features),
-		actions(o.actions), expand(o.expand) {}
+	JDiscoItemData(const JDiscoItemData &o)
+	    : QSharedData(o), name(o.name), jid(o.jid), node(o.node),
+	      error(o.error), identities(o.identities), features(o.features),
+	      actions(o.actions), expand(o.expand) {}
 	QString name;
 	QString jid;
 	QString node;

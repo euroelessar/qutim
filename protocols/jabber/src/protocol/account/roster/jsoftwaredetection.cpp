@@ -47,7 +47,7 @@ JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 {
 	m_account = account;
 	Jreen::Client *client = account->client();
-	connect(client,SIGNAL(newPresence(Jreen::Presence)),SLOT(handlePresence(Jreen::Presence)));
+	connect(client,SIGNAL(presenceReceived(Jreen::Presence)),SLOT(handlePresence(Jreen::Presence)));
 	
 	
 	Config cache(QLatin1String("jabberhash"));
@@ -104,7 +104,7 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 			return;
 
 		QString node;
-		if (Jreen::Capabilities *caps = presence.findExtension<Jreen::Capabilities>().data()) {
+		if (Jreen::Capabilities *caps = presence.payload<Jreen::Capabilities>().data()) {
 //			qDebug() << "handle caps" << caps->node();
 			QString capsNode = caps->node();
 			if(capsNode == QLatin1String("http://www.android.com/gtalk/client/caps")) {
@@ -159,7 +159,7 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 void JSoftwareDetection::handleIQ(const Jreen::IQ &iq, int context)
 {	
 	if (context == RequestSoftware) {
-		if (const Jreen::Error *error = iq.error()) {
+		if (Jreen::Error::Ptr error = iq.error()) {
 			if (error->condition() != Jreen::Error::ServiceUnavailable)
 				return;
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
@@ -174,7 +174,7 @@ void JSoftwareDetection::handleIQ(const Jreen::IQ &iq, int context)
 			}
 			return;
 		}
-		if (Jreen::SoftwareVersion::Ptr soft = iq.findExtension<Jreen::SoftwareVersion>()) {
+		if (Jreen::SoftwareVersion::Ptr soft = iq.payload<Jreen::SoftwareVersion>()) {
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
 				QString node = resource->property("node").toString();
@@ -198,7 +198,7 @@ void JSoftwareDetection::handleIQ(const Jreen::IQ &iq, int context)
 			}
 		}
 	} else if(context == RequestDisco) {
-		Jreen::Disco::Info *discoInfo = iq.findExtension<Jreen::Disco::Info>().data();
+		Jreen::Disco::Info *discoInfo = iq.payload<Jreen::Disco::Info>().data();
 		if(!discoInfo)
 			return;
 		iq.accept();

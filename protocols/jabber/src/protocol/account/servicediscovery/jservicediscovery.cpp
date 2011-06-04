@@ -22,7 +22,7 @@ JServiceDiscovery::JServiceDiscovery(JAccount *account)
 {
 	p->account = account;
 	p->context = 1;
-	connect(account->client(),SIGNAL(newIQ(Jreen::IQ)),SLOT(handleIQ(Jreen::IQ)));
+	connect(account->client(),SIGNAL(iqReceived(Jreen::IQ)),SLOT(handleIQ(Jreen::IQ)));
 }
 
 JServiceDiscovery::~JServiceDiscovery()
@@ -32,16 +32,16 @@ JServiceDiscovery::~JServiceDiscovery()
 void JServiceDiscovery::handleIQ(const Jreen::IQ &iq)
 {
 	Q_UNUSED(iq);
-	//	QSharedPointer<Jreen::Disco::Info> info = iq.findExtension<Jreen::Disco::Info>();
+	//	QSharedPointer<Jreen::Disco::Info> info = iq.payload<Jreen::Disco::Info>();
 	//	if(info)
 	//		handleDiscoInfo(iq.from(),info);
 }
 
 void JServiceDiscovery::handleIQ(const Jreen::IQ &iq,int context)
 {
-	if(QSharedPointer<Jreen::Disco::Info> info = iq.findExtension<Jreen::Disco::Info>())
+	if(QSharedPointer<Jreen::Disco::Info> info = iq.payload<Jreen::Disco::Info>())
 		handleDiscoInfo(iq.from(),info,context);
-	else if(QSharedPointer<Jreen::Disco::Items> items = iq.findExtension<Jreen::Disco::Items>())
+	else if(QSharedPointer<Jreen::Disco::Items> items = iq.payload<Jreen::Disco::Items>())
 		handleDiscoItems(iq.from(),items,context);
 }
 

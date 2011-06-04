@@ -22,9 +22,10 @@ QList<NetworkProxyInfo*> JProxyManager::proxies()
 
 void JProxyManager::setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings)
 {
+	Q_UNUSED(settings);
 	Q_UNUSED(proxy);
 	Q_ASSERT(qobject_cast<JAccount*>(account));
-	JAccount *acc = static_cast<JAccount*>(account);
+//	JAccount *acc = static_cast<JAccount*>(account);
 	//acc->connection()->setProxy(toNetworkProxy(settings));
 }
 

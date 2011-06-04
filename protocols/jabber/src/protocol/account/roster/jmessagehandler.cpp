@@ -31,7 +31,7 @@ void JMessageSessionHandler::handleMessageSession(Jreen::MessageSession *session
 {
 	Q_ASSERT(session);
 	session->registerMessageFilter(new JMessageReceiptFilter(m_account,session));
-	QObject::connect(session, SIGNAL(newMessage(Jreen::Message)),
+	QObject::connect(session, SIGNAL(messageReceived(Jreen::Message)),
 					 m_account->roster(), SLOT(onNewMessage(Jreen::Message)));
 }
 
@@ -67,12 +67,10 @@ void JMessageSessionManager::handleMessage(const Jreen::Message &message)
 	return Jreen::MessageSessionManager::handleMessage(message);
 }
 
-void JMessageSessionManager::sendMessage(const qutim_sdk_0_3::Message &message)
+void JMessageSessionManager::sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qutim_sdk_0_3::Message &message)
 {
-	Jreen::JID jid(message.chatUnit()->id());
-	Jreen::MessageSession *s = session(jid,
-									   Jreen::Message::Chat,
-									   true);
+	JID jid = unit->id();
+	Jreen::MessageSession *s = session(jid, Jreen::Message::Chat, true);
 
 	Jreen::Message msg(Jreen::Message::Chat,
 					   jid,
@@ -94,9 +92,9 @@ JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
 
 void JMessageReceiptFilter::filter(Jreen::Message &message)
 {
-	Jreen::Receipt *receipt = message.findExtension<Jreen::Receipt>().data();
+	Jreen::Receipt *receipt = message.payload<Jreen::Receipt>().data();
 	ChatUnit *unit = m_account->roster()->contact(message.from(),true);
-	if(message.containsExtension<Jreen::Error>())
+	if(message.containsPayload<Jreen::Error>())
 		return;
 	if(receipt) {
 		if(receipt->type() == Jreen::Receipt::Received) {
@@ -117,7 +115,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 			m_account->client()->send(request);
 		}
 	}
-	Jreen::ChatState *state = message.findExtension<Jreen::ChatState>().data();
+	Jreen::ChatState *state = message.payload<Jreen::ChatState>().data();
 	if(state) {
 		if(unit)
 			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));

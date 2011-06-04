@@ -2,13 +2,7 @@
 #define JINFOREQUEST_H
 
 #include <qutim/inforequest.h>
-#include <string>
-#include <list>
-
-namespace Jreen
-{
-class VCard;
-}
+#include <jreen/vcard.h>
 
 namespace Jabber
 {
@@ -59,7 +53,7 @@ public:
 	~JInfoRequest();
 	DataItem item(const QString &name) const;
 	State state() const;
-	void setFetchedVCard(Jreen::VCard *vcard);
+	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
 private:
 	void addItem(DataType type, DataItem &group, const QVariant &data);
 	void addMultilineItem(DataType type, DataItem &group, const QString &data);

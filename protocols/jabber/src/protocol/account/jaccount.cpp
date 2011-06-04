@@ -185,7 +185,7 @@ JAccount::JAccount(const QString &id) :
 	d->loadedModules = 0;
 	d->roster = new JRoster(this);
 	d->privacyManager = new PrivacyManager(&d->client);
-	Jreen::Capabilities::Ptr caps = d->client.presence().findExtension<Jreen::Capabilities>();
+	Jreen::Capabilities::Ptr caps = d->client.presence().payload<Jreen::Capabilities>();
 	caps->setNode(QLatin1String("http://qutim.org/"));
 	d->privateXml = new Jreen::PrivateXml(&d->client);
 	d->pubSubManager = new Jreen::PubSub::Manager(&d->client);
@@ -277,7 +277,7 @@ void JAccount::loadSettings()
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
 	if (general.hasChildKey("photoHash")) {
-		Jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<Jreen::VCardUpdate>();
+		Jreen::VCardUpdate::Ptr update = d->client.presence().payload<Jreen::VCardUpdate>();
 		update->setPhotoHash(general.value("photoHash", QString()));
 	}
 

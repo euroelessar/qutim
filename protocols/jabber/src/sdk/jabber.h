@@ -8,7 +8,7 @@
 namespace Jreen
 {
 class Client;
-class StanzaExtension;
+class Payload;
 namespace PubSub { class Manager; }
 }
 namespace gloox
@@ -116,8 +116,8 @@ public:
 	
 	virtual QString name() const = 0;
 	virtual int entityType() const = 0;
-	virtual QSharedPointer<Jreen::StanzaExtension> convertTo(const QVariantHash &map) const = 0;
-	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const = 0;
+	virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const = 0;
+	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::Payload> &entity) const = 0;
 };
 }
 

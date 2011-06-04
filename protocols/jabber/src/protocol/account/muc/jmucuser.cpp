@@ -201,5 +201,15 @@ bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
 	return d_func()->muc->sendPrivateMessage(message);
 }
 
+void JMUCUser::kick(const QString &reason)
+{
+	Q_D(JMUCUser);
+	d->muc->room()->kick(d->name, reason);
+}
 
+void JMUCUser::ban(const QString &reason)
+{
+	Q_D(JMUCUser);
+	d->muc->room()->ban(d->name, reason);
+}
 }

@@ -68,7 +68,7 @@ namespace Jabber
 
 //	void JPersonalEventFilter::filter(gloox::Message &msg)
 //	{
-//		const PubSub::Event *event = msg.findExtension<PubSub::Event>(ExtPubSubEvent);
+//		const PubSub::Event *event = msg.payload<PubSub::Event>(ExtPubSubEvent);
 //		if (event) {
 //			PubSub::Event::ItemOperationList items = event->items();
 //			foreach (const PubSub::Event::ItemOperation *item, items) {
@@ -94,7 +94,7 @@ namespace Jabber
 //		supportMap()->insert(account, this);
 		m_account = account;
 		m_manager = params.item<PubSub::Manager>();
-//		client->registerStanzaExtension(new PubSub::Event(reinterpret_cast<Tag*>(0)));
+//		client->registerPayload(new PubSub::Event(reinterpret_cast<Tag*>(0)));
 		connect(m_manager, SIGNAL(eventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)),
 				this, SLOT(onEventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)));
 		account->installEventFilter(this);
@@ -123,7 +123,7 @@ namespace Jabber
 
 				if (needSet && converter) {
 					QVariantHash data = customEvent->at<QVariantHash>(1);
-					QList<Jreen::StanzaExtension::Ptr> items;
+					QList<Jreen::Payload::Ptr> items;
 					items << converter->convertTo(data);
 					m_manager->publishItems(items, Jreen::JID());
 				}
@@ -144,9 +144,9 @@ namespace Jabber
 		}
 		if (!receiver)
 			return;
-		const QList<Jreen::StanzaExtension::Ptr> items = event->items();
+		const QList<Jreen::Payload::Ptr> items = event->items();
 		for (int i = 0; i < items.size(); i++) {
-			if (PersonEventConverter *converter = m_converters.value(items[i]->extensionType())) {
+			if (PersonEventConverter *converter = m_converters.value(items[i]->payloadType())) {
 				QVariantHash data = converter->convertFrom(items[i]);
 				QString name = converter->name();
 				if (contact) {

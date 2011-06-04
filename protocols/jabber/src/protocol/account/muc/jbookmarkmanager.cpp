@@ -216,7 +216,7 @@ bool JBookmarkManager::join(const DataItem &fields)
 	JID conference = fields.subitem("conference").data<QString>();
 	QString nickname = fields.subitem("nickname").data<QString>();
 	if (!conference.isBare() || nickname.isEmpty()) {
-		Notifications::send(tr("Unable to join groupchat"));
+		Notification::send(tr("Unable to join groupchat"));
 		return false;
 	}
 	QString password = fields.subitem("password").data<QString>();

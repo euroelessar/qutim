@@ -131,17 +131,17 @@ namespace Jabber
 	
 	int JPersonMoodConverter::entityType() const
 	{
-		return Jreen::Mood::staticExtensionType();
+		return Jreen::Mood::staticPayloadType();
 	}
 	
-	QSharedPointer<Jreen::StanzaExtension> JPersonMoodConverter::convertTo(const QVariantHash &map) const
+	QSharedPointer<Jreen::Payload> JPersonMoodConverter::convertTo(const QVariantHash &map) const
 	{
 		QString mood = map.value(QLatin1String("mood")).toString();
 		QString text = map.value(QLatin1String("description")).toString();
-		return Jreen::StanzaExtension::Ptr(new Jreen::Mood(mood, text));
+		return Jreen::Payload::Ptr(new Jreen::Mood(mood, text));
 	}
 	
-	QVariantHash JPersonMoodConverter::convertFrom(const QSharedPointer<Jreen::StanzaExtension> &entity) const
+	QVariantHash JPersonMoodConverter::convertFrom(const QSharedPointer<Jreen::Payload> &entity) const
 	{
 		Jreen::Mood *mood = Jreen::se_cast<Jreen::Mood*>(entity.data());
 		QVariantHash data;

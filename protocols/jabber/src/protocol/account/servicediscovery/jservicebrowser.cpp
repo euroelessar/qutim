@@ -393,6 +393,7 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 
 void JServiceBrowser::filterItem(const QString &mask)
 {
+	Q_UNUSED(mask);
 	setItemVisible(p->ui->serviceTree->invisibleRootItem(), true);
 	QList<QTreeWidgetItem*> visibleItems;
 	visibleItems = findItems(p->ui->serviceTree->invisibleRootItem(), p->ui->filterLine->text());

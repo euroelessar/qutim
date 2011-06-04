@@ -64,7 +64,7 @@ bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
 
-	a->messageSessionManager()->sendMessage(message);
+	a->messageSessionManager()->sendMessage(this, message);
 	return true;
 }
 

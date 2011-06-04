@@ -86,7 +86,7 @@ class JInfoRequestPrivate
 {
 public:
 	InfoRequest::State state;
-	const Jreen::VCard *vcard;
+	Jreen::VCard::Ptr vcard;
 	DataItem *item;
 	QMap<QString, DataItem> items;
 };
@@ -97,7 +97,6 @@ JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
 	Q_D(JInfoRequest);
 	manager->fetchVCard(contact, this);
 	d->state = Request;
-	d->vcard = 0;
 	d->item = 0;
 }
 
@@ -105,7 +104,7 @@ JInfoRequest::~JInfoRequest()
 {
 }
 
-void JInfoRequest::setFetchedVCard(Jreen::VCard *vcard)
+void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 {
 	Q_D(JInfoRequest);
 	DataItem item;

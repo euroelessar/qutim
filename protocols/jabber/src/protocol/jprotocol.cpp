@@ -263,6 +263,7 @@ void JProtocol::onBanUser(QObject *obj)
 
 void JProtocol::onConvertToMuc(QObject *obj)
 {
+	Q_UNUSED(obj);
 	//JMessageSession *session = qobject_cast<JMessageSession*>(obj);
 	//Q_ASSERT(session);
 	//session->convertToMuc();

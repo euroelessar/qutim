@@ -198,6 +198,8 @@ QString JMUCSession::id() const
 bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
+	qDebug() << d->jid;
+	qDebug() << d->jid.bareJID();
 
 	if (account()->status() == Status::Offline)
 		return false;
@@ -358,7 +360,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			user->setMUCRole(participant->role());
 		}
 		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
-			VCardUpdate::Ptr vcard = presence.findExtension<VCardUpdate>();
+			VCardUpdate::Ptr vcard = presence.payload<VCardUpdate>();
 			if(vcard && vcard->hasPhotoInfo()) {
 				QString hash = vcard->photoHash();
 				if (user->avatarHash() != hash) {
@@ -661,6 +663,8 @@ void JMUCSession::setAutoJoin(bool join)
 
 void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 {
+	Q_UNUSED(contact);
+	Q_UNUSED(reason);
 	//	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
 }
 
@@ -670,7 +674,10 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 	debug() << "error" << error->condition();
 	if (error->condition() == Error::Conflict) {
 		QString message = QCoreApplication::translate("Jabber", "You are already in conference with another nick");
-		Notifications::send(Notification::System, this, message);
+		NotificationRequest request(Notification::System);
+		request.setObject(this);
+		request.setText(message);
+		request.send();
 		QString resource = d->account->client()->jid().resource();
 		if (!d->room->nick().endsWith(resource)) {
 			QString nick = d->room->nick();
