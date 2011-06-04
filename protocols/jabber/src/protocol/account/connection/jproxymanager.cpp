@@ -1,6 +1,7 @@
 #include "jproxymanager.h"
 #include "protocol/account/jaccount.h"
 #include "protocol/jprotocol.h"
+#include <qutim/dataforms.h>
 #include <jreen/client.h>
 
 namespace Jabber {
