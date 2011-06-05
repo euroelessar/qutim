@@ -20,6 +20,8 @@
 #include "account.h"
 #include <QPointer>
 #include <QBasicTimer>
+#include <QDateTime>
+#include <numeric>
 
 namespace qutim_sdk_0_3
 {
@@ -38,6 +40,21 @@ public:
 	}
 };
 
+class ChatUnitSenderMessageHandler : public MessageHandler
+{
+public:
+	virtual Result doHandle(Message &message, QString *)
+	{
+		if (!message.isIncoming()
+		        && !message.property("service", false)
+		        && !message.property("history", false)) {
+			if (!message.chatUnit()->send(message))
+				return Error;
+		}
+		return Accept;
+	}
+};
+
 struct ChatSessionPrivate
 {
 };
@@ -46,6 +63,7 @@ struct ChatLayerData
 {
 	ServicePointer<ChatLayer> self;
 	QScopedPointer<MessageHandlerHook> handlerHook;
+	QScopedPointer<ChatUnitSenderMessageHandler> senderHook;
 };
 
 Q_GLOBAL_STATIC(ChatLayerData, p)
@@ -58,15 +76,21 @@ ChatSession::~ChatSession()
 {
 }
 
+qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
+{
+	return appendMessage(message);
+}
+
 qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 {
 	QString reason;
 	messageHookMap()->insert(&message, this);
-	if (MessageHandler::Accept != MessageHandler::handle(message, &reason)) {
+	int result = MessageHandler::handle(message, &reason);
+	if (MessageHandler::Accept != result) {
 		// TODO optional user notification
 //		Notifications:￼end(result)
 		messageHookMap()->remove(&message);
-		return -1;
+		return -result;
 	}
 	messageHookMap()->remove(&message);
 	return message.id();
@@ -89,9 +113,13 @@ public:
 ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
 	p()->handlerHook.reset(new MessageHandlerHook);
+	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
 	                                MessageHandler::ChatInPriority,
 	                                MessageHandler::ChatOutPriority);
+	MessageHandler::registerHandler(p()->senderHook.data(),
+	                                MessageHandler::NormalPriortity,
+	                                MessageHandler::LowPriority);
 }
 
 ChatLayer::~ChatLayer()

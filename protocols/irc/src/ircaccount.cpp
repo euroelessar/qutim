@@ -268,6 +268,7 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 		if (session) {
 			Message message(plainText);
 			message.setChatUnit(session->getUnit());
+			message.setIncoming(true);
 			message.setProperty("service", true);
 			message.setProperty("html", html);
 			message.setTime(QDateTime::currentDateTime());

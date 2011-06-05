@@ -417,6 +417,7 @@ void IrcChannel::addSystemMessage(const QString &message, ChatSession *session)
 	Message msg(message);
 	msg.setChatUnit(this);
 	msg.setProperty("service", true);
+	msg.setIncoming(true);
 	msg.setTime(QDateTime::currentDateTime());
 	session->appendMessage(msg);
 }

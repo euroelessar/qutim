@@ -95,13 +95,7 @@ namespace qutim_sdk_0_3
 
 	const char *MetaObjectBuilder::info(const QMetaObject *meta, const char *name)
 	{
-		int num = meta ? meta->classInfoCount() : 0;
-		while(num --> 0)
-		{
-			QMetaClassInfo info = meta->classInfo(num);
-			if(!qstrcmp(info.name(), name))
-				return info.value();
-		}
-		return 0;
+		int index = meta->indexOfClassInfo(name);
+		return index == -1 ? 0 : meta->classInfo(index).value();
 	}
 }

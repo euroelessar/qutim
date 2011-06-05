@@ -18,6 +18,7 @@
 #define DBUSPLUGIN_H
 
 #include <qutim/plugin.h>
+#include <qutim/messagehandler.h>
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -40,7 +41,17 @@ private:
 	QScriptEngine m_engine;
 };
 
-class ScriptPlugin : public Plugin, public PluginFactory
+class ScriptMessageHandler : public qutim_sdk_0_3::MessageHandler
+{
+public:
+	ScriptMessageHandler();
+	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	
+private:
+	QScriptEngine m_engine;
+};
+
+class ScriptPlugin : public Plugin, public qutim_sdk_0_3::PluginFactory
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::PluginFactory)
@@ -50,6 +61,9 @@ public:
 	virtual bool load();
 	virtual QList<Plugin*> loadPlugins();
 	virtual bool unload();
+	
+private:
+	QScopedPointer<ScriptMessageHandler> m_handler;
 };
 
 #endif // DBUSPLUGIN_H

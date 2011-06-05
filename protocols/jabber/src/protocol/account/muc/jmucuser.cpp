@@ -198,7 +198,7 @@ void JMUCUser::setRealJid(const QString &jid)
 
 bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	return d_func()->muc->sendPrivateMessage(message);
+	return d_func()->muc->sendPrivateMessage(id(), message);
 }
 
 void JMUCUser::kick(const QString &reason)

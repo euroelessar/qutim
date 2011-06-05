@@ -101,7 +101,9 @@ public:
   *
   * @param message Message, which to be sent to the recipient
   */
-	Q_INVOKABLE virtual bool sendMessage(const qutim_sdk_0_3::Message &message) = 0;
+	virtual bool sendMessage(const qutim_sdk_0_3::Message &message) = 0;
+	
+	Q_INVOKABLE bool send(const qutim_sdk_0_3::Message &message);
 	/**
   * @brief Returns TODO
   *

@@ -37,6 +37,7 @@ public:
 	virtual ChatUnit *getUnit() const = 0;
 	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
 	Q_INVOKABLE virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
+	Q_INVOKABLE qint64 append(qutim_sdk_0_3::Message &message);
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;

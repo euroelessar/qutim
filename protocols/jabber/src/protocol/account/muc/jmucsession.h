@@ -40,6 +40,7 @@ class JMUCSession : public qutim_sdk_0_3::Conference
 		//			public gloox::MUCRoomConfigHandler
 {
 	Q_OBJECT
+	Q_PROPERTY(QString nick WRITE setNick READ nick NOTIFY nickChanged)
 	Q_DECLARE_PRIVATE(JMUCSession)
 public:
 	JMUCSession(const Jreen::JID &room, const QString &password, JAccount *account);
@@ -47,7 +48,7 @@ public:
 	~JMUCSession();
 	QString id() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
-	bool sendPrivateMessage(const qutim_sdk_0_3::Message &message);
+	bool sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message);
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
@@ -57,7 +58,9 @@ public:
 	bool isError();
 	Jreen::MUCRoom *room();
 	qutim_sdk_0_3::Buddy *me() const;
-	ChatUnit *participant(const QString &nick);
+	Q_INVOKABLE qutim_sdk_0_3::ChatUnit *participant(const QString &nick);
+	QString nick();
+	void setNick(const QString &nick);
 	QString title() const;
 	void clearSinceDate();
 	ChatUnitList lowerUnits();
@@ -91,10 +94,13 @@ protected slots:
 public slots:
 	void join();
 	void leave();
+	void kick(const QString &nick, const QString &reason = QString());
+	void ban(const QString &nick, const QString &reason = QString());
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();
 signals:
+	void nickChanged(const QString &nick);
 	void initClose();
 	void bookmarkChanged(const Jreen::Bookmark::Conference &bookmark);
 private:

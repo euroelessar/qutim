@@ -133,6 +133,19 @@ ChatUnit *JMUCSession::participant(const QString &nick)
 	return d_func()->users.value(nick);
 }
 
+QString JMUCSession::nick()
+{
+	return d_func()->room->nick();
+}
+
+void JMUCSession::setNick(const QString &nick)
+{
+	Q_D(JMUCSession);
+	d->room->setNick(nick);
+	if (!d->room->isJoined())
+		emit nickChanged(nick);
+}
+
 void JMUCSession::join()
 {
 	Q_D(JMUCSession);
@@ -184,6 +197,16 @@ void JMUCSession::leave()
 	}
 }
 
+void JMUCSession::kick(const QString &nick, const QString &reason)
+{
+	d_func()->room->kick(nick, reason);
+}
+
+void JMUCSession::ban(const QString &nick, const QString &reason)
+{
+	d_func()->room->ban(nick, reason);
+}
+
 bool JMUCSession::isJoined()
 {
 	return d_func()->isJoined;
@@ -228,12 +251,12 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	return true;
 }
 
-bool JMUCSession::sendPrivateMessage(const qutim_sdk_0_3::Message &message)
+bool JMUCSession::sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
 	if (account()->status() == Status::Offline)
 		return false;
-	Jreen::Message jMsg(Jreen::Message::Chat, message.chatUnit()->id(), message.text());
+	Jreen::Message jMsg(Jreen::Message::Chat, id, message.text());
 	jMsg.setID(d->account->client()->getID());
 	d->account->client()->send(jMsg);
 	return true;
@@ -289,8 +312,10 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
 		//			if (session)
 		//				session->session()->setResource(participant.newNick);
-		if (isSelf)
+		if (isSelf) {
+			emit nickChanged(newNick);
 			emit meChanged(me());
+		}
 		user->setStatus(presence);
 	} else {
 		JMUCUser *user = d->users.value(nick, 0);
@@ -383,6 +408,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setProperty("service", true);
 		msg.setProperty("silent", true);
+		msg.setIncoming(true);
 		if (ChatSession *chatSession = ChatLayer::get(this, false))
 			chatSession->appendMessage(msg);
 	}
@@ -447,6 +473,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
+	coreMsg.setIncoming(true);
 	chatSession->appendMessage(coreMsg);
 }
 
@@ -467,6 +494,7 @@ void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 	msg.setChatUnit(this);
 	msg.setTime(QDateTime::currentDateTime());
 	msg.setProperty("service", true);
+	msg.setIncoming(true);
 	if (ChatSession *chatSession = ChatLayer::get(this, false))
 		chatSession->appendMessage(msg);
 	setConferenceTopic(subject);

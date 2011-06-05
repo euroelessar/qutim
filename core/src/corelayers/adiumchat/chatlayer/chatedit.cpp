@@ -5,6 +5,8 @@
 #include <QTextDocumentFragment>
 #include <qutim/notificationslayer.h>
 #include <qutim/debug.h>
+#include <qutim/messagehandler.h>
+#include <QMetaProperty>
 
 namespace Core
 {
@@ -101,25 +103,69 @@ bool ChatEdit::event(QEvent *event)
 void ChatEdit::send()
 {
 	QString text = textEditToPlainText();
-	if(!m_session || text.trimmed().isEmpty())
+	QString trimmed = text.trimmed();
+	if(!m_session || trimmed.isEmpty())
 		return;
-
+	
 	ChatUnit *unit = m_session->getCurrentUnit();
+	if (trimmed.startsWith(QLatin1Char('/')) && trimmed.size() > 1) {
+		int index = trimmed.indexOf(QLatin1Char(' '));
+		QStringRef cmd = trimmed.midRef(1, (index == -1 ? trimmed.size() : index) - 1);
+		const QMetaObject *meta = unit->metaObject();
+		for (int i = meta->propertyCount() - 1; i >= 0; --i) {
+			QMetaProperty prop = meta->property(i);
+			if (prop.isWritable() && QLatin1String(prop.name()) == cmd) {
+				prop.write(unit, trimmed.mid(index + 1));
+				clear();
+				return;
+			}
+		}
+		QByteArray signature = cmd.toString().toLatin1();
+		int methodIndex = meta->indexOfMethod(signature + "(QString)");
+		if (methodIndex != -1) {
+			QMetaMethod method = meta->method(methodIndex);
+			QString arg = trimmed.mid(index + 1);
+			if (method.invoke(unit, Q_ARG(QString, arg))) {
+				clear();
+				return;
+			}
+		}
+		methodIndex = meta->indexOfMethod(signature + "(QVariant)");
+		if (methodIndex != -1) {
+			QMetaMethod method = meta->method(methodIndex);
+			QVariant arg = trimmed.mid(index + 1);
+			if (method.invoke(unit, Q_ARG(QVariant, arg))) {
+				clear();
+				return;
+			}
+		}
+		methodIndex = meta->indexOfMethod(signature + "()");
+		if (methodIndex != -1) {
+			QMetaMethod method = meta->method(methodIndex);
+			if (method.invoke(unit)) {
+				clear();
+				return;
+			}
+		}
+	}
 	Message message(text);
 	message.setIncoming(false);
 	message.setChatUnit(unit);
 	message.setTime(QDateTime::currentDateTime());
 
-	if (!unit->sendMessage(message)) {
-		NotificationRequest request(Notification::System);
-		request.setObject(this);
-		request.setText(tr("Unable to send message to %1").arg(unit->title()));
-		request.send();
-	}
-	else {
-		m_session->appendMessage(message);
+	qint64 result = m_session->appendMessage(message);
+	if (MessageHandler::Error != -result)
 		clear();
-	}
+//	if (!unit->sendMessage(message)) {
+//		NotificationRequest request(Notification::System);
+//		request.setObject(this);
+//		request.setText(tr("Unable to send message to %1").arg(unit->title()));
+//		request.send();
+//	}
+//	else {
+//		m_session->appendMessage(message);
+//		clear();
+//	}
 }
 
 void ChatEdit::onTextChanged()

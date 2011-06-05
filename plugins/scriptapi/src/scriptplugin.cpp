@@ -18,7 +18,11 @@
 #include "scriptengine.h"
 #include "scriptpluginwrapper.h"
 #include <QDebug>
+#include <QLatin1Literal>
 #include <qutim/thememanager.h>
+#include <qutim/chatunit.h>
+#include <qutim/chatsession.h>
+#include <qutim/notification.h>
 
 ScriptHelperWidget::ScriptHelperWidget()
 {
@@ -42,6 +46,43 @@ void ScriptHelperWidget::onButtonClicked()
 	}
 }
 
+ScriptMessageHandler::ScriptMessageHandler()
+{
+    m_engine.importExtension(QLatin1String("qt.core"));
+	m_engine.importExtension(QLatin1String("qt.gui"));
+	m_engine.importExtension(QLatin1String("qutim"));
+}
+
+MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString *reason)
+{
+	Q_UNUSED(reason);
+	if (message.isIncoming())
+		return MessageHandler::Accept;
+	QLatin1Literal command("/script");
+	const QString text = message.text();
+	if (text.size() < command.size() + 2
+	        || !text.startsWith(QLatin1String(command.data()))
+	        || !text.at(command.size()).isSpace()) {
+		return MessageHandler::Accept;
+	}
+	QScriptContext *context = m_engine.pushContext();
+	QScriptValue object = context->activationObject();
+	if (ChatSession *session = ChatLayer::get(message.chatUnit(), false))
+		object.setProperty(QLatin1String("session"), m_engine.newQObject(session));
+	object.setProperty(QLatin1String("unit"), m_engine.newQObject(message.chatUnit()));
+	m_engine.evaluate(message.text().mid(command.size() + 1));
+	if (m_engine.hasUncaughtException()) {
+		QString error;
+		error = m_engine.uncaughtException().toString();
+		error += QLatin1Char('\n');
+		error += m_engine.uncaughtExceptionBacktrace().join("\n");
+		qDebug("%s", qPrintable(error));
+		Notification::send(error);
+	}
+	m_engine.popContext();
+	return MessageHandler::Reject;
+}
+
 ScriptPlugin::ScriptPlugin()
 {
 }
@@ -60,8 +101,12 @@ void ScriptPlugin::init()
 bool ScriptPlugin::load()
 {
 	qDebug() << Q_FUNC_INFO << ThemeManager::list("scripts");
-	ScriptHelperWidget *widget = new ScriptHelperWidget;
-	widget->show();
+	if (m_handler)
+		return true;
+	m_handler.reset(new ScriptMessageHandler);
+	MessageHandler::registerHandler(m_handler.data(),
+	                                MessageHandler::NormalPriortity,
+	                                MessageHandler::HighPriority);
 	return true;
 }
 
@@ -73,60 +118,12 @@ QList<Plugin*> ScriptPlugin::loadPlugins()
 	return plugins;
 }
 
-//void ScriptPlugin::evaluate()
-//{
-//	qDebug("%s", Q_FUNC_INFO);
-//	QFile scriptFile("/home/elessar/.local/share/qutim/scripts/test/plugin.json");
-//	if (!scriptFile.open(QIODevice::ReadOnly))
-//		return;
-//	QTextStream stream(&scriptFile);
-//	m_engine->evaluate(stream.readAll());
-//	QScriptValue plugin = m_engine->globalObject().property("plugin");
-//	QScriptValue loadFunc = plugin.property("load");
-//	return loadFunc.call(plugin).toBool();
-////			"client.settings.value = {\n"
-////			"'test': 123,\n"
-////			"'test2': '323'\n"
-////			"};\n"
-////			"var config = client.settings.value;"
-////			"client.debug(config.test, config.test2);\n");
-////	"client.settings.register({\n"
-////	"	'type': client.settings.General,\n"
-////	"	'text': QT_TRANSLATE_NOOP('123', 'Kak dela?'),\n"
-////	"	'entries': [\n"
-////	"		{\n"
-////	"			'type': 'LineEdit',\n"
-////	"			'name': 'justText',\n"
-////	"			'text': 'original text'\n"
-////	"		}\n"
-////	"	]\n"
-////	"});\n"
-////						"var account = client.protocols.jabber.account('euroelessar@qutim.org');\n"
-////					   "var status = account.status;\n"
-////					   "status.text = 'Привет от QtScript!';\n"
-////					   "status.type = client.status.Online;\n"
-////					   "client.debug(status.type);\n"
-////					   "account.status = status;\n"
-////					   "var sauron = account.unit('sauron@qutim.org');\n"
-////					   "function onSessionCreated(session)\n"
-////					   "{\n"
-////					   "	client.debug('Started chat session with', session.unit().id);\n"
-////					   "}\n"
-////					   "client.chatLayer.sessionCreated.connect(onSessionCreated);\n"
-////					   "client.debug(sauron.id, sauron.title);");
-////	"function sendMessageToSauron()\n"
-////	"{\n"
-////	"	client.debug('Send message');"
-////	"	sauron.sendMessage('Привет от QtScript!');\n"
-////	"}\n"
-////	"sauron.statusChanged.connect(sendMessageToSauron);\n"
-////	'euroelessar@qutim.org').id
-//	qDebug("%s %d", qPrintable(m_engine->uncaughtException().toString()), m_engine->uncaughtExceptionLineNumber());
-////	'euroelessar@qutim.org'
-//}
-
 bool ScriptPlugin::unload()
 {
+	if (m_handler) {
+		m_handler.reset(0);
+		return true;
+	}
 	return false;
 }
 
