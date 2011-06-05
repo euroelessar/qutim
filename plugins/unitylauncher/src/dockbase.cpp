@@ -19,14 +19,14 @@ DockBase::DockBase(QObject *p) : QObject(p) {}
 
 DockBase::~DockBase() {}
 
-void DockBase::setIcon(QIcon &) {}
+void DockBase::setIcon(const QIcon &) {}
 
-void DockBase::setOverlayIcon(QIcon &) {}
+void DockBase::setOverlayIcon(const QIcon &) {}
 
 void DockBase::setMenu(QMenu *) {}
 
 void DockBase::setProgress(int) {}
 
-void DockBase::setBadge(QString &) {}
+void DockBase::setBadge(const QString &) {}
 
 void DockBase::setAlert(bool) {}

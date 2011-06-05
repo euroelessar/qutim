@@ -37,7 +37,7 @@ void UnityLauncherPlugin::init ()
 
 bool UnityLauncherPlugin::load ()
 {
-	qDebug() << "[UnityLauncher] Plugin load";
+	qutim_sdk_0_3::debug() << "[UnityLauncher] Plugin load";
 	service = new UnityLauncherService();
 
 	return true;
@@ -45,7 +45,8 @@ bool UnityLauncherPlugin::load ()
 
 bool UnityLauncherPlugin::unload ()
 {
-	qDebug() << "[UnityLauncher] Plugin unload";
+	qutim_sdk_0_3::debug() << "[UnityLauncher] Plugin unload";
+	delete service.data();
 	return true;
 }
 

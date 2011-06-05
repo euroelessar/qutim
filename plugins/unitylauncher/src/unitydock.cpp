@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 #include "unitydock.h"
-#include <dbusmenu-qt/dbusmenuexporter.h>
+#include <dbusmenuexporter.h>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QVariantList>
@@ -28,22 +28,22 @@ UnityDock::~UnityDock()
 {
 }
 
-template<typename T> void UnityDock::sendMessage(const QString &name, const T& val)
+template<typename T> void UnityDock::sendMessage(const char *name, const T& val)
 {
 	QDBusMessage message = QDBusMessage::createSignal("/qutim", "com.canonical.Unity.LauncherEntry", "Update");
 	QVariantList args;
 	QVariantMap map;
-	map.insert(name, val);
-	args << "application://qutim.desktop" << map;
+	map.insert(QLatin1String(name), val);
+	args << QLatin1String("application://qutim.desktop") << map;
 	message.setArguments(args);
 	QDBusConnection::sessionBus().send(message);
 }
 
-void UnityDock::setIcon(QIcon &)
+void UnityDock::setIcon(const QIcon &)
 {
 }
 
-void UnityDock::setOverlayIcon(QIcon &)
+void UnityDock::setOverlayIcon(const QIcon &)
 {
 }
 
@@ -60,12 +60,9 @@ void UnityDock::setMenu(QMenu *menu)
 
 void UnityDock::setProgress(int progress)
 {
-	if(progress < 0)
-		progress = 0;
-	else if(progress > 100)
-		progress = 100;
+	progress = qBound(0, progress, 100);
 	sendMessage("progress", static_cast<double>(progress)/100.0);
-	sendMessage("progress-visible", static_cast<bool>(progress));
+	sendMessage("progress-visible", progress > 0);
 }
 
 void UnityDock::setBadge(const QString &badge)
@@ -76,7 +73,7 @@ void UnityDock::setBadge(const QString &badge)
 void UnityDock::setCount(int count)
 {
 	sendMessage("count", static_cast<qint64>(count));
-	sendMessage("count-visible", static_cast<bool>(count));
+	sendMessage("count-visible", count > 0);
 }
 
 

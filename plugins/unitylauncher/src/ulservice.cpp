@@ -40,7 +40,8 @@ UnityLauncherService::UnityLauncherService(QObject *p) :
 	foreach (qutim_sdk_0_3::ChatSession *session, qutim_sdk_0_3::ChatLayer::instance()->sessions())
 		onSessionCreated(session);
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MenuController> clist("ContactList");
-	dock->setMenu(clist->menu(false));
+	if(clist)
+		dock->setMenu(clist->menu(false));
 }
 
 UnityLauncherService::~UnityLauncherService()

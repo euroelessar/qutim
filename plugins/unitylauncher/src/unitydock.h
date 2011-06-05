@@ -27,8 +27,8 @@ class UnityDock : public DockBase
 		~UnityDock();
 
 	public slots:
-		virtual void setIcon(QIcon &);
-		virtual void setOverlayIcon(QIcon &);
+		virtual void setIcon(const QIcon &);
+		virtual void setOverlayIcon(const QIcon &);
 		virtual void setMenu(QMenu *menu);
 		virtual void setProgress(int progress);
 
@@ -36,7 +36,7 @@ class UnityDock : public DockBase
 		virtual void setCount(int count);
 		virtual void setAlert(bool on = true);
 	private:
-		template<typename T> void sendMessage(const QString &name, const T& val);
+		template<typename T> void sendMessage(const char *name, const T& val);
 };
 
 #endif /* end of include guard: UNITYDOCK_GN5KWDY6 */

@@ -26,12 +26,12 @@ class DockBase : public QObject
 		DockBase(QObject *p = NULL);
 		~DockBase() = 0;
 	public slots:
-		virtual void setIcon(QIcon &);
-		virtual void setOverlayIcon(QIcon &);
+		virtual void setIcon(const QIcon &);
+		virtual void setOverlayIcon(const QIcon &);
 		virtual void setMenu(QMenu *);
 		virtual void setProgress(int);
 
-		virtual void setBadge(QString &);
+		virtual void setBadge(const QString &);
 		virtual void setAlert(bool on);
 };
 
