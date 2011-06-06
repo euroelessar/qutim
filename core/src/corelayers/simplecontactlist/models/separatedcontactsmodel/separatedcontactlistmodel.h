@@ -13,7 +13,7 @@ namespace SimpleContactList
 class SeparatedModelPrivate;
 class SeparatedModel;
 
-struct ChangeEvent;
+class ChangeEvent;
 class ContactItem;
 class TagItem;
 

@@ -143,7 +143,7 @@ void VkontakteProtocolPrivate::onSendSmsTriggered(QObject *obj)
 										  tr("text:"), QLineEdit::Normal,
 										  QString()
 										  , &ok);
-	 if (ok && !text.count() <= 160) {
+	 if (ok && text.count() <= 160) {
 		Message msg(text);
 		msg.setChatUnit(con);
 		msg.setProperty("title",tr("sms"));

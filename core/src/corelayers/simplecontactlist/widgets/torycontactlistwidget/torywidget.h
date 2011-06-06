@@ -17,7 +17,7 @@ class QLineEdit;
 
 namespace Core {
 namespace SimpleContactList {
-struct ToryWidgetPrivate;
+class ToryWidgetPrivate;
 
 class ToryWidget : public QMainWindow, public AbstractContactListWidget
 {

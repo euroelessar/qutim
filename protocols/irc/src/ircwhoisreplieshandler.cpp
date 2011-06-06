@@ -79,7 +79,7 @@ void IrcWhoisRepliesHandler::handleMessage(class IrcAccount *account, const QStr
 		QString nick = params.value(1);
 		bool userRequest = account->isUserInputtedCommand("WHOIS");
 		QDateTime idleSince = QDateTime::currentDateTime();
-		idleSince.addSecs(-params.value(2).toUInt());
+		idleSince.addSecs(-params.value(2).toInt());
 		account->log(tr("%1 has been idle since")
 					   .arg(nick)
 					   .arg(idleSince.toString(Qt::DefaultLocaleShortDate)),

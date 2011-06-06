@@ -116,7 +116,8 @@ bool IrcChannel::sendMessage(const Message &message)
 		extParams.insert('n', d->name);
 		account()->send(text.mid(1), true, IrcCommandAlias::Channel, extParams);
 	} else {
-		account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(text), true);
+		foreach (const QString &line, text.split(QLatin1Char('\n')))
+			account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(line), true);
 	}
 	return true;
 }

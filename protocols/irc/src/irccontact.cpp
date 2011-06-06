@@ -71,7 +71,8 @@ bool IrcContact::sendMessage(const Message &message)
 	Status::Type status = account()->status().type();
 	if (status == Status::Connecting || status == Status::Offline)
 		return false;
-	account()->send(QString("PRIVMSG %1 :%2").arg(d->nick).arg(message.text()));
+	foreach (const QString &line, message.text().split(QLatin1Char('\n')))
+		account()->send(QString("PRIVMSG %1 :%2").arg(d->nick).arg(line));
 	return true;
 }
 
