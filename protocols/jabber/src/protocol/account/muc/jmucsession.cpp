@@ -469,6 +469,9 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
 	//TODO add capthca handler
+	Q_D(JMUCSession);
+	if (!msg.subject().isEmpty())
+		d->topic = msg.subject();
 	ChatSession *chatSession = ChatLayer::get(this, true);
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
@@ -490,6 +493,9 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 {
 	Q_UNUSED(nick);
+	Q_D(JMUCSession);
+	if (d->topic == subject)
+		return;
 	qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % subject);
 	msg.setChatUnit(this);
 	msg.setTime(QDateTime::currentDateTime());
@@ -662,18 +668,19 @@ ChatUnitList JMUCSession::lowerUnits()
 
 QString JMUCSession::topic() const
 {
-	return d_func()->room->subject();
+	return d_func()->topic;
 }
 
 void JMUCSession::setTopic(const QString &topic)
 {
-	//	setConferenceTopic(topic);
 	d_func()->room->setSubject(topic);
 }
 
 void JMUCSession::setConferenceTopic(const QString &topic)
 {
 	Q_D(JMUCSession);
+	if (d->topic == topic)
+		return;
 	QString previous = d->topic;
 	d->topic = topic;
 	emit topicChanged(topic, previous);
