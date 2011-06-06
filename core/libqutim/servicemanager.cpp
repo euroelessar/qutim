@@ -76,23 +76,26 @@ void ServiceManagerPrivate::init(const QByteArray &service, const ExtensionInfo 
 		}
 	}
 	QObject *object = info.generator()->generate();
-	initializationOrder << object;
-	data(service) = object;
+	initializationOrder << data(service);
+	initializationOrder.last()->object = object;
 }
 
 void ServiceManagerPrivate::deinit()
 {
-	for (int i = initializationOrder.size() - 1; i >= 0; --i)
-		delete initializationOrder.at(i);
+	for (int i = initializationOrder.size() - 1; i >= 0; --i) {
+		QObject * &object = initializationOrder.at(i)->object;
+		delete object;
+		object = 0;
+	}
 	initializationOrder.clear();
 	hash.clear();
 }
 
-QObject* &ServiceManagerPrivate::data(const QByteArray &name)
+ServicePointerData *ServiceManagerPrivate::data(const QByteArray &name)
 {
 	QSharedPointer<ServicePointerData> &d = hash[name];
 	if (!d) d = QSharedPointer<ServicePointerData>::create();
-	return d->object;
+	return d.data();
 }
 
 ServiceManager::ServiceManager() : d_ptr(new ServiceManagerPrivate(this))
@@ -116,7 +119,7 @@ bool ServiceManager::isInited()
 
 QObject *ServiceManager::getByName(const QByteArray &name)
 {
-	return ServiceManagerPrivate::get(instance())->data(name);
+	return ServiceManagerPrivate::get(instance())->data(name)->object;
 }
 
 QList<QByteArray> ServiceManager::names()
@@ -153,22 +156,21 @@ bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionIn
 		cfg.setValue(QLatin1String(name), QLatin1String(info.generator()->metaObject()->className()));
 	}
 	d->checked.insert(name, info);
-	QObject * &object = d->data(name);
+	ServicePointerData *data = d->data(name);
+	QObject * &object = data->object;
 	QObject *oldObject = info.generator() ? info.generator()->generate() : 0;
 	qSwap(oldObject, object);
-	int index = d->initializationOrder.indexOf(oldObject);
 	if (!oldObject && object) {
-		d->initializationOrder << object;
+		d->initializationOrder << data;
 	} else if (oldObject && !object) {
+		int index = d->initializationOrder.indexOf(data);
 		Q_ASSERT(index != -1);
 		d->initializationOrder.removeAt(index);
-	} else {
-		Q_ASSERT(index != -1);
-		d->initializationOrder.replace(index, object);
 	}
 	emit instance()->serviceChanged(name, object, oldObject);
 	emit instance()->serviceChanged(object, oldObject);
-	oldObject->deleteLater();
+	if (oldObject)
+		oldObject->deleteLater();
 	return true;
 }
 

@@ -57,6 +57,7 @@ SettingsItem::SettingsItem(Settings::Type type, const LocalizedString &text) : d
 SettingsItem::~SettingsItem()
 {
 	Q_D(SettingsItem);
+	Settings::removeItem(this);
 	clearWidget();
 	if (d->gen)
 		delete d->gen;
@@ -379,7 +380,7 @@ const ObjectGenerator *DataSettingsItem::generator() const
 
 SettingsLayer::SettingsLayer()
 {
-	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "Settings Window"));
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("Service", "Settings Window"));
 }
 
 SettingsLayer::~SettingsLayer()
@@ -408,6 +409,7 @@ struct SettingsPrivate
 	SettingsItemList items;
 	ActionEntryMap entries;
 	MenuSettingsMap map;
+	ServicePointer<SettingsLayer> service;
 };
 
 bool itemLessThan(const SettingsItem *a,const SettingsItem *b)
@@ -481,34 +483,31 @@ void registerItem(SettingsItem *item)
 													item,
 													itemLessThan
 													);
+	if (before != p->items.end() && *before == item)
+		return;
 	p->items.insert(before,item);
-	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	if(l)
-		l->update(p->items);
+	if (p->service)
+		p->service->update(p->items);
 }
 
 void removeItem(SettingsItem *item)
 {
 	ensure_settings_private();
-	p->items.removeAll(item);
-	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	if(l)
-		l->update(p->items);
+	if (p->items.removeAll(item) > 0 && p->service)
+		p->service->update(p->items);
 }
 
 void showWidget()
 {
 	ensure_settings_private();
-	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	Q_ASSERT(l);
-	l->show(p->items);
+	if (p->service)
+		p->service->show(p->items);
 }
 
 void closeWidget()
 {
-	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	Q_ASSERT(l);
-	l->close();
+	if (p->service)
+		p->service->close();
 }
 }
 
@@ -520,7 +519,7 @@ void SettingsLayer::virtual_hook(int id, void *data)
 
 void SettingsLayer::show(MenuController *controller)
 {	
-	show(Settings::items(controller->metaObject()),controller);
+	show(Settings::items(controller->metaObject()), controller);
 }
 
 int SettingsItem::priority() const
