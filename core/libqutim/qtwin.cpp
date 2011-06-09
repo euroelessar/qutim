@@ -5,15 +5,15 @@
 namespace qutim_sdk_0_3 {
 
 	namespace QtWin {
-		
+
 		bool isCompositionEnabled()
 		{
 			return QtDWM::isCompositionEnabled();
 		}
 
-		QColor colorizatinColor()
+		QColor colorizationColor()
 		{
-			return QtDWM::colorizatinColor();
+			return QtDWM::colorizationColor();
 		}
 
 		bool enableBlurBehindWindow ( QWidget* widget, bool enable )

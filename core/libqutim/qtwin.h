@@ -66,7 +66,7 @@ namespace qutim_sdk_0_3
 		*
 		* \a enable tells if the blur should be enabled or not
 		*/		
-		LIBQUTIM_EXPORT QColor colorizatinColor();
+		LIBQUTIM_EXPORT QColor colorizationColor();
 	}
 	
 }

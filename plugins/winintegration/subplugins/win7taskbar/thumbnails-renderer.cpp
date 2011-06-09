@@ -32,8 +32,13 @@
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <QMessageBox>
+#include <QLibrary>
+#include <qt_windows.h>
 
 using namespace qutim_sdk_0_3;
+
+typedef HRESULT (WINAPI * DwmGetColorizationColor_t)(DWORD*, BOOL*);
+DwmGetColorizationColor_t pDwmGetColorizationColor = 0;
 
 WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
 {
@@ -64,6 +69,8 @@ WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
 	grView->setVerticalScrollBarPolicy  (Qt::ScrollBarAlwaysOff);
 	parentThumbs = parent;
 	onUnreadChanged(0, 0);
+	QLibrary dwm("dwmapi.dll");
+	pDwmGetColorizationColor = reinterpret_cast<DwmGetColorizationColor_t>(dwm.resolve("DwmGetColorizationColor"));
 }
 
 WThumbnailsProvider::~WThumbnailsProvider()
@@ -135,6 +142,16 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
+	grView->setBackgroundBrush(QBrush(Qt::white));
+	if (pDwmGetColorizationColor) {
+		DWORD color; // 0xaarrggbb
+		BOOL unused;
+		if (SUCCEEDED(pDwmGetColorizationColor(&color, &unused))) {
+			const QColor qcolor((color & 0x00ff0000)>>16, (color & 0x0000ff00)>>8, color & 0x000000ff);
+			grView->setBackgroundBrush(QBrush(qcolor));
+			qDebug() << qcolor;
+		}
+	}
 	QTimer::singleShot(0, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);
 }

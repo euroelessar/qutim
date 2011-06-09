@@ -30,7 +30,7 @@ public:
                                           int left = -1, int top = -1,
                                           int right = -1, int bottom = -1);
     static bool isCompositionEnabled();
-    static QColor colorizatinColor();
+    static QColor colorizationColor();
 
 private:
     static WindowNotifier *windowNotifier();

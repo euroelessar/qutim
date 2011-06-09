@@ -271,7 +271,7 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
   *
   * \a enable tells if the blur should be enabled or not
   */
-QColor QtDWM::colorizatinColor()
+QColor QtDWM::colorizationColor()
 {
 	QColor resultColor = QApplication::palette().window().color();
 
