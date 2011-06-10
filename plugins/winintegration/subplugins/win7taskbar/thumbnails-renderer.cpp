@@ -33,12 +33,27 @@
 #include <qutim/debug.h>
 #include <QMessageBox>
 #include <QLibrary>
+#include <qutim/qtwin.h>
 #include <qt_windows.h>
 
 using namespace qutim_sdk_0_3;
 
-typedef HRESULT (WINAPI * DwmGetColorizationColor_t)(DWORD*, BOOL*);
-DwmGetColorizationColor_t pDwmGetColorizationColor = 0;
+typedef LONG (WINAPI * RegGetValueA_t)(HKEY, const char*const, const char*const, DWORD, LPDWORD, PVOID, LPDWORD);
+static RegGetValueA_t pRegGetValueA = (RegGetValueA_t)QLibrary("advapi32").resolve("RegGetValueA");
+
+const DWORD RRF_RT_REG_DWORD_macro = 0x00000010;
+
+QColor GetUserSelectedAeroColor()
+{
+	const QColor defaultColor(170, 15, 30);
+	if (!QtWin::isCompositionEnabled() || !pRegGetValueA)
+		return defaultColor;
+	DWORD color = 0, size = sizeof(DWORD);
+	if (ERROR_SUCCESS == pRegGetValueA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\DWM", "ColorizationColor", RRF_RT_REG_DWORD_macro, 0, (void*)&color, &size))
+		return QColor((color & 0x00ff0000)>>16, (color & 0x0000ff00)>>8, color & 0x000000ff);
+	else
+		return defaultColor;
+}
 
 WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
 {
@@ -69,8 +84,6 @@ WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
 	grView->setVerticalScrollBarPolicy  (Qt::ScrollBarAlwaysOff);
 	parentThumbs = parent;
 	onUnreadChanged(0, 0);
-	QLibrary dwm("dwmapi.dll");
-	pDwmGetColorizationColor = reinterpret_cast<DwmGetColorizationColor_t>(dwm.resolve("DwmGetColorizationColor"));
 }
 
 WThumbnailsProvider::~WThumbnailsProvider()
@@ -142,16 +155,7 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
-	grView->setBackgroundBrush(QBrush(Qt::white));
-	if (pDwmGetColorizationColor) {
-		DWORD color; // 0xaarrggbb
-		BOOL unused;
-		if (SUCCEEDED(pDwmGetColorizationColor(&color, &unused))) {
-			const QColor qcolor((color & 0x00ff0000)>>16, (color & 0x0000ff00)>>8, color & 0x000000ff);
-			grView->setBackgroundBrush(QBrush(qcolor));
-			qDebug() << qcolor;
-		}
-	}
+	grView->setBackgroundBrush(QBrush(GetUserSelectedAeroColor()));
 	QTimer::singleShot(0, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);
 }

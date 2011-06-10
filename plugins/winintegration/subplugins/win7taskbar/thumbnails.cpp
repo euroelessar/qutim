@@ -34,7 +34,7 @@
 using namespace qutim_sdk_0_3;
 
 WThumbnails::WThumbnails()
-	: pp(0), chatWindow(0), tabId(0)
+	: chatWindow(0), tabId(0), pp(0)
 {
 	reloadSetting();
 	if (cfg_enabled) {
