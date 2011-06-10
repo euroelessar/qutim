@@ -68,7 +68,7 @@ ContactWidget::~ContactWidget()
 
 void ContactWidget::contextMenuEvent(QContextMenuEvent * event)
 {
-	m_contact->menu(true)->popup(event->globalPos());
+	m_contact->showMenu(event->globalPos());
 }
 
 void ContactWidget::mousePressEvent(QMouseEvent *event)

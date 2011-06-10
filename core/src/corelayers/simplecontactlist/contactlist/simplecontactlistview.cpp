@@ -79,7 +79,7 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		qDebug("%s", qPrintable(buddy->id()));
-		buddy->menu(true)->popup(event->globalPos());
+		buddy->showMenu(event->globalPos());
 	}
 }
 

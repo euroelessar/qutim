@@ -45,6 +45,7 @@ namespace AdiumChat
 TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	AbstractChatWidget(parent),
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
+    m_actions(ActionContainer::TypeMatch, ActionTypeChatButton),
 	m_tabBar(new TabBar(this)),
 	m_chatInput(new ChatEdit(this)),
 	m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
@@ -52,6 +53,8 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_key(key),
 	m_unitAction(0)
 {
+	m_actions.addHandler(this);
+	m_actions.show();
 	setAttribute(Qt::WA_DeleteOnClose);	
 	QWidget *centralWidget = new QWidget(this);
 	setCentralWidget(centralWidget);
@@ -176,10 +179,13 @@ void TabbedChatWidget::loadSettings()
 			general->setMenu(ServiceManager::getByName<MenuController*>("ContactList")->menu());
 
 			QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
-			QMenu *m = new QMenu(this);
-			foreach(Account *a,Account::all())
-				m->addMenu(a->menu());
-			accounts->setMenu(m);
+			QMenu *menu = new QMenu(this);
+			foreach(Account *account, Account::all()) {
+				QMenu *accountMenu = account->menu(false);
+				accountMenu->setParent(menu);
+				menu->addMenu(accountMenu);
+			}
+			accounts->setMenu(menu);
 			m_unitAction = menuBar()->addAction(tr("&Chat"));
 		}
 
@@ -232,6 +238,31 @@ QPlainTextEdit *TabbedChatWidget::getInputField() const
 bool TabbedChatWidget::contains(ChatSessionImpl *session) const
 {
 	return m_tabBar->contains(session);
+}
+
+void TabbedChatWidget::actionAdded(QAction *action, int index)
+{
+	QList<QAction*> actions = m_toolbar->actions();
+	int unitIndex = actions.indexOf(m_unitSeparator);
+	index = unitIndex - index;
+	m_toolbar->insertAction(actions.at(index), action);
+}
+
+void TabbedChatWidget::actionRemoved(int index)
+{
+	QList<QAction*> actions = m_toolbar->actions();
+	int unitIndex = actions.indexOf(m_unitSeparator);
+	index = unitIndex - index;
+	m_toolbar->removeAction(actions.at(index));
+}
+
+void TabbedChatWidget::actionsCleared()
+{
+	QList<QAction*> actions = m_toolbar->actions();
+	int from = actions.indexOf(m_actSeparator) + 1;
+	int to = actions.indexOf(m_unitSeparator, from);
+	for (int i = from; i < to; i++)
+		m_tabBar->removeAction(actions.at(i));
 }
 
 void TabbedChatWidget::addAction(ActionGenerator *gen)
@@ -293,17 +324,22 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	m_contactView->setSession(session);
 	m_view->setViewController(session->getController());
 
-	qDeleteAll(m_unitChatActionList);
-	m_unitChatActionList.clear();
+	m_actions.setController(session->getUnit());
 	m_recieverList->setMenu(session->menu());
-	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
-	for (int i = 0;i!=container.count();i++) {
-		QAction *current = container.action(i);
-		m_toolbar->insertAction(m_unitSeparator,current);
-		m_unitChatActionList.append(current);
+//	qDeleteAll(m_unitChatActionList);
+//	m_unitChatActionList.clear();
+//	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
+//	for (int i = 0;i!=container.count();i++) {
+//		QAction *current = container.action(i);
+//		m_toolbar->insertAction(m_unitSeparator,current);
+//		m_unitChatActionList.append(current);
+//	}
+	if(m_flags & MenuBar) {
+		delete m_unitAction->menu();
+		QMenu *menu = session->unit()->menu(false);
+		connect(m_unitAction, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+		m_unitAction->setMenu(menu);
 	}
-	if(m_flags & MenuBar)
-		m_unitAction->setMenu(session->unit()->menu());
 }
 
 ChatSessionImpl *TabbedChatWidget::currentSession() const

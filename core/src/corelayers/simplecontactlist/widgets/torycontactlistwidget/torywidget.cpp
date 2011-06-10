@@ -232,7 +232,9 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 		accountsWidget->installEventFilter(this);
 	}
 	QToolButton *button = new QToolButton(this);
-	button->setMenu(account->menu());
+	QMenu *menu = account->menu(false);
+	menu->setParent(button);
+	button->setMenu(menu);
 	button->setIcon(account->status().icon());
 	button->setToolTip(account->id());
 	button->setAutoRaise(true);

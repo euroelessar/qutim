@@ -35,11 +35,14 @@ class ChatViewWidget;
 class TabBar;
 class ChatEdit;
 class ConferenceContactsView;
-class TabbedChatWidget : public AbstractChatWidget
+class TabbedChatWidget : public AbstractChatWidget, public ActionHandler
 {
     Q_OBJECT
 public:
 	TabbedChatWidget(const QString &key = QString(),QWidget *parent = 0);
+	virtual void actionAdded(QAction *action, int index);
+	virtual void actionRemoved(int index);
+	virtual void actionsCleared();
 	virtual void addAction(ActionGenerator *gen);
 	virtual QPlainTextEdit *getInputField() const;
 	virtual bool contains(ChatSessionImpl *session) const;
@@ -63,6 +66,7 @@ protected slots:
 	void onUnreadChanged();
 private:
 	ActionToolBar *m_toolbar;
+	ActionContainer m_actions;
 	ChatViewWidget *m_view;
 	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;

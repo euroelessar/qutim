@@ -303,7 +303,10 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	menuBar->addMenu(session->getUnit()->menu());
 	m_recieverList->setMenu(session->menu());
 #ifndef QUTIM_MOBILE_UI
-	m_unitActions->setMenu(session->getUnit()->menu());
+	delete m_unitActions->menu();
+	QMenu *menu = session->unit()->menu(false);
+	connect(m_unitActions, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+	m_unitActions->setMenu(menu);
 #endif
 
 }

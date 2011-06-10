@@ -26,22 +26,69 @@
 
 namespace qutim_sdk_0_3
 {
+typedef QMap<QAction*, QObject*> ActionControllerMap;
+Q_GLOBAL_STATIC(ActionMap, actionMap)
+Q_GLOBAL_STATIC(ActionControllerMap, actionControllerMap)
 Q_GLOBAL_STATIC(MenuActionMap, globalActions)
-ActionGeneratorMap *actionsCache()
+Q_GLOBAL_STATIC(QSet<QByteArray>, menuNameSet)
+
+ActionValue::ActionValue(const ActionKey &k) : key(k)
 {
-	static QScopedPointer<ActionGeneratorMap> actions(new ActionGeneratorMap);
-	return actions.data();
+	action = key.second->generate<QAction>();
+	key.second->create(action, key.first);
+	actionControllerMap()->insert(action, key.first);
 }
 
-ActionHandler *handler()
+ActionValue::~ActionValue()
 {
-	static ActionHandler handler;
+	actionControllerMap()->remove(action);
+	actionMap()->remove(key);
+	delete action;
+}
+
+ActionValue::Ptr ActionValue::get(const ActionInfoV2 &info)
+{
+	ActionKey key(info.controller, info.gen);
+	ActionMap::ConstIterator it = actionMap()->constFind(key);
+	if (it != actionMap()->constEnd())
+		return it.value().toStrongRef();
+	ActionValue::Ptr value(new ActionValue(key));
+	actionMap()->insert(key, value.toWeakRef());
+	return value;
+}
+
+ActionValue::WeakPtr ActionValue::find(const ActionGenerator *gen, QObject *controller)
+{
+	return actionMap()->value(ActionKey(controller, gen));
+}
+
+QList<ActionValue::WeakPtr> ActionValue::find(const ActionGenerator *gen)
+{
+	QList<ActionValue::WeakPtr> result;
+	ActionMap::ConstIterator it = actionMap()->constBegin();
+	ActionMap::ConstIterator endit = actionMap()->constEnd();
+	for (; it != endit; ++it) {
+		if (it.key().second == gen)
+			result << it.value();
+	}
+	return result;
+}
+
+const QByteArray &menuNameBySet(const QByteArray &name)
+{
+	return *menuNameSet()->insert(name);
+}
+
+ActionHandlerHelper *handler()
+{
+	static ActionHandlerHelper handler;
 	return &handler;
 }
-Q_GLOBAL_STATIC(QSet<DynamicMenu*>, dynamicMenuSet)
+
+Q_GLOBAL_STATIC(QList<MenuController*>, activatedControllers)
 
 MenuControllerPrivate::MenuControllerPrivate(MenuController *c):
-	owner(0), flags(0xffff), q_ptr(c)
+	owner(0), flags(0xffff), q_ptr(c), actions(c)
 {
 }
 
@@ -57,9 +104,6 @@ MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) :
 
 MenuController::~MenuController()
 {
-	Q_D(MenuController);
-	if (d->menu)
-		delete d->menu;
 }
 
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
@@ -76,9 +120,9 @@ bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
 
 bool actionLessThan(const ActionInfo &a, const ActionInfo &b)
 {
-	int cmp = a.menu.size() - b.menu.size();
+	int cmp = a.hash.size() - b.hash.size();
 	if (cmp == 0) {
-		for (int i = 0; i < a.menu.size() && !cmp; i++)
+		for (int i = 0; i < a.hash.size() && !cmp; i++)
 			cmp = a.hash.at(i) - b.hash.at(i); //qstrcmp(a.menu.at(i), b.menu.at(i));
 		if (cmp != 0)
 			return cmp < 0;
@@ -88,17 +132,6 @@ bool actionLessThan(const ActionInfo &a, const ActionInfo &b)
 
 	// Items are inside one menu
 	return actionGeneratorLessThan(a.gen, b.gen);
-}
-
-inline bool isEqualMenu(const QList<uint> &a, const QList<uint> &b)
-{
-	if (a.size() != b.size())
-		return false;
-	for (int i = 0; i < a.size(); i++) {
-		if (a[i] != b[i])
-			return false;
-	}
-	return true;
 }
 
 inline quint64 pack_helper(quint32 a, quint32 b)
@@ -112,65 +145,19 @@ inline void unpack_helper(quint64 h, quint32 *a, quint32 *b)
 	*a = (h - *b) >> 32;
 }
 
-ActionEntry *DynamicMenu::findEntry(ActionEntry &entries, const ActionInfo &info)
+ActionEntry *DynamicMenu::findEntry(const ActionInfo &info)
 {
-	ActionEntry *current = &entries;
-	for (int i = 0; i < info.menu.size(); i++) {
+	ActionEntry *current = &m_entry;
+	for (int i = 0; i < info.hash.size(); i++) {
 		QMap<uint, ActionEntry>::iterator it = current->entries.find(info.hash.at(i));
 		if (it == current->entries.end()) {
-			QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
-			connect(menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
-			connect(menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
-			//QAction *action = menu->menuAction();
-			//action->setData(qVariantFromValue(const_cast<ActionGenerator*>(info.gen)));
-			//action->setData(pack_helper(info.hash.at(i), info.hash.size()));
+			QString name = QCoreApplication::translate("Menu", info.menu.at(i));
+			QMenu *menu = current->menu->addMenu(name);
 			it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
 		}
 		current = &it.value();
 	}
 	return current;
-}
-
-QAction *DynamicMenu::ensureAction(const ActionGenerator *gen)
-{
-	QObject *controller = m_owners.value(gen);
-	Q_ASSERT(controller);
-	QAction *action = actionsCache()->value(gen).value(controller);
-	if (!action) {
-		action = gen->generate<QAction>();
-		gen->create(action, controller);
-	}
-	return action;
-}
-
-// Move method somewhere outside the DynamicMenu
-QList<ActionInfo> DynamicMenu::allActions() const
-{
-	const MenuController *owner = m_d->q_func();
-	QList<ActionInfo> actions;
-	QSet<const QMetaObject *> metaObjects;
-	while (owner) {
-		int flags = MenuControllerPrivate::get(owner)->flags;
-		foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
-			m_owners.insert(info.gen, const_cast<MenuController*>(owner));
-			actions << info;
-		}
-		const QMetaObject *meta = owner->metaObject();
-		while (meta) {
-			if (metaObjects.contains(meta))
-				break;
-			foreach (const ActionInfo &info, globalActions()->values(meta)) {
-				actions << info;
-				m_owners.insert(info.gen, const_cast<MenuController*>(owner));
-			}
-			metaObjects.insert(meta);
-			meta = (flags & MenuController::ShowSuperActions) ? meta->superClass() : 0;
-		}
-		owner = (flags & MenuController::ShowOwnerActions)
-				? MenuControllerPrivate::get(owner)->owner : 0;
-	}
-	qSort(actions.begin(), actions.end(), actionLessThan);
-	return actions;
 }
 
 typedef QMenu * (*_menu_creator_hook)(const QString &title, QWidget *parent);
@@ -187,178 +174,130 @@ inline QMenu *create_menu(MenuController *controller)
 }
 
 DynamicMenu::DynamicMenu(MenuControllerPrivate *d) :
-	m_d(d), m_entry(create_menu(d->q_ptr))
+	m_d(d), m_shown(false), m_entry(create_menu(d->q_ptr))
 {
-	dynamicMenuSet()->insert(this);
-	m_menu = m_entry.menu;
-	connect(m_menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
-	connect(m_menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
-	connect(m_menu, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-	connect(this, SIGNAL(destroyed()), m_menu, SLOT(deleteLater()));
-	QList<ActionInfo> actions = allActions();
-	if (actions.isEmpty())
+	setParent(m_entry.menu);
+	m_entry.menu->installEventFilter(this);
+	connect(m_entry.menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
+	connect(m_entry.menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
+	d->actions.ref();
+	if (d->actions.size() == 0)
 		return;
-	addActions(actions);
-}
-
-void DynamicMenu::addActions(const QList<ActionInfo> &actions)
-{
+	
 	// Stable actions, they use new api and are always at memory
-	int lastType = actions[0].gen->type();
+	ActionCollectionPrivate *p = ActionCollectionPrivate::get(d->actions);
+	int lastType = p->info(0).gen->type();
 	QList<uint> lastMenu;
-	ActionEntry *currentEntry = &m_entry;
-	for (int i = 0; i < actions.size(); i++) {
-		const ActionInfo &act = actions[i];
-
-		if (!isEqualMenu(lastMenu, act.hash)) {
+	ActionEntry *current = &m_entry;
+	for (int i = 0; i < d->actions.size(); i++) {
+		const ActionInfoV2 &act = p->info(i);
+		if (lastMenu != act.hash) {
 			lastType = act.gen->type();
 			lastMenu = act.hash;
-			currentEntry = findEntry(m_entry, act);
+			current = findEntry(act);
 		} else if (lastType != act.gen->type()) {
 			lastType = act.gen->type();
-			currentEntry->menu->addSeparator();
+			current->menu->addSeparator();
 		}
-
-		QAction *action = ensureAction(act.gen);
-		if (action)
-			currentEntry->menu->addAction(action);
+		current->menu->addAction(d->actions.action(i));
+		m_entries.append(current);
 	}
-}
-
-void DynamicMenu::addAction(MenuController *owner, const ActionInfo &info)
-{
-	m_owners.insert(info.gen, owner);
-	onActionAdded(info);
-}
-
-void DynamicMenu::removeAction(MenuController *owner, const ActionGenerator *gen)
-{
-	MenuControllerPrivate *d = MenuControllerPrivate::get(owner);
-	const ActionInfo *info = 0;
-	for (int i = 0; i < d->actions.size(); i++) {
-		if (d->actions.at(i).gen == gen) {
-			info = &d->actions.at(i);
-			break;
-		}
-	}
-	QAction *action = gen ? actionsCache()->value(gen).value(owner) : 0;
-	if (!info || !action)
-		return;
-	// May be cache menus?
-	// Or it will work fine?
-	action->deleteLater();
-}
-
-void DynamicMenu::onActionAdded(const ActionInfo &info)
-{
-	QAction *newAction = ensureAction(info.gen);
-	if (newAction) {
-		QMenu *menu = findEntry(m_entry, info)->menu;
-		QList<QAction*> actions = menu->actions();
-		int lastType = 0;
-		int *lastTypeRef = 0;
-		for (int i = 0; i < actions.size(); i++) {
-			QAction *action = actions.at(i);
-			ActionGenerator *gen = ActionGenerator::get(action);
-			if (gen && actionGeneratorLessThan(info.gen, gen)) {
-				if (gen->type() != info.gen->type()) {
-					if (i > 0 && actions.at(i - 1)->isSeparator()) {
-						if (lastTypeRef && lastType == info.gen->type())
-							action = actions.at(i - 1);
-					} else {
-						action = menu->insertSeparator(action);
-					}
-				}
-				menu->insertAction(action, newAction);
-				return;
-			} else if (gen) {
-				lastType = gen->type();
-				lastTypeRef = &lastType;
-			}
-		}
-		menu->addAction(newAction);
-	}
+	
+	d->actions.addHandler(this);
 }
 
 DynamicMenu::~DynamicMenu()
 {
-	dynamicMenuSet()->remove(this);
-	// 		foreach (QAction *action, actions()) {
-	// 			if (!actionsCache()->key(action))
-	// 				action->deleteLater();
-	// 		}
+	if (m_shown)
+		m_d->actions.showDeref();
+	m_d->actions.removeHandler(this);
+	m_d->actions.deref();
+}
+
+void DynamicMenu::actionAdded(QAction *action, int index)
+{
+	ActionCollectionPrivate *p = ActionCollectionPrivate::get(m_d->actions);
+	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
+	const ActionInfoV2 &info = p->info(index);
+	const ActionInfoV2 *next = (index + 1 < p->actionInfos.size()) ? &p->info(index + 1) : 0;
+	ActionEntry *entry = findEntry(info);
+	m_entries.insert(index, entry);
+	if (next) {
+		if (m_entries[index + 1] == entry) {
+			QAction *nextAction = p->actions.at(index + 1)->action;
+			if (next->gen->type() != info.gen->type())
+				nextAction = entry->menu->insertSeparator(nextAction);
+			entry->menu->insertAction(nextAction, action);
+			return;
+		}
+	}
+	entry->menu->addAction(action);
+	if (prev && m_entries[index - 1] == entry
+	        && prev->gen->type() != info.gen->type()) {
+		entry->menu->insertSeparator(action);
+	}
+}
+
+void DynamicMenu::actionRemoved(int index)
+{
+	ActionEntry *entry = m_entries.takeAt(index);
+	entry->menu->removeAction(m_d->actions.action(index));
+}
+
+void DynamicMenu::actionsCleared()
+{
+	m_entry.menu->clear();
+	m_entries.clear();
+}
+
+bool DynamicMenu::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (obj == m_entry.menu && ev->type() == QEvent::Hide) {
+		if (m_entry.menu->testAttribute(Qt::WA_DeleteOnClose))
+			m_entry.menu->deleteLater();
+		return false;
+	}
+	return QObject::eventFilter(obj, ev);
 }
 
 void DynamicMenu::onAboutToShow()
 {
-	QMenu *menu = qobject_cast<QMenu*>(sender());
-	if(!menu) //on Symbian it's may be doesn't work ((
-		return;
-	if (dynamicActionsList.isEmpty()) {
-		foreach (const MenuController::Action &action, m_d->dynamicActions()) {
-			dynamicActionsList << action.generator;
-			m_d->q_func()->addAction(action.generator, action.menu);
-//			onActionAdded(ActionInfo(action.generator,
-//			                         ActionGeneratorPrivate::get(action.generator),
-//			                         action.menu));
-		}
-	}
-	foreach (QAction *action, menu->actions()) {
-		ActionGenerator *gen = ActionGenerator::get(action);
-		if (!gen) {
-//			if (!action->isSeparator())
-//				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
-			continue;
-		}
-		QObject *controller = m_owners.value(gen);
-		ActionGeneratorPrivate::get(gen)->show(action,controller);
+	if (!m_shown) {
+		m_shown = true;
+		m_d->actions.showRef();
 	}
 }
 
 void DynamicMenu::onAboutToHide()
 {
-	QMenu *menu = qobject_cast<QMenu*>(sender());
-	Q_ASSERT(menu);
-	foreach (QAction *action, menu->actions()) {
-		ActionGenerator *gen = ActionGenerator::get(action);
-		if (!gen) {
-			continue;
-		}
-		QObject *controller = m_owners.value(gen);
-		ActionGeneratorPrivate::get(gen)->hide(action,controller);
-	}
-	if (!dynamicActionsList.isEmpty()) {
-		MenuController *controller = m_d->q_func();
-		foreach (ActionGenerator *gen, dynamicActionsList)
-			controller->removeAction(gen);
-		QVariant var = qVariantFromValue(DynamicActionList(new DynamicActionListKiller(dynamicActionsList)));
-		Event *ev = new Event("dynamic-action-list-hook", var);
-		QCoreApplication::postEvent(Event::eventManager(), ev, -2);
-		dynamicActionsList.clear();
+	if (m_shown) {
+		m_shown = false;
+		m_d->actions.showDeref();
 	}
 }
 
 QMenu *MenuController::menu(bool deleteOnClose) const
 {
-	Q_UNUSED(deleteOnClose);
-	Q_D(const MenuController);
-	if (!d->menu)
-		d->menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d));
+	DynamicMenu *menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d_func()));
+	menu->menu()->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
+//	if (!d->menu)
+//		d->menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d));
 #ifdef Q_WS_MAEMO_5
-	d->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
+	menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
 	//maemo does not use QMenu in main menu. Only the action in menu.
-	foreach (QAction *action, d->menu->menu()->actions()) {
-		ActionGenerator *gen = ActionGenerator::get(action);
-		if (!gen) {
-			if (!action->isSeparator())
-				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
-			continue;
-		}
-		QObject *controller = d_func()->menu->m_owners.value(gen);
-		ActionGeneratorPrivate::get(gen)->show(action,controller);
-	}
+	menu->onAboutToShow();
+//	foreach (QAction *action, menu->menu()->actions()) {
+//		ActionGenerator *gen = ActionGenerator::get(action);
+//		if (!gen) {
+//			if (!action->isSeparator())
+//				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
+//			continue;
+//		}
+//		QObject *controller = menu->menu->m_owners.value(gen);
+//		ActionGeneratorPrivate::get(gen)->show(action,controller);
+//	}
 #endif
-	return d->menu->menu();
+	return menu->menu();
 }
 
 void MenuController::showMenu(const QPoint &pos)
@@ -368,31 +307,31 @@ void MenuController::showMenu(const QPoint &pos)
 
 void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
 {
-	Q_D(MenuController);
-	Q_ASSERT(gen);
-	ActionInfo info = ActionInfo(gen, gen->d_func(), menu);
-	d->actions.append(info);
-	foreach (DynamicMenu *menu, *dynamicMenuSet()) {
-		MenuController *owner = menu->controller();
+	const ActionInfoV2 &info = d_func()->actions.addAction(gen, menu);
+	foreach (MenuController *controller, *activatedControllers()) {
+		MenuController *owner = controller;
 		int flags = owner->d_func()->flags;
 		while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
 			flags = owner->d_func()->flags;
 		if (owner)
-			menu->addAction(this, info);
+			controller->d_func()->actions.addAction(info);
 	}
 }
 
 bool MenuController::removeAction(const ActionGenerator *gen)
 {
 	Q_D(MenuController);
-	foreach (DynamicMenu *menu, *dynamicMenuSet()) {
-		MenuController *owner = menu->controller();
-		if (owner && owner->d_func()->menu)
-			menu->removeAction(owner, gen);
-	}
-	for (int i = 0; i < d->actions.size(); i++) {
-		if (d->actions.at(i).gen == gen) {
-			d->actions.removeAt(i);
+	ActionCollectionPrivate *p = ActionCollectionPrivate::get(d->actions);
+	for (int i = 0; i < p->localActions.size(); ++i) {
+		if (p->localActions[i].gen == gen) {
+			const ActionInfoV2 &info = p->localActions[i];
+			foreach (MenuController *owner, *activatedControllers()) {
+				int flags = owner->d_func()->flags;
+				while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
+					flags = owner->d_func()->flags;
+				if (owner)
+					owner->d_func()->actions.removeAction(info);
+			}
 			return true;
 		}
 	}
@@ -403,11 +342,9 @@ void MenuController::addAction(const ActionGenerator *gen, const QMetaObject *me
 							   const QList<QByteArray> &menu)
 {
 	Q_ASSERT(gen && meta);
-	MenuActionMap::iterator it;
-	it = globalActions()->insertMulti(meta, ActionInfo(gen, gen->d_func(), menu));
-	const ActionInfo &info = it.value();
-	foreach (DynamicMenu *menu, *dynamicMenuSet()) {
-		MenuController *owner = menu->controller();
+	const ActionInfo &info = *globalActions()->insert(meta, ActionInfo(gen, menu));
+	foreach (MenuController *controller, *activatedControllers()) {
+		MenuController *owner = controller;
 		int flags = owner->d_ptr->flags;
 		const QMetaObject *super = 0;
 		do {
@@ -417,7 +354,7 @@ void MenuController::addAction(const ActionGenerator *gen, const QMetaObject *me
 			while (meta != super && !!(super = (flags & ShowSuperActions) ? super->superClass() : 0)) {}
 		} while(!super && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0));
 		if (owner)
-			menu->addAction(owner, info);
+			controller->d_func()->actions.addAction(ActionInfoV2(info, owner));
 	}
 }
 
@@ -425,8 +362,7 @@ void MenuController::setMenuOwner(MenuController *controller)
 {
 	Q_D(MenuController);
 	d->owner = controller;
-	if (d->menu)
-		d->menu->addActions(d->menu->allActions());
+	ActionCollectionPrivate::get(d->actions)->recalc();
 }
 
 void MenuController::setMenuFlags(const MenuFlags &flags)
@@ -446,140 +382,518 @@ void MenuController::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 
-ActionContainer::ActionContainer(MenuController* controller) :
-	d_ptr(new ActionContainerPrivate)
+ActionHandler::~ActionHandler()
 {
-	Q_D(ActionContainer);
-	d->controller = controller;
-	d->filterType = TypeMatch;
-	d->ensureActions();
 }
 
-ActionContainer::ActionContainer(MenuController* controller, ActionContainer::ActionFilter filter, const QVariant& data) :
-	d_ptr(new ActionContainerPrivate)
+ActionCollection::ActionCollection() :
+	d_ptr(new ActionCollectionPrivate)
 {
-	Q_D(ActionContainer);
-	d->controller = controller;
-	d->filterType = filter;
-	d->filterData = data;
-	d->ensureActions();
+	Q_D(ActionCollection);
+	d->controller = 0;
 }
-QAction* ActionContainer::action(int index) const
+
+ActionCollection::ActionCollection(MenuController* controller) :
+	d_ptr(new ActionCollectionPrivate)
 {
-	Q_D(const ActionContainer);
-	QAction *action = d->actions.at(index);
+	Q_D(ActionCollection);
+	d->controller = controller;
+}
+
+ActionCollection& ActionCollection::operator=(const qutim_sdk_0_3::ActionCollection &other)
+{
+	d_ptr = other.d_ptr;
+	return *this;
+}
+
+ActionCollection::~ActionCollection()
+{
+}
+
+QAction* ActionCollection::action(int index) const
+{
+	Q_D(const ActionCollection);
+	QAction *action = d->actions.at(index)->action;
 	ActionGenerator *gen = ActionGenerator::get(action);
 	if (gen)
 		ActionGeneratorPrivate::get(gen)->show(action,d->controller);
 	return action;
 }
 
-ActionContainer::ActionContainer(const qutim_sdk_0_3::ActionContainer& other) : d_ptr(other.d_ptr)
+ActionCollection::ActionCollection(const qutim_sdk_0_3::ActionCollection& other) : d_ptr(other.d_ptr)
 {
-
 }
 
-int ActionContainer::count() const
+void ActionCollection::setController(MenuController *controller)
+{
+	d_func()->setController(controller);
+}
+
+const ActionInfoV2 &ActionCollection::addAction(const ActionGenerator *generator, const QList<QByteArray> &menu)
+{
+	return d_func()->addAction(generator, menu);
+}
+
+void ActionCollection::removeAction(const ActionInfoV2 &info)
+{
+	d_func()->removeAction(info);
+}
+
+void ActionCollection::addAction(const ActionInfoV2 &info)
+{
+	d_func()->addAction(info);
+}
+
+bool ActionCollection::isValid() const
+{
+	return d_func()->controller != NULL;
+}
+
+void ActionCollection::ref()
+{
+	Q_D(ActionCollection);
+	if (1 == ++d->actionsRef) {
+		activatedControllers()->append(d->controller);
+		d->ensureActions();
+	}
+}
+
+void ActionCollection::showRef()
+{
+	Q_D(ActionCollection);
+	if (1 == ++d->showRef) {
+		for (int i = 0; i < d->actions.size(); ++i) {
+			const ActionInfoV2 &info = d->actionInfos.at(i);
+			ActionGenerator *gen = const_cast<ActionGenerator*>(info.gen);
+			ActionGeneratorPrivate::get(gen)->show(d->actions.at(i)->action, info.controller);
+		}
+	}
+}
+
+void ActionCollection::deref()
+{
+	Q_D(ActionCollection);
+	if (0 == --d->actionsRef) {
+		activatedControllers()->removeOne(d->controller);
+		d->killActions();
+	}
+}
+
+void ActionCollection::showDeref()
+{
+	Q_D(ActionCollection);
+	if (0 == --d->showRef) {
+		for (int i = 0; i < d->actions.size(); ++i) {
+			const ActionInfoV2 &info = d->actionInfos.at(i);
+			ActionGenerator *gen = const_cast<ActionGenerator*>(info.gen);
+			ActionGeneratorPrivate::get(gen)->hide(d->actions.at(i)->action, info.controller);
+		}
+	}
+}
+
+void ActionCollection::addHandler(ActionHandler *handler)
+{
+	Q_D(ActionCollection);
+	d->handlers.append(handler);
+}
+
+void ActionCollection::removeHandler(ActionHandler *handler)
+{
+	Q_D(ActionCollection);
+	d->handlers.removeAll(handler);
+}
+
+int ActionCollection::count() const
 {
 	return d_func()->actions.count();
 }
 
-QList< QByteArray > ActionContainer::menu(int index) const
+int ActionCollection::size() const
 {
-	//TODO implement logic
-	Q_UNUSED(index);
-	QList<QByteArray> itemlist;
-	return itemlist;
+	return count();
 }
 
-ActionContainer& ActionContainer::operator=(const qutim_sdk_0_3::ActionContainer &other)
+QList< QByteArray > ActionCollection::menu(int index) const
 {
-	d_ptr = other.d_ptr;
-	return *this;
+	return d_func()->actionInfos.at(index).menu;
 }
 
-ActionContainer::~ActionContainer()
+void ActionCollectionPrivate::setController(MenuController *newController)
 {
-	//TODO may be need a delete created actions
-}
-
-void ActionContainerPrivate::ensureActions()
-{
-	actions.clear();
-
-	QList<ActionInfo> actions;
-	QSet<const QMetaObject *> metaObjects;
-	const MenuController *owner = controller;
-	while (owner) {
-		foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
-			actions << info;
+	if (newController == controller)
+		return;
+	MenuController *oldController = controller;
+	controller = newController;
+	if (actionsRef == 0)
+		return;
+	QList<ActionInfoV2> tmp;
+	qSwap(tmp, actionInfos);
+	ensureActionInfos();
+	int i = 0, j = 0;
+	int l = 0;
+	for (; i < tmp.size() && j < actionInfos.size(); i++) {
+		const ActionInfoV2 &a = tmp.at(i);
+		const ActionInfoV2 &b = actionInfos[j];
+		if (a.gen == b.gen && a.hash == b.hash) {
+			if (showRef > 0) {
+				QAction *action = actions.at(l)->action;
+				const ActionGeneratorPrivate *cp = ActionGeneratorPrivate::get(a.gen);
+				ActionGeneratorPrivate *p = const_cast<ActionGeneratorPrivate*>(cp);
+				p->hide(action, oldController);
+				p->show(action, newController);
+			}
+			++l;
+			++j;
+		} else if (actionLessThan(a, b)) {
+			for (int k = 0; k < handlers.size(); ++k)
+				handlers.at(k)->actionRemoved(l);
+			actions.removeAt(l);
+		} else {
+			do {
+				insertAction(l, actionInfos.at(j));
+				++l;
+				++j;
+			} while (j < actionInfos.size() && actionLessThan(actionInfos[j], a));
 		}
+	}
+	for (; i < tmp.size(); ++i) {
+		for (int k = 0; k < handlers.size(); ++k)
+			handlers.at(k)->actionRemoved(l);
+		actions.removeAt(l);
+	}
+	for (; j < actionInfos.size(); ++j, ++l) {
+		insertAction(l, actionInfos.at(j));
+	}
+}
+
+const ActionInfoV2 &ActionCollectionPrivate::info(int index)
+{
+	return actionInfos.at(index);
+}
+
+const ActionInfoV2 &ActionCollectionPrivate::addAction(const ActionGenerator *generator, const QList<QByteArray> &menu)
+{
+	localActions.append(ActionInfoV2(generator, menu, controller));
+	const ActionInfoV2 &info = localActions.last();
+	if (actionsRef > 0)
+		addAction(info);
+	return info;
+}
+
+void ActionCollectionPrivate::removeAction(const ActionInfoV2 &info)
+{
+	QList<ActionInfoV2>::ConstIterator it = qBinaryFind(actionInfos.constBegin(),
+	                                                    actionInfos.constEnd(),
+	                                                    info, actionLessThan);
+	if (it != actionInfos.constEnd()) {
+		int index = it - actionInfos.constBegin();
+		for (int i = 0; i < handlers.size(); ++i)
+			handlers[i]->actionRemoved(index);
+		actionInfos.removeAt(index);
+		actions.removeAt(index);
+	}
+}
+
+void ActionCollectionPrivate::addAction(const ActionInfoV2 &info)
+{
+	int index = qLowerBound(actionInfos.begin(), actionInfos.end(),
+	                        info, actionLessThan) - actionInfos.begin();
+	insertAction(index, info);
+}
+
+void ActionCollectionPrivate::insertAction(int index, const ActionInfoV2 &info)
+{
+	ActionValue::Ptr action = ActionValue::get(info);
+	if (showRef > 0) {
+		const ActionGeneratorPrivate *cp = ActionGeneratorPrivate::get(info.gen);
+		ActionGeneratorPrivate *p = const_cast<ActionGeneratorPrivate*>(cp);
+		p->show(action->action, controller);
+	}
+	actionInfos.insert(index, info);
+	actions.insert(index, action);
+	for (int i = 0; i < handlers.size(); ++i)
+		handlers.at(i)->actionAdded(action->action, index);
+}
+
+void ActionCollectionPrivate::ensureActionInfos()
+{
+	if (!actionInfos.isEmpty() || !controller)
+		return;
+	actionInfos = localActions;
+	QSet<const QMetaObject *> metaObjects;
+	MenuController *owner = controller;
+	while (owner) {
+		int flags = MenuControllerPrivate::get(owner)->flags;
+		ActionCollection collection = MenuControllerPrivate::get(owner)->actions;
+		ActionCollectionPrivate *p = ActionCollectionPrivate::get(collection);
+		actionInfos.append(p->localActions);
 		const QMetaObject *meta = owner->metaObject();
 		while (meta) {
 			if (metaObjects.contains(meta))
 				break;
-			foreach (const ActionInfo &info, globalActions()->values(meta)) {
-				actions << info;
-			}
+			foreach (const ActionInfo &info, globalActions()->values(meta))
+				actionInfos << ActionInfoV2(info, owner);
 			metaObjects.insert(meta);
-			meta = meta->superClass();
+			meta = (flags & MenuController::ShowSuperActions) ? meta->superClass() : 0;
 		}
-		owner = MenuControllerPrivate::get(owner)->owner;
+		owner = (flags & MenuController::ShowOwnerActions)
+				? MenuControllerPrivate::get(owner)->owner : 0;
 	}
-
-	qSort(actions.begin(), actions.end(), actionLessThan);
-
-	foreach (ActionInfo info,actions) {
-		if (filterData.canConvert(QVariant::Int)) {
-			int typeMask = filterData.toInt();
-			if (checkTypeMask(info,typeMask)) {
-				ensureAction(info);
-			}
-		}
-		else if (filterData.isNull()) {
-			ensureAction(info);
-		}
-	}
+	qSort(actionInfos.begin(), actionInfos.end(), actionLessThan);
 }
 
-void ActionContainerPrivate::ensureAction(const ActionInfo &info)
+void ActionCollectionPrivate::recalc()
 {
-	QAction *action = actionsCache()->value(info.gen).value(controller);
-	if (!action) {
-		action = info.gen->generate<QAction>();
-		if (!action)
-			return;
-		info.gen->create(action, controller);
-	}
-	actions.append(action);
+	if (actionsRef == 0)
+		return;
+	killActions();
+	ensureActions();
 }
 
-bool ActionContainerPrivate::checkTypeMask(const ActionInfo &info,int typeMask)
+void ActionCollectionPrivate::ensureActions()
 {
-	switch (filterType) {
-	case ActionContainer::TypeMatch: {
-		if (info.gen_p->type & typeMask) {
-			return true;
-		}
-		break;
+	if (!actionInfos.isEmpty())
+		return;
+	
+	ensureActionInfos();
+	QList<ActionInfoV2> infos;
+	qSwap(infos, actionInfos);
+	for (int i = 0; i < infos.size(); ++i)
+		insertAction(i, infos[i]);
+}
+
+void ActionCollectionPrivate::killActions()
+{
+	if (actionsRef > 0) {
+		for (int i = 0; i < handlers.size(); ++i)
+			handlers[i]->actionsCleared();
 	}
-	case ActionContainer::TypeMismatch: {
-		if (!(info.gen_p->type & typeMask))
-			return true;
-		break;
-	}
+	actions.clear();
+	actionInfos.clear();
+}
+
+class ActionContainerPrivate : public ActionHandler
+{
+public:
+	ActionContainerPrivate() : filter(ActionContainer::Invalid), currentSize(-1), shown(false) {}
+	void actionAdded(QAction *action, int index);
+	void actionRemoved(int index);
+	void actionsCleared();
+	int size() const;
+	int mappedIndex(int index) const;
+	bool isNice(int index) const;
+	
+	ActionContainer::Filter filter;
+	QVariant data;
+	ActionCollection collection;
+	int currentSize : 31;
+	int shown : 1;
+	QList<ActionHandler*> handlers;
+};
+
+void ActionContainerPrivate::actionAdded(QAction *action, int index)
+{
+	if (!isNice(index))
+		return;
+	index = mappedIndex(index);
+	for (int i = 0; i < handlers.size(); ++i)
+		handlers.at(i)->actionAdded(action, index);
+}
+
+void ActionContainerPrivate::actionRemoved(int index)
+{
+	if (!isNice(index))
+		return;
+	index = mappedIndex(index);
+	for (int i = 0; i < handlers.size(); ++i)
+		handlers.at(i)->actionRemoved(index);
+}
+
+void ActionContainerPrivate::actionsCleared()
+{
+	for (int i = 0; i < handlers.size(); ++i)
+		handlers.at(i)->actionsCleared();
+}
+
+int ActionContainerPrivate::size() const
+{
+	return currentSize == -1 ? collection.size() : currentSize;
+}
+
+int ActionContainerPrivate::mappedIndex(int index) const
+{
+	if (filter == ActionContainer::Invalid)
+		return index;
+	if (!isNice(index))
+		return -1;
+	int nice = 0;
+	for (int i = 0; i < index; ++i)
+		nice += isNice(i);
+	return nice;
+}
+
+bool ActionContainerPrivate::isNice(int index) const
+{
+	if (filter == ActionContainer::Invalid)
+		return true;
+
+	ActionCollectionPrivate *p = ActionCollectionPrivate::get(collection);
+	switch (filter) {
+	case ActionContainer::TypeMatch:
+		return (p->info(index).gen->type() & data.toInt());
+	case ActionContainer::TypeMismatch:
+		return !(p->info(index).gen->type() & data.toInt());
 	default:
-		break;
+		return true;
 	}
-	return false;
 }
 
-ActionHandler::ActionHandler() : QObject(0)
+ActionContainer::ActionContainer() : d_ptr(new ActionContainerPrivate)
+{
+}
+
+ActionContainer::ActionContainer(ActionContainer::Filter filter, const QVariant &data)
+ : d_ptr(new ActionContainerPrivate)
+{
+	Q_D(ActionContainer);
+	d->filter = filter;
+	d->data = data;
+}
+
+ActionContainer::ActionContainer(MenuController *controller)
+ : d_ptr(new ActionContainerPrivate)
+{
+	Q_D(ActionContainer);
+	d->collection = MenuControllerPrivate::get(controller)->actions;
+	d->collection.ref();
+	d->collection.addHandler(d);
+	d->currentSize = 0;
+	for (int i = 0; i < d->collection.size(); ++i)
+		d->currentSize += d->isNice(i);
+}
+
+ActionContainer::ActionContainer(MenuController *controller, ActionContainer::Filter filter, const QVariant &data)
+ : d_ptr(new ActionContainerPrivate)
+{
+	Q_D(ActionContainer);
+	d->filter = filter;
+	d->data = data;
+	d->collection = MenuControllerPrivate::get(controller)->actions;
+	d->collection.ref();
+	d->collection.addHandler(d);
+	d->currentSize = 0;
+	for (int i = 0; i < d->collection.size(); ++i)
+		d->currentSize += d->isNice(i);
+		
+}
+
+ActionContainer::~ActionContainer()
+{
+	Q_D(ActionContainer);
+	if (d->collection.isValid()) {
+		d->collection.removeHandler(d);
+		if (d->shown)
+			d->collection.showDeref();
+		d->collection.deref();
+	}
+}
+
+void ActionContainer::setController(MenuController *controller)
+{
+	Q_D(ActionContainer);
+	if (d->collection.isValid()) {
+		d->collection.deref();
+		if (d->shown)
+			d->collection.showDeref();
+	}
+	ActionCollection collection;
+	qSwap(collection, d->collection);
+	d->actionsCleared();
+	if (controller) {
+		collection = MenuControllerPrivate::get(controller)->actions;
+		collection.ref();
+		if (d->shown)
+			collection.showRef();
+	}
+	qSwap(collection, d->collection);
+	d->currentSize = 0;
+	for (int i = 0; i < d->collection.size(); ++i) {
+		if (d->isNice(i)) {
+			d->currentSize++;
+			for (int j = 0; j < d->handlers.size(); ++j)
+				d->handlers[j]->actionAdded(d->collection.action(i), d->currentSize - 1);
+		}
+	}
+}
+
+void ActionContainer::show()
+{
+	Q_D(ActionContainer);
+	if (!d->shown) {
+		d->shown = true;
+		d->collection.showRef();
+	}
+}
+
+void ActionContainer::hide()
+{
+	Q_D(ActionContainer);
+	if (d->shown) {
+		d->shown = false;
+		d->collection.showDeref();
+	}
+}
+
+void ActionContainer::addHandler(ActionHandler *handler)
+{
+	d_func()->handlers.append(handler);
+}
+
+void ActionContainer::removeHandler(ActionHandler *handler)
+{
+	d_func()->handlers.removeAll(handler);
+}
+
+int ActionContainer::count() const
+{
+	return d_func()->size();
+}
+
+int ActionContainer::size() const
+{
+	return d_func()->size();
+}
+
+QAction *ActionContainer::action(int index) const
+{
+	Q_D(const ActionContainer);
+	if (index >= d->size())
+		return 0;
+	return d->collection.action(d->mappedIndex(index));
+}
+
+QList<QByteArray> ActionContainer::menu(int index) const
+{
+	Q_D(const ActionContainer);
+	if (index >= d->size())
+		return QList<QByteArray>();
+	return d->collection.menu(d->mappedIndex(index));
+}
+
+const ActionGenerator *ActionContainer::generator(int index) const
+{
+	Q_D(const ActionContainer);
+	if (index >= d->size())
+		return 0;
+	return ActionCollectionPrivate::get(d->collection)->info(index).gen;
+}
+
+ActionHandlerHelper::ActionHandlerHelper() : QObject(0)
 {
 
 }
 
-void ActionHandler::onActionTriggered(QAction *action)
+void ActionHandlerHelper::onActionTriggered(QAction *action)
 {
 	const ActionGenerator *gen = ActionGenerator::get(action);
 	if (!gen) {
@@ -587,7 +901,8 @@ void ActionHandler::onActionTriggered(QAction *action)
 		return;
 	}
 	const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(gen);
-	QObject *controller = const_cast<QObject*>(actionsCache()->value(gen).key(action)); //fixme
+	QObject *controller = actionControllerMap()->value(action);
+//	QObject *controller = const_cast<QObject*>(actionsCache()->value(gen).key(action)); //fixme
 	QObject *obj = d->receiver ? d->receiver.data() : controller;
 	if (!obj)
 		return;
@@ -620,26 +935,20 @@ void ActionHandler::onActionTriggered(QAction *action)
 	}
 }
 
-void ActionHandler::onActionDestoyed(QObject *obj)
+void ActionHandlerHelper::onActionDestoyed(QObject *obj)
 {
-	QAction *action = reinterpret_cast<QAction*>(obj);
-	m_actions.removeAll(action);
-	ActionGeneratorMap::iterator it;
-	for (it = actionsCache()->begin();it!=actionsCache()->end();it++) {
-		if (QObject *key = it->key(action))
-			it->remove(key);
-	}
+	m_actions.remove(static_cast<QAction*>(obj));
 }
 
-QAction *ActionHandler::addAction(QAction* action)
+QAction *ActionHandlerHelper::addAction(QAction* action)
 {
 	connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));
 	connect(action,SIGNAL(triggered()),SLOT(actionTriggered()));
-	m_actions.append(action);
+	m_actions.insert(action);
 	return action;
 }
 
-void ActionHandler::actionTriggered()
+void ActionHandlerHelper::actionTriggered()
 {
 	QAction *action = qobject_cast<QAction*>(sender());
 	Q_ASSERT(action);
@@ -648,11 +957,7 @@ void ActionHandler::actionTriggered()
 
 QObject *MenuController::get(QAction *action)
 {
-	ActionGenerator *gen = ActionGenerator::get(action);
-	if (gen)
-		return actionsCache()->value(gen).key(action);
-	else
-		return 0;
+	return actionControllerMap()->value(action);
 }
 
 }

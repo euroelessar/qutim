@@ -29,6 +29,8 @@ class ActionGenerator;
 class ActionGeneratorPrivate;
 class MenuController;
 class ActionToolBar;
+class ActionCollectionPrivate;
+class ActionValue;
 
 //TBD list of all action roles
 enum ActionType
@@ -157,7 +159,7 @@ private:
 	friend class MenuController;
 	friend class ActionToolBar;
 	friend class MenuControllerPrivate;
-	friend class DynamicMenu;
+	friend class ActionValue;
 	friend class ActionContainerPrivate;
 };
 

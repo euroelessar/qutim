@@ -21,35 +21,104 @@
 
 namespace qutim_sdk_0_3
 {
+class ActionCollectionPrivate;
 
-typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
+typedef QMultiMap<const QMetaObject *, ActionInfo> MenuActionMap;
 typedef QMap<const ActionGenerator*, QMap<QObject*, QAction*> > ActionGeneratorMap;
 
-ActionGeneratorMap *actionsCache();
+const QByteArray &menuNameBySet(const QByteArray &name);
 
 struct ActionInfo
 {
-	ActionInfo(const ActionGenerator *g, const ActionGeneratorPrivate *g_p,
-			   const QList<QByteArray> &m) : gen(g), gen_p(g_p), menu(m)
+	ActionInfo(const ActionGenerator *g, const QList<QByteArray> &m) : gen(g), menu(m)
 	{
 		for (int i = 0; i < menu.size(); i++)
-			hash << qHash(menu.at(i));
+			hash << qHash(menu[i] = menuNameBySet(menu.at(i)));
 	}
 	const ActionGenerator *gen;
-	const ActionGeneratorPrivate *gen_p;
 	QList<QByteArray> menu;
 	QList<uint> hash;
 };
+
+struct ActionInfoV2 : public ActionInfo
+{
+	ActionInfoV2(const ActionGenerator *g, const QList<QByteArray> &m, MenuController *c)
+	    : ActionInfo(g, m), controller(c) {}
+	ActionInfoV2(const ActionInfo &o, MenuController *c) : ActionInfo(o), controller(c) {}
+	MenuController *controller;
+};
+
+typedef QPair<QObject*, const ActionGenerator*> ActionKey;
+class ActionValue : public QSharedData
+{
+	Q_DISABLE_COPY(ActionValue)
+public:
+	typedef QSharedPointer<ActionValue> Ptr;
+	typedef QWeakPointer<ActionValue> WeakPtr;
+	
+	ActionValue(const ActionKey &key);
+	~ActionValue();
+	
+	static ActionValue::Ptr get(const ActionInfoV2 &info);
+	static ActionValue::WeakPtr find(const ActionGenerator *gen, QObject *controller);
+	static QList<ActionValue::WeakPtr> find(const ActionGenerator *gen);
+	
+	ActionKey key;
+	QAction *action;
+};
+typedef QMap<ActionKey, ActionValue::WeakPtr> ActionMap;
+
+struct ActionEntry;
+typedef QMap<uint, ActionEntry> ActionEntryMap;
 
 struct ActionEntry
 {
 	inline ActionEntry(QMenu *m) : menu(m) {}
 	inline ActionEntry(QAction *action) : menu(action->menu()) {}
 
-	QPointer<QMenu> menu;
-	QMap<uint, ActionEntry> entries;
+	QMenu *menu;
+	ActionEntryMap entries;
 };
 
+class ActionCollection
+{
+	Q_DECLARE_PRIVATE(ActionCollection)
+public:
+	// Constructor
+	// Get all actions
+	ActionCollection();
+	ActionCollection(MenuController *controller);
+	// Destructor, I think it shouldn't be virtual
+	~ActionCollection();
+	// Copy constructor and method
+	ActionCollection(const ActionCollection &);
+	ActionCollection &operator =(const ActionCollection &);
+	
+	void setController(MenuController *controller);
+	const ActionInfoV2 &addAction(const ActionGenerator *generator, const QList<QByteArray> &menu);
+	void addAction(const ActionInfoV2 &info);
+	void removeAction(const ActionInfoV2 &info);
+	bool isValid() const;
+	// This should be call manually just before QAction will be really needed
+	void ref();
+	// This should be call manually just before QAction's actual data will be really needed
+	void showRef();
+	void deref();
+	void showDeref();
+	
+	void addHandler(ActionHandler *handler);
+	void removeHandler(ActionHandler *handler);
+
+	// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
+	int count() const;
+	int size() const;
+	// Can be accessed only after first ref's call
+	QAction *action(int index) const;
+	QList<QByteArray> menu(int index) const;
+
+private:
+	QExplicitlySharedDataPointer<ActionCollectionPrivate> d_ptr;
+};
 
 class DynamicMenu;
 class MenuControllerPrivate
@@ -58,90 +127,93 @@ public:
 	Q_DECLARE_PUBLIC(MenuController)
 	typedef MenuController::MenuFlag MenuFlag;
 	MenuControllerPrivate(MenuController *c);
-	QList<ActionInfo> actions;
 	MenuController *owner;
 	int flags;
 	MenuController *q_ptr;
-	mutable QPointer<DynamicMenu> menu;
+	ActionCollection actions;
 	MenuController::ActionList dynamicActions() const { return q_func()->dynamicActions(); }
 	static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 	static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 };
 
-struct DynamicActionListKiller
-{
-	DynamicActionListKiller(const QList<ActionGenerator *> &a) : actions(a) {}
-	~DynamicActionListKiller() { qDeleteAll(actions); }
-	QList<ActionGenerator *> actions;
-};
-
-typedef QSharedPointer<DynamicActionListKiller> DynamicActionList;
-
-class DynamicMenu : public QObject
+class DynamicMenu : public QObject, public ActionHandler
 {
 	Q_OBJECT
 public:
-	DynamicMenu(MenuControllerPrivate *d);
+	DynamicMenu(MenuControllerPrivate *p);
 	virtual ~DynamicMenu();
+	virtual void actionAdded(QAction *action, int index);
+	virtual void actionRemoved(int index);
+	virtual void actionsCleared();
+	virtual bool eventFilter(QObject *, QEvent *);
+	
+	QMenu *menu() { return m_entry.menu; }
+	ActionEntry *findEntry(const ActionInfo &info);
+//	void addAction(const ActionInfoV2 &info);
+//	void removeAction(MenuController *owner, const ActionGenerator *gen);
 
-	inline QMenu *menu() { return m_menu; }
-	inline MenuController *controller() { return m_d->q_ptr; }
-	void addActions(const QList<ActionInfo> &actions); //TODO need redesign
-	void addAction(MenuController *owner, const ActionInfo &info);
-	void removeAction(MenuController *owner, const ActionGenerator *gen);
-	ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
-	QAction *ensureAction(const ActionGenerator *gen);
-public slots:
-	void onActionAdded(const ActionInfo &info);
 private slots:
 	void onAboutToShow();
 	void onAboutToHide();
+
 private:
-	QList<ActionInfo> allActions() const;
 	MenuControllerPrivate * const m_d;
-	QMenu *m_menu;
+	bool m_shown;
 	ActionEntry m_entry;
-	QList<ActionGenerator *> dynamicActionsList;
-	mutable QMap<const ActionGenerator*, QObject*> m_owners;
+	QList<ActionEntry*> m_entries;
+//	QList<ActionGenerator *> dynamicActionsList;
+//	mutable QMap<const ActionGenerator*, QObject*> m_owners;
 	friend class MenuController;
 };
 
-class ActionContainerPrivate : public QSharedData
+class ActionCollectionPrivate : public QSharedData
 {
-	Q_DISABLE_COPY(ActionContainerPrivate)
+	Q_DISABLE_COPY(ActionCollectionPrivate)
 public:
-	inline ActionContainerPrivate() : controller(0),filterType(ActionContainer::TypeMatch),filterData(QVariant()) {}
-	inline ~ActionContainerPrivate() {}
+	inline ActionCollectionPrivate()  : controller(0), actionsRef(0), showRef(0) {}
+	inline ~ActionCollectionPrivate() {}
 	MenuController *controller;
-	ActionContainer::ActionFilter filterType;
-	QVariant filterData;
-	QList<QAction*> actions;
+	QList<ActionInfoV2> actionInfos;
+	QList<ActionInfoV2> dynamicActions;
+	QList<ActionInfoV2> localActions;
+	QList<ActionValue::Ptr> actions;
+	QList<ActionHandler*> handlers;
+	qint16 actionsRef;
+	qint16 showRef;
+	
+	static ActionCollectionPrivate *get(const ActionCollection &collection)
+	{ return const_cast<ActionCollectionPrivate*>(collection.d_func()); }
+	void setController(MenuController *controller);
+	const ActionInfoV2 &info(int index);
+	const ActionInfoV2 &addAction(const ActionGenerator *generator, const QList<QByteArray> &menu);
+	void addAction(const ActionInfoV2 &info);
+	void removeAction(const ActionInfoV2 &info);
+	void insertAction(int index, const ActionInfoV2 &info);
+	void ensureActionInfos();
+	void recalc();
 	void ensureActions();
-	inline bool checkTypeMask(const ActionInfo& info, int typeMask);
-	inline void ensureAction(const ActionInfo& info);
+	void killActions();
+//	inline bool checkTypeMask(const ActionInfo& info, int typeMask);
+//	inline void ensureAction(const ActionInfo& info);
 };
 //TODO create common handler for DynamicMenu, ActionContainer and ActionToolbar
 
-typedef QList<QAction*> QActionList;
-
-class ActionHandler : public QObject
+class ActionHandlerHelper : public QObject
 {
 	Q_OBJECT
 public:
-	ActionHandler();
+	ActionHandlerHelper();
 	QAction *addAction(QAction *action);
 	void onActionTriggered(QAction *action);
-	QActionList actions() const {return m_actions;}
+	const QSet<QAction*> &actions() const { return m_actions; }
 private slots:
 	void onActionDestoyed(QObject *obj);
 	void actionTriggered();
 private:
-	QActionList m_actions;
+	QSet<QAction*> m_actions;
 };
 
-ActionHandler *handler();
+ActionHandlerHelper *handler();
 }
-
-Q_DECLARE_METATYPE(qutim_sdk_0_3::DynamicActionList)
 
 #endif // MENUCONTROLLER_P_H

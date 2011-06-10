@@ -4,6 +4,7 @@
 #include "actiongenerator.h"
 #include "objectgenerator_p.h"
 #include "shortcut_p.h"
+#include <QObjectCleanupHandler>
 
 namespace qutim_sdk_0_3
 {
@@ -72,7 +73,6 @@ public:
 	~ActionGeneratorHelper();
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	void addAction(QAction *action, const ActionGeneratorPrivate *data);
-	void addAction(QObject *obj, QAction *action);
 	void updateSequence(const QString &id, const QKeySequence &key);
 	ActionGenerator *getGenerator(QAction*) const;
 public slots:
@@ -80,6 +80,42 @@ public slots:
 private:
 	QMultiHash<QString, QAction *> m_shortcuts;
 	QMap<QAction*, const ActionGeneratorPrivate*> m_actions;
+};
+
+class ActionCleanupHandler : public QObjectCleanupHandler
+{
+	Q_OBJECT
+public:
+	static ActionCleanupHandler *get(QObject *object);
+
+protected:
+    ActionCleanupHandler(QObject *parent);
+};
+
+class ActionPointerData : public QSharedData
+{
+	Q_DISABLE_COPY(ActionPointerData)
+public:
+	ActionPointerData() : m_generator(0) {}
+	ActionPointerData(QObject *o, const ActionGenerator *gen) : m_object(o), m_generator(gen) {}
+	~ActionPointerData() { if (m_action) delete m_action.data(); }
+
+	QAction *action();
+private:
+	QWeakPointer<QObject> m_object;
+	QWeakPointer<QAction> m_action;
+	const ActionGenerator *m_generator;
+};
+
+class ActionPointer
+{
+public:
+	ActionPointer();
+	ActionPointer(const ActionPointer &o);
+	ActionPointer &operator =(const ActionPointer &o);
+	~ActionPointer();
+private:
+	QExplicitlySharedDataPointer<ActionPointerData> d;
 };
 
 //	class SubscribersHandler : public QObject

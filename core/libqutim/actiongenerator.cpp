@@ -71,39 +71,6 @@ void ActionGeneratorHelper::addAction(QAction *action, const ActionGeneratorPriv
 	connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
 }
 
-struct ActionGeneratorHelpKiller
-{
-	typedef QSharedPointer<ActionGeneratorHelpKiller> Ptr;
-	
-	ActionGeneratorHelpKiller() {}
-	~ActionGeneratorHelpKiller()
-	{
-		for (int i = 0; i < generators.size(); ++i) {
-			QMap<QObject*, QAction*> &map = (*actionsCache())[generators[i]];
-			map.take(obj)->deleteLater();
-		}
-	}
-
-	QObject *obj;
-	QList<const ActionGenerator *> generators;
-};
-
-void ActionGeneratorHelper::addAction(QObject *obj, QAction *action)
-{
-	connect(obj, SIGNAL(destroyed()), action, SLOT(deleteLater()));
-	if (const ActionGeneratorPrivate *data = m_actions.value(action)) {
-		(*actionsCache())[data->q_ptr].insert(obj, action);
-		ActionGeneratorHelpKiller::Ptr killer;
-		killer = obj->property("libqutim_actionkiller").value<ActionGeneratorHelpKiller::Ptr>();
-		if (!killer) {
-			killer = ActionGeneratorHelpKiller::Ptr::create();
-			killer->obj = obj;
-			obj->setProperty("libqutim_actionkiller", qVariantFromValue(killer));
-		}
-		killer->generators.append(data->q_ptr);
-	}
-}
-
 void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence &key)
 {
 	QMultiHash<QString, QAction *>::const_iterator it = m_shortcuts.constFind(id);
@@ -118,39 +85,34 @@ void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence
 void ActionGeneratorHelper::onActionDeath(QObject *obj)
 {
 	QAction *action = static_cast<QAction*>(obj);
-	if (const ActionGeneratorPrivate *data = m_actions.take(action)) {
-		QMap<QObject*, QAction*> &map = (*actionsCache())[data->q_ptr];
-		map.remove(map.key(action));
-		if (!data->shortCut.isEmpty()) {
-			int count = m_shortcuts.remove(data->shortCut, action);
-			Q_ASSERT(count && "ActionGenerator's shortcut was changed after QAction's creation");
-			// Hack for release build
-			if (count == 0) {
-				QMultiHash<QString, QAction *>::iterator it = m_shortcuts.begin();
-				for (; it != m_shortcuts.end(); ++it) {
-					if (it.value() == action) {
-						m_shortcuts.erase(it);
-						break;
-					}
-				}
-			}
+	QMultiHash<QString, QAction *>::iterator it = m_shortcuts.begin();
+	for (; it != m_shortcuts.end(); ++it) {
+		if (it.value() == action) {
+			m_shortcuts.erase(it);
+			break;
 		}
 	}
+}
+
+ActionCleanupHandler::ActionCleanupHandler(QObject *parent)
+{
+	setParent(parent);
+}
+
+ActionCleanupHandler *ActionCleanupHandler::get(QObject *object)
+{
+    const QObjectList &children = object->children();
+	for (int i = 0; i < children.size(); ++i) {
+		if (children[i]->metaObject() == &ActionCleanupHandler::staticMetaObject)
+			return static_cast<ActionCleanupHandler*>(children[i]);
+	}
+	return new ActionCleanupHandler(object);
 }
 
 ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con)
     : QEvent(eventType()), m_action(action), m_gen(gen), m_con(con)
 {
 }
-
-//	MenuController *ActionCreatedEvent::controller() const
-//	{
-//		if (generator()->type() | ActionConnectionObjectOnly) {
-//			QObject *obj = const_cast<QObject*>(actionsCache()->value(m_gen).key(m_action));
-//			return qobject_cast<MenuController*>(obj);
-//		}
-//		return 0;
-//	}
 
 QEvent::Type ActionCreatedEvent::eventType()
 {
@@ -235,8 +197,6 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 ActionGenerator::~ActionGenerator()
 {
 	Q_D(ActionGenerator);
-	if (actionsCache())
-		actionsCache()->remove(this);
 	delete d->data;
 }
 
@@ -443,7 +403,7 @@ void ActionGenerator::setShortcut(const QString &id)
 
 void ActionGenerator::create(QAction *action, QObject *obj) const
 {
-	localizationHelper()->addAction(obj, action);
+//	localizationHelper()->addAction(obj, action);
 	createImpl(action, obj);
 }
 
@@ -480,12 +440,18 @@ void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
 
 QList<QAction *> ActionGenerator::actions(QObject *object) const
 {
-	return actionsCache()->value(this).values(object);
+	QList<QAction*> list;
+	if (ActionValue::WeakPtr value = ActionValue::find(this, object))
+		list.append(value.data()->action);
+	return list;
 }
 
 QMap<QObject*, QAction*> ActionGenerator::actions() const
 {
-	return actionsCache()->value(this);
+	QMap<QObject*, QAction*> map;
+	foreach (const ActionValue::WeakPtr &value, ActionValue::find(this))
+		map.insert(value.data()->key.first, value.data()->action);
+	return map;
 }
 
 void ActionGenerator::subscribe(QObject *object, const char *method)
@@ -530,5 +496,3 @@ bool ActionGenerator::iconVisibleInMenu() const
 }
 
 }
-
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ActionGeneratorHelpKiller::Ptr)

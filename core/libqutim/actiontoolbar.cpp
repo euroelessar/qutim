@@ -193,15 +193,10 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	int index = d->generators.indexOf(generator);
 	if (index != -1)
 		return d->actions.at(index);
-	QAction *action = actionsCache()->value(generator).value(this);
-
-	if (!action) {
-		action = generator->generate<QAction>();
-		Q_ASSERT(action);
-		if(!action->parent())
-			action->setParent(this);
-		generator->create(action, this);
-	}
+	QAction *action = generator->generate<QAction>();
+	Q_ASSERT(action);
+	action->setParent(this);
+	generator->create(action, this);
 	//action->setData(d->data);
 
 	d->generators << generator;

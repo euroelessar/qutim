@@ -246,7 +246,9 @@ void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 	m_actions.insert(account, action);
-	action->setMenu(account->menu());
+	QMenu *contextMenu = account->menu(false);
+	connect(action, SIGNAL(destroyed()), contextMenu, SLOT(deleteLater()));
+	action->setMenu(contextMenu);
 	m_statusBtn->menu()->addAction(action);
 }
 

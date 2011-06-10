@@ -195,30 +195,51 @@ protected:
 // Think: May be wh should use this container inside DynamicMenu?
 // Think: May be we should use filters also for menus?
 class ActionContainerPrivate;
+
+class LIBQUTIM_EXPORT ActionHandler
+{
+public:
+	virtual ~ActionHandler();
+	
+	virtual void actionAdded(QAction *action, int index) = 0;
+	virtual void actionRemoved(int index) = 0;
+	virtual void actionsCleared() = 0;
+};
+
 class LIBQUTIM_EXPORT ActionContainer
 {
+	Q_DISABLE_COPY(ActionContainer)
 	Q_DECLARE_PRIVATE(ActionContainer)
 public:
-	enum ActionFilter { TypeMatch, TypeMismatch };
+	enum Filter { Invalid = -1, TypeMatch, TypeMismatch };
 	// Constructor
 	// Get all actions
+	ActionContainer();
+	ActionContainer(Filter filter, const QVariant &data);
 	ActionContainer(MenuController *controller);
 	// Get only actions, which satisfy filter, i.e. filter=TypeMatch, data=1
 	// for getting all actions with type == 1
-	ActionContainer(MenuController *controller, ActionFilter filter, const QVariant &data);
+	ActionContainer(MenuController *controller, Filter filter, const QVariant &data);
 	// Destructor, I think it shouldn't be virtual
 	~ActionContainer();
-	// Copy constructor and method
-	ActionContainer(const ActionContainer &);
-	ActionContainer &operator =(const ActionContainer &);
+	
+	void setController(MenuController *controller);
+	void show();
+	void hide();
+	
+	void addHandler(ActionHandler *handler);
+	void removeHandler(ActionHandler *handler);
+
 	// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
 	int count() const;
-	inline int size() const { return count(); }
+	int size() const;
+	// Can be accessed only after first ref's call
 	QAction *action(int index) const;
 	QList<QByteArray> menu(int index) const;
+	const ActionGenerator *generator(int index) const;
 
 private:
-	QExplicitlySharedDataPointer<ActionContainerPrivate> d_ptr;
+	QScopedPointer<ActionContainerPrivate> d_ptr;
 };
 
 template <int N>

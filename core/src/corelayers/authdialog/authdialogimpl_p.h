@@ -31,7 +31,9 @@ public:
 	{
 		m_isIncoming = incoming;
 		m_contact = contact;
-		m_contactActionsBtn->setMenu(contact->menu());
+		QMenu *menu = contact->menu(false);
+		m_contactActionsBtn->setMenu(menu);
+		menu->setParent(m_contactActionsBtn);
 		ui->requestMessage->setText(text);
 		QString title;
 		if (incoming) {

@@ -102,6 +102,7 @@ public:
 		QMenu *menu = m_account->menu(false);
 		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		action->setMenu(menu);
 		return action;
 	}

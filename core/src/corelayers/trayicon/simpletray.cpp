@@ -161,7 +161,9 @@ SimpleTray::SimpleTray()
 	}
 
 	setMenuOwner(qobject_cast<MenuController*>(ServiceManager::getByName("ContactList")));
-	m_icon->setContextMenu(menu());
+	QMenu *contextMenu = menu(false);
+	connect(m_icon, SIGNAL(destroyed()), contextMenu, SLOT(deleteLater()));
+	m_icon->setContextMenu(contextMenu);
 	qApp->setQuitOnLastWindowClosed(false);
 
 #ifdef Q_WS_WIN
@@ -346,6 +348,7 @@ public:
 		prepareAction(action);
 		action->setIcon(m_account->status().icon());
 		QMenu *menu = m_account->menu(false);
+		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		action->setMenu(menu);

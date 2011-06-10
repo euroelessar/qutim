@@ -40,6 +40,16 @@
 #include <QScriptEngine>
 #include <QScriptContext>
 
+template <>
+void qScriptValueToSequence<QSet<QString> >(const QScriptValue &value, QSet<QString> &cont)
+{
+    quint32 len = value.property(QLatin1String("length")).toUInt32();
+    for (quint32 i = 0; i < len; ++i) {
+        QScriptValue item = value.property(i);
+		cont.insert(item.toString());
+	}
+}
+
 namespace qutim_sdk_0_3
 {
 template <typename T>
@@ -156,6 +166,7 @@ void ScriptExtensionPlugin::initialize(const QString &key, QScriptEngine *engine
 	if (key != QLatin1String("qutim"))
 		return;
 	QScriptValue qutim = setupPackage(QLatin1String("qutim"), engine);
+	qScriptRegisterSequenceMetaType<QSet<QString> >(engine);
 	scriptRegisterQObject<Account>(engine);
 	scriptRegisterQObject<ChatUnit>(engine);
 	scriptRegisterQObject<Buddy>(engine);
@@ -199,3 +210,5 @@ public:
 		return instance.data();
 	}
 } static_qtscript_qutim_0_3_PluginInstance;
+
+Q_DECLARE_METATYPE(QSet<QString>)
