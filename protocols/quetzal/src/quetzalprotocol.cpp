@@ -24,18 +24,15 @@
 #include <qutim/statusactiongenerator.h>
 #include <qutim/systeminfo.h>
 
-QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin)
+QuetzalProtocol::QuetzalProtocol(PurplePlugin *plugin)
 {
 	plugin->info->ui_info = this;
-	QObject::d_ptr->metaObject = const_cast<QuetzalMetaObject *>(meta);
 	m_plugin = plugin;
 	protocols().insert(m_plugin, this);
 }
 
 QuetzalProtocol::~QuetzalProtocol()
 {
-	delete static_cast<const QuetzalMetaObject *>(QObject::d_ptr->metaObject);
-	QObject::d_ptr->metaObject = 0;
 	protocols().remove(m_plugin);
 }
 
@@ -174,6 +171,29 @@ void QuetzalProtocol::registerAccount(QuetzalAccount *account)
 	m_accounts.insert(account->id(), account);
 	connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountRemoved(QObject*)));
 	emit accountCreated(account);
+}
+
+
+QuetzalProtocolHook::QuetzalProtocolHook(const QuetzalMetaObject *meta, PurplePlugin *plugin)
+    : QuetzalProtocol(plugin), m_metaObject(meta)
+{
+}
+
+QuetzalProtocolHook::~QuetzalProtocolHook()
+{
+}
+
+const QMetaObject *QuetzalProtocolHook::metaObject() const
+{
+	return m_metaObject;
+}
+
+void *QuetzalProtocolHook::qt_metacast(const char *_clname)
+{
+	if (!_clname) return 0;
+	if (!qstrcmp(_clname, m_metaObject->className()))
+		return static_cast<void*>(this);
+	return QuetzalProtocolHook::qt_metacast(_clname);
 }
 
 QByteArray quetzal_fix_protocol_name(const char *name)

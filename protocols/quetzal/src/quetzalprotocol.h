@@ -32,7 +32,6 @@ class QuetzalProtocol : public Protocol
 {
     Q_OBJECT
 public:
-	QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin);
 	virtual ~QuetzalProtocol();
     virtual QList<Account *> accounts() const;
 	void addAccount(PurpleAccount *account);
@@ -45,13 +44,30 @@ public:
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;
 		return protos;
 	}
+	
 protected slots:
 	void onAccountRemoved(QObject *object);
+	
+protected:
+	QuetzalProtocol(PurplePlugin *plugin);
+	
 private:
 	void registerAccount(QuetzalAccount *account);
     virtual void loadAccounts();
 	PurplePlugin *m_plugin;
 	QHash<QString, QuetzalAccount *> m_accounts;
+};
+
+class QuetzalProtocolHook : public QuetzalProtocol
+{
+public:
+	QuetzalProtocolHook(const QuetzalMetaObject *meta, PurplePlugin *plugin);
+	virtual ~QuetzalProtocolHook();
+	
+	const QMetaObject *metaObject() const;
+	void *qt_metacast(const char *_clname);
+private:
+	const QuetzalMetaObject *m_metaObject;
 };
 
 class QuetzalMetaObject : public QMetaObject
@@ -69,6 +85,7 @@ public:
 			m_protocol(protocol), m_meta(new QuetzalMetaObject(protocol)) {}
 	inline QuetzalProtocolGenerator(QuetzalProtocolGenerator *gen) :
 			m_protocol(0), m_meta(new QuetzalMetaObject(gen)) {}
+	~QuetzalProtocolGenerator() { delete m_meta; }
 	virtual const QMetaObject *metaObject() const
 	{
 		return m_meta;
@@ -79,7 +96,7 @@ protected:
 	{
 		if(m_object.isNull()) {
 			if (m_protocol)
-				m_object = new QuetzalProtocol(m_meta, m_protocol);
+				m_object = new QuetzalProtocolHook(m_meta, m_protocol);
 			else
 				m_object = new QuetzalAccountWizard(m_meta);
 		}

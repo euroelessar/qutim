@@ -229,7 +229,6 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 
 QuetzalAccount::~QuetzalAccount()
 {
-	QObject::d_ptr->metaObject = 0;
 }
 
 QuetzalContact *QuetzalAccount::createContact(const QString &id)
