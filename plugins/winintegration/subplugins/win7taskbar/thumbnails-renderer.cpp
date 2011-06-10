@@ -31,28 +31,20 @@
 #include <QTimer>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
-#include <QMessageBox>
-#include <QLibrary>
+#include <QSettings>
 #include <qutim/qtwin.h>
-#include <qt_windows.h>
 
 using namespace qutim_sdk_0_3;
-
-typedef LONG (WINAPI * RegGetValueA_t)(HKEY, const char*const, const char*const, DWORD, LPDWORD, PVOID, LPDWORD);
-static RegGetValueA_t pRegGetValueA = (RegGetValueA_t)QLibrary("advapi32").resolve("RegGetValueA");
-
-const DWORD RRF_RT_REG_DWORD_macro = 0x00000010;
 
 QColor GetUserSelectedAeroColor()
 {
 	const QColor defaultColor(170, 15, 30);
-	if (!QtWin::isCompositionEnabled() || !pRegGetValueA)
+	if (!QtWin::isCompositionEnabled())
 		return defaultColor;
-	DWORD color = 0, size = sizeof(DWORD);
-	if (ERROR_SUCCESS == pRegGetValueA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\DWM", "ColorizationColor", RRF_RT_REG_DWORD_macro, 0, (void*)&color, &size))
-		return QColor((color & 0x00ff0000)>>16, (color & 0x0000ff00)>>8, color & 0x000000ff);
-	else
-		return defaultColor;
+	bool ok = false;
+	quint32 color = QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\DWM", QSettings::NativeFormat)
+			.value("ColorizationColor").toUInt(&ok);
+	return ok ? QColor(color) : defaultColor;
 }
 
 WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
