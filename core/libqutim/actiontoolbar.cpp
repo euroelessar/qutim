@@ -18,7 +18,6 @@
 #include <QAction>
 #include <QToolButton>
 #include <QMouseEvent>
-#include "menucontroller_p.h"
 #include "actiontoolbar_p.h"
 #include "config.h"
 #include "actiongenerator_p.h"
@@ -183,7 +182,7 @@ ActionToolBar::ActionToolBar(QWidget *parent)
 ActionToolBar::~ActionToolBar()
 {
 	Q_D(ActionToolBar);
-	qDeleteAll(d->actions);
+	d->actions.clear();
 }
 
 QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator)
@@ -192,29 +191,25 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	Q_ASSERT(generator);
 	int index = d->generators.indexOf(generator);
 	if (index != -1)
-		return d->actions.at(index);
-	QAction *action = generator->generate<QAction>();
+		return d->actions.at(index)->action;
+	ActionValue::Ptr value = ActionValue::get(generator, this);
+	QAction *action = value->action;
 	Q_ASSERT(action);
 	action->setParent(this);
-	generator->create(action, this);
 	//action->setData(d->data);
 
 	d->generators << generator;
-	d->actions << action;
+	d->actions << value;
 	bool hasMenu = !!action->menu();
 	QWidget::insertAction(before,action);
 	if (hasMenu) {
 		QToolButton *button = qobject_cast<QToolButton*>(widgetForAction(action));
 		if (button) {
 			button->setPopupMode(QToolButton::InstantPopup);
-			//HACK a little spike for menu actions
-			foreach (QKeySequence key, action->shortcuts()) {
-				debug() << "added action:" << key;
-				QShortcut *shortCut = new QShortcut(this);
-				shortCut->setKey(key);
-				connect(shortCut, SIGNAL(activated()), button, SLOT(click()));
+			if (!generator->shortcut().isEmpty()) {
+				Shortcut *shortcut = new Shortcut(generator->shortcut(), button);
+				connect(shortcut, SIGNAL(activated()), button, SLOT(click()));
 			}
-			action->setShortcut(QKeySequence());
 		}
 	}
 	return action;
@@ -237,8 +232,9 @@ void ActionToolBar::setData(const QVariant &var)
 			d->actions.removeAt(i);
 			d->generators.removeAt(i);
 			i--;
-		} else
-			d->actions.at(i)->setData(var);
+		} else {
+			d->actions.at(i)->action->setData(var);
+		}
 	}
 }
 

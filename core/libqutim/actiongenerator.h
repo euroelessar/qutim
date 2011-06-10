@@ -139,6 +139,7 @@ void MyObject::onAction(QObject *obj)
 	void setToolTip(const LocalizedString &toolTip);
 	void setShortcut(const QKeySequence &shortcut);
 	void setShortcut(const QString &id);
+	QString shortcut() const;
 	void setMenuRole(QAction::MenuRole role);
 	QAction::MenuRole menuRole() const;
 	void setIconVisibleInMenu(bool visible);

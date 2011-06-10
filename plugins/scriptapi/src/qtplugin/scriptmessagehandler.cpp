@@ -91,6 +91,7 @@ QScriptValue messageHandlerUnregister(QScriptContext *context, QScriptEngine *en
 
 ScriptMessageHandler::ScriptMessageHandler(QScriptEngine *engine) : QScriptClass(engine)
 {
+	ScriptEngineData::data(engine)->messageHandler = this;
 	m_handler = engine->toStringHandle(QLatin1String("handler"));
 	m_prototype = engine->newObject(this);
 	m_prototype.setProperty(QLatin1String("register"), engine->newFunction(messageHandlerRegister));

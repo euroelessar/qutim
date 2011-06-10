@@ -46,15 +46,20 @@ ActionValue::~ActionValue()
 	delete action;
 }
 
-ActionValue::Ptr ActionValue::get(const ActionInfoV2 &info)
+ActionValue::Ptr ActionValue::get(const ActionGenerator *gen, QObject *controller)
 {
-	ActionKey key(info.controller, info.gen);
+	ActionKey key(controller, gen);
 	ActionMap::ConstIterator it = actionMap()->constFind(key);
 	if (it != actionMap()->constEnd())
 		return it.value().toStrongRef();
 	ActionValue::Ptr value(new ActionValue(key));
 	actionMap()->insert(key, value.toWeakRef());
 	return value;
+}
+
+ActionValue::Ptr ActionValue::get(const ActionInfoV2 &info)
+{
+	return get(info.gen, info.controller);
 }
 
 ActionValue::WeakPtr ActionValue::find(const ActionGenerator *gen, QObject *controller)
@@ -217,23 +222,31 @@ DynamicMenu::~DynamicMenu()
 void DynamicMenu::actionAdded(QAction *action, int index)
 {
 	ActionCollectionPrivate *p = ActionCollectionPrivate::get(m_d->actions);
-	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
 	const ActionInfoV2 &info = p->info(index);
-	const ActionInfoV2 *next = (index + 1 < p->actionInfos.size()) ? &p->info(index + 1) : 0;
 	ActionEntry *entry = findEntry(info);
 	m_entries.insert(index, entry);
+	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
+	if (prev && m_entries[index - 1] != entry)
+		prev = 0;
+	const ActionInfoV2 *next = (index + 1 < p->actionInfos.size()) ? &p->info(index + 1) : 0;
+	if (next && m_entries[index + 1] != entry)
+		next = 0;
 	if (next) {
 		if (m_entries[index + 1] == entry) {
 			QAction *nextAction = p->actions.at(index + 1)->action;
-			if (next->gen->type() != info.gen->type())
+			if (prev && prev->gen->type() == info.gen->type()) {
+				QList<QAction*> actions = entry->menu->actions();
+				int nextIndex = actions.indexOf(nextAction);
+				nextAction = actions.at(nextIndex - 1);
+			} else if (next->gen->type() != info.gen->type()) {
 				nextAction = entry->menu->insertSeparator(nextAction);
+			}
 			entry->menu->insertAction(nextAction, action);
 			return;
 		}
 	}
 	entry->menu->addAction(action);
-	if (prev && m_entries[index - 1] == entry
-	        && prev->gen->type() != info.gen->type()) {
+	if (prev && prev->gen->type() != info.gen->type()) {
 		entry->menu->insertSeparator(action);
 	}
 }

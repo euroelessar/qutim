@@ -153,13 +153,24 @@ void ChatLayerPlugin::onQuote(QObject *controller)
 {
 	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller)) {
 		ChatSessionImpl *session = chat->currentSession();
-		QString quote = session->quote();
+		const QString quote = session->quote();
 		if (quote.isEmpty())
 			return;
-		quote = QLatin1String(chat->getInputField()->textCursor().atStart() ? "> " : "\n> ") +
-				quote.replace('\n', "\n> ") +
-				QLatin1Char('\n');
-		chat->getInputField()->insertPlainText(quote);
+		const QString newLine = QLatin1String("\n> ");
+		QString text;
+		if (chat->getInputField()->textCursor().atStart())
+			text = QLatin1String("> ");
+		else
+			text = newLine;
+		text.reserve(text.size() + quote.size() * 1.2);
+		for (int i = 0; i < quote.size(); ++i) {
+			if (quote[i] == QLatin1Char('\n') || quote[i].unicode() == QChar::ParagraphSeparator)
+				text += newLine;
+			else
+				text += quote[i];
+		}
+		text += QLatin1Char('\n');
+		chat->getInputField()->insertPlainText(text);
 	}
 }
 

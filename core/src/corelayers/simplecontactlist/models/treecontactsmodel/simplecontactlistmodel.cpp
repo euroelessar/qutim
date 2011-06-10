@@ -52,7 +52,7 @@ TreeModel::TreeModel(QObject *parent) : AbstractContactModel(new TreeModelPrivat
 		d->initData = new TreeModelPrivate::InitData;
 		QTimer::singleShot(0, this, SLOT(init()));
 	}
-	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show tags and contacts"));
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show tags and contacts"));
 }
 
 TreeModel::~TreeModel()

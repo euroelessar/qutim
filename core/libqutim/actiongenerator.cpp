@@ -394,6 +394,11 @@ void ActionGenerator::setShortcut(const QKeySequence &shortcut)
 	d->shortCuts.append(shortcut);
 }
 
+QString ActionGenerator::shortcut() const
+{
+	return d_func()->shortCut;
+}
+
 void ActionGenerator::setShortcut(const QString &id)
 {
 	Q_D(ActionGenerator);

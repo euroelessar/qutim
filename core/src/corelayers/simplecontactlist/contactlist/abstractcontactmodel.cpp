@@ -157,12 +157,17 @@ bool AbstractContactModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 	ChangeEvent *ev = new ChangeEvent;
 	ev->child = item;
 	ev->parent = reinterpret_cast<ItemHelper*>(parent.internalPointer());
-	if (item->type == TagType)
+	if (item->type == TagType) {
 		ev->type = ChangeEvent::MoveTag;
-	else if (item->type == TagType)
+	} else if (ev->parent->type == TagType) {
 		ev->type = ChangeEvent::ChangeTags;
-	else if(item->type == ContactType)
+	} else if(item->type == ContactType && ev->parent->type == ContactType) {
 		ev->type = ChangeEvent::MergeContacts;
+	} else {
+		Q_ASSERT(!"Something is wrong with Drag&Drop");
+		delete ev;
+		return false;
+	}
 	d->events << ev;
 	d->timer.start(1, this);
 

@@ -59,6 +59,7 @@ public:
 	ActionValue(const ActionKey &key);
 	~ActionValue();
 	
+	static ActionValue::Ptr get(const ActionGenerator *gen, QObject *controller);
 	static ActionValue::Ptr get(const ActionInfoV2 &info);
 	static ActionValue::WeakPtr find(const ActionGenerator *gen, QObject *controller);
 	static QList<ActionValue::WeakPtr> find(const ActionGenerator *gen);

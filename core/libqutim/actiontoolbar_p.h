@@ -21,6 +21,7 @@
 #include <QPoint>
 #include <QVariant>
 #include "localizedstring.h"
+#include "menucontroller_p.h"
 #include <QSize>
 
 class QActionGroup;
@@ -42,7 +43,7 @@ public:
 	virtual ~ActionToolBarPrivate();
 	QMenu *initContextMenu();
 	QList<ActionGenerator *> generators;
-	QList<QPointer<QAction> > actions;
+	QList<ActionValue::Ptr> actions;
 	QVariant data;
 	QPoint dragPos;
 	bool moveHookEnabled;
