@@ -35,6 +35,7 @@ Q_GLOBAL_STATIC(QSet<QByteArray>, menuNameSet)
 ActionValue::ActionValue(const ActionKey &k) : key(k)
 {
 	action = key.second->generate<QAction>();
+	Q_ASSERT(action);
 	key.second->create(action, key.first);
 	actionControllerMap()->insert(action, key.first);
 }
@@ -228,12 +229,12 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
 	if (prev && m_entries[index - 1] != entry)
 		prev = 0;
-	const ActionInfoV2 *next = (index + 1 < p->actionInfos.size()) ? &p->info(index + 1) : 0;
+	const ActionInfoV2 *next = (index + 1 < m_d->actions.size()) ? &p->info(index + 1) : 0;
 	if (next && m_entries[index + 1] != entry)
 		next = 0;
 	if (next) {
 		if (m_entries[index + 1] == entry) {
-			QAction *nextAction = p->actions.at(index + 1)->action;
+			QAction *nextAction = m_d->actions.action(index + 1);
 			if (prev && prev->gen->type() == info.gen->type()) {
 				QList<QAction*> actions = entry->menu->actions();
 				int nextIndex = actions.indexOf(nextAction);
