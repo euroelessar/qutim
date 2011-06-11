@@ -64,10 +64,11 @@ public:
 
 	virtual QObject *generateHelper() const
 	{
-		if (m_proto->accounts().isEmpty())
-			return NULL;
+//		if (m_proto->accounts().isEmpty())
+//			return NULL;
 		QAction *action = prepareAction(new QAction(NULL));
-
+		if (m_proto->accounts().isEmpty())
+			action->setVisible(false);
 		QFont font = action->font();
 		font.setBold(true);
 		action->setFont(font);

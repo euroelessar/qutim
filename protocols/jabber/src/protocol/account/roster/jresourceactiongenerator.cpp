@@ -66,8 +66,7 @@ namespace Jabber
 			if (isEmpty)
 				action->setDisabled(true);
 		} else {
-			delete action;
-			action = 0;
+			action->setVisible(false);
 		}
 		return action;
 	}
