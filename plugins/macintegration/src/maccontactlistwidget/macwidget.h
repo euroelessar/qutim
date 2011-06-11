@@ -19,6 +19,15 @@ namespace Core {
 namespace SimpleContactList {
 struct MacWidgetPrivate;
 
+enum MacMenuId
+{
+	MacMenuFile,
+	MacMenuAccounts,
+	MacMenuChats,
+	MacMenuRoster,
+	MacMenuSize
+};
+
 class MacWidget : public QMainWindow, public AbstractContactListWidget
 {
 	Q_OBJECT
@@ -45,7 +54,7 @@ private slots:
 	void onTextChanged(const QString &text);
 protected:
 	void loadGeometry();
-	void addMenu(const QString &title, const QString &id);
+	void addMenu(const QString &title, MacMenuId id);
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
 	QScopedPointer<MacWidgetPrivate> d_ptr;

@@ -35,7 +35,8 @@ struct MacWidgetPrivate
 	ActionToolBar *mainToolBar;
 	QLineEdit *searchBar;
 	QAction *statusTextAction;
-	QHash<QString, MenuController *> menu;
+	QVector<MenuController *> controllers;
+	QVector<QMenu *> menus;
 	QHash<Account *, QAction *> accountActions;
 	QHash<ChatSession *, QAction *> aliveSessions;
 	QMenuBar *menuBar;
@@ -45,6 +46,8 @@ struct MacWidgetPrivate
 MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 {
 	Q_D(MacWidget);
+	d->controllers.resize(MacMenuSize);
+	d->menus.resize(MacMenuSize);
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	setWindowIcon(Icon("qutim"));
 
@@ -104,17 +107,17 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 #else
 	d->menuBar = new QMenuBar(this);
 #endif
-	addMenu(tr("File"), "file");
-	addMenu(tr("Accounts"), "accounts");
-	addMenu(tr("Chats"), "chats");
-	addMenu(tr("Roster"), "roster");
+	addMenu(tr("File"), MacMenuFile);
+	addMenu(tr("Accounts"), MacMenuAccounts);
+	addMenu(tr("Chats"), MacMenuChats);
+	addMenu(tr("Roster"), MacMenuRoster);
 	//if (MenuController *contactList = qobject_cast<MenuController *>(ServiceManager::getByName("ContactList")))
-	//	d->menu.value("file")->setMenuOwner(contactList);
-	d->statusTextAction = d->menu.value("accounts")->menu()->addAction(Icon("im-status-message-edit"), tr("Set Status Text"),
+	//	d->menu.value(MacMenuFile)->setMenuOwner(contactList);
+	d->statusTextAction = d->menus[MacMenuAccounts]->addAction(Icon("im-status-message-edit"), tr("Set Status Text"),
 																	   this, SLOT(showStatusDialog()));
 	QString lastStatus = Config().group("contactList").value("lastStatus", QString());
 	d->statusTextAction->setData(lastStatus);
-	d->menu.value("accounts")->menu()->addSeparator();
+	d->menus[MacMenuAccounts]->addSeparator();
 	foreach(Protocol *protocol, Protocol::all())
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
 	QTimer timer;
@@ -123,28 +126,46 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 
 MacWidget::~MacWidget()
 {
+	Q_D(MacWidget);
+	qDeleteAll(d->menus);
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());
 }
 
-void MacWidget::addMenu(const QString &title, const QString &id)
+class MacMenuFileController : public MenuController
+{
+public:
+	MacMenuFileController(QObject *parent) : MenuController(parent)
+	{
+		if (MenuController *contactList = ServiceManager::getByName<MenuController *>("ContactList"))
+			setMenuOwner(contactList);
+	}
+};
+
+void MacWidget::addMenu(const QString &title, MacMenuId id)
 {
 	Q_D(MacWidget);
-	MenuController *controller = new MenuController(this);
-	controller->menu()->setTitle(title);
-	d->menuBar->addMenu(controller->menu());
-	d->menu.insert(id, controller);
+	MenuController *controller = 0;
+	if (id == MacMenuFile)
+		controller = new MacMenuFileController(this);
+	else
+		controller = new MenuController(this);
+	QMenu *menu = controller->menu(false);
+	menu->setTitle(title);
+	d->menuBar->addMenu(menu);
+	d->menus[id] = menu;
+	d->controllers[id] = controller;
 }
 
 void MacWidget::addButton(ActionGenerator *generator)
 {
-	d_func()->menu.value("roster")->addAction(generator);
+	d_func()->controllers[MacMenuRoster]->addAction(generator);
 }
 
 void MacWidget::removeButton(ActionGenerator *generator)
 {
-	d_func()->menu.value("roster")->removeAction(generator);
+	d_func()->controllers[MacMenuRoster]->removeAction(generator);
 }
 
 void MacWidget::loadGeometry()
@@ -201,7 +222,7 @@ void MacWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	connect(account, SIGNAL(destroyed(QObject *)),SLOT(onAccountDestroyed(QObject *)));
 	d->accountActions.insert(account, action);
 	action->setMenu(account->menu());
-	d->menu.value("accounts")->menu()->addAction(action);
+	d->menus[MacMenuAccounts]->addAction(action);
 	QString text = d->statusTextAction->data().toString();
 	if (!text.isEmpty()) {
 		Status status = account->status();
@@ -229,10 +250,10 @@ void MacWidget::onAccountDestroyed(QObject *obj)
 void MacWidget::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	Q_D(MacWidget);
-	QAction *action = new QAction(session->getUnit()->title(), d->menu.value("chats")->menu());
+	QAction *action = new QAction(session->getUnit()->title(), d->menus[MacMenuChats]);
 	action->setCheckable(true);
 	connect(action, SIGNAL(triggered()), session, SLOT(activate()));
-	d->menu.value("chats")->menu()->addAction(action);
+	d->menus[MacMenuChats]->addAction(action);
 	d->aliveSessions.insert(session, action);
 	connect(session, SIGNAL(activated(bool)), this, SLOT(onActivatedSession(bool)));
 	connect(session, SIGNAL(destroyed()), SLOT(onSessionDestroyed()));
@@ -254,8 +275,6 @@ void MacWidget::initMenu()
 {
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession *)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession *)));
-	if (MenuController *cl = ServiceManager::getByName<MenuController *>("ContactList"))
-		d_func()->menu.value("file")->menu()->addActions(cl->menu()->actions());
 }
 
 bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
