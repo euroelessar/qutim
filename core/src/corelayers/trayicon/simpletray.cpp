@@ -64,19 +64,19 @@ public:
 
 	virtual QObject *generateHelper() const
 	{
-//		if (m_proto->accounts().isEmpty())
-//			return NULL;
+		if (m_action)
+			return m_action.data();
 		QAction *action = prepareAction(new QAction(NULL));
-		if (m_proto->accounts().isEmpty())
-			action->setVisible(false);
 		QFont font = action->font();
 		font.setBold(true);
 		action->setFont(font);
 #ifndef Q_WS_MAC
 		QToolButton *m_btn = new QToolButton();
 		QWidgetAction *widget = new QWidgetAction(action);
+		m_action = QWeakPointer<QAction>(widget);
 		widget->setDefaultWidget(m_btn);
-		QObject::connect(action,SIGNAL(destroyed()),widget,SLOT(deleteLater()));
+		QObject::connect(widget, SIGNAL(destroyed()), action, SLOT(deleteLater()));
+		QObject::connect(widget, SIGNAL(destroyed()), m_btn, SLOT(deleteLater()));
 		m_btn->setDefaultAction(action);
 		m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 		m_btn->setDown(true); // prevent hover style changes in some styles
@@ -93,7 +93,7 @@ public:
 	void ensureVisibility() const
 	{
 		if (m_action)
-			m_action->setVisible(!m_proto->accounts().isEmpty());
+			m_action.data()->setVisible(!m_proto->accounts().isEmpty());
 	}
 	
 	void showImpl(QAction *, QObject *)
@@ -103,7 +103,7 @@ public:
 private:
 	Protocol *m_proto;
 	QToolButton *m_btn;
-	mutable QPointer<QAction> m_action;
+	mutable QWeakPointer<QAction> m_action;
 };
 
 #ifdef Q_WS_WIN
