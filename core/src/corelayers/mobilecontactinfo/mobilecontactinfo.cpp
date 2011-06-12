@@ -66,8 +66,8 @@ void MobileContactInfoWindow::setRequest(InfoRequest *req)
 		request->deleteLater();
 	if (request != req) {
 		request = req;
-		connect(request, SIGNAL(stateChanged(InfoRequest::State)),
-				SLOT(onRequestStateChanged(InfoRequest::State)));
+		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
+				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
 	}
 	InfoRequest::State state = request->state();
 	dataWidget.reset();

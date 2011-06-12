@@ -38,8 +38,8 @@ void MainWindow::setRequest(InfoRequest *req)
 	int curPage = ui.detailsStackedWidget->currentIndex();
 	if (request != req) {
 		request = req;
-		connect(request, SIGNAL(stateChanged(InfoRequest::State)),
-				SLOT(onRequestStateChanged(InfoRequest::State)));
+		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
+				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
 	}
 	ui.infoListWidget->clear();
 	QWidget *w;

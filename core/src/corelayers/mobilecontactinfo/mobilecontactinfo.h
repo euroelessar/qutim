@@ -25,7 +25,7 @@ public:
 	MobileContactInfoWindow(QWidget *parent = 0);
 	void setObject(QObject *object, RequestType type);
 private slots:
-	void onRequestStateChanged(InfoRequest::State state);
+	void onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state);
 	void onRequestButton();
 	void onSaveButton();
 private:

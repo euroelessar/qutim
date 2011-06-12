@@ -28,6 +28,7 @@
 
 #include <qutim/iconloader.h>
 #include <qutim/settingswidget.h>
+#include <qutim/settingslayer.h>
 #include <QComboBox>
 
 using namespace qutim_sdk_0_3;
@@ -62,6 +63,8 @@ public:
 public slots:
 	void onSettingsChanged();
 	void initSettings();
+private:
+	QScopedPointer<SettingsItem> m_settings;
 };
 }
 

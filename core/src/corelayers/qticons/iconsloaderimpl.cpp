@@ -27,7 +27,6 @@
 #include <qutim/configbase.h>
 #include "3rdparty/q-xdg/src/xdgiconmanager.h"
 #include <qutim/systeminfo.h>
-#include <qutim/settingslayer.h>
 #include <qutim/debug.h>
 #include <QFormLayout>
 #include <qutim/icon.h>
@@ -81,15 +80,16 @@ void IconLoaderSettings::onCurrentIndexChanged(int index)
 IconLoaderImpl::IconLoaderImpl()
 {
 	onSettingsChanged();
-	SettingsItem *item = new GeneralSettingsItem<IconLoaderSettings>(Settings::Appearance, loadIcon("preferences-desktop-icons"),
-																	 QT_TRANSLATE_NOOP("Settings", "Icons theme"));
+	m_settings.reset(new GeneralSettingsItem<IconLoaderSettings>(
+	                     Settings::Appearance, loadIcon("preferences-desktop-icons"),
+	                     QT_TRANSLATE_NOOP("Settings", "Icons theme")));
 //	item->setConfig(QString(), QLatin1String("appearance"));
 //	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
 //	entry->setName(QLatin1String("theme"));
 //	entry->setProperty("items", iconManager()->themeIds(false));
 //	debug() << "ICONS:" << iconManager()->themeIds(true);
 //	debug() << "ICONS:" << iconManager()->themeIds(false);
-	Settings::registerItem(item);
+	Settings::registerItem(m_settings.data());
 }
 
 QIcon IconLoaderImpl::loadIcon(const QString &name)
@@ -105,6 +105,7 @@ QMovie *IconLoaderImpl::loadMovie(const QString &name)
 
 QString IconLoaderImpl::iconPath(const QString &name, uint iconSize)
 {
+	qDebug("%s %s %u %s", Q_FUNC_INFO, qPrintable(name), iconSize, qPrintable(iconManager()->currentTheme()->getIconPath(name, iconSize)));
 	return iconManager()->currentTheme()->getIconPath(name, iconSize);
 }
 

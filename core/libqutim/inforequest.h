@@ -12,6 +12,8 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_DISABLE_COPY(InfoRequest)
+		Q_PROPERTY(qutim_sdk_0_3::InfoRequest::State state READ state NOTIFY stateChanged)
+		Q_PROPERTY(qutim_sdk_0_3::DataItem item READ item)
 	public:
 		enum State {
 			Request,
@@ -25,7 +27,7 @@ namespace qutim_sdk_0_3
 		virtual State state() const = 0;
 		virtual void resend() const;
 	signals:
-		void stateChanged(InfoRequest::State state);
+		void stateChanged(qutim_sdk_0_3::InfoRequest::State state);
 	protected:
 		virtual void virtual_hook(int id, void *data);
 	};

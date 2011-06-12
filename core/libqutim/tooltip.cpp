@@ -47,7 +47,7 @@ namespace qutim_sdk_0_3
 			if (!iconPath.isEmpty()) {
 				if (!text.isEmpty())
 					text += " ";
-				text += "<img src='" + iconPath + "'> ";
+				text += "<img width='16' height='16' src='" + iconPath + "'> ";
 			}
 		}
 	}
