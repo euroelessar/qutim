@@ -200,6 +200,7 @@ void JProtocol::loadActions()
 	d->joinGroupChatGen.reset(new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 												  this, SLOT(onJoinLeave(QObject*))));
 	d->joinGroupChatGen->addHandler(ActionVisibilityChangedHandler,this);
+	d->joinGroupChatGen->addHandler(ActionCreatedHandler, this);
 	d->joinGroupChatGen->setType(ActionTypeAdditional);
 	d->joinGroupChatGen->setPriority(3);
 	MenuController::addAction<JMUCSession>(d->joinGroupChatGen.data());
