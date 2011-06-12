@@ -28,6 +28,7 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <qutim/networkproxy.h>
 #include "connection.h"
 
 class QUrl;
@@ -57,6 +58,7 @@ public:
 	QString errorString() const { return m_errorString; }
 	
 public slots:
+	void setProxy(const QNetworkProxy &proxy);
 	void login();
 
 protected:

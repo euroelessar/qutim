@@ -138,6 +138,14 @@ QString OscarResponse::resultString() const
 OscarAuth::OscarAuth(IcqAccount *account) :
     QObject(account), m_account(account), m_state(Invalid)
 {
+	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
+	m_manager.setProxy(proxy);
+	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
+}
+
+void OscarAuth::setProxy(const QNetworkProxy &proxy)
+{
+	m_manager.setProxy(proxy);
 }
 
 void OscarAuth::login()
