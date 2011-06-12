@@ -58,6 +58,7 @@ protected:
 	void mousePressEvent(QMouseEvent* event);
 	void contextMenuEvent(QContextMenuEvent* event);
 	void showEvent(QShowEvent *event);
+	void hideEvent(QHideEvent *);
 private:
 	QScopedPointer<ActionToolBarPrivate> d_ptr;
 	Q_PRIVATE_SLOT(d_func(), void _q_size_action_triggered(QAction*))

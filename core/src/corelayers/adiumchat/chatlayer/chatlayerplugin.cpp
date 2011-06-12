@@ -25,6 +25,7 @@
 #include <QPlainTextEdit>
 #include "chatforms/abstractchatwidget.h"
 #include <qutim/shortcut.h>
+#include <qutim/emoticons.h>
 #include "chatforms/abstractchatform.h"
 
 namespace Core
@@ -51,6 +52,13 @@ public:
 	{
 		setType(ActionTypeChatButton);
 	}
+	
+	void showImpl(QAction *action, QObject *)
+	{
+		qDebug("%s", Q_FUNC_INFO);
+		action->setVisible(!Emoticons::theme().isNull());
+	}
+
 protected:
 	virtual QObject *generateHelper() const
 	{

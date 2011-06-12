@@ -195,8 +195,10 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	ActionValue::Ptr value = ActionValue::get(generator, this);
 	QAction *action = value->action.data();
 	Q_ASSERT(action);
-	action->setParent(this);
+//	action->setParent(this);
 	//action->setData(d->data);
+	if (isVisible())
+		ActionGeneratorPrivate::get(generator)->show(action, this);
 
 	d->generators << generator;
 	d->actions << value;
@@ -312,6 +314,8 @@ void ActionToolBar::showEvent(QShowEvent* event)
 {
 	Q_D(ActionToolBar);
 	QWidget::showEvent (event);
+	for (int i = 0; i < d->actions.size(); ++i)
+		ActionGeneratorPrivate::get(d->generators[i])->show(d->actions[i]->action.data(), this);
 	Config cfg = Config("appearance").group("toolBars").group(objectName());
 	int size = cfg.value("iconSize",-1);
 	d->size = QSize(size,size);
@@ -321,6 +325,14 @@ void ActionToolBar::showEvent(QShowEvent* event)
 		QToolBar::setIconSize(d->size);
 	if(d->style != -1)
 		QToolBar::setToolButtonStyle(static_cast<Qt::ToolButtonStyle>(d->style));
+}
+
+void ActionToolBar::hideEvent(QHideEvent *event)
+{
+	Q_D(ActionToolBar);
+	for (int i = 0; i < d->actions.size(); ++i)
+		ActionGeneratorPrivate::get(d->generators[i])->hide(d->actions[i]->action.data(), this);
+	QWidget::hideEvent(event);
 }
 
 
