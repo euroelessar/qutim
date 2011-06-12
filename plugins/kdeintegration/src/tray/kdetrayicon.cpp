@@ -68,6 +68,11 @@ public:
 		if (m_action)
 			m_action->setVisible(!m_proto->accounts().isEmpty());
 	}
+	
+	void showImpl(QAction *, QObject *)
+	{
+		ensureVisibility();
+	}
 
 private:
 	Protocol *m_proto;

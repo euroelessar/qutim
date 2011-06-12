@@ -65,6 +65,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	setCentralWidget(m_stack);
 
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
+	view->setFocusProxy(m_chatInput);
 
 	QScrollArea *chatViewScrollArea = new QScrollArea();
 

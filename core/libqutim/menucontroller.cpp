@@ -225,6 +225,7 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 	ActionCollectionPrivate *p = ActionCollectionPrivate::get(m_d->actions);
 	const ActionInfoV2 &info = p->info(index);
 	ActionEntry *entry = findEntry(info);
+	Q_ASSERT(!entry->menu->actions().contains(action));
 	m_entries.insert(index, entry);
 	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
 	if (prev && m_entries[index - 1] != entry)
@@ -233,22 +234,23 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 	if (next && m_entries[index + 1] != entry)
 		next = 0;
 	if (next) {
-		if (m_entries[index + 1] == entry) {
-			QAction *nextAction = m_d->actions.action(index + 1);
-			if (prev && prev->gen->type() == info.gen->type()) {
-				QList<QAction*> actions = entry->menu->actions();
-				int nextIndex = actions.indexOf(nextAction);
-				nextAction = actions.at(nextIndex - 1);
-			} else if (next->gen->type() != info.gen->type()) {
-				nextAction = entry->menu->insertSeparator(nextAction);
-			}
-			entry->menu->insertAction(nextAction, action);
-			return;
+		QAction *nextAction = m_d->actions.action(index + 1);
+		if (next->gen->type() == info.gen->type()) {
+			// do nothing special
+		} else if (prev && prev->gen->type() == info.gen->type()) {
+			QList<QAction*> actions = entry->menu->actions();
+			int nextIndex = actions.indexOf(nextAction);
+			nextAction = actions.at(nextIndex - 1);
+			Q_ASSERT(nextAction->isSeparator());
+		} else if (next->gen->type() != info.gen->type()) {
+			nextAction = entry->menu->insertSeparator(nextAction);
 		}
-	}
-	entry->menu->addAction(action);
-	if (prev && prev->gen->type() != info.gen->type()) {
-		entry->menu->insertSeparator(action);
+		entry->menu->insertAction(nextAction, action);
+	} else {
+		entry->menu->addAction(action);
+		if (prev && prev->gen->type() != info.gen->type()) {
+			entry->menu->insertSeparator(action);
+		}
 	}
 }
 
@@ -323,6 +325,8 @@ void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArra
 {
 	const ActionInfoV2 &info = d_func()->actions.addAction(gen, menu);
 	foreach (MenuController *controller, *activatedControllers()) {
+		if (controller == this)
+			continue;
 		MenuController *owner = controller;
 		int flags = owner->d_func()->flags;
 		while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
@@ -467,6 +471,7 @@ void ActionCollection::ref()
 {
 	Q_D(ActionCollection);
 	if (1 == ++d->actionsRef) {
+		Q_ASSERT(!activatedControllers()->contains(d->controller));
 		activatedControllers()->append(d->controller);
 		d->ensureActions();
 	}
@@ -488,6 +493,7 @@ void ActionCollection::deref()
 {
 	Q_D(ActionCollection);
 	if (0 == --d->actionsRef) {
+		Q_ASSERT(activatedControllers()->contains(d->controller));
 		activatedControllers()->removeOne(d->controller);
 		d->killActions();
 	}

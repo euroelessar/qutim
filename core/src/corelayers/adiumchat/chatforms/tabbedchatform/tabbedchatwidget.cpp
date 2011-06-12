@@ -60,6 +60,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	setCentralWidget(centralWidget);
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
 	view->setParent(centralWidget);
+	view->setFocusProxy(m_chatInput);
 
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
 	vSplitter->setObjectName(QLatin1String("vSplitter"));
