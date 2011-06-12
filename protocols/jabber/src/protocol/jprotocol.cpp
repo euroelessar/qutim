@@ -441,15 +441,20 @@ bool JProtocol::event(QEvent *ev)
 			Q_ASSERT(c);
 			d->checkSubscribe(c, action);
 			connect(c, SIGNAL(subscriptionChanged(Jreen::RosterItem::SubscriptionType)),
-					this, SLOT(_q_subscription_changed(Jreen::RosterItem::SubscriptionType)));
-		}
-		else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
-			if(event->generator() == d->bookmarksGen.data())
+			        this, SLOT(_q_subscription_changed(Jreen::RosterItem::SubscriptionType)));
+		} else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
+			if(event->generator() == d->bookmarksGen.data()) {
+				d->checkBookMark(s, action);
 				connect(s, SIGNAL(bookmarkChanged(Jreen::Bookmark::Conference)),
-						this, SLOT(_q_conference_bookmark_changed()));
-			else
+				        this, SLOT(_q_conference_bookmark_changed()));
+			} else {
+				if (event->generator() == d->joinGroupChatGen.data())
+					d->checkRoomJoined(s, action);
+				else
+					d->checkRoomConfig(s, action);
 				connect(s, SIGNAL(joinedChanged(bool)),
-						this, SLOT(_q_conference_join_changed()));
+				        this, SLOT(_q_conference_join_changed()));
+			}
 		}
 		return true;
 	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
