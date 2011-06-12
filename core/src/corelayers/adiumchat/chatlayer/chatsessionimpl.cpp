@@ -79,6 +79,7 @@ QString ChatSessionImpl::quote()
 ChatSessionImpl::~ChatSessionImpl()
 {
 	Q_D(ChatSessionImpl);
+	setChatState(ChatStateGone);
 	if (d->menu)
 		d->menu->deleteLater();
 }
@@ -220,6 +221,10 @@ void ChatSessionImpl::setActive(bool active)
 	Q_D(ChatSessionImpl);
 	if (d->active == active)
 		return;
+	if (active)
+		setChatState(ChatStateActive);
+	else if (d->myself_chat_state != ChatStateGone)
+		setChatState(ChatStateInActive);
 	d->active = active;
 	emit activated(active);
 }
@@ -405,12 +410,15 @@ void ChatSessionImpl::setChatState(ChatState state)
 		d->inactive_timer.start();
 		return;
 	}
-	ChatStateEvent event(state);
-	qApp->sendEvent(getCurrentUnit(),&event);
+	if (ChatUnit *currentUnit = getCurrentUnit()) {
+		ChatStateEvent event(state);
+		qApp->sendEvent(currentUnit, &event);
+	}
 	d->myself_chat_state = state;
 	switch(state) {
 		case ChatStateComposing:
-			d->inactive_timer.setInterval(30000);
+		// By xep-0085 this time should be 30 secs, but it's too huge
+			d->inactive_timer.setInterval(10000);
 			break;
 		case ChatStatePaused:
 			d->inactive_timer.setInterval(30000);
