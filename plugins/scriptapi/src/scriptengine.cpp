@@ -354,6 +354,8 @@ void ScriptEngine::initApi()
 	foreach (const QByteArray &name, ServiceManager::names()) {
 		QScriptValue service = newQObject(ServiceManager::getByName(name));
 		QString prop = QString::fromUtf8(name.data(), name.size());
+		if (prop.isEmpty())
+			continue;
 		prop[0] = prop.at(0).toLower();
 		client.setProperty(prop, service);
 	}
