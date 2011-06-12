@@ -85,6 +85,7 @@ void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence
 void ActionGeneratorHelper::onActionDeath(QObject *obj)
 {
 	QAction *action = static_cast<QAction*>(obj);
+	m_actions.remove(action);
 	QMultiHash<QString, QAction *>::iterator it = m_shortcuts.begin();
 	for (; it != m_shortcuts.end(); ++it) {
 		if (it.value() == action) {
