@@ -191,9 +191,9 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	Q_ASSERT(generator);
 	int index = d->generators.indexOf(generator);
 	if (index != -1)
-		return d->actions.at(index)->action;
+		return d->actions.at(index)->action.data();
 	ActionValue::Ptr value = ActionValue::get(generator, this);
-	QAction *action = value->action;
+	QAction *action = value->action.data();
 	Q_ASSERT(action);
 	action->setParent(this);
 	//action->setData(d->data);
@@ -233,7 +233,7 @@ void ActionToolBar::setData(const QVariant &var)
 			d->generators.removeAt(i);
 			i--;
 		} else {
-			d->actions.at(i)->action->setData(var);
+			d->actions.at(i)->action.data()->setData(var);
 		}
 	}
 }

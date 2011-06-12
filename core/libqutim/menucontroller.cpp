@@ -34,17 +34,17 @@ Q_GLOBAL_STATIC(QSet<QByteArray>, menuNameSet)
 
 ActionValue::ActionValue(const ActionKey &k) : key(k)
 {
-	action = key.second->generate<QAction>();
+	action = QWeakPointer<QAction>(key.second->generate<QAction>());
 	Q_ASSERT(action);
-	key.second->create(action, key.first);
-	actionControllerMap()->insert(action, key.first);
+	key.second->create(action.data(), key.first);
+	actionControllerMap()->insert(action.data(), key.first);
 }
 
 ActionValue::~ActionValue()
 {
-	actionControllerMap()->remove(action);
+	actionControllerMap()->remove(action.data());
 	actionMap()->remove(key);
-	delete action;
+	delete action.data();
 }
 
 ActionValue::Ptr ActionValue::get(const ActionGenerator *gen, QObject *controller)
@@ -179,10 +179,11 @@ inline QMenu *create_menu(MenuController *controller)
 	return menu;
 }
 
-DynamicMenu::DynamicMenu(MenuControllerPrivate *d) :
-	m_d(d), m_shown(false), m_entry(create_menu(d->q_ptr))
+DynamicMenu::DynamicMenu(MenuControllerPrivate *d)
+    : m_controller(d->q_ptr), m_shown(false), m_entry(create_menu(d->q_ptr))
 {
 	setParent(m_entry.menu);
+	connect(d->q_ptr, SIGNAL(destroyed()), m_entry.menu, SLOT(deleteLater()));
 	m_entry.menu->installEventFilter(this);
 	connect(m_entry.menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 	connect(m_entry.menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
@@ -214,15 +215,17 @@ DynamicMenu::DynamicMenu(MenuControllerPrivate *d) :
 
 DynamicMenu::~DynamicMenu()
 {
-	if (m_shown)
-		m_d->actions.showDeref();
-	m_d->actions.removeHandler(this);
-	m_d->actions.deref();
+	if (m_controller) {
+		if (m_shown)
+			d_func()->actions.showDeref();
+		d_func()->actions.removeHandler(this);
+		d_func()->actions.deref();
+	}
 }
 
 void DynamicMenu::actionAdded(QAction *action, int index)
 {
-	ActionCollectionPrivate *p = ActionCollectionPrivate::get(m_d->actions);
+	ActionCollectionPrivate *p = ActionCollectionPrivate::get(d_func()->actions);
 	const ActionInfoV2 &info = p->info(index);
 	ActionEntry *entry = findEntry(info);
 	Q_ASSERT(!entry->menu->actions().contains(action));
@@ -230,11 +233,11 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 	const ActionInfoV2 *prev = index > 0 ? &p->info(index - 1) : 0;
 	if (prev && m_entries[index - 1] != entry)
 		prev = 0;
-	const ActionInfoV2 *next = (index + 1 < m_d->actions.size()) ? &p->info(index + 1) : 0;
+	const ActionInfoV2 *next = (index + 1 < d_func()->actions.size()) ? &p->info(index + 1) : 0;
 	if (next && m_entries[index + 1] != entry)
 		next = 0;
 	if (next) {
-		QAction *nextAction = m_d->actions.action(index + 1);
+		QAction *nextAction = d_func()->actions.action(index + 1);
 		if (next->gen->type() == info.gen->type()) {
 			// do nothing special
 		} else if (prev && prev->gen->type() == info.gen->type()) {
@@ -257,7 +260,7 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 void DynamicMenu::actionRemoved(int index)
 {
 	ActionEntry *entry = m_entries.takeAt(index);
-	entry->menu->removeAction(m_d->actions.action(index));
+	entry->menu->removeAction(d_func()->actions.action(index));
 }
 
 void DynamicMenu::actionsCleared()
@@ -280,7 +283,7 @@ void DynamicMenu::onAboutToShow()
 {
 	if (!m_shown) {
 		m_shown = true;
-		m_d->actions.showRef();
+		d_func()->actions.showRef();
 	}
 }
 
@@ -288,7 +291,7 @@ void DynamicMenu::onAboutToHide()
 {
 	if (m_shown) {
 		m_shown = false;
-		m_d->actions.showDeref();
+		d_func()->actions.showDeref();
 	}
 }
 
@@ -431,7 +434,7 @@ ActionCollection::~ActionCollection()
 QAction* ActionCollection::action(int index) const
 {
 	Q_D(const ActionCollection);
-	QAction *action = d->actions.at(index)->action;
+	QAction *action = d->actions.at(index)->action.data();
 	ActionGenerator *gen = ActionGenerator::get(action);
 	if (gen)
 		ActionGeneratorPrivate::get(gen)->show(action,d->controller);
@@ -484,7 +487,7 @@ void ActionCollection::showRef()
 		for (int i = 0; i < d->actions.size(); ++i) {
 			const ActionInfoV2 &info = d->actionInfos.at(i);
 			ActionGenerator *gen = const_cast<ActionGenerator*>(info.gen);
-			ActionGeneratorPrivate::get(gen)->show(d->actions.at(i)->action, info.controller);
+			ActionGeneratorPrivate::get(gen)->show(d->actions.at(i)->action.data(), info.controller);
 		}
 	}
 }
@@ -506,7 +509,7 @@ void ActionCollection::showDeref()
 		for (int i = 0; i < d->actions.size(); ++i) {
 			const ActionInfoV2 &info = d->actionInfos.at(i);
 			ActionGenerator *gen = const_cast<ActionGenerator*>(info.gen);
-			ActionGeneratorPrivate::get(gen)->hide(d->actions.at(i)->action, info.controller);
+			ActionGeneratorPrivate::get(gen)->hide(d->actions.at(i)->action.data(), info.controller);
 		}
 	}
 }
@@ -556,7 +559,7 @@ void ActionCollectionPrivate::setController(MenuController *newController)
 		const ActionInfoV2 &b = actionInfos[j];
 		if (a.gen == b.gen && a.hash == b.hash) {
 			if (showRef > 0) {
-				QAction *action = actions.at(l)->action;
+				QAction *action = actions.at(l)->action.data();
 				const ActionGeneratorPrivate *cp = ActionGeneratorPrivate::get(a.gen);
 				ActionGeneratorPrivate *p = const_cast<ActionGeneratorPrivate*>(cp);
 				p->hide(action, oldController);
@@ -627,12 +630,12 @@ void ActionCollectionPrivate::insertAction(int index, const ActionInfoV2 &info)
 	if (showRef > 0) {
 		const ActionGeneratorPrivate *cp = ActionGeneratorPrivate::get(info.gen);
 		ActionGeneratorPrivate *p = const_cast<ActionGeneratorPrivate*>(cp);
-		p->show(action->action, controller);
+		p->show(action->action.data(), controller);
 	}
 	actionInfos.insert(index, info);
 	actions.insert(index, action);
 	for (int i = 0; i < handlers.size(); ++i)
-		handlers.at(i)->actionAdded(action->action, index);
+		handlers.at(i)->actionAdded(action->action.data(), index);
 }
 
 void ActionCollectionPrivate::ensureActionInfos()

@@ -31,7 +31,8 @@ Q_GLOBAL_STATIC(Scope, scope)
 
 MessageHandler::~MessageHandler()
 {
-	unregisterHandler(this);
+	if (scope())
+		unregisterHandler(this);
 }
 
 void MessageHandler::registerHandler(MessageHandler *handler, int incomingPriority, int outgoingPriority)

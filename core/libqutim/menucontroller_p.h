@@ -65,7 +65,7 @@ public:
 	static QList<ActionValue::WeakPtr> find(const ActionGenerator *gen);
 	
 	ActionKey key;
-	QAction *action;
+	QWeakPointer<QAction> action;
 };
 typedef QMap<ActionKey, ActionValue::WeakPtr> ActionMap;
 
@@ -158,7 +158,9 @@ private slots:
 	void onAboutToHide();
 
 private:
-	MenuControllerPrivate * const m_d;
+	QWeakPointer<MenuController> m_controller;
+	MenuControllerPrivate * d_func() const
+	{ return m_controller ? MenuControllerPrivate::get(m_controller.data()) : 0; }
 	bool m_shown;
 	ActionEntry m_entry;
 	QList<ActionEntry*> m_entries;

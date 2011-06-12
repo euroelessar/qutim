@@ -447,7 +447,7 @@ QList<QAction *> ActionGenerator::actions(QObject *object) const
 {
 	QList<QAction*> list;
 	if (ActionValue::WeakPtr value = ActionValue::find(this, object))
-		list.append(value.data()->action);
+		list.append(value.data()->action.data());
 	return list;
 }
 
@@ -455,7 +455,7 @@ QMap<QObject*, QAction*> ActionGenerator::actions() const
 {
 	QMap<QObject*, QAction*> map;
 	foreach (const ActionValue::WeakPtr &value, ActionValue::find(this))
-		map.insert(value.data()->key.first, value.data()->action);
+		map.insert(value.data()->key.first, value.data()->action.data());
 	return map;
 }
 
