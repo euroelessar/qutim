@@ -12,6 +12,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_DISABLE_COPY(InfoRequest)
+		Q_ENUMS(State)
 		Q_PROPERTY(qutim_sdk_0_3::InfoRequest::State state READ state NOTIFY stateChanged)
 		Q_PROPERTY(qutim_sdk_0_3::DataItem item READ item)
 	public:

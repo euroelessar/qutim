@@ -26,27 +26,15 @@
 
 using namespace qutim_sdk_0_3;
 
-class ScriptHelperWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    ScriptHelperWidget();
-    virtual ~ScriptHelperWidget() {}
-	
-public slots:
-	void onButtonClicked();
-	
-private:
-	QPlainTextEdit *m_textEdit;
-	QScriptEngine m_engine;
-};
+class ScriptPlugin;
 
 class ScriptMessageHandler : public qutim_sdk_0_3::MessageHandler
 {
 public:
-	ScriptMessageHandler();
+	ScriptMessageHandler(ScriptPlugin *parent);
 	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 	
+	void handleException();
 private:
 	QScriptEngine m_engine;
 };
@@ -61,6 +49,9 @@ public:
 	virtual bool load();
 	virtual QList<Plugin*> loadPlugins();
 	virtual bool unload();
+	
+public slots:
+	void onException(const QScriptValue &exception);
 	
 private:
 	QScopedPointer<ScriptMessageHandler> m_handler;

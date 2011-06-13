@@ -24,30 +24,10 @@
 #include <qutim/chatsession.h>
 #include <qutim/notification.h>
 
-ScriptHelperWidget::ScriptHelperWidget()
+ScriptMessageHandler::ScriptMessageHandler(ScriptPlugin *parent)
 {
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	m_textEdit = new QPlainTextEdit(this);
-	QPushButton *button = new QPushButton(this);
-	layout->addWidget(m_textEdit);
-	layout->addWidget(button);
-	connect(button, SIGNAL(clicked()), SLOT(onButtonClicked()));
-    m_engine.importExtension(QLatin1String("qt.core"));
-	m_engine.importExtension(QLatin1String("qt.gui"));
-	m_engine.importExtension(QLatin1String("qutim"));
-}
-
-void ScriptHelperWidget::onButtonClicked()
-{
-	m_engine.evaluate(m_textEdit->toPlainText());
-	if (m_engine.hasUncaughtException()) {
-		qDebug() << m_engine.uncaughtException().toString();
-		qDebug() << m_engine.uncaughtExceptionBacktrace().join("\n");
-	}
-}
-
-ScriptMessageHandler::ScriptMessageHandler()
-{
+	QObject::connect(&m_engine, SIGNAL(signalHandlerException(QScriptValue)),
+	                 parent, SLOT(onException(QScriptValue)));
     m_engine.importExtension(QLatin1String("qt.core"));
 	m_engine.importExtension(QLatin1String("qt.gui"));
 	m_engine.importExtension(QLatin1String("qutim"));
@@ -71,16 +51,20 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 		object.setProperty(QLatin1String("session"), m_engine.newQObject(session));
 	object.setProperty(QLatin1String("unit"), m_engine.newQObject(message.chatUnit()));
 	m_engine.evaluate(message.text().mid(command.size() + 1));
-	if (m_engine.hasUncaughtException()) {
-		QString error;
-		error = m_engine.uncaughtException().toString();
-		error += QLatin1Char('\n');
-		error += m_engine.uncaughtExceptionBacktrace().join("\n");
-		qDebug("%s", qPrintable(error));
-		Notification::send(error);
-	}
+	if (m_engine.hasUncaughtException())
+		handleException();
 	m_engine.popContext();
 	return MessageHandler::Reject;
+}
+
+void ScriptMessageHandler::handleException()
+{
+	QString error;
+	error = m_engine.uncaughtException().toString();
+	error += QLatin1Char('\n');
+	error += m_engine.uncaughtExceptionBacktrace().join("\n");
+	qDebug("%s", qPrintable(error));
+	Notification::send(error);
 }
 
 ScriptPlugin::ScriptPlugin()
@@ -103,7 +87,7 @@ bool ScriptPlugin::load()
 	qDebug() << Q_FUNC_INFO << ThemeManager::list("scripts");
 	if (m_handler)
 		return true;
-	m_handler.reset(new ScriptMessageHandler);
+	m_handler.reset(new ScriptMessageHandler(this));
 	MessageHandler::registerHandler(m_handler.data(),
 	                                MessageHandler::NormalPriortity,
 	                                MessageHandler::HighPriority);
@@ -125,6 +109,12 @@ bool ScriptPlugin::unload()
 		return true;
 	}
 	return false;
+}
+
+void ScriptPlugin::onException(const QScriptValue &exception)
+{
+	Q_UNUSED(exception);
+	m_handler->handleException();
 }
 
 QUTIM_EXPORT_PLUGIN(ScriptPlugin)

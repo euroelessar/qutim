@@ -149,11 +149,12 @@ void DataItem::setName(const QString &itemName)
 
 LocalizedString DataItem::title() const
 {
-	return d->title;
+	return d ? d->title : LocalizedString();
 }
 
 void DataItem::setTitle(const LocalizedString &itemTitle)
 {
+	ensure_data(d);
 	d->title = itemTitle;
 }
 
@@ -176,7 +177,7 @@ bool DataItem::isNull() const
 
 QList<DataItem> DataItem::subitems() const
 {
-	return d->subitems;
+	return d ? d->subitems : QList<DataItem>();
 }
 
 void DataItem::setSubitems(const QList<DataItem> &newSubitems)
@@ -217,7 +218,7 @@ void DataItem::addSubitem(const DataItem &subitem)
 
 bool DataItem::hasSubitems() const
 {
-	return !d->subitems.isEmpty();
+	return d && !d->subitems.isEmpty();
 }
 
 void DataItem::allowModifySubitems(const DataItem &defaultSubitem, int maxSubitemsCount)
@@ -229,17 +230,17 @@ void DataItem::allowModifySubitems(const DataItem &defaultSubitem, int maxSubite
 
 bool DataItem::isAllowedModifySubitems() const
 {
-	return d->maxCount != 1 && !isReadOnly();
+	return d && d->maxCount != 1 && !isReadOnly();
 }
 
 int DataItem::maxSubitemsCount() const
 {
-	return d->maxCount;
+	return d ? d->maxCount : 1;
 }
 
 DataItem DataItem::defaultSubitem() const
 {
-	return d->defaultSubitem;
+	return d ? d->defaultSubitem : DataItem();
 }
 
 bool DataItem::isReadOnly() const
@@ -261,12 +262,12 @@ void DataItem::setDataChangedHandler(QObject *receiver, const char *method)
 
 QObject *DataItem::dataChangedReceiver() const
 {
-	return d->onDataChangedReceiver;
+	return d ? d->onDataChangedReceiver : 0;
 }
 
 const char *DataItem::dataChangedMethod() const
 {
-	return d->onDataChangedMethod.latin1();
+	return d ? d->onDataChangedMethod.latin1() : 0;
 }
 
 DataItem &DataItem::operator<<(const DataItem &subitem)
@@ -292,7 +293,14 @@ QVariant DataItemPrivate::property(const char *name, const QVariant &def) const
 
 QVariant DataItem::property(const char *name, const QVariant &def) const
 {
-	return d->property(name, def);
+	if (!d && !qstrcmp(name, "maxCount"))
+		return 1;
+	return d ? d->property(name, def) : QVariant();
+}
+
+QList<QByteArray> DataItem::dynamicPropertyNames() const
+{
+	return d ? d->names : QList<QByteArray>();
 }
 
 void DataItem::setProperty(const char *name, const QVariant &value)

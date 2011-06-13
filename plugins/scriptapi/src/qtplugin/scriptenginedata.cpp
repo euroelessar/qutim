@@ -27,6 +27,7 @@
 #include "scriptmessage.h"
 #include "scriptmessagehandler.h"
 #include "scriptservices.h"
+#include "scriptdataitem.h"
 #include <QScriptEngine>
 
 namespace qutim_sdk_0_3
@@ -41,6 +42,7 @@ ScriptEngineData::ScriptEngineData()
 ScriptEngineData::~ScriptEngineData()
 {
 	delete message;
+	delete dataItem;
 	delete messageHandler;
 	delete services;
 	dataMap()->remove(engine);
@@ -52,7 +54,8 @@ ScriptEngineData *ScriptEngineData::data(QScriptEngine *engine)
 	if (!engineData) {
 		ScriptEngineData::Ptr ptr = ScriptEngineData::Ptr::create();
 		engineData = ptr.data();
-		ptr->engine = engine;
+		qMemSet(ptr.data(), 0, sizeof(*ptr.data()));
+		engineData->engine = engine;
 		engine->setProperty("scriptEngineData", qVariantFromValue(ptr));
 	}
 	return engineData;

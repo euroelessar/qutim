@@ -21,7 +21,7 @@ class JVCardManagerPrivate
 public:
 	JAccount *account;
 	//VCardManager *manager;
-	QHash<QString, JInfoRequest *> contacts;
+	QHash<QString, QWeakPointer<JInfoRequest> > contacts;
 };
 
 JVCardManager::JVCardManager(JAccount *account)
@@ -106,7 +106,7 @@ void JVCardManager::handleIQ(const Jreen::IQ &iq)
 		}
 	}
 	debug() << "fetched...";
-	if (JInfoRequest *request = d->contacts.take(id))
+	if (JInfoRequest *request = d->contacts.take(id).data())
 		request->setFetchedVCard(vcard);
 }
 

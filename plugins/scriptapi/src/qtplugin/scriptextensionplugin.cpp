@@ -28,6 +28,9 @@
 #include "scriptenginedata.h"
 #include "scriptservices.h"
 #include "scriptsettingswidget.h"
+#include "scriptmessagehandler.h"
+#include "scriptdataitem.h"
+#include "scriptinforequest.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/contact.h>
@@ -37,6 +40,8 @@
 #include <qutim/chatsession.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
+#include <qutim/inforequest.h>
+#include <QCoreApplication>
 #include <QScriptEngine>
 #include <QScriptContext>
 
@@ -150,6 +155,75 @@ QScriptValue createSettingsWidget(QScriptContext *, QScriptEngine *engine)
 	return engine->newQObject(widget);
 }
 
+QScriptValue scriptRequestInfo(QScriptContext *context, QScriptEngine *engine)
+{
+	if (context->argumentCount() < 2)
+		return context->throwError("qutim.requestInfo() takes at least 2 arguments");
+	QObject *object = context->argument(0).toQObject();
+	if (!object)
+		return context->throwError("First argument must be QObject");
+	QScriptValue func = context->argument(1);
+	if (!func.isFunction())
+		return context->throwError("Second argument must be callback");
+	InfoRequestCheckSupportEvent checkSupport;
+	qApp->sendEvent(object, &checkSupport);
+	QScriptValue errorFunc = context->argument(2);
+	if (checkSupport.supportType() == InfoRequestCheckSupportEvent::NoSupport) {
+		if (errorFunc.isFunction()) {
+			qDebug() << Q_FUNC_INFO;
+			QScriptValue error = engine->newObject();
+			error.setProperty(QLatin1String("name"), QLatin1String("NotSupported"));
+			error.setProperty(QLatin1String("text"), QLatin1String("Unit does not support information request"));
+			QList<QScriptValue> args;
+			args << error;
+			errorFunc.call(errorFunc, args);
+		}
+		return engine->undefinedValue();
+	}
+	InfoRequestEvent event;
+	qApp->sendEvent(object, &event);
+	qDebug() << Q_FUNC_INFO;
+	new ScriptInfoRequest(func, errorFunc, event.request());
+	return engine->undefinedValue();
+}
+
+QScriptValue createInfoRequest(QScriptContext *context, QScriptEngine *engine)
+{
+	if (context->argumentCount() != 1)
+		return context->throwError("InfoRequest() takes exactly one argument");
+	QObject *object = context->argument(0).toQObject();
+	InfoRequestCheckSupportEvent checkSupport;
+	qApp->sendEvent(object, &checkSupport);
+	if (checkSupport.supportType() == InfoRequestCheckSupportEvent::NoSupport)
+		return engine->undefinedValue();
+	InfoRequestEvent event;
+	qApp->sendEvent(object, &event);
+	InfoRequest *request = event.request();
+	if (!request)
+		return engine->nullValue();
+	return engine->newQObject(request, QScriptEngine::ScriptOwnership);
+}
+
+template <typename T>
+QScriptValue enumToScriptValue(QScriptEngine *, const T &t)
+{
+	return QScriptValue(t);
+}
+
+template <typename T>
+void enumFromScriptValue(const QScriptValue &obj, T &t)
+{
+	t = static_cast<T>(obj.toInt32());
+}
+
+template <typename T>
+void scriptRegisterEnum(QScriptEngine *engine)
+{
+	Q_UNUSED(engine);
+	qRegisterMetaType<typename QIntegerForSizeof<T>::Signed>("qutim_sdk_0_3::InfoRequest::State");
+//	return qScriptRegisterMetaType<T>(engine, enumToScriptValue, enumFromScriptValue);
+}
+
 ScriptExtensionPlugin::ScriptExtensionPlugin(QObject *parent)
     : QScriptExtensionPlugin(parent)
 {
@@ -173,11 +247,15 @@ void ScriptExtensionPlugin::initialize(const QString &key, QScriptEngine *engine
 	scriptRegisterQObject<Contact>(engine);
 	scriptRegisterQObject<Conference>(engine);
 	scriptRegisterQObject<ChatSession>(engine);
+//	scriptRegisterEnum<InfoRequest::State>(engine);
 	ScriptEngineData *data = ScriptEngineData::data(engine);
 	data->message = new ScriptMessage(engine);
 	data->services = new ScriptServices(engine);
+	data->messageHandler = new ScriptMessageHandler(engine);
+	data->dataItem = new ScriptDataItem(engine);
 	qutim.setProperty(QLatin1String("services"), engine->newObject(data->services));
 	qutim.setProperty(QLatin1String("protocol"), engine->newFunction(getProtocol, 1));
+	qutim.setProperty(QLatin1String("requestInfo"), engine->newFunction(scriptRequestInfo));
 	{
 		QScriptValue settings = engine->newObject();
 		settings.setProperty(QLatin1String("General"), Settings::General);
@@ -189,8 +267,12 @@ void ScriptExtensionPlugin::initialize(const QString &key, QScriptEngine *engine
 		settings.setProperty(QLatin1String("remove"), engine->newFunction(scriptSettingsRemove, 1));
 		qutim.setProperty(QLatin1String("settings"), settings);
 	}
-	engine->globalObject().setProperty(QLatin1String("SettingsWidget"),
-	                                   engine->newFunction(createSettingsWidget));
+//	QScriptValue global = engine->globalObject();
+//	global.setProperty(QLatin1String("SettingsWidget"), engine->newFunction(createSettingsWidget));
+//	{
+//		QScriptValue object = engine->newFunction(createInfoRequest);
+//		global.setProperty(QLatin1String("InfoRequest"), object);
+//	}
 }
 }
 
@@ -212,3 +294,4 @@ public:
 } static_qtscript_qutim_0_3_PluginInstance;
 
 Q_DECLARE_METATYPE(QSet<QString>)
+//Q_DECLARE_METATYPE(qutim_sdk_0_3::InfoRequest::State)

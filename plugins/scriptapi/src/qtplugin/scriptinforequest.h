@@ -23,40 +23,29 @@
 **
 ****************************************************************************/
 
-#ifndef SCRIPTENGINEDATA_H
-#define SCRIPTENGINEDATA_H
+#ifndef SCRIPTINFOREQUEST_H
+#define SCRIPTINFOREQUEST_H
 
-#include <QSharedPointer>
-#include <QMetaType>
-
-class QScriptEngine;
+#include <qutim/inforequest.h>
+#include <QScriptValue>
 
 namespace qutim_sdk_0_3
 {
-class ScriptMessage;
-class ScriptServices;
-class ScriptMessageHandler;
-class ScriptDataItem;
-
-class ScriptEngineData
+class ScriptInfoRequest : public QObject
 {
-	Q_DISABLE_COPY(ScriptEngineData)
+    Q_OBJECT
 public:
-	typedef QSharedPointer<ScriptEngineData> Ptr;
-	
-    ScriptEngineData();
-	~ScriptEngineData();
+    explicit ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error, InfoRequest *parent);
 
-	static ScriptEngineData *data(QScriptEngine *engine);
+signals:
+
+public slots:
+	void onStateChanged(qutim_sdk_0_3::InfoRequest::State);
 	
-	QScriptEngine *engine;
-	ScriptMessage *message;
-	ScriptServices *services;
-	ScriptDataItem *dataItem;
-	ScriptMessageHandler *messageHandler;
+private:
+	QScriptValue m_func;
+	QScriptValue m_error;
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptEngineData::Ptr)
-
-#endif // SCRIPTENGINEDATA_H
+#endif // SCRIPTINFOREQUEST_H

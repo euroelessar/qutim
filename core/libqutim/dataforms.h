@@ -355,6 +355,7 @@ public:
 	\see property()
   */
 	void setProperty(const char *name, const QVariant &value);
+	QList<QByteArray> dynamicPropertyNames() const;
 protected:
 #ifndef Q_QDOC
 	friend class DataItemPrivate;
@@ -606,6 +607,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons);
 
 #ifndef Q_QDOC
 Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>);
 #endif
 
 #endif // DATAFORMS_H
