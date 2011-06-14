@@ -203,6 +203,10 @@ void IcqAccount::setStatus(Status status_helper)
 	Status current = this->status();
 	if (current.type() == Status::Connecting && status.type() != Status::Offline) {
 		d->lastStatus = status;
+		if (d->conn->state() == QAbstractSocket::UnconnectedState
+		        && status != Status::Connecting) {
+			d->conn->connectToLoginServer(QString());
+		}
 		return;
 	}
 	if (current.type() == status.type() && status.type() == Status::Offline) {
@@ -243,6 +247,10 @@ void IcqAccount::setStatus(Status status_helper)
 			foreach (RosterPlugin *plugin, d->rosterPlugins)
 				plugin->statusChanged(contact, status, TLVMap());
 		}
+	} else if (status == Status::Connecting) {
+		emit statusChanged(status, current);
+		Account::setStatus(status);
+		return;
 	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {

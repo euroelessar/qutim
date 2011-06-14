@@ -86,6 +86,9 @@ void ConnectionManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3::Status old)
 {
+	if (now.type() == Status::Connecting)
+		return;
+
 	Status::ChangeReason reason = static_cast<Status::ChangeReason>(now.property("changeReason",static_cast<int>(Status::ByUser)));
 	Account *a = qobject_cast<Account*>(sender());
 	Q_ASSERT(a);
@@ -106,6 +109,13 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		QTimer *statusTimer = getTimer(a);
 		old.setProperty("changeReason",Status::ByUser);
 		old.setProperty("reconnectTimeout", timeout *2);
+		if (old == Status::Connecting) {
+			Config cfg = a->config("lastStatus");
+			old.setType(cfg.value("type", Status::Online));
+			old.setSubtype(cfg.value("subtype", 0));
+			if (old.type() == Status::Offline)
+				old.setType(Status::Online);
+		}
 		statusTimer->setProperty("status",qVariantFromValue(old));
 		connect(statusTimer, SIGNAL(timeout()), SLOT(onStatusChangeTimeout()));
 		statusTimer->setSingleShot(true);
@@ -143,6 +153,7 @@ void ConnectionManager::onStatusChangeTimeout()
 	QTimer *timer = sender_cast<QTimer*>(sender());
 	Status status = timer->property("status").value<Status>();
 	Account *account = m_timers.key(timer);
+	qDebug() << Q_FUNC_INFO << account << status;
 	if (account)
 		account->setStatus(status);
 	removeTimer(timer);
@@ -153,6 +164,7 @@ QTimer *ConnectionManager::getTimer(Account *account, bool create)
 {
 	if (!m_timers.contains(account) && create) {
 		QTimer *timer = new QTimer(this);
+		timer->setSingleShot(true);
 		m_timers.insert(account, timer);
 	}
 	return m_timers.value(account);

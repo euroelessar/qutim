@@ -141,12 +141,10 @@ OscarAuth::OscarAuth(IcqAccount *account) :
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
 	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
-	qDebug() << Q_FUNC_INFO;
 }
 
 OscarAuth::~OscarAuth()
 {
-	qDebug() << Q_FUNC_INFO;
 	m_cleanupHandler.clear();
 }
 
@@ -220,7 +218,6 @@ void OscarAuth::onClienLoginFinished()
 		deleteLater();
 		return;
 	}
-	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << response.resultString();
 	Config data = response.data();
 	data.beginGroup(QLatin1String("token"));
 	QByteArray token = data.value(QLatin1String("a"), QByteArray());
@@ -256,7 +253,6 @@ void OscarAuth::clientLogin(bool longTerm)
 	url.setEncodedQuery(QByteArray());
 	QNetworkRequest request(url);
 	QNetworkReply *reply = m_manager.post(request, query);
-	qDebug() << Q_FUNC_INFO << reply;
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
 }
@@ -282,7 +278,6 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 	QNetworkRequest request(url);
 	QNetworkReply *reply = m_manager.post(request, data);
 	m_cleanupHandler.add(reply);
-	qDebug() << Q_FUNC_INFO << reply;
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
 }
@@ -305,13 +300,11 @@ void OscarAuth::onStartSessionFinished()
 		emit error(response.error());
 		return;
 	}
-	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << response.resultString();
 	Config data = response.data();
 	OscarConnection *connection = static_cast<OscarConnection*>(m_account->connection());
 	QString host = data.value(QLatin1String("host"), QString());
 	int port = data.value(QLatin1String("port"), 443);
 	QByteArray cookie = QByteArray::fromBase64(data.value(QLatin1String("cookie"), QByteArray()));
-	qDebug() << host << port;
 	connection->connectToBOSS(host, port, cookie);
 }
 
@@ -327,14 +320,53 @@ void OscarAuth::onSslErrors(const QList<QSslError> &errors)
 	qDebug() << Q_FUNC_INFO << str;
 }
 
-QString OscarAuth::getDistId()
+QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 {
-	return QLatin1String("21000");
+	const char *value[2] = {
+#if   defined(Q_OS_WIN)
+	    "21000", "QutIM Windows Client"
+#elif defined(Q_OS_SYMBIAN)
+	    "21030", "QutIM Symbian Client"
+#elif defined(Q_WS_HAIKU)
+	    "21031", "QutIM Haiku Client"
+#elif defined(Q_OS_OS2)
+	    "21032", "QutIM OS2 Client"
+#elif defined(Q_OS_UNIX)
+# if   defined(Q_OS_MAC)
+#  if   defined(Q_OS_IOS)
+	    "21021", "QutIM iOS Client"
+#  else
+	    "21020", "QutIM MacOS Client"
+#  endif
+# elif defined(Q_OS_LINUX)
+#  if   defined(Q_WS_MAEMO_5)
+		"21011", "QutIM Maemo Client"
+#  elif defined(Q_WS_MEEGO)
+		"21012", "QutIM Meego Client"
+#  elif defined(Q_WS_ANDROID)
+	    "21015", "QutIM Android Client"
+#  else
+	    "21010", "QutIM Linux Client"
+#  endif
+# elif defined(Q_OS_BSD4)
+	    "21013", "QutIM BSD Client"
+# elif defined(Q_OS_SOLARIS)
+	    "21014", "QutIM Solaris Client"
+# endif
+#endif // defined(Q_OS_UNIX)
+	};
+	// If you see error above may be we don't have DistID for your OS, please contact developers
+	return qMakePair(QLatin1String(value[0]), QLatin1String(value[1]));
 }
 
-QString OscarAuth::getClientName()
+QString OscarAuth::getDistId() const
 {
-	return QLatin1String("QutIM Windows Client");
+	return getDistInfo().first;
+}
+
+QString OscarAuth::getClientName() const
+{
+	return getDistInfo().second;
 }
 
 QString OscarAuth::generateLanguage()

@@ -237,7 +237,6 @@ void OscarConnection::onError(ConnectionError error)
 void OscarConnection::md5Error(ConnectionError e)
 {
 	setError(e, m_auth.data()->errorString());
-	qDebug() << Q_FUNC_INFO << e;
 //	setError(e, m_md5login->errorString());
 	onDisconnect();
 }

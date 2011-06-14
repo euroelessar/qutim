@@ -78,8 +78,9 @@ private slots:
     void onSslErrors(const QList<QSslError> &errors);
 
 private:
-	QString getDistId();
-	QString getClientName();
+	QPair<QLatin1String, QLatin1String> getDistInfo() const;
+	QString getDistId() const;
+	QString getClientName() const;
 	QString generateLanguage();
 	QByteArray generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url);
 	
