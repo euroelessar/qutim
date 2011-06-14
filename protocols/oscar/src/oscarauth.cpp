@@ -141,6 +141,13 @@ OscarAuth::OscarAuth(IcqAccount *account) :
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
 	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
+	qDebug() << Q_FUNC_INFO;
+}
+
+OscarAuth::~OscarAuth()
+{
+	qDebug() << Q_FUNC_INFO;
+	m_cleanupHandler.clear();
 }
 
 void OscarAuth::setProxy(const QNetworkProxy &proxy)
@@ -183,6 +190,18 @@ void OscarAuth::onPasswordDialogFinished(int result)
 	}
 }
 
+QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
+{
+	QByteArray mac(SHA256_DIGEST_SIZE, 0);
+	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
+				sessionSecret.length(),
+				reinterpret_cast<unsigned char*>(const_cast<char*>(array.data())),
+				array.length(),
+				reinterpret_cast<unsigned char*>(mac.data()),
+				mac.size());
+	return mac.toBase64();
+}
+
 void OscarAuth::onClienLoginFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
@@ -191,12 +210,14 @@ void OscarAuth::onClienLoginFinished()
 	if (reply->error() != QNetworkReply::NoError) {
 		m_errorString = reply->errorString();
 		emit error(AbstractConnection::SocketError);
+		deleteLater();
 		return;
 	}
 	OscarResponse response(reply->readAll());
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
 		emit error(response.error());
+		deleteLater();
 		return;
 	}
 	qDebug() << Q_FUNC_INFO << reply->error() << reply->errorString() << response.resultString();
@@ -207,18 +228,7 @@ void OscarAuth::onClienLoginFinished()
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
 	data.endGroup();
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
-	{
-		char mac[SHA256_DIGEST_SIZE+1];
-		mac[SHA256_DIGEST_SIZE] = 0;
-		QByteArray pass = m_password.toUtf8();
-		hmac_sha256(reinterpret_cast<unsigned char*>(pass.data()),
-					pass.length(),
-					reinterpret_cast<unsigned char*>(sessionSecret.data()),
-					sessionSecret.length(),
-					reinterpret_cast<unsigned char*>(&mac),
-					SHA256_DIGEST_SIZE);
-		sessionSecret = QByteArray(mac).toBase64();
-	}
+	sessionSecret = sha256hmac(m_password.toUtf8(), sessionSecret);
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
 		QVariantMap data;
@@ -246,6 +256,8 @@ void OscarAuth::clientLogin(bool longTerm)
 	url.setEncodedQuery(QByteArray());
 	QNetworkRequest request(url);
 	QNetworkReply *reply = m_manager.post(request, query);
+	qDebug() << Q_FUNC_INFO << reply;
+	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
 }
 
@@ -269,25 +281,27 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 	url.setEncodedQuery(QByteArray());
 	QNetworkRequest request(url);
 	QNetworkReply *reply = m_manager.post(request, data);
+	m_cleanupHandler.add(reply);
+	qDebug() << Q_FUNC_INFO << reply;
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
 }
 
 void OscarAuth::onStartSessionFinished()
 {
-	deleteLater();
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 	Q_ASSERT(reply);
 	reply->deleteLater();
+	deleteLater();
 	if (reply->error() != QNetworkReply::NoError) {
 		m_errorString = reply->errorString();
-		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(AbstractConnection::SocketError);
 		return;
 	}
 	OscarResponse response(reply->readAll());
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
+		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(response.error());
 		return;
 	}
@@ -353,15 +367,7 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 	str.chop(1);
 	array += QUrl::toPercentEncoding(str, QByteArray(), "&=");
 
-	char mac[SHA256_DIGEST_SIZE+1];
-	mac[SHA256_DIGEST_SIZE] = 0;
-	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
-				sessionSecret.length(),
-				reinterpret_cast<unsigned char*>(array.data()),
-				array.length(),
-				reinterpret_cast<unsigned char*>(&mac),
-				SHA256_DIGEST_SIZE);
-	return QByteArray(mac).toBase64();
+	return sha256hmac(array, sessionSecret);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

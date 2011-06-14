@@ -56,9 +56,9 @@ void OscarConnection::connectToLoginServer(const QString &password)
 	Q_UNUSED(password);
 	setError(NoError);
 	if (m_auth)
-		delete m_auth.data();
+		m_auth.data()->deleteLater();
 	m_auth = new OscarAuth(m_account);
-//	connect(m_auth, SIGNAL(disconnected()), m_auth, SLOT(deleteLater()));
+//	connect(m_auth.data(), SIGNAL(disconnected()), m_auth.data(), SLOT(deleteLater()));
 	connect(m_auth.data(), SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
 	        SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 	QTimer::singleShot(0, m_auth.data(), SLOT(login()));
@@ -70,6 +70,16 @@ void OscarConnection::connectToLoginServer(const QString &password)
 //	this, SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 //	// Start connecting after the status has been updated.
 //	QTimer::singleShot(0, m_md5login, SLOT(login()));
+}
+
+void OscarConnection::disconnectFromHost(bool force)
+{
+	if (m_auth) {
+		m_auth.data()->deleteLater();
+		m_auth.clear();
+	} else {
+		AbstractConnection::disconnectFromHost(force);
+	}
 }
 
 void OscarConnection::processNewConnection()
@@ -150,6 +160,12 @@ void OscarConnection::sendUserInfo(bool force)
 
 QAbstractSocket::SocketState OscarConnection::state() const
 {
+	if (m_auth) {
+		OscarAuth::State state = m_auth.data()->state();
+		if (state == OscarAuth::Invalid || state == OscarAuth::AtError)
+			return QAbstractSocket::UnconnectedState;
+		return QAbstractSocket::ConnectingState;
+	}
 //	if (m_md5login)
 //		return m_md5login->socket()->state();
 	return socket()->state();
@@ -177,6 +193,24 @@ void OscarConnection::onDisconnect()
 {
 	Status status = m_account->status();
 	status.setType(Status::Offline);
+	
+	Status::ChangeReason reason;
+	switch (error()) {
+	case MismatchNickOrPassword:
+		reason = Status::ByAuthorizationFailed;
+		break;
+	case InternalError:
+		reason = Status::ByFatalError;
+		break;
+	case NoError:
+		reason = Status::ByUser;
+		break;
+	default:
+		reason = Status::ByNetworkError;
+		break;
+	}
+	status.setProperty("changeReason", reason);
+	
 	m_account->setStatus(status);
 	AbstractConnection::onDisconnect();
 }
@@ -203,6 +237,7 @@ void OscarConnection::onError(ConnectionError error)
 void OscarConnection::md5Error(ConnectionError e)
 {
 	setError(e, m_auth.data()->errorString());
+	qDebug() << Q_FUNC_INFO << e;
 //	setError(e, m_md5login->errorString());
 	onDisconnect();
 }

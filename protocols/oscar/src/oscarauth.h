@@ -28,6 +28,7 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <QObjectCleanupHandler>
 #include <qutim/networkproxy.h>
 #include "connection.h"
 
@@ -53,6 +54,7 @@ public:
 	};
 	
     explicit OscarAuth(IcqAccount *account);
+    ~OscarAuth();
 	
 	State state() const { return m_state; }
 	QString errorString() const { return m_errorString; }
@@ -86,6 +88,7 @@ private:
 	QNetworkAccessManager m_manager;
 	QString m_password;
 	QString m_errorString;
+	QObjectCleanupHandler m_cleanupHandler;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

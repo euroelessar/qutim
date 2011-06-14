@@ -41,6 +41,7 @@ class OscarConnection: public AbstractConnection
 public:
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer(const QString &password);
+	void disconnectFromHost(bool force = false);
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	void sendStatus(OscarStatus status);
