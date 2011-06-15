@@ -60,6 +60,22 @@ inline bool creatorsLessThan(ProfileCreatorPage *a, ProfileCreatorPage *b)
 	return a->priority() > b->priority();
 }
 
+QString randomString(int len)
+{
+	char symbols[26 * 2 + 10];
+	int size = sizeof(symbols) / sizeof(char);
+	for (char c = 'a'; c <= 'z'; ++c) {
+		symbols[c - 'a'] = c;
+		symbols[c - 'a' + 26] = c -'a' + 'A';
+	}
+	for (int i = 0; i < 10; i++)
+		symbols[26 * 2 + i] = '0' + i;
+	QString str(len, Qt::Uninitialized);
+	for (int i = 0; i < len; ++i)
+		str[i] = symbols[qrand() % size];
+	return str;
+}
+
 ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 											 const QString &id, const QString &password,
 											 bool singleProfile)
@@ -68,20 +84,13 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	m_singleProfile = singleProfile;
 	
 	QDir tmpDir = QDir::temp();
-	QString path = "qutim/profile";
-	if (tmpDir.exists(path) || !tmpDir.mkpath(path) || !tmpDir.cd(path)) {
-		for (int i = 0;; i++) {
-			QString tmpPath = path + QString::number(i);
-			if (!tmpDir.exists(tmpPath)) {
-				path = tmpPath;
-				if (tmpDir.mkpath(path) && tmpDir.cd(path)) {
-					break;
-				} else {
-					qFatal("Can't access or create directory '%s'",
-						   qPrintable(tmpDir.absoluteFilePath(path)));
-				}
-			}
-		}
+	QString path;
+	do {
+		path = "qutim-" + randomString(6) + "-profile";
+	} while (tmpDir.exists(path));
+	if (!tmpDir.mkpath(path) || !tmpDir.cd(path)) {
+		qFatal("Can't access or create directory '%s'",
+			   qPrintable(tmpDir.absoluteFilePath(path)));
 	}
 	QVector<QDir> &systemDirs = *system_info_dirs();
 	systemDirs[SystemInfo::ConfigDir] = tmpDir.absoluteFilePath("config");
