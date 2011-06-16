@@ -69,6 +69,7 @@ void QuetzalProtocol::removeAccount(Account *generalAccount, RemoveFlag flags)
 	QuetzalAccount *account = qobject_cast<QuetzalAccount*>(generalAccount);
 	if (!account)
 		return;
+	emit accountRemoved(account);
 	purple_accounts_remove(account->purple());
 	if (flags & DeleteAccount)
 		delete account; // ->deleteLater();

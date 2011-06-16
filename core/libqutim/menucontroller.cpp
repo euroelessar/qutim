@@ -110,6 +110,7 @@ MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) :
 
 MenuController::~MenuController()
 {
+	ActionCollectionPrivate::get(d_func()->actions)->handleDeath();
 }
 
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
@@ -692,7 +693,17 @@ void ActionCollectionPrivate::killActions()
 			handlers[i]->actionsCleared();
 	}
 	actions.clear();
+	dynamicActions.clear();
 	actionInfos.clear();
+}
+
+void ActionCollectionPrivate::handleDeath()
+{
+	killActions();
+	activatedControllers()->removeOne(controller);
+	actionsRef = 0;
+	controller = 0;
+	localActions.clear();
 }
 
 class ActionContainerPrivate : public ActionHandler

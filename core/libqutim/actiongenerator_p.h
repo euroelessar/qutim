@@ -74,6 +74,7 @@ public:
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	void addAction(QAction *action, const ActionGeneratorPrivate *data);
 	void updateSequence(const QString &id, const QKeySequence &key);
+	void handleDeath(ActionGeneratorPrivate *data);
 	ActionGenerator *getGenerator(QAction*) const;
 public slots:
 	void onActionDeath(QObject *obj);

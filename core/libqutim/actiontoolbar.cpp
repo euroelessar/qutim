@@ -217,6 +217,18 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	return action;
 }
 
+void ActionToolBar::removeAction(const ActionGenerator *generator)
+{
+	Q_D(ActionToolBar);
+	Q_ASSERT(generator);
+	int index = d->generators.indexOf(const_cast<ActionGenerator*>(generator));
+	if (index != -1) {
+		d->generators.removeAt(index);
+		QAction *action = d->actions.takeAt(index)->action.data();
+		QWidget::removeAction(action);
+	}
+}
+
 
 QAction *ActionToolBar::addAction(ActionGenerator *generator)
 {
@@ -285,7 +297,7 @@ void ActionToolBar::setMoveHookEnabled(bool enabled)
 
 void ActionToolBar::changeEvent(QEvent *e)
 {
- 	QWidget::changeEvent(e);
+ 	QToolBar::changeEvent(e);
 	switch (e->type()) {
 	case QEvent::LanguageChange:
 	{
@@ -313,7 +325,7 @@ void ActionToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 void ActionToolBar::showEvent(QShowEvent* event)
 {
 	Q_D(ActionToolBar);
-	QWidget::showEvent (event);
+	QToolBar::showEvent (event);
 	for (int i = 0; i < d->actions.size(); ++i)
 		ActionGeneratorPrivate::get(d->generators[i])->show(d->actions[i]->action.data(), this);
 	Config cfg = Config("appearance").group("toolBars").group(objectName());
@@ -330,9 +342,12 @@ void ActionToolBar::showEvent(QShowEvent* event)
 void ActionToolBar::hideEvent(QHideEvent *event)
 {
 	Q_D(ActionToolBar);
-	for (int i = 0; i < d->actions.size(); ++i)
-		ActionGeneratorPrivate::get(d->generators[i])->hide(d->actions[i]->action.data(), this);
-	QWidget::hideEvent(event);
+	QToolBar::hideEvent(event);
+	for (int i = 0; i < d->actions.size(); ++i) {
+		if (QAction *action = d->actions[i]->action.data()) {
+			ActionGeneratorPrivate::get(d->generators[i])->hide(action, this);
+		}
+	}
 }
 
 

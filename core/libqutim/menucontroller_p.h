@@ -196,6 +196,7 @@ public:
 	void recalc();
 	void ensureActions();
 	void killActions();
+	void handleDeath();
 //	inline bool checkTypeMask(const ActionInfo& info, int typeMask);
 //	inline void ensureAction(const ActionInfo& info);
 };

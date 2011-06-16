@@ -82,6 +82,13 @@ void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence
 	} while (it != m_shortcuts.constEnd() && it.key() == id);
 }
 
+void ActionGeneratorHelper::handleDeath(ActionGeneratorPrivate *data)
+{
+	QList<QAction*> actions = m_actions.keys(data);
+	for (int i = 0; i < actions.size(); ++i)
+		actions.at(i)->deleteLater();
+}
+
 void ActionGeneratorHelper::onActionDeath(QObject *obj)
 {
 	QAction *action = static_cast<QAction*>(obj);
@@ -198,6 +205,7 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 ActionGenerator::~ActionGenerator()
 {
 	Q_D(ActionGenerator);
+	localizationHelper()->handleDeath(d);
 	delete d->data;
 }
 

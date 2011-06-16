@@ -37,7 +37,9 @@ public:
 	using QToolBar::addAction;
 	QAction *addAction(ActionGenerator *generator);
 	using QToolBar::insertAction;
-	QAction *insertAction(QAction *before,ActionGenerator *generator);
+	QAction *insertAction(QAction *before, ActionGenerator *generator);
+	using QToolBar::removeAction;
+	void removeAction(const ActionGenerator *generator);
 
 	// This is done for Stacked toolbars like one in tabbed
 	// chat window. This method calls setData(data) to every action,
