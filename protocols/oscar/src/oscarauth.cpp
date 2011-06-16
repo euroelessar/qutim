@@ -225,7 +225,7 @@ void OscarAuth::onClienLoginFinished()
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
 	data.endGroup();
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
-	sessionSecret = sha256hmac(m_password.toUtf8(), sessionSecret);
+	sessionSecret = sha256hmac(sessionSecret, m_password.toUtf8());
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
 		QVariantMap data;
