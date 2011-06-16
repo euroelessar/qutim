@@ -52,6 +52,7 @@ private slots:
 	void fillMonth(QTreeWidgetItem *month);
 	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void on_searchButton_clicked();
+	void findPrevious();
     
 private:
 	void fillAccountComboBox();

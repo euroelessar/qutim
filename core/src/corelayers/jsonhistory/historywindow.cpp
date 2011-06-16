@@ -41,6 +41,7 @@
 #include <QStringBuilder>
 #include <QDebug>
 #include <qutim/systemintegration.h>
+#include <qutim/shortcut.h>
 
 namespace Core
 {
@@ -53,6 +54,10 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit) : m_unit(unit)
 	ui.label_in->setText( tr( "In: %L1").arg( 0 ) );
 	ui.label_out->setText( tr( "Out: %L1").arg( 0 ) );
 	ui.label_all->setText( tr( "All: %L1").arg( 0 ) );
+	Shortcut *shortcut = new Shortcut("findNext", this);
+	connect(shortcut, SIGNAL(activated()), ui.searchButton, SLOT(click()));
+	shortcut = new Shortcut("findPrevious", this);
+	connect(shortcut, SIGNAL(activated()), SLOT(findPrevious()));
 
 	centerizeWidget(this);
 	setAttribute(Qt::WA_QuitOnClose, false);
@@ -499,19 +504,25 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 
 void HistoryWindow::on_searchButton_clicked()
 {
-	if ( ui.accountComboBox->count() && ui.fromComboBox->count() )
-	{
-		if( m_search_word == ui.searchEdit->text() )
-		{
-			if(!ui.historyLog->find(m_search_word))
-			{
+	if (ui.accountComboBox->count() && ui.fromComboBox->count()) {
+		if (m_search_word == ui.searchEdit->text()) {
+			if (!ui.historyLog->find(m_search_word)) {
 				ui.historyLog->moveCursor(QTextCursor::Start);
 				ui.historyLog->find(m_search_word);
 				ui.historyLog->ensureCursorVisible();
 			}
-		}
-		else
+		} else {
 			fillDateTreeWidget(ui.fromComboBox->currentIndex(), ui.searchEdit->text().toLower());
+		}
+	}
+}
+
+void HistoryWindow::findPrevious()
+{
+	if (!ui.historyLog->find(m_search_word, QTextDocument::FindBackward)) {
+		ui.historyLog->moveCursor(QTextCursor::End);
+		ui.historyLog->find(m_search_word);
+		ui.historyLog->ensureCursorVisible();
 	}
 }
 
