@@ -207,6 +207,11 @@ void JMUCSession::ban(const QString &nick, const QString &reason)
 	d_func()->room->ban(nick, reason);
 }
 
+void JMUCSession::unban(const QString &jid, const QString &reason)
+{
+	d_func()->room->setAffiliation(JID(jid), MUCRoom::AffiliationNone, reason);
+}
+
 bool JMUCSession::isJoined()
 {
 	return d_func()->isJoined;

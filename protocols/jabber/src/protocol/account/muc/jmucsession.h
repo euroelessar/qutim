@@ -96,6 +96,7 @@ public slots:
 	void leave();
 	void kick(const QString &nick, const QString &reason = QString());
 	void ban(const QString &nick, const QString &reason = QString());
+	void unban(const QString &jid, const QString &reason = QString());
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();
