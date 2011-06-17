@@ -32,6 +32,7 @@ class IcqAccountPrivate;
 class RosterPlugin;
 class Feedbag;
 class AbstractConnection;
+class ChatNavigation;
 
 class LIBOSCAR_EXPORT IcqAccount: public Account
 {
@@ -50,6 +51,7 @@ public:
 	Feedbag *feedbag();
 	AbstractConnection *connection();
 	const AbstractConnection *connection() const;
+	ChatNavigation *chatNavigation();
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false, bool forceCreating = false);
 	const QHash<QString, IcqContact*> &contacts() const;

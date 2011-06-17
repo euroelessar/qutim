@@ -61,6 +61,7 @@ public:
 	OscarConnection *conn;
 	Feedbag *feedbag;
 	BuddyPicture *buddyPicture;
+	ChatNavigation *navigation;
 	QString name;
 	QString avatar;
 	QHash<quint64, Cookie> cookies;

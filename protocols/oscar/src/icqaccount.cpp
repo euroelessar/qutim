@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "inforequest_p.h"
+#include "chatnavigation.h"
 #include "metainfo/updateaccountinfometarequest.h"
 #include <qutim/libqutim_version.h>
 #include <qutim/status.h>
@@ -84,6 +85,7 @@ void IcqAccountPrivate::loadRoster()
 		feedbag->registerHandler(i.previous().value());
 
 	conn->registerHandler(buddyPicture = new BuddyPicture(q, q));
+	conn->registerHandler(navigation = new ChatNavigation(q, q));
 
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<RosterPlugin>()) {
 		RosterPlugin *plugin = gen->generate<RosterPlugin>();
@@ -186,6 +188,11 @@ AbstractConnection *IcqAccount::connection()
 const AbstractConnection *IcqAccount::connection() const
 {
 	return d_func()->conn;
+}
+
+ChatNavigation *IcqAccount::chatNavigation()
+{
+	return d_func()->navigation;
 }
 
 void IcqAccount::finishLogin()

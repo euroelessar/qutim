@@ -154,6 +154,14 @@ Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &data, ByteOrde
 	append(TLV(type, data), bo);
 }
 
+template<typename T>
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const QString &value, ByteOrder bo)
+{
+	TLV tlv(type);
+	tlv.append<T>(value, bo);
+	append(tlv, bo);
+}
+
 template<>
 Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &data, ByteOrder bo)
 {
