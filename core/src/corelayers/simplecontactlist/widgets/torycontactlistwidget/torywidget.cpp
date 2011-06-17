@@ -233,7 +233,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	}
 	QToolButton *button = new QToolButton(this);
 	QMenu *menu = account->menu(false);
-	menu->setParent(button);
+	connect(button, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 	button->setMenu(menu);
 	button->setIcon(account->status().icon());
 	button->setToolTip(account->id());
