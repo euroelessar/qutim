@@ -56,6 +56,7 @@ const QDBusArgument& operator>> (const QDBusArgument& arg, DBusNotifyImageData &
 }
 
 DBusBackend::DBusBackend() :
+	NotificationBackend("Popup"),
 	interface(new org::freedesktop::Notifications(
 			"org.freedesktop.Notifications",
 			"/org/freedesktop/Notifications",

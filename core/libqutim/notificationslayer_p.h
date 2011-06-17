@@ -21,7 +21,7 @@ namespace qutim_sdk_0_3 {
 
 class SoundHandler : public NotificationBackend
 {
-	Q_CLASSINFO("Type", "Sound")
+	Q_OBJECT
 public:
 	SoundHandler();
 	virtual void handleNotification(Notification *notification);

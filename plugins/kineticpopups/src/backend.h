@@ -31,7 +31,6 @@ class WidgetPlacer;
 class Backend : public qutim_sdk_0_3::NotificationBackend
 {
 	Q_CLASSINFO("Service", "Popup")
-	Q_CLASSINFO("Type", "Popup")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 	Q_OBJECT
 public:

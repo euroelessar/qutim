@@ -19,6 +19,7 @@
 #include "message.h"
 #include "chatunit.h"
 #include "chatsession.h"
+#include "metaobjectbuilder.h"
 #include <QMetaEnum>
 #include <QMetaMethod>
 #include <QMultiMap>
@@ -27,8 +28,11 @@ namespace qutim_sdk_0_3 {
 
 static SoundHandler handler; //TODO move to other place
 
-typedef QList<NotificationBackend*> NotificationBackendList;
-Q_GLOBAL_STATIC(NotificationBackendList, backendList)
+typedef QHash<QByteArray, NotificationBackend*> NotificationBackendHash;
+Q_GLOBAL_STATIC(NotificationBackendHash, backendHash)
+
+typedef QMultiHash<Notification::Type, QByteArray> DisabledBackends;
+Q_GLOBAL_STATIC(DisabledBackends, disabledBackends)
 
 typedef QHash<Notification::Type, NotificationAction> ActionHash;
 Q_GLOBAL_STATIC(ActionHash, globalActions)
@@ -56,6 +60,7 @@ public:
 	QString title;
 	Notification::Type type;
 	QList<NotificationAction> actions;
+	QSet<QByteArray> enabledBackends;
 };
 
 class NotificationActionPrivate : public QSharedData
@@ -66,6 +71,12 @@ public:
 	QPointer<QObject> receiver;
 	QByteArray method;
 	QPointer<Notification> notification;
+};
+
+class NotificationBackendPrivate
+{
+public:
+	QByteArray type;
 };
 
 Notification *Notification::send(const Message &msg)
@@ -259,12 +270,13 @@ static QList<Setter> setters   = QList<Setter>() //TODO
 NotificationRequest::NotificationRequest() :
 	d_ptr(new NotificationRequestPrivate)
 {
-
+	d_ptr->enabledBackends = backendHash()->keys().toSet();
 }
 
 NotificationRequest::NotificationRequest(const Message &msg) :
 	d_ptr(new NotificationRequestPrivate)
 {
+	d_ptr->enabledBackends = backendHash()->keys().toSet();
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
 
@@ -291,6 +303,7 @@ NotificationRequest::NotificationRequest(Notification::Type type) :
 	d_ptr(new NotificationRequestPrivate)
 {
 	d_ptr->type = type;
+	d_ptr->enabledBackends = backendHash()->keys().toSet();
 }
 
 NotificationRequest::NotificationRequest(const NotificationRequest &other)
@@ -358,6 +371,41 @@ Notification::Type NotificationRequest::type() const
 	return d_ptr->type;
 }
 
+void NotificationRequest::setBackends(const QSet<QByteArray> &backendTypes)
+{
+	d_ptr->enabledBackends = backendTypes;
+}
+
+void NotificationRequest::blockBackend(const QByteArray &backendType)
+{
+	d_ptr->enabledBackends.remove(backendType);
+}
+
+void NotificationRequest::unblockBackend(const QByteArray &backendType)
+{
+	d_ptr->enabledBackends.insert(backendType);
+}
+
+bool NotificationRequest::isBackendBlocked(const QByteArray &backendType)
+{
+	return !d_ptr->enabledBackends.contains(backendType);
+}
+
+void NotificationRequest::blockBackend(Notification::Type type, const QByteArray &backendType)
+{
+	disabledBackends()->insert(type, backendType);
+}
+
+void NotificationRequest::unblockBackend(Notification::Type type, const QByteArray &backendType)
+{
+	disabledBackends()->remove(type, backendType);
+}
+
+bool NotificationRequest::isBackendBlocked(Notification::Type type, const QByteArray &backendType)
+{
+	return disabledBackends()->contains(type, backendType);
+}
+
 QVariant NotificationRequest::property(const char *name, const QVariant &def) const
 {
 	return d_ptr->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -399,8 +447,11 @@ Notification *NotificationRequest::send()
 
 	Notification *notification = new Notification(*this);
 	notification->d_func()->ref.ref();
-	foreach (NotificationBackend *backend, *backendList())
-		backend->handleNotification(notification);
+	foreach (NotificationBackend *backend, *backendHash()) {
+		QByteArray typeName = backend->backendType();
+		if (!isBackendBlocked(d_ptr->type, typeName) && !isBackendBlocked(typeName))
+			backend->handleNotification(notification);
+	}
 	notification->d_func()->ref.deref();
 	//TODO ref and deref impl
 	return notification;
@@ -428,14 +479,43 @@ void NotificationFilter::unregisterFilter(NotificationFilter *handler)
 	}
 }
 
-NotificationBackend::NotificationBackend()
+void NotificationFilter::virtual_hook(int id, void *data)
 {
-	backendList()->append(this);
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
+
+NotificationBackend::NotificationBackend(const QByteArray &type) :
+	d_ptr(new NotificationBackendPrivate)
+{
+	Q_ASSERT(!type.isEmpty());
+	d_ptr->type = type;
+	backendHash()->insert(d_ptr->type, this);
 }
 
 NotificationBackend::~NotificationBackend()
 {
-	backendList()->removeAll(this);
+	backendHash()->remove(d_ptr->type);
+}
+
+QByteArray NotificationBackend::backendType() const
+{
+	return d_ptr->type;
+}
+
+QList<QByteArray> NotificationBackend::allTypes()
+{
+	return backendHash()->keys();
+}
+
+NotificationBackend* NotificationBackend::get(const QByteArray &type)
+{
+	return backendHash()->value(type);
+}
+
+QList<NotificationBackend*> NotificationBackend::all()
+{
+	return backendHash()->values();
 }
 
 void NotificationBackend::ref(Notification *notification)
@@ -447,6 +527,12 @@ void NotificationBackend::deref(Notification *notification)
 {
 	if (!notification->d_func()->ref.deref())
 		notification->deleteLater();
+}
+
+void NotificationBackend::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
 }
 
 } // namespace qutim_sdk_0_3

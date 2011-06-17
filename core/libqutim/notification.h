@@ -30,6 +30,7 @@ class NotificationPrivate;
 class NotificationRequest;
 class NotificationRequestPrivate;
 class NotificationActionPrivate;
+class NotificationBackendPrivate;
 class Message;
 
 class LIBQUTIM_EXPORT Notification : public QObject
@@ -118,6 +119,13 @@ public:
 	QString text() const;
 	void setType(Notification::Type type);
 	Notification::Type type() const;
+	void setBackends(const QSet<QByteArray> &backendTypes);
+	void blockBackend(const QByteArray &backendType);
+	void unblockBackend(const QByteArray &backendType);
+	bool isBackendBlocked(const QByteArray &backendType);
+	static void blockBackend(Notification::Type type, const QByteArray &backendType);
+	static void unblockBackend(Notification::Type type, const QByteArray &backendType);
+	static bool isBackendBlocked(Notification::Type type, const QByteArray &backendType);
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
 	T property(const char *name, const T &def) const
@@ -154,20 +162,29 @@ public:
 protected:
 	friend class NotificationRequest;
 	virtual Result filter(NotificationRequest &request) = 0;
+	virtual void virtual_hook(int id, void *data);
 };
 
 class LIBQUTIM_EXPORT NotificationBackend : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Type", "NoType")
+	Q_DECLARE_PRIVATE(NotificationBackend)
 public:
-	NotificationBackend();
+	NotificationBackend(const QByteArray &type);
 	virtual ~NotificationBackend();
 	//TODO rewrite on Notification::Ptr
 	virtual void handleNotification(Notification *notification) = 0;
+	QByteArray backendType() const;
+	static QList<QByteArray> allTypes();
+	static NotificationBackend* get(const QByteArray &type);
+	static QList<NotificationBackend*> all();
 protected:
 	void ref(Notification *notification);
 	void deref(Notification *notification);
+	virtual void virtual_hook(int id, void *data);
+private:
+	QScopedPointer<NotificationBackendPrivate> d_ptr;
 };
 
 } // namespace qutim_sdk_0_3

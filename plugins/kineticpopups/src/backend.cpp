@@ -26,6 +26,7 @@ namespace KineticPopups {
 using namespace qutim_sdk_0_3;
 
 Backend::Backend() :
+	NotificationBackend("Popup"),
 	m_placer(new WidgetPlacer(this))
 {
 	m_item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance,

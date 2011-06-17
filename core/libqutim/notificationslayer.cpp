@@ -332,7 +332,8 @@ void setTheme(const SoundTheme &theme)
 }
 }
 
-SoundHandler::SoundHandler()
+SoundHandler::SoundHandler() :
+	NotificationBackend("Sound")
 {
 
 }
