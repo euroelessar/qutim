@@ -92,24 +92,24 @@ IconLoaderImpl::IconLoaderImpl()
 	Settings::registerItem(m_settings.data());
 }
 
-QIcon IconLoaderImpl::loadIcon(const QString &name)
+QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 {
 	return iconManager()->getIcon(name);
 }
 
-QMovie *IconLoaderImpl::loadMovie(const QString &name)
+QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
 {
 	Q_UNUSED(name);
 	return 0;
 }
 
-QString IconLoaderImpl::iconPath(const QString &name, uint iconSize)
+QString IconLoaderImpl::doIconPath(const QString &name, uint iconSize)
 {
 	qDebug("%s %s %u %s", Q_FUNC_INFO, qPrintable(name), iconSize, qPrintable(iconManager()->currentTheme()->getIconPath(name, iconSize)));
 	return iconManager()->currentTheme()->getIconPath(name, iconSize);
 }
 
-QString IconLoaderImpl::moviePath(const QString &name, uint iconSize)
+QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)
 {
 	Q_UNUSED(name);
 	Q_UNUSED(iconSize);

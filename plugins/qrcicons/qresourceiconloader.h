@@ -12,10 +12,13 @@ class ResourceIconLoader : public IconLoader
 {
 public:
 	ResourceIconLoader();
-	virtual QIcon loadIcon(const QString &name);
-	virtual QMovie *loadMovie(const QString &name);
-	virtual QString iconPath(const QString &name, uint iconSize);
-	virtual QString moviePath(const QString &name, uint iconSize);
+	
+protected:
+	QIcon doLoadIcon(const QString &name);
+	QMovie *doLoadMovie(const QString &name);
+	QString doIconPath(const QString &name, uint iconSize);
+	QString doMoviePath(const QString &name, uint iconSize);
+
 private:
 	typedef QHash<QStringRef, QString> IconHash;
 	IconHash m_icons;

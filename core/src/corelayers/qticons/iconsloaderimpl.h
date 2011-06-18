@@ -56,13 +56,17 @@ class IconLoaderImpl : public IconLoader
 	Q_OBJECT
 public:
 	IconLoaderImpl();
-	virtual QIcon loadIcon(const QString &name);
-	virtual QMovie *loadMovie(const QString &name);
-	virtual QString iconPath(const QString &name, uint iconSize);
-	virtual QString moviePath(const QString &name, uint iconSize);
+
 public slots:
 	void onSettingsChanged();
 	void initSettings();
+
+protected:
+	QIcon doLoadIcon(const QString &name);
+	QMovie *doLoadMovie(const QString &name);
+	QString doIconPath(const QString &name, uint iconSize);
+	QString doMoviePath(const QString &name, uint iconSize);
+
 private:
 	QScopedPointer<SettingsItem> m_settings;
 };

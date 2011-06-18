@@ -354,7 +354,7 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 	} else {
 		service_icon = "defaultservice";
 	}
-	return IconLoader::instance()->iconPath(service_icon, 16);
+	return IconLoader::iconPath(service_icon, 16);
 }
 
 /*void JServiceBrowser::on_registerButton_clicked()

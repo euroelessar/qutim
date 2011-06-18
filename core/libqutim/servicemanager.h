@@ -98,7 +98,7 @@ public:
 	inline operator bool() const { return d && d.data()->object; }
 	inline operator T*() const { return data(); }
 	inline bool operator !() const { return !operator bool(); }
-	inline bool isNull() const { return d.isNull(); }
+	inline bool isNull() const { return !data(); }
 
 private:
 	ServicePointerData::Ptr d;

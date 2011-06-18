@@ -23,19 +23,19 @@ ResourceIconLoader::ResourceIconLoader()
 	}
 }
 
-QIcon ResourceIconLoader::loadIcon(const QString &originName)
+QIcon ResourceIconLoader::doLoadIcon(const QString &originName)
 {
 	// TODO: implement IconEngine, look XdgIconEngine for details
-	return QIcon(iconPath(originName,0));
+	return QIcon(doIconPath(originName,0));
 }
 
-QMovie *ResourceIconLoader::loadMovie(const QString &)
+QMovie *ResourceIconLoader::doLoadMovie(const QString &)
 {
 	//IMPLEMENT ME
 	return 0;
 }
 
-QString ResourceIconLoader::iconPath(const QString &name, uint iconSize)
+QString ResourceIconLoader::doIconPath(const QString &name, uint iconSize)
 {
 	Q_UNUSED(iconSize);
 	int index = name.length();
@@ -49,7 +49,7 @@ QString ResourceIconLoader::iconPath(const QString &name, uint iconSize)
 	return QString();
 }
 
-QString ResourceIconLoader::moviePath(const QString &, uint)
+QString ResourceIconLoader::doMoviePath(const QString &, uint)
 {
 	//IMPLEMENT ME
 	return QString();
