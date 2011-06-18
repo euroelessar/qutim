@@ -703,9 +703,7 @@ void JMUCSession::setAutoJoin(bool join)
 
 void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 {
-	Q_UNUSED(contact);
-	Q_UNUSED(reason);
-	//	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
+	d_func()->room->invite(contact->id(), reason);
 }
 
 void JMUCSession::onError(Jreen::Error::Ptr error)
