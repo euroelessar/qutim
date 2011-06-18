@@ -40,17 +40,6 @@ namespace qutim_sdk_0_3
 		
 		QString name() const;
 	};
-
-	class LIBQUTIM_EXPORT IconWrapper
-	{
-	public:
-		virtual ~IconWrapper();
-		virtual QIcon getIcon(const QString &name) = 0;
-	protected:
-		void virtual_hook(int id, void *data);
-	};
 }
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::IconWrapper, "org.qutim.IconWrapper")
 
 #endif // ICON_H

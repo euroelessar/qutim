@@ -20,40 +20,7 @@
 
 namespace qutim_sdk_0_3
 {
-	struct IconPrivate
-	{
-		QList<IconWrapper*> wrappers;
-	};
-	static IconPrivate *p = NULL;
-
-	void createIconPrivate()
-	{
-		if (p || !ObjectGenerator::isInited()) return;
-		p = new IconPrivate;
-		GeneratorList gens = ObjectGenerator::module<IconWrapper>();
-		foreach (const ObjectGenerator *gen, gens)
-			p->wrappers << gen->generate<IconWrapper>();
-	}
-
-	QIcon loadIcon(const QString &name)
-	{
-		if (!p) createIconPrivate();
-		QIcon result;
-		if(name.isEmpty())
-			return result;
-		if (p) {
-			for (int i = 0; i < p->wrappers.size(); i++) {
-				result = p->wrappers[i]->getIcon(name);
-				if (!result.isNull())
-					return result;
-			}
-			if (IconLoader *loader = IconLoader::instance())
-				result = loader->loadIcon(name);
-		}
-		return result;
-	}
-
-	Icon::Icon(const QString &name) : QIcon(loadIcon(name))
+	Icon::Icon(const QString &name) : QIcon(IconLoader::loadIcon(name))
 	{
 	}
 
@@ -88,14 +55,4 @@ namespace qutim_sdk_0_3
 		return name;
 	}
 #endif
-
-	IconWrapper::~IconWrapper()
-	{
-	}
-
-	void IconWrapper::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
 }

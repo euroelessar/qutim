@@ -43,7 +43,7 @@ namespace qutim_sdk_0_3
 	void ToolTipEventPrivate::addIcon(QString &text, const QString &icon)
 	{
 		if (!icon.isEmpty()) {
-			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
+			QString iconPath = IconLoader::iconPath(icon, 16);
 			if (!iconPath.isEmpty()) {
 				if (!text.isEmpty())
 					text += " ";

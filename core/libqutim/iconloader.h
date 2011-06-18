@@ -23,9 +23,37 @@ class QMovie;
 
 namespace qutim_sdk_0_3
 {
-class LIBQUTIM_EXPORT IconLoader : public QObject
+class IconWrapperPrivate;
+class LIBQUTIM_EXPORT IconWrapper
+{
+public:
+	enum StdSize
+	{
+		StdSize16  = 16,
+		StdSize22  = 22,
+		StdSize32  = 32,
+		StdSize28  = 28,
+		StdSize64  = 64,
+		StdSize128 = 128
+	};
+
+	virtual ~IconWrapper();
+
+	virtual QIcon doLoadIcon(const QString &name) = 0;
+	virtual QMovie *doLoadMovie(const QString &name) = 0;
+	virtual QString doIconPath(const QString &name, uint iconSize) = 0;
+	virtual QString doMoviePath(const QString &name, uint iconSize) = 0;
+};
+}
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::IconWrapper, "org.qutim.IconWrapper/1.1")
+
+namespace qutim_sdk_0_3
+{
+class LIBQUTIM_EXPORT IconLoader : public QObject, protected qutim_sdk_0_3::IconWrapper
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::IconWrapper)
 	Q_CLASSINFO("Service", "IconLoader")
 public:
 	enum StdSize
@@ -39,13 +67,15 @@ public:
 	};
 	IconLoader();
 	virtual ~IconLoader();
-	static IconLoader *instance();
-	virtual QIcon loadIcon(const QString &name) = 0;
-	virtual QMovie *loadMovie(const QString &name) = 0;
-	virtual QString iconPath(const QString &name, uint iconSize) = 0;
-	virtual QString moviePath(const QString &name, uint iconSize) = 0;
+
+	static QIcon loadIcon(const QString &name);
+	static QMovie *loadMovie(const QString &name);
+	static QString iconPath(const QString &name, uint iconSize);
+	static QString moviePath(const QString &name, uint iconSize);
+
 protected:
-	virtual void virtual_hook(int id, void *data);
+	void virtual_hook(int id, void *data);
+	friend class IconWrapperPrivate;
 };
 }
 

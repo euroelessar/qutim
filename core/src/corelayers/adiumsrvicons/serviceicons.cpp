@@ -25,33 +25,50 @@ namespace Adium
 {
 	ServiceIcons::ServiceIcons()
 	{
-		ConfigGroup config = Config().group("serviceicons");
-		QString path = ThemeManager::path("protocolicons", config.value<QString>("theme", "default"));
+		Config config;
+		config.beginGroup("serviceicons");
+		QString path = ThemeManager::path("protocolicons", config.value("theme", "default"));
 		if (path.isEmpty()) {
 			QStringList themes = ThemeManager::list("protocolicons");
 			if (themes.isEmpty())
 				return;
 			path = ThemeManager::path("protocolicons", themes.first());
 		}
-		Config theme(path + "/Icons.plist");
-		foreach (const QString &groupName, theme.childGroups()) {
-			ConfigGroup group = theme.group(groupName);
-			QStringList protocols = group.childKeys();
+		config = Config(path + "/Icons.plist");
+		foreach (const QString &groupName, config.childGroups()) {
+			config.beginGroup(groupName);
+			QStringList protocols = config.childKeys();
 			foreach (const QString &protocol, protocols) {
-				QString iconPath = group.value(protocol, QString());
+				QString iconPath = config.value(protocol, QString());
 				if (iconPath.isEmpty())
 					continue;
-				m_icons["im-"+protocol.toLower()].addPixmap(QPixmap(path % QLatin1Char('/') % iconPath));
+				m_icons["im-"+protocol.toLower()].addFile(path % QLatin1Char('/') % iconPath);
 			}
+			config.endGroup();
 		}
 	}
 
 	ServiceIcons::~ServiceIcons()
 	{
 	}
-
-	QIcon ServiceIcons::getIcon(const QString &name)
+	
+	QIcon ServiceIcons::doLoadIcon(const QString &name)
 	{
 		return m_icons.value(name, QIcon());
+	}
+	
+	QMovie *ServiceIcons::doLoadMovie(const QString &)
+	{
+		return 0;
+	}
+	
+	QString ServiceIcons::doIconPath(const QString &, uint)
+	{
+		return QString();
+	}
+	
+	QString ServiceIcons::doMoviePath(const QString &, uint)
+	{
+		return QString();
 	}
 }

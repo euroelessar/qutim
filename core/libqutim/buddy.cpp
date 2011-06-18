@@ -59,7 +59,7 @@ bool Buddy::event(QEvent *ev)
 			event->addHtml("<table><tr><td>", 98);
 			QString ava = avatar();
 			if (ava.isEmpty())
-				ava = IconLoader::instance()->iconPath(QLatin1String("qutim"), 64);
+				ava = IconLoader::iconPath(QLatin1String("qutim"), 64);
 			QString text = QLatin1Literal("</td><td><img width=\"64\" src=\"")
 					% Qt::escape(ava)
 					% QLatin1Literal("\"/></td></tr></table>");

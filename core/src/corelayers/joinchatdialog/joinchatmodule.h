@@ -2,6 +2,7 @@
 **
 ** qutIM instant messenger
 **
+** Copyright (С) 2010 Sidorov Aleksey <sauron@citadelspb.com>
 ** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
 **
 *****************************************************************************
@@ -9,7 +10,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -23,53 +24,40 @@
 **
 ****************************************************************************/
 
-#ifndef ICONSLOADERIMPL_H
-#define ICONSLOADERIMPL_H
+#ifndef JOINCHATMODULE_H
+#define JOINCHATMODULE_H
 
-#include <qutim/iconloader.h>
-#include <qutim/settingswidget.h>
-#include <qutim/settingslayer.h>
-#include <QComboBox>
-
-using namespace qutim_sdk_0_3;
+#include "joinchatdialog.h"
+#include <qutim/actiongenerator.h>
 
 namespace Core
 {
-class IconLoaderSettings : public SettingsWidget
-{
-	Q_OBJECT
-public:
-	IconLoaderSettings();
-	
-	virtual void loadImpl();
-	virtual void saveImpl();
-	virtual void cancelImpl();
-protected slots:
-	void onCurrentIndexChanged(int index);
-private:
-	QComboBox *m_box;
-	int m_index;
-};
+class JoinChatGenerator;
 
-class IconLoaderImpl : public IconLoader
+class JoinChatModule : public QObject
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "JoinGroupChat")
+	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "ContactList")
 public:
-	IconLoaderImpl();
+	JoinChatModule();
+	virtual ~JoinChatModule();
 
 public slots:
-	void onSettingsChanged();
-	void initSettings();
-
-protected:
-	QIcon doLoadIcon(const QString &name);
-	QMovie *doLoadMovie(const QString &name);
-	QString doIconPath(const QString &name, uint iconSize);
-	QString doMoviePath(const QString &name, uint iconSize);
+	void onJoinChatTriggered();
 
 private:
-	QScopedPointer<SettingsItem> m_settings;
+	QScopedPointer<JoinChatGenerator> m_action;
+	QWeakPointer<JoinChatDialog> m_dialog;
+};
+
+class JoinChatGenerator : public qutim_sdk_0_3::ActionGenerator
+{
+public:
+	JoinChatGenerator(QObject *module);
+	void showImpl(QAction *action, QObject *obj);
 };
 }
 
-#endif // ICONSLOADERIMPL_H
+#endif // JOINCHATMODULE_H

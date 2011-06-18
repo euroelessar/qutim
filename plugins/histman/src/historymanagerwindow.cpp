@@ -146,7 +146,7 @@ void HistoryManagerWindow::setValue(int value)
 ConfigWidget HistoryManagerWindow::createAccountWidget(const QString &protocol)
 {
 	QLabel *label = new QLabel;
-	QString html = IconLoader::instance()->iconPath("im-" + protocol.toLower(), 16);
+	QString html = IconLoader::iconPath("im-" + protocol.toLower(), 16);
 	if(html.isEmpty())
 		html = protocol;
 	else
