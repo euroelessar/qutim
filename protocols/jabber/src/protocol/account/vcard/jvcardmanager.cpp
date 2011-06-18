@@ -51,7 +51,7 @@ void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 	}
 }
 
-void JVCardManager::storeVCard(Jreen::VCard *vcard)
+void JVCardManager::storeVCard(const Jreen::VCard::Ptr &vcard)
 {
 	Q_UNUSED(vcard);
 	//Q_D(JVCardManager);

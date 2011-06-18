@@ -27,7 +27,7 @@ public:
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	bool containsRequest(const QString &contact);
-	void storeVCard(Jreen::VCard *vcard);
+	void storeVCard(const Jreen::VCard::Ptr &vcard);
 	JAccount *account() const;
 protected slots:
 	void handleIQ(const Jreen::IQ &iq);

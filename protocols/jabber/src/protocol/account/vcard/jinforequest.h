@@ -51,6 +51,7 @@ public:
 
 	JInfoRequest(JVCardManager *manager, const QString &contact);
 	~JInfoRequest();
+	static Jreen::VCard::Ptr convert(const DataItem &item);
 	DataItem item(const QString &name) const;
 	State state() const;
 	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
