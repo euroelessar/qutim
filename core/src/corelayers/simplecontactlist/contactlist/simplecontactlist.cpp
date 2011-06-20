@@ -135,8 +135,9 @@ void Module::changeVisibility()
 	//			if (p->widget->isVisible() && !p->widget->isMinimized()) {
 	if (p->widget->isActiveWindow()) {
 		QTimer::singleShot( 0, p->widget, SLOT(hide()) );
-	} else
+	} else {
 		show();
+	}
 }
 
 void Module::onConfigureClicked(QObject*)
