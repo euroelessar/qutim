@@ -40,12 +40,6 @@ namespace Core
 		virtual ExtensionInfoList coreExtensions() const;
 	private slots:
 		virtual void initExtensions();
-	private:
-		inline static ExtensionInfoList &extensions()
-		{
-			static ExtensionInfoList exts;
-			return exts;
-		}
 	};
 }
 
