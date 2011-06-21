@@ -346,8 +346,8 @@ void YandexNarodUploadJob::progressReply()
 			msg.setProperty("service", true);
 			if (ChatSession *s = ChatLayer::get(chatUnit(), false))
 				s->appendMessage(msg);
-			else
-				chatUnit()->account()->getUnitForSession(chatUnit())->sendMessage(msg);
+			msg.setProperty("service", false);
+			chatUnit()->account()->getUnitForSession(chatUnit())->send(msg);
 		}
 	}
 }
