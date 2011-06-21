@@ -31,14 +31,11 @@
 struct YandexNarodScope
 {
 	QNetworkAccessManager *networkManager;
+	YandexNarodCookieJar *cookieJar;
 	YandexNarodAuthorizator *authorizator;
 };
 
-static inline YandexNarodScope *scope()
-{
-	static YandexNarodScope scope;
-	return &scope;
-}
+Q_GLOBAL_STATIC(YandexNarodScope, scope)
 
 void YandexNarodPlugin::init()
 {
@@ -74,8 +71,9 @@ bool YandexNarodPlugin::load()
 	settings->connect(SIGNAL(testclick()), this,  SLOT(on_btnTest_clicked()));
 	Settings::registerItem(settings);
 	scope()->networkManager = new QNetworkAccessManager(this);
-	loadCookies();
+	scope()->cookieJar = new YandexNarodCookieJar(scope()->networkManager);
 	scope()->authorizator = new YandexNarodAuthorizator(scope()->networkManager);
+	loadCookies();
 	connect(scope()->authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
 	connect(scope()->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
 
@@ -89,52 +87,26 @@ bool YandexNarodPlugin::unload()
 
 void YandexNarodPlugin::loadCookies()
 {
-	Config cookies = Config().group("yandex");
-	QNetworkCookieJar *cookieJar = scope()->networkManager->cookieJar();
-	QList<QNetworkCookie> cookieList;
-	int count = cookies.beginArray("cookies");
-	for (int i = 0; i < count; i++) {
-		QNetworkCookie netcook;
-		const Config cookie = cookies.arrayElement(i);
-		netcook.setDomain(cookie.value("domain", QString()));
-		QString date = cookie.value("expirationDate", QString());
-		if (!date.isEmpty())
-			netcook.setExpirationDate(QDateTime::fromString(date, Qt::ISODate));
-		if (!netcook.expirationDate().isValid() || netcook.expirationDate() < QDateTime::currentDateTime())
-			continue;
-		netcook.setHttpOnly(cookie.value("httpOnly", false));
-		netcook.setSecure(cookie.value("secure", false));
-		netcook.setName(cookie.value("name", QString()).toLatin1());
-		netcook.setPath(cookie.value("path", QString()));
-		netcook.setValue(cookie.value("value", QByteArray(), Config::Crypted));
-		cookieList.append(netcook);
-		debug() << netcook;
-	}
-	cookieJar->setCookiesFromUrl(cookieList, QUrl("http://yandex.ru"));
+#if HAS_NO_TOKEN_AUTHORIZATION
+	Config config;
+	config.beginGroup("yandex");
+	QList<QNetworkCookie> cookies;
+	QStringList rawCookies = config.value("cookies", QStringList(), Config::Crypted);
+	foreach (const QString &cookie, rawCookies)
+		cookies << QNetworkCookie::parseCookies(cookie.toLatin1());
+	scope()->cookieJar->setAllCookies(cookies);
+#endif
 }
 
 void YandexNarodPlugin::saveCookies()
 {
-#if 0
-	Config cookies = Config().group("yandex");
-	cookies.remove("cookies");
-	cookies.beginArray("cookies");
-
-	QNetworkCookieJar *cookieJar = scope()->networkManager->cookieJar();
-	int i = 0;
-	foreach (QNetworkCookie netcook, cookieJar->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
-		if (netcook.isSessionCookie())
-			continue;
-		ConfigGroup cookie = cookies.arrayElement(i++);
-		cookie.setValue("domain", netcook.domain());
-		cookie.setValue("expirationDate", netcook.expirationDate().toString(Qt::ISODate));
-		cookie.setValue("httpOnly", netcook.isHttpOnly());
-		cookie.setValue("secure", netcook.isSecure());
-		cookie.setValue("name", QString::fromLatin1(netcook.name()));
-		cookie.setValue("path", netcook.path());
-		cookie.setValue("value", netcook.value(), Config::Crypted);
-	}
-	cookies.sync();
+#if HAS_NO_TOKEN_AUTHORIZATION
+	QStringList cookies;
+	foreach (const QNetworkCookie &cookie, scope()->cookieJar->allCookies())
+		cookies << QLatin1String(cookie.toRawForm());
+	Config config;
+	config.beginGroup("yandex");
+	config.setValue("cookies", cookies, Config::Crypted);
 #else
 	Config config;
 	config.beginGroup(QLatin1String("yandex"));

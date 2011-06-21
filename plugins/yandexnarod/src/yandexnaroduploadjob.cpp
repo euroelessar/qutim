@@ -105,11 +105,11 @@ YandexNarodUploadJob::YandexNarodUploadJob(qutim_sdk_0_3::ChatUnit *contact,
 	m_timer.setSingleShot(true);
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(someStrangeSlot()));
 
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	m_request.setRawHeader("Cache-Control", "no-cache");
 	m_request.setRawHeader("Accept", "*/*");
 	QByteArray userAgent = "qutIM/";
-	userAgent += qutimVersionStr();
+	userAgent += versionString();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	m_request.setRawHeader("User-Agent", userAgent);
 #endif
@@ -147,16 +147,16 @@ void YandexNarodUploadJob::doReceive()
 void YandexNarodUploadJob::sendImpl()
 {
 	setStateString(QT_TR_NOOP("Getting storage..."));
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	m_request.setUrl(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
 
-	QNetworkCookieJar *cookieJar = YandexNarodFactory::networkManager()->cookieJar();
-	foreach(const QNetworkCookie &cookie, cookieJar->cookiesForUrl(m_request.url())) {
-		m_request.setRawHeader("Cookie", cookie.toRawForm(QNetworkCookie::NameAndValueOnly));
-		debug() << cookie;
-	}
+//	QNetworkCookieJar *cookieJar = YandexNarodFactory::networkManager()->cookieJar();
+//	foreach(const QNetworkCookie &cookie, cookieJar->cookiesForUrl(m_request.url())) {
+//		m_request.setRawHeader("Cookie", cookie.toRawForm(QNetworkCookie::NameAndValueOnly));
+//		debug() << cookie;
+//	}
 
-	debug() << "Cookie" << m_request.rawHeader("Cookie");
+//	debug() << "Cookie" << m_request.rawHeader("Cookie");
 	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
 #else
 	YandexRequest request(QUrl("http://narod.yandex.ru/disk/getstorage/?type=json"));
@@ -216,7 +216,7 @@ void YandexNarodUploadJob::storageReply()
 
 	setState(Started);
 	
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	QNetworkRequest request(m_request);
 	request.setUrl(url);
 #else
@@ -237,7 +237,7 @@ void YandexNarodUploadJob::someStrangeSlot()
 	QUrl url(m_someData.value("purl").toString());
 	url.addQueryItem("tid", m_someData.value("hash").toString());
 //	url.addQueryItem("type", "json");
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	m_request.setUrl(url);
 	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(m_request);
 #else
@@ -275,8 +275,10 @@ void YandexNarodUploadJob::progressReply()
 		return;
 
 	QByteArray data = reply->readAll();
-#if 0
-	QVariantMap map = Json::parse(data).toMap();
+#if HAS_NO_TOKEN_AUTHORIZATION
+	int start = data.indexOf('{');
+	int end = data.lastIndexOf('}');
+	QVariantMap map = Json::parse(data.mid(start, end - start + 1)).toMap();
 #else
 	QVariant tmpVar;
 	int dataBegin = data.indexOf('(') + 1;
