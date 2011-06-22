@@ -223,6 +223,13 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 	emit stateChanged(d->state);
 }
 
+Jreen::VCard::Ptr JInfoRequest::convert(const DataItem &item)
+{
+	Q_UNUSED(item);
+	Jreen::VCard::Ptr vcard = Jreen::VCard::Ptr::create();
+	return vcard;
+}
+
 DataItem JInfoRequest::item(const QString &name) const
 {
 	Q_D(const JInfoRequest);

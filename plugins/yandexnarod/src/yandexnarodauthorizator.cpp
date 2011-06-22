@@ -18,19 +18,26 @@
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <qutim/json.h>
+#include <qutim/libqutim_version.h>
 #include <QtCore/QDateTime>
-#include <QtNetwork/QNetworkCookieJar>
+#include <QtNetwork/QNetworkAccessManager>
 #include <QtGui/QWidget>
 
 using namespace qutim_sdk_0_3;
 
 #define CLIENT_ID "ecc5ea995f054a6a9acf6a64318bce33"
 
+YandexNarodCookieJar::YandexNarodCookieJar(QNetworkAccessManager *manager)
+    : QNetworkCookieJar(manager)
+{
+	manager->setCookieJar(this);
+}
+
 YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) :
 	QObject(parent), m_networkManager(parent)
 {
 	m_stage = Need;
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	foreach (const QNetworkCookie &cookie,
 			 parent->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
@@ -103,7 +110,7 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 		return;
 	}
 	
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	QByteArray post = "login=" + QUrl::toPercentEncoding(login)
 					  + "&passwd=" + QUrl::toPercentEncoding(password)
 					  + "&twoweeks=yes";
@@ -111,7 +118,7 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 	request.setRawHeader("Cache-Control", "no-cache");
 	request.setRawHeader("Accept", "*/*");
 	QByteArray userAgent = "qutIM/";
-	userAgent += qutimVersionStr();
+	userAgent += versionString();
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	request.setRawHeader("User-Agent", userAgent);
 #else
@@ -132,7 +139,7 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 	if (reply != m_reply)
 		return;
 
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	if (reply->error() != QNetworkReply::NoError) {
 		debug() << reply->error() << reply->errorString();
 		emit result(Error, reply->errorString());

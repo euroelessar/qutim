@@ -2,8 +2,7 @@
 #define GROWLBACKEND_H
 
 #include <qutim/notificationslayer.h>
-#include "notification.h"
-#include <QDBusArgument>
+#include "org_freedesktop_notification.h"
 
 #ifdef Q_WS_MAEMO_5
 #include <mce/mode-names.h>

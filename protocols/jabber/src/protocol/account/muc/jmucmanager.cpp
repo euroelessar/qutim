@@ -231,21 +231,31 @@ void JMUCManager::appendMUCSession(JMUCSession *room)
 	d_func()->rooms.insert(room->id(), room);
 }
 
-void JMUCManager::setPresenceToRooms(Jreen::Presence::Type presence)
+void JMUCManager::setPresenceToRooms(const Jreen::Presence &presence)
 {
 	Q_D(JMUCManager);
-	if (presence == Jreen::Presence::Unavailable) {
-		foreach (JMUCSession *room, d->rooms) {
-			if(room->isJoined()) {
-				room->setAutoJoin(true);
-				room->leave();
-			}
+	if (presence.subtype() == Presence::Unavailable)
+		return;
+	
+	foreach (JMUCSession *room, d->rooms) {
+		if (room->isJoined()) {
+			room->room()->setPresence(presence.subtype(), presence.status(),
+			                          presence.priority());
 		}
-	} else {
-		foreach (JMUCSession *room, d->rooms)
-			if(room->isJoined() || room->isAutoJoin())
-				room->join();
 	}
+
+//	if (presence == Jreen::Presence::Unavailable) {
+//		foreach (JMUCSession *room, d->rooms) {
+//			if(room->isJoined()) {
+//				room->setAutoJoin(true);
+//				room->leave();
+//			}
+//		}
+//	} else {
+//		foreach (JMUCSession *room, d->rooms)
+//			if(room->isJoined() || room->isAutoJoin())
+//				room->join();
+//	}
 }
 
 ChatUnit *JMUCManager::muc(const Jreen::JID &jid)

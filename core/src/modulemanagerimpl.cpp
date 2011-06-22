@@ -31,6 +31,7 @@
 #include <QScriptValue>
 #include <QScriptEngine>
 #include <QTimer>
+#include <QSslSocket>
 #include <qutim/protocol.h>
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
@@ -78,12 +79,18 @@ ModuleManagerImpl::ModuleManagerImpl()
 
 ExtensionInfoList ModuleManagerImpl::coreExtensions() const
 {
-	return extensions();
+	return ExtensionInfoList();
 }
 
 void ModuleManagerImpl::initExtensions()
 {
-	debug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
+	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
+	path += QLatin1String("/ca-certs/*.pem");
+	qDebug() << QSslSocket::defaultCaCertificates().size();
+	qDebug() << QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
+	qDebug() << QSslSocket::defaultCaCertificates().size();
+	
+	qDebug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
 	ModuleManager::initExtensions();
 
 	NotificationRequest request(Notification::AppStartup);

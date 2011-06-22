@@ -21,6 +21,7 @@
 #include "connection/jserverdiscoinfo.h"
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
+#include "vcard/jinforequest.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
 #include "muc/jmucuser.h"
@@ -79,8 +80,8 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
-	q->setAccountStatus(status);
 	client.setPresence(JStatus::statusToPresence(status), status.text(), priority);
+	q->setAccountStatus(status);
 }
 
 void JAccountPrivate::setPresence(Jreen::Presence presence)
@@ -443,6 +444,9 @@ void JAccount::setStatus(Status status)
 
 void JAccount::setAccountStatus(Status status)
 {
+	Q_D(JAccount);
+	if (status != Status::Connecting && status != Status::Offline)
+		d->conferenceManager->setPresenceToRooms(d->client.presence());
 	Account::setStatus(status);
 }
 
@@ -455,6 +459,28 @@ QString JAccount::getAvatarPath()
 
 bool JAccount::event(QEvent *ev)
 {
+	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
+		Status::Type status = Account::status().type();
+		if (status >= Status::Online && status <= Status::Invisible) {
+			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
+			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
+			event->accept();
+		} else {
+			ev->ignore();
+		}
+		return true;
+	} else if (ev->type() == InfoRequestEvent::eventType()) {
+		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		event->setRequest(new JInfoRequest(vCardManager(), id()));
+		event->accept();
+		return true;
+	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
+		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
+		VCard::Ptr vcard = JInfoRequest::convert(event->infoItem());
+		vCardManager()->storeVCard(vcard);
+		event->accept();
+		return true;
+	}
 	return Account::event(ev);
 }
 

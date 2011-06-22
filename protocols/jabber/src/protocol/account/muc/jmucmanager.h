@@ -50,7 +50,7 @@ public:
 	JBookmarkManager *bookmarkManager();
 	void syncBookmarks();
 	void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
-	void setPresenceToRooms(Jreen::Presence::Type presence);
+	void setPresenceToRooms(const Jreen::Presence &presence);
 	void leave(const QString &room);
 	bool event(QEvent *event);
 	void appendMUCSession(JMUCSession *room);

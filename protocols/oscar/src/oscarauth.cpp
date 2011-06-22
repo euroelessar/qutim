@@ -23,6 +23,11 @@
 **
 ****************************************************************************/
 
+#include <qglobal.h>
+#ifdef Q_OS_HAIKU
+# define SHA2_TYPES
+#endif
+
 #include "oscarauth.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"

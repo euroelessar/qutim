@@ -67,7 +67,7 @@ private:
 	void sendImpl();
 	bool processReply(QNetworkReply *reply);
 private:
-#if 0
+#if HAS_NO_TOKEN_AUTHORIZATION
 	QNetworkRequest m_request;
 #endif
 	QVariantMap m_someData;

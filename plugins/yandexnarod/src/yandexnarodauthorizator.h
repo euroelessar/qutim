@@ -18,7 +18,22 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
+#include <QNetworkCookieJar>
 #include <QtCore/QPointer>
+
+#define HAS_NO_TOKEN_AUTHORIZATION 1
+
+class QNetworkAccessManager;
+
+class YandexNarodCookieJar : public QNetworkCookieJar
+{
+	Q_OBJECT
+public:
+	YandexNarodCookieJar(QNetworkAccessManager *manager);
+	
+	using QNetworkCookieJar::allCookies;
+	using QNetworkCookieJar::setAllCookies;
+};
 
 class YandexNarodAuthorizator : public QObject
 {
