@@ -32,7 +32,6 @@ struct MacWidgetPrivate
 {
 	TreeView *view;
 	AbstractContactModel *model;
-	ActionToolBar *mainToolBar;
 	QLineEdit *searchBar;
 	QAction *statusTextAction;
 	QVector<MenuController *> controllers;
@@ -68,21 +67,8 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 		setContentsMargins(0, 0, 0, 0);
 	}
 
-	int size = 22;
 	Config cfg;
 	cfg.beginGroup("contactlist");
-	size = cfg.value("toolBarIconSize", size);
-
-	QSize toolbar_size (size,size);
-	d->mainToolBar = new ActionToolBar(this);
-	d->mainToolBar->setWindowTitle(tr("Main Toolbar"));
-	addToolBar(Qt::TopToolBarArea, d->mainToolBar);
-
-	d->mainToolBar->setIconSize(toolbar_size);
-	d->mainToolBar->setFloatable(false);
-	d->mainToolBar->setMovable(false);
-	d->mainToolBar->setMoveHookEnabled(true);
-	d->mainToolBar->setObjectName(QLatin1String("contactListBar"));
 
 	d->model = ServiceManager::getByName<AbstractContactModel *>("ContactModel");
 	d->view = new TreeView(d->model, this);
@@ -91,7 +77,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->view->setAlternatingRowColors(cfg.value("alternatingRowColors", false));
 	d->view->setFrameShape(QFrame::NoFrame);
 	d->view->setFrameShadow(QFrame::Plain);
-	//d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	d->searchBar = new QLineEdit(this);
 	layout->insertWidget(0, d->searchBar);
@@ -107,7 +93,6 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 #else
 	d->menuBar = new QMenuBar(this);
 #endif
-	addMenu(tr("File"), MacMenuFile);
 	addMenu(tr("Accounts"), MacMenuAccounts);
 	addMenu(tr("Chats"), MacMenuChats);
 	addMenu(tr("Roster"), MacMenuRoster);
@@ -135,12 +120,12 @@ MacWidget::~MacWidget()
 
 class MacMenuFileController : public MenuController
 {
-public:
-	MacMenuFileController(QObject *parent) : MenuController(parent)
-	{
-		if (MenuController *contactList = ServiceManager::getByName<MenuController *>("ContactList"))
-			setMenuOwner(contactList);
-	}
+	public:
+		MacMenuFileController(QObject *parent) : MenuController(parent)
+		{
+			if (MenuController *contactList = ServiceManager::getByName<MenuController *>("ContactList"))
+				setMenuOwner(contactList);
+		}
 };
 
 void MacWidget::addMenu(const QString &title, MacMenuId id)
@@ -153,7 +138,6 @@ void MacWidget::addMenu(const QString &title, MacMenuId id)
 		controller = new MenuController(this);
 	QMenu *menu = controller->menu(false);
 	menu->setTitle(title);
-	d->menuBar->addMenu(menu);
 	d->menus[id] = menu;
 	d->controllers[id] = controller;
 }
@@ -161,6 +145,7 @@ void MacWidget::addMenu(const QString &title, MacMenuId id)
 void MacWidget::addButton(ActionGenerator *generator)
 {
 	d_func()->controllers[MacMenuRoster]->addAction(generator);
+	d_func()->menus[MacMenuRoster]->popup(QCursor::pos());
 }
 
 void MacWidget::removeButton(ActionGenerator *generator)
@@ -273,6 +258,12 @@ void MacWidget::onActivatedSession(bool state)
 
 void MacWidget::initMenu()
 {
+	Q_D(MacWidget);
+	addMenu(tr("File"), MacMenuFile);
+	d->menuBar->addMenu(d->menus[MacMenuFile]);
+	d->menuBar->addMenu(d->menus[MacMenuAccounts]);
+	d->menuBar->addMenu(d->menus[MacMenuChats]);
+	d->menuBar->addMenu(d->menus[MacMenuRoster]);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession *)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession *)));
 }
