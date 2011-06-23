@@ -145,18 +145,7 @@ LocalizedStringList Notification::typeStrings()
 
 LocalizedString Notification::typeString(Type type)
 {
-	QMetaObject meta = Notification::staticMetaObject;
-
-	//convert flag to number
-	int index = 0;
-	int flag = 1;
-	for (; index != meta.enumerator(0).keyCount(); index++) {
-		if (flag == type)
-			break;
-		flag <<= 1;
-	}
-
-	return typeStrings().at(index);
+	return typeStrings().value(type);
 }
 
 NotificationAction::NotificationAction(const QIcon &icon, const LocalizedString &title,

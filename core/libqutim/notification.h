@@ -42,21 +42,22 @@ public:
 	typedef QSharedPointer<Notification> Ptr; //FIXME find usable pointer!
 	enum Type
 	{
-		IncomingMessage			=	0x0001,
-		OutgoingMessage			=	0x0002,
-		AppStartup				=	0x0004,
-		BlockedMessage			=	0x0008,
-		ChatUserJoined			=	0x0010,
-		ChatUserLeaved			=	0x0020,
-		ChatIncomingMessage		=	0x0040,
-		ChatOutgoingMessage		=	0x0080,
-		FileTransferCompleted	=	0x0100,
-		UserOnline				=	0x0200,
-		UserOffline				=	0x0400,
-		UserChangedStatus		=	0x0800,
-		UserHasBirthday			=	0x1000,
-		UserTyping				=	0x2000,
-		System					=	0x4000
+		IncomingMessage,
+		OutgoingMessage,
+		AppStartup,
+		BlockedMessage,
+		ChatUserJoined,
+		ChatUserLeaved,
+		ChatIncomingMessage,
+		ChatOutgoingMessage,
+		FileTransferCompleted,
+		UserOnline,
+		UserOffline,
+		UserChangedStatus,
+		UserHasBirthday,
+		UserTyping,
+		System,
+		LastType = System
 	};
 	static Notification *send(const Message &msg);
 	static Notification *send(const QString &text);
