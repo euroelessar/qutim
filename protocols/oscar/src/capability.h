@@ -27,6 +27,8 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+class Capabilities;
+
 struct LIBOSCAR_EXPORT Capability: public QUuid
 {
 public:
@@ -49,14 +51,17 @@ public:
 	bool match(const Capability &capability, quint8 len = Size) const;
 	QString name() const;
 protected:
+	quint8 nonZeroLength() const;
 	static const QUuid &shortUuid();
+	friend class Capabilities;
 };
 
 class LIBOSCAR_EXPORT Capabilities: public QList<Capability>
 {
 public:
-	bool match(const Capability &capability, quint8 len = Capability::Size) const;
-	const_iterator find(const Capability &capability, quint8 len = Capability::Size) const;
+	enum { UpToFirstZero = 0xff };
+	bool match(const Capability &capability, quint8 len = UpToFirstZero) const;
+	const_iterator find(const Capability &capability, quint8 len = UpToFirstZero) const;
 };
 
 class LIBOSCAR_EXPORT StandartCapability : public Capability

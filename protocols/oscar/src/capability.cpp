@@ -110,11 +110,11 @@ QByteArray Capability::data() const
 #define OSCAR_CONVERT_CAPABILTY(capability, buffer) \
 	qToBigEndian((capability)->data1, buffer); \
 	if (len > 4) { \
-		qToBigEndian((capability)->data2, buffer); \
+		qToBigEndian((capability)->data2, buffer + 4); \
 		if (len > 6) { \
-			qToBigEndian((capability)->data3, buffer); \
+			qToBigEndian((capability)->data3, buffer + 6); \
 			if (len > 8) { \
-				qMemCopy(buffer, (capability)->data4, len - 8); \
+				qMemCopy(buffer + 8, (capability)->data4, len - 8); \
 			} \
 		} \
 	}
@@ -133,8 +133,6 @@ bool Capability::match(const Capability &o, quint8 len) const
 	return !memcmp(a, b, len);
 }
 
-#undef OSCAR_CONVERT_CAPABILTY
-
 QString Capability::name() const
 {
 	QString name = capName()->value(*this);
@@ -148,6 +146,21 @@ QString Capability::name() const
 	return name;
 }
 
+quint8 Capability::nonZeroLength() const
+{
+	uchar buf[Size];
+	enum { len = Size };
+	OSCAR_CONVERT_CAPABILTY(this, buf);
+	int i;
+	for (i = 15; i >= 0; --i) {
+		if (buf[i])
+			break;
+	}
+	return i + 1;
+}
+
+#undef OSCAR_CONVERT_CAPABILTY
+
 const QUuid &Capability::shortUuid()
 {
 	static const QUuid uuid("{09460000-4C7F-11D1-8222-444553540000}");
@@ -156,23 +169,20 @@ const QUuid &Capability::shortUuid()
 
 bool Capabilities::match(const Capability &capability, quint8 len) const
 {
-	foreach (const Capability &cap, *this) {
-		if (cap.match(capability, len))
-			return true;
-	}
-	return false;
+	return find(capability, len) != constEnd();
 }
 
 Capabilities::const_iterator Capabilities::find(const Capability &capability, quint8 len) const
 {
+	if (len == UpToFirstZero)
+		len = capability.nonZeroLength();
 	const_iterator itr = constBegin();
-	const_iterator end_itr = constEnd();
-	while (itr != end_itr) {
+	const const_iterator end_itr = constEnd();
+	for (; itr != end_itr; ++itr) {
 		if (itr->match(capability, len))
-			return itr;
-		++itr;
+			break;
 	}
-	return end_itr;
+	return itr;
 }
 
 StandartCapability::StandartCapability(const QString &name, const QString &str) :
