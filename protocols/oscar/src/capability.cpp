@@ -137,7 +137,7 @@ QString Capability::name() const
 {
 	QString name = capName()->value(*this);
 	if (name.isNull()) {
-		if (isShort()) {
+		if (!isShort()) {
 			return toString();
 		} else {
 			return QString::number(data1 & 0xffff, 16);

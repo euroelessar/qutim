@@ -50,6 +50,7 @@ public:
 	bool operator==(const QUuid &rhs) const;
 	bool match(const Capability &capability, quint8 len = Size) const;
 	QString name() const;
+	uint hash() const;
 protected:
 	quint8 nonZeroLength() const;
 	static const QUuid &shortUuid();
@@ -78,11 +79,6 @@ public:
 	StandartCapability(const QString &name, quint16 data);
 };
 
-inline uint qHash(const Capability &capability)
-{
-	return qHash(capability.data());
-}
-
 template<>
 struct fromDataUnitHelper<Capability, false>
 {
@@ -92,6 +88,20 @@ struct fromDataUnitHelper<Capability, false>
 	}
 };
 
+inline uint Capability::hash() const
+{
+	uint h1 = qHash((quint64(data1) << 32)
+	                | (uint(data2) << 16)
+	                | (uint(data3)));
+	uint h2 = qHash(reinterpret_cast<quint64>(data4));
+	return qHash(quint64(h1) << 32 | h2);
+}
+
 } } // namespace qutim_sdk_0_3::oscar
+
+inline uint qHash(const qutim_sdk_0_3::oscar::Capability &capability)
+{
+	return capability.hash();
+}
 
 #endif // CAPABILTY_H
