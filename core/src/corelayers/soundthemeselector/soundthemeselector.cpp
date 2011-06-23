@@ -70,45 +70,35 @@ void SoundThemeSelector::fillModel(const SoundTheme &theme)
 	headers.append(QT_TRANSLATE_NOOP("SoundTheme", "Preview"));
 	m_model->setHorizontalHeaderLabels(headers);
 
-	QMetaObject meta = Notification::staticMetaObject;
-	for (int i = 0; i < meta.enumeratorCount(); ++i) {
-		QMetaEnum e = meta.enumerator(i);
-		if (e.name() == QLatin1String("Type")) {
-			for (int j = 0;j != e.keyCount(); j++) {
-				Notification::Type type = static_cast<Notification::Type>(e.value(j));
-				QList<QStandardItem *> items;
+	for (int i = 0; i <= Notification::LastType; ++i) {
+		Notification::Type type = static_cast<Notification::Type>(i);
+		QList<QStandardItem *> items;
 
-				QStandardItem *item = new QStandardItem(Notification::typeString(type));
-				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Type"));
-				item->setSelectable(false);
-				items << item;
+		QStandardItem *item = new QStandardItem(Notification::typeString(type));
+		item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Type"));
+		item->setSelectable(false);
+		items << item;
 
-				item = new QStandardItem();
-				item->setEditable(false);
-				item->setIcon(Icon("media-playback-start"));
-				item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
-				item->setEnabled(!theme.path(type).isNull());
-				item->setData(type,Qt::UserRole);
-				item->setSelectable(false);
-				items << item;
+		item = new QStandardItem();
+		item->setEditable(false);
+		item->setIcon(Icon("media-playback-start"));
+		item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
+		item->setEnabled(!theme.path(type).isNull());
+		item->setSelectable(false);
+		items << item;
 
-				m_model->appendRow(items);
-			}
-		}
+		m_model->appendRow(items);
 	}
 	ui->treeView->header()->setResizeMode(0, QHeaderView::Stretch);
 }
 
 void SoundThemeSelector::onClicked(const QModelIndex &index)
 {
-	if ((index.column() != 1) || !index.data(Qt::ItemIsEnabled).toBool())
+	if (index.column() != 1 || !(index.flags() & Qt::ItemIsEnabled))
 		return;
-	int type = index.data(Qt::UserRole).value<int>();
 
-	if (type) {
-		SoundTheme theme =  Sound::theme(ui->themeSelector->currentText());
-		theme.play(static_cast<Notification::Type>(type));
-	}
+	SoundTheme theme =  Sound::theme(ui->themeSelector->currentText());
+	theme.play(static_cast<Notification::Type>(index.row()));
 }
 
 }
