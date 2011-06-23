@@ -177,12 +177,14 @@ public:
 	//TODO rewrite on Notification::Ptr
 	virtual void handleNotification(Notification *notification) = 0;
 	QByteArray backendType() const;
+	LocalizedString description() const;
 	static QList<QByteArray> allTypes();
 	static NotificationBackend* get(const QByteArray &type);
 	static QList<NotificationBackend*> all();
 protected:
 	void ref(Notification *notification);
 	void deref(Notification *notification);
+	void setDescription(const LocalizedString &description);
 	virtual void virtual_hook(int id, void *data);
 private:
 	QScopedPointer<NotificationBackendPrivate> d_ptr;

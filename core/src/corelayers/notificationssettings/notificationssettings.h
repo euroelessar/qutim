@@ -2,6 +2,7 @@
  *  notificationssettings.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -19,6 +20,7 @@
 #include <QObject>
 #include <qutim/startupmodule.h>
 #include <qutim/notification.h>
+#include "notificationsettings.h"
 
 namespace qutim_sdk_0_3 {
 class SettingsItem;
@@ -28,10 +30,10 @@ namespace Core
 {
 
 class NotifyEnabler;
-class NotificationsSettings : public QObject, public qutim_sdk_0_3::StartupModule
+class NotificationsSettings : public QObject
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+	Q_CLASSINFO("Service", "NotificationSettings")
 public:
 	explicit NotificationsSettings(QObject *parent = 0);
 	~NotificationsSettings();
@@ -47,11 +49,11 @@ class NotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
 public:
 	NotifyEnabler(QObject *parent = 0);
 public slots:
-	void loadSettings();
+	void enabledTypesChanged(const EnabledNotificationTypes &enabledTypes);
 protected:
     virtual Result filter(qutim_sdk_0_3::NotificationRequest& request);
 private:
-	int m_flags;
+	EnabledNotificationTypes m_enabledTypes;
 };
 
 }

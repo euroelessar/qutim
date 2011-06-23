@@ -77,6 +77,7 @@ class NotificationBackendPrivate
 {
 public:
 	QByteArray type;
+	LocalizedString description;
 };
 
 Notification *Notification::send(const Message &msg)
@@ -130,7 +131,7 @@ LocalizedStringList Notification::typeStrings()
 		 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
 		 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
 		 << QT_TRANSLATE_NOOP("Notification", "User joined chat")
-		 << QT_TRANSLATE_NOOP("Notification", "User leaved chat")
+		 << QT_TRANSLATE_NOOP("Notification", "User left chat")
 		 << QT_TRANSLATE_NOOP("Notification", "Incoming chat message")
 		 << QT_TRANSLATE_NOOP("Notification", "Outgoing chat message")
 		 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
@@ -492,6 +493,11 @@ QByteArray NotificationBackend::backendType() const
 	return d_ptr->type;
 }
 
+LocalizedString NotificationBackend::description() const
+{
+	return d_ptr->description;
+}
+
 QList<QByteArray> NotificationBackend::allTypes()
 {
 	return backendHash()->keys();
@@ -516,6 +522,11 @@ void NotificationBackend::deref(Notification *notification)
 {
 	if (!notification->d_func()->ref.deref())
 		notification->deleteLater();
+}
+
+void NotificationBackend::setDescription(const LocalizedString &description)
+{
+	d_ptr->description = description;
 }
 
 void NotificationBackend::virtual_hook(int id, void *data)
