@@ -30,6 +30,7 @@ namespace oscar {
 struct LIBOSCAR_EXPORT Capability: public QUuid
 {
 public:
+	enum { Size = 16 };
 	Capability();
 	Capability(const QString &str);
 	Capability(const QByteArray &data);
@@ -45,7 +46,7 @@ public:
 	bool isShort() const;
 	bool isEmpty() const { return isNull(); }
 	bool operator==(const QUuid &rhs) const;
-	bool match(const Capability &capability, quint8 len = 17) const;
+	bool match(const Capability &capability, quint8 len = Size) const;
 	QString name() const;
 protected:
 	static const QUuid &shortUuid();
@@ -54,8 +55,8 @@ protected:
 class LIBOSCAR_EXPORT Capabilities: public QList<Capability>
 {
 public:
-	bool match(const Capability &capability, quint8 len = 17) const;
-	const_iterator find(const Capability &capability, quint8 len = 17) const;
+	bool match(const Capability &capability, quint8 len = Capability::Size) const;
+	const_iterator find(const Capability &capability, quint8 len = Capability::Size) const;
 };
 
 class LIBOSCAR_EXPORT StandartCapability : public Capability
