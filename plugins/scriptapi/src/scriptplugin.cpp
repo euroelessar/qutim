@@ -39,22 +39,50 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 	if (message.isIncoming())
 		return MessageHandler::Accept;
 	QLatin1Literal command("/script");
-	const QString text = message.text();
+	QString text = message.text();
 	if (text.size() < command.size() + 2
 	        || !text.startsWith(QLatin1String(command.data()))
 	        || !text.at(command.size()).isSpace()) {
+		static QRegExp regexp("\\[\\[(.*)\\]\\]", Qt::CaseInsensitive);
+		Q_ASSERT(regexp.isValid());
+	    int pos = 0;
+		bool first = true;
+	    while ((pos = regexp.indexIn(text, pos)) != -1) {
+			if (first) {
+				first = false;
+				openContext(message.chatUnit());
+			}
+			QString result = m_engine.evaluate(regexp.cap(1)).toString();
+			debug() << regexp.cap(1) << result;
+			text.replace(pos, regexp.matchedLength(), result);
+	        pos += result.length();
+	    }
+		if (!first) {
+			closeContext();
+			message.setText(text);
+		}
 		return MessageHandler::Accept;
 	}
+	openContext(message.chatUnit());
+	m_engine.evaluate(message.text().mid(command.size() + 1));
+	closeContext();
+	return MessageHandler::Reject;
+}
+
+void ScriptMessageHandler::openContext(ChatUnit *unit)
+{
 	QScriptContext *context = m_engine.pushContext();
 	QScriptValue object = context->activationObject();
-	if (ChatSession *session = ChatLayer::get(message.chatUnit(), false))
+	if (ChatSession *session = ChatLayer::get(unit, false))
 		object.setProperty(QLatin1String("session"), m_engine.newQObject(session));
-	object.setProperty(QLatin1String("unit"), m_engine.newQObject(message.chatUnit()));
-	m_engine.evaluate(message.text().mid(command.size() + 1));
+	object.setProperty(QLatin1String("unit"), m_engine.newQObject(unit));
+}
+
+void ScriptMessageHandler::closeContext()
+{
 	if (m_engine.hasUncaughtException())
 		handleException();
 	m_engine.popContext();
-	return MessageHandler::Reject;
 }
 
 void ScriptMessageHandler::handleException()
