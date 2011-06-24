@@ -140,6 +140,28 @@ enum StatsFamilySubtype // 0x000b
 	StatsMinReportInterval  = 0x0002
 };
 
+enum ChatNavigationFamilySubtype // 0x000d
+{
+	NavigationError     = 0x0001,
+	RequestChatRights   = 0x0002,
+	RequestExchangeInfo = 0x0003,
+	RequestRoomInfo     = 0x0004,
+	RequestMoreRoomInfo = 0x0005,
+	RequestOccupantList = 0x0006,
+	SearchForRoom       = 0x0007,
+	CreateRoom          = 0x0008,
+	NavigationInfo      = 0x0009,
+	GetCurrentUsers     = 0x000a,
+	CurrentUserCount    = 0x000b,
+	EnterRoom           = 0x000c,
+	CreateUser          = 0x000d,
+	UpdateUser          = 0x000e
+};
+
+enum ChatFamily // 0x000e
+{
+};
+
 enum AvatarFamilySubtype // 0x0010
 {
 	AvatarError         = 0x0001,

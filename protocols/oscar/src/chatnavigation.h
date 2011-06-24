@@ -9,16 +9,6 @@ namespace oscar {
 
 class IcqAccount;
 
-enum ChatNavigationSubtype
-{
-	NavigationError = 0x0001,
-	RequestChatRights = 0x0002,
-	RequestExchangeInfo = 0x0003,
-	SearchForRoom = 0x0007,
-	CreateRoom = 0x0008,
-	NavigationInfo = 0x0009
-};
-
 enum CreationPermission
 {
 	// creation of rooms is not allowed in
@@ -78,6 +68,51 @@ struct ExchangeDescription
 	CreationPermission permission;
 	quint16 maxOccupancy;
 	ChatFlags flags;
+};
+
+struct RoomId
+{
+	inline RoomId(quint16 e = 4, quint16 i = 0xffff, const QByteArray &c = QByteArray())
+	    : exchange(e), cookie(c), instance(i) {}
+	
+	operator QByteArray()
+	{
+		DataUnit data;
+		data.append(exchange);
+		data.append<quint8>(cookie);
+		data.append(instance);
+		return data.data();
+	}
+	
+	quint16 exchange;
+	QByteArray cookie;
+	quint16 instance;
+};
+
+template<>
+struct toDataUnitHelper<RoomId>
+{
+	static inline QByteArray toByteArray(const RoomId &room)
+	{
+		DataUnit data;
+		data.append(room.exchange);
+		data.append<quint8>(room.cookie);
+		data.append(room.instance);
+		return data.data();
+	}
+};
+
+template<>
+struct fromDataUnitHelper<RoomId>
+{
+	static inline RoomId fromByteArray(const DataUnit &d)
+	{
+		RoomId room;
+		room.exchange = d.read<quint16>();
+		room.cookie = d.read<QByteArray, quint8>();
+		room.instance = d.read<quint16>();
+		return room;
+	}
 };
 
 class ChatNavigation : public AbstractConnection
