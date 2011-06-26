@@ -50,10 +50,12 @@ public:
 	NotifyEnabler(QObject *parent = 0);
 public slots:
 	void enabledTypesChanged(const EnabledNotificationTypes &enabledTypes);
+	void reloadSettings();
 protected:
     virtual Result filter(qutim_sdk_0_3::NotificationRequest& request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
+	bool m_notificationsInActiveChat;
 };
 
 }

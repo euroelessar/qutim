@@ -56,6 +56,7 @@ protected:
     virtual Result filter(qutim_sdk_0_3::NotificationRequest& request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
+	bool m_notificationsInActiveChat;
 };
 
 }

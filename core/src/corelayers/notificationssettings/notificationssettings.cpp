@@ -18,6 +18,8 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
+#include <qutim/chatunit.h>
+#include <qutim/chatsession.h>
 
 namespace Core {
 
@@ -54,11 +56,36 @@ NotifyEnabler::NotifyEnabler(QObject* parent): QObject(parent)
 void NotifyEnabler::enabledTypesChanged(const EnabledNotificationTypes &enabledTypes)
 {
 	m_enabledTypes = enabledTypes;
+
+	reloadSettings();
+}
+
+void NotifyEnabler::reloadSettings()
+{
+	Config cfg = Config("appearance").group("chat");
+	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
 NotificationFilter::Result NotifyEnabler::filter(NotificationRequest &request)
 {
 	Notification::Type type = request.type();
+
+	// Block notification from an active session, if the notifications are disabled by user.
+	// TODO: maybe we should not block notifications about outgoing messages, they are almost
+	// always from an active session, so essentially the option disables all notification
+	// about the outgoing messages which already could be done via notification types settings.
+	// Do we want two different options that basically do the same thing?
+	// By the way, when (and if) you will do it, don't forget to do the same in mobile notification
+	// settings.
+	if (!m_notificationsInActiveChat) {
+		if (ChatUnit *unit = qobject_cast<ChatUnit*>(request.object())) {
+			if (ChatSession *session = ChatLayer::get(unit, false)) {
+				if (session->isActive())
+					return NotificationFilter::Reject;
+			}
+		}
+	}
+
 	if (type >= 0 && type < m_enabledTypes.size())
 		request.setBackends(m_enabledTypes.at(type));
 

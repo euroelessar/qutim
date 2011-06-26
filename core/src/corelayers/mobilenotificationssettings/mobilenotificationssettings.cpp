@@ -18,6 +18,8 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
+#include <qutim/chatsession.h>
+#include <qutim/chatunit.h>
 
 namespace Core {
 
@@ -69,11 +71,25 @@ void MobileNotifyEnabler::reloadSettings()
 	}
 
 	cfg.endGroup();
+
+	cfg = Config("appearance").group("chat");
+	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
 NotificationFilter::Result MobileNotifyEnabler::filter(NotificationRequest &request)
 {
 	Notification::Type type = request.type();
+
+	// Block notification from an active session, if the notifications are disabled by user.
+	if (!m_notificationsInActiveChat) {
+		if (ChatUnit *unit = qobject_cast<ChatUnit*>(request.object())) {
+			if (ChatSession *session = ChatLayer::get(unit, false)) {
+				if (session->isActive())
+					return NotificationFilter::Reject;
+			}
+		}
+	}
+
 	if (type >= 0 && type < m_enabledTypes.size())
 		request.setBackends(m_enabledTypes.at(type));
 

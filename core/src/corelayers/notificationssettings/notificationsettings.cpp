@@ -82,6 +82,10 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 		lookForWidgetState(box);
 	}
 
+	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications if a chat is active"), this);
+	layout->addWidget(m_notificationInActiveChatBox);
+	lookForWidgetState(m_notificationInActiveChatBox);
+
 	//layout->addSpacerItem(new QSpacerItem(0, 20, QSizePolicy::Preferred, QSizePolicy::Expanding));
 }
 
@@ -119,12 +123,17 @@ void NotificationSettings::updateTypesList()
 
 		m_enabledTypesList[m_currentRow] = backendTypes;
 	}
+
 }
 
 void NotificationSettings::loadImpl()
 {
 	m_enabledTypesList = enabledTypes();
 	onNotificationTypeChanged();
+
+	// Load additional settings
+	Config cfg = Config("appearance").group("chat");
+	m_notificationInActiveChatBox->setChecked(!cfg.value("notificationsInActiveChat", true));
 }
 
 void NotificationSettings::cancelImpl()
@@ -151,6 +160,10 @@ void NotificationSettings::saveImpl()
 	}
 
 	cfg.endGroup();
+
+	cfg = Config("appearance").group("chat");
+	cfg.setValue("notificationsInActiveChat", !m_notificationInActiveChatBox->isChecked());
+
 	emit enabledTypesChanged(m_enabledTypesList);
 }
 

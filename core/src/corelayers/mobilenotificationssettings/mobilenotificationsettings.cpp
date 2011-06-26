@@ -132,6 +132,10 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	layout->addWidget(m_typesWidget);
 	connect(m_typesWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
 			SLOT(onItemChanged(QTreeWidgetItem*,int)));
+
+	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications if a chat is active"), this);
+	layout->addWidget(m_notificationInActiveChatBox);
+	lookForWidgetState(m_notificationInActiveChatBox);
 }
 
 void MobileNotificationSettings::loadImpl()
@@ -150,6 +154,10 @@ void MobileNotificationSettings::loadImpl()
 		cfg.endGroup();
 	}
 	cfg.endGroup();
+
+	// Load additional settings
+	cfg = Config("appearance").group("chat");
+	m_notificationInActiveChatBox->setChecked(!cfg.value("notificationsInActiveChat", true));
 }
 
 void MobileNotificationSettings::cancelImpl()
@@ -173,6 +181,9 @@ void MobileNotificationSettings::saveImpl()
 		cfg.endGroup();
 	}
 	cfg.endGroup();
+
+	cfg = Config("appearance").group("chat");
+	cfg.setValue("notificationsInActiveChat", !m_notificationInActiveChatBox->isChecked());
 }
 
 void MobileNotificationSettings::onItemChanged(QTreeWidgetItem *item, int column)

@@ -47,6 +47,7 @@ private:
 	BoxMap m_boxMap;
 	QTableWidget *m_typesWidget;
 	EnabledNotificationTypes m_enabledTypesList;
+	QCheckBox *m_notificationInActiveChatBox;
 	int m_currentRow;
 };
 

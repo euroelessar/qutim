@@ -64,6 +64,7 @@ private:
 
 	QTreeWidget *m_typesWidget;
 	QList<Backend> m_backends;
+	QCheckBox *m_notificationInActiveChatBox;
 };
 
 } // namespace Core
