@@ -19,9 +19,9 @@
 #include <QCoreApplication>
 #include <QSet>
 #include "message.h"
-#include "notificationslayer.h"
 #include "metacontact.h"
 #include "conference.h"
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {
@@ -107,11 +107,9 @@ void ChatUnit::setChatState(ChatState state)
 	emit chatStateChanged(state,d->chatState);
 	d->chatState = state;
 	if (state == ChatStateComposing) {
-		Message msg;
-		msg.setIncoming(true);
-		msg.setProperty("service", Notification::UserTyping);
-		msg.setProperty("store", false);
-		ChatLayer::get(this,true)->appendMessage(msg);
+		NotificationRequest request(Notification::UserTyping);
+		request.setObject(this);
+		request.send();
 	}
 }
 

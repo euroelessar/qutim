@@ -320,21 +320,12 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
 
-#if 1
-	// TODO: remove that workaround when chat layer will be ported to new notification API
-	QVariant service = msg.property("service");
-	if (service.type() == QVariant::Int) {
-		d_ptr->type = static_cast<Notification::Type>(service.toInt());
-	} else
-#endif
-	{
-		if (qobject_cast<Conference*>(msg.chatUnit())) {
-			d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
-											 Notification::ChatOutgoingMessage;
-		} else {
-			d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
-											 Notification::OutgoingMessage;
-		}
+	if (qobject_cast<Conference*>(msg.chatUnit())) {
+		d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
+										 Notification::ChatOutgoingMessage;
+	} else {
+		d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
+										 Notification::OutgoingMessage;
 	}
 	setProperty("message", qVariantFromValue(msg));
 }
