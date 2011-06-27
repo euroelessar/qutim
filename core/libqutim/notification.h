@@ -47,7 +47,7 @@ public:
 		AppStartup,
 		BlockedMessage,
 		ChatUserJoined,
-		ChatUserLeaved,
+		ChatUserLeft,
 		ChatIncomingMessage,
 		ChatOutgoingMessage,
 		FileTransferCompleted,

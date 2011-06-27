@@ -40,10 +40,14 @@ static QString toString(Notification::Type type)
 		title = QObject::tr("Blocked message from %1");
 		break;
 	case Notification::ChatUserJoined:
+		title = QObject::tr("%1 has joined");
+		break;
 	case Notification::UserOnline:
 		title = QObject::tr("%1 is online");
 		break;
-	case Notification::ChatUserLeaved:
+	case Notification::ChatUserLeft:
+		title = QObject::tr("%1 has left");
+		break;
 	case Notification::UserOffline:
 		title = QObject::tr("%1 is offline");
 		break;
@@ -76,14 +80,14 @@ NotificationFilterImpl::~NotificationFilterImpl()
 
 NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &request)
 {
+	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
-		request.setTitle(toString(request.type()));
+		request.setTitle(toString(request.type()).arg(sender_name));
 		return Accept;
 	}
 
 	if (request.title().isEmpty()) {
-		QString sender_name;
 		if (sender) {
 			sender_name = sender->property("title").toString();
 			if (sender_name.isEmpty())
@@ -110,7 +114,7 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 	case Notification::UserChangedStatus:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
-	case Notification::ChatUserLeaved:
+	case Notification::ChatUserLeft:
 		{
 			NotificationAction action(QObject::tr("Open chat"),
 									  this,

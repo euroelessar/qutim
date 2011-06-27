@@ -328,7 +328,7 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::AppStartup:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
-	case Notification::ChatUserLeaved:
+	case Notification::ChatUserLeft:
 	case Notification::FileTransferCompleted:
 	case Notification::UserOnline:
 	case Notification::UserOffline:

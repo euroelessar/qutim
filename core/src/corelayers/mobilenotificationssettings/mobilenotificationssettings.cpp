@@ -21,6 +21,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/chatunit.h>
 #include <qutim/conference.h>
+#include <QTimer>
 
 namespace Core {
 

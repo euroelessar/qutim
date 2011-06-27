@@ -126,7 +126,7 @@ QString toString(Notification::Type type)
 	case Notification::UserOnline:
 		title = QObject::tr("%1 is online");
 		break;
-	case Notification::ChatUserLeaved:
+	case Notification::ChatUserLeft:
 	case Notification::UserOffline:
 		title = QObject::tr("%1 is offline");
 		break;

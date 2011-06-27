@@ -17,6 +17,7 @@
 #define IRCCHANNEL_H
 
 #include <qutim/conference.h>
+#include <qutim/notification.h>
 #include "ircglobal.h"
 
 namespace qutim_sdk_0_3 {
@@ -71,7 +72,8 @@ private:
 	void handleMode(const QString &who, const QString &mode, const QString &param);
 	void setMode(const QString &who, QChar mode, const QString &param);
 	void removeMode(const QString &who, QChar mode, const QString &param);
-	void addSystemMessage(const QString &message, ChatSession *session = 0);
+	void addSystemMessage(const QString &message, const QString &sender = QString(),
+						  Notification::Type type = Notification::System);
 	void clear(ChatSession *session);
 private:
 	QScopedPointer<IrcChannelPrivate> d;

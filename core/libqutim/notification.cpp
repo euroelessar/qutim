@@ -264,7 +264,7 @@ void NotificationAction::trigger() const
 	QByteArray tmp = QMetaObject::normalizedSignature(name + 1);
 	name = tmp.constData();
 
-	int index;
+	int index = -1;
 	switch (type) {
 	case '0':
 		index = meta->indexOfMethod(name);
