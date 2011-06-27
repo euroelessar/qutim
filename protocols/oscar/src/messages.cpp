@@ -230,7 +230,6 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		handleResponse(conn->account(), sn);
 		break;
 	case MessageFamily << 16 | MessageSrvAck: {
-		sn.skipData(8); // skip cookie.
 		quint16 channel = sn.read<quint16>();
 		QString uin = sn.read<QString, qint8>();
 		debug() << QString("Server accepted message for delivery to %1 on channel %2"). arg(uin).arg(channel);
@@ -238,7 +237,6 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	// Typing notifications
 	case MessageFamily << 16 | MessageMtn: {
-		sn.skipData(8); // skip cookie.
 		quint16 channel = sn.read<quint16>();
 		Q_UNUSED(channel);
 		QString uin = sn.read<QString, qint8>();

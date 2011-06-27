@@ -56,7 +56,6 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ListsFamily << 16 | ListsAuthRequest: {
-		sn.skipData(8); // cookie
 		QString uin = sn.read<QString, quint8>();
 		QString reason = sn.read<QString, qint16>();
 		IcqContact *contact = conn->account()->getContact(uin, true);
@@ -70,7 +69,6 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsSrvAuthResponse: {
-		sn.skipData(8); // cookie
 		QString uin = sn.read<QString, qint8>();
 		bool isAccepted = sn.read<qint8>();
 		QString reason = sn.read<QString, qint16>();

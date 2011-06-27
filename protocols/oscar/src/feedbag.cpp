@@ -871,6 +871,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ListsFamily << 16 | ListsUpdateGroup: // Server sends contact list updates
 	case ListsFamily << 16 | ListsAddToList: // Server sends new items
 	case ListsFamily << 16 | ListsRemoveFromList: { // Items have been removed
+		debug() << Q_FUNC_INFO << sn.data().toHex();
 		while (sn.dataSize() != 0) {
 			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
 			if (itemPrivate) {
@@ -881,7 +882,6 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsAck: {
-		sn.skipData(8); // cookie
 		while (sn.dataSize() != 0) {
 			FeedbagError error(sn);
 			FeedbagQueueItem operation = d->ssiQueue.dequeue();
