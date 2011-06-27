@@ -48,6 +48,7 @@ private:
 	QTableWidget *m_typesWidget;
 	EnabledNotificationTypes m_enabledTypesList;
 	QCheckBox *m_notificationInActiveChatBox;
+	QCheckBox *m_conferenceMessagesBox; // "Ignore conference messages that do not contain my name"
 	int m_currentRow;
 };
 

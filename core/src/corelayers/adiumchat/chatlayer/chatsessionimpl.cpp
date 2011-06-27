@@ -124,10 +124,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
 
-	bool silent = message.property("silent", false);
-
 	if (conf) {
-		silent = true;
 		QString sender = conf->me() ? conf->me()->name() : QString();
 		if (message.text().contains(sender)) {
 			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
@@ -140,7 +137,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		}
 	}
 
-	if (!silent)
+	if (!message.property("silent", false))
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {

@@ -56,6 +56,7 @@ protected:
 private:
 	EnabledNotificationTypes m_enabledTypes;
 	bool m_notificationsInActiveChat;
+	bool m_ignoreConfMsgsWithoutUserNick;
 };
 
 }

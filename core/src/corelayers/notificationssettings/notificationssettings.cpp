@@ -20,6 +20,7 @@
 #include <qutim/config.h>
 #include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
+#include <qutim/conference.h>
 
 namespace Core {
 
@@ -62,7 +63,10 @@ void NotifyEnabler::enabledTypesChanged(const EnabledNotificationTypes &enabledT
 
 void NotifyEnabler::reloadSettings()
 {
-	Config cfg = Config("appearance").group("chat");
+	Config cfg = Config().group("notification");
+	m_ignoreConfMsgsWithoutUserNick = cfg.value("ignoreConfMsgsWithoutUserNick", true);
+
+	cfg = Config("appearance").group("chat");
 	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
@@ -83,6 +87,16 @@ NotificationFilter::Result NotifyEnabler::filter(NotificationRequest &request)
 				if (session->isActive())
 					return NotificationFilter::Reject;
 			}
+		}
+	}
+
+	if (m_ignoreConfMsgsWithoutUserNick) {
+		// Ignore conference messages that do not contain user nick
+		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
+			QString msg = request.text();
+			Buddy *me = conf->me();
+			if (me && !msg.contains(me->name()) && !msg.contains(me->id()))
+				return NotificationFilter::Reject;
 		}
 	}
 

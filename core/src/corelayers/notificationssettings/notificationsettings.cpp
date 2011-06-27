@@ -86,6 +86,10 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 	layout->addWidget(m_notificationInActiveChatBox);
 	lookForWidgetState(m_notificationInActiveChatBox);
 
+	m_conferenceMessagesBox = new QCheckBox(tr("Ignore conference messages that do not contain my name"), this);
+	layout->addWidget(m_conferenceMessagesBox);
+	lookForWidgetState(m_conferenceMessagesBox);
+
 	//layout->addSpacerItem(new QSpacerItem(0, 20, QSizePolicy::Preferred, QSizePolicy::Expanding));
 }
 
@@ -132,7 +136,10 @@ void NotificationSettings::loadImpl()
 	onNotificationTypeChanged();
 
 	// Load additional settings
-	Config cfg = Config("appearance").group("chat");
+	Config cfg = Config().group("notification");
+	m_conferenceMessagesBox->setChecked(cfg.value("ignoreConfMsgsWithoutUserNick", true));
+
+	cfg = Config("appearance").group("chat");
 	m_notificationInActiveChatBox->setChecked(!cfg.value("notificationsInActiveChat", true));
 }
 
@@ -158,6 +165,8 @@ void NotificationSettings::saveImpl()
 		}
 		cfg.endGroup();
 	}
+
+	cfg.setValue("ignoreConfMsgsWithoutUserNick", m_conferenceMessagesBox->isChecked());
 
 	cfg.endGroup();
 

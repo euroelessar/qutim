@@ -136,6 +136,11 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications if a chat is active"), this);
 	layout->addWidget(m_notificationInActiveChatBox);
 	lookForWidgetState(m_notificationInActiveChatBox);
+
+	m_conferenceMessagesBox = new QCheckBox(tr("Ignore conference messages that do not contain my name"), this);
+	layout->addWidget(m_conferenceMessagesBox);
+	lookForWidgetState(m_conferenceMessagesBox);
+
 }
 
 void MobileNotificationSettings::loadImpl()
@@ -153,9 +158,10 @@ void MobileNotificationSettings::loadImpl()
 		}
 		cfg.endGroup();
 	}
-	cfg.endGroup();
 
 	// Load additional settings
+	m_conferenceMessagesBox->setChecked(cfg.value("ignoreConfMsgsWithoutUserNick", true));
+	cfg.endGroup();
 	cfg = Config("appearance").group("chat");
 	m_notificationInActiveChatBox->setChecked(!cfg.value("notificationsInActiveChat", true));
 }
@@ -180,6 +186,9 @@ void MobileNotificationSettings::saveImpl()
 		}
 		cfg.endGroup();
 	}
+
+	cfg.setValue("ignoreConfMsgsWithoutUserNick", m_conferenceMessagesBox->isChecked());
+
 	cfg.endGroup();
 
 	cfg = Config("appearance").group("chat");

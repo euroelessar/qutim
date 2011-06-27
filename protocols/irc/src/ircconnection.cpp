@@ -517,8 +517,6 @@ void IrcConnection::handleTextMessage(const QString &from, const QString &fromHo
 		msg.setChatUnit(channel);
 		msg.setProperty("senderName", from);
 		msg.setProperty("senderId", from);
-		if (!text.contains(m_nick))
-			msg.setProperty("silent", true);
 	}
 	session->appendMessage(msg);
 }

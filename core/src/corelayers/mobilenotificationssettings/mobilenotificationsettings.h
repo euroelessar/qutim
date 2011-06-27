@@ -65,6 +65,8 @@ private:
 	QTreeWidget *m_typesWidget;
 	QList<Backend> m_backends;
 	QCheckBox *m_notificationInActiveChatBox;
+	QCheckBox *m_conferenceMessagesBox; // "Ignore conference messages that do not contain my name"
+
 };
 
 } // namespace Core
