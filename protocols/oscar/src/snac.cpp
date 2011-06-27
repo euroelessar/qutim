@@ -48,6 +48,10 @@ SNAC SNAC::fromByteArray(const QByteArray &d)
 	snac.m_flags = data.read<quint16>();
 	snac.m_id = data.read<quint32>();
 	snac.m_data = data.readAll();
+	if (snac.m_flags == 0x8000) {
+		// Some unknown data
+		snac.skipData(snac.read<quint16>());
+	}
 	return snac;
 }
 

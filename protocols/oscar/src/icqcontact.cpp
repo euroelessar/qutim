@@ -197,6 +197,11 @@ QString IcqContact::avatar() const
 	return d->avatar;
 }
 
+QString IcqContact::proto() const
+{
+	return d_func()->proto;
+}
+
 bool IcqContact::isInList() const
 {
 	Q_D(const IcqContact);

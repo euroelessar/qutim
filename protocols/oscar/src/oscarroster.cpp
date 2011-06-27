@@ -110,6 +110,11 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 		}
 		if (!added)
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
+		// proto
+		QString new_proto = item.field<QString>(SsiBuddyProto);
+		if (!new_proto.isEmpty() && new_proto != contact->d_func()->proto) {
+			contact->d_func()->proto = new_proto;
+		}
 		// name
 		QString new_name = item.field<QString>(SsiBuddyNick);
 		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
@@ -260,6 +265,12 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		// Requesting client-side contactlist rights
 		SNAC snac(BuddyFamily, UserCliReqBuddy);
+		// Unknown rights from ICQ 7.5
+//		snac.appendTLV<quint16>(0x0005, 0x0f);
+//		snac.appendTLV(0x0006, QByteArray::fromHex("000000"));
+//		snac.appendTLV<quint8>(0x0007, 0x00);
+		// Request facebook contacts
+		snac.appendTLV<quint8>(0x0008, 1);
 		// Query flags: 1 = Enable Avatars
 		//              2 = Enable offline status message notification
 		//              4 = Enable Avatars for offline contacts
