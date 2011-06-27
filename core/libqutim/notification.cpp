@@ -20,6 +20,7 @@
 #include "chatunit.h"
 #include "chatsession.h"
 #include "metaobjectbuilder.h"
+#include "conference.h"
 #include <QMetaEnum>
 #include <QMetaMethod>
 #include <QMultiMap>
@@ -327,7 +328,7 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 	} else
 #endif
 	{
-		if (ChatLayer::get(msg.chatUnit(), false)) {
+		if (qobject_cast<Conference*>(msg.chatUnit())) {
 			d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
 											 Notification::ChatOutgoingMessage;
 		} else {
