@@ -67,8 +67,10 @@ public:
 	static LocalizedStringList typeStrings();
 public slots:
 	void accept();
+	void ignore();
 signals:
 	void accepted();
+	void ignored();
 protected:
 	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
@@ -80,6 +82,13 @@ typedef QList<Notification*> NotificationList;
 class LIBQUTIM_EXPORT NotificationAction
 {
 public:
+	enum Type
+	{
+		AcceptButton,
+		IgnoreButton,
+		AdditionalButton
+	};
+
 	NotificationAction();
 	NotificationAction(const QIcon &icon, const LocalizedString &title,
 					   QObject *receiver, const char *method);
@@ -90,6 +99,8 @@ public:
 	const NotificationAction &operator=(const NotificationAction &rhs);
 	QIcon icon() const;
 	LocalizedString title() const;
+	Type type() const;
+	void setType(Type type);
 	QObject *receiver() const;
 	const char *method() const;
 	void trigger() const;
@@ -166,10 +177,8 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 };
 
-class LIBQUTIM_EXPORT NotificationBackend : public QObject
+class LIBQUTIM_EXPORT NotificationBackend
 {
-	Q_OBJECT
-	Q_CLASSINFO("Type", "NoType")
 	Q_DECLARE_PRIVATE(NotificationBackend)
 public:
 	NotificationBackend(const QByteArray &type);
@@ -196,5 +205,6 @@ Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationAction)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationBackend, "org.qutim.core.NotificationBackend")
 
 #endif // NOTIFICATION_H

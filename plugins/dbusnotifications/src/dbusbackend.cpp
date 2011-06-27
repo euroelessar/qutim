@@ -195,9 +195,9 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 inline void DBusBackend::ignore(NotificationData &data)
 {
 	Q_UNUSED(data);
-	/*foreach (const QPointer<Notification> &notification, data.notifications)
+	foreach (const QPointer<Notification> &notification, data.notifications)
 		if (notification)
-			notification->ignore();*/
+			notification->ignore();
 }
 
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)

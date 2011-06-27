@@ -12,10 +12,11 @@
 QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
 const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
 
-class DBusBackend : public qutim_sdk_0_3::NotificationBackend
+class DBusBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
+	Q_INTERFACES(qutim_sdk_0_3::NotificationBackend)
 public:
 	DBusBackend();
 	virtual ~DBusBackend();

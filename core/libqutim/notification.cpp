@@ -43,8 +43,19 @@ Q_GLOBAL_STATIC(HandlerMap, handlers)
 class NotificationPrivate
 {
 public:
+	enum State
+	{
+		Active,
+		Accepted,
+		Ignored
+	};
+
+	NotificationPrivate() :
+		state(Active)
+	{}
 	NotificationRequest request;
 	QAtomicInt ref;
+	State state;
 };
 
 class NotificationRequestPrivate : public DynamicPropertyData
@@ -66,11 +77,15 @@ public:
 class NotificationActionPrivate : public QSharedData
 {
 public:
+	NotificationActionPrivate() :
+		type(NotificationAction::AdditionalButton)
+	{}
 	QIcon icon;
 	LocalizedString title;
 	QPointer<QObject> receiver;
 	QByteArray method;
 	QPointer<Notification> notification;
+	NotificationAction::Type type;
 };
 
 class NotificationBackendPrivate
@@ -118,9 +133,28 @@ NotificationRequest Notification::request() const
 
 void Notification::accept()
 {
-	debug() << "Accepted";
+	Q_D(Notification);
+	if (d->state != NotificationPrivate::Active)
+		return;
+	d->state = NotificationPrivate::Accepted;
+	foreach (const NotificationAction &action, d->request.actions()) {
+		if (action.type() == NotificationAction::AcceptButton)
+			action.trigger();
+	}
 	emit accepted();
-	//deleteLater(); //TODO
+}
+
+void Notification::ignore()
+{
+	Q_D(Notification);
+	if (d->state != NotificationPrivate::Active)
+		return;
+	d->state = NotificationPrivate::Ignored;
+	foreach (const NotificationAction &action, d->request.actions()) {
+		if (action.type() == NotificationAction::IgnoreButton)
+			action.trigger();
+	}
+	emit ignored();
 }
 
 LocalizedStringList Notification::typeStrings()
@@ -199,6 +233,16 @@ LocalizedString NotificationAction::title() const
 	return d->title;
 }
 
+NotificationAction::Type NotificationAction::type() const
+{
+	return d->type;
+}
+
+void NotificationAction::setType(NotificationAction::Type type)
+{
+	d->type = type;
+}
+
 QObject *NotificationAction::receiver() const
 {
 	return d->receiver;
@@ -241,6 +285,11 @@ void NotificationAction::trigger() const
 	} else {
 		warning() << "An invalid action has been triggered" << name;
 	}
+
+	if (d->type == AcceptButton)
+		d->notification->accept();
+	else if (d->type == IgnoreButton)
+		d->notification->ignore();
 }
 
 namespace CompiledProperty

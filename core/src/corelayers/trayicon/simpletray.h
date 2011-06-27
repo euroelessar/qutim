@@ -29,6 +29,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/notification.h>
 #include <QSystemTrayIcon>
 #include <QBasicTimer>
 #include <QPixmap>
@@ -49,7 +50,7 @@ public slots:
 	void onStatusChanged(qutim_sdk_0_3::Status status);
 };
 
-class SimpleTray : public MenuController
+class SimpleTray : public MenuController, public NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "TrayIcon")
@@ -70,12 +71,15 @@ private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
+	void onNotificationAcceptedOrCanceled();
 
 protected:
+	virtual void handleNotification(Notification *notification);
 	virtual void timerEvent(QTimerEvent *);
 	QIcon unreadIcon();
 
 private:
+	QIcon getIconForNotification(Notification *notification);
 	void generateIconSizes(const QIcon &backing, QIcon &icon, int number);
 
 	qint64 activationStateChangedTime;
@@ -91,8 +95,9 @@ private:
 	QIcon m_generatedIcon;
 	QBasicTimer m_iconTimer;
 	QIcon m_mailIcon;
-	bool m_isMail;
+	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
+	QList<Notification*> m_notifications;
 };
 }
 

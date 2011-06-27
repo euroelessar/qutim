@@ -28,6 +28,9 @@
 #include <qutim/extensioninfo.h>
 #include "qutim/metaobjectbuilder.h"
 #include <qutim/servicemanager.h>
+#include <qutim/debug.h>
+#include <qutim/settingslayer.h>
+#include <qutim/utils.h>
 #include <QApplication>
 #include <QWidgetAction>
 #include <QToolButton>
@@ -35,8 +38,6 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QString>
-#include <qutim/debug.h>
-#include <qutim/settingslayer.h>
 
 namespace Core
 {
@@ -131,14 +132,15 @@ public:
 };
 #endif
 
-SimpleTray::SimpleTray()
+SimpleTray::SimpleTray() :
+	NotificationBackend("Tray")
 {
 	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
 		qDebug() << "No System Tray Available. Tray icon not loaded.";
 		return;
 	}
 	m_activeAccount = 0;
-	m_isMail = false;
+	m_showGeneratedIcon = false;
 	m_icon = new QSystemTrayIcon(this);
 	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
 	m_icon->show();
@@ -198,7 +200,7 @@ void SimpleTray::clActivationStateChanged(bool activated)
 void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 {
 	if (reason == QSystemTrayIcon::Trigger) {
-		if (m_sessions.isEmpty()) {
+		if (m_notifications.isEmpty()) {
 			if (QObject *obj = ServiceManager::getByName("ContactList")) {
 #ifdef Q_WS_WIN
 				if (QDateTime::currentMSecsSinceEpoch() - activationStateChangedTime < 200) { // tested - enough
@@ -209,7 +211,7 @@ void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 				obj->metaObject()->invokeMethod(obj, "changeVisibility");
 			}
 		} else {
-			m_sessions.first()->activate();
+			m_notifications.first()->accept();
 		}
 	}
 }
@@ -278,9 +280,7 @@ void SimpleTray::generateIconSizes(const QIcon &backing, QIcon &icon, int number
 
 void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 {
-	Config cfg(traySettingsFilename);
-	ChatSession *session = static_cast<ChatSession*>(sender());
-	Q_ASSERT(session != NULL);
+	ChatSession *session = sender_cast<ChatSession*>(sender());
 
 	MessageList::iterator itr = unread.begin();
 	while (itr != unread.end()) {
@@ -290,31 +290,84 @@ void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 			++itr;
 	}
 
-	//bool empty = m_sessions.isEmpty();
-	if (unread.isEmpty()) {
+	if (unread.isEmpty())
 		m_sessions.removeOne(session);
-	} else if (!m_sessions.contains(session))// {
+	else if (!m_sessions.contains(session))
 		m_sessions.append(session);
-	/*} else {
-   return;
-  }
-  if (empty == m_sessions.isEmpty())
-   return;*/
+}
 
-	if (m_sessions.isEmpty()) {
+void SimpleTray::onNotificationAcceptedOrCanceled()
+{
+	Notification *notif = sender_cast<Notification*>(sender());
+	m_notifications.removeOne(notif);
+	deref(notif);
+
+	if (m_notifications.isEmpty()) {
 		if (m_iconTimer.isActive())
 			m_iconTimer.stop();
 		m_icon->setIcon(m_currentIcon);
-		m_isMail = false;
+		m_showGeneratedIcon = false;
 	} else {
-		if (!m_iconTimer.isActive() && cfg.value("blink", true) && cfg.value("showIcon", true))
-			m_iconTimer.start(500, this);
+		Config cfg(traySettingsFilename);
 		if (cfg.value("showIcon", true)) {
-			m_generatedIcon = unreadIcon();
+			m_generatedIcon = getIconForNotification(m_notifications.first());
 			m_icon->setIcon(m_generatedIcon);
-			m_isMail = true;
+			m_showGeneratedIcon = true;
 		}
 	}
+}
+
+QIcon SimpleTray::getIconForNotification(Notification *notification)
+{
+	switch (notification->request().type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+			return unreadIcon();
+	case Notification::AppStartup:
+	case Notification::BlockedMessage:
+	case Notification::ChatUserJoined:
+	case Notification::ChatUserLeaved:
+	case Notification::FileTransferCompleted:
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+	case Notification::UserTyping:
+	case Notification::System:
+			return Icon("dialog-information");
+	}
+	return QIcon();
+}
+
+void SimpleTray::handleNotification(Notification *notification)
+{
+	// Skip the notification if we already have a notification with the same object.
+	// We don't want users to frantically click the tray a dozen times just to make it
+	// not blink, right?
+	QObject *obj = notification->request().object();
+	foreach (Notification *notif, m_notifications) {
+		if (obj == notif->request().object())
+			return;
+	}
+
+	Config cfg(traySettingsFilename);
+
+	ref(notification);
+	m_notifications << notification;
+
+	if (!m_iconTimer.isActive() && cfg.value("blink", true) && cfg.value("showIcon", true))
+		m_iconTimer.start(500, this);
+	if (cfg.value("showIcon", true)) {
+		m_generatedIcon = getIconForNotification(notification);
+		m_icon->setIcon(m_generatedIcon);
+		m_showGeneratedIcon = true;
+	}
+
+	connect(notification, SIGNAL(accepted()),
+			SLOT(onNotificationAcceptedOrCanceled()));
+	connect(notification, SIGNAL(ignored()),
+			SLOT(onNotificationAcceptedOrCanceled()));
 }
 
 void SimpleTray::timerEvent(QTimerEvent *timer)
@@ -322,8 +375,8 @@ void SimpleTray::timerEvent(QTimerEvent *timer)
 	if (timer->timerId() != m_iconTimer.timerId()) {
 		QObject::timerEvent(timer);
 	} else {
-		m_icon->setIcon(m_isMail ? m_generatedIcon : m_currentIcon);
-		m_isMail = !m_isMail;
+		m_icon->setIcon(m_showGeneratedIcon ? m_generatedIcon : m_currentIcon);
+		m_showGeneratedIcon = !m_showGeneratedIcon;
 	}
 }
 
@@ -388,7 +441,7 @@ void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
 		if (account->status().type() != Status::Offline)
 			m_activeAccount = account;
 		m_currentIcon = iconForStatus(account->status());
-		if (!m_isMail)
+		if (!m_showGeneratedIcon)
 			m_icon->setIcon(m_currentIcon);
 	}
 	validateProtocolActions();
@@ -413,7 +466,7 @@ void SimpleTray::onStatusChanged(const qutim_sdk_0_3::Status &status)
 			}
 		}
 	}
-	if (!m_isMail)
+	if (!m_showGeneratedIcon)
 		m_icon->setIcon(m_currentIcon);
 }
 
