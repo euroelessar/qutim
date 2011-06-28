@@ -28,6 +28,8 @@ namespace Core {
 
 typedef QList<QSet<QByteArray> > EnabledNotificationTypes;
 
+QString notificationTypeName(qutim_sdk_0_3::Notification::Type type);
+
 class NotificationSettings : public qutim_sdk_0_3::SettingsWidget
 {
     Q_OBJECT

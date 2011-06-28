@@ -204,6 +204,7 @@ private:
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationAction)
+Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationBackend*)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationBackend, "org.qutim.core.NotificationBackend")
 

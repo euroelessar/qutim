@@ -29,7 +29,7 @@ namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-static QString notificationTypeName(Notification::Type type)
+QString notificationTypeName(Notification::Type type)
 {
 	QStringList names;
 	if (names.isEmpty()) {

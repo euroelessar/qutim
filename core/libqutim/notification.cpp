@@ -21,9 +21,11 @@
 #include "chatsession.h"
 #include "metaobjectbuilder.h"
 #include "conference.h"
+#include "event.h"
 #include <QMetaEnum>
 #include <QMetaMethod>
 #include <QMultiMap>
+#include <QApplication>
 
 namespace qutim_sdk_0_3 {
 
@@ -522,11 +524,27 @@ NotificationBackend::NotificationBackend(const QByteArray &type) :
 	Q_ASSERT(!type.isEmpty());
 	d_ptr->type = type;
 	backendHash()->insert(d_ptr->type, this);
+
+	if (qApp) {
+		static quint16 eventType = Event::registerType("notification-backend-registered");
+		Event event(eventType);
+		event.args[0] = type;
+		event.args[1] = qVariantFromValue(this);
+		event.send();
+	}
 }
 
 NotificationBackend::~NotificationBackend()
 {
 	backendHash()->remove(d_ptr->type);
+
+	if (qApp) {
+		static quint16 eventType = Event::registerType("notification-backend-removed");
+		Event event(eventType);
+		event.args[0] = d_ptr->type;
+		event.args[1] = qVariantFromValue(this);
+		event.send();
+	}
 }
 
 QByteArray NotificationBackend::backendType() const
