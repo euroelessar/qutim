@@ -215,8 +215,9 @@ void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 		if (reason == 2)
 			ignore(*itr);
 		m_ids.remove(itr->sender);
-		foreach (QPointer<Notification> notification, itr->notifications)
-			deref(notification.data());
+		foreach (const QPointer<Notification> &notification, itr->notifications)
+			if (notification)
+				deref(notification.data());
 		m_notifications.erase(itr);
 	}
 }
