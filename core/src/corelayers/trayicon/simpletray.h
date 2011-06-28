@@ -92,7 +92,7 @@ private:
 	QList<Account*> m_accounts;
 	Account *m_activeAccount;
 	QList<Protocol*> m_protocols;
-	QList<ChatSession*> m_sessions;
+	QHash<ChatSession*, quint64> m_sessions;
 	QIcon m_currentIcon;
 	QIcon m_generatedIcon;
 	QBasicTimer m_iconTimer;

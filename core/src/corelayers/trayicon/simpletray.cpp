@@ -250,13 +250,11 @@ QIcon SimpleTray::unreadIcon()
 	case SimpletraySettings::CounterDontShow:
 		return m_mailIcon;
 	case SimpletraySettings::CounterShowMessages:
-		foreach (ChatSession *s, m_sessions)
-			number += s->unread().size();
+		foreach (quint64 c, m_sessions)
+			number += c;
 		break;		
 	case SimpletraySettings::CounterShowSessions:
-		foreach (ChatSession *s, m_sessions)
-			if (!s->unread().empty())
-				number++;
+		number = m_sessions.count();
 		break;
 	}
 
@@ -289,9 +287,9 @@ void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 	}
 
 	if (unread.isEmpty())
-		m_sessions.removeOne(session);
-	else if (!m_sessions.contains(session))
-		m_sessions.append(session);
+		m_sessions.remove(session);
+	else
+		m_sessions.insert(session, unread.count());
 }
 
 void SimpleTray::onNotificationAcceptedOrCanceled()
