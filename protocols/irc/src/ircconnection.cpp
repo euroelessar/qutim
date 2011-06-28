@@ -30,7 +30,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/passworddialog.h>
 
 namespace qutim_sdk_0_3 {

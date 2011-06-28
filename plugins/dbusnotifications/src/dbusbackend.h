@@ -1,7 +1,8 @@
 #ifndef GROWLBACKEND_H
 #define GROWLBACKEND_H
 
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
+#include <qutim/sound.h>
 #include "org_freedesktop_notification.h"
 
 #ifdef Q_WS_MAEMO_5

@@ -20,7 +20,7 @@
 #include <qutim/configbase.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/thememanager.h>
 #include <QWebFrame>
 #include <QLabel>

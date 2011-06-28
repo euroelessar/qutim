@@ -21,7 +21,7 @@
 #include "metainfo/infometarequest.h"
 #include "inforequest_p.h"
 #include "qutim/messagesession.h"
-#include "qutim/notificationslayer.h"
+#include "qutim/notification.h"
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
 #include <QApplication>

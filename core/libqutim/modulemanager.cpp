@@ -18,7 +18,7 @@
 #include "plugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
-#include "notificationslayer.h"
+#include "notification.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
 #include "metaobjectbuilder.h"

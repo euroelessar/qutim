@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "notification.h"
-#include "notificationslayer_p.h"
+#include "sound_p.h"
 #include "dynamicpropertydata_p.h"
 #include "message.h"
 #include "chatunit.h"

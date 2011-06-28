@@ -1,6 +1,6 @@
 #include "soundthemeselector.h"
 #include "ui_soundthemeselector.h"
-#include <qutim/notificationslayer.h>
+#include <qutim/sound.h>
 #include <QStandardItemModel>
 #include <qutim/localizedstring.h>
 #include <qutim/icon.h>

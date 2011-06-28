@@ -36,7 +36,7 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>

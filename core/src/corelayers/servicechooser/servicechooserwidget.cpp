@@ -26,7 +26,7 @@
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <qutim/configbase.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/servicemanager.h>
 
 namespace Core

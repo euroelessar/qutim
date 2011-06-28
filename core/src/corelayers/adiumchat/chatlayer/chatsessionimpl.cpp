@@ -23,7 +23,7 @@
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
 #include <qutim/account.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/conference.h>
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>

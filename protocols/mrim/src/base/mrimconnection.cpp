@@ -21,7 +21,7 @@
 #include <QMap>
 #include <QApplication>
 
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 
 #include "proto.h"
 #include "utils.h"

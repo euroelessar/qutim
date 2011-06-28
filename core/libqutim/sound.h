@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer.h
+ *  sound.h
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *  and Nigmatullin Ruslan <euroelessar@gmail.com>
@@ -26,20 +26,6 @@
 namespace qutim_sdk_0_3
 {
 class Message;
-struct NotificationsLayerPrivate;
-
-namespace Notifications
-{
-//TODO Rewrite
-//note: title is set on type and sender, customTitle override this
-
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(Notification::Type type, QObject *sender,
-						  const QString &body = QString(),
-						  const QVariant &data = QVariant());
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const Message &message);
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notification::Type type);
-}
 
 class LIBQUTIM_EXPORT SoundBackend : public QObject
 {

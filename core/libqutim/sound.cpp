@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer.h
+ *  sound.cpp
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *  and Nigmatullin Ruslan <euroelessar@gmail.com>
@@ -14,7 +14,7 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "notificationslayer.h"
+#include "sound_p.h"
 #include "libqutim_global.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
@@ -22,7 +22,6 @@
 #include "message.h"
 #include "configbase.h"
 #include <QFileInfo>
-#include "notificationslayer_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -70,83 +69,6 @@ inline void ensure_notifications_private()
 {
 	if (!p)
 		ensure_notifications_private_helper();
-}
-
-namespace Notifications
-{
-
-void send(Notification::Type type, QObject *sender,
-		  const QString &body, const QVariant &data)
-{
-	ensure_notifications_private();
-	//new backends
-	Notification *notification = 0;
-	if (data.canConvert<Message>()) {
-		notification = Notification::send(data.value<Message>());
-	} else {
-		NotificationRequest request(type);
-		request.setObject(sender);
-		request.setText(body);
-		notification = request.send();
-	}	
-}
-
-
-void send(const QString &body, const QVariant &data)
-{
-	Notification::send(body);
-	Q_UNUSED(data);
-}
-
-
-void send(const Message &message)
-{
-	Notification::send(message);
-}
-
-QString toString(Notification::Type type)
-{
-	QString title;
-	switch(type) {
-	case Notification::IncomingMessage:
-	case Notification::ChatIncomingMessage:
-		title = QObject::tr("Message from %1:");
-		break;
-	case Notification::OutgoingMessage:
-	case Notification::ChatOutgoingMessage:
-		title = QObject::tr("Message to %1:");
-		break;
-	case Notification::AppStartup:
-		title = QObject::tr("qutIM launched");
-		break;
-	case Notification::BlockedMessage:
-		title = QObject::tr("Blocked message from %1");
-		break;
-	case Notification::ChatUserJoined:
-	case Notification::UserOnline:
-		title = QObject::tr("%1 is online");
-		break;
-	case Notification::ChatUserLeft:
-	case Notification::UserOffline:
-		title = QObject::tr("%1 is offline");
-		break;
-	case Notification::UserChangedStatus:
-		title = QObject::tr("%1 changed status");
-		break;
-	case Notification::UserHasBirthday:
-		title = QObject::tr("%1 has birthday today!!");
-		break;
-	case Notification::UserTyping:
-		title = QObject::tr("%1 is typing");
-		break;
-	case Notification::FileTransferCompleted:
-	case Notification::System:
-	default:
-		title = QObject::tr("System notify");
-	}
-	return title;
-}
-
 }
 
 class SoundThemeData : public QSharedData

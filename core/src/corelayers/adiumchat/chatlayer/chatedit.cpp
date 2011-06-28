@@ -3,7 +3,7 @@
 #include <QDateTime>
 #include <QTextBlock>
 #include <QTextDocumentFragment>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/debug.h>
 #include <qutim/messagehandler.h>
 #include <QMetaProperty>

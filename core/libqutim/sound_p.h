@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer_p.h
+ *  sound_p.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -15,7 +15,8 @@
 
 #ifndef NOTIFICATIONSLAYER_P_H
 #define NOTIFICATIONSLAYER_P_H
-#include "notification.h"
+
+#include "sound.h"
 
 namespace qutim_sdk_0_3 {
 

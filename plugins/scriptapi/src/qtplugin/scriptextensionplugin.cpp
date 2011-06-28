@@ -35,7 +35,7 @@
 #include <qutim/account.h>
 #include <qutim/contact.h>
 #include <qutim/conference.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/settingslayer.h>
 #include <qutim/chatsession.h>
 #include <qutim/icon.h>

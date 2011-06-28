@@ -3,7 +3,7 @@
 #include "icqaccount.h"
 #include "connection.h"
 #include <qutim/authorizationdialog.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/servicemanager.h>
 
