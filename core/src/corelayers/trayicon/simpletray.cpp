@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "simpletray.h"
-#include "simpletraysettings.h"
 #include <qutim/extensioninfo.h>
 #include "qutim/metaobjectbuilder.h"
 #include <qutim/servicemanager.h>
@@ -184,6 +183,8 @@ SimpleTray::SimpleTray() :
 				Settings::Plugin, Icon("user-desktop"),
 				QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
 	Settings::registerItem(m_settingsItem);
+	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+	reloadSettings();
 }
 
 SimpleTray::~SimpleTray()
@@ -243,12 +244,9 @@ static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int n
 QIcon SimpleTray::unreadIcon()
 {
 	int number = 0;
-	Config cfg(traySettingsFilename);
-	SimpletraySettings::Option option = cfg.value("showNumber",
-												  SimpletraySettings::CounterDontShow);
 
-	switch (option) {
-	default :
+	switch (m_showNumber) {
+	default:
 	case SimpletraySettings::CounterDontShow:
 		return m_mailIcon;
 	case SimpletraySettings::CounterShowMessages:
@@ -307,14 +305,19 @@ void SimpleTray::onNotificationAcceptedOrCanceled()
 			m_iconTimer.stop();
 		m_icon->setIcon(m_currentIcon);
 		m_showGeneratedIcon = false;
-	} else {
-		Config cfg(traySettingsFilename);
-		if (cfg.value("showIcon", true)) {
-			m_generatedIcon = getIconForNotification(m_notifications.first());
-			m_icon->setIcon(m_generatedIcon);
-			m_showGeneratedIcon = true;
-		}
+	} else if (m_showIcon) {
+		m_generatedIcon = getIconForNotification(m_notifications.first());
+		m_icon->setIcon(m_generatedIcon);
+		m_showGeneratedIcon = true;
 	}
+}
+
+void SimpleTray::reloadSettings()
+{
+	Config cfg(traySettingsFilename);
+	m_showNumber = cfg.value("showNumber", SimpletraySettings::CounterDontShow);
+	m_blink = cfg.value("blink", true);
+	m_showIcon = cfg.value("showIcon", true);
 }
 
 QIcon SimpleTray::getIconForNotification(Notification *notification)
@@ -351,14 +354,12 @@ void SimpleTray::handleNotification(Notification *notification)
 			return;
 	}
 
-	Config cfg(traySettingsFilename);
-
 	ref(notification);
 	m_notifications << notification;
 
-	if (!m_iconTimer.isActive() && cfg.value("blink", true) && cfg.value("showIcon", true))
+	if (!m_iconTimer.isActive() && m_blink && m_showIcon)
 		m_iconTimer.start(500, this);
-	if (cfg.value("showIcon", true)) {
+	if (m_showIcon) {
 		m_generatedIcon = getIconForNotification(notification);
 		m_icon->setIcon(m_generatedIcon);
 		m_showGeneratedIcon = true;

@@ -26,6 +26,7 @@
 #ifndef SIMPLETRAY_H
 #define SIMPLETRAY_H
 
+#include "simpletraysettings.h"
 #include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
@@ -72,6 +73,7 @@ private slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
 	void onNotificationAcceptedOrCanceled();
+	void reloadSettings();
 
 protected:
 	virtual void handleNotification(Notification *notification);
@@ -98,6 +100,10 @@ private:
 	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
 	QList<Notification*> m_notifications;
+	// Settings
+	SimpletraySettings::Option m_showNumber;
+	bool m_blink;
+	bool m_showIcon;
 };
 }
 
