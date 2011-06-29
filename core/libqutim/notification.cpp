@@ -75,6 +75,7 @@ public:
 	Notification::Type type;
 	QList<NotificationAction> actions;
 	QSet<QByteArray> enabledBackends;
+	QSet<QByteArray> rejectionReasons;
 };
 
 class NotificationActionPrivate : public QSharedData
@@ -96,6 +97,7 @@ class NotificationBackendPrivate
 public:
 	QByteArray type;
 	LocalizedString description;
+	QSet<QByteArray> allowedRejectedNotifications;
 };
 
 Notification *Notification::send(const Message &msg)
@@ -406,6 +408,16 @@ Notification::Type NotificationRequest::type() const
 	return d_ptr->type;
 }
 
+void NotificationRequest::reject(const QByteArray &reason)
+{
+	d_ptr->rejectionReasons.insert(reason);
+}
+
+QSet<QByteArray> NotificationRequest::rejectionReasons() const
+{
+	return d_ptr->rejectionReasons;
+}
+
 void NotificationRequest::setBackends(const QSet<QByteArray> &backendTypes)
 {
 	d_ptr->enabledBackends = backendTypes;
@@ -475,21 +487,33 @@ Notification *NotificationRequest::send()
 	HandlerMap::iterator begin = handlers()->begin();
 	while (itr != begin) {
 		--itr;
-		NotificationFilter::Result res = (*itr)->filter(*this);
-		if (res  == NotificationFilter::Error || res  == NotificationFilter::Reject)
-			return 0;
+		(*itr)->filter(*this);
 	}
 
-	Notification *notification = new Notification(*this);
-	notification->d_func()->ref.ref();
-	foreach (NotificationFilter *filter, *handlers())
-		filter->notificationCreated(notification);
+	Notification *notification = 0;
 	foreach (NotificationBackend *backend, *backendHash()) {
+		// Check that the notification has not been blocked for the backend
 		QByteArray typeName = backend->backendType();
-		if (!isBackendBlocked(d_ptr->type, typeName) && !isBackendBlocked(typeName))
-			backend->handleNotification(notification);
+		if (isBackendBlocked(d_ptr->type, typeName) || isBackendBlocked(typeName))
+			continue;
+
+		// Check that the notifications has not been rejected
+		QSet<QByteArray> allowed = backend->d_ptr->allowedRejectedNotifications;
+		QSet<QByteArray> rejectionReasons = d_ptr->rejectionReasons - allowed;
+		if (!rejectionReasons.isEmpty())
+			continue;
+
+		if (!notification) {
+			notification = new Notification(*this);
+			notification->d_func()->ref.ref();
+			foreach (NotificationFilter *filter, *handlers())
+				filter->notificationCreated(notification);
+		}
+
+		backend->handleNotification(notification);
 	}
-	notification->d_func()->ref.deref();
+	if (notification)
+		notification->d_func()->ref.deref();
 	//TODO ref and deref impl
 	return notification;
 }
@@ -598,6 +622,11 @@ void NotificationBackend::deref(Notification *notification)
 void NotificationBackend::setDescription(const LocalizedString &description)
 {
 	d_ptr->description = description;
+}
+
+void NotificationBackend::allowRejectedNotifications(const QByteArray &reason)
+{
+	d_ptr->allowedRejectedNotifications.insert(reason);
 }
 
 void NotificationBackend::virtual_hook(int id, void *data)

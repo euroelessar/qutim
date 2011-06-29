@@ -81,7 +81,7 @@ void MobileNotifyEnabler::reloadSettings()
 	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
-NotificationFilter::Result MobileNotifyEnabler::filter(NotificationRequest &request)
+void MobileNotifyEnabler::filter(NotificationRequest &request)
 {
 	Notification::Type type = request.type();
 
@@ -90,25 +90,28 @@ NotificationFilter::Result MobileNotifyEnabler::filter(NotificationRequest &requ
 		if (ChatUnit *unit = qobject_cast<ChatUnit*>(request.object())) {
 			if (ChatSession *session = ChatLayer::get(unit, false)) {
 				if (session->isActive())
-					return NotificationFilter::Reject;
+					request.reject("sessionIsActive");
 			}
 		}
 	}
 
-	if (m_ignoreConfMsgsWithoutUserNick) {
+	if (m_ignoreConfMsgsWithoutUserNick &&
+		type == Notification::IncomingMessage ||
+		type == Notification::OutgoingMessage ||
+		type == Notification::ChatIncomingMessage ||
+		type == Notification::ChatOutgoingMessage)
+	{
 		// Ignore conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
 			QString msg = request.text();
 			Buddy *me = conf->me();
 			if (me && !msg.contains(me->name()) && !msg.contains(me->id()))
-				return NotificationFilter::Reject;
+				request.reject("confMessageWithoutUserNick");
 		}
 	}
 
 	if (type >= 0 && type < m_enabledTypes.size())
 		request.setBackends(m_enabledTypes.at(type));
-
-	return NotificationFilter::Accept;
 }
 
 bool MobileNotifyEnabler::eventFilter(QObject *obj, QEvent *ev)

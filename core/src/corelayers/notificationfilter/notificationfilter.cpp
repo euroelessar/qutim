@@ -111,13 +111,13 @@ NotificationFilterImpl::~NotificationFilterImpl()
 	unregisterFilter(this);
 }
 
-NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &request)
+void NotificationFilterImpl::filter(NotificationRequest &request)
 {
 	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
 		request.setTitle(toString(request.type()).arg(sender_name));
-		return Accept;
+		return;
 	}
 
 	if (request.title().isEmpty()) {
@@ -166,7 +166,6 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 	default:
 		break;
 	}
-	return Accept;
 }
 
 void NotificationFilterImpl::notificationCreated(Notification *notification)

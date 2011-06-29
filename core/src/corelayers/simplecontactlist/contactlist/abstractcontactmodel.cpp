@@ -114,6 +114,8 @@ QList<QList<Notification*> > NotificationsQueue::all()
 AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
 	QAbstractItemModel(parent), NotificationBackend("ContactList"), d_ptr(d)
 {
+	allowRejectedNotifications("confMessageWithoutUserNick");
+
 	d->showNotificationIcon = false;
 	Event::eventManager()->installEventFilter(this);
 
@@ -283,7 +285,8 @@ void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
 void AbstractContactModel::handleNotification(Notification *notification)
 {
 	Q_D(AbstractContactModel);
-	Contact *contact = getRealUnit(notification->request().object());
+	NotificationRequest request = notification->request();
+	Contact *contact = getRealUnit(request.object());
 	if (!contact)
 		return;
 

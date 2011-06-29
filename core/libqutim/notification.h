@@ -131,6 +131,8 @@ public:
 	QString text() const;
 	void setType(Notification::Type type);
 	Notification::Type type() const;
+	void reject(const QByteArray &reason);
+	QSet<QByteArray> rejectionReasons() const;
 	void setBackends(const QSet<QByteArray> &backendTypes);
 	void blockBackend(const QByteArray &backendType);
 	void unblockBackend(const QByteArray &backendType);
@@ -154,12 +156,6 @@ private:
 class LIBQUTIM_EXPORT NotificationFilter
 {
 public:
-	enum Result
-	{
-		Accept,
-		Reject,
-		Error
-	};
 	enum Priority
 	{
 		LowPriority       = 0x00000100,
@@ -173,7 +169,7 @@ public:
 	static void unregisterFilter(NotificationFilter *handler);
 protected:
 	friend class NotificationRequest;
-	virtual Result filter(NotificationRequest &request) = 0;
+	virtual void filter(NotificationRequest &request) = 0;
 	virtual void notificationCreated(Notification *notification);
 	virtual void virtual_hook(int id, void *data);
 };
@@ -195,8 +191,10 @@ protected:
 	void ref(Notification *notification);
 	void deref(Notification *notification);
 	void setDescription(const LocalizedString &description);
+	void allowRejectedNotifications(const QByteArray &reason);
 	virtual void virtual_hook(int id, void *data);
 private:
+	friend class NotificationRequest;
 	QScopedPointer<NotificationBackendPrivate> d_ptr;
 };
 

@@ -33,7 +33,7 @@ class NotificationFilterImpl : public QObject, public qutim_sdk_0_3::Notificatio
 public:
 	NotificationFilterImpl();
 	virtual ~NotificationFilterImpl();
-	virtual Result filter(NotificationRequest &request);
+	virtual void filter(NotificationRequest &request);
 	virtual void notificationCreated(Notification *notification);
 private slots:
 	void onOpenChatClicked(const qutim_sdk_0_3::NotificationRequest &request);

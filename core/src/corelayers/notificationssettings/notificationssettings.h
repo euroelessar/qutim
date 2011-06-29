@@ -52,7 +52,7 @@ public slots:
 	void enabledTypesChanged(const EnabledNotificationTypes &enabledTypes);
 	void reloadSettings();
 protected:
-	virtual Result filter(qutim_sdk_0_3::NotificationRequest& request);
+	virtual void filter(qutim_sdk_0_3::NotificationRequest& request);
 	virtual bool eventFilter(QObject *obj, QEvent *event);
 private:
 	EnabledNotificationTypes m_enabledTypes;

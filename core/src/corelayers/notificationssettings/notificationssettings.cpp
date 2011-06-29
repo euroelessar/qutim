@@ -72,11 +72,11 @@ void NotifyEnabler::reloadSettings()
 	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
-NotificationFilter::Result NotifyEnabler::filter(NotificationRequest &request)
+void NotifyEnabler::filter(NotificationRequest &request)
 {
 	Notification::Type type = request.type();
 
-	// Block notification from an active session, if the notifications are disabled by user.
+	// Reject notification from an active session, if the notifications are disabled by user.
 	// TODO: maybe we should not block notifications about outgoing messages, they are almost
 	// always from an active session, so essentially the option disables all notification
 	// about the outgoing messages which already could be done via notification types settings.
@@ -87,25 +87,28 @@ NotificationFilter::Result NotifyEnabler::filter(NotificationRequest &request)
 		if (ChatUnit *unit = qobject_cast<ChatUnit*>(request.object())) {
 			if (ChatSession *session = ChatLayer::get(unit, false)) {
 				if (session->isActive())
-					return NotificationFilter::Reject;
+					request.reject("sessionIsActive");
 			}
 		}
 	}
 
-	if (m_ignoreConfMsgsWithoutUserNick) {
-		// Ignore conference messages that do not contain user nick
+	if (m_ignoreConfMsgsWithoutUserNick &&
+		type == Notification::IncomingMessage ||
+		type == Notification::OutgoingMessage ||
+		type == Notification::ChatIncomingMessage ||
+		type == Notification::ChatOutgoingMessage)
+	{
+		// Reject conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
 			QString msg = request.text();
 			Buddy *me = conf->me();
 			if (me && !msg.contains(me->name()) && !msg.contains(me->id()))
-				return NotificationFilter::Reject;
+				request.reject("confMessageWithoutUserNick");
 		}
 	}
 
 	if (type >= 0 && type < m_enabledTypes.size())
 		request.setBackends(m_enabledTypes.at(type));
-
-	return NotificationFilter::Accept;
 }
 
 bool NotifyEnabler::eventFilter(QObject *obj, QEvent *ev)

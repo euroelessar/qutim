@@ -23,6 +23,7 @@ using namespace qutim_sdk_0_3;
 ChatNotificationsBackend::ChatNotificationsBackend() :
 	NotificationBackend("ChatNotifications")
 {
+	allowRejectedNotifications("sessionIsActive");
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
