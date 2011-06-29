@@ -3,6 +3,7 @@
 ** qutIM instant messenger
 **
 ** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -41,65 +42,14 @@
 namespace Core
 {
 
-static QIcon iconForStatus(const Status &status)
-{
-	//TODO create icon
-	if (status.type() == Status::Offline)
-		return Icon("qutim-offline");
-	else if (status.type() == Status::Connecting)
-		return Icon("qutim-offline");
-	else
-		return Icon("qutim-online");
-}
-
 class ProtocolSeparatorActionGenerator : public ActionGenerator
 {
 public:
-	ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
-		ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
-	{
-		setType(-1);
-		m_proto = proto;
-	}
-
-	virtual QObject *generateHelper() const
-	{
-		if (m_action)
-			return m_action.data();
-		QAction *action = prepareAction(new QAction(NULL));
-		QFont font = action->font();
-		font.setBold(true);
-		action->setFont(font);
-#ifndef Q_WS_MAC
-		QToolButton *m_btn = new QToolButton();
-		QWidgetAction *widget = new QWidgetAction(action);
-		m_action = QWeakPointer<QAction>(widget);
-		widget->setDefaultWidget(m_btn);
-		QObject::connect(widget, SIGNAL(destroyed()), action, SLOT(deleteLater()));
-		QObject::connect(widget, SIGNAL(destroyed()), m_btn, SLOT(deleteLater()));
-		m_btn->setDefaultAction(action);
-		m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-		m_btn->setDown(true); // prevent hover style changes in some styles
-		return widget;
-#else
-		return action;
-#endif
-	}
-
-	virtual ~ProtocolSeparatorActionGenerator()
-	{
-	}
-
-	void ensureVisibility() const
-	{
-		if (m_action)
-			m_action.data()->setVisible(!m_proto->accounts().isEmpty());
-	}
-	
-	void showImpl(QAction *, QObject *)
-	{
-		ensureVisibility();
-	}
+	ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info);
+	virtual QObject *generateHelper() const;
+	virtual ~ProtocolSeparatorActionGenerator();
+	void ensureVisibility() const;
+	void showImpl(QAction *, QObject *);
 private:
 	Protocol *m_proto;
 	QToolButton *m_btn;
@@ -201,7 +151,8 @@ void SimpleTray::clActivationStateChanged(bool activated)
 void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 {
 	if (reason == QSystemTrayIcon::Trigger) {
-		if (m_notifications.isEmpty()) {
+		Notification *notif = currentNotification();
+		if (!notif) {
 			if (QObject *obj = ServiceManager::getByName("ContactList")) {
 #ifdef Q_WS_WIN
 				if (QDateTime::currentMSecsSinceEpoch() - activationStateChangedTime < 200) { // tested - enough
@@ -212,7 +163,7 @@ void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 				obj->metaObject()->invokeMethod(obj, "changeVisibility");
 			}
 		} else {
-			m_notifications.first()->accept();
+			notif->accept();
 		}
 	}
 }
@@ -226,52 +177,9 @@ void SimpleTray::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 
 void SimpleTray::onSessionDestroyed()
 {
-	onUnreadChanged(MessageList());
-}
-
-static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
-{
-	QFont f = QApplication::font();
-	QPixmap px(backing.pixmap(size));
-	QPainter p(&px);
-	f.setPixelSize(px.height()/1.5);
-	p.setFont(f);
-	p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
-	icon.addPixmap(px);
-	return icon;
-}
-
-QIcon SimpleTray::unreadIcon()
-{
-	int number = 0;
-
-	switch (m_showNumber) {
-	default:
-	case SimpletraySettings::CounterDontShow:
-		return m_mailIcon;
-	case SimpletraySettings::CounterShowMessages:
-		foreach (quint64 c, m_sessions)
-			number += c;
-		break;		
-	case SimpletraySettings::CounterShowSessions:
-		number = m_sessions.count();
-		break;
-	}
-
-	QIcon icon;
-	generateIconSizes(m_mailIcon, icon, number);
-	return icon;
-}
-
-void SimpleTray::generateIconSizes(const QIcon &backing, QIcon &icon, int number)
-{
-	foreach (QSize sz, backing.availableSizes()) {
-		addIcon(backing, icon, sz, number);
-	}
-	//for SVG icons
-	QRect geometry = m_icon->geometry();
-	QSize size = geometry.size();
-	addIcon(backing, icon, size, number);
+	ChatSession *session = static_cast<ChatSession*>(sender());
+	m_sessions.remove(session);
+	updateGeneratedIcon();
 }
 
 void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
@@ -290,23 +198,19 @@ void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 		m_sessions.remove(session);
 	else
 		m_sessions.insert(session, unread.count());
+
+	updateGeneratedIcon();
 }
 
 void SimpleTray::onNotificationDestroyed()
 {
 	Notification *notif = static_cast<Notification*>(sender());
-	m_notifications.removeOne(notif);
-
-	if (m_notifications.isEmpty()) {
-		if (m_iconTimer.isActive())
-			m_iconTimer.stop();
-		m_icon->setIcon(m_currentIcon);
-		m_showGeneratedIcon = false;
-	} else if (m_showIcon) {
-		m_generatedIcon = getIconForNotification(m_notifications.first());
-		m_icon->setIcon(m_generatedIcon);
-		m_showGeneratedIcon = true;
-	}
+	Notification *current = currentNotification();
+	if (!m_messageNotifications.removeOne(notif))
+		if (!m_notifications.removeOne(notif))
+			m_typingNotifications.removeOne(notif);
+	if (current == notif)
+		updateGeneratedIcon();
 }
 
 void SimpleTray::reloadSettings()
@@ -315,6 +219,65 @@ void SimpleTray::reloadSettings()
 	m_showNumber = cfg.value("showNumber", SimpletraySettings::CounterDontShow);
 	m_blink = cfg.value("blink", true);
 	m_showIcon = cfg.value("showIcon", true);
+}
+
+void SimpleTray::handleNotification(Notification *notification)
+{
+	Notification::Type type = notification->request().type();
+
+	if (type == Notification::IncomingMessage ||
+		type == Notification::OutgoingMessage ||
+		type == Notification::ChatIncomingMessage ||
+		type == Notification::ChatOutgoingMessage)
+	{
+		m_messageNotifications << notification;
+	} else if (type == Notification::UserTyping) {
+		m_typingNotifications << notification;
+	} else {
+		m_notifications << notification;
+	}
+
+	ref(notification);
+	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+
+	if (!m_iconTimer.isActive() && m_blink && m_showIcon) {
+		m_iconTimer.start(500, this);
+		m_showGeneratedIcon = true;
+	}
+	if (notification == currentNotification())
+		updateGeneratedIcon();
+}
+
+void SimpleTray::timerEvent(QTimerEvent *timer)
+{
+	if (timer->timerId() != m_iconTimer.timerId()) {
+		QObject::timerEvent(timer);
+	} else {
+		m_icon->setIcon(m_showGeneratedIcon ? m_generatedIcon : m_currentIcon);
+		m_showGeneratedIcon = !m_showGeneratedIcon;
+	}
+}
+
+QIcon SimpleTray::unreadIcon()
+{
+	int number = 0;
+
+	switch (m_showNumber) {
+	default:
+	case SimpletraySettings::CounterDontShow:
+		return m_mailIcon;
+	case SimpletraySettings::CounterShowMessages:
+		foreach (quint64 c, m_sessions)
+			number += c;
+		break;
+	case SimpletraySettings::CounterShowSessions:
+		number = m_sessions.count();
+		break;
+	}
+
+	QIcon icon;
+	generateIconSizes(m_mailIcon, icon, number);
+	return icon;
 }
 
 QIcon SimpleTray::getIconForNotification(Notification *notification)
@@ -334,48 +297,73 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::UserOffline:
 	case Notification::UserChangedStatus:
 	case Notification::UserTyping:
+	case Notification::UserHasBirthday:
 	case Notification::System:
 			return Icon("dialog-information");
 	}
 	return QIcon();
 }
 
-void SimpleTray::handleNotification(Notification *notification)
+static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
 {
-	ref(notification);
-	m_notifications << notification;
+	QFont f = QApplication::font();
+	QPixmap px(backing.pixmap(size));
+	QPainter p(&px);
+	f.setPixelSize(px.height()/1.5);
+	p.setFont(f);
+	p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+	icon.addPixmap(px);
+	return icon;
+}
 
-	if (!m_iconTimer.isActive() && m_blink && m_showIcon)
-		m_iconTimer.start(500, this);
-	if (m_showIcon) {
-		m_generatedIcon = getIconForNotification(notification);
-		m_icon->setIcon(m_generatedIcon);
-		m_showGeneratedIcon = true;
+void SimpleTray::generateIconSizes(const QIcon &backing, QIcon &icon, int number)
+{
+	foreach (QSize sz, backing.availableSizes()) {
+		addIcon(backing, icon, sz, number);
 	}
-
-	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+	//for SVG icons
+	QRect geometry = m_icon->geometry();
+	QSize size = geometry.size();
+	addIcon(backing, icon, size, number);
 }
 
-void SimpleTray::timerEvent(QTimerEvent *timer)
+void SimpleTray::updateGeneratedIcon()
 {
-	if (timer->timerId() != m_iconTimer.timerId()) {
-		QObject::timerEvent(timer);
-	} else {
-		m_icon->setIcon(m_showGeneratedIcon ? m_generatedIcon : m_currentIcon);
-		m_showGeneratedIcon = !m_showGeneratedIcon;
+	Notification *notif = currentNotification();
+	if (!notif) {
+		if (m_iconTimer.isActive())
+			m_iconTimer.stop();
+		m_icon->setIcon(m_currentIcon);
+		m_showGeneratedIcon = false;
+	} else if (m_showIcon) {
+		m_generatedIcon = getIconForNotification(notif);
+		if (!m_blink || m_showGeneratedIcon) {
+			m_icon->setIcon(m_generatedIcon);
+			m_showGeneratedIcon = true;
+		}
 	}
 }
 
-void StatusAction::onStatusChanged(Status status)
+Notification *SimpleTray::currentNotification()
 {
-	setIcon(status.icon());
+	// Message notifications have highest priority
+	if (!m_messageNotifications.isEmpty())
+		return m_messageNotifications.first();
+
+	else if (!m_notifications.isEmpty())
+		return m_notifications.first();
+
+	// Typing notifications have lowest priority
+	else if (!m_typingNotifications.isEmpty())
+		return m_typingNotifications.first();
+
+	return 0;
 }
 
-StatusAction::StatusAction(QObject* parent): QAction(parent)
-{
 
-}
-
+//---------------------------------------------------------------------------
+// Accounts context menu implementation
+//---------------------------------------------------------------------------
 
 class AccountMenuActionGenerator : public ActionGenerator
 {
@@ -402,6 +390,73 @@ public:
 private:
 	Account *m_account;
 };
+
+static QIcon iconForStatus(const Status &status)
+{
+	//TODO create icon
+	if (status.type() == Status::Offline)
+		return Icon("qutim-offline");
+	else if (status.type() == Status::Connecting)
+		return Icon("qutim-offline");
+	else
+		return Icon("qutim-online");
+}
+
+ProtocolSeparatorActionGenerator::ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
+	ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
+{
+	setType(-1);
+	m_proto = proto;
+}
+
+QObject *ProtocolSeparatorActionGenerator::generateHelper() const
+{
+	if (m_action)
+		return m_action.data();
+	QAction *action = prepareAction(new QAction(NULL));
+	QFont font = action->font();
+	font.setBold(true);
+	action->setFont(font);
+#ifndef Q_WS_MAC
+	QToolButton *m_btn = new QToolButton();
+	QWidgetAction *widget = new QWidgetAction(action);
+	m_action = QWeakPointer<QAction>(widget);
+	widget->setDefaultWidget(m_btn);
+	QObject::connect(widget, SIGNAL(destroyed()), action, SLOT(deleteLater()));
+	QObject::connect(widget, SIGNAL(destroyed()), m_btn, SLOT(deleteLater()));
+	m_btn->setDefaultAction(action);
+	m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	m_btn->setDown(true); // prevent hover style changes in some styles
+	return widget;
+#else
+	return action;
+#endif
+}
+
+ProtocolSeparatorActionGenerator::~ProtocolSeparatorActionGenerator()
+{
+}
+
+void ProtocolSeparatorActionGenerator::ensureVisibility() const
+{
+	if (m_action)
+		m_action.data()->setVisible(!m_proto->accounts().isEmpty());
+}
+
+void ProtocolSeparatorActionGenerator::showImpl(QAction *, QObject *)
+{
+	ensureVisibility();
+}
+
+StatusAction::StatusAction(QObject* parent): QAction(parent)
+{
+
+}
+
+void StatusAction::onStatusChanged(Status status)
+{
+	setIcon(status.icon());
+}
 
 void SimpleTray::onAccountDestroyed(QObject *obj)
 {
@@ -461,4 +516,5 @@ void SimpleTray::validateProtocolActions()
 	foreach (ProtocolSeparatorActionGenerator *gen, m_protocolActions)
 		gen->ensureVisibility();
 }
+
 }

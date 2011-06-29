@@ -3,6 +3,7 @@
 ** qutIM instant messenger
 **
 ** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -58,12 +59,10 @@ class SimpleTray : public MenuController, public NotificationBackend
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
-
 public:
 	SimpleTray();
 	~SimpleTray();
 	void clActivationStateChanged(bool activated);
-
 private slots:
 	void onActivated(QSystemTrayIcon::ActivationReason);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
@@ -74,18 +73,18 @@ private slots:
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
 	void onNotificationDestroyed();
 	void reloadSettings();
-
 protected:
 	virtual void handleNotification(Notification *notification);
 	virtual void timerEvent(QTimerEvent *);
 	QIcon unreadIcon();
-
 private:
 	QIcon getIconForNotification(Notification *notification);
 	void generateIconSizes(const QIcon &backing, QIcon &icon, int number);
-
-	qint64 activationStateChangedTime;
+	void updateGeneratedIcon();
 	void validateProtocolActions();
+	Notification *currentNotification();
+private:
+	qint64 activationStateChangedTime;
 	QSystemTrayIcon *m_icon;
 	QMap<Account*, ActionGenerator*> m_actions;
 	QList<ProtocolSeparatorActionGenerator*> m_protocolActions;
@@ -99,6 +98,9 @@ private:
 	QIcon m_mailIcon;
 	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
+
+	QList<Notification*> m_messageNotifications;
+	QList<Notification*> m_typingNotifications;
 	QList<Notification*> m_notifications;
 	// Settings
 	SimpletraySettings::Option m_showNumber;
