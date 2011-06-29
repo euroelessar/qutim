@@ -7,6 +7,7 @@
 #include <qutim/metacontact.h>
 #include <QBasicTimer>
 #include <qutim/icon.h>
+#include "qlist.h"
 #include <QMessageBox>
 
 namespace qutim_sdk_0_3
@@ -20,6 +21,8 @@ namespace qutim_sdk_0_3
 namespace Core {
 namespace SimpleContactList {
 
+Contact *getRealUnit(QObject *obj);
+
 class ChangeEvent
 {
 public:
@@ -29,19 +32,31 @@ public:
 
 };
 
+class SIMPLECONTACTLIST_EXPORT NotificationsQueue
+{
+public:
+	void append(Notification *notification);
+	bool remove(Notification *notification);
+	Notification *first() const;
+	bool isEmpty();
+	QList<QList<Notification*> > all();
+private:
+	QList<Notification*> m_messageNotifications;
+	QList<Notification*> m_typingNotifications;
+	QList<Notification*> m_notifications;
+};
+
 class AbstractContactModelPrivate
 {
 public:
 	QSet<QString> selectedTags;
 	QString lastFilter;
 	QList<ChangeEvent*> events;
-	QMap<ChatSession*, QSet<Contact*> > unreadBySession;
-	QSet<Contact*> unreadContacts;
 	QBasicTimer timer;
-	QBasicTimer unreadTimer;
-	QIcon unreadIcon;
-	quint16 realUnitRequestEvent;
-	bool showMessageIcon;
+	QBasicTimer notificationTimer;
+	QHash<Contact*, NotificationsQueue> notifications;
+	QHash<Notification *, Contact*> contacts;
+	bool showNotificationIcon;
 	bool showOffline;
 };
 
@@ -65,7 +80,7 @@ bool contactLessThan(ContactItem *a, ContactItem *b) {
 	if (result)
 		return result < 0;
 	return a->getContact()->title().compare(b->getContact()->title(), Qt::CaseInsensitive) < 0;
-};
+}
 
 template<typename TagContainer, typename TagItem, typename ContactItem>
 bool AbstractContactModel::hideContact(ContactItem *item, bool hide, bool replacing)
@@ -213,6 +228,31 @@ void AbstractContactModel::updateContact(ContactItem *item, bool placeChanged)
 	}
 }
 
+static QIcon getIconForNotification(Notification *notification)
+{
+	switch (notification->request().type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+		return Icon(QLatin1String("mail-unread-new"));
+	case Notification::UserTyping:
+		return Icon(QLatin1String("im-status-message-edit"));
+	case Notification::AppStartup:
+	case Notification::BlockedMessage:
+	case Notification::ChatUserJoined:
+	case Notification::ChatUserLeft:
+	case Notification::FileTransferCompleted:
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+	case Notification::UserHasBirthday:
+	case Notification::System:
+		return Icon(QLatin1String("dialog-information"));
+	}
+	return QIcon();
+}
+
 template<typename ContactItem>
 QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) const
 {
@@ -227,10 +267,12 @@ QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) c
 		return name.isEmpty() ? contact->id() : name;
 	}
 	case Qt::DecorationRole:
-		if (d->showMessageIcon && d->unreadContacts.contains(contact))
-			return d->unreadIcon;
-		else
-			return contact->status().icon();
+		if (d->showNotificationIcon) {
+			Notification *notif = d->notifications.value(contact).first();
+			if (notif)
+				return getIconForNotification(notif);
+		}
+		return contact->status().icon();
 	case ItemTypeRole:
 		return ContactType;
 	case StatusRole:

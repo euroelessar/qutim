@@ -30,13 +30,93 @@ namespace SimpleContactList {
 
 using namespace qutim_sdk_0_3;
 
-AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
-	QAbstractItemModel(parent), d_ptr(d)
+Contact *getRealUnit(QObject *obj)
 {
-	d->showMessageIcon = false;
+	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	if (!unit)
+		return 0;
+
+	static quint16 realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	Event event(realUnitRequestEvent);
+	QCoreApplication::sendEvent(unit, &event);
+
+	Contact *contact = event.at<Contact*>(0);
+	while (unit && !contact) {
+		if (!!(contact = qobject_cast<Contact*>(unit)))
+			break;
+		unit = unit->upperUnit();
+	}
+
+	if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
+		contact = meta;
+
+	return contact;
+}
+
+void NotificationsQueue::append(Notification *notification)
+{
+	Notification::Type type = notification->request().type();
+	if (type == Notification::IncomingMessage ||
+		type == Notification::OutgoingMessage ||
+		type == Notification::ChatIncomingMessage ||
+		type == Notification::ChatOutgoingMessage)
+	{
+		m_messageNotifications << notification;
+	} else if (type == Notification::UserTyping) {
+		m_typingNotifications << notification;
+	} else {
+		m_notifications << notification;
+	}
+}
+
+bool NotificationsQueue::remove(Notification *notification)
+{
+	if (!m_messageNotifications.removeOne(notification)) {
+		if (!m_notifications.removeOne(notification))
+			return m_typingNotifications.removeOne(notification);
+		else
+			return true;
+	} else {
+		return true;
+	}
+}
+
+Notification *NotificationsQueue::first() const
+{
+	// Message notifications have highest priority
+	if (!m_messageNotifications.isEmpty())
+		return m_messageNotifications.first();
+
+	else if (!m_notifications.isEmpty())
+		return m_notifications.first();
+
+	// Typing notifications have lowest priority
+	else if (!m_typingNotifications.isEmpty())
+		return m_typingNotifications.first();
+
+	return 0;
+}
+
+bool NotificationsQueue::isEmpty()
+{
+	return m_messageNotifications.isEmpty() &&
+			m_notifications.isEmpty() &&
+			m_typingNotifications.isEmpty();
+}
+
+QList<QList<Notification*> > NotificationsQueue::all()
+{
+	QList<QList<Notification*> > all;
+	all << m_messageNotifications << m_notifications << m_typingNotifications;
+	return all;
+}
+
+AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
+	QAbstractItemModel(parent), NotificationBackend("ContactList"), d_ptr(d)
+{
+	d->showNotificationIcon = false;
 	Event::eventManager()->installEventFilter(this);
-	d->realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	d->unreadIcon = Icon(QLatin1String("mail-unread-new"));
+
 	ConfigGroup group = Config().group("contactList");
 	d->showOffline = group.value("showOffline", true);
 	QTimer::singleShot(0, this, SLOT(init()));
@@ -187,13 +267,56 @@ void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
 		d->events.clear();
 		d->timer.stop();
 		return;
-	} else if (timerEvent->timerId() == d->unreadTimer.timerId()) {
-		foreach (Contact *contact, d->unreadContacts)
+	} else if (timerEvent->timerId() == d->notificationTimer.timerId()) {
+		foreach (Contact *contact, d->notifications.keys())
 			updateContactData(contact);
-		d->showMessageIcon = !d->showMessageIcon;
+		d->showNotificationIcon = !d->showNotificationIcon;
 		return;
 	}
 	AbstractContactModel::timerEvent(timerEvent);
+}
+
+void AbstractContactModel::handleNotification(Notification *notification)
+{
+	Q_D(AbstractContactModel);
+	Contact *contact = getRealUnit(notification->request().object());
+	if (!contact)
+		return;
+
+	if (d->notifications.isEmpty())
+		d->notificationTimer.start(500, this);
+
+	NotificationsQueue &notifications = d->notifications[contact];
+	Notification *old = notifications.first();
+	notifications.append(notification);
+	d->contacts.insert(notification, contact);
+	ref(notification);
+	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+
+	if (notifications.first() != old)
+		updateContactData(contact);
+}
+
+void AbstractContactModel::removeFromContactList(Contact *contact)
+{
+	Q_D(AbstractContactModel);
+	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
+	if (itr != d->notifications.end()) {
+		foreach (const QList<Notification *> &notifications, itr->all()) {
+			foreach (Notification *notif, notifications)
+				deref(notif);
+		}
+		d->notifications.erase(itr);
+
+		QMutableHashIterator<Notification *, Contact *> i(d->contacts);
+		while (i.hasNext()) {
+			i.next();
+			if (i.value() == contact)
+				i.remove();
+		}
+	}
+	if (d->notifications.isEmpty())
+		d->notificationTimer.stop();
 }
 
 void AbstractContactModel::setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index)
@@ -214,66 +337,32 @@ ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, cons
 	return item;
 }
 
-void AbstractContactModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
-{
-	Q_D(AbstractContactModel);
-	ChatSession *session = qobject_cast<ChatSession*>(sender());
-
-	QSet<Contact*> contacts;
-	QSet<ChatUnit*> chatUnits;
-	for (int i = 0; i < messages.size(); i++) {
-		ChatUnit *unit = messages.at(i).chatUnit();
-		if (chatUnits.contains(unit) || !unit)
-			continue;
-		chatUnits.insert(unit);
-		Event event(d->realUnitRequestEvent);
-		QCoreApplication::sendEvent(unit, &event);
-		Contact *contact = event.at<Contact*>(0);
-		while (unit && !contact) {
-			if (!!(contact = qobject_cast<Contact*>(unit)))
-				break;
-			unit = unit->upperUnit();
-		}
-		if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
-			contact = meta;
-		if (contact)
-			contacts.insert(contact);
-	}
-	if (contacts.isEmpty())
-		d->unreadBySession.remove(session);
-	else
-		d->unreadBySession.insert(session, contacts);
-	foreach (const QSet<Contact*> &contactsSet, d->unreadBySession)
-		contacts |= contactsSet;
-
-	if (!contacts.isEmpty() && !d->unreadTimer.isActive())
-		d->unreadTimer.start(500, this);
-	else if (contacts.isEmpty())
-		d->unreadTimer.stop();
-
-	if (!d->showMessageIcon) {
-		d->unreadContacts = contacts;
-	} else {
-		QSet<Contact*> needUpdate = d->unreadContacts;
-		needUpdate.subtract(contacts);
-		d->unreadContacts = contacts;
-		foreach (Contact *contact, needUpdate)
-			updateContactData(contact);
-	}
-}
-
-void AbstractContactModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
-{
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-}
-
 void AbstractContactModel::init()
 {
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+}
+
+void AbstractContactModel::onNotificationDestroyed()
+{
+	Q_D(AbstractContactModel);
+	Notification *notification = static_cast<Notification*>(sender());
+	Contact *contact = d->contacts.take(notification);
+	if (!contact)
+		return;
+
+	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
+	if (itr == d->notifications.end())
+		return;
+
+	Notification *old = itr->first();
+	itr->remove(notification);
+	if (old == notification)
+		updateContactData(itr.key());
+	if (itr->isEmpty())
+		d->notifications.erase(itr);
+	if (d->notifications.isEmpty())
+		d->notificationTimer.stop();
 }
 
 } // namespace SimpleContactList

@@ -287,7 +287,7 @@ void TreeModel::removeFromContactList(Contact *contact, bool deleted)
 		delete item;
 	}
 	d->contacts.remove(contact);
-	d->unreadContacts.remove(contact);
+	AbstractContactModel::removeFromContactList(contact);
 }
 
 void TreeModel::contactDeleted(QObject *obj)
