@@ -174,6 +174,7 @@ public:
 protected:
 	friend class NotificationRequest;
 	virtual Result filter(NotificationRequest &request) = 0;
+	virtual void notificationCreated(Notification *notification);
 	virtual void virtual_hook(int id, void *data);
 };
 

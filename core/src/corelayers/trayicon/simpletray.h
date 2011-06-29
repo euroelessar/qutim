@@ -72,7 +72,7 @@ private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
-	void onNotificationAcceptedOrCanceled();
+	void onNotificationDestroyed();
 	void reloadSettings();
 
 protected:

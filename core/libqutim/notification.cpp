@@ -145,6 +145,7 @@ void Notification::accept()
 			action.trigger();
 	}
 	emit accepted();
+	deleteLater();
 }
 
 void Notification::ignore()
@@ -158,6 +159,7 @@ void Notification::ignore()
 			action.trigger();
 	}
 	emit ignored();
+	deleteLater();
 }
 
 LocalizedStringList Notification::typeStrings()
@@ -480,6 +482,8 @@ Notification *NotificationRequest::send()
 
 	Notification *notification = new Notification(*this);
 	notification->d_func()->ref.ref();
+	foreach (NotificationFilter *filter, *handlers())
+		filter->notificationCreated(notification);
 	foreach (NotificationBackend *backend, *backendHash()) {
 		QByteArray typeName = backend->backendType();
 		if (!isBackendBlocked(d_ptr->type, typeName) && !isBackendBlocked(typeName))
@@ -510,6 +514,11 @@ void NotificationFilter::unregisterFilter(NotificationFilter *handler)
 		else
 			break;
 	}
+}
+
+void NotificationFilter::notificationCreated(Notification *notification)
+{
+	Q_UNUSED(notification);
 }
 
 void NotificationFilter::virtual_hook(int id, void *data)

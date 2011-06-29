@@ -14,8 +14,12 @@
 *****************************************************************************/
 
 #include "notificationfilter.h"
-#include <qutim/chatunit.h>
-#include <qutim/chatsession.h>
+#include <qutim/metacontact.h>
+#include <qutim/event.h>
+#include <qutim/conference.h>
+#include <qutim/utils.h>
+#include <QTimer>
+#include <QCoreApplication>
 
 namespace Core {
 
@@ -68,9 +72,38 @@ static QString toString(Notification::Type type)
 	return title;
 }
 
+// TODO: maybe we should move it to libqutim?
+static inline ChatUnit *getRealUnit(QObject *obj)
+{
+	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	if (!unit)
+		return 0;
+
+	static quint16 realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	Event event(realUnitRequestEvent);
+	QCoreApplication::sendEvent(unit, &event);
+
+	if (qobject_cast<Conference*>(unit))
+		return unit;
+
+	Contact *contact = event.at<Contact*>(0);
+	while (unit && !contact) {
+		if (!!(contact = qobject_cast<Contact*>(unit)))
+			break;
+		unit = unit->upperUnit();
+	}
+
+	if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
+		contact = meta;
+
+	return contact;
+}
+
 NotificationFilterImpl::NotificationFilterImpl()
 {
 	registerFilter(this, LowPriority);
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
 
 NotificationFilterImpl::~NotificationFilterImpl()
@@ -136,6 +169,25 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 	return Accept;
 }
 
+void NotificationFilterImpl::notificationCreated(Notification *notification)
+{
+	NotificationRequest request = notification->request();
+
+	ChatUnit *unit = getRealUnit(request.object());
+	if (unit) {
+		// If the chatunit's session is not active, show the notification until
+		// it is activated; otherwise, show the notification only for a few
+		// seconds.
+		ChatSession *session = ChatLayer::get(unit);
+		if (session->isActive()) {
+			QTimer::singleShot(5000, notification, SLOT(deleteLater()));
+		} else {
+			m_notifications.insert(unit, notification);
+			connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+		}
+	}
+}
+
 void NotificationFilterImpl::onOpenChatClicked(const NotificationRequest &request)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(request.object());
@@ -157,6 +209,37 @@ void NotificationFilterImpl::onIgnoreChatClicked(const NotificationRequest &requ
 	ChatSession *session = ChatLayer::get(unit, false);
 	if (session)
 		session->markRead(msgVar.value<Message>().id());
+}
+
+void NotificationFilterImpl::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+{
+	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+}
+
+void NotificationFilterImpl::onSessionActivated(bool active)
+{
+	if (!active)
+		return;
+	ChatSession *session = sender_cast<ChatSession*>(sender());
+	ChatUnit *unit = getRealUnit(session->unit());
+	if (unit) {
+		foreach (Notification *notification, m_notifications.values(unit))
+			notification->deleteLater();
+		m_notifications.remove(unit);
+	}
+}
+
+void NotificationFilterImpl::onNotificationDestroyed()
+{
+	Notification *notification = static_cast<Notification*>(sender());
+	Notifications::iterator itr = m_notifications.begin();
+	Notifications::iterator end = m_notifications.end();
+	for (; itr != end; ++itr) {
+		if (*itr == notification) {
+			m_notifications.erase(itr);
+			return;
+		}
+	}
 }
 
 } // namespace Core

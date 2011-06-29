@@ -176,11 +176,10 @@ void KdeTrayIcon::onActivated()
 	}
 }
 
-void KdeTrayIcon::onNotificationAcceptedOrCanceled()
+void KdeTrayIcon::onNotificationDestroyed()
 {
-	Notification *notif = sender_cast<Notification*>(sender());
+	Notification *notif = static_cast<Notification*>(sender());
 	m_notifications.removeOne(notif);
-	deref(notif);
 
 	if (m_notifications.isEmpty())
 		m_item->setStatus(KStatusNotifierItem::Active);
@@ -242,24 +241,11 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 
 void KdeTrayIcon::handleNotification(Notification *notification)
 {
-	// Skip the notification if we already have a notification with the same object.
-	// We don't want users to frantically click the tray a dozen times just to make it
-	// not blink, right?
-	QObject *obj = notification->request().object();
-	foreach (Notification *notif, m_notifications) {
-		if (obj == notif->request().object())
-			return;
-	}
-
 	ref(notification);
 	m_notifications << notification;
 
 	m_item->setStatus(KStatusNotifierItem::NeedsAttention);
-
-	connect(notification, SIGNAL(accepted()),
-			SLOT(onNotificationAcceptedOrCanceled()));
-	connect(notification, SIGNAL(ignored()),
-			SLOT(onNotificationAcceptedOrCanceled()));
+	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
 }
 
 QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)
