@@ -94,6 +94,8 @@ SimpleTray::SimpleTray() :
 	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
 	m_icon->show();
 	m_mailIcon = Icon("mail-message-new-qutim");
+	m_typingIcon = Icon("im-status-message-edit");
+	m_defaultNotificationIcon = Icon("dialog-information");
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 			this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
@@ -289,7 +291,7 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::ChatOutgoingMessage:
 		return unreadIcon();
 	case Notification::UserTyping:
-		return Icon("im-status-message-edit");
+		return m_typingIcon;
 	case Notification::AppStartup:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
@@ -300,7 +302,7 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::UserChangedStatus:
 	case Notification::UserHasBirthday:
 	case Notification::System:
-			return Icon("dialog-information");
+		return m_defaultNotificationIcon;
 	}
 	return QIcon();
 }

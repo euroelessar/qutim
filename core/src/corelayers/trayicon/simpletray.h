@@ -96,6 +96,8 @@ private:
 	QIcon m_generatedIcon;
 	QBasicTimer m_iconTimer;
 	QIcon m_mailIcon;
+	QIcon m_typingIcon;
+	QIcon m_defaultNotificationIcon;
 	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
 

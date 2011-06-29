@@ -56,6 +56,9 @@ public:
 	QBasicTimer notificationTimer;
 	QHash<Contact*, NotificationsQueue> notifications;
 	QHash<Notification *, Contact*> contacts;
+	QIcon mailIcon;
+	QIcon typingIcon;
+	QIcon defaultNotificationIcon;
 	bool showNotificationIcon;
 	bool showOffline;
 };
@@ -226,31 +229,6 @@ void AbstractContactModel::updateContact(ContactItem *item, bool placeChanged)
 			endMoveRows();
 		}
 	}
-}
-
-static QIcon getIconForNotification(Notification *notification)
-{
-	switch (notification->request().type()) {
-	case Notification::IncomingMessage:
-	case Notification::OutgoingMessage:
-	case Notification::ChatIncomingMessage:
-	case Notification::ChatOutgoingMessage:
-		return Icon(QLatin1String("mail-unread-new"));
-	case Notification::UserTyping:
-		return Icon(QLatin1String("im-status-message-edit"));
-	case Notification::AppStartup:
-	case Notification::BlockedMessage:
-	case Notification::ChatUserJoined:
-	case Notification::ChatUserLeft:
-	case Notification::FileTransferCompleted:
-	case Notification::UserOnline:
-	case Notification::UserOffline:
-	case Notification::UserChangedStatus:
-	case Notification::UserHasBirthday:
-	case Notification::System:
-		return Icon(QLatin1String("dialog-information"));
-	}
-	return QIcon();
 }
 
 template<typename ContactItem>

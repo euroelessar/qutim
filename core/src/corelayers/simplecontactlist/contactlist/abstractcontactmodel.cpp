@@ -120,6 +120,10 @@ AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObje
 	ConfigGroup group = Config().group("contactList");
 	d->showOffline = group.value("showOffline", true);
 	QTimer::singleShot(0, this, SLOT(init()));
+
+	d->mailIcon = Icon("mail-message-new-qutim");
+	d->typingIcon = Icon("im-status-message-edit");
+	d->defaultNotificationIcon = Icon("dialog-information");
 }
 
 AbstractContactModel::~AbstractContactModel()
@@ -317,6 +321,32 @@ void AbstractContactModel::removeFromContactList(Contact *contact)
 	}
 	if (d->notifications.isEmpty())
 		d->notificationTimer.stop();
+}
+
+QIcon AbstractContactModel::getIconForNotification(Notification *notification) const
+{
+	Q_D(const AbstractContactModel);
+	switch (notification->request().type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+		return d->mailIcon;
+	case Notification::UserTyping:
+		return d->typingIcon;
+	case Notification::AppStartup:
+	case Notification::BlockedMessage:
+	case Notification::ChatUserJoined:
+	case Notification::ChatUserLeft:
+	case Notification::FileTransferCompleted:
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+	case Notification::UserHasBirthday:
+	case Notification::System:
+		return d->defaultNotificationIcon;
+	}
+	return QIcon();
 }
 
 void AbstractContactModel::setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index)
