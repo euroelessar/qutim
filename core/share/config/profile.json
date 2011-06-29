@@ -2,6 +2,49 @@
 	"Logger": {
 			"enable": false,
 	},
+	"notification": {
+		"AppStartup": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"BlockedMessage": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"ChatIncomingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatOutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatUserJoined": {
+			"Tray": false
+		},
+		"ChatUserLeft": {
+			"Tray": false
+		},
+		"IncomingMessage": {
+			"ChatNotifications": false
+		},
+		"OutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"UserChangedStatus": {
+			"Tray": false
+		},
+		"UserOffline": {
+			"Tray": false
+		},
+		"UserOnline": {
+			"Tray": false
+		},
+		"UserTyping": {
+			"ChatNotifications": false
+		},
+		"System": {
+			"Tray": false
+		}
+	},
 	"services": {
 		"list": {
 			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
