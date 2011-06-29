@@ -287,7 +287,9 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::OutgoingMessage:
 	case Notification::ChatIncomingMessage:
 	case Notification::ChatOutgoingMessage:
-			return unreadIcon();
+		return unreadIcon();
+	case Notification::UserTyping:
+		return Icon("im-status-message-edit");
 	case Notification::AppStartup:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
@@ -296,7 +298,6 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::UserOnline:
 	case Notification::UserOffline:
 	case Notification::UserChangedStatus:
-	case Notification::UserTyping:
 	case Notification::UserHasBirthday:
 	case Notification::System:
 			return Icon("dialog-information");

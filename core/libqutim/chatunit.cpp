@@ -106,10 +106,12 @@ void ChatUnit::setChatState(ChatState state)
 	Q_D(ChatUnit);
 	emit chatStateChanged(state,d->chatState);
 	d->chatState = state;
+	if (d->composingNotification)
+		d->composingNotification.data()->deleteLater();
 	if (state == ChatStateComposing) {
 		NotificationRequest request(Notification::UserTyping);
 		request.setObject(this);
-		request.send();
+		d->composingNotification = request.send();
 	}
 }
 
