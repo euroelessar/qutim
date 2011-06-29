@@ -545,7 +545,10 @@ NotificationBackend::NotificationBackend(const QByteArray &type) :
 
 NotificationBackend::~NotificationBackend()
 {
-	backendHash()->remove(d_ptr->type);
+	NotificationBackendHash::iterator itr = backendHash()->find(d_ptr->type);
+	Q_ASSERT(itr != backendHash()->end());
+	if (*itr == this)
+		backendHash()->erase(itr);
 
 	if (qApp) {
 		static quint16 eventType = Event::registerType("notification-backend-removed");
