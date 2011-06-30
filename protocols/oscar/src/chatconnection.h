@@ -36,6 +36,51 @@ namespace oscar {
 
 class OscarChat;
 
+class ChatMessage
+{
+public:
+	inline ChatMessage(const QString &text = QString()) : m_text(text) {}
+	inline ChatMessage &operator =(const QString &text) { m_text = text; return *this; }
+	
+	inline operator QString() const { return m_text; }
+	
+private:
+	QString m_text;
+};
+
+template<>
+struct toDataUnitHelper<ChatMessage>
+{
+	static inline QByteArray toByteArray(const ChatMessage &msg)
+	{
+		DataUnit data;
+		data.appendTLV<QByteArray>(0x0001, Util::utf16Codec()->fromUnicode(msg));
+		data.appendTLV<QByteArray>(0x0002, QByteArray("unicode-2-0"));
+		return QByteArray(data);
+	}
+};
+
+template<>
+struct fromDataUnitHelper<ChatMessage>
+{
+	static inline ChatMessage fromByteArray(const DataUnit &d)
+	{
+		TLVMap data = d.read<TLVMap>();
+		QByteArray text = data.value<QByteArray>(0x0001);
+		QByteArray codecName = data.value<QByteArray>(0x0002);
+		QTextCodec *codec = 0;
+		if (codecName == "unicode-2-0")
+			codec = Util::utf16Codec();
+		else if (codecName == "us-ascii")
+			codec = QTextCodec::codecForName("latin-1");
+		else
+			codec = QTextCodec::codecForName(codecName);
+		if (!codec)
+			codec = Util::defaultCodec();
+		return codec->toUnicode(text);
+	}
+};
+
 class ChatConnection : public AbstractConnection
 {
 	Q_OBJECT

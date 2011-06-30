@@ -129,14 +129,10 @@ void ChatConnection::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			return;
 		}
 		
-		TLVMap data = tlvs.value<TLVMap>(0x0005);
-		debug() << Q_FUNC_INFO << cookie.id() << channel << tlvs << data;
+		debug() << Q_FUNC_INFO << cookie.id() << channel << tlvs << tlvs.value<TLVMap>(0x0005);
 		
 		IcqContact *contact = account()->getContact(uin, true);
-		QByteArray text = data.value<QByteArray>(0x0001);
-		QByteArray codecName = data.value<QByteArray>(0x0002);
-		QTextCodec *codec = QTextCodec::codecForName(codecName);
-		QString html = (codec ? codec : Util::defaultCodec())->toUnicode(text);
+		QString html = tlvs.value<ChatMessage>(0x0005);
 		Message msg(unescape(html));
 		msg.setProperty("html", html);
 		msg.setChatUnit(chat);
@@ -178,12 +174,8 @@ void ChatConnection::sendMessage(const Message &msg)
 	snac.append<quint16>(0x0003);
 	snac.appendTLV(ChatToRoom);
 	snac.appendTLV(RequestReflection);
-	TLVMap data;
-	TLV text(0x0001);
-	text.append(Qt::escape(msg.text()).replace('\n', QLatin1String("<br/>")), Util::utf8Codec());
-	data.insert(text);
-	data.insert(0x0002, Util::utf8Codec()->name());
-	snac.appendTLV(0x0005, data);
+	ChatMessage html = Qt::escape(msg.text()).replace('\n', QLatin1String("<br/>"));
+	snac.appendTLV<ChatMessage>(0x0005, html);
 	send(snac);
 	debug() << Q_FUNC_INFO << cookie.id();
 }
