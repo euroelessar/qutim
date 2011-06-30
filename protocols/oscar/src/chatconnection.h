@@ -75,6 +75,7 @@ struct fromDataUnitHelper<ChatMessage>
 			codec = QTextCodec::codecForName("latin-1");
 		else
 			codec = QTextCodec::codecForName(codecName);
+		debug() << (codec ? codec->name() : QByteArray()) << codecName;
 		if (!codec)
 			codec = Util::defaultCodec();
 		return codec->toUnicode(text);

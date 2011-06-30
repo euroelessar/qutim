@@ -102,6 +102,8 @@ void ChatConnection::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			IcqContact *contact = account()->getContact(username, true);
 			if (snac.subtype() == UsersJoined) {
 				m_participants << contact;
+				if (contact->name() == contact->id())
+					contact->setName(QString());
 				if (session)
 					session->addContact(contact);
 			} else {
