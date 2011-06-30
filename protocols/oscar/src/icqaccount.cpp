@@ -23,6 +23,7 @@
 #include "oscarstatus.h"
 #include "inforequest_p.h"
 #include "chatnavigation.h"
+#include "oscarchat.h"
 #include "metainfo/updateaccountinfometarequest.h"
 #include <qutim/libqutim_version.h>
 #include <qutim/status.h>
@@ -155,6 +156,8 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->caps.append(ICQ_CAPABILITY_SRVxRELAY);
 	// Short capability support
 	d->caps.append(ICQ_CAPABILITY_SHORTCAPS);
+	// Chat support
+	d->caps.append(ICQ_CAPABILITY_AIMCHAT);
 
 	// qutIM version info
 	DataUnit version;
@@ -437,6 +440,25 @@ void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 void IcqAccount::setProxy(const QNetworkProxy &proxy)
 {
 	emit proxyUpdated(proxy);
+}
+
+OscarChat *IcqAccount::findChat(const QByteArray &id)
+{
+	Q_D(IcqAccount);
+	return d->chats.value(id);
+}
+
+void IcqAccount::addChat(const QByteArray &id, OscarChat *chat)
+{
+	Q_D(IcqAccount);
+	d->chats.insert(id, chat);
+	emit conferenceCreated(chat);
+}
+
+void IcqAccount::removeChat(const QByteArray &id)
+{
+	Q_D(IcqAccount);
+	d->chats.remove(id);
 }
 
 void IcqAccount::updateSettings()

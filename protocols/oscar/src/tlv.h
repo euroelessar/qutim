@@ -224,7 +224,7 @@ struct toDataUnitHelper<TLV>
 
 inline QDebug &operator<<(QDebug &stream, const TLV &data)
 {
-	stream.nospace() << hex << "(" << data.type() << ", " << data.data().toHex() << ")";
+	stream.nospace() << hex << "(" << data.type() << ", " << data.data().toHex() << ")" << dec;
 	return stream;
 }
 

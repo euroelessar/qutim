@@ -120,6 +120,9 @@ class ChatNavigation : public AbstractConnection
 	Q_OBJECT
 public:
 	ChatNavigation(IcqAccount *account, QObject *parent);
+	
+	void createRoom(const QString &name = QString());
+	void joinRoom(const RoomId &id);
 protected:
 	virtual void processNewConnection();
 	virtual void processCloseConnection();

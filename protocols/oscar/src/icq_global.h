@@ -158,8 +158,48 @@ enum ChatNavigationFamilySubtype // 0x000d
 	UpdateUser          = 0x000e
 };
 
-enum ChatFamily // 0x000e
+enum ChatFamilySubtype // 0x000e
 {
+	RoomInfoUpdate = 0x0002,
+	UsersJoined    = 0x0003,
+	UsersLeft      = 0x0004,
+	ChannelMsgToHost,
+	ChannelMsgToClient,
+	EvilRequest,
+	EvilReply,
+	ClientError,
+	PauseRoom,
+	PauseRoomAck,
+	ResumeRoom,
+	ShowMyRow,
+	ShowRowByNickname,
+	ShowRowByNumber,
+	ShowRowByName,
+	RowInfo,
+	ListRows,
+	RowListInfo,
+	MoreRows,
+	MoveToRow,
+	ToggleChat,
+	SendQuestion,
+	SendComment,
+	TallyVote,
+	AcceptBid,
+	SendInvite,
+	DeclineInvite,
+	AcceptInvite,
+	NotifyMessage,
+	GotoRow,
+	StageUserJoin,
+	StageUserLeft,
+	ClientEvent,
+	CloseRoom,
+	EjectUser,
+	UnejectUser,
+	UpdatePreferences = 0x0026,
+	NotifyAol,
+	IgnoreUser,
+	SetRoomOwner = 0x0030
 };
 
 enum AvatarFamilySubtype // 0x0010

@@ -1,4 +1,6 @@
 #include "chatnavigation.h"
+#include "chatconnection.h"
+#include "oscarchat.h"
 #include "icqaccount.h"
 
 namespace qutim_sdk_0_3 {
@@ -36,11 +38,14 @@ void ChatNavigation::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		case ServiceFamily << 16 | ServerRedirectService: {
 			TLVMap tlvs = snac.read<TLVMap>();
 			quint16 id = tlvs.value(0x0D).read<quint16>();
-			debug() << Q_FUNC_INFO << "service" << id;
+			debug() << Q_FUNC_INFO << "service" << id << tlvs;
 			if (id == ChatNavigationFamily) {
 				QList<QByteArray> list = tlvs.value(0x05).data().split(':');
 				m_cookie = tlvs.value(0x06).data();
 				socket()->connectToHost(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190);
+			} else if (id == ChatFamily) {
+				debug() << Q_FUNC_INFO << "join reply" << snac.id();
+				new ChatConnection(tlvs, account());
 			}
 			break;
 		}
@@ -80,38 +85,28 @@ void ChatNavigation::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			debug() << maxCurrentRooms;
 		}
 		foreach (const TLV &exchangeTLV, tlvs.values(3)) {
+			debug() << "hex" << exchangeTLV.data().toHex();
 			quint16 id = exchangeTLV.read<quint16>();
-			TLVMap exchangeTLVs = exchangeTLV.read<TLVMap>();
+			TLVMap exchangeTLVs = exchangeTLV.read<TLVMap, quint16>();
 
 			if (tlvs.contains(2)) { // means this is an answer on SNAC(ChatNavigationFamily, RequestChatRights)
 				// Request information for the exchange
 				SNAC infoSnac(ChatNavigationFamily, RequestExchangeInfo);
 				infoSnac.append<quint16>(id);
 				send(infoSnac);
-				
-//				SNAC snac(ChatNavigationFamily, CreateRoom);
-//				snac.append<RoomId>(RoomId(5, -1));
-//	//			snac.append<quint16>(5); // exchange
-//	//			snac.append<quint8>(0); // cookie
-//	//			snac.append<quint16>(-1); // instance
-//				snac.append<quint8>(0x01); // detailLevel
-//				TLVMap tlvs;
-//				tlvs.insert<QString>(0x00d3, "My buddy room");
-//				tlvs.insert<QString>(0x00cc, "Room description, yeah");
-//				tlvs.insert<QString>(0x00cd, "http://qutim.org/");
-//				tlvs.insert<RoomId>(0x0074, RoomId(5, -1));
-//	//			tlvs.insert<QString>(0x00d6, "us-ascii");
-//	//			tlvs.insert<QString>(0x00d7, "en");
-//				snac.append<quint16>(tlvs);
 			}
 			debug() << "Exchange:" << id << exchangeTLVs;
 		}
 		foreach (const TLV &roomTLV, tlvs.values(4)) {
 			// This code is never called
-			quint16 id = roomTLV.read<quint16>();
+			debug() << "hex" << roomTLV.data().toHex();
+			RoomId id = roomTLV.read<RoomId>();
 			quint8 detailLevel = roomTLV.read<quint8>();
-			TLVMap roomTLVs = roomTLV.read<TLVMap>();
-			debug() << "Room:" << id << detailLevel << roomTLVs;
+			TLVMap roomTLVs = roomTLV.read<TLVMap, quint16>();
+//			joinRoom(id);
+			debug() << "Room:" << id.cookie.toHex() << id.instance << detailLevel << roomTLVs;
+			OscarChat *chat = new OscarChat(id, this);
+			chat->join();
 		}
 
 		// some test requests
@@ -122,24 +117,8 @@ void ChatNavigation::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			infoSnac.append<quint16>(4);
 			send(infoSnac);
 
-			// trying to create a new room... Server replies with "Incorrect SNAC format" error
-			SNAC snac(ChatNavigationFamily, CreateRoom);
-//			snac.append(RoomId(5, -1));
-			snac.append<quint16>(5); // exchange
-			snac.append<quint8>(0); // cookie
-			snac.append<quint16>(-1); // instance
-			snac.append<quint8>(0x01); // detailLevel
-			TLVMap tlvs;
-			tlvs.insert<QString>(0x00d3, "My buddy room");
-			tlvs.insert<QString>(0x00cc, "Room description, yeah");
-			tlvs.insert<QString>(0x00cd, "http://qutim.org/");
-//			tlvs.insert<QString>(0x0074, RoomId(5, -1));
-//			tlvs.insert<QString>(0x00d6, "us-ascii");
-//			tlvs.insert<QString>(0x00d7, "en");
-			snac.append<quint16>(tlvs);
-			
-			debug() << snac;
-			send(snac);
+			// trying to create a new room...
+			createRoom("qutIM talks");
 		}
 
 		break;
@@ -155,6 +134,34 @@ void ChatNavigation::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	}
 }
 
+void ChatNavigation::createRoom(const QString &name)
+{
+	SNAC snac(ChatNavigationFamily, CreateRoom);
+	snac.append<quint16>(4); // exchange
+	snac.append<quint8>("create");
+	snac.append<quint16>(0); // instance
+	snac.append<quint8>(1); // detail level
+	TLVMap tlvs;
+	tlvs.insert<QString>(0x00d6, "us-ascii");
+	QString roomName = name;
+	if (roomName.isEmpty()) {
+		roomName = QLatin1String("Chat ");
+		roomName += QString::number((quint64(qrand()) << 32) | quint64(qrand()));
+	}
+	tlvs.insert<QString>(0x00d3, roomName);
+	tlvs.insert<QString>(0x00d7, "en");
+	snac.append<quint16>(tlvs);
+	send(snac);
+}
+
+void ChatNavigation::joinRoom(const RoomId &id)
+{
+	SNAC snac(ServiceFamily, ServiceClientNewService);
+	debug() << Q_FUNC_INFO << snac.id() << id.cookie.toHex();
+	snac.append<quint16>(ChatFamily);
+	snac.appendTLV(0x0001, id);
+	account()->connection()->send(snac);
+}
 
 } // namespace oscar
 } // namespace qutim_sdk_0_3

@@ -41,9 +41,9 @@ enum Channel1Codec
 
 enum MessageAction
 {
-	MsgRequest = 0x0000,
-	MsgCancel  = 0x0001,
-	MsgAccept  = 0x0002
+	MsgRequest       = 0x0000,
+	MsgCancel        = 0x0001,
+	MsgAccept        = 0x0002
 };
 
 enum MessageType

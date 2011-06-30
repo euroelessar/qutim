@@ -70,6 +70,7 @@ public:
 	OscarStatus lastStatus;
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
+	QHash<QByteArray, OscarChat*> chats;
 	QString passwd;
 	QScopedPointer<ConnectingInfo> connectingInfo;
 	QScopedPointer<MessageSender> messageSender;

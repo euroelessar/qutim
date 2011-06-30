@@ -33,6 +33,7 @@ class RosterPlugin;
 class Feedbag;
 class AbstractConnection;
 class ChatNavigation;
+class OscarChat;
 
 class LIBOSCAR_EXPORT IcqAccount: public Account
 {
@@ -63,6 +64,9 @@ public:
 	QList<Capability> capabilities() const;
 	void registerRosterPlugin(RosterPlugin *plugin);
 	void setProxy(const QNetworkProxy &proxy);
+	OscarChat *findChat(const QByteArray &id);
+	void addChat(const QByteArray &id, OscarChat *chat);
+	void removeChat(const QByteArray &id);
 signals:
 	void avatarChanged(const QString &avatar);
 	void loginFinished();
