@@ -107,58 +107,37 @@ QByteArray Capability::data() const
 	return data;
 }
 
-template<typename T>
-inline bool matchValue(T a, T b, int len)
-{
-	return !memcmp(&a, &b, len);
-}
+#define OSCAR_CONVERT_CAPABILTY(capability, buffer) \
+	qToBigEndian((capability)->data1, buffer); \
+	if (len > 4) { \
+		qToBigEndian((capability)->data2, buffer + 4); \
+		if (len > 6) { \
+			qToBigEndian((capability)->data3, buffer + 6); \
+			if (len > 8) { \
+				qMemCopy(buffer + 8, (capability)->data4, len - 8); \
+			} \
+		} \
+	}
 
-bool Capability::match(const Capability &c, quint8 len) const
+bool Capability::match(const Capability &o, quint8 len) const
 {
-	bool isS = isShort();
-	bool cisS = c.isShort();
-	if (isS != cisS) {
-		return false;
-	} else if (isS) {
-		return data1 == c.data1;
-	} else if (len > 16) {
-		len = 16;
-		while (len > 8 && !c.data4[len - 9])
-			len--;
-		if (len == 8) {
-			if (!c.data3) {
-				len -= 2;
-				if (!c.data2) {
-					len -= 2;
-				} else if (!(c.data2 & 0xff))
-					len--;
-			} else if (!(c.data3 & 0xff))
-				len--;
-		}
-		if (len == 4) {
-			uint a = c.data1;
-			while (a && !(a & 0xff)) {
-				a >>= 8;
-				len--;
-			}
-		}
-	}
-	if (len < 4) {
-		return matchValue(qToBigEndian(data1), qToBigEndian(c.data1), len);
-	} else if (len < 6) {
-		return data1 == c.data1 && matchValue(qToBigEndian(data2), qToBigEndian(c.data2), len - 4);
-	} else if (len < 8) {
-		return data1 == c.data1 && data2 == c.data2 && matchValue(qToBigEndian(data3), qToBigEndian(c.data3), len - 6);
-	} else {
-		return data1 == c.data1 && data2 == c.data2 && data3 == c.data3 && !memcmp(data4, c.data4, len - 8);
-	}
+	len = qMin<quint8>(len, Size);
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN 
+	if (sizeof(qutim_sdk_0_3::oscar::Capability) == 16)
+		return !memcmp(this, &o, len);
+#endif
+	uchar a[Size];
+	uchar b[Size];
+	OSCAR_CONVERT_CAPABILTY(this, a);
+	OSCAR_CONVERT_CAPABILTY(&o, b);
+	return !memcmp(a, b, len);
 }
 
 QString Capability::name() const
 {
 	QString name = capName()->value(*this);
 	if (name.isNull()) {
-		if (isShort()) {
+		if (!isShort()) {
 			return toString();
 		} else {
 			return QString::number(data1 & 0xffff, 16);
@@ -166,6 +145,21 @@ QString Capability::name() const
 	}
 	return name;
 }
+
+quint8 Capability::nonZeroLength() const
+{
+	uchar buf[Size];
+	enum { len = Size };
+	OSCAR_CONVERT_CAPABILTY(this, buf);
+	int i;
+	for (i = 15; i >= 0; --i) {
+		if (buf[i])
+			break;
+	}
+	return i + 1;
+}
+
+#undef OSCAR_CONVERT_CAPABILTY
 
 const QUuid &Capability::shortUuid()
 {
@@ -175,23 +169,20 @@ const QUuid &Capability::shortUuid()
 
 bool Capabilities::match(const Capability &capability, quint8 len) const
 {
-	foreach (const Capability &cap, *this) {
-		if (cap.match(capability, len))
-			return true;
-	}
-	return false;
+	return find(capability, len) != constEnd();
 }
 
 Capabilities::const_iterator Capabilities::find(const Capability &capability, quint8 len) const
 {
+	if (len == UpToFirstZero)
+		len = capability.nonZeroLength();
 	const_iterator itr = constBegin();
-	const_iterator end_itr = constEnd();
-	while (itr != end_itr) {
+	const const_iterator end_itr = constEnd();
+	for (; itr != end_itr; ++itr) {
 		if (itr->match(capability, len))
-			return itr;
-		++itr;
+			break;
 	}
-	return end_itr;
+	return itr;
 }
 
 StandartCapability::StandartCapability(const QString &name, const QString &str) :

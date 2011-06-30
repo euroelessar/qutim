@@ -27,9 +27,12 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+class Capabilities;
+
 struct LIBOSCAR_EXPORT Capability: public QUuid
 {
 public:
+	enum { Size = 16 };
 	Capability();
 	Capability(const QString &str);
 	Capability(const QByteArray &data);
@@ -45,17 +48,21 @@ public:
 	bool isShort() const;
 	bool isEmpty() const { return isNull(); }
 	bool operator==(const QUuid &rhs) const;
-	bool match(const Capability &capability, quint8 len = 17) const;
+	bool match(const Capability &capability, quint8 len = Size) const;
 	QString name() const;
+	uint hash() const;
 protected:
+	quint8 nonZeroLength() const;
 	static const QUuid &shortUuid();
+	friend class Capabilities;
 };
 
 class LIBOSCAR_EXPORT Capabilities: public QList<Capability>
 {
 public:
-	bool match(const Capability &capability, quint8 len = 17) const;
-	const_iterator find(const Capability &capability, quint8 len = 17) const;
+	enum { UpToFirstZero = 0xff };
+	bool match(const Capability &capability, quint8 len = UpToFirstZero) const;
+	const_iterator find(const Capability &capability, quint8 len = UpToFirstZero) const;
 };
 
 class LIBOSCAR_EXPORT StandartCapability : public Capability
@@ -72,11 +79,6 @@ public:
 	StandartCapability(const QString &name, quint16 data);
 };
 
-inline uint qHash(const Capability &capability)
-{
-	return qHash(capability.data());
-}
-
 template<>
 struct fromDataUnitHelper<Capability, false>
 {
@@ -86,6 +88,20 @@ struct fromDataUnitHelper<Capability, false>
 	}
 };
 
+inline uint Capability::hash() const
+{
+	uint h1 = qHash((quint64(data1) << 32)
+	                | (uint(data2) << 16)
+	                | (uint(data3)));
+	uint h2 = qHash(reinterpret_cast<quint64>(data4));
+	return qHash(quint64(h1) << 32 | h2);
+}
+
 } } // namespace qutim_sdk_0_3::oscar
+
+inline uint qHash(const qutim_sdk_0_3::oscar::Capability &capability)
+{
+	return capability.hash();
+}
 
 #endif // CAPABILTY_H

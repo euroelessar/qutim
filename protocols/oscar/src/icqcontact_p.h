@@ -30,6 +30,7 @@ namespace oscar {
 
 enum SsiBuddyTlvs
 {
+	SsiBuddyProto = 0x0084,
 	SsiBuddyNick = 0x0131,
 	SsiBuddyComment = 0x013c,
 	SsiBuddyTags = 0x023c
@@ -68,6 +69,7 @@ public:
 	IcqAccount *account;
 	QString uin;
 	QString name;
+	QString proto;
 	Status status;
 	QString avatar;
 	quint16 version;

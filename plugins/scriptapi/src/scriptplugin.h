@@ -34,6 +34,8 @@ public:
 	ScriptMessageHandler(ScriptPlugin *parent);
 	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 	
+	void openContext(ChatUnit *unit);
+	void closeContext();
 	void handleException();
 private:
 	QScriptEngine m_engine;

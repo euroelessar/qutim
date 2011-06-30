@@ -38,6 +38,7 @@ class LIBOSCAR_EXPORT IcqContact: public Contact
 	Q_OBJECT
 	Q_DISABLE_COPY(IcqContact)
 	Q_PROPERTY(QString avatar READ avatar WRITE setAvatar)
+	Q_PROPERTY(QString proto READ proto)
 public:
 	IcqContact(const QString &uin, IcqAccount *account);
 	~IcqContact();
@@ -46,6 +47,7 @@ public:
 	virtual QString name() const;
 	virtual Status status() const;
 	virtual  QString avatar() const;
+	QString proto() const;
 	virtual bool sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);

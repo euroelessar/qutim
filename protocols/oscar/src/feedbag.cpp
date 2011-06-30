@@ -505,13 +505,13 @@ void FeedbagPrivate::finishLoading()
 
 FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 {
-	QString recordName = snac.read<QString, quint16>();
+	QString recordName = snac.read<QString, quint16>(Util::utf8Codec());
 	quint16 groupId = snac.read<quint16>();
 	quint16 itemId = snac.read<quint16>();
 	quint16 itemType = snac.read<quint16>();
 	if (!handlers.contains(itemType)) {
 		// TODO: add better debugging.
-//		debug() << "The feedbag item ignored with type" << itemType;
+		debug() << "The feedbag item ignored with type" << itemType << "and name" << recordName;
 		snac.skipData(snac.read<quint16>());
 		return 0;
 	}
@@ -871,6 +871,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ListsFamily << 16 | ListsUpdateGroup: // Server sends contact list updates
 	case ListsFamily << 16 | ListsAddToList: // Server sends new items
 	case ListsFamily << 16 | ListsRemoveFromList: { // Items have been removed
+		debug() << Q_FUNC_INFO << sn.data().toHex();
 		while (sn.dataSize() != 0) {
 			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
 			if (itemPrivate) {
@@ -881,7 +882,6 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsAck: {
-		sn.skipData(8); // cookie
 		while (sn.dataSize() != 0) {
 			FeedbagError error(sn);
 			FeedbagQueueItem operation = d->ssiQueue.dequeue();
