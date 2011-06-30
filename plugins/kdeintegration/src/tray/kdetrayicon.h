@@ -42,7 +42,6 @@ namespace KdeIntegration
 class KdeTrayIcon : public qutim_sdk_0_3::MenuController, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::NotificationBackend)
 	Q_CLASSINFO("Service", "TrayIcon")
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")

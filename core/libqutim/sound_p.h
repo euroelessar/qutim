@@ -13,8 +13,8 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSLAYER_P_H
-#define NOTIFICATIONSLAYER_P_H
+#ifndef SOUND_P_H
+#define SOUND_P_H
 
 #include "sound.h"
 
@@ -23,7 +23,6 @@ namespace qutim_sdk_0_3 {
 class SoundHandler : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::NotificationBackend)
 public:
 	SoundHandler();
 	virtual void handleNotification(Notification *notification);
@@ -31,4 +30,4 @@ public:
 
 } //namespace qutim_sdk_0_3
 
-#endif // NOTIFICATIONSLAYER_P_H
+#endif // SOUND_P_H

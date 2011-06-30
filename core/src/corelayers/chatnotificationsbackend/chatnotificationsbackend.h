@@ -25,7 +25,7 @@ namespace Core {
 class ChatNotificationsBackend : public QObject, public qutim_sdk_0_3::StartupModule, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule qutim_sdk_0_3::NotificationBackend)
+	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
     ChatNotificationsBackend();
 protected:

@@ -43,7 +43,6 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel,
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
 	Q_CLASSINFO("RuntimeSwitch", "yes")
-	Q_INTERFACES(qutim_sdk_0_3::NotificationBackend)
 	Q_DECLARE_PRIVATE(AbstractContactModel)
 public:
 	virtual ~AbstractContactModel();

@@ -17,7 +17,6 @@ class DBusBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
-	Q_INTERFACES(qutim_sdk_0_3::NotificationBackend)
 public:
 	DBusBackend();
 	virtual ~DBusBackend();

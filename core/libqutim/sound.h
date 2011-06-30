@@ -14,8 +14,8 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSLAYER_H
-#define NOTIFICATIONSLAYER_H
+#ifndef SOUND_H
+#define SOUND_H
 
 #include "libqutim_global.h"
 #include <QPointer>
@@ -95,4 +95,4 @@ LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
 }
 }
 
-#endif // NOTIFICATIONSLAYER_H
+#endif // SOUND_H

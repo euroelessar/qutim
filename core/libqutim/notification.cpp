@@ -536,7 +536,7 @@ void NotificationFilter::unregisterFilter(NotificationFilter *handler)
 		if (*itr == handler)
 			itr = handlers()->erase(itr);
 		else
-			break;
+			++itr;
 	}
 }
 

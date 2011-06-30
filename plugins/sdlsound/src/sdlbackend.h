@@ -17,7 +17,7 @@
 #ifndef SDLSOUNDBACKEND_H
 #define SDLSOUNDBACKEND_H
 
-#include <qutim/notificationslayer.h>
+#include <qutim/sound.h>
 #include <QStringList>
 #include <QCache>
 
