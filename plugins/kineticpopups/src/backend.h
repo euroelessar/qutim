@@ -25,7 +25,7 @@ class SettingsItem;
 namespace KineticPopups {
 
 class PopupWidget;
-typedef QMultiHash<PopupWidget*, qutim_sdk_0_3::Notification*> NotificationHash;
+typedef QMultiHash<PopupWidget*, QWeakPointer<qutim_sdk_0_3::Notification> > NotificationHash;
 
 class WidgetPlacer;
 class Backend : public QObject, public qutim_sdk_0_3::NotificationBackend

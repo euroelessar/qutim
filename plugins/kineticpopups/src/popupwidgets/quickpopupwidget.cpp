@@ -131,7 +131,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	m_timeout.setInterval(cfg.value("timeout", 5000));
 	cfg.endGroup();
 
-	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(ignore()));
+	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(reject()));
 }
 
 void QuickPopupWidget::loadTheme(const QString &themeName)
@@ -140,7 +140,7 @@ void QuickPopupWidget::loadTheme(const QString &themeName)
 	QString filename = themePath % QLatin1Literal("/main.qml");
 	m_view->setSource(QUrl::fromLocalFile(filename));//url - main.qml
 	if (m_view->status() == QDeclarativeView::Error)
-		ignore();
+		reject();
 
 	PopupAttributes *attributes = m_view->rootObject()->findChild<PopupAttributes*>("attributes");
 	if (attributes) {
@@ -178,14 +178,21 @@ QSize QuickPopupWidget::sizeHint() const
 
 void QuickPopupWidget::ignore()
 {
-	finished();
+	foreach (Notification *notify, m_notifyHash.keys())
+		notify->ignore();
+	emit finished();
 }
 
 void QuickPopupWidget::accept()
 {
-	//foreach (Notification *notify, m_notifyHash.keys())
-	//	notify->accept();
-	finished();
+	foreach (Notification *notify, m_notifyHash.keys())
+		notify->accept();
+	emit finished();
+}
+
+void QuickPopupWidget::reject()
+{
+	emit finished();
 }
 
 void QuickPopupWidget::onAtributesChanged()
@@ -236,6 +243,14 @@ void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
 	}
 
 	emit sizeChanged(sizeHint());
+}
+
+void QuickPopupWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+		accept();
+	else if (event->button() == Qt::RightButton)
+		ignore();
 }
 
 } // namespace KineticPopups
