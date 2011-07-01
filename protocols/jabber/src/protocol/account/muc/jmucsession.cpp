@@ -480,6 +480,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
+	coreMsg.setProperty("silent", true);
 	coreMsg.setIncoming(true);
 	chatSession->appendMessage(coreMsg);
 }
