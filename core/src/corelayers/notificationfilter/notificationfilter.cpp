@@ -58,7 +58,7 @@ static QString toString(Notification::Type type)
 		title = QObject::tr("%1 is offline");
 		break;
 	case Notification::UserChangedStatus:
-		title = QObject::tr("%1 changed status");
+		title = QObject::tr("%1 has changed status to %2");
 		break;
 	case Notification::UserHasBirthday:
 		title = QObject::tr("%1 has birthday today!!");
@@ -122,15 +122,16 @@ NotificationFilterImpl::~NotificationFilterImpl()
 
 void NotificationFilterImpl::filter(NotificationRequest &request)
 {
+	Notification::Type reqType = request.type();
 	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
-		request.setTitle(toString(request.type()).arg(sender_name));
+		request.setTitle(toString(reqType).arg(sender_name));
 		return;
 	}
 
 	if (request.title().isEmpty()) {
-		if (sender) {
+		if (sender && sender_name.isEmpty()) {
 			sender_name = sender->property("title").toString();
 			if (sender_name.isEmpty())
 				sender_name = sender->property("name").toString();
@@ -138,6 +139,10 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 				sender_name = sender->property("id").toString();
 		}
 		QString title = toString(request.type()).arg(sender_name);
+		if (reqType == Notification::UserChangedStatus) {
+			Status status = request.property("status", Status());
+			title = title.arg(status.name().toString());
+		}
 		request.setTitle(title);
 	}
 
@@ -147,7 +152,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	}
 
 
-	switch (request.type()) {
+	switch (reqType) {
 	case Notification::UserChangedStatus:
 	case Notification::UserOnline:
 	case Notification::UserOffline: {

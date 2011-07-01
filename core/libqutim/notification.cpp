@@ -348,6 +348,7 @@ NotificationRequest::NotificationRequest(Buddy *buddy, const Status &status, con
 {
 	d_ptr->text = status.text();
 	d_ptr->object = buddy;
+	setProperty("status", qVariantFromValue(status));
 	setProperty("previousStatus", qVariantFromValue(previous));
 
 	Status::Type statusType = status.type();
