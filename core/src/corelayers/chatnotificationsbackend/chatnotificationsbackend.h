@@ -22,6 +22,8 @@
 
 namespace Core {
 
+using namespace qutim_sdk_0_3;
+
 class ChatNotificationsBackend : public QObject, public qutim_sdk_0_3::StartupModule, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
@@ -33,8 +35,10 @@ protected:
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
+	void onUnitDestroyed();
 private:
 	QWeakPointer<qutim_sdk_0_3::ChatSession> m_currentSession;
+	QMap<ChatUnit *, MessageList> m_unaddedMessages;
 };
 
 } // namespace Core
