@@ -46,19 +46,12 @@ Q_GLOBAL_STATIC(HandlerMap, handlers)
 class NotificationPrivate
 {
 public:
-	enum State
-	{
-		Active,
-		Accepted,
-		Ignored
-	};
-
 	NotificationPrivate() :
-		state(Active)
+		state(Notification::Active)
 	{}
 	NotificationRequest request;
 	QAtomicInt ref;
-	State state;
+	Notification::State state;
 };
 
 class NotificationRequestPrivate : public DynamicPropertyData
@@ -139,32 +132,47 @@ NotificationRequest Notification::request() const
 	return d_func()->request;
 }
 
+Notification::State Notification::state()
+{
+	return d_func()->state;
+}
+
 void Notification::accept()
 {
 	Q_D(Notification);
-	if (d->state != NotificationPrivate::Active)
+	if (d->state != Active)
 		return;
-	d->state = NotificationPrivate::Accepted;
+	d->state = Accepted;
 	foreach (const NotificationAction &action, d->request.actions()) {
 		if (action.type() == NotificationAction::AcceptButton)
 			action.trigger();
 	}
 	emit accepted();
-	deleteLater();
+	emit finished(Accepted);
 }
 
 void Notification::ignore()
 {
 	Q_D(Notification);
-	if (d->state != NotificationPrivate::Active)
+	if (d->state != Active)
 		return;
-	d->state = NotificationPrivate::Ignored;
+	d->state = Ignored;
 	foreach (const NotificationAction &action, d->request.actions()) {
 		if (action.type() == NotificationAction::IgnoreButton)
 			action.trigger();
 	}
 	emit ignored();
-	deleteLater();
+	emit finished(Ignored);
+}
+
+void Notification::reject()
+{
+	Q_D(Notification);
+	if (d->state != Active)
+		return;
+	d->state = Rejected;
+	emit rejected();
+	emit finished(Rejected);
 }
 
 LocalizedStringList Notification::typeStrings()

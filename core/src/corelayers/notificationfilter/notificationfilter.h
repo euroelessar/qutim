@@ -41,7 +41,8 @@ private slots:
 	void onIgnoreChatClicked(const qutim_sdk_0_3::NotificationRequest &request);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
-	void onNotificationDestroyed();
+	void onNotificationFinished();
+	void onUnitDestroyed();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);

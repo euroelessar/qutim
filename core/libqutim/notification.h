@@ -61,18 +61,29 @@ public:
 		System,
 		LastType = System
 	};
+	enum State
+	{
+		Active,
+		Accepted,
+		Ignored,
+		Rejected
+	};
 	static Notification *send(const Message &msg);
 	static Notification *send(const QString &text);
 	~Notification();
 	NotificationRequest request() const;
+	State state();
 	static LocalizedString typeString(Type type);
 	static LocalizedStringList typeStrings();
 public slots:
 	void accept();
 	void ignore();
+	void reject();
 signals:
 	void accepted();
 	void ignored();
+	void rejected();
+	void finished(qutim_sdk_0_3::Notification::State state);
 protected:
 	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;

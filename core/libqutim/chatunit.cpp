@@ -107,7 +107,7 @@ void ChatUnit::setChatState(ChatState state)
 	emit chatStateChanged(state,d->chatState);
 	d->chatState = state;
 	if (d->composingNotification)
-		d->composingNotification.data()->deleteLater();
+		d->composingNotification.data()->reject();
 	if (state == ChatStateComposing) {
 		NotificationRequest request(Notification::UserTyping);
 		request.setObject(this);

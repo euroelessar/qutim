@@ -55,7 +55,6 @@ public:
 	QBasicTimer timer;
 	QBasicTimer notificationTimer;
 	QHash<Contact*, NotificationsQueue> notifications;
-	QHash<Notification *, Contact*> contacts;
 	QIcon mailIcon;
 	QIcon typingIcon;
 	QIcon chatUserJoinedIcon;

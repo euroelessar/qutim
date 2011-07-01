@@ -94,13 +94,13 @@ protected:
 					  int row, int column, const QModelIndex &parent);
 	void timerEvent(QTimerEvent *timerEvent);
 	void handleNotification(qutim_sdk_0_3::Notification *notification);
-	void removeFromContactList(qutim_sdk_0_3::Contact *contact);
 	QIcon getIconForNotification(qutim_sdk_0_3::Notification *notification) const;
 	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
 	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
 private slots:
 	void init();
-	void onNotificationDestroyed();
+	void onNotificationFinished();
+	void onContactDestroyed();
 protected:
 	virtual void filterAllList() = 0;
 	virtual void updateContactData(qutim_sdk_0_3::Contact *contact) = 0;

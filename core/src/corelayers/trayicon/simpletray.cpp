@@ -208,9 +208,10 @@ void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 	updateGeneratedIcon();
 }
 
-void SimpleTray::onNotificationDestroyed()
+void SimpleTray::onNotificationFinished()
 {
-	Notification *notif = static_cast<Notification*>(sender());
+	Notification *notif = sender_cast<Notification*>(sender());
+	deref(notif);
 	Notification *current = currentNotification();
 	if (!m_messageNotifications.removeOne(notif))
 		if (!m_notifications.removeOne(notif))
@@ -244,7 +245,8 @@ void SimpleTray::handleNotification(Notification *notification)
 	}
 
 	ref(notification);
-	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			SLOT(onNotificationFinished()));
 
 	if (!m_iconTimer.isActive() && m_blink && m_showIcon) {
 		m_iconTimer.start(500, this);

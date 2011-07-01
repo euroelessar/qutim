@@ -210,7 +210,7 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 	{
 		// I am not sure how to handle the notification,
 		// so I am just trying to imitate miranda's behaviour.
-		QTimer::singleShot(5000, notification, SLOT(deleteLater()));
+		QTimer::singleShot(5000, notification, SLOT(reject()));
 		return;
 	}
 
@@ -221,10 +221,12 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 		// seconds.
 		ChatSession *session = ChatLayer::get(unit);
 		if (session->isActive()) {
-			QTimer::singleShot(5000, notification, SLOT(deleteLater()));
+			QTimer::singleShot(5000, notification, SLOT(reject()));
 		} else {
 			m_notifications.insert(unit, notification);
-			connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+			connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+					SLOT(onNotificationFinished()));
+			connect(unit, SIGNAL(destroyed()), SLOT(onUnitDestroyed()), Qt::UniqueConnection);
 		}
 	}
 }
@@ -265,22 +267,24 @@ void NotificationFilterImpl::onSessionActivated(bool active)
 	ChatUnit *unit = getRealUnit(session->unit());
 	if (unit) {
 		foreach (Notification *notification, m_notifications.values(unit))
-			notification->deleteLater();
+			notification->reject();
 		m_notifications.remove(unit);
+		disconnect(unit, 0, this, 0);
 	}
 }
 
-void NotificationFilterImpl::onNotificationDestroyed()
+void NotificationFilterImpl::onNotificationFinished()
 {
-	Notification *notification = static_cast<Notification*>(sender());
-	Notifications::iterator itr = m_notifications.begin();
-	Notifications::iterator end = m_notifications.end();
-	for (; itr != end; ++itr) {
-		if (*itr == notification) {
-			m_notifications.erase(itr);
-			return;
-		}
-	}
+	Notification *notification = sender_cast<Notification*>(sender());
+	ChatUnit *unit = getRealUnit(notification->request().object());
+	m_notifications.remove(unit, notification);
+	if (!m_notifications.contains(unit))
+		disconnect(unit, 0, this, 0);
+}
+
+void NotificationFilterImpl::onUnitDestroyed()
+{
+	m_notifications.remove(static_cast<ChatUnit*>(sender()));
 }
 
 void NotificationFilterImpl::onAccountCreated(qutim_sdk_0_3::Account *account)
