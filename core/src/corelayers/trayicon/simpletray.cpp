@@ -93,9 +93,13 @@ SimpleTray::SimpleTray() :
 	m_icon = new QSystemTrayIcon(this);
 	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
 	m_icon->show();
-	m_mailIcon = Icon("mail-message-new-qutim");
-	m_typingIcon = Icon("im-status-message-edit");
-	m_defaultNotificationIcon = Icon("dialog-information");
+	m_mailIcon                = Icon(QLatin1String("mail-message-new-qutim"));
+	m_typingIcon              = Icon(QLatin1String("im-status-message-edit"));
+	m_chatUserJoinedIcon      = Icon(QLatin1String("list-add-user-conference"));
+	m_chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
+	m_qutimIcon               = Icon(QLatin1String("qutim"));
+	m_transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	m_defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 			this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
@@ -292,14 +296,18 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 		return unreadIcon();
 	case Notification::UserTyping:
 		return m_typingIcon;
-	case Notification::AppStartup:
-	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
+		return m_chatUserJoinedIcon;
 	case Notification::ChatUserLeft:
+		return m_chatUserLeftIcon;
+	case Notification::AppStartup:
+		return m_qutimIcon;
 	case Notification::FileTransferCompleted:
+		return m_transferCompletedIcon;
 	case Notification::UserOnline:
 	case Notification::UserOffline:
 	case Notification::UserChangedStatus:
+	case Notification::BlockedMessage:
 	case Notification::UserHasBirthday:
 	case Notification::System:
 		return m_defaultNotificationIcon;

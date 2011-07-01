@@ -119,13 +119,17 @@ AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObje
 	d->showNotificationIcon = false;
 	Event::eventManager()->installEventFilter(this);
 
-	ConfigGroup group = Config().group("contactList");
-	d->showOffline = group.value("showOffline", true);
+	ConfigGroup group = Config().group(QLatin1String("contactList"));
+	d->showOffline = group.value(QLatin1String("showOffline"), true);
 	QTimer::singleShot(0, this, SLOT(init()));
 
-	d->mailIcon = Icon("mail-message-new-qutim");
-	d->typingIcon = Icon("im-status-message-edit");
-	d->defaultNotificationIcon = Icon("dialog-information");
+	d->mailIcon                = Icon(QLatin1String("mail-message-new-qutim"));
+	d->typingIcon              = Icon(QLatin1String("im-status-message-edit"));
+	d->chatUserJoinedIcon      = Icon(QLatin1String("list-add-user-conference"));
+	d->chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
+	d->qutimIcon               = Icon(QLatin1String("qutim"));
+	d->transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	d->defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 }
 
 AbstractContactModel::~AbstractContactModel()
@@ -342,11 +346,15 @@ QIcon AbstractContactModel::getIconForNotification(Notification *notification) c
 	case Notification::UserOffline:
 	case Notification::UserChangedStatus:
 		return request.property("previousStatus", Status(Status::Offline)).icon();
-	case Notification::AppStartup:
-	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
+		return d->chatUserJoinedIcon;
 	case Notification::ChatUserLeft:
+		return d->chatUserLeftIcon;
+	case Notification::AppStartup:
+		return d->qutimIcon;
 	case Notification::FileTransferCompleted:
+		return d->transferCompletedIcon;
+	case Notification::BlockedMessage:
 	case Notification::UserHasBirthday:
 	case Notification::System:
 		return d->defaultNotificationIcon;

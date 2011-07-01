@@ -58,6 +58,10 @@ public:
 	QHash<Notification *, Contact*> contacts;
 	QIcon mailIcon;
 	QIcon typingIcon;
+	QIcon chatUserJoinedIcon;
+	QIcon chatUserLeftIcon;
+	QIcon qutimIcon;
+	QIcon transferCompletedIcon;
 	QIcon defaultNotificationIcon;
 	bool showNotificationIcon;
 	bool showOffline;

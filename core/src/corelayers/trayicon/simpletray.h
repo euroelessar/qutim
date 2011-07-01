@@ -97,6 +97,10 @@ private:
 	QBasicTimer m_iconTimer;
 	QIcon m_mailIcon;
 	QIcon m_typingIcon;
+	QIcon m_chatUserJoinedIcon;
+	QIcon m_chatUserLeftIcon;
+	QIcon m_qutimIcon;
+	QIcon m_transferCompletedIcon;
 	QIcon m_defaultNotificationIcon;
 	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
