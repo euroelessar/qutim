@@ -18,6 +18,8 @@
 #include <qutim/event.h>
 #include <qutim/conference.h>
 #include <qutim/utils.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
 #include <QTimer>
 #include <QCoreApplication>
 
@@ -104,6 +106,13 @@ NotificationFilterImpl::NotificationFilterImpl()
 	registerFilter(this, LowPriority);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+
+	foreach (Protocol *proto, Protocol::all()) {
+		foreach (Account *acc, proto->accounts())
+			onAccountCreated(acc);
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	}
 }
 
 NotificationFilterImpl::~NotificationFilterImpl()
@@ -139,12 +148,29 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 
 
 	switch (request.type()) {
+	case Notification::UserChangedStatus:
+	case Notification::UserOnline:
+	case Notification::UserOffline: {
+		Buddy *buddy = qobject_cast<Buddy*>(request.object());
+		if (buddy) {
+			Account *acc = buddy->account();
+			Status::Type status = acc->status().type();
+			if (status == Status::Offline || status == Status::Connecting ||
+				m_connectingAccounts.contains(buddy->account()))
+			{
+				// We don't want the notification because the buddy's account is
+				// either loading its roster or offline.
+				request.reject("loadingRoster");
+			}
+		}
+
+		// fall through
+	}
 	case Notification::OutgoingMessage:
 	case Notification::IncomingMessage:
 	case Notification::ChatIncomingMessage:
 	case Notification::ChatOutgoingMessage:
 	case Notification::UserTyping:
-	case Notification::UserChangedStatus:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
 	case Notification::ChatUserLeft:
@@ -171,6 +197,17 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 void NotificationFilterImpl::notificationCreated(Notification *notification)
 {
 	NotificationRequest request = notification->request();
+	Notification::Type type = request.type();
+
+	if (type == Notification::UserChangedStatus ||
+		type == Notification::UserOnline ||
+		type == Notification::UserOffline)
+	{
+		// I am not sure how to handle the notification,
+		// so I am just trying to imitate miranda's behaviour.
+		QTimer::singleShot(5000, notification, SLOT(deleteLater()));
+		return;
+	}
 
 	ChatUnit *unit = getRealUnit(request.object());
 	if (unit) {
@@ -240,5 +277,41 @@ void NotificationFilterImpl::onNotificationDestroyed()
 		}
 	}
 }
+
+void NotificationFilterImpl::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+}
+
+void NotificationFilterImpl::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
+													const qutim_sdk_0_3::Status &previous)
+{
+	Account *acc = sender_cast<Account*>(sender());
+	if (status.type() != Status::Offline && previous.type() == Status::Connecting) {
+		QTimer *timer = m_connectingAccounts.value(acc);
+		if (!timer) {
+			timer = new QTimer(this);
+			timer->setInterval(20000);
+			timer->setSingleShot(true);
+			timer->setProperty("account", qVariantFromValue(acc));
+			connect(timer, SIGNAL(timeout()), SLOT(onAccountConnected()));
+			m_connectingAccounts.insert(acc, timer);
+		} else {
+			timer->stop();
+		}
+		timer->start();
+	}
+}
+
+void NotificationFilterImpl::onAccountConnected()
+{
+	QTimer *timer = sender_cast<QTimer*>(sender());
+	Account *acc = timer->property("account").value<Account*>();
+	Q_ASSERT(acc);
+	timer->deleteLater();
+	m_connectingAccounts.remove(acc);
+}
+
 
 } // namespace Core

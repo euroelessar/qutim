@@ -182,6 +182,11 @@ JAccount::JAccount(const QString &id) :
 	d_ptr(new JAccountPrivate(this))
 {
 	Q_D(JAccount);
+	connect(&d->client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
+			this, SLOT(_q_disconnected(Jreen::Client::DisconnectReason)));
+	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
+			this ,SLOT(_q_init_extensions(QSet<QString>)));
+
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 	d->loadedModules = 0;
 	d->roster = new JRoster(this);
@@ -221,11 +226,7 @@ JAccount::JAccount(const QString &id) :
 	//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
 	
 	d->roster->loadFromStorage();
-	
-	connect(&d->client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
-			this, SLOT(_q_disconnected(Jreen::Client::DisconnectReason)));
-	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
-			this ,SLOT(_q_init_extensions(QSet<QString>)));
+
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	

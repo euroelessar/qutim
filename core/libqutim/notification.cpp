@@ -64,7 +64,10 @@ public:
 class NotificationRequestPrivate : public DynamicPropertyData
 {
 public:
-	NotificationRequestPrivate() : DynamicPropertyData(), object(0) {}
+	NotificationRequestPrivate() : DynamicPropertyData(), object(0)
+	{
+		enabledBackends = backendHash()->keys().toSet();
+	}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
 		title(o.title), type(o.type), actions(o.actions) {}
@@ -316,13 +319,11 @@ static QList<Setter> setters   = QList<Setter>() //TODO
 NotificationRequest::NotificationRequest() :
 	d_ptr(new NotificationRequestPrivate)
 {
-	d_ptr->enabledBackends = backendHash()->keys().toSet();
 }
 
 NotificationRequest::NotificationRequest(const Message &msg) :
 	d_ptr(new NotificationRequestPrivate)
 {
-	d_ptr->enabledBackends = backendHash()->keys().toSet();
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
 
@@ -340,7 +341,21 @@ NotificationRequest::NotificationRequest(Notification::Type type) :
 	d_ptr(new NotificationRequestPrivate)
 {
 	d_ptr->type = type;
-	d_ptr->enabledBackends = backendHash()->keys().toSet();
+}
+
+NotificationRequest::NotificationRequest(Buddy *buddy, const Status &status, const Status &previous) :
+	d_ptr(new NotificationRequestPrivate)
+{
+	d_ptr->text = status.text();
+	d_ptr->object = buddy;
+	setProperty("previousStatus", qVariantFromValue(previous));
+
+	Status::Type statusType = status.type();
+	d_ptr->type = Notification::UserChangedStatus;
+	if (statusType == Status::Offline)
+		d_ptr->type = Notification::UserOffline;
+	else if (previous.type() == Status::Offline)
+		d_ptr->type = Notification::UserOnline;
 }
 
 NotificationRequest::NotificationRequest(const NotificationRequest &other)

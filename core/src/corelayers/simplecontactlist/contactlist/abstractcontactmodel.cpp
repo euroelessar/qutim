@@ -329,7 +329,8 @@ void AbstractContactModel::removeFromContactList(Contact *contact)
 QIcon AbstractContactModel::getIconForNotification(Notification *notification) const
 {
 	Q_D(const AbstractContactModel);
-	switch (notification->request().type()) {
+	NotificationRequest request = notification->request();
+	switch (request.type()) {
 	case Notification::IncomingMessage:
 	case Notification::OutgoingMessage:
 	case Notification::ChatIncomingMessage:
@@ -337,14 +338,15 @@ QIcon AbstractContactModel::getIconForNotification(Notification *notification) c
 		return d->mailIcon;
 	case Notification::UserTyping:
 		return d->typingIcon;
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+		return request.property("previousStatus", Status(Status::Offline)).icon();
 	case Notification::AppStartup:
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
 	case Notification::ChatUserLeft:
 	case Notification::FileTransferCompleted:
-	case Notification::UserOnline:
-	case Notification::UserOffline:
-	case Notification::UserChangedStatus:
 	case Notification::UserHasBirthday:
 	case Notification::System:
 		return d->defaultNotificationIcon;

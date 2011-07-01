@@ -68,7 +68,6 @@ public:
 	ChatSessionImpl *q_ptr;
 	//ChatState statusToState(Status::Type type);
 public slots:
-	void onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk_0_3::Status old, bool silent = false);
 	void onActiveTimeout();
 	void onResourceChosen(bool active);
 	void onSendToLastActiveResourceActivated(bool active);

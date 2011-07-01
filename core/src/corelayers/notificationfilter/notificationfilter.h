@@ -21,6 +21,7 @@
 #include <qutim/startupmodule.h>
 #include <qutim/chatsession.h>
 #include <QMultiHash>
+#include <QTimer>
 
 namespace Core {
 
@@ -41,9 +42,14 @@ private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
 	void onNotificationDestroyed();
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
+								const qutim_sdk_0_3::Status &previous);
+	void onAccountConnected();
 private:
 	typedef QMultiHash<ChatUnit*, Notification*> Notifications;
 	Notifications m_notifications;
+	QHash<Account*, QTimer*> m_connectingAccounts;
 };
 
 } // namespace Core

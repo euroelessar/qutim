@@ -32,6 +32,8 @@ class NotificationRequestPrivate;
 class NotificationActionPrivate;
 class NotificationBackendPrivate;
 class Message;
+class Status;
+class Buddy;
 
 class LIBQUTIM_EXPORT Notification : public QObject
 {
@@ -115,6 +117,7 @@ public:
 	NotificationRequest();
 	NotificationRequest(const Message &msg);
 	NotificationRequest(Notification::Type type);
+	NotificationRequest(Buddy *buddy, const Status &status, const Status &previous);
 	NotificationRequest(const NotificationRequest &other);
 	~NotificationRequest();
 	NotificationRequest &operator =(const NotificationRequest &other);
