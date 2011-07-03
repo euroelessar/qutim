@@ -74,31 +74,10 @@ static QString toString(Notification::Type type)
 	return title;
 }
 
-// TODO: maybe we should move it to libqutim?
-static inline ChatUnit *getRealUnit(QObject *obj)
+static inline ChatUnit *getUnitForSession(QObject *obj)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
-	if (!unit)
-		return 0;
-
-	static quint16 realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	Event event(realUnitRequestEvent);
-	QCoreApplication::sendEvent(unit, &event);
-
-	if (qobject_cast<Conference*>(unit))
-		return unit;
-
-	Contact *contact = event.at<Contact*>(0);
-	while (unit && !contact) {
-		if (!!(contact = qobject_cast<Contact*>(unit)))
-			break;
-		unit = unit->upperUnit();
-	}
-
-	if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
-		contact = meta;
-
-	return contact;
+	return unit ? unit->account()->getUnitForSession(unit) : 0;
 }
 
 NotificationFilterImpl::NotificationFilterImpl()
@@ -214,7 +193,7 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 		return;
 	}
 
-	ChatUnit *unit = getRealUnit(request.object());
+	ChatUnit *unit = getUnitForSession(request.object());
 	if (unit) {
 		// If the chatunit's session is not active, show the notification until
 		// it is activated; otherwise, show the notification only for a few
@@ -264,7 +243,7 @@ void NotificationFilterImpl::onSessionActivated(bool active)
 	if (!active)
 		return;
 	ChatSession *session = sender_cast<ChatSession*>(sender());
-	ChatUnit *unit = getRealUnit(session->unit());
+	ChatUnit *unit = getUnitForSession(session->unit());
 	if (unit) {
 		foreach (Notification *notification, m_notifications.values(unit))
 			notification->reject();
@@ -276,7 +255,7 @@ void NotificationFilterImpl::onSessionActivated(bool active)
 void NotificationFilterImpl::onNotificationFinished()
 {
 	Notification *notification = sender_cast<Notification*>(sender());
-	ChatUnit *unit = getRealUnit(notification->request().object());
+	ChatUnit *unit = getUnitForSession(notification->request().object());
 	m_notifications.remove(unit, notification);
 	if (!m_notifications.contains(unit))
 		disconnect(unit, 0, this, 0);
