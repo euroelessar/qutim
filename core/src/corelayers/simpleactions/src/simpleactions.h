@@ -2,6 +2,7 @@
  *  simpleactions.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -23,6 +24,7 @@ namespace qutim_sdk_0_3
 {
 class ActionGenerator;
 class Status;
+class Account;
 }
 
 namespace Core {
@@ -34,16 +36,16 @@ public:
 	SimpleActions();
 	virtual ~SimpleActions();
 private slots:
-	void onTagsEditCreated(QAction *, QObject *);
 	void onTagsEditAction(QObject*);
 	void onCopyIdCreated(QAction *, QObject *);
 	void onCopyIdTriggered(QObject *obj);
-	void onContactRenameCreated(QAction *, QObject *);
 	void onContactRenameAction(QObject*);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
 	void onContactAddRemoveActionCreated(QAction *, QObject *);
 	void onContactAddRemoveAction(QObject*);
+	void onContactAddRemoveActionDestroyed();
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);
 	void inListChanged(bool);
 	void onDisableSoundActionCreated(QAction *, QObject *);

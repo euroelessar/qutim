@@ -2,6 +2,7 @@
  *  simpleactions.cpp
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -85,7 +86,6 @@ SimpleActions::SimpleActions()
 	m_tagEditGen.reset(new ActionGenerator(Icon("feed-subscribe"),
 										   QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
 										   this, SLOT(onTagsEditAction(QObject*))));
-	m_tagEditGen->subscribe(this, SLOT(onTagsEditCreated(QAction*, QObject*)));
 	MenuController::addAction<Contact>(m_tagEditGen.data());
 
 	m_copyIdGen.reset(new CopyIdGenerator(this));
@@ -96,7 +96,6 @@ SimpleActions::SimpleActions()
 	m_contactRenameGen.reset(new ActionGenerator(Icon("user-properties"),
 												 QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
 												 this, SLOT(onContactRenameAction(QObject*))));
-	m_contactRenameGen->subscribe(this, SLOT(onContactRenameCreated(QAction*,QObject*)));
 	MenuController::addAction<Contact>(m_contactRenameGen.data());
 
 	m_showInfoGen.reset(new ActionGenerator(Icon("dialog-information"),
@@ -127,6 +126,13 @@ SimpleActions::SimpleActions()
 	if (contactList)
 		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_disableSound.data()));
 	enableSound(isSoundEnabled());
+
+	foreach (Protocol *proto, Protocol::all()) {
+		foreach (Account *acc, proto->accounts())
+			onAccountCreated(acc);
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	}
 }
 
 SimpleActions::~SimpleActions()
@@ -145,12 +151,6 @@ void SimpleActions::onTagsEditAction(QObject *controller)
 	SystemIntegration::show(editor);
 }
 
-void SimpleActions::onTagsEditCreated(QAction *a, QObject *o)
-{
-	Q_UNUSED(a);
-	Q_UNUSED(o);
-}
-
 void SimpleActions::onCopyIdCreated(QAction *action, QObject *obj)
 {
 	ChatUnit *unit = sender_cast<ChatUnit*>(obj);
@@ -163,12 +163,6 @@ void SimpleActions::onCopyIdTriggered(QObject *obj)
 	ChatUnit *unit = sender_cast<ChatUnit*>(obj);
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(unit->id());
-}
-
-
-void SimpleActions::onContactRenameCreated(QAction *, QObject *)
-{
-
 }
 
 void SimpleActions::onContactRenameAction(QObject *o)
@@ -189,34 +183,19 @@ void SimpleActions::onShowInfoAction(QObject *obj)
 
 void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller)
 {
-	if(Account *a = qobject_cast<Account*>(controller)) {
-		connect(a, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-	}
 	ShowInfo::checkAction(controller,action);
-}
-
-void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
-{
-	QMap<QObject*, QAction*> actions = m_showInfoGen->actions();
-	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
-	for(;it != actions.constEnd(); it++)
-		ShowInfo::checkAction(it.key(), it.value());
-
-	actions = m_contactAddRemoveGen->actions();
-	it = actions.constBegin();
-	for(;it != actions.constEnd(); it++)
-		AddRemove::checkContact(it.value(), sender_cast<Contact*>(it.key()));
 }
 
 void SimpleActions::onContactAddRemoveActionCreated(QAction *a, QObject *o)
 {
 	Contact *contact = sender_cast<Contact*>(o);
+	a->setProperty("contact", qVariantFromValue(contact));
 	AddRemove::checkContact(a, contact);
-	connect(contact->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 	connect(contact, SIGNAL(inListChanged(bool)),
-			this, SLOT(inListChanged(bool)));
+			this, SLOT(inListChanged(bool)),
+			Qt::UniqueConnection);
+	connect(a, SIGNAL(destroyed()),
+			SLOT(onContactAddRemoveActionDestroyed()));
 }
 
 void SimpleActions::onContactAddRemoveAction(QObject *obj)
@@ -233,6 +212,34 @@ void SimpleActions::onContactAddRemoveAction(QObject *obj)
 
 	}
 	contact->setInList(!contact->isInList());
+}
+
+void SimpleActions::onContactAddRemoveActionDestroyed()
+{
+	Contact *contact = sender()->property("contact").value<Contact*>();
+	if (contact && m_contactAddRemoveGen->actions(contact).isEmpty()) {
+		disconnect(contact, SIGNAL(inListChanged(bool)),
+				   this, SLOT(inListChanged(bool)));
+	}
+}
+
+void SimpleActions::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+}
+
+void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
+{
+	QMap<QObject*, QAction*> actions = m_showInfoGen->actions();
+	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
+	for(;it != actions.constEnd(); it++)
+		ShowInfo::checkAction(it.key(), it.value());
+
+	actions = m_contactAddRemoveGen->actions();
+	it = actions.constBegin();
+	for(;it != actions.constEnd(); it++)
+		AddRemove::checkContact(it.value(), sender_cast<Contact*>(it.key()));
 }
 
 void SimpleActions::inListChanged(bool)
