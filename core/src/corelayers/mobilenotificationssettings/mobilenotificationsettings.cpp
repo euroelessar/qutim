@@ -104,7 +104,6 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	m_typesWidget = new QTreeWidget(this);
 	m_typesWidget->setAlternatingRowColors(true);
 	m_typesWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	m_typesWidget->setItemsExpandable(false);
 	m_typesWidget->header()->hide();
 
 	foreach (NotificationBackend *backend, NotificationBackend::all()) {
@@ -133,7 +132,7 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	connect(m_typesWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
 			SLOT(onItemChanged(QTreeWidgetItem*,int)));
 
-	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications if a chat is active"), this);
+	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications when chat is active"), this);
 	layout->addWidget(m_notificationInActiveChatBox);
 	lookForWidgetState(m_notificationInActiveChatBox);
 

@@ -257,7 +257,7 @@ void setTheme(const SoundTheme &theme)
 SoundHandler::SoundHandler() :
 	NotificationBackend("Sound")
 {
-
+	setDescription(tr("Play sound"));
 }
 
 void SoundHandler::handleNotification(Notification *notification)

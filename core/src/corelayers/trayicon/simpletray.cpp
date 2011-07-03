@@ -84,6 +84,8 @@ public:
 SimpleTray::SimpleTray() :
 	NotificationBackend("Tray")
 {
+	setDescription(tr("Blink icon in the tray"));
+
 	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
 		qDebug() << "No System Tray Available. Tray icon not loaded.";
 		return;

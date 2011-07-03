@@ -75,6 +75,8 @@ public:
 	State state();
 	static LocalizedString typeString(Type type);
 	static LocalizedStringList typeStrings();
+	static LocalizedString descriptionString(Type type);
+	static LocalizedStringList descriptionStrings();
 public slots:
 	void accept();
 	void ignore();

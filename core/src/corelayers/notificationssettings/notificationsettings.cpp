@@ -21,6 +21,7 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 
 #include <qutim/notification.h>
 #include <qutim/config.h>
@@ -52,6 +53,7 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 	m_typesWidget->setShowGrid(false);
 	m_typesWidget->setAlternatingRowColors(true);
 	m_typesWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_typesWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	m_typesWidget->horizontalHeader()->setStretchLastSection(true);
 	m_typesWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	m_typesWidget->horizontalHeader()->hide();
@@ -60,10 +62,9 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 
 	for (int i = 0; i <= Notification::LastType; ++i) {
 		Notification::Type type = static_cast<Notification::Type>(i);
-		QTableWidgetItem *item = new QTableWidgetItem(Notification::typeString(type));
-		m_typesWidget->setItem(i, 0, item);
 
-		// TODO: add description column
+		QTableWidgetItem *typeItem = new QTableWidgetItem(Notification::descriptionString(type));
+		m_typesWidget->setItem(i, 0, typeItem);
 	}
 
 	m_typesWidget->setCurrentCell(0, 0);
@@ -82,7 +83,10 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 		lookForWidgetState(box);
 	}
 
-	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications if a chat is active"), this);
+	layout->addSpacerItem(new QSpacerItem(0, 5, QSizePolicy::Preferred, QSizePolicy::Fixed));
+	layout->addWidget(new QLabel(tr("<b>Additional settings:</b>"), this));
+
+	m_notificationInActiveChatBox = new QCheckBox(tr("Disable notifications when chat is active"), this);
 	layout->addWidget(m_notificationInActiveChatBox);
 	lookForWidgetState(m_notificationInActiveChatBox);
 

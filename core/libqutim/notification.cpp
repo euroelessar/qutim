@@ -177,28 +177,58 @@ void Notification::reject()
 
 LocalizedStringList Notification::typeStrings()
 {
-	LocalizedStringList list;
-	list << QT_TRANSLATE_NOOP("Notification", "Incoming Message")
-		 << QT_TRANSLATE_NOOP("Notification", "Outgoing Message")
-		 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
-		 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
-		 << QT_TRANSLATE_NOOP("Notification", "User joined chat")
-		 << QT_TRANSLATE_NOOP("Notification", "User left chat")
-		 << QT_TRANSLATE_NOOP("Notification", "Incoming chat message")
-		 << QT_TRANSLATE_NOOP("Notification", "Outgoing chat message")
-		 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
-		 << QT_TRANSLATE_NOOP("Notification", "User online")
-		 << QT_TRANSLATE_NOOP("Notification", "User offline")
-		 << QT_TRANSLATE_NOOP("Notification", "User changed status")
-		 << QT_TRANSLATE_NOOP("Notification", "User has birthday!")
-		 << QT_TRANSLATE_NOOP("Notification", "User typing")
-		 << QT_TRANSLATE_NOOP("Notification", "System");
+	static LocalizedStringList list;
+	if (list.isEmpty()) {
+		list << QT_TRANSLATE_NOOP("Notification", "Incoming Message")
+			 << QT_TRANSLATE_NOOP("Notification", "Outgoing Message")
+			 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
+			 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact joined conference")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact left conference")
+			 << QT_TRANSLATE_NOOP("Notification", "Incoming conference message")
+			 << QT_TRANSLATE_NOOP("Notification", "Outgoing conference message")
+			 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact online")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact offline")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact changed status")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact birthday")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact typing")
+			 << QT_TRANSLATE_NOOP("Notification", "System");
+	}
 	return list;
 }
 
 LocalizedString Notification::typeString(Type type)
 {
 	return typeStrings().value(type);
+}
+
+LocalizedStringList Notification::descriptionStrings()
+{
+	static LocalizedStringList list;
+	if (list.isEmpty()) {
+		list << QT_TRANSLATE_NOOP("Notification", "A new message has been received")
+			 << QT_TRANSLATE_NOOP("Notification", "A message has been sent")
+			 << QT_TRANSLATE_NOOP("Notification", "qutIM has started")
+			 << QT_TRANSLATE_NOOP("Notification", "A message has been blocked")
+			 << QT_TRANSLATE_NOOP("Notification", "A user has joined a conference")
+			 << QT_TRANSLATE_NOOP("Notification", "A user has left a conference")
+			 << QT_TRANSLATE_NOOP("Notification", "A new conference message has been received")
+			 << QT_TRANSLATE_NOOP("Notification", "A conference message has been sent")
+			 << QT_TRANSLATE_NOOP("Notification", "A file transfer has been completed")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has gone online")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has gone offline")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has changed status")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has birthday!")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact is typing")
+			 << QT_TRANSLATE_NOOP("Notification", "A system notification");
+	}
+	return list;
+}
+
+LocalizedString Notification::descriptionString(Type type)
+{
+	return descriptionStrings().value(type);
 }
 
 NotificationAction::NotificationAction(const QIcon &icon, const LocalizedString &title,
