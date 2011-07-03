@@ -25,6 +25,7 @@
 #include <qutim/utils.h>
 #include <qutim/servicemanager.h>
 #include <qutim/inforequest.h>
+#include <qutim/notification.h>
 #include <QClipboard>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -116,6 +117,16 @@ SimpleActions::SimpleActions()
 	m_contactAddRemoveGen->setType(ActionTypeAdditional);
 	m_contactAddRemoveGen->subscribe(this, SLOT(onContactAddRemoveActionCreated(QAction*,QObject*)));
 	MenuController::addAction<Contact>(m_contactAddRemoveGen.data());
+
+	m_disableSound.reset(new ActionGenerator(QIcon(),
+								QT_TRANSLATE_NOOP("ContactList", "Enable/disable sound"),
+								this, SLOT(onDisableSoundAction(QAction*))));
+	m_disableSound->setCheckable(true);
+	m_disableSound->subscribe(this, SLOT(onDisableSoundActionCreated(QAction*,QObject*)));
+	QObject *contactList = ServiceManager::getByName("ContactList");
+	if (contactList)
+		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_disableSound.data()));
+	enableSound(isSoundEnabled());
 }
 
 SimpleActions::~SimpleActions()
@@ -233,6 +244,49 @@ void SimpleActions::inListChanged(bool)
 		AddRemove::checkContact(a, c);
 }
 
+static QIcon soundIcon(bool isEnabled)
+{
+	return Icon(QLatin1String(isEnabled ? "audio-volume-high" : "audio-volume-muted"));
+}
+
+void SimpleActions::onDisableSoundActionCreated(QAction *action, QObject *obj)
+{
+	Q_UNUSED(obj);
+	bool isEnabled = isSoundEnabled();
+	action->setChecked(isEnabled);
+	action->setIcon(soundIcon(isEnabled));
+}
+
+void SimpleActions::onDisableSoundAction(QAction *action)
+{
+	bool isEnabled = action->isChecked();
+	enableSound(isEnabled);
+	action->setIcon(soundIcon(isEnabled));
+}
+
+void SimpleActions::enableSound(bool enable)
+{
+	QByteArray sound("Sound");
+	for (int i = 0; i <= Notification::LastType; ++i) {
+		Notification::Type type = static_cast<Notification::Type>(i);
+		if (enable)
+			NotificationRequest::unblockBackend(type, sound);
+		else
+			NotificationRequest::blockBackend(type, sound);
+	}
+
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	cfg.setValue(QLatin1String("soundEnabled"), enable);
+	cfg.endGroup();
+}
+
+bool SimpleActions::isSoundEnabled()
+{
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	return cfg.value("soundEnabled", true);
+}
 
 } // namespace Core
 

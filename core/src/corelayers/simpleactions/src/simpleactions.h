@@ -46,12 +46,18 @@ private slots:
 	void onContactAddRemoveAction(QObject*);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);
 	void inListChanged(bool);
-private:;
+	void onDisableSoundActionCreated(QAction *, QObject *);
+	void onDisableSoundAction(QAction *action);
+private:
+	void enableSound(bool enable);
+	bool isSoundEnabled();
+private:
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactRenameGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactAddRemoveGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_showInfoGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_disableSound;
 };
 
 } // namespace Core

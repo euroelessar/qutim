@@ -79,9 +79,9 @@ bool NowPlaying::load()
 	Settings::registerItem(settings);
 
 	m_stopStartAction = new StopStartActionGenerator(this, m_isWorking);
-	QObject *contactList = ServiceManager::getByName("ContactList");
+	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 	if (contactList)
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_stopStartAction));
+		contactList->addAction(m_stopStartAction);
 	return true;
 }
 
