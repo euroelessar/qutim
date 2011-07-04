@@ -101,6 +101,7 @@ private:
 	QIcon m_chatUserLeftIcon;
 	QIcon m_qutimIcon;
 	QIcon m_transferCompletedIcon;
+	QIcon m_birthdayIcon;
 	QIcon m_defaultNotificationIcon;
 	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;

@@ -158,6 +158,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	case Notification::BlockedMessage:
 	case Notification::ChatUserJoined:
 	case Notification::ChatUserLeft:
+	case Notification::UserHasBirthday:
 		{
 			NotificationAction action(QObject::tr("Open chat"),
 									  this,
