@@ -26,8 +26,10 @@ namespace KineticPopups {
 using namespace qutim_sdk_0_3;
 
 Backend::Backend() :
+	NotificationBackend("Popup"),
 	m_placer(new WidgetPlacer(this))
 {
+	setDescription(QT_TR_NOOP("Show popup"));
 	m_item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance,
 													  Icon("dialog-information"),
 													  QT_TRANSLATE_NOOP("Settings","Popups"));
@@ -56,23 +58,27 @@ void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
 		m_placer->addWidget(popup);
 		m_activeNotifyHash.insert(popup, notification);
 		connect(popup, SIGNAL(destroyed(QObject*)), SLOT(onPopupDestroyed(QObject*)));
+		connect(popup, SIGNAL(finished()), popup, SLOT(deleteLater()));
 	}
 }
 
 void Backend::onPopupDestroyed(QObject *obj)
 {
 	PopupWidget *popup = static_cast<PopupWidget*>(obj);
-	foreach (Notification *notify, m_activeNotifyHash.values(popup)) {
-		deref(notify);
-		m_activeNotifyHash.remove(popup, notify);
+	foreach (QWeakPointer<Notification> notify, m_activeNotifyHash.values(popup)) {
+		if (notify)
+			deref(notify.data());
 	}
+	m_activeNotifyHash.remove(popup);
 }
 
 bool Backend::split(qutim_sdk_0_3::Notification *notify)
 {
 	NotificationHash::const_iterator it = m_activeNotifyHash.constBegin();
-	for (; it != m_activeNotifyHash.constEnd(); it++) {
-		NotificationRequest other = it.value()->request();
+	for (; it != m_activeNotifyHash.constEnd(); ++it) {
+		if (!it.value())
+			continue;
+		NotificationRequest other = it.value().data()->request();
 		NotificationRequest request = notify->request();
 		if (request.object() && request.object() == other.object()
 				&& request.type() == other.type()) {

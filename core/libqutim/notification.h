@@ -21,7 +21,6 @@
 #include "actiongenerator.h"
 #include <QIcon>
 
-////Notifications API Draft
 namespace qutim_sdk_0_3
 {
 
@@ -30,7 +29,10 @@ class NotificationPrivate;
 class NotificationRequest;
 class NotificationRequestPrivate;
 class NotificationActionPrivate;
+class NotificationBackendPrivate;
 class Message;
+class Status;
+class Buddy;
 
 class LIBQUTIM_EXPORT Notification : public QObject
 {
@@ -41,32 +43,48 @@ public:
 	typedef QSharedPointer<Notification> Ptr; //FIXME find usable pointer!
 	enum Type
 	{
-		IncomingMessage			=	0x0001,
-		OutgoingMessage			=	0x0002,
-		AppStartup				=	0x0004,
-		BlockedMessage			=	0x0008,
-		ChatUserJoined			=	0x0010,
-		ChatUserLeaved			=	0x0020,
-		ChatIncomingMessage		=	0x0040,
-		ChatOutgoingMessage		=	0x0080,
-		FileTransferCompleted	=	0x0100,
-		UserOnline				=	0x0200,
-		UserOffline				=	0x0400,
-		UserChangedStatus		=	0x0800,
-		UserHasBirthday			=	0x1000,
-		UserTyping				=	0x2000,
-		System					=	0x4000
+		IncomingMessage,
+		OutgoingMessage,
+		AppStartup,
+		BlockedMessage,
+		ChatUserJoined,
+		ChatUserLeft,
+		ChatIncomingMessage,
+		ChatOutgoingMessage,
+		FileTransferCompleted,
+		UserOnline,
+		UserOffline,
+		UserChangedStatus,
+		UserHasBirthday,
+		UserTyping,
+		System,
+		LastType = System
+	};
+	enum State
+	{
+		Active,
+		Accepted,
+		Ignored,
+		Rejected
 	};
 	static Notification *send(const Message &msg);
 	static Notification *send(const QString &text);
 	~Notification();
 	NotificationRequest request() const;
+	State state();
 	static LocalizedString typeString(Type type);
 	static LocalizedStringList typeStrings();
+	static LocalizedString descriptionString(Type type);
+	static LocalizedStringList descriptionStrings();
 public slots:
 	void accept();
+	void ignore();
+	void reject();
 signals:
 	void accepted();
+	void ignored();
+	void rejected();
+	void finished(qutim_sdk_0_3::Notification::State state);
 protected:
 	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
@@ -78,6 +96,13 @@ typedef QList<Notification*> NotificationList;
 class LIBQUTIM_EXPORT NotificationAction
 {
 public:
+	enum Type
+	{
+		AcceptButton,
+		IgnoreButton,
+		AdditionalButton
+	};
+
 	NotificationAction();
 	NotificationAction(const QIcon &icon, const LocalizedString &title,
 					   QObject *receiver, const char *method);
@@ -88,6 +113,8 @@ public:
 	const NotificationAction &operator=(const NotificationAction &rhs);
 	QIcon icon() const;
 	LocalizedString title() const;
+	Type type() const;
+	void setType(Type type);
 	QObject *receiver() const;
 	const char *method() const;
 	void trigger() const;
@@ -102,6 +129,7 @@ public:
 	NotificationRequest();
 	NotificationRequest(const Message &msg);
 	NotificationRequest(Notification::Type type);
+	NotificationRequest(Buddy *buddy, const Status &status, const Status &previous);
 	NotificationRequest(const NotificationRequest &other);
 	~NotificationRequest();
 	NotificationRequest &operator =(const NotificationRequest &other);
@@ -118,6 +146,12 @@ public:
 	QString text() const;
 	void setType(Notification::Type type);
 	Notification::Type type() const;
+	void reject(const QByteArray &reason);
+	QSet<QByteArray> rejectionReasons() const;
+	void setBackends(const QSet<QByteArray> &backendTypes);
+	void blockBackend(const QByteArray &backendType);
+	void unblockBackend(const QByteArray &backendType);
+	bool isBackendBlocked(const QByteArray &backendType);
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
 	T property(const char *name, const T &def) const
@@ -134,12 +168,6 @@ private:
 class LIBQUTIM_EXPORT NotificationFilter
 {
 public:
-	enum Result
-	{
-		Accept,
-		Reject,
-		Error
-	};
 	enum Priority
 	{
 		LowPriority       = 0x00000100,
@@ -153,21 +181,51 @@ public:
 	static void unregisterFilter(NotificationFilter *handler);
 protected:
 	friend class NotificationRequest;
-	virtual Result filter(NotificationRequest &request) = 0;
+	virtual void filter(NotificationRequest &request) = 0;
+	virtual void notificationCreated(Notification *notification);
+	virtual void virtual_hook(int id, void *data);
 };
 
-class LIBQUTIM_EXPORT NotificationBackend : public QObject
+class LIBQUTIM_EXPORT NotificationBackend
 {
-	Q_OBJECT
-	Q_CLASSINFO("Type", "NoType")
+	Q_DECLARE_PRIVATE(NotificationBackend)
 public:
-	NotificationBackend();
+	NotificationBackend(const QByteArray &type);
 	virtual ~NotificationBackend();
 	//TODO rewrite on Notification::Ptr
 	virtual void handleNotification(Notification *notification) = 0;
+	QByteArray backendType() const;
+	LocalizedString description() const;
+	static QList<QByteArray> allTypes();
+	static NotificationBackend* get(const QByteArray &type);
+	static QList<NotificationBackend*> all();
 protected:
 	void ref(Notification *notification);
 	void deref(Notification *notification);
+	void setDescription(const LocalizedString &description);
+	void allowRejectedNotifications(const QByteArray &reason);
+	virtual void virtual_hook(int id, void *data);
+private:
+	friend class NotificationRequest;
+	QScopedPointer<NotificationBackendPrivate> d_ptr;
+};
+
+class LIBQUTIM_EXPORT NotificationManager : public QObject
+{
+	Q_OBJECT
+public:
+	static NotificationManager *instance();
+	static void setBackendState(const QByteArray &type, bool enabled);
+	static void enableBackend(const QByteArray &type);
+	static void disableBackend(const QByteArray &type);
+	static bool isBackendEnabled(const QByteArray &type);
+signals:
+	void backendCreated(const QByteArray &type, NotificationBackend *backend);
+	void backendDestroyed(const QByteArray &type, NotificationBackend *backend);
+	void backendStateChanged(const QByteArray &type, bool enabled);
+private:
+	friend class NotificationBackend;
+	NotificationManager();
 };
 
 } // namespace qutim_sdk_0_3
@@ -175,6 +233,7 @@ protected:
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationAction)
+Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationBackend*)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
 
 #endif // NOTIFICATION_H

@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationssettings.cpp
+ *  mobilenotificationssettings.cpp
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
@@ -14,44 +14,44 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "notificationssettings.h"
+#include "mobilenotificationssettings.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
-#include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
+#include <qutim/chatunit.h>
 #include <qutim/conference.h>
+#include <qutim/event.h>
+#include <QTimer>
 
 namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-NotificationsSettings::NotificationsSettings(QObject *parent) :
+MobileNotificationsSettings::MobileNotificationsSettings(QObject *parent) :
 	QObject(parent),
-	m_enabler(new NotifyEnabler(this))
+	m_enabler(new MobileNotifyEnabler(this))
 {
-	m_settings = new GeneralSettingsItem<Core::NotificationSettings>(
+	m_settings = new GeneralSettingsItem<Core::MobileNotificationSettings>(
 						Settings::General,
 						Icon("dialog-information"),
 						QT_TRANSLATE_NOOP("Settings","Notifications"));
 	Settings::registerItem(m_settings);
-	m_settings->connect(SIGNAL(enabledTypesChanged(EnabledNotificationTypes)),
-						m_enabler,
-						SLOT(enabledTypesChanged(EnabledNotificationTypes)));
+	m_settings->connect(SIGNAL(saved()), m_enabler, SLOT(reloadSettings()));
 
 	NotificationFilter::registerFilter(m_enabler, NotificationFilter::HighPriority);
 }
 
-NotificationsSettings::~NotificationsSettings()
+MobileNotificationsSettings::~MobileNotificationsSettings()
 {
 	NotificationFilter::unregisterFilter(m_enabler);
 	Settings::removeItem(m_settings);
 	delete m_settings;
 }
 
-NotifyEnabler::NotifyEnabler(QObject* parent): QObject(parent)
+MobileNotifyEnabler::MobileNotifyEnabler(QObject* parent): QObject(parent)
 {
-	m_enabledTypes = NotificationSettings::enabledTypes();
+	reloadSettings();
 	connect(NotificationManager::instance(),
 			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
 			SLOT(onBackendCreated(QByteArray)));
@@ -60,22 +60,33 @@ NotifyEnabler::NotifyEnabler(QObject* parent): QObject(parent)
 			SLOT(onBackendDestroyed(QByteArray)));
 }
 
-void NotifyEnabler::enabledTypesChanged(const EnabledNotificationTypes &enabledTypes)
+void MobileNotifyEnabler::reloadSettings()
 {
-	m_enabledTypes = enabledTypes;
-	reloadSettings();
-}
+	m_enabledTypes.clear();
+	Config cfg;
+	cfg.beginGroup("notification");
 
-void NotifyEnabler::reloadSettings()
-{
-	Config cfg = Config().group("notification");
+	for (int i = 0; i <= Notification::LastType; ++i) {
+		Notification::Type type = static_cast<Notification::Type>(i);
+		QSet<QByteArray> backendTypes;
+		cfg.beginGroup(notificationTypeName(type));
+		foreach (NotificationBackend *backend, NotificationBackend::all()) {
+			QByteArray backendType = backend->backendType();
+			if (cfg.value(backendType, true))
+				backendTypes << backendType;
+		}
+		cfg.endGroup();
+		m_enabledTypes << backendTypes;
+	}
+
 	m_ignoreConfMsgsWithoutUserNick = cfg.value("ignoreConfMsgsWithoutUserNick", true);
+	cfg.endGroup();
 
 	cfg = Config("appearance").group("chat");
 	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 }
 
-void NotifyEnabler::onBackendCreated(const QByteArray &type)
+void MobileNotifyEnabler::onBackendCreated(const QByteArray &type)
 {
 	Config cfg;
 	cfg.beginGroup("notification");
@@ -88,7 +99,7 @@ void NotifyEnabler::onBackendCreated(const QByteArray &type)
 	cfg.endGroup();
 }
 
-void NotifyEnabler::onBackendDestroyed(const QByteArray &type)
+void MobileNotifyEnabler::onBackendDestroyed(const QByteArray &type)
 {
 	// Before removing the backend settings, check that another backend
 	// does not have the same type.
@@ -98,17 +109,11 @@ void NotifyEnabler::onBackendDestroyed(const QByteArray &type)
 	}
 }
 
-void NotifyEnabler::filter(NotificationRequest &request)
+void MobileNotifyEnabler::filter(NotificationRequest &request)
 {
 	Notification::Type type = request.type();
 
-	// Reject notification from an active session, if the notifications are disabled by user.
-	// TODO: maybe we should not block notifications about outgoing messages, they are almost
-	// always from an active session, so essentially the option disables all notification
-	// about the outgoing messages which already could be done via notification types settings.
-	// Do we want two different options that basically do the same thing?
-	// By the way, when (and if) you will do it, don't forget to do the same in mobile notification
-	// settings.
+	// Block notification from an active session, if the notifications are disabled by user.
 	if (!m_notificationsInActiveChat) {
 		if (ChatUnit *unit = qobject_cast<ChatUnit*>(request.object())) {
 			if (ChatSession *session = ChatLayer::get(unit, false)) {
@@ -124,7 +129,7 @@ void NotifyEnabler::filter(NotificationRequest &request)
 		type == Notification::ChatIncomingMessage ||
 		type == Notification::ChatOutgoingMessage)
 	{
-		// Reject conference messages that do not contain user nick
+		// Ignore conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
 			QString msg = request.text();
 			Buddy *me = conf->me();

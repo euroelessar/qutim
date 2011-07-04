@@ -331,7 +331,6 @@ void SeparatedModel::removeFromContactList(Contact *contact, bool deleted)
 		delete item;
 	}
 	d->contacts.remove(contact);
-	d->unreadContacts.remove(contact);
 }
 
 void SeparatedModel::contactDeleted(QObject *obj)

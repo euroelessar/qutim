@@ -25,7 +25,7 @@
 #include "sessiondataitem.h"
 #include "metainfo/infometarequest.h"
 #include <qutim/objectgenerator.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>

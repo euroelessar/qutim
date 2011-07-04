@@ -36,7 +36,7 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>
@@ -271,6 +271,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 										const Jreen::MUCRoom::Participant *participant)
 {
 	Q_D(JMUCSession);
+	Notification::Type notificationType = Notification::System;
 	QString nick = presence.from().resource();
 	bool isSelf = nick == d->room->nick();
 	QString text;
@@ -303,6 +304,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			} else
 				user->deleteLater();
 		}
+		notificationType = Notification::ChatUserLeft;
 	} else if (participant->isNickChanged()) {
 		QString newNick = participant->newNick();
 		if (newNick.isEmpty())
@@ -349,6 +351,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			d->users.insert(nick, user);
 			if (ChatSession *session = ChatLayer::get(this, false))
 				session->addContact(user);
+			notificationType = Notification::ChatUserJoined;
 		} else if (!user) {
 			return;
 		} else if (presence.subtype() == Presence::Unavailable) {
@@ -357,6 +360,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			if (ChatSession *session = ChatLayer::get(this, false))
 				session->removeContact(user);
 			user->deleteLater();
+			notificationType = Notification::ChatUserLeft;
 		} else {
 			user->setStatus(presence);
 		}
@@ -408,14 +412,11 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		//}
 	}
 	if (!text.isEmpty() && (d->isJoined || participant->isKicked() || participant->isBanned())) {
-		qutim_sdk_0_3::Message msg(text);
-		msg.setChatUnit(this);
-		msg.setTime(QDateTime::currentDateTime());
-		msg.setProperty("service", true);
-		msg.setProperty("silent", true);
-		msg.setIncoming(true);
-		if (ChatSession *chatSession = ChatLayer::get(this, false))
-			chatSession->appendMessage(msg);
+		NotificationRequest request(notificationType);
+		request.setObject(this);
+		request.setText(text);
+		request.setProperty("senderName", nick);
+		request.send();
 	}
 }
 
@@ -446,8 +447,6 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 		coreMsg.setProperty("senderName", nick);
 		if (user)
 			coreMsg.setProperty("senderId", user->id());
-		if (!coreMsg.text().contains(d->room->nick()))
-			coreMsg.setProperty("silent", true);
 		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 		ChatSession *chatSession = ChatLayer::get(this, true);
 		const DelayedDelivery *when = msg.when();
@@ -481,6 +480,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
+	coreMsg.setProperty("silent", true);
 	coreMsg.setIncoming(true);
 	chatSession->appendMessage(coreMsg);
 }

@@ -61,11 +61,11 @@ void EmoEditPlugin::init()
 
 bool EmoEditPlugin::load()
 {
+	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	foreach (ChatSession *session, ChatLayer::instance()->sessions())
 		onSessionCreated(session);
-	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
 	return true;
 }
 

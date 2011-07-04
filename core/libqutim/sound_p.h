@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer_p.h
+ *  sound_p.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -13,20 +13,21 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSLAYER_P_H
-#define NOTIFICATIONSLAYER_P_H
-#include "notification.h"
+#ifndef SOUND_P_H
+#define SOUND_P_H
+
+#include "sound.h"
 
 namespace qutim_sdk_0_3 {
 
-class SoundHandler : public NotificationBackend
+class SoundHandler : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
-	Q_CLASSINFO("Type", "Sound")
+	Q_OBJECT
 public:
-	SoundHandler();
+	SoundHandler(QObject *parent = 0);
 	virtual void handleNotification(Notification *notification);
 };
 
 } //namespace qutim_sdk_0_3
 
-#endif // NOTIFICATIONSLAYER_P_H
+#endif // SOUND_P_H

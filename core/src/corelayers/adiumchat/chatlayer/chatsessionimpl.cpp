@@ -23,7 +23,7 @@
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
 #include <qutim/account.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/conference.h>
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
@@ -56,7 +56,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
-	d->notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
 	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 
@@ -125,10 +124,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
 
-	bool silent = message.property("silent", false);
-
 	if (conf) {
-		silent = true;
 		QString sender = conf->me() ? conf->me()->name() : QString();
 		if (message.text().contains(sender)) {
 			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
@@ -141,7 +137,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		}
 	}
 
-	if (!silent && (d->notificationsInActiveChat || !d->active))
+	if (!message.property("silent", false))
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {
@@ -250,41 +246,6 @@ QAbstractItemModel* ChatSessionImpl::getModel() const
 	return d_func()->model;
 }
 
-void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk_0_3::Status old, bool silent)
-{
-	Q_Q(ChatSessionImpl);
-	Notification::Type type = Notification::UserChangedStatus;
-	QString title = now.name().toString();
-
-	switch(now.type()) {
-	case Status::Offline: {
-		type = Notification::UserOffline;
-		break;
-	}
-	case Status::Online: {
-		type = Notification::UserOnline;
-		break;
-	}
-	default: {
-		break;
-	}
-	}
-
-	if(old.text() == now.text())
-		return;
-
-	Message msg;
-	msg.setChatUnit(chatUnit);
-	msg.setIncoming(true);
-	msg.setProperty("service",type);
-	msg.setProperty("title",title);
-	msg.setTime(QDateTime::currentDateTime());
-	msg.setText(now.text());
-	msg.setProperty("silent",silent);
-	msg.setProperty("store",!silent);
-	q->appendMessage(msg);
-}
-
 //ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
 //{
 //	//TODO may be need to move to protocols?
@@ -356,23 +317,17 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	setParent(unit);
 
-	if (Buddy *b = qobject_cast<Buddy *>(unit)) {
-		connect(b,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				d,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-		d->onStatusChanged(b->status(),Status(),true);
-	} else {
-		Conference *conf;
-		if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
-			foreach (ChatUnit *u, conf->lowerUnits()) {
-				if (Buddy *buddy = qobject_cast<Buddy*>(u))
-					removeContact(buddy);
-			}
+	Conference *conf;
+	if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
+		foreach (ChatUnit *u, conf->lowerUnits()) {
+			if (Buddy *buddy = qobject_cast<Buddy*>(u))
+				removeContact(buddy);
 		}
-		if (!!(conf = qobject_cast<Conference *>(unit))) {
-			foreach (ChatUnit *u, conf->lowerUnits()) {
-				if (Buddy *buddy = qobject_cast<Buddy*>(u))
-					addContact(buddy);
-			}
+	}
+	if (!!(conf = qobject_cast<Conference *>(unit))) {
+		foreach (ChatUnit *u, conf->lowerUnits()) {
+			if (Buddy *buddy = qobject_cast<Buddy*>(u))
+				addContact(buddy);
 		}
 	}
 

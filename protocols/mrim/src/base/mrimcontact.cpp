@@ -21,6 +21,7 @@
 #include "mrimcontact.h"
 #include <QBasicTimer>
 #include <qutim/authorizationdialog.h>
+#include <qutim/notification.h>
 
 struct MrimContactPrivate
 {
@@ -202,6 +203,8 @@ void MrimContact::setStatus(const MrimStatus& status)
 {
 	MrimStatus previous = p->status;
     p->status = status;
+	NotificationRequest request(this, status, previous);
+	request.send();
 	emit statusChanged(p->status, previous);
 }
 

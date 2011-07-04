@@ -23,7 +23,7 @@
 #include <qutim/conference.h>
 #include <qutim/message.h>
 #include <qutim/messagesession.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>

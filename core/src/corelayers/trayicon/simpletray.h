@@ -3,6 +3,7 @@
 ** qutIM instant messenger
 **
 ** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -26,9 +27,11 @@
 #ifndef SIMPLETRAY_H
 #define SIMPLETRAY_H
 
+#include "simpletraysettings.h"
 #include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/notification.h>
 #include <QSystemTrayIcon>
 #include <QBasicTimer>
 #include <QPixmap>
@@ -49,19 +52,17 @@ public slots:
 	void onStatusChanged(qutim_sdk_0_3::Status status);
 };
 
-class SimpleTray : public MenuController
+class SimpleTray : public MenuController, public NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "TrayIcon")
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
-
 public:
 	SimpleTray();
 	~SimpleTray();
 	void clActivationStateChanged(bool activated);
-
 private slots:
 	void onActivated(QSystemTrayIcon::ActivationReason);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
@@ -70,29 +71,47 @@ private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
-
+	void onNotificationFinished();
+	void reloadSettings();
 protected:
+	virtual void handleNotification(Notification *notification);
 	virtual void timerEvent(QTimerEvent *);
 	QIcon unreadIcon();
-
 private:
+	QIcon getIconForNotification(Notification *notification);
 	void generateIconSizes(const QIcon &backing, QIcon &icon, int number);
-
-	qint64 activationStateChangedTime;
+	void updateGeneratedIcon();
 	void validateProtocolActions();
+	Notification *currentNotification();
+private:
+	qint64 activationStateChangedTime;
 	QSystemTrayIcon *m_icon;
 	QMap<Account*, ActionGenerator*> m_actions;
 	QList<ProtocolSeparatorActionGenerator*> m_protocolActions;
 	QList<Account*> m_accounts;
 	Account *m_activeAccount;
 	QList<Protocol*> m_protocols;
-	QList<ChatSession*> m_sessions;
+	QHash<ChatSession*, quint64> m_sessions;
 	QIcon m_currentIcon;
 	QIcon m_generatedIcon;
 	QBasicTimer m_iconTimer;
 	QIcon m_mailIcon;
-	bool m_isMail;
+	QIcon m_typingIcon;
+	QIcon m_chatUserJoinedIcon;
+	QIcon m_chatUserLeftIcon;
+	QIcon m_qutimIcon;
+	QIcon m_transferCompletedIcon;
+	QIcon m_defaultNotificationIcon;
+	bool m_showGeneratedIcon;
 	SettingsItem *m_settingsItem;
+
+	QList<Notification*> m_messageNotifications;
+	QList<Notification*> m_typingNotifications;
+	QList<Notification*> m_notifications;
+	// Settings
+	SimpletraySettings::Option m_showNumber;
+	bool m_blink;
+	bool m_showIcon;
 };
 }
 

@@ -27,7 +27,7 @@
 #include <qutim/conference.h>
 #include <qutim/history.h>
 #include <qutim/emoticons.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QImageReader>
 #include <qutim/servicemanager.h>
 #include <QPlainTextEdit>

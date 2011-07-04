@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>302</width>
-    <height>319</height>
+    <width>300</width>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <property name="rowWrapPolicy">
     <enum>QFormLayout::WrapLongRows</enum>
    </property>
@@ -32,6 +35,20 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Send Key</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2"/>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QCheckBox" name="storeBox">
      <property name="text">
@@ -97,27 +114,6 @@
     <widget class="QCheckBox" name="menuBox">
      <property name="text">
       <string>Show menubar</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Send Key</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2"/>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QCheckBox" name="notifyBox">
-     <property name="text">
-      <string>Show notifications in active chat</string>
      </property>
     </widget>
    </item>

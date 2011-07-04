@@ -17,7 +17,7 @@
 #include "authdialogimpl_p.h"
 #include <qutim/debug.h>
 #include <qutim/authorizationdialog.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 
 namespace Core {
 

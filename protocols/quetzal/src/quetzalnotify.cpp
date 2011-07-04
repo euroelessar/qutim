@@ -15,7 +15,6 @@
  ****************************************************************************/
 
 #include "quetzalnotify.h"
-#include <qutim/notificationslayer.h>
 #include <qutim/notification.h>
 #include <QDesktopServices>
 #include <QUrl>

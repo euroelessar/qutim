@@ -3,7 +3,7 @@
 //#include "../../jprotocol.h"
 //#include "../muc/jmucsession.h"
 //#include "../vcard/jvcardmanager.h"
-//#include <qutim/notificationslayer.h>
+//#include <qutim/notification.h>
 //#include <qutim/messagesession.h>
 //#include <QDebug>
 

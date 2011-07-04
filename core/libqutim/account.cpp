@@ -18,7 +18,7 @@
 #include "account_p.h"
 #include "contact.h"
 #include "debug.h"
-#include "notificationslayer.h"
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {

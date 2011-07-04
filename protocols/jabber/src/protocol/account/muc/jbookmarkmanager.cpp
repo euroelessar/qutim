@@ -2,7 +2,7 @@
 #include "jmucmanager.h"
 #include "../jaccount.h"
 #include <qutim/dataforms.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/debug.h>
 
 namespace Jabber
