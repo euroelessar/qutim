@@ -28,6 +28,8 @@ Account::Account(const QString &id, Protocol *protocol) : MenuController(*new Ac
 	d->protocol = protocol;
 	d->id = id;
 	d->groupChatManager = 0;
+	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol) : MenuController(p, protocol)
@@ -36,6 +38,7 @@ Account::Account(AccountPrivate &p, Protocol *protocol) : MenuController(p, prot
 	d->protocol = protocol;
 	d->groupChatManager = 0;
 	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
 Account::~Account()
@@ -134,6 +137,11 @@ ContactsFactory *Account::contactsFactory()
 	return d_func()->contactsFactory;
 }
 
+InfoRequestFactory *Account::infoRequestFactory() const
+{
+	return d_func()->infoRequestFactory;
+}
+
 void Account::resetGroupChatManager(GroupChatManager *manager)
 {
 	Q_D(Account);
@@ -153,6 +161,11 @@ void Account::resetGroupChatManager(GroupChatManager *manager)
 void Account::setContactsFactory(ContactsFactory *factory)
 {
 	d_func()->contactsFactory = factory;
+}
+
+void Account::setInfoRequestFactory(InfoRequestFactory *factory)
+{
+	d_func()->infoRequestFactory = factory;
 }
 
 }

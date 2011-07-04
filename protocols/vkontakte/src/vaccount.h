@@ -45,7 +45,6 @@ public slots:
 	void saveSettings();
 protected:
 	QString password();
-	virtual bool event(QEvent *ev);
 private:
 	QScopedPointer<VAccountPrivate> d_ptr;
 	friend class VConnection;

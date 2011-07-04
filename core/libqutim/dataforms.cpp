@@ -199,7 +199,7 @@ DataItem DataItem::subitem(const QString &name, bool recursive) const
 		if (item.name() == name)
 			return item;
 		if (recursive) {
-			DataItem res = item.subitem(name);
+			DataItem res = item.subitem(name, true);
 			if (!res.isNull())
 				return res;
 		}

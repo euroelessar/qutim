@@ -1,9 +1,36 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (c) 2011 Ruslan Nigmatullin <euroelessar@gmail.com>
+**                    Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "jvcardmanager.h"
 #include "jinforequest.h"
 #include "../muc/jmucuser.h"
 #include "../roster/jcontact.h"
 #include "../roster/jroster.h"
 #include "../jaccount.h"
+#include "../../jprotocol.h"
 #include <QDir>
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
@@ -22,7 +49,14 @@ public:
 	JAccount *account;
 	//VCardManager *manager;
 	QHash<QString, QWeakPointer<JInfoRequest> > contacts;
+	QSet<ChatUnit*> observedUnits;
 };
+
+static bool isStatusOnline(const Status &status)
+{
+	Status::Type type = status.type();
+	return type != Status::Offline && type != Status::Connecting;
+}
 
 JVCardManager::JVCardManager(JAccount *account)
 	: QObject(account), d_ptr(new JVCardManagerPrivate)
@@ -31,6 +65,8 @@ JVCardManager::JVCardManager(JAccount *account)
 	d->account = account;
 	connect(account->client(),SIGNAL(iqReceived(Jreen::IQ)),
 			SLOT(handleIQ(Jreen::IQ)));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 JVCardManager::~JVCardManager()
@@ -119,6 +155,79 @@ bool JVCardManager::containsRequest(const QString &contact)
 JAccount * JVCardManager::account() const
 {
 	return d_func()->account;
+}
+
+JVCardManager::SupportLevel JVCardManager::supportLevel(QObject *object)
+{
+	Q_D(JVCardManager);
+	if (d->account == object) {
+		return isStatusOnline(d->account->status()) ? ReadWrite : Unavailable;
+	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
+		Account *acc = unit->account();
+		if (acc == d->account)
+			return isStatusOnline(acc->status()) ? ReadOnly : Unavailable;
+	}
+	return NotSupported;
+}
+
+InfoRequest *JVCardManager::createrDataFormRequest(QObject *object)
+{
+	Q_D(JVCardManager);
+	if (d->account == object) {
+		return new JInfoRequest(this, d->account);
+	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
+		if (unit->account() == d->account)
+			return new JInfoRequest(this, unit);
+	}
+	return 0;
+}
+
+bool JVCardManager::startObserve(QObject *object)
+{
+	Q_D(JVCardManager);
+	if (d->account == object) {
+		return true;
+	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
+		if (unit->account() == d->account) {
+			d->observedUnits.insert(unit);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool JVCardManager::stopObserve(QObject *object)
+{
+	Q_D(JVCardManager);
+	if (d->account == object)
+		return true;
+	else if (ChatUnit *contact = qobject_cast<ChatUnit*>(object))
+		return d->observedUnits.remove(contact) != 0;
+	return false;
+}
+
+void JVCardManager::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
+										   const qutim_sdk_0_3::Status &previous)
+{
+	Q_D(JVCardManager);
+	bool isOnline = isStatusOnline(status);
+	bool wasOnline = isStatusOnline(previous);
+	bool supported;
+
+	if (isOnline && !wasOnline)
+		supported = true;
+	else if (!isOnline && wasOnline)
+		supported = false;
+	else
+		return;
+
+	SupportLevel level = supported ? ReadWrite : Unavailable;
+	setSupportLevel(d->account, level);
+
+	level = supported ? ReadOnly : Unavailable;
+	foreach (ChatUnit *unit, d->observedUnits)
+		setSupportLevel(unit, level);
+
 }
 
 void JVCardManager::onIqReceived(const Jreen::IQ &iq, int)

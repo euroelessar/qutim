@@ -85,19 +85,15 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x)
 class JInfoRequestPrivate
 {
 public:
-	InfoRequest::State state;
 	Jreen::VCard::Ptr vcard;
-	DataItem *item;
-	QMap<QString, DataItem> items;
+	JVCardManager *manager;
 };
 
-JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
-	: d_ptr(new JInfoRequestPrivate)
+JInfoRequest::JInfoRequest(JVCardManager *manager, QObject *object)
+	: InfoRequest(object), d_ptr(new JInfoRequestPrivate)
 {
 	Q_D(JInfoRequest);
-	manager->fetchVCard(contact, this);
-	d->state = Request;
-	d->item = 0;
+	d->manager = manager;
 }
 
 JInfoRequest::~JInfoRequest()
@@ -107,26 +103,43 @@ JInfoRequest::~JInfoRequest()
 void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 {
 	Q_D(JInfoRequest);
+	d->vcard = vcard;
+	if (state() == InfoRequest::Requesting)
+		setState(InfoRequest::RequestDone);
+}
+
+Jreen::VCard::Ptr JInfoRequest::convert(const DataItem &item)
+{
+	Q_UNUSED(item);
+	Jreen::VCard::Ptr vcard = Jreen::VCard::Ptr::create();
+	return vcard;
+}
+
+DataItem JInfoRequest::createDataItem() const
+{
+	Q_D(const JInfoRequest);
 	DataItem item;
+	if (!d->vcard)
+		return item;
 	{
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 		// General page
 		{
 			// name
-			QString name = vcard->nickname().isEmpty() ? vcard->nickname() : vcard->formattedName();
+			QString name = d->vcard->nickname().isEmpty() ? d->vcard->nickname() : d->vcard->formattedName();
 			addItemList(Nick, general,name);
-			addItemList(FirstName, general, vcard->name().given());
-			addItemList(MiddleName, general, vcard->name().middle());
-			addItemList(LastName, general, vcard->name().family());
+			addItemList(FirstName, general, d->vcard->name().given());
+			addItemList(MiddleName, general, d->vcard->name().middle());
+			addItemList(LastName, general, d->vcard->name().family());
 			// birthday
-			addItem(Birthday, general, vcard->bday().date());
+			addItem(Birthday, general, d->vcard->bday().date());
 			//// homepage
-			addItemList(Homepage, general, vcard->url().toString());
+			addItemList(Homepage, general, d->vcard->url().toString());
 		}
 		//// telephone
 		{
-			if (!vcard->telephones().empty()) {
-				foreach (Jreen::VCard::Telephone phone, vcard->telephones())
+			if (!d->vcard->telephones().empty()) {
+				foreach (Jreen::VCard::Telephone phone, d->vcard->telephones())
 				{
 					DataType type;
 					if (phone.testType(Jreen::VCard::Telephone::Home))
@@ -145,8 +158,8 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 		}
 		//// email
 		{
-			if (!vcard->emails().empty()) {
-				foreach (Jreen::VCard::EMail email, vcard->emails())
+			if (!d->vcard->emails().empty()) {
+				foreach (Jreen::VCard::EMail email, d->vcard->emails())
 				{
 					DataType type;
 					if (email.testType(Jreen::VCard::EMail::Home))
@@ -166,8 +179,8 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 	// Addresses page
 	//{
 	//	DataItem addresses(QT_TRANSLATE_NOOP("ContactInfo", "Addresses"));
-	//	if (!vcard->addresses().empty()) {
-	//		foreach (VCard::Address address, vcard->addresses())
+	//	if (!d->vcard->addresses().empty()) {
+	//		foreach (VCard::Address address, d->vcard->addresses())
 	//		{
 	//			DataType type;
 	//			if (address.home)
@@ -194,16 +207,16 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 	// Work page
 	//{
 	//	DataItem work(QT_TRANSLATE_NOOP("ContactInfo", "Work"));
-	//	addItem(OrgName, work, vcard->org().name);
-	//	addItem(OrgUnit, work, vcard->org().units);
-	//	addItem(Title, work, vcard->title());
-	//	addItem(Role, work, vcard->role());
+	//	addItem(OrgName, work, d->vcard->org().name);
+	//	addItem(OrgUnit, work, d->vcard->org().units);
+	//	addItem(Title, work, d->vcard->title());
+	//	addItem(Role, work, d->vcard->role());
 	//	item.addSubitem(work);
 	//}
 	// About page
 	{
 		DataItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
-		addMultilineItem(About, about, vcard->desc());
+		addMultilineItem(About, about, d->vcard->desc());
 		item.addSubitem(about);
 	}
 
@@ -216,47 +229,39 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 	//	addItemList(Features, features,c->features().toList());
 	//	item.addSubitem(features);
 	//}
-
-	d->item = new DataItem(item);
-	d->vcard = vcard;
-	d->state = Done;
-	emit stateChanged(d->state);
+	return item;
 }
 
-Jreen::VCard::Ptr JInfoRequest::convert(const DataItem &item)
+void JInfoRequest::doRequest(const QSet<QString> &hints)
 {
-	Q_UNUSED(item);
-	Jreen::VCard::Ptr vcard = Jreen::VCard::Ptr::create();
-	return vcard;
+	Q_D(JInfoRequest);
+	Q_UNUSED(hints);
+	d->manager->fetchVCard(object()->property("id").toString(), this);
+	setState(InfoRequest::Requesting);
 }
 
-DataItem JInfoRequest::item(const QString &name) const
+void JInfoRequest::doUpdate(const DataItem &dataItem)
 {
-	Q_D(const JInfoRequest);
-	if (!d->item)
-		return DataItem();
-	else if (!name.isEmpty())
-		return d->items.value(name);
-	else
-		return *d->item;
+	Q_D(JInfoRequest);
+	Jreen::VCard::Ptr vcard = convert(dataItem);
+	d->manager->storeVCard(vcard);
+	setState(InfoRequest::Canceled); // Operation is not supported yet
 }
 
-InfoRequest::State JInfoRequest::state() const
+void JInfoRequest::doCancel()
 {
-	return d_func()->state;
+	setState(InfoRequest::Canceled);
 }
 
 void JInfoRequest::addItem(DataType type, DataItem &group, const QVariant &data)
 {
 	DataItem item(names()->at(type), titles()->at(type), data);
-	d_func()->items.insert(item.name(), item);
 	group.addSubitem(item);
 }
 
 void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const QString &data)
 {
 	DataItem item(names()->at(type), titles()->at(type), data);
-	d_func()->items.insert(item.name(), item);
 	item.setProperty("multiline", true);
 	item.setProperty("hideTitle", true);
 	group.addSubitem(item);

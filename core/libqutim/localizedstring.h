@@ -54,7 +54,7 @@ namespace qutim_sdk_0_3
 		QByteArray original() const { return m_str; }
 		void setContext(const QByteArray &ctx) { m_ctx = ctx; }
 		QByteArray context() const { return m_ctx; }
-		bool isNull() { return m_str.isNull(); }
+		bool isNull() const { return m_str.isNull(); }
 
 		inline bool operator==(const LocalizedString &s) const { return m_str == s.m_str; }
 		inline bool operator <(const LocalizedString &s) const { return m_str < s.m_str; }

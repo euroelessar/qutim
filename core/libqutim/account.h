@@ -30,6 +30,7 @@ class Conference;
 class AccountPrivate;
 class GroupChatManager;
 class ContactsFactory;
+class InfoRequestFactory;
 
 class Account;
 typedef QList<Account*> AccountList;
@@ -115,6 +116,7 @@ public:
 	*/
 	GroupChatManager *groupChatManager();
 	ContactsFactory *contactsFactory();
+	InfoRequestFactory *infoRequestFactory() const;
 protected:
 	/**
 	  Sets the group chat \a manager to be used by this account.
@@ -123,6 +125,7 @@ protected:
 	*/
 	void resetGroupChatManager(GroupChatManager *manager = 0);
 	void setContactsFactory(ContactsFactory *factory);
+	void setInfoRequestFactory(InfoRequestFactory *factory);
 signals:
 	/*!
 	  Signal is emitted when new \a contact was created.

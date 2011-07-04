@@ -1,3 +1,28 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "contactinfo.h"
 #include <qutim/icon.h>
 #include <qutim/contact.h>
@@ -21,53 +46,39 @@ MainWindow::MainWindow() :
 	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
 }
 
-void MainWindow::setObject(QObject *obj, RequestType type)
+void MainWindow::setObject(QObject *obj, SupportLevel type)
 {
 	object = obj;
-	readWrite = type == InfoRequestCheckSupportEvent::ReadWrite;
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
-}
+	readWrite = type == InfoRequestFactory::ReadWrite;
+	request = InfoRequestFactory::dataFormRequest(obj);
 
-void MainWindow::setRequest(InfoRequest *req)
-{
-	if (request && req != request)
-		request->deleteLater();
-	int curPage = ui.detailsStackedWidget->currentIndex();
-	if (request != req) {
-		request = req;
+	if (request) {
 		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
 				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+		request->requestData();
 	}
-	ui.infoListWidget->clear();
-	QWidget *w;
-	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
-		delete w;
-	Buddy *buddy = qobject_cast<Buddy*>(object);
+
+	QString title;
 	QString avatar;
-	if (buddy) {
-		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
-					   .toString()
-					   .arg(buddy->name())
-					   .arg(buddy->id()));
+	if (Buddy *buddy = qobject_cast<Buddy*>(object)) {
+		title = QApplication::translate("ContactInfo", "About contact %1 <%2>")
+					.arg(buddy->name())
+					.arg(buddy->id());
 		avatar = buddy->avatar();
 	} else {
-		Account *account = qobject_cast<Account*>(object);
-		if (account) {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
-						   .toString()
-						   .arg(account->name()));
+		if (Account *account = qobject_cast<Account*>(object)) {
+			title = QApplication::translate("ContactInfo", "About account %1")
+						.arg(account->name());
 		} else {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About %1 <%2>")
-						   .toString()
-						   .arg(object->property("name").toString())
-						   .arg(object->property("id").toString()));
+			title = QApplication::translate("ContactInfo", "About %1 <%2>")
+						.arg(object->property("name").toString())
+						.arg(object->property("id").toString());
 		}
 		avatar = object->property("avatar").toString();
 	}
+	setWindowTitle(title);
 	ui.saveButton->setVisible(readWrite);
+
 	{ // avatar field
 		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
 		avatarItem.setProperty("hideTitle", true);
@@ -82,31 +93,35 @@ void MainWindow::setRequest(InfoRequest *req)
 			ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
 		}
 	}
-	addItems(request->item());
-	if (curPage >= 0)
-		ui.infoListWidget->setCurrentRow(curPage);
-	InfoRequest::State state = request->state();
-	if (state == InfoRequest::Done || state == InfoRequest::Cancel) {
-		request->deleteLater(); request = 0;
-	} else if (state == InfoRequest::Cache) {
-		request->resend();
-	}
+
+	if (request)
+		onRequestStateChanged(request->state());
 }
 
-void MainWindow::onRequestStateChanged(InfoRequest::State state)
+void MainWindow::onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state)
 {
-	if (request != sender())
+	if (state != InfoRequest::RequestDone &&
+		state != InfoRequest::LoadedFromCache &&
+		state != InfoRequest::Initialized)
+	{
 		return;
-	Q_UNUSED(state);
-	setRequest(request);
+	}
+
+	ui.infoListWidget->clear();
+	int curPage = ui.detailsStackedWidget->currentIndex();
+	QWidget *w;
+	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
+		delete w;
+
+	addItems(request->dataItem());
+	if (curPage >= 0)
+		ui.infoListWidget->setCurrentRow(curPage);
 }
 
 void MainWindow::onRequestButton()
 {
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
+	request->cancel();
+	request->requestData();
 }
 
 void MainWindow::onSaveButton()
@@ -126,8 +141,8 @@ void MainWindow::onSaveButton()
 			items.addSubitem(dataFrom->item());
 		}
 	}
-	InfoItemUpdatedEvent event(items);
-	qApp->sendEvent(object, &event);
+	request->cancel();
+	request->updateData(items);
 	if (avatarWidget)
 		object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
 }
@@ -225,11 +240,14 @@ ContactInfo::ContactInfo()
 
 void ContactInfo::show(QObject *object)
 {
-	InfoRequestCheckSupportEvent event;
-	qApp->sendEvent(object, &event);
-	RequestType type = event.supportType();
-	if (type == InfoRequestCheckSupportEvent::NoSupport)
+	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
+	if (!factory)
 		return;
+
+	SupportLevel type = factory->supportLevel(object);
+	if (type <= InfoRequestFactory::Unavailable)
+		return;
+
 	if (!info) {
 		info = new MainWindow();
 		centerizeWidget(info);

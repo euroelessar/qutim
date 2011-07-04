@@ -19,7 +19,6 @@
 #include "buddycaps.h"
 #include "icqaccount_p.h"
 #include "metainfo/infometarequest.h"
-#include "inforequest_p.h"
 #include "qutim/messagesession.h"
 #include "qutim/notification.h"
 #include "qutim/tooltip.h"
@@ -405,28 +404,6 @@ bool IcqContact::event(QEvent *ev)
 							d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate),
 							30);
 		}
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new IcqInfoRequest(this));
-		event->accept();
-	} else if(ev->type() == Authorization::Request::eventType()) {
-		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
-		debug() << "Handle auth request";
-		SNAC snac(ListsFamily, ListsRequestAuth);
-		snac.append<qint8>(id()); // uin.
-		snac.append<qint16>(request->body());
-		snac.append<quint16>(0);
-		account()->connection()->send(snac);
-		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		debug() << "handle auth reply" << (reply->replyType() == Authorization::Reply::Accept);

@@ -49,17 +49,19 @@ public:
 		Features
 	};
 
-	JInfoRequest(JVCardManager *manager, const QString &contact);
+	JInfoRequest(JVCardManager *manager, QObject *object);
 	~JInfoRequest();
 	static Jreen::VCard::Ptr convert(const DataItem &item);
-	DataItem item(const QString &name) const;
-	State state() const;
+	virtual DataItem createDataItem() const;
+	virtual void doRequest(const QSet<QString> &hints);
+	virtual void doUpdate(const DataItem &dataItem);
+	virtual void doCancel();
 	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
 private:
-	void addItem(DataType type, DataItem &group, const QVariant &data);
-	void addMultilineItem(DataType type, DataItem &group, const QString &data);
-	void addItemList(DataType type, DataItem &group, const QString &data);
-	void addItemList(DataType type, DataItem &group, const QStringList &data);
+	static void addItem(DataType type, DataItem &group, const QVariant &data);
+	static void addMultilineItem(DataType type, DataItem &group, const QString &data);
+	static void addItemList(DataType type, DataItem &group, const QString &data);
+	static void addItemList(DataType type, DataItem &group, const QStringList &data);
 	QScopedPointer<JInfoRequestPrivate> d_ptr;
 };
 }

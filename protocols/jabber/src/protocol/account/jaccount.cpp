@@ -197,8 +197,8 @@ JAccount::JAccount(const QString &id) :
 	d->pubSubManager = new Jreen::PubSub::Manager(&d->client);
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
-	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
+	setInfoRequestFactory(d->vCardManager = new JVCardManager(this));
 
 	d->client.presence().addExtension(new VCardUpdate());
 
@@ -460,28 +460,6 @@ QString JAccount::getAvatarPath()
 
 bool JAccount::event(QEvent *ev)
 {
-	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = Account::status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-		return true;
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new JInfoRequest(vCardManager(), id()));
-		event->accept();
-		return true;
-	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
-		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		VCard::Ptr vcard = JInfoRequest::convert(event->infoItem());
-		vCardManager()->storeVCard(vcard);
-		event->accept();
-		return true;
-	}
 	return Account::event(ev);
 }
 
