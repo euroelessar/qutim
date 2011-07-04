@@ -21,7 +21,6 @@
 #include "actiongenerator.h"
 #include <QIcon>
 
-////Notifications API Draft
 namespace qutim_sdk_0_3
 {
 
@@ -153,9 +152,6 @@ public:
 	void blockBackend(const QByteArray &backendType);
 	void unblockBackend(const QByteArray &backendType);
 	bool isBackendBlocked(const QByteArray &backendType);
-	static void blockBackend(Notification::Type type, const QByteArray &backendType);
-	static void unblockBackend(Notification::Type type, const QByteArray &backendType);
-	static bool isBackendBlocked(Notification::Type type, const QByteArray &backendType);
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
 	T property(const char *name, const T &def) const
@@ -212,6 +208,24 @@ protected:
 private:
 	friend class NotificationRequest;
 	QScopedPointer<NotificationBackendPrivate> d_ptr;
+};
+
+class LIBQUTIM_EXPORT NotificationManager : public QObject
+{
+	Q_OBJECT
+public:
+	static NotificationManager *instance();
+	static void setBackendState(const QByteArray &type, bool enabled);
+	static void enableBackend(const QByteArray &type);
+	static void disableBackend(const QByteArray &type);
+	static bool isBackendEnabled(const QByteArray &type);
+signals:
+	void backendCreated(const QByteArray &type, NotificationBackend *backend);
+	void backendDestroyed(const QByteArray &type, NotificationBackend *backend);
+	void backendStateChanged(const QByteArray &type, bool enabled);
+private:
+	friend class NotificationBackend;
+	NotificationManager();
 };
 
 } // namespace qutim_sdk_0_3

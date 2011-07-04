@@ -21,7 +21,6 @@
 #include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
 #include <qutim/conference.h>
-#include <qutim/event.h>
 
 namespace Core {
 
@@ -53,13 +52,17 @@ NotificationsSettings::~NotificationsSettings()
 NotifyEnabler::NotifyEnabler(QObject* parent): QObject(parent)
 {
 	m_enabledTypes = NotificationSettings::enabledTypes();
-	Event::eventManager()->installEventFilter(this);
+	connect(NotificationManager::instance(),
+			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
+			SLOT(onBackendCreated(QByteArray)));
+	connect(NotificationManager::instance(),
+			SIGNAL(backendDestroyed(QByteArray,NotificationBackend*)),
+			SLOT(onBackendDestroyed(QByteArray)));
 }
 
 void NotifyEnabler::enabledTypesChanged(const EnabledNotificationTypes &enabledTypes)
 {
 	m_enabledTypes = enabledTypes;
-
 	reloadSettings();
 }
 
@@ -70,6 +73,29 @@ void NotifyEnabler::reloadSettings()
 
 	cfg = Config("appearance").group("chat");
 	m_notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
+}
+
+void NotifyEnabler::onBackendCreated(const QByteArray &type)
+{
+	Config cfg;
+	cfg.beginGroup("notification");
+	for (int i = 0; i <= Notification::LastType; ++i) {
+		cfg.beginGroup(notificationTypeName(static_cast<Notification::Type>(i)));
+		if (cfg.value(type, true))
+			m_enabledTypes[i] << type;
+		cfg.endGroup();
+	}
+	cfg.endGroup();
+}
+
+void NotifyEnabler::onBackendDestroyed(const QByteArray &type)
+{
+	// Before removing the backend settings, check that another backend
+	// does not have the same type.
+	if (!NotificationBackend::allTypes().contains(type)) {
+		for (int i = 0; i <= Notification::LastType; ++i)
+			m_enabledTypes[i].remove(type);
+	}
 }
 
 void NotifyEnabler::filter(NotificationRequest &request)
@@ -109,41 +135,6 @@ void NotifyEnabler::filter(NotificationRequest &request)
 
 	if (type >= 0 && type < m_enabledTypes.size())
 		request.setBackends(m_enabledTypes.at(type));
-}
-
-bool NotifyEnabler::eventFilter(QObject *obj, QEvent *ev)
-{
-	if (ev->type() == Event::eventType()) {
-		Event *event = static_cast<Event*>(ev);
-		static quint16 backendRegistered = Event::registerType("notification-backend-registered");
-		static quint16 backendRemoved = Event::registerType("notification-backend-removed");
-
-		if (event->id == backendRegistered) {
-			Config cfg;
-			cfg.beginGroup("notification");
-			QByteArray backendType = event->args[0].toByteArray();
-			for (int i = 0; i <= Notification::LastType; ++i) {
-				cfg.beginGroup(notificationTypeName(static_cast<Notification::Type>(i)));
-				if (cfg.value(backendType, true))
-					m_enabledTypes[i] << backendType;
-				cfg.endGroup();
-			}
-			cfg.endGroup();
-			event->accept();
-			return true;
-		} else if (event->id == backendRemoved) {
-			QByteArray backendType = event->args[0].toByteArray();
-			// Before removing the backend settings, check that another backend
-			// does not have the same type.
-			if (!NotificationBackend::allTypes().contains(backendType)) {
-				for (int i = 0; i <= Notification::LastType; ++i)
-					m_enabledTypes[i].remove(backendType);
-			}
-			event->accept();
-			return true;
-		}
-	}
-	return QObject::eventFilter(obj, ev);
 }
 
 }

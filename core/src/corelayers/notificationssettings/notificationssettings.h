@@ -51,9 +51,10 @@ public:
 public slots:
 	void enabledTypesChanged(const EnabledNotificationTypes &enabledTypes);
 	void reloadSettings();
+	void onBackendCreated(const QByteArray &type);
+	void onBackendDestroyed(const QByteArray &type);
 protected:
-	virtual void filter(qutim_sdk_0_3::NotificationRequest& request);
-	virtual bool eventFilter(QObject *obj, QEvent *event);
+	virtual void filter(qutim_sdk_0_3::NotificationRequest &request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
 	bool m_notificationsInActiveChat;

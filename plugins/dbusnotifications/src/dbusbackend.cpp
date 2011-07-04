@@ -62,7 +62,7 @@ DBusBackend::DBusBackend() :
 			"/org/freedesktop/Notifications",
 			QDBusConnection::sessionBus()))
 {
-	setDescription(tr("Show popup"));
+	setDescription(QT_TR_NOOP("Show popup"));
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {

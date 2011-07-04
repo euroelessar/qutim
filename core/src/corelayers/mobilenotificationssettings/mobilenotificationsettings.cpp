@@ -31,10 +31,10 @@ using namespace qutim_sdk_0_3;
 
 QString notificationTypeName(int type)
 {
-	QStringList names;
+	static QStringList names;
 	if (names.isEmpty()) {
 		for (int i = 0; i <= Notification::LastType; ++i) {
-			QMetaObject meta = Notification::staticMetaObject;
+			const QMetaObject &meta = Notification::staticMetaObject;
 			QMetaEnum e = meta.enumerator(meta.indexOfEnumerator("Type"));
 			names << e.key(i);
 		}

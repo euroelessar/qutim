@@ -115,7 +115,7 @@ QList<QList<Notification*> > NotificationsQueue::all()
 AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
 	QAbstractItemModel(parent), NotificationBackend("ContactList"), d_ptr(d)
 {
-	setDescription(tr("Blink icon in the contact list"));
+	setDescription(QT_TR_NOOP("Blink icon in the contact list"));
 	allowRejectedNotifications("confMessageWithoutUserNick");
 
 	d->showNotificationIcon = false;

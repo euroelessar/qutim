@@ -24,7 +24,7 @@ class SoundHandler : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 public:
-	SoundHandler();
+	SoundHandler(QObject *parent = 0);
 	virtual void handleNotification(Notification *notification);
 };
 

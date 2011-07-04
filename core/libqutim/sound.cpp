@@ -254,10 +254,10 @@ void setTheme(const SoundTheme &theme)
 }
 }
 
-SoundHandler::SoundHandler() :
-	NotificationBackend("Sound")
+SoundHandler::SoundHandler(QObject *parent) :
+	QObject(parent), NotificationBackend("Sound")
 {
-	setDescription(tr("Play sound"));
+	setDescription(QT_TR_NOOP("Play sound"));
 }
 
 void SoundHandler::handleNotification(Notification *notification)

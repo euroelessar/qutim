@@ -22,6 +22,7 @@
 #include "metaobjectbuilder.h"
 #include "conference.h"
 #include "event.h"
+#include "config.h"
 #include <QMetaEnum>
 #include <QMetaMethod>
 #include <QMultiMap>
@@ -29,13 +30,11 @@
 
 namespace qutim_sdk_0_3 {
 
-static SoundHandler handler; //TODO move to other place
-
 typedef QHash<QByteArray, NotificationBackend*> NotificationBackendHash;
 Q_GLOBAL_STATIC(NotificationBackendHash, backendHash)
 
-typedef QMultiHash<Notification::Type, QByteArray> DisabledBackends;
-Q_GLOBAL_STATIC(DisabledBackends, disabledBackends)
+typedef QStringList BlockedBackends;
+Q_GLOBAL_STATIC(BlockedBackends, blockedBackends)
 
 typedef QHash<Notification::Type, NotificationAction> ActionHash;
 Q_GLOBAL_STATIC(ActionHash, globalActions)
@@ -492,21 +491,6 @@ bool NotificationRequest::isBackendBlocked(const QByteArray &backendType)
 	return !d_ptr->enabledBackends.contains(backendType);
 }
 
-void NotificationRequest::blockBackend(Notification::Type type, const QByteArray &backendType)
-{
-	disabledBackends()->insert(type, backendType);
-}
-
-void NotificationRequest::unblockBackend(Notification::Type type, const QByteArray &backendType)
-{
-	disabledBackends()->remove(type, backendType);
-}
-
-bool NotificationRequest::isBackendBlocked(Notification::Type type, const QByteArray &backendType)
-{
-	return disabledBackends()->contains(type, backendType);
-}
-
 QVariant NotificationRequest::property(const char *name, const QVariant &def) const
 {
 	return d_ptr->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -548,7 +532,7 @@ Notification *NotificationRequest::send()
 	foreach (NotificationBackend *backend, *backendHash()) {
 		// Check that the notification has not been blocked for the backend
 		QByteArray typeName = backend->backendType();
-		if (isBackendBlocked(d_ptr->type, typeName) || isBackendBlocked(typeName))
+		if (blockedBackends()->contains(typeName) || isBackendBlocked(typeName))
 			continue;
 
 		// Check that the notifications has not been rejected
@@ -608,33 +592,21 @@ void NotificationFilter::virtual_hook(int id, void *data)
 NotificationBackend::NotificationBackend(const QByteArray &type) :
 	d_ptr(new NotificationBackendPrivate)
 {
+	Q_D(NotificationBackend);
 	Q_ASSERT(!type.isEmpty());
-	d_ptr->type = type;
-	backendHash()->insert(d_ptr->type, this);
-
-	if (qApp) {
-		static quint16 eventType = Event::registerType("notification-backend-registered");
-		Event event(eventType);
-		event.args[0] = type;
-		event.args[1] = qVariantFromValue(this);
-		event.send();
-	}
+	d->type = type;
+	backendHash()->insert(d->type, this);
+	emit NotificationManager::instance()->backendCreated(d->type, this);
 }
 
 NotificationBackend::~NotificationBackend()
 {
-	NotificationBackendHash::iterator itr = backendHash()->find(d_ptr->type);
+	Q_D(NotificationBackend);
+	NotificationBackendHash::iterator itr = backendHash()->find(d->type);
 	Q_ASSERT(itr != backendHash()->end());
 	if (*itr == this)
 		backendHash()->erase(itr);
-
-	if (qApp) {
-		static quint16 eventType = Event::registerType("notification-backend-removed");
-		Event event(eventType);
-		event.args[0] = d_ptr->type;
-		event.args[1] = qVariantFromValue(this);
-		event.send();
-	}
+	emit NotificationManager::instance()->backendDestroyed(d->type, this);
 }
 
 QByteArray NotificationBackend::backendType() const
@@ -687,6 +659,55 @@ void NotificationBackend::virtual_hook(int id, void *data)
 {
 	Q_UNUSED(id);
 	Q_UNUSED(data);
+}
+
+NotificationManager *NotificationManager::instance()
+{
+	static NotificationManager notificationManager;
+	return &notificationManager;
+}
+
+void NotificationManager::setBackendState(const QByteArray &type, bool enabled)
+{
+	if (enabled) {
+		if (!blockedBackends()->removeOne(type))
+			return;
+	} else {
+		QString typeStr(type);
+		if (!blockedBackends()->contains(typeStr))
+			blockedBackends()->push_back(typeStr);
+		else
+			return;
+	}
+
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	cfg.setValue(QLatin1String("blockedBackends"), *blockedBackends());
+	cfg.endGroup();
+	emit instance()->backendStateChanged(type, enabled);
+}
+
+void NotificationManager::enableBackend(const QByteArray &type)
+{
+	setBackendState(type, true);
+}
+
+void NotificationManager::disableBackend(const QByteArray &type)
+{
+	setBackendState(type, false);
+}
+
+bool NotificationManager::isBackendEnabled(const QByteArray &type)
+{
+	return !blockedBackends()->contains(type);
+}
+
+NotificationManager::NotificationManager()
+{
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	*blockedBackends() = cfg.value(QLatin1String("blockedBackends"), QStringList());
+	cfg.endGroup();
 }
 
 } // namespace qutim_sdk_0_3

@@ -29,7 +29,7 @@ Backend::Backend() :
 	NotificationBackend("Popup"),
 	m_placer(new WidgetPlacer(this))
 {
-	setDescription(tr("Show popup"));
+	setDescription(QT_TR_NOOP("Show popup"));
 	m_item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance,
 													  Icon("dialog-information"),
 													  QT_TRANSLATE_NOOP("Settings","Popups"));

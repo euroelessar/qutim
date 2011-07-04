@@ -125,7 +125,6 @@ SimpleActions::SimpleActions()
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList)
 		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_disableSound.data()));
-	enableSound(isSoundEnabled());
 
 	foreach (Protocol *proto, Protocol::all()) {
 		foreach (Account *acc, proto->accounts())
@@ -133,6 +132,8 @@ SimpleActions::SimpleActions()
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	}
+	connect(NotificationManager::instance(), SIGNAL(backendStateChanged(QByteArray,bool)),
+			SLOT(onNotificationBackendStateChanged(QByteArray,bool)));
 }
 
 SimpleActions::~SimpleActions()
@@ -259,40 +260,22 @@ static QIcon soundIcon(bool isEnabled)
 void SimpleActions::onDisableSoundActionCreated(QAction *action, QObject *obj)
 {
 	Q_UNUSED(obj);
-	bool isEnabled = isSoundEnabled();
+	bool isEnabled = NotificationManager::isBackendEnabled("Sound");
 	action->setChecked(isEnabled);
 	action->setIcon(soundIcon(isEnabled));
 }
 
 void SimpleActions::onDisableSoundAction(QAction *action)
 {
-	bool isEnabled = action->isChecked();
-	enableSound(isEnabled);
-	action->setIcon(soundIcon(isEnabled));
+	NotificationManager::setBackendState("Sound", action->isChecked());
 }
 
-void SimpleActions::enableSound(bool enable)
+void SimpleActions::onNotificationBackendStateChanged(const QByteArray &type, bool enabled)
 {
-	QByteArray sound("Sound");
-	for (int i = 0; i <= Notification::LastType; ++i) {
-		Notification::Type type = static_cast<Notification::Type>(i);
-		if (enable)
-			NotificationRequest::unblockBackend(type, sound);
-		else
-			NotificationRequest::blockBackend(type, sound);
-	}
-
-	Config cfg;
-	cfg.beginGroup(QLatin1String("notification"));
-	cfg.setValue(QLatin1String("soundEnabled"), enable);
-	cfg.endGroup();
-}
-
-bool SimpleActions::isSoundEnabled()
-{
-	Config cfg;
-	cfg.beginGroup(QLatin1String("notification"));
-	return cfg.value("soundEnabled", true);
+	if (type != "Sound")
+		return;
+	foreach (QAction *action, m_disableSound->actions())
+		action->setIcon(soundIcon(enabled));
 }
 
 } // namespace Core
