@@ -1,6 +1,6 @@
 #ifndef RESOURCEICONLOADER_H
 #define RESOURCEICONLOADER_H
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QStringList>
 #include <hwrmvibra.h>
 

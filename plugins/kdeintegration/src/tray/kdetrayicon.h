@@ -21,6 +21,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/notification.h>
 #include <KStatusNotifierItem>
 
 namespace KdeIntegration
@@ -38,7 +39,7 @@ namespace KdeIntegration
 	};
 }
 
-class KdeTrayIcon : public qutim_sdk_0_3::MenuController
+class KdeTrayIcon : public qutim_sdk_0_3::MenuController, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "TrayIcon")
@@ -50,13 +51,12 @@ public:
 	void onActivated();
 	
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
-	void onSessionDestroyed();
-	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
+	void onNotificationDestroyed();
 private:
+	void handleNotification(qutim_sdk_0_3::Notification *notification);
 	QIcon convertToPixmaps(const QIcon &icon);
 	void validateProtocolActions();
 	KStatusNotifierItem *m_item;
@@ -65,7 +65,7 @@ private:
 	QList<qutim_sdk_0_3::Account*> m_accounts;
 	qutim_sdk_0_3::Account *m_activeAccount;
 	QList<qutim_sdk_0_3::Protocol*> m_protocols;
-	QList<qutim_sdk_0_3::ChatSession*> m_sessions;
+	QList<qutim_sdk_0_3::Notification*> m_notifications;
 	QIcon m_currentIcon;
 };
 

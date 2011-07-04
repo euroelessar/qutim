@@ -9,7 +9,7 @@
 #include <qutim/debug.h>
 #include "managersettings.h"
 #include <qutim/icon.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/utils.h>
 #include <QTimer>
 

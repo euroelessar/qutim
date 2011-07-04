@@ -276,7 +276,7 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 	} else {
 		status.removeExtendedInfo(name);
 	}
-	contact->setStatus(status);
+	contact->setStatus(status, false);
 	// Update contact's actions.
 	contactMenuHash.value(item.type())->updateActions(contact, isItemAdded);
 	return true;

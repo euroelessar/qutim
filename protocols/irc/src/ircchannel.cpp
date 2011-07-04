@@ -192,7 +192,7 @@ QList<IrcChannelParticipant*> IrcChannel::participants()
 
 void IrcChannel::onMyNickChanged(const QString &nick)
 {
-	addSystemMessage(tr("You are now known as %1").arg(nick));
+	addSystemMessage(tr("You are now known as %1").arg(nick), nick);
 }
 
 void IrcChannel::onParticipantNickChanged(const QString &nick)
@@ -215,7 +215,7 @@ void IrcChannel::onParticipantNickChanged(const QString &nick)
 	if (d->users.contains(nick))
 		d->users.remove(nick);
 	d->users.insert(nick, user);
-	addSystemMessage(tr("%1 are now known as %2").arg(oldNick).arg(nick));
+	addSystemMessage(tr("%1 are now known as %2").arg(oldNick).arg(nick), nick);
 }
 
 void IrcChannel::onContactQuit(const QString &message)
@@ -277,7 +277,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (session)
 			session->addContact(user.data());
-		addSystemMessage(tr("%1 (%2) has joined the channel").arg(nick).arg(host));
+		addSystemMessage(tr("%1 (%2) has joined the channel").arg(nick).arg(host), nick, Notification::ChatUserJoined);
 	} else {
 		debug() << nick << "already presents in" << d->name;
 	}
@@ -288,18 +288,18 @@ void IrcChannel::handlePart(const QString &nick, const QString &leaveMessage)
 	if (nick == account()->name()) {
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (!leaveMessage.isEmpty())
-			addSystemMessage(tr("You left this channel (%1)").arg(leaveMessage), session);
+			addSystemMessage(tr("You left this channel (%1)").arg(leaveMessage), nick, Notification::ChatUserLeft);
 		else
-			addSystemMessage(tr("You left this channel"), session);
+			addSystemMessage(tr("You left this channel"), nick, Notification::ChatUserLeft);
 		clear(session);
 	} else if (ParticipantPointer user = d->users.take(nick)) {
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (session)
 			session->removeContact(user.data());
 		if (!leaveMessage.isEmpty())
-			addSystemMessage(tr("%1 has left this channel (%2)").arg(nick).arg(leaveMessage), session);
+			addSystemMessage(tr("%1 has left this channel (%2)").arg(nick).arg(leaveMessage), nick, Notification::ChatUserLeft);
 		else
-			addSystemMessage(tr("%1 has left this channel").arg(nick), session);
+			addSystemMessage(tr("%1 has left this channel").arg(nick), nick, Notification::ChatUserLeft);
 	} else {
 		debug() << nick << "does not present in" << d->name;
 	}
@@ -311,19 +311,27 @@ void IrcChannel::handleKick(const QString &nick, const QString &by, const QStrin
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (!leaveMessage.isEmpty()) {
 			addSystemMessage(tr("%1 has kicked you from the channel (%2)")
-							 .arg(nick).arg(leaveMessage), session);
+							 .arg(nick).arg(leaveMessage),
+							 nick,
+							 Notification::ChatUserLeft);
 		} else {
-			addSystemMessage(tr("%1 has kicked you from the channel").arg(nick), session);
+			addSystemMessage(tr("%1 has kicked you from the channel").arg(nick),
+							 nick,
+							 Notification::ChatUserLeft);
 		}
 		clear(session);
 	} else if (ParticipantPointer user = d->users.take(nick)) {
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (!leaveMessage.isEmpty()) {
 			addSystemMessage(tr("%1 has kicked %2 (%3)")
-							 .arg(by).arg(nick).arg(leaveMessage), session);
+							 .arg(by).arg(nick).arg(leaveMessage),
+							 nick,
+							 Notification::ChatUserLeft);
 		} else {
 			addSystemMessage(tr("%1 has kicked %2")
-							 .arg(by).arg(nick), session);
+							 .arg(by).arg(nick),
+							 nick,
+							 Notification::ChatUserLeft);
 		}
 		clear(session);
 	} else {
@@ -377,7 +385,7 @@ void IrcChannel::setMode(const QString &who, QChar mode, const QString &param)
 				msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 gives channel halfop privileges to %2.");
 			else
 				msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 gives %2 the permission to talk.");
-			addSystemMessage(msg.arg(who).arg(param));
+			addSystemMessage(msg.arg(who).arg(param), user->name());
 		} else {
 			debug() << "Unknown paricipant" << param << "on the channel" << id();
 		}
@@ -401,7 +409,7 @@ void IrcChannel::removeMode(const QString &who, QChar mode, const QString &param
 					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 takes channel halfop privileges from %2.");
 				else
 					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 takes the permission to talk from %2.");
-				addSystemMessage(msg.arg(who).arg(param), session);
+				addSystemMessage(msg.arg(who).arg(param), user->name());
 			}
 		} else {
 			debug() << "Unknown paricipant" << param << "on the channel" << id();
@@ -411,16 +419,13 @@ void IrcChannel::removeMode(const QString &who, QChar mode, const QString &param
 	}
 }
 
-void IrcChannel::addSystemMessage(const QString &message, ChatSession *session)
+void IrcChannel::addSystemMessage(const QString &message, const QString &sender, Notification::Type type)
 {
-	if (!session)
-		session = ChatLayer::instance()->getSession(this, true);
-	Message msg(message);
-	msg.setChatUnit(this);
-	msg.setProperty("service", true);
-	msg.setIncoming(true);
-	msg.setTime(QDateTime::currentDateTime());
-	session->appendMessage(msg);
+	NotificationRequest request(type);
+	request.setObject(this);
+	request.setText(message);
+	request.setProperty("senderName", sender);
+	request.send();
 }
 
 void IrcChannel::clear(ChatSession *session)

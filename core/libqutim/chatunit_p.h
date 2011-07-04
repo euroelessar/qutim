@@ -18,6 +18,7 @@
 
 #include "chatunit.h"
 #include "menucontroller_p.h"
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {
@@ -27,6 +28,7 @@ namespace qutim_sdk_0_3
 		ChatUnitPrivate(ChatUnit *u) : MenuControllerPrivate(u),account(0),chatState(ChatStateInActive) {}
 		Account *account;
 		ChatState chatState;
+		QWeakPointer<Notification> composingNotification;
 	};
 }
 

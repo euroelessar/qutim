@@ -31,7 +31,7 @@
 #include <QCoreApplication>
 #include <QLibrary>
 #include <qutim/icon.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QAbstractEventDispatcher>
 #include <QDateTime>
 #include <QThread>

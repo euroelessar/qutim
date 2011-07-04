@@ -56,11 +56,13 @@ const QDBusArgument& operator>> (const QDBusArgument& arg, DBusNotifyImageData &
 }
 
 DBusBackend::DBusBackend() :
+	NotificationBackend("Popup"),
 	interface(new org::freedesktop::Notifications(
 			"org.freedesktop.Notifications",
 			"/org/freedesktop/Notifications",
 			QDBusConnection::sessionBus()))
 {
+	setDescription(QT_TR_NOOP("Show popup"));
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {
@@ -194,9 +196,9 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 inline void DBusBackend::ignore(NotificationData &data)
 {
 	Q_UNUSED(data);
-	/*foreach (const QPointer<Notification> &notification, data.notifications)
+	foreach (const QPointer<Notification> &notification, data.notifications)
 		if (notification)
-			notification->ignore();*/
+			notification->ignore();
 }
 
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
@@ -214,8 +216,9 @@ void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 		if (reason == 2)
 			ignore(*itr);
 		m_ids.remove(itr->sender);
-		foreach (QPointer<Notification> notification, itr->notifications)
-			deref(notification.data());
+		foreach (const QPointer<Notification> &notification, itr->notifications)
+			if (notification)
+				deref(notification.data());
 		m_notifications.erase(itr);
 	}
 }

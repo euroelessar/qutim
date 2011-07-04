@@ -36,7 +36,7 @@
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
 #include <qutim/config.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/systemintegration.h>
 
 #include <qutim/debug.h>

@@ -21,6 +21,7 @@
 #include "simplecontactlist_global.h"
 #include <qutim/status.h>
 #include <qutim/message.h>
+#include <qutim/notification.h>
 
 namespace qutim_sdk_0_3
 {
@@ -37,7 +38,7 @@ class AbstractContactModelPrivate;
 class ChangeEvent;
 class ItemHelper;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
+class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel, public qutim_sdk_0_3::NotificationBackend
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
@@ -92,12 +93,14 @@ protected:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 					  int row, int column, const QModelIndex &parent);
 	void timerEvent(QTimerEvent *timerEvent);
+	void handleNotification(qutim_sdk_0_3::Notification *notification);
+	QIcon getIconForNotification(qutim_sdk_0_3::Notification *notification) const;
 	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
 	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
 private slots:
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void init();
+	void onNotificationFinished();
+	void onContactDestroyed();
 protected:
 	virtual void filterAllList() = 0;
 	virtual void updateContactData(qutim_sdk_0_3::Contact *contact) = 0;

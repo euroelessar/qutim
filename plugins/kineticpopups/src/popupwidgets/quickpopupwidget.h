@@ -85,10 +85,11 @@ signals:
 public slots:
 	void ignore();
 	void accept();
-	//TODO
-	//void reject();
+	void reject();
 private slots:
 	void onAtributesChanged();
+protected:
+	void mouseReleaseEvent(QMouseEvent *event);
 private:
 	QHash<qutim_sdk_0_3::Notification*, QuickNotify*>  m_notifyHash;
 	QDeclarativeView *m_view;

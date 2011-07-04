@@ -26,7 +26,7 @@
 #include <QCryptographicHash>
 #include <QApplication>
 #include <qutim/debug.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/json.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>

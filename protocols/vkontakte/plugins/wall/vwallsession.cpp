@@ -8,7 +8,7 @@
 #include <qutim/json.h>
 #include <qutim/messagesession.h>
 #include <QTime>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/history.h>
 #include "vroster.h"
 

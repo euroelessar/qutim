@@ -14,8 +14,14 @@
 *****************************************************************************/
 
 #include "notificationfilter.h"
-#include <qutim/chatunit.h>
-#include <qutim/chatsession.h>
+#include <qutim/metacontact.h>
+#include <qutim/event.h>
+#include <qutim/conference.h>
+#include <qutim/utils.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
+#include <QTimer>
+#include <QCoreApplication>
 
 namespace Core {
 
@@ -40,15 +46,19 @@ static QString toString(Notification::Type type)
 		title = QObject::tr("Blocked message from %1");
 		break;
 	case Notification::ChatUserJoined:
+		title = QObject::tr("%1 has joined");
+		break;
 	case Notification::UserOnline:
 		title = QObject::tr("%1 is online");
 		break;
-	case Notification::ChatUserLeaved:
+	case Notification::ChatUserLeft:
+		title = QObject::tr("%1 has left");
+		break;
 	case Notification::UserOffline:
 		title = QObject::tr("%1 is offline");
 		break;
 	case Notification::UserChangedStatus:
-		title = QObject::tr("%1 changed status");
+		title = QObject::tr("%1 has changed status to %2");
 		break;
 	case Notification::UserHasBirthday:
 		title = QObject::tr("%1 has birthday today!!");
@@ -64,9 +74,24 @@ static QString toString(Notification::Type type)
 	return title;
 }
 
+static inline ChatUnit *getUnitForSession(QObject *obj)
+{
+	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	return unit ? unit->account()->getUnitForSession(unit) : 0;
+}
+
 NotificationFilterImpl::NotificationFilterImpl()
 {
 	registerFilter(this, LowPriority);
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+
+	foreach (Protocol *proto, Protocol::all()) {
+		foreach (Account *acc, proto->accounts())
+			onAccountCreated(acc);
+		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	}
 }
 
 NotificationFilterImpl::~NotificationFilterImpl()
@@ -74,17 +99,18 @@ NotificationFilterImpl::~NotificationFilterImpl()
 	unregisterFilter(this);
 }
 
-NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &request)
+void NotificationFilterImpl::filter(NotificationRequest &request)
 {
+	Notification::Type reqType = request.type();
+	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
-		request.setTitle(toString(request.type()));
-		return Accept;
+		request.setTitle(toString(reqType).arg(sender_name));
+		return;
 	}
 
 	if (request.title().isEmpty()) {
-		QString sender_name;
-		if (sender) {
+		if (sender && sender_name.isEmpty()) {
 			sender_name = sender->property("title").toString();
 			if (sender_name.isEmpty())
 				sender_name = sender->property("name").toString();
@@ -92,6 +118,10 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 				sender_name = sender->property("id").toString();
 		}
 		QString title = toString(request.type()).arg(sender_name);
+		if (reqType == Notification::UserChangedStatus) {
+			Status status = request.property("status", Status());
+			title = title.arg(status.name().toString());
+		}
 		request.setTitle(title);
 	}
 
@@ -101,31 +131,83 @@ NotificationFilter::Result NotificationFilterImpl::filter(NotificationRequest &r
 	}
 
 
-	switch (request.type()) {
+	switch (reqType) {
+	case Notification::UserChangedStatus:
+	case Notification::UserOnline:
+	case Notification::UserOffline: {
+		Buddy *buddy = qobject_cast<Buddy*>(request.object());
+		if (buddy) {
+			Account *acc = buddy->account();
+			Status::Type status = acc->status().type();
+			if (status == Status::Offline || status == Status::Connecting ||
+				m_connectingAccounts.contains(buddy->account()))
+			{
+				// We don't want the notification because the buddy's account is
+				// either loading its roster or offline.
+				request.reject("loadingRoster");
+			}
+		}
+
+		// fall through
+	}
 	case Notification::OutgoingMessage:
 	case Notification::IncomingMessage:
 	case Notification::ChatIncomingMessage:
 	case Notification::ChatOutgoingMessage:
 	case Notification::UserTyping:
-	case Notification::UserChangedStatus:
 	case Notification::BlockedMessage:
+	case Notification::ChatUserJoined:
+	case Notification::ChatUserLeft:
 		{
 			NotificationAction action(QObject::tr("Open chat"),
 									  this,
 									  SLOT(onOpenChatClicked(qutim_sdk_0_3::NotificationRequest)));
+			action.setType(NotificationAction::AcceptButton);
 			request.addAction(action);
 		}
 		{
 			NotificationAction action(QObject::tr("Ignore"),
 									  this,
 									  SLOT(onIgnoreChatClicked(qutim_sdk_0_3::NotificationRequest)));
+			action.setType(NotificationAction::IgnoreButton);
 			request.addAction(action);
 		}
 		break;
 	default:
 		break;
 	}
-	return Accept;
+}
+
+void NotificationFilterImpl::notificationCreated(Notification *notification)
+{
+	NotificationRequest request = notification->request();
+	Notification::Type type = request.type();
+
+	if (type == Notification::UserChangedStatus ||
+		type == Notification::UserOnline ||
+		type == Notification::UserOffline)
+	{
+		// I am not sure how to handle the notification,
+		// so I am just trying to imitate miranda's behaviour.
+		QTimer::singleShot(5000, notification, SLOT(reject()));
+		return;
+	}
+
+	ChatUnit *unit = getUnitForSession(request.object());
+	if (unit) {
+		// If the chatunit's session is not active, show the notification until
+		// it is activated; otherwise, show the notification only for a few
+		// seconds.
+		ChatSession *session = ChatLayer::get(unit);
+		if (session->isActive()) {
+			QTimer::singleShot(5000, notification, SLOT(reject()));
+		} else {
+			m_notifications.insert(unit, notification);
+			connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+					SLOT(onNotificationFinished()));
+			connect(unit, SIGNAL(destroyed()), SLOT(onUnitDestroyed()), Qt::UniqueConnection);
+		}
+	}
 }
 
 void NotificationFilterImpl::onOpenChatClicked(const NotificationRequest &request)
@@ -150,5 +232,74 @@ void NotificationFilterImpl::onIgnoreChatClicked(const NotificationRequest &requ
 	if (session)
 		session->markRead(msgVar.value<Message>().id());
 }
+
+void NotificationFilterImpl::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+{
+	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+}
+
+void NotificationFilterImpl::onSessionActivated(bool active)
+{
+	if (!active)
+		return;
+	ChatSession *session = sender_cast<ChatSession*>(sender());
+	ChatUnit *unit = getUnitForSession(session->unit());
+	if (unit) {
+		foreach (Notification *notification, m_notifications.values(unit))
+			notification->reject();
+		m_notifications.remove(unit);
+		disconnect(unit, 0, this, 0);
+	}
+}
+
+void NotificationFilterImpl::onNotificationFinished()
+{
+	Notification *notification = sender_cast<Notification*>(sender());
+	ChatUnit *unit = getUnitForSession(notification->request().object());
+	m_notifications.remove(unit, notification);
+	if (!m_notifications.contains(unit))
+		disconnect(unit, 0, this, 0);
+}
+
+void NotificationFilterImpl::onUnitDestroyed()
+{
+	m_notifications.remove(static_cast<ChatUnit*>(sender()));
+}
+
+void NotificationFilterImpl::onAccountCreated(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+}
+
+void NotificationFilterImpl::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
+													const qutim_sdk_0_3::Status &previous)
+{
+	Account *acc = sender_cast<Account*>(sender());
+	if (status.type() != Status::Offline && previous.type() == Status::Connecting) {
+		QTimer *timer = m_connectingAccounts.value(acc);
+		if (!timer) {
+			timer = new QTimer(this);
+			timer->setInterval(20000);
+			timer->setSingleShot(true);
+			timer->setProperty("account", qVariantFromValue(acc));
+			connect(timer, SIGNAL(timeout()), SLOT(onAccountConnected()));
+			m_connectingAccounts.insert(acc, timer);
+		} else {
+			timer->stop();
+		}
+		timer->start();
+	}
+}
+
+void NotificationFilterImpl::onAccountConnected()
+{
+	QTimer *timer = sender_cast<QTimer*>(sender());
+	Account *acc = timer->property("account").value<Account*>();
+	Q_ASSERT(acc);
+	timer->deleteLater();
+	m_connectingAccounts.remove(acc);
+}
+
 
 } // namespace Core

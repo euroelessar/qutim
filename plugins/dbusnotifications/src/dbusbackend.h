@@ -1,7 +1,8 @@
 #ifndef GROWLBACKEND_H
 #define GROWLBACKEND_H
 
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
+#include <qutim/sound.h>
 #include "org_freedesktop_notification.h"
 
 #ifdef Q_WS_MAEMO_5
@@ -12,11 +13,10 @@
 QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
 const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
 
-class DBusBackend : public qutim_sdk_0_3::NotificationBackend
+class DBusBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
-	Q_CLASSINFO("Type", "Popup")
 public:
 	DBusBackend();
 	virtual ~DBusBackend();

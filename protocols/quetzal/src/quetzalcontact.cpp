@@ -20,6 +20,7 @@
 #include <qutim/message.h>
 #include <qutim/tooltip.h>
 #include <qutim/messagesession.h>
+#include <qutim/notification.h>
 
 QVariant quetzal_value2variant(const PurpleValue *value)
 {
@@ -211,6 +212,8 @@ void QuetzalContact::update(PurpleBuddy *buddy)
 //		debug() << Q_FUNC_INFO << m_id << status;
 		Status previous = m_status;
 		m_status = status;
+		NotificationRequest request(this, status, previous);
+		request.send();
 		emit statusChanged(m_status, previous);
 	}
 	ensureAvatarPath();
