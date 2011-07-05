@@ -300,6 +300,9 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 {
 	DynamicMenu *menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d_func()));
 	menu->menu()->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
+	//if (!deleteOnClose)
+	//	menu->onAboutToShow();
+
 //	if (!d->menu)
 //		d->menu = new DynamicMenu(const_cast<MenuControllerPrivate*>(d));
 #ifdef Q_WS_MAEMO_5
