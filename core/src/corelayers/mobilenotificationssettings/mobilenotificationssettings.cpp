@@ -124,10 +124,10 @@ void MobileNotifyEnabler::filter(NotificationRequest &request)
 	}
 
 	if (m_ignoreConfMsgsWithoutUserNick &&
-		type == Notification::IncomingMessage ||
+		(type == Notification::IncomingMessage ||
 		type == Notification::OutgoingMessage ||
 		type == Notification::ChatIncomingMessage ||
-		type == Notification::ChatOutgoingMessage)
+		type == Notification::ChatOutgoingMessage))
 	{
 		// Ignore conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
