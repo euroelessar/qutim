@@ -124,6 +124,7 @@ Notification::Notification(const NotificationRequest &request) :
 
 Notification::~Notification()
 {
+	reject();
 }
 
 NotificationRequest Notification::request() const

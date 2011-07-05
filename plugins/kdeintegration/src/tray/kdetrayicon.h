@@ -54,7 +54,7 @@ private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
-	void onNotificationDestroyed();
+	void onNotificationFinished();
 private:
 	void handleNotification(qutim_sdk_0_3::Notification *notification);
 	QIcon convertToPixmaps(const QIcon &icon);
