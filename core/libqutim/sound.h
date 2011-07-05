@@ -83,16 +83,24 @@ public:
 	virtual SoundThemeProvider *loadTheme(const QString &name) = 0;
 };
 
-namespace Sound
+class LIBQUTIM_EXPORT Sound : public QObject
 {
-LIBQUTIM_EXPORT SoundTheme theme(const QString &name = QString());
-LIBQUTIM_EXPORT void play(Notification::Type type);
-LIBQUTIM_EXPORT QString currentThemeName();
-LIBQUTIM_EXPORT QStringList themeList();
-LIBQUTIM_EXPORT void setTheme(const QString &name);
-LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
+	Q_OBJECT
+public:
+	virtual ~Sound();
+	static Sound *instance();
+	static SoundTheme theme(const QString &name = QString());
+	static void play(Notification::Type type);
+	static QString currentThemeName();
+	static QStringList themeList();
+	static void setTheme(const QString &name);
+	static void setTheme(const SoundTheme &theme);
+signals:
+	void currentThemeChanged(const QString &themeName);
+private:
+	Sound();
+};
 
-}
 }
 
 #endif // SOUND_H

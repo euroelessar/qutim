@@ -122,6 +122,12 @@ SimpleActions::SimpleActions()
 								this, SLOT(onDisableSoundAction(QAction*))));
 	m_disableSound->setCheckable(true);
 	m_disableSound->subscribe(this, SLOT(onDisableSoundActionCreated(QAction*,QObject*)));
+	connect(NotificationManager::instance(),
+			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
+			SLOT(onNotificationBackendCreated(QByteArray)));
+	connect(NotificationManager::instance(),
+			SIGNAL(backendDestroyed(QByteArray,NotificationBackend*)),
+			SLOT(onNotificationBackendDestroyed(QByteArray)));
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList)
 		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_disableSound.data()));
@@ -263,6 +269,7 @@ void SimpleActions::onDisableSoundActionCreated(QAction *action, QObject *obj)
 	bool isEnabled = NotificationManager::isBackendEnabled("Sound");
 	action->setChecked(isEnabled);
 	action->setIcon(soundIcon(isEnabled));
+	action->setVisible(NotificationBackend::allTypes().contains("Sound"));
 }
 
 void SimpleActions::onDisableSoundAction(QAction *action)
@@ -276,6 +283,25 @@ void SimpleActions::onNotificationBackendStateChanged(const QByteArray &type, bo
 		return;
 	foreach (QAction *action, m_disableSound->actions())
 		action->setIcon(soundIcon(enabled));
+}
+
+void SimpleActions::onNotificationBackendCreated(const QByteArray &type)
+{
+	setDisableSoundActionVisibility(type, true);
+}
+
+void SimpleActions::onNotificationBackendDestroyed(const QByteArray &type)
+{
+	setDisableSoundActionVisibility(type, false);
+}
+
+void SimpleActions::setDisableSoundActionVisibility(const QByteArray &type, bool visible)
+{
+	if (type != "Sound")
+		return;
+	// TODO: remove the generator from the contact list toolbar instead.
+	foreach (QAction *action, m_disableSound->actions())
+		action->setVisible(visible);
 }
 
 } // namespace Core
