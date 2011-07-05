@@ -54,7 +54,7 @@ private slots:
 	void onNotificationBackendCreated(const QByteArray &type);
 	void onNotificationBackendDestroyed(const QByteArray &type);
 private:
-	void setDisableSoundVisible(const QByteArray &backendType, bool visible);
+	void setDisableSoundActionVisibility(const QByteArray &backendType, bool visible);
 private:
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
