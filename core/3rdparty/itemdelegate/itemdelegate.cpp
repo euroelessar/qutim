@@ -126,7 +126,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		QRect rect = option.rect;
 		rect.adjust(d->padding,0,0,0);
 		if (const QTreeView *view = qobject_cast<const QTreeView*>(getWidget(option))) {
-			QStyleOption branchOption;
+			QStyleOptionViewItemV2 branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
 			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
@@ -137,6 +137,8 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 						0,0);
 			if (view->isExpanded(index))
 				branchOption.state |= QStyle::State_Open;
+			if (option.state & QStyle::State_MouseOver)
+				 branchOption.state |= QStyle::State_MouseOver;
 			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
 		}
 		QFont font = opt.font;

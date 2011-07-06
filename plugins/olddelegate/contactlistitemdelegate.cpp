@@ -115,6 +115,7 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 	switch(m_styleType)
 	{
 	case AdiumStyle: {
+		painter->save();
 		// painter->setOpacity(m_opacity);
 		QPixmap backgroundPixmap(option.rect.size());
 		backgroundPixmap.fill(QColor::fromRgb(0,0,0,0));
@@ -199,18 +200,12 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 		backgroundPainter->end();
 		backgroundPixmap.setAlphaChannel(alpha);
 		painter->drawPixmap(option.rect,backgroundPixmap);
-		painter->setPen(pen);
-		painter->setBrush(brush);
-
-		painter->setPen(fontColor);
-		painter->setFont(font);
-		painter->setOpacity(1);
 		option.rect.adjust(10, 0, -10, 0);
+		painter->restore();
 		break;
 	}
 	case QutimStyle: {
-		//QPen pen = painter->pen();
-		QBrush brush = painter->brush();
+		painter->save();
 		QRect rect = option.rect;
 
 		SelectionTypes selection = Normal;
@@ -257,9 +252,7 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 		backgroundRect.setBottomLeft(rect.bottomLeft() - QPoint(style.m_borderWidth + 1, style.m_borderWidth + 1 ) );
 		drawRect(painter, backgroundRect);
 
-		painter->setBrush(brush);
-		painter->setPen(fontColor);
-		painter->setFont(font);
+		painter->restore();
 		break;
 	}
 	default: {
@@ -290,19 +283,21 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 	if (type == TagType && treeView) {
 		bool isExpanded = treeView->isExpanded(index);
 		Icon icon(isExpanded ? "expanded" : "collapsed");
-		if (icon.pixmap(m_avatarSize).isNull()) {
-			QStyleOption branchOption;
+		if (icon.pixmap(m_tagIconSize).isNull()) {
+			QStyleOptionViewItemV2 branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
 			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
 			branchOption.palette = option.palette;
 			branchOption.state = QStyle::State_Children;
-			rect.adjust(branchOption.rect.width() + 2 * m_margin, 0, 0, 0);
 
 			if (isExpanded)
 				branchOption.state |= QStyle::State_Open;
+			if (option.state & QStyle::State_MouseOver)
+				 branchOption.state |= QStyle::State_MouseOver;
 
 			getStyle(option)->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, widget);
+			rect.adjust(i/2 + i + 2 * m_margin, 0, 0, 0);
 		} else {
 			pixmaps << icon.pixmap(m_tagIconSize, m_tagIconSize);
 		}
@@ -315,8 +310,12 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 			pixmaps << statusPixmap;
 		}
 		if (m_showFlags & ShowAvatars) {
-			height = m_avatarSize;
-			pixmaps << AvatarFilter::icon(index.data(AvatarRole).toString()).pixmap(m_avatarSize);
+			QString avatar = index.data(AvatarRole).toString();
+			if (!avatar.isEmpty()) {
+				QPixmap pixmap = AvatarFilter::icon(avatar).pixmap(m_avatarSize);
+				pixmaps << pixmap;
+				height = pixmap.height();
+			}
 		}
 	} else if (type == AccountType) {
 		pixmaps << Icon("qutim").pixmap(m_accountIconSize);
@@ -1161,7 +1160,7 @@ void ContactListItemDelegate::reloadSettings()
 	m_statusIconSize = cfg.value("statusIconSize", smallIconSize);
 #endif
 	m_extIconSize = cfg.value("extIconSize", smallIconSize);
-	m_avatarSize = cfg.value("avatarSize", smallIconSize);
+	m_avatarSize = cfg.value("avatarIconSize", smallIconSize);
 	m_accountIconSize = cfg.value("accountIconSize", smallIconSize);
 	m_tagIconSize = cfg.value("tagIconSize", smallIconSize);
 
@@ -1176,6 +1175,7 @@ void ContactListItemDelegate::reloadSettings()
 	cfg.endGroup();
 
 	setThemeStyle(cfg.value("oldDelegateTheme", "default.ListQutim"));
+	emit sizeHintChanged(QModelIndex());
 }
 
 QAbstractItemView *ContactListItemDelegate::getContactListView()

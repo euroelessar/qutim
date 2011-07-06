@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>208</width>
-    <height>254</height>
+    <width>206</width>
+    <height>252</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,31 +17,24 @@
    <property name="leftMargin">
     <number>0</number>
    </property>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Status icons size:</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
-    <widget class="QComboBox" name="sizesBox"/>
+    <widget class="QComboBox" name="statusSizesBox"/>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="avatarsBox">
      <property name="text">
       <string>Show avatars</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="statusBox">
      <property name="text">
       <string>Show status text</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <widget class="QCheckBox" name="extendedInfoBox">
      <property name="text">
       <string>Show extended icons</string>
@@ -57,6 +50,23 @@
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="themeBox"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Status icon size:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Avatar icon size:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="avatarSizesBox"/>
    </item>
   </layout>
  </widget>
