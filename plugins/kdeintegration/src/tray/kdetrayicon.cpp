@@ -176,9 +176,9 @@ void KdeTrayIcon::onActivated()
 	}
 }
 
-void KdeTrayIcon::onNotificationDestroyed()
+void KdeTrayIcon::onNotificationFinished()
 {
-	Notification *notif = static_cast<Notification*>(sender());
+	Notification *notif = sender_cast<Notification*>(sender());
 	m_notifications.removeOne(notif);
 
 	if (m_notifications.isEmpty())
@@ -245,7 +245,8 @@ void KdeTrayIcon::handleNotification(Notification *notification)
 	m_notifications << notification;
 
 	m_item->setStatus(KStatusNotifierItem::NeedsAttention);
-	connect(notification, SIGNAL(destroyed()), SLOT(onNotificationDestroyed()));
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			SLOT(onNotificationFinished()));
 }
 
 QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)

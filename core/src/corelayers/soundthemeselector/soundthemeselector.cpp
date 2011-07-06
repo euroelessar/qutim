@@ -41,15 +41,20 @@ void SoundThemeSelector::changeEvent(QEvent *e)
 
 void SoundThemeSelector::loadImpl()
 {
-	QStringList theme_list =  Sound::themeList();
+	ui->themeSelector->addItem(QT_TRANSLATE_NOOP("Sound", "No sound"));
+	QStringList theme_list = Sound::themeList();
 	ui->themeSelector->addItems(theme_list);
 	int index = ui->themeSelector->findText(Sound::currentThemeName());
-	ui->themeSelector->setCurrentIndex(index);
+	ui->themeSelector->setCurrentIndex(index == -1 ? 0 : index);
 }
 void SoundThemeSelector::saveImpl()
 {
-	Sound::setTheme(ui->themeSelector->currentText());
+	QString name = ui->themeSelector->currentIndex() == 0 ?
+						QString() :
+						ui->themeSelector->currentText();
+	Sound::setTheme(name);
 }
+
 void SoundThemeSelector::cancelImpl()
 {
 

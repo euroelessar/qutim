@@ -507,7 +507,7 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
   */
 void ModuleManager::initExtensions()
 {
-	Q_UNUSED(new SoundHandler(NotificationManager::instance()));
+	Q_UNUSED(Sound::instance());
 	// TODO: remove old API and this hack
 	QList<ConfigBackend*> &configBackends = get_config_backends();
 	if (configBackends.isEmpty()) {
