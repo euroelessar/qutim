@@ -7,19 +7,20 @@
 #include <qutim/systeminfo.h>
 #include <qutim/thememanager.h>
 
-typedef QMap<int,LocalizedString> SizeMap;
+typedef QMap<int,LocalizedString> Sizes;
 
-static void size_map_init(SizeMap &map)
+static inline const Sizes &getSizeMap()
 {
-	//TODO rewrite!
-
-	//map.insert(-1,QT_TRANSLATE_NOOP("ContactList","Other"));
-	map.insert(0,QT_TRANSLATE_NOOP("ContactList","Default (depends on platform)"));
-	map.insert(16,QT_TRANSLATE_NOOP("ContactList","Small (16x16)"));
-	map.insert(22,QT_TRANSLATE_NOOP("ContactList","Medium (22x22)"));
-	map.insert(32,QT_TRANSLATE_NOOP("ContactList","Large (32x32)"));
-	map.insert(48,QT_TRANSLATE_NOOP("ContactList","Very large (48x48)"));
-	map.insert(64,QT_TRANSLATE_NOOP("ContactList","Huge (64x64)"));
+	static Sizes map;
+	if (map.isEmpty()) {
+		map.insert(0,  QT_TRANSLATE_NOOP("ContactList","Default (depends on platform)"));
+		map.insert(16, QT_TRANSLATE_NOOP("ContactList","Small (16x16)"));
+		map.insert(22, QT_TRANSLATE_NOOP("ContactList","Medium (22x22)"));
+		map.insert(32, QT_TRANSLATE_NOOP("ContactList","Large (32x32)"));
+		map.insert(48, QT_TRANSLATE_NOOP("ContactList","Very large (48x48)"));
+		map.insert(64, QT_TRANSLATE_NOOP("ContactList","Huge (64x64)"));
+	}
+	return map;
 }
 
 OldDelegateSettings::OldDelegateSettings() :
@@ -45,10 +46,8 @@ OldDelegateSettings::OldDelegateSettings() :
 		}
 	}
 
-#if 1 // FIXME: the option does not work well yet
-	ui->sizesBox->setVisible(false);
-	ui->label->setVisible(false);
-#endif
+	initCombobox(ui->statusSizesBox);
+	initCombobox(ui->avatarSizesBox);
 	listenChildrenStates();
 }
 
@@ -72,7 +71,6 @@ static inline QStringList listThemes(QDir shareDir)
 
 void OldDelegateSettings::loadImpl()
 {
-	reloadCombobox();
 	Config config = Config("appearance").group("contactList");
 	ui->avatarsBox->setChecked(config.value("showAvatars", true));
 	ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
@@ -95,20 +93,8 @@ void OldDelegateSettings::loadImpl()
 	}
 	config.endGroup();
 
-	int size = config.value("statusIconSize", 0);
-	int index = -1;
-	for (int i = 0; i!=ui->sizesBox->count(); ++i) {
-		if (size == ui->sizesBox->itemData(i).toInt()) {
-			index = i;
-			break;
-		}
-	}
-	if (index == -1) {
-		index = 0;
-		//other size (TODO)
-	}
-	else
-		ui->sizesBox->setCurrentIndex(index);
+	setSize(ui->statusSizesBox, config.value("statusIconSize", 0));
+	setSize(ui->avatarSizesBox, config.value("avatarIconSize", 0));
 }
 
 void OldDelegateSettings::saveImpl()
@@ -117,11 +103,8 @@ void OldDelegateSettings::saveImpl()
 	config.setValue("showStatusText", ui->statusBox->isChecked());
 	config.setValue("showExtendedInfoIcons", ui->extendedInfoBox->isChecked());
 	config.setValue("showAvatars", ui->avatarsBox->isChecked());
-	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
-	if (size == 0)
-		config.remove("statusIconSize");
-	else
-		config.setValue("statusIconSize",size);
+	storeSizeToConfig(ui->statusSizesBox, config, "statusIconSize");
+	storeSizeToConfig(ui->avatarSizesBox, config, "avatarIconSize");
 	// Save extended statuses
 	config.beginGroup("extendedStatuses");
 	foreach (QCheckBox *checkBox, m_statusesBoxes)
@@ -133,14 +116,35 @@ void OldDelegateSettings::saveImpl()
 		delegate->reloadSettings();
 }
 
-void OldDelegateSettings::reloadCombobox()
+void OldDelegateSettings::initCombobox(QComboBox *box)
 {
-	ui->sizesBox->clear();
-	SizeMap sizeMap;
-	size_map_init(sizeMap);
-	SizeMap::const_iterator it;
-	for (it = sizeMap.constBegin();it!=sizeMap.constEnd();it++) {
-		ui->sizesBox->addItem(it->toString());
-		ui->sizesBox->setItemData(ui->sizesBox->count()-1,it.key());
+	const Sizes &map = getSizeMap();
+	Sizes::const_iterator itr = map.constBegin();
+	Sizes::const_iterator end = map.constEnd();
+	for (; itr != end; ++itr) {
+		box->addItem(itr->toString());
+		box->setItemData(box->count()-1, itr.key());
 	}
 }
+
+void OldDelegateSettings::setSize(QComboBox *box, int size)
+{
+	int index = 0;
+	for (int i = 0, n = box->count(); i != n; ++i) {
+		if (size == box->itemData(i).toInt()) {
+			index = i;
+			break;
+		}
+	}
+	box->setCurrentIndex(index);
+}
+
+void OldDelegateSettings::storeSizeToConfig(QComboBox *box, Config &config, const char *value)
+{
+	int size = box->itemData(box->currentIndex()).toInt();
+	if (size == 0)
+		config.remove(value);
+	else
+		config.setValue(value, size);
+}
+
