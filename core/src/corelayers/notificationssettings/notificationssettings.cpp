@@ -52,6 +52,7 @@ NotificationsSettings::~NotificationsSettings()
 NotifyEnabler::NotifyEnabler(QObject* parent): QObject(parent)
 {
 	m_enabledTypes = NotificationSettings::enabledTypes();
+	reloadSettings();
 	connect(NotificationManager::instance(),
 			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
 			SLOT(onBackendCreated(QByteArray)));
