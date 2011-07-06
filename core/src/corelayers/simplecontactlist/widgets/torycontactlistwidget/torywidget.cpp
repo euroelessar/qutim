@@ -239,6 +239,9 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	button->setToolTip(account->id());
 	button->setAutoRaise(true);
 	button->setPopupMode(QToolButton::InstantPopup);
+	button->setStyleSheet("QToolButton::menu-indicator{border:none}"); // remove arrow
+	button->setMaximumSize(22, 22);
+	button->setMinimumSize(22, 22);
 
 	d->accountsContainer->addWidget(button);
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
