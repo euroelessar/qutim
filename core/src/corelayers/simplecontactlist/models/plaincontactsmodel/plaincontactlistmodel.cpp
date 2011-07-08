@@ -192,7 +192,6 @@ void PlainModel::removeFromContactList(Contact *contact, bool deleted)
 	if (!item)
 		return;
 	changeContactVisibility(item, false);
-	d->unreadContacts.remove(contact);
 	delete item;
 }
 

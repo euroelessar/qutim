@@ -25,7 +25,7 @@
 #include "feedbag.h"
 #include "sessiondataitem.h"
 #include <qutim/messagesession.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 
 namespace qutim_sdk_0_3 {
 

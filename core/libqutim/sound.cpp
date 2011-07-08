@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer.h
+ *  sound.cpp
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *  and Nigmatullin Ruslan <euroelessar@gmail.com>
@@ -14,7 +14,7 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "notificationslayer.h"
+#include "sound_p.h"
 #include "libqutim_global.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
@@ -22,7 +22,6 @@
 #include "message.h"
 #include "configbase.h"
 #include <QFileInfo>
-#include "notificationslayer_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -39,11 +38,14 @@ void SoundBackend::virtual_hook(int type, void *data)
 	Q_UNUSED(data);
 }
 
-struct NotificationsLayerPrivate
+struct SoundPrivate
 {
 	ServicePointer<SoundBackend> soundBackend;
 	QList<SoundThemeBackend*> soundThemeBackends;
 	QHash<QString, SoundThemeData*> soundThemeCache;
+	QString currentTheme;
+	SoundHandler *soundHandler;
+
 	bool soundIsInited;
 	void initSound()
 	{
@@ -54,100 +56,10 @@ struct NotificationsLayerPrivate
 			soundThemeBackends << gen->generate<SoundThemeBackend>();
 		soundIsInited = true;
 	}
-
 	inline void ensureSound() { if (!soundIsInited) initSound(); }
 };
 
-static NotificationsLayerPrivate *p = 0;
-
-void ensure_notifications_private_helper()
-{
-	p = new NotificationsLayerPrivate;
-	p->soundIsInited = false;
-}
-
-inline void ensure_notifications_private()
-{
-	if (!p)
-		ensure_notifications_private_helper();
-}
-
-namespace Notifications
-{
-
-void send(Notification::Type type, QObject *sender,
-		  const QString &body, const QVariant &data)
-{
-	ensure_notifications_private();
-	//new backends
-	Notification *notification = 0;
-	if (data.canConvert<Message>()) {
-		notification = Notification::send(data.value<Message>());
-	} else {
-		NotificationRequest request(type);
-		request.setObject(sender);
-		request.setText(body);
-		notification = request.send();
-	}	
-}
-
-
-void send(const QString &body, const QVariant &data)
-{
-	Notification::send(body);
-	Q_UNUSED(data);
-}
-
-
-void send(const Message &message)
-{
-	Notification::send(message);
-}
-
-QString toString(Notification::Type type)
-{
-	QString title;
-	switch(type) {
-	case Notification::IncomingMessage:
-	case Notification::ChatIncomingMessage:
-		title = QObject::tr("Message from %1:");
-		break;
-	case Notification::OutgoingMessage:
-	case Notification::ChatOutgoingMessage:
-		title = QObject::tr("Message to %1:");
-		break;
-	case Notification::AppStartup:
-		title = QObject::tr("qutIM launched");
-		break;
-	case Notification::BlockedMessage:
-		title = QObject::tr("Blocked message from %1");
-		break;
-	case Notification::ChatUserJoined:
-	case Notification::UserOnline:
-		title = QObject::tr("%1 is online");
-		break;
-	case Notification::ChatUserLeaved:
-	case Notification::UserOffline:
-		title = QObject::tr("%1 is offline");
-		break;
-	case Notification::UserChangedStatus:
-		title = QObject::tr("%1 changed status");
-		break;
-	case Notification::UserHasBirthday:
-		title = QObject::tr("%1 has birthday today!!");
-		break;
-	case Notification::UserTyping:
-		title = QObject::tr("%1 is typing");
-		break;
-	case Notification::FileTransferCompleted:
-	case Notification::System:
-	default:
-		title = QObject::tr("System notify");
-	}
-	return title;
-}
-
-}
+static SoundPrivate *p = 0;
 
 class SoundThemeData : public QSharedData
 {
@@ -247,9 +159,13 @@ void SoundThemeProvider::virtual_hook(int type, void *data)
 	Q_UNUSED(data);
 }
 
-namespace Sound
+Sound *Sound::instance()
 {
-SoundTheme theme(const QString &name)
+	static Sound sound;
+	return &sound;
+}
+
+SoundTheme Sound::theme(const QString &name)
 {
 	if (name.isEmpty()) {
 		QString currentName = currentThemeName();
@@ -282,36 +198,20 @@ SoundTheme theme(const QString &name)
 	return SoundTheme(0);
 }
 
-void play(Notification::Type type)
+void Sound::play(Notification::Type type)
 {
 	theme().play(type);
 }
 
-QString currentThemeName()
+QString Sound::currentThemeName()
 {
-	//TODO rewrite!
-	ensure_notifications_private();
-	p->ensureSound();
-	ConfigGroup config = Config("appearance").group("sound");
-	QString name = config.value<QString>("theme", QString());
-	if (name.isEmpty()) {
-		QStringList themes = themeList();
-		if (themes.isEmpty() || themes.contains(QLatin1String("default")))
-			name = QLatin1String("default");
-		else
-			name = themes.first();
-		config.setValue("theme", name);
-		config.sync();
-	}
-	return name;
+	return p->currentTheme;
 }
 
-QStringList themeList()
+QStringList Sound::themeList()
 {
-	ensure_notifications_private();
 	p->ensureSound();
 	QSet<QString> themes;
-	themes << QT_TRANSLATE_NOOP("Sound", "No sound");
 	foreach (SoundThemeBackend *backend, p->soundThemeBackends) {
 		foreach (const QString &theme, backend->themeList())
 			themes << theme;
@@ -319,22 +219,58 @@ QStringList themeList()
 	return themes.toList();
 }
 
-void setTheme(const QString &name)
+void Sound::setTheme(const QString &name)
 {
-	ConfigGroup group = Config("appearance").group("sound");
+	Config group = Config("appearance").group("sound");
 	group.setValue("theme", name);
-	group.sync();
+	p->currentTheme = name;
+	emit instance()->currentThemeChanged(name);
+
+	if (!name.isEmpty()) {
+		if (!p->soundHandler)
+			p->soundHandler = new SoundHandler;
+	} else if (p->soundHandler) {
+		p->soundHandler->deleteLater();
+		p->soundHandler = 0;
+	}
 }
 
-void setTheme(const SoundTheme &theme)
+void Sound::setTheme(const SoundTheme &theme)
 {
 	setTheme(theme.themeName());
 }
+
+Sound::Sound()
+{
+	p = new SoundPrivate;
+	p->soundIsInited = false;
+	p->soundHandler = 0;
+
+	Config config = Config("appearance").group("sound");
+	QVariant currentThemVar = config.value("theme");
+	if (currentThemVar.isNull()) {
+		const QString def("default");
+		QStringList themes = themeList();
+		p->currentTheme = themes.contains(def) ? def : themes.value(0);
+	} else {
+		p->currentTheme = currentThemVar.value<QString>();
+	}
+
+	if (!p->currentTheme.isEmpty())
+		p->soundHandler = new SoundHandler(this);
 }
 
-SoundHandler::SoundHandler()
+Sound::~Sound()
 {
+	if (p->soundHandler)
+		delete p->soundHandler;
+	delete p; p = 0;
+}
 
+SoundHandler::SoundHandler(QObject *parent) :
+	QObject(parent), NotificationBackend("Sound")
+{
+	setDescription(QT_TR_NOOP("Play sound"));
 }
 
 void SoundHandler::handleNotification(Notification *notification)

@@ -13,6 +13,7 @@
 #include "jmessagehandler.h"
 #include <qutim/metacontact.h>
 #include <qutim/authorizationdialog.h>
+#include <qutim/notification.h>
 #include <QApplication>
 //Jreen
 #include <jreen/presence.h>
@@ -289,12 +290,21 @@ void JContact::setStatus(const Jreen::Presence presence)
 	} else {
 		if (!d->resources.contains(resource))
 			addResource(resource);
-		d->resources.value(resource)->setStatus(presence);
+		// If signals of the resource would not be blocked,
+		// statusChanged() signal would be emitted two times:
+		// from resourceStatusChanged() and from this method.
+		JContactResource *contactResource = d->resources.value(resource);
+		contactResource->blockSignals(true);
+		contactResource->setStatus(presence);
+		contactResource->blockSignals(false);
 		fillMaxResource();
 	}
 	recalcStatus();
-	if(oldStatus.type() != d->status.type())
+	if (oldStatus.type() != d->status.type()) {
+		NotificationRequest request(this, d->status, oldStatus);
+		request.send();
 		emit statusChanged(d->status, oldStatus);
+	}
 }
 
 void JContact::removeResource(const QString &resource)
@@ -307,7 +317,6 @@ void JContact::removeResource(const QString &resource)
 		d->status = JStatus::presenceToStatus(Jreen::Presence::Unavailable);
 		d->status.setExtendedInfos(oldStatus.extendedInfos());
 		d->status.removeExtendedInfo(QLatin1String("client"));
-		emit statusChanged(d->status, oldStatus);
 		return;
 	}
 }
@@ -413,6 +422,10 @@ void JContact::resourceStatusChanged(const Status &current, const Status &previo
 		return;
 	if (d->resources.value(d->currentResources.first()) == sender()) {
 		recalcStatus();
+		if (current.type() != previous.type() || current.text() != previous.text()) {
+			NotificationRequest request(this, current, previous);
+			request.send();
+		}
 		emit statusChanged(current, previous);
 	}
 }

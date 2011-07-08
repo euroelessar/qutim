@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationsettings.h
+ *  mobilenotificationsettings.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
@@ -14,46 +14,61 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef CORE_NOTIFICATIONSETTINGS_H
-#define CORE_NOTIFICATIONSETTINGS_H
+#ifndef CORE_MOBILENOTIFICATIONSETTINGS_H
+#define CORE_MOBILENOTIFICATIONSETTINGS_H
 
 #include <qutim/settingswidget.h>
 #include <qutim/notification.h>
 #include <QSet>
+#include <QTreeWidget>
 
 class QCheckBox;
-class QTableWidget;
 
 namespace Core {
 
-typedef QList<QSet<QByteArray> > EnabledNotificationTypes;
-
 QString notificationTypeName(int type);
 
-class NotificationSettings : public qutim_sdk_0_3::SettingsWidget
+class NotificationTreeItem : public QTreeWidgetItem
+{
+public:
+	NotificationTreeItem(QTreeWidget *widget, const QIcon &icon, const QString &text);
+	NotificationTreeItem(const QIcon &icon, const QString &text);
+	NotificationTreeItem(const QString &text);
+	virtual void setData(int column, int role, const QVariant &value);
+protected:
+	void setData(int column, int role, const QVariant &value, bool checkState);
+};
+
+class MobileNotificationSettings : public qutim_sdk_0_3::SettingsWidget
 {
     Q_OBJECT
 public:
-	explicit NotificationSettings(QWidget *parent = 0);
+	enum
+	{
+		BackendTypeRole = Qt::UserRole,
+		NotificationTypeRole = Qt::UserRole + 1
+	};
+
+	explicit MobileNotificationSettings(QWidget *parent = 0);
 	virtual void loadImpl();
 	virtual void cancelImpl();
 	virtual void saveImpl();
-	static EnabledNotificationTypes enabledTypes();
-signals:
-	void enabledTypesChanged(const EnabledNotificationTypes &flagsList);
 private slots:
-	void onNotificationTypeChanged();
+	void onItemChanged(QTreeWidgetItem *item, int column);
 private:
-	void updateTypesList();
-	typedef QMap<QByteArray, QCheckBox*> BoxMap;
-	BoxMap m_boxMap;
-	QTableWidget *m_typesWidget;
-	EnabledNotificationTypes m_enabledTypesList;
+	struct Backend
+	{
+		qutim_sdk_0_3::NotificationBackend *backend;
+		QTreeWidgetItem *item;
+	};
+
+	QTreeWidget *m_typesWidget;
+	QList<Backend> m_backends;
 	QCheckBox *m_notificationInActiveChatBox;
 	QCheckBox *m_conferenceMessagesBox; // "Ignore conference messages that do not contain my name"
-	int m_currentRow;
+
 };
 
 } // namespace Core
 
-#endif // CORE_NOTIFICATIONSETTINGS_H
+#endif // CORE_MOBILENOTIFICATIONSETTINGS_H

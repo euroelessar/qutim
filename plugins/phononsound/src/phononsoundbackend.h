@@ -17,7 +17,7 @@
 #ifndef MULTIMEDIASOUNDBACKEND_H
 #define MULTIMEDIASOUNDBACKEND_H
 
-#include <qutim/notificationslayer.h>
+#include <qutim/sound.h>
 #include <phonon/backendcapabilities.h>
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>

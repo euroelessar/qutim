@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationssettings.h
+ *  mobilenotificationssettings.h
  *
  *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
@@ -14,13 +14,13 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSSETTINGS_H
-#define NOTIFICATIONSSETTINGS_H
+#ifndef MOBILENOTIFICATIONSSETTINGS_H
+#define MOBILENOTIFICATIONSSETTINGS_H
 
 #include <QObject>
 #include <qutim/startupmodule.h>
 #include <qutim/notification.h>
-#include "notificationsettings.h"
+#include "mobilenotificationsettings.h"
 
 namespace qutim_sdk_0_3 {
 class SettingsItem;
@@ -29,32 +29,33 @@ class SettingsItem;
 namespace Core
 {
 
-class NotifyEnabler;
-class NotificationsSettings : public QObject
+typedef QList<QSet<QByteArray> > EnabledNotificationTypes;
+class MobileNotifyEnabler;
+
+class MobileNotificationsSettings : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "NotificationSettings")
 public:
-	explicit NotificationsSettings(QObject *parent = 0);
-	~NotificationsSettings();
+	explicit MobileNotificationsSettings(QObject *parent = 0);
+	~MobileNotificationsSettings();
 private:
 	qutim_sdk_0_3::SettingsItem *m_settings;
-	NotifyEnabler *m_enabler;
+	MobileNotifyEnabler *m_enabler;
 };
 
-class NotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
+class MobileNotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::NotificationFilter)
 public:
-	NotifyEnabler(QObject *parent = 0);
+	MobileNotifyEnabler(QObject *parent = 0);
 public slots:
-	void enabledTypesChanged(const EnabledNotificationTypes &enabledTypes);
 	void reloadSettings();
 	void onBackendCreated(const QByteArray &type);
 	void onBackendDestroyed(const QByteArray &type);
 protected:
-	virtual void filter(qutim_sdk_0_3::NotificationRequest &request);
+	virtual void filter(qutim_sdk_0_3::NotificationRequest& request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
 	bool m_notificationsInActiveChat;
@@ -63,4 +64,4 @@ private:
 
 }
 
-#endif // NOTIFICATIONSSETTINGS_H
+#endif // MOBILENOTIFICATIONSSETTINGS_H

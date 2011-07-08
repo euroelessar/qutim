@@ -1,5 +1,5 @@
 /****************************************************************************
- *  notificationslayer.h
+ *  sound.h
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *  and Nigmatullin Ruslan <euroelessar@gmail.com>
@@ -14,8 +14,8 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef NOTIFICATIONSLAYER_H
-#define NOTIFICATIONSLAYER_H
+#ifndef SOUND_H
+#define SOUND_H
 
 #include "libqutim_global.h"
 #include <QPointer>
@@ -26,20 +26,6 @@
 namespace qutim_sdk_0_3
 {
 class Message;
-struct NotificationsLayerPrivate;
-
-namespace Notifications
-{
-//TODO Rewrite
-//note: title is set on type and sender, customTitle override this
-
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(Notification::Type type, QObject *sender,
-						  const QString &body = QString(),
-						  const QVariant &data = QVariant());
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT void send(const Message &message);
-Q_DECL_DEPRECATED LIBQUTIM_EXPORT QString toString(Notification::Type type);
-}
 
 class LIBQUTIM_EXPORT SoundBackend : public QObject
 {
@@ -97,16 +83,24 @@ public:
 	virtual SoundThemeProvider *loadTheme(const QString &name) = 0;
 };
 
-namespace Sound
+class LIBQUTIM_EXPORT Sound : public QObject
 {
-LIBQUTIM_EXPORT SoundTheme theme(const QString &name = QString());
-LIBQUTIM_EXPORT void play(Notification::Type type);
-LIBQUTIM_EXPORT QString currentThemeName();
-LIBQUTIM_EXPORT QStringList themeList();
-LIBQUTIM_EXPORT void setTheme(const QString &name);
-LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
+	Q_OBJECT
+public:
+	virtual ~Sound();
+	static Sound *instance();
+	static SoundTheme theme(const QString &name = QString());
+	static void play(Notification::Type type);
+	static QString currentThemeName();
+	static QStringList themeList();
+	static void setTheme(const QString &name);
+	static void setTheme(const SoundTheme &theme);
+signals:
+	void currentThemeChanged(const QString &themeName);
+private:
+	Sound();
+};
 
 }
-}
 
-#endif // NOTIFICATIONSLAYER_H
+#endif // SOUND_H

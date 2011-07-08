@@ -19,6 +19,7 @@
 #include <qutim/metaobjectbuilder.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
+#include <qutim/utils.h>
 #include <KStatusNotifierItem>
 #include <KMenu>
 #include <QDebug>
@@ -118,7 +119,9 @@ private:
 
 using namespace KdeIntegration;
 
-KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
+KdeTrayIcon::KdeTrayIcon(QObject *parent) :
+	MenuController(parent),
+	NotificationBackend("Tray")
 {
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	setMenuOwner(qobject_cast<MenuController*>(contactList));
@@ -133,8 +136,6 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	m_item->setStandardActionsEnabled(false);
 	m_item->setStatus(KStatusNotifierItem::Active);
 	
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
@@ -167,52 +168,21 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 
 void KdeTrayIcon::onActivated()
 {
-	if (m_sessions.isEmpty()) {
+	if (m_notifications.isEmpty()) {
 		if (QObject *obj = ServiceManager::getByName("ContactList"))
 			obj->metaObject()->invokeMethod(obj, "changeVisibility");
 	} else {
-		m_sessions.first()->activate();
+		m_notifications.first()->accept();
 	}
 }
 
-void KdeTrayIcon::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void KdeTrayIcon::onNotificationFinished()
 {
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-	connect(session, SIGNAL(destroyed()), this, SLOT(onSessionDestroyed()));
-}
+	Notification *notif = sender_cast<Notification*>(sender());
+	m_notifications.removeOne(notif);
 
-void KdeTrayIcon::onSessionDestroyed()
-{
-	onUnreadChanged(MessageList());
-}
-
-void KdeTrayIcon::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
-{
-	ChatSession *session = static_cast<ChatSession*>(sender());
-	Q_ASSERT(session != NULL);
-	MessageList::iterator itr = unread.begin();
-	while (itr != unread.end()) {
-		if (itr->property("silent", false))
-			itr = unread.erase(itr);
-		else
-			++itr;
-	}
-	bool empty = m_sessions.isEmpty();
-	if (unread.isEmpty()) {
-		m_sessions.removeOne(session);
-	} else if (!m_sessions.contains(session)) {
-		m_sessions.append(session);
-	} else {
-		return;
-	}
-	if (empty == m_sessions.isEmpty())
-		return;
-	
-	if (m_sessions.isEmpty())
+	if (m_notifications.isEmpty())
 		m_item->setStatus(KStatusNotifierItem::Active);
-	else
-		m_item->setStatus(KStatusNotifierItem::NeedsAttention);
 }
 
 void KdeTrayIcon::onAccountDestroyed(QObject *obj)
@@ -267,6 +237,16 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 	}
 	m_item->setIconByName(iconName);
 	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
+}
+
+void KdeTrayIcon::handleNotification(Notification *notification)
+{
+	ref(notification);
+	m_notifications << notification;
+
+	m_item->setStatus(KStatusNotifierItem::NeedsAttention);
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			SLOT(onNotificationFinished()));
 }
 
 QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)

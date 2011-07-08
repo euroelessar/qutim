@@ -22,6 +22,7 @@
 #include "vinforequest.h"
 #include <qutim/tooltip.h>
 #include <qutim/inforequest.h>
+#include <qutim/notification.h>
 
 class VContactPrivate
 {
@@ -110,10 +111,13 @@ void VContact::setStatus(bool online)
 {
 	Q_D(VContact);
 	if (d->online != online) {
-		Status previous = status();
-		setChatState(online ? ChatStateInActive : ChatStateGone);
+		Status previous = this->status();
 		d->online = online;
-		emit statusChanged(status(), previous);
+		Status status = this->status();
+		setChatState(online ? ChatStateInActive : ChatStateGone);
+		NotificationRequest request(this, status, previous);
+		request.send();
+		emit statusChanged(status, previous);
 	}
 }
 

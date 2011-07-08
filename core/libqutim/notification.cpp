@@ -14,21 +14,27 @@
 *****************************************************************************/
 
 #include "notification.h"
-#include "notificationslayer_p.h"
+#include "sound_p.h"
 #include "dynamicpropertydata_p.h"
 #include "message.h"
 #include "chatunit.h"
 #include "chatsession.h"
+#include "metaobjectbuilder.h"
+#include "conference.h"
+#include "event.h"
+#include "config.h"
 #include <QMetaEnum>
 #include <QMetaMethod>
 #include <QMultiMap>
+#include <QApplication>
 
 namespace qutim_sdk_0_3 {
 
-static SoundHandler handler; //TODO move to other place
+typedef QHash<QByteArray, NotificationBackend*> NotificationBackendHash;
+Q_GLOBAL_STATIC(NotificationBackendHash, backendHash)
 
-typedef QList<NotificationBackend*> NotificationBackendList;
-Q_GLOBAL_STATIC(NotificationBackendList, backendList)
+typedef QStringList BlockedBackends;
+Q_GLOBAL_STATIC(BlockedBackends, blockedBackends)
 
 typedef QHash<Notification::Type, NotificationAction> ActionHash;
 Q_GLOBAL_STATIC(ActionHash, globalActions)
@@ -39,14 +45,21 @@ Q_GLOBAL_STATIC(HandlerMap, handlers)
 class NotificationPrivate
 {
 public:
+	NotificationPrivate() :
+		state(Notification::Active)
+	{}
 	NotificationRequest request;
 	QAtomicInt ref;
+	Notification::State state;
 };
 
 class NotificationRequestPrivate : public DynamicPropertyData
 {
 public:
-	NotificationRequestPrivate() : DynamicPropertyData(), object(0) {}
+	NotificationRequestPrivate() : DynamicPropertyData(), object(0)
+	{
+		enabledBackends = backendHash()->keys().toSet();
+	}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
 		title(o.title), type(o.type), actions(o.actions) {}
@@ -56,16 +69,30 @@ public:
 	QString title;
 	Notification::Type type;
 	QList<NotificationAction> actions;
+	QSet<QByteArray> enabledBackends;
+	QSet<QByteArray> rejectionReasons;
 };
 
 class NotificationActionPrivate : public QSharedData
 {
 public:
+	NotificationActionPrivate() :
+		type(NotificationAction::AdditionalButton)
+	{}
 	QIcon icon;
 	LocalizedString title;
 	QPointer<QObject> receiver;
 	QByteArray method;
 	QPointer<Notification> notification;
+	NotificationAction::Type type;
+};
+
+class NotificationBackendPrivate
+{
+public:
+	QByteArray type;
+	LocalizedString description;
+	QSet<QByteArray> allowedRejectedNotifications;
 };
 
 Notification *Notification::send(const Message &msg)
@@ -97,6 +124,7 @@ Notification::Notification(const NotificationRequest &request) :
 
 Notification::~Notification()
 {
+	reject();
 }
 
 NotificationRequest Notification::request() const
@@ -104,48 +132,103 @@ NotificationRequest Notification::request() const
 	return d_func()->request;
 }
 
+Notification::State Notification::state()
+{
+	return d_func()->state;
+}
+
 void Notification::accept()
 {
-	debug() << "Accepted";
+	Q_D(Notification);
+	if (d->state != Active)
+		return;
+	d->state = Accepted;
+	foreach (const NotificationAction &action, d->request.actions()) {
+		if (action.type() == NotificationAction::AcceptButton)
+			action.trigger();
+	}
 	emit accepted();
-	//deleteLater(); //TODO
+	emit finished(Accepted);
+}
+
+void Notification::ignore()
+{
+	Q_D(Notification);
+	if (d->state != Active)
+		return;
+	d->state = Ignored;
+	foreach (const NotificationAction &action, d->request.actions()) {
+		if (action.type() == NotificationAction::IgnoreButton)
+			action.trigger();
+	}
+	emit ignored();
+	emit finished(Ignored);
+}
+
+void Notification::reject()
+{
+	Q_D(Notification);
+	if (d->state != Active)
+		return;
+	d->state = Rejected;
+	emit rejected();
+	emit finished(Rejected);
 }
 
 LocalizedStringList Notification::typeStrings()
 {
-	LocalizedStringList list;
-	list << QT_TRANSLATE_NOOP("Notification", "Incoming Message")
-		 << QT_TRANSLATE_NOOP("Notification", "Outgoing Message")
-		 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
-		 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
-		 << QT_TRANSLATE_NOOP("Notification", "User joined chat")
-		 << QT_TRANSLATE_NOOP("Notification", "User leaved chat")
-		 << QT_TRANSLATE_NOOP("Notification", "Incoming chat message")
-		 << QT_TRANSLATE_NOOP("Notification", "Outgoing chat message")
-		 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
-		 << QT_TRANSLATE_NOOP("Notification", "User online")
-		 << QT_TRANSLATE_NOOP("Notification", "User offline")
-		 << QT_TRANSLATE_NOOP("Notification", "User changed status")
-		 << QT_TRANSLATE_NOOP("Notification", "User has birthday!")
-		 << QT_TRANSLATE_NOOP("Notification", "User typing")
-		 << QT_TRANSLATE_NOOP("Notification", "System");
+	static LocalizedStringList list;
+	if (list.isEmpty()) {
+		list << QT_TRANSLATE_NOOP("Notification", "Incoming Message")
+			 << QT_TRANSLATE_NOOP("Notification", "Outgoing Message")
+			 << QT_TRANSLATE_NOOP("Notification", "qutIM Startup")
+			 << QT_TRANSLATE_NOOP("Notification", "Blocked Message")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact joined conference")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact left conference")
+			 << QT_TRANSLATE_NOOP("Notification", "Incoming conference message")
+			 << QT_TRANSLATE_NOOP("Notification", "Outgoing conference message")
+			 << QT_TRANSLATE_NOOP("Notification", "File transfer completed")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact online")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact offline")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact changed status")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact birthday")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact typing")
+			 << QT_TRANSLATE_NOOP("Notification", "System");
+	}
 	return list;
 }
 
 LocalizedString Notification::typeString(Type type)
 {
-	QMetaObject meta = Notification::staticMetaObject;
+	return typeStrings().value(type);
+}
 
-	//convert flag to number
-	int index = 0;
-	int flag = 1;
-	for (; index != meta.enumerator(0).keyCount(); index++) {
-		if (flag == type)
-			break;
-		flag <<= 1;
+LocalizedStringList Notification::descriptionStrings()
+{
+	static LocalizedStringList list;
+	if (list.isEmpty()) {
+		list << QT_TRANSLATE_NOOP("Notification", "A new message has been received")
+			 << QT_TRANSLATE_NOOP("Notification", "A message has been sent")
+			 << QT_TRANSLATE_NOOP("Notification", "qutIM has started")
+			 << QT_TRANSLATE_NOOP("Notification", "A message has been blocked")
+			 << QT_TRANSLATE_NOOP("Notification", "A user has joined a conference")
+			 << QT_TRANSLATE_NOOP("Notification", "A user has left a conference")
+			 << QT_TRANSLATE_NOOP("Notification", "A new conference message has been received")
+			 << QT_TRANSLATE_NOOP("Notification", "A conference message has been sent")
+			 << QT_TRANSLATE_NOOP("Notification", "A file transfer has been completed")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has gone online")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has gone offline")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has changed status")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact has birthday!")
+			 << QT_TRANSLATE_NOOP("Notification", "A contact is typing")
+			 << QT_TRANSLATE_NOOP("Notification", "A system notification");
 	}
+	return list;
+}
 
-	return typeStrings().at(index);
+LocalizedString Notification::descriptionString(Type type)
+{
+	return descriptionStrings().value(type);
 }
 
 NotificationAction::NotificationAction(const QIcon &icon, const LocalizedString &title,
@@ -198,6 +281,16 @@ LocalizedString NotificationAction::title() const
 	return d->title;
 }
 
+NotificationAction::Type NotificationAction::type() const
+{
+	return d->type;
+}
+
+void NotificationAction::setType(NotificationAction::Type type)
+{
+	d->type = type;
+}
+
 QObject *NotificationAction::receiver() const
 {
 	return d->receiver;
@@ -219,7 +312,7 @@ void NotificationAction::trigger() const
 	QByteArray tmp = QMetaObject::normalizedSignature(name + 1);
 	name = tmp.constData();
 
-	int index;
+	int index = -1;
 	switch (type) {
 	case '0':
 		index = meta->indexOfMethod(name);
@@ -240,6 +333,11 @@ void NotificationAction::trigger() const
 	} else {
 		warning() << "An invalid action has been triggered" << name;
 	}
+
+	if (d->type == AcceptButton)
+		d->notification->accept();
+	else if (d->type == IgnoreButton)
+		d->notification->ignore();
 }
 
 namespace CompiledProperty
@@ -259,7 +357,6 @@ static QList<Setter> setters   = QList<Setter>() //TODO
 NotificationRequest::NotificationRequest() :
 	d_ptr(new NotificationRequestPrivate)
 {
-
 }
 
 NotificationRequest::NotificationRequest(const Message &msg) :
@@ -268,21 +365,12 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 	d_ptr->text = msg.text();
 	d_ptr->object = msg.chatUnit();
 
-#if 1
-	// TODO: remove that workaround when chat layer will be ported to new notification API
-	QVariant service = msg.property("service");
-	if (service.type() == QVariant::Int) {
-		d_ptr->type = static_cast<Notification::Type>(service.toInt());
-	} else
-#endif
-	{
-		if (ChatLayer::get(msg.chatUnit(), false)) {
-			d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
-											 Notification::ChatOutgoingMessage;
-		} else {
-			d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
-											 Notification::OutgoingMessage;
-		}
+	if (qobject_cast<Conference*>(msg.chatUnit())) {
+		d_ptr->type = msg.isIncoming() ? Notification::ChatIncomingMessage :
+										 Notification::ChatOutgoingMessage;
+	} else {
+		d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
+										 Notification::OutgoingMessage;
 	}
 	setProperty("message", qVariantFromValue(msg));
 }
@@ -291,6 +379,22 @@ NotificationRequest::NotificationRequest(Notification::Type type) :
 	d_ptr(new NotificationRequestPrivate)
 {
 	d_ptr->type = type;
+}
+
+NotificationRequest::NotificationRequest(Buddy *buddy, const Status &status, const Status &previous) :
+	d_ptr(new NotificationRequestPrivate)
+{
+	d_ptr->text = status.text();
+	d_ptr->object = buddy;
+	setProperty("status", qVariantFromValue(status));
+	setProperty("previousStatus", qVariantFromValue(previous));
+
+	Status::Type statusType = status.type();
+	d_ptr->type = Notification::UserChangedStatus;
+	if (statusType == Status::Offline)
+		d_ptr->type = Notification::UserOffline;
+	else if (previous.type() == Status::Offline)
+		d_ptr->type = Notification::UserOnline;
 }
 
 NotificationRequest::NotificationRequest(const NotificationRequest &other)
@@ -358,6 +462,36 @@ Notification::Type NotificationRequest::type() const
 	return d_ptr->type;
 }
 
+void NotificationRequest::reject(const QByteArray &reason)
+{
+	d_ptr->rejectionReasons.insert(reason);
+}
+
+QSet<QByteArray> NotificationRequest::rejectionReasons() const
+{
+	return d_ptr->rejectionReasons;
+}
+
+void NotificationRequest::setBackends(const QSet<QByteArray> &backendTypes)
+{
+	d_ptr->enabledBackends = backendTypes;
+}
+
+void NotificationRequest::blockBackend(const QByteArray &backendType)
+{
+	d_ptr->enabledBackends.remove(backendType);
+}
+
+void NotificationRequest::unblockBackend(const QByteArray &backendType)
+{
+	d_ptr->enabledBackends.insert(backendType);
+}
+
+bool NotificationRequest::isBackendBlocked(const QByteArray &backendType)
+{
+	return !d_ptr->enabledBackends.contains(backendType);
+}
+
 QVariant NotificationRequest::property(const char *name, const QVariant &def) const
 {
 	return d_ptr->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -392,16 +526,33 @@ Notification *NotificationRequest::send()
 	HandlerMap::iterator begin = handlers()->begin();
 	while (itr != begin) {
 		--itr;
-		NotificationFilter::Result res = (*itr)->filter(*this);
-		if (res  == NotificationFilter::Error || res  == NotificationFilter::Reject)
-			return 0;
+		(*itr)->filter(*this);
 	}
 
-	Notification *notification = new Notification(*this);
-	notification->d_func()->ref.ref();
-	foreach (NotificationBackend *backend, *backendList())
+	Notification *notification = 0;
+	foreach (NotificationBackend *backend, *backendHash()) {
+		// Check that the notification has not been blocked for the backend
+		QByteArray typeName = backend->backendType();
+		if (blockedBackends()->contains(typeName) || isBackendBlocked(typeName))
+			continue;
+
+		// Check that the notifications has not been rejected
+		QSet<QByteArray> allowed = backend->d_ptr->allowedRejectedNotifications;
+		QSet<QByteArray> rejectionReasons = d_ptr->rejectionReasons - allowed;
+		if (!rejectionReasons.isEmpty())
+			continue;
+
+		if (!notification) {
+			notification = new Notification(*this);
+			notification->d_func()->ref.ref();
+			foreach (NotificationFilter *filter, *handlers())
+				filter->notificationCreated(notification);
+		}
+
 		backend->handleNotification(notification);
-	notification->d_func()->ref.deref();
+	}
+	if (notification)
+		notification->d_func()->ref.deref();
 	//TODO ref and deref impl
 	return notification;
 }
@@ -424,18 +575,64 @@ void NotificationFilter::unregisterFilter(NotificationFilter *handler)
 		if (*itr == handler)
 			itr = handlers()->erase(itr);
 		else
-			break;
+			++itr;
 	}
 }
 
-NotificationBackend::NotificationBackend()
+void NotificationFilter::notificationCreated(Notification *notification)
 {
-	backendList()->append(this);
+	Q_UNUSED(notification);
+}
+
+void NotificationFilter::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
+
+NotificationBackend::NotificationBackend(const QByteArray &type) :
+	d_ptr(new NotificationBackendPrivate)
+{
+	Q_D(NotificationBackend);
+	Q_ASSERT(!type.isEmpty());
+	d->type = type;
+	backendHash()->insert(d->type, this);
+	emit NotificationManager::instance()->backendCreated(d->type, this);
 }
 
 NotificationBackend::~NotificationBackend()
 {
-	backendList()->removeAll(this);
+	Q_D(NotificationBackend);
+	NotificationBackendHash::iterator itr = backendHash()->find(d->type);
+	Q_ASSERT(itr != backendHash()->end());
+	if (*itr == this)
+		backendHash()->erase(itr);
+	emit NotificationManager::instance()->backendDestroyed(d->type, this);
+}
+
+QByteArray NotificationBackend::backendType() const
+{
+	return d_ptr->type;
+}
+
+LocalizedString NotificationBackend::description() const
+{
+	return d_ptr->description;
+}
+
+QList<QByteArray> NotificationBackend::allTypes()
+{
+	return backendHash()->keys();
+}
+
+NotificationBackend* NotificationBackend::get(const QByteArray &type)
+{
+	return backendHash()->value(type);
+}
+
+QList<NotificationBackend*> NotificationBackend::all()
+{
+	return backendHash()->values();
 }
 
 void NotificationBackend::ref(Notification *notification)
@@ -447,6 +644,71 @@ void NotificationBackend::deref(Notification *notification)
 {
 	if (!notification->d_func()->ref.deref())
 		notification->deleteLater();
+}
+
+void NotificationBackend::setDescription(const LocalizedString &description)
+{
+	d_ptr->description = description;
+}
+
+void NotificationBackend::allowRejectedNotifications(const QByteArray &reason)
+{
+	d_ptr->allowedRejectedNotifications.insert(reason);
+}
+
+void NotificationBackend::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
+
+NotificationManager *NotificationManager::instance()
+{
+	static NotificationManager notificationManager;
+	return &notificationManager;
+}
+
+void NotificationManager::setBackendState(const QByteArray &type, bool enabled)
+{
+	if (enabled) {
+		if (!blockedBackends()->removeOne(type))
+			return;
+	} else {
+		QString typeStr(type);
+		if (!blockedBackends()->contains(typeStr))
+			blockedBackends()->push_back(typeStr);
+		else
+			return;
+	}
+
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	cfg.setValue(QLatin1String("blockedBackends"), *blockedBackends());
+	cfg.endGroup();
+	emit instance()->backendStateChanged(type, enabled);
+}
+
+void NotificationManager::enableBackend(const QByteArray &type)
+{
+	setBackendState(type, true);
+}
+
+void NotificationManager::disableBackend(const QByteArray &type)
+{
+	setBackendState(type, false);
+}
+
+bool NotificationManager::isBackendEnabled(const QByteArray &type)
+{
+	return !blockedBackends()->contains(type);
+}
+
+NotificationManager::NotificationManager()
+{
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
+	*blockedBackends() = cfg.value(QLatin1String("blockedBackends"), QStringList());
+	cfg.endGroup();
 }
 
 } // namespace qutim_sdk_0_3

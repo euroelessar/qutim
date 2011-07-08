@@ -361,7 +361,7 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	Status status = contact->status();
 	QVariant icon = status.extendedInfo("xstatus").value("icon");
 	setXstatus(status, title, icon.value<ExtensionIcon>(), desc);
-	contact->setStatus(status);
+	contact->setStatus(status, false);
 }
 
 void XStatusHandler::setXstatus(Status &status, const QString &title, const ExtensionIcon &icon, const QString &desc)

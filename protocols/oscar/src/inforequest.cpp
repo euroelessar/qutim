@@ -1,7 +1,7 @@
 #include "inforequest_p.h"
 #include "icqcontact_p.h"
 #include "icqaccount.h"
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 
 Q_DECLARE_METATYPE(QHostAddress);
 

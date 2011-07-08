@@ -17,7 +17,7 @@
 #include "md5login.h"
 #include "icqaccount.h"
 #include "util.h"
-#include "qutim/notificationslayer.h"
+#include "qutim/notification.h"
 #include <QCryptographicHash>
 #include <QUrl>
 #include <QNetworkProxy>

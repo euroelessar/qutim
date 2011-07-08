@@ -17,7 +17,7 @@
 #include "roster.h"
 
 #include "mrimaccount.h"
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 
 struct MrimAccountPrivate
 {

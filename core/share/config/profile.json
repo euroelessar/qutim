@@ -2,6 +2,51 @@
 	"Logger": {
 			"enable": false,
 	},
+	"notification": {
+		"AppStartup": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"BlockedMessage": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"ChatIncomingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatOutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatUserJoined": {
+			"Popup": false,
+			"Tray": false
+		},
+		"ChatUserLeft": {
+			"Popup": false,
+			"Tray": false
+		},
+		"IncomingMessage": {
+			"ChatNotifications": false
+		},
+		"OutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"UserChangedStatus": {
+			"Tray": false
+		},
+		"UserOffline": {
+			"Tray": false
+		},
+		"UserOnline": {
+			"Tray": false
+		},
+		"UserTyping": {
+			"ChatNotifications": false
+		},
+		"System": {
+			"Tray": false
+		}
+	},
 	"services": {
 		"list": {
 			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
@@ -12,6 +57,7 @@
 			"ContactDelegate": "Core::ContactDelegate",
 			"DataFormsBackend": "Core::DefaultDataFormsBackend",
 			"IconLoader": "Core::IconLoaderImpl",
+			"NotificationSettings": "Core::NotificationsSettings",
 			"Popup": "DBusBackend",
 			"Sound": "PhononSoundBackend",
 			"ContactInfo": "Core::ContactInfo",

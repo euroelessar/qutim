@@ -1,8 +1,34 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "simplecontactlistsettings.h"
 #include <qutim/metaobjectbuilder.h>
 #include <qutim/notification.h>
 #include <qutim/objectgenerator.h>
 #include <QVBoxLayout>
+#include <QScrollArea>
 #include <QSet>
 
 namespace Core {
@@ -79,17 +105,26 @@ void ServiceChooser::onServiceChanged(const QByteArray &name, QObject *newObject
 
 ContactListSettings::ContactListSettings()
 {
-	m_layout = new QVBoxLayout(this);
-	addService("ContactModel", tr("Model"));
-	addService("ContactListWidget", tr("Widget style"));
-	addService("ContactDelegate", tr("Contacts style"));
+	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+	QScrollArea *area = new QScrollArea(this);
+	QWidget *mainWidget = new QWidget(area);
+	area->setWidget(mainWidget);
+	area->setWidgetResizable(true);
+	area->setFrameStyle(QFrame::NoFrame);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+	mainLayout->addWidget(area);
+	m_layout = new QVBoxLayout(mainWidget);
+
+	addService("ContactModel", QT_TR_NOOP("Model"));
+	addService("ContactListWidget", QT_TR_NOOP("Widget style"));
+	addService("ContactDelegate", QT_TR_NOOP("Contacts style"));
 
 	m_layout->addItem(new QSpacerItem(0, 20, QSizePolicy::Preferred, QSizePolicy::Expanding));
 
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<ContactListSettingsExtention>()) {
 		QByteArray service = MetaObjectBuilder::info(gen->metaObject(), "ServiceSettings");
 		if (service.isEmpty())
-			addExtensionWidget("", gen, false);
+			addExtensionWidget(QByteArray(), gen, false);
 		else
 			m_extensions.insert(service, gen);
 	}
@@ -105,8 +140,8 @@ void ContactListSettings::addService(const QByteArray &service, const LocalizedS
 	if (!serviceObj)
 		return;
 	ExtensionInfoList services = ServiceManager::listImplementations(service);
+	QByteArray currentService = serviceObj->metaObject()->className();
 	if (services.size() > 1) {
-		QByteArray currentService = serviceObj->metaObject()->className();
 		m_services.insert(currentService);
 		ServiceChooser *chooser = new ServiceChooser(service, title, currentService, services, this);
 		m_layout->addWidget(chooser);
@@ -114,6 +149,8 @@ void ContactListSettings::addService(const QByteArray &service, const LocalizedS
 		connect(chooser,
 				SIGNAL(serviceChanged(QByteArray,QByteArray)),
 				SLOT(onServiceChanged(QByteArray,QByteArray)));
+	} else {
+		onServiceChanged(currentService, QByteArray());
 	}
 }
 

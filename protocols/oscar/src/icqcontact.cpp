@@ -21,7 +21,7 @@
 #include "metainfo/infometarequest.h"
 #include "inforequest_p.h"
 #include "qutim/messagesession.h"
-#include "qutim/notificationslayer.h"
+#include "qutim/notification.h"
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
 #include <QApplication>
@@ -334,7 +334,7 @@ void IcqContact::setAvatar(const QString &avatar)
 	emit avatarChanged(avatar);
 }
 
-void IcqContact::setStatus(const Status &status)
+void IcqContact::setStatus(const Status &status, bool notification)
 {
 	Q_D(IcqContact);
 	Status previous = d->status;
@@ -345,6 +345,14 @@ void IcqContact::setStatus(const Status &status)
 		d->onlineSince = QDateTime();
 		d->awaySince = QDateTime();
 		d->regTime = QDateTime();
+	}
+
+	if (notification &&
+		(status.subtype() != previous.subtype() ||
+		 status.text() != previous.text()))
+	{
+		NotificationRequest request(this, status, previous);
+		request.send();
 	}
 	emit statusChanged(status, previous);
 }

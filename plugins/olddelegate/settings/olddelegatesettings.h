@@ -5,8 +5,10 @@
 #include <qutim/settingswidget.h>
 #include <contactlistitemdelegate.h>
 #include <qutim/simplecontactlist/simplecontactlistsettings.h>
+#include <qutim/config.h>
 
 class QCheckBox;
+class QComboBox;
 
 namespace Ui {
 	class OldDelegateSettings;
@@ -27,7 +29,9 @@ public:
     virtual void saveImpl();
 private:
 	Ui::OldDelegateSettings *ui;
-	void reloadCombobox();
+	void initCombobox(QComboBox *box);
+	void setSize(QComboBox *box, int size);
+	void storeSizeToConfig(QComboBox *box, Config &cfg, const char *value);
 	QHash<QString, QCheckBox *> m_statusesBoxes;
 };
 

@@ -155,7 +155,9 @@ private:
 	GrowlInterface* growl_interface_;
 };
 
-GrowlBackend::GrowlBackend() : m_wrapper(new GrowlNotificationWrapper)
+GrowlBackend::GrowlBackend() : 
+    NotificationBackend("Popup"),
+    m_wrapper(new GrowlNotificationWrapper)
 {
 
 }

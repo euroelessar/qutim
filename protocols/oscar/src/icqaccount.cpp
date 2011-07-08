@@ -243,7 +243,7 @@ void IcqAccount::setStatus(Status status_helper)
 		foreach(IcqContact *contact, d->contacts) {
 			OscarStatus status = contact->status();
 			status.setType(Status::Offline);
-			contact->setStatus(status);
+			contact->setStatus(status, false);
 			foreach (RosterPlugin *plugin, d->rosterPlugins)
 				plugin->statusChanged(contact, status, TLVMap());
 		}

@@ -18,7 +18,7 @@
 #include "plugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
-#include "notificationslayer.h"
+#include "notification.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
 #include "metaobjectbuilder.h"
@@ -30,6 +30,7 @@
 #include "debug.h"
 #include "servicemanager_p.h"
 #include "libqutim_version.h"
+#include "sound_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -506,6 +507,7 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
   */
 void ModuleManager::initExtensions()
 {
+	Q_UNUSED(Sound::instance());
 	// TODO: remove old API and this hack
 	QList<ConfigBackend*> &configBackends = get_config_backends();
 	if (configBackends.isEmpty()) {

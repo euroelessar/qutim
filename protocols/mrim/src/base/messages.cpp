@@ -5,7 +5,7 @@
 
 #include <qutim/debug.h>
 #include <qutim/messagesession.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/authorizationdialog.h>
 
 #include "messages.h"
