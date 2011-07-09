@@ -52,7 +52,7 @@ private slots:
 	void onRequestButton();
 	void onSaveButton();
 private:
-	void addItems(const DataItem &items);
+	void addItems(DataItem items);
 	QWidget *getPage(DataItem item);
 	QString summary(const DataItem &item, bool *titlePrinted = 0);
 private:

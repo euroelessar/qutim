@@ -81,7 +81,7 @@ public:
 		Error
 	};
 	virtual ~InfoRequest();
-	QObject *object();
+	QObject *object() const;
 	State state() const;
 	DataItem dataItem() const;
 	LocalizedString errorString() const;

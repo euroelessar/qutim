@@ -59,12 +59,10 @@ void MainWindow::setObject(QObject *obj, SupportLevel type)
 	}
 
 	QString title;
-	QString avatar;
 	if (Buddy *buddy = qobject_cast<Buddy*>(object)) {
 		title = QApplication::translate("ContactInfo", "About contact %1 <%2>")
 					.arg(buddy->name())
 					.arg(buddy->id());
-		avatar = buddy->avatar();
 	} else {
 		if (Account *account = qobject_cast<Account*>(object)) {
 			title = QApplication::translate("ContactInfo", "About account %1")
@@ -74,27 +72,9 @@ void MainWindow::setObject(QObject *obj, SupportLevel type)
 						.arg(object->property("name").toString())
 						.arg(object->property("id").toString());
 		}
-		avatar = object->property("avatar").toString();
 	}
 	setWindowTitle(title);
 	ui.saveButton->setVisible(readWrite);
-
-	{ // avatar field
-		DataItem avatarItem(QLatin1String("avatar"),
-							QT_TRANSLATE_NOOP("ContactInfo", "Avatar"),
-							QPixmap(avatar));
-		avatarItem.setProperty("hideTitle", true);
-		avatarItem.setProperty("imageSize", QSize(64, 64));
-		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
-		if (!readWrite)
-			avatarItem.setReadOnly(true);
-		avatarWidget.reset(AbstractDataForm::get(avatarItem));
-		if (avatarWidget) {
-			avatarWidget->setParent(this);
-			avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
-		}
-	}
 
 	if (request)
 		onRequestStateChanged(request->state());
@@ -131,7 +111,6 @@ void MainWindow::onSaveButton()
 	DataItem items;
 	if (avatarWidget) {
 		DataItem avatarItem = avatarWidget->item();
-		object->setProperty("avatar", avatarItem.property("imagePath", QString()));
 		items.addSubitem(avatarItem);
 	}
 	for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
@@ -152,10 +131,18 @@ void MainWindow::onSaveButton()
 	request->updateData(items);
 }
 
-void MainWindow::addItems(const DataItem &items)
+void MainWindow::addItems(DataItem items)
 {
 	if (items.isNull() || !items.hasSubitems())
 		return;
+	// Avatar
+	DataItem avatarItem = items.takeSubitem(QLatin1String("avatar"), true);
+	avatarWidget.reset(AbstractDataForm::get(avatarItem));
+	if (avatarWidget) {
+		avatarWidget->setParent(this);
+		avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
+	}
 	// Summary
 	QScrollArea *scrollArea = new QScrollArea(ui.detailsStackedWidget);
 	QLabel *w = new QLabel(summary(items), scrollArea);

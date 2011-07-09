@@ -1,6 +1,7 @@
 #include "jinforequest.h"
 #include "jvcardmanager.h"
 #include <qutim/debug.h>
+#include <qutim/icon.h>
 #include <jreen/vcard.h>
 #include <QUrl>
 #include <QFile>
@@ -136,12 +137,20 @@ DataItem JInfoRequest::createDataItem() const
 {
 	Q_D(const JInfoRequest);
 	DataItem item;
-	if (!d->vcard)
-		return item;
 	{
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 		// General page
 		{
+			//// Avatar
+			{
+				DataItem avatarItem(QLatin1String("avatar"),
+									QT_TRANSLATE_NOOP("ContactInfo", "Avatar"),
+									QPixmap(object()->property("avatar").toString()));
+				avatarItem.setProperty("hideTitle", true);
+				avatarItem.setProperty("imageSize", QSize(64, 64));
+				avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
+				general.addSubitem(avatarItem);
+			}
 			// name
 			QString name = d->vcard->nickname().isEmpty() ? d->vcard->nickname() : d->vcard->formattedName();
 			addItemList(Nick, general,name);

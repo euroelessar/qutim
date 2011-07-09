@@ -48,6 +48,7 @@ class JAccount : public Account
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JAccount)
+	Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
 public:
 	JAccount(const QString &jid);
 	virtual ~JAccount();

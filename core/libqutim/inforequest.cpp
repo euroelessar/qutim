@@ -117,7 +117,7 @@ void InfoRequestFactory::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 
-QObject *InfoRequest::object()
+QObject *InfoRequest::object() const
 {
 	return d_func()->object;
 }

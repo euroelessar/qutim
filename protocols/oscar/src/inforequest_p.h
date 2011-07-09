@@ -82,6 +82,7 @@ private:
 	union {
 		IcqAccount *m_account;
 		IcqContact *m_contact;
+		QObject *m_object;
 	};
 };
 

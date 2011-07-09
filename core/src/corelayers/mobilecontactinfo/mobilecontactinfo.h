@@ -63,7 +63,6 @@ private:
 	bool readWrite;
 	QVBoxLayout *layout;
 	QScrollArea *scrollArea;
-	QScopedPointer<AbstractDataForm> avatarWidget;
 	QScopedPointer<AbstractDataForm> dataWidget;
 	ActionBox *actionBox;
 	QAction *saveAction;

@@ -93,7 +93,6 @@ void MobileContactInfoWindow::setObject(QObject *obj, SupportLevel type)
 		title = QApplication::translate("ContactInfo", "About contact %1 <%2>")
 					.arg(buddy->name())
 					.arg(buddy->id());
-		avatar = buddy->avatar();
 	} else {
 		if (Account *account = qobject_cast<Account*>(object)) {
 			title = QApplication::translate("ContactInfo", "About account %1")
@@ -103,26 +102,9 @@ void MobileContactInfoWindow::setObject(QObject *obj, SupportLevel type)
 						.arg(object->property("name").toString())
 						.arg(object->property("id").toString());
 		}
-		avatar = object->property("avatar").toString();
 	}
 	setWindowTitle(title);
 	saveAction->setVisible(readWrite);
-
-	if (readWrite || !avatar.isEmpty()) {
-		// avatar field
-		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
-		avatarItem.setProperty("hideTitle", true);
-		avatarItem.setProperty("imageSize", QSize(64, 64));
-		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
-		if (!readWrite)
-			avatarItem.setReadOnly(true);
-		avatarWidget.reset(AbstractDataForm::get(avatarItem));
-		if (avatarWidget) {
-			avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			layout->addWidget(avatarWidget.data(), 0, Qt::AlignTop | Qt::AlignHCenter);
-		}
-	}
-
 	if (request)
 		onRequestStateChanged(request->state());
 }
@@ -213,16 +195,9 @@ void MobileContactInfoWindow::onRequestButton()
 
 void MobileContactInfoWindow::onSaveButton()
 {
-	DataItem avatarItem;
-	if (avatarWidget) {
-		avatarItem = avatarWidget->item();
-		object->setProperty("avatar", avatarItem.property("imagePath", QString()));
-	}
 	if (dataWidget) {
-		DataItem item = dataWidget->item();
-		item << avatarItem;
 		request->cancel();
-		request->updateData(item);
+		request->updateData(dataWidget->item());
 	}
 }
 

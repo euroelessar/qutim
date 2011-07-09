@@ -28,6 +28,7 @@
 #include "icqaccount.h"
 #include "icqprotocol.h"
 #include <qutim/notification.h>
+#include <qutim/icon.h>
 
 Q_DECLARE_METATYPE(QHostAddress)
 
@@ -141,6 +142,15 @@ DataItem IcqInfoRequest::createDataItem() const
 	// General page
 	{
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+		{
+			DataItem avatarItem(QLatin1String("avatar"),
+								QT_TRANSLATE_NOOP("ContactInfo", "Avatar"),
+								QPixmap(m_object->property("avatar").toString()));
+			avatarItem.setProperty("hideTitle", true);
+			avatarItem.setProperty("imageSize", QSize(64, 64));
+			avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
+			general.addSubitem(avatarItem);
+		}
 		{
 			DataItem name(QT_TRANSLATE_NOOP("ContactInfo", "Name"));
 			addItem(Nick, name);
@@ -317,6 +327,7 @@ void IcqInfoRequest::doUpdate(const DataItem &dataItem)
 	}
 
 	setState(InfoRequest::Updating);
+	m_account->setAvatar(dataItem.subitem("avatar").property("imagePath", QString()));
 	MetaInfoValuesHash values = MetaField::dataItemToHash(dataItem, true);
 	m_account->setName(values.value(Nick, m_account->id()).toString());
 	m_updater = new UpdateAccountInfoMetaRequest(m_account, values);
