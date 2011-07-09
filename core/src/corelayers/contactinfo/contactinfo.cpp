@@ -80,7 +80,9 @@ void MainWindow::setObject(QObject *obj, SupportLevel type)
 	ui.saveButton->setVisible(readWrite);
 
 	{ // avatar field
-		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
+		DataItem avatarItem(QLatin1String("avatar"),
+							QT_TRANSLATE_NOOP("ContactInfo", "Avatar"),
+							QPixmap(avatar));
 		avatarItem.setProperty("hideTitle", true);
 		avatarItem.setProperty("imageSize", QSize(64, 64));
 		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
@@ -127,6 +129,11 @@ void MainWindow::onRequestButton()
 void MainWindow::onSaveButton()
 {
 	DataItem items;
+	if (avatarWidget) {
+		DataItem avatarItem = avatarWidget->item();
+		object->setProperty("avatar", avatarItem.property("imagePath", QString()));
+		items.addSubitem(avatarItem);
+	}
 	for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
 		QWidget *widget = ui.detailsStackedWidget->widget(i);
 		Q_ASSERT(qobject_cast<QScrollArea*>(widget));
@@ -143,8 +150,6 @@ void MainWindow::onSaveButton()
 	}
 	request->cancel();
 	request->updateData(items);
-	if (avatarWidget)
-		object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
 }
 
 void MainWindow::addItems(const DataItem &items)
@@ -168,7 +173,7 @@ void MainWindow::addItems(const DataItem &items)
 	// Pages
 	DataItem general;
 	foreach (const DataItem &item, items.subitems()) {
-		if (item.hasSubitems()) {
+		if (item.hasSubitems() || item.isAllowedModifySubitems()) {
 			QWidget *page = getPage(item);
 			ui.infoListWidget->addItem(item.title());
 			ui.detailsStackedWidget->addWidget(page);
@@ -199,23 +204,25 @@ QWidget *MainWindow::getPage(DataItem item)
 	return scrollArea;
 }
 
-QString MainWindow::summary(const DataItem &items)
+QString MainWindow::summary(const DataItem &items, bool *titlePrinted)
 {
 	QString text;
-	bool first = true;
+	if (titlePrinted) *titlePrinted = false;
+	bool needTitle = false;
 	foreach (const DataItem &item, items.subitems()) {
 		if (item.property("additional", false) || item.property("notSet", false))
 			continue;
 		if (item.hasSubitems()) {
-			text += summary(item);
+			bool title = 0;
+			QString s = summary(item, &title);
+			if (!title)
+				needTitle = true;
+			text += s;
 		} else if (item.data().canConvert(QVariant::String)) {
 			QString str = item.data().toString();
 			if (str.isEmpty())
 				continue;
-			if (first) {
-				text += QString("<b>[%1]:</b><br>").arg(items.title());
-				first = false;
-			}
+			needTitle = true;
 			text += QString("<b>%1:</b>  ").arg(item.title());
 			QVariant::Type type = item.data().type();
 			if (type == QVariant::Date)
@@ -229,6 +236,13 @@ QString MainWindow::summary(const DataItem &items)
 			else
 				text += str.replace(QRegExp("(\r\n|\n|\r)"), "<br>");
 			text += "<br>";
+		}
+	}
+	if (needTitle) {
+		QString title = items.title();
+		if (!title.isEmpty()) {
+			text.prepend(QString("<b>[%1]:</b><br>").arg(title));
+			if (titlePrinted) *titlePrinted = true;
 		}
 	}
 	return text;

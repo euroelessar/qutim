@@ -213,12 +213,17 @@ void MobileContactInfoWindow::onRequestButton()
 
 void MobileContactInfoWindow::onSaveButton()
 {
-	if (dataWidget) {
-		request->cancel();
-		request->updateData(dataWidget->item());
+	DataItem avatarItem;
+	if (avatarWidget) {
+		avatarItem = avatarWidget->item();
+		object->setProperty("avatar", avatarItem.property("imagePath", QString()));
 	}
-	if (avatarWidget)
-		object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
+	if (dataWidget) {
+		DataItem item = dataWidget->item();
+		item << avatarItem;
+		request->cancel();
+		request->updateData(item);
+	}
 }
 
 MobileContactInfo::MobileContactInfo()

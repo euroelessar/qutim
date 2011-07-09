@@ -57,7 +57,8 @@ public:
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	bool containsRequest(const QString &contact);
-	void storeVCard(const Jreen::VCard::Ptr &vcard);
+	void storeVCard(const Jreen::VCard::Ptr &vcard, QObject *receiver, const char *slot);
+	void handleVCard(const Jreen::VCard::Ptr vcard, const QString &id);
 	JAccount *account() const;
 protected: // InformationRequestFactory stuff
 	virtual SupportLevel supportLevel(QObject *object);
@@ -65,7 +66,6 @@ protected: // InformationRequestFactory stuff
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
 protected slots:
-	void handleIQ(const Jreen::IQ &iq);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);
 	void onIqReceived(const Jreen::IQ &,int);

@@ -70,13 +70,16 @@ public:
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
 	QString getAvatarPath();
-	void setAvatar(const QString &hex);
+	void setAvatarHex(const QString &hex);
+	QString avatar();
 	bool event(QEvent *);
 	QSet<QString> features() const;
 	bool checkFeature(const QString &feature) const;
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
+signals:
+	void avatarChanged(const QString &avatar);
 public slots:
 	void loadSettings();
 private:

@@ -54,7 +54,7 @@ private slots:
 private:
 	void addItems(const DataItem &items);
 	QWidget *getPage(DataItem item);
-	QString summary(const DataItem &item);
+	QString summary(const DataItem &item, bool *titlePrinted = 0);
 private:
 	Ui::userInformationClass ui;
 	InfoRequest *request;

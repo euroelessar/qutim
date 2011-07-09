@@ -669,9 +669,10 @@ ModifiableGroup::ModifiableGroup(DefaultDataForm *dataForm, const DataItem &item
 	QGroupBox(parent), AbstractDataWidget(item, dataForm)
 {
 	setObjectName(item.name());
-	setTitle(item.title());
+	if (!item.property("hideTitle", false))
+		setTitle(item.title());
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	m_widget = new ModifiableWidget(item, dataForm, this);
 	layout->addWidget(m_widget);
 }
@@ -686,7 +687,8 @@ DataItem ModifiableGroup::item() const
 DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *parent) :
 	QGroupBox(parent), AbstractDataWidget(items, dataForm)
 {
-	setTitle(items.title());
+	if (!items.property("hideTitle", false))
+		setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_layout = new DataLayout(items, dataForm, items.property<quint16>("columns", 1), this);
 	m_layout->addItems(items.subitems());

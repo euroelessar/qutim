@@ -3,6 +3,7 @@
 
 #include <qutim/inforequest.h>
 #include <jreen/vcard.h>
+#include <jreen/iq.h>
 
 namespace Jabber
 {
@@ -51,17 +52,27 @@ public:
 
 	JInfoRequest(JVCardManager *manager, QObject *object);
 	~JInfoRequest();
-	static Jreen::VCard::Ptr convert(const DataItem &item);
-	virtual DataItem createDataItem() const;
+	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
+protected:
 	virtual void doRequest(const QSet<QString> &hints);
 	virtual void doUpdate(const DataItem &dataItem);
 	virtual void doCancel();
-	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
+	virtual DataItem createDataItem() const;
 private:
-	static void addItem(DataType type, DataItem &group, const QVariant &data);
-	static void addMultilineItem(DataType type, DataItem &group, const QString &data);
-	static void addItemList(DataType type, DataItem &group, const QString &data);
-	static void addItemList(DataType type, DataItem &group, const QStringList &data);
+	Jreen::VCard::Ptr convert(const DataItem &item) const;
+	static DataItem telephoneItem(const Jreen::VCard::Telephone &phone);
+	static DataItem emailItem(const Jreen::VCard::EMail &email);
+	DataItem addressItem(const Jreen::VCard::Address &addr) const;
+	static DataType getPhoneType(const Jreen::VCard::Telephone &phone);
+	static DataType getEmailType(const Jreen::VCard::EMail &email);
+	static DataType getAddressType(const Jreen::VCard::Address &address);
+	void addItem(DataType type, DataItem &group, const QVariant &data) const;
+	void addMultilineItem(DataType type, DataItem &group, const QString &data) const;
+	void addItemList(DataType type, DataItem &group, const QString &data) const;
+	void addItemList(DataType type, DataItem &group, const QStringList &data) const;
+private slots:
+	void onIqReceived(const Jreen::IQ &iq, int);
+private:
 	QScopedPointer<JInfoRequestPrivate> d_ptr;
 };
 }

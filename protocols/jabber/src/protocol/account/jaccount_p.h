@@ -39,6 +39,7 @@ public:
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString nick;
+	QString avatar;
 	bool keepStatus;
 	Status status;
 	bool isOnline;

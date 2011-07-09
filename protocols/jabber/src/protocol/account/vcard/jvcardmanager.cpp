@@ -87,23 +87,18 @@ void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 	}
 }
 
-void JVCardManager::storeVCard(const Jreen::VCard::Ptr &vcard)
-{
-	Q_UNUSED(vcard);
-	//Q_D(JVCardManager);
-	//d->manager->storeVCard(vcard, this);
-}
-
-void JVCardManager::handleIQ(const Jreen::IQ &iq)
+void JVCardManager::storeVCard(const Jreen::VCard::Ptr &vcard, QObject *receiver, const char *slot)
 {
 	Q_D(JVCardManager);
-	debug() << "handle IQ";
-	if(!iq.containsPayload<Jreen::VCard>())
-		return;
-	iq.accept();
-	QString id = iq.from().full();
+	Jreen::IQ iq(Jreen::IQ::Set, JID());
+	iq.addExtension(vcard);
+	d->account->client()->send(iq,receiver,slot,0);
+}
+
+void JVCardManager::handleVCard(const Jreen::VCard::Ptr vcard, const QString &id)
+{
+	Q_D(JVCardManager);
 	QString avatarHash;
-	const Jreen::VCard::Ptr vcard = iq.payload<Jreen::VCard>();
 	const Jreen::VCard::Photo &photo = vcard->photo();
 	if (!photo.data().isEmpty()) {
 		avatarHash = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1).toHex();
@@ -128,7 +123,7 @@ void JVCardManager::handleIQ(const Jreen::IQ &iq)
 		Jreen::VCardUpdate::Ptr update = presence.payload<Jreen::VCardUpdate>();
 		if (update->photoHash() != avatarHash) {
 			d->account->config("general").setValue("photoHash", avatarHash);
-			update->setPhotoHash(avatarHash);
+			d->account->setAvatarHex(avatarHash);
 			d->account->client()->send(presence);
 		}
 	} else {
@@ -233,7 +228,10 @@ void JVCardManager::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 void JVCardManager::onIqReceived(const Jreen::IQ &iq, int)
 {
 	debug() << "vcard received";
-	handleIQ(iq);
+	if(!iq.containsPayload<Jreen::VCard>())
+		return;
+	iq.accept();
+	handleVCard(iq.payload<Jreen::VCard>(), iq.from().full());
 }
 
 } //namespace jabber
