@@ -19,7 +19,7 @@ namespace Jabber
 {
 
 JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
-	Buddy(parent->account()), d_ptr(new JContactResourcePrivate(parent))
+	Contact(parent->account()), d_ptr(new JContactResourcePrivate(parent))
 {
 	Q_D(JContactResource);
 	d->name = name;
@@ -28,8 +28,17 @@ JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
 }
 
 JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &ptr) :
-	Buddy(parent->account()), d_ptr(&ptr)
+	Contact(parent->account()), d_ptr(&ptr)
 {
+}
+
+JContactResource::JContactResource(JAccount *parent, const QString &resource) :
+	Contact(parent), d_ptr(new JContactResourcePrivate(parent))
+{
+	Q_D(JContactResource);
+	d->name = resource;
+	d->id = parent->id() % QLatin1Char('/') % resource;
+	connect(parent, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 }
 
 JContactResource::~JContactResource()
@@ -97,14 +106,14 @@ Status JContactResource::status() const
 
 bool JContactResource::event(QEvent *ev)
 {
+	Q_D(JContactResource);
 	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
 
-		Jreen::Message msg(Jreen::Message::Chat,
-						   d_func()->id);
+		Jreen::Message msg(Jreen::Message::Chat, d->id);
 		msg.addExtension(new Jreen::ChatState(state));
-		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
+		JAccount *account = d->isAccountResource ? d->account : static_cast<JAccount*>(d->contact->account());
 		account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
@@ -158,12 +167,16 @@ bool JContactResource::checkFeature(const std::string &feature) const
 
 ChatUnit *JContactResource::upperUnit()
 {
-	return qobject_cast<Contact *>(d_ptr->contact);
+	Q_D(JContactResource);
+	return d->isAccountResource ? 0 : qobject_cast<Contact *>(d->contact);
 }
 
 QString JContactResource::avatar() const
 {
-	if (Buddy *buddy = qobject_cast<Buddy*>(d_func()->contact))
+	Q_D(const JContactResource);
+	if (d->isAccountResource)
+		return d->account->property("avatar").toString();
+	else if (Buddy *buddy = qobject_cast<Buddy*>(d->contact))
 		return buddy->avatar();
 	return QString();
 }
@@ -187,6 +200,29 @@ void JContactResource::removeExtendedInfo(const QString &name)
 	Status current = status();
 	d->extInfo.remove(name);
 	emit statusChanged(status(), current);
+}
+
+QStringList JContactResource::tags() const
+{
+	QStringList tags;
+	if (d_func()->isAccountResource)
+		tags << tr("My resources");
+	return tags;
+}
+
+void JContactResource::setTags(const QStringList &tags)
+{
+	Q_UNUSED(tags);
+}
+
+bool JContactResource::isInList() const
+{
+	return d_func()->isAccountResource;
+}
+
+void JContactResource::setInList(bool inList)
+{
+	Q_UNUSED(inList);
 }
 
 }

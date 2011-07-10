@@ -36,6 +36,7 @@ public:
 	JRoster *q_ptr;
 	RosterStorage *storage;
 	QHash<QString, JContact*> contacts;
+	QHash<QString, JContactResource*> accountResources;
 	bool showNotifications;
 	bool ignoreChanges;
 };
@@ -176,6 +177,11 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 	Q_D(JRoster);
 	QString bare = jid.bare();
 	QString resourceId = jid.resource();
+	if (bare == d->account->id()) {
+		JContactResource *res = d->accountResources.value(resourceId);
+		if (res)
+			return res;
+	}
 	JContact *contact = d->contacts.value(bare);
 	if (!resourceId.isEmpty()) {
 		if (!contact) {
@@ -229,10 +235,14 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 
 	const Jreen::Error::Ptr error = presence.error();
 	Jreen::JID from = presence.from();
-	if(d->account->client()->jid() == from) {
+	Jreen::JID accountJid = d->account->client()->jid();
+	if (accountJid == from) {
 		d->account->d_func()->setPresence(presence);
 		return;
+	} else if (accountJid.bare() == from.bare()) {
+		handleAccountResourcePresence(presence);
 	}
+
 	JContact *c = d->contacts.value(from.bare());
 	if (c) {
 		c->setStatus(presence);		
@@ -260,20 +270,27 @@ void JRoster::onDisconnected()
 		Jreen::Presence unavailable(Jreen::Presence::Unavailable, c->id());
 		c->setStatus(unavailable);
 	}
+	foreach (JContactResource *res, d->accountResources)
+		res->deleteLater();
+	d->accountResources.clear();
 }
 
 void JRoster::onNewMessage(Jreen::Message message)
 {
 	Q_D(JRoster);
-	//temporary
-	JContact *contact = d->contacts.value(message.from().bare());
-	ChatUnit *chatUnit = contact ? JRoster::contact(message.from().full(), false) : 0;
+	const Jreen::JID &from = message.from();
+	ChatUnit *contact = 0;
+	if (from.bare() == d->account->id())
+		contact = d->accountResources.value(from.resource());
+	else
+		contact = d->contacts.value(from.bare());
+	ChatUnit *chatUnit = contact ? JRoster::contact(from.full(), false) : 0;
 	if(!contact) {
-		contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
-		contact->setInList(false);
+		JContact *newContact = static_cast<JContact*>(JRoster::contact(from, true));
+		newContact->setInList(false);
 		if(Jreen::Nickname::Ptr nick = message.payload<Jreen::Nickname>())
-			contact->setName(nick->nick());
-		chatUnit = contact;
+			newContact->setName(nick->nick());
+		chatUnit = contact = newContact;
 	}
 
 	if(message.body().isEmpty())
@@ -342,6 +359,30 @@ void JRoster::handleSubscription(Jreen::Presence subscription)
 	}
 	default:
 		break;
+	}
+}
+
+void JRoster::handleAccountResourcePresence(const Jreen::Presence &presence)
+{
+	Q_D(JRoster);
+	typedef QHash<QString, JContactResource*> Resources;
+	Jreen::JID from = presence.from();
+	QString resource = from.resource();
+	Resources::iterator itr = d->accountResources.find(resource);
+	bool isResourceCreated = itr != d->accountResources.end();
+
+	if (presence.subtype() == Jreen::Presence::Unavailable || presence.error()) {
+		if (isResourceCreated) {
+			d->accountResources.erase(itr);
+			itr.value()->deleteLater();
+		}
+	} else {
+		if (!isResourceCreated) {
+			JContactResource *accountResource = new JContactResource(d->account, resource);
+			itr = d->accountResources.insert(resource, accountResource);
+			emit d->account->contactCreated(accountResource);
+		}
+		itr.value()->setStatus(presence);
 	}
 }
 
