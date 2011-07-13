@@ -400,8 +400,8 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 				if (user->avatarHash() != hash) {
 					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
 						user->setAvatar(hash);
-					//					else if (d->avatarsAutoLoad)
-					//						d->account->vCardManager()->fetchVCard(user->id());
+					else if (d->avatarsAutoLoad)
+						d->account->vCardManager()->fetchVCard(user->id());
 				}
 			}
 		}
