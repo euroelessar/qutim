@@ -18,9 +18,11 @@
 			"ChatNotifications": false
 		},
 		"ChatUserJoined": {
+			"Popup": false,
 			"Tray": false
 		},
 		"ChatUserLeft": {
+			"Popup": false,
 			"Tray": false
 		},
 		"IncomingMessage": {
@@ -55,6 +57,7 @@
 			"ContactDelegate": "Core::ContactDelegate",
 			"DataFormsBackend": "Core::DefaultDataFormsBackend",
 			"IconLoader": "Core::IconLoaderImpl",
+			"NotificationSettings": "Core::NotificationsSettings",
 			"Popup": "DBusBackend",
 			"Sound": "PhononSoundBackend",
 			"ContactInfo": "Core::ContactInfo",
