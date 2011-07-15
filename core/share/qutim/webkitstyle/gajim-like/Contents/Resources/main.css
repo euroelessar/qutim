@@ -26,6 +26,9 @@ a:active { color: #6D98AB; text-decoration: none; }
 	font: 8pt Arial;
 }
 
+.inСontextSender, .outСontextSender, .inNextСontextSender, .outNextСontextSender {
+	color: #A40000 !important;
+}
 
 
 .statusMessage{
@@ -35,7 +38,7 @@ a:active { color: #6D98AB; text-decoration: none; }
 
 .inNextContentTime,
 .outNextContentTime{
-	color: #464451;
+	color: black;
 }
 
 .inContentTime,
@@ -53,6 +56,10 @@ a:active { color: #6D98AB; text-decoration: none; }
 	margin-right: 20px;*/
 	background: transparent;
 	color: #303ae6;
+}
+
+.outActionTime, .inActionTime {
+	font-style: normal;
 }
 
 .inContentSender,
@@ -89,10 +96,16 @@ text-align: right;
 }
 
 .outContentSender span,
-.outNextContentSender span {
+.outNextContentSender span,
+.outActionSender span,
+.outActionMessage span {
 	color: #437ee0 !important;
 }
 
-.randomNick12 {
-color: #000000;
+.notDelivered {
+	color: #921616;
+}
+
+.delivered {
+	color: #000;
 }
