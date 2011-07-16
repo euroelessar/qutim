@@ -1,5 +1,5 @@
 ﻿<div class="outNextContent">
-    <span class="outNextContentTime">[%time{%H:%M:%S}%]</span>
+    <span class="outNextContentTime"><span id="%messageId%" class="notDelivered">[%time{%H:%M:%S}%]</span></span>
     <span class="outNextContentSender"><span style="color: %senderColor%" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')">%sender%:</span></span>
     <span class="outNextContentMessage">%message%</span>
 </div>
