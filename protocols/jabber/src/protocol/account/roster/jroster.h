@@ -45,6 +45,7 @@ protected:
 protected slots:
 	void handleNewPresence(Jreen::Presence);
 	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?
+	void handleAccountResourcePresence(const Jreen::Presence &precense);
 	void onDisconnected();
 	void onNewMessage(Jreen::Message message); //TODO move this method to JMessageManager
 	void onContactDestroyed(QObject *obj);

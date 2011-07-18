@@ -1,7 +1,7 @@
 #ifndef JCONTACTRESOURCE_H
 #define JCONTACTRESOURCE_H
 
-#include <qutim/buddy.h>
+#include <qutim/contact.h>
 #include <jreen/presence.h>
 #include <QSet>
 #include "../roster/jmessagesessionowner.h"
@@ -25,7 +25,7 @@ class JAccount;
 class JContact;
 class JContactResourcePrivate;
 
-class JContactResource : public qutim_sdk_0_3::Buddy
+class JContactResource : public qutim_sdk_0_3::Contact
 {
 	Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 	Q_DECLARE_PRIVATE(JContactResource)
@@ -34,6 +34,7 @@ class JContactResource : public qutim_sdk_0_3::Buddy
 public:
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);
+	JContactResource(JAccount *parent, const QString &resource);
 	~JContactResource();
 	QString name() const;
 	QString id() const;
@@ -54,6 +55,11 @@ public:
 	QString text() const;
 	void setExtendedInfo(const QString &name, const QVariantHash &info);
 	void removeExtendedInfo(const QString &name);
+
+	QStringList tags() const;
+	void setTags(const QStringList &tags);
+	bool isInList() const;
+	void setInList(bool inList);
 protected:
 	QScopedPointer<JContactResourcePrivate> d_ptr;
 };
