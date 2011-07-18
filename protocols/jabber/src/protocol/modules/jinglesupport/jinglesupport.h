@@ -31,9 +31,29 @@
 #include <jreen/client.h>
 #include <jreen/jinglemanager.h>
 #include <jreen/jingleaudiocontent.h>
+#include <qutim/actiongenerator.h>
+
+namespace qutim_sdk_0_3
+{
+class ChatUnit;
+}
 
 namespace Jabber
 {
+
+class JAccount;
+class JingleButton;
+
+class JingleGlobalSupport : public QObject
+{
+    Q_OBJECT
+public:
+    JingleGlobalSupport();
+    ~JingleGlobalSupport();
+	
+public slots:
+	void onCallAction(QAction *action, QObject *object);
+};
 
 class JingleHelper : public QObject
 {
@@ -50,17 +70,28 @@ class JingleSupport : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
     JingleSupport();
+    ~JingleSupport();
 	
 	virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
 	
 private slots:
+	void onCallAction(QAction *action, QObject *object);
+//	void onServiceChanged(const QByteArray &name, QObject *newObject);
 	void onSessionCreated(Jreen::JingleSession *session);
+	void onSessionTerminated();
 	void onContentAdded(Jreen::JingleContent *content);
 	void onStateChanged(Jreen::JingleContent::State state);
 	
+protected:
+	qutim_sdk_0_3::ChatUnit *unitBySession(Jreen::JingleSession *session, bool create = true);
+	
 private:
+//	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_button;
 	Jreen::Client *m_client;
+	JAccount *m_account;
 	QHash<Jreen::JingleContent *, JingleHelper *> m_helpers;
+	
+	friend class JingleGlobalSupport;
 };
 
 }
