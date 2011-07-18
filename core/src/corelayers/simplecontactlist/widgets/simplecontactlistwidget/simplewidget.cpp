@@ -281,7 +281,7 @@ void SimpleWidget::onStatusChanged()
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
-			status.setProperty("changeReason",Status::ByUser);
+			status.setChangeReason(Status::ByUser);
 			status.setSubtype(0);
 			account->setStatus(status);
 		}

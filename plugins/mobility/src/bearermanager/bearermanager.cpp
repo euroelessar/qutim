@@ -52,7 +52,7 @@ void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3:
 	else {
 		Status status = a->status();
 		status.setType(Status::Offline);
-		status.setProperty("changeReason", Status::ByNetworkError);
+		status.setChangeReason(Status::ByNetworkError);
 		a->setStatus(status);
 	}
 }
@@ -94,7 +94,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = sender_cast<Account*>(sender());
-	if (status.property("changeReason", Status::ByUser) == Status::ByUser)
+	if (status.changeReason() == Status::ByUser)
 		m_statusHash.insert(account, status);
 }
 
