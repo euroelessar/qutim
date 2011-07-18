@@ -154,6 +154,7 @@ void JMUCSession::join()
 	d->isJoined = true;
 	d->room->join();
 	setChatState(ChatStateActive);
+	emit joined();
 	//		Q_D(JMUCSession);
 	//		Presence &pres = d->account->client()->presence();
 	//		d->isAutoRejoin = false;
@@ -195,6 +196,7 @@ void JMUCSession::leave()
 			session->removeContact(user);
 		user->deleteLater();
 	}
+	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)

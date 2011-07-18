@@ -126,7 +126,7 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 
 		now.setType(Status::Connecting);
 		now.setProperty("reconnectTimeout", 2 *timeout);
-		now.setProperty("changeReason", Status::ByIdle);
+		now.setChangeReason(Status::ByIdle);
 		a->setStatus(now);
 		
 		NotificationRequest request(Notification::System);
@@ -134,7 +134,7 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		request.setText(tr("%1 will be reconnected %2").arg(a->name(),timeoutStr));
 		request.send();
 	} else {
-		if (a->status().property("changeReason", 0) == Status::ByUser) {
+		if (a->status().changeReason() == Status::ByUser) {
 			QTimer *timer = getTimer(a, false);
 			if(timer)
 				removeTimer(timer);

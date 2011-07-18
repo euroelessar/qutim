@@ -209,7 +209,7 @@ void OscarConnection::onDisconnect()
 		reason = Status::ByNetworkError;
 		break;
 	}
-	status.setProperty("changeReason", reason);
+	status.setChangeReason(reason);
 	
 	m_account->setStatus(status);
 	AbstractConnection::onDisconnect();
