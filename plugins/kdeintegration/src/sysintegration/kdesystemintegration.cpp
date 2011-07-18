@@ -52,7 +52,7 @@ int KdeSystemIntegration::priority()
 
 inline QDateTime kde_get_date_time()
 {
-#if !QT_VERSION_CHECK(4, 7, 0)
+#if QT_VERSION_CHECK(4, 7, 0)
 	return QDateTime::currentDateTimeUtc();
 #else
 	return QDateTime::currentDateTime().toUTC();
@@ -89,7 +89,11 @@ QVariant KdeSystemIntegration::doProcess(Operation act, const QVariant &data) co
 
 bool KdeSystemIntegration::canHandle(Attribute attribute) const
 {
-	return attribute == UserLogin || attribute == UserName;
+	return attribute == UserLogin
+	        || attribute == UserName
+	        || attribute == TimeZone
+	        || attribute == TimeZoneName
+	        || attribute == TimeZoneShortName;
 }
 
 bool KdeSystemIntegration::canHandle(Operation operation) const
