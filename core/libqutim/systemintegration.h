@@ -20,6 +20,8 @@
 #include "libqutim_global.h"
 #include <QVariant>
 
+class QAbstractSocket;
+
 namespace qutim_sdk_0_3
 {
 class LIBQUTIM_EXPORT SystemIntegration : public QObject
@@ -40,7 +42,8 @@ public:
 	
 	enum Operation
 	{
-		ShowWidget
+		ShowWidget,
+		KeepAliveSocket
 	};
 
 	enum IconSizeEnum
@@ -72,6 +75,7 @@ public:
 	virtual int priority() = 0;
 	
 	static void show(QWidget *widget);
+	static void keepAlive(QAbstractSocket *socket);
 	static QVariant value(Attribute attr, const QVariant &data = QVariant());
 	static QVariant process(Operation act, const QVariant &data = QVariant());
 //	virtual void show(QWidget *widget);

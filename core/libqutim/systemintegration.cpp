@@ -19,6 +19,7 @@
 #include <limits>
 #include <QStringList>
 #include <QWidget>
+#include <QAbstractSocket>
 
 namespace qutim_sdk_0_3
 {
@@ -152,6 +153,11 @@ void SystemIntegration::virtual_hook(int type, void *data)
 void SystemIntegration::show(QWidget *widget)
 {
 	process(ShowWidget, qVariantFromValue(widget));
+}
+
+void SystemIntegration::keepAlive(QAbstractSocket *socket)
+{
+	process(KeepAliveSocket, qVariantFromValue<QObject*>(socket));
 }
 
 }

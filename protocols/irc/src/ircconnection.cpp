@@ -32,6 +32,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/notification.h>
 #include <qutim/passworddialog.h>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -44,6 +45,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 {
 	m_socket = new QSslSocket(this);
 	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
+	SystemIntegration::keepAlive(m_socket);
 	m_account = account;
 	m_messagesTimer.setInterval(500);
 	connect(&m_messagesTimer, SIGNAL(timeout()), SLOT(sendNextMessage()));
