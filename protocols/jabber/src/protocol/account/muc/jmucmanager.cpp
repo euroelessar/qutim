@@ -45,7 +45,7 @@ public:
 	JBookmarkManager *bookmarkManager;
 	//JInviteManager *inviteManager;
 	QHash<QString, JMUCSession *> rooms;
-	QList<JMUCSession *> roomsToConnect;
+	QList<QWeakPointer<JMUCSession> > roomsToConnect;
 	void connectAll()
 	{
 		foreach (JMUCSession *session, rooms) {
@@ -55,8 +55,10 @@ public:
 				session->join();
 			}
 		}
-		for (int i = 0; i < roomsToConnect.size(); i++)
-			roomsToConnect.at(i)->join();
+		foreach (const QWeakPointer<JMUCSession> &room, roomsToConnect) {
+			if (room)
+				room.data()->join();
+		}
 		roomsToConnect.clear();
 	}
 	void leaveAll()
