@@ -45,7 +45,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 SimpleWidget::SimpleWidget()
 {
 	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
-	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+        connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
@@ -153,10 +153,10 @@ SimpleWidget::SimpleWidget()
 	statusMenu->addSeparator();
 
 #ifdef Q_WS_MAEMO_5
-	m_statusBtn->setMaximumHeight(50);
-	m_searchBtn->setMaximumHeight(50);
-	m_widget->setAttribute(Qt::WA_Maemo5StackedWindow);
-	m_widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+        m_statusBtn->setMaximumHeight(50);
+        m_searchBar->setMaximumHeight(50);
+        setAttribute(Qt::WA_Maemo5StackedWindow);
+        setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 #endif
 
@@ -172,11 +172,11 @@ SimpleWidget::SimpleWidget()
 
 SimpleWidget::~SimpleWidget()
 {
-	Config config;
-	config.beginGroup("contactList");
-	config.setValue("geometry", saveGeometry());
-	config.endGroup();
-	config.sync();
+        Config config;
+        config.beginGroup("contactList");
+        config.setValue("geometry", saveGeometry());
+        config.endGroup();
+        config.sync();
 }
 
 void SimpleWidget::addButton(ActionGenerator *generator)

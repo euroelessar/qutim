@@ -150,7 +150,7 @@ void EmoAction::triggerEmoticons()
 		m_emoticons_widget->loadTheme();
 		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
-		emoticons_widget->setParent(qApp->activeWindow());
+                m_emoticons_widget->setParent(qApp->activeWindow());
 	}
 	if (m_emoticons_widget->isVisible()) {
 		m_emoticons_widget->hide();
@@ -158,11 +158,11 @@ void EmoAction::triggerEmoticons()
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
 		if (screenGeometry.width() > screenGeometry.height()) {
 			//smith, please use relative coordinates
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
+                        m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
 		}
 		else {
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
-		}
+                        m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2-80);
+                }
 		m_emoticons_widget->show();
 	}
 #else
