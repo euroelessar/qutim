@@ -158,7 +158,9 @@ void SymbianWidget::init()
 	m_actionsBtn->setSoftKeyRole(QAction::PositiveSoftKey);
 
 	QMenu *menu = controller->menu(false);
-	menu->setParent(m_actionsBtn);
+
+        connect(m_actionsBtn, SIGNAL(destroyed), menu, SLOT(deleteLater()));
+
 	m_actionsBtn->setMenu(menu);
 	addAction(m_actionsBtn);
 }
