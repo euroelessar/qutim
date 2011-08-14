@@ -1,12 +1,10 @@
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
-#include <qutim/inforequest.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
 #include <qutim/rosterstorage.h>

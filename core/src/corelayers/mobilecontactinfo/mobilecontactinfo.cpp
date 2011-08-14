@@ -1,3 +1,28 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "mobilecontactinfo.h"
 #include <qutim/icon.h>
 #include <qutim/contact.h>
@@ -50,84 +75,38 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	addAction(action);
 }
 
-void MobileContactInfoWindow::setObject(QObject *obj, RequestType type)
+void MobileContactInfoWindow::setObject(QObject *obj, SupportLevel type)
 {
 	object = obj;
-	readWrite = type == InfoRequestCheckSupportEvent::ReadWrite;
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
-}
+	readWrite = type == InfoRequestFactory::ReadWrite;
+	request = InfoRequestFactory::dataFormRequest(obj);
 
-void MobileContactInfoWindow::setRequest(InfoRequest *req)
-{
-	if (request && req != request)
-		request->deleteLater();
-	if (request != req) {
-		request = req;
+	if (request) {
 		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
 				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+		request->requestData();
 	}
-	InfoRequest::State state = request->state();
-	dataWidget.reset();
-	avatarWidget.reset();
-	Buddy *buddy = qobject_cast<Buddy*>(object);
+
+	QString title;
 	QString avatar;
-	if (buddy) {
-		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
-					   .toString()
-					   .arg(buddy->name())
-					   .arg(buddy->id()));
-		avatar = buddy->avatar();
+	if (Buddy *buddy = qobject_cast<Buddy*>(object)) {
+		title = QApplication::translate("ContactInfo", "About contact %1 <%2>")
+					.arg(buddy->name())
+					.arg(buddy->id());
 	} else {
-		Account *account = qobject_cast<Account*>(object);
-		if (account) {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
-						   .toString()
-						   .arg(account->name()));
+		if (Account *account = qobject_cast<Account*>(object)) {
+			title = QApplication::translate("ContactInfo", "About account %1")
+						.arg(account->name());
 		} else {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About %1 <%2>")
-						   .toString()
-						   .arg(object->property("name").toString())
-						   .arg(object->property("id").toString()));
+			title = QApplication::translate("ContactInfo", "About %1 <%2>")
+						.arg(object->property("name").toString())
+						.arg(object->property("id").toString());
 		}
-		avatar = object->property("avatar").toString();
 	}
+	setWindowTitle(title);
 	saveAction->setVisible(readWrite);
-	if (readWrite || !avatar.isEmpty()) {
-		// avatar field
-		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
-		avatarItem.setProperty("hideTitle", true);
-		avatarItem.setProperty("imageSize", QSize(64, 64));
-		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
-		if (!readWrite)
-			avatarItem.setReadOnly(true);
-		avatarWidget.reset(AbstractDataForm::get(avatarItem));
-		if (avatarWidget) {
-			avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			layout->addWidget(avatarWidget.data(), 0, Qt::AlignTop | Qt::AlignHCenter);
-		}
-	}
-	DataItem item;
-	if (state == InfoRequest::Done || state == InfoRequest::Cache)
-		item = request->item();
-	if (!item.isNull()) {
-		if (!readWrite) {
-			item = filterItems(item, true);
-			item.setProperty("readOnly", true);
-		} else {
-			item = filterItems(item);
-		}
-		dataWidget.reset(AbstractDataForm::get(item));
-		if (dataWidget)
-			layout->addWidget(dataWidget.data());
-	}
-	if (state == InfoRequest::Done || state == InfoRequest::Cancel) {
-		request->deleteLater(); request = 0;
-	} else if (state == InfoRequest::Cache) {
-		request->resend();
-	}
+	if (request)
+		onRequestStateChanged(request->state());
 }
 
 DataItem MobileContactInfoWindow::filterItems(const DataItem &item, bool readOnly)
@@ -193,28 +172,33 @@ bool MobileContactInfoWindow::isItemEmpty(const DataItem &item)
 
 void MobileContactInfoWindow::onRequestStateChanged(InfoRequest::State state)
 {
-	if (request != sender())
-		return;
-	Q_UNUSED(state);
-	setRequest(request);
+	if (state == InfoRequest::RequestDone)
+	{
+		DataItem item = request->dataItem();
+		if (!readWrite) {
+			item = filterItems(item, true);
+			item.setProperty("readOnly", true);
+		} else {
+			item = filterItems(item);
+		}
+		dataWidget.reset(AbstractDataForm::get(item));
+		if (dataWidget)
+			layout->addWidget(dataWidget.data());
+	}
 }
 
 void MobileContactInfoWindow::onRequestButton()
 {
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
+	request->cancel();
+	request->requestData();
 }
 
 void MobileContactInfoWindow::onSaveButton()
 {
 	if (dataWidget) {
-		InfoItemUpdatedEvent event(dataWidget->item());
-		qApp->sendEvent(object, &event);
+		request->cancel();
+		request->updateData(dataWidget->item());
 	}
-	if (avatarWidget)
-		object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
 }
 
 MobileContactInfo::MobileContactInfo()
@@ -223,11 +207,14 @@ MobileContactInfo::MobileContactInfo()
 
 void MobileContactInfo::show(QObject *object)
 {
-	InfoRequestCheckSupportEvent event;
-	qApp->sendEvent(object, &event);
-	RequestType type = event.supportType();
-	if (type == InfoRequestCheckSupportEvent::NoSupport)
+	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
+	if (!factory)
 		return;
+
+	SupportLevel type = factory->supportLevel(object);
+	if (type <= InfoRequestFactory::Unavailable)
+		return;
+
 	if (!info) {
 		info = new MobileContactInfoWindow(qApp->activeWindow());
 #ifdef Q_WS_MAEMO_5

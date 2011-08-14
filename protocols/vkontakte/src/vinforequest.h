@@ -1,27 +1,58 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM instant messenger
+**
+** Copyright (c) 2011 Ruslan Nigmatullin <euroelessar@gmail.com>
+**                    Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef VINFOREQUEST_H
 #define VINFOREQUEST_H
 
 #include <qutim/inforequest.h>
+#include <qutim/status.h>
+#include <QSet>
 
 using namespace qutim_sdk_0_3;
 
 class VConnection;
+class VAccount;
+class VContact;
+
+class VInfoFactory : public QObject, public InfoRequestFactory
+{
+	Q_OBJECT
+public:
+	VInfoFactory(VAccount *account);
+	virtual SupportLevel supportLevel(QObject *object);
+protected:
+	virtual InfoRequest *createrDataFormRequest(QObject *object);
+	virtual bool startObserve(QObject *object);
+	virtual bool stopObserve(QObject *object);
+private:
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
+								const qutim_sdk_0_3::Status &previous);
+	VAccount *m_account;
+	QSet<VContact *> m_contacts;
+};
 
 class VInfoRequest : public InfoRequest
 {
@@ -45,9 +76,12 @@ public:
 	};
 
     VInfoRequest(QObject *parent);
-	
-	virtual DataItem item(const QString &name = QString()) const;
-	virtual State state() const;
+	virtual DataItem createDataItem() const;
+	virtual void doRequest(const QSet<QString> &hints);
+	virtual void doUpdate(const DataItem &dataItem);
+	virtual void doCancel();
+signals:
+	void canceled();
 private slots:
 	void onRequestFinished();
 	void onAddressEnsured();
@@ -57,11 +91,9 @@ private:
 	inline void addItem(DataType type, DataItem &group, const char *name) const
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
+	QString m_id;
 	VConnection *m_connection;
-	State m_state;
 	int m_unknownCount;
-	mutable DataItem *m_item;
-	mutable QMap<QString, DataItem> m_items;
 	QVariantMap m_data;
 };
 

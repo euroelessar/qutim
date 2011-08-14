@@ -101,6 +101,7 @@ SimpleTray::SimpleTray() :
 	m_chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
 	m_qutimIcon               = Icon(QLatin1String("qutim"));
 	m_transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	m_birthdayIcon            = Icon(QLatin1String("view-calendar-birthday"));
 	m_defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 			this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
@@ -308,11 +309,12 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 		return m_qutimIcon;
 	case Notification::FileTransferCompleted:
 		return m_transferCompletedIcon;
+	case Notification::UserHasBirthday:
+		return m_birthdayIcon;
 	case Notification::UserOnline:
 	case Notification::UserOffline:
 	case Notification::UserChangedStatus:
 	case Notification::BlockedMessage:
-	case Notification::UserHasBirthday:
 	case Notification::System:
 		return m_defaultNotificationIcon;
 	}

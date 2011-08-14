@@ -37,6 +37,7 @@ public:
 	JMessageHandler *messageHandler;
 	JAccount *q_ptr;
 	QString nick;
+	QString avatar;
 	bool keepStatus;
 	Status status;
 	bool isOnline;

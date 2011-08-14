@@ -74,7 +74,6 @@ private slots:
 	void onCookieTimeout();
 protected:
 	void finishLogin();
-	virtual bool event(QEvent *ev);
 private:
 	friend class Roster;
 	friend class Cookie;

@@ -2,7 +2,7 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -18,38 +18,35 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see http://www.gnu.org/licenses/.
+** along with this program. If not, see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
 
-#ifndef SCRIPTINFOREQUEST_H
-#define SCRIPTINFOREQUEST_H
+#ifndef BIRTHDAYREMINDERSETTINGS_H
+#define BIRTHDAYREMINDERSETTINGS_H
 
-#include <qutim/inforequest.h>
-#include <QScriptValue>
+#include <QWidget>
+#include <qutim/settingswidget.h>
 
-namespace qutim_sdk_0_3
-{
-class ScriptInfoRequest : public QObject
+namespace Ui {
+    class BirthdayReminderSettings;
+}
+
+using namespace qutim_sdk_0_3;
+
+class BirthdayReminderSettings : public SettingsWidget
 {
     Q_OBJECT
 public:
-	explicit ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
-							   InfoRequest *parent);
-
-signals:
-
-public slots:
-	void onStateChanged(qutim_sdk_0_3::InfoRequest::State);
-
+    explicit BirthdayReminderSettings(QWidget *parent = 0);
+    ~BirthdayReminderSettings();
+protected:
+	void loadImpl();
+	void saveImpl();
+	void cancelImpl();
 private:
-	void handleError(const char *name, const QString &text);
-	
-private:
-	QScriptValue m_func;
-	QScriptValue m_error;
+    Ui::BirthdayReminderSettings *ui;
 };
-}
 
-#endif // SCRIPTINFOREQUEST_H
+#endif // BIRTHDAYREMINDERSETTINGS_H

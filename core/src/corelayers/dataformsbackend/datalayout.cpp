@@ -1,5 +1,6 @@
 #include "datalayout.h"
 #include "widgetgenerator.h"
+#include "widgets.h"
 #include <QSpacerItem>
 #include <QIcon>
 #include <QStyle>
@@ -58,7 +59,7 @@ void DataLayout::addItem(const DataItem &item)
 	widget->setObjectName(item.name());
 	addRow(title, widget, !item.isReadOnly() ?  Qt::Alignment() : Qt::AlignLeft);
 	m_widgets.push_back(WidgetLine(title, widget));
-	if (!item.isReadOnly()) {
+	if (!item.isReadOnly() && !item.isAllowedModifySubitems()) {
 		QSizePolicy::Policy policy = widget->sizePolicy().verticalPolicy();
 		if (!m_expandable)
 			m_expandable = policy == QSizePolicy::MinimumExpanding || policy == QSizePolicy::Expanding;

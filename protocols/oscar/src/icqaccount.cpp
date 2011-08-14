@@ -110,6 +110,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	setInfoRequestFactory(new IcqInfoRequestFactory(this));
 	d->q_ptr = this;
 	d->messageSender.reset(new MessageSender(this));
 	Config cfg = config("general");
@@ -480,33 +481,6 @@ void IcqAccount::onCookieTimeout()
 		}
 	}
 	// cookie.unlock(); // Commented out as this cookie is already unlocked
-}
-
-bool IcqAccount::event(QEvent *ev)
-{
-	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = this->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new IcqInfoRequest(this));
-		event->accept();
-	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
-		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		MetaInfoValuesHash values = MetaField::dataItemToHash(event->infoItem(), true);
-		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
-		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
-		request->send();
-		setName(values.value(Nick, id()).toString());
-		event->accept();
-	}
-	return Account::event(ev);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

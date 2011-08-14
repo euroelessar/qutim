@@ -205,7 +205,6 @@ JAccount::JAccount(const QString &id) :
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
-
 	d->client.presence().addExtension(new VCardUpdate());
 
 	Jreen::Disco *disco = d->client.disco();
@@ -284,10 +283,8 @@ void JAccount::loadSettings()
 	d->priority = general.value("priority", 15);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
-	if (general.hasChildKey("photoHash")) {
-		Jreen::VCardUpdate::Ptr update = d->client.presence().payload<Jreen::VCardUpdate>();
-		update->setPhotoHash(general.value("photoHash", QString()));
-	}
+	if (general.hasChildKey("photoHash"))
+		setAvatarHex(general.value("photoHash", QString()));
 
 	Jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/Jreen")));
@@ -438,6 +435,23 @@ QString JAccount::getAvatarPath()
 	return QString("%1/avatars/%2")
 			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
 			.arg(protocol()->id());
+}
+
+void JAccount::setAvatarHex(const QString &hex)
+{
+	Q_D(JAccount);
+	Jreen::VCardUpdate::Ptr update = d->client.presence().payload<Jreen::VCardUpdate>();
+	update->setPhotoHash(hex);
+	if (!hex.isEmpty())
+		d->avatar = getAvatarPath() + QLatin1Char('/') + hex;
+	else
+		d->avatar.clear();
+	emit avatarChanged(d->avatar);
+}
+
+QString JAccount::avatar()
+{
+	return d_func()->avatar;
 }
 
 bool JAccount::event(QEvent *ev)

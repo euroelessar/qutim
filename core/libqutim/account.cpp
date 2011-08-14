@@ -40,6 +40,8 @@ void *AccountHook::qt_metacast(const char *name)
         return static_cast<void*>(that->groupChatManager());
     if (!strcmp(name, qobject_interface_iid<ContactsFactory*>()))
         return static_cast<void*>(that->contactsFactory());
+    if (!strcmp(name, qobject_interface_iid<InfoRequestFactory*>()))
+        return static_cast<void*>(that->infoRequestFactory());
 	return MenuController::qt_metacast(name);
 }
 
@@ -55,6 +57,8 @@ Account::Account(const QString &id, Protocol *protocol)
 	d->protocol = protocol;
 	d->id = id;
 	d->groupChatManager = 0;
+	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol)
@@ -64,6 +68,7 @@ Account::Account(AccountPrivate &p, Protocol *protocol)
 	d->protocol = protocol;
 	d->groupChatManager = 0;
 	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
 Account::~Account()
@@ -162,6 +167,11 @@ ContactsFactory *Account::contactsFactory()
 	return d_func()->contactsFactory;
 }
 
+InfoRequestFactory *Account::infoRequestFactory() const
+{
+	return d_func()->infoRequestFactory;
+}
+
 void Account::resetGroupChatManager(GroupChatManager *manager)
 {
 	Q_D(Account);
@@ -181,6 +191,11 @@ void Account::resetGroupChatManager(GroupChatManager *manager)
 void Account::setContactsFactory(ContactsFactory *factory)
 {
 	d_func()->contactsFactory = factory;
+}
+
+void Account::setInfoRequestFactory(InfoRequestFactory *factory)
+{
+	d_func()->infoRequestFactory = factory;
 }
 
 }

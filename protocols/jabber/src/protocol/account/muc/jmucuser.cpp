@@ -2,8 +2,6 @@
 #include "jmucsession.h"
 #include "../jaccount.h"
 #include "../roster/jcontactresource_p.h"
-#include "../vcard/jinforequest.h"
-#include "../vcard/jvcardmanager.h"
 #include <QStringBuilder>
 #include <qutim/tooltip.h>
 

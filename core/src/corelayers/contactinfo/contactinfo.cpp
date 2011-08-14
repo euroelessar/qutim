@@ -1,3 +1,28 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "contactinfo.h"
 #include <qutim/icon.h>
 #include <qutim/contact.h>
@@ -21,97 +46,73 @@ MainWindow::MainWindow() :
 	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
 }
 
-void MainWindow::setObject(QObject *obj, RequestType type)
+void MainWindow::setObject(QObject *obj, SupportLevel type)
 {
 	object = obj;
-	readWrite = type == InfoRequestCheckSupportEvent::ReadWrite;
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
-}
+	readWrite = type == InfoRequestFactory::ReadWrite;
+	request = InfoRequestFactory::dataFormRequest(obj);
 
-void MainWindow::setRequest(InfoRequest *req)
-{
-	if (request && req != request)
-		request->deleteLater();
-	int curPage = ui.detailsStackedWidget->currentIndex();
-	if (request != req) {
-		request = req;
+	if (request) {
 		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
 				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+		request->requestData();
 	}
+
+	QString title;
+	if (Buddy *buddy = qobject_cast<Buddy*>(object)) {
+		title = QApplication::translate("ContactInfo", "About contact %1 <%2>")
+					.arg(buddy->name())
+					.arg(buddy->id());
+	} else {
+		if (Account *account = qobject_cast<Account*>(object)) {
+			title = QApplication::translate("ContactInfo", "About account %1")
+						.arg(account->name());
+		} else {
+			title = QApplication::translate("ContactInfo", "About %1 <%2>")
+						.arg(object->property("name").toString())
+						.arg(object->property("id").toString());
+		}
+	}
+	setWindowTitle(title);
+	ui.saveButton->setVisible(readWrite);
+
+	if (request)
+		onRequestStateChanged(request->state());
+}
+
+void MainWindow::onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state)
+{
+	if (state != InfoRequest::RequestDone &&
+		state != InfoRequest::LoadedFromCache &&
+		state != InfoRequest::Initialized)
+	{
+		return;
+	}
+
 	ui.infoListWidget->clear();
+	int curPage = ui.detailsStackedWidget->currentIndex();
 	QWidget *w;
 	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
 		delete w;
-	Buddy *buddy = qobject_cast<Buddy*>(object);
-	QString avatar;
-	if (buddy) {
-		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
-					   .toString()
-					   .arg(buddy->name())
-					   .arg(buddy->id()));
-		avatar = buddy->avatar();
-	} else {
-		Account *account = qobject_cast<Account*>(object);
-		if (account) {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
-						   .toString()
-						   .arg(account->name()));
-		} else {
-			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About %1 <%2>")
-						   .toString()
-						   .arg(object->property("name").toString())
-						   .arg(object->property("id").toString()));
-		}
-		avatar = object->property("avatar").toString();
-	}
-	ui.saveButton->setVisible(readWrite);
-	{ // avatar field
-		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
-		avatarItem.setProperty("hideTitle", true);
-		avatarItem.setProperty("imageSize", QSize(64, 64));
-		avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
-		if (!readWrite)
-			avatarItem.setReadOnly(true);
-		avatarWidget.reset(AbstractDataForm::get(avatarItem));
-		if (avatarWidget) {
-			avatarWidget->setParent(this);
-			avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
-		}
-	}
-	addItems(request->item());
+
+	addItems(request->dataItem());
 	if (curPage >= 0)
 		ui.infoListWidget->setCurrentRow(curPage);
-	InfoRequest::State state = request->state();
-	if (state == InfoRequest::Done || state == InfoRequest::Cancel) {
-		request->deleteLater(); request = 0;
-	} else if (state == InfoRequest::Cache) {
-		request->resend();
-	}
-}
-
-void MainWindow::onRequestStateChanged(InfoRequest::State state)
-{
-	if (request != sender())
-		return;
-	Q_UNUSED(state);
-	setRequest(request);
 }
 
 void MainWindow::onRequestButton()
 {
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	if (event.request())
-		setRequest(event.request());
+	request->cancel();
+	request->requestData();
 }
 
 void MainWindow::onSaveButton()
 {
 	DataItem items;
+	if (avatarWidget) {
+		DataItem avatarItem = avatarWidget->item();
+		items.addSubitem(avatarItem);
+	}
 	for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
 		QWidget *widget = ui.detailsStackedWidget->widget(i);
 		Q_ASSERT(qobject_cast<QScrollArea*>(widget));
@@ -126,16 +127,22 @@ void MainWindow::onSaveButton()
 			items.addSubitem(dataFrom->item());
 		}
 	}
-	InfoItemUpdatedEvent event(items);
-	qApp->sendEvent(object, &event);
-	if (avatarWidget)
-		object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
+	request->cancel();
+	request->updateData(items);
 }
 
-void MainWindow::addItems(const DataItem &items)
+void MainWindow::addItems(DataItem items)
 {
 	if (items.isNull() || !items.hasSubitems())
 		return;
+	// Avatar
+	DataItem avatarItem = items.takeSubitem(QLatin1String("avatar"), true);
+	avatarWidget.reset(AbstractDataForm::get(avatarItem));
+	if (avatarWidget) {
+		avatarWidget->setParent(this);
+		avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
+	}
 	// Summary
 	QScrollArea *scrollArea = new QScrollArea(ui.detailsStackedWidget);
 	QLabel *w = new QLabel(summary(items), scrollArea);
@@ -153,7 +160,7 @@ void MainWindow::addItems(const DataItem &items)
 	// Pages
 	DataItem general;
 	foreach (const DataItem &item, items.subitems()) {
-		if (item.hasSubitems()) {
+		if (item.hasSubitems() || item.isAllowedModifySubitems()) {
 			QWidget *page = getPage(item);
 			ui.infoListWidget->addItem(item.title());
 			ui.detailsStackedWidget->addWidget(page);
@@ -184,23 +191,25 @@ QWidget *MainWindow::getPage(DataItem item)
 	return scrollArea;
 }
 
-QString MainWindow::summary(const DataItem &items)
+QString MainWindow::summary(const DataItem &items, bool *titlePrinted)
 {
 	QString text;
-	bool first = true;
+	if (titlePrinted) *titlePrinted = false;
+	bool needTitle = false;
 	foreach (const DataItem &item, items.subitems()) {
 		if (item.property("additional", false) || item.property("notSet", false))
 			continue;
 		if (item.hasSubitems()) {
-			text += summary(item);
+			bool title = 0;
+			QString s = summary(item, &title);
+			if (!title)
+				needTitle = true;
+			text += s;
 		} else if (item.data().canConvert(QVariant::String)) {
 			QString str = item.data().toString();
 			if (str.isEmpty())
 				continue;
-			if (first) {
-				text += QString("<b>[%1]:</b><br>").arg(items.title());
-				first = false;
-			}
+			needTitle = true;
 			text += QString("<b>%1:</b>  ").arg(item.title());
 			QVariant::Type type = item.data().type();
 			if (type == QVariant::Date)
@@ -216,6 +225,13 @@ QString MainWindow::summary(const DataItem &items)
 			text += "<br>";
 		}
 	}
+	if (needTitle) {
+		QString title = items.title();
+		if (!title.isEmpty()) {
+			text.prepend(QString("<b>[%1]:</b><br>").arg(title));
+			if (titlePrinted) *titlePrinted = true;
+		}
+	}
 	return text;
 }
 
@@ -225,11 +241,14 @@ ContactInfo::ContactInfo()
 
 void ContactInfo::show(QObject *object)
 {
-	InfoRequestCheckSupportEvent event;
-	qApp->sendEvent(object, &event);
-	RequestType type = event.supportType();
-	if (type == InfoRequestCheckSupportEvent::NoSupport)
+	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
+	if (!factory)
 		return;
+
+	SupportLevel type = factory->supportLevel(object);
+	if (type <= InfoRequestFactory::Unavailable)
+		return;
+
 	if (!info) {
 		info = new MainWindow();
 		centerizeWidget(info);

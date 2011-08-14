@@ -51,6 +51,7 @@ class JAccount : public Account
 	Q_PROPERTY(QObject* privacyManager READ privacyManager)
 	Q_PROPERTY(QObject* pubSubManager READ pubSubManager)
 	Q_DECLARE_PRIVATE(JAccount)
+	Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
 public:
 	JAccount(const QString &jid);
 	virtual ~JAccount();
@@ -70,13 +71,16 @@ public:
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
 	QString getAvatarPath();
-	void setAvatar(const QString &hex);
+	void setAvatarHex(const QString &hex);
+	QString avatar();
 	bool event(QEvent *);
 	QSet<QString> features() const;
 	bool checkFeature(const QString &feature) const;
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
+signals:
+	void avatarChanged(const QString &avatar);
 public slots:
 	void loadSettings();
 private:
