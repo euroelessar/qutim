@@ -3,7 +3,6 @@ if( COMMAND cmake_policy )
 	cmake_policy( SET CMP0003 NEW )
 endif(COMMAND cmake_policy )
 project( Protocols )
-set(QT_MIN_VERSION "4.6.0")
 
 if ( ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR} )
 	set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")

@@ -3,7 +3,6 @@ IF (COMMAND cmake_policy)
 	cmake_policy (SET CMP0003 NEW)
 ENDIF (COMMAND cmake_policy)
 PROJECT( qutim )
-SET(QT_MIN_VERSION "4.6.0")
 
 set(CMAKE_QUTIM_VERSION_MAJOR    0  CACHE INT "Major qutIM version number" FORCE)
 set(CMAKE_QUTIM_VERSION_MINOR    2  CACHE INT "Minor qutIM version number" FORCE)

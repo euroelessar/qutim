@@ -3,7 +3,7 @@
 
 #include <qutim/notification.h>
 class GrowlNotificationWrapper;
-class GrowlBackend : public qutim_sdk_0_3::NotificationBackend
+class GrowlBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")

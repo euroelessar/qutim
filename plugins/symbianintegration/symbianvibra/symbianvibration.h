@@ -8,7 +8,7 @@ namespace Symbian
 {
 using namespace qutim_sdk_0_3;
 
-class Vibration : public qutim_sdk_0_3::NotificationBackend
+class Vibration : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "VibrationAlert")
