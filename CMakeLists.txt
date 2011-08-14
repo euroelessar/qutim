@@ -3,7 +3,7 @@ if( COMMAND cmake_policy )
 	cmake_policy( SET CMP0003 NEW )
 endif(COMMAND cmake_policy )
 project( qutim )
-set(QT_MIN_VERSION "4.6.0")
+#set(QT_MIN_VERSION "4.6.0")
 
 set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
 set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")

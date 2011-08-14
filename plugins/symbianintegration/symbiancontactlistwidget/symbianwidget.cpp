@@ -156,7 +156,12 @@ void SymbianWidget::init()
 	MenuController *controller = ServiceManager::getByName<MenuController*>("ContactList");
 	m_actionsBtn = new QAction(tr("Actions"), this);
 	m_actionsBtn->setSoftKeyRole(QAction::PositiveSoftKey);
-	m_actionsBtn->setMenu(controller->menu());
+
+	QMenu *menu = controller->menu(false);
+
+        connect(m_actionsBtn, SIGNAL(destroyed), menu, SLOT(deleteLater()));
+
+	m_actionsBtn->setMenu(menu);
 	addAction(m_actionsBtn);
 }
 

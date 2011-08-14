@@ -85,7 +85,7 @@ public:
 			return;
 		NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
 		NSString* mac_summary = [[NSString alloc] initWithUTF8String:summary.toUtf8().constData()];
-		NSString* mac_type;
+		NSString* mac_type = @"Unknown";
 		switch (type) {
 		case Notification::IncomingMessage:
 			mac_type = @"Incoming Message";
@@ -102,8 +102,8 @@ public:
 		case Notification::ChatUserJoined:
 			mac_type = @"User joined chat";
 			break;
-		case Notification::ChatUserLeaved:
-			mac_type = @"User leaved chat";
+		case Notification::ChatUserLeft:
+			mac_type = @"User left chat";
 			break;
 		case Notification::ChatIncomingMessage:
 			mac_type = @"Incoming message in chat";

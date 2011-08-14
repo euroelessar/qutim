@@ -339,7 +339,7 @@ void ContactDelegate::reloadSettings()
 	debug() << "reload settings";
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
-	p->liteMode = cfg.value("liteMode", false);
+        p->liteMode = cfg.value("liteMode", true);
 
 #ifdef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",
