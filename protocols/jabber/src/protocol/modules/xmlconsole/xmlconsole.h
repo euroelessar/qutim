@@ -48,7 +48,7 @@ public:
 	XmlConsole(QWidget *parent = 0);
 	~XmlConsole();
 
-	void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	void init(qutim_sdk_0_3::Account *account);
 	virtual void handleStreamBegin();
 	virtual void handleStreamEnd();
 	virtual void handleIncomingData(const char *data, qint64 size);

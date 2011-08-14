@@ -18,7 +18,7 @@
 //{
 //}
 
-//void JAdHocModule::init(qutim_sdk_0_3::Account *account, const JabberParams &params)
+//void JAdHocModule::init(qutim_sdk_0_3::Account *account)
 //{
 //	static JAdHocModule *self = 0;
 //	m_account = static_cast<JAccount *>(account);

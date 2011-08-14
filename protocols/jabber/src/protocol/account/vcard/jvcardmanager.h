@@ -3,37 +3,37 @@
 
 #include <QObject>
 #include <QSharedPointer>
-#include <jreen/vcard.h>
-
-namespace Jreen
-{
-class JID;
-class IQ;
-}
+#include <jreen/vcardmanager.h>
+#include "sdk/jabber.h"
 
 namespace Jabber
 {
-class JAccount;
 class JInfoRequest;
-class JVCardManagerPrivate;
 
-class JVCardManager : public QObject
+class JVCardManager : public QObject, public JabberExtension
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(JVCardManager)
+	Q_INTERFACES(Jabber::JabberExtension)
 	Q_CLASSINFO("DebugName", "Jabber::VCardManager")
 public:
-	JVCardManager(JAccount *account);
+	JVCardManager();
 	~JVCardManager();
-	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
-	bool containsRequest(const QString &contact);
+	
+	JInfoRequest *fetchVCard(const QString &contact, bool create);
 	void storeVCard(const Jreen::VCard::Ptr &vcard);
-	JAccount *account() const;
+	virtual void init(qutim_sdk_0_3::Account *account);
+	bool eventFilter(QObject *obj, QEvent *event);
+
 protected slots:
-	void handleIQ(const Jreen::IQ &iq);
-	void onIqReceived(const Jreen::IQ &,int);
+	void onConnected();
+	void onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid);
+	
 private:
-	QScopedPointer<JVCardManagerPrivate> d_ptr;
+	friend class JInfoRequest;
+	bool m_autoLoad;
+	qutim_sdk_0_3::Account *m_account;
+	Jreen::Client *m_client;
+	Jreen::VCardManager *m_manager;
 };
 
 }

@@ -16,7 +16,7 @@
 //	Q_INTERFACES(Jabber::JabberExtension)
 //public:
 //	JAdHocModule();
-//	void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+//	void init(qutim_sdk_0_3::Account *account);
 //public slots:
 //	void onActionClicked(JContactResource *resource = 0);
 //private:

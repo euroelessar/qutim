@@ -2,7 +2,7 @@
 #define JINFOREQUEST_H
 
 #include <qutim/inforequest.h>
-#include <jreen/vcard.h>
+#include <jreen/vcardmanager.h>
 
 namespace Jabber
 {
@@ -48,13 +48,16 @@ public:
 		About,
 		Features
 	};
-
-	JInfoRequest(JVCardManager *manager, const QString &contact);
+	
+	JInfoRequest(Jreen::VCardReply *reply);
 	~JInfoRequest();
 	static Jreen::VCard::Ptr convert(const DataItem &item);
 	DataItem item(const QString &name) const;
 	State state() const;
+
+protected slots:
 	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
+
 private:
 	void addItem(DataType type, DataItem &group, const QVariant &data);
 	void addMultilineItem(DataType type, DataItem &group, const QString &data);

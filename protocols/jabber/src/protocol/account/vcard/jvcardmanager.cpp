@@ -1,77 +1,57 @@
 #include "jvcardmanager.h"
 #include "jinforequest.h"
-#include "../muc/jmucuser.h"
-#include "../roster/jcontact.h"
-#include "../roster/jroster.h"
-#include "../jaccount.h"
 #include <QDir>
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
+#include <qutim/config.h>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/systeminfo.h>
+#include <qutim/chatunit.h>
+#include <qutim/conference.h>
 #include <jreen/vcard.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/iq.h>
 #include <jreen/client.h>
 #include <QCryptographicHash>
+#include <QMetaProperty>
 
 namespace Jabber
 {
 
-class JVCardManagerPrivate
+JVCardManager::JVCardManager() : m_autoLoad(true)
 {
-public:
-	JAccount *account;
-	//VCardManager *manager;
-	QHash<QString, QWeakPointer<JInfoRequest> > contacts;
-};
-
-JVCardManager::JVCardManager(JAccount *account)
-	: QObject(account), d_ptr(new JVCardManagerPrivate)
-{
-	Q_D(JVCardManager);
-	d->account = account;
-	connect(account->client(),SIGNAL(iqReceived(Jreen::IQ)),
-			SLOT(handleIQ(Jreen::IQ)));
 }
 
 JVCardManager::~JVCardManager()
 {
-
 }
 
-void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
+JInfoRequest *JVCardManager::fetchVCard(const QString &contact, bool create)
 {
-	Q_D(JVCardManager);	
-	if (!d->contacts.contains(contact)) {
-		debug() << "fetch vcard";
-		d->contacts.insert(contact, request);
-		//fetch iq
-		Jreen::IQ iq(Jreen::IQ::Get,contact);
-		iq.addExtension(new Jreen::VCard());
-		d->account->client()->send(iq,this,SLOT(onIqReceived(Jreen::IQ,int)),0);
-	}
+	Jreen::VCardReply *reply = m_manager->fetch(contact);
+	return create ? new JInfoRequest(reply) : NULL;
 }
 
 void JVCardManager::storeVCard(const Jreen::VCard::Ptr &vcard)
 {
-	Q_UNUSED(vcard);
-	//Q_D(JVCardManager);
-	//d->manager->storeVCard(vcard, this);
+	m_manager->store(vcard);
 }
 
-void JVCardManager::handleIQ(const Jreen::IQ &iq)
+void JVCardManager::onConnected()
 {
-	Q_D(JVCardManager);
-	debug() << "handle IQ";
-	if(!iq.containsPayload<Jreen::VCard>())
-		return;
-	iq.accept();
-	QString id = iq.from().full();
-	QString avatarHash;
-	const Jreen::VCard::Ptr vcard = iq.payload<Jreen::VCard>();
+	m_manager->fetch(m_client->jid().bareJID());
+}
+
+#define AVATAR_PATH SystemInfo::getPath(SystemInfo::ConfigDir) + QLatin1String("/avatars/jabber")
+
+void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid)
+{
 	const Jreen::VCard::Photo &photo = vcard->photo();
+	QString avatarHash;
 	if (!photo.data().isEmpty()) {
 		avatarHash = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1).toHex();
-		QDir dir(d->account->getAvatarPath());
+		QDir dir(AVATAR_PATH);
 		if (!dir.exists())
 			dir.mkpath(dir.absolutePath());
 		QFile file(dir.absoluteFilePath(avatarHash));
@@ -80,51 +60,95 @@ void JVCardManager::handleIQ(const Jreen::IQ &iq)
 			file.close();
 		}
 	}
-	if (d->account->id() == id) {
-		QString nick = vcard->nickname();
-		if(nick.isEmpty())
-			nick = vcard->formattedName();
-		if(nick.isEmpty())
-			nick = d->account->id();
-		if (d->account->name() != nick)
-			d->account->setNick(nick);
-		Jreen::Presence presence = d->account->client()->presence();
-		Jreen::VCardUpdate::Ptr update = presence.payload<Jreen::VCardUpdate>();
-		if (update->photoHash() != avatarHash) {
-			d->account->config("general").setValue("photoHash", avatarHash);
-			update->setPhotoHash(avatarHash);
-			d->account->client()->send(presence);
+	QList<QObject*> objects;
+	if (QObject *unit = m_account->unit(jid.full(), false))
+		objects << unit;
+	if (jid.node() == m_account->id())
+		objects << m_account;
+	foreach (QObject *object, objects) {
+		if (object == m_account) {
+			QString nick = vcard->nickname();
+			if(nick.isEmpty())
+				nick = vcard->formattedName();
+			if(nick.isEmpty())
+				nick = m_account->id();
+			if (m_account->name() != nick)
+				QMetaObject::invokeMethod(m_account, "_q_set_nick", Q_ARG(QString, nick));
+			Jreen::Presence presence = m_client->presence();
+			Jreen::VCardUpdate::Ptr update = presence.payload<Jreen::VCardUpdate>();
+			if (update->photoHash() != avatarHash) {
+				m_account->config("general").setValue("photoHash", avatarHash);
+				update->setPhotoHash(avatarHash);
+				m_client->send(presence);
+			}
 		}
-	} else {
-		ChatUnit *unit = d->account->getUnit(id);
-		if (JContact *contact = qobject_cast<JContact *>(unit)) {
-			contact->setAvatar(avatarHash);
-			if (contact->isInList())
-				RosterStorage::instance()->updateContact(contact, account()->roster()->version());
-		} else if (JMUCUser *contact = qobject_cast<JMUCUser *>(unit)) {
-			contact->setAvatar(avatarHash);
-		}
+		const QMetaObject * const meta = object->metaObject();
+		const int index = meta->indexOfProperty("photoHash");
+		if (index == -1)
+			continue;
+		QMetaProperty property = meta->property(index);
+		const QString photoHash = property.read(object).toString();
+		if (photoHash == avatarHash)
+			continue;
+		property.write(object, photoHash);
 	}
-	debug() << "fetched...";
-	if (JInfoRequest *request = d->contacts.take(id).data())
-		request->setFetchedVCard(vcard);
 }
 
-bool JVCardManager::containsRequest(const QString &contact)
+void JVCardManager::init(qutim_sdk_0_3::Account *account)
 {
-	return d_func()->contacts.contains(contact);
+	m_account = account;
+	Config config = m_account->protocol()->config("general");
+	m_autoLoad = config.value("getavatars", true);
+	m_client = qobject_cast<Jreen::Client*>(account->property("client"));
+	m_manager = new Jreen::VCardManager(m_client);
+	connect(m_manager, SIGNAL(vCardFetched(Jreen::VCard::Ptr,Jreen::JID)),
+	        SLOT(onVCardReceived(Jreen::VCard::Ptr,Jreen::JID)));
+	connect(m_client, SIGNAL(connected()), SLOT(onConnected()));
+	account->installEventFilter(this);
 }
 
-
-JAccount * JVCardManager::account() const
+bool JVCardManager::eventFilter(QObject *obj, QEvent *event)
 {
-	return d_func()->account;
-}
-
-void JVCardManager::onIqReceived(const Jreen::IQ &iq, int)
-{
-	debug() << "vcard received";
-	handleIQ(iq);
+	if (event->type() == InfoRequestCheckSupportEvent::eventType()) {
+		Status::Type status = m_account->status().type();
+		if (status >= Status::Online && status <= Status::Invisible) {
+			InfoRequestCheckSupportEvent *infoEvent = static_cast<InfoRequestCheckSupportEvent*>(event);
+			if (obj == m_account)
+				infoEvent->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
+			else
+				infoEvent->setSupportType(InfoRequestCheckSupportEvent::Read);
+			infoEvent->accept();
+		} else {
+			event->ignore();
+		}
+		return true;
+	} else if (obj == m_account) {
+		if (event->type() == QEvent::ChildAdded) {
+			QObject *child = static_cast<QChildEvent*>(event)->child();
+			if (ChatUnit *unit = qobject_cast<ChatUnit*>(child)) {
+				if (qobject_cast<Conference*>(unit))
+					return false;
+				unit->installEventFilter(this);
+			}
+		} else if (event->type() == InfoRequestEvent::eventType()) {
+			InfoRequestEvent *infoEvent = static_cast<InfoRequestEvent*>(event);
+			infoEvent->setRequest(fetchVCard(m_account->id(), true));
+			infoEvent->accept();
+			return true;
+		} else if (event->type() == InfoItemUpdatedEvent::eventType()) {
+			InfoItemUpdatedEvent *infoEvent = static_cast<InfoItemUpdatedEvent*>(event);
+			Jreen::VCard::Ptr vcard = JInfoRequest::convert(infoEvent->infoItem());
+			storeVCard(vcard);
+			event->accept();
+			return true;
+		}
+	} else if (event->type() == InfoRequestEvent::eventType()) {
+		InfoRequestEvent *infoEvent = static_cast<InfoRequestEvent*>(event);
+		infoEvent->setRequest(fetchVCard(obj->property("id").toString(), true));
+		infoEvent->accept();
+		return true;
+	}
+	return QObject::eventFilter(obj, event);
 }
 
 } //namespace jabber

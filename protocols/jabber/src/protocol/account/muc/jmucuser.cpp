@@ -163,25 +163,6 @@ bool JMUCUser::event(QEvent *ev)
 		}
 		Buddy::event(ev);
 		return true;
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible && d_func()->muc->isJoined()) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-		return true;
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JMUCUser);
-		JAccount * const acc = static_cast<JAccount*>(account());
-		const JID jid = d->id;
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		if(!acc->vCardManager()->containsRequest(jid))
-			event->setRequest(new JInfoRequest(acc->vCardManager(), jid));
-		event->accept();
-		return true;
 	}
 	return JContactResource::event(ev);
 }

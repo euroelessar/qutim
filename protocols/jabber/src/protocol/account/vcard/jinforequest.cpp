@@ -1,11 +1,9 @@
 #include "jinforequest.h"
 #include "jvcardmanager.h"
-#include <QDate>
 #include <qutim/debug.h>
 #include <jreen/vcard.h>
+#include <QDate>
 #include <QUrl>
-#include "../roster/jcontactresource.h"
-#include "../jaccount.h"
 
 namespace Jabber
 {
@@ -87,17 +85,17 @@ class JInfoRequestPrivate
 public:
 	InfoRequest::State state;
 	Jreen::VCard::Ptr vcard;
-	DataItem *item;
+	QScopedPointer<DataItem> item;
 	QMap<QString, DataItem> items;
 };
 
-JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
-	: d_ptr(new JInfoRequestPrivate)
+JInfoRequest::JInfoRequest(Jreen::VCardReply *reply)
+    : d_ptr(new JInfoRequestPrivate)
 {
 	Q_D(JInfoRequest);
-	manager->fetchVCard(contact, this);
 	d->state = Request;
-	d->item = 0;
+	connect(reply, SIGNAL(vCardFetched(Jreen::VCard::Ptr)),
+	        SLOT(setFetchedVCard(Jreen::VCard::Ptr)));
 }
 
 JInfoRequest::~JInfoRequest()
@@ -217,7 +215,7 @@ void JInfoRequest::setFetchedVCard(const Jreen::VCard::Ptr &vcard)
 	//	item.addSubitem(features);
 	//}
 
-	d->item = new DataItem(item);
+	d->item.reset(new DataItem(item));
 	d->vcard = vcard;
 	d->state = Done;
 	emit stateChanged(d->state);

@@ -17,7 +17,7 @@
 //	Q_INTERFACES(Jabber::JabberExtension)
 //public:
 //	RemoteControl();
-//	void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+//	void init(qutim_sdk_0_3::Account *account);
 //	void handleAdhocCommand(const gloox::JID &from, const gloox::Adhoc::Command &command, const std::string &sessionID);
 //	bool handleAdhocAccessRequest(const gloox::JID &from, const std::string &command);
 //private:

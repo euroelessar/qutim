@@ -32,18 +32,15 @@ public:
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;
 	JMessageSessionManager *messageSessionManager;
-	JVCardManager *vCardManager;
 	Jreen::PubSub::Manager *pubSubManager;
 	Jreen::PrivateXml *privateXml;
 	JMessageHandler *messageHandler;
-	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString nick;
 	bool keepStatus;
 	Status status;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
-	JabberParams params;
 	QPointer<JMUCManager> conferenceManager;
 	QPointer<PasswordDialog> passwordDialog;
 	QSignalMapper signalMapper;
@@ -52,6 +49,7 @@ public:
 	
 	void applyStatus(const Status &status);
 	void setPresence(Jreen::Presence);
+	void _q_set_nick(const QString &nick);
 	void _q_disconnected(Jreen::Client::DisconnectReason);
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);

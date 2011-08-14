@@ -393,18 +393,18 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			user->setMUCAffiliation(participant->affiliation());
 			user->setMUCRole(participant->role());
 		}
-		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
-			VCardUpdate::Ptr vcard = presence.payload<VCardUpdate>();
-			if(vcard && vcard->hasPhotoInfo()) {
-				QString hash = vcard->photoHash();
-				if (user->avatarHash() != hash) {
-					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
-						user->setAvatar(hash);
-					else if (d->avatarsAutoLoad)
-						d->account->vCardManager()->fetchVCard(user->id());
-				}
-			}
-		}
+//		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
+//			VCardUpdate::Ptr vcard = presence.payload<VCardUpdate>();
+//			if(vcard && vcard->hasPhotoInfo()) {
+//				QString hash = vcard->photoHash();
+//				if (user->avatarHash() != hash) {
+//					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
+//						user->setAvatar(hash);
+//					else if (d->avatarsAutoLoad)
+//						d->account->vCardManager()->fetchVCard(user->id());
+//				}
+//			}
+//		}
 		//WTF?  Oo
 		//if (!d->isJoined && isSelf) {
 		//	d->isJoined = true;

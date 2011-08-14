@@ -42,7 +42,7 @@ class JActivityChooser : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JActivityChooser();
-	virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	virtual void init(qutim_sdk_0_3::Account *account);
 private slots:
 	void show(QObject *obj);
 protected:

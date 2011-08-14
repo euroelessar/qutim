@@ -34,10 +34,30 @@ class ContactsFactory;
 class Account;
 typedef QList<Account*> AccountList;
 
+#ifndef Q_QDOC
+class AccountHook : public MenuController
+{
+public:
+	virtual const QMetaObject *metaObject() const;
+	virtual void *qt_metacast(const char *);
+	virtual int qt_metacall(QMetaObject::Call, int, void **);
+
+private:
+	AccountHook(AccountPrivate &p, Protocol *protocol);
+	Q_DECLARE_PRIVATE(Account)
+	friend class Account;
+};
+#endif
+
 /*!
   Account is base class for all account entites.
 */
-class LIBQUTIM_EXPORT Account : public MenuController
+class LIBQUTIM_EXPORT Account
+#ifndef Q_QDOC
+        : public AccountHook
+#else
+        : public MenuController
+#endif
 {
 	Q_DECLARE_PRIVATE(Account)
 	Q_OBJECT

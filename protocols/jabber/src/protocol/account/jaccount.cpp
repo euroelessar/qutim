@@ -19,8 +19,6 @@
 #include "roster/jcontactresource.h"
 #include "roster/jmessagehandler.h"
 #include "connection/jserverdiscoinfo.h"
-#include "servicediscovery/jservicebrowser.h"
-#include "servicediscovery/jservicediscovery.h"
 #include "vcard/jinforequest.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
@@ -98,7 +96,6 @@ void JAccountPrivate::_q_connected()
 {
 	Q_Q(JAccount);
 	applyStatus(status);
-	vCardManager->fetchVCard(q->id());
 	conferenceManager->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager->bookmarkManager());	
 	client.setPingInterval(q->config().group("general").value("pingInterval", 30000));
@@ -127,6 +124,16 @@ void JAccountPrivate::_q_on_module_loaded(int i)
 	loadedModules |= i;
 	if (loadedModules == 3)
 		_q_connected();
+}
+
+void JAccountPrivate::_q_set_nick(const QString &newNick)
+{
+	Config general = q_ptr->config("general");
+	general.setValue("nick", newNick);
+	general.sync();
+	QString previous = newNick;
+	qSwap(nick, previous);
+	emit q_ptr->nameChanged(nick, previous);
 }
 
 void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
@@ -197,7 +204,6 @@ JAccount::JAccount(const QString &id) :
 	d->pubSubManager = new Jreen::PubSub::Manager(&d->client);
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
-	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
 
 	d->client.presence().addExtension(new VCardUpdate());
@@ -230,8 +236,8 @@ JAccount::JAccount(const QString &id) :
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	
-	d->params.addItem<Jreen::Client>(&d->client);
-	d->params.addItem<Jreen::PubSub::Manager>(d->pubSubManager);
+//	d->params.addItem<Jreen::Client>(&d->client);
+//	d->params.addItem<Jreen::PubSub::Manager>(d->pubSubManager);
 	//	d->params.addItem<Adhoc>(p->adhoc);
 	//	d->params.addItem<VCardManager>(p->vCardManager->manager());
 	//	d->params.addItem<SIManager>(p->siManager);
@@ -241,7 +247,7 @@ JAccount::JAccount(const QString &id) :
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
 			d->extensions.append(ext);
-			ext->init(this, d->params);
+			ext->init(this);
 		}
 	}
 	loadSettings();
@@ -315,28 +321,9 @@ JRoster *JAccount::roster() const
 	return d_func()->roster;
 }
 
-JServiceDiscovery *JAccount::discoManager()
-{
-	Q_D(JAccount);
-	if (!d->discoManager)
-		d->discoManager = new JServiceDiscovery(this);
-	return d->discoManager;
-}
-
 QString JAccount::name() const
 {
 	return d_func()->nick;
-}
-
-void JAccount::setNick(const QString &nick)
-{
-	Q_D(JAccount);
-	Config general = config("general");
-	general.setValue("nick", nick);
-	general.sync();
-	QString previous = d->nick;
-	d->nick = nick;
-	emit nameChanged(nick, previous);
 }
 
 QString JAccount::getPassword() const
@@ -386,11 +373,6 @@ Jreen::Client *JAccount::client() const
 JSoftwareDetection *JAccount::softwareDetection() const
 {
 	return d_func()->softwareDetection;
-}
-
-JVCardManager *JAccount::vCardManager() const
-{
-	return d_func()->vCardManager;
 }
 
 JMUCManager *JAccount::conferenceManager()
@@ -460,28 +442,6 @@ QString JAccount::getAvatarPath()
 
 bool JAccount::event(QEvent *ev)
 {
-	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = Account::status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-		return true;
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new JInfoRequest(vCardManager(), id()));
-		event->accept();
-		return true;
-	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
-		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		VCard::Ptr vcard = JInfoRequest::convert(event->infoItem());
-		vCardManager()->storeVCard(vcard);
-		event->accept();
-		return true;
-	}
 	return Account::event(ev);
 }
 
