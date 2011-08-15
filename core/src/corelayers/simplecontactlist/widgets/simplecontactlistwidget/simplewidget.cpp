@@ -68,8 +68,7 @@ SimpleWidget::SimpleWidget()
 	}
 
 #if defined(Q_WS_MAEMO_5)
-	//int size = 48; //TODO use relative sizes table
-	//smith, please test it!
+	//Works!
 	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #else
 	int size = 16;
@@ -158,10 +157,6 @@ SimpleWidget::SimpleWidget()
         setAttribute(Qt::WA_Maemo5StackedWindow);
         setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
-#endif
-
-	//TODO, Smith, separate it to another plugin!
-#ifdef QUTIM_MOBILE_UI
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 			this, SLOT(orientationChanged()));
 	orientationChanged();
@@ -316,6 +311,7 @@ void SimpleWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
+#ifdef Q_WS_MAEMO_5
 void SimpleWidget::orientationChanged()
 {
 	QRect screenGeometry = QApplication::desktop()->screenGeometry();
@@ -329,6 +325,7 @@ void SimpleWidget::orientationChanged()
 
 	}
 }
+#endif
 
 bool SimpleWidget::event(QEvent *event)
 {

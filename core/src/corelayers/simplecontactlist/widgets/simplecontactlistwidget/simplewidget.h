@@ -49,7 +49,9 @@ private slots:
 	void onTextChanged(const QString &text);
 	void showStatusDialog();
 	void changeStatusTextAccepted();
+#ifdef Q_WS_MAEMO_5
 	void orientationChanged();
+#endif
 private:
 	TreeView *m_view;
 	ServicePointer<AbstractContactModel> m_model;
