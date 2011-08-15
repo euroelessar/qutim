@@ -19,6 +19,7 @@
 #include <limits>
 #include <QStringList>
 #include <QWidget>
+#include <QApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -98,7 +99,14 @@ QVariant DefaultSystemIntegration::doProcess(Operation act, const QVariant &data
 	case ShowWidget: {
 		QWidget *widget = data.value<QWidget*>();
 #if	defined(QUTIM_MOBILE_UI)
+#if	defined(Q_WS_MAEMO_5)
+		widget->setParent(QApplication::activeWindow());
+		widget->setAttribute(Qt::WA_Maemo5StackedWindow);
+		widget->setWindowFlags(widget->windowFlags() | Qt::Window);
+		widget->show();
+#else
 		widget->showMaximized();
+#endif
 #else
 		widget->show();
 #endif
