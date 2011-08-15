@@ -5,8 +5,11 @@ namespace Symbian
 {
 using namespace qutim_sdk_0_3;
 
-Vibration::Vibration() : m_vibra(CHWRMVibra::NewL())
+Vibration::Vibration() :
+    NotificationBackend("Vibration"),
+    m_vibra(CHWRMVibra::NewL())
 {
+	setDescription(QT_TR_NOOP("Vibration"));
 }
 
 Vibration::~Vibration()

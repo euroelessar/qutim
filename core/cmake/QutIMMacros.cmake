@@ -181,18 +181,16 @@ macro ( __PREPARE_QUTIM_PLUGIN src_dir )
 	#CMAKE_POLICY(SET CMP0017 NEW)
 	if ( NOT QUTIM_PLUGIN )
 		if ( NOT QT4_INSTALLED )
-			# Require QT 4.6
-			SET( QT_MIN_VERSION "4.6.0" )
 
 			# Set QT modules
-			# SET( QT_USE_QTNETWORK TRUE )
-			SET( QT_USE_QTGUI TRUE )
+                        SET( QT_USE_QTNETWORK TRUE )
+                        SET( QT_USE_QTGUI TRUE )
 
 			# Search for QT4
-			FIND_PACKAGE( Qt4 REQUIRED )
+                        FIND_PACKAGE( Qt4 REQUIRED )
 
 			# Include QT4
-			INCLUDE( ${QT_USE_FILE} )
+                        INCLUDE( ${QT_USE_FILE} )
 		endif ( NOT QT4_INSTALLED )
 
 		set ( QUTIM_PLUGIN TRUE )

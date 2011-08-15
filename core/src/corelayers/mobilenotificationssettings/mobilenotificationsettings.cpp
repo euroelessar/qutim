@@ -127,7 +127,7 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 		}
 	}
 
-	m_typesWidget->expandAll();
+	//m_typesWidget->expandAll();
 	layout->addWidget(m_typesWidget);
 	connect(m_typesWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
 			SLOT(onItemChanged(QTreeWidgetItem*,int)));
