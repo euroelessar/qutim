@@ -6,6 +6,7 @@
 #include <jreen/disco.h>
 #include <jreen/iq.h>
 #include <jreen/error.h>
+
 namespace Jabber
 {
 
@@ -94,9 +95,9 @@ void JServiceDiscovery::handleDiscoItems(const Jreen::JID &from,
 	foreach (Jreen::Disco::Item item, items->items()) {
 		JDiscoItem di;
 		di.setExpandable(false);
-		di.setName(item.name.replace("\n", " | "));
-		di.setJID(item.jid.full());
-		di.setNode(item.node);
+		di.setName(item.name().replace("\n", " | "));
+		di.setJID(item.jid().full());
+		di.setNode(item.node());
 		discoItems << di;
 	}
 	p->items.remove(context);
