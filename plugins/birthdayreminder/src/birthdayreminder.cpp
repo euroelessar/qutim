@@ -63,15 +63,20 @@ void BirthdayUpdater::update(Contact *contact)
 void BirthdayUpdater::onUpdateNext()
 {
 	Contact *contact = 0;
-	QMutableListIterator<Contact*> itr(m_waitingUpdate);
+	QMutableListIterator<QWeakPointer<Contact> > itr(m_waitingUpdate);
 	while (itr.hasNext()) {
-		itr.next();
-		InfoRequestFactory::SupportLevel level = m_factory->supportLevel(itr.value());
+		if (!itr.next()) {
+			itr.remove();
+			continue;
+		}
+		contact = itr.value().data();
+		InfoRequestFactory::SupportLevel level = m_factory->supportLevel(contact);
 		if (level >= InfoRequestFactory::ReadOnly) {
 			m_updateFails = 0;
-			contact = itr.value();
 			itr.remove();
 			break;
+		} else {
+			contact = NULL;
 		}
 	}
 
@@ -131,7 +136,7 @@ BirthdayReminder::BirthdayReminder() :
 void BirthdayReminder::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "BirthdayReminder"),
-			QT_TRANSLATE_NOOP("Plugin", "This plugin shows notifications when someone from"
+			QT_TRANSLATE_NOOP("Plugin", "This plugin shows notifications when someone from "
 										"your contact list has a birthday"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
