@@ -353,10 +353,10 @@ void init(SystemInfoPrivate *d)
 	d->os_full="Maemo 5 Nokia N900";
 	d->os_name="Maemo";
 	d->os_version="5";
-#elif defined(MEEGO_EDITION_HARMATTAN)
-	d->os_name="MeeGo";
-	d->os_version = MEEGO_VERSION_MAJOR + '.' + MEEGO_VERSION_MINOR + '.' + '.' + MEEGO_VERSION_PATCH + ' ' + MEEGO_EDITION;
-	d->os_full="MeeGo 1.2 Harmattan";
+#elif defined(MEEGO_EDITION)
+	d->os_name=QLatin1String("MeeGo");
+	d->os_version = MEEGO_VERSION_MAJOR + '.' + MEEGO_VERSION_MINOR + '.' + MEEGO_VERSION_PATCH + ' ' + MEEGO_EDITION;
+	d->os_full = d->os_name + ' ' + d->os_version;
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 
