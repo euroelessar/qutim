@@ -175,7 +175,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(showKeyb, SIGNAL(clicked()), this, SLOT(showKeyboard()));
 	showKeyb->setVisible(false);
 
-	this->setParent(qApp->activeWindow());
+	setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
 	connect(m_kb_qwerty, SIGNAL(input(QString)), this, SLOT(processInput(QString)));
 
