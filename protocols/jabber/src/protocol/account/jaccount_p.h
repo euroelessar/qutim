@@ -8,7 +8,6 @@
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
-#include "vcard/jvcardmanager.h"
 #include <sdk/jabber.h>
 #include <QSignalMapper>
 namespace Jreen
@@ -27,7 +26,7 @@ public:
 	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
 	inline ~JAccountPrivate() {}
 	//Jreen
-	Jreen::Client client;
+	QScopedPointer<Jreen::Client> client;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;

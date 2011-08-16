@@ -60,17 +60,6 @@ JVCardManager::~JVCardManager()
 {
 }
 
-JInfoRequest *JVCardManager::fetchVCard(const QString &id, QObject *object)
-{
-	Jreen::VCardReply *reply = m_manager->fetch(id);
-	return object ? new JInfoRequest(object, reply) : NULL;
-}
-
-void JVCardManager::storeVCard(const Jreen::VCard::Ptr &vcard, QObject *receiver, const char *slot)
-{
-	m_manager->store(vcard);
-}
-
 void JVCardManager::onConnected()
 {
 	m_manager->fetch(m_client->jid().bareJID());
@@ -78,21 +67,31 @@ void JVCardManager::onConnected()
 
 #define AVATAR_PATH SystemInfo::getPath(SystemInfo::ConfigDir) + QLatin1String("/avatars/jabber")
 
-void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid)
+QString JVCardManager::ensurePhoto(const Jreen::VCard::Photo &photo, QString *photoPath)
 {
-	const Jreen::VCard::Photo &photo = vcard->photo();
 	QString avatarHash;
+	QString tmp;
+	if (!photoPath)
+		photoPath = &tmp;
+	photoPath->clear();
 	if (!photo.data().isEmpty()) {
 		avatarHash = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1).toHex();
 		QDir dir(AVATAR_PATH);
 		if (!dir.exists())
 			dir.mkpath(dir.absolutePath());
-		QFile file(dir.absoluteFilePath(avatarHash));
+		*photoPath = dir.absoluteFilePath(avatarHash);
+		QFile file(*photoPath);
 		if (file.open(QIODevice::WriteOnly)) {
 			file.write(photo.data());
 			file.close();
 		}
 	}
+	return avatarHash;
+}
+
+void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid)
+{
+	QString avatarHash = ensurePhoto(vcard->photo());
 	QList<QObject*> objects;
 	if (QObject *unit = m_account->unit(jid.full(), false))
 		objects << unit;
@@ -127,8 +126,11 @@ void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen:
 	}
 }
 
-void JVCardManager::onPhotoHashDetected(const Jreen::JID &jid, const QString &hash)
+void JVCardManager::onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update)
 {
+	if (!update->hasPhotoInfo())
+		return;
+
 	if (ChatUnit *unit = m_account->unit(jid.bare(), false)) {
 		if (qobject_cast<Conference*>(unit))
 			unit = m_account->unit(jid.full(), false);
@@ -138,18 +140,22 @@ void JVCardManager::onPhotoHashDetected(const Jreen::JID &jid, const QString &ha
 		const QMetaObject * const meta = unit->metaObject();
 		const int index = meta->indexOfProperty("photoHash");
 		if (index == -1)
-			continue;
-		QMetaProperty property = meta->property(index);
-		if (property.read(unit).toString() == hash)
 			return;
-		fetchVCard(unit->id());
+		QMetaProperty property = meta->property(index);
+		if (property.read(unit).toString() == update->photoHash())
+			return;
+		QDir dir(AVATAR_PATH);
+		if (dir.exists(update->photoHash()))
+			property.write(unit, update->photoHash());
+		else if (m_autoLoad)
+			m_manager->fetch(unit->id());
 	}
 }
 
 class JAccountVCardHook : public Account
 {
 public:
-	using setInfoRequestFactory;
+	using Account::setInfoRequestFactory;
 };
 
 void JVCardManager::init(qutim_sdk_0_3::Account *account)
@@ -169,7 +175,6 @@ void JVCardManager::init(qutim_sdk_0_3::Account *account)
 
 JVCardManager::SupportLevel JVCardManager::supportLevel(QObject *object)
 {
-	Q_D(JVCardManager);
 	if (m_account == object) {
 		return isStatusOnline(m_account->status()) ? ReadWrite : Unavailable;
 	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
@@ -182,19 +187,17 @@ JVCardManager::SupportLevel JVCardManager::supportLevel(QObject *object)
 
 InfoRequest *JVCardManager::createrDataFormRequest(QObject *object)
 {
-	Q_D(JVCardManager);
 	if (m_account == object) {
-		return fetchVCard(m_account->id(), m_account);
+		return new JInfoRequest(m_manager, m_account);
 	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
 		if (unit->account() == m_account)
-			return fetchVCard(unit->id(), unit);
+			return new JInfoRequest(m_manager, unit);
 	}
 	return 0;
 }
 
 bool JVCardManager::startObserve(QObject *object)
 {
-	Q_D(JVCardManager);
 	if (m_account == object) {
 		return true;
 	} else if (ChatUnit *unit = qobject_cast<ChatUnit*>(object)) {
@@ -208,7 +211,6 @@ bool JVCardManager::startObserve(QObject *object)
 
 bool JVCardManager::stopObserve(QObject *object)
 {
-	Q_D(JVCardManager);
 	if (m_account == object)
 		return true;
 	else if (ChatUnit *contact = qobject_cast<ChatUnit*>(object))
@@ -219,7 +221,6 @@ bool JVCardManager::stopObserve(QObject *object)
 void JVCardManager::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 										   const qutim_sdk_0_3::Status &previous)
 {
-	Q_D(JVCardManager);
 	bool isOnline = isStatusOnline(status);
 	bool wasOnline = isStatusOnline(previous);
 	bool supported;

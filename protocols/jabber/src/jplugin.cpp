@@ -1,7 +1,7 @@
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
-#include "protocol/account/vcard/jvcardmanager.h"
+#include "protocol/modules/vcard/jvcardmanager.h"
 #include "protocol/modules/servicediscovery/jservicebrowser.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"

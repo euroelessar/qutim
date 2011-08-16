@@ -50,10 +50,8 @@ public:
 	JVCardManager();
 	~JVCardManager();
 	
-	JInfoRequest *fetchVCard(const QString &id, QObject *object = NULL);
-	void storeVCard(const Jreen::VCard::Ptr &vcard, QObject *receiver, const char *slot);
 	virtual void init(qutim_sdk_0_3::Account *account);
-	bool eventFilter(QObject *obj, QEvent *event);
+	static QString ensurePhoto(const Jreen::VCard::Photo &photo, QString *path = NULL);
 
 protected: // InformationRequestFactory stuff
 	virtual SupportLevel supportLevel(QObject *object);
@@ -64,7 +62,7 @@ protected: // InformationRequestFactory stuff
 protected slots:
 	void onConnected();
 	void onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid);
-	void onPhotoHashDetected(const JID &jid, const QString &hash);
+	void onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);
 	

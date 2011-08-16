@@ -3,7 +3,6 @@
 #include "../../jprotocol.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jvcardmanager.h"
 #include <QFile>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
@@ -219,7 +218,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 	case Jreen::Presence::Unsubscribed:
 	case Jreen::Presence::Subscribed:
 		handleSubscription(presence);
-		break;
+		return;
 	case Jreen::Presence::Error:
 	case Jreen::Presence::Probe:
 		return;
@@ -227,12 +226,11 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 		break;
 	}
 
-	const Jreen::Error::Ptr error = presence.error();
 	Jreen::JID from = presence.from();
-	if(d->account->client()->jid() == from) {
+	if (d->account->client()->jid() == from) 
 		d->account->d_func()->setPresence(presence);
-		return;
-	}
+	else if (JContact *c = d->contacts.value(from.bare()))
+		c->setStatus(presence);
 }
 
 void JRoster::onDisconnected()

@@ -1,6 +1,5 @@
 #include "jcontactresource_p.h"
 #include "jcontact.h"
-#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include "jmessagesession.h"

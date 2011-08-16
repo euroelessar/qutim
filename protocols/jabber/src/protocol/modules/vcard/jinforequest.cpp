@@ -2,12 +2,12 @@
 #include "jvcardmanager.h"
 #include <qutim/debug.h>
 #include <qutim/icon.h>
+#include <qutim/account.h>
 #include <jreen/vcard.h>
 #include <QUrl>
 #include <QFile>
 #include <QDate>
-#include "../roster/jcontactresource.h"
-#include "../jaccount.h"
+#include <QImageReader>
 
 namespace Jabber
 {
@@ -87,19 +87,17 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x)
 class JInfoRequestPrivate
 {
 public:
+	Jreen::JID jid;
 	Jreen::VCard::Ptr vcard;
-	JVCardManager *manager;
-	bool accountInfo;
+	Jreen::VCardManager *manager;
 };
 
-JInfoRequest::JInfoRequest(QObject *object, Jreen::VCardReply *reply)
+JInfoRequest::JInfoRequest(Jreen::VCardManager *manager, QObject *object)
 	: InfoRequest(object), d_ptr(new JInfoRequestPrivate)
 {
 	Q_D(JInfoRequest);
+	d->jid = object->property("id").toString();
 	d->manager = manager;
-	d->accountInfo = d->manager->account() == object;
-	connect(reply, SIGNAL(vCardFetched(Jreen::VCard::Ptr)),
-	        SLOT(setFetchedVCard(Jreen::VCard::Ptr)));
 }
 
 JInfoRequest::~JInfoRequest()
@@ -118,7 +116,9 @@ void JInfoRequest::doRequest(const QSet<QString> &hints)
 {
 	Q_D(JInfoRequest);
 	Q_UNUSED(hints);
-	d->manager->fetchVCard(object()->property("id").toString(), this);
+	Jreen::VCardReply *reply = d->manager->fetch(d->jid);
+	connect(reply, SIGNAL(vCardFetched(Jreen::VCard::Ptr,Jreen::JID)),
+	        SLOT(setFetchedVCard(Jreen::VCard::Ptr)));
 	setState(InfoRequest::Requesting);
 }
 
@@ -126,7 +126,9 @@ void JInfoRequest::doUpdate(const DataItem &dataItem)
 {
 	Q_D(JInfoRequest);
 	d->vcard = convert(dataItem);
-	d->manager->storeVCard(d->vcard, this, SLOT(onIqReceived(Jreen::IQ,int)));
+	Jreen::VCardReply *reply = d->manager->store(d->vcard);
+	connect(reply, SIGNAL(finished()),
+	        SLOT(onStoreFinished()));
 	setState(Updating);
 }
 
@@ -139,42 +141,44 @@ DataItem JInfoRequest::createDataItem() const
 {
 	Q_D(const JInfoRequest);
 	DataItem item;
+	const bool isAccount = qobject_cast<Account*>(object());
 	{
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 		// General page
 		{
 			//// Avatar
 			{
+				QString photoPath;
+				JVCardManager::ensurePhoto(d->vcard->photo(), &photoPath);
 				DataItem avatarItem(QLatin1String("avatar"),
 									QT_TRANSLATE_NOOP("ContactInfo", "Avatar"),
-									QPixmap(object()->property("avatar").toString()));
+									QPixmap(photoPath));
+				avatarItem.setProperty("imagePath", photoPath);
 				avatarItem.setProperty("hideTitle", true);
 				avatarItem.setProperty("imageSize", QSize(64, 64));
 				avatarItem.setProperty("defaultImage", Icon(QLatin1String("qutim")).pixmap(64));
 				general.addSubitem(avatarItem);
 			}
 			// name
-			QString name = d->vcard->nickname().isEmpty() ? d->vcard->nickname() : d->vcard->formattedName();
-			addItemList(Nick, general,name);
+//			QString name = d->vcard->nickname().isEmpty() ? d->vcard->formattedName() : d->vcard->nickname();
+			addItemList(Nick, general, d->vcard->nickname());
 			addItemList(FirstName, general, d->vcard->name().given());
 			addItemList(MiddleName, general, d->vcard->name().middle());
 			addItemList(LastName, general, d->vcard->name().family());
 			// birthday
-			addItem(Birthday, general, d->vcard->bday().date());
+			addItem(Birthday, general, d->vcard->birthday().date());
 			//// homepage
 			addItemList(Homepage, general, d->vcard->url().toString());
 		}
+		if (!isAccount) {
 		//// telephone
-		if (!d->accountInfo) {
 			if (!d->vcard->telephones().empty()) {
 				foreach (Jreen::VCard::Telephone phone, d->vcard->telephones())
 					addItem(getPhoneType(phone), general, phone.number());
 			} else {
 				addItem(Phone, general, QString());
 			}
-		}
 		//// email
-		if (!d->accountInfo) {
 			if (!d->vcard->emails().empty()) {
 				foreach (const Jreen::VCard::EMail &email, d->vcard->emails())
 					addItem(getEmailType(email), general,email.userId());
@@ -184,8 +188,8 @@ DataItem JInfoRequest::createDataItem() const
 		}
 		item.addSubitem(general);
 	}
+	if (isAccount) {
 	// Telephone page
-	if (d->accountInfo) {
 		DataItem phoneGroup(QLatin1String("phoneGroup"),
 							QT_TRANSLATE_NOOP("ContactInfo", "Phones"),
 							QVariant());
@@ -193,9 +197,8 @@ DataItem JInfoRequest::createDataItem() const
 		foreach (const Jreen::VCard::Telephone &phone, d->vcard->telephones())
 			phoneGroup << telephoneItem(phone);
 		item.addSubitem(phoneGroup);
-	}
+
 	// Email page
-	if (d->accountInfo) {
 		DataItem emailGroup(QLatin1String("emailGroup"),
 							QT_TRANSLATE_NOOP("ContactInfo", "E-mails"),
 							QVariant());
@@ -209,9 +212,9 @@ DataItem JInfoRequest::createDataItem() const
 		DataItem addresses(QLatin1String("addressGroup"),
 						   QT_TRANSLATE_NOOP("ContactInfo", "Addresses"),
 						   QVariant());
-		if (d->accountInfo)
+		if (isAccount)
 			addresses.allowModifySubitems(addressItem(Jreen::VCard::Address()));
-		if (d->accountInfo || !d->vcard->addresses().empty()) {
+		if (isAccount || !d->vcard->addresses().empty()) {
 			foreach (const Jreen::VCard::Address &address, d->vcard->addresses())
 				addresses.addSubitem(addressItem(address));
 		} else {
@@ -268,30 +271,39 @@ void setType(T &val, const DataItem &item, const char *field)
 
 Jreen::VCard::Ptr JInfoRequest::convert(const DataItem &item) const
 {
-	Q_D(const JInfoRequest);
-	Q_UNUSED(item);
+	Account *account = qobject_cast<Account*>(object());
+	Q_ASSERT(account);
 	Jreen::VCard::Ptr vcard = Jreen::VCard::Ptr::create();
 	{
-		JAccount *acc = d->manager->account();
 		DataItem avatarItem = item.subitem(QLatin1String("avatar"));
-		QString path = avatarItem.isNull() ?
-							acc->avatar() :
-							avatarItem.property("imagePath", QString());
+		QString path = avatarItem.isNull()
+		        ? account->property("avatar").toString()
+		        : avatarItem.property("imagePath", QString());
 
 		QByteArray avatarData;
+		QString mimeType;
 		QFile file(path);
-		if (file.open(QFile::ReadOnly))
+		if (file.open(QFile::ReadOnly)) {
 			avatarData = file.readAll();
+			QImageReader reader(path);
+			QByteArray format = reader.format().toLower();
+			if (format == "jpg")
+				format = "jpeg";
+			else if (format == "svg")
+				format = "svg+xml";
+			if (!format.isEmpty())
+				mimeType = QLatin1String("image/" + format);
+		}
 
 		Jreen::VCard::Photo photo;
-		photo.setData(avatarData);
+		photo.setData(avatarData, mimeType);
 		vcard->setPhoto(photo);
 	}
 	vcard->setNickname(getItem<QString>(item, Nick));
 	vcard->setName(getItem<QString>(item, LastName),
 				   getItem<QString>(item, FirstName),
 				   getItem<QString>(item, MiddleName));
-	vcard->setBday(getItem<QDateTime>(item, Birthday));
+	vcard->setBirthday(getItem<QDate>(item, Birthday));
 	vcard->setUrl(QUrl(getItem<QString>(item, Homepage)));
 	vcard->setDesc(getItem<QString>(item, About));
 	QStringList units;
@@ -406,7 +418,6 @@ DataItem JInfoRequest::emailItem(const Jreen::VCard::EMail &email)
 
 DataItem JInfoRequest::addressItem(const Jreen::VCard::Address &address) const
 {
-	Q_D(const JInfoRequest);
 	static QList<LocalizedString> descriptions = QList<LocalizedString>()
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Home")
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Work");
@@ -416,7 +427,7 @@ DataItem JInfoRequest::addressItem(const Jreen::VCard::Address &address) const
 			<< Jreen::VCard::Address::Work;
 
 	DataItem addrItem(titles()->at(getAddressType(address)));
-	if (d->accountInfo) {
+	if (qobject_cast<Account*>(object())) {
 		addrItem.setProperty("hideTitle", true);
 		addrItem << typeItem(address, "addressTypes", descriptions, types);
 	}
@@ -475,7 +486,7 @@ void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const QStrin
 
 void JInfoRequest::addItemList(DataType type, DataItem &group, const QString &data) const
 {
-	addItem(type, group, d_func()->accountInfo ? data : QVariant(data.split(',', QString::SkipEmptyParts)));
+	addItem(type, group, qobject_cast<Account*>(object()) ? data : QVariant(data.split(',', QString::SkipEmptyParts)));
 }
 
 void JInfoRequest::addItemList(DataType type, DataItem &group, const QStringList &data) const
@@ -483,21 +494,14 @@ void JInfoRequest::addItemList(DataType type, DataItem &group, const QStringList
 	addItem(type, group, data);
 }
 
-void JInfoRequest::onIqReceived(const Jreen::IQ &iq, int)
+void JInfoRequest::onStoreFinished()
 {
-	Q_D(JInfoRequest);
-	if(!iq.containsPayload<Jreen::VCard>())
-		return;
-	Account *acc = d->manager->account();
-	QString id = iq.from().full();
-	if (acc->id() != id)
-		return;
-	if (iq.subtype() == Jreen::IQ::Result) {
-		setState(Updated);
-		d->manager->handleVCard(d->vcard, id);
-	} else if (iq.subtype() == Jreen::IQ::Error){
+	Jreen::VCardReply *reply = qobject_cast<Jreen::VCardReply*>(sender());
+	Q_ASSERT(reply);
+	if (reply->error())
 		setState(Error);
-	}
+	else
+		setState(Updated);
 }
 
 

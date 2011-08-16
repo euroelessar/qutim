@@ -50,11 +50,12 @@ public:
 		Features
 	};
 
-	JInfoRequest(QObject *object, Jreen::VCardReply *reply);
+	JInfoRequest(Jreen::VCardManager *manager, QObject *object);
 	~JInfoRequest();
 
 protected slots:
 	void setFetchedVCard(const Jreen::VCard::Ptr &vcard);
+
 protected:
 	virtual void doRequest(const QSet<QString> &hints);
 	virtual void doUpdate(const DataItem &dataItem);
@@ -73,7 +74,7 @@ private:
 	void addItemList(DataType type, DataItem &group, const QString &data) const;
 	void addItemList(DataType type, DataItem &group, const QStringList &data) const;
 private slots:
-	void onIqReceived(const Jreen::IQ &iq, int);
+	void onStoreFinished();
 private:
 	QScopedPointer<JInfoRequestPrivate> d_ptr;
 };

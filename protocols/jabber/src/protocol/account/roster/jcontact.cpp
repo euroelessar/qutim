@@ -19,7 +19,6 @@
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
-#include "../vcard/jvcardmanager.h"
 
 namespace Jabber
 {

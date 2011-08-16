@@ -19,7 +19,6 @@
 #include "../jaccount.h"
 #include "../roster/jmessagesession.h"
 #include "../roster/jmessagehandler.h"
-#include "../vcard/jvcardmanager.h"
 #include "../../jprotocol.h"
 #include "jbookmarkmanager.h"
 #include <qutim/message.h>
