@@ -99,12 +99,7 @@ QVariant DefaultSystemIntegration::doProcess(Operation act, const QVariant &data
 	case ShowWidget: {
 		QWidget *widget = data.value<QWidget*>();
 #if	defined(QUTIM_MOBILE_UI)
-#if	defined(Q_WS_MAEMO_5)
-		widget->setWindowFlags(widget->windowFlags() | Qt::Window);
-		widget->show();
-#else
 		widget->showMaximized();
-#endif
 #else
 		widget->show();
 #endif
