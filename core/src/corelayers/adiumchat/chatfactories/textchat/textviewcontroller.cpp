@@ -56,7 +56,13 @@ TextViewController::TextViewController()
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
 	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),     QLatin1String("black")));
 	m_urlColor     .setNamedColor(cfg.value(QLatin1String("urlColor"),      QLatin1String("#0033aa")));
-
+	m_bulletErrorColor   .setNamedColor(cfg.value(QLatin1String("bulletErrorColor"),
+	                                              QLatin1String("red")));
+	m_bulletSentColor    .setNamedColor(cfg.value(QLatin1String("bulletSentColor"),
+	                                              QLatin1String("#ffc600")));
+	m_bulletReceivedColor.setNamedColor(cfg.value(QLatin1String("bulletReceivedColor"),
+	                                              QLatin1String("#00990b")));
+	m_bulletSize = cfg.value("bulletSize", 5);
 	cfg.beginGroup(QLatin1String("font"));
 #ifdef Q_WS_MAEMO_5
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
@@ -341,15 +347,26 @@ void TextViewController::animate()
 		m_textEdit->viewport()->update(region);
 }
 
+QPixmap TextViewController::createBullet(const QColor &color)
+{
+	QPixmap pixmap(m_bulletSize, m_bulletSize);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QBrush(color));
+	painter.drawEllipse(0, 0, m_bulletSize, m_bulletSize);
+	return pixmap;
+}
+
 void TextViewController::init()
 {
-	QPixmap pixmap;
-	QString stylePath = ThemeManager::path(QLatin1String("webkitstyle"), QLatin1String("Tory"))
-	        + QLatin1String("/Contents/Resources/");
-	pixmap.load(stylePath + QLatin1String("Images/bullet-received.png"));
-	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-received")), pixmap);
-	pixmap.load(stylePath + QLatin1String("Images/bullet-send.png"));
-	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")), pixmap);
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-error")),
+	            createBullet(m_bulletErrorColor));
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-received")),
+	            createBullet(m_bulletReceivedColor));
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")),
+	            createBullet(m_bulletSentColor));
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->deleteLater();
 	m_cache.clear();
@@ -438,7 +455,10 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 			cursor.beginEditBlock();
 			cursor.setPosition(*pos);
 			cursor.deleteChar();
-			cursor.insertImage(QLatin1String("bullet-received"));
+			if (msgEvent->success())
+				cursor.insertImage(QLatin1String("bullet-received"));
+			else if (msgEvent->success())
+				cursor.insertImage(QLatin1String("bullet-error"));
 			cursor.endEditBlock();
 //			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
 //			QTextImageFormat format;

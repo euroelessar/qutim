@@ -227,6 +227,7 @@ DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWid
 	QDateTimeEdit(parent), AbstractDataWidget(item, dataForm)
 {
 	setDateTime(item.data().toDateTime());
+	setCalendarPopup(true);
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateTimeChanged(QDateTime)));
 }
 
@@ -257,7 +258,8 @@ void DateTimeEdit::onChanged()
 DateEdit::DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
 	QDateEdit(parent), AbstractDataWidget(item, dataForm)
 {
-	setDateTime(item.data().toDateTime());
+	setDate(item.data().toDate());
+	setCalendarPopup(true);
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateChanged(QDate)));
 }
 
