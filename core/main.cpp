@@ -16,6 +16,7 @@
 
 #include <QApplication>
 #include <QTextCodec>
+#include <QWidget>
 
 #include <cstdlib>
 #include <ctime>
@@ -56,7 +57,15 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
-	
+
+#ifdef Q_WS_MAEMO_5
+	QWidget *loadingWindow = new QWidget();
+	loadingWindow->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+	loadingWindow->setAttribute(Qt::WA_Maemo5ShowProgressIndicator, Qt::Checked);
+	loadingWindow->show();
+	app.processEvents();
+#endif
+
 //#ifdef Q_OS_SYMBIAN
 //	logfile.open("c:\\data\\logfile.txt", ios::app);
 //	qInstallMsgHandler(SymbianLoggingHandler);
@@ -71,5 +80,8 @@ int main(int argc, char *argv[])
 	// It looks like Qt doesn't always use srand as backend of qsrand
 	srand(uint(qrand()));
 
+#ifdef Q_WS_MAEMO_5
+	loadingWindow->close();
+#endif
 	return app.exec();
 }

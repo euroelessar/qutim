@@ -298,9 +298,16 @@ INSTALL(TARGETS qutim
 
 QUTIM_ADD_ARTWORK_DIR(share/qutim)
 
-IF(UNIX AND NOT APPLE)
+IF(UNIX AND NOT APPLE AND NOT MAEMO5)
 	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
 		DESTINATION share
+			COMPONENT Core
+	)
+ENDIF()
+
+IF(MAEMO5)
+	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
+		DESTINATION /usr/share
 			COMPONENT Core
 	)
 ENDIF()

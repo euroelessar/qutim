@@ -107,17 +107,25 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 	QObject *object = sender();
 	if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
+#ifdef Q_WS_MAEMO_5
+		menu = new QMenu();
+#else
 		menu = textEdit->createStandardContextMenu();
+#endif
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else if (QTextEdit *tmp = qobject_cast<QTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
+#ifdef Q_WS_MAEMO_5
+		menu = new QMenu();
+#else
 		menu = tmp->createStandardContextMenu(globalPos);
+#endif
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else {
 		Q_ASSERT(!"Unknown object type, check connection");
 		return;
 	}
-	
+
 	if (m_speller) {
 		QTextBlock block = m_cursor.block();
 		const QString blockText = block.text();

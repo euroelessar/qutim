@@ -19,6 +19,7 @@
 #include <limits>
 #include <QStringList>
 #include <QWidget>
+#include <QApplication>
 
 namespace qutim_sdk_0_3
 {

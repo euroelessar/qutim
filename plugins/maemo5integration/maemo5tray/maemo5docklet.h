@@ -2,7 +2,6 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 ** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
@@ -24,35 +23,34 @@
 **
 ****************************************************************************/
 
-#ifndef STACKEDCHATFORM_H
-#define STACKEDCHATFORM_H
+#ifndef MAEMO5DOCKLET_H
+#define MAEMO5DOCKLET_H
 
-#include <chatforms/abstractchatform.h>
+#include <QtCore/QCoreApplication>
+#include <QIcon>
 
-namespace qutim_sdk_0_3
-{
-	class SettingsItem;
-}
 
-namespace Core
-{
-namespace AdiumChat
-{
-
-class StackedChatForm : public AbstractChatForm
+class Maemo5Docklet : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Uses","SettingsLayer")
 public:
-	explicit StackedChatForm();
-	~StackedChatForm();
+	virtual ~Maemo5Docklet();
+	static Maemo5Docklet* Instance();
+	static void ButtonClickedCallback();
+	static void Enable();
+	static void Disable();
+	static void SetIcon(const QString&, bool);
+	static void SetTooltip(const QString&);
+	static void SetMute(bool);
+	static int GetIconSize();
+signals:
+	void ButtonClicked();
 protected:
-	virtual AbstractChatWidget *createWidget(const QString &key);
+	Maemo5Docklet();
 private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	void clickedSignal();
+	static Maemo5Docklet* m_instance;
+
 };
 
-}
-}
-
-#endif //STACKEDCHATFORM_H
+#endif // MAEMO5DOCKLET_H
