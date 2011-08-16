@@ -140,6 +140,11 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	layout->addWidget(m_conferenceMessagesBox);
 	lookForWidgetState(m_conferenceMessagesBox);
 
+#ifdef Q_WS_MAEMO_5
+	m_notificationInActiveChatBox->setMaximumHeight(40);
+	m_conferenceMessagesBox->setMaximumHeight(40);
+#endif
+
 }
 
 void MobileNotificationSettings::loadImpl()

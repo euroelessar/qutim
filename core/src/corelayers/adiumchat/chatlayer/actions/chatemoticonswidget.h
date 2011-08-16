@@ -42,6 +42,9 @@ private:
 private slots:
 	void onInsertSmile(const QString &code);
 	void triggerEmoticons();
+#ifdef Q_WS_MAEMO_5
+	void orientationChanged();
+#endif
 };
 
 }

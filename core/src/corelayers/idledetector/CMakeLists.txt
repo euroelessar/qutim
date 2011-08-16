@@ -1,4 +1,4 @@
-IF (UNIX AND NOT APPLE AND NOT SYMBIAN)
+IF (UNIX AND NOT APPLE AND NOT SYMBIAN AND NOT MAEMO5)
 	include( FindPkgConfig )
 	pkg_check_modules (XSS xscrnsaver)
 	IF( XSS_FOUND )
@@ -7,7 +7,15 @@ IF (UNIX AND NOT APPLE AND NOT SYMBIAN)
 	ELSE( XSS_FOUND )
 		message(STATUS "Warning: libxss not found, idle detection won't be accurate")
 	ENDIF( XSS_FOUND )
-ENDIF (UNIX AND NOT APPLE AND NOT SYMBIAN)
+ENDIF (UNIX AND NOT APPLE AND NOT SYMBIAN AND NOT MAEMO5)
+
+IF (MAEMO5)
+FIND_PACKAGE( Qt4 COMPONENTS QtDBus)
+if(NOT QT_QTDBUS_FOUND)
+	message(STATUS "Cannot build Maemo5IdleDetector")
+	return()
+endif()
+ENDIF (MAEMO5)
 
 qutim_add_plugin( idledetector
 	EXTENSION
@@ -16,6 +24,6 @@ qutim_add_plugin( idledetector
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Idle detector"
 	DESCRIPTION "Native idle detector, based on system api"
-	LINK_LIBRARIES ${XSS_LIB}
-	INCLUDE_DIRS ${XSS_INCLUDEDIR}
+	LINK_LIBRARIES ${XSS_LIB} ${QT_QTDBUS_LIBRARY}
+	INCLUDE_DIRS ${XSS_INCLUDEDIR} ${QT_QTDBUS_INCLUDE_DIR}
 )

@@ -61,7 +61,7 @@ HunSpellChecker::~HunSpellChecker()
 bool HunSpellChecker::isCorrect(const QString &word) const
 {
 	if (!m_speller)
-		return false;
+		return true; //unnecessary underline all words
 	return m_speller->spell(convert(word));
 }
 

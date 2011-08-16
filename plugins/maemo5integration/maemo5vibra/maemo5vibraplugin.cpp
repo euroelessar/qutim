@@ -2,7 +2,6 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 ** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
@@ -24,35 +23,37 @@
 **
 ****************************************************************************/
 
-#ifndef STACKEDCHATFORM_H
-#define STACKEDCHATFORM_H
+#include "maemo5vibraplugin.h"
+#include "maemo5vibra.h"
 
-#include <chatforms/abstractchatform.h>
 
-namespace qutim_sdk_0_3
+Maemo5VibraPlugin::Maemo5VibraPlugin()
 {
-	class SettingsItem;
+	qDebug("%s", Q_FUNC_INFO);
 }
 
-namespace Core
+void Maemo5VibraPlugin::init()
 {
-namespace AdiumChat
-{
-
-class StackedChatForm : public AbstractChatForm
-{
-	Q_OBJECT
-	Q_CLASSINFO("Uses","SettingsLayer")
-public:
-	explicit StackedChatForm();
-	~StackedChatForm();
-protected:
-	virtual AbstractChatWidget *createWidget(const QString &key);
-private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
-};
-
-}
+	qDebug("%s", Q_FUNC_INFO);
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Maemo Vibration Notifications"),
+		QT_TRANSLATE_NOOP("Plugin", "Notification system based on Maemo 5 Vibrator"),
+		PLUGIN_VERSION(0, 0, 1, 0));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Evgeniy Degtyarev"),
+			  QT_TRANSLATE_NOOP("Task","Author"),
+			  QLatin1String("degtep@gmail.com"));
+	addExtension<Maemo5Vibra>(QT_TRANSLATE_NOOP("plugin","Maemo Vibration Notifications"),
+							   QT_TRANSLATE_NOOP("plugin","Notification system, based on Maemo 5 Vibrator"));
 }
 
-#endif //STACKEDCHATFORM_H
+bool Maemo5VibraPlugin::load()
+{
+	return true;
+}
+
+bool Maemo5VibraPlugin::unload()
+{
+	return false;
+}
+
+
+QUTIM_EXPORT_PLUGIN(Maemo5VibraPlugin)
