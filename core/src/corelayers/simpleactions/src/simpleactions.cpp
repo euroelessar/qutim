@@ -260,7 +260,11 @@ void SimpleActions::inListChanged(bool)
 
 static QIcon soundIcon(bool isEnabled)
 {
+#ifdef Q_WS_MAEMO_5
+	return Icon(QLatin1String(isEnabled ? "general_speaker" : "call_speaker_muted"));
+#else
 	return Icon(QLatin1String(isEnabled ? "audio-volume-high" : "audio-volume-muted"));
+#endif
 }
 
 void SimpleActions::onDisableSoundActionCreated(QAction *action, QObject *obj)
