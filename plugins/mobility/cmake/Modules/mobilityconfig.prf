@@ -1,0 +1,5 @@
+MOBILITY_CONFIG=bearer location contacts multimedia multimediakit publishsubscribe versit messaging systeminfo serviceframework sensors
+MOBILITY_VERSION = 1.0.2
+MOBILITY_MAJOR_VERSION = 1
+MOBILITY_MINOR_VERSION = 0
+MOBILITY_PATCH_VERSION = 2

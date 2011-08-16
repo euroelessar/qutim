@@ -169,7 +169,6 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 	OsInfo osInfo[] = {
 		{ OsUseFile,		"/etc/altlinux-release",	"Alt Linux"		},
 		{ OsUseFile,		"/etc/mandrake-release",	"Mandrake Linux"	},
-		{ OsUseName,		"/usr/lib/libQtMaemo5.so.4","Maemo 5"		},
 		{ OsAppendFile,		"/etc/debian_version",		"Debian GNU/Linux"	},
 		{ OsUseFile,		"/etc/gentoo-release",		"Gentoo Linux"		},
 		{ OsAppendFile,		"/etc/mopslinux-version",	"MOPSLinux"		},
@@ -185,7 +184,6 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 		{ OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
 		{ OsAppendFile,		"/etc/agilialinux-version",	"AgiliaLinux"		},
 		// from libastral
-		{ OsUseFile,		"/etc/meego-release",		"MeeGo"			},
 		{ OsUseName,		"/etc/exherbo-release",		"Exherbo Linux"	 },
 
 
@@ -351,6 +349,14 @@ void init(SystemInfoPrivate *d)
 			d->os_full += ")";
 		}
 	}
+#elif defined(Q_WS_MAEMO_5)
+	d->os_full="Maemo 5 Nokia N900";
+	d->os_name="Maemo";
+	d->os_version="5";
+#elif defined(MEEGO_EDITION)
+	d->os_name=QLatin1String("MeeGo");
+	d->os_version = MEEGO_VERSION_MAJOR + '.' + MEEGO_VERSION_MINOR + '.' + MEEGO_VERSION_PATCH + ' ' + MEEGO_EDITION;
+	d->os_full = d->os_name + ' ' + d->os_version;
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 

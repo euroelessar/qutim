@@ -14,6 +14,8 @@
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
 
+#include <QPlainTextEdit>
+
 namespace Core
 {
 namespace AdiumChat
@@ -98,10 +100,8 @@ void ChatEmoticonsWidget::stop()
 void ChatEmoticonsWidget::showEvent(QShowEvent *)
 {
 	play();
-#ifndef Q_WS_MAEMO_5
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
-#endif
 }
 
 void ChatEmoticonsWidget::hideEvent(QHideEvent *)
@@ -142,6 +142,27 @@ void EmoAction::onInsertSmile(const QString &code)
 	emit triggered();
 	setProperty("emoticon","");
 }
+#ifdef Q_WS_MAEMO_5
+void EmoAction::orientationChanged()
+{
+	if (m_emoticons_widget->isVisible())
+	{
+		QRect screenGeometry = QApplication::desktop()->screenGeometry();
+		if (screenGeometry.width() > screenGeometry.height())
+		{
+			//This crap need to completely remake!
+			m_emoticons_widget->hide();
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
+			m_emoticons_widget->show();
+		}else{
+			m_emoticons_widget->hide();
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
+			m_emoticons_widget->show();
+		}
+	}
+}
+#endif
+
 void EmoAction::triggerEmoticons()
 {
 #ifdef Q_WS_MAEMO_5
@@ -150,18 +171,18 @@ void EmoAction::triggerEmoticons()
 		m_emoticons_widget->loadTheme();
 		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
-		emoticons_widget->setParent(qApp->activeWindow());
+                m_emoticons_widget->setParent(qApp->activeWindow());
 	}
 	if (m_emoticons_widget->isVisible()) {
 		m_emoticons_widget->hide();
 	} else {
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
-		if (screenGeometry.width() > screenGeometry.height()) {
-			//smith, please use relative coordinates
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
-		}
-		else {
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
+		if (screenGeometry.width() > screenGeometry.height())
+		{
+			//This crap need to completely remake!
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
+		}else{
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
 		}
 		m_emoticons_widget->show();
 	}

@@ -2,7 +2,6 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 ** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
@@ -24,35 +23,21 @@
 **
 ****************************************************************************/
 
-#ifndef STACKEDCHATFORM_H
-#define STACKEDCHATFORM_H
+#ifndef MAEMO5LEDPLUGIN_H
+#define MAEMO5LEDPLUGIN_H
 
-#include <chatforms/abstractchatform.h>
+#include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3
-{
-	class SettingsItem;
-}
+using namespace qutim_sdk_0_3;
 
-namespace Core
-{
-namespace AdiumChat
-{
-
-class StackedChatForm : public AbstractChatForm
+class Maemo5LedPlugin : public Plugin
 {
 	Q_OBJECT
-	Q_CLASSINFO("Uses","SettingsLayer")
 public:
-	explicit StackedChatForm();
-	~StackedChatForm();
-protected:
-	virtual AbstractChatWidget *createWidget(const QString &key);
-private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	explicit Maemo5LedPlugin();
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
 };
 
-}
-}
-
-#endif //STACKEDCHATFORM_H
+#endif // MAEMO5LEDPLUGIN_H

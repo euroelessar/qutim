@@ -5,11 +5,6 @@
 #include <qutim/sound.h>
 #include "org_freedesktop_notification.h"
 
-#ifdef Q_WS_MAEMO_5
-#include <mce/mode-names.h>
-#include <mce/dbus-names.h>
-#endif
-
 QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
 const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
 
@@ -26,11 +21,6 @@ protected slots:
 	void capabilitiesCallFinished(QDBusPendingCallWatcher* watcher);
 	void onActionInvoked(quint32 id, const QString &action_key);
 	void onNotificationClosed(quint32 id, quint32 reason);
-	void enableVibration();
-	void stopVibration();
-	void vibrate(int aTimeout);
-	void displayStateChanged(const QDBusMessage &message);
-	void setDisplayState(const QString &state);
 private:
 	struct NotificationData
 	{
@@ -44,9 +34,8 @@ private:
 	QScopedPointer<org::freedesktop::Notifications> interface;
 	QHash<quint32, NotificationData> m_notifications;
 	QHash<QObject*, quint32> m_ids;
-	QDBusInterface *mDbusInterface;
 	QSet<QString> m_capabilities;
-	bool display_off;
+
 
 };
 
