@@ -1,0 +1,201 @@
+qutim (0.2.80-maemo-8) fremantle; urgency=low
+
+  * Bugfix with open conferences window
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Tue, 16 Aug 2011 22:30:17 +0600
+
+qutim (0.2.80-maemo-7) fremantle; urgency=low
+
+  * Bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Tue, 16 Aug 2011 21:17:44 +0600
+
+qutim (0.2.80-maemo-6) fremantle; urgency=low
+
+  * Add Maemo 5 intergations plugins (Vibra, Led, Tray)
+  * Package strip
+  * Sync with upstream
+  * Many bugfixes
+  * Improved performance
+  * Cleared UI
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Tue, 16 Aug 2011 12:08:54 +0600
+
+qutim (0.2.80-maemo-5) fremantle; urgency=low
+
+  * Add LoadingWindow
+  * Bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sat,  9 Apr 2011 11:24:22 +0400
+
+qutim (0.2.80-maemo-4) fremantle; urgency=low
+
+  * Fix crashes
+  * Bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu,  7 Apr 2011 18:25:42 +0400
+
+qutim (0.2.80-maemo-3) fremantle; urgency=low
+
+  * Get smiles working
+  * Bugfixes 
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sun,  3 Apr 2011 18:45:25 +0400
+
+qutim (0.2.80-maemo-2) fremantle; urgency=low
+
+  * [Ru]Humor off
+  * Bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sat,  2 Apr 2011 11:05:33 +0400
+
+qutim (0.2.80-maemo-1) fremantle; urgency=low
+
+  * Fix segfault at start
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Fri,  1 Apr 2011 16:45:00 +0400
+
+qutim (0.2.80-maemo-0) fremantle; urgency=low
+
+  * Add qmlChat
+  * Add AboutDialog
+  * Bugfixes
+  * [Ru] 1 April!
+  * Add Bg language
+  * Revised Filetransfer API
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 31 Mar 2011 20:51:23 +0400
+
+qutim (0.2.60-maemo-19) fremantle; urgency=low
+
+  * Fix vkontakte photoalbum and chat spell checker
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 14 Feb 2011 07:18:46 +0300
+
+qutim (0.2.60-maemo-18) fremantle; urgency=low
+
+  * Add HunSpeller support
+  * Add Simple TextChat view
+  * Add Maemo theme for webkit chat
+  * Perfomance improvements
+  * Add Metacontact manager
+  * Many bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sun, 13 Feb 2011 21:00:10 +0300
+
+qutim (0.2.60-maemo-17) fremantle; urgency=low
+
+  * Fix segfault at start
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 19 Jan 2011 22:10:08 +0300
+
+qutim (0.2.60-maemo-16) fremantle; urgency=low
+
+  * Add support for pidgin protocols
+  * Some optimizations
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 19 Jan 2011 18:54:22 +0300
+
+qutim (0.2.60-maemo-15) fremantle; urgency=low
+
+  * Fix aspell support
+  * Many bugfixes in Oscar and IRC protocol
+  * Fix mail.ru account create
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sat, 15 Jan 2011 20:30:19 +0300
+
+qutim (0.2.60-maemo-14) fremantle; urgency=low
+
+  * Improved chat and history messages performance
+  * Add Aspell support
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sat, 15 Jan 2011 10:51:20 +0300
+
+qutim (0.2.60-maemo-13) fremantle; urgency=low
+
+  * Bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 13 Jan 2011 14:52:44 +0300
+
+qutim (0.2.60-maemo-12) fremantle; urgency=low
+
+  * Megre with upstream
+  * Initial Mail.Ru Agent support
+  * Jabber lib changed to jreen
+  * Some Fixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 12 Jan 2011 22:18:49 +0300
+
+qutim (0.2.60-maemo-11) fremantle; urgency=low
+
+  * GUI fixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 10 Jan 2011 22:42:31 +0300
+
+qutim (0.2.60-maemo-10) fremantle; urgency=low
+
+  * Add Portrait support with ru\en keyboard
+  * Fix Notification bug
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Fri,  7 Jan 2011 11:53:53 -0500
+
+qutim (0.2.60-maemo-9) fremantle; urgency=low
+
+  * Fix vkontakte photoalbum
+  * Fix notifications
+  * Fix icons
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 23 Dec 2010 10:23:48 +0300
+
+qutim (0.2.60-maemo-8) fremantle; urgency=low
+
+  * Fixes notification and chat
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 22 Dec 2010 20:46:58 +0300
+
+qutim (0.2.60-maemo-7) fremantle; urgency=low
+
+  * Some fixes 
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 22 Dec 2010 13:05:11 +0300
+
+qutim (0.2.60-maemo-6) fremantle; urgency=low
+
+  * Hildonization
+  * Add VkontaktePhotoalbum plugin
+  * Optimizations
+  * Add proxy support
+  * And many other changes..
+ -- Eugene Degtyarev <degtep@gmail.com>  Tue, 21 Dec 2010 20:33:05 +0300
+
+qutim (0.2.60-maemo-5) fremantle; urgency=low
+
+  * Fixed profile creation page
+  * Fixed conference bookmarks
+  * Off some notification by default
+  * Fixed chat view
+  * and other
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Tue, 30 Nov 2010 13:02:38 -0500
+
+qutim (0.2.60-maemo-4) fremantle; urgency=low
+
+  * Added Vkontakte Wall plugin
+  * Vibration Fixed
+  * Delete some unused icons
+  * and more..
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 29 Nov 2010 06:16:41 -0500
+
+qutim (0.2.60-maemo-3) fremantle; urgency=low
+
+  * Icons fixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Sat, 27 Nov 2010 02:18:42 -0500
+
+qutim (0.2.60-maemo-2) fremantle; urgency=low
+
+  * Initial release. Tech Preview.
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 26 Nov 2010 10:44:04 -0500
+

@@ -1,0 +1,10 @@
+#!/bin/sh
+# postinst script for qutim
+#
+# see: dh_installdeb(1)
+
+rm /home/user/.config/qutim/qutim.log
+
+exit 0
+
+
