@@ -4,6 +4,10 @@ IF(NOT QT_HAS_4_7)
 	return()
 ENDIF()
 
+if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
+SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
+endif()
+
 find_package( Qt4 COMPONENTS QtDeclarative QtOpenGL )
 
 qutim_add_plugin( vphotoalbum
