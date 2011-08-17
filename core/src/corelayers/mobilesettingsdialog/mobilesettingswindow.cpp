@@ -152,6 +152,7 @@ QListWidgetItem* MobileSettingsWindow::get(Settings::Type type)
 void MobileSettingsWindow::ensureActions()
 {
 	p->slideMap.clear();
+	p->categoryMap.clear();
 	qDeleteAll(p->categoryMap);
 	p->categoryListWidget->clear();
 	foreach (Settings::Type type,p->items.keys()) {

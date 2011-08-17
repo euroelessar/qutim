@@ -43,7 +43,7 @@ Component {
 		}
 
 		onDeliveredChanged: {
-			if (delegate == "undefined" || delegate.delivered == "undefined")
+			if (!delegate || delegate == "undefined" || delegate.delivered == "undefined")
 				return;
 			delegate.delivered = message.delivered;
 		}
