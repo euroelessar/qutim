@@ -66,12 +66,13 @@ public:
 	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::Payload> &entity) const = 0;
 };
 
+}
+
 template<typename T>
 T qobject_cast(const QVariant &item)
 {
     QObject *o = item.value<QObject*>();
     return qobject_cast<T>(o);
-}
 }
 
 Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")
