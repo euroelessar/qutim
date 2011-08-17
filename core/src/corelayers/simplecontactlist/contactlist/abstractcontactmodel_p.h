@@ -61,6 +61,7 @@ public:
 	QIcon chatUserLeftIcon;
 	QIcon qutimIcon;
 	QIcon transferCompletedIcon;
+	QIcon birthdayIcon;
 	QIcon defaultNotificationIcon;
 	bool showNotificationIcon;
 	bool showOffline;

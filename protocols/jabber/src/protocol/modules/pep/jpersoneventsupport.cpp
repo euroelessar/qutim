@@ -89,11 +89,11 @@ namespace Jabber
 //		delete m_manager;
 	}
 	
-	void JPersonEventSupport::init(Account *account, const JabberParams &params)
+	void JPersonEventSupport::init(Account *account)
 	{
 //		supportMap()->insert(account, this);
 		m_account = account;
-		m_manager = params.item<PubSub::Manager>();
+		m_manager = qobject_cast<PubSub::Manager*>(account->property("pubSubManager"));
 //		client->registerPayload(new PubSub::Event(reinterpret_cast<Tag*>(0)));
 		connect(m_manager, SIGNAL(eventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)),
 				this, SLOT(onEventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)));

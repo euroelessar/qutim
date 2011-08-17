@@ -69,9 +69,8 @@ JMoodChooser::JMoodChooser()
 {
 }
 
-void JMoodChooser::init(qutim_sdk_0_3::Account *account, const JabberParams &params)
+void JMoodChooser::init(qutim_sdk_0_3::Account *account)
 {
-	Q_UNUSED(params);
 	m_account = account;
 	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 	// Add action to context menu

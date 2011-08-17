@@ -6,13 +6,10 @@
 #include <QKeyEvent>
 #include <qutim/icon.h>
 #include "sdk/jabber.h"
-#include "jservicereceiver.h"
+#include <jreen/disco.h>
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
-using namespace gloox;
-
 class JAccount;
 class JDiscoItem;
 class JServiceDiscovery;
@@ -25,23 +22,20 @@ class JServiceBrowserModule : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JServiceBrowserModule();
-	virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	virtual void init(qutim_sdk_0_3::Account *account);
 public slots:
 	void showWindow();
 private:
-	JAccount *m_account;
+	qutim_sdk_0_3::Account *m_account;
+//	QWeakPointer<QWidget> m_widget;
 };
 
-class JServiceBrowser : public QWidget, public JServiceReceiver
+class JServiceBrowser : public QWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Jabber::JServiceReceiver)
 public:
-	JServiceBrowser(JAccount *account, bool isConference = false, QWidget *parent = 0);
+	JServiceBrowser(qutim_sdk_0_3::Account *account, bool isConference = false, QWidget *parent = 0);
 	~JServiceBrowser();
-	virtual void setInfo(int id);
-	virtual void setItems(int id, const QList<JDiscoItem> &items);
-	virtual void setError(int id);
 private slots:
 	void getItems(QTreeWidgetItem *item);
 	void showContextMenu(const QPoint &pos);
@@ -53,6 +47,9 @@ private slots:
 	void onExecute();
 	void onJoin();
 	void onAddToRoster();
+	void onInfoReceived(const Jreen::Disco::Item &item);
+	void onItemsReceived(const Jreen::Disco::ItemList &items);
+	void onError(const Jreen::Error::Ptr &error);
 	/*void on_registerButton_clicked();
    void on_searchFormButton_clicked();
    void on_executeButton_clicked();
@@ -65,7 +62,7 @@ protected:
 	void setItemVisible(QTreeWidgetItem *item, bool visibility);
 	QList<QTreeWidgetItem *> findItems(QTreeWidgetItem *item, const QString &text);
 	void setBranchVisible(QList<QTreeWidgetItem *> items);
-	QString setServiceIcon(const JDiscoItem &di);
+	QString serviceIcon(const Jreen::Disco::Item &di);
 private:
 	QScopedPointer<JServiceBrowserPrivate> p;
 signals:
@@ -78,5 +75,7 @@ signals:
    void searchService(const QString &type, const QString &jid);*/
 };
 }
+
+Q_DECLARE_METATYPE(QTreeWidgetItem*)
 
 #endif // JSERVICEBROWSER_H

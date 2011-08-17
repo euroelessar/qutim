@@ -39,7 +39,7 @@ class JMoodChooser : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JMoodChooser();
-	virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	virtual void init(qutim_sdk_0_3::Account *account);
 private slots:
 	void showMoodChooser(QObject *obj);
 protected:

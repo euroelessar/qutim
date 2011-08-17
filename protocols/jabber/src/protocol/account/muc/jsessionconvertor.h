@@ -18,8 +18,7 @@
 #define JSESSIONCONVERTOR_H
 
 #include <QObject>
-#include "../servicediscovery/jservicediscovery.h"
-#include "../servicediscovery/jservicereceiver.h"
+//#include <jreen/disco.h>
 #include "../roster/jmessagesession.h"
 
 //using namespace gloox;

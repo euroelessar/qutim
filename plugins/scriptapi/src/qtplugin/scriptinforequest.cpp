@@ -29,7 +29,8 @@
 
 namespace qutim_sdk_0_3
 {
-ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error, InfoRequest *parent)
+ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
+									 InfoRequest *parent)
     : QObject(parent), m_func(func), m_error(error)
 {
 	if (!parent) {
@@ -39,41 +40,56 @@ ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValu
 	}
 	qDebug() << Q_FUNC_INFO;
 	connect(parent, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
-	        SLOT(onStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+			SLOT(onStateChanged(qutim_sdk_0_3::InfoRequest::State)));
 	connect(this, SIGNAL(destroyed()), parent, SLOT(deleteLater()));
-	onStateChanged(parent->state());
+
+	InfoRequest::State state = parent->state();
+	if (state == InfoRequest::Initialized)
+		parent->requestData();
+	else if (state == InfoRequest::LoadedFromCache)
+		onStateChanged(state);
 }
 
 void ScriptInfoRequest::onStateChanged(qutim_sdk_0_3::InfoRequest::State state)
 {
 	qDebug() << Q_FUNC_INFO << state;
-	if (state == InfoRequest::Request)
+	if (state == InfoRequest::Requesting)
 		return;
 	InfoRequest *request = qobject_cast<InfoRequest*>(parent());
 	Q_ASSERT(request);
-	QScriptEngine *engine = m_func.engine();
-	if (state == InfoRequest::Cache)
+	if (state == InfoRequest::LoadedFromCache) {
 		request->deleteLater();
-	if (state == InfoRequest::Cancel) {
-		request->deleteLater();
-		qDebug() << Q_FUNC_INFO << m_error.isFunction();
-		if (m_error.isFunction()) {
-			QScriptValue error = engine->newObject();
-			error.setProperty(QLatin1String("name"), QLatin1String("Canceled"));
-			error.setProperty(QLatin1String("text"), QLatin1String("Request was canceled"));
-			QList<QScriptValue> args;
-			args << error;
-			m_error.call(m_error, args);
-		}
-		deleteLater();
+	} else if (state == InfoRequest::Canceled) {
+		handleError("Canceled", "Request was canceled");
+		return;
+	} else if (state == InfoRequest::Error) {
+		handleError("Error", request->errorString().toString());
 		return;
 	}
-	DataItem item = request->item();
+	DataItem item = request->dataItem();
 	QList<QScriptValue> args;
-	args << engine->toScriptValue(item);
+	args << m_func.engine()->toScriptValue(item);
 	qDebug() << Q_FUNC_INFO;
 	Q_ASSERT(m_func.isFunction());
 	m_func.call(m_func, args);
 	deleteLater();
 }
+
+void ScriptInfoRequest::handleError(const char *name, const QString &text)
+{
+	InfoRequest *request = qobject_cast<InfoRequest*>(parent());
+	Q_ASSERT(request);
+	request->deleteLater();
+	qDebug() << Q_FUNC_INFO << m_error.isFunction();
+	if (m_error.isFunction()) {
+		QScriptValue error = m_func.engine()->newObject();
+		error.setProperty(QLatin1String("name"), name);
+		error.setProperty(QLatin1String("text"), text);
+		QList<QScriptValue> args;
+		args << error;
+		m_error.call(m_error, args);
+	}
+	deleteLater();
+}
+
 }

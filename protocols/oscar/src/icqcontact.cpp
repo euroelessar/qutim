@@ -19,7 +19,6 @@
 #include "buddycaps.h"
 #include "icqaccount_p.h"
 #include "metainfo/infometarequest.h"
-#include "inforequest_p.h"
 #include "qutim/messagesession.h"
 #include "qutim/notification.h"
 #include "qutim/tooltip.h"
@@ -47,25 +46,25 @@ void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 
 void ChatStateUpdater::sendState()
 {
-	while (!m_states.isEmpty()) {
-		Status::Type status = m_states.begin().key()->account()->status().type();
-		if (status == Status::Offline || status == Status::Connecting)
-			m_states.erase(m_states.begin()); // We can't send any packets in offline or connecting state.
-		else
-			break;
+	QMutableHashIterator<QWeakPointer<IcqContact>, ChatState> it(m_states);
+	while (it.hasNext()) {
+		IcqContact *contact = it.next().key().data();
+		if (!contact) {
+			it.remove(); // Contact is destroyed
+			continue;
+		}
+		Status::Type status = contact->account()->status().type();
+		if (status == Status::Offline || status == Status::Connecting) {
+			it.remove(); // We can't send any packets in offline or connecting state.
+			continue;
+		}
+		if (contact->account()->connection()->testRate(MessageFamily, MessageMtn)) {
+			sendState(contact, it.value());
+			it.remove();
+		}
 	}
-	if (m_states.isEmpty()) {
+	if (m_states.isEmpty())
 		m_timer.stop();
-		return;
-	}
-	QHash<IcqContact*, ChatState>::iterator itr = m_states.begin();
-	IcqContact *contact = itr.key();
-	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn)) {
-		sendState(contact, itr.value());
-		m_states.erase(itr);
-		if (m_states.isEmpty())
-			m_timer.stop();
-	}
 }
 
 void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
@@ -405,28 +404,6 @@ bool IcqContact::event(QEvent *ev)
 							d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate),
 							30);
 		}
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new IcqInfoRequest(this));
-		event->accept();
-	} else if(ev->type() == Authorization::Request::eventType()) {
-		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
-		debug() << "Handle auth request";
-		SNAC snac(ListsFamily, ListsRequestAuth);
-		snac.append<qint8>(id()); // uin.
-		snac.append<qint16>(request->body());
-		snac.append<quint16>(0);
-		account()->connection()->send(snac);
-		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		debug() << "handle auth reply" << (reply->replyType() == Authorization::Reply::Accept);

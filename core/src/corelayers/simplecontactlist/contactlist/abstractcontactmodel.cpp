@@ -131,6 +131,7 @@ AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObje
 	d->chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
 	d->qutimIcon               = Icon(QLatin1String("qutim"));
 	d->transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	d->birthdayIcon            = Icon(QLatin1String("view-calendar-birthday"));
 	d->defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 }
 
@@ -336,8 +337,9 @@ QIcon AbstractContactModel::getIconForNotification(Notification *notification) c
 		return d->qutimIcon;
 	case Notification::FileTransferCompleted:
 		return d->transferCompletedIcon;
-	case Notification::BlockedMessage:
 	case Notification::UserHasBirthday:
+		return d->birthdayIcon;
+	case Notification::BlockedMessage:
 	case Notification::System:
 		return d->defaultNotificationIcon;
 	}

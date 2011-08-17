@@ -18,6 +18,7 @@
 #define SIMPLEACTIONS_H
 #include <QObject>
 #include <QScopedPointer>
+#include "qutim/inforequest.h"
 
 class QAction;
 namespace qutim_sdk_0_3
@@ -42,6 +43,7 @@ private slots:
 	void onContactRenameAction(QObject*);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
+	void onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
 	void onContactAddRemoveActionCreated(QAction *, QObject *);
 	void onContactAddRemoveAction(QObject*);
 	void onContactAddRemoveActionDestroyed();

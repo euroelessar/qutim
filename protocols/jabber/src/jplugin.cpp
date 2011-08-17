@@ -1,7 +1,8 @@
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
-#include "protocol/account/servicediscovery/jservicebrowser.h"
+#include "protocol/modules/vcard/jvcardmanager.h"
+#include "protocol/modules/servicediscovery/jservicebrowser.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"
 #include "protocol/modules/filetransfer/jfiletransfer.h"
@@ -88,6 +89,10 @@ void JPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
 				 new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
+				 ExtensionIcon(""));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VCard support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Implementation of VCard info requests"),
+				 new GeneralGenerator<JVCardManager, JabberExtension>(),
 				 ExtensionIcon(""));
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),

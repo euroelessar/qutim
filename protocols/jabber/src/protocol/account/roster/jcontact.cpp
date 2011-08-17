@@ -1,14 +1,13 @@
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
-#include <qutim/inforequest.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
+#include <qutim/rosterstorage.h>
 #include "jmessagesession.h"
 #include "jmessagehandler.h"
 #include <qutim/metacontact.h>
@@ -20,7 +19,6 @@
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
-#include "../vcard/jvcardmanager.h"
 
 namespace Jabber
 {
@@ -28,6 +26,7 @@ namespace Jabber
 class JContactPrivate
 {
 public:
+	JContactPrivate() : inList(false) {}
 	JAccount *account;
 	QHash<QString, JContactResource *> resources;
 	QStringList currentResources;
@@ -202,22 +201,6 @@ bool JContact::event(QEvent *ev)
 			qApp->sendEvent(resource, &resourceEvent);
 			event->addHtml("<hr>" + resourceEvent.html(), 9);
 		}
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JContact);
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		if(!d->account->vCardManager()->containsRequest(d->jid))
-			event->setRequest(new JInfoRequest(d->account->vCardManager(),
-											   d->jid));
-		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
@@ -397,6 +380,9 @@ void JContact::setAvatar(const QString &hex)
 	int length = d->avatar.length() - pos;
 	d->hash = QStringRef(&d->avatar, pos, length);
 	emit avatarChanged(d->avatar);
+	if (d->inList) {
+		RosterStorage::instance()->updateContact(this, d->account->roster()->version());
+	}
 }
 
 void JContact::setExtendedInfo(const QString &name, const QVariantHash &extStatus)

@@ -14,7 +14,11 @@ namespace Core
 {
 
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
-	m_widget(0), m_isChanged(false), m_incompleteWidgets(0), m_buttonsBox(0), m_hasSubitems(item.hasSubitems())
+	m_widget(0),
+	m_isChanged(false),
+	m_incompleteWidgets(0),
+	m_buttonsBox(0),
+	m_hasSubitems(item.hasSubitems() || item.isAllowedModifySubitems())
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;

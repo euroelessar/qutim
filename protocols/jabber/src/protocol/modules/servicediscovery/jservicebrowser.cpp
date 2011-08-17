@@ -1,35 +1,39 @@
 #include <QMovie>
 #include <QStringBuilder>
+#include <QObjectCleanupHandler>
 #include "jservicebrowser.h"
-#include "jservicediscovery.h"
-#include "jdiscoitem.h"
-#include "../jaccount.h"
-#include "../muc/jmucmanager.h"
-#include "../roster/jroster.h"
-#include "../roster/jcontact.h"
 #include "protocol/modules/adhoc/jadhocwidget.h"
-#include <qutim/iconloader.h>
-#include <qutim/configbase.h>
-#include <qutim/protocol.h>
 #include "ui_jservicebrowser.h"
+// qutIM
+#include <qutim/iconloader.h>
+#include <qutim/config.h>
+#include <qutim/protocol.h>
 #include <qutim/debug.h>
+#include <qutim/groupchatmanager.h>
+#include <qutim/contact.h>
+#include <qutim/account.h>
+#include <qutim/systemintegration.h>
 //Jreen
 #include <jreen/client.h>
-#include <qutim/systemintegration.h>
 
 namespace Jabber
 {
+using namespace qutim_sdk_0_3;
+enum { ItemRole = Qt::UserRole + 1};
+
 JServiceBrowserModule::JServiceBrowserModule()
 {
 	m_account = 0;
 }
 
-void JServiceBrowserModule::init(Account *account, const JabberParams &)
+void JServiceBrowserModule::init(Account *account)
 {
-	m_account = qobject_cast<JAccount *>(account);
-	account->addAction(new ActionGenerator(Icon("services"),
-										   QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
-										   this, SLOT(showWindow())), "Additional");
+	if (qobject_cast<Jreen::Client*>(account->property("client"))) {
+		m_account = account;
+		account->addAction(new ActionGenerator(Icon("services"),
+											   QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
+											   this, SLOT(showWindow())), "Additional");
+	}
 }
 
 void JServiceBrowserModule::showWindow()
@@ -40,19 +44,22 @@ void JServiceBrowserModule::showWindow()
 
 struct JServiceBrowserPrivate
 {
-	JAccount *account;
-	QMap<int, QTreeWidgetItem *> treeItems;
+	Account *account;
+	Jreen::Disco *disco;
+	QObjectCleanupHandler cleanupHandler;
 	Ui::ServiceBrowser *ui;
 	QMenu *contextMenu;
 	bool isConference;
 	int searchCount;
 	bool showFeatures;
-	JDiscoItem currentMenuItem;
+	Jreen::Disco::Item currentMenuItem;
 };
 
-JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *parent)
+JServiceBrowser::JServiceBrowser(Account *account, bool isConference, QWidget *parent)
 	: QWidget(parent), p(new JServiceBrowserPrivate)
 {
+	Jreen::Client *client = qobject_cast<Jreen::Client*>(account->property("client"));
+	p->disco = client->disco();
 	p->account = account;
 	p->isConference = isConference; //WTF ? Oo
 	p->searchCount = 0;
@@ -101,6 +108,8 @@ JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
+	setAttribute(Qt::WA_DeleteOnClose, true);
+	setAttribute(Qt::WA_QuitOnClose, false);
 }
 
 JServiceBrowser::~JServiceBrowser()
@@ -115,47 +124,56 @@ void JServiceBrowser::searchServer(const QString &server)
 
 void JServiceBrowser::getInfo(QTreeWidgetItem *item)
 {
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
-	int id = p->account->discoManager()->getInfo(this, di);
-	p->treeItems.insert(id, item);
+	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
+	Jreen::DiscoReply *reply = p->disco->requestInfo(di);
+	reply->setProperty("item", qVariantFromValue(item));
+	p->cleanupHandler.add(reply);
+	connect(reply, SIGNAL(infoReceived(Jreen::Disco::Item)),
+	        SLOT(onInfoReceived(Jreen::Disco::Item)));
+	connect(reply, SIGNAL(error(Jreen::Error::Ptr)),
+	        SLOT(onError(Jreen::Error::Ptr)));
 	p->searchCount++;
 	p->ui->labelLoader->setVisible(true);
 }
 
 void JServiceBrowser::getItems(QTreeWidgetItem *item)
 {
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
-	if (!item->childCount() && (di.isExpandable())) {
-		int id = p->account->discoManager()->getItems(this, di);
-		p->treeItems.insert(id, item);
+	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
+	if (!item->childCount() && (di.actions() & Jreen::Disco::Item::ActionExpand)) {
+		Jreen::DiscoReply *reply = p->disco->requestInfo(di);
+		reply->setProperty("item", qVariantFromValue(item));
+		p->cleanupHandler.add(reply);
+		connect(reply, SIGNAL(itemsReceived(Jreen::Disco::ItemList)),
+		        SLOT(onItemsReceived(Jreen::Disco::ItemList)));
+		connect(reply, SIGNAL(error(Jreen::Error::Ptr)),
+		        SLOT(onError(Jreen::Error::Ptr)));
 	}
 }
 
-void JServiceBrowser::setInfo(int id)
+void JServiceBrowser::onInfoReceived(const Jreen::Disco::Item &di)
 {
-	QTreeWidgetItem *item = p->treeItems.take(id);
-	if (!item)
-		return;
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+	QTreeWidgetItem *item = sender()->property("item").value<QTreeWidgetItem*>();
+	Q_ASSERT(item);
+	item->setData(0, ItemRole, qVariantFromValue(di));
 	if (p->isConference && (di.hasIdentity("conference") || di.hasIdentity("server")))
 		item->setHidden(false);
 	if (!di.name().isEmpty())
 		item->setText(0, di.name());
 	else
 		item->setText(0, di.jid());
-	item->setIcon(0, Icon(setServiceIcon(di)));
+	item->setIcon(0, Icon(serviceIcon(di)));
 	QString tooltip;
 	tooltip = QLatin1Literal("<b>") % di.name() % QLatin1Literal("</b> (")
-			% di.jid() % QLatin1Literal(")<br/>");
+			% di.jid().full() % QLatin1Literal(")<br/>");
 	QString type = tr("type: ");
 	QString category = tr("category: ");
 	if (!di.identities().isEmpty()) {
 		tooltip += QLatin1Literal("<br/><b>") % tr("Identities:") % QLatin1Literal("</b><br/>");
 		foreach(Jreen::Disco::Identity identity, di.identities()) {
-			JDiscoItem di;
-			di.setJID(di.jid());
-			di.addIdentity(identity);
-			QString img = setServiceIcon(di);
+			Jreen::Disco::Item tmp;
+			tmp.setJid(tmp.jid());
+			tmp.addIdentity(identity);
+			QString img = IconLoader::iconPath(serviceIcon(tmp), 16);
 			tooltip += QLatin1Literal("<img src='") % img % QLatin1Literal("'> ")
 					% identity.name % QLatin1Literal(" (") % category
 					% identity.category % QLatin1Literal(", ") % type
@@ -163,7 +181,7 @@ void JServiceBrowser::setInfo(int id)
 		}
 	}
 	item->setToolTip(0, tooltip);
-	if (di.isExpandable())
+	if (di.actions() & Jreen::Disco::Item::ActionExpand)
 		item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 	QTreeWidgetItem *parent = item->parent();
 	if (parent && parent->isHidden()) {
@@ -179,14 +197,15 @@ void JServiceBrowser::setInfo(int id)
 		p->ui->labelLoader->setVisible(false);
 }
 
-void JServiceBrowser::setItems(int id, const QList<JDiscoItem> &items)
+void JServiceBrowser::onItemsReceived(const Jreen::Disco::ItemList &items)
 {
-	QTreeWidgetItem *parentItem = p->treeItems.take(id);
+	QTreeWidgetItem *parentItem = sender()->property("item").value<QTreeWidgetItem*>();
+	Q_ASSERT(parentItem);
 	if (!parentItem || parentItem->childCount())
 		return;
 	if (items.isEmpty())
 		parentItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
-	foreach (const JDiscoItem &di, items) {
+	foreach (const Jreen::Disco::Item &di, items) {
 		QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
 		if (p->isConference)
 			item->setHidden(true);
@@ -195,20 +214,18 @@ void JServiceBrowser::setItems(int id, const QList<JDiscoItem> &items)
 		else
 			item->setText(0, di.jid());
 		item->setExpanded(false);
-		item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
+		item->setData(0, ItemRole, qVariantFromValue(di));
 		getInfo(item);
 	}
 	parentItem->setExpanded(true);
 }
 
-void JServiceBrowser::setError(int id)
+void JServiceBrowser::onError(const Jreen::Error::Ptr &error)
 {
-	QTreeWidgetItem *item = p->treeItems.take(id);
-	if (!item)
-		return;
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+	QTreeWidgetItem *item = sender()->property("item").value<QTreeWidgetItem*>();
+	Q_ASSERT(item);
 	item->setDisabled(true);
-	item->setToolTip(0, item->toolTip(0) + di.error());
+	item->setToolTip(0, item->toolTip(0) + error->conditionText());
 	if (!--p->searchCount)
 		p->ui->labelLoader->setVisible(false);
 }
@@ -229,13 +246,13 @@ void JServiceBrowser::on_searchButton_clicked()
 	p->searchCount = 0;
 	clean_item(p->ui->serviceTree->invisibleRootItem());
 	p->ui->serviceTree->clear();
-	p->treeItems.clear();
+	p->cleanupHandler.clear();
 	QString server(p->ui->serviceServer->currentText());
 	QTreeWidgetItem *item = new QTreeWidgetItem(p->ui->serviceTree);
 	item->setText(0, server);
-	JDiscoItem di;
-	di.setJID(p->ui->serviceServer->currentText());
-	item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
+	Jreen::Disco::Item di;
+	di.setJid(p->ui->serviceServer->currentText());
+	item->setData(0, ItemRole, qVariantFromValue(di));
 	getInfo(item);
 	p->ui->serviceServer->removeItem(p->ui->serviceServer->findText(server));
 	p->ui->serviceServer->insertItem(0, server);
@@ -253,33 +270,22 @@ void JServiceBrowser::showContextMenu(const QPoint &pos)
 {
 	p->contextMenu->clear();
 	QTreeWidgetItem *item = p->ui->serviceTree->itemAt(pos);
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
 	p->currentMenuItem = di;
-	foreach (JDiscoItem::Action action, di.actions()) {
-		switch (action) {
-		case JDiscoItem::ActionJoin:
-			p->contextMenu->addAction(p->ui->actionJoin);
-			break;
-		case JDiscoItem::ActionRegister:
-			p->contextMenu->addAction(p->ui->actionRegister);
-			break;
-		case JDiscoItem::ActionSearch:
-			p->contextMenu->addAction(p->ui->actionSearch);
-			break;
-		case JDiscoItem::ActionExecute:
-			p->contextMenu->addAction(p->ui->actionExecute);
-			break;
-		case JDiscoItem::ActionAdd:
-			p->contextMenu->addAction(p->ui->actionAdd);
-			break;
-		case JDiscoItem::ActionVCard:
-			p->contextMenu->addAction(p->ui->actionShowVCard);
-			break;
-		case JDiscoItem::ActionProxy:
-			//				p->contextMenu->addAction(p->ui->action);
-			break;
-		}
-	}
+	if (di.actions() & Jreen::Disco::Item::ActionJoin)
+		p->contextMenu->addAction(p->ui->actionJoin);
+	if (di.actions() & Jreen::Disco::Item::ActionRegister)
+		p->contextMenu->addAction(p->ui->actionRegister);
+	if (di.actions() & Jreen::Disco::Item::ActionSearch)
+		p->contextMenu->addAction(p->ui->actionSearch);
+	if (di.actions() & Jreen::Disco::Item::ActionExecute)
+		p->contextMenu->addAction(p->ui->actionExecute);
+	if (di.actions() & Jreen::Disco::Item::ActionAdd)
+		p->contextMenu->addAction(p->ui->actionAdd);
+	if (di.actions() & Jreen::Disco::Item::ActionVCard)
+		p->contextMenu->addAction(p->ui->actionShowVCard);
+//	if (di.actions() & Jreen::Disco::Item::ActionProxy)
+//		p->contextMenu->addAction(p->ui->action);
 	if (!p->contextMenu->actions().isEmpty())
 		p->contextMenu->popup(p->ui->serviceTree->viewport()->mapToGlobal(pos));
 }
@@ -307,7 +313,7 @@ void JServiceBrowser::showFeatures()
 			? p->ui->serviceTree->selectedItems().first() : 0;
 	if (!item)
 		return;
-	JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
 	QString featuresText;
 	if (!di.features().isEmpty()) {
 		featuresText = QLatin1Literal("<b>") % tr("Features:") % QLatin1Literal("</b><br/>");
@@ -319,7 +325,7 @@ void JServiceBrowser::showFeatures()
 	p->ui->featuresView->setHtml(featuresText);
 }
 
-QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
+QString JServiceBrowser::serviceIcon(const Jreen::Disco::Item &di)
 {
 	if (di.identities().isEmpty())
 		return QString();
@@ -354,7 +360,7 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 	} else {
 		service_icon = "defaultservice";
 	}
-	return IconLoader::iconPath(service_icon, 16);
+	return service_icon;
 }
 
 /*void JServiceBrowser::on_registerButton_clicked()
@@ -366,8 +372,8 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
  void JServiceBrowser::on_searchFormButton_clicked()
  {
   QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-  JDiscoItem di;
-  di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+  Jreen::Disco::Item di;
+  di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
   emit searchService("", item->text(1));
  }
 
@@ -380,8 +386,8 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
  void JServiceBrowser::on_showVCardButton_clicked()
  {
   QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-  JDiscoItem di;
-  di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+  Jreen::Disco::Item di;
+  di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
   emit showVCard(item->text(1));
  }
 
@@ -457,15 +463,21 @@ void JServiceBrowser::onExecute()
 
 void JServiceBrowser::onJoin()
 {
-	p->account->conferenceManager()->join(p->currentMenuItem.jid(),
-										  p->account->name());
+	if (GroupChatManager *manager = p->account->groupChatManager()) {
+		DataItem fields;
+		fields.addSubitem(StringDataItem(QLatin1String("conference"), LocalizedString(),
+		                               p->currentMenuItem.jid().full()));
+		fields.addSubitem(StringDataItem(QLatin1String("nickname"), LocalizedString(),
+		                               p->account->name()));
+		manager->join(fields);
+	}
 }
 
 void JServiceBrowser::onAddToRoster()
 {
-	ChatUnit *u = p->account->roster()->contact(p->currentMenuItem.jid(),true);
-	if(JContact *c = qobject_cast<JContact*>(u))
-		p->account->roster()->addContact(c);
+	ChatUnit *u = p->account->unit(p->currentMenuItem.jid(), true);
+	if(Contact *c = qobject_cast<Contact*>(u))
+		c->setInList(true);
 }
 
 }

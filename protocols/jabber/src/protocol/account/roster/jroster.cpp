@@ -3,7 +3,6 @@
 #include "../../jprotocol.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jvcardmanager.h"
 #include <QFile>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
@@ -44,8 +43,8 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 {
 	JContact *contact = new JContact(id, account);
 	QObject::connect(contact, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(onContactDestroyed(QObject*)));
-	contact->setContactInList(true);
 	contact->setAvatar(data.value(QLatin1String("avatar")).toString());
+	contact->setContactInList(true);
 	contact->setContactName(data.value(QLatin1String("name")).toString());
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
@@ -219,7 +218,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 	case Jreen::Presence::Unsubscribed:
 	case Jreen::Presence::Subscribed:
 		handleSubscription(presence);
-		break;
+		return;
 	case Jreen::Presence::Error:
 	case Jreen::Presence::Probe:
 		return;
@@ -227,30 +226,11 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 		break;
 	}
 
-	const Jreen::Error::Ptr error = presence.error();
 	Jreen::JID from = presence.from();
-	if(d->account->client()->jid() == from) {
+	if (d->account->client()->jid() == from) 
 		d->account->d_func()->setPresence(presence);
-		return;
-	}
-	JContact *c = d->contacts.value(from.bare());
-	if (c) {
-		c->setStatus(presence);		
-		Jreen::VCardUpdate::Ptr vcard = presence.payload<Jreen::VCardUpdate>();
-		if(vcard && vcard->hasPhotoInfo() && !error) {
-			QString hash = vcard->photoHash();
-			debug() << "vCard update" << (c->avatarHash() != hash) << c->id() << c->avatarHash() << hash;
-			if (c->avatarHash() != hash) {
-				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists()) {
-					c->setAvatar(hash);
-					if (c->isInList())
-						d->storage->updateContact(c, version());
-				} else {
-					d->account->d_ptr->vCardManager->fetchVCard(from);
-				}
-			}
-		}
-	}
+	else if (JContact *c = d->contacts.value(from.bare()))
+		c->setStatus(presence);
 }
 
 void JRoster::onDisconnected()

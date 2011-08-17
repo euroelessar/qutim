@@ -24,77 +24,57 @@
 **
 ****************************************************************************/
 
-#ifndef VINFOREQUEST_H
-#define VINFOREQUEST_H
+#ifndef JVCARDMANAGER_H
+#define JVCARDMANAGER_H
 
+#include <QObject>
+#include <QSharedPointer>
+#include <jreen/vcardmanager.h>
 #include <qutim/inforequest.h>
 #include <qutim/status.h>
-#include <QSet>
+#include <qutim/chatunit.h>
+#include "sdk/jabber.h"
 
+namespace Jabber
+{
 using namespace qutim_sdk_0_3;
 
-class VConnection;
-class VAccount;
-class VContact;
+class JInfoRequest;
 
-class VInfoFactory : public QObject, public InfoRequestFactory
+class JVCardManager : public QObject, public JabberExtension, public InfoRequestFactory
 {
 	Q_OBJECT
+	Q_INTERFACES(Jabber::JabberExtension qutim_sdk_0_3::InfoRequestFactory)
+	Q_CLASSINFO("DebugName", "Jabber::VCardManager")
 public:
-	VInfoFactory(VAccount *account);
+	JVCardManager();
+	~JVCardManager();
+	
+	virtual void init(qutim_sdk_0_3::Account *account);
+	static QString ensurePhoto(const Jreen::VCard::Photo &photo, QString *path = NULL);
+
+protected: // InformationRequestFactory stuff
 	virtual SupportLevel supportLevel(QObject *object);
-protected:
 	virtual InfoRequest *createrDataFormRequest(QObject *object);
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
-private:
+
+protected slots:
+	void onConnected();
+	void onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid);
+	void onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);
-	VAccount *m_account;
-	QSet<VContact *> m_contacts;
-};
-
-class VInfoRequest : public InfoRequest
-{
-	Q_OBJECT
-public:
-	enum DataType
-	{
-		NickName,
-		FirstName,
-		LastName,
-		Sex,
-		BDate,
-		City,
-		Country,
-		Photo,
-		HomePhone,
-		MobilePhone,
-		University,
-		Faculty,
-		Graduation
-	};
-
-    VInfoRequest(QObject *parent);
-	virtual DataItem createDataItem() const;
-	virtual void doRequest(const QSet<QString> &hints);
-	virtual void doUpdate(const DataItem &dataItem);
-	virtual void doCancel();
-signals:
-	void canceled();
-private slots:
-	void onRequestFinished();
-	void onAddressEnsured();
-private:
-	void ensureAddress(DataType type);
-	void addItem(DataType type, DataItem &group, const QVariant &data) const;
-	inline void addItem(DataType type, DataItem &group, const char *name) const
-	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
-	QString m_id;
-	VConnection *m_connection;
-	int m_unknownCount;
-	QVariantMap m_data;
+private:
+	friend class JInfoRequest;
+	bool m_autoLoad;
+	qutim_sdk_0_3::Account *m_account;
+	Jreen::Client *m_client;
+	Jreen::VCardManager *m_manager;
+	QSet<qutim_sdk_0_3::ChatUnit*> m_observedUnits;
 };
 
-#endif // VINFOREQUEST_H
+}
+
+#endif // JVCARDMANAGER_H

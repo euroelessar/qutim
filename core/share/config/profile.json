@@ -34,6 +34,9 @@
 		"UserChangedStatus": {
 			"Tray": false
 		},
+		"UserHasBirthday": {
+			"Tray": false
+		},
 		"UserOffline": {
 			"Tray": false
 		},

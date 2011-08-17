@@ -56,7 +56,7 @@ namespace Jabber
 	public:
 		JPersonEventSupport();
 		virtual ~JPersonEventSupport();
-		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+		virtual void init(qutim_sdk_0_3::Account *account);
 		virtual bool eventFilter(QObject *obj, QEvent *ev);
 	protected slots:
 		void onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from);

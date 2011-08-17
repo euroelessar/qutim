@@ -65,7 +65,7 @@ enum MessageType
 	MsgAutoNA   = 0xEA,
 	MsgAutoDND  = 0xEB,
 	MsgAutoFFC  = 0xEC,
-	MsgUnknown  = 0x00,
+	MsgUnknown  = 0x00
 };
 
 // Typing notification statuses
