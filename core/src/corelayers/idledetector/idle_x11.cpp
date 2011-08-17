@@ -20,7 +20,7 @@
 
 #include "idle.h"
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !defined(Q_WS_MAEMO_5)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 
 #ifndef HAVE_XSS
 

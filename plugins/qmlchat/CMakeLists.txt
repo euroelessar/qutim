@@ -1,5 +1,10 @@
 FIND_PACKAGE( Qt4 COMPONENTS QtDeclarative QtOpenGL)
 
+if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
+SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
+SET(QT_QTDECLARATIVE_INCLUDE_DIR "/usr/include/QtDeclarative/")
+endif()
+
 QUTIM_ADD_ARTWORK(qmlchat)
 
 qutim_add_plugin(qmlchat
