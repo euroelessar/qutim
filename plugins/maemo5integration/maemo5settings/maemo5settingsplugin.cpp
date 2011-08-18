@@ -22,30 +22,30 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#include "maemo5settingsplugin.h"
+#include <qutim/icon.h>
 
-#ifndef MAEMO5LED_H
-#define MAEMO5LED_H
 
-#include <qutim/notification.h>
-#include <QtDBus>
-
-class Maemo5Led : public QObject, public qutim_sdk_0_3::NotificationBackend
+Maemo5SettingsPlugin::Maemo5SettingsPlugin()
 {
-	Q_OBJECT
-	Q_CLASSINFO("Service", "Led")
-public:
-	Maemo5Led();
-	virtual ~Maemo5Led();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
-protected slots:
-	void setDisplayState(const QString &state);
-	void displayStateChanged(const QDBusMessage &message);
-private:
-	void enableLed();
-	QDBusInterface *mDbusInterface;
-	bool display_off;
-	bool showLedWhenDisplayOn;
-	QString ledPattern;
-};
+	qDebug("%s", Q_FUNC_INFO);
+}
 
-#endif // MAEMO5LED_H
+void Maemo5SettingsPlugin::init()
+	{
+		setInfo(QT_TRANSLATE_NOOP("Plugin", "Maemo 5 Settings"),
+		QT_TRANSLATE_NOOP("Plugin", "Specific Maemo 5 settings"),
+		PLUGIN_VERSION(0, 0, 1, 0));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Evgeniy Degtyarev"),
+			  QT_TRANSLATE_NOOP("Task","Author"),
+			  QLatin1String("degtep@gmail.com"));
+	addExtension<Maemo5Settings>(QT_TRANSLATE_NOOP("plugin","Maemo 5 Settings"),
+							   QT_TRANSLATE_NOOP("plugin","Specific Maemo 5 settings"));
+m_item = new GeneralSettingsItem<Maemo5Settings>(Settings::Plugin, Icon("maemo5"), QT_TRANSLATE_NOOP("Settings","Maemo 5 Settings"));
+	Settings::registerItem(m_item);
+	
+	}
+bool Maemo5SettingsPlugin::load() {return true; }
+bool Maemo5SettingsPlugin::unload() { return true; }
+	
+QUTIM_EXPORT_PLUGIN(Maemo5SettingsPlugin)

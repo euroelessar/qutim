@@ -23,29 +23,24 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMO5LED_H
-#define MAEMO5LED_H
+#ifndef MAEMO5SETTINGSPLUGIN_H
+#define MAEMO5SETTINGSPLUGIN_H
 
-#include <qutim/notification.h>
-#include <QtDBus>
+#include <qutim/plugin.h>
+#include <qutim/settingslayer.h>
+#include "maemo5settings.h"
 
-class Maemo5Led : public QObject, public qutim_sdk_0_3::NotificationBackend
+using namespace qutim_sdk_0_3;
+
+class Maemo5SettingsPlugin : public Plugin
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "Led")
 public:
-	Maemo5Led();
-	virtual ~Maemo5Led();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
-protected slots:
-	void setDisplayState(const QString &state);
-	void displayStateChanged(const QDBusMessage &message);
-private:
-	void enableLed();
-	QDBusInterface *mDbusInterface;
-	bool display_off;
-	bool showLedWhenDisplayOn;
-	QString ledPattern;
+	explicit Maemo5SettingsPlugin();
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
+	GeneralSettingsItem<Maemo5Settings> *m_item;
 };
 
-#endif // MAEMO5LED_H
+#endif // MAEMO5SETTINGSPLUGIN_H
