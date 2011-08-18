@@ -130,10 +130,11 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 		}
 	}
 
-#ifndef QUTIM_MOBILE_UI
 	int timeout = 5000;
-#else
-	int timeout = 500000;
+
+#ifdef Q_WS_MAEMO_5
+	Config config = Config().group(QLatin1String("Maemo5"));
+	timeout = config.value(QLatin1String("showPopupTime"),50) * 1000;
 #endif
 
 	QDBusPendingReply<uint> reply = interface->Notify(

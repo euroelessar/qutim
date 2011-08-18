@@ -161,7 +161,19 @@ AbstractChatWidget *AbstractChatForm::widget(const QString &key)
 		m_chatwidgets.insert(key,widget);
 		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 #ifdef Q_WS_MAEMO_5
-		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		Config config = Config().group(QLatin1String("Maemo5"));
+		switch (config.value(QLatin1String("orientation"),0))
+		{
+		case 0:
+			widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+			break;
+		case 1:
+			widget->setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+			break;
+		case 2:
+			widget->setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+			break;
+		}
 #endif
 	}
 	debug() << widget << key;
