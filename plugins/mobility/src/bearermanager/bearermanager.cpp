@@ -19,8 +19,11 @@
 
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/utils.h>
+#include <qutim/settingslayer.h>
+#include "managersettings.h"
 
 #include <QTimer>
 
@@ -34,22 +37,33 @@ BearerManager::BearerManager(QObject *parent) :
 
 	foreach (Protocol *p, Protocol::all()) {
 		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+			this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+			this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 
 		foreach (Account *a, p->accounts())
 			onAccountCreated(a);
 	}
+
+	GeneralSettingsItem<ManagerSettings> *m_item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
+	Settings::registerItem(m_item);
 
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
 }
 
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
 {
-	if (isOnline)
-		a->setStatus(s);
-	else {
+	Config cfg = a->config();
+	bool auto_connect = cfg.value("autoConnect",false);
+	qDebug()<<"dkjdsbsdbsbvn";
+	qDebug()<<isOnline<<auto_connect;
+	if (isOnline){
+		if (auto_connect) {
+			Status status = a->status();
+			status.setType(Status::Online);
+			a->setStatus(status);
+		}
+	}else {
 		Status status = a->status();
 		status.setType(Status::Offline);
 		status.setProperty("changeReason", Status::ByNetworkError);
@@ -88,7 +102,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 }
 
 void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)

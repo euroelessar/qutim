@@ -1,3 +1,27 @@
+qutim (0.2.80-maemo-11) fremantle; urgency=low
+
+  * Fix power consumtion
+  * Minor bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 18 Aug 2011 20:46:51 +0600
+
+qutim (0.2.80-maemo-10) fremantle; urgency=low
+
+  * Add maemo specific settings
+  * Got bearer manager working and fix settings
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 18 Aug 2011 16:04:07 +0600
+
+qutim (0.2.80-maemo-9) fremantle; urgency=low
+
+  * Jabber bugfixes
+  * Relocated maemo specific icon to another plugin
+  * Refactoring maemo idle detector
+  * Add missing icon
+  * Got QML chat working
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 17 Aug 2011 16:49:50 +0600
+
 qutim (0.2.80-maemo-8) fremantle; urgency=low
 
   * Bugfix with open conferences window

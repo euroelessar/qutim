@@ -25,6 +25,7 @@
 
 #include <maemo5led.h>
 #include <QtDBus>
+#include <qutim/config.h>
 
 #include <mce/mode-names.h>
 #include <mce/dbus-names.h>
@@ -37,6 +38,10 @@ Maemo5Led::Maemo5Led() :	NotificationBackend("Led")
 {
 	setDescription(QT_TR_NOOP("Maemo 5 Led Notifications"));
 
+	Config config = Config().group(QLatin1String("Maemo5"));
+	showLedWhenDisplayOn = config.value(QLatin1String("showLedWhenDisplayOn"),false);
+	ledPattern = config.value(QLatin1String("ledPattern"),QLatin1String("PatternCommunicationIM"));
+
 	enableLed();
 }
 
@@ -44,12 +49,12 @@ Maemo5Led::Maemo5Led() :	NotificationBackend("Led")
 void Maemo5Led::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
 	ref(notification);
-	if (display_off)
+	if (display_off || showLedWhenDisplayOn)
 	{
 		switch (notification->request().type()) {
 		case Notification::IncomingMessage:
 		case Notification::ChatIncomingMessage:
-			mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
+			mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, ledPattern);
 //		case Notification::UserTyping:
 //		case Notification::ChatUserJoined:
 //		case Notification::ChatUserLeft:
