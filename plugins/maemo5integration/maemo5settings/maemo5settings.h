@@ -19,7 +19,8 @@ public:
 	virtual void cancelImpl();
 	virtual void saveImpl();
 private slots:
-	void onCheckedStateChanged(int state);
+	void onSettingsChanged(int state);
+	void onSettingsChanged();
 private:
 	Ui::Maemo5Settings *ui;
 	QString currentPattern;

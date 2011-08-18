@@ -1,3 +1,10 @@
+qutim (0.2.80-maemo-11) fremantle; urgency=low
+
+  * Fix power consumtion
+  * Minor bugfixes
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 18 Aug 2011 20:46:51 +0600
+
 qutim (0.2.80-maemo-10) fremantle; urgency=low
 
   * Add maemo specific settings

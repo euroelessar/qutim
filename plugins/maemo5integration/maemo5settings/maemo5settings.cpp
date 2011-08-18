@@ -57,14 +57,14 @@ void Maemo5Settings::loadImpl()
 	ui->popupShowTime->setValue(config.value(QLatin1String("showPopupTime"),50));
 
 
-	connect(ui->ledPattern,SIGNAL(currentIndexChanged(int)),SLOT(onCheckedStateChanged(int)));
-	connect(ui->displayOnLed,SIGNAL(stateChanged(int)),SLOT(onCheckedStateChanged(int)));
-	connect(ui->displayOnVibration,SIGNAL(stateChanged(int)),SLOT(onCheckedStateChanged(int)));
-	connect(ui->vibtarionTime,SIGNAL(valueChanged(int)),SLOT(onCheckedStateChanged(int)));
-	connect(ui->popupShowTime,SIGNAL(valueChanged(int)),SLOT(onCheckedStateChanged(int)));
-	connect(ui->autoOrientation,SIGNAL(clicked()),SLOT(onCheckedStateChanged(int)));
-	connect(ui->portrait,SIGNAL(clicked()),SLOT(onCheckedStateChanged(int)));
-	connect(ui->landscape,SIGNAL(clicked()),SLOT(onCheckedStateChanged(int)));
+	connect(ui->ledPattern,SIGNAL(currentIndexChanged(int)),SLOT(onSettingsChanged(int)));
+	connect(ui->displayOnLed,SIGNAL(stateChanged(int)),SLOT(onSettingsChanged(int)));
+	connect(ui->displayOnVibration,SIGNAL(stateChanged(int)),SLOT(onSettingsChanged(int)));
+	connect(ui->vibtarionTime,SIGNAL(valueChanged(int)),SLOT(onSettingsChanged(int)));
+	connect(ui->popupShowTime,SIGNAL(valueChanged(int)),SLOT(onSettingsChanged(int)));
+	connect(ui->autoOrientation,SIGNAL(clicked()),SLOT(onSettingsChanged()));
+	connect(ui->portrait,SIGNAL(clicked()),SLOT(onSettingsChanged()));
+	connect(ui->landscape,SIGNAL(clicked()),SLOT(onSettingsChanged()));
 
 }
 
@@ -91,9 +91,11 @@ void Maemo5Settings::cancelImpl()
 
 }
 
-void Maemo5Settings::onCheckedStateChanged(int)
+void Maemo5Settings::onSettingsChanged(int)
 {
 	emit modifiedChanged(true);
 }
-
-
+void Maemo5Settings::onSettingsChanged()
+{
+	emit modifiedChanged(true);
+}

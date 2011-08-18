@@ -37,9 +37,9 @@ BearerManager::BearerManager(QObject *parent) :
 
 	foreach (Protocol *p, Protocol::all()) {
 		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+			this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+			this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 
 		foreach (Account *a, p->accounts())
 			onAccountCreated(a);
@@ -54,14 +54,13 @@ BearerManager::BearerManager(QObject *parent) :
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
 {
 	Config cfg = a->config();
-	bool auto_connect = cfg.value("autoConnect",true);
+	bool auto_connect = cfg.value("autoConnect",false);
+	qDebug()<<"dkjdsbsdbsbvn";
+	qDebug()<<isOnline<<auto_connect;
 	if (isOnline){
 		if (auto_connect) {
 			Status status = a->status();
-			cfg.beginGroup("lastStatus");
-			status.setType(cfg.value("type", Status::Online));
-			status.setSubtype(cfg.value("subtype", 0));
-			cfg.endGroup();
+			status.setType(Status::Online);
 			a->setStatus(status);
 		}
 	}else {
@@ -103,7 +102,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 }
 
 void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)

@@ -6,33 +6,33 @@
 
 namespace qutim_sdk_0_3
 {
-	class Account;
+class Account;
 }
 
 namespace Ui {
-    class ManagerSettings;
+class ManagerSettings;
 }
 
 class QCheckBox;
 
-	using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-	class ManagerSettings : public SettingsWidget
-	{
-		Q_OBJECT
+class ManagerSettings : public SettingsWidget
+{
+	Q_OBJECT
 
-	public:
-		explicit ManagerSettings();
-		~ManagerSettings();
-		virtual void loadImpl();
-		virtual void cancelImpl();
-		virtual void saveImpl();
-	private slots:
-		void onCheckedStateChanged(int state);
-	private:
-		void addAccount(Account *account);
-		Ui::ManagerSettings *ui;
-		QList<QCheckBox *> m_checkbox_list;
-	};
+public:
+	explicit ManagerSettings();
+	~ManagerSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
+private slots:
+	void onCheckedStateChanged(int state);
+private:
+	void addAccount(Account *account);
+	Ui::ManagerSettings *ui;
+	QList<QCheckBox *> m_checkbox_list;
+};
 
 #endif // MANAGERSETTINGS_H
