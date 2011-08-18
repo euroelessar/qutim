@@ -19,8 +19,11 @@
 
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/utils.h>
+#include <qutim/settingslayer.h>
+#include "managersettings.h"
 
 #include <QTimer>
 
@@ -42,14 +45,26 @@ BearerManager::BearerManager(QObject *parent) :
 			onAccountCreated(a);
 	}
 
+	GeneralSettingsItem<ManagerSettings> *m_item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
+	Settings::registerItem(m_item);
+
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
 }
 
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
 {
-	if (isOnline)
-		a->setStatus(s);
-	else {
+	Config cfg = a->config();
+	bool auto_connect = cfg.value("autoConnect",true);
+	if (isOnline){
+		if (auto_connect) {
+			Status status = a->status();
+			cfg.beginGroup("lastStatus");
+			status.setType(cfg.value("type", Status::Online));
+			status.setSubtype(cfg.value("subtype", 0));
+			cfg.endGroup();
+			a->setStatus(status);
+		}
+	}else {
 		Status status = a->status();
 		status.setType(Status::Offline);
 		status.setProperty("changeReason", Status::ByNetworkError);

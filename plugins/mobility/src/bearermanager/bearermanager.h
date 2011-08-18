@@ -20,12 +20,14 @@
 #include <QHash>
 #include <qutim/status.h>
 
+
 namespace qutim_sdk_0_3 {
 class Account;
 }
 
 typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
 
+class ManagerSettings;
 class QNetworkConfigurationManager;
 class BearerManager : public QObject
 {
@@ -48,6 +50,7 @@ private:
 					  const qutim_sdk_0_3::Status &status);
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
+	
 };
 
 #endif // BEARERMANAGER_H
