@@ -26,6 +26,7 @@
 #include <maemo5vibra.h>
 #include <qutim/debug.h>
 #include <QtDBus>
+#include <qutim/config.h>
 
 #include <mce/mode-names.h>
 #include <mce/dbus-names.h>
@@ -37,7 +38,9 @@ using namespace qutim_sdk_0_3;
 Maemo5Vibra::Maemo5Vibra() :	NotificationBackend("Vibration")
 {
 	setDescription(QT_TR_NOOP("Maemo 5 Vibration Notifications"));
-
+	Config config = Config().group(QLatin1String("Maemo5"));
+	vibrateWhenDisplayOn = config.value(QLatin1String("vibrationWhenDisplayOn"),false);
+	vibrationTime = config.value(QLatin1String("vibrationTime"),50);
 	enableVibration();
 }
 
@@ -46,7 +49,7 @@ Maemo5Vibra::Maemo5Vibra() :	NotificationBackend("Vibration")
 void Maemo5Vibra::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
 	ref(notification);
-	vibrate(50);
+	vibrate(vibrationTime);
 
 	Q_UNUSED(notification);
 }
@@ -71,7 +74,7 @@ void Maemo5Vibra::enableVibration()
 
 void Maemo5Vibra::vibrate(int aTimeout)
 {
-    if (display_off)
+    if (display_off || vibrateWhenDisplayOn)
     {
 		mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
 		QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));

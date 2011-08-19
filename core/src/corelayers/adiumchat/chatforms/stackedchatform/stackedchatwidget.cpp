@@ -175,7 +175,19 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(showKeyb, SIGNAL(clicked()), this, SLOT(showKeyboard()));
 	showKeyb->setVisible(false);
 
-	setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+	Config config = Config().group(QLatin1String("Maemo5"));
+	switch (config.value(QLatin1String("orientation"),0))
+	{
+	case 0:
+		setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		break;
+	case 1:
+		setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+		break;
+	case 2:
+		setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+		break;
+	}
 
 	connect(m_kb_qwerty, SIGNAL(input(QString)), this, SLOT(processInput(QString)));
 

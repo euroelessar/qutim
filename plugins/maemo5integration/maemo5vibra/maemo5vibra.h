@@ -48,6 +48,8 @@ private:
 
 	QDBusInterface *mDbusInterface;
 	bool display_off;
+	bool vibrateWhenDisplayOn;
+	int vibrationTime;
 
 };
 

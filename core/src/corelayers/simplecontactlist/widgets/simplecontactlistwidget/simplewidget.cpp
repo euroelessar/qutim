@@ -155,7 +155,19 @@ SimpleWidget::SimpleWidget()
         m_statusBtn->setMaximumHeight(50);
         m_searchBar->setMaximumHeight(50);
         setAttribute(Qt::WA_Maemo5StackedWindow);
-        setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+	Config config = Config().group(QLatin1String("Maemo5"));
+	switch (config.value(QLatin1String("orientation"),0))
+	{
+	case 0:
+		setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		break;
+	case 1:
+		 setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+		break;
+	case 2:
+		 setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+		break;
+	}
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 			this, SLOT(orientationChanged()));
