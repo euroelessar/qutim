@@ -8,6 +8,8 @@ else()
 	SET( QT_USE_QTNETWORK TRUE )
 endif()
 
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+
 qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
 	DESCRIPTION "Implementation of jabber protocol based on jreen library"

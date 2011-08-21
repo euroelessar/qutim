@@ -16,10 +16,10 @@
 #ifndef XSTATUS_H
 #define XSTATUS_H
 
-#include "xtraz.h"
-#include "messages.h"
-#include "oscarroster.h"
-#include "oscarstatus.h"
+#include "../../src/xtraz.h"
+#include "../../src/messages.h"
+#include "../../src/oscarroster.h"
+#include "../../src/oscarstatus.h"
 #include <QXmlStreamReader>
 #include <qutim/plugin.h>
 

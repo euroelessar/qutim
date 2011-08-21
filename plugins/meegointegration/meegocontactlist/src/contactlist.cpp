@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -23,46 +23,28 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEDIALOG_H
-#define PROFILEDIALOG_H
+#include "contactlist.h"
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <qutim/thememanager.h>
+#include "notificationmanagerwrapper.h"
 
-#include <QDialog>
-#include <QListWidgetItem>
-#include "modulemanagerimpl.h"
-
-namespace qutim_sdk_0_3
+namespace MeegoIntegration
 {
-	class Config;
+using namespace qutim_sdk_0_3;
+
+ContactList::ContactList()
+{
+	NotificationManagerWrapper::init();
 }
 
-namespace Ui {
-    class ProfileDialog;
-}
-
-namespace Core
+QObject *ContactList::component(QObject *parent)
 {
-class ProfileDialog : public QDialog
-{
-    Q_OBJECT
-public:
-	ProfileDialog(Config &config, ModuleManager *parent = 0);
-	~ProfileDialog();
-	static Config profilesInfo();
-	static QString profilesConfigPath();
-	static bool acceptProfileInfo(Config &config, const QString &password);
-
-protected slots:
-	void login(const QString &password);
-	void on_profilesButton_clicked();
-	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
-protected:
-    void changeEvent(QEvent *e);
-
-private:
-	ModuleManager *m_manager;
-	Ui::ProfileDialog *ui;
-};
+	QString filePath = ThemeManager::path(QLatin1String("declarative"),
+	                                      QLatin1String("meego/contactlist"));
+	QDeclarativeContext *context = QDeclarativeEngine::contextForObject(parent);
+	QDeclarativeEngine *engine = context->engine();
+	QDeclarativeComponent component(engine, QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
+	return component.create();
 }
-
-#endif // PROFILEDIALOG_H
+}

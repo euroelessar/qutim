@@ -17,8 +17,8 @@
 #define IRCPROTOCOL_H
 
 #include <qutim/protocol.h>
-#include <ircglobal.h>
-#include <irccommandalias.h>
+#include "ircglobal.h"
+#include "irccommandalias.h"
 
 class QAction;
 

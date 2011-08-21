@@ -14,9 +14,9 @@
  *****************************************************************************/
 
 #include "abstractmetarequest_p.h"
-#include "snac.h"
-#include "icqaccount.h"
-#include "connection.h"
+#include "../snac.h"
+#include "../icqaccount.h"
+#include "../connection.h"
 #include "metainfo_p.h"
 
 namespace qutim_sdk_0_3 {

@@ -33,7 +33,7 @@
 #include <qutim/inforequest.h>
 #include <qutim/status.h>
 #include <qutim/chatunit.h>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 
 namespace Jabber
 {

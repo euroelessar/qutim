@@ -18,7 +18,7 @@
 
 #include "tlvbasedmetarequest.h"
 #include "abstractmetarequest_p.h"
-#include "tlv.h"
+#include "../tlv.h"
 
 namespace qutim_sdk_0_3 {
 

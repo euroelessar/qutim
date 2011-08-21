@@ -2,7 +2,7 @@
 #define JADHOCMODULE_H
 
 #include <QObject>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 #include <QHash>
 
 //namespace Jabber

@@ -19,7 +19,7 @@
 
 #include <qutim/protocol.h>
 #include <qutim/status.h>
-#include <icq_global.h>
+#include "icq_global.h"
 
 namespace qutim_sdk_0_3 {
 

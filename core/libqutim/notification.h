@@ -220,8 +220,8 @@ public:
 	static void disableBackend(const QByteArray &type);
 	static bool isBackendEnabled(const QByteArray &type);
 signals:
-	void backendCreated(const QByteArray &type, NotificationBackend *backend);
-	void backendDestroyed(const QByteArray &type, NotificationBackend *backend);
+	void backendCreated(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
+	void backendDestroyed(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
 	void backendStateChanged(const QByteArray &type, bool enabled);
 private:
 	friend class NotificationBackend;

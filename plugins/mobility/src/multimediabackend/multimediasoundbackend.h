@@ -18,7 +18,7 @@
 #define MULTIMEDIASOUNDBACKEND_H
 
 #include <qutim/sound.h>
-#include <QtMultimediaKit/QAudioOutput>
+#include <QAudioOutput>
 #include <QThread>
 
 using namespace qutim_sdk_0_3;

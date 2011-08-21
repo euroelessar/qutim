@@ -14,9 +14,9 @@
  *****************************************************************************/
 
 #include "xstatusrequester.h"
-#include "xtraz.h"
-#include "icqaccount.h"
-#include "connection.h"
+#include "../../src/xtraz.h"
+#include "../../src/icqaccount.h"
+#include "../../src/connection.h"
 #include "xstatus.h"
 
 namespace qutim_sdk_0_3 {

@@ -17,7 +17,7 @@
 #include "icqaccountmainsettings.h"
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include "icqprotocol.h"
+#include "../icqprotocol.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -27,11 +27,11 @@ IcqAccWizardPage::IcqAccWizardPage(QWidget *parent) :
 	QWizardPage(parent),
 	m_settingsWidget(new IcqAccountMainSettings(0, this))
 {
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        QScrollArea *scrollArea = new QScrollArea(this);
-        layout->addWidget(scrollArea);
-        scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(m_settingsWidget);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	QScrollArea *scrollArea = new QScrollArea(this);
+	layout->addWidget(scrollArea);
+	scrollArea->setWidgetResizable(true);
+	scrollArea->setWidget(m_settingsWidget);
 	connect(m_settingsWidget, SIGNAL(completeChanged()),
 			SIGNAL(completeChanged()));
 }

@@ -14,10 +14,10 @@
  *****************************************************************************/
 
 #include "metainfo_p.h"
-#include "icqaccount.h"
-#include "icqcontact.h"
-#include <icqprotocol.h>
-#include "oscarconnection.h"
+#include "../icqaccount.h"
+#include "../icqcontact.h"
+#include "../icqprotocol.h"
+#include "../oscarconnection.h"
 #include "metafields_p.h"
 #include <QStringList>
 #include <QDate>

@@ -38,6 +38,7 @@
 #include <qutim/cryptoservice.h>
 #include <qutim/config.h>
 #include <qutim/icon.h>
+#include <qutim/profile.h>
 #include <QCryptographicHash>
 #include <QTimer>
 #include <QScrollBar>
@@ -100,105 +101,21 @@ ProfileDialog::~ProfileDialog()
 
 Config ProfileDialog::profilesInfo()
 {
-	QFileInfo profilesInfo(profilesConfigPath());
-	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		return Config(QVariantMap());
-	} else {
-		JsonFile file(profilesInfo.absoluteFilePath());
-		QVariant var;
-		file.load(var);
-		return Config(var.toMap());
-	}
+	return Config(Profile::instance()->data());
 }
 
 QString ProfileDialog::profilesConfigPath()
 {
-	QDir dir = qApp->applicationDirPath();
-	if (!dir.exists("profiles.json") && (!dir.exists("profiles") || !dir.cd("profiles"))) {
-#if defined(Q_OS_WIN)
-		dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
-#elif defined(Q_OS_MAC)
-		dir = QDir::home().absoluteFilePath("Library/Application Support");
-#elif defined(Q_OS_UNIX)
-		dir = QDir::home().absoluteFilePath(".config");
-#else
-# Undefined OS
-#endif
-		dir.mkpath("qutim/profiles");
-		dir.cd("qutim/profiles");
-	}
-	return dir.filePath("profiles.json");
+	return Profile::instance()->configPath();
 }
 
-bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
+bool ProfileDialog::acceptProfileInfo(const Config &config, const QString &password)
 {
-	QString crypto = config.value("crypto", QString());
-	GeneratorList gens = ObjectGenerator::module<CryptoService>();
-	CryptoService *service = 0;
-	foreach (const ObjectGenerator *gen, gens) {
-		if (QLatin1String(gen->metaObject()->className()) == crypto) {
-			service = gen->generate<CryptoService>();
-			break;
-		}
-	}
-
-	QString configDir = config.value("configDir", QString());
-	QFile file(configDir + "/profilehash");
-	if (service && file.open(QIODevice::ReadOnly)) {
-		QString errors;
-		service->setPassword(password, QVariant());
-		QByteArray data = service->decrypt(file.readAll()).toByteArray();
-		QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
-														   + "5667dd05fbe97bb238711a3af63",
-														   QCryptographicHash::Sha1);
-		QDataStream in(data);
-		QString id;
-		QByteArray hash;
-		QByteArray cryptoCheck;
-		in >> id >> hash >> cryptoCheck;
-		if (passwordHash != hash)
-			errors += tr("Password is mismatched.") + '\n';
-		if (QLatin1String(cryptoCheck) != crypto)
-			errors += tr("Crypto service is unknown.") + '\n';
-		if (id != config.value("id", QString()))
-			errors += tr("Wrong profile id.") + '\n';
-		if (!errors.isEmpty()) {
-			errors.chop(1);
-			QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"), errors);
-			delete service;
-			return false;
-		}
-
-		QVector<QDir> &systemDirs = *system_info_dirs();
-		if (config.value("portable", false)) {
-			QDir dir = qApp->applicationDirPath();
-			systemDirs[SystemInfo::ConfigDir] = dir.absoluteFilePath(config.value("configDir", QString()));
-			systemDirs[SystemInfo::HistoryDir] = dir.absoluteFilePath(config.value("historyDir", QString()));
-			systemDirs[SystemInfo::ShareDir] = dir.absoluteFilePath(config.value("shareDir", QString()));
-		} else {
-			systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(config.value("configDir", QString()));
-			systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(config.value("historyDir", QString()));
-			systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(config.value("shareDir", QString()));
-		}
-
-		QString configName = config.value("config", QString());
-		QList<ConfigBackend*> &configBackends = get_config_backends();
-		foreach (const ObjectGenerator *gen, ObjectGenerator::module<ConfigBackend>()) {
-			const ExtensionInfo info = gen->info();
-			ConfigBackend *backend = info.generator()->generate<ConfigBackend>();
-			if (configName == QLatin1String(backend->metaObject()->className()))
-				configBackends.prepend(backend);
-			else
-				configBackends.append(backend);
-		}
-
-		return true;
-	} else {
-		QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"),
-		                      tr("Can't open file with hash"));
-		delete service;
-		return false;
-	}
+	QString errors;
+	bool result = Profile::instance()->acceptData(config.rootValue().toMap(), password, &errors);
+	if (!result)
+		QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"), errors);
+	return result;
 }
 
 void ProfileDialog::login(const QString &password)
