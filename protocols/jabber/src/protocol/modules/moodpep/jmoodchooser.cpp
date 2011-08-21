@@ -2,7 +2,7 @@
 #include "ui_jmoodchooser.h"
 #include <qutim/icon.h>
 #include <qutim/event.h>
-#include "protocol/account/jaccount.h"
+#include "../../account/jaccount.h"
 #include <jreen/mood.h>
 #include <qutim/systemintegration.h>
 

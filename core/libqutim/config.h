@@ -150,6 +150,7 @@ public:
 	void setArrayIndex(int index);
 	void remove(int index);
 
+	QVariant rootValue(const QVariant &def = QVariant(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	template<typename T>
 	T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;

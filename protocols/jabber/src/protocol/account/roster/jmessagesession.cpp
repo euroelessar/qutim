@@ -3,7 +3,7 @@
 #include "jmessagehandler.h"
 #include "../muc/jmucsession.h"
 #include "jcontact.h"
-#include "jabber_global.h"
+#include "../../../jabber_global.h"
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
 #include "../muc/jsessionconvertor.h"

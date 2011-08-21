@@ -1,5 +1,5 @@
 #include "jpersonactivityconverter.h"
-#include <protocol/jprotocol.h>
+#include "../../jprotocol.h"
 #include <qutim/iconloader.h>
 
 namespace Jabber {

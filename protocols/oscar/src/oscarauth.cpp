@@ -38,7 +38,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include "hmac_sha2.h"
+#include "../3rdparty/hmac/hmac_sha2.h"
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"

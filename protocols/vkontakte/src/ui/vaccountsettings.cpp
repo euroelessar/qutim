@@ -1,6 +1,6 @@
 #include "vaccountsettings.h"
 #include "ui_vaccountsettings.h"
-#include "vaccount.h"
+#include "../vaccount.h"
 #include <qutim/debug.h>
 
 VAccountSettings::VAccountSettings(QWidget *parent) :

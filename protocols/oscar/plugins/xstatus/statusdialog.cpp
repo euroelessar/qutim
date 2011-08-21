@@ -18,7 +18,7 @@
 #include "statusdialog.h"
 #include <qutim/icon.h>
 #include <qutim/configbase.h>
-#include "icqaccount.h"
+#include "../../src/icqaccount.h"
 #include <QPushButton>
 
 namespace qutim_sdk_0_3 {

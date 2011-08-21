@@ -16,8 +16,8 @@
 #ifndef FEEDBAG_H
 #define FEEDBAG_H
 
-#include <icq_global.h>
-#include <snachandler.h>
+#include "icq_global.h"
+#include "snachandler.h"
 #include "tlv.h"
 #include <QSharedData>
 #include <qutim/config.h>

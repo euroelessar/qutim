@@ -18,7 +18,7 @@
 #define DATAUNIT_H
 
 #include "util.h"
-#include <icq_global.h>
+#include "icq_global.h"
 #include <typeinfo>
 #include <limits>
 

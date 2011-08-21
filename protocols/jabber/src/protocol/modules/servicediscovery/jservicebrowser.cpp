@@ -2,7 +2,6 @@
 #include <QStringBuilder>
 #include <QObjectCleanupHandler>
 #include "jservicebrowser.h"
-#include "protocol/modules/adhoc/jadhocwidget.h"
 #include "ui_jservicebrowser.h"
 // qutIM
 #include <qutim/iconloader.h>
@@ -13,6 +12,7 @@
 #include <qutim/contact.h>
 #include <qutim/account.h>
 #include <qutim/systemintegration.h>
+#include <qutim/dataforms.h>
 //Jreen
 #include <jreen/client.h>
 

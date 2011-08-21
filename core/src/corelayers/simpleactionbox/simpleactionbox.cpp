@@ -2,7 +2,7 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QAction>
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 #include <QHBoxLayout>
 
 namespace Core

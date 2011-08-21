@@ -14,8 +14,8 @@
  *****************************************************************************/
 
 #include "accountcreator.h"
-#include "ircprotocol.h"
-#include "ircaccount.h"
+#include "../ircprotocol.h"
+#include "../ircaccount.h"
 
 namespace qutim_sdk_0_3 {
 

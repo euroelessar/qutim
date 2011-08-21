@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QKeyEvent>
 
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 Q_DECLARE_METATYPE(QList<QIcon>);
 
