@@ -33,7 +33,10 @@ public:
 		m_contact = contact;
 		QMenu *menu = contact->menu(false);
 		m_contactActionsBtn->setMenu(menu);
-		menu->setParent(m_contactActionsBtn);
+
+                m_contactActionsBtn->connect(m_contactActionsBtn, SIGNAL(destroyed()),
+                                             menu, SLOT(deleteLater()));
+
 		ui->requestMessage->setText(text);
 		QString title;
 		if (incoming) {

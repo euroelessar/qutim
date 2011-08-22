@@ -82,6 +82,7 @@ protected slots:
 	void onAnchorClicked(const QUrl &url);
 	void animate();
 private:
+	QPixmap createBullet(const QColor &color);
 	void init();
 	void loadHistory();
 	int addEmoticon(const QString &filename);
@@ -100,12 +101,16 @@ private:
 	bool m_atAnimation;
 	short m_groupUntil;
 	int m_scrollBarPosition;
+	int m_bulletSize;
 	QFont m_font;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;
 	QColor m_baseColor;
 	QColor m_urlColor;
+	QColor m_bulletErrorColor;
+	QColor m_bulletSentColor;
+	QColor m_bulletReceivedColor;
 	QSet<QString> m_images;
 	QHash<QString, int> m_hash;
 	QList<EmoticonTrack> m_emoticons;

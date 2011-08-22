@@ -38,7 +38,6 @@ class JRoster;
 class JRosterPrivate;
 class JConnection;
 class JMessageHandler;
-class JServiceDiscovery;
 class JMUCManager;
 class JSoftwareDetection;
 class JVCardManager;
@@ -47,22 +46,24 @@ class JMessageSessionManager;
 class JAccount : public Account
 {
 	Q_OBJECT
+	Q_PROPERTY(QObject* client READ client)
+	Q_PROPERTY(QObject* privateXml READ privateXml)
+	Q_PROPERTY(QObject* privacyManager READ privacyManager)
+	Q_PROPERTY(QObject* pubSubManager READ pubSubManager)
 	Q_DECLARE_PRIVATE(JAccount)
+	Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
 public:
 	JAccount(const QString &jid);
 	virtual ~JAccount();
 	ChatUnit *getUnitForSession(ChatUnit *unit);
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	QString name() const;
-	void setNick(const QString &nick);
 	QString password(bool *ok = 0);
 	QString getPassword() const;
 	Jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;
-	JVCardManager *vCardManager() const;
 	JRoster *roster() const;
-	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	Jreen::PrivateXml *privateXml();
 	Jreen::PrivacyManager *privacyManager();
@@ -70,13 +71,16 @@ public:
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
 	QString getAvatarPath();
-	void setAvatar(const QString &hex);
+	void setAvatarHex(const QString &hex);
+	QString avatar();
 	bool event(QEvent *);
 	QSet<QString> features() const;
 	bool checkFeature(const QString &feature) const;
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
+signals:
+	void avatarChanged(const QString &avatar);
 public slots:
 	void loadSettings();
 private:
@@ -85,7 +89,8 @@ private:
 	friend class JRosterPrivate;
 	friend class JServerDiscoInfo;
 	QScopedPointer<JAccountPrivate> d_ptr;
-
+	
+	Q_PRIVATE_SLOT(d_func(),void _q_set_nick(const QString &nick))
 	Q_PRIVATE_SLOT(d_func(),void _q_connected())
 	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(Jreen::Client::DisconnectReason))
 	Q_PRIVATE_SLOT(d_func(),void _q_init_extensions(const QSet<QString> &features))

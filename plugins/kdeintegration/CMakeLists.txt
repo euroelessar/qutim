@@ -6,20 +6,7 @@ if(NOT KDE4_FOUND)
 	return()
 endif()
 
-include( KDE4Defaults )
-
-macro_ensure_version( "4.2.0" "${GENERIC_LIB_VERSION}" KDE_HAS_4_2 )
-if( NOT KDE_HAS_4_2 )
-	message(STATUS "Minimum kdelibs version is 4.2.0, but ${GENERIC_LIB_VERSION} found" )
-	return()
-endif( NOT KDE_HAS_4_2 )
-
-
-#qt4_add_dbus_adaptor( KDE4_PLUGIN_SRC
-#	"${CMAKE_CURRENT_SOURCE_DIR}/src/dbusadaptors/org.kde.StatusNotifierItem.xml"
-#	"${CMAKE_CURRENT_BINARY_DIR}/src/tray/kdetrayicondbus.h"
-#	KdeTrayIconDBus
-#	)
+include(KDE4Defaults)
 
 qutim_add_plugin(kdeintegration
 	${KDE4_PLUGIN_SRC}

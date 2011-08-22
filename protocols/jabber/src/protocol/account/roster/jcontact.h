@@ -30,6 +30,7 @@ class JContact : public Contact
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JContact)
+	Q_PROPERTY(QString photoHash READ avatarHash WRITE setAvatar)
 	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
 	JContact(const QString &jid, JAccount *account);

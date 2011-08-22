@@ -124,9 +124,9 @@ XmlConsole::~XmlConsole()
 	delete m_ui;
 }
 
-void XmlConsole::init(Account *account, const JabberParams &params)
+void XmlConsole::init(Account *account)
 {
-	m_client = params.item<Client>();
+	m_client = qobject_cast<Client*>(account->property("client"));
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
 										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
 										   this, SLOT(show())),

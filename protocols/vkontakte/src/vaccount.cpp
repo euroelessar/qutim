@@ -30,6 +30,7 @@ VAccount::VAccount(const QString& email,QObject *parent) :
 	d_ptr(new VAccountPrivate)
 {
 	setParent(parent);
+	setInfoRequestFactory(new VInfoFactory(this));
 	Q_D(VAccount);
 	d->q_ptr = this;
 	setParent(protocol());
@@ -139,23 +140,3 @@ const VConnection *VAccount::connection() const
 {
 	return d_func()->connection;
 }
-
-bool VAccount::event(QEvent *ev)
-{
-	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = this->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new VInfoRequest(this));
-		event->accept();
-	}
-	return Account::event(ev);
-}
-

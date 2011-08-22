@@ -2,8 +2,6 @@
 #include "jmucsession.h"
 #include "../jaccount.h"
 #include "../roster/jcontactresource_p.h"
-#include "../vcard/jinforequest.h"
-#include "../vcard/jvcardmanager.h"
 #include <QStringBuilder>
 #include <qutim/tooltip.h>
 
@@ -162,25 +160,6 @@ bool JMUCUser::event(QEvent *ev)
 				event->addField(QT_TRANSLATE_NOOP("Conference", "OS"), os, 25);
 		}
 		Buddy::event(ev);
-		return true;
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible && d_func()->muc->isJoined()) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-		return true;
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JMUCUser);
-		JAccount * const acc = static_cast<JAccount*>(account());
-		const JID jid = d->id;
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		if(!acc->vCardManager()->containsRequest(jid))
-			event->setRequest(new JInfoRequest(acc->vCardManager(), jid));
-		event->accept();
 		return true;
 	}
 	return JContactResource::event(ev);

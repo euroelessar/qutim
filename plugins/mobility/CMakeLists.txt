@@ -1,7 +1,7 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 
 find_package(QtMobility)
-if(NOT ${QT_MOBILITY_FOUND})
+if(NOT QT_MOBILITY_FOUND)
 	message(STATUS "Mobility plugin set will be skipped")
 	return()
 endif()

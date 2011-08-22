@@ -35,12 +35,16 @@ class ScriptInfoRequest : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error, InfoRequest *parent);
+	explicit ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
+							   InfoRequest *parent);
 
 signals:
 
 public slots:
 	void onStateChanged(qutim_sdk_0_3::InfoRequest::State);
+
+private:
+	void handleError(const char *name, const QString &text);
 	
 private:
 	QScriptValue m_func;

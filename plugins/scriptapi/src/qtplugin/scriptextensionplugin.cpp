@@ -165,10 +165,9 @@ QScriptValue scriptRequestInfo(QScriptContext *context, QScriptEngine *engine)
 	QScriptValue func = context->argument(1);
 	if (!func.isFunction())
 		return context->throwError("Second argument must be callback");
-	InfoRequestCheckSupportEvent checkSupport;
-	qApp->sendEvent(object, &checkSupport);
+	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
 	QScriptValue errorFunc = context->argument(2);
-	if (checkSupport.supportType() == InfoRequestCheckSupportEvent::NoSupport) {
+	if (!factory || factory->supportLevel(object) <= InfoRequestFactory::Unavailable) {
 		if (errorFunc.isFunction()) {
 			qDebug() << Q_FUNC_INFO;
 			QScriptValue error = engine->newObject();
@@ -180,10 +179,8 @@ QScriptValue scriptRequestInfo(QScriptContext *context, QScriptEngine *engine)
 		}
 		return engine->undefinedValue();
 	}
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	qDebug() << Q_FUNC_INFO;
-	new ScriptInfoRequest(func, errorFunc, event.request());
+	InfoRequest *request = factory->createrDataFormRequest(object);
+	new ScriptInfoRequest(func, errorFunc, request);
 	return engine->undefinedValue();
 }
 
@@ -192,13 +189,10 @@ QScriptValue createInfoRequest(QScriptContext *context, QScriptEngine *engine)
 	if (context->argumentCount() != 1)
 		return context->throwError("InfoRequest() takes exactly one argument");
 	QObject *object = context->argument(0).toQObject();
-	InfoRequestCheckSupportEvent checkSupport;
-	qApp->sendEvent(object, &checkSupport);
-	if (checkSupport.supportType() == InfoRequestCheckSupportEvent::NoSupport)
+	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
+	if (!factory || factory->supportLevel(object) <= InfoRequestFactory::Unavailable)
 		return engine->undefinedValue();
-	InfoRequestEvent event;
-	qApp->sendEvent(object, &event);
-	InfoRequest *request = event.request();
+	InfoRequest *request = factory->createrDataFormRequest(object);
 	if (!request)
 		return engine->nullValue();
 	return engine->newQObject(request, QScriptEngine::ScriptOwnership);

@@ -194,19 +194,6 @@ bool VContact::event(QEvent *ev)
 		if (!d->activity.isEmpty())
 			event->addField(QT_TRANSLATE_NOOP("ContactInfo","Activity"),
 							d->activity);
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new VInfoRequest(this));
-		event->accept();
 	}
 	return Contact::event(ev);
 }

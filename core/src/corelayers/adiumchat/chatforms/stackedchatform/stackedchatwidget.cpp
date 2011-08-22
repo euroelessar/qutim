@@ -1,3 +1,29 @@
+/****************************************************************************
+**
+** qutIM instant messenger
+**
+** Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 2 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "stackedchatwidget.h"
 #include <qutim/servicemanager.h>
 #include <chatlayer/chatviewfactory.h>
@@ -23,8 +49,8 @@
 #include <qutim/servicemanager.h>
 #include <QApplication>
 #include <QDesktopWidget>
+
 #ifdef Q_WS_MAEMO_5
-#include <QAbstractKineticScroller>
 #include <kb_qwerty.h>
 #endif
 
@@ -144,19 +170,30 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	FloatingButton *showContactList=new FloatingButton(2,m_chatWidget);
 	connect(showContactList, SIGNAL(clicked()), this, SLOT(showContactList()));
 
-#if defined(Q_WS_MAEMO_5)
+#ifdef Q_WS_MAEMO_5
+	showKeyb = new FloatingButton(4, m_chatWidget);
+	connect(showKeyb, SIGNAL(clicked()), this, SLOT(showKeyboard()));
+	showKeyb->setVisible(false);
+
+	Config config = Config().group(QLatin1String("Maemo5"));
+	switch (config.value(QLatin1String("orientation"),0))
+	{
+	case 0:
+		setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		break;
+	case 1:
+		setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+		break;
+	case 2:
+		setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+		break;
+	}
+
 	connect(m_kb_qwerty, SIGNAL(input(QString)), this, SLOT(processInput(QString)));
 
-	//    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
-	//    	if (scroller)
-	//    	{
-	//		scroller->setEnabled(true);
-	//		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
-	//	}
-#endif
 	connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
 	orientationChanged();
-
+#endif
 }
 
 void StackedChatWidget::loadSettings()
@@ -395,49 +432,53 @@ void StackedChatWidget::animationFinished()
 	m_contactView->blockSignals(false);
 }
 
-void StackedChatWidget::orientationChanged()
-{
-#ifdef Q_WS_MAEMO_5
-	QRect screenGeometry = QApplication::desktop()->screenGeometry();
-	if (screenGeometry.width() > screenGeometry.height())
-	{
-		qApp->setAutoSipEnabled(true);
-		m_kb_qwerty->setVisible(false);
-	}
-	else
-	{
-		qApp->setAutoSipEnabled(false);
-		m_kb_qwerty->setVisible(true);
-
-	}
-#endif
-}
-
 void StackedChatWidget::showContactList()
 {
 	if (QObject *obj = ServiceManager::getByName("ContactList"))
 		obj->metaObject()->invokeMethod(obj, "show");
 }
 
+#ifdef Q_WS_MAEMO_5
+void StackedChatWidget::orientationChanged()
+{
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	if (screenGeometry.width() > screenGeometry.height())
+	{
+		qApp->setAutoSipEnabled(true);
+		isPortraitMode = false;
+		showKeyb->setVisible(false);
+		m_kb_qwerty->setVisible(false);
+	}else{
+		qApp->setAutoSipEnabled(false);
+		showKeyb->setVisible(true);
+		isPortraitMode = true;
+	}
+}
+
 void StackedChatWidget::processInput(QString sInput)
 {
-	Q_UNUSED(sInput);
-#ifdef Q_WS_MAEMO_5
 	m_chatInput->setFocus();
 
 	if(sInput.compare(kb_Qwerty::DELETE) == 0)
 	{
 		m_chatInput->textCursor().deletePreviousChar();
-	}
-	else
-	{
+	}else{
 		m_chatInput->textCursor().insertText(sInput);
 	}
 
 	//Scroll text edit if necessary
 	m_chatInput->ensureCursorVisible();
-#endif
 }
+
+void StackedChatWidget::showKeyboard()
+{
+	if (isPortraitMode)
+	{
+		m_kb_qwerty->setVisible(!m_kb_qwerty->isVisible());
+	}
+}
+#endif
+
 
 }
 }

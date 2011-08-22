@@ -66,7 +66,7 @@ void SimpleContactlistSettings::loadImpl()
 	ui->avatarsBox->setChecked(config.value("showAvatars", true));
 	ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
 	ui->statusBox->setChecked(config.value("showStatusText", true));
-	ui->liteBox->setChecked(config.value("liteMode", false));
+        ui->liteBox->setChecked(config.value("liteMode", true));
 
 	// Load extendes statuses
 	config.beginGroup("extendedStatuses");

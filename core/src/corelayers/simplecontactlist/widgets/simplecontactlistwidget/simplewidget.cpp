@@ -45,7 +45,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 SimpleWidget::SimpleWidget()
 {
 	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
-	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+        connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
@@ -68,8 +68,7 @@ SimpleWidget::SimpleWidget()
 	}
 
 #if defined(Q_WS_MAEMO_5)
-	//int size = 48; //TODO use relative sizes table
-	//smith, please test it!
+	//Works!
 	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #else
 	int size = 16;
@@ -153,15 +152,23 @@ SimpleWidget::SimpleWidget()
 	statusMenu->addSeparator();
 
 #ifdef Q_WS_MAEMO_5
-	m_statusBtn->setMaximumHeight(50);
-	m_searchBtn->setMaximumHeight(50);
-	m_widget->setAttribute(Qt::WA_Maemo5StackedWindow);
-	m_widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+        m_statusBtn->setMaximumHeight(50);
+        m_searchBar->setMaximumHeight(50);
+        setAttribute(Qt::WA_Maemo5StackedWindow);
+	Config config = Config().group(QLatin1String("Maemo5"));
+	switch (config.value(QLatin1String("orientation"),0))
+	{
+	case 0:
+		setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		break;
+	case 1:
+		 setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+		break;
+	case 2:
+		 setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+		break;
+	}
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
-#endif
-
-	//TODO, Smith, separate it to another plugin!
-#ifdef QUTIM_MOBILE_UI
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 			this, SLOT(orientationChanged()));
 	orientationChanged();
@@ -172,11 +179,11 @@ SimpleWidget::SimpleWidget()
 
 SimpleWidget::~SimpleWidget()
 {
-	Config config;
-	config.beginGroup("contactList");
-	config.setValue("geometry", saveGeometry());
-	config.endGroup();
-	config.sync();
+        Config config;
+        config.beginGroup("contactList");
+        config.setValue("geometry", saveGeometry());
+        config.endGroup();
+        config.sync();
 }
 
 void SimpleWidget::addButton(ActionGenerator *generator)
@@ -316,6 +323,7 @@ void SimpleWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
+#ifdef Q_WS_MAEMO_5
 void SimpleWidget::orientationChanged()
 {
 	QRect screenGeometry = QApplication::desktop()->screenGeometry();
@@ -329,6 +337,7 @@ void SimpleWidget::orientationChanged()
 
 	}
 }
+#endif
 
 bool SimpleWidget::event(QEvent *event)
 {

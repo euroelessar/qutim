@@ -16,7 +16,6 @@
 
 #include "yandexnarodnetman.h"
 #include "requestauthdialog.h"
-#include <QXmlQuery>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <qutim/libqutim_version.h>

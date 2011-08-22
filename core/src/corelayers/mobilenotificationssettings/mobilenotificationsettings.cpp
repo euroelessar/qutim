@@ -127,7 +127,7 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 		}
 	}
 
-	m_typesWidget->expandAll();
+	//m_typesWidget->expandAll();
 	layout->addWidget(m_typesWidget);
 	connect(m_typesWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
 			SLOT(onItemChanged(QTreeWidgetItem*,int)));
@@ -139,6 +139,11 @@ MobileNotificationSettings::MobileNotificationSettings(QWidget *parent) :
 	m_conferenceMessagesBox = new QCheckBox(tr("Ignore conference messages that do not contain my name"), this);
 	layout->addWidget(m_conferenceMessagesBox);
 	lookForWidgetState(m_conferenceMessagesBox);
+
+#ifdef Q_WS_MAEMO_5
+	m_notificationInActiveChatBox->setMaximumHeight(40);
+	m_conferenceMessagesBox->setMaximumHeight(40);
+#endif
 
 }
 

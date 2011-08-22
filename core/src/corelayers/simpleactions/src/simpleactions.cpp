@@ -25,7 +25,6 @@
 #include <qutim/protocol.h>
 #include <qutim/utils.h>
 #include <qutim/servicemanager.h>
-#include <qutim/inforequest.h>
 #include <qutim/notification.h>
 #include <QClipboard>
 #include <QApplication>
@@ -33,30 +32,11 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+Q_DECLARE_METATYPE(QAction*)
+
 namespace Core {
 
 using namespace qutim_sdk_0_3;
-
-namespace ShowInfo
-{
-void checkAction(QObject *controller, QAction *action)
-{
-	if (!controller || !action)
-		return;
-	InfoRequestCheckSupportEvent info_event;
-	qApp->sendEvent(controller, &info_event);
-	if (info_event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
-		if (info_event.supportType() == InfoRequestCheckSupportEvent::Read)
-			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
-		else if (info_event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
-			action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
-		action->setEnabled(true);
-	} else {
-		action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"));
-		action->setEnabled(false);
-	}
-}
-}
 
 namespace AddRemove
 {
@@ -188,9 +168,30 @@ void SimpleActions::onShowInfoAction(QObject *obj)
 	QMetaObject::invokeMethod(contactInfo, "show", Q_ARG(QObject*, obj));
 }
 
+static void updatInfoAction(QAction *action, InfoRequestFactory::SupportLevel level)
+{
+	action->setVisible(level > InfoRequestFactory::Unavailable);
+	action->setText(level == InfoRequestFactory::ReadOnly ?
+						QT_TRANSLATE_NOOP("ContactInfo", "Show information") :
+						QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
+}
+
 void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller)
 {
-	ShowInfo::checkAction(controller,action);
+	InfoObserver *observer = new InfoObserver(controller);
+	updatInfoAction(action, observer->supportLevel());
+	observer->setProperty("action", qVariantFromValue(action));
+	connect(observer, SIGNAL(supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)),
+			SLOT(onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)));
+	connect(action, SIGNAL(destroyed()), observer, SLOT(deleteLater()));
+}
+
+void SimpleActions::onInformationSupportLevelChanged(InfoRequestFactory::SupportLevel level)
+{
+	QAction *action = sender()->property("action").value<QAction*>();
+	if (!action)
+		return;
+	updatInfoAction(action, level);
 }
 
 void SimpleActions::onContactAddRemoveActionCreated(QAction *a, QObject *o)
@@ -238,14 +239,9 @@ void SimpleActions::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
 {
-	QMap<QObject*, QAction*> actions = m_showInfoGen->actions();
+	QMap<QObject*, QAction*> actions = m_contactAddRemoveGen->actions();
 	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
-	for(;it != actions.constEnd(); it++)
-		ShowInfo::checkAction(it.key(), it.value());
-
-	actions = m_contactAddRemoveGen->actions();
-	it = actions.constBegin();
-	for(;it != actions.constEnd(); it++)
+	for(; it != actions.constEnd(); it++)
 		AddRemove::checkContact(it.value(), sender_cast<Contact*>(it.key()));
 }
 
@@ -260,7 +256,11 @@ void SimpleActions::inListChanged(bool)
 
 static QIcon soundIcon(bool isEnabled)
 {
+#ifdef Q_WS_MAEMO_5
+	return Icon(QLatin1String(isEnabled ? "general_speaker" : "call_speaker_muted"));
+#else
 	return Icon(QLatin1String(isEnabled ? "audio-volume-high" : "audio-volume-muted"));
+#endif
 }
 
 void SimpleActions::onDisableSoundActionCreated(QAction *action, QObject *obj)

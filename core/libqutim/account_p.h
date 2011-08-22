@@ -35,6 +35,7 @@ public:
 	Status status;
 	GroupChatManager *groupChatManager;
 	ContactsFactory *contactsFactory;
+	InfoRequestFactory *infoRequestFactory;
 };
 }
 

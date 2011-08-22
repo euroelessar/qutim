@@ -272,6 +272,10 @@ public:
 	Returns the subitem by its \a name.
   */
 	DataItem subitem(const QString &name, bool recursive = false) const;
+
+	int removeSubitems(const QString &name, bool recursive = false);
+	bool removeSubitem(const QString &name, bool recursive = false);
+	DataItem takeSubitem(const QString &name, bool recursive = false);
 	/**
 	Adds new \a subitem to the list of subitems of this data item.
 	\see operator<<()

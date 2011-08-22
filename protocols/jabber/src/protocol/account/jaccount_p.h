@@ -8,7 +8,6 @@
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
-#include "vcard/jvcardmanager.h"
 #include <sdk/jabber.h>
 #include <QSignalMapper>
 namespace Jreen
@@ -27,23 +26,21 @@ public:
 	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
 	inline ~JAccountPrivate() {}
 	//Jreen
-	Jreen::Client client;
+	QScopedPointer<Jreen::Client> client;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;
 	JMessageSessionManager *messageSessionManager;
-	JVCardManager *vCardManager;
 	Jreen::PubSub::Manager *pubSubManager;
 	Jreen::PrivateXml *privateXml;
 	JMessageHandler *messageHandler;
-	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString nick;
+	QString avatar;
 	bool keepStatus;
 	Status status;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
-	JabberParams params;
 	QPointer<JMUCManager> conferenceManager;
 	QPointer<PasswordDialog> passwordDialog;
 	QSignalMapper signalMapper;
@@ -52,6 +49,7 @@ public:
 	
 	void applyStatus(const Status &status);
 	void setPresence(Jreen::Presence);
+	void _q_set_nick(const QString &nick);
 	void _q_disconnected(Jreen::Client::DisconnectReason);
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);

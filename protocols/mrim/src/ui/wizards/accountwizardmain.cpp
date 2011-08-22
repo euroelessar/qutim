@@ -38,7 +38,7 @@ bool AccountWizardMain::validatePage()
 
     if (isFinalPage())
     {
-        QString email = field("email").value<QString>() + ui->domainComboBox->currentText();
+	QString email = field("email").value<QString>().toLower().trimmed() + ui->domainComboBox->currentText();
         MrimProtocol::AccountCreationError err = MrimProtocol::instance()->createAccount(email,field("pass").value<QString>());
 
         if (err == MrimProtocol::None)

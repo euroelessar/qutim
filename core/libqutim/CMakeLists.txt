@@ -59,14 +59,6 @@ if(MINGW)
     LIST( APPEND COMPILE_FLAGS "-mthreads" )
 endif(MINGW)
 
-# Require QT 4.6
-SET( QT_MIN_VERSION "4.6.0" )
-
-# Set QT modules
-SET( QT_USE_QTNETWORK TRUE )
-SET( QT_USE_QTGUI FALSE )
-
-# Search for QT4
 FIND_PACKAGE( Qt4 REQUIRED )
 
 option(WITH_DOXYGEN "" ON)

@@ -15,7 +15,7 @@
 //{
 //}
 
-//void RemoteControl::init(Account *account, const JabberParams &params)
+//void RemoteControl::init(Account *account)
 //{
 //	m_account = static_cast<JAccount *>(account);
 //	m_myJid.setJID(m_account->id().toStdString());
