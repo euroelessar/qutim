@@ -25,9 +25,6 @@
 
 #include "maemo5idle.h"
 
-#include <QTimer>
-#include <QtDBus>
-
 #include <mce/mode-names.h>
 #include <mce/dbus-names.h>
 
@@ -35,46 +32,51 @@
 Maemo5Idle::Maemo5Idle()
 {
 	mDbusInterface = new QDBusInterface(MCE_SERVICE, MCE_REQUEST_PATH,
-											MCE_REQUEST_IF, QDBusConnection::systemBus(),
-											this);
+					    MCE_REQUEST_IF, QDBusConnection::systemBus(),
+					    this);
 	display_off=false;
 	QDBusConnection::systemBus().connect(MCE_SERVICE, MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
-											 MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
+					     MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
 	mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
 	
-	idle_timer = new QTimer();
+	idle_timer = new QBasicTimer();
+	idle_timer->start(60000,this);
 	check_timer = new QTimer();
 	connect(check_timer, SIGNAL(timeout()), SLOT(doCheck()));
 	check_timer->start(60000); //every minute
-
-	
-
 }
 
 void Maemo5Idle::doCheck()
 {
-	emit secondsIdle(idle_timer->interval()/1000);
+	emit secondsIdle(idleSeconds);
 }
 
 void Maemo5Idle::setDisplayState(const QString &state)
-	{
-		if (!state.isEmpty()) {
-			if (state == MCE_DISPLAY_ON_STRING)
-			{
-				display_off=false;
-				idle_timer->stop();
-			}
-			else if (state == MCE_DISPLAY_OFF_STRING)
-			{
-				display_off=true;
-				idle_timer->start();
-			}
+{
+	if (!state.isEmpty()) {
+		if (state == MCE_DISPLAY_ON_STRING)
+		{
+			display_off=false;
+			idle_timer->stop();
+			idleSeconds=0;
+		}
+		else if (state == MCE_DISPLAY_OFF_STRING)
+		{
+			display_off=true;
+			idle_timer->start(60000,this);
 		}
 	}
+}
 
 void Maemo5Idle::displayStateChanged(const QDBusMessage &message)
-	{
-		QString state = message.arguments().at(0).toString();
-		setDisplayState(state);
-	}
+{
+	QString state = message.arguments().at(0).toString();
+	setDisplayState(state);
+}
+
+void Maemo5Idle::timerEvent(QTimerEvent* ev)
+{
+	idleSeconds+=1;
+	ev->accept();
+}
 
