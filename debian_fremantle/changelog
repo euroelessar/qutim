@@ -1,3 +1,10 @@
+qutim (0.2.80-maemo-12) fremantle; urgency=low
+
+  * Update translation
+  * Fix some bugs
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 22 Aug 2011 20:31:40 +0600
+
 qutim (0.2.80-maemo-11) fremantle; urgency=low
 
   * Fix power consumtion
