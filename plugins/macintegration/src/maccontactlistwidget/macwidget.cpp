@@ -163,6 +163,7 @@ void MacWidget::addMenu(const QString &title, MacMenuId id)
 void MacWidget::addButton(ActionGenerator *generator)
 {
 	d_func()->controllers[MacMenuRoster]->addAction(generator);
+	d_func()->menus[MacMenuRoster]->popup(QCursor::pos());
 }
 
 void MacWidget::removeButton(ActionGenerator *generator)
