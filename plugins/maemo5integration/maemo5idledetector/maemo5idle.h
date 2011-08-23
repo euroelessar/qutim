@@ -28,6 +28,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QBasicTimer>
 #include <QtDBus>
 
 class Maemo5Idle : public QObject
@@ -46,12 +47,14 @@ private slots:
 	void doCheck();
 	void setDisplayState(const QString &state);
 	void displayStateChanged(const QDBusMessage &message);
+	virtual void timerEvent(QTimerEvent* ev);
 
 private:
 	QDBusInterface *mDbusInterface;
 	bool display_off;
-	QTimer *idle_timer;
+	QBasicTimer *idle_timer;
 	QTimer *check_timer;
+	int idleSeconds;
 };
 
 

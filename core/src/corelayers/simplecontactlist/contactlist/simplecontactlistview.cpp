@@ -70,6 +70,12 @@ void TreeView::onClick(const QModelIndex &index)
 		if (ChatSession *session = ChatLayer::get(buddy, true))
 			session->activate();
 	}
+#ifdef Q_WS_MAEMO_5
+	else if(type == TagType)
+	{
+		this->setExpanded(index,!this->isExpanded(index));
+	}
+#endif
 }
 
 void TreeView::contextMenuEvent(QContextMenuEvent *event)

@@ -7,7 +7,7 @@ IF(UNIX AND NOT APPLE AND NOT SYMBIAN)
     ELSE()
         message(STATUS "Warning: libxss not found, idle detection won't be accurate")
     ENDIF()
-ENDIF()
+ENDIF (UNIX AND NOT APPLE AND NOT SYMBIAN)
 
 qutim_add_plugin( idledetector
     EXTENSION
