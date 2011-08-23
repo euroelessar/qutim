@@ -53,6 +53,7 @@ BearerManager::BearerManager(QObject *parent) :
 
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
 {
+	Q_UNUSED(s);
 	Config cfg = a->config();
 	bool auto_connect = cfg.value("autoConnect",false);
 	qDebug()<<"dkjdsbsdbsbvn";

@@ -23,22 +23,49 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef CONTACTLISTMODEL_H
+#define CONTACTLISTMODEL_H
 
-#include <QDeclarativeView>
+#include <QAbstractListModel>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/contact.h>
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QDeclarativeView
+class ContactListModel : public QAbstractListModel
 {
     Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
 public:
-    explicit ApplicationWindow();
+    ContactListModel();
+	virtual ~ContactListModel();
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+public slots:
+	
+signals:
+	
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountDeath(QObject *object);
+	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+	void onContactTitleChanged(const QString &title, const QString &oldTitle);
+	void onContactStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onContactDeath(QObject *object);
+	
+private:
+	struct Item {
+		QString title;
+		qutim_sdk_0_3::Contact *contact;
+		
+		bool operator <(const Item &o) const;
+	};
+	QHash<QObject*, QString> m_titles;
+	QList<Item> m_contacts;
 };
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif // CONTACTLISTMODEL_H

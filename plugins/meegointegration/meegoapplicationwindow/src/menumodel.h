@@ -23,22 +23,47 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef MENUMODEL_H
+#define MENUMODEL_H
 
-#include <QDeclarativeView>
+#include <QAbstractListModel>
+#include <qutim/menucontroller.h>
+#include <qdeclarative.h>
+
+QML_DECLARE_TYPE_HASMETATYPE(qutim_sdk_0_3::MenuController)
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QDeclarativeView
+class MenuModel : public QAbstractListModel, public qutim_sdk_0_3::ActionHandler
 {
     Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
+	Q_PROPERTY(QObject* controller READ controller WRITE setController NOTIFY controllerChanged)
 public:
-    explicit ApplicationWindow();
+    explicit MenuModel();
+	virtual ~MenuModel();
+	
+	static void init();
+	
+	QObject *controller() const;
+	void setController(QObject *controller);
+	
+	// ActionHandler
+	virtual void actionAdded(QAction *action, int index);
+	virtual void actionRemoved(int index);
+	virtual void actionsCleared();
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	
+signals:
+	void controllerChanged(QObject *controller);
+	
+private:
+	qutim_sdk_0_3::MenuController *m_controller;
+	qutim_sdk_0_3::ActionContainer m_container;
+	QList<QObject*> m_actions;
 };
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif // MENUMODEL_H

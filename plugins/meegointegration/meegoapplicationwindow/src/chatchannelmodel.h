@@ -23,26 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOWPLUGIN_H
-#define APPLICATIONWINDOWPLUGIN_H
+#ifndef CHATCHANNELMODEL_H
+#define CHATCHANNELMODEL_H
 
-#include <QDeclarativeComponent>
+#include <QAbstractListModel>
+#include <qutim/chatsession.h>
 
 namespace MeegoIntegration
 {
-class ContactList : public QObject
+class ChatChannelModel : public QAbstractListModel
 {
     Q_OBJECT
-	Q_CLASSINFO("Service", "ContactList")
-	Q_CLASSINFO("Uses", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "IconLoader")
 public:
-    explicit ContactList();
+    explicit ChatChannelModel(QObject *parent = 0);
 	
-	Q_INVOKABLE QObject *component(QObject *parent);
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+signals:
+
+public slots:
+
+private slots:
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionDeath(QObject *object);
 	
-//	Q_INVOKABLE void addButton(ActionGenerator *generator);
+private:
+	QList<qutim_sdk_0_3::ChatSession*> m_sessions;
 };
 }
 
-#endif // APPLICATIONWINDOWPLUGIN_H
+#endif // CHATCHANNELMODEL_H

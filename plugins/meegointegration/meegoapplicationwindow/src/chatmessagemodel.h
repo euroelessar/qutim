@@ -23,36 +23,33 @@
 **
 ****************************************************************************/
 
-#include "applicationwindow.h"
-#include <QDeclarativeContext>
-#include <qutim/thememanager.h>
-#include <QDeclarativeEngine>
-#include "servicemanagerwrapper.h"
-#include "menumodel.h"
-#include <QApplication>
+#ifndef CHATMESSAGEMODEL_H
+#define CHATMESSAGEMODEL_H
+
+#include <QAbstractListModel>
+#include <qutim/message.h>
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
-
-ApplicationWindow::ApplicationWindow()
+class ChatMessageModel : public QAbstractListModel
 {
-	ServiceManagerWrapper::init();
-	MenuModel::init();
-	QFont font;
-	font.setFamily(QLatin1String("Nokia Pure"));
-	font.setPointSize(24);
-	qApp->setFont(font);
-	setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    Q_OBJECT
+public:
+    explicit ChatMessageModel(QObject *parent = 0);
 
-	// These seem to give the best performance
-	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+	void append(qutim_sdk_0_3::Message &msg);
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	
+signals:
 
-	viewport()->setFocusPolicy(Qt::NoFocus);
-	setFocusPolicy(Qt::StrongFocus);
-	QString filePath = ThemeManager::path(QLatin1String("declarative"),
-	                                      QLatin1String("meego"));
-	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-    showFullScreen();
+public slots:
+
+private:
+	QList<qutim_sdk_0_3::Message> m_messages;
+};
 }
-}
+
+#endif // CHATMESSAGEMODEL_H
