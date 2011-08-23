@@ -23,36 +23,12 @@
 **
 ****************************************************************************/
 
-#include "applicationwindow.h"
-#include <QDeclarativeContext>
-#include <qutim/thememanager.h>
-#include <QDeclarativeEngine>
-#include "servicemanagerwrapper.h"
-#include "menumodel.h"
-#include <QApplication>
+#include "statuswrapper.h"
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
-
-ApplicationWindow::ApplicationWindow()
+StatusWrapper::StatusWrapper(QObject *parent) :
+    QObject(parent)
 {
-	ServiceManagerWrapper::init();
-	MenuModel::init();
-	QFont font;
-	font.setFamily(QLatin1String("Nokia Pure"));
-	font.setPointSize(24);
-	qApp->setFont(font);
-	setOptimizationFlags(QGraphicsView::DontSavePainterState);
-
-	// These seem to give the best performance
-	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
-	viewport()->setFocusPolicy(Qt::NoFocus);
-	setFocusPolicy(Qt::StrongFocus);
-	QString filePath = ThemeManager::path(QLatin1String("declarative"),
-	                                      QLatin1String("meego"));
-	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-    showFullScreen();
 }
 }

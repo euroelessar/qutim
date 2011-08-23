@@ -23,28 +23,46 @@
 **
 ****************************************************************************/
 
-#include "contactlist.h"
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#include <qutim/thememanager.h>
-#include "notificationmanagerwrapper.h"
+#ifndef STATUSWRAPPER_H
+#define STATUSWRAPPER_H
+
+#include <qutim/status.h>
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
-
-ContactList::ContactList()
+class StatusWrapper : public QObject
 {
-	NotificationManagerWrapper::init();
+    Q_OBJECT
+	Q_ENUMS(Type ChangeReason)
+public:
+	enum Type
+	{
+		Connecting = qutim_sdk_0_3::Status::Connecting,
+		Online = qutim_sdk_0_3::Status::Online,
+		FreeChat = qutim_sdk_0_3::Status::FreeChat,
+		Away = qutim_sdk_0_3::Status::Away,
+		NA = qutim_sdk_0_3::Status::NA,
+		DND = qutim_sdk_0_3::Status::DND,
+		Invisible = qutim_sdk_0_3::Status::Invisible,
+		Offline = qutim_sdk_0_3::Status::Offline
+	};
+
+	enum ChangeReason
+	{
+		ByUser = qutim_sdk_0_3::Status::ByUser,
+		ByIdle = qutim_sdk_0_3::Status::ByIdle,
+		ByAuthorizationFailed = qutim_sdk_0_3::Status::ByAuthorizationFailed,
+		ByNetworkError = qutim_sdk_0_3::Status::ByNetworkError,
+		ByFatalError = qutim_sdk_0_3::Status::ByFatalError
+	};
+	
+    explicit StatusWrapper(QObject *parent = 0);
+
+signals:
+
+public slots:
+
+};
 }
 
-QObject *ContactList::component(QObject *parent)
-{
-	QString filePath = ThemeManager::path(QLatin1String("declarative"),
-	                                      QLatin1String("meego/contactlist"));
-	QDeclarativeContext *context = QDeclarativeEngine::contextForObject(parent);
-	QDeclarativeEngine *engine = context->engine();
-	QDeclarativeComponent component(engine, QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-	return component.create();
-}
-}
+#endif // STATUSWRAPPER_H

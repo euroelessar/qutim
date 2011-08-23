@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
 #else
 	QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
-
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
 

@@ -28,7 +28,7 @@ SET (QT_USE_QTNETWORK true)
 SET (QT_USE_QTXML true)
 SET (QT_USE_QTSCRIPT true)
 if( DECLARATIVE_UI )
-	set( QT_USE_DECLARATIVE true )
+	set( QT_USE_QTDECLARATIVE true )
 endif()
 
 SET (QUTIM_PLUGINS_DEST "lib/qutim/")

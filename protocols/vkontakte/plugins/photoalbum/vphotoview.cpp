@@ -5,7 +5,7 @@
 #include <qutim/debug.h>
 #include <QtDeclarative/QDeclarativeContext>
 #include "../../src/vconnection.h"
-#include "../../src/vaccount.h""
+#include "../../src/vaccount.h"
 #include <qutim/json.h>
 #include "valbummodel.h"
 #include <qutim/thememanager.h>
