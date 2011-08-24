@@ -27,7 +27,9 @@
 #include "chat.h"
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
+#include <QTextDocument>
 #include <qutim/thememanager.h>
+#include <QDateTime>
 
 namespace MeegoIntegration
 {
@@ -94,8 +96,12 @@ QObject *ChatChannel::model() const
 }
 
 qint64 ChatChannel::send(const QString &text)
-{
-	return appendMessage(text);
+{    
+	Message message(text);
+	message.setIncoming(false);
+	message.setChatUnit(m_unit);
+	message.setTime(QDateTime::currentDateTime());
+	return appendMessage(message);
 }
 
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
@@ -105,6 +111,10 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 	else
 		emit messageSent(&message);
 
+	if (message.property("html", QString()).isEmpty()) {
+		QString html = Qt::escape(message.text());
+		message.setProperty("html", html);
+	}
 	m_model->append(message);
 	return message.id();
 }

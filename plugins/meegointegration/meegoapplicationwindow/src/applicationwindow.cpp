@@ -30,6 +30,7 @@
 #include "servicemanagerwrapper.h"
 #include "menumodel.h"
 #include <QApplication>
+#include <QGLWidget>
 
 namespace MeegoIntegration
 {
@@ -45,11 +46,16 @@ ApplicationWindow::ApplicationWindow()
 	qApp->setFont(font);
 	setOptimizationFlags(QGraphicsView::DontSavePainterState);
 
+	setViewport(new QGLWidget(this));
 	// These seem to give the best performance
-	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
-	viewport()->setFocusPolicy(Qt::NoFocus);
-	setFocusPolicy(Qt::StrongFocus);
+//	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+//	viewport->setFocusPolicy(Qt::NoFocus);
+//	setFocusPolicy(Qt::StrongFocus);
+	setAttribute(Qt::WA_NoSystemBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
+	viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+	viewport()->setAttribute(Qt::WA_NoSystemBackground);
+	
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
 	                                      QLatin1String("meego"));
 	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));

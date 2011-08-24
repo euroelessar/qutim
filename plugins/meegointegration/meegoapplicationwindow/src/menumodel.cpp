@@ -25,7 +25,6 @@
 
 #include "menumodel.h"
 #include <qdeclarative.h>
-#include <QDebug>
 
 namespace MeegoIntegration
 {
@@ -34,95 +33,69 @@ using namespace qutim_sdk_0_3;
 MenuModel::MenuModel()
     : m_controller(0)
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	QHash<int, QByteArray> roleNames;
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	roleNames.insert(Qt::UserRole, "action");
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	setRoleNames(roleNames);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	m_container.addHandler(this);
 	m_container.show();
 }
 
 MenuModel::~MenuModel()
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 }
 
 void MenuModel::init()
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	qmlRegisterType<MenuModel>("org.qutim", 0, 3, "MenuModel");
 //	qmlRegisterType<MenuController>();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 }
 
 QObject *MenuModel::controller() const
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	return m_controller;
 }
 
 void MenuModel::setController(QObject *object)
 {
 	qutim_sdk_0_3::MenuController *controller = qobject_cast<MenuController*>(object);
-	qDebug() << Q_FUNC_INFO << __LINE__ << object;
 	if (m_controller == controller)
 		return;
 	m_controller = controller;
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	m_container.setController(controller);
 	emit controllerChanged(controller);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 }
 
 void MenuModel::actionAdded(QAction *action, int index)
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	beginInsertRows(QModelIndex(), index, index);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	m_actions.insert(index, action);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	endInsertRows();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 }
 
 void MenuModel::actionRemoved(int index)
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	beginRemoveRows(QModelIndex(), index, index);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	m_actions.removeAt(index);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	endRemoveRows();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 }
 
 void MenuModel::actionsCleared()
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
-	beginRemoveRows(QModelIndex(), 0, m_actions.size() - 1);
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
+	beginResetModel();
 	m_actions.clear();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
-	endRemoveRows();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
+	endResetModel();
 }
 
 int MenuModel::rowCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent);
-	qDebug("%s %d %d", Q_FUNC_INFO, __LINE__, m_actions.size());
 	return m_actions.size();
 }
 
 QVariant MenuModel::data(const QModelIndex &index, int role) const
 {
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	if (role != Qt::UserRole)
 		return QVariant();
-	qDebug("%s %d", Q_FUNC_INFO, __LINE__);
 	return qVariantFromValue(m_actions.value(index.row()));
 }
 }

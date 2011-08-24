@@ -29,7 +29,6 @@
 #include <qutim/thememanager.h>
 #include "notificationmanagerwrapper.h"
 #include "contactlistmodel.h"
-#include <QDebug>
 
 namespace MeegoIntegration
 {
@@ -72,7 +71,6 @@ StatusWrapper::Type ContactList::status() const
 
 void ContactList::setStatus(StatusWrapper::Type type)
 {
-	qDebug() << type;
 	m_globalStatus.setType(static_cast<Status::Type>(type));
 	foreach (Account *account, m_accounts)
 		account->setStatus(m_globalStatus);
@@ -89,19 +87,16 @@ QDeclarativeListProperty<qutim_sdk_0_3::Account> ContactList::accounts()
 
 QString ContactList::statusName(const QVariant &type)
 {
-	qDebug() << Q_FUNC_INFO << type;
 	return Status(static_cast<Status::Type>(type.toInt())).name().toString();
 }
 
 QUrl ContactList::statusUrl(const QVariant &type)
 {
-	qDebug() << Q_FUNC_INFO << type;
 	return QUrl::fromUserInput("image://theme/" + statusIcon(type));
 }
 
 QString ContactList::statusIcon(const QVariant &type)
 {
-	qDebug() << Q_FUNC_INFO << type;
 	QString iconName = QLatin1String("icon-m-status-menu-presence-");
 	int statusType = type.toInt();
 	if (type.canConvert<Status>())

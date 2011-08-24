@@ -38,6 +38,7 @@ public:
     explicit ChatMessageModel(QObject *parent = 0);
 
 	void append(qutim_sdk_0_3::Message &msg);
+	bool eventFilter(QObject *, QEvent *);
 	
 	// QAbstractListModel
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -48,6 +49,14 @@ signals:
 public slots:
 
 private:
+	QString createSenderName(const qutim_sdk_0_3::Message &msg) const;
+	struct Item
+	{
+		QString plainText;
+		QString richText;
+	};
+	QList<Item> m_items;
+
 	QList<qutim_sdk_0_3::Message> m_messages;
 };
 }
