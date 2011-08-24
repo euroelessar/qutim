@@ -79,7 +79,7 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const
 	case ContactRole:
 		return qVariantFromValue<QObject*>(contact);
 	case AlphabetRole:
-		return contact->title().at(0);
+		return contact->title().at(0).toUpper();
 	case StatusTextRole:
 		return contact->status().text();
 	default:

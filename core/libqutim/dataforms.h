@@ -501,7 +501,7 @@ public:
 
 		NRoles
 	};
-	Q_DECLARE_FLAGS(ButtonRoles, ButtonRole);
+	Q_DECLARE_FLAGS(ButtonRoles, ButtonRole)
 	enum StandardButton {
 		NoButton           = 0x00000000,
 		Ok                 = 0x00000400,
@@ -521,9 +521,9 @@ public:
 		Help               = 0x01000000,
 		Apply              = 0x02000000,
 		Reset              = 0x04000000,
-		RestoreDefaults    = 0x08000000,
+		RestoreDefaults    = 0x08000000
 	};
-	Q_DECLARE_FLAGS(StandardButtons, StandardButton);
+	Q_DECLARE_FLAGS(StandardButtons, StandardButton)
 	struct Button
 	{
 		LocalizedString name;
@@ -604,14 +604,14 @@ T DataItem::data(const T &def) const
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles);
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons);
+Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons)
 #endif
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>)
 #endif
 
 #endif // DATAFORMS_H

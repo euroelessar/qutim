@@ -25,8 +25,11 @@
 
 #include "chatmessagemodel.h"
 #include <QUrl>
+#include <qutim/account.h>
 #include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
+#include <qutim/conference.h>
+#include <QDateTime>
 
 namespace MeegoIntegration
 {
@@ -36,8 +39,15 @@ enum {
 	IncomingRole,
 	UnitRole,
 	IdRole,
-	AvatarRole,
-	TitleRole
+	SenderAvatarRole,
+	AccountAvatarRole,
+	TitleRole,
+	SenderNameRole,
+	DeliveredRole,
+	HtmlRole,
+	ActionRole,
+	ServiceRole,
+	AppendingRole
 };
 
 ChatMessageModel::ChatMessageModel(QObject *parent) :
@@ -45,14 +55,22 @@ ChatMessageModel::ChatMessageModel(QObject *parent) :
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(IdRole, "messageId");
-	roleNames.insert(AvatarRole, "avatar");
+	roleNames.insert(SenderNameRole, "senderName");
+	roleNames.insert(SenderAvatarRole, "senderAvatar");
+	roleNames.insert(AccountAvatarRole, "accountAvatar");
 	roleNames.insert(TitleRole, "title");
 	roleNames.insert(Qt::DisplayRole, "text");
 	roleNames.insert(Qt::DecorationRole, "iconSource");
 	roleNames.insert(TimeRole, "time");
 	roleNames.insert(IncomingRole, "incoming");
 	roleNames.insert(UnitRole, "contact");
+	roleNames.insert(DeliveredRole, "delivered");
+	roleNames.insert(HtmlRole, "html");
+	roleNames.insert(ActionRole, "action");
+	roleNames.insert(ServiceRole, "service");
+	roleNames.insert(AppendingRole, "appending");
 	setRoleNames(roleNames);
+	parent->installEventFilter(this);
 }
 
 void ChatMessageModel::append(qutim_sdk_0_3::Message &msg)
@@ -60,6 +78,14 @@ void ChatMessageModel::append(qutim_sdk_0_3::Message &msg)
 	beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
 	m_messages << msg;
 	endInsertRows();
+}
+
+bool ChatMessageModel::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (ev->type() == MessageReceiptEvent::eventType()) {
+		MessageReceiptEvent *event = static_cast<MessageReceiptEvent*>(ev);
+	}
+	return QAbstractListModel::eventFilter(obj, ev);
 }
 
 int ChatMessageModel::rowCount(const QModelIndex &parent) const
@@ -79,7 +105,13 @@ QVariant ChatMessageModel::data(const QModelIndex &index, int role) const
 	case TitleRole:
 	case Qt::DisplayRole:
 		return msg.text();
-	case AvatarRole:
+	case AccountAvatarRole: {
+		QString avatar = msg.chatUnit()->account()->property("avatar").toString();
+		if (!avatar.isEmpty())
+			return QUrl::fromLocalFile(avatar);
+		return QString();
+	}
+	case SenderAvatarRole:
 	case Qt::DecorationRole: {
 		QString avatar = msg.chatUnit()->property("avatar").toString();
 		if (!avatar.isEmpty())
@@ -90,8 +122,43 @@ QVariant ChatMessageModel::data(const QModelIndex &index, int role) const
 		return msg.time();
 	case UnitRole:
 		return qVariantFromValue<QObject*>(msg.chatUnit());
+	case SenderNameRole:
+		return createSenderName(msg);
+	case DeliveredRole:
+		return false;
+	case HtmlRole:
+		return msg.property("html");
+	case ActionRole:
+		return msg.property("action", false);
+	case ServiceRole:
+		return msg.property("service", false);
+	case AppendingRole:
+		if (index.row() > 0) {
+			const Message &prev = m_messages[index.row() - 1];
+			return prev.isIncoming() == msg.isIncoming()
+			        && prev.time().date() == msg.time().date()
+			        && createSenderName(prev) == createSenderName(msg);
+		}
+		return false;
 	default:
 		return QVariant();
 	}
+}
+
+QString ChatMessageModel::createSenderName(const Message &msg) const
+{
+	QString senderName = msg.property("senderName",QString());
+	if (senderName.isEmpty()) {
+		if (!msg.isIncoming()) {
+			const Conference *conf = qobject_cast<const Conference*>(msg.chatUnit());
+			if (conf && conf->me())
+				senderName = conf->me()->title();
+			else
+				senderName = msg.chatUnit()->account()->name();
+		} else {
+			senderName = msg.chatUnit()->title();
+		}
+	}
+	return senderName;
 }
 }
