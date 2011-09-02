@@ -96,6 +96,12 @@ public slots:
 	void leave();
 	void kick(const QString &nick, const QString &reason = QString());
 	void ban(const QString &nick, const QString &reason = QString());
+	void moder(const QString &nick, const QString &reason = QString());
+	void admin(const QString &nick, const QString &reason = QString());
+	void owner(const QString &nick, const QString &reason = QString());
+	void voice(const QString &nick, const QString &reason = QString());
+	void visitor(const QString &nick, const QString &reason = QString());
+	void member(const QString &nick, const QString &reason = QString());
 	void unban(const QString &jid, const QString &reason = QString());
 	void showConfigDialog();
 private slots:
