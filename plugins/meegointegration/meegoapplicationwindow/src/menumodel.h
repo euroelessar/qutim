@@ -52,7 +52,11 @@ public:
 	virtual void actionRemoved(int index);
 	virtual void actionsCleared();
 	
-	// QAbstractListModel
+	// QAbstractItemModel
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int columnCount(const QModelIndex &parent) const;
+    bool hasChildren(const QModelIndex &parent) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	
@@ -60,9 +64,28 @@ signals:
 	void controllerChanged(QObject *controller);
 	
 private:
+	struct Node
+	{
+//		typedef QSharedPointer<Node> Ptr;
+		typedef Node* Ptr;
+		Node(QObject *a = 0, Node *p = 0) : parent(p), action(a), deleteAction(false) { counter++; qDebug("%s %d", Q_FUNC_INFO, counter); }
+		Node(Node *p) : parent(p), action(0), deleteAction(false) { counter++; qDebug("%s %d", Q_FUNC_INFO, counter); }
+		~Node() { qDeleteAll(children); if (deleteAction) delete action; counter--; qDebug("%s %d", Q_FUNC_INFO, counter); }
+
+		Node *parent;
+		QObject *action;
+		bool deleteAction;
+		QByteArray name;
+		QList<Node::Ptr> children;
+		static int counter;
+	};
+	QModelIndex createNodeIndex(Node *node) const;
+	Node *ensureNode(const QList<QByteArray> &menu);
+	Node *nodeCast(const QModelIndex &index) const;
+	Node m_root;
 	qutim_sdk_0_3::MenuController *m_controller;
 	qutim_sdk_0_3::ActionContainer m_container;
-	QList<QObject*> m_actions;
+	QList<Node::Ptr> m_actions;
 };
 }
 

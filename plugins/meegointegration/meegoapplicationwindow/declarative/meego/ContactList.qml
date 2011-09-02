@@ -37,6 +37,9 @@ Page {
 	}
 	ContactListModel {
 		id: listModel
+		filter: filterField.text
+		showOffline: false
+		statusPrefix: "icon-m-common"
 	}
 	ListView {
 		id: listViewItem
@@ -44,7 +47,7 @@ Page {
 		anchors.top: parent.top
 		anchors.bottom: accountStatusTool.top
 		model: listModel
-		delegate: ListDelegate {
+		delegate: ItemDelegate {
 			onClicked: {
 				root.chat.session(model.contact).active = true
 			}
@@ -57,15 +60,39 @@ Page {
 	Component {
         id: sectionHeading
         Rectangle {
-            width: container.width
+            width: root.width
             height: childrenRect.height
-
+			color: Qt.rgba(0, 0, 0, 0.2)
             Text {
+				anchors.right: parent.right
+				anchors.rightMargin: 15
                 text: section
                 font.bold: true
+				font.pixelSize: 20
             }
         }
     }
+	TextField {
+		id: filterField
+		anchors { left: parent.left; bottom: parent.bottom; right: accountStatusTool.left }
+		platformSipAttributes: SipAttributes { actionKeyHighlighted: true }
+		placeholderText: "Search contact"
+		platformStyle: TextFieldStyle { paddingRight: clearButton.width }
+		Image {
+			id: clearButton
+			anchors.right: parent.right
+			anchors.verticalCenter: parent.verticalCenter
+			source: "image://theme/icon-m-input-clear"
+			MouseArea {
+				anchors.fill: parent
+				onClicked: {
+					inputContext.reset();
+					filterField.text = "";
+				}
+			}
+		}
+	}
+
 	ListButton {
 		id: accountStatusTool
 		anchors { right: parent.right; bottom: parent.bottom }
@@ -77,9 +104,9 @@ Page {
 			accountList.open()
 		}
 	}
-//	SectionScroller {
-//        listView: listViewItem
-//    }
+	SectionScroller {
+        listView: listViewItem
+    }
 	ScrollDecorator {
 		flickableItem: listViewItem
 	}

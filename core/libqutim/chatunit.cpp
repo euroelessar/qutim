@@ -77,6 +77,11 @@ const Account *ChatUnit::account() const
 	return d_func()->account;
 }
 
+bool ChatUnit::isConference() const
+{
+	return qobject_cast<const Conference*>(this) != NULL;
+}
+
 bool ChatUnit::send(const qutim_sdk_0_3::Message &message)
 {
 	return sendMessage(message);

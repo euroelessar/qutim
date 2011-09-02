@@ -36,9 +36,23 @@ namespace MeegoIntegration
 class ContactListModel : public QAbstractListModel
 {
     Q_OBJECT
+	Q_PROPERTY(QString statusPrefix READ statusPrefix WRITE setStatusPrefix NOTIFY statusPrefixChanged)
+	Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+	Q_PROPERTY(bool showOffline READ showOffline WRITE setShowOffline NOTIFY showOfflineChanged)
+	Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
+	
     ContactListModel();
 	virtual ~ContactListModel();
+	
+	QString statusPrefix();
+	void setStatusPrefix(const QString &prefix);
+	QString filter() const;
+	void setFilter(const QString &filter);
+	bool showOffline() const;
+	void setShowOffline(bool showOffline);
+	
+	Q_INVOKABLE QVariant get(int index);
 	
 	// QAbstractListModel
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -47,6 +61,10 @@ public:
 public slots:
 	
 signals:
+	void statusPrefixChanged(const QString &prefix);
+	void filterChanged(const QString &filter);
+	void showOfflineChanged(bool showOffline);
+	void countChanged(int count);
 	
 private slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
@@ -57,6 +75,10 @@ private slots:
 	void onContactDeath(QObject *object);
 	
 private:
+	void checkVisibility();
+	void checkVisibility(qutim_sdk_0_3::Contact *contact, bool forced = false);
+	bool isVisible(qutim_sdk_0_3::Contact *contact);
+	int indexOfContact(qutim_sdk_0_3::Contact *contact) const;
 	struct Item {
 		QString title;
 		qutim_sdk_0_3::Contact *contact;
@@ -65,6 +87,9 @@ private:
 	};
 	QHash<QObject*, QString> m_titles;
 	QList<Item> m_contacts;
+	QString m_filter;
+	bool m_showOffline;
+	QString m_statusPrefix;
 };
 }
 

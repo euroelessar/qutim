@@ -60,6 +60,7 @@ qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool
 	if (create) {
 		channel = new ChatChannel(unit);
 		connect(channel, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+		connect(channel, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		m_channels << channel;
 		emit channelsChanged(channels());
 		emit sessionCreated(channel);
@@ -108,5 +109,11 @@ void Chat::onSessionActivated(bool active)
 		m_activeSession = NULL;
 		emit activeSessionChanged(m_activeSession);
 	}
+}
+
+void Chat::onSessionDestroyed(QObject *object)
+{
+	ChatChannel *session = static_cast<ChatChannel*>(object);
+	m_channels.removeOne(session);
 }
 }

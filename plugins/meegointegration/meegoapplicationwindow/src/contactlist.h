@@ -54,6 +54,9 @@ public:
 	void setStatus(StatusWrapper::Type type);
 	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
 	
+	static QUrl statusUrl(const QVariant &type, const QString &subtype);
+	static QString statusIcon(const QVariant &type, const QString &subtype);
+
 public slots:
 	static QString statusName(const QVariant &type);
 	static QString statusIcon(const QVariant &type);

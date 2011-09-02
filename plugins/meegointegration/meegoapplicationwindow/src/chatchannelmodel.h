@@ -47,6 +47,7 @@ public slots:
 
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionUnreadChanged();
 	void onSessionDeath(QObject *object);
 	
 private:

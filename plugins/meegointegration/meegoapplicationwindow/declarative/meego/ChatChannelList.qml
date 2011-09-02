@@ -37,9 +37,35 @@ Page {
 			
 		}
 		anchors.fill: parent
-		delegate: ListDelegate {
+		delegate: ItemDelegate {
+			title: channel.unit.title
+			subtitle: channel.unit.id
+			iconSource: __suggestIcon(model)
 			onClicked: {
 				channel.active = true
+			}
+			function __suggestIcon(model) {
+                var iconId = "icon-m-";
+				if (model.unreadCount > 0) {
+					iconId += "toolbar-new-message";
+				} else if (model.channel.unit.conference) {
+					iconId += "content-chat";
+				} else {
+//					var filePath = model.channel.unit.avatar;
+//					if (filePath === undefined || filePath == "")
+						iconId += "content-avatar-placeholder";
+//					else
+//						return "file://" + filePath;
+				}
+				if (theme.inverse)
+					iconId += "-inverse";
+				return "image://theme/" + iconId;
+			}
+			ToolIcon {
+				id: closeButton
+				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
+				platformIconId: "toolbar-close"
+				onClicked: channel.destroy()
 			}
 		}
 	}

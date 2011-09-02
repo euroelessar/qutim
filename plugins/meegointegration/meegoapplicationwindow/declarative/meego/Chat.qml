@@ -65,7 +65,7 @@ Page {
 	ToolIcon {
 		id: sendButton
 		anchors { top: textField.top; right: parent.right; }
-		platformIconId: "telephony-sms"
+		platformIconId: "toolbar-send-sms"
 		onClicked: {
 			var result = chat.activeSession.send(textField.text)
 			if (result != -2)

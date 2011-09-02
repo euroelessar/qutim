@@ -112,7 +112,7 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		emit messageSent(&message);
 
 	if (message.property("html", QString()).isEmpty()) {
-		QString html = Qt::escape(message.text());
+		QString html = Qt::escape(message.text()).replace(QLatin1String("\n"), QLatin1String("<br>"));
 		message.setProperty("html", html);
 	}
 	m_model->append(message);

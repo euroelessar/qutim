@@ -29,7 +29,8 @@ namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 enum {
-	ChannelRole = Qt::UserRole
+	ChannelRole = Qt::UserRole,
+	UnreadCountRole
 };
 
 ChatChannelModel::ChatChannelModel(QObject *parent) :
@@ -37,6 +38,7 @@ ChatChannelModel::ChatChannelModel(QObject *parent) :
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(ChannelRole, "channel");
+	roleNames.insert(UnreadCountRole, "unreadCount");
 	roleNames.insert(Qt::DisplayRole, "title");
 	roleNames.insert(Qt::DecorationRole, "iconSource");
 	setRoleNames(roleNames);
@@ -66,6 +68,8 @@ QVariant ChatChannelModel::data(const QModelIndex &index, int role) const
 		return QString();
 	case ChannelRole:
 		return qVariantFromValue<QObject*>(session);
+	case UnreadCountRole:
+		return session->unread().count();
 	default:
 		return QVariant();
 	}
@@ -78,6 +82,14 @@ void ChatChannelModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	beginInsertRows(QModelIndex(), m_sessions.size(), m_sessions.size());
 	m_sessions << session;
 	endInsertRows();
+}
+
+void ChatChannelModel::onSessionUnreadChanged()
+{
+	ChatSession *session = static_cast<ChatSession*>(sender());
+	int index = m_sessions.indexOf(session);
+	QModelIndex modelIndex = createIndex(index, 0, session);
+	emit dataChanged(modelIndex, modelIndex);
 }
 
 void ChatChannelModel::onSessionDeath(QObject *object)
