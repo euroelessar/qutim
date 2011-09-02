@@ -92,12 +92,22 @@ QString ContactList::statusName(const QVariant &type)
 
 QUrl ContactList::statusUrl(const QVariant &type)
 {
-	return QUrl::fromUserInput("image://theme/" + statusIcon(type));
+	return statusUrl(type, QLatin1String("icon-m-status-menu"));
 }
 
 QString ContactList::statusIcon(const QVariant &type)
 {
-	QString iconName = QLatin1String("icon-m-status-menu-presence-");
+	return statusIcon(type, QLatin1String("icon-m-status-menu"));
+}
+
+QUrl ContactList::statusUrl(const QVariant &type, const QString &subtype)
+{
+	return QUrl::fromUserInput(QLatin1String("image://theme/") + statusIcon(type, subtype));
+}
+
+QString ContactList::statusIcon(const QVariant &type, const QString &subtype)
+{
+	QString iconName = subtype + QLatin1String("-presence-");
 	int statusType = type.toInt();
 	if (type.canConvert<Status>())
 		statusType = type.value<Status>().type();

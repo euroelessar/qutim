@@ -55,6 +55,7 @@ signals:
 	
 private slots:
 	void onSessionActivated(bool active);
+	void onSessionDestroyed(QObject *object);
 	
 private:
 	QList<ChatChannel*> m_channels;

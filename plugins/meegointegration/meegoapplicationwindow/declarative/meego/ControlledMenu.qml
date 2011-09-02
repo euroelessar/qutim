@@ -25,6 +25,7 @@
 
 import QtQuick 1.0
 import com.nokia.meego 1.0
+import com.nokia.extras 1.0
 import org.qutim 0.3
 
 Menu {
@@ -39,17 +40,34 @@ Menu {
 			text: action.text
 			visible: action.visible && action.enabled
 			onClicked: {
-				if (model.hasModelChildren)
-					view.model.rootIndex = view.model.modelIndex(index)
-				else
+				console.log("ControllerMenu", action.text, model.hasModelChildren)
+				if (model.hasModelChildren) {
+					visualModel.rootIndex = visualModel.modelIndex(index)
+				} else {
 					action.trigger()
+					root.close()
+				}
+			}
+			MoreIndicator {
+				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
+				visible: model.hasModelChildren
 			}
 		}
     }
-	MenuLayout {
+	Column {
+		id: menuLayout
+		
+		anchors.left: parent.left
+		anchors.right: parent.right
+		height: childrenRect.height
+		
 		Repeater {
 			id: repeater
 			model: visualModel
+		}
+		
+		function closeLayout() {
+			// Do nothing
 		}
 	}
 }

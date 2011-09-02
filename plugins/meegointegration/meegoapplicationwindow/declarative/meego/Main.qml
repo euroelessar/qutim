@@ -42,7 +42,7 @@ PageStackWindow {
 		}
 	}
 	initialPage: Page {
-		TabGroup {
+		AnimatedTabGroup {
 	        id: tabGroup
 			anchors.fill: parent
 	   

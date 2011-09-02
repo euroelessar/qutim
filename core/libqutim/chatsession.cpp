@@ -135,6 +135,7 @@ public:
 
 ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
+	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
