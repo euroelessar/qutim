@@ -1,5 +1,8 @@
-if(${JABBER} EQUAL 0 OR ${JABBER} STREQUAL "OFF")
-else()
+# This option is defined at qutim_add_plugin macros,
+# but I have to know user's decision before looking for Jreen
+option(JABBER "Enable Jabber plugin" ${QUTIM_ENABLE_ALL_PLUGINS})
+
+if( JABBER )
 	option( SYSTEM_JREEN "Use system Jreen" off )
 	if( SYSTEM_JREEN )
 		find_package( PkgConfig )
