@@ -211,6 +211,36 @@ void JMUCSession::unban(const QString &jid, const QString &reason)
 	d_func()->room->setAffiliation(JID(jid), MUCRoom::AffiliationNone, reason);
 }
 
+void JMUCSession::member(const QString &nick, const QString &reason)
+{
+	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationMember, reason);
+}
+
+void JMUCSession::voice(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleParticipant, reason);
+}
+
+void JMUCSession::moder(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleModerator, reason);
+}
+
+void JMUCSession::visitor(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleVisitor, reason);
+}
+
+void JMUCSession::admin(const QString &nick, const QString &reason)
+{
+	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationAdmin, reason);
+}
+
+void JMUCSession::owner(const QString &nick, const QString &reason)
+{
+	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationOwner, reason);
+}
+
 bool JMUCSession::isJoined()
 {
 	return d_func()->isJoined;
