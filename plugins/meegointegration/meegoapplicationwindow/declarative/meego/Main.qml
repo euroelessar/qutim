@@ -97,12 +97,12 @@ PageStackWindow {
 				TabIcon {
 					platformIconId: "toolbar-new-chat"
 					tab: chatTab
-//					visible: chat.activeSession !== null
+					enabled: chat.activeSession !== null
 				}
 				TabIcon {
 					platformIconId: "toolbar-new-chat"
 					tab: conferenceUsersTab
-					visible: false
+					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
 				TabIcon {
 					platformIconId: "toolbar-settings"

@@ -52,6 +52,8 @@ void Chat::init()
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
 {
+	// We don't wont to have separate channels for contact and his resource
+	unit = unit->getHistoryUnit();
 	foreach (ChatChannel *channel, m_channels) {
 		if (channel->unit() == unit)
 			return channel;
