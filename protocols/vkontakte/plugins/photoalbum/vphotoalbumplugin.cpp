@@ -1,6 +1,6 @@
 #include "vphotoalbumplugin.h"
 #include <qutim/menucontroller.h>
-#include <vcontact.h>
+#include "../../src/vcontact.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include "vphotoview.h"

@@ -14,8 +14,8 @@
  *****************************************************************************/
 
 #include "infometarequest_p.h"
-#include "icqaccount.h"
-#include "icqcontact.h"
+#include "../icqaccount.h"
+#include "../icqcontact.h"
 #include "metafields_p.h"
 #include <QDate>
 

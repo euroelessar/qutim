@@ -16,7 +16,7 @@
 #ifndef ICQMAINSETTINGS_H
 #define ICQMAINSETTINGS_H
 
-#include <icq_global.h>
+#include "../icq_global.h"
 #include <qutim/settingswidget.h>
 #include <qutim/config.h>
 #include <qutim/dataforms.h>

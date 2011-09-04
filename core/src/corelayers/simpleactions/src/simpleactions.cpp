@@ -103,10 +103,10 @@ SimpleActions::SimpleActions()
 	m_disableSound->setCheckable(true);
 	m_disableSound->subscribe(this, SLOT(onDisableSoundActionCreated(QAction*,QObject*)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
+			SIGNAL(backendCreated(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onNotificationBackendCreated(QByteArray)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendDestroyed(QByteArray,NotificationBackend*)),
+			SIGNAL(backendDestroyed(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onNotificationBackendDestroyed(QByteArray)));
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList)

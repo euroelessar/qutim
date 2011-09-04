@@ -56,7 +56,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
-	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
@@ -212,22 +211,13 @@ QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 	return retVal;
 }
 
-void ChatSessionImpl::setActive(bool active)
+void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
-	if (d->active == active)
-		return;
 	if (active)
 		setChatState(ChatStateActive);
 	else if (d->myself_chat_state != ChatStateGone)
 		setChatState(ChatStateInActive);
-	d->active = active;
-	emit activated(active);
-}
-
-bool ChatSessionImpl::isActive()
-{
-	return d_func()->active;
 }
 
 bool ChatSessionImpl::event(QEvent *ev)

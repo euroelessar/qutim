@@ -56,14 +56,14 @@ public:
 class NotificationRequestPrivate : public DynamicPropertyData
 {
 public:
-	NotificationRequestPrivate() : DynamicPropertyData(), object(0)
+	NotificationRequestPrivate() : DynamicPropertyData()
 	{
 		enabledBackends = backendHash()->keys().toSet();
 	}
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
 		title(o.title), type(o.type), actions(o.actions) {}
-	QObject *object;
+	QWeakPointer<QObject> object;
 	QPixmap pixmap;
 	QString text;
 	QString title;
@@ -419,7 +419,7 @@ void NotificationRequest::setObject(QObject *obj)
 
 QObject *NotificationRequest::object() const
 {
-	return d_ptr->object;
+	return d_ptr->object.data();
 }
 
 void NotificationRequest::setImage(const QPixmap &pixmap)

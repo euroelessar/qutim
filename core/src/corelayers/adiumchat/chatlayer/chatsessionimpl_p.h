@@ -60,7 +60,6 @@ public:
 	QPointer<QActionGroup> group;
 	QPointer<ChatSessionModel> model;
 	//additional info and flags
-	bool active;
 	bool sendToLastActiveResource;
 	QTimer inactive_timer;
 	MessageList unread;

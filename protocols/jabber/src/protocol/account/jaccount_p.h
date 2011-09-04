@@ -8,7 +8,7 @@
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
-#include <sdk/jabber.h>
+#include "../../sdk/jabber.h"
 #include <QSignalMapper>
 namespace Jreen
 {

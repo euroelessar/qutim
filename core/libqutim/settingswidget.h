@@ -24,6 +24,15 @@ namespace qutim_sdk_0_3
 {
 	struct SettingsWidgetPrivate;
 	class AutoSettingsGenerator;
+	
+//	class LIBQUTIM_EXPORT Settings
+//	{
+//	public:
+//		virtual ~Settings();
+//		virtual void doLoad() = 0;
+//		virtual void doSave() = 0;
+//		virtual void doCancel() = 0;
+//	};
 
 	class LIBQUTIM_EXPORT SettingsWidget : public QWidget
 	{

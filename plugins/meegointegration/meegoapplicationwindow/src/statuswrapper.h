@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -23,46 +23,46 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEDIALOG_H
-#define PROFILEDIALOG_H
+#ifndef STATUSWRAPPER_H
+#define STATUSWRAPPER_H
 
-#include <QDialog>
-#include <QListWidgetItem>
-#include "modulemanagerimpl.h"
+#include <qutim/status.h>
 
-namespace qutim_sdk_0_3
+namespace MeegoIntegration
 {
-	class Config;
-}
-
-namespace Ui {
-    class ProfileDialog;
-}
-
-namespace Core
-{
-class ProfileDialog : public QDialog
+class StatusWrapper : public QObject
 {
     Q_OBJECT
+	Q_ENUMS(Type ChangeReason)
 public:
-	ProfileDialog(Config &config, ModuleManager *parent = 0);
-	~ProfileDialog();
-	static Config profilesInfo();
-	static QString profilesConfigPath();
-	static bool acceptProfileInfo(Config &config, const QString &password);
+	enum Type
+	{
+		Connecting = qutim_sdk_0_3::Status::Connecting,
+		Online = qutim_sdk_0_3::Status::Online,
+		FreeChat = qutim_sdk_0_3::Status::FreeChat,
+		Away = qutim_sdk_0_3::Status::Away,
+		NA = qutim_sdk_0_3::Status::NA,
+		DND = qutim_sdk_0_3::Status::DND,
+		Invisible = qutim_sdk_0_3::Status::Invisible,
+		Offline = qutim_sdk_0_3::Status::Offline
+	};
 
-protected slots:
-	void login(const QString &password);
-	void on_profilesButton_clicked();
-	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+	enum ChangeReason
+	{
+		ByUser = qutim_sdk_0_3::Status::ByUser,
+		ByIdle = qutim_sdk_0_3::Status::ByIdle,
+		ByAuthorizationFailed = qutim_sdk_0_3::Status::ByAuthorizationFailed,
+		ByNetworkError = qutim_sdk_0_3::Status::ByNetworkError,
+		ByFatalError = qutim_sdk_0_3::Status::ByFatalError
+	};
+	
+    explicit StatusWrapper(QObject *parent = 0);
 
-protected:
-    void changeEvent(QEvent *e);
+signals:
 
-private:
-	ModuleManager *m_manager;
-	Ui::ProfileDialog *ui;
+public slots:
+
 };
 }
 
-#endif // PROFILEDIALOG_H
+#endif // STATUSWRAPPER_H

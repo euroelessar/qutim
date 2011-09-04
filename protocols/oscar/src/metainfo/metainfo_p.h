@@ -16,10 +16,10 @@
 #ifndef METAINFO_P_H
 #define METAINFO_P_H
 
-#include "icqaccount.h"
+#include "../icqaccount.h"
 #include <QTimer>
 #include "abstractmetarequest_p.h"
-#include "snachandler.h"
+#include "../snachandler.h"
 
 namespace qutim_sdk_0_3 {
 

@@ -31,6 +31,7 @@ class ChatLayerPrivate;
 class LIBQUTIM_EXPORT ChatSession : public QObject
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(ChatSession)
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
 public:
@@ -41,16 +42,17 @@ public:
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
+	bool isActive();
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
 	qint64 appendMessage(qutim_sdk_0_3::Message &message);
-	virtual bool isActive() = 0;
-	virtual void setActive(bool active) = 0;
+	void setActive(bool active);
 	inline void activate() { setActive(true); }
 	inline qint64 appendMessage(const QString &text)
 	{ Message msg(text); return appendMessage(msg); }
 protected:
+	virtual void doSetActive(bool active) = 0;
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
 signals:
 	void messageReceived(qutim_sdk_0_3::Message *message);
@@ -65,7 +67,7 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 	friend class MessageHandlerHook;
 private:
-	QScopedPointer<ChatSessionPrivate> p;
+	QScopedPointer<ChatSessionPrivate> d_ptr;
 };
 
 class LIBQUTIM_EXPORT ChatLayer : public QObject

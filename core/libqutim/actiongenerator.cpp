@@ -205,7 +205,8 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 ActionGenerator::~ActionGenerator()
 {
 	Q_D(ActionGenerator);
-	localizationHelper()->handleDeath(d);
+	if (ActionGeneratorHelper *helper = localizationHelper())
+		helper->handleDeath(d);
 	delete d->data;
 }
 

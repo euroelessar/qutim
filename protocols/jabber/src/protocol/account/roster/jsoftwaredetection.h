@@ -20,7 +20,7 @@
 #include <QSet>
 #include <QBasicTimer>
 #include <QStringList>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 
 namespace qutim_sdk_0_3 {
 class ChatUnit;

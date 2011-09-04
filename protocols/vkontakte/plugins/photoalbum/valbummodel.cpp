@@ -1,5 +1,5 @@
 #include "valbummodel.h"
-#include <vconnection.h>
+#include "../../src/vconnection.h"
 #include <qutim/json.h>
 #include <qutim/debug.h>
 

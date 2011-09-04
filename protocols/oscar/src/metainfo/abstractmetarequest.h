@@ -17,7 +17,7 @@
 #define ABSTRACTMETAREQUEST_H
 
 #include "metafield.h"
-#include "dataunit.h"
+#include "../dataunit.h"
 
 namespace qutim_sdk_0_3 {
 
