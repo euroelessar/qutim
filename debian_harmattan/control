@@ -121,3 +121,11 @@ XB-Maemo-Icon-26:
  /LW3/OI/f6fAfD3jDf/Z46aLNn5H9C56n+F5Xmzi8HdcP/eZV6qYb9b4fwkI
  DO2dzZsSAAAAAElFTkSuQmCC
  ====
+
+Package: qutim-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, qutim (= ${binary:Version})
+Description: Debug symbols for QutIM 0.3
+ Debug symbols to provide extra debug info in case of crash.
