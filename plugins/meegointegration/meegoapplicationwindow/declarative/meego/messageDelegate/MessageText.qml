@@ -10,14 +10,14 @@ MouseArea {
 
 	width: parent.width
 	height: childrenRect.height
-	hoverEnabled: true;
+//	hoverEnabled: true;
 
-	onPressAndHold: {
-		selectMode = true;
-		console.log("HOLD!!");
-	}
-	onDoubleClicked: selectMode = true;
-	onExited: selectMode = false;
+//	onPressAndHold: {
+//		selectMode = true;
+//		console.log("HOLD!!");
+//	}
+//	onDoubleClicked: selectMode = true;
+//	onExited: selectMode = false;
 
 	Text {
 		id: message
@@ -29,7 +29,7 @@ MouseArea {
 		font.pointSize: UI.fontSize
 		wrapMode: "WordWrap"
 		onLinkActivated: Qt.openUrlExternally(link)
-		opacity:  area.selectMode ? 0 : 1
+//		opacity:  area.selectMode ? 0 : 1
 	}
 
 //	TextEdit {
