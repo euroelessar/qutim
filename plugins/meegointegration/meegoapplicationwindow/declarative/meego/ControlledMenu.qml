@@ -36,6 +36,7 @@ Menu {
         model: MenuModel {
 			id: menuModel
 		}
+
         delegate: MenuItem {
 			text: action.text
 			visible: action.visible && action.enabled

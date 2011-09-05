@@ -44,17 +44,18 @@ ApplicationWindow::ApplicationWindow()
 	font.setFamily(QLatin1String("Nokia Pure"));
 	font.setPointSize(24);
 	qApp->setFont(font);
-	setOptimizationFlags(QGraphicsView::DontSavePainterState);
+	//setOptimizationFlags(QGraphicsView::DontSavePainterState);
+	QApplication::setGraphicsSystem(QLatin1String("raster"));
 
 	setViewport(new QGLWidget(this));
 	// These seem to give the best performance
 //	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 //	viewport->setFocusPolicy(Qt::NoFocus);
 //	setFocusPolicy(Qt::StrongFocus);
-	setAttribute(Qt::WA_NoSystemBackground);
-	setAttribute(Qt::WA_OpaquePaintEvent);
-	viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-	viewport()->setAttribute(Qt::WA_NoSystemBackground);
+//	setAttribute(Qt::WA_NoSystemBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
+//	viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+//	viewport()->setAttribute(Qt::WA_NoSystemBackground);
 	
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
 	                                      QLatin1String("meego"));
