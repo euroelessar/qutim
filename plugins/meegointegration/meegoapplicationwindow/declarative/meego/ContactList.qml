@@ -119,10 +119,11 @@ Page {
 			content: Flickable {
 				anchors.fill: parent
 	            anchors.leftMargin: 10
-	            anchors.topMargin: 10
-	            contentWidth: accountListColumn.width
+		    anchors.topMargin: 10
+		    contentWidth: accountListColumn.width
 	            contentHeight: accountListColumn.height
 	            flickableDirection: Flickable.VerticalFlick
+
 	            Column {
 	                id: accountListColumn
 	                anchors.top: parent.top
@@ -137,7 +138,7 @@ Page {
 							Status.Invisible,
 							Status.Offline
 						]
-						ListButton {
+						Button {
 							text: contactList.statusName(modelData)
 							iconSource: contactList.statusUrl(modelData)
 							onClicked: {
@@ -148,7 +149,7 @@ Page {
 					}
 					Repeater {
 						model: contactList.accounts
-						ListButton {
+						Button {
 							text: modelData.id
 							iconSource: contactList.statusUrl(modelData.status)
 							onClicked: {
