@@ -50,6 +50,7 @@ public:
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c);
 	QObject *model() const;
 	Q_INVOKABLE qint64 send(const QString &text);
+	Q_INVOKABLE void showChat();
 
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);

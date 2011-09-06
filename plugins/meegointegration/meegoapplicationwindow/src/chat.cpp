@@ -53,7 +53,7 @@ void Chat::init()
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
 {
 	// We don't wont to have separate channels for contact and his resource
-	unit = unit->getHistoryUnit();
+	unit = const_cast<ChatUnit*>(unit->getHistoryUnit());
 	foreach (ChatChannel *channel, m_channels) {
 		if (channel->unit() == unit)
 			return channel;
@@ -94,6 +94,11 @@ qutim_sdk_0_3::ChatSession *Chat::activeSession() const
 void Chat::setActiveSession(qutim_sdk_0_3::ChatSession *session)
 {
 	session->setActive(true);
+}
+
+void Chat::show()
+{
+	emit shown();
 }
 
 void Chat::onSessionActivated(bool active)

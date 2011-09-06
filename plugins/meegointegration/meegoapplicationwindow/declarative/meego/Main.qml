@@ -36,7 +36,7 @@ PageStackWindow {
 	property variant chat:  serviceManager.chatLayer
 	Connections {
 		target: root.chat
-		onActiveSessionChanged: {
+		onShown: {
 			if (root.chat.activeSession)
 				tabGroup.currentTab = chatTab
 		}

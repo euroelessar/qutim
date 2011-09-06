@@ -104,6 +104,11 @@ qint64 ChatChannel::send(const QString &text)
 	return appendMessage(message);
 }
 
+void ChatChannel::showChat()
+{
+	static_cast<Chat*>(Chat::instance())->show();
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
