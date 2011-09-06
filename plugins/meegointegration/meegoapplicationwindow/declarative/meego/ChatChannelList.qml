@@ -43,6 +43,7 @@ Page {
 			iconSource: __suggestIcon(model)
 			onClicked: {
 				channel.active = true
+				channel.showChat()
 			}
 			function __suggestIcon(model) {
                 var iconId = "icon-m-";

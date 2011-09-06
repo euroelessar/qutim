@@ -50,6 +50,7 @@ Page {
 		delegate: ItemDelegate {
 			onClicked: {
 				root.chat.session(model.contact).active = true
+				root.chat.show()
 			}
 		}
 		section.property: "alphabet"

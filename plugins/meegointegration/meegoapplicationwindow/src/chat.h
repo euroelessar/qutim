@@ -48,10 +48,12 @@ public:
 	QDeclarativeListProperty<ChatChannel> channels();
 	qutim_sdk_0_3::ChatSession *activeSession() const;
 	void setActiveSession(qutim_sdk_0_3::ChatSession *session);
+	Q_INVOKABLE void show();
 	
 signals:
 	void activeSessionChanged(qutim_sdk_0_3::ChatSession *session);
 	void channelsChanged(const QDeclarativeListProperty<ChatChannel> &channels);
+	void shown();
 	
 private slots:
 	void onSessionActivated(bool active);
