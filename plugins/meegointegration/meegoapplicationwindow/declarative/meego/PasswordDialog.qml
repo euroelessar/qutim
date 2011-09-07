@@ -19,90 +19,69 @@
 
 import QtQuick 1.0
 import com.nokia.meego 1.0
+import org.qutim 0.3
 
 Dialog {
 	id: passwordDialog
-	property variant passwordHandler;
+	QuickPasswordDialog {
+		id: passwordHandler
+	}
+	property Style platformStyle: QueryDialogStyle {}
 
 	title:Text {
 		id: textheader
 		font.pixelSize: 24
 		anchors.centerIn: parent
+		height: childrenRect.height + 10
 
 		color: "white"
-		text: "Enter password for account %1 (%2)"
+		text: passwordHandler.title
 		wrapMode: Text.WordWrap
 	}
 
 	content:Column {
+		anchors.centerIn: parent
 		id: passwordDialogContent
-		anchors.fill: parent
-		anchors.margins: 10
+		height: childrenRect.height + passwordDialog.platformStyle.contentTopMargin
+
+		spacing: 10
 
 		TextField {
+			anchors.horizontalCenter: parent.horizontalCenter
 			id:passwordText
 			placeholderText: "Password"
 			echoMode: TextInput.PasswordEchoOnEdit
+			text: passwordDialog.passwordHandler.passwordText
 		}
-		CheckBox {
-			id:rememberPassword
-			text: "Remember password"
+		Row {
+			spacing: 10
+			anchors.horizontalCenter: parent.horizontalCenter
+			Label {
+				id:rememberPasswordText
+				anchors.left: parent.left
+				anchors.right: rememberPasswordSwitch.anchors.left
+				anchors.baseline: rememberPasswordSwitch.anchors.baseline
+				color: "white"
+				text: qsTr("Remember password")
+			}
 
+			Switch {
+				id: rememberPasswordSwitch
+				checked: passwordDialog.passwordHandler.rememberPassword
+			}
 		}
-
 	}
 
-	buttons: ButtonRow {
-		style: ButtonStyle { }
-		anchors.fill: parent
+	buttons: Column {
+		anchors.top: parent.top
+		height: childrenRect.height
+		anchors.centerIn: parent
+		spacing: 10
 
-		Button { id:acceptButton; text: "OK"; onClicked: passwordDialog.accept();}
-		Button { id:rejectButton; text: "Cancel"; onClicked: passwordDialog.reject();}
+		Button { id:acceptButton; text: "OK"; onClicked: passwordDialog.accept(); platformStyle: ButtonStyle { inverted: true}}
+		Button { id:rejectButton; text: "Cancel"; onClicked: passwordDialog.reject();platformStyle: ButtonStyle { inverted: true}}
 	}
-
-	//	content: Item {
-	//		property int upperBound: visualParent ? visualParent.height - buttonsRow.height - 64
-	//						      : passwordDialog.parent.height - buttonsRow.height - 64
-	//		property int __sizeHint: Math.min(Math.max(root.platformStyle.contentFieldMinSize,
-	//							   dialogContent.contentHeight),
-	//						  upperBound)
-	//		height: __sizeHint + passwordDialog.platformStyle.contentTopMargin
-	//		width: root.width
-	//		DialogContent {
-	//			id: dialogContent
-	//			invertedTheme: true
-	//			handler: root.handler.content
-	//		}
-	//		Component.onCompleted: {
-	//			console.log(__sizeHint, upperBound, passwordDialog.platformStyle.contentTopMargin, dialogContent.contentHeight)
-	//		}
-	//	}
-
-	//	buttons: Column {
-	//		id: buttonsRow
-	//		anchors.top: parent.top
-	//		width: parent.width
-	//		height: childrenRect.height
-
-	//		Repeater {
-	//			model: passwordDialog.passwordHandler.buttonNames
-	//			Button {
-	//				text: modelData
-	//				onClicked: {
-	//					var names = passwordDialog.passwordHandler.acceptButtons;
-	//					for (var i = 0; i < names.length; ++i) {
-	//						if (names[i] == text) {
-	//							accept();
-	//							return;
-	//						}
-	//					}
-	//					reject();
-	//				}
-	//				platformStyle: ButtonStyle { inverted: true }
-	//			}
-	//		}
-	//	}
 
 	onAccepted: if (passwordDialog.passwordHandler) passwordDialog.passwordHandler.accept()
-	onRejected: if (passwordDialog.passwordHandler) passwordDialog.passwordHandler.reject()
+	onRejected: if (passwordDialog.passwordHandler) passwordDialog.passwordHandler.cancel()
 }

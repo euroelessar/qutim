@@ -23,10 +23,16 @@
 **
 ****************************************************************************/
 
-#include "passworddialogmanager.h"
-#include "passworddialog.h"
+#include "quickpassworddialogmanager.h"
+#include "quickpassworddialog.h"
+#include <qdeclarative.h>
 
-PasswordDialogManager::PasswordDialogManager() {
-	//qmlRegisterUncreatableType<ZLQmlOptionView>("org.fbreader", 0, 14, "OptionView", "Uncreatable type");
+namespace MeegoIntegration
+{
+QuickPasswordDialogManager::QuickPasswordDialogManager() {
+}
+void QuickPasswordDialogManager::init(){
+	qmlRegisterType<QuickPasswordDialog>("org.qutim", 0, 3, "QuickPasswordDialog");
+}
 }
 
