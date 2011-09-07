@@ -34,6 +34,7 @@ QuickPasswordDialog::QuickPasswordDialog() {
 	m_dialogTitle = tr("Enter password for account");
 	m_templateTitle = tr("Enter password for account %1 (%2)");
 	m_rememberPassword = false;
+	qDebug()<<"dkbnsdkjbnsdkbnsdkvsdkvsdvlsdmvsmdvsdmlvsdmlvsdmvsmd";
 
 }
 
@@ -82,16 +83,11 @@ void QuickPasswordDialog::setAccount(Account *account)
 {
 	m_dialogTitle = m_templateTitle.arg(account->id(), account->protocol()->id());
 	emit titleChanged(m_dialogTitle);
-//	m_widget = new SimplePasswordWidget(account, this);
-//	connect(this, SIGNAL(destroyed()), m_widget, SLOT(deleteLater()));
-//	connect(m_widget, SIGNAL(rejected()), this, SIGNAL(rejected()));
-//	connect(m_widget, SIGNAL(entered(QString,bool)), this, SIGNAL(entered(QString,bool)));
-//	m_widget->show();
+	emit shown();
 }
 
 void QuickPasswordDialog::setValidator(QValidator *validator)
 {
-//	if (m_widget)
-//		m_widget->setValidator(validator);
+	Q_UNUSED(validator)
 }
 }

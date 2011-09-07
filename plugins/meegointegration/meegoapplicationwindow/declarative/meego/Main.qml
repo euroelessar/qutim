@@ -41,6 +41,10 @@ PageStackWindow {
 				tabGroup.currentTab = chatTab
 		}
 	}
+	PasswordDialog{
+		id:passwordDialog
+
+	}
 	initialPage: Page {
 		AnimatedTabGroup {
 			id: tabGroup

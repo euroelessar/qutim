@@ -105,6 +105,8 @@ Page {
 			accountList.open()
 		}
 	}
+
+
 	SectionScroller {
         listView: listViewItem
     }

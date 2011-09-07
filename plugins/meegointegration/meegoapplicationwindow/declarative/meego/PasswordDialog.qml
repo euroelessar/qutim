@@ -23,16 +23,24 @@ import org.qutim 0.3
 
 Dialog {
 	id: passwordDialog
-	QuickPasswordDialog {
-		id: passwordHandler
+	ServiceManager {
+		id: serviceManager
 	}
+	property variant passwordHandler:  serviceManager.passwordDialog
+
+	Connections {
+		target: passwordHandler
+		onShown: {
+			passwordDialog.open()
+		}
+	}
+
 	property Style platformStyle: QueryDialogStyle {}
 
 	title:Text {
 		id: textheader
 		font.pixelSize: 24
 		anchors.centerIn: parent
-		height: childrenRect.height + 10
 
 		color: "white"
 		text: passwordHandler.title
@@ -51,30 +59,25 @@ Dialog {
 			id:passwordText
 			placeholderText: "Password"
 			echoMode: TextInput.PasswordEchoOnEdit
-			text: passwordDialog.passwordHandler.passwordText
+			text: passwordHandler.passwordText
 		}
 		Row {
 			spacing: 10
-			anchors.horizontalCenter: parent.horizontalCenter
 			Label {
 				id:rememberPasswordText
-				anchors.left: parent.left
-				anchors.right: rememberPasswordSwitch.anchors.left
-				anchors.baseline: rememberPasswordSwitch.anchors.baseline
 				color: "white"
 				text: qsTr("Remember password")
 			}
 
 			Switch {
 				id: rememberPasswordSwitch
-				checked: passwordDialog.passwordHandler.rememberPassword
+				checked: passwordHandler.rememberPassword
 			}
 		}
 	}
 
 	buttons: Column {
 		anchors.top: parent.top
-		height: childrenRect.height
 		anchors.centerIn: parent
 		spacing: 10
 
