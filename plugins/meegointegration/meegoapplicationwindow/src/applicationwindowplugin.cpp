@@ -2,6 +2,7 @@
 #include "applicationwindow.h"
 #include "chat.h"
 #include "contactlist.h"
+#include "quickpassworddialog.h"
 
 namespace MeegoIntegration
 {
@@ -12,11 +13,14 @@ namespace MeegoIntegration
 		setInfo(name, description, PLUGIN_VERSION(0, 1, 0, 0));
 		addExtension<ApplicationWindow>(name, description);
 		addExtension<Chat>(
-		            QT_TRANSLATE_NOOP("Plugin", "Meego application window"),
-		            QT_TRANSLATE_NOOP("Plugin", "Main window of application"));
+			    QT_TRANSLATE_NOOP("Plugin", "Meego chat page"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple chat based on QML elements"));
 		addExtension<ContactList>(
-		            QT_TRANSLATE_NOOP("Plugin", "Meego application window"),
-		            QT_TRANSLATE_NOOP("Plugin", "Main window of application"));
+			    QT_TRANSLATE_NOOP("Plugin", "Meego contact list page"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple contact list on QML elements"));
+		addExtension<QuickPasswordDialog>(
+			    QT_TRANSLATE_NOOP("Plugin", "Meego password dialog"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple password dialog on QML elements"));
 	}
 }
 

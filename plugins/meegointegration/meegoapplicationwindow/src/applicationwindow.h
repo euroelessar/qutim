@@ -36,6 +36,7 @@ class ApplicationWindow : public QDeclarativeView
 	Q_CLASSINFO("Service", "ApplicationWindow")
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
+	Q_CLASSINFO("Uses", "PasswordDialog")
 public:
     explicit ApplicationWindow();
 };

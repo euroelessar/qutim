@@ -54,6 +54,7 @@ signals:
 	void rememberPasswordChanged(bool rememberPassword);
 	void titleChanged(const QString &titleText);
 	void passwordTextChanged(const QString &passwordText);
+	void shown();
 private:
 	QString m_dialogTitle;
 	QString m_templateTitle;
