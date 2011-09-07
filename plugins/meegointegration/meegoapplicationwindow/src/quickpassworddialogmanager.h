@@ -23,34 +23,24 @@
 **
 ****************************************************************************/
 
-#include "passworddialog.h"
+#ifndef QUICKPASSWORDDIALOGMANAGER_H
+#define QUICKPASSWORDDIALOGMANAGER_H
 
-PasswordDialog::PasswordDialog() {
-
-}
-
-PasswordDialog::~PasswordDialog() {
-}
-
-QString PasswordDialog::title() const {
-	return dialogTitle;
-}
-
-bool PasswordDialog::rememberPassword() const
+#include <QtCore/QObject>
+namespace MeegoIntegration
 {
-	return m_rememberPassword;
+
+class QuickPasswordDialogManager : public QObject {
+	Q_OBJECT
+
+public:
+	static void init();
+
+private:
+	QuickPasswordDialogManager();
+
+
+};
 }
 
-void PasswordDialog::setRememberPassword(bool rememberPassword)
-{
-	m_rememberPassword = rememberPassword;
-	emit rememberPasswordChanged(m_rememberPassword);
-}
-
-void PasswordDialog::accept() {
-
-}
-
-void PasswordDialog::reject() {
-
-}
+#endif /* PASSWORDDIALOGMANAGER_H */

@@ -28,6 +28,7 @@
 #include <qutim/thememanager.h>
 #include <QDeclarativeEngine>
 #include "servicemanagerwrapper.h"
+#include "quickpassworddialog.h"
 #include "menumodel.h"
 #include <QApplication>
 #include <QGLWidget>
@@ -40,6 +41,7 @@ ApplicationWindow::ApplicationWindow()
 {
 	ServiceManagerWrapper::init();
 	MenuModel::init();
+	QuickPasswordDialog::init();
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));
 	font.setPointSize(24);
