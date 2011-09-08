@@ -27,18 +27,42 @@
 #define QUICKPASSWORDDIALOGMANAGER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QList>
+#include "quickpassworddialog.h"
 namespace MeegoIntegration
 {
 
 class QuickPasswordDialogManager : public QObject {
 	Q_OBJECT
-
+	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
+	Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)
+	Q_PROPERTY(QString passwordText READ passwordText WRITE setPasswordText NOTIFY passwordTextChanged)
 public:
+	QuickPasswordDialogManager();
+	~QuickPasswordDialogManager();
 	static void init();
+	QString title();
+	QString passwordText();
+	bool rememberPassword();
+	void setTitle(QString title);
+	void setRememberPassword(bool rememberPassword);
+	void setPasswordText(QString passwordText);
+	Q_INVOKABLE void accept();
+	Q_INVOKABLE void cancel();
+	static void showDialog(QString title, QuickPasswordDialog * passDialog);
+
+signals:
+	void rememberPasswordChanged(bool rememberPassword);
+	void titleChanged(const QString &titleText);
+	void passwordTextChanged(const QString &passwordText);
+	void shown();
 
 private:
-	QuickPasswordDialogManager();
-
+	QString m_dialogTitle;
+	QString m_passwordText;
+	bool m_rememberPassword;
+	static QList<QuickPasswordDialogManager*> m_managers;
+	static QuickPasswordDialog *m_currentDialog;
 
 };
 }

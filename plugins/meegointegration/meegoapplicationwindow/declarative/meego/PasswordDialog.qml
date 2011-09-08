@@ -23,10 +23,9 @@ import org.qutim 0.3
 
 Dialog {
 	id: passwordDialog
-	ServiceManager {
-		id: serviceManager
+	QuickPasswordDialog {
+		id: passwordHandler
 	}
-	property variant passwordHandler:  serviceManager.passwordDialog
 
 	Connections {
 		target: passwordHandler
