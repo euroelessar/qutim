@@ -29,10 +29,72 @@
 
 namespace MeegoIntegration
 {
+
 QuickPasswordDialogManager::QuickPasswordDialogManager() {
+	m_dialogTitle = tr("Enter password for account");
+
+	m_rememberPassword = false;
+	m_managers.append(this);
 }
+QuickPasswordDialogManager::~QuickPasswordDialogManager()
+{
+	m_managers.removeOne(this);
+}
+
 void QuickPasswordDialogManager::init(){
-	qmlRegisterType<QuickPasswordDialog>("org.qutim", 0, 3, "QuickPasswordDialog");
+	qmlRegisterType<QuickPasswordDialogManager>("org.qutim", 0, 3, "QuickPasswordDialog");
 }
+
+QString QuickPasswordDialogManager::title() {
+	return m_dialogTitle;
+}
+
+QString QuickPasswordDialogManager::passwordText() {
+	return m_passwordText;
+}
+
+bool QuickPasswordDialogManager::rememberPassword()
+{
+	return m_rememberPassword;
+}
+
+void QuickPasswordDialogManager::setTitle(QString title)
+{
+	m_dialogTitle = title;
+	emit titleChanged(m_dialogTitle);
+}
+
+void QuickPasswordDialogManager::setRememberPassword(bool rememberPassword)
+{
+	m_rememberPassword = rememberPassword;
+	emit rememberPasswordChanged(m_rememberPassword);
+}
+
+void QuickPasswordDialogManager::setPasswordText(QString passwordText)
+{
+	m_passwordText = passwordText;
+	emit passwordTextChanged(passwordText);
+}
+
+void QuickPasswordDialogManager::accept() {
+	m_currentDialog->accept(m_passwordText,m_rememberPassword);
+}
+
+void QuickPasswordDialogManager::cancel() {
+	m_currentDialog->cancel();
+
+}
+
+void QuickPasswordDialogManager::showDialog(QString title,QuickPasswordDialog * passDialog)
+{
+	m_currentDialog = passDialog;
+	for (int i = 0; i = m_managers.count();i++)
+	{
+		m_managers[i]->setTitle(title);
+		emit m_managers[i]->shown();
+	}
+
+}
+
 }
 
