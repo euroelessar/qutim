@@ -23,12 +23,12 @@ import org.qutim 0.3
 
 Dialog {
 	id: passwordDialog
-	QuickPasswordDialog {
-		id: passwordHandler
+	PasswordDialogWrapper {
+		id: handler
 	}
 
 	Connections {
-		target: passwordHandler
+		target: handler
 		onShown: {
 			passwordDialog.open()
 		}
@@ -38,27 +38,24 @@ Dialog {
 
 	title:Text {
 		id: textheader
-		font.pixelSize: 24
+		font.pixelSize: 30
 		anchors.centerIn: parent
-
 		color: "white"
-		text: passwordHandler.title
-		wrapMode: Text.WordWrap
+		text: handler.title
 	}
 
 	content:Column {
 		anchors.centerIn: parent
 		id: passwordDialogContent
 		height: childrenRect.height + passwordDialog.platformStyle.contentTopMargin
-
 		spacing: 10
 
 		TextField {
 			anchors.horizontalCenter: parent.horizontalCenter
 			id:passwordText
-			placeholderText: "Password"
+			placeholderText: qsTr("Password")
 			echoMode: TextInput.PasswordEchoOnEdit
-			text: passwordHandler.passwordText
+			onTextChanged: handler.passwordText = text
 		}
 		Row {
 			spacing: 10
@@ -70,7 +67,7 @@ Dialog {
 
 			Switch {
 				id: rememberPasswordSwitch
-				checked: passwordHandler.rememberPassword
+				onCheckedChanged: handler.rememberPassword = checked
 			}
 		}
 	}
@@ -80,10 +77,10 @@ Dialog {
 		anchors.centerIn: parent
 		spacing: 10
 
-		Button { id:acceptButton; text: "OK"; onClicked: passwordDialog.accept(); platformStyle: ButtonStyle { inverted: true}}
-		Button { id:rejectButton; text: "Cancel"; onClicked: passwordDialog.reject();platformStyle: ButtonStyle { inverted: true}}
+		Button { id:acceptButton; text: qsTr("OK"); onClicked: passwordDialog.accept(); platformStyle: ButtonStyle { inverted: true}}
+		Button { id:rejectButton; text: qsTr("Cancel"); onClicked: passwordDialog.reject();platformStyle: ButtonStyle { inverted: true}}
 	}
 
-	onAccepted: if (passwordDialog.passwordHandler) passwordDialog.passwordHandler.accept()
-	onRejected: if (passwordDialog.passwordHandler) passwordDialog.passwordHandler.cancel()
+	onAccepted: handler.accept()
+	onRejected: handler.cancel()
 }

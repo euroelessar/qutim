@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKPASSWORDDIALOGMANAGER_H
-#define QUICKPASSWORDDIALOGMANAGER_H
+#ifndef PASSWORDDIALOGWRAPPER_H
+#define PASSWORDDIALOGWRAPPER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -32,36 +32,35 @@
 namespace MeegoIntegration
 {
 
-class QuickPasswordDialogManager : public QObject {
+class PasswordDialogWrapper : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
 	Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)
 	Q_PROPERTY(QString passwordText READ passwordText WRITE setPasswordText NOTIFY passwordTextChanged)
 public:
-	QuickPasswordDialogManager();
-	~QuickPasswordDialogManager();
-	static void init();
-	QString title();
-	QString passwordText();
+	PasswordDialogWrapper();
+	~PasswordDialogWrapper();
+	QString title() const;
+	QString passwordText() const;
 	bool rememberPassword();
-	void setTitle(QString title);
-	void setRememberPassword(bool rememberPassword);
-	void setPasswordText(QString passwordText);
+	void setTitle(const QString &);
+	void setRememberPassword(bool);
+	void setPasswordText(const QString &);
 	Q_INVOKABLE void accept();
 	Q_INVOKABLE void cancel();
+	static void init();
 	static void showDialog(QString title, QuickPasswordDialog * passDialog);
 
 signals:
-	void rememberPasswordChanged(bool rememberPassword);
-	void titleChanged(const QString &titleText);
-	void passwordTextChanged(const QString &passwordText);
+	void rememberPasswordChanged();
+	void titleChanged();
+	void passwordTextChanged();
 	void shown();
 
 private:
 	QString m_dialogTitle;
 	QString m_passwordText;
 	bool m_rememberPassword;
-	static QList<QuickPasswordDialogManager*> m_managers;
 	static QuickPasswordDialog *m_currentDialog;
 
 };

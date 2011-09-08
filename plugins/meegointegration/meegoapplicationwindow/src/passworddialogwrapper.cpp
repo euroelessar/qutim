@@ -23,78 +23,83 @@
 **
 ****************************************************************************/
 
-#include "quickpassworddialogmanager.h"
+#include "passworddialogwrapper.h"
 #include "quickpassworddialog.h"
 #include <qdeclarative.h>
 
 namespace MeegoIntegration
 {
 
-QuickPasswordDialogManager::QuickPasswordDialogManager() {
-	m_dialogTitle = tr("Enter password for account");
+Q_GLOBAL_STATIC(QList<PasswordDialogWrapper*>, m_managers)
+QuickPasswordDialog* PasswordDialogWrapper::m_currentDialog;
 
-	m_rememberPassword = false;
-	m_managers.append(this);
-}
-QuickPasswordDialogManager::~QuickPasswordDialogManager()
+PasswordDialogWrapper::PasswordDialogWrapper()
 {
-	m_managers.removeOne(this);
+	m_dialogTitle = tr("Enter password for account");
+	m_managers()->append(this);
 }
 
-void QuickPasswordDialogManager::init(){
-	qmlRegisterType<QuickPasswordDialogManager>("org.qutim", 0, 3, "QuickPasswordDialog");
+PasswordDialogWrapper::~PasswordDialogWrapper()
+{
+	m_managers()->removeOne(this);
 }
 
-QString QuickPasswordDialogManager::title() {
+void PasswordDialogWrapper::init()
+{
+	qmlRegisterType<PasswordDialogWrapper>("org.qutim", 0, 3, "PasswordDialogWrapper");
+}
+
+QString PasswordDialogWrapper::title()  const
+{
 	return m_dialogTitle;
 }
 
-QString QuickPasswordDialogManager::passwordText() {
+QString PasswordDialogWrapper::passwordText() const
+{
 	return m_passwordText;
 }
 
-bool QuickPasswordDialogManager::rememberPassword()
+bool PasswordDialogWrapper::rememberPassword()
 {
 	return m_rememberPassword;
 }
 
-void QuickPasswordDialogManager::setTitle(QString title)
+void PasswordDialogWrapper::setTitle(const QString &title)
 {
 	m_dialogTitle = title;
-	emit titleChanged(m_dialogTitle);
+	emit titleChanged();
 }
 
-void QuickPasswordDialogManager::setRememberPassword(bool rememberPassword)
+void PasswordDialogWrapper::setRememberPassword(bool rememberPassword)
 {
 	m_rememberPassword = rememberPassword;
-	emit rememberPasswordChanged(m_rememberPassword);
+	emit rememberPasswordChanged();
 }
 
-void QuickPasswordDialogManager::setPasswordText(QString passwordText)
+void PasswordDialogWrapper::setPasswordText(const QString &password)
 {
-	m_passwordText = passwordText;
-	emit passwordTextChanged(passwordText);
+	m_passwordText = password;
+	emit passwordTextChanged();
 }
 
-void QuickPasswordDialogManager::accept() {
-	m_currentDialog->accept(m_passwordText,m_rememberPassword);
+void PasswordDialogWrapper::accept()
+{
+	m_currentDialog->accept(passwordText(),rememberPassword());
 }
 
-void QuickPasswordDialogManager::cancel() {
+void PasswordDialogWrapper::cancel()
+{
 	m_currentDialog->cancel();
-
 }
 
-void QuickPasswordDialogManager::showDialog(QString title,QuickPasswordDialog * passDialog)
+void PasswordDialogWrapper::showDialog(QString title, QuickPasswordDialog * passDialog)
 {
 	m_currentDialog = passDialog;
-	for (int i = 0; i = m_managers.count();i++)
+	for (int i = 0; i < m_managers()->count();i++)
 	{
-		m_managers[i]->setTitle(title);
-		emit m_managers[i]->shown();
+		m_managers()->at(i)->setTitle(title);
+		emit m_managers()->at(i)->shown();
 	}
-
 }
-
 }
 
