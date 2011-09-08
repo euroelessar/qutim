@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "quickpassworddialog.h"
+#include "passworddialogwrapper.h"
 #include <qdeclarative.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
@@ -31,59 +32,22 @@
 namespace MeegoIntegration
 {
 QuickPasswordDialog::QuickPasswordDialog() {
-	m_dialogTitle = tr("Enter password for account");
-	m_templateTitle = tr("Enter password for account %1 (%2)");
-	m_rememberPassword = false;
-	qDebug()<<"dkbnsdkjbnsdkbnsdkvsdkvsdvlsdmvsmdvsdmlvsdmlvsdmvsmd";
-
+	m_templateTitle = tr("Enter password for account \n %1 (%2)");
 }
 
-void QuickPasswordDialog::init(){
-	qmlRegisterType<QuickPasswordDialog>("org.qutim", 0, 3, "QuickPasswordDialog");
-}
-
-QuickPasswordDialog::~QuickPasswordDialog() {
-}
-
-QString QuickPasswordDialog::title() {
-	return m_dialogTitle;
-}
-
-QString QuickPasswordDialog::passwordText() {
-	return m_passwordText;
-}
-
-bool QuickPasswordDialog::rememberPassword()
+void QuickPasswordDialog::accept(const QString &password, bool remember)
 {
-	return m_rememberPassword;
+	this->apply(password,remember);
 }
 
-void QuickPasswordDialog::setRememberPassword(bool rememberPassword)
+void QuickPasswordDialog::cancel()
 {
-	m_rememberPassword = rememberPassword;
-	emit rememberPasswordChanged(m_rememberPassword);
-}
-
-void QuickPasswordDialog::setPasswordText(QString passwordText)
-{
-	m_passwordText = passwordText;
-	emit passwordTextChanged(passwordText);
-}
-
-void QuickPasswordDialog::accept() {
-	this->apply("text",m_rememberPassword);
-}
-
-void QuickPasswordDialog::cancel() {
 	this->reject();
-
 }
 
 void QuickPasswordDialog::setAccount(Account *account)
 {
-	m_dialogTitle = m_templateTitle.arg(account->id(), account->protocol()->id());
-	emit titleChanged(m_dialogTitle);
-	emit shown();
+	PasswordDialogWrapper::showDialog(m_templateTitle.arg(account->id(), account->protocol()->id()),this);
 }
 
 void QuickPasswordDialog::setValidator(QValidator *validator)
