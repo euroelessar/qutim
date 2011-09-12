@@ -60,6 +60,5 @@ void Maemo6Idle::activityChanged (QmActivity::Activity activity)
 	{
 		idle_timer->start(60000,this);
 	}
-
 }
 }

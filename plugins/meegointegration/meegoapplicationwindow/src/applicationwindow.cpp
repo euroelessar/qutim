@@ -30,6 +30,7 @@
 #include "servicemanagerwrapper.h"
 #include "passworddialogwrapper.h"
 #include "authdialogwrapper.h"
+#include "addcontactdialogwrapper.h"
 #include "menumodel.h"
 #include <QApplication>
 #include <QGLWidget>
@@ -44,6 +45,7 @@ ApplicationWindow::ApplicationWindow()
 	MenuModel::init();
 	PasswordDialogWrapper::init();
 	AuthDialogWrapper::init();
+	AddContactDialogWrapper::init();
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));
 	font.setPointSize(24);
