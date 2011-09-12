@@ -45,6 +45,10 @@ PageStackWindow {
 		id:passwordDialog
 
 	}
+	AuthDialog {
+		id:authDialog
+	}
+
 	initialPage: Page {
 		AnimatedTabGroup {
 			id: tabGroup
