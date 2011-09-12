@@ -3,6 +3,7 @@
 #include "chat.h"
 #include "contactlist.h"
 #include "quickpassworddialog.h"
+#include "quickauthdialog.h"
 
 namespace MeegoIntegration
 {
@@ -21,6 +22,9 @@ namespace MeegoIntegration
 		addExtension<QuickPasswordDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "Meego password dialog"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple password dialog on QML elements"));
+		addExtension<QuickAuthDialog>(
+			    QT_TRANSLATE_NOOP("Plugin", "Meego authorization dialog"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog on QML elements"));
 	}
 }
 
