@@ -9,6 +9,14 @@ if(NOT QT_QTDECLARATIVE_FOUND OR NOT QT_QTOPENGL_FOUND)
 	return()
 endif()
 
+INCLUDE(FindPkgConfig)
+
+PKG_CHECK_MODULES(QMSYSTEM qmsystem2)
+if(NOT QMSYSTEM_FOUND)
+	message(STATUS "QMSYSTEM libraries not found. Meego Harmattan integration will be skipped")
+	return()
+endif()
+
 
 FILE( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/*" )
 
