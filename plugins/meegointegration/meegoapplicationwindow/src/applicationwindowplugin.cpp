@@ -4,6 +4,7 @@
 #include "contactlist.h"
 #include "quickpassworddialog.h"
 #include "quickauthdialog.h"
+#include "maemo6idle.h"
 
 namespace MeegoIntegration
 {
@@ -25,6 +26,9 @@ namespace MeegoIntegration
 		addExtension<QuickAuthDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "Meego authorization dialog"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog on QML elements"));
+		addExtension<Maemo6Idle>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Harmattan Idle detector"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple harmattan idle detector"));
 	}
 }
 
