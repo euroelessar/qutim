@@ -148,6 +148,20 @@ ChatUnit *Account::getUnitForSession(ChatUnit *unit)
 	return unit;
 }
 
+QVariantMap Account::parameters() const
+{
+	QVariantMap result;
+	virtual_hook(ReadParametersHook, &result);
+	return result;
+}
+
+QStringList Account::updateParameters(const QVariantMap &parameters)
+{
+	UpdateParametersArgument argument = { parameters, QStringList() };
+	virtual_hook(UpdateParametersHook, &argument);
+	return argument.reconnectionRequired;
+}
+
 AccountList Account::all()
 {
 	AccountList list;

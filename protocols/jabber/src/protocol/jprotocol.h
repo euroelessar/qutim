@@ -29,9 +29,12 @@ public:
 	}
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
-	void addAccount(JAccount *account, bool isEmit = false);
+	Account *doCreateAccount(const QString &id, const QVariantMap &parameters);
+	void addAccount(JAccount *account, bool loadSettings);
 	virtual QVariant data(DataType type);
 	bool event(QEvent *ev);
+protected:
+	virtual void virtual_hook(int id, void *data);
 private slots:
 	void onKickUser(QObject* obj);
 	void onBanUser(QObject* obj);
