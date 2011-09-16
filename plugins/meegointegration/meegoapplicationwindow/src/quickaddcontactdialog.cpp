@@ -38,11 +38,11 @@ namespace Core
 
 bool isSupportAddContact()
 {
-	foreach (Protocol *p,Protocol::all()) {
+	foreach (qutim_sdk_0_3::Protocol *p,qutim_sdk_0_3::Protocol::all()) {
 		bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
 		if (support) {
-			foreach (Account *a,p->accounts()) {
-				if (a->status() != Status::Offline) {
+			foreach (qutim_sdk_0_3::Account *a,p->accounts()) {
+				if (a->status() != qutim_sdk_0_3::Status::Offline) {
 					return true;
 				}
 			}
@@ -55,53 +55,44 @@ bool isSupportAddContact()
 namespace MeegoIntegration
 {
 QuickAddContactDialog::QuickAddContactDialog() {
-	QObject *contactList = ServiceManager::getByName("ContactList");
-		if (contactList) {
-			m_addUserGen.reset(new ActionGenerator(Icon("list-add-user"),
-												   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
-												   this, SLOT(show())));
-			MenuController *controller = qobject_cast<MenuController*>(contactList);
-			Q_ASSERT(controller);
-			controller->addAction(m_addUserGen.data());
-		}
+//	QObject *contactList = ServiceManager::getByName("ContactList");
+//		if (contactList) {
+//			m_addUserGen.reset(new ActionGenerator(Icon("list-add-user"),
+//												   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
+//												   this, SLOT(show())));
+//			MenuController *controller = qobject_cast<MenuController*>(contactList);
+//			Q_ASSERT(controller);
+//			controller->addAction(m_addUserGen.data());
+//		}
 }
 
 void QuickAddContactDialog::show(Account *account, const QString &id,
 			    const QString &name, const QStringList &tags)
 {
-	AddContact *addContact = new AddContact(account);
-	addContact->setContactId(id);
-	addContact->setContactName(name);
-	addContact->setContactTags(tags);
-	centerizeWidget(addContact);
-	SystemIntegration::show(addContact);
+//	AddContact *addContact = new AddContact(account);
+//	addContact->setContactId(id);
+//	addContact->setContactName(name);
+//	addContact->setContactTags(tags);
+//	centerizeWidget(addContact);
+//	SystemIntegration::show(addContact);
 }
 
 void QuickAddContactDialog::show()
 {
-	AddContact *addContact = new AddContact();
-	centerizeWidget(addContact);
-	SystemIntegration::show(addContact);
+//	AddContact *addContact = new AddContact();
+//	centerizeWidget(addContact);
+//	SystemIntegration::show(addContact);
 }
 
 
 void QuickAddContactDialog::accept(const QString &password, bool remember)
 {
-	this->apply(password,remember);
+	//this->apply(password,remember);
 }
 
 void QuickAddContactDialog::cancel()
 {
-	this->reject();
+	//this->reject();
 }
 
-void QuickAddContactDialog::setAccount(Account *account)
-{
-	PasswordDialogWrapper::showDialog(m_templateTitle.arg(account->id(), account->protocol()->id()),this);
-}
-
-void QuickAddContactDialog::setValidator(QValidator *validator)
-{
-	Q_UNUSED(validator)
-}
 }

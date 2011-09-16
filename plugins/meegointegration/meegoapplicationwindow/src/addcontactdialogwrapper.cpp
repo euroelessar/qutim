@@ -50,45 +50,45 @@ void AddContactDialogWrapper::init()
 
 QString AddContactDialogWrapper::contactIdLabel()  const
 {
-	return m_dialogTitle;
+	return m_idLabel;
 }
 
 QString AddContactDialogWrapper::contactIdText() const
 {
-	return m_passwordText;
+	return m_idText;
 }
 
 QString AddContactDialogWrapper::contactNameText() const
 {
-	return m_rememberPassword;
+	return m_nameText;
 }
 
 void AddContactDialogWrapper::setContactIdLabel(const QString &idLabel)
 {
-	m_dialogTitle = title;
+	m_idLabel = idLabel;
 	emit contactIdLabelChanged();
 }
 
 void AddContactDialogWrapper::setContactIdText(const QString &idText)
 {
-	m_rememberPassword = rememberPassword;
+	m_idText = idText;
 	emit contactIdTextChanged();
 }
 
-void AddContactDialogWrapper::setcontactNameText(const QString &nameText)
+void AddContactDialogWrapper::setContactNameText(const QString &nameText)
 {
-	m_passwordText = password;
+	m_nameText = nameText;
 	emit contactNameTextChanged();
 }
 
 void AddContactDialogWrapper::accept()
 {
-	m_currentDialog->accept(passwordText(),rememberPassword());
+	//m_currentDialog->accept(passwordText(),rememberPassword());
 }
 
 void AddContactDialogWrapper::cancel()
 {
-	m_currentDialog->cancel();
+	//m_currentDialog->cancel();
 }
 
 void AddContactDialogWrapper::showDialog(QString title, QuickAddContactDialog * addContactDialog)
@@ -96,7 +96,7 @@ void AddContactDialogWrapper::showDialog(QString title, QuickAddContactDialog * 
 	m_currentDialog = addContactDialog;
 	for (int i = 0; i < m_managers()->count();i++)
 	{
-		m_managers()->at(i)->setTitle(title);
+		//m_managers()->at(i)->setTitle(title);
 		emit m_managers()->at(i)->shown();
 	}
 }
