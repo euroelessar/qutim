@@ -35,7 +35,7 @@ namespace MeegoIntegration
 class AddContactDialogWrapper : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(QString contactIdLabel READ contactIdLabel WRITE setContactIdLabel NOTIFY contactIdLabelChanged)
-	Q_PROPERTY(QString contactIdText READ contactIdText WRITE contactIdText NOTIFY contactIdTextChanged)
+	Q_PROPERTY(QString contactIdText READ contactIdText WRITE setContactIdText NOTIFY contactIdTextChanged)
 	Q_PROPERTY(QString contactNameText READ contactNameText WRITE setContactNameText NOTIFY contactNameTextChanged)
 public:
 	AddContactDialogWrapper();
@@ -46,7 +46,7 @@ public:
 
 	void setContactIdLabel(const QString &);
 	void setContactIdText(const QString &);
-	void setcontactNameText(const QString &);
+	void setContactNameText(const QString &);
 
 	Q_INVOKABLE void accept();
 	Q_INVOKABLE void cancel();
