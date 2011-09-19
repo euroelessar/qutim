@@ -52,6 +52,9 @@ PageStackWindow {
 
 
 	initialPage: Page {
+		AboutDialog {
+			id:aboutDialog
+		}
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -62,9 +65,7 @@ PageStackWindow {
 				id: contactListTab
 				contactList: root.contactList
 				chat: root.chat
-				AboutDialog {
-					id:aboutDialog
-				}
+
 			}
 
 			ChatChannelList {

@@ -30,88 +30,88 @@ Sheet {
 	acceptButtonText: "Close"
 
 	content: Item {
-			id: contentArea
-			objectName: "contentArea"
-			anchors.fill: parent
+		id: contentArea
+		objectName: "contentArea"
+		anchors.fill: parent
+		anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
+		anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
+
+		PageStack {
+			id: pageStack
 			anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
-			anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
-			PageStack {
-				id: pageStack
-				anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
-				anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
-				toolBar: toolBar
-			}
-			ToolBar {
-				objectName: "toolBar"
-				anchors.top: contentArea.bottom
-				id: toolBar
-				// Don't know why I have to do it manually
-				onVisibleChanged: if (__currentContainer) __currentContainer.visible = visible;
-			}
+			//anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
+			toolBar: toolBar
 		}
+		ToolBar {
+			objectName: "toolBar"
+			anchors.top: contentArea.bottom
+			id: toolBar
+			// Don't know why I have to do it manually
+			onVisibleChanged: if (__currentContainer) __currentContainer.visible = visible;
+		}
+	}
 	Page
 	{
 		id:mainPage
-		tools: ToolBarLayout {
-			id: toolsLayout
-		}
+		anchors.margins:10
+		anchors.fill: parent
 
+		Row {
+			anchors.right: parent.right
+			anchors.left: parent.left
+			anchors.top: parent.top
 
-			Row {
+			id:programLine
+			spacing: 10
+
+			Text {
 				anchors.right: parent.right
-				anchors.left: parent.left
-				anchors.top: parent.top
-				id:programLine
-				spacing: 10
-
-				Text {
-					anchors.right: parent.right
-					id: versionText
-					text: handler.version
-				}
-
-				Text {
-					anchors.right: versionText.left
-					id:programName
-					font.pointSize: 60
-					text: "qutIM"
-				}
-
+				id: versionText
+				text: handler.version
 			}
+
+			Text {
+				anchors.right: versionText.left
+				id:programName
+				font.pointSize: 60
+				text: "qutIM"
+			}
+
+		}
 
 
 		ListModel {
 			id:linksModel
 
-		    ListElement {
-			name: "Project site"
-			url: "http://qutim.org"
-		    }
-		    ListElement {
-			name: "Source code repository"
-			url: "http://github.com/euroelessar"
-		    }
-		    ListElement {
-			name: "Bug tracker"
-			url: "http://trac.qutim.org"
-		    }
+			ListElement {
+				name: "Project site"
+				url: "http://qutim.org"
+			}
+			ListElement {
+				name: "Source code repository"
+				url: "http://github.com/euroelessar"
+			}
+			ListElement {
+				name: "Bug tracker"
+				url: "http://trac.qutim.org"
+			}
 		}
 
 		ListView {
 			id:mainInfo
 			spacing: 20
-			anchors{top:programLine.bottom; left:parent.left; right:parent.right;}
+			anchors{top:programLine.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
 
 			model: linksModel
 			delegate: Text {
-			anchors{left: parent.left; right: parent.right}
-			text: qsTr(name) + ": <a href=\"" + url + "\">" + url  +"</a>"
-			wrapMode: Text.WordWrap
-			textFormat: Text.RichText
-			onLinkActivated: {
-				Qt.openUrlExternally(link);
+				anchors{left: parent.left; right: parent.right}
+				text: qsTr(name) + ": <br> <a href=\"" + url + "\">" + url  +"</a>"
+				wrapMode: Text.WordWrap
+				textFormat: Text.RichText
+				onLinkActivated: {
+					Qt.openUrlExternally(link);
+				}
 			}
-		    }
 		}
 
 		Column {
@@ -138,36 +138,37 @@ Sheet {
 		}
 
 
+
 	}
 
 	Page
 	{
 		id:developersPage
 		Flickable {
-		anchors.fill: parent
-		    anchors.leftMargin: 10
-    anchors.topMargin: 10
-    contentWidth: developersText.width
-    contentHeight: developersText.height
-		flickableDirection: Flickable.VerticalFlick
-		Text {
-			id:developersText
-			anchors.fill:parent
-			text: handler.developers
-			wrapMode: Text.WordWrap
-			textFormat: Text.RichText
-			onLinkActivated: {
-				Qt.openUrlExternally(link);
+			anchors.fill: parent
+			anchors.leftMargin: 10
+			anchors.topMargin: 10
+			contentWidth: developersText.width
+			contentHeight: developersText.height
+			flickableDirection: Flickable.VerticalFlick
+			Text {
+				id:developersText
+				width: parent.width
+				text: handler.developers
+				wrapMode: Text.WordWrap
+				textFormat: Text.RichText
+				onLinkActivated: {
+					Qt.openUrlExternally(link);
+				}
 			}
 		}
-		}
 		tools: ToolBarLayout {
-						ToolIcon {
-							visible: true
-							platformIconId: "toolbar-previous"
-							onClicked: pageStack.pop()
-						}
-					}
+			ToolIcon {
+				visible: true
+				platformIconId: "toolbar-previous"
+				onClicked: pageStack.pop()
+			}
+		}
 	}
 
 	Page
@@ -175,29 +176,29 @@ Sheet {
 		id:translatorsPage
 		Flickable {
 			anchors.fill: parent
-	    anchors.leftMargin: 10
-	    anchors.topMargin: 10
-	    contentWidth: translatorsText.width
-	    contentHeight: translatorsText.height
-		flickableDirection: Flickable.VerticalFlick
-		Text {
-			id:translatorsText
-			anchors.fill:parent
-			text: handler.translators
-			wrapMode: Text.WordWrap
-			textFormat: Text.RichText
-			onLinkActivated: {
-				Qt.openUrlExternally(link);
+			anchors.leftMargin: 10
+			anchors.topMargin: 10
+			contentWidth: translatorsText.width
+			contentHeight: translatorsText.height
+			flickableDirection: Flickable.VerticalFlick
+			Text {
+				id:translatorsText
+				width: parent.width
+				text: handler.translators
+				wrapMode: Text.WordWrap
+				textFormat: Text.RichText
+				onLinkActivated: {
+					Qt.openUrlExternally(link);
+				}
 			}
 		}
-		}
 		tools: ToolBarLayout {
-						ToolIcon {
-							visible: true
-							platformIconId: "toolbar-previous"
-							onClicked: pageStack.pop()
-						}
-					}
+			ToolIcon {
+				visible: true
+				platformIconId: "toolbar-previous"
+				onClicked: pageStack.pop()
+			}
+		}
 	}
 
 	Page
@@ -205,42 +206,27 @@ Sheet {
 		id:licensePage
 		Flickable {
 			anchors.fill: parent
-	    anchors.leftMargin: 10
-	    anchors.topMargin: 10
-	    contentWidth: licenseText.width
-	    contentHeight: licenseText.height
-		flickableDirection: Flickable.VerticalFlick
-		Text {
-			id:licenseText
-			anchors.fill:parent
-			text: handler.license
-			wrapMode: Text.WordWrap
-			textFormat: Text.RichText
+			anchors.leftMargin: 10
+			anchors.topMargin: 10
+			contentWidth: licenseText.width
+			contentHeight: licenseText.height
+			flickableDirection: Flickable.HorizontalAndVerticalFlick
+			Text {
+				id:licenseText
+				text: handler.license
+				wrapMode: Text.WordWrap
+				textFormat: Text.RichText
 
-		}
-		}
-		tools: ToolBarLayout {
-						ToolIcon {
-							visible: true
-							platformIconId: "toolbar-previous"
-							onClicked: pageStack.pop()
-						}
-					}
-
-	}
-
-	Component {
-		id: contentComponent
-		Page {
-			id: contentPage
-			tools: ToolBarLayout {
-				ToolIcon {
-					visible: true
-					platformIconId: "toolbar-previous"
-					onClicked: pageStack.pop()
-				}
 			}
 		}
+		tools: ToolBarLayout {
+			ToolIcon {
+				visible: true
+				platformIconId: "toolbar-previous"
+				onClicked: pageStack.pop()
+			}
+		}
+
 	}
 
 	onStatusChanged: {
