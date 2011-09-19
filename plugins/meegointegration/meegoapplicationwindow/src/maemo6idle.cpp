@@ -29,29 +29,30 @@
 namespace MeegoIntegration
 {
 
-
 Maemo6Idle::Maemo6Idle()
 {
 	m_qmActivity = new QmActivity();
-	connect(m_qmActivity,SIGNAL(activityChanged (QmActivity::Activity)),this,SLOT(activityChanged (MeeGo::QmActivity::Activity)));
+	connect(m_qmActivity,SIGNAL(activityChanged (MeeGo::QmActivity::Activity)),this,SLOT(activityChanged (MeeGo::QmActivity::Activity)));
 	m_activity = m_qmActivity->get();
 
 	idle_timer = new QBasicTimer();
 	idle_timer->start(60000,this);
 }
 
-void Maemo6Idle::doCheck()
+void Maemo6Idle::timerEvent(QTimerEvent* ev)
 {
-	if (m_activity == QmActivity::Active)
+	Q_UNUSED(ev);
+
+	if (m_activity == MeeGo::QmActivity::Active)
 	idleSeconds += 60;
 
 	emit secondsIdle(idleSeconds);
 }
 
-void Maemo6Idle::activityChanged (QmActivity::Activity activity)
+void Maemo6Idle::activityChanged (MeeGo::QmActivity::Activity activity)
 {
 	m_activity = activity;
-	if (m_activity == QmActivity::Active)
+	if (m_activity == MeeGo::QmActivity::Active)
 	{
 		idleSeconds = 0;
 		idle_timer->stop();

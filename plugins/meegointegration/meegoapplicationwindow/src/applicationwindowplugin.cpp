@@ -2,9 +2,11 @@
 #include "applicationwindow.h"
 #include "chat.h"
 #include "contactlist.h"
+
 #include "quickpassworddialog.h"
 #include "quickauthdialog.h"
 #include "quickaddcontactdialog.h"
+#include "quickaboutdialog.h"
 #include "maemo6idle.h"
 
 namespace MeegoIntegration
@@ -33,6 +35,9 @@ namespace MeegoIntegration
 		addExtension<QuickAddContactDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Add contact dialog"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog"));
+		addExtension<QuickAboutDialog>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo about dialog"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple about dialog"));
 	}
 }
 

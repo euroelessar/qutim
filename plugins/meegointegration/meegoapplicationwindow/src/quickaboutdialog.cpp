@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -23,39 +23,33 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMO6IDLE_H
-#define MAEMO6IDLE_H
-
-#include <QObject>
-#include <QBasicTimer>
-#include <qmactivity.h>
+#include "quickaboutdialog.h"
+#include "aboutdialogwrapper.h"
+#include <qdeclarative.h>
+#include <qutim/servicemanager.h>
+#include <qutim/icon.h>
+#include <qutim/debug.h>
+#include <qutim/menucontroller.h>
 
 namespace MeegoIntegration
 {
-using namespace MeeGo;
 
-class Maemo6Idle : public QObject
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service", "Idle")
-public:
-	Maemo6Idle();
-signals:
-	void secondsIdle(int);
-
-public slots:
-	void activityChanged(QmActivity::Activity activity);
-
-protected:
-	void timerEvent(QTimerEvent* ev);
-
-private:
-	QmActivity::Activity m_activity;
-	QBasicTimer *idle_timer;
-	int idleSeconds;
-	QmActivity *m_qmActivity;
-};
+QuickAboutDialog::QuickAboutDialog() {
+	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
+		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),
+													QT_TRANSLATE_NOOP("Core", "About qutIM"),
+													this,
+													SLOT(show()));
+		gen->setPriority(1);
+		gen->setMenuRole(QAction::AboutRole);
+		gen->setType(ActionTypePreferences);
+		menu->addAction(gen);
+	}
 }
 
+void QuickAboutDialog::show()
+{
+	AboutDialogWrapper::showDialog(this);
+}
 
-#endif
+}

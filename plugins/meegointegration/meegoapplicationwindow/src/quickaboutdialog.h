@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -23,39 +23,25 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMO6IDLE_H
-#define MAEMO6IDLE_H
+#ifndef QUICKABOUTDIALOG_H
+#define QUICKABOUTDIALOG_H
 
-#include <QObject>
-#include <QBasicTimer>
-#include <qmactivity.h>
+#include <qutim/startupmodule.h>
 
 namespace MeegoIntegration
 {
-using namespace MeeGo;
 
-class Maemo6Idle : public QObject
-{
+class QuickAboutDialog : public QObject {
+	Q_CLASSINFO("Service", "AboutDialog")
+	Q_CLASSINFO("Uses", "ContactList")
 	Q_OBJECT
-	Q_CLASSINFO("Service", "Idle")
+
 public:
-	Maemo6Idle();
-signals:
-	void secondsIdle(int);
-
+	QuickAboutDialog();
 public slots:
-	void activityChanged(QmActivity::Activity activity);
+	void show();
 
-protected:
-	void timerEvent(QTimerEvent* ev);
-
-private:
-	QmActivity::Activity m_activity;
-	QBasicTimer *idle_timer;
-	int idleSeconds;
-	QmActivity *m_qmActivity;
 };
 }
 
-
-#endif
+#endif /* QUICKABOUTDIALOG_H*/

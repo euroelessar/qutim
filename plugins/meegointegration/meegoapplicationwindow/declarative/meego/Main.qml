@@ -49,6 +49,8 @@ PageStackWindow {
 		id:authDialog
 	}
 
+
+
 	initialPage: Page {
 		AnimatedTabGroup {
 			id: tabGroup
@@ -60,6 +62,9 @@ PageStackWindow {
 				id: contactListTab
 				contactList: root.contactList
 				chat: root.chat
+				AboutDialog {
+					id:aboutDialog
+				}
 			}
 
 			ChatChannelList {
@@ -125,9 +130,10 @@ PageStackWindow {
 				//					visualParent: root.pageStack
 				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked: (menu.status == DialogStatus.Closed)
-					   ? menu.open()
-					   : menu.close()
+				onClicked:aboutDialog.open()
+//				onClicked: (menu.status == DialogStatus.Closed)
+//					   ? menu.open()
+//					   : menu.close()
 			}
 		}
 	}
