@@ -27,10 +27,13 @@
 #include <QDeclarativeContext>
 #include <qutim/thememanager.h>
 #include <QDeclarativeEngine>
+
 #include "servicemanagerwrapper.h"
 #include "passworddialogwrapper.h"
 #include "authdialogwrapper.h"
 #include "addcontactdialogwrapper.h"
+#include "aboutdialogwrapper.h"
+
 #include "menumodel.h"
 #include <QApplication>
 #include <QGLWidget>
@@ -46,6 +49,8 @@ ApplicationWindow::ApplicationWindow()
 	PasswordDialogWrapper::init();
 	AuthDialogWrapper::init();
 	AddContactDialogWrapper::init();
+	AboutDialogWrapper::init();
+
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));
 	font.setPointSize(24);
