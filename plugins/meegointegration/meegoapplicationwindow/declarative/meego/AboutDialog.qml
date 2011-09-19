@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+ * Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ Sheet {
 	AboutDialogWrapper {
 		id: handler
 	}
-	acceptButtonText: "Close"
+	acceptButtonText: qsTr("Close")
 
 	content: Item {
 		id: contentArea
@@ -208,14 +208,18 @@ Sheet {
 			anchors.fill: parent
 			anchors.leftMargin: 10
 			anchors.topMargin: 10
-			contentWidth: licenseText.width
+			contentWidth: licensePage.width
 			contentHeight: licenseText.height
-			flickableDirection: Flickable.HorizontalAndVerticalFlick
+			flickableDirection: Flickable.VerticalFlick
 			Text {
+				width: parent.width
 				id:licenseText
 				text: handler.license
 				wrapMode: Text.WordWrap
 				textFormat: Text.RichText
+				onLinkActivated: {
+					Qt.openUrlExternally(link);
+				}
 
 			}
 		}

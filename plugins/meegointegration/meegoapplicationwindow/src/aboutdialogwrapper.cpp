@@ -26,7 +26,6 @@
 #include "aboutdialogwrapper.h"
 #include "quickaboutdialog.h"
 #include <QHash>
-#include <QFile>
 #include <QRegExp>
 #include <QTextDocument>
 #include <qdeclarative.h>
@@ -54,17 +53,14 @@ AboutDialogWrapper::AboutDialogWrapper()
 	m_qtver = tr("Based on Qt %1 (%2 bit).").arg(QLatin1String(qVersion()), QString::number(QSysInfo::WordSize));
 	emit qtVerChanged();
 
-	QFile licenseFile(":/GPL");
-		QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
-									" or (at your option) any later version.</div>"
-									"<div>qutIM resources such as themes, icons, sounds may come along with a "
-									"different license.</div><br><hr><br>").arg(versionString());
-		if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			license += Qt::escape(QLatin1String(licenseFile.readAll()));
-		} else {
-			license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
-		}
-		license.replace(QLatin1String("\n\n"), "<br><br>");
+	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
+			     " or (at your option) any later version.</div>"
+			     "<div>qutIM resources such as themes, icons, sounds may come along with a "
+			     "different license.</div><br><hr><br>").arg(versionString());
+
+	license += "<br><a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2 license text</a>";
+
+	license.replace(QLatin1String("\n\n"), "<br><br>");
 	m_license = license;
 	emit licenseChanged();
 
