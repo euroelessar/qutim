@@ -26,9 +26,20 @@
 #include "addcontactdialogwrapper.h"
 #include "quickaddcontactdialog.h"
 #include <qdeclarative.h>
+#include <qutim/protocol.h>
+#include <qutim/contact.h>
+#include <qutim/icon.h>
+#include <qutim/messagesession.h>
+#include <qutim/servicemanager.h>
+#include <QStringBuilder>
+
 
 namespace MeegoIntegration
 {
+enum {
+	ChannelRole = Qt::UserRole,
+	UnreadCountRole
+};
 
 Q_GLOBAL_STATIC(QList<AddContactDialogWrapper*>, m_managers)
 QuickAddContactDialog* AddContactDialogWrapper::m_currentDialog;
@@ -36,6 +47,17 @@ QuickAddContactDialog* AddContactDialogWrapper::m_currentDialog;
 AddContactDialogWrapper::AddContactDialogWrapper()
 {
 	m_managers()->append(this);
+
+	foreach (Protocol *protocol, Protocol::all())
+		if (protocol->data(Protocol::ProtocolContainsContacts).toBool() && !protocol->accounts().isEmpty())
+			foreach (Account *acc, protocol->accounts()) {
+				m_accounts.insert(acc->id(),acc);
+			}
+	if (m_accounts.count() == 1)
+		setAccount(m_accounts.values().at(0));
+	else
+		m_showAccountsList = true;
+
 }
 
 AddContactDialogWrapper::~AddContactDialogWrapper()
@@ -53,14 +75,24 @@ QString AddContactDialogWrapper::contactIdLabel()  const
 	return m_idLabel;
 }
 
-QString AddContactDialogWrapper::contactIdText() const
+bool AddContactDialogWrapper::showAccountsList()  const
 {
-	return m_idText;
+	return m_showAccountsList;
 }
 
-QString AddContactDialogWrapper::contactNameText() const
+void AddContactDialogWrapper::setAccount(QString accountId)
 {
-	return m_nameText;
+	foreach (Account *acc,m_accounts)
+	{
+		if (acc->id() == accountId)
+		{
+			currentAccount = acc;
+			setContactIdLabel(acc->id());
+			m_showAccountsList = false;
+			emit showAccountsListChanged();
+			break;
+		}
+	}
 }
 
 void AddContactDialogWrapper::setContactIdLabel(const QString &idLabel)
@@ -69,36 +101,49 @@ void AddContactDialogWrapper::setContactIdLabel(const QString &idLabel)
 	emit contactIdLabelChanged();
 }
 
-void AddContactDialogWrapper::setContactIdText(const QString &idText)
+
+void AddContactDialogWrapper::addContact(QString id, QString name)
 {
-	m_idText = idText;
-	emit contactIdTextChanged();
+	Contact *contact = qobject_cast<Contact *>(currentAccount->getUnit(id, true));
+	if (contact) {
+		contact->setInList(true);
+		contact->setName(name);
+	}
 }
 
-void AddContactDialogWrapper::setContactNameText(const QString &nameText)
-{
-	m_nameText = nameText;
-	emit contactNameTextChanged();
-}
-
-void AddContactDialogWrapper::accept()
-{
-	//m_currentDialog->accept(passwordText(),rememberPassword());
-}
-
-void AddContactDialogWrapper::cancel()
-{
-	//m_currentDialog->cancel();
-}
-
-void AddContactDialogWrapper::showDialog(QString title, QuickAddContactDialog * addContactDialog)
+void AddContactDialogWrapper::showDialog(QuickAddContactDialog * addContactDialog)
 {
 	m_currentDialog = addContactDialog;
 	for (int i = 0; i < m_managers()->count();i++)
 	{
-		//m_managers()->at(i)->setTitle(title);
 		emit m_managers()->at(i)->shown();
 	}
 }
+
+int AddContactDialogWrapper::rowCount(const QModelIndex &parent) const
+{
+	Q_UNUSED(parent);
+	return m_accounts.size();
+}
+
+QVariant AddContactDialogWrapper::data(const QModelIndex &index, int role) const
+{
+	if (index.row() < 0 || index.row() > m_accounts.size())
+		return QVariant();
+	Account *account = m_accounts[index.row()];
+	switch (role) {
+	case Qt::DisplayRole:
+		return account->unit()->title();
+	case Qt::DecorationRole:
+		return QString();
+	case ChannelRole:
+		return qVariantFromValue<QObject*>(account);
+	case UnreadCountRole:
+		return account->unread().count();
+	default:
+		return QVariant();
+	}
+}
+
 }
 
