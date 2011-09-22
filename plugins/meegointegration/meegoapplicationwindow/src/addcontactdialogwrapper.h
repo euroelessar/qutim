@@ -29,50 +29,54 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include "quickaddcontactdialog.h"
+#include <QAbstractListModel>
+#include <qutim/account.h>
+#include <qutim/status.h>
+
 namespace MeegoIntegration
 {
-
-class AddContactDialogWrapper : public QObject {
+using namespace qutim_sdk_0_3;
+class AddContactDialogWrapper : public QAbstractListModel {
 	Q_OBJECT
 	Q_PROPERTY(QString contactIdLabel READ contactIdLabel WRITE setContactIdLabel NOTIFY contactIdLabelChanged)
-	Q_PROPERTY(QString contactIdText READ contactIdText WRITE setContactIdText NOTIFY contactIdTextChanged)
-	Q_PROPERTY(QString contactNameText READ contactNameText WRITE setContactNameText NOTIFY contactNameTextChanged)
+	Q_PROPERTY(bool showAccountsList READ showAccountsList NOTIFY showAccountsListChanged)
 public:
 	AddContactDialogWrapper();
 	~AddContactDialogWrapper();
+
 	QString contactIdLabel() const;
-	QString contactIdText() const;
-	QString contactNameText() const;
+	bool showAccountsList() const;
 
 	void setContactIdLabel(const QString &);
-	void setContactIdText(const QString &);
-	void setContactNameText(const QString &);
 
-	Q_INVOKABLE void accept();
-	Q_INVOKABLE void cancel();
+	Q_INVOKABLE void addContact(QString id, QString name);
+	Q_INVOKABLE void setAccount(QString accountId);
 
 	static void init();
-	static void showDialog(QString title, QuickAddContactDialog * passDialog);
+	static void showDialog(QuickAddContactDialog * dialog);
+
+	// QAbstractListModel
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 signals:
 	void contactIdLabelChanged();
-	void contactIdTextChanged();
-	void contactNameTextChanged();
+	void showAccountsListChanged();
 	void shown();
+
+private slots:
+	void setAccount();
+
+protected:
+
 
 private:
 	QString m_idLabel;
-	QString m_idText;
-	QString m_nameText;
 	static QuickAddContactDialog *m_currentDialog;
+	QList<Account> * m_accounts;
+	Account * currentAccount;
+	bool m_showAccountsList;
 
-protected:
-	void setAccount(Account *account);
-	void changeState(Account *account, const qutim_sdk_0_3::Status &status);
-private slots:
-	void setAccount();
-	void changeState(const qutim_sdk_0_3::Status &status);
-	void currentChanged(int index);
 
 };
 }

@@ -51,7 +51,7 @@ private slots:
 	void show();
 
 private:
-	QString m_templateTitle;
+
 	QScopedPointer<ActionGenerator> m_addUserGen;
 
 };

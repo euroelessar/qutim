@@ -55,15 +55,15 @@ bool isSupportAddContact()
 namespace MeegoIntegration
 {
 QuickAddContactDialog::QuickAddContactDialog() {
-//	QObject *contactList = ServiceManager::getByName("ContactList");
-//		if (contactList) {
-//			m_addUserGen.reset(new ActionGenerator(Icon("list-add-user"),
-//												   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
-//												   this, SLOT(show())));
-//			MenuController *controller = qobject_cast<MenuController*>(contactList);
-//			Q_ASSERT(controller);
-//			controller->addAction(m_addUserGen.data());
-//		}
+	QObject *contactList = ServiceManager::getByName("ContactList");
+		if (contactList) {
+			m_addUserGen.reset(new ActionGenerator(Icon("list-add-user"),
+												   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
+												   this, SLOT(show())));
+			MenuController *controller = qobject_cast<MenuController*>(contactList);
+			Q_ASSERT(controller);
+			controller->addAction(m_addUserGen.data());
+		}
 }
 
 void QuickAddContactDialog::show(Account *account, const QString &id,
@@ -79,9 +79,7 @@ void QuickAddContactDialog::show(Account *account, const QString &id,
 
 void QuickAddContactDialog::show()
 {
-//	AddContact *addContact = new AddContact();
-//	centerizeWidget(addContact);
-//	SystemIntegration::show(addContact);
+	AddContactDialogWrapper::showDialog(this);
 }
 
 
