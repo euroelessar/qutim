@@ -51,10 +51,16 @@ PageStackWindow {
 
 
 
+
 	initialPage: Page {
 		AboutDialog {
 			id:aboutDialog
 		}
+		AddContactDialog
+		{
+			id:addContactDialog
+		}
+
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -131,7 +137,7 @@ PageStackWindow {
 				//					visualParent: root.pageStack
 				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:aboutDialog.open()
+				onClicked:addContactDialog.open()
 //				onClicked: (menu.status == DialogStatus.Closed)
 //					   ? menu.open()
 //					   : menu.close()
