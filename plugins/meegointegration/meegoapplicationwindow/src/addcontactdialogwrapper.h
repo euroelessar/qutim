@@ -48,9 +48,11 @@ public:
 	bool showAccountsList() const;
 
 	void setContactIdLabel(const QString &);
+	Q_INVOKABLE void loadAccounts();
 
 	Q_INVOKABLE void addContact(QString id, QString name);
-	Q_INVOKABLE void setAccount(QString accountId);
+	//Q_INVOKABLE void setAccount(QString accountId);
+	Q_INVOKABLE void setAccount(Account * account);
 
 	static void init();
 	static void showDialog(QuickAddContactDialog * dialog);
@@ -73,7 +75,7 @@ protected:
 private:
 	QString m_idLabel;
 	static QuickAddContactDialog *m_currentDialog;
-	QList<Account> * m_accounts;
+	QList<Account*> * m_accounts;
 	Account * currentAccount;
 	bool m_showAccountsList;
 

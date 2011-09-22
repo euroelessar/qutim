@@ -21,77 +21,120 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import org.qutim 0.3
 
-Dialog {
+Sheet {
 	id: addContactDialog
 	AddContactDialogWrapper {
 		id: handler
 	}
+	acceptButtonText: qsTr("Close")
 
-	Connections {
-		target: handler
-		onShown: {
-			addContactDialog.open()
+	content: Item {
+		id: contentArea
+		objectName: "contentArea"
+		anchors.fill: parent
+		anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
+		anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
+
+		PageStack {
+			id: pageStack
+			anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
+			//anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
+			toolBar: toolBar
+		}
+		ToolBar {
+			objectName: "toolBar"
+			anchors.top: contentArea.bottom
+			id: toolBar
+			// Don't know why I have to do it manually
+			onVisibleChanged: if (__currentContainer) __currentContainer.visible = visible;
 		}
 	}
-
-	property Style platformStyle: QueryDialogStyle {}
-
-	title:Text {
-		id: textheader
-		font.pixelSize: 30
-		anchors.centerIn: parent
-		color: "white"
-		text: qsTr("Add contact");
-	}
-
-	content:Column {
-		anchors.centerIn: parent
-		id: addContactDialogContent
-		height: childrenRect.height + addContactDialog.platformStyle.contentTopMargin
-		spacing: 10
-
-		Row {
-			spacing: 10
-			Label {
-				id:addContactIdLabel
-				color: "white"
-				text: handler.contactIdLabel
-			}
+	Page
+	{
+		id:mainPage
+		anchors.margins:10
+		anchors.fill: parent
 
 
-			TextField {
-				anchors.horizontalCenter: parent.horizontalCenter
-				id:addContactIdText
-				onTextChanged: handler.contactIdText = text
+		Text {
+			id:header
+			anchors{top:parent.top; left:parent.left; right:parent.right}
+			font.pointSize: 40
+			text:qsTr("Select protocol:")
+		}
+
+		ListView {
+			id:mainInfo
+			spacing: 20
+			anchors{top:header.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
+
+			model: handler
+			delegate: ItemDelegate {
+				title: account.id
+				subtitle: account.id
+				onClicked: {
+					channel.setAccount(account);
+					//channel.active = true
+					//channel.showChat()
+				}
+
 			}
 		}
 
-		Row {
-			spacing: 10
-			Label {
-				id:addContactNameLabel
-				color: "white"
-				text: qsTr("Name")
-			}
 
+	}
 
-			TextField {
-				anchors.horizontalCenter: parent.horizontalCenter
-				id:addContactNameText
-				onTextChanged: handler.contactNameText = text
+	Page
+	{
+		id:addContactPage
+		Column {
+				anchors.fill: parent
+				id: addContactDialogContent
+				spacing: 10
+
+				Row {
+					spacing: 10
+					Label {
+						id:addContactIdLabel
+						text: handler.contactIdLabel
+					}
+					TextField {
+						id:addContactIdText
+					}
+				}
+
+				Row {
+					spacing: 10
+					Label {
+						id:addContactNameLabel
+
+						text: qsTr("Name")
+					}
+					TextField {
+						id:addContactNameText
+					}
+				}
+				Button { id:acceptButton; text: qsTr("Add contact"); onClicked: handler.addContact(addContactIdText.text,addContactNameText.text); }
+		}
+		tools: ToolBarLayout {
+			ToolIcon {
+				visible: true
+				platformIconId: "toolbar-previous"
+				onClicked: pageStack.pop()
 			}
 		}
+
 	}
 
-	buttons: Column {
-		anchors.top: parent.top
-		anchors.centerIn: parent
-		spacing: 20
-
-		Button { id:acceptButton; text: qsTr("Add contact"); onClicked: addContactDialog.accept(); platformStyle: ButtonStyle { inverted: true}}
-		Button { id:rejectButton; text: qsTr("Cancel"); onClicked: addContactDialog.reject();platformStyle: ButtonStyle { inverted: true}}
+	onStatusChanged: {
+		if (status == PageStatus.Inactive && pageStack.currentPage != mainPage) {
+			pageStack.clear();
+			pageStack.push(mainPage);
+		}
+		handler.loadAccounts();
 	}
-
-	onAccepted: handler.accept()
-	onRejected: handler.cancel()
+	Component.onCompleted: {
+		__owner = parent;
+		pageStack.push(mainPage);
+	}
 }
