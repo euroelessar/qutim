@@ -51,8 +51,8 @@ public:
 	Q_INVOKABLE void loadAccounts();
 
 	Q_INVOKABLE void addContact(QString id, QString name);
-	//Q_INVOKABLE void setAccount(QString accountId);
-	Q_INVOKABLE void setAccount(Account * account);
+	Q_INVOKABLE void setAccount(QString accountId);
+	void setAccount(Account * account);
 
 	static void init();
 	static void showDialog(QuickAddContactDialog * dialog);

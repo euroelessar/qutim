@@ -47,6 +47,10 @@ AddContactDialogWrapper::AddContactDialogWrapper()
 {
 	m_managers()->append(this);
 	m_accounts = new QList<Account*>();
+	QHash<int, QByteArray> roleNames;
+	roleNames.insert(AccountRole, "account");
+	roleNames.insert(Qt::DisplayRole, "title");
+	setRoleNames(roleNames);
 
 }
 
@@ -96,20 +100,25 @@ bool AddContactDialogWrapper::showAccountsList()  const
 	return m_showAccountsList;
 }
 
-//void AddContactDialogWrapper::setAccount(QString accountId)
-//{
-//	foreach (Account *acc,m_accounts)
-//	{
-//		if (acc->id() == accountId)
-//		{
-//			currentAccount = acc;
-//			setContactIdLabel(acc->id());
-//			m_showAccountsList = false;
-//			emit showAccountsListChanged();
-//			break;
-//		}
-//	}
-//}
+void AddContactDialogWrapper::setAccount(QString accountId)
+{
+	qDebug()<<"fbfbsdbdbs";
+	      qDebug() <<m_accounts->size();
+	for (int i=0;i<m_accounts->size();i++)
+	{
+		Account *acc=m_accounts->at(i);
+		if (accountId.compare(acc->id()) == 0)
+		{
+			currentAccount = acc;
+			qDebug()<<"dkjnksdbksd";
+			break;
+		}
+		qDebug()<<"ttytjtjj"<<acc->id()<<accountId;
+	}
+	m_showAccountsList = false;
+	setContactIdLabel(accountId);
+	emit showAccountsListChanged();
+}
 void AddContactDialogWrapper::setAccount(Account * account)
 {
 	currentAccount = account;
@@ -132,6 +141,7 @@ void AddContactDialogWrapper::addContact(QString id, QString name)
 		contact->setInList(true);
 		contact->setName(name);
 	}
+
 }
 
 void AddContactDialogWrapper::showDialog(QuickAddContactDialog * addContactDialog)
