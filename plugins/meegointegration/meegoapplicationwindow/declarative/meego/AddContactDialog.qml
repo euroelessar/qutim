@@ -25,7 +25,14 @@ Sheet {
 	id: addContactDialog
 	AddContactDialogWrapper {
 		id: handler
+		onShowAccountsListChanged: {
+			if (showAccountsList == false)
+				pageStack.push(addContactPage);
+			else {pageStack.clear();
+				pageStack.push(mainPage);}
+		}
 	}
+
 	acceptButtonText: qsTr("Close")
 
 	content: Item {
@@ -71,9 +78,9 @@ Sheet {
 			model: handler
 			delegate: ItemDelegate {
 				title: account.id
-				subtitle: account.id
+				subtitle: account.name
 				onClicked: {
-					channel.setAccount(account);
+					handler.setAccount(account.id);
 					//channel.active = true
 					//channel.showChat()
 				}
@@ -91,30 +98,60 @@ Sheet {
 				anchors.fill: parent
 				id: addContactDialogContent
 				spacing: 10
+				Text {
+					id:addContactHeader
+					anchors.horizontalCenter: parent.horizontalCenter;
+					font.pointSize: 30
+					text:qsTr("Add contact for")
+				}
+
+				Text {
+					id:addContactId
+					anchors.horizontalCenter: parent.horizontalCenter;
+					font.pointSize: 30
+					text: handler.contactIdLabel
+				}
 
 				Row {
+					anchors.horizontalCenter: parent.horizontalCenter
+					anchors.right: parent.right
 					spacing: 10
 					Label {
 						id:addContactIdLabel
-						text: handler.contactIdLabel
+						anchors.right: parent.horizontalCenter
+						anchors.rightMargin: 10
+						text: qsTr("Contact ID")
 					}
 					TextField {
+						anchors.left: parent.horizontalCenter
+						anchors.right: parent.right
 						id:addContactIdText
 					}
 				}
 
 				Row {
+					anchors.horizontalCenter: parent.horizontalCenter
+					anchors.right: parent.right
 					spacing: 10
 					Label {
 						id:addContactNameLabel
+						anchors.right: parent.horizontalCenter
+						anchors.rightMargin: 10
 
-						text: qsTr("Name")
+						text: qsTr("Name for contact")
 					}
 					TextField {
+						anchors.left: parent.horizontalCenter
+						anchors.right: parent.right
 						id:addContactNameText
 					}
 				}
-				Button { id:acceptButton; text: qsTr("Add contact"); onClicked: handler.addContact(addContactIdText.text,addContactNameText.text); }
+				Button {
+					id:acceptButton;
+					anchors.horizontalCenter: parent.horizontalCenter;
+					text: qsTr("Add contact");
+					onClicked: handler.addContact(addContactIdText.text,addContactNameText.text);
+				}
 		}
 		tools: ToolBarLayout {
 			ToolIcon {
@@ -131,6 +168,7 @@ Sheet {
 			pageStack.clear();
 			pageStack.push(mainPage);
 		}
+		if (status == DialogStatus.Opening)
 		handler.loadAccounts();
 	}
 	Component.onCompleted: {
