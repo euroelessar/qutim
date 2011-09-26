@@ -71,7 +71,6 @@ void AddContactDialogWrapper::loadAccounts()
 				beginInsertRows(QModelIndex(), m_accounts->size(), m_accounts->size());
 				m_accounts->append(acc);
 				endInsertRows();
-
 			}
 
 	if (m_accounts->count() == 1)
@@ -102,18 +101,14 @@ bool AddContactDialogWrapper::showAccountsList()  const
 
 void AddContactDialogWrapper::setAccount(QString accountId)
 {
-	qDebug()<<"fbfbsdbdbs";
-	      qDebug() <<m_accounts->size();
 	for (int i=0;i<m_accounts->size();i++)
 	{
 		Account *acc=m_accounts->at(i);
 		if (accountId.compare(acc->id()) == 0)
 		{
 			currentAccount = acc;
-			qDebug()<<"dkjnksdbksd";
 			break;
 		}
-		qDebug()<<"ttytjtjj"<<acc->id()<<accountId;
 	}
 	m_showAccountsList = false;
 	setContactIdLabel(accountId);

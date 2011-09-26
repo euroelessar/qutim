@@ -81,8 +81,7 @@ Sheet {
 				subtitle: account.name
 				onClicked: {
 					handler.setAccount(account.id);
-					//channel.active = true
-					//channel.showChat()
+					addContactDialog.accept();
 				}
 
 			}
