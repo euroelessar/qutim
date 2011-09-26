@@ -68,9 +68,10 @@ signals:
 
 private slots:
 	void setAccount();
+	void changeState(const qutim_sdk_0_3::Status &status);
 
 protected:
-
+	void changeState(Account *account, const qutim_sdk_0_3::Status &status);
 
 private:
 	QString m_idLabel;

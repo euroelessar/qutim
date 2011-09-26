@@ -79,10 +79,9 @@ Sheet {
 			delegate: ItemDelegate {
 				title: account.id
 				subtitle: account.name
-				onClicked: {
-					handler.setAccount(account.id);
-					addContactDialog.accept();
-				}
+				enabled: isEnabled
+				onClicked: handler.setAccount(account.id);
+
 
 			}
 		}
@@ -149,9 +148,11 @@ Sheet {
 					id:acceptButton;
 					anchors.horizontalCenter: parent.horizontalCenter;
 					text: qsTr("Add contact");
-					onClicked: handler.addContact(addContactIdText.text,addContactNameText.text);
+					onClicked: {
+						handler.addContact(addContactIdText.text,addContactNameText.text);
+						addContactDialog.accept();
 				}
-		}
+
 		tools: ToolBarLayout {
 			ToolIcon {
 				visible: true
