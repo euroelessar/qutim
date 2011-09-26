@@ -32,7 +32,6 @@
 
 namespace MeegoIntegration
 {
-using namespace MeeGo;
 
 class Maemo6Idle : public QObject
 {
@@ -44,16 +43,16 @@ signals:
 	void secondsIdle(int);
 
 public slots:
-	void activityChanged(QmActivity::Activity activity);
+	void activityChanged(MeeGo::QmActivity::Activity activity);
 
 protected:
 	void timerEvent(QTimerEvent* ev);
 
 private:
-	QmActivity::Activity m_activity;
+	MeeGo::QmActivity::Activity m_activity;
 	QBasicTimer *idle_timer;
 	int idleSeconds;
-	QmActivity *m_qmActivity;
+	MeeGo::QmActivity *m_qmActivity;
 };
 }
 
