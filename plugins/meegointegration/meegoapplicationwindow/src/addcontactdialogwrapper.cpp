@@ -37,7 +37,8 @@
 namespace MeegoIntegration
 {
 enum {
-	AccountRole = Qt::UserRole
+	AccountRole = Qt::UserRole,
+	EnabledRole
 };
 
 Q_GLOBAL_STATIC(QList<AddContactDialogWrapper*>, m_managers)
@@ -50,6 +51,7 @@ AddContactDialogWrapper::AddContactDialogWrapper()
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(AccountRole, "account");
 	roleNames.insert(Qt::DisplayRole, "title");
+	roleNames.insert(EnabledRole, "isEnabled");
 	setRoleNames(roleNames);
 
 }
@@ -71,12 +73,43 @@ void AddContactDialogWrapper::loadAccounts()
 				beginInsertRows(QModelIndex(), m_accounts->size(), m_accounts->size());
 				m_accounts->append(acc);
 				endInsertRows();
+				changeState(acc, acc->status());
+				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					SLOT(changeState(qutim_sdk_0_3::Status)));
 			}
 
 	if (m_accounts->count() == 1)
-		setAccount(m_accounts->at(0));
+	{
+		Status s =m_accounts->at(0)->status();
+		if (s != Status::Connecting && s != Status::Offline) {
+			setAccount(m_accounts->at(0));
+		}
+		else
+			m_showAccountsList = true;}
 	else
 		m_showAccountsList = true;
+
+}
+
+void AddContactDialogWrapper::changeState(const qutim_sdk_0_3::Status &status)
+{
+	if (Account *account = qobject_cast<Account *>(sender()))
+		changeState(account, status);
+}
+
+void AddContactDialogWrapper::changeState(Account *account, const qutim_sdk_0_3::Status &status)
+{
+	Q_UNUSED(status)
+
+	for (int i=0;i<m_accounts->size();i++)
+	{
+		Account *acc=m_accounts->at(i);
+		if (account->id().compare(acc->id()) == 0)
+		{
+			emit dataChanged(index(i,0),index(i,0));
+			break;
+		}
+	}
 }
 
 AddContactDialogWrapper::~AddContactDialogWrapper()
@@ -167,6 +200,12 @@ QVariant AddContactDialogWrapper::data(const QModelIndex &index, int role) const
 		return QString();
 	case AccountRole:
 		return qVariantFromValue<QObject*>(account);
+	case EnabledRole:{
+		Status status = account->status();
+		if (status == Status::Connecting || status == Status::Offline) {
+			return false;
+		}
+		return true;}
 	default:
 		return QVariant();
 	}
