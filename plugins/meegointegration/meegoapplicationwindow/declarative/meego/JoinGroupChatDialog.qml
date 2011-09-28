@@ -24,7 +24,15 @@ import org.qutim 0.3
 Sheet {
 	id: joinGroupChatDialog
 	JoinGroupChatWrapper {
-		id: handler		
+		id: handler
+	}
+	Connections {
+		target: handler
+		onJoined: joinGroupChatDialog.accept();
+		onJoinDialogShown:pageStack.push(joinPage);
+		onBookmarksEditDialogShown: {}
+		onShown: joinGroupChatDialog.open();
+
 	}
 
 	acceptButtonText: qsTr("Join")
@@ -40,7 +48,7 @@ Sheet {
 		PageStack {
 			id: pageStack
 			anchors { top: parent.top; left: parent.left; right: parent.right; bottom: parent.bottom; }
-			//anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
+			anchors.bottomMargin: toolBar.visible || (toolBar.opacity==1)? toolBar.height : 0
 			toolBar: toolBar
 		}
 		ToolBar {
@@ -57,71 +65,81 @@ Sheet {
 		anchors.margins:10
 		anchors.fill: parent
 
+		Column {
+			anchors.fill: parent
+			id: dialogContent
+			spacing: 10
+			Text {
+				id:header
+				anchors{ left:parent.left; right:parent.right}
+				font.pointSize: 20
+				text:qsTr("Select account:")
+			}
+			Row {
+				id: accounts
+				anchors{ left:parent.left; right:parent.right}
 
-		Text {
-			id:header
-			anchors{top:parent.top; left:parent.left; right:parent.right}
-			font.pointSize: 20
-			text:qsTr("Select account:")
-		}
-		Item {
-			id: accounts
-
-
-			Button {
-				id: combobox
-				anchors {
-					left: label.text == "" ? root.left : label.right
-					top: root.top
-					right: root.right
+				Button {
+					id: combobox
+					anchors {
+						margins: 10
+						left: parent.left
+						right: parent.right
+					}
+					text: handler.accounts.currentIndex
+					onClicked: accountsDialog.open()
 				}
-				text: handler.currentText
-				onClicked: dialog.chooseValue()
+
+				Image {
+					id: image
+					anchors { right: combobox.right; verticalCenter: combobox.verticalCenter }
+					property variant __pressed: combobox.pressed ? "-pressed" : ""
+					source: "image://theme/meegotouch-combobox-indicator" + __pressed
+					MouseArea {
+						onClicked: accountsDialog.open()
+					}
+				}
+
+				SelectionDialog {
+					id: accountsDialog
+					titleText: qsTr("Select account:")
+					model: handler.accounts
+					//				delegate: ItemDelegate {
+					//					title: account.id
+					//					subtitle: account.name
+					//				}
+					onAccepted: {
+						handler.onAccountBoxActivated(accountsDialog.selectedIndex);
+						accountsDialog.model.clear();
+					}
+					onRejected: accountsDialog.model.clear()
+
+				}
+
 			}
 
-			Image {
-				id: image
-				anchors { right: root.widget.right; verticalCenter: root.widget.verticalCenter }
-				property variant __pressed: combobox.pressed ? "-pressed" : ""
-				source: "image://theme/meegotouch-combobox-indicator" + __pressed
-				MouseArea {
-					onClicked: dialog.open()
+			ListView {
+				id:bookmarks
+				spacing: 20
+				anchors{ left:parent.left; right:parent.right;}
+
+				model: handler.bookmarks
+
+				onCurrentIndexChanged:
+				{
+					handler.onItemActivated(bookmarks.currentItem)
 				}
-			}
-
-			SelectionDialog {
-				id: accountsDialog
-				titleText: handler.name
-				model: handler.accounts
-				onAccepted: {
-					handler.currentIndex = accountsDialog.selectedIndex;
-					dialog.model.clear();
+				delegate: ItemDelegate {
+					title: display
+					subtitle: description
 				}
-				onRejected: dialog.model.clear()
-
-			}
-
-			Connections {
-				target: handler
-				onCurrentTextChanged: {
-					if (root.widget.text != root.handler.currentText)
-						root.widget.text = root.handler.currentText;
-				}
-			}
-		}
-
-		ListView {
-			id:bookmarks
-			spacing: 20
-			anchors{top:header.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
-
-			model: handler.bookmarks
-			delegate: ItemDelegate {
-				title: account.id
-				subtitle: account.name
-				onClicked: handler.setAccount(account.id);
 
 
+				//			delegate: ItemDelegate {
+				//				title: account.id
+				//				subtitle: account.name
+				//				onClicked: handler.setAccount(account.id);
+				//			}
 			}
 		}
 
@@ -133,10 +151,10 @@ Sheet {
 		id:joinPage
 		Column {
 			anchors.fill: parent
-			id: addContactDialogContent
+			id: joinDialog
 			spacing: 10
 			Text {
-				id:addContactHeader
+				id:joinHeader
 				anchors.horizontalCenter: parent.horizontalCenter;
 				font.pointSize: 30
 				text:qsTr("Join to conference:")
@@ -256,8 +274,8 @@ Sheet {
 				anchors.horizontalCenter: parent.horizontalCenter;
 				text: qsTr("Join");
 				onClicked: {
-					handler.addContact(addContactIdText.text,addContactNameText.text);
-					addContactDialog.accept();
+					handler.join()
+
 				}
 			}
 		}

@@ -31,6 +31,10 @@
 #include <QDialog>
 #include <qutim/actiongenerator.h>
 #include <qutim/dataforms.h>
+#include "quickjoingroupchat.h"
+#include "accountsmodel.h"
+#include "bookmarksmodel.h"
+
 class QModelIndex;
 
 namespace qutim_sdk_0_3
@@ -42,26 +46,37 @@ namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 
-class BookmarksModel;
-class AccountsModel;
+enum ItemRole
+{
+	DescriptionRole = Qt::UserRole + 33,
+	SeparatorRole,
+	TitleRole, //NOTE: in title and separator description and decoration roles will be ignored
+	ActionRole
+};
+
 class JoinGroupChatWrapper : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(BookmarksModel bookmarksBox READ bookmarksBox NOTIFY bookmarksBoxChanged)
-	Q_PROPERTY(BookmarksModel bookmarks READ bookmarks NOTIFY bookmarksChanged)
-	Q_PROPERTY(AccountsModel accounts READ accounts NOTIFY accountsChanged)
+	Q_PROPERTY(MeegoIntegration::BookmarksModel* bookmarksBox READ bookmarksBox NOTIFY bookmarksBoxChanged)
+	Q_PROPERTY(MeegoIntegration::BookmarksModel* bookmarks READ bookmarks NOTIFY bookmarksChanged)
+	Q_PROPERTY(MeegoIntegration::AccountsModel* accounts READ accounts NOTIFY accountsChanged)
 public:
-	JoinGroupChatWrapper(QWidget *parent = 0);
+	JoinGroupChatWrapper();
 	~JoinGroupChatWrapper();
-	bookmarksBox();
-	bookmarks();
-	accounts();
+	BookmarksModel *bookmarksBox();
+	BookmarksModel *bookmarks();
+	AccountsModel *accounts();
 	static void init();
+	static void showDialog();
 
 signals:
-	bookmarksBoxChanged();
-	bookmarksChanged();
-	accountsChanged();
+	void bookmarksBoxChanged();
+	void bookmarksChanged();
+	void accountsChanged();
+	void joinDialogShown();
+	void bookmarkEditDialogShown();
+	void joined();
+	void shown();
 
 private slots:
 	void onAccountBoxActivated(int index);

@@ -28,32 +28,29 @@
 #include "joingroupchatwrapper.h"
 #include "accountsmodel.h"
 #include "bookmarksmodel.h"
-#include <QEvent>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
 #include <qutim/groupchatmanager.h>
-#include <QPushButton>
 #include <qutim/debug.h>
-#include <QCommandLinkButton>
-#include <QLatin1Literal>
 #include <qutim/icon.h>
-#include <itemdelegate.h>
-//#include "joinpage.h"
 #include <qutim/servicemanager.h>
+#include <qdeclarative.h>
 
 namespace MeegoIntegration
 {
 const static int m_max_recent_count = 4;
 
-JoinGroupChatWrapper::JoinGroupChatWrapper(QWidget *parent) :
-	QDialog(parent)
+Q_GLOBAL_STATIC(QList<JoinGroupChatWrapper*>, m_managers)
+
+JoinGroupChatWrapper::JoinGroupChatWrapper()
 {
-	m_bookmarksBoxModel = new BookmarksModel(this);
-	m_bookmarksModel = new BookmarksModel(this);
-	m_accountsModel = new AccountsModel(this);
+	m_bookmarksBoxModel = new BookmarksModel();
+	m_bookmarksModel = new BookmarksModel();
+	m_accountsModel = new AccountsModel();
+	m_managers()->append(this);
 
 
 	//connect(ui->accountBox, SIGNAL(currentIndexChanged(int)),
@@ -75,20 +72,20 @@ void JoinGroupChatWrapper::init()
 
 JoinGroupChatWrapper::~JoinGroupChatWrapper()
 {
-	delete ui;
+	m_managers()->removeOne(this);
 }
 
-JoinGroupChatWrapper::bookmarksBox()
+BookmarksModel * JoinGroupChatWrapper::bookmarksBox()
 {
 	return m_bookmarksBoxModel;
 }
 
-JoinGroupChatWrapper::bookmarks()
+BookmarksModel * JoinGroupChatWrapper::bookmarks()
 {
 	return m_bookmarksModel;
 }
 
-JoinGroupChatWrapper::accounts()
+AccountsModel * JoinGroupChatWrapper::accounts()
 {
 	return m_accountsModel;
 }
@@ -97,7 +94,7 @@ void JoinGroupChatWrapper::onAccountBoxActivated(int index)
 {
 	Account *account = this->account(index);
 	if (!account) {
-		m_bookmarksViewModel->clear();
+		m_bookmarksModel->clear();
 		return;
 	}
 	fillBookmarks(account);
@@ -111,7 +108,7 @@ void JoinGroupChatWrapper::fillBookmarks(const QList<DataItem> &bookmarks, bool 
 	QString txt = recent ?
 				QT_TRANSLATE_NOOP("JoinGroupChat", "Recent") :
 				QT_TRANSLATE_NOOP("JoinGroupChat", "Bookmarks");
-	m_bookmarksViewModel->addItem(BookmarkSeparator, txt);
+	m_bookmarksModel->addItem(BookmarkSeparator, txt);
 	int count = 0;
 	foreach (const DataItem &bookmark, bookmarks) {
 		QString name = bookmark.title();
@@ -123,7 +120,7 @@ void JoinGroupChatWrapper::fillBookmarks(const QList<DataItem> &bookmarks, bool 
 		BookmarkType type = recent ? BookmarkRecentItem : BookmarkItem;
 		QVariant userData = QVariant::fromValue(bookmark);
 
-		m_bookmarksViewModel->addItem(type, name, fields, userData);
+		m_bookmarksModel->addItem(type, name, fields, userData);
 		m_bookmarksBoxModel->addItem(type, name, fields, userData);
 		++count;
 		if (recent && (count >= m_max_recent_count))
@@ -138,14 +135,14 @@ void JoinGroupChatWrapper::fillBookmarks(Account *account)
 		return;
 
 	m_bookmarksBoxModel->startUpdating();
-	m_bookmarksViewModel->startUpdating();
+	m_bookmarksModel->startUpdating();
 
 	QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
-	m_bookmarksViewModel->addItem(BookmarkNew,
+	m_bookmarksModel->addItem(BookmarkNew,
 								  QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
 								  fields);
 	fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
-	m_bookmarksViewModel->addItem(BookmarkEdit,
+	m_bookmarksModel->addItem(BookmarkEdit,
 								  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
 								  fields);
 
@@ -156,7 +153,7 @@ void JoinGroupChatWrapper::fillBookmarks(Account *account)
 	fillBookmarks(manager->recent(), true);
 
 	m_bookmarksBoxModel->endUpdating();
-	m_bookmarksViewModel->endUpdating();
+	m_bookmarksModel->endUpdating();
 }
 
 void JoinGroupChatWrapper::onItemActivated(const QModelIndex &index)
@@ -173,15 +170,15 @@ void JoinGroupChatWrapper::onItemActivated(const QModelIndex &index)
 			break;
 		DataItem bookmark = index.data(Qt::UserRole).value<DataItem>();
 		manager->join(bookmark);
-		//close();
+		emit joined();
 		break;
 	}
 	case BookmarkNew: {
-		//ui->stackedWidget->slideInIdx(1);
+		emit joinDialogShown();
 		break;
 	}
 	case BookmarkEdit: {
-		//ui->stackedWidget->slideInIdx(2);
+		emit bookmarkEditDialogShown();
 		break;
 	}
 	default:
@@ -191,17 +188,24 @@ void JoinGroupChatWrapper::onItemActivated(const QModelIndex &index)
 
 inline Account *JoinGroupChatWrapper::currentAccount()
 {
-	return account(ui->accountBox->currentIndex());
+	return account(0);//??
 }
 
 inline Account *JoinGroupChatWrapper::account(int index)
 {
-	QAbstractItemModel *model = ui->accountBox->model();
-	return (model->data(model->index(index, 0), Qt::UserRole)).value<Account*>();
+	return (m_accountsModel->data(m_accountsModel->index(index, 0), Qt::UserRole)).value<Account*>();
 }
 void JoinGroupChatWrapper::onBookmarksChanged()
 {
 	fillBookmarks(currentAccount());
+}
+
+void JoinGroupChatWrapper::showDialog()
+{
+	for (int i = 0; i < m_managers()->count();i++)
+	{
+		emit m_managers()->at(i)->shown();
+	}
 }
 
 }
