@@ -51,6 +51,7 @@ int AccountsModel::rowCount(const QModelIndex &parent) const
 
 QVariant AccountsModel::data(const QModelIndex &index, int role) const
 {
+	qDebug()<<"knbsdkbnsdkbsnkbsn";
 	Account *account = m_accounts.value(index.row());
 	if (!account)
 		return QVariant();

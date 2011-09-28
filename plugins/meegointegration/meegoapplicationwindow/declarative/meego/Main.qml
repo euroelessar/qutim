@@ -60,6 +60,10 @@ PageStackWindow {
 		{
 			id:addContactDialog
 		}
+		JoinGroupChatDialog
+		{
+			id:joinGroupChatDialog
+		}
 
 		AnimatedTabGroup {
 			id: tabGroup
@@ -137,7 +141,7 @@ PageStackWindow {
 				//					visualParent: root.pageStack
 				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:addContactDialog.open()
+				onClicked:joinGroupChatDialog.open()
 //				onClicked: (menu.status == DialogStatus.Closed)
 //					   ? menu.open()
 //					   : menu.close()
