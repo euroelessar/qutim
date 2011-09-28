@@ -33,6 +33,7 @@
 #include "authdialogwrapper.h"
 #include "addcontactdialogwrapper.h"
 #include "aboutdialogwrapper.h"
+#include "joingroupchatwrapper.h"""
 
 #include "menumodel.h"
 #include <QApplication>
@@ -50,6 +51,7 @@ ApplicationWindow::ApplicationWindow()
 	AuthDialogWrapper::init();
 	AddContactDialogWrapper::init();
 	AboutDialogWrapper::init();
+	JoinGroupChatWrapper::init();
 
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));

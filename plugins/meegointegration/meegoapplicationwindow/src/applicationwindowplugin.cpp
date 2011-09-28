@@ -8,6 +8,7 @@
 #include "quickaddcontactdialog.h"
 #include "quickaboutdialog.h"
 #include "maemo6idle.h"
+#include "quickjoingroupchat.h"
 
 namespace MeegoIntegration
 {
@@ -38,6 +39,9 @@ namespace MeegoIntegration
 		addExtension<QuickAboutDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo about dialog"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple about dialog"));
+		addExtension<QuickJoinGroupChat>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo join group chat dialog"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple join group chat dialog"));
 	}
 }
 
