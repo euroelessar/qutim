@@ -30,6 +30,7 @@
 #include <QAbstractListModel>
 #include <qutim/status.h>
 
+
 namespace qutim_sdk_0_3 {
 class Account;
 class GroupChatManager;
@@ -46,6 +47,8 @@ public:
 	AccountsModel(QObject *parent = 0);
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	Q_INVOKABLE QStringList values() ;
+	Q_INVOKABLE void init();
 private slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountDestroyed(QObject *account);
@@ -59,6 +62,7 @@ private:
 	void addAccount(Account *account);
 	void removeAccount(Account *account, bool disconnectSlots);
 	QList<Account*> m_accounts;
+	QStringList m_values;
 };
 
 } // namespace MeegoIntegration

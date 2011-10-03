@@ -32,7 +32,6 @@
 #include <qutim/actiongenerator.h>
 #include <qutim/dataforms.h>
 #include "quickjoingroupchat.h"
-#include "accountsmodel.h"
 #include "bookmarksmodel.h"
 
 class QModelIndex;
@@ -57,31 +56,33 @@ enum ItemRole
 class JoinGroupChatWrapper : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(MeegoIntegration::BookmarksModel* bookmarksBox READ bookmarksBox NOTIFY bookmarksBoxChanged)
-	Q_PROPERTY(MeegoIntegration::BookmarksModel* bookmarks READ bookmarks NOTIFY bookmarksChanged)
-	Q_PROPERTY(MeegoIntegration::AccountsModel* accounts READ accounts NOTIFY accountsChanged)
+	Q_PROPERTY(QAbstractListModel* bookmarksBox READ bookmarksBox NOTIFY bookmarksBoxChanged)
+	Q_PROPERTY(QAbstractListModel* bookmarks READ bookmarks NOTIFY bookmarksChanged)
+	Q_PROPERTY(QString currentAccountId READ currentAccountId NOTIFY currentAccountIdChanged)
+
 public:
 	JoinGroupChatWrapper();
 	~JoinGroupChatWrapper();
-	BookmarksModel *bookmarksBox();
-	BookmarksModel *bookmarks();
-	AccountsModel *accounts();
+	QAbstractListModel *bookmarksBox();
+	QAbstractListModel *bookmarks();
+	Q_INVOKABLE QStringList accountIds();
 	static void init();
 	static void showDialog();
+	QString currentAccountId();
 
 signals:
 	void bookmarksBoxChanged();
 	void bookmarksChanged();
-	void accountsChanged();
+	void currentAccountIdChanged();
 	void joinDialogShown();
 	void bookmarkEditDialogShown();
 	void joined();
 	void shown();
 
-private slots:
-	void onAccountBoxActivated(int index);
+public slots:
+	Q_INVOKABLE void setAccount(int index);
 	void fillBookmarks(Account *account);
-	void onItemActivated(const QModelIndex &index);
+	Q_INVOKABLE void onItemActivated(const QModelIndex &index);
 	void onBookmarksChanged();
 
 private:
@@ -92,7 +93,9 @@ private:
 	QAction *m_backAction;
 	BookmarksModel *m_bookmarksModel;
 	BookmarksModel *m_bookmarksBoxModel;
-	AccountsModel *m_accountsModel;
+	Account * m_currentAccount;
+	QList<Account*> *m_accounts;
+	QStringList m_accountIds;
 
 };
 

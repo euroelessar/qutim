@@ -35,11 +35,17 @@ namespace MeegoIntegration {
 AccountsModel::AccountsModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
+
+}
+
+void AccountsModel::init()
+{
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
+
 	}
 }
 
@@ -67,13 +73,13 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 void AccountsModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	connect(account, SIGNAL(nameChanged(QString,QString)),
-			this, SLOT(onAccountNameChanged()));
+		this, SLOT(onAccountNameChanged()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+		this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(destroyed(QObject*)),
-			this, SLOT(onAccountDestroyed(QObject*)));
+		this, SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-			this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+		this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
 	if (account->groupChatManager())
 		addAccount(account);
 }
@@ -117,7 +123,7 @@ void AccountsModel::onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *m
 }
 
 void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-										   const qutim_sdk_0_3::Status &previous)
+					   const qutim_sdk_0_3::Status &previous)
 {
 	Q_UNUSED(current);
 	Q_UNUSED(previous);
@@ -156,7 +162,10 @@ void AccountsModel::addAccount(Account *account)
 	int pos = findPlaceForAccount(account);
 	beginInsertRows(QModelIndex(), pos, pos);
 	m_accounts.insert(pos, account);
+	m_values.append(account->id());
 	endInsertRows();
+	qDebug()<<account->id() <<"dknbsbnsdkbnskbmsdmltms";
+
 }
 
 void AccountsModel::removeAccount(Account *account, bool disconnectSlots)
@@ -166,9 +175,20 @@ void AccountsModel::removeAccount(Account *account, bool disconnectSlots)
 		return;
 	beginRemoveRows(QModelIndex(), pos, pos);
 	m_accounts.removeAt(pos);
+	m_values.removeAt(pos);
 	endRemoveRows();
 	if(disconnectSlots)
 		account->disconnect(this);
+}
+
+QStringList AccountsModel::values()  {
+	m_values.clear();
+	foreach (Protocol *protocol, Protocol::all()) {
+		foreach (Account *account, protocol->accounts())
+			m_values.append(account->id());
+
+	}
+	return m_values;
 }
 
 } // namespace Core

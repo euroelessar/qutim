@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #include "joingroupchatwrapper.h"
-#include "accountsmodel.h"
 #include "bookmarksmodel.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
@@ -49,9 +48,8 @@ JoinGroupChatWrapper::JoinGroupChatWrapper()
 {
 	m_bookmarksBoxModel = new BookmarksModel();
 	m_bookmarksModel = new BookmarksModel();
-	m_accountsModel = new AccountsModel();
 	m_managers()->append(this);
-
+	m_accounts = new QList<Account*>;
 
 	//connect(ui->accountBox, SIGNAL(currentIndexChanged(int)),
 	//		SLOT(onAccountBoxActivated(int)));
@@ -66,7 +64,6 @@ JoinGroupChatWrapper::JoinGroupChatWrapper()
 void JoinGroupChatWrapper::init()
 {
 	qmlRegisterType<JoinGroupChatWrapper>("org.qutim", 0, 3, "JoinGroupChatWrapper");
-	qmlRegisterType<AccountsModel>("org.qutim", 0, 3, "AccountsModel");
 	qmlRegisterType<BookmarksModel>("org.qutim", 0, 3, "BookmarksModel");
 }
 
@@ -75,29 +72,52 @@ JoinGroupChatWrapper::~JoinGroupChatWrapper()
 	m_managers()->removeOne(this);
 }
 
-BookmarksModel * JoinGroupChatWrapper::bookmarksBox()
+QAbstractListModel * JoinGroupChatWrapper::bookmarksBox()
 {
 	return m_bookmarksBoxModel;
 }
 
-BookmarksModel * JoinGroupChatWrapper::bookmarks()
+QAbstractListModel * JoinGroupChatWrapper::bookmarks()
 {
 	return m_bookmarksModel;
 }
 
-AccountsModel * JoinGroupChatWrapper::accounts()
+QStringList JoinGroupChatWrapper::accountIds()
 {
-	return m_accountsModel;
+	m_accountIds.clear();
+	foreach (Protocol *protocol, Protocol::all()) {
+		foreach (Account *account, protocol->accounts())
+		{
+			m_accountIds.append(account->id());
+			m_accounts->append(account);
+		}
+
+	}
+	if (m_accounts->count() == 1)
+	{
+		setAccount(0);
+	}
+	return m_accountIds;
 }
 
-void JoinGroupChatWrapper::onAccountBoxActivated(int index)
+QString JoinGroupChatWrapper::currentAccountId()
 {
-	Account *account = this->account(index);
+	if (m_currentAccount)
+		return m_currentAccount->id();
+	else
+		return QString();
+}
+
+void JoinGroupChatWrapper::setAccount(int index)
+{
+	Account *account = m_accounts->at(index);
 	if (!account) {
 		m_bookmarksModel->clear();
 		return;
 	}
 	fillBookmarks(account);
+	m_currentAccount = account;
+	emit currentAccountIdChanged();
 	//ui->joinPage->setAccount(account);
 	//ui->bookmarksPage->setAccount(account);
 	//ui->bookmarksPage->setModel(m_bookmarksBoxModel);
@@ -130,6 +150,7 @@ void JoinGroupChatWrapper::fillBookmarks(const QList<DataItem> &bookmarks, bool 
 
 void JoinGroupChatWrapper::fillBookmarks(Account *account)
 {
+
 	GroupChatManager *manager = account->groupChatManager();
 	if (!manager)
 		return;
@@ -154,6 +175,7 @@ void JoinGroupChatWrapper::fillBookmarks(Account *account)
 
 	m_bookmarksBoxModel->endUpdating();
 	m_bookmarksModel->endUpdating();
+
 }
 
 void JoinGroupChatWrapper::onItemActivated(const QModelIndex &index)
@@ -191,10 +213,6 @@ inline Account *JoinGroupChatWrapper::currentAccount()
 	return account(0);//??
 }
 
-inline Account *JoinGroupChatWrapper::account(int index)
-{
-	return (m_accountsModel->data(m_accountsModel->index(index, 0), Qt::UserRole)).value<Account*>();
-}
 void JoinGroupChatWrapper::onBookmarksChanged()
 {
 	fillBookmarks(currentAccount());

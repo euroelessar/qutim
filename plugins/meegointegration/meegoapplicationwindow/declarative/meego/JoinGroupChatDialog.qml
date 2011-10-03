@@ -26,6 +26,12 @@ Sheet {
 	JoinGroupChatWrapper {
 		id: handler
 	}
+
+
+	BookmarksModel {
+		id: bookmarksModel
+	}
+
 	Connections {
 		target: handler
 		onJoined: joinGroupChatDialog.accept();
@@ -34,6 +40,7 @@ Sheet {
 		onShown: joinGroupChatDialog.open();
 
 	}
+
 
 	acceptButtonText: qsTr("Join")
 	rejectButtonText: qsTr("Close")
@@ -86,8 +93,8 @@ Sheet {
 						left: parent.left
 						right: parent.right
 					}
-					text: handler.accounts.currentIndex
-					onClicked: accountsDialog.open()
+					text: handler.currentAccountId
+					onClicked: accountsDialog.chooseValue()
 				}
 
 				Image {
@@ -96,26 +103,38 @@ Sheet {
 					property variant __pressed: combobox.pressed ? "-pressed" : ""
 					source: "image://theme/meegotouch-combobox-indicator" + __pressed
 					MouseArea {
-						onClicked: accountsDialog.open()
+						onClicked: accountsDialog.chooseValue()
 					}
 				}
 
 				SelectionDialog {
 					id: accountsDialog
 					titleText: qsTr("Select account:")
-					model: handler.accounts
-					//				delegate: ItemDelegate {
-					//					title: account.id
-					//					subtitle: account.name
-					//				}
+
 					onAccepted: {
-						handler.onAccountBoxActivated(accountsDialog.selectedIndex);
+						handler.setAccount(accountsDialog.selectedIndex);
 						accountsDialog.model.clear();
 					}
+
+
 					onRejected: accountsDialog.model.clear()
 
-				}
 
+					function chooseValue() {
+						var values = handler.accountIds();
+						var text = handler.currentAccountId;
+						accountsDialog.selectedIndex = -1;
+						for (var i = 0; i < values.length; ++i) {
+							accountsDialog.model.append({ "name": values[i] });
+							if (values[i] == text)
+								accountsDialog.selectedIndex = i;
+						}
+						if (values.length==1)
+							accountsDialog.selectedIndex=0;
+						else
+							accountsDialog.open();
+					}
+				}
 			}
 
 			ListView {
@@ -130,8 +149,8 @@ Sheet {
 					handler.onItemActivated(bookmarks.currentItem)
 				}
 				delegate: ItemDelegate {
-					title: display
-					subtitle: description
+					title: "display"
+					subtitle: "description"
 				}
 
 
@@ -300,5 +319,6 @@ Sheet {
 	Component.onCompleted: {
 		__owner = parent;
 		pageStack.push(mainPage);
+		handler.accountIds();
 	}
 }
