@@ -16,6 +16,7 @@
 #define UNITYDOCK_GN5KWDY6
 
 #include "dockbase.h"
+#include <dbusmenuexporter.h>
 
 class QMenu;
 
@@ -37,6 +38,7 @@ class UnityDock : public DockBase
 		virtual void setAlert(bool on = true);
 	private:
 		template<typename T> void sendMessage(const char *name, const T& val);
+		QWeakPointer<DBusMenuExporter> m_menu;
 };
 
 #endif /* end of include guard: UNITYDOCK_GN5KWDY6 */
