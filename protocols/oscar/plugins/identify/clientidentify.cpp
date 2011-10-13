@@ -807,26 +807,33 @@ void ClientIdentify::identify_Qip()
 
 void ClientIdentify::identify_QipInfium()
 {
-	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7C, 0x73, 0x75, 0x02, 0xC3, 0xBE,
-	                                                            0x4F, 0x3E, 0xA6, 0x9F, 0x01, 0x53,
-	                                                            0x13, 0x43, 0x1E, 0x1A);
-	
+	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7c, 0x73, 0x75, 0x02, 0xc3, 0xbeE,
+	                                                            0x4f, 0x3e, 0xa6, 0x9f, 0x01, 0x53,
+	                                                            0x13, 0x43, 0x1e, 0x1a);
 	
 	static const oscar::Capability ICQ_CAPABILITY_QIP2010xVER  (0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
 	                                                            0x0a, 0x03, 0x0b, 0x04, 0x01, 0x53,
 	                                                            0x13, 0x43, 0x1e, 0x1a);
 
+	static const oscar::Capability ICQ_CAPABILITY_QIP2012xVER  (0x7f, 0x7f, 0x7c, 0x7d, 0x7e, 0x7f,
+	                                                            0x0a, 0x03, 0x0b, 0x04, 0x01, 0x53,
+	                                                            0x13, 0x43, 0x1e, 0x1a);
+
 	bool qipInfium = m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER);
 	bool qip2010 = m_client_caps.match(ICQ_CAPABILITY_QIP2010xVER);
+	bool qip2012 = m_client_caps.match(ICQ_CAPABILITY_QIP2012xVER);
 
-	if (qip2010 || qipInfium) {
+	if (qip2012 || qip2010 || qipInfium) {
 		QString icon = "qip";
 		if (qipInfium) {
 			m_client_id = "QIP Infium";
 			icon += "-infium";
-		} else {
+		} else if (qip2010) {
 			m_client_id  = "QIP 2010";
 			icon += "-2010";
+		} else {
+			m_client_id  = "QIP 2012";
+			icon += "-2012";
 		}
 		if (m_info)
 			m_client_id += QString(" (Build %1)").arg((unsigned)m_info);
