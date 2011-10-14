@@ -807,7 +807,7 @@ void ClientIdentify::identify_Qip()
 
 void ClientIdentify::identify_QipInfium()
 {
-	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7c, 0x73, 0x75, 0x02, 0xc3, 0xbeE,
+	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7c, 0x73, 0x75, 0x02, 0xc3, 0xbe,
 	                                                            0x4f, 0x3e, 0xa6, 0x9f, 0x01, 0x53,
 	                                                            0x13, 0x43, 0x1e, 0x1a);
 	
