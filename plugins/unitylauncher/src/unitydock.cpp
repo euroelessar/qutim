@@ -13,7 +13,6 @@
  ****************************************************************************/
 
 #include "unitydock.h"
-#include <dbusmenuexporter.h>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QVariantList>
@@ -49,13 +48,14 @@ void UnityDock::setOverlayIcon(const QIcon &)
 
 void UnityDock::setMenu(QMenu *menu)
 {
-	if(menu)
-	{
-		DBusMenuExporter exporter("/qutim", menu);
+	if (m_menu)
+		delete m_menu.data();
+	if (menu) {
+		m_menu = new DBusMenuExporter("/qutim", menu);
 		sendMessage("quicklist", "/qutim");
-	}
-	else
+	} else {
 		sendMessage("quicklist", "");
+	}
 }
 
 void UnityDock::setProgress(int progress)
