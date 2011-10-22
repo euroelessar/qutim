@@ -10,9 +10,6 @@ MouseArea {
 	height: childrenRect.height
 	hoverEnabled: true;
 
-	onDoubleClicked: selectMode = true;
-	onExited: selectMode = false;
-
 	Text {
 		id: message
 
