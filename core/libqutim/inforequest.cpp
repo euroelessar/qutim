@@ -50,7 +50,7 @@ public:
 class InfoObserverPrivate
 {
 public:
-	QObject *object;
+	QWeakPointer<QObject> object;
 	InfoRequestFactory *factory;
 	InfoRequestFactory::SupportLevel level;
 	bool observing;
@@ -208,6 +208,7 @@ void InfoRequest::virtual_hook(int id, void *data)
 }
 
 InfoObserver::InfoObserver(QObject *object) :
+	QObject(object),
 	d_ptr(new InfoObserverPrivate)
 {
 	Q_D(InfoObserver);
@@ -226,15 +227,16 @@ InfoObserver::InfoObserver(QObject *object) :
 InfoObserver::~InfoObserver()
 {
 	Q_D(InfoObserver);
-	if (d->observing) {
-		d->factory->stopObserve(d->object);
-		observers()->remove(d->object, this);
+	QObject *obj = d->object.data();
+	if (d->observing && obj) {
+		d->factory->stopObserve(obj);
+		observers()->remove(obj, this);
 	}
 }
 
 QObject *InfoObserver::object() const
 {
-	return d_func()->object;
+	return d_func()->object.data();
 }
 
 InfoRequestFactory::SupportLevel InfoObserver::supportLevel() const
