@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3 {
 class Account;
 }
 
-typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
+typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status::Type> StatusHash;
 
 class ManagerSettings;
 class QNetworkConfigurationManager;
@@ -47,7 +47,8 @@ private slots:
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 private:	
 	void changeStatus(qutim_sdk_0_3::Account *a, bool isOnline,
-					  const qutim_sdk_0_3::Status &status);
+					  const qutim_sdk_0_3::Status::Type &status);
+
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
 	

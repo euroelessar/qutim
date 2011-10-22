@@ -21,23 +21,23 @@ class UnityDock;
 class QObject;
 namespace qutim_sdk_0_3
 {
-	class ChatSession;
+class ChatSession;
 }
 
 class UnityLauncherService : public QObject
 {
 	Q_OBJECT
-	public:
-		UnityLauncherService(QObject *p = NULL);
-		~UnityLauncherService();
-	protected slots:
-		void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
-		void onSessionDestroyed(QObject *session);
-		void sendAlert();
-		void setAlert(bool on);
-	private:
-		int sessionCount;
-		UnityDock *dock;
+public:
+	UnityLauncherService(QObject *p = NULL);
+	~UnityLauncherService();
+protected slots:
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionDestroyed(QObject *session);
+	void sendAlert();
+	void setAlert(bool on);
+private:
+	int sessionCount;
+	UnityDock *dock;
 };
 
 #endif /* end of include guard: ULSERVICE_EM7KE8Q7 */

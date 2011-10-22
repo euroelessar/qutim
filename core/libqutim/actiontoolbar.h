@@ -54,6 +54,7 @@ public:
     void setIconSize(const QSize & iconSize);
 	using QToolBar::setToolButtonStyle;
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
+	void clear();
 protected:
 	void changeEvent(QEvent *e);
 	void mouseMoveEvent(QMouseEvent* event);

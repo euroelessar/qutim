@@ -1,4 +1,10 @@
-qutim_check_component(Bearer)
+#qutim_check_component(Bearer)
+
+if(NOT ${QT_MOBILITY_BEARER_FOUND})
+	message(STATUS "Mobility bearer manager isn't found. Using bearer from QtNetwork")
+	set(QT_MOBILITY_BEARER_LIBRARY ${QT_QTNETWORK_LIBRARY})
+	set(QT_MOBILITY_BEARER_INCLUDE_DIR ${QT_QTNETWORK_INCLUDE_DIR})
+endif()
 
 qutim_add_plugin(bearermanager
 	DISPLAY_NAME "Network bearer Manager"

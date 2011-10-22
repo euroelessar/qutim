@@ -93,7 +93,7 @@ namespace Settings
 
 class LIBQUTIM_EXPORT SettingsItem
 {
-	Q_DISABLE_COPY(SettingsItem);
+	Q_DISABLE_COPY(SettingsItem)
 	Q_DECLARE_PRIVATE(SettingsItem)
 public:
 	SettingsItem(SettingsItemPrivate &d);
