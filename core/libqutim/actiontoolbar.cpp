@@ -322,6 +322,12 @@ void ActionToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 		QToolBar::setToolButtonStyle(toolButtonStyle);
 }
 
+void ActionToolBar::clear()
+{
+	d_func()->actions.clear();
+	QToolBar::clear();
+}
+
 void ActionToolBar::showEvent(QShowEvent* event)
 {
 	Q_D(ActionToolBar);

@@ -37,9 +37,9 @@ BearerManager::BearerManager(QObject *parent) :
 
 	foreach (Protocol *p, Protocol::all()) {
 		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-			this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 
 		foreach (Account *a, p->accounts())
 			onAccountCreated(a);
@@ -51,19 +51,17 @@ BearerManager::BearerManager(QObject *parent) :
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
 }
 
-void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
+void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status::Type &s)
 {
 	Config cfg = a->config();
-	bool auto_connect = cfg.value("autoConnect",false);
-	qDebug()<<"dkjdsbsdbsbvn";
-	qDebug()<<isOnline<<auto_connect;
+	bool auto_connect = cfg.value("autoConnect", false);
 	if (isOnline){
 		if (auto_connect) {
 			Status status = a->status();
-			status.setType(Status::Online);
+			status.setType(s == Status::Offline ? Status::Online : s);
 			a->setStatus(status);
 		}
-	}else {
+	} else {
 		Status status = a->status();
 		status.setType(Status::Offline);
 		status.setProperty("changeReason", Status::ByNetworkError);
@@ -81,12 +79,6 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
-	Config cfg;
-	debug() << cfg.value("status");
-	cfg.beginGroup("status");
-	Status s = cfg.value<Status>(account->id());
-	qDebug() << account->id() << s << cfg.value<QByteArray>(account->id());
-
 	//simple spike for stupid distros!
 
 	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
@@ -98,18 +90,18 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 	if (list.count())
 		isOnline = m_confManager->isOnline();
 
-	changeStatus(account, isOnline, s);
+	changeStatus(account, isOnline, Status::Online);
 
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-		this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 }
 
 void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = sender_cast<Account*>(sender());
 	if (status.property("changeReason", Status::ByUser) == Status::ByUser)
-		m_statusHash.insert(account, status);
+		m_statusHash.insert(account, status.type());
 }
 
 void BearerManager::onAccountDestroyed(QObject* obj)
@@ -124,15 +116,4 @@ void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 
 BearerManager::~BearerManager()
 {
-	StatusHash::const_iterator it = m_statusHash.constBegin();
-	Config cfg;
-	cfg.beginGroup("status");
-	for (; it != m_statusHash.constEnd(); it++) {
-		Account *account = it.key();
-		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
-		debug() << account->id() << it.value() << account->status().icon().name();
-		debug() << cfg.value(account->id(), Status()).icon().name();
-	}
-	cfg.endGroup();
-	cfg.sync();
 }

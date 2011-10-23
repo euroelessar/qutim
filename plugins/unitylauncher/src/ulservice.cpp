@@ -28,15 +28,15 @@ UnityLauncherService::UnityLauncherService(QObject *p) :
 {
 	qApp->setQuitOnLastWindowClosed(false);
 	connect(
-			qutim_sdk_0_3::ChatLayer::instance(),
-			SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*))
-	       );
+				qutim_sdk_0_3::ChatLayer::instance(),
+				SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+				SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*))
+				);
 	connect(
-			qutim_sdk_0_3::ChatLayer::instance(),
-			SIGNAL(alertStatusChanged(bool)),
-			SLOT(setAlert(bool))
-	       );
+				qutim_sdk_0_3::ChatLayer::instance(),
+				SIGNAL(alertStatusChanged(bool)),
+				SLOT(setAlert(bool))
+				);
 	foreach (qutim_sdk_0_3::ChatSession *session, qutim_sdk_0_3::ChatLayer::instance()->sessions())
 		onSessionCreated(session);
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MenuController> clist("ContactList");

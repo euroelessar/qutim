@@ -59,6 +59,7 @@ class SimpleTray : public MenuController, public NotificationBackend
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	SimpleTray();
 	~SimpleTray();
