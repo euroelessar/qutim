@@ -1,6 +1,6 @@
 #ifndef RESOURCEICONLOADER_H
 #define RESOURCEICONLOADER_H
-#include <libqutim/iconloader.h>
+#include <qutim/iconloader.h>
 #include <QStringList>
 #include <QHash>
 

@@ -382,7 +382,7 @@ void JAccount::loadParameters()
 	d->parameters.clear();
 	d->parameters.insert(QLatin1String("resource"), config.value(QLatin1String("resource"), "qutIM"));
 	d->parameters.insert(QLatin1String("priority"), config.value(QLatin1String("priority")));
-	if (config.value(QLatin1String("autoDetect"), -1).toInt() > 0) {
+	if (config.value(QLatin1String("autoDetect"), -1) > 0) {
 		d->parameters.insert(QLatin1String("connect-server"), config.value(QLatin1String("server")));
 		d->parameters.insert(QLatin1String("port"), config.value(QLatin1String("port")));
 	}

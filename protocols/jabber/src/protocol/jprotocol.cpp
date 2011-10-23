@@ -358,7 +358,7 @@ Account *JProtocol::doCreateAccount(const QString &id, const QVariantMap &parame
 //	if (!password.isEmpty())
 //		account->setPasswd(password);
 	{
-		Config config = protocol->config();
+		Config config = Protocol::config();
 		config.beginGroup(QLatin1String("general"));
 		QStringList accounts = config.value(QLatin1String("accounts"), QStringList());
 		accounts << account->id();

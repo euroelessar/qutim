@@ -151,7 +151,7 @@ ChatUnit *Account::getUnitForSession(ChatUnit *unit)
 QVariantMap Account::parameters() const
 {
 	QVariantMap result;
-	virtual_hook(ReadParametersHook, &result);
+	const_cast<Account*>(this)->virtual_hook(ReadParametersHook, &result);
 	return result;
 }
 

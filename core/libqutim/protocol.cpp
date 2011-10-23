@@ -82,14 +82,14 @@ namespace qutim_sdk_0_3
 	QStringList Protocol::supportedAccountParameters() const
 	{
 		QStringList properties;
-		virtual_hook(SupportedAccountParametersHook, &properties);
+		const_cast<Protocol*>(this)->virtual_hook(SupportedAccountParametersHook, &properties);
 		return properties;
 	}
 
 	Account *Protocol::createAccount(const QString &id, const QVariantMap &parameters)
 	{
 		CreateAccountArgument argument = { id, parameters, NULL };
-		virtual_hook(CreateAccountHook, &argument);
+		const_cast<Protocol*>(this)->virtual_hook(CreateAccountHook, &argument);
 		return argument.account;
 	}
 

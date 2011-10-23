@@ -34,6 +34,7 @@ PageStackWindow {
 	}
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
+	property variant settings:  serviceManager.settingsLayer
 	Connections {
 		target: root.chat
 		onShown: {
@@ -96,15 +97,9 @@ PageStackWindow {
 					}
 				}
 			}
-			Page {
+			SettingsPage {
 				id: settingsTab
-				Column {
-					spacing: 10
-
-					Text {
-						text: "TODO: Implement settings"
-					}
-				}
+				model: settings.model
 			}
 		}
 		tools: ToolBarLayout {

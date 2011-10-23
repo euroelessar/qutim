@@ -33,7 +33,7 @@
 #include "authdialogwrapper.h"
 #include "addcontactdialogwrapper.h"
 #include "aboutdialogwrapper.h"
-#include "joingroupchatwrapper.h"""
+#include "joingroupchatwrapper.h"
 
 #include "menumodel.h"
 #include <QApplication>

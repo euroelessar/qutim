@@ -17,6 +17,7 @@
 #define PROTOCOL_H
 
 #include "configbase.h"
+#include <QStringList>
 
 class QWizardPage;
 
