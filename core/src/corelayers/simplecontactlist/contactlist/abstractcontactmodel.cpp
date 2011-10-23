@@ -39,8 +39,8 @@ typedef QWeakPointer<qutim_sdk_0_3::Contact> ContactPtr;
 Contact *getRealUnit(Notification *notification)
 {
 	ContactPtr pointer = notification->property(CONTACT_PROPERTY).value<ContactPtr>();
-	if (pointer)
-		return pointer.toStrongRef().data();
+	if (!pointer.isNull())
+		return pointer.data();
 	
 	ChatUnit *unit = qobject_cast<ChatUnit*>(notification->request().object());
 	if (!unit)
@@ -57,11 +57,11 @@ Contact *getRealUnit(Notification *notification)
 		unit = unit->upperUnit();
 	}
 
-	if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
+	if (Contact *meta = qobject_cast<MetaContact*>(contact ? contact->metaContact() : 0))
 		contact = meta;
 
-	pointer = contact;
-	notification->setProperty(CONTACT_PROPERTY, qVariantFromValue(pointer));
+	pointer = ContactPtr(contact);
+	notification->setProperty(CONTACT_PROPERTY, qVariantFromValue<ContactPtr>(pointer));
 
 	return contact;
 }
@@ -307,6 +307,7 @@ void AbstractContactModel::handleNotification(Notification *notification)
 	Contact *contact = getRealUnit(notification);
 	if (!contact)
 		return;
+	Q_ASSERT(getRealUnit(notification));
 
 	if (d->notifications.isEmpty())
 		d->notificationTimer.start(500, this);
@@ -411,13 +412,14 @@ void AbstractContactModel::onContactDestroyed()
 	Contact *contact = static_cast<Contact*>(sender());
 	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
 	if (itr != d->notifications.end()) {
-		foreach (const QList<Notification *> &notifications, itr->all()) {
+		const QList<QList<Notification*> > all = itr->all();
+		d->notifications.erase(itr);
+		foreach (const QList<Notification *> &notifications, all) {
 			foreach (Notification *notif, notifications) {
 				disconnect(notif, 0, this, 0);
 				deref(notif);
 			}
 		}
-		d->notifications.erase(itr);
 	}
 	if (d->notifications.isEmpty())
 		d->notificationTimer.stop();
