@@ -16,7 +16,7 @@
 
 
 
-#include "macwidget.h"
+#include "macwidget_p.h"
 #include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
@@ -29,7 +29,6 @@
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/qtwin.h>
-#include <qutim/servicemanager.h>
 #include <qutim/shortcut.h>
 #include <qutim/systemintegration.h>
 #include <qutim/utils.h>
@@ -46,6 +45,7 @@
 
 namespace Core {
 namespace SimpleContactList {
+
 struct MacWidgetPrivate
 {
 	TreeView *view;
@@ -113,16 +113,15 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 #endif
 	addMenu(tr("Accounts"), MacMenuAccounts);
 	addMenu(tr("Chats"), MacMenuChats);
-	addMenu(tr("Roster"), MacMenuRoster);
-	//if (MenuController *contactList = qobject_cast<MenuController *>(ServiceManager::getByName("ContactList")))
-	//	d->menu.value(MacMenuFile)->setMenuOwner(contactList);
+
 	d->statusTextAction = d->menus[MacMenuAccounts]->addAction(Icon("im-status-message-edit"), tr("Set Status Text"),
-																	   this, SLOT(showStatusDialog()));
+															   this, SLOT(showStatusDialog()));
 	QString lastStatus = Config().group("contactList").value("lastStatus", QString());
 	d->statusTextAction->setData(lastStatus);
 	d->menus[MacMenuAccounts]->addSeparator();
 	foreach(Protocol *protocol, Protocol::all())
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+
 	QTimer timer;
 	timer.singleShot(0, this, SLOT(initMenu()));
 }
@@ -136,33 +135,27 @@ MacWidget::~MacWidget()
 	config.setValue("geometry", saveGeometry());
 }
 
-class MacMenuFileController : public MenuController
-{
-	public:
-		MacMenuFileController(QObject *parent) : MenuController(parent)
-		{
-			if (MenuController *contactList = ServiceManager::getByName<MenuController *>("ContactList"))
-				setMenuOwner(contactList);
-		}
-};
-
 void MacWidget::addMenu(const QString &title, MacMenuId id)
 {
 	Q_D(MacWidget);
 	MenuController *controller = 0;
 	if (id == MacMenuFile)
-		controller = new MacMenuFileController(this);
+		controller = new FileMenuController(this);
+	else if (id == MacMenuRoster)
+		controller = new RosterMenuController(this);
 	else
 		controller = new MenuController(this);
 	QMenu *menu = controller->menu(false);
 	menu->setTitle(title);
+	connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 	d->menus[id] = menu;
 	d->controllers[id] = controller;
 }
 
 void MacWidget::addButton(ActionGenerator *generator)
 {
-	d_func()->controllers[MacMenuRoster]->addAction(generator);
+	//d_func()->controllers[MacMenuRoster]->addAction(generator);
+	MenuController::addAction<RosterMenuController>(generator);
 }
 
 void MacWidget::removeButton(ActionGenerator *generator)
@@ -219,18 +212,19 @@ void MacWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	Q_D(MacWidget);
 	QAction *action = new QAction(account->status().icon(), account->id(), this);
 	action->setIconVisibleInMenu(true);
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(destroyed(QObject *)),SLOT(onAccountDestroyed(QObject *)));
-	d->accountActions.insert(account, action);
 	action->setMenu(account->menu());
 	d->menus[MacMenuAccounts]->addAction(action);
+	d->accountActions.insert(account, action);
 	QString text = d->statusTextAction->data().toString();
 	if (!text.isEmpty()) {
 		Status status = account->status();
 		status.setText(text);
 		account->setStatus(status);
 	}
+
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(destroyed(QObject *)),SLOT(onAccountDestroyed(QObject *)));
 }
 
 void MacWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
@@ -277,6 +271,8 @@ void MacWidget::initMenu()
 {
 	Q_D(MacWidget);
 	addMenu(tr("File"), MacMenuFile);
+	addMenu(tr("Roster"), MacMenuRoster);
+
 	d->menuBar->addMenu(d->menus[MacMenuFile]);
 	d->menuBar->addMenu(d->menus[MacMenuAccounts]);
 	d->menuBar->addMenu(d->menus[MacMenuChats]);

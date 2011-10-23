@@ -78,6 +78,7 @@ public:
 	ResultCode result() const;
 	AbstractConnection::ConnectionError error() const;
 	QString resultString() const;
+	int detailCode() const;
 	QVariantMap rawResult() const;
 
 private:
@@ -85,6 +86,7 @@ private:
 	ResultCode m_result;
 	QString m_resultString;
 	QVariantMap m_rawResult;
+	int m_detailCode;
 };
 
 OscarResponse::OscarResponse(const QByteArray &json)
@@ -93,6 +95,7 @@ OscarResponse::OscarResponse(const QByteArray &json)
 	QVariantMap response = data.value(QLatin1String("response")).toMap();
 	m_rawResult = data;
 	m_result = static_cast<ResultCode>(response.value(QLatin1String("statusCode")).toInt());
+	m_detailCode = response.value(QLatin1String("statusDetailCode")).toInt();
 	m_resultString = response.value(QLatin1String("statusText")).toString();
 	m_data = response.value(QLatin1String("data")).toMap();
 }
@@ -109,6 +112,11 @@ Config OscarResponse::data() const
 OscarResponse::ResultCode OscarResponse::result() const
 {
 	return m_result;
+}
+
+int OscarResponse::detailCode() const
+{
+	return m_detailCode;
 }
 
 AbstractConnection::ConnectionError OscarResponse::error() const
@@ -272,6 +280,8 @@ void OscarAuth::onClienLoginFinished()
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
 	data.endGroup();
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
+	int hostTime = data.value(QLatin1String("hostTime"), 0);
+	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 	sessionSecret = sha256hmac(sessionSecret, m_password.toUtf8());
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
@@ -280,6 +290,7 @@ void OscarAuth::onClienLoginFinished()
 		data.insert(QLatin1String("expiresAt"), expiresAt.toString(Qt::ISODate));
 		data.insert(QLatin1String("sessionSecret"), sessionSecret);
 		cfg.setValue(QLatin1String("token"), data, Config::Crypted);
+		cfg.setValue(QLatin1String("hostTimeDelta"), hostTime - localTime);
 	}
 	startSession(token, sessionSecret);
 }
@@ -298,7 +309,12 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 	url.addQueryItem(QLatin1String("clientName"), getClientName());
 	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
 	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "true" : "false");
-	url.addQueryItem(QLatin1String("ts"), QString::number(QDateTime::currentDateTime().toUTC().toTime_t()));
+	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
+	{
+		Config cfg = m_account->config(QLatin1String("general"));
+		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
+	}
+	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
 	url.addEncodedQueryItem("sig_sha256", generateSignature("POST", sessionKey, url));
 	QByteArray data = url.encodedQuery();
 	url.setEncodedQuery(QByteArray());
@@ -322,13 +338,25 @@ void OscarAuth::onStartSessionFinished()
 	}
 	OscarResponse response(reply->readAll());
 	DEBUG() << Q_FUNC_INFO << response.rawResult();
+	Config data = response.data();
+	if (response.result() == OscarResponse::InvalidRequest
+	        && response.detailCode() == 1015) {
+		// Invalid local time
+		int hostTime  = data.value(QLatin1String("ts"), 0);
+		int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
+		{
+			Config cfg = m_account->config(QLatin1String("general"));
+			cfg.setValue(QLatin1String("hostTimeDelta"), hostTime - localTime);
+		}
+		login();
+		return;
+	}
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
 		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(response.error());
 		return;
 	}
-	Config data = response.data();
 	OscarConnection *connection = static_cast<OscarConnection*>(m_account->connection());
 	QString host = data.value(QLatin1String("host"), QString());
 	int port = data.value(QLatin1String("port"), 443);

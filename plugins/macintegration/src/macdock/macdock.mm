@@ -3,7 +3,6 @@
 #include <qutim/extensioninfo.h>
 #include <qutim/servicemanager.h>
 #include <qutim/config.h>
-#include <qutim/debug.h>
 #include <QApplication>
 #include <QLabel>
 #import <AppKit/NSDockTile.h>
@@ -278,7 +277,7 @@ void MacDock::setStatusIcon()
 	Q_D(MacDock);
 	bool isOnline = false;
 	bool start = true;
-	Status::Type globalStatus;
+	Status::Type globalStatus = Status::Offline;
 	bool isStatusGlobal = true;
 	foreach(qutim_sdk_0_3::Protocol *protocol, qutim_sdk_0_3::Protocol::all()) {
 		foreach(qutim_sdk_0_3::Account *account, protocol->accounts()) {
@@ -293,7 +292,7 @@ void MacDock::setStatusIcon()
 				isOnline = true;
 				break;
 			default:
-				isOnline = isOnline;
+				break;
 			}
 			if (start)
 				globalStatus = type;

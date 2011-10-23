@@ -54,6 +54,8 @@ IcqInfoRequestFactory::SupportLevel IcqInfoRequestFactory::supportLevel(QObject 
 	if (m_account == object) {
 		return isStatusOnline(m_account->status()) ? ReadWrite : Unavailable;
 	} else if (IcqContact *contact = qobject_cast<IcqContact*>(object)) {
+		if (contact->id().contains("chat.facebook.com"))
+			return NotSupported;
 		IcqAccount *account = contact->account();
 		if (account == m_account)
 			return isStatusOnline(account->status()) ? ReadOnly : Unavailable;
