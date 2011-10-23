@@ -43,7 +43,7 @@
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
-#define DEBUG if (1) {} else qDebug
+#define DEBUG() if (1) {} else qDebug()
 
 
 namespace qutim_sdk_0_3 {
@@ -373,7 +373,7 @@ void OscarAuth::onSslErrors(const QList<QSslError> &errors)
 		str += '\n';
 	}
 	str.chop(1);
-	qDebug() << Q_FUNC_INFO << str;
+	DEBUG() << Q_FUNC_INFO << str;
 }
 
 QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const

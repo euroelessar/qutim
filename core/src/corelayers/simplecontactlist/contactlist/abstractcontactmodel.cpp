@@ -26,14 +26,23 @@
 #include <QTimer>
 #include <QMimeData>
 
+Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::Contact>)
+#define CONTACT_PROPERTY "__contactList_contact"
+
 namespace Core {
 namespace SimpleContactList {
 
 using namespace qutim_sdk_0_3;
 
-Contact *getRealUnit(QObject *obj)
+typedef QWeakPointer<qutim_sdk_0_3::Contact> ContactPtr;
+
+Contact *getRealUnit(Notification *notification)
 {
-	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	ContactPtr pointer = notification->property(CONTACT_PROPERTY).value<ContactPtr>();
+	if (pointer)
+		return pointer.toStrongRef().data();
+	
+	ChatUnit *unit = qobject_cast<ChatUnit*>(notification->request().object());
 	if (!unit)
 		return 0;
 
@@ -50,6 +59,9 @@ Contact *getRealUnit(QObject *obj)
 
 	if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
 		contact = meta;
+
+	pointer = contact;
+	notification->setProperty(CONTACT_PROPERTY, qVariantFromValue(pointer));
 
 	return contact;
 }
@@ -292,8 +304,7 @@ void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
 void AbstractContactModel::handleNotification(Notification *notification)
 {
 	Q_D(AbstractContactModel);
-	NotificationRequest request = notification->request();
-	Contact *contact = getRealUnit(request.object());
+	Contact *contact = getRealUnit(notification);
 	if (!contact)
 		return;
 
@@ -374,7 +385,7 @@ void AbstractContactModel::onNotificationFinished()
 {
 	Q_D(AbstractContactModel);
 	Notification *notification = sender_cast<Notification*>(sender());
-	Contact *contact = getRealUnit(notification->request().object());
+	Contact *contact = getRealUnit(notification);
 	Q_ASSERT(contact);
 	deref(notification);
 
@@ -401,8 +412,10 @@ void AbstractContactModel::onContactDestroyed()
 	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
 	if (itr != d->notifications.end()) {
 		foreach (const QList<Notification *> &notifications, itr->all()) {
-			foreach (Notification *notif, notifications)
+			foreach (Notification *notif, notifications) {
+				disconnect(notif, 0, this, 0);
 				deref(notif);
+			}
 		}
 		d->notifications.erase(itr);
 	}
