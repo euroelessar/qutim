@@ -378,16 +378,16 @@ void AbstractContactModel::onNotificationFinished()
 	Q_ASSERT(contact);
 	deref(notification);
 
-	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
-	if (itr == d->notifications.end())
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it == d->notifications.end())
 		return;
 
-	Notification *old = itr->first();
-	itr->remove(notification);
+	Notification *old = it->first();
+	it->remove(notification);
 	if (old == notification)
-		updateContactData(itr.key());
-	if (itr->isEmpty()) {
-		d->notifications.erase(itr);
+		updateContactData(it.key());
+	if (it->isEmpty()) {
+		d->notifications.erase(it);
 		disconnect(contact, SIGNAL(destroyed()), this, SLOT(onContactDestroyed()));
 	}
 	if (d->notifications.isEmpty())
@@ -398,13 +398,13 @@ void AbstractContactModel::onContactDestroyed()
 {
 	Q_D(AbstractContactModel);
 	Contact *contact = static_cast<Contact*>(sender());
-	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
-	if (itr != d->notifications.end()) {
-		foreach (const QList<Notification *> &notifications, itr->all()) {
-			foreach (Notification *notif, notifications)
-				deref(notif);
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it != d->notifications.end()) {
+		foreach (const QList<Notification *> &notifications, it->all()) {
+			foreach (Notification *notification, notifications)
+				deref(notification);
 		}
-		d->notifications.erase(itr);
+		d->notifications.erase(it);
 	}
 	if (d->notifications.isEmpty())
 		d->notificationTimer.stop();
