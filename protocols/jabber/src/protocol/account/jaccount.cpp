@@ -95,24 +95,24 @@ void JAccountPrivate::_q_connected()
 {
 	Q_Q(JAccount);
 	applyStatus(status);
-	conferenceManager->syncBookmarks();
-	q->resetGroupChatManager(conferenceManager->bookmarkManager());	
+	conferenceManager.data()->syncBookmarks();
+	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
 	client->setPingInterval(q->config().group("general").value("pingInterval", 30000));
 }
 
 void JAccountPrivate::_q_on_password_finished(int result)
 {
 	Q_Q(JAccount);
-	Q_ASSERT(q->sender() == passwordDialog);
-	passwordDialog->deleteLater();
+	Q_ASSERT(q->sender() == passwordDialog.data());
+	passwordDialog.data()->deleteLater();
 	if (result != PasswordDialog::Accepted)
 		return;
-	if (passwordDialog->remember()) {
+	if (passwordDialog.data()->remember()) {
 		Config cfg = q->config(QLatin1String("general"));
-		cfg.setValue("passwd", passwordDialog->password(), Config::Crypted);
+		cfg.setValue("passwd", passwordDialog.data()->password(), Config::Crypted);
 	}
-	status = passwordDialog->property("status").value<Status>();
-	client->setPassword(passwordDialog->password());
+	status = passwordDialog.data()->property("status").value<Status>();
+	client->setPassword(passwordDialog.data()->password());
 	client->connectToServer();
 	q->setAccountStatus(Status::instance(Status::Connecting, "jabber"));
 }
@@ -268,7 +268,7 @@ ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	Q_D(JAccount);
 	ChatUnit *unit = 0;
 	Jreen::JID jid = unitId;
-	if (!!(unit = d->conferenceManager->muc(jid)))
+	if (!!(unit = d->conferenceManager.data()->muc(jid)))
 		return unit;
 	return d->roster->contact(jid, create);
 	return 0;
@@ -338,19 +338,19 @@ QString JAccount::password(bool *ok)
 			*ok = false;
 		if (!d->passwordDialog) {
 			d->passwordDialog = PasswordDialog::request(this);
-			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog);
-			connect(d->passwordDialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
-			d->passwordDialog->setValidator(validator);
+			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog.data());
+			connect(d->passwordDialog.data(), SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
+			d->passwordDialog.data()->setValidator(validator);
 		}
-		if (d->passwordDialog->exec() == PasswordDialog::Accepted) {
+		if (d->passwordDialog.data()->exec() == PasswordDialog::Accepted) {
 			if (ok)
 				*ok = true;
-			d->client->setPassword(d->passwordDialog->password());
-			if (d->passwordDialog->remember()) {
+			d->client->setPassword(d->passwordDialog.data()->password());
+			if (d->passwordDialog.data()->remember()) {
 				config().group("general").setValue("passwd", d->client->password(), Config::Crypted);
 				config().sync();
 			}
-			d->passwordDialog->deleteLater();
+			d->passwordDialog.data()->deleteLater();
 		}
 	}
 	return d->client->password();
@@ -373,7 +373,7 @@ JSoftwareDetection *JAccount::softwareDetection() const
 
 JMUCManager *JAccount::conferenceManager()
 {
-	return d_func()->conferenceManager;
+	return d_func()->conferenceManager.data();
 }
 
 Jreen::PrivateXml *JAccount::privateXml()
@@ -401,10 +401,10 @@ void JAccount::setStatus(Status status)
 			/* nothing */
 		} else if(d->client->password().isEmpty()) {
 			d->passwordDialog = PasswordDialog::request(this);
-			d->passwordDialog->setProperty("status", qVariantFromValue(status));
-			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog);
-			connect(d->passwordDialog, SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
-			d->passwordDialog->setValidator(validator);
+			d->passwordDialog.data()->setProperty("status", qVariantFromValue(status));
+			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog.data());
+			connect(d->passwordDialog.data(), SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
+			d->passwordDialog.data()->setValidator(validator);
 		} else {
 			d->client->connectToServer();
 			d->status = status;
@@ -425,7 +425,7 @@ void JAccount::setAccountStatus(Status status)
 {
 	Q_D(JAccount);
 	if (status != Status::Connecting && status != Status::Offline)
-		d->conferenceManager->setPresenceToRooms(d->client->presence());
+		d->conferenceManager.data()->setPresenceToRooms(d->client->presence());
 	Account::setStatus(status);
 }
 

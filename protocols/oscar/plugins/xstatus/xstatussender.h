@@ -35,7 +35,7 @@ private:
 	friend class XStatusSenderList;
 	XStatusSender(IcqAccount *account);
 	void sendXStatusImpl(IcqContact *contact, quint64 cookie);
-	QList<QPointer<IcqContact> > m_contacts;
+	QList<QWeakPointer<IcqContact> > m_contacts;
 	QTimer m_timer;
 	uint m_lastTime; // unix time when the last xstraz packet was sent
 };
