@@ -27,7 +27,6 @@
 #include <QDeclarativeContext>
 #include <qutim/thememanager.h>
 #include <QDeclarativeEngine>
-
 #include "servicemanagerwrapper.h"
 #include "passworddialogwrapper.h"
 #include "authdialogwrapper.h"
