@@ -287,7 +287,7 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 		str += html;
 	}
 	if (d->consoleForm)
-		d->consoleForm->appendMessage(str);
+		d->consoleForm.data()->appendMessage(str);
 	if (!d->log.isEmpty())
 		d->log += "<br>";
 	d->log += str;
@@ -339,24 +339,24 @@ void IrcAccount::updateSettings()
 void IrcAccount::showConsole()
 {
 	if (d->consoleForm) {
-		d->consoleForm->raise();
+		d->consoleForm.data()->raise();
 	} else {
 		d->consoleForm = new IrcConsoleFrom(this, d->log);
-		d->consoleForm->setAttribute(Qt::WA_DeleteOnClose);
-		centerizeWidget(d->consoleForm);
-		d->consoleForm->show();
+		d->consoleForm.data()->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->consoleForm.data());
+		d->consoleForm.data()->show();
 	}
 }
 
 void IrcAccount::showChannelList()
 {
 	if (d->channelListForm) {
-		d->channelListForm->raise();
+		d->channelListForm.data()->raise();
 	} else {
 		d->channelListForm = new IrcChannelListForm(this);
-		d->channelListForm->setAttribute(Qt::WA_DeleteOnClose);
-		centerizeWidget(d->channelListForm);
-		d->channelListForm->show();
+		d->channelListForm.data()->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->channelListForm.data());
+		d->channelListForm.data()->show();
 	}
 }
 

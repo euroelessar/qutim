@@ -93,8 +93,8 @@ Config Account::config()
 {
 	Q_D(Account);
 	QStringList paths;
-	paths << d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
-	paths << d->protocol->id();
+	paths << d->protocol.data()->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
+	paths << d->protocol.data()->id();
 	return Config(paths);
 }
 
@@ -110,12 +110,12 @@ Status Account::status() const
 
 Protocol *Account::protocol()
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 const Protocol *Account::protocol() const
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 void Account::setStatus(Status status)

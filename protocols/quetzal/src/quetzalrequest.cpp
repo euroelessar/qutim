@@ -52,7 +52,7 @@ void *quetzal_request_guard_new(QObject *obj)
 	void *data = reinterpret_cast<void*>(obj->property("quetzal_guard").value<qptrdiff>());
 	if (data)
 		return data;
-	QPointer<QObject> *pointer = new QPointer<QObject>(obj);
+	QWeakPointer<QObject> *pointer = new QWeakPointer<QObject>(obj);
 	obj->setProperty("quetzal_guard", reinterpret_cast<qptrdiff>(pointer));
 	return pointer;
 }
@@ -61,7 +61,7 @@ QObject *quetzal_request_guard_value(void *data)
 {
 	if (!data)
 		return 0;
-	QPointer<QObject> *pointer = reinterpret_cast<QPointer<QObject>*>(data);
+	QWeakPointer<QObject> *pointer = reinterpret_cast<QWeakPointer<QObject>*>(data);
 	QObject *value = pointer->data();
 	delete pointer;
 	return value;

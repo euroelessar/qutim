@@ -218,17 +218,17 @@ void MobileContactInfo::show(QObject *object)
 	if (!info) {
 		info = new MobileContactInfoWindow(qApp->activeWindow());
 #ifdef Q_WS_MAEMO_5
-		info->setParent(QApplication::activeWindow());
-		info->setAttribute(Qt::WA_Maemo5StackedWindow);
+		info.data()->setParent(QApplication::activeWindow());
+		info.data()->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
-		info->setWindowFlags(info->windowFlags() | Qt::Window);
-		centerizeWidget(info);
-		SystemIntegration::show(info);
-		info->setAttribute(Qt::WA_DeleteOnClose, true);
+		info.data()->setWindowFlags(info.data()->windowFlags() | Qt::Window);
+		centerizeWidget(info.data());
+		SystemIntegration::show(info.data());
+		info.data()->setAttribute(Qt::WA_DeleteOnClose, true);
 	} else {
-		info->raise();
+		info.data()->raise();
 	}
-	info->setObject(object, type);
+	info.data()->setObject(object, type);
 }
 
 }

@@ -46,7 +46,7 @@ QStringList Contact::tags() const
 
 ChatUnit *Contact::upperUnit()
 {
-	return d_func()->metaContact;
+	return d_func()->metaContact.data();
 }
 
 bool Contact::event(QEvent *e)

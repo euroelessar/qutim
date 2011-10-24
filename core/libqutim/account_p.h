@@ -30,7 +30,7 @@ class AccountPrivate : public MenuControllerPrivate
 {
 public:
 	AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
-	QPointer<Protocol> protocol;
+	QWeakPointer<Protocol> protocol;
 	QString id;
 	Status status;
 	GroupChatManager *groupChatManager;

@@ -179,7 +179,6 @@ SimpleWidget::SimpleWidget()
 
 SimpleWidget::~SimpleWidget()
 {
-	m_mainToolBar->clear();
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());

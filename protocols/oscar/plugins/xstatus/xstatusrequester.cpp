@@ -74,7 +74,7 @@ void XStatusRequester::updateXStatus(IcqContact *contact)
 
 void XStatusRequester::updateXStatus()
 {
-	IcqContact *contact = m_contacts.first();
+	IcqContact *contact = m_contacts.first().data();
 	bool removeFirst = false;
 	if (!contact) {
 		removeFirst = true;

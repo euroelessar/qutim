@@ -189,7 +189,8 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 {
 	Q_D(ActionToolBar);
 	Q_ASSERT(generator);
-	int index = d->generators.indexOf(generator);
+	ObjectGenerator::Ptr holder = generator->pointerHolder();
+	int index = d->holders.indexOf(holder);
 	if (index != -1)
 		return d->actions.at(index)->action.data();
 	ActionValue::Ptr value = ActionValue::get(generator, this);
@@ -200,8 +201,8 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	if (isVisible())
 		ActionGeneratorPrivate::get(generator)->show(action, this);
 
-	d->generators << generator;
 	d->actions << value;
+	d->holders << generator->pointerHolder();
 	bool hasMenu = !!action->menu();
 	QWidget::insertAction(before,action);
 	if (hasMenu) {
@@ -221,9 +222,9 @@ void ActionToolBar::removeAction(const ActionGenerator *generator)
 {
 	Q_D(ActionToolBar);
 	Q_ASSERT(generator);
-	int index = d->generators.indexOf(const_cast<ActionGenerator*>(generator));
+	int index = d->holders.indexOf(const_cast<ActionGenerator*>(generator)->pointerHolder());
 	if (index != -1) {
-		d->generators.removeAt(index);
+		d->holders.removeAt(index);
 		QAction *action = d->actions.takeAt(index)->action.data();
 		QWidget::removeAction(action);
 	}
@@ -244,7 +245,7 @@ void ActionToolBar::setData(const QVariant &var)
 	for (int i = 0; i < d->actions.size(); i++) {
 		if (d->actions.at(i).isNull()) {
 			d->actions.removeAt(i);
-			d->generators.removeAt(i);
+			d->holders.removeAt(i);
 			i--;
 		} else {
 			d->actions.at(i)->action.data()->setData(var);
@@ -332,8 +333,10 @@ void ActionToolBar::showEvent(QShowEvent* event)
 {
 	Q_D(ActionToolBar);
 	QToolBar::showEvent (event);
-	for (int i = 0; i < d->actions.size(); ++i)
-		ActionGeneratorPrivate::get(d->generators[i])->show(d->actions[i]->action.data(), this);
+	for (int i = 0; i < d->actions.size(); ++i) {
+		if (ActionGenerator *generator = d->holders[i]->actionGenerator())
+			ActionGeneratorPrivate::get(generator)->show(d->actions[i]->action.data(), this);
+	}
 	Config cfg = Config("appearance").group("toolBars").group(objectName());
 	int size = cfg.value("iconSize",-1);
 	d->size = QSize(size,size);
@@ -350,9 +353,10 @@ void ActionToolBar::hideEvent(QHideEvent *event)
 	Q_D(ActionToolBar);
 	QToolBar::hideEvent(event);
 	for (int i = 0; i < d->actions.size(); ++i) {
-		if (QAction *action = d->actions[i]->action.data()) {
-			ActionGeneratorPrivate::get(d->generators[i])->hide(action, this);
-		}
+		ActionGenerator *generator = d->holders[i]->actionGenerator();
+		QAction *action = d->actions[i]->action.data();
+		if (generator && action)
+			ActionGeneratorPrivate::get(generator)->hide(action, this);
 	}
 }
 

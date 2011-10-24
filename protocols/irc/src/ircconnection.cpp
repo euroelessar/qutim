@@ -272,7 +272,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 
 	} else if (cmd == 321) { // RPL_LISTSTART
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->listStarted();
+			m_account->d->channelListForm.data()->listStarted();
 		else
 			m_account->log(tr("Start of /LIST"), m_account->isUserInputtedCommand("LIST"), "LIST");
 	} else if (cmd == 322) { // RPL_LIST
@@ -280,7 +280,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		QString users = params.value(2);
 		QString topic = IrcProtocol::ircFormatToHtml(params.value(3));
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->addChannel(channel, users, topic);
+			m_account->d->channelListForm.data()->addChannel(channel, users, topic);
 		else
 			m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
 						   .arg(channel)
@@ -290,18 +290,18 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 						   "LIST");
 	} else if (cmd == 323) { // RPL_LISTEND
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->listEnded();
+			m_account->d->channelListForm.data()->listEnded();
 		else
 			m_account->log(tr("End of /LIST"), m_account->isUserInputtedCommand("LIST", true), "LIST");
 	} else if (cmd == 521) { // ERR_LISTSYNTAX
 		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->error(error);
+			m_account->d->channelListForm.data()->error(error);
 		m_account->log(error, true, "ERROR");
 	} else if (cmd == 263) { // RPL_TRYAGAIN
 		QString error = tr("Server load is temporarily too heavy.\nPlease wait a while and try again.");
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->error(error);
+			m_account->d->channelListForm.data()->error(error);
 		m_account->log(error, true, "ERROR");
 	} else if (cmd == 301) { // RPL_AWAY
 		QString nick = params.value(1);
