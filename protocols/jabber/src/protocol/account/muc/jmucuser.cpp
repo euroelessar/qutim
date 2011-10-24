@@ -68,12 +68,10 @@ QString JMUCUser::avatarHash() const
 void JMUCUser::setAvatar(const QString &hex)
 {
 	Q_D(JMUCUser);
-	if (d->avatar == hex)
+	if (d->hash == hex)
 		return;
 	d->avatar = static_cast<JAccount *>(account())->getAvatarPath() % QLatin1Char('/') % hex;
-	int pos = d->avatar.lastIndexOf('/') + 1;
-	int length = d->avatar.length() - pos;
-	d->hash = QStringRef(&d->avatar, pos, length);
+	d->hash = d->avatar.rightRef(hex.size());
 	emit avatarChanged(d->avatar);
 }
 
