@@ -410,10 +410,15 @@ void AbstractContactModel::onContactDestroyed()
 {
 	Q_D(AbstractContactModel);
 	Contact *contact = static_cast<Contact*>(sender());
-	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
-	if (itr != d->notifications.end()) {
-		const QList<QList<Notification*> > all = itr->all();
-		d->notifications.erase(itr);
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it != d->notifications.end()) {
+		const QList<QList<Notification*> > all = it->all();
+		d->notifications.erase(it);
+		foreach (const QList<Notification *> &notifications, all) {
+			foreach (Notification *notif, notifications) {
+				disconnect(notif, 0, this, 0);
+			}
+		}
 		foreach (const QList<Notification *> &notifications, all) {
 			foreach (Notification *notif, notifications) {
 				disconnect(notif, 0, this, 0);
