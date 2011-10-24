@@ -49,7 +49,7 @@ private:
 	friend class XStatusRequesterList;
 	XStatusRequester(IcqAccount *account);
 	void updateXStatusImpl(IcqContact *contact);
-	QList<QPointer<IcqContact> > m_contacts;
+	QList<QWeakPointer<IcqContact> > m_contacts;
 	QTimer m_timer;
 	uint m_lastTime; // unix time when the last xstraz packet was sent
 };

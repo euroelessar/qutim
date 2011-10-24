@@ -35,13 +35,13 @@ const QMetaObject *AccountHook::metaObject() const
 
 void *AccountHook::qt_metacast(const char *name)
 {
-	Account * const that = static_cast<Account*>(this);
-    if (!strcmp(name, qobject_interface_iid<GroupChatManager*>()))
-        return static_cast<void*>(that->groupChatManager());
-    if (!strcmp(name, qobject_interface_iid<ContactsFactory*>()))
-        return static_cast<void*>(that->contactsFactory());
-    if (!strcmp(name, qobject_interface_iid<InfoRequestFactory*>()))
-        return static_cast<void*>(that->infoRequestFactory());
+//	Account * const that = static_cast<Account*>(this);
+//    if (!qstrcmp(name, qobject_interface_iid<GroupChatManager*>()))
+//        return static_cast<void*>(that->groupChatManager());
+//    if (!qstrcmp(name, qobject_interface_iid<ContactsFactory*>()))
+//        return static_cast<void*>(that->contactsFactory());
+//    if (!qstrcmp(name, qobject_interface_iid<InfoRequestFactory*>()))
+//        return static_cast<void*>(that->infoRequestFactory());
 	return MenuController::qt_metacast(name);
 }
 
@@ -93,8 +93,8 @@ Config Account::config()
 {
 	Q_D(Account);
 	QStringList paths;
-	paths << d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
-	paths << d->protocol->id();
+	paths << d->protocol.data()->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
+	paths << d->protocol.data()->id();
 	return Config(paths);
 }
 
@@ -110,12 +110,12 @@ Status Account::status() const
 
 Protocol *Account::protocol()
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 const Protocol *Account::protocol() const
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 void Account::setStatus(Status status)

@@ -49,15 +49,15 @@ public:
 		//			if (m_proto->accounts().isEmpty())
 		//				return NULL;
 		if (m_action)
-			return m_action;
+			return m_action.data();
 
 		m_action = prepareAction(new QAction(NULL));
 		ensureVisibility();
 
-		QFont font = m_action->font();
+		QFont font = m_action.data()->font();
 		font.setBold(true);
-		m_action->setFont(font);
-		return m_action;
+		m_action.data()->setFont(font);
+		return m_action.data();
 	}
 
 	virtual ~ProtocolSeparatorActionGenerator()
@@ -67,7 +67,7 @@ public:
 	void ensureVisibility() const
 	{
 		if (m_action)
-			m_action->setVisible(!m_proto->accounts().isEmpty());
+			m_action.data()->setVisible(!m_proto->accounts().isEmpty());
 	}
 	
 	void showImpl(QAction *, QObject *)
@@ -77,7 +77,7 @@ public:
 
 private:
 	Protocol *m_proto;
-	mutable QPointer<QAction> m_action;
+	mutable QWeakPointer<QAction> m_action;
 };
 
 void StatusAction::onStatusChanged(Status status)

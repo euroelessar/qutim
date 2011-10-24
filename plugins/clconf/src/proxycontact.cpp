@@ -25,13 +25,13 @@ ProxyContact::ProxyContact(Conference *conf) :
 	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf)
 {
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
-	setMenuOwner(m_conf);
+	setMenuOwner(m_conf.data());
 	setMenuFlags(ShowOwnerActions);
-	m_conf->installEventFilter(this);
-	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
-	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
-	connect(m_conf, SIGNAL(joinedChanged(bool)), SLOT(updateStatus()));
-	connect(m_conf->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+	m_conf.data()->installEventFilter(this);
+	connect(m_conf.data(), SIGNAL(titleChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+	connect(m_conf.data(), SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
+	connect(m_conf.data(), SIGNAL(joinedChanged(bool)), SLOT(updateStatus()));
+	connect(m_conf.data()->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	updateStatus();
 }
@@ -58,17 +58,17 @@ void ProxyContact::setInList(bool inList)
 
 QString ProxyContact::id() const
 {
-	return m_conf ? m_conf->id() : QString();
+	return m_conf ? m_conf.data()->id() : QString();
 }
 
 QString ProxyContact::title() const
 {
-	return m_conf ? m_conf->title() : QString();
+	return m_conf ? m_conf.data()->title() : QString();
 }
 
 QString ProxyContact::name() const
 {
-	return m_conf ? m_conf->title() : QString();
+	return m_conf ? m_conf.data()->title() : QString();
 }
 
 Status ProxyContact::status() const
@@ -78,7 +78,7 @@ Status ProxyContact::status() const
 
 bool ProxyContact::sendMessage(const Message &message)
 {
-	return m_conf ? m_conf->sendMessage(message) : false;
+	return m_conf ? m_conf.data()->sendMessage(message) : false;
 }
 
 void ProxyContact::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
@@ -96,7 +96,7 @@ void ProxyContact::updateStatus()
 	if (!m_conf || account()->status().type() == Status::Offline)
 		m_status.setType(Status::Offline);
 	else
-		m_status.setType(m_conf->isJoined() ? Status::Online : Status::DND);
+		m_status.setType(m_conf.data()->isJoined() ? Status::Online : Status::DND);
 	m_status.initIcon(QLatin1String("conference-") + MetaObjectBuilder::info(metaObject(), "Protocol"));
 	emit statusChanged(m_status, previous);
 }
@@ -104,13 +104,13 @@ void ProxyContact::updateStatus()
 bool ProxyContact::event(QEvent *ev)
 {
 	if (m_conf && ev->type() == ToolTipEvent::eventType())
-		return qApp->sendEvent(m_conf, ev);
+		return qApp->sendEvent(m_conf.data(), ev);
 	return Contact::event(ev);
 }
 
 bool ProxyContact::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (obj == m_conf && ev->type() == Event::eventType()) {
+	if (obj == m_conf.data() && ev->type() == Event::eventType()) {
 		Event *event = static_cast<Event*>(ev);
 		static quint16 realUnitRequestEvent = Event::registerType("real-chatunit-request");
 		if (event->id == realUnitRequestEvent) {
