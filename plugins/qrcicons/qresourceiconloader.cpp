@@ -2,7 +2,7 @@
 #include <QIcon>
 #include <QDir>
 #include <QLatin1Literal>
-#include "modulemanagerimpl.h"
+//#include "modulemanagerimpl.h"
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <QFile>

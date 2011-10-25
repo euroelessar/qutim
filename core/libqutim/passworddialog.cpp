@@ -98,7 +98,7 @@ int PasswordDialog::exec()
 		return -1;
 	QEventLoop eventLoop;
 	d->eventLoop = &eventLoop;
-	QPointer<PasswordDialog> guard = this;
+	QWeakPointer<PasswordDialog> guard = this;
 	(void) eventLoop.exec();
 	d->eventLoop = 0;
 	if (guard.isNull())

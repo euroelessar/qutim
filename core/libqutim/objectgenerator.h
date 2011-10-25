@@ -17,7 +17,7 @@
 #define OBJECTGENERATOR_H
 
 #include "libqutim_global.h"
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3
 {
@@ -25,7 +25,21 @@ namespace qutim_sdk_0_3
 	class ExtensionInfo;
 
 	class ObjectGenerator;
+	class ActionGenerator;
 	typedef QList<const ObjectGenerator *> GeneratorList;
+	
+	class LIBQUTIM_EXPORT ObjectGeneratorHolderData : public QSharedData
+	{
+		Q_DISABLE_COPY(ObjectGeneratorHolderData)
+	public:
+		ObjectGenerator *generator() const;
+		ActionGenerator *actionGenerator() const;
+		
+	private:
+		friend class ObjectGenerator;
+		ObjectGeneratorHolderData(ObjectGenerator *generator);
+		ObjectGenerator *m_generator;
+	};
 
 	/**
 	* @brief ObjectGenerator is general type for object initiatizations.
@@ -55,6 +69,8 @@ namespace qutim_sdk_0_3
 		ObjectGenerator(ObjectGeneratorPrivate &priv);
 #endif
 	public:
+		typedef QExplicitlySharedDataPointer<ObjectGeneratorHolderData> Ptr;
+
 		/**
 		* @brief Destructor
 		*/
@@ -162,6 +178,8 @@ namespace qutim_sdk_0_3
 		 * Returns list of ObjectGenerator's for extensions that match QMetaObject criterion
 		 */
 		static GeneratorList module(const QMetaObject *module);
+		
+		Ptr pointerHolder();
 		/**
 		 * Returns list of ObjectGenerator's for extensions that match char* interfaceID
 		 */
@@ -294,7 +312,7 @@ namespace qutim_sdk_0_3
 		/**
 		* @brief Pointer to instance of object
 		*/
-		mutable QPointer<QObject> m_object;
+		mutable QWeakPointer<QObject> m_object;
 	};
 }
 

@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		ContactPrivate(Contact *c) : BuddyPrivate(c) {}
-		QPointer<MetaContact> metaContact;
+		QWeakPointer<MetaContact> metaContact;
 	};
 }
 #endif // CONTACT_P_H

@@ -56,23 +56,18 @@ enum ItemRole
 class JoinGroupChatWrapper : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QAbstractListModel* bookmarksBox READ bookmarksBox NOTIFY bookmarksBoxChanged)
-	Q_PROPERTY(QAbstractListModel* bookmarks READ bookmarks NOTIFY bookmarksChanged)
 	Q_PROPERTY(QString currentAccountId READ currentAccountId NOTIFY currentAccountIdChanged)
 
 public:
 	JoinGroupChatWrapper();
 	~JoinGroupChatWrapper();
-	QAbstractListModel *bookmarksBox();
-	QAbstractListModel *bookmarks();
 	Q_INVOKABLE QStringList accountIds();
 	static void init();
 	static void showDialog();
 	QString currentAccountId();
+	Account * currentAccount();
 
 signals:
-	void bookmarksBoxChanged();
-	void bookmarksChanged();
 	void currentAccountIdChanged();
 	void joinDialogShown();
 	void bookmarkEditDialogShown();
@@ -83,11 +78,11 @@ public slots:
 	Q_INVOKABLE void setAccount(int index);
 	void fillBookmarks(Account *account);
 	Q_INVOKABLE void onItemActivated(const QModelIndex &index);
+	Q_INVOKABLE void join(QVariant data);
 	void onBookmarksChanged();
 
 private:
 	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
-	Account *currentAccount();
 	Account *account(int index);
 	QAction *m_closeAction;
 	QAction *m_backAction;

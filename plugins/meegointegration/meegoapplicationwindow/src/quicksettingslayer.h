@@ -2,8 +2,7 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
-** Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
 **
 *****************************************************************************
 **
@@ -24,38 +23,36 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKJOINGROUPCHAT_H
-#define QUICKJOINGROUPCHAT_H
-#include <QObject>
-#include <qutim/actiongenerator.h>
+#ifndef QUICKSETTINGSLAYER_H
+#define QUICKSETTINGSLAYER_H
+
+#include <qutim/settingslayer.h>
 
 namespace MeegoIntegration
 {
+class QuickSettingsModel;
 
-	class JoinGroupChatWrapper;
-	using namespace qutim_sdk_0_3;
+class QuickSettingsLayer : public qutim_sdk_0_3::SettingsLayer
+{
+    Q_OBJECT
+	Q_PROPERTY(QObject* model READ model CONSTANT)
+public:
+    explicit QuickSettingsLayer();
 	
-	class QuickJoinGroupChat : public QObject
-	{
-		Q_OBJECT
-		Q_CLASSINFO("Service", "JoinGroupChat")
-		Q_CLASSINFO("Uses", "IconLoader")
-		Q_CLASSINFO("Uses", "ContactList")
-	public:
-		explicit QuickJoinGroupChat();
-		virtual ~QuickJoinGroupChat();
-	public slots:
-		void onJoinGroupChatTriggered();
-	private:
-		QScopedPointer<JoinGroupChatWrapper> m_chat;
-	};
+	virtual void show(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
+	virtual void close(QObject* controller = 0);
+	virtual void update(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
 	
-	class JoinGroupChatGenerator : public ActionGenerator
-	{
-	public:
-		JoinGroupChatGenerator(QObject *module);
-		void showImpl(QAction *action, QObject *obj);
-	};	
-	
+	QObject *model();
+	Q_INVOKABLE void show(QObject *object = 0);
+
+signals:
+	void settingsRequested(QObject *model);
+
+private:
+	QMap<QObject*, qutim_sdk_0_3::SettingsItemList> m_items;
+	QMap<QObject*, QuickSettingsModel*> m_models;
+};
 }
-#endif // QUICKJOINGROUPCHAT_H
+
+#endif // QUICKSETTINGSLAYER_H

@@ -174,7 +174,6 @@ Sheet {
 			handler.loadAccounts();
 	}
 	Component.onCompleted: {
-		__owner = parent;
 		pageStack.push(mainPage);
 	}
 }

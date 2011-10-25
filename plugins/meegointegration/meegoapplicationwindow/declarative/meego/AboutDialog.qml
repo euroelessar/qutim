@@ -240,7 +240,6 @@ Sheet {
 		}
 	}
 	Component.onCompleted: {
-		__owner = parent;
 		pageStack.push(mainPage);
 	}
 }

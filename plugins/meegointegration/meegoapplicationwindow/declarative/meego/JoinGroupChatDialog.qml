@@ -27,16 +27,16 @@ Sheet {
 		id: handler
 	}
 
-
-	BookmarksModel {
-		id: bookmarksModel
+	BookmarksModel
+	{
+		id:bookmarksModel
 	}
 
 	Connections {
 		target: handler
 		onJoined: joinGroupChatDialog.accept();
 		onJoinDialogShown:pageStack.push(joinPage);
-		onBookmarksEditDialogShown: {}
+		onCurrentAccountIdChanged: { bookmarksModel.fill(handler.currentAccountId)}
 		onShown: joinGroupChatDialog.open();
 
 	}
@@ -111,28 +111,30 @@ Sheet {
 					id: accountsDialog
 					titleText: qsTr("Select account:")
 
+					model: ListModel { }
+
 					onAccepted: {
 						handler.setAccount(accountsDialog.selectedIndex);
 						accountsDialog.model.clear();
 					}
-
 
 					onRejected: accountsDialog.model.clear()
 
 
 					function chooseValue() {
 						var values = handler.accountIds();
-						var text = handler.currentAccountId;
+						if (values.length==1){
+							accountsDialog.selectedIndex=0;
+							handler.setAccount(accountsDialog.selectedIndex);
+							return;
+						}
 						accountsDialog.selectedIndex = -1;
 						for (var i = 0; i < values.length; ++i) {
 							accountsDialog.model.append({ "name": values[i] });
 							if (values[i] == text)
 								accountsDialog.selectedIndex = i;
 						}
-						if (values.length==1)
-							accountsDialog.selectedIndex=0;
-						else
-							accountsDialog.open();
+						accountsDialog.open();
 					}
 				}
 			}
@@ -140,25 +142,67 @@ Sheet {
 			ListView {
 				id:bookmarks
 				spacing: 20
-				anchors{ left:parent.left; right:parent.right;}
+				anchors{ left:parent.left; right:parent.right; top:accounts.bottom;bottom:parent.bottom}
 
-				model: handler.bookmarks
+				model: bookmarksModel
 
-				onCurrentIndexChanged:
-				{
-					handler.onItemActivated(bookmarks.currentItem)
+				delegate:Column {
+					id: wgt
+					anchors{ left:parent.left; right:parent.right;}
+					property alias bookmarkItem_visible: bookmarkItem.visible
+					property alias separatorItem_visible: separatorItem.visible
+
+					state: bookmarkType == 3 ? "s1" : "s2"
+
+					ItemDelegate {
+						id:bookmarkItem
+						title: name
+						subtitle: description
+						onClicked: {
+							console.log(separator)
+							console.log(bookmarkType)
+							switch(bookmarkType)
+							{
+							case 2:
+							case 4:
+								handler.join(bookmarkData);
+								break;
+							case 0:
+								pageStack.push(joinPage)
+								break;
+							case 1:
+								break;
+							}
+						}
+
+						Rectangle {
+							id: separatorItem
+							height: 20
+						}
+
+						states: [
+							State {
+								name: "s1"
+								PropertyChanges {
+									target: wgt
+									bookmarkItem_visible: true
+									separatorItem_visible: false
+								}
+							},
+							State {
+								name: "s2"
+								PropertyChanges {
+									target: wgt
+									bookmarkItem_visible: false
+									separatorItem_visible: true
+								}
+							}
+
+						]
+					}
+
+
 				}
-				delegate: ItemDelegate {
-					title: "display"
-					subtitle: "description"
-				}
-
-
-				//			delegate: ItemDelegate {
-				//				title: account.id
-				//				subtitle: account.name
-				//				onClicked: handler.setAccount(account.id);
-				//			}
 			}
 		}
 
@@ -188,7 +232,7 @@ Sheet {
 					id:conferenceNameLabel
 					anchors.right: parent.horizontalCenter
 					anchors.rightMargin: 10
-					text: qsTr("name")
+					text: qsTr("Name")
 				}
 				TextField {
 					anchors.left: parent.horizontalCenter
@@ -308,16 +352,7 @@ Sheet {
 		}
 
 	}
-
-	onStatusChanged: {
-		if (status == PageStatus.Inactive && pageStack.currentPage != mainPage) {
-			pageStack.clear();
-			pageStack.push(mainPage);
-		}
-
-	}
 	Component.onCompleted: {
-		__owner = parent;
 		pageStack.push(mainPage);
 		handler.accountIds();
 	}

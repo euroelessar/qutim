@@ -135,7 +135,7 @@ void IrcAccountMainSettings::onEditServer()
 	IrcServer server = currentServer();
 	m_servers[row] = server;
 	ui->serversWidget->currentItem()->setText(QString("%1:%2").arg(server.hostName).arg(server.port));
-	if (m_widget && !m_widget->isModified())
+	if (m_widget && !m_widget.data()->isModified())
 		emit modifiedChanged(true);
 }
 

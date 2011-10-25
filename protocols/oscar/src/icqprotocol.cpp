@@ -83,16 +83,16 @@ QList<Account *> IcqProtocol::accounts() const
 {
 	Q_D(const IcqProtocol);
 	QList<Account *> accounts;
-	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
+	QHash<QString, QWeakPointer<IcqAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value());
+		accounts.append(it.value().data());
 	return accounts;
 }
 
 Account *IcqProtocol::account(const QString &id) const
 {
 	Q_D(const IcqProtocol);
-	return d->accounts_hash->value(id);
+	return d->accounts_hash->value(id).data();
 }
 
 QHash<QString, IcqAccount *> IcqProtocol::accountsHash() const
@@ -122,8 +122,8 @@ void IcqProtocol::updateSettings()
 	QString codecName = cfg.value("codec", localeCodecName);
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	Util::setAsciiCodec(codec ? codec : QTextCodec::codecForLocale());
-	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
-		acc->updateSettings();
+	foreach (QWeakPointer<IcqAccount> acc, *d->accounts_hash)
+		acc.data()->updateSettings();
 	emit settingsUpdated();
 }
 

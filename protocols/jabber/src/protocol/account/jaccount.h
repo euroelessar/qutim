@@ -58,7 +58,6 @@ public:
 	ChatUnit *getUnitForSession(ChatUnit *unit);
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	QString name() const;
-	QString password(bool *ok = 0);
 	QString getPassword() const;
 	Jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
@@ -79,6 +78,11 @@ public:
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
+	
+	QStringList updateParameters(const QVariantMap &parameters, bool forced = false);
+	void loadParameters();
+protected:
+	virtual void virtual_hook(int id, void *data);
 signals:
 	void avatarChanged(const QString &avatar);
 public slots:

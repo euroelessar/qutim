@@ -2,8 +2,7 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
-** Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
 **
 *****************************************************************************
 **
@@ -24,38 +23,46 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKJOINGROUPCHAT_H
-#define QUICKJOINGROUPCHAT_H
-#include <QObject>
-#include <qutim/actiongenerator.h>
+#include "quicksettingsmodel.h"
 
 namespace MeegoIntegration
 {
+using namespace qutim_sdk_0_3;
 
-	class JoinGroupChatWrapper;
-	using namespace qutim_sdk_0_3;
-	
-	class QuickJoinGroupChat : public QObject
-	{
-		Q_OBJECT
-		Q_CLASSINFO("Service", "JoinGroupChat")
-		Q_CLASSINFO("Uses", "IconLoader")
-		Q_CLASSINFO("Uses", "ContactList")
-	public:
-		explicit QuickJoinGroupChat();
-		virtual ~QuickJoinGroupChat();
-	public slots:
-		void onJoinGroupChatTriggered();
-	private:
-		QScopedPointer<JoinGroupChatWrapper> m_chat;
-	};
-	
-	class JoinGroupChatGenerator : public ActionGenerator
-	{
-	public:
-		JoinGroupChatGenerator(QObject *module);
-		void showImpl(QAction *action, QObject *obj);
-	};	
-	
+QuickSettingsModel::QuickSettingsModel(QObject *parent) :
+    QAbstractListModel(parent)
+{
 }
-#endif // QUICKJOINGROUPCHAT_H
+
+void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items)
+{
+	if (!m_items.isEmpty()) {
+		beginRemoveRows(QModelIndex(), 0, m_items.size());
+		m_items.clear();
+		endRemoveRows();
+	}
+	beginInsertRows(QModelIndex(), 0, items.size());
+	m_items = items;
+	endInsertRows();
+}
+
+int QuickSettingsModel::rowCount(const QModelIndex &parent) const
+{
+	return m_items.size();
+}
+
+QVariant QuickSettingsModel::data(const QModelIndex &index, int role) const
+{
+	SettingsItem *item = m_items.value(index.row());
+	if (!item)
+		return QVariant();
+	switch (role) {
+	case Qt::DecorationRole:
+		return QVariant();
+	case Qt::DisplayRole:
+		return item->text().toString();
+	default:
+		return QVariant();
+	}
+}
+}

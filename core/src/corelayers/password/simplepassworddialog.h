@@ -16,7 +16,7 @@ namespace Core
 		virtual void setAccount(Account *account);
 		virtual void setValidator(QValidator *validator);
 	private:
-		QPointer<SimplePasswordWidget> m_widget;
+		QWeakPointer<SimplePasswordWidget> m_widget;
 		friend class SimplePasswordWidget;
 	};
 }

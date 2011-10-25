@@ -124,7 +124,7 @@ class MessagePrivate : public DynamicPropertyData
 public:
 	MessagePrivate() : 
 	    time(QDateTime::currentDateTime()), in(false),
-	    chatUnit(0), id(++message_id) {}
+	    id(++message_id) {}
 	MessagePrivate(const MessagePrivate &o) :
 		DynamicPropertyData(o), text(o.text), time(o.time),
 		in(o.in), chatUnit(o.chatUnit), id(++message_id) {}
@@ -132,7 +132,7 @@ public:
 	QString text;
 	QDateTime time;
 	bool in;
-	QPointer<ChatUnit> chatUnit;
+	QWeakPointer<ChatUnit> chatUnit;
 	quint64 id;
 	QVariant getText() const { return text; }
 	void setText(const QVariant &val) { text = val.toString(); }
@@ -233,7 +233,7 @@ void Message::setIncoming(bool input)
 
 ChatUnit* Message::chatUnit() const
 {
-	return p->chatUnit;
+	return p->chatUnit.data();
 }
 
 quint64 Message::id() const
@@ -257,13 +257,15 @@ QEvent::Type MessageReceiptEvent::eventType()
 	return type;
 }
 
-Q_GLOBAL_STATIC(QPointer<QTextDocument>, document)
+Q_GLOBAL_STATIC(QWeakPointer<QTextDocument>, document)
 
 QString unescape(const QString &html)
 {
 	if (document()->isNull())
 		(*document()) = new QTextDocument;
-	(*document())->setHtml(html);
-	return (*document())->toPlainText();
+	document()->data()->setHtml(html);
+	QString plainText = document()->data()->toPlainText();
+	document()->data()->clearUndoRedoStacks();
+	return plainText;
 }
 }

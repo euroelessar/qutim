@@ -27,11 +27,10 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <QStringList>
-#include <QPointer>
 #include <QRegExp>
 #include <QTextDocument>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*)
 
 namespace qutim_sdk_0_3 {
 
@@ -121,15 +120,15 @@ void IrcProtocol::loadAccounts()
 QList<Account *> IrcProtocol::accounts() const
 {
 	QList<Account *> accounts;
-	QHash<QString, QPointer<IrcAccount> >::const_iterator it;
+	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value());
+		accounts.append(it.value().data());
 	return accounts;
 }
 
 Account *IrcProtocol::account(const QString &id) const
 {
-	return d->accounts_hash->value(id);
+	return d->accounts_hash->value(id).data();
 }
 
 IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
@@ -145,7 +144,7 @@ IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
 
 ChatSession *IrcProtocol::activeSession() const
 {
-	return d->activeSession;
+	return d->activeSession.data();
 }
 
 void IrcProtocol::registerCommandAlias(IrcCommandAlias *alias)
@@ -295,8 +294,8 @@ void IrcProtocol::updateSettings()
 {
 	Config cfg = config("general");
 	d->enableColoring = cfg.value("enableColoring", true);
-	foreach (QPointer<IrcAccount> acc, *d->accounts_hash)
-		acc->updateSettings();
+	foreach (QWeakPointer<IrcAccount> acc, *d->accounts_hash)
+		acc.data()->updateSettings();
 }
 
 bool IrcProtocol::event(QEvent *ev)
@@ -338,8 +337,8 @@ void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 void IrcProtocol::onSessionActivated(bool active)
 {
 	ChatSession *session = qobject_cast<ChatSession*>(sender());
-	if (!active && session == d->activeSession)
-		d->activeSession = 0;
+	if (!active && session == d->activeSession.data())
+		d->activeSession.clear();
 	else if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
 		d->activeSession = session;
 }

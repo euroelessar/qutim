@@ -92,12 +92,12 @@ QString ContactList::statusName(const QVariant &type)
 
 QUrl ContactList::statusUrl(const QVariant &type)
 {
-	return statusUrl(type, QLatin1String("icon-m-status-menu"));
+	return statusUrl(type, QLatin1String("icon-m"));
 }
 
 QString ContactList::statusIcon(const QVariant &type)
 {
-	return statusIcon(type, QLatin1String("icon-m-status-menu"));
+	return statusIcon(type, QLatin1String("icon-m"));
 }
 
 QUrl ContactList::statusUrl(const QVariant &type, const QString &subtype)

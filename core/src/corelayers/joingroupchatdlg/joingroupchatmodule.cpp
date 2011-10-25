@@ -56,12 +56,12 @@ void JoinGroupChatModule::onJoinGroupChatTriggered()
 {
 	if (!m_chat)
 		m_chat = new JoinGroupChat(qApp->activeWindow());
-	m_chat->setParent(QApplication::activeWindow());
+	m_chat.data()->setParent(QApplication::activeWindow());
 #if defined (QUTIM_MOBILE_UI)
-	m_chat->showMaximized();
+	m_chat.data()->showMaximized();
 #else
-	centerizeWidget(m_chat);
-	m_chat->show();
+	centerizeWidget(m_chat.data());
+	m_chat.data()->show();
 #endif
 }
 

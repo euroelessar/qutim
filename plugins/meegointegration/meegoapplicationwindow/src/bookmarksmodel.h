@@ -28,9 +28,11 @@
 #define BOOKMARKSMODEL_H
 
 #include <QAbstractListModel>
+#include <qutim/account.h>
+#include <qutim/dataforms.h>
 
 namespace MeegoIntegration {
-
+using namespace qutim_sdk_0_3;
 enum BookmarkType
 {
 	BookmarkNew,
@@ -43,24 +45,29 @@ enum BookmarkType
 
 enum BookmarkRoles
 {
-	BookmarkTypeRole = Qt::UserRole + 1
+	BookmarkTypeRole = Qt::UserRole,
+	BookmarkDataRole
 };
 
 class BookmarksModel : public QAbstractListModel
 {
+	Q_OBJECT
+	Q_ENUMS(BookmarkType)
 public:
-	BookmarksModel(QObject *parent = 0);
-	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	explicit BookmarksModel(QObject *parent = 0);
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	Qt::ItemFlags flags(const QModelIndex &index) const;
-	QVariant data(int index, int role = Qt::DisplayRole) const;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	virtual QVariant data(int index, int role = Qt::DisplayRole) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	void addItem(BookmarkType type, const QString &text,
 				 const QVariant &fields = QVariantMap(),
 				 const QVariant &userData = QVariant());
 	void startUpdating();
 	void endUpdating();
 	void clear();
+	Q_INVOKABLE void fill(QString accountId);
 private:
+	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
 	struct Bookmark
 	{
 		Bookmark() {}
@@ -73,7 +80,6 @@ private:
 		QVariant userData;
 	};
 	QList<Bookmark> m_bookmarks;
-	bool m_resetting;
 };
 
 } // namespace MeegoIntegration

@@ -79,7 +79,7 @@ public:
 public slots:
 	void show(QObject *object);
 private:
-	QPointer<MobileContactInfoWindow> info;
+	QWeakPointer<MobileContactInfoWindow> info;
 };
 
 }

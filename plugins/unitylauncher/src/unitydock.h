@@ -16,27 +16,29 @@
 #define UNITYDOCK_GN5KWDY6
 
 #include "dockbase.h"
+#include <dbusmenuexporter.h>
 
 class QMenu;
 
 class UnityDock : public DockBase
 {
 	Q_OBJECT
-	public:
-		UnityDock(QObject *p = NULL);
-		~UnityDock();
+public:
+	UnityDock(QObject *p = NULL);
+	~UnityDock();
 
-	public slots:
-		virtual void setIcon(const QIcon &);
-		virtual void setOverlayIcon(const QIcon &);
-		virtual void setMenu(QMenu *menu);
-		virtual void setProgress(int progress);
+public slots:
+	virtual void setIcon(const QIcon &);
+	virtual void setOverlayIcon(const QIcon &);
+	virtual void setMenu(QMenu *menu);
+	virtual void setProgress(int progress);
 
-		virtual void setBadge(const QString &badge);
-		virtual void setCount(int count);
-		virtual void setAlert(bool on = true);
-	private:
-		template<typename T> void sendMessage(const char *name, const T& val);
+	virtual void setBadge(const QString &badge);
+	virtual void setCount(int count);
+	virtual void setAlert(bool on = true);
+private:
+	template<typename T> void sendMessage(const char *name, const T& val);
+	QWeakPointer<DBusMenuExporter> m_menu;
 };
 
 #endif /* end of include guard: UNITYDOCK_GN5KWDY6 */

@@ -33,7 +33,7 @@
 #include "authdialogwrapper.h"
 #include "addcontactdialogwrapper.h"
 #include "aboutdialogwrapper.h"
-#include "joingroupchatwrapper.h"""
+#include "joingroupchatwrapper.h"
 
 #include "menumodel.h"
 #include <QApplication>
@@ -73,6 +73,6 @@ ApplicationWindow::ApplicationWindow()
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
 	                                      QLatin1String("meego"));
 	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-    showFullScreen();
+	showFullScreen();
 }
 }

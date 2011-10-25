@@ -22,7 +22,7 @@ namespace qutim_sdk_0_3
 {
 	struct Private
 	{
-		QPointer<History> self;
+		QWeakPointer<History> self;
 	};
 	static Private *p = NULL;
 
@@ -50,28 +50,28 @@ namespace qutim_sdk_0_3
 		ensurePrivate();
 		if(p->self.isNull() && ObjectGenerator::isInited())
 			p->self = new History();
-		return p->self;
+		return p->self.data();
 	}
 
 	void History::store(const Message &message)
 	{
-		if(p->self.isNull() || p->self == this)
+		if(p->self.isNull() || p->self.data() == this)
 			return;
-		p->self->store(message);
+		p->self.data()->store(message);
 	}
 
 	MessageList History::read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num)
 	{
-		if(p->self.isNull() || p->self == this)
+		if(p->self.isNull() || p->self.data() == this)
 			return MessageList();
-		return p->self->read(unit, from, to, max_num);
+		return p->self.data()->read(unit, from, to, max_num);
 	}
 
 	void History::showHistory(const ChatUnit *unit)
 	{
-		if(p->self.isNull() || p->self == this)
+		if(p->self.isNull() || p->self.data() == this)
 			return;
-		p->self->showHistory(unit);
+		p->self.data()->showHistory(unit);
 	}
 
 	void History::virtual_hook(int id, void *data)

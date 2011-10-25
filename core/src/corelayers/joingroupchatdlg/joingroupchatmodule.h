@@ -36,7 +36,7 @@ namespace Core
 	public slots:
 		void onJoinGroupChatTriggered();
 	private:
-		QPointer<JoinGroupChat> m_chat;
+		QWeakPointer<JoinGroupChat> m_chat;
 	};
 	
 	class JoinGroupChatGenerator : public ActionGenerator
