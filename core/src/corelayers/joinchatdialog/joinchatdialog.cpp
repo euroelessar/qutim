@@ -217,6 +217,6 @@ qutim_sdk_0_3::GroupChatManager *JoinChatDialog::groupChatManager()
 {
 	int index = m_ui->accountBox->currentIndex();
 	Account *account = m_ui->accountBox->itemData(index).value<Account*>();
-	return qobject_cast<GroupChatManager*>(account);
-//	return account ? account->groupChatManager() : NULL;
+//	return qobject_cast<GroupChatManager*>(account);
+	return account ? account->groupChatManager() : NULL;
 }
