@@ -76,7 +76,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
 	QMetaObject::invokeMethod(session, "hasJavaScript", Q_RETURN_ARG(bool, hasJavaScript));
 	if (!hasJavaScript)
-		return UrlHandler::Reject;
+		return UrlHandler::Accept;
 
 
 	debug() << Q_FUNC_INFO;
