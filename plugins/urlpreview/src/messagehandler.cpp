@@ -214,7 +214,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		showPreviewHead = false;
 	}
 
-	QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
+	static QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
 	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
 		if (type == QLatin1String("application/x-shockwave-flash")) {
