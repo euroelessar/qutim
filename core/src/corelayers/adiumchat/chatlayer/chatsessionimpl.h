@@ -45,6 +45,7 @@ class ADIUMCHAT_EXPORT ChatSessionImpl : public ChatSession
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ChatSessionImpl)
 public:
+	Q_INVOKABLE bool hasJavaScript() const;
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
 	virtual void addContact ( Buddy* c );

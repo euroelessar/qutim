@@ -72,6 +72,13 @@ void UrlHandler::loadSettings()
 
 UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 {
+	bool hasJavaScript = false;
+	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
+	QMetaObject::invokeMethod(session, "hasJavaScript", Q_RETURN_ARG(bool, hasJavaScript));
+	if (!hasJavaScript)
+		return UrlHandler::Reject;
+
+
 	debug() << Q_FUNC_INFO;
 	QString html = message.property("html").toString();
 	if (html.isEmpty()) {
@@ -210,7 +217,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
 	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
-		if (type == "application/x-shockwave-flash") {
+		if (type == QLatin1String("application/x-shockwave-flash")) {
 			showPreviewHead = false;
 			pstr.replace("%TYPE%", tr("YouTube video"));
 			pstr += m_youtubeTemplate;
@@ -222,12 +229,12 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	}
 
 
-	if (type == "audio/ogg" || type == "audio/mp3" || type == "application/ogg" && m_enableHTML5Audio) {
+	if (((type == QLatin1String("audio/ogg") || type == QLatin1String("audio/mp3")) || type == QLatin1String("application/ogg")) && m_enableHTML5Audio) {
 				pstr = m_template;
 				showPreviewHead = false;
 				pstr.replace("%TYPE%", tr("HTML5 Audio"));
 				pstr += m_html5AudioTemplate;
-				if (type == "application/ogg") {
+				if (type == QLatin1String("application/ogg")) {
 					pstr.replace("%FILETYPE%", "audio/ogg");
 				} else {
 					pstr.replace("%FILETYPE%", type);
@@ -236,7 +243,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 				pstr.replace("%SIZE%", QString::number(size));
 			}
 
-	if (type == "video/webm" || type == "video/ogg" && m_enableHTML5Video) {
+	if ((type == QLatin1String("video/webm") || type == QLatin1String("video/ogg")) && m_enableHTML5Video) {
 				pstr = m_template;
 				showPreviewHead = false;
 				pstr.replace("%TYPE%", tr("HTML5 Video"));
