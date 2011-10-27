@@ -21,6 +21,7 @@
 #include <QBasicTimer>
 #include <QStringList>
 #include "sdk/jabber.h"
+#include <jreen/disco.h>
 
 namespace qutim_sdk_0_3 {
 class ChatUnit;
@@ -63,8 +64,10 @@ protected:
 	void timerEvent(QTimerEvent *ev);
 protected slots:
 	void handlePresence(const Jreen::Presence &presence);
-	void handleIQ(const Jreen::IQ &iq, int context);
+	void onSoftwareRequestFinished(const Jreen::IQ &iq);
+	void onInfoRequestFinished();
 private:
+	void requestSoftware(const Jreen::JID &jid);
 	void updateCache(const QString &node, const SoftwareInfo &info, bool fixed = false);
 	void updateClientData(JContactResource *resource, const QString &client,
 						  const QString &software, const QString &softwareVersion,
