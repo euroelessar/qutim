@@ -72,7 +72,7 @@ void ChatSessionImpl::clearChat()
 
 bool ChatSessionImpl::hasJavaScript() const {
 	const QMetaObject *meta = getController()->metaObject();
-	return meta->indexOfMethod("evaluateJavaScript") != -1;
+	return meta->indexOfMethod("evaluateJavaScript(QString)") != -1;
 }
 
 QString ChatSessionImpl::quote()
