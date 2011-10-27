@@ -243,7 +243,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 				pstr.replace("%SIZE%", QString::number(size));
 			}
 
-	if ((((type == QLatin1String("video/webm") || type == QLatin1String("video/ogg")) || type == QLatin1String("video/mp4")) || type == QLatin1String("application/octet-stream")) && m_enableHTML5Video) {
+	if (((type == QLatin1String("video/webm") || type == QLatin1String("video/ogg")) || type == QLatin1String("video/mp4")) && m_enableHTML5Video) {
 				pstr = m_template;
 				showPreviewHead = false;
 				pstr.replace("%TYPE%", tr("HTML5 Video"));
