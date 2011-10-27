@@ -36,7 +36,8 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
-	myself_chat_state(ChatStateInActive)
+	myselfChatState(ChatStateInActive),
+	hasJavaScript(false)
 {
 }
 
@@ -190,6 +191,7 @@ void ChatSessionImplPrivate::ensureController() const
 		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
+		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript") != -1;
 	}
 }
 
@@ -219,7 +221,7 @@ void ChatSessionImpl::setActive(bool active)
 		return;
 	if (active)
 		setChatState(ChatStateActive);
-	else if (d->myself_chat_state != ChatStateGone)
+	else if (d->myselfChatState != ChatStateGone)
 		setChatState(ChatStateInActive);
 	d->active = active;
 	emit activated(active);
@@ -340,7 +342,7 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 void ChatSessionImplPrivate::onActiveTimeout()
 {
 	Q_Q(ChatSessionImpl);
-	switch(myself_chat_state) {
+	switch(myselfChatState) {
 		case ChatStateComposing:
 			q->setChatState(ChatStatePaused);
 			break;
@@ -361,7 +363,7 @@ void ChatSessionImplPrivate::onActiveTimeout()
 void ChatSessionImpl::setChatState(ChatState state)
 {
 	Q_D(ChatSessionImpl);
-	if(d->myself_chat_state == state) {
+	if(d->myselfChatState == state) {
 		d->inactive_timer.start();
 		return;
 	}
@@ -369,7 +371,7 @@ void ChatSessionImpl::setChatState(ChatState state)
 		ChatStateEvent event(state);
 		qApp->sendEvent(currentUnit, &event);
 	}
-	d->myself_chat_state = state;
+	d->myselfChatState = state;
 	switch(state) {
 		case ChatStateComposing:
 		// By xep-0085 this time should be 30 secs, but it's too huge
@@ -497,7 +499,13 @@ QMenu *ChatSessionImpl::menu()
 
 ChatState ChatSessionImpl::getChatState() const
 {
-	return d_func()->myself_chat_state;
+	return d_func()->myselfChatState;
 }
+
+bool ChatSessionImpl::isJavaScriptSupported() const
+{
+	return d_func()->hasJavaScript;
+}
+
 }
 }

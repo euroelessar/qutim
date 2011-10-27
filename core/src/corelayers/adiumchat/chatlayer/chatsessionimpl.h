@@ -44,6 +44,7 @@ class ADIUMCHAT_EXPORT ChatSessionImpl : public ChatSession
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ChatSessionImpl)
+	Q_PROPERTY(bool supportJavaScript READ isJavaScriptSupported)
 public:
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
@@ -66,6 +67,7 @@ public:
 	bool event(QEvent *);
 	void setChatState(ChatState state);
 	ChatState getChatState() const;
+	bool isJavaScriptSupported() const;
 signals:
 	void buddiesChanged();
 	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);
