@@ -248,8 +248,6 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 				showPreviewHead = false;
 				pstr.replace("%TYPE%", tr("HTML5 Video"));
 				pstr += m_html5VideoTemplate;
-				if (type == QLatin1String("application/octet-stream"))
-					type="video/mp4";
 				pstr.replace("%VIDEOTYPE%", type);
 				pstr.replace("%VIDEOURL%", url);
 				pstr.replace("%SIZE%", QString::number(size));
