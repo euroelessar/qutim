@@ -60,13 +60,25 @@ void UrlHandler::loadSettings()
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
+	m_html5AudioTemplate = "<audio controls=\"controls\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/> Something went wrong.</audio>";
+
+	m_html5VideoTemplate = "<video controls=\"controls\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />Something went wrong.</video>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
+	m_enableHTML5Audio = cfg.value("HTML5Audio", true);
+	m_enableHTML5Video = cfg.value("HTML5Video", true);
 	cfg.endGroup();
 }
 
 UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 {
+	bool hasJavaScript = false;
+	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
+	QMetaObject::invokeMethod(session, "hasJavaScript", Q_RETURN_ARG(bool, hasJavaScript));
+	if (!hasJavaScript)
+		return UrlHandler::Accept;
+
+
 	debug() << Q_FUNC_INFO;
 	QString html = message.property("html").toString();
 	if (html.isEmpty()) {
@@ -131,6 +143,8 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 	//TODO may be need refinement
 	if (link.toLower().startsWith("www."))
 		link.prepend("http://");
+	link = QUrl::fromEncoded(link.toUtf8()).toString();
+	link.replace(" ", QLatin1String("%20"));
 
 	static QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
 	Q_ASSERT(urlrx.isValid());
@@ -147,6 +161,7 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
+	//link = QUrl::fromEncoded(link.toUtf8()).toString();
 	link += " <span id='urlpreview"+uid+"'></span> ";
 
 	debug() << "url" << link;
@@ -157,6 +172,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	reply->deleteLater();
 	QString url = reply->url().toString();
 	QByteArray typeheader;
+	QString decodedUrl = QUrl::fromEncoded(url.toUtf8()).toString();
 	QString type;
 	QByteArray sizeheader;
 	quint64 size=0;
@@ -198,20 +214,45 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		showPreviewHead = false;
 	}
 
-	QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
+	static QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
 	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
-		if (type == "application/x-shockwave-flash") {
+		if (type == QLatin1String("application/x-shockwave-flash")) {
 			showPreviewHead = false;
 			pstr.replace("%TYPE%", tr("YouTube video"));
 			pstr += m_youtubeTemplate;
 			pstr.replace("%YTID%", urlrx.cap(1));
 			pstr.replace("%SIZE%", tr("Unknown"));
-		}
-		else {
+		} else {
 			pstr.replace("%SIZE%", QString::number(size));
 		}
 	}
+
+
+	if (( ( (type == QLatin1String("audio/ogg") || type == QLatin1String("audio/mpeg")) || type == QLatin1String("application/ogg")) || type == QLatin1String("audio/x-wav") ) && m_enableHTML5Audio) {
+				pstr = m_template;
+				showPreviewHead = false;
+				pstr.replace("%TYPE%", tr("HTML5 Audio"));
+				pstr += m_html5AudioTemplate;
+				if (type == QLatin1String("application/ogg")) {
+					pstr.replace("%FILETYPE%", "audio/ogg");
+				} else {
+					pstr.replace("%FILETYPE%", type);
+				}
+				pstr.replace("%AUDIOURL%", url);
+				pstr.replace("%SIZE%", QString::number(size));
+			}
+
+	if (((type == QLatin1String("video/webm") || type == QLatin1String("video/ogg")) || type == QLatin1String("video/mp4")) && m_enableHTML5Video) {
+				pstr = m_template;
+				showPreviewHead = false;
+				pstr.replace("%TYPE%", tr("HTML5 Video"));
+				pstr += m_html5VideoTemplate;
+				pstr.replace("%VIDEOTYPE%", type);
+				pstr.replace("%VIDEOURL%", url);
+				pstr.replace("%SIZE%", QString::number(size));
+			}
+
 
 	if (showPreviewHead) {
 		QString sizestr = size ? QString::number(size) : tr("Unknown");
