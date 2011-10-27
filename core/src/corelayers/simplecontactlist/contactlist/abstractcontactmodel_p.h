@@ -18,11 +18,6 @@ namespace qutim_sdk_0_3
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 #define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
 
-template <class T> inline uint qHash(const QWeakPointer<T> &key)
-{
-	return qHash(key.data());
-}
-
 namespace Core {
 namespace SimpleContactList {
 
@@ -34,7 +29,6 @@ public:
 	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
 	ItemHelper *parent;
-
 };
 
 class SIMPLECONTACTLIST_EXPORT NotificationsQueue

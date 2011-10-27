@@ -420,8 +420,9 @@ void AbstractContactModel::onContactDestroyed()
 			}
 		}
 		foreach (const QList<Notification *> &notifications, all) {
-			foreach (Notification *notif, notifications) {
-				disconnect(notif, 0, this, 0);
+			foreach (Notification *notification, notifications) {
+				deref(notification);
+				disconnect(notification, 0, this, 0);
 			}
 		}
 	}
