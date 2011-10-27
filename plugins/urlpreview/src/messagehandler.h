@@ -57,10 +57,14 @@ private:
 	QString m_template;
 	QString m_imageTemplate;
 	QString m_youtubeTemplate;
+	QString m_html5AudioTemplate;
+	QString m_html5VideoTemplate;
 	QSize m_maxImageSize;
 	quint64 m_maxFileSize;
 	bool m_enableYoutubePreview;
 	bool m_enableImagesPreview;
+	bool m_enableHTML5Audio;
+	bool m_enableHTML5Video;
 };
 
 } // namespace UrlPreview
