@@ -1,4 +1,10 @@
-qutim_check_component(MultimediaKit)
+#qutim_check_component(MultimediaKit)
+
+if(NOT DEFINED ${QT_MOBILITY_MULTIMEDIAKIT_FOUND})
+	set(QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR ${QT_QTMULTIMEDIA_INCLUDE_DIR})
+	set(QT_MOBILITY_MULTIMEDIAKIT_LIBRARY ${QT_QTMULTIMEDIA_LIBRARY})
+endif()
+
 
 qutim_add_plugin(multimediabackend
 	EXTENSION
@@ -8,5 +14,5 @@ qutim_add_plugin(multimediabackend
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Mulimedia engine"
 	DESCRIPTION "Sound engine based on QtMultimedia"
-	INCLUDE_DIRS ${QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR}
+	INCLUDE_DIRS ${QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR} 
 )
