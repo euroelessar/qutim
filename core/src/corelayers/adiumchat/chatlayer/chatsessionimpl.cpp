@@ -70,6 +70,11 @@ void ChatSessionImpl::clearChat()
 	d->getController()->clearChat();
 }
 
+bool ChatSessionImpl::hasJavaScript() const {
+	const QMetaObject *meta = getController()->metaObject();
+	return meta->indexOfMethod("evaluateJavaScript(QString)") != -1;
+}
+
 QString ChatSessionImpl::quote()
 {
 	return d_func()->getController()->quote();
