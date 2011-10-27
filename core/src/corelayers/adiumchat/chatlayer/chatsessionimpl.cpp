@@ -505,7 +505,6 @@ ChatState ChatSessionImpl::getChatState() const
 
 bool ChatSessionImpl::isJavaScriptSupported() const
 {
-	qDebug() << d_func()->hasJavaScript;
 	return d_func()->hasJavaScript;
 }
 
