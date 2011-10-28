@@ -414,15 +414,10 @@ void AbstractContactModel::onContactDestroyed()
 	if (it != d->notifications.end()) {
 		const QList<QList<Notification*> > all = it->all();
 		d->notifications.erase(it);
-		foreach (const QList<Notification *> &notifications, all) {
-			foreach (Notification *notif, notifications) {
-				disconnect(notif, 0, this, 0);
-			}
-		}
-		foreach (const QList<Notification *> &notifications, all) {
+        foreach (const QList<Notification*> &notifications, all) {
 			foreach (Notification *notification, notifications) {
-				deref(notification);
 				disconnect(notification, 0, this, 0);
+                deref(notification);
 			}
 		}
 	}
