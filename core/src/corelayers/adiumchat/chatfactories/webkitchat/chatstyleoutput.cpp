@@ -332,14 +332,11 @@ QString ChatStyleOutput::getVariant() const
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
 	QPalette palette = this->palette();
-	if(m_current_style.backgroundIsTransparent) {
+	if(m_current_style.backgroundIsTransparent)
 		palette.setBrush(QPalette::Base, Qt::transparent);
-		if(view())
-			view()->setAttribute(Qt::WA_OpaquePaintEvent, false);
-	}
-	else {
+	else
 		palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
-	}
+
 	setPalette(palette);
 	//TODO
 	QString html = makeSkeleton(session,QDateTime::currentDateTime());

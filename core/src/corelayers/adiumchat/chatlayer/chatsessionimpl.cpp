@@ -36,8 +36,8 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
-	myselfChatState(ChatStateInActive),
-	hasJavaScript(false)
+	hasJavaScript(false),
+	myselfChatState(ChatStateInActive)
 {
 }
 
@@ -69,11 +69,6 @@ void ChatSessionImpl::clearChat()
 {
 	Q_D(ChatSessionImpl);
 	d->getController()->clearChat();
-}
-
-bool ChatSessionImpl::hasJavaScript() const {
-	const QMetaObject *meta = getController()->metaObject();
-	return meta->indexOfMethod("evaluateJavaScript(QString)") != -1;
 }
 
 QString ChatSessionImpl::quote()
@@ -190,13 +185,14 @@ ChatViewController *ChatSessionImplPrivate::getController() const
 
 void ChatSessionImplPrivate::ensureController() const
 {
-	if(!controller) {
+	if (!controller) {
 		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
 		controller = factory->createViewController();
 		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
-		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript") != -1;
+		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
+		emit const_cast<ChatSessionImpl*>(q_func())->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
 	}
 }
 
