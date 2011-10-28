@@ -27,23 +27,23 @@ namespace Core
 {
 class MultimediaSoundBackend : public SoundBackend
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     MultimediaSoundBackend();
-	virtual void playSound(const QString &filename);
-	virtual QStringList supportedFormats();
+    virtual void playSound(const QString &filename);
+    virtual QStringList supportedFormats();
 };
 
-class MultimediaSoundThread : public QThread
+class MultimediaSound : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	MultimediaSoundThread(const QString &filename, QObject *parent);
-	virtual void run();
+    MultimediaSound(const QString &filename, QObject *parent = 0);
 public slots:
-	void finishedPlaying(QAudio::State state);
+    void play();
+    void finishedPlaying(QAudio::State state);
 private:
-	QString m_filename;
+    QString m_filename;
 };
 }
 
