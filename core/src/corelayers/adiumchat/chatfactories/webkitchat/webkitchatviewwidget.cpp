@@ -54,7 +54,8 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		if (!frame->property("scrollbarPos").toBool())
 			frame->setProperty("scrollbarAtEnd",true);
 
-		newPage->setParent(m_view);
+        //newPage->setParent(m_view);
+        m_view->page()->setView(0);
 		m_view->setPage(newPage);
 #if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
 		//HACK workaround for blank chat logs
