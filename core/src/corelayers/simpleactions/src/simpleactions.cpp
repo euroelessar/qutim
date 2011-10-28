@@ -155,11 +155,16 @@ void SimpleActions::onCopyIdTriggered(QObject *obj)
 void SimpleActions::onContactRenameAction(QObject *o)
 {
 	Contact *contact = sender_cast<Contact*>(o);
+
+	bool ok;
 	QString result = QInputDialog::getText(QApplication::activeWindow(), tr("Rename contact %1").arg(contact->title()),
 										   tr("Input new name for contact %1").arg(contact->title()),
 										   QLineEdit::Normal,
-										   contact->name());
-	contact->setName(result);
+										   contact->name(),
+										   &ok);
+
+	if(ok)
+		contact->setName(result);
 }
 
 void SimpleActions::onShowInfoAction(QObject *obj)
