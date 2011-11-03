@@ -114,10 +114,7 @@ void MultimediaSound::play()
 void MultimediaSound::finishedPlaying(QAudio::State state)
 {   
     if (state == QAudio::IdleState) {
-        QAudioOutput *audio = qobject_cast<QAudioOutput*>(sender());
-        Q_ASSERT(audio);
-        audio->deleteLater();
-        QTimer::singleShot(0, this, SLOT(quit()));
+        deleteLater();
     }
 }
 }
