@@ -5,7 +5,6 @@
 #include <simplecontactlistview.h>
 #include <qutim/servicemanager.h>
 #include <qutim/status.h>
-#include <lineedit.h>
 
 namespace qutim_sdk_0_3
 {
@@ -58,7 +57,7 @@ private:
 	ServicePointer<AbstractContactModel> m_model;
 	ActionToolBar *m_mainToolBar;
 	QPushButton *m_statusBtn;
-	LineEdit *m_searchBar;
+    QLineEdit *m_searchBar;
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;
 	QList<QAction *> m_statusActions;

@@ -13,6 +13,7 @@
 #include <qutim/contact.h>
 #include <qutim/systemintegration.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
+#include <qutim/simplecontactlist/lineedit.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
 #include <QApplication>
