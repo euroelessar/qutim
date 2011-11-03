@@ -42,6 +42,7 @@
 #include <QWidgetAction>
 #include <QTimer>
 #include <QKeyEvent>
+#include <qutim/simplecontactlist/lineedit.h>
 
 namespace Core {
 namespace SimpleContactList {
@@ -97,7 +98,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     d->view->setFrameShadow(QFrame::Plain);
     d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    d->searchBar = new QLineEdit(this);
+    d->searchBar = new LineEdit(this);
     layout->insertWidget(0, d->searchBar);
     connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
     connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
