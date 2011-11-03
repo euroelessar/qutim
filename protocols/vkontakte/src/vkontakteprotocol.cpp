@@ -79,12 +79,12 @@ void VkontakteProtocol::loadAccounts()
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
 	}
 
-	static ActionGenerator homepage_gen(Icon("applications-internet"),
+    ActionGenerator *gen = new ActionGenerator(Icon("applications-internet"),
 							   QT_TRANSLATE_NOOP("Vkontakte","Open homepage"),
 							   d,
 							   SLOT(onOpenWebPageTriggered(QObject*)));
-	homepage_gen.setType(ActionTypeContactList);
-	MenuController::addAction<VContact>(&homepage_gen);
+    gen->setType(ActionTypeContactList);
+    MenuController::addAction<VContact>(gen);
 
 //	static ActionGenerator sms_gen(Icon("phone"),
 //							   QT_TRANSLATE_NOOP("Vkontakte","Send sms"),

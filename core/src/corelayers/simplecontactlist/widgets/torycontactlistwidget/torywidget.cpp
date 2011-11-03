@@ -19,7 +19,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QLineEdit>
+#include <qutim/simplecontactlist/lineedit.h>
 #include <QMenuBar>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -120,7 +120,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 
 	QAction *searchBtn = new QAction(Icon("edit-find"), tr("Search contact"), this);
 	searchBtn->setCheckable(true);
-	d->searchBar = new QLineEdit(this);
+    d->searchBar = new LineEdit(this);
 	d->searchBar->setVisible(false);
 	connect(searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
 	d->mainToolBar->addAction(searchBtn);

@@ -62,9 +62,10 @@ public:
 	//additional info and flags
 	bool active;
 	bool sendToLastActiveResource;
+	mutable bool hasJavaScript;
 	QTimer inactive_timer;
 	MessageList unread;
-	ChatState myself_chat_state;
+	ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
 	//ChatState statusToState(Status::Type type);
 public slots:
