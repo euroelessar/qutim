@@ -73,7 +73,7 @@ void UrlHandler::loadSettings()
 UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-	if (!session->property("supportJavaScript").toBool())
+    if (!session || !session->property("supportJavaScript").toBool())
 		return UrlHandler::Accept;
 
 	debug() << Q_FUNC_INFO;
