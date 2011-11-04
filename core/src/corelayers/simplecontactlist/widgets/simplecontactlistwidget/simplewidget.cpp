@@ -13,6 +13,7 @@
 #include <qutim/contact.h>
 #include <qutim/systemintegration.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
+#include <qutim/simplecontactlist/lineedit.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
 #include <QApplication>
@@ -89,7 +90,7 @@ SimpleWidget::SimpleWidget()
 	m_mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
-	m_searchBar = new QLineEdit(this);
+	m_searchBar = new LineEdit(this);
 	m_searchBar->setVisible(false);
 	layout->addWidget(m_searchBar);
 	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));

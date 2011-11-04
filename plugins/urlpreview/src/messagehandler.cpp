@@ -72,12 +72,9 @@ void UrlHandler::loadSettings()
 
 UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 {
-	bool hasJavaScript = false;
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-	QMetaObject::invokeMethod(session, "hasJavaScript", Q_RETURN_ARG(bool, hasJavaScript));
-	if (!hasJavaScript)
+    if (!session || !session->property("supportJavaScript").toBool())
 		return UrlHandler::Accept;
-
 
 	debug() << Q_FUNC_INFO;
 	QString html = message.property("html").toString();

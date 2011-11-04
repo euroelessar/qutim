@@ -531,7 +531,7 @@ QGestureRecognizer::Result QtFlickGestureRecognizer::recognize(QGesture *state,
 #ifdef Q_OS_SYMBIAN
         // Qt on Symbian tracks the button state internally, while Qt on Win/Mac/Unix
         // relies on the windowing system to report the current buttons state.
-        if (gsme && (gsme->buttons() == button || !me->buttons())) {
+        if (gsme && (gsme->buttons() == button || !gsme->buttons())) {
 #else
         if (gsme && gsme->buttons() == button) {
 #endif

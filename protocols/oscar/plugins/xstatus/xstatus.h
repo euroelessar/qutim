@@ -22,6 +22,7 @@
 #include "oscarstatus.h"
 #include <QXmlStreamReader>
 #include <qutim/plugin.h>
+#include <QScopedPointer>
 
 namespace qutim_sdk_0_3 {
 
@@ -81,6 +82,7 @@ class XStatusHandler: public QObject, public Tlv2711Plugin, public RosterPlugin
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	XStatusHandler();
+    virtual ~XStatusHandler();
 	static QHash<Capability, OscarStatusData> qipstatuses;
 protected:
 	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
@@ -102,6 +104,7 @@ private:
 	int m_changed;
 	int m_change;
 	bool m_xstatusAutoRequest;
+    QScopedPointer<ActionGenerator> m_gen;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

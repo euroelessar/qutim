@@ -29,15 +29,15 @@ SearchLayer::SearchLayer()
 		m_contactSearchFactories << gen->generate<ContactSearchFactory>();
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList) {
-		static ActionGenerator button(Icon("edit-find-contact"),
+        ActionGenerator *gen = new ActionGenerator(Icon("edit-find-contact"),
 									  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
 									  this,
 									  SLOT(showContactSearch(QObject*)));
 		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
-		button.addHandler(ActionVisibilityChangedHandler,this);
+        gen->addHandler(ActionVisibilityChangedHandler,this);
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		if (controller)
-			controller->addAction(&button);
+            controller->addAction(gen);
 	}
 }
 

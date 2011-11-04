@@ -61,6 +61,12 @@
 #include <QtGui/qevent.h>
 #include <qnumeric.h>
 
+// completely optional warning, but you can go nuts if you forget to set the scroll mode right
+#define ITEMVIEW_SCROLLMODE_WARNING 1
+#ifdef ITEMVIEW_SCROLLMODE_WARNING
+#  include <QAbstractItemView>
+#endif
+
 #include <QtDebug>
 
 // vvv QScroller Solution only
@@ -425,13 +431,21 @@ Qt::GestureType QtScroller::grabGesture(QObject *target, ScrollerGestureType scr
 
     sp->recognizer = new QtFlickGestureRecognizer(button);
     sp->recognizerType = QGestureRecognizer::registerRecognizer(sp->recognizer);
-
     if (target->isWidgetType()) {
         QWidget *widget = static_cast<QWidget *>(target);
         widget->grabGesture(sp->recognizerType);
         if (scrollGestureType == TouchGesture)
             widget->setAttribute(Qt::WA_AcceptTouchEvents);
-
+#if ITEMVIEW_SCROLLMODE_WARNING
+        QAbstractItemView *view = 0;
+        if ((view = qobject_cast<QAbstractItemView *>(widget->parentWidget())) &&
+            (view->viewport() == widget)) {
+            if (view->verticalScrollMode() != QAbstractItemView::ScrollPerPixel)
+                qWarning("QtScroller::grabGesture() was called on a QAbstractItemView with verticaScrollMode not set to ScrollPerPixel");
+            if (view->horizontalScrollMode() != QAbstractItemView::ScrollPerPixel)
+                qWarning("QtScroller::grabGesture() was called on a QAbstractItemView with horizontalScrollMode not set to ScrollPerPixel");
+        }
+#endif // ITEMVIEW_SCROLLMODE_WARNING
     } else if (QGraphicsObject *go = qobject_cast<QGraphicsObject*>(target)) {
         if (scrollGestureType == TouchGesture)
             go->setAcceptTouchEvents(true);

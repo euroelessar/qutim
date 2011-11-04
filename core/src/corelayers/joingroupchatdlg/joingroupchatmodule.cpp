@@ -42,8 +42,8 @@ JoinGroupChatModule::JoinGroupChatModule()
 	if (contactList) {
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		Q_ASSERT(controller);
-		static QScopedPointer<ActionGenerator> button(new JoinGroupChatGenerator(this));
-		controller->addAction(button.data());
+        m_gen.reset(new JoinGroupChatGenerator(this));
+        controller->addAction(m_gen.data());
 	}
 }
 

@@ -29,7 +29,6 @@ public:
 	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
 	ItemHelper *parent;
-
 };
 
 class SIMPLECONTACTLIST_EXPORT NotificationsQueue
@@ -496,6 +495,7 @@ void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactIt
 	}
 }
 
-} }
+}
+}
 
 #endif // ABSTRACTCONTACTMODEL_P_H
