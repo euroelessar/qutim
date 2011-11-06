@@ -32,11 +32,13 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-Q_DECLARE_METATYPE(QAction*)
+Q_DECLARE_METATYPE(QWeakPointer<QAction>)
 
 namespace Core {
 
 using namespace qutim_sdk_0_3;
+
+typedef QWeakPointer<QAction> ActionPtr;
 
 namespace AddRemove
 {
@@ -180,7 +182,7 @@ void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller
 {
 	InfoObserver *observer = new InfoObserver(controller);
 	updatInfoAction(action, observer->supportLevel());
-	observer->setProperty("action", qVariantFromValue(action));
+	observer->setProperty("action", qVariantFromValue<ActionPtr>(action));
 	connect(observer, SIGNAL(supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)),
 			SLOT(onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)));
 	connect(action, SIGNAL(destroyed()), observer, SLOT(deleteLater()));
@@ -188,10 +190,10 @@ void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller
 
 void SimpleActions::onInformationSupportLevelChanged(InfoRequestFactory::SupportLevel level)
 {
-	QAction *action = sender()->property("action").value<QAction*>();
+	ActionPtr action = sender()->property("action").value<ActionPtr>();
 	if (!action)
 		return;
-	updatInfoAction(action, level);
+	updatInfoAction(action.data(), level);
 }
 
 void SimpleActions::onContactAddRemoveActionCreated(QAction *a, QObject *o)

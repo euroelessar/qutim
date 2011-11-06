@@ -50,7 +50,7 @@ public:
 class InfoObserverPrivate
 {
 public:
-	QWeakPointer<QObject> object;
+	QObject *object;
 	InfoRequestFactory *factory;
 	InfoRequestFactory::SupportLevel level;
 	bool observing;
@@ -213,8 +213,9 @@ InfoObserver::InfoObserver(QObject *object) :
 {
 	Q_D(InfoObserver);
 	d->object = object;
+	connect(object, SIGNAL(destroyed(QObject*)), SLOT(onObjectDestroyed(QObject*)));
 	d->factory = InfoRequestFactory::factory(object);
-	if (d->factory && d->factory->startObserve(object)) {
+	if (d->factory && (observers()->contains(object) || d->factory->startObserve(object))) {
 		observers()->insert(object, this);
 		d->level = d->factory->supportLevel(object);
 		d->observing = true;
@@ -227,21 +228,30 @@ InfoObserver::InfoObserver(QObject *object) :
 InfoObserver::~InfoObserver()
 {
 	Q_D(InfoObserver);
-	QObject *obj = d->object.data();
-	if (d->observing && obj) {
-		d->factory->stopObserve(obj);
-		observers()->remove(obj, this);
+	if (d->observing && d->object) {
+		observers()->remove(d->object, this);
+		if (!observers()->contains(d->object))
+			d->factory->stopObserve(d->object);
 	}
 }
 
 QObject *InfoObserver::object() const
 {
-	return d_func()->object.data();
+	return d_func()->object;
 }
 
 InfoRequestFactory::SupportLevel InfoObserver::supportLevel() const
 {
 	return d_func()->level;
+}
+
+void InfoObserver::onObjectDestroyed(QObject *object)
+{
+	Q_D(InfoObserver);
+	Q_ASSERT(d->object = object);
+	d->object = 0;
+	if (observers()->remove(object, this) > 0)
+		emit supportLevelChanged(InfoRequestFactory::NotSupported);
 }
 
 }
