@@ -43,34 +43,31 @@ class JoinChatDialog : public QDialog
 {
 	Q_OBJECT
 
-	public:
-		JoinChatDialog(QWidget *parent = 0);
-		~JoinChatDialog();
+public:
+	JoinChatDialog(QWidget *parent = 0);
+	~JoinChatDialog();
+public slots:
+	void showConference(QListWidgetItem *current, QListWidgetItem *previous);
+	void on_addConferenceButton_clicked();
+	void on_removeConferenceButton_clicked();
+	void on_accountBox_currentIndexChanged(int index);
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountDeath(QObject *object);
+	void joinConference();
+	void on_saveButton_clicked();
+	void joinBookmark(QListWidgetItem *item);
 
-	public slots:
-		void showConference(QListWidgetItem *current, QListWidgetItem *previous);
-		void on_addConferenceButton_clicked();
-		void on_removeConferenceButton_clicked();
-		void on_accountBox_currentIndexChanged(int index);
+private:
+	qutim_sdk_0_3::GroupChatManager *groupChatManager();
 
-	protected:
-		bool eventFilter(QObject *obj, QEvent *event);
-
-	private slots:
-		void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
-		void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
-		void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
-		void onAccountDeath(QObject *object);
-		void joinConference();
-		void on_saveButton_clicked();
-		void joinBookmark(QListWidgetItem *item);
-
-	private:
-		qutim_sdk_0_3::GroupChatManager *groupChatManager();
-
-		Ui::JoinChat *m_ui;
-		QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
-		qutim_sdk_0_3::Account *m_currentAcount;
+	Ui::JoinChat *m_ui;
+	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	qutim_sdk_0_3::Account *m_currentAcount;
 
 };
 

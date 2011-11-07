@@ -47,7 +47,8 @@ struct XSettingsWindowPrivate
 	QWidget *parent;
 };
 
-XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller) :
+XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller, QWidget *parent) :
+	QMainWindow(parent),
 	p(new XSettingsWindowPrivate)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -221,7 +222,7 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 		p->listWidget->hide();
 	int currentRow = 0; //TODO save current row
 	p->listWidget->setCurrentRow(currentRow);
-	onCurrentItemChanged(p->listWidget->currentItem()); //if current row = 0	
+	onCurrentItemChanged(p->listWidget->currentItem()); //if current row = 0
 }
 
 void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
@@ -234,7 +235,7 @@ void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
 		return;
 	SettingsItem *settingsItem = reinterpret_cast<SettingsItem*>(ptr);
 
-	SettingsWidget *w = settingsItem->widget();	
+	SettingsWidget *w = settingsItem->widget();
 	if (p->stackedWidget->indexOf(w) == -1) {
 		p->stackedWidget->addWidget(w);
 		w->setController(p->controller);
@@ -299,7 +300,7 @@ void XSettingsWindow::cancel()
 		widget->cancel();
 		if (widget != c)
 			widget->deleteLater();
-	}	
+	}
 	p->buttonBox->close();
 }
 
