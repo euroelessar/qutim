@@ -15,7 +15,9 @@
 
 #include "xsettingslayerimpl.h"
 #include <qutim/icon.h>
+#include <qutim/systemintegration.h>
 #include "xsettingswindow.h"
+#include <QApplication>
 
 namespace Core
 {
@@ -31,21 +33,19 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 }
 
 
-void XSettingsLayerImpl::show (const SettingsItemList& settings, QObject* controller )
+void XSettingsLayerImpl::show(const SettingsItemList& settings, QObject* controller)
 {
-	XSettingsWindow *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller).data();
 	if (!d) {
-		d = new XSettingsWindow(settings,controller);
+		d = new XSettingsWindow(settings, controller, qApp->activeWindow());
 		m_dialogs[controller] = d;
 	}
-	d->activateWindow();
-	d->raise();
-	d->show();
+	SystemIntegration::show(d);
 }
 
-void XSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )
+void XSettingsLayerImpl::update(const SettingsItemList& settings, QObject* controller)
 {
-	XSettingsWindow *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller).data();
 	if (!d)
 		return;
 	d->update(settings);
@@ -53,7 +53,7 @@ void XSettingsLayerImpl::update (const SettingsItemList& settings, QObject* cont
 
 void XSettingsLayerImpl::close(QObject *controller)
 {
-	XSettingsWindow *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller).data();
 	if (d) {
 		d->deleteLater();
 		m_dialogs.remove(d);
