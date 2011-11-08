@@ -73,6 +73,7 @@ Maemo5Tray::Maemo5Tray() :
 
 Maemo5Tray::~Maemo5Tray()
 {
+	Maemo5Docklet::SetIcon(m_offlineIconPath,false);
 	Maemo5Docklet::Disable();
 }
 
