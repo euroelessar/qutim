@@ -91,7 +91,11 @@ QString JVCardManager::ensurePhoto(const Jreen::VCard::Photo &photo, QString *ph
 
 void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid)
 {
-	QString avatarHash = ensurePhoto(vcard->photo());
+	const QString avatarHash = ensurePhoto(vcard->photo());
+//	qDebug() << Q_FUNC_INFO
+//	         << jid << avatarHash
+//	         << m_account->unit(jid.bare(), false)
+//	         << m_account->unit(jid.full(), false);
 	QList<QObject*> objects;
 	if (QObject *unit = m_account->unit(jid.full(), false))
 		objects << unit;
@@ -116,18 +120,24 @@ void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen:
 		}
 		const QMetaObject * const meta = object->metaObject();
 		const int index = meta->indexOfProperty("photoHash");
+//		qDebug() << Q_FUNC_INFO << object << index;
 		if (index == -1)
 			continue;
 		QMetaProperty property = meta->property(index);
 		const QString photoHash = property.read(object).toString();
+//		qDebug() << Q_FUNC_INFO << photoHash << object->property("avatar");
 		if (photoHash == avatarHash)
 			continue;
-		property.write(object, photoHash);
+		property.write(object, avatarHash);
 	}
 }
 
 void JVCardManager::onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update)
 {
+//	qDebug() << Q_FUNC_INFO
+//	         << jid << update->photoHash()
+//	         << m_account->unit(jid.bare(), false)
+//	         << m_account->unit(jid.full(), false);
 	if (!update->hasPhotoInfo())
 		return;
 
@@ -169,6 +179,8 @@ void JVCardManager::init(qutim_sdk_0_3::Account *account)
 			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(m_manager, SIGNAL(vCardFetched(Jreen::VCard::Ptr,Jreen::JID)),
 	        SLOT(onVCardReceived(Jreen::VCard::Ptr,Jreen::JID)));
+	connect(m_manager, SIGNAL(vCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)),
+	        SLOT(onVCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)));
 	connect(m_client, SIGNAL(connected()), SLOT(onConnected()));
 	static_cast<JAccountVCardHook*>(account)->setInfoRequestFactory(this);
 }

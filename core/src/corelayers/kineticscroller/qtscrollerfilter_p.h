@@ -90,6 +90,7 @@ protected:
     bool eventFilter_QAbstractScrollArea(QAbstractScrollArea *area, QEvent *event);
     bool canStartScrollingAt_QAbstractScrollArea(QAbstractScrollArea *area, const QPoint &pos) const;
     QMap<QAbstractScrollArea *, QPoint> overshoot;
+    bool ignoreMove;
 
     //+++ QAbstractItemView
     bool eventFilter_QAbstractItemView(QAbstractItemView *view, QEvent *event);

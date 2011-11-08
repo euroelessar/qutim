@@ -35,7 +35,7 @@ private:
 	Status m_awayStatus;
 	int m_naSecs;
 	Status m_naStatus;
-	QList<QPointer<Account> > m_accounts;
+	QList<QWeakPointer<Account> > m_accounts;
 	QList<Status> m_statuses;
 };
 }

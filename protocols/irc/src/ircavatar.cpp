@@ -23,7 +23,7 @@
 #include <QCryptographicHash>
 #include <qutim/systeminfo.h>
 
-Q_DECLARE_METATYPE(QPointer<qutim_sdk_0_3::irc::IrcContact>);
+Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::irc::IrcContact>)
 
 namespace qutim_sdk_0_3 {
 
@@ -59,7 +59,7 @@ void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, c
 	QUrl avatarUrl(avatarUrlStr);
 	if (!avatarUrl.isValid())
 		return;
-	QPointer<IrcContact> contact = account->getContact(sender, senderHost);
+	QWeakPointer<IrcContact> contact = account->getContact(sender, senderHost);
 	if (!contact)
 		return;
 	QDir configDir = SystemInfo::getDir(SystemInfo::ConfigDir);
@@ -76,14 +76,14 @@ void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, c
 		reply->setProperty("avatarPath", avatarPath);
 		reply->setProperty("contact", QVariant::fromValue(contact));
 	} else {
-		contact->setAvatar(avatarPath);
+		contact.data()->setAvatar(avatarPath);
 	}
 }
 
 void IrcAvatar::avatarReceived(QNetworkReply *reply)
 {
 	if (reply->rawHeader("Content-Length").toInt() < 256000) {
-		QPointer<IrcContact> contact = reply->property("contact").value<QPointer<IrcContact> >();
+		QWeakPointer<IrcContact> contact = reply->property("contact").value<QWeakPointer<IrcContact> >();
 		if (!contact)
 			return;
 		QString avatarPath = reply->property("avatarPath").toString();
@@ -91,7 +91,7 @@ void IrcAvatar::avatarReceived(QNetworkReply *reply)
 		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 			file.write(reply->readAll());
 			file.close();
-			contact->setAvatar(avatarPath);
+			contact.data()->setAvatar(avatarPath);
 		}
 	}
 }

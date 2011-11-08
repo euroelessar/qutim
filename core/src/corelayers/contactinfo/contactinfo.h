@@ -74,7 +74,7 @@ public:
 public slots:
 	void show(QObject *object);
 private:
-	QPointer<MainWindow> info;
+	QWeakPointer<MainWindow> info;
 };
 
 }

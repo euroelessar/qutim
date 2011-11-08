@@ -35,7 +35,7 @@ public:
 	virtual QString name() const;
 	virtual Status status() const;
 	virtual bool sendMessage(const Message &message);
-	Conference *conference() const { return m_conf; }
+	Conference *conference() const { return m_conf.data(); }
 private slots:
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 								const qutim_sdk_0_3::Status &previous);
@@ -45,7 +45,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
 	Status m_status;
-	QPointer<Conference> m_conf;
+	QWeakPointer<Conference> m_conf;
 };
 
 #endif // PROXYCONTACT_H

@@ -208,12 +208,14 @@ void InfoRequest::virtual_hook(int id, void *data)
 }
 
 InfoObserver::InfoObserver(QObject *object) :
+	QObject(object),
 	d_ptr(new InfoObserverPrivate)
 {
 	Q_D(InfoObserver);
 	d->object = object;
+	connect(object, SIGNAL(destroyed(QObject*)), SLOT(onObjectDestroyed(QObject*)));
 	d->factory = InfoRequestFactory::factory(object);
-	if (d->factory && d->factory->startObserve(object)) {
+	if (d->factory && (observers()->contains(object) || d->factory->startObserve(object))) {
 		observers()->insert(object, this);
 		d->level = d->factory->supportLevel(object);
 		d->observing = true;
@@ -226,9 +228,10 @@ InfoObserver::InfoObserver(QObject *object) :
 InfoObserver::~InfoObserver()
 {
 	Q_D(InfoObserver);
-	if (d->observing) {
-		d->factory->stopObserve(d->object);
+	if (d->observing && d->object) {
 		observers()->remove(d->object, this);
+		if (!observers()->contains(d->object))
+			d->factory->stopObserve(d->object);
 	}
 }
 
@@ -240,6 +243,15 @@ QObject *InfoObserver::object() const
 InfoRequestFactory::SupportLevel InfoObserver::supportLevel() const
 {
 	return d_func()->level;
+}
+
+void InfoObserver::onObjectDestroyed(QObject *object)
+{
+	Q_D(InfoObserver);
+	Q_ASSERT(d->object = object);
+	d->object = 0;
+	if (observers()->remove(object, this) > 0)
+		emit supportLevelChanged(InfoRequestFactory::NotSupported);
 }
 
 }

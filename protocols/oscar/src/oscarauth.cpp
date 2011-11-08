@@ -43,6 +43,7 @@
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
+#define DEBUG() if (1) {} else qDebug()
 
 
 namespace qutim_sdk_0_3 {
@@ -78,11 +79,13 @@ public:
 	AbstractConnection::ConnectionError error() const;
 	QString resultString() const;
 	int detailCode() const;
+	QVariantMap rawResult() const;
 
 private:
 	QVariantMap m_data;
 	ResultCode m_result;
 	QString m_resultString;
+	QVariantMap m_rawResult;
 	int m_detailCode;
 };
 
@@ -90,6 +93,7 @@ OscarResponse::OscarResponse(const QByteArray &json)
 {
 	QVariantMap data = Json::parse(json).toMap();
 	QVariantMap response = data.value(QLatin1String("response")).toMap();
+	m_rawResult = data;
 	m_result = static_cast<ResultCode>(response.value(QLatin1String("statusCode")).toInt());
 	m_detailCode = response.value(QLatin1String("statusDetailCode")).toInt();
 	m_resultString = response.value(QLatin1String("statusText")).toString();
@@ -146,6 +150,11 @@ AbstractConnection::ConnectionError OscarResponse::error() const
 QString OscarResponse::resultString() const
 {
 	return m_resultString;
+}
+
+QVariantMap OscarResponse::rawResult() const
+{
+	return m_rawResult;
 }
 
 OscarAuth::OscarAuth(IcqAccount *account) :
@@ -213,6 +222,38 @@ QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 	return mac.toBase64();
 }
 
+void OscarAuth::clientLogin(bool longTerm)
+{
+	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
+	url.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
+	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	url.addQueryItem(QLatin1String("s"), m_account->id());
+	url.addQueryItem(QLatin1String("language"), generateLanguage());
+	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
+	static char hex[17] = "0123456789ABCDEF";
+	QByteArray escapedPassword;
+	// FIXME: Sometimes passwords are cp-1251 (or any other windows-scpecific local encoding) encoded
+	const QByteArray rawPassword = m_password.toUtf8();
+	escapedPassword.reserve(rawPassword.size() * 3);
+	for (int i = 0; i < rawPassword.size(); ++i) {
+		const quint8 c = static_cast<quint8>(rawPassword[i]);
+		escapedPassword += '%';
+		escapedPassword += hex[c >> 4];
+		escapedPassword += hex[c & 0x0f];
+	}
+	url.addEncodedQueryItem("pwd", escapedPassword);
+	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
+	url.addQueryItem(QLatin1String("clientName"), getClientName());
+	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
+	QByteArray query = url.encodedQuery();
+	url.setEncodedQuery(QByteArray());
+	DEBUG() << Q_FUNC_INFO << url << query;
+	QNetworkRequest request(url);
+	QNetworkReply *reply = m_manager.post(request, query);
+	m_cleanupHandler.add(reply);
+	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
+}
+
 void OscarAuth::onClienLoginFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
@@ -225,6 +266,7 @@ void OscarAuth::onClienLoginFinished()
 		return;
 	}
 	OscarResponse response(reply->readAll());
+	DEBUG() << Q_FUNC_INFO << response.rawResult();
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
 		emit error(response.error());
@@ -253,26 +295,6 @@ void OscarAuth::onClienLoginFinished()
 	startSession(token, sessionSecret);
 }
 
-void OscarAuth::clientLogin(bool longTerm)
-{
-	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
-	url.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addQueryItem(QLatin1String("s"), m_account->id());
-	url.addQueryItem(QLatin1String("language"), generateLanguage());
-	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
-	url.addQueryItem(QLatin1String("pwd"), m_password.toUtf8());
-	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
-	url.addQueryItem(QLatin1String("clientName"), getClientName());
-	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	QByteArray query = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
-	QNetworkRequest request(url);
-	QNetworkReply *reply = m_manager.post(request, query);
-	m_cleanupHandler.add(reply);
-	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
-}
-
 void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionKey)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_START_SESSION_URL);
@@ -293,11 +315,10 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
 	}
 	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
-	url.addEncodedQueryItem("sig_sha256", generateSignature("POST", sessionKey, url));
-	QByteArray data = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
+	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url).toPercentEncoding("", "\\/="));
+	DEBUG() << Q_FUNC_INFO << url;
 	QNetworkRequest request(url);
-	QNetworkReply *reply = m_manager.post(request, data);
+	QNetworkReply *reply = m_manager.get(request);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
@@ -315,6 +336,7 @@ void OscarAuth::onStartSessionFinished()
 		return;
 	}
 	OscarResponse response(reply->readAll());
+	DEBUG() << Q_FUNC_INFO << response.rawResult();
 	Config data = response.data();
 	if (response.result() == OscarResponse::InvalidRequest
 	        && response.detailCode() == 1015) {
@@ -350,7 +372,7 @@ void OscarAuth::onSslErrors(const QList<QSslError> &errors)
 		str += '\n';
 	}
 	str.chop(1);
-	qDebug() << Q_FUNC_INFO << str;
+	DEBUG() << Q_FUNC_INFO << str;
 }
 
 QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const

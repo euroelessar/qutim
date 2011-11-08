@@ -251,13 +251,13 @@ void ContactInfo::show(QObject *object)
 
 	if (!info) {
 		info = new MainWindow();
-		centerizeWidget(info);
-		SystemIntegration::show(info);
-		info->setAttribute(Qt::WA_DeleteOnClose, true);
+		centerizeWidget(info.data());
+		SystemIntegration::show(info.data());
+		info.data()->setAttribute(Qt::WA_DeleteOnClose, true);
 	} else {
-		info->raise();
+		info.data()->raise();
 	}
-	info->setObject(object, type);
+	info.data()->setObject(object, type);
 }
 
 }

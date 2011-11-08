@@ -26,6 +26,7 @@ set(DEVEL_HEADERS
 	contactlist/simplestatusdialog.h
 	contactlist/simplecontactlist.h
 	contactlist/simplecontactlistsettings.h
+	contactlist/lineedit.h
 )
 qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
 

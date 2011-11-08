@@ -24,12 +24,12 @@ void VWallManager::init()
 
 bool VWallManager::load()
 {
-	static ActionGenerator wall_gen(QIcon(),
+    ActionGenerator *gen = new ActionGenerator(QIcon(),
 									QT_TRANSLATE_NOOP("Vkontakte","View wall"),
 									this,
 									SLOT(onViewWallTriggered(QObject*)));
-	wall_gen.setType(ActionTypeContactList);
-	MenuController::addAction<VContact>(&wall_gen);
+    gen->setType(ActionTypeContactList);
+    MenuController::addAction<VContact>(gen);
 	return true;
 }
 

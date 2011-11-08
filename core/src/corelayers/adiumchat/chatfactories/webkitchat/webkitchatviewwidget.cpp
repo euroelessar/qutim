@@ -54,8 +54,13 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		if (!frame->property("scrollbarPos").toBool())
 			frame->setProperty("scrollbarAtEnd",true);
 
-		m_view->page()->setView(0);
+        //newPage->setParent(m_view);
+        m_view->page()->setView(0);
 		m_view->setPage(newPage);
+#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
+		//HACK workaround for blank chat logs
+		m_view->setHtml(m_view->page()->mainFrame()->toHtml());
+#endif
 		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
 	} else
 		m_view->setPage(0);
@@ -106,7 +111,7 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 
 void WebkitChatViewWidget::scrollBarWorkaround()
 {
-	QWebFrame *frame = m_view->page()->mainFrame();
+	QWebFrame *frame = m_view->page()->mainFrame();	
 	if(frame->property("scrollbarAtEnd").toBool())
 		frame->setScrollPosition(QPoint(0,frame->scrollBarMaximum(Qt::Vertical)));
 	else

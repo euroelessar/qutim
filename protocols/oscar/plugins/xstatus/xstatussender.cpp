@@ -61,7 +61,7 @@ void XStatusSender::sendXStatus(IcqContact *contact, quint64 cookie)
 
 void XStatusSender::sendXStatus()
 {
-	IcqContact *contact = m_contacts.first();
+	IcqContact *contact = m_contacts.first().data();
 	bool removeFirst = false;
 	if (!contact) {
 		removeFirst = true;

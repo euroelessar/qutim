@@ -204,8 +204,8 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 
 ActionGenerator::~ActionGenerator()
 {
-	Q_D(ActionGenerator);
-	localizationHelper()->handleDeath(d);
+    Q_D(ActionGenerator);
+    localizationHelper()->handleDeath(d);
 	delete d->data;
 }
 
@@ -445,7 +445,7 @@ void ActionGeneratorPrivate::show(QAction *act,QObject *con)
 
 void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
 {
-	foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
+	foreach (QObject *subcriber, subcribers.value(ActionVisibilityChangedHandler)) {
 		ActionVisibilityChangedEvent ev(act,con,false);
 		qApp->sendEvent(subcriber,&ev);
 	}

@@ -129,6 +129,9 @@ public:
 
 signals:
 	void supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
+	
+private slots:
+	void onObjectDestroyed(QObject *object);
 
 private:
 	friend class InfoRequestFactory;

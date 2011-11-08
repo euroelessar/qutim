@@ -4,3 +4,4 @@ CMakeLists.txt.user
 *.kde4
 qtcreator-build
 *.user
+build

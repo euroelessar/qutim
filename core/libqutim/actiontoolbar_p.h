@@ -42,8 +42,8 @@ public:
 	ActionToolBarPrivate();
 	virtual ~ActionToolBarPrivate();
 	QMenu *initContextMenu();
-	QList<ActionGenerator *> generators;
 	QList<ActionValue::Ptr> actions;
+	QList<ObjectGenerator::Ptr> holders;
 	QVariant data;
 	QPoint dragPos;
 	bool moveHookEnabled;
