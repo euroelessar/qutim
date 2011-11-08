@@ -76,6 +76,7 @@ void Maemo5Led::handleNotification(qutim_sdk_0_3::Notification *notification)
 
 Maemo5Led::~Maemo5Led()
 {
+	mDbusInterface->call(MCE_DEACTIVATE_LED_PATTERN, ledPattern);
 }
 
 void Maemo5Led::enableLed()
@@ -102,6 +103,7 @@ void Maemo5Led::setDisplayState(const QString &state)
 		if (state == MCE_DISPLAY_ON_STRING)
 		{
 			display_off=false;
+			mDbusInterface->call(MCE_DEACTIVATE_LED_PATTERN, ledPattern);
 		}
 		else if (state == MCE_DISPLAY_OFF_STRING)
 		{
