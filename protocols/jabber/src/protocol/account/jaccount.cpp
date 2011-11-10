@@ -475,7 +475,7 @@ bool JAccount::checkIdentity(const QString &category, const QString &type) const
 	bool ok = false;
 	for (int i = 0; !ok && i < identities.size(); i++) {
 		const Jreen::Disco::Identity &identity = identities[i];
-		ok |= (identity.category == category && identity.type == type);
+		ok |= (identity.category() == category && identity.type() == type);
 	}
 	return ok;
 }
@@ -486,8 +486,8 @@ QString JAccount::identity(const QString &category, const QString &type) const
 	const Jreen::Disco::IdentityList identities = d->client->serverIdentities();
 	for (int i = 0; i < identities.size(); i++) {
 		const Jreen::Disco::Identity &identity = identities[i];
-		if (identity.category == category && identity.type == type)
-			return identity.name;
+		if (identity.category() == category && identity.type() == type)
+			return identity.name();
 	}
 	return QString();
 }

@@ -1,6 +1,5 @@
 #qutim_check_component(MultimediaKit)
 
-message("QT_MOBILITY_MULTIMEDIAKIT_FOUND = \"${QT_MOBILITY_MULTIMEDIAKIT_FOUND}\"")
 if(NOT QT_MOBILITY_MULTIMEDIAKIT_FOUND)
 	find_package(Qt4 COMPONENTS QtMultimedia)
 	if(NOT QT_QTMULTIMEDIA_FOUND)
