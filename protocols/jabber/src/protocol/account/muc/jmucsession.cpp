@@ -478,7 +478,7 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 			coreMsg.setProperty("senderId", user->id());
 		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 		ChatSession *chatSession = ChatLayer::get(this, true);
-		const DelayedDelivery *when = msg.when();
+		DelayedDelivery::Ptr when = msg.when();
 		if (when) {
 			coreMsg.setProperty("history", true);
 			coreMsg.setTime(when->dateTime());

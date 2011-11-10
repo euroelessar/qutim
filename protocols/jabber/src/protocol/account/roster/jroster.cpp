@@ -259,7 +259,7 @@ void JRoster::onNewMessage(Jreen::Message message)
 	if(message.body().isEmpty())
 		return;
 	qutim_sdk_0_3::Message coreMessage;
-	if(const Jreen::DelayedDelivery *d = message.when())
+	if(Jreen::DelayedDelivery::Ptr d = message.when())
 		coreMessage.setTime(d->dateTime());
 	else
 		coreMessage.setTime(QDateTime::currentDateTime());

@@ -175,9 +175,9 @@ void JServiceBrowser::onInfoReceived(const Jreen::Disco::Item &di)
 			tmp.addIdentity(identity);
 			QString img = IconLoader::iconPath(serviceIcon(tmp), 16);
 			tooltip += QLatin1Literal("<img src='") % img % QLatin1Literal("'> ")
-					% identity.name % QLatin1Literal(" (") % category
-					% identity.category % QLatin1Literal(", ") % type
-					% identity.type % QLatin1Literal(")<br/>");
+					% identity.name() % QLatin1Literal(" (") % category
+					% identity.category() % QLatin1Literal(", ") % type
+					% identity.type() % QLatin1Literal(")<br/>");
 		}
 	}
 	item->setToolTip(0, tooltip);
