@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -93,3 +93,4 @@ void ScriptInfoRequest::handleError(const char *name, const QString &text)
 }
 
 }
+

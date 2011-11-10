@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -79,3 +79,4 @@ void JoinChatGenerator::showImpl(QAction *action, QObject *)
 	action->setEnabled(isSupportGroupchat());
 }
 }
+

@@ -1,45 +1,27 @@
-//***************************************************************************
-// $Id: proto.h,v 1.19 2009/08/01 xtazz Exp $
-//***************************************************************************
-
-#ifndef MRIM_PROTO_H
-#define MRIM_PROTO_H
-
-#include <qglobal.h>
-
-#define PROTO_VERSION_MAJOR     1
-#define PROTO_VERSION_MINOR     19 //20
-#define PROTO_VERSION ((((quint32)(PROTO_VERSION_MAJOR))<<16)|(quint32)(PROTO_VERSION_MINOR))
-
-#define PROTO_MAJOR(p) (((p)&0xFFFF0000)>>16)
-#define PROTO_MINOR(p) ((p)&0x0000FFFF)
-
-
-typedef struct mrim_packet_header_t
-{
-    quint32      magic; // Magic
-    quint32      proto; // Protocol version
-    quint32        seq; // Sequence
-    quint32        msg; // Packet type
-    quint32       dlen; // Data length
-    quint32       from; // Sender address
-    quint32	  fromport; // Sender port
-    uchar reserved[16]; // Reserved
-} mrim_packet_header_t;
-
-#define HEADER_SIZE (44)
-#define HEADER_FIELDS_COUNT (7)
-
-#define CS_MAGIC    0xDEADBEEF		// Client Magic ( C <-> S )
-
-
-// UNICODE = (UTF-16LE) (>=1.17)
-
-/***************************************************************************
-
-		Protocol of client-server connection
-
- ***************************************************************************/
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #define MRIM_CS_HELLO       	0x1001  // C -> S
 // empty
@@ -461,3 +443,4 @@ mrim_connection_params_t;
 
 
 #endif // MRIM_PROTO_H
+
