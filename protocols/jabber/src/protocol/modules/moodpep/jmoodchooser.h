@@ -12,7 +12,6 @@ class Account;
 
 namespace Jabber {
 
-using qutim_sdk_0_3::Account;
 namespace Ui {
 class JMoodChooserWindow;
 }
@@ -21,7 +20,7 @@ class JMoodChooserWindow : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit JMoodChooserWindow(Account *account, const QString &text,
+	explicit JMoodChooserWindow(qutim_sdk_0_3::Account *account, const QString &text,
 								const QString &mood, QWidget *parent = 0);
 	~JMoodChooserWindow();
 private slots:
@@ -29,7 +28,7 @@ private slots:
 	void onCurrentItemChanged(QListWidgetItem *item);
 private:
 	Ui::JMoodChooserWindow *ui;
-	Account *m_account;
+	qutim_sdk_0_3::Account *m_account;
 	QListWidgetItem *m_noMoodItem;
 };
 
@@ -46,7 +45,8 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 private:
 	int m_eventId;
-	Account *m_account;
+	qutim_sdk_0_3::Account *m_account;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_actionGenerator;
 	QString m_currentMood;
 	QString m_currentText;
 };

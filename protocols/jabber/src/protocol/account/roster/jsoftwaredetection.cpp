@@ -245,8 +245,8 @@ void JSoftwareDetection::onInfoRequestFinished()
 		info.finished = !info.name.isEmpty() && !info.os.isEmpty();
 	} else {
 		foreach (const Jreen::Disco::Identity &identity, item.identities()) {
-			if (identity.category == QLatin1String("client")) {
-				info.name = identity.name;
+			if (identity.category() == QLatin1String("client")) {
+				info.name = identity.name();
 				info.icon = getClientIcon(info.name);
 				info.description = getClientDescription(info.name, QString(), QString());
 				break;
