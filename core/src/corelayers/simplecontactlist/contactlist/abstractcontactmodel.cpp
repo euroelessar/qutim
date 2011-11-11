@@ -1,17 +1,27 @@
 /****************************************************************************
- *  abstractcontactmodel.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "abstractcontactmodel_p.h"
 #include <qutim/metacontactmanager.h>
@@ -390,16 +400,16 @@ void AbstractContactModel::onNotificationFinished()
 	Q_ASSERT(contact);
 	deref(notification);
 
-	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
-	if (itr == d->notifications.end())
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it == d->notifications.end())
 		return;
 
-	Notification *old = itr->first();
-	itr->remove(notification);
+	Notification *old = it->first();
+	it->remove(notification);
 	if (old == notification)
-		updateContactData(itr.key());
-	if (itr->isEmpty()) {
-		d->notifications.erase(itr);
+		updateContactData(it.key());
+	if (it->isEmpty()) {
+		d->notifications.erase(it);
 		disconnect(contact, SIGNAL(destroyed()), this, SLOT(onContactDestroyed()));
 	}
 	if (d->notifications.isEmpty())
@@ -410,14 +420,14 @@ void AbstractContactModel::onContactDestroyed()
 {
 	Q_D(AbstractContactModel);
 	Contact *contact = static_cast<Contact*>(sender());
-	QHash<Contact*, NotificationsQueue>::iterator itr = d->notifications.find(contact);
-	if (itr != d->notifications.end()) {
-		const QList<QList<Notification*> > all = itr->all();
-		d->notifications.erase(itr);
-		foreach (const QList<Notification *> &notifications, all) {
-			foreach (Notification *notif, notifications) {
-				disconnect(notif, 0, this, 0);
-				deref(notif);
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it != d->notifications.end()) {
+		const QList<QList<Notification*> > all = it->all();
+		d->notifications.erase(it);
+        foreach (const QList<Notification*> &notifications, all) {
+			foreach (Notification *notification, notifications) {
+				disconnect(notification, 0, this, 0);
+                deref(notification);
 			}
 		}
 	}
@@ -427,3 +437,4 @@ void AbstractContactModel::onContactDestroyed()
 
 } // namespace SimpleContactList
 } // namespace Core
+

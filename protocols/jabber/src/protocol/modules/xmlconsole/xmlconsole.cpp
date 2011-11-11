@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -381,3 +381,4 @@ void Jabber::XmlConsole::on_saveButton_clicked()
 		writer.write(m_ui->xmlBrowser->document());
 	}
 }
+

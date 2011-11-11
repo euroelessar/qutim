@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "webkitchatviewwidget.h"
 #include "chatstyleoutput.h"
 #include <QKeyEvent>
@@ -54,8 +78,13 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		if (!frame->property("scrollbarPos").toBool())
 			frame->setProperty("scrollbarAtEnd",true);
 
-		m_view->page()->setView(0);
+        //newPage->setParent(m_view);
+        m_view->page()->setView(0);
 		m_view->setPage(newPage);
+#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
+		//HACK workaround for blank chat logs
+		m_view->setHtml(m_view->page()->mainFrame()->toHtml());
+#endif
 		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
 	} else
 		m_view->setPage(0);
@@ -106,7 +135,7 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 
 void WebkitChatViewWidget::scrollBarWorkaround()
 {
-	QWebFrame *frame = m_view->page()->mainFrame();
+	QWebFrame *frame = m_view->page()->mainFrame();	
 	if(frame->property("scrollbarAtEnd").toBool())
 		frame->setScrollPosition(QPoint(0,frame->scrollBarMaximum(Qt::Vertical)));
 	else
@@ -115,3 +144,4 @@ void WebkitChatViewWidget::scrollBarWorkaround()
 
 }
 }
+

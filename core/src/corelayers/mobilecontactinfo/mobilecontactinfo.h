@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
@@ -18,7 +18,7 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program. If not, see http://www.gnu.org/licenses/.
+** along with this program.  If not, see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
@@ -85,3 +85,4 @@ private:
 }
 
 #endif // MOBILECONTACTINFO_H
+

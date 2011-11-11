@@ -1,18 +1,28 @@
 /****************************************************************************
- *  simpleactions.cpp
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "simpleactions.h"
 #include <qutim/contact.h>
@@ -32,11 +42,13 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-Q_DECLARE_METATYPE(QAction*)
+Q_DECLARE_METATYPE(QWeakPointer<QAction>)
 
 namespace Core {
 
 using namespace qutim_sdk_0_3;
+
+typedef QWeakPointer<QAction> ActionPtr;
 
 namespace AddRemove
 {
@@ -180,7 +192,7 @@ void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller
 {
 	InfoObserver *observer = new InfoObserver(controller);
 	updatInfoAction(action, observer->supportLevel());
-	observer->setProperty("action", qVariantFromValue(action));
+	observer->setProperty("action", qVariantFromValue<ActionPtr>(action));
 	connect(observer, SIGNAL(supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)),
 			SLOT(onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)));
 	connect(action, SIGNAL(destroyed()), observer, SLOT(deleteLater()));
@@ -188,10 +200,10 @@ void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller
 
 void SimpleActions::onInformationSupportLevelChanged(InfoRequestFactory::SupportLevel level)
 {
-	QAction *action = sender()->property("action").value<QAction*>();
+	ActionPtr action = sender()->property("action").value<ActionPtr>();
 	if (!action)
 		return;
-	updatInfoAction(action, level);
+	updatInfoAction(action.data(), level);
 }
 
 void SimpleActions::onContactAddRemoveActionCreated(QAction *a, QObject *o)

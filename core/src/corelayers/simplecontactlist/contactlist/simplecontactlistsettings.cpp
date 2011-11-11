@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
@@ -262,3 +262,4 @@ void ContactListSettings::onModifiedChanged(bool haveChanges)
 }
 
 } // namespace Core
+

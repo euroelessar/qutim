@@ -1,17 +1,27 @@
 /****************************************************************************
-*  chatsessionimpl.h
-*
-*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef CHATSESSIONIMPL_H
 #define CHATSESSIONIMPL_H
@@ -44,6 +54,7 @@ class ADIUMCHAT_EXPORT ChatSessionImpl : public ChatSession
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ChatSessionImpl)
+	Q_PROPERTY(bool supportJavaScript READ isJavaScriptSupported NOTIFY javaScriptSupportChanged)
 public:
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
@@ -66,9 +77,11 @@ public:
 	bool event(QEvent *);
 	void setChatState(ChatState state);
 	ChatState getChatState() const;
+	bool isJavaScriptSupported() const;
 signals:
 	void buddiesChanged();
 	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);
+	void javaScriptSupportChanged(bool has);
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void clearChat();
@@ -81,3 +94,4 @@ private:
 }
 
 #endif // CHATSESSIONIMPL_H
+

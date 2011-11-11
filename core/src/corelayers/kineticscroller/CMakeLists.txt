@@ -1,5 +1,5 @@
 IF (NOT SYMBIAN)
-	FIND_PACKAGE( Qt4 COMPONENTS QtWebkit)
+        FIND_PACKAGE(Qt4 COMPONENTS QtWebkit)
 	qutim_add_plugin( kineticscroller
 		EXTENSION
 		EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/kineticscroller.h

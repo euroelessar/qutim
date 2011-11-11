@@ -1,18 +1,28 @@
 /****************************************************************************
- *  jsoftwaredetection.cpp
- *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "jsoftwaredetection.h"
 #include "../jaccount.h"
@@ -24,6 +34,7 @@
 #include <jreen/softwareversion.h>
 #include <jreen/capabilities.h>
 #include <jreen/iq.h>
+#include <jreen/iqreply.h>
 #include <qutim/debug.h>
 #include <qutim/json.h>
 #include <jreen/error.h>
@@ -61,7 +72,7 @@ JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 		info.os = cache.value(QLatin1String("os"), QString());
 		info.icon = getClientIcon(info.name);
 		info.description = getClientDescription(info.name, info.version, info.os);
-		info.finished = cache.value(QLatin1String("finished"), !info.name.isEmpty());
+		info.finished = cache.value(QLatin1String("finished"), !info.os.isEmpty());
 		m_hash.insert(fromConfigNode(node), info);
 		cache.endGroup();
 	}
@@ -104,7 +115,7 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 			return;
 
 		QString node;
-		if (Jreen::Capabilities *caps = presence.payload<Jreen::Capabilities>().data()) {
+		if (Jreen::Capabilities::Ptr caps = presence.payload<Jreen::Capabilities>()) {
 //			qDebug() << "handle caps" << caps->node();
 			QString capsNode = caps->node();
 			if(capsNode == QLatin1String("http://www.android.com/gtalk/client/caps")) {
@@ -128,9 +139,8 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 				return;
 			} else {
 				node = caps->node() + '#' + caps->ver();
-				QString qNode = node;
-				unit->setProperty("node", qNode);
-				SoftwareInfoHash::iterator it = m_hash.find(qNode);
+				unit->setProperty("node", node);
+				SoftwareInfoHash::iterator it = m_hash.find(node);
 //				qDebug() << "find from hash" << m_hash.count();
 				if (it != m_hash.end()) {
 					SoftwareInfo &info = *it;
@@ -138,9 +148,7 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 //					qDebug() << info.name;
 					if (!info.finished) {
 //						qDebug() << "Send software version request";
-						Jreen::IQ iq(Jreen::IQ::Get, presence.from());
-						iq.addExtension(new Jreen::SoftwareVersion());
-						m_account->client()->send(iq,this,SLOT(handleIQ(Jreen::IQ,int)),RequestSoftware);
+						requestSoftware(presence.from());
 					} else {
 						updateClientData(resource, info.description, info.name, info.version, info.os, info.icon);
 					}
@@ -150,113 +158,124 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 		}
 
 		setClientInfo(resource, "", "unknown-client");
-		Jreen::IQ iq(Jreen::IQ::Get,presence.from());
-		iq.addExtension(new Jreen::Disco::Info(node));
-		m_account->client()->send(iq,this,SLOT(handleIQ(Jreen::IQ,int)),RequestDisco);
+		Jreen::Disco::Item discoItem(presence.from(), node, QString());
+		Jreen::DiscoReply *reply = m_account->client()->disco()->requestInfo(discoItem);
+		connect(reply, SIGNAL(finished()), SLOT(onInfoRequestFinished()));
 	}
 }
 
-void JSoftwareDetection::handleIQ(const Jreen::IQ &iq, int context)
-{	
-	if (context == RequestSoftware) {
-		if (Jreen::Error::Ptr error = iq.error()) {
-			if (error->condition() != Jreen::Error::ServiceUnavailable)
-				return;
-			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
-			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
-				QString node = resource->property("node").toString();
-				SoftwareInfoHash::iterator it = m_hash.find(node);
-				if (it != m_hash.end()) {
-					SoftwareInfo &info = (*it);
-					info.finished = true;
-					updateCache(node, info, true);
-				}
-			}
+void JSoftwareDetection::requestSoftware(const Jreen::JID &jid)
+{
+	Jreen::IQ iq(Jreen::IQ::Get, jid);
+	iq.addExtension(new Jreen::SoftwareVersion);
+	Jreen::IQReply *reply = m_account->client()->send(iq);
+	connect(reply, SIGNAL(received(Jreen::IQ)), SLOT(onSoftwareRequestFinished(Jreen::IQ)));
+}
+
+void JSoftwareDetection::onSoftwareRequestFinished(const Jreen::IQ &iq)
+{
+	if (Jreen::Error::Ptr error = iq.error()) {
+		if (error->condition() != Jreen::Error::ServiceUnavailable)
 			return;
-		}
-		if (Jreen::SoftwareVersion::Ptr soft = iq.payload<Jreen::SoftwareVersion>()) {
-			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
-			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
-				QString node = resource->property("node").toString();
-				QString software = soft->name();
-				QString softwareVersion = soft->version();
-				QString os = soft->os();
-				QString icon = getClientIcon(software);;
-				QString client = getClientDescription(software, softwareVersion, os);
-				updateClientData(resource, client, software, softwareVersion, os, icon);
-				SoftwareInfoHash::iterator it = m_hash.find(node);
-				if (it != m_hash.end()) {
-					SoftwareInfo &info = (*it);
-					info.finished = true;
-					info.name = software;
-					info.version = softwareVersion;
-//					info.os = os;
-					info.icon = icon;
-					info.description = client;
-					updateCache(node, info, true);
-				}
+		ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
+		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+			QString node = resource->property("node").toString();
+			SoftwareInfoHash::iterator it = m_hash.find(node);
+			if (it != m_hash.end()) {
+				SoftwareInfo &info = (*it);
+				info.finished = true;
+				updateCache(node, info, true);
 			}
 		}
-	} else if(context == RequestDisco) {
-		Jreen::Disco::Info *discoInfo = iq.payload<Jreen::Disco::Info>().data();
-		if(!discoInfo)
-			return;
-		iq.accept();
-		QString node = discoInfo->node();
-
-		SoftwareInfo info;
-		info.features = discoInfo->features();
-
-		QString jid = iq.from().full();
-		Jreen::DataForm::Ptr form = discoInfo->form();
-
-		if (form && form->typeName() == QLatin1String("urn:xmpp:dataforms:softwareinfo")) {
-			QString software = form->field(QLatin1String("software")).value();
-			QString softwareVersion = form->field(QLatin1String("software_version")).value();
-			QString os = form->field(QLatin1String("os")).value();
-			QString osVersion = form->field(QLatin1String("os_version")).value();
-			QString icon = getClientIcon(software);
+		return;
+	}
+	if (Jreen::SoftwareVersion::Ptr soft = iq.payload<Jreen::SoftwareVersion>()) {
+		ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
+		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+			QString node = resource->property("node").toString();
+			QString software = soft->name();
+			QString softwareVersion = soft->version();
+			QString os = soft->os();
+			QString icon = getClientIcon(software);;
 			QString client = getClientDescription(software, softwareVersion, os);
-
-			if (!software.isEmpty()) {
-				info.icon = icon;
+			updateClientData(resource, client, software, softwareVersion, os, icon);
+			SoftwareInfoHash::iterator it = m_hash.find(node);
+			if (it != m_hash.end()) {
+				SoftwareInfo &info = (*it);
+				info.finished = true;
 				info.name = software;
-				if (!softwareVersion.isEmpty())
-					info.version = softwareVersion;
+				info.version = softwareVersion;
+//				info.os = os;
+				info.icon = icon;
+				info.description = client;
+				updateCache(node, info, true);
 			}
-			if (!os.isEmpty()) {
-				info.os = os;
-				if (!osVersion.isEmpty())
-					info.os.append(" ").append(osVersion);
+		}
+	}
+}
+		
+void JSoftwareDetection::onInfoRequestFinished()
+{
+	Jreen::DiscoReply *reply = qobject_cast<Jreen::DiscoReply*>(sender());
+	Q_ASSERT(reply);
+	
+	if (reply->error())
+		return;
+	
+	const Jreen::Disco::Item item = reply->item();
+	const QString node = reply->item().node();
+	const Jreen::DataForm::Ptr form = item.form();
+	const QString jid = item.jid().full();
+
+	SoftwareInfo info;
+	info.features = item.features();
+
+	if (form && form->typeName() == QLatin1String("urn:xmpp:dataforms:softwareinfo")) {
+		QString software = form->field(QLatin1String("software")).value();
+		QString softwareVersion = form->field(QLatin1String("software_version")).value();
+		QString os = form->field(QLatin1String("os")).value();
+		QString osVersion = form->field(QLatin1String("os_version")).value();
+		QString icon = getClientIcon(software);
+		QString client = getClientDescription(software, softwareVersion, os);
+		qDebug() << Q_FUNC_INFO << software << softwareVersion << os << osVersion;
+		qDebug() << Q_FUNC_INFO << icon << client;
+
+		if (!software.isEmpty()) {
+			info.icon = icon;
+			info.name = software;
+			if (!softwareVersion.isEmpty())
+				info.version = softwareVersion;
+		}
+		if (!os.isEmpty()) {
+			info.os = os;
+			if (!osVersion.isEmpty())
+				info.os.append(" ").append(osVersion);
+		}
+		info.description = client;
+		info.finished = !info.name.isEmpty() && !info.os.isEmpty();
+	} else {
+		foreach (const Jreen::Disco::Identity &identity, item.identities()) {
+			if (identity.category() == QLatin1String("client")) {
+				info.name = identity.name();
+				info.icon = getClientIcon(info.name);
+				info.description = getClientDescription(info.name, QString(), QString());
+				break;
 			}
-			info.description = client;
-			info.finished = true;
+		}
+	}
+
+	updateCache(node, info);
+
+	if (JContactResource *unit = qobject_cast<JContactResource*>(m_account->getUnit(jid, false))) {
+		if (unit->property("node").isNull())
+			unit->setProperty("node", node);
+
+		if (!info.finished) {
+			requestSoftware(jid);
 		} else {
-			foreach (const Jreen::Disco::Identity &identity, discoInfo->identities()) {
-				if (identity.category == QLatin1String("client")) {
-					info.name = identity.name;
-					info.icon = getClientIcon(info.name);
-					info.description = getClientDescription(info.name, QString(), QString());
-					break;
-				}
-			}
+			updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
 		}
-
-		updateCache(node, info);
-
-		if (JContactResource *unit = qobject_cast<JContactResource*>(m_account->getUnit(jid, false))) {
-			if (unit->property("node").isNull())
-				unit->setProperty("node", node);
-
-			if (!info.finished) {
-				Jreen::IQ get(Jreen::IQ::Get,unit->id());
-				get.addExtension(new Jreen::SoftwareVersion());
-				m_account->client()->send(get,this,SLOT(handleIQ(Jreen::IQ,int)),RequestSoftware);
-			} else {
-				updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
-			}
-			unit->setFeatures(info.features);
-		}
+		unit->setFeatures(info.features);
 	}
 }
 
@@ -344,3 +363,4 @@ QString JSoftwareDetection::getClientIcon(const QString &software)
 }
 
 }
+

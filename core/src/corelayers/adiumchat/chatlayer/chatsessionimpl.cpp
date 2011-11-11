@@ -1,17 +1,27 @@
 /****************************************************************************
-*  chatsessionimpl.cpp
-*
-*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatsessionimpl.h"
 #include <QStringBuilder>
@@ -36,7 +46,8 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
-	myself_chat_state(ChatStateInActive)
+	hasJavaScript(false),
+	myselfChatState(ChatStateInActive)
 {
 }
 
@@ -183,12 +194,14 @@ ChatViewController *ChatSessionImplPrivate::getController() const
 
 void ChatSessionImplPrivate::ensureController() const
 {
-	if(!controller) {
+	if (!controller) {
 		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
 		controller = factory->createViewController();
 		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
+		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
+		emit const_cast<ChatSessionImpl*>(q_func())->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
 	}
 }
 
@@ -216,7 +229,7 @@ void ChatSessionImpl::doSetActive(bool active)
 	Q_D(ChatSessionImpl);
 	if (active)
 		setChatState(ChatStateActive);
-	else if (d->myself_chat_state != ChatStateGone)
+	else if (d->myselfChatState != ChatStateGone)
 		setChatState(ChatStateInActive);
 }
 
@@ -330,7 +343,7 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 void ChatSessionImplPrivate::onActiveTimeout()
 {
 	Q_Q(ChatSessionImpl);
-	switch(myself_chat_state) {
+	switch(myselfChatState) {
 		case ChatStateComposing:
 			q->setChatState(ChatStatePaused);
 			break;
@@ -351,7 +364,7 @@ void ChatSessionImplPrivate::onActiveTimeout()
 void ChatSessionImpl::setChatState(ChatState state)
 {
 	Q_D(ChatSessionImpl);
-	if(d->myself_chat_state == state) {
+	if(d->myselfChatState == state) {
 		d->inactive_timer.start();
 		return;
 	}
@@ -359,7 +372,7 @@ void ChatSessionImpl::setChatState(ChatState state)
 		ChatStateEvent event(state);
 		qApp->sendEvent(currentUnit, &event);
 	}
-	d->myself_chat_state = state;
+	d->myselfChatState = state;
 	switch(state) {
 		case ChatStateComposing:
 		// By xep-0085 this time should be 30 secs, but it's too huge
@@ -487,7 +500,14 @@ QMenu *ChatSessionImpl::menu()
 
 ChatState ChatSessionImpl::getChatState() const
 {
-	return d_func()->myself_chat_state;
+	return d_func()->myselfChatState;
+}
+
+bool ChatSessionImpl::isJavaScriptSupported() const
+{
+	return d_func()->hasJavaScript;
+}
+
 }
 }
-}
+

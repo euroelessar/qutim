@@ -1,17 +1,27 @@
 /****************************************************************************
- *  jaccount.cpp
- *
- *  Copyright (c) 2010-2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "jaccount_p.h"
 #include "roster/jroster.h"
@@ -548,7 +558,7 @@ bool JAccount::checkIdentity(const QString &category, const QString &type) const
 	bool ok = false;
 	for (int i = 0; !ok && i < identities.size(); i++) {
 		const Jreen::Disco::Identity &identity = identities[i];
-		ok |= (identity.category == category && identity.type == type);
+		ok |= (identity.category() == category && identity.type() == type);
 	}
 	return ok;
 }
@@ -559,8 +569,8 @@ QString JAccount::identity(const QString &category, const QString &type) const
 	const Jreen::Disco::IdentityList identities = d->client->serverIdentities();
 	for (int i = 0; i < identities.size(); i++) {
 		const Jreen::Disco::Identity &identity = identities[i];
-		if (identity.category == category && identity.type == type)
-			return identity.name;
+		if (identity.category() == category && identity.type() == type)
+			return identity.name();
 	}
 	return QString();
 }
@@ -568,3 +578,4 @@ QString JAccount::identity(const QString &category, const QString &type) const
 } // Jabber namespace
 
 #include "jaccount.moc"
+

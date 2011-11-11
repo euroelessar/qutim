@@ -1,17 +1,27 @@
-/*
-	UrlPreviewPlugin
-
-  Copyright (c) 2011 by Nicolay Izoderov <nico-izo@yandex.ru>
-
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*/
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Nicolay Izoderov <nico-izo@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "urlpreviewsettings.h"
 #include <qutim/config.h>
@@ -27,6 +37,8 @@ UrlPreviewSettings::UrlPreviewSettings()
 	lookForWidgetState(ui->maxHeight);
 	lookForWidgetState(ui->youtubePreview);
 	lookForWidgetState(ui->imagesPreview);
+	lookForWidgetState(ui->HTML5Audio);
+	lookForWidgetState(ui->HTML5Video);
 }
 
 void UrlPreviewSettings::loadImpl()
@@ -38,6 +50,8 @@ void UrlPreviewSettings::loadImpl()
 	ui->maxHeight->setValue(cfg.value("maxHeight", 600));
 	ui->youtubePreview->setChecked(cfg.value("youtubePreview", true));
 	ui->imagesPreview->setChecked(cfg.value("imagesPreview", true));
+	ui->HTML5Audio->setChecked(cfg.value("HTML5Audio", true));
+	ui->HTML5Video->setChecked(cfg.value("HTML5Video", true));
 	cfg.endGroup();
 }
 
@@ -50,6 +64,8 @@ void UrlPreviewSettings::saveImpl()
 	cfg.setValue("maxHeight", ui->maxHeight->value());
 	cfg.setValue("youtubePreview", ui->youtubePreview->isChecked());
 	cfg.setValue("imagesPreview", ui->imagesPreview->isChecked());
+	cfg.setValue("HTML5Audio", ui->HTML5Audio->isChecked());
+	cfg.setValue("HTML5Video", ui->HTML5Video->isChecked());
 	cfg.endGroup();
 }
 
@@ -62,3 +78,4 @@ UrlPreviewSettings::~UrlPreviewSettings()
 {
 	delete ui;
 }
+

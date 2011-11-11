@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include <qtscrollerfilter_p.h>
 #include <qtscrollevent.h>
 #include <qtscroller.h>
@@ -41,6 +65,7 @@ QtScrollerFilter *QtScrollerFilter::instance()
 }
 
 QtScrollerFilter::QtScrollerFilter()
+    : ignoreMove(false)
 { }
 
 void QtScrollerFilter::add(QObject *target)
@@ -55,6 +80,14 @@ void QtScrollerFilter::add(QObject *target)
     if (QAbstractKineticScroller *m5s = target->property("kineticScroller").value<QAbstractKineticScroller *>()) {
         if (m5s)
             m5s->setEnabled(false);
+    }
+#endif
+#ifndef QTSCROLLER_NO_WEBKIT
+    if (QWebView *web = qobject_cast<QWebView *>(target)) {
+        if (web->page() && web->page()->mainFrame()) {
+            web->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+            web->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+        }
     }
 #endif
 }
@@ -118,7 +151,7 @@ bool QtScrollerFilter::eventFilter(QObject *o, QEvent *e)
 
 bool QtScrollerFilter::eventFilter_QWebView(QWebView *view, QEvent *event)
 {
-    switch (int(event->type())) {
+    switch (event->type()) {
     case QtScrollPrepareEvent::ScrollPrepare: {
         QtScrollPrepareEvent *se = static_cast<QtScrollPrepareEvent *>(event);
         scrollingFrames[view] = 0;
@@ -132,10 +165,8 @@ bool QtScrollerFilter::eventFilter_QWebView(QWebView *view, QEvent *event)
                 //oldWebSelection = d->frame->selection()->selection();
 
                 se->setViewportSize(frame->geometry().size());
-                se->setContentPosRange(QRectF(frame->scrollBarMinimum(Qt::Horizontal),
-                                              frame->scrollBarMinimum(Qt::Vertical),
-                                              frame->scrollBarMaximum(Qt::Horizontal),
-                                              frame->scrollBarMaximum(Qt::Vertical)));
+                QSize s = frame->contentsSize() - frame->geometry().size();
+                se->setContentPosRange(QRectF(0, 0, qMax(0, s.width()), qMax(0, s.height())));
                 se->setContentPos(QPointF(frame->scrollPosition()));
                 se->accept();                
                 return true;
@@ -193,7 +224,7 @@ QWebFrame *QtScrollerFilter::scrollingFrameAt_QWebView(QWebView *view, const QPo
 
 bool QtScrollerFilter::eventFilter_QAbstractScrollArea(QAbstractScrollArea *area, QEvent *event)
 {
-    switch (int(event->type())) {
+    switch (event->type()) {
     case QtScrollPrepareEvent::ScrollPrepare:
     {
         QtScrollPrepareEvent *se = static_cast<QtScrollPrepareEvent *>(event);
@@ -248,11 +279,22 @@ bool QtScrollerFilter::eventFilter_QAbstractScrollArea(QAbstractScrollArea *area
 #endif
         {
             QPoint delta = os - se->overshootDistance().toPoint();
-            if (!delta.isNull())
+            if (!delta.isNull()) {
+                ignoreMove = true;
                 area->viewport()->move(area->viewport()->pos() + delta);
+                ignoreMove = false;
+            }
         }
         overshoot[area] = se->overshootDistance().toPoint();
         return true;
+    }
+    case QEvent::Move: {
+        if (!ignoreMove && !overshoot.value(area).isNull()) {
+            ignoreMove = true;
+            area->viewport()->move(area->viewport()->pos() - overshoot.value(area));
+            ignoreMove = false;
+        }
+        return false;
     }
     default:
         return false;
@@ -297,7 +339,7 @@ void QtScrollerFilter::stateChanged_QAbstractItemView(QAbstractItemView *view, Q
 
 bool QtScrollerFilter::eventFilter_QAbstractItemView(QAbstractItemView *view, QEvent *event)
 {
-    switch (int(event->type())) {
+    switch (event->type()) {
     case QtScrollPrepareEvent::ScrollPrepare:
         static_cast<HackedAbstractItemView *>(view)->hackedExecuteDelayedItemsLayout();
         break;

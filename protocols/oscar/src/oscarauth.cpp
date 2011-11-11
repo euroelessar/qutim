@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -315,11 +315,10 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
 	}
 	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
-	url.addEncodedQueryItem("sig_sha256", generateSignature("POST", sessionKey, url));
-	QByteArray data = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
+	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url).toPercentEncoding("", "\\/="));
+	DEBUG() << Q_FUNC_INFO << url;
 	QNetworkRequest request(url);
-	QNetworkReply *reply = m_manager.post(request, data);
+	QNetworkReply *reply = m_manager.get(request);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
@@ -459,3 +458,4 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

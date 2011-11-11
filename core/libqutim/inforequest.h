@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
@@ -18,7 +18,7 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program. If not, see http://www.gnu.org/licenses/.
+** along with this program.  If not, see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
@@ -129,6 +129,9 @@ public:
 
 signals:
 	void supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
+	
+private slots:
+	void onObjectDestroyed(QObject *object);
 
 private:
 	friend class InfoRequestFactory;
@@ -140,3 +143,4 @@ private:
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::InfoRequestFactory, "org.qutim.InfoRequestFactory")
 
 #endif // INFOREQUEST_H
+

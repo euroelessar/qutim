@@ -9,7 +9,7 @@ find_package(QtMobility)
 
 macro(qutim_check_component component)
 	STRING(TOUPPER ${component} _COMPONENT)
-	IF(NOT DEFINED ${QT_MOBILITY_${_COMPONENT}_FOUND})
+	IF(NOT QT_MOBILITY_${_COMPONENT}_FOUND)
 		message("Module ${component} not found. ${component} support disabled.")
 		return()
 	ENDIF()
