@@ -46,7 +46,7 @@ class XSettingsWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit XSettingsWindow(const SettingsItemList &settings,QObject *controller);
+	explicit XSettingsWindow(const SettingsItemList &settings,QObject *controller, QWidget *parent = 0);
 	void update(const SettingsItemList &settings);
     virtual ~XSettingsWindow();
 public slots:
