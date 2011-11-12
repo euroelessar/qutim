@@ -23,45 +23,6 @@ typedef struct mrim_packet_header_t
     quint32        msg; // Packet type
     quint32       dlen; // Data length
     quint32       from; // Sender address
-    quint32	  fromport; // Sender port
-    uchar reserved[16]; // Reserved
-} mrim_packet_header_t;
-
-#define HEADER_SIZE (44)
-#define HEADER_FIELDS_COUNT (7)
-
-#define CS_MAGIC    0xDEADBEEF		// Client Magic ( C <-> S )
-
-
-// UNICODE = (UTF-16LE) (>=1.17)
-
-/***************************************************************************
-
-		Protocol of client-server connection
-
- ***************************************************************************/
-
-#ifndef MRIM_PROTO_H
-#define MRIM_PROTO_H
-
-#include <qglobal.h>
-
-#define PROTO_VERSION_MAJOR     1
-#define PROTO_VERSION_MINOR     19 //20
-#define PROTO_VERSION ((((quint32)(PROTO_VERSION_MAJOR))<<16)|(quint32)(PROTO_VERSION_MINOR))
-
-#define PROTO_MAJOR(p) (((p)&0xFFFF0000)>>16)
-#define PROTO_MINOR(p) ((p)&0x0000FFFF)
-
-
-typedef struct mrim_packet_header_t
-{
-    quint32      magic; // Magic
-    quint32      proto; // Protocol version
-    quint32        seq; // Sequence
-    quint32        msg; // Packet type
-    quint32       dlen; // Data length
-    quint32       from; // Sender address
     quint32  fromport; // Sender port
     uchar reserved[16]; // Reserved
 } mrim_packet_header_t;
