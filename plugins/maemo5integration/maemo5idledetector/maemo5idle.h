@@ -54,7 +54,7 @@ private:
 	bool display_off;
 	QBasicTimer *idle_timer;
 	QTimer *check_timer;
-	int idleSeconds;
+	int idleMinutes;
 };
 
 

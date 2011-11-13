@@ -20,10 +20,7 @@ endif()
 
 
 
-qutim_add_plugin( maemo5tray
-	EXTENSION
-	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/maemo5tray.h
-	EXTENSION_CLASS Maemo5Tray
+qutim_add_plugin( maemo5tray	
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Maemo 5 Tray "
 	DESCRIPTION "Maemo 5 specific system tray implementation"
