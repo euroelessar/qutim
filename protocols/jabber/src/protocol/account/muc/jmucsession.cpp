@@ -36,7 +36,7 @@
 #include <qutim/messagesession.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/delayeddelivery.h>
-#include "jabber_global.h"
+#include "../../../jabber_global.h"
 #include <QStringBuilder>
 #include <QMessageBox>
 #include <QFile>

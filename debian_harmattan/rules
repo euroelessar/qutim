@@ -19,12 +19,16 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 else
 	CFLAGS += -O2
 endif
+BUILDDIR ?= build
+SOURCEDIR ?= ..
 
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	cmake -DCMAKE_INSTALL_PREFIX="/usr" -DWININTEGRATION=false -DAESCRYPTO=false -DWEATHER=false -DSDLSOUND=false -DANTIBOSS=false -DKDEINTEGRATION=false -DMAC-INTEGRATION=false -DASPELLER=false -DAWN=false -DLOGGER=false -DNOWPLAYING=false -DINDICATOR=false -DASTRAL=false -DCONTACTINFO=false -DSEARCHDIALOG=false -DPLISTCONFIG=false -DQSOUNDBACKEND=false -DSOFTKEYSACTIONBOX=false -DTRAYICON=false -DMIGRATION02X03=false -DKINETICPOPUPS=false -DXSETTINGSDIALOG=false -DWITH_DOXYGEN=false -DTABBEDCHATFORM=false -DSYMBIANINTEGRATION=false -DHISTMAN=false -DKINETICSCROLLER=false -DFLOATIES=false -DMACINTEGRATION=false -DQRCICONS=false -DSIMPLEABOUT=false -DTORYCONTACTLISTWIDGET=false -DFLOATIES=false -DMACCONTACTLISTWIDGET=false  -DPLUGMAN=false -DNOTIFICATIONSSETTINGS=false -DJOINCHATDIALOG=false -DCONNECTIONMANAGER=false -DUNITYLAUNCHER=false -DQUTIM_DEVELOPER_BUILD=debug  -DCMAKE_BUILD_TYPE=debug -DSCRIPTAPI=false -DHUMANITY-ICONS=false -DIDLEDETECTOR=false -DIDLESTATUSCHANGER=false -DQUETZAL=false . -L
+ifndef _SBOX_DIR
+	cd $(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX="/usr" -DMAEMO6=1 -DDBUSAPI=off -DACCOUNTCREATOR=off -DADDCONTACTDLG=off -DADIUMCHAT=off -DAESCRYPTO=off -DANTIBOSS=off -DASPELLER=off -DASTRAL=off -DAWN=off -DCHATSPELLCHECKER=off -DCONNECTIONMANAGER=off -DCONTACTINFO=off -DDATAFORMSBACKEND=off -DEMOTICONSSETTINGS=off -DFILETRANSFER=off -DFILETRANSFERSETTINGS=off -DFLOATIES=off -DHISTMAN=off -DHUMANITY=off -DIDLEDETECTOR=off -DIDLESTATUSCHANGER=off -DINDICATOR=off -DJOINCHATDIALOG=off -DJOINGROUPCHATDLG=off -DKDEINTEGRATION=off -DKINETICPOPUPS=off -DKINETICSCROLLER=off -DLOGGER=off -DMACINTEGRATION=off -DMETACONTACTS=off -DMIGRATION02X03=off -DMOBILEABOUT=off -DMOBILECONTACTINFO=off -DMOBILENOTIFICATIONSSETTINGS=off -DMOBILESETTINGSDIALOG=off -DNOTIFICATIONSSETTINGS=off -DNOWPLAYING=off -DOLDDELEGATE=off -DPLISTCONFIG=off -DPLUGMAN=off -DQMLCHAT=off -DQRCICONS=off -DQSOUNDBACKEND=off -DQUETZAL=off -DSCRIPTAPI=off -DSDLSOUND=off -DSEARCHDIALOG=off -DSERVICECHOOSER=off -DSIMPLEABOUT=off -DSIMPLECONTACTLIST=off -DSOFTKEYSACTIONBOX=off -DSYMBIANINTEGRATION=off -DTABBEDCHATFORM=off -DTRAYICON=off -DUNITYLAUNCHER=off -DWEATHER=off -DWININTEGRATION=off -DWITH_DOXYGEN=off -DXSETTINGSDIALOG=off $(SOURCEDIR) -L
+endif
 	touch configure-stamp
 
 
@@ -34,7 +38,9 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+ifndef _SBOX_DIR
+	$(MAKE) --directory=$(BUILDDIR)
+endif
 
 	touch $@
 
@@ -44,7 +50,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	$(MAKE) --directory=$(BUILDDIR) clean
 
 	dh_clean  
 
@@ -56,7 +62,7 @@ install: build
 
 
 	# Add here commands to install the package into debian/qutim.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/qutim install
+	$(MAKE) --directory=$(BUILDDIR) DESTDIR=$(CURDIR)/debian/qutim install
 
 
 # Build architecture-independent files here.
@@ -83,13 +89,13 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-	dh_strip
+	dh_strip -a --dbg-package=qutim-dbg
 	dh_compress
 	dh_fixperms
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps
+#	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

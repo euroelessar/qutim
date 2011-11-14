@@ -27,7 +27,7 @@
 #include <QBuffer>
 
 #ifndef NO_RTF_SUPPORT
-#include <rtf/rtftextreader.h>
+#include "../3rdparty/rtf/rtftextreader.h"
 
 #include "protoutils.h"
 #include "rtfutils.h"

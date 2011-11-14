@@ -29,13 +29,13 @@
 #include <QStringBuilder>
 #include <qutim/systeminfo.h>
 
-#include "icqcontact.h"
-#include "buddycaps.h"
+#include "../../src/icqcontact.h"
+#include "../../src/buddycaps.h"
 #include "clientidentify.h"
-#include "oscarconnection.h"
-#include "xtraz.h"
-#include "icqprotocol.h"
-#include "icqaccount.h"
+#include "../../src/oscarconnection.h"
+#include "../../src/xtraz.h"
+#include "../../src/icqprotocol.h"
+#include "../../src/icqaccount.h"
 #include <qutim/tooltip.h>
 #include <qutim/contact.h>
 

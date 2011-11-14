@@ -24,8 +24,8 @@
 ****************************************************************************/
 #include "icqaccountmainsettings.h"
 #include "ui_icqaccountmainsettings.h"
-#include "icqaccount.h"
-#include "icqprotocol_p.h"
+#include "../icqaccount.h"
+#include "../icqprotocol_p.h"
 
 namespace qutim_sdk_0_3 {
 

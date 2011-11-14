@@ -31,7 +31,7 @@
 #include "utils.h"
 #include <qutim/statusactiongenerator.h>
 
-#include "ui/wizards/mrimaccountwizard.h"
+#include "../ui/wizards/mrimaccountwizard.h"
 
 MrimProtocol* MrimProtocol::self = 0;
 

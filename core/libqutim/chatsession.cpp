@@ -67,6 +67,9 @@ public:
 
 struct ChatSessionPrivate
 {
+	ChatSessionPrivate() : active(false) {}
+
+	bool active;
 };
 
 struct ChatLayerData
@@ -78,7 +81,7 @@ struct ChatLayerData
 
 Q_GLOBAL_STATIC(ChatLayerData, p)
 
-ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
+ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), d_ptr(new ChatSessionPrivate)
 {
 }
 
@@ -93,6 +96,11 @@ qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
 
 qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 {
+	if (!message.chatUnit()) {
+		qWarning("Message \"%s\" must have a chatUnit", qPrintable(message.text()));
+		message.setChatUnit(getUnit());
+	}
+	
 	QString reason;
 	messageHookMap()->insert(&message, this);
 	int result = MessageHandler::handle(message, &reason);
@@ -104,6 +112,21 @@ qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 	}
 	messageHookMap()->remove(&message);
 	return message.id();
+}
+
+bool ChatSession::isActive()
+{
+	return d_func()->active;
+}
+
+void ChatSession::setActive(bool active)
+{
+	Q_D(ChatSession);
+	if (active == d->active)
+		return;
+	doSetActive(active);
+	d->active = active;
+	emit activated(active);
 }
 
 void ChatSession::virtual_hook(int id, void *data)
@@ -122,6 +145,7 @@ public:
 
 ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
+	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),

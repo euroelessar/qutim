@@ -28,7 +28,7 @@
 
 #include <QWizardPage>
 #include "qutim/protocol.h"
-#include "ircconnection.h"
+#include "../ircconnection.h"
 #include "ircsettingswidget.h"
 
 namespace Ui {

@@ -26,7 +26,7 @@
 #ifndef XSTATUSSETTINGS_H
 #define XSTATUSSETTINGS_H
 
-#include "settingsextension.h"
+#include "../../src/settingsextension.h"
 
 namespace qutim_sdk_0_3 {
 

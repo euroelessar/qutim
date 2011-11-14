@@ -33,7 +33,7 @@
 #include <qutim/contact.h>
 #include <qutim/event.h>
 #include <QCoreApplication>
-#include <protocol/account/roster/jcontact.h>
+#include "../../account/roster/jcontact.h"
 #include <QDebug>
 
 namespace Jabber
