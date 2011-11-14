@@ -120,7 +120,7 @@ void JAccountPrivate::_q_on_password_finished(int result)
 	if (passwordDialog.data()->remember()) {
 		Config cfg = q->config(QLatin1String("general"));
 		cfg.setValue("passwd", passwordDialog.data()->password(), Config::Crypted);
-		parameters.insert(QLatin1String("password"), passwordDialog->password());
+		parameters.insert(QLatin1String("password"), passwordDialog.data()->password());
 		emit q->parametersChanged(parameters);
 	}
 	status = passwordDialog.data()->property("status").value<Status>();
