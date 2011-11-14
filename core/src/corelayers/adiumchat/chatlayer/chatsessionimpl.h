@@ -70,7 +70,7 @@ public:
 	virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
 	virtual MessageList unread() const;
 	QAbstractItemModel *getModel() const;
-	virtual void setActive(bool active = true);
+	void doSetActive(bool active = true);
 	virtual void setChatUnit(ChatUnit* unit);
 	virtual bool isActive();
 	QMenu *menu();
