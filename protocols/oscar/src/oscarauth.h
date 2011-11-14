@@ -73,7 +73,7 @@ signals:
 	
 private slots:
 	void onPasswordDialogFinished(int result);
-	void onClienLoginFinished();
+	void onClientLoginFinished();
 	void onStartSessionFinished();
     void onSslErrors(const QList<QSslError> &errors);
 

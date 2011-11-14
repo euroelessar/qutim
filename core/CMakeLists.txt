@@ -97,7 +97,7 @@ SET(RESOURCES
 	)
 
 #TODO fix in future
-if (MINGW)
+if(MINGW)
 	find_program( MINGW_WINDRES NAMES "mingw32-windres" "windres" )
 	execute_process( COMMAND "${MINGW_WINDRES}"
 		"-i" "${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc" "-o" "${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o" )
@@ -108,7 +108,7 @@ endif(MINGW)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 
-find_package( QutIM REQUIRED )
+find_package(QutIM REQUIRED)
 include_directories( ${QUTIM_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/libqutim/include/qutim_hook" )
 
 REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
@@ -159,7 +159,7 @@ set(QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
 set(QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FORCE )
 
 add_subdirectory(src/corelayers)
-foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+foreach(additional_path ${QUTIM_ADDITIONAL_PATHS} )
 	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
