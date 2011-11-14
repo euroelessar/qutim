@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
@@ -112,3 +112,4 @@ Q_DECLARE_INTERFACE(Core::ContactListSettingsExtention, "org.qutim.core.ContactL
 
 
 #endif // CONTACTLISTSETTINGS_H
+

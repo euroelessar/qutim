@@ -1,18 +1,27 @@
 /****************************************************************************
- *  main.cpp
- *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                2009 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include <QApplication>
 #include <QTextCodec>
@@ -21,40 +30,30 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "src/modulemanagerimpl.h"
+#ifdef QUTIM_DECLARATIVE_UI
+#include "src/declarative/modulemanagerimpl.h"
+#else
+#include "src/widgets/modulemanagerimpl.h"
+#endif
 #include <QTime>
-#include <fstream>
 
 #if defined(STATIC_IMAGE_PLUGINS)
 Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-//using namespace std;
-//ofstream logfile;
+#ifdef TODO__MEEGO_EDITION_HARMATTAN
+#include <MDeclarativeCache>
 
-//#ifdef Q_OS_SYMBIAN
-//void SymbianLoggingHandler(QtMsgType type, const char *msg) {
-//switch (type) {
-//	case QtDebugMsg:
-//		logfile << QTime::currentTime().toString().toLatin1().data() << " Debug: " << msg << "\n";
-//		break;
-//	case QtCriticalMsg:
-//		logfile << QTime::currentTime().toString().toLatin1().data() << " Critical: " << msg << "\n";
-//		break;
-//	case QtWarningMsg:
-//		logfile << QTime::currentTime().toString().toLatin1().data() << " Warning: " << msg << "\n";
-//		break;
-//	case QtFatalMsg:
-//		logfile << QTime::currentTime().toString().toLatin1().data() <<  " Fatal: " << msg << "\n";
-//		abort();
-//	}
-//}
-//#endif
-
+Q_DECL_EXPORT
+#endif
 int main(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+#ifdef TODO__MEEGO_EDITION_HARMATTAN
+	QScopedPointer<QApplication> app(MDeclarativeCache::qApplication(argc, argv));
+#else
+	QScopedPointer<QApplication> app(new QApplication(argc, argv));
+#endif
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
 
@@ -66,15 +65,10 @@ int main(int argc, char *argv[])
 	app.processEvents();
 #endif
 
-//#ifdef Q_OS_SYMBIAN
-//	logfile.open("c:\\data\\logfile.txt", ios::app);
-//	qInstallMsgHandler(SymbianLoggingHandler);
-//#endif
-
 	Core::ModuleManagerImpl core_init;
 
 	// At first time use current time with pointers to initiators
-	qsrand(uint(std::time(0)) ^ (qHash(&core_init) ^ (qHash(&app))));
+	qsrand(uint(std::time(0)) ^ qHash(qApp));
 	// At second random value
 	qsrand(uint(qrand()));
 	// It looks like Qt doesn't always use srand as backend of qsrand
@@ -83,5 +77,6 @@ int main(int argc, char *argv[])
 #ifdef Q_WS_MAEMO_5
 	loadingWindow->close();
 #endif
-	return app.exec();
+	return app->exec();
 }
+

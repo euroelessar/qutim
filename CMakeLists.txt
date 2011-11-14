@@ -5,6 +5,18 @@ endif(COMMAND cmake_policy )
 project( qutim )
 #set(QT_MIN_VERSION "4.6.0")
 
+if( MAEMO6 )
+#	FIXME
+	add_definitions( -DMEEGO_VERSION_MAJOR=1 -DMEEGO_VERSION_MINOR=2 -DMEEGO_VERSION_PATCH=0 -DMEEGO_EDITION=harmattan -DMEEGO_EDITION_HARMATTAN )
+	set( DEFAULT_DECLARATIVE_UI on )
+else()
+	set( DEFAULT_DECLARATIVE_UI off )
+endif()
+option(DECLARATIVE_UI "Use declarative UI" ${DEFAULT_DECLARATIVE_UI})
+
+set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
+set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
+set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 set(QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
 set(QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")

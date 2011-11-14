@@ -1,12 +1,27 @@
-/* coded by Ketmar // Vampire Avalon (ketmar@ketmar.no-ip.org)
- * Understanding is not required. Only obedience.
- *
- * This program is free software. It comes without any warranty, to
- * the extent permitted by applicable law. You can redistribute it
- * and/or modify it under the terms of the Do What The Fuck You Want
- * To Public License, Version 2, as published by Sam Hocevar. See
- * http://sam.zoy.org/wtfpl/COPYING for more details.
- */
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include <QtCore>
 #include <QDebug>
 #include <QTextCodec>
@@ -241,3 +256,4 @@ int main (/*int argc, char *argv[]*/) {
 
   return 0;
 }
+

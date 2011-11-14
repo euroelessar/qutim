@@ -1,20 +1,27 @@
-/*****************************************************************************
- System Info
-
- Copyright (c) 2007-2008 by Remko Tronçon
-	  2008-2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
-	  2011 by Nicolay Izoderov <nico-izo@yandex.ru>
-
-
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *   I like bananas                                                        *
- ***************************************************************************
-*****************************************************************************/
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Remko Tronçon
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include <QString>
 #include <QStringList>
@@ -103,7 +110,7 @@ enum WinFlag
 	SuiteHomeServer = 0x02
 };
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) && !defined(Q_OS_FREEBSD) && !defined(MEEGO_EDITION) && !defined(Q_WS_MAEMO_5) && !defined(Q_OS_HAIKU)
 static QString lsbRelease(const QStringList& args)
 {
 	QStringList path = QString(qgetenv("PATH")).split(':');
@@ -354,8 +361,14 @@ void init(SystemInfoPrivate *d)
 	d->os_name="Maemo";
 	d->os_version="5";
 #elif defined(MEEGO_EDITION)
-	d->os_name=QLatin1String("MeeGo");
-	d->os_version = MEEGO_VERSION_MAJOR + '.' + MEEGO_VERSION_MINOR + '.' + MEEGO_VERSION_PATCH + ' ' + MEEGO_EDITION;
+	d->os_name = QLatin1String("MeeGo");
+	d->os_version = QString(QLatin1String("%1.%2"))
+	        .arg(MEEGO_VERSION_MAJOR)
+	        .arg(MEEGO_VERSION_MINOR);
+//	        .arg(MEEGO_VERSION_PATCH)
+#ifdef MEEGO_EDITION_HARMATTAN
+	d->os_version += QLatin1String(" Harmattan");
+#endif
 	d->os_full = d->os_name + ' ' + d->os_version;
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
@@ -604,3 +617,4 @@ QString SystemInfo::getPath(DirType type)
 	return d->dirs.at(type).absolutePath();
 }
 }
+

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -76,6 +76,7 @@ void Maemo5Led::handleNotification(qutim_sdk_0_3::Notification *notification)
 
 Maemo5Led::~Maemo5Led()
 {
+	mDbusInterface->call(MCE_DEACTIVATE_LED_PATTERN, ledPattern);
 }
 
 void Maemo5Led::enableLed()
@@ -102,6 +103,7 @@ void Maemo5Led::setDisplayState(const QString &state)
 		if (state == MCE_DISPLAY_ON_STRING)
 		{
 			display_off=false;
+			mDbusInterface->call(MCE_DEACTIVATE_LED_PATTERN, ledPattern);
 		}
 		else if (state == MCE_DISPLAY_OFF_STRING)
 		{
@@ -109,3 +111,4 @@ void Maemo5Led::setDisplayState(const QString &state)
 		}
 	}
 }
+

@@ -1,17 +1,27 @@
 /****************************************************************************
-*  chatsessionimpl.cpp
-*
-*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatsessionimpl.h"
 #include <QStringBuilder>
@@ -57,7 +67,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
-	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
@@ -215,22 +224,13 @@ QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 	return retVal;
 }
 
-void ChatSessionImpl::setActive(bool active)
+void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
-	if (d->active == active)
-		return;
 	if (active)
 		setChatState(ChatStateActive);
 	else if (d->myselfChatState != ChatStateGone)
 		setChatState(ChatStateInActive);
-	d->active = active;
-	emit activated(active);
-}
-
-bool ChatSessionImpl::isActive()
-{
-	return d_func()->active;
 }
 
 bool ChatSessionImpl::event(QEvent *ev)
@@ -510,3 +510,4 @@ bool ChatSessionImpl::isJavaScriptSupported() const
 
 }
 }
+

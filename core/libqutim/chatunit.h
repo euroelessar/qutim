@@ -1,17 +1,27 @@
 /****************************************************************************
- *  chatunit.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef CHATUNIT_H
 #define CHATUNIT_H
@@ -51,6 +61,7 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
 	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
+	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
 	/**
   * @brief default ChatUnit's contructor
@@ -96,6 +107,7 @@ public:
   * @return Pointer to account
   */
 	const Account *account() const;
+	bool isConference() const;
 	/**
   * @brief send message to chatunit
   *
@@ -187,3 +199,4 @@ Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatUnit*>)
 Q_ENUMS(qutim_sdk_0_3::ChatState)
 
 #endif // CHATUNIT_H
+

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
@@ -9,7 +9,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -48,7 +48,7 @@ Maemo5Idle::Maemo5Idle()
 
 void Maemo5Idle::doCheck()
 {
-	emit secondsIdle(idleSeconds);
+	emit secondsIdle(idleMinutes);
 }
 
 void Maemo5Idle::setDisplayState(const QString &state)
@@ -58,7 +58,7 @@ void Maemo5Idle::setDisplayState(const QString &state)
 		{
 			display_off=false;
 			idle_timer->stop();
-			idleSeconds=0;
+			idleMinutes=0;
 		}
 		else if (state == MCE_DISPLAY_OFF_STRING)
 		{
@@ -76,7 +76,7 @@ void Maemo5Idle::displayStateChanged(const QDBusMessage &message)
 
 void Maemo5Idle::timerEvent(QTimerEvent* ev)
 {
-	idleSeconds+=1;
+	idleMinutes+=1;
 	ev->accept();
 }
 

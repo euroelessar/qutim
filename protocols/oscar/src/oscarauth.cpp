@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -38,7 +38,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include "hmac_sha2.h"
+#include "../3rdparty/hmac/hmac_sha2.h"
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
@@ -249,6 +249,7 @@ void OscarAuth::clientLogin(bool longTerm)
 	url.setEncodedQuery(QByteArray());
 	DEBUG() << Q_FUNC_INFO << url << query;
 	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *reply = m_manager.post(request, query);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
@@ -341,7 +342,7 @@ void OscarAuth::onStartSessionFinished()
 	if (response.result() == OscarResponse::InvalidRequest
 	        && response.detailCode() == 1015) {
 		// Invalid local time
-		int hostTime  = data.value(QLatin1String("ts"), 0);
+		int hostTime = data.value(QLatin1String("ts"), 0);
 		int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 		{
 			Config cfg = m_account->config(QLatin1String("general"));
@@ -396,7 +397,7 @@ QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 # elif defined(Q_OS_LINUX)
 #  if   defined(Q_WS_MAEMO_5)
 		"21011", "QutIM Maemo Client"
-#  elif defined(Q_WS_MEEGO)
+#  elif defined(Q_WS_MEEGO) || defined(MEEGO_EDITION)
 		"21012", "QutIM Meego Client"
 #  elif defined(Q_WS_ANDROID)
 	    "21015", "QutIM Android Client"
@@ -458,3 +459,4 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

@@ -1,22 +1,33 @@
 /****************************************************************************
- *  protocol.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
 #include "configbase.h"
+#include <QStringList>
 
 class QWizardPage;
 
@@ -48,6 +59,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(Protocol)
 		Q_PROPERTY(QString id READ id)
+		Q_PROPERTY(QStringList supportedAccountParameters READ supportedAccountParameters CONSTANT)
 //		Q_FLAGS(DataType DataTypes)
 //		Q_FLAGS(RemoveFlag RemoveFlags)
 	public:
@@ -56,8 +68,20 @@ namespace qutim_sdk_0_3
 			ProtocolContainsContacts
 		};
 		enum RemoveFlag {
-			DeleteAccount = 0x01,
+			DeleteAccount = 0x01
 		};
+		enum ProtocolHook {
+			SupportedAccountParametersHook,
+			CreateAccountHook
+		};
+		
+		struct CreateAccountArgument
+		{
+			QString id;
+			QVariantMap parameters;
+			Account *account;
+		};
+
 //		Q_DECLARE_FLAGS(RemoveFlags, RemoveFlag)
 //		Q_DECLARE_FLAGS(DataTypes, DataType)
 		Protocol();
@@ -66,6 +90,8 @@ namespace qutim_sdk_0_3
 		Config config();
 		ConfigGroup config(const QString &group);
 		QString id() const;
+		QStringList supportedAccountParameters() const;
+		Q_INVOKABLE Account *createAccount(const QString &id, const QVariantMap &parameters);
 		Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
 		Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
 		virtual QVariant data(DataType type);
@@ -90,3 +116,4 @@ namespace qutim_sdk_0_3
 }
 
 #endif // PROTOCOL_H
+

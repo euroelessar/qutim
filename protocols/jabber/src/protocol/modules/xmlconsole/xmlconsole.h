@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -27,7 +27,7 @@
 #define XMLCONSOLE_H
 
 #include <QtGui/QWidget>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 #include <jreen/client.h>
 #include <jreen/jid.h>
 #include <QXmlStreamReader>
@@ -184,3 +184,4 @@ private slots:
 }
 
 #endif // XMLCONSOLE_H
+
