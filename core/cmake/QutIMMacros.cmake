@@ -26,8 +26,7 @@ endif(SYMBIAN)
 
 #include guards
 if(NOT CPACK_INCLUDED)
-        message("Include cpack ${CPACK_INCLUDED}")
-        set(CPACK_INCLUDED TRUE)
+	set(CPACK_INCLUDED TRUE)
 	include(CPack)
 endif()
 
