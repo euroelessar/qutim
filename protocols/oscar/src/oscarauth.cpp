@@ -249,6 +249,7 @@ void OscarAuth::clientLogin(bool longTerm)
 	url.setEncodedQuery(QByteArray());
 	DEBUG() << Q_FUNC_INFO << url << query;
 	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *reply = m_manager.post(request, query);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
