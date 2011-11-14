@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "icqmainsettings.h"
-#include "icqprotocol.h"
-#include "icqaccount.h"
-#include "util.h"
+#include "../icqprotocol.h"
+#include "../icqaccount.h"
+#include "../util.h"
 #include <QTextCodec>
 #include <QVBoxLayout>
-#include "settingsextension.h"
+#include "../settingsextension.h"
 #include <qutim/objectgenerator.h>
 
 namespace qutim_sdk_0_3 {

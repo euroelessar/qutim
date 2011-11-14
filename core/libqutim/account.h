@@ -75,7 +75,20 @@ class LIBQUTIM_EXPORT Account
 	Q_PROPERTY(QString id READ id)
 	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
 public:
+	enum AccountHookEnum {
+		// all values below are reserved for MenuController
+		ReadParametersHook = 0x100,
+		UpdateParametersHook
+	};
+	
+	struct UpdateParametersArgument
+	{
+		QVariantMap parameters;
+		QStringList reconnectionRequired;
+	};
+
 	/*!
 	  Account's contructor with identification \a id and \a protocol.
 	  Identification is unique in current \a protocol, i.e. JID for
@@ -138,6 +151,10 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 
 	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
+
+	QVariantMap parameters() const;
+	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
+
 	static AccountList all();
 	/*!
 	  Returns the group chat manager of the account.
@@ -179,6 +196,7 @@ signals:
 	  \see groupChatManager(), resetGroupChatManager()
 	*/
 	void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void parametersChanged(const QVariantMap &parameters);
 };
 
 ChatUnit *Account::unit(const QString &unitId, bool create)

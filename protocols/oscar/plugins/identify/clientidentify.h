@@ -29,8 +29,8 @@
 
 #include <QList>
 #include <QByteArray>
-#include "capability.h"
-#include "oscarroster.h"
+#include "../../src/capability.h"
+#include "../../src/oscarroster.h"
 #include <qutim/plugin.h>
 
 namespace qutim_sdk_0_3 {

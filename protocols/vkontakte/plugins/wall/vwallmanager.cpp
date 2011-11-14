@@ -24,9 +24,9 @@
 ****************************************************************************/
 #include "vwallmanager.h"
 #include <qutim/menucontroller.h>
-#include <vcontact.h>
+#include "../../src/vcontact.h"
 #include "vwallsession.h"
-#include <vaccount.h>
+#include "../../src/vaccount.h"
 #include <qutim/debug.h>
 
 namespace Vkontakte

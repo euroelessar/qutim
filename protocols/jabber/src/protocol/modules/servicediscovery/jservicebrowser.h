@@ -29,7 +29,7 @@
 #include <QTreeWidgetItem>
 #include <QKeyEvent>
 #include <qutim/icon.h>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 #include <jreen/disco.h>
 
 namespace Jabber

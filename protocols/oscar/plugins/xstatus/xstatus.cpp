@@ -24,13 +24,13 @@
 ****************************************************************************/
 
 #include "xstatus.h"
-#include "icqcontact.h"
-#include "icqaccount.h"
-#include "oscarconnection.h"
-#include "sessiondataitem.h"
+#include "../../src/icqcontact.h"
+#include "../../src/icqaccount.h"
+#include "../../src/oscarconnection.h"
+#include "../../src/sessiondataitem.h"
 #include "statusdialog.h"
-#include "icqprotocol.h"
-#include "qutim/icon.h"
+#include "../../src/icqprotocol.h"
+#include <qutim/icon.h>
 #include <qutim/extensionicon.h>
 #include <qutim/statusactiongenerator.h>
 #include <qutim/message.h>

@@ -27,7 +27,7 @@
 #include <jreen/mood.h>
 #include <qutim/extensionicon.h>
 #include <qutim/status.h>
-#include <protocol/jprotocol.h>
+#include "../../jprotocol.h"
 
 namespace Jabber
 {

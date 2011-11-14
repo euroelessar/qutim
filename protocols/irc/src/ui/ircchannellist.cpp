@@ -25,14 +25,14 @@
 
 #include "ircchannellist.h"
 #include "ui_ircchannellist.h"
-#include <ircaccount.h>
-#include <ircchannel.h>
+#include "../ircaccount.h"
+#include "../ircchannel.h"
 #include <qutim/icon.h>
 #include <qutim/messagesession.h>
 #include <QAbstractTextDocumentLayout>
 #include <QPainter>
 
-Q_DECLARE_METATYPE(QTextDocument *);
+Q_DECLARE_METATYPE(QTextDocument *)
 
 namespace qutim_sdk_0_3 {
 

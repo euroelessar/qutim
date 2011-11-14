@@ -26,7 +26,7 @@
 #ifndef SESSIONDATAITEM_H
 #define SESSIONDATAITEM_H
 
-#include <dataunit.h>
+#include "dataunit.h"
 
 namespace qutim_sdk_0_3 {
 

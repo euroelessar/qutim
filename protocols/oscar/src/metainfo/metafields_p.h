@@ -26,7 +26,7 @@
 #ifndef METAFIELDS_H
 #define METAFIELDS_H
 
-#include "metainfo/metafield.h"
+#include "metafield.h"
 
 namespace qutim_sdk_0_3 {
 

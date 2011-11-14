@@ -25,7 +25,7 @@
 #ifndef JPERSONACTIVITYCONVERTER_H
 #define JPERSONACTIVITYCONVERTER_H
 
-#include <sdk/jabber.h>
+#include "../../../sdk/jabber.h"
 #include <qutim/localizedstring.h>
 #include <qutim/extensionicon.h>
 #include <jreen/activity.h>

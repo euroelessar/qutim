@@ -24,17 +24,17 @@
 ****************************************************************************/
 #include "vwallsession.h"
 #include "vwallsession_p.h"
-#include "vaccount.h"
-#include "vcontact.h"
+#include "../../src/vaccount.h"
+#include "../../src/vcontact.h"
 #include <QNetworkReply>
-#include "vconnection.h"
+#include "../../src/vconnection.h"
 #include <qutim/debug.h>
 #include <qutim/json.h>
 #include <qutim/messagesession.h>
 #include <QTime>
 #include <qutim/notification.h>
 #include <qutim/history.h>
-#include "vroster.h"
+#include "../../src/vroster.h"
 
 VWallSession::VWallSession(const QString& id, VAccount* account): Conference(account), d_ptr(new VWallSessionPrivate)
 {

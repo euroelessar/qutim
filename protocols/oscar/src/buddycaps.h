@@ -27,7 +27,7 @@
 #ifndef CAPABILITIES_H_
 #define CAPABILITIES_H_
 
-#include <capability.h>
+#include "capability.h"
 
 #define DECLARE_CAPABILITY(name, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16) \
 const StandartCapability name(#name, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16)

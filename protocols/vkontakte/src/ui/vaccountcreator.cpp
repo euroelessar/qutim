@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 #include "vaccountcreator.h"
-#include "vkontakteprotocol.h"
+#include "../vkontakteprotocol.h"
 #include "ui_vaccountwizardpage.h"
-#include "vkontakteprotocol_p.h"
-#include <vaccount.h>
+#include "../vkontakteprotocol_p.h"
+#include "../vaccount.h"
 
 class VAccountWizardPage: public QWizardPage
 {

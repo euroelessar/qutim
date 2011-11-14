@@ -27,7 +27,7 @@
 #define XMLCONSOLE_H
 
 #include <QtGui/QWidget>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 #include <jreen/client.h>
 #include <jreen/jid.h>
 #include <QXmlStreamReader>

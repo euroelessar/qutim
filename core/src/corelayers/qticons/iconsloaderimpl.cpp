@@ -25,7 +25,7 @@
 
 #include "iconsloaderimpl.h"
 #include <qutim/configbase.h>
-#include "3rdparty/q-xdg/src/xdgiconmanager.h"
+#include "../../../3rdparty/q-xdg/src/xdgiconmanager.h"
 #include <qutim/systeminfo.h>
 #include <qutim/debug.h>
 #include <QFormLayout>

@@ -25,7 +25,7 @@
 
 #include "mrimplugin.h"
 #include "mrimprotocol.h"
-#include "ui/wizards/mrimaccountwizard.h"
+#include "../ui/wizards/mrimaccountwizard.h"
 
 #define MRIM_MAJOR_VER 0
 #define MRIM_MINOR_VER 1

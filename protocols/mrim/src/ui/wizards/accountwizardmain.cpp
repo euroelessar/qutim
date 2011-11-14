@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "accountwizardmain.h"
 #include "ui_accountwizardmain.h"
-#include "base/mrimprotocol.h"
+#include "../../base/mrimprotocol.h"
 
 AccountWizardMain::AccountWizardMain(QWidget *parent) :
     QWizardPage(parent),
