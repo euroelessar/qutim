@@ -163,17 +163,17 @@ ENDMACRO()
 
 # This macro is for internal use only
 macro ( LANGUAGE_UPDATE plugin_name language sources )
-	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
-	if( NOT LANGUAGE_DEST_DIR )
-		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
-	endif( NOT LANGUAGE_DEST_DIR )
-	separate_arguments( LANGUAGE_OPTS )
-	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
-					 ${LANGUAGE_OPTS}
-					 -extensions "h,cpp,mm,js,c,ui"
-					 -target-language "${language}" ${sources}
-					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
-					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+#	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
+#	if( NOT LANGUAGE_DEST_DIR )
+#		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
+#	endif( NOT LANGUAGE_DEST_DIR )
+#	separate_arguments( LANGUAGE_OPTS )
+#	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
+#					 ${LANGUAGE_OPTS}
+#					 -extensions "h,cpp,mm,js,c,ui"
+#					 -target-language "${language}" ${sources}
+#					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
+#					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
