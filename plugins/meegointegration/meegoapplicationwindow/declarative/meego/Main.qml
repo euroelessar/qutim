@@ -128,6 +128,7 @@ PageStackWindow {
 					tab: settingsTab
 				}
 			}
+
 			ToolIcon {
 				property variant menu: tabGroup.currentTab.menu
 				//				visible: menu !== undefined
@@ -136,11 +137,26 @@ PageStackWindow {
 				//					visualParent: root.pageStack
 				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:joinGroupChatDialog.open()
+				onClicked:mainMenu.open()
 //				onClicked: (menu.status == DialogStatus.Closed)
 //					   ? menu.open()
 //					   : menu.close()
 			}
+
+		}
+		Menu {
+		    id: mainMenu
+
+		    content: MenuLayout {
+			MenuItem {
+			    text: "Show/hide offline"
+			    onClicked: contactListTab.showOffline=!contactListTab.showOffline;
+			}
+			MenuItem {
+			    text: "Join group chat"
+			    onClicked: joinGroupChatDialog.open();
+			}
+		    }
 		}
 	}
 }
