@@ -71,8 +71,7 @@ public:
 	virtual MessageList unread() const;
 	QAbstractItemModel *getModel() const;
 	void doSetActive(bool active = true);
-	virtual void setChatUnit(ChatUnit* unit);
-	virtual bool isActive();
+	void setChatUnit(ChatUnit* unit);
 	QMenu *menu();
 	bool event(QEvent *);
 	void setChatState(ChatState state);
