@@ -25,7 +25,7 @@
 
 #include "ircconsole.h"
 #include "ui_console.h"
-#include "ircaccount.h"
+#include "../ircaccount.h"
 
 namespace qutim_sdk_0_3 {
 

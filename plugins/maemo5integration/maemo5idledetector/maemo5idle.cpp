@@ -48,7 +48,7 @@ Maemo5Idle::Maemo5Idle()
 
 void Maemo5Idle::doCheck()
 {
-	emit secondsIdle(idleSeconds);
+	emit secondsIdle(idleMinutes);
 }
 
 void Maemo5Idle::setDisplayState(const QString &state)
@@ -58,7 +58,7 @@ void Maemo5Idle::setDisplayState(const QString &state)
 		{
 			display_off=false;
 			idle_timer->stop();
-			idleSeconds=0;
+			idleMinutes=0;
 		}
 		else if (state == MCE_DISPLAY_OFF_STRING)
 		{
@@ -76,7 +76,7 @@ void Maemo5Idle::displayStateChanged(const QDBusMessage &message)
 
 void Maemo5Idle::timerEvent(QTimerEvent* ev)
 {
-	idleSeconds+=1;
+	idleMinutes+=1;
 	ev->accept();
 }
 

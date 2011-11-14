@@ -60,7 +60,7 @@ void BirthdayReminderSettings::saveImpl()
 
 void BirthdayReminderSettings::cancelImpl()
 {
-	load();
+	loadImpl();
 }
 
 

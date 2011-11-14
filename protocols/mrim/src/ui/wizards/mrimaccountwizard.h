@@ -25,7 +25,7 @@
 #ifndef MRIMACCOUNTWIZARD_H
 #define MRIMACCOUNTWIZARD_H
 
-#include "base/mrimprotocol.h"
+#include "../../base/mrimprotocol.h"
 
 using namespace qutim_sdk_0_3;
 

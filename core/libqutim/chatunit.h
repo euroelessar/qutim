@@ -61,6 +61,7 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
 	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
+	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
 	/**
   * @brief default ChatUnit's contructor
@@ -106,6 +107,7 @@ public:
   * @return Pointer to account
   */
 	const Account *account() const;
+	bool isConference() const;
 	/**
   * @brief send message to chatunit
   *

@@ -26,7 +26,7 @@
 #ifndef IRCCONTACT_P_H
 #define IRCCONTACT_P_H
 
-#include <irccontact.h>
+#include "irccontact.h"
 #include <QSet>
 
 namespace qutim_sdk_0_3 {

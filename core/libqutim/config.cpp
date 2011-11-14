@@ -705,6 +705,20 @@ void Config::remove(int index)
 	}
 }
 
+QVariant Config::rootValue(const QVariant &def, ValueFlags type) const
+{
+	Q_D(const Config);
+	if (d->levels.at(0)->atoms.isEmpty())
+		return def;
+	const ConfigAtom::Ptr &atom = d->levels.at(0)->atoms.first();
+	Q_ASSERT(atom->typeMap);
+	QVariant var = QVariant(*atom->map);
+	if (type & Config::Crypted)
+		return var.isNull() ? def : CryptoService::decrypt(var);
+	else
+		return var.isNull() ? def : var;
+}
+
 QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type) const
 {
 	Q_D(const Config);

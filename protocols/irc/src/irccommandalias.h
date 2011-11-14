@@ -26,7 +26,7 @@
 #ifndef IRCCOMMANDALIAS_H
 #define IRCCOMMANDALIAS_H
 
-#include <ircglobal.h>
+#include "ircglobal.h"
 #include <QSharedDataPointer>
 
 namespace qutim_sdk_0_3 {

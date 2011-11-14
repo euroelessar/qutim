@@ -70,7 +70,6 @@ public:
 	QPointer<QActionGroup> group;
 	QPointer<ChatSessionModel> model;
 	//additional info and flags
-	bool active;
 	bool sendToLastActiveResource;
 	mutable bool hasJavaScript;
 	QTimer inactive_timer;

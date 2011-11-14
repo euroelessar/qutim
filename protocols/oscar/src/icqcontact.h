@@ -28,9 +28,9 @@
 
 #include <QScopedPointer>
 #include <qutim/contact.h>
-#include <capability.h>
-#include <cookie.h>
-#include <feedbag.h>
+#include "capability.h"
+#include "cookie.h"
+#include "feedbag.h"
 #include <qutim/extensionicon.h>
 
 namespace qutim_sdk_0_3 {

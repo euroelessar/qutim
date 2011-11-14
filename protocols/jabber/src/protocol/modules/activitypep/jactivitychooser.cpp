@@ -28,7 +28,7 @@
 #include <qutim/icon.h>
 #include <qutim/event.h>
 #include <qutim/actiongenerator.h>
-#include "protocol/account/jaccount.h"
+#include "../../account/jaccount.h"
 #include <jreen/activity.h>
 #include <qutim/debug.h>
 

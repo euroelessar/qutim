@@ -25,7 +25,7 @@
 #ifndef VACCOUNTCREATOR_H
 #define VACCOUNTCREATOR_H
 #include <QWizardPage>
-#include "vkontakte_global.h"
+#include "../vkontakte_global.h"
 #include <qutim/protocol.h>
 
 class VkontakteProtocol;

@@ -27,7 +27,7 @@
 #define XSTATUSREQUESTER_H
 
 #include <QTimer>
-#include <icqcontact.h>
+#include "../../src/icqcontact.h"
 
 namespace qutim_sdk_0_3 {
 

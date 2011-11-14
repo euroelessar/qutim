@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "ircsettingswidget.h"
-#include "ircaccount.h"
+#include "../ircaccount.h"
 
 namespace qutim_sdk_0_3 {
 namespace irc {

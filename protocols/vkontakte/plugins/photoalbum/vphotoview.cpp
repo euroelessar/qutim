@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 #include "vphotoview.h"
-#include <vcontact.h>
+#include "../../src/vcontact.h"
 #include <qutim/config.h>
 #include <QLatin1Literal>
 #include <qutim/debug.h>
 #include <QtDeclarative/QDeclarativeContext>
-#include <vconnection.h>
-#include <vaccount.h>
+#include "../../src/vconnection.h"
+#include "../../src/vaccount.h"
 #include <qutim/json.h>
 #include "valbummodel.h"
 #include <qutim/thememanager.h>

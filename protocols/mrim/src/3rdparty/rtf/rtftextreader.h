@@ -1,7 +1,7 @@
 #if !defined RTFTEXTREADER_H && !defined NO_RTF_SUPPORT
 #define RTFTEXTREADER_H
 
-#include <rtf/rtfreader.h>
+#include "rtfreader.h"
 #include <QTextDocument>
 #include <QTextCursor>
 

@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 #include <QVBoxLayout>
 #include <QSpacerItem>
-#include "ircaccount.h"
+#include "../ircaccount.h"
 
 namespace qutim_sdk_0_3 {
 

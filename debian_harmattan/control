@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: qutim
 Section: user/network
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},libidn11,libqca-cyrus-sasl,libqca2-plugin-ossl
+Depends: ${shlibs:Depends}, ${misc:Depends},libidn11,libqca2-plugin-ossl
 Description: qutIM - is powerful instant messenger
  qutIM is crossplatform multiprotocol instant messengrer with module-based architecture. Protocols' support can be provided by several plugins, some of them are our own implementations of protocols, and some of them uses 3rd party libraries and technologies. Every plugin may be disabled through graphic interface.
  Supported protocols: Oscar(ICQ), Jabber, Mail.ru(MRIM), IRC, Vkontakte 
@@ -121,3 +121,11 @@ XB-Maemo-Icon-26:
  /LW3/OI/f6fAfD3jDf/Z46aLNn5H9C56n+F5Xmzi8HdcP/eZV6qYb9b4fwkI
  DO2dzZsSAAAAAElFTkSuQmCC
  ====
+
+Package: qutim-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, qutim (= ${binary:Version})
+Description: Debug symbols for QutIM 0.3
+ Debug symbols to provide extra debug info in case of crash.

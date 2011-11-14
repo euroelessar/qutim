@@ -113,6 +113,8 @@ void EmoEditPlugin::drawObject(QPainter *painter, const QRectF &rect, QTextDocum
 void EmoEditPlugin::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	QTextDocument *doc = session->getInputField();
+	if (!doc)
+		return;
 	connect(session, SIGNAL(destroyed(QObject*)), this, SLOT(onSessionDestroyed(QObject*)));
 	connect(doc, SIGNAL(contentsChanged()), this, SLOT(onDocumentContentsChanged()));
 	doc->documentLayout()->registerHandler(emoticonsObjectType, this);

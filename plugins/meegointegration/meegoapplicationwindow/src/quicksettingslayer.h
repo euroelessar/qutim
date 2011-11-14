@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,47 +23,36 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEDIALOG_H
-#define PROFILEDIALOG_H
+#ifndef QUICKSETTINGSLAYER_H
+#define QUICKSETTINGSLAYER_H
 
-#include <QDialog>
-#include <QListWidgetItem>
-#include "modulemanagerimpl.h"
+#include <qutim/settingslayer.h>
 
-namespace qutim_sdk_0_3
+namespace MeegoIntegration
 {
-	class Config;
-}
+class QuickSettingsModel;
 
-namespace Ui {
-    class ProfileDialog;
-}
-
-namespace Core
-{
-class ProfileDialog : public QDialog
+class QuickSettingsLayer : public qutim_sdk_0_3::SettingsLayer
 {
     Q_OBJECT
+	Q_PROPERTY(QObject* model READ model CONSTANT)
 public:
-	ProfileDialog(Config &config, ModuleManager *parent = 0);
-	~ProfileDialog();
-	static Config profilesInfo();
-	static QString profilesConfigPath();
-	static bool acceptProfileInfo(Config &config, const QString &password);
+    explicit QuickSettingsLayer();
+	
+	virtual void show(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
+	virtual void close(QObject* controller = 0);
+	virtual void update(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
+	
+	QObject *model();
+	Q_INVOKABLE void show(QObject *object = 0);
 
-protected slots:
-	void login(const QString &password);
-	void on_profilesButton_clicked();
-	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
-protected:
-    void changeEvent(QEvent *e);
+signals:
+	void settingsRequested(QObject *model);
 
 private:
-	ModuleManager *m_manager;
-	Ui::ProfileDialog *ui;
+	QMap<QObject*, qutim_sdk_0_3::SettingsItemList> m_items;
+	QMap<QObject*, QuickSettingsModel*> m_models;
 };
 }
 
-#endif // PROFILEDIALOG_H
-
+#endif // QUICKSETTINGSLAYER_H

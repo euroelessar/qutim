@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "ircaccountnicksettings.h"
-#include "ircaccount.h"
+#include "../ircaccount.h"
 #include "ui_editnickform.h"
 #include <qutim/config.h>
 

@@ -32,7 +32,7 @@
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
-#include <sdk/jabber.h>
+#include "../../sdk/jabber.h"
 #include <QSignalMapper>
 namespace Jreen
 {
@@ -47,7 +47,7 @@ class JAccountPrivate
 {
 	Q_DECLARE_PUBLIC(JAccount)
 public:
-	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
+	inline JAccountPrivate(JAccount *q) : q_ptr(q), hasChangedParameters(false) {}
 	inline ~JAccountPrivate() {}
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
@@ -61,8 +61,9 @@ public:
 	JAccount *q_ptr;
 	QString nick;
 	QString avatar;
-	bool keepStatus;
+	QVariantMap parameters;
 	Status status;
+	bool hasChangedParameters;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
 	QWeakPointer<JMUCManager> conferenceManager;

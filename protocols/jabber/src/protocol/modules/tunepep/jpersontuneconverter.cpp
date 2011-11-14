@@ -26,7 +26,7 @@
 #include "jpersontuneconverter.h"
 #include <jreen/tune.h>
 #include <qutim/extensionicon.h>
-#include <protocol/jprotocol.h>
+#include "../../jprotocol.h"
 #include <QUrl>
 
 namespace Jabber
