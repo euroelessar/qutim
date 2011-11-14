@@ -4,10 +4,7 @@ if(NOT QT_QTDBUS_FOUND)
 	return()
 endif()
 
-qutim_add_plugin(maemo5vibra
-	EXTENSION
-	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/maemo5vibra.h
-	EXTENSION_CLASS Maemo5Vibra
+qutim_add_plugin(maemo5vibra	
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Maemo 5 Vibra Notifications"
 	DESCRIPTION "Notification system, based Maemo 5 Vibrator"

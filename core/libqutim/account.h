@@ -1,17 +1,27 @@
 /****************************************************************************
-*  account.h
-*
-*  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
@@ -65,7 +75,20 @@ class LIBQUTIM_EXPORT Account
 	Q_PROPERTY(QString id READ id)
 	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
 public:
+	enum AccountHookEnum {
+		// all values below are reserved for MenuController
+		ReadParametersHook = 0x100,
+		UpdateParametersHook
+	};
+	
+	struct UpdateParametersArgument
+	{
+		QVariantMap parameters;
+		QStringList reconnectionRequired;
+	};
+
 	/*!
 	  Account's contructor with identification \a id and \a protocol.
 	  Identification is unique in current \a protocol, i.e. JID for
@@ -128,6 +151,10 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 
 	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
+
+	QVariantMap parameters() const;
+	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
+
 	static AccountList all();
 	/*!
 	  Returns the group chat manager of the account.
@@ -169,6 +196,7 @@ signals:
 	  \see groupChatManager(), resetGroupChatManager()
 	*/
 	void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void parametersChanged(const QVariantMap &parameters);
 };
 
 ChatUnit *Account::unit(const QString &unitId, bool create)
@@ -181,3 +209,4 @@ Q_DECLARE_METATYPE(qutim_sdk_0_3::Account*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Account*>)
 
 #endif // ACCOUNT_H
+

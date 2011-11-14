@@ -1,17 +1,27 @@
 /****************************************************************************
- *  messagesession.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "messagesession.h"
 #include "messagehandler.h"
@@ -57,6 +67,9 @@ public:
 
 struct ChatSessionPrivate
 {
+	ChatSessionPrivate() : active(false) {}
+
+	bool active;
 };
 
 struct ChatLayerData
@@ -68,7 +81,7 @@ struct ChatLayerData
 
 Q_GLOBAL_STATIC(ChatLayerData, p)
 
-ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
+ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), d_ptr(new ChatSessionPrivate)
 {
 }
 
@@ -83,6 +96,11 @@ qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
 
 qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 {
+	if (!message.chatUnit()) {
+		qWarning("Message \"%s\" must have a chatUnit", qPrintable(message.text()));
+		message.setChatUnit(getUnit());
+	}
+	
 	QString reason;
 	messageHookMap()->insert(&message, this);
 	int result = MessageHandler::handle(message, &reason);
@@ -94,6 +112,21 @@ qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 	}
 	messageHookMap()->remove(&message);
 	return message.id();
+}
+
+bool ChatSession::isActive()
+{
+	return d_func()->active;
+}
+
+void ChatSession::setActive(bool active)
+{
+	Q_D(ChatSession);
+	if (active == d->active)
+		return;
+	doSetActive(active);
+	d->active = active;
+	emit activated(active);
 }
 
 void ChatSession::virtual_hook(int id, void *data)
@@ -112,6 +145,7 @@ public:
 
 ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
+	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
@@ -205,3 +239,4 @@ void ChatLayer::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 }
+

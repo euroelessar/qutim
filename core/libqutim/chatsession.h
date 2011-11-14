@@ -1,17 +1,27 @@
 /****************************************************************************
- *  messagesession.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef LIBQUTIM_MESSAGESESSION_H
 #define LIBQUTIM_MESSAGESESSION_H
@@ -31,6 +41,7 @@ class ChatLayerPrivate;
 class LIBQUTIM_EXPORT ChatSession : public QObject
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(ChatSession)
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
 public:
@@ -41,16 +52,17 @@ public:
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
+	bool isActive();
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
 	qint64 appendMessage(qutim_sdk_0_3::Message &message);
-	virtual bool isActive() = 0;
-	virtual void setActive(bool active) = 0;
+	void setActive(bool active);
 	inline void activate() { setActive(true); }
 	inline qint64 appendMessage(const QString &text)
 	{ Message msg(text); return appendMessage(msg); }
 protected:
+	virtual void doSetActive(bool active) = 0;
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
 signals:
 	void messageReceived(qutim_sdk_0_3::Message *message);
@@ -65,7 +77,7 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 	friend class MessageHandlerHook;
 private:
-	QScopedPointer<ChatSessionPrivate> p;
+	QScopedPointer<ChatSessionPrivate> d_ptr;
 };
 
 class LIBQUTIM_EXPORT ChatLayer : public QObject
@@ -110,3 +122,4 @@ Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatSession*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatSession*>)
 
 #endif // LIBQUTIM_MESSAGESESSION_H
+

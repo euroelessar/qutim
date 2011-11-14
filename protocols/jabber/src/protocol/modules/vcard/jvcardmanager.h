@@ -1,9 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (c) 2011 Ruslan Nigmatullin <euroelessar@gmail.com>
-**                    Alexey Prokhin <alexey.prokhin@yandex.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -19,7 +18,7 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program. If not, see http://www.gnu.org/licenses/.
+** along with this program.  If not, see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
@@ -33,7 +32,7 @@
 #include <qutim/inforequest.h>
 #include <qutim/status.h>
 #include <qutim/chatunit.h>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 
 namespace Jabber
 {
@@ -78,3 +77,4 @@ private:
 }
 
 #endif // JVCARDMANAGER_H
+

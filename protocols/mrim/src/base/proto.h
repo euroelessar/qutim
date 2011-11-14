@@ -1,6 +1,28 @@
-//***************************************************************************
-// $Id: proto.h,v 1.19 2009/08/01 xtazz Exp $
-//***************************************************************************
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2009 Rusanov Peter <peter.rusanov@gmail.com>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef MRIM_PROTO_H
 #define MRIM_PROTO_H
@@ -23,24 +45,22 @@ typedef struct mrim_packet_header_t
     quint32        msg; // Packet type
     quint32       dlen; // Data length
     quint32       from; // Sender address
-    quint32	  fromport; // Sender port
+    quint32  fromport; // Sender port
     uchar reserved[16]; // Reserved
 } mrim_packet_header_t;
 
 #define HEADER_SIZE (44)
 #define HEADER_FIELDS_COUNT (7)
 
-#define CS_MAGIC    0xDEADBEEF		// Client Magic ( C <-> S )
-
+#define CS_MAGIC    0xDEADBEEF// Client Magic ( C <-> S )
 
 // UNICODE = (UTF-16LE) (>=1.17)
 
 /***************************************************************************
 
-		Protocol of client-server connection
+Protocol of client-server connection
 
  ***************************************************************************/
-
 #define MRIM_CS_HELLO       	0x1001  // C -> S
 // empty
 

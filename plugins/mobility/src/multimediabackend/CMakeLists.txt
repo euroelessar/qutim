@@ -1,6 +1,6 @@
 #qutim_check_component(MultimediaKit)
 
-if(NOT DEFINED ${QT_MOBILITY_MULTIMEDIAKIT_FOUND})
+if(NOT QT_MOBILITY_MULTIMEDIAKIT_FOUND)
 	find_package(Qt4 COMPONENTS QtMultimedia)
 	if(NOT QT_QTMULTIMEDIA_FOUND)
 		message(STATUS "Cannot build multimedia backend")
@@ -19,5 +19,5 @@ qutim_add_plugin(multimediabackend
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Mulimedia engine"
 	DESCRIPTION "Sound engine based on QtMultimedia"
-	INCLUDE_DIRS ${QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR} 
+	INCLUDE_DIRS ${QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR}
 )

@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jprotocol.h"
 #include "jmainsettings.h"
 #include "account/jaccount.h"
@@ -345,12 +368,43 @@ void JProtocol::loadAccounts()
 	}
 }
 
-void JProtocol::addAccount(JAccount *account, bool isEmit)
+Account *JProtocol::doCreateAccount(const QString &id, const QVariantMap &parameters)
 {
 	Q_D(JProtocol);
+	JAccount *account = new JAccount(id);
+	account->updateParameters(parameters);
+//	QString password = properties.value(QLatin1String("password")).toString();
+//	QString server = properties.value(QLatin1String("connect-server")).toString();
+//	int port = properties.value(QLatin1String("port"), 5222).toInt();
+//	QString resource = properties.value(QLatin1String("resource")).toString();
+//	int priority = properties.value(QLatin1String("priority"), 30).toInt();
+//	if (!password.isEmpty())
+//		account->setPasswd(password);
+	{
+		Config config = Protocol::config();
+		config.beginGroup(QLatin1String("general"));
+		QStringList accounts = config.value(QLatin1String("accounts"), QStringList());
+		accounts << account->id();
+		config.setValue(QLatin1String("accounts"), accounts);
+	}
+//	{
+//		Config config = account->config();
+//		config.setValue(QLatin1String("resource"), resource);
+//		config.setValue(QLatin1String("priority"), priority);
+//		config.setValue(QLatin1String("server"), server);
+//		config.setValue(QLatin1String("port"), port);
+//	}
+	addAccount(account, false);
+	return account;
+}
+
+void JProtocol::addAccount(JAccount *account, bool loadSettings)
+{
+	Q_D(JProtocol);
+	if (loadSettings)
+		account->loadSettings();
 	d->accounts->insert(account->id(), account);
-	if(isEmit)
-		emit accountCreated(account);
+	emit accountCreated(account);
 
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(removeAccount(QObject*)));
@@ -502,6 +556,31 @@ bool JProtocol::event(QEvent *ev)
 	return QObject::event(ev);
 }
 
+void JProtocol::virtual_hook(int id, void *data)
+{
+	switch (id) {
+	case SupportedAccountParametersHook: {
+		QStringList &properties = *reinterpret_cast<QStringList*>(data);
+		properties << QLatin1String("connect-server")
+		           << QLatin1String("port")
+		           << QLatin1String("password")
+		           << QLatin1String("resource")
+		           << QLatin1String("priority")
+		           << QLatin1String("fallback-conference-server")
+		           << QLatin1String("bosh-host")
+		           << QLatin1String("bosh-port");
+		break;
+	}
+	case CreateAccountHook: {
+		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
+		argument.account = doCreateAccount(argument.id, argument.parameters);
+		break;
+	}
+	default:
+		Protocol::virtual_hook(id, data);
+	}
+}
+
 void JProtocol::removeAccount(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
@@ -510,3 +589,4 @@ void JProtocol::removeAccount(QObject *obj)
 }
 
 #include <jprotocol.moc>
+

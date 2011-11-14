@@ -163,17 +163,17 @@ ENDMACRO()
 
 # This macro is for internal use only
 macro ( LANGUAGE_UPDATE plugin_name language sources )
-	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
-	if( NOT LANGUAGE_DEST_DIR )
-		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
-	endif( NOT LANGUAGE_DEST_DIR )
-	separate_arguments( LANGUAGE_OPTS )
-	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
-					 ${LANGUAGE_OPTS}
-					 -extensions "h,cpp,mm,js,c,ui"
-					 -target-language "${language}" ${sources}
-					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
-					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+#	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
+#	if( NOT LANGUAGE_DEST_DIR )
+#		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
+#	endif( NOT LANGUAGE_DEST_DIR )
+#	separate_arguments( LANGUAGE_OPTS )
+#	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
+#					 ${LANGUAGE_OPTS}
+#					 -extensions "h,cpp,mm,js,c,ui"
+#					 -target-language "${language}" ${sources}
+#					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
+#					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
@@ -202,7 +202,7 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
+	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;DECLARATIVE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
 	"SUBPLUGIN;EXTENSION;STATIC;"
 	${ARGN}
 	)
@@ -237,6 +237,10 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	if( NOT QUTIM_${plugin_name}_SOURCE_DIR )
 		set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 	endif( NOT QUTIM_${plugin_name}_SOURCE_DIR )
+
+	if( NOT QUTIM_${plugin_name}_DECLARATIVE_DIR )
+		set( QUTIM_${plugin_name}_DECLARATIVE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/declarative" )
+	endif( NOT QUTIM_${plugin_name}_DECLARATIVE_DIR )
 
 	file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCE_DIR}/*.cpp" )
 	if(APPLE)
@@ -301,10 +305,10 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 
 	#static resources should be added directly to qutim executable
 	if( QUTIM_${plugin_name}_STATIC )
-	list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
-	#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
+		list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
+		#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
 	else()
-	QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
+		QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
 	endif()
 
 	# This project will generate library
@@ -356,6 +360,13 @@ Q_IMPORT_PLUGIN(${plugin_name})
 
 	# Link with Qt
 	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+
+	if( EXISTS ${QUTIM_${plugin_name}_DECLARATIVE_DIR} AND IS_DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR} )
+		install(DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR}/
+			DESTINATION ${QUTIM_SHARE_DIR}/declarative
+			COMPONENT ${plugin_name}
+		)
+	endif()
 
 	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
 		install( TARGETS ${plugin_name}

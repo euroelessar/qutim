@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
 ** Copyright (C) 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
@@ -30,6 +30,7 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QSet>
+#include <QCoreApplication>
 
 namespace Core {
 
@@ -48,14 +49,15 @@ ServiceChooser::ServiceChooser(const QByteArray &service,
 							   QWidget *parent) :
 	QGroupBox(title, parent), m_layout(new QVBoxLayout(this)), m_service(service), m_currentService(currentService)
 {
+	
 	foreach (const ExtensionInfo &service, services) {
 		const QMetaObject *meta = service.generator()->metaObject();
 		QByteArray name = meta->className();
-		QByteArray desc = MetaObjectBuilder::info(meta, "SettingsDescription");
-		if (desc.isEmpty())
-			desc = name;
-		QRadioButton *button = new QRadioButton(LocalizedString(desc).toString(), this);
-		button->setObjectName(name);
+		const char *desc = MetaObjectBuilder::info(meta, "SettingsDescription");
+		if (!desc || !*desc)
+			desc = name.constData();
+		QRadioButton *button = new QRadioButton(QCoreApplication::translate("ContactList", desc), this);
+		button->setObjectName(QString::fromLatin1(name));
 
 		button->setChecked(name == m_currentService);
 		connect(button, SIGNAL(toggled(bool)), SLOT(onButtonToggled(bool)));
@@ -262,3 +264,4 @@ void ContactListSettings::onModifiedChanged(bool haveChanges)
 }
 
 } // namespace Core
+

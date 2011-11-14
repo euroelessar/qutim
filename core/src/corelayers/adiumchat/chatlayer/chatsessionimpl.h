@@ -1,17 +1,27 @@
 /****************************************************************************
-*  chatsessionimpl.h
-*
-*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef CHATSESSIONIMPL_H
 #define CHATSESSIONIMPL_H
@@ -60,9 +70,8 @@ public:
 	virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
 	virtual MessageList unread() const;
 	QAbstractItemModel *getModel() const;
-	virtual void setActive(bool active = true);
-	virtual void setChatUnit(ChatUnit* unit);
-	virtual bool isActive();
+	void doSetActive(bool active = true);
+	void setChatUnit(ChatUnit* unit);
 	QMenu *menu();
 	bool event(QEvent *);
 	void setChatState(ChatState state);
@@ -84,3 +93,4 @@ private:
 }
 
 #endif // CHATSESSIONIMPL_H
+

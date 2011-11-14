@@ -27,4 +27,6 @@ opt/qutim/share/apps/qutim/languages/*
 opt/qutim/share/apps/qutim/sounds/*
 opt/qutim/share/apps/qutim/icons/*
 opt/qutim/share/qutim/*
-usr/share/*
+usr/share/applications/*
+usr/share/doc/*
+usr/share/icons/hicolor/*

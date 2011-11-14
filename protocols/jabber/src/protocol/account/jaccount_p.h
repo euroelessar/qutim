@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #ifndef JACCOUNT_P_H
 #define JACCOUNT_P_H
 
@@ -8,7 +32,7 @@
 #include <jreen/client.h>
 #include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
-#include <sdk/jabber.h>
+#include "../../sdk/jabber.h"
 #include <QSignalMapper>
 namespace Jreen
 {
@@ -23,7 +47,7 @@ class JAccountPrivate
 {
 	Q_DECLARE_PUBLIC(JAccount)
 public:
-	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
+	inline JAccountPrivate(JAccount *q) : q_ptr(q), hasChangedParameters(false) {}
 	inline ~JAccountPrivate() {}
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
@@ -37,8 +61,9 @@ public:
 	JAccount *q_ptr;
 	QString nick;
 	QString avatar;
-	bool keepStatus;
+	QVariantMap parameters;
 	Status status;
+	bool hasChangedParameters;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
 	QWeakPointer<JMUCManager> conferenceManager;
@@ -64,3 +89,4 @@ public:
 
 
 #endif // JACCOUNT_P_H
+

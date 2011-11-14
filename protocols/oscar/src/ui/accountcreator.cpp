@@ -1,23 +1,33 @@
 /****************************************************************************
- *  accountcreator.cpp
- *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "accountcreator.h"
 #include "icqaccountmainsettings.h"
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include "icqprotocol.h"
+#include "../icqprotocol.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -27,11 +37,11 @@ IcqAccWizardPage::IcqAccWizardPage(QWidget *parent) :
 	QWizardPage(parent),
 	m_settingsWidget(new IcqAccountMainSettings(0, this))
 {
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        QScrollArea *scrollArea = new QScrollArea(this);
-        layout->addWidget(scrollArea);
-        scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(m_settingsWidget);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	QScrollArea *scrollArea = new QScrollArea(this);
+	layout->addWidget(scrollArea);
+	scrollArea->setWidgetResizable(true);
+	scrollArea->setWidget(m_settingsWidget);
 	connect(m_settingsWidget, SIGNAL(completeChanged()),
 			SIGNAL(completeChanged()));
 }
@@ -67,3 +77,4 @@ QList<QWizardPage *> IcqAccountCreationWizard::createPages(QWidget *parent)
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

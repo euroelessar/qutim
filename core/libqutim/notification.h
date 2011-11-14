@@ -1,18 +1,27 @@
 /****************************************************************************
- *  notification.h
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *                     by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
@@ -220,8 +229,8 @@ public:
 	static void disableBackend(const QByteArray &type);
 	static bool isBackendEnabled(const QByteArray &type);
 signals:
-	void backendCreated(const QByteArray &type, NotificationBackend *backend);
-	void backendDestroyed(const QByteArray &type, NotificationBackend *backend);
+	void backendCreated(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
+	void backendDestroyed(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
 	void backendStateChanged(const QByteArray &type, bool enabled);
 private:
 	friend class NotificationBackend;
@@ -237,3 +246,4 @@ Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationBackend*)
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
 
 #endif // NOTIFICATION_H
+

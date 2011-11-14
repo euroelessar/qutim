@@ -1,18 +1,28 @@
 /****************************************************************************
- *  jmucsession.cpp
- *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "jmucsession.h"
 #include "jmucuser.h"
@@ -26,7 +36,7 @@
 #include <qutim/messagesession.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/delayeddelivery.h>
-#include "jabber_global.h"
+#include "../../../jabber_global.h"
 #include <QStringBuilder>
 #include <QMessageBox>
 #include <QFile>
@@ -478,7 +488,7 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 			coreMsg.setProperty("senderId", user->id());
 		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 		ChatSession *chatSession = ChatLayer::get(this, true);
-		const DelayedDelivery *when = msg.when();
+		DelayedDelivery::Ptr when = msg.when();
 		if (when) {
 			coreMsg.setProperty("history", true);
 			coreMsg.setTime(when->dateTime());
@@ -780,3 +790,4 @@ void JMUCSession::onNickSelected(const QString &nick)
 }
 
 }
+

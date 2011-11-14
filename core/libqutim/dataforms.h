@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #ifndef DATAFORMS_H
 #define DATAFORMS_H
 
@@ -501,7 +525,7 @@ public:
 
 		NRoles
 	};
-	Q_DECLARE_FLAGS(ButtonRoles, ButtonRole);
+	Q_DECLARE_FLAGS(ButtonRoles, ButtonRole)
 	enum StandardButton {
 		NoButton           = 0x00000000,
 		Ok                 = 0x00000400,
@@ -521,9 +545,9 @@ public:
 		Help               = 0x01000000,
 		Apply              = 0x02000000,
 		Reset              = 0x04000000,
-		RestoreDefaults    = 0x08000000,
+		RestoreDefaults    = 0x08000000
 	};
-	Q_DECLARE_FLAGS(StandardButtons, StandardButton);
+	Q_DECLARE_FLAGS(StandardButtons, StandardButton)
 	struct Button
 	{
 		LocalizedString name;
@@ -604,14 +628,15 @@ T DataItem::data(const T &def) const
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles);
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons);
+Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons)
 #endif
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>)
 #endif
 
 #endif // DATAFORMS_H
+
