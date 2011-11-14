@@ -15,4 +15,4 @@
 	url = git://github.com/euroelessar/jreen.git
 [submodule "artwork"]
 	path = artwork
-	url = https://github.com/gorthauer/artwork.git
+	url = git://github.com/gorthauer/artwork.git
