@@ -5,9 +5,6 @@ if(NOT QT_QTDBUS_FOUND)
 endif()
 
 qutim_add_plugin(maemo5led
-	EXTENSION
-	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/maemo5led.h
-	EXTENSION_CLASS Maemo5Led
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Maemo 5 Led Notifications"
 	DESCRIPTION "Notification system, based Maemo 5 Led"
