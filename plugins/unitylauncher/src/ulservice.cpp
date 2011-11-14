@@ -64,7 +64,7 @@ void UnityLauncherService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	qutim_sdk_0_3::debug() << "[UnityLauncher] onSessionCreated";
 	dock->setCount(++sessionCount);
 	connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList&)), SLOT(sendAlert()));
+	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(sendAlert()));
 }
 
 void UnityLauncherService::onSessionDestroyed(QObject *)
