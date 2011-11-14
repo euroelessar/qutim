@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-
-
 #include "macwidget_p.h"
 #include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>

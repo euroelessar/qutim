@@ -294,6 +294,8 @@ void JServiceBrowser::showContextMenu(const QPoint &pos)
 {
 	p->contextMenu->clear();
 	QTreeWidgetItem *item = p->ui->serviceTree->itemAt(pos);
+	if (!item)
+		return;
 	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
 	p->currentMenuItem = di;
 	if (di.actions() & Jreen::Disco::Item::ActionJoin)
