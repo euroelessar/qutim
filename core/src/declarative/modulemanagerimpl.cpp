@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "modulemanagerimpl.h"
+#include "requesthelper.h"
 #include <qutim/jsonfile.h>
 #include <QVariant>
 #include <QFile>
@@ -32,6 +33,9 @@
 #include <qutim/notification.h>
 #include <qutim/systemintegration.h>
 #include <QDeclarativeContext>
+#include <pwd.h>
+#include <QTextCodec>
+#include <QApplication>
 
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
@@ -56,6 +60,7 @@ namespace Core
 ModuleManagerImpl::ModuleManagerImpl()
 {
 	ModuleManager::loadPlugins();
+
 	CryptoService *cryptoService = NULL;
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<CryptoService>()) {
 		if (CRYPTO_BACKEND == QLatin1String(gen->metaObject()->className())) {
@@ -79,6 +84,46 @@ ModuleManagerImpl::ModuleManagerImpl()
 	dirs[SystemInfo::ConfigDir] = QDir::home().absoluteFilePath(".config/qutim");
 	dirs[SystemInfo::HistoryDir] = QDir::home().absoluteFilePath(".config/qutim/history");
 	dirs[SystemInfo::ShareDir] = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+	Config config = Config(Profile::instance()->data());
+	if (!config.hasChildGroup("profile")) {
+
+		QVariantMap map;
+		JsonFile file;
+		file.setFileName(QDir::home().absoluteFilePath(".config/qutim/profiles/profiles.json"));
+		QVariant var;
+		if (file.load(var))
+			map = var.toMap();
+		{
+			QString user;
+			QT_TRY {
+				struct passwd *userInfo = getpwuid(getuid());
+				QTextCodec *codec = QTextCodec::codecForLocale();
+				user = codec->toUnicode(userInfo->pw_name);
+			} QT_CATCH(...) {
+			}
+			Config config(&map);
+			config.beginGroup("profile");
+			config.setValue("name", user);
+			config.setValue("id", user);
+			config.setValue("crypto",cryptoService->metaObject()->className());
+			config.setValue("config", QLatin1String(configBackends.first()->metaObject()->className()));
+			config.setValue("portable", false);
+
+			config.setValue("configDir", SystemInfo::getPath(SystemInfo::ConfigDir));
+			config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
+			config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
+			config.endGroup();
+		}
+		if (!file.save(map)) {
+			qWarning("Can not open file '%s' for writing",
+				 qPrintable(QDir::home().absoluteFilePath(".config/qutim/profiles/profiles.json")));
+			QTimer::singleShot(0, qApp, SLOT(quit()));
+			return;
+		}
+		new RequestHelper;
+	}
+
 	QTimer::singleShot(0, this, SLOT(initExtensions()));
 }
 
