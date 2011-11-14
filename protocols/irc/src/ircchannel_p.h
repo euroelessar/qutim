@@ -34,6 +34,7 @@ namespace irc {
 
 class IrcJoinLeftActionGenerator : public ActionGenerator
 {
+	Q_GADGET
 public:
 	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
 protected:

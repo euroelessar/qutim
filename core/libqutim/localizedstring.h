@@ -36,8 +36,8 @@
 # undef QT_TRANSLATE_NOOP_UTF8
 # undef QT_TRANSLATE_NOOP3
 # undef QT_TRANSLATE_NOOP3_UTF8
-# define QT_TR_NOOP(x)                            qutim_sdk_0_3::LocalizedString(x)
-# define QT_TR_NOOP_UTF8(x)                       qutim_sdk_0_3::LocalizedString(x)
+# define QT_TR_NOOP(x)                            qutim_sdk_0_3::LocalizedString(staticMetaObject.className(), x)
+# define QT_TR_NOOP_UTF8(x)                       qutim_sdk_0_3::LocalizedString(staticMetaObject.className(), x)
 # define QT_TRANSLATE_NOOP(scope, x)              qutim_sdk_0_3::LocalizedString(scope, x)
 # define QT_TRANSLATE_NOOP_UTF8(scope, x)         qutim_sdk_0_3::LocalizedString(scope, x)
 # define QT_TRANSLATE_NOOP3(scope,x,comment)      qutim_sdk_0_3::LocalizedString(scope, x)

@@ -37,6 +37,7 @@ class IrcCommandAliasPrivate;
 
 class IrcCommandAlias
 {
+	Q_GADGET
 public:
 	enum Type {
 		Disabled     = 0x0000,
