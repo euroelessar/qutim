@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-
-
 #ifndef MACWIDGET_H
 #define MACWIDGET_H
 #include <QMainWindow>
