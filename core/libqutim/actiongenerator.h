@@ -111,6 +111,7 @@ class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 {
 	Q_DECLARE_PRIVATE(ActionGenerator)
 	Q_DISABLE_COPY(ActionGenerator)
+	Q_GADGET
 public:
 	enum Type { StatusType = 0, GeneralType };
 	/*
