@@ -33,17 +33,17 @@
 class DockBase : public QObject
 {
 	Q_OBJECT
-	public:
-		DockBase(QObject *p = NULL);
-		~DockBase() = 0;
-	public slots:
-		virtual void setIcon(const QIcon &);
-		virtual void setOverlayIcon(const QIcon &);
-		virtual void setMenu(QMenu *);
-		virtual void setProgress(int);
+public:
+	DockBase(QObject *p = NULL);
+	~DockBase() = 0;
+public slots:
+	virtual void setIcon(const QIcon &);
+	virtual void setOverlayIcon(const QIcon &);
+	virtual void setMenu(QMenu *);
+	virtual void setProgress(int);
 
-		virtual void setBadge(const QString &);
-		virtual void setAlert(bool on);
+	virtual void setBadge(const QString &);
+	virtual void setAlert(bool on);
 };
 
 

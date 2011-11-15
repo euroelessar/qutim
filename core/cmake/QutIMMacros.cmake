@@ -24,14 +24,14 @@ else(SYMBIAN)
 	endfunction()
 endif(SYMBIAN)
 
-#small workaround
-if(NOT DEFINED IS_CPACK_INCLUDED)
+#include guards
+if(NOT CPACK_INCLUDED)
+	set(CPACK_INCLUDED TRUE)
 	include(CPack)
-	set(IS_CPACK_INCLUDED "true")
 endif()
 
 #TODO separate to external macro
-MACRO (QUTIM_WRAP_CPP outfiles )
+MACRO(QUTIM_WRAP_CPP outfiles)
 	# get include dirs
 	QT4_GET_MOC_FLAGS(moc_flags)
 	QT4_EXTRACT_OPTIONS(moc_files moc_options ${ARGN})
@@ -439,9 +439,9 @@ macro(qutim_generate_includes include_dir)
 endmacro()
 
 macro(qutim_add_extensions_dir dir)
-file( GLOB qutim_core_extensions "${dir}" "${dir}/*" )
+file(GLOB qutim_core_extensions "${dir}" "${dir}/*" )
 foreach( extension ${qutim_core_extensions} )
-    if( IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
+    if(IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
 		GET_FILENAME_COMPONENT(_basename ${extension} NAME_WE)
 		string( TOUPPER ${_basename} SUBDIR_NAME)
 		option(${SUBDIR_NAME} "" ${QUTIM_ENABLE_ALL_PLUGINS})

@@ -43,7 +43,7 @@
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
-#define DEBUG() if (1) {} else qDebug()
+#define DEBUG() if (1) {} else debug()
 
 
 namespace qutim_sdk_0_3 {
@@ -252,10 +252,10 @@ void OscarAuth::clientLogin(bool longTerm)
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *reply = m_manager.post(request, query);
 	m_cleanupHandler.add(reply);
-	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
+	connect(reply, SIGNAL(finished()), this, SLOT(onClientLoginFinished()));
 }
 
-void OscarAuth::onClienLoginFinished()
+void OscarAuth::onClientLoginFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 	Q_ASSERT(reply);
