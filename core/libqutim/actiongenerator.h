@@ -143,8 +143,8 @@ void MyObject::onAction(QObject *obj)
 	void setMenuController(MenuController *controller);
 	void subscribe(QObject *object, const char *method);
 	//void unsubscribe(QObject *object); //TODO implement me
-	void addHandler(int type,QObject *obj);
-	void removeHandler(int type,QObject *obj);
+	void addHandler(int type, QObject *obj);
+	void removeHandler(int type, QObject *obj);
 	void setCheckable(bool checkable);
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);
