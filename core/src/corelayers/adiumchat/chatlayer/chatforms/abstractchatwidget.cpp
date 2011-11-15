@@ -75,7 +75,7 @@ void AbstractChatWidget::setTitle(ChatSessionImpl *s)
 		}
 	}
 
-	window()->setWindowFilePath(title);
+	window()->setWindowTitle(tr("%1 - qutIM").arg(title));
 	window()->setWindowIcon(icon);
 }
 

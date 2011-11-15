@@ -103,7 +103,7 @@ void MergeDialog::closeEvent(QCloseEvent *ev)
 void MergeDialog::nameChanged(const QString& name)
 {
 	ui->nameEdit->setText(name);
-	setWindowFilePath(name);
+	setWindowTitle(tr("%1 - qutIM").arg(name));
 }
 
 
