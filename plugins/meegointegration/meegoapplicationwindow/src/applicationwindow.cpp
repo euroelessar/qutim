@@ -39,6 +39,7 @@
 #include "menumodel.h"
 #include <QApplication>
 #include <QGLWidget>
+#include <MDeclarativeCache>
 
 namespace MeegoIntegration
 {
@@ -46,6 +47,7 @@ using namespace qutim_sdk_0_3;
 
 ApplicationWindow::ApplicationWindow()
 {
+	view = MDeclarativeCache::qDeclarativeView();
 	ServiceManagerWrapper::init();
 	MenuModel::init();
 	PasswordDialogWrapper::init();
@@ -62,7 +64,7 @@ ApplicationWindow::ApplicationWindow()
 	//setOptimizationFlags(QGraphicsView::DontSavePainterState);
 	QApplication::setGraphicsSystem(QLatin1String("raster"));
 
-	setViewport(new QGLWidget(this));
+	view->setViewport(new QGLWidget());
 	// These seem to give the best performance
 //	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 //	viewport->setFocusPolicy(Qt::NoFocus);
@@ -74,7 +76,7 @@ ApplicationWindow::ApplicationWindow()
 	
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
 	                                      QLatin1String("meego"));
-	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-	showFullScreen();
+	view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
+	view->showFullScreen();
 }
 }
