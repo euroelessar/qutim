@@ -31,7 +31,7 @@ import org.qutim 0.3
 Page {
 	id: root
 	property variant contactList
-	property variant showOffline
+	property variant showOffline:false
 	property variant chat
 	property variant menu: ControlledMenu {
 		controller: contactList
@@ -39,7 +39,7 @@ Page {
 	ContactListModel {
 		id: listModel
 		filter: filterField.text
-		showOffline: parent.showOffline
+		showOffline: root.showOffline
 		statusPrefix: "icon-m-common"
 	}
 	ListView {

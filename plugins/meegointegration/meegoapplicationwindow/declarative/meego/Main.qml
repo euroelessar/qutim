@@ -46,6 +46,11 @@ PageStackWindow {
 		id:passwordDialog
 
 	}
+
+	SettingsDialog{
+		id:settingsDialog
+
+	}
 	AuthDialog {
 		id:authDialog
 	}
@@ -149,12 +154,24 @@ PageStackWindow {
 
 		    content: MenuLayout {
 			MenuItem {
-			    text: "Show/hide offline"
+				text: "Show/hide offline contacts"
 			    onClicked: contactListTab.showOffline=!contactListTab.showOffline;
 			}
 			MenuItem {
-			    text: "Join group chat"
+				text: "Join group chat"
 			    onClicked: joinGroupChatDialog.open();
+			}
+			MenuItem {
+				text: "About qutIM"
+			    onClicked: aboutDialog.open();
+			}
+			MenuItem {
+				text: "Add contact"
+			    onClicked: addContactDialog.open();
+			}
+			MenuItem {
+				text: "Settings"
+			    onClicked: settingsDialog.open();
 			}
 		    }
 		}
