@@ -33,6 +33,7 @@
 #include <QtCore/QLocale>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QResource>
+#include <QtCore/QLibraryInfo>
 
 namespace Core
 {
@@ -130,6 +131,18 @@ namespace Core
 		}
 		// For jabber's xml:lang
 		QLocale::setDefault(QLocale(langs.first()));
+		// Firstly we should try to load Qt's translation for selected languages
+		QString qtPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+		foreach (const QString &lang, langs) {
+			QTranslator *translator = new QTranslator(qApp);
+			if (!translator->load(QLatin1String("qt_") + lang, qtPath)) {
+				delete translator;
+			} else {
+				qApp->installTranslator(translator);
+				translators << translator;
+			}
+		}
+		// And our local translations afterwords
 		foreach (const QDir &dir, paths) {
 			QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
 	
