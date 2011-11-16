@@ -2,7 +2,7 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,25 +23,48 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
-
-#include <QDeclarativeView>
+#include "settingswrapper.h"
+#include "quicksettingslayer.h"
+#include <qdeclarative.h>
+#include <qutim/debug.h>
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
+
+using namespace qutim_sdk_0_3;
+
+Q_GLOBAL_STATIC(QList<SettingsWrapper*>, m_managers)
+QuickSettingsLayer* SettingsWrapper::m_currentDialog;
+
+SettingsWrapper::SettingsWrapper()
 {
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
-public:
-    explicit ApplicationWindow();
-private:
-	QDeclarativeView *view;
-};
+	m_managers()->append(this);
 }
 
-#endif // APPLICATIONWINDOW_H
+SettingsWrapper::~SettingsWrapper()
+{
+	m_managers()->removeOne(this);
+}
+
+void SettingsWrapper::init()
+{
+	qmlRegisterType<SettingsWrapper>("org.qutim", 0, 3, "SettingsDialog");
+}
+
+void SettingsWrapper::show(QuickSettingsLayer * dialog)
+{
+	m_currentDialog = dialog;
+	for (int i = 0; i < m_managers()->count();i++)
+	{
+		emit m_managers()->at(i)->shown();
+	}
+}
+
+void SettingsWrapper::open()
+{
+	qDebug()<<"Open settings";
+	Settings::showWidget();
+}
+
+}
+

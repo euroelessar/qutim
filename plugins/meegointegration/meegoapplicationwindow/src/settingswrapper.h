@@ -2,7 +2,7 @@
 **
 ** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,25 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef SETTINGSWRAPPER_H
+#define SETTINGSWRAPPER_H
 
-#include <QDeclarativeView>
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include "quicksettingslayer.h"
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
-{
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
+using namespace qutim_sdk_0_3;
+class SettingsWrapper : public QObject {
+	Q_OBJECT
+
 public:
-    explicit ApplicationWindow();
+	SettingsWrapper();
+	~SettingsWrapper();
+	Q_INVOKABLE void open();
+
+	static void init();
+	static void show(QuickSettingsLayer * dialog);
+
+signals:
+	void shown();
+
 private:
-	QDeclarativeView *view;
+
+	static QuickSettingsLayer *m_currentDialog;
+
 };
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif /* SETTINGSWRAPPER_H */

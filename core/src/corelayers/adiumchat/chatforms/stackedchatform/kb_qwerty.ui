@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>kb_Qwerty</class>
  <widget class="QWidget" name="kb_Qwerty">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>252</height>
+   </rect>
+  </property>
   <property name="maximumSize">
    <size>
     <width>480</width>
@@ -9,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string/>
+   <string notr="true"/>
   </property>
   <property name="styleSheet">
    <string notr="true">font-size: 35px;font-weight: bold;</string>
@@ -48,7 +56,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>q</string>
+            <string notr="true">q</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -63,10 +71,10 @@
             <bool>false</bool>
            </property>
            <property name="charset" stdset="0">
-            <string>qQ1§й</string>
+            <string notr="true">qQ1§й</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -82,7 +90,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>w</string>
+            <string notr="true">w</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -94,10 +102,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>wW2$ц</string>
+            <string notr="true">wW2$ц</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -113,7 +121,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>e</string>
+            <string notr="true">e</string>
            </property>
            <property name="shortcut">
             <string/>
@@ -128,7 +136,7 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>eE3£у</string>
+            <string notr="true">eE3£у</string>
            </property>
            <attribute name="buttonGroup">
             <string>bgDirectInput</string>
@@ -147,7 +155,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>r</string>
+            <string notr="true">r</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -159,10 +167,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>rR4€к</string>
+            <string notr="true">rR4€к</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -178,7 +186,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>t</string>
+            <string notr="true">t</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -190,10 +198,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>tT5¥е</string>
+            <string notr="true">tT5¥е</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -209,7 +217,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>y</string>
+            <string notr="true">y</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -221,10 +229,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>yY6-н</string>
+            <string notr="true">yY6-н</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -240,7 +248,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>u</string>
+            <string notr="true">u</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -252,10 +260,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>uU7&lt;г</string>
+            <string notr="true">uU7&lt;г</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -271,7 +279,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>i</string>
+            <string notr="true">i</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -283,10 +291,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>iI8&gt;ш</string>
+            <string notr="true">iI8&gt;ш</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -302,7 +310,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>o</string>
+            <string notr="true">o</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -314,10 +322,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>oO9[щ</string>
+            <string notr="true">oO9[щ</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -333,7 +341,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>p</string>
+            <string notr="true">p</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -345,10 +353,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>pP0]з</string>
+            <string notr="true">pP0]з</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -371,7 +379,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>a</string>
+            <string notr="true">a</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -383,10 +391,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>aA({ф</string>
+            <string notr="true">aA({ф</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -402,7 +410,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>s</string>
+            <string notr="true">s</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -414,10 +422,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>sS)}ы</string>
+            <string notr="true">sS)}ы</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -433,7 +441,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>d</string>
+            <string notr="true">d</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -445,10 +453,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>dD+^в</string>
+            <string notr="true">dD+^в</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -464,7 +472,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>f</string>
+            <string notr="true">f</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -476,10 +484,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>fF*\а</string>
+            <string notr="true">fF*\а</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -495,7 +503,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>g</string>
+            <string notr="true">g</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -507,10 +515,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>gG=/п</string>
+            <string notr="true">gG=/п</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -526,7 +534,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>h</string>
+            <string notr="true">h</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -538,10 +546,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>hH&amp;~р</string>
+            <string notr="true">hH&amp;~р</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -557,7 +565,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>j</string>
+            <string notr="true">j</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -569,10 +577,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>jJ--о</string>
+            <string notr="true">jJ--о</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -588,7 +596,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>k</string>
+            <string notr="true">k</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -600,10 +608,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>kK__л</string>
+            <string notr="true">kK__л</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -619,7 +627,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>l</string>
+            <string notr="true">l</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -631,10 +639,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>lL^|д</string>
+            <string notr="true">lL^|д</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -650,7 +658,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>:</string>
+            <string notr="true">:</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -659,10 +667,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>:;`№ж</string>
+            <string notr="true">:;`№ж</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -688,7 +696,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string/>
+            <string notr="true"/>
            </property>
            <property name="icon">
             <iconset>
@@ -714,7 +722,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>z</string>
+            <string notr="true">z</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -726,10 +734,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>zZёёя</string>
+            <string notr="true">zZёёя</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -745,7 +753,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>x</string>
+            <string notr="true">x</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -757,10 +765,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>xXъъч</string>
+            <string notr="true">xXъъч</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -776,7 +784,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>c</string>
+            <string notr="true">c</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -788,10 +796,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>cC??с</string>
+            <string notr="true">cC??с</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -807,7 +815,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>v</string>
+            <string notr="true">v</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -819,10 +827,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>vV!!м</string>
+            <string notr="true">vV!!м</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -838,7 +846,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>b</string>
+            <string notr="true">b</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -850,10 +858,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>bB;;и</string>
+            <string notr="true">bB;;и</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -869,7 +877,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>n</string>
+            <string notr="true">n</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -881,10 +889,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>nN::т</string>
+            <string notr="true">nN::т</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -900,7 +908,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>m</string>
+            <string notr="true">m</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -912,10 +920,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>mM,,ь</string>
+            <string notr="true">mM,,ь</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -928,7 +936,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>?</string>
+            <string notr="true">?</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -937,10 +945,10 @@
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>?!%%б</string>
+            <string notr="true">?!%%б</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -956,7 +964,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string/>
+            <string notr="true"/>
            </property>
            <property name="icon">
             <iconset>
@@ -1001,7 +1009,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>1#</string>
+            <string notr="true">1#</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1026,7 +1034,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>ru
+            <string notr="true">ru
 en</string>
            </property>
            <property name="checkable">
@@ -1061,7 +1069,7 @@ en</string>
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>,</string>
+            <string notr="true">,</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -1073,10 +1081,10 @@ en</string>
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>,(##х</string>
+            <string notr="true">,(##х</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -1092,7 +1100,7 @@ en</string>
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string/>
+            <string notr="true"/>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -1123,7 +1131,7 @@ en</string>
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>.</string>
+            <string notr="true">.</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -1135,10 +1143,10 @@ en</string>
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>.)''э</string>
+            <string notr="true">.)''э</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -1157,7 +1165,7 @@ en</string>
             </size>
            </property>
            <property name="text">
-            <string>&quot;</string>
+            <string notr="true">&quot;</string>
            </property>
            <property name="autoRepeat">
             <bool>true</bool>
@@ -1166,10 +1174,10 @@ en</string>
             <number>75</number>
            </property>
            <property name="charset" stdset="0">
-            <string>&quot;'@@ю</string>
+            <string notr="true">&quot;'@@ю</string>
            </property>
            <attribute name="buttonGroup">
-            <string>bgDirectInput</string>
+            <string notr="true">bgDirectInput</string>
            </attribute>
           </widget>
          </item>
@@ -1191,7 +1199,7 @@ en</string>
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string/>
+            <string notr="true"/>
            </property>
            <property name="icon">
             <iconset>
