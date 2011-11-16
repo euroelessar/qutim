@@ -156,15 +156,10 @@ QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *pa
 	m_session(0),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
-	m_engine(engine),
-	m_storeServiceMessages(true)
+	m_engine(engine)
 {
 	m_context = new QDeclarativeContext(m_engine, this);
 	m_context->setContextProperty("controller", this);
-	Config cfg = Config(QLatin1String("appearance")).group(QLatin1String("chat"));
-	cfg.beginGroup(QLatin1String("history"));
-	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
-	cfg.endGroup();
 }
 
 
@@ -172,9 +167,6 @@ void QuickChatController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
 	if (msg.text().isEmpty())
 		return;
-	bool isService = msg.property("service", false);
-	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
-		History::instance()->store(msg);
 	emit messageAppended(messageToVariant(msg));
 }
 

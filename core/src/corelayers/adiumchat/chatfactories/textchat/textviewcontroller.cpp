@@ -85,9 +85,6 @@ TextViewController::TextViewController()
 #endif
 	cfg.endGroup();
 	cfg.endGroup();
-	cfg.beginGroup(QLatin1String("history"));
-	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
-	cfg.endGroup();
 	documentLayout()->registerHandler(EmoticonObjectType, this);
 	init();
 }
@@ -185,8 +182,6 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		cursor.insertText(QLatin1String(" "), defaultFormat);
 		appendText(cursor, msg.text(), defaultFormat, true);
 	}
-	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
-		History::instance()->store(msg);
 	if (shouldScroll)
 		QTimer::singleShot(0, this, SLOT(ensureScrolling()));
 	cursor.endEditBlock();
