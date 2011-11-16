@@ -34,7 +34,6 @@ endif()
 SET(QUTIM_PLUGINS_DEST "lib/qutim/")
 FIND_PACKAGE (Qt4 REQUIRED)
 
-INCLUDE(CPackOptions.cmake.in)
 INCLUDE(UseQt4)
 INCLUDE(MacroEnsureVersion)
 INCLUDE(QutIMMacros)
