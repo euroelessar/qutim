@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Sidorov Aleksey <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -42,10 +42,9 @@ class LIBQUTIM_EXPORT AvatarFilter
 {
 	Q_DECLARE_PRIVATE(AvatarFilter)
 public:
-	AvatarFilter(const QSize &defaultSize/*, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio*/);
+	AvatarFilter(const QSize &defaultSize);
 	~AvatarFilter();
-	bool draw(QPainter *painter, int x, int y,
-			  const QString &path,const QIcon &overlayIcon) const;
+	bool draw(QPainter *painter, int x, int y, const QString &path,const QIcon &overlayIcon) const;
 	static QIcon icon(const QString &path,const QIcon &overlayIcon = QIcon());
 private:
 	QScopedPointer<AvatarFilterPrivate> d_ptr;

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **
@@ -22,6 +22,7 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+
 #ifndef GROWLBACKEND_H
 #define GROWLBACKEND_H
 

@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Sidorov Aleksey <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -40,11 +40,9 @@ class AvatarIconEngine : public QIconEngineV2
 public:
 	AvatarIconEngine(const QString &path,const QIcon &overlay);
 	virtual ~AvatarIconEngine();
-
 	virtual void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
 	virtual QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
 	virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
-
 	virtual QString key() const;
 private:
 	QString m_path;
