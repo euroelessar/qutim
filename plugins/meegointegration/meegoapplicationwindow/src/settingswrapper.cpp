@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,41 +23,48 @@
 **
 ****************************************************************************/
 
-#ifndef DOMAININFO_H
-#define DOMAININFO_H
+#include "settingswrapper.h"
+#include "quicksettingslayer.h"
+#include <qdeclarative.h>
+#include <qutim/debug.h>
 
-#include "libqutim_global.h"
-#include <QHostAddress>
-
-namespace qutim_sdk_0_3
+namespace MeegoIntegration
 {
-	class DomainInfoPrivate;
 
-	class LIBQUTIM_EXPORT DomainInfo : public QObject
-	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(DomainInfo)
-	public:
-		struct Record
-		{
-			QString name;
-			int port;
-			int weight;
-		};
+using namespace qutim_sdk_0_3;
 
-		DomainInfo(QObject *parent = 0);
-		~DomainInfo();
-		
-		void lookupSrvRecord(const QString &service, const QString &proto, const QString &domain);
-		QList<Record> resultRecords();
-		
-	signals:
-		void resultReady();
-		
-	private:
-		QScopedPointer<DomainInfoPrivate> d_ptr;
-	};
+Q_GLOBAL_STATIC(QList<SettingsWrapper*>, m_managers)
+QuickSettingsLayer* SettingsWrapper::m_currentDialog;
+
+SettingsWrapper::SettingsWrapper()
+{
+	m_managers()->append(this);
 }
 
-#endif // DOMAININFO_H
+SettingsWrapper::~SettingsWrapper()
+{
+	m_managers()->removeOne(this);
+}
+
+void SettingsWrapper::init()
+{
+	qmlRegisterType<SettingsWrapper>("org.qutim", 0, 3, "SettingsDialog");
+}
+
+void SettingsWrapper::show(QuickSettingsLayer * dialog)
+{
+	m_currentDialog = dialog;
+	for (int i = 0; i < m_managers()->count();i++)
+	{
+		emit m_managers()->at(i)->shown();
+	}
+}
+
+void SettingsWrapper::open()
+{
+	qDebug()<<"Open settings";
+	Settings::showWidget();
+}
+
+}
 

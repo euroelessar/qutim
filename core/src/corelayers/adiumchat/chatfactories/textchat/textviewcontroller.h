@@ -105,7 +105,6 @@ private:
 	QString m_lastSender;
 	QString m_lastIncomingMessage;
 	bool m_isLastIncoming;
-	bool m_storeServiceMessages;
 	bool m_animateEmoticons;
 	bool m_atAnimation;
 	short m_groupUntil;

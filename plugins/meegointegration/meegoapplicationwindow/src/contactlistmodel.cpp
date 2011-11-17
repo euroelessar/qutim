@@ -146,8 +146,12 @@ void ContactListModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	connect(account, SIGNAL(destroyed(QObject*)),
 	        SLOT(onAccountDeath(QObject*)));
+
+	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+				this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		onContactCreated(contact);
+
 }
 
 void ContactListModel::onAccountDeath(QObject *object)

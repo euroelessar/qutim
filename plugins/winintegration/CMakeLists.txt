@@ -4,8 +4,7 @@ find_package(WinThings)
 add_subdirectory(libs)
 
 if(WINTHINGS_APILAYER_LIBRARY)
-	qutim_add_plugin(
-		winint2
+	qutim_add_plugin( winint2
 		DISPLAY_NAME   "Windows Integration"
 		DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
 		GROUP "Windows Seven Integration"

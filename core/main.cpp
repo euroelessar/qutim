@@ -42,14 +42,14 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-#ifdef TODO__MEEGO_EDITION_HARMATTAN
+#ifdef MEEGO_EDITION
 #include <MDeclarativeCache>
 
 Q_DECL_EXPORT
 #endif
 int main(int argc, char *argv[])
 {
-#ifdef TODO__MEEGO_EDITION_HARMATTAN
+#ifdef MEEGO_EDITION
 	QScopedPointer<QApplication> app(MDeclarativeCache::qApplication(argc, argv));
 #else
 	QScopedPointer<QApplication> app(new QApplication(argc, argv));

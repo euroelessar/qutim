@@ -476,7 +476,7 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 			return;
 		qutim_sdk_0_3::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(user);
-		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
+		coreMsg.setIncoming(true); // msg.from().resource() != d->room->nick());
 		ChatSession *chatSession = ChatLayer::get(user, true);
 		chatSession->appendMessage(coreMsg);
 	} else {

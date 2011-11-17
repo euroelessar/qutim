@@ -28,6 +28,7 @@
 #include "objectgenerator.h"
 #include "servicemanager.h"
 #include "account.h"
+#include "history.h"
 #include <QPointer>
 #include <QBasicTimer>
 #include <QDateTime>
@@ -41,13 +42,31 @@ Q_GLOBAL_STATIC(MessageHookMap, messageHookMap)
 class MessageHandlerHook : public MessageHandler
 {
 public:
+	MessageHandlerHook()
+	{
+		Config cfg(QLatin1String("appearance"));
+		cfg.beginGroup(QLatin1String("chat"));
+		cfg.beginGroup(QLatin1String("history"));
+		m_storeMessages = cfg.value(QLatin1String("storeMessages"), true);
+		m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
+	}
+	
 	virtual Result doHandle(Message &message, QString *)
 	{
 		ChatSession *session = messageHookMap()->value(&message);
-		if (session)
+		if (session) {
 			session->doAppendMessage(message);
+			if (m_storeMessages && message.property("store", true)
+					&& (m_storeServiceMessages || !message.property("service", false))) {
+				History::instance()->store(message);
+			}
+		}
 		return Accept;
 	}
+	
+private:
+	bool m_storeMessages;
+	bool m_storeServiceMessages;
 };
 
 class ChatUnitSenderMessageHandler : public MessageHandler

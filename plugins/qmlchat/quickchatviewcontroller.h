@@ -81,7 +81,6 @@ private:
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;
 	QPointer<QDeclarativeItem> m_item;
-	bool m_storeServiceMessages;
 };
 
 } // namespace AdiumChat

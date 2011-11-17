@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,29 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef DOMAININFO_P_H
-#define DOMAININFO_P_H
+#ifndef SETTINGSWRAPPER_H
+#define SETTINGSWRAPPER_H
 
-#include "domaininfo.h"
-#include "../3rdparty/jdns/qjdns.h"
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include "quicksettingslayer.h"
 
-namespace qutim_sdk_0_3
+namespace MeegoIntegration
 {
-	class DomainInfoHelper : public QObject
-	{
-		Q_OBJECT
-	public:
-		DomainInfoHelper();
-		~DomainInfoHelper();
-		void lookup(const QString &service, const QString &proto,
-					const QString &domain, DomainInfo *handler);
-	private slots:
-		void onResultsReady(int id, const QJDns::Response &results);
-		void onError(int id, QJDns::Error error);
-	private:
-		QMap<int, DomainInfo*> m_handlers;
-	};
+using namespace qutim_sdk_0_3;
+class SettingsWrapper : public QObject {
+	Q_OBJECT
+
+public:
+	SettingsWrapper();
+	~SettingsWrapper();
+	Q_INVOKABLE void open();
+
+	static void init();
+	static void show(QuickSettingsLayer * dialog);
+
+signals:
+	void shown();
+
+private:
+
+	static QuickSettingsLayer *m_currentDialog;
+
+};
 }
 
-#endif // DOMAININFO_P_H
-
+#endif /* SETTINGSWRAPPER_H */

@@ -87,6 +87,8 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
+	export QUILT_PATCHES=debian/patches 
+	dh_quilt_patch
 	dh_installman
 	dh_link
 	dh_strip -a --dbg-package=qutim-dbg

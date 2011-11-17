@@ -1,6 +1,6 @@
 [submodule "translations"]
 	path = translations
-	url = git://gitorious.org/qutim/translations.git
+	url = git://github.com/euroelessar/qutim-translations.git
 [submodule "3rdparty/q-xdg"]
 	path = core/3rdparty/q-xdg
 	url = git://gitorious.org/+qutim-developers/q-xdg/qutim-developers-q-xdg.git
