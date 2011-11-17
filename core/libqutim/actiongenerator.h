@@ -111,6 +111,7 @@ class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 {
 	Q_DECLARE_PRIVATE(ActionGenerator)
 	Q_DISABLE_COPY(ActionGenerator)
+	Q_GADGET
 public:
 	enum Type { StatusType = 0, GeneralType };
 	/*
@@ -142,8 +143,8 @@ void MyObject::onAction(QObject *obj)
 	void setMenuController(MenuController *controller);
 	void subscribe(QObject *object, const char *method);
 	//void unsubscribe(QObject *object); //TODO implement me
-	void addHandler(int type,QObject *obj);
-	void removeHandler(int type,QObject *obj);
+	void addHandler(int type, QObject *obj);
+	void removeHandler(int type, QObject *obj);
 	void setCheckable(bool checkable);
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);

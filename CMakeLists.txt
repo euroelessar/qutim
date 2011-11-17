@@ -23,6 +23,7 @@ set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 option(QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
+include(CPackOptions.cmake.in)
 include(QutIMMacros)
 
 set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins" )
