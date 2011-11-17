@@ -220,7 +220,7 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
-			config.setValue("statisticsSended",field("StatisticsSent").toBool());
+			config.setValue("statisticsSent",field("StatisticsSent").toBool());
 			if (m_singleProfile) {
 				config.endGroup();
 			} else {
