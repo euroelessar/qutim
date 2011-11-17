@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "profilecreationwizard.h"
+#include "submitpage.h"
 #include <qutim/profilecreatorpage.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/systeminfo.h>
@@ -153,7 +154,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		}
 	}
 
-	p = new SubmitPage(this);
+	SubmitPage *p = new SubmitPage(this);
 	addPage(p);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -219,7 +220,7 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
-			config.setValue("statisticsSended",p->statisticsSended);
+			config.setValue("statisticsSended",field("StatisticsSent").toBool());
 			if (m_singleProfile) {
 				config.endGroup();
 			} else {
