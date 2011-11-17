@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "profilecreationwizard.h"
+#include "submitpage.h"
 #include <qutim/profilecreatorpage.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/systeminfo.h>
@@ -44,8 +45,6 @@
 # include <lmcons.h>
 # include <security.h>
 #endif
-
-#include "submitpage.h"
 
 namespace qutim_sdk_0_3
 {
@@ -221,6 +220,7 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
+			config.setValue("statisticsSent",field("StatisticsSent").toBool());
 			if (m_singleProfile) {
 				config.endGroup();
 			} else {

@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	loadingWindow->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	loadingWindow->setAttribute(Qt::WA_Maemo5ShowProgressIndicator, Qt::Checked);
 	loadingWindow->show();
-	app.processEvents();
+	app->processEvents();
 #endif
 
 	Core::ModuleManagerImpl core_init;
