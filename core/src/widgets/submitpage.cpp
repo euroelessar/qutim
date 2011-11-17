@@ -79,9 +79,13 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 bool SubmitPage::validatePage()
 {
 	if (m_submitBox->checkState() != Qt::Checked)
+	{
+		statisticsSended = false;
 		return QWizardPage::validatePage();
+	}
 
 	new RequestHelper;
+	statisticsSended = true;
 
 	return QWizardPage::validatePage();
 }

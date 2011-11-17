@@ -45,8 +45,6 @@
 # include <security.h>
 #endif
 
-#include "submitpage.h"
-
 namespace qutim_sdk_0_3
 {
 	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
@@ -155,7 +153,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		}
 	}
 
-	SubmitPage *p = new SubmitPage(this);
+	p = new SubmitPage(this);
 	addPage(p);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -221,6 +219,7 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
+			config.setValue("statisticsSended",p->statisticsSended);
 			if (m_singleProfile) {
 				config.endGroup();
 			} else {

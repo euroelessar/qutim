@@ -28,6 +28,7 @@
 
 #include <QWizard>
 #include <qutim/modulemanager.h>
+#include "submitpage.h"
 
 namespace Core
 {
@@ -43,6 +44,7 @@ protected:
     void done(int result);
 private:
 	ModuleManager *m_manager;
+	SubmitPage *p;
 	bool m_singleProfile;
 };
 }

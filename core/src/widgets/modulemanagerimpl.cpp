@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "modulemanagerimpl.h"
+#include "submitpage.h"
 #include <qutim/jsonfile.h>
 #include <QVariant>
 #include <QFile>
@@ -38,7 +39,7 @@
 #include <qutim/config.h>
 #include <qutim/notification.h>
 #include <qutim/systemintegration.h>
-
+#include <QApplication>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 
@@ -62,6 +63,48 @@ ModuleManagerImpl::ModuleManagerImpl()
 			SystemIntegration::show(wizard);
 		} else {
 			config.beginGroup("profile");
+			if (!config.hasChildKey("statisticsSended"))
+			{
+				QWizard *wizard = new QWizard();
+				SubmitPage *stats = new SubmitPage(wizard);
+				wizard->addPage(stats);
+				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
+				wizard->setAttribute(Qt::WA_QuitOnClose, false);
+				SystemIntegration::show(wizard);
+				QDir dir;
+				bool portable;
+				config.value("portable", portable);
+				if (portable) {
+					dir = qApp->applicationDirPath();
+				} else {
+		#if defined(Q_OS_WIN)
+					dir = QString::fromLocal8Bit(qgetenv("APPDATA")) + "/qutim";
+		#elif defined(Q_OS_MAC)
+					dir = QDir::homePath() + "/Library/Application Support/qutIM";
+		#elif defined(Q_OS_UNIX)
+					dir = QDir::home().absoluteFilePath(".config/qutim");
+		#else
+		# Undefined OS
+		#endif
+				}
+				QVariantMap map;
+				JsonFile file;
+				file.setFileName(dir.absoluteFilePath("profiles/profiles.json"));
+				QVariant var;
+				if (file.load(var))
+					map = var.toMap();
+				{
+					Config profileConfig(&map);
+					profileConfig.beginGroup("profile");
+					profileConfig.setValue("statisticsSended",stats->statisticsSended);
+					profileConfig.endGroup();
+				}
+				if (!file.save(map)) {
+					qWarning("Can not open file '%s' for writing",
+							 qPrintable(dir.absoluteFilePath("profiles/profiles.json")));
+				}
+			}
+
 			if(ProfileDialog::acceptProfileInfo(config, QString())) {
 				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
