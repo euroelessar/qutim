@@ -30,7 +30,7 @@
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QDeclarativeView
+class ApplicationWindow : public QObject
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ApplicationWindow")
@@ -39,6 +39,8 @@ class ApplicationWindow : public QDeclarativeView
 	Q_CLASSINFO("Uses", "PasswordDialog")
 public:
     explicit ApplicationWindow();
+private:
+	QDeclarativeView *view;
 };
 }
 

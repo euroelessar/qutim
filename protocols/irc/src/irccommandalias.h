@@ -47,7 +47,7 @@ public:
 		Participant  = 0x0008,
 		All          = Channel | PrivateChat | Console | Participant
 	};
-	Q_DECLARE_FLAGS(Types, Type);
+	Q_DECLARE_FLAGS(Types, Type)
 	IrcCommandAlias(const QString &name, const QString &command, Types types = All);
 	virtual ~IrcCommandAlias();
 	QString name() const;
@@ -55,10 +55,11 @@ public:
 							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
 	static void initStandartAliases();
 private:
-	Q_DISABLE_COPY(IrcCommandAlias);
+	Q_DISABLE_COPY(IrcCommandAlias)
 	QScopedPointer<IrcCommandAliasPrivate> d;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types);
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types)
 
 } } // namespace qutim_sdk_0_3::irc
 

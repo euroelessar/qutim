@@ -35,7 +35,7 @@ namespace qutim_sdk_0_3
 
 class Account;
 class ChatLayer;
-struct ChatSessionPrivate;
+class ChatSessionPrivate;
 class ChatLayerPrivate;
 
 class LIBQUTIM_EXPORT ChatSession : public QObject

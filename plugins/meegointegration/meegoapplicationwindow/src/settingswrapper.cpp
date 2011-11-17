@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,43 +23,48 @@
 **
 ****************************************************************************/
 
-#ifndef IRCCHANNEL_P_H
-#define IRCCHANNEL_P_H
+#include "settingswrapper.h"
+#include "quicksettingslayer.h"
+#include <qdeclarative.h>
+#include <qutim/debug.h>
 
-#include "ircchannel.h"
-
-namespace qutim_sdk_0_3 {
-
-namespace irc {
-
-class IrcJoinLeftActionGenerator : public ActionGenerator
+namespace MeegoIntegration
 {
-	Q_GADGET
-public:
-	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
-protected:
-	virtual void showImpl(QAction *action, QObject *obj);
-};
 
-typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
+using namespace qutim_sdk_0_3;
 
-class IrcChannelPrivate
+Q_GLOBAL_STATIC(QList<SettingsWrapper*>, m_managers)
+QuickSettingsLayer* SettingsWrapper::m_currentDialog;
+
+SettingsWrapper::SettingsWrapper()
 {
-public:
-	ParticipantPointer me;
-	QString name;
-	QHash<QString, ParticipantPointer> users;
-	QString topic;
-	bool isJoined;
-	bool autojoin;
-	QString lastPassword;
-	QString bookmarkName;
-	bool reconnect;
-};
-
+	m_managers()->append(this);
 }
 
-} // namespace qutim_sdk_0_3::irc
+SettingsWrapper::~SettingsWrapper()
+{
+	m_managers()->removeOne(this);
+}
 
-#endif // IRCCHANNEL_P_H
+void SettingsWrapper::init()
+{
+	qmlRegisterType<SettingsWrapper>("org.qutim", 0, 3, "SettingsDialog");
+}
+
+void SettingsWrapper::show(QuickSettingsLayer * dialog)
+{
+	m_currentDialog = dialog;
+	for (int i = 0; i < m_managers()->count();i++)
+	{
+		emit m_managers()->at(i)->shown();
+	}
+}
+
+void SettingsWrapper::open()
+{
+	qDebug()<<"Open settings";
+	Settings::showWidget();
+}
+
+}
 

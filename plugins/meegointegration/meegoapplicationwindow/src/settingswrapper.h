@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,43 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef IRCCHANNEL_P_H
-#define IRCCHANNEL_P_H
+#ifndef SETTINGSWRAPPER_H
+#define SETTINGSWRAPPER_H
 
-#include "ircchannel.h"
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include "quicksettingslayer.h"
 
-namespace qutim_sdk_0_3 {
-
-namespace irc {
-
-class IrcJoinLeftActionGenerator : public ActionGenerator
+namespace MeegoIntegration
 {
-	Q_GADGET
+using namespace qutim_sdk_0_3;
+class SettingsWrapper : public QObject {
+	Q_OBJECT
+
 public:
-	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
-protected:
-	virtual void showImpl(QAction *action, QObject *obj);
+	SettingsWrapper();
+	~SettingsWrapper();
+	Q_INVOKABLE void open();
+
+	static void init();
+	static void show(QuickSettingsLayer * dialog);
+
+signals:
+	void shown();
+
+private:
+
+	static QuickSettingsLayer *m_currentDialog;
+
 };
-
-typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
-
-class IrcChannelPrivate
-{
-public:
-	ParticipantPointer me;
-	QString name;
-	QHash<QString, ParticipantPointer> users;
-	QString topic;
-	bool isJoined;
-	bool autojoin;
-	QString lastPassword;
-	QString bookmarkName;
-	bool reconnect;
-};
-
 }
 
-} // namespace qutim_sdk_0_3::irc
-
-#endif // IRCCHANNEL_P_H
-
+#endif /* SETTINGSWRAPPER_H */
