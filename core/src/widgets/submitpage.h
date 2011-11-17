@@ -40,7 +40,6 @@ class SubmitPage : public QWizardPage
 public:
     SubmitPage(QWidget *parent = 0);
 	virtual bool validatePage();
-	bool statisticsSended;
 private:
 	QCheckBox *m_submitBox;
 	QTextBrowser *m_information;

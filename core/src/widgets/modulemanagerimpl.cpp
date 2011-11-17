@@ -57,7 +57,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 	singleProfile = config.value("singleProfile", singleProfile);
 	if (singleProfile) {
 		if (!config.hasChildGroup("profile")) {
-			QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
+			wizard = new ProfileCreationWizard(this, QString(), QString(), true);
 			wizard->setAttribute(Qt::WA_DeleteOnClose, true);
 			wizard->setAttribute(Qt::WA_QuitOnClose, false);
 			SystemIntegration::show(wizard);
@@ -65,29 +65,14 @@ ModuleManagerImpl::ModuleManagerImpl()
 			config.beginGroup("profile");
 			if (!config.hasChildKey("statisticsSent"))
 			{
-				QWizard *wizard = new QWizard();
+				wizard = new QWizard();
 				SubmitPage *stats = new SubmitPage(wizard);
 				wizard->addPage(stats);
 				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
 				wizard->setAttribute(Qt::WA_QuitOnClose, false);
+				connect(wizard,SIGNAL(accepted()),this,SLOT(submitStatistics()));
+				connect(wizard,SIGNAL(rejected()),this,SLOT(submitStatistics()));
 				SystemIntegration::show(wizard);
-				JsonFile file;
-				QVariantMap map;
-				QString configPatch = ProfileDialog::profilesConfigPath();
-				file.setFileName(configPatch);
-				QVariant var;
-				if (file.load(var))
-					map = var.toMap();
-				{
-					Config profileConfig(&map);
-					profileConfig.beginGroup("profile");
-					profileConfig.setValue("statisticsSent",wizard->field("StatisticsSent").toBool());
-					profileConfig.endGroup();
-				}
-				if (!file.save(map)) {
-					qWarning("Can not open file '%s' for writing",
-							 qPrintable(configPatch));
-				}
 			}
 
 			if(ProfileDialog::acceptProfileInfo(config, QString())) {
@@ -123,6 +108,27 @@ void ModuleManagerImpl::initExtensions()
 
 	NotificationRequest request(Notification::AppStartup);
 	request.send();
+}
+
+void ModuleManagerImpl::submitStatistics()
+{
+	JsonFile file;
+	QVariantMap map;
+	QString configPatch = ProfileDialog::profilesConfigPath();
+	file.setFileName(configPatch);
+	QVariant var;
+	if (file.load(var))
+		map = var.toMap();
+	{
+		Config profileConfig(&map);
+		profileConfig.beginGroup("profile");
+		profileConfig.setValue("statisticsSent",wizard->field("StatisticsSent").toBool());
+		profileConfig.endGroup();
+	}
+	if (!file.save(map)) {
+		qWarning("Can not open file '%s' for writing",
+				 qPrintable(configPatch));
+	}
 }
 }
 
