@@ -74,6 +74,7 @@ SubmitPage::SubmitPage(QWidget* parent): QWizardPage(parent)
 	l->addWidget(m_information);
 
 	m_submitBox->setCheckState(Qt::Checked);
+	registerField("StatisticsSent", m_submitBox, "checked", SIGNAL(stateChanged(int)));
 }
 
 bool SubmitPage::validatePage()
@@ -82,7 +83,6 @@ bool SubmitPage::validatePage()
 		return QWizardPage::validatePage();
 
 	new RequestHelper;
-
 	return QWizardPage::validatePage();
 }
 
