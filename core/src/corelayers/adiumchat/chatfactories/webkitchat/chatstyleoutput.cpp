@@ -48,7 +48,6 @@
 #include <qutim/thememanager.h>
 #include <qutim/servicemanager.h>
 #include <qutim/history.h>
-#include <QWebInspector>
 
 namespace Core
 {
@@ -81,22 +80,16 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 		m_session->removeEventFilter(this);
 	}
 	m_session = session;
-	
-	m_client = new JavaScriptClient(session);
-//	mainFrame()->addToJavaScriptWindowObject(m_client->objectName(), m_client);
-	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
-			m_client, SLOT(helperCleared()));
-	connect(mainFrame(), SIGNAL(loadFinished(bool)),
-			m_client, SLOT(onLoadFinished()),
-	        Qt::QueuedConnection);
-//	m_client->setupScripts(mainFrame());
-	
 	setParent(session);
 	setChatUnit(session->unit());
 
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	connect(m_session,SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
 			this,SLOT(setChatUnit(qutim_sdk_0_3::ChatUnit*)));
+	JavaScriptClient *client = new JavaScriptClient(session);
+	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
+	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+			client, SLOT(helperCleared()));
 	session->installEventFilter(this);
 }
 
@@ -235,6 +228,7 @@ ChatStyleOutput::ChatStyleOutput (QObject *parent) :
 {
 	Config cfg = Config("appearance").group("chat");
 	groupUntil = cfg.value<int>("groupUntil", 900);
+	store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
 	skipOneMerge = true;
 	setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	connect(this,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
@@ -276,8 +270,8 @@ void ChatStyleOutput::loadSettings()
 				   .arg(parameter.value("parameter", QString()))
 				   .arg(parameter.value("value", QString())));
 	}
-	loadTheme(path,variant);
 	setCustomCSS(css);
+	loadTheme(path,variant);
 	m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
 }
 
@@ -292,15 +286,13 @@ void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
 
 void ChatStyleOutput::reloadStyle()
 {
-	m_client->setStylesheet(QLatin1String("mainStyle"), getVariantCSS());
-	m_client->setCustomStylesheet(m_current_css);
-//	QString js;
-//	js += "setStylesheet(\"mainStyle\",\"";
-//	js += getVariantCSS();
-//	js += "\");";
-//	postEvaluateJavaScript(js);
-//	js = QString("setCustomStylesheet(\"%1\");").arg(m_current_css);
-//	postEvaluateJavaScript(js);
+	QString js;
+	js += "setStylesheet(\"mainStyle\",\"";
+	js += getVariantCSS();
+	js += "\");";
+	postEvaluateJavaScript(js);
+	js = QString("setCustomStylesheet(\"%1\");").arg(m_current_css);
+	postEvaluateJavaScript(js);
 }
 
 void ChatStyleOutput::setCustomCSS(const QString &css)
@@ -348,10 +340,6 @@ QString ChatStyleOutput::getVariant() const
 
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
-	settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-	QWebInspector *inspector = new QWebInspector;
-	inspector->setPage(this);
-	inspector->show();
 	QPalette palette = this->palette();
 	if(m_current_style.backgroundIsTransparent)
 		palette.setBrush(QPalette::Base, Qt::transparent);
@@ -362,8 +350,6 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	//TODO
 	QString html = makeSkeleton(session,QDateTime::currentDateTime());
 	mainFrame()->setHtml(html);
-	qDebug() << Q_FUNC_INFO << mainFrame() << mainFrame()->toHtml().size();
-	m_client->setupScripts(mainFrame());
 	reloadStyle();
 	loadHistory();
 }
@@ -466,25 +452,22 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 	
 	if (!m_session->isActive()) {
 		if (!separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
-			m_client->addSeparator();
-//			QString jsInactive = QString("separator = document.getElementById(\"separator\");")
-//					% QString("if (separator) separator.parentNode.removeChild(separator);")
-//					% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
+			QString jsInactive = QString("separator = document.getElementById(\"separator\");")
+					% QString("if (separator) separator.parentNode.removeChild(separator);")
+					% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
 			
-//			postEvaluateJavaScript(jsInactive);
+			postEvaluateJavaScript(jsInactive);
 			previous_sender.clear();
 			separator = true;
 		}
 	}
-	
-	if (same_from)
-		m_client->appendNextMessage(item);
-	else
-		m_client->appendMessage(item);
 
-//	QString jsTask = QString("append%2Message(\"%1\");").arg(
-//				validateCpp(item), same_from?"Next":"");
-//	postEvaluateJavaScript(jsTask);
+	QString jsTask = QString("append%2Message(\"%1\");").arg(
+				validateCpp(item), same_from?"Next":"");
+	postEvaluateJavaScript(jsTask);
+
+	if (message.property("store", true) && (!service || (service && store_service_messages)))
+		History::instance()->store(message);
 }
 
 void ChatStyleOutput::setVariant(const QString &_variantName )
