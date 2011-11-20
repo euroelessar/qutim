@@ -50,7 +50,7 @@ do
 		rm "$modulePath/$module.ts"
 		for poFile in `ls $modulePath/*.po`
 		do
-			msgmerge --update --backup=simple $poFile "$modulePath/$module.pot"
+			msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
 		done
 	fi
 done
