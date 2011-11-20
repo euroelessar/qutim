@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
 **
 *****************************************************************************
 **
@@ -22,30 +22,49 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef ANTISPAMPLUGIN_H
-#define ANTISPAMPLUGIN_H
-#include <qutim/plugin.h>
-#include <QPointer>
 
-namespace Antispam {
+#ifndef STATISTICSHELPER_P_H
+#define STATISTICSHELPER_P_H
 
-using namespace qutim_sdk_0_3;
+#include "libqutim_global.h"
+#include <QVariantMap>
+#include <QNetworkReply>
 
-class Handler;
-class AntispamPlugin : public Plugin
+namespace qutim_sdk_0_3 {
+
+class Config;
+class StatisticsHelperPrivate;
+
+class LIBQUTIM_EXPORT StatisticsHelper : public QObject
 {
-	Q_OBJECT
-	Q_CLASSINFO("DebugName", "Antispam")
-	Q_CLASSINFO("Uses", "IconLoader")
+    Q_OBJECT
+	Q_DECLARE_PRIVATE(StatisticsHelper)
+	Q_ENUMS(Action)
+	Q_PROPERTY(QString infoHtml READ infoHtml CONSTANT)
+	Q_PROPERTY(Action action READ action CONSTANT)
 public:
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
+	enum Action {
+		NeedToAskInit,
+		NeedToAskUpdate,
+		NothingToAsk,
+		DeniedToSend
+	};
+
+    explicit StatisticsHelper(QObject *parent = 0);
+	~StatisticsHelper();
+	
+	QString infoHtml() const;
+	Action action() const;
+	Q_INVOKABLE void setDecisition(bool denied, bool automatic);
+	
+private slots:
+	void _q_on_finished();
+
 private:
-	QPointer<Handler> m_handler;
+//	Q_PRIVATE_SLOT(d_func(), void _q_on_finished())
+	QScopedPointer<StatisticsHelperPrivate> d_ptr;
 };
 
 }
 
-#endif // ANTISPAMPLUGIN_H
-
+#endif // STATISTICSHELPER_P_H

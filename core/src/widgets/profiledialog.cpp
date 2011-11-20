@@ -101,7 +101,7 @@ ProfileDialog::~ProfileDialog()
 
 Config ProfileDialog::profilesInfo()
 {
-	return Config(Profile::instance()->data());
+	return Profile::instance()->config();
 }
 
 QString ProfileDialog::profilesConfigPath()

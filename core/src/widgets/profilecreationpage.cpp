@@ -25,6 +25,7 @@
 
 #include "profilecreationpage.h"
 #include "ui_profilecreationpage.h"
+#include "submitpage.h"
 #include <qutim/cryptoservice.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/extensioninfo.h>
@@ -34,6 +35,7 @@
 #include <qutim/json.h>
 #include <qutim/systeminfo.h>
 #include <qutim/config.h>
+#include <qutim/profile.h>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <qutim/debug.h>
@@ -205,6 +207,7 @@ bool ProfileCreationPage::validatePage()
 		else
 			configBackends.append(backend);
 	}
+	
 	m_is_valid = true;
 	return true;
 }
