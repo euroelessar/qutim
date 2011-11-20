@@ -80,37 +80,52 @@ Sheet {
 		}
 
 
-		ListModel {
-			id:linksModel
+//		ListModel {
+//			id:linksModel
 
-			ListElement {
-				name: "Project site"
-				url: "http://qutim.org"
-			}
-			ListElement {
-				name: "Source code repository"
-				url: "http://github.com/euroelessar"
-			}
-			ListElement {
-				name: "Bug tracker"
-				url: "http://trac.qutim.org"
-			}
-		}
+//			ListElement {
+//				name: qsTr("Project site")
+//				url: "http://qutim.org"
+//			}
+//			ListElement {
+//				name: sqTr("Source code repository")
+//				url: "http://github.com/euroelessar"
+//			}
+//			ListElement {
+//				name: qsTr("Bug tracker")
+//				url: "http://trac.qutim.org"
+//			}
+//		}
 
 		ListView {
-			id:mainInfo
+			id: mainInfo
 			spacing: 20
 			anchors{top:programLine.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
 
-			model: linksModel
+			model: ListModel { }
 			delegate: Text {
 				anchors{left: parent.left; right: parent.right}
-				text: qsTr(name) + ": <br> <a href=\"" + url + "\">" + url  +"</a>"
+				text: name + ": <br> <a href=\"" + url + "\">" + url  +"</a>"
 				wrapMode: Text.WordWrap
 				textFormat: Text.RichText
 				onLinkActivated: {
 					Qt.openUrlExternally(link);
 				}
+			}
+			
+			Component.onCompleted: {
+				mainInfo.model.append({
+					name: qsTr("Project site"),
+					url: "http://qutim.org"
+				});
+				mainInfo.model.append({
+					name: qsTr("Source code repository"),
+					url: "http://github.com/euroelessar"
+				});
+				mainInfo.model.append({
+					name: qsTr("Bug tracker"),
+					url: "http://trac.qutim.org"
+				});
 			}
 		}
 

@@ -23,30 +23,36 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef QUICKWIDGETPROXY_H
+#define QUICKWIDGETPROXY_H
 
-#include <QDeclarativeView>
+#include <QDeclarativeItem>
+
+class QGraphicsProxyWidget;
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
+
+class QuickWidgetProxy : public QDeclarativeItem
 {
     Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
+	Q_PROPERTY(QObject *widget READ widget WRITE setWidget NOTIFY widgetChanged)
 public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
+    explicit QuickWidgetProxy(QDeclarativeItem *parent = 0);
 
-signals:
-	void widgetShown(QObject *widget);
+	QObject *widget() const;
+	void setWidget(QObject *widget);
 	
+signals:
+	void widgetChanged(QObject *widget);
+
+private slots:
+	void onSizeChanged();
+
 private:
-	QDeclarativeView *m_view;
+	QGraphicsProxyWidget *m_proxy;
 };
+
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif // QUICKWIDGETPROXY_H

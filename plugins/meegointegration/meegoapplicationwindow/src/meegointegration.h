@@ -23,30 +23,38 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef MEEGOINTEGRATION_H
+#define MEEGOINTEGRATION_H
 
-#include <QDeclarativeView>
+#include <qutim/systemintegration.h>
+#include <qutim/servicemanager.h>
+#include "applicationwindow.h"
 
-namespace MeegoIntegration
-{
-class ApplicationWindow : public QObject
+namespace MeegoIntegration {
+
+class MeeGoIntegration : public qutim_sdk_0_3::SystemIntegration
 {
     Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
 public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
-
-signals:
-	void widgetShown(QObject *widget);
+    explicit MeeGoIntegration();
 	
+	virtual void init();
+	virtual bool isAvailable() const;
+	virtual int priority();
+	
+	virtual QVariant doGetValue(Attribute attr, const QVariant &data) const;
+	virtual QVariant doProcess(Operation act, const QVariant &data) const;
+	virtual bool canHandle(Attribute attribute) const;
+	virtual bool canHandle(Operation operation) const;
+	
+signals:
+
+public slots:
+
 private:
-	QDeclarativeView *m_view;
+	qutim_sdk_0_3::ServicePointer<ApplicationWindow> m_window;
 };
+
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif // MEEGOINTEGRATION_H

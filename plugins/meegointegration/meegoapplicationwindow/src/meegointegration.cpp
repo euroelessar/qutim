@@ -23,30 +23,64 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#include "meegointegration.h"
 
-#include <QDeclarativeView>
+namespace MeegoIntegration {
+using namespace qutim_sdk_0_3;
 
-namespace MeegoIntegration
+MeeGoIntegration::MeeGoIntegration()
 {
-class ApplicationWindow : public QObject
-{
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
-public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
-
-signals:
-	void widgetShown(QObject *widget);
-	
-private:
-	QDeclarativeView *m_view;
-};
 }
 
-#endif // APPLICATIONWINDOW_H
+void MeeGoIntegration::init()
+{
+}
+
+bool MeeGoIntegration::isAvailable() const
+{
+	return true;
+}
+
+int MeeGoIntegration::priority()
+{
+	return DesktopEnvironment;
+}
+
+QVariant MeeGoIntegration::doGetValue(SystemIntegration::Attribute attr, const QVariant &data) const
+{
+	Q_UNUSED(attr);
+	Q_UNUSED(data);
+	return QVariant();
+}
+
+QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVariant &data) const
+{
+	switch (act) {
+	case ShowWidget: {
+		QWidget *widget = data.value<QWidget*>();
+		m_window->showWidget(widget);
+		return QVariant();
+	}
+	default:
+		break;
+	}
+	return QVariant();
+}
+
+bool MeeGoIntegration::canHandle(SystemIntegration::Attribute attribute) const
+{
+	Q_UNUSED(attribute);
+	return false;
+}
+
+bool MeeGoIntegration::canHandle(SystemIntegration::Operation operation) const
+{
+	switch (operation) {
+	case ShowWidget:
+		return true;
+	default:
+		return false;
+	}
+}
+
+}
