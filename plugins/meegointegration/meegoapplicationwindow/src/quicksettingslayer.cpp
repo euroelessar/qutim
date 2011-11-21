@@ -44,7 +44,7 @@ void QuickSettingsLayer::show(const qutim_sdk_0_3::SettingsItemList &settings, Q
 		m_items[controller] = settings;
 		QuickSettingsModel *model = new QuickSettingsModel(controller);
 		m_models[controller] = model;
-		model->setItems(settings);
+		model->setItems(settings, controller);
 		emit settingsRequested(model);
 	}
 }
@@ -59,7 +59,7 @@ void QuickSettingsLayer::update(const qutim_sdk_0_3::SettingsItemList &settings,
 {
 	Q_ASSERT(m_models.contains(controller));
 	m_items[controller] = settings;
-	m_models[controller]->setItems(settings);
+	m_models[controller]->setItems(settings, controller);
 }
 
 QObject *QuickSettingsLayer::model()
