@@ -48,21 +48,7 @@ PageStackWindow {
 	}
 	Component {
 		id: proxyPageComponent
-		Page {
-			id: page
-			property alias widget: proxy.widget
-			WidgetProxy {
-				id: proxy
-				anchors.fill: parent
-			}   
-			tools: ToolBarLayout {
-				id: toolBarLayout
-				ToolIcon {
-					visible: true
-					platformIconId: "toolbar-previous"
-					onClicked: pageStack.pop()
-				}
-			}
+		ProxyPage {
 		}
 	}
 	Statistics {
@@ -120,10 +106,6 @@ PageStackWindow {
 					}
 				}
 			}
-			SettingsPage {
-				id: settingsTab
-				model: settings.model
-			}
 		}
 		tools: ToolBarLayout {
 			ButtonRow {
@@ -146,10 +128,10 @@ PageStackWindow {
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
-				TabIcon {
-					platformIconId: "toolbar-settings"
-					tab: settingsTab
-				}
+//				TabIcon {
+//					platformIconId: "toolbar-settings"
+//					tab: settingsTab
+//				}
 			}
 
 			ToolIcon {
@@ -189,11 +171,19 @@ PageStackWindow {
 			}
 			MenuItem {
 				text: qsTr("Settings")
-			    onClicked: settingsDialog.open();
+			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
 			}
 		    }
 		}
 	}
+	Component {
+		id: settingsPageComponent
+		SettingsPage {
+			id: settingsPage
+			model: settings.model
+		}
+	}
+
 //	QueryDialog {
 //		id: statisticsDialog
 //		titleText: qsTr("Statistics gatherer")

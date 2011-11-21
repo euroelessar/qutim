@@ -82,6 +82,7 @@ JAccountWizardPage::~JAccountWizardPage()
 
 bool JAccountWizardPage::validatePage()
 {
+	qDebug("%s \"%s\" \"%s\"", Q_FUNC_INFO, qPrintable(jid()), qPrintable(passwd()));
 	if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
 		return false;
 	m_accountWizard->createAccount();

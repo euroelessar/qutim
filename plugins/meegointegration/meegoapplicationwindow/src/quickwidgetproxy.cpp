@@ -46,6 +46,7 @@ void QuickWidgetProxy::setWidget(QObject *widget)
 {
 	m_proxy->setWidget(qobject_cast<QWidget*>(widget));
 	m_proxy->setPos(0.0, 0.0);
+	emit widgetChanged(widget);
 }
 
 void QuickWidgetProxy::onSizeChanged()

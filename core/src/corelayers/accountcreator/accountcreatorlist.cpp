@@ -191,13 +191,14 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 		window()->setEnabled(false);
 	AccountCreatorWizard *wizard = new AccountCreatorWizard();
 	connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
-#if defined(QUTIM_MOBILE_UI)
 	SystemIntegration::show(wizard);
-#else
-	centerizeWidget(wizard);
-	wizard->show();
-	wizard->raise();
-#endif
+//#if defined(QUTIM_MOBILE_UI)
+//	SystemIntegration::show(wizard);
+//#else
+//	centerizeWidget(wizard);
+//	wizard->show();
+//	wizard->raise();
+//#endif
 }
 
 void AccountCreatorList::onAccountRemoveTriggered()

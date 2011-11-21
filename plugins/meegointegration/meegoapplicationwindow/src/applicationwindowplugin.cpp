@@ -81,9 +81,9 @@ namespace MeegoIntegration
 		addExtension<QuickNoficationManager>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
-//		addExtension<QuickSettingsLayer>(
-//			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
-//			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
+		addExtension<QuickSettingsLayer>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
 	}
 }
 
