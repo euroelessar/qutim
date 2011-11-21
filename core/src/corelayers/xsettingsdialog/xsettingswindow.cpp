@@ -99,7 +99,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->splitter->addWidget(p->stackedWidget);
 	data = cfg.value("splitterState", QByteArray());
 	if (data.isEmpty() || !p->splitter->restoreState(data))
-        p->splitter->setSizes(QList<int>() << 1  << 4);
+		p->splitter->setSizes(QList<int>() << 80  << 250);
 	l->addWidget(p->splitter);
 
     QDialogButtonBox::StandardButtons buttons;
