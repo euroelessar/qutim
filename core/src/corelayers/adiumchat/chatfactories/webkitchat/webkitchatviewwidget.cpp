@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Aleksey Sidorov gorthauer87@yandex.ru
 **
 *****************************************************************************
 **
@@ -61,7 +62,7 @@ void WebkitChatViewWidget::initScrolling()
 void WebkitChatViewWidget::setViewController(QObject *controller)
 {
 	//save scrollbar state
-	if(m_view->page()) {
+	if (m_view->page()) {
 		QWebFrame *frame = m_view->page()->mainFrame();
 		if(frame->scrollBarValue(Qt::Vertical) == frame->scrollBarMaximum(Qt::Vertical))
 			frame->setProperty("scrollbarAtEnd", true);
@@ -72,11 +73,11 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 	}
 
 	ChatStyleOutput *newPage = qobject_cast<ChatStyleOutput*>(controller);
-	if(newPage) {
+	if (newPage) {
 		//nice hack for new sessions
 		QWebFrame *frame = newPage->mainFrame();
 		if (!frame->property("scrollbarPos").toBool())
-			frame->setProperty("scrollbarAtEnd",true);
+			frame->setProperty("scrollbarAtEnd", true);
 
         //newPage->setParent(m_view);
         m_view->page()->setView(0);
@@ -85,7 +86,7 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		//HACK workaround for blank chat logs
 		m_view->setHtml(m_view->page()->mainFrame()->toHtml());
 #endif
-		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
+		QTimer::singleShot(0, this, SLOT(scrollBarWorkaround()));
 	} else
 		m_view->setPage(0);
 }

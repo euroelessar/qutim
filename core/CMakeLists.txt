@@ -34,7 +34,6 @@ endif()
 SET(QUTIM_PLUGINS_DEST "lib/qutim/")
 FIND_PACKAGE (Qt4 REQUIRED)
 
-INCLUDE(CPackOptions.cmake.in)
 INCLUDE(UseQt4)
 INCLUDE(MacroEnsureVersion)
 INCLUDE(QutIMMacros)
@@ -398,3 +397,47 @@ IF(WIN32)
                 DESCRIPTION ""
         )
 ENDIF(WIN32)
+
+option(CREATE_BUNDLE "Create application bundle for qutIM")
+if(CREATE_BUNDLE)
+    include(QtBundleUtils)
+    define_bundle_paths(qutim)
+    set(APPS ${BUNDLE_PATH})
+    list(APPEND DIRS
+        ${QT_LIBRARY_DIR}
+    )
+    if(WIN32)
+        get_filename_component(_dir ${QT_QMAKE_EXECUTABLE} PATH)
+        list(APPEND DIRS ${_dir})
+    endif()
+
+    list(APPEND QT_PLUGINS
+        bearer/qgenericbearer
+        bearer/qnativewifibearer
+        codecs/qcncodecs
+        codecs/qjpcodecs
+        codecs/qjpcodecs
+        codecs/qkrcodecs
+        codecs/qtwcodecs
+        imageformats/qsvg
+        imageformats/qgif
+        imageformats/qjpeg
+        imageformats/qico
+        imageformats/qmng
+        imageformats/qtga
+        imageformats/qtiff
+        iconengines/qsvgicon
+        crypto/qca-ossl
+        crypto/qca-sasl
+    )
+
+    deploy_qml_modules(${QML_MODULES})
+    deploy_qt_plugins(${QT_PLUGINS})
+
+    INSTALL(CODE "
+        file(GLOB_RECURSE QTPLUGINS
+          \"\${CMAKE_INSTALL_PREFIX}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+        include(BundleUtilities)
+        fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
+        " COMPONENT Runtime)
+endif()

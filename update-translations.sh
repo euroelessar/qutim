@@ -45,21 +45,13 @@ do
 	then
 		module=`basename $file`
 		modulePath=$PWD/translations/modules/$module
-		for poFile in `ls $modulePath/*.po`
-		do
-			lang=`basename $poFile | sed 's/\..*//'`
-			$lconvert -i "$modulePath/$lang.po" -o "$modulePath/$lang.ts"
-		done
-		for langFile in `ls $modulePath/*.ts`
-		do
-			lang=`basename $langFile | sed 's/\..*//'`
-			$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative -target-language $lang "$file" -ts "$modulePath/$lang.ts"
-			$lconvert -i "$modulePath/$lang.ts" -o "$modulePath/$lang.po"
-			rm "$modulePath/$lang.ts"
-		done
 		$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative $file -ts "$modulePath/$module.ts"
 		$lconvert -i "$modulePath/$module.ts" -o "$modulePath/$module.pot"
 		rm "$modulePath/$module.ts"
+		for poFile in `ls $modulePath/*.po`
+		do
+			msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
+		done
 	fi
 done
 

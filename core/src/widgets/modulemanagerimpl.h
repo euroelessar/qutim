@@ -27,7 +27,6 @@
 #define MODULEMANAGERIMPL_H
 
 #include <qutim/modulemanager.h>
-#include <QWizard>
 
 using namespace qutim_sdk_0_3;
 
@@ -41,9 +40,6 @@ namespace Core
 		virtual ExtensionInfoList coreExtensions() const;
 	private slots:
 		virtual void initExtensions();
-		void submitStatistics();
-	private:
-		QWizard *wizard;
 	};
 }
 

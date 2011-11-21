@@ -465,9 +465,6 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 	QString jsTask = QString("append%2Message(\"%1\");").arg(
 				validateCpp(item), same_from?"Next":"");
 	postEvaluateJavaScript(jsTask);
-
-	if (message.property("store", true) && (!service || (service && store_service_messages)))
-		History::instance()->store(message);
 }
 
 void ChatStyleOutput::setVariant(const QString &_variantName )

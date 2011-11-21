@@ -84,8 +84,9 @@ public:
 	}
 };
 
-struct ChatSessionPrivate
+class ChatSessionPrivate
 {
+public:
 	ChatSessionPrivate() : active(false) {}
 
 	bool active;
