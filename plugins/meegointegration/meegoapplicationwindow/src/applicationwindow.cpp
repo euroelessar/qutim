@@ -89,6 +89,12 @@ ApplicationWindow::ApplicationWindow()
 
 void ApplicationWindow::showWidget(QWidget *widget)
 {
+	connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
 	emit widgetShown(widget);
+}
+
+void ApplicationWindow::closeWidget()
+{
+	emit widgetClosed();
 }
 }

@@ -43,6 +43,10 @@ public:
 
 signals:
 	void widgetShown(QObject *widget);
+	void widgetClosed();
+
+public slots:
+	void closeWidget();
 	
 private:
 	QDeclarativeView *m_view;

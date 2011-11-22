@@ -45,6 +45,7 @@ PageStackWindow {
 	Connections {
 		target: application
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
+		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
 	}
 	Component {
 		id: proxyPageComponent
