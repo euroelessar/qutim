@@ -32,7 +32,8 @@ namespace MeegoIntegration
 Maemo6Idle::Maemo6Idle()
 {
 	m_qmActivity = new MeeGo::QmActivity::QmActivity();
-	connect(m_qmActivity,SIGNAL(activityChanged(MeeGo::QmActivity::Activity)),this,SLOT(activityChanged (MeeGo::QmActivity::Activity)));
+	connect(m_qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)),
+	        this, SLOT(activityChanged(MeeGo::QmActivity::Activity)));
 	m_activity = m_qmActivity->get();
 
 	idle_timer = new QBasicTimer();

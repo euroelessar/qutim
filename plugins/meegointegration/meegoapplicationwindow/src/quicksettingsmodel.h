@@ -35,14 +35,18 @@ class QuickSettingsModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
+	enum { IsWidget = Qt::UserRole, Widget, GraphicsItem };
     explicit QuickSettingsModel(QObject *parent = 0);
 	
-	void setItems(const qutim_sdk_0_3::SettingsItemList &items);
+	void setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller);
+	
+	Q_INVOKABLE QObject *widget(int index);
 	
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	
 private:
+	QObject *m_controller;
 	qutim_sdk_0_3::SettingsItemList m_items;
 };
 }

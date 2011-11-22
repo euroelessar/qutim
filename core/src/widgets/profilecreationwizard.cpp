@@ -28,6 +28,7 @@
 #include <qutim/profilecreatorpage.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/systeminfo.h>
+#include <qutim/profile.h>
 #include "profilecreationpage.h"
 #include <qutim/jsonfile.h>
 #include <qutim/config.h>
@@ -154,7 +155,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		}
 	}
 
-	SubmitPage *p = new SubmitPage(this);
+	SubmitPage *p = new SubmitPage(new StatisticsHelper(), this);
 	addPage(p);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -168,37 +169,11 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 
 void ProfileCreationWizard::done(int result)
 {
-//	qDebug() << Q_FUNC_INFO << result << (*system_info_dirs());
-//	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	if (result == Accepted) {
-//		QVector<QDir> &systemDirs = *system_info_dirs();
-//		systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(field("configDir").toString());
-//		systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(field("historyDir").toString());
-//		systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(field("dataDir").toString());
-		QDir dir;
-		if (field("portable").toBool()) {
-			dir = qApp->applicationDirPath();
-		} else {
-#if defined(Q_OS_WIN)
-			dir = QString::fromLocal8Bit(qgetenv("APPDATA")) + "/qutim";
-#elif defined(Q_OS_MAC)
-			dir = QDir::homePath() + "/Library/Application Support/qutIM";
-#elif defined(Q_OS_UNIX)
-			dir = QDir::home().absoluteFilePath(".config/qutim");
-#else
-# Undefined OS
-#endif
-		}
 		ProfileCreationPage *page = findChild<ProfileCreationPage*>();
-		QVariantMap map;
-		JsonFile file;
-		file.setFileName(dir.absoluteFilePath("profiles/profiles.json"));
 		QList<ConfigBackend*> &configBackends = get_config_backends();
-		QVariant var;
-		if (file.load(var))
-			map = var.toMap();
 		{
-			Config config(&map);
+			Config config = Profile::instance()->config();
 			if (m_singleProfile) {
 				config.beginGroup("profile");
 			} else {
@@ -220,7 +195,6 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
-			config.setValue("statisticsSent",field("StatisticsSent").toBool());
 			if (m_singleProfile) {
 				config.endGroup();
 			} else {
@@ -228,14 +202,7 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("current", field("id"));
 			}
 		}
-		if (!file.save(map)) {
-//			QMessageBox::critical(this, tr(""))
-			qWarning("Can not open file '%s' for writing", 
-					 qPrintable(dir.absoluteFilePath("profiles/profiles.json")));
-			QTimer::singleShot(0, qApp, SLOT(quit()));
-		} else {
-			QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
-		}
+		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 	} else if (m_singleProfile) {
 		QTimer::singleShot(0, qApp, SLOT(quit()));
 	}

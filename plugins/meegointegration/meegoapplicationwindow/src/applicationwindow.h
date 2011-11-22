@@ -39,8 +39,13 @@ class ApplicationWindow : public QObject
 	Q_CLASSINFO("Uses", "PasswordDialog")
 public:
     explicit ApplicationWindow();
+	void showWidget(QWidget *widget);
+
+signals:
+	void widgetShown(QObject *widget);
+	
 private:
-	QDeclarativeView *view;
+	QDeclarativeView *m_view;
 };
 }
 

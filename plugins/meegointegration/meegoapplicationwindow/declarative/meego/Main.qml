@@ -42,35 +42,39 @@ PageStackWindow {
 				tabGroup.currentTab = chatTab
 		}
 	}
-	PasswordDialog{
-		id:passwordDialog
-
+	Connections {
+		target: application
+		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 	}
-
-	SettingsDialog{
-		id:settingsDialog
-
+	Component {
+		id: proxyPageComponent
+		ProxyPage {
+		}
 	}
-	AuthDialog {
-		id:authDialog
-	}
-	JoinGroupChatDialog
-	{
-		id:joinGroupChatDialog
-	}
-
-	AboutDialog {
-		id:aboutDialog
-	}
-	AddContactDialog
-	{
-		id:addContactDialog
+	Statistics {
+		id: statistics
 	}
 
 	initialPage: Page {
-
-
-
+		PasswordDialog{
+			id:passwordDialog
+		}
+		SettingsDialog {
+			id:settingsDialog
+		}
+		AuthDialog {
+			id:authDialog
+		}
+		JoinGroupChatDialog {
+			id:joinGroupChatDialog
+		}
+		AboutDialog {
+			id:aboutDialog
+		}
+		AddContactDialog {
+			id:addContactDialog
+		}
+		
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -102,10 +106,6 @@ PageStackWindow {
 					}
 				}
 			}
-			SettingsPage {
-				id: settingsTab
-				model: settings.model
-			}
 		}
 		tools: ToolBarLayout {
 			ButtonRow {
@@ -128,10 +128,10 @@ PageStackWindow {
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
-				TabIcon {
-					platformIconId: "toolbar-settings"
-					tab: settingsTab
-				}
+//				TabIcon {
+//					platformIconId: "toolbar-settings"
+//					tab: settingsTab
+//				}
 			}
 
 			ToolIcon {
@@ -154,26 +154,48 @@ PageStackWindow {
 
 		    content: MenuLayout {
 			MenuItem {
-				text: "Show/hide offline contacts"
+				text: qsTr("Show/hide offline contacts")
 			    onClicked: contactListTab.showOffline=!contactListTab.showOffline;
 			}
 			MenuItem {
-				text: "Join group chat"
+				text: qsTr("Join group chat")
 			    onClicked: joinGroupChatDialog.open();
 			}
 			MenuItem {
-				text: "About qutIM"
+				text: qsTr("About qutIM")
 			    onClicked: aboutDialog.open();
 			}
 			MenuItem {
-				text: "Add contact"
+				text: qsTr("Add contact")
 			    onClicked: addContactDialog.open();
 			}
 			MenuItem {
-				text: "Settings"
-			    onClicked: settingsDialog.open();
+				text: qsTr("Settings")
+			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
 			}
 		    }
+		}
+	}
+	Component {
+		id: settingsPageComponent
+		SettingsPage {
+			id: settingsPage
+			model: settings.model
+		}
+	}
+
+//	QueryDialog {
+//		id: statisticsDialog
+//		titleText: qsTr("Statistics gatherer")
+//		message: 
+//		acceptButtonText: qsTr("Send information")
+//		rejectButtonText: qsTr("Cancel")
+//	}
+
+	Component.onCompleted: {
+		if (statistics.action == Statistics.NeedToAskInit
+				|| statistics.action == statistics.NeedToAskUpdate) {
+			statistics.setDecisition(false, false);
 		}
 	}
 }

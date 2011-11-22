@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -34,6 +34,7 @@
 #include "itemdelegate.h"
 #include <QMessageBox>
 #include <qutim/debug.h>
+#include <qutim/systemintegration.h>
 #include <QHBoxLayout>
 #include <QToolButton>
 
@@ -190,13 +191,14 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 		window()->setEnabled(false);
 	AccountCreatorWizard *wizard = new AccountCreatorWizard();
 	connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
-#if defined(QUTIM_MOBILE_UI)
-	wizard->showMaximized();
-#else
-	centerizeWidget(wizard);
-	wizard->show();
-	wizard->raise();
-#endif
+	SystemIntegration::show(wizard);
+//#if defined(QUTIM_MOBILE_UI)
+//	SystemIntegration::show(wizard);
+//#else
+//	centerizeWidget(wizard);
+//	wizard->show();
+//	wizard->raise();
+//#endif
 }
 
 void AccountCreatorList::onAccountRemoveTriggered()
