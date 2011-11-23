@@ -27,6 +27,8 @@
 #define JAVASCRIPTCLIENT_H
 
 #include <QObject>
+#include <QWebFrame>
+
 namespace Core
 {
 namespace AdiumChat
@@ -38,14 +40,38 @@ class JavaScriptClient : public QObject
 	Q_OBJECT
 public:
 	JavaScriptClient(ChatSessionImpl *session);
+	
+public:
+	void setStylesheet(const QString &id, const QString &url);
+	void setCustomStylesheet(const QString &url);
+	void addSeparator();
+	void appendMessage(const QString &text);
+	void appendNextMessage(const QString &text);
+	void setupScripts(QWebFrame *frame);
 
 public slots:
 	void debugLog(const QVariant &text);
+	void debugLog();
 	bool zoomImage(const QVariant &text);
-	void helperCleared();
 	void appendNick(const QVariant &nick);
 	void contextMenu(const QVariant &nickVar);
 	void appendText(const QVariant &text);
+	
+private slots:
+	void helperCleared();
+	void onLoadFinished();
+
+signals:
+	void setStylesheetRequest(const QString &id, const QString &url);
+	void setCustomStylesheetRequest(const QString &url);
+	void addSeparatorRequest();
+	void appendMessageRequest(const QString &text);
+	void appendNextMessageRequest(const QString &text);
+	void someSignal();
+	
+protected:
+    void connectNotify(const char *signal);
+    void disconnectNotify(const char *signal);
 
 private:
 	ChatSessionImpl *m_session;
