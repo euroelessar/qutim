@@ -79,6 +79,7 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 			m_client, SLOT(onLoadFinished()),
 			Qt::QueuedConnection);
 	
+	
 	setParent(session);
 	setChatUnit(session->unit());
 
@@ -310,12 +311,6 @@ QString ChatStyleOutput::getVariant() const
 
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
-	settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-
-	//QWebInspector *inspector = new QWebInspector;
-	//inspector->setPage(this);
-	//inspector->show();
-
 	QPalette palette = this->palette();
 	if(m_current_style.backgroundIsTransparent)
 		palette.setBrush(QPalette::Base, Qt::transparent);
