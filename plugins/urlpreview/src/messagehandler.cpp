@@ -86,7 +86,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
     if (!session || !session->property("supportJavaScript").toBool())
 		return UrlHandler::Accept;
 
-	debug() << Q_FUNC_INFO;
+	//debug() << Q_FUNC_INFO;
 	QString html = message.property("html").toString();
 	if (html.isEmpty()) {
 		html = Qt::escape(message.text());
@@ -171,7 +171,7 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 	//link = QUrl::fromEncoded(link.toUtf8()).toString();
 	link += " <span id='urlpreview"+uid+"'></span> ";
 
-	debug() << "url" << link;
+	//debug() << "url" << link;
 }
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
