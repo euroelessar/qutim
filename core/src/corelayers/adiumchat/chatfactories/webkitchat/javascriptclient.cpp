@@ -35,6 +35,7 @@ namespace Core
 {
 namespace AdiumChat
 {
+
 JavaScriptClient::JavaScriptClient(ChatSessionImpl *session) :
 	QObject(session),
 	m_session(session),
@@ -55,7 +56,7 @@ void JavaScriptClient::setStylesheet(const QString &id, const QString &url)
 void JavaScriptClient::setCustomStylesheet(const QString &url)
 {
 	if (m_isLoading) {
-		PostMessage msg = {SetCustomStylesheet, url};
+		PostMessage msg = {SetCustomStylesheet, url, QString()};
 		m_messages.append(msg);
 	} else
 		emit setCustomStylesheetRequest(url);
@@ -64,7 +65,7 @@ void JavaScriptClient::setCustomStylesheet(const QString &url)
 void JavaScriptClient::addSeparator()
 {
 	if (m_isLoading) {
-		PostMessage msg = {AddSeparator};
+		PostMessage msg = {AddSeparator, QString(), QString()};
 		m_messages.append(msg);
 	} else
 		emit addSeparatorRequest();
@@ -73,7 +74,7 @@ void JavaScriptClient::addSeparator()
 void JavaScriptClient::appendMessage(const QString &text)
 {
 	if (m_isLoading) {
-		PostMessage msg = {AppendMessage, text};
+		PostMessage msg = {AppendMessage, text, QString()};
 		m_messages.append(msg);
 	} else
 		emit appendMessageRequest(text);
@@ -82,7 +83,7 @@ void JavaScriptClient::appendMessage(const QString &text)
 void JavaScriptClient::appendNextMessage(const QString &text)
 {
 	if (m_isLoading) {
-		PostMessage msg = {AppendNextMessage, text};
+		PostMessage msg = {AppendNextMessage, text, QString()};
 		m_messages.append(msg);
 	} else
 		emit appendNextMessageRequest(text);
