@@ -79,6 +79,8 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 			m_client, SLOT(onLoadFinished()),
 			Qt::QueuedConnection);
 	
+//	m_client->setupScripts(mainFrame());
+	
 	setParent(session);
 	setChatUnit(session->unit());
 
@@ -263,6 +265,8 @@ void ChatStyleOutput::reloadStyle()
 {
 	m_client->setStylesheet(QLatin1String("mainStyle"), getVariantCSS());
 	m_client->setCustomStylesheet(m_current_css);
+//	js = QString("setCustomStylesheet(\"%1\");").arg(m_current_css);
+//	postEvaluateJavaScript(js);
 }
 
 void ChatStyleOutput::setCustomCSS(const QString &css)
@@ -310,12 +314,6 @@ QString ChatStyleOutput::getVariant() const
 
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
-	settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-
-	//QWebInspector *inspector = new QWebInspector;
-	//inspector->setPage(this);
-	//inspector->show();
-
 	QPalette palette = this->palette();
 	if(m_current_style.backgroundIsTransparent)
 		palette.setBrush(QPalette::Base, Qt::transparent);
@@ -325,6 +323,8 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	setPalette(palette);
 
 	makeSkeleton(session);
+	qDebug() << Q_FUNC_INFO << mainFrame() << mainFrame()->toHtml().size();
+	m_client->setupScripts(mainFrame());
 	reloadStyle();
 	loadHistory();
 
@@ -432,6 +432,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 	if (!m_session->isActive()) {
 		if (!separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
 			m_client->addSeparator();
+//					% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
 			previous_sender.clear();
 			separator = true;
 		}
@@ -441,6 +442,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 		m_client->appendNextMessage(item);
 	else
 		m_client->appendMessage(item);
+//	postEvaluateJavaScript(jsTask);
 }
 
 void ChatStyleOutput::setVariant(const QString &_variantName )

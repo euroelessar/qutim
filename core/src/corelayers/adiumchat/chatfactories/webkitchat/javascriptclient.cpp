@@ -108,6 +108,9 @@ void JavaScriptClient::onLoadFinished()
 {
 	QWebFrame *frame = static_cast<QWebFrame*>(sender());
 	setupScripts(frame);
+	qDebug() << Q_FUNC_INFO << frame << frame->toHtml().size();
+//	frame->addToJavaScriptWindowObject(objectName(), this);
+	setupScripts(frame);
 }
 
 void JavaScriptClient::appendNick(const QVariant &nick)
