@@ -47,8 +47,6 @@ namespace Core
 namespace AdiumChat
 {
 
-class JavaScriptClient;
-
 class ChatStyleOutput : public QWebPage, public ChatViewController
 {
 	Q_OBJECT
@@ -129,7 +127,6 @@ private:
 	void processMessage(QString &html, const ChatSession *session, const Message &message);
 	void loadHistory();
 	ChatSessionImpl *m_session;
-	JavaScriptClient *m_client;
 	/*
   style used for output generation
   */
@@ -149,6 +146,7 @@ private:
 	QDateTime lastDate;
 	int groupUntil;
 	bool separator;
+	bool store_service_messages;
 };
 
 }
