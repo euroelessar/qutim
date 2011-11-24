@@ -50,8 +50,8 @@ public:
 	void setupScripts(QWebFrame *frame);
 
 public slots:
-	void debugLog(const QVariant &text);
-	void debugLog();
+	void debug(const QVariant &text);
+	void debug();
 	bool zoomImage(const QVariant &text);
 	void appendNick(const QVariant &nick);
 	void contextMenu(const QVariant &nickVar);
