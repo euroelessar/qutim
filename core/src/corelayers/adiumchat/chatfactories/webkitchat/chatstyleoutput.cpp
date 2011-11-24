@@ -321,12 +321,11 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 
 	makeSkeleton(session);
 	reloadStyle();
+//#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
+//	//HACK workaround for blank chat logs
+//	mainFrame()->setHtml(mainFrame()->toHtml());
+//#endif
 	loadHistory();
-
-#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
-	//HACK workaround for blank chat logs
-	mainFrame()->setHtml(mainFrame()->toHtml());
-#endif
 }
 
 void ChatStyleOutput::makeSkeleton(const ChatSessionImpl *session)
