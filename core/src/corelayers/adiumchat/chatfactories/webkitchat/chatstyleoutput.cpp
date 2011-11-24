@@ -73,12 +73,7 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 	m_session = session;
 	
 	m_client = new JavaScriptClient(session);
-	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
-			m_client, SLOT(helperCleared()));
-	connect(mainFrame(), SIGNAL(loadFinished(bool)),
-			m_client, SLOT(onLoadFinished()),
-			Qt::QueuedConnection);
-	
+	m_client->setWebFrame(mainFrame());
 	
 	setParent(session);
 	setChatUnit(session->unit());
@@ -309,7 +304,7 @@ QString ChatStyleOutput::getVariant() const
 	return m_current_style.variants.contains(m_current_variant) ? m_current_variant : m_current_style.defaultVariant.first;
 }
 
-void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
+void ChatStyleOutput::preparePage(const ChatSessionImpl *session)
 {
 	QPalette palette = this->palette();
 	if(m_current_style.backgroundIsTransparent)
@@ -321,10 +316,6 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 
 	makeSkeleton(session);
 	reloadStyle();
-//#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
-//	//HACK workaround for blank chat logs
-//	mainFrame()->setHtml(mainFrame()->toHtml());
-//#endif
 	loadHistory();
 }
 
@@ -332,10 +323,9 @@ void ChatStyleOutput::makeSkeleton(const ChatSessionImpl *session)
 {
 	QString html = makeSkeleton(session, QDateTime::currentDateTime());
 	mainFrame()->setHtml(html);
-	m_client->setupScripts(mainFrame());
 }
 
-QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
+QString ChatStyleOutput::makeSkeleton(const ChatSessionImpl *session, const QDateTime&)
 {
 	//TODO
 	QString headerHTML = m_current_style.headerHtml;

@@ -39,15 +39,31 @@ class JavaScriptClient : public QObject
 {
 	Q_OBJECT
 public:
+
+	enum Type
+	{
+		AppendMessage,
+		AppendNextMessage,
+		SetStylesheet,
+		SetCustomStylesheet,
+		AddSeparator
+	};
+	struct PostMessage
+	{
+		Type type;
+		QString text;
+		QString id;
+	};
+	typedef QList<PostMessage> PostMessageList;
+
 	JavaScriptClient(ChatSessionImpl *session);
-	
-public:
 	void setStylesheet(const QString &id, const QString &url);
 	void setCustomStylesheet(const QString &url);
 	void addSeparator();
 	void appendMessage(const QString &text);
 	void appendNextMessage(const QString &text);
 	void setupScripts(QWebFrame *frame);
+	void setWebFrame(QWebFrame *frame);
 
 public slots:
 	void debug(const QVariant &text);
@@ -60,6 +76,8 @@ public slots:
 private slots:
 	void helperCleared();
 	void onLoadFinished();
+	void onLoadStarted();
+	void postMessages();
 
 signals:
 	void setStylesheetRequest(const QString &id, const QString &url);
@@ -75,6 +93,9 @@ protected:
 
 private:
 	ChatSessionImpl *m_session;
+	QWeakPointer<QWebFrame> m_webFrame;
+	PostMessageList m_messages;
+	bool m_isLoading;
 };
 }
 }

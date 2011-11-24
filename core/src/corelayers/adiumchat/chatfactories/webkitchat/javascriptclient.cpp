@@ -37,34 +37,55 @@ namespace AdiumChat
 {
 JavaScriptClient::JavaScriptClient(ChatSessionImpl *session) :
 	QObject(session),
-	m_session(session)
+	m_session(session),
+	m_isLoading(false)
 {
 	setObjectName(QLatin1String("client"));
 }
 
 void JavaScriptClient::setStylesheet(const QString &id, const QString &url)
 {
-	emit setStylesheetRequest(id, url);
+	if (m_isLoading) {
+		PostMessage msg = {SetStylesheet, url, id};
+		m_messages.append(msg);
+	} else
+		emit setStylesheetRequest(id, url);
 }
 
 void JavaScriptClient::setCustomStylesheet(const QString &url)
 {
-	emit setCustomStylesheetRequest(url);
+	if (m_isLoading) {
+		PostMessage msg = {SetCustomStylesheet, url};
+		m_messages.append(msg);
+	} else
+		emit setCustomStylesheetRequest(url);
 }
 
 void JavaScriptClient::addSeparator()
 {
-	emit addSeparatorRequest();
+	if (m_isLoading) {
+		PostMessage msg = {AddSeparator};
+		m_messages.append(msg);
+	} else
+		emit addSeparatorRequest();
 }
 
 void JavaScriptClient::appendMessage(const QString &text)
 {
-	emit appendMessageRequest(text);
+	if (m_isLoading) {
+		PostMessage msg = {AppendMessage, text};
+		m_messages.append(msg);
+	} else
+		emit appendMessageRequest(text);
 }
 
 void JavaScriptClient::appendNextMessage(const QString &text)
 {
-	emit appendNextMessageRequest(text);
+	if (m_isLoading) {
+		PostMessage msg = {AppendNextMessage, text};
+		m_messages.append(msg);
+	} else
+		emit appendNextMessageRequest(text);
 }
 
 void JavaScriptClient::setupScripts(QWebFrame *frame)
@@ -76,6 +97,44 @@ void JavaScriptClient::setupScripts(QWebFrame *frame)
 		return;
 	QString script = file.readAll();
 	frame->evaluateJavaScript(script);
+}
+
+void JavaScriptClient::setWebFrame(QWebFrame *frame)
+{
+	if (m_webFrame)
+		m_webFrame.data()->disconnect(this);
+
+	m_webFrame = frame;
+	connect(frame, SIGNAL(loadStarted()), SLOT(onLoadStarted()));
+	connect(frame, SIGNAL(loadFinished(bool)), SLOT(onLoadFinished()));
+	connect(frame, SIGNAL(javaScriptWindowObjectCleared()), SLOT(helperCleared()));
+}
+
+void JavaScriptClient::postMessages()
+{
+	foreach (PostMessage msg, m_messages) {
+		switch (msg.type) {
+		case AppendMessage:
+			emit appendMessage(msg.text);
+			break;
+		case AppendNextMessage:
+			emit appendNextMessage(msg.text);
+			break;
+		case AddSeparator:
+			emit addSeparatorRequest();
+			break;
+		case SetStylesheet:
+			emit setStylesheetRequest(msg.id, msg.text);
+			break;
+		case SetCustomStylesheet:
+			emit setCustomStylesheetRequest(msg.text);
+			break;
+		default:
+			break;
+		}
+	}
+	m_messages.clear();
+	//qDebug() << m_webFrame.data()->toHtml();
 }
 
 void JavaScriptClient::debug(const QVariant &text)
@@ -96,7 +155,7 @@ bool JavaScriptClient::zoomImage(const QVariant &)
 
 void JavaScriptClient::helperCleared()
 {
-//	qDebug("%s", Q_FUNC_INFO);
+	//	qDebug("%s", Q_FUNC_INFO);
 	if(QWebFrame *frame = qobject_cast<QWebFrame *>(sender())) {
 		//qDebug() << Q_FUNC_INFO << frame << frame->toHtml().size();
 		setupScripts(frame);
@@ -108,6 +167,13 @@ void JavaScriptClient::onLoadFinished()
 {
 	QWebFrame *frame = static_cast<QWebFrame*>(sender());
 	setupScripts(frame);
+	m_isLoading = false;
+	postMessages();
+}
+
+void JavaScriptClient::onLoadStarted()
+{
+	m_isLoading = true;
 }
 
 void JavaScriptClient::appendNick(const QVariant &nick)
@@ -171,5 +237,6 @@ void JavaScriptClient::disconnectNotify(const char *signal)
 	qDebug() << Q_FUNC_INFO << signal;
 }
 }
+
 }
 

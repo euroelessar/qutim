@@ -84,7 +84,7 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 
 #if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
 		//HACK workaround for blank chat logs
-		m_view->page()->mainFrame()->setHtml(m_view->page()->mainFrame()->toHtml());
+		//m_view->page()->mainFrame()->setHtml(m_view->page()->mainFrame()->toHtml());
 #endif
 	} else
 		m_view->setPage(0);
