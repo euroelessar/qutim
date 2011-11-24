@@ -54,6 +54,16 @@ namespace Core
 {
 namespace AdiumChat
 {
+class MessageEventHook : public QEvent
+{
+public:
+	MessageEventHook() : QEvent(eventType()) {}
+	static Type eventType()
+	{
+		static Type type = static_cast<Type>(registerEventType());
+		return type;
+	}
+};
 
 struct MessageModifierTrack
 {
@@ -73,18 +83,20 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 	m_session = session;
 	
 	m_client = new JavaScriptClient(session);
+//	mainFrame()->addToJavaScriptWindowObject(m_client->objectName(), m_client);
 	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
 			m_client, SLOT(helperCleared()));
 	connect(mainFrame(), SIGNAL(loadFinished(bool)),
 			m_client, SLOT(onLoadFinished()),
-			Qt::QueuedConnection);
+	        Qt::QueuedConnection);
+//	m_client->setupScripts(mainFrame());
 	
 	setParent(session);
 	setChatUnit(session->unit());
 
-	connect(m_session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
-	connect(m_session, SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
-			this, SLOT(setChatUnit(qutim_sdk_0_3::ChatUnit*)));
+	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+	connect(m_session,SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
+			this,SLOT(setChatUnit(qutim_sdk_0_3::ChatUnit*)));
 	session->installEventFilter(this);
 }
 
@@ -129,6 +141,20 @@ void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 
 bool ChatStyleOutput::event(QEvent *ev)
 {
+	if (ev->type() == MessageEventHook::eventType()) {
+		qDebug() << Q_FUNC_INFO << m_scriptForInvoke;
+		//test workaround
+		//QStringList scripts = m_scriptForInvoke.split(";");
+		//foreach (QString script, scripts)
+		//	mainFrame()->evaluateJavaScript(script);
+
+
+		QVariant var = mainFrame()->evaluateJavaScript(m_scriptForInvoke);
+		m_scriptForInvoke.clear();
+//		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
+//		d_func()->getController()->appendMessage(messageEvent->message);
+		return true;
+	}
 	return QWebPage::event(ev);
 }
 
@@ -149,6 +175,7 @@ bool ChatStyleOutput::eventFilter(QObject *obj, QEvent *ev)
 		}
 		return true;
 	}
+
 	return QWebPage::eventFilter(obj, ev);
 }
 
@@ -157,14 +184,17 @@ void ChatStyleOutput::processMessage(QString &html, const ChatSession *session, 
 	// TODO: add cleanup
 	static QList<MessageModifier *> modifiers;
 	static QList<MessageModifierTrack> list;
-	static bool isInited = false;
-	if(!isInited) {
-		isInited = true;
+	static bool is_inited = false;
+	if(!is_inited)
+	{
+		is_inited = true;
 		GeneratorList generators = ObjectGenerator::module<MessageModifier>();
-		foreach(const ObjectGenerator *gen, generators)	{
+		foreach(const ObjectGenerator *gen, generators)
+		{
 			MessageModifier *modifier = gen->generate<MessageModifier>();
 			modifiers << modifier;
-			foreach(const QString &name, modifier->supportedNames()) {
+			foreach(const QString &name, modifier->supportedNames())
+			{
 				if(name.isEmpty() || name == QLatin1String("message"))
 					continue;
 				QString escaped = QRegExp::escape(name);
@@ -175,7 +205,8 @@ void ChatStyleOutput::processMessage(QString &html, const ChatSession *session, 
 		}
 	}
 	QList<MessageModifierTrack>::iterator it = list.begin();
-	for(; it != list.end(); it++) {
+	for(; it != list.end(); it++)
+	{
 		int pos=0;
 		while((pos = it->regexp.indexIn(html, pos)) != -1)
 		{
@@ -206,7 +237,7 @@ ChatStyleOutput::ChatStyleOutput (QObject *parent) :
 	groupUntil = cfg.value<int>("groupUntil", 900);
 	skipOneMerge = true;
 	setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-	connect(this, SIGNAL(linkClicked(QUrl)), SLOT(onLinkClicked(QUrl)));
+	connect(this,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
 }
 
 void ChatStyleOutput::loadHistory()
@@ -245,7 +276,7 @@ void ChatStyleOutput::loadSettings()
 				   .arg(parameter.value("parameter", QString()))
 				   .arg(parameter.value("value", QString())));
 	}
-	loadTheme(path, variant);
+	loadTheme(path,variant);
 	setCustomCSS(css);
 	m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
 }
@@ -263,6 +294,13 @@ void ChatStyleOutput::reloadStyle()
 {
 	m_client->setStylesheet(QLatin1String("mainStyle"), getVariantCSS());
 	m_client->setCustomStylesheet(m_current_css);
+//	QString js;
+//	js += "setStylesheet(\"mainStyle\",\"";
+//	js += getVariantCSS();
+//	js += "\");";
+//	postEvaluateJavaScript(js);
+//	js = QString("setCustomStylesheet(\"%1\");").arg(m_current_css);
+//	postEvaluateJavaScript(js);
 }
 
 void ChatStyleOutput::setCustomCSS(const QString &css)
@@ -311,11 +349,9 @@ QString ChatStyleOutput::getVariant() const
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
 	settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-
-	//QWebInspector *inspector = new QWebInspector;
-	//inspector->setPage(this);
-	//inspector->show();
-
+	QWebInspector *inspector = new QWebInspector;
+	inspector->setPage(this);
+	inspector->show();
 	QPalette palette = this->palette();
 	if(m_current_style.backgroundIsTransparent)
 		palette.setBrush(QPalette::Base, Qt::transparent);
@@ -323,22 +359,21 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 		palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
 
 	setPalette(palette);
-
-	makeSkeleton(session);
+	//TODO
+	QString html = makeSkeleton(session,QDateTime::currentDateTime());
+	mainFrame()->setHtml(html);
+	qDebug() << Q_FUNC_INFO << mainFrame() << mainFrame()->toHtml().size();
+	m_client->setupScripts(mainFrame());
 	reloadStyle();
 	loadHistory();
-
-#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
-	//HACK workaround for blank chat logs
-	mainFrame()->setHtml(mainFrame()->toHtml());
-#endif
 }
 
-void ChatStyleOutput::makeSkeleton(const ChatSessionImpl *session)
+void ChatStyleOutput::postEvaluateJavaScript(const QString &script)
 {
-	QString html = makeSkeleton(session, QDateTime::currentDateTime());
-	mainFrame()->setHtml(html);
-	m_client->setupScripts(mainFrame());
+	//if (m_scriptForInvoke.isEmpty())
+	//	QCoreApplication::postEvent(this, new MessageEventHook, -5);
+	//m_scriptForInvoke += script;
+	mainFrame()->evaluateJavaScript(script);
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
@@ -362,17 +397,17 @@ QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDa
 	generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(session->getAccount()->name() ));
 	generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(session->getUnit()->title()));
 	const Buddy *c = qobject_cast< const Buddy *>(session->getUnit());
-	QString ownerIconPath = session->getAccount()->property("avatar").toString();
-	QString partnerIconPath = c ? c->avatar() : QString();
+	QString _ownerIconPath = session->getAccount()->property("avatar").toString();
+	QString _partnerIconPath = c ? c->avatar() : QString();
 
-	if(ownerIconPath.isEmpty())
+	if(_ownerIconPath == "")
 		generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
 	else
-		generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", ownerIconPath);
-	if(partnerIconPath.isEmpty())
+		generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", _ownerIconPath);
+	if(_partnerIconPath == "")
 		generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "incoming_icon.png");
 	else
-		generalSkeleton = generalSkeleton.replace("%incomingIconPath%", partnerIconPath);
+		generalSkeleton = generalSkeleton.replace("%incomingIconPath%", _partnerIconPath);
 
 	return generalSkeleton;
 }
@@ -381,7 +416,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
 	if(msg.text().isEmpty())
 		return;
-	bool sameFrom = false;
+	bool same_from = false;
 	QString item;
 	Message message = msg;
 	qint64 id = message.id();
@@ -418,13 +453,13 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 			currentSender = message.property("senderName", message.chatUnit()->account()->name());
 		}
 
-		sameFrom = (!skipOneMerge) && (previous_sender == currentSender);
+		same_from = (!skipOneMerge) && (previous_sender == currentSender);
 		if (lastDate.isNull())
 			lastDate = message.time();
 		if (lastDate.secsTo(message.time()) > groupUntil)
-			sameFrom = false;
+			same_from = false;
 		lastDate = message.time();
-		item = makeMessage(m_session, message, sameFrom, id);
+		item = makeMessage(m_session, message, same_from, id);
 		previous_sender = currentSender;
 		skipOneMerge = false;
 	}
@@ -432,15 +467,23 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 	if (!m_session->isActive()) {
 		if (!separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
 			m_client->addSeparator();
+//			QString jsInactive = QString("separator = document.getElementById(\"separator\");")
+//					% QString("if (separator) separator.parentNode.removeChild(separator);")
+//					% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
+			
+//			postEvaluateJavaScript(jsInactive);
 			previous_sender.clear();
 			separator = true;
 		}
 	}
 	
-	if (sameFrom)
+	if (same_from)
 		m_client->appendNextMessage(item);
 	else
 		m_client->appendMessage(item);
+//	QString jsTask = QString("append%2Message(\"%1\");").arg(
+//				validateCpp(item), same_from?"Next":"");
+//	postEvaluateJavaScript(jsTask);
 }
 
 void ChatStyleOutput::setVariant(const QString &_variantName )
@@ -454,18 +497,21 @@ QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Messa
 {
 	// prepare values, so they could be inserted to html code
 	QString html;
-	if (!mes.chatUnit()) {
-		qDebug() << "Chat unit is not defined";
+	if (!mes.chatUnit())
+	{
+		//				qDebug() << "Chat unit is not defined";
 		return QString();
 	}
 
-	if(mes.property("history").toBool()) {
+	if(mes.property("history").toBool())
+	{
 		if ( !mes.isIncoming() )
 			html = sameSender ? m_current_style.nextOutgoingHistoryHtml : m_current_style.outgoingHistoryHtml;
 		else
 			html = sameSender ? m_current_style.nextIncomingHistoryHtml : m_current_style.incomingHistoryHtml;
 	}
-	else {
+	else
+	{
 		if ( !mes.isIncoming() )
 			html = sameSender ? m_current_style.nextOutgoingHtml : m_current_style.outgoingHtml;
 		else
@@ -549,7 +595,8 @@ void AdiumChat::ChatStyleOutput::makeUserIcons(const Message &mes, QString &sour
 		avatarPath = mes.chatUnit()->account()->property("avatar").toString();
 	}
 
-	if(avatarPath.isEmpty()) {
+	if(avatarPath.isEmpty())
+	{
 		if(!mes.isIncoming())
 			avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 		else
@@ -565,7 +612,8 @@ void ChatStyleOutput::makeBackground(QString &html)
 	QString bgColor = "inherit";
 	static QRegExp textBackgroundRegExp("%textbackgroundcolor\\{([^}]*)\\}%");
 	int textPos=0;
-	while((textPos=textBackgroundRegExp.indexIn(html, textPos)) != -1) {
+	while((textPos=textBackgroundRegExp.indexIn(html, textPos)) != -1)
+	{
 		html = html.replace(textPos, textBackgroundRegExp.cap(0).length(), bgColor);
 	}
 }
@@ -624,6 +672,26 @@ void ChatStyleOutput::makeUrls(QString &html)
 		}
 	}
 	html = result;
+	
+	
+//	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+//							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+//							  Qt::CaseInsensitive);
+//	Q_ASSERT(linkRegExp.isValid());
+//	int pos = 0;
+//	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
+//	{
+//		QString link = linkRegExp.cap(0);
+//		QString tmplink = link;
+//		if (tmplink.toLower().startsWith("www."))
+//			tmplink.prepend("http://");
+//		else if(!tmplink.contains("//"))
+//			tmplink.prepend("mailto:");
+//		static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
+//		tmplink = hrefTemplate.arg(tmplink, link);
+//		html.replace(pos, link.length(), tmplink);
+//		pos += tmplink.count();
+//	}
 }
 
 bool ChatStyleOutput::shouldHighlight(const Message &msg)
@@ -638,39 +706,39 @@ bool ChatStyleOutput::shouldHighlight(const Message &msg)
 
 QString ChatStyleOutput::makeName(const Message &mes)
 {
-	QString senderName = mes.property("senderName",QString());
-	if (senderName.isEmpty()) {
+	QString sender_name = mes.property("senderName",QString());
+	if (sender_name.isEmpty()) {
 		if (!mes.isIncoming()) {
 			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
 			if (conf && conf->me()) {
-				senderName = conf->me()->title();
+				sender_name = conf->me()->title();
 			} else {
-				senderName = mes.chatUnit()->account()->name();
+				sender_name = mes.chatUnit()->account()->name();
 			}
 		} else {
-			senderName = mes.chatUnit()->title();
+			sender_name = mes.chatUnit()->title();
 		}
 	}
-	return senderName;
+	return sender_name;
 }
 
 QString ChatStyleOutput::makeId(const Message &mes)
 {
-	QString senderId = mes.property("senderId",QString());
-	if (senderId.isEmpty()) {
+	QString sender_id = mes.property("senderId",QString());
+	if (sender_id.isEmpty()) {
 		if (!mes.isIncoming()) {
 			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
 			if (conf && conf->me()) {
-				senderId = conf->me()->id();
+				sender_id = conf->me()->id();
 			}
 			else {
-				senderId = mes.chatUnit()->account()->id();
+				sender_id = mes.chatUnit()->account()->id();
 			}
 		} else {
-			senderId = mes.chatUnit()->id();
+			sender_id = mes.chatUnit()->id();
 		}
 	}
-	return senderId;
+	return sender_id;
 }
 
 }

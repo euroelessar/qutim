@@ -115,7 +115,7 @@ private:
   skeleton consist of styles, header and footer
   it has a mark as well. before this mark new messages should be added
   */
-	void makeSkeleton(const ChatSessionImpl *session);
+	void postEvaluateJavaScript(const QString &script);
 	QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 	void makeUserIcons(const Message &mes, QString &source);
 	inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");

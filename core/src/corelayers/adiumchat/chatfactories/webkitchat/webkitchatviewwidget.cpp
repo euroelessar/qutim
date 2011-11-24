@@ -74,12 +74,18 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 
 	ChatStyleOutput *newPage = qobject_cast<ChatStyleOutput*>(controller);
 	if (newPage) {
+		//nice hack for new sessions
 		QWebFrame *frame = newPage->mainFrame();
 		if (!frame->property("scrollbarPos").toBool())
 			frame->setProperty("scrollbarAtEnd", true);
 
+        //newPage->setParent(m_view);
         m_view->page()->setView(0);
 		m_view->setPage(newPage);
+#if QTWEBKIT_VERSION >= QTWEBKIT_VERSION_CHECK(2, 2, 0)
+		//HACK workaround for blank chat logs
+		m_view->setHtml(m_view->page()->mainFrame()->toHtml());
+#endif
 		QTimer::singleShot(0, this, SLOT(scrollBarWorkaround()));
 	} else
 		m_view->setPage(0);

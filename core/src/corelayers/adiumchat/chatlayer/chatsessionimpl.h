@@ -58,9 +58,9 @@ class ADIUMCHAT_EXPORT ChatSessionImpl : public ChatSession
 public:
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
-	virtual void addContact(Buddy* c);
+	virtual void addContact ( Buddy* c );
 	virtual qint64 doAppendMessage(Message &message);
-	virtual void removeContact (Buddy* c);
+	virtual void removeContact ( Buddy* c );
 	QObject *getController() const;
 	Account *getAccount() const;
 	QString getId() const;
