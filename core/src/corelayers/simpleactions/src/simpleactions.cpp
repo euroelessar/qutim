@@ -66,6 +66,20 @@ void checkContact(QAction *action, Contact *contact)
 
 }
 
+namespace JoinLeave
+{
+
+void checkConference(QAction *action, Conference *room)
+{
+	action->setEnabled(room->account()->status() != Status::Offline);
+	action->setText(!room->isJoined() ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
+										QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
+	action->setIcon(!room->isJoined()  ? Icon("im-user") :
+										 Icon("im-user-offline"));
+}
+
+}
+
 class CopyIdGenerator : public ActionGenerator
 {
 public:
@@ -324,22 +338,18 @@ void SimpleActions::onJoinLeave(QObject *obj)
 		room->leave();
 }
 
-void SimpleActions::onJoinLeaveActionCreated(QAction *, QObject *obj)
+void SimpleActions::onJoinLeaveActionCreated(QAction *action, QObject *obj)
 {
 	Conference *room = sender_cast<Conference*>(obj);
 	connect(room, SIGNAL(joinedChanged(bool)), SLOT(onJoinedChanged(bool)));
+	JoinLeave::checkConference(action, room);
 }
 
-void SimpleActions::onJoinedChanged(bool isJoined)
+void SimpleActions::onJoinedChanged(bool)
 {
 	Conference *room = sender_cast<Conference*>(sender());
-	foreach (QAction *action, m_joinGroupLeaveGen->actions(room)) {
-		action->setEnabled(room->account()->status() != Status::Offline);
-		action->setText(!isJoined ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
-								   QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
-		action->setIcon(!isJoined ? Icon("im-user") :
-								   Icon("im-user-offline"));
-	}
+	foreach (QAction *action, m_joinGroupLeaveGen->actions(room))
+		JoinLeave::checkConference(action, room);
 }
 
 void SimpleActions::setDisableSoundActionVisibility(const QByteArray &type, bool visible)

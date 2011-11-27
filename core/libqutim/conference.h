@@ -61,8 +61,8 @@ signals:
 protected:
 	bool event(QEvent *ev);
 private:
-	Q_PRIVATE_SLOT(d_func(),void _q_joined());
-	Q_PRIVATE_SLOT(d_func(),void _q_leaved());
+	Q_PRIVATE_SLOT(d_func(), void _q_joined())
+	Q_PRIVATE_SLOT(d_func(), void _q_leaved())
 };
 
 }
