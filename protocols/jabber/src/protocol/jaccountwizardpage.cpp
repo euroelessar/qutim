@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -82,6 +82,7 @@ JAccountWizardPage::~JAccountWizardPage()
 
 bool JAccountWizardPage::validatePage()
 {
+	qDebug("%s \"%s\" \"%s\"", Q_FUNC_INFO, qPrintable(jid()), qPrintable(passwd()));
 	if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
 		return false;
 	m_accountWizard->createAccount();

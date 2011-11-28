@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>share/signals.js</file>
+    </qresource>
+</RCC>

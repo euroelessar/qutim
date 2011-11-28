@@ -34,10 +34,15 @@
 #include "addcontactdialogwrapper.h"
 #include "aboutdialogwrapper.h"
 #include "joingroupchatwrapper.h"
+#include "settingswrapper.h"
+#include "quickwidgetproxy.h"
+#include "../../../../core/libqutim/statisticshelper_p.h"
 
 #include "menumodel.h"
 #include <QApplication>
 #include <QGLWidget>
+#include <MDeclarativeCache>
+#include <QDeclarativeContext>
 
 namespace MeegoIntegration
 {
@@ -45,6 +50,8 @@ using namespace qutim_sdk_0_3;
 
 ApplicationWindow::ApplicationWindow()
 {
+	QApplication::setStyle(QLatin1String("Plastique"));
+	m_view = MDeclarativeCache::qDeclarativeView();
 	ServiceManagerWrapper::init();
 	MenuModel::init();
 	PasswordDialogWrapper::init();
@@ -52,6 +59,9 @@ ApplicationWindow::ApplicationWindow()
 	AddContactDialogWrapper::init();
 	AboutDialogWrapper::init();
 	JoinGroupChatWrapper::init();
+	SettingsWrapper::init();
+	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
+	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));
@@ -60,7 +70,7 @@ ApplicationWindow::ApplicationWindow()
 	//setOptimizationFlags(QGraphicsView::DontSavePainterState);
 	QApplication::setGraphicsSystem(QLatin1String("raster"));
 
-	setViewport(new QGLWidget(this));
+	m_view->setViewport(new QGLWidget());
 	// These seem to give the best performance
 //	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 //	viewport->setFocusPolicy(Qt::NoFocus);
@@ -72,7 +82,13 @@ ApplicationWindow::ApplicationWindow()
 	
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
 	                                      QLatin1String("meego"));
-	setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
-	showFullScreen();
+	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
+	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
+	m_view->showFullScreen();
+}
+
+void ApplicationWindow::showWidget(QWidget *widget)
+{
+	emit widgetShown(widget);
 }
 }

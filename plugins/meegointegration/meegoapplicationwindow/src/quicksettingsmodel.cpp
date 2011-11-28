@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "quicksettingsmodel.h"
+#include <qutim/settingswidget.h>
 
 namespace MeegoIntegration
 {
@@ -32,10 +33,21 @@ using namespace qutim_sdk_0_3;
 QuickSettingsModel::QuickSettingsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+	QHash<int,QByteArray> roles = roleNames();
+	roles[IsWidget] = "isWidget";
+	roles[Widget] = "widget";
+	roles[GraphicsItem] = "graphicsItem";
+	setRoleNames(roles);
 }
 
-void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items)
+bool itemLessThen(SettingsItem *a, SettingsItem *b)
 {
+	return a->text().toString() < b->text().toString();
+}
+
+void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller)
+{
+	m_controller = controller;
 	if (!m_items.isEmpty()) {
 		beginRemoveRows(QModelIndex(), 0, m_items.size());
 		m_items.clear();
@@ -43,7 +55,19 @@ void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items)
 	}
 	beginInsertRows(QModelIndex(), 0, items.size());
 	m_items = items;
+	qSort(m_items.begin(), m_items.end(), itemLessThen);
 	endInsertRows();
+}
+
+QObject *QuickSettingsModel::widget(int index)
+{
+	SettingsItem *item = m_items.value(index);
+	if (item) {
+		SettingsWidget *widget = item->widget();
+		widget->setController(m_controller);
+		return widget;
+	}
+	return NULL;
 }
 
 int QuickSettingsModel::rowCount(const QModelIndex &parent) const
@@ -61,6 +85,12 @@ QVariant QuickSettingsModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	case Qt::DisplayRole:
 		return item->text().toString();
+	case IsWidget:
+		return true;
+	case Widget:
+		return qVariantFromValue<QObject*>(item->widget());
+	case GraphicsItem:
+		return qVariantFromValue<QObject*>(NULL);
 	default:
 		return QVariant();
 	}

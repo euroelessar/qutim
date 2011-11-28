@@ -30,30 +30,30 @@
 #include <QtCore/QHash>
 
 namespace Ui {
-    class LocalizationSettings;
+class LocalizationSettings;
 }
 
 class QListWidgetItem;
 
 namespace Core
 {
-	class LocalizationSettings : public qutim_sdk_0_3::SettingsWidget
-	{
-		Q_OBJECT
-	public:
-		LocalizationSettings();
-		~LocalizationSettings();
+class LocalizationSettings : public qutim_sdk_0_3::SettingsWidget
+{
+	Q_OBJECT
+public:
+	LocalizationSettings();
+	~LocalizationSettings();
 
-	protected:
-		virtual void loadImpl();
-		virtual void saveImpl();
-		virtual void cancelImpl();
-		void changeEvent(QEvent *e);
+protected:
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+	void changeEvent(QEvent *e);
 
-	private:
-		Ui::LocalizationSettings *m_ui;
-		QHash<QString, QListWidgetItem *> m_items;
-	};
+private:
+	Ui::LocalizationSettings *m_ui;
+	QHash<QString, QListWidgetItem *> m_items;
+};
 }
 
 #endif // LOCALIZATIONSETTINGS_H

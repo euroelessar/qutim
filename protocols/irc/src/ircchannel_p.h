@@ -57,7 +57,9 @@ public:
 	bool reconnect;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+}
+
+} // namespace qutim_sdk_0_3::irc
 
 #endif // IRCCHANNEL_P_H
 

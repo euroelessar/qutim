@@ -1,3 +1,28 @@
+#****************************************************************************
+#**
+#** qutIM instant messenger
+#**
+#** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+#**
+#*****************************************************************************
+#**
+#** $QUTIM_BEGIN_LICENSE$
+#** This program is free software: you can redistribute it and/or modify
+#** it under the terms of the GNU General Public License as published by
+#** the Free Software Foundation, either version 3 of the License, or
+#** (at your option) any later version.
+#**
+#** This program is distributed in the hope that it will be useful,
+#** but WITHOUT ANY WARRANTY; without even the implied warranty of
+#** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#** See the GNU General Public License for more details.
+#**
+#** You should have received a copy of the GNU General Public License
+#** along with this program.  If not, see http://www.gnu.org/licenses/.
+#** $QUTIM_END_LICENSE$
+#**
+#****************************************************************************/
+
 #!/bin/sh
 
 # Try to find lconvert
@@ -20,21 +45,13 @@ do
 	then
 		module=`basename $file`
 		modulePath=$PWD/translations/modules/$module
-		for poFile in `ls $modulePath/*.po`
-		do
-			lang=`basename $poFile | sed 's/\..*//'`
-			$lconvert -i "$modulePath/$lang.po" -o "$modulePath/$lang.ts"
-		done
-		for langFile in `ls $modulePath/*.ts`
-		do
-			lang=`basename $langFile | sed 's/\..*//'`
-			$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative -target-language $lang "$file" -ts "$modulePath/$lang.ts"
-			$lconvert -i "$modulePath/$lang.ts" -o "$modulePath/$lang.po"
-			rm "$modulePath/$lang.ts"
-		done
 		$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative $file -ts "$modulePath/$module.ts"
 		$lconvert -i "$modulePath/$module.ts" -o "$modulePath/$module.pot"
 		rm "$modulePath/$module.ts"
+		for poFile in `ls $modulePath/*.po`
+		do
+			msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
+		done
 	fi
 done
 

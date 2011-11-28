@@ -17,6 +17,12 @@ if(NOT QMSYSTEM_FOUND)
 	return()
 endif()
 
+pkg_check_modules(QDECLARATIVE_BOOSTABLE qdeclarative-boostable)
+if(NOT QDECLARATIVE_BOOSTABLE_FOUND )
+	message(STATUS "QDECLARATIVE_BOOSTABLE libraries not found. Meego Harmattan integration will be skipped")
+	return()
+endif()
+
 
 FILE( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/*" )
 
