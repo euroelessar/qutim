@@ -56,25 +56,30 @@ PageStackWindow {
 		id: statistics
 	}
 
+	PasswordDialog{
+		id:passwordDialog
+	}
+	SettingsDialog {
+		id:settingsDialog
+	}
+	AuthDialog {
+		id:authDialog
+	}
+	JoinGroupChatDialog {
+		id:joinGroupChatDialog
+	}
+	AboutDialog {
+		id:aboutDialog
+	}
+	AddContactDialog {
+		id:addContactDialog
+	}
+	AccountCreatorDialog {
+		id:accountCreatorDialog
+	}
+
 	initialPage: Page {
-		PasswordDialog{
-			id:passwordDialog
-		}
-		SettingsDialog {
-			id:settingsDialog
-		}
-		AuthDialog {
-			id:authDialog
-		}
-		JoinGroupChatDialog {
-			id:joinGroupChatDialog
-		}
-		AboutDialog {
-			id:aboutDialog
-		}
-		AddContactDialog {
-			id:addContactDialog
-		}
+
 		
 		AnimatedTabGroup {
 			id: tabGroup
@@ -174,6 +179,13 @@ PageStackWindow {
 				text: qsTr("Settings")
 			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
 			}
+
+			MenuItem {
+				text: qsTr("Account Creator")
+			    onClicked: accountCreatorDialog.open();
+			}
+
+
 		    }
 		}
 	}

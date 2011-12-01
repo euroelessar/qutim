@@ -39,6 +39,7 @@
 #include "../../../../core/libqutim/statisticshelper_p.h"
 
 #include "menumodel.h"
+#include "addaccountdialogwrapper.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
@@ -60,6 +61,7 @@ ApplicationWindow::ApplicationWindow()
 	AboutDialogWrapper::init();
 	JoinGroupChatWrapper::init();
 	SettingsWrapper::init();
+	AddAccountDialogWrapper::init();
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 
