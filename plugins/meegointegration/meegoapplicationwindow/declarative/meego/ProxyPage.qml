@@ -6,6 +6,12 @@ Page {
 	id: page
 	property alias widget: proxy.widget
 	signal finished
+	Connections {
+		target: proxy
+		onWidgetClosed: {
+			pageStack.pop();
+		}
+	}
 	WidgetProxy {
 		id: proxy
 		anchors.fill: parent

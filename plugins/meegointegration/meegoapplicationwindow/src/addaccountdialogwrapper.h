@@ -48,7 +48,8 @@ public:
 	~AddAccountDialogWrapper();
 
 	Q_INVOKABLE void loadAccounts();
-	Q_INVOKABLE QWidget* getWidget(int index);
+	Q_INVOKABLE QObject* getWidget(int index);
+	Q_INVOKABLE bool validateWidget(QObject* widget);
 	static void init();
 	static void showDialog(QuickAddAccountDialog * dialog);
 

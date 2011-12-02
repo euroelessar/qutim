@@ -94,8 +94,38 @@ Sheet {
 	}
 	Component {
 		id: proxyPageComponent
-		ProxyPage {
-			id: proxyPage
+		Page {
+			id: page
+			property alias widget: proxy.widget
+			signal finished
+			Connections {
+				target: proxy
+				onWidgetClosed: {
+					pageStack.pop();
+				}
+			}
+			WidgetProxy {
+				id: proxy
+				anchors.fill: parent
+			}
+			tools: ToolBarLayout {
+				id: toolBarLayout
+				ToolIcon {
+					visible: true
+					platformIconId: "toolbar-previous"
+					onClicked: {
+						finished();
+						pageStack.pop();
+					}
+				}
+				ToolIcon {
+					visible: true
+					platformIconId: "toolbar-previous"
+					onClicked: {
+						if (handler.validateWidget(proxy.widget)) pageStack.pop();
+					}
+				}
+			}
 		}
 
 	}

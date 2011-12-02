@@ -142,10 +142,19 @@ QVariant AddAccountDialogWrapper::data(const QModelIndex &index, int role) const
 
 }
 
-QWidget* AddAccountDialogWrapper::getWidget(int index)
+QObject* AddAccountDialogWrapper::getWidget(int index)
 {
 	return m_wizards->at(index)->createPages(m_wizard).at(0);
 }
+
+bool AddAccountDialogWrapper::validateWidget(QObject* widget)
+{
+	qDebug()<<"erwwette";
+	QWizardPage *wiz=qobject_cast<QWizardPage*>(widget);
+	qDebug()<<"fkobmsdkbnfd";
+	return (wiz->validatePage());
+}
+
 
 }
 
