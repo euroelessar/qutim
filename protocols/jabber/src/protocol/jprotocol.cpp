@@ -45,7 +45,6 @@ namespace Jabber
 
 enum JActionType
 {
-	JoinLeaveAction,
 	SaveRemoveBookmarkAction,
 	RoomConfigAction,
 	RoomParticipantsAction,
@@ -69,7 +68,6 @@ public:
 	SettingsItem *mainSettings;
 	QScopedPointer<ActionGenerator> subscribeGen;
 	QScopedPointer<ActionGenerator> roomConfigGen;
-	QScopedPointer<ActionGenerator> joinGroupChatGen;
 	QScopedPointer<ActionGenerator> bookmarksGen;
 	void checkSubscribe(JContact *c, QAction *a)
 	{
@@ -100,14 +98,6 @@ public:
 		a->setText(!s->bookmark().isValid() ? QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") :
 											 QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
 	}
-	void checkRoomJoined(JMUCSession *s, QAction *a)
-	{
-		a->setEnabled(s->account()->status() != Status::Offline);
-		a->setText(!s->isJoined() ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
-									QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
-		a->setIcon(!s->isJoined() ? Icon("im-user") :
-									Icon("im-user-offline"));
-	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
 		QMap<QObject*, QAction*> actions = subscribeGen->actions();
@@ -134,16 +124,6 @@ public:
 			Q_ASSERT(s);
 			checkBookMark(s, it.value());
 		}
-	}
-	void _q_conference_join_changed()
-	{
-		Q_Q(JProtocol);
-		JMUCSession *s = qobject_cast<JMUCSession*>(q->sender());
-		Q_ASSERT(s);
-		foreach (QAction *a, roomConfigGen->actions(s))
-			checkRoomConfig(s, a);
-		foreach (QAction *a, joinGroupChatGen->actions(s))
-			checkRoomJoined(s, a);
 	}
 	void _q_conference_bookmark_changed()
 	{
@@ -220,14 +200,6 @@ void JProtocol::loadActions()
 	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 	//								this, SLOT(onConvertToMuc(QObject*))));
 
-	d->joinGroupChatGen.reset(new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
-												  this, SLOT(onJoinLeave(QObject*))));
-	d->joinGroupChatGen->addHandler(ActionVisibilityChangedHandler,this);
-	d->joinGroupChatGen->addHandler(ActionCreatedHandler, this);
-	d->joinGroupChatGen->setType(ActionTypeAdditional);
-	d->joinGroupChatGen->setPriority(3);
-	MenuController::addAction<JMUCSession>(d->joinGroupChatGen.data());
-
 	d->roomConfigGen.reset(new ActionGenerator(Icon("preferences-other"), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 											   this, SLOT(onShowConfigDialog(QObject*))));
 	d->roomConfigGen->addHandler(ActionCreatedHandler, this);
@@ -293,20 +265,6 @@ void JProtocol::onConvertToMuc(QObject *obj)
 	//session->convertToMuc();
 }
 
-void JProtocol::onJoinLeave(QObject* obj)
-{
-	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
-	debug() << Q_FUNC_INFO << obj;
-	Q_ASSERT(room);
-	if (!room->isJoined()) {
-		//		JAccount *account = static_cast<JAccount*>(room->account());
-		room->join();
-		//		account->conferenceManager()->join(room->id());
-	}
-	else
-		room->leave();
-}
-
 void JProtocol::onShowConfigDialog(QObject* obj)
 {
 	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
@@ -370,7 +328,6 @@ void JProtocol::loadAccounts()
 
 Account *JProtocol::doCreateAccount(const QString &id, const QVariantMap &parameters)
 {
-	Q_D(JProtocol);
 	JAccount *account = new JAccount(id);
 	account->updateParameters(parameters);
 //	QString password = properties.value(QLatin1String("password")).toString();
@@ -502,13 +459,6 @@ bool JProtocol::event(QEvent *ev)
 				d->checkBookMark(s, action);
 				connect(s, SIGNAL(bookmarkChanged(Jreen::Bookmark::Conference)),
 				        this, SLOT(_q_conference_bookmark_changed()));
-			} else {
-				if (event->generator() == d->joinGroupChatGen.data())
-					d->checkRoomJoined(s, action);
-				else
-					d->checkRoomConfig(s, action);
-				connect(s, SIGNAL(joinedChanged(bool)),
-				        this, SLOT(_q_conference_join_changed()));
 			}
 		}
 		return true;
@@ -518,9 +468,6 @@ bool JProtocol::event(QEvent *ev)
 		JActionType type = static_cast<JActionType>(action->property("actionType").toInt());
 		if (event->isVisible()) {
 			switch (type) {
-			case JoinLeaveAction: {
-				break;
-			}
 			case RoomConfigAction: {
 				break;
 			}

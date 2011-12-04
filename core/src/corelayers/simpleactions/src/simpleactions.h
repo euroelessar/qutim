@@ -65,6 +65,9 @@ private slots:
 	void onNotificationBackendStateChanged(const QByteArray &type, bool enabled);
 	void onNotificationBackendCreated(const QByteArray &type);
 	void onNotificationBackendDestroyed(const QByteArray &type);
+	void onJoinLeave(QObject *);
+	void onJoinLeaveActionCreated(QAction *, QObject *);
+	void onJoinedChanged(bool);
 private:
 	void setDisableSoundActionVisibility(const QByteArray &backendType, bool visible);
 private:
@@ -74,6 +77,7 @@ private:
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactAddRemoveGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_showInfoGen;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_disableSound;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_joinGroupLeaveGen;
 };
 
 } // namespace Core

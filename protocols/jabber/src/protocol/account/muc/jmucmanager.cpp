@@ -60,6 +60,7 @@ public:
 	{
 		foreach (JMUCSession *session, rooms) {
 			Jreen::MUCRoom *room = session->room();
+			debug() << room->isJoined() << (room->presence() != Presence::Unavailable);
 			if (!room->isJoined() && room->presence() != Presence::Unavailable
 					&& !roomsToConnect.contains(session)) {
 				session->join();
