@@ -37,6 +37,7 @@
 #include <qutim/systemintegration.h>
 #include <QHBoxLayout>
 #include <QToolButton>
+#include "addaccountdialogwrapper.h"
 
 namespace MeegoIntegration
 {
@@ -136,7 +137,9 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	l->setMargin(0);
 	l->setSpacing(0);
 
+	QSize size = QSize(48, 48);
 	QToolButton *btn = new QToolButton(buttons);
+	btn->setIconSize(size);
 	btn->setText(tr("Properties"));
 	btn->setToolTip(tr("Account settings"));
 	btn->setIcon(Icon("document-properties"));
@@ -145,6 +148,7 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	l->addWidget(btn);
 
 	btn = new QToolButton(buttons);
+	btn->setIconSize(size);
 	btn->setText(tr("Remove account"));
 	btn->setIcon(Icon("list-remove-user"));
 	btn->setToolTip(tr("Remove account"));
@@ -177,24 +181,7 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 {
 	if (item->data(SeparatorRole).toBool() || item->data(Qt::UserRole).value<Account *>())
 		return;
-
-//	if (!m_wizard.isNull())
-//		return;
-//	QWidget *parent = window();
-//	if (parent)
-//		window()->setEnabled(false);
-//	AccountCreatorWizard *wizard = new AccountCreatorWizard();
-//	connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
-//	SystemIntegration::show(wizard);
-
-
-//#if defined(QUTIM_MOBILE_UI)
-//	SystemIntegration::show(wizard);
-//#else
-//	centerizeWidget(wizard);
-//	wizard->show();
-//	wizard->raise();
-//#endif
+	AddAccountDialogWrapper::showDialog();
 }
 
 void AccountCreatorList::onAccountRemoveTriggered()

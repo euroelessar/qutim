@@ -52,6 +52,7 @@ public:
 	Q_INVOKABLE bool validateWidget(QObject* widget);
 	static void init();
 	static void showDialog(QuickAddAccountDialog * dialog);
+	static void showDialog();
 
 	// QAbstractListModel
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -99,12 +99,18 @@ AddAccountDialogWrapper::~AddAccountDialogWrapper()
 void AddAccountDialogWrapper::init()
 {
 	qmlRegisterType<AddAccountDialogWrapper>("org.qutim", 0, 3, "AccountCreator");
+
 }
 
 
 void AddAccountDialogWrapper::showDialog(QuickAddAccountDialog * dialog)
 {
 	m_currentDialog = dialog;
+	showDialog();
+}
+
+void AddAccountDialogWrapper::showDialog()
+{
 	for (int i = 0; i < m_managers()->count();i++)
 	{
 		m_managers()->at(i)->loadAccounts();
@@ -149,9 +155,7 @@ QObject* AddAccountDialogWrapper::getWidget(int index)
 
 bool AddAccountDialogWrapper::validateWidget(QObject* widget)
 {
-	qDebug()<<"erwwette";
 	QWizardPage *wiz=qobject_cast<QWizardPage*>(widget);
-	qDebug()<<"fkobmsdkbnfd";
 	return (wiz->validatePage());
 }
 

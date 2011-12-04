@@ -44,18 +44,6 @@ QuickAddAccountDialog::QuickAddAccountDialog() {
 				QT_TRANSLATE_NOOP("Settings", "Accounts"));
 	item->setPriority(100);
 	Settings::registerItem(item);
-
-	foreach (Protocol *proto,Protocol::all()) {
-		if (!proto->accounts().isEmpty())
-			return;
-	}
-	show();
-
-}
-
-void QuickAddAccountDialog::show()
-{
-	AddAccountDialogWrapper::showDialog(this);
 }
 
 

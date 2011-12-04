@@ -48,9 +48,11 @@ signals:
 
 private slots:
 	void onSizeChanged();
+	void onClosed();
 
 private:
 	QGraphicsProxyWidget *m_proxy;
+	bool m_active;
 };
 
 }

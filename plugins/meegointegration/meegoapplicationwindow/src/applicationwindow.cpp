@@ -87,6 +87,7 @@ ApplicationWindow::ApplicationWindow()
 	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
 	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
 	m_view->showFullScreen();
+
 }
 
 void ApplicationWindow::showWidget(QWidget *widget)

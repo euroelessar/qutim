@@ -43,10 +43,6 @@ class QuickAddAccountDialog : public QObject {
 public:
 	QuickAddAccountDialog();
 
-private slots:
-	void show();
-
-
 };
 }
 

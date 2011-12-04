@@ -76,7 +76,7 @@ PageStackWindow {
 	}
 	AccountCreatorDialog {
 		id:accountCreatorDialog
-	}
+	}	
 
 	initialPage: Page {
 

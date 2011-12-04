@@ -26,10 +26,7 @@ Sheet {
 	AccountCreator {
 		id: handler
 		onShown: {
-			if (showAccountsList == false)
-				pageStack.push(addContactPage);
-			else {pageStack.clear();
-				pageStack.push(mainPage);}
+			open();
 		}
 	}
 
@@ -97,13 +94,7 @@ Sheet {
 		Page {
 			id: page
 			property alias widget: proxy.widget
-			signal finished
-			Connections {
-				target: proxy
-				onWidgetClosed: {
-					pageStack.pop();
-				}
-			}
+			signal finished			
 			WidgetProxy {
 				id: proxy
 				anchors.fill: parent
@@ -120,7 +111,7 @@ Sheet {
 				}
 				ToolIcon {
 					visible: true
-					platformIconId: "toolbar-previous"
+					platformIconId: "icon-m-toolbar-done"
 					onClicked: {
 						if (handler.validateWidget(proxy.widget)) pageStack.pop();
 					}
