@@ -109,6 +109,7 @@ PageStackWindow {
 			}
 			Page {
 				id: conferenceUsersTab
+				visible: false //temprorary
 				Column {
 					spacing: 10
 

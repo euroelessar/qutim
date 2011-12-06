@@ -31,8 +31,7 @@ Sheet {
 	}
 	function checkOpen()
 	{
-		if (handler.checkOpen())
-			open();
+		handler.checkOpen();
 	}
 
 	acceptButtonText: qsTr("Close")
@@ -118,7 +117,11 @@ Sheet {
 					visible: true
 					platformIconId: "icon-m-toolbar-done"
 					onClicked: {
-						if (handler.validateWidget(proxy.widget)) pageStack.pop();
+						if (handler.validateWidget(proxy.widget))
+						{
+							pageStack.pop();
+							pageStack.pop();
+						}
 					}
 				}
 			}

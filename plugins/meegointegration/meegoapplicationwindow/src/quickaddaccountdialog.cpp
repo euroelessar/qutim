@@ -44,6 +44,7 @@ QuickAddAccountDialog::QuickAddAccountDialog() {
 				QT_TRANSLATE_NOOP("Settings", "Accounts"));
 	item->setPriority(100);
 	Settings::registerItem(item);
+
 }
 
 

@@ -111,9 +111,11 @@ void AddAccountDialogWrapper::showDialog(QuickAddAccountDialog * dialog)
 
 void AddAccountDialogWrapper::showDialog()
 {
+	qDebug()<<"Show Account Creator Dialog";
 	for (int i = 0; i < m_managers()->count();i++)
 	{
 		m_managers()->at(i)->loadAccounts();
+		qDebug()<<"Show Account Creator";
 		emit m_managers()->at(i)->shown();
 	}
 }

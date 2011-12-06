@@ -25,6 +25,7 @@
 
 #include "notificationwrapper.h"
 #include <qdeclarative.h>
+#include <qutim/debug.h>
 
 
 namespace MeegoIntegration
@@ -66,7 +67,9 @@ void NotificationWrapper::setWindowActive(bool active)
 {
 	m_windowActive = active;
 	if (m_currentManager)
+	{
 		m_currentManager->setWindowActive(active);
+	}
 	emit windowActiveChanged(active);
 }
 

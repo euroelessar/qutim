@@ -50,8 +50,8 @@ private:
 	QList<Notification*> m_notifications;
 	QHash<QObject*, MNotification*> m_ids;
 	QSet<QString> m_capabilities;
-	MNotification *m_notification;
 	bool m_active;
+	bool m_connected;
 
 
 };

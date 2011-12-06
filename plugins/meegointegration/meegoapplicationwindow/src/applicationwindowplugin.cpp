@@ -39,6 +39,7 @@
 #include "quicksettingslayer.h"
 #include "quicknotificationmanager.h"
 #include "quickaddaccountdialog.h"
+#include "addaccountdialogwrapper.h"
 #include "meegointegration.h"
 
 namespace MeegoIntegration

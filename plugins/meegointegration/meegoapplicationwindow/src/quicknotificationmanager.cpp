@@ -33,6 +33,7 @@
 #include <QVariant>
 #include <QBuffer>
 #include "notificationwrapper.h"
+#include "addaccountdialogwrapper.h"
 
 
 namespace MeegoIntegration
@@ -44,7 +45,6 @@ QuickNoficationManager::QuickNoficationManager() :
 	NotificationBackend("Popup")
 {
 	setDescription(QT_TR_NOOP("Show popup"));
-	m_notification = new MNotification(MNotification::ImEvent,"","");
 
 }
 
@@ -52,6 +52,21 @@ QuickNoficationManager::QuickNoficationManager() :
 
 void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
+	if (!m_connected)
+	{
+		NotificationWrapper::connect(this);
+		m_connected = true;
+
+		bool showAc=true;
+		foreach (Protocol *proto,Protocol::all()) {
+			if (!proto->accounts().isEmpty())
+			showAc=false;
+		}
+		if (showAc)
+		AddAccountDialogWrapper::showDialog();
+
+	}
+
 	if (!m_active)
 	{
 		ref(notification);
@@ -63,11 +78,18 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 		switch (notification->request().type()) {
 		case Notification::IncomingMessage:
 		case Notification::ChatIncomingMessage:
-			m_notification->setBody(text);
-			int count=m_notifications.count();
-			m_notification->setSummary("qutIM: " + QString::number(count) +tr(" messages"));
-			m_notification->publish();
 			m_notifications << notification;
+			QList<MNotification *> notifs= MNotification::notifications();
+
+			for (int i=0;i<m_notifications.count();i++)
+			{
+				notifs.at(i)->remove();
+			}
+
+			MNotification * notif = new MNotification(MNotification::ImEvent,"qutIM: new "+QString::number(m_notifications.count())+ " messages",text);
+			notif->publish();
+
+
 		}
 		connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
 			SLOT(onNotificationFinished()));
