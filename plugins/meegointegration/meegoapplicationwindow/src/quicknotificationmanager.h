@@ -33,6 +33,8 @@
 namespace MeegoIntegration
 {
 
+using namespace qutim_sdk_0_3;
+
 class QuickNoficationManager : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
 	Q_OBJECT
@@ -41,22 +43,15 @@ public:
 	QuickNoficationManager();
 	virtual ~QuickNoficationManager();
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	void setWindowActive(bool active);
 protected slots:
-	void onActionInvoked(MNotification* id, const QString &action_key);
-	void onNotificationClosed(MNotification* id, quint32 reason);
+	void onNotificationFinished();
 private:
-	struct NotificationData
-	{
-		QPointer<QObject> sender;
-		QString body;
-		QList<QPointer<qutim_sdk_0_3::Notification> > notifications;
-		QMultiHash<QString, qutim_sdk_0_3::NotificationAction> actions;
-	};
-	void ignore(NotificationData &data);
-private:
-	QHash<MNotification*, NotificationData> m_notifications;
+	QList<Notification*> m_notifications;
 	QHash<QObject*, MNotification*> m_ids;
 	QSet<QString> m_capabilities;
+	MNotification *m_notification;
+	bool m_active;
 
 
 };

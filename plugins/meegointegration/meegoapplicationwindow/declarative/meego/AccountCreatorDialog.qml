@@ -29,6 +29,11 @@ Sheet {
 			open();
 		}
 	}
+	function checkOpen()
+	{
+		if (handler.checkOpen())
+			open();
+	}
 
 	acceptButtonText: qsTr("Close")
 

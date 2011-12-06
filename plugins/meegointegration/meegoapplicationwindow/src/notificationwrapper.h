@@ -23,52 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef ADDACCOUNTDIALOGWRAPPER_H
-#define ADDACCOUNTDIALOGWRAPPER_H
+#ifndef NOTIFICATIONWRAPPER_H
+#define NOTIFICATIONWRAPPER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include "quickaddaccountdialog.h"
-#include <QAbstractListModel>
-#include <qutim/account.h>
-#include <qutim/status.h>
-#include <qutim/protocol.h>
-#include <QWizard>
-#include "quickwidgetproxy.h"
+#include <QObject>
+#include "quicknotificationmanager.h"
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
 
-class AddAccountDialogWrapper : public QAbstractListModel {
+class NotificationWrapper : public QObject
+{
 	Q_OBJECT
-
+	Q_PROPERTY(bool windowActive READ windowActive WRITE setWindowActive NOTIFY windowActiveChanged)
 public:
-	AddAccountDialogWrapper();
-	~AddAccountDialogWrapper();
-
-	Q_INVOKABLE void loadAccounts();
-	Q_INVOKABLE QObject* getWidget(int index);
-	Q_INVOKABLE bool validateWidget(QObject* widget);
-	Q_INVOKABLE bool checkOpen();
+	NotificationWrapper();
+	~NotificationWrapper();
+	bool windowActive();
+	void setWindowActive(bool active);
 	static void init();
-	static void showDialog(QuickAddAccountDialog * dialog);
-	static void showDialog();
+	static void connect(QuickNoficationManager * manager);
 
-	// QAbstractListModel
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 signals:
-	void shown();
+	void windowActiveChanged(bool active);
 
-private:
-	static QuickAddAccountDialog *m_currentDialog;
-	QWizard *m_wizard;
-	QList<AccountCreationWizard*>* m_wizards;
-	QMap<AccountCreationWizard *, int> m_wizardIds;
-
-
+private:	
+	bool m_windowActive;
+	static QuickNoficationManager* m_currentManager;
 };
 }
 
-#endif /* ADDACCOUNTDIALOGWRAPPER_H */
+
+#endif

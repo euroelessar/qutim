@@ -159,6 +159,15 @@ bool AddAccountDialogWrapper::validateWidget(QObject* widget)
 	return (wiz->validatePage());
 }
 
+bool AddAccountDialogWrapper::checkOpen()
+{
+	foreach (Protocol *proto,Protocol::all()) {
+		if (!proto->accounts().isEmpty())
+			return false;
+	}
+	return true;
+}
+
 
 }
 
