@@ -31,18 +31,18 @@
 
 namespace Core
 {
-	class LocalizationModule : public QObject, public qutim_sdk_0_3::StartupModule
-	{
-		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
-	public:
-		LocalizationModule();
-		
-		static QStringList determineSystemLocale();
-		static void loadLanguage(const QStringList &langs);
-	public slots:
-		void onSettingsSave();
-	};
+class LocalizationModule : public QObject, public qutim_sdk_0_3::StartupModule
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+public:
+	LocalizationModule();
+
+	static QStringList determineSystemLocale();
+	static void loadLanguage(const QStringList &langs);
+public slots:
+	void onSettingsSave();
+};
 }
 
 #endif // LOCALIZATIONMODULE_H

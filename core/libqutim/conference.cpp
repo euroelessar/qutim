@@ -69,7 +69,8 @@ QString Conference::topic() const
 void Conference::setJoined(bool isJoined)
 {
 	Q_D(Conference);
-	if (d->isJoined == isJoined) return;
+	if (d->isJoined == isJoined)
+		return;
 	d->isJoined = isJoined;
 	emit joinedChanged(isJoined);
 

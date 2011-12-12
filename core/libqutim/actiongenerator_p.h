@@ -143,15 +143,6 @@ private:
 	QExplicitlySharedDataPointer<ActionPointerData> d;
 };
 
-//	class SubscribersHandler : public QObject
-//	{
-//		Q_OBJECT
-//	public:
-//		SubscribersHandler(ActionGeneratorPrivate *gen_p);
-//		ActionGeneratorPrivate *p;
-//	public slots:
-//		void onSubscriberDeath(QObject *subscriber);
-//	};
 }
 
 Q_DECLARE_METATYPE(QSharedPointer<QShortcut>)
