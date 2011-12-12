@@ -453,5 +453,6 @@ void IrcChannel::clear(ChatSession *session)
 	emit left();
 }
 
-} } // namespace qutim_sdk_0_3::irc
+}
 
+} // namespace qutim_sdk_0_3::irc

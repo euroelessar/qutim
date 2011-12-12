@@ -42,30 +42,39 @@ PageStackWindow {
 				tabGroup.currentTab = chatTab
 		}
 	}
-	PasswordDialog{
-		id:passwordDialog
-
+	Connections {
+		target: application
+		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 	}
-	AuthDialog {
-		id:authDialog
+	Component {
+		id: proxyPageComponent
+		ProxyPage {
+		}
 	}
-	JoinGroupChatDialog
-	{
-		id:joinGroupChatDialog
-	}
-
-	AboutDialog {
-		id:aboutDialog
-	}
-	AddContactDialog
-	{
-		id:addContactDialog
+	Statistics {
+		id: statistics
 	}
 
 	initialPage: Page {
-
-
-
+		PasswordDialog{
+			id:passwordDialog
+		}
+		SettingsDialog {
+			id:settingsDialog
+		}
+		AuthDialog {
+			id:authDialog
+		}
+		JoinGroupChatDialog {
+			id:joinGroupChatDialog
+		}
+		AboutDialog {
+			id:aboutDialog
+		}
+		AddContactDialog {
+			id:addContactDialog
+		}
+		
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -97,10 +106,6 @@ PageStackWindow {
 					}
 				}
 			}
-			SettingsPage {
-				id: settingsTab
-				model: settings.model
-			}
 		}
 		tools: ToolBarLayout {
 			ButtonRow {
@@ -123,11 +128,12 @@ PageStackWindow {
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
-				TabIcon {
-					platformIconId: "toolbar-settings"
-					tab: settingsTab
-				}
+//				TabIcon {
+//					platformIconId: "toolbar-settings"
+//					tab: settingsTab
+//				}
 			}
+
 			ToolIcon {
 				property variant menu: tabGroup.currentTab.menu
 				//				visible: menu !== undefined
@@ -136,11 +142,60 @@ PageStackWindow {
 				//					visualParent: root.pageStack
 				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:joinGroupChatDialog.open()
+				onClicked:mainMenu.open()
 //				onClicked: (menu.status == DialogStatus.Closed)
 //					   ? menu.open()
 //					   : menu.close()
 			}
+
+		}
+		Menu {
+		    id: mainMenu
+
+		    content: MenuLayout {
+			MenuItem {
+				text: qsTr("Show/hide offline contacts")
+			    onClicked: contactListTab.showOffline=!contactListTab.showOffline;
+			}
+			MenuItem {
+				text: qsTr("Join group chat")
+			    onClicked: joinGroupChatDialog.open();
+			}
+			MenuItem {
+				text: qsTr("About qutIM")
+			    onClicked: aboutDialog.open();
+			}
+			MenuItem {
+				text: qsTr("Add contact")
+			    onClicked: addContactDialog.open();
+			}
+			MenuItem {
+				text: qsTr("Settings")
+			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
+			}
+		    }
+		}
+	}
+	Component {
+		id: settingsPageComponent
+		SettingsPage {
+			id: settingsPage
+			model: settings.model
+		}
+	}
+
+//	QueryDialog {
+//		id: statisticsDialog
+//		titleText: qsTr("Statistics gatherer")
+//		message: 
+//		acceptButtonText: qsTr("Send information")
+//		rejectButtonText: qsTr("Cancel")
+//	}
+
+	Component.onCompleted: {
+		if (statistics.action == Statistics.NeedToAskInit
+				|| statistics.action == statistics.NeedToAskUpdate) {
+			statistics.setDecisition(false, false);
 		}
 	}
 }

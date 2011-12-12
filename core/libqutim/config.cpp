@@ -112,7 +112,7 @@ public:
 	{
 		if (dirty) sync();
 	}
-	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
+	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create, ConfigBackend *bcknd = 0);
 	inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
 	bool isValid() {
 		//FIXME Elessar it's doesn't work!
@@ -136,7 +136,7 @@ typedef QHash<QString, ConfigSource::Ptr> ConfigSourceHash;
 
 Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
 
-ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create)
+ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create, ConfigBackend *backend)
 {
 	QString fileName = path;
 	if (fileName.isEmpty())
@@ -156,32 +156,32 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 	ConfigSource::Ptr result = sourceHash()->value(fileName);
 	if (result && result->isValid())
 		return result;
-
-	ConfigBackend *backend = 0;
-
-	QByteArray suffix = info.suffix().toLatin1().toLower();
+	
 	const QList<ConfigBackend*> &backends = *all_config_backends();
-
-	if (backends.isEmpty())
-		return ConfigSource::Ptr();
-
-	if (!suffix.isEmpty()) {
-		for (int i = 0; i < backends.size(); i++) {
-			if (backends.at(i)->name() == suffix) {
-				backend = backends.at(i);
-				break;
+	if (!backend) {
+		QByteArray suffix = info.suffix().toLatin1().toLower();
+	
+		if (backends.isEmpty())
+			return ConfigSource::Ptr();
+	
+		if (!suffix.isEmpty()) {
+			for (int i = 0; i < backends.size(); i++) {
+				if (backends.at(i)->name() == suffix) {
+					backend = backends.at(i);
+					break;
+				}
 			}
 		}
-	}
-	if (!backend) {
-		backend = backends.at(0);
-		fileName += QLatin1Char('.');
-		fileName += QLatin1String(backend->name());
-
-		result = sourceHash()->value(fileName);
-		if (result && result->isValid())
-			return result;
-		info.setFile(fileName);
+		if (!backend) {
+			backend = backends.at(0);
+			fileName += QLatin1Char('.');
+			fileName += QLatin1String(backend->name());
+	
+			result = sourceHash()->value(fileName);
+			if (result && result->isValid())
+				return result;
+			info.setFile(fileName);
+		}
 	}
 
 	if (!info.exists() && !create)
@@ -269,7 +269,7 @@ public:
 	inline ~ConfigPrivate() { if (!memoryGuard) sync(); /*qDeleteAll(levels);*/ }
 	inline const ConfigLevel::Ptr &current() const { return levels.at(0); }
 	void sync();
-	void init(const QStringList &paths);
+	void init(const QStringList &paths, ConfigBackend *backend = 0);
 	QList<ConfigLevel::Ptr> levels;
 	QList<ConfigSource::Ptr> sources;
 	QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
@@ -310,14 +310,14 @@ void ConfigPrivate::sync()
 	}
 }
 
-void ConfigPrivate::init(const QStringList &paths)
+void ConfigPrivate::init(const QStringList &paths, ConfigBackend *backend)
 {
 	QSet<QString> opened;
 	ConfigSource::Ptr source;
 	for (int j = 0; j < 2; j++) {
 		for (int i = 0; i < paths.size(); i++) {
 			// Firstly we should open user-specific configs
-			source = ConfigSource::open(paths.at(i), j == 1, sources.isEmpty());
+			source = ConfigSource::open(paths.at(i), j == 1, sources.isEmpty(), backend);
 			if (source && !opened.contains(source->fileName)) {
 				opened.insert(source->fileName);
 				sources << source;
@@ -377,6 +377,12 @@ Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
 	d->init(QStringList() << path);
+}
+
+Config::Config(const QString &path, ConfigBackend *backend) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList() << path, backend);
 }
 
 Config::Config(const QStringList &paths) : d_ptr(new ConfigPrivate)

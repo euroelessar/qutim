@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -31,13 +31,13 @@
 namespace Core
 {
 
-	class SoundThemeSettings : public QObject, public qutim_sdk_0_3::StartupModule
-	{
-		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
-	public:
-		explicit SoundThemeSettings(QObject *parent = 0);
-	};
+class SoundThemeSettings : public QObject, public qutim_sdk_0_3::StartupModule
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+public:
+	explicit SoundThemeSettings(QObject *parent = 0);
+};
 
 }
 #endif // SOUNDTHEMESETTINGS_H

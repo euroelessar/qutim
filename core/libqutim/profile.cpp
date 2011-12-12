@@ -39,10 +39,61 @@ namespace qutim_sdk_0_3
 LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 
+class SimpleJsonConfigBackend : public ConfigBackend
+{
+public:
+	virtual QVariant load(const QString &filePath)
+	{
+		QVariant var;
+		JsonFile file(filePath);
+		file.load(var);
+		return var;
+	}
+
+	virtual void save(const QString &filePath, const QVariant &entry)
+	{
+		JsonFile file(filePath);
+		file.save(entry);
+	}
+};
+
+Q_GLOBAL_STATIC(SimpleJsonConfigBackend, configBackend)
+
 class ProfilePrivate
 {
 public:
+	static Config profileConfig(bool *ok);
 };
+
+Config ProfilePrivate::profileConfig(bool *ok)
+{
+	bool tmp = true;
+	if (!ok) ok = &tmp;
+
+	Config config = Profile::instance()->config();
+#ifdef QUTIM_SINGLE_PROFILE
+	bool singleProfile = true;
+#else
+	bool singleProfile = false;
+#endif
+	singleProfile = config.value("singleProfile", singleProfile);
+	if (singleProfile) {
+		config.beginGroup(QLatin1String("profile"));
+		*ok = true;
+		return config;
+	}
+	QString current = config.value(QLatin1String("current"), QString());
+	int arraySize = config.beginArray(QLatin1String("list"));
+	for (int i = 0; i < arraySize; ++i) {
+		config.setArrayIndex(i);
+		if (config.value(QLatin1String("id"), QString()) == current) {
+			*ok = true;
+			return config;
+		}
+	}
+	*ok = false;
+	return config;
+}
 
 Profile::Profile()
 {
@@ -58,17 +109,29 @@ Profile *Profile::instance()
 	return self.data();
 }
 
-QVariantMap Profile::data()
+Config Profile::config()
 {
-	QFileInfo profilesInfo(configPath());
-	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		return QVariantMap();
-	} else {
-		JsonFile file(profilesInfo.absoluteFilePath());
-		QVariant var;
-		file.load(var);
-		return var.toMap();
-	}
+	return Config(configPath(), configBackend());
+}
+
+QVariant Profile::value(const QString &key) const
+{
+	bool ok = false;
+	Config cfg = ProfilePrivate::profileConfig(&ok);
+	Q_ASSERT(ok);
+	if (!ok)
+		return QVariant();
+	return cfg.value(key);
+}
+
+void Profile::setValue(const QString &key, const QVariant &value)
+{
+	bool ok = false;
+	Config cfg = ProfilePrivate::profileConfig(&ok);
+	Q_ASSERT(ok);
+	if (!ok)
+		return;
+	cfg.setValue(key, value);
 }
 
 QString Profile::configPath()
@@ -84,8 +147,14 @@ QString Profile::configPath()
 #else
 # Undefined OS
 #endif
+
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+		dir.mkpath("qutIM/profiles");
+		dir.cd("qutIM/profiles");
+#else
 		dir.mkpath("qutim/profiles");
 		dir.cd("qutim/profiles");
+#endif
 	}
 	return dir.filePath("profiles.json");
 }

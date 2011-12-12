@@ -26,6 +26,7 @@
 
 #include "mobilesettingslayerimpl.h"
 #include <qutim/icon.h>
+#include <qutim/systemintegration.h>
 #include "mobilesettingswindow.h"
 #include <QApplication>
 
@@ -55,7 +56,7 @@ void MobileSettingsLayerImpl::show (const SettingsItemList& settings, QObject* c
 	d->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 	d->setWindowFlags(d->windowFlags() | Qt::Window);
-	d->showMaximized();
+	SystemIntegration::show(d);
 }
 
 void MobileSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )

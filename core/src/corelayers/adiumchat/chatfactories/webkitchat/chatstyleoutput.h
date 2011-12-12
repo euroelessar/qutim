@@ -47,6 +47,8 @@ namespace Core
 namespace AdiumChat
 {
 
+class JavaScriptClient;
+
 class ChatStyleOutput : public QWebPage, public ChatViewController
 {
 	Q_OBJECT
@@ -113,7 +115,7 @@ private:
   skeleton consist of styles, header and footer
   it has a mark as well. before this mark new messages should be added
   */
-	void postEvaluateJavaScript(const QString &script);
+	void makeSkeleton(const ChatSessionImpl *session);
 	QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 	void makeUserIcons(const Message &mes, QString &source);
 	inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
@@ -127,6 +129,7 @@ private:
 	void processMessage(QString &html, const ChatSession *session, const Message &message);
 	void loadHistory();
 	ChatSessionImpl *m_session;
+	JavaScriptClient *m_client;
 	/*
   style used for output generation
   */
@@ -146,7 +149,6 @@ private:
 	QDateTime lastDate;
 	int groupUntil;
 	bool separator;
-	bool store_service_messages;
 };
 
 }

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "modulemanagerimpl.h"
+#include "submitpage.h"
 #include <qutim/jsonfile.h>
 #include <QVariant>
 #include <QFile>
@@ -38,7 +39,7 @@
 #include <qutim/config.h>
 #include <qutim/notification.h>
 #include <qutim/systemintegration.h>
-
+#include <QApplication>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 
@@ -54,14 +55,20 @@ ModuleManagerImpl::ModuleManagerImpl()
 	bool singleProfile = false;
 #endif
 	singleProfile = config.value("singleProfile", singleProfile);
+	QWizard *wizard = 0;
+	StatisticsHelper *helper = 0;
 	if (singleProfile) {
 		if (!config.hasChildGroup("profile")) {
-			QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
-			wizard->setAttribute(Qt::WA_DeleteOnClose, true);
-			wizard->setAttribute(Qt::WA_QuitOnClose, false);
-			SystemIntegration::show(wizard);
+			wizard = new ProfileCreationWizard(this, QString(), QString(), true);
 		} else {
 			config.beginGroup("profile");
+			helper = new StatisticsHelper();
+			if (helper->action() == StatisticsHelper::NeedToAskInit
+			        || helper->action() == StatisticsHelper::NeedToAskUpdate) {
+				wizard = new QWizard();
+				wizard->addPage(new SubmitPage(helper, wizard));
+			}
+
 			if(ProfileDialog::acceptProfileInfo(config, QString())) {
 				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
@@ -74,6 +81,11 @@ ModuleManagerImpl::ModuleManagerImpl()
 	} else {
 		QDialog *dialog = new ProfileDialog(config, this);
 		SystemIntegration::show(dialog);
+	}
+	if (wizard) {
+		wizard->setAttribute(Qt::WA_DeleteOnClose, true);
+		wizard->setAttribute(Qt::WA_QuitOnClose, false);
+		SystemIntegration::show(wizard);
 	}
 }
 

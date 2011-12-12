@@ -370,7 +370,6 @@ void JProtocol::loadAccounts()
 
 Account *JProtocol::doCreateAccount(const QString &id, const QVariantMap &parameters)
 {
-	Q_D(JProtocol);
 	JAccount *account = new JAccount(id);
 	account->updateParameters(parameters);
 //	QString password = properties.value(QLatin1String("password")).toString();

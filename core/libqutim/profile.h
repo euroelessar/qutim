@@ -37,20 +37,20 @@ class ProfilePrivate;
 class LIBQUTIM_EXPORT Profile : public QObject
 {
     Q_OBJECT
-	Q_PROPERTY(QVariantMap data READ data NOTIFY dataChanged)
 public:
 	virtual ~Profile();
 	
 	static Profile *instance();
 
-	QVariantMap data();
+	Config config();
+	QVariant value(const QString &key) const;
+	void setValue(const QString &key, const QVariant &value);
 	
 public slots:
 	QString configPath();
-	bool acceptData(const QVariantMap &data, const QString &password, QString *error = NULL);
+	bool acceptData(const QVariantMap &profilesData, const QString &password, QString *error = NULL);
 
 signals:
-	void dataChanged(const QVariantMap &data);
 	void error(const QString &text);
 
 private:

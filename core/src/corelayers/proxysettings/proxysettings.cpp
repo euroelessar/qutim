@@ -37,7 +37,7 @@
 namespace Core {
 
 ProxySettingsWidget::ProxySettingsWidget() :
-	m_settingsLayout(0)
+	m_settingsLayout(0), m_account(0)
 {
 	m_layout = new QFormLayout(this);
 	m_typeBox = new QComboBox(this);

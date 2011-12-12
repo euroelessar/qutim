@@ -25,25 +25,127 @@
 
 #include "javascriptclient.h"
 #include "chatsessionimpl.h"
-#include <QWebFrame>
 #include <QTextEdit>
 #include <QPlainTextEdit>
+#include <QWebElement>
 #include <qutim/servicemanager.h>
+#include <QFile>
 
 namespace Core
 {
 namespace AdiumChat
 {
+
 JavaScriptClient::JavaScriptClient(ChatSessionImpl *session) :
-	QObject(session)
+	QObject(session),
+	m_session(session),
+	m_isLoading(false)
 {
 	setObjectName(QLatin1String("client"));
-	m_session = session;
 }
 
-void JavaScriptClient::debugLog(const QVariant &text)
+void JavaScriptClient::setStylesheet(const QString &id, const QString &url)
+{
+	if (m_isLoading) {
+		PostMessage msg = {SetStylesheet, url, id};
+		m_messages.append(msg);
+	} else
+		emit setStylesheetRequest(id, url);
+}
+
+void JavaScriptClient::setCustomStylesheet(const QString &url)
+{
+	if (m_isLoading) {
+		PostMessage msg = {SetCustomStylesheet, url, QString()};
+		m_messages.append(msg);
+	} else
+		emit setCustomStylesheetRequest(url);
+}
+
+void JavaScriptClient::addSeparator()
+{
+	if (m_isLoading) {
+		PostMessage msg = {AddSeparator, QString(), QString()};
+		m_messages.append(msg);
+	} else
+		emit addSeparatorRequest();
+}
+
+void JavaScriptClient::appendMessage(const QString &text)
+{
+	if (m_isLoading) {
+		PostMessage msg = {AppendMessage, text, QString()};
+		m_messages.append(msg);
+	} else
+		emit appendMessageRequest(text);
+}
+
+void JavaScriptClient::appendNextMessage(const QString &text)
+{
+	if (m_isLoading) {
+		PostMessage msg = {AppendNextMessage, text, QString()};
+		m_messages.append(msg);
+	} else
+		emit appendNextMessageRequest(text);
+}
+
+void JavaScriptClient::setupScripts(QWebFrame *frame)
+{
+	frame->addToJavaScriptWindowObject(objectName(), this);
+	QString path = QLatin1String(":/share/signals.js");
+	QFile file(path);
+	if (!file.open(QIODevice::ReadOnly))
+		return;
+	QString script = file.readAll();
+	frame->evaluateJavaScript(script);
+}
+
+void JavaScriptClient::setWebFrame(QWebFrame *frame)
+{
+	if (m_webFrame)
+		m_webFrame.data()->disconnect(this);
+
+	m_webFrame = frame;
+	connect(frame, SIGNAL(loadStarted()), SLOT(onLoadStarted()));
+	connect(frame, SIGNAL(loadFinished(bool)), SLOT(onLoadFinished()));
+	connect(frame, SIGNAL(javaScriptWindowObjectCleared()), SLOT(helperCleared()));
+}
+
+void JavaScriptClient::postMessages()
+{
+	foreach (PostMessage msg, m_messages) {
+		switch (msg.type) {
+		case AppendMessage:
+			emit appendMessage(msg.text);
+			break;
+		case AppendNextMessage:
+			emit appendNextMessage(msg.text);
+			break;
+		case AddSeparator:
+			emit addSeparatorRequest();
+			break;
+		case SetStylesheet:
+			emit setStylesheetRequest(msg.id, msg.text);
+			break;
+		case SetCustomStylesheet:
+			emit setCustomStylesheetRequest(msg.text);
+			break;
+		default:
+			break;
+		}
+	}
+	m_messages.clear();
+	//qDebug() << m_webFrame.data()->toHtml();
+}
+
+void JavaScriptClient::debug(const QVariant &text)
 {
 	qDebug("WebKit: \"%s\"", qPrintable(text.toString()));
+}
+
+void JavaScriptClient::debug()
+{
+	qDebug("WebKit: Unknown message");
 }
 
 bool JavaScriptClient::zoomImage(const QVariant &)
@@ -54,8 +156,25 @@ bool JavaScriptClient::zoomImage(const QVariant &)
 
 void JavaScriptClient::helperCleared()
 {
-	if(QWebFrame *frame = qobject_cast<QWebFrame *>(sender()))
-		frame->addToJavaScriptWindowObject(objectName(), this);
+	//	qDebug("%s", Q_FUNC_INFO);
+	if(QWebFrame *frame = qobject_cast<QWebFrame *>(sender())) {
+		//qDebug() << Q_FUNC_INFO << frame << frame->toHtml().size();
+		setupScripts(frame);
+		//frame->addToJavaScriptWindowObject(objectName(), this);
+	}
+}
+
+void JavaScriptClient::onLoadFinished()
+{
+	QWebFrame *frame = static_cast<QWebFrame*>(sender());
+	setupScripts(frame);
+	m_isLoading = false;
+	postMessages();
+}
+
+void JavaScriptClient::onLoadStarted()
+{
+	m_isLoading = true;
 }
 
 void JavaScriptClient::appendNick(const QVariant &nick)
@@ -108,6 +227,17 @@ void JavaScriptClient::appendText(const QVariant &text)
 		static_cast<QWidget*>(obj)->setFocus();
 	}
 }
+
+void JavaScriptClient::connectNotify(const char *signal)
+{
+	qDebug() << Q_FUNC_INFO << signal;
 }
+
+void JavaScriptClient::disconnectNotify(const char *signal)
+{
+	qDebug() << Q_FUNC_INFO << signal;
+}
+}
+
 }
 

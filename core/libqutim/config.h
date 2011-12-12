@@ -124,6 +124,7 @@ namespace EnumDetectorHelper
 }
 #endif
 class ConfigPrivate;
+class ConfigBackend;
 class ConfigBackendPrivate;
 
 class LIBQUTIM_EXPORT Config
@@ -138,6 +139,7 @@ public:
 	Config(const QVariantMap &map);
 	Config(QVariantMap *map);
 	Config(const QString &path = QString());
+	Config(const QString &path, ConfigBackend *backend);
 	Config(const QStringList &paths);
 	Config(const Config &other);
 	Config &operator =(const Config &other);

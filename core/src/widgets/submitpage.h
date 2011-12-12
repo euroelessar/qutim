@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin euroelessar@yandex.ru
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -29,6 +29,7 @@
 #include <QWizardPage>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include "../../libqutim/statisticshelper_p.h"
 
 class QTextBrowser;
 class QCheckBox;
@@ -38,21 +39,14 @@ class SubmitPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-    SubmitPage(QWidget *parent = 0);
+    SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent);
+
 	virtual bool validatePage();
 private:
 	QCheckBox *m_submitBox;
+	QCheckBox *m_dontAskLater;
 	QTextBrowser *m_information;
-};
-
-class RequestHelper : public QNetworkAccessManager
-{
-	Q_OBJECT
-public:
-	RequestHelper(QObject *parent = 0);
-public slots:
-	void onFinished();
-	void onError(QNetworkReply::NetworkError);
+	qutim_sdk_0_3::StatisticsHelper *m_helper;
 };
 
 } // namespace Core
