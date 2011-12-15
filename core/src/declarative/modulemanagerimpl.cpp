@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -127,3 +127,4 @@ void ModuleManagerImpl::initExtensions()
 	request.send();
 }
 }
+

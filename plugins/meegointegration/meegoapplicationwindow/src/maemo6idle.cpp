@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -64,3 +64,4 @@ void Maemo6Idle::activityChanged (MeeGo::QmActivity::Activity activity)
 	}
 }
 }
+

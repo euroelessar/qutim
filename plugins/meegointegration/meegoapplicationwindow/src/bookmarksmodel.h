@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
-** Copyright (c) 2010 by Alexey Prokhin <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -87,3 +87,4 @@ private:
 Q_DECLARE_METATYPE(MeegoIntegration::BookmarkType)
 
 #endif // BOOKMARKSMODEL_H
+
