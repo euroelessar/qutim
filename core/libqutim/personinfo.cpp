@@ -39,10 +39,10 @@ PersonInfoData::PersonInfoData(const QString &ocs) : ocsUsername(ocs)
 {
 	if (!ocs.isEmpty()) {
 		QVariantMap info = data();
-		d->name = LocalizedString("Author", info.value(QLatin1String("name")));
-		d->task = LocalizedString("Task", info.value(QLatin1String("task")));
-		d->email = QString::fromUtf8(info.value(QLatin1String("email")));
-		d->web = QString::fromUtf8(info.value(QLatin1String("web")));
+		name = LocalizedString("Author", info.value(QLatin1String("name")).toByteArray());
+		task = LocalizedString("Task", info.value(QLatin1String("task")).toByteArray());
+		email = info.value(QLatin1String("email")).toString();
+		web = info.value(QLatin1String("web")).toString();
 	}
 }
 
