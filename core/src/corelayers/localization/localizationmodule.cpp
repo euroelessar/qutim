@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -37,131 +37,134 @@
 
 namespace Core
 {
-	using namespace qutim_sdk_0_3;
-	
-	LocalizationModule::LocalizationModule()
-	{
-		SettingsItem *item = new GeneralSettingsItem<LocalizationSettings>(
-				Settings::General,
-				Icon("preferences-desktop-locale"),
-				QT_TRANSLATE_NOOP("Settings", "Localization"));
-		item->connect(SIGNAL(saved()), this, SLOT(onSettingsSave()));
-		Settings::registerItem(item);
-		onSettingsSave();
-	}
-	
-	QString getLocaleLanguage(const QLocale &locale)
-	{
-		return locale.name().section('_', 0, 0);
-	}
-	
-	QString getLocaleCountry(const QLocale &locale)
-	{
-		return locale.name().section('_', 1, 1);
-	}
+using namespace qutim_sdk_0_3;
 
-	void LocalizationModule::onSettingsSave()
-	{
-		QStringList langs = ThemeManager::list("languages");
-		QString lang = Config().group("localization").value("lang", QString());
-		if (langs.contains(lang) || lang == QLatin1String("en_EN")) {
-			loadLanguage(QStringList() << lang);
-		} else {
-			loadLanguage(determineSystemLocale());
-		}
+LocalizationModule::LocalizationModule()
+{
+	SettingsItem *item = new GeneralSettingsItem<LocalizationSettings>(
+							 Settings::General,
+							 Icon("preferences-desktop-locale"),
+							 QT_TRANSLATE_NOOP("Settings", "Localization"));
+	item->connect(SIGNAL(saved()), this, SLOT(onSettingsSave()));
+	Settings::registerItem(item);
+	onSettingsSave();
+}
+
+QString getLocaleLanguage(const QLocale &locale)
+{
+	return locale.name().section('_', 0, 0);
+}
+
+QString getLocaleCountry(const QLocale &locale)
+{
+	return locale.name().section('_', 1, 1);
+}
+
+void LocalizationModule::onSettingsSave()
+{
+	QStringList langs = ThemeManager::list("languages");
+	QString lang = Config().group("localization").value("lang", QString());
+	if (langs.contains(lang) || lang == QLatin1String("en_EN")) {
+		loadLanguage(QStringList() << lang);
+	} else {
+		loadLanguage(determineSystemLocale());
 	}
-	
-	QStringList LocalizationModule::determineSystemLocale()
+}
+
+QStringList LocalizationModule::determineSystemLocale()
+{
+	// TODO: Check if it works correct
+	QStringList langs = ThemeManager::list("languages");
+	QStringList langsByCountry;
 	{
-		// TODO: Check if it works correct
-		QStringList langs = ThemeManager::list("languages");
-		QStringList langsByCountry;
-		{
-			QByteArray data = qgetenv("LANGUAGE");
-			if (data.isEmpty())
-				data = qgetenv("LANG");
-			if (!data.isEmpty()) {
-				// Environmental variables looks like "ru_RU.UTF-8:en_US.UTF-8"
-				// for multiple languages, but we don't need encoding
-				foreach (const QString &lang, QString(QLatin1String(data)).split(':')) {
-					QString sublang = lang.section('.', 0, 0);
-					if (langs.contains(sublang))
-						langsByCountry << sublang;
-				}
+		QByteArray data = qgetenv("LANGUAGE");
+		if (data.isEmpty())
+			data = qgetenv("LANG");
+		if (!data.isEmpty()) {
+			// Environmental variables looks like "ru_RU.UTF-8:en_US.UTF-8"
+			// for multiple languages, but we don't need encoding
+			foreach (const QString &lang, QString(QLatin1String(data)).split(':')) {
+				QString sublang = lang.section('.', 0, 0);
+				if (langs.contains(sublang))
+					langsByCountry << sublang;
 			}
 		}
-		if (langsByCountry.isEmpty()) {
-			// Try to determine language by system locale
-			QLocale locale = QLocale::system();
-			QStringList langsByLang = langs.filter(getLocaleLanguage(locale),
-												   Qt::CaseSensitive);
-			// There may be different localizations for one language, but different countries
-			langsByCountry = langsByLang.filter(getLocaleCountry(locale),
-			                                    Qt::CaseSensitive);
-			// But if we have no certain match we should load all localizations
-			if (langsByCountry.isEmpty())
-				langsByCountry = langsByLang;
-		}
-		return langsByCountry;
 	}
-	
-	Q_GLOBAL_STATIC(QList<QTranslator *>, translatorsCache)
-	Q_GLOBAL_STATIC(QStringList, authorsCache)
+	if (langsByCountry.isEmpty()) {
+		// Try to determine language by system locale
+		QLocale locale = QLocale::system();
+		// Don't use chezh locale for posix
+		if (locale.language() == QLocale::C)
+			return QStringList();
+		QStringList langsByLang = langs.filter(getLocaleLanguage(locale),
+											   Qt::CaseSensitive);
+		// There may be different localizations for one language, but different countries
+		langsByCountry = langsByLang.filter(getLocaleCountry(locale),
+											Qt::CaseSensitive);
+		// But if we have no certain match we should load all localizations
+		if (langsByCountry.isEmpty())
+			langsByCountry = langsByLang;
+	}
+	return langsByCountry;
+}
 
-	void LocalizationModule::loadLanguage(const QStringList &langs)
-	{
-		QList<QTranslator *> &translators = *translatorsCache();
-		foreach (QTranslator *translator, translators)
-			qApp->removeTranslator(translator);
-		foreach (const QString &path, *authorsCache())
-			QResource::unregisterResource(path);
-		authorsCache()->clear();
-		qDeleteAll(translators);
-		translators.clear();
-		QStringList paths;
-		foreach (const QString &lang, langs) {
-			QString path = ThemeManager::path("languages", lang);
-			if (!path.isEmpty())
-				paths << path;
+Q_GLOBAL_STATIC(QList<QTranslator *>, translatorsCache)
+Q_GLOBAL_STATIC(QStringList, authorsCache)
+
+void LocalizationModule::loadLanguage(const QStringList &langs)
+{
+	QList<QTranslator *> &translators = *translatorsCache();
+	foreach (QTranslator *translator, translators)
+		qApp->removeTranslator(translator);
+	foreach (const QString &path, *authorsCache())
+		QResource::unregisterResource(path);
+	authorsCache()->clear();
+	qDeleteAll(translators);
+	translators.clear();
+	QStringList paths;
+	foreach (const QString &lang, langs) {
+		QString path = ThemeManager::path("languages", lang);
+		if (!path.isEmpty())
+			paths << path;
+	}
+	paths.removeDuplicates();
+	if (paths.isEmpty()) {
+		QLocale::setDefault(QLocale(QLocale::English));
+		return;
+	}
+	// For jabber's xml:lang
+	QLocale::setDefault(QLocale(langs.first()));
+	// Firstly we should try to load Qt's translation for selected languages
+	QString qtPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+	foreach (const QString &lang, langs) {
+		QTranslator *translator = new QTranslator(qApp);
+		if (!translator->load(QLatin1String("qt_") + lang, qtPath)) {
+			delete translator;
+		} else {
+			qApp->installTranslator(translator);
+			translators << translator;
 		}
-		paths.removeDuplicates();
-		if (paths.isEmpty()) {
-			QLocale::setDefault(QLocale(QLocale::English));
-			return;
-		}
-		// For jabber's xml:lang
-		QLocale::setDefault(QLocale(langs.first()));
-		// Firstly we should try to load Qt's translation for selected languages
-		QString qtPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-		foreach (const QString &lang, langs) {
+	}
+	// And our local translations afterwords
+	foreach (const QDir &dir, paths) {
+		QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
+
+		foreach (const QString &file, files) {
 			QTranslator *translator = new QTranslator(qApp);
-			if (!translator->load(QLatin1String("qt_") + lang, qtPath)) {
+			if (!translator->load(file, dir.absolutePath())) {
 				delete translator;
 			} else {
 				qApp->installTranslator(translator);
 				translators << translator;
 			}
 		}
-		// And our local translations afterwords
-		foreach (const QDir &dir, paths) {
-			QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
-	
-			foreach (const QString &file, files) {
-				QTranslator *translator = new QTranslator(qApp);
-				if (!translator->load(file, dir.absolutePath())) {
-					delete translator;
-				} else {
-					qApp->installTranslator(translator);
-					translators << translator;
-				}
-			}
 
-			files = dir.entryList(QStringList() << "*.rcc", QDir::Files);
-			foreach (const QString &file, files) {
-				if (QResource::registerResource(dir.filePath(file)))
-					authorsCache()->append(file);
-			}
+		files = dir.entryList(QStringList() << "*.rcc", QDir::Files);
+		foreach (const QString &file, files) {
+			if (QResource::registerResource(dir.filePath(file)))
+				authorsCache()->append(file);
 		}
 	}
+}
 }
 

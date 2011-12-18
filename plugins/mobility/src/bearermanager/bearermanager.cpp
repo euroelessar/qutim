@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **
@@ -65,7 +65,7 @@ void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3:
 {
 	Q_UNUSED(s);
 	Config cfg = a->config();
-	bool auto_connect = cfg.value("autoConnect", false);
+	bool auto_connect = cfg.value("autoConnect", true);
 	if (isOnline){
 		if (auto_connect) {
 			Status status = a->status();

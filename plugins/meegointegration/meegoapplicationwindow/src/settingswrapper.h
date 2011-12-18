@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -55,3 +55,4 @@ private:
 }
 
 #endif /* SETTINGSWRAPPER_H */
+

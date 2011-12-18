@@ -2,6 +2,7 @@
 **
 ** qutIM - instant messenger
 **
+** Copyright © 2011 Rustam Chakin, Ruslan Nigmatullin"));
 **
 *****************************************************************************
 **

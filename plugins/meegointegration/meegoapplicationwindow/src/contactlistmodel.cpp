@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -281,3 +281,4 @@ int ContactListModel::indexOfContact(qutim_sdk_0_3::Contact *contact) const
 	        - m_contacts.begin();
 }
 }
+

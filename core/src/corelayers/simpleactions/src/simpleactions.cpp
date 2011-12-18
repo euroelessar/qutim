@@ -2,8 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
-** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **
@@ -33,6 +33,7 @@
 #include <qutim/account.h>
 #include <qutim/chatunit.h>
 #include <qutim/protocol.h>
+#include <qutim/conference.h>
 #include <qutim/utils.h>
 #include <qutim/servicemanager.h>
 #include <qutim/notification.h>
@@ -52,6 +53,7 @@ typedef QWeakPointer<QAction> ActionPtr;
 
 namespace AddRemove
 {
+
 void checkContact(QAction *action, Contact *contact)
 {
 	action->setEnabled(contact->account()->status() != Status::Offline);
@@ -61,6 +63,21 @@ void checkContact(QAction *action, Contact *contact)
 	action->setIcon(isInList ? Icon("list-remove") :
 							   Icon("list-add"));
 }
+
+}
+
+namespace JoinLeave
+{
+
+void checkConference(QAction *action, Conference *room)
+{
+	action->setEnabled(room->account()->status() != Status::Offline);
+	action->setText(!room->isJoined() ? QT_TRANSLATE_NOOP("Jabber", "Join conference") :
+										QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
+	action->setIcon(!room->isJoined()  ? Icon("im-user") :
+										 Icon("im-user-offline"));
+}
+
 }
 
 class CopyIdGenerator : public ActionGenerator
@@ -91,10 +108,10 @@ SimpleActions::SimpleActions()
 	MenuController::addAction<Contact>(m_contactRenameGen.data());
 
 	m_showInfoGen.reset(new ActionGenerator(Icon("dialog-information"),
-								QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"),
-								this,
-								SLOT(onShowInfoAction(QObject*))
-								));
+											QT_TRANSLATE_NOOP("ContactInfo", "Information unavailable"),
+											this,
+											SLOT(onShowInfoAction(QObject*))
+											));
 	m_showInfoGen->setType(ActionTypeContactList |
 						   ActionTypeChatButton |
 						   ActionTypeContactInfo | 0x7000);
@@ -103,15 +120,15 @@ SimpleActions::SimpleActions()
 	MenuController::addAction<Account>(m_showInfoGen.data());
 
 	m_contactAddRemoveGen.reset(new ActionGenerator(QIcon(),
-											 QT_TRANSLATE_NOOP("AddContact", "Unavailable"),
-											 this, SLOT(onContactAddRemoveAction(QObject*))));
+													QT_TRANSLATE_NOOP("AddContact", "Unavailable"),
+													this, SLOT(onContactAddRemoveAction(QObject*))));
 	m_contactAddRemoveGen->setType(ActionTypeAdditional);
 	m_contactAddRemoveGen->subscribe(this, SLOT(onContactAddRemoveActionCreated(QAction*,QObject*)));
 	MenuController::addAction<Contact>(m_contactAddRemoveGen.data());
 
 	m_disableSound.reset(new ActionGenerator(QIcon(),
-								QT_TRANSLATE_NOOP("ContactList", "Enable/disable sound"),
-								this, SLOT(onDisableSoundAction(QAction*))));
+											 QT_TRANSLATE_NOOP("ContactList", "Enable/disable sound"),
+											 this, SLOT(onDisableSoundAction(QAction*))));
 	m_disableSound->setCheckable(true);
 	m_disableSound->subscribe(this, SLOT(onDisableSoundActionCreated(QAction*,QObject*)));
 	connect(NotificationManager::instance(),
@@ -132,6 +149,11 @@ SimpleActions::SimpleActions()
 	}
 	connect(NotificationManager::instance(), SIGNAL(backendStateChanged(QByteArray,bool)),
 			SLOT(onNotificationBackendStateChanged(QByteArray,bool)));
+
+	m_joinGroupLeaveGen.reset(new ActionGenerator(Icon("im-user"), QT_TRANSLATE_NOOP("Jabber", "Join conference"),
+												  this, SLOT(onJoinLeave(QObject*))));
+	m_joinGroupLeaveGen->subscribe(this, SLOT(onJoinLeaveActionCreated(QAction*, QObject*)));
+	MenuController::addAction<Conference>(m_joinGroupLeaveGen.data());
 }
 
 SimpleActions::~SimpleActions()
@@ -305,6 +327,29 @@ void SimpleActions::onNotificationBackendCreated(const QByteArray &type)
 void SimpleActions::onNotificationBackendDestroyed(const QByteArray &type)
 {
 	setDisableSoundActionVisibility(type, false);
+}
+
+void SimpleActions::onJoinLeave(QObject *obj)
+{
+	Conference *room = sender_cast<Conference*>(obj);
+	if (!room->isJoined())
+		room->join();
+	else
+		room->leave();
+}
+
+void SimpleActions::onJoinLeaveActionCreated(QAction *action, QObject *obj)
+{
+	Conference *room = sender_cast<Conference*>(obj);
+	connect(room, SIGNAL(joinedChanged(bool)), SLOT(onJoinedChanged(bool)));
+	JoinLeave::checkConference(action, room);
+}
+
+void SimpleActions::onJoinedChanged(bool)
+{
+	Conference *room = sender_cast<Conference*>(sender());
+	foreach (QAction *action, m_joinGroupLeaveGen->actions(room))
+		JoinLeave::checkConference(action, room);
 }
 
 void SimpleActions::setDisableSoundActionVisibility(const QByteArray &type, bool visible)

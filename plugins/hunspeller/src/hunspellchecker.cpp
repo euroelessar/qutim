@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011  Montel Laurent <montel@kde.org>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Montel Laurent <montel@kde.org>
 **
 *****************************************************************************
 **

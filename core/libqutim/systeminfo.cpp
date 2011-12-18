@@ -2,7 +2,9 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Remko Tronçon
+** Copyright © 2008 Remko Tronçon
+** Copyright © 2011 Nicolay Izoderov <nico-izo@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **

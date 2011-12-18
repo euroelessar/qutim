@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2003  Tarkvara Design Inc.
+** Copyright © 2003 Tarkvara Design Inc
 **
 *****************************************************************************
 **

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Belov Nikita <null@deltaz.org>
+** Copyright © 2011 Belov Nikita <null@deltaz.org>
 **
 *****************************************************************************
 **

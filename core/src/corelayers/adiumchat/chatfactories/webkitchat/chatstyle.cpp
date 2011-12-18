@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Sidorov Aleksey <sauroncitadelspb.com>
+** Copyright © 2011 Sidorov Aleksey <sauroncitadelspb.com>
 **
 *****************************************************************************
 **

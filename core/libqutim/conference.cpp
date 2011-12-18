@@ -2,6 +2,7 @@
 **
 ** qutIM - instant messenger
 **
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -69,7 +70,8 @@ QString Conference::topic() const
 void Conference::setJoined(bool isJoined)
 {
 	Q_D(Conference);
-	if (d->isJoined == isJoined) return;
+	if (d->isJoined == isJoined)
+		return;
 	d->isJoined = isJoined;
 	emit joinedChanged(isJoined);
 

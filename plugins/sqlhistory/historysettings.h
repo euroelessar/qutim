@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Rustam Chakin <qutim.develop@gmail.com>
+** Copyright © 2008 Rustam Chakin <qutim.develop@gmail.com>
+** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
 **
 *****************************************************************************
 **

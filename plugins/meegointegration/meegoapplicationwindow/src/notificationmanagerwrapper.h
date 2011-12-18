@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -82,3 +82,4 @@ private:
 QML_DECLARE_TYPE(MeegoIntegration::NotificationManagerWrapper)
 
 #endif // NOTIFICATIONMANAGERWRAPPER_H
+

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Rusanov Peter <peter.rusanov@gmail.com>
+** Copyright © 2011 Rusanov Peter <peter.rusanov@gmail.com>
 **
 *****************************************************************************
 **

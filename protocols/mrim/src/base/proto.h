@@ -2,8 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2009 Rusanov Peter <peter.rusanov@gmail.com>
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Rusanov Peter <peter.rusanov@gmail.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -481,3 +481,4 @@ mrim_connection_params_t;
 
 
 #endif // MRIM_PROTO_H
+

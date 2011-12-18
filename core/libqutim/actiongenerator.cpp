@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -165,7 +165,8 @@ void ActionGeneratorPrivate::ensureConnectionType()
 
 ActionGeneratorPrivate::ActionGeneratorPrivate():
 	q_ptr(0),type(0), priority(0),
-	connectionType(ActionConnectionSimple)
+	connectionType(ActionConnectionSimple),
+	menuRole(QAction::NoRole)
 {
 	iconVisibleInMenu = qApp->testAttribute(Qt::AA_DontShowIconsInMenus);
 }

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Justin Karneges, Martin Hostettler
+** Copyright © 2008 Justin Karneges, Martin Hostettler
 **
 *****************************************************************************
 **

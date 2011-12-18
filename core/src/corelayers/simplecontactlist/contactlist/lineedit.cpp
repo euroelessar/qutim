@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2007 Trolltech ASA <info@trolltech.com>
+** Copyright © 2007 Trolltech ASA <info@trolltech.com>
 **
 *****************************************************************************
 **
