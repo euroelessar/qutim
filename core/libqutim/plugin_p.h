@@ -35,10 +35,9 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		typedef QSharedDataPointer<PersonInfoData> Ptr;
-		PersonInfoData();
+		PersonInfoData(const QString &ocs = QString());
 		PersonInfoData(const PersonInfoData &other);
-		QVariant data(const QString &key) const;
-//		static PersonInfo unique(const PersonInfo &info);
+		QVariantMap data() const;
 		QString ocsUsername;
 		mutable LocalizedString name;
 		mutable LocalizedString task;
