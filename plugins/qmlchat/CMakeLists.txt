@@ -1,5 +1,3 @@
-FIND_PACKAGE( Qt4 COMPONENTS QtDeclarative QtOpenGL)
-
 if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
 SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
 SET(QT_QTDECLARATIVE_INCLUDE_DIR "/usr/include/QtDeclarative/")
@@ -16,8 +14,8 @@ qutim_add_plugin(qmlchat
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Modern chat view based on power of QtQuick"
 	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTOPENGL_LIBRARY}
-	INCLUDE_DIRS ${QT_QTDECLARATIVE_INCLUDE_DIR} ${QT_QTOPENGL_INCLUDE_DIR}
+	LINK_LIBRARIES adiumchat 
+	QT_LIBRARIES DECLARATIVE OPENGL
 )
 
 

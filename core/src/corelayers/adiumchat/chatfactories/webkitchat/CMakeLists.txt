@@ -1,5 +1,3 @@
-FIND_PACKAGE( Qt4 COMPONENTS QtWebkit)
-
 qutim_add_plugin(webkitchat
 	GROUP "ChatFactory"
 	EXTENSION
@@ -9,6 +7,6 @@ qutim_add_plugin(webkitchat
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
 	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat ${QT_QTWEBKIT_LIBRARY}
-	INCLUDE_DIRS ${QT_QTWEBKIT_INCLUDE_DIR}	
+	LINK_LIBRARIES adiumchat 
+	QT_LIBRARIES WEBKIT
 )
