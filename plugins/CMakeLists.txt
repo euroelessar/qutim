@@ -18,9 +18,7 @@ LIST (APPEND CMAKE_MODULE_PATH "cmake")
 LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 option ( QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON )
 
-INCLUDE (MacroEnsureVersion)
-include(QutIMMacros)
-find_package(Qt4 COMPONENTS QtCore QtGui)
-find_package(QutIM REQUIRED)
+include( MacroEnsureVersion )
+find_package( QutIM REQUIRED )
 
 qutim_add_extensions_dir(.)

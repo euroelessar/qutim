@@ -126,7 +126,7 @@ foreach( header ${QUTIM_INCLUDE_HEADERS} )
 endforeach( header )
 
 list( APPEND QUTIM_INSTALL_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
-set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
+set( QUTIM_LIBRARY libqutim CACHE INTERNAL "" )
 set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include" CACHE INTERNAL "" )
 QUTIM_GENERATE_INCLUDES("qutim" "${QUTIM_INSTALL_HEADERS}")
 QUTIM_GENERATE_INCLUDES("qutim_hook" "${CMAKE_CURRENT_SOURCE_DIR}/libqutim_global.h")

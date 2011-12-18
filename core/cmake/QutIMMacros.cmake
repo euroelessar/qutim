@@ -202,13 +202,25 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;DECLARATIVE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
+	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;QT_LIBRARIES;SOURCE_DIR;DECLARATIVE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
 	"SUBPLUGIN;EXTENSION;STATIC;"
 	${ARGN}
 	)
 	if( NOT QUTIM_${plugin_name}_GROUP )
 		set( QUTIM_${plugin_name}_GROUP Plugin )
 	endif( NOT QUTIM_${plugin_name}_GROUP )
+
+	# Link with Qt
+	list( APPEND QUTIM_${plugin_name}_QT_LIBRARIES CORE GUI )
+	foreach( USED_QT_MODULE_LOWER ${QUTIM_${plugin_name}_QT_LIBRARIES} )
+		string( TOUPPER ${USED_QT_MODULE_LOWER} USED_QT_MODULE )
+		if( NOT QT_QT${USED_QT_MODULE}_FOUND )
+			message(STATUS "Qt${USED_QT_MODULE_LOWER} not found. Cannot build ${QUTIM_${plugin_name}_DISPLAY_NAME}")
+			return()
+		endif()
+		list( APPEND QUTIM_${plugin_name}_LINK_LIBRARIES ${QT_QT${USED_QT_MODULE}_LIBRARY} )
+		include_directories( ${QT_QT${USED_QT_MODULE}_INCLUDE_DIR} )
+	endforeach()
 
 	cpack_add_component( ${plugin_name}
 		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
@@ -358,8 +370,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_PLUGIN_ID=${QUTIM_${plugin_name}_DEBUG_ID}")
 	set_target_properties(${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}")
 
-	# Link with Qt
-	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+	qutim_target_link_libraries( ${plugin_name} ${QUTIM_LIBRARY} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
 
 	if( EXISTS ${QUTIM_${plugin_name}_DECLARATIVE_DIR} AND IS_DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR} )
 		install(DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR}/
