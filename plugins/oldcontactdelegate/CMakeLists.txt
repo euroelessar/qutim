@@ -1,5 +1,3 @@
-find_package( Qt4 COMPONENTS QXml )
-
 qutim_add_artwork(olddelegate)
 
 qutim_add_plugin(oldcontactdelegate
@@ -8,4 +6,5 @@ qutim_add_plugin(oldcontactdelegate
 	DESCRIPTION "Port of contact list delegate from 0.2"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
+	QT_LIBRARIES XML
 )
