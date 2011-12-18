@@ -5,3 +5,5 @@ CMakeLists.txt.user
 qtcreator-build
 *.user
 build
+android
+libs
