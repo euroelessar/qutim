@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,35 +23,27 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef QUICKADDACCOUNTDIALOG_H
+#define QUICKADDACCOUNTDIALOG_H
 
-#include <QDeclarativeView>
+#include <QScopedPointer>
+#include <qutim/account.h>
+#include <qutim/status.h>
+
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
-{
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
+using namespace qutim_sdk_0_3;
+
+class QuickAddAccountDialog : public QObject {
+	Q_OBJECT
+	Q_CLASSINFO("Service", "AccountCreator")
+	Q_CLASSINFO("Uses", "IconLoader")
+
 public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
+	QuickAddAccountDialog();
 
-signals:
-	void widgetShown(QObject *widget);
-	void widgetClosed();
-
-public slots:
-	void closeWidget();
-	
-private:
-	QDeclarativeView *m_view;
 };
 }
 
-#endif // APPLICATIONWINDOW_H
-
+#endif /* QUICKADDACCOUNTDIALOG_H*/

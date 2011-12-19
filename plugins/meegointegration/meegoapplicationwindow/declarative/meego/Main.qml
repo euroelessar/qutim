@@ -45,6 +45,7 @@ PageStackWindow {
 	Connections {
 		target: application
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
+		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
 	}
 	Component {
 		id: proxyPageComponent
@@ -55,25 +56,35 @@ PageStackWindow {
 		id: statistics
 	}
 
+	PasswordDialog{
+		id:passwordDialog
+	}
+	SettingsDialog {
+		id:settingsDialog
+	}
+	AuthDialog {
+		id:authDialog
+	}
+	JoinGroupChatDialog {
+		id:joinGroupChatDialog
+	}
+	AboutDialog {
+		id:aboutDialog
+	}
+	AddContactDialog {
+		id:addContactDialog
+	}
+	AccountCreatorDialog {
+		id:accountCreatorDialog
+	}
+	Notifications
+	{
+		id:notifications
+		windowActive:platformWindow.active
+	}
+
 	initialPage: Page {
-		PasswordDialog{
-			id:passwordDialog
-		}
-		SettingsDialog {
-			id:settingsDialog
-		}
-		AuthDialog {
-			id:authDialog
-		}
-		JoinGroupChatDialog {
-			id:joinGroupChatDialog
-		}
-		AboutDialog {
-			id:aboutDialog
-		}
-		AddContactDialog {
-			id:addContactDialog
-		}
+
 		
 		AnimatedTabGroup {
 			id: tabGroup
@@ -98,6 +109,7 @@ PageStackWindow {
 			}
 			Page {
 				id: conferenceUsersTab
+				visible: false //temprorary
 				Column {
 					spacing: 10
 
@@ -173,6 +185,7 @@ PageStackWindow {
 				text: qsTr("Settings")
 			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
 			}
+
 		    }
 		}
 	}
@@ -184,18 +197,64 @@ PageStackWindow {
 		}
 	}
 
-//	QueryDialog {
-//		id: statisticsDialog
-//		titleText: qsTr("Statistics gatherer")
-//		message: 
-//		acceptButtonText: qsTr("Send information")
-//		rejectButtonText: qsTr("Cancel")
-//	}
+
+	Sheet {
+		id: statisticsGatherer
+
+		acceptButtonText: qsTr("Send")
+		rejectButtonText: qsTr("Cancel")
+
+		content: Flickable {
+			anchors.fill: parent
+			anchors.leftMargin: 10
+			anchors.rightMargin: 10
+			anchors.topMargin: 10
+			flickableDirection: Flickable.VerticalFlick
+			Column {
+			    id: col2
+			    anchors.top: parent.top
+			    anchors.left: parent.left
+			    anchors.right: parent.right
+			    spacing: 10
+			    CheckBox{
+				    id:submitBox
+				    anchors.left: parent.left
+				    anchors.right: parent.right
+				    text: qsTr("Would you like to send details about your current setup?")
+
+			    }
+			    CheckBox{
+				    id:dontAskLater
+				    anchors.left: parent.left
+				    anchors.right: parent.right
+				    text: qsTr("Dont's ask me later")
+			    }
+			    Label
+			    {
+				    anchors.left: parent.left
+				    anchors.right: parent.right
+				    text: qsTr("Information to be transferred to the qutIM's authors:")
+			    }
+
+			    TextArea
+			    {
+				    anchors.left: parent.left
+				    anchors.right: parent.right
+				    text:statistics.infoHtml
+			    }
+			}
+		    }
+
+		onAccepted: statistics.setDecisition(!submitBox.checked, dontAskLater.checked);
+
+	}
 
 	Component.onCompleted: {
 		if (statistics.action == Statistics.NeedToAskInit
 				|| statistics.action == statistics.NeedToAskUpdate) {
-			statistics.setDecisition(false, false);
+			statisticsGatherer.open();
 		}
+		accountCreatorDialog.checkOpen();
 	}
+
 }

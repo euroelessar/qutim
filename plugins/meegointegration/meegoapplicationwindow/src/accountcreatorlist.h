@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,36 +22,47 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef ACCOUNTCREATORLIST_H
+#define ACCOUNTCREATORLIST_H
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#include <qutim/settingslayer.h>
+#include <qutim/settingswidget.h>
 
-#include <QDeclarativeView>
+namespace Ui {
+    class AccountCreatorList;
+}
 
+namespace qutim_sdk_0_3
+{
+	class Account;
+}
+
+class QListWidgetItem;
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
+using namespace qutim_sdk_0_3;
+class AccountCreatorList : public SettingsWidget
 {
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
+	Q_OBJECT
 public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
-
-signals:
-	void widgetShown(QObject *widget);
-	void widgetClosed();
-
-public slots:
-	void closeWidget();
-	
+	AccountCreatorList();
+	~AccountCreatorList();
+protected:
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+	void changeEvent(QEvent *e);
+private slots:
+	void addAccount(qutim_sdk_0_3::Account *account);
+	void removeAccount(qutim_sdk_0_3::Account *account);
+	void listViewClicked(QListWidgetItem *item);
+	void onWizardDestroyed();
+	void onAccountRemoveTriggered();
+	void onAccountPropertiesTriggered();
 private:
-	QDeclarativeView *m_view;
+	Ui::AccountCreatorList *ui;
 };
 }
 
-#endif // APPLICATIONWINDOW_H
+#endif // ACCOUNTCREATORLIST_H
 

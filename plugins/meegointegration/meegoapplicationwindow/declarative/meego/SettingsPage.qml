@@ -19,8 +19,8 @@ Page {
 		id: listView
 		model: root.model
 		anchors.fill: parent
-		delegate: ItemDelegate {
-			anchors.leftMargin: 5
+		anchors.leftMargin: 20
+		delegate: ItemDelegate {			
 			title: model.display
 			subtitle: ""
 			iconSource: ""

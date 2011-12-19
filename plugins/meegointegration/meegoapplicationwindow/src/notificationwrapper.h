@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,35 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#ifndef NOTIFICATIONWRAPPER_H
+#define NOTIFICATIONWRAPPER_H
 
-#include <QDeclarativeView>
+#include <QObject>
+#include "quicknotificationmanager.h"
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
+
+class NotificationWrapper : public QObject
 {
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
+	Q_OBJECT
+	Q_PROPERTY(bool windowActive READ windowActive WRITE setWindowActive NOTIFY windowActiveChanged)
 public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
+	NotificationWrapper();
+	~NotificationWrapper();
+	bool windowActive();
+	void setWindowActive(bool active);
+	static void init();
+	static void connect(QuickNoficationManager * manager);
 
 signals:
-	void widgetShown(QObject *widget);
-	void widgetClosed();
+	void windowActiveChanged(bool active);
 
-public slots:
-	void closeWidget();
-	
-private:
-	QDeclarativeView *m_view;
+private:	
+	bool m_windowActive;
+	static QuickNoficationManager* m_currentManager;
 };
 }
 
-#endif // APPLICATIONWINDOW_H
 
+#endif

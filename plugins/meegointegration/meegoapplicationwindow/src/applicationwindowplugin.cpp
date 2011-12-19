@@ -37,8 +37,10 @@
 #include "quickjoingroupchat.h"
 #include "accountsmodel.h"
 #include "quicksettingslayer.h"
+#include "quicknotificationmanager.h"
+#include "quickaddaccountdialog.h"
+#include "addaccountdialogwrapper.h"
 #include "meegointegration.h"
-
 
 namespace MeegoIntegration
 {
@@ -76,11 +78,17 @@ namespace MeegoIntegration
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo integration"),
 			    QT_TRANSLATE_NOOP("Plugin", "Provider for better integration with the system"));
 		addExtension<AccountsModel>(
-			    QT_TRANSLATE_NOOP("Plugin", "Accounts Model"),
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGoAccounts Model"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple accounts model"));
+		addExtension<QuickNoficationManager>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<QuickSettingsLayer>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
+		addExtension<QuickAddAccountDialog>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo account creator"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo account creator"));
 	}
 }
 

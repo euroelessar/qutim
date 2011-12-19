@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "quickwidgetproxy.h"
+#include "constants.h"
 #include <QGraphicsProxyWidget>
 
 namespace MeegoIntegration
@@ -35,6 +36,7 @@ QuickWidgetProxy::QuickWidgetProxy(QDeclarativeItem *parent) :
 	setFlag(ItemHasNoContents, false);
 	m_proxy = new QGraphicsProxyWidget(this);
 	connect(this, SIGNAL(heightChanged()), this, SLOT(onSizeChanged()));
+	m_active = true;
 }
 
 QObject *QuickWidgetProxy::widget() const
@@ -44,15 +46,26 @@ QObject *QuickWidgetProxy::widget() const
 
 void QuickWidgetProxy::setWidget(QObject *widget)
 {
-	m_proxy->setWidget(qobject_cast<QWidget*>(widget));
+
+	QWidget *proxyWidget=qobject_cast<QWidget*>(widget);
+	proxyWidget->setStyleSheet(STYLE);
+	m_proxy->setWidget(proxyWidget);
 	m_proxy->setPos(0.0, 0.0);
 	emit widgetChanged(widget);
+	connect(m_proxy, SIGNAL(destroyed()), this, SLOT(onClosed()));
 }
 
 void QuickWidgetProxy::onSizeChanged()
 {
+	if (m_active)
 	m_proxy->resize(width(), height());
 }
+
+void QuickWidgetProxy::onClosed()
+{
+	m_active = false;
+}
+
 
 }
 

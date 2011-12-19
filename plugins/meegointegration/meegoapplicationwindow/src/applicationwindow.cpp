@@ -36,9 +36,11 @@
 #include "joingroupchatwrapper.h"
 #include "settingswrapper.h"
 #include "quickwidgetproxy.h"
+#include "notificationwrapper.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
 
 #include "menumodel.h"
+#include "addaccountdialogwrapper.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
@@ -60,6 +62,8 @@ ApplicationWindow::ApplicationWindow()
 	AboutDialogWrapper::init();
 	JoinGroupChatWrapper::init();
 	SettingsWrapper::init();
+	AddAccountDialogWrapper::init();
+	NotificationWrapper::init();
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 
@@ -85,11 +89,21 @@ ApplicationWindow::ApplicationWindow()
 	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
 	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
 	m_view->showFullScreen();
+
 }
 
 void ApplicationWindow::showWidget(QWidget *widget)
 {
-	emit widgetShown(widget);
+	if (widget)
+	{
+		connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
+		emit widgetShown(widget);
+	}
+}
+
+void ApplicationWindow::closeWidget()
+{
+	emit widgetClosed();
 }
 }
 

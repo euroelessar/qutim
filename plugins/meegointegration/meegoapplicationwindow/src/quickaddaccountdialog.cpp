@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM - instant messenger
+** qutIM instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,35 +23,29 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONWINDOW_H
-#define APPLICATIONWINDOW_H
+#include "quickaddaccountdialog.h"
+#include "addaccountdialogwrapper.h"
+#include <qdeclarative.h>
+#include <qutim/protocol.h>
+#include <qutim/contact.h>
+#include <qutim/icon.h>
+#include <qutim/messagesession.h>
+#include <qutim/servicemanager.h>
+#include <qutim/systemintegration.h>
+#include <qutim/settingslayer.h>
+#include "accountcreatorlist.h"
 
-#include <QDeclarativeView>
 
 namespace MeegoIntegration
 {
-class ApplicationWindow : public QObject
-{
-    Q_OBJECT
-	Q_CLASSINFO("Service", "ApplicationWindow")
-	Q_CLASSINFO("Uses", "ContactList")
-	Q_CLASSINFO("Uses", "ChatLayer")
-	Q_CLASSINFO("Uses", "PasswordDialog")
-public:
-    explicit ApplicationWindow();
-	void showWidget(QWidget *widget);
+QuickAddAccountDialog::QuickAddAccountDialog() {
+	SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
+				Settings::General, Icon("meeting-attending"),
+				QT_TRANSLATE_NOOP("Settings", "Accounts"));
+	item->setPriority(100);
+	Settings::registerItem(item);
 
-signals:
-	void widgetShown(QObject *widget);
-	void widgetClosed();
-
-public slots:
-	void closeWidget();
-	
-private:
-	QDeclarativeView *m_view;
-};
 }
 
-#endif // APPLICATIONWINDOW_H
 
+}
