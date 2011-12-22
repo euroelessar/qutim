@@ -23,48 +23,40 @@
 **
 ****************************************************************************/
 
-#ifndef CHATSESSIONMODEL_H
-#define CHATSESSIONMODEL_H
+#ifndef CHATCHANNELMODEL_H
+#define CHATCHANNELMODEL_H
 
 #include <QAbstractListModel>
-#include "chatsessionimpl.h"
+#include <qutim/chatsession.h>
 
-enum ContactItemRole
+namespace MeegoIntegration
 {
-	BuddyRole = Qt::UserRole,
-	StatusRole,
-	ContactsCountRole,
-	OnlineContactsCountRole,
-	AvatarRole,
-	ItemTypeRole
-};
-Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
-enum ContactItemType
+class ChatChannelUsersModel : public QAbstractListModel
 {
-	InvalidType = 0,
-	TagType = 100,
-	ContactType = 101
-};
-
-namespace Core
-{
-namespace AdiumChat
-{
-using namespace qutim_sdk_0_3;
-
-class ChatSessionModel : public QAbstractListModel
-{
-	Q_OBJECT
+    Q_OBJECT
+	Q_PROPERTY(QString statusPrefix READ statusPrefix WRITE setStatusPrefix NOTIFY statusPrefixChanged)
+	Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-	explicit ChatSessionModel(ChatSessionImpl *parent = 0);
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addContact(qutim_sdk_0_3::Buddy *c);
-	void removeContact(qutim_sdk_0_3::Buddy *c);
+    explicit ChatChannelUsersModel(QObject *parent = 0);
+	
+	QString statusPrefix();
+	void setStatusPrefix(const QString &prefix);
+	void addUnit(qutim_sdk_0_3::Buddy *unit);
+	void removeUnit(qutim_sdk_0_3::Buddy *unit);
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	
+signals:
+	void statusPrefixChanged(const QString &prefix);
+	void countChanged(int arg);
+	
 private slots:
-	void onNameChanged(const QString &title, const QString &oldTitle);
+	void onUnitDeath(QObject *object);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
-	void onContactDestroyed(QObject *obj);
+	void onTitleChanged(const QString &title, const QString &oldTitle);
+	
 private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
@@ -81,8 +73,9 @@ private:
 	};
 
 	QList<Node> m_units;
+	QString m_statusPrefix;
 };
 }
-}
-#endif // CHATSESSIONMODEL_H
+
+#endif // CHATCHANNELMODEL_H
 

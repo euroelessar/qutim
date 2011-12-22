@@ -31,43 +31,47 @@ import org.qutim 0.3
 Page {
 	id: root
 	property variant chat
+	property variant unitsModel: chat.activeSession ? chat.activeSession.units : emptyModel
+	ListModel {
+		id: emptyModel
+	}
 	ListView {
-		id: listView
-		model: ChatChannelModel {
-			
-		}
+		id: listViewItem
+		width: parent.width
 		anchors.fill: parent
+		model: unitsModel
 		delegate: ItemDelegate {
-			title: channel.unit.title
-			subtitle: channel.unit.id
-			iconSource: __suggestIcon(channel.unit, channel.unreadCount)
 			onClicked: {
-				channel.active = true
-				channel.showChat()
-			}
-			function __suggestIcon(unit, unreadCount) {
-                var iconId = "icon-m-";
-				if (unreadCount > 0) {
-					iconId += "toolbar-new-message";
-				} else if (unit.conference) {
-					iconId += "content-chat";
-				} else {
-//					var filePath = unit.avatar;
-//					if (filePath === undefined || filePath == "")
-						iconId += "content-avatar-placeholder";
-//					else
-//						return "file://" + filePath;
-				}
-				if (theme.inverse)
-					iconId += "-inverse";
-				return "image://theme/" + iconId;
-			}
-			ToolIcon {
-				id: closeButton
-				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-				platformIconId: "toolbar-close"
-				onClicked: channel.destroy()
+				root.chat.session(model.contact).active = true
+				root.chat.show()
 			}
 		}
+		section.property: "alphabet"
+		section.criteria: ViewSection.FullString
+		section.delegate: sectionHeading
+	}
+	// The delegate for each section header
+	Component {
+        id: sectionHeading
+        Rectangle {
+            width: root.width
+            height: childrenRect.height
+			color: Qt.rgba(0, 0, 0, 0.2)
+            Text {
+				anchors.right: parent.right
+				anchors.rightMargin: 15
+                text: section
+                font.bold: true
+				font.pixelSize: 20
+            }
+        }
+    }
+
+
+	SectionScroller {
+        listView: listViewItem
+    }
+	ScrollDecorator {
+		flickableItem: listViewItem
 	}
 }

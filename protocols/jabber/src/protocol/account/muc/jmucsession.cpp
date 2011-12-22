@@ -332,6 +332,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		QString previous = user->name();
 		reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
 		emit user->nameChanged(newNick, previous);
+		emit user->titleChanged(newNick, previous);
 		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
 		//			if (session)
 		//				session->session()->setResource(participant.newNick);

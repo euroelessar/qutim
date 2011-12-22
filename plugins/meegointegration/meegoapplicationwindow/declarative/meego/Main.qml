@@ -107,16 +107,9 @@ PageStackWindow {
 				id: chatTab
 				chat: root.chat
 			}
-			Page {
+			ChatUnitsList {
 				id: conferenceUsersTab
-				visible: false //temprorary
-				Column {
-					spacing: 10
-
-					Text {
-						text: "TODO: Implement user list"
-					}
-				}
+				chat: root.chat
 			}
 		}
 		tools: ToolBarLayout {

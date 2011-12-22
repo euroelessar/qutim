@@ -43,7 +43,7 @@ QVariant ChatSessionModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid() || index.column() >= 1)
 		return QVariant();
-	Buddy *buddy = m_units.value(index.row());
+	Buddy *buddy = m_units.at(index.row()).unit;
 	if (!buddy)
 		return QVariant();
 	switch (role) {
@@ -73,57 +73,77 @@ bool contactLessThan(Buddy *a, Buddy *b)
 	return a->title().compare(b->title(), Qt::CaseInsensitive) < 0;
 };
 
-void ChatSessionModel::addContact(Buddy *b)
+void ChatSessionModel::addContact(Buddy *unit)
 {
-	if (m_units.contains(b))
+	const Node node(unit);
+	const QList<Node>::Iterator it = qLowerBound(m_units.begin(), m_units.end(), node);
+	if (it != m_units.end() && it->unit == unit)
 		return;
-	int index = qLowerBound(m_units.constBegin(), m_units.constEnd(),
-							b, contactLessThan) - m_units.constBegin();
-	connect(b, SIGNAL(titleChanged(QString,QString)), this, SLOT(onNameChanged(QString)));
-	connect(b, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-	connect(b, SIGNAL(destroyed(QObject*)), this, SLOT(onContactDestroyed(QObject*)));
+	int index = it - m_units.begin();
 	beginInsertRows(QModelIndex(), index, index);
-	m_units.insert(index, b);
+	m_units.insert(index, unit);
+	connect(unit, SIGNAL(titleChanged(QString,QString)),
+	        this, SLOT(onNameChanged(QString,QString)));
+	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(unit, SIGNAL(destroyed(QObject*)),
+	        this, SLOT(onContactDestroyed(QObject*)));
 	endInsertRows();
 }
 
-void ChatSessionModel::removeContact(Buddy *b)
+void ChatSessionModel::removeContact(Buddy *unit)
 {
-	int index = m_units.indexOf(b);
-	if (index < 0)
+	const Node node(unit);
+	const QList<Node>::Iterator it = qBinaryFind(m_units.begin(), m_units.end(), node);
+	if (it == m_units.end())
 		return;
+	int index = it - m_units.begin();
 	beginRemoveRows(QModelIndex(), index, index);
+	disconnect(unit, 0, this, 0);
 	m_units.removeAt(index);
 	endRemoveRows();
-	disconnect(b, 0, this, 0);
 }
 
-void ChatSessionModel::onNameChanged(const QString &)
+void ChatSessionModel::onNameChanged(const QString &title, const QString &oldTitle)
 {
-	Buddy *b = qobject_cast<Buddy*>(sender());
-	Q_ASSERT(b);
-	int index = m_units.indexOf(b);
-	int newIndex = qLowerBound(m_units.constBegin(), m_units.constEnd(),
-							   b, contactLessThan) - m_units.constBegin();
-	beginMoveRows(QModelIndex(), index, index, QModelIndex(), newIndex);
-	m_units.move(index, newIndex);
+	Buddy *unit = static_cast<Buddy*>(sender());
+	QList<Node>::Iterator it;
+	it = qBinaryFind(m_units.begin(), m_units.end(), Node(unit, oldTitle));
+	const int from = it - m_units.begin();
+	it = qLowerBound(m_units.begin(), m_units.end(), Node(unit, title));
+	int to = it - m_units.begin();
+	if (to > from)
+		--to;
+	to = qMin(to, m_units.size() - 1);
+	beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
+	m_units.move(from, to);
+	m_units[to].title = title;
 	endMoveRows();
-	dataChanged(createIndex(newIndex, 0, b), createIndex(newIndex, 0, b));
 }
 
 void ChatSessionModel::onStatusChanged(const qutim_sdk_0_3::Status &)
 {
-	Buddy *b = qobject_cast<Buddy*>(sender());
-	Q_ASSERT(b);
-	int index = m_units.indexOf(b);
-	dataChanged(createIndex(index, 0, b), createIndex(index, 0, b));
+	Buddy *unit = qobject_cast<Buddy*>(sender());
+	Q_ASSERT(unit);
+	Node node(unit);
+	const QList<Node>::Iterator it = qBinaryFind(m_units.begin(), m_units.end(), node);
+	if (it == m_units.end())
+		return;
+	int index = it - m_units.begin();
+	dataChanged(createIndex(index, 0, unit), createIndex(index, 0, unit));
 }
 
 
-void ChatSessionModel::onContactDestroyed(QObject *obj)
+void ChatSessionModel::onContactDestroyed(QObject *object)
 {
-	removeContact(reinterpret_cast<Buddy*>(obj));
+	for (int i = 0; i < m_units.size(); ++i) {
+		if (m_units.at(i).unit == object) {
+			beginRemoveRows(QModelIndex(), i, i);
+			m_units.removeAt(i);
+			endRemoveRows();
+			return;
+		}
+	}
 }
 
 }
