@@ -64,15 +64,6 @@ QVariant ChatSessionModel::data(const QModelIndex &index, int role) const
 	}
 }
 
-bool contactLessThan(Buddy *a, Buddy *b)
-{
-	//	if (a->status.type() < b->status.type() )
-	//		return true;
-	//	else if (a->status.type() > b->status.type())
-	//		return false;
-	return a->title().compare(b->title(), Qt::CaseInsensitive) < 0;
-};
-
 void ChatSessionModel::addContact(Buddy *unit)
 {
 	const Node node(unit);
@@ -109,16 +100,19 @@ void ChatSessionModel::onNameChanged(const QString &title, const QString &oldTit
 	Buddy *unit = static_cast<Buddy*>(sender());
 	QList<Node>::Iterator it;
 	it = qBinaryFind(m_units.begin(), m_units.end(), Node(unit, oldTitle));
+	Q_ASSERT(it != m_units.end());
 	const int from = it - m_units.begin();
 	it = qLowerBound(m_units.begin(), m_units.end(), Node(unit, title));
 	int to = it - m_units.begin();
-	if (to > from)
-		--to;
-	to = qMin(to, m_units.size() - 1);
-	beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
-	m_units.move(from, to);
-	m_units[to].title = title;
-	endMoveRows();
+	m_units[from].title = title;
+	if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+		if (to > from)
+			--to;
+		m_units.move(from, to);
+		Q_ASSERT(m_units[to].unit == unit);
+		Q_ASSERT(m_units[to].unit->title() == title);
+		endMoveRows();
+	}
 }
 
 void ChatSessionModel::onStatusChanged(const qutim_sdk_0_3::Status &)

@@ -127,13 +127,19 @@ void ChatChannelUsersModel::onTitleChanged(const QString &title, const QString &
 	Buddy *unit = static_cast<Buddy*>(sender());
 	QList<Node>::Iterator it;
 	it = qBinaryFind(m_units.begin(), m_units.end(), Node(unit, oldTitle));
+	Q_ASSERT(it != m_units.end());
 	const int from = it - m_units.begin();
 	it = qLowerBound(m_units.begin(), m_units.end(), Node(unit, title));
 	int to = it - m_units.begin();
-	beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
-	m_units.move(from, to);
-	m_units[to].title = title;
-	endMoveRows();
+	m_units[from].title = title;
+	if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+		if (to > from)
+			--to;
+		m_units.move(from, to);
+		Q_ASSERT(m_units[to].unit == unit);
+		Q_ASSERT(m_units[to].unit->title() == title);
+		endMoveRows();
+	}
 }
 
 int ChatChannelUsersModel::rowCount(const QModelIndex &parent) const
