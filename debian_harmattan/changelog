@@ -1,3 +1,16 @@
+qutim (0.2.80.1) natty; urgency=low
+
+  * New: Users in conferences
+  * Bugfixes: Notifications, sounds, joingroupchat dialog
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 25 Dec 2011 19:46:02 +0500
+
+qutim (0.2.80) harmattan; urgency=low
+
+  * Add notification manager, sounds, settings and statistics
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 07 Dec 2011 21:34:56 +0500
+
 qutim (0.2.80-harmattan-0) harmattan; urgency=low
 
   * Initial release.
