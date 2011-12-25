@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **

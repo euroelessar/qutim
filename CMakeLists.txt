@@ -14,14 +14,15 @@ endif()
 option(DECLARATIVE_UI "Use declarative UI" ${DEFAULT_DECLARATIVE_UI})
 
 set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
-set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
+set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 set(QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
-set(QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
+set(QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 
 option(QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON)
 
+find_package( Qt4 REQUIRED )
 list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 include(CPackOptions.cmake.in)
 include(QutIMMacros)

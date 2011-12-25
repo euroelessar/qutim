@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ivan Vizir <define-true-false@yandex.com>
+** Copyright © 2011 Ivan Vizir <define-true-false@yandex.com>
 **
 *****************************************************************************
 **

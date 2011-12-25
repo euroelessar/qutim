@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Denis Daschenko <daschenko@gmail.com>
+** Copyright © 2011 Denis Daschenko <daschenko@gmail.com>
 **
 *****************************************************************************
 **

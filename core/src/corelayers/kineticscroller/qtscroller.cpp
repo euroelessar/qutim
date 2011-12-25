@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright © 2011 Nokia Corporation and/or its subsidiary(-ies)
 **
 *****************************************************************************
 **

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -35,8 +35,15 @@ namespace qutim_sdk_0_3
 typedef QHash<QString, PersonInfoData::Ptr> PersonInfoMap;
 Q_GLOBAL_STATIC(PersonInfoMap, personInfoMap)
 
-PersonInfoData::PersonInfoData()
+PersonInfoData::PersonInfoData(const QString &ocs) : ocsUsername(ocs)
 {
+	if (!ocs.isEmpty()) {
+		QVariantMap info = data();
+		name = LocalizedString("Author", info.value(QLatin1String("name")).toByteArray());
+		task = LocalizedString("Task", info.value(QLatin1String("task")).toByteArray());
+		email = info.value(QLatin1String("email")).toString();
+		web = info.value(QLatin1String("web")).toString();
+	}
 }
 
 PersonInfoData::PersonInfoData(const PersonInfoData &other)
@@ -44,7 +51,7 @@ PersonInfoData::PersonInfoData(const PersonInfoData &other)
 {
 }
 
-QVariantMap qutim_resource_open(QResource &res)
+static QVariantMap qutim_resource_open(QResource &res)
 {
 	QByteArray buffer;
 	int size = res.size();
@@ -59,29 +66,11 @@ QVariantMap qutim_resource_open(QResource &res)
 	return result.toMap();
 }
 
-QVariant PersonInfoData::data(const QString &key) const
+QVariantMap PersonInfoData::data() const
 {
 	QResource res(QLatin1Literal(":/devels/") % ocsUsername % QLatin1Literal(".json"));
-	QVariant value = qutim_resource_open(res).value(key);
-	if (value.isNull() || !value.isValid()) {
-		res.setLocale(QLocale::c());
-		value = qutim_resource_open(res).value(key);
-	}
-	return value;
+	return qutim_resource_open(res);
 }
-
-//PersonInfo PersonInfoData::unique(const PersonInfo &info)
-//{
-//	QString name = info.name();
-//	if (name.isEmpty())
-//		name = info.ocsUsername();
-//	if (name.isEmpty())
-//		return info;
-//	PersonInfoData::Ptr data = personInfoMap()->value();
-//	if (!data)
-//		personInfoMap()->insert(name, info.d);
-//	return PersonInfo(data);
-//}
 
 PersonInfo::PersonInfo(const LocalizedString &name, const LocalizedString &task, const QString &email, const QString &web)
 {
@@ -96,8 +85,7 @@ PersonInfo::PersonInfo(const QString &ocsUsername)
 {
 	d = personInfoMap()->value(ocsUsername);
 	if (!d) {
-		d = new PersonInfoData;
-		d->ocsUsername = ocsUsername;
+		d = new PersonInfoData(ocsUsername);
 		personInfoMap()->insert(ocsUsername, d);
 	}
 }
@@ -122,57 +110,49 @@ PersonInfo &PersonInfo::operator =(const PersonInfo &other)
 
 PersonInfo &PersonInfo::setName(const LocalizedString &name)
 {
-	d->name = name;
+	if (d->ocsUsername.isEmpty())
+		d->name = name;
 	return *this;
 }
 
 PersonInfo &PersonInfo::setTask(const LocalizedString &task)
 {
-	d->task = task;
+	if (d->ocsUsername.isEmpty())
+		d->task = task;
 	return *this;
 }
 
 PersonInfo &PersonInfo::setEmail(const QString &email)
 {
-	d->email = email;
+	if (d->ocsUsername.isEmpty())
+		d->email = email;
 	return *this;
 }
 
 PersonInfo &PersonInfo::setWeb(const QString &web)
 {
-	d->web = web;
+	if (d->ocsUsername.isEmpty())
+		d->web = web;
 	return *this;
 }
 
 LocalizedString PersonInfo::name() const
 {
-	if (!d->ocsUsername.isEmpty()) {
-		QString name = d->data(QLatin1String("name")).toString();
-		return LocalizedString(QByteArray(), name.toUtf8());
-	}
 	return d->name;
 }
 
 LocalizedString PersonInfo::task() const
 {
-	if (!d->ocsUsername.isEmpty()) {
-		QString name = d->data(QLatin1String("task")).toString();
-		return LocalizedString(QByteArray(), name.toUtf8());
-	}
 	return d->task;
 }
 
 QString PersonInfo::email() const
 {
-	if (!d->ocsUsername.isEmpty())
-		return d->data(QLatin1String("email")).toString();
 	return d->email;
 }
 
 QString PersonInfo::web() const
 {
-	if (!d->ocsUsername.isEmpty())
-		return d->data(QLatin1String("web")).toString();
 	return d->web;
 }
 

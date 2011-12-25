@@ -2,8 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
+** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **

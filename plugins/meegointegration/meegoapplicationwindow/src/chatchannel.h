@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -32,11 +32,15 @@
 
 namespace MeegoIntegration
 {
+class ChatChannelUsersModel;
+
 class ChatChannel : public qutim_sdk_0_3::ChatSession
 {
 	Q_OBJECT
 	Q_PROPERTY(qutim_sdk_0_3::ChatUnit* unit READ unit WRITE setChatUnit NOTIFY unitChanged)
+	Q_PROPERTY(int unreadCount READ unreadCount NOTIFY unreadCountChanged)
 	Q_PROPERTY(QObject* model READ model CONSTANT)
+	Q_PROPERTY(QObject* units READ units CONSTANT)
 public:
 	ChatChannel(qutim_sdk_0_3::ChatUnit *unit);
 	virtual ~ChatChannel();
@@ -46,24 +50,29 @@ public:
 	virtual QTextDocument *getInputField();
 	virtual void markRead(quint64 id);
 	virtual qutim_sdk_0_3::MessageList unread() const;
+	int unreadCount() const;
 	virtual void addContact(qutim_sdk_0_3::Buddy *c);
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c);
 	QObject *model() const;
 	Q_INVOKABLE qint64 send(const QString &text);
 	Q_INVOKABLE void showChat();
-
+	QObject *units() const;
+	
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
 	
 signals:
 	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
+	void unreadCountChanged(int);
 	
 private:
 	qutim_sdk_0_3::ChatUnit *m_unit;
 	qutim_sdk_0_3::MessageList m_unread;
 	ChatMessageModel *m_model;
+	ChatChannelUsersModel *m_units;
 };
 }
 
 #endif // APPLICATIONWINDOWPLUGIN_H
+

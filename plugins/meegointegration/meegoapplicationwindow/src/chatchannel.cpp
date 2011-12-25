@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -25,10 +25,12 @@
 
 #include "chatchannel.h"
 #include "chat.h"
+#include "chatchannelusersmodel.h"
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <QTextDocument>
 #include <qutim/thememanager.h>
+#include <qutim/conference.h>
 #include <QDateTime>
 
 namespace MeegoIntegration
@@ -39,6 +41,13 @@ ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
     : ChatSession(Chat::instance()), m_unit(unit)
 {
 	m_model = new ChatMessageModel(this);
+	m_units = new ChatChannelUsersModel(this);
+	if (Conference *conf = qobject_cast<Conference *>(unit)) {
+		foreach (ChatUnit *u, conf->lowerUnits()) {
+			if (Buddy *buddy = qobject_cast<Buddy*>(u))
+				addContact(buddy);
+		}
+	}
 }
 
 ChatChannel::~ChatChannel()
@@ -66,12 +75,14 @@ void ChatChannel::markRead(quint64 id)
 	if (id == Q_UINT64_C(0xffffffffffffffff)) {
 		m_unread.clear();
 		emit unreadChanged(m_unread);
+		emit unreadCountChanged(m_unread.count());
 		return;
 	}
 	for (int i = 0; i < m_unread.size(); ++i) {
 		if (m_unread.at(i).id() == id) {
 			m_unread.removeAt(i);
 			emit unreadChanged(m_unread);
+			emit unreadCountChanged(m_unread.count());
 			return;
 		}
 	}
@@ -82,12 +93,19 @@ qutim_sdk_0_3::MessageList ChatChannel::unread() const
 	return m_unread;
 }
 
+int ChatChannel::unreadCount() const
+{
+	return m_unread.count();
+}
+
 void ChatChannel::addContact(qutim_sdk_0_3::Buddy *c)
 {
+	m_units->addUnit(c);
 }
 
 void ChatChannel::removeContact(qutim_sdk_0_3::Buddy *c)
 {
+	m_units->removeUnit(c);
 }
 
 QObject *ChatChannel::model() const
@@ -109,6 +127,11 @@ void ChatChannel::showChat()
 	static_cast<Chat*>(Chat::instance())->show();
 }
 
+QObject *ChatChannel::units() const
+{
+	return m_units;
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
@@ -121,10 +144,18 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		message.setProperty("html", html);
 	}
 	m_model->append(message);
+	if (!isActive()) {
+		m_unread.append(message);
+		emit unreadChanged(m_unread);
+		emit unreadCountChanged(m_unread.count());
+	}
 	return message.id();
 }
 
 void ChatChannel::doSetActive(bool active)
 {
+	if (active)
+		markRead(Q_UINT64_C(0xffffffffffffffff));
 }
 }
+

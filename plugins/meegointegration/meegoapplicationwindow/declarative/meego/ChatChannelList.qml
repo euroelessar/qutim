@@ -40,19 +40,19 @@ Page {
 		delegate: ItemDelegate {
 			title: channel.unit.title
 			subtitle: channel.unit.id
-			iconSource: __suggestIcon(model)
+			iconSource: __suggestIcon(channel.unit, channel.unreadCount)
 			onClicked: {
 				channel.active = true
 				channel.showChat()
 			}
-			function __suggestIcon(model) {
+			function __suggestIcon(unit, unreadCount) {
                 var iconId = "icon-m-";
-				if (model.unreadCount > 0) {
+				if (unreadCount > 0) {
 					iconId += "toolbar-new-message";
-				} else if (model.channel.unit.conference) {
+				} else if (unit.conference) {
 					iconId += "content-chat";
 				} else {
-//					var filePath = model.channel.unit.avatar;
+//					var filePath = unit.avatar;
 //					if (filePath === undefined || filePath == "")
 						iconId += "content-avatar-placeholder";
 //					else

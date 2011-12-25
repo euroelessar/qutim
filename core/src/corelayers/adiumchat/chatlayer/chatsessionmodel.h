@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -62,11 +62,25 @@ public:
 	void addContact(qutim_sdk_0_3::Buddy *c);
 	void removeContact(qutim_sdk_0_3::Buddy *c);
 private slots:
-	void onNameChanged(const QString &name);
+	void onNameChanged(const QString &title, const QString &oldTitle);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onContactDestroyed(QObject *obj);
 private:
-	QList<Buddy*> m_units;
+	struct Node {
+		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
+		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+		Node() : unit(NULL) {}
+		QString title;
+		qutim_sdk_0_3::Buddy *unit;
+		
+		bool operator <(const Node &o) const
+		{
+			const int cmp = title.compare(o.title, Qt::CaseInsensitive);
+			return cmp < 0 || (cmp == 0 && unit < o.unit);
+		}
+	};
+
+	QList<Node> m_units;
 };
 }
 }

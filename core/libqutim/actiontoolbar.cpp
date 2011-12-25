@@ -2,8 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com> 
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **
@@ -60,7 +60,7 @@ static SizeList init_size_map()
 							QT_TRANSLATE_NOOP("ActionToolBar", "Small"),
 							true);
 	//hack for windows
-#if !defined (QUTIM_MOBILE_UI)
+#if !defined(QUTIM_MOBILE_UI)
 	list << createGenerator(22,
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
@@ -369,12 +369,6 @@ void ActionToolBar::hideEvent(QHideEvent *event)
 			ActionGeneratorPrivate::get(generator)->hide(action, this);
 	}
 }
-
-
-// 	void ActionToolBar::setId(const QString &id)
-// 	{
-// 		d_func()->id = id;
-// 	}
 
 }
 

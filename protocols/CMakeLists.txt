@@ -19,6 +19,7 @@ LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 option ( QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON )
 
 INCLUDE (MacroEnsureVersion)
+include(QutIMMacros)
 find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork)
 if ( ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR} )
 	set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")

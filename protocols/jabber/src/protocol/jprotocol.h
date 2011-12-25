@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -63,7 +63,6 @@ private slots:
 	void onKickUser(QObject* obj);
 	void onBanUser(QObject* obj);
 	void onConvertToMuc(QObject* obj);
-	void onJoinLeave(QObject *obj);
 	void onShowConfigDialog(QObject *obj);
 	void onSaveRemoveBookmarks(QObject *obj);
 	void removeAccount(QObject *obj);
@@ -76,7 +75,6 @@ private:
 
 	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(qutim_sdk_0_3::Status))
 	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(Jreen::RosterItem::SubscriptionType))
-	Q_PRIVATE_SLOT(d_func(), void _q_conference_join_changed())
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_bookmark_changed())
 };
 

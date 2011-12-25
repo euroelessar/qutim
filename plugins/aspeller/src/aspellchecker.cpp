@@ -2,7 +2,9 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2003  Zack Rusin <zack@kde.org>
+** Copyright © 2003 Zack Rusin <zack@kde.org>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
+** Copyright © 2011 Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
 **
 *****************************************************************************
 **

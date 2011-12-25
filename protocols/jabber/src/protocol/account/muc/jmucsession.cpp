@@ -2,8 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
 **
 *****************************************************************************
 **
@@ -163,29 +163,6 @@ void JMUCSession::join()
 	d->isJoined = true;
 	d->room->join();
 	setChatState(ChatStateActive);
-	//		Q_D(JMUCSession);
-	//		Presence &pres = d->account->client()->presence();
-	//		d->isAutoRejoin = false;
-	//		if (d->isJoined) {
-	//			d->room->setPresence(pres.subtype(), pres.status());
-	//			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
-	//		} else {
-	//			ChatSession *session = ChatLayer::get(this, false);
-	//			if (session) {
-	//				foreach (JMUCUser *muc, d->users.values()) {
-	//					session->removeContact(muc);
-	//					muc->deleteLater();
-	//				}
-	//			}
-	//			d->users.clear();
-	//			d->messages.clear();
-	//			if (d->lastMessage.isValid())
-	//				d->room->setRequestHistory(d->lastMessage.toUTC()
-	//						.toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString());
-	////			uncomment for perfomance testing
-	////			d->room->setRequestHistory(0,MUCRoom::HistoryMaxStanzas);
-	//			d->room->join(pres.subtype(), pres.status(), pres.priority());
-	//		}
 }
 
 void JMUCSession::leave()
@@ -355,6 +332,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		QString previous = user->name();
 		reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
 		emit user->nameChanged(newNick, previous);
+		emit user->titleChanged(newNick, previous);
 		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
 		//			if (session)
 		//				session->session()->setResource(participant.newNick);
