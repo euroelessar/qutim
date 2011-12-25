@@ -67,6 +67,7 @@ JoinGroupChatWrapper::~JoinGroupChatWrapper()
 QStringList JoinGroupChatWrapper::accountIds()
 {
 	m_accountIds.clear();
+	m_accounts->clear();
 	foreach (Protocol *protocol, Protocol::all()) {
 		foreach (Account *account, protocol->accounts())
 		{

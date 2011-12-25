@@ -66,6 +66,39 @@ Sheet {
 			onVisibleChanged: if (__currentContainer) __currentContainer.visible = visible;
 		}
 	}
+
+	SelectionDialog {
+		id: accountsDialog
+		titleText: qsTr("Select account:")
+
+		model: ListModel { }
+
+		onSelectedIndexChanged:
+		{
+			console.log("Current join account changed");
+			if (accountsDialog.selectedIndex>=0)
+			handler.setAccount(accountsDialog.selectedIndex);
+		}
+		onAccepted: accountsDialog.model.clear();
+		onRejected: accountsDialog.model.clear();
+
+
+		function chooseValue() {
+			console.log("Choose join account");
+			var values = handler.accountIds();
+			if (values.length==1){
+				accountsDialog.selectedIndex=0;
+				handler.setAccount(accountsDialog.selectedIndex);
+				return;
+			}
+
+			for (var i = 0; i < values.length; ++i) {
+				accountsDialog.model.append({ "name": values[i] });
+			}
+			accountsDialog.open();
+		}
+	}
+
 	Component {
 		id: mainPageComponent
 		Page {
@@ -108,36 +141,7 @@ Sheet {
 						}
 					}
 	
-					SelectionDialog {
-						id: accountsDialog
-						titleText: qsTr("Select account:")
-	
-						model: ListModel { }
-	
-						onAccepted: {
-							handler.setAccount(accountsDialog.selectedIndex);
-							accountsDialog.model.clear();
-						}
-	
-						onRejected: accountsDialog.model.clear()
-	
-	
-						function chooseValue() {
-							var values = handler.accountIds();
-							if (values.length==1){
-								accountsDialog.selectedIndex=0;
-								handler.setAccount(accountsDialog.selectedIndex);
-								return;
-							}
-							accountsDialog.selectedIndex = -1;
-							for (var i = 0; i < values.length; ++i) {
-								accountsDialog.model.append({ "name": values[i] });
-								if (values[i] == text)
-									accountsDialog.selectedIndex = i;
-							}
-							accountsDialog.open();
-						}
-					}
+
 				}
 	
 				ListView {
@@ -355,5 +359,6 @@ Sheet {
 	Component.onCompleted: {
 		pageStack.push(mainPageComponent);
 		handler.accountIds();
+
 	}
 }
