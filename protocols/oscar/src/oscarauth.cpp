@@ -43,12 +43,14 @@
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
-#define DEBUG() if (1) {} else debug()
+#define DEBUG() if (!(*isDebug())) {} else debug()
 
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+Q_GLOBAL_STATIC_WITH_ARGS(bool, isDebug, (qgetenv("QUTIM_OSCAR_DEBUG").toInt() > 0))
 
 class OscarResponse
 {
@@ -91,6 +93,7 @@ private:
 
 OscarResponse::OscarResponse(const QByteArray &json)
 {
+	DEBUG() << json;
 	QVariantMap data = Json::parse(json).toMap();
 	QVariantMap response = data.value(QLatin1String("response")).toMap();
 	m_rawResult = data;
@@ -210,7 +213,7 @@ void OscarAuth::onPasswordDialogFinished(int result)
 	}
 }
 
-QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
+static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 {
 	QByteArray mac(SHA256_DIGEST_SIZE, 0);
 	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
@@ -222,6 +225,20 @@ QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 	return mac.toBase64();
 }
 
+static QByteArray paranoicEscape(const QByteArray &raw)
+{
+	static char hex[17] = "0123456789ABCDEF";
+	QByteArray escaped;
+	escaped.reserve(raw.size() * 3);
+	for (int i = 0; i < raw.size(); ++i) {
+		const quint8 c = static_cast<quint8>(raw[i]);
+		escaped += '%';
+		escaped += hex[c >> 4];
+		escaped += hex[c & 0x0f];
+	}
+	return escaped;
+}
+
 void OscarAuth::clientLogin(bool longTerm)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
@@ -230,18 +247,8 @@ void OscarAuth::clientLogin(bool longTerm)
 	url.addQueryItem(QLatin1String("s"), m_account->id());
 	url.addQueryItem(QLatin1String("language"), generateLanguage());
 	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
-	static char hex[17] = "0123456789ABCDEF";
-	QByteArray escapedPassword;
 	// FIXME: Sometimes passwords are cp-1251 (or any other windows-scpecific local encoding) encoded
-	const QByteArray rawPassword = m_password.toUtf8();
-	escapedPassword.reserve(rawPassword.size() * 3);
-	for (int i = 0; i < rawPassword.size(); ++i) {
-		const quint8 c = static_cast<quint8>(rawPassword[i]);
-		escapedPassword += '%';
-		escapedPassword += hex[c >> 4];
-		escapedPassword += hex[c & 0x0f];
-	}
-	url.addEncodedQueryItem("pwd", escapedPassword);
+	url.addEncodedQueryItem("pwd", paranoicEscape(m_password.toUtf8()));
 	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
 	url.addQueryItem(QLatin1String("clientName"), getClientName());
 	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
@@ -299,26 +306,29 @@ void OscarAuth::onClientLoginFinished()
 void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionKey)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_START_SESSION_URL);
-	url.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addEncodedQueryItem("a", token);
-	url.addQueryItem(QLatin1String("language"), generateLanguage());
+	url.addEncodedQueryItem("a", token.toPercentEncoding());
 	url.addQueryItem(QLatin1String("distId"), getDistId());
-	url.addQueryItem(QLatin1String("majorVersion"), QString::number(versionMajor()));
-	url.addQueryItem(QLatin1String("minorVersion"), QString::number(versionMinor()));
-	url.addQueryItem(QLatin1String("pointVersion"), QLatin1String("0"));
-	url.addQueryItem(QLatin1String("clientName"), getClientName());
-	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "true" : "false");
+	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	url.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
 	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
 		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
 	}
 	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
-	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url).toPercentEncoding("", "\\/="));
-	DEBUG() << Q_FUNC_INFO << url;
+//	Some strange error at ICQ servers. I receive "Parameter error" if it is set
+//	url.addQueryItem(QLatin1String("language"), generateLanguage());
+	url.addQueryItem(QLatin1String("majorVersion"), QString::number(versionMajor()));
+	url.addQueryItem(QLatin1String("minorVersion"), QString::number(versionMinor()));
+	url.addQueryItem(QLatin1String("pointVersion"), QLatin1String("0"));
+	url.addQueryItem(QLatin1String("clientName"), getClientName());
+	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
+	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "1" : "0");
+	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url));
+	DEBUG() << url.toEncoded();
 	QNetworkRequest request(url);
+	//	Some strange error at ICQ servers. I receive "Parameter error" if it is set no anything else
+	request.setRawHeader("Accept-Language", generateLanguage().toLatin1());
 	QNetworkReply *reply = m_manager.get(request);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
