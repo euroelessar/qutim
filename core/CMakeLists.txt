@@ -105,7 +105,7 @@ else(MINGW)
 	LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
+add_subdirectory(libqutim)
 
 find_package(QutIM REQUIRED)
 include_directories( ${QUTIM_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/libqutim/include/qutim_hook" )
@@ -160,7 +160,8 @@ set(QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FO
 add_subdirectory(src/corelayers)
 foreach(additional_path ${QUTIM_ADDITIONAL_PATHS} )
 	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
-endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+endforeach(additional_path ${QUTIM_ADDITIONAL_PATHS})
+add_subdirectory(share)
 
 message(STATUS ${QUTIM_ADDITIONAL_RCC})
 list(APPEND RESOURCES ${QUTIM_ADDITIONAL_RCC})
@@ -179,7 +180,7 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 if( MAEMO6 )
 	INCLUDE(FindPkgConfig)
 	pkg_check_modules(QDECLARATIVE_BOOSTABLE qdeclarative-boostable)
-	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${QDECLARATIVE_BOOSTABLE_LIBRARIES} )
+	list(APPEND QUTIM_ADDITIONAL_LIBRARIES ${QDECLARATIVE_BOOSTABLE_LIBRARIES} )
 	INCLUDE_DIRECTORIES (${QDECLARATIVE_BOOSTABLE_INCLUDE_DIRS})
 endif()
 
@@ -203,7 +204,7 @@ IF(QUTIM_GUI_TYPE)
 	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
 ENDIF()
 
-QUTIM_ADD_EXECUTABLE (qutim
+QUTIM_ADD_EXECUTABLE(qutim
 	${QUTIM_GUI_TYPE}
 	${SOURCES}
 	${HEADERS}
@@ -246,7 +247,7 @@ qutim_target_link_libraries(qutim
 	libqutim
 	)
 
-IF (APPLE AND QUTIM_BUNDLE_LOCATION)
+IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
 	macro(_deploy_plugins_dir _plugin)
 		set(plugin_dir "${QT_PLUGINS_DIR}/${_plugin}")
@@ -299,9 +300,9 @@ IF (APPLE AND QUTIM_BUNDLE_LOCATION)
 			${QUTIM_BUNDLE_LOCATION}
 		)
 
-ENDIF (APPLE AND QUTIM_BUNDLE_LOCATION)
+ENDIF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
-if( LANGUAGE )
+if(LANGUAGE)
 	LANGUAGE_UPDATE( core ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )
 endif( LANGUAGE )
 
@@ -322,8 +323,6 @@ INSTALL(TARGETS qutim
 		COMPONENT Core
 )
 
-QUTIM_ADD_ARTWORK_DIR(share/qutim)
-
 IF(UNIX AND NOT APPLE AND NOT MAEMO5)
 	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
 		DESTINATION share
@@ -337,11 +336,6 @@ IF(MAEMO5)
 			COMPONENT Core
 	)
 ENDIF()
-
-INSTALL(DIRECTORY share/config
-	DESTINATION share/qutim
-		COMPONENT Core
-)
 
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
@@ -376,26 +370,28 @@ CPACK_ADD_COMPONENT(CoreDevel
 
 #small simple hack for install Qt dlls and plugins
 IF(WIN32)
-        SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
-        FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
-        FOREACH(QUTIM_DLL ${dlls})
-                IF(IS_DIRECTORY ${QUTIM_DLL})
-                        INSTALL(DIRECTORY ${QUTIM_DLL}
-                                DESTINATION bin
-                                        COMPONENT Qt
-                        )
-                ELSEIF(${QUTIM_DLL} MATCHES ".\\.dll")
-                        INSTALL(FILES ${QUTIM_DLL}
-                                DESTINATION bin
-                                        COMPONENT Qt
-                        )
-                ENDIF()
-        ENDFOREACH()
-        LIST(APPEND CPACK_COMPONENTS_ALL Qt)
-        CPACK_ADD_COMPONENT(Qt
-                DISPLAY_NAME "Qt Libraries"
-                DESCRIPTION ""
-        )
+		SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
+		if(NOT ${QUTIM_REQUIRED_DLL_DIR} STREQUAL "")
+			FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
+			FOREACH(QUTIM_DLL ${dlls})
+					IF(IS_DIRECTORY ${QUTIM_DLL})
+							INSTALL(DIRECTORY ${QUTIM_DLL}
+									DESTINATION bin
+											COMPONENT Qt
+							)
+					ELSEIF(${QUTIM_DLL} MATCHES ".\\.dll")
+							INSTALL(FILES ${QUTIM_DLL}
+									DESTINATION bin
+											COMPONENT Qt
+							)
+					ENDIF()
+			ENDFOREACH()
+			LIST(APPEND CPACK_COMPONENTS_ALL Qt)
+			CPACK_ADD_COMPONENT(Qt
+					DISPLAY_NAME "Qt Libraries"
+					DESCRIPTION ""
+			)
+		endif()
 ENDIF(WIN32)
 
 option(CREATE_BUNDLE "Create application bundle for qutIM")

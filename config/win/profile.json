@@ -1,0 +1,47 @@
+{
+	"Logger": {
+		"enable": false,
+	},
+	"services": {
+		"list": {
+			"AboutDialog": "Core::SimpleAboutCreator",
+			"ActionBoxModule": "Core::SimpleActionBoxGenerator",
+			"AddContact": "Core::AddContactModule",
+			"AuthorizationService": "Core::AuthService",
+			"AutoAway": "Core::IdleStatusChanger",
+			"Bearer": "BearerManager",
+			"ChatForm": "Core::AdiumChat::TabbedChatForm",
+			"ChatLayer": "Core::AdiumChat::ChatLayerImpl",
+			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
+			"ContactDelegate": "Core::ContactDelegate",
+			"ContactInfo": "Core::ContactInfo",
+			"ContactList": "Core::SimpleContactList::Module",
+			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
+			"ContactModel": "Core::SimpleContactList::TreeModel",
+			"DataFormsBackend": "Core::DefaultDataFormsBackend",
+			"FileTransferManager": "Core::SimpleFileTransfer",
+			"IconLoader": "Core::IconLoaderImpl",
+			"Idle": "Psi::Idle",
+			"JoinGroupChat": "Core::JoinGroupChatModule",
+			"MetaContactManager": "Core::MetaContacts::Manager",
+			"NotificationSettings": "Core::NotificationsSettings",
+			"Popup": "KineticPopups::Backend",
+			"RosterStorage": "Core::SimpleRosterStorage",
+			"Scroller": "Core::KineticScroller",
+			"SearchForm": "Core::DefaultSearchFormFactory",
+			"SearchLayer": "Core::SearchLayer",
+			"SettingsLayer": "Core::XSettingsLayerImpl",
+			"Sound": "Core::MultimediaSoundBackend",
+			"TrayIcon": "Core::SimpleTray"
+		}
+	},
+	"plugins": {
+		"list": {
+			"ScriptPluginWrapper::ignorer": false,
+			"Logger::LoggerPlugin": false,
+		},
+		"script": {
+			"ignorer": {}
+		}
+	}
+}
