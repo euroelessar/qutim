@@ -110,6 +110,38 @@ static void *kde_request_folder(const char *title, const char *dirname,
 void initGui()
 {
 	QLibrary lib("purple");
+	if (!lib.load()) {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN)
+		// So try to guess purple path
+		QStringList mayBePaths(QLatin1String("/usr/lib"));
+#ifdef PURPLE_LIBDIR
+		mayBePaths << QString::fromLocal8Bit(PURPLE_LIBDIR);
+#endif
+#if QT_POINTER_SIZE == 8
+		mayBePaths << QLatin1String("/usr/lib64");
+#elif QT_POINTER_SIZE == 4
+		mayBePaths << QLatin1String("/usr/lib32");
+#endif
+#ifdef Q_WS_MAEMO_5
+		mayBePaths << QLatin1String("/opt/maemo/usr/lib");
+#endif
+		mayBePaths.removeDuplicates();
+		QStringList filter(QLatin1String("libpurple.so*"));
+		bool ok = false;
+		foreach (const QString &path, mayBePaths) {
+			QDir dir(path);
+			foreach (const QString &name, dir.entryList(filter, QDir::Files)) {
+				lib.setFileName(dir.filePath(name));
+				if (ok |= lib.load())
+					break;
+			}
+			if (ok)
+				break;
+		}
+		if (!ok)
+#endif
+			return;
+	}
 	purple_request_get_ui_ops = (_purple_request_get_ui_ops)lib.resolve("purple_request_get_ui_ops");
 	purple_request_close = (_purple_request_close)lib.resolve("purple_request_close");
 
