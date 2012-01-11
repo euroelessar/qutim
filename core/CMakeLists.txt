@@ -160,7 +160,8 @@ set(QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FO
 add_subdirectory(src/corelayers)
 foreach(additional_path ${QUTIM_ADDITIONAL_PATHS} )
 	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
-endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+endforeach(additional_path ${QUTIM_ADDITIONAL_PATHS})
+add_subdirectory(share)
 
 message(STATUS ${QUTIM_ADDITIONAL_RCC})
 list(APPEND RESOURCES ${QUTIM_ADDITIONAL_RCC})
@@ -179,7 +180,7 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 if( MAEMO6 )
 	INCLUDE(FindPkgConfig)
 	pkg_check_modules(QDECLARATIVE_BOOSTABLE qdeclarative-boostable)
-	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${QDECLARATIVE_BOOSTABLE_LIBRARIES} )
+	list(APPEND QUTIM_ADDITIONAL_LIBRARIES ${QDECLARATIVE_BOOSTABLE_LIBRARIES} )
 	INCLUDE_DIRECTORIES (${QDECLARATIVE_BOOSTABLE_INCLUDE_DIRS})
 endif()
 
@@ -321,8 +322,6 @@ INSTALL(TARGETS qutim
 	BUNDLE DESTINATION .
 		COMPONENT Core
 )
-
-QUTIM_ADD_ARTWORK_DIR(share/qutim)
 
 IF(UNIX AND NOT APPLE AND NOT MAEMO5)
 	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
