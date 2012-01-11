@@ -87,8 +87,6 @@ ModuleManagerImpl::ModuleManagerImpl()
 		wizard->setAttribute(Qt::WA_QuitOnClose, false);
 		SystemIntegration::show(wizard);
 	}
-
-	debug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
 }
 
 ExtensionInfoList ModuleManagerImpl::coreExtensions() const
