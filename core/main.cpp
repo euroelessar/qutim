@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	app->processEvents();
 #endif
 
-	Core::ModuleManagerImpl core_init;
+	Core::ModuleManagerImpl();
 
 	// At first time use current time with pointers to initiators
 	qsrand(uint(std::time(0)) ^ qHash(qApp));

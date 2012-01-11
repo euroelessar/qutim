@@ -105,7 +105,7 @@ else(MINGW)
 	LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
+add_subdirectory(libqutim)
 
 find_package(QutIM REQUIRED)
 include_directories( ${QUTIM_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/libqutim/include/qutim_hook" )

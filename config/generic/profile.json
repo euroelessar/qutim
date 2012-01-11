@@ -1,6 +1,6 @@
 {
 	"Logger": {
-			"enable": false,
+		"enable": false,
 	},
 	"notification": {
 		"AppStartup": {
@@ -52,28 +52,44 @@
 	},
 	"services": {
 		"list": {
-			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
+			"AboutDialog": "KdeAboutAppDialog",
+			"ActionBoxModule": "Core::SimpleActionBoxGenerator",
+			"AddContact": "Core::AddContactModule",
+			"AuthorizationService": "Core::AuthService",
+			"AutoAway": "Core::IdleStatusChanger",
+			"Bearer": "BearerManager",
 			"ChatForm": "Core::AdiumChat::TabbedChatForm",
+			"ChatLayer": "Core::AdiumChat::ChatLayerImpl",
+			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
+			"ContactDelegate": "Core::ContactDelegate",
 			"ContactInfo": "Core::ContactInfo",
 			"ContactList": "Core::SimpleContactList::Module",
 			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
-			"ContactDelegate": "Core::ContactDelegate",
+			"ContactModel": "Core::SimpleContactList::TreeModel",
+			"CrashHandler": "KdeCrashHandler",
 			"DataFormsBackend": "Core::DefaultDataFormsBackend",
+			"FileTransferManager": "Core::SimpleFileTransfer",
 			"IconLoader": "Core::IconLoaderImpl",
+			"Idle": "Psi::Idle",
+			"JoinGroupChat": "Core::JoinGroupChatModule",
+			"MetaContactManager": "Core::MetaContacts::Manager",
 			"NotificationSettings": "Core::NotificationsSettings",
 			"Popup": "DBusBackend",
-			"Sound": "PhononSoundBackend",
-			"ContactInfo": "Core::ContactInfo",
+			"RosterStorage": "Core::SimpleRosterStorage",
+			"Scroller": "Core::KineticScroller",
+			"SearchForm": "Core::DefaultSearchFormFactory",
 			"SearchLayer": "Core::SearchLayer",
 			"SettingsLayer": "Core::XSettingsLayerImpl",
-			"ContactModel": "Core::SimpleContactList::TreeModel",
+			"Sound": "PhononSoundBackend",
+			"SpellChecker": "KdeSpellerLayer",
 			"TrayIcon": "Core::SimpleTray"
 		}
 	},
-   "plugins": {
+	"plugins": {
 		"list": {
-			"ScriptPluginWrapper::ignorer": false
-		}, 
+			"ScriptPluginWrapper::ignorer": false,
+			"Logger::LoggerPlugin": false,
+		},
 		"script": {
 			"ignorer": {}
 		}

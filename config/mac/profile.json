@@ -1,0 +1,97 @@
+{
+	"Logger": {
+		"enable": false,
+	},
+	"notification": {
+		"AppStartup": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"BlockedMessage": {
+			"ChatNotifications": false,
+			"Tray": false
+		},
+		"ChatIncomingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatOutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"ChatUserJoined": {
+			"Popup": false,
+			"Tray": false
+		},
+		"ChatUserLeft": {
+			"Popup": false,
+			"Tray": false
+		},
+		"IncomingMessage": {
+			"ChatNotifications": false
+		},
+		"OutgoingMessage": {
+			"ChatNotifications": false
+		},
+		"UserChangedStatus": {
+			"Tray": false
+		},
+		"UserHasBirthday": {
+			"Tray": false
+		},
+		"UserOffline": {
+			"Tray": false
+		},
+		"UserOnline": {
+			"Tray": false
+		},
+		"UserTyping": {
+			"ChatNotifications": false
+		},
+		"System": {
+			"Tray": false
+		}
+	},
+	"services": {
+		"list": {
+			"AboutDialog": "KdeAboutAppDialog",
+			"ActionBoxModule": "Core::SimpleActionBoxGenerator",
+			"AddContact": "Core::AddContactModule",
+			"AuthorizationService": "Core::AuthService",
+			"AutoAway": "Core::IdleStatusChanger",
+			"Bearer": "BearerManager",
+			"ChatForm": "Core::AdiumChat::TabbedChatForm",
+			"ChatLayer": "Core::AdiumChat::ChatLayerImpl",
+			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
+			"ContactDelegate": "Core::ContactDelegate",
+			"ContactInfo": "Core::ContactInfo",
+			"ContactList": "Core::SimpleContactList::Module",
+			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
+			"ContactModel": "Core::SimpleContactList::TreeModel",
+			"CrashHandler": "KdeCrashHandler",
+			"DataFormsBackend": "Core::DefaultDataFormsBackend",
+			"FileTransferManager": "Core::SimpleFileTransfer",
+			"IconLoader": "Core::IconLoaderImpl",
+			"Idle": "Psi::Idle",
+			"JoinGroupChat": "Core::JoinGroupChatModule",
+			"MetaContactManager": "Core::MetaContacts::Manager",
+			"NotificationSettings": "Core::NotificationsSettings",
+			"Popup": "DBusBackend",
+			"RosterStorage": "Core::SimpleRosterStorage",
+			"Scroller": "Core::KineticScroller",
+			"SearchForm": "Core::DefaultSearchFormFactory",
+			"SearchLayer": "Core::SearchLayer",
+			"SettingsLayer": "Core::XSettingsLayerImpl",
+			"Sound": "PhononSoundBackend",
+			"SpellChecker": "KdeSpellerLayer",
+			"TrayIcon": "Core::SimpleTray"
+		}
+	},
+	"plugins": {
+		"list": {
+			"ScriptPluginWrapper::ignorer": false,
+			"Logger::LoggerPlugin": false,
+		},
+		"script": {
+			"ignorer": {}
+		}
+	}
+}
