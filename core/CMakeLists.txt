@@ -203,7 +203,7 @@ IF(QUTIM_GUI_TYPE)
 	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
 ENDIF()
 
-QUTIM_ADD_EXECUTABLE (qutim
+QUTIM_ADD_EXECUTABLE(qutim
 	${QUTIM_GUI_TYPE}
 	${SOURCES}
 	${HEADERS}
@@ -246,7 +246,7 @@ qutim_target_link_libraries(qutim
 	libqutim
 	)
 
-IF (APPLE AND QUTIM_BUNDLE_LOCATION)
+IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
 	macro(_deploy_plugins_dir _plugin)
 		set(plugin_dir "${QT_PLUGINS_DIR}/${_plugin}")
@@ -337,11 +337,6 @@ IF(MAEMO5)
 			COMPONENT Core
 	)
 ENDIF()
-
-INSTALL(DIRECTORY share/config
-	DESTINATION share/qutim
-		COMPONENT Core
-)
 
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
