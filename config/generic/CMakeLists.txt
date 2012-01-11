@@ -1,1 +1,5 @@
-install(FILES profile.json DESTINATION ${QUTIM_CONFIG_DIR}) 
+install(FILES 
+	profile.json 
+	appearance.json 
+	DESTINATION ${QUTIM_CONFIG_DIR}
+) 
