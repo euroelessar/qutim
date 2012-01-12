@@ -7,9 +7,9 @@ project(qutim)
 if( MAEMO6 )
 #	FIXME
 	add_definitions( -DMEEGO_VERSION_MAJOR=1 -DMEEGO_VERSION_MINOR=2 -DMEEGO_VERSION_PATCH=0 -DMEEGO_EDITION=harmattan -DMEEGO_EDITION_HARMATTAN )
-	set( DEFAULT_DECLARATIVE_UI on )
+	set(DEFAULT_DECLARATIVE_UI on )
 else()
-	set( DEFAULT_DECLARATIVE_UI off )
+	set(DEFAULT_DECLARATIVE_UI off )
 endif()
 option(DECLARATIVE_UI "Use declarative UI" ${DEFAULT_DECLARATIVE_UI})
 
@@ -27,11 +27,13 @@ list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 include(CPackOptions.cmake.in)
 include(QutIMMacros)
 
-set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins" )
-set(QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE )
+set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins")
+set(QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE)
+set(QUTIM_BUNDLE_NAME qutim.app)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/translations/" "${CMAKE_CURRENT_BINARY_DIR}/translations")
+add_subdirectory(core)
+add_subdirectory(translations)
+add_subdirectory(config)
 
 # ADD_CUSTOM_TARGET(uninstall
 #   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
