@@ -4,7 +4,7 @@
 	},
 	"services": {
 		"list": {
-			"AboutDialog": "KdeAboutAppDialog",
+			"AboutDialog": "Core::SimpleAboutCreator",
 			"ActionBoxModule": "Core::SimpleActionBoxGenerator",
 			"AddContact": "Core::AddContactModule",
 			"AuthorizationService": "Core::AuthService",
@@ -18,7 +18,6 @@
 			"ContactList": "Core::SimpleContactList::Module",
 			"ContactListWidget": "Core::SimpleContactList::SimpleWidget",
 			"ContactModel": "Core::SimpleContactList::TreeModel",
-			"CrashHandler": "KdeCrashHandler",
 			"DataFormsBackend": "Core::DefaultDataFormsBackend",
 			"FileTransferManager": "Core::SimpleFileTransfer",
 			"IconLoader": "Core::IconLoaderImpl",
@@ -26,14 +25,13 @@
 			"JoinGroupChat": "Core::JoinGroupChatModule",
 			"MetaContactManager": "Core::MetaContacts::Manager",
 			"NotificationSettings": "Core::NotificationsSettings",
-			"Popup": "DBusBackend",
+			"Popup": "KineticPopups::Backend",
 			"RosterStorage": "Core::SimpleRosterStorage",
 			"Scroller": "Core::KineticScroller",
 			"SearchForm": "Core::DefaultSearchFormFactory",
 			"SearchLayer": "Core::SearchLayer",
 			"SettingsLayer": "Core::XSettingsLayerImpl",
-			"Sound": "PhononSoundBackend",
-			"SpellChecker": "KdeSpellerLayer",
+			"Sound": "Core::MultimediaSoundBackend",
 			"TrayIcon": "Core::SimpleTray"
 		}
 	},
