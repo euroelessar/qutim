@@ -23,6 +23,8 @@
 	<integer>8</integer>
 	<key>DisableCustomBackground</key>
 	<false/>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
 	<key>ShowsUserIcons</key>
 	<false/>
 </dict>

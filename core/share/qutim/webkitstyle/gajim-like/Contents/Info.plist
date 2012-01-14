@@ -20,6 +20,8 @@
 	<string>Monaco</string>
 	<key>DefaultFontSize</key>
 	<integer>10</integer>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
 	<key>ShowIncomingFonts</key>
 	<false/>
 	<key>DisableCustomBackground</key>

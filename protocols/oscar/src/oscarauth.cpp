@@ -363,7 +363,7 @@ void OscarAuth::onStartSessionFinished()
 	}
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
-		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
+//		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(response.error());
 		return;
 	}

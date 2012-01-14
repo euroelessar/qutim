@@ -90,6 +90,7 @@ public:
 	ChatSessionPrivate() : active(false) {}
 
 	bool active;
+	QDateTime dateOpened;
 };
 
 struct ChatLayerData
@@ -103,6 +104,8 @@ Q_GLOBAL_STATIC(ChatLayerData, p)
 
 ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), d_ptr(new ChatSessionPrivate)
 {
+	Q_D(ChatSession);
+	d->dateOpened = QDateTime::currentDateTime();
 }
 
 ChatSession::~ChatSession()
@@ -137,6 +140,20 @@ qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 bool ChatSession::isActive()
 {
 	return d_func()->active;
+}
+
+QDateTime ChatSession::dateOpened() const
+{
+	return d_func()->dateOpened;
+}
+
+void ChatSession::setDateOpened(const QDateTime &date)
+{
+	Q_D(ChatSession);
+	if (d->dateOpened == date)
+		return;
+	d->dateOpened = date;
+	emit dateOpenedChanged(d->dateOpened);
 }
 
 void ChatSession::setActive(bool active)

@@ -21,8 +21,10 @@
 	<string>Verdana</string>
 	<key>DefaultFontSize</key>
 	<integer>8</integer>
-        <key>DefaultVariant</key>
-        <string>medium</string>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
+    <key>DefaultVariant</key>
+    <string>0.3-edition</string>
 	<key>DisableCustomBackground</key>
 	<false/>
 	<key>ShowsUserIcons</key>
