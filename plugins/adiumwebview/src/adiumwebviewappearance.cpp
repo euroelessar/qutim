@@ -80,7 +80,6 @@ void WebViewAppearance::loadImpl()
 	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
 	QString variant = config.value(QLatin1String("variant"), m_style->defaultVariant());
 	m_style->setActiveVariant(variant);
-//	qDebug() << m_style->baseTemplateForChat(m_preview->session.data());
 	
 	fillThemesComboBox();
 	
@@ -206,8 +205,7 @@ void WebViewAppearance::makeSettings() {
 		layout->addRow(label, variantBox);
 		variantBox->addItems(variants);
 		connect(variantBox, SIGNAL(currentIndexChanged(QString)), SLOT(onVariantChanged(QString)));
-		int index = m_isLoad ? variantBox->findText(m_style->activeVariant()) : 0;
-		m_style->setActiveVariant(variantBox->itemText(index));
+		int index = variantBox->findText(m_style->activeVariant());
 		variantBox->setCurrentIndex(index);
 		onVariantChanged(m_style->activeVariant());
 	}

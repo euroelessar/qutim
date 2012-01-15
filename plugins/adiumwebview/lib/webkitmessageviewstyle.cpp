@@ -391,9 +391,9 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 	QString iconPath;
 	
 	inString.replace(QLatin1String("%incomingColor%"),
-	                 WebKitColorsAdditions::representedColorForObject(unit->id(), d->validSenderColors));
+	                 WebKitColorsAdditions::representedColorForObject(unit->id(), validSenderColors()));
 	inString.replace(QLatin1String("%outgoingColor%"),
-	                 WebKitColorsAdditions::representedColorForObject(account->name(), d->validSenderColors));
+	                 WebKitColorsAdditions::representedColorForObject(account->name(), validSenderColors()));
 	
 		
 	iconPath = urlFromFilePath(unit->property("avatar").toString());
@@ -797,7 +797,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	}
 	inString.replace(QLatin1String("%messageClasses%"), QLatin1String(contentIsSimilar ? "consecutive " : "") + displayClasses.join(QLatin1String(" ")));
 	
-	inString.replace(QLatin1String("%senderColor%"), WebKitColorsAdditions::representedColorForObject(contentSource.id, d->validSenderColors));
+	inString.replace(QLatin1String("%senderColor%"), WebKitColorsAdditions::representedColorForObject(contentSource.id, validSenderColors()));
 	
 	inString.replace(QLatin1String("%messageDirection%"), QLatin1String(message.text().isRightToLeft() ? "rtl" : "ltr"));
 	
