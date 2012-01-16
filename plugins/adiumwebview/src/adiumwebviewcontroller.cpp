@@ -58,7 +58,9 @@ WebViewController::WebViewController(bool isPreview) :
 	inspector->setPage(this);
 	connect(this, SIGNAL(destroyed()), inspector, SLOT(deleteLater()));
 	connect(this, SIGNAL(loadFinished(bool)), SLOT(onLoadFinished()));
-	connect(this, SIGNAL(contentsChanged()), SLOT(onContentsChanged()));
+//	connect(this, SIGNAL(contentsChanged()), SLOT(onContentsChanged()));
+	onObjectCleared();
+	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(onObjectCleared()));
 }
 
 WebViewController::~WebViewController()
@@ -208,6 +210,81 @@ void WebViewController::evaluateJavaScript(const QString &script)
 		mainFrame()->evaluateJavaScript(script);
 }
 
+bool WebViewController::zoomImage(QWebElement elem)
+{
+	QString fullClass = QLatin1String("fullSizeImage");
+	QString scaledClass = QLatin1String("scaledToFitImage");
+	QStringList classes = elem.classes();
+	if (classes.contains(fullClass)) {
+		elem.removeClass(fullClass);
+		elem.addClass(scaledClass);
+	} else if (classes.contains(scaledClass)) {
+		elem.removeClass(scaledClass);
+		elem.addClass(fullClass);
+	} else {
+		return false;
+	}
+	
+	evaluateJavaScript(QLatin1String("alignChat(true);"));
+	return true;
+}
+
+void WebViewController::debugLog(const QString &message)
+{
+	qDebug("WebKit: %s", qPrintable(message));
+}
+
+void WebViewController::appendNick(const QVariant &nick)
+{
+	QObject *form = ServiceManager::getByName("ChatForm");
+	QObject *obj = 0;
+	if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
+								  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session.data())) && obj) {
+		QTextCursor cursor;
+		if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+			cursor = edit->textCursor();
+		else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+			cursor = edit->textCursor();
+		else
+			return;
+		if(cursor.atStart())
+			cursor.insertText(nick.toString() + ": ");
+		else
+			cursor.insertText(nick.toString() + " ");
+		static_cast<QWidget*>(obj)->setFocus();
+	}
+}
+
+void WebViewController::contextMenu(const QVariant &nickVar)
+{
+	QString nick = nickVar.toString();
+	foreach (ChatUnit *unit, m_session.data()->unit()->lowerUnits()) {
+		if (Buddy *buddy = qobject_cast<Buddy*>(unit)) {
+			if (buddy->name() == nick)
+				buddy->showMenu(QCursor::pos());
+		}
+	}
+}
+
+void WebViewController::appendText(const QVariant &text)
+{
+	QObject *form = ServiceManager::getByName("ChatForm");
+	QObject *obj = 0;
+	if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
+								  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session.data())) && obj) {
+		QTextCursor cursor;
+		if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+			cursor = edit->textCursor();
+		else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+			cursor = edit->textCursor();
+		else
+			return;
+		cursor.insertText(text.toString());
+		cursor.insertText(" ");
+		static_cast<QWidget*>(obj)->setFocus();
+	}
+}
+
 void WebViewController::loadSettings()
 {
 	Config config("appearance/adiumChat");
@@ -298,7 +375,11 @@ void WebViewController::updateTopic()
 
 void WebViewController::onContentsChanged()
 {
-	qDebug() << Q_FUNC_INFO;
+}
+
+void WebViewController::onObjectCleared()
+{
+	mainFrame()->addToJavaScriptWindowObject(QLatin1String("client"), this, QScriptEngine::QtOwnership);
 }
 
 } // namespace Adium

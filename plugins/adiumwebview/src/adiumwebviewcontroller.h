@@ -26,10 +26,11 @@
 #ifndef QUICKCHATVIEWCONTROLLER_H
 #define QUICKCHATVIEWCONTROLLER_H
 
-#include <QWebPage>
+#include "../lib/webkitmessageviewstyle.h"
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <qutim/adiumchat/chatsessionimpl.h>
-#include "../lib/webkitmessageviewstyle.h"
+#include <QWebPage>
+#include <QWebElement>
 #include <QVariant>
 #include <QPointer>
 
@@ -60,6 +61,11 @@ public:
 	
 public slots:
 	void evaluateJavaScript(const QString &script);
+	bool zoomImage(QWebElement elem);
+	void debugLog(const QString &message);
+	void appendNick(const QVariant &nick);
+	void contextMenu(const QVariant &nickVar);
+	void appendText(const QVariant &text);
 	
 protected:
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
@@ -71,6 +77,7 @@ private slots:
 	void onTopicChanged(const QString &topic);
 	void updateTopic();
 	void onContentsChanged();
+	void onObjectCleared();
 	
 private:
 	QWeakPointer<Core::AdiumChat::ChatSessionImpl> m_session;
