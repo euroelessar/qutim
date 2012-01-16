@@ -808,7 +808,13 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 //	} else if (content.pro == IContent::FileTranfser) {
 //		result = d->fileTransferHTML;
 	} else if (!message.property("service", false)) {
-		if (message.property("history", false)) {
+		bool isAction = message.html().startsWith(QLatin1String("/me "), Qt::CaseInsensitive);
+		if (isAction && hasAction()) {
+			if (!message.isIncoming())
+				result = d->actionOutHTML;
+			else
+				result = d->actionInHTML;
+		} else if (message.property("history", false)) {
 			if (!message.isIncoming())
 				result = contentIsSimilar ? d->nextContextOutHTML : d->contextOutHTML;
 			else
@@ -882,8 +888,9 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	// Actions support
 	if (htmlEncodedMessage.startsWith(QLatin1String("/me "), Qt::CaseInsensitive)) {
 		displayClasses << QLatin1String("action");
-		htmlEncodedMessage.remove(0, 4);
-		htmlEncodedMessage = QString::fromLatin1(ACTION_SPAN).arg(contentSource.title, htmlEncodedMessage);
+		htmlEncodedMessage.remove(0, 3);
+		if (!hasAction())
+			htmlEncodedMessage = QString::fromLatin1(ACTION_SPAN).arg(contentSource.title, htmlEncodedMessage);
 	}
 
 	//date

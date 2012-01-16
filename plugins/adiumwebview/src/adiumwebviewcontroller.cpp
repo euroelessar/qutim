@@ -88,9 +88,12 @@ ChatSessionImpl *WebViewController::getSession() const
 	return m_session.data();
 }
 
-static bool isContentSimiliar(const Message &a, const Message &b)
+bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 {
+	bool aIsAction = a.html().startsWith(QLatin1String("/me "), Qt::CaseInsensitive);
+	bool bIsAction = b.html().startsWith(QLatin1String("/me "), Qt::CaseInsensitive);
 	if (a.chatUnit() == b.chatUnit()
+	        && (!m_style.hasAction() || (!aIsAction && !bIsAction))
 	        && a.isIncoming() == b.isIncoming()
 	        && a.property("senderName", QString()) == b.property("senderName", QString())
 	        && a.property("service", false) == b.property("service", false)
