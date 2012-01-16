@@ -108,11 +108,7 @@ QVariant DefaultSystemIntegration::doProcess(Operation act, const QVariant &data
 	case ShowWidget: {
 		QWidget *widget = data.value<QWidget*>();
 #if	defined(QUTIM_MOBILE_UI)
-#	ifdef MEEGO_EDITION_HARMATTAN
-		widget->showFullScreen();
-#	else
 		widget->showMaximized();
-#	endif
 #else
 		widget->show();
 #endif
