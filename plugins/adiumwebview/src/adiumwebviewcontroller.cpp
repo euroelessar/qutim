@@ -71,6 +71,7 @@ void WebViewController::setChatSession(ChatSessionImpl* session)
 		return;
 	
 	m_session = session;
+	m_session.data()->installEventFilter(this);
 	if (qobject_cast<Conference*>(m_session.data()->unit())) {
 		connect(m_session.data()->unit(), SIGNAL(topicChanged(QString,QString)),
 		        this, SLOT(onTopicChanged(QString)));
@@ -174,6 +175,26 @@ int WebViewController::defaultFontSize() const
 	font.setPixelSize(size);
 	QFontInfo info(font);
 	return info.pointSize();
+}
+
+bool WebViewController::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (obj == m_session.data() && ev->type() == MessageReceiptEvent::eventType()) {
+		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+		QWebFrame *frame = mainFrame();
+		QWebElement elem = frame->findFirstElement(QLatin1String("#message")
+		                                           + QString::number(msgEvent->id()));
+		if (!elem.isNull()) {
+			if (msgEvent->success()) {
+				elem.removeClass(QLatin1String("notDelivered"));
+				elem.addClass(QLatin1String("delivered"));
+			} else {
+				elem.addClass(QLatin1String("failedToDevliver"));
+			}
+		}
+		return true;
+	}
+	return QWebPage::eventFilter(obj, ev);
 }
 
 void WebViewController::evaluateJavaScript(const QString &script)

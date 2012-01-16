@@ -56,6 +56,7 @@ public:
 	void setDefaultFont(const QString &family, int size);
 	QString defaultFontFamily() const;
 	int defaultFontSize() const;
+	bool eventFilter(QObject *obj, QEvent *);
 	
 public slots:
 	void evaluateJavaScript(const QString &script);
