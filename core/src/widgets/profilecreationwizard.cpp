@@ -40,6 +40,7 @@
 #include <QLibrary>
 #ifdef Q_OS_UNIX
 # include <pwd.h>
+# include <unistd.h>
 #elif defined( Q_OS_WIN )
 # define SECURITY_WIN32
 # include <windows.h>

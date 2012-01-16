@@ -269,6 +269,7 @@ public:
 	inline ~ConfigPrivate() { if (!memoryGuard) sync(); /*qDeleteAll(levels);*/ }
 	inline const ConfigLevel::Ptr &current() const { return levels.at(0); }
 	void sync();
+	void init(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend = 0);
 	void init(const QStringList &paths, ConfigBackend *backend = 0);
 	QList<ConfigLevel::Ptr> levels;
 	QList<ConfigSource::Ptr> sources;
@@ -312,6 +313,11 @@ void ConfigPrivate::sync()
 
 void ConfigPrivate::init(const QStringList &paths, ConfigBackend *backend)
 {
+	init(paths, QVariantList(), backend);
+}
+
+void ConfigPrivate::init(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend)
+{
 	QSet<QString> opened;
 	ConfigSource::Ptr source;
 	for (int j = 0; j < 2; j++) {
@@ -330,6 +336,21 @@ void ConfigPrivate::init(const QStringList &paths, ConfigBackend *backend)
 		atom.detach();
 		atom->deleteOnDestroy = false;
 		atom->readOnly = atom->readOnly || i > 0;
+		current()->atoms << atom;
+	}
+	for (int i = 0; i < fallbacks.size(); ++i) {
+		ConfigAtom::Ptr atom(new ConfigAtom());
+		QVariant var = fallbacks.at(i);
+		if (var.type() == QVariant::Map) {
+			atom->map = new QVariantMap(var.toMap());
+		} else if (var.type() == QVariant::List) {
+			atom->typeMap = false;
+			atom->list = new QVariantList(var.toList());
+		} else {
+			continue;
+		}
+		atom->deleteOnDestroy = true;
+		atom->readOnly = true;
 		current()->atoms << atom;
 	}
 }
@@ -376,19 +397,31 @@ Config::Config(QVariantMap *map) : d_ptr(new ConfigPrivate)
 Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
-	d->init(QStringList() << path);
+	d->init(QStringList(path));
 }
 
 Config::Config(const QString &path, ConfigBackend *backend) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
-	d->init(QStringList() << path, backend);
+	d->init(QStringList(path), backend);
 }
 
 Config::Config(const QStringList &paths) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
 	d->init(paths);
+}
+
+Config::Config(const QString &path, const QVariantList &fallbacks) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList(path), fallbacks);
+}
+
+Config::Config(const QString &path, const QVariant &fallback) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList(path), QVariantList() << fallback);
 }
 
 Config::Config(const Config &other) : d_ptr(other.d_ptr)
@@ -717,8 +750,7 @@ QVariant Config::rootValue(const QVariant &def, ValueFlags type) const
 	if (d->levels.at(0)->atoms.isEmpty())
 		return def;
 	const ConfigAtom::Ptr &atom = d->levels.at(0)->atoms.first();
-	Q_ASSERT(atom->typeMap);
-	QVariant var = QVariant(*atom->map);
+	QVariant var = atom->typeMap ? QVariant(*atom->map) : QVariant(*atom->list);
 	if (type & Config::Crypted)
 		return var.isNull() ? def : CryptoService::decrypt(var);
 	else

@@ -49,6 +49,7 @@ public:
 	QVariantMap config;
 	QString stylePath;
 	QString activeVariant;
+	QString customStyle;
 	
 	//Templates
 	QString headerHTML;
@@ -66,6 +67,9 @@ public:
 	QString	statusHTML;
 	QString	fileTransferHTML;
 	QString	topicHTML;
+	QString actionHTML;
+	QString actionInHTML;
+	QString actionOutHTML;
 	
 	//Style settings
 	bool allowsCustomBackground;
@@ -155,7 +159,9 @@ WebKitMessageViewStyle::WebKitMessageViewStyle() : d_ptr(new WebKitMessageViewSt
 {
 	Q_D(WebKitMessageViewStyle);
 	d->showUserIcons = true;
+	d->showHeader = true;
 	d->timeStampFormatter = "HH:mm:ss";
+	d->customBackgroundType = BackgroundNormal;
 }
 
 WebKitMessageViewStyle::~WebKitMessageViewStyle()
@@ -272,6 +278,120 @@ void WebKitMessageViewStyle::setActiveVariant(const QString &variant)
 	d->activeVariant = variant;
 }
 
+bool WebKitMessageViewStyle::allowsCustomBackground() const
+{
+	return d_func()->allowsCustomBackground;
+}
+
+bool WebKitMessageViewStyle::transparentDefaultBackground() const
+{
+	return d_func()->transparentDefaultBackground;
+}
+
+bool WebKitMessageViewStyle::allowsUserIcons() const
+{
+	return d_func()->allowsUserIcons;
+}
+
+bool WebKitMessageViewStyle::hasHeader() const
+{
+	return !d_func()->headerHTML.isEmpty();
+}
+
+bool WebKitMessageViewStyle::hasTopic() const
+{
+	return !d_func()->topicHTML.isEmpty();
+}
+
+bool WebKitMessageViewStyle::hasAction() const
+{
+	return !d_func()->actionInHTML.isEmpty();
+}
+
+QString WebKitMessageViewStyle::defaultFontFamily() const
+{
+	return d_func()->config.value(QLatin1String("DefaultFontFamily")).toString();
+}
+
+int WebKitMessageViewStyle::defaultFontSize() const
+{
+	return d_func()->config.value(QLatin1String("DefaultFontSize"), -1).toInt();
+}
+
+bool WebKitMessageViewStyle::showUserIcons() const
+{
+	return d_func()->showUserIcons;
+}
+
+void WebKitMessageViewStyle::setShowUserIcons(bool showUserIcons)
+{
+	d_func()->showUserIcons = showUserIcons;
+}
+
+bool WebKitMessageViewStyle::showHeader() const
+{
+	return d_func()->showHeader;
+}
+
+void WebKitMessageViewStyle::setShowHeader(bool showHeader)
+{
+	d_func()->showHeader = showHeader;
+}
+
+bool WebKitMessageViewStyle::showIncomingFonts() const
+{
+	return d_func()->showIncomingFonts;
+}
+
+void WebKitMessageViewStyle::setShowIncomingFonts(bool showIncomingFonts)
+{
+	d_func()->showIncomingFonts = showIncomingFonts;
+}
+
+bool WebKitMessageViewStyle::showIncomingColors() const
+{
+	return d_func()->showIncomingColors;
+}
+
+void WebKitMessageViewStyle::setShowIncomingColors(bool showIncomingColors)
+{
+	d_func()->showIncomingColors = showIncomingColors;
+}
+
+WebKitMessageViewStyle::WebkitBackgroundType WebKitMessageViewStyle::customBackgroundType() const
+{
+	return d_func()->customBackgroundType;
+}
+
+void WebKitMessageViewStyle::setCustomBackgroundType(WebKitMessageViewStyle::WebkitBackgroundType type)
+{
+	d_func()->customBackgroundType = type;
+}
+
+QString WebKitMessageViewStyle::customBackgroundPath() const
+{
+	return d_func()->customBackgroundPath;
+}
+
+void WebKitMessageViewStyle::setCustomBackgroundPath(const QString &path)
+{
+	Q_D(WebKitMessageViewStyle);
+	if (path.isEmpty())
+		d->customBackgroundPath.clear();
+	else
+		d->customBackgroundPath = QUrl::fromLocalFile(path).toString();
+}
+
+QColor WebKitMessageViewStyle::customBackgroundColor() const
+{
+	return d_func()->customBackgroundColor;
+}
+
+void WebKitMessageViewStyle::setCustomBackgroundColor(const QColor &color)
+{
+	d_func()->customBackgroundColor = color;
+}
+
 void WebKitMessageViewStyle::setStylePath(const QString &path)
 {
 	Q_D(WebKitMessageViewStyle);
@@ -285,6 +405,12 @@ void WebKitMessageViewStyle::setStylePath(const QString &path)
 	reloadStyle();
 }
 
+void WebKitMessageViewStyle::setCustomStyle(const QString &style)
+{
+	Q_D(WebKitMessageViewStyle);
+	d->customStyle = style;
+}
+
 QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session)
 {
 	Q_D(WebKitMessageViewStyle);
@@ -293,8 +419,7 @@ QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *
 	// If this is a group chat, we want to include a topic.
 	// Otherwise, if the header is shown, use it.
 	QString headerContent;
-	bool showHeader = true;
-	if (showHeader) {
+	if (d->showHeader) {
 		if (qobject_cast<Conference*>(session->unit())) {
 			headerContent = QLatin1String(/*chat.supportsTopic ?*/ TOPIC_MAIN_DIV /*: ""*/);
 		} else {
@@ -326,6 +451,12 @@ QString WebKitMessageViewStyle::scriptForChangingVariant()
 {
 	Q_D(WebKitMessageViewStyle);
 	return QString::fromLatin1("setStylesheet(\"mainStyle\",\"%1\");").arg(activeVariantPath());
+}
+
+QString WebKitMessageViewStyle::scriptForSettingCustomStyle()
+{
+	Q_D(WebKitMessageViewStyle);
+	return QString::fromLatin1("setCustomStylesheet(\"%1\");").arg(d->customStyle);
 }
 
 QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent)
@@ -401,7 +532,7 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 		ChatUnit *contact = unit->upperUnit();
 		while (contact && iconPath.isEmpty()) {
 			iconPath = contact->property("avatar").toString();
-			contact = unit->upperUnit();
+			contact = contact->upperUnit();
 		}
 	}
 	
@@ -502,6 +633,7 @@ void WebKitMessageViewStyle::loadTemplates()
 	d->headerHTML = loadResourceFile(QLatin1String("Header.html"));
 	d->footerHTML = loadResourceFile(QLatin1String("Footer.html"));
 	d->topicHTML = loadResourceFile(QLatin1String("Topic.html"));
+	d->actionHTML = loadResourceFile(QLatin1String("Action.html"));
 	d->baseHTML = loadResourceFile(QLatin1String("Template.html"));
 	
 	//Starting with version 1, styles can choose to not include template.html.  If the template is not included 
@@ -596,8 +728,10 @@ void WebKitMessageViewStyle::loadTemplates()
 	d->contentHTML = loadResourceFile(QLatin1String("Content.html"));
 	d->contentInHTML = loadResourceFile(QLatin1String("Content.html"), QLatin1String("Incoming"));
 	d->nextContentInHTML = loadResourceFile(QLatin1String("NextContent.html"), QLatin1String("Incoming"));
+	d->actionInHTML = loadResourceFile(QLatin1String("Action.html"), QLatin1String("Incoming"));
 	d->contentOutHTML = loadResourceFile(QLatin1String("Content.html"), QLatin1String("Outgoing"));
 	d->nextContentOutHTML = loadResourceFile(QLatin1String("NextContent.html"), QLatin1String("Outgoing"));
+	d->actionOutHTML = loadResourceFile(QLatin1String("Action.html"), QLatin1String("Outgoing"));
 	
 	//Message history
 	d->contextInHTML = loadResourceFile(QLatin1String("Context.html"), QLatin1String("Incoming"));
@@ -608,6 +742,10 @@ void WebKitMessageViewStyle::loadTemplates()
 	//Fall back to Resources/Content.html if Incoming isn't present
 	if (d->contentInHTML.isEmpty())
 		d->contentInHTML = d->contentHTML;
+	
+	//Fall back to Resources/Action.html if Incoming isn't present
+	if (d->actionInHTML.isEmpty())
+		d->actionInHTML = d->actionHTML;
 	
 	//Fall back to Content if NextContent doesn't need to use different HTML
 	if (d->nextContentInHTML.isEmpty())
@@ -636,6 +774,8 @@ void WebKitMessageViewStyle::loadTemplates()
 		d->contentOutHTML = d->contentInHTML;
 	if (d->nextContentOutHTML.isEmpty())
 		d->nextContentOutHTML = d->nextContentInHTML;
+	if (d->actionOutHTML.isEmpty())
+		d->actionOutHTML = d->actionInHTML;
 	
 	//Status
 	d->statusHTML = loadResourceFile(QLatin1String("Status.html"));
@@ -737,15 +877,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		theSource = contentSource;
 		
 	QStringList displayClasses = message.property("displayClasses", QStringList());
-	QString htmlEncodedMessage = message.property("html", QString());
-	if (htmlEncodedMessage.isEmpty()) {
-		htmlEncodedMessage = Qt::escape(message.text());
-		htmlEncodedMessage.replace(QLatin1String("\n "), QLatin1String("<br/>&nbsp;")); //keep leading whitespaces
-		htmlEncodedMessage.replace(QLatin1Char('\n'), QLatin1String("<br/>"));
-		htmlEncodedMessage.replace(QLatin1Char('\t'), QLatin1String("&nbsp; &nbsp; ")); // replace tabs by 4 spaces
-		htmlEncodedMessage.replace(QLatin1String("  "), QLatin1String(" &nbsp;")); // keep multiple whitespaces
-		htmlEncodedMessage.replace(QLatin1Char('\\'), QLatin1String("\\\\")); //replace a single backslash with two backslashes.
-	}
+	QString htmlEncodedMessage = message.html();
 	
 	// Actions support
 	if (htmlEncodedMessage.startsWith(QLatin1String("/me "), Qt::CaseInsensitive)) {
@@ -973,6 +1105,7 @@ void WebKitMessageViewStyle::releaseResources()
 {
 	Q_D(WebKitMessageViewStyle);
 	
+	d->customStyle.clear();
 	d->headerHTML.clear();
 	d->footerHTML.clear();
 	d->baseHTML.clear();
@@ -988,6 +1121,9 @@ void WebKitMessageViewStyle::releaseResources()
 	d->statusHTML.clear();	
 	d->fileTransferHTML.clear();
 	d->topicHTML.clear();
+	d->actionHTML.clear();
+	d->actionInHTML.clear();
+	d->actionOutHTML.clear();
 		
 	d->customBackgroundPath.clear();
 	d->customBackgroundColor = QColor();

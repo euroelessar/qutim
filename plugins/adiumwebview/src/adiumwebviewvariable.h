@@ -58,7 +58,7 @@ Q_DECLARE_INTERFACE(Adium::WebViewVariable, "org.qutim.core.ChatVariable")
 namespace Adium
 {
 
-class WebViewFont : public QWidget, WebViewVariable
+class WebViewFont : public QWidget, public WebViewVariable
 {
 	Q_OBJECT
 	Q_INTERFACES(Adium::WebViewVariable)
@@ -75,7 +75,7 @@ private:
 	WebViewCustomStyle m_style;
 };
 
-class WebViewColor : public QToolButton, WebViewVariable
+class WebViewColor : public QToolButton, public WebViewVariable
 {
 	Q_OBJECT
 	Q_INTERFACES(Adium::WebViewVariable)
@@ -91,7 +91,7 @@ private:
 	WebViewCustomStyle m_style;
 };
 
-class WebViewNumeric : public QDoubleSpinBox, WebViewVariable
+class WebViewNumeric : public QDoubleSpinBox, public WebViewVariable
 {
 	Q_OBJECT
 	Q_INTERFACES(Adium::WebViewVariable)
@@ -107,7 +107,7 @@ private:
 	WebViewCustomStyle m_style;
 };
 
-class WebViewBoolean : public QCheckBox, WebViewVariable
+class WebViewBoolean : public QCheckBox, public WebViewVariable
 {
 	Q_OBJECT
 	Q_INTERFACES(Adium::WebViewVariable)

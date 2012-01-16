@@ -48,7 +48,6 @@ WebKitPreview::Ptr WebKitPreviewLoader::loadPreview(const QString &fileName)
 	QString timeFormat = QLatin1String("yyyy-MM-dd hh:mm:ss -0500");
 	Config cfg(fileName);
 	QDir dir = QFileInfo(fileName).absoluteDir();
-	qDebug() << cfg.rootValue().toMap();
 	QString accountId;
 	QVariantMap previewData = cfg.rootValue().toMap();
 	{

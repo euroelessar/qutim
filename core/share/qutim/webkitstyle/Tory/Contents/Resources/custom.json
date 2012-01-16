@@ -1,14 +1,4 @@
-{
-   "Tory": [
-    {
-     "label": "Chat font",
-     "label-bg_BG": "Шрифт на съобщенията",
-     "label-ru_RU": "Шрифт сообщений",
-     "parameter": "font",
-     "selector": "body",
-     "type": "font",
-     "value": "8pt Verdana"
-    },
+[
     {
      "false": "0s",
      "label": "Animated new messages",
@@ -20,5 +10,4 @@
      "type": "boolean",
      "value": "0s"
     }
-   ]
-  }
+]

@@ -49,6 +49,8 @@ public:
 	static void scriptRegister(QScriptEngine *engine);
 	const QString &text() const;
 	void setText(const QString &text);
+	QString html() const;
+	void setHtml(const QString &html);
 	const QDateTime &time() const;
 	void setTime(const QDateTime &time);
 	void setIncoming(bool input);

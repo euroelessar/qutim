@@ -111,12 +111,7 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 	bool similiar = isContentSimiliar(m_last, msg);
 	QString script = m_style.scriptForAppendingContent(msg, similiar, false, false);
 	m_last = msg;
-	m_pendingScripts << script;
-	if (!m_isLoading) {
-		for (int i = 0; i < m_pendingScripts.size(); ++i)
-			evaluateJavaScript(m_pendingScripts.at(i));
-		m_pendingScripts.clear();
-	}
+	evaluateJavaScript(script);
 }
 
 void WebViewController::clearChat()
@@ -125,6 +120,7 @@ void WebViewController::clearChat()
 	m_last = Message();
 	m_isLoading = true;
 	mainFrame()->setHtml(m_style.baseTemplateForChat(m_session.data()));
+	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
 }
 
 QString WebViewController::quote()
@@ -138,6 +134,46 @@ QString WebViewController::quote()
 WebKitMessageViewStyle *WebViewController::style()
 {
 	return &m_style;
+}
+
+void WebViewController::setDefaultFont(const QString &family, int size)
+{
+	QWebSettings *settings = QWebPage::settings();
+	QFontInfo info(QFont(family, size));
+	QWebSettings::FontFamily families[] = {
+	    QWebSettings::StandardFont,
+        QWebSettings::FixedFont,
+        QWebSettings::SerifFont,
+        QWebSettings::SansSerifFont
+	};
+	const int familiesSize = sizeof(families) / sizeof(families[0]);
+	if (family.isEmpty()) {
+		for (int i = 0; i < familiesSize; ++i)
+			settings->resetFontFamily(families[i]);
+	} else {
+		for (int i = 0; i < familiesSize; ++i)
+			settings->setFontFamily(families[i], family);
+	}
+	if (size < 0)
+		settings->resetFontSize(QWebSettings::DefaultFontSize);
+	else
+		settings->setFontSize(QWebSettings::DefaultFontSize, info.pixelSize());
+}
+
+QString WebViewController::defaultFontFamily() const
+{
+	return QWebPage::settings()->fontFamily(QWebSettings::StandardFont);
+}
+
+int WebViewController::defaultFontSize() const
+{
+	QWebSettings *settings = QWebPage::settings();
+	QString family = settings->fontFamily(QWebSettings::StandardFont);
+	int size = settings->fontSize(QWebSettings::DefaultFontSize);
+	QFont font(family);
+	font.setPixelSize(size);
+	QFontInfo info(font);
+	return info.pointSize();
 }
 
 void WebViewController::evaluateJavaScript(const QString &script)
@@ -154,8 +190,36 @@ void WebViewController::loadSettings()
 	config.beginGroup("style");
 	QString styleName = config.value(QLatin1String("name"), QLatin1String("default"));
 	m_style.setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), styleName));
+	m_style.setShowUserIcons(config.value(QLatin1String("showUserIcons"), true));
+	m_style.setShowHeader(config.value(QLatin1String("showHeader"), true));
+	config.beginGroup(styleName);
 	QString variant = config.value(QLatin1String("variant"), m_style.defaultVariant());
 	m_style.setActiveVariant(variant);
+	m_style.setCustomBackgroundType(config.value(QLatin1String("backgroundType"),
+	                                             WebKitMessageViewStyle::BackgroundNormal));
+	if (config.value(QLatin1String("customBackground"), false)) {
+		m_style.setCustomBackgroundPath(config.value(QLatin1String("backgroundPath"), QString()));
+		m_style.setCustomBackgroundColor(config.value(QLatin1String("backgroundColor"), QColor()));
+	}
+	QString fontFamily = config.value(QLatin1String("fontFamily"), m_style.defaultFontFamily());
+	int fontSize = config.value(QLatin1String("fontSize"), m_style.defaultFontSize());
+	setDefaultFont(fontFamily, fontSize);
+	
+	QString css;
+	QString customFile = m_style.pathForResource(QLatin1String("Custom.json"));
+	if (!customFile.isEmpty()) {
+		QVariantList values = config.value(QLatin1String("customStyle")).toList();
+		Config variables(customFile);
+		const int count = variables.arraySize();
+		for (int index = 0; index < count; index++) {
+			variables.setArrayIndex(index);
+			css.append(QString::fromLatin1("%1 { %2: %3; } ")
+					   .arg(variables.value(QLatin1String("selector"), QString()))
+					   .arg(variables.value(QLatin1String("parameter"), QString()))
+					   .arg(values.value(index, variables.value(QLatin1String("value"))).toString()));
+		}
+	}
+	m_style.setCustomStyle(css);
 }
 
 void WebViewController::loadHistory()

@@ -234,6 +234,20 @@
 			head.appendChild( documentFragment );
 		}
 
+		// Set custom stylesheets set from appearance settings
+		function setCustomStylesheet( css ) {
+			var code = "<style id=\"customStyle\" type=\"text/css\" media=\"screen,print\">";
+			if( css.length )
+				code += css;
+			code += "</style>";
+			var range = document.createRange();
+			var head = document.getElementsByTagName( "head" ).item(0);
+			range.selectNode(head);
+			var documentFragment = range.createContextualFragment(code);
+			head.removeChild(document.getElementById( "customStyle" ));
+			head.appendChild(documentFragment);
+		}
+
 		/* Converts emoticon images to textual emoticons; all emoticons in message if alt is held */
 		document.onclick = function imageCheck() {
 			var node = event.target;
@@ -333,6 +347,9 @@
 		@import url( "%@" );
 	</style>
 
+	<!-- Some custom style set from appearance settings !-->
+	<style id="customStyle" type="text/css" media="screen,print">
+	</style>
 </head>
 <body onload="initStyle();" style="==bodyBackground==">
 %@

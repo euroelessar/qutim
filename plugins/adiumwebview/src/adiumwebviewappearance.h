@@ -35,6 +35,7 @@ namespace Ui
 	class chatAppearance;
 }
 class QWebPage;
+class QLabel;
 
 namespace Adium
 {
@@ -57,13 +58,29 @@ private slots:
 	void onThemeChanged(int index);
 	void onVariantChanged(QString variant);
 	void onVariableChanged();
+	void on_styleNameBox_currentIndexChanged(const QString &styleName);
+	void on_variantBox_currentIndexChanged(const QString &variant);
+	void on_showUserIconBox_clicked(bool checked);
+	void on_showHeaderBox_clicked(bool checked);
+	void on_fontButton_clicked();
+	void on_defaultFontButton_clicked();
+	void on_customBackgroundBox_clicked(bool checked);
+	void on_backgroundTypeBox_currentIndexChanged(int index);
+	void on_imageButton_clicked(bool checked);
+	void on_colorButton_clicked(bool checked);
 	
 protected:
+	void rebuildChatView();
+	void updateCustomScript();
+	void setBackgroundPath(const QString &path);
+	QString backgroundPath() const;
+	void setBackgroundColor(const QColor &color);
+	QColor backgroundColor() const;
+	void setDefaultFont(const QString &family, int size);
 	void makeSettings();
 	
 private:
-	void fillThemesComboBox();
-	void makePage();
+	void fillStylesComboBox();
 	
 	Ui::chatAppearance *ui;
 	WebKitPreview::Ptr m_preview;
@@ -73,7 +90,7 @@ private:
 	WebKitMessageViewStyle *m_style;
 	WebViewController *m_controller;
 	bool m_isLoad;
-	QWidget *m_settingsWidget;
+	bool m_isFillingState;
 };
 
 }

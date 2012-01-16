@@ -18,9 +18,9 @@
 	<key>DefaultBackgroundColor</key>
 	<string>FFFFFF</string>
 	<key>DefaultFontFamily</key>
-	<string>Verdana</string>
+	<string>Arial</string>
 	<key>DefaultFontSize</key>
-	<integer>8</integer>
+	<integer>10</integer>
 	<key>DisableCustomBackground</key>
 	<false/>
 	<key>MessageViewVersion</key>

@@ -17,7 +17,7 @@
 	<key>DefaultBackgroundColor</key>
 	<string>FFFFFF</string>
 	<key>DefaultFontFamily</key>
-	<string>Monaco</string>
+	<string>Arial</string>
 	<key>DefaultFontSize</key>
 	<integer>10</integer>
 	<key>MessageViewVersion</key>

@@ -89,9 +89,8 @@ const WebViewCustomStyle &WebViewFont::chatStyle()
 
 void WebViewFont::changeCurrentFont()
 {
-	QFontDialog *dialog = new QFontDialog();
 	bool ok;
-	QFont newFont = dialog->getFont(&ok, fontLabel->font(), this);
+	QFont newFont = QFontDialog::getFont(&ok, fontLabel->font(), this);
 	if (ok && newFont != fontLabel->font())
 	{
 		fontLabel->setFont(newFont);
@@ -119,8 +118,7 @@ const WebViewCustomStyle &WebViewColor::chatStyle()
 
 void WebViewColor::changeCurrentColor()
 {
-	QColorDialog *dialog = new QColorDialog();
-	QColor newColor = dialog->getColor(color);
+	QColor newColor = QColorDialog::getColor(color);
 	if (newColor.isValid() && newColor != color)
 	{
 		color = newColor;

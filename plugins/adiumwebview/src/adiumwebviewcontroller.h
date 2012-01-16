@@ -53,6 +53,9 @@ public:
 	virtual void clearChat();
 	virtual QString quote();
 	WebKitMessageViewStyle *style();
+	void setDefaultFont(const QString &family, int size);
+	QString defaultFontFamily() const;
+	int defaultFontSize() const;
 	
 public slots:
 	void evaluateJavaScript(const QString &script);
