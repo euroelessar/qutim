@@ -12,7 +12,7 @@
 			"Bearer": "BearerManager",
 			"ChatForm": "Core::AdiumChat::TabbedChatForm",
 			"ChatLayer": "Core::AdiumChat::ChatLayerImpl",
-			"ChatViewFactory": "Core::AdiumChat::WebkitViewFactory",
+			"ChatViewFactory": "Adium::WebViewFactory",
 			"ContactDelegate": "Core::ContactDelegate",
 			"ContactInfo": "Core::ContactInfo",
 			"ContactList": "Core::SimpleContactList::Module",
