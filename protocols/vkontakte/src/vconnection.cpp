@@ -39,6 +39,7 @@
 #include <qutim/json.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
+#include <qutim/systemintegration.h>
 #include "vroster.h"
 #include "vmessages.h"
 #include "vlongpollclient.h"
@@ -133,11 +134,7 @@ void VConnection::onLoadFinished(bool ok)
 			pass.setAttribute("value", password);
 		}
 		if (!d->webView->isVisible()) {
-#ifdef QUTIM_MOBILE_UI
-			d->webView->showMaximized();
-#else
-			d->webView->show();
-#endif
+			SystemIntegration::show(d->webView.data());
 			d->webView->activateWindow();
 			d->webView->raise();
 		}

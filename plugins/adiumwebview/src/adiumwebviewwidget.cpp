@@ -48,15 +48,16 @@ void WebViewWidget::setViewController(QObject* object)
 		return;
 
 	if (m_controller) {
+		m_controller->disconnect(this);
 		QWebFrame *frame = m_controller->mainFrame();
-		if(frame->scrollBarValue(Qt::Vertical) == frame->scrollBarMaximum(Qt::Vertical))
+		if (frame->scrollBarValue(Qt::Vertical) == frame->scrollBarMaximum(Qt::Vertical))
 			frame->setProperty("scrollbarAtEnd", true);
 		else {
 			frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
 			frame->setProperty("scrollbarAtEnd", false);
 		}
-		m_controller->disconnect(this);
 	}
+
 	WebViewController *controller = qobject_cast<WebViewController*>(object);
 	m_controller = controller;
 	if (controller) {
@@ -66,9 +67,8 @@ void WebViewWidget::setViewController(QObject* object)
 		else
 			frame->setScrollPosition(QPoint(0, frame->property("scrollbarPos").toInt()));
 		setPage(controller);
-	} else {
+	} else
 		setPage(new QWebPage(this));
-	}
 }
 
 } // namespace Adium
