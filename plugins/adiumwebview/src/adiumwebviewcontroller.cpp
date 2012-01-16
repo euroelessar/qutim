@@ -41,6 +41,7 @@
 #include <QWebFrame>
 #include <QWebInspector>
 #include <QWebElement>
+#include <QDesktopServices>
 
 namespace Adium {
 
@@ -53,12 +54,13 @@ WebViewController::WebViewController(bool isPreview) :
 	m_topic.setProperty("topic", true);
 	setNetworkAccessManager(new WebKitNetworkAccessManager(this));
 	
+	setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 	QWebInspector *inspector = new QWebInspector;
 	inspector->setPage(this);
 	connect(this, SIGNAL(destroyed()), inspector, SLOT(deleteLater()));
 	connect(this, SIGNAL(loadFinished(bool)), SLOT(onLoadFinished()));
-//	connect(this, SIGNAL(contentsChanged()), SLOT(onContentsChanged()));
+	connect(this, SIGNAL(linkClicked(QUrl)), SLOT(onLinkClicked(QUrl)));
 	onObjectCleared();
 	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(onObjectCleared()));
 }
@@ -108,6 +110,18 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
+	// FIXME: Move somewhere outside this plugin
+	const QString hrefTemplate(QLatin1String("<a href='%1' target='_blank'>%2</a>"));
+	QString html;
+	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(msg.html())) {
+		if (token.url.isEmpty()) {
+			html += token.text.toString();
+		} else {
+			QByteArray url = QUrl::fromUserInput(token.url).toEncoded();
+			html += hrefTemplate.arg(QString::fromLatin1(url, url.size()), token.text.toString());
+		}
+	}
+	const_cast<Message&>(msg).setHtml(html);
 	if (msg.property("topic", false)) {
 		m_topic = msg;
 		if (!m_isLoading)
@@ -380,6 +394,11 @@ void WebViewController::onContentsChanged()
 void WebViewController::onObjectCleared()
 {
 	mainFrame()->addToJavaScriptWindowObject(QLatin1String("client"), this, QScriptEngine::QtOwnership);
+}
+
+void WebViewController::onLinkClicked(const QUrl &url)
+{
+	QDesktopServices::openUrl(url);
 }
 
 } // namespace Adium

@@ -78,6 +78,7 @@ private slots:
 	void updateTopic();
 	void onContentsChanged();
 	void onObjectCleared();
+	void onLinkClicked(const QUrl &url);
 	
 private:
 	QWeakPointer<Core::AdiumChat::ChatSessionImpl> m_session;
