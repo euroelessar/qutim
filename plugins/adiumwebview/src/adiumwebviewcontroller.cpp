@@ -111,15 +111,18 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
 	// FIXME: Move somewhere outside this plugin
-	const QString hrefTemplate(QLatin1String("<a href='%1' target='_blank'>%2</a>"));
+	const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
 	Message copy = msg;
 	QString html;
 	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(copy.html())) {
 		if (token.url.isEmpty()) {
 			html += token.text.toString();
 		} else {
-			QByteArray url = QUrl::fromUserInput(token.url).toEncoded();
-			html += hrefTemplate.arg(QString::fromLatin1(url, url.size()), token.text.toString());
+			QUrl url = QUrl::fromUserInput(token.url);
+			QByteArray urlEncoded = url.toEncoded();
+			html += hrefTemplate.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
+			                         url.toString(),
+			                         token.text.toString());
 		}
 	}
 	copy.setProperty("messageId", msg.id());
@@ -221,12 +224,15 @@ bool WebViewController::eventFilter(QObject *obj, QEvent *ev)
 	return QWebPage::eventFilter(obj, ev);
 }
 
-void WebViewController::evaluateJavaScript(const QString &script)
+QVariant WebViewController::evaluateJavaScript(const QString &script)
 {
+	// We can't always provide the result, sorry ;)
+	QVariant result;
 	if (!m_session || m_isLoading)
 		m_pendingScripts << script;
 	else
-		mainFrame()->evaluateJavaScript(script);
+		result = mainFrame()->evaluateJavaScript(script);
+	return result;
 }
 
 bool WebViewController::zoomImage(QWebElement elem)

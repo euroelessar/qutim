@@ -60,7 +60,7 @@ public:
 	bool eventFilter(QObject *obj, QEvent *);
 	
 public slots:
-	void evaluateJavaScript(const QString &script);
+	QVariant evaluateJavaScript(const QString &script);
 	bool zoomImage(QWebElement elem);
 	void debugLog(const QString &message);
 	void appendNick(const QVariant &nick);

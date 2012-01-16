@@ -85,7 +85,7 @@ void WebKitNetworkAccessManager::fixLocalUrl(QUrl &url)
 		} else {
 			fixedFileName = fileName;
 		}
+		DEBUG() << "Fixed request:" << url.toLocalFile() << fixedFileName;
+		url = QUrl::fromLocalFile(fixedFileName);
 	}
-	DEBUG() << "Fixed request:" << url.toLocalFile() << fixedFileName;
-	url = QUrl::fromLocalFile(fixedFileName);
 }
