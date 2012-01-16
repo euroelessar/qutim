@@ -1,14 +1,4 @@
-{
-   "Maemo": [
-    {
-     "label": "Chat font",
-     "label-bg_BG": "Шрифт на съобщенията",
-     "label-ru_RU": "Шрифт сообщений",
-     "parameter": "font",
-     "selector": "body",
-     "type": "font",
-     "value": "16pt Nokia Sans"
-    }
+[
 	 /*,
     {
      "label": "Show avatars",
@@ -32,5 +22,4 @@
      "value": "32"
     }
 	 */
-   ]
-  }
+]

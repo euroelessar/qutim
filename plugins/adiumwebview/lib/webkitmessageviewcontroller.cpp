@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,18 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSOUNDBACKEND_H
-#define QSOUNDBACKEND_H
-#include <qutim/sound.h>
+#include "webkitmessageviewcontroller.h"
 
-using namespace qutim_sdk_0_3;
-
-class QSoundBackend : public SoundBackend
+WebKitMessageViewController::WebKitMessageViewController()
 {
-public:
-	virtual void playSound(const QString& filename);
-    virtual QStringList supportedFormats();
-};
-
-#endif // QSOUNDBACKEND_H
-
+}

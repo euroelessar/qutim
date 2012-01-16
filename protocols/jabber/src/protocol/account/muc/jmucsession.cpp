@@ -481,9 +481,16 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 			}
 			return;
 		}
-		if (!msg.subject().isEmpty())
+		if (!msg.subject().isEmpty()) {
+			coreMsg.setProperty("topic", true);
 			coreMsg.setProperty("subject", msg.subject());
+		}
 		chatSession->appendMessage(coreMsg);
+		if (!msg.subject().isEmpty() && d->topic != msg.subject()) {
+			QString oldTopic = d->topic;
+			d->topic = msg.subject();
+			emit topicChanged(d->topic, oldTopic);
+		}
 	}
 }
 
@@ -492,7 +499,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	//TODO add capthca handler
 	Q_D(JMUCSession);
 	if (!msg.subject().isEmpty())
-		d->topic = msg.subject();
+		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
@@ -521,6 +528,7 @@ void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 	qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % subject);
 	msg.setChatUnit(this);
 	msg.setTime(QDateTime::currentDateTime());
+	msg.setProperty("topic", true);
 	msg.setProperty("service", true);
 	msg.setIncoming(true);
 	if (ChatSession *chatSession = ChatLayer::get(this, false))

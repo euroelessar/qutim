@@ -87,7 +87,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		return UrlHandler::Accept;
 
 	debug() << Q_FUNC_INFO;
-	QString html = message.property("html").toString();
+	QString html = message.html();
 	if (html.isEmpty()) {
 		html = Qt::escape(message.text());
 		QString newHtml;
@@ -122,7 +122,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		//qDebug() << html << doc.toHtml();
 		//html = doc.toHtml();
 	}
-	message.setProperty("html",html);
+	message.setHtml(html);
 	return UrlHandler::Accept;
 }
 

@@ -18,11 +18,13 @@
 	<key>DefaultBackgroundColor</key>
 	<string>FFFFFF</string>
 	<key>DefaultFontFamily</key>
-	<string>Verdana</string>
+	<string>Arial</string>
 	<key>DefaultFontSize</key>
-	<integer>8</integer>
-        <key>DefaultVariant</key>
-        <string>medium</string>
+	<integer>10</integer>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
+    <key>DefaultVariant</key>
+    <string>0.3-edition</string>
 	<key>DisableCustomBackground</key>
 	<false/>
 	<key>ShowsUserIcons</key>

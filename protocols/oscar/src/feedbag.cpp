@@ -655,7 +655,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, quint16 id, ItemLoadFlags flags)
 	QList<FeedbagItem> items;
 	if (!(flags & DontLoadLocal))
 		items = d->items.value(type).values(id);
-	if (items.isEmpty() && flags & CreateItem) {
+	if (items.isEmpty() && (flags & CreateItem)) {
 		if (flags & 0x0002) // GenerateId flag
 			id = uniqueItemId(id);
 		items << FeedbagItem(const_cast<Feedbag*>(this), type,
@@ -755,13 +755,8 @@ bool Feedbag::containsItem(quint16 type, const QString &name) const
 
 quint16 Feedbag::uniqueItemId(quint16 type, quint16 value) const
 {
-	if (value == 0)
+	while (value == 0 || d->items.contains(type << 16 | value)) {
 		value = d->generateId();
-	forever {
-		if (d->items.contains(type << 16 | value))
-			value = d->generateId();
-		else
-			break;
 	}
 	return value;
 }

@@ -64,7 +64,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 			config.beginGroup("profile");
 			helper = new StatisticsHelper();
 			if (helper->action() == StatisticsHelper::NeedToAskInit
-			        || helper->action() == StatisticsHelper::NeedToAskUpdate) {
+					|| helper->action() == StatisticsHelper::NeedToAskUpdate) {
 				wizard = new QWizard();
 				wizard->addPage(new SubmitPage(helper, wizard));
 			}

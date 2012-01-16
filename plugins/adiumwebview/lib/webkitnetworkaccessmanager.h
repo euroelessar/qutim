@@ -23,25 +23,24 @@
 **
 ****************************************************************************/
 
-#include "qsoundbackend.h"
-#include <QSound>
-#include <QDebug>
-#include <QStringList>
-#include <QFile>
+#ifndef WEBKITNETWORKACCESSMANAGER_H
+#define WEBKITNETWORKACCESSMANAGER_H
 
-void QSoundBackend::playSound(const QString &filename)
+#include <QNetworkAccessManager>
+
+class QUrl;
+
+class WebKitNetworkAccessManager : public QNetworkAccessManager
 {
-	// FIXME: Possibility of freeze at Ubuntu is there
-	// May be we should run it at non-gui thread firstly?
-	if (!QSound::isAvailable()) {
-		qWarning() << "QSound: Unable to play sound";
-	}
-	QSound(filename).play();
-}
+    Q_OBJECT
+public:
+    explicit WebKitNetworkAccessManager(QObject *parent = 0);
+	
+protected:
+    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
+                                         QIODevice *outgoingData = 0);
+private:
+	void fixLocalUrl(QUrl &url);
+};
 
-QStringList QSoundBackend::supportedFormats()
-{
-	//TODO
-	return QStringList() << "wav";
-}
-
+#endif // WEBKITNETWORKACCESSMANAGER_H

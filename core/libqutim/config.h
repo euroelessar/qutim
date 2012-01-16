@@ -141,6 +141,8 @@ public:
 	Config(const QString &path = QString());
 	Config(const QString &path, ConfigBackend *backend);
 	Config(const QStringList &paths);
+	Config(const QString &path, const QVariantList &fallbacks);
+	Config(const QString &path, const QVariant &fallback);
 	Config(const Config &other);
 	Config &operator =(const Config &other);
 	virtual ~Config();

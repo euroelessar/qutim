@@ -25,5 +25,7 @@
 	<false/>
 	<key>ShowsUserIcons</key>
 	<false/>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
 </dict>
 </plist>

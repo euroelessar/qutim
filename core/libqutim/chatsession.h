@@ -28,6 +28,7 @@
 
 #include "message.h"
 #include "contact.h"
+#include <QDateTime>
 
 class QTextDocument;
 namespace qutim_sdk_0_3
@@ -44,7 +45,10 @@ class LIBQUTIM_EXPORT ChatSession : public QObject
 	Q_DECLARE_PRIVATE(ChatSession)
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
+	Q_PROPERTY(QDateTime dateOpened READ dateOpened WRITE setDateOpened NOTIFY dateOpenedChanged)
 public:
+	virtual ~ChatSession();
+	
 	virtual ChatUnit *getUnit() const = 0;
 	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
 	Q_INVOKABLE virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
@@ -53,6 +57,8 @@ public:
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
 	bool isActive();
+	QDateTime dateOpened() const;
+	void setDateOpened(const QDateTime &date);
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
@@ -65,6 +71,7 @@ protected:
 	virtual void doSetActive(bool active) = 0;
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
 signals:
+	void dateOpenedChanged(const QDateTime &date);
 	void messageReceived(qutim_sdk_0_3::Message *message);
 	void messageSent(qutim_sdk_0_3::Message *message);
 	void contactAdded(qutim_sdk_0_3::Buddy *c);
@@ -73,7 +80,6 @@ signals:
 	void unreadChanged(const qutim_sdk_0_3::MessageList &);
 protected:
 	ChatSession(ChatLayer *chat);
-	virtual ~ChatSession();
 	virtual void virtual_hook(int id, void *data);
 	friend class MessageHandlerHook;
 private:

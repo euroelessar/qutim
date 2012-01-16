@@ -1,14 +1,4 @@
-{
-   "gajim-like": [
-    {
-     "label": "Chat font",
-     "label-bg_BG": "Шрифт на съобщенията",
-     "label-ru_RU": "Шрифт сообщений",
-     "parameter": "font",
-     "selector": "body",
-     "type": "font",
-     "value": "10pt Arial"
-    },
+[
     {
      "label": "Contact nick color",
      "label-bg_BG": "Цвят на псевдонима на събеседника",
@@ -27,5 +17,4 @@
      "type": "color",
      "value": "#0078ff"
     }
-   ]
-  }
+]

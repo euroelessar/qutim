@@ -21,6 +21,8 @@
 	<string>Nokia Sans</string>
 	<key>DefaultFontSize</key>
 	<integer>16</integer>
+	<key>MessageViewVersion</key>
+	<integer>4</integer>
 	<key>DisableCustomBackground</key>
 	<false/>
 	<key>ShowsUserIcons</key>
