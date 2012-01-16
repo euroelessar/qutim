@@ -69,6 +69,7 @@ void ServiceManagerPrivate::init()
 		cfg.setValue(QLatin1String(it.key()), QLatin1String(meta->className()));
 	}
 	inited = true;
+	emit q_func()->initedChanged(inited);
 }
 
 void ServiceManagerPrivate::init(const QByteArray &service, const ExtensionInfo &info, QSet<QByteArray> &used)

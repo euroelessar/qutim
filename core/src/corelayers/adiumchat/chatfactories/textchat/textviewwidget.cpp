@@ -49,25 +49,7 @@ TextViewWidget::TextViewWidget()
 	QPalette p = viewport()->palette();
 	p.setColor(QPalette::Base, Qt::white);
 	viewport()->setPalette(p);
-	QTimer::singleShot(0, this, SLOT(initScrolling()));
-	
-//	new QVBoxLayout(this);
-//	layout()->addWidget(m_textEdit);
-//	layout()->setMargin(0);
-////	m_textEdit->installEventFilter(this);
-//	setFrameStyle(QFrame::StyledPanel);
-//	setFrameShadow(QFrame::Sunken);
-//	setReadOnly(true);
-//	QVBoxLayout *layout = new QVBoxLayout(this);
-//	layout->addWidget(m_textEdit);
-//	QSizePolicy policy = sizePolicy();
-//	policy.setVerticalPolicy(QSizePolicy::Ignored);
-//	setSizePolicy(policy);
-//	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-}
 
-void TextViewWidget::initScrolling()
-{
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
 		QMetaObject::invokeMethod(scroller,
 								  "enableScrolling",
