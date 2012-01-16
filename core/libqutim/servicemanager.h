@@ -50,6 +50,8 @@ class LIBQUTIM_EXPORT ServiceManager : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ServiceManager)
+
+	Q_PROPERTY(bool inited READ isInited NOTIFY initedChanged)
 public:
 	static bool isInited();
 	static QObject *getByName(const QByteArray &name);
@@ -73,7 +75,7 @@ signals:
 	  */
 	void serviceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
 	void serviceChanged(QObject *newObject, QObject *oldObject);
-
+	void initedChanged(bool inited = true);
 private:
 	ServiceManager();
 	~ServiceManager();

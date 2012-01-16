@@ -30,23 +30,23 @@
 
 namespace qutim_sdk_0_3
 {
-	class MetaObjectBuilderPrivate;
-	
-	class LIBQUTIM_EXPORT MetaObjectBuilder
-	{
-		Q_DISABLE_COPY(MetaObjectBuilder)
-		Q_DECLARE_PRIVATE(MetaObjectBuilder)
-	public:
-		MetaObjectBuilder(const QByteArray &name, const QMetaObject *parent  = 0);
-		~MetaObjectBuilder();
-		
-		void addClassInfo(const QByteArray &name, const QByteArray &value);
-		QMetaObject *generate();
+class MetaObjectBuilderPrivate;
 
-		static const char *info(const QMetaObject *meta, const char *name);
-	private:
-		QScopedPointer<MetaObjectBuilderPrivate> d_ptr;
-	};
+class LIBQUTIM_EXPORT MetaObjectBuilder
+{
+	Q_DISABLE_COPY(MetaObjectBuilder)
+	Q_DECLARE_PRIVATE(MetaObjectBuilder)
+public:
+	MetaObjectBuilder(const QByteArray &name, const QMetaObject *parent  = 0);
+	~MetaObjectBuilder();
+
+	void addClassInfo(const QByteArray &name, const QByteArray &value);
+	QMetaObject *generate();
+
+	static const char *info(const QMetaObject *meta, const char *name);
+private:
+	QScopedPointer<MetaObjectBuilderPrivate> d_ptr;
+};
 }
 
 #endif // METAOBJECTBUILDER_H
