@@ -282,6 +282,7 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 			} else if (type == QLatin1String("color")) {
 				QLabel *label = new QLabel(text % ":", this);
 				WebViewColor *colorField = new WebViewColor(style, this);
+				ui->formLayout->addRow(label, colorField);
 				connect(colorField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				connect(colorField, SIGNAL(destroyed()), label, SLOT(deleteLater()));
 				m_variables.append(colorField);
