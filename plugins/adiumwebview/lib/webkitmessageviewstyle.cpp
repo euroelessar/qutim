@@ -901,7 +901,10 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	
 	//Replacements applicable to any AIContentObject
 	inString.replace(QLatin1String("%time%"), convertTimeDate(d->timeStampFormatter, date));
-	inString.replace(QLatin1String("%messageId%"), QLatin1String("message") + QString::number(message.id()));
+	QString messageId = message.property("messageId").toString();
+	if (messageId.isEmpty())
+		messageId = QString::number(message.id());
+	inString.replace(QLatin1String("%messageId%"), QLatin1String("message") + messageId);
 	inString.replace(QLatin1String("%shortTime%"), date.toString(Qt::SystemLocaleShortDate));
 	
 	// FIXME: Implement

@@ -81,7 +81,7 @@ private slots:
 	void onLinkClicked(const QUrl &url);
 	
 private:
-	QWeakPointer<Core::AdiumChat::ChatSessionImpl> m_session;
+	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;
 	bool m_isPreview;

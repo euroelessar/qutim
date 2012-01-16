@@ -89,7 +89,7 @@ void WebViewController::setChatSession(ChatSessionImpl* session)
 
 ChatSessionImpl *WebViewController::getSession() const
 {
-	return m_session.data();
+	return static_cast<ChatSessionImpl *>(m_session.data());
 }
 
 bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
@@ -112,8 +112,9 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
 	// FIXME: Move somewhere outside this plugin
 	const QString hrefTemplate(QLatin1String("<a href='%1' target='_blank'>%2</a>"));
+	Message copy = msg;
 	QString html;
-	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(msg.html())) {
+	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(copy.html())) {
 		if (token.url.isEmpty()) {
 			html += token.text.toString();
 		} else {
@@ -121,15 +122,19 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			html += hrefTemplate.arg(QString::fromLatin1(url, url.size()), token.text.toString());
 		}
 	}
-	const_cast<Message&>(msg).setHtml(html);
+	copy.setProperty("messageId", msg.id());
 	if (msg.property("topic", false)) {
-		m_topic = msg;
+		copy.setHtml(html);
+		m_topic = copy;
 		if (!m_isLoading)
 			updateTopic();
 		return;
 	}
+	// We don't want emoticons in topic
+	html = Emoticons::theme().parseEmoticons(html);
+	copy.setHtml(html);
 	bool similiar = isContentSimiliar(m_last, msg);
-	QString script = m_style.scriptForAppendingContent(msg, similiar, false, false);
+	QString script = m_style.scriptForAppendingContent(copy, similiar, false, false);
 	m_last = msg;
 	evaluateJavaScript(script);
 }
