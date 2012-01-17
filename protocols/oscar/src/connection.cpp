@@ -127,7 +127,7 @@ void OscarRate::update(const SNAC &sn)
 #else
 	sn.skipData(1);
 #endif
-	m_time = QDateTime::currentDateTime().addMSecs(-m_lastTimeDiff);
+	m_time = QDateTime::currentDateTime().addMSecs(-qint32(m_lastTimeDiff));
 	m_defaultPriority = (m_clearLevel + m_maxLevel) / 2;
 }
 
