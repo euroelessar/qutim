@@ -165,17 +165,7 @@ void JoinChatDialog::on_accountBox_currentIndexChanged(int index)
 		return;
 	}
 	m_ui->splitter->setEnabled(true);
-	GroupChatManager *manager = groupChatManager();
-	QList<DataItem> bookmarks = manager->bookmarks();
-	{
-		QListWidgetItem *item = new QListWidgetItem(tr("New chat"), m_ui->conferenceListWidget);
-		item->setData(Qt::UserRole, qVariantFromValue(manager->fields()));
-	}
-	foreach (const DataItem &data, bookmarks) {
-		QListWidgetItem *item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
-		item->setData(Qt::UserRole, qVariantFromValue(data));
-	}
-	m_ui->conferenceListWidget->setCurrentRow(bookmarks.isEmpty() ? 0 : 1);
+	rebuildItems(1);
 }
 
 void JoinChatDialog::onDataChanged()
@@ -190,10 +180,12 @@ void JoinChatDialog::onSaveButtonClicked()
 	GroupChatManager *manager = groupChatManager();
 	DataItem data = m_dataForm.data()->item();
 	if (manager->storeBookmark(data, oldData)) {
-		if (m_ui->conferenceListWidget->currentRow() == 0)
+		int itemRow = m_ui->conferenceListWidget->currentRow();
+		if (itemRow == 0) {
+			itemRow = m_ui->conferenceListWidget->count();
 			item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
-		item->setData(Qt::UserRole, qVariantFromValue(data));
-		m_ui->conferenceListWidget->setCurrentItem(item);
+		}
+		rebuildItems(itemRow);
 	}
 }
 
@@ -227,13 +219,27 @@ void JoinChatDialog::rebuildItems(int index)
 {
 	GroupChatManager *manager = groupChatManager();
 	QList<DataItem> bookmarks = manager->bookmarks();
-	{
+	int count = m_ui->conferenceListWidget->count();
+	if (count == 0) {
 		QListWidgetItem *item = new QListWidgetItem(tr("New chat"), m_ui->conferenceListWidget);
 		item->setData(Qt::UserRole, qVariantFromValue(manager->fields()));
+		++count;
 	}
-	foreach (const DataItem &data, bookmarks) {
-		QListWidgetItem *item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
+	for (int i = count - 1; i >= bookmarks.size() + 1; --i)
+		delete m_ui->conferenceListWidget->item(i);
+	for (int i = count; i < bookmarks.size() + 1; ++i)
+		new QListWidgetItem(m_ui->conferenceListWidget);
+	for (int i = 0; i < bookmarks.size(); ++i) {
+		const DataItem &data = bookmarks.at(i);
+		QListWidgetItem *item = m_ui->conferenceListWidget->item(i + 1);
+		item->setText(data.title());
 		item->setData(Qt::UserRole, qVariantFromValue(data));
+	}
+	index = qBound(0, index, m_ui->conferenceListWidget->count() - 1);
+	if (m_ui->conferenceListWidget->currentRow() == index) {
+		showConference(m_ui->conferenceListWidget->item(index), 0);
+	} else {
+		m_ui->conferenceListWidget->setCurrentRow(index);
 	}
 }
 
