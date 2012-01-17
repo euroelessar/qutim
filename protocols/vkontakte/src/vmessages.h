@@ -50,8 +50,6 @@ public:
 	Config config();
 public slots:
 	void getHistory();
-	void loadSettings();
-	void saveSettings();
 private:
 	QScopedPointer<VMessagesPrivate> d_ptr;
 };

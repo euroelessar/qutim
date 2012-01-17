@@ -39,8 +39,6 @@
 #include <QTextDocument>
 #include <QApplication>
 
-#define HAVE_ADVANCED_API 1
-
 void VMessagesPrivate::onHistoryRecieved()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
@@ -69,7 +67,7 @@ void VMessagesPrivate::onHistoryRecieved()
 		mess.setChatUnit(contact);
 		ChatSession *s = ChatLayer::get(contact, true);
 		s->appendMessage(mess);
-		unreadMess[s].append(mess);
+		unreadMessages[s].append(mess);
 		connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 	}
 }
@@ -91,19 +89,11 @@ void VMessagesPrivate::onMessageSended()
 	}	
 }
 
-void VMessagesPrivate::onMessagesRecieved()
-{
-}
-
 void VMessages::markAsRead(const QStringList &messages)
 {
-#ifdef HAVE_ADVANCED_API
 	QVariantMap data;
 	data.insert("mids", messages);
 	d_func()->connection->get("messages.markAsRead", data);
-#else
-	Q_UNUSED(messages);
-#endif
 }
 
 void VMessagesPrivate::onConnectStateChanged(VConnectionState state)
@@ -128,7 +118,6 @@ VMessages::VMessages(VConnection* connection): QObject(connection),
 	Q_D(VMessages);
 	d->q_ptr = this;
 	d->connection = connection;
-	loadSettings();
 	connect(connection, SIGNAL(connectionStateChanged(VConnectionState)), d, SLOT(onConnectStateChanged(VConnectionState)));
 }
 
@@ -146,42 +135,27 @@ void VMessages::getHistory()
 {
 	Q_D(VMessages);
 	QVariantMap data;
-#ifdef HAVE_ADVANCED_API
 	data.insert("filters", "1");
 	data.insert("preview_length", "0");
 	QNetworkReply *reply = d->connection->get("messages.get", data);
-#else
-	//	data.insert(
-	QNetworkReply *reply = d->connection->get("getMessages", data);
-#endif
-	connect(reply,SIGNAL(finished()),d,SLOT(onHistoryRecieved()));
+	connect(reply, SIGNAL(finished()), d, SLOT(onHistoryRecieved()));
 }
 
 void VMessages::sendMessage(const Message& message)
 {
 	Q_D(VMessages);
-#ifdef HAVE_ADVANCED_API
 	QVariantMap data;
 	data.insert("uid", message.chatUnit()->id());
-	QString html = message.property("html", Qt::escape(message.text()));
+	QString html = message.text();
 	data.insert("message", html);
 	QNetworkReply *reply = d->connection->get("messages.send", data);
-#endif
 	reply->setProperty("message",qVariantFromValue<Message>(message));
-	connect(reply,SIGNAL(finished()),d,SLOT(onMessageSended()));
+	connect(reply, SIGNAL(finished()), d, SLOT(onMessageSended()));
 }
 
 ConfigGroup VMessages::config()
 {
 	return d_func()->connection->config("messages");
-}
-
-void VMessages::loadSettings()
-{
-}
-
-void VMessages::saveSettings()
-{
 }
 
 void VMessagesPrivate::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)
@@ -191,11 +165,11 @@ void VMessagesPrivate::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)
 	Q_UNUSED(list);
 	QStringList messageIds;
 	//TODO resolve problem with containers
-	MessageList unread = unreadMess.value(s);
+	MessageList unread = unreadMessages.value(s);
 	foreach (const Message &m, unread) {
 		messageIds << m.property("mid").toString();
 	}
-	unreadMess[s].clear();
+	unreadMessages[s].clear();
 	connection->messages()->markAsRead(messageIds);
 }
 
