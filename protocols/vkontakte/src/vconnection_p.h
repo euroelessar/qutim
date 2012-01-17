@@ -27,33 +27,46 @@
 #define VCONNECTION_P_H
 #include <QObject>
 #include "vkontakte_global.h"
+#include "vroster.h"
+#include "vmessages.h"
+#include "vlongpollclient.h"
+
 #include <QTimer>
 #include <QNetworkReply>
 #include <QtWebKit/QWebView>
 #include <QPointer>
 
+
 class VMessages;
 class VRoster;
 class VConnection;
 class VAccount;
-class VConnectionPrivate : public QObject
+class VConnectionPrivate
 {
-	Q_OBJECT
 	Q_DECLARE_PUBLIC(VConnection)
 public:
+	VConnectionPrivate(VConnection *q, VAccount *account) :
+		q_ptr(q), account(account),
+		state(Disconnected),
+		roster(0),
+		messages(0),
+		pollClient(0),
+		logMode(false) {}
+	VConnection *q_ptr;
 	VAccount *account;
 	QString secret;
 	QString sid;
 	QString mid;
 	VConnectionState state;
-	VConnection *q_ptr;
 	VRoster *roster;
 	VMessages *messages;
-	QPointer<QWebView> webView;
+	VLongPollClient *pollClient;
+	QWeakPointer<QWebView> webView;
 	bool logMode;
-public slots:
-	void onError(QNetworkReply::NetworkError error);
-	void onReplyFinished();
+
+	void _q_on_error(QNetworkReply::NetworkError error);
+	void _q_on_reply_finished();
+	void _q_on_webview_destroyed();
 };
 
 #endif // VCONNECTION_P_H

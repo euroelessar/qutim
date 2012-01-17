@@ -43,7 +43,7 @@ public:
 	virtual void setInList(bool inList);
 	void setContactTags(const QStringList& tags);
 	void setContactInList(bool inList);
-	void setStatus(bool online);
+	void setOnline(bool set);
 	void setActivity(const QString &activity);
 	QString activity() const;
 	virtual Status status() const;

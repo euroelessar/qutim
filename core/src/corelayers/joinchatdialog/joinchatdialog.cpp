@@ -44,6 +44,8 @@ JoinChatDialog::JoinChatDialog(QWidget *parent) :
 	connect(button, SIGNAL(clicked()), SLOT(joinConference()));
 	button = m_ui->buttonBox->button(QDialogButtonBox::Close);
 	connect(button, SIGNAL(clicked()), SLOT(close()));
+	button = m_ui->buttonBox->button(QDialogButtonBox::Save);
+	connect(button, SIGNAL(clicked()), SLOT(onSaveButtonClicked()));
 	// TODO: Add search api
 //	button = m_ui->buttonBox->addButton(tr("Search"));
 //	button->setIcon(Icon("edit-find"));
@@ -90,6 +92,8 @@ void JoinChatDialog::showConference(QListWidgetItem *current, QListWidgetItem *p
 		return;
 	m_dataForm = AbstractDataForm::get(current->data(Qt::UserRole).value<DataItem>());
 	m_ui->dataFormLayout->insertWidget(0, m_dataForm.data());
+	connect(m_dataForm.data(), SIGNAL(changed()), SLOT(onDataChanged()));
+	m_ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
 }
 
 void JoinChatDialog::joinBookmark(QListWidgetItem *item)
@@ -174,14 +178,20 @@ void JoinChatDialog::on_accountBox_currentIndexChanged(int index)
 	m_ui->conferenceListWidget->setCurrentRow(bookmarks.isEmpty() ? 0 : 1);
 }
 
-void JoinChatDialog::on_saveButton_clicked()
+void JoinChatDialog::onDataChanged()
+{
+	m_ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(true);
+}
+
+void JoinChatDialog::onSaveButtonClicked()
 {
 	QListWidgetItem *item = m_ui->conferenceListWidget->currentItem();
 	DataItem oldData = item->data(Qt::UserRole).value<DataItem>();
 	GroupChatManager *manager = groupChatManager();
 	DataItem data = m_dataForm.data()->item();
-	if (manager->storeBookmark(data, oldData) && oldData.isNull()) {
-		QListWidgetItem *item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
+	if (manager->storeBookmark(data, oldData)) {
+		if (m_ui->conferenceListWidget->currentRow() == 0)
+			item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
 		item->setData(Qt::UserRole, qVariantFromValue(data));
 		m_ui->conferenceListWidget->setCurrentItem(item);
 	}
@@ -210,6 +220,20 @@ bool JoinChatDialog::eventFilter(QObject *obj, QEvent *event)
 		return QObject::eventFilter(obj, event);
 	} else {
 		return QObject::eventFilter(obj, event);
+	}
+}
+
+void JoinChatDialog::rebuildItems(int index)
+{
+	GroupChatManager *manager = groupChatManager();
+	QList<DataItem> bookmarks = manager->bookmarks();
+	{
+		QListWidgetItem *item = new QListWidgetItem(tr("New chat"), m_ui->conferenceListWidget);
+		item->setData(Qt::UserRole, qVariantFromValue(manager->fields()));
+	}
+	foreach (const DataItem &data, bookmarks) {
+		QListWidgetItem *item = new QListWidgetItem(data.title(), m_ui->conferenceListWidget);
+		item->setData(Qt::UserRole, qVariantFromValue(data));
 	}
 }
 

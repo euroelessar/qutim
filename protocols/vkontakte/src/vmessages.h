@@ -42,11 +42,10 @@ class VMessages : public QObject
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VMessages)
 public:
-	VMessages(VConnection *connection,QObject* parent = 0);
+	VMessages(VConnection *connection);
 	virtual ~VMessages();
 	void getLastMessages(int count);
 	void sendMessage(const Message &message);
-	void sendSms(const Message &message);
 	void markAsRead(const QStringList &messages);
 	Config config();
 public slots:

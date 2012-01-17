@@ -43,14 +43,14 @@
 #include "vroster.h"
 #include "vmessages.h"
 #include "vlongpollclient.h"
+#include <QWebInspector>
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1865463"))) // 1912927"))) //
 
-void VConnectionPrivate::onError(QNetworkReply::NetworkError)
+void VConnectionPrivate::_q_on_error(QNetworkReply::NetworkError)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(q_func()->sender());
 	Q_ASSERT(reply);
-	//Notifications::send(reply->errorString());
 	debug() << reply->errorString();
 	Status status = account->status();
 	status.setProperty("changeReason", Status::ByNetworkError);
@@ -58,9 +58,9 @@ void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 	account->setStatus(status);
 }
 
-void VConnectionPrivate::onReplyFinished()
+void VConnectionPrivate::_q_on_reply_finished()
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(q_func()->sender());
 	Q_ASSERT(reply);
 	if (logMode) {
 		QByteArray rawData = reply->readAll();
@@ -70,40 +70,50 @@ void VConnectionPrivate::onReplyFinished()
 		QVariantMap error = map.value("error").toMap();
 		if (!error.isEmpty())
 			debug() << error.value("error_msg").toString();
-			//Notifications::send(error.value("error_msg").toString());
 	}
 	reply->deleteLater();
 }
 
+void VConnectionPrivate::_q_on_webview_destroyed()
+{
+	if (state != Connected)
+		q_func()->setConnectionState(Disconnected);
+}
 
-VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessManager(parent), d_ptr(new VConnectionPrivate)
+
+VConnection::VConnection(VAccount* account, QObject* parent):
+	QNetworkAccessManager(parent), d_ptr(new VConnectionPrivate(this, account))
 {
 	Q_D(VConnection);
-	d->q_ptr = this;
-	d->account = account;
-	d->state = Disconnected;
-	d->roster = new VRoster(this,this);
-	d->messages = new VMessages(this,this);
-	d->logMode = false;
-	new VLongPollClient(this);
+
+	d->roster = new VRoster(this);
+	d->messages = new VMessages(this);
+	d->pollClient = new VLongPollClient(this);
+
 	setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	loadSettings();
 }
 
-void VConnection::connectToHost(const QString& passwd)
+void VConnection::connectToHost()
 {
 	Q_D(VConnection);
-	Q_UNUSED(passwd)
-	if (d->webView)
+	if (!d->webView.isNull())
 		return;
-	d->webView = new QWebView();
+	d->webView = new QWebView;
+	QWebView *webView = d->webView.data();
+
+	webView->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+	QWebInspector *inspector = new QWebInspector;
+	inspector->setPage(webView->page());
+	connect(webView, SIGNAL(destroyed()), inspector, SLOT(deleteLater()));
+
+	webView->setAttribute(Qt::WA_DeleteOnClose);
 #ifdef Q_WS_MAEMO_5
-	d->webView->setParent(qApp->activeWindow());
-	d->webView->setAttribute(Qt::WA_Maemo5StackedWindow);
+	webView->setParent(qApp->activeWindow());
+	webView->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
-	d->webView->setWindowFlags(d->webView->windowFlags() | Qt::Window);
-	d->webView->page()->setNetworkAccessManager(this);
-	d->webView->setWindowTitle(tr("qutIM - VKontakte authorization"));
+	webView->page()->setNetworkAccessManager(this);
+	webView->setWindowTitle(tr("qutIM - VKontakte authorization"));
 	QUrl url("http://vkontakte.ru/login.php");
 	url.addQueryItem("app", *appId());
 #ifdef QUTIM_MOBILE_UI
@@ -113,8 +123,11 @@ void VConnection::connectToHost(const QString& passwd)
 #endif
 	url.addQueryItem("type", "browser");
 	url.addQueryItem("settings", QString::number(0x3fff));
-	d->webView->page()->mainFrame()->load(url);
-	connect(d->webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+	webView->page()->mainFrame()->load(url);
+
+	connect(webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+	connect(webView, SIGNAL(destroyed()), this, SLOT(_q_on_webview_destroyed()));
+
 	setConnectionState(Connecting);
 }
 
@@ -122,38 +135,44 @@ void VConnection::onLoadFinished(bool ok)
 {
 	Q_D(VConnection);
 	Q_UNUSED(ok);
-	QString path = d->webView->page()->mainFrame()->url().path();
+	QWebView *webView = d->webView.data();
+	QString path = webView->page()->mainFrame()->url().path();
 	if (path == QLatin1String("/login.php")) {
-		QWebElement email = d->webView->page()->mainFrame()->findFirstElement("#email");
+		QWebElement email = webView->page()->mainFrame()->findFirstElement("#email");
 		email.setAttribute("disabled", "true");
 		email.setAttribute("value", d->account->id());
 		QString password = d->account->config().group("general")
 						   .value("passwd", QString(), Config::Crypted);
 		if (!password.isEmpty()) {
-			QWebElement pass = d->webView->page()->mainFrame()->findFirstElement("#pass");
+			QWebElement pass = webView->page()->mainFrame()->findFirstElement("#pass");
 			pass.setAttribute("value", password);
 		}
-		if (!d->webView->isVisible()) {
-			SystemIntegration::show(d->webView.data());
-			d->webView->activateWindow();
-			d->webView->raise();
+
+#if 0
+		QWebElement connectButton = webView->page()->mainFrame()->findFirstElement("#connect_button");
+		connectButton.evaluateJavaScript(QLatin1String("this.click();"));
+#endif
+
+		if (!webView->isVisible()) {
+			SystemIntegration::show(webView);
 		}
+		webView->activateWindow();
+		webView->raise();
 		setConnectionState(Authorization);
-	} else if (path == QLatin1String("/api/login_success.html")) {
-		d->webView->hide();
-		d->webView->deleteLater();
-		QByteArray data = d->webView->page()->mainFrame()->url().fragment().toUtf8();
-		data = data.mid(data.indexOf('=') + 1);
-		QVariantMap map = Json::parse(data).toMap();
-		d->sid = map.value("sid").toString();
-		d->mid = map.value("mid").toString();
-		d->account->setUid(d->mid);
-		d->secret = map.value("secret").toString();
-		setConnectionState(Connected);
 	} else {
-		d->webView->hide();
-		d->webView->deleteLater();
-		setConnectionState(Disconnected);
+		webView->deleteLater();
+		if (path == QLatin1String("/api/login_success.html")) {
+			QByteArray data = webView->page()->mainFrame()->url().fragment().toUtf8();
+			data = data.mid(data.indexOf('=') + 1);
+			QVariantMap map = Json::parse(data).toMap();
+			d->sid = map.value("sid").toString();
+			d->mid = map.value("mid").toString();
+			d->account->setUid(d->mid);
+			d->secret = map.value("secret").toString();
+			setConnectionState(Connected);
+		} else {
+			setConnectionState(Disconnected);
+		}
 	}
 }
 
@@ -216,8 +235,9 @@ QNetworkReply *VConnection::get(const QString &method, const QVariantMap &args)
 	url.addQueryItem("sid", d->sid);
 	QNetworkRequest request(url);
 	QNetworkReply *reply = QNetworkAccessManager::get(request);
-	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), d, SLOT(onError(QNetworkReply::NetworkError)));
-	connect(reply, SIGNAL(finished()), d, SLOT(onReplyFinished()));
+
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(_q_on_error(QNetworkReply::NetworkError)));
+	connect(reply, SIGNAL(finished()), this, SLOT(_q_on_reply_finished()));
 	return reply;
 }
 
@@ -249,7 +269,7 @@ void VConnection::loadSettings()
 	foreach (const QVariant &var, cfg.value("cookies", QVariantList(), Config::Crypted))
 		cookies << QNetworkCookie::parseCookies(var.toByteArray());
 	cookieJar()->setCookiesFromUrl(cookies, QUrl("http://vkontakte.ru"));
-	d->logMode = cfg.value("logMode",false);
+	d->logMode = cfg.value("logMode", false);
 }
 
 VAccount* VConnection::account() const
@@ -267,4 +287,4 @@ VRoster* VConnection::roster() const
 	return d_func()->roster;
 }
 
-
+#include "vconnection.moc"

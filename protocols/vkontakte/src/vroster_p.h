@@ -51,7 +51,7 @@ public:
 	QQueue<QObject*> avatarsQueue;
 	bool fetchAvatars;
 	bool getActivity;
-	QMap<QString, QString> tags;
+	QMap<int, QString> tags;
 	QHash<QString, VContact*> contacts;
 	QDateTime lastActivityTime;
 	

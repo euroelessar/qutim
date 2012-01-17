@@ -70,7 +70,7 @@ void VMessagesPrivate::onHistoryRecieved()
 		ChatSession *s = ChatLayer::get(contact, true);
 		s->appendMessage(mess);
 		unreadMess[s].append(mess);
-		connect(s,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+		connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 	}
 }
 
@@ -86,30 +86,9 @@ void VMessagesPrivate::onMessageSended()
 		if (s) {
 			bool success = (reply->error() == QNetworkReply::NoError)
 						   && data.contains("response");
-			QApplication::instance()->postEvent(s,new MessageReceiptEvent(message.id(), success));
+			QApplication::instance()->postEvent(s, new MessageReceiptEvent(message.id(), success));
 		}
 	}	
-}
-
-void VMessagesPrivate::onSmsSended()
-{
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	Q_ASSERT(reply);
-	QByteArray rawData =  reply->readAll();
-	QVariantMap data = Json::parse(rawData).toMap();
-
-	debug() << rawData;
-	debug() << reply->url();
-
-	Message message = reply->property("message").value<Message>();
-	if (message.chatUnit()) {
-		ChatSession *s = ChatLayer::get(const_cast<ChatUnit *>(message.chatUnit()), false);
-		if (s) {
-			bool success = (reply->error() == QNetworkReply::NoError)
-						   && data.contains("response");
-			QApplication::instance()->postEvent(s,new MessageReceiptEvent(message.id(), success));
-		}
-	}
 }
 
 void VMessagesPrivate::onMessagesRecieved()
@@ -133,11 +112,9 @@ void VMessagesPrivate::onConnectStateChanged(VConnectionState state)
 	switch (state) {
 		case Connected: {
 			q->getHistory();
-//			historyTimer.start();
 			break;
 		}
 		case Disconnected: {
-//			historyTimer.stop();
 			}
 			break;
 		default:
@@ -145,34 +122,24 @@ void VMessagesPrivate::onConnectStateChanged(VConnectionState state)
 	}
 }
 
-VMessages::VMessages(VConnection* connection, QObject* parent): QObject(parent), d_ptr(new VMessagesPrivate)
+VMessages::VMessages(VConnection* connection): QObject(connection),
+	d_ptr(new VMessagesPrivate)
 {
 	Q_D(VMessages);
 	d->q_ptr = this;
 	d->connection = connection;
 	loadSettings();
-	connect(connection,SIGNAL(connectionStateChanged(VConnectionState)),d,SLOT(onConnectStateChanged(VConnectionState)));
-//	connect(&d->historyTimer,SIGNAL(timeout()),SLOT(getHistory()));
+	connect(connection, SIGNAL(connectionStateChanged(VConnectionState)), d, SLOT(onConnectStateChanged(VConnectionState)));
 }
 
 VMessages::~VMessages()
 {
-	//saveSettings();
 }
 
 void VMessages::getLastMessages(int count)
 {
 	if (count < 1)
 		return;
-//	Q_D(VMessages);
-//	QByteArray time_stamp = d->historyTimer.property("timeStamp").toByteArray();
-//	QUrl url("http://userapi.com/data");
-//	url.addEncodedQueryItem("act","history");
-//	url.addEncodedQueryItem("message",time_stamp); //FIXME WTF ? o.O
-//	url.addEncodedQueryItem("inbox",QByteArray::number(count));
-//	VRequest request(url);
-//	QNetworkReply *reply = d->connection->get(request);
-//	connect(reply,SIGNAL(finished()),d,SLOT(onMessagesRecieved()));
 }
 
 void VMessages::getHistory()
@@ -204,17 +171,6 @@ void VMessages::sendMessage(const Message& message)
 	connect(reply,SIGNAL(finished()),d,SLOT(onMessageSended()));
 }
 
-void VMessages::sendSms(const Message &message)
-{
-	Q_D(VMessages);
-	QVariantMap data;
-	data.insert("uid", message.chatUnit()->id());
-	data.insert("message",message.text());
-	QNetworkReply *reply = d->connection->get("secure.sendSMSNotification", data);
-	reply->setProperty("message",qVariantFromValue<Message>(message));
-	connect(reply,SIGNAL(finished()),d,SLOT(onSmsSended()));
-}
-
 ConfigGroup VMessages::config()
 {
 	return d_func()->connection->config("messages");
@@ -222,18 +178,10 @@ ConfigGroup VMessages::config()
 
 void VMessages::loadSettings()
 {
-//	Q_D(VMessages);
-//	ConfigGroup history = config().group("history");
-//	d->historyTimer.setInterval(history.value<int>("updateInterval",15000));
-//	d->historyTimer.setProperty("timeStamp",history.value("timeStamp",0));
 }
 
 void VMessages::saveSettings()
 {
-//	Q_D(VMessages);
-//	ConfigGroup history = config().group("history");
-//	history.setValue("timeStamp",d->historyTimer.property("timeStamp"));
-//	history.sync();
 }
 
 void VMessagesPrivate::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)

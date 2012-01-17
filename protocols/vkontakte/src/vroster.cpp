@@ -56,7 +56,6 @@ void VRosterPrivate::checkPhoto(QObject *obj, const QString &photoUrl)
 	}
 	QString currentAvatar = obj->property("avatarUrl").toString();
 	QString newAvatar = photoUrl;
-	qDebug() << currentAvatar << newAvatar;
 	if (currentAvatar != newAvatar || obj->property("avatar").toString().isEmpty()) {
 		obj->setProperty("avatarUrl", newAvatar);
 		if (fetchAvatars && !avatarsQueue.contains(obj)) {
@@ -80,10 +79,10 @@ void VRosterPrivate::onGetTagListRequestFinished(const QVariant &var, bool error
 {
 	Q_Q(VRoster);
 	Q_UNUSED(error);
-	QVariantMap tagData = var.toMap();
-	QVariantMap::const_iterator it = tagData.constBegin();
-	for (; it != tagData.constEnd(); it++)
-		tags.insert(it.key(), it.value().toString());
+	foreach (QVariant data, var.toList()) {
+		QVariantMap map = data.toMap();
+		tags.insert(map.value("lid").toInt(), map.value("name").toString());
+	}
 	q->getFriendList();
 }
 
@@ -91,38 +90,38 @@ void VRosterPrivate::onGetFriendsRequestFinished(const QVariant &var, bool error
 {
 	Q_UNUSED(error);
 	QVariantList friends = var.toList();
-	
-	//hack
+
+	//let's try again
 	if (friends.isEmpty())
-		QTimer::singleShot(5000,q_func(),SLOT(getFriendList()));
+		QTimer::singleShot(5000 ,q_func(), SLOT(getFriendList()));
 
 	foreach (const QVariant &var, friends) {
 		QVariantMap data = var.toMap();
 		debug() << data;
 		QString id = data.value("uid").toString();
-		VContact *c = contacts.value(id);
+		VContact *contact = contacts.value(id);
 		bool shouldInit = false;
-		if (!c) {
-			c = connection->account()->getContact(id, true);
+		if (!contact) {
+			contact = connection->account()->getContact(id, true);
 			shouldInit = true;
-		} else if (!c->isInList()) {
+		} else if (!contact->isInList()) {
 			shouldInit = true;
 		}
 		if (shouldInit) {
 			QString firstName = data.value("first_name").toString();
 			QString lastName = data.value("last_name").toString();
-			c->setContactName(firstName + " " + lastName);
+			contact->setContactName(firstName + " " + lastName);
 			QStringList contactTags;
 			foreach (const QString &tagId, data.value("lists").toStringList())
-				contactTags << tags.value(tagId);
-			c->setContactTags(contactTags);
-			c->setContactInList(true);
-			storage->addContact(c);
+				contactTags << tags.value(tagId.toInt());
+			contact->setContactTags(contactTags);
+			contact->setContactInList(true);
+			storage->addContact(contact);
 		} /*else
 			storage->updateContact(c);*/
-		checkPhoto(c, data.value(VK_PHOTO_ID).toString());
-		c->setStatus(data.value("online").toInt() == 1);
-		c->setProperty("mobilePhone",data.value("mobile_phone"));
+		checkPhoto(contact, data.value(VK_PHOTO_ID).toString());
+		contact->setOnline(data.value("online").toInt() == 1);
+		contact->setProperty("mobilePhone",data.value("mobile_phone"));
 	}
 }
 
@@ -138,7 +137,7 @@ void VRosterPrivate::onActivityUpdateRequestFinished(const QVariant &var, bool e
 		if (contact)
 			contact->setActivity(text);
 	}
-	
+
 	lastActivityTime = QDateTime::currentDateTime();
 }
 
@@ -193,19 +192,9 @@ void VRosterPrivate::updateActivity()
 		data.insert("timestamp", 0);
 		// TODO smth clever
 	}
-	
+
 	VReply *reply = connection->request("activity.getNews", data);
 	connect(reply, SIGNAL(resultReady(QVariant,bool)), this, SLOT(onActivityUpdateRequestFinished(QVariant,bool)));
-	
-	//	QList<VContact *> contact_list = connection->account()->d_func()->contactsList;
-	//	if (contact_list.isEmpty())
-	//		return;
-	//	int index =  activityUpdater.property("index").toInt();
-	//	q->requestActivity(contact_list.at(index));
-	//	index++;
-	//	if (index == contact_list.count())
-	//		index = 0;
-	//	activityUpdater.setProperty("index",QVariant(index));
 }
 
 void VRosterPrivate::onSetActivityRequestFinished(const QVariant &var, bool error)
@@ -220,29 +209,28 @@ void VRosterPrivate::onConnectStateChanged(VConnectionState state)
 	Q_Q(VRoster);
 	switch (state) {
 	case Connected: {
-			q->getTagList();
-			q->getProfile();
-			friendListUpdater.start();
-			if (getActivity)
-				activityUpdater.start();
-			break;
-		}
+		q->getTagList();
+		q->getProfile();
+		friendListUpdater.start();
+		if (getActivity)
+			activityUpdater.start();
+		break;
+	}
 	case Disconnected: {
-			friendListUpdater.stop();
-			activityUpdater.stop();
-			//			avatarsUpdater.stop();
-			foreach (VContact *c,connection->account()->findChildren<VContact *>()) {
-				c->setStatus(false);
-			}
-			break;
-		}
+		friendListUpdater.stop();
+		activityUpdater.stop();
+		foreach (VContact *c, connection->account()->contacts())
+			c->setOnline(false);
+		break;
+	}
 	default: {
-			break;
-		}		
+		break;
+	}
 	}
 }
 
-VRoster::VRoster(VConnection* connection, QObject* parent) : QObject(parent),d_ptr(new VRosterPrivate)
+VRoster::VRoster(VConnection* connection) : QObject(connection),
+	d_ptr(new VRosterPrivate)
 {
 	Q_D(VRoster);
 	d->connection = connection;
@@ -300,14 +288,14 @@ void VRoster::getProfile()
 	data.insert("uids", d->connection->account()->uid());
 	data.insert("fields", "first_name,last_name,nickname," VK_PHOTO_ID);
 	VReply *reply = d->connection->request("getProfiles", data);
-	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetProfileRequestFinished(QVariant,bool)));
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), d, SLOT(onGetProfileRequestFinished(QVariant,bool)));
 }
 
 void VRoster::getTagList()
 {
 	Q_D(VRoster);
 	VReply *reply = d->connection->request("friends.getLists");
-	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetTagListRequestFinished(QVariant,bool)));
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), d, SLOT(onGetTagListRequestFinished(QVariant,bool)));
 }
 
 void VRoster::getFriendList()
@@ -316,7 +304,7 @@ void VRoster::getFriendList()
 	QVariantMap data;
 	data.insert("fields", "uid,first_name,last_name,nickname,bdate," VK_PHOTO_ID ",online,lists,contacts,mobile_phone");
 	VReply *reply = d->connection->request("friends.get", data);
-	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetFriendsRequestFinished(QVariant,bool)));
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), d, SLOT(onGetFriendsRequestFinished(QVariant,bool)));
 }
 
 void VRoster::requestAvatar(QObject *obj)
@@ -350,7 +338,7 @@ void VRoster::setActivity(const Status &activity)
 	QVariantMap data;
 	data.insert("text", activity.text());
 	VReply *reply = d->connection->request("activity.set", data);
-	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onSetActivityRequestFinished(QVariant,bool)));
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), d, SLOT(onSetActivityRequestFinished(QVariant,bool)));
 }
 
 ConfigGroup VRoster::config()
@@ -417,7 +405,7 @@ void VRoster::updateProfile(VContact *contact)
 	data.insert("fields", "first_name,last_name,nickname," VK_PHOTO_ID);
 	VReply *reply = d->connection->request("getProfiles", data);
 	reply->setProperty("contact",qVariantFromValue(contact));
-	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onUpdateProfileFinished(QVariant,bool)));
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), d, SLOT(onUpdateProfileFinished(QVariant,bool)));
 }
 
 void VRosterPrivate::onUpdateProfileFinished(const QVariant &var, bool error)

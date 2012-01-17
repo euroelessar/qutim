@@ -27,21 +27,25 @@
 #include "wcontact.h"
 #include <qutim/servicemanager.h>
 
-WContact::WContact( const QString &city, Account *account ) : Contact ( account )
+WContact::WContact(const QString &code, const QString &name, Account *account)
+    : Contact (account)
 {
-	m_city = city;
-	m_tags << "Weather";
+	m_city = code;
+	m_name = name;
+	m_tags << QLatin1String("Weather");
 	setMenuFlags(ShowSelfActions);
 
-	m_status.setType( Status::Online );
-	m_status.setIcon( QIcon( ":/icons/weather.png" ) );
-	emit statusChanged( m_status, Status(Status::Offline) );
+	m_status.setType(Status::Online);
+	m_status.setIcon(QIcon(":/icons/weather.png"));
+	emit statusChanged(m_status, Status(Status::Offline));
 
 	addToList();
-	QMetaObject::invokeMethod(ServiceManager::getByName("ContactList"), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
+	QMetaObject::invokeMethod(ServiceManager::getByName("ContactList"),
+	                          "addContact",
+	                          Q_ARG(qutim_sdk_0_3::Contact*, this));
 
-	m_wmanager = new WManager( m_city );
-	connect( m_wmanager, SIGNAL( finished() ), this, SLOT( finished() ) );
+	m_wmanager = new WManager(m_city);
+	connect(m_wmanager, SIGNAL(finished()), this, SLOT(finished()));
 	m_forecast = false;
 	m_forStatus = false;
 }
@@ -52,90 +56,81 @@ WContact::~WContact()
 }
 
 
-bool WContact::event( QEvent *ev )
+bool WContact::event(QEvent *ev)
 {
-	if ( ev->type() == ToolTipEvent::eventType() )
-	{
-		ToolTipEvent *event = static_cast< ToolTipEvent * >( ev );
-		if ( !m_wmanager->getUnit( "ut" ).isEmpty() )
-			event->addField( "Weather", QString::fromUtf8( "%1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
+	if (ev->type() == ToolTipEvent::eventType()) {
+		ToolTipEvent *event = static_cast< ToolTipEvent * >(ev);
+		QString ut = m_wmanager->getUnit(QLatin1String("ut"));
+		if (!ut.isEmpty()) {
+			event->addField(QT_TRANSLATE_NOOP("Weather", "Weather"), QString::fromLatin1("%1 °%2")
+			                .arg(m_wmanager->getCC(QLatin1String("tmp")), ut));
+		}
 
 		return true;
 	}
-//	else if ( ev->type() == 67 )
-//	{
-//		foreach ( QWidget *widget, QApplication::allWidgets() )
-//			if ( qobject_cast< QMenu * >( widget ) && widget->isVisible() )
-//			{
-//				widget->hide();
-//				m_menu->popup( QCursor::pos() );
-//			}
-//	}
 
-	return Contact::event( ev );
+	return Contact::event(ev);
 }
 
 void WContact::update()
 {
 	m_forStatus = true;
-//	m_menu->setDisabled( true );
 
 	m_wmanager->update();
 }
 
 void WContact::updateStatus()
 {
-	if ( ( ( WAccount * )account() )->getShowStatusRow() )
+	if ((static_cast<WAccount *>(account()))->getShowStatusRow()) {
 		update();
-	else
-	{
+	} else {
 		Status current = m_status;
-		m_status.setText( QString() );
-		emit statusChanged( m_status, current );
+		m_status.setText(QString());
+		emit statusChanged(m_status, current);
 	}
 }
 
 void WContact::finished()
 {
-//	m_menu->setDisabled( false );
+//	m_menu->setDisabled(false);
 
-	if ( m_name.isEmpty() )
-		setNamev2( m_wmanager->getLoc( "dnam" ) );
+	if (m_name.isEmpty())
+		setNamev2(m_wmanager->getLoc(QLatin1String("dnam")));
 
-	QString msgWeatherT = getFileData( "weatherT.html" );
-	QString msgWeatherHtmlT = getFileData( "weatherHtmlT.html" );
+	QString msgWeatherT = getFileData("weatherT.html");
+	QString msgWeatherHtmlT = getFileData("weatherHtmlT.html");
 	QString msgForecastT, msgForecastHtmlT;
 
-	QHashIterator< QString, QString > it( *m_wmanager->getCC() );
-	while ( it.hasNext() )
+	QHashIterator< QString, QString > it(*m_wmanager->getCC());
+	while (it.hasNext())
 	{
 		it.next();
 
-		msgWeatherT.replace( "%" + it.key() + "%", it.value() );
-		msgWeatherHtmlT.replace( "%" + it.key() + "%", it.value() );
+		msgWeatherT.replace("%" + it.key() + "%", it.value());
+		msgWeatherHtmlT.replace("%" + it.key() + "%", it.value());
 	}
 
-	if ( m_forecast )
+	if (m_forecast)
 	{
 		QString tMsgForecastT, tMsgForecastHtmlT;
 
-		msgForecastT = getFileData( "forecastTitle.html" );
-		msgForecastHtmlT = getFileData( "forecastHtmlTitle.html" ).arg( m_wmanager->getDayF( -1, "lsup" ) );
+		msgForecastT = getFileData("forecastTitle.html");
+		msgForecastHtmlT = getFileData("forecastHtmlTitle.html").arg(m_wmanager->getDayF(-1, "lsup"));
 
-		for ( int i = 0; i <= 4; i++ )
+		for (int i = 0; i <= 4; i++)
 		{
-			QHash<QString, QString> h = *m_wmanager->getDayF( i );
+			QHash<QString, QString> h = *m_wmanager->getDayF(i);
 			it = h;
 
-			tMsgForecastT = getFileData( "forecastT.html" );
-			tMsgForecastHtmlT = getFileData( "forecastHtmlT.html" );
+			tMsgForecastT = getFileData("forecastT.html");
+			tMsgForecastHtmlT = getFileData("forecastHtmlT.html");
 
-			while ( it.hasNext() )
+			while (it.hasNext())
 			{
 				it.next();
 
-				tMsgForecastT.replace( "%" + it.key() + "%", it.value() );
-				tMsgForecastHtmlT.replace( "%" + it.key() + "%", it.value() );
+				tMsgForecastT.replace("%" + it.key() + "%", it.value());
+				tMsgForecastHtmlT.replace("%" + it.key() + "%", it.value());
 			}
 
 			msgForecastT += tMsgForecastT;
@@ -145,44 +140,44 @@ void WContact::finished()
 	else
 	{
 		Status previous = m_status;
-		m_status.setIcon( QIcon( QString( ":/icons/%1.png" ).arg( m_wmanager->getCC( "icon" ) ) ) );
-		if ( ( ( WAccount * )account() )->getShowStatusRow() )
-			m_status.setText( QString::fromUtf8( "Weather: %1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
-		emit statusChanged( m_status, previous );
+		m_status.setIcon(QIcon(QString(":/icons/%1.png").arg(m_wmanager->getCC("icon"))));
+		if (((WAccount *)account())->getShowStatusRow())
+			m_status.setText(QString::fromUtf8("Weather: %1 °%2").arg(m_wmanager->getCC("tmp")).arg(m_wmanager->getUnit("ut")));
+		emit statusChanged(m_status, previous);
 	}
 
 	it = *m_wmanager->getLoc();
-	while ( it.hasNext() )
+	while (it.hasNext())
 	{
 		it.next();
 
-		msgWeatherT.replace( "%loc_" + it.key() + "%", it.value() );
-		msgWeatherHtmlT.replace( "%loc_" + it.key() + "%", it.value() );
+		msgWeatherT.replace("%loc_" + it.key() + "%", it.value());
+		msgWeatherHtmlT.replace("%loc_" + it.key() + "%", it.value());
 
-		msgForecastT.replace( "%loc_" + it.key() + "%", it.value() );
-		msgForecastHtmlT.replace( "%loc_" + it.key() + "%", it.value() );
+		msgForecastT.replace("%loc_" + it.key() + "%", it.value());
+		msgForecastHtmlT.replace("%loc_" + it.key() + "%", it.value());
 	}
 
 	it = *m_wmanager->getUnit();
-	while ( it.hasNext() )
+	while (it.hasNext())
 	{
 		it.next();
 
-		msgWeatherT.replace( "%unit_" + it.key() + "%", it.value() );
-		msgWeatherHtmlT.replace( "%unit_" + it.key() + "%", it.value() );
+		msgWeatherT.replace("%unit_" + it.key() + "%", it.value());
+		msgWeatherHtmlT.replace("%unit_" + it.key() + "%", it.value());
 
-		msgForecastT.replace( "%unit_" + it.key() + "%", it.value() );
-		msgForecastHtmlT.replace( "%unit_" + it.key() + "%", it.value() );
+		msgForecastT.replace("%unit_" + it.key() + "%", it.value());
+		msgForecastHtmlT.replace("%unit_" + it.key() + "%", it.value());
 	}
 
-	Message message( m_forecast ? msgForecastT : msgWeatherT );
-	message.setProperty( "html", m_forecast ? msgForecastHtmlT : msgWeatherHtmlT ); 
-	message.setIncoming( 1 );
-	message.setTime( QDateTime::currentDateTime() );
-	message.setChatUnit( this );
+	Message message(m_forecast ? msgForecastT : msgWeatherT);
+	message.setProperty("html", m_forecast ? msgForecastHtmlT : msgWeatherHtmlT); 
+	message.setIncoming(1);
+	message.setTime(QDateTime::currentDateTime());
+	message.setChatUnit(this);
 
-	if ( !m_forStatus && false )
-		ChatLayer::get( this, true )->appendMessage( message );
+	if (!m_forStatus && false)
+		ChatLayer::get(this, true)->appendMessage(message);
 
 	m_forecast = false;
 	m_forStatus = false;
@@ -190,7 +185,7 @@ void WContact::finished()
 
 void WContact::getWeather()
 {
-//	m_menu->setDisabled( true );
+//	m_menu->setDisabled(true);
 
 	m_wmanager->update();
 }
@@ -198,9 +193,9 @@ void WContact::getWeather()
 void WContact::getForecast()
 {
 	m_forecast = true;
-//	m_menu->setDisabled( true );
+//	m_menu->setDisabled(true);
 
-	m_wmanager->update( 5 );
+	m_wmanager->update(5);
 }
 
 bool WContact::sendMessage(const Message &)
@@ -222,7 +217,7 @@ void WContact::setNamev2(const QString &name)
 
 void WContact::setTags(const QStringList &)
 {
-	emit tagsChanged( m_tags, m_tags );
+	emit tagsChanged(m_tags, m_tags);
 }
 
 QString WContact::id() const
@@ -255,11 +250,11 @@ bool WContact::isInList() const
 	return m_inList;
 }
 
-void WContact::setInList( bool inList )
+void WContact::setInList(bool inList)
 {
 	m_inList = inList;
 
-	emit inListChanged( m_inList );
+	emit inListChanged(m_inList);
 }
 
 QString WContact::avatar() const
@@ -267,10 +262,10 @@ QString WContact::avatar() const
 	return ":/icons/weather_big.png";
 }
 
-QString WContact::getFileData( const QString &path )
+QString WContact::getFileData(const QString &path)
 {
-	QFile file( ( ( WAccount * )account() )->getThemePath() + path );
-	file.open( QFile::ReadOnly );
-	return QString::fromUtf8( file.readAll() ).remove( "\n" );
+	QFile file(((WAccount *)account())->getThemePath() + path);
+	file.open(QFile::ReadOnly);
+	return QString::fromUtf8(file.readAll()).remove("\n");
 }
 

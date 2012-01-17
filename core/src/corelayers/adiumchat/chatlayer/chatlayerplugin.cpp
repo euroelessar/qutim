@@ -25,7 +25,6 @@
 
 #include "chatlayerplugin.h"
 #include "chatlayerimpl.h"
-#include "timemodifier/timemodifier.h"
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
@@ -86,15 +85,7 @@ void ChatLayerPlugin::init()
 	setInfo(name, description, QUTIM_VERSION);
 	setCapabilities(Loadable);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
-	addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(
-				QT_TRANSLATE_NOOP("Plugin", "Time modifier"),
-				QT_TRANSLATE_NOOP("Plugin", "Modifier for %time% and %timeOpened% param, based on Apple's documentation"));
 
-	//temporary
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Perova Gala"),
-			  QT_TRANSLATE_NOOP("Task", "Artist"),
-			  QLatin1String("naitmara@mail.ru"),
-			  QLatin1String("http://dawsnest.ru"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Rederick Asher"),
 			  QT_TRANSLATE_NOOP("Task", "Artist"),
 			  QLatin1String("chaoticblack@gmail.com"),

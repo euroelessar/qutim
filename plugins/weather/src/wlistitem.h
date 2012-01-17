@@ -37,20 +37,17 @@ class WListItem : public QWidget
 	Q_OBJECT
 
 public:
-	WListItem( const QString &title, bool addIcon = true );
+	WListItem(const QString &title, bool addIcon = true);
 	~WListItem();
 
 	QString title();
-	void setTitle( const QString &title );
+	void setTitle(const QString &title);
 
 	QListWidgetItem *item();
-	void setItem( QListWidgetItem *item );
+	void setItem(QListWidgetItem *item);
 
 signals:
 	void buttonClicked();
-
-private slots:
-	void buttonClicked( bool checked );
 
 private:
 	QLabel *m_label;

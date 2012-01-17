@@ -54,7 +54,7 @@ public:
 	virtual void cancelImpl();
 
 protected:
-	bool eventFilter( QObject *o, QEvent *e );
+	bool eventFilter(QObject *o, QEvent *e);
 
 private slots:
 	void on_addCityButton_clicked();
@@ -63,7 +63,7 @@ private slots:
 	void addButton_clicked();
 	void deleteButton_clicked();
 
-	void searchFinished( QNetworkReply *reply );
+	void searchFinished(QNetworkReply *reply);
 
 private:
 	Ui::WSettingsClass ui;
