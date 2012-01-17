@@ -76,7 +76,7 @@ void Rtf::parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText
 			int lastIndex = plainHtml.lastIndexOf(QLatin1String("</body"));
 			*html = QLatin1String("<span");
 			// length of "<body" is equal to 5
-			html->append(html->midRef(index + 5, lastIndex - index - 5));
+			html->append(plainHtml.midRef(index + 5, lastIndex - index - 5));
 			html->append(QLatin1String("</span>"));
 		}
     } else {

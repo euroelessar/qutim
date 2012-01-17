@@ -55,8 +55,6 @@ public:
 	virtual void saveImpl();
 	
 private slots:
-	void onThemeChanged(int index);
-	void onVariantChanged(QString variant);
 	void onVariableChanged();
 	void on_styleNameBox_currentIndexChanged(const QString &styleName);
 	void on_variantBox_currentIndexChanged(const QString &variant);

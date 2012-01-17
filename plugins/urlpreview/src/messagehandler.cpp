@@ -88,8 +88,8 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 
 	debug() << Q_FUNC_INFO;
 	QString html = message.html();
-	if (html.isEmpty()) {
-		html = Qt::escape(message.text());
+//	if (html.isEmpty()) {
+//		html = Qt::escape(message.text());
 		QString newHtml;
 		const QRegExp &linkRegExp = getLinkRegExp();
 		int pos = 0;
@@ -106,7 +106,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		}
 		html.midRef(lastPos, html.size() - lastPos).appendTo(&newHtml);
 		html = newHtml;
-	} else {
+//	} else {
 		//QTextDocument doc(html);
 		//const QRegExp &linkRegExp = getLinkRegExp();
 		//QTextCursor cursor(&doc);
@@ -121,7 +121,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		//}
 		//qDebug() << html << doc.toHtml();
 		//html = doc.toHtml();
-	}
+//	}
 	message.setHtml(html);
 	return UrlHandler::Accept;
 }
@@ -147,6 +147,17 @@ const QRegExp &UrlHandler::getLinkRegExp()
 
 void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 id)
 {
+	const QString oldLink = link;
+	const char *entitiesIn[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
+	const char *entitiesOut[] = { "\"", ">", "<", "&" };
+	const int entitiesCount = sizeof(entitiesIn) / sizeof(entitiesIn[0]);
+	
+	for (int i = 0; i < entitiesCount; ++i) {
+		link.replace(QLatin1String(entitiesIn[i]),
+		             QLatin1String(entitiesOut[i]),
+		             Qt::CaseInsensitive);
+	}
+	
 	//TODO may be need refinement
 	if (link.toLower().startsWith("www."))
 		link.prepend("http://");
@@ -169,7 +180,7 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
 	//link = QUrl::fromEncoded(link.toUtf8()).toString();
-	link += " <span id='urlpreview"+uid+"'></span> ";
+	link = QString::fromLatin1("%1 <span id='urlpreview%2'></span> ").arg(oldLink, uid);
 
 	debug() << "url" << link;
 }
@@ -208,7 +219,8 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		if (hrx.indexIn(reply->rawHeader(sizeheader))>=0)
 			size = hrx.cap(1).toInt();
 	}
-
+	
+	qDebug() << url << reply->rawHeaderList() << type;
 	if (type.isNull())
 		return;
 

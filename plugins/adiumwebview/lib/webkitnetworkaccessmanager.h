@@ -27,10 +27,11 @@
 #define WEBKITNETWORKACCESSMANAGER_H
 
 #include <QNetworkAccessManager>
+#include "adiumwebview_global.h"
 
 class QUrl;
 
-class WebKitNetworkAccessManager : public QNetworkAccessManager
+class ADIUMWEBVIEW_EXPORT WebKitNetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:

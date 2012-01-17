@@ -40,6 +40,24 @@ class QDeclarativeContext;
 
 namespace Adium {
 
+class WebViewLoaderLoop : public QObject
+{
+    Q_OBJECT
+public:
+	WebViewLoaderLoop();
+	~WebViewLoaderLoop();
+	
+	void addPage(QWebPage *page, const QString &html);
+	
+private slots:
+	void onPageLoaded();
+	void onPageDestroyed();
+	
+private:
+	QList<QWeakPointer<QWebPage> > m_pages;
+	QStringList m_htmls;
+};
+
 class WebViewController : public QWebPage, public Core::AdiumChat::ChatViewController
 {
     Q_OBJECT
@@ -60,7 +78,7 @@ public:
 	bool eventFilter(QObject *obj, QEvent *);
 	
 public slots:
-	void evaluateJavaScript(const QString &script);
+	QVariant evaluateJavaScript(const QString &script);
 	bool zoomImage(QWebElement elem);
 	void debugLog(const QString &message);
 	void appendNick(const QVariant &nick);
@@ -81,7 +99,7 @@ private slots:
 	void onLinkClicked(const QUrl &url);
 	
 private:
-	QWeakPointer<Core::AdiumChat::ChatSessionImpl> m_session;
+	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;
 	bool m_isPreview;

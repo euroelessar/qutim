@@ -53,7 +53,7 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 
 void WebkitChatViewWidget::initScrolling()
 {
-	if(QObject *scroller = ServiceManager::getByName("Scroller"))
+	if (QObject *scroller = ServiceManager::getByName("Scroller"))
 		QMetaObject::invokeMethod(scroller,
 								  "enableScrolling",
 								  Q_ARG(QObject*, m_view));
