@@ -31,6 +31,7 @@
 #include <QTextDocument>
 #include <qutim/thememanager.h>
 #include <qutim/conference.h>
+#include <qutim/notification.h>
 #include <QDateTime>
 
 namespace MeegoIntegration
@@ -145,6 +146,7 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 	}
 	m_model->append(message);
 	if (!isActive()) {
+		Notification::send(message);
 		m_unread.append(message);
 		emit unreadChanged(m_unread);
 		emit unreadCountChanged(m_unread.count());

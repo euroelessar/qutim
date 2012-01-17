@@ -1,16 +1,34 @@
-qutim (0.2.80-maemo-12) fremantle; urgency=low
+qutim (0.2.80-maemo-15) fremantle; urgency=low
+
+  * Fix ICQ connection issue
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 11 Jan 2012 4:42:46 +0600
+
+qutim (0.2.80-maemo-14) fremantle; urgency=low
+
+  * Bugfixes and upstream update
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 14 Dec 2011 16:08:20 +0600
+
+qutim (0.2.80-maemo-13) fremantle; urgency=low
 
   * Update translation
   * Fix some bugs
 
- -- Eugene Degtyarev <degtep@gmail.com>  Mon, 22 Aug 2011 20:31:40 +0600
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 22 Aug 2011 14:31:40 +0600
+
+qutim (0.2.80-maemo-12) fremantle; urgency=low
+
+  * Fix second big mistake with power consumtion
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Mon, 19 Aug 2011 4:20:10 +0600
 
 qutim (0.2.80-maemo-11) fremantle; urgency=low
 
   * Fix power consumtion
   * Minor bugfixes
 
- -- Eugene Degtyarev <degtep@gmail.com>  Thu, 18 Aug 2011 20:46:51 +0600
+ -- Eugene Degtyarev <degtep@gmail.com>  Thu, 18 Aug 2011 14:46:51 +0600
 
 qutim (0.2.80-maemo-10) fremantle; urgency=low
 
