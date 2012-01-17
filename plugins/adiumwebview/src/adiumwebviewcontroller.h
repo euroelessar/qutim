@@ -40,6 +40,24 @@ class QDeclarativeContext;
 
 namespace Adium {
 
+class WebViewLoaderLoop : public QObject
+{
+    Q_OBJECT
+public:
+	WebViewLoaderLoop();
+	~WebViewLoaderLoop();
+	
+	void addPage(QWebPage *page, const QString &html);
+	
+private slots:
+	void onPageLoaded();
+	void onPageDestroyed();
+	
+private:
+	QList<QWeakPointer<QWebPage> > m_pages;
+	QStringList m_htmls;
+};
+
 class WebViewController : public QWebPage, public Core::AdiumChat::ChatViewController
 {
     Q_OBJECT

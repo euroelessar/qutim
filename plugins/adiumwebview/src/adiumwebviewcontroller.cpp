@@ -48,6 +48,55 @@ namespace Adium {
 using namespace qutim_sdk_0_3;
 using namespace Core::AdiumChat;
 
+WebViewLoaderLoop::WebViewLoaderLoop()
+{
+}
+
+WebViewLoaderLoop::~WebViewLoaderLoop()
+{
+}
+
+void WebViewLoaderLoop::addPage(QWebPage *page, const QString &html)
+{
+	for (int i = 0; i < m_pages.size(); ++i) {
+		if (m_pages.at(i).data() == page) {
+			m_htmls[i] = html;
+			return;
+		}
+	}
+	connect(page, SIGNAL(loadFinished(bool)), SLOT(onPageLoaded()));
+	connect(page, SIGNAL(destroyed()), SLOT(onPageDestroyed()));
+	m_pages.append(page);
+	m_htmls.append(html);
+	if (m_pages.size() == 1)
+		page->mainFrame()->setHtml(html);
+}
+
+void WebViewLoaderLoop::onPageLoaded()
+{
+	disconnect(m_pages.first().data(), 0, this, 0);
+	m_pages.removeFirst();
+	m_htmls.removeFirst();
+	if (!m_pages.isEmpty()) {
+		QWebPage *page = m_pages.first().data();
+		QString html = m_htmls.first();
+		page->mainFrame()->setHtml(html);
+	}
+}
+
+void WebViewLoaderLoop::onPageDestroyed()
+{
+	for (int i = 0; i < m_pages.size(); ++i) {
+		if (m_pages.at(i).isNull()) {
+			m_pages.removeAt(i);
+			m_htmls.removeAt(i);
+			--i;
+		}
+	}
+}
+
+Q_GLOBAL_STATIC(WebViewLoaderLoop, loaderLoop)
+
 WebViewController::WebViewController(bool isPreview) :
 	m_isLoading(false), m_isPreview(isPreview)
 {
@@ -147,7 +196,7 @@ void WebViewController::clearChat()
 	Q_ASSERT(!m_session.isNull());
 	m_last = Message();
 	m_isLoading = true;
-	mainFrame()->setHtml(m_style.baseTemplateForChat(m_session.data()));
+	loaderLoop()->addPage(this, m_style.baseTemplateForChat(m_session.data()));
 	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
 }
 

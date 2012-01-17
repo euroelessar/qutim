@@ -33,8 +33,6 @@
 #include <QVariantMap>
 #include <QCoreApplication>
 
-#define SHARE_PATH QString::fromLatin1("/home/elessar/gitgames/labs/adiumwebview-build-desktop/share/")
-
 namespace qutim_sdk_0_3 {
 class ChatSession;
 class Message;
