@@ -123,7 +123,7 @@ void VAccount::setStatus(Status status)
 	switch (state) {
 		case Connected: {
 			if (d->connection->connectionState() == Disconnected)
-				d->connection->connectToHost(QString() /*password()*/);
+				d->connection->connectToHost();
 			else if(d->connection->connectionState() == Connected)
 				d->connection->roster()->setActivity(status);
 			break;

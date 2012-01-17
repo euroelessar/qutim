@@ -41,7 +41,7 @@ class LIBVKONTAKTE_EXPORT VRoster : public QObject
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VRoster)
 public:
-	VRoster(VConnection *connection, QObject *parent = 0);
+	VRoster(VConnection *connection);
 	virtual ~VRoster();
 	VContact *getContact(const QString &uid, bool create);
 	VContact *getContact(const QVariantMap &data, bool create);

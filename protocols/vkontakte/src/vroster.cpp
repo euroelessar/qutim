@@ -229,7 +229,8 @@ void VRosterPrivate::onConnectStateChanged(VConnectionState state)
 	}
 }
 
-VRoster::VRoster(VConnection* connection, QObject* parent) : QObject(parent),d_ptr(new VRosterPrivate)
+VRoster::VRoster(VConnection* connection) : QObject(connection),
+	d_ptr(new VRosterPrivate)
 {
 	Q_D(VRoster);
 	d->connection = connection;
