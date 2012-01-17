@@ -80,13 +80,11 @@ bool VContact::sendMessage(const Message& message)
 void VContact::setTags(const QStringList& tags)
 {
 	Q_UNUSED(tags);
-	//	d_func()->tags = tags;
 }
 
 void VContact::setInList(bool inList)
 {
 	Q_UNUSED(inList);
-	//	d_func()->inList = inList;
 }
 
 void VContact::setContactTags(const QStringList& tags)
@@ -116,14 +114,14 @@ Status VContact::status() const
 	return status;
 }
 
-void VContact::setStatus(bool online)
+void VContact::setOnline(bool set)
 {
 	Q_D(VContact);
-	if (d->online != online) {
-		Status previous = this->status();
-		d->online = online;
+	if (d->online != set) {
+		Status previous = status();
+		d->online = set;
 		Status status = this->status();
-		setChatState(online ? ChatStateInActive : ChatStateGone);
+		setChatState(set ? ChatStateInActive : ChatStateGone);
 		NotificationRequest request(this, status, previous);
 		request.send();
 		emit statusChanged(status, previous);
@@ -173,7 +171,6 @@ void VContact::setContactName(const QString& name)
 void VContact::setName(const QString& name)
 {
 	Q_UNUSED(name);
-	//	d_func()->name = name;
 }
 
 void VContact::setAvatar(const QString &avatar)

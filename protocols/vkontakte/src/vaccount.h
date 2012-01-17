@@ -30,6 +30,7 @@
 
 class VAccountPrivate;
 class VContact;
+typedef QList<VContact*> VContactList;
 class VConnection;
 class VRoster;
 class VWallSession;
@@ -50,6 +51,7 @@ public:
 	virtual ~VAccount();
 	VConnection *connection();
 	const VConnection *connection() const;
+	VContactList contacts() const;
 public slots:
 	void loadSettings();
 	void saveSettings();

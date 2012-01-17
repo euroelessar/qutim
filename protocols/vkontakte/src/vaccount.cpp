@@ -151,3 +151,8 @@ const VConnection *VAccount::connection() const
 	return d_func()->connection;
 }
 
+VContactList VAccount::contacts() const
+{
+	return findChildren<VContact*>();
+}
+
