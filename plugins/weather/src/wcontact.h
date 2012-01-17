@@ -43,14 +43,14 @@ class WContact : public Contact
 	Q_OBJECT
 
 public:
-	WContact( const QString &city, Account *account );
+	WContact(const QString &code, const QString &name, Account *account);
 	~WContact();
 
-	bool sendMessage( const Message &message );
+	bool sendMessage(const Message &message);
 
-	void setName( const QString &name );
-	void setNamev2( const QString &name );
-	void setTags( const QStringList &tags );
+	void setName(const QString &name);
+	void setNamev2(const QString &name);
+	void setTags(const QStringList &tags);
 
 	QString id() const;
 	QString name() const;
@@ -59,7 +59,7 @@ public:
 	Status status() const;
 
 	bool isInList() const;
-	void setInList( bool inList );
+	void setInList(bool inList);
 
 	QString avatar() const;
 
@@ -67,7 +67,7 @@ public:
 	void updateStatus();
 
 protected:
-	virtual bool event( QEvent *ev );
+	virtual bool event(QEvent *ev);
 
 private slots:
 	void finished();
@@ -75,15 +75,13 @@ private slots:
 	void getForecast();
 
 private:
-	QString getFileData( const QString &path );
+	QString getFileData(const QString &path);
 
 	WManager *m_wmanager;
 	bool m_forecast;
 	bool m_forStatus;
 
 	Status m_status;
-
-//	QMenu *m_menu;
 
 	QString m_city;
 	QString m_name;

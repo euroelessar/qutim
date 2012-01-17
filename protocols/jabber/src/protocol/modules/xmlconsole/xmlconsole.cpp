@@ -39,6 +39,9 @@
 #include <qutim/systemintegration.h>
 //#include <QElapsedTimer>
 
+#include <QDir>
+#include <cstdio>
+
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
@@ -165,11 +168,19 @@ void XmlConsole::handleStreamEnd()
 
 void XmlConsole::handleIncomingData(const char *data, qint64 size)
 {
+	static QByteArray dir = QDir::homePath().toLocal8Bit() + "/jreen-in.log";
+	static FILE *file = fopen(dir.constData(), "w");
+	fprintf(file, "%s", QByteArray(data, size).constData());
+	fflush(file);
 	stackProcess(QByteArray::fromRawData(data, size), true);
 }
 
 void XmlConsole::handleOutgoingData(const char *data, qint64 size)
 {
+	static QByteArray dir = QDir::homePath().toLocal8Bit() + "/jreen-out.log";
+	static FILE *file = fopen(dir.constData(), "w");
+	fprintf(file, "%s", QByteArray(data, size).constData());
+	fflush(file);
 	stackProcess(QByteArray::fromRawData(data, size), false);
 }
 

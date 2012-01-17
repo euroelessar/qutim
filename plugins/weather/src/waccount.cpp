@@ -25,36 +25,36 @@
 
 #include "waccount.h"
 
-WAccount::WAccount( WProtocol *protocol ) : Account( "Weather", ( Protocol * )protocol )
+WAccount::WAccount(WProtocol *protocol) : Account("Weather", (Protocol *)protocol)
 {
-	settings = new GeneralSettingsItem< WSettings >( Settings::Plugin, QIcon( ":/icons/weather.png" ), QT_TRANSLATE_NOOP( "Weather", "Weather" ) );
-	Settings::registerItem( settings );
+	settings = new GeneralSettingsItem< WSettings >(Settings::Plugin, QIcon(":/icons/weather.png"), QT_TRANSLATE_NOOP("Weather", "Weather"));
+	Settings::registerItem(settings);
 
-	connect( settings->widget(), SIGNAL( saved() ), this, SLOT( loadSettings() ) );
+	connect(settings->widget(), SIGNAL(saved()), this, SLOT(loadSettings()));
 
 	m_timer = new QTimer();
-	connect( m_timer, SIGNAL( timeout() ), this, SLOT( updateAll() ) );
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateAll()));
 
 	loadSettings();
 }
 
 WAccount::~WAccount()
 {
-	Settings::removeItem( settings );
+	Settings::removeItem(settings);
 	delete settings;
-	foreach( WContact *v, m_contacts )
+	foreach (WContact *v, m_contacts)
 		v->deleteLater();
 }
 
-ChatUnit *WAccount::getUnitForSession( ChatUnit *unit )
+ChatUnit *WAccount::getUnitForSession(ChatUnit *unit)
 {
 	return unit;
 }
 
-ChatUnit *WAccount::getUnit( const QString &unitId, bool create )
+ChatUnit *WAccount::getUnit(const QString &unitId, bool create)
 {
-	Q_UNUSED( unitId );
-	Q_UNUSED( create );
+	Q_UNUSED(unitId);
+	Q_UNUSED(create);
 
 	return 0;
 }
@@ -74,57 +74,48 @@ bool WAccount::getShowStatusRow()
 	return s_showStatusRow;
 }
 
-void WAccount::setStatus( Status status )
+void WAccount::setStatus(Status status)
 {
-	Q_UNUSED( status );
+	Q_UNUSED(status);
 }
 
 void WAccount::loadSettings()
 {
-	Config mainGroup = Config( "weather" ).group( "main" );
+	Config mainGroup = Config("weather").group("main");
 
 	m_timer->stop();
-	m_timer->start( mainGroup.value( "interval", 25 ) * 1000 );
+	m_timer->start(mainGroup.value("interval", 25) * 1000);
 
-	s_showStatusRow = ( mainGroup.value( "showStatus", true ) ? Qt::Checked : Qt::Unchecked );
-	s_themePath = ( mainGroup.value( "useDefaultTheme", true ) ? ":/themes/default/" : mainGroup.value( "themePath", QString() ) );
+	s_showStatusRow = (mainGroup.value("showStatus", true) ? Qt::Checked : Qt::Unchecked);
+	s_themePath = (mainGroup.value("useDefaultTheme", true) ? ":/themes/default/" : mainGroup.value("themePath", QString()));
 
 	loadContacts();
 }
 
 void WAccount::updateAll()
 {
-	foreach( WContact *v, m_contacts )
+	foreach (WContact *v, m_contacts)
 		v->update();
 }
 
 void WAccount::loadContacts()
 {
-	Config mainGroup = Config( "weather" ).group( "main" );
-	QHash< QString, WContact * > contacts;
-
-	for ( int i = 0, count = mainGroup.value( "countItems", 0 ); i < count; i++ )
-	{
-		QString cityCode = mainGroup.value( "item_" + QString::number( i ), QString() );
-
-		if ( m_contacts.contains( cityCode ) )
-		{
-			contacts.insert( cityCode, m_contacts.value( cityCode ) );
-			m_contacts.value( cityCode )->updateStatus();
-			m_contacts.remove( cityCode );
-		}
-		else
-		{
-			WContact *cityContact = new WContact( cityCode, this );
-
-			contacts.insert( cityCode, cityContact );
-			cityContact->update();
-		}
+	Config config(QLatin1String("weather"));
+	config.beginGroup(QLatin1String("main"));
+	QHash<QString, WContact *> contacts;
+	int count = config.beginArray(QLatin1String("contacts"));
+	for (int i = 0; i < count; i++) {
+		QString cityCode = config.value(QLatin1String("code"), QString());
+		QString cityName = config.value(QLatin1String("name"), QString());
+		WContact *cityContact = m_contacts.take(cityCode);
+		
+		if (!cityContact)
+			cityContact = new WContact(cityCode, cityName, this);
+		contacts.insert(cityCode, cityContact);
+		cityContact->update();
 	}
 
-	foreach( WContact *v, m_contacts )
-		delete v;
-
+	qDeleteAll(m_contacts);
 	m_contacts = contacts;
 }
 

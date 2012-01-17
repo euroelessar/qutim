@@ -33,13 +33,13 @@ WeatherPlugin::WeatherPlugin() : m_protocol(0)
 
 void WeatherPlugin::init()
 {
-	addAuthor( QT_TRANSLATE_NOOP( "Author", "Nikita Belov" ),
-				QT_TRANSLATE_NOOP( "Task", "Developer" ),
-				QLatin1String("null@deltaz.org") );
-	setInfo( QT_TRANSLATE_NOOP("Plugin", "Weather plugin"),
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
+				QT_TRANSLATE_NOOP("Task", "Developer"),
+				QLatin1String("null@deltaz.org"));
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Weather plugin"),
 				QT_TRANSLATE_NOOP("Plugin", "Plugin shows a current weather in your city."),
-				PLUGIN_VERSION( 0, 0, 1, 0 ),
-				ExtensionIcon( QIcon( ":/icons/weather.png" ) ) );
+				PLUGIN_VERSION(0, 0, 1, 0),
+				ExtensionIcon(QIcon(":/icons/weather.png")));
 	setCapabilities(Loadable);
 	ActionGenerator *gen = new ActionGenerator(QIcon(":/icons/weather.png"),
 											   QT_TRANSLATE_NOOP("Weather", "Get weather"),
@@ -65,5 +65,5 @@ bool WeatherPlugin::unload()
 	return true;
 }
 
-QUTIM_EXPORT_PLUGIN( WeatherPlugin )
+QUTIM_EXPORT_PLUGIN(WeatherPlugin)
 
