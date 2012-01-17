@@ -45,7 +45,6 @@ QuickNoficationManager::QuickNoficationManager() :
 	NotificationBackend("Popup")
 {
 	setDescription(QT_TR_NOOP("Show popup"));
-
 }
 
 
@@ -56,12 +55,14 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 	{
 		NotificationWrapper::connect(this);
 		m_connected = true;
+		qDebug()<<"Connect to qml notificatinManager";
 
 		bool showAc=true;
 		foreach (Protocol *proto,Protocol::all()) {
 			if (!proto->accounts().isEmpty())
 			showAc=false;
 		}
+		qDebug()<<"Show account creator:"<<showAc;
 		if (showAc)
 		AddAccountDialogWrapper::showDialog();
 
@@ -81,7 +82,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 			m_notifications << notification;
 			QList<MNotification *> notifs= MNotification::notifications();
 
-			for (int i=0;i<m_notifications.count();i++)
+			for (int i=0;i<notifs.count();i++)
 			{
 				notifs.at(i)->remove();
 			}
