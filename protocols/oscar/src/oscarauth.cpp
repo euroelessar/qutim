@@ -229,6 +229,12 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
 				mac.size());
 	return mac.toBase64();
 #elif defined(OSCAR_USE_QCA2)
+	static bool qcaInited = false;
+	if (!qcaInited) {
+		qcaInited = true;
+		QCA::setAppName("qutim");
+		QCA::init();
+	}
 	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
 	hash.update(array);
 	return hash.final().toByteArray().toBase64();
