@@ -639,7 +639,9 @@ void WebKitMessageViewStyle::loadTemplates()
 	//Starting with version 1, styles can choose to not include template.html.  If the template is not included 
 	//Adium's default will be used.  This is preferred since any future template updates will apply to the style
 	if (d->baseHTML.isEmpty() && d->styleVersion >= 1) {
-		QFile file(SHARE_PATH + QLatin1String("/Template.html"));
+		QDir shareDir = ThemeManager::path(QLatin1String("data"), QLatin1String("webview"));
+		Q_ASSERT(shareDir.exists(QLatin1String("Template.html")));
+		QFile file(shareDir.filePath(QLatin1String("Template.html")));
 		file.open(QFile::ReadOnly);
 		d->baseHTML = QString::fromUtf8(file.readAll());
 		d->usingCustomTemplateHTML = false;
@@ -839,14 +841,14 @@ WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qut
 {
 	QObject *source = 0;
 	UnitData result;
-	QString id = message.property("senderId", QString());
-	if (!id.isEmpty()) {
-		source = message.chatUnit()->account()->getUnit(id, false);
-		if (!source) {
-			result.id = id;
-			result.title = message.property("senderName", QString());
-			return result;
-		}
+	result.id = message.property("senderId", QString());
+	result.title = message.property("senderName", QString());
+	if (!result.title.isEmpty()) {
+		if (!result.id.isEmpty())
+			source = message.chatUnit()->account()->getUnit(result.id, false);
+		if (source)
+			result.avatar = source->property("avatar").toString();
+		return result;
 	}
 	if (!source && message.chatUnit()) {
 		if (!message.isIncoming()) {
