@@ -89,10 +89,6 @@ void VMessagesPrivate::onMessageSended()
 	}	
 }
 
-void VMessagesPrivate::onMessagesRecieved()
-{
-}
-
 void VMessages::markAsRead(const QStringList &messages)
 {
 	QVariantMap data;
