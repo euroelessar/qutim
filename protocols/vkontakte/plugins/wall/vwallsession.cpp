@@ -158,7 +158,7 @@ void VWallSessionPrivate::onGetHistoryFinished()
 		QString name = from_id;
 		if (!profile.isEmpty()) {
 			VContact *contact = account()->connection()->roster()->getContact(profile,true);
-			contact->setStatus(msg_item.value("online").toBool());
+			contact->setOnline(msg_item.value("online").toBool());
 			name = contact->title();
 			session->addContact(contact);
 		}

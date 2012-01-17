@@ -143,7 +143,7 @@ void VLongPollClient::onDataReceived()
 				QString id = update.value(1).toString().mid(1);
 				VContact *contact = m_connection->account()->getContact(id, false);
 				if (contact)
-					contact->setStatus(updateType == UserOnline);
+					contact->setOnline(updateType == UserOnline);
 				break;
 			}
 		}
