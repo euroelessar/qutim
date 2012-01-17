@@ -49,8 +49,9 @@ QString WebKitPreviewChatUnit::avatar() const
 	return m_data.value(QLatin1String("UserIcon Name")).toString();
 }
 
-bool WebKitPreviewChatUnit::sendMessage(const qutim_sdk_0_3::Message &message)
+bool WebKitPreviewChatUnit::sendMessage(const qutim_sdk_0_3::Message &)
 {
+	return true;
 }
 
 WebKitPreviewAccount::WebKitPreviewAccount(const QVariantMap &data, qutim_sdk_0_3::Protocol *protocol)

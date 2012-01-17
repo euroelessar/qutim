@@ -148,8 +148,10 @@ void VConnection::onLoadFinished(bool ok)
 			pass.setAttribute("value", password);
 		}
 
+#if 0
 		QWebElement connectButton = webView->page()->mainFrame()->findFirstElement("#connect_button");
 		connectButton.evaluateJavaScript(QLatin1String("this.click();"));
+#endif
 
 		if (!webView->isVisible()) {
 			SystemIntegration::show(webView);
