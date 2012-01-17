@@ -195,6 +195,8 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 	SignalBlocker variantBlocker(ui->variantBox);
 	SignalBlocker backgroundTypeBlocker(ui->backgroundTypeBox);
 	
+	if (!m_styleName.isEmpty())
+		emit modifiedChanged(true);
 	m_styleName = styleName;
 	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
 	
