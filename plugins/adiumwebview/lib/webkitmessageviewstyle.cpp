@@ -39,6 +39,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/thememanager.h>
 
 using namespace qutim_sdk_0_3;
 
