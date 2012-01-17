@@ -1,6 +1,7 @@
 if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
 SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
 SET(QT_QTDECLARATIVE_INCLUDE_DIR "/usr/include/QtDeclarative/")
+SET(QT_QTDECLARATIVE_FOUND true)
 endif()
 
 QUTIM_ADD_ARTWORK(qmlchat)

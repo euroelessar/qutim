@@ -23,11 +23,6 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h>
-#ifdef Q_OS_HAIKU
-# define SHA2_TYPES
-#endif
-
 #include "oscarauth.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"
@@ -38,7 +33,16 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include "../3rdparty/hmac/hmac_sha2.h"
+#if defined(OSCAR_USE_3RDPARTY_HMAC)
+#ifdef Q_OS_HAIKU
+# define SHA2_TYPES
+#endif
+# include "../3rdparty/hmac/hmac_sha2.h"
+#elif defined(OSCAR_USE_QCA2)
+# include <QtCrypto>
+#else
+# error Oscar authorization module depends on hmac-sha256 support
+#endif
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
@@ -215,6 +219,7 @@ void OscarAuth::onPasswordDialogFinished(int result)
 
 static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 {
+#if defined(OSCAR_USE_3RDPARTY_HMAC)
 	QByteArray mac(SHA256_DIGEST_SIZE, 0);
 	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
 				sessionSecret.length(),
@@ -223,6 +228,19 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
 				reinterpret_cast<unsigned char*>(mac.data()),
 				mac.size());
 	return mac.toBase64();
+#elif defined(OSCAR_USE_QCA2)
+	static bool qcaInited = false;
+	if (!qcaInited) {
+		qcaInited = true;
+		QCA::setAppName("qutim");
+		QCA::init();
+	}
+	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
+	hash.update(array);
+	return hash.final().toByteArray().toBase64();
+#else
+# error Oscar authorization module depends on hmac-sha256 support
+#endif
 }
 
 static QByteArray paranoicEscape(const QByteArray &raw)

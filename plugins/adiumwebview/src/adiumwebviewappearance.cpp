@@ -121,32 +121,9 @@ void WebViewAppearance::saveImpl()
 
 void WebViewAppearance::fillStylesComboBox()
 {
-	ui->styleNameBox->blockSignals(true);
 	ui->styleNameBox->clear();
 	foreach (const QString &name, ThemeManager::list(QLatin1String("webkitstyle")))
 		ui->styleNameBox->addItem(name);
-	ui->styleNameBox->blockSignals(false);
-}
-
-void WebViewAppearance::onThemeChanged(int index)
-{
-	m_styleName = ui->styleNameBox->itemText(index);
-	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
-	m_controller->clearChat();
-	foreach (const Message &message, m_preview->messages)
-		m_controller->appendMessage(message);
-//	makePage();
-	makeSettings();
-	if (!m_isLoad)
-		emit modifiedChanged(true);
-	m_isLoad = false;
-}
-
-void WebViewAppearance::onVariantChanged(const QString variant)
-{
-	m_style->setActiveVariant(variant);
-	m_controller->evaluateJavaScript(m_style->scriptForChangingVariant());
-	emit modifiedChanged(true);
 }
 
 void WebViewAppearance::rebuildChatView()
@@ -218,6 +195,8 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 	SignalBlocker variantBlocker(ui->variantBox);
 	SignalBlocker backgroundTypeBlocker(ui->backgroundTypeBox);
 	
+	if (!m_styleName.isEmpty())
+		emit modifiedChanged(true);
 	m_styleName = styleName;
 	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
 	

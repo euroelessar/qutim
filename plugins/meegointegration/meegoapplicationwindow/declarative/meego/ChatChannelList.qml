@@ -48,7 +48,7 @@ Page {
 			function __suggestIcon(unit, unreadCount) {
                 var iconId = "icon-m-";
 				if (unreadCount > 0) {
-					iconId += "toolbar-new-message";
+					iconId += "content-sms";
 				} else if (unit.conference) {
 					iconId += "content-chat";
 				} else {

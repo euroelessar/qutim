@@ -29,7 +29,6 @@
 #include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
 #include <qutim/conference.h>
-#include <qutim/notification.h>
 #include <QDateTime>
 
 namespace MeegoIntegration
@@ -77,8 +76,6 @@ ChatMessageModel::ChatMessageModel(QObject *parent) :
 void ChatMessageModel::append(qutim_sdk_0_3::Message &msg)
 {
 	beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
-	if (!msg.property("silent", false))
-			Notification::send(msg);
 	m_messages << msg;
 	endInsertRows();
 }
