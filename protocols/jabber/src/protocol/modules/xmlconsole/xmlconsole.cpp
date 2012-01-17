@@ -39,9 +39,6 @@
 #include <qutim/systemintegration.h>
 //#include <QElapsedTimer>
 
-#include <QDir>
-#include <cstdio>
-
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
@@ -115,6 +112,8 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	m_stackOutgoing.tagColor = QColor(0x22aa22);
 	m_stackOutgoing.attributeColor = QColor(0xffff33);
 	m_stackOutgoing.paramColor = QColor(0xdd8811);
+	m_stackIncoming.commentColor = QColor(0xb2b2b2);
+	m_stackOutgoing.commentColor = QColor(0xb2b2b2);
 
 	QAction *action = new QAction(tr("Close"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -168,19 +167,11 @@ void XmlConsole::handleStreamEnd()
 
 void XmlConsole::handleIncomingData(const char *data, qint64 size)
 {
-	static QByteArray dir = QDir::homePath().toLocal8Bit() + "/jreen-in.log";
-	static FILE *file = fopen(dir.constData(), "w");
-	fprintf(file, "%s", QByteArray(data, size).constData());
-	fflush(file);
 	stackProcess(QByteArray::fromRawData(data, size), true);
 }
 
 void XmlConsole::handleOutgoingData(const char *data, qint64 size)
 {
-	static QByteArray dir = QDir::homePath().toLocal8Bit() + "/jreen-out.log";
-	static FILE *file = fopen(dir.constData(), "w");
-	fprintf(file, "%s", QByteArray(data, size).constData());
-	fflush(file);
 	stackProcess(QByteArray::fromRawData(data, size), false);
 }
 
@@ -199,6 +190,16 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 	while (d->reader.readNext() > QXmlStreamReader::Invalid) {
 //		QDebug dbg = debug() << incoming << d->reader.tokenString();
 		switch(d->reader.tokenType()) {
+		case QXmlStreamReader::Comment: {
+			QTextCursor cursor(m_ui->xmlBrowser->document());
+			cursor.movePosition(QTextCursor::End);
+			cursor.beginEditBlock();
+			cursor.insertBlock();
+			QTextCharFormat bodyFormat = cursor.charFormat();
+			bodyFormat.setForeground(d->commentColor);
+			cursor.insertText(d->reader.text().toString(), bodyFormat);
+			cursor.endEditBlock();
+			break; }
 		case QXmlStreamReader::StartElement:
 //			dbg << d->reader.name().toString() << d->depth
 //					<< d->reader.attributes().value(QLatin1String("from")).toString();

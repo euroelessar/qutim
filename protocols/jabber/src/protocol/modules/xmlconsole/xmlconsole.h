@@ -169,6 +169,7 @@ private:
 		State state;
 		int depth;
 		QList<StackToken*> tokens;
+		QColor commentColor;
 		QColor bodyColor;
 		QColor tagColor;
 		QColor attributeColor;
