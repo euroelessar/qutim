@@ -42,7 +42,7 @@ public:
 	WebViewWidget(QWidget *parent = 0);
     virtual void setViewController(QObject* controller);
 private:
-	QPointer<WebViewController> m_controller;
+	QWeakPointer<WebViewController> m_controller;
 };
 
 } // namespace Adium
