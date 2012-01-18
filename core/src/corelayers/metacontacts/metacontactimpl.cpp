@@ -103,20 +103,17 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 	if (m_contacts.contains(contact) || (contact == this))
 		return;
 
-	bool haveChanges = false;
 	if(update) {
 		QStringList previous = m_tags;
 		QStringList contactTags = contact->tags();
 		for (int i = 0; i < contactTags.size(); i++) {
 			if (!m_tags.contains(contactTags.at(i))) {
 				m_tags << contactTags.at(i);
-				haveChanges = true;
 			}
 		}
 		emit tagsChanged(m_tags, previous);
 	}
 
-	haveChanges = false; //WTF?
 	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 			- m_contacts.begin();
 	m_contacts.insert(index, contact);
@@ -139,7 +136,7 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 
 void MetaContactImpl::addContact(Contact *contact)
 {
-	addContact(contact,true);
+	addContact(contact, true);
 }
 
 void MetaContactImpl::removeContact(Contact *contact)

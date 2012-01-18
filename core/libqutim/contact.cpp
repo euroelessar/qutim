@@ -63,7 +63,9 @@ bool Contact::event(QEvent *e)
 {
 	if (e->type() == MetaContactChangeEvent::eventType()) {
 		MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(e);
-		d_func()->metaContact = metaEvent->newMetaContact();
+		MetaContact *metaContact = metaEvent->newMetaContact();
+		if (metaContact != this)
+			d_func()->metaContact = metaContact;
 	}
 	return Buddy::event(e);
 }
