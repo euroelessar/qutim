@@ -118,6 +118,13 @@ private:
 				endTag.name = new QStringRef(endTag.namePointer, tmp.position(), tmp.length());
 			}
 		}
+		StackToken(const QString &name)
+		{
+			type = QXmlStreamReader::Characters;
+			charachters.textPointer = new QString(name);
+			charachters.text = new QStringRef(charachters.textPointer);
+		}
+
 		~StackToken()
 		{
 			if (type == QXmlStreamReader::StartElement) {
@@ -162,6 +169,7 @@ private:
 		State state;
 		int depth;
 		QList<StackToken*> tokens;
+		QColor commentColor;
 		QColor bodyColor;
 		QColor tagColor;
 		QColor attributeColor;

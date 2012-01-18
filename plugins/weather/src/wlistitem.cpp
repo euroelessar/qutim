@@ -24,28 +24,29 @@
 ****************************************************************************/
 
 #include "wlistitem.h"
+#include <qutim/icon.h>
 
-WListItem::WListItem( const QString &title, bool addIcon )
+WListItem::WListItem(const QString &title, bool addIcon)
 {
-	m_label = new QLabel( title );
+	m_label = new QLabel(title);
 
 	m_button = new QPushButton();
 	m_button->setMinimumSize(QSize(16, 16));
 	m_button->setMaximumSize(QSize(16, 16));
-	m_button->setIcon( QIcon( addIcon ? ":/icons/add.png" : ":/icons/delete.png" ) );
-	m_button->setFlat( true );
+	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String(addIcon ? "list-add" : "list-remove")));
+	m_button->setFlat(true);
 
-	connect( m_button, SIGNAL( clicked( bool ) ), this, SLOT( buttonClicked( bool ) ) );
+	connect(m_button, SIGNAL(clicked(bool)), this, SIGNAL(buttonClicked()));
 
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setContentsMargins( 0,0,0,0 );
-	if ( addIcon )
-		layout->addWidget( m_button );
-	layout->addWidget( m_label );
-	if ( !addIcon )
-		layout->addWidget( m_button );
+	layout->setContentsMargins(0, 0, 0, 0);
+	if (addIcon)
+		layout->addWidget(m_button);
+	layout->addWidget(m_label);
+	if (!addIcon)
+		layout->addWidget(m_button);
 
-	setLayout( layout );
+	setLayout(layout);
 }
 
 WListItem::~WListItem()
@@ -57,9 +58,9 @@ QString WListItem::title()
 	return m_label->text();
 }
 
-void WListItem::setTitle( const QString &title )
+void WListItem::setTitle(const QString &title)
 {
-	m_label->setText( title );
+	m_label->setText(title);
 }
 
 QListWidgetItem *WListItem::item()
@@ -67,15 +68,8 @@ QListWidgetItem *WListItem::item()
 	return m_listWidgetItem;
 }
 
-void WListItem::setItem( QListWidgetItem *item )
+void WListItem::setItem(QListWidgetItem *item)
 {
 	m_listWidgetItem = item;
-}
-
-void WListItem::buttonClicked( bool checked )
-{
-	Q_UNUSED( checked );
-
-	emit buttonClicked();
 }
 

@@ -142,29 +142,6 @@ void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)
 	QDesktopServices::openUrl(url);
 }
 
-void VkontakteProtocolPrivate::onSendSmsTriggered(QObject *obj)
-{
-	VContact *con = qobject_cast<VContact*>(obj);
-	Q_ASSERT(obj);
-	Q_UNUSED(con);
-	 bool ok;
-	 QWidget *widget = 0;
-	 QString text = QInputDialog::getText(widget, tr("Send sms"),
-										  tr("text:"), QLineEdit::Normal,
-										  QString()
-										  , &ok);
-	 if (ok && text.count() <= 160) {
-		Message msg(text);
-		msg.setChatUnit(con);
-		msg.setProperty("title",tr("sms"));
-		msg.setProperty("action",true);
-		msg.setTime(QDateTime::currentDateTime());
-		ChatLayer::get(con,true)->appendMessage(msg);
-		VAccount *account = static_cast<VAccount*>(con->account());
-		account->connection()->messages()->sendSms(msg);
-	 }
-}
-
 bool VkontakteProtocol::event(QEvent *ev)
 {
 	return Protocol::event(ev);

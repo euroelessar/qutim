@@ -51,6 +51,8 @@ QString WebKitPreviewChatUnit::avatar() const
 
 bool WebKitPreviewChatUnit::sendMessage(const qutim_sdk_0_3::Message &message)
 {
+	Q_UNUSED(message);
+	return false;
 }
 
 WebKitPreviewAccount::WebKitPreviewAccount(const QVariantMap &data, qutim_sdk_0_3::Protocol *protocol)

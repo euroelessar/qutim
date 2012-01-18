@@ -46,13 +46,11 @@ class VMessagesPrivate : public QObject
 public:
 	VConnection *connection;
 	VMessages *q_ptr;
-	QHash<ChatSession*,MessageList> unreadMess;
+	QHash<ChatSession*, MessageList> unreadMessages;
 public slots:
 	void onConnectStateChanged(VConnectionState state);
 	void onHistoryRecieved(); //TODO move to vconnection
-	void onMessagesRecieved();
 	void onMessageSended();
-	void onSmsSended();
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &list);
 };
 

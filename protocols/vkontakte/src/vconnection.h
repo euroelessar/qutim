@@ -55,7 +55,7 @@ public:
 	VMessages *messages() const;
 	VRoster *roster() const;
 public slots:
-	void connectToHost(const QString &passwd);
+	void connectToHost();
 	void disconnectFromHost(bool force = false);
 	void saveSettings();
 	void loadSettings();
@@ -66,6 +66,10 @@ protected:
 	void setConnectionState(VConnectionState state);
 private:
 	QScopedPointer<VConnectionPrivate> d_ptr;
+
+	Q_PRIVATE_SLOT(d_func(), void _q_on_error(QNetworkReply::NetworkError error))
+	Q_PRIVATE_SLOT(d_func(), void _q_on_reply_finished())
+	Q_PRIVATE_SLOT(d_func(), void _q_on_webview_destroyed())
 };
 
 inline VReply *VConnection::request(const QString &method, const QVariantMap &args)
