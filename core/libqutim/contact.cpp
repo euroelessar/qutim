@@ -69,5 +69,6 @@ bool Contact::event(QEvent *e)
 	}
 	return Buddy::event(e);
 }
+
 }
 
