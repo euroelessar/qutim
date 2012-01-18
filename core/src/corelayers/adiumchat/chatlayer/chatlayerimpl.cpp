@@ -35,18 +35,13 @@
 #include "chatsessionimpl.h"
 #include "conferencetabcompletion.h"
 #include "chatforms/abstractchatform.h"
+#include "chatviewfactory.h"
 #include <QPlainTextEdit>
 
 namespace Core
 {
 namespace AdiumChat
 {
-//	inline ActionGenerator *generate(const char *name)
-//	{
-//		return new ActionGenerator(Icon("mail-message-new"),
-//								   LocalizedString("ChatLayer", name),
-//								   ChatLayer::instance(), SLOT(onStartChat()));
-//	}
 
 void init()
 {
@@ -73,6 +68,8 @@ ChatLayerImpl::ChatLayerImpl()
 {
 	qRegisterMetaType<QWidgetList>("QWidgetList");
 	init();
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QObject*,QObject*)),
+			SLOT(onServiceChanged(QObject*)));
 }
 
 
@@ -84,13 +81,13 @@ ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 	//find or create session
 	if(!(unit = getUnitForSession(unit)))
 		return 0;
-	ChatSessionImpl *session = m_chat_sessions.value(unit);
+	ChatSessionImpl *session = m_chatSessions.value(unit);
 	if(!session && create) {
-		session = new ChatSessionImpl(unit,this);
-		connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
-		m_chat_sessions.insert(unit,session);
+		session = new ChatSessionImpl(unit, this);
+		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onChatSessionDestroyed(QObject*)));
+		m_chatSessions.insert(unit,session);
 		emit sessionCreated(session);
-		connect(session,SIGNAL(activated(bool)),SLOT(onChatSessionActivated(bool)));
+		connect(session, SIGNAL(activated(bool)), SLOT(onChatSessionActivated(bool)));
 	}
 	return session;
 }
@@ -99,7 +96,7 @@ QList<ChatSession* > ChatLayerImpl::sessions()
 {
 	QList<ChatSession* >  list;
 	ChatSessionHash::const_iterator it;
-	for (it=m_chat_sessions.constBegin();it!=m_chat_sessions.constEnd();it++)
+	for (it=m_chatSessions.constBegin();it!=m_chatSessions.constEnd();it++)
 		list.append(it.value());
 	return list;
 }
@@ -107,9 +104,9 @@ QList<ChatSession* > ChatLayerImpl::sessions()
 void ChatLayerImpl::onChatSessionDestroyed(QObject *object)
 {
 	ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
-	ChatUnit *key = m_chat_sessions.key(sess);
+	ChatUnit *key = m_chatSessions.key(sess);
 	if (key)
-		m_chat_sessions.remove(key);
+		m_chatSessions.remove(key);
 }
 
 ChatLayerImpl::~ChatLayerImpl()
@@ -127,28 +124,28 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 	if (qobject_cast<const Conference*>(unit))
 		return Icon("view-conversation-balloon");
 
-	QString icon_name;
+	QString iconName;
 	switch (state) {
 	//FIXME icon names
 	case ChatStateActive:
-		icon_name = "im-user"; //TODO find icon
+		iconName = "im-user"; //TODO find icon
 		break;
 	case ChatStateInActive:
-		icon_name = "im-user-away";
+		iconName = "im-user-away";
 		break;
 	case ChatStateGone:
-		icon_name =  "im-user-offline";
+		iconName =  "im-user-offline";
 		break;
 	case ChatStateComposing:
-		icon_name = "im-status-message-edit";
+		iconName = "im-status-message-edit";
 		break;
 	case ChatStatePaused:
-		icon_name = "im-user-busy";
+		iconName = "im-user-busy";
 		break;
 	default:
 		break;
 	}
-	return Icon(icon_name);
+	return Icon(iconName);
 }
 
 void ChatLayerImpl::insertText(ChatSessionImpl *session, const QString &text, bool setFocus)
@@ -182,21 +179,30 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 		if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
 									  Q_ARG(qutim_sdk_0_3::ChatSession*, session)) && obj) {
 			if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj)) {
-				if (m_tab_completion.isNull()) {
-					m_tab_completion = new ConfTabCompletion(this);
+				if (m_tabCompletion.isNull()) {
+					m_tabCompletion = new ConfTabCompletion(this);
 				}
-				debug() << "Set conftabcompletion to" << session->unit()->title();
-				m_tab_completion->setTextEdit(edit);
-				m_tab_completion->setChatSession(session);
+				m_tabCompletion.data()->setTextEdit(edit);
+				m_tabCompletion.data()->setChatSession(session);
 				return;
 			}
 		}
 	}
-	else if (!m_tab_completion.isNull()) {
-		m_tab_completion->deleteLater();
+	else if (!m_tabCompletion.isNull()) {
+		m_tabCompletion.data()->deleteLater();
 	}
-
 }
+
+void ChatLayerImpl::onServiceChanged(QObject *now)
+{
+	if (qobject_cast<ChatViewFactory*>(now)) {
+		foreach (const ChatSessionImpl *session, m_chatSessions)
+			if (session && session->controller()) {
+				session->controller()->deleteLater();
+			}
+	}
+}
+
 }
 }
 

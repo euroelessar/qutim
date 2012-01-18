@@ -59,9 +59,9 @@ public:
 	ChatSessionImplPrivate();
 	virtual ~ChatSessionImplPrivate();
 	void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
-	ChatViewController *getController() const;
-	void ensureController() const;
-	mutable QPointer<QObject> controller;
+	ChatViewController *getController();
+	void ensureController();
+	QPointer<QObject> controller;
 	QPointer<ChatUnit> chatUnit;
 	QPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
 	QPointer<ChatUnit> last_active_unit; // the unit a last message was from
@@ -76,7 +76,6 @@ public:
 	MessageList unread;
 	ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
-	//ChatState statusToState(Status::Type type);
 public slots:
 	void onActiveTimeout();
 	void onResourceChosen(bool active);

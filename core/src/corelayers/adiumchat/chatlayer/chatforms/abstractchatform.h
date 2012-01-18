@@ -68,7 +68,7 @@ private slots:
 	void onSettingsChanged();
 	void onServiceChanged(QObject *newObject, QObject *oldObject);
 private:
-	QHash<QString, AbstractChatWidget*> m_chatwidgets;
+	QHash<QString, AbstractChatWidget*> m_chatWidgets;
 	QString getWidgetId(ChatSessionImpl *sess) const;
 	AbstractChatWidget *findWidget(qutim_sdk_0_3::ChatSession *sess) const;
 	QList<qutim_sdk_0_3::ActionGenerator*> m_actions;

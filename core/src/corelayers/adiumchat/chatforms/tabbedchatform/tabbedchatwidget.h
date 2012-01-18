@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 	class ActionToolBar;
 }
 class QVBoxLayout;
+class QSplitter;
 namespace Core
 {
 namespace AdiumChat
@@ -76,6 +77,7 @@ public:
 	void activateWindow();
 	void addSessions(const ChatSessionList &sessions);
 	Q_INVOKABLE ActionToolBar *toolBar() const;
+	virtual void setView(QWidget *view);
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
 	virtual void removeSession(ChatSessionImpl *session);
@@ -88,10 +90,11 @@ protected slots:
 	void onSessionActivated(bool active);
 	void ensureToolBar();
 	void onUnreadChanged();
+	void onControllerDestroyed(QObject *controller);
 private:
 	ActionToolBar *m_toolbar;
 	ActionContainer m_actions;
-	ChatViewWidget *m_view;
+	ChatViewWidget *m_chatViewWidget;
 	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
@@ -106,6 +109,8 @@ private:
 	ChatFlags m_flags;
 	QAction *m_sessionList;
 	QAction *m_unitAction;
+	QSplitter *m_vSplitter;
+	QWidget *m_view;
 };
 
 }

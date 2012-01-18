@@ -162,6 +162,9 @@ QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *pa
 	m_context->setContextProperty("controller", this);
 }
 
+QuickChatController::~QuickChatController()
+{
+}
 
 void QuickChatController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
@@ -212,11 +215,6 @@ void QuickChatController::setChatSession(ChatSessionImpl* session)
 
 	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
 			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
-}
-
-QuickChatController::~QuickChatController()
-{
-
 }
 
 QDeclarativeItem *QuickChatController::rootItem() const

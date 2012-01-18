@@ -25,11 +25,12 @@
 
 #ifndef CHATSESSIONIMPL_H
 #define CHATSESSIONIMPL_H
-#include <qutim/messagesession.h>
+
 #include <QTextDocument>
-#include <QPointer>
+#include <QDateTime>
 #include <QTimer>
 #include "chatlayer_global.h"
+#include <qutim/chatsession.h>
 
 class QAbstractItemModel;
 class QWebPage;
@@ -61,7 +62,8 @@ public:
 	virtual void addContact ( Buddy* c );
 	virtual qint64 doAppendMessage(Message &message);
 	virtual void removeContact ( Buddy* c );
-	QObject *getController() const;
+	QObject *controller();
+	QObject *controller() const;
 	Account *getAccount() const;
 	QString getId() const;
 	ChatUnit *getUnit() const;
@@ -81,6 +83,7 @@ signals:
 	void buddiesChanged();
 	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);
 	void javaScriptSupportChanged(bool has);
+	void controllerDestroyed(QObject *);
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void clearChat();

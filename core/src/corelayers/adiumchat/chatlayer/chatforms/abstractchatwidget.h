@@ -59,6 +59,7 @@ public:
 	virtual ~AbstractChatWidget() {}
 	virtual ChatSessionImpl *currentSession() const = 0;
 	static QString titleForSession(ChatSessionImpl *s);
+	virtual void setView(QWidget *) {}
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
 	void addSessions(const ChatSessionList &sessions);
@@ -69,8 +70,6 @@ protected:
 	virtual void setTitle(ChatSessionImpl *s);
 signals:
 	void currentSessionChanged(ChatSessionImpl *now,ChatSessionImpl *before);
-protected:
-
 };
 
 }
