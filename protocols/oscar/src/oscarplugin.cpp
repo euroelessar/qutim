@@ -55,7 +55,7 @@ void OscarPlugin::init()
 			PLUGIN_VERSION(0, 0, 1, 0));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("euroelessar@gmail.com"));
+			  QLatin1String("euroelessar@yandex.ru"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));

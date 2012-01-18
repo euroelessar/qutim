@@ -3,7 +3,7 @@
  * Last update: 06/15/2005
  * Issue date:  06/15/2005
  *
- * Copyright (C) 2005 Olivier Gay <olivier.gay@a3.epfl.ch>
+ * Copyright © 2005 Olivier Gay <olivier.gay@a3.epfl.ch>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

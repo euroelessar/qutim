@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -39,9 +39,9 @@ void VkontaktePlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Vkontakte"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
 			PLUGIN_VERSION(0, 0, 1, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("sauron@citadelspb.com"));
+			  QLatin1String("gorthauer87@yandex.ru"));
 // 	addAuthor(QT_TRANSLATE_NOOP("Author", "Rustam Chakin"),
 // 			  QT_TRANSLATE_NOOP("Task", "Founder"),
 // 			  QLatin1String(""));

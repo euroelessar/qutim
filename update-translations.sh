@@ -2,7 +2,7 @@
 #**
 #** qutIM instant messenger
 #**
-#** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+#** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 #**
 #*****************************************************************************
 #**

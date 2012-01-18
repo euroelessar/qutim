@@ -3,7 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright © 2011 Prokhin Alexey <alexey.prokhin@yandex.ru>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
@@ -53,13 +53,13 @@ void YandexNarodPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
 			PLUGIN_VERSION(0, 2, 1, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@gmail.com"));
+			  QLatin1String("euroelessar@yandex.ru"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));

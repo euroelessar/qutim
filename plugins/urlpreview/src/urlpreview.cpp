@@ -3,7 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -46,9 +46,9 @@ void UrlPreviewPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("boiler@co.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	addAuthor(QT_TRANSLATE_NOOP("Author","Nicolay Izoderov"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),

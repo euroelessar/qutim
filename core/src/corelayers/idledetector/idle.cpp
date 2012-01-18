@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2003 Justin Karneges
+** Copyright © 2003 Justin Karneges <justin@affinix.com>
 **
 *****************************************************************************
 **
