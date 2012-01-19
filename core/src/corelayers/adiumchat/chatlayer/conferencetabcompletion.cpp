@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2008 Justin Karneges, Martin Hostettler
+** Copyright © 2008 Justin Karneges <justin@affinix.com>
+** Copyright © 2008 Martin Hostettler <textshell-I1QKlO@neutronstar.dyndns.org>
 **
 *****************************************************************************
 **

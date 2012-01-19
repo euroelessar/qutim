@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Evgeniy Degtyarev degtep@gmail.com
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************

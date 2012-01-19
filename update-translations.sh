@@ -2,7 +2,7 @@
 #**
 #** qutIM instant messenger
 #**
-#** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+#** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 #**
 #*****************************************************************************
 #**
@@ -39,6 +39,10 @@ then
 	lupdate=`which lupdate`
 fi
 
+customJsonFile=$PWD/plugins/adiumwebview/__custom_json_from_styles.cpp
+
+grep \"label\" $PWD/core/share/qutim/webkitstyle/*/Contents/Resources/*.json | sed 's/.*://g;s/, *$/);/g;s/^/Qt::translate("Style",/' | sort -u > $customJsonFile
+
 for file in $PWD/plugins/* $PWD/protocols/* $PWD/core
 do
 	if [ -f $file/CMakeLists.txt ]
@@ -55,6 +59,8 @@ do
 		done
 	fi
 done
+
+rm $customJsonFile
 
 module=devels
 modulePath=$PWD/translations/modules/$module

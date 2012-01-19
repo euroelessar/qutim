@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -246,7 +246,10 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 			variables.setArrayIndex(index);
 			QString type = variables.value(QLatin1String("type"), QString());
 			QString text = variables.value(QLatin1String("label"), QString());
-			text = variables.value(QString::fromLatin1("label-").append(QLocale().name()), text);
+			QString localizedText = QCoreApplication::translate("Style", text.toUtf8());
+			if (localizedText == text)
+				localizedText = variables.value(QLatin1String("label-") + QLocale().name(), text);
+			text = localizedText;
 			WebViewCustomStyle style;
 			style.parameter = variables.value(QLatin1String("parameter"), QString());
 			style.selector = variables.value(QLatin1String("selector"), QString());

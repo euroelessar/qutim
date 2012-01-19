@@ -39,9 +39,9 @@ void DPlugin::init()
 		QT_TRANSLATE_NOOP("Plugin", "Notification system based on Freedesktop DBus protocol"),
 		PLUGIN_VERSION(0, 0, 1, 0),
 		dIcon);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	addExtension<DBusBackend>(QT_TRANSLATE_NOOP("plugin","DBus notifications"),
 							   QT_TRANSLATE_NOOP("plugin","Notification system based on Freedesktop DBus protocol"));

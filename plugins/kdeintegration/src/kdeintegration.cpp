@@ -75,8 +75,8 @@ void KdePlugin::init()
 	aboutData.setProgramIconName(QLatin1String("qutim"));
 	aboutData.setHomepage("http://qutim.org");
 
-//	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@gmail.com");
-//	aboutData.addAuthor(ki18n("Sidorov Aleksey"), ki18n("Developer"), "sauron@citadelspb.com");
+//	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@yandex.ru");
+//	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "gorthauer87@yandex.ru");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
 	aboutData.addLicense(KAboutData::License_GPL_V2);
 	aboutData.setBugAddress("https://bugs.launchpad.net/qutim/+filebug");
@@ -95,10 +95,10 @@ void KdePlugin::init()
 	ExtensionIcon kdeIcon("kde");
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@gmail.com"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "KDE integration"),
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
