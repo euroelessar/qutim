@@ -351,9 +351,8 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			if (participant->realJID().isValid())
 				user->setRealJid(participant->realJID());
 			text = user->realJid().isEmpty()
-					? nick % QLatin1Literal(" ")
-					: nick + QLatin1Literal(" (") % user->realJid()
-					  % QLatin1Literal(") ");
+					? nick
+					: nick % QLatin1Literal(" (") % user->realJid() % QLatin1Literal(")");
 			text = text % tr(" has joined the room");
 			if (participant->affiliation() == MUCRoom::AffiliationOwner)
 				text = text % tr(" as") % tr(" owner");
