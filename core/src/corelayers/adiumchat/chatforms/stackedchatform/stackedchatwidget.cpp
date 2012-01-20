@@ -325,7 +325,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	m_sessionList->setCurrentSession(session);
 	m_chatInput->setSession(session);
 	m_contactView->setSession(session);
-	m_view->setViewController(session->getController());
+	m_view->setViewController(session->controller());
 
 	if(m_contactView->isVisible())
 		m_stack->addWidget(m_contactView);

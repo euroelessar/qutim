@@ -53,7 +53,6 @@ MetaContact *MetaContactManager::createContact()
 {
 	QString id = QUuid::createUuid().toString();
 	MetaContact *contact = qobject_cast<MetaContact*>(getUnit(id, true));
-	Q_ASSERT(contact);
 	return contact;
 }
 
