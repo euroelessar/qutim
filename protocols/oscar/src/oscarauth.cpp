@@ -232,8 +232,8 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
 	static bool qcaInited = false;
 	if (!qcaInited) {
 		qcaInited = true;
-		QCA::setAppName("qutim");
 		QCA::init();
+		QCA::setAppName("qutim");
 	}
 	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
 	hash.update(array);
