@@ -93,8 +93,6 @@ public:
 			mutableHtml.replace(QLatin1Char('\t'), QLatin1String("&nbsp; &nbsp; "));
 			// keep multiple whitespaces
 			mutableHtml.replace(QLatin1String("  "), QLatin1String(" &nbsp;"));
-			// replace a single backslash with two backslashes.
-			mutableHtml.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
 		}
 		return html;
 	}
