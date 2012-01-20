@@ -496,7 +496,6 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
 	//TODO add capthca handler
-	Q_D(JMUCSession);
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);

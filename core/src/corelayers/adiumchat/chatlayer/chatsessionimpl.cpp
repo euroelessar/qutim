@@ -179,21 +179,27 @@ ChatUnit* ChatSessionImpl::getUnit() const
 	return d_func()->chatUnit;
 }
 
-QObject* ChatSessionImpl::getController() const
+QObject* ChatSessionImpl::controller()
 {
-	Q_D(const ChatSessionImpl);
+	Q_D(ChatSessionImpl);
 	d->ensureController();
 	return d->controller;
 }
 
-ChatViewController *ChatSessionImplPrivate::getController() const
+QObject *ChatSessionImpl::controller() const
+{
+	return d_func()->controller;
+}
+
+ChatViewController *ChatSessionImplPrivate::getController()
 {
 	ensureController();
 	return qobject_cast<ChatViewController*>(controller);
 }
 
-void ChatSessionImplPrivate::ensureController() const
+void ChatSessionImplPrivate::ensureController()
 {
+	Q_Q(ChatSessionImpl);
 	if (!controller) {
 		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
 		controller = factory->createViewController();
@@ -201,7 +207,8 @@ void ChatSessionImplPrivate::ensureController() const
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
 		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
-		emit const_cast<ChatSessionImpl*>(q_func())->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
+		emit q->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
+		connect(controller, SIGNAL(destroyed(QObject*)), q, SIGNAL(controllerDestroyed(QObject*)));
 	}
 }
 
@@ -217,7 +224,7 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 {
 	QVariant retVal;
-	QMetaObject::invokeMethod(getController(),
+	QMetaObject::invokeMethod(controller(),
 							  "evaluateJavaScript",
 							  Q_RETURN_ARG(QVariant,retVal),
 							  Q_ARG(QString,scriptSource));

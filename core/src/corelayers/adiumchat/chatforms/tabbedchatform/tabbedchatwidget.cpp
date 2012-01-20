@@ -70,30 +70,29 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     AbstractChatWidget(parent),
     m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
     m_actions(ActionContainer::TypeMatch, ActionTypeChatButton),
+	m_chatViewWidget(0),
     m_tabBar(new TabBar(this)),
     m_chatInput(new ChatEdit(this)),
     m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
     m_contactView(new ConferenceContactsView(this)),
     m_key(key),
-    m_unitAction(0)
+	m_unitAction(0),
+	m_vSplitter(new QSplitter(Qt::Vertical, this)),
+	m_view(0)
 {
     m_actions.addHandler(this);
     m_actions.show();
     setAttribute(Qt::WA_DeleteOnClose);
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
-    QWidget *view = ChatViewFactory::instance()->createViewWidget();
-    view->setParent(centralWidget);
-//    view->setFocusProxy(m_chatInput);
+	setView(ChatViewFactory::instance()->createViewWidget());
 
-    QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
-    vSplitter->setObjectName(QLatin1String("vSplitter"));
-    vSplitter->addWidget(view);
-    vSplitter->addWidget(m_chatInput);
+	m_vSplitter->setObjectName(QLatin1String("vSplitter"));
+	m_vSplitter->addWidget(m_chatInput);
 
-    QSplitter *hSplitter = new QSplitter(Qt::Horizontal,this);
+	QSplitter *hSplitter = new QSplitter(Qt::Horizontal, this);
     hSplitter->setObjectName(QLatin1String("hSplitter"));
-    hSplitter->addWidget(vSplitter);
+	hSplitter->addWidget(m_vSplitter);
     hSplitter->addWidget(m_contactView);
 
     m_layout = new QVBoxLayout(centralWidget);
@@ -102,8 +101,6 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     m_layout->setMargin(0);
     m_layout->setSpacing(1);
 #endif
-
-    m_view = qobject_cast<ChatViewWidget*>(view);
 
     m_actSeparator = m_toolbar->addSeparator();
     m_unitSeparator = m_toolbar->addSeparator();
@@ -118,7 +115,17 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     connect(m_tabBar, SIGNAL(remove(ChatSessionImpl*)), SLOT(removeSession(ChatSessionImpl*)));
 
     centralWidget->grabGesture(Qt::SwipeGesture);
-    view->grabGesture(Qt::SwipeGesture);
+}
+
+void TabbedChatWidget::setView(QWidget *view)
+{
+	if (m_view)
+		m_view->deleteLater();
+	view->setParent(centralWidget());
+	m_chatViewWidget = qobject_cast<ChatViewWidget*>(view);
+	m_vSplitter->insertWidget(0, view);
+	view->grabGesture(Qt::SwipeGesture);
+	m_view = view;
 }
 
 void TabbedChatWidget::loadSettings()
@@ -130,9 +137,6 @@ void TabbedChatWidget::loadSettings()
                              | SwitchDesktopOnActivate
                              | AdiumToolbar
                              | TabsOnBottom
-                     #ifdef Q_WS_MAC
-                             //							 | MenuBar
-                     #endif
                              );
 
         QWidget *tabBar = m_tabBar;
@@ -300,8 +304,11 @@ void TabbedChatWidget::addSession(ChatSessionImpl *session)
     if(!session->isActive())
         return;
     m_tabBar->addSession(session);
-    connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
-    connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged()));
+
+	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged()));
+	connect(session, SIGNAL(controllerDestroyed(QObject*)),
+			this, SLOT(onControllerDestroyed(QObject*)));
 }
 
 void TabbedChatWidget::removeSession(ChatSessionImpl *session)
@@ -320,11 +327,10 @@ void TabbedChatWidget::removeSession(ChatSessionImpl *session)
 void TabbedChatWidget::onSessionActivated(bool active)
 {
     if(!active)
-        return;
+		return;
 
-    ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sender());
+	ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sender());
     Q_ASSERT(session);
-
     m_tabBar->setCurrentSession(session);
 }
 
@@ -341,24 +347,17 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
             return;
         m_currentSession->setActive(false);
     }
-    emit currentSessionChanged(session,m_currentSession);
+	emit currentSessionChanged(session, m_currentSession);
     m_currentSession = session;
 
     m_tabBar->setCurrentSession(session);
     m_chatInput->setSession(session);
     m_contactView->setSession(session);
-    m_view->setViewController(session->getController());
+	m_chatViewWidget->setViewController(session->controller());
 
     m_actions.setController(session->getUnit());
     m_recieverList->setMenu(session->menu());
-    //	qDeleteAll(m_unitChatActionList);
-    //	m_unitChatActionList.clear();
-    //	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
-    //	for (int i = 0;i!=container.count();i++) {
-    //		QAction *current = container.action(i);
-    //		m_toolbar->insertAction(m_unitSeparator,current);
-    //		m_unitChatActionList.append(current);
-    //	}
+
     if(m_flags & MenuBar) {
         delete m_unitAction->menu();
         QMenu *menu = session->unit()->menu(false);
@@ -380,7 +379,9 @@ bool TabbedChatWidget::event(QEvent *event)
         if (!m_tabBar->currentSession())
             return false;
         m_tabBar->currentSession()->setActive(active);
-    }
+	} else if (event->type() == QEvent::Show)
+		if (unifiedTitleAndToolBarOnMac())
+			ensureToolBar();
     return AbstractChatWidget::event(event);
 }
 
@@ -409,9 +410,9 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
     setUnifiedTitleAndToolBarOnMac(set);
     m_toolbar->setMovable(false);
     m_toolbar->setMoveHookEnabled(true);
-    ensureToolBar();
-    connect(m_toolbar,SIGNAL(iconSizeChanged(QSize)),SLOT(ensureToolBar()));
-    connect(m_toolbar,SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),SLOT(ensureToolBar()));
+
+	connect(m_toolbar, SIGNAL(iconSizeChanged(QSize)), SLOT(ensureToolBar()));
+	connect(m_toolbar, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)), SLOT(ensureToolBar()));
 }
 
 void TabbedChatWidget::ensureToolBar()
@@ -460,12 +461,18 @@ void TabbedChatWidget::onUnreadChanged()
 {
     ChatSessionImpl *s = qobject_cast<ChatSessionImpl*>(sender());
     if(s && s == m_tabBar->currentSession())
-        setTitle(s);
+		setTitle(s);
+}
+
+void TabbedChatWidget::onControllerDestroyed(QObject *)
+{
+	if (m_tabBar->currentSession() == sender())
+		m_chatViewWidget->setViewController(m_tabBar->currentSession()->controller());
 }
 
 ActionToolBar *TabbedChatWidget::toolBar() const
 {
-    return m_toolbar;
+	return m_toolbar;
 }
 
 }

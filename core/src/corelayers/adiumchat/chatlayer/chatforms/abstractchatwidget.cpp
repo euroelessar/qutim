@@ -97,7 +97,6 @@ QString AbstractChatWidget::titleForSession(ChatSessionImpl *s)
 	return title;
 }
 
-
 }
 }
 

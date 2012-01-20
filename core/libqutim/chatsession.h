@@ -122,6 +122,7 @@ ChatSession *ChatLayer::session(QObject *obj, bool create)
 {
 	return getSession(obj, create);
 }
+
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatSession*)

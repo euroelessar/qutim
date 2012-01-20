@@ -40,8 +40,8 @@ namespace AdiumChat
 class ChatWidget;
 class ChatSessionImpl;
 class ConfTabCompletion;
-typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
-typedef QList<ChatSessionImpl *> ChatSessionList;
+typedef QHash<ChatUnit*,  ChatSessionImpl*> ChatSessionHash;
+typedef QList<ChatSessionImpl*> ChatSessionList;
 class ADIUMCHAT_EXPORT ChatLayerImpl : public ChatLayer
 {
 	Q_OBJECT
@@ -56,14 +56,16 @@ public:
 	static QIcon iconForState(ChatState state, const ChatUnit *unit = 0);
 	static void insertText(ChatSessionImpl *session, const QString &text, bool setFocus = true);
 	inline void onUnitChanged(ChatUnit *from, ChatUnit *to)
-	{ m_chat_sessions.insert(to, m_chat_sessions.take(from)); }
+	{ m_chatSessions.insert(to, m_chatSessions.take(from)); }
 private slots:
 	void onChatSessionDestroyed(QObject *object);
 	void onChatSessionActivated(bool activated);
+	void onServiceChanged(QObject *now);
 private:
-	ChatSessionHash  m_chat_sessions;
-	QPointer<ConfTabCompletion> m_tab_completion;
+	ChatSessionHash  m_chatSessions;
+	QWeakPointer<ConfTabCompletion> m_tabCompletion;
 };
+
 }
 }
 #endif // CHATLAYERIMPL_H
