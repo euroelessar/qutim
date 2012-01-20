@@ -26,26 +26,27 @@
 #ifndef WACCOUNT_H
 #define WACCOUNT_H
 
-#include <qutim/account.h>
-#include <qutim/settingslayer.h>
-
 #include "wcontact.h"
 #include "wsettings.h"
+#include <qutim/account.h>
+#include <qutim/settingslayer.h>
+#include <QNetworkAccessManager>
 
 using namespace qutim_sdk_0_3;
 
 class WProtocol;
+class WContact;
 
 class WAccount : public Account
 {
 	Q_OBJECT
 
 public:
-	WAccount( WProtocol *protocol );
+	WAccount(WProtocol *protocol);
 	virtual ~WAccount();
 
-	ChatUnit *getUnitForSession( ChatUnit *unit );
-	ChatUnit *getUnit( const QString &unitId, bool create = false );
+	ChatUnit *getUnitForSession(ChatUnit *unit);
+	ChatUnit *getUnit(const QString &unitId, bool create = false);
 
 	QString name() const;
 
@@ -53,24 +54,29 @@ public:
 	QString getThemePath();
 	bool getShowStatusRow();
 
-	virtual void setStatus( Status status );
+	void setStatus(Status status);
+	void update(WContact *contact, bool needMessage);
+	void getForecast(WContact *contact);
+	
+	void timerEvent(QTimerEvent *event);
 
 private slots:
 	void loadSettings();
-	void updateAll();
+	void onNetworkReply(QNetworkReply *reply);
 
 private:
+	void fillStrings(QString &text, QString &html, const QDomElement &element, const QString &prefix);
+	QString loadResourceFile(const QString &fileName);
 	void loadContacts();
 
-	SettingsItem *settings;
-
+	SettingsItem *m_settings;
 	QHash< QString, WContact * > m_contacts;
-
-	QTimer *m_timer;
+	QBasicTimer m_timer;
+	QNetworkAccessManager m_manager;
 
 	// settings
-	bool s_showStatusRow;
-	QString s_themePath;
+	bool m_showStatusRow;
+	QString m_themePath;
 };
 
 #endif // WACCOUNT_H

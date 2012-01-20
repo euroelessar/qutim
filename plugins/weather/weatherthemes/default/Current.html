@@ -1,0 +1,35 @@
+<table width=100% border=0>
+	<tr>
+		<td width=15% rowspan=8 align="center">
+			<img src="qrc:/icons/%weathericon%.png"/>
+			<br/>%weathertext%
+		</td>
+		<td width=15% rowspan=8 align="center">
+			<h1>%temperature%°%units/temp%</h1>%localized{Feels Like}%<br/>%realfeel%</td>
+			<td width=15% align="right">%localized{UV Index}%:</td>
+			<td width=55%>%uvindex/index% %uvindex%</td>
+		</tr>
+		<tr>
+			<td align="right">%localized{Wind}%:</td>
+			<td>%localized{From %winddirection% at %windspeed% %units/speed%}%</td>
+		</tr>
+		<tr>
+			<td align="right">%localized{Humidity}%:</td>
+			<td>%humidity%</td>
+		</tr>
+		<tr>
+			<td align="right">%localized{Pressure}%:</td>
+			<td>%pressure% %units/pres%</td>
+		</tr>
+		<tr>
+			<td align="right">%localized{Dew Point}%:</td>
+			<td>%dewpoint%°%units/temp%</td>
+		</tr>
+		<tr>
+			<td align="right">%localized{Visibility}%:</td>
+			<td>%visibility% %units/dist%</td>
+		</tr>
+		<tr>
+			<td colspan=3 width=100% align="center">%localized{Updated}%: %observationtime%</td>
+		</tr>
+</table>

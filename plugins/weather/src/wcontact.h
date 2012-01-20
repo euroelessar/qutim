@@ -38,6 +38,8 @@
 
 using namespace qutim_sdk_0_3;
 
+class WAccount;
+
 class WContact : public Contact
 {
 	Q_OBJECT
@@ -46,47 +48,36 @@ public:
 	WContact(const QString &code, const QString &name, Account *account);
 	~WContact();
 
+	WAccount *account();
 	bool sendMessage(const Message &message);
 
 	void setName(const QString &name);
-	void setNamev2(const QString &name);
+	void setNameInternal(const QString &name);
 	void setTags(const QStringList &tags);
-
 	QString id() const;
 	QString name() const;
 	QString title() const;
 	QStringList tags() const;
 	Status status() const;
-
+	void setStatusInternal(QString iconId, const QString &text);
 	bool isInList() const;
 	void setInList(bool inList);
-
 	QString avatar() const;
-
-	void update();
 	void updateStatus();
+	bool isWaitingCurrent() const;
 
 protected:
 	virtual bool event(QEvent *ev);
 
 private slots:
-	void finished();
 	void getWeather();
 	void getForecast();
 
 private:
-	QString getFileData(const QString &path);
-
-	WManager *m_wmanager;
-	bool m_forecast;
-	bool m_forStatus;
-
 	Status m_status;
-
 	QString m_city;
 	QString m_name;
 	QStringList m_tags;
-	bool m_inList;
 };
 
 #endif // WCONTACT_H

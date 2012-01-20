@@ -1,0 +1,76 @@
+<div align="center">
+	<h2>%obsDate%, %dayName%</h2>
+</div>
+<table width=100% border=0>
+	<tr>
+		<td align="center" valign="middle" width="50%">
+			<b>%localized{Day}%</b>
+		</td>
+		<td align="center" valign="middle" width="50%">
+			<b>%localized{Night}%</b>
+		</td>
+	</tr>
+	<tr>
+		<td bgcolor="#F6F1D4" align="center" valign="top">
+			<table width=80% border=0 cellpadding=0 cellspacing=0 style="border:#E3E1C7 solid; border-width:1px; background-color:#FFFFFF;padding:5px;">
+				<tr>
+					<td align="center" valign="middle" width=45%>
+						<img src="qrc:/icons/%daytime/weathericon%.png"/>
+						<br/>%daytime/longText%</td>
+						<td align="center" valign="middle" width=55%>%localized{High}%<br/>
+						<b style="font-size:18px;">%daytime/hightemperature%°%units/temp%</b>
+						<br/>
+						<br/>%localized{Snow}% %daytime/snow% %units/prec%
+						<br/>%localized{Rain}% %daytime/rain% %units/prec%
+					</td>
+				</tr>
+			</table>
+			<br/>
+			<table width=80% border=0 cellpadding=0 cellspacing=0 style="padding:3px;">
+				<tr>
+					<td width=54% align="left">%localized{Wind}%:</td>
+					<td width=46% align="left">
+						<b>%localized{From %daytime/windDirectionText% at %daytime/windSpeed% %units/speed%}%</b>
+					</td>
+				</tr>
+				<tr>
+					<td align="left">%localized{Sunrise}%:</td>
+					<td align="left">
+						<b>%sunrise% %localized{Local Time}%</b>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td bgcolor="#ECF0FC" align="center" valign="top">
+			<table width=80% border=0 cellpadding=0 cellspacing=0 style="border:#E3E1C7 solid; border-width:1px; background-color:#FFFFFF;padding:5px;">
+				<tr>
+					<td align="center" valign="middle" width=45%>
+						<img src="qrc:/icons/%nighttime/weathericon%.png"/>
+						<br/>%nighttime/longText%</td>
+					</td>
+					<td align="center" valign="middle" width=55%>%localized{Overnight Low}%<br/>
+					<b style="font-size:18px;">%daytime/lowtemperature%°%units/temp%</b>
+					<br/>
+					<br/>%localized{Snow}% %nighttime/snow% %units/prec%
+					<br/>%localized{Rain}% %nighttime/rain% %units/prec%
+					</td>
+				</tr>
+			</table>
+			<br/>
+			<table width=80% border=0 cellpadding=0 cellspacing=0 style="padding:3px;">
+				<tr>
+					<td width=54% align="left">%localized{Wind}%:</td>
+					<td width=46% align="left">
+						<b>%localized{From %nighttime/windDirectionText% at %nighttime/windSpeed% %units/speed%}%</b>
+					</td>
+				</tr>
+				<tr>
+					<td align="left">%localized{Sunset}%:</td>
+					<td align="left">
+						<b>%sunset% %localized{Local Time}%</b>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>

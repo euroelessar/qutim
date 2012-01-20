@@ -42,7 +42,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QPointer<WProtocol> m_protocol;
+	QWeakPointer<WProtocol> m_protocol;
 };
 
 #endif // WEATHER_H
