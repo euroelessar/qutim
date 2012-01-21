@@ -4,6 +4,7 @@ body {
 	direction: %messageDirection%;
 	/*background: url("Images/bg.gif") fixed;*/
 	background: #FFFFFF;
+	font: 11pt Arial;
 }
 
 div {
@@ -20,7 +21,8 @@ a:active { color: #6D98AB; text-decoration: none; }
 .inСontext,
 .inNextСontext,
 .outСontext,
-.outNextСontext{
+.outNextСontext, 
+*.history .inActionTime, *.history .outActionTime{
 	color: grey;
 	font: 8pt Arial;
 }
@@ -59,6 +61,7 @@ a:active { color: #6D98AB; text-decoration: none; }
 
 .outActionTime, .inActionTime {
 	font-style: normal;
+	color: #000 !important;
 }
 
 .inContentSender,
@@ -84,7 +87,7 @@ text-align: right;
 }
 .inContentMessage.highlight, .inNextContentMessage.highlight {
 	color: #ff8482 !important;
-	font-weight: bold;
+	font-weight: bold; /* Obsolete */
 }
 
 .inContentSender.highlight,
@@ -107,4 +110,9 @@ text-align: right;
 
 .delivered {
 	color: #000;
+}
+
+*.mention {
+	color: #ff8482 !important;
+	font-weight: bold;
 }
