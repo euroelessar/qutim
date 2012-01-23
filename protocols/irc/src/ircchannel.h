@@ -47,16 +47,14 @@ public:
 	IrcChannel(IrcAccount *account, const QString &name);
 	~IrcChannel();
 	virtual Buddy *me() const;
-	virtual void join();
+	using Conference::join;
 	void join(const QString &pass);
-	virtual void leave();
-	void leave(bool force);
+	void leave(bool force = false);
 	virtual QString id() const;
 	virtual QString title() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString topic() const;
 	virtual ChatUnitList lowerUnits();
-	bool isJoined() const;
 	void setAutoJoin(bool autojoin = true);
 	bool autoJoin();
 	const IrcAccount *account() const;
@@ -65,13 +63,14 @@ public:
 	QList<IrcChannelParticipant*> participants();
 signals:
 	void autoJoinChanged(bool enabled);
+protected:
+	virtual void doJoin();
+	virtual void doLeave();
 private slots:
 	void onMyNickChanged(const QString &nick);
 	void onParticipantNickChanged(const QString &nick);
 	void onContactQuit(const QString &message);
 private:
-	friend class IrcConnection;
-	friend class IrcGroupChatManager;
 	void setBookmarkName(const QString &name);
 	void handleUserList(const QStringList &users);
 	void handleJoin(const QString &nick, const QString &host);
@@ -85,7 +84,10 @@ private:
 	void addSystemMessage(const QString &message, const QString &sender = QString(),
 						  Notification::Type type = Notification::System);
 	void clear(ChatSession *session);
-private:
+
+	friend class IrcConnection;
+	friend class IrcGroupChatManager;
+
 	QScopedPointer<IrcChannelPrivate> d;
 };
 

@@ -29,26 +29,27 @@
 #include <QVariantMap>
 
 namespace qutim_sdk_0_3 {
-	class Buddy;
-	class Contact;
-	class Message;
+class Buddy;
+class Contact;
+class Message;
 }
 
 class VAccount;
 class VContact;
+typedef QList<VContact*> ParticipantList;
 class VWallSession;
 class VWallSessionPrivate : public QObject
 {
 	Q_DECLARE_PUBLIC(VWallSession)
 	Q_OBJECT
 public:
-    VWallSessionPrivate() : 
+	VWallSessionPrivate() :
 		QObject(0),q_ptr(0),id(QString()),me(0),owner(0),historyCount(0),timeStamp(0)
 	{
 		
 	}
-    virtual ~VWallSessionPrivate() {}
-    VWallSession *q_ptr;
+	virtual ~VWallSessionPrivate() {}
+	VWallSession *q_ptr;
 	QString id;
 	VAccount *account();
 	VContact *me;
@@ -56,10 +57,13 @@ public:
 	int historyCount;
 	QTimer updateTimer;
 	int timeStamp;
+	ParticipantList participants;
+
 	void processMultimediaMessage(qutim_sdk_0_3::Message &mess, const QVariantMap &data);
 public slots:
 	void getHistory();
 	void onGetHistoryFinished();
+	void participantDestroyed(QObject*);
 };
 
 #endif // VWALLSESSION_P_H

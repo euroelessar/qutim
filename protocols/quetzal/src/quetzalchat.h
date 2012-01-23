@@ -42,8 +42,6 @@ public:
 	void addUsers(GList *cbuddies, gboolean new_arrivals);
 	virtual qutim_sdk_0_3::Buddy *me() const;
 	void setMe(const char *nick);
-	virtual void join();
-	virtual void leave();
 	PurpleConversation *purple() { return m_conv; }
 	void renameUser(const char *old_name, const char *new_name, const char *new_alias);
 	void removeUsers(GList *users);
@@ -51,6 +49,9 @@ public:
 	virtual bool sendMessage(const Message &message);
 	void update(PurpleConvUpdateType type);
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+protected:
+	virtual void doJoin();
+	virtual void doLeave();
 private:
 	PurpleConversation *m_conv;
 	QString m_nick;
