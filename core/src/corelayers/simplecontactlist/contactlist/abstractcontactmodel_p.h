@@ -33,6 +33,7 @@
 #include <qutim/icon.h>
 #include "qlist.h"
 #include <QMessageBox>
+#include <qutim/servicemanager.h>
 
 namespace qutim_sdk_0_3
 {
@@ -474,6 +475,8 @@ void AbstractContactModel::moveTag(ChangeEvent *ev)
 template<typename ContactItem>
 void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactItem *child)
 {
+	if (!ServiceManager::getByName("MetaContactManager"))
+		return;
 	if (child->getContact() == parent->getContact())
 		return;
 	MetaContact *childMeta = qobject_cast<MetaContact*>(child->getContact());

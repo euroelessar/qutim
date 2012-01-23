@@ -3,7 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -325,7 +325,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	m_sessionList->setCurrentSession(session);
 	m_chatInput->setSession(session);
 	m_contactView->setSession(session);
-	m_view->setViewController(session->getController());
+	m_view->setViewController(session->controller());
 
 	if(m_contactView->isVisible())
 		m_stack->addWidget(m_contactView);

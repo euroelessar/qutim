@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2008 Justin Karneges, Martin Hostettler
+** Copyright © 2008 Justin Karneges <justin@affinix.com>
+** Copyright © 2008 Martin Hostettler <textshell-I1QKlO@neutronstar.dyndns.org>
 **
 *****************************************************************************
 **
@@ -86,8 +87,8 @@ private:
 	QStringList suggestedCompletion_;
 	int  suggestedIndex_;
 
-	QPointer<QPlainTextEdit> textEdit_;
-	ChatSessionImpl *chat_session_;
+	QWeakPointer<QPlainTextEdit> textEdit_;
+	ChatSessionImpl *m_chatSession;
 	QString last_referrer_;
 };
 

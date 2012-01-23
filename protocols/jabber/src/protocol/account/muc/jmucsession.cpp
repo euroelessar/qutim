@@ -3,7 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -351,9 +351,8 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			if (participant->realJID().isValid())
 				user->setRealJid(participant->realJID());
 			text = user->realJid().isEmpty()
-					? nick % QLatin1Literal(" ")
-					: nick + QLatin1Literal(" (") % user->realJid()
-					  % QLatin1Literal(") ");
+					? nick
+					: nick % QLatin1Literal(" (") % user->realJid() % QLatin1Literal(")");
 			text = text % tr(" has joined the room");
 			if (participant->affiliation() == MUCRoom::AffiliationOwner)
 				text = text % tr(" as") % tr(" owner");
@@ -497,7 +496,6 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
 	//TODO add capthca handler
-	Q_D(JMUCSession);
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);

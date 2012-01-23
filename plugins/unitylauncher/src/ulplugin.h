@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Vsevolod Velichko<torkvema@gmail.com>
+** Copyright © 2011 Vsevolod Velichko <torkvema@gmail.com>
 **
 *****************************************************************************
 **

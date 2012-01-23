@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Belov Nikita <null@deltaz.org>
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
 **
 *****************************************************************************
 **
@@ -42,7 +42,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QPointer<WProtocol> m_protocol;
+	QWeakPointer<WProtocol> m_protocol;
 };
 
 #endif // WEATHER_H

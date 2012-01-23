@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Belov Nikita <null@deltaz.org>
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
 **
 *****************************************************************************
 **
@@ -36,14 +36,14 @@ using namespace qutim_sdk_0_3;
 class WProtocol : public Protocol
 {
 	Q_OBJECT
-	Q_CLASSINFO( "Protocol", "weather" )
+	Q_CLASSINFO("Protocol", "weather")
 
 public:
 	WProtocol();
 	virtual ~WProtocol();
 
-	virtual QList< Account * > accounts() const;
-	virtual Account *account( const QString &id ) const;
+	virtual QList<Account *> accounts() const;
+	virtual Account *account(const QString &id) const;
 
 private:
 	virtual void loadAccounts();

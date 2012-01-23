@@ -1,10 +1,10 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright © 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
-** Copyright (C) 2011 Evgeniy Degtyarev <degtep@gmail.com>
-** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 **
 ** $QT_BEGIN_LICENSE:LGPL$

@@ -165,7 +165,9 @@ INSTALL(FILES ${QUTIM_INSTALL_HEADERS}
 		COMPONENT CoreDevel
 )
 
-if(DOXYGEN_FOUND)
+option( QUTIM_GENERATE_DOCS "Generate documentation for libqutim" on )
+
+if( DOXYGEN_FOUND AND QUTIM_GENERATE_DOCS )
     add_subdirectory(doc)
     set(DOC_TARGET "doc")
     configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)

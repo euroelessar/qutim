@@ -1,6 +1,8 @@
 /****************************************************************************
 **
 ** qutIM - instant messenger
+** Copyright © 2011 Peter Rusanov <peter.rusanov@gmail.com>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **

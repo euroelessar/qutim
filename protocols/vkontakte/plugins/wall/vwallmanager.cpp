@@ -41,7 +41,7 @@ void VWallManager::init()
 	setCapabilities(Loadable);
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me")
  			);
 }

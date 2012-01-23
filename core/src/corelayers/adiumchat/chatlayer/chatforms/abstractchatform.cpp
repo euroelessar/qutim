@@ -25,6 +25,7 @@
 
 #include "abstractchatform.h"
 #include "abstractchatwidget.h"
+#include "chatviewfactory.h"
 #include <qutim/conference.h>
 #include <qutim/configbase.h>
 #include <qutim/messagesession.h>
@@ -50,8 +51,8 @@ AbstractChatForm::AbstractChatForm()
 void AbstractChatForm::onChatWidgetDestroyed(QObject *object)
 {
 	AbstractChatWidget *widget = reinterpret_cast<AbstractChatWidget*>(object);
-	QString key = m_chatwidgets.key(widget);
-	m_chatwidgets.remove(key);
+	QString key = m_chatWidgets.key(widget);
+	m_chatWidgets.remove(key);
 }
 
 
@@ -93,7 +94,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 void AbstractChatForm::onSettingsChanged()
 {
 	qDebug("%s", Q_FUNC_INFO);
-	foreach (AbstractChatWidget *widget, m_chatwidgets) {
+	foreach (AbstractChatWidget *widget, m_chatWidgets) {
 		if (widget)
 			widget->loadSettings();
 	}
@@ -101,12 +102,18 @@ void AbstractChatForm::onSettingsChanged()
 
 void AbstractChatForm::onServiceChanged(QObject *newObject, QObject *oldObject)
 {
-	if (this != newObject)
+	if (this != newObject) {
+		if (ChatViewFactory *factory = qobject_cast<ChatViewFactory*>(newObject)) {
+			foreach (AbstractChatWidget *chat, m_chatWidgets)
+				chat->setView(factory->createViewWidget());
+		}
 		return;
+	}
 	AbstractChatForm *form = qobject_cast<AbstractChatForm*>(oldObject);
 	if (!form)
 		return;
-	QHashIterator<QString, AbstractChatWidget*> it(form->m_chatwidgets);
+
+	QHashIterator<QString, AbstractChatWidget*> it(form->m_chatWidgets);
 	QSet<ChatSessionImpl*> sessions;
 	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
 		if (ChatSessionImpl *impl = qobject_cast<ChatSessionImpl*>(session))
@@ -133,7 +140,7 @@ AbstractChatWidget *AbstractChatForm::findWidget(ChatSession *sess) const
 {
 	QHash<QString, AbstractChatWidget*>::const_iterator it;
 	ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sess);
-	for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
+	for (it=m_chatWidgets.constBegin();it!=m_chatWidgets.constEnd();it++) {
 		if ((*it) && it.value()->contains(session))
 			return it.value();
 	}
@@ -151,7 +158,7 @@ QObject *AbstractChatForm::textEdit(ChatSession *session)
 QWidgetList AbstractChatForm::chatWidgets()
 {
 	QWidgetList list;
-	foreach (QWidget *widget, m_chatwidgets)
+	foreach (QWidget *widget, m_chatWidgets)
 		list << widget;
 	return list;
 }
@@ -163,11 +170,11 @@ QWidget* AbstractChatForm::chatWidget(ChatSession* session) const
 
 AbstractChatWidget *AbstractChatForm::widget(const QString &key)
 {
-	AbstractChatWidget *widget = m_chatwidgets.value(key,0);
+	AbstractChatWidget *widget = m_chatWidgets.value(key,0);
 	if (!widget) {
 		widget = createWidget(key);
 		widget->addActions(m_actions);
-		m_chatwidgets.insert(key,widget);
+		m_chatWidgets.insert(key,widget);
 		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 #ifdef Q_WS_MAEMO_5
 		Config config = Config().group(QLatin1String("Maemo5"));
@@ -201,7 +208,7 @@ void AbstractChatForm::onSessionCreated(ChatSession *session)
 
 AbstractChatForm::~AbstractChatForm()
 {
-	foreach (AbstractChatWidget *widget,m_chatwidgets) {
+	foreach (AbstractChatWidget *widget,m_chatWidgets) {
 		widget->disconnect(this);
 		delete widget;
 	}

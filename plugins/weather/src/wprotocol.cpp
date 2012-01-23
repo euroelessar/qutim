@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Belov Nikita <null@deltaz.org>
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
 **
 *****************************************************************************
 **
@@ -35,9 +35,9 @@ WProtocol::~WProtocol()
 	m_account->deleteLater();
 }
 
-QList< Account * > WProtocol::accounts() const
+QList<Account *> WProtocol::accounts() const
 {
-	return QList< Account * >() << m_account;
+	return QList<Account *>() << m_account;
 }
 
 Account *WProtocol::account(const QString &) const

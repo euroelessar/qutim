@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Sidorov Aleksey <sauron@citadelspb.com>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -49,11 +49,11 @@ class QuickChatController : public QGraphicsScene, public ChatViewController
 	Q_PROPERTY(QString chatState READ chatState NOTIFY chatStateChanged)
 public:
 	QuickChatController(QDeclarativeEngine *engine, QObject *parent = 0);
+	virtual ~QuickChatController();
 	virtual void setChatSession(ChatSessionImpl *session);
 	virtual ChatSessionImpl *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
-	virtual ~QuickChatController();
 	QDeclarativeItem *rootItem() const;
 	Q_INVOKABLE QString parseEmoticons(const QString &) const;
 	QObject *unit() const;
