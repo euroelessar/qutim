@@ -111,6 +111,8 @@ void JsonHistoryRunnable::run()
 			file.write(message.isIncoming() ? "true" : "false");
 			file.write(",\n  \"text\": ");
 			file.write(Json::quote(message.text()).toUtf8());
+			file.write(",\n  \"html\": ");
+			file.write(Json::quote(message.html()).toUtf8());
 			file.write("\n }");
 		}
 		uint end = file.pos();

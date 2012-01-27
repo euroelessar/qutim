@@ -24,52 +24,60 @@
 ****************************************************************************/
 
 #include "wlistitem.h"
+#include <QTextDocument>
 #include <qutim/icon.h>
 
-WListItem::WListItem(const QString &title, bool addIcon)
+Q_DECLARE_METATYPE(WListItem::Guard)
+
+WListItem::WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList)
+    : m_id(id), m_name(city), m_state(state)
 {
-	m_label = new QLabel(title);
-
-	m_button = new QPushButton();
-	m_button->setMinimumSize(QSize(16, 16));
-	m_button->setMaximumSize(QSize(16, 16));
-	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String(addIcon ? "list-add" : "list-remove")));
-	m_button->setFlat(true);
-
+	QString title = QString::fromLatin1("%1<br>%2")
+	        .arg(Qt::escape(city), Qt::escape(state));
+	m_label = new QLabel(title, this);
+	QSizePolicy policy = m_label->sizePolicy();
+	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+	m_label->setSizePolicy(policy);
+	m_button = new QPushButton(tr("Remove"), this);
+	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
 	connect(m_button, SIGNAL(clicked(bool)), this, SIGNAL(buttonClicked()));
-
-	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setContentsMargins(0, 0, 0, 0);
-	if (addIcon)
-		layout->addWidget(m_button);
+	
+	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_label);
-	if (!addIcon)
-		layout->addWidget(m_button);
+	layout->addWidget(m_button);
 
-	setLayout(layout);
+	m_item = new QListWidgetItem(citiesList);
+	m_item->setData(Qt::UserRole, qVariantFromValue(Guard(this)));
+	m_item->setData(Qt::SizeHintRole, sizeHint());
+	citiesList->setItemWidget(m_item, this);
 }
 
 WListItem::~WListItem()
 {
 }
 
-QString WListItem::title()
+QString WListItem::id() const
 {
-	return m_label->text();
+	return m_id;
 }
 
-void WListItem::setTitle(const QString &title)
+QString WListItem::name() const
 {
-	m_label->setText(title);
+	return m_name;
+}
+
+QString WListItem::state() const
+{
+	return m_state;
 }
 
 QListWidgetItem *WListItem::item()
 {
-	return m_listWidgetItem;
+	return m_item;
 }
 
 void WListItem::setItem(QListWidgetItem *item)
 {
-	m_listWidgetItem = item;
+	m_item = item;
 }
 

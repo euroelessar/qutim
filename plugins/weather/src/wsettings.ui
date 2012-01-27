@@ -14,6 +14,9 @@
    <string>Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -24,48 +27,27 @@
        <string>Cities</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLineEdit" name="cityEdit"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="addCityButton">
-         <property name="icon">
-          <iconset>
-           <normaloff>:/icons/add.png</normaloff>:/icons/add.png</iconset>
+       <item row="0" column="0" colspan="5">
+        <widget class="QComboBox" name="searchEdit">
+         <property name="editable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QListWidget" name="cityList"/>
+       <item row="2" column="0" colspan="7">
+        <widget class="QListWidget" name="citiesList"/>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="searchTab">
-      <attribute name="title">
-       <string>Search</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLineEdit" name="searchEdit"/>
-       </item>
-       <item row="0" column="1">
+       <item row="0" column="5">
         <widget class="QPushButton" name="searchButton">
-         <property name="icon">
-          <iconset>
-           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+         <property name="text">
+          <string>Search</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QListWidget" name="searchList"/>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QLabel" name="searchResult">
+       <item row="0" column="6">
+        <widget class="QPushButton" name="addButton">
          <property name="text">
-          <string>Enter city's name</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <string>Add</string>
          </property>
         </widget>
        </item>
@@ -75,82 +57,112 @@
       <attribute name="title">
        <string>Settings</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="intervalLabel">
-         <property name="text">
-          <string>Refresh period:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QSpinBox" name="intervalBox">
-         <property name="minimum">
-          <number>25</number>
-         </property>
-         <property name="maximum">
-          <number>120</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="showStatusBox">
-         <property name="text">
-          <string>Show weather in the status row</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QRadioButton" name="useDefaultTheme">
-         <property name="text">
-          <string>Use default theme</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QRadioButton" name="useCustomTheme">
-         <property name="text">
-          <string>Use custom theme:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLineEdit" name="themePath">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="2">
-        <widget class="QPushButton" name="chooseButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Choose...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="3">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>267</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QLabel" name="intervalLabel">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>4</y>
+         <width>87</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Refresh period:</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="intervalBox">
+       <property name="geometry">
+        <rect>
+         <x>304</x>
+         <y>4</y>
+         <width>71</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="suffix">
+        <string>min.</string>
+       </property>
+       <property name="minimum">
+        <number>25</number>
+       </property>
+       <property name="maximum">
+        <number>3600</number>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="showStatusBox">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>31</y>
+         <width>205</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show weather in the status row</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="useDefaultTheme">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>56</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use default theme</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="useCustomTheme">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>81</y>
+         <width>137</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use custom theme:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="themePath">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>106</y>
+         <width>112</width>
+         <height>23</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="chooseButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>304</x>
+         <y>106</y>
+         <width>77</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Choose...</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="aboutTab">
       <attribute name="title">

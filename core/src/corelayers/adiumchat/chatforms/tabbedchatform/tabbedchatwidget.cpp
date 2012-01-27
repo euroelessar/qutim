@@ -115,6 +115,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     connect(m_tabBar, SIGNAL(remove(ChatSessionImpl*)), SLOT(removeSession(ChatSessionImpl*)));
 
     centralWidget->grabGesture(Qt::SwipeGesture);
+	ensureToolBar();
 }
 
 void TabbedChatWidget::setView(QWidget *view)

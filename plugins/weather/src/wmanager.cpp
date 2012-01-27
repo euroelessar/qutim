@@ -49,6 +49,10 @@ void WManager::init()
 
 void WManager::update(int dayf)
 {
+//	QUrl url("http://forecastfox3.accuweather.com/adcbin/forecastfox3/current-conditions.asp");
+//	location=cityId:295863
+//	metric=1
+//	langId=25
 	QString address = "http://xoap.weather.com/weather/local/%1?cc=*&prod=xoap&par=1085658115&key=b3fcda23f931ed87&unit=%2&dayf=%3";
 	m_netman->get(QNetworkRequest(QUrl(address.arg(m_cityid).arg(m_unit).arg(dayf))));
 }

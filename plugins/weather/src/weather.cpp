@@ -27,7 +27,7 @@
 
 #include "weather.h"
 
-WeatherPlugin::WeatherPlugin() : m_protocol(0)
+WeatherPlugin::WeatherPlugin()
 {
 }
 
@@ -53,15 +53,15 @@ void WeatherPlugin::init()
 
 bool WeatherPlugin::load()
 {
-	m_protocol = new WProtocol();
-
+	if (!m_protocol)
+		m_protocol = new WProtocol();
 	return true;
 }
 
 bool WeatherPlugin::unload()
 {
 	if (m_protocol)
-		delete m_protocol;
+		delete m_protocol.data();
 	return true;
 }
 

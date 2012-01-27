@@ -33,27 +33,10 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-IrcJoinLeftActionGenerator::IrcJoinLeftActionGenerator(QObject *receiver, const char *member) :
-	ActionGenerator(QIcon(), "", receiver, member)
-{
-}
-
-void IrcJoinLeftActionGenerator::showImpl(QAction *action, QObject *obj)
-{
-	IrcChannel *channel = qobject_cast<IrcChannel*>(obj);
-	if (!channel)
-		return;
-	if (channel->isJoined())
-		action->setText(QT_TR_NOOP("Leave the channel"));
-	else
-		action->setText(QT_TR_NOOP("Join the channel"));
-}
-
 IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 	Conference(account), d(new IrcChannelPrivate)
 {
 	d->name = name;
-	d->isJoined = false;
 }
 
 IrcChannel::~IrcChannel()
@@ -65,7 +48,7 @@ Buddy *IrcChannel::me() const
 	return d->me.data();
 }
 
-void IrcChannel::join()
+void IrcChannel::doJoin()
 {
 	join(d->lastPassword);
 }
@@ -82,7 +65,7 @@ void IrcChannel::join(const QString &pass)
 	account()->d->groupManager->updateRecent(d->name, pass);
 }
 
-void IrcChannel::leave()
+void IrcChannel::doLeave()
 {
 	leave(false);
 }
@@ -145,11 +128,6 @@ ChatUnitList IrcChannel::lowerUnits()
 	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
 		users << user.data();
 	return users;
-}
-
-bool IrcChannel::isJoined() const
-{
-	return d->isJoined;
 }
 
 void IrcChannel::setAutoJoin(bool autojoin)
@@ -277,8 +255,7 @@ void IrcChannel::handleUserList(const QStringList &users)
 void IrcChannel::handleJoin(const QString &nick, const QString &host)
 {
 	if (nick == account()->name()) { // We have been connected to the channel.
-		d->isJoined = true;
-		emit joined();
+		setJoined(true);
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
 		connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
@@ -449,8 +426,7 @@ void IrcChannel::clear(ChatSession *session)
 			session->removeContact(user.data());
 	}
 	d->users.clear();
-	d->isJoined = false;
-	emit left();
+	setJoined(false);
 }
 
 }

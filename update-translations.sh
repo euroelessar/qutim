@@ -40,8 +40,10 @@ then
 fi
 
 customJsonFile=$PWD/plugins/adiumwebview/__custom_json_from_styles.cpp
+weatherFile=$PWD/plugins/weather/__template_from_weather.cpp
 
 grep \"label\" $PWD/core/share/qutim/webkitstyle/*/Contents/Resources/*.json | sed 's/.*://g;s/, *$/);/g;s/^/Qt::translate("Style",/' | sort -u > $customJsonFile
+find ./plugins/weather/ -type f -name \*html -exec cat {} \; | sed 's/%localized{/\n%localized{/g;s/}%/}%\n/g' | grep %localized{ | sed 's/%localized{/Qt::translate("Weather", "/;s/}%$/");/' | sort -u > $weatherFile
 
 for file in $PWD/plugins/* $PWD/protocols/* $PWD/core
 do
@@ -60,7 +62,7 @@ do
 	fi
 done
 
-rm $customJsonFile
+rm $customJsonFile $weatherFile
 
 module=devels
 modulePath=$PWD/translations/modules/$module

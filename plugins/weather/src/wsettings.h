@@ -46,6 +46,11 @@ class WSettings : public SettingsWidget
 	Q_OBJECT
 
 public:
+	enum {
+		CityRole = Qt::UserRole,
+		StateRole,
+		CodeRole
+	};
 	WSettings();
 	~WSettings();
 
@@ -57,19 +62,20 @@ protected:
 	bool eventFilter(QObject *o, QEvent *e);
 
 private slots:
-	void on_addCityButton_clicked();
+	void onRemoveButtonClicked();
+	void on_addButton_clicked();
 	void on_searchButton_clicked();
 	void on_chooseButton_clicked();
-	void addButton_clicked();
-	void deleteButton_clicked();
 
 	void searchFinished(QNetworkReply *reply);
 
+	void on_searchEdit_activated(int index);
+	
 private:
 	Ui::WSettingsClass ui;
 
 	QNetworkAccessManager *m_networkManager;
-	QList<QString> m_searchResults;
+	QList<WListItem*> m_items;
 };
 
 #endif // WSETTINGS_H

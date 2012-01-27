@@ -31,19 +31,18 @@ WSettings::WSettings()
 	ui.setupUi(this);
 
 	m_networkManager = new QNetworkAccessManager();
-	connect(m_networkManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(searchFinished(QNetworkReply *)));
+	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)),
+	        SLOT(searchFinished(QNetworkReply*)));
 
-	ui.cityEdit->installEventFilter(this);
+	QFocusEvent focusEvent(QEvent::FocusOut);
+	eventFilter(ui.searchEdit, &focusEvent);
 	ui.searchEdit->installEventFilter(this);
 
-	eventFilter(ui.cityEdit, new QFocusEvent(QEvent::FocusOut));
-	eventFilter(ui.cityEdit, new QFocusEvent(QEvent::FocusOut));
-
-	lookForWidgetState(ui.intervalBox);
-	lookForWidgetState(ui.showStatusBox);
-	lookForWidgetState(ui.useDefaultTheme);
-	lookForWidgetState(ui.useCustomTheme);
-	lookForWidgetState(ui.themePath);
+//	lookForWidgetState(ui.intervalBox);
+//	lookForWidgetState(ui.showStatusBox);
+//	lookForWidgetState(ui.useDefaultTheme);
+//	lookForWidgetState(ui.useCustomTheme);
+//	lookForWidgetState(ui.themePath);
 }
 
 WSettings::~WSettings()
@@ -52,79 +51,83 @@ WSettings::~WSettings()
 
 void WSettings::loadImpl()
 {
-	Config mainGroup = Config("weather").group("main");
-
-	ui.intervalBox->setValue(mainGroup.value("interval", 25));
-	ui.showStatusBox->setCheckState((mainGroup.value("showStatus", true) ? Qt::Checked : Qt::Unchecked));
-	ui.useDefaultTheme->setChecked(mainGroup.value("useDefaultTheme", true));
-	ui.useCustomTheme->setChecked(!mainGroup.value("useDefaultTheme", true));
-	ui.themePath->setText(mainGroup.value("themePath", QString()));
-
-	for (int i = 0, count = mainGroup.value("countItems", 0); i < count; i++)
-	{
-		WListItem *item = new WListItem(mainGroup.value("item_" + QString::number(i), QString()), false);
-		connect(item, SIGNAL(buttonClicked()), this, SLOT(deleteButton_clicked()));
-
-		ui.cityList->addItem(QString());
-		ui.cityList->setItemWidget(ui.cityList->item(i), item);
-		item->setItem(ui.cityList->item(i));
+	Config config(QLatin1String("weather"));
+	config.beginGroup(QLatin1String("main"));
+	ui.intervalBox->setValue(config.value(QLatin1String("interval"), 25));
+	ui.showStatusBox->setChecked(config.value(QLatin1String("showStatus"), true));
+	int count = config.beginArray(QLatin1String("contacts"));
+	for (int i = 0; i < count; i++) {
+		config.setArrayIndex(i);
+		QString cityCode = config.value(QLatin1String("code"), QString());
+		QString cityName = config.value(QLatin1String("name"), QString());
+		QString stateName = config.value(QLatin1String("state"), QString());
+		WListItem *item = new WListItem(cityName, stateName, cityCode, ui.citiesList);
+		connect(item, SIGNAL(buttonClicked()), this, SLOT(onRemoveButtonClicked()));
+		m_items << item;
 	}
 }
 
 void WSettings::saveImpl()
 {
-	Config mainGroup = Config("weather").group("main");
-
-	mainGroup.setValue("interval", ui.intervalBox->value());
-	mainGroup.setValue("showStatus", (ui.showStatusBox->checkState() == Qt::Checked ? true : false));
-	mainGroup.setValue("countItems", ui.cityList->count());
-	mainGroup.setValue("useDefaultTheme", ui.useDefaultTheme->isChecked());
-	mainGroup.setValue("themePath", ui.themePath->text());
-
-	for (int i = 0; i < ui.cityList->count(); i++)
-		mainGroup.setValue("item_" + QString::number(i), ((WListItem *)ui.cityList->itemWidget(ui.cityList->item(i)))->title());
-
-	mainGroup.sync();
+	Config config(QLatin1String("weather"));
+	config.beginGroup(QLatin1String("main"));
+	config.setValue("interval", ui.intervalBox->value());
+	config.setValue("showStatus", ui.showStatusBox->isChecked());
+	int count = config.beginArray(QLatin1String("contacts"));
+	for (int i = 0; i < m_items.size(); i++) {
+		config.setArrayIndex(i);
+		WListItem *item = m_items.at(i);
+		config.setValue(QLatin1String("code"), item->id());
+		config.setValue(QLatin1String("name"), item->name());
+		config.setValue(QLatin1String("state"), item->state());
+	}
+	for (int i = count - 1; i >= m_items.size(); --i)
+		config.remove(i);
 }
 
 void WSettings::cancelImpl()
 {
 }
 
-bool WSettings::eventFilter(QObject *o, QEvent *e)
+bool WSettings::eventFilter(QObject *object, QEvent *event)
 {
-	QLineEdit *l = (QLineEdit *)o;
-
-	if (e->type() == QEvent::FocusIn) {
-		if (!l->styleSheet().isEmpty()) {
-			l->setStyleSheet(QString());
-			l->setText(QString());
-		}
-	} else if (e->type() == QEvent::FocusOut) {
-		if (l->text().isEmpty()) {
-			l->setStyleSheet("color: rgb(130, 130, 130); font-style: italic;");
-			if (l->objectName() == "cityEdit")
-				l->setText(QT_TRANSLATE_NOOP("Weather", "Enter here city's code"));
-			else if (l->objectName() == "searchEdit")
-				l->setText(QT_TRANSLATE_NOOP("Weather", "Enter here city's name"));
+	if (object == ui.searchEdit) {
+		if (event->type() == QEvent::FocusIn) {
+			if (!ui.searchEdit->styleSheet().isEmpty()) {
+				ui.searchEdit->setStyleSheet(QString());
+				ui.searchEdit->clearEditText();
+			}
+		} else if (event->type() == QEvent::FocusOut) {
+			if (ui.searchEdit->currentText() == QString()) {
+				ui.searchEdit->setStyleSheet(QLatin1String("color: rgb(130, 130, 130); font-style: italic;"));
+				ui.searchEdit->setEditText(tr("Enter here city's name"));
+			}
 		}
 	}
 
-	return QObject::eventFilter(o, e);
+	return QObject::eventFilter(object, event);
 }
 
-void WSettings::on_addCityButton_clicked()
+void WSettings::onRemoveButtonClicked()
 {
-	if (ui.cityEdit->text().isEmpty())
-		return;
+	WListItem *item = qobject_cast<WListItem*>(sender());
+	Q_ASSERT(item);
+	m_items.removeOne(item);
+	delete item->item();
+}
 
-	WListItem *item = new WListItem(ui.cityEdit->text(), false);
-	connect(item, SIGNAL(buttonClicked()), this, SLOT(deleteButton_clicked()));
+void WSettings::on_addButton_clicked()
+{
+	int index = ui.searchEdit->currentIndex();
+	QString cityCode = ui.searchEdit->itemData(index, CodeRole).toString();
+	if (cityCode.isEmpty())
+		return;
+	QString cityName = ui.searchEdit->itemData(index, CityRole).toString();
+	QString stateName = ui.searchEdit->itemData(index, StateRole).toString();
 	
-	ui.cityList->addItem(QString());
-	ui.cityList->setItemWidget(ui.cityList->item(ui.cityList->count() -1), item);
-	ui.cityEdit->setText("");
-	item->setItem(ui.cityList->item(ui.cityList->count() - 1));
+	WListItem *item = new WListItem(cityName, stateName, cityCode, ui.citiesList);
+	connect(item, SIGNAL(buttonClicked()), this, SLOT(onRemoveButtonClicked()));
+	m_items << item;
 
 	emit modifiedChanged(true);
 }
@@ -135,60 +138,48 @@ void WSettings::on_searchButton_clicked()
 	QString langId = WManager::currentLangId();
 	if (!langId.isEmpty())
 		url.addQueryItem(QLatin1String("langid"), langId);
-	url.addQueryItem(QLatin1String("location"), ui.searchEdit->text());
+	url.addQueryItem(QLatin1String("location"), ui.searchEdit->currentText());
 	m_networkManager->get(QNetworkRequest(url));
-	ui.searchResult->setText(tr("Searching..."));
+	ui.addButton->setEnabled(false);
 }
 
 void WSettings::on_chooseButton_clicked()
 {
-	ui.themePath->setText(QFileDialog::getExistingDirectory(this, tr("Select theme's directory"), QDesktopServices::storageLocation(QDesktopServices::HomeLocation), QFileDialog::ShowDirsOnly));
-}
-
-void WSettings::addButton_clicked()
-{
-	ui.cityEdit->setText(m_searchResults.value(ui.searchList->row(((WListItem *)sender())->item())));
-	on_addCityButton_clicked();
-	ui.tabWidget->setCurrentIndex(0);
-}
-
-void WSettings::deleteButton_clicked()
-{
-	delete ((WListItem *)sender())->item();
-	delete sender();
-
-	emit modifiedChanged(true);
+//	ui.themePath->setText(QFileDialog::getExistingDirectory(this, tr("Select theme's directory"), QDesktopServices::storageLocation(QDesktopServices::HomeLocation), QFileDialog::ShowDirsOnly));
 }
 
 void WSettings::searchFinished(QNetworkReply *reply)
 {
-	ui.searchList->clear();
-	m_searchResults.clear();
+	reply->deleteLater();
+	ui.addButton->setEnabled(true);
+	ui.searchEdit->clear();
 	
 	QDomDocument doc;
-	if (doc.setContent(reply->readAll())) {
-		QDomElement rootElement = doc.documentElement();
-		QDomNodeList locations = rootElement.elementsByTagName(QLatin1String("location"));
-		int itemsCount = locations.count();
-		if (itemsCount == 0)
-			ui.searchResult->setText(tr("Not found"));
-		else
-			ui.searchResult->setText(tr("Found: %1").arg(QString::number(itemsCount)));
-
-		for (int i = 0; i < itemsCount; i++) {
-			QDomNamedNodeMap attributes = locations.at(i).attributes();
-			QString cityId = attributes.namedItem(QLatin1String("location")).nodeValue();
-			QString cityName = attributes.namedItem(QLatin1String("city")).nodeValue();
-			QString cityFullName = cityName + ", " + attributes.namedItem(QLatin1String("state")).nodeValue();
-
-			WListItem *item = new WListItem(cityFullName);
-			connect(item, SIGNAL(buttonClicked()), this, SLOT(addButton_clicked()));
-			
-			ui.searchList->addItem(QString());
-			item->setItem(ui.searchList->item(i));
-			ui.searchList->setItemWidget(ui.searchList->item(i), item);
-			m_searchResults.insert(i, cityId + ": " + cityFullName);
-		}
+	if (!doc.setContent(reply->readAll()))
+		return;
+	QDomElement rootElement = doc.documentElement();
+	
+	QDomNodeList locations = rootElement.elementsByTagName(QLatin1String("location"));
+	if (locations.isEmpty())
+		ui.searchEdit->addItem(tr("Not found"));
+	for (int i = 0; i < locations.count(); i++) {
+		QDomNamedNodeMap attributes = locations.at(i).attributes();
+		QString cityId = attributes.namedItem(QLatin1String("location")).nodeValue();
+		QString cityName = attributes.namedItem(QLatin1String("city")).nodeValue();
+		QString stateName = attributes.namedItem(QLatin1String("state")).nodeValue();
+		QString cityFullName = cityName + ", " + stateName;
+		int index = ui.searchEdit->count();
+		ui.searchEdit->addItem(cityFullName);
+		ui.searchEdit->setItemData(index, cityId, CodeRole);
+		ui.searchEdit->setItemData(index, cityName, CityRole);
+		ui.searchEdit->setItemData(index, stateName, StateRole);
 	}
 }
 
+
+void WSettings::on_searchEdit_activated(int index)
+{
+	QVariant currentData = ui.searchEdit->itemData(index);
+	if (!currentData.isValid())
+		ui.searchButton->animateClick();
+}

@@ -48,9 +48,8 @@ public:
 	virtual Buddy *me() const = 0;
 	bool isJoined() const;
 public slots:
-	virtual void join() = 0;
-	virtual void leave() = 0;
-	virtual void setJoined(bool isJoined);
+	void join();
+	void leave();
 	virtual void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 signals:
 	void topicChanged(const QString &current, const QString &previous);
@@ -58,11 +57,12 @@ signals:
 	void left();
 	void joined();
 	void joinedChanged(bool isJoined);
+protected slots:
+	void setJoined(bool set);
 protected:
 	bool event(QEvent *ev);
-private:
-	Q_PRIVATE_SLOT(d_func(), void _q_joined())
-	Q_PRIVATE_SLOT(d_func(), void _q_leaved())
+	virtual void doJoin() = 0;
+	virtual void doLeave() = 0;
 };
 
 }

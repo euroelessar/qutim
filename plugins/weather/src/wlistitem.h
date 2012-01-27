@@ -37,11 +37,14 @@ class WListItem : public QWidget
 	Q_OBJECT
 
 public:
-	WListItem(const QString &title, bool addIcon = true);
+	typedef QSharedPointer<WListItem> Guard;
+	
+	WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList);
 	~WListItem();
-
-	QString title();
-	void setTitle(const QString &title);
+	
+	QString id() const;
+	QString name() const;
+	QString state() const;
 
 	QListWidgetItem *item();
 	void setItem(QListWidgetItem *item);
@@ -52,7 +55,10 @@ signals:
 private:
 	QLabel *m_label;
 	QPushButton *m_button;
-	QListWidgetItem *m_listWidgetItem;
+	QListWidgetItem *m_item;
+	QString m_id;
+	QString m_name;
+	QString m_state;
 };
 
 #endif // WLISTITEM_H
