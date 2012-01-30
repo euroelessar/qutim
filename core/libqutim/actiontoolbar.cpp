@@ -126,8 +126,8 @@ QMenu *ActionToolBarPrivate::initContextMenu()
 	QMenu *sizeMenu = new QMenu(QObject::tr("Icon size"), contextMenu);
 	group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
 	contextMenu->addMenu(sizeMenu);
-	q->connect(group,SIGNAL(triggered(QAction*)),
-			   q, SLOT(_q_size_action_triggered(QAction*)));
+    q->connect(group, SIGNAL(triggered(QAction*)),
+               q, SLOT(_q_size_action_triggered(QAction*)));
 
 	QMenu *styleMenu = new QMenu(QObject::tr("Tool button style"), contextMenu);
 	group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
@@ -206,8 +206,6 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 	ActionValue::Ptr value = ActionValue::get(generator, this);
 	QAction *action = value->action.data();
 	Q_ASSERT(action);
-//	action->setParent(this);
-	//action->setData(d->data);
 	if (isVisible())
 		ActionGeneratorPrivate::get(generator)->show(action, this);
 
@@ -273,7 +271,6 @@ void ActionToolBar::mousePressEvent(QMouseEvent *event)
 #ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
-		//d->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
 		ReleaseCapture();
 		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
 		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
@@ -287,7 +284,7 @@ void ActionToolBar::mouseMoveEvent(QMouseEvent *event)
 #ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if(d->moveHookEnabled && event->buttons() & Qt::LeftButton)
-		QWidget::window()->move(event->globalPos() - d->dragPos);
+        QWidget::window()->move(event->globalPos());
 #endif
 	QToolBar::mouseMoveEvent(event);
 }

@@ -55,7 +55,6 @@ public:
 	QList<ActionValue::Ptr> actions;
 	QList<ObjectGenerator::Ptr> holders;
 	QVariant data;
-	QPoint dragPos;
 	bool moveHookEnabled;
 	ActionToolBar *q_ptr;
 	QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);
