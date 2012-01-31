@@ -51,8 +51,8 @@ VWallSession::VWallSession(const QString& id, VAccount* account): Conference(acc
 		d->timeStamp = list.first().time().toTime_t();
 	d->updateTimer.setInterval(5000);
 
-	connect(&d->updateTimer,SIGNAL(timeout()),d,SLOT(getHistory()));
-	connect(d->owner,SIGNAL(destroyed()),SLOT(deleteLater()));
+	connect(&d->updateTimer, SIGNAL(timeout()), d, SLOT(getHistory()));
+	connect(d->owner, SIGNAL(destroyed()), SLOT(deleteLater()));
 }
 
 QString VWallSession::id() const
@@ -67,20 +67,34 @@ QString VWallSession::title() const
 }
 
 
-void VWallSession::join()
+void VWallSession::doJoin()
 {
 	Q_D(VWallSession);
 	d->updateTimer.start();
 	d->getHistory();
-	ChatSession *session = ChatLayer::get(this,true);
+	setJoined(true);
+
+	//TODO move to qutim::Conference
+	ChatSession *session = ChatLayer::get(this, true);
 	session->activate();
-	connect(session,SIGNAL(destroyed()),SLOT(deleteLater()));
+	connect(session, SIGNAL(destroyed()), SLOT(deleteLater()));
 }
 
-void VWallSession::leave()
+void VWallSession::doLeave()
 {
 	Q_D(VWallSession);
 	d->updateTimer.stop();
+	setJoined(false);
+
+	//TODO move this method to qutim::conference
+	ChatSession *session = ChatLayer::get(this, false);
+	foreach (Contact *contact, d->participants) {
+		if (session)
+			session->removeContact(contact);
+		if (contact != me()
+				&& contact != d->owner)
+			contact->deleteLater();
+	}
 }
 
 qutim_sdk_0_3::Buddy* VWallSession::me() const
@@ -102,6 +116,7 @@ bool VWallSession::sendMessage(const qutim_sdk_0_3::Message& message)
 
 VWallSession::~VWallSession()
 {
+	leave();
 }
 
 VAccount *VWallSessionPrivate::account()
@@ -114,12 +129,12 @@ void VWallSessionPrivate::getHistory()
 	QVariantMap data;
 
 	QString query("\
-		var query = ({\"owner_id\":%1,\"offset\":0,\"count\":%2}); \
-		var messages = API.wall.get(query); \
-		query = ({\"uids\":messages@.from_id,\"fields\":\"first_name,last_name,nickname,photo_rec\"}); \
-		var profiles = API.getProfiles(query); \
-		return {\"messages\": messages, \"profiles\": profiles};"
-		);
+				  var query = ({\"owner_id\":%1,\"offset\":0,\"count\":%2}); \
+							   var messages = API.wall.get(query); \
+							  query = ({\"uids\":messages@.from_id,\"fields\":\"first_name,last_name,nickname,photo_rec\"}); \
+									   var profiles = API.getProfiles(query); \
+									  return {\"messages\": messages, \"profiles\": profiles};"
+									  );
 	query = query.arg(id).arg(historyCount);
 	data.insert("code",query);
 	QNetworkReply *reply = account()->connection()->get("execute", data);
@@ -139,7 +154,7 @@ void VWallSessionPrivate::onGetHistoryFinished()
 	QVariantList messages = responce.value("messages").toList();
 	QVariantList profiles = responce.value("profiles").toList();
 
-	ChatSession *session = ChatLayer::get(q,false);
+	ChatSession *session = ChatLayer::get(q, false);
 	if (!session || !messages.count())
 		return;
 
@@ -157,10 +172,13 @@ void VWallSessionPrivate::onGetHistoryFinished()
 		QString from_id = msg_item.value("from_id").toString();
 		QString name = from_id;
 		if (!profile.isEmpty()) {
-			VContact *contact = account()->connection()->roster()->getContact(profile,true);
+			VContact *contact = account()->connection()->roster()->getContact(profile, true);
 			contact->setOnline(msg_item.value("online").toBool());
 			name = contact->title();
 			session->addContact(contact);
+
+			participants.append(contact);
+			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(participantDestroyed(QObject*)));
 		}
 
 		if (timeStamp >= ts)
@@ -187,6 +205,11 @@ void VWallSessionPrivate::onGetHistoryFinished()
 		mess.setIncoming(true);
 		session->appendMessage(mess);
 	}
+}
+
+void VWallSessionPrivate::participantDestroyed(QObject *obj)
+{
+	participants.removeAll(reinterpret_cast<VContact*>(obj));
 }
 
 void VWallSessionPrivate::processMultimediaMessage(Message &mess, const QVariantMap &data)

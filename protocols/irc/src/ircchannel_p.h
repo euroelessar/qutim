@@ -32,15 +32,6 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-class IrcJoinLeftActionGenerator : public ActionGenerator
-{
-	Q_GADGET
-public:
-	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
-protected:
-	virtual void showImpl(QAction *action, QObject *obj);
-};
-
 typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
 
 class IrcChannelPrivate
@@ -50,7 +41,6 @@ public:
 	QString name;
 	QHash<QString, ParticipantPointer> users;
 	QString topic;
-	bool isJoined;
 	bool autojoin;
 	QString lastPassword;
 	QString bookmarkName;

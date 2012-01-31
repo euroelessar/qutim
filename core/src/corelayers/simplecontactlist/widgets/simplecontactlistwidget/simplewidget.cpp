@@ -78,7 +78,6 @@ SimpleWidget::SimpleWidget()
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
 
-	resize(150,0);//hack
 	setAttribute(Qt::WA_AlwaysShowToolTips);
 	loadGeometry();
 
@@ -231,29 +230,12 @@ TreeView *SimpleWidget::contactView()
 
 void SimpleWidget::loadGeometry()
 {
-	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-	if (geom.isNull()) {
-		QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-		//black magic
-		int width = size().width();
-		int x = rect.width() - width;
-		int y = 0;
-		int height = rect.height();
-#ifdef Q_WS_WIN
-		//for stupid windows
-		x -= 15;
-		y += 35;
-		height -= 55;
-#endif
-		QRect geometry(x,
-					   y,
-					   width,
-					   height
-					   );
-		setGeometry(geometry);
-	} else {
-		restoreGeometry(geom);
-	}
+    QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
+    if (!geom.isNull())
+        restoreGeometry(geom);
+    else {
+        resize(200, 600);
+    }
 }
 
 QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
