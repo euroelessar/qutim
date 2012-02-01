@@ -62,7 +62,6 @@ public:
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
-	bool isJoined();
 	bool isAutoJoin();
 	void setAutoJoin(bool join);
 	bool isError();
@@ -80,7 +79,8 @@ public:
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 protected:
 	void loadSettings();
-	//			// MUCRoomHandler
+	virtual void doJoin();
+	virtual void doLeave();
 protected slots:
 	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
 	void onMessage(const Jreen::Message &msg, bool priv);
@@ -102,8 +102,6 @@ protected slots:
 	//			void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
 	//			void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
 public slots:
-	void join();
-	void leave();
 	void kick(const QString &nick, const QString &reason = QString());
 	void ban(const QString &nick, const QString &reason = QString());
 	void moder(const QString &nick, const QString &reason = QString());
@@ -116,6 +114,7 @@ public slots:
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();
+	void joinedChanged();
 signals:
 	void nickChanged(const QString &nick);
 	void initClose();

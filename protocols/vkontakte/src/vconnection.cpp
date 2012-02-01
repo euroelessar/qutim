@@ -114,7 +114,7 @@ void VConnection::connectToHost()
 #endif
 	webView->page()->setNetworkAccessManager(this);
 	webView->setWindowTitle(tr("qutIM - VKontakte authorization"));
-	QUrl url("http://vkontakte.ru/login.php");
+	QUrl url("http://vk.com/login.php");
 	url.addQueryItem("app", *appId());
 #ifdef QUTIM_MOBILE_UI
 	url.addQueryItem("layout", "touch");
@@ -207,7 +207,7 @@ VConnection::~VConnection()
 QNetworkReply *VConnection::get(const QString &method, const QVariantMap &args)
 {
 	Q_D(VConnection);
-	QUrl url(QLatin1String("http://api.vkontakte.ru/api.php"));
+	QUrl url(QLatin1String("http://api.vk.com/api.php"));
 	QMap<QString, QString> map;
 	map.insert("api_id", *appId());
 	map.insert("method", method);
@@ -254,7 +254,7 @@ void VConnection::saveSettings()
 {
 	QVariantList cookies;
 	foreach (const QNetworkCookie &cookie,
-			 cookieJar()->cookiesForUrl(QUrl("http://vkontakte.ru"))) {
+			 cookieJar()->cookiesForUrl(QUrl("http://vk.com"))) {
 		cookies << cookie.toRawForm(QNetworkCookie::Full);
 	}
 	config().setValue("cookies", cookies, Config::Crypted);
@@ -268,7 +268,7 @@ void VConnection::loadSettings()
 	QList<QNetworkCookie> cookies;
 	foreach (const QVariant &var, cfg.value("cookies", QVariantList(), Config::Crypted))
 		cookies << QNetworkCookie::parseCookies(var.toByteArray());
-	cookieJar()->setCookiesFromUrl(cookies, QUrl("http://vkontakte.ru"));
+	cookieJar()->setCookiesFromUrl(cookies, QUrl("http://vk.com"));
 	d->logMode = cfg.value("logMode", false);
 }
 

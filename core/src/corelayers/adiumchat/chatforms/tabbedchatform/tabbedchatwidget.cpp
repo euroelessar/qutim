@@ -113,8 +113,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     loadSettings();
 
     connect(m_tabBar, SIGNAL(remove(ChatSessionImpl*)), SLOT(removeSession(ChatSessionImpl*)));
-
-    centralWidget->grabGesture(Qt::SwipeGesture);
+	ensureToolBar();
 }
 
 void TabbedChatWidget::setView(QWidget *view)
@@ -124,7 +123,14 @@ void TabbedChatWidget::setView(QWidget *view)
 	view->setParent(centralWidget());
 	m_chatViewWidget = qobject_cast<ChatViewWidget*>(view);
 	m_vSplitter->insertWidget(0, view);
-	view->grabGesture(Qt::SwipeGesture);
+
+    if (QAbstractScrollArea *area = qobject_cast<QAbstractScrollArea*>(view)) {
+        area->viewport()->grabGesture(Qt::SwipeGesture);
+        area->viewport()->installEventFilter(this);
+    } else {
+        view->grabGesture(Qt::SwipeGesture);
+        view->installEventFilter(this);
+    }
 	m_view = view;
 }
 
@@ -141,7 +147,7 @@ void TabbedChatWidget::loadSettings()
 
         QWidget *tabBar = m_tabBar;
         if(m_flags & AdiumToolbar) {
-            addToolBar(Qt::TopToolBarArea,m_toolbar);
+            addToolBar(Qt::TopToolBarArea, m_toolbar);
 
             //simple hack
             m_recieverList->setMenu(new QMenu);
@@ -232,7 +238,7 @@ void TabbedChatWidget::loadSettings()
             }
             keyGroup.endGroup();
         } else {
-            resize(600,400);
+            resize(600, 400);
             centerizeWidget(this);
         }
         setProperty("loaded",true);

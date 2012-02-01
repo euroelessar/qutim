@@ -42,7 +42,7 @@ QuetzalChat::QuetzalChat(PurpleConversation *conv) :
 	}
 	PurpleConvChat *chat = purple_conversation_get_chat_data(conv);
 	if (!chat->left)
-		emit joined();
+		setJoined(true);
 //	if (account()->protocol()->id() == "msn")
 //		m_id = "QuetzalChat#" + QString::number(chat->id);
 }
@@ -97,7 +97,7 @@ void QuetzalChat::setMe(const char *nick)
 	m_nick = nick;
 }
 
-void QuetzalChat::join()
+void QuetzalChat::doJoin()
 {
 	PurpleConnection *gc = m_conv->account->gc;
 	if (!gc)
@@ -110,7 +110,7 @@ void QuetzalChat::join()
 	g_hash_table_destroy(comps);
 }
 
-void QuetzalChat::leave()
+void QuetzalChat::doLeave()
 {
 	PurpleConnection *gc = m_conv->account->gc;
 	if (!gc)
@@ -163,12 +163,9 @@ bool QuetzalChat::sendMessage(const Message &message)
 void QuetzalChat::update(PurpleConvUpdateType type)
 {
 	PurpleConvChat *chat = PURPLE_CONV_CHAT(m_conv);
-	if (type == PURPLE_CONV_UPDATE_CHATLEFT) {
-		if (chat->left)
-			emit left();
-		else
-			emit joined();
-	} else if (type == PURPLE_CONV_UPDATE_TOPIC) {
+	if (type == PURPLE_CONV_UPDATE_CHATLEFT)
+		setJoined(chat->left);
+	else if (type == PURPLE_CONV_UPDATE_TOPIC) {
 		QString oldTopic = m_topic;
 		m_topic = purple_conv_chat_get_topic(PURPLE_CONV_CHAT(m_conv));
 		emit topicChanged(m_topic, oldTopic);

@@ -34,28 +34,19 @@ namespace qutim_sdk_0_3
 class ConferencePrivate : public ChatUnitPrivate
 {
 public:
-	ConferencePrivate(Conference *c) : ChatUnitPrivate(c) {}
+	ConferencePrivate(Conference *c) : ChatUnitPrivate(c), isJoined(false) {}
 	bool isJoined;
-	void _q_joined()
+
+	void setJoined(bool set)
 	{
-		isJoined = true;
-		emit static_cast<Conference*>(q_func())->joinedChanged(true);
-	}
-	void _q_leaved()
-	{
-		isJoined = false;
-		emit static_cast<Conference*>(q_func())->joinedChanged(false);
+		isJoined = set;
+		emit static_cast<Conference*>(q_func())->joinedChanged(set);
 	}
 };
 
 Conference::Conference(Account *account) :
 	ChatUnit(*new ConferencePrivate(this), account)
 {
-	connect(this, SIGNAL(joined()),
-			this, SLOT(_q_joined()));
-	connect(this, SIGNAL(left()),
-			this, SLOT(_q_leaved()));
-	d_func()->isJoined = false;
 }
 
 Conference::~Conference()
@@ -67,16 +58,15 @@ QString Conference::topic() const
 	return QString();
 }
 
-void Conference::setJoined(bool isJoined)
+void Conference::setJoined(bool set)
 {
 	Q_D(Conference);
-	if (d->isJoined == isJoined)
+	if (d->isJoined == set)
 		return;
-	d->isJoined = isJoined;
-	emit joinedChanged(isJoined);
+	d->isJoined = set;
+	emit joinedChanged(set);
 
-	emit (this->*(isJoined ? &Conference::joined : &Conference::left))();
-	d->isJoined = isJoined;
+	emit (this->*(set ? &Conference::joined : &Conference::left))();
 }
 
 void Conference::setTopic(const QString &topic)
@@ -95,13 +85,13 @@ bool Conference::event(QEvent *ev)
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 		QString text = QLatin1Literal("<p><strong>")
-				% Qt::escape(title())
-				% QLatin1Literal("</strong> &lt;")
-				% id()
-				% QLatin1Literal("&gt;</p>")
-				% QLatin1Literal("<p>")
-				% Qt::escape(topic())
-				% QLatin1Literal("</p>");
+					   % Qt::escape(title())
+					   % QLatin1Literal("</strong> &lt;")
+					   % id()
+					   % QLatin1Literal("&gt;</p>")
+					   % QLatin1Literal("<p>")
+					   % Qt::escape(topic())
+					   % QLatin1Literal("</p>");
 		event->addHtml(text, 90);
 	}
 	return ChatUnit::event(ev);
@@ -110,6 +100,20 @@ bool Conference::event(QEvent *ev)
 bool Conference::isJoined() const
 {
 	return d_func()->isJoined;
+}
+
+void Conference::join()
+{
+	if (!d_func()->isJoined)
+		doJoin();
+}
+
+void Conference::leave()
+{
+	if (d_func()->isJoined)
+		doLeave();
+
+	//TODO set offline all participants
 }
 
 }

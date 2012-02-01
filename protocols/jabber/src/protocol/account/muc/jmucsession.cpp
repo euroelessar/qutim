@@ -65,7 +65,6 @@ public:
 	QString topic;
 	QHash<QString, quint64> messages;
 	QHash<QString, JMUCUser *> users;
-	bool isJoined;
 	bool isAutoRejoin;
 	Jreen::Bookmark::Conference bookmark;
 	QPointer<JConferenceConfig> config;
@@ -93,13 +92,12 @@ JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccou
 			this, SLOT(onServiceMessage(Jreen::Message)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
-	connect(d->room, SIGNAL(leaved()), this, SIGNAL(left()));
-	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
+	connect(d->room, SIGNAL(leaved()), this, SLOT(joinedChanged()));
+	connect(d->room, SIGNAL(joined()), this, SLOT(joinedChanged()));
 	connect(d->room, SIGNAL(error(Jreen::Error::Ptr)),
 			this, SLOT(onError(Jreen::Error::Ptr)));
 	//	if (!password.isEmpty())
 	//		d->room->setPassword(password);
-	d->isJoined = false;
 	d->isError = false;
 	d->thread = 0;
 	d->title = room.bare();
@@ -155,24 +153,20 @@ void JMUCSession::setNick(const QString &nick)
 		emit nickChanged(nick);
 }
 
-void JMUCSession::join()
+void JMUCSession::doJoin()
 {
 	Q_D(JMUCSession);
-	if(d->isJoined || !d->account->client()->isConnected())
+	if(isJoined() || !d->account->client()->isConnected())
 		return;
-	d->isJoined = true;
 	d->room->join();
-	setChatState(ChatStateActive);
 }
 
-void JMUCSession::leave()
+void JMUCSession::doLeave()
 {
 	Q_D(JMUCSession);
-	if(!d->isJoined)
+	if(!isJoined())
 		return;
 	d->room->leave();
-	d->isJoined = false;
-	setChatState(ChatStateGone);
 	ChatSession *session = ChatLayer::get(this, false);
 	//remove users
 	foreach (QString name, d->users.keys()) {
@@ -226,11 +220,6 @@ void JMUCSession::admin(const QString &nick, const QString &reason)
 void JMUCSession::owner(const QString &nick, const QString &reason)
 {
 	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationOwner, reason);
-}
-
-bool JMUCSession::isJoined()
-{
-	return d_func()->isJoined;
 }
 
 QString JMUCSession::id() const
@@ -427,7 +416,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		//	emit joined();
 		//}
 	}
-	if (!text.isEmpty() && (d->isJoined || participant->isKicked() || participant->isBanned())) {
+	if (!text.isEmpty() && (isJoined() || participant->isKicked() || participant->isBanned())) {
 		NotificationRequest request(notificationType);
 		request.setObject(this);
 		request.setText(text);
@@ -652,6 +641,11 @@ void JMUCSession::showConfigDialog()
 void JMUCSession::closeConfigDialog()
 {
 	//	d_func()->isConfiguring = false;
+}
+
+void JMUCSession::joinedChanged()
+{
+	setJoined(d_func()->room->isJoined());
 }
 
 bool JMUCSession::enabledConfiguring()

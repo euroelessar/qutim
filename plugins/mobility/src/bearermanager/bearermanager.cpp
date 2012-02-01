@@ -34,6 +34,7 @@
 #include <qutim/utils.h>
 #include <qutim/settingslayer.h>
 #include "managersettings.h"
+#include <qutim/notification.h>
 
 #include <QTimer>
 
@@ -59,6 +60,15 @@ BearerManager::BearerManager(QObject *parent) :
 	Settings::registerItem(m_item);
 
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
+
+	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
+	foreach (QNetworkConfiguration conf, list) {
+		debug() << conf.bearerName();
+	}
+	if (!list.count())
+		Notification::send(tr("Unable to find any network configuration. "
+							  "Perhaps Qt or QtMobility network bearer configured incorrectly. "
+							  "Bearer manager will not work properly, refer to your distribution maintainer."));
 }
 
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status::Type &s)
@@ -91,18 +101,11 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	//simple spike for stupid distros!
-
-	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
-	foreach (QNetworkConfiguration conf, list) {
-		debug() << conf.bearerName();
-	}
-
-	bool isOnline = true;
-	if (list.count())
-		isOnline = m_confManager->isOnline();
+	bool isOnline = m_confManager->isOnline();
+	if (!m_confManager->allConfigurations().count())
+		isOnline = true;
 
 	changeStatus(account, isOnline, Status::Online);
-
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
