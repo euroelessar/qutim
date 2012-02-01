@@ -38,11 +38,9 @@ WSettings::WSettings()
 	eventFilter(ui.searchEdit, &focusEvent);
 	ui.searchEdit->installEventFilter(this);
 
-//	lookForWidgetState(ui.intervalBox);
-//	lookForWidgetState(ui.showStatusBox);
-//	lookForWidgetState(ui.useDefaultTheme);
-//	lookForWidgetState(ui.useCustomTheme);
-//	lookForWidgetState(ui.themePath);
+	lookForWidgetState(ui.intervalBox);
+	lookForWidgetState(ui.showStatusBox);
+	lookForWidgetState(ui.themeNameBox);
 }
 
 WSettings::~WSettings()
@@ -55,6 +53,8 @@ void WSettings::loadImpl()
 	config.beginGroup(QLatin1String("main"));
 	ui.intervalBox->setValue(config.value(QLatin1String("interval"), 25));
 	ui.showStatusBox->setChecked(config.value(QLatin1String("showStatus"), true));
+	int index = ui.themeNameBox->findText(config.value(QLatin1String("themeName"), QString()));
+	ui.themeNameBox->setCurrentIndex(qMax(0, index));
 	int count = config.beginArray(QLatin1String("contacts"));
 	for (int i = 0; i < count; i++) {
 		config.setArrayIndex(i);

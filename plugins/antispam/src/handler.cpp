@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -24,23 +25,44 @@
 ****************************************************************************/
 
 #include "handler.h"
+#include "settingswidget.h"
 #include <qutim/contact.h>
 #include <qutim/config.h>
-#include "settingswidget.h"
 #include <qutim/debug.h>
-#include <qutim/servicemanager.h>
 #include <qutim/authorizationdialog.h>
-
+#include <qutim/notification.h>
 #include <QTimer>
+#include <QDateTime>
 
 namespace Antispam {
 
 using namespace qutim_sdk_0_3;
 using namespace Authorization;
 
-Handler::Handler()
+#define ANTISPAM_PROPERTY "antispamInfo"
+
+struct Info
 {
-	QTimer::singleShot(0, this, SLOT(loadSettings()));
+	typedef QSharedPointer<Info> Ptr;
+	
+	Info() : trusted(false), notified(false) {}
+	
+	bool trusted;
+	bool notified;
+	QDateTime lastQuestionTime;
+};
+
+}
+
+Q_DECLARE_METATYPE(Antispam::Info::Ptr)
+
+namespace Antispam {
+
+Handler::Handler() : m_authorization("AuthorizationService")
+{
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+	        SLOT(onServiceChanged(QByteArray)));
+	loadSettings();
 }
 
 void Handler::loadSettings()
@@ -52,43 +74,68 @@ void Handler::loadSettings()
 	m_success = cfg.value("success", tr("We are ready to drink with you!"));
 	m_answers = cfg.value("answers", tr("vodka;Vodka")).split(QLatin1String(";"));
 	m_handleAuth =  cfg.value("handleAuth", true);
-	cfg.endGroup();
-	if (QObject *obj = ServiceManager::getByName("AuthorizationService")) {
+
+	if (m_authorization) {
 		if (m_enabled && m_handleAuth)
-			obj->installEventFilter(this);
+			m_authorization->installEventFilter(this);
 		else
-			obj->removeEventFilter(this);
+			m_authorization->removeEventFilter(this);
 	}
 }
 
-MessageHandler::Result Handler::doHandle(Message& message, QString* reason)
+MessageHandler::Result Handler::doHandle(Message &message, QString *reason)
 {
-	if (!message.isIncoming() || !m_enabled)
+	if (!m_enabled || message.property("service", false))
 		return MessageHandler::Accept;
 
-	Contact *contact = qobject_cast<Contact*>(message.chatUnit());
-	if (!contact || contact->isInList() || contact->property("trusted").toBool())
+	Contact *contact = qobject_cast<Contact*>(message.chatUnit()->buddy());
+	if (!contact || contact->isInList())
 		return MessageHandler::Accept;
-	else if (contact->property("notified").toBool())
-		return MessageHandler::Reject;
+	
+	Info::Ptr info = contact->property(ANTISPAM_PROPERTY).value<Info::Ptr>();
+	if (info.isNull()) {
+		info = Info::Ptr::create();
+		contact->setProperty(ANTISPAM_PROPERTY, qVariantFromValue(info));
+	}
+	
+	if (info->trusted)
+		return MessageHandler::Accept;
+	
+	if (!message.isIncoming()) {
+		if (!message.property("autoreply", false))
+			info->trusted = true;
+		return MessageHandler::Accept;
+	}
 
 	//check message body
-	foreach (QString answer, m_answers) {
+	foreach (const QString &answer, m_answers) {
 		if (message.text().compare(answer, Qt::CaseInsensitive) == 0) {
-			Message msg(m_success);
-			msg.setChatUnit(contact);
-			contact->sendMessage(msg);
-			contact->setProperty("trusted", true);
+			Message message(m_success);
+			message.setChatUnit(contact);
+			contact->sendMessage(message);
+			info->trusted = true;
+			qDebug() << "Antispam: Accept";
 			return MessageHandler::Accept;
 		}
 	}
+	
+//	if (info->notified)
+//		return MessageHandler::Reject;
 
-	Message msg(m_question);
-	msg.setChatUnit(contact);
-	contact->sendMessage(msg);
-	contact->setProperty("notified", true);
-	reason->append(QObject::tr("Message from %1 blocked  on suspicion of spam.").
+	if (info->lastQuestionTime.isValid()
+	        && qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
+		qDebug() << "Antispam: Reject";
+		return MessageHandler::Reject;
+	}
+	Message replyMessage(m_question);
+	replyMessage.setChatUnit(contact);
+	replyMessage.setProperty("autoreply", true);
+	contact->sendMessage(replyMessage);
+	info->notified = true;
+	info->lastQuestionTime = QDateTime::currentDateTime();
+	reason->append(tr("Message from %1 blocked on suspicion of spam.").
 				   arg(contact->title()));
+	qDebug() << "Antispam: Error";
 	return MessageHandler::Error;
 }
 
@@ -96,16 +143,31 @@ bool Handler::eventFilter(QObject *obj, QEvent *event)
 {
 	if (event->type() == Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(event);
-		Contact *contact = reply->contact();
-		bool trusted = contact->property("trusted").toBool();
-		if (reply->replyType() == Reply::New && !trusted) {
-			Message msg(m_question);
-			msg.setChatUnit(contact);
-			contact->sendMessage(msg);
-			return true;
+		if (reply->replyType() == Reply::New) {
+			QString reason;
+			Message pseudoMessage(reply->body());
+			pseudoMessage.setChatUnit(reply->contact());
+			pseudoMessage.setIncoming(false);
+			Result result = doHandle(pseudoMessage, &reason);
+			if (Error == result) {
+				NotificationRequest request(Notification::BlockedMessage);
+				request.setObject(reply->contact());
+				request.setText(reason);
+				request.send();
+			}
+			if (Accept != result)
+				return true;
 		}
 	}
 	return QObject::eventFilter(obj, event);
+}
+
+void Handler::onServiceChanged(const QByteArray &name)
+{
+	if (name != m_authorization.name())
+		return;
+	if (m_enabled && m_handleAuth)
+		m_authorization->installEventFilter(this);
 }
 
 } // namespace Antispam
