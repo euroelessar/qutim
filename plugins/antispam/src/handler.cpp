@@ -28,7 +28,6 @@
 #include "settingswidget.h"
 #include <qutim/contact.h>
 #include <qutim/config.h>
-#include <qutim/debug.h>
 #include <qutim/authorizationdialog.h>
 #include <qutim/notification.h>
 #include <QTimer>
@@ -45,10 +44,9 @@ struct Info
 {
 	typedef QSharedPointer<Info> Ptr;
 	
-	Info() : trusted(false), notified(false) {}
+	Info() : trusted(false) {}
 	
 	bool trusted;
-	bool notified;
 	QDateTime lastQuestionTime;
 };
 
@@ -114,28 +112,21 @@ MessageHandler::Result Handler::doHandle(Message &message, QString *reason)
 			message.setChatUnit(contact);
 			contact->sendMessage(message);
 			info->trusted = true;
-			qDebug() << "Antispam: Accept";
 			return MessageHandler::Accept;
 		}
 	}
-	
-//	if (info->notified)
-//		return MessageHandler::Reject;
 
 	if (info->lastQuestionTime.isValid()
 	        && qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
-		qDebug() << "Antispam: Reject";
 		return MessageHandler::Reject;
 	}
 	Message replyMessage(m_question);
 	replyMessage.setChatUnit(contact);
 	replyMessage.setProperty("autoreply", true);
 	contact->sendMessage(replyMessage);
-	info->notified = true;
 	info->lastQuestionTime = QDateTime::currentDateTime();
 	reason->append(tr("Message from %1 blocked on suspicion of spam.").
 				   arg(contact->title()));
-	qDebug() << "Antispam: Error";
 	return MessageHandler::Error;
 }
 
