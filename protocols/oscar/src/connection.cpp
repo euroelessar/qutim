@@ -443,6 +443,12 @@ void AbstractConnection::send(SNAC &snac, bool priority)
 		sendSnac(snac);
 }
 
+void AbstractConnection::sendSnac(quint16 family, quint16 subtype, bool priority)
+{
+	SNAC snac(family, subtype);
+	send(snac, priority);
+}
+
 void AbstractConnection::send(FLAP &flap)
 {
 	Q_D(AbstractConnection);

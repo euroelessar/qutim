@@ -123,9 +123,9 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 		return false;
 	if (error == FeedbagError::RequiresAuthorization) {
 		Q_ASSERT(!item.isInList());
-		FeedbagItem i = item;
-		i.setField(SsiBuddyReqAuth);
-		i.update();
+		FeedbagItem item = item;
+		item.setField(SsiBuddyReqAuth);
+		item.update();
 	} else if (error != FeedbagError::NoError) {
 		return false;
 	}

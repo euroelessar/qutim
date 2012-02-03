@@ -29,11 +29,12 @@
 #include "oscarconnection.h"
 #include "icqaccount.h"
 #include <qutim/protocol.h>
+#include <QCoreApplication>
 #include <QQueue>
 #include <QDateTime>
 #include <QLatin1String>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem)
 
 namespace qutim_sdk_0_3 {
 
@@ -49,16 +50,23 @@ QString getCompressedName(const QString &name)
 	return compressedName;
 }
 
-class FeedbagItemPrivate: public QSharedData
+class FeedbagUpdateEvent
+{
+};
+
+class FeedbagItemPrivate : public QSharedData
 {
 public:
 	FeedbagItemPrivate();
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
+	
 	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
+	QByteArray data(Feedbag::ModifyType operation) const;
 	inline void remove(FeedbagItem item);
 	bool isSendingAllowed(const FeedbagItem &item, Feedbag::ModifyType operation);
 	quint16 id() const { return itemType == SsiGroup ? groupId : itemId; }
-	QString configId() const { return QString::number((quint64)(itemType << 16 | id()) << 32 | groupId); }
+	QString configId() const { return QString::number(quint64(quint64(itemType) << 16 | id()) << 32 | groupId); }
+	
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -70,8 +78,10 @@ public:
 
 struct FeedbagQueueItem
 {
-	FeedbagQueueItem(const FeedbagItem &item_, Feedbag::ModifyType type_):
-		item(item_), type(type_)
+	FeedbagQueueItem(const FeedbagItem &i, Feedbag::ModifyType t) : item(i), type(t)
+	{
+	}
+	FeedbagQueueItem() : type(static_cast<Feedbag::ModifyType>(0))
 	{
 	}
 	FeedbagItem item;
@@ -84,19 +94,19 @@ class FeedbagPrivate
 {
 	Q_DECLARE_PUBLIC(Feedbag)
 public:
-	FeedbagPrivate(IcqAccount *acc, Feedbag *q):
-		account(acc), conn(static_cast<OscarConnection*>(acc->connection())),
-		modifyStarted(false), q_ptr(q)
-	{}
+	FeedbagPrivate(IcqAccount *acc, Feedbag *q)
+	    : account(acc), conn(static_cast<OscarConnection*>(acc->connection())), q_ptr(q) {}
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
 	void finishLoading();
+	static QEvent::Type updateEvent();
 	FeedbagItemPrivate *getFeedbagItemPrivate(const SNAC &snac);
+	void updateList();
 	QHash<quint16, ItemsHash> items;
-	QQueue<FeedbagQueueItem> ssiQueue;
+	QList<FeedbagQueueItem> modifyQueue;
+	QList<QList<FeedbagQueueItem> > itemsForRequests;
 	IcqAccount *account;
 	OscarConnection *conn;
-	bool modifyStarted;
 	QHash<quint16, FeedbagItemHandler*> handlers;
 	uint lastUpdateTime;
 	bool firstPacket;
@@ -123,21 +133,21 @@ QString FeedbagError::errorString()
 {
 	QString errorStr;
 	if (m_error == NoError)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "No error");
+		errorStr = QCoreApplication::translate("FeedbagError", "No error");
 	if (m_error == ItemNotFound)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Item you want to modify not found in list");
+		errorStr = QCoreApplication::translate("FeedbagError", "Item you want to modify not found in list");
 	else if (m_error == ItemAlreadyExists)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Item you want to add allready exists");
+		errorStr = QCoreApplication::translate("FeedbagError", "Item you want to add allready exists");
 	else if (m_error == CommonError)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Error adding item (invalid id, allready in list, invalid data)");
+		errorStr = QCoreApplication::translate("FeedbagError", "Error adding item (invalid id, allready in list, invalid data)");
 	else if (m_error == LimitExceeded)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Can't add item. Limit for this type of items exceeded");
+		errorStr = QCoreApplication::translate("FeedbagError", "Can't add item. Limit for this type of items exceeded");
 	else if (m_error == AttemtToAddIcqContactToAimList)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Trying to add ICQ contact to an AIM list");
+		errorStr = QCoreApplication::translate("FeedbagError", "Trying to add ICQ contact to an AIM list");
 	else if (m_error == RequiresAuthorization)
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Can't add this contact because it requires authorization");
+		errorStr = QCoreApplication::translate("FeedbagError", "Can't add this contact because it requires authorization");
 	else
-		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Unknown error");
+		errorStr = QCoreApplication::translate("FeedbagError", "Unknown error (Code: %1)").arg(m_error);
 	return errorStr;
 }
 
@@ -157,16 +167,42 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
 {
+	Q_ASSERT(operation == Feedbag::Add || operation == Feedbag::Modify || operation == Feedbag::Remove);
 	FeedbagPrivate *d = feedbag->d.data();
-	d->ssiQueue.enqueue(FeedbagQueueItem(item, operation));
-	SNAC snac(ListsFamily, operation);
-	snac.append<quint16>(recordName);
-	snac.append<quint16>(groupId);
-	snac.append<quint16>(itemId);
-	snac.append<quint16>(itemType);
-	snac.append<quint16>(tlvs.valuesSize());
-	snac.append(tlvs);
-	d->conn->send(snac);
+	if (d->modifyQueue.isEmpty())
+		qApp->postEvent(feedbag, new QEvent(FeedbagPrivate::updateEvent()));
+	// Optimize changes
+	for (int i = 0; i < d->modifyQueue.size(); ++i) {
+		const FeedbagQueueItem &queueItem = d->modifyQueue.at(i);
+		if (queueItem.item.itemId() == item.itemId()) {
+			if (queueItem.type == Feedbag::Add && operation == Feedbag::Modify)
+				operation = Feedbag::Add;
+			d->modifyQueue.removeAt(i);
+			if (queueItem.type == Feedbag::Add && operation == Feedbag::Remove)
+				return;
+			else
+				break;
+		}
+	}
+	d->modifyQueue.append(FeedbagQueueItem(item, operation));
+}
+
+QByteArray FeedbagItemPrivate::data(Feedbag::ModifyType operation) const
+{
+	DataUnit unit;
+	unit.append<quint16>(recordName);
+	unit.append<quint16>(groupId);
+	unit.append<quint16>(itemId);
+	unit.append<quint16>(itemType);
+	qDebug() << unit.data().toHex();
+	if (operation != Feedbag::Remove) {
+		unit.append<quint16>(tlvs.valuesSize());
+		unit.append(tlvs);
+	} else {
+		unit.append<quint16>(0);
+	}
+	qDebug() << unit.data().toHex();
+	return unit;
 }
 
 void FeedbagItemPrivate::remove(FeedbagItem item)
@@ -226,35 +262,18 @@ const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
 
 void FeedbagItem::update()
 {
-	FeedbagItem item = *this;
+	const FeedbagItem &item = *this;
 	Feedbag::ModifyType op = d->isInList ? Feedbag::Modify : Feedbag::Add;
-	if (!d->isSendingAllowed(item, op))
-		return;
-	Feedbag *f = feedbag();
-	bool modify = f->isModifyStarted();
-	if (!modify)
-		f->beginModify();
 	d->send(item, op);
 	d->isInList = true;
-	if (!modify)
-		f->endModify();
 }
 
 void FeedbagItem::remove()
 {
 	Q_ASSERT(isInList());
-	FeedbagItem item = *this;
-	Feedbag *f = feedbag();
-	if (!d->isSendingAllowed(item, Feedbag::Remove))
-		return;
-	bool modify = f->isModifyStarted();
-	if (!modify)
-		f->beginModify();
-	item.d->tlvs.clear();
-	d->isInList = false;
+	const FeedbagItem &item = *this;
 	d->send(item, Feedbag::Remove);
-	if (!modify)
-		f->endModify();
+	d->isInList = false;
 }
 
 Feedbag *FeedbagItem::feedbag() const
@@ -513,6 +532,12 @@ void FeedbagPrivate::finishLoading()
 	emit q->loaded();
 }
 
+QEvent::Type FeedbagPrivate::updateEvent()
+{
+	static QEvent::Type type = static_cast<QEvent::Type>(QEvent::registerEventType());
+	return type;
+}
+
 FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 {
 	QString recordName = snac.read<QString, quint16>(Util::utf8Codec());
@@ -528,6 +553,39 @@ FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 	FeedbagItemPrivate *item = new FeedbagItemPrivate(q_func(), itemType, itemId, groupId, recordName);
 	item->tlvs = snac.read<DataUnit, quint16>().read<TLVMap>();
 	return item;
+}
+
+static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
+{
+	return a.type < b.type;
+}
+
+void FeedbagPrivate::updateList()
+{
+	if (modifyQueue.isEmpty())
+		return;
+	conn->sendSnac(ListsFamily, ListsCliModifyStart);
+	qStableSort(modifyQueue.begin(), modifyQueue.end(), feedbagItemLessThan);
+	SNAC snac;
+	QList<FeedbagQueueItem> items;
+	for (int i = 0; i <= modifyQueue.size(); ++i) {
+		const FeedbagQueueItem *item = i < modifyQueue.size() ? &modifyQueue.at(i) : 0;
+		QByteArray data = item ? item->item.d->data(item->type) : QByteArray();
+		if (!item || item->type != snac.subtype() || !snac.canAppend(data.size())) {
+			if (!items.isEmpty()) {
+				itemsForRequests.append(items);
+				items.clear();
+				conn->send(snac);
+			}
+			if (item) {
+				snac = SNAC(ListsFamily, item->type);
+				items.append(*item);
+			}
+		}
+		snac.append(data);
+	}
+	conn->sendSnac(ListsFamily, ListsCliModifyEnd);
+	modifyQueue.clear();
 }
 
 Feedbag::Feedbag(IcqAccount *acc):
@@ -572,23 +630,13 @@ Feedbag::~Feedbag()
 {
 }
 
-void Feedbag::beginModify()
+bool Feedbag::event(QEvent *ev)
 {
-	SNAC snac(ListsFamily, ListsCliModifyStart);
-	d->conn->send(snac);
-	d->modifyStarted = true;
-}
-
-void Feedbag::endModify()
-{
-	SNAC snac(ListsFamily, ListsCliModifyEnd);
-	d->conn->send(snac);
-	d->modifyStarted = false;
-}
-
-bool Feedbag::isModifyStarted() const
-{
-	return d->modifyStarted;
+	if (ev->type() == FeedbagPrivate::updateEvent()) {
+		d->updateList();
+		return true;
+	}
+	return QObject::event(ev);
 }
 
 bool Feedbag::removeItem(quint16 type, quint16 id)
@@ -888,9 +936,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsAck: {
 		while (sn.dataSize() != 0) {
-			FeedbagError error(sn);
-			FeedbagQueueItem operation = d->ssiQueue.dequeue();
-			d->handleItem(operation.item, operation.type, error);
+			debug() << "Received with id:" << sn.id();
+			foreach (FeedbagQueueItem operation, d->itemsForRequests.takeFirst()) {
+				FeedbagError error(sn);
+				d->handleItem(operation.item, operation.type, error);
+			}
 		}
 		break;
 	}
@@ -916,7 +966,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 void Feedbag::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
 {
 	if (current == Status::Offline && previous != Status::Offline)
-		d->ssiQueue.clear();
+		d->modifyQueue.clear();
 }
 
 FeedbagItemHandler::~FeedbagItemHandler()

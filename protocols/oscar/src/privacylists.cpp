@@ -309,11 +309,16 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 void PrivacyLists::setVisibility(IcqAccount *account, int visibility)
 {
 	FeedbagItem item = account->feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
-	TLV data(0x00CA);
-	data.append<quint8>(visibility);
-	item.setField(data);
-	item.setField<qint32>(0x00C9, 0xffffffff);
-	item.update();
+	TLV data = item.field(0x00CA);
+	if (data.read<quint8>() != visibility) {
+		item.setField<quint8>(0x00CA, visibility);
+		item.update();
+	}
+//	TLV data(0x00CA);
+//	data.append<quint8>(visibility);
+//	item.setField(data);
+	// Do we really want to change it?
+//	item.setField<qint32>(0x00C9, 0xffffffff);
 }
 
 Visibility PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)

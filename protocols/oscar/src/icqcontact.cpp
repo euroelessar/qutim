@@ -243,32 +243,27 @@ void IcqContact::setTags(const QStringList &tags)
 	Status::Type status = d->account->status().type();
 	if (!isInList() || status == Status::Offline || status == Status::Connecting)
 		return;
-	Feedbag *f = d->account->feedbag();
-	f->beginModify();
+	Feedbag *feedbag = d->account->feedbag();
 	setGroup(tags.isEmpty() ? QString() : tags.first());
 	DataUnit tagsData;
 	foreach (const QString &tag, tags)
 		tagsData.append<quint16>(tag);
-	FeedbagItem tagsItem = f->item(SsiTags, id(), 0, Feedbag::GenerateId);
+	FeedbagItem tagsItem = feedbag->item(SsiTags, id(), 0, Feedbag::GenerateId);
 	tagsItem.setField(SsiBuddyTags, tagsData);
 	tagsItem.update();
-	f->endModify();
 }
 
 void IcqContact::setGroup(const QString &group)
 {
 	Q_D(IcqContact);
-	Feedbag *f = d->account->feedbag();
-	bool modify = !f->isModifyStarted();
-	if (modify)
-		f->beginModify();
+	Feedbag *feedbag = d->account->feedbag();
 	bool found = false;
 	QList<FeedbagItem> items = d->items;
 	FeedbagItem newGroup;
 	if (group.isEmpty())
 		newGroup = d->getNotInListGroup();
 	else
-		newGroup = f->groupItem(group, Feedbag::GenerateId);
+		newGroup = feedbag->groupItem(group, Feedbag::GenerateId);
 	if (newGroup.isInList()) {
 		QList<FeedbagItem>::iterator itr = items.begin();
 		QList<FeedbagItem>::iterator endItr = items.end();
@@ -286,18 +281,16 @@ void IcqContact::setGroup(const QString &group)
 	}
 	if (!found) {
 		// Copy the contact to the group.
-		FeedbagItem newItem = f->item(SsiBuddy, id(), newGroup.groupId(), Feedbag::GenerateId);
+		FeedbagItem newItem = feedbag->item(SsiBuddy, id(), newGroup.groupId(), Feedbag::GenerateId);
 		newItem.setData(d->items.first().constData());
 		newItem.update();
 	}
 	// Remove unnecessary items
 	foreach (FeedbagItem item, items) {
 		item.remove();
-		if (f->group(item.groupId()).count() <= 1)
-			f->removeItem(SsiGroup, item.groupId());
+		if (feedbag->group(item.groupId()).count() <= 1)
+			feedbag->removeItem(SsiGroup, item.groupId());
 	}
-	if (modify)
-		f->endModify();
 }
 
 void IcqContact::setInList(bool inList)
@@ -307,13 +300,12 @@ void IcqContact::setInList(bool inList)
 		return;
 	if (inList) {
 		Feedbag *f = d->account->feedbag();
-		f->beginModify();
-		FeedbagItem item;
-		item = f->item(SsiBuddy, id(), d->getNotInListGroup().groupId(),
-					   Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setField<QString>(SsiBuddyNick, id());
+		FeedbagItem item = f->item(SsiBuddy, id(), d->getNotInListGroup().groupId(),
+		                           Feedbag::GenerateId | Feedbag::DontLoadLocal);
+		// Why?
+		if (!d->name.isEmpty())
+			item.setField<QString>(SsiBuddyNick, d->name);
 		item.update();
-		f->endModify();
 	} else {
 		foreach (FeedbagItem item, d->items)
 			item.remove();

@@ -120,7 +120,7 @@ Q_INLINE_TEMPLATE T FeedbagItem::field(quint16 f, const T &def) const
 template<typename T>
 Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 {
-	data().insert(field, d);
+	setField(TLV(field, d));
 }
 
 class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
@@ -142,12 +142,12 @@ public:
 		DontLoadLocal = 0x0010,
 		ReturnOne = 0x0020
 	};
-	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag);
+	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag)
+	
 	Feedbag(IcqAccount *acc);
 	virtual ~Feedbag();
-	void beginModify();
-	void endModify();
-	bool isModifyStarted() const;
+	
+	bool event(QEvent *event);
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
 	FeedbagItem item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags = NoFlags) const;

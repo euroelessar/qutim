@@ -74,7 +74,8 @@ public:
 		MissingRequiredParameter = 460,
 		SourceRequired = 461,
 		ParameterError = 462,
-		GenericServerError = 500
+		GenericServerError = 500,
+		RateLimitReached = 607
 	};
 	
 	OscarResponse(const QByteArray &json);
@@ -140,6 +141,7 @@ AbstractConnection::ConnectionError OscarResponse::error() const
 	case RequestTimeout:
 		return AbstractConnection::InternalError;
 	case SourceRateLimitReached:
+	case RateLimitReached:
 		return AbstractConnection::RateLimitExceeded;
 	case InvalidKey:
 	case KeyUsageLimitReached:
