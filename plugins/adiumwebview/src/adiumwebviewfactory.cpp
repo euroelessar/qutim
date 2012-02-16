@@ -38,6 +38,7 @@ WebViewFactory::WebViewFactory()
 {
 	m_appearanceSettings = new GeneralSettingsItem<WebViewAppearance>(
 	            Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat"));
+	m_appearanceSettings->connect(SIGNAL(saved()), this, SIGNAL(settingsSaved()));
 	Settings::registerItem(m_appearanceSettings);
 }
 
@@ -49,14 +50,15 @@ WebViewFactory::~WebViewFactory()
 
 QObject *WebViewFactory::createViewController()
 {
-	return new WebViewController();
+	WebViewController *controller = new WebViewController();
+	connect(this, SIGNAL(settingsSaved()), controller, SLOT(onSettingsSaved()));
+	return controller;
 }
 
 QWidget *WebViewFactory::createViewWidget()
 {
 	return new WebViewWidget();
 }
-
 	
 } // namespace Adium
 

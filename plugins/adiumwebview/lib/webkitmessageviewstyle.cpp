@@ -402,7 +402,6 @@ void WebKitMessageViewStyle::setStylePath(const QString &path)
 	d->config = cfg.rootValue().toMap();
 	dir.cd(QLatin1String("Resources"));
 	d->stylePath = dir.absolutePath() + QLatin1Char('/');
-	qDebug() << d->stylePath;
 	reloadStyle();
 }
 
