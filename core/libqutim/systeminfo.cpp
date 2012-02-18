@@ -375,14 +375,34 @@ void init(SystemInfoPrivate *d)
 #elif defined(Q_WS_X11)
 	// attempt to get LSB version before trying the distro-specific approach
 
-	d->os_full = lsbRelease(QStringList() << "--description" << "--short");
-
-	if (d->os_full.isEmpty()) {
-		unixHeuristicDetect(d);
+	QFile lsbFile(QLatin1String("/etc/lsb-release"));
+	if (lsbFile.open(QFile::ReadOnly)) {
+		QString content = QString::fromUtf8(lsbFile.readAll());
+		foreach (const QString &line, content.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
+			const QString name = line.section(QLatin1Char('='), 0, 0);
+			QString value = line.section(QLatin1Char('='), 1);
+			if (value.startsWith(QLatin1Char('"')))
+				value.remove(0, 1);
+			if (value.endsWith(QLatin1Char('"')))
+				value.chop(1);
+			if (name == QLatin1String("DISTRIB_ID"))
+				d->os_name = value;
+			else if (name == QLatin1String("DISTRIB_RELEASE"))
+				d->os_version = value;
+			else if (name == QLatin1String("DISTRIB_DESCRIPTION"))
+				d->os_full = value;
+		}
 	} else {
-		d->os_name = lsbRelease(QStringList() << "--short" << "--id");
-		d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
+		d->os_full = lsbRelease(QStringList() << "--description" << "--short");
+	
+		if (d->os_full.isEmpty()) {
+			unixHeuristicDetect(d);
+		} else {
+			d->os_name = lsbRelease(QStringList() << "--short" << "--id");
+			d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
+		}
 	}
+
 
 #elif defined(Q_WS_MAC)
 	SInt32 minor_version, major_version, bug_fix;
