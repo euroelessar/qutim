@@ -42,10 +42,12 @@ inline uint qHash(const QWeakPointer<IcqContact> &ptr)
 
 enum SsiBuddyTlvs
 {
-	SsiBuddyProto = 0x0084,
-	SsiBuddyNick = 0x0131,
+	SsiBuddyReqAuth = 0x0066,
+	SsiBuddyProto   = 0x0084,
+	SsiBuddyNick    = 0x0131,
 	SsiBuddyComment = 0x013c,
-	SsiBuddyTags = 0x023c
+	SsiBuddyTags    = 0x349c,
+	SsiGroupDefault = 0x349d
 };
 
 enum ContactCapabilityFlags
@@ -72,7 +74,8 @@ private:
 class IcqContactPrivate
 {
 public:
-	Q_DECLARE_PUBLIC(IcqContact);
+	Q_DECLARE_PUBLIC(IcqContact)
+	
 	void clearCapabilities();
 	void requestNick();
 	void setCapabilities(const Capabilities &caps);
@@ -85,10 +88,10 @@ public:
 	Status status;
 	QString avatar;
 	quint16 version;
+	bool isInList;
 	CapabilityFlags flags;
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
-	QList<FeedbagItem> items;
 	QStringList tags;
 	ChatState state;
 	QDateTime onlineSince;

@@ -80,7 +80,7 @@ void PrivacyLists::onModifyPrivateList(QAction *action, QObject *object)
 	if (item.isInList())
 		item.remove();
 	else
-		item.update();
+		item.add();
 }
 
 static LocalizedString visibilityToString(Visibility visibility)
@@ -126,8 +126,8 @@ void PrivacyActionGenerator::createImpl(QAction *action, QObject *obj) const
 	}
 	action->setVisible(true);
 
-	QList<FeedbagItem> items = account->feedbag()->type(SsiVisibility);
-	Visibility curVisibility = !items.isEmpty() ? (Visibility)items.first().field<quint8>(0x00CA) : NoVisibility;
+	FeedbagItem item = account->feedbag()->itemByType(SsiVisibility);
+	Visibility curVisibility = item.isNull() ? NoVisibility : static_cast<Visibility>(item.field<quint8>(0x00CA));
 	if (curVisibility == NoVisibility)
 		curVisibility = PrivacyLists::instance()->getCurrentMode(account, isInvisible);
 	action->setChecked(curVisibility == m_visibility);
@@ -308,11 +308,11 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 
 void PrivacyLists::setVisibility(IcqAccount *account, int visibility)
 {
-	FeedbagItem item = account->feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
+	FeedbagItem item = account->feedbag()->itemByType(SsiVisibility, Feedbag::CreateItem);
 	TLV data = item.field(0x00CA);
 	if (data.read<quint8>() != visibility) {
 		item.setField<quint8>(0x00CA, visibility);
-		item.update();
+		item.updateOrAdd();
 	}
 //	TLV data(0x00CA);
 //	data.append<quint8>(visibility);

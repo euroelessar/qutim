@@ -101,14 +101,14 @@ void BuddyPicture::setAccountAvatar(const QString &avatar)
 	// Md5 hash.
 	m_avatarHash = QCryptographicHash::hash(m_accountAvatar, QCryptographicHash::Md5);
 	// Request for update of avatar.
-	FeedbagItem item = account()->feedbag()->type(SsiBuddyIcon, Feedbag::GenerateId).first();
+	FeedbagItem item = account()->feedbag()->itemByType(SsiBuddyIcon, Feedbag::GenerateId);
 	TLV data(0x00d5);
 	data.append<quint8>(1);
 	data.append<quint8>(m_avatarHash);
 	item.setField(data);
 	if (!item.isInList())
 		item.setName("1");
-	item.update();
+	item.updateOrAdd();
 }
 
 void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)

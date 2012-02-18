@@ -362,7 +362,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		// qip always requires a message response, even if it has sent
 		// us the message on the channel 1.
 		// TODO: maybe there is another SNAC for the message responses?
-		if (contact->d_func()->flags & srvrelay_support && cookie != 0)
+		if ((contact->d_func()->flags & srvrelay_support) && cookie != 0)
 			sendChannel2Response(contact, MsgPlain, 0, cookie);
 		Message m;
 		if (tlvs.contains(0x0016))
