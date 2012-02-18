@@ -248,7 +248,8 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
 {
 	if (role == Qt::EditRole && getItemType(index) == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		item->data->contact->setName(value.toString());
+		if (item->data->contact)
+			item->data->contact.data()->setName(value.toString());
 		return true;
 	}
 	return false;
@@ -271,9 +272,12 @@ QMimeData *TreeModel::mimeData(const QModelIndexList &indexes) const
 	QLatin1String type("");
 	if (itemType == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-		mimeData->setText(item->data->contact->id());
-		type = QUTIM_MIME_CONTACT_INTERNAL;
-		mimeData->setObject(item->data->contact);
+		if (item->data->contact) {
+			Contact *contact = item->data->contact.data();
+			mimeData->setText(contact->id());
+			type = QUTIM_MIME_CONTACT_INTERNAL;
+			mimeData->setObject(contact);
+		}
 	} else if (itemType == TagType) {
 		TagItem *item = reinterpret_cast<TagItem*>(index.internalPointer());
 		mimeData->setText(item->name);
@@ -455,7 +459,8 @@ void TreeModel::processEvent(ChangeEvent *ev)
 		QSet<QString> tags = item->data->tags;
 		tags.remove(item->parent->name);
 		tags.insert(tag->name);
-		item->data->contact->setTags(tags.toList());
+		if (item->data->contact)
+			item->data->contact.data()->setTags(tags.toList());
 		debug() << "Moving contact from" << item->data->tags << "to" << tags;
 	} else if (ev->type == ChangeEvent::MergeContacts) { // MetaContacts
 		ContactItem *parent = reinterpret_cast<ContactItem*>(ev->parent);

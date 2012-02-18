@@ -172,7 +172,7 @@ bool PlainModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
 	if (role == Qt::EditRole && getItemType(index) == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		item->contact->setName(value.toString());
+		item->contact.data()->setName(value.toString());
 		return true;
 	}
 	return false;
@@ -194,8 +194,10 @@ QMimeData *PlainModel::mimeData(const QModelIndexList &indexes) const
 		return mimeData;
 
 	ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-	mimeData->setText(item->contact->id());
-	mimeData->setObject(item->contact);
+	if (item->contact) {
+		mimeData->setText(item->contact.data()->id());
+		mimeData->setObject(item->contact.data());
+	}
 	setEncodedData(mimeData, QUTIM_MIME_CONTACT_INTERNAL, index);
 	return mimeData;
 }
