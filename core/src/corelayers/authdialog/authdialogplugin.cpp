@@ -1,17 +1,27 @@
 /****************************************************************************
- *  authdialogplugin.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "authdialogplugin.h"
 #include "authservice.h"
@@ -26,9 +36,9 @@ void AuthDialogPlugin::init()
 	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Authorization dialog");
 	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog");
 	setInfo(name, description, QUTIM_VERSION, icon);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	addExtension<Core::AuthService>(name, description, icon);
 }
@@ -46,3 +56,4 @@ bool AuthDialogPlugin::unload()
 } // namespace Core
 
 QUTIM_EXPORT_PLUGIN(Core::AuthDialogPlugin)
+

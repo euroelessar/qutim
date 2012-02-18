@@ -1,8 +1,32 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jmoodchooser.h"
 #include "ui_jmoodchooser.h"
 #include <qutim/icon.h>
 #include <qutim/event.h>
-#include "protocol/account/jaccount.h"
+#include "../../account/jaccount.h"
 #include <jreen/mood.h>
 #include <qutim/systemintegration.h>
 
@@ -69,16 +93,16 @@ JMoodChooser::JMoodChooser()
 {
 }
 
-void JMoodChooser::init(qutim_sdk_0_3::Account *account, const JabberParams &params)
+void JMoodChooser::init(qutim_sdk_0_3::Account *account)
 {
-	Q_UNUSED(params);
 	m_account = account;
 	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 	// Add action to context menu
-	static JMoodChooserAction gen(QIcon(), tr("Set mood"), this, SLOT(showMoodChooser(QObject*)));
-	gen.setType(0x60000);
-	gen.setPriority(30);
-	account->addAction(&gen);
+	m_actionGenerator.reset(new JMoodChooserAction(QIcon(), tr("Set mood"),
+	                                               this, SLOT(showMoodChooser(QObject*))));
+	m_actionGenerator->setType(0x60000);
+	m_actionGenerator->setPriority(30);
+	account->addAction(m_actionGenerator.data());
 	// Register event filter
 	account->installEventFilter(this);
 }
@@ -128,3 +152,4 @@ void JMoodChooserAction::showImpl(QAction *action, QObject *obj)
 }
 
 } // namespace Jabber
+

@@ -1,22 +1,32 @@
 /****************************************************************************
- *  irccommandalias.h
- *
- *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef IRCCOMMANDALIAS_H
 #define IRCCOMMANDALIAS_H
 
-#include <ircglobal.h>
+#include "ircglobal.h"
 #include <QSharedDataPointer>
 
 namespace qutim_sdk_0_3 {
@@ -27,6 +37,7 @@ class IrcCommandAliasPrivate;
 
 class IrcCommandAlias
 {
+	Q_GADGET
 public:
 	enum Type {
 		Disabled     = 0x0000,
@@ -36,7 +47,7 @@ public:
 		Participant  = 0x0008,
 		All          = Channel | PrivateChat | Console | Participant
 	};
-	Q_DECLARE_FLAGS(Types, Type);
+	Q_DECLARE_FLAGS(Types, Type)
 	IrcCommandAlias(const QString &name, const QString &command, Types types = All);
 	virtual ~IrcCommandAlias();
 	QString name() const;
@@ -44,11 +55,13 @@ public:
 							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
 	static void initStandartAliases();
 private:
-	Q_DISABLE_COPY(IrcCommandAlias);
+	Q_DISABLE_COPY(IrcCommandAlias)
 	QScopedPointer<IrcCommandAliasPrivate> d;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types);
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types)
 
 } } // namespace qutim_sdk_0_3::irc
 
 #endif // IRCCOMMANDALIAS_H
+

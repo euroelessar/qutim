@@ -1,9 +1,3 @@
-find_package(Qt4 COMPONENTS QtDeclarative)
-if(NOT QT_QTDECLARATIVE_FOUND)
-	message(STATUS "Cannot build Kinetic Popups")
-	return()
-endif()
-
 qutim_add_plugin(kineticpopups
 	EXTENSION
 	EXTENSION_CLASS KineticPopups::Backend
@@ -12,7 +6,7 @@ qutim_add_plugin(kineticpopups
 	DISPLAY_NAME "Kinetic popups"
 	DESCRIPTION "Growl-like popups, based on power of Qt Quick"
 	COMPILE_FLAGS "-DKINETICPOPUPS_LIBRARY"
-	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}
+	QT_LIBRARIES DECLARATIVE
 )
 
 QUTIM_ADD_ARTWORK(quickpopup)

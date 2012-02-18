@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "idle-global.h"
 #include "idlestatuschanger.h"
 #include "idlestatuswidget.h"
@@ -53,24 +77,24 @@ void IdleStatusChanger::onIdle(int secs)
 			&& secs > m_naSecs
 			&& m_naEnabled) {
 		refillAccounts();
-		foreach (Account *acc, m_accounts) {
+		foreach (const QWeakPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc->setStatus(m_naStatus);
+				acc.data()->setStatus(m_naStatus);
 		}
 		m_state = Inactive;
 	} else if (m_state == Active
 			   && secs > m_awaySecs
 			   && m_awayEnabled) {
 		refillAccounts();
-		foreach (Account *acc, m_accounts) {
+		foreach (const QWeakPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc->setStatus(m_awayStatus);
+				acc.data()->setStatus(m_awayStatus);
 		}
 		m_state = Away;
 	} else if (m_state != Active && secs < m_awaySecs) {
 		for (int i = 0; i < m_accounts.size(); i++) {
 			if (m_accounts.at(i))
-				m_accounts.at(i)->setStatus(m_statuses.at(i));
+				m_accounts.at(i).data()->setStatus(m_statuses.at(i));
 		}
 		m_accounts.clear();
 		m_statuses.clear();
@@ -89,3 +113,4 @@ void IdleStatusChanger::reloadSettings()
 	m_naStatus.  setText(conf.value("na-text",   ""));
 }
 }
+

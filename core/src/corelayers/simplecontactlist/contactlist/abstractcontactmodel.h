@@ -1,17 +1,27 @@
 /****************************************************************************
- *  abstractcontactmodel.h
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef ABSTRACTCONTACTMODEL_H
 #define ABSTRACTCONTACTMODEL_H
@@ -21,6 +31,7 @@
 #include "simplecontactlist_global.h"
 #include <qutim/status.h>
 #include <qutim/message.h>
+#include <qutim/notification.h>
 
 namespace qutim_sdk_0_3
 {
@@ -37,7 +48,7 @@ class AbstractContactModelPrivate;
 class ChangeEvent;
 class ItemHelper;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel
+class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel, public qutim_sdk_0_3::NotificationBackend
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
@@ -92,12 +103,14 @@ protected:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 					  int row, int column, const QModelIndex &parent);
 	void timerEvent(QTimerEvent *timerEvent);
+	void handleNotification(qutim_sdk_0_3::Notification *notification);
+	QIcon getIconForNotification(qutim_sdk_0_3::Notification *notification) const;
 	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
 	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
 private slots:
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void init();
+	void onNotificationFinished();
+	void onContactDestroyed();
 protected:
 	virtual void filterAllList() = 0;
 	virtual void updateContactData(qutim_sdk_0_3::Contact *contact) = 0;
@@ -112,3 +125,4 @@ protected:
 Q_DECLARE_INTERFACE(Core::SimpleContactList::AbstractContactModel, "org.qutim.core.simplecontactlist.AbstractContactModel")
 
 #endif // ABSTRACTCONTACTMODEL_H
+

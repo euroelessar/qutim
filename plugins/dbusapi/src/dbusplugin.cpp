@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "dbusplugin.h"
 #include "protocoladaptor.h"
@@ -140,7 +149,7 @@ void DBusPlugin::init()
 {
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@gmail.com"));
+			  QLatin1String("euroelessar@yandex.ru"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "DBus API"),
 			QT_TRANSLATE_NOOP("Plugin", "Added ability to control qutIM by DBus"),
 			PLUGIN_VERSION(0, 0, 1, 0), ExtensionIcon("network-wireless"));
@@ -166,7 +175,9 @@ bool DBusPlugin::load()
 	qDebug() << "all ok at DBUS";
 	foreach (Protocol *proto, Protocol::all()) {
 		ProtocolAdaptor *adaptor = new ProtocolAdaptor(*m_dbus, proto);
-		if (!m_dbus->registerObject(adaptor->path().path(), proto, QDBusConnection::ExportAdaptors))
+		if (adaptor->path().path().isEmpty())
+			qWarning() << "proto path is empty" << proto->objectName();
+		else if (!m_dbus->registerObject(adaptor->path().path(), proto, QDBusConnection::ExportAdaptors))
 			qDebug() << m_dbus->lastError().message() << QDBusError::errorString(m_dbus->lastError().type());
 	}
 	new ChatLayerAdapter(*m_dbus);
@@ -186,3 +197,4 @@ bool DBusPlugin::unload()
 }
 
 QUTIM_EXPORT_PLUGIN(DBusPlugin)
+

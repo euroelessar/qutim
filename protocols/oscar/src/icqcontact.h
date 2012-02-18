@@ -1,27 +1,36 @@
 /****************************************************************************
- *  icqcontact.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef ICQCONTACT_H
 #define ICQCONTACT_H
 
 #include <QScopedPointer>
 #include <qutim/contact.h>
-#include <capability.h>
-#include <cookie.h>
-#include <feedbag.h>
+#include "capability.h"
+#include "cookie.h"
+#include "feedbag.h"
 #include <qutim/extensionicon.h>
 
 namespace qutim_sdk_0_3 {
@@ -51,15 +60,14 @@ public:
 	virtual bool sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);
-	void setGroup(const QString &group);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 	IcqAccount *account();
 	const Capabilities &capabilities() const;
 	const DirectConnectionInfo &dcInfo() const;
-	void setStatus(const Status &status);
+	void setStatus(const Status &status, bool notification = true);
 	ChatState chatState() const;
-	QList<FeedbagItem> feedbagItems() const;
+	void updateFromItem();
 signals:
 	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
 private:
@@ -78,3 +86,4 @@ protected:
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQCONTACT_H
+

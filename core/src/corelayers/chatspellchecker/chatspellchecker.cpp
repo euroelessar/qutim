@@ -1,18 +1,27 @@
 /****************************************************************************
- *  chatspellchecker.cpp
- *
- *  Copyright (c) 2010 by Ruslan Nigmatullin <euroelessar@gmail.com>
- *                     by Alexey Prokhin <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatspellchecker.h"
 #include <qutim/servicemanager.h>
@@ -107,17 +116,25 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 	QObject *object = sender();
 	if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
+#ifdef Q_WS_MAEMO_5
+		menu = new QMenu();
+#else
 		menu = textEdit->createStandardContextMenu();
+#endif
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else if (QTextEdit *tmp = qobject_cast<QTextEdit*>(object)) {
 		globalPos = textEdit->mapToGlobal(pos);
+#ifdef Q_WS_MAEMO_5
+		menu = new QMenu();
+#else
 		menu = tmp->createStandardContextMenu(globalPos);
+#endif
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else {
 		Q_ASSERT(!"Unknown object type, check connection");
 		return;
 	}
-	
+
 	if (m_speller) {
 		QTextBlock block = m_cursor.block();
 		const QString blockText = block.text();
@@ -197,3 +214,4 @@ void ChatSpellChecker::insertAction(QMenu *menu, QAction *before, const QString 
 
 
 } // namespace Core
+

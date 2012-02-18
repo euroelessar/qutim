@@ -1,4 +1,15 @@
-qutim_check_component(MultimediaKit)
+#qutim_check_component(MultimediaKit)
+
+if(NOT QT_MOBILITY_MULTIMEDIAKIT_FOUND)
+	find_package(Qt4 COMPONENTS QtMultimedia)
+	if(NOT QT_QTMULTIMEDIA_FOUND)
+		message(STATUS "Cannot build multimedia backend")
+		return()
+	endif()
+	set(QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR ${QT_QTMULTIMEDIA_INCLUDE_DIR})
+	set(QT_MOBILITY_MULTIMEDIAKIT_LIBRARY ${QT_QTMULTIMEDIA_LIBRARY})
+endif()
+
 
 qutim_add_plugin(multimediabackend
 	EXTENSION

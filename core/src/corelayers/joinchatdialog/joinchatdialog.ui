@@ -9,39 +9,32 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>302</height>
+    <width>632</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Join groupchat</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Account:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="accountBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Account:</string>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="accountBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -58,7 +51,19 @@
         <number>4</number>
        </property>
        <item>
+        <widget class="QListWidget" name="conferenceListWidget"/>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QToolButton" name="addConferenceButton"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="removeConferenceButton"/>
+         </item>
          <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
@@ -72,16 +77,7 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QToolButton" name="addConferenceButton"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="removeConferenceButton"/>
-         </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QListWidget" name="conferenceListWidget"/>
        </item>
       </layout>
      </widget>

@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "emoeditplugin.h"
 #include <QTextDocument>
@@ -50,7 +59,7 @@ void EmoEditPlugin::init()
 {
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@gmail.com"));
+			  QLatin1String("euroelessar@yandex.ru"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "EmoEdit plugin"),
 			QT_TRANSLATE_NOOP("Plugin", "Add emoticons to text edit widget"),
 			PLUGIN_VERSION(0, 0, 1, 0),
@@ -61,11 +70,11 @@ void EmoEditPlugin::init()
 
 bool EmoEditPlugin::load()
 {
+	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	foreach (ChatSession *session, ChatLayer::instance()->sessions())
 		onSessionCreated(session);
-	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
 	return true;
 }
 
@@ -104,6 +113,8 @@ void EmoEditPlugin::drawObject(QPainter *painter, const QRectF &rect, QTextDocum
 void EmoEditPlugin::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	QTextDocument *doc = session->getInputField();
+	if (!doc)
+		return;
 	connect(session, SIGNAL(destroyed(QObject*)), this, SLOT(onSessionDestroyed(QObject*)));
 	connect(doc, SIGNAL(contentsChanged()), this, SLOT(onDocumentContentsChanged()));
 	doc->documentLayout()->registerHandler(emoticonsObjectType, this);
@@ -159,3 +170,4 @@ void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 }
 
 QUTIM_EXPORT_PLUGIN(EmoEditPlugin)
+

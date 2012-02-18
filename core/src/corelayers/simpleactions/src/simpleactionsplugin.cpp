@@ -1,17 +1,27 @@
 /****************************************************************************
- *  simpleactionsplugin.cpp
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "simpleactionsplugin.h"
 #include "simpleactions.h"
@@ -31,9 +41,9 @@ void SimpleActionsPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Default actionset for contacts"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 }
 
@@ -56,3 +66,4 @@ bool SimpleActionsPlugin::unload()
 } // namespace Core
 
 QUTIM_EXPORT_PLUGIN(Core::SimpleActionsPlugin)
+

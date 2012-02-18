@@ -1,7 +1,32 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
-#include "protocol/account/servicediscovery/jservicebrowser.h"
+#include "protocol/modules/vcard/jvcardmanager.h"
+#include "protocol/modules/servicediscovery/jservicebrowser.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"
 #include "protocol/modules/filetransfer/jfiletransfer.h"
@@ -12,17 +37,16 @@
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
+#include "protocol/modules/proxy/jproxymanager.h"
 
 namespace Jabber
 {
 JPlugin::JPlugin()
 {
-	qDebug("%s", Q_FUNC_INFO);
 }
 
 void JPlugin::init()
 {
-	qDebug("%s", Q_FUNC_INFO);
 	qRegisterMetaType<QSet<QString> >("QSet<QString>");
 	ExtensionIcon jabberIcon("im-jabber");
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
@@ -36,7 +60,7 @@ void JPlugin::init()
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("zodiac.nv@gmail.com"));
 	addAuthor(QLatin1String("euroelessar"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("sauron@qutim.org"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
@@ -89,6 +113,10 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
 				 new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
 				 ExtensionIcon(""));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VCard support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Implementation of VCard info requests"),
+				 new GeneralGenerator<JVCardManager, JabberExtension>(),
+				 ExtensionIcon(""));
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
 	//			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
@@ -113,6 +141,10 @@ void JPlugin::init()
 				QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
 				new GeneralGenerator<JActivityChooser, JabberExtension>(),
 				ExtensionIcon(""));*/
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 new SingletonGenerator<JProxyManager, NetworkProxyManager>(),
+				 ExtensionIcon("im-jabber"));
 }
 
 bool JPlugin::load()
@@ -128,3 +160,4 @@ bool JPlugin::unload()
 } // Jabber namespace
 
 QUTIM_EXPORT_PLUGIN(Jabber::JPlugin)
+

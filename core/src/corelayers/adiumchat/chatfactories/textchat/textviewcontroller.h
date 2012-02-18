@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef TEXTVIEWCONTROLLER_H
 #define TEXTVIEWCONTROLLER_H
@@ -82,6 +91,7 @@ protected slots:
 	void onAnchorClicked(const QUrl &url);
 	void animate();
 private:
+	QPixmap createBullet(const QColor &color);
 	void init();
 	void loadHistory();
 	int addEmoticon(const QString &filename);
@@ -95,17 +105,20 @@ private:
 	QString m_lastSender;
 	QString m_lastIncomingMessage;
 	bool m_isLastIncoming;
-	bool m_storeServiceMessages;
 	bool m_animateEmoticons;
 	bool m_atAnimation;
 	short m_groupUntil;
 	int m_scrollBarPosition;
+	int m_bulletSize;
 	QFont m_font;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;
 	QColor m_baseColor;
 	QColor m_urlColor;
+	QColor m_bulletErrorColor;
+	QColor m_bulletSentColor;
+	QColor m_bulletReceivedColor;
 	QSet<QString> m_images;
 	QHash<QString, int> m_hash;
 	QList<EmoticonTrack> m_emoticons;
@@ -114,3 +127,4 @@ private:
 }
 
 #endif // TEXTVIEWCONTROLLER_H
+

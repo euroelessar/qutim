@@ -1,9 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (С) 2010 Sidorov Aleksey <sauron@citadelspb.com>
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -61,3 +60,4 @@ public:
 }
 
 #endif // JOINCHATMODULE_H
+

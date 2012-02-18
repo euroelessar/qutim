@@ -1,17 +1,27 @@
 /****************************************************************************
- *  abstractcontactmodel.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "abstractcontactmodel_p.h"
 #include <qutim/metacontactmanager.h>
@@ -21,25 +31,130 @@
 #include <qutim/chatsession.h>
 #include <qutim/metacontact.h>
 #include <qutim/mimeobjectdata.h>
+#include <qutim/utils.h>
 #include <QApplication>
 #include <QTimer>
 #include <QMimeData>
+
+Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::Contact>)
+#define CONTACT_PROPERTY "__contactList_contact"
 
 namespace Core {
 namespace SimpleContactList {
 
 using namespace qutim_sdk_0_3;
 
-AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
-	QAbstractItemModel(parent), d_ptr(d)
+typedef QWeakPointer<qutim_sdk_0_3::Contact> ContactPtr;
+
+Contact *getRealUnit(Notification *notification)
 {
-	d->showMessageIcon = false;
+	ContactPtr pointer = notification->property(CONTACT_PROPERTY).value<ContactPtr>();
+	if (!pointer.isNull())
+		return pointer.data();
+	
+	ChatUnit *unit = qobject_cast<ChatUnit*>(notification->request().object());
+	if (!unit)
+		return 0;
+
+	static quint16 realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	Event event(realUnitRequestEvent);
+	QCoreApplication::sendEvent(unit, &event);
+
+	Contact *contact = event.at<Contact*>(0);
+	while (unit && !contact) {
+		if (!!(contact = qobject_cast<Contact*>(unit)))
+			break;
+		unit = unit->upperUnit();
+	}
+
+	if (Contact *meta = qobject_cast<MetaContact*>(contact ? contact->metaContact() : 0))
+		contact = meta;
+
+	pointer = ContactPtr(contact);
+	notification->setProperty(CONTACT_PROPERTY, qVariantFromValue<ContactPtr>(pointer));
+
+	return contact;
+}
+
+void NotificationsQueue::append(Notification *notification)
+{
+	Notification::Type type = notification->request().type();
+	if (type == Notification::IncomingMessage ||
+		type == Notification::OutgoingMessage ||
+		type == Notification::ChatIncomingMessage ||
+		type == Notification::ChatOutgoingMessage)
+	{
+		m_messageNotifications << notification;
+	} else if (type == Notification::UserTyping) {
+		m_typingNotifications << notification;
+	} else {
+		m_notifications << notification;
+	}
+}
+
+bool NotificationsQueue::remove(Notification *notification)
+{
+	if (!m_messageNotifications.removeOne(notification)) {
+		if (!m_notifications.removeOne(notification))
+			return m_typingNotifications.removeOne(notification);
+		else
+			return true;
+	} else {
+		return true;
+	}
+}
+
+Notification *NotificationsQueue::first() const
+{
+	// Message notifications have highest priority
+	if (!m_messageNotifications.isEmpty())
+		return m_messageNotifications.first();
+
+	else if (!m_notifications.isEmpty())
+		return m_notifications.first();
+
+	// Typing notifications have lowest priority
+	else if (!m_typingNotifications.isEmpty())
+		return m_typingNotifications.first();
+
+	return 0;
+}
+
+bool NotificationsQueue::isEmpty()
+{
+	return m_messageNotifications.isEmpty() &&
+			m_notifications.isEmpty() &&
+			m_typingNotifications.isEmpty();
+}
+
+QList<QList<Notification*> > NotificationsQueue::all()
+{
+	QList<QList<Notification*> > all;
+	all << m_messageNotifications << m_notifications << m_typingNotifications;
+	return all;
+}
+
+AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObject *parent) :
+	QAbstractItemModel(parent), NotificationBackend("ContactList"), d_ptr(d)
+{
+	setDescription(QT_TR_NOOP("Blink icon in the contact list"));
+	allowRejectedNotifications("confMessageWithoutUserNick");
+
+	d->showNotificationIcon = false;
 	Event::eventManager()->installEventFilter(this);
-	d->realUnitRequestEvent = Event::registerType("real-chatunit-request");
-	d->unreadIcon = Icon(QLatin1String("mail-unread-new"));
-	ConfigGroup group = Config().group("contactList");
-	d->showOffline = group.value("showOffline", true);
+
+	ConfigGroup group = Config().group(QLatin1String("contactList"));
+	d->showOffline = group.value(QLatin1String("showOffline"), true);
 	QTimer::singleShot(0, this, SLOT(init()));
+
+	d->mailIcon                = Icon(QLatin1String("mail-message-new-qutim"));
+	d->typingIcon              = Icon(QLatin1String("im-status-message-edit"));
+	d->chatUserJoinedIcon      = Icon(QLatin1String("list-add-user-conference"));
+	d->chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
+	d->qutimIcon               = Icon(QLatin1String("qutim"));
+	d->transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	d->birthdayIcon            = Icon(QLatin1String("view-calendar-birthday"));
+	d->defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 }
 
 AbstractContactModel::~AbstractContactModel()
@@ -187,13 +302,70 @@ void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
 		d->events.clear();
 		d->timer.stop();
 		return;
-	} else if (timerEvent->timerId() == d->unreadTimer.timerId()) {
-		foreach (Contact *contact, d->unreadContacts)
+	} else if (timerEvent->timerId() == d->notificationTimer.timerId()) {
+		foreach (Contact *contact, d->notifications.keys())
 			updateContactData(contact);
-		d->showMessageIcon = !d->showMessageIcon;
+		d->showNotificationIcon = !d->showNotificationIcon;
 		return;
 	}
 	AbstractContactModel::timerEvent(timerEvent);
+}
+
+void AbstractContactModel::handleNotification(Notification *notification)
+{
+	Q_D(AbstractContactModel);
+	Contact *contact = getRealUnit(notification);
+	if (!contact)
+		return;
+	Q_ASSERT(getRealUnit(notification));
+
+	if (d->notifications.isEmpty())
+		d->notificationTimer.start(500, this);
+
+	NotificationsQueue &notifications = d->notifications[contact];
+	if (notifications.isEmpty())
+		connect(contact, SIGNAL(destroyed()), SLOT(onContactDestroyed()));
+	Notification *old = notifications.first();
+	notifications.append(notification);
+	ref(notification);
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			SLOT(onNotificationFinished()));
+
+	if (notifications.first() != old)
+		updateContactData(contact);
+}
+
+QIcon AbstractContactModel::getIconForNotification(Notification *notification) const
+{
+	Q_D(const AbstractContactModel);
+	NotificationRequest request = notification->request();
+	switch (request.type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+		return d->mailIcon;
+	case Notification::UserTyping:
+		return d->typingIcon;
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+		return request.property("previousStatus", Status(Status::Offline)).icon();
+	case Notification::ChatUserJoined:
+		return d->chatUserJoinedIcon;
+	case Notification::ChatUserLeft:
+		return d->chatUserLeftIcon;
+	case Notification::AppStartup:
+		return d->qutimIcon;
+	case Notification::FileTransferCompleted:
+		return d->transferCompletedIcon;
+	case Notification::UserHasBirthday:
+		return d->birthdayIcon;
+	case Notification::BlockedMessage:
+	case Notification::System:
+		return d->defaultNotificationIcon;
+	}
+	return QIcon();
 }
 
 void AbstractContactModel::setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index)
@@ -214,67 +386,55 @@ ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, cons
 	return item;
 }
 
-void AbstractContactModel::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
-{
-	Q_D(AbstractContactModel);
-	ChatSession *session = qobject_cast<ChatSession*>(sender());
-
-	QSet<Contact*> contacts;
-	QSet<ChatUnit*> chatUnits;
-	for (int i = 0; i < messages.size(); i++) {
-		ChatUnit *unit = messages.at(i).chatUnit();
-		if (chatUnits.contains(unit) || !unit)
-			continue;
-		chatUnits.insert(unit);
-		Event event(d->realUnitRequestEvent);
-		QCoreApplication::sendEvent(unit, &event);
-		Contact *contact = event.at<Contact*>(0);
-		while (unit && !contact) {
-			if (!!(contact = qobject_cast<Contact*>(unit)))
-				break;
-			unit = unit->upperUnit();
-		}
-		if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
-			contact = meta;
-		if (contact)
-			contacts.insert(contact);
-	}
-	if (contacts.isEmpty())
-		d->unreadBySession.remove(session);
-	else
-		d->unreadBySession.insert(session, contacts);
-	foreach (const QSet<Contact*> &contactsSet, d->unreadBySession)
-		contacts |= contactsSet;
-
-	if (!contacts.isEmpty() && !d->unreadTimer.isActive())
-		d->unreadTimer.start(500, this);
-	else if (contacts.isEmpty())
-		d->unreadTimer.stop();
-
-	if (!d->showMessageIcon) {
-		d->unreadContacts = contacts;
-	} else {
-		QSet<Contact*> needUpdate = d->unreadContacts;
-		needUpdate.subtract(contacts);
-		d->unreadContacts = contacts;
-		foreach (Contact *contact, needUpdate)
-			updateContactData(contact);
-	}
-}
-
-void AbstractContactModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
-{
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-}
-
 void AbstractContactModel::init()
 {
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 }
 
+void AbstractContactModel::onNotificationFinished()
+{
+	Q_D(AbstractContactModel);
+	Notification *notification = sender_cast<Notification*>(sender());
+	Contact *contact = getRealUnit(notification);
+	Q_ASSERT(contact);
+	deref(notification);
+
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it == d->notifications.end())
+		return;
+
+	Notification *old = it->first();
+	it->remove(notification);
+	if (old == notification)
+		updateContactData(it.key());
+	if (it->isEmpty()) {
+		d->notifications.erase(it);
+		disconnect(contact, SIGNAL(destroyed()), this, SLOT(onContactDestroyed()));
+	}
+	if (d->notifications.isEmpty())
+		d->notificationTimer.stop();
+}
+
+void AbstractContactModel::onContactDestroyed()
+{
+	Q_D(AbstractContactModel);
+	Contact *contact = static_cast<Contact*>(sender());
+	QHash<Contact*, NotificationsQueue>::iterator it = d->notifications.find(contact);
+	if (it != d->notifications.end()) {
+		const QList<QList<Notification*> > all = it->all();
+		d->notifications.erase(it);
+        foreach (const QList<Notification*> &notifications, all) {
+			foreach (Notification *notification, notifications) {
+				disconnect(notification, 0, this, 0);
+                deref(notification);
+			}
+		}
+	}
+	if (d->notifications.isEmpty())
+		d->notificationTimer.stop();
+}
+
 } // namespace SimpleContactList
 } // namespace Core
+

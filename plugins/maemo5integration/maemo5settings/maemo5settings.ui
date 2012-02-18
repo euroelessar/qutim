@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Maemo5Settings</class>
+ <widget class="QWidget" name="Maemo5Settings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>320</width>
+    <height>240</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="displayOnLed">
+     <property name="text">
+      <string>Show led notifications when display On</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="displayOnVibration">
+     <property name="text">
+      <string>Vibration notifications when display On</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="vibrationSettingsLayout">
+     <item>
+      <widget class="QSpinBox" name="vibtarionTime">
+       <property name="minimum">
+        <number>20</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="vibtationSettingsLabel">
+       <property name="text">
+        <string>Vibrate time, ms (50)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="7" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QComboBox" name="ledPattern"/>
+   </item>
+   <item row="5" column="0">
+    <layout class="QHBoxLayout" name="dBusSettingsLayout">
+     <item>
+      <widget class="QSpinBox" name="popupShowTime">
+       <property name="minimum">
+        <number>2</number>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="showTimeSettingsLabel">
+       <property name="text">
+        <string>Popup time, sec (50)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Orientation</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="landscape">
+        <property name="text">
+         <string>Landscape</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="portrait">
+        <property name="text">
+         <string>Portrait</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="autoOrientation">
+        <property name="text">
+         <string>Auto Orientation</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

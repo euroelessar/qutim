@@ -1,18 +1,27 @@
 /****************************************************************************
- *  icqprotocol.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "icqprotocol_p.h"
 #include "icqaccount_p.h"
@@ -83,16 +92,16 @@ QList<Account *> IcqProtocol::accounts() const
 {
 	Q_D(const IcqProtocol);
 	QList<Account *> accounts;
-	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
+	QHash<QString, QWeakPointer<IcqAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value());
+		accounts.append(it.value().data());
 	return accounts;
 }
 
 Account *IcqProtocol::account(const QString &id) const
 {
 	Q_D(const IcqProtocol);
-	return d->accounts_hash->value(id);
+	return d->accounts_hash->value(id).data();
 }
 
 QHash<QString, IcqAccount *> IcqProtocol::accountsHash() const
@@ -122,8 +131,8 @@ void IcqProtocol::updateSettings()
 	QString codecName = cfg.value("codec", localeCodecName);
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	Util::setAsciiCodec(codec ? codec : QTextCodec::codecForLocale());
-	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
-		acc->updateSettings();
+	foreach (QWeakPointer<IcqAccount> acc, *d->accounts_hash)
+		acc.data()->updateSettings();
 	emit settingsUpdated();
 }
 
@@ -140,3 +149,4 @@ QVariant IcqProtocol::data(DataType type)
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

@@ -1,20 +1,42 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jroster.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jvcardmanager.h"
 #include <QFile>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
 #include <QFile>
 #include <QStringBuilder>
 #include <qutim/authorizationdialog.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/messagesession.h>
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
-#include <qutim/notificationslayer.h>
 #include <qutim/rosterstorage.h>
 #include <QApplication>
 //Jreen
@@ -45,8 +67,8 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 {
 	JContact *contact = new JContact(id, account);
 	QObject::connect(contact, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(onContactDestroyed(QObject*)));
-	contact->setContactInList(true);
 	contact->setAvatar(data.value(QLatin1String("avatar")).toString());
+	contact->setContactInList(true);
 	contact->setContactName(data.value(QLatin1String("name")).toString());
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
@@ -220,7 +242,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 	case Jreen::Presence::Unsubscribed:
 	case Jreen::Presence::Subscribed:
 		handleSubscription(presence);
-		break;
+		return;
 	case Jreen::Presence::Error:
 	case Jreen::Presence::Probe:
 		return;
@@ -228,30 +250,11 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 		break;
 	}
 
-	const Jreen::Error::Ptr error = presence.error();
 	Jreen::JID from = presence.from();
-	if(d->account->client()->jid() == from) {
+	if (d->account->client()->jid() == from) 
 		d->account->d_func()->setPresence(presence);
-		return;
-	}
-	JContact *c = d->contacts.value(from.bare());
-	if (c) {
-		c->setStatus(presence);		
-		Jreen::VCardUpdate::Ptr vcard = presence.payload<Jreen::VCardUpdate>();
-		if(vcard && vcard->hasPhotoInfo() && !error) {
-			QString hash = vcard->photoHash();
-			debug() << "vCard update" << (c->avatarHash() != hash) << c->id() << c->avatarHash() << hash;
-			if (c->avatarHash() != hash) {
-				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists()) {
-					c->setAvatar(hash);
-					if (c->isInList())
-						d->storage->updateContact(c, version());
-				} else {
-					d->account->d_ptr->vCardManager->fetchVCard(from);
-				}
-			}
-		}
-	}
+	else if (JContact *c = d->contacts.value(from.bare()))
+		c->setStatus(presence);
 }
 
 void JRoster::onDisconnected()
@@ -280,7 +283,7 @@ void JRoster::onNewMessage(Jreen::Message message)
 	if(message.body().isEmpty())
 		return;
 	qutim_sdk_0_3::Message coreMessage;
-	if(const Jreen::DelayedDelivery *d = message.when())
+	if(Jreen::DelayedDelivery::Ptr d = message.when())
 		coreMessage.setTime(d->dateTime());
 	else
 		coreMessage.setTime(QDateTime::currentDateTime());
@@ -421,3 +424,4 @@ void JRoster::setName(const JContact *contact, const QString &name)
 }
 
 } //namespace jabber
+

@@ -1,17 +1,27 @@
 /****************************************************************************
- *  vkontakteprotocol.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "vkontakteprotocol.h"
 #include "vkontakteprotocol_p.h"
@@ -79,12 +89,12 @@ void VkontakteProtocol::loadAccounts()
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
 	}
 
-	static ActionGenerator homepage_gen(Icon("applications-internet"),
+    ActionGenerator *gen = new ActionGenerator(Icon("applications-internet"),
 							   QT_TRANSLATE_NOOP("Vkontakte","Open homepage"),
 							   d,
 							   SLOT(onOpenWebPageTriggered(QObject*)));
-	homepage_gen.setType(ActionTypeContactList);
-	MenuController::addAction<VContact>(&homepage_gen);
+    gen->setType(ActionTypeContactList);
+    MenuController::addAction<VContact>(gen);
 
 //	static ActionGenerator sms_gen(Icon("phone"),
 //							   QT_TRANSLATE_NOOP("Vkontakte","Send sms"),
@@ -132,30 +142,8 @@ void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)
 	QDesktopServices::openUrl(url);
 }
 
-void VkontakteProtocolPrivate::onSendSmsTriggered(QObject *obj)
-{
-	VContact *con = qobject_cast<VContact*>(obj);
-	Q_ASSERT(obj);
-	Q_UNUSED(con);
-	 bool ok;
-	 QWidget *widget = 0;
-	 QString text = QInputDialog::getText(widget, tr("Send sms"),
-										  tr("text:"), QLineEdit::Normal,
-										  QString()
-										  , &ok);
-	 if (ok && text.count() <= 160) {
-		Message msg(text);
-		msg.setChatUnit(con);
-		msg.setProperty("title",tr("sms"));
-		msg.setProperty("action",true);
-		msg.setTime(QDateTime::currentDateTime());
-		ChatLayer::get(con,true)->appendMessage(msg);
-		VAccount *account = static_cast<VAccount*>(con->account());
-		account->connection()->messages()->sendSms(msg);
-	 }
-}
-
 bool VkontakteProtocol::event(QEvent *ev)
 {
 	return Protocol::event(ev);
 }
+

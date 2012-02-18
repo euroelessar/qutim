@@ -1,17 +1,27 @@
 /****************************************************************************
- *  quickchatviewcontroller.cpp
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "quickchatviewcontroller.h"
 #include <qutim/message.h>
@@ -27,7 +37,7 @@
 #include <qutim/conference.h>
 #include <qutim/history.h>
 #include <qutim/emoticons.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QImageReader>
 #include <qutim/servicemanager.h>
 #include <QPlainTextEdit>
@@ -146,25 +156,20 @@ QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *pa
 	m_session(0),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
-	m_engine(engine),
-	m_storeServiceMessages(true)
+	m_engine(engine)
 {
 	m_context = new QDeclarativeContext(m_engine, this);
 	m_context->setContextProperty("controller", this);
-	Config cfg = Config(QLatin1String("appearance")).group(QLatin1String("chat"));
-	cfg.beginGroup(QLatin1String("history"));
-	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
-	cfg.endGroup();
 }
 
+QuickChatController::~QuickChatController()
+{
+}
 
 void QuickChatController::appendMessage(const qutim_sdk_0_3::Message& msg)
 {
 	if (msg.text().isEmpty())
 		return;
-	bool isService = msg.property("service", false);
-	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
-		History::instance()->store(msg);
 	emit messageAppended(messageToVariant(msg));
 }
 
@@ -210,11 +215,6 @@ void QuickChatController::setChatSession(ChatSessionImpl* session)
 
 	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
 			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
-}
-
-QuickChatController::~QuickChatController()
-{
-
 }
 
 QDeclarativeItem *QuickChatController::rootItem() const

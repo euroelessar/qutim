@@ -1,17 +1,27 @@
 /****************************************************************************
- *  actiongenerator.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "actiongenerator_p.h"
 #include "menucontroller.h"
@@ -155,7 +165,8 @@ void ActionGeneratorPrivate::ensureConnectionType()
 
 ActionGeneratorPrivate::ActionGeneratorPrivate():
 	q_ptr(0),type(0), priority(0),
-	connectionType(ActionConnectionSimple)
+	connectionType(ActionConnectionSimple),
+	menuRole(QAction::NoRole)
 {
 	iconVisibleInMenu = qApp->testAttribute(Qt::AA_DontShowIconsInMenus);
 }
@@ -204,8 +215,8 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 
 ActionGenerator::~ActionGenerator()
 {
-	Q_D(ActionGenerator);
-	localizationHelper()->handleDeath(d);
+    Q_D(ActionGenerator);
+    localizationHelper()->handleDeath(d);
 	delete d->data;
 }
 
@@ -445,7 +456,7 @@ void ActionGeneratorPrivate::show(QAction *act,QObject *con)
 
 void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
 {
-	foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
+	foreach (QObject *subcriber, subcribers.value(ActionVisibilityChangedHandler)) {
 		ActionVisibilityChangedEvent ev(act,con,false);
 		qApp->sendEvent(subcriber,&ev);
 	}
@@ -510,3 +521,4 @@ bool ActionGenerator::iconVisibleInMenu() const
 }
 
 }
+

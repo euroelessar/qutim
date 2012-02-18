@@ -1,17 +1,27 @@
 /****************************************************************************
- *  quickpopupwidget.cpp
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "quickpopupwidget.h"
 #include <QVBoxLayout>
@@ -131,7 +141,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	m_timeout.setInterval(cfg.value("timeout", 5000));
 	cfg.endGroup();
 
-	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(ignore()));
+	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(reject()));
 }
 
 void QuickPopupWidget::loadTheme(const QString &themeName)
@@ -140,7 +150,7 @@ void QuickPopupWidget::loadTheme(const QString &themeName)
 	QString filename = themePath % QLatin1Literal("/main.qml");
 	m_view->setSource(QUrl::fromLocalFile(filename));//url - main.qml
 	if (m_view->status() == QDeclarativeView::Error)
-		ignore();
+		reject();
 
 	PopupAttributes *attributes = m_view->rootObject()->findChild<PopupAttributes*>("attributes");
 	if (attributes) {
@@ -178,14 +188,21 @@ QSize QuickPopupWidget::sizeHint() const
 
 void QuickPopupWidget::ignore()
 {
-	finished();
+	foreach (Notification *notify, m_notifyHash.keys())
+		notify->ignore();
+	emit finished();
 }
 
 void QuickPopupWidget::accept()
 {
-	//foreach (Notification *notify, m_notifyHash.keys())
-	//	notify->accept();
-	finished();
+	foreach (Notification *notify, m_notifyHash.keys())
+		notify->accept();
+	emit finished();
+}
+
+void QuickPopupWidget::reject()
+{
+	emit finished();
 }
 
 void QuickPopupWidget::onAtributesChanged()
@@ -238,4 +255,13 @@ void QuickPopupWidget::setPopupAttributes(PopupAttributes *attributes)
 	emit sizeChanged(sizeHint());
 }
 
+void QuickPopupWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+		accept();
+	else if (event->button() == Qt::RightButton)
+		ignore();
+}
+
 } // namespace KineticPopups
+

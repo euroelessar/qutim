@@ -1,20 +1,28 @@
-/*
- * Copyright (C) 2001-2008 Justin Karneges, Martin Hostettler
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2008 Justin Karneges <justin@affinix.com>
+** Copyright © 2008 Martin Hostettler <textshell-I1QKlO@neutronstar.dyndns.org>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 // Generic tab completion support code.
 
@@ -29,11 +37,9 @@ namespace AdiumChat
 
 ConfTabCompletion::ConfTabCompletion(QObject *parent)
 	: QObject(parent),
-	  textEdit_(0),
-	  chat_session_(0)
+	  m_chatSession(0)
 {
 	typingStatus_ = Typing_Normal;
-	textEdit_ = 0;
 	nickSep = ":";
 }
 
@@ -42,7 +48,7 @@ ConfTabCompletion::~ConfTabCompletion()
 }
 
 void ConfTabCompletion::setChatSession(ChatSessionImpl  *session){
-	chat_session_ = session;
+	m_chatSession = session;
 	setParent(session);
 }
 
@@ -51,37 +57,28 @@ void ConfTabCompletion::setLastReferrer(QString last_referrer){
 }
 
 void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
-	if (textEdit_ != conferenceTextEdit) {
-		if (textEdit_)
-			textEdit_->removeEventFilter(this);
+	if (textEdit_.data() != conferenceTextEdit) {
+		if (textEdit_.data())
+			textEdit_.data()->removeEventFilter(this);
 		textEdit_ = conferenceTextEdit;
-		QColor editBackground(textEdit_->palette().color(QPalette::Active, QPalette::Base));
+		QColor editBackground(textEdit_.data()->palette().color(QPalette::Active, QPalette::Base));
 
 		if (editBackground.value() < 128) {
 			highlight_ = editBackground.lighter(125);
 		} else {
 			highlight_ = editBackground.darker(125);
 		}
-		textEdit_->installEventFilter(this);
+		textEdit_.data()->installEventFilter(this);
 	}
 
 }
 
 QPlainTextEdit* ConfTabCompletion::getTextEdit() {
-	return textEdit_;
+	return textEdit_.data();
 }
 
 void ConfTabCompletion::highlight(bool set) {
 	Q_UNUSED(set);
-	/*
-  if (set) {
-   QTextEdit::ExtraSelection es;
-   es.cursor = replacementCursor_;
-   es.format.setBackground(highlight_);
-   textEdit_->setExtraSelections(QList<QTextEdit::ExtraSelection>() << es);
-  } else {
-   if (textEdit_) textEdit_->setExtraSelections(QList<QTextEdit::ExtraSelection>());
-  }*/
 }
 
 void ConfTabCompletion::moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode) {
@@ -205,12 +202,12 @@ void ConfTabCompletion::tryComplete() {
 			replaced = true;
 		}
 	} else {
-		QTextCursor cursor = textEdit_->textCursor();
-		QString wholeText = textEdit_->toPlainText();
+		QTextCursor cursor = textEdit_.data()->textCursor();
+		QString wholeText = textEdit_.data()->toPlainText();
 
 		int begin, end;
 		setup(wholeText, cursor.position(), begin, end);
-		replacementCursor_ = QTextCursor(textEdit_->document());
+		replacementCursor_ = QTextCursor(textEdit_.data()->document());
 		moveCursorToOffset(replacementCursor_, begin);
 		moveCursorToOffset(replacementCursor_, end, QTextCursor::KeepAnchor);
 
@@ -235,7 +232,7 @@ void ConfTabCompletion::tryComplete() {
 	}
 
 	if (replaced) {
-		textEdit_->setUpdatesEnabled(false);
+		textEdit_.data()->setUpdatesEnabled(false);
 
 		int start = qMin(replacementCursor_.anchor(), replacementCursor_.position());
 
@@ -250,10 +247,10 @@ void ConfTabCompletion::tryComplete() {
 
 		newPos.clearSelection();
 
-		textEdit_->setTextCursor(newPos);
+		textEdit_.data()->setTextCursor(newPos);
 
-		textEdit_->setUpdatesEnabled(true);
-		textEdit_->viewport()->update();
+		textEdit_.data()->setUpdatesEnabled(true);
+		textEdit_.data()->viewport()->update();
 	}
 	highlight(typingStatus_ == Typing_MultipleSuggestions);
 }
@@ -291,7 +288,7 @@ QStringList ConfTabCompletion::allChoices(QString &guess) {
 }
 QStringList ConfTabCompletion::getUsers(){
 	QStringList users;
-	QAbstractItemModel *model = chat_session_->getModel();
+	QAbstractItemModel *model = m_chatSession->getModel();
 	for (int i =0;i!=model->rowCount();i++)
 		users.append(model->index(i,0).data(Qt::DisplayRole).toString());
 
@@ -317,3 +314,4 @@ bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
 
 }
 }
+

@@ -1,0 +1,9 @@
+opt/qutim/lib/qutim/plugins/libchatspellchecker.so
+opt/qutim/lib/qutim/plugins/libdbusapi.so 
+opt/qutim/lib/qutim/plugins/libhunspeller.so
+opt/qutim/lib/qutim/plugins/libmassmessaging.so
+opt/qutim/lib/qutim/plugins/libyandexnarod.so
+opt/qutim/lib/qutim/plugins/libwebkitchat.so
+opt/qutim/lib/qutim/plugins/libqmlchat.so
+opt/qutim/share/apps/qutim/webkitstyle/* 
+opt/qutim/share/apps/qutim/qmlchat/*

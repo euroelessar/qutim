@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #ifndef ABSTRACTCONTACTMODEL_P_H
 #define ABSTRACTCONTACTMODEL_P_H
 
@@ -7,7 +31,9 @@
 #include <qutim/metacontact.h>
 #include <QBasicTimer>
 #include <qutim/icon.h>
+#include "qlist.h"
 #include <QMessageBox>
+#include <qutim/servicemanager.h>
 
 namespace qutim_sdk_0_3
 {
@@ -20,13 +46,28 @@ namespace qutim_sdk_0_3
 namespace Core {
 namespace SimpleContactList {
 
+Contact *getRealUnit(QObject *obj);
+
 class ChangeEvent
 {
 public:
 	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
 	ItemHelper *parent;
+};
 
+class SIMPLECONTACTLIST_EXPORT NotificationsQueue
+{
+public:
+	void append(Notification *notification);
+	bool remove(Notification *notification);
+	Notification *first() const;
+	bool isEmpty();
+	QList<QList<Notification*> > all();
+private:
+	QList<Notification*> m_messageNotifications;
+	QList<Notification*> m_typingNotifications;
+	QList<Notification*> m_notifications;
 };
 
 class AbstractContactModelPrivate
@@ -35,13 +76,18 @@ public:
 	QSet<QString> selectedTags;
 	QString lastFilter;
 	QList<ChangeEvent*> events;
-	QMap<ChatSession*, QSet<Contact*> > unreadBySession;
-	QSet<Contact*> unreadContacts;
 	QBasicTimer timer;
-	QBasicTimer unreadTimer;
-	QIcon unreadIcon;
-	quint16 realUnitRequestEvent;
-	bool showMessageIcon;
+	QBasicTimer notificationTimer;
+	QHash<Contact*, NotificationsQueue> notifications;
+	QIcon mailIcon;
+	QIcon typingIcon;
+	QIcon chatUserJoinedIcon;
+	QIcon chatUserLeftIcon;
+	QIcon qutimIcon;
+	QIcon transferCompletedIcon;
+	QIcon birthdayIcon;
+	QIcon defaultNotificationIcon;
+	bool showNotificationIcon;
 	bool showOffline;
 };
 
@@ -60,12 +106,15 @@ bool contactLessThan(ContactItem *a, ContactItem *b) {
 	//result = unreadA - unreadB;
 	//if(result)
 	//	return result < 0;
-
 	result = a->getStatus().type() - b->getStatus().type();
 	if (result)
 		return result < 0;
-	return a->getContact()->title().compare(b->getContact()->title(), Qt::CaseInsensitive) < 0;
-};
+	Contact * const aContact = a->getContact();
+	Contact * const bContact = b->getContact();
+	if (!bContact || !aContact)
+		return false;
+	return aContact->title().compare(bContact->title(), Qt::CaseInsensitive) < 0;
+}
 
 template<typename TagContainer, typename TagItem, typename ContactItem>
 bool AbstractContactModel::hideContact(ContactItem *item, bool hide, bool replacing)
@@ -219,6 +268,8 @@ QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) c
 	Q_D(const AbstractContactModel);
 	ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 	Contact *contact = item->getContact();
+	if (!contact)
+		return QVariant();
 	switch(role)
 	{
 	case Qt::EditRole:
@@ -227,10 +278,12 @@ QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) c
 		return name.isEmpty() ? contact->id() : name;
 	}
 	case Qt::DecorationRole:
-		if (d->showMessageIcon && d->unreadContacts.contains(contact))
-			return d->unreadIcon;
-		else
-			return contact->status().icon();
+		if (d->showNotificationIcon) {
+			Notification *notif = d->notifications.value(contact).first();
+			if (notif)
+				return getIconForNotification(notif);
+		}
+		return contact->status().icon();
 	case ItemTypeRole:
 		return ContactType;
 	case StatusRole:
@@ -378,6 +431,8 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 		return true;
 	}
 	Contact *contact = item->getContact();
+	if (!contact)
+		return false;
 	if (!d->lastFilter.isEmpty()) {
 		return contact->id().contains(d->lastFilter,Qt::CaseInsensitive)
 				|| contact->name().contains(d->lastFilter,Qt::CaseInsensitive);
@@ -427,6 +482,8 @@ void AbstractContactModel::moveTag(ChangeEvent *ev)
 template<typename ContactItem>
 void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactItem *child)
 {
+	if (!ServiceManager::getByName("MetaContactManager"))
+		return;
 	if (child->getContact() == parent->getContact())
 		return;
 	MetaContact *childMeta = qobject_cast<MetaContact*>(child->getContact());
@@ -472,6 +529,8 @@ void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactIt
 	}
 }
 
-} }
+}
+}
 
 #endif // ABSTRACTCONTACTMODEL_P_H
+

@@ -1,24 +1,34 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "kdetrayicon.h"
 #include <qutim/extensioninfo.h>
 #include <qutim/metaobjectbuilder.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
+#include <qutim/utils.h>
 #include <KStatusNotifierItem>
 #include <KMenu>
 #include <QDebug>
@@ -48,15 +58,15 @@ public:
 		//			if (m_proto->accounts().isEmpty())
 		//				return NULL;
 		if (m_action)
-			return m_action;
+			return m_action.data();
 
 		m_action = prepareAction(new QAction(NULL));
 		ensureVisibility();
 
-		QFont font = m_action->font();
+		QFont font = m_action.data()->font();
 		font.setBold(true);
-		m_action->setFont(font);
-		return m_action;
+		m_action.data()->setFont(font);
+		return m_action.data();
 	}
 
 	virtual ~ProtocolSeparatorActionGenerator()
@@ -66,7 +76,7 @@ public:
 	void ensureVisibility() const
 	{
 		if (m_action)
-			m_action->setVisible(!m_proto->accounts().isEmpty());
+			m_action.data()->setVisible(!m_proto->accounts().isEmpty());
 	}
 	
 	void showImpl(QAction *, QObject *)
@@ -76,7 +86,7 @@ public:
 
 private:
 	Protocol *m_proto;
-	mutable QPointer<QAction> m_action;
+	mutable QWeakPointer<QAction> m_action;
 };
 
 void StatusAction::onStatusChanged(Status status)
@@ -118,7 +128,9 @@ private:
 
 using namespace KdeIntegration;
 
-KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
+KdeTrayIcon::KdeTrayIcon(QObject *parent) :
+	MenuController(parent),
+	NotificationBackend("Tray")
 {
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	setMenuOwner(qobject_cast<MenuController*>(contactList));
@@ -133,8 +145,6 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	m_item->setStandardActionsEnabled(false);
 	m_item->setStatus(KStatusNotifierItem::Active);
 	
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
@@ -167,52 +177,21 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 
 void KdeTrayIcon::onActivated()
 {
-	if (m_sessions.isEmpty()) {
+	if (m_notifications.isEmpty()) {
 		if (QObject *obj = ServiceManager::getByName("ContactList"))
 			obj->metaObject()->invokeMethod(obj, "changeVisibility");
 	} else {
-		m_sessions.first()->activate();
+		m_notifications.first()->accept();
 	}
 }
 
-void KdeTrayIcon::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void KdeTrayIcon::onNotificationFinished()
 {
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-	connect(session, SIGNAL(destroyed()), this, SLOT(onSessionDestroyed()));
-}
+	Notification *notif = sender_cast<Notification*>(sender());
+	m_notifications.removeOne(notif);
 
-void KdeTrayIcon::onSessionDestroyed()
-{
-	onUnreadChanged(MessageList());
-}
-
-void KdeTrayIcon::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
-{
-	ChatSession *session = static_cast<ChatSession*>(sender());
-	Q_ASSERT(session != NULL);
-	MessageList::iterator itr = unread.begin();
-	while (itr != unread.end()) {
-		if (itr->property("silent", false))
-			itr = unread.erase(itr);
-		else
-			++itr;
-	}
-	bool empty = m_sessions.isEmpty();
-	if (unread.isEmpty()) {
-		m_sessions.removeOne(session);
-	} else if (!m_sessions.contains(session)) {
-		m_sessions.append(session);
-	} else {
-		return;
-	}
-	if (empty == m_sessions.isEmpty())
-		return;
-	
-	if (m_sessions.isEmpty())
+	if (m_notifications.isEmpty())
 		m_item->setStatus(KStatusNotifierItem::Active);
-	else
-		m_item->setStatus(KStatusNotifierItem::NeedsAttention);
 }
 
 void KdeTrayIcon::onAccountDestroyed(QObject *obj)
@@ -269,6 +248,16 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
 }
 
+void KdeTrayIcon::handleNotification(Notification *notification)
+{
+	ref(notification);
+	m_notifications << notification;
+
+	m_item->setStatus(KStatusNotifierItem::NeedsAttention);
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			SLOT(onNotificationFinished()));
+}
+
 QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)
 {
 	QIcon icon;
@@ -284,3 +273,4 @@ void KdeTrayIcon::validateProtocolActions()
 	foreach (KdeIntegration::ProtocolSeparatorActionGenerator *gen, m_protocolActions)
 		gen->ensureVisibility();
 }
+

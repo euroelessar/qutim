@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>555</width>
-    <height>430</height>
+    <width>553</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>546</width>
-        <height>430</height>
+        <width>544</width>
+        <height>428</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout">
@@ -95,13 +95,6 @@
         <widget class="QSpinBox" name="groupUntil">
          <property name="maximum">
           <number>10000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QCheckBox" name="notifyBox">
-         <property name="text">
-          <string>Notifications in active chat</string>
          </property>
         </widget>
        </item>

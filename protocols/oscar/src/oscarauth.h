@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -73,7 +73,7 @@ signals:
 	
 private slots:
 	void onPasswordDialogFinished(int result);
-	void onClienLoginFinished();
+	void onClientLoginFinished();
 	void onStartSessionFinished();
     void onSslErrors(const QList<QSslError> &errors);
 
@@ -95,3 +95,4 @@ private:
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // OSCARAUTH_H
+

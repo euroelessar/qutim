@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "abstractcontactmodel.h"
@@ -70,6 +94,12 @@ void TreeView::onClick(const QModelIndex &index)
 		if (ChatSession *session = ChatLayer::get(buddy, true))
 			session->activate();
 	}
+#ifdef Q_WS_MAEMO_5
+	else if(type == TagType)
+	{
+		this->setExpanded(index,!this->isExpanded(index));
+	}
+#endif
 }
 
 void TreeView::contextMenuEvent(QContextMenuEvent *event)
@@ -197,3 +227,4 @@ void TreeView::checkTag(const QModelIndex &parent, QAbstractItemModel *model)
 
 }
 }
+

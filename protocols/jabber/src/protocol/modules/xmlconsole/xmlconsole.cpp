@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -112,6 +112,8 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	m_stackOutgoing.tagColor = QColor(0x22aa22);
 	m_stackOutgoing.attributeColor = QColor(0xffff33);
 	m_stackOutgoing.paramColor = QColor(0xdd8811);
+	m_stackIncoming.commentColor = QColor(0xb2b2b2);
+	m_stackOutgoing.commentColor = QColor(0xb2b2b2);
 
 	QAction *action = new QAction(tr("Close"),this);
 	action->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -124,9 +126,9 @@ XmlConsole::~XmlConsole()
 	delete m_ui;
 }
 
-void XmlConsole::init(Account *account, const JabberParams &params)
+void XmlConsole::init(Account *account)
 {
-	m_client = params.item<Client>();
+	m_client = qobject_cast<Client*>(account->property("client"));
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
 										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
 										   this, SLOT(show())),
@@ -188,6 +190,16 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 	while (d->reader.readNext() > QXmlStreamReader::Invalid) {
 //		QDebug dbg = debug() << incoming << d->reader.tokenString();
 		switch(d->reader.tokenType()) {
+		case QXmlStreamReader::Comment: {
+			QTextCursor cursor(m_ui->xmlBrowser->document());
+			cursor.movePosition(QTextCursor::End);
+			cursor.beginEditBlock();
+			cursor.insertBlock();
+			QTextCharFormat bodyFormat = cursor.charFormat();
+			bodyFormat.setForeground(d->commentColor);
+			cursor.insertText(d->reader.text().toString(), bodyFormat);
+			cursor.endEditBlock();
+			break; }
 		case QXmlStreamReader::StartElement:
 //			dbg << d->reader.name().toString() << d->depth
 //					<< d->reader.attributes().value(QLatin1String("from")).toString();
@@ -301,8 +313,14 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 			break;
 		case QXmlStreamReader::Characters:
 			token = d->tokens.isEmpty() ? 0 : d->tokens.last();
-			if (token && token->type == QXmlStreamReader::StartElement && !token->startTag.empty)
-				d->tokens << new StackToken(d->reader);
+			if (token && token->type == QXmlStreamReader::StartElement && !token->startTag.empty) {
+				if (*token->startTag.name == QLatin1String("auth")
+				        && *token->startTag.xmlns == QLatin1String("urn:ietf:params:xml:ns:xmpp-sasl")) {
+					d->tokens << new StackToken(QLatin1String("<<Private data>>"));
+				} else {
+					d->tokens << new StackToken(d->reader);
+				}
+			}
 			break;
 		default:
 			break;
@@ -381,3 +399,4 @@ void Jabber::XmlConsole::on_saveButton_clicked()
 		writer.write(m_ui->xmlBrowser->document());
 	}
 }
+

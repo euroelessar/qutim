@@ -1,18 +1,28 @@
 /****************************************************************************
- *  jmucsession.h
- *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef JMUCSESSION_H
 #define JMUCSESSION_H
@@ -52,7 +62,6 @@ public:
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
-	bool isJoined();
 	bool isAutoJoin();
 	void setAutoJoin(bool join);
 	bool isError();
@@ -70,7 +79,8 @@ public:
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 protected:
 	void loadSettings();
-	//			// MUCRoomHandler
+	virtual void doJoin();
+	virtual void doLeave();
 protected slots:
 	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
 	void onMessage(const Jreen::Message &msg, bool priv);
@@ -92,14 +102,19 @@ protected slots:
 	//			void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
 	//			void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
 public slots:
-	void join();
-	void leave();
 	void kick(const QString &nick, const QString &reason = QString());
 	void ban(const QString &nick, const QString &reason = QString());
+	void moder(const QString &nick, const QString &reason = QString());
+	void admin(const QString &nick, const QString &reason = QString());
+	void owner(const QString &nick, const QString &reason = QString());
+	void voice(const QString &nick, const QString &reason = QString());
+	void visitor(const QString &nick, const QString &reason = QString());
+	void member(const QString &nick, const QString &reason = QString());
 	void unban(const QString &jid, const QString &reason = QString());
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();
+	void joinedChanged();
 signals:
 	void nickChanged(const QString &nick);
 	void initClose();
@@ -111,3 +126,4 @@ private:
 }
 
 #endif // JMUCSESSION_H
+

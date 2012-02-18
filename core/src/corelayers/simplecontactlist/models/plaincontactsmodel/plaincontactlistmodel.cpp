@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "plaincontactlistmodel.h"
 #include "abstractcontactmodel_p.h"
 #include <qutim/metacontact.h>
@@ -148,7 +172,7 @@ bool PlainModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
 	if (role == Qt::EditRole && getItemType(index) == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		item->contact->setName(value.toString());
+		item->contact.data()->setName(value.toString());
 		return true;
 	}
 	return false;
@@ -170,8 +194,10 @@ QMimeData *PlainModel::mimeData(const QModelIndexList &indexes) const
 		return mimeData;
 
 	ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-	mimeData->setText(item->contact->id());
-	mimeData->setObject(item->contact);
+	if (item->contact) {
+		mimeData->setText(item->contact.data()->id());
+		mimeData->setObject(item->contact.data());
+	}
 	setEncodedData(mimeData, QUTIM_MIME_CONTACT_INTERNAL, index);
 	return mimeData;
 }
@@ -192,7 +218,6 @@ void PlainModel::removeFromContactList(Contact *contact, bool deleted)
 	if (!item)
 		return;
 	changeContactVisibility(item, false);
-	d->unreadContacts.remove(contact);
 	delete item;
 }
 

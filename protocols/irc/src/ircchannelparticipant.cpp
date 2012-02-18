@@ -1,17 +1,27 @@
 /****************************************************************************
- *  ircchannelparticipant.cpp
- *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "ircchannelparticipant.h"
 #include "ircaccount_p.h"
@@ -25,8 +35,8 @@ namespace irc {
 class IrcChannelParticipantPrivate
 {
 public:
-	QPointer<IrcContact> contact;
-	QPointer<IrcChannel> channel;
+	QWeakPointer<IrcContact> contact;
+	QWeakPointer<IrcChannel> channel;
 	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 
@@ -35,64 +45,64 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 {
 	d->channel = channel;
 	d->contact = channel->account()->getContact(nick, host, true);
-	d->contact->d->ref();
-	setMenuOwner(d->contact);
-	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
-	connect(d->contact, SIGNAL(quit(QString)), SIGNAL(quit(QString)));
-	connect(d->contact, SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
-	connect(d->contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+	d->contact.data()->d->ref();
+	setMenuOwner(d->contact.data());
+	connect(d->contact.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+	connect(d->contact.data(), SIGNAL(quit(QString)), SIGNAL(quit(QString)));
+	connect(d->contact.data(), SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
+	connect(d->contact.data(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 IrcChannelParticipant::~IrcChannelParticipant()
 {
 	if (d->contact)
-		d->contact->d->deref();
+		d->contact.data()->d->deref();
 }
 
 bool IrcChannelParticipant::sendMessage(const Message &message)
 {
-	return d->contact->sendMessage(message);
+	return d->contact.data()->sendMessage(message);
 }
 
 QString IrcChannelParticipant::id() const
 {
-	return d->contact->id();
+	return d->contact.data()->id();
 }
 
 QString IrcChannelParticipant::name() const
 {
-	return d->contact->name();
+	return d->contact.data()->name();
 }
 
 QString IrcChannelParticipant::avatar() const
 {
-	return d->contact->avatar();
+	return d->contact.data()->avatar();
 }
 
 Status IrcChannelParticipant::status() const
 {
-	return d->contact->status();
+	return d->contact.data()->status();
 }
 
 IrcContact *IrcChannelParticipant::contact()
 {
-	return d->contact;
+	return d->contact.data();
 }
 
 const IrcContact *IrcChannelParticipant::contact() const
 {
-	return d->contact;
+	return d->contact.data();
 }
 
 IrcChannel *IrcChannelParticipant::channel()
 {
-	return d->channel;
+	return d->channel.data();
 }
 
 const IrcChannel *IrcChannelParticipant::channel() const
 {
-	return d->channel;
+	return d->channel.data();
 }
 
 IrcAccount *IrcChannelParticipant::account()
@@ -139,22 +149,23 @@ void IrcChannelParticipant::removeMode(QChar mode)
 
 QString IrcChannelParticipant::hostMask() const
 {
-	return d->contact->hostMask();
+	return d->contact.data()->hostMask();
 }
 
 QString IrcChannelParticipant::hostUser() const
 {
-	return d->contact->hostUser();
+	return d->contact.data()->hostUser();
 }
 
 QString IrcChannelParticipant::domain() const
 {
-	return d->contact->domain();
+	return d->contact.data()->domain();
 }
 
 QString IrcChannelParticipant::host() const
 {
-	return d->contact->host();
+	return d->contact.data()->host();
 }
 
 } } // namespace qutim_sdk_0_3::irc
+

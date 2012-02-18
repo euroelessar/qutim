@@ -1,25 +1,24 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6 FATAL_ERROR)
 IF (COMMAND cmake_policy)
 	cmake_policy (SET CMP0003 NEW)
-ENDIF (COMMAND cmake_policy)
-PROJECT( qutim )
-SET(QT_MIN_VERSION "4.6.0")
+ENDIF(COMMAND cmake_policy)
+PROJECT(qutim)
 
 set(CMAKE_QUTIM_VERSION_MAJOR    0  CACHE INT "Major qutIM version number" FORCE)
 set(CMAKE_QUTIM_VERSION_MINOR    2  CACHE INT "Minor qutIM version number" FORCE)
 set(CMAKE_QUTIM_VERSION_SECMINOR 80 CACHE INT "Secminor qutIM version number" FORCE)
-set(CMAKE_QUTIM_VERSION_PATCH    0  CACHE INT "Release qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_PATCH    1  CACHE INT "Release qutIM version number" FORCE)
 set(CMAKE_QUTIM_VERSION_STRING "${CMAKE_QUTIM_VERSION_MAJOR}.${CMAKE_QUTIM_VERSION_MINOR}.${CMAKE_QUTIM_VERSION_SECMINOR}.${CMAKE_QUTIM_VERSION_PATCH}" CACHE STRING "qutIM version string" FORCE)
 
-ADD_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
+ADD_DEFINITIONS(-DLIBQUTIM_LIBRARY)
 
-if( UNIX )
-	if( BSD )
-		SET( CMAKE_THREAD_LIBS -pthread )
-		SET( CMAKE_USE_PTHREADS ON )
-		SET( CMAKE_EXE_LINKER_FLAGS -pthread )
-	endif( BSD )
-endif( UNIX )
+if(UNIX)
+        if(BSD)
+                set(CMAKE_THREAD_LIBS -pthread)
+                set(CMAKE_USE_PTHREADS ON )
+                set(CMAKE_EXE_LINKER_FLAGS -pthread)
+        endif(BSD)
+endif(UNIX)
 
 SET (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
 SET (CMAKE_BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
@@ -28,11 +27,13 @@ LIST (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 SET (QT_USE_QTNETWORK true)
 SET (QT_USE_QTXML true)
 SET (QT_USE_QTSCRIPT true)
+if( DECLARATIVE_UI )
+	set( QT_USE_QTDECLARATIVE true )
+endif()
 
-SET (QUTIM_PLUGINS_DEST "lib/qutim/")
+SET(QUTIM_PLUGINS_DEST "lib/qutim/")
 FIND_PACKAGE (Qt4 REQUIRED)
 
-INCLUDE(CPackOptions.cmake.in)
 INCLUDE(UseQt4)
 INCLUDE(MacroEnsureVersion)
 INCLUDE(QutIMMacros)
@@ -72,19 +73,30 @@ if( WIN32 )
 	list(APPEND QUTIM_LIBS secur32 )
 endif( WIN32 )
 
-file( GLOB HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" )
-file( GLOB SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
-file( GLOB SOURCES_MM RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.mm" )
+if( DECLARATIVE_UI )
+	set( CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/declarative" )
+	install(DIRECTORY ${CORE_SOURCE_DIR}/profilecreator 
+		DESTINATION ${QUTIM_SHARE_DIR}/declarative
+	)
+	include_directories( ${QT_QTDECLARATIVE_INCLUDE_DIR} )
+	add_definitions( -DQUTIM_DECLARATIVE_UI )
+else()
+	set( CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets" )
+endif()
+
+file( GLOB HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CORE_SOURCE_DIR}/*.h" )
+file( GLOB SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CORE_SOURCE_DIR}/*.cpp" )
+file( GLOB SOURCES_MM RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CORE_SOURCE_DIR}/*.mm" )
 list( APPEND SOURCE SOURCE_MM} )
-file( GLOB FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui" )
+file( GLOB FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CORE_SOURCE_DIR}/*.ui" )
 list( APPEND SOURCES "main.cpp" )
 
-SET (RESOURCES
+SET(RESOURCES
 	qutim.qrc
 	)
 
 #TODO fix in future
-if (MINGW)
+if(MINGW)
 	find_program( MINGW_WINDRES NAMES "mingw32-windres" "windres" )
 	execute_process( COMMAND "${MINGW_WINDRES}"
 		"-i" "${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc" "-o" "${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o" )
@@ -93,17 +105,18 @@ else(MINGW)
 	LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
+add_subdirectory(libqutim)
 
-find_package( QutIM REQUIRED )
+find_package(QutIM REQUIRED)
 include_directories( ${QUTIM_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/libqutim/include/qutim_hook" )
 
 REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
-set( QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "Path to qutim sources")
-set( QUTIM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE FILEPATH "Path to qutim build directory")
-option( QUTIM_COPY_PLUGINS_TO_BINARY_DIR "Copy plugins to qutim build directory" OFF )
-set( QUTIM_LIBRARIES libqutim )
+set(QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "Path to qutim sources")
+set(QUTIM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE FILEPATH "Path to qutim build directory")
+option(QUTIM_COPY_PLUGINS_TO_BINARY_DIR "Copy plugins to qutim build directory" OFF)
+option(QUTIM_CREATE_BUNDLE "Create application bundle on make install" OFF)
+set(QUTIM_LIBRARY libqutim)
 
 # For Apple set the icns file containing icons
 IF(APPLE)
@@ -126,8 +139,8 @@ IF(APPLE)
 	SET(SOURCES ${SOURCES} ${qt_menu_nib_sources})
 ENDIF(APPLE)
 
-IF (APPLE)
-	IF (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+IF(APPLE)
+        IF(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
 		set (QUTIM_BUNDLE_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/qutim.app")
 		add_custom_target(qutim-bundle ALL)
 		add_dependencies(qutim-bundle qutim translations)
@@ -138,16 +151,17 @@ IF (APPLE)
 ENDIF(APPLE)
 
 #additional resources path
-set (QUTIM_ADDITIONAL_RESOURCES_PATH "" CACHE PATH "Path to additional resources")
+set(QUTIM_ADDITIONAL_RESOURCES_PATH "" CACHE PATH "Path to additional resources")
 
-set( QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
-set( QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
-set( QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FORCE )
+set(QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
+set(QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
+set(QUTIM_ADDITIONAL_RCC ${QUTIM_ADDITIONAL_RESOURCES_PATH} CACHE INTERNAL "" FORCE )
 
 add_subdirectory(src/corelayers)
-foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+foreach(additional_path ${QUTIM_ADDITIONAL_PATHS} )
 	add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
-endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
+endforeach(additional_path ${QUTIM_ADDITIONAL_PATHS})
+add_subdirectory(share)
 
 message(STATUS ${QUTIM_ADDITIONAL_RCC})
 list(APPEND RESOURCES ${QUTIM_ADDITIONAL_RCC})
@@ -162,25 +176,35 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 #	OFF
 #)
 
+# TODO: Improve startup speed
+if( MAEMO6 )
+	INCLUDE(FindPkgConfig)
+	pkg_check_modules(QDECLARATIVE_BOOSTABLE qdeclarative-boostable)
+	list(APPEND QUTIM_ADDITIONAL_LIBRARIES ${QDECLARATIVE_BOOSTABLE_LIBRARIES} )
+	INCLUDE_DIRECTORIES (${QDECLARATIVE_BOOSTABLE_INCLUDE_DIRS})
+endif()
+
+
+
 QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	"Single profil by default" 
 	"qutIM will be compiled without multiply profiles by default"
 	ON
 )
-IF (APPLE)
-	set (DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
-	IF (NOT CMAKE_BUILD_TYPE)
-		set (CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+IF(APPLE)
+        set(DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
+        IF(NOT CMAKE_BUILD_TYPE)
+                set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 	ENDIF(NOT CMAKE_BUILD_TYPE)
-ELSE (APPLE)
-	set (DEFAULT_QUTIM_GUI_TYPE "")
-ENDIF (APPLE)
-SET( QUTIM_GUI_TYPE ${DEFAULT_QUTIM_GUI_TYPE} CACHE STRING "qutIM GUI TYPE" )
-IF( QUTIM_GUI_TYPE )
+ELSE(APPLE)
+        set(DEFAULT_QUTIM_GUI_TYPE "")
+ENDIF(APPLE)
+SET(QUTIM_GUI_TYPE ${DEFAULT_QUTIM_GUI_TYPE} CACHE STRING "qutIM GUI TYPE" )
+IF(QUTIM_GUI_TYPE)
 	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
 ENDIF()
 
-QUTIM_ADD_EXECUTABLE (qutim
+QUTIM_ADD_EXECUTABLE(qutim
 	${QUTIM_GUI_TYPE}
 	${SOURCES}
 	${HEADERS}
@@ -215,7 +239,7 @@ set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
 set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
 set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS}")
 
-qutim_target_link_libraries (qutim
+qutim_target_link_libraries(qutim
 	${QT_LIBRARIES}
 	${QT_QTMAIN_LIBRARY}
 	${QUTIM_LIBS}
@@ -223,7 +247,7 @@ qutim_target_link_libraries (qutim
 	libqutim
 	)
 
-IF (APPLE AND QUTIM_BUNDLE_LOCATION)
+IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
 	macro(_deploy_plugins_dir _plugin)
 		set(plugin_dir "${QT_PLUGINS_DIR}/${_plugin}")
@@ -269,14 +293,16 @@ IF (APPLE AND QUTIM_BUNDLE_LOCATION)
 	_mac_deploy_plugin(imageformats qjpeg)
 	_mac_deploy_plugin(imageformats qmng)
 
+	_mac_deploy_plugin(crypto qca-ossl)
+
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
 			${QUTIM_BUNDLE_LOCATION}
 		)
 
-ENDIF (APPLE AND QUTIM_BUNDLE_LOCATION)
+ENDIF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
-if( LANGUAGE )
+if(LANGUAGE)
 	LANGUAGE_UPDATE( core ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )
 endif( LANGUAGE )
 
@@ -297,19 +323,19 @@ INSTALL(TARGETS qutim
 		COMPONENT Core
 )
 
-QUTIM_ADD_ARTWORK_DIR(share/qutim)
-
-IF(UNIX AND NOT APPLE)
+IF(UNIX AND NOT APPLE AND NOT MAEMO5)
 	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
 		DESTINATION share
 			COMPONENT Core
 	)
 ENDIF()
 
-INSTALL(DIRECTORY share/config
-	DESTINATION share/qutim
-		COMPONENT Core
-)
+IF(MAEMO5)
+	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
+		DESTINATION /usr/share
+			COMPONENT Core
+	)
+ENDIF()
 
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
@@ -344,24 +370,70 @@ CPACK_ADD_COMPONENT(CoreDevel
 
 #small simple hack for install Qt dlls and plugins
 IF(WIN32)
-	SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
-	FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
-	FOREACH(QUTIM_DLL ${dlls})
-		IF(IS_DIRECTORY ${QUTIM_DLL})
-			INSTALL(DIRECTORY ${QUTIM_DLL}
-				DESTINATION bin
-					COMPONENT Qt
+		SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
+		if(NOT ${QUTIM_REQUIRED_DLL_DIR} STREQUAL "")
+			FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
+			FOREACH(QUTIM_DLL ${dlls})
+					IF(IS_DIRECTORY ${QUTIM_DLL})
+							INSTALL(DIRECTORY ${QUTIM_DLL}
+									DESTINATION bin
+											COMPONENT Qt
+							)
+					ELSEIF(${QUTIM_DLL} MATCHES ".\\.dll")
+							INSTALL(FILES ${QUTIM_DLL}
+									DESTINATION bin
+											COMPONENT Qt
+							)
+					ENDIF()
+			ENDFOREACH()
+			LIST(APPEND CPACK_COMPONENTS_ALL Qt)
+			CPACK_ADD_COMPONENT(Qt
+					DISPLAY_NAME "Qt Libraries"
+					DESCRIPTION ""
 			)
-		ELSEIF(${QUTIM_DLL} MATCHES ".\\.dll")
-			INSTALL(FILES ${QUTIM_DLL}
-				DESTINATION bin
-					COMPONENT Qt
-			)
-		ENDIF()
-	ENDFOREACH()
-	LIST(APPEND CPACK_COMPONENTS_ALL Qt)
-	CPACK_ADD_COMPONENT(Qt
-		DISPLAY_NAME "Qt Libraries"
-		DESCRIPTION ""
-	)
+		endif()
 ENDIF(WIN32)
+
+option(CREATE_BUNDLE "Create application bundle for qutIM")
+if(CREATE_BUNDLE)
+    include(QtBundleUtils)
+    define_bundle_paths(qutim)
+    set(APPS ${BUNDLE_PATH})
+    list(APPEND DIRS
+        ${QT_LIBRARY_DIR}
+    )
+    if(WIN32)
+        get_filename_component(_dir ${QT_QMAKE_EXECUTABLE} PATH)
+        list(APPEND DIRS ${_dir})
+    endif()
+
+    list(APPEND QT_PLUGINS
+        bearer/qgenericbearer
+        bearer/qnativewifibearer
+        codecs/qcncodecs
+        codecs/qjpcodecs
+        codecs/qjpcodecs
+        codecs/qkrcodecs
+        codecs/qtwcodecs
+        imageformats/qsvg
+        imageformats/qgif
+        imageformats/qjpeg
+        imageformats/qico
+        imageformats/qmng
+        imageformats/qtga
+        imageformats/qtiff
+        iconengines/qsvgicon
+        crypto/qca-ossl
+        crypto/qca-sasl
+    )
+
+    deploy_qml_modules(${QML_MODULES})
+    deploy_qt_plugins(${QT_PLUGINS})
+
+    INSTALL(CODE "
+        file(GLOB_RECURSE QTPLUGINS
+          \"\${CMAKE_INSTALL_PREFIX}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+        include(BundleUtilities)
+        fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
+        " COMPONENT Runtime)
+endif()

@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "widgets.h"
 #include <qutim/icon.h>
 #include <QFileDialog>
@@ -227,6 +251,7 @@ DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWid
 	QDateTimeEdit(parent), AbstractDataWidget(item, dataForm)
 {
 	setDateTime(item.data().toDateTime());
+	setCalendarPopup(true);
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateTimeChanged(QDateTime)));
 }
 
@@ -257,7 +282,8 @@ void DateTimeEdit::onChanged()
 DateEdit::DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
 	QDateEdit(parent), AbstractDataWidget(item, dataForm)
 {
-	setDateTime(item.data().toDateTime());
+	setDate(item.data().toDate());
+	setCalendarPopup(true);
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateChanged(QDate)));
 }
 
@@ -669,9 +695,10 @@ ModifiableGroup::ModifiableGroup(DefaultDataForm *dataForm, const DataItem &item
 	QGroupBox(parent), AbstractDataWidget(item, dataForm)
 {
 	setObjectName(item.name());
-	setTitle(item.title());
+	if (!item.property("hideTitle", false))
+		setTitle(item.title());
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	m_widget = new ModifiableWidget(item, dataForm, this);
 	layout->addWidget(m_widget);
 }
@@ -686,7 +713,8 @@ DataItem ModifiableGroup::item() const
 DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *parent) :
 	QGroupBox(parent), AbstractDataWidget(items, dataForm)
 {
-	setTitle(items.title());
+	if (!items.property("hideTitle", false))
+		setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_layout = new DataLayout(items, dataForm, items.property<quint16>("columns", 1), this);
 	m_layout->addItems(items.subitems());
@@ -760,3 +788,4 @@ void StringListGroup::onChanged()
 }
 
 }
+

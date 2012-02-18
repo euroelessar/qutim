@@ -1,18 +1,28 @@
 /****************************************************************************
- *  servicemanager.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "servicemanager_p.h"
 #include "modulemanager_p.h"
@@ -59,6 +69,7 @@ void ServiceManagerPrivate::init()
 		cfg.setValue(QLatin1String(it.key()), QLatin1String(meta->className()));
 	}
 	inited = true;
+	emit q_func()->initedChanged(inited);
 }
 
 void ServiceManagerPrivate::init(const QByteArray &service, const ExtensionInfo &info, QSet<QByteArray> &used)
@@ -189,3 +200,4 @@ ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
 }
 
 } // namespace qutim_sdk_0_3
+

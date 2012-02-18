@@ -1,17 +1,27 @@
 /****************************************************************************
- *  buddypicture.cpp
- *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "buddypicture.h"
 #include "qutim/systeminfo.h"
@@ -91,14 +101,14 @@ void BuddyPicture::setAccountAvatar(const QString &avatar)
 	// Md5 hash.
 	m_avatarHash = QCryptographicHash::hash(m_accountAvatar, QCryptographicHash::Md5);
 	// Request for update of avatar.
-	FeedbagItem item = account()->feedbag()->type(SsiBuddyIcon, Feedbag::GenerateId).first();
+	FeedbagItem item = account()->feedbag()->itemByType(SsiBuddyIcon, Feedbag::GenerateId);
 	TLV data(0x00d5);
 	data.append<quint8>(1);
 	data.append<quint8>(m_avatarHash);
 	item.setField(data);
 	if (!item.isInList())
 		item.setName("1");
-	item.update();
+	item.updateOrAdd();
 }
 
 void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
@@ -317,3 +327,4 @@ void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteA
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

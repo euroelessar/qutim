@@ -1,17 +1,27 @@
 /****************************************************************************
- *  ircconnection.cpp
- *
- *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "ircconnection.h"
 #include "ircaccount_p.h"
@@ -30,7 +40,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/passworddialog.h>
 
 namespace qutim_sdk_0_3 {
@@ -272,7 +282,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 
 	} else if (cmd == 321) { // RPL_LISTSTART
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->listStarted();
+			m_account->d->channelListForm.data()->listStarted();
 		else
 			m_account->log(tr("Start of /LIST"), m_account->isUserInputtedCommand("LIST"), "LIST");
 	} else if (cmd == 322) { // RPL_LIST
@@ -280,7 +290,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		QString users = params.value(2);
 		QString topic = IrcProtocol::ircFormatToHtml(params.value(3));
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->addChannel(channel, users, topic);
+			m_account->d->channelListForm.data()->addChannel(channel, users, topic);
 		else
 			m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
 						   .arg(channel)
@@ -290,18 +300,18 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 						   "LIST");
 	} else if (cmd == 323) { // RPL_LISTEND
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->listEnded();
+			m_account->d->channelListForm.data()->listEnded();
 		else
 			m_account->log(tr("End of /LIST"), m_account->isUserInputtedCommand("LIST", true), "LIST");
 	} else if (cmd == 521) { // ERR_LISTSYNTAX
 		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->error(error);
+			m_account->d->channelListForm.data()->error(error);
 		m_account->log(error, true, "ERROR");
 	} else if (cmd == 263) { // RPL_TRYAGAIN
 		QString error = tr("Server load is temporarily too heavy.\nPlease wait a while and try again.");
 		if (m_account->d->channelListForm)
-			m_account->d->channelListForm->error(error);
+			m_account->d->channelListForm.data()->error(error);
 		m_account->log(error, true, "ERROR");
 	} else if (cmd == 301) { // RPL_AWAY
 		QString nick = params.value(1);
@@ -517,8 +527,6 @@ void IrcConnection::handleTextMessage(const QString &from, const QString &fromHo
 		msg.setChatUnit(channel);
 		msg.setProperty("senderName", from);
 		msg.setProperty("senderId", from);
-		if (!text.contains(m_nick))
-			msg.setProperty("silent", true);
 	}
 	session->appendMessage(msg);
 }
@@ -659,3 +667,4 @@ void IrcConnection::passwordEntered(const QString &password, bool remember)
 }
 
 } } // namespace qutim_sdk_0_3::irc
+

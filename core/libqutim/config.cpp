@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "config.h"
 #include "cryptoservice.h"
@@ -103,7 +112,7 @@ public:
 	{
 		if (dirty) sync();
 	}
-	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
+	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create, ConfigBackend *bcknd = 0);
 	inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
 	bool isValid() {
 		//FIXME Elessar it's doesn't work!
@@ -127,7 +136,7 @@ typedef QHash<QString, ConfigSource::Ptr> ConfigSourceHash;
 
 Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
 
-ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create)
+ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create, ConfigBackend *backend)
 {
 	QString fileName = path;
 	if (fileName.isEmpty())
@@ -147,32 +156,32 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 	ConfigSource::Ptr result = sourceHash()->value(fileName);
 	if (result && result->isValid())
 		return result;
-
-	ConfigBackend *backend = 0;
-
-	QByteArray suffix = info.suffix().toLatin1().toLower();
+	
 	const QList<ConfigBackend*> &backends = *all_config_backends();
-
-	if (backends.isEmpty())
-		return ConfigSource::Ptr();
-
-	if (!suffix.isEmpty()) {
-		for (int i = 0; i < backends.size(); i++) {
-			if (backends.at(i)->name() == suffix) {
-				backend = backends.at(i);
-				break;
+	if (!backend) {
+		QByteArray suffix = info.suffix().toLatin1().toLower();
+	
+		if (backends.isEmpty())
+			return ConfigSource::Ptr();
+	
+		if (!suffix.isEmpty()) {
+			for (int i = 0; i < backends.size(); i++) {
+				if (backends.at(i)->name() == suffix) {
+					backend = backends.at(i);
+					break;
+				}
 			}
 		}
-	}
-	if (!backend) {
-		backend = backends.at(0);
-		fileName += QLatin1Char('.');
-		fileName += QLatin1String(backend->name());
-
-		result = sourceHash()->value(fileName);
-		if (result && result->isValid())
-			return result;
-		info.setFile(fileName);
+		if (!backend) {
+			backend = backends.at(0);
+			fileName += QLatin1Char('.');
+			fileName += QLatin1String(backend->name());
+	
+			result = sourceHash()->value(fileName);
+			if (result && result->isValid())
+				return result;
+			info.setFile(fileName);
+		}
 	}
 
 	if (!info.exists() && !create)
@@ -260,7 +269,8 @@ public:
 	inline ~ConfigPrivate() { if (!memoryGuard) sync(); /*qDeleteAll(levels);*/ }
 	inline const ConfigLevel::Ptr &current() const { return levels.at(0); }
 	void sync();
-	void init(const QStringList &paths);
+	void init(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend = 0);
+	void init(const QStringList &paths, ConfigBackend *backend = 0);
 	QList<ConfigLevel::Ptr> levels;
 	QList<ConfigSource::Ptr> sources;
 	QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
@@ -301,14 +311,19 @@ void ConfigPrivate::sync()
 	}
 }
 
-void ConfigPrivate::init(const QStringList &paths)
+void ConfigPrivate::init(const QStringList &paths, ConfigBackend *backend)
+{
+	init(paths, QVariantList(), backend);
+}
+
+void ConfigPrivate::init(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend)
 {
 	QSet<QString> opened;
 	ConfigSource::Ptr source;
 	for (int j = 0; j < 2; j++) {
 		for (int i = 0; i < paths.size(); i++) {
 			// Firstly we should open user-specific configs
-			source = ConfigSource::open(paths.at(i), j == 1, sources.isEmpty());
+			source = ConfigSource::open(paths.at(i), j == 1, sources.isEmpty(), backend);
 			if (source && !opened.contains(source->fileName)) {
 				opened.insert(source->fileName);
 				sources << source;
@@ -321,6 +336,21 @@ void ConfigPrivate::init(const QStringList &paths)
 		atom.detach();
 		atom->deleteOnDestroy = false;
 		atom->readOnly = atom->readOnly || i > 0;
+		current()->atoms << atom;
+	}
+	for (int i = 0; i < fallbacks.size(); ++i) {
+		ConfigAtom::Ptr atom(new ConfigAtom());
+		QVariant var = fallbacks.at(i);
+		if (var.type() == QVariant::Map) {
+			atom->map = new QVariantMap(var.toMap());
+		} else if (var.type() == QVariant::List) {
+			atom->typeMap = false;
+			atom->list = new QVariantList(var.toList());
+		} else {
+			continue;
+		}
+		atom->deleteOnDestroy = true;
+		atom->readOnly = true;
 		current()->atoms << atom;
 	}
 }
@@ -367,13 +397,31 @@ Config::Config(QVariantMap *map) : d_ptr(new ConfigPrivate)
 Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
-	d->init(QStringList() << path);
+	d->init(QStringList(path));
+}
+
+Config::Config(const QString &path, ConfigBackend *backend) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList(path), backend);
 }
 
 Config::Config(const QStringList &paths) : d_ptr(new ConfigPrivate)
 {
 	Q_D(Config);
 	d->init(paths);
+}
+
+Config::Config(const QString &path, const QVariantList &fallbacks) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList(path), fallbacks);
+}
+
+Config::Config(const QString &path, const QVariant &fallback) : d_ptr(new ConfigPrivate)
+{
+	Q_D(Config);
+	d->init(QStringList(path), QVariantList() << fallback);
 }
 
 Config::Config(const Config &other) : d_ptr(other.d_ptr)
@@ -696,6 +744,19 @@ void Config::remove(int index)
 	}
 }
 
+QVariant Config::rootValue(const QVariant &def, ValueFlags type) const
+{
+	Q_D(const Config);
+	if (d->levels.at(0)->atoms.isEmpty())
+		return def;
+	const ConfigAtom::Ptr &atom = d->levels.at(0)->atoms.first();
+	QVariant var = atom->typeMap ? QVariant(*atom->map) : QVariant(*atom->list);
+	if (type & Config::Crypted)
+		return var.isNull() ? def : CryptoService::decrypt(var);
+	else
+		return var.isNull() ? def : var;
+}
+
 QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type) const
 {
 	Q_D(const Config);
@@ -792,3 +853,4 @@ void ConfigBackend::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 }
+

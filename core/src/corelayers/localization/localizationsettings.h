@@ -1,15 +1,15 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 2 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -30,30 +30,31 @@
 #include <QtCore/QHash>
 
 namespace Ui {
-    class LocalizationSettings;
+class LocalizationSettings;
 }
 
 class QListWidgetItem;
 
 namespace Core
 {
-	class LocalizationSettings : public qutim_sdk_0_3::SettingsWidget
-	{
-		Q_OBJECT
-	public:
-		LocalizationSettings();
-		~LocalizationSettings();
+class LocalizationSettings : public qutim_sdk_0_3::SettingsWidget
+{
+	Q_OBJECT
+public:
+	LocalizationSettings();
+	~LocalizationSettings();
 
-	protected:
-		virtual void loadImpl();
-		virtual void saveImpl();
-		virtual void cancelImpl();
-		void changeEvent(QEvent *e);
+protected:
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+	void changeEvent(QEvent *e);
 
-	private:
-		Ui::LocalizationSettings *m_ui;
-		QHash<QString, QListWidgetItem *> m_items;
-	};
+private:
+	Ui::LocalizationSettings *m_ui;
+	QHash<QString, QListWidgetItem *> m_items;
+};
 }
 
 #endif // LOCALIZATIONSETTINGS_H
+

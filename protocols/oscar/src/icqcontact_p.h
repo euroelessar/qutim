@@ -1,18 +1,27 @@
 /****************************************************************************
- *  icqcontact_p.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "icqcontact.h"
 
@@ -28,12 +37,17 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+inline uint qHash(const QWeakPointer<IcqContact> &ptr)
+{ return qHash(ptr.data()); }
+
 enum SsiBuddyTlvs
 {
-	SsiBuddyProto = 0x0084,
-	SsiBuddyNick = 0x0131,
+	SsiBuddyReqAuth = 0x0066,
+	SsiBuddyProto   = 0x0084,
+	SsiBuddyNick    = 0x0131,
 	SsiBuddyComment = 0x013c,
-	SsiBuddyTags = 0x023c
+	SsiBuddyTags    = 0x349c,
+	SsiGroupDefault = 0x349d
 };
 
 enum ContactCapabilityFlags
@@ -53,14 +67,15 @@ private slots:
 	void sendState();
 private:
 	void sendState(IcqContact *contact, ChatState state);
-	QHash<IcqContact*, ChatState> m_states;
+	QHash<QWeakPointer<IcqContact>, ChatState> m_states;
 	QTimer m_timer;
 };
 
 class IcqContactPrivate
 {
 public:
-	Q_DECLARE_PUBLIC(IcqContact);
+	Q_DECLARE_PUBLIC(IcqContact)
+	
 	void clearCapabilities();
 	void requestNick();
 	void setCapabilities(const Capabilities &caps);
@@ -73,10 +88,10 @@ public:
 	Status status;
 	QString avatar;
 	quint16 version;
+	bool isInList;
 	CapabilityFlags flags;
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
-	QList<FeedbagItem> items;
 	QStringList tags;
 	ChatState state;
 	QDateTime onlineSince;
@@ -90,3 +105,4 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQCONTACT_PH_H
+

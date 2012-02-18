@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,11 +23,6 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h>
-#ifdef Q_OS_HAIKU
-# define SHA2_TYPES
-#endif
-
 #include "oscarauth.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"
@@ -38,16 +33,28 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include "hmac_sha2.h"
+#if defined(OSCAR_USE_3RDPARTY_HMAC)
+#ifdef Q_OS_HAIKU
+# define SHA2_TYPES
+#endif
+# include "../3rdparty/hmac/hmac_sha2.h"
+#elif defined(OSCAR_USE_QCA2)
+# include <QtCrypto>
+#else
+# error Oscar authorization module depends on hmac-sha256 support
+#endif
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
+#define DEBUG() if (!(*isDebug())) {} else debug()
 
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+Q_GLOBAL_STATIC_WITH_ARGS(bool, isDebug, (qgetenv("QUTIM_OSCAR_DEBUG").toInt() > 0))
 
 class OscarResponse
 {
@@ -67,7 +74,8 @@ public:
 		MissingRequiredParameter = 460,
 		SourceRequired = 461,
 		ParameterError = 462,
-		GenericServerError = 500
+		GenericServerError = 500,
+		RateLimitReached = 607
 	};
 	
 	OscarResponse(const QByteArray &json);
@@ -77,18 +85,25 @@ public:
 	ResultCode result() const;
 	AbstractConnection::ConnectionError error() const;
 	QString resultString() const;
+	int detailCode() const;
+	QVariantMap rawResult() const;
 
 private:
 	QVariantMap m_data;
 	ResultCode m_result;
 	QString m_resultString;
+	QVariantMap m_rawResult;
+	int m_detailCode;
 };
 
 OscarResponse::OscarResponse(const QByteArray &json)
 {
+	DEBUG() << json;
 	QVariantMap data = Json::parse(json).toMap();
 	QVariantMap response = data.value(QLatin1String("response")).toMap();
+	m_rawResult = data;
 	m_result = static_cast<ResultCode>(response.value(QLatin1String("statusCode")).toInt());
+	m_detailCode = response.value(QLatin1String("statusDetailCode")).toInt();
 	m_resultString = response.value(QLatin1String("statusText")).toString();
 	m_data = response.value(QLatin1String("data")).toMap();
 }
@@ -107,6 +122,11 @@ OscarResponse::ResultCode OscarResponse::result() const
 	return m_result;
 }
 
+int OscarResponse::detailCode() const
+{
+	return m_detailCode;
+}
+
 AbstractConnection::ConnectionError OscarResponse::error() const
 {
 	switch (m_result) {
@@ -121,6 +141,7 @@ AbstractConnection::ConnectionError OscarResponse::error() const
 	case RequestTimeout:
 		return AbstractConnection::InternalError;
 	case SourceRateLimitReached:
+	case RateLimitReached:
 		return AbstractConnection::RateLimitExceeded;
 	case InvalidKey:
 	case KeyUsageLimitReached:
@@ -138,6 +159,11 @@ AbstractConnection::ConnectionError OscarResponse::error() const
 QString OscarResponse::resultString() const
 {
 	return m_resultString;
+}
+
+QVariantMap OscarResponse::rawResult() const
+{
+	return m_rawResult;
 }
 
 OscarAuth::OscarAuth(IcqAccount *account) :
@@ -193,8 +219,9 @@ void OscarAuth::onPasswordDialogFinished(int result)
 	}
 }
 
-QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
+static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 {
+#if defined(OSCAR_USE_3RDPARTY_HMAC)
 	QByteArray mac(SHA256_DIGEST_SIZE, 0);
 	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
 				sessionSecret.length(),
@@ -203,9 +230,59 @@ QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 				reinterpret_cast<unsigned char*>(mac.data()),
 				mac.size());
 	return mac.toBase64();
+#elif defined(OSCAR_USE_QCA2)
+	static bool qcaInited = false;
+	if (!qcaInited) {
+		qcaInited = true;
+		QCA::init();
+		QCA::setAppName("qutim");
+	}
+	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
+	hash.update(array);
+	return hash.final().toByteArray().toBase64();
+#else
+# error Oscar authorization module depends on hmac-sha256 support
+#endif
 }
 
-void OscarAuth::onClienLoginFinished()
+static QByteArray paranoicEscape(const QByteArray &raw)
+{
+	static char hex[17] = "0123456789ABCDEF";
+	QByteArray escaped;
+	escaped.reserve(raw.size() * 3);
+	for (int i = 0; i < raw.size(); ++i) {
+		const quint8 c = static_cast<quint8>(raw[i]);
+		escaped += '%';
+		escaped += hex[c >> 4];
+		escaped += hex[c & 0x0f];
+	}
+	return escaped;
+}
+
+void OscarAuth::clientLogin(bool longTerm)
+{
+	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
+	url.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
+	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	url.addQueryItem(QLatin1String("s"), m_account->id());
+	url.addQueryItem(QLatin1String("language"), generateLanguage());
+	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
+	// FIXME: Sometimes passwords are cp-1251 (or any other windows-scpecific local encoding) encoded
+	url.addEncodedQueryItem("pwd", paranoicEscape(m_password.toUtf8()));
+	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
+	url.addQueryItem(QLatin1String("clientName"), getClientName());
+	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
+	QByteArray query = url.encodedQuery();
+	url.setEncodedQuery(QByteArray());
+	DEBUG() << Q_FUNC_INFO << url << query;
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+	QNetworkReply *reply = m_manager.post(request, query);
+	m_cleanupHandler.add(reply);
+	connect(reply, SIGNAL(finished()), this, SLOT(onClientLoginFinished()));
+}
+
+void OscarAuth::onClientLoginFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 	Q_ASSERT(reply);
@@ -217,6 +294,7 @@ void OscarAuth::onClienLoginFinished()
 		return;
 	}
 	OscarResponse response(reply->readAll());
+	DEBUG() << Q_FUNC_INFO << response.rawResult();
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
 		emit error(response.error());
@@ -230,6 +308,8 @@ void OscarAuth::onClienLoginFinished()
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
 	data.endGroup();
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
+	int hostTime = data.value(QLatin1String("hostTime"), 0);
+	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 	sessionSecret = sha256hmac(sessionSecret, m_password.toUtf8());
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
@@ -238,50 +318,38 @@ void OscarAuth::onClienLoginFinished()
 		data.insert(QLatin1String("expiresAt"), expiresAt.toString(Qt::ISODate));
 		data.insert(QLatin1String("sessionSecret"), sessionSecret);
 		cfg.setValue(QLatin1String("token"), data, Config::Crypted);
+		cfg.setValue(QLatin1String("hostTimeDelta"), hostTime - localTime);
 	}
 	startSession(token, sessionSecret);
-}
-
-void OscarAuth::clientLogin(bool longTerm)
-{
-	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
-	url.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addQueryItem(QLatin1String("s"), m_account->id());
-	url.addQueryItem(QLatin1String("language"), generateLanguage());
-	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
-	url.addQueryItem(QLatin1String("pwd"), m_password.toUtf8());
-	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
-	url.addQueryItem(QLatin1String("clientName"), getClientName());
-	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	QByteArray query = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
-	QNetworkRequest request(url);
-	QNetworkReply *reply = m_manager.post(request, query);
-	m_cleanupHandler.add(reply);
-	connect(reply, SIGNAL(finished()), this, SLOT(onClienLoginFinished()));
 }
 
 void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionKey)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_START_SESSION_URL);
-	url.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addEncodedQueryItem("a", token);
-	url.addQueryItem(QLatin1String("language"), generateLanguage());
+	url.addEncodedQueryItem("a", token.toPercentEncoding());
 	url.addQueryItem(QLatin1String("distId"), getDistId());
+	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	url.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
+	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
+	{
+		Config cfg = m_account->config(QLatin1String("general"));
+		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
+	}
+	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
+//	Some strange error at ICQ servers. I receive "Parameter error" if it is set
+//	url.addQueryItem(QLatin1String("language"), generateLanguage());
 	url.addQueryItem(QLatin1String("majorVersion"), QString::number(versionMajor()));
 	url.addQueryItem(QLatin1String("minorVersion"), QString::number(versionMinor()));
 	url.addQueryItem(QLatin1String("pointVersion"), QLatin1String("0"));
 	url.addQueryItem(QLatin1String("clientName"), getClientName());
 	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "true" : "false");
-	url.addQueryItem(QLatin1String("ts"), QString::number(QDateTime::currentDateTime().toUTC().toTime_t()));
-	url.addEncodedQueryItem("sig_sha256", generateSignature("POST", sessionKey, url));
-	QByteArray data = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
+	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "1" : "0");
+	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url));
+	DEBUG() << url.toEncoded();
 	QNetworkRequest request(url);
-	QNetworkReply *reply = m_manager.post(request, data);
+	//	Some strange error at ICQ servers. I receive "Parameter error" if it is set no anything else
+	request.setRawHeader("Accept-Language", generateLanguage().toLatin1());
+	QNetworkReply *reply = m_manager.get(request);
 	m_cleanupHandler.add(reply);
 	connect(reply, SIGNAL(finished()), SLOT(onStartSessionFinished()));
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
@@ -299,13 +367,26 @@ void OscarAuth::onStartSessionFinished()
 		return;
 	}
 	OscarResponse response(reply->readAll());
+	DEBUG() << Q_FUNC_INFO << response.rawResult();
+	Config data = response.data();
+	if (response.result() == OscarResponse::InvalidRequest
+	        && response.detailCode() == 1015) {
+		// Invalid local time
+		int hostTime = data.value(QLatin1String("ts"), 0);
+		int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
+		{
+			Config cfg = m_account->config(QLatin1String("general"));
+			cfg.setValue(QLatin1String("hostTimeDelta"), hostTime - localTime);
+		}
+		login();
+		return;
+	}
 	if (response.result() != OscarResponse::Success) {
 		m_errorString = response.resultString();
-		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
+//		m_account->config(QLatin1String("general")).remove(QLatin1String("token"));
 		emit error(response.error());
 		return;
 	}
-	Config data = response.data();
 	OscarConnection *connection = static_cast<OscarConnection*>(m_account->connection());
 	QString host = data.value(QLatin1String("host"), QString());
 	int port = data.value(QLatin1String("port"), 443);
@@ -322,7 +403,7 @@ void OscarAuth::onSslErrors(const QList<QSslError> &errors)
 		str += '\n';
 	}
 	str.chop(1);
-	qDebug() << Q_FUNC_INFO << str;
+	DEBUG() << Q_FUNC_INFO << str;
 }
 
 QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
@@ -346,7 +427,7 @@ QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 # elif defined(Q_OS_LINUX)
 #  if   defined(Q_WS_MAEMO_5)
 		"21011", "QutIM Maemo Client"
-#  elif defined(Q_WS_MEEGO)
+#  elif defined(Q_WS_MEEGO) || defined(MEEGO_EDITION)
 		"21012", "QutIM Meego Client"
 #  elif defined(Q_WS_ANDROID)
 	    "21015", "QutIM Android Client"
@@ -408,3 +489,4 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

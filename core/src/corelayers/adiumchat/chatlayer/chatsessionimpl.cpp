@@ -1,17 +1,27 @@
 /****************************************************************************
-*  chatsessionimpl.cpp
-*
-*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
-*
-***************************************************************************
-*                                                                         *
-*   This library is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatsessionimpl.h"
 #include <QStringBuilder>
@@ -23,7 +33,7 @@
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
 #include <qutim/account.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/conference.h>
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
@@ -36,7 +46,8 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
-	myself_chat_state(ChatStateInActive)
+	hasJavaScript(false),
+	myselfChatState(ChatStateInActive)
 {
 }
 
@@ -56,8 +67,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
-	d->notificationsInActiveChat = cfg.value("notificationsInActiveChat", true);
-	d->active = false;
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
@@ -125,10 +134,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
 
-	bool silent = message.property("silent", false);
-
 	if (conf) {
-		silent = true;
 		QString sender = conf->me() ? conf->me()->name() : QString();
 		if (message.text().contains(sender)) {
 			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
@@ -141,7 +147,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		}
 	}
 
-	if (!silent && (d->notificationsInActiveChat || !d->active))
+	if (!message.property("silent", false))
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {
@@ -173,27 +179,36 @@ ChatUnit* ChatSessionImpl::getUnit() const
 	return d_func()->chatUnit;
 }
 
-QObject* ChatSessionImpl::getController() const
+QObject* ChatSessionImpl::controller()
 {
-	Q_D(const ChatSessionImpl);
+	Q_D(ChatSessionImpl);
 	d->ensureController();
 	return d->controller;
 }
 
-ChatViewController *ChatSessionImplPrivate::getController() const
+QObject *ChatSessionImpl::controller() const
+{
+	return d_func()->controller;
+}
+
+ChatViewController *ChatSessionImplPrivate::getController()
 {
 	ensureController();
 	return qobject_cast<ChatViewController*>(controller);
 }
 
-void ChatSessionImplPrivate::ensureController() const
+void ChatSessionImplPrivate::ensureController()
 {
-	if(!controller) {
+	Q_Q(ChatSessionImpl);
+	if (!controller) {
 		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
 		controller = factory->createViewController();
 		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
+		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
+		emit q->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
+		connect(controller, SIGNAL(destroyed(QObject*)), q, SIGNAL(controllerDestroyed(QObject*)));
 	}
 }
 
@@ -209,29 +224,20 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 {
 	QVariant retVal;
-	QMetaObject::invokeMethod(getController(),
+	QMetaObject::invokeMethod(controller(),
 							  "evaluateJavaScript",
 							  Q_RETURN_ARG(QVariant,retVal),
 							  Q_ARG(QString,scriptSource));
 	return retVal;
 }
 
-void ChatSessionImpl::setActive(bool active)
+void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
-	if (d->active == active)
-		return;
 	if (active)
 		setChatState(ChatStateActive);
-	else if (d->myself_chat_state != ChatStateGone)
+	else if (d->myselfChatState != ChatStateGone)
 		setChatState(ChatStateInActive);
-	d->active = active;
-	emit activated(active);
-}
-
-bool ChatSessionImpl::isActive()
-{
-	return d_func()->active;
 }
 
 bool ChatSessionImpl::event(QEvent *ev)
@@ -248,41 +254,6 @@ bool ChatSessionImpl::event(QEvent *ev)
 QAbstractItemModel* ChatSessionImpl::getModel() const
 {
 	return d_func()->model;
-}
-
-void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk_0_3::Status old, bool silent)
-{
-	Q_Q(ChatSessionImpl);
-	Notification::Type type = Notification::UserChangedStatus;
-	QString title = now.name().toString();
-
-	switch(now.type()) {
-	case Status::Offline: {
-		type = Notification::UserOffline;
-		break;
-	}
-	case Status::Online: {
-		type = Notification::UserOnline;
-		break;
-	}
-	default: {
-		break;
-	}
-	}
-
-	if(old.text() == now.text())
-		return;
-
-	Message msg;
-	msg.setChatUnit(chatUnit);
-	msg.setIncoming(true);
-	msg.setProperty("service",type);
-	msg.setProperty("title",title);
-	msg.setTime(QDateTime::currentDateTime());
-	msg.setText(now.text());
-	msg.setProperty("silent",silent);
-	msg.setProperty("store",!silent);
-	q->appendMessage(msg);
 }
 
 //ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
@@ -356,23 +327,17 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	setParent(unit);
 
-	if (Buddy *b = qobject_cast<Buddy *>(unit)) {
-		connect(b,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				d,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-		d->onStatusChanged(b->status(),Status(),true);
-	} else {
-		Conference *conf;
-		if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
-			foreach (ChatUnit *u, conf->lowerUnits()) {
-				if (Buddy *buddy = qobject_cast<Buddy*>(u))
-					removeContact(buddy);
-			}
+	Conference *conf;
+	if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
+		foreach (ChatUnit *u, conf->lowerUnits()) {
+			if (Buddy *buddy = qobject_cast<Buddy*>(u))
+				removeContact(buddy);
 		}
-		if (!!(conf = qobject_cast<Conference *>(unit))) {
-			foreach (ChatUnit *u, conf->lowerUnits()) {
-				if (Buddy *buddy = qobject_cast<Buddy*>(u))
-					addContact(buddy);
-			}
+	}
+	if (!!(conf = qobject_cast<Conference *>(unit))) {
+		foreach (ChatUnit *u, conf->lowerUnits()) {
+			if (Buddy *buddy = qobject_cast<Buddy*>(u))
+				addContact(buddy);
 		}
 	}
 
@@ -385,7 +350,7 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 void ChatSessionImplPrivate::onActiveTimeout()
 {
 	Q_Q(ChatSessionImpl);
-	switch(myself_chat_state) {
+	switch(myselfChatState) {
 		case ChatStateComposing:
 			q->setChatState(ChatStatePaused);
 			break;
@@ -406,7 +371,7 @@ void ChatSessionImplPrivate::onActiveTimeout()
 void ChatSessionImpl::setChatState(ChatState state)
 {
 	Q_D(ChatSessionImpl);
-	if(d->myself_chat_state == state) {
+	if(d->myselfChatState == state) {
 		d->inactive_timer.start();
 		return;
 	}
@@ -414,7 +379,7 @@ void ChatSessionImpl::setChatState(ChatState state)
 		ChatStateEvent event(state);
 		qApp->sendEvent(currentUnit, &event);
 	}
-	d->myself_chat_state = state;
+	d->myselfChatState = state;
 	switch(state) {
 		case ChatStateComposing:
 		// By xep-0085 this time should be 30 secs, but it's too huge
@@ -542,7 +507,14 @@ QMenu *ChatSessionImpl::menu()
 
 ChatState ChatSessionImpl::getChatState() const
 {
-	return d_func()->myself_chat_state;
+	return d_func()->myselfChatState;
+}
+
+bool ChatSessionImpl::isJavaScriptSupported() const
+{
+	return d_func()->hasJavaScript;
+}
+
 }
 }
-}
+

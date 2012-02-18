@@ -1,17 +1,27 @@
 /****************************************************************************
- * wprotocol.h
- *
- *  Copyright (c) 2010 by Belov Nikita <null@deltaz.org>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef WPROTOCOL_H
 #define WPROTOCOL_H
@@ -26,14 +36,14 @@ using namespace qutim_sdk_0_3;
 class WProtocol : public Protocol
 {
 	Q_OBJECT
-	Q_CLASSINFO( "Protocol", "weather" )
+	Q_CLASSINFO("Protocol", "weather")
 
 public:
 	WProtocol();
 	virtual ~WProtocol();
 
-	virtual QList< Account * > accounts() const;
-	virtual Account *account( const QString &id ) const;
+	virtual QList<Account *> accounts() const;
+	virtual Account *account(const QString &id) const;
 
 private:
 	virtual void loadAccounts();
@@ -42,3 +52,4 @@ private:
 };
 
 #endif // WPROTOCOL_H
+

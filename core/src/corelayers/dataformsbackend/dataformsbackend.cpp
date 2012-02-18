@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "dataformsbackend.h"
 #include "modifiablewidget.h"
 #include "datalayout.h"
@@ -6,7 +30,7 @@
 #include <QPushButton>
 #include <QKeyEvent>
 
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 Q_DECLARE_METATYPE(QList<QIcon>);
 
@@ -14,7 +38,11 @@ namespace Core
 {
 
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
-	m_widget(0), m_isChanged(false), m_incompleteWidgets(0), m_buttonsBox(0), m_hasSubitems(item.hasSubitems())
+	m_widget(0),
+	m_isChanged(false),
+	m_incompleteWidgets(0),
+	m_buttonsBox(0),
+	m_hasSubitems(item.hasSubitems() || item.isAllowedModifySubitems())
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
@@ -180,3 +208,4 @@ AbstractDataForm *DefaultDataFormsBackend::get(const DataItem &item,
 }
 
 }
+

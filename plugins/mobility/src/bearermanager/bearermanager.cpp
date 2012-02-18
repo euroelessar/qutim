@@ -1,17 +1,27 @@
 /****************************************************************************
- *  bearermanager.cpp
- *
- *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "bearermanager.h"
 #include <QNetworkConfigurationManager>
@@ -19,8 +29,12 @@
 
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/utils.h>
+#include <qutim/settingslayer.h>
+#include "managersettings.h"
+#include <qutim/notification.h>
 
 #include <QTimer>
 
@@ -42,14 +56,33 @@ BearerManager::BearerManager(QObject *parent) :
 			onAccountCreated(a);
 	}
 
+	GeneralSettingsItem<ManagerSettings> *m_item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
+	Settings::registerItem(m_item);
+
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
+
+	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
+	foreach (QNetworkConfiguration conf, list) {
+		debug() << conf.bearerName();
+	}
+	if (!list.count())
+		Notification::send(tr("Unable to find any network configuration. "
+							  "Perhaps Qt or QtMobility network bearer configured incorrectly. "
+							  "Bearer manager will not work properly, refer to your distribution maintainer."));
 }
 
-void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status &s)
+void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status::Type &s)
 {
-	if (isOnline)
-		a->setStatus(s);
-	else {
+	Q_UNUSED(s);
+	Config cfg = a->config();
+	bool auto_connect = cfg.value("autoConnect", true);
+	if (isOnline){
+		if (auto_connect) {
+			Status status = a->status();
+			status.setType(s == Status::Offline ? Status::Online : s);
+			a->setStatus(status);
+		}
+	} else {
 		Status status = a->status();
 		status.setType(Status::Offline);
 		status.setProperty("changeReason", Status::ByNetworkError);
@@ -67,25 +100,12 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
-	Config cfg;
-	debug() << cfg.value("status");
-	cfg.beginGroup("status");
-	Status s = cfg.value<Status>(account->id());
-	qDebug() << account->id() << s << cfg.value<QByteArray>(account->id());
-
 	//simple spike for stupid distros!
+	bool isOnline = m_confManager->isOnline();
+	if (!m_confManager->allConfigurations().count())
+		isOnline = true;
 
-	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
-	foreach (QNetworkConfiguration conf, list) {
-		debug() << conf.bearerName();
-	}
-
-	bool isOnline = true;
-	if (list.count())
-		isOnline = m_confManager->isOnline();
-
-	changeStatus(account, isOnline, s);
-
+	changeStatus(account, isOnline, Status::Online);
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
@@ -95,7 +115,7 @@ void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = sender_cast<Account*>(sender());
 	if (status.property("changeReason", Status::ByUser) == Status::ByUser)
-		m_statusHash.insert(account, status);
+		m_statusHash.insert(account, status.type());
 }
 
 void BearerManager::onAccountDestroyed(QObject* obj)
@@ -110,15 +130,5 @@ void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 
 BearerManager::~BearerManager()
 {
-	StatusHash::const_iterator it = m_statusHash.constBegin();
-	Config cfg;
-	cfg.beginGroup("status");
-	for (; it != m_statusHash.constEnd(); it++) {
-		Account *account = it.key();
-		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
-		debug() << account->id() << it.value() << account->status().icon().name();
-		debug() << cfg.value(account->id(), Status()).icon().name();
-	}
-	cfg.endGroup();
-	cfg.sync();
 }
+

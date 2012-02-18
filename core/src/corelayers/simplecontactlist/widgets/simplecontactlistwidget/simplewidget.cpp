@@ -1,3 +1,30 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "simplewidget.h"
 #include <QPushButton>
 #include <QAction>
@@ -13,6 +40,7 @@
 #include <qutim/contact.h>
 #include <qutim/systemintegration.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
+#include <qutim/simplecontactlist/lineedit.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
 #include <QApplication>
@@ -31,7 +59,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 	if (status.type() == Status::Offline) {
 		foreach(Protocol *proto, Protocol::all()) {
 			foreach(Account *a, proto->accounts()) {
-//				debug() << a->status().name() << a->status().type();
+				//				debug() << a->status().name() << a->status().type();
 				if (a->status().type()!=Status::Offline)
 					return false;
 			}
@@ -50,7 +78,6 @@ SimpleWidget::SimpleWidget()
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
 
-	resize(150,0);//hack
 	setAttribute(Qt::WA_AlwaysShowToolTips);
 	loadGeometry();
 
@@ -68,8 +95,7 @@ SimpleWidget::SimpleWidget()
 	}
 
 #if defined(Q_WS_MAEMO_5)
-	//int size = 48; //TODO use relative sizes table
-	//smith, please test it!
+	//Works!
 	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #else
 	int size = 16;
@@ -90,7 +116,7 @@ SimpleWidget::SimpleWidget()
 	m_mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
-	m_searchBar = new QLineEdit(this);
+	m_searchBar = new LineEdit(this);
 	m_searchBar->setVisible(false);
 	layout->addWidget(m_searchBar);
 	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
@@ -154,14 +180,22 @@ SimpleWidget::SimpleWidget()
 
 #ifdef Q_WS_MAEMO_5
 	m_statusBtn->setMaximumHeight(50);
-	m_searchBtn->setMaximumHeight(50);
-	m_widget->setAttribute(Qt::WA_Maemo5StackedWindow);
-	m_widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+	m_searchBar->setMaximumHeight(50);
+	setAttribute(Qt::WA_Maemo5StackedWindow);
+	Config config = Config().group(QLatin1String("Maemo5"));
+	switch (config.value(QLatin1String("orientation"),0))
+	{
+	case 0:
+		setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+		break;
+	case 1:
+		setAttribute(Qt::WA_Maemo5PortraitOrientation, true);
+		break;
+	case 2:
+		setAttribute(Qt::WA_Maemo5LandscapeOrientation, true);
+		break;
+	}
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
-#endif
-
-	//TODO, Smith, separate it to another plugin!
-#ifdef QUTIM_MOBILE_UI
 	connect(QApplication::desktop(), SIGNAL(resized(int)),
 			this, SLOT(orientationChanged()));
 	orientationChanged();
@@ -196,29 +230,12 @@ TreeView *SimpleWidget::contactView()
 
 void SimpleWidget::loadGeometry()
 {
-	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-	if (geom.isNull()) {
-		QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-		//black magic
-		int width = size().width();
-		int x = rect.width() - width;
-		int y = 0;
-		int height = rect.height();
-#ifdef Q_WS_WIN
-		//for stupid windows
-		x -= 15;
-		y += 35;
-		height -= 55;
-#endif
-		QRect geometry(x,
-					   y,
-					   width,
-					   height
-					   );
-		setGeometry(geometry);
-	} else {
-		restoreGeometry(geom);
-	}
+    QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
+    if (!geom.isNull())
+        restoreGeometry(geom);
+    else {
+        resize(200, 600);
+    }
 }
 
 QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
@@ -316,6 +333,7 @@ void SimpleWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
+#ifdef Q_WS_MAEMO_5
 void SimpleWidget::orientationChanged()
 {
 	QRect screenGeometry = QApplication::desktop()->screenGeometry();
@@ -329,6 +347,7 @@ void SimpleWidget::orientationChanged()
 
 	}
 }
+#endif
 
 bool SimpleWidget::event(QEvent *event)
 {

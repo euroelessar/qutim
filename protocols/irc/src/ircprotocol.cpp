@@ -1,17 +1,27 @@
 /****************************************************************************
- *  ircprotocol.cpp
- *
- *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "ircprotocol_p.h"
 #include "ircaccount.h"
@@ -27,11 +37,10 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <QStringList>
-#include <QPointer>
 #include <QRegExp>
 #include <QTextDocument>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*)
 
 namespace qutim_sdk_0_3 {
 
@@ -96,8 +105,7 @@ void IrcProtocol::loadAccounts()
 	gen->setPriority(35);
 	gen->setType(ActionTypeContactList | 0x2000);
 	MenuController::addAction<IrcAccount>(gen);
-	gen = new IrcJoinLeftActionGenerator(this, SLOT(onJoinLeftChannel(QObject*)));
-	MenuController::addAction<IrcChannel>(gen);
+
 	// Register status actions.
 	Status status(Status::Online);
 	status.initIcon("irc");
@@ -121,15 +129,15 @@ void IrcProtocol::loadAccounts()
 QList<Account *> IrcProtocol::accounts() const
 {
 	QList<Account *> accounts;
-	QHash<QString, QPointer<IrcAccount> >::const_iterator it;
+	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value());
+		accounts.append(it.value().data());
 	return accounts;
 }
 
 Account *IrcProtocol::account(const QString &id) const
 {
-	return d->accounts_hash->value(id);
+	return d->accounts_hash->value(id).data();
 }
 
 IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
@@ -145,7 +153,7 @@ IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
 
 ChatSession *IrcProtocol::activeSession() const
 {
-	return d->activeSession;
+	return d->activeSession.data();
 }
 
 void IrcProtocol::registerCommandAlias(IrcCommandAlias *alias)
@@ -295,8 +303,8 @@ void IrcProtocol::updateSettings()
 {
 	Config cfg = config("general");
 	d->enableColoring = cfg.value("enableColoring", true);
-	foreach (QPointer<IrcAccount> acc, *d->accounts_hash)
-		acc->updateSettings();
+	foreach (QWeakPointer<IrcAccount> acc, *d->accounts_hash)
+		acc.data()->updateSettings();
 }
 
 bool IrcProtocol::event(QEvent *ev)
@@ -338,8 +346,8 @@ void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 void IrcProtocol::onSessionActivated(bool active)
 {
 	ChatSession *session = qobject_cast<ChatSession*>(sender());
-	if (!active && session == d->activeSession)
-		d->activeSession = 0;
+	if (!active && session == d->activeSession.data())
+		d->activeSession.clear();
 	else if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
 		d->activeSession = session;
 }
@@ -365,3 +373,4 @@ void IrcProtocol::onAutojoinChecked(QObject *channel_helper)
 }
 
 } } // namespace qutim_sdk_0_3::irc
+

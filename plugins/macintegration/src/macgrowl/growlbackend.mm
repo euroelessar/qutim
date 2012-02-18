@@ -1,3 +1,28 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "growlbackend.h"
 #include <QTextDocument>
 #include <QVariant>
@@ -85,7 +110,7 @@ public:
 			return;
 		NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
 		NSString* mac_summary = [[NSString alloc] initWithUTF8String:summary.toUtf8().constData()];
-		NSString* mac_type;
+		NSString* mac_type = @"Unknown";
 		switch (type) {
 		case Notification::IncomingMessage:
 			mac_type = @"Incoming Message";
@@ -102,8 +127,8 @@ public:
 		case Notification::ChatUserJoined:
 			mac_type = @"User joined chat";
 			break;
-		case Notification::ChatUserLeaved:
-			mac_type = @"User leaved chat";
+		case Notification::ChatUserLeft:
+			mac_type = @"User left chat";
 			break;
 		case Notification::ChatIncomingMessage:
 			mac_type = @"Incoming message in chat";
@@ -155,7 +180,9 @@ private:
 	GrowlInterface* growl_interface_;
 };
 
-GrowlBackend::GrowlBackend() : m_wrapper(new GrowlNotificationWrapper)
+GrowlBackend::GrowlBackend() : 
+    NotificationBackend("Popup"),
+    m_wrapper(new GrowlNotificationWrapper)
 {
 
 }

@@ -1,24 +1,30 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "textviewwidget.h"
 #include "textviewcontroller.h"
-#ifdef Q_WS_MAEMO_5
-#include "texteditautoresizer.h"
-#endif
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
@@ -43,28 +49,7 @@ TextViewWidget::TextViewWidget()
 	QPalette p = viewport()->palette();
 	p.setColor(QPalette::Base, Qt::white);
 	viewport()->setPalette(p);
-	QTimer::singleShot(0, this, SLOT(initScrolling()));
-	
-//	new QVBoxLayout(this);
-//	layout()->addWidget(m_textEdit);
-//	layout()->setMargin(0);
-////	m_textEdit->installEventFilter(this);
-//	setFrameStyle(QFrame::StyledPanel);
-//	setFrameShadow(QFrame::Sunken);
-//	setReadOnly(true);
-//	QVBoxLayout *layout = new QVBoxLayout(this);
-//	layout->addWidget(m_textEdit);
-//	QSizePolicy policy = sizePolicy();
-//	policy.setVerticalPolicy(QSizePolicy::Ignored);
-//	setSizePolicy(policy);
-//	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-#ifdef Q_WS_MAEMO_5
-	new TextEditAutoResizer(this);
-#endif
-}
 
-void TextViewWidget::initScrolling()
-{
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
 		QMetaObject::invokeMethod(scroller,
 								  "enableScrolling",
@@ -91,3 +76,4 @@ void TextViewWidget::setViewController(QObject *object)
 }
 }
 }
+

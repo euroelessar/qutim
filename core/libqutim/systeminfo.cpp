@@ -1,20 +1,29 @@
-/*****************************************************************************
- System Info
-
- Copyright (c) 2007-2008 by Remko Tronçon
-	  2008-2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
-	  2011 by Nicolay Izoderov <nico-izo@yandex.ru>
-
-
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *   I like bananas                                                        *
- ***************************************************************************
-*****************************************************************************/
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2008 Remko Tronçon <remko@el-tramo.be>
+** Copyright © 2011 Nicolay Izoderov <nico-izo@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include <QString>
 #include <QStringList>
@@ -103,7 +112,7 @@ enum WinFlag
 	SuiteHomeServer = 0x02
 };
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) && !defined(Q_OS_FREEBSD) && !defined(MEEGO_EDITION) && !defined(Q_WS_MAEMO_5) && !defined(Q_OS_HAIKU)
 static QString lsbRelease(const QStringList& args)
 {
 	QStringList path = QString(qgetenv("PATH")).split(':');
@@ -157,6 +166,48 @@ struct OsInfo
 	QString name;
 };
 
+struct OsRelease
+{
+	const char *fileName;
+	const char *name;
+	const char *version;
+	const char *prettyName;
+};
+
+static bool osReleaseDetect(SystemInfoPrivate *d)
+{
+	OsRelease files[] = {
+	    { "/etc/os-release",  "NAME",       "VERSION",         "PRETTY_NAME"         },
+	    { "/etc/lsb-release", "DISTRIB_ID", "DISTRIB_RELEASE", "DISTRIB_DESCRIPTION" }
+	};
+	
+	QFile releaseFile;
+	for (int i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
+		OsRelease &release = files[i];
+		releaseFile.setFileName(QLatin1String(release.fileName));
+		if (!releaseFile.open(QFile::ReadOnly))
+			continue;
+		const QString content = QString::fromUtf8(releaseFile.readAll());
+		foreach (const QString &line, content.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
+			const QString name = line.section(QLatin1Char('='), 0, 0);
+			QString value = line.section(QLatin1Char('='), 1);
+			if (value.startsWith(QLatin1Char('"')))
+				value.remove(0, 1);
+			if (value.endsWith(QLatin1Char('"')))
+				value.chop(1);
+			
+			if (name == QLatin1String(release.name))
+				d->os_name = value;
+			else if (name == QLatin1String(release.version))
+				d->os_version = value;
+			else if (name == QLatin1String(release.prettyName))
+				d->os_full = value;
+		}
+		return true;
+	}
+	return false;
+}
+
 static QString unixHeuristicDetect(SystemInfoPrivate *d)
 {
 	QString ret;
@@ -169,7 +220,6 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 	OsInfo osInfo[] = {
 		{ OsUseFile,		"/etc/altlinux-release",	"Alt Linux"		},
 		{ OsUseFile,		"/etc/mandrake-release",	"Mandrake Linux"	},
-		{ OsUseName,		"/usr/lib/libQtMaemo5.so.4","Maemo 5"		},
 		{ OsAppendFile,		"/etc/debian_version",		"Debian GNU/Linux"	},
 		{ OsUseFile,		"/etc/gentoo-release",		"Gentoo Linux"		},
 		{ OsAppendFile,		"/etc/mopslinux-version",	"MOPSLinux"		},
@@ -185,7 +235,6 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 		{ OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
 		{ OsAppendFile,		"/etc/agilialinux-version",	"AgiliaLinux"		},
 		// from libastral
-		{ OsUseFile,		"/etc/meego-release",		"MeeGo"			},
 		{ OsUseName,		"/etc/exherbo-release",		"Exherbo Linux"	 },
 
 
@@ -351,17 +400,35 @@ void init(SystemInfoPrivate *d)
 			d->os_full += ")";
 		}
 	}
+#elif defined(Q_WS_MAEMO_5)
+	d->os_full="Maemo 5 Nokia N900";
+	d->os_name="Maemo";
+	d->os_version="5";
+#elif defined(MEEGO_EDITION)
+	d->os_name = QLatin1String("MeeGo");
+	d->os_version = QString(QLatin1String("%1.%2"))
+	        .arg(MEEGO_VERSION_MAJOR)
+	        .arg(MEEGO_VERSION_MINOR);
+//	        .arg(MEEGO_VERSION_PATCH)
+#ifdef MEEGO_EDITION_HARMATTAN
+	d->os_version += QLatin1String(" Harmattan");
+#endif
+	d->os_full = d->os_name + ' ' + d->os_version;
 #elif defined(Q_WS_X11)
-	// attempt to get LSB version before trying the distro-specific approach
 
-	d->os_full = lsbRelease(QStringList() << "--description" << "--short");
-
-	if (d->os_full.isEmpty()) {
-		unixHeuristicDetect(d);
-	} else {
-		d->os_name = lsbRelease(QStringList() << "--short" << "--id");
-		d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
+	// Firstly try to get info from "/etc/os-release" or compatible as it's faster then invoking lsb_release
+	if (!osReleaseDetect(d)) {
+		// attempt to get LSB version before trying the distro-specific approach
+		d->os_full = lsbRelease(QStringList() << "--description" << "--short");
+	
+		if (d->os_full.isEmpty()) {
+			unixHeuristicDetect(d);
+		} else {
+			d->os_name = lsbRelease(QStringList() << "--short" << "--id");
+			d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
+		}
 	}
+
 
 #elif defined(Q_WS_MAC)
 	SInt32 minor_version, major_version, bug_fix;
@@ -598,3 +665,4 @@ QString SystemInfo::getPath(DirType type)
 	return d->dirs.at(type).absolutePath();
 }
 }
+

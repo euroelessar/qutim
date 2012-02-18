@@ -1,17 +1,27 @@
 /****************************************************************************
- *  clientidentify.cpp
- *
- *  Copyright (c) 2008 by Alexey Ignatiev <twosev@gmail.com>
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2008 Alexey Ignatiev <twosev@gmail.com>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
 ****************************************************************************/
 
 #include <QTextCodec>
@@ -19,13 +29,13 @@
 #include <QStringBuilder>
 #include <qutim/systeminfo.h>
 
-#include "icqcontact.h"
-#include "buddycaps.h"
+#include "../../src/icqcontact.h"
+#include "../../src/buddycaps.h"
 #include "clientidentify.h"
-#include "oscarconnection.h"
-#include "xtraz.h"
-#include "icqprotocol.h"
-#include "icqaccount.h"
+#include "../../src/oscarconnection.h"
+#include "../../src/xtraz.h"
+#include "../../src/icqprotocol.h"
+#include "../../src/icqaccount.h"
 #include <qutim/tooltip.h>
 #include <qutim/contact.h>
 
@@ -807,26 +817,33 @@ void ClientIdentify::identify_Qip()
 
 void ClientIdentify::identify_QipInfium()
 {
-	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7C, 0x73, 0x75, 0x02, 0xC3, 0xBE,
-	                                                            0x4F, 0x3E, 0xA6, 0x9F, 0x01, 0x53,
-	                                                            0x13, 0x43, 0x1E, 0x1A);
-	
+	static const oscar::Capability ICQ_CAPABILITY_QIPINFxVER   (0x7c, 0x73, 0x75, 0x02, 0xc3, 0xbe,
+	                                                            0x4f, 0x3e, 0xa6, 0x9f, 0x01, 0x53,
+	                                                            0x13, 0x43, 0x1e, 0x1a);
 	
 	static const oscar::Capability ICQ_CAPABILITY_QIP2010xVER  (0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
 	                                                            0x0a, 0x03, 0x0b, 0x04, 0x01, 0x53,
 	                                                            0x13, 0x43, 0x1e, 0x1a);
 
+	static const oscar::Capability ICQ_CAPABILITY_QIP2012xVER  (0x7f, 0x7f, 0x7c, 0x7d, 0x7e, 0x7f,
+	                                                            0x0a, 0x03, 0x0b, 0x04, 0x01, 0x53,
+	                                                            0x13, 0x43, 0x1e, 0x1a);
+
 	bool qipInfium = m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER);
 	bool qip2010 = m_client_caps.match(ICQ_CAPABILITY_QIP2010xVER);
+	bool qip2012 = m_client_caps.match(ICQ_CAPABILITY_QIP2012xVER);
 
-	if (qip2010 || qipInfium) {
+	if (qip2012 || qip2010 || qipInfium) {
 		QString icon = "qip";
 		if (qipInfium) {
 			m_client_id = "QIP Infium";
 			icon += "-infium";
-		} else {
+		} else if (qip2010) {
 			m_client_id  = "QIP 2010";
 			icon += "-2010";
+		} else {
+			m_client_id  = "QIP 2012";
+			icon += "-2012";
 		}
 		if (m_info)
 			m_client_id += QString(" (Build %1)").arg((unsigned)m_info);
@@ -1378,3 +1395,4 @@ void ClientIdentify::identify_NaimIcq()
 } } // namespace qutim_sdk_0_3::oscar
 
 QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::ClientIdentify);
+

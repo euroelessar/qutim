@@ -1,0 +1,112 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+
+
+
+CFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+BUILDDIR ?= build
+SOURCEDIR ?= ..
+ifndef _SBOX_DIR
+	FULLBUILD ?= true
+else
+	FULLBUILD ?= false
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+ifeq ($(FULLBUILD),true)
+	cd $(BUILDDIR) && cmake  -DCMAKE_INSTALL_PREFIX="/opt/qutim" -DCMAKE_BUILD_TYPE=release -DQUTIM_DEVELOPER_BUILD=off -DMAEMO6=1 -DDBUSAPI=off -DADDCONTACTDLG=off -DADIUMCHAT=off -DAESCRYPTO=off -DANTIBOSS=off -DASPELLER=off -DASTRAL=off -DAWN=off -DCHATSPELLCHECKER=off -DCONTACTINFO=off -DDATAFORMSBACKEND=off -DEMOTICONSSETTINGS=off -DFILETRANSFER=off -DFILETRANSFERSETTINGS=off -DFLOATIES=off -DHISTMAN=off -DHUMANITY=off -DIDLEDETECTOR=off -DINDICATOR=off -DJOINCHATDIALOG=off -DJOINGROUPCHATDLG=off -DKDEINTEGRATION=off -DKINETICPOPUPS=off -DKINETICSCROLLER=off -DLOGGER=off -DMACINTEGRATION=off -DMETACONTACTS=off -DMIGRATION02X03=off -DMOBILEABOUT=off -DMOBILECONTACTINFO=off -DMOBILESETTINGSDIALOG=off -DNOTIFICATIONSSETTINGS=off -DNOWPLAYING=off -DOLDCONTACTDELEGATE=off -DPLISTCONFIG=off -DPLUGMAN=off -DQMLCHAT=off -DQRCICONS=off -DQSOUNDBACKEND=off -DQUETZAL=off -DSCRIPTAPI=off -DSDLSOUND=off -DSEARCHDIALOG=off -DSIMPLEABOUT=off -DSIMPLECONTACTLIST=off -DSOFTKEYSACTIONBOX=off -DSYMBIANINTEGRATION=off -DTABBEDCHATFORM=off -DTRAYICON=off -DUNITYLAUNCHER=off -DWEATHER=off -DWININTEGRATION=off -DWITH_DOXYGEN=off -DXSETTINGSDIALOG=off -DURLPREVIEW=off -DSHORTCUTSETTINGS=off -DYANDEXNAROD=off -DAUTHDIALOG=off -DDBUSNOTIFICATIONS=off -DACCOUNTCREATOR=off -DURLPREVIEW=off -DSHORTCUTSETTINGS=off -DYANDEXNAROD=off -DBIRTHDAYREMINDER=off -DSIMPLEACTIONBOX=off -DPASSWORD=off -DMULTIMEDIABACKEND=off -DMASSMESSAGING=off $(SOURCEDIR) -L
+endif
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	# Add here commands to compile the package.
+ifeq ($(FULLBUILD),true)
+	$(MAKE) --directory=$(BUILDDIR)
+endif
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	$(MAKE) --directory=$(BUILDDIR) clean
+
+	dh_clean  
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+
+	# Add here commands to install the package into debian/qutim.
+	$(MAKE) --directory=$(BUILDDIR) DESTDIR=$(CURDIR)/debian/qutim install
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installchangelogs 
+#	dh_installdocs
+#	dh_installexamples
+#	dh_install --sourcedir=debian/tmp -v
+#	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+#	export QUILT_PATCHES=debian/patches 
+#	dh_quilt_patch
+#	dh_installman
+	dh_link
+	dh_strip -a --dbg-package=qutim-dbg
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+#	dh_quilt_unpatch
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

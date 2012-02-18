@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "separatedcontactlistmodel.h"
 #include "abstractcontactmodel_p.h"
 #include <qutim/metacontact.h>
@@ -242,7 +266,8 @@ bool SeparatedModel::setData(const QModelIndex &index, const QVariant &value, in
 {
 	if (role == Qt::EditRole && getItemType(index) == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-		item->data->contact->setName(value.toString());
+		if (item->data->contact)
+			item->data->contact.data()->setName(value.toString());
 		return true;
 	}
 	return false;
@@ -265,9 +290,12 @@ QMimeData *SeparatedModel::mimeData(const QModelIndexList &indexes) const
 	QLatin1String type("");
 	if (itemType == ContactType) {
 		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-		mimeData->setText(item->data->contact->id());
-		type = QUTIM_MIME_CONTACT_INTERNAL;
-		mimeData->setObject(item->data->contact);
+		if (item->data->contact) {
+			Contact *contact = item->data->contact.data();
+			mimeData->setText(contact->id());
+			type = QUTIM_MIME_CONTACT_INTERNAL;
+			mimeData->setObject(contact);
+		}
 	} else if (itemType == TagType) {
 		TagItem *item = reinterpret_cast<TagItem*>(index.internalPointer());
 		mimeData->setText(item->name);
@@ -331,7 +359,6 @@ void SeparatedModel::removeFromContactList(Contact *contact, bool deleted)
 		delete item;
 	}
 	d->contacts.remove(contact);
-	d->unreadContacts.remove(contact);
 }
 
 void SeparatedModel::contactDeleted(QObject *obj)
@@ -518,7 +545,8 @@ void SeparatedModel::processEvent(ChangeEvent *ev)
 		QSet<QString> tags = item->data->tags;
 		tags.remove(item->parent->name);
 		tags.insert(tag->name);
-		item->data->contact->setTags(tags.toList());
+		if (item->data->contact)
+			item->data->contact.data()->setTags(tags.toList());
 		debug() << "Moving contact from" << item->data->tags << "to" << tags;
 	} else if (ev->type == ChangeEvent::MoveTag) {
 		moveTag<AccountItem, TagItem, ContactItem>(ev);
@@ -553,3 +581,4 @@ void SeparatedModel::saveTagOrder(AccountItem *accountItem)
 
 }
 }
+

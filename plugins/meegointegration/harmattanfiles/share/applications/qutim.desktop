@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=qutIM
+Name[ru]=qutIM
+GenericName=qutIM Instant Messenger
+GenericName[ru]=Клиент сервисов мгновенных сообщений qutIM
+Comment=Communicate over IM
+Comment[ru]=Общение через сеть мгновенных сообщений
+Exec=/usr/bin/invoker --single-instance --splash=/opt/qutim/share/apps/qutim/declarative/meego/qutim-portrait.png --splash-landscape=/opt/qutim/share/apps/qutim/declarative/meego/qutim-landscape.png --type=e /opt/qutim/bin/qutim
+Icon=/usr/share/icons/hicolor/80x80/apps/qutim.png
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;Qt;
+X-DBUS-ServiceName=org.qutim

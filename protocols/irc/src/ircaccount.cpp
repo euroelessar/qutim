@@ -1,17 +1,27 @@
 /****************************************************************************
- *  icqaccount.cpp
- *
- *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "ircaccount_p.h"
 #include "ircprotocol_p.h"
@@ -287,7 +297,7 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 		str += html;
 	}
 	if (d->consoleForm)
-		d->consoleForm->appendMessage(str);
+		d->consoleForm.data()->appendMessage(str);
 	if (!d->log.isEmpty())
 		d->log += "<br>";
 	d->log += str;
@@ -339,24 +349,24 @@ void IrcAccount::updateSettings()
 void IrcAccount::showConsole()
 {
 	if (d->consoleForm) {
-		d->consoleForm->raise();
+		d->consoleForm.data()->raise();
 	} else {
 		d->consoleForm = new IrcConsoleFrom(this, d->log);
-		d->consoleForm->setAttribute(Qt::WA_DeleteOnClose);
-		centerizeWidget(d->consoleForm);
-		d->consoleForm->show();
+		d->consoleForm.data()->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->consoleForm.data());
+		d->consoleForm.data()->show();
 	}
 }
 
 void IrcAccount::showChannelList()
 {
 	if (d->channelListForm) {
-		d->channelListForm->raise();
+		d->channelListForm.data()->raise();
 	} else {
 		d->channelListForm = new IrcChannelListForm(this);
-		d->channelListForm->setAttribute(Qt::WA_DeleteOnClose);
-		centerizeWidget(d->channelListForm);
-		d->channelListForm->show();
+		d->channelListForm.data()->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->channelListForm.data());
+		d->channelListForm.data()->show();
 	}
 }
 
@@ -400,3 +410,4 @@ void IrcAccount::onContactNickChanged(const QString &nick, const QString &oldNic
 }
 
 } } // namespace qutim_sdk_0_3::irc
+

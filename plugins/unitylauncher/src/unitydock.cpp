@@ -1,19 +1,29 @@
 /****************************************************************************
- * unitydock.cpp
- *  Copyright © 2011, Vsevolod Velichko <torkvema@gmail.com>.
- *  Licence: GPLv2 or later
- *
- ****************************************************************************
- *                                                                          *
- *   This library is free software; you can redistribute it and/or modify   *
- *   it under the terms of the GNU General Public License as published by   *
- *   the Free Software Foundation; either version 2 of the License, or      *
- *   (at your option) any later version.                                    *
- *                                                                          *
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Vsevolod Velichko <torkvema@gmail.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "unitydock.h"
-#include <dbusmenuexporter.h>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QVariantList>
@@ -49,13 +59,14 @@ void UnityDock::setOverlayIcon(const QIcon &)
 
 void UnityDock::setMenu(QMenu *menu)
 {
-	if(menu)
-	{
-		DBusMenuExporter exporter("/qutim", menu);
+	if (m_menu)
+		delete m_menu.data();
+	if (menu) {
+		m_menu = new DBusMenuExporter("/qutim", menu);
 		sendMessage("quicklist", "/qutim");
-	}
-	else
+	} else {
 		sendMessage("quicklist", "");
+	}
 }
 
 void UnityDock::setProgress(int progress)
@@ -81,3 +92,4 @@ void UnityDock::setAlert(bool on)
 {
 	sendMessage("urgent", on);
 }
+

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.2
+Type=Application
+Name=qutIM
+Exec=/opt/qutim/bin/qutim
+Icon=qutim

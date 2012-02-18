@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 // I don't like msvc's "safe" functions, so I force silence
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -53,9 +77,9 @@ void LoggerPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Simple file based logger for debug"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Sidorov Aleksey"),
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("gorthauer87@yandex.ru"),
 			  QLatin1String("sauron.me"));
 	m_settingsItem = NULL;
 }
@@ -130,3 +154,4 @@ bool LoggerPlugin::unload()
 }
 
 QUTIM_EXPORT_PLUGIN(Logger::LoggerPlugin)
+

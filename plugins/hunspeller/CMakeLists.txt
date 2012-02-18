@@ -6,7 +6,7 @@ find_path(HUNSPELL_INCLUDE_DIR hunspell.hxx
   /usr/include
   )
 
-set(HUNSPELL_NAMES ${HUNSPELL_NAMES} hunspell hunspell-1.2)
+set(HUNSPELL_NAMES ${HUNSPELL_NAMES} hunspell hunspell-1.2 hunspell-1.3)
 find_library(HUNSPELL_LIBRARY
   NAMES ${HUNSPELL_NAMES}
   PATHS /usr/lib /usr/local/lib

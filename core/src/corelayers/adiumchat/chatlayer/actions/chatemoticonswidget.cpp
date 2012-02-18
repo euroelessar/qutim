@@ -1,3 +1,29 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Evgeniy Degtyarev <degtep@gmail.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "chatemoticonswidget.h"
 #include <QLabel>
 #include <QHash>
@@ -13,6 +39,8 @@
 #include <QDesktopWidget>
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
+
+#include <QPlainTextEdit>
 
 namespace Core
 {
@@ -98,10 +126,8 @@ void ChatEmoticonsWidget::stop()
 void ChatEmoticonsWidget::showEvent(QShowEvent *)
 {
 	play();
-#ifndef Q_WS_MAEMO_5
 	FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
 	widget()->resize(width(),layout->heightForWidth(width()));
-#endif
 }
 
 void ChatEmoticonsWidget::hideEvent(QHideEvent *)
@@ -142,6 +168,27 @@ void EmoAction::onInsertSmile(const QString &code)
 	emit triggered();
 	setProperty("emoticon","");
 }
+#ifdef Q_WS_MAEMO_5
+void EmoAction::orientationChanged()
+{
+	if (m_emoticons_widget->isVisible())
+	{
+		QRect screenGeometry = QApplication::desktop()->screenGeometry();
+		if (screenGeometry.width() > screenGeometry.height())
+		{
+			//This crap need to completely remake!
+			m_emoticons_widget->hide();
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
+			m_emoticons_widget->show();
+		}else{
+			m_emoticons_widget->hide();
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
+			m_emoticons_widget->show();
+		}
+	}
+}
+#endif
+
 void EmoAction::triggerEmoticons()
 {
 #ifdef Q_WS_MAEMO_5
@@ -150,18 +197,18 @@ void EmoAction::triggerEmoticons()
 		m_emoticons_widget->loadTheme();
 		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
-		emoticons_widget->setParent(qApp->activeWindow());
+                m_emoticons_widget->setParent(qApp->activeWindow());
 	}
 	if (m_emoticons_widget->isVisible()) {
 		m_emoticons_widget->hide();
 	} else {
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
-		if (screenGeometry.width() > screenGeometry.height()) {
-			//smith, please use relative coordinates
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
-		}
-		else {
-			m_emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
+		if (screenGeometry.width() > screenGeometry.height())
+		{
+			//This crap need to completely remake!
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
+		}else{
+			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
 		}
 		m_emoticons_widget->show();
 	}

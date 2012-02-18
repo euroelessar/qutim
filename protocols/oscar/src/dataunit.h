@@ -1,24 +1,33 @@
 /****************************************************************************
- *  dataunit.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef DATAUNIT_H
 #define DATAUNIT_H
 
 #include "util.h"
-#include <icq_global.h>
+#include "icq_global.h"
 #include <typeinfo>
 #include <limits>
 
@@ -51,6 +60,7 @@ public:
 	inline QByteArray readAll() const;
 	int state() const { return m_state; }
 	void setMaxSize(int size) { m_max_size = size; }
+	bool canAppend(int size) { return m_data.size() + size <= m_max_size; }
 	template<typename T>
 	void append(const T& data);
 	void append(const char *data);
@@ -388,3 +398,4 @@ T DataUnit::read(QTextCodec *codec, ByteOrder bo) const
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // DATAUNIT_H
+

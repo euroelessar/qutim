@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "metacontactimpl.h"
 #include "manager.h"
@@ -94,20 +103,17 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 	if (m_contacts.contains(contact) || (contact == this))
 		return;
 
-	bool haveChanges = false;
 	if(update) {
 		QStringList previous = m_tags;
 		QStringList contactTags = contact->tags();
 		for (int i = 0; i < contactTags.size(); i++) {
 			if (!m_tags.contains(contactTags.at(i))) {
 				m_tags << contactTags.at(i);
-				haveChanges = true;
 			}
 		}
 		emit tagsChanged(m_tags, previous);
 	}
 
-	haveChanges = false; //WTF?
 	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 			- m_contacts.begin();
 	m_contacts.insert(index, contact);
@@ -130,7 +136,7 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 
 void MetaContactImpl::addContact(Contact *contact)
 {
-	addContact(contact,true);
+	addContact(contact, true);
 }
 
 void MetaContactImpl::removeContact(Contact *contact)

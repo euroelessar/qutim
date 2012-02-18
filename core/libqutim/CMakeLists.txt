@@ -11,21 +11,19 @@ FILE( GLOB HDR_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.h" )
 LIST( APPEND SRC ${SRC_GAME} )
 LIST( APPEND HDR ${HDR_GAME} )
 
-# Add JDns sources
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns.c"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_mdnsd.c"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_packet.c"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_sys.c"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_util.c"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_sock.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_p.h" )
-
-# Add K8JSON code
-ADD_DEFINITIONS( -DK8JSON_INCLUDE_GENERATOR -DK8JSON_INCLUDE_COMPLEX_GENERATOR )
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
-# LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
+# Add K8JSON
+option( SYSTEM_K8JSON "Use system k8json" off )
+add_definitions( -DK8JSON_INCLUDE_GENERATOR -DK8JSON_INCLUDE_COMPLEX_GENERATOR )
+if( SYSTEM_K8JSON )
+	find_package( PkgConfig )
+	pkg_check_modules( K8JSON REQUIRED k8json )
+	add_definitions( -DK8JSON_LIB_DLL )
+	include_directories( ${K8JSON_INCLUDE_DIRS} )
+	list( APPEND EXTRA_LIBS ${K8JSON_LIBRARIES} )
+else()
+	list( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
+	include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty" )
+endif()
 
 # Add qtdwm code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
@@ -59,14 +57,6 @@ if(MINGW)
     LIST( APPEND COMPILE_FLAGS "-mthreads" )
 endif(MINGW)
 
-# Require QT 4.6
-SET( QT_MIN_VERSION "4.6.0" )
-
-# Set QT modules
-SET( QT_USE_QTNETWORK TRUE )
-SET( QT_USE_QTGUI FALSE )
-
-# Search for QT4
 FIND_PACKAGE( Qt4 REQUIRED )
 
 option(WITH_DOXYGEN "" ON)
@@ -83,7 +73,6 @@ INCLUDE( ${QT_USE_FILE} )
 INCLUDE_DIRECTORIES(
 	.
 	..
-	../sdk02/
 	../3rdparty/k8json/
 	../3rdparty/jdns/
 	../3rdparty/qtdwm/
@@ -137,7 +126,7 @@ foreach( header ${QUTIM_INCLUDE_HEADERS} )
 endforeach( header )
 
 list( APPEND QUTIM_INSTALL_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
-set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
+set( QUTIM_LIBRARY libqutim CACHE INTERNAL "" )
 set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include" CACHE INTERNAL "" )
 QUTIM_GENERATE_INCLUDES("qutim" "${QUTIM_INSTALL_HEADERS}")
 QUTIM_GENERATE_INCLUDES("qutim_hook" "${CMAKE_CURRENT_SOURCE_DIR}/libqutim_global.h")
@@ -176,7 +165,9 @@ INSTALL(FILES ${QUTIM_INSTALL_HEADERS}
 		COMPONENT CoreDevel
 )
 
-if(DOXYGEN_FOUND)
+option( QUTIM_GENERATE_DOCS "Generate documentation for libqutim" on )
+
+if( DOXYGEN_FOUND AND QUTIM_GENERATE_DOCS )
     add_subdirectory(doc)
     set(DOC_TARGET "doc")
     configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)

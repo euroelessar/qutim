@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -27,7 +27,7 @@
 #define XMLCONSOLE_H
 
 #include <QtGui/QWidget>
-#include "sdk/jabber.h"
+#include "../../../sdk/jabber.h"
 #include <jreen/client.h>
 #include <jreen/jid.h>
 #include <QXmlStreamReader>
@@ -48,7 +48,7 @@ public:
 	XmlConsole(QWidget *parent = 0);
 	~XmlConsole();
 
-	void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	void init(qutim_sdk_0_3::Account *account);
 	virtual void handleStreamBegin();
 	virtual void handleStreamEnd();
 	virtual void handleIncomingData(const char *data, qint64 size);
@@ -118,6 +118,13 @@ private:
 				endTag.name = new QStringRef(endTag.namePointer, tmp.position(), tmp.length());
 			}
 		}
+		StackToken(const QString &name)
+		{
+			type = QXmlStreamReader::Characters;
+			charachters.textPointer = new QString(name);
+			charachters.text = new QStringRef(charachters.textPointer);
+		}
+
 		~StackToken()
 		{
 			if (type == QXmlStreamReader::StartElement) {
@@ -162,6 +169,7 @@ private:
 		State state;
 		int depth;
 		QList<StackToken*> tokens;
+		QColor commentColor;
 		QColor bodyColor;
 		QColor tagColor;
 		QColor attributeColor;
@@ -184,3 +192,4 @@ private slots:
 }
 
 #endif // XMLCONSOLE_H
+

@@ -1,22 +1,30 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatlayerplugin.h"
 #include "chatlayerimpl.h"
-#include "timemodifier/timemodifier.h"
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
@@ -77,15 +85,7 @@ void ChatLayerPlugin::init()
 	setInfo(name, description, QUTIM_VERSION);
 	setCapabilities(Loadable);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
-	addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(
-				QT_TRANSLATE_NOOP("Plugin", "Time modifier"),
-				QT_TRANSLATE_NOOP("Plugin", "Modifier for %time% and %timeOpened% param, based on Apple's documentation"));
 
-	//temporary
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Perova Gala"),
-			  QT_TRANSLATE_NOOP("Task", "Artist"),
-			  QLatin1String("naitmara@mail.ru"),
-			  QLatin1String("http://dawsnest.ru"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Rederick Asher"),
 			  QT_TRANSLATE_NOOP("Task", "Artist"),
 			  QLatin1String("chaoticblack@gmail.com"),
@@ -186,3 +186,4 @@ void ChatLayerPlugin::onQuote(QObject *controller)
 }
 
 QUTIM_EXPORT_PLUGIN(Core::AdiumChat::ChatLayerPlugin)
+

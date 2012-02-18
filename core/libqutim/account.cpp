@@ -1,41 +1,84 @@
 /****************************************************************************
- *  account.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include <QPointer>
 #include <QStringBuilder>
 #include "account_p.h"
 #include "contact.h"
 #include "debug.h"
-#include "notificationslayer.h"
+#include "notification.h"
+#include "groupchatmanager.h"
 
 namespace qutim_sdk_0_3
 {
-Account::Account(const QString &id, Protocol *protocol) : MenuController(*new AccountPrivate(this), protocol)
+AccountHook::AccountHook(AccountPrivate &p, Protocol *protocol)
+    : MenuController(p, protocol)
+{
+}
+
+const QMetaObject *AccountHook::metaObject() const
+{
+	return &Account::staticMetaObject;
+}
+
+void *AccountHook::qt_metacast(const char *name)
+{
+//	Account * const that = static_cast<Account*>(this);
+//    if (!qstrcmp(name, qobject_interface_iid<GroupChatManager*>()))
+//        return static_cast<void*>(that->groupChatManager());
+//    if (!qstrcmp(name, qobject_interface_iid<ContactsFactory*>()))
+//        return static_cast<void*>(that->contactsFactory());
+//    if (!qstrcmp(name, qobject_interface_iid<InfoRequestFactory*>()))
+//        return static_cast<void*>(that->infoRequestFactory());
+	return MenuController::qt_metacast(name);
+}
+
+int AccountHook::qt_metacall(QMetaObject::Call call, int id, void **data)
+{
+	return MenuController::qt_metacall(call, id, data);
+}
+
+Account::Account(const QString &id, Protocol *protocol)
+    : AccountHook(*new AccountPrivate(this), protocol)
 {
 	Q_D(Account);
 	d->protocol = protocol;
 	d->id = id;
 	d->groupChatManager = 0;
+	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
-Account::Account(AccountPrivate &p, Protocol *protocol) : MenuController(p, protocol)
+Account::Account(AccountPrivate &p, Protocol *protocol)
+    : AccountHook(p, protocol)
 {
 	Q_D(Account);
 	d->protocol = protocol;
 	d->groupChatManager = 0;
 	d->contactsFactory = 0;
+	d->infoRequestFactory = 0;
 }
 
 Account::~Account()
@@ -60,8 +103,8 @@ Config Account::config()
 {
 	Q_D(Account);
 	QStringList paths;
-	paths << d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
-	paths << d->protocol->id();
+	paths << d->protocol.data()->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
+	paths << d->protocol.data()->id();
 	return Config(paths);
 }
 
@@ -77,12 +120,12 @@ Status Account::status() const
 
 Protocol *Account::protocol()
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 const Protocol *Account::protocol() const
 {
-	return d_func()->protocol;
+	return d_func()->protocol.data();
 }
 
 void Account::setStatus(Status status)
@@ -115,6 +158,20 @@ ChatUnit *Account::getUnitForSession(ChatUnit *unit)
 	return unit;
 }
 
+QVariantMap Account::parameters() const
+{
+	QVariantMap result;
+	const_cast<Account*>(this)->virtual_hook(ReadParametersHook, &result);
+	return result;
+}
+
+QStringList Account::updateParameters(const QVariantMap &parameters)
+{
+	UpdateParametersArgument argument = { parameters, QStringList() };
+	virtual_hook(UpdateParametersHook, &argument);
+	return argument.reconnectionRequired;
+}
+
 AccountList Account::all()
 {
 	AccountList list;
@@ -132,6 +189,11 @@ GroupChatManager *Account::groupChatManager()
 ContactsFactory *Account::contactsFactory()
 {
 	return d_func()->contactsFactory;
+}
+
+InfoRequestFactory *Account::infoRequestFactory() const
+{
+	return d_func()->infoRequestFactory;
 }
 
 void Account::resetGroupChatManager(GroupChatManager *manager)
@@ -155,4 +217,10 @@ void Account::setContactsFactory(ContactsFactory *factory)
 	d_func()->contactsFactory = factory;
 }
 
+void Account::setInfoRequestFactory(InfoRequestFactory *factory)
+{
+	d_func()->infoRequestFactory = factory;
 }
+
+}
+

@@ -71,7 +71,7 @@
             <string>Get Filelist</string>
            </property>
            <property name="icon">
-            <iconset resource="yandexnarod.qrc">
+            <iconset resource="../yandexnarod.qrc">
              <normaloff>:/icons/reload.png</normaloff>:/icons/reload.png</iconset>
            </property>
           </widget>
@@ -82,7 +82,7 @@
             <string>Upload File</string>
            </property>
            <property name="icon">
-            <iconset resource="yandexnarod.qrc">
+            <iconset resource="../yandexnarod.qrc">
              <normaloff>:/icons/upload.png</normaloff>:/icons/upload.png</iconset>
            </property>
           </widget>
@@ -139,7 +139,7 @@
             <string>Clipboard</string>
            </property>
            <property name="icon">
-            <iconset resource="yandexnarod.qrc">
+            <iconset resource="../yandexnarod.qrc">
              <normaloff>:/icons/clipboard.png</normaloff>:/icons/clipboard.png</iconset>
            </property>
            <property name="flat">
@@ -159,7 +159,7 @@
             <string>Delete File</string>
            </property>
            <property name="icon">
-            <iconset resource="yandexnarod.qrc">
+            <iconset resource="../../weather/weather.qrc">
              <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
            </property>
           </widget>
@@ -207,7 +207,7 @@
          <item>
           <widget class="QLabel" name="labelStatus">
            <property name="text">
-            <string>line1
+            <string notr="true">line1
 line2</string>
            </property>
            <property name="wordWrap">
@@ -252,7 +252,7 @@ line2</string>
             <string>Close</string>
            </property>
            <property name="icon">
-            <iconset resource="yandexnarod.qrc">
+            <iconset resource="../yandexnarod.qrc">
              <normaloff>:/icons/close.png</normaloff>:/icons/close.png</iconset>
            </property>
           </widget>
@@ -312,7 +312,8 @@ line2</string>
   </layout>
  </widget>
  <resources>
-  <include location="yandexnarod.qrc"/>
+  <include location="../../weather/weather.qrc"/>
+  <include location="../yandexnarod.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -1,27 +1,35 @@
 /****************************************************************************
- *  icqcontact.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "icqcontact_p.h"
 #include "messages.h"
 #include "buddycaps.h"
 #include "icqaccount_p.h"
 #include "metainfo/infometarequest.h"
-#include "inforequest_p.h"
 #include "qutim/messagesession.h"
-#include "qutim/notificationslayer.h"
+#include "qutim/notification.h"
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
 #include <QApplication>
@@ -47,25 +55,25 @@ void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 
 void ChatStateUpdater::sendState()
 {
-	while (!m_states.isEmpty()) {
-		Status::Type status = m_states.begin().key()->account()->status().type();
-		if (status == Status::Offline || status == Status::Connecting)
-			m_states.erase(m_states.begin()); // We can't send any packets in offline or connecting state.
-		else
-			break;
+	QMutableHashIterator<QWeakPointer<IcqContact>, ChatState> it(m_states);
+	while (it.hasNext()) {
+		IcqContact *contact = it.next().key().data();
+		if (!contact) {
+			it.remove(); // Contact is destroyed
+			continue;
+		}
+		Status::Type status = contact->account()->status().type();
+		if (status == Status::Offline || status == Status::Connecting) {
+			it.remove(); // We can't send any packets in offline or connecting state.
+			continue;
+		}
+		if (contact->account()->connection()->testRate(MessageFamily, MessageMtn)) {
+			sendState(contact, it.value());
+			it.remove();
+		}
 	}
-	if (m_states.isEmpty()) {
+	if (m_states.isEmpty())
 		m_timer.stop();
-		return;
-	}
-	QHash<IcqContact*, ChatState>::iterator itr = m_states.begin();
-	IcqContact *contact = itr.key();
-	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn)) {
-		sendState(contact, itr.value());
-		m_states.erase(itr);
-		if (m_states.isEmpty())
-			m_timer.stop();
-	}
 }
 
 void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
@@ -89,7 +97,7 @@ void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
 	contact->account()->connection()->send(sn);
 }
 
-Q_GLOBAL_STATIC(ChatStateUpdater, chatStateUpdater);
+Q_GLOBAL_STATIC(ChatStateUpdater, chatStateUpdater)
 
 void IcqContactPrivate::clearCapabilities()
 {
@@ -125,18 +133,10 @@ void IcqContactPrivate::setCapabilities(const Capabilities &caps)
 
 FeedbagItem IcqContactPrivate::getNotInListGroup()
 {
-	const QString groupNameStr = QT_TRANSLATE_NOOP("ContactList", "General");
-	FeedbagItem group = account->feedbag()->groupItem(not_in_list_group, Feedbag::CreateItem);
+	FeedbagItem group = account->feedbag()->groupItem(QLatin1String("Default Group"), Feedbag::CreateItem);
 	if (!group.isInList()) {
-		QString groupName(groupNameStr);
-		for (int i = 1;; ++i) {
-			if (!account->feedbag()->containsItem(SsiGroup, groupName)) {
-				group.setName(groupName);
-				break;
-			}
-			groupName = QString("%1 %2").arg(groupNameStr).arg(i);
-		}
-		group.update();
+		group.setField(SsiGroupDefault);
+		group.add();
 	}
 	return group;
 }
@@ -148,6 +148,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	d->q_ptr = this;
 	d->account = account;
 	d->uin = uin;
+	d->isInList = false;
 	d->status = Status::Offline;
 	d->clearCapabilities();
 	d->state = ChatStateGone;
@@ -161,13 +162,7 @@ IcqContact::~IcqContact()
 QStringList IcqContact::tags() const
 {
 	Q_D(const IcqContact);
-	QStringList groups = d->tags;
-	foreach (const FeedbagItem &item, d->items) {
-		FeedbagItem group = d->account->feedbag()->groupItem(item.groupId());
-		if (!group.isNull() && group.groupId() != not_in_list_group && !d->tags.contains(group.name(), Qt::CaseSensitive))
-			groups << group.name();
-	}
-	return groups;
+	return d->tags;
 }
 
 QString IcqContact::id() const
@@ -179,10 +174,7 @@ QString IcqContact::id() const
 QString IcqContact::name() const
 {
 	Q_D(const IcqContact);
-	if (!d->name.isEmpty())
-		return d->name;
-	else
-		return d->uin;
+	return d->name;
 }
 
 Status IcqContact::status() const
@@ -193,8 +185,7 @@ Status IcqContact::status() const
 
 QString IcqContact::avatar() const
 {
-	Q_D(const IcqContact);
-	return d->avatar;
+	return d_func()->avatar;
 }
 
 QString IcqContact::proto() const
@@ -204,8 +195,7 @@ QString IcqContact::proto() const
 
 bool IcqContact::isInList() const
 {
-	Q_D(const IcqContact);
-	return !d->items.isEmpty();
+	return d_func()->isInList;
 }
 
 bool IcqContact::sendMessage(const Message &message)
@@ -218,78 +208,79 @@ bool IcqContact::sendMessage(const Message &message)
 void IcqContact::setName(const QString &name)
 {
 	Q_D(IcqContact);
-	d->name = name;
-	d->requestNick(); // requestNick will do nothing if the name is not empty
-	foreach (FeedbagItem item, d->items) {
-		if (!name.isEmpty())
-			item.setField(SsiBuddyNick, name);
-		else
-			item.removeField(SsiBuddyNick);
-		item.update();
-	}
+	
+	FeedbagItem item = d->account->feedbag()->buddyForChange(d->uin);
+	if (!item.isInList())
+		return;
+	
+	if (!name.isEmpty())
+		item.setField(SsiBuddyNick, name);
+	else
+		item.removeField(SsiBuddyNick);
+	item.update();
+	
+	
+//	if (d->item.isNull())
+//		return;
+//	d->name = name;
+//	d->requestNick(); // requestNick will do nothing if the name is not empty
+//	if (!name.isEmpty())
+//		d->item.setField(SsiBuddyNick, name);
+//	else
+//		d->item.removeField(SsiBuddyNick);
+//	if (d->item.isInList())
+//		d->item.update();
+////	foreach (FeedbagItem item, d->items) {
+////		if (!name.isEmpty())
+////			item.setField(SsiBuddyNick, name);
+////		else
+////			item.removeField(SsiBuddyNick);
+////		item.update();
+//	}
 }
 
 void IcqContact::setTags(const QStringList &tags)
 {
 	Q_D(IcqContact);
-	Status::Type status = d->account->status().type();
-	if (!isInList() || status == Status::Offline || status == Status::Connecting)
+	if (d->tags == tags)
 		return;
-	Feedbag *f = d->account->feedbag();
-	f->beginModify();
-	setGroup(tags.isEmpty() ? QString() : tags.first());
-	DataUnit tagsData;
+	
+	Feedbag *feedbag = d->account->feedbag();
+	FeedbagItem item = feedbag->buddyForChange(d->uin);
+	if (!item.isInList())
+		return;
+	
+	FeedbagItem groupItem;
+	foreach (const QString &tag, tags) {
+		groupItem = feedbag->groupItem(tag);
+		if (!groupItem.isNull())
+			break;
+	}
+	if (groupItem.isNull()) {
+		QString group = tags.value(0);
+		FeedbagItem groupItem;
+		if (group.isEmpty())
+			groupItem = d->getNotInListGroup();
+		else
+			groupItem = feedbag->groupItem(group, Feedbag::GenerateId);
+		if (!groupItem.isInList())
+			groupItem.add();
+	}
+	
+	if (item.groupId() != groupItem.groupId()) {
+		FeedbagItem oldItem = item;
+		oldItem.remove();
+		
+		item.setInList(false);
+		item.setId(feedbag->uniqueItemId(SsiBuddy));
+		item.setGroup(groupItem.groupId());
+	}
+	
+	TLV tagsData(SsiBuddyTags);
 	foreach (const QString &tag, tags)
 		tagsData.append<quint16>(tag);
-	FeedbagItem tagsItem = f->item(SsiTags, id(), 0, Feedbag::GenerateId);
-	tagsItem.setField(SsiBuddyTags, tagsData);
-	tagsItem.update();
-	f->endModify();
-}
-
-void IcqContact::setGroup(const QString &group)
-{
-	Q_D(IcqContact);
-	Feedbag *f = d->account->feedbag();
-	bool modify = !f->isModifyStarted();
-	if (modify)
-		f->beginModify();
-	bool found = false;
-	QList<FeedbagItem> items = d->items;
-	FeedbagItem newGroup;
-	if (group.isEmpty())
-		newGroup = d->getNotInListGroup();
-	else
-		newGroup = f->groupItem(group, Feedbag::GenerateId);
-	if (newGroup.isInList()) {
-		QList<FeedbagItem>::iterator itr = items.begin();
-		QList<FeedbagItem>::iterator endItr = items.end();
-		while (itr != endItr) {
-			if (itr->groupId() == newGroup.groupId()) {
-				// The contact is already contained in the group.
-				found = true;
-				items.erase(itr); // This item should not be removed from server.
-				break;
-			}
-			++itr;
-		}
-	} else {
-		newGroup.update();
-	}
-	if (!found) {
-		// Copy the contact to the group.
-		FeedbagItem newItem = f->item(SsiBuddy, id(), newGroup.groupId(), Feedbag::GenerateId);
-		newItem.setData(d->items.first().constData());
-		newItem.update();
-	}
-	// Remove unnecessary items
-	foreach (FeedbagItem item, items) {
-		item.remove();
-		if (f->group(item.groupId()).count() <= 1)
-			f->removeItem(SsiGroup, item.groupId());
-	}
-	if (modify)
-		f->endModify();
+	item.setField(tagsData);
+	item.updateOrAdd();
 }
 
 void IcqContact::setInList(bool inList)
@@ -297,18 +288,17 @@ void IcqContact::setInList(bool inList)
 	Q_D(IcqContact);
 	if (inList == isInList())
 		return;
+	FeedbagItem item = d->account->feedbag()->buddyForChange(d->uin);
 	if (inList) {
-		Feedbag *f = d->account->feedbag();
-		f->beginModify();
-		FeedbagItem item;
-		item = f->item(SsiBuddy, id(), d->getNotInListGroup().groupId(),
-					   Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setField<QString>(SsiBuddyNick, id());
-		item.update();
-		f->endModify();
+		if (item.isInList())
+			return;
+		FeedbagItem group = d->getNotInListGroup();
+		item.setGroup(group.groupId());
+		item.add();
 	} else {
-		foreach (FeedbagItem item, d->items)
-			item.remove();
+		if (!item.isInList())
+			return;
+		item.remove();
 	}
 }
 
@@ -334,7 +324,7 @@ void IcqContact::setAvatar(const QString &avatar)
 	emit avatarChanged(avatar);
 }
 
-void IcqContact::setStatus(const Status &status)
+void IcqContact::setStatus(const Status &status, bool notification)
 {
 	Q_D(IcqContact);
 	Status previous = d->status;
@@ -346,6 +336,14 @@ void IcqContact::setStatus(const Status &status)
 		d->awaySince = QDateTime();
 		d->regTime = QDateTime();
 	}
+
+	if (notification &&
+		(status.subtype() != previous.subtype() ||
+		 status.text() != previous.text()))
+	{
+		NotificationRequest request(this, status, previous);
+		request.send();
+	}
 	emit statusChanged(status, previous);
 }
 
@@ -354,9 +352,10 @@ ChatState IcqContact::chatState() const
 	return d_func()->state;
 }
 
-QList<FeedbagItem> IcqContact::feedbagItems() const
+void IcqContact::updateFromItem()
 {
-	return d_func()->items;
+	Q_D(IcqContact);
+	FeedbagItem item = d->account->feedbag()->item(SsiBuddy, d->uin);
 }
 
 bool IcqContact::event(QEvent *ev)
@@ -397,28 +396,6 @@ bool IcqContact::event(QEvent *ev)
 							d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate),
 							30);
 		}
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new IcqInfoRequest(this));
-		event->accept();
-	} else if(ev->type() == Authorization::Request::eventType()) {
-		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
-		debug() << "Handle auth request";
-		SNAC snac(ListsFamily, ListsRequestAuth);
-		snac.append<qint8>(id()); // uin.
-		snac.append<qint16>(request->body());
-		snac.append<quint16>(0);
-		account()->connection()->send(snac);
-		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		debug() << "handle auth reply" << (reply->replyType() == Authorization::Reply::Accept);
@@ -448,3 +425,4 @@ void IcqContact::infoReceived(bool ok)
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

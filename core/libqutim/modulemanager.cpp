@@ -1,24 +1,34 @@
 /****************************************************************************
- *  modulemanager.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include <qglobal.h>
 #include "modulemanager_p.h"
 #include "plugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
-#include "notificationslayer.h"
+#include "notification.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
 #include "metaobjectbuilder.h"
@@ -30,6 +40,7 @@
 #include "debug.h"
 #include "servicemanager_p.h"
 #include "libqutim_version.h"
+#include "sound_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -506,6 +517,7 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
   */
 void ModuleManager::initExtensions()
 {
+	Q_UNUSED(Sound::instance());
 	// TODO: remove old API and this hack
 	QList<ConfigBackend*> &configBackends = get_config_backends();
 	if (configBackends.isEmpty()) {
@@ -693,3 +705,4 @@ void ModuleManager::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 }
+

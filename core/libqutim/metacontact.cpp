@@ -1,17 +1,27 @@
 /****************************************************************************
- *  metacontact.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "metacontact.h"
 #include "metacontactmanager.h"
@@ -40,12 +50,12 @@ void MetaContact::addContact(Contact *contact)
 {
 	Q_D(MetaContact);
 	ContactPrivate *c_p = contact->d_func();
-	if (c_p->metaContact == this)
+	if (c_p->metaContact.data() == this)
 		return;
-	MetaContactChangeEvent ev(contact, c_p->metaContact, this);
+	MetaContactChangeEvent ev(contact, c_p->metaContact.data(), this);
 	d->atAddState = true;
 	if (c_p->metaContact)
-		c_p->metaContact->removeContact(contact);
+		c_p->metaContact.data()->removeContact(contact);
 	d->atAddState = false;
 	qApp->sendEvent(this, &ev);
 	qApp->sendEvent(contact, &ev);
@@ -56,7 +66,7 @@ void MetaContact::removeContact(Contact *contact)
 {
 	Q_D(MetaContact);
 	ContactPrivate *c_p = contact->d_func();
-	if (c_p->metaContact == this && !d->atAddState) {
+	if (c_p->metaContact.data() == this && !d->atAddState) {
 		MetaContactChangeEvent ev(contact, this, 0);
 		qApp->sendEvent(this, &ev);
 		qApp->sendEvent(contact, &ev);
@@ -94,3 +104,4 @@ QEvent::Type MetaContactChangeEvent::eventType()
 	return type;
 }
 }
+

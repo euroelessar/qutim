@@ -1,18 +1,27 @@
 /****************************************************************************
- *  messages.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "messages_p.h"
 #include "icqcontact_p.h"
@@ -22,7 +31,7 @@
 #include "buddycaps.h"
 #include "connection.h"
 #include <qutim/objectgenerator.h>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <QHostAddress>
 #include <QApplication>
 
@@ -353,7 +362,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		// qip always requires a message response, even if it has sent
 		// us the message on the channel 1.
 		// TODO: maybe there is another SNAC for the message responses?
-		if (contact->d_func()->flags & srvrelay_support && cookie != 0)
+		if ((contact->d_func()->flags & srvrelay_support) && cookie != 0)
 			sendChannel2Response(contact, MsgPlain, 0, cookie);
 		Message m;
 		if (tlvs.contains(0x0016))
@@ -797,3 +806,4 @@ void MessageSender::messageTimeout(const Cookie &cookie)
 }
 
 } } // namespace qutim_sdk_0_3::oscar
+

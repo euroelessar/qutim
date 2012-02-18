@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "tabbedchatbehavior.h"
 #include "ui_tabbedchatbehavior.h"
 #include <QRadioButton>
@@ -44,7 +68,6 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	connect(ui->tabPositionBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
 	connect(ui->formLayoutBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
 	connect(ui->stateBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
-	connect(ui->notifyBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 	connect(ui->menuBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 }
 
@@ -91,7 +114,6 @@ void TabbedChatBehavior::loadImpl()
 	ui->menuBox->setChecked(m_flags & MenuBar);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
-	ui->notifyBox->setChecked(chat.value<bool>("notificationsInActiveChat", true));
 }
 
 void TabbedChatBehavior::saveImpl()
@@ -113,7 +135,6 @@ void TabbedChatBehavior::saveImpl()
 	history.setValue("maxDisplayMessages",ui->recentBox->value());
 	Config chat = appearance.group("chat");
 	chat.setValue("groupUntil",ui->groupUntil->value());
-	chat.setValue("notificationsInActiveChat", ui->notifyBox->isChecked());
 	appearance.sync();
 }
 
@@ -145,3 +166,4 @@ void TabbedChatBehavior::onValueChanged()
 
 }
 }
+

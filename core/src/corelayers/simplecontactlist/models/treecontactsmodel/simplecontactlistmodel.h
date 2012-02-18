@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #ifndef SIMPLECONTACTLISTMODEL_H
 #define SIMPLECONTACTLISTMODEL_H
 
@@ -38,7 +62,7 @@ public:
 	inline ContactData(const ContactData &other)
 		: QSharedData(other), contact(other.contact), tags(other.tags), items(other.items) {}
 	inline ~ContactData() {}
-	Contact *contact;
+	QWeakPointer<Contact> contact;
 	QSet<QString> tags;
 	QList<ContactItem *> items;
 	Status status;
@@ -52,7 +76,7 @@ public:
 	inline ContactItem(const ContactItem &other) : ItemHelper(ContactType), parent(other.parent), data(other.data) {}
 	inline int index() { return parent->visible.indexOf(this); }
 	inline QModelIndex parentIndex(AbstractContactModel *m);
-	inline Contact *getContact() { return data->contact; }
+	inline Contact *getContact() { return data->contact.data(); }
 	inline Status getStatus() { return data->status; }
 	inline QList<ContactItem*> &siblings(void*) { return parent->visible; }
 	inline bool isInSelectedTag(const QSet<QString> &selectedTags) { return selectedTags.contains(parent->name); }
@@ -111,3 +135,4 @@ private:
 }
 
 #endif // SIMPLECONTACTLISTMODEL_H
+

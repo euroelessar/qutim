@@ -1,17 +1,27 @@
 /****************************************************************************
- *  chatunit.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "chatunit_p.h"
 #include "account.h"
@@ -19,9 +29,9 @@
 #include <QCoreApplication>
 #include <QSet>
 #include "message.h"
-#include "notificationslayer.h"
 #include "metacontact.h"
 #include "conference.h"
+#include "notification.h"
 
 namespace qutim_sdk_0_3
 {
@@ -77,6 +87,11 @@ const Account *ChatUnit::account() const
 	return d_func()->account;
 }
 
+bool ChatUnit::isConference() const
+{
+	return qobject_cast<const Conference*>(this) != NULL;
+}
+
 bool ChatUnit::send(const qutim_sdk_0_3::Message &message)
 {
 	return sendMessage(message);
@@ -106,12 +121,12 @@ void ChatUnit::setChatState(ChatState state)
 	Q_D(ChatUnit);
 	emit chatStateChanged(state,d->chatState);
 	d->chatState = state;
+	if (d->composingNotification)
+		d->composingNotification.data()->reject();
 	if (state == ChatStateComposing) {
-		Message msg;
-		msg.setIncoming(true);
-		msg.setProperty("service", Notification::UserTyping);
-		msg.setProperty("store", false);
-		ChatLayer::get(this,true)->appendMessage(msg);
+		NotificationRequest request(Notification::UserTyping);
+		request.setObject(this);
+		d->composingNotification = request.send();
 	}
 }
 
@@ -191,3 +206,4 @@ const ChatUnit* ChatUnit::getHistoryUnit() const
 }
 
 }
+

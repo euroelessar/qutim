@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -38,13 +38,17 @@ typedef void (*ShortcutHandler)(const QString &id, const QKeySequence &sequence)
 
 struct ShortcutSelf
 {
-	ShortcutInfoHash hash;
-	QList<ShortcutHandler> handlers;
+	ShortcutSelf() : inited(false) {}
 	void init();
 	void updateSequence(const QString &id, const QKeySequence &secuence);
 	static void addUpdateHandler(ShortcutHandler handler);
 	static void removeUpdateHandler(ShortcutHandler handler);
+	
+	bool inited;
+	ShortcutInfoHash hash;
+	QList<ShortcutHandler> handlers;
 };
 }
 
 #endif // SHORTCUT_P_H
+

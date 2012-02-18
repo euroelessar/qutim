@@ -1,18 +1,28 @@
 /****************************************************************************
- *  actiontoolbar.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2010-2011 by Sidorov Aleksey <sauron@citadelspb.com> 
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "actiontoolbar.h"
 #include <QAction>
@@ -50,7 +60,7 @@ static SizeList init_size_map()
 							QT_TRANSLATE_NOOP("ActionToolBar", "Small"),
 							true);
 	//hack for windows
-#if !defined (QUTIM_MOBILE_UI)
+#if !defined(QUTIM_MOBILE_UI)
 	list << createGenerator(22,
 							QT_TRANSLATE_NOOP("ActionToolBar", "Default"),
 							true);
@@ -116,8 +126,8 @@ QMenu *ActionToolBarPrivate::initContextMenu()
 	QMenu *sizeMenu = new QMenu(QObject::tr("Icon size"), contextMenu);
 	group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
 	contextMenu->addMenu(sizeMenu);
-	q->connect(group,SIGNAL(triggered(QAction*)),
-			   q, SLOT(_q_size_action_triggered(QAction*)));
+    q->connect(group, SIGNAL(triggered(QAction*)),
+               q, SLOT(_q_size_action_triggered(QAction*)));
 
 	QMenu *styleMenu = new QMenu(QObject::tr("Tool button style"), contextMenu);
 	group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
@@ -189,19 +199,18 @@ QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator
 {
 	Q_D(ActionToolBar);
 	Q_ASSERT(generator);
-	int index = d->generators.indexOf(generator);
+	ObjectGenerator::Ptr holder = generator->pointerHolder();
+	int index = d->holders.indexOf(holder);
 	if (index != -1)
 		return d->actions.at(index)->action.data();
 	ActionValue::Ptr value = ActionValue::get(generator, this);
 	QAction *action = value->action.data();
 	Q_ASSERT(action);
-//	action->setParent(this);
-	//action->setData(d->data);
 	if (isVisible())
 		ActionGeneratorPrivate::get(generator)->show(action, this);
 
-	d->generators << generator;
 	d->actions << value;
+	d->holders << generator->pointerHolder();
 	bool hasMenu = !!action->menu();
 	QWidget::insertAction(before,action);
 	if (hasMenu) {
@@ -221,9 +230,9 @@ void ActionToolBar::removeAction(const ActionGenerator *generator)
 {
 	Q_D(ActionToolBar);
 	Q_ASSERT(generator);
-	int index = d->generators.indexOf(const_cast<ActionGenerator*>(generator));
+	int index = d->holders.indexOf(const_cast<ActionGenerator*>(generator)->pointerHolder());
 	if (index != -1) {
-		d->generators.removeAt(index);
+		d->holders.removeAt(index);
 		QAction *action = d->actions.takeAt(index)->action.data();
 		QWidget::removeAction(action);
 	}
@@ -244,7 +253,7 @@ void ActionToolBar::setData(const QVariant &var)
 	for (int i = 0; i < d->actions.size(); i++) {
 		if (d->actions.at(i).isNull()) {
 			d->actions.removeAt(i);
-			d->generators.removeAt(i);
+			d->holders.removeAt(i);
 			i--;
 		} else {
 			d->actions.at(i)->action.data()->setData(var);
@@ -262,7 +271,6 @@ void ActionToolBar::mousePressEvent(QMouseEvent *event)
 #ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
-		//d->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
 		ReleaseCapture();
 		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
 		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
@@ -276,7 +284,7 @@ void ActionToolBar::mouseMoveEvent(QMouseEvent *event)
 #ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if(d->moveHookEnabled && event->buttons() & Qt::LeftButton)
-		QWidget::window()->move(event->globalPos() - d->dragPos);
+        QWidget::window()->move(event->globalPos());
 #endif
 	QToolBar::mouseMoveEvent(event);
 }
@@ -322,12 +330,20 @@ void ActionToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 		QToolBar::setToolButtonStyle(toolButtonStyle);
 }
 
+void ActionToolBar::clear()
+{
+	d_func()->actions.clear();
+	QToolBar::clear();
+}
+
 void ActionToolBar::showEvent(QShowEvent* event)
 {
 	Q_D(ActionToolBar);
 	QToolBar::showEvent (event);
-	for (int i = 0; i < d->actions.size(); ++i)
-		ActionGeneratorPrivate::get(d->generators[i])->show(d->actions[i]->action.data(), this);
+	for (int i = 0; i < d->actions.size(); ++i) {
+		if (ActionGenerator *generator = d->holders[i]->actionGenerator())
+			ActionGeneratorPrivate::get(generator)->show(d->actions[i]->action.data(), this);
+	}
 	Config cfg = Config("appearance").group("toolBars").group(objectName());
 	int size = cfg.value("iconSize",-1);
 	d->size = QSize(size,size);
@@ -344,18 +360,14 @@ void ActionToolBar::hideEvent(QHideEvent *event)
 	Q_D(ActionToolBar);
 	QToolBar::hideEvent(event);
 	for (int i = 0; i < d->actions.size(); ++i) {
-		if (QAction *action = d->actions[i]->action.data()) {
-			ActionGeneratorPrivate::get(d->generators[i])->hide(action, this);
-		}
+		ActionGenerator *generator = d->holders[i]->actionGenerator();
+		QAction *action = d->actions[i]->action.data();
+		if (generator && action)
+			ActionGeneratorPrivate::get(generator)->hide(action, this);
 	}
 }
-
-
-// 	void ActionToolBar::setId(const QString &id)
-// 	{
-// 		d_func()->id = id;
-// 	}
 
 }
 
 #include "actiontoolbar.moc"
+

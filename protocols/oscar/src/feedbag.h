@@ -1,23 +1,33 @@
 /****************************************************************************
- *  feedbag.h
- *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef FEEDBAG_H
 #define FEEDBAG_H
 
-#include <icq_global.h>
-#include <snachandler.h>
+#include "icq_global.h"
+#include "snachandler.h"
 #include "tlv.h"
 #include <QSharedData>
 #include <qutim/config.h>
@@ -63,10 +73,14 @@ public:
 	FeedbagItem(const FeedbagItem &item);
 	virtual ~FeedbagItem();
 	const FeedbagItem &operator=(const FeedbagItem &item);
+	void add();
 	void update();
+	void updateOrAdd();
 	void remove();
+	void clear();
 	Feedbag *feedbag() const;
 	bool isInList() const;
+	void setInList(bool inList);
 	bool isEmpty() const;
 	bool isNull() const;
 	void setName(const QString &name);
@@ -81,6 +95,8 @@ public:
 	quint16 type() const;
 	quint16 itemId() const;
 	quint16 groupId() const;
+	QPair<quint16, quint16> pairId() const;
+	QPair<quint16, QString> pairName() const;
 	TLV field(quint16 field) const;
 	template<typename T>
 	T field(quint16 field, const T &def = T()) const;
@@ -97,7 +113,6 @@ private:
 	friend class FeedbagItemPrivate;
 	friend QDataStream &operator<<(QDataStream &out, const FeedbagItem &item);
 	friend QDataStream &operator>>(QDataStream &in, FeedbagItem &item);
-	friend QDebug &operator<<(QDebug &stream, const FeedbagItem &item);
 	QSharedDataPointer<FeedbagItemPrivate> d;
 };
 
@@ -110,7 +125,7 @@ Q_INLINE_TEMPLATE T FeedbagItem::field(quint16 f, const T &def) const
 template<typename T>
 Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 {
-	data().insert(field, d);
+	setField(TLV(field, d));
 }
 
 class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
@@ -130,28 +145,36 @@ public:
 		CreateItem = 0x0001,
 		GenerateId = CreateItem | 0x0002,
 		DontLoadLocal = 0x0010,
-		ReturnOne = 0x0020
+		ReturnOne = 0x0020,
+		DontCheckGroup = 0x0040
 	};
-	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag);
+	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag)
+	
 	Feedbag(IcqAccount *acc);
 	virtual ~Feedbag();
-	void beginModify();
-	void endModify();
-	bool isModifyStarted() const;
+	
+	bool event(QEvent *event);
+	
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
+	
+	FeedbagItem buddyForChange(const QString &uin) const;
+	FeedbagItem itemByType(quint16 type, ItemLoadFlags flags = NoFlags) const;
+	
+	
 	FeedbagItem item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem item(quint16 type, const QString &name, quint16 group, ItemLoadFlags flags = NoFlags) const;
-	QList<FeedbagItem> items(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	
 	QList<FeedbagItem> items(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	
 	FeedbagItem groupItem(quint16 id, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem groupItem(const QString &name, ItemLoadFlags flags = NoFlags) const;
-	QList<FeedbagItem> group(quint16 groupId) const;
-	QList<FeedbagItem> group(const QString &name) const;
-	QList<FeedbagItem> type(quint16 type, ItemLoadFlags flags = NoFlags) const;
 	bool containsItem(quint16 type, quint16 id) const;
 	bool containsItem(quint16 type, const QString &name) const;
-	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;
+	
+	quint16 uniqueItemId(quint16 type) const;
+	
 	void registerHandler(FeedbagItemHandler *handler);
 	IcqAccount *account() const;
 	Config config();
@@ -188,6 +211,9 @@ private:
 
 } } // namespace qutim_sdk_0_3::oscar
 
+LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, const qutim_sdk_0_3::oscar::FeedbagItem &item);
+LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, qutim_sdk_0_3::oscar::Feedbag::ModifyType type);
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::FeedbagItemHandler, "org.qutim.oscar.FeedbagItemHandler");
 
 #endif // FEEDBAG_H
+

@@ -1,9 +1,31 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jmucuser.h"
 #include "jmucsession.h"
 #include "../jaccount.h"
 #include "../roster/jcontactresource_p.h"
-#include "../vcard/jinforequest.h"
-#include "../vcard/jvcardmanager.h"
 #include <QStringBuilder>
 #include <qutim/tooltip.h>
 
@@ -70,12 +92,10 @@ QString JMUCUser::avatarHash() const
 void JMUCUser::setAvatar(const QString &hex)
 {
 	Q_D(JMUCUser);
-	if (d->avatar == hex)
+	if (d->hash == hex)
 		return;
 	d->avatar = static_cast<JAccount *>(account())->getAvatarPath() % QLatin1Char('/') % hex;
-	int pos = d->avatar.lastIndexOf('/') + 1;
-	int length = d->avatar.length() - pos;
-	d->hash = QStringRef(&d->avatar, pos, length);
+	d->hash = d->avatar.rightRef(hex.size());
 	emit avatarChanged(d->avatar);
 }
 
@@ -163,25 +183,6 @@ bool JMUCUser::event(QEvent *ev)
 		}
 		Buddy::event(ev);
 		return true;
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible && d_func()->muc->isJoined()) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-		return true;
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JMUCUser);
-		JAccount * const acc = static_cast<JAccount*>(account());
-		const JID jid = d->id;
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		if(!acc->vCardManager()->containsRequest(jid))
-			event->setRequest(new JInfoRequest(acc->vCardManager(), jid));
-		event->accept();
-		return true;
 	}
 	return JContactResource::event(ev);
 }
@@ -213,3 +214,4 @@ void JMUCUser::ban(const QString &reason)
 	d->muc->room()->ban(d->name, reason);
 }
 }
+

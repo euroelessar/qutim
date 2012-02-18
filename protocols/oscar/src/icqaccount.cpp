@@ -1,18 +1,27 @@
 /****************************************************************************
- *  icqaccount.cpp
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
- *****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "icqaccount_p.h"
 #include "icqprotocol.h"
@@ -113,6 +122,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	setInfoRequestFactory(new IcqInfoRequestFactory(this));
 	d->q_ptr = this;
 	d->messageSender.reset(new MessageSender(this));
 	Config cfg = config("general");
@@ -253,7 +263,7 @@ void IcqAccount::setStatus(Status status_helper)
 		foreach(IcqContact *contact, d->contacts) {
 			OscarStatus status = contact->status();
 			status.setType(Status::Offline);
-			contact->setStatus(status);
+			contact->setStatus(status, false);
 			foreach (RosterPlugin *plugin, d->rosterPlugins)
 				plugin->statusChanged(contact, status, TLVMap());
 		}
@@ -511,31 +521,5 @@ void IcqAccount::onCookieTimeout()
 	// cookie.unlock(); // Commented out as this cookie is already unlocked
 }
 
-bool IcqAccount::event(QEvent *ev)
-{
-	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = this->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new IcqInfoRequest(this));
-		event->accept();
-	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
-		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		MetaInfoValuesHash values = MetaField::dataItemToHash(event->infoItem(), true);
-		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
-		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
-		request->send();
-		setName(values.value(Nick, id()).toString());
-		event->accept();
-	}
-	return Account::event(ev);
-}
-
 } } // namespace qutim_sdk_0_3::oscar
+

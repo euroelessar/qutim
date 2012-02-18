@@ -1,17 +1,27 @@
 /****************************************************************************
- *  joingroupchatmodule.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "joingroupchatmodule.h"
 #include <qutim/icon.h>
@@ -42,8 +52,8 @@ JoinGroupChatModule::JoinGroupChatModule()
 	if (contactList) {
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		Q_ASSERT(controller);
-		static QScopedPointer<ActionGenerator> button(new JoinGroupChatGenerator(this));
-		controller->addAction(button.data());
+        m_gen.reset(new JoinGroupChatGenerator(this));
+        controller->addAction(m_gen.data());
 	}
 }
 
@@ -56,12 +66,12 @@ void JoinGroupChatModule::onJoinGroupChatTriggered()
 {
 	if (!m_chat)
 		m_chat = new JoinGroupChat(qApp->activeWindow());
-	m_chat->setParent(QApplication::activeWindow());
+	m_chat.data()->setParent(QApplication::activeWindow());
 #if defined (QUTIM_MOBILE_UI)
-	m_chat->showMaximized();
+	m_chat.data()->showMaximized();
 #else
-	centerizeWidget(m_chat);
-	m_chat->show();
+	centerizeWidget(m_chat.data());
+	m_chat.data()->show();
 #endif
 }
 
@@ -80,3 +90,4 @@ void JoinGroupChatGenerator::showImpl(QAction *action, QObject *)
 	action->setEnabled(isSupportGroupchat());
 }
 }
+

@@ -4,14 +4,19 @@ IF(NOT QT_HAS_4_7)
 	return()
 ENDIF()
 
-find_package( Qt4 COMPONENTS QtDeclarative QtOpenGL )
+if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
+SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
+SET(QT_QTDECLARATIVE_INCLUDE_DIR "/usr/include/QtDeclarative/")
+SET(QT_QTDECLARATIVE_FOUND true)
+endif()
 
 qutim_add_plugin( vphotoalbum
 	SUBPLUGIN
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Vkontakte photoalbum support"
 	DESCRIPTION "Vkontakte photoalbum support for qutIM, based on power of Qt Quick"
-	LINK_LIBRARIES vkontakte ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTOPENGL_LIBRARY}
+	LINK_LIBRARIES vkontakte 
+	QT_LIBRARIES DECLARATIVE OPENGL
 )
 
 QUTIM_ADD_ARTWORK(vphotoalbum)

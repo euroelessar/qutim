@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "nowplaying.h"
 #include "icqsupport.h"
 #include "jabbersupport.h"
@@ -79,9 +103,9 @@ bool NowPlaying::load()
 	Settings::registerItem(settings);
 
 	m_stopStartAction = new StopStartActionGenerator(this, m_isWorking);
-	QObject *contactList = ServiceManager::getByName("ContactList");
+	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 	if (contactList)
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_stopStartAction));
+		contactList->addAction(m_stopStartAction);
 	return true;
 }
 
@@ -268,3 +292,4 @@ void StopStartActionGenerator::setState(bool isWorking)
 } }
 
 QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::nowplaying::NowPlaying)
+

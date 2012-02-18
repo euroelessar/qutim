@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** qutIM instant messenger
+** qutIM - instant messenger
 **
-** Copyright (C) 2008 Denis Daschenko <daschenko@gmail.com>
-** Copyright (C) 2011 Ruslan Nigmatullin <euroelessar@ya.ru>
+** Copyright © 2008 Denis Daschenko <daschenko@gmail.com>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -43,35 +43,35 @@ class JoinChatDialog : public QDialog
 {
 	Q_OBJECT
 
-	public:
-		JoinChatDialog(QWidget *parent = 0);
-		~JoinChatDialog();
+public:
+	JoinChatDialog(QWidget *parent = 0);
+	~JoinChatDialog();
+public slots:
+	void showConference(QListWidgetItem *current, QListWidgetItem *previous);
+	void on_addConferenceButton_clicked();
+	void on_removeConferenceButton_clicked();
+	void on_accountBox_currentIndexChanged(int index);
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
+	void rebuildItems(int index);
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountDeath(QObject *object);
+	void joinConference();
+	void onDataChanged();
+	void onSaveButtonClicked();
+	void joinBookmark(QListWidgetItem *item);
 
-	public slots:
-		void showConference(QListWidgetItem *current, QListWidgetItem *previous);
-		void on_addConferenceButton_clicked();
-		void on_removeConferenceButton_clicked();
-		void on_accountBox_currentIndexChanged(int index);
+private:
+	qutim_sdk_0_3::GroupChatManager *groupChatManager();
 
-	protected:
-		bool eventFilter(QObject *obj, QEvent *event);
-
-	private slots:
-		void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
-		void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
-		void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
-		void onAccountDeath(QObject *object);
-		void joinConference();
-		void on_saveButton_clicked();
-		void joinBookmark(QListWidgetItem *item);
-
-	private:
-		qutim_sdk_0_3::GroupChatManager *groupChatManager();
-
-		Ui::JoinChat *m_ui;
-		QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
-		qutim_sdk_0_3::Account *m_currentAcount;
+	Ui::JoinChat *m_ui;
+	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	qutim_sdk_0_3::Account *m_currentAcount;
 
 };
 
 #endif //JJOINCHAT_H
+

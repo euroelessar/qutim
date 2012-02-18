@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "dataforms.h"
 #include "dynamicpropertydata_p.h"
 #include "objectgenerator.h"
@@ -31,6 +55,8 @@ public:
 	QLatin1String onDataChangedMethod;
 
 	QVariant property(const char *name, const QVariant &def) const;
+	DataItem foundSubitem(const QString &name, bool recursive, bool removeItem);
+
 	QVariant getName() const { return QVariant::fromValue(name); }
 	void setName(const QVariant &val) { name = val.value<QString>(); }
 	QVariant getTitle() const { return QVariant::fromValue(title); }
@@ -191,20 +217,58 @@ void DataItem::setSubitems(const QList<DataItem> &newSubitems)
 	DataItemPrivate::updateParents(d->subitems, d);
 }
 
-DataItem DataItem::subitem(const QString &name, bool recursive) const
+DataItem DataItemPrivate::foundSubitem(const QString &name, bool recursive, bool removeItem)
 {
-	if (!d)
-		return DataItem();
-	foreach (const DataItem &item, d->subitems) {
-		if (item.name() == name)
+	QMutableListIterator<DataItem> itr(subitems);
+	while (itr.hasNext()) {
+		DataItem item = itr.next();
+		if (itr.value().name() == name) {
+			if (removeItem)
+				itr.remove();
 			return item;
+		}
 		if (recursive) {
-			DataItem res = item.subitem(name);
-			if (!res.isNull())
-				return res;
+			item = itr.value().d->foundSubitem(name, recursive, removeItem);
+			if (!item.isNull())
+				return item;
 		}
 	}
 	return DataItem();
+}
+
+DataItem DataItem::subitem(const QString &name, bool recursive) const
+{
+	return d ? const_cast<DataItemPrivate*>(d.data())->foundSubitem(name, recursive, false) : DataItem();
+}
+
+int DataItem::removeSubitems(const QString &name, bool recursive)
+{
+	if (d)
+		return 0;
+	int c = 0;
+	QMutableListIterator<DataItem> itr(d->subitems);
+	while (itr.hasNext()) {
+		itr.next();
+		if (itr.value().name() == name) {
+			itr.remove();
+			++c;
+			continue;
+		}
+		if (recursive) {
+			c += itr.value().removeSubitem(name, recursive);
+		}
+	}
+	return c;
+}
+
+bool DataItem::removeSubitem(const QString &name, bool recursive)
+{
+	return d ? !d->foundSubitem(name, recursive, true).isNull() : false;
+}
+
+DataItem DataItem::takeSubitem(const QString &name, bool recursive)
+{
+	return d ? d->foundSubitem(name, recursive, true) : DataItem();
 }
 
 void DataItem::addSubitem(const DataItem &subitem)
@@ -558,3 +622,4 @@ DataFormsBackend *DataFormsBackend::instance()
 }
 
 }
+

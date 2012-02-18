@@ -1,9 +1,34 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright (C) 2011 Sidorov Aleksey <sauron@citadelspb.com>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
+
 #include "macdock.h"
 #include <qutim/icon.h>
 #include <qutim/extensioninfo.h>
 #include <qutim/servicemanager.h>
 #include <qutim/config.h>
-#include <qutim/debug.h>
 #include <QApplication>
 #include <QLabel>
 #import <AppKit/NSDockTile.h>
@@ -278,7 +303,7 @@ void MacDock::setStatusIcon()
 	Q_D(MacDock);
 	bool isOnline = false;
 	bool start = true;
-	Status::Type globalStatus;
+	Status::Type globalStatus = Status::Offline;
 	bool isStatusGlobal = true;
 	foreach(qutim_sdk_0_3::Protocol *protocol, qutim_sdk_0_3::Protocol::all()) {
 		foreach(qutim_sdk_0_3::Account *account, protocol->accounts()) {
@@ -293,7 +318,7 @@ void MacDock::setStatusIcon()
 				isOnline = true;
 				break;
 			default:
-				isOnline = isOnline;
+				break;
 			}
 			if (start)
 				globalStatus = type;

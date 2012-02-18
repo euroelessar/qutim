@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "dbusbackend.h"
 #include <qutim/message.h>
 #include <qutim/buddy.h>
@@ -9,11 +33,6 @@
 #include <QVariant>
 #include <QBuffer>
 #include <QDBusPendingReply>
-
-#ifdef Q_WS_MAEMO_5
-#include <mce/mode-names.h>
-#include <mce/dbus-names.h>
-#endif
 
 using namespace qutim_sdk_0_3;
 
@@ -56,11 +75,13 @@ const QDBusArgument& operator>> (const QDBusArgument& arg, DBusNotifyImageData &
 }
 
 DBusBackend::DBusBackend() :
+	NotificationBackend("Popup"),
 	interface(new org::freedesktop::Notifications(
 			"org.freedesktop.Notifications",
 			"/org/freedesktop/Notifications",
 			QDBusConnection::sessionBus()))
 {
+	setDescription(QT_TR_NOOP("Show popup"));
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {
@@ -89,9 +110,9 @@ DBusBackend::DBusBackend() :
 				"org.freedesktop.Notifications",
 				"NotificationClosed",
 				this, SLOT(onNotificationClosed(quint32,quint32)));
-
-	enableVibration();
 }
+
+
 
 void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
@@ -133,10 +154,11 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 		}
 	}
 
-#ifndef QUTIM_MOBILE_UI
 	int timeout = 5000;
-#else
-	int timeout = 500000;
+
+#ifdef Q_WS_MAEMO_5
+	Config config = Config().group(QLatin1String("Maemo5"));
+	timeout = config.value(QLatin1String("showPopupTime"),50) * 1000;
 #endif
 
 	QDBusPendingReply<uint> reply = interface->Notify(
@@ -149,7 +171,6 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 				hints,
 				timeout);
 
-	vibrate(50);
 
 	int newId = reply.value();
 	m_notifications.insert(newId, data);
@@ -166,10 +187,6 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 
 DBusBackend::~DBusBackend()
 {
-#ifdef Q_WS_MAEMO_5
-	//mDbusInterface->call(MCE_DISABLE_VIBRATOR);
-	mDbusInterface->call(MCE_DEACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
-#endif
 }
 
 void DBusBackend::callFinished(QDBusPendingCallWatcher *watcher)
@@ -189,14 +206,29 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 	NotificationData data = m_notifications.value(id);
 	foreach (const NotificationAction &action, data.actions.values(name))
 		action.trigger();
+
+#ifdef Q_WS_MAEMO_5
+	//Maemo dbus implementation
+	QPointer<QObject> sender = data.sender;
+	if (name == "default" ) {
+		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
+
+		if (unit) {
+			ChatUnit *metaContact = unit->metaContact();
+			if (metaContact)
+				unit = metaContact;
+			ChatLayer::get(unit,true)->activate();
+		}
+	}
+#endif
 }
 
 inline void DBusBackend::ignore(NotificationData &data)
 {
 	Q_UNUSED(data);
-	/*foreach (const QPointer<Notification> &notification, data.notifications)
+	foreach (const QPointer<Notification> &notification, data.notifications)
 		if (notification)
-			notification->ignore();*/
+			notification->ignore();
 }
 
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
@@ -214,73 +246,10 @@ void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 		if (reason == 2)
 			ignore(*itr);
 		m_ids.remove(itr->sender);
-		foreach (QPointer<Notification> notification, itr->notifications)
-			deref(notification.data());
+		foreach (const QPointer<Notification> &notification, itr->notifications)
+			if (notification)
+				deref(notification.data());
 		m_notifications.erase(itr);
 	}
 }
 
-void DBusBackend::enableVibration()
-{
-#ifdef Q_WS_MAEMO_5
-	mDbusInterface = new QDBusInterface(MCE_SERVICE, MCE_REQUEST_PATH,
-										MCE_REQUEST_IF, QDBusConnection::systemBus(),
-										this);
-	mDbusInterface->call(MCE_ENABLE_VIBRATOR);
-	mDbusInterface->call(MCE_ENABLE_LED);
-	display_off=false;
-	QDBusConnection::systemBus().connect(MCE_SERVICE, MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
-										 MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
-	mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
-#endif
-}
-
-void DBusBackend::vibrate(int aTimeout)
-{
-#ifdef Q_WS_MAEMO_5
-    if (display_off)
-    {
-		mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
-		QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
-		mDbusInterface->call(MCE_ACTIVATE_LED_PATTERN, "PatternCommunicationIM");
-    }
-#else
-	Q_UNUSED(aTimeout);
-#endif
-}
-
-
-void DBusBackend::stopVibration()
-{
-#ifdef Q_WS_MAEMO_5
-	mDbusInterface->call(MCE_DEACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
-#endif
-}
-
-void DBusBackend::displayStateChanged(const QDBusMessage &message)
-{
-#ifdef Q_WS_MAEMO_5
-	QString state = message.arguments().at(0).toString();
-	setDisplayState(state);
-#else
-	Q_UNUSED(message);
-#endif
-}
-
-void DBusBackend::setDisplayState(const QString &state)
-{
-#ifdef Q_WS_MAEMO_5
-	if (!state.isEmpty()) {
-		if (state == MCE_DISPLAY_ON_STRING)
-		{
-			display_off=false;
-		}
-		else if (state == MCE_DISPLAY_OFF_STRING)
-		{
-			display_off=true;
-		}
-	}
-#else
-	Q_UNUSED(state);
-#endif
-}

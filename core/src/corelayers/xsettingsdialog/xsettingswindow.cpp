@@ -1,17 +1,27 @@
 /****************************************************************************
- *  xsettingswindow.cpp
- *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "xsettingswindow.h"
 #include <QListWidget>
@@ -47,11 +57,13 @@ struct XSettingsWindowPrivate
 	QWidget *parent;
 };
 
-XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller) :
+XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller, QWidget *parent) :
+	QMainWindow(parent),
 	p(new XSettingsWindowPrivate)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	p->controller = controller;
+    setWindowModality(controller ? Qt::WindowModal : Qt::NonModal);
 	//setup ui
 	QWidget *w = new QWidget(this);
 	QVBoxLayout *l = new QVBoxLayout(w);
@@ -90,11 +102,18 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 		p->splitter->setSizes(QList<int>() << 80  << 250);
 	l->addWidget(p->splitter);
 
-	p->buttonBox = new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel,Qt::Horizontal,w);
+    QDialogButtonBox::StandardButtons buttons;
+    if (controller)
+        buttons = QDialogButtonBox::Ok;
+    else
+        buttons = QDialogButtonBox::Save | QDialogButtonBox::Cancel;
+
+    p->buttonBox = new QDialogButtonBox(buttons, Qt::Horizontal, w);
 	l->addWidget(p->buttonBox);
-	p->buttonBox->hide();
+    p->buttonBox->setVisible(controller);
 	//init actiontoolbar
 	setCentralWidget(w);
+    setUnifiedTitleAndToolBarOnMac(true);
 
 	p->toolBar = new ActionToolBar(w);
 	addToolBar(Qt::TopToolBarArea,p->toolBar);
@@ -118,13 +137,13 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->group = new QActionGroup(w);
 	p->group->setExclusive(true);
 	//connections
-	connect(p->group,SIGNAL(triggered(QAction*)),SLOT(onGroupActionTriggered(QAction*)));
+    connect(p->group,SIGNAL(triggered(QAction*)), SLOT(onGroupActionTriggered(QAction*)));
 	connect(p->listWidget,
 			SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
 			SLOT(onCurrentItemChanged(QListWidgetItem*))
 			);
-	connect(p->buttonBox,SIGNAL(accepted()),SLOT(save()));
-	connect(p->buttonBox,SIGNAL(rejected()),SLOT(cancel()));
+    connect(p->buttonBox,SIGNAL(accepted()), SLOT(save()));
+    connect(p->buttonBox,SIGNAL(rejected()), SLOT(cancel()));
 	loadSettings(settings);
 	if (p->group->actions().count())
 		p->group->actions().first()->trigger();
@@ -221,7 +240,7 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 		p->listWidget->hide();
 	int currentRow = 0; //TODO save current row
 	p->listWidget->setCurrentRow(currentRow);
-	onCurrentItemChanged(p->listWidget->currentItem()); //if current row = 0	
+	onCurrentItemChanged(p->listWidget->currentItem()); //if current row = 0
 }
 
 void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
@@ -234,7 +253,7 @@ void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
 		return;
 	SettingsItem *settingsItem = reinterpret_cast<SettingsItem*>(ptr);
 
-	SettingsWidget *w = settingsItem->widget();	
+	SettingsWidget *w = settingsItem->widget();
 	if (p->stackedWidget->indexOf(w) == -1) {
 		p->stackedWidget->addWidget(w);
 		w->setController(p->controller);
@@ -288,7 +307,10 @@ void XSettingsWindow::save()
 		if (widget != c)
 			widget->deleteLater();
 	}
-	p->buttonBox->close();
+    if (p->controller)
+        close();
+    else
+        p->buttonBox->close();
 }
 
 void XSettingsWindow::cancel()
@@ -299,9 +321,13 @@ void XSettingsWindow::cancel()
 		widget->cancel();
 		if (widget != c)
 			widget->deleteLater();
-	}	
-	p->buttonBox->close();
+	}
+    if (p->controller)
+        close();
+    else
+        p->buttonBox->close();
 }
 
 
 }
+

@@ -1,18 +1,27 @@
 /****************************************************************************
- *
- *  This file is part of qutIM
- *
- *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This file is part of free software; you can redistribute it and/or    *
- *   modify it under the terms of the GNU General Public License as        *
- *   published by the Free Software Foundation; either version 2 of the    *
- *   License, or (at your option) any later version.                       *
- *                                                                         *
- ***************************************************************************
- ****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "textviewcontroller.h"
 #include <QTextCursor>
@@ -56,7 +65,13 @@ TextViewController::TextViewController()
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
 	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),     QLatin1String("black")));
 	m_urlColor     .setNamedColor(cfg.value(QLatin1String("urlColor"),      QLatin1String("#0033aa")));
-
+	m_bulletErrorColor   .setNamedColor(cfg.value(QLatin1String("bulletErrorColor"),
+	                                              QLatin1String("red")));
+	m_bulletSentColor    .setNamedColor(cfg.value(QLatin1String("bulletSentColor"),
+	                                              QLatin1String("#ffc600")));
+	m_bulletReceivedColor.setNamedColor(cfg.value(QLatin1String("bulletReceivedColor"),
+	                                              QLatin1String("#00990b")));
+	m_bulletSize = cfg.value("bulletSize", 5);
 	cfg.beginGroup(QLatin1String("font"));
 #ifdef Q_WS_MAEMO_5
 	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
@@ -69,9 +84,6 @@ TextViewController::TextViewController()
 	m_font.setPointSize(cfg.value(QLatin1String("size"), 10));
 #endif
 	cfg.endGroup();
-	cfg.endGroup();
-	cfg.beginGroup(QLatin1String("history"));
-	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
 	cfg.endGroup();
 	documentLayout()->registerHandler(EmoticonObjectType, this);
 	init();
@@ -170,8 +182,6 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		cursor.insertText(QLatin1String(" "), defaultFormat);
 		appendText(cursor, msg.text(), defaultFormat, true);
 	}
-	if (msg.property("store", true) && (!isService || (isService && m_storeServiceMessages)))
-		History::instance()->store(msg);
 	if (shouldScroll)
 		QTimer::singleShot(0, this, SLOT(ensureScrolling()));
 	cursor.endEditBlock();
@@ -341,15 +351,26 @@ void TextViewController::animate()
 		m_textEdit->viewport()->update(region);
 }
 
+QPixmap TextViewController::createBullet(const QColor &color)
+{
+	QPixmap pixmap(m_bulletSize, m_bulletSize);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QBrush(color));
+	painter.drawEllipse(0, 0, m_bulletSize, m_bulletSize);
+	return pixmap;
+}
+
 void TextViewController::init()
 {
-	QPixmap pixmap;
-	QString stylePath = ThemeManager::path(QLatin1String("webkitstyle"), QLatin1String("Tory"))
-	        + QLatin1String("/Contents/Resources/");
-	pixmap.load(stylePath + QLatin1String("Images/bullet-received.png"));
-	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-received")), pixmap);
-	pixmap.load(stylePath + QLatin1String("Images/bullet-send.png"));
-	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")), pixmap);
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-error")),
+	            createBullet(m_bulletErrorColor));
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-received")),
+	            createBullet(m_bulletReceivedColor));
+	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")),
+	            createBullet(m_bulletSentColor));
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->deleteLater();
 	m_cache.clear();
@@ -438,7 +459,10 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 			cursor.beginEditBlock();
 			cursor.setPosition(*pos);
 			cursor.deleteChar();
-			cursor.insertImage(QLatin1String("bullet-received"));
+			if (msgEvent->success())
+				cursor.insertImage(QLatin1String("bullet-received"));
+			else if (msgEvent->success())
+				cursor.insertImage(QLatin1String("bullet-error"));
 			cursor.endEditBlock();
 //			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
 //			QTextImageFormat format;
@@ -452,3 +476,4 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 }
 }
 }
+

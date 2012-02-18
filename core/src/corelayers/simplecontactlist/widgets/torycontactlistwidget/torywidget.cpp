@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "torywidget.h"
 #include <abstractcontactmodel.h>
 #include <simplestatusdialog.h>
@@ -19,7 +43,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QLineEdit>
+#include <qutim/simplecontactlist/lineedit.h>
 #include <QMenuBar>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -120,7 +144,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 
 	QAction *searchBtn = new QAction(Icon("edit-find"), tr("Search contact"), this);
 	searchBtn->setCheckable(true);
-	d->searchBar = new QLineEdit(this);
+    d->searchBar = new LineEdit(this);
 	d->searchBar->setVisible(false);
 	connect(searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
 	d->mainToolBar->addAction(searchBtn);
@@ -239,6 +263,9 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	button->setToolTip(account->id());
 	button->setAutoRaise(true);
 	button->setPopupMode(QToolButton::InstantPopup);
+	button->setStyleSheet("QToolButton::menu-indicator{border:none}"); // remove arrow
+	button->setMaximumSize(22, 22);
+	button->setMinimumSize(22, 22);
 
 	d->accountsContainer->addWidget(button);
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),

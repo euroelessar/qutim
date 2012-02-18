@@ -1,17 +1,27 @@
 /****************************************************************************
- *  actiongenerator.h
- *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #ifndef ACTIONGENERATOR_H
 #define ACTIONGENERATOR_H
@@ -40,7 +50,7 @@ enum ActionType
 	ActionTypeAdditional = 0x04, //Additional modifier
 	ActionTypeAccount = 0x8,
 	ActionTypePreferences = 0x10, //QAction::PreferencesRole
-	ActionTypeContactInfo = 0x20,
+    ActionTypeContactInfo = 0x20
 };
 
 Q_DECLARE_FLAGS(ActionsType,ActionType)
@@ -101,6 +111,7 @@ class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 {
 	Q_DECLARE_PRIVATE(ActionGenerator)
 	Q_DISABLE_COPY(ActionGenerator)
+	Q_GADGET
 public:
 	enum Type { StatusType = 0, GeneralType };
 	/*
@@ -132,8 +143,8 @@ void MyObject::onAction(QObject *obj)
 	void setMenuController(MenuController *controller);
 	void subscribe(QObject *object, const char *method);
 	//void unsubscribe(QObject *object); //TODO implement me
-	void addHandler(int type,QObject *obj);
-	void removeHandler(int type,QObject *obj);
+	void addHandler(int type, QObject *obj);
+	void removeHandler(int type, QObject *obj);
 	void setCheckable(bool checkable);
 	void setChecked(bool checked);
 	void setToolTip(const LocalizedString &toolTip);
@@ -180,3 +191,4 @@ protected:
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ActionGenerator*)
 
 #endif // ACTIONGENERATOR_H
+

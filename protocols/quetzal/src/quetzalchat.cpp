@@ -1,17 +1,27 @@
 /****************************************************************************
- *  quetzalchat.cpp
- *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
-*****************************************************************************/
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 
 #include "quetzalchat.h"
 #include "quetzalaccount.h"
@@ -32,7 +42,7 @@ QuetzalChat::QuetzalChat(PurpleConversation *conv) :
 	}
 	PurpleConvChat *chat = purple_conversation_get_chat_data(conv);
 	if (!chat->left)
-		emit joined();
+		setJoined(true);
 //	if (account()->protocol()->id() == "msn")
 //		m_id = "QuetzalChat#" + QString::number(chat->id);
 }
@@ -87,7 +97,7 @@ void QuetzalChat::setMe(const char *nick)
 	m_nick = nick;
 }
 
-void QuetzalChat::join()
+void QuetzalChat::doJoin()
 {
 	PurpleConnection *gc = m_conv->account->gc;
 	if (!gc)
@@ -100,7 +110,7 @@ void QuetzalChat::join()
 	g_hash_table_destroy(comps);
 }
 
-void QuetzalChat::leave()
+void QuetzalChat::doLeave()
 {
 	PurpleConnection *gc = m_conv->account->gc;
 	if (!gc)
@@ -153,12 +163,9 @@ bool QuetzalChat::sendMessage(const Message &message)
 void QuetzalChat::update(PurpleConvUpdateType type)
 {
 	PurpleConvChat *chat = PURPLE_CONV_CHAT(m_conv);
-	if (type == PURPLE_CONV_UPDATE_CHATLEFT) {
-		if (chat->left)
-			emit left();
-		else
-			emit joined();
-	} else if (type == PURPLE_CONV_UPDATE_TOPIC) {
+	if (type == PURPLE_CONV_UPDATE_CHATLEFT)
+		setJoined(chat->left);
+	else if (type == PURPLE_CONV_UPDATE_TOPIC) {
 		QString oldTopic = m_topic;
 		m_topic = purple_conv_chat_get_topic(PURPLE_CONV_CHAT(m_conv));
 		emit topicChanged(m_topic, oldTopic);
@@ -175,3 +182,4 @@ void QuetzalChat::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 	purple_conv_chat_invite_user(PURPLE_CONV_CHAT(m_conv), who.constData(),
 								 reason.toUtf8().constData(), false);
 }
+

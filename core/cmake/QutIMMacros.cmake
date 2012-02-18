@@ -24,14 +24,14 @@ else(SYMBIAN)
 	endfunction()
 endif(SYMBIAN)
 
-#small workaround
-if(NOT DEFINED IS_CPACK_INCLUDED)
+#include guards
+if(NOT CPACK_INCLUDED)
+	set(CPACK_INCLUDED TRUE)
 	include(CPack)
-	set(IS_CPACK_INCLUDED "true")
 endif()
 
 #TODO separate to external macro
-MACRO (QUTIM_WRAP_CPP outfiles )
+MACRO(QUTIM_WRAP_CPP outfiles)
 	# get include dirs
 	QT4_GET_MOC_FLAGS(moc_flags)
 	QT4_EXTRACT_OPTIONS(moc_files moc_options ${ARGN})
@@ -59,7 +59,7 @@ MACRO (QUTIM_WRAP_CPP outfiles )
 		ENDIF()
 		IF(NOT _HAS_MOC)
 			FILE(READ ${_abs_FILE} _contents)
-			STRING(REGEX MATCHALL "Q_OBJECT" _match2 "${_contents}")
+                        STRING(REGEX MATCHALL "Q_OBJECT|Q_GADGET" _match2 "${_contents}")
 			IF(_match2)
 				QT4_MAKE_OUTPUT_FILE(${_abs_FILE} moc_ cxx outfile)
 				QT4_CREATE_MOC_COMMAND(${_abs_FILE} ${outfile} "${moc_flags}" "${moc_options}")
@@ -92,7 +92,7 @@ endmacro()
 IF(WIN32)
 	SET(QUTIM_SHARE_DIR_DEF share)
 ELSEIF(APPLE)
-	SET(QUTIM_SHARE_DIR_DEF qutim.app/Contents/Resources/share)
+	SET(QUTIM_SHARE_DIR_DEF ${QUTIM_BUNDLE_NAME}/Contents/Resources/share)
 ELSE()
 	SET(QUTIM_SHARE_DIR_DEF share/apps/qutim)
 ENDIF()
@@ -163,17 +163,17 @@ ENDMACRO()
 
 # This macro is for internal use only
 macro ( LANGUAGE_UPDATE plugin_name language sources )
-	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
-	if( NOT LANGUAGE_DEST_DIR )
-		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
-	endif( NOT LANGUAGE_DEST_DIR )
-	separate_arguments( LANGUAGE_OPTS )
-	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
-					 ${LANGUAGE_OPTS}
-					 -extensions "h,cpp,mm,js,c,ui"
-					 -target-language "${language}" ${sources}
-					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
-					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+#	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
+#	if( NOT LANGUAGE_DEST_DIR )
+#		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
+#	endif( NOT LANGUAGE_DEST_DIR )
+#	separate_arguments( LANGUAGE_OPTS )
+#	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
+#					 ${LANGUAGE_OPTS}
+#					 -extensions "h,cpp,mm,js,c,ui"
+#					 -target-language "${language}" ${sources}
+#					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
+#					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
@@ -181,18 +181,16 @@ macro ( __PREPARE_QUTIM_PLUGIN src_dir )
 	#CMAKE_POLICY(SET CMP0017 NEW)
 	if ( NOT QUTIM_PLUGIN )
 		if ( NOT QT4_INSTALLED )
-			# Require QT 4.6
-			SET( QT_MIN_VERSION "4.6.0" )
 
 			# Set QT modules
-			# SET( QT_USE_QTNETWORK TRUE )
-			SET( QT_USE_QTGUI TRUE )
+                        SET( QT_USE_QTNETWORK TRUE )
+                        SET( QT_USE_QTGUI TRUE )
 
 			# Search for QT4
-			FIND_PACKAGE( Qt4 REQUIRED )
+                        FIND_PACKAGE( Qt4 REQUIRED )
 
 			# Include QT4
-			INCLUDE( ${QT_USE_FILE} )
+                        INCLUDE( ${QT_USE_FILE} )
 		endif ( NOT QT4_INSTALLED )
 
 		set ( QUTIM_PLUGIN TRUE )
@@ -204,13 +202,25 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
+	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;QT_LIBRARIES;SOURCE_DIR;DECLARATIVE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
 	"SUBPLUGIN;EXTENSION;STATIC;"
 	${ARGN}
 	)
 	if( NOT QUTIM_${plugin_name}_GROUP )
 		set( QUTIM_${plugin_name}_GROUP Plugin )
 	endif( NOT QUTIM_${plugin_name}_GROUP )
+
+	# Link with Qt
+	list( APPEND QUTIM_${plugin_name}_QT_LIBRARIES CORE GUI )
+	foreach( USED_QT_MODULE_LOWER ${QUTIM_${plugin_name}_QT_LIBRARIES} )
+		string( TOUPPER ${USED_QT_MODULE_LOWER} USED_QT_MODULE )
+		if( NOT QT_QT${USED_QT_MODULE}_FOUND )
+			message(STATUS "Qt${USED_QT_MODULE_LOWER} not found. Cannot build ${QUTIM_${plugin_name}_DISPLAY_NAME}")
+			return()
+		endif()
+		list( APPEND QUTIM_${plugin_name}_LINK_LIBRARIES ${QT_QT${USED_QT_MODULE}_LIBRARY} )
+		include_directories( ${QT_QT${USED_QT_MODULE}_INCLUDE_DIR} )
+	endforeach()
 
 	cpack_add_component( ${plugin_name}
 		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
@@ -239,6 +249,10 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	if( NOT QUTIM_${plugin_name}_SOURCE_DIR )
 		set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 	endif( NOT QUTIM_${plugin_name}_SOURCE_DIR )
+
+	if( NOT QUTIM_${plugin_name}_DECLARATIVE_DIR )
+		set( QUTIM_${plugin_name}_DECLARATIVE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/declarative" )
+	endif( NOT QUTIM_${plugin_name}_DECLARATIVE_DIR )
 
 	file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCE_DIR}/*.cpp" )
 	if(APPLE)
@@ -303,10 +317,10 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 
 	#static resources should be added directly to qutim executable
 	if( QUTIM_${plugin_name}_STATIC )
-	list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
-	#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
+		list( APPEND QUTIM_ADDITIONAL_RCC "${QUTIM_${plugin_name}_RES}" )
+		#QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC_STATIC ${QUTIM_${plugin_name}_RES} )
 	else()
-	QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
+		QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
 	endif()
 
 	# This project will generate library
@@ -356,8 +370,14 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_PLUGIN_ID=${QUTIM_${plugin_name}_DEBUG_ID}")
 	set_target_properties(${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}")
 
-	# Link with Qt
-	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+	qutim_target_link_libraries( ${plugin_name} ${QUTIM_LIBRARY} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+
+	if( EXISTS ${QUTIM_${plugin_name}_DECLARATIVE_DIR} AND IS_DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR} )
+		install(DIRECTORY ${QUTIM_${plugin_name}_DECLARATIVE_DIR}/
+			DESTINATION ${QUTIM_SHARE_DIR}/declarative
+			COMPONENT ${plugin_name}
+		)
+	endif()
 
 	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
 		install( TARGETS ${plugin_name}
@@ -430,9 +450,9 @@ macro(qutim_generate_includes include_dir)
 endmacro()
 
 macro(qutim_add_extensions_dir dir)
-file( GLOB qutim_core_extensions "${dir}" "${dir}/*" )
+file(GLOB qutim_core_extensions "${dir}" "${dir}/*" )
 foreach( extension ${qutim_core_extensions} )
-    if( IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
+    if(IS_DIRECTORY "${extension}" AND EXISTS "${extension}/CMakeLists.txt" )
 		GET_FILENAME_COMPONENT(_basename ${extension} NAME_WE)
 		string( TOUPPER ${_basename} SUBDIR_NAME)
 		option(${SUBDIR_NAME} "" ${QUTIM_ENABLE_ALL_PLUGINS})

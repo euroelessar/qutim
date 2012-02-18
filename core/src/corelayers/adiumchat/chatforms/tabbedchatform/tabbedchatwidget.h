@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #ifndef TABBEDCHATWIDGET_H
 #define TABBEDCHATWIDGET_H
 
@@ -10,6 +34,7 @@ namespace qutim_sdk_0_3
 	class ActionToolBar;
 }
 class QVBoxLayout;
+class QSplitter;
 namespace Core
 {
 namespace AdiumChat
@@ -52,6 +77,7 @@ public:
 	void activateWindow();
 	void addSessions(const ChatSessionList &sessions);
 	Q_INVOKABLE ActionToolBar *toolBar() const;
+	virtual void setView(QWidget *view);
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
 	virtual void removeSession(ChatSessionImpl *session);
@@ -64,10 +90,11 @@ protected slots:
 	void onSessionActivated(bool active);
 	void ensureToolBar();
 	void onUnreadChanged();
+	void onControllerDestroyed(QObject *controller);
 private:
 	ActionToolBar *m_toolbar;
 	ActionContainer m_actions;
-	ChatViewWidget *m_view;
+	ChatViewWidget *m_chatViewWidget;
 	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
@@ -82,6 +109,8 @@ private:
 	ChatFlags m_flags;
 	QAction *m_sessionList;
 	QAction *m_unitAction;
+	QSplitter *m_vSplitter;
+	QWidget *m_view;
 };
 
 }
@@ -90,3 +119,4 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::AdiumChat::ChatFlags)
 
 #endif // TABBEDCHATWIDGET_H
+

@@ -1,16 +1,40 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "vwallsession.h"
 #include "vwallsession_p.h"
-#include "vaccount.h"
-#include "vcontact.h"
+#include "../../src/vaccount.h"
+#include "../../src/vcontact.h"
 #include <QNetworkReply>
-#include "vconnection.h"
+#include "../../src/vconnection.h"
 #include <qutim/debug.h>
 #include <qutim/json.h>
 #include <qutim/messagesession.h>
 #include <QTime>
-#include <qutim/notificationslayer.h>
+#include <qutim/notification.h>
 #include <qutim/history.h>
-#include "vroster.h"
+#include "../../src/vroster.h"
 
 VWallSession::VWallSession(const QString& id, VAccount* account): Conference(account), d_ptr(new VWallSessionPrivate)
 {
@@ -27,8 +51,8 @@ VWallSession::VWallSession(const QString& id, VAccount* account): Conference(acc
 		d->timeStamp = list.first().time().toTime_t();
 	d->updateTimer.setInterval(5000);
 
-	connect(&d->updateTimer,SIGNAL(timeout()),d,SLOT(getHistory()));
-	connect(d->owner,SIGNAL(destroyed()),SLOT(deleteLater()));
+	connect(&d->updateTimer, SIGNAL(timeout()), d, SLOT(getHistory()));
+	connect(d->owner, SIGNAL(destroyed()), SLOT(deleteLater()));
 }
 
 QString VWallSession::id() const
@@ -43,20 +67,34 @@ QString VWallSession::title() const
 }
 
 
-void VWallSession::join()
+void VWallSession::doJoin()
 {
 	Q_D(VWallSession);
 	d->updateTimer.start();
 	d->getHistory();
-	ChatSession *session = ChatLayer::get(this,true);
+	setJoined(true);
+
+	//TODO move to qutim::Conference
+	ChatSession *session = ChatLayer::get(this, true);
 	session->activate();
-	connect(session,SIGNAL(destroyed()),SLOT(deleteLater()));
+	connect(session, SIGNAL(destroyed()), SLOT(deleteLater()));
 }
 
-void VWallSession::leave()
+void VWallSession::doLeave()
 {
 	Q_D(VWallSession);
 	d->updateTimer.stop();
+	setJoined(false);
+
+	//TODO move this method to qutim::conference
+	ChatSession *session = ChatLayer::get(this, false);
+	foreach (Contact *contact, d->participants) {
+		if (session)
+			session->removeContact(contact);
+		if (contact != me()
+				&& contact != d->owner)
+			contact->deleteLater();
+	}
 }
 
 qutim_sdk_0_3::Buddy* VWallSession::me() const
@@ -78,6 +116,7 @@ bool VWallSession::sendMessage(const qutim_sdk_0_3::Message& message)
 
 VWallSession::~VWallSession()
 {
+	leave();
 }
 
 VAccount *VWallSessionPrivate::account()
@@ -90,12 +129,12 @@ void VWallSessionPrivate::getHistory()
 	QVariantMap data;
 
 	QString query("\
-		var query = ({\"owner_id\":%1,\"offset\":0,\"count\":%2}); \
-		var messages = API.wall.get(query); \
-		query = ({\"uids\":messages@.from_id,\"fields\":\"first_name,last_name,nickname,photo_rec\"}); \
-		var profiles = API.getProfiles(query); \
-		return {\"messages\": messages, \"profiles\": profiles};"
-		);
+				  var query = ({\"owner_id\":%1,\"offset\":0,\"count\":%2}); \
+							   var messages = API.wall.get(query); \
+							  query = ({\"uids\":messages@.from_id,\"fields\":\"first_name,last_name,nickname,photo_rec\"}); \
+									   var profiles = API.getProfiles(query); \
+									  return {\"messages\": messages, \"profiles\": profiles};"
+									  );
 	query = query.arg(id).arg(historyCount);
 	data.insert("code",query);
 	QNetworkReply *reply = account()->connection()->get("execute", data);
@@ -115,7 +154,7 @@ void VWallSessionPrivate::onGetHistoryFinished()
 	QVariantList messages = responce.value("messages").toList();
 	QVariantList profiles = responce.value("profiles").toList();
 
-	ChatSession *session = ChatLayer::get(q,false);
+	ChatSession *session = ChatLayer::get(q, false);
 	if (!session || !messages.count())
 		return;
 
@@ -133,10 +172,13 @@ void VWallSessionPrivate::onGetHistoryFinished()
 		QString from_id = msg_item.value("from_id").toString();
 		QString name = from_id;
 		if (!profile.isEmpty()) {
-			VContact *contact = account()->connection()->roster()->getContact(profile,true);
-			contact->setStatus(msg_item.value("online").toBool());
+			VContact *contact = account()->connection()->roster()->getContact(profile, true);
+			contact->setOnline(msg_item.value("online").toBool());
 			name = contact->title();
 			session->addContact(contact);
+
+			participants.append(contact);
+			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(participantDestroyed(QObject*)));
 		}
 
 		if (timeStamp >= ts)
@@ -163,6 +205,11 @@ void VWallSessionPrivate::onGetHistoryFinished()
 		mess.setIncoming(true);
 		session->appendMessage(mess);
 	}
+}
+
+void VWallSessionPrivate::participantDestroyed(QObject *obj)
+{
+	participants.removeAll(reinterpret_cast<VContact*>(obj));
 }
 
 void VWallSessionPrivate::processMultimediaMessage(Message &mess, const QVariantMap &data)
@@ -192,3 +239,4 @@ void VWallSessionPrivate::processMultimediaMessage(Message &mess, const QVariant
 	html += thumb_src;
 	mess.setText(html);
 }
+

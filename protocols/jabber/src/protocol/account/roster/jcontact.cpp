@@ -1,25 +1,48 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
-#include <qutim/inforequest.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
+#include <qutim/rosterstorage.h>
 #include "jmessagesession.h"
 #include "jmessagehandler.h"
 #include <qutim/metacontact.h>
 #include <qutim/authorizationdialog.h>
+#include <qutim/notification.h>
 #include <QApplication>
 //Jreen
 #include <jreen/presence.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
-#include "../vcard/jvcardmanager.h"
 
 namespace Jabber
 {
@@ -27,6 +50,7 @@ namespace Jabber
 class JContactPrivate
 {
 public:
+	JContactPrivate() : inList(false) {}
 	JAccount *account;
 	QHash<QString, JContactResource *> resources;
 	QStringList currentResources;
@@ -201,22 +225,6 @@ bool JContact::event(QEvent *ev)
 			qApp->sendEvent(resource, &resourceEvent);
 			event->addHtml("<hr>" + resourceEvent.html(), 9);
 		}
-	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
-		Status::Type status = account()->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
-			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
-			event->setSupportType(InfoRequestCheckSupportEvent::Read);
-			event->accept();
-		} else {
-			ev->ignore();
-		}
-	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JContact);
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		if(!d->account->vCardManager()->containsRequest(d->jid))
-			event->setRequest(new JInfoRequest(d->account->vCardManager(),
-											   d->jid));
-		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
@@ -289,12 +297,21 @@ void JContact::setStatus(const Jreen::Presence presence)
 	} else {
 		if (!d->resources.contains(resource))
 			addResource(resource);
-		d->resources.value(resource)->setStatus(presence);
+		// If signals of the resource would not be blocked,
+		// statusChanged() signal would be emitted two times:
+		// from resourceStatusChanged() and from this method.
+		JContactResource *contactResource = d->resources.value(resource);
+		contactResource->blockSignals(true);
+		contactResource->setStatus(presence);
+		contactResource->blockSignals(false);
 		fillMaxResource();
 	}
 	recalcStatus();
-	if(oldStatus.type() != d->status.type())
+	if (oldStatus.type() != d->status.type()) {
+		NotificationRequest request(this, d->status, oldStatus);
+		request.send();
 		emit statusChanged(d->status, oldStatus);
+	}
 }
 
 void JContact::removeResource(const QString &resource)
@@ -307,7 +324,6 @@ void JContact::removeResource(const QString &resource)
 		d->status = JStatus::presenceToStatus(Jreen::Presence::Unavailable);
 		d->status.setExtendedInfos(oldStatus.extendedInfos());
 		d->status.removeExtendedInfo(QLatin1String("client"));
-		emit statusChanged(d->status, oldStatus);
 		return;
 	}
 }
@@ -388,6 +404,9 @@ void JContact::setAvatar(const QString &hex)
 	int length = d->avatar.length() - pos;
 	d->hash = QStringRef(&d->avatar, pos, length);
 	emit avatarChanged(d->avatar);
+	if (d->inList) {
+		RosterStorage::instance()->updateContact(this, d->account->roster()->version());
+	}
 }
 
 void JContact::setExtendedInfo(const QString &name, const QVariantHash &extStatus)
@@ -413,8 +432,13 @@ void JContact::resourceStatusChanged(const Status &current, const Status &previo
 		return;
 	if (d->resources.value(d->currentResources.first()) == sender()) {
 		recalcStatus();
+		if (current.type() != previous.type() || current.text() != previous.text()) {
+			NotificationRequest request(this, current, previous);
+			request.send();
+		}
 		emit statusChanged(current, previous);
 	}
 }
 
 }
+

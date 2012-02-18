@@ -3,7 +3,6 @@ if( COMMAND cmake_policy )
 	cmake_policy( SET CMP0003 NEW )
 endif(COMMAND cmake_policy )
 project( Plugins )
-set(QT_MIN_VERSION "4.6.0")
 
 if ( ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR} )
 	set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
@@ -19,8 +18,7 @@ LIST (APPEND CMAKE_MODULE_PATH "cmake")
 LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 option ( QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON )
 
-INCLUDE (MacroEnsureVersion)
-find_package(Qt4 COMPONENTS QtCore QtGui)
-find_package(QutIM REQUIRED)
+include( MacroEnsureVersion )
+find_package( QutIM REQUIRED )
 
 qutim_add_extensions_dir(.)
