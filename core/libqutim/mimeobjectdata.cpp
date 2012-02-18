@@ -25,13 +25,14 @@
 
 #include "mimeobjectdata.h"
 #include <QStringList>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3
 {
 	class MimeObjectDataPrivate
 	{		
 	public:
-		QPointer<QObject> object;
+		QWeakPointer<QObject> object;
 	};
 	
 	MimeObjectData::MimeObjectData() : d_ptr(new MimeObjectDataPrivate)
@@ -49,7 +50,7 @@ namespace qutim_sdk_0_3
 	
 	QObject *MimeObjectData::object() const
 	{
-		return d_func()->object;
+		return d_func()->object.data();
 	}
 	
 	QString MimeObjectData::objectMimeType()
