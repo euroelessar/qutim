@@ -246,6 +246,8 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	// Typing notifications
 	case MessageFamily << 16 | MessageMtn: {
+		Cookie cookie = sn.read<Cookie>();
+		Q_UNUSED(cookie);
 		quint16 channel = sn.read<quint16>();
 		Q_UNUSED(channel);
 		QString uin = sn.read<QString, qint8>();
