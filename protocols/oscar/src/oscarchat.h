@@ -47,9 +47,9 @@ public:
 	QList<ChatUnit*> lowerUnits();
 
 public slots:
-	virtual void join();
-	virtual void leave();
-	virtual void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+	void doJoin();
+	void doLeave();
+	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 
 protected slots:
 	void onUsersJoined(const QList<qutim_sdk_0_3::oscar::IcqContact*> &contacts);

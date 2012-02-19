@@ -96,14 +96,14 @@ QList<ChatUnit*> OscarChat::lowerUnits()
 	return units;
 }
 
-void OscarChat::join()
+void OscarChat::doJoin()
 {
 	if (m_connection)
 		return;
 	m_navigation->joinRoom(m_roomId);
 }
 
-void OscarChat::leave()
+void OscarChat::doLeave()
 {
 	if (!m_connection)
 		return;
