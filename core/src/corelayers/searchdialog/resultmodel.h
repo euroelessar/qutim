@@ -32,26 +32,26 @@
 
 namespace Core {
 
-	class ResultModel : public QAbstractListModel
-	{
-		Q_OBJECT
-	public:
-		explicit ResultModel(QObject *parent = 0);
-		RequestPtr request() { return m_request; }
-		void setRequest(const RequestPtr &request);
-		virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-		virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-		virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-		virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-	signals:
-		void rowAdded(int row);
-	private slots:
-		void onRowAboutToBeAdded(int row);
-		void onRowAdded(int row);
-	private:
-		friend class AbstractSearchForm;
-		RequestPtr m_request;
-	};
+class ResultModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    explicit ResultModel(QObject *parent = 0);
+    RequestPtr request() { return m_request; }
+    void setRequest(const RequestPtr &request);
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+signals:
+    void rowAdded(int row);
+private slots:
+    void onRowAboutToBeAdded(int row);
+    void onRowAdded(int row);
+private:
+    friend class AbstractSearchForm;
+    RequestPtr m_request;
+};
 
 } // namespace Core
 

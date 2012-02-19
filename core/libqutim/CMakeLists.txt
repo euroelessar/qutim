@@ -5,11 +5,13 @@ PROJECT( libqutim )
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
 FILE( GLOB HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
-FILE( GLOB SRC_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.cpp" )
-FILE( GLOB HDR_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.h" )
 
-LIST( APPEND SRC ${SRC_GAME} )
-LIST( APPEND HDR ${HDR_GAME} )
+# Some utils, may be deprecated in 0.4 release
+FILE( GLOB SRC_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/utils/*.cpp" )
+FILE( GLOB HDR_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/utils/*.h" )
+
+LIST( APPEND SRC ${SRC_UTILS} )
+LIST( APPEND HDR ${HDR_UTILS} )
 
 # Add K8JSON
 option( SYSTEM_K8JSON "Use system k8json" off )
@@ -40,16 +42,6 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/f
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.h" )
 
-# Add itemdelegate
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.h" )
-
-# Add avatarfilter
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
-
 # MinGW special options
 # Not sure if those applicable for linux
 if(MINGW)
@@ -73,10 +65,10 @@ INCLUDE( ${QT_USE_FILE} )
 INCLUDE_DIRECTORIES(
 	.
 	..
+        utils
 	../3rdparty/k8json/
 	../3rdparty/jdns/
 	../3rdparty/qtdwm/
-	../3rdparty/qticonloader/
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook
 )
@@ -114,14 +106,8 @@ file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook" )
 configure_file( version.h.cmake "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
 file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
-	if( NOT ${header} MATCHES ".*_p\\.h" )
-#		if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-#			file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
-#		"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
-#	"
-#			)
-#		endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-		LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
+        if( NOT ${header} MATCHES ".*_p\\.h" )
+                LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
 
