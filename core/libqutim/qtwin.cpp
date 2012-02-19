@@ -23,8 +23,12 @@
 **
 ****************************************************************************/
 #include "qtwin.h"
-#include "../3rdparty/qtdwm/qtdwm.h"
+#ifdef Q_WS_WIN
+# include "../3rdparty/qtdwm/qtdwm.h"
+#endif
 #include <QColor>
+#include <QPalette>
+#include <QApplication>
 
 namespace qutim_sdk_0_3 {
 
@@ -32,22 +36,45 @@ namespace qutim_sdk_0_3 {
 
 		bool isCompositionEnabled()
 		{
+#ifdef Q_WS_WIN
 			return QtDWM::isCompositionEnabled();
+#else
+			return false;
+#endif
 		}
 
 		QColor colorizationColor()
 		{
+#ifdef Q_WS_WIN
 			return QtDWM::colorizationColor();
+#else
+			return QApplication::palette().window().color();
+#endif
 		}
 
 		bool enableBlurBehindWindow ( QWidget* widget, bool enable )
 		{
+#ifdef Q_WS_WIN
 			return QtDWM::enableBlurBehindWindow(widget,enable);
+#else
+			Q_UNUSED(widget);
+			Q_UNUSED(enable);
+			return false;
+#endif
 		}
 
 		bool extendFrameIntoClientArea ( QWidget* widget, int left, int top, int right, int bottom )
 		{
+#ifdef Q_WS_WIN
 			return QtDWM::extendFrameIntoClientArea(widget,left,top,right,bottom);
+#else
+			Q_UNUSED(widget);
+			Q_UNUSED(left);
+			Q_UNUSED(top);
+			Q_UNUSED(right);
+			Q_UNUSED(bottom);
+			return false;
+#endif
 		}
 
 	}
