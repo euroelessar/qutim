@@ -51,10 +51,13 @@ do
 	then
 		module=`basename $file`
 		modulePath=$PWD/translations/modules/$module
+		customCMakeFile=$file/__data_from_cmakelists_txt.cpp
 		mkdir -p $modulePath
+		find "$file" -name CMakeLists.txt -exec cat {} \; | grep -P '(DISPLAY_NAME|DESCRIPTION)' | sed 's/\r//;s/.*\(DISPLAY_NAME\|DESCRIPTION\)/Qt::translate("Plugin",/;s/$/);/' > $customCMakeFile
 		$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative $file -ts "$modulePath/$module.ts"
 		$lconvert -i "$modulePath/$module.ts" -o "$modulePath/$module.pot"
 		rm "$modulePath/$module.ts"
+		rm "$customCMakeFile"
 		for poFile in `ls $modulePath/*.po`
 		do
 			msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
