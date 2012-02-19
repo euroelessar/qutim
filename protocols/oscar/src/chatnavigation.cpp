@@ -43,7 +43,7 @@ void ChatNavigation::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				QList<QByteArray> list = tlvs.value(0x05).data().split(':');
 				m_cookie = tlvs.value(0x06).data();
 				debug() << tlvs.value(0x05).data();
-				socket()->connectToHost(list.at(0), list.size() > 1 ? list.at(1).toInt() : 5190);
+				socket()->connectToHost(list.at(0), list.value(1, "5190").toInt());
 			} else if (id == ChatFamily) {
 				debug() << Q_FUNC_INFO << "join reply" << snac.id();
 				new ChatConnection(tlvs, account());
