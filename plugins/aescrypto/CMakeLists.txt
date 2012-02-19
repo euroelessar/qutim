@@ -11,5 +11,5 @@ qutim_add_plugin( aescrypto
 	QT_LIBRARIES NETWORK
 	LINK_LIBRARIES ${QCA2_LIBRARIES}
 	DISPLAY_NAME "AES crypto service loader"
-	DESCRIPTION "Default qutIM crypto implementation. Based on algorithm aes256,"
+	DESCRIPTION "Default qutIM crypto implementation. Based on algorithm aes256"
 )
