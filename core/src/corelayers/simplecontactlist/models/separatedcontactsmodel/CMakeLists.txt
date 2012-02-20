@@ -4,7 +4,7 @@ qutim_add_plugin(separatedcontactsmodel
 	EXTENSION_CLASS Core::SimpleContactList::SeparatedModel
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Separated contacts model"
-	DESCRIPTION "Simple separated contactlist model"
+	DESCRIPTION "Contact list model, which show accounts, tags and contacts"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
 )

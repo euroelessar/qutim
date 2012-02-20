@@ -62,10 +62,10 @@ MobileNotifyEnabler::MobileNotifyEnabler(QObject* parent): QObject(parent)
 {
 	reloadSettings();
 	connect(NotificationManager::instance(),
-			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
+			SIGNAL(backendCreated(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onBackendCreated(QByteArray)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendDestroyed(QByteArray,NotificationBackend*)),
+			SIGNAL(backendDestroyed(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onBackendDestroyed(QByteArray)));
 }
 

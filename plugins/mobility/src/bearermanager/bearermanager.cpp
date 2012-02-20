@@ -65,10 +65,11 @@ BearerManager::BearerManager(QObject *parent) :
 	foreach (QNetworkConfiguration conf, list) {
 		debug() << conf.bearerName();
 	}
-	if (!list.count())
+	if (!list.count()) {
 		Notification::send(tr("Unable to find any network configuration. "
 							  "Perhaps Qt or QtMobility network bearer configured incorrectly. "
 							  "Bearer manager will not work properly, refer to your distribution maintainer."));
+	}
 }
 
 void BearerManager::changeStatus(Account *a, bool isOnline, const qutim_sdk_0_3::Status::Type &s)

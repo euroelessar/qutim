@@ -84,6 +84,7 @@ public slots:
 	void appendNick(const QVariant &nick);
 	void contextMenu(const QVariant &nickVar);
 	void appendText(const QVariant &text);
+	void setTopic();
 	
 protected:
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);

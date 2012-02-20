@@ -256,8 +256,10 @@ void NotificationFilterImpl::onSessionActivated(bool active)
 	ChatSession *session = sender_cast<ChatSession*>(sender());
 	ChatUnit *unit = getUnitForSession(session->unit());
 	if (unit) {
-		foreach (Notification *notification, m_notifications.values(unit))
-			notification->reject();
+		foreach (const QWeakPointer<Notification> &notification, m_notifications.values(unit)) {
+			if (notification)
+				notification.data()->reject();
+		}
 		m_notifications.remove(unit);
 		disconnect(unit, 0, this, 0);
 	}
