@@ -486,6 +486,9 @@ void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactIt
 		return;
 	if (child->getContact() == parent->getContact())
 		return;
+	MetaContactManager * const manager = MetaContactManager::instance();
+	if (!manager)
+		return;
 	MetaContact *childMeta = qobject_cast<MetaContact*>(child->getContact());
 	MetaContact *meta = qobject_cast<MetaContact*>(parent->getContact());
 
