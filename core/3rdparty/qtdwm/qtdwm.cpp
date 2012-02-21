@@ -13,7 +13,6 @@
 #include <QApplication>
 #include <QWidget>
 #include <QList>
-#include <QPointer>
 
 #ifdef Q_WS_WIN
 

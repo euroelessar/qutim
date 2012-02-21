@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include <QPointer>
 #include <QStringBuilder>
 #include "account_p.h"
 #include "contact.h"

@@ -26,7 +26,7 @@
 #ifndef FILETRANSFERJOBDELEGATE_H
 #define FILETRANSFERJOBDELEGATE_H
 
-#include "itemdelegate.h"
+#include <qutim/itemdelegate.h>
 
 using namespace qutim_sdk_0_3;
 namespace Core {

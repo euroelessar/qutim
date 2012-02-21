@@ -31,7 +31,7 @@
 #include <QCommandLinkButton>
 #include <QScrollBar>
 #include <qutim/debug.h>
-#include <itemdelegate.h>
+#include <qutim/itemdelegate.h>
 #include <qutim/servicemanager.h>
 
 namespace Core

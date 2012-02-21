@@ -28,7 +28,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QAction>
-#include <itemdelegate.h>
+#include <qutim/itemdelegate.h>
 #include <qutim/event.h>
 #include <qutim/account.h>
 #include <qutim/groupchatmanager.h>

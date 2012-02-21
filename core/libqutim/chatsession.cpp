@@ -30,7 +30,6 @@
 #include "notification.h"
 #include "account.h"
 #include "history.h"
-#include <QPointer>
 #include <QBasicTimer>
 #include <QDateTime>
 #include <numeric>

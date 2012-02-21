@@ -26,12 +26,11 @@
 #include "dynamicpropertydata_p.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
-#include <QPointer>
 
-Q_DECLARE_METATYPE(QList<QIcon>);
-Q_DECLARE_METATYPE(QList<QPixmap>);
-Q_DECLARE_METATYPE(QList<QImage>);
-Q_DECLARE_METATYPE(QValidator*);
+Q_DECLARE_METATYPE(QList<QIcon>)
+Q_DECLARE_METATYPE(QList<QPixmap>)
+Q_DECLARE_METATYPE(QList<QImage>)
+Q_DECLARE_METATYPE(QValidator*)
 
 namespace qutim_sdk_0_3
 {
@@ -615,10 +614,10 @@ void AbstractDataForm::virtual_hook(int id, void *data)
 
 DataFormsBackend *DataFormsBackend::instance()
 {
-	static QPointer<DataFormsBackend> self;
+    static QWeakPointer<DataFormsBackend> self;
 	if(self.isNull() && ObjectGenerator::isInited())
 		self = qobject_cast<DataFormsBackend *>(ServiceManager::getByName("DataFormsBackend"));
-	return self;
+    return self.data();
 }
 
 }

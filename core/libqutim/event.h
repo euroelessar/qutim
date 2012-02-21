@@ -34,45 +34,45 @@
 
 namespace qutim_sdk_0_3
 {
-	class LIBQUTIM_EXPORT Event : public QEvent
-	{
-	public:
-		inline Event(const char *id = 0, const QVariant &arg0 = QVariant(),
-					 const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(),
-					 const QVariant &arg3 = QVariant(), const QVariant &arg4 = QVariant());
+class LIBQUTIM_EXPORT Event : public QEvent
+{
+public:
+    inline Event(const char *id = 0, const QVariant &arg0 = QVariant(),
+                 const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(),
+                 const QVariant &arg3 = QVariant(), const QVariant &arg4 = QVariant());
 
-		inline Event(quint16 id, const QVariant &arg0 = QVariant(),
-					 const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(),
-					 const QVariant &arg3 = QVariant(), const QVariant &arg4 = QVariant());
+    inline Event(quint16 id, const QVariant &arg0 = QVariant(),
+                 const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(),
+                 const QVariant &arg3 = QVariant(), const QVariant &arg4 = QVariant());
 
-		static QEvent::Type eventType();
-		static quint16 registerType(const char *id);
-		static const char *getId(quint16 id);
-		static QObject *eventManager();
+    static QEvent::Type eventType();
+    static quint16 registerType(const char *id);
+    static const char *getId(quint16 id);
+    static QObject *eventManager();
 
-		template<typename T>
-		T at(int index) const { return args[index].value<T>(); }
-		void send();
+    template<typename T>
+    T at(int index) const { return args[index].value<T>(); }
+    void send();
 
-		quint16 id;
-		QVarLengthArray<QVariant, 5> args;
-	};
+    quint16 id;
+    QVarLengthArray<QVariant, 5> args;
+};
 
-	Event::Event(const char *id, const QVariant &arg0, const QVariant &arg1, const QVariant &arg2,
-		  const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(5)
-	{
-		this->id = registerType(id);
-		args[0] = arg0; args[1] = arg1; args[2] = arg2; args[3] = arg3; args[4] = arg4;
-	}
+Event::Event(const char *id, const QVariant &arg0, const QVariant &arg1, const QVariant &arg2,
+             const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(5)
+{
+    this->id = registerType(id);
+    args[0] = arg0; args[1] = arg1; args[2] = arg2; args[3] = arg3; args[4] = arg4;
+}
 
-	Event::Event(quint16 id, const QVariant &arg0, const QVariant &arg1, const QVariant &arg2,
-		  const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(5)
-	{
-		this->id = id;
-		args[0] = arg0; args[1] = arg1; args[2] = arg2; args[3] = arg3; args[4] = arg4;
-	}
+Event::Event(quint16 id, const QVariant &arg0, const QVariant &arg1, const QVariant &arg2,
+             const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(5)
+{
+    this->id = id;
+    args[0] = arg0; args[1] = arg1; args[2] = arg2; args[3] = arg3; args[4] = arg4;
+}
 
-	LIBQUTIM_EXPORT QDebug operator<<(QDebug, const Event &);
+LIBQUTIM_EXPORT QDebug operator<<(QDebug, const Event &);
 }
 
 #endif // EVENT_H
