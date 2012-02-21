@@ -298,7 +298,7 @@ void ClientIdentify::identify_by_DCInfo()
 		setClientData("IM+", "implus");
 	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_info) && (m_ext_status_info == 0x3b7248ed)) {
 		setClientData("KXicq2", "kxicq");
-	} else if ((m_info == 0xfffff666)) {
+    } else if (m_info == 0xfffff666) {
 		m_client_id = QString("R&Q %1").arg((unsigned int)m_ext_info);
 		setClientIcon("rnq");
 	} else if ((m_info == 0x66666666) && (m_ext_status_info == 0x66666666)) {

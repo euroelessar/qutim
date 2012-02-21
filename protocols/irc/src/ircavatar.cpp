@@ -55,7 +55,10 @@ void IrcAvatar::requestAvatar(IrcContact *contact)
 void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &,
 								  const QString &, const QString &cmd, const QString &)
 {
-	Q_ASSERT(cmd == "AVATAR");
+    if (cmd != "AVATAR") {
+        qWarning("[irq]: Wrong cmd!");
+        return;
+    }
 	QString avatar = account->avatar();
 	if (!avatar.isEmpty())
 		account->sendCtpcReply(sender, "AVATAR", avatar);

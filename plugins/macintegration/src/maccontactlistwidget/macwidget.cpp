@@ -54,8 +54,9 @@
 namespace Core {
 namespace SimpleContactList {
 
-struct MacWidgetPrivate
+class MacWidgetPrivate
 {
+public:
     TreeView *view;
     AbstractContactModel *model;
     QLineEdit *searchBar;

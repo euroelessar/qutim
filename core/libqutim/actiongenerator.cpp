@@ -232,7 +232,7 @@ const LocalizedString &ActionGenerator::text() const
 
 const QObject *ActionGenerator::receiver() const
 {
-	return d_func()->receiver;
+    return d_func()->receiver.data();
 }
 
 const char *ActionGenerator::member() const
@@ -312,7 +312,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	//			return NULL;
 	//		}
 	if (d->receiver)
-		action->setParent(d->receiver);
+        action->setParent(d->receiver.data());
 	if (!d->icon.isNull())
 		action->setIcon(d->icon);
 	if (!d->text.original().isEmpty())

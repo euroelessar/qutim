@@ -27,33 +27,32 @@
 #define MIMEOBJECTDATA_H
 
 #include <QMimeData>
-#include <QPointer>
 #include "libqutim_global.h"
 
 namespace qutim_sdk_0_3
 {
-	class MimeObjectDataPrivate;
-	
-	class LIBQUTIM_EXPORT MimeObjectData : public QMimeData
-	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(MimeObjectData)
-	public:
-		MimeObjectData();
-		~MimeObjectData();
-		
-		void setObject(QObject *obj);
-		QObject *object() const;
-		static QString objectMimeType();
-		
-		virtual bool hasFormat(const QString &mimetype) const;
-		virtual QStringList formats() const;
-	protected:
-		virtual QVariant retrieveData(const QString &mimetype,
-									  QVariant::Type preferredType) const;
-	private:
-		QScopedPointer<MimeObjectDataPrivate> d_ptr;
-	};
+class MimeObjectDataPrivate;
+
+class LIBQUTIM_EXPORT MimeObjectData : public QMimeData
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(MimeObjectData)
+public:
+    MimeObjectData();
+    ~MimeObjectData();
+
+    void setObject(QObject *obj);
+    QObject *object() const;
+    static QString objectMimeType();
+
+    virtual bool hasFormat(const QString &mimetype) const;
+    virtual QStringList formats() const;
+protected:
+    virtual QVariant retrieveData(const QString &mimetype,
+                                  QVariant::Type preferredType) const;
+private:
+    QScopedPointer<MimeObjectDataPrivate> d_ptr;
+};
 }
 
 #endif // MIMEOBJECTDATA_H
