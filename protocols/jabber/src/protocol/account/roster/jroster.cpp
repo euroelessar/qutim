@@ -25,6 +25,8 @@
 #include "jroster.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
+#include "../muc/jmucmanager.h"
+#include "../muc/jmucsession.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
 #include <QFile>
@@ -269,19 +271,31 @@ void JRoster::onDisconnected()
 void JRoster::onNewMessage(Jreen::Message message)
 {
 	Q_D(JRoster);
-	//temporary
-	JContact *contact = d->contacts.value(message.from().bare());
-	ChatUnit *chatUnit = contact ? JRoster::contact(message.from().full(), false) : 0;
-	if(!contact) {
-		contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
-		contact->setInList(false);
-		if(Jreen::Nickname::Ptr nick = message.payload<Jreen::Nickname>())
-			contact->setName(nick->nick());
-		chatUnit = contact;
-	}
-
+	
 	if(message.body().isEmpty())
 		return;
+	
+	//temporary
+	ChatUnit *chatUnit = 0;
+	ChatUnit *unitForSession = 0;
+	ChatUnit *muc = d->account->conferenceManager()->muc(message.from().bareJID());
+	if (muc) {
+		JMUCSession *session = static_cast<JMUCSession*>(muc);
+		chatUnit = session->participant(message.from().resource());
+		unitForSession = chatUnit;
+	} else {
+		JContact *contact = d->contacts.value(message.from().bare());
+		chatUnit = contact ? JRoster::contact(message.from().full(), false) : 0;
+		if (!contact) {
+			contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
+			contact->setInList(false);
+			if(Jreen::Nickname::Ptr nick = message.payload<Jreen::Nickname>())
+				contact->setName(nick->nick());
+			chatUnit = contact;
+		}
+		unitForSession = contact;
+	}
+
 	qutim_sdk_0_3::Message coreMessage;
 	if(Jreen::DelayedDelivery::Ptr d = message.when())
 		coreMessage.setTime(d->dateTime());
@@ -291,7 +305,7 @@ void JRoster::onNewMessage(Jreen::Message message)
 	coreMessage.setProperty("subject",message.subject());
 	coreMessage.setChatUnit(chatUnit);
 	coreMessage.setIncoming(true);
-	ChatLayer::get(contact,true)->appendMessage(coreMessage);
+	ChatLayer::get(unitForSession, true)->appendMessage(coreMessage);
 }
 
 void JRoster::handleSubscription(Jreen::Presence subscription)

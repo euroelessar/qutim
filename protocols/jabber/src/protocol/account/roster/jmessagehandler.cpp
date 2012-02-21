@@ -28,6 +28,7 @@
 #include "jcontact.h"
 #include "jcontactresource.h"
 #include "../muc/jmucuser.h"
+#include "../muc/jmucmanager.h"
 #include "../../../sdk/jabber.h"
 #include <qutim/debug.h>
 #include <jreen/receipt.h>
@@ -117,7 +118,9 @@ JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
 void JMessageReceiptFilter::filter(Jreen::Message &message)
 {
 	Jreen::Receipt *receipt = message.payload<Jreen::Receipt>().data();
-	ChatUnit *unit = m_account->roster()->contact(message.from(),true);
+	ChatUnit *unit = m_account->conferenceManager()->muc(message.from());
+	if (!unit)
+		unit = m_account->roster()->contact(message.from(), true);
 	if(message.containsPayload<Jreen::Error>())
 		return;
 	if(receipt) {

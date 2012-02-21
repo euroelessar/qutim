@@ -1,10 +1,8 @@
 ﻿/*   */
 
 body {
-	direction: %messageDirection%;
 	/*background: url("Images/bg.gif") fixed;*/
 	background: #FFFFFF;
-	font: 11pt Arial;
 }
 
 div {
