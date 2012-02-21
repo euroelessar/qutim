@@ -30,10 +30,10 @@
 	<string>FFFFFF</string>
 
 	<key>DefaultFontFamily</key>
-	<string>Georgia</string>
+	<string>Arial</string>
 
 	<key>DefaultFontSize</key>
-	<integer>10</integer>
+	<integer>11</integer>
 
 	<key>ShowIncomingFonts</key>
 	<false/>
