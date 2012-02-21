@@ -456,6 +456,16 @@ void WebViewController::updateTopic()
 	element.setInnerXml(m_style.templateForContent(m_topic, false));
 }
 
+void WebViewController::setTopic()
+{
+	QWebElement element = mainFrame()->findFirstElement(QLatin1String("#topicEdit"));
+	Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
+	if (element.isNull() || !conference)
+		return;
+	conference->setTopic(element.toPlainText());
+	updateTopic();
+}
+
 void WebViewController::onContentsChanged()
 {
 }

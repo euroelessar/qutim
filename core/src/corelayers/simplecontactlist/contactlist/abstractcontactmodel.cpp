@@ -277,6 +277,11 @@ bool AbstractContactModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 	} else if (ev->parent->type == TagType) {
 		ev->type = ChangeEvent::ChangeTags;
 	} else if(item->type == ContactType && ev->parent->type == ContactType) {
+		MetaContactManager * const manager = MetaContactManager::instance();
+		if (!manager) {
+			delete ev;
+			return false;
+		}
 		ev->type = ChangeEvent::MergeContacts;
 	} else {
 		Q_ASSERT(!"Something is wrong with Drag&Drop");
@@ -287,8 +292,6 @@ bool AbstractContactModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 	d->timer.start(1, this);
 
 	return true;
-	// We should return false
-	//			return false;
 }
 
 void AbstractContactModel::timerEvent(QTimerEvent *timerEvent)
@@ -388,8 +391,11 @@ ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, cons
 
 void AbstractContactModel::init()
 {
-	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	MetaContactManager * const manager = MetaContactManager::instance();
+	if (manager) {
+		connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+				this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	}
 }
 
 void AbstractContactModel::onNotificationFinished()

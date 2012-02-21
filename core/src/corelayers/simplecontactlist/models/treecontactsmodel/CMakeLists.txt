@@ -4,7 +4,7 @@ qutim_add_plugin(treecontactsmodel
 	EXTENSION_CLASS Core::SimpleContactList::TreeModel
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Tree contacts model"
-	DESCRIPTION "Simple contactlist model"
+	DESCRIPTION "Contact list model, which show tags and contacts"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
 )

@@ -167,7 +167,7 @@ void MobileNotificationSettings::loadImpl()
 			QByteArray backendType = b.backend->backendType();
 			QTreeWidgetItem *item = b.item->child(i);
 			Q_ASSERT(item);
-			item->setCheckState(0, cfg.value(backendType, true) ? Qt::Checked : Qt::Unchecked);
+			item->setCheckState(0, cfg.value(backendType, false) ? Qt::Checked : Qt::Unchecked);
 		}
 		cfg.endGroup();
 	}
