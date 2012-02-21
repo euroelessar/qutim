@@ -58,7 +58,7 @@ public:
 	~JMUCSession();
 	QString id() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
-	bool sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message);
+	bool sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message);
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
@@ -83,7 +83,7 @@ protected:
 	virtual void doLeave();
 protected slots:
 	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
-	void onMessage(const Jreen::Message &msg, bool priv);
+	void onMessage(Jreen::Message msg, bool priv);
 	void onSubjectChanged(const QString &subject, const QString &nick);
 	void onServiceMessage(const Jreen::Message &msg);
 	void onError(Jreen::Error::Ptr error);

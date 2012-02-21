@@ -59,6 +59,7 @@ class JMUCSessionPrivate
 {
 public:
 	QPointer<JAccount> account;
+	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
 	Jreen::JID jid;
 	QString title;
@@ -82,6 +83,7 @@ JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccou
 	d->account = account;
 	d->room = new Jreen::MUCRoom(account->client(), room);
 	d->room->setPassword(password);
+	d->filters << new JMessageReceiptFilter(account, 0);
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
 			this, SLOT(onParticipantPresence(Jreen::Presence,const Jreen::MUCRoom::Participant*)));
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
@@ -127,6 +129,8 @@ JMUCSession::~JMUCSession()
 	Q_D(JMUCSession);
 	if (d->account)
 		d->room->leave();
+	foreach (Jreen::MessageFilter *filter, d->filters)
+		delete filter;
 }
 
 qutim_sdk_0_3::Buddy *JMUCSession::me() const
@@ -261,14 +265,19 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	return true;
 }
 
-bool JMUCSession::sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message)
+bool JMUCSession::sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
 	if (account()->status() == Status::Offline)
 		return false;
-	Jreen::Message jMsg(Jreen::Message::Chat, id, message.text());
-	jMsg.setID(d->account->client()->getID());
-	d->account->client()->send(jMsg);
+	Jreen::Message msg(Jreen::Message::Chat,
+					   user->id(),
+					   message.text(),
+					   message.property("subject").toString());
+	msg.setID(QString::number(message.id()));
+	foreach (Jreen::MessageFilter *filter, d->filters)
+		filter->decorate(msg);
+	d->account->client()->send(msg);
 	return true;
 }
 
@@ -425,7 +434,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 	}
 }
 
-void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
+void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 {
 	Q_D(JMUCSession);
 	//	Q_ASSERT(room == d->room);
@@ -439,6 +448,10 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 	JMUCUser *user = d->users.value(nick, 0);
 	if (priv) {
 		if (!user)
+			return;
+		foreach (Jreen::MessageFilter *filter, d->filters)
+			filter->filter(msg);
+		if (msg.body().isEmpty())
 			return;
 		qutim_sdk_0_3::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(user);
