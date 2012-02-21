@@ -47,7 +47,7 @@ class LIBQUTIM_EXPORT AbstractContact : public ChatUnit
 public:
 	AbstractContact(const QString &id, Account *parent = 0);
 	virtual ~AbstractContact();
-	QString id();
+    QString id() const;
 	virtual QString name() const;
 	virtual Status status() const;
 	MetaContact *metaContact();

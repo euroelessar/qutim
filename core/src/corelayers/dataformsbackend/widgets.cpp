@@ -717,7 +717,7 @@ DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *
 		setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_layout = new DataLayout(items, dataForm, items.property<quint16>("columns", 1), this);
-	m_layout->addItems(items.subitems());
+	m_layout->addDataItems(items.subitems());
 
 	QVariant spacing = items.property("horizontalSpacing");
 	if (spacing.canConvert(QVariant::Int))

@@ -32,7 +32,7 @@
 #include <qutim/icon.h>
 #include "qutim/metaobjectbuilder.h"
 #include <QStringBuilder>
-#include "itemdelegate.h"
+#include <qutim/itemdelegate.h>
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <qutim/configbase.h>

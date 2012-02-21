@@ -51,8 +51,8 @@ namespace qutim_sdk_0_3
 														QScriptEngine::AutoCreateDynamicProperties));
 		}
 		QScriptValue protocols = engine->newObject();
-		ProtocolMap map = Protocol::all();
-		ProtocolMap::iterator it;
+		ProtocolHash map = Protocol::all();
+		ProtocolHash::iterator it;
 		for (it = map.begin(); it != map.end(); it++)
 			protocols.setProperty(it.key(), engine->newQObject(it.value()));
 		client.setProperty("protocols", protocols);
