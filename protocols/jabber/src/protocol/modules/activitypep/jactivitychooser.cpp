@@ -190,7 +190,7 @@ JActivityChooserWindow::JActivityChooserWindow(Account *account,
 		generalItem->setData(0, Qt::DisplayRole, JPersonActivityConverter::generalTitle(activity.general).toString());
 		generalItem->setData(0, Qt::DecorationRole, Icon(generalIconName + QLatin1String("-jabber")));
 		generalItem->setData(0, Qt::UserRole+1, generalName);
-		bool isGeneralCurrent = current == 0 && generalName == currentGeneral;
+		bool isGeneralCurrent = (!current && generalName == currentGeneral);
 
 		foreach (Jreen::Activity::Specific specific, activity.items) {
 			QString specificName = Jreen::Activity::specificName(specific);
@@ -201,11 +201,11 @@ JActivityChooserWindow::JActivityChooserWindow(Account *account,
 			item->setData(0, Qt::UserRole+1, generalName);
 			item->setData(0, Qt::UserRole+2, specificName);
 			generalItem->addChild(item);
-			if (current == 0 && isGeneralCurrent && specificName == currentSpecific)
+			if (!current && isGeneralCurrent && specificName == currentSpecific)
 				current = item;
 		}
 
-		if (isGeneralCurrent && current == 0)
+		if (isGeneralCurrent && !current)
 			current = generalItem;
 	}
 
@@ -249,10 +249,10 @@ void JActivityChooser::init(qutim_sdk_0_3::Account *account)
 	m_account = account;
 	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 	// Add action to context menu
-	static JActivityChooserAction gen(QIcon(), tr("Set activity"), this, SLOT(show(QObject*)));
-	gen.setType(0x60000);
-	gen.setPriority(30);
-	account->addAction(&gen);
+	m_action.reset(new JActivityChooserAction(QIcon(), tr("Set activity"), this, SLOT(show(QObject*))));
+	m_action->setType(0x60000);
+	m_action->setPriority(30);
+	account->addAction(m_action.data());
 	// Register event filter
 	account->installEventFilter(this);
 }
