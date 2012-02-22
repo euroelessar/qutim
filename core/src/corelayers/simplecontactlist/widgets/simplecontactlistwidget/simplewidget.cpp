@@ -43,6 +43,7 @@
 #include <qutim/simplecontactlist/lineedit.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
+#include <qutim/statusactiongenerator.h>
 #include <QApplication>
 #include <QLineEdit>
 #include <qutim/metacontact.h>
@@ -240,13 +241,14 @@ void SimpleWidget::loadGeometry()
 
 QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
 {
-	Status s = Status(type);
-	QAction *act = new QAction(s.icon(), s.name(), m_statusBtn);
-	connect(act, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
-	act->setParent(m_statusBtn);
-	act->setData(type);
-	m_statusActions.append(act);
-	return act;
+	ActionGenerator *generator = new StatusActionGenerator(Status(type));
+	QAction *action = generator->generate<QAction>();
+	connect(action, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
+	action->setParent(m_statusBtn);
+	action->setData(type);
+	m_actionGenerators << generator;
+	m_statusActions.append(action);
+	return action;
 }
 
 void SimpleWidget::onSearchActivated()
@@ -352,12 +354,6 @@ void SimpleWidget::orientationChanged()
 bool SimpleWidget::event(QEvent *event)
 {
 	if (event->type() == QEvent::LanguageChange) {
-		foreach (QAction *action,m_statusActions) {
-			Status last = m_statusBtn->property("lastStatus").value<Status>();
-			m_statusBtn->setText(last.name());
-			Status::Type type = static_cast<Status::Type>(action->data().toInt());
-			action->setText(Status(type).name());
-		}
 		m_status_action->setText(tr("Set Status Text"));
 		event->accept();
 	}
