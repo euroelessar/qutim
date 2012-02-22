@@ -90,6 +90,10 @@ void JAccountPrivate::applyStatus(const Status &status)
 			privacyManager->desetActiveList();
 	}
 	client->setPresence(JStatus::statusToPresence(status), status.text(), priority);
+	const Presence presence = client->presence();
+	// We need this for peps
+	Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
+	client->send(copy);
 	q->setAccountStatus(status);
 }
 

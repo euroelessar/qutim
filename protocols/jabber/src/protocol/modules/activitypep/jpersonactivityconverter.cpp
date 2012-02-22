@@ -117,9 +117,9 @@ static void init_specific_names(ActivityNames &names)
 	names.append(QT_TRANSLATE_NOOP("Activity", "Writing"));
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, generalNames, init_general_names(*x));
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, specificNames, init_specific_names(*x));
-Q_GLOBAL_STATIC(JPersonActivityRegistrator, activityRegistrator);
+Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, generalNames, init_general_names(*x))
+Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, specificNames, init_specific_names(*x))
+Q_GLOBAL_STATIC(JPersonActivityRegistrator, activityRegistrator)
 
 JPersonActivityConverter::JPersonActivityConverter()
 {

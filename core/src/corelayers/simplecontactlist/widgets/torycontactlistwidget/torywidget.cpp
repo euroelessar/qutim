@@ -39,6 +39,7 @@
 #include <qutim/shortcut.h>
 #include <qutim/systemintegration.h>
 #include <qutim/utils.h>
+#include <qutim/statusactiongenerator.h>
 #include <QAbstractItemDelegate>
 #include <QAction>
 #include <QApplication>
@@ -66,6 +67,7 @@ struct ToryWidgetPrivate
 	QAction *statusTextAction;
 	QHash<Account *, QToolButton *> accounts;
 	QActionGroup *statusGroup;
+	QList<ActionGenerator*> actionGenerators;
 };
 
 ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
@@ -170,6 +172,7 @@ ToryWidget::~ToryWidget()
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());
+	qDeleteAll(d_func()->actionGenerators);
 }
 
 void ToryWidget::addButton(ActionGenerator *generator)
@@ -189,12 +192,14 @@ TreeView *ToryWidget::contactView()
 
 QAction *ToryWidget::createGlobalStatus(Status::Type type)
 {
-	Status s = Status(type);
-	QAction *act = new QAction(s.icon(), s.name(), this);
-	connect(act, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
-	d_func()->statusGroup->addAction(act);
-	act->setData(type);
-	return act;
+	Q_D(ToryWidget);
+	ActionGenerator *generator = new StatusActionGenerator(Status(type));
+	QAction *action = generator->generate<QAction>();
+	connect(action, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
+	d->actionGenerators << generator;
+	d->statusGroup->addAction(action);
+	action->setData(type);
+	return action;
 }
 
 void ToryWidget::loadGeometry()
@@ -329,6 +334,17 @@ void ToryWidget::onStatusChanged()
 			}
 		}
 	}
+}
+
+bool ToryWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::LanguageChange) {
+		Q_D(ToryWidget);
+		d->globalStatus->setText(tr("Global status"));
+		d->statusTextAction->setText(tr("Set Status Text"));
+		event->accept();
+	}
+	return QMainWindow::event(event);
 }
 
 bool ToryWidget::eventFilter(QObject *obj, QEvent *event)

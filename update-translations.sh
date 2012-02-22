@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #****************************************************************************
 #**
 #** qutIM instant messenger
@@ -23,8 +25,6 @@
 #**
 #****************************************************************************/
 
-#!/bin/sh
-
 # Try to find lconvert
 lconvert=`which lconvert-qt4`
 if [ -nf $lconvert ]
@@ -41,9 +41,11 @@ fi
 
 customJsonFile=$PWD/plugins/adiumwebview/__custom_json_from_styles.cpp
 weatherFile=$PWD/plugins/weather/__template_from_weather.cpp
+serviceFile=$PWD/core/__generated_from_service_names.cpp
 
 grep \"label\" $PWD/core/share/qutim/webkitstyle/*/Contents/Resources/*.json | sed 's/.*://g;s/, *$/);/g;s/^/Qt::translate("Style",/' | sort -u > $customJsonFile
 find ./plugins/weather/ -type f -name \*html -exec cat {} \; | sed 's/%localized{/\n%localized{/g;s/}%/}%\n/g' | grep %localized{ | sed 's/%localized{/Qt::translate("Weather", "/;s/}%$/");/' | sort -u > $weatherFile
+find -name \*.h -exec cat {} \; | grep -P "Q_CLASSINFO.*Service" | sed 's/.*".*".*\(".*"\).*/Qt::translate("Service", \1);/' | sort -u > $serviceFile
 
 for file in $PWD/plugins/* $PWD/protocols/* $PWD/core
 do
@@ -66,14 +68,20 @@ do
 	fi
 done
 
-rm $customJsonFile $weatherFile
+rm $customJsonFile $weatherFile $serviceFile
 
 module=devels
 modulePath=$PWD/translations/modules/$module
+moduleCpp=$modulePath/__from_devels_json.cpp
 mkdir -p $modulePath
-cat $PWD/core/devels/*.json $PWD/core/contributers/*.json | grep -P '(name|task)' | sed 's/[ \t]*"/"/g;s/^/pgettext(/;s/name/Author/;s/task/Task/;s/,/);/;s/:/,/' | xgettext -C --from-code=utf-8 --force-po --no-location - -o - | sed 's/CHARSET/UTF-8/' > $modulePath/$module.pot
+cat $PWD/core/devels/*.json $PWD/core/contributers/*.json | grep -P '(name|task)' | sed 's/[ \t]*"/"/g;s/name/Author/;s/task/Task/;s/,/);/;s/:/,/;s/^/Qt::translate(/' > $moduleCpp
+lupdate -codecfortr "utf-8" -locations relative $moduleCpp -ts "$modulePath/$module.ts"
+lconvert -i "$modulePath/$module.ts" -o "$modulePath/$module.pot"
 for poFile in `ls $modulePath/*.po`
 do
 	msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
 done
+rm $moduleCpp
+
+find $PWD/translations/modules -type f -name \*.po | perl fix-qt-extensions.perl
 

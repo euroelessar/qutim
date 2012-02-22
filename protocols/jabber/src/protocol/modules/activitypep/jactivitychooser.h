@@ -74,6 +74,7 @@ protected:
 private:
 	int m_eventId;
 	Account *m_account;
+	QScopedPointer<ActionGenerator> m_action;
 	QString m_currentGeneral;
 	QString m_currentSpecific;
 	QString m_currentText;

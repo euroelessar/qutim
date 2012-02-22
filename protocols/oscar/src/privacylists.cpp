@@ -204,7 +204,7 @@ PrivacyLists::PrivacyLists() :
 
 #undef ADD_PRIVACY_ACTION
 
-	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("Menu", "Privacy status"));
 	foreach (const PrivacyActionGenerator::Ptr &action, accountMenuHash)
 		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Privacy status");
 }

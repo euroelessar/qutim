@@ -523,7 +523,9 @@ void ActionCollection::showDeref()
 		for (int i = 0; i < d->actions.size(); ++i) {
 			const ActionInfoV2 &info = d->actionInfos.at(i);
 			ActionGenerator *gen = const_cast<ActionGenerator*>(info.gen);
-			ActionGeneratorPrivate::get(gen)->hide(d->actions.at(i)->action.data(), info.controller);
+			ActionGeneratorPrivate *privateGen = gen ? ActionGeneratorPrivate::get(gen) : 0;
+			if (privateGen)
+				privateGen->hide(d->actions.at(i)->action.data(), info.controller);
 		}
 	}
 }

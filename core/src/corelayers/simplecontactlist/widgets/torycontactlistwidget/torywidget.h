@@ -74,6 +74,7 @@ private slots:
 protected:
 	void loadGeometry();
 	QAction *createGlobalStatus(Status::Type type);
+	bool event(QEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);
 private:
 	QScopedPointer<ToryWidgetPrivate> d_ptr;

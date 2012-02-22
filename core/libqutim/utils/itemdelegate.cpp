@@ -229,7 +229,6 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 
 	QFontMetrics metrics = option.fontMetrics;
 	if (!isSeparator(index)) {
-		metrics = option.fontMetrics;
 		QFont font = option.font;
 		font.setBold(true);
 		metrics = QFontMetrics(font);

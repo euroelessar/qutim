@@ -89,7 +89,6 @@ ScriptSettingsItem::ScriptSettingsItem(QScriptEngine *engine) : QScriptClass(eng
 	m_icon = engine->toStringHandle(QLatin1String("icon"));
 	m_generator = engine->toStringHandle(QLatin1String("generator"));
 	m_prototype = engine->newObject();
-//	m_prototype.setProperty();
 }
 
 QScriptClass::QueryFlags ScriptSettingsItem::queryProperty(const QScriptValue &object,
@@ -109,11 +108,11 @@ QScriptValue ScriptSettingsItem::property(const QScriptValue &object, const QScr
 	ScriptSettingsItemData::Ptr data = ScriptSettingsItemData::get(object);
 	if (name == m_type)
 		return data->type;
-	else if (name == m_type)
+	else if (name == m_text)
 		return engine()->newVariant(qVariantFromValue(data->text));
-	else if (name == m_type)
+	else if (name == m_icon)
 		return engine()->newVariant(qVariantFromValue(data->icon));
-	else if (name == m_type)
+	else if (name == m_generator)
 		return data->generatorFunc;
 	return engine()->undefinedValue();
 }
@@ -125,11 +124,11 @@ void ScriptSettingsItem::setProperty(QScriptValue &object, const QScriptString &
 	ScriptSettingsItemData::Ptr data = ScriptSettingsItemData::get(object);
 	if (name == m_type)
 		data->type = static_cast<Settings::Type>(value.toInt32());
-	else if (name == m_type)
+	else if (name == m_text)
 		data->text = value.toVariant().value<LocalizedString>();
-	else if (name == m_type)
+	else if (name == m_icon)
 		data->icon = value.toVariant().value<QIcon>();
-	else if (name == m_type)
+	else if (name == m_generator)
 		data->generatorFunc = value;
 }
 

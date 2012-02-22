@@ -461,7 +461,7 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 			cursor.deleteChar();
 			if (msgEvent->success())
 				cursor.insertImage(QLatin1String("bullet-received"));
-			else if (msgEvent->success())
+			else
 				cursor.insertImage(QLatin1String("bullet-error"));
 			cursor.endEditBlock();
 //			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);

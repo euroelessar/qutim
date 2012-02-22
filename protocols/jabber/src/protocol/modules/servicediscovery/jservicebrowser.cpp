@@ -47,6 +47,7 @@ enum { ItemRole = Qt::UserRole + 1};
 
 JServiceBrowserModule::JServiceBrowserModule()
 {
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("Menu", "Additional"));
 	m_account = 0;
 }
 

@@ -26,6 +26,7 @@
 #include "plugin_p.h"
 #include <QtCore/QCoreApplication>
 #include <QtCore/QHash>
+#include <QDir>
 #include <QResource>
 #include <QStringBuilder>
 #include "json.h"
@@ -69,6 +70,8 @@ static QVariantMap qutim_resource_open(QResource &res)
 QVariantMap PersonInfoData::data() const
 {
 	QResource res(QLatin1Literal(":/devels/") % ocsUsername % QLatin1Literal(".json"));
+	if (!res.isValid())
+		res.setFileName(QLatin1Literal(":/contributers/") % ocsUsername % QLatin1Literal(".json"));
 	return qutim_resource_open(res);
 }
 
@@ -187,6 +190,12 @@ QList<PersonInfo> PersonInfo::authors()
 	it = authors.begin();
 	for (; it != authors.end(); it++)
 		persons.append(it.value());
+	QDir contributersDir(QLatin1String(":/contributers/"));
+	QStringList contributers = contributersDir.entryList(QStringList(QLatin1String("*.json")));
+	for (int i = 0; i < contributers.size(); ++i) {
+		contributers[i].chop(5); // ".json".length()
+		persons << qMakePair(PersonInfo(contributers[i]), 0);
+	}
 	qSort(persons.begin(), persons.end(), personLessThen);
 	QList<PersonInfo> result;
 	for (int i = 0; i < persons.size(); i++)
@@ -198,7 +207,7 @@ QList<PersonInfo> PersonInfo::translators()
 {
 	LocalizedString names = QT_TRANSLATE_NOOP("TRANSLATORS", "Your names");
 	LocalizedString emails = QT_TRANSLATE_NOOP("TRANSLATORS", "Your emails");
-	LocalizedString webs = QT_TRANSLATE_NOOP("TRANSLATORS", "Your emails");
+	LocalizedString webs = QT_TRANSLATE_NOOP("TRANSLATORS", "Your web addresses");
 	QString localizedNames = names.toString();
 	QList<PersonInfo> persons;
 	LocalizedString task = QT_TRANSLATE_NOOP("Task", "Translator");
