@@ -85,11 +85,6 @@ void ChatLayerPlugin::init()
 	setInfo(name, description, QUTIM_VERSION);
 	setCapabilities(Loadable);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
-
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Rederick Asher"),
-			  QT_TRANSLATE_NOOP("Task", "Artist"),
-			  QLatin1String("chaoticblack@gmail.com"),
-			  QLatin1String("litsovet.ru"));
 }
 
 bool ChatLayerPlugin::load()
