@@ -124,7 +124,7 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 	QByteArray post = "login=" + QUrl::toPercentEncoding(login)
 					  + "&passwd=" + QUrl::toPercentEncoding(password)
 					  + "&twoweeks=yes";
-	QNetworkRequest request(QUrl("https://passport.yandex.ru/passport?mode=auth"));
+	QNetworkRequest request(QUrl(QLatin1String("https://passport.yandex.ru/passport?mode=auth")));
 	request.setRawHeader("Cache-Control", "no-cache");
 	request.setRawHeader("Accept", "*/*");
 	QByteArray userAgent = "qutIM/";
@@ -136,16 +136,15 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 	        "&username=" + QUrl::toPercentEncoding(login)
 	        + "&password=" + QUrl::toPercentEncoding(password);
 	debug() << post;
-	QNetworkRequest request(QUrl("https://oauth.yandex.ru/token"));
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+	QNetworkRequest request(QUrl(QLatin1String("https://oauth.yandex.ru/token"));
 #endif
+	request.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("application/x-www-form-urlencoded"));
 	m_reply = m_networkManager->post(request, post);
 }
 
 void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
-	debug() << Q_FUNC_INFO << m_reply.data() << reply;
 	if (reply != m_reply)
 		return;
 
@@ -158,11 +157,6 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 
 	foreach (const QNetworkCookie &cookie,
 			 m_networkManager->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
-		debug() << cookie.name() << cookie.value() << cookie.expirationDate();
-	}
-
-	foreach (const QNetworkCookie &cookie,
-			 m_networkManager->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
 			m_stage = Already;
 			emit result(Success);
@@ -170,9 +164,6 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 			return;
 		}
 	}
-
-	QString page = QString::fromUtf8(reply->readAll());
-	debug() << page;
 
 	m_stage = Need;
 	emit result(Failure);
