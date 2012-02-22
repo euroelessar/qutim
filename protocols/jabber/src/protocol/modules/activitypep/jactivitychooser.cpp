@@ -159,7 +159,7 @@ static void init_activity_groups(ActivityGroups &activities)
 	}
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityGroups, allActivityGroups, init_activity_groups(*x));
+Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityGroups, allActivityGroups, init_activity_groups(*x))
 
 JActivityChooserWindow::JActivityChooserWindow(Account *account,
 											   const QString &currentText,
@@ -173,7 +173,7 @@ JActivityChooserWindow::JActivityChooserWindow(Account *account,
 	// Init dialog
 	ui->setupUi(this);
 	setWindowTitle(tr("Choose your activity"));
-	ui->buttonBox->addButton("Choose", QDialogButtonBox::AcceptRole);
+	ui->buttonBox->addButton(tr("Choose"), QDialogButtonBox::AcceptRole);
 	connect(ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
 	connect(ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
 	connect(this, SIGNAL(accepted()), SLOT(sendActivity()));

@@ -267,7 +267,7 @@ void qutim::loadJson(const QFileInfoList &acc_files)
 			}
 			const uchar *s = Json::skipBlanks(fmap, &len);
 			QVariant val;
-			uchar qch = *s;
+			uchar qch = s ? *s : '\0';
 			if(!s || (qch != '[' && qch != '{'))
 				continue;
 			qch = (qch == '{' ? '}' : ']');

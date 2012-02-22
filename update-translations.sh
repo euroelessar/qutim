@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #****************************************************************************
 #**
 #** qutIM instant messenger
@@ -22,8 +24,6 @@
 #** $QUTIM_END_LICENSE$
 #**
 #****************************************************************************/
-
-#!/bin/sh
 
 # Try to find lconvert
 lconvert=`which lconvert-qt4`
@@ -78,4 +78,6 @@ for poFile in `ls $modulePath/*.po`
 do
 	msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
 done
+
+find $PWD/translations/modules -type f -name \*.po | perl fix-qt-extensions.perl
 

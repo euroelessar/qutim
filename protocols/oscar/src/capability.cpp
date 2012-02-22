@@ -98,7 +98,7 @@ bool Capability::isShort() const
 {
 	if ((data1 >> 16) != 0x0946)
 		return false;
-	return data2 == shortUuid().data2 && data3 == shortUuid().data3 && !memcmp(data4, shortUuid().data4, 16);
+	return data2 == shortUuid().data2 && data3 == shortUuid().data3 && !memcmp(data4, shortUuid().data4, sizeof(data4));
 }
 
 bool Capability::operator==(const QUuid &rhs) const

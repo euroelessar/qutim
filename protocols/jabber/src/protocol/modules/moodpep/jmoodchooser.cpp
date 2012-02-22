@@ -42,7 +42,7 @@ JMoodChooserWindow::JMoodChooserWindow(Account *account, const QString &text,
 	// Init dialog
 	ui->setupUi(this);
 	setWindowTitle(tr("Choose your mood"));
-	ui->buttonBox->addButton("Choose", QDialogButtonBox::AcceptRole);
+	ui->buttonBox->addButton(tr("Choose"), QDialogButtonBox::AcceptRole);
 	connect(ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
 	connect(ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
 	connect(this, SIGNAL(accepted()), SLOT(sendMood()));
