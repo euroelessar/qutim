@@ -34,6 +34,8 @@
 //#include <jreen/pubsubmanager.h>
 #include "../../sdk/jabber.h"
 #include <QSignalMapper>
+#include <QNetworkProxy>
+
 namespace Jreen
 {
 class Client;
@@ -51,6 +53,7 @@ public:
 	inline ~JAccountPrivate() {}
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
+	QNetworkProxy proxy;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;

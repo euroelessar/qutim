@@ -140,7 +140,7 @@ public:
 #define TOPIC_MAIN_DIV					"<div id=\"topic\"></div>"
 // We set back, when the user finishes editing, the correct topic, which wipes out the existance of the span before. We must undo the dbl click action.
 #define TOPIC_INDIVIDUAL_WRAPPER		"<span id=\"topicEdit\" ondblclick=\"this.setAttribute('contentEditable', true); this.focus();\"" \
-	" onkeydown=\"if (event.keyCode == 13 && !event.shiftKey) { event.preventDefault(); this.setAttribute('contentsEditable', false); client.updateTopic(); }\">%1</span>"
+	" onkeydown=\"if (event.keyCode == 13 && !event.shiftKey) { event.preventDefault(); this.setAttribute('contentsEditable', false); client.setTopic(); }\">%1</span>"
 #define ACTION_SPAN "<span class='actionMessageUserName'>%1</span><span class='actionMessageBody'>%2</span>"
 
 namespace qutim_sdk_0_3 {
@@ -402,7 +402,6 @@ void WebKitMessageViewStyle::setStylePath(const QString &path)
 	d->config = cfg.rootValue().toMap();
 	dir.cd(QLatin1String("Resources"));
 	d->stylePath = dir.absolutePath() + QLatin1Char('/');
-	qDebug() << d->stylePath;
 	reloadStyle();
 }
 

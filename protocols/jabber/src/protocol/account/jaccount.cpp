@@ -48,7 +48,9 @@
 #include "roster/jsoftwaredetection.h"
 #include <jreen/pubsubmanager.h>
 #include <jreen/connectionbosh.h>
+#include <jreen/directconnection.h>
 #include <qutim/debug.h>
+#include <qutim/networkproxy.h>
 
 namespace Jabber {
 
@@ -480,6 +482,8 @@ void JAccount::setStatus(Status status)
 	Status old = this->status();
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
+		QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
+		d->client->setProxy(proxy);
 		if (d->passwordDialog) {
 			/* nothing */
 		} else if(d->client->password().isEmpty()) {

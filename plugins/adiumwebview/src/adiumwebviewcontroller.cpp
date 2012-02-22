@@ -130,7 +130,7 @@ void WebViewController::setChatSession(ChatSessionImpl* session)
 		        this, SLOT(onTopicChanged(QString)));
 	}
 	if (!m_isPreview) {
-		loadSettings();
+		loadSettings(false);
 		clearChat();
 		loadHistory();
 	}
@@ -359,15 +359,17 @@ void WebViewController::appendText(const QVariant &text)
 	}
 }
 
-void WebViewController::loadSettings()
+void WebViewController::loadSettings(bool onFly)
 {
-	Config config("appearance/adiumChat");
-	config.beginGroup("style");
-	QString styleName = config.value(QLatin1String("name"), QLatin1String("default"));
-	m_style.setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), styleName));
-	m_style.setShowUserIcons(config.value(QLatin1String("showUserIcons"), true));
-	m_style.setShowHeader(config.value(QLatin1String("showHeader"), true));
-	config.beginGroup(styleName);
+	Config config(QLatin1String("appearance/adiumChat"));
+	config.beginGroup(QLatin1String("style"));
+	if (!onFly) {
+		m_styleName = config.value(QLatin1String("name"), QLatin1String("default"));
+		m_style.setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
+		m_style.setShowUserIcons(config.value(QLatin1String("showUserIcons"), true));
+		m_style.setShowHeader(config.value(QLatin1String("showHeader"), true));
+	}
+	config.beginGroup(m_styleName);
 	QString variant = config.value(QLatin1String("variant"), m_style.defaultVariant());
 	m_style.setActiveVariant(variant);
 	m_style.setCustomBackgroundType(config.value(QLatin1String("backgroundType"),
@@ -395,6 +397,13 @@ void WebViewController::loadSettings()
 		}
 	}
 	m_style.setCustomStyle(css);
+}
+
+void WebViewController::onSettingsSaved()
+{
+	loadSettings(true);
+	evaluateJavaScript(m_style.scriptForChangingVariant());
+	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
 }
 
 void WebViewController::loadHistory()
@@ -445,6 +454,16 @@ void WebViewController::updateTopic()
 		m_topic.setTime(QDateTime::currentDateTime());
 	}
 	element.setInnerXml(m_style.templateForContent(m_topic, false));
+}
+
+void WebViewController::setTopic()
+{
+	QWebElement element = mainFrame()->findFirstElement(QLatin1String("#topicEdit"));
+	Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
+	if (element.isNull() || !conference)
+		return;
+	conference->setTopic(element.toPlainText());
+	updateTopic();
 }
 
 void WebViewController::onContentsChanged()

@@ -420,8 +420,8 @@ void ScriptEngine::initApi()
 	}
 	{
 		QScriptValue protocols = newObject();
-		ProtocolMap allProtos = Protocol::all();
-		ProtocolMap::const_iterator it = allProtos.constBegin();
+		ProtocolHash allProtos = Protocol::all();
+		ProtocolHash::const_iterator it = allProtos.constBegin();
 		for (; it != allProtos.constEnd(); it++) {
 			QScriptValue protocol = newQObject(it.value());
 			protocols.setProperty(it.key(), protocol);

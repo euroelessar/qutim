@@ -51,11 +51,11 @@ public:
 		status(other.status)
 	{}
 	inline QModelIndex parentIndex(void*) { return QModelIndex(); }
-	inline Contact *getContact() { return contact; }
+	inline Contact *getContact() { return contact.data(); }
 	inline Status getStatus() { return status; }
 	inline QList<ContactItem*> &siblings(AbstractContactModel *m);
 	inline bool isInSelectedTag(QSet<QString> &selectedTags);
-	Contact *contact;
+	QWeakPointer<Contact> contact;
 	QSet<QString> tags;
 	Status status;
 };

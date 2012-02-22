@@ -51,13 +51,17 @@ do
 	then
 		module=`basename $file`
 		modulePath=$PWD/translations/modules/$module
+		customCMakeFile=$file/__data_from_cmakelists_txt.cpp
 		mkdir -p $modulePath
-		$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -locations relative $file -ts "$modulePath/$module.ts"
+		find "$file" -name CMakeLists.txt -exec cat {} \; | grep -P '(DISPLAY_NAME|DESCRIPTION)' | sed 's/\r//;s/.*\(DISPLAY_NAME\|DESCRIPTION\)/Qt::translate("Plugin",/;s/$/);/' > $customCMakeFile
+		$lupdate -extensions "h,cpp,mm,js,c,ui,qml" -codecfortr "utf-8" -locations relative $file -ts "$modulePath/$module.ts"
 		$lconvert -i "$modulePath/$module.ts" -o "$modulePath/$module.pot"
 		rm "$modulePath/$module.ts"
+		rm "$customCMakeFile"
 		for poFile in `ls $modulePath/*.po`
 		do
-			msgmerge --update --backup=off $poFile "$modulePath/$module.pot"
+			fileLang=`basename $poFile .po`
+			msgmerge --update --lang=$fileLang --backup=off $poFile "$modulePath/$module.pot"
 		done
 	fi
 done
@@ -67,7 +71,7 @@ rm $customJsonFile $weatherFile
 module=devels
 modulePath=$PWD/translations/modules/$module
 mkdir -p $modulePath
-cat $PWD/core/devels/*.json | grep -P '(name|task)' | sed 's/[ \t]*"/"/g;s/^/pgettext(/;s/name/Author/;s/task/Task/;s/,/);/;s/:/,/' | xgettext -C --from-code=utf-8 --force-po --no-location - -o - | sed 's/CHARSET/UTF-8/' > $modulePath/$module.pot
+cat $PWD/core/devels/*.json $PWD/core/contributers/*.json | grep -P '(name|task)' | sed 's/[ \t]*"/"/g;s/^/pgettext(/;s/name/Author/;s/task/Task/;s/,/);/;s/:/,/' | xgettext -C --from-code=utf-8 --force-po --no-location - -o - | sed 's/CHARSET/UTF-8/' > $modulePath/$module.pot
 for poFile in `ls $modulePath/*.po`
 do
 	msgmerge --update --backup=off $poFile "$modulePath/$module.pot"

@@ -27,7 +27,7 @@
 #include <qutim/icon.h>
 #include <qutim/conference.h>
 #include <QAbstractItemModel>
-#include <3rdparty/avatarfilter/avatarfilter.h>
+#include <qutim/avatarfilter.h>
 
 namespace Core
 {

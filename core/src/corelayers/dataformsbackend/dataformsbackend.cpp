@@ -68,9 +68,9 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 
 		m_widget = dataLayout;
 		if (item.hasSubitems())
-			dataLayout->addItems(item.subitems());
+			dataLayout->addDataItems(item.subitems());
 		else
-			dataLayout->addItem(item);
+			dataLayout->addDataItem(item);
 		if (!dataLayout->isExpandable())
 			dataLayout->addSpacer();
 	}

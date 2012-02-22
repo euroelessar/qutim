@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,16 +22,20 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+
 #include "jproxymanager.h"
-#include "../jaccount.h"
 #include "../../jprotocol.h"
+#include "../../account/jaccount.h"
 #include <qutim/dataforms.h>
 #include <jreen/client.h>
+#include <jreen/connection.h>
+
+using namespace qutim_sdk_0_3;
 
 namespace Jabber {
 
-JProxyManager::JProxyManager() :
-	NetworkProxyManager(JProtocol::instance())
+JProxyManager::JProxyManager()
+    : NetworkProxyManager(JProtocol::instance())
 {
 }
 
@@ -40,18 +44,17 @@ QList<NetworkProxyInfo*> JProxyManager::proxies()
 	static QList<NetworkProxyInfo*> list;
 	if (list.isEmpty()) {
 		list << Socks5ProxyInfo::instance()
-			 << HttpProxyInfo::instance();
+			<< HttpProxyInfo::instance();
 	}
 	return list;
 }
 
 void JProxyManager::setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings)
 {
-	Q_UNUSED(settings);
 	Q_UNUSED(proxy);
 	Q_ASSERT(qobject_cast<JAccount*>(account));
-//	JAccount *acc = static_cast<JAccount*>(account);
-	//acc->connection()->setProxy(toNetworkProxy(settings));
+	JAccount *acc = static_cast<JAccount*>(account);
+	acc->client()->setProxy(toNetworkProxy(settings));
 }
 
 } // namespace Jabber

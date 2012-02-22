@@ -31,41 +31,41 @@
 
 namespace Core {
 
-	class DefaultSearchForm : public AbstractSearchForm
-	{
-		Q_OBJECT
-	public:
-		DefaultSearchForm(const QList<AbstractSearchFactory*> &factories,
-						  const QString &title = QString(),
-						  const QIcon &icon = QIcon(),
-						  QWidget *parent = 0);
+class DefaultSearchForm : public AbstractSearchForm
+{
+    Q_OBJECT
+public:
+    DefaultSearchForm(const QList<AbstractSearchFactory*> &factories,
+                      const QString &title = QString(),
+                      const QIcon &icon = QIcon(),
+                      QWidget *parent = 0);
 
-	private slots:
-		void startSearch();
-		void cancelSearch();
-		void updateRequest(int row);
-		void updateService();
-		void done(bool ok);
-		void updateFields();
-		void updateServiceBox();
-		void updateActionButtons();	
-		void actionButtonClicked();
-	private:
-		void setState(bool search);
-		Ui::DefaultSearchForm ui;
-		QList<QPushButton*> m_actionButtons;
-	};
+private slots:
+    void startSearch();
+    void cancelSearch();
+    void updateRequest(int row);
+    void updateService();
+    void done(bool ok);
+    void updateFields();
+    void updateServiceBox();
+    void updateActionButtons();
+    void actionButtonClicked();
+private:
+    void setState(bool search);
+    Ui::DefaultSearchForm ui;
+    QList<QPushButton*> m_actionButtons;
+};
 
-	class DefaultSearchFormFactory : public AbstractSearchFormFactory
-	{
-		Q_OBJECT
-	public:
-		AbstractSearchForm *createForm(const QList<AbstractSearchFactory*> &factories,
-									   const QString &title = QString(),
-									   const QIcon &icon = QIcon(),
-									   QWidget *parent = 0);
+class DefaultSearchFormFactory : public AbstractSearchFormFactory
+{
+    Q_OBJECT
+public:
+    AbstractSearchForm *createForm(const QList<AbstractSearchFactory*> &factories,
+                                   const QString &title = QString(),
+                                   const QIcon &icon = QIcon(),
+                                   QWidget *parent = 0);
 
-	};
+};
 }
 
 #endif // DEFAULTSEARCHFORM_H

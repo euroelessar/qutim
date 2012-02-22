@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #include "authorization_p.h"
-#include "icqcontact.h"
+#include "icqcontact_p.h"
 #include "icqaccount.h"
 #include "connection.h"
 #include <qutim/authorizationdialog.h>
@@ -118,14 +118,14 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_ASSERT(item.type() == SsiBuddy);
-	static const int SsiBuddyReqAuth = 0x0066;
 	if (type == Feedbag::Remove)
 		return false;
 	if (error == FeedbagError::RequiresAuthorization) {
 		Q_ASSERT(!item.isInList());
-		FeedbagItem i = item;
-		i.setField(SsiBuddyReqAuth);
-		i.update();
+		FeedbagItem itemCopy = item;
+		itemCopy.setId(item.feedbag()->uniqueItemId(SsiBuddy));
+		itemCopy.setField(SsiBuddyReqAuth);
+		itemCopy.add();
 	} else if (error != FeedbagError::NoError) {
 		return false;
 	}

@@ -60,6 +60,7 @@ public:
 	inline QByteArray readAll() const;
 	int state() const { return m_state; }
 	void setMaxSize(int size) { m_max_size = size; }
+	bool canAppend(int size) { return m_data.size() + size <= m_max_size; }
 	template<typename T>
 	void append(const T& data);
 	void append(const char *data);

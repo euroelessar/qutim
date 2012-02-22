@@ -91,9 +91,9 @@ public:
 	{}
 	QIcon icon;
 	LocalizedString title;
-	QPointer<QObject> receiver;
+    QWeakPointer<QObject> receiver;
 	QByteArray method;
-	QPointer<Notification> notification;
+    QWeakPointer<Notification> notification;
 	NotificationAction::Type type;
 };
 
@@ -303,7 +303,7 @@ void NotificationAction::setType(NotificationAction::Type type)
 
 QObject *NotificationAction::receiver() const
 {
-	return d->receiver;
+    return d->receiver.data();
 }
 
 const char *NotificationAction::method() const
@@ -316,7 +316,7 @@ void NotificationAction::trigger() const
 	if (!d->receiver || !d->notification)
 		return;
 
-	const QMetaObject *meta = d->receiver->metaObject();
+    const QMetaObject *meta = d->receiver.data()->metaObject();
 	const char *name = d->method.constData();
 	const char type = name[0];
 	QByteArray tmp = QMetaObject::normalizedSignature(name + 1);
@@ -338,16 +338,16 @@ void NotificationAction::trigger() const
 	}
 
 	if (index != -1) {
-		meta->method(index).invoke(d->receiver,
-								   Q_ARG(NotificationRequest, d->notification->request()));
+        meta->method(index).invoke(d->receiver.data(),
+                                   Q_ARG(NotificationRequest, d->notification.data()->request()));
 	} else {
 		warning() << "An invalid action has been triggered" << name;
 	}
 
 	if (d->type == AcceptButton)
-		d->notification->accept();
+        d->notification.data()->accept();
 	else if (d->type == IgnoreButton)
-		d->notification->ignore();
+        d->notification.data()->ignore();
 }
 
 namespace CompiledProperty

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Alexey Prokhin <alexey.prokhin@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,27 +22,27 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef JPROXYMANAGER_H
-#define JPROXYMANAGER_H
 
+#ifndef OSCARPROXY_H
+#define OSCARPROXY_H
+
+#include "jabber_global.h"
 #include <qutim/networkproxy.h>
 
 namespace Jabber {
 
-	using namespace qutim_sdk_0_3;
-
-	class JProxyManager : public QObject, public NetworkProxyManager
-	{
-		Q_OBJECT
-		Q_CLASSINFO("DependsOn", "Jabber::JProtocol")
-		Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
-	public:
-		JProxyManager();
-		QList<NetworkProxyInfo*> proxies();
-		void setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings);
-	};
+class JProxyManager : public QObject, public qutim_sdk_0_3::NetworkProxyManager
+{
+	Q_OBJECT
+	Q_CLASSINFO("DependsOn", "Jabber::JProtocol")
+	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
+public:
+	JProxyManager();
+	QList<qutim_sdk_0_3::NetworkProxyInfo*> proxies();
+	void setProxy(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::NetworkProxyInfo *proxy, const qutim_sdk_0_3::DataItem &settings);
+};
 
 } // namespace Jabber
 
-#endif // JPROXYMANAGER_H
+#endif // OSCARPROXY_H
 

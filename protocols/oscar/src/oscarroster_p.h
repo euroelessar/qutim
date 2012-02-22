@@ -45,14 +45,15 @@ class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	Roster();
+	
+	QStringList readTags(const FeedbagItem &item);
+	
 protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
-	void handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item);
+	void handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item, Feedbag::ModifyType type);
 	void handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item);
-	void loadTagsFromFeedbag(IcqContact *contact);
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
-	QStringList readTags(const FeedbagItem &item);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void handleUserOnline(IcqAccount *account, const SNAC &snac);
 	void handleUserOffline(IcqAccount *account, const SNAC &snac);

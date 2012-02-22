@@ -53,21 +53,22 @@ Roster::Roster()
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy);
-	m_types << SsiBuddy << SsiGroup << SsiTags;
+	m_types << SsiBuddy << SsiGroup;
 }
 
 bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	if (error != FeedbagError::NoError)
 		return false;
+	
 	if (type == Feedbag::Remove)
 		handleRemoveCLItem(feedbag->account(), item);
 	else
-		handleAddModifyCLItem(feedbag->account(), item);
+		handleAddModifyCLItem(feedbag->account(), item, type);
 	return true;
 }
 
-void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
+void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item, Feedbag::ModifyType type)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
@@ -81,93 +82,79 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 				connInfo->createdContacts << contact;
 		}
 		IcqContactPrivate *d = contact->d_func();
+		if (type == Feedbag::Add) {
+			// Now, the contact should not be removed after destroying its session
+			// as it was added to the server contact list.
+			ChatSession *session = ChatLayer::instance()->get(contact, false);
+			if (session)
+				disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
+		}
+//		d->item;
 		// There is no need to remove the contact after connecting.
 		if (connInfo)
 			connInfo->removedContacts.remove(contact->id());
-		QList<FeedbagItem>::iterator itr = d->items.begin();
-		QList<FeedbagItem>::iterator endItr = d->items.end();
-		bool newTag = true;
-		while (itr != endItr) {
-			if (itr->itemId() == item.itemId() && itr->groupId() == item.groupId()) {
-				*itr = item;
-				newTag = false;
-				break;
-			}
-			++itr;
-		}
-		bool added = false;
-		if (newTag) {
-			QStringList previous;
-			if (!connInfo)
-				previous = contact->tags();
-			if (d->items.isEmpty()) {
-				// Now, the contact should not be removed after destroying its session
-				// as it was added to the server contact list.
-				ChatSession *session = ChatLayer::instance()->get(contact, false);
-				if (session)
-					disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
-				// Add the contact to the contact list.
-				loadTagsFromFeedbag(contact);
-//				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-				if (!connInfo)
-					emit contact->inListChanged(true);
-				added = true;
-			}
-			d->items << item;
-			if (!connInfo)
-				emit contact->tagsChanged(contact->tags(), previous);
-		}
+		bool added = (type == Feedbag::Add);
 		if (!added)
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
+		// isInList
+		if (!d->isInList) {
+			d->isInList = true;
+			emit contact->inListChanged(true);
+		}
+		// tags
+		QStringList newTags = readTags(item);
+		FeedbagItem group = account->feedbag()->groupItem(item.groupId());
+		Q_ASSERT(!group.isNull());
+		if (!group.containsField(SsiGroupDefault)
+		        && group.name().compare(QLatin1String("Not In List"), Qt::CaseInsensitive) != 0
+		        && !newTags.contains(group.name())) {
+			newTags.append(group.name());
+		}
+		if (newTags != d->tags) {
+			QStringList previous = d->tags;
+			d->tags = newTags;
+			emit contact->tagsChanged(newTags, previous);
+		}
 		// proto
-		QString new_proto = item.field<QString>(SsiBuddyProto);
-		if (!new_proto.isEmpty() && new_proto != contact->d_func()->proto) {
-			contact->d_func()->proto = new_proto;
+		QString newProto = item.field<QString>(SsiBuddyProto);
+		if (!newProto.isEmpty() && newProto != contact->d_func()->proto) {
+			contact->d_func()->proto = newProto;
 		}
 		// name
-		QString new_name = item.field<QString>(SsiBuddyNick);
-		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
+		QString newName = item.field<QString>(SsiBuddyNick);
+		if (!newName.isEmpty() && newName != contact->d_func()->name) {
 			QString previous = contact->d_func()->name;
-			contact->d_func()->name = new_name;
-			emit contact->nameChanged(new_name, previous);
+			contact->d_func()->name = newName;
+			emit contact->nameChanged(newName, previous);
 		}
 		// comment
-		QString new_comment = item.field<QString>(SsiBuddyComment);
-		if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
-			contact->setProperty("comment", new_comment);
+		QString newComment = item.field<QString>(SsiBuddyComment);
+		if (!newComment.isEmpty() && newComment != contact->property("comment").toString()) {
+			contact->setProperty("comment", newComment);
 			// TODO: emit ...
 		}
 		break;
 	}
 	case SsiGroup: {
-		FeedbagItem old = account->feedbag()->groupItem(item.groupId());
-		if (old.isInList() && old.name() != item.name()) {
-			foreach (const FeedbagItem &i, account->feedbag()->group(item.groupId())) {
-				QSet<QString> groups;
-				IcqContact *contact = account->getContact(i.name());
-				QStringList previous = contact->tags();
-				foreach (const FeedbagItem &i, contact->d_func()->items) {
-					if (item.groupId() == i.groupId())
-						groups << item.name();
-					else
-						groups << i.name();
-				}
-				emit contact->tagsChanged(contact->tags(), previous);
-			}
-			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
-		} else {
-			debug(Verbose) << "The group" << item.name() << "has been added";
-		}
-		break;
-	}
-	case SsiTags: {
-		IcqContact *contact = account->getContact(item.name());
-		if (contact) {
-			QStringList previous = contact->tags();
-			contact->d_func()->tags = readTags(item);
-			if (!account->d_func()->connectingInfo)
-				emit contact->tagsChanged(contact->tags(), previous);
-		}
+		// TODO:
+//		FeedbagItem old = account->feedbag()->groupItem(item.groupId());
+//		if (old.isInList() && old.name() != item.name()) {
+//			foreach (const FeedbagItem &i, account->feedbag()->group(item.groupId())) {
+//				QSet<QString> groups;
+//				IcqContact *contact = account->getContact(i.name());
+//				QStringList previous = contact->tags();
+//				foreach (const FeedbagItem &i, contact->d_func()->items) {
+//					if (item.groupId() == i.groupId())
+//						groups << item.name();
+//					else
+//						groups << i.name();
+//				}
+//				emit contact->tagsChanged(contact->tags(), previous);
+//			}
+//			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
+//		} else {
+//			debug(Verbose) << "The group" << item.name() << "has been added";
+//		}
 		break;
 	}
 	}
@@ -191,69 +178,53 @@ void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 		debug() << "The group" << item.name() << "has been removed";
 		break;
 	}
-	case SsiTags: {
-		IcqContact *contact = account->getContact(item.name());
-		if (contact) {
-			QStringList previous = contact->tags();
-			contact->d_func()->tags.clear();
-			emit contact->tagsChanged(contact->tags(), previous);
-		}
-		break;
-	}
 	}
 }
 
 void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 {
-	QStringList previous = contact->tags();
-	QList<FeedbagItem> &items = contact->d_func()->items;
-	QList<FeedbagItem>::iterator itr = items.begin();
-	QList<FeedbagItem>::iterator endItr = items.end();
-	bool found = false;
-	while (itr != endItr) {
-		if (itr->groupId() == groupId) {
-			items.erase(itr);
-			found = true;
-			break;
-		}
-		++itr;
-	}
-	if (found) {
-		if (items.isEmpty()) {
-//			debug().nospace() << "The contact " << contact->id()
-//					<< " (" << contact->name() << ") has been removed";
-			removeContact(contact);
-		} else {
-//			debug().nospace() << "The contact " << contact->id() << " ("
-//					<< contact->name() << ") has been removed from "
-//					<< contact->account()->feedbag()->groupItem(groupId).name();
-			emit contact->tagsChanged(contact->tags(), previous);
-		}
-	}
-}
-
-void Roster::loadTagsFromFeedbag(IcqContact *contact)
-{
-	FeedbagItem tagsItem = contact->account()->feedbag()->item(SsiTags, contact->id(), 0);
-	if (tagsItem.isInList())
-		contact->d_func()->tags = readTags(tagsItem);
+	Q_UNUSED(groupId);
+	removeContact(contact);
+//	QStringList previous = contact->tags();
+//	QList<FeedbagItem> &items = contact->d_func()->items;
+//	QList<FeedbagItem>::iterator itr = items.begin();
+//	QList<FeedbagItem>::iterator endItr = items.end();
+//	bool found = false;
+//	while (itr != endItr) {
+//		if (itr->groupId() == groupId) {
+//			items.erase(itr);
+//			found = true;
+//			break;
+//		}
+//		++itr;
+//	}
+//	if (found) {
+//		if (items.isEmpty()) {
+////			debug().nospace() << "The contact " << contact->id()
+////					<< " (" << contact->name() << ") has been removed";
+//			removeContact(contact);
+//		} else {
+////			debug().nospace() << "The contact " << contact->id() << " ("
+////					<< contact->name() << ") has been removed from "
+////					<< contact->account()->feedbag()->groupItem(groupId).name();
+//			emit contact->tagsChanged(contact->tags(), previous);
+//		}
+//	}
 }
 
 void Roster::removeContact(IcqContact *contact)
 {
+	contact->d_func()->isInList = false;
 	emit contact->inListChanged(false);
-	// Remove tags.
-	FeedbagItem item = contact->account()->feedbag()->item(SsiTags, contact->id(), 0);
-	if (!item.isNull())
-		item.remove();
 	ChatSession *session = ChatLayer::instance()->get(contact, false);
-	if (session)
+	if (session) {
 		// The contact has been removed, but its session still exists,
 		// thus we have to wait until the session is destroyed.
 		connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
-	else
+	} else {
 		// Well... There is no need in this contact.
 		contact->deleteLater();
+	}
 }
 
 QStringList Roster::readTags(const FeedbagItem &item)
@@ -274,8 +245,7 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		// Requesting client-side contactlist rights
 		SNAC snac(BuddyFamily, UserCliReqBuddy);
-		// Unknown rights from ICQ 7.5
-//		snac.appendTLV<quint16>(0x0005, 0x0f);
+		snac.appendTLV<quint16>(0x0005, 0x0f);
 //		snac.appendTLV(0x0006, QByteArray::fromHex("000000"));
 //		snac.appendTLV<quint8>(0x0007, 0x00);
 		// Request facebook contacts
@@ -428,8 +398,6 @@ void Roster::reloadingStarted()
 	d->connectingInfo->removedContacts = d->contacts;
 	foreach (IcqContact *contact, feedbag->account()->contacts()) {
 		d->connectingInfo->oldTags.insert(contact, contact->tags());
-		contact->d_func()->items.clear();
-		contact->d_func()->tags.clear();
 	}
 }
 

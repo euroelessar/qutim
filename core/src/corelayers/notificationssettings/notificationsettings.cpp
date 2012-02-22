@@ -149,10 +149,12 @@ void NotificationSettings::loadImpl()
 	onNotificationTypeChanged();
 
 	// Load additional settings
-	Config cfg = Config().group("notification");
+	Config cfg;
+	cfg.beginGroup(QLatin1String("notification"));
 	m_conferenceMessagesBox->setChecked(cfg.value("ignoreConfMsgsWithoutUserNick", true));
 
-	cfg = Config("appearance").group("chat");
+	cfg = Config(QLatin1String("appearance"));
+	cfg.beginGroup(QLatin1String("chat"));
 	m_notificationInActiveChatBox->setChecked(!cfg.value("notificationsInActiveChat", true));
 }
 
@@ -165,7 +167,7 @@ void NotificationSettings::saveImpl()
 {
 	updateTypesList();
 	Config cfg;
-	cfg.beginGroup("notification");
+	cfg.beginGroup(QLatin1String("notification"));
 
 	for (int i = 0; i <= Notification::LastType; ++i) {
 		Notification::Type type = static_cast<Notification::Type>(i);
@@ -201,7 +203,7 @@ EnabledNotificationTypes NotificationSettings::enabledTypes()
 		cfg.beginGroup(notificationTypeName(type));
 		foreach (NotificationBackend *backend, NotificationBackend::all()) {
 			QByteArray backendType = backend->backendType();
-			if (cfg.value(backendType, true))
+			if (cfg.value(backendType, false))
 				backendTypes << backendType;
 		}
 		cfg.endGroup();

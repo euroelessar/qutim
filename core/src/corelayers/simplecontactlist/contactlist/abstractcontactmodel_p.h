@@ -106,11 +106,14 @@ bool contactLessThan(ContactItem *a, ContactItem *b) {
 	//result = unreadA - unreadB;
 	//if(result)
 	//	return result < 0;
-
 	result = a->getStatus().type() - b->getStatus().type();
 	if (result)
 		return result < 0;
-	return a->getContact()->title().compare(b->getContact()->title(), Qt::CaseInsensitive) < 0;
+	Contact * const aContact = a->getContact();
+	Contact * const bContact = b->getContact();
+	if (!bContact || !aContact)
+		return false;
+	return aContact->title().compare(bContact->title(), Qt::CaseInsensitive) < 0;
 }
 
 template<typename TagContainer, typename TagItem, typename ContactItem>
@@ -265,6 +268,8 @@ QVariant AbstractContactModel::contactData(const QModelIndex &index, int role) c
 	Q_D(const AbstractContactModel);
 	ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 	Contact *contact = item->getContact();
+	if (!contact)
+		return QVariant();
 	switch(role)
 	{
 	case Qt::EditRole:
@@ -426,6 +431,8 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 		return true;
 	}
 	Contact *contact = item->getContact();
+	if (!contact)
+		return false;
 	if (!d->lastFilter.isEmpty()) {
 		return contact->id().contains(d->lastFilter,Qt::CaseInsensitive)
 				|| contact->name().contains(d->lastFilter,Qt::CaseInsensitive);
@@ -478,6 +485,9 @@ void AbstractContactModel::showContactMergeDialog(ContactItem *parent, ContactIt
 	if (!ServiceManager::getByName("MetaContactManager"))
 		return;
 	if (child->getContact() == parent->getContact())
+		return;
+	MetaContactManager * const manager = MetaContactManager::instance();
+	if (!manager)
 		return;
 	MetaContact *childMeta = qobject_cast<MetaContact*>(child->getContact());
 	MetaContact *meta = qobject_cast<MetaContact*>(parent->getContact());

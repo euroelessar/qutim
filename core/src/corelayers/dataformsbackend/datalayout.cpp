@@ -36,7 +36,6 @@ namespace Core
 DataLayout::DataLayout(const DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent) :
 	QGridLayout(parent),
 	AbstractDataWidget(item, dataForm),
-	m_style(0),
 	m_row(0),
 	m_expandable(false)
 {
@@ -72,7 +71,7 @@ DataItem DataLayout::item(bool hasSubitems) const
 	}
 }
 
-void DataLayout::addItem(const DataItem &item)
+void DataLayout::addDataItem(const DataItem &item)
 {
 	bool twoColumns;
 	QWidget *widget = getWidget(dataForm(), item, parentWidget(), &twoColumns);
@@ -90,10 +89,10 @@ void DataLayout::addItem(const DataItem &item)
 	}
 }
 
-void DataLayout::addItems(const QList<DataItem> &items)
+void DataLayout::addDataItems(const QList<DataItem> &items)
 {
 	foreach (const DataItem &item, items)
-		addItem(item);
+		addDataItem(item);
 }
 
 void DataLayout::addSpacer()
@@ -161,7 +160,7 @@ inline Qt::Alignment DataLayout::labelAlignment()
 			m_style = parent->style();
 		else
 			m_style = QApplication::style();
-		m_labelAlignment = Qt::Alignment(m_style->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+        m_labelAlignment = Qt::Alignment(m_style.data()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
 	}
 	return m_labelAlignment;
 }

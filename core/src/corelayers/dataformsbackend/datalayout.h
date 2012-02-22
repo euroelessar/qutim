@@ -34,23 +34,21 @@
 #include <qutim/dataforms.h>
 
 class QLabel;
-Q_DECLARE_METATYPE(QHostAddress);
-
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+
 class DefaultDataForm;
 
 class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	DataLayout(const DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
+    DataLayout(const qutim_sdk_0_3::DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
-	DataItem item() const;
-	DataItem item(bool hasSubitems) const;
-	void addItem(const DataItem &item);
-	void addItems(const QList<DataItem> &items);
+    qutim_sdk_0_3::DataItem item() const;
+    qutim_sdk_0_3::DataItem item(bool hasSubitems) const;
+    void addDataItem(const qutim_sdk_0_3::DataItem &item);
+    void addDataItems(const QList<qutim_sdk_0_3::DataItem> &items);
 	void addSpacer();
 	void addRow(QWidget *widget) { addRow(0, widget); }
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
@@ -60,7 +58,7 @@ protected:
 	Qt::Alignment labelAlignment();
 private:
 	mutable Qt::Alignment m_labelAlignment;
-	mutable QPointer<QStyle> m_style;
+    mutable QWeakPointer<QStyle> m_style;
 	int m_row;
 	struct WidgetLine {
 		WidgetLine(QWidget *t, QWidget *d) :
@@ -78,6 +76,8 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(QHostAddress)
 
 #endif // DATALAYOUT_H
 

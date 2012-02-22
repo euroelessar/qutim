@@ -32,8 +32,7 @@
 #include <qutim/tooltip.h>
 #include <qutim/servicemanager.h>
 #include <qutim/thememanager.h>
-#include <qutim/settingslayer.h>
-#include <3rdparty/avatarfilter/avatarfilter.h>
+#include <qutim/avatarfilter.h>
 #include <QDir>
 #include <QFile>
 #include <QScrollBar>

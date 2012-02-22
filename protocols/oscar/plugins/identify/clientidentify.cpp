@@ -298,7 +298,7 @@ void ClientIdentify::identify_by_DCInfo()
 		setClientData("IM+", "implus");
 	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_info) && (m_ext_status_info == 0x3b7248ed)) {
 		setClientData("KXicq2", "kxicq");
-	} else if ((m_info == 0xfffff666)) {
+    } else if (m_info == 0xfffff666) {
 		m_client_id = QString("R&Q %1").arg((unsigned int)m_ext_info);
 		setClientIcon("rnq");
 	} else if ((m_info == 0x66666666) && (m_ext_status_info == 0x66666666)) {
@@ -582,20 +582,29 @@ void ClientIdentify::identify_qutIM()
 			QString os = SystemInfo::systemID2String(type, ver);
 			os.prepend('(');
 			os.append (')');
-			int ver1 = verStr[1];
-			int ver2 = verStr[2];
-			int ver3 = verStr[3];
+			int ver1 = quint8(verStr[1]);
+			int ver2 = quint8(verStr[2]);
+			int ver3 = quint8(verStr[3]);
+			int ver4 = quint8(verStr[4]);
 			unsigned char svn1 = verStr[4];
 			unsigned char svn2 = verStr[5];
 			if (ver1 == 0x42) {
 				m_client_id = QString("oldk8 v%1.%2 (%3) %4").arg(ver2).arg(ver3).
 						           arg((unsigned int)((svn1 << 0x08))).arg(os);
 			} else {
-				if (svn1 | svn2)
+				if (svn2) {
 					m_client_id = QString("qutIM v%1.%2.%3 svn%4 %5").arg(ver1).arg(ver2).arg(ver3).
 							                  arg((unsigned int)((svn1 << 0x08) | svn2)).arg(os);
-				else
-					m_client_id = QString("qutIM v%1.%2.%3 %4").arg(ver1).arg(ver2).arg(ver3).arg(os);
+				} else {
+					QString fixVersion;
+					if (ver4 > 0) {
+						fixVersion = QString::number(ver4);
+						fixVersion.prepend(QLatin1Char('.'));
+					}
+					m_client_id = QString("qutIM v%1.%2.%3%4 %5")
+					        .arg(QString::number(ver1), QString::number(ver2),
+					             QString::number(ver3), fixVersion, os);
+				}
 			}
 		}
 		setClientIcon("qutim");

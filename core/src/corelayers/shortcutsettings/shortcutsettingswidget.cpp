@@ -75,7 +75,7 @@ namespace Core
 		QStringList ids = global ? GlobalShortcut::ids() : Shortcut::ids();
 		QStandardItem *parent_item = m_model->invisibleRootItem();
 		foreach (const QString &id,ids) {
-			KeySequence sequence = Shortcut::getSequence(id);
+			KeySequence sequence = global ? GlobalShortcut::getSequence(id) : Shortcut::getSequence(id);
 			QStandardItem *group_item = 0;
 			if (!groups.contains(sequence.group)) {
 				group_item = new QStandardItem();

@@ -84,13 +84,15 @@ public slots:
 	void appendNick(const QVariant &nick);
 	void contextMenu(const QVariant &nickVar);
 	void appendText(const QVariant &text);
+	void setTopic();
 	
 protected:
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
-	void loadSettings();
+	void loadSettings(bool onFly);
 	void loadHistory();
 	
 private slots:
+	void onSettingsSaved();
 	void onLoadFinished();
 	void onTopicChanged(const QString &topic);
 	void updateTopic();
@@ -100,6 +102,7 @@ private slots:
 	
 private:
 	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QString m_styleName;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;
 	bool m_isPreview;

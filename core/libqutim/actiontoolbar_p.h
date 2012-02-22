@@ -27,7 +27,6 @@
 #ifndef ACTIONTOOLBAR_P_H
 #define ACTIONTOOLBAR_P_H
 #include <QObject>
-#include <QPointer>
 #include <QPoint>
 #include <QVariant>
 #include "localizedstring.h"

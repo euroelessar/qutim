@@ -37,17 +37,16 @@
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
+#include "protocol/modules/proxy/jproxymanager.h"
 
 namespace Jabber
 {
 JPlugin::JPlugin()
 {
-	qDebug("%s", Q_FUNC_INFO);
 }
 
 void JPlugin::init()
 {
-	qDebug("%s", Q_FUNC_INFO);
 	qRegisterMetaType<QSet<QString> >("QSet<QString>");
 	ExtensionIcon jabberIcon("im-jabber");
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
@@ -142,6 +141,10 @@ void JPlugin::init()
 				QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
 				new GeneralGenerator<JActivityChooser, JabberExtension>(),
 				ExtensionIcon(""));*/
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 new SingletonGenerator<JProxyManager, NetworkProxyManager>(),
+				 ExtensionIcon("im-jabber"));
 }
 
 bool JPlugin::load()
