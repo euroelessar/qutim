@@ -136,7 +136,8 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	
 	if (!conf || message.property("mention", false)) {
 		ChatLayer::instance()->alert(300);
-		if (ServicePointer<AbstractChatForm> form("ChatForm")) {
+		ServicePointer<AbstractChatForm> form("ChatForm");
+		if (form) {
 			if (QWidget *widget = form->chatWidget(this)) {
 				QApplication::alert(widget, 300);
 			}

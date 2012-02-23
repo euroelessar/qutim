@@ -36,6 +36,24 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 {
 	m_themeName = name;
 	const Notification::Type xmlEventTypes[] = {
+		Notification::UserTyping,
+		Notification::BlockedMessage,
+		Notification::IncomingMessage,
+		Notification::OutgoingMessage,
+		Notification::AppStartup,
+		Notification::BlockedMessage,
+		Notification::ChatUserJoined,
+		Notification::ChatUserLeft,
+		Notification::ChatIncomingMessage,
+		Notification::ChatOutgoingMessage,
+		Notification::FileTransferCompleted,
+		Notification::UserOnline,
+		Notification::UserOffline,
+		Notification::UserChangedStatus,
+		Notification::UserHasBirthday,
+		Notification::UserTyping,
+		Notification::System,
+	    // And again some of them for legacy names
 		Notification::UserOnline,
 		Notification::UserOffline,
 		Notification::UserChangedStatus,
@@ -45,11 +63,24 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		Notification::ChatIncomingMessage,
 		Notification::OutgoingMessage,
 		Notification::ChatOutgoingMessage,
-		Notification::System,
-		Notification::UserTyping,
-		Notification::BlockedMessage,
+		Notification::System
 	};
-	const char* const xmlEventNames[] = { 
+	const char* const xmlEventNames[] = {
+		"IncomingMessage",
+		"OutgoingMessage",
+		"AppStartup",
+		"BlockedMessage",
+		"ChatUserJoined",
+		"ChatUserLeft",
+		"ChatIncomingMessage",
+		"ChatOutgoingMessage",
+		"FileTransferCompleted",
+		"UserOnline",
+		"UserOffline",
+		"UserChangedStatus",
+		"UserHasBirthday",
+		"UserTyping",
+		"System",
 		"c_online",
 		"c_offline",
 		"c_changed_status",
@@ -61,9 +92,14 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		"m_chat_send",
 		"sys_event",
 		"c_typing",
-		"c_blocked_message",
-		"sys_custom"
+		"c_blocked_message"
 	};
+	const int eventsCount = sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]);
+
+#if sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]) != sizeof(xmlEventNames) / sizeof(xmlEventNames[0])
+# error Check counts of arrays
+#endif
+
 	QDir dir(path);
 	if (variant.isEmpty())
 		variant = dir.entryList(QStringList("*.xml"), QDir::Files).value(0);
@@ -92,7 +128,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 			soundFileName = dir.filePath(soundElement.elementsByTagName("file").at(0).toElement().text());
 			if (!QFile::exists(soundFileName)) 
 				continue;
-			for (int i = 0, size = sizeof(xmlEventNames) / sizeof(const char*); i < size; i++) {
+			for (int i = 0; i < eventsCount; i++) {
 				if (eventName == QLatin1String(xmlEventNames[i])) {
 					m_map.insert(xmlEventTypes[i], soundFileName);
 					break;
