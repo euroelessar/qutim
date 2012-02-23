@@ -96,9 +96,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 	};
 	const int eventsCount = sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]);
 
-#if sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]) != sizeof(xmlEventNames) / sizeof(xmlEventNames[0])
-# error Check counts of arrays
-#endif
+	Q_ASSERT(sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]) != sizeof(xmlEventNames) / sizeof(xmlEventNames[0]));
 
 	QDir dir(path);
 	if (variant.isEmpty())

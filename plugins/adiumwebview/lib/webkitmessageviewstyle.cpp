@@ -929,6 +929,8 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	// "focus" == we haven't seen this message
 	if (isAutoreply)
 		displayClasses << QLatin1String("autoreply");
+	if (message.property("mention", false))
+		displayClasses << QLatin1String("mention");
 	if (!isTopic && isService) {
 		displayClasses << QLatin1String("status");
 		// Implement more logic way
