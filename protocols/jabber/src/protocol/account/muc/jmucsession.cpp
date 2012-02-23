@@ -58,6 +58,11 @@ namespace Jabber
 class JMUCSessionPrivate
 {
 public:
+	void removeUser(JMUCSession *session, JMUCUser *user);
+	JMUCUser *addUser(JMUCSession *session, const QString &nick);
+	JMUCUser *getUser(const QString &nick);
+	bool containsUser(const QString &nick);
+	
 	QPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
@@ -74,6 +79,45 @@ public:
 	QDateTime lastMessage;
 	QString *thread;
 };
+
+void JMUCSessionPrivate::removeUser(JMUCSession *conference, JMUCUser *user)
+{
+	if (ChatSession *session = ChatLayer::get(conference, false))
+		session->removeContact(user);
+	
+	if (ChatSession *session = ChatLayer::get(user, false)) {
+		QObject::connect(session, SIGNAL(destroyed()), user, SLOT(deleteLater()));
+	} else {
+		users.remove(user->name());
+		user->deleteLater();
+	}
+}
+
+JMUCUser *JMUCSessionPrivate::addUser(JMUCSession *conference, const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	if (!user) {
+		user = new JMUCUser(conference, nick);
+		users.insert(nick, user);
+	} else if (ChatSession *session = ChatLayer::get(conference, false)) {
+		QObject::disconnect(session, SIGNAL(destroyed()), user, SLOT(deleteLater()));
+	}
+	return user;
+}
+
+JMUCUser *JMUCSessionPrivate::getUser(const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	if (user && user->presenceType() != Presence::Unavailable)
+		return user;
+	return 0;
+}
+
+bool JMUCSessionPrivate::containsUser(const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	return (user && user->presenceType() != Presence::Unavailable);
+}
 
 JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccount *account) :
 	Conference(account), d_ptr(new JMUCSessionPrivate)
@@ -171,13 +215,13 @@ void JMUCSession::doLeave()
 	if(!isJoined())
 		return;
 	d->room->leave();
-	ChatSession *session = ChatLayer::get(this, false);
 	//remove users
-	foreach (QString name, d->users.keys()) {
-		JMUCUser *user = d->users.take(name);
-		if (session)
-			session->removeContact(user);
-		user->deleteLater();
+	const Presence presence(Presence::Unavailable, JID());
+	foreach (JMUCUser *user, d->users) {
+		if (user->presenceType() == Presence::Unavailable)
+			continue;
+		user->setStatus(presence);
+		d->removeUser(this, user);
 	}
 }
 
@@ -309,14 +353,9 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 				QMessageBox::warning(0, tr("You have been banned"), msgtxt, QMessageBox::Ok);
 			}
 		} else {
-			JMUCUser *user = d->users.take(nick);
-			if (ChatSession *session = ChatLayer::get(this, false)) {
-				session->removeContact(user);
-			}
-			if (ChatSession *session = ChatLayer::get(user, false)) {
-				user->setParent(session);
-			} else
-				user->deleteLater();
+			JMUCUser *user = d->getUser(nick);
+			user->setStatus(presence);
+			d->removeUser(this, user);
 		}
 		notificationType = Notification::ChatUserLeft;
 	} else if (participant->isNickChanged()) {
@@ -327,22 +366,16 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		JMUCUser *user = d->users.value(nick, 0);
 		d->users.insert(newNick, user);
 		d->users.remove(nick);
-		QString previous = user->name();
-		reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
-		emit user->nameChanged(newNick, previous);
-		emit user->titleChanged(newNick, previous);
-		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
-		//			if (session)
-		//				session->session()->setResource(participant.newNick);
+		user->setUserName(newNick);
 		if (isSelf) {
 			emit nickChanged(newNick);
 			emit meChanged(me());
 		}
 		user->setStatus(presence);
 	} else {
-		JMUCUser *user = d->users.value(nick, 0);
+		JMUCUser *user = d->getUser(nick);
 		if (!user && presence.subtype() != Presence::Unavailable) {
-			user = new JMUCUser(this, nick);
+			user = d->addUser(this, nick);
 			user->setStatus(presence);
 			user->setMUCAffiliation(participant->affiliation());
 			user->setMUCRole(participant->role());
@@ -362,23 +395,20 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 				text = text % tr(" as") % tr(" participant");
 			else if (participant->role() == MUCRoom::RoleVisitor)
 				text = text % tr(" as") % tr(" visitor");
-			d->users.insert(nick, user);
+			// addUser doesn't handle addition to the session
 			if (ChatSession *session = ChatLayer::get(this, false))
 				session->addContact(user);
 			notificationType = Notification::ChatUserJoined;
 		} else if (!user) {
 			return;
-		} else if (presence.subtype() == Presence::Unavailable) {
-			text = nick % tr(" has left the room");
-			d->users.remove(nick);
-			if (ChatSession *session = ChatLayer::get(this, false))
-				session->removeContact(user);
-			user->deleteLater();
-			notificationType = Notification::ChatUserLeft;
 		} else {
 			user->setStatus(presence);
+			if (presence.subtype() == Presence::Unavailable) {
+				text = nick % tr(" has left the room");
+				d->removeUser(this, user);
+				notificationType = Notification::ChatUserLeft;
+			}
 		}
-		//user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
 		if (presence.subtype() != Presence::Unavailable &&
 				(user->role() != participant->role()
 				 || user->affiliation() != participant->affiliation())) {
@@ -407,23 +437,6 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			user->setMUCAffiliation(participant->affiliation());
 			user->setMUCRole(participant->role());
 		}
-//		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
-//			VCardUpdate::Ptr vcard = presence.payload<VCardUpdate>();
-//			if(vcard && vcard->hasPhotoInfo()) {
-//				QString hash = vcard->photoHash();
-//				if (user->avatarHash() != hash) {
-//					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
-//						user->setAvatar(hash);
-//					else if (d->avatarsAutoLoad)
-//						d->account->vCardManager()->fetchVCard(user->id());
-//				}
-//			}
-//		}
-		//WTF?  Oo
-		//if (!d->isJoined && isSelf) {
-		//	d->isJoined = true;
-		//	emit joined();
-		//}
 	}
 	if (!text.isEmpty() && (isJoined() || participant->isKicked() || participant->isBanned())) {
 		NotificationRequest request(notificationType);
@@ -445,7 +458,7 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 	//		d->thread = 0;
 	//	}
 	QString nick = msg.from().resource();
-	JMUCUser *user = d->users.value(nick, 0);
+	JMUCUser *user = d->getUser(nick);
 	if (priv) {
 		if (!user)
 			return;
@@ -696,8 +709,10 @@ Jreen::MUCRoom *JMUCSession::room()
 ChatUnitList JMUCSession::lowerUnits()
 {
 	ChatUnitList list;
-	foreach(ChatUnit *unit, d_func()->users)
-		list << unit;
+	foreach(JMUCUser *unit, d_func()->users) {
+		if (unit->presenceType() != Presence::Unavailable)
+			list << unit;
+	}
 	return list;
 }
 

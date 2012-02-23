@@ -48,7 +48,7 @@ JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 	JContactResource(muc, *new JMUCUserPrivate(muc))
 {
 	Q_D(JMUCUser);
-	d->name = name;
+	setUserName(name);
 	d->id = muc->id() % QLatin1Char('/') % name;
 	d->muc = muc;
 }
@@ -65,6 +65,15 @@ QString JMUCUser::title() const
 QString JMUCUser::name() const
 {
 	return d_ptr->name;
+}
+
+void JMUCUser::setUserName(const QString &name)
+{
+	Q_D(JMUCUser);
+	QString previous = d->name;
+	d->name = name;
+	emit nameChanged(name, previous);
+	emit titleChanged(name, previous);
 }
 
 void JMUCUser::setName(const QString &name)
