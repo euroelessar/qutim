@@ -49,6 +49,7 @@
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>
+#include <QTimer>
 
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
@@ -340,15 +341,15 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		if (!reason.isEmpty())
 			text = text % " (" % reason % ")";
 		if (isSelf) {
-			leave();
 			QString msgtxt = (isBan ? tr("You has been banned at ") : tr("You has been kicked from ")) % id() % "\n";
 			if (!reason.isEmpty())
 				msgtxt = msgtxt % tr("with reason: ") % reason.append("\n");
 			if (!isBan) {
 				msgtxt = msgtxt % tr("Do you want to rejoin?");
 				if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
-										 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
-					join();
+										 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+					QTimer::singleShot(0, this, SLOT(join()));
+				}
 			} else {
 				QMessageBox::warning(0, tr("You have been banned"), msgtxt, QMessageBox::Ok);
 			}
