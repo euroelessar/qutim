@@ -101,6 +101,11 @@ int JContactResource::priority()
 	return d_func()->presence.priority();
 }
 
+Jreen::Presence::Type JContactResource::presenceType() const
+{
+	return d_func()->presence.subtype();
+}
+
 void JContactResource::setStatus(const Jreen::Presence presence)
 {
 	Q_D(JContactResource);

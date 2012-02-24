@@ -65,6 +65,7 @@ public:
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	void setPriority(int priority);
 	int priority();
+	Jreen::Presence::Type presenceType() const;
 	void setStatus(const Jreen::Presence presence);
 	Status status() const;
 	virtual bool event(QEvent *ev);

@@ -133,16 +133,13 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	{
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
-
-	if (conf) {
-		QString sender = conf->me() ? conf->me()->name() : QString();
-		if (message.text().contains(sender)) {
-			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
-			if (form) {
-				QWidget *widget = form->chatWidget(this);
-				if (widget) {
-					QApplication::alert(widget,5000);
-				}
+	
+	if (!conf || message.property("mention", false)) {
+		ChatLayer::instance()->alert(300);
+		ServicePointer<AbstractChatForm> form("ChatForm");
+		if (form) {
+			if (QWidget *widget = form->chatWidget(this)) {
+				QApplication::alert(widget, 300);
 			}
 		}
 	}
@@ -151,7 +148,6 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {
-//		qApp->postEvent(this, new MessageEventHook(message), Qt::LowEventPriority);
 		d->getController()->appendMessage(message);
 	}
 	return message.id();
