@@ -36,8 +36,6 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 {
 	m_themeName = name;
 	const Notification::Type xmlEventTypes[] = {
-		Notification::UserTyping,
-		Notification::BlockedMessage,
 		Notification::IncomingMessage,
 		Notification::OutgoingMessage,
 		Notification::AppStartup,
@@ -63,7 +61,9 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		Notification::ChatIncomingMessage,
 		Notification::OutgoingMessage,
 		Notification::ChatOutgoingMessage,
-		Notification::System
+		Notification::System,
+		Notification::UserTyping,
+		Notification::BlockedMessage
 	};
 	const char* const xmlEventNames[] = {
 		"IncomingMessage",
@@ -96,7 +96,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 	};
 	const int eventsCount = sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]);
 
-	Q_ASSERT(sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]) != sizeof(xmlEventNames) / sizeof(xmlEventNames[0]));
+	Q_ASSERT(sizeof(xmlEventTypes) / sizeof(xmlEventTypes[0]) == sizeof(xmlEventNames) / sizeof(xmlEventNames[0]));
 
 	QDir dir(path);
 	if (variant.isEmpty())
