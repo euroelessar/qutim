@@ -101,6 +101,7 @@ void HighlighterSettings::onRemoveButtonClicked()
 	Q_ASSERT(item);
 	m_items.removeOne(item);
 	delete item->item();
+	emit modifiedChanged(true);
 }
 
 void HighlighterSettings::on_addRegexp_clicked()
