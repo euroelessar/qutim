@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
+** Copyright © 2012 Vsevolod Velichko <torkvema@gmail.com>
 **
 *****************************************************************************
 **
@@ -28,6 +29,7 @@
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
 #include <QTextDocument>
+#include <QChar>
 
 namespace Highlighter {
 
@@ -71,7 +73,26 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 
 	if(m_enableSimpleHighlights)
 	{
-		QRegExp nickRegexp(m_simplePattern.replace("%nick%", QRegExp::escape(myNick)));
+		int pos = 0;
+		int size = m_simplePattern.size();
+		QString newSimplePattern;
+		for (; pos < size; ++pos) {
+			if (m_simplePattern.at(pos) != QChar('%') || pos == size-1) {
+				newSimplePattern += m_simplePattern.at(pos);
+			} else if(m_simplePattern.at(pos+1) == QChar('%')) {
+				newSimplePattern += QChar('%');
+				++pos;
+			} else if ((pos + 6 <= size
+					   && m_simplePattern.mid(pos, 6) == "%nick%")
+					   && (m_simplePattern.at(pos+6) != QChar('%')
+					   || m_simplePattern.mid(pos+6, 6) == "%nick%")) {
+				newSimplePattern += QRegExp::escape(myNick);
+				pos += 5;
+			} else
+				newSimplePattern += m_simplePattern.at(pos);
+		}
+
+		QRegExp nickRegexp(newSimplePattern);
 		nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
 		nickRegexp.setPatternSyntax(QRegExp::RegExp);
 
