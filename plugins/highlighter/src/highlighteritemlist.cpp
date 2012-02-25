@@ -102,6 +102,7 @@ void HighlighterItemList::changeEvent(QEvent *e)
 	{
 	case QEvent::LanguageChange:
 		m_label->setText(getTranslatedRegexpType(regexp().patternSyntax()));
+		m_button->setText(tr("Remove"));
 		break;
 	default:
 		break;

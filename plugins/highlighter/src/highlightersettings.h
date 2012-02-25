@@ -46,7 +46,7 @@ protected:
 
 private slots:
 	void onRemoveButtonClicked();
-	void onAddButtonClicked();
+	void on_addRegexp_clicked();
 	void validateInputRegexp();
 
 signals:

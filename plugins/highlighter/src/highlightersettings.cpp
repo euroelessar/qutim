@@ -34,7 +34,6 @@ HighlighterSettings::HighlighterSettings()
 	lookForWidgetState(ui.enableSimpleHighlights);
 	lookForWidgetState(ui.pattern);
 
-	connect(ui.addRegexp, SIGNAL(clicked()), this,  SLOT(onAddButtonClicked()));
 	connect(ui.regexp, SIGNAL(textChanged(const QString &)), this,  SLOT(validateInputRegexp()));
 	connect(ui.regexptype, SIGNAL(currentIndexChanged(int)), this,  SLOT(validateInputRegexp()));
 
@@ -94,7 +93,6 @@ void HighlighterSettings::cancelImpl()
 
 HighlighterSettings::~HighlighterSettings()
 {
-//	delete ui;
 }
 
 void HighlighterSettings::onRemoveButtonClicked()
@@ -105,7 +103,7 @@ void HighlighterSettings::onRemoveButtonClicked()
 	delete item->item();
 }
 
-void HighlighterSettings::onAddButtonClicked()
+void HighlighterSettings::on_addRegexp_clicked()
 {
 	int index = ui.regexptype->currentIndex();
 	QRegExp regexp(ui.regexp->text());
@@ -126,13 +124,10 @@ void HighlighterSettings::validateInputRegexp()
 	int index = ui.regexptype->currentIndex();
 	QRegExp regexp(ui.regexp->text());
 	regexp.setPatternSyntax(static_cast<QRegExp::PatternSyntax>(ui.regexptype->itemData(index).toInt()));
-	if(!regexp.isValid())
-	{
+	if (!regexp.isValid()) {
 		ui.regexp->setStyleSheet(QLatin1String("background: rgb(252, 190, 189);"));
 		ui.addRegexp->setDisabled(true);
-	}
-	else
-	{
+	} else {
 		ui.regexp->setStyleSheet(QLatin1String("background: #FFF;"));
 		ui.addRegexp->setDisabled(false);
 	}
@@ -145,8 +140,7 @@ void HighlighterSettings::changeEvent(QEvent *e)
 	switch (e->type())
 	{
 	case QEvent::LanguageChange:
-		for(int i = ui.regexptype->count(); i < 0; i--)
-		{
+		for(int i = ui.regexptype->count() - 1; i >= 0; --i) {
 			QRegExp::PatternSyntax itemSyntax = static_cast<QRegExp::PatternSyntax>(ui.regexptype->itemData(i).toInt());
 			ui.regexptype->setItemText(i, HighlighterItemList::getTranslatedRegexpType(itemSyntax));
 		}
