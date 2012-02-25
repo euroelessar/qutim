@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2012 Nicolay Izoderov <nico-izo@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
