@@ -27,7 +27,6 @@
 
 #include "highlighter.h"
 #include "highlightersettings.h"
-#include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/settingslayer.h>
 #include "nickhandler.h"
@@ -39,7 +38,6 @@ using namespace qutim_sdk_0_3;
 
 void HighlighterPlugin::init()
 {
-	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Highlighter"),
 			QT_TRANSLATE_NOOP("Plugin", "Plugin that add support of highlighting, when your nick has been mentioned."),
 			PLUGIN_VERSION(0, 1, 0, 0));

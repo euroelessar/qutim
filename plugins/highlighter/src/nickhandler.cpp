@@ -25,7 +25,6 @@
 
 
 #include "nickhandler.h"
-#include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
 #include <QTextDocument>
@@ -94,8 +93,6 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 			}
 		}
 	}
-
-	debug() << Q_FUNC_INFO;
 
 	return NickHandler::Accept;
 }
