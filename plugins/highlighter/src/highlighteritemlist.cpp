@@ -95,3 +95,15 @@ QString HighlighterItemList::getTranslatedRegexpType(const QRegExp::PatternSynta
 	}
 }
 
+void HighlighterItemList::changeEvent(QEvent *e)
+{
+	QWidget::changeEvent(e);
+	switch (e->type())
+	{
+	case QEvent::LanguageChange:
+		m_label->setText(getTranslatedRegexpType(regexp().patternSyntax()));
+		break;
+	default:
+		break;
+	}
+}

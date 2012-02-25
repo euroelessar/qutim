@@ -29,6 +29,7 @@
 #include <qutim/settingswidget.h>
 #include "highlighteritemlist.h"
 #include <QComboBox>
+#include <QEvent>
 #include "ui_highlightersettings.h"
 
 class HighlighterSettings : public qutim_sdk_0_3::SettingsWidget
@@ -41,6 +42,7 @@ protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
+	virtual void changeEvent(QEvent *e);
 
 private slots:
 	void onRemoveButtonClicked();

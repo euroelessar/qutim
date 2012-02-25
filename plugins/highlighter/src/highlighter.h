@@ -43,13 +43,13 @@ class HighlighterPlugin : public qutim_sdk_0_3::Plugin
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Highlighter")
 	Q_CLASSINFO("Uses", "ChatLayer")
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
 private:
 	QWeakPointer<NickHandler> m_handler;
+	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 };
 }
 

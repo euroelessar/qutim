@@ -39,12 +39,12 @@ HighlighterSettings::HighlighterSettings()
 	connect(ui.regexptype, SIGNAL(currentIndexChanged(int)), this,  SLOT(validateInputRegexp()));
 
 
-	ui.regexptype->addItem(tr("Perl-like"), QVariant(QRegExp::RegExp));
-	ui.regexptype->addItem(tr("Improved perl-like"), QVariant(QRegExp::RegExp2));
-	ui.regexptype->addItem(tr("Shell-like"), QVariant(QRegExp::Wildcard));
-	ui.regexptype->addItem(tr("Unix shell-like"), QVariant(QRegExp::WildcardUnix));
-	ui.regexptype->addItem(tr("Fixed string"), QVariant(QRegExp::FixedString));
-	ui.regexptype->addItem(tr("W3C XML Schema"), QVariant(QRegExp::W3CXmlSchema11));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::RegExp), QVariant(QRegExp::RegExp));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::RegExp2), QVariant(QRegExp::RegExp2));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::Wildcard), QVariant(QRegExp::Wildcard));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::WildcardUnix), QVariant(QRegExp::WildcardUnix));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::FixedString), QVariant(QRegExp::FixedString));
+	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::W3CXmlSchema11), QVariant(QRegExp::W3CXmlSchema11));
 }
 
 void HighlighterSettings::loadImpl()
@@ -137,4 +137,21 @@ void HighlighterSettings::validateInputRegexp()
 		ui.addRegexp->setDisabled(false);
 	}
 
+}
+
+void HighlighterSettings::changeEvent(QEvent *e)
+{
+	QWidget::changeEvent(e);
+	switch (e->type())
+	{
+	case QEvent::LanguageChange:
+		for(int i = ui.regexptype->count(); i < 0; i--)
+		{
+			QRegExp::PatternSyntax itemSyntax = static_cast<QRegExp::PatternSyntax>(ui.regexptype->itemData(i).toInt());
+			ui.regexptype->setItemText(i, HighlighterItemList::getTranslatedRegexpType(itemSyntax));
+		}
+		break;
+	default:
+		break;
+	}
 }

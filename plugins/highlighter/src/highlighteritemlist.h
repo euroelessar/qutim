@@ -33,6 +33,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QWidget>
+#include <QEvent>
 
 class HighlighterItemList : public QWidget
 {
@@ -49,10 +50,13 @@ public:
 	QListWidgetItem *item();
 	void setItem(QListWidgetItem *item);
 
-	QString getTranslatedRegexpType(const QRegExp::PatternSyntax &syntax);
+	static QString getTranslatedRegexpType(const QRegExp::PatternSyntax &syntax);
 
 signals:
 	void buttonClicked();
+
+protected:
+	virtual void changeEvent(QEvent *e);
 
 private:
 	QLabel *m_label;

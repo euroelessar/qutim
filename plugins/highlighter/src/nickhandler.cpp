@@ -33,8 +33,7 @@ namespace Highlighter {
 
 using namespace qutim_sdk_0_3;
 
-NickHandler::NickHandler() :
-	QObject()
+NickHandler::NickHandler()
 {
 	loadSettings();
 }
