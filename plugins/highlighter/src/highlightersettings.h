@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Nicolay Izoderov <nico-izo@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@yandex.ru>
 **
 *****************************************************************************
 **
@@ -27,6 +27,8 @@
 #define HIGHLIGHTERSETTINGS_H
 
 #include <qutim/settingswidget.h>
+#include "highlighteritemlist.h"
+#include <QComboBox>
 #include "ui_highlightersettings.h"
 
 class HighlighterSettings : public qutim_sdk_0_3::SettingsWidget
@@ -39,10 +41,17 @@ protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
+
+private slots:
+	void onRemoveButtonClicked();
+	void onAddButtonClicked();
+	void validateInputRegexp();
+
 signals:
 	void reloadSettings();
 private:
-	Ui::HighlighterSettingsForm *ui;
+	Ui::HighlighterSettingsForm ui;
+	QList<HighlighterItemList*> m_items;
 };
 #endif // HIGHLIGHTERSETTINGS_H
 

@@ -6,39 +6,99 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>223</height>
+    <width>446</width>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QFormLayout" name="formLayout_2">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Regexp</string>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QCheckBox" name="enableHighlights">
-     <property name="text">
-      <string>Enable highlights</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="regexp">
-     <property name="placeholderText">
-      <string>RegExp</string>
-     </property>
+     <widget class="QWidget" name="regexps">
+      <attribute name="title">
+       <string>Regexps</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLineEdit" name="regexp">
+         <property name="placeholderText">
+          <string>Regexp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="regexptype">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+         <property name="maxVisibleItems">
+          <number>6</number>
+         </property>
+         <property name="maxCount">
+          <number>6</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <widget class="QListWidget" name="regexpsList"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="addRegexp">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="highlightersettings">
+      <attribute name="title">
+       <string>Settings</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="enableSimpleHighlights">
+         <property name="text">
+          <string>Enable simple default regexp</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="pattern">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+         <property name="placeholderText">
+          <string>Simple regexp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

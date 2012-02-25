@@ -2,8 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
 ** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
@@ -25,32 +24,42 @@
 **
 ****************************************************************************/
 
+#ifndef HIGHLIGHTERITEMLIST_H
+#define HIGHLIGHTERITEMLIST_H
 
-#ifndef HIGHLIGHTER_MESSAGEHANDLER_H
-#define HIGHLIGHTER_MESSAGEHANDLER_H
-#include <qutim/messagehandler.h>
-#include <QRegExp>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidgetItem>
+#include <QListWidget>
+#include <QPushButton>
+#include <QWidget>
 
-#include <qutim/conference.h>
-
-namespace Highlighter {
-
-class NickHandler : public QObject, public qutim_sdk_0_3::MessageHandler
+class HighlighterItemList : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
+
 public:
-	explicit NickHandler();
-protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
-public slots:
-	void loadSettings();
+	typedef QSharedPointer<HighlighterItemList> Guard;
+	
+	HighlighterItemList(const QRegExp &regex, QListWidget *regexList);
+	~HighlighterItemList();
+	
+	QRegExp regexp() const;
+
+	QListWidgetItem *item();
+	void setItem(QListWidgetItem *item);
+
+	QString getTranslatedRegexpType(const QRegExp::PatternSyntax &syntax);
+
+signals:
+	void buttonClicked();
+
 private:
-	QString m_simplePattern;
-	bool m_enableSimpleHighlights;
-	QList<QRegExp> m_regexps;
+	QLabel *m_label;
+	QPushButton *m_button;
+	QListWidgetItem *m_item;
+	QRegExp m_regexp;
 };
 
-} // namespace Highlighter
-
-#endif // HIGHLIGHTER_MESSAGEHANDLER_H
+#endif // HIGHLIGHTERITEMLIST_H
 

@@ -2,8 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -45,17 +44,25 @@ void NickHandler::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup("highlighter");
-	m_regexp = cfg.value("regexp", "");
-	m_enableHighlights = cfg.value("enableHighlights", true);
+
+	m_enableSimpleHighlights = cfg.value("enableSimpleHighlights", true);
+	m_simplePattern = cfg.value("pattern", "\b%nick%\b");
+
+	int count = cfg.beginArray(QLatin1String("regexps"));
+	for (int i = 0; i < count; i++) {
+		cfg.setArrayIndex(i);
+		QRegExp regExp = cfg.value(QLatin1String("regexp"), QRegExp());
+
+		m_regexps << regExp;
+	}
 	cfg.endGroup();
 }
 
 NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 {
-//	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-//    if (!session || !session->property("supportJavaScript").toBool())
-//		return UrlHandler::Accept;
 
+	if(!message.isIncoming())
+		return NickHandler::Accept;
 	Conference *conference = qobject_cast<Conference*>(message.chatUnit());
 	if (!conference)
 		return NickHandler::Accept;
@@ -64,18 +71,33 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 		return NickHandler::Accept;
 	const QString myNick = me->name();
 
-	QRegExp nickRegexp(myNick + "*");
-	nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
-	nickRegexp.setPatternSyntax(QRegExp::Wildcard);
+	if(m_enableSimpleHighlights)
+	{
+		QRegExp nickRegexp(m_simplePattern.replace("%nick%", QRegExp::escape(myNick)));
+		nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
+		nickRegexp.setPatternSyntax(QRegExp::RegExp);
 
-	if(message.html().contains(nickRegexp))
-		message.setProperty("mention", true);
+		if(message.html().contains(nickRegexp))
+		{
+			message.setProperty("mention", true);
+			return NickHandler::Accept;
+		}
+	}
+
+	if(m_regexps.size())
+	{
+		for (int i = 0; i < m_regexps.size(); ++i) {
+			if(message.html().contains(m_regexps.at(i)))
+			{
+				message.setProperty("mention", true);
+				return NickHandler::Accept;
+			}
+		}
+	}
 
 	debug() << Q_FUNC_INFO;
 
 	return NickHandler::Accept;
 }
 
-
 } // namespace Highlighter
-
