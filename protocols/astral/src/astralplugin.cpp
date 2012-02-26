@@ -54,9 +54,7 @@ void AstralPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Astral"),
 			QT_TRANSLATE_NOOP("Plugin", "Protocol support by Telepathy"),
 			PLUGIN_VERSION(0, 0, 1, 0));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 //	qDebug() << "asking for accounts";
 //	AccountManagerPtr accManager = AccountManager::create();
 //	qDebug() << accManager->allAccountPaths();

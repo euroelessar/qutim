@@ -36,9 +36,7 @@ AntiBossPlugin::AntiBossPlugin()
 
 void AntiBossPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Anti-boss plugin"),
 			QT_TRANSLATE_NOOP("Plugin", "Plugin makes your chatting invisible for boss"),
 			PLUGIN_VERSION(0, 0, 1, 0),

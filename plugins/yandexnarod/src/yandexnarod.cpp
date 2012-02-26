@@ -53,19 +53,12 @@ void YandexNarodPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
 			PLUGIN_VERSION(0, 2, 1, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("sauron"));
+	addAuthor(QLatin1String("euroelessar"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("boiler@co.ru"));
+	addAuthor(QLatin1String("boiler"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Narod"),
 				 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
 				 new SingletonGenerator<YandexNarodFactory>(),

@@ -57,9 +57,7 @@ EmoEditPlugin::EmoEditPlugin()
 
 void EmoEditPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "EmoEdit plugin"),
 			QT_TRANSLATE_NOOP("Plugin", "Add emoticons to text edit widget"),
 			PLUGIN_VERSION(0, 0, 1, 0),

@@ -35,9 +35,7 @@
 
 void FloatiesPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-		QT_TRANSLATE_NOOP("Task", "Author"),
-		QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Floaties"),
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of floaty contacts"),
 			PLUGIN_VERSION(0, 2, 0, 0),

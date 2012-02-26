@@ -77,10 +77,7 @@ void LoggerPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Simple file based logger for debug"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("sauron"));
 	m_settingsItem = NULL;
 }
 

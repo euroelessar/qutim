@@ -93,13 +93,8 @@ void KdePlugin::init()
 	KCmdLineArgs::init(argc, argv, KGlobal::activeComponent().aboutData());
 
 	ExtensionIcon kdeIcon("kde");
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("euroelessar"));
+	addAuthor(QLatin1String("sauron"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "KDE integration"),
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
 			KDE_VERSION << 8, kdeIcon);
