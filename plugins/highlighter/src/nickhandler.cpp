@@ -80,9 +80,8 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 			} else if(m_simplePattern.at(pos+1) == QChar('%')) {
 				newSimplePattern += QChar('%');
 				++pos;
-			} else if ((pos + 6 <= size
-					   && m_simplePattern.midRef(pos, 6) == QLatin1String("%nick%"))
-					   && m_simplePattern.at(pos+6) != QChar('%')) {
+			} else if (pos + 6 <= size
+					   && m_simplePattern.midRef(pos, 6) == QLatin1String("%nick%")) {
 				newSimplePattern += QRegExp::escape(myNick);
 				pos += 5;
 			} else
