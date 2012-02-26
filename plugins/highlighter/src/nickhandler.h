@@ -30,6 +30,10 @@
 #define HIGHLIGHTER_MESSAGEHANDLER_H
 #include <qutim/messagehandler.h>
 #include <QRegExp>
+#include <QLatin1String>
+#include <QStringRef>
+#include <QTextDocument>
+#include <QChar>
 
 #include <qutim/conference.h>
 

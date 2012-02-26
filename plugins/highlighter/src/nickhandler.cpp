@@ -28,8 +28,6 @@
 #include "nickhandler.h"
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
-#include <QTextDocument>
-#include <QChar>
 
 namespace Highlighter {
 
@@ -83,9 +81,9 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 				newSimplePattern += QChar('%');
 				++pos;
 			} else if ((pos + 6 <= size
-					   && m_simplePattern.mid(pos, 6) == "%nick%")
+					   && m_simplePattern.midRef(pos, 6) == QLatin1String("%nick%"))
 					   && (m_simplePattern.at(pos+6) != QChar('%')
-					   || m_simplePattern.mid(pos+6, 6) == "%nick%")) {
+						   || m_simplePattern.midRef(pos+6, 6) == QLatin1String("%nick%"))) {
 				newSimplePattern += QRegExp::escape(myNick);
 				pos += 5;
 			} else
