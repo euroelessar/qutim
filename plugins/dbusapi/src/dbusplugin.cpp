@@ -147,9 +147,7 @@ DBusPlugin::DBusPlugin() : m_dbus(0)
 
 void DBusPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "DBus API"),
 			QT_TRANSLATE_NOOP("Plugin", "Added ability to control qutIM by DBus"),
 			PLUGIN_VERSION(0, 0, 1, 0), ExtensionIcon("network-wireless"));

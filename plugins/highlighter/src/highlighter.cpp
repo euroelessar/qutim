@@ -42,9 +42,7 @@ void HighlighterPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Plugin that add support of highlighting, when your nick has been mentioned."),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Nicolay Izoderov"),
-			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("nico-izo@ya.ru"));
+	addAuthor(QLatin1String("nicoizo"));
 }
 
 bool HighlighterPlugin::load()
