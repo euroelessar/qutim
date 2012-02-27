@@ -53,16 +53,12 @@ void JPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0),
 			jabberIcon);
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("daschenko@gmail.com"));
+	addAuthor(QLatin1String("reindeer"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("zodiac.nv@gmail.com"));
 	addAuthor(QLatin1String("euroelessar"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("sauron@qutim.org"));
+	addAuthor(QLatin1String("sauron"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 				 new GeneralGenerator<JProtocol>(),

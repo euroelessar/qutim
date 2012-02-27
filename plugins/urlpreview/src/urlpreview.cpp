@@ -43,16 +43,9 @@ void UrlPreviewPlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Preview images directly in the chat window"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("boiler@co.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Nicolay Izoderov"),
-			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("nico-izo@ya.ru"));
+	addAuthor(QLatin1String("boiler"));
+	addAuthor(QLatin1String("sauron"));
+	addAuthor(QLatin1String("nicoizo"));
 }
 
 bool UrlPreviewPlugin::load()
