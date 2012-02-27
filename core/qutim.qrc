@@ -8,6 +8,8 @@
         <file alias="devels/reindeer.json">devels/reindeer.json</file>
         <file alias="devels/sauron.json">devels/sauron.json</file>
         <file alias="devels/viv.json">devels/viv.json</file>
+        <file alias="devels/nicoizo.json">devels/nicoizo.json</file>
+        <file alias="devels/boiler.json">devels/boiler.json</file>
         <file alias="contributers/rederick.json">contributers/rederick.json</file>
         <file alias="contributers/samvo.json">contributers/samvo.json</file>
 <!--        <file alias="contributers/selena.json">contributers/selena.json</file> -->
