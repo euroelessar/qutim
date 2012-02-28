@@ -77,6 +77,7 @@ public:
 	void setTopic(const QString &topic);
 	void setConferenceTopic(const QString &topic);
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+	void handleDeath(const QString &name);
 protected:
 	void loadSettings();
 	virtual void doJoin();

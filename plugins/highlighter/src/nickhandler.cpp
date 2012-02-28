@@ -44,7 +44,7 @@ void NickHandler::loadSettings()
 	cfg.beginGroup("highlighter");
 
 	m_enableSimpleHighlights = cfg.value("enableSimpleHighlights", true);
-	m_simplePattern = cfg.value("pattern", "\b%nick%\b");
+	m_simplePattern = cfg.value("pattern", "\\b%nick%\\b");
 
 	int count = cfg.beginArray(QLatin1String("regexps"));
 	for (int i = 0; i < count; i++) {
