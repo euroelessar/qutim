@@ -1,8 +1,6 @@
 <div class="%messageClasses%">
-<div class="inContent">
-    <span class="inContentTime">[%time{%H:%M:%S}%]</span>
-    <span class="inContentSender"><span style="color: %senderColor%" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')">%sender%:</span></span>
-    <span class="inContentMessage">%message%</span>
-</div>
+    <span class="Time">[%time{%H:%M:%S}%]</span>
+    <span class="Sender" style="color: %senderColor%" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')">%sender%:</span>
+    <span class="Message">%message%</span>
 </div>
 <div id="insert"></div>

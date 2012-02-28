@@ -5,54 +5,69 @@ body {
 	background: #FFFFFF;
 }
 
+#Chat {
+	position: static !important;
+}
+
 div {
 	overflow: auto;
 	padding: 1px;
-	letter-spacing: 0.05em;
+	/*letter-spacing: 0.05em;*/
 }
 
-a:link { color: #007fff; text-decoration: none;}
-a:visited { color: #eb3fa5; text-decoration: none;}
-a:hover { text-decoration: underline; }
-a:active { color: #6D98AB; text-decoration: none; }
+a:link {
+	color: #007fff;
+	text-decoration: none;
+}
 
-.inСontext,
-.inNextСontext,
-.outСontext,
-.outNextСontext, 
-*.history .inActionTime, *.history .outActionTime{
+a:visited {
+	color: #eb3fa5;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:active, a:focus {
+	color: #6D98AB;
+	text-decoration: none;
+}
+
+.history .Time {
 	color: grey;
-	font: 8pt Arial;
+	font-size: 8pt;
 }
 
-.inСontextSender, .outСontextSender, .inNextСontextSender, .outNextСontextSender {
+.history .Sender {
 	color: #A40000 !important;
+	font-size: 8pt;
+}
+
+.history .Message {
+	font-size: 8pt;
+	color: grey;
 }
 
 
-.statusMessage{
-	color: #509d1f;
-
+.status .Message {
+	color: #509d1f !important;
 }
 
-.inNextContentTime,
-.outNextContentTime{
+.message .incoming .Time, .message .outgoing .Time{
 	color: black;
 }
 
-.inContentTime,
-.statusTime,
-.outContentTime   {
+.incoming:not(.history) .Time,
+.status .Time,
+.outgoing:not(.history) .Time   {
 	color: black;
 }
-.outAction,
-.inAction  {
+
+.action .Sender, .action .Message{
 	margin-top: 4px;
 	margin-bottom: 4px;
 	font-style: italic;
-	/*text-align: left;
-	margin-left: 20px;
-	margin-right: 20px;*/
 	background: transparent;
 	color: #303ae6;
 }
@@ -62,43 +77,27 @@ a:active { color: #6D98AB; text-decoration: none; }
 	color: #000 !important;
 }
 
-.inContentSender,
-.inNextContentSender {
+.incoming:not(.mention) .Sender {
 	color: #005afa;
-	 /*text-align: right; */
+	 /*text-align: right;*/
 	font-weight: 500;
 }
 
-.outContentSender,
-.outNextContentSender  {
-color: #ff0052;
-text-align: right;
-}
-.outContentMessage,
-.outNextContentMessage {
-	color: #20060f;
+.outgoing:not(.mention) .Sender  {
+	/*text-align: right;*/
+	font-weight: 500;
 }
 
-.inContentMessage,
-.inNextContentMessage {
+.outgoing .Sender {
+	color: #ff0052 !important;
+}
+
+.outgoing:not(.history) .Message,
+.incoming:not(.history) .Message {
 	 color: #20060f; 
 }
-.inContentMessage.highlight, .inNextContentMessage.highlight {
-	color: #ff8482 !important;
-	font-weight: bold; /* Obsolete */
-}
 
-.inContentSender.highlight,
-.inNextContentSender.highlight {
-	color: #005afa;
-	 /*text-align: right; */
-	font-weight: bold;
-}
-
-.outContentSender span,
-.outNextContentSender span,
-.outActionSender span,
-.outActionMessage span {
+.outgoing .Sender{
 	color: #437ee0 !important;
 }
 
@@ -110,7 +109,11 @@ text-align: right;
 	color: #000;
 }
 
-*.mention {
+.mention:not(.history) .Sender {
+	font-weight: bold;
+}
+
+.mention:not(.history) .Message {
 	color: #ff8482 !important;
 	font-weight: bold;
 }
