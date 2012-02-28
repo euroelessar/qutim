@@ -31,11 +31,9 @@
 #include <qutim/messagehandler.h>
 #include <QRegExp>
 #include <QLatin1String>
-#include <QLatin1Literal>
 #include <QStringRef>
 #include <QTextDocument>
 #include <QChar>
-#include <QStringBuilder>
 
 #include <qutim/conference.h>
 

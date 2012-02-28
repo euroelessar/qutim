@@ -24,7 +24,7 @@
 **
 ****************************************************************************/
 
-
+#include <QStringBuilder>
 #include "nickhandler.h"
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
