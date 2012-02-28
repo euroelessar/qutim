@@ -31,8 +31,7 @@ using namespace qutim_sdk_0_3;
 HighlighterSettings::HighlighterSettings()
 {
 	ui.setupUi(this);
-	lookForWidgetState(ui.enableSimpleHighlights);
-	lookForWidgetState(ui.pattern);
+	lookForWidgetState(ui.enableAutoHighlights);
 
 	connect(ui.regexp, SIGNAL(textChanged(const QString &)), this,  SLOT(validateInputRegexp()));
 	connect(ui.regexptype, SIGNAL(currentIndexChanged(int)), this,  SLOT(validateInputRegexp()));
@@ -51,8 +50,7 @@ void HighlighterSettings::loadImpl()
 	Config cfg;
 
 	cfg.beginGroup(QLatin1String("highlighter"));
-	ui.pattern->setText(cfg.value("pattern", "\b%nick%\b"));
-	ui.enableSimpleHighlights->setChecked(cfg.value("enableSimpleHighlights", true));
+	ui.enableAutoHighlights->setChecked(cfg.value("enableAutoHighlights", true));
 
 	int count = cfg.beginArray(QLatin1String("regexps"));
 	for (int i = 0; i < count; i++) {
@@ -72,8 +70,7 @@ void HighlighterSettings::saveImpl()
 {
 	Config cfg;
 	cfg.beginGroup(QLatin1String("highlighter"));
-	cfg.setValue("pattern", ui.pattern->text());
-	cfg.setValue("enableSimpleHighlights", ui.enableSimpleHighlights->isChecked());
+	cfg.setValue("enableAutoHighlights", ui.enableAutoHighlights->isChecked());
 
 	int count = cfg.beginArray(QLatin1String("regexps"));
 	for (int i = 0; i < m_items.size(); i++) {
@@ -126,10 +123,10 @@ void HighlighterSettings::validateInputRegexp()
 	QRegExp regexp(ui.regexp->text());
 	regexp.setPatternSyntax(static_cast<QRegExp::PatternSyntax>(ui.regexptype->itemData(index).toInt()));
 	if (!regexp.isValid()) {
-		ui.regexp->setStyleSheet(QLatin1String("background: rgb(252, 190, 189);"));
+		//ui.regexp->setStyleSheet(QLatin1String("background: rgb(252, 190, 189);"));
 		ui.addRegexp->setDisabled(true);
 	} else {
-		ui.regexp->setStyleSheet(QLatin1String("background: #FFF;"));
+		//ui.regexp->setStyleSheet(QLatin1String("background: #FFF;"));
 		ui.addRegexp->setDisabled(false);
 	}
 

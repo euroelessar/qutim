@@ -43,8 +43,7 @@ void NickHandler::loadSettings()
 	Config cfg;
 	cfg.beginGroup("highlighter");
 
-	m_enableSimpleHighlights = cfg.value("enableSimpleHighlights", true);
-	m_simplePattern = cfg.value("pattern", "\\b%nick%\\b");
+	m_enableAutoHighlights = cfg.value("enableAutoHighlights", true);
 
 	int count = cfg.beginArray(QLatin1String("regexps"));
 	for (int i = 0; i < count; i++) {
@@ -69,26 +68,11 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 		return NickHandler::Accept;
 	const QString myNick = me->name();
 
-	if(m_enableSimpleHighlights)
+	if(m_enableAutoHighlights)
 	{
-		int pos = 0;
-		int size = m_simplePattern.size();
-		QString newSimplePattern;
-		for (; pos < size; ++pos) {
-			if (m_simplePattern.at(pos) != QChar('%') || pos == size-1) {
-				newSimplePattern += m_simplePattern.at(pos);
-			} else if(m_simplePattern.at(pos+1) == QChar('%')) {
-				newSimplePattern += QChar('%');
-				++pos;
-			} else if (pos + 6 <= size
-					   && m_simplePattern.midRef(pos, 6) == QLatin1String("%nick%")) {
-				newSimplePattern += QRegExp::escape(myNick);
-				pos += 5;
-			} else
-				newSimplePattern += m_simplePattern.at(pos);
-		}
+		QString autoPattern = QLatin1Literal("\\b") % QRegExp::escape(myNick) % QLatin1Literal("\\b");
 
-		QRegExp nickRegexp(newSimplePattern);
+		QRegExp nickRegexp(autoPattern);
 		nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
 		nickRegexp.setPatternSyntax(QRegExp::RegExp);
 
