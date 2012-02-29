@@ -69,12 +69,12 @@ a:active, a:focus {
 	margin-bottom: 4px;
 	font-style: italic;
 	background: transparent;
-	color: #303ae6;
+	/*color: #303ae6;*/
 }
 
-.outActionTime, .inActionTime {
-	font-style: normal;
-	color: #000 !important;
+.action.message.outgoing > .Sender span,
+.action.message.outgoing > .Message span {
+	color: #437EE0 !important;
 }
 
 .incoming:not(.mention) .Sender {
