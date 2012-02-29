@@ -49,8 +49,7 @@ protected:
 public slots:
 	void loadSettings();
 private:
-	QString m_simplePattern;
-	bool m_enableSimpleHighlights;
+	bool m_enableAutoHighlights;
 	QList<QRegExp> m_regexps;
 };
 
