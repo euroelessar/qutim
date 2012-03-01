@@ -136,9 +136,9 @@ void NotifyEnabler::filter(NotificationRequest &request)
 	{
 		// Reject conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
-			QString msg = request.text();
 			Buddy *me = conf->me();
-			if (me && !msg.contains(me->name()) && !msg.contains(me->id()))
+			const Message msg = request.property("message", Message());
+			if (me && !msg.property("mention", false))
 				request.reject("confMessageWithoutUserNick");
 		}
 	}
