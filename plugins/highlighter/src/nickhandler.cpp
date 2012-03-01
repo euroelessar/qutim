@@ -44,7 +44,7 @@ void NickHandler::loadSettings()
 	cfg.beginGroup("highlighter");
 
 	m_enableAutoHighlights = cfg.value("enableAutoHighlights", true);
-
+	m_regexps.clear();
 	int count = cfg.beginArray(QLatin1String("regexps"));
 	for (int i = 0; i < count; i++) {
 		cfg.setArrayIndex(i);
