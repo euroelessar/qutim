@@ -32,6 +32,7 @@
 #include <QLatin1Literal>
 #include <qutim/rosterstorage.h>
 
+
 using namespace qutim_sdk_0_3;
 
 namespace Core
@@ -91,11 +92,20 @@ void MetaContactImpl::setTags(const QStringList &tags)
 bool MetaContactImpl::sendMessage(const Message &message)
 {
 	//TODO implement logic
-	for (int i = 0; i < m_contacts.size(); i++) {
-		if (m_contacts.at(i)->sendMessage(message))
+    if (m_active_contact.sendMessage(message))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+    /*for (int i = 0; i < m_contacts.size(); i++) {
+        if (m_contacts.at(i)->sendMessage(message))
 			return true;
 	}
-	return false;
+    return false;*/
 }
 
 void MetaContactImpl::addContact(Contact* contact, bool update)
@@ -289,6 +299,22 @@ void MetaContactImpl::setContactTags(const QStringList& tags)
 	emit tagsChanged(m_tags,previous);
 }
 
+void MetaContactImpl::setActiveContact()
+{
+    for (int i = 0; i < m_contacts.size(); i++)
+    {
+        if (m_contacts.at(i)->status().type() > 4)
+        {
+            m_active_contact = m_contacts.at(i);
+            return;
+        }
+    }
+}
+
+void MetaContactImpl::onMessageReceived(Contact *contact)
+{
+    m_active_contact = contact;
+}
 
 
 }
