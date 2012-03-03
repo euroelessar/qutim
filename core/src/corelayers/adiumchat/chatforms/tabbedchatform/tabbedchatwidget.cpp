@@ -244,6 +244,7 @@ void TabbedChatWidget::loadSettings()
         setProperty("loaded",true);
     }
     m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+	m_chatInput->setAutoResize(cfg.value("autoResize", false));
 
     if(m_flags & IconsOnTabs)
         m_tabBar->setIconSize(QSize(16,16)); //TODO
