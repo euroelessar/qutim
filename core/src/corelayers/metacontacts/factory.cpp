@@ -70,6 +70,7 @@ Contact* Factory::addContact(const QString& id, const QVariantMap& data)
 	metaContact->setContactAvatar(data.value(QLatin1String("avatar")).toString());
 	metaContact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	metaContact->addContacts(contacts);
+    metaContact->setActiveContact();
 
 	emit m_manager->contactCreated(metaContact);
 	return metaContact;

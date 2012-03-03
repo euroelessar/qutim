@@ -27,7 +27,7 @@
 #define METACONTACTIMPL_H
 
 #include <qutim/metacontact.h>
-#include "subcontacts.h"
+#include <qutim/chatsession.h>
 
 namespace Core
 {
@@ -57,6 +57,7 @@ public:
 	void setContactName(const QString &name);
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
+    void setActiveContact();
 public slots:
 	void setAvatar(const QString &path);
 protected:
@@ -65,17 +66,17 @@ protected:
 	void addContact(Contact* contact, bool update);
 protected slots:
 	void onContactStatusChanged();
-    void onMessageReceived(Contact* contact);
+    void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+    void onMessageReceived(qutim_sdk_0_3::Message* message);
 private:
 	virtual bool event(QEvent *ev);
-    void setActiveContact();
-	QString m_id;
+    QString m_id;
 	QString m_name;
 	qutim_sdk_0_3::Status m_status;
 	QStringList m_tags;
     QList<Contact*> m_contacts;
 	QString m_lastAvatar;
-    Contact m_active_contact;
+    Contact* m_active_contact;
 };
 }
 }
