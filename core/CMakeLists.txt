@@ -97,8 +97,16 @@ SET(RESOURCES
 
 #TODO fix in future
 if(MINGW)
-	find_program( MINGW_WINDRES NAMES "mingw32-windres" "windres" )
-	execute_process( COMMAND "${MINGW_WINDRES}"
+	if( NOT CMAKE_RC_COMPILER )
+		find_program( CMAKE_RC_COMPILER NAMES "mingw32-windres" "windres" )
+	endif()
+
+	if( NOT CMAKE_RC_COMPILER )
+		message("No RC compiler (windres) found.")
+		return()
+	endif()
+
+	execute_process( COMMAND "${CMAKE_RC_COMPILER}"
 		"-i" "${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc" "-o" "${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o" )
 	LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
