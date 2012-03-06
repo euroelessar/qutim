@@ -271,7 +271,7 @@ bool WebViewController::eventFilter(QObject *obj, QEvent *ev)
 				elem.removeClass(QLatin1String("notDelivered"));
 				elem.addClass(QLatin1String("delivered"));
 			} else {
-				elem.addClass(QLatin1String("failedToDevliver"));
+				elem.addClass(QLatin1String("failedToDeliver"));
 			}
 		}
 		return true;
