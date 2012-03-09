@@ -315,6 +315,7 @@ void MetaContactImpl::setActiveContact()
         if (m_contacts.at(i)->status().type() > 4)
         {
             m_active_contact = m_contacts.at(i);
+            debug() << ">>>>Active contact" << m_active_contact->account()->name() << m_active_contact->name();
             return;
         }
     }
@@ -324,24 +325,44 @@ void MetaContactImpl::setActiveContact()
 
 void MetaContactImpl::onMessageReceived(Message *message)
 {
-    Contact *contact = qobject_cast<Contact*>(message);
-    if (!contact)
+    debug() << message->chatUnit()->account()-> << m_active_contact->account();
+    if (!(m_active_contact->account() == message->chatUnit()->account()))
     {
-        debug() << "<<<<<<<< Not found";
+        for (int i = 0; i < m_contacts.size(); i++)
+        {
+            if (m_contacts.at(i)->account() == message->chatUnit()->account())
+            {
+                m_active_contact = m_contacts.at(i);
+                debug() << "New active contact: " << m_active_contact->account()->name() << m_active_contact->name();
+                return;
+            }
+        }
+        debug() << "NO ACTIVE CONTACT!!! WTF???";
     }
-    else
-    {
-        debug() << "CONTACT:" << contact->name();
-    }
-   // debug() << contact->account()->name();
-//    m_active_contact = contact;
 }
 
 void MetaContactImpl::onSessionCreated(ChatSession *session)
 {
-    setActiveContact();
-    debug() << "Session created" << session;
-    connect(session,SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),this,SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
+    MetaContact *contact = qobject_cast<MetaContact*>(session->unit());
+    if(contact)
+    {
+        if(contact == this->metaContact())
+        {
+            setActiveContact();
+            debug() << "Session created" << contact->name();
+            connect(session,SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),this,SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
+        }
+        else
+        {
+            //debug() << this << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+            //debug() << contact->metaContact() << "!!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+        }
+    }
+    else
+    {
+            //debug()  << "Contact not found!";
+    }
+
 }
 
 }
