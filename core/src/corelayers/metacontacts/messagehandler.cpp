@@ -1,4 +1,6 @@
 #include "messagehandler.h"
+#include <qutim/debug.h>
+
 using namespace qutim_sdk_0_3;
 
 namespace Core
@@ -11,6 +13,13 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 
 MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
 {
+    debug() << message.text();
+    if (!message.isIncoming())
+    {
+        return MetaContactMessageHandler::Accept;
+    }
+
+    return MetaContactMessageHandler::Accept;
 
 }
 

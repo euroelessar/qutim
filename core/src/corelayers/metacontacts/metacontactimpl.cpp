@@ -54,7 +54,11 @@ bool contactLessThan(Contact *a, Contact *b)
 
 MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id)
 {
-    connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+  /*  if (!m_handler)
+        m_handler = new MetaContactMessageHandler;
+    qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
+                                                   qutim_sdk_0_3::MessageHandler::HighPriority,
+                                                   qutim_sdk_0_3::MessageHandler::HighPriority);*/
 }
 
 MetaContactImpl::~MetaContactImpl()
@@ -272,12 +276,11 @@ bool MetaContactImpl::event(QEvent* ev)
 
 void MetaContactImpl::addContacts(QList<Contact*> contacts)
 {
-
+    connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
     foreach(Contact *contact, contacts)
     {
         addContact(contact,false);
-        debug() << contact->name();
     }
 }
 
@@ -307,7 +310,6 @@ void MetaContactImpl::setContactTags(const QStringList& tags)
 
 void MetaContactImpl::setActiveContact()
 {
-    debug() << ">>>>Active contact";
     for (int i = 0; i < m_contacts.size(); i++)
     {
         if (m_contacts.at(i)->status().type() > 4)
@@ -317,12 +319,20 @@ void MetaContactImpl::setActiveContact()
         }
     }
     m_active_contact = m_contacts.at(0);
+    debug() << ">>>>Active contact" << m_active_contact->account()->name() << m_active_contact->name();
 }
 
 void MetaContactImpl::onMessageReceived(Message *message)
 {
-    debug() << "Contact is typing///";
-   //Contact *contact = qobject_cast<Contact*>(message->chatUnit()->account());
+    Contact *contact = qobject_cast<Contact*>(message);
+    if (!contact)
+    {
+        debug() << "<<<<<<<< Not found";
+    }
+    else
+    {
+        debug() << "CONTACT:" << contact->name();
+    }
    // debug() << contact->account()->name();
 //    m_active_contact = contact;
 }
@@ -330,7 +340,7 @@ void MetaContactImpl::onMessageReceived(Message *message)
 void MetaContactImpl::onSessionCreated(ChatSession *session)
 {
     setActiveContact();
-    debug() << "Session created";
+    debug() << "Session created" << session;
     connect(session,SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),this,SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
 }
 

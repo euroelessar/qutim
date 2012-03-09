@@ -28,6 +28,7 @@
 
 #include <qutim/metacontact.h>
 #include <qutim/chatsession.h>
+#include "messagehandler.h"
 
 namespace Core
 {
@@ -77,6 +78,7 @@ private:
     QList<Contact*> m_contacts;
 	QString m_lastAvatar;
     Contact* m_active_contact;
+    MetaContactMessageHandler *m_handler;
 };
 }
 }
