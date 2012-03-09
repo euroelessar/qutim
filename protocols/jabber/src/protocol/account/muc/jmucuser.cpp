@@ -41,7 +41,7 @@ public:
 	MUCRoom::Affiliation affiliation;
 	MUCRoom::Role role;
 	QString realJid;
-	JMUCSession *muc;
+	QWeakPointer<JMUCSession> muc;
 };
 
 JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -55,6 +55,9 @@ JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 
 JMUCUser::~JMUCUser()
 {
+	Q_D(JMUCUser);
+	if (d->muc)
+		d->muc.data()->handleDeath(d->name);
 }
 
 QString JMUCUser::title() const
@@ -85,7 +88,7 @@ void JMUCUser::setName(const QString &name)
 
 JMUCSession *JMUCUser::muc() const
 {
-	return d_func()->muc;
+	return d_func()->muc.data();
 }
 
 QString JMUCUser::avatar() const
@@ -208,19 +211,19 @@ void JMUCUser::setRealJid(const QString &jid)
 
 bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	return d_func()->muc->sendPrivateMessage(this, message);
+	return d_func()->muc.data()->sendPrivateMessage(this, message);
 }
 
 void JMUCUser::kick(const QString &reason)
 {
 	Q_D(JMUCUser);
-	d->muc->room()->kick(d->name, reason);
+	d->muc.data()->room()->kick(d->name, reason);
 }
 
 void JMUCUser::ban(const QString &reason)
 {
 	Q_D(JMUCUser);
-	d->muc->room()->ban(d->name, reason);
+	d->muc.data()->room()->ban(d->name, reason);
 }
 }
 

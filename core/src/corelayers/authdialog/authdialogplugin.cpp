@@ -36,10 +36,7 @@ void AuthDialogPlugin::init()
 	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Authorization dialog");
 	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog");
 	setInfo(name, description, QUTIM_VERSION, icon);
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("sauron"));
 	addExtension<Core::AuthService>(name, description, icon);
 }
 

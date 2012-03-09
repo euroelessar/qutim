@@ -4,6 +4,7 @@
 **
 ** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -24,39 +25,35 @@
 **
 ****************************************************************************/
 
-#include "urlpreview.h"
-#include "urlpreviewsettings.h"
-#include <qutim/debug.h>
+#include "highlighter.h"
+#include "highlightersettings.h"
 #include <qutim/config.h>
 #include <qutim/settingslayer.h>
-#include "messagehandler.h"
+#include "nickhandler.h"
 
-namespace UrlPreview
+namespace Highlighter
 {
 
 using namespace qutim_sdk_0_3;
 
-void UrlPreviewPlugin::init()
+void HighlighterPlugin::init()
 {
-	debug() << Q_FUNC_INFO;
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "UrlPreview"),
-			QT_TRANSLATE_NOOP("Plugin", "Preview images directly in the chat window"),
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Highlighter"),
+			QT_TRANSLATE_NOOP("Plugin", "Plugin that add support of highlighting, when your nick has been mentioned."),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
-	addAuthor(QLatin1String("boiler"));
-	addAuthor(QLatin1String("sauron"));
 	addAuthor(QLatin1String("nicoizo"));
 }
 
-bool UrlPreviewPlugin::load()
+bool HighlighterPlugin::load()
 {
-	m_settingsItem = new GeneralSettingsItem<UrlPreviewSettings>(
+	m_settingsItem = new GeneralSettingsItem<HighlighterSettings>(
 				Settings::Plugin,	QIcon(),
-				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
+				QT_TRANSLATE_NOOP("Plugin", "Highlighter"));
 	Settings::registerItem(m_settingsItem);
 
 	if (!m_handler)
-		m_handler = new UrlHandler;
+		m_handler = new NickHandler;
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
@@ -64,7 +61,7 @@ bool UrlPreviewPlugin::load()
 	return true;
 }
 
-bool UrlPreviewPlugin::unload()
+bool HighlighterPlugin::unload()
 {
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
@@ -79,5 +76,5 @@ bool UrlPreviewPlugin::unload()
 
 }
 
-QUTIM_EXPORT_PLUGIN(UrlPreview::UrlPreviewPlugin)
+QUTIM_EXPORT_PLUGIN(Highlighter::HighlighterPlugin)
 

@@ -157,13 +157,12 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 	return false;
 }
 
-void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
+static QString parseUrls(const QString &originalHtml)
 {
 	// FIXME: Move somewhere outside this plugin
 	const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
-	Message copy = msg;
 	QString html;
-	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(copy.html())) {
+	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(originalHtml)) {
 		if (token.url.isEmpty()) {
 			html += token.text.toString();
 		} else {
@@ -174,6 +173,13 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			                         token.text.toString());
 		}
 	}
+	return html;
+}
+
+void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
+{
+	Message copy = msg;
+	QString html = parseUrls(copy.html());
 	copy.setProperty("messageId", msg.id());
 	if (msg.property("topic", false)) {
 		copy.setHtml(html);
@@ -265,7 +271,7 @@ bool WebViewController::eventFilter(QObject *obj, QEvent *ev)
 				elem.removeClass(QLatin1String("notDelivered"));
 				elem.addClass(QLatin1String("delivered"));
 			} else {
-				elem.addClass(QLatin1String("failedToDevliver"));
+				elem.addClass(QLatin1String("failedToDeliver"));
 			}
 		}
 		return true;
@@ -437,8 +443,7 @@ void WebViewController::onTopicChanged(const QString &topic)
 {
 	if (m_topic.text() == topic)
 		return;
-	m_topic.setText(topic);
-	m_topic.setProperty("html", QString());
+	m_topic.setText(QString());
 	if (!m_isLoading)
 		updateTopic();
 }
@@ -451,6 +456,8 @@ void WebViewController::updateTopic()
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
 		m_topic.setText(conference->topic());
+		m_topic.setHtml(QString());
+		m_topic.setHtml(parseUrls(m_topic.html()));
 		m_topic.setTime(QDateTime::currentDateTime());
 	}
 	element.setInnerXml(m_style.templateForContent(m_topic, false));

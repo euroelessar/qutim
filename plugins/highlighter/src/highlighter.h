@@ -2,7 +2,9 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,31 +25,33 @@
 **
 ****************************************************************************/
 
-#include "sdlplugin.h"
-#include "sdlbackend.h"
 
-void SDLSoundPlugin::init()
+#ifndef HIGHLIGHTERPLUGIN_H
+#define HIGHLIGHTERPLUGIN_H
+#include <qutim/plugin.h>
+
+namespace qutim_sdk_0_3
 {
-	addAuthor(QLatin1String("euroelessar"));
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			PLUGIN_VERSION(0, 1, 0, 0),
-			ExtensionIcon());
-	addExtension<SDLSoundBackend>(
-			QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			ExtensionIcon());
+	class SettingsItem;
 }
 
-bool SDLSoundPlugin::load()
+namespace Highlighter {
+
+class NickHandler;
+class HighlighterPlugin : public qutim_sdk_0_3::Plugin
 {
-	return true;
+	Q_OBJECT
+	Q_CLASSINFO("DebugName", "Highlighter")
+	Q_CLASSINFO("Uses", "ChatLayer")
+public:
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
+private:
+	QWeakPointer<NickHandler> m_handler;
+	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+};
 }
 
-bool SDLSoundPlugin::unload()
-{
-	return false;
-}
-
-QUTIM_EXPORT_PLUGIN(SDLSoundPlugin)
+#endif // HIGHLIGHTERPLUGIN_H
 

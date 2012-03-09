@@ -36,7 +36,7 @@
 #include <qutim/actionbox.h>
 #include <qutim/icon.h>
 
-Q_DECLARE_METATYPE(Core::ActionWidget*);
+Q_DECLARE_METATYPE(Core::ActionWidget*)
 
 namespace Core
 {

@@ -60,9 +60,7 @@ WinIntegration::WinIntegration()
 
 void WinIntegration::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Vizir Ivan"),
-		QT_TRANSLATE_NOOP("Task", "Author"),
-		QLatin1String("define-true-false@yandex.com"));
+	addAuthor(QLatin1String("viv"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Windows Integration"),
 		QT_TRANSLATE_NOOP("Plugin", "Adds count of unread messages as an icon to taskbar button of qutim, "
 								"along with some commands list and provides a bit more usable notification area "

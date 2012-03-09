@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Nikita Belov <null@deltaz.org>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,31 +24,46 @@
 **
 ****************************************************************************/
 
-#include "sdlplugin.h"
-#include "sdlbackend.h"
+#ifndef HIGHLIGHTERITEMLIST_H
+#define HIGHLIGHTERITEMLIST_H
 
-void SDLSoundPlugin::init()
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidgetItem>
+#include <QListWidget>
+#include <QPushButton>
+#include <QWidget>
+#include <QEvent>
+
+class HighlighterItemList : public QWidget
 {
-	addAuthor(QLatin1String("euroelessar"));
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			PLUGIN_VERSION(0, 1, 0, 0),
-			ExtensionIcon());
-	addExtension<SDLSoundBackend>(
-			QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			ExtensionIcon());
-}
+	Q_OBJECT
 
-bool SDLSoundPlugin::load()
-{
-	return true;
-}
+public:
+	typedef QSharedPointer<HighlighterItemList> Guard;
+	
+	HighlighterItemList(const QRegExp &regex, QListWidget *regexList);
+	~HighlighterItemList();
+	
+	QRegExp regexp() const;
 
-bool SDLSoundPlugin::unload()
-{
-	return false;
-}
+	QListWidgetItem *item();
+	void setItem(QListWidgetItem *item);
 
-QUTIM_EXPORT_PLUGIN(SDLSoundPlugin)
+	static QString getTranslatedRegexpType(const QRegExp::PatternSyntax &syntax);
+
+signals:
+	void buttonClicked();
+
+protected:
+	virtual void changeEvent(QEvent *e);
+
+private:
+	QLabel *m_label;
+	QPushButton *m_button;
+	QListWidgetItem *m_item;
+	QRegExp m_regexp;
+};
+
+#endif // HIGHLIGHTERITEMLIST_H
 

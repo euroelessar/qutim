@@ -47,10 +47,7 @@ inline SettingsItem *item()
 
 void AntispamPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("sauron"));
 	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Antispam"),
 			QT_TRANSLATE_NOOP("Plugin", "Blocks messages from unknown contacts by question-answer pair"),

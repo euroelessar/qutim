@@ -2,7 +2,9 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,31 +25,35 @@
 **
 ****************************************************************************/
 
-#include "sdlplugin.h"
-#include "sdlbackend.h"
 
-void SDLSoundPlugin::init()
+#ifndef HIGHLIGHTER_MESSAGEHANDLER_H
+#define HIGHLIGHTER_MESSAGEHANDLER_H
+#include <qutim/messagehandler.h>
+#include <QRegExp>
+#include <QLatin1String>
+#include <QStringRef>
+#include <QTextDocument>
+#include <QChar>
+
+#include <qutim/conference.h>
+
+namespace Highlighter {
+
+class NickHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 {
-	addAuthor(QLatin1String("euroelessar"));
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			PLUGIN_VERSION(0, 1, 0, 0),
-			ExtensionIcon());
-	addExtension<SDLSoundBackend>(
-			QT_TRANSLATE_NOOP("Plugin", "SDL sound engine"),
-			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on Simple DirectMedia Layer"),
-			ExtensionIcon());
-}
+    Q_OBJECT
+public:
+	explicit NickHandler();
+protected:
+	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+public slots:
+	void loadSettings();
+private:
+	bool m_enableAutoHighlights;
+	QList<QRegExp> m_regexps;
+};
 
-bool SDLSoundPlugin::load()
-{
-	return true;
-}
+} // namespace Highlighter
 
-bool SDLSoundPlugin::unload()
-{
-	return false;
-}
-
-QUTIM_EXPORT_PLUGIN(SDLSoundPlugin)
+#endif // HIGHLIGHTER_MESSAGEHANDLER_H
 

@@ -134,12 +134,15 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
 	
-	if (!conf || message.property("mention", false)) {
+	if (!message.property("service", false)
+	        && (!conf || message.property("mention", false))) {
 		ChatLayer::instance()->alert(300);
-		ServicePointer<AbstractChatForm> form("ChatForm");
-		if (form) {
-			if (QWidget *widget = form->chatWidget(this)) {
-				QApplication::alert(widget, 300);
+		if (conf) {
+			ServicePointer<AbstractChatForm> form("ChatForm");
+			if (form) {
+				if (QWidget *widget = form->chatWidget(this)) {
+					QApplication::alert(widget, 300);
+				}
 			}
 		}
 	}

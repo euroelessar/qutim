@@ -752,6 +752,11 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 	d_func()->room->invite(contact->id(), reason);
 }
 
+void JMUCSession::handleDeath(const QString &name)
+{
+	d_func()->users.remove(name);
+}
+
 void JMUCSession::onError(Jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
