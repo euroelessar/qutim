@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>317</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,6 +114,13 @@
     <widget class="QCheckBox" name="menuBox">
      <property name="text">
       <string>Show menubar</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="autoresizeBox">
+     <property name="text">
+      <string>Autoresize the input field</string>
      </property>
     </widget>
    </item>
