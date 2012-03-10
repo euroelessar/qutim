@@ -74,10 +74,10 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 		QLatin1Literal last = "\\b";
 
 		if (!myNick.at(0).isLetterOrNumber())
-			first = "\\B";
+			first = "";
 
 		if (!myNick.at(myNick.size() - 1).isLetterOrNumber())
-			last = "\\B";
+			last = "";
 
 		QString autoPattern = first % QRegExp::escape(myNick) % last;
 
