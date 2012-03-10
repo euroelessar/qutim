@@ -55,6 +55,11 @@ void NickHandler::loadSettings()
 	cfg.endGroup();
 }
 
+static bool isWord(QChar ch)
+{
+	return ch.isLetterOrNumber() || ch.isMark() || ch == QLatin1Char('_');
+}
+
 NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 {
 
@@ -68,35 +73,22 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 		return NickHandler::Accept;
 	const QString myNick = me->name();
 
-	if(m_enableAutoHighlights)
-	{
-		QLatin1Literal first = "\\b";
-		QLatin1Literal last = "\\b";
-
-		if (!myNick.at(0).isLetterOrNumber())
-			first = "";
-
-		if (!myNick.at(myNick.size() - 1).isLetterOrNumber())
-			last = "";
-
-		QString autoPattern = first % QRegExp::escape(myNick) % last;
-
-		QRegExp nickRegexp(autoPattern);
-		nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
-		nickRegexp.setPatternSyntax(QRegExp::RegExp);
-
-		if(message.text().contains(nickRegexp))
-		{
-			message.setProperty("mention", true);
-			return NickHandler::Accept;
+	if (m_enableAutoHighlights) {
+		const QString text = message.text();
+		int pos = 0;
+		while ((pos = text.indexOf(myNick, pos, Qt::CaseInsensitive)) != -1) {
+			if ((pos == 0 || !isWord(text.at(pos - 1)))
+					&& (pos + myNick.size() == text.size() || !isWord(text.at(pos + myNick.size())))) {
+				message.setProperty("mention", true);
+				return NickHandler::Accept;
+			}
+			++pos;
 		}
 	}
 
-	if(m_regexps.size())
-	{
+	if (m_regexps.size()) {
 		for (int i = 0; i < m_regexps.size(); ++i) {
-			if(message.text().contains(m_regexps.at(i)))
-			{
+			if (message.text().contains(m_regexps.at(i))) {
 				message.setProperty("mention", true);
 				return NickHandler::Accept;
 			}

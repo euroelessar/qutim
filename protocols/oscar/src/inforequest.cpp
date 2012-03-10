@@ -374,10 +374,13 @@ void IcqInfoRequest::handleError(AbstractMetaRequest *request)
 	if (error == AbstractMetaRequest::ProtocolError ||
 		error == AbstractMetaRequest::Timeout)
 	{
+		// Do we really want to notify user about all this shit?
+		/*
 		NotificationRequest notifRequest(Notification::System);
 		notifRequest.setObject(m_account);
 		notifRequest.setText(request->errorString());
 		notifRequest.send();
+		*/
 
 		setState(InfoRequest::Error);
 		setErrorString(request->errorString());
