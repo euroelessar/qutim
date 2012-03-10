@@ -77,7 +77,8 @@ ChatEdit::ChatEdit(QWidget *parent) :
 	m_session(0),
 	m_sendKey(SendCtrlEnter)
 {
-	setMinimumHeight(QFontMetrics(font()).height()*2);
+	setMinimumHeight(QFontMetrics(font()).height() * 2);
+	m_autoResize = false;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
 
@@ -196,6 +197,17 @@ void ChatEdit::onTextChanged()
 {
 	if(!m_session)
 		return;
+	if(m_autoResize) {
+		QFontMetrics fontHeight = fontMetrics();
+		const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
+		if (docHeight == previousTextHeight)
+			return;
+
+		previousTextHeight = docHeight;
+		const int resHeight = qMin(window()->height() / 3, qMax(docHeight, fontHeight.height()));
+		setMinimumHeight(resHeight);
+		setMaximumHeight(resHeight);
+	}
 
 	QString text = textEditToPlainText();
 	if(!m_session || text.trimmed().isEmpty())
@@ -207,6 +219,11 @@ void ChatEdit::onTextChanged()
 void ChatEdit::setSendKey(SendMessageKey key)
 {
 	m_sendKey = key;
+}
+
+void ChatEdit::setAutoResize(bool resize)
+{
+	m_autoResize = resize;
 }
 
 }

@@ -54,11 +54,11 @@ protected:
 	void changeEvent(QEvent *e);
 private slots:
 	void onButtonClicked(int id);
-	void onValueChanged();
 private:
 	void setFlags(AdiumChat::ChatFlags,bool set = true);
 	Ui::TabbedChatBehavior *ui;
 	AdiumChat::SendMessageKey m_send_message_key;
+	bool m_autoresize;
 	QButtonGroup *m_group;
 	AdiumChat::ChatFlags m_flags;
 };

@@ -55,6 +55,7 @@ public:
     explicit ChatEdit(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
 	void setSendKey(SendMessageKey key);
+	void setAutoResize(bool resize);
 public slots:
 	void send();
 protected:
@@ -65,7 +66,9 @@ protected slots:
 private:
 	QPointer<ChatSessionImpl> m_session;
 	int m_entersCount;
+	int previousTextHeight;
 	SendMessageKey m_sendKey;
+	bool m_autoResize;
 	QTextCursor m_enterPosition;
 };
 
