@@ -70,13 +70,22 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 
 	if(m_enableAutoHighlights)
 	{
-		QString autoPattern = QLatin1Literal("\\b") % QRegExp::escape(myNick) % QLatin1Literal("\\b");
+		QLatin1Literal first = "\\b";
+		QLatin1Literal last = "\\b";
+
+		if (!myNick.at(0).isLetterOrNumber())
+			first = "\\B";
+
+		if (!myNick.at(myNick.size() - 1).isLetterOrNumber())
+			last = "\\B";
+
+		QString autoPattern = first % QRegExp::escape(myNick) % last;
 
 		QRegExp nickRegexp(autoPattern);
 		nickRegexp.setCaseSensitivity(Qt::CaseInsensitive);
 		nickRegexp.setPatternSyntax(QRegExp::RegExp);
 
-		if(message.html().contains(nickRegexp))
+		if(message.text().contains(nickRegexp))
 		{
 			message.setProperty("mention", true);
 			return NickHandler::Accept;
@@ -86,7 +95,7 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 	if(m_regexps.size())
 	{
 		for (int i = 0; i < m_regexps.size(); ++i) {
-			if(message.html().contains(m_regexps.at(i)))
+			if(message.text().contains(m_regexps.at(i)))
 			{
 				message.setProperty("mention", true);
 				return NickHandler::Accept;
