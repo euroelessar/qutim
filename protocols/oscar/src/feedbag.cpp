@@ -858,10 +858,13 @@ FeedbagItem Feedbag::item(quint16 type, const QString &name, quint16 group, Item
 	QString uniqueName = getCompressedName(type, name);
 	if (!(flags & DontLoadLocal)) {
 		FeedbagGroup *groupStruct = d->findGroup(type == SsiBuddy ? group : 0);
-		const quint16 id = groupStruct->hashByName.value(qMakePair(type, uniqueName));
-		FeedbagItem item = d->itemsById.value(qMakePair(type, id));
-		if (!item.isNull())
-			return item;
+		ItemsNameHash::ConstIterator it = groupStruct->hashByName.constFind(qMakePair(type, uniqueName));
+		if (it != groupStruct->hashByName.constEnd()) {
+			const quint16 id = it.value();
+			FeedbagItem item = d->itemsById.value(qMakePair(type, id));
+			if (!item.isNull())
+				return item;
+		}
 	}
 	if (flags & CreateItem) {
 		return FeedbagItem(const_cast<Feedbag*>(this), type,
@@ -884,22 +887,28 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 	if (!(flags & DontLoadLocal)) {
 		if (type == SsiBuddy) {
 			for (GroupHash::Iterator it = d->root.regulars.begin();
-			     it != d->root.regulars.end(); ++it) {
-				const quint16 id = it.value().hashByName.value(qMakePair(type, uniqueName));
+				 it != d->root.regulars.end(); ++it) {
+				ItemsNameHash::ConstIterator jt = it.value().hashByName.constFind(qMakePair(type, uniqueName));
+				if (jt != it.value().hashByName.constEnd()) {
+					const quint16 id = jt.value();
+					FeedbagItem item = d->itemsById.value(qMakePair(type, id));
+					if (!item.isNull()) {
+						items << item;
+						if (flags & ReturnOne)
+							return items;
+					}
+				}
+			}
+		} else {
+			ItemsNameHash::ConstIterator it = d->root.hashByName.constFind(qMakePair(type, uniqueName));
+			if (it != d->root.hashByName.constEnd()) {
+				const quint16 id = it.value();
 				FeedbagItem item = d->itemsById.value(qMakePair(type, id));
 				if (!item.isNull()) {
 					items << item;
 					if (flags & ReturnOne)
 						return items;
 				}
-			}
-		} else {
-			const quint16 id = d->root.hashByName.value(qMakePair(type, uniqueName));
-			FeedbagItem item = d->itemsById.value(qMakePair(type, id));
-			if (!item.isNull()) {
-				items << item;
-				if (flags & ReturnOne)
-					return items;
 			}
 		}
 	}

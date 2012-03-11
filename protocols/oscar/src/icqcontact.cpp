@@ -133,7 +133,7 @@ void IcqContactPrivate::setCapabilities(const Capabilities &caps)
 
 FeedbagItem IcqContactPrivate::getNotInListGroup()
 {
-	FeedbagItem group = account->feedbag()->groupItem(QLatin1String("Default Group"), Feedbag::CreateItem);
+	FeedbagItem group = account->feedbag()->groupItem(QLatin1String("Default Group"), Feedbag::GenerateId);
 	if (!group.isInList()) {
 		group.setField(SsiGroupDefault);
 		group.add();
