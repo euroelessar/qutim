@@ -26,7 +26,7 @@
 
 #include "antispamplugin.h"
 #include <qutim/debug.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "handler.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>

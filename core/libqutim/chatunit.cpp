@@ -25,7 +25,7 @@
 
 #include "chatunit_p.h"
 #include "account.h"
-#include "messagesession.h"
+#include "chatsession.h"
 #include <QCoreApplication>
 #include <QSet>
 #include "message.h"

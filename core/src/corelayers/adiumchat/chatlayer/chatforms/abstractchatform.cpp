@@ -28,7 +28,7 @@
 #include "chatviewfactory.h"
 #include <qutim/conference.h>
 #include <qutim/configbase.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <chatlayer/chatsessionimpl.h>
 #include <QPlainTextEdit>

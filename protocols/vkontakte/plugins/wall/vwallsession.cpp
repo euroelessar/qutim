@@ -30,7 +30,7 @@
 #include "../../src/vconnection.h"
 #include <qutim/debug.h>
 #include <qutim/json.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QTime>
 #include <qutim/notification.h>
 #include <qutim/history.h>

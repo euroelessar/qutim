@@ -29,7 +29,7 @@
 #include <WinThings/TaskbarPreviews.h>
 #include <QGraphicsView>
 #include <QList>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 
 namespace qutim_sdk_0_3
 {

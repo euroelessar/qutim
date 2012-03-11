@@ -34,7 +34,7 @@
 #include <qutim/message.h>
 #include <QDateTime>
 #include "vcontact.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/json.h>
 #include <QTextDocument>
 #include <QApplication>

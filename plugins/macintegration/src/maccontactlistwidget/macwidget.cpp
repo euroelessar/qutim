@@ -32,7 +32,7 @@
 #include <qutim/config.h>
 #include <qutim/contact.h>
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/qtwin.h>

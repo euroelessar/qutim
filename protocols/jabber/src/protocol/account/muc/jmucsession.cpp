@@ -33,7 +33,7 @@
 #include "jbookmarkmanager.h"
 #include <qutim/message.h>
 #include <jreen/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/delayeddelivery.h>
 #include "../../../jabber_global.h"

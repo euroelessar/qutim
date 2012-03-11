@@ -36,7 +36,7 @@
 #include <qutim/event.h>
 #include <qutim/systeminfo.h>
 #include <purple.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <QCoreApplication>
 #include <QLibrary>

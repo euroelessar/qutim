@@ -25,7 +25,7 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "abstractcontactmodel.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QtGui/QContextMenuEvent>
 #include <QHeaderView>
 #include <qutim/icon.h>

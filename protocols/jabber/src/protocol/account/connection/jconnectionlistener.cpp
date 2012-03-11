@@ -28,7 +28,7 @@
 //#include "../muc/jmucsession.h"
 //#include "../vcard/jvcardmanager.h"
 //#include <qutim/notification.h>
-//#include <qutim/messagesession.h>
+//#include <qutim/chatsession.h>
 //#include <QDebug>
 
 //namespace Jabber

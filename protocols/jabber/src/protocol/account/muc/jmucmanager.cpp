@@ -31,7 +31,7 @@
 #include "jbookmarkmanager.h"
 #include "jinvitemanager.h"
 #include "jmucsession.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/icon.h>
 #include <qutim/status.h>
 #include "../roster/jsoftwaredetection.h"

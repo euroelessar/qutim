@@ -27,7 +27,7 @@
 #define WIN7INT_H
 
 #include <qutim/plugin.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "links-openner.h"
 
 const char *const WI_ConfigName = "win-integration";

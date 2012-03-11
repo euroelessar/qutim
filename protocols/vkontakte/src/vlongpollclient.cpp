@@ -29,7 +29,7 @@
 #include "vaccount.h"
 #include "vmessages.h"
 #include <qutim/json.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QNetworkReply>
 #include <QDateTime>
 #include <QTimer>

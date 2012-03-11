@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef LIBQUTIM_MESSAGESESSION_H
-#define LIBQUTIM_MESSAGESESSION_H
+#ifndef LIBQUTIM_CHATSESSION_H
+#define LIBQUTIM_CHATSESSION_H
 
 #include "message.h"
 #include "contact.h"
@@ -128,5 +128,5 @@ ChatSession *ChatLayer::session(QObject *obj, bool create)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatSession*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatSession*>)
 
-#endif // LIBQUTIM_MESSAGESESSION_H
+#endif // LIBQUTIM_CHATSESSION_H
 

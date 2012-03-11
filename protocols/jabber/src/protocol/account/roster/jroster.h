@@ -27,7 +27,7 @@
 
 #include <qutim/contact.h>
 #include <qutim/configbase.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "metacontacts.h"
 //Jreen
 #include <jreen/abstractroster.h>

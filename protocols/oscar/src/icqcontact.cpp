@@ -28,7 +28,7 @@
 #include "buddycaps.h"
 #include "icqaccount_p.h"
 #include "metainfo/infometarequest.h"
-#include "qutim/messagesession.h"
+#include "qutim/chatsession.h"
 #include "qutim/notification.h"
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"

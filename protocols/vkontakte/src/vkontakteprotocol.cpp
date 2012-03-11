@@ -35,7 +35,7 @@
 #include <QInputDialog>
 #include <qutim/message.h>
 #include <QDateTime>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "vmessages.h"
 #include "vconnection.h"
 #include <qutim/settingslayer.h>
