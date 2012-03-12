@@ -52,13 +52,15 @@ void MetaContact::addContact(Contact *contact)
 	ContactPrivate *c_p = contact->d_func();
 	if (c_p->metaContact.data() == this)
 		return;
+	MetaContact *other = c_p->metaContact.data();
 	MetaContactChangeEvent ev(contact, c_p->metaContact.data(), this);
-	d->atAddState = true;
+	other->d_func()->atAddState = true;
 	if (c_p->metaContact)
 		c_p->metaContact.data()->removeContact(contact);
-	d->atAddState = false;
-	qApp->sendEvent(this, &ev);
+	other->d_func()->atAddState = false;
 	qApp->sendEvent(contact, &ev);
+	qApp->sendEvent(this, &ev);
+	emit other->contactRemoved(contact);
 	emit contactAdded(contact);
 }
 
@@ -68,8 +70,8 @@ void MetaContact::removeContact(Contact *contact)
 	ContactPrivate *c_p = contact->d_func();
 	if (c_p->metaContact.data() == this && !d->atAddState) {
 		MetaContactChangeEvent ev(contact, this, 0);
-		qApp->sendEvent(this, &ev);
 		qApp->sendEvent(contact, &ev);
+		qApp->sendEvent(this, &ev);
 		emit contactRemoved(contact);
 	}
 }
