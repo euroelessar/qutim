@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -71,7 +72,7 @@ namespace qutim_sdk_0_3
 		const uchar *s = Json::skipBlanks(fmap, &len);
 		bool result = (Json::parseRecord(variant, s, &len) != 0);
 		if (!result)
-			qDebug("Parse error of json file \"%s\"", qPrintable(d->file.fileName()));
+			debug() << "Parse error of json file " << d->file.fileName();
         d->file.close();
 		return result;
 	}

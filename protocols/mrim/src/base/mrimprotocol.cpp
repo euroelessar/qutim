@@ -100,7 +100,7 @@ void MrimProtocol::loadAccounts()
 {
 	loadActions();
     QStringList accounts = config("general").value("accounts",QStringList());
-	qDebug() << Q_FUNC_INFO << accounts;
+	debug() << Q_FUNC_INFO << accounts;
 
     foreach (QString email, accounts) {
 		addAccount(new MrimAccount(email));

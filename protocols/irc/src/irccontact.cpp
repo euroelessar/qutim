@@ -27,7 +27,7 @@
 #include "ircaccount_p.h"
 #include "ircconnection.h"
 #include "ircavatar.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "QApplication"
 
 namespace qutim_sdk_0_3 {

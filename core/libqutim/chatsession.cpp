@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "messagesession.h"
+#include "chatsession.h"
 #include "messagehandler.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"

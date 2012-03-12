@@ -37,7 +37,7 @@
 #include <QRegExp>
 #include <QDateTime>
 #include <qutim/objectgenerator.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
 #include <qutim/notification.h>

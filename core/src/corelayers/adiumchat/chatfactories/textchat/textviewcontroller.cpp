@@ -34,7 +34,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/chatunit.h>
 #include <qutim/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/conference.h>
 #include <qutim/account.h>
 #include <qutim/history.h>

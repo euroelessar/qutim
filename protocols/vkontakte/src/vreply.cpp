@@ -50,7 +50,7 @@ void VReply::onRequestFinished()
 			QString sid = error.value("captcha_sid").toString();
 			QString url = error.value("captcha_img").toString();
 			QNetworkAccessManager *manager = reply->manager();
-			qDebug("%s %s %s", Q_FUNC_INFO, qPrintable(sid), qPrintable(url));
+			qutim_sdk_0_3::debug() << Q_FUNC_INFO << sid << url;
 #if 0
 			QVariantMap params;
 			QVariantList list = error.value("request_params").toList();
@@ -64,7 +64,7 @@ void VReply::onRequestFinished()
 			Q_UNUSED(manager);
 #endif
 		} else {
-			qDebug() << "error" << error;
+			qutim_sdk_0_3::debug() << "error" << error;
 			emit resultReady(error, true);
 		}
 	} else {

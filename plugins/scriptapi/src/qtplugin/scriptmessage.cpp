@@ -28,6 +28,7 @@
 #include "scriptmessagepropertyiterator.h"
 #include <QScriptEngine>
 #include <QScriptValueIterator>
+#include <qutim/debug.h>
 
 namespace qutim_sdk_0_3
 {
@@ -108,7 +109,7 @@ QScriptValue createMessage(QScriptContext *context, QScriptEngine *engine)
 
 ScriptMessage::ScriptMessage(QScriptEngine *engine) : QScriptClass(engine)
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 	m_incoming = engine->toStringHandle(QLatin1String("incoming"));
 	ScriptEngineData::data(engine)->message = this;
 	qScriptRegisterMetaType(engine, messageToScriptValue, messageFromScriptValue);
@@ -121,7 +122,7 @@ ScriptMessage::ScriptMessage(QScriptEngine *engine) : QScriptClass(engine)
 
 ScriptMessage::~ScriptMessage()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 }
 
 QScriptClass::QueryFlags ScriptMessage::queryProperty(const QScriptValue &object,

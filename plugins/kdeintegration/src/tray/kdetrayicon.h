@@ -27,7 +27,7 @@
 #define KDETRAYICON_H
 
 #include <qutim/menucontroller.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/notification.h>

@@ -291,7 +291,7 @@ void AbstractConnection::setProxy(const QNetworkProxy &oldProxy)
 {
 	QNetworkProxy proxy = oldProxy;
 	proxy.setCapabilities(proxy.capabilities() &=~ QNetworkProxy::HostNameLookupCapability);
-	qDebug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
+	debug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
 	d_func()->socket->setProxy(proxy);
 }
 

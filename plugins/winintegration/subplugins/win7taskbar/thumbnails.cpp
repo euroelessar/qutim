@@ -27,7 +27,7 @@
 #include "thumbnails-renderer.h"
 #include "../../src/winint.h"
 #include <WinThings/TaskbarPreviews.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/config.h>
 #include <QTimer>
 

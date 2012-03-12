@@ -27,7 +27,7 @@
 #include <qutim/buddy.h>
 #include <qutim/debug.h>
 #include <qutim/config.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/emoticons.h>
 #include <QTextDocument>
 #include <QVariant>

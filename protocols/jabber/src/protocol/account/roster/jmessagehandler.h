@@ -27,7 +27,7 @@
 
 #include <QObject>
 //#include <gloox/messagesessionhandler.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 //Jreen
 #include <jreen/messagesession.h>
 

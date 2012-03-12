@@ -41,7 +41,7 @@ QuetzalFieldsDialog::QuetzalFieldsDialog(const char *title, const char *primary,
 	DataItem root = createItem(title, primary, secondary);
 	GList *group_it = purple_request_fields_get_groups(m_fields);
 	bool useGroupBox = group_it->next;
-	qDebug() << "useGroupBox" << useGroupBox;
+	debug() << "useGroupBox" << useGroupBox;
 	for (; group_it; group_it = group_it->next) {
 		PurpleRequestFieldGroup *group = reinterpret_cast<PurpleRequestFieldGroup*>(group_it->data);
 		DataItem groupItem;
@@ -50,7 +50,7 @@ QuetzalFieldsDialog::QuetzalFieldsDialog(const char *title, const char *primary,
 		GList *field_it = purple_request_field_group_get_fields(group);
 		for (; field_it; field_it = field_it->next) {
 			PurpleRequestField *field = reinterpret_cast<PurpleRequestField*>(field_it->data);
-			qDebug() << field->id << purple_request_field_is_visible(field)
+			debug() << field->id << purple_request_field_is_visible(field)
 					<< purple_request_field_get_type(field);
 			if (!purple_request_field_is_visible(field))
 				continue;
@@ -63,7 +63,7 @@ QuetzalFieldsDialog::QuetzalFieldsDialog(const char *title, const char *primary,
 				item.setProperty("multiline", purple_request_field_string_is_multiline(field));
 				item.setProperty("password", bool(purple_request_field_string_is_masked(field)));
 				item.setReadOnly(!purple_request_field_string_is_editable(field));
-				qDebug() << item.name() << item.data() << item.property("password") << item.isReadOnly();
+				debug() << item.name() << item.data() << item.property("password") << item.isReadOnly();
 				break;
 			case PURPLE_REQUEST_FIELD_INTEGER:
 				item.setData(purple_request_field_int_get_default_value(field));
@@ -139,7 +139,7 @@ void QuetzalFieldsDialog::closeRequest()
 
 void QuetzalFieldsDialog::onClicked(int button)
 {
-	qDebug() << Q_FUNC_INFO << button;
+	debug() << Q_FUNC_INFO << button;
 	PurpleRequestFieldsCb cb = button == 0 ? m_ok_cb : m_cancel_cb;
 	if (button == 0) {
 		const QList<DataItem> items = form()->item().subitems();
