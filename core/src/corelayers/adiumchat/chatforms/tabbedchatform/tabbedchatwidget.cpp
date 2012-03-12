@@ -225,7 +225,7 @@ void TabbedChatWidget::loadSettings()
         }
 
         ConfigGroup keyGroup = cfg.group("keys");
-        qDebug() << "Load new settings" << keyGroup.childGroups();
+		debug() << "Load new settings" << keyGroup.childGroups();
         if (keyGroup.hasChildGroup(m_key)) {
             debug() << "load settings for key" << m_key;
             keyGroup.beginGroup(m_key);

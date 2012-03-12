@@ -26,7 +26,7 @@
 #ifndef HUNSPELLCHECKER_H
 #define HUNSPELLCHECKER_H
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/spellchecker.h>
 #include "hunspell/hunspell.hxx"
 #include <QObject>

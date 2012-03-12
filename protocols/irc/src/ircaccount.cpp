@@ -29,7 +29,7 @@
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
 #include <qutim/status.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
 #include <QTime>

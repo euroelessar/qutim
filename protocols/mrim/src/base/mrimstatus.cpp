@@ -36,7 +36,7 @@ MrimStatus::MrimStatus(Type type) : Status(Status::instance(type, "mrim"))
 MrimStatus::MrimStatus(const QString &uri, const QString &title, const QString &desc)
 	: Status(MrimStatus::fromString(uri, title, desc))
 {
-	qDebug() << uri << type();
+	debug() << uri << type();
 }
 
 MrimStatus::MrimStatus(const MrimStatus &status) : Status(status)

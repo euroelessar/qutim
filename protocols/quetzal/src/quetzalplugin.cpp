@@ -36,7 +36,7 @@
 #include <qutim/event.h>
 #include <qutim/systeminfo.h>
 #include <purple.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <QCoreApplication>
 #include <QLibrary>
@@ -340,13 +340,13 @@ void quetzal_debug_print(PurpleDebugLevel level, const char *category, const cha
 	QByteArray arg(arg_s);
 	arg.chop(1);
 	if (level >= PURPLE_DEBUG_FATAL)
-		qFatal("[quetzal/%s]: %s", category, arg.constData());
+		fatal() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_ERROR)
-		qCritical("[quetzal/%s]: %s", category, arg.constData());
+		critical() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_WARNING)
-		qWarning("[quetzal/%s]: %s", category, arg.constData());
+		warning() << "[quetzal/" << category << "]: " << arg.constData();
 	else
-		qDebug("[quetzal/%s]: %s", category, arg.constData());
+		debug() << "[quetzal/" << category << "]: " << arg.constData();
 }
 
 gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
@@ -700,7 +700,7 @@ void QuetzalPlugin::init()
 	for(GList *it = purple_plugins_get_protocols(); it != NULL; it = it->next)
 	{
 		PurplePlugin *protocol = (PurplePlugin *)it->data;
-		qDebug("Protocol: %s", protocol->info->name);
+		debug() << "Protocol: " << protocol->info->name;
 		QuetzalProtocolGenerator *gen = new QuetzalProtocolGenerator(protocol);
 		addExtension(LocalizedString(protocol->info->name),
 					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),

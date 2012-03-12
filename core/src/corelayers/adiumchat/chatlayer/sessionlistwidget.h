@@ -26,7 +26,7 @@
 #define SESSIONLISTWIDGET_H
 
 #include <QListWidget>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/adiumchat/abstractchatwidget.h>
 
 namespace Core {

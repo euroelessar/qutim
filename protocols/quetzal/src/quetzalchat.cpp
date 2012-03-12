@@ -25,7 +25,7 @@
 
 #include "quetzalchat.h"
 #include "quetzalaccount.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 
 QuetzalChat::QuetzalChat(PurpleConversation *conv) : 

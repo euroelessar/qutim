@@ -24,16 +24,17 @@
 ****************************************************************************/
 #include "dplugin.h"
 #include "dbusbackend.h"
+#include <qutim/debug.h>
 
 
 DPlugin::DPlugin()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 }
 
 void DPlugin::init()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 	ExtensionIcon dIcon("mac");
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "DBus notifications"),
 		QT_TRANSLATE_NOOP("Plugin", "Notification system based on Freedesktop DBus protocol"),

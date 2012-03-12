@@ -28,7 +28,7 @@
 #include <QTextCodec>
 
 #include <qutim/debug.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/notification.h>
 #include <qutim/authorizationdialog.h>
 
@@ -365,7 +365,7 @@ void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 						const char *codecName = helper.constData() + helper.indexOf("charset=") + 8;
 						helper = QByteArray::fromRawData(codecName, qstrlen(codecName));
 						helper.replace(';', '\0');
-						qDebug() << "Codec" << codecName;
+						debug() << "Codec" << codecName;
 						codec = QTextCodec::codecForName(helper.constData());
 						if (!codec)
 							codec = QTextCodec::codecForName("cp1251");

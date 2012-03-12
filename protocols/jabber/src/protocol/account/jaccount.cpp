@@ -137,7 +137,7 @@ void JAccountPrivate::_q_on_password_finished(int result)
 
 void JAccountPrivate::_q_on_module_loaded(int i)
 {
-	qDebug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
+	debug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
 	loadedModules |= i;
 	if (loadedModules == 3)
 		_q_connected();

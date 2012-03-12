@@ -28,7 +28,7 @@
 #include "overlay-icon.h"
 #include "../../src/winint.h"
 #include <QSysInfo>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
 #include <WinThings/TaskbarPreviews.h>
 

@@ -26,6 +26,7 @@
 #include "mrimplugin.h"
 #include "mrimprotocol.h"
 #include "../ui/wizards/mrimaccountwizard.h"
+#include <qutim/debug.h>
 
 #define MRIM_MAJOR_VER 0
 #define MRIM_MINOR_VER 1
@@ -34,7 +35,7 @@
 
 MrimPlugin::MrimPlugin()
 {
-    qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 }
 
 void MrimPlugin::init()
@@ -61,13 +62,13 @@ void MrimPlugin::init()
 
 bool MrimPlugin::load()
 {
-    qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
     return true;
 }
 
 bool MrimPlugin::unload()
 {
-    qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
     return false;
 }
 

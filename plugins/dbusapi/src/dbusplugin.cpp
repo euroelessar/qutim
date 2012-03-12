@@ -160,7 +160,7 @@ bool DBusPlugin::load()
 		return false;
 	m_dbus = new QDBusConnection(QDBusConnection::connectToBus(QDBusConnection::SessionBus, "qutim"));
 	if (!m_dbus->registerService("org.qutim")) {
-		qDebug() << "smth wrong at DBUS";
+		debug() << "smth wrong at DBUS";
 		delete m_dbus;
 		m_dbus = 0;
 		return false;
@@ -170,13 +170,13 @@ bool DBusPlugin::load()
 	qDBusRegisterMetaType<Message>();
 	qDBusRegisterMetaType<MessageList>();
 	qDBusRegisterMetaType<QList<QDBusObjectPath> >();
-	qDebug() << "all ok at DBUS";
+	debug() << "all ok at DBUS";
 	foreach (Protocol *proto, Protocol::all()) {
 		ProtocolAdaptor *adaptor = new ProtocolAdaptor(*m_dbus, proto);
 		if (adaptor->path().path().isEmpty())
 			qWarning() << "proto path is empty" << proto->objectName();
 		else if (!m_dbus->registerObject(adaptor->path().path(), proto, QDBusConnection::ExportAdaptors))
-			qDebug() << m_dbus->lastError().message() << QDBusError::errorString(m_dbus->lastError().type());
+			debug() << m_dbus->lastError().message() << QDBusError::errorString(m_dbus->lastError().type());
 	}
 	new ChatLayerAdapter(*m_dbus);
 	m_dbus->registerObject("/ChatLayer", ChatLayer::instance(), QDBusConnection::ExportAdaptors);

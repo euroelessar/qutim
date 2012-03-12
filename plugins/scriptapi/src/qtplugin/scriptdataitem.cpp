@@ -26,6 +26,7 @@
 #include "scriptdataitem.h"
 #include "scriptenginedata.h"
 #include <qutim/dataforms.h>
+#include <qutim/debug.h>
 #include <QDebug>
 #include <QScriptEngine>
 #include <QScriptValueIterator>
@@ -190,7 +191,7 @@ QScriptValue ScriptDataItem::property(const QScriptValue &object, const QScriptS
 	if (name == m_subitems)
 		return m_subitemsFunc;
 	DataItem *item = get_data_item(object);
-	qDebug() << Q_FUNC_INFO << item << (object.objectId() == m_prototype.objectId());
+	debug() << Q_FUNC_INFO << item << (object.objectId() == m_prototype.objectId());
 	Q_ASSERT(item);
 	QVariant data = item->property(name.toString().toUtf8());
 	if (data.isNull()) {

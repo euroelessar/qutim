@@ -33,7 +33,7 @@
 #include "xtraz.h"
 #include "feedbag.h"
 #include "sessiondataitem.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/notification.h>
 
 namespace qutim_sdk_0_3 {

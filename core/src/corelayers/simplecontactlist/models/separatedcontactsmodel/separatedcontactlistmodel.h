@@ -27,7 +27,7 @@
 
 #include <QAbstractItemModel>
 #include <simplecontactlistitem.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <abstractcontactmodel.h>
 
 namespace Core
