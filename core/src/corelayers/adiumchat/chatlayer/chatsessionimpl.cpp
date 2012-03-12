@@ -135,7 +135,9 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	}
 	
 	if (!message.property("service", false)
-	        && (!conf || message.property("mention", false))) {
+	        && (!conf || message.property("mention", false))
+	        && message.isIncoming()
+		&& !message.property("history", false)) {
 		ChatLayer::instance()->alert(300);
 		if (conf) {
 			ServicePointer<AbstractChatForm> form("ChatForm");
