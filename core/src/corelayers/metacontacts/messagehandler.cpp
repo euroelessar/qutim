@@ -13,6 +13,7 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 
 MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
 {
+    debug() << Q_FUNC_INFO;
     debug() << message.text();
     if (!message.isIncoming())
     {

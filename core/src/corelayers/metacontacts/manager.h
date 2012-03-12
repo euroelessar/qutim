@@ -62,6 +62,7 @@ private:
 	QScopedPointer<Factory> m_factory;
 	friend class Factory;
 	bool m_blockUpdate;
+    MetaContactMessageHandler *m_handler;
 };
 }
 }

@@ -54,11 +54,7 @@ bool contactLessThan(Contact *a, Contact *b)
 
 MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id)
 {
-  /*  if (!m_handler)
-        m_handler = new MetaContactMessageHandler;
-    qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
-                                                   qutim_sdk_0_3::MessageHandler::HighPriority,
-                                                   qutim_sdk_0_3::MessageHandler::HighPriority);*/
+
 }
 
 MetaContactImpl::~MetaContactImpl()
@@ -325,7 +321,8 @@ void MetaContactImpl::setActiveContact()
 
 void MetaContactImpl::onMessageReceived(Message *message)
 {
-    debug() << message->chatUnit()->account()-> << m_active_contact->account();
+    debug() << message->chatUnit();
+    debug() << message->chatUnit()->account() << m_active_contact->account();
     if (!(m_active_contact->account() == message->chatUnit()->account()))
     {
         for (int i = 0; i < m_contacts.size(); i++)

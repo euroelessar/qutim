@@ -48,6 +48,13 @@ Manager::Manager() :
 	connect(this, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)), SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
 	QTimer::singleShot(0, this, SLOT(initActions()));
 	setContactsFactory(m_factory.data());
+    if (!m_handler)
+    {
+         m_handler = new MetaContactMessageHandler;
+         qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
+                                                     qutim_sdk_0_3::MessageHandler::HighPriority,
+                                                     qutim_sdk_0_3::MessageHandler::HighPriority);
+    }
 }
 
 Manager::~Manager()

@@ -78,7 +78,6 @@ private:
     QList<Contact*> m_contacts;
 	QString m_lastAvatar;
     Contact* m_active_contact;
-    MetaContactMessageHandler *m_handler;
 };
 }
 }
