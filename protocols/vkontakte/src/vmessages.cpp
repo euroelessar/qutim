@@ -44,7 +44,7 @@ void VMessagesPrivate::onHistoryRecieved()
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	QByteArray rawData = reply->readAll();
-	qDebug() << rawData;
+	debug() << rawData;
 	QVariantList data = Json::parse(rawData).toMap().value("response").toList();
 	for (int i = 1; i < data.size(); i++) {
 		QVariantMap map = data.at(i).toMap();

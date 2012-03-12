@@ -113,7 +113,7 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 {
 	Q_D(JMUCManager);
 	Jreen::PrivacyManager *manager = d->account->privacyManager();
-	qDebug() << Q_FUNC_INFO << name << manager->activeList();
+	debug() << Q_FUNC_INFO << name << manager->activeList();
 	if (name == manager->activeList()) {
 		d->waitingForPrivacyList = false;
 		QSet<QString> badList;
@@ -126,7 +126,7 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 			while (it.hasNext()) {
 				const JID &jid = it.next();
 				const PrivacyItem &item = items.at(i);
-				qDebug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
+				debug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
 				if ((item.stanzaTypes() & PrivacyItem::PresenceOut) && item.check(jid)) {
 					if (item.action() == PrivacyItem::Deny)
 						badList << jid.domain();

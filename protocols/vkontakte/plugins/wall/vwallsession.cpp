@@ -147,7 +147,7 @@ void VWallSessionPrivate::onGetHistoryFinished()
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	QByteArray rawData = reply->readAll();
 
-	qDebug() << Q_FUNC_INFO << rawData;
+	debug() << Q_FUNC_INFO << rawData;
 
 	QVariantMap data = Json::parse(rawData).toMap();
 	QVariantMap responce = data.value("response").toMap();

@@ -116,7 +116,7 @@ MrimMessages *MrimConnection::messages() const
 
 void MrimConnection::start()
 {
-	qDebug() << Q_FUNC_INFO;
+	debug() << Q_FUNC_INFO;
     Q_ASSERT(state() == Unconnected);
     QString srvReqHost = config("connection").value("reqSrvHost",QString("mrim.mail.ru"));
     quint32 srvReqPort = config("connection").value("reqSrvPort",2042);

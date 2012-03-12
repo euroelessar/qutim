@@ -210,7 +210,7 @@ MrimRosterResult MrimRoster::parseByMask(MrimPacket& packet, const QString& mask
 			packet.readTo(val);
 			result << val;
 		} else {
-			qDebug() << mask[i];
+			debug() << mask[i];
 			Q_ASSERT(!"Don't know what to do with this data");
 			result << QVariant();
 		}

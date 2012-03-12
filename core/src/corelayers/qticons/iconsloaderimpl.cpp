@@ -105,7 +105,7 @@ QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
 
 QString IconLoaderImpl::doIconPath(const QString &name, uint iconSize)
 {
-	qDebug("%s %s %u %s", Q_FUNC_INFO, qPrintable(name), iconSize, qPrintable(iconManager()->currentTheme()->getIconPath(name, iconSize)));
+	debug() << Q_FUNC_INFO << name << iconSize << iconManager()->currentTheme()->getIconPath(name, iconSize);
 	return iconManager()->currentTheme()->getIconPath(name, iconSize);
 }
 

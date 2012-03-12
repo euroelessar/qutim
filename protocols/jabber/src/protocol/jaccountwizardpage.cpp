@@ -26,7 +26,7 @@
 #include "ui_jaccountwizardpage.h"
 #include "jjidvalidator.h"
 #include <jreen/jid.h>
-#include <QDebug>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -82,7 +82,7 @@ JAccountWizardPage::~JAccountWizardPage()
 
 bool JAccountWizardPage::validatePage()
 {
-	qDebug("%s \"%s\" \"%s\"", Q_FUNC_INFO, qPrintable(jid()), qPrintable(passwd()));
+	qutim_sdk_0_3::debug() << Q_FUNC_INFO << " " << jid() << " " << passwd();
 	if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
 		return false;
 	m_accountWizard->createAccount();

@@ -78,7 +78,7 @@ void VLongPollClient::onServerDataReceived()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
+	debug() << Q_FUNC_INFO << rawData;
 	QVariantMap data = Json::parse(rawData).toMap().value("response").toMap();
 	if (data.isEmpty() || reply->error() != QNetworkReply::NoError) {
 		if (m_connection->connectionState() == Connected)
@@ -97,7 +97,7 @@ void VLongPollClient::onDataReceived()
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	reply->deleteLater();
 	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
+	debug() << Q_FUNC_INFO << rawData;
 	QVariantMap data = Json::parse(rawData).toMap();
 	if (data.contains("failed")) {
 		requestServer();

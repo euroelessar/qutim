@@ -88,7 +88,7 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	Q_D(JContact);
 	if(d->account->status() == Status::Offline || d->account->status() == Status::Connecting)
 		return false;
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 
 	d->account->messageSessionManager()->sendMessage(this, message);
 	return true;

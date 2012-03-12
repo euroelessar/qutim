@@ -243,7 +243,7 @@ bool ChatSessionImpl::event(QEvent *ev)
 {
 //	if (ev->type() == MessageEventHook::eventType()) {
 //		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
-//		qDebug() << Q_FUNC_INFO;
+//		debug() << Q_FUNC_INFO;
 //		d_func()->getController()->appendMessage(messageEvent->message);
 //		return true;
 //	}

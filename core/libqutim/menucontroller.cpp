@@ -963,8 +963,9 @@ void ActionHandlerHelper::onActionTriggered(QAction *action)
 		return;
 	}
 	QMetaMethod method = meta->method(index);
-	qDebug("DynamicMenu::onActionTriggered: Trying %s::%s",
-		   meta->className(), d->member.constData() + 1);
+	//qDebug("DynamicMenu::onActionTriggered: Trying %s::%s",
+	//	   meta->className(), d->member.constData() + 1);
+	debug() << "DynamicMenu::onActionTriggered: Trying " << meta->className() << "::" << d->member.constData() + 1;
 	debug() << gen->text() << gen << action << controller;
 	switch (d->connectionType) {
 	case ActionConnectionObjectOnly:

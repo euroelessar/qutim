@@ -93,7 +93,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 
 void AbstractChatForm::onSettingsChanged()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 	foreach (AbstractChatWidget *widget, m_chatWidgets) {
 		if (widget)
 			widget->loadSettings();

@@ -280,8 +280,8 @@ QString JMUCSession::id() const
 bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
-	qDebug() << d->jid;
-	qDebug() << d->jid.bareJID();
+	debug() << d->jid;
+	debug() << d->jid.bareJID();
 
 	if (account()->status() == Status::Offline)
 		return false;

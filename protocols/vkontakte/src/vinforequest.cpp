@@ -254,7 +254,7 @@ void VInfoRequest::onRequestFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
+	debug() << Q_FUNC_INFO << rawData;
 	m_data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
 	ensureAddress(Country);
 	ensureAddress(City);
@@ -274,7 +274,7 @@ void VInfoRequest::onAddressEnsured()
 	qptrdiff tmp = reply->property("mapper").value<qptrdiff>();
 	FuncPointerHelper *helper = reinterpret_cast<FuncPointerHelper*>(tmp);
 	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
+	debug() << Q_FUNC_INFO << rawData;
 	QVariantMap data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
 	QString name = data.value("name").toString();
 	m_data.insert(field, name);

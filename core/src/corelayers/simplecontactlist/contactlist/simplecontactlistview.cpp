@@ -108,7 +108,7 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 	ContactItemType type = getItemType(index);
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
-		qDebug("%s", qPrintable(buddy->id()));
+		debug() << buddy->id();
 		buddy->showMenu(event->globalPos());
 	}
 }
@@ -165,7 +165,7 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 				 index.data(BuddyRole));
 		ev.send();
 	}
-	//			qDebug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
+	//			debug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
 	//			if (drag->exec(supportedActions, defaultDropAction) == Qt::MoveAction)
 	//				d->clearOrRemove();
 	//			{}

@@ -180,7 +180,7 @@ bool QuetzalAccountWizardPage::isComplete() const
 
 void quetzal_register_callback(PurpleAccount *account, gboolean succeeded, void *user_data)
 {
-	qDebug() << Q_FUNC_INFO << bool(succeeded);
+	debug() << Q_FUNC_INFO << bool(succeeded);
 	QPointer<QObject> *pointer = reinterpret_cast<QPointer<QObject>*>(user_data);
 	QuetzalAccountWizardPage *page = qobject_cast<QuetzalAccountWizardPage*>(pointer->data());
 	delete pointer;
@@ -190,7 +190,7 @@ void quetzal_register_callback(PurpleAccount *account, gboolean succeeded, void 
 
 void QuetzalAccountWizardPage::handleRegisterResult(PurpleAccount *account, bool succeeded)
 {
-	qDebug() << Q_FUNC_INFO << succeeded;
+	debug() << Q_FUNC_INFO << succeeded;
 	Q_ASSERT(m_account == account);
 	if (succeeded) {
 		m_isRegistering = false;
