@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "astralsession.h"
 #include "astralaccount.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/message.h>
 
 struct AstralSessionPrivate

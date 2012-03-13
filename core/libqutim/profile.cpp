@@ -33,6 +33,7 @@
 #include "jsonfile.h"
 #include "objectgenerator.h"
 #include "cryptoservice.h"
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -223,6 +224,7 @@ bool Profile::acceptData(const QVariantMap &data, const QString &password, QStri
 			else
 				configBackends.append(backend);
 		}
+		debugClearConfig();
 
 		return true;
 	} else {

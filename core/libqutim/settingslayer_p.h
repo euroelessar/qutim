@@ -32,6 +32,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMultiMap>
+#include "debug.h"
 
 class QLineEdit;
 namespace qutim_sdk_0_3
@@ -105,7 +106,7 @@ protected:
 	virtual ~AutoSettingsGenerator() {}
 	virtual QObject *generateHelper() const
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		if(m_object.isNull())
 			m_object = new AutoSettingsWidget(p);
 		return m_object.data();
@@ -164,7 +165,7 @@ protected:
 	virtual ~DataSettingsGenerator() {}
 	virtual QObject *generateHelper() const
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		if(m_object.isNull())
 			m_object = new DataSettingsWidget(p);
 		return m_object.data();

@@ -26,7 +26,7 @@
 #ifndef MACDOCK_H
 #define MACDOCK_H
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <QSystemTrayIcon>

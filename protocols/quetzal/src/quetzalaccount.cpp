@@ -450,7 +450,7 @@ void QuetzalAccount::save(PurpleBuddy *buddy)
 void QuetzalAccount::remove(PurpleBuddy *buddy)
 {
 	QuetzalContact *contact = reinterpret_cast<QuetzalContact*>(buddy->node.ui_data);
-	qDebug() << Q_FUNC_INFO << __LINE__ << contact;
+	debug() << Q_FUNC_INFO << __LINE__ << contact;
 	if (!contact)
 		return;
 	if (contact->removeBuddy(buddy) == 0) {
@@ -508,7 +508,7 @@ void QuetzalAccount::remove(PurpleChat *chat)
 void QuetzalAccount::addChatUnit(ChatUnit *unit)
 {
 	m_units.insert(unit->id(), unit);
-	qDebug() << m_units.keys();
+	debug() << m_units.keys();
 	if (Conference *conference = qobject_cast<Conference*>(unit))
 		conferenceCreated(conference);
 }

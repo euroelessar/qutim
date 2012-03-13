@@ -291,7 +291,7 @@ void AbstractConnection::setProxy(const QNetworkProxy &oldProxy)
 {
 	QNetworkProxy proxy = oldProxy;
 	proxy.setCapabilities(proxy.capabilities() &=~ QNetworkProxy::HostNameLookupCapability);
-	qDebug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
+	debug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
 	d_func()->socket->setProxy(proxy);
 }
 
@@ -486,7 +486,7 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 		snac.lock();
 		send(flap);
 	}
-	debug(Verbose) << dbgStr
+	debug(DebugVerbose) << dbgStr
 					  .arg(snac.family(), 4, 16, QChar('0'))
 					  .arg(snac.subtype(), 4, 16, QChar('0'))
 					  .arg(metaObject()->className());
@@ -500,7 +500,7 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 
 void AbstractConnection::processNewConnection()
 {
-	debug(Verbose) << QString("processNewConnection: %1 %2 %3")
+	debug(DebugVerbose) << QString("processNewConnection: %1 %2 %3")
 					  .arg(flap().channel(), 2, 16, QChar('0'))
 					  .arg(flap().seqNum())
 					  .arg(flap().data().toHex().constData());
@@ -510,7 +510,7 @@ void AbstractConnection::processNewConnection()
 void AbstractConnection::processCloseConnection()
 {
 	Q_D(AbstractConnection);
-	debug(Verbose) << QString("processCloseConnection: %1 %2 %3")
+	debug(DebugVerbose) << QString("processCloseConnection: %1 %2 %3")
 					  .arg(d->flap.channel(), 2, 16, QChar('0'))
 					  .arg(d->flap.seqNum())
 					  .arg(d->flap.data().toHex().constData());
@@ -678,7 +678,7 @@ void AbstractConnection::processSnac()
 {
 	Q_D(AbstractConnection);
 	SNAC snac = SNAC::fromByteArray(d->flap.data());
-	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
+	debug(DebugVerbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
 					  .arg(snac.family(), 4, 16, QChar('0'))
 					  .arg(snac.subtype(), 4, 16, QChar('0'))
 					  .arg(metaObject()->className());
@@ -736,7 +736,7 @@ void AbstractConnection::readData()
 
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	debug(Verbose) << "New connection state" << state << this->metaObject()->className();
+	debug(DebugVerbose) << "New connection state" << state << this->metaObject()->className();
 	if (state == QAbstractSocket::UnconnectedState) {
 		onDisconnect();
 		emit disconnected();

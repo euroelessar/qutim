@@ -27,9 +27,8 @@
 #define KDESPELLERLAYER_H
 
 #include <QObject>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <sonnet/speller.h>
-#include <qutim/messagesession.h>
 #include <qutim/spellchecker.h>
 
 using namespace qutim_sdk_0_3;

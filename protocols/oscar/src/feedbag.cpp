@@ -576,21 +576,21 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	if (!found) {
 		if (error == FeedbagError::NoError) {
 			if (type == Feedbag::Remove) {
-				debug(Verbose) << "The feedbag item has been removed:" << item;
+				debug(DebugVerbose) << "The feedbag item has been removed:" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(Verbose) << "The feedbag item has been updated:" << item;
+				debug(DebugVerbose) << "The feedbag item has been updated:" << item;
 			} else {
-				debug(Verbose) << "The feedbag item has been added:" << item;
+				debug(DebugVerbose) << "The feedbag item has been added:" << item;
 			}
 		} else {
 			if (type == Feedbag::Remove) {
-				debug(Verbose).nospace() << "The feedbag item has not been removed: "
+				debug(DebugVerbose).nospace() << "The feedbag item has not been removed: "
 				                         << error.errorString() << ". (" << error.code() << ")" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(Verbose) << "The feedbag item has not been updated:"
+				debug(DebugVerbose) << "The feedbag item has not been updated:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			} else {
-				debug(Verbose) << "The feedbag item has not been added:"
+				debug(DebugVerbose) << "The feedbag item has not been added:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			}
 		}
@@ -1122,10 +1122,10 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsCliModifyStart:
-		debug(Verbose) << "The server has started modification of the contact list";
+		debug(DebugVerbose) << "The server has started modification of the contact list";
 		break;
 	case ListsFamily << 16 | ListsCliModifyEnd:
-		debug(Verbose) << "The server has ended modification of the contact list";
+		debug(DebugVerbose) << "The server has ended modification of the contact list";
 		break;
 	// Server sends SSI service limitations to client
 	case ListsFamily << 16 | ListsSrvReplyLists: {

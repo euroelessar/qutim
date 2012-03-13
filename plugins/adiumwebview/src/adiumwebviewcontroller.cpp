@@ -311,7 +311,7 @@ bool WebViewController::zoomImage(QWebElement elem)
 
 void WebViewController::debugLog(const QString &message)
 {
-	qDebug("WebKit: %s", qPrintable(message));
+	debug() << "WebKit: " << message;
 }
 
 void WebViewController::appendNick(const QVariant &nick)

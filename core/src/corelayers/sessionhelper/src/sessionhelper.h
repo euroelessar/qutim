@@ -27,7 +27,7 @@
 #ifndef SESSIONHELPER_PLUGIN_H
 #define SESSIONHELPER_PLUGIN_H
 #include <qutim/plugin.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 
 namespace qutim_sdk_0_3 {
 class ChatSession;

@@ -50,7 +50,6 @@ bool IndicatorPlugin::load ()
 {
 	if (!m_service)
 		m_service = new IndicatorService();
-	qDebug() << "[Indicator] Plugin load";
 	return true;
 }
 
@@ -58,7 +57,6 @@ bool IndicatorPlugin::unload ()
 {
 	if (m_service)
 		delete m_service.data();
-	qDebug() << "[Indicator] Plugin unload";
 	return true;
 }
 

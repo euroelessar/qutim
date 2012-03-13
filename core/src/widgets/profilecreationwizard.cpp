@@ -32,6 +32,7 @@
 #include "profilecreationpage.h"
 #include <qutim/jsonfile.h>
 #include <qutim/config.h>
+#include <qutim/debug.h>
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -99,7 +100,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	systemDirs[SystemInfo::ShareDir] = tmpDir.absoluteFilePath("share");
 	for (int i = SystemInfo::ConfigDir; i <= SystemInfo::ShareDir; i++)
 		tmpDir.mkdir(systemDirs[i].dirName());
-	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
+	debug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
 	setProperty("singleProfile",singleProfile);
 	setProperty("password",password);

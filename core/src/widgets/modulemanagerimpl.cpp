@@ -98,11 +98,11 @@ void ModuleManagerImpl::initExtensions()
 {
 	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
 	path += QLatin1String("/ca-certs/*.pem");
-	qDebug() << QSslSocket::defaultCaCertificates().size();
-	qDebug() << QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
-	qDebug() << QSslSocket::defaultCaCertificates().size();
+	debug() << QSslSocket::defaultCaCertificates().size();
+	debug() << QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
+	debug() << QSslSocket::defaultCaCertificates().size();
 	
-	qDebug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
+	debug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
 	ModuleManager::initExtensions();
 
 	NotificationRequest request(Notification::AppStartup);

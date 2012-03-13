@@ -29,7 +29,7 @@
 #include <QDBusAbstractAdaptor>
 #include <QDBusObjectPath>
 #include <QDBusConnection>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 
 using namespace qutim_sdk_0_3;
 

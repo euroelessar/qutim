@@ -63,7 +63,7 @@ public:
 	
 	void showImpl(QAction *action, QObject *)
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		action->setVisible(!Emoticons::theme().isNull());
 	}
 

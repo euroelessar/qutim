@@ -26,7 +26,7 @@
 #ifndef CHATSESSIONADAPTER_H
 #define CHATSESSIONADAPTER_H
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QDBusAbstractAdaptor>
 #include <QDBusObjectPath>
 #include <QDBusConnection>

@@ -28,7 +28,7 @@
 
 #include <qutim/startupmodule.h>
 #include <qutim/settingslayer.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/spellchecker.h>
 #include <qutim/servicemanager.h>
 #include <QSyntaxHighlighter>
