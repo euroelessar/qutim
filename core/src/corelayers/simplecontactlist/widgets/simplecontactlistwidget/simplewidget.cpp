@@ -296,7 +296,7 @@ void SimpleWidget::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		m_statusBtn->setText(Status(type).name());
 		QString text = m_status_action->data().toString();
-		foreach(Account *account,Account::all()) {
+		foreach(Account *account, Account::all()) {
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
