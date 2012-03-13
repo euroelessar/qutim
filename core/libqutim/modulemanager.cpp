@@ -52,6 +52,7 @@
 #include <QDesktopServices>
 #include <QTime>
 #include <QQueue>
+#include <qendian.h>
 #include "objectgenerator.h"
 
 // Is there any other way to init CryptoService from ModuleManager?
@@ -198,18 +199,68 @@ static void printHelp(const QList<CommandArgumentsHandler*> &handlers)
 }
 #endif // NO_COMMANDS
 
-static bool checkQtPluginData(const char *data, QString *error)
+struct InfoToken
 {
-	Q_UNUSED(data);
-	Q_UNUSED(error);
+	const char *key;
+	int keyLength;
+	const char *value;
+	int valueLength;
+};
+
+bool scanNextInfoToken(InfoToken &token, const char * &data)
+{
+	while (isspace(*data))
+		++data;
+	if (!*data)
+		return false;
+	token.key = token.value = 0;
+	token.keyLength = token.valueLength = 0;
+	token.key = data;
+	while (*data && *data != '=')
+		++data;
+	token.keyLength = (data - token.key);
+	if (!*data)
+		return false;
+	++data;
+	token.value = data;
+	while (*data && *data != '\n')
+		++data;
+	token.valueLength = (data - token.value);
 	return true;
 }
 
-static bool checkQutIMPluginData(const char *data, QString *error)
+static bool checkQutIMPluginData(const char *data, quint64 *debugId, QString *error)
 {
-	Q_UNUSED(data);
-	Q_UNUSED(error);
-	return true;
+	InfoToken token;
+	bool isValidPattern = false;
+	bool isValidQutimVersion = false;
+	while (scanNextInfoToken(token, data)) {
+		if (!qstrncmp("pattern", token.key, token.keyLength)) {
+			isValidPattern = !qstrncmp("QUTIM_PLUGIN_VERIFICATION_DATA", token.value, token.valueLength);
+			if (!isValidPattern)
+				break;
+		} else if (!qstrncmp("debugid", token.key, token.keyLength)) {
+			if (token.valueLength != 16) {
+				*error = QLatin1String("Invalid plugin identification number");
+				return false;
+			}
+			QByteArray data = QByteArray::fromRawData(token.value, token.valueLength);
+			QByteArray number = QByteArray::fromHex(data);
+			if (number.size() != 8) {
+				*error = QLatin1String("Invalid plugin identification number");
+				return false;
+			}
+			*debugId = qFromBigEndian<quint64>(reinterpret_cast<const uchar *>(number.constData()));
+		} else if (!qstrncmp("libqutim", token.key, token.keyLength)) {
+			isValidQutimVersion = token.valueLength == qstrlen(versionString())
+								  && !qstrncmp(versionString(), token.value, token.valueLength);
+		}
+	}
+	if (!isValidPattern)
+		*error = QLatin1String("There is no valid qutIM's plugin verification data");
+	else if (!isValidQutimVersion)
+		*error = QLatin1String("Plugin is built with incompatible libqutim's version");
+	return isValidPattern && isValidQutimVersion;
 }
 
 /**
@@ -341,12 +392,11 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifndef Q_OS_SYMBIAN
 				// Just don't load old plugins
 				typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
-				typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
-				QtPluginVerificationFunction qtVerificationFunction = NULL;
 #ifdef QUTIM_TEST_PERFOMANCE
 				QTime timer;
 				int libLoadTime, verifyTime, instanceTime, initTime;
+				quint64 debugId = 0;
 #endif // QUTIM_TEST_PERFOMANCE
 				{
 #ifdef QUTIM_TEST_PERFOMANCE
@@ -359,22 +409,22 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						timer.restart();
 #endif // QUTIM_TEST_PERFOMANCE
 						verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
-						            lib->resolve("qutim_plugin_query_verification_data"));
-						qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
-						            lib->resolve("qt_plugin_query_verification_data"));
+									lib->resolve("qutim_plugin_query_verification_data"));
 #ifdef QUTIM_TEST_PERFOMANCE
 						verifyTime = timer.elapsed();
 						timer.restart();
 #endif // QUTIM_TEST_PERFOMANCE
-						if (!verificationFunction || !qtVerificationFunction) {
+						if (!verificationFunction) {
 							lib->unload();
 							debug() << filename << " has no valid verification data";
 							continue;
 						}
 						QString error;
-						if (!checkQtPluginData(qtVerificationFunction(), &error)
-						        || !checkQutIMPluginData(verificationFunction(), &error)) {
+						if (!checkQutIMPluginData(verificationFunction(), &debugId, &error)) {
+							lib->unload();
 							debug() << "Error while loading plugin " << filename << ": " << error;
+							continue;
+							continue;
 						}
 					} else {
 						debug() << lib->errorString();
@@ -391,6 +441,8 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #endif // QUTIM_TEST_PERFOMANCE
 				
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+					if (debugId)
+						debugAddPluginId(debugId, plugin->metaObject());
 					plugin->init();
 #ifdef QUTIM_TEST_PERFOMANCE
 					initTime = timer.elapsed();

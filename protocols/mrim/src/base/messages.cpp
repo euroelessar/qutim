@@ -429,7 +429,7 @@ void MrimMessages::sendDeliveryReport(const QString& from, quint32 msgId)
     deliveryPacket.setMsgType(MRIM_CS_MESSAGE_RECV);
     deliveryPacket << from;
     deliveryPacket << msgId;
-    debug(Verbose)<<"Sending delivery report for msg #"<<msgId<<"...";
+    debug(DebugVerbose)<<"Sending delivery report for msg #"<<msgId<<"...";
     p->conn->sendPacket(deliveryPacket);
 }
 

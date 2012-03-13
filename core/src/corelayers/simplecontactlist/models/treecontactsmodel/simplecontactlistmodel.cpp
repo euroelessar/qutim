@@ -185,13 +185,13 @@ void TreeModel::addContact(Contact *contact)
 
 	MetaContact *meta = qobject_cast<MetaContact*>(contact);
 
-	if (!meta) {
+	if (!meta)
 		meta = static_cast<MetaContact*>(contact->metaContact());
-		if (meta && d->contacts.contains(meta))
-			return;
-		else if (meta)
-			contact = meta;
-	}
+
+	if (meta && d->contacts.contains(meta))
+		return;
+	else if (meta)
+		contact = meta;
 
 	if (meta) {
 		meta->installEventFilter(this);

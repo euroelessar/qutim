@@ -207,6 +207,7 @@ bool ProfileCreationPage::validatePage()
 		else
 			configBackends.append(backend);
 	}
+	debugClearConfig();
 	
 	m_is_valid = true;
 	return true;

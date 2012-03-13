@@ -338,7 +338,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 	QString uin = snac.read<QString, quint8>();
 	if (uin.isEmpty()) {
 		debug() << "Received a broken message packet";
-		debug(VeryVerbose) << "The packet:" << snac.data().toHex();
+		debug(DebugVeryVerbose) << "The packet:" << snac.data().toHex();
 		return;
 	}
 	IcqContact *contact = account->getContact(uin, true);
@@ -415,7 +415,7 @@ QString MessagesHandler::handleChannel1Message(IcqContact *contact, const TLVMap
 		DataUnit data(tlvs.value(0x0002));
 		TLVMap msg_tlvs = data.read<TLVMap>();
 		if (msg_tlvs.contains(0x0501))
-			debug(Verbose) << "Message has" << msg_tlvs.value(0x0501).data().toHex().constData() << "caps";
+			debug(DebugVerbose) << "Message has" << msg_tlvs.value(0x0501).data().toHex().constData() << "caps";
 		foreach(const TLV &tlv, msg_tlvs.values(0x0101))
 		{
 			DataUnit msg_data(tlv);
@@ -435,7 +435,7 @@ QString MessagesHandler::handleChannel1Message(IcqContact *contact, const TLVMap
 	} else {
 		debug() << "Incorrect message on channel 1 from" << contact->id() << ": SNAC should contain TLV 2";
 	}
-	debug(Verbose) << "New message has been received on channel 1:" << message;
+	debug(DebugVerbose) << "New message has been received on channel 1:" << message;
 	return message;
 }
 
@@ -574,7 +574,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 					codec = asciiCodec();
 			}
 			QString message = codec->toUnicode(message_data);
-			debug(Verbose) << "New message has been received on channel 2:" << message;
+			debug(DebugVerbose) << "New message has been received on channel 2:" << message;
 			return message;
 		} else if (MsgPlugin) {
 			data.skipData(3);
