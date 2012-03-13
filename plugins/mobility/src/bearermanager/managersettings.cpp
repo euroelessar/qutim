@@ -66,12 +66,12 @@ void ManagerSettings::cancelImpl()
 void ManagerSettings::addAccount(Account *account)
 {
 	QCheckBox *box = new QCheckBox(QString("%1 (%2)").arg(account->name()).arg(account->id()),this);
-	bool state = account->config().value("autoConnect",false);
+	bool state = account->config().value("autoConnect", true);
 	box->setChecked(state);
 	box->setProperty("account",qVariantFromValue(account));
 	ui->connectionBox->layout()->addWidget(box);
 	m_checkbox_list.append(box);
-	connect(box,SIGNAL(stateChanged(int)),SLOT(onCheckedStateChanged(int)));
+	connect(box,SIGNAL(stateChanged(int)), SLOT(onCheckedStateChanged(int)));
 }
 
 void ManagerSettings::onCheckedStateChanged(int)
