@@ -131,7 +131,8 @@ QList<Account *> IrcProtocol::accounts() const
 	QList<Account *> accounts;
 	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value().data());
+		if (!it.value().isNull())
+			accounts.append(it.value().data());
 	return accounts;
 }
 
