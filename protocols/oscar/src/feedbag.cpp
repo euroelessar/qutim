@@ -680,10 +680,10 @@ static int feedbagItemSortType(Feedbag::ModifyType type)
 	}
 }
 
-static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
-{
-	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
-}
+//static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
+//{
+//	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
+//}
 
 void FeedbagPrivate::updateList()
 {

@@ -43,7 +43,7 @@ public:
 	TreeView(AbstractContactModel *model, QWidget *parent = 0);
 	virtual void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight);
 	virtual ~TreeView();
-	void setModel(AbstractContactModel *model);
+	void setContactModel(AbstractContactModel *model);
 protected:
 	void contextMenuEvent(QContextMenuEvent *);
 	void startDrag(Qt::DropActions supportedActions);

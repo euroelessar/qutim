@@ -48,7 +48,6 @@ MetaContact::~MetaContact()
 
 void MetaContact::addContact(Contact *contact)
 {
-	Q_D(MetaContact);
 	ContactPrivate *c_p = contact->d_func();
 	if (c_p->metaContact.data() == this)
 		return;

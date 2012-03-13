@@ -65,7 +65,7 @@ private slots:
 	void onConvertToMuc(QObject* obj);
 	void onShowConfigDialog(QObject *obj);
 	void onSaveRemoveBookmarks(QObject *obj);
-	void removeAccount(QObject *obj);
+	void onAccountDestroyed(QObject *obj);
 	void onChangeSubscription(QObject *obj);
 private:
 	void loadActions();

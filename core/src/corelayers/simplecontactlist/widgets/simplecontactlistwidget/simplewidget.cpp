@@ -405,7 +405,7 @@ bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 void SimpleWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *)
 {
 	if (name == "ContactModel") {
-		m_view->setModel(m_model);
+		m_view->setContactModel(m_model);
 		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
 	} else if (name == "ContactDelegate") {
 		m_view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));

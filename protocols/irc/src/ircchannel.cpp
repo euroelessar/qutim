@@ -55,7 +55,7 @@ void IrcChannel::doJoin()
 
 void IrcChannel::join(const QString &pass)
 {
-	d->lastPassword == pass;
+	d->lastPassword = pass;
 	QString cmd;
 	if (!pass.isEmpty())
 		cmd = QString("JOIN %1 :%2").arg(d->name).arg(pass);
