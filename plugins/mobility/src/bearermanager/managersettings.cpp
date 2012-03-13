@@ -52,7 +52,7 @@ void ManagerSettings::loadImpl()
 void ManagerSettings::saveImpl()
 {
 	foreach (QCheckBox *box,m_checkbox_list) {
-		Account *account = box->property("account").value<Account *>();
+		Account *account = box->property("account").value<Account*>();
 		account->config().setValue("autoConnect",box->isChecked());
 	}
 	Config().sync(); //hack
