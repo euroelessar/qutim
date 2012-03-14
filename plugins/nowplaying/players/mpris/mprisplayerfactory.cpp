@@ -25,7 +25,6 @@
 #include "mprisplayerfactory.h"
 #include "mprisplayer.h"
 #include <qutim/icon.h>
-#include <QDebug>
 
 namespace qutim_sdk_0_3 {
 
@@ -34,8 +33,10 @@ namespace nowplaying {
 	MprisPlayerFactory::MprisPlayerFactory()
 	{
 		QDBusConnection conn = QDBusConnection::sessionBus();
-		connect(conn.interface(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-				this, SLOT(onNameOwnerChanged(QString,QString,QString)));
+		connect(conn.interface(), SIGNAL(serviceRegistered(QString)),
+				SLOT(onServiceRegistered(QString)));
+		connect(conn.interface(), SIGNAL(serviceUnregistered(QString)),
+				SLOT(onServiceUnregistered(QString)));
 		QDBusPendingCall call = conn.interface()->asyncCall("ListNames");
 		QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
@@ -54,20 +55,22 @@ namespace nowplaying {
 		else
 			return 0;
 	}
-	
-	void MprisPlayerFactory::onNameOwnerChanged(const QString &service, const QString &oldName,
-												const QString &newName)
+
+	void MprisPlayerFactory::onServiceRegistered(const QString &service)
 	{
-		if (service.startsWith(QLatin1String("org.mpris."))) {
-			if (oldName.isEmpty() && !newName.isEmpty()) {
-				ensureServiceInfo(service, Name);
-				ensureServiceInfo(service, DesktopId);
-			} else if (!oldName.isEmpty() && newName.isEmpty()) {
-				m_knownPlayers.remove(service);
-				PlayerEvent ev(service, PlayerEvent::Unavailable);
-				qApp->sendEvent(this, &ev);
-			}
-		}
+		if (!service.startsWith(QLatin1String("org.mpris.")))
+			return;
+		ensureServiceInfo(service, Name);
+		ensureServiceInfo(service, DesktopId);
+	}
+
+	void MprisPlayerFactory::onServiceUnregistered(const QString &service)
+	{
+		if (!service.startsWith(QLatin1String("org.mpris.")))
+			return;
+		m_knownPlayers.remove(service);
+		PlayerEvent ev(service, PlayerEvent::Unavailable);
+		qApp->sendEvent(this, &ev);
 	}
 	
 	void MprisPlayerFactory::onIdentityReceived(QDBusPendingCallWatcher *watcher)

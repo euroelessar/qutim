@@ -30,6 +30,7 @@
 #include "util.h"
 #include "buddycaps.h"
 #include "connection.h"
+#include <qutim/debug.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/notification.h>
 #include <QHostAddress>
@@ -358,7 +359,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		message = handleChannel4Message(contact, tlvs);
 		break;
 	default:
-		qWarning("Unknown message channel: %d", int(channel));
+		qutim_sdk_0_3::warning() << "Unknown message channel:" << channel;
 	}
 	if (!message.isEmpty()) {
 		// qip always requires a message response, even if it has sent
