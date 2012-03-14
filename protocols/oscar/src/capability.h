@@ -102,8 +102,7 @@ struct fromDataUnitHelper<Capability, false>
 inline uint Capability::hash() const
 {
 	const uint h1 = qHash((quint64(data1) << 32) | (quint64(data2) << 16) | (quint64(data3)));
-	//const uint h2 = qHash(*reinterpret_cast<const quint64*>(data4)); //WTF Oo
-	uint h2 = qHash(data4);
+	uint h2 = qHash(qFromLittleEndian<quint64>(reinterpret_cast<const uchar*>(data4)));
 	return qHash((quint64(h1) << 32) | quint64(h2));
 }
 
