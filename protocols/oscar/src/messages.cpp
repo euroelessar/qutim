@@ -378,7 +378,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		// it should be removed after destroying its session.
 		if (!contact->isInList())
 			connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
-		m.setChatUnit(session->getUnit());
+		m.setChatUnit(contact);
 		QString plain = unescape(message);
 		m.setText(plain);
 		if (plain != message)
