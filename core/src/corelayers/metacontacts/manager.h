@@ -28,6 +28,7 @@
 
 #include <qutim/metacontactmanager.h>
 #include "metacontactimpl.h"
+#include "messagehandler.h"
 
 namespace qutim_sdk_0_3 {
 class RosterStorage;
@@ -62,7 +63,7 @@ private:
 	QScopedPointer<Factory> m_factory;
 	friend class Factory;
 	bool m_blockUpdate;
-    MetaContactMessageHandler *m_handler;
+    QScopedPointer <MetaContactMessageHandler> m_handler;
 };
 }
 }

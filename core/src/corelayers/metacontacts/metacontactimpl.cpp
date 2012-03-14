@@ -124,9 +124,9 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 		}
 		emit tagsChanged(m_tags, previous);
 	}
-    int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
-			- m_contacts.begin();
-	m_contacts.insert(index, contact);
+    //int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
+//		- m_contacts.begin();
+    m_contacts.append(contact);
 	MetaContact::addContact(contact);
     connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onContactStatusChanged()));
@@ -134,8 +134,8 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 			SLOT(setAvatar(QString)));
 
 
-	if (index == 0)
-		resetStatus();
+//	if (index == 0)
+    //	resetStatus();
 	if (m_contacts.size() == 1 || m_name.isEmpty())
 		resetName();
 
@@ -143,6 +143,7 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 		
 	if(update)
 		RosterStorage::instance()->updateContact(this);
+    setActiveContact();
 }
 
 void MetaContactImpl::addContact(Contact *contact)
@@ -216,14 +217,14 @@ void MetaContactImpl::resetStatus()
 
 void MetaContactImpl::onContactStatusChanged()
 {
-	Contact *contact = qobject_cast<Contact*>(sender());
+/*	Contact *contact = qobject_cast<Contact*>(sender());
 	int oldIndex = m_contacts.indexOf(contact);
 	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 			- m_contacts.begin();
 	if (index != oldIndex && index != m_contacts.count())
 		m_contacts.move(oldIndex, index);
 	if (index == 0 || oldIndex == 0)
-		resetStatus();
+        resetStatus();*/
 }
 
 void MetaContactImpl::setAvatar(const QString& path)
@@ -304,19 +305,25 @@ void MetaContactImpl::setContactTags(const QStringList& tags)
 	emit tagsChanged(m_tags,previous);
 }
 
-void MetaContactImpl::setActiveContact()
+void MetaContactImpl::setActiveContact(Contact* contact)
 {
+    if(contact)
+    {
+        m_active_contact = contact;
+        debug() << ">Active contact" << m_active_contact->buddy() << m_active_contact->name();
+        return;
+    }
     for (int i = 0; i < m_contacts.size(); i++)
     {
-        if (m_contacts.at(i)->status().type() > 4)
+        if (m_contacts.at(i)->status().type() != Status::Offline)
         {
             m_active_contact = m_contacts.at(i);
-            debug() << ">>>>Active contact" << m_active_contact->account()->name() << m_active_contact->name();
+            debug() << ">>Active contact" << m_active_contact->buddy() << m_active_contact->name() << m_active_contact;
             return;
         }
     }
     m_active_contact = m_contacts.at(0);
-    debug() << ">>>>Active contact" << m_active_contact->account()->name() << m_active_contact->name();
+    debug() << ">>>Active contact" << m_active_contact->buddy() << m_active_contact->name();
 }
 
 void MetaContactImpl::onMessageReceived(Message *message)
@@ -347,7 +354,7 @@ void MetaContactImpl::onSessionCreated(ChatSession *session)
         {
             setActiveContact();
             debug() << "Session created" << contact->name();
-            connect(session,SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),this,SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
+      //      connect(session,SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),this,SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
         }
         else
         {
@@ -361,7 +368,6 @@ void MetaContactImpl::onSessionCreated(ChatSession *session)
     }
 
 }
-
 }
 }
 

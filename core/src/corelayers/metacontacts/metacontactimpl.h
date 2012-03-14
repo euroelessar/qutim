@@ -28,7 +28,7 @@
 
 #include <qutim/metacontact.h>
 #include <qutim/chatsession.h>
-#include "messagehandler.h"
+
 
 namespace Core
 {
@@ -58,7 +58,8 @@ public:
 	void setContactName(const QString &name);
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
-    void setActiveContact();
+    void setActiveContact(Contact* contact = 0);
+    Contact* getActiveContact() { return m_active_contact; }
 public slots:
 	void setAvatar(const QString &path);
 protected:
