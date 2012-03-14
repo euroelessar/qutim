@@ -38,7 +38,8 @@ namespace nowplaying {
 		QMap<QString, Player::Info> players();
 		QObject *player(const QString &id);
 	private slots:
-		void onNameOwnerChanged(const QString &service, const QString &oldName, const QString &newName);
+		void onServiceRegistered(const QString &service);
+		void onServiceUnregistered(const QString &service);
 		void onIdentityReceived(QDBusPendingCallWatcher *watcher);
 		void onDesktopNameReceived(QDBusPendingCallWatcher *watcher);
 		void onNamesReceived(QDBusPendingCallWatcher *watcher);

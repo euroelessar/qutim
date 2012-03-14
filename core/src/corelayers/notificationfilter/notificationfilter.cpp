@@ -37,7 +37,7 @@ namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-static QString toString(Notification::Type type)
+static QString toString(Notification::Type type, const QString &argument)
 {
 	QString title;
 	switch(type) {
@@ -51,6 +51,8 @@ static QString toString(Notification::Type type)
 		break;
 	case Notification::AppStartup:
 		title = QObject::tr("qutIM launched");
+		// We don't have place for argument
+		return title;
 		break;
 	case Notification::BlockedMessage:
 		title = QObject::tr("Blocked message from %1");
@@ -80,8 +82,10 @@ static QString toString(Notification::Type type)
 	case Notification::System:
 	default:
 		title = QObject::tr("System notify");
+		// We don't have place for argument
+		return title;
 	}
-	return title;
+	return title.arg(argument);
 }
 
 static inline ChatUnit *getUnitForSession(QObject *obj)
@@ -115,7 +119,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
-		request.setTitle(toString(reqType).arg(sender_name));
+		request.setTitle(toString(reqType, sender_name));
 		return;
 	}
 
@@ -127,7 +131,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 			if(sender_name.isEmpty())
 				sender_name = sender->property("id").toString();
 		}
-		QString title = toString(request.type()).arg(sender_name);
+		QString title = toString(request.type(), sender_name);
 		if (reqType == Notification::UserChangedStatus) {
 			Status status = request.property("status", Status());
 			title = title.arg(status.name().toString());
