@@ -202,9 +202,9 @@ static void printHelp(const QList<CommandArgumentsHandler*> &handlers)
 struct InfoToken
 {
 	const char *key;
-	int keyLength;
+	uint keyLength;
 	const char *value;
-	int valueLength;
+	uint valueLength;
 };
 
 bool scanNextInfoToken(InfoToken &token, const char * &data)

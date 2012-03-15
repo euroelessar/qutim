@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 typedef QHash<Capability, QString> CapName;
-Q_GLOBAL_STATIC(CapName, capName);
+Q_GLOBAL_STATIC(CapName, capName)
 
 Capability::Capability()
 {

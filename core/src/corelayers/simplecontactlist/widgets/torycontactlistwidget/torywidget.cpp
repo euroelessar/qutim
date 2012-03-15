@@ -56,8 +56,9 @@
 
 namespace Core {
 namespace SimpleContactList {
-struct ToryWidgetPrivate
+class ToryWidgetPrivate
 {
+public:
 	TreeView *view;
 	ServicePointer<AbstractContactModel> model;
 	ActionToolBar *mainToolBar;
@@ -378,7 +379,7 @@ void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject 
 	Q_D(ToryWidget);
 	Q_UNUSED(old);
 	if (name == "ContactModel") {
-		d->view->setModel(d->model);
+		d->view->setContactModel(d->model);
 		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
 	} else if (name == "ContactDelegate") {
 		d->view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));

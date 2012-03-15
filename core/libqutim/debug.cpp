@@ -105,7 +105,7 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugData, coreData, init_core_data(x.data()))
 QDebug debug_helper(quint64 debugId, DebugLevel level, QtMsgType type)
 {
 	const DebugData * const data = debugAreaMap()->value(debugId, coreData());
-	if (data->fixedLevel() <= level) {
+	if (data->fixedLevel() <= static_cast<DebugData::Level>(level)) {
 		return (QDebug(type)
 				<< qPrintable(QTime::currentTime().toString(QLatin1String("[hh:mm:ss]")))
 				<< data->name.constData());

@@ -132,7 +132,7 @@ void initGui()
 			QDir dir(path);
 			foreach (const QString &name, dir.entryList(filter, QDir::Files)) {
 				lib.setFileName(dir.filePath(name));
-				if (ok |= lib.load())
+				if ((ok |= lib.load()))
 					break;
 			}
 			if (ok)

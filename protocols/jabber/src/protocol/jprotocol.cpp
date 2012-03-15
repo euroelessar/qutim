@@ -379,7 +379,7 @@ void JProtocol::addAccount(JAccount *account, bool loadSettings)
 	emit accountCreated(account);
 
 	connect(account, SIGNAL(destroyed(QObject*)),
-			this, SLOT(removeAccount(QObject*)));
+			this, SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 	d->mainSettings->connect(SIGNAL(saved()),
@@ -543,7 +543,7 @@ void JProtocol::virtual_hook(int id, void *data)
 	}
 }
 
-void JProtocol::removeAccount(QObject *obj)
+void JProtocol::onAccountDestroyed(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
 	d_ptr->accounts->remove(d_ptr->accounts->key(acc));

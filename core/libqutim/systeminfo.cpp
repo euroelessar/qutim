@@ -182,7 +182,7 @@ static bool osReleaseDetect(SystemInfoPrivate *d)
 	};
 	
 	QFile releaseFile;
-	for (int i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
+	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
 		OsRelease &release = files[i];
 		releaseFile.setFileName(QLatin1String(release.fileName));
 		if (!releaseFile.open(QFile::ReadOnly))

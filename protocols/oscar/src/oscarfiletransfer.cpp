@@ -202,7 +202,7 @@ OftSocket::OftSocket(int socketDescriptor, QObject *parent) :
 
 void OftSocket::init()
 {
-	connect(this, SIGNAL(readyRead()), SLOT(readData()));
+	connect(this, SIGNAL(readyRead()), SLOT(onReadyRead()));
 	connect(this, SIGNAL(connected()), this, SLOT(connected()));
 	m_state = ReadHeader;
 	m_len = 0;
@@ -269,10 +269,10 @@ void OftSocket::dataReaded()
 	m_state = ReadHeader;
 	m_lastHeader = OftHeader();
 	if (bytesAvailable() > 0)
-		readData();
+		onReadyRead();
 }
 
-void OftSocket::readData()
+void OftSocket::onReadyRead()
 {
 	if (m_state & Proxy) {
 		DataUnit data;

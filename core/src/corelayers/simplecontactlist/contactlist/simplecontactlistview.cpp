@@ -66,10 +66,10 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 	connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(onCollapsed(QModelIndex)));
 	connect(this, SIGNAL(expanded(QModelIndex)), SLOT(onExpanded(QModelIndex)));
 
-	setModel(model);
+	setContactModel(model);
 }
 
-void TreeView::setModel(AbstractContactModel *model)
+void TreeView::setContactModel(AbstractContactModel *model)
 {
 	storeClosedTags();
 	Config group = Config().group("contactList").group(model->metaObject()->className());
