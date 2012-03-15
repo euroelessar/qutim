@@ -243,7 +243,7 @@ void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old
 		AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
 		if (!widget)
 			return;
-		widget->contactView()->setModel(p->model);
+		widget->contactView()->setContactModel(p->model);
 		AbstractContactModel *oldModel = qobject_cast<AbstractContactModel*>(old);
 		if (oldModel)
 			p->model->setContacts(oldModel->contacts());

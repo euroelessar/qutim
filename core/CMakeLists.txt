@@ -403,6 +403,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 if(QUTIM_CREATE_BUNDLE)
+    include(InstallRequiredSystemLibraries)
     include(QtBundleUtils)
     define_bundle_paths(qutim)
     set(APPS ${BUNDLE_PATH})

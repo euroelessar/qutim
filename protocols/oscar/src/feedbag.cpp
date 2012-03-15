@@ -666,24 +666,24 @@ FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 	return item;
 }
 
-static int feedbagItemSortType(Feedbag::ModifyType type)
-{
-	switch (type) {
-	case Feedbag::Add:
-		return 0;
-	case Feedbag::Remove:
-		return 1;
-	case Feedbag::Modify:
-		return 2;
-	default:
-		return 1000;
-	}
-}
+//static int feedbagItemSortType(Feedbag::ModifyType type)
+//{
+//	switch (type) {
+//	case Feedbag::Add:
+//		return 0;
+//	case Feedbag::Remove:
+//		return 1;
+//	case Feedbag::Modify:
+//		return 2;
+//	default:
+//		return 1000;
+//	}
+//}
 
-static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
-{
-	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
-}
+//static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
+//{
+//	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
+//}
 
 void FeedbagPrivate::updateList()
 {

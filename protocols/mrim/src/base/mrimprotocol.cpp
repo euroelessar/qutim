@@ -93,7 +93,7 @@ void MrimProtocol::addAccount(MrimAccount *account)
 {
 	p->m_accountsHash.insert(account->id(), account);
 	emit accountCreated(account);
-	connect(account, SIGNAL(destroyed(QObject*)), SLOT(removeAccount(QObject*)));
+	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 }
 
 void MrimProtocol::loadAccounts()
@@ -119,7 +119,7 @@ QVariant MrimProtocol::data(DataType type)
 	}
 }
 
-void MrimProtocol::removeAccount(QObject *obj)
+void MrimProtocol::onAccountDestroyed(QObject *obj)
 {
 	p->m_accountsHash.remove(p->m_accountsHash.key(static_cast<MrimAccount*>(obj)));
 }
