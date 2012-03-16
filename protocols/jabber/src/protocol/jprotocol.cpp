@@ -40,6 +40,7 @@
 #include "account/muc/jconferenceconfig.h"
 #include <QInputDialog>
 #include <qutim/debug.h>
+#include <jreen/logger.h>
 
 namespace Jabber
 {
@@ -54,6 +55,13 @@ enum JActionType
 	BanAction
 };
 
+//Q_GLOBAL_STATIC_WITH_ARGS(quint64, jreenUniqueId, ((quint64(qrand()) << 32) | quint64(qrand)))
+
+void debugMessageHandler(QtMsgType type, const char *msg)
+{
+	debug_helper(qutim_plugin_id(), DebugInfo, type) << msg;
+}
+
 class JProtocolPrivate
 {
 	Q_DECLARE_PUBLIC(JProtocol)
@@ -62,8 +70,14 @@ public:
 		accounts(new QHash<QString, JAccount *>),
 		q_ptr(q)
 	{
+//		debugAddPluginId(*jreenUniqueId(), &Jreen::Client::staticMetaObject);
+		Logger::addHandler(debugMessageHandler);
 	}
-	inline ~JProtocolPrivate() { delete accounts; }
+	inline ~JProtocolPrivate()
+	{
+		Logger::removeHandler(debugMessageHandler);
+		delete accounts;
+	}
 	QHash<QString, JAccount *> *accounts;
 	JProtocol *q_ptr;
 	SettingsItem *mainSettings;
@@ -365,7 +379,7 @@ void JProtocol::addAccount(JAccount *account, bool loadSettings)
 	emit accountCreated(account);
 
 	connect(account, SIGNAL(destroyed(QObject*)),
-			this, SLOT(removeAccount(QObject*)));
+			this, SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
 	d->mainSettings->connect(SIGNAL(saved()),
@@ -529,7 +543,7 @@ void JProtocol::virtual_hook(int id, void *data)
 	}
 }
 
-void JProtocol::removeAccount(QObject *obj)
+void JProtocol::onAccountDestroyed(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
 	d_ptr->accounts->remove(d_ptr->accounts->key(acc));

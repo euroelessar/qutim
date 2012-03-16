@@ -576,21 +576,21 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	if (!found) {
 		if (error == FeedbagError::NoError) {
 			if (type == Feedbag::Remove) {
-				debug(Verbose) << "The feedbag item has been removed:" << item;
+				debug(DebugVerbose) << "The feedbag item has been removed:" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(Verbose) << "The feedbag item has been updated:" << item;
+				debug(DebugVerbose) << "The feedbag item has been updated:" << item;
 			} else {
-				debug(Verbose) << "The feedbag item has been added:" << item;
+				debug(DebugVerbose) << "The feedbag item has been added:" << item;
 			}
 		} else {
 			if (type == Feedbag::Remove) {
-				debug(Verbose).nospace() << "The feedbag item has not been removed: "
+				debug(DebugVerbose).nospace() << "The feedbag item has not been removed: "
 				                         << error.errorString() << ". (" << error.code() << ")" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(Verbose) << "The feedbag item has not been updated:"
+				debug(DebugVerbose) << "The feedbag item has not been updated:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			} else {
-				debug(Verbose) << "The feedbag item has not been added:"
+				debug(DebugVerbose) << "The feedbag item has not been added:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			}
 		}
@@ -666,24 +666,24 @@ FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 	return item;
 }
 
-static int feedbagItemSortType(Feedbag::ModifyType type)
-{
-	switch (type) {
-	case Feedbag::Add:
-		return 0;
-	case Feedbag::Remove:
-		return 1;
-	case Feedbag::Modify:
-		return 2;
-	default:
-		return 1000;
-	}
-}
+//static int feedbagItemSortType(Feedbag::ModifyType type)
+//{
+//	switch (type) {
+//	case Feedbag::Add:
+//		return 0;
+//	case Feedbag::Remove:
+//		return 1;
+//	case Feedbag::Modify:
+//		return 2;
+//	default:
+//		return 1000;
+//	}
+//}
 
-static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
-{
-	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
-}
+//static bool feedbagItemLessThan(const FeedbagQueueItem &a, const FeedbagQueueItem &b)
+//{
+//	return feedbagItemSortType(a.type) < feedbagItemSortType(b.type);
+//}
 
 void FeedbagPrivate::updateList()
 {
@@ -858,10 +858,13 @@ FeedbagItem Feedbag::item(quint16 type, const QString &name, quint16 group, Item
 	QString uniqueName = getCompressedName(type, name);
 	if (!(flags & DontLoadLocal)) {
 		FeedbagGroup *groupStruct = d->findGroup(type == SsiBuddy ? group : 0);
-		const quint16 id = groupStruct->hashByName.value(qMakePair(type, uniqueName));
-		FeedbagItem item = d->itemsById.value(qMakePair(type, id));
-		if (!item.isNull())
-			return item;
+		ItemsNameHash::ConstIterator it = groupStruct->hashByName.constFind(qMakePair(type, uniqueName));
+		if (it != groupStruct->hashByName.constEnd()) {
+			const quint16 id = it.value();
+			FeedbagItem item = d->itemsById.value(qMakePair(type, id));
+			if (!item.isNull())
+				return item;
+		}
 	}
 	if (flags & CreateItem) {
 		return FeedbagItem(const_cast<Feedbag*>(this), type,
@@ -884,22 +887,28 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 	if (!(flags & DontLoadLocal)) {
 		if (type == SsiBuddy) {
 			for (GroupHash::Iterator it = d->root.regulars.begin();
-			     it != d->root.regulars.end(); ++it) {
-				const quint16 id = it.value().hashByName.value(qMakePair(type, uniqueName));
+				 it != d->root.regulars.end(); ++it) {
+				ItemsNameHash::ConstIterator jt = it.value().hashByName.constFind(qMakePair(type, uniqueName));
+				if (jt != it.value().hashByName.constEnd()) {
+					const quint16 id = jt.value();
+					FeedbagItem item = d->itemsById.value(qMakePair(type, id));
+					if (!item.isNull()) {
+						items << item;
+						if (flags & ReturnOne)
+							return items;
+					}
+				}
+			}
+		} else {
+			ItemsNameHash::ConstIterator it = d->root.hashByName.constFind(qMakePair(type, uniqueName));
+			if (it != d->root.hashByName.constEnd()) {
+				const quint16 id = it.value();
 				FeedbagItem item = d->itemsById.value(qMakePair(type, id));
 				if (!item.isNull()) {
 					items << item;
 					if (flags & ReturnOne)
 						return items;
 				}
-			}
-		} else {
-			const quint16 id = d->root.hashByName.value(qMakePair(type, uniqueName));
-			FeedbagItem item = d->itemsById.value(qMakePair(type, id));
-			if (!item.isNull()) {
-				items << item;
-				if (flags & ReturnOne)
-					return items;
 			}
 		}
 	}
@@ -1113,10 +1122,10 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsCliModifyStart:
-		debug(Verbose) << "The server has started modification of the contact list";
+		debug(DebugVerbose) << "The server has started modification of the contact list";
 		break;
 	case ListsFamily << 16 | ListsCliModifyEnd:
-		debug(Verbose) << "The server has ended modification of the contact list";
+		debug(DebugVerbose) << "The server has ended modification of the contact list";
 		break;
 	// Server sends SSI service limitations to client
 	case ListsFamily << 16 | ListsSrvReplyLists: {

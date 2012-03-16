@@ -25,7 +25,7 @@
 #ifndef AWNSERVICE
 #define AWNSERVICE
 
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 

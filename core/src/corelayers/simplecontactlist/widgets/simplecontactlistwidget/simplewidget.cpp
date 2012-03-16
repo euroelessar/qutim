@@ -296,7 +296,7 @@ void SimpleWidget::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		m_statusBtn->setText(Status(type).name());
 		QString text = m_status_action->data().toString();
-		foreach(Account *account,Account::all()) {
+		foreach(Account *account, Account::all()) {
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
@@ -405,7 +405,7 @@ bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 void SimpleWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *)
 {
 	if (name == "ContactModel") {
-		m_view->setModel(m_model);
+		m_view->setContactModel(m_model);
 		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
 	} else if (name == "ContactDelegate") {
 		m_view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));

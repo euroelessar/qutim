@@ -226,7 +226,7 @@ void NowPlaying::playingStatusChanged(bool isPlaying)
 
 void NowPlaying::setStatuses(const TrackInfo &info)
 {
-	qDebug() << info.location.toString();
+	debug() << info.location.toString();
 	foreach (AccountTuneStatus *account, m_accounts)
 		account->setStatus(info);
 }

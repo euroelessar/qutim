@@ -40,6 +40,8 @@ class ModuleManager;
 class PluginInfoData;
 class PluginPrivate;
 
+LIBQUTIM_EXPORT void debugAddPluginId(quint64, const QMetaObject *meta);
+
 class LIBQUTIM_EXPORT PluginInfo
 {
 public:
@@ -165,10 +167,25 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::PluginInfo::Capabilities)
 Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 
 #ifdef QUTIM_STATIC_PLUGIN
+
+# define QUTIM_DEBUG_ID_CONVERT_HELPER(A) 0x ## A ## ULL
+# define QUTIM_DEBUG_ID_CONVERT(A) QUTIM_DEBUG_ID_CONVERT_HELPER(A)
+# define QUTIM_PLUGIN_INSTANCE(IMPLEMENTATION) \
+		{ \
+			static QT_PREPEND_NAMESPACE(QPointer)<QT_PREPEND_NAMESPACE(QObject)> _instance; \
+			if (!_instance) {      \
+				_instance = new IMPLEMENTATION; \
+				debugAddPluginId(QUTIM_DEBUG_ID_CONVERT(QUTIM_PLUGIN_ID), &IMPLEMENTATION::staticMetaObject);\
+			} \
+			return _instance; \
+		}
 # define QUTIM_EXPORT_PLUGIN_HELPER(PluginInstance, Class) \
     QT_PREPEND_NAMESPACE(QObject) \
     *PluginInstance() \
-    Q_PLUGIN_INSTANCE(Class)
+	QUTIM_PLUGIN_INSTANCE(Class)
+# undef QUTIM_DEBUG_ID_CONVERT_HELPER
+# undef QUTIM_DEBUG_ID_CONVERT
+
 # define QUTIM_EXPORT_PLUGIN(Class) \
     QUTIM_EXPORT_PLUGIN_HELPER(QUTIM_PLUGIN_INSTANCE, Class)
 # define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
@@ -180,7 +197,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
     Q_EXPORT_PLUGIN2(Plugin,Class) \
     static const char *qutim_plugin_verification_data = \
     "pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
-    "debugid="QUTIM_EXPORT_STRING(QUTIM_PLUGIN_ID)"\0" \
+	"debugid="QUTIM_EXPORT_STRING(QUTIM_PLUGIN_ID)"\n" \
     "libqutim="QUTIM_VERSION_STRING"\0"; \
     Q_EXTERN_C Q_DECL_EXPORT \
     const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \

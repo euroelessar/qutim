@@ -137,7 +137,7 @@ void BirthdayReminder::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "BirthdayReminder"),
 			QT_TRANSLATE_NOOP("Plugin", "This plugin shows notifications when someone from "
-										"your contact list has a birthday"),
+							  "your contact list has a birthday"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
 }
@@ -155,9 +155,9 @@ bool BirthdayReminder::load()
 	m_notificationTimer.start();
 
 	m_settings = new GeneralSettingsItem<BirthdayReminderSettings>(
-					Settings::Plugin,
-					Icon(QLatin1String("view-calendar-birthday")),
-					QT_TRANSLATE_NOOP("Settings", "Birthday reminder"));
+					 Settings::Plugin,
+					 Icon(QLatin1String("view-calendar-birthday")),
+					 QT_TRANSLATE_NOOP("Settings", "Birthday reminder"));
 	m_settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(m_settings);
 
@@ -195,7 +195,7 @@ void BirthdayReminder::onAccountCreated(qutim_sdk_0_3::Account *account)
 	connect(updater, SIGNAL(birthdayUpdated(Contact*,QDate)),
 			SLOT(onBirthdayUpdated(Contact*,QDate)));
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-		   SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+			SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			SLOT(onAccountDestroyed(QObject*)));
 
@@ -244,8 +244,8 @@ void BirthdayReminder::reloadSettings()
 {
 	Config cfg;
 	cfg.beginGroup("birthdayReminder");
-	m_daysBeforeNotification = cfg.value("daysBeforeNotification", 7);
-	int notifInterval = cfg.value("intervalBetweenNotifications", 3.0) * 60 * 60 * 1000;
+	m_daysBeforeNotification = cfg.value("daysBeforeNotification", 3);
+	int notifInterval = cfg.value("intervalBetweenNotifications", 24.0) * 60 * 60 * 1000;
 	if (notifInterval != m_notificationTimer.interval())
 		m_notificationTimer.setInterval(notifInterval);
 	cfg.endGroup();

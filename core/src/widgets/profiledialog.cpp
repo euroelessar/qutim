@@ -43,12 +43,6 @@
 #include <QTimer>
 #include <QScrollBar>
 
-namespace qutim_sdk_0_3
-{ 
-	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
-	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
-}
-
 namespace Core
 {
 ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :

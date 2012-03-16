@@ -29,7 +29,7 @@
 #include <qutim/debug.h>
 #include <qutim/message.h>
 #include <qutim/tooltip.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/notification.h>
 
 QVariant quetzal_value2variant(const PurpleValue *value)

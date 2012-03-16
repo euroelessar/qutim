@@ -31,7 +31,7 @@
 #include <qutim/json.h>
 #include <qutim/debug.h>
 #include <qutim/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <QFileDialog>
 #include <QNetworkCookieJar>

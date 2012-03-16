@@ -135,7 +135,7 @@ public slots:
 protected:
 	void connectToProxy(const QHostAddress &address, quint16 port);
 private slots:
-	void readData();
+	void onReadyRead();
 	void connected();
 	void disconnected();
 	void onTimeout();

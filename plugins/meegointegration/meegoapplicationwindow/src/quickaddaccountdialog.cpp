@@ -29,7 +29,7 @@
 #include <qutim/protocol.h>
 #include <qutim/contact.h>
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
 #include <qutim/systemintegration.h>
 #include <qutim/settingslayer.h>

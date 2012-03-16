@@ -38,13 +38,16 @@ namespace nowplaying {
 		QMap<QString, Player::Info> players();
 		QObject *player(const QString &id);
 	private slots:
-		void onNameOwnerChanged(const QString &service, const QString &oldName, const QString &newName);
-		void onIdentityReceived(QDBusPendingCallWatcher *watcher);
-		void onDesktopNameReceived(QDBusPendingCallWatcher *watcher);
+		void onServiceOwnerChanged(const QString &service, const QString &from, const QString &to);
+		void onServiceRegistered(const QString &service);
+		void onServiceUnregistered(const QString &service);
+		void onServiceInfoReceived(QDBusPendingCallWatcher *watcher);
+		void onIdentityReceived(const QString &service, const QString &identity);
+		void onDesktopNameReceived(const QString &service, const QString &desktopId);
 		void onNamesReceived(QDBusPendingCallWatcher *watcher);
 	private:
 		enum InfoType { Name, DesktopId };
-		void ensureServiceInfo(const QString &service, InfoType type);
+		void ensureServiceInfo(const QString &service);
 		QMap<QString, Player::Info> m_knownPlayers;
 	};
 } }

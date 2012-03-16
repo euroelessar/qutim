@@ -26,7 +26,7 @@
 #include "ircchannel_p.h"
 #include "ircchannelparticipant.h"
 #include "ircaccount_p.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QDateTime>
 
 namespace qutim_sdk_0_3 {
@@ -55,7 +55,7 @@ void IrcChannel::doJoin()
 
 void IrcChannel::join(const QString &pass)
 {
-	d->lastPassword == pass;
+	d->lastPassword = pass;
 	QString cmd;
 	if (!pass.isEmpty())
 		cmd = QString("JOIN %1 :%2").arg(d->name).arg(pass);

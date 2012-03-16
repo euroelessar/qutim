@@ -26,6 +26,7 @@
 #include "jdataform_p.h"
 #include <qutim/icon.h>
 #include <qutim/dataforms.h>
+#include <qutim/debug.h>
 #include <QGridLayout>
 #include <QDebug>
 #include <jreen/dataform.h>
@@ -60,7 +61,7 @@ JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
 	DataItem root(form->title());
 	for (int i = 0; i < form->fieldsCount(); i++) {
 		Jreen::DataFormField field = form->field(i);
-		qDebug() << "var + values" << field.var() << field.values();
+		debug() << "var + values" << field.var() << field.values();
 		QVariant data;
 		if (field.type() == Jreen::DataFormField::Boolean)
 			data = field.cast<Jreen::DataFormFieldBoolean>().value();
@@ -73,7 +74,7 @@ JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
 		DataItem item(field.var(), field.label(), data);
 		item.setReadOnly(form->type() != Jreen::DataForm::Form);
 		item.setProperty("mandatory", field.isRequired());
-		qDebug() << field.type() << field.var() << field.label() << data;
+		debug() << field.type() << field.var() << field.label() << data;
 		if (field.type() == Jreen::DataFormField::TextMulti)
 			item.setProperty("multiline", true);
 		else if (field.type() == Jreen::DataFormField::TextPrivate)
@@ -86,7 +87,7 @@ JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
 				labels << options.optionLabel(i);
 				ids << options.optionValue(i);
 			}
-			qDebug() << labels << ids;
+			debug() << labels << ids;
 			item.setProperty("alternatives", labels);
 			item.setProperty("identificators", ids);
 		}

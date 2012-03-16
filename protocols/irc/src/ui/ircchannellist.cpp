@@ -28,7 +28,7 @@
 #include "../ircaccount.h"
 #include "../ircchannel.h"
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QAbstractTextDocumentLayout>
 #include <QPainter>
 

@@ -26,9 +26,9 @@
 #include "scriptpluginwrapper.h"
 #include "scriptengine.h"
 #include <qutim/thememanager.h>
+#include <qutim/debug.h>
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
 
 using namespace qutim_sdk_0_3;
 
@@ -62,7 +62,7 @@ ScriptPluginWrapper::ScriptPluginWrapper(const QString &name) :
 	meta->d.stringdata = tmpPtr;
 	meta->d.extradata = 0;
 	QObject::d_ptr->metaObject = meta;
-	qDebug() << metaObject()->className() << this;
+	debug() << metaObject()->className() << this;
 }
 
 ScriptPluginWrapper::~ScriptPluginWrapper()
@@ -74,13 +74,12 @@ void ScriptPluginWrapper::init()
 {
 	m_engine = new ScriptEngine(m_name, this);
 	QFile scriptFile(ThemeManager::path(QLatin1String("scripts"), m_name) + QLatin1String("/plugin.js"));
-	qDebug() << Q_FUNC_INFO << scriptFile.fileName();
+	debug() << Q_FUNC_INFO << scriptFile.fileName();
 	if (!scriptFile.open(QIODevice::ReadOnly))
 		return;
 	QTextStream stream(&scriptFile);
 	m_engine->evaluate(stream.readAll());
-	qDebug("%s %d", qPrintable(m_engine->uncaughtException().toString()),
-		   m_engine->uncaughtExceptionLineNumber());
+	debug() << m_engine->uncaughtException().toString() << m_engine->uncaughtExceptionLineNumber();
 	QScriptValue plugin = m_engine->globalObject().property("plugin");
 	setInfo(qscriptvalue_cast<LocalizedString>(plugin.property("name")),
 			qscriptvalue_cast<LocalizedString>(plugin.property("description")),
@@ -107,8 +106,7 @@ bool ScriptPluginWrapper::load()
 	QScriptValue plugin = m_engine->globalObject().property("plugin");
 	QScriptValue loadFunc = plugin.property("load");
 	bool result = loadFunc.call(plugin).toBool();
-	qDebug("%s %d", qPrintable(m_engine->uncaughtException().toString()),
-		   m_engine->uncaughtExceptionLineNumber());
+	debug() << m_engine->uncaughtException().toString() << m_engine->uncaughtExceptionLineNumber();
 	return result;
 }
 
@@ -117,8 +115,7 @@ bool ScriptPluginWrapper::unload()
 	QScriptValue plugin = m_engine->globalObject().property("plugin");
 	QScriptValue unloadFunc = plugin.property("unload");
 	bool result = unloadFunc.call(plugin).toBool();
-	qDebug("%s %d", qPrintable(m_engine->uncaughtException().toString()),
-		   m_engine->uncaughtExceptionLineNumber());
+	debug() << m_engine->uncaughtException().toString() << m_engine->uncaughtExceptionLineNumber();
 	return result;
 }
 

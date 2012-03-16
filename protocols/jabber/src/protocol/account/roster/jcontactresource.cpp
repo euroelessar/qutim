@@ -31,6 +31,7 @@
 #include <qutim/status.h>
 #include <qutim/inforequest.h>
 #include <qutim/tooltip.h>
+#include <qutim/debug.h>
 #include <QStringBuilder>
 #include <jreen/chatstate.h>
 #include <jreen/message.h>
@@ -85,7 +86,7 @@ bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 
 	if(a->status() == Status::Offline || a->status() == Status::Connecting)
 		return false;
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 
 	a->messageSessionManager()->sendMessage(this, message);
 	return true;

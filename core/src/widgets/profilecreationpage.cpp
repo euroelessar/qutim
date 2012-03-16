@@ -198,7 +198,7 @@ bool ProfileCreationPage::validatePage()
 	m_password.clear();
 	info = ui->configBox->itemData(ui->configBox->currentIndex()).value<ExtensionInfo>();
 	QList<ConfigBackend*> &configBackends = get_config_backends();
-	qDebug() << configBackends.count();
+	debug() << configBackends.count();
 	for (int i = 0; i < ui->configBox->count(); i++) {
 		ExtensionInfo extInfo = ui->configBox->itemData(i).value<ExtensionInfo>();
 		ConfigBackend *backend = extInfo.generator()->generate<ConfigBackend>();
@@ -207,6 +207,7 @@ bool ProfileCreationPage::validatePage()
 		else
 			configBackends.append(backend);
 	}
+	debugClearConfig();
 	
 	m_is_valid = true;
 	return true;

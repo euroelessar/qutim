@@ -135,7 +135,9 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	}
 	
 	if (!message.property("service", false)
-	        && (!conf || message.property("mention", false))) {
+	        && (!conf || message.property("mention", false))
+	        && message.isIncoming()
+	        && !message.property("history", false)) {
 		ChatLayer::instance()->alert(300);
 		if (conf) {
 			ServicePointer<AbstractChatForm> form("ChatForm");
@@ -243,7 +245,7 @@ bool ChatSessionImpl::event(QEvent *ev)
 {
 //	if (ev->type() == MessageEventHook::eventType()) {
 //		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
-//		qDebug() << Q_FUNC_INFO;
+//		debug() << Q_FUNC_INFO;
 //		d_func()->getController()->appendMessage(messageEvent->message);
 //		return true;
 //	}

@@ -25,7 +25,7 @@
 #include "mprisplayerfactory.h"
 #include "mprisplayer.h"
 #include <qutim/icon.h>
-#include <QDebug>
+#include <qutim/debug.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -34,9 +34,12 @@ namespace nowplaying {
 	MprisPlayerFactory::MprisPlayerFactory()
 	{
 		QDBusConnection conn = QDBusConnection::sessionBus();
-		connect(conn.interface(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-				this, SLOT(onNameOwnerChanged(QString,QString,QString)));
-		QDBusPendingCall call = conn.interface()->asyncCall("ListNames");
+		QDBusConnectionInterface *interface = conn.interface();
+		// It's needed to avoid warning in QDBusConnectionInterface::connectNotify
+		conn.connect(interface->service(), interface->path(), interface->interface(),
+					 QLatin1String("NameOwnerChanged"),
+					 this, SLOT(onServiceOwnerChanged(QString,QString,QString)));
+		QDBusPendingCall call = interface->asyncCall(QLatin1String("ListNames"));
 		QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
 				this, SLOT(onNamesReceived(QDBusPendingCallWatcher*)));
@@ -54,52 +57,67 @@ namespace nowplaying {
 		else
 			return 0;
 	}
-	
-	void MprisPlayerFactory::onNameOwnerChanged(const QString &service, const QString &oldName,
-												const QString &newName)
+
+	void MprisPlayerFactory::onServiceOwnerChanged(const QString &service, const QString &from, const QString &to)
 	{
-		if (service.startsWith(QLatin1String("org.mpris."))) {
-			if (oldName.isEmpty() && !newName.isEmpty()) {
-				ensureServiceInfo(service, Name);
-				ensureServiceInfo(service, DesktopId);
-			} else if (!oldName.isEmpty() && newName.isEmpty()) {
-				m_knownPlayers.remove(service);
-				PlayerEvent ev(service, PlayerEvent::Unavailable);
-				qApp->sendEvent(this, &ev);
-			}
-		}
+		if (!service.startsWith(QLatin1String("org.mpris.")))
+			return;
+		if (from.isEmpty() && !to.isEmpty())
+			onServiceRegistered(service);
+		else if (!from.isEmpty() && to.isEmpty())
+			onServiceUnregistered(service);
 	}
-	
-	void MprisPlayerFactory::onIdentityReceived(QDBusPendingCallWatcher *watcher)
+
+	void MprisPlayerFactory::onServiceRegistered(const QString &service)
+	{
+		ensureServiceInfo(service);
+	}
+
+	void MprisPlayerFactory::onServiceUnregistered(const QString &service)
+	{
+		m_knownPlayers.remove(service);
+		PlayerEvent ev(service, PlayerEvent::Unavailable);
+		qApp->sendEvent(this, &ev);
+	}
+
+	void MprisPlayerFactory::onServiceInfoReceived(QDBusPendingCallWatcher *watcher)
 	{
 		watcher->deleteLater();
 		QString service = watcher->property("service").toString();
-		QString identity;
 		if (service.startsWith(QLatin1String("org.mpris.MediaPlayer2."))) {
-			QDBusVariant variant = watcher->reply().arguments().at(0).value<QDBusVariant>();
-			identity = variant.variant().toString();
+			QDBusArgument argument = watcher->reply().arguments().at(0).value<QDBusArgument>();
+			QVariantMap map;
+			argument >> map;
+			QString identity = map.value(QLatin1String("Identity")).toString();
+			QString desktopId = map.value(QLatin1String("DesktopEntry")).toString();
+			onIdentityReceived(service, identity);
+			onDesktopNameReceived(service, desktopId);
 		} else {
-			identity = watcher->reply().arguments().at(0).toString();
+			QString identity = watcher->reply().arguments().at(0).toString();
+			onIdentityReceived(service, identity);
 		}
+	}
+	
+	void MprisPlayerFactory::onIdentityReceived(const QString &service, const QString &identity)
+	{
+		debug() << Q_FUNC_INFO << service;
 		m_knownPlayers[service].name = identity;
 		PlayerEvent ev(service, PlayerEvent::Available);
 		qApp->sendEvent(this, &ev);
 	}
 	
-	void MprisPlayerFactory::onDesktopNameReceived(QDBusPendingCallWatcher *watcher)
+	void MprisPlayerFactory::onDesktopNameReceived(const QString &service, const QString &desktopId)
 	{
-		watcher->deleteLater();
-		QString service = watcher->property("service").toString();
-		QDBusVariant variant = watcher->reply().arguments().at(0).value<QDBusVariant>();
-		QString desktopId = variant.variant().toString();
-		desktopId += QLatin1String(".desktop");
+		debug() << Q_FUNC_INFO << service;
+
+		QString desktopFile = desktopId + QLatin1String(".desktop");
 		QDir dir(QLatin1String("/usr/share/applications"));
-		QStringList files = dir.entryList(QStringList(desktopId), QDir::Files);
+		QStringList files = dir.entryList(QStringList(desktopFile), QDir::Files);
 		if (files.isEmpty()) {
 			foreach (const QString &dirName, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
 				if (!dir.cd(dirName))
 					continue;
-				files = dir.entryList(QStringList(desktopId), QDir::Files);
+				files = dir.entryList(QStringList(desktopFile), QDir::Files);
 				if (!files.isEmpty())
 					break;
 				dir.cdUp();
@@ -124,27 +142,21 @@ namespace nowplaying {
 		watcher->deleteLater();
 		QDBusPendingReply<QStringList> call = *watcher;
 		foreach (const QString &service, call.argumentAt<0>()) {
-			if (service.startsWith(QLatin1String("org.mpris."))) {
-				ensureServiceInfo(service, Name);
-				ensureServiceInfo(service, DesktopId);
-			}
+			if (service.startsWith(QLatin1String("org.mpris.")))
+				ensureServiceInfo(service);
 		}
 	}
 	
-	void MprisPlayerFactory::ensureServiceInfo(const QString &service, InfoType type)
+	void MprisPlayerFactory::ensureServiceInfo(const QString &service)
 	{
 		QDBusMessage msg;
 		if (service.startsWith(QLatin1String("org.mpris.MediaPlayer2."))) {
 			msg = QDBusMessage::createMethodCall(service,
 												 QLatin1String("/org/mpris/MediaPlayer2"),
 												 QLatin1String("org.freedesktop.DBus.Properties"),
-												 QLatin1String("Get"));
-			msg.setArguments(QVariantList()
-							 << QLatin1String("org.mpris.MediaPlayer2")
-							 << QLatin1String(type == Name ? "Identity" : "DesktopEntry"));
+												 QLatin1String("GetAll"));
+			msg.setArguments(QVariantList() << QLatin1String("org.mpris.MediaPlayer2"));
 		} else {
-			if (type != Name)
-				return;
 			msg = QDBusMessage::createMethodCall(service,
 												 QLatin1String("/"),
 												 QLatin1String("org.freedesktop.MediaPlayer"),
@@ -154,9 +166,7 @@ namespace nowplaying {
 		QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
 		watcher->setProperty("service", service);
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-				this, type == Name
-				? SLOT(onIdentityReceived(QDBusPendingCallWatcher*)) 
-					: SLOT(onDesktopNameReceived(QDBusPendingCallWatcher*)));
+				this, SLOT(onServiceInfoReceived(QDBusPendingCallWatcher*)));
 	}
 }
 }

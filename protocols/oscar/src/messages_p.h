@@ -27,7 +27,7 @@
 #define MESSAGES_P_H_
 
 #include "messages.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 
 namespace qutim_sdk_0_3 {
 

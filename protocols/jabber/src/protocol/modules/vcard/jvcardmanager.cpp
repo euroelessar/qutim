@@ -154,7 +154,7 @@ void JVCardManager::onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VC
 		if (property.read(unit).toString() == update->photoHash())
 			return;
 		QDir dir(AVATAR_PATH);
-		if (dir.exists(update->photoHash()))
+		if (!update->photoHash().isEmpty() && dir.exists(update->photoHash()))
 			property.write(unit, update->photoHash());
 		else if (m_autoLoad)
 			m_manager->fetch(unit->id());

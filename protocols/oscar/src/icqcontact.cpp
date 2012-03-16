@@ -28,7 +28,7 @@
 #include "buddycaps.h"
 #include "icqaccount_p.h"
 #include "metainfo/infometarequest.h"
-#include "qutim/messagesession.h"
+#include "qutim/chatsession.h"
 #include "qutim/notification.h"
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
@@ -133,7 +133,7 @@ void IcqContactPrivate::setCapabilities(const Capabilities &caps)
 
 FeedbagItem IcqContactPrivate::getNotInListGroup()
 {
-	FeedbagItem group = account->feedbag()->groupItem(QLatin1String("Default Group"), Feedbag::CreateItem);
+	FeedbagItem group = account->feedbag()->groupItem(QLatin1String("Default Group"), Feedbag::GenerateId);
 	if (!group.isInList()) {
 		group.setField(SsiGroupDefault);
 		group.add();

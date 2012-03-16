@@ -1,5 +1,5 @@
 find_package( PkgConfig )
-pkg_check_modules( DBUSMENUQT dbusmenu-qt>=0.8.1 )
+pkg_check_modules( DBUSMENUQT dbusmenu-qt>=0.6.2 )
 
 if( NOT DBUSMENUQT_FOUND )
 	message(STATUS "Cannot build unity launcher integration")

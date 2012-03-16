@@ -29,10 +29,11 @@
 #include <QObject>
 #include <QHash>
 #include <qutim/status.h>
-
+#include <QScopedPointer>
 
 namespace qutim_sdk_0_3 {
 class Account;
+class SettingsItem;
 }
 
 typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status::Type> StatusHash;
@@ -41,11 +42,11 @@ class ManagerSettings;
 class QNetworkConfigurationManager;
 class BearerManager : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("Service", "Bearer")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
-    explicit BearerManager(QObject *parent = 0);
+	explicit BearerManager(QObject *parent = 0);
 	virtual ~BearerManager();
 signals:
 	void onlineStateChanged(bool isOnline);
@@ -56,12 +57,12 @@ private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 private:	
-	void changeStatus(qutim_sdk_0_3::Account *a, bool isOnline,
+	void changeStatus(qutim_sdk_0_3::Account *a,
 					  const qutim_sdk_0_3::Status::Type &status);
 
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
-	
+	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_item;
 };
 
 #endif // BEARERMANAGER_H

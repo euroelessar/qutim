@@ -124,7 +124,7 @@ bool MrimRoster::parseGroups(MrimPacket& packet, quint32 count, const QString& m
 		quint32 flags = parsedGroup.getUInt(0);
 		QString name = parsedGroup.getString(1, true);
 		p->groups[i] = name;
-		debug(VeryVerbose)<<"MrimGroup (id=" << i << ", flags=" << flags << ", name=" << name << ")";
+		debug(DebugVeryVerbose)<<"MrimGroup (id=" << i << ", flags=" << flags << ", name=" << name << ")";
 	}
 	return true;
 }
@@ -188,7 +188,7 @@ bool MrimRoster::parseContacts(MrimPacket& packet, const QString& mask)
 	
 		contact->setUserAgent(agent);
 	
-		debug(Verbose)<<"New contact read:"<<*contact;
+		debug(DebugVerbose)<<"New contact read:"<<*contact;
 		if (newContact)
 			addToList(contact);
 	}
@@ -210,7 +210,7 @@ MrimRosterResult MrimRoster::parseByMask(MrimPacket& packet, const QString& mask
 			packet.readTo(val);
 			result << val;
 		} else {
-			qDebug() << mask[i];
+			debug() << mask[i];
 			Q_ASSERT(!"Don't know what to do with this data");
 			result << QVariant();
 		}

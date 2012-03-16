@@ -100,7 +100,7 @@ void ScriptMessageHandler::handleException()
 	error = m_engine.uncaughtException().toString();
 	error += QLatin1Char('\n');
 	error += m_engine.uncaughtExceptionBacktrace().join("\n");
-	qDebug("%s", qPrintable(error));
+	debug() << error;
 	Notification::send(error);
 }
 
@@ -119,7 +119,7 @@ void ScriptPlugin::init()
 
 bool ScriptPlugin::load()
 {
-	qDebug() << Q_FUNC_INFO << ThemeManager::list("scripts");
+	debug() << Q_FUNC_INFO << ThemeManager::list("scripts");
 	if (m_handler)
 		return true;
 	m_handler.reset(new ScriptMessageHandler(this));

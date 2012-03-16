@@ -116,7 +116,7 @@ MrimMessages *MrimConnection::messages() const
 
 void MrimConnection::start()
 {
-	qDebug() << Q_FUNC_INFO;
+	debug() << Q_FUNC_INFO;
     Q_ASSERT(state() == Unconnected);
     QString srvReqHost = config("connection").value("reqSrvHost",QString("mrim.mail.ru"));
     quint32 srvReqPort = config("connection").value("reqSrvPort",2042);
@@ -336,7 +336,7 @@ void MrimConnection::readyRead()
 
         if (p->readPacket.lastError() != MrimPacket::NoError)
         {
-            debug(Verbose)<<"Error while reading packet:" << p->readPacket.lastErrorString() ;
+			debug(DebugVerbose)<<"Error while reading packet:" << p->readPacket.lastErrorString() ;
         }
     }
 
@@ -349,7 +349,7 @@ void MrimConnection::readyRead()
 bool MrimConnection::processPacket()
 {
     Q_ASSERT(p->readPacket.isFinished());
-    debug(VeryVerbose)<<"Recieved packet of type"<<hex<<p->readPacket.msgType();
+	debug(DebugVeryVerbose)<<"Recieved packet of type"<<hex<<p->readPacket.msgType();
 
     bool handled = false;
     QHandlersMap::iterator it = p->handlers.find(p->readPacket.msgType());
@@ -361,8 +361,8 @@ bool MrimConnection::processPacket()
 
     if (!handled)
     {
-        debug(VeryVerbose)<<"Packet was not handled!";
-        debug(VeryVerbose)<<p->readPacket;
+		debug(DebugVeryVerbose)<<"Packet was not handled!";
+		debug(DebugVeryVerbose)<<p->readPacket;
     }
 	return handled;
 }

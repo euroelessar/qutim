@@ -31,7 +31,7 @@
 #include <qutim/contact.h>
 #include <qutim/conference.h>
 #include <qutim/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/notification.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
@@ -55,7 +55,7 @@ QScriptValue scriptConsoleLog(QScriptContext *ctxt, QScriptEngine *e)
 			message += ' ';
 		message += ctxt->argument(i).toString();
 	}
-	qDebug("%s", qPrintable(message));
+	debug() << message;
 	return QScriptValue();
 }
 
@@ -432,7 +432,7 @@ void ScriptEngine::initApi()
 
 void ScriptEngine::onException(const QScriptValue &exception)
 {
-	qDebug() << exception.toString();
-	qDebug() << uncaughtExceptionBacktrace();
+	debug() << exception.toString();
+	debug() << uncaughtExceptionBacktrace();
 }
 

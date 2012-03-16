@@ -169,7 +169,7 @@ QScriptValue scriptRequestInfo(QScriptContext *context, QScriptEngine *engine)
 	QScriptValue errorFunc = context->argument(2);
 	if (!factory || factory->supportLevel(object) <= InfoRequestFactory::Unavailable) {
 		if (errorFunc.isFunction()) {
-			qDebug() << Q_FUNC_INFO;
+			debug() << Q_FUNC_INFO;
 			QScriptValue error = engine->newObject();
 			error.setProperty(QLatin1String("name"), QLatin1String("NotSupported"));
 			error.setProperty(QLatin1String("text"), QLatin1String("Unit does not support information request"));
@@ -221,7 +221,7 @@ void scriptRegisterEnum(QScriptEngine *engine)
 ScriptExtensionPlugin::ScriptExtensionPlugin(QObject *parent)
     : QScriptExtensionPlugin(parent)
 {
-	qDebug() << Q_FUNC_INFO;
+	debug() << Q_FUNC_INFO;
 }
 
 QStringList ScriptExtensionPlugin::keys() const

@@ -36,7 +36,7 @@
 #include <QStringBuilder>
 #include <qutim/authorizationdialog.h>
 #include <qutim/notification.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
