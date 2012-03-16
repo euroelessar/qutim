@@ -83,14 +83,15 @@ void KdePlugin::init()
 	aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 	KGlobal::setActiveComponent(KComponentData(aboutData));
 
-	// Don't know better way to know application arguments from here
-	QStringList args = QCoreApplication::arguments();
-	int argc = args.count();
-	char **argv = (char **) malloc(sizeof(char *) * argc);
-	for (int i = 0; i < argc; i++)
-		argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
+	// Don't transfer options to KDE, we handle all of them ourself in ModuleManager
+//	// Don't know better way to know application arguments from here
+//	QStringList args = QCoreApplication::arguments();
+//	int argc = args.count();
+//	char **argv = (char **) malloc(sizeof(char *) * argc);
+//	for (int i = 0; i < argc; i++)
+//		argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
 	// Whe shouldn't free memory because KCmdLineArgs stores pointers internally to it
-	KCmdLineArgs::init(argc, argv, KGlobal::activeComponent().aboutData());
+	KCmdLineArgs::init(KGlobal::activeComponent().aboutData());
 
 	ExtensionIcon kdeIcon("kde");
 	addAuthor(QLatin1String("euroelessar"));
