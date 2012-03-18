@@ -302,6 +302,7 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 	_mac_deploy_plugin(imageformats qmng)
 
 	_mac_deploy_plugin(crypto qca-ossl)
+	_mac_deploy_plugin(crypto qca-cyrus-sasl)
 
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
