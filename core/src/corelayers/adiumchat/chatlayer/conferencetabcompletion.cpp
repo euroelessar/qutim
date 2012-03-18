@@ -28,6 +28,7 @@
 
 #include "conferencetabcompletion.h"
 #include <QAbstractItemModel>
+#include <QKeyEvent>
 
 #include <QObject>
 namespace Core
@@ -56,7 +57,7 @@ void ConfTabCompletion::setLastReferrer(QString last_referrer){
 	last_referrer_ = last_referrer;
 }
 
-void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
+void ConfTabCompletion::setTextEdit(QTextEdit* conferenceTextEdit) {
 	if (textEdit_.data() != conferenceTextEdit) {
 		if (textEdit_.data())
 			textEdit_.data()->removeEventFilter(this);
@@ -73,7 +74,7 @@ void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
 
 }
 
-QPlainTextEdit* ConfTabCompletion::getTextEdit() {
+QTextEdit* ConfTabCompletion::getTextEdit() {
 	return textEdit_.data();
 }
 
@@ -297,7 +298,7 @@ QStringList ConfTabCompletion::getUsers(){
 
 bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
 {
-	if (qobject_cast<QPlainTextEdit*>(obj)
+	if (qobject_cast<QTextEdit*>(obj)
 			&& ev->type() == QEvent::KeyPress) {
 		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
 		if ( keyEvent->key() == Qt::Key_Tab ) {

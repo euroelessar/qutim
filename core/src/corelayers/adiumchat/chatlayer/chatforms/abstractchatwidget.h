@@ -37,7 +37,7 @@
 namespace qutim_sdk_0_3 {
 }
 
-class QPlainTextEdit;
+class QTextEdit;
 class QListView;
 class QModelIndex;
 namespace Core
@@ -54,7 +54,7 @@ public:
 	AbstractChatWidget(QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen) = 0;
 	void addActions(const QList<ActionGenerator*> &actions);
-	virtual QPlainTextEdit *getInputField() const = 0;
+	virtual QTextEdit *getInputField() const = 0;
 	virtual bool contains(ChatSessionImpl *session) const = 0;
 	virtual ~AbstractChatWidget() {}
 	virtual ChatSessionImpl *currentSession() const = 0;

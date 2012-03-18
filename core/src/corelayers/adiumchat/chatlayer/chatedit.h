@@ -25,7 +25,7 @@
 #ifndef CHATEDIT_H
 #define CHATEDIT_H
 
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QPointer>
 #include "chatforms/abstractchatwidget.h"
 
@@ -48,7 +48,7 @@ enum SendMessageKey
 
 using namespace qutim_sdk_0_3;
 class ChatSessionImpl;
-class ADIUMCHAT_EXPORT ChatEdit : public QPlainTextEdit
+class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
 {
     Q_OBJECT
 public:

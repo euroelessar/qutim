@@ -28,7 +28,6 @@
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
 #include <QApplication>
-#include <QPlainTextDocumentLayout>
 #include "chatsessionimpl_p.h"
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
@@ -64,7 +63,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->model = new ChatSessionModel(this);
 	d->q_ptr = this;
 	d->chatUnit = unit;
-	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
 	d->inactive_timer.setSingleShot(true);

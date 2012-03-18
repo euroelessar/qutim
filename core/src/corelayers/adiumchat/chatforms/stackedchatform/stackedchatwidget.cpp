@@ -35,7 +35,7 @@
 #include "floatingbutton.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/conference.h>
@@ -241,7 +241,7 @@ StackedChatWidget::~StackedChatWidget()
 	group.sync();
 }
 
-QPlainTextEdit *StackedChatWidget::getInputField() const
+QTextEdit *StackedChatWidget::getInputField() const
 {
 	return m_chatInput;
 }

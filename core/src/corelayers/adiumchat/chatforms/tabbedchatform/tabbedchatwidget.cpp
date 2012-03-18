@@ -31,7 +31,7 @@
 #include "tabbar.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/conference.h>
@@ -266,7 +266,7 @@ TabbedChatWidget::~TabbedChatWidget()
     delete m_contactView;
 }
 
-QPlainTextEdit *TabbedChatWidget::getInputField() const
+QTextEdit *TabbedChatWidget::getInputField() const
 {
     return m_chatInput;
 }

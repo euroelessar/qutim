@@ -26,6 +26,7 @@
 #include "chatsessionimpl.h"
 #include <QDateTime>
 #include <QTextBlock>
+#include <QKeyEvent>
 #include <QTextDocumentFragment>
 #include <qutim/notification.h>
 #include <qutim/debug.h>
@@ -73,11 +74,11 @@ QString ChatEdit::textEditToPlainText()
 }
 
 ChatEdit::ChatEdit(QWidget *parent) :
-	QPlainTextEdit(parent),
-	m_session(0),
+	QTextEdit(parent),
 	m_sendKey(SendCtrlEnter)
 {
 	setMinimumHeight(QFontMetrics(font()).height() * 2);
+	setAcceptRichText(false);
 	m_autoResize = false;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
@@ -122,7 +123,7 @@ bool ChatEdit::event(QEvent *event)
 			m_entersCount = 0;
 		}
 	}
-	return QPlainTextEdit::event(event);
+	return QTextEdit::event(event);
 }
 
 void ChatEdit::send()
@@ -199,7 +200,9 @@ void ChatEdit::onTextChanged()
 		return;
 	if(m_autoResize) {
 		QFontMetrics fontHeight = fontMetrics();
-		const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
+		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
+		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
+		debug() << "New docHeight is: " << docHeight;
 		if (docHeight == previousTextHeight)
 			return;
 
