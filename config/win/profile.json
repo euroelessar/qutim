@@ -113,13 +113,13 @@
 			"Sound": false,
 			"Tray": false
 		},
-        "UserHasBirthday": {
-            "ChatNotifications": true,
-            "ContactList": true,
-            "Popup": true,
-            "Sound": true,
-            "Tray": false
-        },
+		"UserHasBirthday": {
+			"ChatNotifications": true,
+			"ContactList": true,
+			"Popup": true,
+			"Sound": true,
+			"Tray": false
+		},
 		"UserOffline": {
 			"ChatNotifications": true,
 			"ContactList": true,
