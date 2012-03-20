@@ -28,7 +28,7 @@
 
 #include <qutim/libqutim_global.h>
 #include <kaboutapplicationdialog.h>
-#include <QPointer>
+#include <QWeakPointer>
 
 class KdeAboutAppDialog : public QObject
 {
@@ -41,7 +41,7 @@ public:
 public slots:
 	void showWidget();
 private:
-	QPointer<KAboutApplicationDialog> m_widget;
+	QWeakPointer<KAboutApplicationDialog> m_widget;
 	KAboutData *m_data;
 };
 

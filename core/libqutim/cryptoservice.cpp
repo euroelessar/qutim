@@ -32,6 +32,7 @@
 #include <QDataStream>
 #include <QBuffer>
 #include <QCoreApplication>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -41,7 +42,7 @@ static QWeakPointer<CryptoService> self;
 CryptoService::CryptoService()
 {
     if (self) {
-        qFatal("Double initialization of CryptoService, aborting");
+		fatal() << "Double initialization of CryptoService, aborting";
         // ensure
         qApp->exit(1); //goodbye cruel world
     }

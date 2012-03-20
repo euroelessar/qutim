@@ -27,7 +27,7 @@
 #define QUICKCHATVIEWWIDGET_H
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <QWebView>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeItem;
 

@@ -217,8 +217,8 @@ void YandexNarodUploadJob::storageReply()
 	QByteArray boundary = QByteArray::fromRawData(reinterpret_cast<char *>(boundaryTemp),
 												  sizeof(boundaryTemp)).toHex();
 	m_data = setCurrentIndex(0);
-	m_data = new YandexNarodBuffer(fileName(), m_data, boundary, this);
-	if (!m_data->open(QIODevice::ReadOnly)) {
+	m_data = new YandexNarodBuffer(fileName(), m_data.data(), boundary, this);
+	if (!m_data.data()->open(QIODevice::ReadOnly)) {
 		setError(IOError);
 		setErrorString(tr("Could not open file %1").arg(fileName()));
 		return;
@@ -233,10 +233,10 @@ void YandexNarodUploadJob::storageReply()
 	YandexRequest request(url);
 #endif
 	request.setRawHeader("Content-Type", "multipart/form-data, boundary=" + boundary);
-	request.setRawHeader("Content-Length", QString::number(m_data->size()).toLatin1());
+	request.setRawHeader("Content-Length", QString::number(m_data.data()->size()).toLatin1());
 
-	QNetworkReply *uploadNetworkReply = YandexNarodFactory::networkManager()->post(request, m_data);
-	connect(m_data, SIGNAL(destroyed()), uploadNetworkReply, SLOT(deleteLater()));
+	QNetworkReply *uploadNetworkReply = YandexNarodFactory::networkManager()->post(request, m_data.data());
+	connect(m_data.data(), SIGNAL(destroyed()), uploadNetworkReply, SLOT(deleteLater()));
 	connect(uploadNetworkReply, SIGNAL(finished()), this, SLOT(uploadReply()));
 
 	m_timer.start();
@@ -254,7 +254,7 @@ void YandexNarodUploadJob::someStrangeSlot()
 	YandexRequest request(url);
 	QNetworkReply *reply = YandexNarodFactory::networkManager()->get(request);
 #endif
-	connect(m_data, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
+	connect(m_data.data(), SIGNAL(destroyed()), reply, SLOT(deleteLater()));
 	connect(reply, SIGNAL(finished()), SLOT(progressReply()));
 }
 

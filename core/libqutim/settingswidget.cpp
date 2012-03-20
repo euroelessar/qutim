@@ -34,7 +34,7 @@
 #include <QSignalMapper>
 #include <QMetaObject>
 #include <QMetaProperty>
-#include <QPointer>
+#include <QWeakPointer>
 #include <algorithm>
 
 namespace qutim_sdk_0_3
@@ -86,7 +86,7 @@ static AbstractWidgetInfo * widget_infos[] = {
 
 struct WidgetInfo
 {
-	QPointer<QWidget> obj;
+	QWeakPointer<QWidget> obj;
 	const char *property;
 	QVariant value;
 	bool is_changed;
@@ -107,7 +107,7 @@ void SettingsWidgetPrivate::clearValues()
 	{
 		WidgetInfo &info = infos[i];
 		if(info.obj)
-			info.value = info.obj->property(info.property);
+			info.value = info.obj.data()->property(info.property);
 		else
 			info.value.clear();
 		info.is_changed = false;
@@ -162,7 +162,7 @@ void SettingsWidget::cancel()
 	{
 		WidgetInfo &info = p->infos[i];
 		if(info.obj && info.is_changed)
-			 info.obj->setProperty(info.property, info.value);
+			 info.obj.data()->setProperty(info.property, info.value);
 		info.is_changed = false;
 	}
 	cancelImpl();
@@ -244,7 +244,7 @@ void SettingsWidget::onStateChanged(int index)
 	if (index < 0 || index >= p->infos.size() || p->sleep)
 		return;
 	WidgetInfo &info = p->infos[index];
-	QVariant value = info.obj->property(info.property);
+	QVariant value = info.obj.data()->property(info.property);
 	bool equal = info.value == value;
 	if (equal && info.is_changed)
 		p->changed_num--;

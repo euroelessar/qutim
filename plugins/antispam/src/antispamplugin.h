@@ -28,7 +28,7 @@
 #define ANTISPAMPLUGIN_H
 
 #include <qutim/plugin.h>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace Antispam {
 

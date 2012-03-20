@@ -27,7 +27,7 @@
 #define QUICKCHATVIEWWIDGET_H
 #include <QGraphicsView>
 #include <qutim/adiumchat/chatviewfactory.h>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeItem;
 namespace Core {
@@ -47,7 +47,7 @@ protected:
 private slots:
 	void onRootChanged(QDeclarativeItem *root);
 private:
-	QPointer<QuickChatController> m_controller;
+	QWeakPointer<QuickChatController> m_controller;
 };
 
 } // namespace AdiumChat

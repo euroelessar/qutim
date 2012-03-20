@@ -156,11 +156,11 @@ namespace nowplaying {
 				ui->protocols->setTabEnabled(i++, true);
 			}
 		} else if (m_currentAccount) {
-			AccountTuneStatus *factory = m_currentAccount->factory();
+			AccountTuneStatus *factory = m_currentAccount.data()->factory();
 			if (factory) {
 				AccountTuneSettings *w = m_settingWidgets.value(factory);
 				if (w) {
-					w->loadState(m_currentAccount);
+					w->loadState(m_currentAccount.data());
 					for (int i = 0, c = ui->protocols->count(); i < c; ++i)
 						ui->protocols->setTabEnabled(i, ui->protocols->widget(i) == w);
 				}
@@ -199,11 +199,11 @@ namespace nowplaying {
 			}
 		} else {
 			if (m_currentAccount) {
-				AccountTuneStatus *factory = m_currentAccount->factory();
+				AccountTuneStatus *factory = m_currentAccount.data()->factory();
 				if (factory) {
 					AccountTuneSettings *w = m_settingWidgets.value(factory);
 					if (w)
-						w->saveState(m_currentAccount);
+						w->saveState(m_currentAccount.data());
 				}
 			}
 		}

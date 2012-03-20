@@ -58,7 +58,7 @@ struct QuetzalConversationHandler
 			purple_conversation_destroy(conversation);
 		}
 	}
-	QPointer<ChatSession> isAlive;
+	QWeakPointer<ChatSession> isAlive;
 	QList<PurpleConversation*> conversations;
 };
 

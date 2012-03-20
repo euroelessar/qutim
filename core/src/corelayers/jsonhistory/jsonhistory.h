@@ -30,7 +30,7 @@
 #include <QRunnable>
 #include <QDir>
 #include <QLinkedList>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QMutex>
 
 using namespace qutim_sdk_0_3;
@@ -91,7 +91,7 @@ private:
 	QDir getAccountDir(const ChatUnit *unit) const { return m_scope.getAccountDir(unit); }
 	
 	JsonHistoryScope m_scope;
-	QPointer<HistoryWindow> m_historyWindow;
+	QWeakPointer<HistoryWindow> m_historyWindow;
 };
 }
 

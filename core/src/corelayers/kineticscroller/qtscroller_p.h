@@ -38,7 +38,7 @@
 //
 
 #include <QObject>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QQueue>
 #include <QSet>
 #include <QEasingCurve>

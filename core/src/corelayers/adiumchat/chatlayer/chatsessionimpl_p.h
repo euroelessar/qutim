@@ -26,7 +26,7 @@
 #ifndef CHATSESSIONIMPL_P_H
 #define CHATSESSIONIMPL_P_H
 #include <QObject>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QTimer>
 #include <QDateTime>
 #include <qutim/message.h>
@@ -61,14 +61,14 @@ public:
 	void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
 	ChatViewController *getController();
 	void ensureController();
-	QPointer<QObject> controller;
-	QPointer<ChatUnit> chatUnit;
-	QPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
-	QPointer<ChatUnit> last_active_unit; // the unit a last message was from
-	QPointer<QTextDocument> input;
-	QPointer<QMenu> menu;
-	QPointer<QActionGroup> group;
-	QPointer<ChatSessionModel> model;
+	QWeakPointer<QObject> controller;
+	QWeakPointer<ChatUnit> chatUnit;
+	QWeakPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
+	QWeakPointer<ChatUnit> last_active_unit; // the unit a last message was from
+	QWeakPointer<QTextDocument> input;
+	QWeakPointer<QMenu> menu;
+	QWeakPointer<QActionGroup> group;
+	QWeakPointer<ChatSessionModel> model;
 	//additional info and flags
 	bool sendToLastActiveResource;
 	mutable bool hasJavaScript;

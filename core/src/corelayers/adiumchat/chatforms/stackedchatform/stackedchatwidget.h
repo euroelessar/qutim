@@ -103,7 +103,7 @@ private:
 	ChatViewWidget *m_view;
 	SessionListWidget *m_sessionList;
 	ChatEdit *m_chatInput;
-	QPointer<ChatSessionImpl> m_currentSession;
+	QWeakPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
 	QAction *m_spacer;

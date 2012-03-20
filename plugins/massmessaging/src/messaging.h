@@ -49,7 +49,7 @@ public:
 private slots:
 	void onActionTriggered();
 private:
-	QPointer<MessagingDialog> m_dialog;
+	QWeakPointer<MessagingDialog> m_dialog;
 };
 
 }

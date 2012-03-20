@@ -61,8 +61,8 @@ KdeAboutAppDialog::~KdeAboutAppDialog()
 void KdeAboutAppDialog::showWidget()
 {
 	if (m_widget) {
-		m_widget->show();
-		m_widget->raise();
+		m_widget.data()->show();
+		m_widget.data()->raise();
 		return;
 	}
 	if (m_data)
@@ -94,7 +94,7 @@ void KdeAboutAppDialog::showWidget()
 		                  );
 	}
 	m_widget = new KAboutApplicationDialog(m_data);
-	m_widget->setAttribute(Qt::WA_DeleteOnClose);
-	m_widget->show();
+	m_widget.data()->setAttribute(Qt::WA_DeleteOnClose);
+	m_widget.data()->show();
 }
 

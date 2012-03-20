@@ -129,7 +129,7 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 #else
 		menu = tmp->createStandardContextMenu(globalPos);
 #endif
-		m_cursor = textEdit->cursorForPosition(pos);
+		m_cursor = tmp->cursorForPosition(pos);
 	} else {
 		Q_ASSERT(!"Unknown object type, check connection");
 		return;

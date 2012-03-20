@@ -53,7 +53,7 @@ SearchLayer::SearchLayer()
 
 SearchLayer::~SearchLayer()
 {
-	delete m_contactSearchDialog;
+	delete m_contactSearchDialog.data();
 	qDeleteAll(m_contactSearchFactories);
 }
 

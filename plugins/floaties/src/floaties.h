@@ -49,7 +49,7 @@ public slots:
 protected:
 	ContactWidget *createWidget(qutim_sdk_0_3::Contact *contact);
 private:
-	QPointer<QAbstractItemView> m_view;
+	QWeakPointer<QAbstractItemView> m_view;
 	quint16 m_eventId;
 	FloatiesItemModel *m_model;
 	QMap<Contact*, ContactWidget*> m_contacts;

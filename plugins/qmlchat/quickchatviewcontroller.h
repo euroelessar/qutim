@@ -30,7 +30,7 @@
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <qutim/adiumchat/chatsessionimpl.h>
 #include <QVariant>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeEngine;
 class QDeclarativeItem;
@@ -76,11 +76,11 @@ signals:
 	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	QPointer<ChatSessionImpl> m_session;
+	QWeakPointer<ChatSessionImpl> m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;
-	QPointer<QDeclarativeItem> m_item;
+	QWeakPointer<QDeclarativeItem> m_item;
 };
 
 } // namespace AdiumChat

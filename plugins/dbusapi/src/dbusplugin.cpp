@@ -174,7 +174,7 @@ bool DBusPlugin::load()
 	foreach (Protocol *proto, Protocol::all()) {
 		ProtocolAdaptor *adaptor = new ProtocolAdaptor(*m_dbus, proto);
 		if (adaptor->path().path().isEmpty())
-			qWarning() << "proto path is empty" << proto->objectName();
+			warning() << "proto path is empty" << proto->objectName();
 		else if (!m_dbus->registerObject(adaptor->path().path(), proto, QDBusConnection::ExportAdaptors))
 			debug() << m_dbus->lastError().message() << QDBusError::errorString(m_dbus->lastError().type());
 	}
