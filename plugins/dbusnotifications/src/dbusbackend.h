@@ -22,8 +22,8 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef GROWLBACKEND_H
-#define GROWLBACKEND_H
+#ifndef DBUSNOTIFICATIONSBACKEND_H
+#define DBUSNOTIFICATIONSBACKEND_H
 
 #include <qutim/notification.h>
 #include <qutim/sound.h>
@@ -63,5 +63,5 @@ private:
 
 };
 
-#endif // GROWLBACKEND_H
+#endif // DBUSNOTIFICATIONSBACKEND_H
 

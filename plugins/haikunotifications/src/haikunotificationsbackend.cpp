@@ -51,8 +51,6 @@ void HaikuNotificationsBackend::handleNotification(qutim_sdk_0_3::Notification *
 {
 	//ref(notification);
 	NotificationRequest request = notification->request();
-	NotificationData data;
-
 	QString text = request.text();
 
 	BNotification notify(B_INFORMATION_NOTIFICATION);
@@ -60,7 +58,7 @@ void HaikuNotificationsBackend::handleNotification(qutim_sdk_0_3::Notification *
 	notify.SetContent(static_cast<BString>(text.toLocal8Bit()));
 	if(!request.image().isNull()) {
 		BBitmap *bitmap = request.image().toHaikuBitmap();
-		notify.setIcon(bitmap);
+		notify.SetIcon(bitmap);
 	}
 		
 	notify.Send();

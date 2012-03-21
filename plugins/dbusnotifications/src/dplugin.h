@@ -22,8 +22,8 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MPLUGIN_H
-#define MPLUGIN_H
+#ifndef DPLUGIN_H
+#define DPLUGIN_H
 
 #include <qutim/plugin.h>
 
@@ -40,5 +40,5 @@ public:
 	bool unload();
 };
 
-#endif // MPLUGIN_H
+#endif // DPLUGIN_H
 
