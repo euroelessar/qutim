@@ -153,7 +153,6 @@ static QString chatStateToString(ChatState state)
 
 QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *parent) :
 	QGraphicsScene(parent),
-	m_session(0),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
 	m_engine(engine)
@@ -180,7 +179,7 @@ void QuickChatController::clearChat()
 
 ChatSessionImpl* QuickChatController::getSession() const
 {
-	return m_session;
+	return m_session.data();
 }
 
 void QuickChatController::loadHistory()
@@ -188,28 +187,28 @@ void QuickChatController::loadHistory()
 	debug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->read(m_session->getUnit(), max_num);
+	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);
 		mess.setProperty("history", true);
 		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session->getUnit());
+			mess.setChatUnit(m_session.data()->getUnit());
 		appendMessage(mess);
 	}
 }
 
 void QuickChatController::setChatSession(ChatSessionImpl* session)
 {
-	if (m_session == session)
+	if (m_session.data() == session)
 		return;
 
 	if(m_session) {
-		m_session->disconnect(this);
-		m_session->removeEventFilter(this);
+		m_session.data()->disconnect(this);
+		m_session.data()->removeEventFilter(this);
 	} else
 		m_session = session;
-	m_session->installEventFilter(this);
+	m_session.data()->installEventFilter(this);
 	loadSettings();
 	emit sessionChanged(session);
 
@@ -219,7 +218,7 @@ void QuickChatController::setChatSession(ChatSessionImpl* session)
 
 QDeclarativeItem *QuickChatController::rootItem() const
 {
-	return m_item;
+	return m_item.data();
 }
 
 bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
@@ -253,15 +252,15 @@ void QuickChatController::loadTheme(const QString &name)
 
 void QuickChatController::setRootItem(QDeclarativeItem *rootItem)
 {
-	if (m_item == rootItem)
+	if (m_item.data() == rootItem)
 		return;
 	if (m_item) {
-		removeItem(m_item);
-		m_item->deleteLater();
+		removeItem(m_item.data());
+		m_item.data()->deleteLater();
 	}
 	m_item = rootItem;
-	addItem(m_item);
-	emit rootItemChanged(m_item);
+	addItem(m_item.data());
+	emit rootItemChanged(m_item.data());
 }
 
 QString QuickChatController::parseEmoticons(const QString &text) const
@@ -300,12 +299,12 @@ QString QuickChatController::parseEmoticons(const QString &text) const
 
 QObject *QuickChatController::unit() const
 {
-	return m_session ? m_session->unit() : 0;
+	return m_session ? m_session.data()->unit() : 0;
 }
 
 QString QuickChatController::chatState() const
 {
-	return chatStateToString(m_session ? m_session->unit()->chatState() : ChatStateGone);
+	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatStateGone);
 }
 
 void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
@@ -315,8 +314,8 @@ void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
 
 void QuickChatController::appendText(const QString &text)
 {
-	debug() << Q_FUNC_INFO << text << m_session;
-	ChatLayerImpl::insertText(m_session, text % QLatin1Literal(" "));
+	debug() << Q_FUNC_INFO << text << m_session.data();
+	ChatLayerImpl::insertText(m_session.data(), text % QLatin1Literal(" "));
 }
 
 } // namespace AdiumChat

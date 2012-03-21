@@ -103,7 +103,6 @@ private:
         , pressDelayTimer(0)
         , sendingEvent(false)
         , mouseButton(Qt::NoButton)
-        , mouseTarget(0)
     { }
 
     static PressDelayHandler *inst;
@@ -171,7 +170,7 @@ public:
             sendMouseEvent(0, UngrabMouseBefore);
         }
         pressDelayEvent.reset(0);
-        mouseTarget = 0;
+		mouseTarget.clear();
         return result;
     }
 
@@ -186,7 +185,7 @@ public:
             }
             pressDelayEvent.reset(0);
         }
-        mouseTarget = 0;
+		mouseTarget.clear();
     }
 
     void scrollerBecameActive()
@@ -199,7 +198,7 @@ public:
                 pressDelayTimer = 0;
             }
             pressDelayEvent.reset(0);
-            mouseTarget = 0;
+			mouseTarget.clear();
         } else if (mouseTarget) {
             // we did send a press, so we need to fake a release now
             Qt::MouseButtons mouseButtons = QApplication::mouseButtons();
@@ -252,8 +251,8 @@ protected:
             sendingEvent = true;
 
             QGraphicsItem *grabber = 0;
-            if (mouseTarget->parentWidget()) {
-                if (QGraphicsView *gv = qobject_cast<QGraphicsView *>(mouseTarget->parentWidget())) {
+			if (mouseTarget.data()->parentWidget()) {
+				if (QGraphicsView *gv = qobject_cast<QGraphicsView *>(mouseTarget.data()->parentWidget())) {
                     if (gv->scene())
                         grabber = gv->scene()->mouseGrabberItem();
                 }
@@ -269,8 +268,8 @@ protected:
             }
 
             if (me) {
-                QMouseEvent copy(me->type(), mouseTarget->mapFromGlobal(me->globalPos()), me->globalPos(), me->button(), me->buttons(), me->modifiers());
-                qt_sendSpontaneousEvent(mouseTarget, &copy);
+				QMouseEvent copy(me->type(), mouseTarget.data()->mapFromGlobal(me->globalPos()), me->globalPos(), me->button(), me->buttons(), me->modifiers());
+				qt_sendSpontaneousEvent(mouseTarget.data(), &copy);
             }
 
             if (grabber && (flags & RegrabMouseAfterwards)) {
@@ -316,7 +315,7 @@ QtFlickGesture::QtFlickGesture(QObject *receiver_, Qt::MouseButton button, QObje
     : QGesture(parent), receiver(receiver_), receiverScroller(0), button(button),
       macIgnoreWheel(false)
 {
-    receiverScroller = (receiver && QtScroller::hasScroller(receiver)) ? QtScroller::scroller(receiver) : 0;
+	receiverScroller = (receiver && QtScroller::hasScroller(receiver.data())) ? QtScroller::scroller(receiver.data()) : 0;
 }
 
 QtFlickGesture::~QtFlickGesture()
@@ -324,8 +323,8 @@ QtFlickGesture::~QtFlickGesture()
 
 bool QtFlickGesture::eventFilter(QObject *o, QEvent *e)
 {
-    if ((e->type() == QEvent::Move) && o && o == receiverWindow) {
-        receiverWindowPos = receiverWindow->geometry().topLeft();
+	if ((e->type() == QEvent::Move) && o && o == receiverWindow.data()) {
+		receiverWindowPos = receiverWindow.data()->geometry().topLeft();
     }
     return QGesture::eventFilter(o, e);
 }
@@ -375,8 +374,8 @@ QGestureRecognizer::Result QtFlickGestureRecognizer::recognize(QGesture *state,
     if (!scroller)
         return Ignore; // nothing to do without a scroller?
 
-    QWidget *receiverWidget = qobject_cast<QWidget *>(d->receiver);
-    QGraphicsObject *receiverGraphicsObject = qobject_cast<QGraphicsObject *>(d->receiver);
+	QWidget *receiverWidget = qobject_cast<QWidget *>(d->receiver.data());
+	QGraphicsObject *receiverGraphicsObject = qobject_cast<QGraphicsObject *>(d->receiver.data());
 
     // this is only set for events that we inject into the event loop via sendEvent()
     if (PressDelayHandler::instance()->shouldEventBeIgnored(event)) {
@@ -584,14 +583,14 @@ QGestureRecognizer::Result QtFlickGestureRecognizer::recognize(QGesture *state,
     if (inputType) {
         // QWidget::mapFromGlobal is very expensive on X11, so we cache the global position of the widget
         if (receiverWidget) {
-            if (receiverWidget->window() != d->receiverWindow) {
+			if (receiverWidget->window() != d->receiverWindow.data()) {
                 if (d->receiverWindow)
-                    d->receiverWindow->removeEventFilter(q);
+					d->receiverWindow.data()->removeEventFilter(q);
                 d->receiverWindow = receiverWidget->window();
-                d->receiverWindowPos = d->receiverWindow->geometry().topLeft();
-                d->receiverWindow->installEventFilter(q);
+				d->receiverWindowPos = d->receiverWindow.data()->geometry().topLeft();
+				d->receiverWindow.data()->installEventFilter(q);
             }
-            point = receiverWidget->mapFrom(d->receiverWindow, point.toPoint() - d->receiverWindowPos);
+			point = receiverWidget->mapFrom(d->receiverWindow.data(), point.toPoint() - d->receiverWindowPos);
         } else if (receiverGraphicsObject) {
             point = receiverGraphicsObject->mapFromScene(point);
         }

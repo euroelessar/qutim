@@ -86,7 +86,7 @@ private:
 } // namespace AdiumChat
 } // namespace Core
 
-Q_DECLARE_METATYPE(Core::AdiumChat::QuickChatController*);
+Q_DECLARE_METATYPE(Core::AdiumChat::QuickChatController*)
 
 #endif // QUICKCHATVIEWCONTROLLER_H
 
