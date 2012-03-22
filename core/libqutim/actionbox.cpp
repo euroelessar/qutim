@@ -42,8 +42,11 @@ ActionBox::ActionBox(QWidget *parent) :
 	Q_D(ActionBox);
 	d->q_ptr = this;
 	Q_ASSERT(parent);
-
-	d->module = ServiceManager::getByName<ActionBoxGenerator*>("ActionBoxModule")->generate();
+	
+	ServicePointer<ActionBoxGenerator> generator;
+	if (generator)
+		d->module = generator->generate();
+	
 	if(d->module) {
 		d->module->setParent(this);
 		setLayout(new QHBoxLayout(this));
