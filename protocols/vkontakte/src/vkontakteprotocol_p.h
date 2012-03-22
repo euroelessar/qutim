@@ -26,7 +26,7 @@
 #ifndef VKONTAKTEPROTOCOL_P_H
 #define VKONTAKTEPROTOCOL_P_H
 #include <QHash>
-#include <QPointer>
+#include <QWeakPointer>
 
 class VAccount;
 class QAction;
@@ -37,12 +37,12 @@ class VkontakteProtocolPrivate : public QObject
 	Q_DECLARE_PUBLIC(VkontakteProtocol)
 public:
 	VkontakteProtocolPrivate() :
-		accounts_hash(new QHash<QString, QPointer<VAccount> > ())
+		accounts_hash(new QHash<QString, QWeakPointer<VAccount> > ())
 	{ }
 	~VkontakteProtocolPrivate() { delete accounts_hash; }
 	union
 	{
-		QHash<QString, QPointer<VAccount> > *accounts_hash;
+		QHash<QString, QWeakPointer<VAccount> > *accounts_hash;
 		QHash<QString, VAccount *> *accounts;
 	};
 	VkontakteProtocol *q_ptr;

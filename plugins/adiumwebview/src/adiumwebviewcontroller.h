@@ -32,7 +32,7 @@
 #include <QWebPage>
 #include <QWebElement>
 #include <QVariant>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeEngine;
 class QDeclarativeItem;

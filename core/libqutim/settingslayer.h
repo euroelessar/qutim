@@ -28,7 +28,7 @@
 
 #include "localizedstring.h"
 #include "objectgenerator.h"
-#include <QPointer>
+#include <QWeakPointer>
 #include <QWidget>
 #include <QIcon>
 #include <QComboBox>

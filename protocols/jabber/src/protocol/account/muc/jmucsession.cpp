@@ -64,7 +64,7 @@ public:
 	JMUCUser *getUser(const QString &nick);
 	bool containsUser(const QString &nick);
 	
-	QPointer<JAccount> account;
+	QWeakPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
 	Jreen::JID jid;
@@ -74,7 +74,7 @@ public:
 	QHash<QString, JMUCUser *> users;
 	bool isAutoRejoin;
 	Jreen::Bookmark::Conference bookmark;
-	QPointer<JConferenceConfig> config;
+	QWeakPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
 	QDateTime lastMessage;
@@ -132,7 +132,7 @@ JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccou
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
 			this, SLOT(onParticipantPresence(Jreen::Presence,const Jreen::MUCRoom::Participant*)));
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
-			d->account->softwareDetection(), SLOT(handlePresence(Jreen::Presence)));
+			d->account.data()->softwareDetection(), SLOT(handlePresence(Jreen::Presence)));
 	connect(d->room, SIGNAL(messageReceived(Jreen::Message,bool)),
 			this, SLOT(onMessage(Jreen::Message,bool)));
 	connect(d->room, SIGNAL(serviceMessageReceived(Jreen::Message)),
@@ -205,7 +205,7 @@ void JMUCSession::setNick(const QString &nick)
 void JMUCSession::doJoin()
 {
 	Q_D(JMUCSession);
-	if(isJoined() || !d->account->client()->isConnected())
+	if(isJoined() || !d->account.data()->client()->isConnected())
 		return;
 	d->room->join();
 }
@@ -304,9 +304,9 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 		}
 	}
 	Jreen::Message jMsg(Jreen::Message::Groupchat, d->jid.bareJID(), message.text());
-	jMsg.setID(d->account->client()->getID());
+	jMsg.setID(d->account.data()->client()->getID());
 	d->messages.insert(jMsg.id(), message.id());
-	d->account->client()->send(jMsg);
+	d->account.data()->client()->send(jMsg);
 	return true;
 }
 
@@ -322,7 +322,7 @@ bool JMUCSession::sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Messag
 	msg.setID(QString::number(message.id()));
 	foreach (Jreen::MessageFilter *filter, d->filters)
 		filter->decorate(msg);
-	d->account->client()->send(msg);
+	d->account.data()->client()->send(msg);
 	return true;
 }
 
@@ -767,7 +767,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 		request.setObject(this);
 		request.setText(message);
 		request.send();
-		QString resource = d->account->client()->jid().resource();
+		QString resource = d->account.data()->client()->jid().resource();
 		if (!d->room->nick().endsWith(resource)) {
 			QString nick = d->room->nick();
 			nick += QLatin1Char('/');

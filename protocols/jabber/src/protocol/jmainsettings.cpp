@@ -53,22 +53,22 @@ void JMainSettings::loadImpl()
 {
 	if(!m_account) //TODO add global config
 		return;
-	Config general = m_account->config("general");
-	ui->resourceEdit->setText(general.value("resource",m_account->client()->jid().resource()));
+	Config general = m_account.data()->config("general");
+	ui->resourceEdit->setText(general.value("resource",m_account.data()->client()->jid().resource()));
 	ui->avatarRequestCheck->setChecked(!general.value("getAvatars", true));
-	ui->passwdEdit->setText(m_account->getPassword());
+	ui->passwdEdit->setText(m_account.data()->getPassword());
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
 	ui->autodetectBox->setCheckState(state);
 	ui->portBox->setValue(general.value("port",5222));
-	ui->serverEdit->setText(general.value("server",m_account->client()->server()));
+	ui->serverEdit->setText(general.value("server",m_account.data()->client()->server()));
 
 //	general.beginGroup("bosh");
 //	general.value("use", false))
 //	general.endGroup();
 
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
-	Config priority = m_account->config("priority");
+	Config priority = m_account.data()->config("priority");
 	ui->onlinePriority->setValue(priority.value("online", 3));
 	ui->ffchatPriority->setValue(priority.value("ffchat", 3));
 	ui->awayPriority->setValue(priority.value("away", 2));
@@ -82,11 +82,11 @@ void JMainSettings::cancelImpl()
 
 void JMainSettings::saveImpl()
 {
-	Config general = m_account->config("general");
+	Config general = m_account.data()->config("general");
 	QString defaultResource = ui->resourceEdit->text().isEmpty() ? "qutIM" : ui->resourceEdit->text();
 	general.setValue("resource", defaultResource);
 	general.setValue("getAvatars", !ui->avatarRequestCheck->isChecked());
-	m_account->setPasswd(ui->passwdEdit->text());
+	m_account.data()->setPasswd(ui->passwdEdit->text());
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 
 	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
@@ -97,7 +97,7 @@ void JMainSettings::saveImpl()
 	general.setValue("autoDetect",autoDetect);
 
 	general.sync();
-	Config priority = m_account->config("priority");
+	Config priority = m_account.data()->config("priority");
 	priority.setValue("online", ui->onlinePriority->value());
 	priority.setValue("ffchat", ui->ffchatPriority->value());
 	priority.setValue("away", ui->awayPriority->value());

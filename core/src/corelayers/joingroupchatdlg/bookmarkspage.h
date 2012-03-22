@@ -27,7 +27,7 @@
 #define BOOKMARKSPAGE_H
 
 #include <QScrollArea>
-#include <QPointer>
+#include <QWeakPointer>
 #include "groupchatpage.h"
 #include <qutim/dataforms.h>
 
@@ -56,7 +56,7 @@ private:
 	qutim_sdk_0_3::DataItem fields(int index);
 	QComboBox *m_bookmarksBox;
 	QAction *m_removeAction;
-	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
 };
 
 } // namespace Core

@@ -54,7 +54,7 @@ JoinPage::JoinPage(QWidget *parent) :
 void JoinPage::updateDataForm()
 {
 	if (m_dataForm)
-		m_dataForm->deleteLater();
+		m_dataForm.data()->deleteLater();
 	m_joinAction->setEnabled(false);
 
 	GroupChatManager *manager = account()->groupChatManager();
@@ -64,10 +64,10 @@ void JoinPage::updateDataForm()
 	DataItem item = manager->fields();
 	m_dataForm = AbstractDataForm::get(item);
 	if (m_dataForm) {
-		m_dataForm->setParent(this);
-		m_dataForm->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+		m_dataForm.data()->setParent(this);
+		m_dataForm.data()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 		m_layout->insertWidget(0,m_dataForm.data());
-		m_joinAction->setEnabled(m_dataForm->isComplete());
+		m_joinAction->setEnabled(m_dataForm.data()->isComplete());
 		connect(m_dataForm.data(), SIGNAL(completeChanged(bool)),
 				m_joinAction, SLOT(setEnabled(bool)));
 	}
@@ -82,7 +82,7 @@ void JoinPage::join()
 	if (!manager)
 		return;
 
-	DataItem item = m_dataForm->item();
+	DataItem item = m_dataForm.data()->item();
 	manager->join(item);
 	emit joined();
 }

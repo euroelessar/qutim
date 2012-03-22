@@ -30,7 +30,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>
-#include <QPointer>
+#include <QWeakPointer>
 #include <qutim/dataforms.h>
 
 class QLabel;

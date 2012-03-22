@@ -145,7 +145,7 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
-	if (reply != m_reply)
+	if (reply != m_reply.data())
 		return;
 
 #if HAS_NO_TOKEN_AUTHORIZATION

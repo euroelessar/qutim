@@ -29,7 +29,7 @@
 
 #include <qutim/settingswidget.h>
 #include <qutim/configbase.h>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace Ui
 {
@@ -52,7 +52,7 @@ public:
 	virtual void setController(QObject *controller);
 private:
 	Ui::JMainSettings *ui;
-	QPointer<JAccount> m_account;
+	QWeakPointer<JAccount> m_account;
 };
 }
 

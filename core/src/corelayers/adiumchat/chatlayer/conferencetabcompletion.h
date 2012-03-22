@@ -30,7 +30,7 @@
 #define CONFERENCETABCOMPLETION_H_
 
 #include <QObject>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include "chatsessionimpl.h"
 namespace Core
 {
@@ -46,8 +46,8 @@ public:
 	ConfTabCompletion(QObject *parent = 0);
 	virtual ~ConfTabCompletion();
 
-	void setTextEdit(QPlainTextEdit* conferenceTextEdit);
-	QPlainTextEdit* getTextEdit();
+	void setTextEdit(QTextEdit* conferenceTextEdit);
+	QTextEdit* getTextEdit();
 
 	virtual void reset();
 	void tryComplete();
@@ -87,7 +87,7 @@ private:
 	QStringList suggestedCompletion_;
 	int  suggestedIndex_;
 
-	QWeakPointer<QPlainTextEdit> textEdit_;
+	QWeakPointer<QTextEdit> textEdit_;
 	ChatSessionImpl *m_chatSession;
 	QString last_referrer_;
 };

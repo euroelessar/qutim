@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -22,58 +22,33 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef CHATEDIT_H
-#define CHATEDIT_H
+#include "haikunotificationsplugin.h"
+#include "haikunotificationsbackend.h"
 
-#include <QTextEdit>
-#include <QWeakPointer>
-#include "chatforms/abstractchatwidget.h"
-
-namespace qutim_sdk_0_3
+HaikuNotificationsPlugin::HaikuNotificationsPlugin()
 {
-
 }
 
-namespace Core
+void HaikuNotificationsPlugin::init()
 {
-namespace AdiumChat
-{
-
-enum SendMessageKey
-{
-	SendEnter = 0,
-	SendCtrlEnter,
-	SendDoubleEnter
-};
-
-using namespace qutim_sdk_0_3;
-class ChatSessionImpl;
-class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
-{
-    Q_OBJECT
-public:
-    explicit ChatEdit(QWidget *parent = 0);
-	void setSession(ChatSessionImpl *session);
-	void setSendKey(SendMessageKey key);
-	void setAutoResize(bool resize);
-public slots:
-	void send();
-protected:
-	bool event(QEvent *e);
-	QString textEditToPlainText();
-protected slots:
-	void onTextChanged();
-private:
-	QWeakPointer<ChatSessionImpl> m_session;
-	int m_entersCount;
-	int previousTextHeight;
-	SendMessageKey m_sendKey;
-	bool m_autoResize;
-	QTextCursor m_enterPosition;
-};
-
-}
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Haiku notifications"),
+		QT_TRANSLATE_NOOP("Plugin", "Notification system integrated into Haiku using native BeAPI"),
+		PLUGIN_VERSION(0, 0, 1, 0));
+	addAuthor(QLatin1String("nicoizo"));
+	addExtension<HaikuNotificationsBackend>(QT_TRANSLATE_NOOP("plugin","Haiku notifications"),
+							   QT_TRANSLATE_NOOP("plugin","Notification system integrated into Haiku using native BeAPI"));
 }
 
-#endif // CHATEDIT_H
+bool HaikuNotificationsPlugin::load()
+{
+	return true;
+}
+
+bool HaikuNotificationsPlugin::unload()
+{
+	return false;
+}
+
+
+QUTIM_EXPORT_PLUGIN(HaikuNotificationsPlugin)
 

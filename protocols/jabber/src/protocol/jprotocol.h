@@ -27,6 +27,7 @@
 
 #include <qutim/protocol.h>
 #include <qutim/status.h>
+#include <qutim/debug.h>
 #include <jreen/presence.h>
 #include <jreen/abstractroster.h>
 
@@ -48,7 +49,7 @@ public:
 	JProtocol();
 	virtual ~JProtocol();
 	static inline JProtocol *instance() {
-		if(!self) qWarning("JProtocol isn't created");
+		if(!self) warning() << "JProtocol isn't created";
 		return self;
 	}
 	virtual QList<Account *> accounts() const;

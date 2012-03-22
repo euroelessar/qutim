@@ -58,7 +58,7 @@ struct QuetzalConversationHandler
 			purple_conversation_destroy(conversation);
 		}
 	}
-	QPointer<ChatSession> isAlive;
+	QWeakPointer<ChatSession> isAlive;
 	QList<PurpleConversation*> conversations;
 };
 
@@ -200,12 +200,12 @@ void quetzal_write_im(PurpleConversation *conv, const char *who,
 	}
 	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data);
 	debug() << Q_FUNC_INFO << who << handler;
-	ChatUnit *unit = handler->isAlive->unit();
+	ChatUnit *unit = handler->isAlive.data()->unit();
 	Message mess = quetzal_convert_message(message, flags, mtime);
 	if (!mess.isIncoming())
 		return;
 	mess.setChatUnit(unit);
-	handler->isAlive->appendMessage(mess);
+	handler->isAlive.data()->appendMessage(mess);
 }
 
 void quetzal_write_conv(PurpleConversation *conv,
@@ -218,7 +218,7 @@ void quetzal_write_conv(PurpleConversation *conv,
 	debug() << Q_FUNC_INFO << name << conv->account->username;
 	ChatUnit *unit;
 	if (conv->type == PURPLE_CONV_TYPE_IM)
-		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive->unit();
+		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive.data()->unit();
 	else
 		unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	Message message = quetzal_convert_message(text, flags, mtime);
@@ -273,7 +273,7 @@ gboolean quetzal_has_focus(PurpleConversation *conv)
 {
 	ChatSession *session;
 	if (conv->type == PURPLE_CONV_TYPE_IM)
-		session = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive;
+		session = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive.data();
 	else
 		session = ChatLayer::get(reinterpret_cast<ChatUnit*>(conv->ui_data), false);
 	return session && session->isActive();

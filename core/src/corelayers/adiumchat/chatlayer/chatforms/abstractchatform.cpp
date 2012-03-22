@@ -31,7 +31,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <chatlayer/chatsessionimpl.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
 

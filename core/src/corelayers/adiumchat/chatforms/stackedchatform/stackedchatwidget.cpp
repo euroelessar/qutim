@@ -35,7 +35,7 @@
 #include "floatingbutton.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/conference.h>
@@ -241,7 +241,7 @@ StackedChatWidget::~StackedChatWidget()
 	group.sync();
 }
 
-QPlainTextEdit *StackedChatWidget::getInputField() const
+QTextEdit *StackedChatWidget::getInputField() const
 {
 	return m_chatInput;
 }
@@ -314,13 +314,13 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	setTitle(session);
 
 	if(m_currentSession) {
-		if(m_currentSession == session) {
+		if(m_currentSession.data() == session) {
 			m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 			return;
 		}
-		m_currentSession->setActive(false);
+		m_currentSession.data()->setActive(false);
 	}
-	emit currentSessionChanged(session,m_currentSession);
+	emit currentSessionChanged(session,m_currentSession.data());
 	m_currentSession = session;
 
 	m_sessionList->setCurrentSession(session);

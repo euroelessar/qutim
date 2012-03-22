@@ -497,24 +497,24 @@ OftConnection::~OftConnection()
 
 int OftConnection::localPort() const
 {
-	if (m_socket && m_socket->isOpen())
-		return m_socket->localPort();
-	if (m_server && m_server->isListening())
-		return m_socket->localPort();
+	if (m_socket && m_socket.data()->isOpen())
+		return m_socket.data()->localPort();
+	if (m_server && m_server.data()->isListening())
+		return m_socket.data()->localPort();
 	return 0;
 }
 
 int OftConnection::remotePort() const
 {
-	if (m_socket && m_socket->isOpen())
-		return m_socket->peerPort();
+	if (m_socket && m_socket.data()->isOpen())
+		return m_socket.data()->peerPort();
 	return 0;
 }
 
 QHostAddress OftConnection::remoteAddress() const
 {
-	if (m_socket && m_socket->isOpen())
-		return m_socket->peerAddress();
+	if (m_socket && m_socket.data()->isOpen())
+		return m_socket.data()->peerAddress();
 	return QHostAddress();
 }
 
@@ -525,15 +525,15 @@ void OftConnection::doSend()
 		sendFileRequest();
 	} else {
 		setSocket(new OftSocket(this));
-		m_socket->proxyConnect(m_account->id());
+		m_socket.data()->proxyConnect(m_account.data()->id());
 	}
 }
 
 void OftConnection::doStop()
 {
 	Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
-	ServerMessage message(m_contact, data);
-	m_contact->account()->connection()->send(message);
+	ServerMessage message(m_contact.data(), data);
+	m_contact.data()->account()->connection()->send(message);
 	close(false);
 }
 
@@ -547,15 +547,15 @@ void OftConnection::close(bool error)
 {
 	if (m_socket) {
 		if (!error)
-			m_socket->close();
-		m_socket->deleteLater();
+			m_socket.data()->close();
+		m_socket.data()->deleteLater();
 	}
 	if (m_data)
 		m_data.reset();
 	if (error) {
 		Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
-		ServerMessage message(m_contact, data);
-		m_contact->account()->connection()->send(message);
+		ServerMessage message(m_contact.data(), data);
+		m_contact.data()->account()->connection()->send(message);
 		setState(Error);
 		setError(NetworkError);
 	}
@@ -564,7 +564,7 @@ void OftConnection::close(bool error)
 void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 {
 	if (reqType == MsgRequest) {
-		debug() << m_contact->id() << "has sent file transfer request";
+		debug() << m_contact.data()->id() << "has sent file transfer request";
 		m_stage = tlvs.value<quint16>(0x000A);
 		QHostAddress proxyIP(tlvs.value<quint32>(0x0002));
 		QHostAddress clientIP(tlvs.value<quint32>(0x0003));
@@ -597,7 +597,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		} else if (m_stage == 2) {
 			if (direction() == Outgoing) {
 				if (m_server)
-					m_server->close();
+					m_server.data()->close();
 				if (m_socket) {
 					debug() << "Sender has sent the request for reverse connection (stage 2)"
 							<< "but the connection already initialized at stage 1";
@@ -636,14 +636,14 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 			return;
 		}
 		if (!m_proxy)
-			m_socket->directConnect(clientIP, port);
+			m_socket.data()->directConnect(clientIP, port);
 		else
-			m_socket->proxyConnect(m_account->id(), proxyIP, port);
+			m_socket.data()->proxyConnect(m_account.data()->id(), proxyIP, port);
 		connect(m_socket.data(), SIGNAL(timeout()), SLOT(startNextStage()));
 	} else if (reqType == MsgAccept) {
-		debug() << m_contact->id() << "accepted file transfing";
+		debug() << m_contact.data()->id() << "accepted file transfing";
 	} else if (reqType == MsgCancel) {
-		debug() << m_contact->id() << "canceled file transfing";
+		debug() << m_contact.data()->id() << "canceled file transfing";
 		close(false);
 		setState(Error);
 		setError(Canceled);
@@ -654,17 +654,17 @@ void OftConnection::setSocket(OftSocket *socket)
 {
 	if (!m_socket) {
 		m_socket = socket;
-		m_socket->setParent(this);
-		m_socket->setCookie(m_cookie);
+		m_socket.data()->setParent(this);
+		m_socket.data()->setCookie(m_cookie);
 		connect(m_socket.data(), SIGNAL(proxyInitialized()), SLOT(sendFileRequest()));
 		connect(m_socket.data(), SIGNAL(initialized()), SLOT(connected()));
 		connect(m_socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
 				SLOT(onError(QAbstractSocket::SocketError)));
 		connect(m_socket.data(), SIGNAL(headerReaded(OftHeader)), SLOT(onHeaderReaded()));
 		connect(m_socket.data(), SIGNAL(disconnected()), m_socket.data(), SLOT(deleteLater()));
-		if (m_socket->readingState() == OftSocket::ReadData) {
+		if (m_socket.data()->readingState() == OftSocket::ReadData) {
 			onHeaderReaded();
-			if (m_socket->bytesAvailable() > 0)
+			if (m_socket.data()->bytesAvailable() > 0)
 				onNewData();
 		}
 		// emit localPortChanged(socket->localPort());
@@ -682,17 +682,17 @@ void OftConnection::sendFileRequest()
 	quint32 proxyAddr;
 	quint16 port;
 	if (m_proxy) {
-		proxyAddr = m_socket->proxyIP().toIPv4Address();
-		port = m_socket->proxyPort();
+		proxyAddr = m_socket.data()->proxyIP().toIPv4Address();
+		port = m_socket.data()->proxyPort();
 	} else {
 		m_server = OftFileTransferFactory::getFreeServer();
 		if (m_server) {
-			m_server->setConnection(this);
-			m_server->listen();
+			m_server.data()->setConnection(this);
+			m_server.data()->listen();
 			// That does not work well with all clients
 			// connect(m_server.data(), SIGNAL(timeout(OftConnection*)), SLOT(close()));
 			clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
-			port = m_server->serverPort();
+			port = m_server.data()->serverPort();
 		} else {
 			clientAddr = 0;
 			port = 0;
@@ -726,8 +726,8 @@ void OftConnection::sendFileRequest()
 			data.appendTLV(0x2722, tlv2722);
 		}
 	}
-	ServerMessage message(m_contact, data);
-	m_contact->account()->connection()->send(message);
+	ServerMessage message(m_contact.data(), data);
+	m_contact.data()->account()->connection()->send(message);
 	debug() << "A stage" << m_stage << "file transfer request has been sent";
 }
 
@@ -737,8 +737,8 @@ void OftConnection::connected()
 	// emit remotePortChanged(m_socket->peerPort());
 	if (direction() == Incoming) {
 		Channel2BasicMessageData data(MsgAccept, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
-		ServerMessage message(m_contact, data);
-		m_contact->account()->connection()->send(message);
+		ServerMessage message(m_contact.data(), data);
+		m_contact.data()->account()->connection()->send(message);
 	} else {
 		startFileSending();
 	}
@@ -757,7 +757,7 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 			setState(Finished);
 			close(false);
 		} else {
-			debug() << "File transfer connection error" << m_socket->errorString();
+			debug() << "File transfer connection error" << m_socket.data()->errorString();
 			close();
 		}
 	}
@@ -769,15 +769,15 @@ void OftConnection::onNewData()
 		debug() << "File transfer data has been received when the output file is not initialized";
 		return;
 	}
-	if (m_socket->bytesAvailable() <= 0)
+	if (m_socket.data()->bytesAvailable() <= 0)
 		return;
-	QByteArray buf = m_socket->read(m_header.size - m_header.bytesReceived);
+	QByteArray buf = m_socket.data()->read(m_header.size - m_header.bytesReceived);
 	m_header.receivedChecksum =
 			OftChecksumThread::chunkChecksum(buf.constData(), buf.size(),
 											 m_header.receivedChecksum,
 											 m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
-	m_data->write(buf);
+	m_data.data()->write(buf);
 	setFileProgress(m_header.bytesReceived);
 	if (m_header.bytesReceived == m_header.size) {
 		disconnect(m_socket.data(), SIGNAL(newData()), this, SLOT(onNewData()));
@@ -785,7 +785,7 @@ void OftConnection::onNewData()
 		m_header.type = OftDone;
 		--m_header.filesLeft;
 		m_header.writeData(m_socket.data());
-		m_socket->dataReaded();
+		m_socket.data()->dataReaded();
 		if (m_header.filesLeft == 0) {
 			setState(Finished);
 		}
@@ -794,15 +794,15 @@ void OftConnection::onNewData()
 
 void OftConnection::onSendData()
 {
-	if (!m_data && m_socket->bytesToWrite())
+	if (!m_data && m_socket.data()->bytesToWrite())
 		return;
-	QByteArray buf = m_data->read(BUFFER_SIZE);
+	QByteArray buf = m_data.data()->read(BUFFER_SIZE);
 	m_header.receivedChecksum =
 			OftChecksumThread::chunkChecksum(buf.constData(), buf.size(),
 											 m_header.receivedChecksum,
 											 m_header.bytesReceived);
 	m_header.bytesReceived += buf.size();
-	m_socket->write(buf);
+	m_socket.data()->write(buf);
 	setFileProgress(m_header.bytesReceived);
 	if (m_header.bytesReceived == m_header.size) {
 		disconnect(m_socket.data(), SIGNAL(bytesWritten(qint64)), this, SLOT(onSendData()));
@@ -889,7 +889,7 @@ void OftConnection::startFileReceivingImpl(bool resume)
 	m_header.cookie = m_cookie;
 	m_header.writeData(m_socket.data());
 	if (resume)
-		m_socket->dataReaded();
+		m_socket.data()->dataReaded();
 	setState(Started);
 	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
 }
@@ -908,29 +908,29 @@ void OftConnection::startNextStage()
 {
 	if (m_stage == 1) {
 		if (!m_proxy && !m_clientVerifiedIP.isNull()) {
-			m_socket->close();
-			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
+			m_socket.data()->close();
+			m_socket.data()->directConnect(m_clientVerifiedIP, m_socket.data()->clientPort());
 			m_clientVerifiedIP = QHostAddress::Null;
 		} else {
 			m_stage = 2;
 			if (m_proxy) {
-				m_socket->close();
-				m_socket->proxyConnect(m_account->id());
+				m_socket.data()->close();
+				m_socket.data()->proxyConnect(m_account.data()->id());
 			} else {
-				m_socket->deleteLater();
+				m_socket.data()->deleteLater();
 				sendFileRequest();
 			}
 		}
 	} else if (m_stage == 2) {
 		if (!m_proxy && !m_clientVerifiedIP.isNull()) {
-			m_socket->close();
-			m_socket->directConnect(m_clientVerifiedIP, m_socket->clientPort());
+			m_socket.data()->close();
+			m_socket.data()->directConnect(m_clientVerifiedIP, m_socket.data()->clientPort());
 			m_clientVerifiedIP = QHostAddress::Null;
 		} else {
 			m_stage = 3;
 			m_proxy = true;
-			m_socket->close();
-			m_socket->proxyConnect(m_account->id());
+			m_socket.data()->close();
+			m_socket.data()->proxyConnect(m_account.data()->id());
 		}
 	} else {
 		close();
@@ -939,8 +939,8 @@ void OftConnection::startNextStage()
 
 void OftConnection::onHeaderReaded()
 {
-	if (m_socket->lastHeader().isFinished()) {
-		m_header = m_socket->lastHeader();
+	if (m_socket.data()->lastHeader().isFinished()) {
+		m_header = m_socket.data()->lastHeader();
 		QString error;
 		if (direction() == Incoming) {
 			if (m_header.type & OftReceiver)
@@ -1014,7 +1014,7 @@ void OftConnection::onHeaderReaded()
 				m_header.bytesReceived = 0;
 				debug() << "File" << m_header.fileName << "will be rewritten";
 			}
-			if (m_data->open(flags)) {
+			if (m_data.data()->open(flags)) {
 				m_header.writeData(m_socket.data());
 			} else {
 				close();
@@ -1023,8 +1023,8 @@ void OftConnection::onHeaderReaded()
 		}
 		case OftResumeAcknowledge:
 		case OftAcknowledge: {	// receiver are waiting file
-			m_socket->dataReaded();
-			if (m_data->open(QFile::ReadOnly)) {
+			m_socket.data()->dataReaded();
+			if (m_data.data()->open(QFile::ReadOnly)) {
 				connect(m_socket.data(), SIGNAL(bytesWritten(qint64)), this, SLOT(onSendData()));
 				setState(Started);
 				onSendData();
@@ -1035,7 +1035,7 @@ void OftConnection::onHeaderReaded()
 		}
 		default:
 			debug() << "Unknown oft message type" << hex << m_header.type;
-			m_socket->dataReaded();
+			m_socket.data()->dataReaded();
 		}
 	}
 }
@@ -1211,7 +1211,7 @@ OftConnection *OftFileTransferFactory::connection(IcqAccount *account, quint64 c
 
 void OftFileTransferFactory::addConnection(OftConnection *connection)
 {
-	IcqAccount *account = connection->m_account;
+	IcqAccount *account = connection->m_account.data();
 	Connections::iterator itr = m_connections.find(account);
 	Q_ASSERT(itr != m_connections.end());
 	itr->insert(connection->cookie(), connection);
@@ -1219,7 +1219,7 @@ void OftFileTransferFactory::addConnection(OftConnection *connection)
 
 void OftFileTransferFactory::removeConnection(OftConnection *connection)
 {
-	IcqAccount *account = connection->m_account;
+	IcqAccount *account = connection->m_account.data();
 	Connections::iterator itr = m_connections.find(account);
 	if (itr != m_connections.end())
 		itr->remove(connection->cookie());

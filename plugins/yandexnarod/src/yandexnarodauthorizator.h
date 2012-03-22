@@ -29,7 +29,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QNetworkCookieJar>
-#include <QtCore/QPointer>
+#include <QWeakPointer>
 
 #define HAS_NO_TOKEN_AUTHORIZATION 1
 
@@ -73,7 +73,7 @@ private:
 	Stage m_stage;
 	QString m_token;
 	QNetworkAccessManager *m_networkManager;
-	QPointer<QNetworkReply> m_reply;
+	QWeakPointer<QNetworkReply> m_reply;
 };
 
 #endif // YANDEXNARODAUTHORIZATOR_H

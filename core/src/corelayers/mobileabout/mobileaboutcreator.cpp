@@ -55,12 +55,12 @@ MobileAboutCreator::~MobileAboutCreator()
 void MobileAboutCreator::showWidget()
 {
 	if (m_widget) {
-		SystemIntegration::show(m_widget);
-		m_widget->raise();
+		SystemIntegration::show(m_widget.data());
+		m_widget.data()->raise();
 		return;
 	}
 	m_widget = new MobileAboutDialog();
-	SystemIntegration::show(m_widget);
+	SystemIntegration::show(m_widget.data());
 }
 }
 

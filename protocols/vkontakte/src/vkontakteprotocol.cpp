@@ -65,15 +65,15 @@ VkontakteProtocol::~VkontakteProtocol()
 Account* VkontakteProtocol::account(const QString& id) const
 {
 	Q_D(const VkontakteProtocol);
-	return d->accounts_hash->value(id);
+	return d->accounts_hash->value(id).data();
 }
 QList< Account* > VkontakteProtocol::accounts() const
 {
 	Q_D(const VkontakteProtocol);
 	QList<Account *> accounts;
-	QHash<QString, QPointer<VAccount> >::const_iterator it;
+	QHash<QString, QWeakPointer<VAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value());
+		accounts.append(it.value().data()	);
 	return accounts;
 
 }

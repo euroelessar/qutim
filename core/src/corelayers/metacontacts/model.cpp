@@ -38,7 +38,7 @@ namespace MetaContacts {
 using namespace qutim_sdk_0_3;
 
 Model::Model(QObject *parent) :
-    QStandardItemModel(parent),m_metaContact(0)
+	QStandardItemModel(parent)
 {
 	m_metaRoot = new QStandardItem(QT_TRANSLATE_NOOP("MetaContacts", "Contacts in metacontact"));
 	m_metaRoot->setData(true,SeparatorRole);
@@ -60,7 +60,7 @@ void Model::searchContacts(const QString& name)
 		foreach(Contact *contact, account->findChildren<Contact*>()) {
 			if(!contact->title().contains(name,Qt::CaseInsensitive))
 				continue;
-			if(m_metaContact && m_metaContact->contacts().contains(contact))
+			if(m_metaContact && m_metaContact.data()->contacts().contains(contact))
 				continue;
 			addContact(contact,m_searchRoot);
 		}
@@ -78,7 +78,7 @@ void Model::setMetaContact(MetaContactImpl *metaContact)
 
 MetaContactImpl* Model::metaContact() const
 {
-	return m_metaContact;
+	return m_metaContact.data();
 }
 
 void Model::addContact(Contact *contact , QStandardItem *root)
