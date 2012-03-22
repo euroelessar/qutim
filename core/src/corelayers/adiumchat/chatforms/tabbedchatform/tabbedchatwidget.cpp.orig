@@ -349,13 +349,23 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	activateWindow();
 	setTitle(session);
 
-	if(m_currentSession) {
+<<<<<<< HEAD
+    if(m_currentSession) {
 		if(m_currentSession.data() == session)
-			return;
+            return;
 		m_currentSession.data()->setActive(false);
-	}
+    }
 	emit currentSessionChanged(session, m_currentSession.data());
+    m_currentSession = session;
+=======
+	if(m_currentSession) {
+		if(m_currentSession == session)
+			return;
+		m_currentSession->setActive(false);
+	}
+	emit currentSessionChanged(session, m_currentSession);
 	m_currentSession = session;
+>>>>>>> 6e1acfc4be7cb695fd0e6366addc1428a7b93da9
 
 	m_tabBar->setCurrentSession(session);
 	m_chatInput->setSession(session);
