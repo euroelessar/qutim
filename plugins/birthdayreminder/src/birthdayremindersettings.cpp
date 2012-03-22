@@ -44,8 +44,8 @@ void BirthdayReminderSettings::loadImpl()
 {
 	Config cfg;
 	cfg.beginGroup("birthdayReminder");
-	ui->daysBeforeNotificationBox->setValue(cfg.value("daysBeforeNotification", 7));
-	ui->intervalBetweenNotificationsBox->setValue(cfg.value("intervalBetweenNotifications", 3.0));
+	ui->daysBeforeNotificationBox->setValue(cfg.value("daysBeforeNotification", 3));
+	ui->intervalBetweenNotificationsBox->setValue(cfg.value("intervalBetweenNotifications", 24.0));
 	cfg.endGroup();
 }
 

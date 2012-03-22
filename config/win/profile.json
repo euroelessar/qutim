@@ -114,11 +114,11 @@
 			"Tray": false
 		},
 		"UserHasBirthday": {
-			"ChatNotifications": false,
+			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": true
+			"Tray": false
 		},
 		"UserOffline": {
 			"ChatNotifications": true,
