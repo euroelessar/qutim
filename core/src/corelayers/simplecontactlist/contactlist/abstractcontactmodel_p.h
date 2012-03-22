@@ -427,7 +427,7 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 {
 	Q_D(AbstractContactModel);
 	if (!item) {
-		qWarning() << Q_FUNC_INFO << "item is null";
+		warning() << Q_FUNC_INFO << "item is null";
 		return true;
 	}
 	Contact *contact = item->getContact();

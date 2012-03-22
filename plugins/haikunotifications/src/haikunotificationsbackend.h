@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -22,58 +22,21 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef CHATEDIT_H
-#define CHATEDIT_H
+#ifndef HAIKUNOTIFICATIONSBACKEND_H
+#define HAIKUNOTIFICATIONSBACKEND_H
 
-#include <QTextEdit>
-#include <QWeakPointer>
-#include "chatforms/abstractchatwidget.h"
+#include <qutim/notification.h>
+#include <qutim/sound.h>
 
-namespace qutim_sdk_0_3
+class HaikuNotificationsBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
-
-}
-
-namespace Core
-{
-namespace AdiumChat
-{
-
-enum SendMessageKey
-{
-	SendEnter = 0,
-	SendCtrlEnter,
-	SendDoubleEnter
-};
-
-using namespace qutim_sdk_0_3;
-class ChatSessionImpl;
-class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
-{
-    Q_OBJECT
+	Q_OBJECT
+	Q_CLASSINFO("Service", "Popup")
 public:
-    explicit ChatEdit(QWidget *parent = 0);
-	void setSession(ChatSessionImpl *session);
-	void setSendKey(SendMessageKey key);
-	void setAutoResize(bool resize);
-public slots:
-	void send();
-protected:
-	bool event(QEvent *e);
-	QString textEditToPlainText();
-protected slots:
-	void onTextChanged();
-private:
-	QWeakPointer<ChatSessionImpl> m_session;
-	int m_entersCount;
-	int previousTextHeight;
-	SendMessageKey m_sendKey;
-	bool m_autoResize;
-	QTextCursor m_enterPosition;
+	HaikuNotificationsBackend();
+	virtual ~HaikuNotificationsBackend();
+	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 };
 
-}
-}
-
-#endif // CHATEDIT_H
+#endif // HAIKUNOTIFICATIONSBACKEND_H
 

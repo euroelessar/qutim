@@ -330,8 +330,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 //	if (d->reader.tokenType() == QXmlStreamReader::Invalid)
 //		dbg << d->reader.error() << d->reader.errorString();
 	if (!incoming && d->depth > 1) {
-		qFatal("outgoing depth %d on\n\"%s\"", d->depth,
-			   qPrintable(QString::fromUtf8(data, data.size())));
+		fatal() << "outgoing depth" << d->depth << "on\n" << QString::fromUtf8(data, data.size());
 	}
 }
 

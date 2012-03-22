@@ -195,7 +195,7 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 		purpleId += QLatin1Char('@');
 		int size = cfg.beginArray("servers");
 		if (size == 0) {
-			qCritical("Invalid irc account without server info: \"%s\"", qPrintable(id));
+			critical() << "Invalid irc account without server info:" << id;
 			deleteLater();
 			return;
 		}

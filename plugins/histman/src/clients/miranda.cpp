@@ -28,7 +28,7 @@
 #include <QTextDocument>
 #include <QTextCodec>
 #include <qutim/icon.h>
-#include <QDebug>
+#include <qutim/debug.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -302,7 +302,7 @@ void miranda::loadMessages(const QString &path)
 				}
 			} else {
 				QHash<QString, QVariant> contact_settings = GetSettings(contact, protocol, data, decoder);
-				qWarning() << "Unknown protocol:" << protocol << contact_settings.keys();
+				warning() << "Unknown protocol:" << protocol << contact_settings.keys();
 			}
 		}
 		offset = contact.ofsNext;

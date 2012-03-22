@@ -27,7 +27,7 @@
 #define MODEL_H
 
 #include <QStandardItemModel>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3 {
 class MetaContact;
@@ -53,7 +53,7 @@ signals:
 	void removeContactTriggered(qutim_sdk_0_3::Contact*);
 private:
 	void addContact(qutim_sdk_0_3::Contact *,QStandardItem *root);
-	QPointer<MetaContactImpl> m_metaContact;
+	QWeakPointer<MetaContactImpl> m_metaContact;
 	QStandardItem *m_metaRoot;
 	QStandardItem *m_searchRoot;
 };

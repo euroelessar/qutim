@@ -91,8 +91,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		path = "qutim-" + randomString(6) + "-profile";
 	} while (tmpDir.exists(path));
 	if (!tmpDir.mkpath(path) || !tmpDir.cd(path)) {
-		qFatal("Can't access or create directory '%s'",
-			   qPrintable(tmpDir.absoluteFilePath(path)));
+		fatal() << "Can't access or create directory" << tmpDir.absoluteFilePath(path);
 	}
 	QVector<QDir> &systemDirs = *system_info_dirs();
 	systemDirs[SystemInfo::ConfigDir] = tmpDir.absoluteFilePath("config");

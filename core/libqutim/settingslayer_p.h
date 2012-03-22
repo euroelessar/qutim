@@ -32,6 +32,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMultiMap>
+#include <QWeakPointer>
 #include "debug.h"
 
 class QLineEdit;
@@ -41,7 +42,7 @@ struct ConnectInfo
 {
 	ConnectInfo(const char *s, QObject *r, const char *m) : signal(s), receiver(r), member(m) {}
 	QByteArray signal;
-	QPointer<QObject> receiver;
+	QWeakPointer<QObject> receiver;
 	QByteArray member;
 };
 
@@ -53,7 +54,7 @@ public:
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-	mutable QPointer<SettingsWidget> widget;
+	mutable QWeakPointer<SettingsWidget> widget;
 	QList<ConnectInfo> connections;
 	int priority;
 };
@@ -117,7 +118,7 @@ protected:
 	}
 private:
 	AutoSettingsItemPrivate *p;
-	mutable QPointer<QObject> m_object;
+	mutable QWeakPointer<QObject> m_object;
 };
 
 class AutoSettingsFileChooser;
@@ -176,7 +177,7 @@ protected:
 	}
 private:
 	DataSettingsItemPrivate *p;
-	mutable QPointer<QObject> m_object;
+	mutable QWeakPointer<QObject> m_object;
 };
 
 typedef QMultiMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;

@@ -29,7 +29,7 @@
 #include "qutim/inforequest.h"
 #include "metainfo/infometarequest.h"
 #include "metainfo/updateaccountinfometarequest.h"
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3 {
 

@@ -241,9 +241,9 @@ bool TextViewController::isNearBottom()
 {
 	if (!m_textEdit)
 		return true;
-	QScrollBar *scrollBar = m_textEdit->verticalScrollBar();
+	QScrollBar *scrollBar = m_textEdit.data()->verticalScrollBar();
 	qreal percentage = scrollBar->maximum() - scrollBar->value();
-	percentage /= m_textEdit->viewport()->height();
+	percentage /= m_textEdit.data()->viewport()->height();
 	return percentage < 0.2;
 }
 
@@ -286,7 +286,7 @@ int TextViewController::addEmoticon(const QString &filename)
 void TextViewController::ensureScrolling()
 {
 	if (m_textEdit) {
-		QScrollBar *scrollBar = m_textEdit->verticalScrollBar();
+		QScrollBar *scrollBar = m_textEdit.data()->verticalScrollBar();
 //		qreal percentage = scrollBar->maximum() - scrollBar->value();
 //		percentage /= m_textEdit->viewport()->height();
 //		debug() << percentage;
@@ -328,9 +328,9 @@ void TextViewController::animate()
 		return;
 	}
 	QAbstractTextDocumentLayout *layout = documentLayout();
-	QRect visibleRect(0, m_textEdit->verticalScrollBar()->value(),
-	                  m_textEdit->viewport()->width(),
-	                  m_textEdit->viewport()->height());
+	QRect visibleRect(0, m_textEdit.data()->verticalScrollBar()->value(),
+					  m_textEdit.data()->viewport()->width(),
+					  m_textEdit.data()->viewport()->height());
 	int begin = layout->hitTest(visibleRect.topLeft(), Qt::FuzzyHit);
 	int end = layout->hitTest(visibleRect.bottomRight(), Qt::FuzzyHit);
 	int *indexesEnd = movie->indexes.data() + movie->indexes.size();
@@ -343,12 +343,12 @@ void TextViewController::animate()
 	QSize emoticonSize = movie->frameRect().size();
 	for (int *i = beginIndex; i != endIndex; i++) {
 		cursor.setPosition(*i);
-		QRect cursorRect = m_textEdit->cursorRect(cursor);
+		QRect cursorRect = m_textEdit.data()->cursorRect(cursor);
 		region += QRectF(cursorRect.topLeft(), emoticonSize).toAlignedRect();
 	}
-	region &= m_textEdit->viewport()->visibleRegion();
+	region &= m_textEdit.data()->viewport()->visibleRegion();
 	if (!region.isEmpty())
-		m_textEdit->viewport()->update(region);
+		m_textEdit.data()->viewport()->update(region);
 }
 
 QPixmap TextViewController::createBullet(const QColor &color)
@@ -433,17 +433,17 @@ void TextViewController::clearChat()
 
 QString TextViewController::quote()
 {
-	QTextCursor cursor = m_textEdit->textCursor();
+	QTextCursor cursor = m_textEdit.data()->textCursor();
 	return cursor.hasSelection() ? cursor.selectedText() : m_lastIncomingMessage;
 }
 
 void TextViewController::setTextEdit(QTextBrowser *edit)
 {
 	if (m_textEdit)
-		disconnect(m_textEdit, 0, this, 0);
+		disconnect(m_textEdit.data(), 0, this, 0);
 	m_textEdit = edit;
 	if (m_textEdit)
-		connect(m_textEdit, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+		connect(m_textEdit.data(), SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->setPaused(!edit);
 }

@@ -406,12 +406,12 @@ void JsonHistory::showHistory(const ChatUnit *unit)
 {
 	unit = unit->getHistoryUnit();
 	if (m_historyWindow) {
-		m_historyWindow->setUnit(unit);
-		m_historyWindow->raise();
+		m_historyWindow.data()->setUnit(unit);
+		m_historyWindow.data()->raise();
 	}
 	else {
 		m_historyWindow = new Core::HistoryWindow(unit);
-		m_historyWindow->show();
+		m_historyWindow.data()->show();
 	}
 }
 

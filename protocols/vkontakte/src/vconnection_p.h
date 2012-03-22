@@ -34,7 +34,7 @@
 #include <QTimer>
 #include <QNetworkReply>
 #include <QtWebKit/QWebView>
-#include <QPointer>
+#include <QWeakPointer>
 
 
 class VMessages;

@@ -26,7 +26,7 @@
 #ifndef CHATLAYERIMPL_H
 #define CHATLAYERIMPL_H
 #include <qutim/chatsession.h>
-#include <QPointer>
+#include <QWeakPointer>
 #include "chatlayerplugin.h"
 #include "chatlayer_global.h"
 

@@ -65,7 +65,7 @@ bool AbstractSearchForm::startSearch()
 	Q_ASSERT(m_currentRequest);
 	if (m_searchFieldsWidget) {
 		m_resultModel->beginResetModel();
-		m_currentRequest->start(m_searchFieldsWidget->item());
+		m_currentRequest->start(m_searchFieldsWidget.data()->item());
 		m_resultModel->endResetModel();
 		m_done = false;
 		return true;
@@ -89,7 +89,7 @@ void AbstractSearchForm::setCurrentRequest(RequestPtr request)
 	m_currentRequest = request;
 	if (!m_currentRequest) {
 		if (m_searchFieldsWidget)
-			m_searchFieldsWidget->deleteLater();
+			m_searchFieldsWidget.data()->deleteLater();
 		qDeleteAll(m_actions);
 	} else {
 		m_resultModel->setRequest(m_currentRequest);
@@ -133,7 +133,7 @@ void AbstractSearchForm::updateServiceBox(QComboBox *serviceBox, QPushButton *up
 void AbstractSearchForm::updateSearchFieldsWidget()
 {
 	if (m_searchFieldsWidget)
-		m_searchFieldsWidget->deleteLater();
+		m_searchFieldsWidget.data()->deleteLater();
 	m_searchFieldsWidget = AbstractDataForm::get(currentRequest()->fields());
 	if (m_searchFieldsWidget)
 		searchFieldsWidget()->setParent(this);

@@ -62,7 +62,7 @@ void HistoryManagerPlugin::createWidget()
 {
 	if(!m_widget) {
 		m_widget = new HistoryManager::HistoryManagerWindow();
-		m_widget->show();
+		m_widget.data()->show();
 	}
 }
 

@@ -26,6 +26,7 @@
 #include "sdlbackend.h"
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
+#include <qutim/debug.h>
 
 enum SDLAudioDefinitions
 {
@@ -46,7 +47,7 @@ public:
 		QByteArray file = filename.toUtf8();
 		chunk = Mix_LoadWAV(file.constData());
 		if (!chunk) {
-			qWarning("Can't open '%s'", qPrintable(filename));
+			warning() << "Can't open" << filename;
 			return;
 		}
 	}
@@ -77,12 +78,12 @@ SDLSoundBackend::SDLSoundBackend()
 		audioBuffers = 8192;
 	
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0) {
-		qCritical("Can't init SDL");
+		critical() << "Can't init SDL";
 		return;
 	}
 	
 	if (Mix_OpenAudio(hz, SDLAudioFormat, SDLAudioChannels, audioBuffers)) {
-		qCritical("Unable to open audio for SDL");
+		critical() << "Unable to open audio for SDL";
 		return;
 	}
 	Mix_ChannelFinished(channelFinished);

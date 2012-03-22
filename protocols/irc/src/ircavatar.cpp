@@ -56,7 +56,7 @@ void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, co
 								  const QString &, const QString &cmd, const QString &)
 {
     if (cmd != "AVATAR") {
-        qWarning("[irq]: Wrong cmd!");
+		warning() << "[irq]: Wrong cmd!";
         return;
     }
 	QString avatar = account->avatar();

@@ -128,7 +128,7 @@ MrimProtocol* MrimProtocol::instance()
 {
     if (!self)
     {
-        qWarning("MrimProtocol isn't created yet!");
+		warning() << "MrimProtocol isn't created yet!";
     }
     return self;
 }

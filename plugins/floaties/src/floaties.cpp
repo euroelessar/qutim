@@ -144,7 +144,7 @@ void FloatiesPlugin::onRemoveContact(QObject *obj)
 ContactWidget *FloatiesPlugin::createWidget(qutim_sdk_0_3::Contact *contact)
 {
 	QPersistentModelIndex index = m_model->addContact(contact);
-	ContactWidget *widget = new ContactWidget(index, m_view, contact);
+	ContactWidget *widget = new ContactWidget(index, m_view.data(), contact);
 	connect(widget, SIGNAL(wantDie(QObject*)), this, SLOT(onRemoveContact(QObject*)));
 	m_contacts.insert(contact, widget);
 //	contact->addAction(m_action);

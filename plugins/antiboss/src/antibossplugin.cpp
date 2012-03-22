@@ -88,11 +88,11 @@ void AntiBossPlugin::showHide()
 	}
 	if (m_hidden) {
 		qApp->removeEventFilter(this);
-		QMultiHash<Qt::WindowStates, QPointer<QWidget> >::const_iterator it = m_widgets.constBegin();
+		QMultiHash<Qt::WindowStates, QWeakPointer<QWidget> >::const_iterator it = m_widgets.constBegin();
 		for (;it!=m_widgets.constEnd();it++) {
 			Qt::WindowStates state = it.key();
-			it.value()->show();
-			it.value()->setWindowState(state);
+			it.value().data()->show();
+			it.value().data()->setWindowState(state);
 		}
 		m_widgets.clear();
 	} else {

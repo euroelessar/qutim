@@ -958,8 +958,7 @@ void ActionHandlerHelper::onActionTriggered(QAction *action)
 	const QMetaObject *meta = obj->metaObject();
 	int index = meta->indexOfMethod(d->member.constData() + 1);
 	if (index == -1) {
-		qWarning("ActionHandler::onActionTriggered: No such method %s::%s",
-				 meta->className(), d->member.constData() + 1);
+		warning() << "ActionHandler::onActionTriggered: No such method" << meta->className() << "::" << d->member.constData() + 1;
 		return;
 	}
 	QMetaMethod method = meta->method(index);

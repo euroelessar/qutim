@@ -31,6 +31,7 @@
 #include <QTime>
 #include <QTextCodec>
 #include <QRect>
+#include <qutim/debug.h>
 
 namespace Core
 {
@@ -162,7 +163,7 @@ namespace Core
 		root.appendChild(plist);
 		QFile output (file);
 		if (!output.open(QIODevice::WriteOnly)) {
-			qWarning() << tr("Cannot write to file %1").arg(file);
+			warning() << tr("Cannot write to file %1").arg(file);
 			return;
 		}
 		QTextStream out(&output);

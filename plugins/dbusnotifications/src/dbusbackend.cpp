@@ -85,7 +85,7 @@ DBusBackend::DBusBackend() :
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {
-		qWarning() << "Error connecting to notifications service.";
+		warning() << "Error connecting to notifications service.";
 	}
 	QDBusMessage message = QDBusMessage::createMethodCall(
 	            QLatin1String("org.freedesktop.Notifications"),
@@ -209,7 +209,7 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 
 #ifdef Q_WS_MAEMO_5
 	//Maemo dbus implementation
-	QPointer<QObject> sender = data.sender;
+	QWeakPointer<QObject> sender = data.sender;
 	if (name == "default" ) {
 		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
 
@@ -226,9 +226,9 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 inline void DBusBackend::ignore(NotificationData &data)
 {
 	Q_UNUSED(data);
-	foreach (const QPointer<Notification> &notification, data.notifications)
+	foreach (const QWeakPointer<Notification> &notification, data.notifications)
 		if (notification)
-			notification->ignore();
+			notification.data()->ignore();
 }
 
 void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
@@ -245,8 +245,8 @@ void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 	if (itr != m_notifications.end()) {
 		if (reason == 2)
 			ignore(*itr);
-		m_ids.remove(itr->sender);
-		foreach (const QPointer<Notification> &notification, itr->notifications)
+		m_ids.remove(itr->sender.data());
+		foreach (const QWeakPointer<Notification> &notification, itr->notifications)
 			if (notification)
 				deref(notification.data());
 		m_notifications.erase(itr);

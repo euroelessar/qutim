@@ -55,12 +55,12 @@ SimpleAboutCreator::~SimpleAboutCreator()
 void SimpleAboutCreator::showWidget()
 {
 	if (m_widget) {
-		m_widget->show();
-		m_widget->raise();
+		m_widget.data()->show();
+		m_widget.data()->raise();
 		return;
 	}
 	m_widget = new SimpleAboutDialog();
-	m_widget->show();
+	m_widget.data()->show();
 }
 }
 

@@ -72,7 +72,7 @@ class StackedChatWidget : public AbstractChatWidget
 public:
 	StackedChatWidget(const QString &key = QString(),QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen);
-	virtual QPlainTextEdit *getInputField() const;
+	virtual QTextEdit *getInputField() const;
 	virtual bool contains(ChatSessionImpl *session) const;
 	virtual ChatSessionImpl *currentSession()  const;
 	virtual ~StackedChatWidget();
@@ -103,7 +103,7 @@ private:
 	ChatViewWidget *m_view;
 	SessionListWidget *m_sessionList;
 	ChatEdit *m_chatInput;
-	QPointer<ChatSessionImpl> m_currentSession;
+	QWeakPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
 	QAction *m_spacer;

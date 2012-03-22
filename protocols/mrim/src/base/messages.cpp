@@ -47,14 +47,14 @@ struct MsgIdLink
 {
 	MsgIdLink(quint64 i, MrimContact *c) : msgId(i), unit(c) {}
     quint64 msgId;
-    QPointer<MrimContact> unit;
+	QWeakPointer<MrimContact> unit;
 };
 
 class MessagesPrivate
 {
 public:
     quint32 msgSeq;
-    QPointer<MrimConnection> conn;
+	QWeakPointer<MrimConnection> conn;
 	QCache<quint32, MsgIdLink> msgIdLink;
 #ifndef NO_RTF_SUPPORT
     Rtf *rtf;
@@ -66,7 +66,7 @@ MrimMessages::MrimMessages(MrimConnection *conn) :
 {
     p->msgSeq = 0;
     p->conn = conn;
-    p->conn->registerPacketHandler(this);
+	p->conn.data()->registerPacketHandler(this);
 	p->msgIdLink.setMaxCost(10);
 #ifndef NO_RTF_SUPPORT
     p->rtf = new Rtf("cp1251");
@@ -134,7 +134,7 @@ void MrimMessages::send(MrimContact *contact, const QString &text, Flags flags, 
 	msgPacket.append(contact->email());
 	msgPacket.append(text, true);
 	msgPacket.append(" ");
-	p->conn->sendPacket(msgPacket);
+	p->conn.data()->sendPacket(msgPacket);
 }
 
 void MrimMessages::handleMessageStatus(MrimPacket &packet)
@@ -144,7 +144,7 @@ void MrimMessages::handleMessageStatus(MrimPacket &packet)
     QString errString;
 	MsgIdLink *msgLink = p->msgIdLink.take(packet.sequence());
 	
-    ChatSession *sess = msgLink ? ChatLayer::instance()->getSession(msgLink->unit) : 0;
+	ChatSession *sess = msgLink ? ChatLayer::instance()->getSession(msgLink->unit.data()) : 0;
     bool delivered = false;
 
     switch (status) {
@@ -178,7 +178,7 @@ void MrimMessages::handleMessageStatus(MrimPacket &packet)
     if (!errString.isEmpty()) {
         errString.prepend(tr("Message was not delivered!")+"\n");
 		NotificationRequest request(Notification::System);
-		request.setObject(p->conn->account());
+		request.setObject(p->conn.data()->account());
 		request.setText(errString);
 		request.send();
     }
@@ -199,7 +199,7 @@ void MrimMessages::handleMessageAck(MrimPacket &packet)
     packet.readTo(&from);
     packet.readTo(&plainText, isUnicode);
 	
-	MrimContact *contact = p->conn->account()->roster()->getContact(from, true);
+	MrimContact *contact = p->conn.data()->account()->roster()->getContact(from, true);
 	// FIXME: Add handling messages from contacts not from roster
 	if (!contact)
 		return;
@@ -307,7 +307,7 @@ void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 		if (!value)
 			continue;
 		if (!qstrcmp(line.constData(), "From")) {
-			MrimRoster *roster = p->conn->account()->roster();
+			MrimRoster *roster = p->conn.data()->account()->roster();
 			contact = roster->getContact(QLatin1String(value), true);
 			message.setChatUnit(contact);
 		} else if (!qstrcmp(line.constData(), "Date")) {
@@ -420,7 +420,7 @@ void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 	deletePacket.setMsgType(MRIM_CS_DELETE_OFFLINE_MESSAGE);
 	deletePacket.append(uidl1);
 	deletePacket.append(uidl2);
-	p->conn->sendPacket(deletePacket);
+	p->conn.data()->sendPacket(deletePacket);
 }
 
 void MrimMessages::sendDeliveryReport(const QString& from, quint32 msgId)
@@ -430,6 +430,6 @@ void MrimMessages::sendDeliveryReport(const QString& from, quint32 msgId)
     deliveryPacket << from;
     deliveryPacket << msgId;
     debug(DebugVerbose)<<"Sending delivery report for msg #"<<msgId<<"...";
-    p->conn->sendPacket(deliveryPacket);
+	p->conn.data()->sendPacket(deliveryPacket);
 }
 

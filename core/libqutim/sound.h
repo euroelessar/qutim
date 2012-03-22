@@ -27,7 +27,7 @@
 #define SOUND_H
 
 #include "libqutim_global.h"
-#include <QPointer>
+#include <QWeakPointer>
 #include <QVariant>
 #include <QSharedDataPointer>
 #include "notification.h"

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <QPointer>
+#include <QWeakPointer>
 #include <QObject>
 #include <QtCore/qmath.h>
 

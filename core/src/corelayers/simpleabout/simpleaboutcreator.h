@@ -28,7 +28,7 @@
 
 #include <qutim/startupmodule.h>
 #include <QWidget>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace Core
 {
@@ -43,7 +43,7 @@ public:
 public slots:
 	void showWidget();
 private:
-	QPointer<QWidget> m_widget;
+	QWeakPointer<QWidget> m_widget;
 };
 }
 
