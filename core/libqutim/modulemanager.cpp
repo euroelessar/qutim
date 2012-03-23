@@ -55,6 +55,12 @@
 #include <qendian.h>
 #include "objectgenerator.h"
 
+#ifdef NO_SYSTEM_QXT
+# include "../3rdparty/qxt/qxtcommandoptions.h"
+#else
+# include <qxtcommandoptions.h>
+#endif
+
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
@@ -68,7 +74,7 @@
 # include <QLibraryInfo>
 #endif
 
-#define NO_COMMANDS 1
+//#define NO_COMMANDS 1
 
 namespace qutim_sdk_0_3
 {
@@ -180,22 +186,15 @@ QString formatVersion(quint32 version)
 
 static void printVersion()
 {
-	QString version;
-	QTextStream str(&version);
-	str << "\n  " << qApp->applicationName() << ' ' << versionString()
-		<< " based on Qt " << qVersion() << "\n\n";
-	foreach (Plugin *plugin, p->plugins) {
-		PluginInfo info = plugin->info();
-		str << "  " << info.name() << ' ' << formatVersion(info.version())
-			<< ' ' << info.description() <<  '\n';
-	}
-
-	str << "\n  " << "GPL v2 or any later" << '\n';
-	debug() << version;
-}
-
-static void printHelp(const QList<CommandArgumentsHandler*> &handlers)
-{
+	QTextStream str(stdout);
+	str << qApp->applicationName() << " version " << versionString() << endl
+		<< "Using Qt version " << qVersion() << endl
+		<< "GPL v3 or any later" << endl;
+//	foreach (Plugin *plugin, p->plugins) {
+//		PluginInfo info = plugin->info();
+//		str << "  " << info.name() << ' ' << formatVersion(info.version())
+//			<< ' ' << info.description() <<  '\n';
+//	}
 }
 #endif // NO_COMMANDS
 
@@ -263,6 +262,40 @@ static bool checkQutIMPluginData(const char *data, quint64 *debugId, QString *er
 	return isValidPattern && isValidQutimVersion;
 }
 
+void ModuleManagerPrivate::initLocalPeer(const QStringList &args, bool *shouldExit)
+{
+	*shouldExit = false;
+	d->localPeer.reset(new QtLocalPeer(managerSelf));
+	if (d->localPeer->isClient()) {
+		QString message = QLatin1String("arguments: ");
+		QByteArray data;
+		{
+			QDataStream s(&data, QIODevice::WriteOnly);
+			s << args;
+		}
+		message += QLatin1String(data.toBase64());
+		if (d->localPeer->sendMessage(message, 1000)) {
+			*shouldExit = true;
+			return;
+		}
+		// Assume we became a server
+		Q_ASSERT(!d->localPeer->isClient());
+	}
+	QObject::connect(d->localPeer.data(), SIGNAL(messageReceived(QString)),
+					 managerSelf, SLOT(_q_messageReceived(QString)));
+}
+
+void ModuleManager::_q_messageReceived(const QString &message)
+{
+	if (message.startsWith(QLatin1String("arguments: "))) {
+		QByteArray data = QByteArray::fromBase64(message.section(QLatin1Char(' '), 1).toLatin1());
+		QDataStream s(&data, QIODevice::ReadOnly);
+		QStringList args;
+		s >> args;
+		qDebug() << "Received message with:" << args;
+	}
+}
+
 /**
   * This is ModuleManager constructor.
   */
@@ -294,6 +327,45 @@ ModuleManager::~ModuleManager()
   */
 void ModuleManager::loadPlugins(const QStringList &additional_paths)
 {
+#ifndef NO_COMMANDS
+	const QStringList args = qApp->arguments();
+
+	QxtCommandOptions parser;
+	parser.add("help", "This help message");
+	parser.alias("help", "?");
+	parser.alias("help", "h");
+
+	parser.add("version", "Show version information");
+	parser.alias("version", "v");
+
+	parser.add("single-instance", "Run single instance");
+
+	parser.parse(args);
+
+	if (parser.count("single-instance")) {
+		bool shouldExit = false;
+		d->initLocalPeer(args, &shouldExit);
+		if (shouldExit) {
+			exit(0);
+			return;
+		}
+	}
+
+	if (parser.positional().isEmpty()) {
+		if (parser.count("version")) {
+			printVersion();
+			exit(0);
+			return;
+		}
+
+		if (parser.showUnrecognizedWarning()) {
+			parser.showUsage(true);
+			exit(0);
+			return;
+		}
+	}
+#endif
+	
 	// Static plugins
 	foreach (QObject *object, QPluginLoader::staticInstances()) {
 		if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
@@ -481,33 +553,37 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		}
 	}
 
-#ifndef NO_COMMANDS	
-	QStringList args = qApp->arguments();
-	if (args.size() > 1) {
-		QList<CommandArgumentsHandler*> handlers;
-		foreach (Plugin *plugin, p->plugins) {
-			CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin);
-			if (handler)
-				handlers << handler;
-		}
+#ifndef NO_COMMANDS
+//	{
+//		QMap<QString, Plugin *> handlers;
+//		QMap<QString, Plugin*>::Iterator it;
+//		foreach (QWeakPointer<Plugin> plugin, d->plugins) {
+//			if (CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin.data()))
+//				handlers.insert(handler->argumentHandlerName(), plugin.data());
+//		}
 
-		QStringList::iterator it = args.begin();
-		QStringList::iterator itend = args.end();
-		// Skip program name
-		it++;
-		for (; it != itend; it++) {
-			if (*it == QLatin1String("-v") || *it == QLatin1String("--version")) {
-				printVersion();
-				qApp->quit();
-				return;
-			}
-			if (*it == QLatin1String("-h") || *it == QLatin1String("--help")) {
-				printHelp(handlers);
-				qApp->quit();
-				return;
-			}
-		}
-	}
+//		if (parser.count("help") || parser.positional().size() > 1) {
+//			for (; it != handlers.end(); ++it) {
+//				Plugin *plugin = it.value();
+//				parser.addSection(plugin->info().name() + " (" + it.key() + ")");
+//			}
+//			parser.showUsage();
+//			exit(0);
+//			return;
+//		}
+
+//		if (!parser.positional().isEmpty()) {
+//			for (; it != handlers.end(); ++it) {
+//				Plugin *plugin = it.value();
+//				CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin);
+//				foreach (const CommandArgument &argument, handler->arguments()) {
+//					parser.add(argument.name(), argument.description(), argument.types(), argument.group());
+//					foreach (const QString &alias, argument.aliases())
+//						parser.alias(argument.name(), alias);
+//				}
+//			}
+//		}
+//	}
 #endif // NO_COMMANDS
 
     foreach (const ExtensionInfo &info, d->extensions) {

@@ -83,21 +83,44 @@ public:
 #endif
 };
 
-struct LIBQUTIM_EXPORT CommandArgumentDescription
-{
-    QString name;
-    QString parameter;
-    QString description;
-};
+class CommandArgumentPrivate;
 
-typedef QList<CommandArgumentDescription> CommandArgumentDescriptions;
+class LIBQUTIM_EXPORT CommandArgument
+{
+public:
+	enum Type {
+		NoValue = 0,                /*!< The option does not accept a value. */
+		ValueOptional = 1,          /*!< The option may accept a value. */
+		ValueRequired = 2,          /*!< The option requires a value. */
+		AllowMultiple = 4,          /*!< The option may be passed multiple times. */
+		Undocumented = 8            /*!< The option is not output in the help text. */
+	};
+	Q_DECLARE_FLAGS(Types, Type)
+
+	CommandArgument(const QString &name, const QString &desc = QString(), Types types = NoValue, int group = -1);
+	CommandArgument(const CommandArgument &o);
+	CommandArgument &operator =(const CommandArgument &o);
+	~CommandArgument();
+
+	QString name() const;
+	QString description() const;
+	Types types() const;
+	int group() const;
+	void setAliases(const QStringList &aliases);
+	void addAlias(const QStringList &alias);
+	QStringList aliases() const;
+
+private:
+	QSharedPointer<CommandArgumentPrivate> d;
+};
 
 class LIBQUTIM_EXPORT CommandArgumentsHandler
 {
 public:
-    virtual ~CommandArgumentsHandler() {}
-    virtual CommandArgumentDescriptions descriptions() = 0;
-    virtual void addArgument(const QString &arg) = 0;
+	virtual ~CommandArgumentsHandler();
+
+	virtual QStringList commands() = 0;
+	virtual QList<CommandArgument> commandOptions(const QString &name) = 0;
 };
 
 #ifndef Q_QDOC

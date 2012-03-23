@@ -27,6 +27,7 @@
 
 #include "modulemanager.h"
 #include "protocol.h"
+#include "../3rdparty/qtsolutions/qtlocalpeer.h"
 #include <QSet>
 
 namespace qutim_sdk_0_3
@@ -61,7 +62,10 @@ public:
             isServicesInited(false)
 	{}
     inline ~ModuleManagerPrivate() {}
+	void initLocalPeer(const QStringList &args, bool *shouldExit);
+
     QList<QWeakPointer<Plugin> > plugins;
+	QScopedPointer<QtLocalPeer> localPeer;
 	bool is_inited;
 	bool isServicesInited;
     ProtocolHash protocols;

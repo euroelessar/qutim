@@ -75,6 +75,7 @@ protected:
 protected slots:
 	void onQuit();
     void _q_protocolDestroyed(QObject *obj); //TODO remove me
+	void _q_messageReceived(const QString &);
 protected:
 	virtual void virtual_hook(int id, void *data);
 private:

@@ -32,6 +32,31 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm_p.h" )
 
+# Add Qxt's options implementation
+set( QXT_FIND_COMPONENTS QxtCore )
+find_package( Qxt )
+message("QxtCore: ${QXT_FOUND_QXTCORE}")
+if( QXT_FOUND_QXTCORE )
+	list( APPEND EXTRA_LIBS ${QXT_QXTCORE_LIB_RELEASE} )
+	include_directories( ${QXT_QXTCORE_INCLUDE_DIR} )
+else()
+	add_definitions( -DQXT_STATIC -DNO_SYSTEM_QXT )
+	list( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtglobal.h" )
+	list( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtcommandoptions.h" )
+	list( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtcommandoptions.cpp" )
+endif()
+
+# Add QtLocalPeer
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlocalpeer.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlocalpeer.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile.h" )
+if( WIN32 )
+    LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile_win.cpp" )
+else()
+    LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile_unix.cpp" )
+endif()
+
 # Add SlidingStackedWidget
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
