@@ -56,6 +56,7 @@ private slots:
 	void onFieldsReceived(const Jreen::RegistrationData &data);
 	void onError(const Jreen::Error::Ptr &error);
 	void onSuccess();
+	void onUnsupported();
 	
 private:
 	Ui::JAccountRegistrationPage *ui;

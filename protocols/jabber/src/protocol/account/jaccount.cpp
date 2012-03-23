@@ -170,6 +170,10 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::HostUnknown:
 	case Client::ItemNotFound:
 	case Client::SystemShutdown:
+	case Client::NoSupportedFuture:
+	case Client::NoAuthorizationSupport:
+	case Client::NoEncryptionSupport:
+	case Client::NoCompressionSupport:
 		s.setProperty("changeReason", Status::ByFatalError);
 		break;
 	case Client::RemoteStreamError:
@@ -306,6 +310,8 @@ void JAccount::loadSettings()
 	if (!d->client->isConnected()) {
 		jid.setResource(cfg.value("resource", QLatin1String("qutIM/Jreen")));
 	}
+	d->client->setFeatureConfig(Client::Encryption, cfg.value("encryption", Client::Auto));
+	d->client->setFeatureConfig(Client::Compression, cfg.value("compression", Client::Auto));
 	{
 		cfg.beginGroup("bosh");
 		if (cfg.value("use", false)) {

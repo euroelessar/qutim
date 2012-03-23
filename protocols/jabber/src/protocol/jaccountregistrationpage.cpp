@@ -80,6 +80,8 @@ void JAccountRegistrationPage::initializePage()
 	        SLOT(onError(Jreen::Error::Ptr)));
 	connect(m_manager, SIGNAL(success()),
 	        SLOT(onSuccess()));
+	connect(m_manager, SIGNAL(unsupported()),
+	        SLOT(onUnsupported()));
 	m_manager->registerAtServer();
 }
 
@@ -272,6 +274,12 @@ void JAccountRegistrationPage::onSuccess()
 	}
 	emit completeChanged();
 	wizard()->next();
+}
+
+void JAccountRegistrationPage::onUnsupported()
+{
+	QString server = field(QLatin1String("server")).toString();
+	setSubTitle(tr("Sorry, but server \"%1\" does not support in-band registration").arg(server));
 }
 
 }

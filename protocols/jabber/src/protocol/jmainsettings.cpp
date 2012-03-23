@@ -57,6 +57,8 @@ void JMainSettings::loadImpl()
 	ui->resourceEdit->setText(general.value("resource",m_account.data()->client()->jid().resource()));
 	ui->avatarRequestCheck->setChecked(!general.value("getAvatars", true));
 	ui->passwdEdit->setText(m_account.data()->getPassword());
+	ui->encryptionBox->setCurrentIndex(general.value("encryption", Jreen::Client::Auto));
+	ui->compressionBox->setCurrentIndex(general.value("compression", Jreen::Client::Auto));
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
 	ui->autodetectBox->setCheckState(state);
@@ -87,6 +89,9 @@ void JMainSettings::saveImpl()
 	general.setValue("resource", defaultResource);
 	general.setValue("getAvatars", !ui->avatarRequestCheck->isChecked());
 	m_account.data()->setPasswd(ui->passwdEdit->text());
+	general.setValue("encryption", static_cast<Jreen::Client::FeatureConfig>(ui->encryptionBox->currentIndex()));
+	general.setValue("compression", static_cast<Jreen::Client::FeatureConfig>(ui->compressionBox->currentIndex()));
+	ui->compressionBox->setCurrentIndex(general.value("encryption", Jreen::Client::Auto));
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 
 	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
