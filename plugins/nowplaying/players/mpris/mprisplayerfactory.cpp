@@ -100,7 +100,6 @@ namespace nowplaying {
 	
 	void MprisPlayerFactory::onIdentityReceived(const QString &service, const QString &identity)
 	{
-		debug() << Q_FUNC_INFO << service;
 		m_knownPlayers[service].name = identity;
 		PlayerEvent ev(service, PlayerEvent::Available);
 		qApp->sendEvent(this, &ev);
@@ -108,8 +107,6 @@ namespace nowplaying {
 	
 	void MprisPlayerFactory::onDesktopNameReceived(const QString &service, const QString &desktopId)
 	{
-		debug() << Q_FUNC_INFO << service;
-
 		QString desktopFile = desktopId + QLatin1String(".desktop");
 		QDir dir(QLatin1String("/usr/share/applications"));
 		QStringList files = dir.entryList(QStringList(desktopFile), QDir::Files);
