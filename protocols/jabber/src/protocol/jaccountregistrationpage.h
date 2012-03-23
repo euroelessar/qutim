@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,45 +22,50 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef JACCOUNTWIZARDPAGE_H
-#define JACCOUNTWIZARDPAGE_H
+
+#ifndef JACCOUNTREGISTRATIONPAGE_H
+#define JACCOUNTREGISTRATIONPAGE_H
 
 #include <QWizardPage>
-#include <QNetworkAccessManager>
-#include "jaccountwizard.h"
+#include <jreen/registrationmanager.h>
+#include <jreen/client.h>
+#include "account/dataform/jdataform.h"
 
-namespace Ui
-{
-class JAccountWizardPage;
+namespace Ui {
+class JAccountRegistrationPage;
 }
 
 namespace Jabber
 {
-class JAccountWizardPage : public QWizardPage
+class JAccountRegistrationPage : public QWizardPage
 {
 	Q_OBJECT
+	
 public:
-	JAccountWizardPage(JAccountWizard *accountWizard,
-					   JAccountType type, QWidget *parent = 0);
-	~JAccountWizardPage();
-	bool validatePage();
-	QString jid();
-	QString passwd();
-	bool isSavePasswd();
+	explicit JAccountRegistrationPage(QWidget *parent = 0);
+	~JAccountRegistrationPage();
+	
+	virtual void cleanupPage();
+	virtual void initializePage();
+	virtual bool validatePage();
+	virtual bool isComplete() const;
 	virtual int nextId() const;
+	qutim_sdk_0_3::LocalizedString fieldText(Jreen::RegistrationData::FieldType type);
 	
 private slots:
-	void on_newAccountButton_clicked();
-	void on_oldAccountButton_clicked();
-	void onFinished(QNetworkReply *reply);
+	void onFieldsReceived(const Jreen::RegistrationData &data);
+	void onError(const Jreen::Error::Ptr &error);
+	void onSuccess();
 	
 private:
-	QNetworkAccessManager m_networkManager;
-	JAccountWizard *m_accountWizard;
-	JAccountType m_type;
-	Ui::JAccountWizardPage *ui;
+	Ui::JAccountRegistrationPage *ui;
+	Jreen::Client *m_client;
+	Jreen::RegistrationManager *m_manager;
+	JDataForm *m_jabberForm;
+	qutim_sdk_0_3::AbstractDataForm *m_form;
+	QString m_error;
+	bool m_registered;
 };
 }
 
-#endif // JACCOUNTWIZARDPAGE_H
-
+#endif // JACCOUNTREGISTRATIONPAGE_H

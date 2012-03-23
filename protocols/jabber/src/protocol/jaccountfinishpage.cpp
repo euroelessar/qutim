@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,45 +22,40 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef JACCOUNTWIZARDPAGE_H
-#define JACCOUNTWIZARDPAGE_H
 
-#include <QWizardPage>
-#include <QNetworkAccessManager>
+#include "jaccountfinishpage.h"
+#include "ui_jaccountfinishpage.h"
 #include "jaccountwizard.h"
-
-namespace Ui
-{
-class JAccountWizardPage;
-}
+#include <jreen/jid.h>
 
 namespace Jabber
 {
-class JAccountWizardPage : public QWizardPage
+
+using namespace qutim_sdk_0_3;
+
+JAccountFinishPage::JAccountFinishPage(JAccountWizard *accountWizard, QWidget *parent) :
+    QWizardPage(parent),
+    ui(new Ui::JAccountFinishPage), m_accountWizard(accountWizard)
 {
-	Q_OBJECT
-public:
-	JAccountWizardPage(JAccountWizard *accountWizard,
-					   JAccountType type, QWidget *parent = 0);
-	~JAccountWizardPage();
-	bool validatePage();
-	QString jid();
-	QString passwd();
-	bool isSavePasswd();
-	virtual int nextId() const;
-	
-private slots:
-	void on_newAccountButton_clicked();
-	void on_oldAccountButton_clicked();
-	void onFinished(QNetworkReply *reply);
-	
-private:
-	QNetworkAccessManager m_networkManager;
-	JAccountWizard *m_accountWizard;
-	JAccountType m_type;
-	Ui::JAccountWizardPage *ui;
-};
+	ui->setupUi(this);
+	setFinalPage(true);
 }
 
-#endif // JACCOUNTWIZARDPAGE_H
+JAccountFinishPage::~JAccountFinishPage()
+{
+	delete ui;
+}
 
+void JAccountFinishPage::initializePage()
+{
+	Jreen::JID jid = field(QLatin1String("jid")).toString();
+	setSubTitle(tr("Congratulations! Account creation is finished, your Jabber ID is \"%1\"").arg(jid));
+}
+
+bool JAccountFinishPage::validatePage()
+{
+	m_accountWizard->createAccount();
+	return true;
+}
+
+} // namespace Jaber

@@ -30,6 +30,7 @@
 #include <QGridLayout>
 #include <QVariant>
 #include <jreen/dataform.h>
+#include <jreen/bitsofbinary.h>
 #include <qutim/dataforms.h>
 
 namespace Jabber
@@ -45,6 +46,11 @@ public:
 	JDataForm(const Jreen::DataForm::Ptr &form,
 			  qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons = qutim_sdk_0_3::AbstractDataForm::NoButton,
 			  QWidget *parent = 0);
+	JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
+			  qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons = qutim_sdk_0_3::AbstractDataForm::NoButton,
+			  QWidget *parent = 0);
+	JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent = 0);
+	JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent = 0);
 	~JDataForm();
 	qutim_sdk_0_3::AbstractDataForm *widget();
 	Jreen::DataForm::Ptr getDataForm();

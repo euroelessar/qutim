@@ -25,6 +25,7 @@
 #include "jaccountwizardpage.h"
 #include "ui_jaccountwizardpage.h"
 #include "jjidvalidator.h"
+#include <QNetworkReply>
 #include <jreen/jid.h>
 #include <qutim/debug.h>
 
@@ -37,42 +38,40 @@ JAccountWizardPage::JAccountWizardPage(JAccountWizard *accountWizard, JAccountTy
 	: QWizardPage(parent), m_accountWizard(accountWizard), m_type(type), ui(new Ui::JAccountWizardPage)
 {
 	ui->setupUi(this);
+	setSubTitle(tr("Account information.\nIf you don't have account yet, press \"Register\" button."));
 	QString server;
-	//		QRegExp rx("[a-z1-9\\._-\\+]+@[a-z1-9_-]+\\.[a-z]{2,}");
 	switch (m_type) {
 	case AccountTypeJabber:
-		//			ui->serverLabel->setVisible(false);
 		break;
 	case AccountTypeLivejournal:
-		//			ui->serverLabel->setText("@livejournal.com");
-		//			rx = QRegExp("[a-z1-9\\._-\\+]+(@livejournal.com)?");
 		server = "livejournal.com";
 		break;
 	case AccountTypeYandex:
-		//			ui->serverLabel->setText("@ya.ru");
-		//			rx = QRegExp("[a-z1-9\\._-\\+]+(@ya.ru)?");
 		server = "ya.ru";
 		break;
 	case AccountTypeGoogletalk:
-		//			ui->serverLabel->setText("@gmail.com");
-		//			rx = QRegExp("[a-z1-9\\._-\\+]+(@gmail.com)?");
-		//			server = "gmail.com";
+//		ui->serverEdit->addItem(QLatin1String("gmail.com"));
 		break;
 	case AccountTypeQip:
-		//			ui->serverLabel->setText("@qip.ru");
-		//			rx = QRegExp("[a-z1-9\\._-\\+]+(@qip.ru)?");
 		server = "qip.ru";
 		break;
 	}
-	if (!server.isEmpty())
+	if (!server.isEmpty()) {
 		ui->serverLabel->setText("@" + server);
-	else
+		ui->groupBox_2->hide();
+		ui->serverEdit->addItem(server);
+		ui->serverEdit->setEditText(server);
+	} else {
 		ui->serverLabel->hide();
+	}
 	QValidator *validator = new JJidValidator(server, this);
 	ui->jidEdit->setValidator(validator);
+	registerField("server", ui->serverEdit, "currentText", SIGNAL(editTextChanged(QString)));
 	registerField("jid", ui->jidEdit);
 	registerField("password", ui->passwdEdit);
 	registerField("savePassword", ui->savePasswdCheck);
+	setButtonText(QWizard::CustomButton1, tr("Register"));
+	connect(&m_networkManager, SIGNAL(finished(QNetworkReply*)), SLOT(onFinished(QNetworkReply*)));
 }
 
 JAccountWizardPage::~JAccountWizardPage()
@@ -82,11 +81,14 @@ JAccountWizardPage::~JAccountWizardPage()
 
 bool JAccountWizardPage::validatePage()
 {
-	qutim_sdk_0_3::debug() << Q_FUNC_INFO << " " << jid() << " " << passwd();
-	if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
-		return false;
-	m_accountWizard->createAccount();
-	return true;
+	if (ui->newAccountButton->isChecked()) {
+		return !ui->serverEdit->currentText().isEmpty();
+	} else {
+		if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
+			return false;
+		m_accountWizard->createAccount();
+		return true;
+	}
 }
 
 QString JAccountWizardPage::jid()
@@ -108,5 +110,51 @@ bool JAccountWizardPage::isSavePasswd()
 {
 	return ui->savePasswdCheck->isChecked();
 }
+
+int JAccountWizardPage::nextId() const
+{
+	if (ui->newAccountButton->isChecked())
+		return wizard()->currentId() + 1;
+	else
+		return -1;
 }
 
+void JAccountWizardPage::on_newAccountButton_clicked()
+{
+	if (ui->serverEdit->count() == 0) {
+		QUrl url(QLatin1String("http://xmpp.net/services.xml"));
+		QNetworkRequest request(url);
+		m_networkManager.get(request);
+	}
+    setFinalPage(false);
+}
+
+void JAccountWizardPage::on_oldAccountButton_clicked()
+{
+	setFinalPage(true);
+}
+
+void JAccountWizardPage::onFinished(QNetworkReply *reply)
+{
+	reply->deleteLater();
+	QByteArray data = reply->readAll();
+	QXmlStreamReader reader(data);
+	QStringList servers;
+	while (!reader.atEnd()) {
+		if (reader.readNextStartElement()) {
+			if (reader.name() != QLatin1String("item"))
+				continue;
+			QStringRef jid = reader.attributes().value(QLatin1String("jid"));
+			if (!jid.isEmpty())
+				servers << jid.toString();
+		}
+    }
+	QString text = ui->serverEdit->currentText();
+	if (text.isEmpty()) {
+		int index = qrand() % servers.size();
+		text = servers.value(index);
+	}
+	ui->serverEdit->addItems(servers);
+	ui->serverEdit->setEditText(text);
+}
+}

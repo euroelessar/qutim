@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,45 +22,35 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef JACCOUNTWIZARDPAGE_H
-#define JACCOUNTWIZARDPAGE_H
+
+#ifndef JABER_JACCOUNTFINISHPAGE_H
+#define JABER_JACCOUNTFINISHPAGE_H
 
 #include <QWizardPage>
-#include <QNetworkAccessManager>
-#include "jaccountwizard.h"
 
-namespace Ui
-{
-class JAccountWizardPage;
+namespace Jabber {
+
+namespace Ui {
+class JAccountFinishPage;
 }
+class JAccountWizard;
 
-namespace Jabber
-{
-class JAccountWizardPage : public QWizardPage
+class JAccountFinishPage : public QWizardPage
 {
 	Q_OBJECT
-public:
-	JAccountWizardPage(JAccountWizard *accountWizard,
-					   JAccountType type, QWidget *parent = 0);
-	~JAccountWizardPage();
-	bool validatePage();
-	QString jid();
-	QString passwd();
-	bool isSavePasswd();
-	virtual int nextId() const;
 	
-private slots:
-	void on_newAccountButton_clicked();
-	void on_oldAccountButton_clicked();
-	void onFinished(QNetworkReply *reply);
+public:
+	explicit JAccountFinishPage(JAccountWizard *accountWizard, QWidget *parent = 0);
+	~JAccountFinishPage();
+	
+	virtual void initializePage();
+	virtual bool validatePage();
 	
 private:
-	QNetworkAccessManager m_networkManager;
+	Ui::JAccountFinishPage *ui;
 	JAccountWizard *m_accountWizard;
-	JAccountType m_type;
-	Ui::JAccountWizardPage *ui;
 };
-}
 
-#endif // JACCOUNTWIZARDPAGE_H
 
+} // namespace Jaber
+#endif // JABER_JACCOUNTFINISHPAGE_H

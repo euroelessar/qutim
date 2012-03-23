@@ -47,8 +47,9 @@ class XmlConsole : public QWidget, public JabberExtension, public Jreen::XmlStre
 public:
 	XmlConsole(QWidget *parent = 0);
 	~XmlConsole();
-
+	
 	void init(qutim_sdk_0_3::Account *account);
+	void init(Jreen::Client *client);
 	virtual void handleStreamBegin();
 	virtual void handleStreamEnd();
 	virtual void handleIncomingData(const char *data, qint64 size);

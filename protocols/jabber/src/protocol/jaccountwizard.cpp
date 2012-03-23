@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "jaccountwizard.h"
 #include "jaccountwizardpage.h"
+#include "jaccountregistrationpage.h"
+#include "jaccountfinishpage.h"
 #include "jprotocol.h"
 #include "account/jaccount.h"
 
@@ -45,6 +47,8 @@ namespace Jabber
 		page = new JAccountWizardPage(this, type, parent);
 		QList<QWizardPage *> pages;
 		pages.append(page);
+		pages.append(new JAccountRegistrationPage(parent));
+		pages.append(new JAccountFinishPage(this, parent));
 		return pages;
 	}
 

@@ -128,11 +128,17 @@ XmlConsole::~XmlConsole()
 
 void XmlConsole::init(Account *account)
 {
-	m_client = qobject_cast<Client*>(account->property("client"));
+	Client *client = qobject_cast<Client*>(account->property("client"));
+	init(client);
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
-										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
-										   this, SLOT(show())),
-					   "Additional");
+	                                       QT_TRANSLATE_NOOP("Jabber", "Xml console"),
+	                                       this, SLOT(show())),
+	                   "Additional");
+}
+
+void XmlConsole::init(Jreen::Client *client)
+{
+	m_client = client;
 	m_client->addXmlStreamHandler(this);
 }
 
