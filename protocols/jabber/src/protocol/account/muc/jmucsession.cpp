@@ -45,10 +45,14 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
+#include "../dataform/jdataform.h"
+#include <jreen/captcha.h>
+#include <QVBoxLayout>
 #include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>
+#include <QLabel>
 #include <QTimer>
 
 using namespace Jreen;
@@ -511,7 +515,31 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
-	//TODO add capthca handler
+	Q_D(JMUCSession);
+	Captcha::Ptr captcha = msg.payload<Captcha>();
+	debug() << Q_FUNC_INFO
+	        << msg.body()
+	        << captcha.data()
+	        << (captcha ? captcha->form().data() : reinterpret_cast<DataForm*>(0));
+	if (captcha && captcha->form()) {
+		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
+		               .arg(d->jid.bare());
+		QWidget *widget = new QWidget;
+		QVBoxLayout *layout = new QVBoxLayout(widget);
+		QLabel *label = new QLabel(text, widget);
+		JDataForm *form = new JDataForm(captcha->form(),
+		                                      msg.payloads<BitsOfBinary>(),
+		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
+		                                      widget);
+		form->layout()->setMargin(0);
+		layout->addWidget(label);
+		layout->addWidget(form);
+		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
+		connect(form->widget(), SIGNAL(accepted()), widget, SLOT(deleteLater()));
+		connect(form->widget(), SIGNAL(rejected()), widget, SLOT(deleteLater()));
+		widget->show();
+		return;
+	}
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
@@ -799,6 +827,18 @@ void JMUCSession::onNickSelected(const QString &nick)
 		d->room->setNick(nick);
 		join();
 	}
+}
+
+void JMUCSession::onCaptchaFilled()
+{
+	Q_D(JMUCSession);
+	JDataForm *form = qobject_cast<JDataForm*>(sender());
+	Client *client = d->account.data()->client();
+	Jreen::IQ iq(Jreen::IQ::Set, d->jid.bareJID());
+	Captcha::Ptr captcha = Captcha::Ptr::create();
+	captcha->setForm(form->getDataForm());
+	iq.addPayload(captcha);
+	client->send(iq);
 }
 
 }
