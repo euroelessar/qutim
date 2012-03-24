@@ -91,14 +91,10 @@ QString JVCardManager::ensurePhoto(const Jreen::VCard::Photo &photo, QString *ph
 void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid)
 {
 	const QString avatarHash = ensurePhoto(vcard->photo());
-//	qDebug() << Q_FUNC_INFO
-//	         << jid << avatarHash
-//	         << m_account->unit(jid.bare(), false)
-//	         << m_account->unit(jid.full(), false);
 	QList<QObject*> objects;
 	if (QObject *unit = m_account->unit(jid.full(), false))
 		objects << unit;
-	if (jid.node() == m_account->id())
+	if (jid.bare() == m_account->id())
 		objects << m_account;
 	foreach (QObject *object, objects) {
 		if (object == m_account) {
@@ -119,12 +115,10 @@ void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen:
 		}
 		const QMetaObject * const meta = object->metaObject();
 		const int index = meta->indexOfProperty("photoHash");
-//		qDebug() << Q_FUNC_INFO << object << index;
 		if (index == -1)
 			continue;
 		QMetaProperty property = meta->property(index);
 		const QString photoHash = property.read(object).toString();
-//		qDebug() << Q_FUNC_INFO << photoHash << object->property("avatar");
 		if (photoHash == avatarHash)
 			continue;
 		property.write(object, avatarHash);
@@ -133,10 +127,6 @@ void JVCardManager::onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen:
 
 void JVCardManager::onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update)
 {
-//	qDebug() << Q_FUNC_INFO
-//	         << jid << update->photoHash()
-//	         << m_account->unit(jid.bare(), false)
-//	         << m_account->unit(jid.full(), false);
 	if (!update->hasPhotoInfo())
 		return;
 
