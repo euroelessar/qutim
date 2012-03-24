@@ -376,7 +376,6 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			emit nickChanged(newNick);
 			emit meChanged(me());
 		}
-		user->setStatus(presence);
 	} else {
 		JMUCUser *user = d->getUser(nick);
 		if (!user && presence.subtype() != Presence::Unavailable) {
@@ -517,10 +516,6 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
 	Q_D(JMUCSession);
 	Captcha::Ptr captcha = msg.payload<Captcha>();
-	debug() << Q_FUNC_INFO
-	        << msg.body()
-	        << captcha.data()
-	        << (captcha ? captcha->form().data() : reinterpret_cast<DataForm*>(0));
 	if (captcha && captcha->form()) {
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
 		               .arg(d->jid.bare());
