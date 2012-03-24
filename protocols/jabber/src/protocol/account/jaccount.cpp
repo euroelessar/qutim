@@ -170,7 +170,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::HostUnknown:
 	case Client::ItemNotFound:
 	case Client::SystemShutdown:
-	case Client::NoSupportedFuture:
+	case Client::NoSupportedFeature:
 	case Client::NoAuthorizationSupport:
 	case Client::NoEncryptionSupport:
 	case Client::NoCompressionSupport:

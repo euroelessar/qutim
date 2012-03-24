@@ -72,6 +72,10 @@ JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 		info.os = cache.value(QLatin1String("os"), QString());
 		info.icon = getClientIcon(info.name);
 		info.description = getClientDescription(info.name, info.version, info.os);
+		if (info.name.isEmpty() && info.version.isEmpty() && node.contains(QLatin1String("qutim.org"))) {
+			// Temporary fix
+			continue;
+		}
 		info.finished = cache.value(QLatin1String("finished"), !info.os.isEmpty());
 		m_hash.insert(fromConfigNode(node), info);
 		cache.endGroup();
