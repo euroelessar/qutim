@@ -209,8 +209,9 @@ void IcqAccount::finishLogin()
 void IcqAccount::setStatus(Status status_helper)
 {
 	Q_D(IcqAccount);
-	OscarStatus status(status_helper);
+	Status status = OscarStatus(status_helper);
 	Status current = this->status();
+	debug() << Q_FUNC_INFO << current << "->" << status;
 	if (current.type() == Status::Connecting && status.type() != Status::Offline) {
 		d->lastStatus = status;
 		if (d->conn->state() == QAbstractSocket::UnconnectedState
@@ -258,13 +259,14 @@ void IcqAccount::setStatus(Status status_helper)
 				plugin->statusChanged(contact, status, TLVMap());
 		}
 	} else if (status == Status::Connecting) {
+		status = Status::createConnecting(status, "icq");
 		emit statusChanged(status, current);
 		Account::setStatus(status);
 		return;
 	} else {
 		d->lastStatus = status;
+		status = Status::createConnecting(status, "icq");
 		if (current == Status::Offline) {
-			status = Status::createConnecting(status, "icq");
 			d->conn->connectToLoginServer(QString());
 		} else {
 			d->conn->sendStatus(status);
@@ -283,6 +285,7 @@ void IcqAccount::setStatus(Status status_helper)
 		}
 		statusCfg.endGroup();
 	}
+	debug() << status << "with" << Status::connectingGoal(status);
 	emit statusChanged(status, current);
 	Account::setStatus(status);
 }

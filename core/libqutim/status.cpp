@@ -375,6 +375,10 @@ bool Status::remember(const Status &status, const char *proto)
 Status Status::createConnecting(const Status &status, const char *proto)
 {
 	Status connecting = instance(Status::Connecting, proto);
+	if (connecting != Status::Connecting) {
+		connecting = Status(Status::Connecting);
+		connecting.initIcon(QLatin1String(proto));
+	}
 	connecting.setProperty("connectingGoal", qVariantFromValue(status));
 	return connecting;
 }
