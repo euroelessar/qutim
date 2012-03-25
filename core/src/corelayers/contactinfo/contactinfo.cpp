@@ -137,6 +137,7 @@ void MainWindow::addItems(DataItem items)
 		return;
 	// Avatar
 	DataItem avatarItem = items.takeSubitem(QLatin1String("avatar"), true);
+	avatarItem.setReadOnly(!readWrite);
 	avatarWidget.reset(AbstractDataForm::get(avatarItem));
 	if (avatarWidget) {
 		avatarWidget->setParent(this);
