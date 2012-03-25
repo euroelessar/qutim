@@ -225,7 +225,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 				token->startTag.empty = true;
 			else if (d->depth > 1)
 				d->tokens << new StackToken(d->reader);
-			if (d->depth == 2) {
+			if (isVisible() && d->depth == 2) {
 				QTextCursor cursor(m_ui->xmlBrowser->document());
 				cursor.movePosition(QTextCursor::End);
 				cursor.beginEditBlock();
@@ -310,9 +310,9 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 					lastType = token->type;
 					if (lastType == QXmlStreamReader::StartElement && token->startTag.empty)
 						lastType = QXmlStreamReader::EndElement;
-					delete token;
 				}
 				cursor.endEditBlock();
+				qDeleteAll(d->tokens);
 				d->tokens.clear();
 			}
 			d->depth--;
