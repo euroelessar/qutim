@@ -86,7 +86,7 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 		else {
 			account->blockSignals(true);
 			status.setType(Status::Offline);
-			status.setProperty("changeReason", Status::ByNetworkError);
+			status.setChangeReason(Status::ByNetworkError);
 			account->setStatus(status);
 			account->blockSignals(false);
 		}
@@ -98,6 +98,12 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
+	Config cfg;
+	debug() << cfg.value("status");
+	cfg.beginGroup("status");
+	Status s = cfg.value<Status>(account->id());
+	qDebug() << account->id() << s << cfg.value<QByteArray>(account->id());
+
 	//simple spike for stupid distros!
 	bool isOnline = m_confManager->isOnline();
 	if (!m_confManager->allConfigurations().count())
@@ -115,9 +121,8 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 void BearerManager::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = sender_cast<Account*>(sender());
-	Status::ChangeReason reason = status.property("changeReason", Status::ByUser);
-	if (reason == Status::ByUser)
-		m_statusHash.insert(account, status.type());
+	if (status.changeReason() == Status::ByUser)
+		m_statusHash.insert(account, status);
 }
 
 void BearerManager::onAccountDestroyed(QObject* obj)
@@ -133,5 +138,16 @@ void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 BearerManager::~BearerManager()
 {
 	Settings::removeItem(m_item.data());
+	StatusHash::const_iterator it = m_statusHash.constBegin();
+	Config cfg;
+	cfg.beginGroup("status");
+	for (; it != m_statusHash.constEnd(); it++) {
+		Account *account = it.key();
+		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
+		debug() << account->id() << it.value() << account->status().icon().name();
+		debug() << cfg.value(account->id(), Status()).icon().name();
+	}
+	cfg.endGroup();
+	cfg.sync();
 }
 

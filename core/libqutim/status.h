@@ -86,6 +86,8 @@ public:
 	void setSubtype(int stype);
 	template <typename T> T subtype() const { return static_cast<T>(subtype()); }
 	template <typename T> void setSubtype(T stype) { setSubtype(static_cast<int>(stype)); }
+	ChangeReason changeReason() const;
+	void setChangeReason(ChangeReason reason);
 
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>

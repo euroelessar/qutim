@@ -230,25 +230,25 @@ void IcqAccount::setStatus(Status status_helper)
 		QAbstractSocket::SocketState state = d->conn->state();
 		if (state != QTcpSocket::UnconnectedState) {
 			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
-			status.setProperty("changeReason", Status::ByUser);
+			status.setChangeReason(Status::ByUser);
 			d->lastStatus = status;
 		} else if (d->conn->error() == AbstractConnection::NoError ||
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||
 				   d->conn->error() == AbstractConnection::ReservationMapError ||
 				   d->conn->error() == AbstractConnection::SocketError)
 		{
-			status.setProperty("changeReason", Status::ByNetworkError);
+			status.setChangeReason(Status::ByNetworkError);
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
 			Account::setStatus(status);
 			config().group("general").setValue("passwd", QString(), Config::Crypted);
-			d->lastStatus.setProperty("changeReason", Status::ByAuthorizationFailed);
+			d->lastStatus.setChangeReason(Status::ByAuthorizationFailed);
 			setStatus(d->lastStatus);
 			return;
 		} else if (d->conn->error() == AbstractConnection::RateLimitExceeded) {
-			status.setProperty("changeReason", Status::ByNetworkError);
+			status.setChangeReason(Status::ByNetworkError);
 			status.setProperty("reconnectTimeout", 1200);
 		} else {
-			status.setProperty("changeReason", Status::ByFatalError);
+			status.setChangeReason(Status::ByFatalError);
 		}
 		foreach(IcqContact *contact, d->contacts) {
 			OscarStatus status = contact->status();

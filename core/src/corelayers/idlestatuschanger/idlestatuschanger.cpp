@@ -51,8 +51,8 @@ IdleStatusChanger::IdleStatusChanger() :
 	Settings::registerItem(settings);
 	pIdleStatusChanger = this;
 
-	m_awayStatus.setProperty("changeReason",Status::ByIdle);
-	m_naStatus.setProperty("changeReason",Status::ByIdle);
+	m_awayStatus.setChangeReason(Status::ByIdle);
+	m_naStatus.setChangeReason(Status::ByIdle);
 }
 
 void IdleStatusChanger::refillAccounts()

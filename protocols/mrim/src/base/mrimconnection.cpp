@@ -32,6 +32,7 @@
 #include <QApplication>
 
 #include <qutim/notification.h>
+#include <qutim/systemintegration.h>
 
 #include "proto.h"
 #include "utils.h"
@@ -93,6 +94,9 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     p->selfID = qutimAgent;
     p->messages = new MrimMessages(this);
 	registerPacketHandler(p->messages);
+
+	SystemIntegration::keepAlive(p->SrvReqSocket());
+	SystemIntegration::keepAlive(p->IMSocket());
 }
 
 MrimConnection::~MrimConnection()

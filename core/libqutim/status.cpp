@@ -81,6 +81,7 @@ public:
 	QIcon icon;
 	Status::Type type;
 	int subtype;
+	Status::ChangeReason changeReason;
 	QHash<QString, QVariantHash> extStatuses;
 
 	QVariant getText() const { return text; }
@@ -93,6 +94,8 @@ public:
 	void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
+	QVariant getChangeReason() const { return qVariantFromValue(changeReason); }
+	void setChangeReason(const QVariant &val) { changeReason = val.value<Status::ChangeReason>(); }
 	QVariant getExtendedStatuses() const { return qVariantFromValue(extStatuses); }
 	void setExtendedStatuses(const QVariant &val) { extStatuses = qVariantValue<ExtendedStatus>(val); }
 
@@ -132,6 +135,7 @@ static QList<QByteArray> names = QList<QByteArray>()
 << "icon"
 << "type"
 << "subtype"
+<< "changeReason"
 << "extendedStatuses";
 static QList<Getter> getters   = QList<Getter>()
 << static_cast<Getter>(&StatusPrivate::getText)
@@ -139,6 +143,7 @@ static QList<Getter> getters   = QList<Getter>()
 << static_cast<Getter>(&StatusPrivate::getIcon)
 << static_cast<Getter>(&StatusPrivate::getType)
 << static_cast<Getter>(&StatusPrivate::getSubtype)
+<< static_cast<Getter>(&StatusPrivate::getChangeReason)
 << static_cast<Getter>(&StatusPrivate::getExtendedStatuses);
 static QList<Setter> setters   = QList<Setter>()
 << static_cast<Setter>(&StatusPrivate::setText)
@@ -146,6 +151,7 @@ static QList<Setter> setters   = QList<Setter>()
 << static_cast<Setter>(&StatusPrivate::setIcon)
 << static_cast<Setter>(&StatusPrivate::setType)
 << static_cast<Setter>(&StatusPrivate::setSubtype)
+<< static_cast<Setter>(&StatusPrivate::setChangeReason)
 << static_cast<Setter>(&StatusPrivate::setExtendedStatuses);
 }
 
@@ -184,6 +190,7 @@ void StatusPrivate::generateName()
 
 Status::Status(Type type) : d(get_status_private(type))
 {
+	d->changeReason = ByUser;
 }
 
 Status::Status(const Status &other) : d(other.d)
@@ -263,6 +270,16 @@ int Status::subtype() const
 void Status::setSubtype(int stype)
 {
 	d->subtype = stype;
+}
+
+Status::ChangeReason Status::changeReason() const
+{
+	return d->changeReason;
+}
+
+void Status::setChangeReason(Status::ChangeReason reason)
+{
+	d->changeReason = reason;
 }
 
 QVariant Status::property(const char *name, const QVariant &def) const

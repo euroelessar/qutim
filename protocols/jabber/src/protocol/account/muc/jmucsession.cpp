@@ -212,6 +212,7 @@ void JMUCSession::doJoin()
 	if(isJoined() || !d->account.data()->client()->isConnected())
 		return;
 	d->room->join();
+	emit joined();
 }
 
 void JMUCSession::doLeave()
@@ -228,6 +229,7 @@ void JMUCSession::doLeave()
 		user->setStatus(presence);
 		d->removeUser(this, user);
 	}
+	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)

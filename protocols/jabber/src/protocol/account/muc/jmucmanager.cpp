@@ -55,7 +55,7 @@ public:
 	JBookmarkManager *bookmarkManager;
 	//JInviteManager *inviteManager;
 	QHash<QString, JMUCSession *> rooms;
-	QList<JMUCSession *> roomsToConnect;
+	QList<QWeakPointer<JMUCSession> > roomsToConnect;
 	bool waitingForPrivacyList;
 	void connectAll()
 	{
@@ -69,14 +69,19 @@ public:
 				session->join();
 			}
 		}
-		for (int i = 0; i < roomsToConnect.size(); i++)
-			roomsToConnect.at(i)->join();
+		foreach (const QWeakPointer<JMUCSession> &room, roomsToConnect) {
+			if (room)
+				room.data()->join();
+		}
 		roomsToConnect.clear();
 	}
 	void leaveAll()
 	{
 		foreach (JMUCSession *room, rooms) {
-			room->leave();
+			if (room->isJoined()) {
+				room->leave();
+				roomsToConnect << room;
+			}
 		}
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status status)

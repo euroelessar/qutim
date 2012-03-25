@@ -29,6 +29,7 @@
 #include <QCoreApplication>
 #include <QNetworkProxy>
 #include <qutim/networkproxy.h>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -203,6 +204,7 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->aliveTimer.setInterval(180000);
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
+	SystemIntegration::keepAlive(d->socket);
 //#if OSCAR_SSL_SUPPORT
 	d->socket->setProtocol(QSsl::TlsV1);
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
