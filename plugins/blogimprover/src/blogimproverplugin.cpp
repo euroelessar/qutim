@@ -46,18 +46,23 @@ namespace BlogImprover
 					QT_TRANSLATE_NOOP("Plugin", "BlogImprover"));
 		Settings::registerItem(m_settingsItem);
 
-		if (!m_handler)
+		if (!m_handler) {
 			m_handler = new BlogImproverHandler;
-
-		qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
-													   qutim_sdk_0_3::MessageHandler::HighPriority,
-													   qutim_sdk_0_3::MessageHandler::HighPriority);
-		m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
+			qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
+														   qutim_sdk_0_3::MessageHandler::HighPriority,
+														   qutim_sdk_0_3::MessageHandler::HighPriority);
+			m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
+		}
 		return true;
 	}
 	
 	bool BlogImproverPlugin::unload()
 	{
+		if (m_handler) {
+			delete m_handler.data();
+			Settings::removeItem(m_settingsItem);
+			delete m_settingsItem;
+		}
 		return true;
 	}
 	

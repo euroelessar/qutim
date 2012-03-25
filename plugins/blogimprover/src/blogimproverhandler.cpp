@@ -3,7 +3,6 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
-** Copyright © 2012 Vsevolod Velichko <torkvema@gmail.com>
 **
 *****************************************************************************
 **
@@ -43,6 +42,8 @@ void BlogImproverHandler::loadSettings()
 	Config cfg;
 	cfg.beginGroup("BlogImprover");
 	m_enablePstoIntegration = cfg.value(QLatin1String("enablePstoIntegration"), true);
+	m_enableJuickIntegration = cfg.value(QLatin1String("enableJuickIntegration"), true);
+	m_enableBnwIntegration = cfg.value(QLatin1String("enableBnwIntegration"), true);
 	cfg.endGroup();
 
 	m_pstoNick.setPattern("(@[a-zA-Z0-9-_@\\.]+)\\b");
@@ -107,6 +108,8 @@ BlogImproverHandler::Result BlogImproverHandler::doHandle(Message &message, QStr
 
 void BlogImproverHandler::handlePsto(Message &message)
 {
+	if(!m_enablePstoIntegration)
+		return;
 	QString html = message.html();
 	QString toReplace;
 	static QRegExp removeLast("/*");
@@ -135,7 +138,8 @@ void BlogImproverHandler::handlePsto(Message &message)
 		toReplace += " ("
 				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span> ").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span>").arg(m_pstoComment.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">~</span> ").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
 				% ")";
 
 		html.replace(pos, m_pstoComment.cap(1).length(), toReplace);
@@ -156,6 +160,8 @@ void BlogImproverHandler::handlePsto(Message &message)
 
 void BlogImproverHandler::handleJuick(Message &message)
 {
+	if(!m_enableJuickIntegration)
+		return;
 	QString html = message.html();
 	QString toReplace;
 	static QRegExp removeLast("/*");
@@ -204,7 +210,8 @@ void BlogImproverHandler::handleJuick(Message &message)
 
 void BlogImproverHandler::handleBnw(Message &message)
 {
-	return; // TODO
+	if(!m_enableBnwIntegration)
+		return;
 }
 
 } // namespace BlogImprover

@@ -33,6 +33,8 @@ BlogImproverSettings::BlogImproverSettings()
 {
 	ui->setupUi(this);
 	lookForWidgetState(ui->enablePstoIntegration);
+	lookForWidgetState(ui->enableJuickIntegration);
+	lookForWidgetState(ui->enableBnwIntegration);
 }
 
 void BlogImproverSettings::loadImpl()
@@ -40,6 +42,8 @@ void BlogImproverSettings::loadImpl()
 	Config cfg;
 	cfg.beginGroup("BlogImprover");
 	ui->enablePstoIntegration->setChecked(cfg.value("enablePstoIntegration", true));
+	ui->enableJuickIntegration->setChecked(cfg.value("enableJuickIntegration", true));
+	ui->enableBnwIntegration->setChecked(cfg.value("enableBnwIntegration", true));
 	cfg.endGroup();
 }
 
@@ -48,6 +52,8 @@ void BlogImproverSettings::saveImpl()
 	Config cfg;
 	cfg.beginGroup("BlogImprover");
 	cfg.setValue("enablePstoIntegration", ui->enablePstoIntegration->isChecked());
+	cfg.setValue("enableJuickIntegration", ui->enableJuickIntegration->isChecked());
+	cfg.setValue("enableBnwIntegration", ui->enableBnwIntegration->isChecked());
 	cfg.endGroup();
 }
 
