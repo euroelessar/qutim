@@ -399,13 +399,21 @@ bool IcqContact::event(QEvent *ev)
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		debug() << "handle auth reply" << (reply->replyType() == Authorization::Reply::Accept);
-		bool answer = false;
-		if(reply->replyType() == Authorization::Reply::Accept)
-			answer = true;
+		bool answer = (reply->replyType() == Authorization::Reply::Accept);
 		SNAC snac(ListsFamily, ListsCliAuthResponse);
-		snac.append<qint8>(id()); // uin.
-		snac.append<qint8>(answer ? 0x01 : 0x00); // auth flag.
-		snac.append<qint16>(reply->body());
+		snac.append<quint8>(id()); // uin.
+		snac.append<quint8>(answer ? 0x01 : 0x00); // auth flag.
+		snac.append<quint16>(0);
+		snac.append<quint16>(0);
+		account()->connection()->send(snac);
+		return true;
+	} else if(ev->type() == Authorization::Request::eventType()) {
+		debug() << "Handle auth request";
+		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
+		SNAC snac(ListsFamily, ListsRequestAuth);
+		snac.append<quint8>(d->uin);
+		snac.append<quint16>(request->body());
+		snac.append<quint16>(0);
 		account()->connection()->send(snac);
 		return true;
 	}
