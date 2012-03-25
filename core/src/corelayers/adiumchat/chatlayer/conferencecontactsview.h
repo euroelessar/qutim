@@ -44,6 +44,7 @@ public:
 	void setSession(ChatSessionImpl *session);
 	virtual ~ConferenceContactsView();
 protected:
+	void mouseReleaseEvent(QMouseEvent *e);
 	virtual bool event(QEvent *event);
 	void changeEvent(QEvent *);
 private:
