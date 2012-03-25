@@ -71,6 +71,7 @@ public:
 	QWeakPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
+	QWeakPointer<QWidget> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
@@ -521,20 +522,23 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	if (captcha && captcha->form()) {
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
 		               .arg(d->jid.bare());
-		QWidget *widget = new QWidget;
-		QVBoxLayout *layout = new QVBoxLayout(widget);
-		QLabel *label = new QLabel(text, widget);
+		delete d->captchaForm.data();
+		d->captchaForm = new QWidget;
+		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm.data());
+		QLabel *label = new QLabel(text, d->captchaForm.data());
 		JDataForm *form = new JDataForm(captcha->form(),
 		                                      msg.payloads<BitsOfBinary>(),
 		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
-		                                      widget);
+		                                      d->captchaForm.data());
 		form->layout()->setMargin(0);
 		layout->addWidget(label);
 		layout->addWidget(form);
 		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
-		connect(form->widget(), SIGNAL(accepted()), widget, SLOT(deleteLater()));
-		connect(form->widget(), SIGNAL(rejected()), widget, SLOT(deleteLater()));
-		widget->show();
+		connect(form->widget(), SIGNAL(accepted()), d->captchaForm.data(), SLOT(deleteLater()));
+		connect(form->widget(), SIGNAL(rejected()), d->captchaForm.data(), SLOT(deleteLater()));
+		Client *client = d->account.data()->client();
+		connect(client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)), d->captchaForm.data(), SLOT(deleteLater()));
+		d->captchaForm.data()->show();
 		return;
 	}
 	if (!msg.subject().isEmpty())
