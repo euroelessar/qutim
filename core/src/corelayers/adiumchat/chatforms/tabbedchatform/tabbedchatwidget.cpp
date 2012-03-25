@@ -209,15 +209,17 @@ void TabbedChatWidget::loadSettings()
 
 		if(m_flags & MenuBar) {
 			setMenuBar(new QMenuBar(this));
-			QAction *general = menuBar()->addAction(tr("&Actions"));
 
-			general->setMenu(ServiceManager::getByName<MenuController*>("ContactList")->menu());
+			ServicePointer<MenuController> contactList("ContactList");
+			if (contactList) {
+				QAction *general = menuBar()->addAction(tr("&Actions"));
+				general->setMenu(contactList->menu(false));
+			}
 
 			QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
 			QMenu *menu = new QMenu(this);
 			foreach(Account *account, Account::all()) {
 				QMenu *accountMenu = account->menu(false);
-				accountMenu->setParent(menu);
 				menu->addMenu(accountMenu);
 			}
 			accounts->setMenu(menu);
