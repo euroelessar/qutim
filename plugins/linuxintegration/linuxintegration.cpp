@@ -48,11 +48,13 @@ bool LinuxIntegration::isAvailable() const
 
 int LinuxIntegration::priority()
 {
-	return BaseSystem;
+	return BaseSystem + 10;
 }
 
 QVariant LinuxIntegration::doGetValue(SystemIntegration::Attribute attr, const QVariant &data) const
 {
+	Q_UNUSED(attr);
+	Q_UNUSED(data);
 	return QVariant();
 }
 
@@ -70,6 +72,7 @@ QVariant LinuxIntegration::doProcess(SystemIntegration::Operation act, const QVa
 
 bool LinuxIntegration::canHandle(SystemIntegration::Attribute attribute) const
 {
+	Q_UNUSED(attribute);
 	return false;
 }
 

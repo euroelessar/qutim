@@ -88,7 +88,7 @@ void IrcAccount::setStatus(Status status)
 		resetGroupChatManager();
 	} else {
 		if (current == Status::Offline) {
-			status.setType(Status::Connecting);
+			status = Status::createConnecting(status, "irc");
 			d->conn->connectToNetwork();
 		} else if (current == Status::Away && status == Status::Online) {
 			// It is a little weird but the following command sets status to Online.

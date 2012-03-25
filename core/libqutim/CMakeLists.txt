@@ -125,7 +125,7 @@ set_target_properties(libqutim PROPERTIES
 if(MSVC)
 	get_target_property( libqutim_flags libqutim COMPILE_FLAGS )
 	set( libqutim_flags "${libqutim_flags} -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Zc:wchar_t-" )
-	set_target_properties( libqutim "${libqutim_flags}" )
+	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${libqutim_flags}" )
 endif()
 #if( CMAKE_COMPILER_IS_GNUCXX )
 #	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )

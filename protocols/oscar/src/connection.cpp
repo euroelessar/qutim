@@ -204,7 +204,6 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->aliveTimer.setInterval(180000);
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
-	SystemIntegration::keepAlive(d->socket);
 //#if OSCAR_SSL_SUPPORT
 	d->socket->setProtocol(QSsl::TlsV1);
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
@@ -738,6 +737,9 @@ void AbstractConnection::readData()
 
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
+	if (state == QAbstractSocket::ConnectedState)
+		SystemIntegration::keepAlive(d_func()->socket);
+
 	debug(DebugVerbose) << "New connection state" << state << this->metaObject()->className();
 	if (state == QAbstractSocket::UnconnectedState) {
 		onDisconnect();

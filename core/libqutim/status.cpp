@@ -70,11 +70,11 @@ namespace qutim_sdk_0_3
 class StatusPrivate : public DynamicPropertyData
 {
 public:
-	StatusPrivate() : type(Status::Offline), subtype(0) {}
+	StatusPrivate() : type(Status::Offline), subtype(0), changeReason(Status::ByUser) {}
 	StatusPrivate(const StatusPrivate &o) :
 		DynamicPropertyData(o), text(o.text), name(o.name),
 		icon(o.icon), type(o.type), subtype(o.subtype),
-		extStatuses(o.extStatuses) {}
+	    changeReason(o.changeReason), extStatuses(o.extStatuses) {}
 	~StatusPrivate() {}
 	QString text;
 	LocalizedString name;
@@ -190,7 +190,6 @@ void StatusPrivate::generateName()
 
 Status::Status(Type type) : d(get_status_private(type))
 {
-	d->changeReason = ByUser;
 }
 
 Status::Status(const Status &other) : d(other.d)
@@ -371,6 +370,25 @@ bool Status::remember(const Status &status, const char *proto)
 	key.name = qstrdup(key.name);
 	statusHash()->insert(key, status);
 	return true;
+}
+
+Status Status::createConnecting(const Status &status, const char *proto)
+{
+	Status connecting = instance(Status::Connecting, proto);
+	connecting.setProperty("connectingGoal", qVariantFromValue(status));
+	return connecting;
+}
+
+Status Status::connectingGoal(const Status &status)
+{
+	if (status != Status::Connecting)
+		return Status(Status::Offline);
+	return status.property("connectingGoal", Status(Status::Online));
+}
+
+Status Status::connectingGoal() const
+{
+	return connectingGoal(*this);
 }
 
 void Status::setExtendedInfo(const QString &name, const QVariantHash &status)

@@ -505,7 +505,7 @@ void JAccount::setStatus(Status status)
 		} else {
 			d->client->connectToServer();
 			d->status = status;
-			setAccountStatus(Status::instance(Status::Connecting, "jabber"));
+			setAccountStatus(Status::createConnecting(status, "jabber"));
 		}
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;

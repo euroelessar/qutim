@@ -221,7 +221,7 @@ void IcqAccount::setStatus(Status status_helper)
 	}
 	if (current.type() == status.type() && status.type() == Status::Offline) {
 		// Disable reconnecting
-		status.setProperty("changeReason", Status::ByUser);
+		status.setChangeReason(Status::ByUser);
 		Account::setStatus(status);
 		emit statusChanged(status, current);
 		return;
@@ -264,14 +264,8 @@ void IcqAccount::setStatus(Status status_helper)
 	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {
-//			QString pass = d->password();
-//			if (!pass.isEmpty()) {
-				status.setType(Status::Connecting);
-				status.initIcon("icq");
-				d->conn->connectToLoginServer(QString());
-//			} else {
-//				status = Status::Offline;
-//			}
+			status = Status::createConnecting(status, "icq");
+			d->conn->connectToLoginServer(QString());
 		} else {
 			d->conn->sendStatus(status);
 		}

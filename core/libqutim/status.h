@@ -100,6 +100,9 @@ public:
 	static QString iconName(Type type, const QString &protocol = QString());
 	static Status instance(Type type, const char *proto, int subtype = 0);
 	static bool remember(const Status &status, const char *proto);
+	static Status createConnecting(const Status &status, const char *proto);
+	static Status connectingGoal(const Status &status);
+	Status connectingGoal() const;
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 	QVariantHash extendedInfo(const QString &name) const;

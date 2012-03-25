@@ -55,7 +55,6 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 {
 	m_socket = new QSslSocket(this);
 	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
-	SystemIntegration::keepAlive(m_socket);
 	m_account = account;
 	m_messagesTimer.setInterval(500);
 	connect(&m_messagesTimer, SIGNAL(timeout()), SLOT(sendNextMessage()));
@@ -599,6 +598,7 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 {
 	debug(DebugVerbose) << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
+		SystemIntegration::keepAlive(m_socket);
 		IrcServer server = m_servers.at(m_currentServer);
 		if (server.protectedByPassword) {
 			if (m_passDialog) {

@@ -94,9 +94,6 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     p->selfID = qutimAgent;
     p->messages = new MrimMessages(this);
 	registerPacketHandler(p->messages);
-
-	SystemIntegration::keepAlive(p->SrvReqSocket());
-	SystemIntegration::keepAlive(p->IMSocket());
 }
 
 MrimConnection::~MrimConnection()
@@ -144,6 +141,7 @@ void MrimConnection::connected()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
     Q_ASSERT(socket);
+	SystemIntegration::keepAlive(socket);
 
     bool connected = false;
 
@@ -461,10 +459,10 @@ Status MrimConnection::setStatus(const Status &status)
 	} else {
 		p->status = status;
 		if (isConnecting) {
-			return MrimStatus(Status::Connecting);
+			return Status::createConnecting(status, "mrim");
 		} else if (isUnconnected) {
 			start();
-			return MrimStatus(Status::Connecting);
+			return Status::createConnecting(status, "mrim");
 		} else {
 			sendStatusPacket();
 		}
