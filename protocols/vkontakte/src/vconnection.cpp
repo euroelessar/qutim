@@ -53,7 +53,7 @@ void VConnectionPrivate::_q_on_error(QNetworkReply::NetworkError)
 	Q_ASSERT(reply);
 	debug() << reply->errorString();
 	Status status = account->status();
-	status.setProperty("changeReason", Status::ByNetworkError);
+	status.setChangeReason(Status::ByNetworkError);
 	status.setType(qutim_sdk_0_3::Status::Offline);
 	account->setStatus(status);
 }

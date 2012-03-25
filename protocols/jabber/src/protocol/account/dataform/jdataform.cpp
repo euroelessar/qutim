@@ -134,6 +134,7 @@ void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, c
 	QGridLayout *layout = new QGridLayout(that);
 	that->setLayout(layout);
 	layout->addWidget(widget = AbstractDataForm::get(root, buttons));
+	QObject::connect(widget, SIGNAL(accepted()), that, SIGNAL(accepted()));
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,

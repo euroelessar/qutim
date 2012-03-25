@@ -29,6 +29,7 @@
 #include <QStringList>
 #include <QWidget>
 #include <QApplication>
+#include <QAbstractSocket>
 
 namespace qutim_sdk_0_3
 {
@@ -164,5 +165,9 @@ void SystemIntegration::show(QWidget *widget)
 	process(ShowWidget, qVariantFromValue(widget));
 }
 
+void SystemIntegration::keepAlive(QAbstractSocket *socket)
+{
+	process(KeepAliveSocket, qVariantFromValue<QObject*>(socket));
 }
 
+}

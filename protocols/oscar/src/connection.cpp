@@ -29,6 +29,7 @@
 #include <QCoreApplication>
 #include <QNetworkProxy>
 #include <qutim/networkproxy.h>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -736,6 +737,9 @@ void AbstractConnection::readData()
 
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
+	if (state == QAbstractSocket::ConnectedState)
+		SystemIntegration::keepAlive(d_func()->socket);
+
 	debug(DebugVerbose) << "New connection state" << state << this->metaObject()->className();
 	if (state == QAbstractSocket::UnconnectedState) {
 		onDisconnect();

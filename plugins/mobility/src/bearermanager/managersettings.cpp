@@ -55,7 +55,6 @@ void ManagerSettings::saveImpl()
 		Account *account = box->property("account").value<Account*>();
 		account->config().setValue("autoConnect",box->isChecked());
 	}
-	Config().sync(); //hack
 }
 
 void ManagerSettings::cancelImpl()

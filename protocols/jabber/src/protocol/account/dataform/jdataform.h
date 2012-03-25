@@ -54,6 +54,10 @@ public:
 	~JDataForm();
 	qutim_sdk_0_3::AbstractDataForm *widget();
 	Jreen::DataForm::Ptr getDataForm();
+	
+signals:
+	void accepted();
+	
 private:
 	QScopedPointer<JDataFormPrivate> d_ptr;
 };

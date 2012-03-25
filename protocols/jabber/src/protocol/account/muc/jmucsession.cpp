@@ -45,10 +45,14 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
+#include "../dataform/jdataform.h"
+#include <jreen/captcha.h>
+#include <QVBoxLayout>
 #include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>
+#include <QLabel>
 #include <QTimer>
 
 using namespace Jreen;
@@ -67,6 +71,7 @@ public:
 	QWeakPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
+	QWeakPointer<QWidget> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
@@ -208,6 +213,7 @@ void JMUCSession::doJoin()
 	if(isJoined() || !d->account.data()->client()->isConnected())
 		return;
 	d->room->join();
+	emit joined();
 }
 
 void JMUCSession::doLeave()
@@ -224,6 +230,7 @@ void JMUCSession::doLeave()
 		user->setStatus(presence);
 		d->removeUser(this, user);
 	}
+	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)
@@ -372,7 +379,6 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			emit nickChanged(newNick);
 			emit meChanged(me());
 		}
-		user->setStatus(presence);
 	} else {
 		JMUCUser *user = d->getUser(nick);
 		if (!user && presence.subtype() != Presence::Unavailable) {
@@ -511,7 +517,30 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
-	//TODO add capthca handler
+	Q_D(JMUCSession);
+	Captcha::Ptr captcha = msg.payload<Captcha>();
+	if (captcha && captcha->form()) {
+		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
+		               .arg(d->jid.bare());
+		delete d->captchaForm.data();
+		d->captchaForm = new QWidget;
+		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm.data());
+		QLabel *label = new QLabel(text, d->captchaForm.data());
+		JDataForm *form = new JDataForm(captcha->form(),
+		                                      msg.payloads<BitsOfBinary>(),
+		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
+		                                      d->captchaForm.data());
+		form->layout()->setMargin(0);
+		layout->addWidget(label);
+		layout->addWidget(form);
+		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
+		connect(form->widget(), SIGNAL(accepted()), d->captchaForm.data(), SLOT(deleteLater()));
+		connect(form->widget(), SIGNAL(rejected()), d->captchaForm.data(), SLOT(deleteLater()));
+		Client *client = d->account.data()->client();
+		connect(client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)), d->captchaForm.data(), SLOT(deleteLater()));
+		d->captchaForm.data()->show();
+		return;
+	}
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
@@ -799,6 +828,18 @@ void JMUCSession::onNickSelected(const QString &nick)
 		d->room->setNick(nick);
 		join();
 	}
+}
+
+void JMUCSession::onCaptchaFilled()
+{
+	Q_D(JMUCSession);
+	JDataForm *form = qobject_cast<JDataForm*>(sender());
+	Client *client = d->account.data()->client();
+	Jreen::IQ iq(Jreen::IQ::Set, d->jid.bareJID());
+	Captcha::Ptr captcha = Captcha::Ptr::create();
+	captcha->setForm(form->getDataForm());
+	iq.addPayload(captcha);
+	client->send(iq);
 }
 
 }

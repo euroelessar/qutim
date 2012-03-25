@@ -86,6 +86,8 @@ public:
 	void setSubtype(int stype);
 	template <typename T> T subtype() const { return static_cast<T>(subtype()); }
 	template <typename T> void setSubtype(T stype) { setSubtype(static_cast<int>(stype)); }
+	ChangeReason changeReason() const;
+	void setChangeReason(ChangeReason reason);
 
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
@@ -98,6 +100,9 @@ public:
 	static QString iconName(Type type, const QString &protocol = QString());
 	static Status instance(Type type, const char *proto, int subtype = 0);
 	static bool remember(const Status &status, const char *proto);
+	static Status createConnecting(const Status &status, const char *proto);
+	static Status connectingGoal(const Status &status);
+	Status connectingGoal() const;
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 	QVariantHash extendedInfo(const QString &name) const;

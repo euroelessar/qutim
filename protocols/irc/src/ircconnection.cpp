@@ -42,6 +42,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/notification.h>
 #include <qutim/passworddialog.h>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -597,6 +598,7 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 {
 	debug(DebugVerbose) << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
+		SystemIntegration::keepAlive(m_socket);
 		IrcServer server = m_servers.at(m_currentServer);
 		if (server.protectedByPassword) {
 			if (m_passDialog) {

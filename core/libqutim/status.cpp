@@ -70,17 +70,18 @@ namespace qutim_sdk_0_3
 class StatusPrivate : public DynamicPropertyData
 {
 public:
-	StatusPrivate() : type(Status::Offline), subtype(0) {}
+	StatusPrivate() : type(Status::Offline), subtype(0), changeReason(Status::ByUser) {}
 	StatusPrivate(const StatusPrivate &o) :
 		DynamicPropertyData(o), text(o.text), name(o.name),
 		icon(o.icon), type(o.type), subtype(o.subtype),
-		extStatuses(o.extStatuses) {}
+	    changeReason(o.changeReason), extStatuses(o.extStatuses) {}
 	~StatusPrivate() {}
 	QString text;
 	LocalizedString name;
 	QIcon icon;
 	Status::Type type;
 	int subtype;
+	Status::ChangeReason changeReason;
 	QHash<QString, QVariantHash> extStatuses;
 
 	QVariant getText() const { return text; }
@@ -93,6 +94,8 @@ public:
 	void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
+	QVariant getChangeReason() const { return qVariantFromValue(changeReason); }
+	void setChangeReason(const QVariant &val) { changeReason = val.value<Status::ChangeReason>(); }
 	QVariant getExtendedStatuses() const { return qVariantFromValue(extStatuses); }
 	void setExtendedStatuses(const QVariant &val) { extStatuses = qVariantValue<ExtendedStatus>(val); }
 
@@ -132,6 +135,7 @@ static QList<QByteArray> names = QList<QByteArray>()
 << "icon"
 << "type"
 << "subtype"
+<< "changeReason"
 << "extendedStatuses";
 static QList<Getter> getters   = QList<Getter>()
 << static_cast<Getter>(&StatusPrivate::getText)
@@ -139,6 +143,7 @@ static QList<Getter> getters   = QList<Getter>()
 << static_cast<Getter>(&StatusPrivate::getIcon)
 << static_cast<Getter>(&StatusPrivate::getType)
 << static_cast<Getter>(&StatusPrivate::getSubtype)
+<< static_cast<Getter>(&StatusPrivate::getChangeReason)
 << static_cast<Getter>(&StatusPrivate::getExtendedStatuses);
 static QList<Setter> setters   = QList<Setter>()
 << static_cast<Setter>(&StatusPrivate::setText)
@@ -146,6 +151,7 @@ static QList<Setter> setters   = QList<Setter>()
 << static_cast<Setter>(&StatusPrivate::setIcon)
 << static_cast<Setter>(&StatusPrivate::setType)
 << static_cast<Setter>(&StatusPrivate::setSubtype)
+<< static_cast<Setter>(&StatusPrivate::setChangeReason)
 << static_cast<Setter>(&StatusPrivate::setExtendedStatuses);
 }
 
@@ -265,6 +271,16 @@ void Status::setSubtype(int stype)
 	d->subtype = stype;
 }
 
+Status::ChangeReason Status::changeReason() const
+{
+	return d->changeReason;
+}
+
+void Status::setChangeReason(Status::ChangeReason reason)
+{
+	d->changeReason = reason;
+}
+
 QVariant Status::property(const char *name, const QVariant &def) const
 {
 	return d->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -354,6 +370,29 @@ bool Status::remember(const Status &status, const char *proto)
 	key.name = qstrdup(key.name);
 	statusHash()->insert(key, status);
 	return true;
+}
+
+Status Status::createConnecting(const Status &status, const char *proto)
+{
+	Status connecting = instance(Status::Connecting, proto);
+	if (connecting != Status::Connecting) {
+		connecting = Status(Status::Connecting);
+		connecting.initIcon(QLatin1String(proto));
+	}
+	connecting.setProperty("connectingGoal", qVariantFromValue(status));
+	return connecting;
+}
+
+Status Status::connectingGoal(const Status &status)
+{
+	if (status != Status::Connecting)
+		return Status(Status::Offline);
+	return status.property("connectingGoal", Status(Status::Online));
+}
+
+Status Status::connectingGoal() const
+{
+	return connectingGoal(*this);
 }
 
 void Status::setExtendedInfo(const QString &name, const QVariantHash &status)

@@ -160,28 +160,28 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 
 	switch(reason) {
 	case Client::User:
-		s.setProperty("changeReason", Status::ByUser);
+		s.setChangeReason(Status::ByUser);
 		break;
 	case Client::AuthorizationError: {
-		s.setProperty("changeReason", Status::ByAuthorizationFailed);
+		s.setChangeReason(Status::ByAuthorizationFailed);
 		//q->setPasswd(QString());
 		break;
 	}
 	case Client::HostUnknown:
 	case Client::ItemNotFound:
 	case Client::SystemShutdown:
-	case Client::NoSupportedFuture:
+	case Client::NoSupportedFeature:
 	case Client::NoAuthorizationSupport:
 	case Client::NoEncryptionSupport:
 	case Client::NoCompressionSupport:
-		s.setProperty("changeReason", Status::ByFatalError);
+		s.setChangeReason(Status::ByFatalError);
 		break;
 	case Client::RemoteStreamError:
 	case Client::RemoteConnectionFailed:
 	case Client::InternalServerError:
 	case Client::Conflict:
 	case Client::Unknown:
-		s.setProperty("changeReason", Status::ByNetworkError);
+		s.setChangeReason(Status::ByNetworkError);
 		break;
 	}
 
@@ -505,7 +505,7 @@ void JAccount::setStatus(Status status)
 		} else {
 			d->client->connectToServer();
 			d->status = status;
-			setAccountStatus(Status::instance(Status::Connecting, "jabber"));
+			setAccountStatus(Status::createConnecting(status, "jabber"));
 		}
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;

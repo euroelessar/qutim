@@ -32,6 +32,7 @@
 #include <QApplication>
 
 #include <qutim/notification.h>
+#include <qutim/systemintegration.h>
 
 #include "proto.h"
 #include "utils.h"
@@ -140,6 +141,7 @@ void MrimConnection::connected()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
     Q_ASSERT(socket);
+	SystemIntegration::keepAlive(socket);
 
     bool connected = false;
 
@@ -457,10 +459,10 @@ Status MrimConnection::setStatus(const Status &status)
 	} else {
 		p->status = status;
 		if (isConnecting) {
-			return MrimStatus(Status::Connecting);
+			return Status::createConnecting(status, "mrim");
 		} else if (isUnconnected) {
 			start();
-			return MrimStatus(Status::Connecting);
+			return Status::createConnecting(status, "mrim");
 		} else {
 			sendStatusPacket();
 		}
