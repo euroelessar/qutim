@@ -77,6 +77,8 @@ JMessageSessionManager::JMessageSessionManager(JAccount *account) :
 	QList<Jreen::Message::Type> types;
 	types.append(Jreen::Message::Chat);
 	types.append(Jreen::Message::Headline);
+	types.append(Jreen::Message::Normal);
+	types.append(Jreen::Message::Invalid);
 
 	registerMessageSessionHandler(new JMessageSessionHandler(account),types);
 }

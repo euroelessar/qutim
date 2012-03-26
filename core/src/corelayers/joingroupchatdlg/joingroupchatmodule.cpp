@@ -46,20 +46,18 @@ static bool isSupportGroupchat()
 	return false;
 }
 
-JoinGroupChatModule::JoinGroupChatModule()
+JoinGroupChatModule::JoinGroupChatModule() : m_gen(new JoinGroupChatGenerator(this))
 {
-	QObject *contactList = ServiceManager::getByName("ContactList");
-	if (contactList) {
-		MenuController *controller = qobject_cast<MenuController*>(contactList);
-		Q_ASSERT(controller);
-        m_gen.reset(new JoinGroupChatGenerator(this));
-        controller->addAction(m_gen.data());
-	}
+	ServicePointer<MenuController> contactList("ContactList");
+	if (contactList)
+		contactList.data()->addAction(m_gen.data());
 }
 
 JoinGroupChatModule::~JoinGroupChatModule()
 {
-
+	ServicePointer<MenuController> contactList("ContactList");
+	if (contactList)
+		contactList.data()->removeAction(m_gen.data());
 }
 
 void JoinGroupChatModule::onJoinGroupChatTriggered()

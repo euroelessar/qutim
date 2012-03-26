@@ -126,10 +126,14 @@ MenuController::~MenuController()
 bool actionGeneratorLessThan(const ActionGenerator *a, const ActionGenerator *b)
 {
 	if (a->type() == b->type()) {
-		if (a->priority() == b->priority())
-			return a->text() < b->text();
-		else
+		if (a->priority() == b->priority()) {
+			if (a->text() == b->text())
+				return a < b;
+			else
+				return a->text() < b->text();
+		} else {
 			return a->priority() > b->priority();
+		}
 	} else {
 		return a->type() < b->type();
 	}
@@ -359,14 +363,16 @@ bool MenuController::removeAction(const ActionGenerator *gen)
 	ActionCollectionPrivate *p = ActionCollectionPrivate::get(d->actions);
 	for (int i = 0; i < p->localActions.size(); ++i) {
 		if (p->localActions[i].gen == gen) {
-			const ActionInfoV2 &info = p->localActions[i];
-			foreach (MenuController *owner, *activatedControllers()) {
+			const ActionInfoV2 info = p->localActions[i];
+			foreach (MenuController *controller, *activatedControllers()) {
+				MenuController *owner = controller;
 				int flags = owner->d_func()->flags;
 				while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
 					flags = owner->d_func()->flags;
 				if (owner)
-					owner->d_func()->actions.removeAction(info);
+					controller->d_func()->actions.removeAction(info);
 			}
+			d_func()->actions.removeAction(info);
 			return true;
 		}
 	}
@@ -557,6 +563,10 @@ QList< QByteArray > ActionCollection::menu(int index) const
 	return d_func()->actionInfos.at(index).menu;
 }
 
+ActionCollectionPrivate::~ActionCollectionPrivate()
+{
+}
+
 void ActionCollectionPrivate::setController(MenuController *newController)
 {
 	if (newController == controller)
@@ -631,10 +641,18 @@ void ActionCollectionPrivate::removeAction(const ActionInfoV2 &info)
 		actionInfos.removeAt(index);
 		actions.removeAt(index);
 	}
+	for (int i = 0; i < localActions.size(); ++i) {
+		if (localActions.at(i).gen == info.gen) {
+			localActions.removeAt(i);
+			--i;
+			break;
+		}
+	}
 }
 
 void ActionCollectionPrivate::addAction(const ActionInfoV2 &info)
 {
+	Q_ASSERT(actionInfos.constEnd() == qBinaryFind(actionInfos.constBegin(), actionInfos.constEnd(), info, actionLessThan));
 	int index = qLowerBound(actionInfos.begin(), actionInfos.end(),
 	                        info, actionLessThan) - actionInfos.begin();
 	insertAction(index, info);

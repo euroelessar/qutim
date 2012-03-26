@@ -63,6 +63,10 @@ void IrcChannel::join(const QString &pass)
 		cmd = QString("JOIN %1").arg(d->name);
 	account()->send(cmd);
 	account()->d->groupManager->updateRecent(d->name, pass);
+	if (d->bookmarkName.isEmpty()) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+	}
 }
 
 void IrcChannel::doLeave()
@@ -80,9 +84,8 @@ void IrcChannel::leave(bool force)
 
 	// If the channel is not in bookmarks, delete it
 	if (d->bookmarkName.isEmpty()) {
-		if (session)
-			// The channel window is open, wait until user would close it
-			connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 		else
 			deleteLater();
 	}
