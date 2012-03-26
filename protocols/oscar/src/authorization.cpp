@@ -150,7 +150,7 @@ void Authorization::onGrantAuthClicked(QObject *object)
 	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
 	SNAC snac(ListsFamily, ListsGrantAuth);
 	snac.append<quint8>(contact->id());
-	snac.append<quint16>(0); // reason length
+	snac.append<quint16>(QString()); // reason length
 	snac.append<quint16>(0); // unknown
 	contact->account()->connection()->send(snac);
 }
