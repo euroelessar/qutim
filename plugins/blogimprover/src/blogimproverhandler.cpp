@@ -56,8 +56,8 @@ void BlogImproverHandler::loadSettings()
 
 	m_pstoPost.setPattern("(#[zothfiseng]+)\\b(?!/)");
 	m_pstoComment.setPattern("(#[zothfiseng]{4,}/\\d+)\\b");
+
 	//m_pstoTag.setPattern("[*] ([^*,<]+(, [^*,<]+)*)");
-	//|#[zothfiseng]{4,}/\\d+\\b|#\\d{3,}\\b|#\\d{3,}/\\d+\\b)
 	m_simplestyle = "color:#007FFF; text-decoration: underline; cursor: pointer;";
 
 	m_postTemplate = "<span onclick=\"client.appendText('%1')\" style=\"%2\">%1</span>";
@@ -73,21 +73,19 @@ BlogImproverHandler::Result BlogImproverHandler::doHandle(Message &message, QStr
 		return BlogImproverHandler::Accept;
 	if (!message.isIncoming())
 		return BlogImproverHandler::Accept;
-
-	QStringList handlingAddresses;
-	handlingAddresses << "psto@psto.net" << "6571781" << "juick@juick.com" << "jubo@nologin.ru" << "bnw@bnw.im";
-
 	ChatUnit *chat = message.chatUnit();
 	QString messageid = chat->id();
-	static QRegExp replacejid("/*");
-	replacejid.setPatternSyntax(QRegExp::Wildcard);
+	static QRegExp replacejid("/*", Qt::CaseInsensitive, QRegExp::Wildcard);
 
 	messageid.replace(replacejid, "");
+	static QStringList m_handlingAddresses;
+	if(!m_handlingAddresses.count())
+		m_handlingAddresses << "psto@psto.net" << "6571781" << "juick@juick.com" << "jubo@nologin.ru" << "bnw@bnw.im";
 
-	if(!handlingAddresses.contains(messageid,Qt::CaseInsensitive))
+	if(!m_handlingAddresses.contains(messageid, Qt::CaseInsensitive))
 		return BlogImproverHandler::Accept;
 
-	BlogImproverHandler::BlogType blogtype = static_cast<BlogImproverHandler::BlogType>(handlingAddresses.indexOf(messageid));
+	BlogImproverHandler::BlogType blogtype = static_cast<BlogImproverHandler::BlogType>(m_handlingAddresses.indexOf(messageid));
 
 	switch(blogtype) {
 	case BlogImproverHandler::PstoJabber:
@@ -112,19 +110,18 @@ void BlogImproverHandler::handlePsto(Message &message)
 		return;
 	QString html = message.html();
 	QString toReplace;
-	static QRegExp removeLast("/*");
-
+	static QRegExp removeLast("/*", Qt::CaseSensitive, QRegExp::Wildcard);
 	int pos = 0;
 
 	while ((pos = m_pstoPost.indexIn(html, pos)) != -1) {
 		toReplace = m_postTemplate.arg(m_pstoPost.cap(1), m_simplestyle);
 
-		toReplace += " ("
+		toReplace += QLatin1Literal(" (")
 				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span>").arg(m_pstoPost.cap(1), m_simplestyle)
-				% ")";
+				% QLatin1Literal(")");
 
 		html.replace(pos, m_pstoPost.cap(1).length(), toReplace);
 		pos += toReplace.length();
@@ -135,12 +132,12 @@ void BlogImproverHandler::handlePsto(Message &message)
 	while ((pos = m_pstoComment.indexIn(html, pos)) != -1) {
 		toReplace = m_postTemplate.arg(m_pstoComment.cap(1), m_simplestyle);
 
-		toReplace += " ("
+		toReplace += QLatin1Literal(" (")
 				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span> ").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">~</span> ").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
-				% ")";
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
+				% QLatin1Literal(")");
 
 		html.replace(pos, m_pstoComment.cap(1).length(), toReplace);
 		pos += toReplace.length();
@@ -164,18 +161,18 @@ void BlogImproverHandler::handleJuick(Message &message)
 		return;
 	QString html = message.html();
 	QString toReplace;
-	static QRegExp removeLast("/*");
+	static QRegExp removeLast("/*", Qt::CaseSensitive, QRegExp::Wildcard);
 
 	int pos = 0;
 
 	while ((pos = m_juickPost.indexIn(html, pos)) != -1) {
 		toReplace = m_postTemplate.arg(m_juickPost.cap(0), m_simplestyle);
 
-		toReplace += " ("
+		toReplace += QLatin1Literal(" (")
 				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ").arg(m_juickPost.cap(0), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ").arg(m_juickPost.cap(0), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span>").arg(m_juickPost.cap(0), m_simplestyle)
-				% ")";
+				% QLatin1Literal(")");
 
 		html.replace(pos, m_juickPost.cap(0).length(), toReplace);
 		pos += toReplace.length();
@@ -186,11 +183,11 @@ void BlogImproverHandler::handleJuick(Message &message)
 	while ((pos = m_juickComment.indexIn(html, pos)) != -1) {
 		toReplace = m_postTemplate.arg(m_juickComment.cap(0), m_simplestyle);
 
-		toReplace += " ("
+		toReplace += QLatin1Literal(" (")
 				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span>").arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle) % " "
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span>").arg(m_juickComment.cap(0), m_simplestyle) % " "
 				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>").arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle)
-				% ")";
+				% QLatin1Literal(")");
 
 		html.replace(pos, m_juickComment.cap(0).length(), toReplace);
 		pos += toReplace.length();
@@ -210,6 +207,7 @@ void BlogImproverHandler::handleJuick(Message &message)
 
 void BlogImproverHandler::handleBnw(Message &message)
 {
+	Q_UNUSED(message);
 	if(!m_enableBnwIntegration)
 		return;
 }

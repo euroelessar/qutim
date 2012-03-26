@@ -72,6 +72,7 @@ private:
 	QString m_nickTemplate;
 	QString m_postTemplate;
 	QString m_tagTemplate;
+	static QStringList m_handlingAddresses;
 	void handlePsto(qutim_sdk_0_3::Message &message);
 	void handleJuick(qutim_sdk_0_3::Message &message);
 	void handleBnw(qutim_sdk_0_3::Message &message);

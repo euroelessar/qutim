@@ -48,13 +48,13 @@ class BlogImproverPlugin : public qutim_sdk_0_3::Plugin
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "BlogImprover")
 	Q_CLASSINFO("Uses", "ChatLayer")
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
 private:
-	QWeakPointer<BlogImproverHandler> m_handler;
+	QScopedPointer<BlogImproverHandler> m_handler;
+	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
 };
 
 } // namespace BlogImprover
