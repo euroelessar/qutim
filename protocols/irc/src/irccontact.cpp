@@ -34,20 +34,6 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-void IrcContactPrivate::ref()
-{
-	m_ref.ref();
-}
-
-void IrcContactPrivate::deref()
-{
-	if (m_ref.deref() && ChatLayer::instance()) {
-		ChatSession *session = ChatLayer::instance()->getSession(q, false);
-		if (!session)
-			q->deleteLater();
-	}
-}
-
 void IrcContactPrivate::updateNick(const QString &newNick)
 {
 	QString previous = nick;
@@ -69,6 +55,24 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 IrcContact::~IrcContact()
 {
 	Q_ASSERT(d->m_ref == 0);
+}
+
+void IrcContact::ref()
+{
+	if (d->m_ref++ == 0) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+	}
+}
+
+void IrcContact::deref()
+{
+	if (--d->m_ref == 0) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		else
+			deleteLater();
+	}
 }
 
 QString IrcContact::id() const

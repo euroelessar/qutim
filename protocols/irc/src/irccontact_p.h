@@ -36,8 +36,6 @@ namespace irc {
 class IrcContactPrivate
 {
 public:
-	void ref();
-	void deref();
 	void updateNick(const QString &nick);
 private:
 	IrcContactPrivate() :
@@ -54,7 +52,7 @@ private:
 	QString avatar;
 	QString awayMsg;
 	QString realName;
-	mutable QAtomicInt m_ref;
+	mutable int m_ref;
 };
 
 } } // namespace qutim_sdk_0_3::irc

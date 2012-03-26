@@ -404,7 +404,6 @@ bool IcqContact::event(QEvent *ev)
 		snac.append<quint8>(id()); // uin.
 		snac.append<quint8>(answer ? 0x01 : 0x00); // auth flag.
 		snac.append<quint16>(0);
-		snac.append<quint16>(0);
 		account()->connection()->send(snac);
 		return true;
 	} else if(ev->type() == Authorization::Request::eventType()) {

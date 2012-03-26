@@ -42,6 +42,10 @@ class IrcContact : public Buddy
 public:
 	IrcContact(IrcAccount *account, const QString &nick, const QString &host);
 	~IrcContact();
+
+	void ref();
+	void deref();
+
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString avatar() const;
