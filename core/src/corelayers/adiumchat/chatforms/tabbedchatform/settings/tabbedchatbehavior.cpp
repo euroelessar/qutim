@@ -69,6 +69,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->formLayoutBox);
 	lookForWidgetState(ui->stateBox);
 	lookForWidgetState(ui->menuBox);
+	lookForWidgetState(ui->customIconBox);
 	lookForWidgetState(ui->autoresizeBox);
 }
 
@@ -113,6 +114,7 @@ void TabbedChatBehavior::loadImpl()
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
 	ui->stateBox->setChecked(m_flags & IconsOnTabs);
+	ui->customIconBox->setChecked(!(m_flags & UseQutimIcon));
 	ui->menuBox->setChecked(m_flags & MenuBar);
 	ui->autoresizeBox->setChecked(m_autoresize);
 	Config chat = cfg.group("chat");
@@ -128,8 +130,9 @@ void TabbedChatBehavior::saveImpl()
 	setFlags(TabsOnBottom,south);
 	bool adium = ui->formLayoutBox->itemData(ui->formLayoutBox->currentIndex()).toBool();
 	setFlags(AdiumToolbar,adium);
-	setFlags(IconsOnTabs,ui->stateBox->isChecked());
-	setFlags(MenuBar,ui->menuBox->isChecked());
+	setFlags(IconsOnTabs, ui->stateBox->isChecked());
+	setFlags(UseQutimIcon, !ui->customIconBox->isChecked());
+	setFlags(MenuBar, ui->menuBox->isChecked());
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);

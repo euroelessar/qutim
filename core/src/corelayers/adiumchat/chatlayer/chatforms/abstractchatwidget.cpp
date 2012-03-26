@@ -38,6 +38,7 @@ AbstractChatWidget::AbstractChatWidget(QWidget *parent) :
 	QMainWindow(parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+	m_attributes |= UseCustomIcon;
 }
 
 void AbstractChatWidget::addSessions(const ChatSessionList &sessions)
@@ -55,16 +56,20 @@ void AbstractChatWidget::addActions(const QList<ActionGenerator *> &actions)
 void AbstractChatWidget::setTitle(ChatSessionImpl *s)
 {
 	ChatUnit *u = s->getUnit();
-	QIcon icon = Icon("view-choose");
+	const bool customIcon = (m_attributes & UseCustomIcon);
+	QIcon icon;
+	if (customIcon)
+		icon = Icon("view-choose");
 	QString title;
 	if(s->unread().count())
 		title = tr("Chat with %1 (have %2 unread messages)").arg(u->title()).arg(s->unread().count());
 	else
 		title = tr("Chat with %1").arg(u->title());
 	if (Conference *c = qobject_cast<Conference *>(u)) {
-		icon = Icon("meeting-attending"); //TODO
+		if (customIcon)
+			icon = Icon("meeting-attending"); //TODO
 		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-	} else {
+	} else if (customIcon) {
 		if (Buddy *b = qobject_cast<Buddy*>(u)) {
 			if (b->avatar().isEmpty())
 				icon = Icon("view-choose");
