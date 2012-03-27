@@ -125,10 +125,14 @@ void BlogImproverHandler::handlePsto(Message &message)
 		toReplace = m_postTemplate.arg(m_pstoPost.cap(1), m_simplestyle);
 
 		toReplace += QLatin1Literal(" (")
-				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ").arg(m_pstoPost.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span>").arg(m_pstoPost.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ")
+				  .arg(m_pstoPost.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ")
+				  .arg(m_pstoPost.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ")
+				  .arg(m_pstoPost.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span>")
+				  .arg(m_pstoPost.cap(1), m_simplestyle)
 				% QLatin1Literal(")");
 
 		html.replace(pos, m_pstoPost.cap(1).length(), toReplace);
@@ -141,10 +145,14 @@ void BlogImproverHandler::handlePsto(Message &message)
 		toReplace = m_postTemplate.arg(m_pstoComment.cap(1), m_simplestyle);
 
 		toReplace += QLatin1Literal(" (")
-				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span> ").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span> ").arg(m_pstoComment.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>").arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span> ")
+				  .arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ")
+				  .arg(m_pstoComment.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span> ")
+				  .arg(m_pstoComment.cap(1), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>")
+				  .arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
 				% QLatin1Literal(")");
 
 		html.replace(pos, m_pstoComment.cap(1).length(), toReplace);
@@ -177,9 +185,12 @@ void BlogImproverHandler::handleJuick(Message &message)
 		toReplace = m_postTemplate.arg(m_juickPost.cap(0), m_simplestyle);
 
 		toReplace += QLatin1Literal(" (")
-				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ").arg(m_juickPost.cap(0), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ").arg(m_juickPost.cap(0), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span>").arg(m_juickPost.cap(0), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ")
+				  .arg(m_juickPost.cap(0), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ")
+				  .arg(m_juickPost.cap(0), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span>")
+				  .arg(m_juickPost.cap(0), m_simplestyle)
 				% QLatin1Literal(")");
 
 		html.replace(pos, m_juickPost.cap(0).length(), toReplace);
@@ -192,9 +203,12 @@ void BlogImproverHandler::handleJuick(Message &message)
 		toReplace = m_postTemplate.arg(m_juickComment.cap(0), m_simplestyle);
 
 		toReplace += QLatin1Literal(" (")
-				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span>").arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle) % " "
-				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span>").arg(m_juickComment.cap(0), m_simplestyle) % " "
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>").arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('U %1')\" style=\"%2\">U</span> ")
+				  .arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ")
+				  .arg(m_juickComment.cap(0), m_simplestyle)
+				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>")
+				  .arg(QString(m_juickComment.cap(0)).replace(removeLast, ""), m_simplestyle)
 				% QLatin1Literal(")");
 
 		html.replace(pos, m_juickComment.cap(0).length(), toReplace);
