@@ -51,7 +51,8 @@ enum ChatFlag
 	SwitchDesktopOnActivate	=       0x08,
 	DeleteSessionOnClose	=		0x10,
 	TabsOnBottom			=		0x20,
-	MenuBar					=		0x40
+	MenuBar					=		0x40,
+	UseQutimIcon            =       0x80
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag)

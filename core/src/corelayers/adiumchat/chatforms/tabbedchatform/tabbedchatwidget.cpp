@@ -207,6 +207,11 @@ void TabbedChatWidget::loadSettings()
 #endif
 		}
 
+		if (m_flags & UseQutimIcon)
+			m_attributes &= ~UseCustomIcon;
+		else
+			m_attributes |= UseCustomIcon;
+
 		if(m_flags & MenuBar) {
 			setMenuBar(new QMenuBar(this));
 

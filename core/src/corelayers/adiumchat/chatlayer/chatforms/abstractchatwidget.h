@@ -51,6 +51,11 @@ class ADIUMCHAT_EXPORT AbstractChatWidget : public QMainWindow
 {
 	Q_OBJECT
 public:
+	enum Attribute {
+		UseCustomIcon = 0x01
+	};
+	Q_DECLARE_FLAGS(Attributes, Attribute)
+
 	AbstractChatWidget(QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen) = 0;
 	void addActions(const QList<ActionGenerator*> &actions);
@@ -60,16 +65,21 @@ public:
 	virtual ChatSessionImpl *currentSession() const = 0;
 	static QString titleForSession(ChatSessionImpl *s);
 	virtual void setView(QWidget *) {}
+
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
 	void addSessions(const ChatSessionList &sessions);
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
 	virtual void loadSettings() = 0;
-protected:
-	virtual void setTitle(ChatSessionImpl *s);
+
 signals:
 	void currentSessionChanged(ChatSessionImpl *now,ChatSessionImpl *before);
+
+protected:
+	virtual void setTitle(ChatSessionImpl *s);
+	
+	Attributes m_attributes;
 };
 
 }
