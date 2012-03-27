@@ -44,6 +44,7 @@ class BlogImproverHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 public:
 	explicit BlogImproverHandler();
 	enum BlogType {
+		Nothing = -1,
 		PstoJabber,
 		PstoOscar,
 		Juick,

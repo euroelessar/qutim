@@ -73,19 +73,25 @@ BlogImproverHandler::Result BlogImproverHandler::doHandle(Message &message, QStr
 		return BlogImproverHandler::Accept;
 	if (!message.isIncoming())
 		return BlogImproverHandler::Accept;
-	ChatUnit *chat = message.chatUnit();
-	QString messageid = chat->id();
-	static QRegExp replacejid("/*", Qt::CaseInsensitive, QRegExp::Wildcard);
 
-	messageid.replace(replacejid, "");
-	static QStringList m_handlingAddresses;
-	if(!m_handlingAddresses.count())
-		m_handlingAddresses << "psto@psto.net" << "6571781" << "juick@juick.com" << "jubo@nologin.ru" << "bnw@bnw.im";
+	static QLatin1Literal jids[] = {
+		QLatin1Literal("psto@psto.net"),
+		QLatin1Literal("6571781"),
+		QLatin1Literal("juick@juick.com"),
+		QLatin1Literal("jubo@nologin.ru"),
+		QLatin1Literal("bnw@bnw.im")
+	};
 
-	if(!m_handlingAddresses.contains(messageid, Qt::CaseInsensitive))
-		return BlogImproverHandler::Accept;
-
-	BlogImproverHandler::BlogType blogtype = static_cast<BlogImproverHandler::BlogType>(m_handlingAddresses.indexOf(messageid));
+	const size_t count = sizeof(jids) / sizeof(jids[0]);
+	const QString id = message.chatUnit()->id();
+	BlogImproverHandler::BlogType blogtype(BlogImproverHandler::Nothing);
+	for (size_t i = 0; i < count; ++i) {
+		if ((id.size() == jids[i].size() && id == QLatin1String(jids[i].data()))
+			|| (id.size() > jids[i].size() && id.startsWith(QLatin1String(jids[i].data())) && id[jids[i].size()] == '/')) {
+			blogtype = BlogImproverHandler::BlogType(i);
+			break;
+		}
+	}
 
 	switch(blogtype) {
 	case BlogImproverHandler::PstoJabber:
@@ -99,6 +105,8 @@ BlogImproverHandler::Result BlogImproverHandler::doHandle(Message &message, QStr
 	case BlogImproverHandler::Bnw:
 		handleBnw(message);
 		break;
+	default:
+		return BlogImproverHandler::Accept;
 	}
 
 	return BlogImproverHandler::Accept;
