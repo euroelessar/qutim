@@ -93,7 +93,7 @@ void VAccountCreator::finished()
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	protocol->d_func()->accounts_hash->insert(account->id(), account);
+	protocol->d_func()->accounts.insert(account->id(), account);
 	page->deleteLater();
 	emit protocol->accountCreated(account);
 }
