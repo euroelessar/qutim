@@ -170,6 +170,7 @@ void ClientIdentify::identify(IcqContact *contact)
 	IDENTIFY_CLIENT( LibGaim );
 	IDENTIFY_CLIENT( Jimm );
 	IDENTIFY_CLIENT( Mip );
+	IDENTIFY_CLIENT( Jasmine );
 	IDENTIFY_CLIENT( Trillian );
 	IDENTIFY_CLIENT( Climm );
 	IDENTIFY_CLIENT( Im2 );
@@ -1064,6 +1065,29 @@ void ClientIdentify::identify_Mip()
 	}
 	if(!m_client_id.isEmpty())
 		setClientIcon("mip");
+}
+
+void ClientIdentify::identify_Jasmine()
+{
+	static const oscar::Capability ICQ_CAPABILITY_JASMINExID  (0x4a, 0x61, 0x73, 0x6d, 0x69, 0x6e,
+	                                                           0x65, 0x20, 0x49, 0x43, 0x51, 0x20,
+	                                                           0x23, 0x23, 0x23, 0x23 );
+	static const oscar::Capability ICQ_CAPABILITY_JASMINExVER (0x4a, 0x61, 0x73, 0x6d, 0x69, 0x6e,
+	                                                           0x65, 0x20, 0x76, 0x65, 0x72, 0xff,
+	                                                           0x00, 0x00, 0x00, 0x00 );
+	if (m_client_caps.match(ICQ_CAPABILITY_JASMINExID)) {
+		oscar::Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_JASMINExVER);
+		if (cap != m_client_caps.constEnd()) {
+			QByteArray data = cap->data();
+			const char *cap_str = data.constData() + 12;
+			m_client_id = QLatin1String("Jasmine ");
+			m_client_id += QString(QLatin1String("%1.%2.%3"))
+			               .arg(QString::number(quint8(cap_str[0])),
+			                    QString::number(quint8(cap_str[1])),
+			                    QString::number(quint8(cap_str[2])));
+			setClientIcon(QLatin1String("jasmine"));
+		}
+	}
 }
 
 void ClientIdentify::identify_Trillian()

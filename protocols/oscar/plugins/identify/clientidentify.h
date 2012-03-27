@@ -112,6 +112,7 @@ private:
 	void identify_LibGaim();
 	void identify_Jimm();
 	void identify_Mip();
+	void identify_Jasmine();
 	void identify_Trillian();
 	void identify_Climm();
 	void identify_Im2();
