@@ -29,6 +29,7 @@
 #include <QWeakPointer>
 
 class VAccount;
+typedef QHash<QString, VAccount*> VAccountHash;
 class QAction;
 class VkontakteProtocol;
 class VkontakteProtocolPrivate : public QObject
@@ -36,15 +37,9 @@ class VkontakteProtocolPrivate : public QObject
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(VkontakteProtocol)
 public:
-	VkontakteProtocolPrivate() :
-		accounts_hash(new QHash<QString, QWeakPointer<VAccount> > ())
-	{ }
-	~VkontakteProtocolPrivate() { delete accounts_hash; }
-	union
-	{
-		QHash<QString, QWeakPointer<VAccount> > *accounts_hash;
-		QHash<QString, VAccount *> *accounts;
-	};
+	VkontakteProtocolPrivate() {}
+	
+	VAccountHash accounts;
 	VkontakteProtocol *q_ptr;
 public slots:
 	void onAccountDestroyed(QObject *obj);
