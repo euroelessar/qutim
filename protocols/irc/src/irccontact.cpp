@@ -55,13 +55,14 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 IrcContact::~IrcContact()
 {
 	Q_ASSERT(d->m_ref == 0);
+	account()->removeContact(d->nick);
 }
 
 void IrcContact::ref()
 {
 	if (d->m_ref++ == 0) {
 		if (ChatSession *session = ChatLayer::get(this, false))
-			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(destroyLater()));
 	}
 }
 
@@ -69,9 +70,9 @@ void IrcContact::deref()
 {
 	if (--d->m_ref == 0) {
 		if (ChatSession *session = ChatLayer::get(this, false))
-			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(destroyLater()));
 		else
-			deleteLater();
+			destroyLater();
 	}
 }
 
@@ -153,10 +154,12 @@ QString IrcContact::realName() const
 	return d->realName;
 }
 
-void IrcContact::onSessionDestroyed()
+void IrcContact::destroyLater()
 {
-	if (d->m_ref == 0)
+	if (d->m_ref == 0) {
+		account()->removeContact(d->nick);
 		deleteLater();
+	}
 }
 
 void IrcContact::handleMode(const QString &who, const QString &mode, const QString &param)

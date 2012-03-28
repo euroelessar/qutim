@@ -37,15 +37,17 @@ IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 	Conference(account), d(new IrcChannelPrivate)
 {
 	d->name = name;
+	d->me = 0;
 }
 
 IrcChannel::~IrcChannel()
 {
+	account()->removeChannel(d->name);
 }
 
 Buddy *IrcChannel::me() const
 {
-	return d->me.data();
+	return d->me;
 }
 
 void IrcChannel::doJoin()
@@ -127,9 +129,9 @@ ChatUnitList IrcChannel::lowerUnits()
 {
 	ChatUnitList users;
 	if (d->me)
-		users << d->me.data();
-	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
-		users << user.data();
+		users << d->me;
+	foreach (const ParticipantPointer &user, d->users)
+		users << user;
 	return users;
 }
 
@@ -151,6 +153,15 @@ void IrcChannel::setBookmarkName(const QString &name)
 {
 	QString current = title();
 	d->bookmarkName = name;
+	if (!name.isEmpty()) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+	} else if (!isJoined()) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		else
+			deleteLater();
+	}
 	emit titleChanged(current, title());
 }
 
@@ -169,15 +180,15 @@ IrcAccount *IrcChannel::account()
 IrcChannelParticipant *IrcChannel::participant(const QString &nick)
 {
 	if (d->me && nick == d->me->name())
-		return d->me.data();
-	return d->users.value(nick).data();
+		return d->me;
+	return d->users.value(nick);
 }
 
 QList<IrcChannelParticipant*> IrcChannel::participants()
 {
 	QList<IrcChannelParticipant*> users;
-	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
-		users << user.data();
+	foreach (const ParticipantPointer &user, d->users)
+		users << user;
 	return users;
 }
 
@@ -186,27 +197,15 @@ void IrcChannel::onMyNickChanged(const QString &nick)
 	addSystemMessage(tr("You are now known as %1").arg(nick), nick);
 }
 
-void IrcChannel::onParticipantNickChanged(const QString &nick)
+void IrcChannel::onParticipantNickChanged(const QString &nick, const QString &oldNick)
 {
-	QHash<QString, ParticipantPointer>::iterator itr = d->users.begin();
-	QHash<QString, ParticipantPointer>::iterator endItr = d->users.end();
-	ParticipantPointer user;
-	QString oldNick;
-	while (itr != endItr) {
-		if (itr->data() == sender()) {
-			user = *itr;
-			oldNick = itr.key();
-			d->users.erase(itr);
-			break;
-		}
-		++itr;
-	}
+	ParticipantPointer user = d->users.take(oldNick);
 	if (!user)
 		return;
-	if (d->users.contains(nick))
-		d->users.remove(nick);
+	// Is it really possible?
+	delete d->users.take(nick);
 	d->users.insert(nick, user);
-	addSystemMessage(tr("%1 are now known as %2").arg(oldNick).arg(nick), nick);
+	addSystemMessage(tr("%1 are now known as %2").arg(oldNick, nick), nick);
 }
 
 void IrcChannel::onContactQuit(const QString &message)
@@ -240,17 +239,17 @@ void IrcChannel::handleUserList(const QStringList &users)
 		}
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick, QString()));
 		if (isMe) {
-			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onMyNickChanged(QString)));
+			connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onMyNickChanged(QString)));
 			d->me = user;
 		} else {
-			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
-			connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
+			connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString,QString)));
+			connect(user, SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 			d->users.insert(userNick, user);
 		}
 		if (isFlag)
 			user->setFlag(flag);
 		if (session)
-			session->addContact(user.data());
+			session->addContact(user);
 	}
 	session->activate();
 }
@@ -261,12 +260,12 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		setJoined(true);
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
-		connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
-		connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
+		connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
+		connect(user, SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 		d->users.insert(nick, user);
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (session)
-			session->addContact(user.data());
+			session->addContact(user);
 		addSystemMessage(tr("%1 (%2) has joined the channel").arg(nick).arg(host), nick, Notification::ChatUserJoined);
 	} else {
 		debug() << nick << "already presents in" << d->name;
@@ -285,11 +284,12 @@ void IrcChannel::handlePart(const QString &nick, const QString &leaveMessage)
 	} else if (ParticipantPointer user = d->users.take(nick)) {
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (session)
-			session->removeContact(user.data());
+			session->removeContact(user);
 		if (!leaveMessage.isEmpty())
 			addSystemMessage(tr("%1 has left this channel (%2)").arg(nick).arg(leaveMessage), nick, Notification::ChatUserLeft);
 		else
 			addSystemMessage(tr("%1 has left this channel").arg(nick), nick, Notification::ChatUserLeft);
+		delete user;
 	} else {
 		debug() << nick << "does not present in" << d->name;
 	}
@@ -324,6 +324,7 @@ void IrcChannel::handleKick(const QString &nick, const QString &by, const QStrin
 							 Notification::ChatUserLeft);
 		}
 		clear(session);
+		delete user;
 	} else {
 		debug() << nick << "does not present in" << d->name;
 	}
@@ -421,12 +422,14 @@ void IrcChannel::addSystemMessage(const QString &message, const QString &sender,
 void IrcChannel::clear(ChatSession *session)
 {
 	if (session)
-		session->removeContact(d->me.data());
-	d->me = ParticipantPointer();
+		session->removeContact(d->me);
+	delete d->me;
+	d->me = 0;
 	emit meChanged(0);
 	foreach (const ParticipantPointer &user, d->users) {
 		if (session)
-			session->removeContact(user.data());
+			session->removeContact(user);
+		delete user;
 	}
 	d->users.clear();
 	setJoined(false);

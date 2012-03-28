@@ -68,7 +68,7 @@ protected:
 	virtual void doLeave();
 private slots:
 	void onMyNickChanged(const QString &nick);
-	void onParticipantNickChanged(const QString &nick);
+	void onParticipantNickChanged(const QString &nick, const QString &oldNick);
 	void onContactQuit(const QString &message);
 private:
 	void setBookmarkName(const QString &name);

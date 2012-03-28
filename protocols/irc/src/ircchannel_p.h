@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
+typedef IrcChannelParticipant* ParticipantPointer;
 
 class IrcChannelPrivate
 {

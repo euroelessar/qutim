@@ -62,7 +62,7 @@ public:
 signals:
 	void quit(const QString &message);
 private slots:
-	void onSessionDestroyed();
+	void destroyLater();
 private:
 	friend class IrcContactPrivate;
 	friend class IrcChannelParticipant;

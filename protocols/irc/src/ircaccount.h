@@ -59,6 +59,8 @@ public:
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, const QString &host, bool create = false);
 	IrcContact *getContact(const QString &nick, bool create = false);
+	void removeContact(const QString &id);
+	void removeChannel(const QString &id);
 	void send(const QString &command, bool highPriority = true,
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams()) const;
@@ -88,9 +90,7 @@ public slots:
 protected:
 	virtual bool event(QEvent *ev);
 private slots:
-	void onContactRemoved();
 	void onContactNickChanged(const QString &nick, const QString &oldNick);
-	void onChannelRemoved();
 private:
 	friend class IrcContact;
 	friend class IrcChannelParticipant;
