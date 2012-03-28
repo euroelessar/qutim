@@ -132,6 +132,8 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 			SLOT(onContactStatusChanged()));
 	connect(contact, SIGNAL(avatarChanged(QString)),
 			SLOT(setAvatar(QString)));
+    connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+            this,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
 
 
 //	if (index == 0)
@@ -217,14 +219,7 @@ void MetaContactImpl::resetStatus()
 
 void MetaContactImpl::onContactStatusChanged()
 {
-/*	Contact *contact = qobject_cast<Contact*>(sender());
-	int oldIndex = m_contacts.indexOf(contact);
-	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
-			- m_contacts.begin();
-	if (index != oldIndex && index != m_contacts.count())
-		m_contacts.move(oldIndex, index);
-	if (index == 0 || oldIndex == 0)
-        resetStatus();*/
+    resetStatus();
 }
 
 void MetaContactImpl::setAvatar(const QString& path)
@@ -266,7 +261,7 @@ bool MetaContactImpl::event(QEvent* ev)
 	} else if(ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *event = static_cast<ChatStateEvent*>(ev);
 		//TODO implement logic
-		qApp->sendEvent(m_contacts.first(),event);
+        qApp->sendEvent(m_active_contact,event);
 	}
 	return qutim_sdk_0_3::MetaContact::event(ev);
 }
