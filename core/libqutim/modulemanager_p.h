@@ -62,7 +62,7 @@ public:
             isServicesInited(false)
 	{}
     inline ~ModuleManagerPrivate() {}
-	void initLocalPeer(const QStringList &args, bool *shouldExit);
+	void initLocalPeer(const QString &message, bool *shouldExit);
 
     QList<QWeakPointer<Plugin> > plugins;
 	QScopedPointer<QtLocalPeer> localPeer;

@@ -52,6 +52,7 @@
 #include <QDesktopServices>
 #include <QTime>
 #include <QQueue>
+#include <QUrl>
 #include <qendian.h>
 #include "objectgenerator.h"
 
@@ -262,18 +263,11 @@ static bool checkQutIMPluginData(const char *data, quint64 *debugId, QString *er
 	return isValidPattern && isValidQutimVersion;
 }
 
-void ModuleManagerPrivate::initLocalPeer(const QStringList &args, bool *shouldExit)
+void ModuleManagerPrivate::initLocalPeer(const QString &message, bool *shouldExit)
 {
 	*shouldExit = false;
 	d->localPeer.reset(new QtLocalPeer(managerSelf));
 	if (d->localPeer->isClient()) {
-		QString message = QLatin1String("arguments: ");
-		QByteArray data;
-		{
-			QDataStream s(&data, QIODevice::WriteOnly);
-			s << args;
-		}
-		message += QLatin1String(data.toBase64());
 		if (d->localPeer->sendMessage(message, 1000)) {
 			*shouldExit = true;
 			return;
@@ -293,6 +287,9 @@ void ModuleManager::_q_messageReceived(const QString &message)
 		QStringList args;
 		s >> args;
 		qDebug() << "Received message with:" << args;
+	} else if (message.startsWith(QLatin1String("url: "))) {
+		QUrl url(message.section(QLatin1Char(' '), 1));
+		QDesktopServices::openUrl(url);
 	}
 }
 
@@ -337,14 +334,35 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 
 	parser.add("version", "Show version information");
 	parser.alias("version", "v");
-
+	
 	parser.add("single-instance", "Run single instance");
+	parser.add("open-url", "Open url", QxtCommandOptions::ValueRequired);
 
 	parser.parse(args);
-
+	
+	QString messageToServer;
+	
 	if (parser.count("single-instance")) {
+		messageToServer = QLatin1String("arguments: ");
+		QByteArray data;
+		{
+			QDataStream s(&data, QIODevice::WriteOnly);
+			s << args;
+		}
+		messageToServer += QLatin1String(data.toBase64());
+	} else if (parser.count("open-url")) {
+		messageToServer = QLatin1String("url: ");
+		messageToServer += parser.value("open-url").toString();
+	} else if (args.count() == 2) {
+		const QString &possibleUrl = args[1];
+		QUrl url = QUrl::fromEncoded(possibleUrl.toUtf8());
+		if (url.isValid() && !url.scheme().isEmpty())
+			messageToServer = QLatin1String("url: ") + possibleUrl;
+	}
+
+	if (!messageToServer.isEmpty()) {
 		bool shouldExit = false;
-		d->initLocalPeer(args, &shouldExit);
+		d->initLocalPeer(messageToServer, &shouldExit);
 		if (shouldExit) {
 			exit(0);
 			return;
