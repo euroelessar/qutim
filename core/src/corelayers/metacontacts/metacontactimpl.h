@@ -50,16 +50,16 @@ public:
 	virtual void setTags(const QStringList &tags);
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
 	virtual void addContact(Contact *contact);
-    void addContacts(QList<Contact*> contacts, bool remove = false);
+	void addContacts(QList<Contact*> contacts, bool remove = false);
 	virtual void removeContact(Contact *contact);
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
-    inline const QList<Contact*> &contacts() const { return m_contacts; }
+	inline const QList<Contact*> &contacts() const { return m_contacts; }
 	virtual const qutim_sdk_0_3::ChatUnit* getHistoryUnit() const;
 	void setContactName(const QString &name);
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
-    void setActiveContact(Contact* contact = 0);
-    Contact* getActiveContact() { return m_active_contact; }
+	void setActiveContact(Contact* contact = 0);
+	Contact* getActiveContact() { return m_active_contact; }
 public slots:
 	void setAvatar(const QString &path);
 protected:
@@ -68,16 +68,16 @@ protected:
 	void addContact(Contact* contact, bool update);
 protected slots:
 	void onContactStatusChanged();
-    void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 private:
 	virtual bool event(QEvent *ev);
-    QString m_id;
+	QString m_id;
 	QString m_name;
 	qutim_sdk_0_3::Status m_status;
 	QStringList m_tags;
-    QList<Contact*> m_contacts;
+	QList<Contact*> m_contacts;
 	QString m_lastAvatar;
-    Contact* m_active_contact;
+	Contact* m_active_contact;
 };
 }
 }

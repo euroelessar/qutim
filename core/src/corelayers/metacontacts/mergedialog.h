@@ -41,26 +41,26 @@ class Model;
 
 
 namespace Ui {
-    class MergeDialog;
+	class MergeDialog;
 }
 class MetaContactImpl;
 class MergeDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	explicit MergeDialog(QWidget *parent = 0);
-    ~MergeDialog();
+	~MergeDialog();
 	void setMetaContact(MetaContactImpl *contact);
 protected:
-    virtual void closeEvent(QCloseEvent* );	
+	virtual void closeEvent(QCloseEvent* );
 private slots:
-    void setName(const QString &name);
+	void setName(const QString &name);
 	void nameChanged(const QString &name);
-    void onClicked();
-    void accept();
+	void onClicked();
+	void accept();
 private:
-    Ui::MergeDialog *ui;
+	Ui::MergeDialog *ui;
 	Model *m_model;
 };
 
