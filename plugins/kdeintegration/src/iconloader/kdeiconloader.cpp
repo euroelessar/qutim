@@ -26,6 +26,7 @@
 #include <kiconloader.h>
 #include <kicon.h>
 #include <kcomponentdata.h>
+#include <qutim/debug.h>
 
 KdeIconLoader::KdeIconLoader()
 {
@@ -44,7 +45,7 @@ QMovie *KdeIconLoader::doLoadMovie(const QString &name)
 
 QString KdeIconLoader::doIconPath(const QString &name, uint iconSize)
 {
-	return KIconLoader::global()->iconPath(name, iconSize, true);
+	return KIconLoader::global()->iconPath(name, -iconSize, true);
 }
 
 QString KdeIconLoader::doMoviePath(const QString &name, uint iconSize)
