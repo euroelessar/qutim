@@ -47,15 +47,27 @@ MergeDialog::MergeDialog(QWidget *parent) :
 			m_model, SLOT(searchContacts(QString)));
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),
 			m_model, SLOT(activated(QModelIndex)));
-	connect(m_model, SIGNAL(addContactTriggered(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
-	connect(m_model, SIGNAL(removeContactTriggered(qutim_sdk_0_3::Contact*)),
-			this, SLOT(removeContact(qutim_sdk_0_3::Contact*)));
+    connect(ui->treeView, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(onClicked()));
 }
 
 MergeDialog::~MergeDialog()
 {
     delete ui;
+}
+
+void MergeDialog::accept()
+{
+    QList<Contact*> contacts = m_model->getContacts();
+    if(!(contacts.count() < 2)) {
+        MetaContactImpl *metaContact = m_model->metaContact();
+        if (!metaContact)
+            metaContact = static_cast<MetaContactImpl*>(MetaContactManager::instance()->createContact());
+
+        metaContact->setName(ui->nameEdit->text());
+        metaContact->addContacts(contacts, true);
+    }
+    QDialog::accept();
 }
 
 void MergeDialog::setMetaContact(MetaContactImpl* contact)
@@ -67,25 +79,6 @@ void MergeDialog::setMetaContact(MetaContactImpl* contact)
 
 	m_model->setMetaContact(contact);
 	nameChanged(contact->name());
-}
-
-void MergeDialog::addContact(qutim_sdk_0_3::Contact *contact)
-{
-	MetaContactImpl *metaContact = m_model->metaContact();
-	if (!metaContact) {
-		metaContact = static_cast<MetaContactImpl*>(MetaContactManager::instance()->createContact());
-		metaContact->addContact(contact);
-		setMetaContact(metaContact);
-	} else
-		metaContact->addContact(contact);
-
-}
-
-void MergeDialog::removeContact(qutim_sdk_0_3::Contact *contact)
-{
-	MetaContactImpl *metaContact = m_model->metaContact();
-	Q_ASSERT(metaContact);
-	metaContact->removeContact(contact);
 }
 
 void MergeDialog::setName(const QString& name)
@@ -102,10 +95,17 @@ void MergeDialog::closeEvent(QCloseEvent *ev)
 
 void MergeDialog::nameChanged(const QString& name)
 {
-	ui->nameEdit->setText(name);
+    ui->nameEdit->setText(name);
 	setWindowTitle(tr("%1 - qutIM").arg(name));
 }
 
+void MergeDialog::onClicked()
+{
+    if(!(ui->searchField->text().size() == 0))
+        m_model->searchContacts(ui->searchField->text());
+    else if(!(ui->nameEdit->text().size() == 0))
+            m_model->searchContacts(ui->nameEdit->text());
+}
 
 } // namespace MetaContacts
 } // namespace Core

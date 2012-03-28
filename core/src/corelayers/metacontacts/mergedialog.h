@@ -55,10 +55,10 @@ public:
 protected:
     virtual void closeEvent(QCloseEvent* );	
 private slots:
-	void addContact(qutim_sdk_0_3::Contact *);
-	void removeContact(qutim_sdk_0_3::Contact *);
-	void setName(const QString &name);
+    void setName(const QString &name);
 	void nameChanged(const QString &name);
+    void onClicked();
+    void accept();
 private:
     Ui::MergeDialog *ui;
 	Model *m_model;

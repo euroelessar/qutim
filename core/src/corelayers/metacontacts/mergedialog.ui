@@ -77,12 +77,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>186</x>
-     <y>438</y>
+     <x>206</x>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>227</y>
+     <x>2</x>
+     <y>235</y>
     </hint>
    </hints>
   </connection>

@@ -50,7 +50,7 @@ public:
 	virtual void setTags(const QStringList &tags);
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
 	virtual void addContact(Contact *contact);
-	void addContacts(QList<Contact*> contacts);
+    void addContacts(QList<Contact*> contacts, bool remove = false);
 	virtual void removeContact(Contact *contact);
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
     inline const QList<Contact*> &contacts() const { return m_contacts; }
@@ -69,7 +69,6 @@ protected:
 protected slots:
 	void onContactStatusChanged();
     void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
-    void onMessageReceived(qutim_sdk_0_3::Message* message);
 private:
 	virtual bool event(QEvent *ev);
     QString m_id;
