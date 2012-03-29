@@ -59,6 +59,8 @@ IrcAccount::IrcAccount(const QString &network) :
 
 IrcAccount::~IrcAccount()
 {
+	qDeleteAll(d->channels);
+	qDeleteAll(d->contacts);
 }
 
 void IrcAccount::setStatus(Status status)

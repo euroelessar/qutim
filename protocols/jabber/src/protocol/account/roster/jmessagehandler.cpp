@@ -137,6 +137,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 			//TODO send this request only when message marked as read
 			Jreen::Message request(Jreen::Message::Chat,
 								   message.from());
+			request.setThread(message.thread());
 			//for slowpoke clients
 			request.setID(message.id());
 			//correct behaviour
