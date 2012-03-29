@@ -26,10 +26,15 @@
 #include <kiconloader.h>
 #include <kicon.h>
 #include <kcomponentdata.h>
+#include <KStandardDirs>
 #include <qutim/debug.h>
+#include <qutim/systeminfo.h>
 
 KdeIconLoader::KdeIconLoader()
 {
+	KStandardDirs *dirs = KGlobal::dirs();
+	dirs->addResourceDir("icon", SystemInfo::getPath(SystemInfo::SystemShareDir) + QLatin1String("/icons/"), false);
+	dirs->addResourceDir("icon", SystemInfo::getPath(SystemInfo::ShareDir) + QLatin1String("/icons/"), true);
 	KIconLoader::global()->reconfigure("qutim", 0);
 }
 

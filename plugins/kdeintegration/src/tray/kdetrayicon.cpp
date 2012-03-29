@@ -30,6 +30,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/utils.h>
 #include <KStatusNotifierItem>
+#include <KIconLoader>
 #include <KMenu>
 #include <QDebug>
 #include <QMetaType>
@@ -39,7 +40,7 @@ using namespace qutim_sdk_0_3;
 
 #define ICON_ONLINE QLatin1String("qutim-online")
 #define ICON_OFFLINE QLatin1String("qutim-offline")
-#define ICON_NEW_MESSAGE QLatin1String("mail-message-new-qutim")
+#define ICON_NEW_MESSAGE QLatin1String("qutim-message-new")
 
 namespace KdeIntegration
 {
@@ -170,6 +171,9 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	//		m_item->setAssociatedWidget(widget);
 	//	}
 	m_item->setContextMenu(kmenu);
+	debug() << KIconLoader::global()->iconPath(ICON_ONLINE, KIconLoader::Panel)
+	        << KIconLoader::global()->iconPath(ICON_OFFLINE, KIconLoader::Panel)
+	        << KIconLoader::global()->iconPath(ICON_NEW_MESSAGE, KIconLoader::Panel);
 	m_item->setIconByName(ICON_OFFLINE);
 	m_item->setAttentionIconByName(ICON_NEW_MESSAGE);
 	qApp->setQuitOnLastWindowClosed(false);
@@ -206,6 +210,7 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	if (m_actions.contains(account))
 		return;
+	debug() << "Account added" << account->id();
 	m_accounts << account;
 	ActionGenerator *gen = new AccountMenuActionGenerator(account);
 	gen->setPriority(- m_protocols.indexOf(account->protocol()) * 2);
@@ -226,10 +231,10 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	Account *account = qobject_cast<Account*>(sender());
-	if (account == m_activeAccount || !m_activeAccount) {
+	if (account == m_activeAccount.data() || !m_activeAccount) {
 		m_activeAccount = account;
 		if (account->status().type() == Status::Offline) {
-			m_activeAccount = 0;
+			m_activeAccount.clear();
 		}
 		m_currentIcon = status.icon();
 	}
@@ -243,7 +248,10 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 				break;
 			}
 		}
+	} else {
+		iconName = ICON_ONLINE;
 	}
+	debug() << "Status changed" << account->id() << iconName;
 	m_item->setIconByName(iconName);
 	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
 }

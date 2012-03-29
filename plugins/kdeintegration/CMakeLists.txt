@@ -8,6 +8,8 @@ endif()
 
 include(KDE4Defaults)
 
+add_definitions( ${KDE4_DEFINITIONS} )
+
 qutim_add_plugin(kdeintegration
 	${KDE4_PLUGIN_SRC}
 	DISPLAY_NAME "KDE integration"
@@ -16,4 +18,9 @@ qutim_add_plugin(kdeintegration
 	INCLUDE_DIRS ${KDE4_INCLUDES}
 	)
 
-add_definitions( ${KDE4_DEFINITIONS} )
+message( "${KDE4_DATA_INSTALL_DIR}/desktoptheme/default/icons" )
+message( "${DATA_INSTALL_DIR}/desktoptheme/default/icons" )
+install( FILES icons/qutim.svg
+	DESTINATION "${DATA_INSTALL_DIR}/desktoptheme/default/icons"
+	COMPONENT Artwork
+	)

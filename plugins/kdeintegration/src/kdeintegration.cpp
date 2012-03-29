@@ -39,6 +39,8 @@
 #include <qutim/event.h>
 #include <QCoreApplication>
 #include <KAboutData>
+#include <KStandardDirs>
+#include <qutim/systeminfo.h>
 #include <kcmdlineargs.h>
 #include <QDebug>
 
@@ -66,7 +68,6 @@ KdePlugin::KdePlugin()
 
 void KdePlugin::init()
 {
-	//		QApplication::setPalette(KGlobalSettings::createApplicationPalette());
 	menu_creator_hook = kmenu_creator;
 	KAboutData aboutData(QCoreApplication::applicationName().toUtf8(),
 						 QByteArray(),
@@ -75,8 +76,6 @@ void KdePlugin::init()
 	aboutData.setProgramIconName(QLatin1String("qutim"));
 	aboutData.setHomepage("http://qutim.org");
 
-//	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@yandex.ru");
-//	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "gorthauer87@yandex.ru");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
 	aboutData.addLicense(KAboutData::License_GPL_V2);
 	aboutData.setBugAddress("https://bugs.launchpad.net/qutim/+filebug");

@@ -93,9 +93,9 @@ SimpleTray::SimpleTray() :
 	m_activeAccount = 0;
 	m_showGeneratedIcon = false;
 	m_icon = new QSystemTrayIcon(this);
-	m_icon->setIcon(m_currentIcon = Icon("qutim-offline"));
+	m_icon->setIcon(m_currentIcon = Icon(QLatin1String("qutim-offline")));
 	m_icon->show();
-	m_mailIcon                = Icon(QLatin1String("mail-message-new-qutim"));
+	m_mailIcon                = Icon(QLatin1String("qutim-message-new"));
 	m_typingIcon              = Icon(QLatin1String("im-status-message-edit"));
 	m_chatUserJoinedIcon      = Icon(QLatin1String("list-add-user-conference"));
 	m_chatUserLeftIcon        = Icon(QLatin1String("list-remove-user-conference"));
