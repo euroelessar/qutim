@@ -57,7 +57,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	pal.setColor(QPalette::Text, Qt::white);
 	m_ui->xmlBrowser->viewport()->setPalette(pal);
 	QTextDocument *doc = m_ui->xmlBrowser->document();
-	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
+//	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
 	doc->clear();
 	
 	QTextFrameFormat format = doc->rootFrame()->frameFormat();
@@ -312,6 +312,8 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 						lastType = QXmlStreamReader::EndElement;
 				}
 				cursor.endEditBlock();
+			}
+			if (d->depth == 2) {
 				qDeleteAll(d->tokens);
 				d->tokens.clear();
 			}
@@ -390,9 +392,10 @@ void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 		node.block.setLineCount(ok ? node.lineCount : 0);
 		//		qDebug() << node.block.lineCount();
 	}
-	QAbstractTextDocumentLayout *layout = m_ui->xmlBrowser->document()->documentLayout();
-	Q_ASSERT(qobject_cast<QPlainTextDocumentLayout*>(layout));
-	qobject_cast<QPlainTextDocumentLayout*>(layout)->requestUpdate();
+//	QAbstractTextDocumentLayout *layout = m_ui->xmlBrowser->document()->documentLayout();
+//	layout.
+//	Q_ASSERT(qobject_cast<QPlainTextDocumentLayout*>(layout));
+//	qobject_cast<QPlainTextDocumentLayout*>(layout)->requestUpdate();
 }
 
 void Jabber::XmlConsole::on_saveButton_clicked()

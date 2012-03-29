@@ -2,9 +2,48 @@ Copyright (c) 2008-2009 by qutim.org team (see file AUTHORS).
 qutIM source code is licensed under GNU GPL v3 or any later release.
 Full text of GNU GPLv3 license is included in the archive, you can find it
 in the ./GPL file.
+
 All application icons and other artwork is licensed under CC-BY-SA 3.0 license.
 Full text of CC-BY-SA 3.0 license is included in the archive, you can find
 it in the ./CCBYSA file.
+
+SHA2 implementation in C is property of Oliver Gay and is licensed
+under BSD (3 clause) license.
+(c) 2005, 2007 Olivier Gay <olivier.gay@a3.epfl.ch>
+
+Rich Text Format implementation is property of Geometer Plus and is
+licensed under GNU GPL.
+(c) 2004-2010 Geometer Plus <contact@geometerplus.com>
+
+Flow layout implementation is part of the examples of the Qt Toolkit
+(http://qt.nokia.com) and is licensed under GNU LGPL.
+(c) 2009 Nokia Corporation and/or its subsidiary(-ies)
+
+QtDWM is property of Nokia (htp://nokia.com) and is provided without any
+limitations, warranty, liability or support of any kind.
+(c) 2009 Nokia Corporation and/or its subsidiary(-ies)
+
+Qt Solutions are property of Nokia (http://nokia.com) and are licensed
+under GNU GPL.
+(c) 2009 Nokia Corporation and/or its subsidiary(-ies)
+
+QXdg is property of Ruslan Nigmatullin and Maia Kozheva and is licensed
+under GNU LGPL.
+(c) 2009 Maia Kozheva <sikon@ubuntu.com>
+(c) 2012 Ruslan Nigmatullin <euroelessar@ya.ru>
+
+Sliding stack widget implementation is part of the examples of the
+Qt Toolkit (http://qt.nokia.com) and is licensed under GNU GPL.
+(c) 2009 Nokia Corporation and/or its subsidiary(-ies)
+(c) 2011 Evgeniy Degtyarev <degtep@gmail.com>
+(c) 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+
+k8json is coded by Ketmar (psyc://ketmar.no-ip.org/~Ketmar) and licensed
+under WTFPL.
+
+QxtCommandOptions is property of Qxt Foundation (http://libqxt.org) and
+is licensed under GNU LGPL.
+(c) 2007-2010, Qxt Foundation <foundation@libqxt.org>
 
 Android icon is property of Madeliniz (http://madeliniz.deviantart.com)
 and is licensed under CC Attribution.
