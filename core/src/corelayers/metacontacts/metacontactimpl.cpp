@@ -56,7 +56,6 @@ bool contactLessThan(Contact *a, Contact *b)
 MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id), m_activeContact(0)
 {
 	connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-	m_activeContact = 0;
 }
 
 MetaContactImpl::~MetaContactImpl()
