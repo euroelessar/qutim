@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,50 +24,41 @@
 **
 ****************************************************************************/
 
-#ifndef MANAGER_H
-#define MANAGER_H
-
-#include <qutim/metacontactmanager.h>
-#include "metacontactimpl.h"
 #include "messagehandler.h"
+#include <qutim/debug.h>
+#include <qutim/metacontact.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
+#include "metacontactimpl.h"
 
-namespace qutim_sdk_0_3 {
-class RosterStorage;
-}
+using namespace qutim_sdk_0_3;
 
 namespace Core
 {
 namespace MetaContacts
 {
-
-class Factory;
-class Manager : public qutim_sdk_0_3::MetaContactManager
+MetaContactMessageHandler::MetaContactMessageHandler()
 {
-	Q_OBJECT
-	Q_CLASSINFO("Uses", "RosterStorage")
-public:
-	Manager();
-	virtual ~Manager();
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
-	void removeContact(const QString &id) { m_contacts.remove(id); }
-	virtual QString name() const;
-protected:
-	virtual void loadContacts();
-private slots:
-	void initActions();
-	void onSplitTriggered(QObject*);
-	void onCreateTriggered(QObject*);
-	void onContactCreated(qutim_sdk_0_3::Contact*);
-private:
-	QHash<QString, MetaContactImpl*> m_contacts;
-	qutim_sdk_0_3::RosterStorage *m_storage;
-	QScopedPointer<Factory> m_factory;
-	friend class Factory;
-	bool m_blockUpdate;
-	QScopedPointer <MetaContactMessageHandler> m_handler;
-};
-}
 }
 
-#endif // MANAGER_H
+MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
+{
+	if (message.isIncoming()) {
+		if (MetaContactImpl *contact = qobject_cast<MetaContactImpl*>(message.chatUnit()->metaContact())) {
+			Contact *rawContact = 0;
+			ChatUnit *u = message.chatUnit();
+			while (u) {
+			   if ((rawContact = qobject_cast<Contact*>(u)))
+						break;
+					u = u->upperUnit();
+			}
+			if (rawContact && contact->getActiveContact()->buddy() != rawContact)
+				contact->setActiveContact(rawContact);
+		}
+	}
+	return MetaContactMessageHandler::Accept;
 
+}
+
+}
+}

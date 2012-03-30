@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -27,6 +28,8 @@
 #define METACONTACTIMPL_H
 
 #include <qutim/metacontact.h>
+#include <qutim/chatsession.h>
+
 
 namespace Core
 {
@@ -48,7 +51,7 @@ public:
 	virtual void setTags(const QStringList &tags);
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
 	virtual void addContact(Contact *contact);
-	void addContacts(QList<Contact*> contacts);
+	void addContacts(QList<Contact*> contacts, bool remove = false);
 	virtual void removeContact(Contact *contact);
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 	inline const QList<Contact*> &contacts() const { return m_contacts; }
@@ -56,6 +59,8 @@ public:
 	void setContactName(const QString &name);
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
+	void setActiveContact(Contact* contact = 0);
+	Contact* getActiveContact() { return m_active_contact; }
 public slots:
 	void setAvatar(const QString &path);
 protected:
@@ -64,6 +69,7 @@ protected:
 	void addContact(Contact* contact, bool update);
 protected slots:
 	void onContactStatusChanged();
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 private:
 	virtual bool event(QEvent *ev);
 	QString m_id;
@@ -72,6 +78,7 @@ private:
 	QStringList m_tags;
 	QList<Contact*> m_contacts;
 	QString m_lastAvatar;
+	Contact* m_active_contact;
 };
 }
 }

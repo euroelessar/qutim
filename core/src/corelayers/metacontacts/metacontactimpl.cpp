@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -54,6 +55,7 @@ bool contactLessThan(Contact *a, Contact *b)
 
 MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id)
 {
+	connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
 
 MetaContactImpl::~MetaContactImpl()
@@ -90,12 +92,7 @@ void MetaContactImpl::setTags(const QStringList &tags)
 
 bool MetaContactImpl::sendMessage(const Message &message)
 {
-	//TODO implement logic
-	for (int i = 0; i < m_contacts.size(); i++) {
-		if (m_contacts.at(i)->sendMessage(message))
-			return true;
-	}
-	return false;
+	return m_active_contact->sendMessage(message);
 }
 
 void MetaContactImpl::addContact(Contact* contact, bool update)
@@ -114,24 +111,24 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 		emit tagsChanged(m_tags, previous);
 	}
 
-	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
-			- m_contacts.begin();
-	m_contacts.insert(index, contact);
+	m_contacts.append(contact);
 	MetaContact::addContact(contact);
 	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onContactStatusChanged()));
 	connect(contact, SIGNAL(avatarChanged(QString)),
 			SLOT(setAvatar(QString)));
+	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			this,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
 
-	if (index == 0)
-		resetStatus();
-	if (m_contacts.size() == 1 || m_name.isEmpty())
+	if (m_name.isEmpty())
 		resetName();
 
 	//setMenuOwner(contact); TODO, implement logic!
 		
 	if(update)
 		RosterStorage::instance()->updateContact(this);
+	setActiveContact();
+	resetStatus();
 }
 
 void MetaContactImpl::addContact(Contact *contact)
@@ -180,7 +177,16 @@ void MetaContactImpl::resetStatus()
 		return;
 	}
 	Status previous = m_status;
-	Status contactStatus = m_contacts.first()->status();
+	Status contactStatus = m_active_contact->status();
+	if (contactStatus.type() == Status::Offline) {
+		for(int i = 0; i < m_contacts.size(); i++) {
+			if (m_contacts.at(i)->status().type() != Status::Offline) {
+				contactStatus = m_contacts.at(i)->status();
+				break;
+			}
+
+		}
+	}
 	if (contactStatus.type() == m_status.type()
 			&& contactStatus.text() == m_status.text()) {
 		return;
@@ -193,10 +199,13 @@ void MetaContactImpl::resetStatus()
 		QHash<QString, QVariantHash> hash = m_contacts.at(i)->status().extendedInfos();
 		QHash<QString, QVariantHash>::const_iterator it = hash.constBegin();
 		QHash<QString, QVariantHash>::const_iterator endit = hash.constEnd();
+		const QString showInTooltip = QLatin1String("showInTooltip");
 		for (; it != endit; it++) {
 			if (!keys.contains(it.key())) {
 				keys << it.key();
-				m_status.setExtendedInfo(it.key(), it.value());
+				QVariantHash data = it.value();
+				data.insert(showInTooltip, false);
+				m_status.setExtendedInfo(it.key(), data);
 			}
 		}
 	}
@@ -205,14 +214,7 @@ void MetaContactImpl::resetStatus()
 
 void MetaContactImpl::onContactStatusChanged()
 {
-	Contact *contact = qobject_cast<Contact*>(sender());
-	int oldIndex = m_contacts.indexOf(contact);
-	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
-			- m_contacts.begin();
-	if (index != oldIndex && index != m_contacts.count())
-		m_contacts.move(oldIndex, index);
-	if (index == 0 || oldIndex == 0)
-		resetStatus();
+	resetStatus();
 }
 
 void MetaContactImpl::setAvatar(const QString& path)
@@ -231,38 +233,42 @@ qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 
 const qutim_sdk_0_3::ChatUnit* MetaContactImpl::getHistoryUnit() const
 {
-	//implement logic
-	return m_contacts.first();
+	//TODO improve history
+	return m_active_contact;
 }
 
 bool MetaContactImpl::event(QEvent* ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
-		if (ev->type() == ToolTipEvent::eventType()) {
-			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			if (event->generateLayout())
-				Contact::event(ev);
-			foreach (ChatUnit *contact, m_contacts) {
-				ToolTipEvent contactEvent(false);
-				qApp->sendEvent(contact, &contactEvent);
-				QString text = contactEvent.html();
-				if (!text.isEmpty())
-					event->addHtml(QLatin1Literal("<br/><br/>") % text);
-			}
-			return true;
+		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		if (event->generateLayout())
+			Contact::event(ev);
+		foreach (ChatUnit *contact, m_contacts) {
+			ToolTipEvent contactEvent(false);
+			qApp->sendEvent(contact, &contactEvent);
+			QString text = contactEvent.html();
+			if (!text.isEmpty())
+				event->addHtml(QLatin1Literal("<br/><br/>") % text);
 		}
+		return true;
 	} else if(ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *event = static_cast<ChatStateEvent*>(ev);
-		//TODO implement logic
-		qApp->sendEvent(m_contacts.first(),event);
+		qApp->sendEvent(m_active_contact,event);
 	}
 	return qutim_sdk_0_3::MetaContact::event(ev);
 }
 
-void MetaContactImpl::addContacts(QList<Contact*> contacts)
+void MetaContactImpl::addContacts(QList<Contact*> contacts, bool remove)
 {
-	foreach(Contact *contact, contacts)
-		addContact(contact,false);
+	bool update = false;
+	if(remove) {
+		m_contacts.clear();
+		update = true;
+	}
+
+	foreach(Contact *contact, contacts) {
+		addContact(contact,update);
+	}
 }
 
 void MetaContactImpl::setContactAvatar(const QString& path)
@@ -289,7 +295,27 @@ void MetaContactImpl::setContactTags(const QStringList& tags)
 	emit tagsChanged(m_tags,previous);
 }
 
+void MetaContactImpl::setActiveContact(Contact* contact)
+{
+	if(contact) {
+		m_active_contact = contact;
+		return;
+	}
+	for (int i = 0; i < m_contacts.size(); i++) {
+		if (m_contacts.at(i)->status().type() != Status::Offline) {
+			m_active_contact = m_contacts.at(i);
+			return;
+		}
+	}
+	m_active_contact = m_contacts.at(0);
+}
 
+void MetaContactImpl::onSessionCreated(ChatSession *session)
+{
+	MetaContact *contact = qobject_cast<MetaContact*>(session->unit());
+	if(contact == this->metaContact())
+		setActiveContact();
+}
 
 }
 }

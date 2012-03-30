@@ -91,6 +91,8 @@ static QString toString(Notification::Type type, const QString &argument)
 static inline ChatUnit *getUnitForSession(QObject *obj)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	if (ChatUnit *contact = unit->metaContact())
+			unit = contact;
 	return unit ? unit->account()->getUnitForSession(unit) : 0;
 }
 
@@ -227,7 +229,7 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 
 void NotificationFilterImpl::onOpenChatClicked(const NotificationRequest &request)
 {
-	ChatUnit *unit = qobject_cast<ChatUnit*>(request.object());
+	ChatUnit *unit = getUnitForSession(request.object());
 	if (!unit)
 		return;
 	ChatSession *session = ChatLayer::get(unit);
@@ -240,7 +242,7 @@ void NotificationFilterImpl::onIgnoreChatClicked(const NotificationRequest &requ
 	QVariant msgVar = request.property("message", QVariant());
 	if (msgVar.isNull())
 		return;
-	ChatUnit *unit = qobject_cast<ChatUnit*>(request.object());
+	ChatUnit *unit = getUnitForSession(request.object());
 	if (!unit)
 		return;
 	ChatSession *session = ChatLayer::get(unit, false);

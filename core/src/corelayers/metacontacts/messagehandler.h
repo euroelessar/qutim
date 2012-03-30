@@ -2,7 +2,8 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -23,50 +24,24 @@
 **
 ****************************************************************************/
 
-#ifndef MANAGER_H
-#define MANAGER_H
+#ifndef METACONTACTMESSAGEHANDLER_H
+#define METACONTACTMESSAGEHANDLER_H
 
-#include <qutim/metacontactmanager.h>
-#include "metacontactimpl.h"
-#include "messagehandler.h"
-
-namespace qutim_sdk_0_3 {
-class RosterStorage;
-}
+#include <qutim/messagehandler.h>
 
 namespace Core
 {
 namespace MetaContacts
 {
-
-class Factory;
-class Manager : public qutim_sdk_0_3::MetaContactManager
+class MetaContactMessageHandler : public qutim_sdk_0_3::MessageHandler
 {
-	Q_OBJECT
-	Q_CLASSINFO("Uses", "RosterStorage")
 public:
-	Manager();
-	virtual ~Manager();
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
-	void removeContact(const QString &id) { m_contacts.remove(id); }
-	virtual QString name() const;
+	MetaContactMessageHandler();
 protected:
-	virtual void loadContacts();
-private slots:
-	void initActions();
-	void onSplitTriggered(QObject*);
-	void onCreateTriggered(QObject*);
-	void onContactCreated(qutim_sdk_0_3::Contact*);
-private:
-	QHash<QString, MetaContactImpl*> m_contacts;
-	qutim_sdk_0_3::RosterStorage *m_storage;
-	QScopedPointer<Factory> m_factory;
-	friend class Factory;
-	bool m_blockUpdate;
-	QScopedPointer <MetaContactMessageHandler> m_handler;
+	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 };
+
 }
 }
 
-#endif // MANAGER_H
-
+#endif // METACONTACTMESSAGEHANDLER_H

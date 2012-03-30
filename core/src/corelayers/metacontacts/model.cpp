@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -56,11 +57,12 @@ void Model::searchContacts(const QString& name)
 	if(name.isEmpty())
 		return;
 
+	QList<Contact*> contacts = getContacts();
 	foreach(Account *account,Account::all()) {
 		foreach(Contact *contact, account->findChildren<Contact*>()) {
 			if(!contact->title().contains(name,Qt::CaseInsensitive))
 				continue;
-			if(m_metaContact && m_metaContact.data()->contacts().contains(contact))
+			if(contacts.contains(contact))
 				continue;
 			addContact(contact,m_searchRoot);
 		}
@@ -105,13 +107,19 @@ void Model::activated(const QModelIndex& index)
 	Contact *contact = item->data().value<Contact*>();
 	if(!contact)
 		return;
-	if(item->parent() == m_metaRoot) {
-		emit removeContactTriggered(contact);
-	} else {
+	if(!(item->parent() == m_metaRoot))
 		addContact(contact,m_metaRoot);
-		emit addContactTriggered(contact);
-	}
+
 	item->parent()->removeRow(index.row());
+}
+
+QList<Contact*> Model::getContacts() const
+{
+	QList<Contact*> contacts;
+	for(int i = 0; i != m_metaRoot->rowCount(); i++)
+		contacts.append(m_metaRoot->child(i)->data().value<Contact*>());
+
+	return contacts;
 }
 
 } // namespace MetaContacts
