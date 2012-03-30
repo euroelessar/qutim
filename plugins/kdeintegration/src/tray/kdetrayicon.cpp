@@ -131,7 +131,8 @@ using namespace KdeIntegration;
 
 KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	MenuController(parent),
-	NotificationBackend("Tray")
+	NotificationBackend("Tray"),
+    m_currentIcon(QIcon())
 {
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	setMenuOwner(qobject_cast<MenuController*>(contactList));
@@ -216,44 +217,12 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 	gen->setPriority(- m_protocols.indexOf(account->protocol()) * 2);
 	m_actions.insert(account, gen);
 	addAction(gen);
-	connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
+	connect(account, SIGNAL(destroyed(QObject*)),
+	        SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-	if (!m_activeAccount) {
-		if (account->status().type() != Status::Offline)
-			m_activeAccount = account;
-		m_currentIcon = account->status().icon();
-		m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
-	}
+			SLOT(validateIcon()));
+	validateIcon();
 	validateProtocolActions();
-}
-
-void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
-{
-	Account *account = qobject_cast<Account*>(sender());
-	if (account == m_activeAccount.data() || !m_activeAccount) {
-		m_activeAccount = account;
-		if (account->status().type() == Status::Offline) {
-			m_activeAccount.clear();
-		}
-		m_currentIcon = status.icon();
-	}
-	QString iconName = ICON_OFFLINE;
-	if (!m_activeAccount) {
-		foreach (Account *acc, m_accounts) {
-			if (acc->status().type() != Status::Offline) {
-				m_activeAccount = acc;
-				m_currentIcon = acc->status().icon();
-				iconName = ICON_ONLINE;
-				break;
-			}
-		}
-	} else {
-		iconName = ICON_ONLINE;
-	}
-	debug() << "Status changed" << account->id() << iconName;
-	m_item->setIconByName(iconName);
-	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
 }
 
 void KdeTrayIcon::handleNotification(Notification *notification)
@@ -266,14 +235,22 @@ void KdeTrayIcon::handleNotification(Notification *notification)
 			SLOT(onNotificationFinished()));
 }
 
-QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)
+void KdeTrayIcon::validateIcon()
 {
-	QIcon icon;
-	icon.addPixmap(source.pixmap(16));
-	icon.addPixmap(source.pixmap(32));
-	//	icon.addPixmap(source.pixmap(64));
-	//	icon.addPixmap(source.pixmap(128));
-	return source;
+	QString iconName = ICON_OFFLINE;
+	QString overlayIconName;
+	Status::Type bestStatus = Status::Offline;
+	foreach (Account *acc, m_accounts) {
+		const Status status = acc->status();
+		if (status != Status::Connecting && status.type() < bestStatus) {
+			overlayIconName = Icon(status.icon()).name();
+			iconName = ICON_ONLINE;
+			bestStatus = status.type();
+			break;
+		}
+	}
+	m_item->setIconByName(iconName);
+	m_item->setOverlayIconByName(overlayIconName);
 }
 
 void KdeTrayIcon::validateProtocolActions()

@@ -31,6 +31,7 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/notification.h>
+#include <qutim/icon.h>
 #include <KStatusNotifierItem>
 
 namespace KdeIntegration
@@ -62,11 +63,10 @@ public:
 private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);
-	void onStatusChanged(const qutim_sdk_0_3::Status &);
 	void onNotificationFinished();
+	void validateIcon();
 private:
 	void handleNotification(qutim_sdk_0_3::Notification *notification);
-	QIcon convertToPixmaps(const QIcon &icon);
 	void validateProtocolActions();
 	KStatusNotifierItem *m_item;
 	QMap<qutim_sdk_0_3::Account*, qutim_sdk_0_3::ActionGenerator*> m_actions;
@@ -75,7 +75,7 @@ private:
 	QWeakPointer<qutim_sdk_0_3::Account> m_activeAccount;
 	QList<qutim_sdk_0_3::Protocol*> m_protocols;
 	QList<qutim_sdk_0_3::Notification*> m_notifications;
-	QIcon m_currentIcon;
+	qutim_sdk_0_3::Icon m_currentIcon;
 };
 
 class KdeStatusNotifierItem : public KStatusNotifierItem
