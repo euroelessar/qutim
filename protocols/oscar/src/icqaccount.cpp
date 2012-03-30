@@ -259,14 +259,13 @@ void IcqAccount::setStatus(Status status_helper)
 				plugin->statusChanged(contact, status, TLVMap());
 		}
 	} else if (status == Status::Connecting) {
-		status = Status::createConnecting(status, "icq");
 		emit statusChanged(status, current);
 		Account::setStatus(status);
 		return;
 	} else {
 		d->lastStatus = status;
-		status = Status::createConnecting(status, "icq");
 		if (current == Status::Offline) {
+			status = Status::createConnecting(status, "icq");
 			d->conn->connectToLoginServer(QString());
 		} else {
 			d->conn->sendStatus(status);
