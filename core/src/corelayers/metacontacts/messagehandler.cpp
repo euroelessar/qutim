@@ -43,7 +43,9 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 
 MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
 {
-	if (message.isIncoming()) {
+	Q_UNUSED(reason);
+	if (message.isIncoming() && !qobject_cast<MetaContactImpl*>(message.chatUnit())) {
+		Q_ASSERT(message.chatUnit());
 		if (MetaContactImpl *contact = qobject_cast<MetaContactImpl*>(message.chatUnit()->metaContact())) {
 			Contact *rawContact = 0;
 			ChatUnit *u = message.chatUnit();
@@ -52,7 +54,7 @@ MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Messag
 						break;
 					u = u->upperUnit();
 			}
-			if (rawContact && contact->getActiveContact()->buddy() != rawContact)
+			if (rawContact && contact->getActiveContact() != rawContact)
 				contact->setActiveContact(rawContact);
 		}
 	}
