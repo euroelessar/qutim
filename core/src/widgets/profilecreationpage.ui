@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>400</height>
+    <width>571</width>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,11 +30,11 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>400</width>
-        <height>394</height>
+        <width>571</width>
+        <height>403</height>
        </rect>
       </property>
-      <layout class="QFormLayout" name="formLayout">
+      <layout class="QFormLayout" name="formLayout_2">
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
@@ -63,114 +63,140 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Config dir:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLineEdit" name="configEdit"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="configButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="4" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLineEdit" name="historyEdit"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="historyButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="6" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLineEdit" name="dataEdit"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="dataButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>History dir:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Data dir:</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0" colspan="2">
-        <widget class="QCheckBox" name="portableBox">
+        <widget class="QCheckBox" name="advancedBox">
          <property name="text">
-          <string>Store data at application dir</string>
+          <string>Show advanced settings</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="2">
-        <widget class="QLabel" name="cryptoDescription">
-         <property name="text">
-          <string notr="true">Description</string>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="advancedGroup">
+         <property name="title">
+          <string>Advanced settings</string>
          </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" colspan="2">
-        <widget class="QComboBox" name="cryptoBox"/>
-       </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Choose cryptograhic module:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Choose config backend:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QComboBox" name="configBox"/>
-       </item>
-       <item row="12" column="0" colspan="2">
-        <widget class="QLabel" name="configDescription">
-         <property name="text">
-          <string notr="true">Config description</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="downloadClientsBox">
+            <property name="text">
+             <string>Download clients icons from qutim.org server</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QCheckBox" name="portableBox">
+            <property name="text">
+             <string>Store data at application dir</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Config dir:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLineEdit" name="configEdit"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="configButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>History dir:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="historyEdit"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="historyButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Data dir:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLineEdit" name="dataEdit"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="dataButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Choose cryptograhic module:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QComboBox" name="cryptoBox"/>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="cryptoDescription">
+            <property name="text">
+             <string notr="true">Description</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Choose config backend:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QComboBox" name="configBox"/>
+          </item>
+          <item row="10" column="0" colspan="2">
+           <widget class="QLabel" name="configDescription">
+            <property name="text">
+             <string notr="true">Config description</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -180,5 +206,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>advancedBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>advancedGroup</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

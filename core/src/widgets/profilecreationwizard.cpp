@@ -203,6 +203,11 @@ void ProfileCreationWizard::done(int result)
 				config.setValue("current", field("id"));
 			}
 		}
+		{
+			Config config;
+			config.beginGroup(QLatin1String("plugins/list"));
+			config.setValue(QLatin1String("Updater::UpdaterPlugin"), field(QLatin1String("portable")).toBool());
+		}
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 	} else if (m_singleProfile) {
 		QTimer::singleShot(0, qApp, SLOT(quit()));
