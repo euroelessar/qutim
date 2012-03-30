@@ -118,7 +118,9 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 	connect(contact, SIGNAL(avatarChanged(QString)),
 			SLOT(setAvatar(QString)));
 	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(contact, SIGNAL(destroyed(QObject*)),
+	        SLOT(onContactDeath(QObject*)));
 
 	if (m_name.isEmpty())
 		resetName();
@@ -131,6 +133,28 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 	resetStatus();
 }
 
+void MetaContactImpl::removeContact(Contact *contact, bool dead)
+{
+	int index = m_contacts.indexOf(contact);
+	if (index == -1)
+		return;
+	m_contacts.removeAt(index);
+	if (!dead) {
+		MetaContact::removeContact(contact);
+		disconnect(contact, 0, this, 0);
+	}
+	if (m_contacts.count()) {
+		if (m_active_contact == contact)
+			setActiveContact();
+		resetStatus();
+		RosterStorage::instance()->updateContact(this);
+	} else {
+		m_active_contact = 0;
+		RosterStorage::instance()->removeContact(this);
+		deleteLater();
+	}
+}
+
 void MetaContactImpl::addContact(Contact *contact)
 {
 	addContact(contact, true);
@@ -138,17 +162,7 @@ void MetaContactImpl::addContact(Contact *contact)
 
 void MetaContactImpl::removeContact(Contact *contact)
 {
-	int index = m_contacts.indexOf(contact);
-	if (index == -1)
-		return;
-	m_contacts.removeAt(index);
-	MetaContact::removeContact(contact);
-	if (m_contacts.count()) {
-		resetStatus();
-	} else {
-		RosterStorage::instance()->removeContact(this);
-		deleteLater();
-	}
+	removeContact(contact, false);
 }
 
 void MetaContactImpl::resetName()
@@ -315,6 +329,11 @@ void MetaContactImpl::onSessionCreated(ChatSession *session)
 	MetaContact *contact = qobject_cast<MetaContact*>(session->unit());
 	if(contact == this->metaContact())
 		setActiveContact();
+}
+
+void MetaContactImpl::onContactDeath(QObject *contact)
+{
+	removeContact(static_cast<Contact*>(contact), true);
 }
 
 }

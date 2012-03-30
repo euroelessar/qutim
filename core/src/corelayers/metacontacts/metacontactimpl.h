@@ -67,9 +67,11 @@ protected:
 	void resetName();
 	void resetStatus();
 	void addContact(Contact* contact, bool update);
+	void removeContact(Contact *contact, bool dead);
 protected slots:
 	void onContactStatusChanged();
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onContactDeath(QObject *contact);
 private:
 	virtual bool event(QEvent *ev);
 	QString m_id;
