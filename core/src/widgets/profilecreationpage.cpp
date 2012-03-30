@@ -55,6 +55,7 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
     ui->setupUi(this);
+	qDebug("%s???", Q_FUNC_INFO);
 	QDir dir = QApplication::applicationDirPath();
 	QFileInfo dirInfo = dir.absolutePath();
 	if (!dirInfo.isWritable()) {
@@ -77,6 +78,8 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	registerField("configDir", ui->configEdit);
 	registerField("historyDir", ui->historyEdit);
 	registerField("dataDir", ui->dataEdit);
+	registerField("downloadClients", ui->downloadClientsBox);
+	ui->advancedGroup->setVisible(ui->advancedBox->isChecked());
 
 	connect(ui->dataButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
 	connect(ui->configButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));

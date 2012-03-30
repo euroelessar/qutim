@@ -217,8 +217,9 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 		}
 	} else if (contact) {
 		return contact;
-	} else if (create)
+	} else if (create) {
 		return createContact(jid);
+	}
 	return 0;
 }
 
@@ -291,8 +292,9 @@ void JRoster::onNewMessage(Jreen::Message message)
 			contact->setInList(false);
 			if(Jreen::Nickname::Ptr nick = message.payload<Jreen::Nickname>())
 				contact->setName(nick->nick());
-			chatUnit = contact;
 		}
+		if (!chatUnit)
+			chatUnit = contact;
 		unitForSession = contact;
 	}
 

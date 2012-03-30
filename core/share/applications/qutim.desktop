@@ -1,9 +1,12 @@
 [Desktop Entry]
 Name=qutIM
+Name[bg]=qutIM
 Name[ru]=qutIM
 GenericName=qutIM Instant Messenger
+GenericName[bg]=Клиент за обмяна на моментни съобщения qutIM
 GenericName[ru]=Клиент сервисов мгновенных сообщений qutIM
 Comment=Communicate over IM
+Comment[bg]=Общуване посредством мрежите за обяна на моментни съобщения
 Comment[ru]=Общение через сеть мгновенных сообщений
 Exec=qutim --single-instance
 Icon=qutim

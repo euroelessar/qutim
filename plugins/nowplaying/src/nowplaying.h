@@ -119,11 +119,12 @@ private:
 class StopStartActionGenerator : public ActionGenerator
 {
 public:
-	StopStartActionGenerator(QObject *module, bool isWorking);
+	StopStartActionGenerator(QObject *module, bool isWorking, bool isEnabled);
 	void showImpl(QAction *action, QObject *obj);
-	void setState(bool isWorking);
+	void setState(bool isWorking, bool isEnabled);
 private:
 	QString m_text;
+	bool m_isEnabled;
 };
 
 inline qutim_sdk_0_3::Config config(const QString &group = QString())

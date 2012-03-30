@@ -59,8 +59,11 @@ IrcAccount::IrcAccount(const QString &network) :
 
 IrcAccount::~IrcAccount()
 {
-	qDeleteAll(d->channels);
-	qDeleteAll(d->contacts);
+	// Foreach macros creates copy of container
+	foreach(QObject *object, d->channels)
+		delete object;
+	foreach(QObject *object, d->contacts)
+		delete object;
 }
 
 void IrcAccount::setStatus(Status status)

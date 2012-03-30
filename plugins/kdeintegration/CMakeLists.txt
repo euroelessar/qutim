@@ -18,8 +18,6 @@ qutim_add_plugin(kdeintegration
 	INCLUDE_DIRS ${KDE4_INCLUDES}
 	)
 
-message( "${KDE4_DATA_INSTALL_DIR}/desktoptheme/default/icons" )
-message( "${DATA_INSTALL_DIR}/desktoptheme/default/icons" )
 install( FILES icons/qutim.svg
 	DESTINATION "${DATA_INSTALL_DIR}/desktoptheme/default/icons"
 	COMPONENT Artwork
