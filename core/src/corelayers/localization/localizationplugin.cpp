@@ -26,6 +26,8 @@
 #include "localizationplugin.h"
 #include "localizationmodule.h"
 #include <qutim/plugin.h>
+#include <qutim/systeminfo.h>
+#include <QDebug>
 
 using namespace qutim_sdk_0_3;
 
@@ -40,6 +42,7 @@ void LocalizationPlugin::init()
 	addExtension<Core::LocalizationModule,qutim_sdk_0_3::StartupModule>(name, description, icon);
 	
 	QStringList langs = LocalizationModule::determineSystemLocale();
+	qDebug() << Q_FUNC_INFO << langs;
 	if (!langs.isEmpty())
 		LocalizationModule::loadLanguage(langs);
 }

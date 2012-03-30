@@ -85,8 +85,11 @@ QStringList LocalizationModule::determineSystemLocale()
 			// for multiple languages, but we don't need encoding
 			foreach (const QString &lang, QString(QLatin1String(data)).split(':')) {
 				QString sublang = lang.section('.', 0, 0);
-				if (langs.contains(sublang))
+				if (langs.contains(sublang)
+				        || (sublang.contains(QLatin1Char('_'))
+				            && langs.contains(sublang.section(QLatin1Char('_'), 0, 0)))) {
 					langsByCountry << sublang;
+				}
 			}
 		}
 	}
@@ -124,6 +127,9 @@ void LocalizationModule::loadLanguage(const QStringList &langs)
 	QStringList paths;
 	foreach (const QString &lang, langs) {
 		QString path = ThemeManager::path("languages", lang);
+		if (path.isEmpty() && lang.contains(QLatin1Char('_')))
+			path = ThemeManager::path("languages", lang.section(QLatin1Char('_'), 0, 0));
+		qDebug("%s %s", qPrintable(lang), qPrintable(path));
 		if (!path.isEmpty())
 			paths << path;
 	}
