@@ -129,7 +129,6 @@ void LocalizationModule::loadLanguage(const QStringList &langs)
 		QString path = ThemeManager::path("languages", lang);
 		if (path.isEmpty() && lang.contains(QLatin1Char('_')))
 			path = ThemeManager::path("languages", lang.section(QLatin1Char('_'), 0, 0));
-		qDebug("%s %s", qPrintable(lang), qPrintable(path));
 		if (!path.isEmpty())
 			paths << path;
 	}

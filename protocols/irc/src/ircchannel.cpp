@@ -38,6 +38,8 @@ IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 {
 	d->name = name;
 	d->me = 0;
+	d->autojoin = false;
+	d->reconnect = false;
 }
 
 IrcChannel::~IrcChannel()
