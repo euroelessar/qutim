@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -53,16 +54,17 @@ void Model::searchContacts(const QString& name)
 {
 	m_searchRoot->removeRows(0,m_searchRoot->rowCount());
 
-	if(name.isEmpty())
+	if (name.isEmpty())
 		return;
 
-	foreach(Account *account,Account::all()) {
-		foreach(Contact *contact, account->findChildren<Contact*>()) {
-			if(!contact->title().contains(name,Qt::CaseInsensitive))
+	QList<Contact*> contacts = getContacts();
+	foreach (Account *account,Account::all()) {
+		foreach (Contact *contact, account->findChildren<Contact*>()) {
+			if (!contact->title().contains(name,Qt::CaseInsensitive))
 				continue;
-			if(m_metaContact && m_metaContact.data()->contacts().contains(contact))
+			if (contacts.contains(contact))
 				continue;
-			addContact(contact,m_searchRoot);
+			addContact(contact, m_searchRoot);
 		}
 	}
 
@@ -72,8 +74,8 @@ void Model::setMetaContact(MetaContactImpl *metaContact)
 {
 	m_metaContact = metaContact;
 	//TODO remove children
-	foreach(Contact *contact,metaContact->contacts())
-		addContact(contact,m_metaRoot);
+	foreach (Contact *contact,metaContact->contacts())
+		addContact(contact, m_metaRoot);
 }
 
 MetaContactImpl* Model::metaContact() const
@@ -83,17 +85,17 @@ MetaContactImpl* Model::metaContact() const
 
 void Model::addContact(Contact *contact , QStandardItem *root)
 {
-	for(int i=0;i!=root->rowCount();i++) {
-		if(root->child(i)->data().value<Contact*>() == contact)
+	for (int i = 0; i != root->rowCount(); i++) {
+		if (root->child(i)->data().value<Contact*>() == contact)
 			return;
 	}
 	QStandardItem *item = new QStandardItem(contact->title());
-	QIcon icon = AvatarFilter::icon(contact->avatar(),contact->status().icon());
+	QIcon icon = AvatarFilter::icon(contact->avatar(), contact->status().icon());
 	item->setIcon(icon);
 	item->setData(qVariantFromValue(contact));
 	QVariantMap map;
-	map.insert(tr("Account"),contact->account()->id());
-	item->setData(map,DescriptionRole);
+	map.insert(tr("Account"), contact->account()->id());
+	item->setData(map, DescriptionRole);
 	root->appendRow(item);
 }
 
@@ -105,13 +107,19 @@ void Model::activated(const QModelIndex& index)
 	Contact *contact = item->data().value<Contact*>();
 	if(!contact)
 		return;
-	if(item->parent() == m_metaRoot) {
-		emit removeContactTriggered(contact);
-	} else {
-		addContact(contact,m_metaRoot);
-		emit addContactTriggered(contact);
-	}
+	if(!(item->parent() == m_metaRoot))
+		addContact(contact, m_metaRoot);
+
 	item->parent()->removeRow(index.row());
+}
+
+QList<Contact*> Model::getContacts() const
+{
+	QList<Contact*> contacts;
+	for(int i = 0; i != m_metaRoot->rowCount(); i++)
+		contacts.append(m_metaRoot->child(i)->data().value<Contact*>());
+
+	return contacts;
 }
 
 } // namespace MetaContacts

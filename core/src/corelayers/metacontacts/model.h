@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -45,6 +46,7 @@ public:
     explicit Model(QObject *parent = 0);
 	void setMetaContact(MetaContactImpl*);
 	MetaContactImpl *metaContact() const;
+    QList<qutim_sdk_0_3::Contact*> getContacts() const;
 public slots:
 	void searchContacts(const QString &name);
 	void activated(const QModelIndex &index);
@@ -54,7 +56,7 @@ signals:
 private:
 	void addContact(qutim_sdk_0_3::Contact *,QStandardItem *root);
 	QWeakPointer<MetaContactImpl> m_metaContact;
-	QStandardItem *m_metaRoot;
+    QStandardItem *m_metaRoot;
 	QStandardItem *m_searchRoot;
 };
 
