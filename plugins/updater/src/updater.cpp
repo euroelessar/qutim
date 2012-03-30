@@ -124,12 +124,14 @@ void UpdaterPlugin::onReplyFinished(QNetworkReply *reply)
 	} else {
 		QString filePath = reply->property("filePath").toString();
 		debug() << "Received" << filePath;
-		QFileInfo fileInfo(filePath);
-		QDir().mkpath(fileInfo.absolutePath());
-		QFile file(filePath);
-		if (file.open(QFile::WriteOnly)) {
-			file.write(reply->readAll());
-			file.close();
+		if (reply->error() == QNetworkReply::NoError) {
+			QFileInfo fileInfo(filePath);
+			QDir().mkpath(fileInfo.absolutePath());
+			QFile file(filePath);
+			if (file.open(QFile::WriteOnly)) {
+				file.write(reply->readAll());
+				file.close();
+			}
 		}
 		if (m_queue.isEmpty()) {
 			// Now we should force IconEngine to update icon's cache
