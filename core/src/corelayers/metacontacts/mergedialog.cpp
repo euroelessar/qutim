@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -64,8 +65,10 @@ void MergeDialog::accept()
 		if (!metaContact)
 			metaContact = static_cast<MetaContactImpl*>(MetaContactManager::instance()->createContact());
 
-		metaContact->setName(ui->nameEdit->text());
+		if (ui->nameEdit->text().size() != 0)
+			metaContact->setName(ui->nameEdit->text());
 		metaContact->addContacts(contacts, true);
+
 	}
 	QDialog::accept();
 }

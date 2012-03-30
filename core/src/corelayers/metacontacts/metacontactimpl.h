@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **

@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -177,6 +178,15 @@ void MetaContactImpl::resetStatus()
 	}
 	Status previous = m_status;
 	Status contactStatus = m_active_contact->status();
+	if (contactStatus.type() == Status::Offline) {
+		for(int i = 0; i < m_contacts.size(); i++) {
+			if (m_contacts.at(i)->status().type() != Status::Offline) {
+				contactStatus = m_contacts.at(i)->status();
+				break;
+			}
+
+		}
+	}
 	if (contactStatus.type() == m_status.type()
 			&& contactStatus.text() == m_status.text()) {
 		return;
@@ -189,10 +199,13 @@ void MetaContactImpl::resetStatus()
 		QHash<QString, QVariantHash> hash = m_contacts.at(i)->status().extendedInfos();
 		QHash<QString, QVariantHash>::const_iterator it = hash.constBegin();
 		QHash<QString, QVariantHash>::const_iterator endit = hash.constEnd();
+		const QString showInTooltip = QLatin1String("showInTooltip");
 		for (; it != endit; it++) {
 			if (!keys.contains(it.key())) {
 				keys << it.key();
-				m_status.setExtendedInfo(it.key(), it.value());
+				QVariantHash data = it.value();
+				data.insert(showInTooltip, false);
+				m_status.setExtendedInfo(it.key(), data);
 			}
 		}
 	}
@@ -220,26 +233,24 @@ qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 
 const qutim_sdk_0_3::ChatUnit* MetaContactImpl::getHistoryUnit() const
 {
-	//implement logic
-	return m_contacts.first();
+	//TODO improve history
+	return m_active_contact;
 }
 
 bool MetaContactImpl::event(QEvent* ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
-		if (ev->type() == ToolTipEvent::eventType()) {
-			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			if (event->generateLayout())
-				Contact::event(ev);
-			foreach (ChatUnit *contact, m_contacts) {
-				ToolTipEvent contactEvent(false);
-				qApp->sendEvent(contact, &contactEvent);
-				QString text = contactEvent.html();
-				if (!text.isEmpty())
-					event->addHtml(QLatin1Literal("<br/><br/>") % text);
-			}
-			return true;
+		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		if (event->generateLayout())
+			Contact::event(ev);
+		foreach (ChatUnit *contact, m_contacts) {
+			ToolTipEvent contactEvent(false);
+			qApp->sendEvent(contact, &contactEvent);
+			QString text = contactEvent.html();
+			if (!text.isEmpty())
+				event->addHtml(QLatin1Literal("<br/><br/>") % text);
 		}
+		return true;
 	} else if(ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *event = static_cast<ChatStateEvent*>(ev);
 		qApp->sendEvent(m_active_contact,event);
@@ -249,11 +260,14 @@ bool MetaContactImpl::event(QEvent* ev)
 
 void MetaContactImpl::addContacts(QList<Contact*> contacts, bool remove)
 {
-	if(remove)
-	m_contacts.clear();
+	bool update = false;
+	if(remove) {
+		m_contacts.clear();
+		update = true;
+	}
 
 	foreach(Contact *contact, contacts) {
-		addContact(contact,false);
+		addContact(contact,update);
 	}
 }
 
