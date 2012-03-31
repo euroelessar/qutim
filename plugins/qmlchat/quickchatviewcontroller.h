@@ -39,7 +39,7 @@ class QDeclarativeContext;
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatController : public QGraphicsScene, public ChatViewController
+class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
