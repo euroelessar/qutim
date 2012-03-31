@@ -30,13 +30,24 @@
 #include <qutim/servicemanager.h>
 #include <QApplication>
 #include <qutim/systemintegration.h>
+#include <qutim/metaobjectbuilder.h>
+#include <qutim/protocol.h>
 
 namespace Core
 {
 SearchLayer::SearchLayer()
 {
-	foreach(const ObjectGenerator *gen, ObjectGenerator::module<ContactSearchFactory>())
+	// TODO: Think, may be we should move such checks to ModuleManager?
+	QList<QLatin1String> protocols;
+	foreach (Protocol *protocol, Protocol::all())
+		protocols.append(QLatin1String(protocol->metaObject()->className()));
+
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<ContactSearchFactory>()) {
+		const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
+		if (!protocols.contains(QLatin1String(proto)))
+			continue;
 		m_contactSearchFactories << gen->generate<ContactSearchFactory>();
+	}
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList) {
         ActionGenerator *gen = new ActionGenerator(Icon("edit-find-contact"),

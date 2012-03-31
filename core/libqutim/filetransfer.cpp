@@ -28,6 +28,8 @@
 #include "servicemanager.h"
 #include "chatunit.h"
 #include "config.h"
+#include "metaobjectbuilder.h"
+#include "protocol.h"
 #include <QUrl>
 #include <QFileInfo>
 #include <QDir>
@@ -692,8 +694,18 @@ FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivat
 {
 	scope()->manager = this;
 	scope()->inited = true;
-	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>())
+	
+	// TODO: Think, may be we should move such checks to ModuleManager?
+	QList<QLatin1String> protocols;
+	foreach (Protocol *protocol, Protocol::all())
+		protocols.append(QLatin1String(protocol->metaObject()->className()));
+	
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>()) {
+		const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
+		if (!protocols.contains(QLatin1String(proto)))
+			continue;
 		scope()->factories << gen->generate<FileTransferFactory>();
+	}
 	QStringList names = Config().value("filetransfer/factories").toStringList();
 	if (!names.isEmpty())
 		scope()->factories = sortFactories(names, scope()->factories);
