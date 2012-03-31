@@ -1,14 +1,44 @@
 qutIM: cute crossplatform Instant Messenger
 ===========================================
 
-Developers:
+Core developers:
 -----------
 
-Rustam Chakin - Project founder
-Ruslan Nigmatullin - Main developer
-Sidorov Aleksey - Core developer
+Ruslan Nigmatullin <euroelessar@yandex.ru>
+
+Aleksey Sidorov <gorthauer87@yandex.ru>
+
+Alexey Prokhin <alexey.prokhin@yandex.ru>
+
+
+Plugin developers:
+-----------
+
+Alexander Kazarin <boiler@co.ru>
+
+Alexey Ignatiev <twosev@gmail.com>
+
+Denis Daschenko <daschenko@gmail.com>
+
+Kazlauskas Ian <nayzak90@googlemail.com>
+
+Nicolay Izoderov <nico-izo@ya.ru>
+
+Nikita Belov <zodiac.nv@gmail.com>
+
+Peter Rusanov <peter.rusanov@gmail.com>
+
+Stanislav Kosolapov <prodoomman@shell.tor.hu>
+
+Vsevolod Velichko <torkvema@gmail.com>
+
 
 Artists:
---------
-Georgy Surkov - Icons
+-----------
+
+Rederick Asher <chaoticblack@gmail.com>
+- Moods and activities icons
+
+Semen Vozhov <semen.vozhov@gmail.com>
+- Status and application icons
 
