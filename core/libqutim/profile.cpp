@@ -137,30 +137,78 @@ void Profile::setValue(const QString &key, const QVariant &value)
 
 QString Profile::configPath()
 {
+	return Profile::configPath(0);
+}
+
+QString Profile::configPath(bool *isSystem)
+{
+	bool tmpSystem = true;
+	if (!isSystem)
+		isSystem = &tmpSystem;
+	*isSystem = false;
+
 	QDir dir = qApp->applicationDirPath();
-	if (!dir.exists("profiles.json") && (!dir.exists("profiles") || !dir.cd("profiles"))) {
+	if (dir.exists("profiles.json") || (dir.exists("profiles") && dir.cd("profiles")))
+		return dir.filePath("profiles.json");
+
+	QString systemProfiles;
+	dir = SystemInfo::getDir(SystemInfo::SystemConfigDir);
+	if (dir.exists("profiles.json"))
+		systemProfiles = dir.filePath("profiles.json");
+
 #if defined(Q_OS_WIN)
-		dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
+	dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
 #elif defined(Q_OS_MAC)
-		dir = QDir::home().absoluteFilePath("Library/Application Support");
+	dir = QDir::home().absoluteFilePath("Library/Application Support");
 #elif defined(Q_OS_UNIX)
-		dir = QDir::home().absoluteFilePath(".config");
+	dir = QDir::home().absoluteFilePath(".config");
 #else
 # Undefined OS
 #endif
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
-		dir.mkpath("qutIM/profiles");
-		dir.cd("qutIM/profiles");
+	dir.mkpath("qutIM/profiles");
+	dir.cd("qutIM/profiles");
 #else
-		dir.mkpath("qutim/profiles");
-		dir.cd("qutim/profiles");
+	dir.mkpath("qutim/profiles");
+	dir.cd("qutim/profiles");
 #endif
+
+	if (!systemProfiles.isEmpty() && !dir.exists("profiles.json")) {
+		*isSystem = true;
+		return systemProfiles;
+	} else {
+		return dir.filePath("profiles.json");
 	}
-	return dir.filePath("profiles.json");
 }
 
-bool Profile::acceptData(const QVariantMap &data, const QString &password, QString *errors)
+bool Profile::acceptData(const QVariantMap &profilesData, const QString &password, QString *error)
+{
+	return acceptData(profilesData, password, true, error);
+}
+
+static QString replaceEnvironmentVariables(const QString &path)
+{
+	QString cleanedPath = QDir::cleanPath(path);
+	QRegExp regexp(QLatin1String("%(\\w+)%"));
+	Q_ASSERT(regexp.isValid());
+	int pos = 0;
+   
+    while ((pos = regexp.indexIn(cleanedPath, pos)) != -1) {
+        QByteArray variable = regexp.cap(1).toLocal8Bit();
+		QByteArray localEncodedVariable = qgetenv(variable);
+		QString data = QString::fromLocal8Bit(localEncodedVariable.constData(), localEncodedVariable.size());
+		if (data.isEmpty()) {
+			pos += regexp.matchedLength();
+		} else {
+			cleanedPath.replace(pos, regexp.matchedLength(), data);
+			pos += data.length();
+		}
+    }
+	return cleanedPath;
+}
+
+bool Profile::acceptData(const QVariantMap &data, const QString &password, bool checkHash, QString *errors)
 {
 	QString tmp;
 	if (!errors)
@@ -177,29 +225,36 @@ bool Profile::acceptData(const QVariantMap &data, const QString &password, QStri
 	}
 
 	QString configDir = config.value("configDir", QString());
+	if (config.value("portable", false)) {
+		QDir dir = qApp->applicationDirPath();
+		configDir = dir.absoluteFilePath(configDir);
+	}
 	QFile file(configDir + "/profilehash");
-	if (service && file.open(QIODevice::ReadOnly)) {
+	if (service && (!checkHash || file.open(QIODevice::ReadOnly))) {
 		service->setPassword(password, QVariant());
-		QByteArray data = service->decrypt(file.readAll()).toByteArray();
-		QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
-														   + "5667dd05fbe97bb238711a3af63",
-														   QCryptographicHash::Sha1);
-		QDataStream in(data);
-		QString id;
-		QByteArray hash;
-		QByteArray cryptoCheck;
-		in >> id >> hash >> cryptoCheck;
-		if (passwordHash != hash)
-			*errors += tr("Password is mismatched.") + '\n';
-		if (QLatin1String(cryptoCheck) != crypto)
-			*errors += tr("Crypto service is unknown.") + '\n';
-		if (id != config.value("id", QString()))
-			*errors += tr("Wrong profile id.") + '\n';
-		if (!errors->isEmpty()) {
-			errors->chop(1);
-			emit error(*errors);
-			delete service;
-			return false;
+		
+		if (checkHash) {
+			QByteArray data = service->decrypt(file.readAll()).toByteArray();
+			QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
+															   + "5667dd05fbe97bb238711a3af63",
+															   QCryptographicHash::Sha1);
+			QDataStream in(data);
+			QString id;
+			QByteArray hash;
+			QByteArray cryptoCheck;
+			in >> id >> hash >> cryptoCheck;
+			if (passwordHash != hash)
+				*errors += tr("Password is mismatched.") + '\n';
+			if (QLatin1String(cryptoCheck) != crypto)
+				*errors += tr("Crypto service is unknown.") + '\n';
+			if (id != config.value("id", QString()))
+				*errors += tr("Wrong profile id.") + '\n';
+			if (!errors->isEmpty()) {
+				errors->chop(1);
+				emit error(*errors);
+				delete service;
+				return false;
+			}
 		}
 
 		QVector<QDir> &systemDirs = *system_info_dirs();
@@ -209,9 +264,9 @@ bool Profile::acceptData(const QVariantMap &data, const QString &password, QStri
 			systemDirs[SystemInfo::HistoryDir] = dir.absoluteFilePath(config.value("historyDir", QString()));
 			systemDirs[SystemInfo::ShareDir] = dir.absoluteFilePath(config.value("shareDir", QString()));
 		} else {
-			systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(config.value("configDir", QString()));
-			systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(config.value("historyDir", QString()));
-			systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(config.value("shareDir", QString()));
+			systemDirs[SystemInfo::ConfigDir] = replaceEnvironmentVariables(config.value("configDir", QString()));
+			systemDirs[SystemInfo::HistoryDir] = replaceEnvironmentVariables(config.value("historyDir", QString()));
+			systemDirs[SystemInfo::ShareDir] = replaceEnvironmentVariables(config.value("shareDir", QString()));
 		}
 
 		QString configName = config.value("config", QString());

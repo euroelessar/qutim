@@ -98,15 +98,15 @@ Config ProfileDialog::profilesInfo()
 	return Profile::instance()->config();
 }
 
-QString ProfileDialog::profilesConfigPath()
+QString ProfileDialog::profilesConfigPath(bool *isSystem)
 {
-	return Profile::instance()->configPath();
+	return Profile::instance()->configPath(isSystem);
 }
 
-bool ProfileDialog::acceptProfileInfo(const Config &config, const QString &password)
+bool ProfileDialog::acceptProfileInfo(const Config &config, const QString &password, bool checkHash)
 {
 	QString errors;
-	bool result = Profile::instance()->acceptData(config.rootValue().toMap(), password, &errors);
+	bool result = Profile::instance()->acceptData(config.rootValue().toMap(), password, checkHash, &errors);
 	if (!result)
 		QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"), errors);
 	return result;

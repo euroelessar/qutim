@@ -55,6 +55,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 	bool singleProfile = false;
 #endif
 	singleProfile = config.value("singleProfile", singleProfile);
+
 	QWizard *wizard = 0;
 	StatisticsHelper *helper = 0;
 	if (singleProfile) {
@@ -68,8 +69,10 @@ ModuleManagerImpl::ModuleManagerImpl()
 				wizard = new QWizard();
 				wizard->addPage(new SubmitPage(helper, wizard));
 			}
-
-			if(ProfileDialog::acceptProfileInfo(config, QString())) {
+			
+			bool systemProfiles = false;
+			ProfileDialog::profilesConfigPath(&systemProfiles);
+			if(ProfileDialog::acceptProfileInfo(config, QString(), !systemProfiles)) {
 				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
 				warning() << "Can't login";
