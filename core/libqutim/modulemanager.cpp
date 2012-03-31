@@ -703,13 +703,14 @@ void ModuleManager::initExtensions()
 		QVariantMap selected = group.value("list", QVariantMap());
 		bool changed = false;
 		QVariantMap::const_iterator it = selected.constBegin();
+		QSet<QString> choosedProtocols;
 		for (; it != selected.constEnd(); it++) {
-			const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
-			//				Plugin *plugin = p->extsPlugins.value(info.name());
-			//				if(plugin)
-			//					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-			//						continue;
-
+			QString className = it.value().toString();
+			if (className == QLatin1String("none")) {
+				choosedProtocols.insert(it.key());
+				continue;
+			}
+			const ExtensionInfo info = extsHash.value(className.toLatin1());
 			if (info.generator() && info.generator()->extends<Protocol>()) {
 				const QMetaObject *meta = info.generator()->metaObject();
 				QByteArray name = MetaObjectBuilder::info(meta, "Protocol");
@@ -718,6 +719,7 @@ void ModuleManager::initExtensions()
 				debug() << name << meta->className();
 				Protocol *protocol = info.generator()->generate<Protocol>();
                 d->protocols.insert(protocol->id(), protocol);
+				choosedProtocols.insert(it.key());
 				usedExtensions << meta->className();
 
                 connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
@@ -726,18 +728,14 @@ void ModuleManager::initExtensions()
 		const ExtensionInfoList exts = extensions(Protocol::staticMetaObject.className()); //p->extensions;
 		ExtensionInfoList::const_iterator it2 = exts.constBegin();
 		for(; it2 != exts.end(); it2++) {
-			//				Plugin *plugin = p->extsPlugins.value(it2->name());
-			//				if (plugin)
-			//					if (!pluginsConfig.value<bool>(plugin->metaObject()->className(), true))
-			//						continue;
-
 			const ObjectGenerator *gen = it2->generator();
 			const QMetaObject *meta = gen->metaObject();
 			QString name = QLatin1String(MetaObjectBuilder::info(meta, "Protocol"));
-            if (name.isEmpty() || d->protocols.contains(name))
+            if (name.isEmpty() || choosedProtocols.contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
             d->protocols.insert(protocol->id(), protocol);
+			choosedProtocols.insert(name);
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
 			changed = true;

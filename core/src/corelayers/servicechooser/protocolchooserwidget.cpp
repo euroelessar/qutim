@@ -89,7 +89,8 @@ void ProtocolChooserWidget::loadImpl()
 		item->setData(info.description().toString(),DescriptionRole);
 		if (selected.value(name).toString() == ServiceChooser::className(info))
 			item->setCheckState(Qt::Checked);
-		item->setData(ServiceChooser::className(info),ServiceItem::ExtentionInfoRole);
+		item->setData(QLatin1String(ServiceChooser::className(info)),
+		              ServiceItem::ExtentionInfoRole);
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }
@@ -102,7 +103,7 @@ void ProtocolChooserWidget::saveImpl()
 	Config group = Config().group("protocols/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
 	for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
-		QVariant service;
+		QVariant service = QLatin1String("none");
 		for (int i =0;i!=it.value()->rowCount();i++) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
 			if (state == Qt::Checked) {
