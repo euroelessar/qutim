@@ -25,4 +25,8 @@ set(DEVEL_HEADERS
 	chatlayer/chatlayer_global.h
 
 )
+install(FILES ${DEVEL_HEADERS}
+	DESTINATION include/qutim/adiumchat
+	COMPONENT CoreDevel
+)
 qutim_generate_includes("qutim/adiumchat" ${DEVEL_HEADERS})

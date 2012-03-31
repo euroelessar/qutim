@@ -28,6 +28,10 @@ set(DEVEL_HEADERS
 	contactlist/simplecontactlistsettings.h
 	contactlist/lineedit.h
 )
+install(FILES ${DEVEL_HEADERS}
+	DESTINATION include/qutim/simplecontactlist
+	COMPONENT CoreDevel
+)
 qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
 
 
