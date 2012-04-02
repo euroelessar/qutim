@@ -85,6 +85,7 @@ void sim::loadMessages(const QString &path)
 		QStringList files = profile_dir.entryList(filters, QDir::Files|QDir::NoDotAndDotDot);
 		num += files.size();
 	}
+	QTextDocument doc;
 	setMaxValue(num);
 	num = 0;
 	foreach(const QString &profile_name, profiles)
@@ -161,7 +162,9 @@ void sim::loadMessages(const QString &path)
 							text.remove("\\x0d").replace("\\n", "\n");
 							if (flags & MESSAGE_RICHTEXT) {
 								message.setProperty("html", text);
-								message.setText(unescape(text));
+								doc.setHtml(text);
+								message.setText(doc.toPlainText());
+								doc.clearUndoRedoStacks();
 							} else {
 								message.setText(text);
 							}
