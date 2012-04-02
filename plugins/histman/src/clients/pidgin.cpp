@@ -27,6 +27,7 @@
 #include <QtXml>
 #include <QString>
 #include <QFileInfo>
+#include <QTextDocument>
 #include <qutim/icon.h>
 
 using namespace qutim_sdk_0_3;
@@ -66,6 +67,7 @@ void pidgin::loadMessages(const QString &path)
 	}
 	setMaxValue(num);
 	num = 0;
+	QTextDocument converter;
 	const QStringList stamps = QStringList()
 							   << "(hh:mm:ss)</font"
 							   << "(yyyy-MM-dd hh:mm:ss)</font"
@@ -147,7 +149,9 @@ void pidgin::loadMessages(const QString &path)
 								message.setTime(date);
 								QString text = lines[i].remove(0,lines[i].lastIndexOf("font>")+6);
 								text.chop(5);
-								message.setText(unescape(text));
+								converter.setHtml(text);
+								message.setText(converter.toPlainText());
+								converter.clearUndoRedoStacks();
 								message.setProperty("html", text);
 								appendMessage(message);
 							}

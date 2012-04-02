@@ -27,6 +27,7 @@
 #include "QDir"
 #include <QDateTime>
 #include <QDomDocument>
+#include <QTextDocument>
 
 #include <QDebug>
 #include <QStringBuilder>
@@ -95,6 +96,7 @@ bool qutim::guessJson(const QString &path, QFileInfoList &files, int &num)
 
 void qutim::loadXml(const QFileInfoList &files)
 {
+	QTextDocument converter;
 	QDir tmp_dir = files.first().absoluteDir();
 	tmp_dir.cdUp();
 	QString account = tmp_dir.dirName().section(".", 1);
@@ -126,7 +128,9 @@ void qutim::loadXml(const QFileInfoList &files)
 															   % " "
 															   % msg.attribute("day")
 															   % otherDate,"h:m:s d/M/yyyy"));
-						message.setText(unescape(msg.text()));
+						converter.setHtml(msg.text());
+						message.setText(converter.toPlainText());
+						converter.clearUndoRedoStacks();
 						message.setProperty("html", msg.text());
 						message.setIncoming(msg.attribute("in") == "1");
 						appendMessage(message);
@@ -141,6 +145,7 @@ void qutim::loadXml(const QFileInfoList &files)
 
 void qutim::loadBin(const QFileInfoList &acc_files)
 {
+	QTextDocument converter;
 	foreach(const QFileInfo &info, acc_files)
 	{
 		QString protocol = info.fileName().section(".",0,0).toLower();
@@ -171,7 +176,9 @@ void qutim::loadBin(const QFileInfoList &acc_files)
 						in >> time >> type >> incoming >> text;
 						msg.setTime(time);
 						msg.setIncoming(incoming);
-						msg.setText(unescape(text));
+						converter.setHtml(text);
+						msg.setText(converter.toPlainText());
+						converter.clearUndoRedoStacks();
 						msg.setProperty("html", text);
 						appendMessage(msg);
 					}
@@ -239,6 +246,7 @@ QString qutim::unquote(const QString &str)
 
 void qutim::loadJson(const QFileInfoList &acc_files)
 {
+	QTextDocument converter;
 	foreach(const QFileInfo &info, acc_files)
 	{
 		QString protocol = info.fileName().section(".",0,0).toLower();
@@ -307,7 +315,9 @@ void qutim::loadJson(const QFileInfoList &acc_files)
 						item.setTime(QDateTime::fromString(it.value().toString(), Qt::ISODate));
 					} else if (key == QLatin1String("text")) {
 						QString text = it.value().toString();
-						item.setText(unescape(text));;
+						converter.setHtml(text);
+						item.setText(converter.toPlainText());
+						converter.clearUndoRedoStacks();
 						item.setProperty("html", text);
 					} else {
 						item.setProperty(key.toUtf8(), it.value());
