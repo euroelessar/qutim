@@ -1,7 +1,7 @@
-Version 0.3:
-	* Inital logged release.
-
 Version ???:
 	* Fixed switching from autoresize to normal TextEdit.
 	* Added ability to disable showing of ContactList on startup
 	* Added ability of starting up in minimized mode.
+
+Version 0.3:
+	* Inital logged release.
