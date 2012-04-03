@@ -32,7 +32,9 @@
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
 #include "factory.h"
+#include <qutim/profile.h>
 #include <QTimer>
+#include <QCoreApplication>
 
 namespace Core
 {
@@ -52,6 +54,10 @@ Manager::Manager() :
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
 													qutim_sdk_0_3::MessageHandler::HighPriority,
 													qutim_sdk_0_3::MessageHandler::HighPriority);
+	//TODO implement logic
+	m_name = Profile::instance()->value("name").toString();
+	if (m_name.isEmpty())
+		m_name = QCoreApplication::translate("Metacontact", "You");
 }
 
 Manager::~Manager()
@@ -97,8 +103,7 @@ void Manager::onCreateTriggered(QObject *obj)
 
 QString Manager::name() const
 {
-	//TODO implement logic
-	return (QT_TRANSLATE_NOOP("Metacontact","You")).toString();
+	return m_name;
 }
 
 void Manager::onContactCreated(qutim_sdk_0_3::Contact *contact)
