@@ -144,12 +144,12 @@ void MetaContactImpl::removeContact(Contact *contact, bool dead)
 		disconnect(contact, 0, this, 0);
 	}
 	if (m_contacts.count()) {
-		if (m_active_contact == contact)
+		if (m_activeContact == contact)
 			setActiveContact();
 		resetStatus();
 		RosterStorage::instance()->updateContact(this);
 	} else {
-		m_active_contact = 0;
+		m_activeContact = 0;
 		RosterStorage::instance()->removeContact(this);
 		deleteLater();
 	}
