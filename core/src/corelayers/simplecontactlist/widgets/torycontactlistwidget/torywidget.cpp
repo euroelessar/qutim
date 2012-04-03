@@ -371,7 +371,10 @@ void ToryWidget::initMenu()
 	gen->setShortcut(QLatin1String("contactListActivateMainMenu"));
 	QAction *before = d->mainToolBar->actions().count() ? d->mainToolBar->actions().first() : 0;
 	d->mainToolBar->insertAction(before, gen);
-	SystemIntegration::show(this);
+	Config config("appearance");
+	config.beginGroup("contactList");
+	if(config.value<bool>("showContactListOnStartup", true))
+		SystemIntegration::show(this);
 }
 
 void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
