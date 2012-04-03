@@ -455,9 +455,15 @@ void WebViewController::updateTopic()
 		return;
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
-		m_topic.setText(conference->topic());
-		m_topic.setHtml(QString());
-		m_topic.setHtml(parseUrls(m_topic.html()));
+		if (!conference) {
+			warning() << "Called WebViewController::updateTopic for non-conference";
+			m_topic.setText(QString());
+			m_topic.setHtml(QString());
+		} else {
+			m_topic.setText(conference->topic());
+			m_topic.setHtml(QString());
+			m_topic.setHtml(parseUrls(m_topic.html()));
+		}
 		m_topic.setTime(QDateTime::currentDateTime());
 	}
 	element.setInnerXml(m_style.templateForContent(m_topic, false));
