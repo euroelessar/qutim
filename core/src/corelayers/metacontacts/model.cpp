@@ -54,17 +54,17 @@ void Model::searchContacts(const QString& name)
 {
 	m_searchRoot->removeRows(0,m_searchRoot->rowCount());
 
-	if(name.isEmpty())
+	if (name.isEmpty())
 		return;
 
 	QList<Contact*> contacts = getContacts();
-	foreach(Account *account,Account::all()) {
-		foreach(Contact *contact, account->findChildren<Contact*>()) {
-			if(!contact->title().contains(name,Qt::CaseInsensitive))
+	foreach (Account *account,Account::all()) {
+		foreach (Contact *contact, account->findChildren<Contact*>()) {
+			if (!contact->title().contains(name,Qt::CaseInsensitive))
 				continue;
-			if(contacts.contains(contact))
+			if (contacts.contains(contact))
 				continue;
-			addContact(contact,m_searchRoot);
+			addContact(contact, m_searchRoot);
 		}
 	}
 
@@ -74,8 +74,8 @@ void Model::setMetaContact(MetaContactImpl *metaContact)
 {
 	m_metaContact = metaContact;
 	//TODO remove children
-	foreach(Contact *contact,metaContact->contacts())
-		addContact(contact,m_metaRoot);
+	foreach (Contact *contact,metaContact->contacts())
+		addContact(contact, m_metaRoot);
 }
 
 MetaContactImpl* Model::metaContact() const
@@ -85,17 +85,17 @@ MetaContactImpl* Model::metaContact() const
 
 void Model::addContact(Contact *contact , QStandardItem *root)
 {
-	for(int i=0;i!=root->rowCount();i++) {
-		if(root->child(i)->data().value<Contact*>() == contact)
+	for (int i = 0; i != root->rowCount(); i++) {
+		if (root->child(i)->data().value<Contact*>() == contact)
 			return;
 	}
 	QStandardItem *item = new QStandardItem(contact->title());
-	QIcon icon = AvatarFilter::icon(contact->avatar(),contact->status().icon());
+	QIcon icon = AvatarFilter::icon(contact->avatar(), contact->status().icon());
 	item->setIcon(icon);
 	item->setData(qVariantFromValue(contact));
 	QVariantMap map;
-	map.insert(tr("Account"),contact->account()->id());
-	item->setData(map,DescriptionRole);
+	map.insert(tr("Account"), contact->account()->id());
+	item->setData(map, DescriptionRole);
 	root->appendRow(item);
 }
 
@@ -108,7 +108,7 @@ void Model::activated(const QModelIndex& index)
 	if(!contact)
 		return;
 	if(!(item->parent() == m_metaRoot))
-		addContact(contact,m_metaRoot);
+		addContact(contact, m_metaRoot);
 
 	item->parent()->removeRow(index.row());
 }

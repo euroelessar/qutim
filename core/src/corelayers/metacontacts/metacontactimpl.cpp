@@ -53,7 +53,7 @@ bool contactLessThan(Contact *a, Contact *b)
 	return priority[a->status().type()] < priority[b->status().type()];
 }
 
-MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id), m_active_contact(0)
+MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id), m_activeContact(0)
 {
 	connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
@@ -92,7 +92,7 @@ void MetaContactImpl::setTags(const QStringList &tags)
 
 bool MetaContactImpl::sendMessage(const Message &message)
 {
-	return m_active_contact->sendMessage(message);
+	return m_activeContact->sendMessage(message);
 }
 
 void MetaContactImpl::addContact(Contact* contact, bool update)
@@ -191,9 +191,9 @@ void MetaContactImpl::resetStatus()
 		return;
 	}
 	Status previous = m_status;
-	Status contactStatus = m_active_contact->status();
+	Status contactStatus = m_activeContact->status();
 	if (contactStatus.type() == Status::Offline) {
-		for(int i = 0; i < m_contacts.size(); i++) {
+		for (int i = 0; i < m_contacts.size(); i++) {
 			if (m_contacts.at(i)->status().type() != Status::Offline) {
 				contactStatus = m_contacts.at(i)->status();
 				break;
@@ -240,7 +240,7 @@ void MetaContactImpl::setAvatar(const QString& path)
 qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 {
 	ChatUnitList list;
-	for (int i = 0;i!=m_contacts.count();i++)
+	for (int i = 0;i != m_contacts.count(); i++)
 		list.append(m_contacts.at(i));
 	return list;
 }
@@ -248,7 +248,7 @@ qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 const qutim_sdk_0_3::ChatUnit* MetaContactImpl::getHistoryUnit() const
 {
 	//TODO improve history
-	return m_active_contact;
+	return m_activeContact;
 }
 
 bool MetaContactImpl::event(QEvent* ev)
@@ -267,7 +267,7 @@ bool MetaContactImpl::event(QEvent* ev)
 		return true;
 	} else if(ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *event = static_cast<ChatStateEvent*>(ev);
-		qApp->sendEvent(m_active_contact,event);
+		qApp->sendEvent(m_activeContact,event);
 	}
 	return qutim_sdk_0_3::MetaContact::event(ev);
 }
@@ -275,12 +275,12 @@ bool MetaContactImpl::event(QEvent* ev)
 void MetaContactImpl::addContacts(QList<Contact*> contacts, bool remove)
 {
 	bool update = false;
-	if(remove) {
+	if (remove) {
 		m_contacts.clear();
 		update = true;
 	}
 
-	foreach(Contact *contact, contacts) {
+	foreach (Contact *contact, contacts) {
 		addContact(contact,update);
 	}
 }
@@ -311,23 +311,23 @@ void MetaContactImpl::setContactTags(const QStringList& tags)
 
 void MetaContactImpl::setActiveContact(Contact* contact)
 {
-	if(contact) {
-		m_active_contact = contact;
+	if (contact) {
+		m_activeContact = contact;
 		return;
 	}
 	for (int i = 0; i < m_contacts.size(); i++) {
 		if (m_contacts.at(i)->status().type() != Status::Offline) {
-			m_active_contact = m_contacts.at(i);
+			m_activeContact = m_contacts.at(i);
 			return;
 		}
 	}
-	m_active_contact = m_contacts.at(0);
+	m_activeContact = m_contacts.at(0);
 }
 
 void MetaContactImpl::onSessionCreated(ChatSession *session)
 {
 	MetaContact *contact = qobject_cast<MetaContact*>(session->unit());
-	if(contact == this->metaContact())
+	if (contact == this->metaContact() && session->unread().count() == 0)
 		setActiveContact();
 }
 
