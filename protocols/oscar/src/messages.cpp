@@ -379,10 +379,15 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		if (!contact->isInList())
 			connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
 		m.setChatUnit(contact);
-		QString plain = unescape(message);
-		m.setText(plain);
-		if (plain != message)
-			m.setProperty("html", message);
+		IcqContactPrivate *d = contact->d_func();
+		if (d->flags & html_support) {
+			QString plain = unescape(message);
+			m.setText(plain);
+			if (plain != message)
+				m.setProperty("html", message);
+		} else {
+			m.setText(message);
+		}
 		session->appendMessage(m);
 	} else if (!contact->isInList()) {
 		contact->deleteLater();
