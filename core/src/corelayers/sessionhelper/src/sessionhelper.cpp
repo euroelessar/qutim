@@ -71,14 +71,16 @@ bool SessionHelper::unload()
 
 void SessionHelper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
 {
-	if(m_activateMultichat)
+	if(m_activateMultichat) {
 		if(qobject_cast<Conference*>(session->unit()))
 			QTimer::singleShot(0, session, SLOT(activate()));
+	}
 }
 
 void SessionHelper::reloadSettings()
 {
-	Config config = Config("appearance").group("chat/behavior/widget");
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
 	m_activateMultichat = config.value<bool>("activateMultichat", true);
 }
 

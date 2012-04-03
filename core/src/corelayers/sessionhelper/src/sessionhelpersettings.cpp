@@ -50,13 +50,15 @@ void SessionHelperSettings::cancelImpl()
 
 void SessionHelperSettings::loadImpl()
 {
-	Config config = Config("appearance").group("chat/behavior/widget");
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
 	ui->activateMultichatBox->setChecked(config.value("activateMultichat", true));
 }
 
 void SessionHelperSettings::saveImpl()
 {
-	Config config = Config("appearance").group("chat/behavior/widget");
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
 	config.setValue("activateMultichat", ui->activateMultichatBox->isChecked());
 }
 
