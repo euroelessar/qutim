@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,39 +22,39 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef SESSIOBHELPERSETTINGS_H
+#define SESSIONHELPERSETTINGS_H
 
+#include <QWidget>
+#include <qutim/settingswidget.h>
 
-#ifndef SESSIONHELPER_PLUGIN_H
-#define SESSIONHELPER_PLUGIN_H
-#include <qutim/plugin.h>
-#include <qutim/chatsession.h>
+class QCheckBox;
 
-namespace qutim_sdk_0_3 {
-class ChatSession;
-class Message;
+namespace Ui {
+	class SessionHelperSettings;
 }
 
-namespace SessionHelper {
+namespace Core
+{
 
 using namespace qutim_sdk_0_3;
 
-class SessionHelper : public Plugin
+class SessionHelperSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
-	Q_CLASSINFO("DebugName", "SessionHelper")
-	Q_CLASSINFO("Uses", "ChatLayer")
 public:
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-private slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
-	void reloadSettings();
+	explicit SessionHelperSettings();
+	~SessionHelperSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
 private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
-	bool m_activateMultichat;
+	Ui::SessionHelperSettings *ui;
+	void reloadCombobox();
 };
+	
+}
 
-} //SessionHelper
-#endif //SESSIONHELPER_PLUGIN_H
+
+#endif // SIMPLECONTACTLISTSETTINGS_H
 

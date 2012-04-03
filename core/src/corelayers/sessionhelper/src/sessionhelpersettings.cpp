@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,39 +22,45 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#include "sessionhelpersettings.h"
+#include "ui_sessionhelpersettings.h"
+#include <qutim/config.h>
+#include <qutim/localizedstring.h>
+#include <qutim/status.h>
 
+namespace Core
+{
 
-#ifndef SESSIONHELPER_PLUGIN_H
-#define SESSIONHELPER_PLUGIN_H
-#include <qutim/plugin.h>
-#include <qutim/chatsession.h>
-
-namespace qutim_sdk_0_3 {
-class ChatSession;
-class Message;
+SessionHelperSettings::SessionHelperSettings() :
+		ui(new Ui::SessionHelperSettings)
+{
+	ui->setupUi(this);
+	lookForWidgetState(ui->activateMultichatBox);
 }
 
-namespace SessionHelper {
-
-using namespace qutim_sdk_0_3;
-
-class SessionHelper : public Plugin
+SessionHelperSettings::~SessionHelperSettings()
 {
-	Q_OBJECT
-	Q_CLASSINFO("DebugName", "SessionHelper")
-	Q_CLASSINFO("Uses", "ChatLayer")
-public:
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-private slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
-	void reloadSettings();
-private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
-	bool m_activateMultichat;
-};
+	delete ui;
+}
 
-} //SessionHelper
-#endif //SESSIONHELPER_PLUGIN_H
+void SessionHelperSettings::cancelImpl()
+{
+	loadImpl();
+}
+
+void SessionHelperSettings::loadImpl()
+{
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
+	ui->activateMultichatBox->setChecked(config.value("activateMultichat", true));
+}
+
+void SessionHelperSettings::saveImpl()
+{
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
+	config.setValue("activateMultichat", ui->activateMultichatBox->isChecked());
+}
+
+}
 
