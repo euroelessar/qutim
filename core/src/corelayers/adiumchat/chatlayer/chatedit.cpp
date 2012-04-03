@@ -226,7 +226,7 @@ void ChatEdit::setSendKey(SendMessageKey key)
 
 void ChatEdit::setAutoResize(bool resize)
 {
-	if(resize == false)
+	if(!resize)
 		setMaximumHeight(QWIDGETSIZE_MAX);
 	m_autoResize = resize;
 }
