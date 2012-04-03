@@ -24,10 +24,13 @@
 ****************************************************************************/
 
 #include "sessionhelper.h"
+#include "sessionhelpersettings.h"
 #include <qutim/debug.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/conference.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 #include <QTimer>
 
 namespace SessionHelper
@@ -40,30 +43,46 @@ void SessionHelper::init()
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("sauron"));
+	addAuthor(QLatin1String("nicoizo"));
 }
 
 bool SessionHelper::load()
 {
+	m_settingsItem = new GeneralSettingsItem<Core::SessionHelperSettings>(Settings::General, Icon("view-choose"),
+																		QT_TRANSLATE_NOOP("Settings","Chat"));
+
 	ChatLayer *layer = ChatLayer::instance();
 	connect(layer,SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
 			);
+
+	Settings::registerItem(m_settingsItem);
+	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+	reloadSettings();
 	return true;
 }
 
 bool SessionHelper::unload()
 {
+	Settings::removeItem(m_settingsItem);
+	delete m_settingsItem;
 	return true;
 }
 
 void SessionHelper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
 {
-	//TODO write more flexible 
-	if(qobject_cast<Conference*>(session->unit()))
-		QTimer::singleShot(0, session, SLOT(activate()));
+	if(m_activateMultichat)
+		if(qobject_cast<Conference*>(session->unit()))
+			QTimer::singleShot(0, session, SLOT(activate()));
+}
+
+void SessionHelper::reloadSettings()
+{
+	Config config = Config("appearance").group("chat/behavior/widget");
+	m_activateMultichat = config.value<bool>("activateMultichat", true);
 }
 
 } //namespace SessionHelper
 
-QUTIM_EXPORT_PLUGIN(SessionHelper::SessionHelper);
+QUTIM_EXPORT_PLUGIN(SessionHelper::SessionHelper)
 

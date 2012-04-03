@@ -367,7 +367,10 @@ void SimpleWidget::init()
 	gen->setShortcut(QLatin1String("contactListActivateMainMenu"));
 	QAction *before = m_mainToolBar->actions().count() ? m_mainToolBar->actions().first() : 0;
 	m_mainToolBar->insertAction(before, gen);
-	SystemIntegration::show(this);
+	Config config("appearance");
+	config.beginGroup("contactList");
+	if(config.value<bool>("showContactListOnStartup", true))
+		SystemIntegration::show(this);
 }
 
 AbstractContactModel *SimpleWidget::model() const
