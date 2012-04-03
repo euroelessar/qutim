@@ -31,6 +31,8 @@
 #include <QVariant>
 #include <QTimer>
 
+Q_DECLARE_METATYPE(int*)
+
 using namespace qutim_sdk_0_3;
 
 QuetzalEventLoop *QuetzalEventLoop::m_self = NULL;
@@ -38,6 +40,7 @@ QuetzalEventLoop *QuetzalEventLoop::m_self = NULL;
 QuetzalEventLoop::QuetzalEventLoop(QObject *parent):
 		QObject(parent), m_socketId(0)
 {
+	qRegisterMetaType<int*>("int*");
 }
 
 QuetzalEventLoop *QuetzalEventLoop::instance()
