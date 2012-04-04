@@ -192,13 +192,12 @@ if( MAEMO6 )
 	INCLUDE_DIRECTORIES (${QDECLARATIVE_BOOSTABLE_INCLUDE_DIRS})
 endif()
 
-
-
 QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
-	"Single profil by default" 
+	"Single profile by default" 
 	"qutIM will be compiled without multiply profiles by default"
 	ON
 )
+
 IF(APPLE)
         set(DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
         IF(NOT CMAKE_BUILD_TYPE)
