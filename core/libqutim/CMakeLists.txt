@@ -2,6 +2,12 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( libqutim )
 
+QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
+	"Single profile by default" 
+	"qutIM will be compiled without multiply profiles by default"
+	ON
+)
+
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
 FILE( GLOB HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
