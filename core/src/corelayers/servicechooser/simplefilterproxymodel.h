@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,52 +23,29 @@
 **
 ****************************************************************************/
 
-#ifndef SERVICECHOOSERWIDGET_H
-#define SERVICECHOOSERWIDGET_H
-#include <qutim/settingswidget.h>
-#include <QHash>
+#ifndef SIMPLEFILTERPROXYMODEL_H
+#define SIMPLEFILTERPROXYMODEL_H
 #include <QModelIndex>
-#include "simplefilterproxymodel.h"
+#include <QSortFilterProxyModel>
+#include <qutim/itemdelegate.h>
 
-namespace qutim_sdk_0_3 
-{
-class ExtensionInfo;
-}
-
-namespace Ui
-{
-class ServiceChooser;
-}
-
-class QStandardItem;
-class QStandardItemModel;
 namespace Core
 {
 
-class ServiceItem;
-using namespace qutim_sdk_0_3;
-
-class ServiceChooserWidget : public SettingsWidget
+class SimpleFilterProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
+
 public:
-	ServiceChooserWidget();
-	virtual void loadImpl();
-	virtual void saveImpl();
-	virtual void cancelImpl();
-	virtual ~ServiceChooserWidget();
-private slots:
-	void onItemChanged(QStandardItem*);
-	void onItemClicked(QModelIndex index);
-	void filterServices(const QString& servicename);
+	SimpleFilterProxyModel(QObject *parent = 0);
+	void setComplexHandling(bool handle);
+
 private:
-	void clear();
-	Ui::ServiceChooser *ui;
-	QStandardItemModel *m_model;
-	SimpleFilterProxyModel *m_proxymodel;
-	QHash<QByteArray, ServiceItem *> m_service_items;
+	bool m_complexHandling;
+
+protected:
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 };
 
 }
-#endif // SERVICECHOOSERWIDGET_H
-
+#endif // SIMPLEFILTERPROXYMODEL_H
