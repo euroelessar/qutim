@@ -41,6 +41,20 @@ namespace Jabber
 {
 
 class JAccount;
+
+class JMessageReceiptFilter : public Jreen::MessageFilter
+{
+	J_MESSAGE_FILTER(Jabber::JMessageReceiptFilter)
+public:
+	JMessageReceiptFilter(JAccount *account,Jreen::MessageSession *session);
+	virtual ~JMessageReceiptFilter() {}
+	virtual void filter(Jreen::Message &message);
+	virtual void decorate(Jreen::Message &message);
+	virtual void reset();
+private:
+	JAccount *m_account;
+};
+
 class JMessageSessionHandler : public Jreen::MessageSessionHandler
 {
 public:
@@ -65,41 +79,6 @@ public slots:
 private:
 	QScopedPointer<JMessageSessionManagerPrivate> d_ptr;
 };
-
-class JMessageReceiptFilter : public Jreen::MessageFilter
-{
-public:
-	JMessageReceiptFilter(JAccount *account,Jreen::MessageSession *session);
-	virtual ~JMessageReceiptFilter() {}
-	virtual void filter(Jreen::Message &message);
-	virtual void decorate(Jreen::Message &message);
-	virtual void reset();
-	virtual int filterType() const;
-private:
-	JAccount *m_account;
-};
-
-//old code
-//class JMessageSession;
-//class JMessageHandlerPrivate;
-//using qutim_sdk_0_3::ChatUnit;
-//class JMessageHandler : public QObject, public gloox::MessageSessionHandler
-//{
-//	Q_OBJECT
-//	Q_DECLARE_PRIVATE(JMessageHandler)
-//public:
-//	JMessageHandler(JAccount *account);
-//	~JMessageHandler();
-//	JAccount *account();
-//	JMessageSession *getSession(const QString &id);
-//	void handleMessageSession(gloox::MessageSession *session);
-//	void prepareMessageSession(JMessageSession *session);
-//	void setSessionId(JMessageSession *session, const QString &id);
-//	void removeSessionId(const QString &id);
-//	void createSession(ChatUnit *unit);
-//private:
-//	QScopedPointer<JMessageHandlerPrivate> d_ptr;
-//};
 }
 
 #endif // JMESSAGEHANDLER_H

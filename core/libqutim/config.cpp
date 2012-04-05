@@ -34,6 +34,7 @@
 #include <QDateTime>
 #include <QEvent>
 #include <QCoreApplication>
+#include <QBasicTimer>
 
 #define CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE 1
 
@@ -132,7 +133,48 @@ public:
 	QDateTime lastModified;
 };
 
-typedef QHash<QString, ConfigSource::Ptr> ConfigSourceHash;
+class ConfigSourceHash : public QObject
+{
+public:
+	ConfigSource::Ptr value(const QString &key)
+	{
+		Hash::Iterator it = m_hash.find(key);
+		if (it == m_hash.end())
+			return ConfigSource::Ptr();
+		m_timers.remove(it->timer.timerId());
+		it->timer.start(5 * 60, this);
+		m_timers.insert(it->timer.timerId(), key);
+		return it->config;
+	}
+
+	void insert(const QString &key, const ConfigSource::Ptr &value)
+	{
+		Hash::Iterator it = m_hash.find(key);
+		if (it == m_hash.end())
+			it = m_hash.insert(key, Info());
+		m_timers.remove(it->timer.timerId());
+		it->timer.start(5 * 60, this);
+		it->config = value;
+		m_timers.insert(it->timer.timerId(), key);
+	}
+
+	void timerEvent(QTimerEvent *event)
+	{
+		QString key = m_timers.take(event->timerId());
+		m_hash.remove(key);
+	}
+
+private:
+	struct Info
+	{
+		mutable QBasicTimer timer;
+		ConfigSource::Ptr config;
+	};
+
+	typedef QHash<QString, Info> Hash;
+	Hash m_hash;
+	mutable QHash<int, QString> m_timers;
+};
 
 Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
 

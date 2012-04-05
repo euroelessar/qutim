@@ -65,6 +65,8 @@ public:
 	QString nick;
 	QString avatar;
 	QVariantMap parameters;
+	QString pgpKeyId;
+	QString currentPGPKeyId;
 	Status status;
 	bool hasChangedParameters;
 	bool isOnline;

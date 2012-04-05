@@ -40,8 +40,9 @@ class LIBQUTIM_EXPORT PasswordDialog : public QObject
 	Q_DECLARE_PRIVATE(PasswordDialog)
 public:
 	enum DialogCode { Rejected, Accepted };
-
+	
 	static PasswordDialog *request(Account *account);
+	static PasswordDialog *request(const QString &windowTitle, const QString &description);
 
 	explicit PasswordDialog();
 	virtual ~PasswordDialog();
@@ -52,6 +53,7 @@ public:
 	bool remember() const;
 	int exec();
 	int result() const;
+	void setSaveButtonVisible(bool allow);
 
 signals:
 #if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
@@ -64,6 +66,17 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 protected:
 	void apply(const QString &password, bool remember);
 	void reject();
+	
+	enum PasswordDialogHook {
+		SetTextHook = 1,
+		SetShowSaveHook
+	};
+	
+	struct SetTextArgument
+	{
+		QString title;
+		QString description;
+	};
 
 	virtual void setAccount(Account *account) = 0;
 	virtual void virtual_hook(int id, void *data);

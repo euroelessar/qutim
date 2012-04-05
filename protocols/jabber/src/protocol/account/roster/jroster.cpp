@@ -29,6 +29,7 @@
 #include "../muc/jmucsession.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
+#include "../jpgpsupport.h"
 #include <QFile>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
@@ -75,6 +76,7 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
 	contact->setContactSubscription(static_cast<Jreen::RosterItem::SubscriptionType>(s10n));
+	contact->setPGPKeyId(data.value(QLatin1String("pgpKeyId")).toString());
 	contacts.insert(id, contact);
 	emit account->contactCreated(contact);
 	return contact;
@@ -89,6 +91,7 @@ void JRosterPrivate::serialize(Contact *generalContact, QVariantMap &data)
 	data.insert(QLatin1String("name"), contact->name());
 	data.insert(QLatin1String("tags"), contact->tags());
 	data.insert(QLatin1String("s10n"), contact->subscription());
+	data.insert(QLatin1String("pgpKeyId"), contact->pgpKeyId());
 }
 
 JRoster::JRoster(JAccount *account) :
@@ -118,6 +121,7 @@ void JRoster::loadFromStorage()
 {
 	Q_D(JRoster);
 	QList<Jreen::RosterItem::Ptr> items;
+	d->ignoreChanges = true;
 	QString version = d->storage->load(d->account);
 	QHashIterator<QString, JContact*> contacts = d->contacts;
 	while (contacts.hasNext()) {
@@ -126,9 +130,13 @@ void JRoster::loadFromStorage()
 		items << Jreen::RosterItem::Ptr(new Jreen::RosterItem(
 				contact->id(), contact->name(), contact->tags(), contact->subscription()));
 	}
-	d->ignoreChanges = true;
 	fillRoster(version, items);
 	d->ignoreChanges = false;
+}
+
+bool JRoster::ignoreChanges() const
+{
+	return d_func()->ignoreChanges;
 }
 
 void JRoster::onItemAdded(QSharedPointer<Jreen::RosterItem> item)
@@ -223,6 +231,15 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 	return 0;
 }
 
+QList<JContactResource *> JRoster::resources() const
+{
+	Q_D(const JRoster);
+	QList<JContactResource *> result;
+	foreach (JContact *contact, d->contacts)
+		result += contact->resources();
+	return result;
+}
+
 void JRoster::fillContact(JContact *contact, QSharedPointer<Jreen::RosterItem> item)
 {
 	QString name = item->name();
@@ -297,7 +314,23 @@ void JRoster::onNewMessage(Jreen::Message message)
 			chatUnit = contact;
 		unitForSession = contact;
 	}
+	
+	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
+		connect(reply, SIGNAL(finished(ChatUnit*,ChatUnit*,Jreen::Message)),
+		        SLOT(onMessageDecrypted(ChatUnit*,ChatUnit*,Jreen::Message)));
+	} else {
+		onMessageDecrypted(unitForSession, chatUnit, message);
+	}
+}
 
+void JRoster::onMessageDecrypted(ChatUnit *chatUnit, ChatUnit *unitForSession, const Jreen::Message &message)
+{
+	if (!chatUnit && !unitForSession)
+		return;
+	if (!chatUnit)
+		chatUnit = unitForSession;
+	if (!unitForSession)
+		unitForSession = chatUnit;
 	qutim_sdk_0_3::Message coreMessage;
 	if(Jreen::DelayedDelivery::Ptr d = message.when())
 		coreMessage.setTime(d->dateTime());

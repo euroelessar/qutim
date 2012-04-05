@@ -91,12 +91,17 @@ public:
 	
 	QStringList updateParameters(const QVariantMap &parameters, bool forced = false);
 	void loadParameters();
+	QString pgpKeyId() const;
+	
 protected:
 	virtual void virtual_hook(int id, void *data);
 signals:
 	void avatarChanged(const QString &avatar);
+	void pgpKeyIdChanged(QString pgpKeyId);
+	
 public slots:
 	void loadSettings();
+
 private:
 	//Jreen
 	friend class JRoster;

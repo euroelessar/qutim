@@ -35,12 +35,65 @@
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include <jreen/error.h>
+#include "../jpgpsupport.h"
 #include "jroster.h"
 #include <QApplication>
 
 namespace Jabber
 {
 //Jreen
+
+JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account, Jreen::MessageSession *session)
+    : Jreen::MessageFilter(session), m_account(account)
+{
+
+}
+
+void JMessageReceiptFilter::filter(Jreen::Message &message)
+{
+	Jreen::Receipt *receipt = message.payload<Jreen::Receipt>().data();
+	ChatUnit *unit = m_account->conferenceManager()->muc(message.from());
+	if (!unit)
+		unit = m_account->roster()->contact(message.from(), true);
+	if(message.containsPayload<Jreen::Error>())
+		return;
+	if(receipt) {
+		if(receipt->type() == Jreen::Receipt::Received) {
+			QString id = receipt->id();
+			if(id.isEmpty())
+				id = message.id(); //for slowpoke client such as Miranda			
+			if(unit)
+				qApp->postEvent(ChatLayer::get(unit),
+								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+		} else {
+			//TODO send this request only when message marked as read
+			Jreen::Message request(Jreen::Message::Chat,
+								   message.from());
+			request.setThread(message.thread());
+			//for slowpoke clients
+			request.setID(message.id());
+			//correct behaviour
+			request.addExtension(new Jreen::Receipt(Jreen::Receipt::Received,message.id()));
+			m_account->client()->send(request);
+		}
+	}
+	Jreen::ChatState *state = message.payload<Jreen::ChatState>().data();
+	if(state) {
+		if(unit)
+			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
+	}
+}
+
+void JMessageReceiptFilter::decorate(Jreen::Message &message)
+{
+	Jreen::Receipt *receipt = new Jreen::Receipt(Jreen::Receipt::Request);
+	message.addExtension(receipt);
+}
+
+void JMessageReceiptFilter::reset()
+{
+
+}
 
 JMessageSessionHandler::JMessageSessionHandler(JAccount *account) :
 	m_account(account)
@@ -104,153 +157,11 @@ void JMessageSessionManager::sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qu
 					   message.text(),
 					   message.property("subject").toString());
 	msg.setID(QString::number(message.id()));
-	s->sendMessage(msg);
+	if (!JPGPSupport::instance()->send(s, unit, msg))
+		s->sendMessage(msg);
 	//We will close the session at Jreen together with a session in qutim
 	s->setParent(ChatLayer::get(const_cast<ChatUnit*>(message.chatUnit()),true));
 }
-
-JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
-											 Jreen::MessageSession *session) :
-	Jreen::MessageFilter(session),
-	m_account(account)
-{
-
-}
-
-void JMessageReceiptFilter::filter(Jreen::Message &message)
-{
-	Jreen::Receipt *receipt = message.payload<Jreen::Receipt>().data();
-	ChatUnit *unit = m_account->conferenceManager()->muc(message.from());
-	if (!unit)
-		unit = m_account->roster()->contact(message.from(), true);
-	if(message.containsPayload<Jreen::Error>())
-		return;
-	if(receipt) {
-		if(receipt->type() == Jreen::Receipt::Received) {
-			QString id = receipt->id();
-			if(id.isEmpty())
-				id = message.id(); //for slowpoke client such as Miranda			
-			if(unit)
-				qApp->postEvent(ChatLayer::get(unit),
-								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
-		} else {
-			//TODO send this request only when message marked as read
-			Jreen::Message request(Jreen::Message::Chat,
-								   message.from());
-			request.setThread(message.thread());
-			//for slowpoke clients
-			request.setID(message.id());
-			//correct behaviour
-			request.addExtension(new Jreen::Receipt(Jreen::Receipt::Received,message.id()));
-			m_account->client()->send(request);
-		}
-	}
-	Jreen::ChatState *state = message.payload<Jreen::ChatState>().data();
-	if(state) {
-		if(unit)
-			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
-	}
-}
-
-void JMessageReceiptFilter::decorate(Jreen::Message &message)
-{
-	Jreen::Receipt *receipt = new Jreen::Receipt(Jreen::Receipt::Request);
-	message.addExtension(receipt);
-}
-
-int JMessageReceiptFilter::filterType() const
-{
-	return Jreen::Message::Chat;
-}
-
-void JMessageReceiptFilter::reset()
-{
-
-}
-
-//dead code
-//class JMessageHandlerPrivate
-//{
-//public:
-//	JAccount *account;
-//	QHash<QString, JMessageSession *> sessions;
-//	QList<MessageFilterFactory*> filterFactories;
-//};
-
-//JMessageHandler::JMessageHandler(JAccount *account) : QObject(account), d_ptr(new JMessageHandlerPrivate)
-//{
-//	//Q_D(JMessageHandler);
-//	//d->account = account;
-//	//d->account->connection()->client()->registerMessageSessionHandler(this);
-//	//foreach (const ObjectGenerator *ext, ObjectGenerator::module<MessageFilterFactory>())
-//	//	d->filterFactories << ext->generate<MessageFilterFactory>();
-//}
-
-//JMessageHandler::~JMessageHandler()
-//{
-//}
-
-//JAccount *JMessageHandler::account()
-//{
-//	return d_func()->account;
-//}
-
-//JMessageSession *JMessageHandler::getSession(const QString &id)
-//{
-//	return d_func()->sessions.value(id);
-//}
-
-//void JMessageHandler::handleMessageSession(MessageSession *session)
-//{
-//	//Q_D(JMessageHandler);
-//	//// FIXME: Double conversion from JID to QString and from QString to JID
-//	//ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
-//	//int types = ~0;
-//	//if (qobject_cast<JMUCUser*>(unit))
-//	//	types ^= gloox::Message::Groupchat;
-//	//session->setTypes(types);
-//	//if (qobject_cast<JMessageSessionOwner*>(unit)) {
-//	//	Q_UNUSED(new JMessageSession(this, unit, session));
-//	//} else {
-//	//	debug() << "Cannot create JMessageSession for" << unit->id();
-//	//}
-//}
-
-//void JMessageHandler::prepareMessageSession(JMessageSession *session)
-//{
-//	//Q_D(JMessageHandler);
-//	//JabberParams params = d->account->connection()->params();
-//	//foreach (MessageFilterFactory *factory, d->filterFactories) {
-//	//	MessageFilter *filter = factory->create(d->account, params, session->session());
-//	//	Q_UNUSED(filter);
-//	//}
-//}
-
-//void JMessageHandler::setSessionId(JMessageSession *session, const QString &id)
-//{
-//	d_func()->sessions.insert(id, session);
-//}
-
-//void JMessageHandler::removeSessionId(const QString &id)
-//{
-//	d_func()->sessions.remove(id);
-//}
-
-//void JMessageHandler::createSession(ChatUnit *unit)
-//{
-//	//		Q_D(JMessageHandler);
-//	//		if (qobject_cast<JMessageSessionOwner*>(unit)) {
-//	//			int types = ~0;
-//	//			if (qobject_cast<JMUCUser*>(unit))
-//	//				types ^= gloox::Message::Groupchat;
-//	////			MessageSession *glooxSession = new MessageSession(d->account->client(),
-//	////															  unit->id().toStdString(),
-//	////															  false, types, true);
-//	//			Q_UNUSED(new JMessageSession(this, unit, glooxSession));
-//	//		} else {
-//	//			debug() << "Cannot create JMessageSession for" << unit->id();
-//	//		}
-//}
 
 }
 
