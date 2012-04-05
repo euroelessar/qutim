@@ -69,6 +69,8 @@ public:
 	void setStatus(const Jreen::Presence presence);
 	void setContactSubscription(Jreen::RosterItem::SubscriptionType subscription);
 	Jreen::RosterItem::SubscriptionType subscription() const;
+	void setEncrypted(bool encrypted);
+	bool isEncrypted() const;
 	QString name() const;
 	QStringList tags() const;
 	Status status() const;
@@ -86,11 +88,17 @@ public:
 	void setAvatar(const QString &hex);
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
+	QString pgpKeyId() const;
+	void setPGPKeyId(QString pgpKeyId);
+	
 signals:
 	void subscriptionChanged(Jreen::RosterItem::SubscriptionType subscription);
+	void pgpKeyChangedId(QString pgpKeyId);
+	
 public slots:
 	void requestSubscription();
 	void removeSubscription();
+	
 protected:
 	void recalcStatus();
 	void fillMaxResource();

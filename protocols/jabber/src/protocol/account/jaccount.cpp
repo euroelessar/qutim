@@ -51,6 +51,7 @@
 #include <jreen/directconnection.h>
 #include <qutim/debug.h>
 #include <qutim/networkproxy.h>
+#include "jpgpsupport.h"
 
 namespace Jabber {
 
@@ -89,11 +90,7 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
-	client->setPresence(JStatus::statusToPresence(status), status.text(), priority);
-	const Presence presence = client->presence();
-	// We need this for peps
-	Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
-	client->send(copy);
+	JPGPSupport::instance()->send(q, JStatus::statusToPresence(status), status.text(), priority);
 	q->setAccountStatus(status);
 }
 
@@ -110,6 +107,10 @@ void JAccountPrivate::setPresence(Jreen::Presence presence)
 void JAccountPrivate::_q_connected()
 {
 	Q_Q(JAccount);
+	if (currentPGPKeyId != pgpKeyId) {
+		currentPGPKeyId = pgpKeyId;
+		emit q->pgpKeyIdChanged(currentPGPKeyId);
+	}
 	applyStatus(status);
 	conferenceManager.data()->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
@@ -271,10 +272,12 @@ JAccount::JAccount(const QString &id) :
 			ext->init(this);
 		}
 	}
+	JPGPSupport::instance()->addAccount(this);
 }
 
 JAccount::~JAccount()
 {
+	JPGPSupport::instance()->removeAccount(this);
 }
 
 ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
@@ -305,10 +308,11 @@ void JAccount::loadSettings()
 	d->nick = cfg.value("nick", id());
 	if (cfg.hasChildKey("photoHash"))
 		setAvatarHex(cfg.value("photoHash", QString()));
+	d->pgpKeyId = cfg.value("pgpKeyId", QString());
 
 	Jreen::JID jid(id());
 	if (!d->client->isConnected()) {
-		jid.setResource(cfg.value("resource", QLatin1String("qutIM/Jreen")));
+		jid.setResource(cfg.value("resource", QLatin1String("qutIM")));
 	}
 	d->client->setFeatureConfig(Client::Encryption, cfg.value("encryption", Client::Auto));
 	d->client->setFeatureConfig(Client::Compression, cfg.value("compression", Client::Auto));
@@ -418,6 +422,11 @@ void JAccount::loadParameters()
 	emit parametersChanged(d->parameters);
 }
 
+QString JAccount::pgpKeyId() const
+{
+	return d_func()->currentPGPKeyId;
+}
+
 void JAccount::virtual_hook(int id, void *data)
 {
 	switch (id) {
@@ -514,15 +523,12 @@ void JAccount::setStatus(Status status)
 		d->client->disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->applyStatus(status);
-		//		d->client->setPresence(JStatus::statusToPresence(status), status.text());
 	}
 }
 
 void JAccount::setAccountStatus(Status status)
 {
 	Q_D(JAccount);
-	if (status != Status::Connecting && status != Status::Offline)
-		d->conferenceManager.data()->setPresenceToRooms(d->client->presence());
 	Account::setStatus(status);
 }
 

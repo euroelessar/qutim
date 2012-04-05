@@ -39,6 +39,7 @@ namespace Jabber
 using namespace qutim_sdk_0_3;
 class JAccount;
 class JContact;
+class JContactResource;
 
 class JRosterPrivate;
 class JRoster : public Jreen::AbstractRoster
@@ -50,7 +51,9 @@ public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
 	void loadFromStorage();
+	bool ignoreChanges() const;
 	ChatUnit *contact(const Jreen::JID &id, bool create = false);
+	QList<JContactResource*> resources() const;
 	void addContact(const JContact *contact);
 	void removeContact(const JContact *contact);
 	void requestSubscription(const Jreen::JID &id, const QString &reason = QString());
@@ -71,6 +74,7 @@ protected slots:
 	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
 	void onNewMessage(Jreen::Message message); //TODO move this method to JMessageManager
+	void onMessageDecrypted(ChatUnit *unit, ChatUnit *unitForSession, const Jreen::Message &message);
 	void onContactDestroyed(QObject *obj);
 private:
 	JContact *createContact(const Jreen::JID &id);

@@ -44,6 +44,8 @@ public:
 	Jreen::Presence presence;
 	QSet<QString> features;
 	QHash<QString, QVariantHash> extInfo;
+	QCA::PGPKey pgpKey;
+	QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus;
 };
 }
 
