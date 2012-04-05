@@ -40,11 +40,12 @@ public:
 	SimpleFilterProxyModel(QObject *parent = 0);
 	void setComplexHandling(bool handle);
 
+protected:
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
 private:
 	bool m_complexHandling;
 
-protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 };
 
 }

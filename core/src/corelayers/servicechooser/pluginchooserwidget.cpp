@@ -50,6 +50,7 @@ PluginChooserWidget::PluginChooserWidget() :
 	m_proxymodel = new SimpleFilterProxyModel(this);
 	m_proxymodel->setSourceModel(m_model);
 	m_proxymodel->setFilterKeyColumn(-1);
+	m_proxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 	ui->treeView->setModel(m_proxymodel);
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setIndentation(0);
@@ -171,7 +172,7 @@ void PluginChooserWidget::onItemClicked(QModelIndex index)
 
 void PluginChooserWidget::filterPlugins(const QString& pluginname)
 {
-	m_proxymodel->setFilterRegExp(QRegExp(pluginname, Qt::CaseInsensitive, QRegExp::Wildcard));
+	m_proxymodel->setFilterWildcard(pluginname);
 }
 
 }
