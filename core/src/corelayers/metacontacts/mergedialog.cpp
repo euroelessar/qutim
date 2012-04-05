@@ -60,7 +60,7 @@ MergeDialog::~MergeDialog()
 void MergeDialog::accept()
 {
 	QList<Contact*> contacts = m_model->getContacts();
-	if(!(contacts.count() < 2)) {
+	if (!(contacts.count() < 2)) {
 		MetaContactImpl *metaContact = m_model->metaContact();
 		if (!metaContact)
 			metaContact = static_cast<MetaContactImpl*>(MetaContactManager::instance()->createContact());
@@ -75,7 +75,7 @@ void MergeDialog::accept()
 
 void MergeDialog::setMetaContact(MetaContactImpl* contact)
 {
-	if(m_model->metaContact())
+	if (m_model->metaContact())
 		m_model->metaContact()->disconnect(this);
 	connect(contact, SIGNAL(nameChanged(QString,QString)),
 			this, SLOT(nameChanged(QString)));
@@ -86,7 +86,7 @@ void MergeDialog::setMetaContact(MetaContactImpl* contact)
 
 void MergeDialog::setName(const QString& name)
 {
-	if(m_model->metaContact())
+	if (m_model->metaContact())
 		m_model->metaContact()->setName(name);
 }
 
@@ -104,9 +104,9 @@ void MergeDialog::nameChanged(const QString& name)
 
 void MergeDialog::onClicked()
 {
-	if(!(ui->searchField->text().size() == 0))
+	if (ui->searchField->text().size() != 0)
 		m_model->searchContacts(ui->searchField->text());
-	else if(!(ui->nameEdit->text().size() == 0))
+	else if (ui->nameEdit->text().size() != 0)
 		m_model->searchContacts(ui->nameEdit->text());
 }
 

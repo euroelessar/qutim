@@ -22,52 +22,39 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef SESSIOBHELPERSETTINGS_H
+#define SESSIONHELPERSETTINGS_H
 
-#ifndef MANAGER_H
-#define MANAGER_H
+#include <QWidget>
+#include <qutim/settingswidget.h>
 
-#include <qutim/metacontactmanager.h>
-#include "metacontactimpl.h"
-#include "messagehandler.h"
+class QCheckBox;
 
-namespace qutim_sdk_0_3 {
-class RosterStorage;
+namespace Ui {
+	class SessionHelperSettings;
 }
 
 namespace Core
 {
-namespace MetaContacts
-{
 
-class Factory;
-class Manager : public qutim_sdk_0_3::MetaContactManager
+using namespace qutim_sdk_0_3;
+
+class SessionHelperSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
-	Q_CLASSINFO("Uses", "RosterStorage")
 public:
-	Manager();
-	virtual ~Manager();
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
-	void removeContact(const QString &id) { m_contacts.remove(id); }
-	virtual QString name() const;
-protected:
-	virtual void loadContacts();
-private slots:
-	void initActions();
-	void onSplitTriggered(QObject*);
-	void onCreateTriggered(QObject*);
-	void onContactCreated(qutim_sdk_0_3::Contact*);
+	explicit SessionHelperSettings();
+	~SessionHelperSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
 private:
-	QHash<QString, MetaContactImpl*> m_contacts;
-	qutim_sdk_0_3::RosterStorage *m_storage;
-	QScopedPointer<Factory> m_factory;
-	friend class Factory;
-	bool m_blockUpdate;
-	QString m_name;
-	QScopedPointer <MetaContactMessageHandler> m_handler;
+	Ui::SessionHelperSettings *ui;
+	void reloadCombobox();
 };
-}
+	
 }
 
-#endif // MANAGER_H
+
+#endif // SIMPLECONTACTLISTSETTINGS_H
 

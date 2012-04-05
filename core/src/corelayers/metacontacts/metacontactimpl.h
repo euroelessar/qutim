@@ -60,7 +60,7 @@ public:
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
 	void setActiveContact(Contact* contact = 0);
-	Contact* getActiveContact() { return m_active_contact; }
+	Contact* getActiveContact() { return m_activeContact; }
 public slots:
 	void setAvatar(const QString &path);
 protected:
@@ -80,7 +80,7 @@ private:
 	QStringList m_tags;
 	QList<Contact*> m_contacts;
 	QString m_lastAvatar;
-	Contact* m_active_contact;
+	Contact* m_activeContact;
 };
 }
 }

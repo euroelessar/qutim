@@ -22,52 +22,45 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-
-#ifndef MANAGER_H
-#define MANAGER_H
-
-#include <qutim/metacontactmanager.h>
-#include "metacontactimpl.h"
-#include "messagehandler.h"
-
-namespace qutim_sdk_0_3 {
-class RosterStorage;
-}
+#include "sessionhelpersettings.h"
+#include "ui_sessionhelpersettings.h"
+#include <qutim/config.h>
+#include <qutim/localizedstring.h>
+#include <qutim/status.h>
 
 namespace Core
 {
-namespace MetaContacts
-{
 
-class Factory;
-class Manager : public qutim_sdk_0_3::MetaContactManager
+SessionHelperSettings::SessionHelperSettings() :
+		ui(new Ui::SessionHelperSettings)
 {
-	Q_OBJECT
-	Q_CLASSINFO("Uses", "RosterStorage")
-public:
-	Manager();
-	virtual ~Manager();
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
-	void removeContact(const QString &id) { m_contacts.remove(id); }
-	virtual QString name() const;
-protected:
-	virtual void loadContacts();
-private slots:
-	void initActions();
-	void onSplitTriggered(QObject*);
-	void onCreateTriggered(QObject*);
-	void onContactCreated(qutim_sdk_0_3::Contact*);
-private:
-	QHash<QString, MetaContactImpl*> m_contacts;
-	qutim_sdk_0_3::RosterStorage *m_storage;
-	QScopedPointer<Factory> m_factory;
-	friend class Factory;
-	bool m_blockUpdate;
-	QString m_name;
-	QScopedPointer <MetaContactMessageHandler> m_handler;
-};
-}
+	ui->setupUi(this);
+	lookForWidgetState(ui->activateMultichatBox);
 }
 
-#endif // MANAGER_H
+SessionHelperSettings::~SessionHelperSettings()
+{
+	delete ui;
+}
+
+void SessionHelperSettings::cancelImpl()
+{
+	loadImpl();
+}
+
+void SessionHelperSettings::loadImpl()
+{
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
+	ui->activateMultichatBox->setChecked(config.value("activateMultichat", true));
+}
+
+void SessionHelperSettings::saveImpl()
+{
+	Config config("appearance");
+	config.beginGroup("chat/behavior/widget");
+	config.setValue("activateMultichat", ui->activateMultichatBox->isChecked());
+}
+
+}
 

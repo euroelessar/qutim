@@ -49,7 +49,10 @@ public:
 	virtual bool unload();
 private slots:
 	void sessionCreated(qutim_sdk_0_3::ChatSession*);
+	void reloadSettings();
 private:
+	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	bool m_activateMultichat;
 };
 
 } //SessionHelper
