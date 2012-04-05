@@ -49,6 +49,7 @@ ServiceChooserWidget::ServiceChooserWidget() :
 	m_proxymodel = new SimpleFilterProxyModel(this);
 	m_proxymodel->setComplexHandling(true);
 	m_proxymodel->setSourceModel(m_model);
+	m_proxymodel->setFilterKeyColumn(-1);
 	ui->treeView->setModel(m_proxymodel);
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setAnimated(false);
@@ -167,7 +168,6 @@ void ServiceChooserWidget::onItemClicked(QModelIndex index)
 void ServiceChooserWidget::filterServices(const QString &servicename)
 {
 	m_proxymodel->setFilterRegExp(QRegExp(servicename, Qt::CaseInsensitive, QRegExp::Wildcard));
-	m_proxymodel->setFilterKeyColumn(-1);
 }
 
 }
