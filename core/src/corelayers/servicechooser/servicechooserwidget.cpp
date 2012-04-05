@@ -46,11 +46,17 @@ ServiceChooserWidget::ServiceChooserWidget() :
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
-	ui->treeView->setModel(m_model);
+	m_proxymodel = new SimpleFilterProxyModel(this);
+	m_proxymodel->setComplexHandling(true);
+	m_proxymodel->setSourceModel(m_model);
+	m_proxymodel->setFilterKeyColumn(-1);
+	m_proxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	ui->treeView->setModel(m_proxymodel);
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setAnimated(false);
 	ui->treeView->setExpandsOnDoubleClick(false);
 
+	connect(ui->search, SIGNAL(textChanged(QString)), this, SLOT(filterServices(QString)));
 	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 }
@@ -79,7 +85,7 @@ void ServiceChooserWidget::loadImpl()
 
 	ExtensionInfoList exts = extensionList();
 	QStringList helper;
-	for (int i = 0; i < exts.size(); i++) {
+	for (int i = 0; i < exts.size(); ++i) {
 		const ExtensionInfo &info = exts.at(i);
 		const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
 
@@ -109,10 +115,12 @@ void ServiceChooserWidget::loadImpl()
 		}
 	}
 }
+
 void ServiceChooserWidget::cancelImpl()
 {
 
 }
+
 void ServiceChooserWidget::saveImpl()
 {
 	bool showNotification = false;
@@ -156,6 +164,11 @@ void ServiceChooserWidget::onItemClicked(QModelIndex index)
 		item->setCheckState(item->checkState() == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
 	}
 #endif
+}
+
+void ServiceChooserWidget::filterServices(const QString &servicename)
+{
+	m_proxymodel->setFilterWildcard(servicename);
 }
 
 }

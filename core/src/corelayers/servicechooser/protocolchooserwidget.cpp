@@ -49,6 +49,7 @@ ProtocolChooserWidget::ProtocolChooserWidget() :
 	ui->treeView->setItemDelegate(new  ItemDelegate(ui->treeView));
 	ui->treeView->setAnimated(false);
 	ui->treeView->setExpandsOnDoubleClick(false);
+	ui->search->hide();
 	connect(ui->treeView,SIGNAL(activated(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
@@ -94,10 +95,12 @@ void ProtocolChooserWidget::loadImpl()
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }
+
 void ProtocolChooserWidget::cancelImpl()
 {
 
 }
+
 void ProtocolChooserWidget::saveImpl()
 {
 	Config group = Config().group("protocols/list");
