@@ -55,6 +55,7 @@ bool HighlighterPlugin::load()
 	if (!m_handler)
 		m_handler = new NickHandler;
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
+	                                               QLatin1String("Highlighter"),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
 	m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));

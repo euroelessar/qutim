@@ -24,11 +24,24 @@
 ****************************************************************************/
 
 #include "messagehandler.h"
+#include <qutim/debug.h>
 
 namespace qutim_sdk_0_3
 {
 
-typedef QList<QPair<int, MessageHandler*> > MessageHandlerList;
+struct MessageHandlerInfo
+{
+	int priority;
+	QString name;
+	MessageHandler *handler;
+	
+	bool operator <(const MessageHandlerInfo &o) const
+	{
+		return priority < o.priority || (priority == o.priority && handler < o.handler);
+	}
+};
+
+typedef QList<MessageHandlerInfo> MessageHandlerList;
 typedef MessageHandlerList* MessageHandlerListPtr;
 struct Scope
 {
@@ -46,15 +59,21 @@ MessageHandler::~MessageHandler()
 
 void MessageHandler::registerHandler(MessageHandler *handler, int incomingPriority, int outgoingPriority)
 {
+	registerHandler(handler, QString(), incomingPriority, outgoingPriority);
+}
+
+void MessageHandler::registerHandler(MessageHandler *handler, const QString &name, int incomingPriority, int outgoingPriority)
+{
 	MessageHandlerListPtr lists[] = { &scope()->incoming, &scope()->outgoing };
 	int priorities[] = { incomingPriority, outgoingPriority };
 	for (int i = 0; i < 2; ++i) {
+		MessageHandlerInfo info = { priorities[i], name, handler };
 		int index = qUpperBound(lists[i]->constBegin(),
 		                        lists[i]->constEnd(),
-		                        qMakePair(priorities[i], handler),
-		                        qGreater<QPair<int, MessageHandler*> >())
+		                        info,
+		                        qGreater<MessageHandlerInfo>())
 		        - lists[i]->constBegin();
-		lists[i]->insert(index, qMakePair(priorities[i], handler));
+		lists[i]->insert(index, info);
 	}
 }
 
@@ -64,7 +83,7 @@ void MessageHandler::unregisterHandler(MessageHandler *handler)
 	bool found = false;
 	for (int i = 0; i < 1 || (i == 1 && found); ++i) {
 		for (int j = 0; j < lists[i]->size(); ++j) {
-			if (lists[i]->at(j).second == handler) {
+			if (lists[i]->at(j).handler == handler) {
 				lists[i]->removeAt(j);
 				found = true;
 			}
@@ -80,11 +99,29 @@ MessageHandler::Result MessageHandler::handle(Message &message, QString *reason)
 		reason = &tmp;
 	for (int i = 0; i < list.size(); ++i) {
 		reason->clear();
-		Result result = list.at(i).second->doHandle(message, reason);
+		Result result = list.at(i).handler->doHandle(message, reason);
 		if (result != Accept)
 			return result;
 	}
 	return Accept;
+}
+
+void MessageHandler::traceHandlers()
+{
+	MessageHandlerListPtr lists[] = { &scope()->incoming, &scope()->outgoing };
+	const char *titles[] = { "Incoming handlers:", "Outgoing handlers:" };
+	for (int i = 0; i < 2; ++i) {
+		MessageHandlerList &list = *lists[i];
+		QDebug dbg = debug();
+		dbg << titles[i];
+		dbg.nospace();
+		for (int j = 0; j < list.size(); ++j) {
+			MessageHandlerInfo &info = list[j];
+			if (j > 0)
+				dbg << " -> ";
+			dbg << "(0x" << QByteArray::number(info.priority, 16).constData() << ", " << info.name << ")";
+		}
+	}
 }
 
 }

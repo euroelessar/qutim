@@ -506,18 +506,18 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #endif // QUTIM_TEST_PERFOMANCE
 						if (!verificationFunction) {
 							lib->unload();
-							debug() << filename << " has no valid verification data";
+							qDebug() << filename << " has no valid verification data";
 							continue;
 						}
 						QString error;
 						if (!checkQutIMPluginData(verificationFunction(), &debugId, &error)) {
 							lib->unload();
-							debug() << "Error while loading plugin " << filename << ": " << error;
+							qDebug() << "Error while loading plugin " << filename << ": " << error;
 							continue;
 							continue;
 						}
 					} else {
-						debug() << lib->errorString();
+						qDebug() << lib->errorString();
 						nextTry << files[i];
 						pluginPathsList.remove(filename);
 						continue;

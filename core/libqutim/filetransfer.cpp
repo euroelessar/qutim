@@ -702,7 +702,7 @@ FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivat
 	
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>()) {
 		const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
-		if (!protocols.contains(QLatin1String(proto)))
+		if (qstrlen(proto) > 0 && !protocols.contains(QLatin1String(proto)))
 			continue;
 		scope()->factories << gen->generate<FileTransferFactory>();
 	}

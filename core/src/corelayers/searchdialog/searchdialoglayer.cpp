@@ -44,7 +44,7 @@ SearchLayer::SearchLayer()
 
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<ContactSearchFactory>()) {
 		const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
-		if (!protocols.contains(QLatin1String(proto)))
+		if (qstrlen(proto) > 0 && !protocols.contains(QLatin1String(proto)))
 			continue;
 		m_contactSearchFactories << gen->generate<ContactSearchFactory>();
 	}
