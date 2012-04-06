@@ -86,8 +86,12 @@ MessageHandler::Result OtrMessagePostHandler::doHandle(Message &message, QString
 {
 	Q_UNUSED(reason);
 	if (message.isIncoming()) {
-		if (message.text().startsWith(QLatin1String("<Internal OTR message>\n")))
-			return Reject;
+		if (message.text().startsWith(QLatin1String("<Internal OTR message>\n"))) {
+			message.setText(message.text().section(QLatin1Char('\n'), 1));
+			message.setProperty("hide", true);
+			message.setProperty("store", false);
+			return Accept;
+		}
 	} else {
 		if (message.property("service", false) || message.property("history", false))
 			return Accept;

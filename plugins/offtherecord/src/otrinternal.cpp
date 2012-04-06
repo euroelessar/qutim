@@ -702,15 +702,6 @@ void OtrInternal::create_privkey(const char *accountname,
     if(!m_mutex.tryLock(10))
         return;
 
-    QMessageBox warnBox(QMessageBox::Warning,tr("qutim-otr"),tr("Key generation will be started.<br>Please, make sure that you <b>log out from all your jabber accounts</b>! QutIM may be crashed if they will be online while key is generating."),QMessageBox::Ok,NULL,Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-    warnBox.setModal(false);
-    warnBox.setWindowModality(Qt::NonModal);
-    warnBox.setDefaultButton(QMessageBox::Ok);
-    warnBox.show();
-    warnBox.setEscapeButton(QMessageBox::Cancel);
-    while(!warnBox.isHidden())
-        QCoreApplication::processEvents();
-
     QMessageBox infoMb(QMessageBox::Information, tr("qutim-otr"),
                        tr("Generating keys for account %1\nThis may take a while.\nPlease, move mouse and use keyoard to decrease generation time.").arg(QString(accountname)),
                        QMessageBox::Ok, NULL,
