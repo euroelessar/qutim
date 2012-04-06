@@ -13,16 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-   </property>
-   <property name="rowWrapPolicy">
-    <enum>QFormLayout::WrapLongRows</enum>
-   </property>
-   <property name="formAlignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
+  <layout class="QFormLayout" name="formLayout_3">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="sizePolicy">
@@ -43,13 +34,6 @@
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Password:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="passwdEdit">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
      </property>
     </widget>
    </item>
@@ -95,189 +79,250 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
+   <item row="6" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
       <string>Priority depends on status</string>
      </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Online:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="onlinePriority">
+        <property name="minimum">
+         <number>-9999</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Free for chat:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="ffchatPriority">
+        <property name="minimum">
+         <number>-9999</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Away:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="awayPriority">
+        <property name="minimum">
+         <number>-9999</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>NA:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="naPriority">
+        <property name="minimum">
+         <number>-9999</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>DND:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="dndPriority">
+        <property name="minimum">
+         <number>-9999</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_11">
-     <property name="text">
-      <string>Online:</string>
+   <item row="8" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>OpenPGP</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>330</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="selectPGPButton">
+        <property name="text">
+         <string>Select Key</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="removePGPButton">
+        <property name="text">
+         <string>Use none</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="pgpLabel">
+        <property name="text">
+         <string notr="true">No key selectted</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QSpinBox" name="onlinePriority">
-     <property name="minimum">
-      <number>-9999</number>
+   <item row="7" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Connection settings</string>
      </property>
-     <property name="maximum">
-      <number>9999</number>
-     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="autodetectBox">
+        <property name="text">
+         <string>Autodetect connection settings</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Server:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="serverEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Port:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QSpinBox" name="portBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>65536</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Use encryption</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>Use compression</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="encryptionBox">
+        <item>
+         <property name="text">
+          <string>Always</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Never</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>If server has support</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="compressionBox">
+        <item>
+         <property name="text">
+          <string>Always</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Never</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>If server has support</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_12">
-     <property name="text">
-      <string>Free for chat:</string>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="passwdEdit">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
      </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QSpinBox" name="ffchatPriority">
-     <property name="minimum">
-      <number>-9999</number>
-     </property>
-     <property name="maximum">
-      <number>9999</number>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Away:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QSpinBox" name="awayPriority">
-     <property name="minimum">
-      <number>-9999</number>
-     </property>
-     <property name="maximum">
-      <number>9999</number>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>NA:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QSpinBox" name="naPriority">
-     <property name="minimum">
-      <number>-9999</number>
-     </property>
-     <property name="maximum">
-      <number>9999</number>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>DND:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QSpinBox" name="dndPriority">
-     <property name="minimum">
-      <number>-9999</number>
-     </property>
-     <property name="maximum">
-      <number>9999</number>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="0" colspan="2">
-    <widget class="QCheckBox" name="autodetectBox">
-     <property name="text">
-      <string>Autodetect connection settings</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Server:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QLineEdit" name="serverEdit">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Port:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
-    <widget class="QSpinBox" name="portBox">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="maximum">
-      <number>65536</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Use encryption</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_13">
-     <property name="text">
-      <string>Use compression</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QComboBox" name="encryptionBox">
-     <item>
-      <property name="text">
-       <string>Always</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Never</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>If server has support</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QComboBox" name="compressionBox">
-     <item>
-      <property name="text">
-       <string>Always</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Never</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>If server has support</string>
-      </property>
-     </item>
     </widget>
    </item>
   </layout>

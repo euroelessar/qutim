@@ -2,8 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Denis Daschenko <daschenko@gmail.com>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -24,47 +23,30 @@
 **
 ****************************************************************************/
 
-#ifndef JABBERSETTINGS_H
-#define JABBERSETTINGS_H
+#ifndef SIMPLEFILTERPROXYMODEL_H
+#define SIMPLEFILTERPROXYMODEL_H
+#include <QModelIndex>
+#include <QSortFilterProxyModel>
+#include <qutim/itemdelegate.h>
 
-#include <qutim/settingswidget.h>
-#include <qutim/configbase.h>
-#include <QWeakPointer>
-#include <QtCrypto>
-
-namespace Ui
+namespace Core
 {
-class JMainSettings;
-}
 
-namespace Jabber
-{
-using namespace qutim_sdk_0_3;
-class JAccount;
-class JMainSettings: public SettingsWidget
+class SimpleFilterProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
+
 public:
-	JMainSettings();
-	~JMainSettings();
-	void loadImpl();
-	void cancelImpl();
-	void saveImpl();
-	virtual void setController(QObject *controller);
+	SimpleFilterProxyModel(QObject *parent = 0);
+	void setComplexHandling(bool handle);
 
-	void updatePGPText();
-
-private slots:
-	void on_selectPGPButton_clicked();
-	void on_removePGPButton_clicked();
-	void onPGPKeyDialogFinished(int result);
+protected:
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-	Ui::JMainSettings *ui;
-	QCA::PGPKey m_pgpKey;
-	QWeakPointer<JAccount> m_account;
+	bool m_complexHandling;
+
 };
+
 }
-
-#endif // JABBERSETTINGS_H
-
+#endif // SIMPLEFILTERPROXYMODEL_H

@@ -29,40 +29,54 @@
 
 namespace qutim_sdk_0_3
 {
-	ScriptTools::ScriptTools()
-	{
-	}
 
-	ScriptTools::~ScriptTools()
-	{
-	}
+static void initEngine(QScriptEngine *engine)
+{
+	Q_UNUSED(engine);
+//	ScriptTools::prepareEngine(engine);
+}
 
-	void ScriptTools::prepareEngine(QScriptEngine *engine)
-	{
-		QList<QByteArray> services = ServiceManager::names();
-		QScriptValue client = engine->newObject();
-		for (int i = 0; i < services.size(); i++) {
-			QByteArray origName = services.at(i);
-			Q_ASSERT(!origName.isEmpty());
-			QString name = QChar(QLatin1Char(origName.at(0))).toLower();
-			name += QLatin1String(origName.constData() + 1);
-			client.setProperty(name, engine->newQObject(ServiceManager::getByName(origName),
-														QScriptEngine::QtOwnership,
-														QScriptEngine::AutoCreateDynamicProperties));
-		}
-		QScriptValue protocols = engine->newObject();
-		ProtocolHash map = Protocol::all();
-		ProtocolHash::iterator it;
-		for (it = map.begin(); it != map.end(); it++)
-			protocols.setProperty(it.key(), engine->newQObject(it.value()));
-		client.setProperty("protocols", protocols);
-		Message::scriptRegister(engine);
-		engine->globalObject().setProperty("Client", client);
-	}
+Q_GLOBAL_STATIC_WITH_INITIALIZER(QScriptEngine, scriptEngineInstance, initEngine(x.data()))
 
-	void ScriptTools::prepareEngine(QDeclarativeEngine *engine)
-	{
-		Q_UNUSED(engine);
+ScriptTools::ScriptTools()
+{
+}
+
+ScriptTools::~ScriptTools()
+{
+}
+
+QScriptEngine *ScriptTools::engineInstance()
+{
+	return scriptEngineInstance();
+}
+
+void ScriptTools::prepareEngine(QScriptEngine *engine)
+{
+	QList<QByteArray> services = ServiceManager::names();
+	QScriptValue client = engine->newObject();
+	for (int i = 0; i < services.size(); i++) {
+		QByteArray origName = services.at(i);
+		Q_ASSERT(!origName.isEmpty());
+		QString name = QChar(QLatin1Char(origName.at(0))).toLower();
+		name += QLatin1String(origName.constData() + 1);
+		client.setProperty(name, engine->newQObject(ServiceManager::getByName(origName),
+		                                            QScriptEngine::QtOwnership,
+		                                            QScriptEngine::AutoCreateDynamicProperties));
 	}
+	QScriptValue protocols = engine->newObject();
+	ProtocolHash map = Protocol::all();
+	ProtocolHash::iterator it;
+	for (it = map.begin(); it != map.end(); it++)
+		protocols.setProperty(it.key(), engine->newQObject(it.value()));
+	client.setProperty("protocols", protocols);
+	Message::scriptRegister(engine);
+	engine->globalObject().setProperty("Client", client);
+}
+
+void ScriptTools::prepareEngine(QDeclarativeEngine *engine)
+{
+	Q_UNUSED(engine);
+}
 }
 

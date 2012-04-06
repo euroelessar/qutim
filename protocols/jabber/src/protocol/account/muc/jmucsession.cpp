@@ -372,6 +372,10 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			return;
 		text = nick % tr(" is now known as ") % newNick;
 		JMUCUser *user = d->users.value(nick, 0);
+		if (!user) {
+			warning() << "Nick change presence for unknown contact";
+			return;
+		}
 		d->users.insert(newNick, user);
 		d->users.remove(nick);
 		user->setUserName(newNick);

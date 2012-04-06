@@ -28,6 +28,7 @@
 #include <qutim/buddy.h>
 #include <jreen/presence.h>
 #include <QSet>
+#include <QtCrypto>
 #include "../roster/jmessagesessionowner.h"
 
 namespace Jreen
@@ -51,9 +52,9 @@ class JContactResourcePrivate;
 
 class JContactResource : public qutim_sdk_0_3::Buddy
 {
+	Q_OBJECT
 	Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 	Q_DECLARE_PRIVATE(JContactResource)
-	Q_OBJECT
 	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
@@ -65,7 +66,12 @@ public:
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	void setPriority(int priority);
 	int priority();
+	QCA::PGPKey pgpKey() const;
+	void setPGPKey(const QCA::PGPKey &key);
+	QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus() const;
+	void setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus);
 	Jreen::Presence::Type presenceType() const;
+	Jreen::Presence presence() const;
 	void setStatus(const Jreen::Presence presence);
 	Status status() const;
 	virtual bool event(QEvent *ev);

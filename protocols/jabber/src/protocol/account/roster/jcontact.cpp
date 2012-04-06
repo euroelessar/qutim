@@ -43,6 +43,7 @@
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
+#include "../jpgpsupport.h"
 
 namespace Jabber
 {
@@ -50,7 +51,7 @@ namespace Jabber
 class JContactPrivate
 {
 public:
-	JContactPrivate() : inList(false) {}
+	JContactPrivate() : inList(false), encrypted(true) {}
 	JAccount *account;
 	QHash<QString, JContactResource *> resources;
 	QStringList currentResources;
@@ -58,11 +59,13 @@ public:
 	QString name;
 	QString jid;
 	bool inList;
+	bool encrypted;
 	QString avatar;
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
 	Jreen::RosterItem::SubscriptionType subscription;
 	Status status;
+	QString pgpKey;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -177,6 +180,16 @@ void JContact::setContactSubscription(Jreen::RosterItem::SubscriptionType subscr
 Jreen::RosterItem::SubscriptionType JContact::subscription() const
 {
 	return d_func()->subscription;
+}
+
+void JContact::setEncrypted(bool encrypted)
+{
+	d_func()->encrypted = encrypted;
+}
+
+bool JContact::isEncrypted() const
+{
+	return d_func()->encrypted;
 }
 
 bool JContact::event(QEvent *ev)
@@ -305,6 +318,7 @@ void JContact::setStatus(const Jreen::Presence presence)
 		contactResource->setStatus(presence);
 		contactResource->blockSignals(false);
 		fillMaxResource();
+		JPGPSupport::instance()->verifyPGPSigning(contactResource);
 	}
 	recalcStatus();
 	if (oldStatus.type() != d->status.type()) {
@@ -423,6 +437,20 @@ void JContact::removeExtendedInfo(const QString &name)
 	d_func()->extInfo.remove(name);
 	recalcStatus();
 	emit statusChanged(status(), current);
+}
+
+QString JContact::pgpKeyId() const
+{
+	return d_func()->pgpKey;
+}
+
+void JContact::setPGPKeyId(QString pgpKey)
+{
+	Q_D(JContact);
+	d->pgpKey = pgpKey;
+	if (d->inList && !d->account->roster()->ignoreChanges())
+		RosterStorage::instance()->updateContact(this);
+	emit pgpKeyChangedId(pgpKey);
 }
 
 void JContact::resourceStatusChanged(const Status &current, const Status &previous)

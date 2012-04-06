@@ -46,6 +46,23 @@ PasswordDialog *PasswordDialog::request(Account *account)
 	return dialog;
 }
 
+PasswordDialog *PasswordDialog::request(const QString &windowTitle, const QString &description)
+{
+	const ObjectGenerator * &gen = *data();
+	if (!gen) {
+		const GeneratorList list = ObjectGenerator::module<PasswordDialog>();
+		Q_ASSERT(!list.isEmpty());
+		if (list.isEmpty())
+			return NULL;
+		gen = *list.begin();
+	}
+	PasswordDialog *dialog = gen->generate<PasswordDialog>();
+	SetTextArgument argument = { windowTitle, description };
+	dialog->setAccount(0);
+	dialog->virtual_hook(SetTextHook, &argument);
+	return dialog;
+}
+
 class PasswordDialogPrivate
 {
 public:
@@ -119,6 +136,11 @@ int PasswordDialog::exec()
 int PasswordDialog::result() const
 {
 	return d_func()->result;
+}
+
+void PasswordDialog::setSaveButtonVisible(bool allow)
+{
+	virtual_hook(SetShowSaveHook, &allow);
 }
 
 void PasswordDialog::virtual_hook(int id, void *data)

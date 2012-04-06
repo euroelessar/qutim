@@ -38,6 +38,7 @@
 #include <qutim/notification.h>
 #include <qutim/plugin.h>
 #include <qutim/protocol.h>
+#include <QRegExp>
 
 namespace Core
 {
@@ -46,13 +47,18 @@ PluginChooserWidget::PluginChooserWidget() :
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
-	ui->treeView->setModel(m_model);
+	m_proxymodel = new SimpleFilterProxyModel(this);
+	m_proxymodel->setSourceModel(m_model);
+	m_proxymodel->setFilterKeyColumn(-1);
+	m_proxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	ui->treeView->setModel(m_proxymodel);
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setIndentation(0);
 
-	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
+	connect(m_model, SIGNAL(itemChanged(QStandardItem*)), SLOT(onItemChanged(QStandardItem*)));
+	connect(ui->search, SIGNAL(textChanged(QString)), this, SLOT(filterPlugins(QString)));
 #ifdef Q_WS_S60
-	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
+	connect(ui->treeView, SIGNAL(clicked(QModelIndex)), SLOT(onItemClicked(QModelIndex)));
 #endif
 }
 PluginChooserWidget::~PluginChooserWidget()
@@ -99,7 +105,7 @@ void PluginChooserWidget::saveImpl()
 	Config group = Config().group("plugins/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
 	bool needRestart = false;
-	for (it = m_plugin_items.constBegin();it!=m_plugin_items.constEnd();it++)
+	for (it = m_plugin_items.constBegin();it!=m_plugin_items.constEnd();++it)
 	{
 		bool oldValue = group.value(it.key(), true);
 		bool newValue = (it.value()->checkState() == Qt::Checked ? true : false);
@@ -164,6 +170,10 @@ void PluginChooserWidget::onItemClicked(QModelIndex index)
 	}
 }
 
+void PluginChooserWidget::filterPlugins(const QString& pluginname)
+{
+	m_proxymodel->setFilterWildcard(pluginname);
+}
 
 }
 

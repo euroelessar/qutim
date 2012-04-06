@@ -55,9 +55,7 @@ JBookmarkManager::JBookmarkManager(JAccount *account) :
 			this, SLOT(onBookmarksReceived(Jreen::Bookmark::Ptr)));
 	//		p->storage->registerBookmarkHandler(this);
 	Config config = p->account->config();
-	config.beginGroup(QLatin1String("bookmarks"));
-	p->storeAtServer = config.value(QLatin1String("storeAtServer"), true);
-	config.endGroup();
+	p->storeAtServer = config.value(QLatin1String("syncBookmarks"), true);
 	p->bookmarks = readFromCache("bookmarks");
 	p->recent = readFromCache("recent");
 	emit bookmarksChanged();

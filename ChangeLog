@@ -2,6 +2,7 @@ Version ???:
 	* Fixed switching from autoresize to normal TextEdit.
 	* Added ability to disable showing of ContactList on startup
 	* Added ability of starting up in minimized mode.
+	* Added filtration in ServiceChooser and PluginChooser
 
 Version 0.3:
 	* Inital logged release.

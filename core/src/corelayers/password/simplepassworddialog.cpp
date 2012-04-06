@@ -44,5 +44,24 @@ void SimplePasswordDialog::setValidator(QValidator *validator)
 	if (m_widget)
 		m_widget.data()->setValidator(validator);
 }
+
+void SimplePasswordDialog::virtual_hook(int id, void *data)
+{
+	if (!m_widget)
+		return;
+	switch (id) {
+	case SetShowSaveHook: {
+		m_widget.data()->showSaveButton(*reinterpret_cast<bool*>(data));
+		break;
+	}
+	case SetTextHook: {
+		SetTextArgument *argument = reinterpret_cast<SetTextArgument*>(data);
+		m_widget.data()->setText(argument->title, argument->description);
+		break;
+	}
+	default:
+		break;
+	}
+}
 }
 
