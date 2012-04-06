@@ -453,6 +453,8 @@ void WebViewController::updateTopic()
 	QWebElement element = mainFrame()->findFirstElement(QLatin1String("#topic"));
 	if (element.isNull())
 		return;
+	if (!m_session)
+		return;
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
 		if (!conference) {

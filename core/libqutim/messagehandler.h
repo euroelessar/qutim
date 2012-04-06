@@ -46,7 +46,8 @@ public:
 		ChatInPriority    = 0x00008000,
 		NormalPriortity   = 0x00010000,
 		ChatOutPriority   = 0x00020000,
-		HighPriority      = 0x01000000
+		HighPriority      = 0x01000000,
+		SenderPriority    = 0x02000000
 	};
 
 	virtual ~MessageHandler();
@@ -54,8 +55,12 @@ public:
 	static void registerHandler(MessageHandler *handler,
 	                            int incomingPriority = NormalPriortity,
 	                            int outgoingPriority = NormalPriortity);
+	static void registerHandler(MessageHandler *handler, const QString &name,
+	                            int incomingPriority = NormalPriortity,
+	                            int outgoingPriority = NormalPriortity);
 	static void unregisterHandler(MessageHandler *handler);
 	static Result handle(Message &message, QString *reason = 0);
+	static void traceHandlers();
 	
 protected:
 	virtual Result doHandle(Message &message, QString *reason) = 0;

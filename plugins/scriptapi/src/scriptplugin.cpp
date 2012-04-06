@@ -32,14 +32,33 @@
 #include <qutim/chatunit.h>
 #include <qutim/chatsession.h>
 #include <qutim/notification.h>
+#include <qutim/scripttools.h>
+
+class ScriptScopeContext
+{
+public:
+	ScriptScopeContext(ScriptMessageHandler *handler, ChatUnit *unit)
+	    : m_handler(handler)
+	{
+		m_handler->openContext(unit);
+	}
+	~ScriptScopeContext()
+	{
+		m_handler->closeContext();
+	}
+
+private:
+	ScriptMessageHandler *m_handler;
+};
 
 ScriptMessageHandler::ScriptMessageHandler(ScriptPlugin *parent)
 {
-	QObject::connect(&m_engine, SIGNAL(signalHandlerException(QScriptValue)),
+	m_engine = ScriptTools::engineInstance();
+	QObject::connect(m_engine, SIGNAL(signalHandlerException(QScriptValue)),
 	                 parent, SLOT(onException(QScriptValue)));
-    m_engine.importExtension(QLatin1String("qt.core"));
-	m_engine.importExtension(QLatin1String("qt.gui"));
-	m_engine.importExtension(QLatin1String("qutim"));
+	m_engine->importExtension(QLatin1String("qt.core"));
+	m_engine->importExtension(QLatin1String("qt.gui"));
+	m_engine->importExtension(QLatin1String("qutim"));
 }
 
 MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString *reason)
@@ -61,7 +80,7 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 				first = false;
 				openContext(message.chatUnit());
 			}
-			QString result = m_engine.evaluate(regexp.cap(1)).toString();
+			QString result = m_engine->evaluate(regexp.cap(1)).toString();
 			debug() << regexp.cap(1) << result;
 			text.replace(pos, regexp.matchedLength(), result);
 	        pos += result.length();
@@ -73,33 +92,33 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 		return MessageHandler::Accept;
 	}
 	openContext(message.chatUnit());
-	m_engine.evaluate(message.text().mid(command.size() + 1));
+	m_engine->evaluate(message.text().mid(command.size() + 1));
 	closeContext();
 	return MessageHandler::Reject;
 }
 
 void ScriptMessageHandler::openContext(ChatUnit *unit)
 {
-	QScriptContext *context = m_engine.pushContext();
+	QScriptContext *context = m_engine->pushContext();
 	QScriptValue object = context->activationObject();
 	if (ChatSession *session = ChatLayer::get(unit, false))
-		object.setProperty(QLatin1String("session"), m_engine.newQObject(session));
-	object.setProperty(QLatin1String("unit"), m_engine.newQObject(unit));
+		object.setProperty(QLatin1String("session"), m_engine->newQObject(session));
+	object.setProperty(QLatin1String("unit"), m_engine->newQObject(unit));
 }
 
 void ScriptMessageHandler::closeContext()
 {
-	if (m_engine.hasUncaughtException())
+	if (m_engine->hasUncaughtException())
 		handleException();
-	m_engine.popContext();
+	m_engine->popContext();
 }
 
 void ScriptMessageHandler::handleException()
 {
 	QString error;
-	error = m_engine.uncaughtException().toString();
+	error = m_engine->uncaughtException().toString();
 	error += QLatin1Char('\n');
-	error += m_engine.uncaughtExceptionBacktrace().join("\n");
+	error += m_engine->uncaughtExceptionBacktrace().join("\n");
 	debug() << error;
 	Notification::send(error);
 }
@@ -124,8 +143,9 @@ bool ScriptPlugin::load()
 		return true;
 	m_handler.reset(new ScriptMessageHandler(this));
 	MessageHandler::registerHandler(m_handler.data(),
+	                                QLatin1String("ScriptInvoker"),
 	                                MessageHandler::NormalPriortity,
-	                                MessageHandler::HighPriority);
+	                                MessageHandler::SenderPriority + 0x10000);
 	return true;
 }
 

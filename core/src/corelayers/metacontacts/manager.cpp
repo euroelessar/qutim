@@ -52,8 +52,9 @@ Manager::Manager() :
 	setContactsFactory(m_factory.data());
 	m_handler.reset(new MetaContactMessageHandler);
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
-													qutim_sdk_0_3::MessageHandler::HighPriority,
-													qutim_sdk_0_3::MessageHandler::HighPriority);
+	                                               QLatin1String("MetaContact"),
+	                                               qutim_sdk_0_3::MessageHandler::HighPriority,
+	                                               qutim_sdk_0_3::MessageHandler::HighPriority);
 	//TODO implement logic
 	m_name = Profile::instance()->value("name").toString();
 	if (m_name.isEmpty())

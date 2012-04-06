@@ -47,7 +47,7 @@ public:
 	void closeContext();
 	void handleException();
 private:
-	QScriptEngine m_engine;
+	QScriptEngine *m_engine;
 };
 
 class ScriptPlugin : public Plugin, public qutim_sdk_0_3::PluginFactory

@@ -45,7 +45,8 @@ ScriptEngineData::~ScriptEngineData()
 	delete dataItem;
 	delete messageHandler;
 	delete services;
-	dataMap()->remove(engine);
+	if (dataMap())
+		dataMap()->remove(engine);
 }
 
 ScriptEngineData *ScriptEngineData::data(QScriptEngine *engine)

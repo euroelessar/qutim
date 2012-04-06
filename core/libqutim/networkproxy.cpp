@@ -56,7 +56,7 @@ static void ensureManagers()
 
 		foreach(const ObjectGenerator *gen, ObjectGenerator::module<NetworkProxyManager>()) {
 			const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
-			if (!protocols.contains(QLatin1String(proto)))
+			if (qstrlen(proto) > 0 && !protocols.contains(QLatin1String(proto)))
 				continue;
 			NetworkProxyManager *manager = gen->generate<NetworkProxyManager>();
 			managers.insert(manager->protocol(), manager);
