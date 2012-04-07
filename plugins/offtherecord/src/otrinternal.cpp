@@ -169,7 +169,6 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
 
 OtrInternal::~OtrInternal()
 {
-    otrl_userstate_free(m_userstate);
 }
 
 //-----------------------------------------------------------------------------
