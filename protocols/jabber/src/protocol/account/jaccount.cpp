@@ -528,7 +528,6 @@ void JAccount::setStatus(Status status)
 
 void JAccount::setAccountStatus(Status status)
 {
-	Q_D(JAccount);
 	Account::setStatus(status);
 }
 
