@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "messagehandler.h"
-#include <qutim/debug.h>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
