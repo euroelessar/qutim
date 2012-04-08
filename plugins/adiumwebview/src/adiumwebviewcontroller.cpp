@@ -25,6 +25,7 @@
 
 #include "adiumwebviewcontroller.h"
 #include "../lib/webkitnetworkaccessmanager.h"
+#include <qutim/utils.h>
 #include <qutim/message.h>
 #include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/thememanager.h>
@@ -157,29 +158,10 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 	return false;
 }
 
-static QString parseUrls(const QString &originalHtml)
-{
-	// FIXME: Move somewhere outside this plugin
-	const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
-	QString html;
-	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(originalHtml)) {
-		if (token.url.isEmpty()) {
-			html += token.text.toString();
-		} else {
-			QUrl url = QUrl::fromUserInput(token.url);
-			QByteArray urlEncoded = url.toEncoded();
-			html += hrefTemplate.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
-			                         url.toString(),
-			                         token.text.toString());
-		}
-	}
-	return html;
-}
-
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
 	Message copy = msg;
-	QString html = parseUrls(copy.html());
+	QString html = UrlParser::parseUrls(copy.html());
 	copy.setProperty("messageId", msg.id());
 	if (msg.property("topic", false)) {
 		copy.setHtml(html);
@@ -464,7 +446,7 @@ void WebViewController::updateTopic()
 		} else {
 			m_topic.setText(conference->topic());
 			m_topic.setHtml(QString());
-			m_topic.setHtml(parseUrls(m_topic.html()));
+			m_topic.setHtml(UrlParser::parseUrls(m_topic.html()));
 		}
 		m_topic.setTime(QDateTime::currentDateTime());
 	}

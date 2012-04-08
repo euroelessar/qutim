@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -29,13 +30,38 @@
 
 namespace qutim_sdk_0_3
 {
+
 template<typename T>
 Q_INLINE_TEMPLATE T sender_cast(QObject *sender)
 {
 	Q_ASSERT(qobject_cast<T>(sender));
 	return static_cast<T>(sender);
 }
+
+class LIBQUTIM_EXPORT UrlParser
+{
+public:
+	enum Flag {
+		None = 0x00
+	};
+	Q_DECLARE_FLAGS(Flags, Flag)
+	struct UrlToken
+	{
+		QStringRef text;
+		QString url;
+	};
+	typedef QList<UrlToken> UrlTokenList;
+	
+	static UrlTokenList tokenize(const QString &text, Flags flags = None);
+	static QString parseUrls(const QString &text, Flags flags = None);
+private:
+	UrlParser();
+	~UrlParser();
+};
+
 } //namespace qutim_sdk_0_3
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::UrlParser::Flags)
 
 #endif // UTILS_H
 

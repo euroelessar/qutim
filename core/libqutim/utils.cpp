@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -26,10 +26,12 @@
 #include "libqutim_global.h"
 #include "json.h"
 #include "systeminfo.h"
+#include "utils.h"
 #include <QDate>
 #include <QLocale>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QUrl>
 
 namespace qutim_sdk_0_3
 {
@@ -424,6 +426,68 @@ namespace qutim_sdk_0_3
 		QPoint position(rect.left() + rect.width() / 2 - widget->size().width() / 2,
 						rect.top() + rect.height() / 2 - widget->size().height() / 2);
 		widget->move(position);
+	}
+
+	UrlParser::UrlTokenList UrlParser::tokenize(const QString &text, Flags flags)
+	{
+		UrlTokenList result;
+		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+		                          "([a-z]+(\\+[a-z]+)?://|www\\.)"
+		                          "[\\w-]+(\\.[\\w-]+)*\\.\\w+"
+		                          "(:\\d+)?"
+		                          "(/[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@'&=~-]*"
+		                          "(\\?[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@\\'&=~-]*)?"
+		                          "(#[\\w\\+\\.\\[\\]!%\\$/\\\\\\(\\)\\|,:;@&=~-]*)?)?",
+		                          Qt::CaseInsensitive);
+		Q_ASSERT(linkRegExp.isValid());
+		int pos = 0;
+		int lastPos = 0;
+		while (((pos = linkRegExp.indexIn(text, pos)) != -1)) {
+			UrlToken tok = { text.midRef(lastPos, pos - lastPos), QString() };
+			if (!tok.text.isEmpty()) {
+				if (!result.isEmpty() && result.last().url.isEmpty()) {
+					QStringRef tmp = result.last().text;
+					result.last().text = QStringRef(tmp.string(), tmp.position(), tmp.size() + tok.text.size());
+				} else {
+					result << tok;
+				}
+			}
+			QString link = linkRegExp.cap(0);
+			tok.text = text.midRef(pos, link.size());
+			pos += link.size();
+			if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))
+				link.prepend(QLatin1String("http://"));
+			else if(!link.contains(QLatin1String("//")))
+				link.prepend(QLatin1String("mailto:"));
+			tok.url = link;
+			result << tok;
+			lastPos = pos;
+		}
+		if (!result.isEmpty() && result.last().url.isEmpty()) {
+			result.last().text = text.midRef(result.last().text.position());
+		} else {
+			UrlToken tok = { text.midRef(lastPos), QString() };
+			result << tok;
+		}
+		return result;
+	}
+	
+	QString UrlParser::parseUrls(const QString &text, Flags flags)
+	{
+		const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
+		QString html;
+		foreach (const UrlToken &token, tokenize(text, flags)) {
+			if (token.url.isEmpty()) {
+				html += token.text.toString();
+			} else {
+				QUrl url = QUrl::fromUserInput(token.url);
+				QByteArray urlEncoded = url.toEncoded();
+				html += hrefTemplate.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
+				                         url.toString(),
+				                         token.text.toString());
+			}
+		}
+		return html;
 	}
 }
 

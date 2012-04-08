@@ -43,12 +43,7 @@ TextViewWidget::TextViewWidget()
 	setReadOnly(true);
 	setOpenLinks(false);
 //	setOpenExternalLinks(true);
-
-	//white background for all Qt styles
 	viewport()->setAutoFillBackground(true);
-	QPalette p = viewport()->palette();
-	p.setColor(QPalette::Base, Qt::white);
-	viewport()->setPalette(p);
 
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
 		QMetaObject::invokeMethod(scroller,

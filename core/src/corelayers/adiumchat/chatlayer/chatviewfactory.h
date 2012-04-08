@@ -43,25 +43,12 @@ class ChatSessionImpl;
 class ChatViewWidget;
 class ChatViewController;
 
-struct UrlToken
+class ChatViewFactory
 {
-	QStringRef text;
-	QString url;
-};
-
-typedef QList<UrlToken> UrlTokenList;
-
-class ADIUMCHAT_EXPORT ChatViewFactory : public QObject
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service", "ChatViewFactory")
-	Q_CLASSINFO("Uses", "ChatForm")
 public:
 	virtual ~ChatViewFactory() {}
 	virtual QWidget *createViewWidget() = 0;
 	virtual QObject *createViewController() = 0;
-	static ChatViewFactory *instance();
-	static UrlTokenList parseUrls(const QString &text);
 };
 
 class ChatViewWidget
@@ -85,6 +72,7 @@ public:
 }
 }
 
+Q_DECLARE_INTERFACE(Core::AdiumChat::ChatViewFactory, "org.qutim.core.ChatViewFactory")
 Q_DECLARE_INTERFACE(Core::AdiumChat::ChatViewWidget, "org.qutim.core.ChatViewWidget")
 Q_DECLARE_INTERFACE(Core::AdiumChat::ChatViewController, "org.qutim.core.ChatViewController")
 
