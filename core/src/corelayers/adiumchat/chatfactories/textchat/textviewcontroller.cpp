@@ -42,7 +42,7 @@
 #include <qutim/emoticons.h>
 #include <qutim/thememanager.h>
 #include <qutim/utils.h>
-#include <chatlayer/chatsessionimpl.h>
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
@@ -95,14 +95,14 @@ TextViewController::~TextViewController()
 {
 }
 
-void TextViewController::setChatSession(ChatSessionImpl *session)
+void TextViewController::setChatSession(ChatSession *session)
 {
 	m_session = session;
 	m_session->installEventFilter(this);
 	loadHistory();
 }
 
-ChatSessionImpl *TextViewController::getSession() const
+ChatSession *TextViewController::getSession() const
 {
 	return m_session;
 }
