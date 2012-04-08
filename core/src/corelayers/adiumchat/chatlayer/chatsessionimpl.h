@@ -68,6 +68,7 @@ public:
 	QString getId() const;
 	ChatUnit *getUnit() const;
 	ChatUnit *getCurrentUnit() const; // Returns unit chosen by user as receiver
+	MessageList lastMessages() const;
 	virtual QTextDocument *getInputField();
 	virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
 	virtual MessageList unread() const;

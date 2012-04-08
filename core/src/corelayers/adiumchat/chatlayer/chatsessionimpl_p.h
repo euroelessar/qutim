@@ -78,9 +78,11 @@ public:
 	//additional info and flags
 	bool sendToLastActiveResource;
 	mutable bool hasJavaScript;
-	int focus : 8;
+	qint8 focus;
+	qint8 lastMessagesIndex;
 	QTimer inactive_timer;
 	MessageList unread;
+	MessageList lastMessages;
 	ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
 public slots:

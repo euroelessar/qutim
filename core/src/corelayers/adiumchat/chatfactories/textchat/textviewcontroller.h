@@ -103,7 +103,6 @@ private:
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;
-	QString m_lastIncomingMessage;
 	bool m_isLastIncoming;
 	bool m_animateEmoticons;
 	bool m_atAnimation;

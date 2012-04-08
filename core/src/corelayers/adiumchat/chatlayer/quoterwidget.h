@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,32 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef CHATLAYERPLUGIN_H
-#define CHATLAYERPLUGIN_H
+#ifndef CORE_ADIUMCHAT_QUOTERWIDGET_H
+#define CORE_ADIUMCHAT_QUOTERWIDGET_H
 
-#include <qutim/plugin.h>
+#include <QListWidget>
+#include <QTimer>
+#include <qutim/message.h>
 
-class QAction;
-namespace Core
-{
-namespace AdiumChat
-{
-class ChatLayerPlugin : public qutim_sdk_0_3::Plugin
+namespace Core {
+namespace AdiumChat {
+
+class QuoterWidget : public QListWidget
 {
 	Q_OBJECT
 public:
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-
-protected slots:
-	void onClearChat(QObject *controller);
-	void onInsertEmoticon(QAction*,QObject*);
-	void onQuote(QObject *controller);
-	void onQuote(const QString &quote, QObject *controller);
+	QuoterWidget(const qutim_sdk_0_3::MessageList &messages, QObject *controller);
+	~QuoterWidget();
+	
+signals:
+	void quoteChoosed(const QString &quote, QObject *controller);
+	
+public slots:
+	void nextRow();
+	
+private:
+	QTimer m_timer;
+	QWeakPointer<QObject> m_controller;
 };
-}
-}
 
-#endif // CHATLAYERPLUGIN_H
+} // namespace AdiumChat
+} // namespace Core
 
+#endif // CORE_ADIUMCHAT_QUOTERWIDGET_H
