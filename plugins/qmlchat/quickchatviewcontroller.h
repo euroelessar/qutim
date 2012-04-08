@@ -28,7 +28,7 @@
 
 #include <QGraphicsScene>
 #include <qutim/adiumchat/chatviewfactory.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/chatsession.h>
 #include <QVariant>
 #include <QWeakPointer>
 
@@ -50,8 +50,8 @@ class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatV
 public:
 	QuickChatController(QDeclarativeEngine *engine, QObject *parent = 0);
 	virtual ~QuickChatController();
-	virtual void setChatSession(ChatSessionImpl *session);
-	virtual ChatSessionImpl *getSession() const;
+	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
+	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
 	QDeclarativeItem *rootItem() const;
@@ -72,11 +72,11 @@ signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
 	void clearChatField();
-	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
+	void sessionChanged(QObject *);
 	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	QWeakPointer<ChatSessionImpl> m_session;
+	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;

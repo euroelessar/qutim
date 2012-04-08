@@ -28,7 +28,7 @@
 
 #include "../lib/webkitmessageviewstyle.h"
 #include <qutim/adiumchat/chatviewfactory.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/message.h>
 #include <QWebPage>
 #include <QWebElement>
 #include <QVariant>
@@ -66,8 +66,8 @@ public:
 	WebViewController(bool isPreview = false);
 	virtual ~WebViewController();
 	
-	virtual void setChatSession(Core::AdiumChat::ChatSessionImpl *session);
-	virtual Core::AdiumChat::ChatSessionImpl *getSession() const;
+	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
+	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
 	virtual QString quote();

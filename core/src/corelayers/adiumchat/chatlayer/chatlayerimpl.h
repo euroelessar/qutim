@@ -54,7 +54,7 @@ public:
 	virtual ~ChatLayerImpl();
 	virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
 	static QIcon iconForState(ChatState state, const ChatUnit *unit = 0);
-	static void insertText(ChatSessionImpl *session, const QString &text, bool setFocus = true);
+	Q_INVOKABLE static void insertText(qutim_sdk_0_3::ChatSession *session, const QString &text, bool setFocus = true);
 	inline void onUnitChanged(ChatUnit *from, ChatUnit *to)
 	{ m_chatSessions.insert(to, m_chatSessions.take(from)); }
 private slots:

@@ -67,8 +67,8 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 public:
     TextViewController();
 	virtual ~TextViewController();
-	virtual void setChatSession(ChatSessionImpl *session);
-	virtual ChatSessionImpl *getSession() const;
+	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
+	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
@@ -99,7 +99,7 @@ private:
 	bool shouldBreak(const QDateTime &time);
 	
 	QWeakPointer<QTextBrowser> m_textEdit;
-	ChatSessionImpl *m_session;
+	qutim_sdk_0_3::ChatSession *m_session;
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;
