@@ -43,6 +43,8 @@ namespace Core
 namespace AdiumChat
 {
 
+enum { LastMessagesCount = 5 };
+
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	hasJavaScript(false),
     focus(InFocus),
@@ -63,6 +65,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->model = new ChatSessionModel(this);
 	d->q_ptr = this;
 	d->chatUnit = unit;
+	d->lastMessagesIndex = 0;
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
 	d->inactive_timer.setSingleShot(true);
@@ -157,6 +160,14 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 			message.setProperty("focus", true);
 		d->focus &= ChatSessionImplPrivate::OutOfFocus;
 		d->getController()->appendMessage(message);
+		if (!message.property("service", false) && !message.property("topic", false)) {
+			if (d->lastMessages.count() < LastMessagesCount) {
+				d->lastMessages << message;
+			} else {
+				d->lastMessages[d->lastMessagesIndex] = message;
+				d->lastMessagesIndex = (d->lastMessagesIndex + 1) % d->lastMessages.count();
+			}
+		}
 	}
 	return message.id();
 }
@@ -223,6 +234,17 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 		return d->last_active_unit ? d->last_active_unit.data() : d->chatUnit.data();
 	else
 		return d->current_unit ? d->current_unit.data() : d->chatUnit.data();
+}
+
+MessageList ChatSessionImpl::lastMessages() const
+{
+	Q_D(const ChatSessionImpl);
+	MessageList messages;
+	for (int i = 0; i < d->lastMessages.count(); ++i) {
+		int index = (i + d->lastMessagesIndex) % d->lastMessages.count();
+		messages << d->lastMessages.at(index);
+	}
+	return messages;
 }
 
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)

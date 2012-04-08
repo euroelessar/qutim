@@ -14,17 +14,17 @@ add_subdirectory(chatforms)
 add_subdirectory(chatfactories)
 
 set(DEVEL_HEADERS
-	chatlayer/chatforms/abstractchatform.h,
-	chatlayer/chatforms/abstractchatwidget.h,
-	chatlayer/chatedit.h,
-	chatlayer/chatlayer_global.h,
-	chatlayer/chatlayerimpl.h,
-	chatlayer/chatlayerplugin.h,
-	chatlayer/chatsessionimpl.h,
-	chatlayer/chatsessionmodel.h,
-	chatlayer/chatviewfactory.h,
-	chatlayer/conferencecontactsview.h,
-	chatlayer/conferencetabcompletion.h,
+	chatlayer/chatforms/abstractchatform.h
+	chatlayer/chatforms/abstractchatwidget.h
+	chatlayer/chatedit.h
+	chatlayer/chatlayer_global.h
+	chatlayer/chatlayerimpl.h
+	chatlayer/chatlayerplugin.h
+	chatlayer/chatsessionimpl.h
+	chatlayer/chatsessionmodel.h
+	chatlayer/chatviewfactory.h
+	chatlayer/conferencecontactsview.h
+	chatlayer/conferencetabcompletion.h
 	chatlayer/sessionlistwidget.h
 
 )

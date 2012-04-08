@@ -89,8 +89,8 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	m_chatWidget = new QWidget(m_stack);
 	setCentralWidget(m_stack);
-
-	ServicePointer<ChatViewFactory> factory;
+	
+	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
 	QWidget *view = factory->createViewWidget();
 	view->setFocusProxy(m_chatInput);
 
