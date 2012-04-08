@@ -38,9 +38,12 @@ class QDeclarativeEngine;
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatViewFactory : public ChatViewFactory
+class QuickChatViewFactory : public QObject, public Core::AdiumChat::ChatViewFactory
 {
-    Q_OBJECT
+	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewFactory)
+	Q_CLASSINFO("Service", "ChatViewFactory")
+	Q_CLASSINFO("Uses", "ChatForm")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	QuickChatViewFactory();

@@ -32,9 +32,12 @@ namespace Core
 {
 namespace AdiumChat
 {
-class TextViewFactory : public ChatViewFactory
+class TextViewFactory : public QObject, public Core::AdiumChat::ChatViewFactory
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewFactory)
+	Q_CLASSINFO("Service", "ChatViewFactory")
+	Q_CLASSINFO("Uses", "ChatForm")
 public:
     TextViewFactory();
 	virtual QWidget *createViewWidget();

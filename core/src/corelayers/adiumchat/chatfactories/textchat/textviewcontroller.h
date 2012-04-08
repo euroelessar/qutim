@@ -111,6 +111,7 @@ private:
 	int m_scrollBarPosition;
 	int m_bulletSize;
 	QFont m_font;
+	QColor m_backgroundColor;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;

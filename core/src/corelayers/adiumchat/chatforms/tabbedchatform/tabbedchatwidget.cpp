@@ -85,7 +85,8 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 	QWidget *centralWidget = new QWidget(this);
 	setCentralWidget(centralWidget);
-	setView(ChatViewFactory::instance()->createViewWidget());
+	ServicePointer<ChatViewFactory> factory;
+	setView(factory->createViewWidget());
 
 	m_vSplitter->setObjectName(QLatin1String("vSplitter"));
 	m_vSplitter->addWidget(m_chatInput);
