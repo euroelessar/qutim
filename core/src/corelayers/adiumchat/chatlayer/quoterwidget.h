@@ -23,29 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKCHATVIEWWIDGET_H
-#define QUICKCHATVIEWWIDGET_H
-#include <qutim/adiumchat/chatviewfactory.h>
-#include <QWebView>
-#include <QWeakPointer>
+#ifndef CORE_ADIUMCHAT_QUOTERWIDGET_H
+#define CORE_ADIUMCHAT_QUOTERWIDGET_H
 
-class QDeclarativeItem;
+#include <QListWidget>
+#include <QTimer>
+#include <qutim/message.h>
 
-namespace Adium {
+namespace Core {
+namespace AdiumChat {
 
-class WebViewController;
-class WebViewWidget : public QWebView, public Core::AdiumChat::ChatViewWidget
+class QuoterWidget : public QListWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
-	WebViewWidget(QWidget *parent = 0);
-    virtual void setViewController(QObject* controller);
+	QuoterWidget(const qutim_sdk_0_3::MessageList &messages, QObject *controller);
+	~QuoterWidget();
+	
+signals:
+	void quoteChoosed(const QString &quote, QObject *controller);
+	
+public slots:
+	void nextRow();
+	
 private:
-	QWeakPointer<WebViewController> m_controller;
+	QTimer m_timer;
+	QWeakPointer<QObject> m_controller;
 };
 
-} // namespace Adium
+} // namespace AdiumChat
+} // namespace Core
 
-#endif // QUICKCHATVIEWWIDGET_H
-
+#endif // CORE_ADIUMCHAT_QUOTERWIDGET_H
