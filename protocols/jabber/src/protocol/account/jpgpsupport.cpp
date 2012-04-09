@@ -25,6 +25,7 @@
 
 #include "jpgpsupport.h"
 #include "jpgpkeydialog.h"
+#include "../jprotocol.h"
 #include "roster/jcontact.h"
 #include "roster/jcontactresource.h"
 #include "roster/jroster.h"
@@ -322,6 +323,9 @@ void JPGPSupport::send(JAccount *account, Presence::Type type, const QString &te
 		Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
 		client->send(copy);
 		account->conferenceManager()->setPresenceToRooms(presence);
+		Status status = JStatus::presenceToStatus(type);
+		status.setText(text);
+		account->setStatus(status);
 	} else {
 		QCA::SecureMessageKey secureKey;
 	    secureKey.setPGPSecretKey(pgpKey);

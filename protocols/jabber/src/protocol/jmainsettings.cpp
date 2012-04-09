@@ -151,7 +151,11 @@ void JMainSettings::onPGPKeyDialogFinished(int result)
 		JPGPKeyDialog *dialog = qobject_cast<JPGPKeyDialog*>(sender());
 		Q_ASSERT(dialog);
 		QCA::KeyStoreEntry entry = dialog->keyStoreEntry();
-		m_pgpKey = entry.pgpSecretKey();
+		m_keyEntry = entry;
+		if (entry.isNull())
+			m_pgpKey = QCA::PGPKey();
+		else
+			m_pgpKey = entry.pgpSecretKey();
 		updatePGPText();
 		emit modifiedChanged(true);
 	}
