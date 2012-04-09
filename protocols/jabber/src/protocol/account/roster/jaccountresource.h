@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,32 +22,37 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef JCONTACTRESOURCE_P_H
-#define JCONTACTRESOURCE_P_H
+
+#ifndef JABBER_JACCOUNTRESOURCE_H
+#define JABBER_JACCOUNTRESOURCE_H
 
 #include "jcontactresource.h"
-#include <qutim/contact.h>
-//Jreen
-#include <jreen/presence.h>
+#include "jcontact.h"
+#include <qutim/account.h>
 
-namespace Jabber
+namespace Jabber {
+
+class JAccount;
+class JAccountResourcePrivate;
+
+class JAccountResource : public JContact
 {
-class JContactResourcePrivate
-{
+	Q_OBJECT
 public:
-	JContactResourcePrivate(QObject *c) :
-		contact(c),
-	    presence(Jreen::Presence::Unavailable,Jreen::JID(c->property("id").toString())) {}
-	QObject *contact;
-	QString id;
-	QString name;
-	Jreen::Presence presence;
-	QSet<QString> features;
-	QHash<QString, QVariantHash> extInfo;
-	QCA::PGPKey pgpKey;
-	QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus;
+	JAccountResource(JAccount *account, const QString &id, const QString &resource);
+	~JAccountResource();
+	
+	void setName(const QString &name);
+	void setTags(const QStringList &tags);
+	void setInList(bool inList);
+
+private slots:
+	void onNameChanged(const QString &name);
+
+private:
+	QString m_resource;
 };
-}
 
-#endif // JCONTACTRESOURCE_P_H
+} // namespace Jabber
 
+#endif // JABBER_JACCOUNTRESOURCE_H

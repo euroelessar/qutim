@@ -59,6 +59,7 @@ class JContactResource : public qutim_sdk_0_3::Buddy
 public:
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);
+	JContactResource(JAccount *parent, const QString &name);
 	~JContactResource();
 	QString name() const;
 	QString id() const;

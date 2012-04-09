@@ -57,6 +57,16 @@ JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &pt
 {
 }
 
+JContactResource::JContactResource(JAccount *account, const QString &name) :
+    Buddy(account), d_ptr(new JContactResourcePrivate(0))
+{
+	Q_D(JContactResource);
+	d->name = name;
+	d->id = account->id() % QLatin1Char('/') % name;
+	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
+	connect(account, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
+}
+
 JContactResource::~JContactResource()
 {
 }
@@ -75,7 +85,9 @@ QString JContactResource::title() const
 {
 	Q_D(const JContactResource);
 	if (Contact *contact = qobject_cast<Contact *>(d->contact)) {
-		return contact->title() % "/" % d->name;
+		return contact->title() % QLatin1Char('/') % d->name;
+	} else if (Account *account = qobject_cast<Account*>(d->contact)) {
+		return account->name() % QLatin1Char('/') % d->name;
 	} else {
 		return Buddy::title();
 	}
@@ -159,7 +171,9 @@ bool JContactResource::event(QEvent *ev)
 		Jreen::Message msg(Jreen::Message::Chat,
 						   d_func()->id);
 		msg.addExtension(new Jreen::ChatState(state));
-		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
+		JAccount *account = qobject_cast<JAccount*>(d_func()->contact);
+		if (!account)
+			static_cast<JAccount*>(static_cast<ChatUnit*>(d_func()->contact)->account());
 		account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
@@ -220,6 +234,8 @@ QString JContactResource::avatar() const
 {
 	if (Buddy *buddy = qobject_cast<Buddy*>(d_func()->contact))
 		return buddy->avatar();
+	if (JAccount *account = qobject_cast<JAccount*>(d_func()->contact))
+		return account->avatar();
 	return QString();
 }
 
