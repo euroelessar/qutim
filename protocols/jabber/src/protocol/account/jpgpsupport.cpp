@@ -299,6 +299,7 @@ public:
 	SignReply(QCA::SecureMessageSystem *system);
 	
 	JAccount *account;
+	Status status;
 	Presence::Type type;
 	QString text;
 	int priority;
@@ -309,9 +310,12 @@ SignReply::SignReply(QCA::SecureMessageSystem *system) : QCA::SecureMessage(syst
 	connect(this, SIGNAL(destroyed()), system, SLOT(deleteLater()));
 }
 
-void JPGPSupport::send(JAccount *account, Presence::Type type, const QString &text, int priority)
+
+void JPGPSupport::send(JAccount *account, const Status &status, int priority)
 {
 	Q_D(JPGPSupport);
+	Presence::Type type = JStatus::statusToPresence(status);
+	const QString text = status.text();
 	Jreen::Presence &presence = account->client()->presence();
 	presence.removePayload<PGPSigned>();
 	QCA::PGPKey pgpKey = d->accountKeys.value(account);
@@ -323,9 +327,7 @@ void JPGPSupport::send(JAccount *account, Presence::Type type, const QString &te
 		Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
 		client->send(copy);
 		account->conferenceManager()->setPresenceToRooms(presence);
-		Status status = JStatus::presenceToStatus(type);
-		status.setText(text);
-		account->setStatus(status);
+		account->setAccountStatus(status);
 	} else {
 		QCA::SecureMessageKey secureKey;
 	    secureKey.setPGPSecretKey(pgpKey);
@@ -333,6 +335,7 @@ void JPGPSupport::send(JAccount *account, Presence::Type type, const QString &te
 
 		SignReply *reply = new SignReply(new QCA::OpenPGP());
 		reply->account = account;
+		reply->status = status;
 		reply->type = type;
 		reply->text = text;
 		reply->priority = priority;
@@ -361,6 +364,7 @@ void JPGPSupport::onSignFinished()
 		Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
 		client->send(copy);
 		reply->account->conferenceManager()->setPresenceToRooms(presence);
+		reply->account->setAccountStatus(reply->status);
 	} else {
 		if (reply->errorCode() == QCA::SecureMessage::ErrorPassphrase) {
             QCA::KeyStoreEntry keyEntry = findEntry(reply->account->pgpKeyId(), SecretKey);
