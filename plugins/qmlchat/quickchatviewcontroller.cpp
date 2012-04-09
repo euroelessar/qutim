@@ -25,7 +25,6 @@
 
 #include "quickchatviewcontroller.h"
 #include <qutim/message.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/thememanager.h>
 #include <QDeclarativeComponent>
 #include <QStringBuilder>
@@ -42,8 +41,6 @@
 #include <qutim/servicemanager.h>
 #include <qutim/utils.h>
 #include <QPlainTextEdit>
-#include <qutim/adiumchat/abstractchatform.h>
-#include <qutim/adiumchat/chatlayerimpl.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -153,7 +150,7 @@ void QuickChatController::clearChat()
 	emit clearChatField();
 }
 
-ChatSessionImpl* QuickChatController::getSession() const
+ChatSession *QuickChatController::getSession() const
 {
 	return m_session.data();
 }
@@ -174,7 +171,7 @@ void QuickChatController::loadHistory()
 	}
 }
 
-void QuickChatController::setChatSession(ChatSessionImpl* session)
+void QuickChatController::setChatSession(ChatSession *session)
 {
 	if (m_session.data() == session)
 		return;
@@ -291,7 +288,10 @@ void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
 void QuickChatController::appendText(const QString &text)
 {
 	debug() << Q_FUNC_INFO << text << m_session.data();
-	ChatLayerImpl::insertText(m_session.data(), text % QLatin1Literal(" "));
+	QMetaObject::invokeMethod(m_session.data(),
+	                          "insertText",
+	                          Q_ARG(ChatSession*, m_session.data()),
+	                          Q_ARG(QString, text + QLatin1String(" ")));
 }
 
 } // namespace AdiumChat

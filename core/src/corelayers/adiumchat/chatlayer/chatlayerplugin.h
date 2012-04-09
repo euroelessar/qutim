@@ -40,10 +40,12 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+
 protected slots:
 	void onClearChat(QObject *controller);
 	void onInsertEmoticon(QAction*,QObject*);
 	void onQuote(QObject *controller);
+	void onQuote(const QString &quote, QObject *controller);
 };
 }
 }

@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -27,7 +27,6 @@
 #include "../lib/webkitnetworkaccessmanager.h"
 #include <qutim/utils.h>
 #include <qutim/message.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/thememanager.h>
 #include <qutim/debug.h>
 #include <qutim/account.h>
@@ -36,8 +35,7 @@
 #include <qutim/emoticons.h>
 #include <qutim/notification.h>
 #include <qutim/servicemanager.h>
-#include <qutim/adiumchat/abstractchatform.h>
-#include <qutim/adiumchat/chatlayerimpl.h>
+#include <qutim/chatsession.h>
 #include <QPlainTextEdit>
 #include <QWebFrame>
 #include <QWebInspector>
@@ -119,7 +117,7 @@ WebViewController::~WebViewController()
 {
 }
 
-void WebViewController::setChatSession(ChatSessionImpl* session)
+void WebViewController::setChatSession(ChatSession *session)
 {
 	if (m_session.data() == session)
 		return;
@@ -137,9 +135,9 @@ void WebViewController::setChatSession(ChatSessionImpl* session)
 	}
 }
 
-ChatSessionImpl *WebViewController::getSession() const
+ChatSession *WebViewController::getSession() const
 {
-	return static_cast<ChatSessionImpl *>(m_session.data());
+	return m_session.data();
 }
 
 bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
@@ -170,6 +168,8 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			updateTopic();
 		return;
 	}
+	if (msg.property("firstFocus", true))
+		clearFocusClass();
 	// We don't want emoticons in topic
 	html = Emoticons::theme().parseEmoticons(html);
 	copy.setHtml(html);
@@ -190,10 +190,7 @@ void WebViewController::clearChat()
 
 QString WebViewController::quote()
 {
-	QString quote = selectedText();
-	if (quote.isEmpty())
-		quote = m_last.text();
-	return quote;
+	return selectedText();
 }
 
 WebKitMessageViewStyle *WebViewController::style()
@@ -461,6 +458,17 @@ void WebViewController::setTopic()
 		return;
 	conference->setTopic(element.toPlainText());
 	updateTopic();
+}
+
+void WebViewController::clearFocusClass()
+{
+	QWebElementCollection elements = mainFrame()->findAllElements(QLatin1String(".focus"));
+	QString focusClass = QLatin1String("focus");
+	QString firstFocusClass = QLatin1String("firstFocus");
+	foreach (QWebElement element, elements) {
+		element.removeClass(focusClass);
+		element.removeClass(firstFocusClass);
+	}
 }
 
 void WebViewController::onContentsChanged()

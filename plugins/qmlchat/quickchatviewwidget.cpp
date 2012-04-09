@@ -34,6 +34,8 @@
 namespace Core {
 namespace AdiumChat {
 
+using namespace qutim_sdk_0_3;
+
 QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
 	QGraphicsView(parent)
 {

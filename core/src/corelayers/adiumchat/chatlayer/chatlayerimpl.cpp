@@ -148,7 +148,7 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 	return Icon(iconName);
 }
 
-void ChatLayerImpl::insertText(ChatSessionImpl *session, const QString &text, bool setFocus)
+void ChatLayerImpl::insertText(ChatSession *session, const QString &text, bool setFocus)
 {
 	AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
 	QObject *obj = form->textEdit(session);
