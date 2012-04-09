@@ -38,6 +38,7 @@
 #include <qutim/notification.h>
 #include <QCoreApplication>
 #include <QtDebug>
+#include <QtConcurrentRun>
 
 Q_DECLARE_METATYPE(Jreen::Presence)
 
@@ -118,6 +119,13 @@ public:
 	QList<QPair<int, QCA::Event> > queue;
 };
 
+static void keyStoreManagerStart()
+{
+	qDebug() << Q_FUNC_INFO << "begin";
+	QCA::KeyStoreManager::start();
+	qDebug() << Q_FUNC_INFO << "end";
+}
+
 JPGPSupport::JPGPSupport() : d_ptr(new JPGPSupportPrivate)
 {
 	Q_D(JPGPSupport);
@@ -136,7 +144,7 @@ JPGPSupport::JPGPSupport() : d_ptr(new JPGPSupportPrivate)
 	        SLOT(onKeyStoreManagerLoaded()));
 	connect(&d->keyStoreManager, SIGNAL(keyStoreAvailable(QString)),
 	        SLOT(onKeyStoreAvailable(QString)));
-	d->keyStoreManager.start();
+	QtConcurrent::run(keyStoreManagerStart);
 	d->eventHandler = new QCA::EventHandler(this);
 	connect(d->eventHandler, SIGNAL(eventReady(int,QCA::Event)), SLOT(onEvent(int,QCA::Event)));
     d->eventHandler->start();
@@ -250,8 +258,13 @@ QString JPGPSupport::stripHeader(const QString &message)
 	if (!list.at(0).startsWith(QLatin1String("-")))
 		return QString();
 	QString result;
+	bool foundEmpty = false;
 	for (int i = 1; i < list.size(); ++i) {
-		if (list.at(i).isEmpty() || list.at(i).startsWith(QLatin1String("Version:")))
+		if (list.at(i).isEmpty()) {
+			foundEmpty = true;
+			continue;
+		}
+		if (!foundEmpty)
 			continue;
 		if (list.at(i).startsWith(QLatin1Char('-')))
 			break;

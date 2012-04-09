@@ -53,6 +53,7 @@ public:
 	void loadFromStorage();
 	bool ignoreChanges() const;
 	ChatUnit *contact(const Jreen::JID &id, bool create = false);
+	ChatUnit *selfContact(const QString &id);
 	QList<JContactResource*> resources() const;
 	void addContact(const JContact *contact);
 	void removeContact(const JContact *contact);
@@ -69,6 +70,7 @@ protected:
 	virtual void onItemRemoved(const QString &jid);
 	virtual void onLoaded(const QList<QSharedPointer<Jreen::RosterItem> > &items);
 	void fillContact(JContact *contact, QSharedPointer<Jreen::RosterItem> item);
+	void handleSelfPresence(Jreen::Presence presence);
 protected slots:
 	void handleNewPresence(Jreen::Presence);
 	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?

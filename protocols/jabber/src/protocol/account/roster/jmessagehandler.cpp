@@ -55,6 +55,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 	ChatUnit *unit = m_account->conferenceManager()->muc(message.from());
 	if (!unit)
 		unit = m_account->roster()->contact(message.from(), true);
+	debug() << Q_FUNC_INFO << unit << message.from();
 	if(message.containsPayload<Jreen::Error>())
 		return;
 	if(receipt) {
