@@ -92,37 +92,6 @@ QString OtrInternal::otrlMessageTypeToString(const OtrlMessageType& type)
     }
 }
 
-//-----------------------------------------------------------------------------
-
-class KeyGeneratorThread : public QThread
-{
-public:
-    KeyGeneratorThread(const OtrlUserState& userstate, const QString& keysFile,
-                       const char* accountname, const char* protocol)
-    : m_userstate(userstate),
-      m_keysFile(keysFile),
-      m_accountname(accountname),
-      m_protocol(protocol)
-    {
-    }
-
-    void run()
-    {
-        //TODO: ТАК ВОТ В ЧЕМ ПРИКОЛ!!! ЖАБРА ТОЖЕ ЮЗАЕТ gpg ДЛЯ ШИФРОВАНИЯ!!!
-        //и как-то криво его нициализирует... хм... или я...
-        // НАДО КАК МИНИМУМ ОТКЛЮЧАТЬ ЖАБЕР АККАУНТЫ НА ВРЕМЯ ГЕНЕРАЦИ КЛЮЧА
-        // ИЛИ ПРИДУМАТЬ ЧТО-НИТЬ ЕЩЕ...
-        //пока этот косяк на моей совести...
-        otrl_privkey_generate(m_userstate, m_keysFile.toLocal8Bit().data(), m_accountname, m_protocol);
-    }
-
-private:
-    const OtrlUserState& m_userstate;
-    const QString& m_keysFile;
-    const char* m_accountname;
-    const char* m_protocol;
-};
-
 // ============================================================================
 
 OtrInternal::OtrInternal(OtrSupport::Policy &policy,
@@ -335,7 +304,8 @@ QString OtrInternal::decryptMessage(const QString& from, const QString& to,
         OtrlMessageType type = otrl_proto_message_type(
                 cryptedMessage.toStdString().c_str());
 
-
+		if (newMessage)
+			otrl_message_free(newMessage);
         QString retMessage("<Internal OTR message>\n"+tr("received %1 \nOTR state now is [%2]").arg(otrlMessageTypeToString(type)).arg(getMessageStateString(to, from, item))) ;
 
         if (getMessageState(to, from, item) == OtrSupport::MessageStateEncrypted)
@@ -521,6 +491,7 @@ void OtrInternal::startSession(const QString& account, const QString& jid, TreeM
                                              policy);
 
 	item.unit()->send(QString::fromUtf8(msg));
+	free(msg);
 }
 
 void OtrInternal::startSession(const QString& account, const QString& jid, TreeModelItem &item)
@@ -981,8 +952,7 @@ void OtrInternal::still_secure(ConnContext *context, int is_reply)
 
 void OtrInternal::log_message(const char *message)
 {
-    qDebug() << "[OTR] log_message: " << QString(message);
-    Q_UNUSED(message);
+    debug() << "log_message: " << QString::fromUtf8(message);
 }
 
 int OtrInternal::max_message_size(ConnContext *context)

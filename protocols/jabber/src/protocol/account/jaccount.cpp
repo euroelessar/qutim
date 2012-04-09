@@ -90,7 +90,7 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
-	JPGPSupport::instance()->send(q, JStatus::statusToPresence(status), status.text(), priority);
+	JPGPSupport::instance()->send(q, status, priority);
 	q->setAccountStatus(status);
 }
 
