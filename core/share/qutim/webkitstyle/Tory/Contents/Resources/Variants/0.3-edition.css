@@ -8,7 +8,7 @@
 	color: #0078ff;
 }
 
-.message {
+.remark {
 	padding-left: 10pt;
 }
 
@@ -24,4 +24,10 @@
 	padding-left: 10pt;
 	margin-left: -10pt;
 	background: url('../Images/bullet-send.png') left center no-repeat;
+}
+
+.mention {
+	background: url('../Images/bullet-exclamation.png') left center no-repeat;
+	font-weight: bold;
+	color: #202020;
 }
