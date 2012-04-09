@@ -89,6 +89,8 @@ JPGPKeyDialog::JPGPKeyDialog(JPGPKeyDialog::Type type, const QString &pgpKeyId, 
         QModelIndex fakeIndex = m_proxyModel->mapFromSource(realIndex);
         ui->treeView->setCurrentIndex(fakeIndex);
         ui->treeView->scrollTo(fakeIndex);
+	} else {
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 	}
 }
 
@@ -113,6 +115,13 @@ QString JPGPKeyDialog::addKeyEntry(const QCA::KeyStoreEntry &keyEntry)
 		item->setData(qVariantFromValue(keyEntry), KeyEntry);
 	}
 	m_model->appendRow(items);
+	
+	QModelIndex realIndex = m_model->indexFromItem(items.first());
+    QModelIndex fakeIndex = m_proxyModel->mapFromSource(realIndex);
+    ui->treeView->setCurrentIndex(fakeIndex);
+    ui->treeView->scrollTo(fakeIndex);
+	
+	ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 	return key.keyId();
 }
 
@@ -122,16 +131,13 @@ void JPGPKeyDialog::done(int result)
 		QDialog::done(result);
 	} else {
 		if (result == Accepted) {
-//			QCA::KeyStoreEntry keyEntry = QCA::KeyStoreEntry::fromString(ui->plainTextEdit->toPlainText());
-			QCA::PGPKey key = QCA::PGPKey::fromString(ui->plainTextEdit->toPlainText());
-//			if (!keyEntry.isNull()) {
-//				if (keyEntry.type() == QCA::KeyStoreEntry::TypePGPSecretKey)
-//					key = keyEntry.pgpSecretKey();
-//				else if (keyEntry.type() == QCA::KeyStoreEntry::TypePGPPublicKey)
-//					key = keyEntry.pgpPublicKey();
-//			}
+			QCA::ConvertResult result = QCA::ConvertGood;
+			QCA::PGPKey key = QCA::PGPKey::fromString(ui->plainTextEdit->toPlainText(), &result);
 
-			if (key.isNull()) {
+			if (result == QCA::ErrorPassphrase) {
+				QMessageBox::warning(this, tr("PGP key importing error"), tr("Entered invalid passphrase"));
+				qDebug() << "Try to add key with invalid passphrase";
+			} else if (key.isNull()) {
 				QMessageBox::warning(this, tr("PGP key importing error"), tr("Provided key is invalid"));
 				qDebug() << "Try to add null key";
 			} else {
