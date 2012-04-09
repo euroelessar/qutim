@@ -927,6 +927,10 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	// "action" == /me
 	// "firstFocus" == first received message after we switched to another tab
 	// "focus" == we haven't seen this message
+	if (message.property("focus", false))
+		displayClasses << QLatin1String("focus");
+	if (message.property("firstFocus", false))
+		displayClasses << QLatin1String("firstFocus");
 	if (isAutoreply)
 		displayClasses << QLatin1String("autoreply");
 	if (message.property("mention", false))

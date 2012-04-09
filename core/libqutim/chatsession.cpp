@@ -188,11 +188,13 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
+	                                QLatin1String("HandlerHook"),
 	                                MessageHandler::ChatInPriority,
 	                                MessageHandler::ChatOutPriority);
 	MessageHandler::registerHandler(p()->senderHook.data(),
+	                                QLatin1String("SenderHook"),
 	                                MessageHandler::NormalPriortity,
-	                                MessageHandler::LowPriority);
+	                                MessageHandler::SenderPriority);
 }
 
 ChatLayer::~ChatLayer()

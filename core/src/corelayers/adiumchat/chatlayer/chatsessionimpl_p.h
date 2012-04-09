@@ -56,6 +56,12 @@ class ChatSessionImplPrivate : public QObject
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(ChatSessionImpl)
 public:
+	enum FocusState {
+		InFocus         = 0x00,
+		OutOfFocus      = 0x01,
+		FirstOutOfFocus = 0x03
+	};
+
 	ChatSessionImplPrivate();
 	virtual ~ChatSessionImplPrivate();
 	void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
@@ -72,6 +78,7 @@ public:
 	//additional info and flags
 	bool sendToLastActiveResource;
 	mutable bool hasJavaScript;
+	int focus : 8;
 	QTimer inactive_timer;
 	MessageList unread;
 	ChatState myselfChatState;

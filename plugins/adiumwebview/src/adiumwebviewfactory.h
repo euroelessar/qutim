@@ -36,9 +36,12 @@ class SettingsItem;
 
 namespace Adium {
 
-class WebViewFactory : public Core::AdiumChat::ChatViewFactory
+class WebViewFactory : public QObject, public Core::AdiumChat::ChatViewFactory
 {
-    Q_OBJECT
+	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewFactory)
+	Q_CLASSINFO("Service", "ChatViewFactory")
+	Q_CLASSINFO("Uses", "ChatForm")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	WebViewFactory();

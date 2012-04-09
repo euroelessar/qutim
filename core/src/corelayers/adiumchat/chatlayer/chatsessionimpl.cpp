@@ -45,6 +45,7 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	hasJavaScript(false),
+    focus(InFocus),
 	myselfChatState(ChatStateInActive)
 {
 }
@@ -150,6 +151,11 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {
+		if (d->focus == ChatSessionImplPrivate::FirstOutOfFocus)
+			message.setProperty("firstFocus", true);
+		if (d->focus & ChatSessionImplPrivate::OutOfFocus)
+			message.setProperty("focus", true);
+		d->focus &= ChatSessionImplPrivate::OutOfFocus;
 		d->getController()->appendMessage(message);
 	}
 	return message.id();
@@ -232,10 +238,13 @@ QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
-	if (active)
+	if (active) {
 		setChatState(ChatStateActive);
-	else if (d->myselfChatState != ChatStateGone)
+		d->focus = ChatSessionImplPrivate::InFocus;
+	} else if (d->myselfChatState != ChatStateGone) {
 		setChatState(ChatStateInActive);
+		d->focus = ChatSessionImplPrivate::FirstOutOfFocus;
+	}
 }
 
 bool ChatSessionImpl::event(QEvent *ev)

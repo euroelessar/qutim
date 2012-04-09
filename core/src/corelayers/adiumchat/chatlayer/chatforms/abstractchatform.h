@@ -29,7 +29,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QWeakPointer>
-#include "../chatlayer_global.h"
+#include "chatlayer_global.h"
 
 namespace qutim_sdk_0_3 {
 class ChatSession;

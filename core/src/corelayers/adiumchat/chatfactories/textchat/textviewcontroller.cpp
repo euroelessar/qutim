@@ -41,6 +41,7 @@
 #include <qutim/debug.h>
 #include <qutim/emoticons.h>
 #include <qutim/thememanager.h>
+#include <qutim/utils.h>
 #include <chatlayer/chatsessionimpl.h>
 
 using namespace qutim_sdk_0_3;
@@ -60,6 +61,7 @@ TextViewController::TextViewController()
 	m_groupUntil = cfg.value<ushort>(QLatin1String("groupUntil"), 900);
 	cfg.beginGroup(QLatin1String("textview"));
 	m_animateEmoticons = cfg.value(QLatin1String("animateEmoticons"), true);
+	m_backgroundColor.setNamedColor(cfg.value(QLatin1String("backgroundColor"), QLatin1String("white")));
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
@@ -194,7 +196,7 @@ void TextViewController::appendText(QTextCursor &cursor, const QString &text,
 	urlFormat.setForeground(m_urlColor);
 	urlFormat.setFontUnderline(true);
 	urlFormat.setAnchor(true);
-	foreach (const UrlToken &textToken, ChatViewFactory::parseUrls(text)) {
+	foreach (const UrlParser::UrlToken &textToken, UrlParser::tokenize(text)) {
 		if (!textToken.url.isEmpty()) {
 			urlFormat.setAnchorHref(textToken.url);
 			cursor.insertText(textToken.text.toString(), urlFormat);
@@ -442,8 +444,12 @@ void TextViewController::setTextEdit(QTextBrowser *edit)
 	if (m_textEdit)
 		disconnect(m_textEdit.data(), 0, this, 0);
 	m_textEdit = edit;
-	if (m_textEdit)
+	if (m_textEdit) {
 		connect(m_textEdit.data(), SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+		QPalette p = m_textEdit.data()->viewport()->palette();
+		p.setColor(QPalette::Base, m_backgroundColor);
+		m_textEdit.data()->viewport()->setPalette(p);
+	}
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->setPaused(!edit);
 }

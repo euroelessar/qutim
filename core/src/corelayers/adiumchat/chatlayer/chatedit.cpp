@@ -178,6 +178,7 @@ void ChatEdit::send()
 	message.setIncoming(false);
 	message.setChatUnit(unit);
 	message.setTime(QDateTime::currentDateTime());
+	MessageHandler::traceHandlers();
 
 	qint64 result = m_session.data()->appendMessage(message);
 	if (MessageHandler::Error != -result)
