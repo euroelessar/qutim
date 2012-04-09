@@ -179,7 +179,7 @@ void OTRCrypt::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Off-the-Record Messaging"),
 			QT_TRANSLATE_NOOP("Plugin", "Plugin provides encryption of messages by OTR"),
 			PLUGIN_VERSION(0, 0, 1, 0),
-			ExtensionIcon());
+			ExtensionIcon("dialog-password"));
 	setCapabilities(Loadable);
 	OTRL_INIT;
 }

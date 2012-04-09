@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>329</height>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <property name="leftMargin">
-    <number>9</number>
+    <number>4</number>
    </property>
    <property name="topMargin">
     <number>0</number>

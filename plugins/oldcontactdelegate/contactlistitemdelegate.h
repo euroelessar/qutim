@@ -42,6 +42,7 @@
 #include <qutim/debug.h>
 #include <qutim/status.h>
 #include <qutim/plugin.h>
+#include <qutim/settingslayer.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -231,6 +232,7 @@ private:
 	int m_margin;
 	QMap<QString,QVariant> m_styleHash;
 private:
+//	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settings;
 	ShowFlags m_showFlags;
 	QHash<QString, bool> m_extInfo;
 	int m_statusIconSize;
