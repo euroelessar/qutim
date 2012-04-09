@@ -282,8 +282,13 @@ JAccount::~JAccount()
 
 ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 {
-	if (qobject_cast<JContactResource*>(unit) && !qobject_cast<JMUCUser*>(unit))
-		unit = unit->upperUnit();
+	Q_D(JAccount);
+	if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+		if (ChatUnit *self = d->roster->selfContact(resource->id()))
+			unit = self;
+		if (!qobject_cast<JMUCUser*>(unit))
+			unit = resource->upperUnit();
+	}
 	return unit;
 }
 
