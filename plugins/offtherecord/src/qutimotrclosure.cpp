@@ -73,6 +73,7 @@ void OtrClosure::setPolicy(int pol)
 {
 	if (m_policy != pol)
 		emit endSession(true);
+	m_policy = pol;
 	m_otr = OTRCrypt::instance()->connectionForPolicy(pol);
 	Config config = m_unit->account()->config("otr");
 	config.setValue(m_unit->id(), pol);

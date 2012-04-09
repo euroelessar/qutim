@@ -39,6 +39,7 @@
 #include <qutim/notification.h>
 #include <qutim/chatsession.h>
 #include "../jaccount_p.h"
+#include "jaccountresource.h"
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
 #include <QApplication>
@@ -208,6 +209,8 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 {
 	Q_D(JRoster);
 	QString bare = jid.bare();
+	if (bare == d->account->client()->jid().bare())
+		bare = jid.full();
 	QString resourceId = jid.resource();
 	JContact *contact = d->contacts.value(bare);
 	if (!resourceId.isEmpty()) {
@@ -229,6 +232,11 @@ ChatUnit *JRoster::contact(const Jreen::JID &jid, bool create)
 		return createContact(jid);
 	}
 	return 0;
+}
+
+ChatUnit *JRoster::selfContact(const QString &id)
+{
+	return d_func()->contacts.value(id);
 }
 
 QList<JContactResource *> JRoster::resources() const
@@ -270,11 +278,46 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 		break;
 	}
 
-	Jreen::JID from = presence.from();
-	if (d->account->client()->jid() == from) 
+	const Jreen::JID self = d->account->client()->jid();
+	const Jreen::JID from = presence.from();
+	if (self == from) 
 		d->account->d_func()->setPresence(presence);
+	else if (self.bare() == from.bare())
+		handleSelfPresence(presence);
 	else if (JContact *c = d->contacts.value(from.bare()))
 		c->setStatus(presence);
+}
+
+void JRoster::handleSelfPresence(Jreen::Presence presence)
+{
+	Q_D(JRoster);
+	JContact * &contact = d->contacts[presence.from().full()];
+	bool contactCreated = false;
+	if (presence.subtype() == Jreen::Presence::Unavailable) {
+		bool hasSession = false;
+		if (contact) {
+			if (ChatSession *session = ChatLayer::get(contact, false)) {
+				hasSession = true;
+				connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
+			}
+		}
+		if (!hasSession) {
+			d->contacts.remove(presence.from().full());
+			delete contact;
+			contact = 0;
+		}
+	} else {
+		if (!contact) {
+			contact = new JAccountResource(d->account, presence.from().full(), presence.from().resource());
+			contactCreated = true;
+		}
+		if (ChatSession *session = ChatLayer::get(contact, false))
+			disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
+	}
+	if (contact)
+		contact->setStatus(presence);
+	if (contactCreated)
+		emit d->account->contactCreated(contact);
 }
 
 void JRoster::onDisconnected()
@@ -282,7 +325,10 @@ void JRoster::onDisconnected()
 	Q_D(JRoster);
 	foreach (JContact *c, d->contacts) {
 		Jreen::Presence unavailable(Jreen::Presence::Unavailable, c->id());
-		c->setStatus(unavailable);
+		if (qobject_cast<JAccountResource*>(c))
+			handleSelfPresence(unavailable);
+		else
+			c->setStatus(unavailable);
 	}
 }
 
@@ -302,8 +348,10 @@ void JRoster::onNewMessage(Jreen::Message message)
 		chatUnit = session->participant(message.from().resource());
 		unitForSession = chatUnit;
 	} else {
-		JContact *contact = d->contacts.value(message.from().bare());
-		chatUnit = contact ? JRoster::contact(message.from().full(), false) : 0;
+		JContact *contact = d->contacts.value(message.from().full());
+		if (!contact)
+			contact = d->contacts.value(message.from().bare());
+		chatUnit = contact ? JRoster::contact(message.from(), false) : 0;
 		if (!contact) {
 			contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
 			contact->setInList(false);
