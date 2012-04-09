@@ -107,15 +107,7 @@ void ServiceChooser::onServiceChanged(const QByteArray &name, QObject *newObject
 
 ContactListSettings::ContactListSettings()
 {
-	QVBoxLayout *mainLayout = new QVBoxLayout(this);
-	QScrollArea *area = new QScrollArea(this);
-	QWidget *mainWidget = new QWidget(area);
-	area->setWidget(mainWidget);
-	area->setWidgetResizable(true);
-	area->setFrameStyle(QFrame::NoFrame);
-	mainLayout->setContentsMargins(0, 0, 0, 0);
-	mainLayout->addWidget(area);
-	m_layout = new QVBoxLayout(mainWidget);
+	m_layout = new QVBoxLayout(this);
 
 	addService("ContactModel", QT_TR_NOOP("Model"));
 	addService("ContactListWidget", QT_TR_NOOP("Widget style"));

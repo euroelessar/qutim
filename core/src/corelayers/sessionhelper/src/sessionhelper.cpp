@@ -56,6 +56,7 @@ bool SessionHelper::load()
 			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
 			);
 
+	m_settingsItem->setOrder(100);
 	Settings::registerItem(m_settingsItem);
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	reloadSettings();

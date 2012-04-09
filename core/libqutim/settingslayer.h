@@ -116,6 +116,8 @@ public:
 	SettingsWidget *widget() const;
 	void clearWidget();
 	void connect(const char *signal, QObject *receiver, const char *member);
+	int order() const;
+	void setOrder(int order);
 	int priority() const;
 	void setPriority(int priority);
 protected:
