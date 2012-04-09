@@ -88,7 +88,7 @@ QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
 		text += message.text();
 		item->setText(text);
 	}
-	setCurrentRow(0, QItemSelectionModel::SelectCurrent);
+	setCurrentRow(count() - 1, QItemSelectionModel::SelectCurrent);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QWidget *activeWindow = qApp->activeWindow();
 	debug() << Q_FUNC_INFO << sizeHint() << size();
@@ -119,7 +119,7 @@ QuoterWidget::~QuoterWidget()
 
 void QuoterWidget::nextRow()
 {
-	setCurrentRow((currentRow() + 1) % count(), QItemSelectionModel::SelectCurrent);
+	setCurrentRow((currentRow() + count() - 1) % count(), QItemSelectionModel::SelectCurrent);
 	m_timer.start();
 }
 
