@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -24,6 +25,7 @@
 ****************************************************************************/
 
 #include "xsettingswindow.h"
+#include "xsettingswidget.h"
 #include <QListWidget>
 #include <QStackedWidget>
 #include <qutim/actiontoolbar.h>
@@ -40,6 +42,19 @@
 
 namespace Core
 {
+struct XSettingsItemInfo
+{
+	QIcon icon;
+	QString text;
+	int priority;
+	SettingsItemList items;
+};
+}
+
+Q_DECLARE_METATYPE(Core::XSettingsItemInfo)
+
+namespace Core
+{
 
 struct XSettingsWindowPrivate
 {
@@ -53,6 +68,7 @@ struct XSettingsWindowPrivate
 	QMap<Settings::Type,SettingsItem*> items;
 	QList<SettingsWidget*> modifiedWidgets;
 	QMap<Settings::Type,QAction*> actionMap;
+	QMap<QPair<int, QString>, QWeakPointer<XSettingsWidget> > widgetsCache;
 	QAction *currentAction;
 	QWidget *parent;
 };
@@ -152,8 +168,14 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 
 void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 {
-	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet()))
-		item->clearWidget();
+	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet())) {
+		QPair<int, QString> id = qMakePair(item->priority(), item->text().toString());
+		QWeakPointer<XSettingsWidget> widget = p->widgetsCache.value(id);
+		if (widget.data()->removeItem(item)) {
+			p->widgetsCache.remove(id);
+			delete widget.data();
+		}
+	}
 	p->items.clear();
 	loadSettings(settings);
 	onCurrentItemChanged(p->listWidget->currentItem());
@@ -227,13 +249,25 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 	}
 	p->listWidget->clear();
 	SettingsItemList list = p->items.values(p->actionMap.key(a));
-	foreach (SettingsItem *item,list) {
-		QIcon icon = item->icon();
+	QMap<QPair<int, QString>, XSettingsItemInfo> items;
+	foreach (SettingsItem *item, list) {
+		QString text = item->text().toString();
+		XSettingsItemInfo &info = items[qMakePair(-item->priority(), text)];
+		info.items << item;
+		info.priority = item->priority();
+		if (!info.icon.actualSize(QSize(1,1)).isValid())
+			info.icon = item->icon();
+		if (info.text.isEmpty())
+			info.text = text;
+	}
+	foreach (const XSettingsItemInfo &info, items) {
+		QIcon icon = info.icon;
 		if (!icon.actualSize(QSize(1,1)).isValid())
 			icon = Icon("applications-system");
-		QListWidgetItem *listItem = new QListWidgetItem(icon, item->text(), p->listWidget);
-		listItem->setData(Qt::UserRole,reinterpret_cast<qptrdiff>(item));
+		QListWidgetItem *listItem = new QListWidgetItem(icon, info.text, p->listWidget);
+		listItem->setData(Qt::UserRole, qVariantFromValue(info));
 	}
+
 	if (p->listWidget->count() > 1)
 		p->listWidget->show();
 	else
@@ -245,23 +279,26 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 
 void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
 {
-	//FIXME don't use reinterpret_cast
 	if (!item)
 		return;
-	qptrdiff ptr = item->data(Qt::UserRole).value<qptrdiff>();
-	if (!ptr)
+	XSettingsItemInfo info = item->data(Qt::UserRole).value<XSettingsItemInfo>();
+	if (info.items.isEmpty())
 		return;
-	SettingsItem *settingsItem = reinterpret_cast<SettingsItem*>(ptr);
-
-	SettingsWidget *w = settingsItem->widget();
-	if (p->stackedWidget->indexOf(w) == -1) {
-		p->stackedWidget->addWidget(w);
-		w->setController(p->controller);
-		w->load();
-		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
+	QWeakPointer<XSettingsWidget> &widget = p->widgetsCache[qMakePair(info.priority, info.text)];
+	if (!widget)
+		widget = new XSettingsWidget(p->stackedWidget);
+	if (p->stackedWidget->indexOf(widget.data()) == -1) {
+		p->stackedWidget->addWidget(widget.data());
+		foreach (SettingsItem *item, info.items)
+			widget.data()->addItem(item);
+		widget.data()->setController(p->controller);
+		widget.data()->load();
+		connect(widget.data(), SIGNAL(modifiedChanged(bool)),
+				SLOT(onModifiedChanged(bool)));
 	}
-	p->stackedWidget->setCurrentWidget(w);
-	setWindowTitle(tr("qutIM settings - %1").arg(settingsItem->text()));
+
+	p->stackedWidget->setCurrentWidget(widget.data());
+	setWindowTitle(tr("qutIM settings - %1").arg(info.text));
 }
 
 void XSettingsWindow::onModifiedChanged(bool haveChanges)
