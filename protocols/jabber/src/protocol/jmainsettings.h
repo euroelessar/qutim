@@ -61,6 +61,7 @@ private slots:
 
 private:
 	Ui::JMainSettings *ui;
+	QCA::KeyStoreEntry m_keyEntry;
 	QCA::PGPKey m_pgpKey;
 	QWeakPointer<JAccount> m_account;
 };
