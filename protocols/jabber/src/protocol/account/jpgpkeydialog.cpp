@@ -157,7 +157,8 @@ void JPGPKeyDialog::done(int result)
 QCA::KeyStoreEntry JPGPKeyDialog::keyStoreEntry() const
 {
 	QVariant data = ui->treeView->currentIndex().data(KeyEntry);
-	return data.value<QCA::KeyStoreEntry>();
+	QCA::KeyStoreEntry entry = data.value<QCA::KeyStoreEntry>();
+	return entry;
 }
 
 void JPGPKeyDialog::onAddKeyButtonClicked()
