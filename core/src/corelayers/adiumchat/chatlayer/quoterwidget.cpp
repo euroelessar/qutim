@@ -92,6 +92,7 @@ QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QWidget *activeWindow = qApp->activeWindow();
 	debug() << Q_FUNC_INFO << sizeHint() << size();
+	debug() << Q_FUNC_INFO << viewport()->size();
 	QRect rect = activeWindow->geometry();
 	QSize size = sizeHint().boundedTo(activeWindow->size());
 	QPoint position(rect.left() + (rect.width() - size.width()) / 2,

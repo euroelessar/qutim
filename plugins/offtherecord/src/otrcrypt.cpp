@@ -203,7 +203,6 @@ bool OTRCrypt::load()
 	                         Icon("dialog-password"),
 	                         QT_TRANSLATE_NOOP("OTRCrypt", "OTR Messaging")));
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
-	Settings::registerItem(m_settingsItem.data());
 	Config config;
 	config.beginGroup("otr");
 	Policy policy = config.value("policy", PolicyAuto);
@@ -218,6 +217,7 @@ bool OTRCrypt::load()
 	};
 	for (size_t i = 0; i < sizeof(policies) / sizeof(policies[0]); ++i)
 		m_connections << new OtrMessaging(policies[i], m_state);
+	Settings::registerItem(m_settingsItem.data());
 	return true;
 }
 
