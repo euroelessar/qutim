@@ -171,14 +171,16 @@ void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet())) {
 		QPair<int, QString> id = qMakePair(item->priority(), item->text().toString());
 		QWeakPointer<XSettingsWidget> widget = p->widgetsCache.value(id);
-		if (widget.data()->removeItem(item)) {
+		if (widget && widget.data()->removeItem(item)) {
 			p->widgetsCache.remove(id);
 			delete widget.data();
 		}
 	}
 	p->items.clear();
+	int actionIndex = p->group->actions().indexOf(p->currentAction);
 	loadSettings(settings);
-	onCurrentItemChanged(p->listWidget->currentItem());
+	if (QAction *action = p->group->actions().value(actionIndex))
+		action->trigger();
 }
 
 XSettingsWindow::~XSettingsWindow()

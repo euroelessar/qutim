@@ -26,6 +26,7 @@ set(DEVEL_HEADERS
 	contactlist/simplestatusdialog.h
 	contactlist/simplecontactlist.h
 	contactlist/simplecontactlistsettings.h
+	contactlist/simplecontactlistitem.h
 	contactlist/lineedit.h
 )
 install(FILES ${DEVEL_HEADERS}
