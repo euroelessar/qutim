@@ -49,12 +49,12 @@ void JMainSettings::setController(QObject *controller)
 
 void JMainSettings::updatePGPText()
 {
-	if (m_pgpKey.isNull()) {
+	if (m_keyEntry.isNull()) {
 		ui->pgpLabel->setText(tr("No key selected"));
 	} else {
-		QString text = m_pgpKey.keyId().right(8);
+		QString text = m_keyEntry.id().right(8);
 		text += QLatin1String(" ");
-		text += m_pgpKey.primaryUserId();
+		text += m_keyEntry.name();
 		ui->pgpLabel->setText(text);
 	}
 }
@@ -75,7 +75,7 @@ void JMainSettings::loadImpl()
 	ui->encryptionBox->setCurrentIndex(general.value("encryption", Jreen::Client::Auto));
 	ui->compressionBox->setCurrentIndex(general.value("compression", Jreen::Client::Auto));
 	QString pgpKeyId = general.value("pgpKeyId", QString());
-	m_pgpKey = JPGPSupport::instance()->findKey(pgpKeyId, JPGPSupport::SecretKey);
+	m_keyEntry = JPGPSupport::instance()->findEntry(pgpKeyId, JPGPSupport::SecretKey);
 	updatePGPText();
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
@@ -109,7 +109,7 @@ void JMainSettings::saveImpl()
 	m_account.data()->setPasswd(ui->passwdEdit->text());
 	general.setValue("encryption", static_cast<Jreen::Client::FeatureConfig>(ui->encryptionBox->currentIndex()));
 	general.setValue("compression", static_cast<Jreen::Client::FeatureConfig>(ui->compressionBox->currentIndex()));
-	general.setValue("pgpKeyId", m_pgpKey.isNull() ? QString() : m_pgpKey.keyId());
+	general.setValue("pgpKeyId", m_keyEntry.isNull() ? QString() : m_keyEntry.id());
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 
 	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
@@ -139,7 +139,7 @@ void JMainSettings::on_selectPGPButton_clicked()
 
 void JMainSettings::on_removePGPButton_clicked()
 {
-	m_pgpKey = QCA::PGPKey();
+	m_keyEntry = QCA::KeyStoreEntry();
 	updatePGPText();
 	emit modifiedChanged(true);
 }
@@ -150,12 +150,7 @@ void JMainSettings::onPGPKeyDialogFinished(int result)
 	if (result == QDialog::Accepted) {
 		JPGPKeyDialog *dialog = qobject_cast<JPGPKeyDialog*>(sender());
 		Q_ASSERT(dialog);
-		QCA::KeyStoreEntry entry = dialog->keyStoreEntry();
-		m_keyEntry = entry;
-		if (entry.isNull())
-			m_pgpKey = QCA::PGPKey();
-		else
-			m_pgpKey = entry.pgpSecretKey();
+		m_keyEntry = dialog->keyStoreEntry();
 		updatePGPText();
 		emit modifiedChanged(true);
 	}
