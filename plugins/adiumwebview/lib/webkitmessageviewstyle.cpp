@@ -156,6 +156,11 @@ static QString urlFromFilePath(const QString &filePath)
 	return QUrl::fromLocalFile(filePath).toString();
 }
 
+static QString escapeString(const QString &text)
+{
+	return Qt::escape(text).replace(QLatin1Char('%'), QLatin1String("&#37;"));
+}
+
 WebKitMessageViewStyle::WebKitMessageViewStyle() : d_ptr(new WebKitMessageViewStylePrivate)
 {
 	Q_D(WebKitMessageViewStyle);
@@ -514,10 +519,10 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 	Protocol *protocol = account->protocol();
 	
 	// FIXME: Should be session->title
-	inString.replace(QLatin1String("%chatName%"), Qt::escape(unit->title()));
-	inString.replace(QLatin1String("%sourceName%"), Qt::escape(account->name()));
-	inString.replace(QLatin1String("%destinationName%"), Qt::escape(unit->id()));
-	inString.replace(QLatin1String("%destinationDisplayName%"), Qt::escape(unit->title()));
+	inString.replace(QLatin1String("%chatName%"), escapeString(unit->title()));
+	inString.replace(QLatin1String("%sourceName%"), escapeString(account->name()));
+	inString.replace(QLatin1String("%destinationName%"), escapeString(unit->id()));
+	inString.replace(QLatin1String("%destinationDisplayName%"), escapeString(unit->title()));
 
 	QString iconPath;
 	
@@ -980,7 +985,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	
 	// Implement the way to get shortDescription and icon path for service icons
 	QString service = message.chatUnit() ? message.chatUnit()->account()->protocol()->id() : QString();
-	inString.replace(QLatin1String("%service%"), service);
+	inString.replace(QLatin1String("%service%"), escapeString(service));
 	inString.replace(QLatin1String("%serviceIconPath%"), QString() /*content.chat->account.protocol.iconPath*/);
 	inString.replace(QLatin1String("%variant%"), activeVariantPath());
 
@@ -992,7 +997,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		QString displayName = contentSource.title;
 		
 		inString.replace(QLatin1String("%status%"), QString());
-		inString.replace(QLatin1String("%senderScreenName%"), Qt::escape(formattedUID));
+		inString.replace(QLatin1String("%senderScreenName%"), escapeString(formattedUID));
 		// Should be used as %, @, + or something like irc's channel statuses
 		inString.replace(QLatin1String("%senderPrefix%"), message.property("senderPrefix", QString()));
 		QString senderDisplay = displayName;
@@ -1000,9 +1005,9 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 			senderDisplay += " ";
 			senderDisplay += QObject::tr("(Autoreply)");
 		}
-		inString.replace(QLatin1String("%sender%"), senderDisplay);
+		inString.replace(QLatin1String("%sender%"), escapeString(senderDisplay));
 		// Should be server-side display name if possible
-		inString.replace(QLatin1String("%senderDisplayName%"), displayName);
+		inString.replace(QLatin1String("%senderDisplayName%"), escapeString(displayName));
 
 		// Add support for %textbackgroundcolor{alpha?}%
 		// Background should be caught from content's html
@@ -1047,14 +1052,14 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 			                 QString::fromLatin1(TOPIC_INDIVIDUAL_WRAPPER).arg(htmlEncodedMessage));
 		}		
 	} else {
-		inString.replace(QLatin1String("%status%"), Qt::escape(message.property("status", QString())));
+		inString.replace(QLatin1String("%status%"), escapeString(message.property("status", QString())));
 		inString.replace(QLatin1String("%statusSender%"), QString());
 		inString.replace(QLatin1String("%senderScreenName%"), QString());
 		inString.replace(QLatin1String("%senderPrefix%"), QString());
 		inString.replace(QLatin1String("%sender%"), QString());
 		QString statusPhrase = message.property("statusPhrase", QString());
 		if (!statusPhrase.isEmpty() && inString.contains(QLatin1String("%statusPhrase%"))) {
-			inString.replace(QLatin1String("%statusPhrase%"), Qt::escape(statusPhrase));
+			inString.replace(QLatin1String("%statusPhrase%"), escapeString(statusPhrase));
 			replacedStatusPhrase = true;
 		}
 		

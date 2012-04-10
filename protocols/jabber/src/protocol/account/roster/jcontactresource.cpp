@@ -173,7 +173,7 @@ bool JContactResource::event(QEvent *ev)
 		msg.addExtension(new Jreen::ChatState(state));
 		JAccount *account = qobject_cast<JAccount*>(d_func()->contact);
 		if (!account)
-			static_cast<JAccount*>(static_cast<ChatUnit*>(d_func()->contact)->account());
+			account = static_cast<JAccount*>(static_cast<ChatUnit*>(d_func()->contact)->account());
 		account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {

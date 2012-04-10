@@ -118,6 +118,16 @@ void SettingsItem::connect(const char *signal, QObject *receiver, const char *me
 	d_func()->connections << ConnectInfo(signal, receiver, member);
 }
 
+int SettingsItem::order() const
+{
+	return d_func()->order;
+}
+
+void SettingsItem::setOrder(int order)
+{
+	d_func()->order = order;
+}
+
 AutoSettingsWidget::AutoSettingsWidget(AutoSettingsItemPrivate *pr) : p(pr), g(new AutoSettingsWidgetPrivate)
 {
 	QFormLayout *layout = new QFormLayout(this);

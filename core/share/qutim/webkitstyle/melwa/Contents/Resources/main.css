@@ -1,0 +1,146 @@
+﻿body {
+	background: #FFFFFF;
+}
+
+#Chat {
+	position: static !important;
+}
+
+div {
+	padding: 1px;
+}
+
+a:link {
+	color: #007fff;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #eb3fa5;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:active, a:focus {
+	color: #6D98AB;
+	text-decoration: none;
+}
+
+.message, .status {
+	margin: 0px 1px 10px 1px;
+	padding: 6px 9px 6px 9px;
+	border: 1px solid #D1D1D1;
+	border-radius: 5px;
+}
+
+.message.outgoing {
+	background: #E5E5E5;
+}
+
+.message.incoming, .status {
+	background: #F8F7F7;
+}
+
+.Message {
+	display: block;
+	margin-top: 2px;
+	padding-top: 3px;
+	border-top: 1px dotted #D1D1D1;
+}
+
+.status > .Message {
+	border:0;
+	display: inline-block;
+}
+
+.outgoing.message .Message {
+	border-top: 1px dotted #C8C8C8;
+}
+
+.Time {
+	float: right;
+	color: #666666;
+	font-size: 9pt;
+	/*margin-right: 5px;*/
+}
+
+.Sender {
+	/*margin-left: 5px;*/
+	color: #5E5D5A;
+}
+
+.consecutive {
+	border-top: 0;
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
+	position: relative;
+	top: -16px;
+	margin-bottom: -4px;
+}
+
+.consecutive > .Time {
+	margin-top: 7px;
+}
+
+.consecutive > .Sender {
+	display: none;
+}
+
+.status > .Message {
+	margin: 0;
+	padding: 0;	
+}
+
+.action {
+	
+}
+
+.incoming:not(.mention) .Sender {
+	font-weight: 500;
+}
+
+.outgoing:not(.mention) .Sender  {
+	font-weight: 500;
+}
+
+.outgoing:not(.history) .Message,
+.incoming:not(.history) .Message {
+	 color: #20060f; 
+}
+
+/*.outgoing .Sender{
+	color: #437ee0 !important;
+}*/
+
+.notDelivered {
+	color: #921616;
+}
+
+.delivered {
+	color: #000;
+}
+
+.mention:not(.history) .Sender {
+	font-weight: bold;
+}
+
+.mention:not(.history) .Message {
+	color: #ff8482 !important;
+	font-weight: bold;
+}
+
+.firstFocus::before:not(.history) {
+	content:"";
+	width: 98%;
+	position: relative;
+	height: 1px;
+	background: #BBB;
+	margin-top: -2px;
+}
+
+.firstFocus:not(.history) {
+	margin-top: 2px;
+}

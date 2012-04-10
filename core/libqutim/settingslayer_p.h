@@ -49,13 +49,14 @@ struct ConnectInfo
 class SettingsItemPrivate
 {
 public:
-	SettingsItemPrivate() : gen(0), type(Settings::Invalid),priority(50) {}
+	SettingsItemPrivate() : gen(0), type(Settings::Invalid),order(50),priority(50) {}
 	mutable const ObjectGenerator *gen;
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
 	mutable QWeakPointer<SettingsWidget> widget;
 	QList<ConnectInfo> connections;
+	int order;
 	int priority;
 };
 

@@ -2,8 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Denis Daschenko <daschenko@gmail.com>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -24,48 +23,43 @@
 **
 ****************************************************************************/
 
-#ifndef JABBERSETTINGS_H
-#define JABBERSETTINGS_H
+#ifndef CORE_XSETTINGSWIDGET_H
+#define CORE_XSETTINGSWIDGET_H
 
 #include <qutim/settingswidget.h>
-#include <qutim/configbase.h>
-#include <QWeakPointer>
-#include <QtCrypto>
+#include <qutim/settingslayer.h>
+#include <QVBoxLayout>
+#include <QSet>
 
-namespace Ui
-{
-class JMainSettings;
-}
+namespace Core {
 
-namespace Jabber
-{
-using namespace qutim_sdk_0_3;
-class JAccount;
-class JMainSettings: public SettingsWidget
+class XSettingsWidget : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
 public:
-	JMainSettings();
-	~JMainSettings();
-	void loadImpl();
-	void cancelImpl();
-	void saveImpl();
+	explicit XSettingsWidget(QWidget *parent = 0);
+
 	virtual void setController(QObject *controller);
 
-	void updatePGPText();
+	void addItem(qutim_sdk_0_3::SettingsItem *item);
+	bool removeItem(qutim_sdk_0_3::SettingsItem *item);
+
+protected:
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
 
 private slots:
-	void on_selectPGPButton_clicked();
-	void on_removePGPButton_clicked();
-	void onPGPKeyDialogFinished(int result);
+	void onModifiedChanged(bool modified);
 
 private:
-	Ui::JMainSettings *ui;
-	QCA::KeyStoreEntry m_keyEntry;
-	QCA::PGPKey m_pgpKey;
-	QWeakPointer<JAccount> m_account;
+	QObject *m_controller;
+	qutim_sdk_0_3::SettingsItemList m_items;
+	QList<SettingsWidget*> m_widgets;
+	QSet<QObject*> m_changed;
+	QVBoxLayout *m_layout;
 };
-}
 
-#endif // JABBERSETTINGS_H
+} // namespace Core
 
+#endif // CORE_XSETTINGSWIDGET_H

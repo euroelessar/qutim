@@ -89,7 +89,7 @@ public:
 	void removeAccount(JAccount *account);
 	QString stripHeader(const QString &message);
 	QString addHeader(const QString &message, Type type);
-	void send(JAccount *account, Jreen::Presence::Type type, const QString &text = QString(), int priority = -129);
+	void send(JAccount *account, const Status &status, int priority = 0);
 	bool send(Jreen::MessageSession *session, ChatUnit *unit, Jreen::Message message);
 	JPGPDecryptReply *decrypt(ChatUnit *unit, ChatUnit *unitForSession, const Jreen::Message &message);
 	bool isChannelEncryptable(ChatUnit *unit);
