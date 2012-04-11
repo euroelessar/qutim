@@ -219,9 +219,9 @@ void SimpleWidget::addButton(ActionGenerator *generator)
 	m_mainToolBar->addAction(generator);
 }
 
-void SimpleWidget::removeButton(ActionGenerator *)
+void SimpleWidget::removeButton(ActionGenerator *generator)
 {
-	//m_mainToolBar->removeAction(generator);
+	m_mainToolBar->removeAction(generator);
 }
 
 TreeView *SimpleWidget::contactView()

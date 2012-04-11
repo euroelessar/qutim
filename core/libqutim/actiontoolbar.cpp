@@ -233,7 +233,8 @@ void ActionToolBar::removeAction(const ActionGenerator *generator)
 	int index = d->holders.indexOf(const_cast<ActionGenerator*>(generator)->pointerHolder());
 	if (index != -1) {
 		d->holders.removeAt(index);
-		QAction *action = d->actions.takeAt(index)->action.data();
+		ActionValue::Ptr value = d->actions.takeAt(index);
+		QAction *action = value->action.data();
 		QWidget::removeAction(action);
 	}
 }
