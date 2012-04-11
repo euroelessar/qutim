@@ -158,7 +158,7 @@ SimpleActions::SimpleActions()
 
 SimpleActions::~SimpleActions()
 {
-
+	m_disableSound.reset(0);
 }
 
 void SimpleActions::onTagsEditAction(QObject *controller)

@@ -125,6 +125,11 @@ Module::Module() : p(new ModulePrivate)
 
 Module::~Module()
 {
+	AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
+	if (widget) {
+		foreach (ActionGenerator *gen, p->toolBarButtons)
+			widget->removeButton(gen);
+	}
 }
 
 QWidget *Module::widget()
