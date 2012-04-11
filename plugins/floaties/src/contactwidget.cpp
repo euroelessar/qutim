@@ -33,7 +33,7 @@
 #include <QDesktopWidget>
 #include <QAbstractItemView>
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/tooltip.h>
 
 using namespace qutim_sdk_0_3;

@@ -32,6 +32,8 @@
 #include <QUuid>
 #include "dataunit.h"
 
+class QDebug;
+
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -99,12 +101,12 @@ struct fromDataUnitHelper<Capability, false>
 
 inline uint Capability::hash() const
 {
-	uint h1 = qHash((quint64(data1) << 32)
-	                | (uint(data2) << 16)
-	                | (uint(data3)));
-	uint h2 = qHash(reinterpret_cast<quint64>(data4));
-	return qHash(quint64(h1) << 32 | h2);
+	const uint h1 = qHash((quint64(data1) << 32) | (quint64(data2) << 16) | (quint64(data3)));
+	uint h2 = qHash(qFromLittleEndian<quint64>(reinterpret_cast<const uchar*>(data4)));
+	return qHash((quint64(h1) << 32) | quint64(h2));
 }
+
+LIBOSCAR_EXPORT QDebug operator<<(QDebug debug, Capability &capability);
 
 } } // namespace qutim_sdk_0_3::oscar
 

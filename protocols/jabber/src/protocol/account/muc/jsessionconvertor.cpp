@@ -28,7 +28,7 @@
 //#include "jmucmanager.h"
 //#include "jmucsession.h"
 //#include "jabber_global.h"
-//#include <qutim/messagesession.h>
+//#include <qutim/chatsession.h>
 //#include <gloox/message.h>
 //#include <gloox/uniquemucroom.h>
 //#include <QStringBuilder>

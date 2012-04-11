@@ -29,6 +29,7 @@
 #include <qutim/settingswidget.h>
 #include <QHash>
 #include <QModelIndex>
+#include "simplefilterproxymodel.h"
 
 namespace qutim_sdk_0_3 
 {
@@ -62,11 +63,13 @@ public:
 private slots:
 	void onItemChanged(QStandardItem*);
 	void onItemClicked(QModelIndex index);
+	void filterPlugins(const QString& pluginname);
 private:
 	void clear();
 	QString html(const qutim_sdk_0_3::PluginInfo& info);
 	Ui::ServiceChooser *ui;
 	QStandardItemModel *m_model;
+	SimpleFilterProxyModel *m_proxymodel;
 	QHash<QString, ServiceItem *> m_plugin_items;
 	QHash<QString, Plugin *> m_plugins;
 };

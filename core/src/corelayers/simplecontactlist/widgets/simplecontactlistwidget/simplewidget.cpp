@@ -43,6 +43,7 @@
 #include <qutim/simplecontactlist/lineedit.h>
 #include <qutim/protocol.h>
 #include <qutim/shortcut.h>
+#include <qutim/statusactiongenerator.h>
 #include <QApplication>
 #include <QLineEdit>
 #include <qutim/metacontact.h>
@@ -78,7 +79,6 @@ SimpleWidget::SimpleWidget()
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 	setWindowIcon(Icon("qutim"));
 
-	resize(150,0);//hack
 	setAttribute(Qt::WA_AlwaysShowToolTips);
 	loadGeometry();
 
@@ -231,40 +231,24 @@ TreeView *SimpleWidget::contactView()
 
 void SimpleWidget::loadGeometry()
 {
-	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-	if (geom.isNull()) {
-		QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-		//black magic
-		int width = size().width();
-		int x = rect.width() - width;
-		int y = 0;
-		int height = rect.height();
-#ifdef Q_WS_WIN
-		//for stupid windows
-		x -= 15;
-		y += 35;
-		height -= 55;
-#endif
-		QRect geometry(x,
-					   y,
-					   width,
-					   height
-					   );
-		setGeometry(geometry);
-	} else {
-		restoreGeometry(geom);
-	}
+    QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
+    if (!geom.isNull())
+        restoreGeometry(geom);
+    else {
+        resize(200, 600);
+    }
 }
 
 QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)
 {
-	Status s = Status(type);
-	QAction *act = new QAction(s.icon(), s.name(), m_statusBtn);
-	connect(act, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
-	act->setParent(m_statusBtn);
-	act->setData(type);
-	m_statusActions.append(act);
-	return act;
+	ActionGenerator *generator = new StatusActionGenerator(Status(type));
+	QAction *action = generator->generate<QAction>();
+	connect(action, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
+	action->setParent(m_statusBtn);
+	action->setData(type);
+	m_actionGenerators << generator;
+	m_statusActions.append(action);
+	return action;
 }
 
 void SimpleWidget::onSearchActivated()
@@ -312,11 +296,11 @@ void SimpleWidget::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		m_statusBtn->setText(Status(type).name());
 		QString text = m_status_action->data().toString();
-		foreach(Account *account,Account::all()) {
+		foreach(Account *account, Account::all()) {
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);
-			status.setProperty("changeReason",Status::ByUser);
+			status.setChangeReason(Status::ByUser);
 			status.setSubtype(0);
 			account->setStatus(status);
 		}
@@ -370,12 +354,6 @@ void SimpleWidget::orientationChanged()
 bool SimpleWidget::event(QEvent *event)
 {
 	if (event->type() == QEvent::LanguageChange) {
-		foreach (QAction *action,m_statusActions) {
-			Status last = m_statusBtn->property("lastStatus").value<Status>();
-			m_statusBtn->setText(last.name());
-			Status::Type type = static_cast<Status::Type>(action->data().toInt());
-			action->setText(Status(type).name());
-		}
 		m_status_action->setText(tr("Set Status Text"));
 		event->accept();
 	}
@@ -389,7 +367,10 @@ void SimpleWidget::init()
 	gen->setShortcut(QLatin1String("contactListActivateMainMenu"));
 	QAction *before = m_mainToolBar->actions().count() ? m_mainToolBar->actions().first() : 0;
 	m_mainToolBar->insertAction(before, gen);
-	SystemIntegration::show(this);
+	Config config("appearance");
+	config.beginGroup("contactList");
+	if(config.value<bool>("showContactListOnStartup", true))
+		SystemIntegration::show(this);
 }
 
 AbstractContactModel *SimpleWidget::model() const
@@ -427,7 +408,7 @@ bool SimpleWidget::eventFilter(QObject *obj, QEvent *ev)
 void SimpleWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *)
 {
 	if (name == "ContactModel") {
-		m_view->setModel(m_model);
+		m_view->setContactModel(m_model);
 		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
 	} else if (name == "ContactDelegate") {
 		m_view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));

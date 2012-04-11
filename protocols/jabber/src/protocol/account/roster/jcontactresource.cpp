@@ -31,6 +31,7 @@
 #include <qutim/status.h>
 #include <qutim/inforequest.h>
 #include <qutim/tooltip.h>
+#include <qutim/debug.h>
 #include <QStringBuilder>
 #include <jreen/chatstate.h>
 #include <jreen/message.h>
@@ -47,12 +48,23 @@ JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
 	Q_D(JContactResource);
 	d->name = name;
 	d->id = parent->id() % QLatin1Char('/') % name;
+	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
 	connect(parent, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 }
 
 JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &ptr) :
 	Buddy(parent->account()), d_ptr(&ptr)
 {
+}
+
+JContactResource::JContactResource(JAccount *account, const QString &name) :
+    Buddy(account), d_ptr(new JContactResourcePrivate(0))
+{
+	Q_D(JContactResource);
+	d->name = name;
+	d->id = account->id() % QLatin1Char('/') % name;
+	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
+	connect(account, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 }
 
 JContactResource::~JContactResource()
@@ -73,7 +85,9 @@ QString JContactResource::title() const
 {
 	Q_D(const JContactResource);
 	if (Contact *contact = qobject_cast<Contact *>(d->contact)) {
-		return contact->title() % "/" % d->name;
+		return contact->title() % QLatin1Char('/') % d->name;
+	} else if (Account *account = qobject_cast<Account*>(d->contact)) {
+		return account->name() % QLatin1Char('/') % d->name;
 	} else {
 		return Buddy::title();
 	}
@@ -85,7 +99,7 @@ bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 
 	if(a->status() == Status::Offline || a->status() == Status::Connecting)
 		return false;
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 
 	a->messageSessionManager()->sendMessage(this, message);
 	return true;
@@ -99,6 +113,36 @@ void JContactResource::setPriority(int priority)
 int JContactResource::priority()
 {
 	return d_func()->presence.priority();
+}
+
+QCA::PGPKey JContactResource::pgpKey() const
+{
+	return d_func()->pgpKey;
+}
+
+void JContactResource::setPGPKey(const QCA::PGPKey &key)
+{
+	d_func()->pgpKey = key;
+}
+
+QCA::SecureMessageSignature::IdentityResult JContactResource::pgpVerifyStatus() const
+{
+	return d_func()->pgpVerifyStatus;
+}
+
+void JContactResource::setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus)
+{
+	d_func()->pgpVerifyStatus = pgpVerifyStatus;
+}
+
+Jreen::Presence::Type JContactResource::presenceType() const
+{
+	return d_func()->presence.subtype();
+}
+
+Jreen::Presence JContactResource::presence() const
+{
+	return d_func()->presence;
 }
 
 void JContactResource::setStatus(const Jreen::Presence presence)
@@ -127,7 +171,9 @@ bool JContactResource::event(QEvent *ev)
 		Jreen::Message msg(Jreen::Message::Chat,
 						   d_func()->id);
 		msg.addExtension(new Jreen::ChatState(state));
-		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
+		JAccount *account = qobject_cast<JAccount*>(d_func()->contact);
+		if (!account)
+			account = static_cast<JAccount*>(static_cast<ChatUnit*>(d_func()->contact)->account());
 		account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
@@ -188,6 +234,8 @@ QString JContactResource::avatar() const
 {
 	if (Buddy *buddy = qobject_cast<Buddy*>(d_func()->contact))
 		return buddy->avatar();
+	if (JAccount *account = qobject_cast<JAccount*>(d_func()->contact))
+		return account->avatar();
 	return QString();
 }
 

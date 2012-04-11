@@ -45,7 +45,7 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 {
 	d->channel = channel;
 	d->contact = channel->account()->getContact(nick, host, true);
-	d->contact.data()->d->ref();
+	d->contact.data()->ref();
 	setMenuOwner(d->contact.data());
 	connect(d->contact.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(d->contact.data(), SIGNAL(quit(QString)), SIGNAL(quit(QString)));
@@ -57,7 +57,7 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 IrcChannelParticipant::~IrcChannelParticipant()
 {
 	if (d->contact)
-		d->contact.data()->d->deref();
+		d->contact.data()->deref();
 }
 
 bool IrcChannelParticipant::sendMessage(const Message &message)

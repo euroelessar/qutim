@@ -41,20 +41,23 @@ public:
 	MUCRoom::Affiliation affiliation;
 	MUCRoom::Role role;
 	QString realJid;
-	JMUCSession *muc;
+	QWeakPointer<JMUCSession> muc;
 };
 
 JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 	JContactResource(muc, *new JMUCUserPrivate(muc))
 {
 	Q_D(JMUCUser);
-	d->name = name;
+	setUserName(name);
 	d->id = muc->id() % QLatin1Char('/') % name;
 	d->muc = muc;
 }
 
 JMUCUser::~JMUCUser()
 {
+	Q_D(JMUCUser);
+	if (d->muc)
+		d->muc.data()->handleDeath(d->name);
 }
 
 QString JMUCUser::title() const
@@ -67,6 +70,15 @@ QString JMUCUser::name() const
 	return d_ptr->name;
 }
 
+void JMUCUser::setUserName(const QString &name)
+{
+	Q_D(JMUCUser);
+	QString previous = d->name;
+	d->name = name;
+	emit nameChanged(name, previous);
+	emit titleChanged(name, previous);
+}
+
 void JMUCUser::setName(const QString &name)
 {
 	Q_UNUSED(name);
@@ -76,7 +88,7 @@ void JMUCUser::setName(const QString &name)
 
 JMUCSession *JMUCUser::muc() const
 {
-	return d_func()->muc;
+	return d_func()->muc.data();
 }
 
 QString JMUCUser::avatar() const
@@ -142,32 +154,32 @@ bool JMUCUser::event(QEvent *ev)
 		QString affiliation;
 		switch (d->affiliation) {
 		case MUCRoom::AffiliationOwner:
-			affiliation = "Owner";
+			affiliation = tr("Owner");
 			break;
 		case MUCRoom::AffiliationAdmin:
-			affiliation = "Administrator";
+			affiliation = tr("Administrator");
 			break;
 		case MUCRoom::AffiliationMember:
-			affiliation = "Registered member";
+			affiliation = tr("Registered member");
 			break;
 		default:
-			affiliation = "";
+			affiliation = QString();
 		}
 		if (!affiliation.isEmpty())
 			event->addField(QT_TRANSLATE_NOOP("Conference", "Affiliation"), affiliation, 30);
 		QString role;
 		switch (d->role) {
 		case MUCRoom::RoleModerator:
-			role = "Moderator";
+			role = tr("Moderator");
 			break;
 		case MUCRoom::RoleParticipant:
-			role = "Participant";
+			role = tr("Participant");
 			break;
 		case MUCRoom::RoleVisitor:
-			role = "Visitor";
+			role = tr("Visitor");
 			break;
 		default:
-			role = "";
+			role = QString();
 		}
 		if (!role.isEmpty())
 			event->addField(QT_TRANSLATE_NOOP("Conference", "Role"), role, 30);
@@ -199,19 +211,19 @@ void JMUCUser::setRealJid(const QString &jid)
 
 bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	return d_func()->muc->sendPrivateMessage(id(), message);
+	return d_func()->muc.data()->sendPrivateMessage(this, message);
 }
 
 void JMUCUser::kick(const QString &reason)
 {
 	Q_D(JMUCUser);
-	d->muc->room()->kick(d->name, reason);
+	d->muc.data()->room()->kick(d->name, reason);
 }
 
 void JMUCUser::ban(const QString &reason)
 {
 	Q_D(JMUCUser);
-	d->muc->room()->ban(d->name, reason);
+	d->muc.data()->room()->ban(d->name, reason);
 }
 }
 

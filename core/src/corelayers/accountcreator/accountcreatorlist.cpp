@@ -31,7 +31,7 @@
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
-#include "itemdelegate.h"
+#include <qutim/itemdelegate.h>
 #include <QMessageBox>
 #include <qutim/debug.h>
 #include <qutim/systemintegration.h>

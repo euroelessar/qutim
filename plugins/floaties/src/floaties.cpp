@@ -35,9 +35,7 @@
 
 void FloatiesPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-		QT_TRANSLATE_NOOP("Task", "Author"),
-		QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Floaties"),
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of floaty contacts"),
 			PLUGIN_VERSION(0, 2, 0, 0),
@@ -146,7 +144,7 @@ void FloatiesPlugin::onRemoveContact(QObject *obj)
 ContactWidget *FloatiesPlugin::createWidget(qutim_sdk_0_3::Contact *contact)
 {
 	QPersistentModelIndex index = m_model->addContact(contact);
-	ContactWidget *widget = new ContactWidget(index, m_view, contact);
+	ContactWidget *widget = new ContactWidget(index, m_view.data(), contact);
 	connect(widget, SIGNAL(wantDie(QObject*)), this, SLOT(onRemoveContact(QObject*)));
 	m_contacts.insert(contact, widget);
 //	contact->addAction(m_action);

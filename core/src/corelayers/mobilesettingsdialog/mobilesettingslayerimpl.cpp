@@ -46,7 +46,7 @@ MobileSettingsLayerImpl::~MobileSettingsLayerImpl()
 
 void MobileSettingsLayerImpl::show (const SettingsItemList& settings, QObject* controller )
 {
-	MobileSettingsWindow *d = m_dialogs.value(controller);
+	MobileSettingsWindow *d = m_dialogs.value(controller).data();
 	if (!d) {
 		d = new MobileSettingsWindow(settings,controller);
 		m_dialogs[controller] = d;
@@ -61,7 +61,7 @@ void MobileSettingsLayerImpl::show (const SettingsItemList& settings, QObject* c
 
 void MobileSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )
 {
-	MobileSettingsWindow *d = m_dialogs.value(controller);
+	MobileSettingsWindow *d = m_dialogs.value(controller).data();
 	if (!d)
 		return;
 	d->update(settings);
@@ -69,7 +69,7 @@ void MobileSettingsLayerImpl::update (const SettingsItemList& settings, QObject*
 
 void MobileSettingsLayerImpl::close(QObject *controller)
 {
-	MobileSettingsWindow *d = m_dialogs.value(controller);
+	MobileSettingsWindow *d = m_dialogs.value(controller).data();
 	if (d) {
 		d->deleteLater();
 		m_dialogs.remove(d);

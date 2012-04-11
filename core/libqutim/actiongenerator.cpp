@@ -232,7 +232,7 @@ const LocalizedString &ActionGenerator::text() const
 
 const QObject *ActionGenerator::receiver() const
 {
-	return d_func()->receiver;
+    return d_func()->receiver.data();
 }
 
 const char *ActionGenerator::member() const
@@ -296,8 +296,7 @@ void ActionGeneratorPrivate::sendActionCreatedEvent(QAction *action, QObject *co
 		const char *member = receiver.second.constData() + 1;
 		int index = meta->indexOfMethod(member);
 		if (index == -1) {
-			qWarning("ActionGeneratorPrivate::onActionCreated: No such method %s::%s",
-					 meta->className(), member);
+			warning() << "ActionGeneratorPrivate::onActionCreated: No such method" << meta->className() << "::" << member;
 		}
 		QMetaMethod method = meta->method(index);
 		method.invoke(receiver.first, Q_ARG(QAction*, action), Q_ARG(QObject*, controller));
@@ -312,7 +311,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	//			return NULL;
 	//		}
 	if (d->receiver)
-		action->setParent(d->receiver);
+        action->setParent(d->receiver.data());
 	if (!d->icon.isNull())
 		action->setIcon(d->icon);
 	if (!d->text.original().isEmpty())

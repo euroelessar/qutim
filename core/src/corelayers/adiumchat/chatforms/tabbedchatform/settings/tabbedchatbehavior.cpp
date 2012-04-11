@@ -62,13 +62,15 @@ TabbedChatBehavior::TabbedChatBehavior() :
 #endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
-	connect(ui->storeBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
-	connect(ui->recentBox,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
-	connect(ui->groupUntil,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
-	connect(ui->tabPositionBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
-	connect(ui->formLayoutBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
-	connect(ui->stateBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
-	connect(ui->menuBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
+	lookForWidgetState(ui->storeBox);
+	lookForWidgetState(ui->recentBox);
+	lookForWidgetState(ui->groupUntil);
+	lookForWidgetState(ui->tabPositionBox);
+	lookForWidgetState(ui->formLayoutBox);
+	lookForWidgetState(ui->stateBox);
+	lookForWidgetState(ui->menuBox);
+	lookForWidgetState(ui->customIconBox);
+	lookForWidgetState(ui->autoresizeBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -106,12 +108,15 @@ void TabbedChatBehavior::loadImpl()
 	ui->formLayoutBox->setCurrentIndex(m_flags & AdiumToolbar ? 1 : 0);
 
 	m_send_message_key = widget.value("sendKey", AdiumChat::SendCtrlEnter);
+	m_autoresize = widget.value("autoResize", false);
 	static_cast<QRadioButton *>(m_group->button(m_send_message_key))->setChecked(true);
 	Config history = cfg.group("chat/history");
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
 	ui->stateBox->setChecked(m_flags & IconsOnTabs);
+	ui->customIconBox->setChecked(!(m_flags & UseQutimIcon));
 	ui->menuBox->setChecked(m_flags & MenuBar);
+	ui->autoresizeBox->setChecked(m_autoresize);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 }
@@ -125,11 +130,13 @@ void TabbedChatBehavior::saveImpl()
 	setFlags(TabsOnBottom,south);
 	bool adium = ui->formLayoutBox->itemData(ui->formLayoutBox->currentIndex()).toBool();
 	setFlags(AdiumToolbar,adium);
-	setFlags(IconsOnTabs,ui->stateBox->isChecked());
-	setFlags(MenuBar,ui->menuBox->isChecked());
+	setFlags(IconsOnTabs, ui->stateBox->isChecked());
+	setFlags(UseQutimIcon, !ui->customIconBox->isChecked());
+	setFlags(MenuBar, ui->menuBox->isChecked());
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);
+	widget.setValue("autoResize",ui->autoresizeBox->isChecked());
 	Config history = appearance.group("chat/history");
 	history.setValue("storeServiceMessages",ui->storeBox->isChecked());
 	history.setValue("maxDisplayMessages",ui->recentBox->value());
@@ -156,11 +163,6 @@ void TabbedChatBehavior::setFlags(AdiumChat::ChatFlags type, bool set)
 void TabbedChatBehavior::onButtonClicked(int id)
 {
 	m_send_message_key = static_cast<AdiumChat::SendMessageKey>(id);
-	emit modifiedChanged(true);
-}
-
-void TabbedChatBehavior::onValueChanged()
-{
 	emit modifiedChanged(true);
 }
 

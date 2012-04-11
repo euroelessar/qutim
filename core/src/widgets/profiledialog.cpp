@@ -43,12 +43,6 @@
 #include <QTimer>
 #include <QScrollBar>
 
-namespace qutim_sdk_0_3
-{ 
-	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
-	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
-}
-
 namespace Core
 {
 ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
@@ -104,15 +98,15 @@ Config ProfileDialog::profilesInfo()
 	return Profile::instance()->config();
 }
 
-QString ProfileDialog::profilesConfigPath()
+QString ProfileDialog::profilesConfigPath(bool *isSystem)
 {
-	return Profile::instance()->configPath();
+	return Profile::instance()->configPath(isSystem);
 }
 
-bool ProfileDialog::acceptProfileInfo(const Config &config, const QString &password)
+bool ProfileDialog::acceptProfileInfo(const Config &config, const QString &password, bool checkHash)
 {
 	QString errors;
-	bool result = Profile::instance()->acceptData(config.rootValue().toMap(), password, &errors);
+	bool result = Profile::instance()->acceptData(config.rootValue().toMap(), password, checkHash, &errors);
 	if (!result)
 		QMessageBox::critical(QApplication::activeWindow(), tr("Error while loading"), errors);
 	return result;

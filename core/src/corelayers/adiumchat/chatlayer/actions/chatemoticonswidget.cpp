@@ -152,10 +152,10 @@ EmoAction::EmoAction(QObject *parent) :
 	setMenu(menu);
 	QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
 	m_emoticons_widget = new ChatEmoticonsWidget(menu);
-	m_emoticons_widget->loadTheme();
-	emoticons_widget_act->setDefaultWidget(m_emoticons_widget);
+	m_emoticons_widget.data()->loadTheme();
+	emoticons_widget_act->setDefaultWidget(m_emoticons_widget.data());
 	menu->addAction(emoticons_widget_act);
-	connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
+	connect(m_emoticons_widget.data(), SIGNAL(insertSmile(QString)),
 			this,SLOT(onInsertSmile(QString)));
 #else
 	connect(this,SIGNAL(triggered()),this,SLOT(triggerEmoticons()));
@@ -171,19 +171,19 @@ void EmoAction::onInsertSmile(const QString &code)
 #ifdef Q_WS_MAEMO_5
 void EmoAction::orientationChanged()
 {
-	if (m_emoticons_widget->isVisible())
+	if (m_emoticons_widget.data()->isVisible())
 	{
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
 		if (screenGeometry.width() > screenGeometry.height())
 		{
 			//This crap need to completely remake!
-			m_emoticons_widget->hide();
-			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
-			m_emoticons_widget->show();
+			m_emoticons_widget.data()->hide();
+			m_emoticons_widget.data()->resize(m_emoticons_widget.data()->parentWidget()->width()-160,m_emoticons_widget.data()->parentWidget()->height()-130);
+			m_emoticons_widget.data()->show();
 		}else{
-			m_emoticons_widget->hide();
-			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
-			m_emoticons_widget->show();
+			m_emoticons_widget.data()->hide();
+			m_emoticons_widget.data()->resize(m_emoticons_widget.data()->parentWidget()->width()-160,m_emoticons_widget.data()->parentWidget()->height()/2);
+			m_emoticons_widget.data()->show();
 		}
 	}
 }
@@ -194,35 +194,35 @@ void EmoAction::triggerEmoticons()
 #ifdef Q_WS_MAEMO_5
 	if (!m_emoticons_widget) {
 		m_emoticons_widget = new ChatEmoticonsWidget();
-		m_emoticons_widget->loadTheme();
-		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
+		m_emoticons_widget.data()->loadTheme();
+		connect(m_emoticons_widget.data(), SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
-                m_emoticons_widget->setParent(qApp->activeWindow());
+				m_emoticons_widget.data()->setParent(qApp->activeWindow());
 	}
-	if (m_emoticons_widget->isVisible()) {
-		m_emoticons_widget->hide();
+	if (m_emoticons_widget.data()->isVisible()) {
+		m_emoticons_widget.data()->hide();
 	} else {
 		QRect screenGeometry = QApplication::desktop()->screenGeometry();
 		if (screenGeometry.width() > screenGeometry.height())
 		{
 			//This crap need to completely remake!
-			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()-130);
+			m_emoticons_widget.data()->resize(m_emoticons_widget.data()->parentWidget()->width()-160,m_emoticons_widget.data()->parentWidget()->height()-130);
 		}else{
-			m_emoticons_widget->resize(m_emoticons_widget->parentWidget()->width()-160,m_emoticons_widget->parentWidget()->height()/2);
+			m_emoticons_widget.data()->resize(m_emoticons_widget.data()->parentWidget()->width()-160,m_emoticons_widget.data()->parentWidget()->height()/2);
 		}
-		m_emoticons_widget->show();
+		m_emoticons_widget.data()->show();
 	}
 #else
 	if (!m_emoticons_widget) {
 		m_emoticons_widget = new ChatEmoticonsWidget();
-		m_emoticons_widget->loadTheme();
-		connect(m_emoticons_widget, SIGNAL(insertSmile(QString)),
+		m_emoticons_widget.data()->loadTheme();
+		connect(m_emoticons_widget.data(), SIGNAL(insertSmile(QString)),
 				this,SLOT(onInsertSmile(QString)));
-		SystemIntegration::show(m_emoticons_widget);
-		m_emoticons_widget->play();
+		SystemIntegration::show(m_emoticons_widget.data());
+		m_emoticons_widget.data()->play();
 
 	} else
-		m_emoticons_widget->deleteLater();
+		m_emoticons_widget.data()->deleteLater();
 #endif
 
 }

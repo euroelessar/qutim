@@ -46,6 +46,8 @@ public:
     ~SimplePasswordWidget();
 
 	void setValidator(QValidator *validator);
+	void showSaveButton(bool show);
+	void setText(const QString &title, const QString &description);
 
 protected:
     void changeEvent(QEvent *e);

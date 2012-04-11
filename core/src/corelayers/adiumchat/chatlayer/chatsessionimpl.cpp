@@ -28,7 +28,6 @@
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
 #include <QApplication>
-#include <QPlainTextDocumentLayout>
 #include "chatsessionimpl_p.h"
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
@@ -44,9 +43,11 @@ namespace Core
 namespace AdiumChat
 {
 
+enum { LastMessagesCount = 5 };
+
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
-	controller(0),
 	hasJavaScript(false),
+    focus(InFocus),
 	myselfChatState(ChatStateInActive)
 {
 }
@@ -64,13 +65,13 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->model = new ChatSessionModel(this);
 	d->q_ptr = this;
 	d->chatUnit = unit;
-	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
+	d->lastMessagesIndex = 0;
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value("sendToLastActiveResource", false);
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
-	d->chatUnit = 0;
+	d->chatUnit.clear();
 	setChatUnit(unit);
 }
 
@@ -90,13 +91,13 @@ ChatSessionImpl::~ChatSessionImpl()
 	Q_D(ChatSessionImpl);
 	setChatState(ChatStateGone);
 	if (d->menu)
-		d->menu->deleteLater();
+		d->menu.data()->deleteLater();
 }
 
 void ChatSessionImpl::addContact(Buddy* c)
 {
 	//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
-	d_func()->model->addContact(c);
+	d_func()->model.data()->addContact(c);
 	emit buddiesChanged();
 }
 
@@ -104,7 +105,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 {
 	Q_D(ChatSessionImpl);
 	if (!message.chatUnit()) {
-		qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
+		warning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
 
@@ -127,21 +128,23 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	bool service = message.property("service").isValid();
 	const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
 	if (!service && !conf
-		&& message.chatUnit() != d->current_unit
+		&& message.chatUnit() != d->current_unit.data()
 		&& message.isIncoming()
 		&& !message.property("history", false))
 	{
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
-
-	if (conf) {
-		QString sender = conf->me() ? conf->me()->name() : QString();
-		if (message.text().contains(sender)) {
-			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
+	
+	if (!message.property("service", false)
+	        && (!conf || message.property("mention", false))
+	        && message.isIncoming()
+	        && !message.property("history", false)) {
+		ChatLayer::instance()->alert(300);
+		if (conf) {
+			ServicePointer<AbstractChatForm> form("ChatForm");
 			if (form) {
-				QWidget *widget = form->chatWidget(this);
-				if (widget) {
-					QApplication::alert(widget,5000);
+				if (QWidget *widget = form->chatWidget(this)) {
+					QApplication::alert(widget, 300);
 				}
 			}
 		}
@@ -151,50 +154,62 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		Notification::send(message);
 
 	if(!message.property("fake",false)) {
-//		qApp->postEvent(this, new MessageEventHook(message), Qt::LowEventPriority);
+		if (d->focus == ChatSessionImplPrivate::FirstOutOfFocus)
+			message.setProperty("firstFocus", true);
+		if (d->focus & ChatSessionImplPrivate::OutOfFocus)
+			message.setProperty("focus", true);
+		d->focus &= ChatSessionImplPrivate::OutOfFocus;
 		d->getController()->appendMessage(message);
+		if (!message.property("service", false) && !message.property("topic", false)) {
+			if (d->lastMessages.count() < LastMessagesCount) {
+				d->lastMessages << message;
+			} else {
+				d->lastMessages[d->lastMessagesIndex] = message;
+				d->lastMessagesIndex = (d->lastMessagesIndex + 1) % d->lastMessages.count();
+			}
+		}
 	}
 	return message.id();
 }
 
 void ChatSessionImpl::removeContact(Buddy *c)
 {
-	d_func()->model->removeContact(c);
+	d_func()->model.data()->removeContact(c);
 	emit buddiesChanged();
 }
 
 Account* ChatSessionImpl::getAccount() const
 {
-	return d_func()->chatUnit->account();
+	return d_func()->chatUnit.data()->account();
 }
 
 QString ChatSessionImpl::getId() const
 {
-	return d_func()->chatUnit->id();
+	return d_func()->chatUnit.data()->id();
 }
 
 
 ChatUnit* ChatSessionImpl::getUnit() const
 {
-	return d_func()->chatUnit;
+	return d_func()->chatUnit.data();
 }
 
 QObject* ChatSessionImpl::controller()
 {
 	Q_D(ChatSessionImpl);
 	d->ensureController();
-	return d->controller;
+	return d->controller.data();
 }
 
 QObject *ChatSessionImpl::controller() const
 {
-	return d_func()->controller;
+	return d_func()->controller.data();
 }
 
 ChatViewController *ChatSessionImplPrivate::getController()
 {
 	ensureController();
-	return qobject_cast<ChatViewController*>(controller);
+	return qobject_cast<ChatViewController*>(controller.data());
 }
 
 void ChatSessionImplPrivate::ensureController()
@@ -203,12 +218,12 @@ void ChatSessionImplPrivate::ensureController()
 	if (!controller) {
 		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
 		controller = factory->createViewController();
-		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
+		ChatViewController *c = qobject_cast<ChatViewController*>(controller.data());
 		Q_ASSERT(c);
 		c->setChatSession(q_ptr);
-		hasJavaScript = controller->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
+		hasJavaScript = controller.data()->metaObject()->indexOfMethod("evaluateJavaScript(QString)") != -1;
 		emit q->javaScriptSupportChanged(hasJavaScript); //hack, because getController is a const method
-		connect(controller, SIGNAL(destroyed(QObject*)), q, SIGNAL(controllerDestroyed(QObject*)));
+		connect(controller.data(), SIGNAL(destroyed(QObject*)), q, SIGNAL(controllerDestroyed(QObject*)));
 	}
 }
 
@@ -216,9 +231,20 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 {
 	Q_D(const ChatSessionImpl);
 	if (d->sendToLastActiveResource)
-		return d->last_active_unit ? d->last_active_unit : d->chatUnit;
+		return d->last_active_unit ? d->last_active_unit.data() : d->chatUnit.data();
 	else
-		return d->current_unit ? d->current_unit : d->chatUnit;
+		return d->current_unit ? d->current_unit.data() : d->chatUnit.data();
+}
+
+MessageList ChatSessionImpl::lastMessages() const
+{
+	Q_D(const ChatSessionImpl);
+	MessageList messages;
+	for (int i = 0; i < d->lastMessages.count(); ++i) {
+		int index = (i + d->lastMessagesIndex) % d->lastMessages.count();
+		messages << d->lastMessages.at(index);
+	}
+	return messages;
 }
 
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
@@ -234,17 +260,20 @@ QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
-	if (active)
+	if (active) {
 		setChatState(ChatStateActive);
-	else if (d->myselfChatState != ChatStateGone)
+		d->focus = ChatSessionImplPrivate::InFocus;
+	} else if (d->myselfChatState != ChatStateGone) {
 		setChatState(ChatStateInActive);
+		d->focus = ChatSessionImplPrivate::FirstOutOfFocus;
+	}
 }
 
 bool ChatSessionImpl::event(QEvent *ev)
 {
 //	if (ev->type() == MessageEventHook::eventType()) {
 //		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
-//		qDebug() << Q_FUNC_INFO;
+//		debug() << Q_FUNC_INFO;
 //		d_func()->getController()->appendMessage(messageEvent->message);
 //		return true;
 //	}
@@ -253,7 +282,7 @@ bool ChatSessionImpl::event(QEvent *ev)
 
 QAbstractItemModel* ChatSessionImpl::getModel() const
 {
-	return d_func()->model;
+	return d_func()->model.data();
 }
 
 //ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
@@ -290,7 +319,7 @@ QAbstractItemModel* ChatSessionImpl::getModel() const
 
 QTextDocument* ChatSessionImpl::getInputField()
 {
-	return d_func()->input;
+	return d_func()->input.data();
 }
 
 void ChatSessionImpl::markRead(quint64 id)
@@ -320,8 +349,8 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 {
 	Q_D(ChatSessionImpl);
 	if (d->chatUnit)
-		disconnect(d->chatUnit, 0, this, 0);
-	ChatUnit *oldUnit = d->chatUnit;
+		disconnect(d->chatUnit.data(), 0, this, 0);
+	ChatUnit *oldUnit = d->chatUnit.data();
 	static_cast<ChatLayerImpl*>(ChatLayer::instance())->onUnitChanged(oldUnit, unit);
 	d->chatUnit = unit;
 	connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
@@ -419,7 +448,7 @@ void ChatSessionImplPrivate::onLowerUnitAdded()
 {
 	if (!menu)
 		return;
-	if (menu->isVisible())
+	if (menu.data()->isVisible())
 		connect(menu.data(), SIGNAL(aboutToHide()), SLOT(refillMenu()));
 	else
 		refillMenu();
@@ -429,9 +458,9 @@ void ChatSessionImplPrivate::refillMenu()
 {
 	Q_Q(ChatSessionImpl);
 	if (menu) {
-		qDeleteAll(group->actions());
-		ChatUnit *unit = chatUnit;
-		fillMenu(menu, unit, unit->lowerUnits());
+		qDeleteAll(group.data()->actions());
+		ChatUnit *unit = chatUnit.data();
+		fillMenu(menu.data(), unit, unit->lowerUnits());
 	} else {
 		Q_UNUSED(q->menu());
 	}
@@ -445,7 +474,7 @@ void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUni
 	act->setData(qVariantFromValue(unit));
 	act->setCheckable(true);
 	act->setChecked(!sendToLastActiveResource && unit == q->getCurrentUnit());
-	group->addAction(act);
+	group.data()->addAction(act);
 	connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
 	menu->addAction(act);
 
@@ -454,7 +483,7 @@ void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUni
 		act->setText(QT_TRANSLATE_NOOP("ChatSession", "Last active"));
 		act->setCheckable(true);
 		act->setChecked(sendToLastActiveResource);
-		group->addAction(act);
+		group.data()->addAction(act);
 		connect(act, SIGNAL(toggled(bool)), SLOT(onSendToLastActiveResourceActivated(bool)));
 		menu->addAction(act);
 	}
@@ -472,7 +501,7 @@ void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUni
 			act->setData(qVariantFromValue(lower));
 			act->setCheckable(true);
 			act->setChecked(!sendToLastActiveResource && lower == q->getCurrentUnit());
-			group->addAction(act);
+			group.data()->addAction(act);
 			menu->addAction(act);
 			connect(lower, SIGNAL(destroyed()), act, SLOT(deleteLater()));
 			connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
@@ -492,17 +521,17 @@ QMenu *ChatSessionImpl::menu()
 	//for JMessageSession
 	//FIXME maybe need to move to the protocols
 	//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
-	ChatUnit *unit = d->chatUnit;
+	ChatUnit *unit = d->chatUnit.data();
 	if (!d->menu && qobject_cast<Conference*>(unit) == 0) {
 		d->menu = new QMenu();
 		if (!d->group) {
-			d->group = new QActionGroup(d->menu);
-			d->group->setExclusive(true);
+			d->group = new QActionGroup(d->menu.data());
+			d->group.data()->setExclusive(true);
 		}
-		d->fillMenu(d->menu, unit, unit->lowerUnits());
+		d->fillMenu(d->menu.data(), unit, unit->lowerUnits());
 		connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), d, SLOT(onLowerUnitAdded()));
 	}
-	return d->menu;
+	return d->menu.data();
 }
 
 ChatState ChatSessionImpl::getChatState() const

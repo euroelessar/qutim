@@ -27,7 +27,7 @@
 
 #include <QTabBar>
 #include <QMouseEvent>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/chatunit.h>
 
 namespace Core

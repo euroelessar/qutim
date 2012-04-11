@@ -33,9 +33,7 @@
 
 void HistoryManagerPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-		QT_TRANSLATE_NOOP("Task", "Author"),
-		QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "HistMan"),
 			QT_TRANSLATE_NOOP("Plugin", "Plugin makes possible to import history to qutIM from different messengers"),
 			PLUGIN_VERSION(0, 2, 0, 0),
@@ -64,7 +62,7 @@ void HistoryManagerPlugin::createWidget()
 {
 	if(!m_widget) {
 		m_widget = new HistoryManager::HistoryManagerWindow();
-		m_widget->show();
+		m_widget.data()->show();
 	}
 }
 

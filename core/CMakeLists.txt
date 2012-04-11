@@ -5,9 +5,9 @@ ENDIF(COMMAND cmake_policy)
 PROJECT(qutim)
 
 set(CMAKE_QUTIM_VERSION_MAJOR    0  CACHE INT "Major qutIM version number" FORCE)
-set(CMAKE_QUTIM_VERSION_MINOR    2  CACHE INT "Minor qutIM version number" FORCE)
-set(CMAKE_QUTIM_VERSION_SECMINOR 80 CACHE INT "Secminor qutIM version number" FORCE)
-set(CMAKE_QUTIM_VERSION_PATCH    1  CACHE INT "Release qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_MINOR    3  CACHE INT "Minor qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_SECMINOR 0 CACHE INT "Secminor qutIM version number" FORCE)
+set(CMAKE_QUTIM_VERSION_PATCH    0  CACHE INT "Release qutIM version number" FORCE)
 set(CMAKE_QUTIM_VERSION_STRING "${CMAKE_QUTIM_VERSION_MAJOR}.${CMAKE_QUTIM_VERSION_MINOR}.${CMAKE_QUTIM_VERSION_SECMINOR}.${CMAKE_QUTIM_VERSION_PATCH}" CACHE STRING "qutIM version string" FORCE)
 
 ADD_DEFINITIONS(-DLIBQUTIM_LIBRARY)
@@ -97,8 +97,16 @@ SET(RESOURCES
 
 #TODO fix in future
 if(MINGW)
-	find_program( MINGW_WINDRES NAMES "mingw32-windres" "windres" )
-	execute_process( COMMAND "${MINGW_WINDRES}"
+	if( NOT CMAKE_RC_COMPILER )
+		find_program( CMAKE_RC_COMPILER NAMES "mingw32-windres" "windres" )
+	endif()
+
+	if( NOT CMAKE_RC_COMPILER )
+		message("No RC compiler (windres) found.")
+		return()
+	endif()
+
+	execute_process( COMMAND "${CMAKE_RC_COMPILER}"
 		"-i" "${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc" "-o" "${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o" )
 	LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
@@ -184,13 +192,12 @@ if( MAEMO6 )
 	INCLUDE_DIRECTORIES (${QDECLARATIVE_BOOSTABLE_INCLUDE_DIRS})
 endif()
 
-
-
 QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
-	"Single profil by default" 
+	"Single profile by default" 
 	"qutIM will be compiled without multiply profiles by default"
 	ON
 )
+
 IF(APPLE)
         set(DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
         IF(NOT CMAKE_BUILD_TYPE)
@@ -294,6 +301,7 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 	_mac_deploy_plugin(imageformats qmng)
 
 	_mac_deploy_plugin(crypto qca-ossl)
+	_mac_deploy_plugin(crypto qca-cyrus-sasl)
 
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
@@ -394,8 +402,8 @@ IF(WIN32)
 		endif()
 ENDIF(WIN32)
 
-option(CREATE_BUNDLE "Create application bundle for qutIM")
-if(CREATE_BUNDLE)
+if(QUTIM_CREATE_BUNDLE)
+    include(InstallRequiredSystemLibraries)
     include(QtBundleUtils)
     define_bundle_paths(qutim)
     set(APPS ${BUNDLE_PATH})

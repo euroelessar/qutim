@@ -100,9 +100,9 @@ SettingsWidget *SettingsItem::widget() const
 	if(d->gen && d->widget.isNull()) {
 		d->widget = d->gen->generate<SettingsWidget>();
 		foreach (const ConnectInfo &info, d->connections)
-			QObject::connect(d->widget, info.signal, info.receiver, info.member);
+			QObject::connect(d->widget.data(), info.signal, info.receiver.data(), info.member);
 	}
-	return d->widget;
+	return d->widget.data();
 }
 
 void SettingsItem::clearWidget()
@@ -116,6 +116,16 @@ void SettingsItem::connect(const char *signal, QObject *receiver, const char *me
 {
 	Q_ASSERT(signal && receiver && member);
 	d_func()->connections << ConnectInfo(signal, receiver, member);
+}
+
+int SettingsItem::order() const
+{
+	return d_func()->order;
+}
+
+void SettingsItem::setOrder(int order)
+{
+	d_func()->order = order;
 }
 
 AutoSettingsWidget::AutoSettingsWidget(AutoSettingsItemPrivate *pr) : p(pr), g(new AutoSettingsWidgetPrivate)

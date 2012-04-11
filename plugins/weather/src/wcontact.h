@@ -31,7 +31,7 @@
 #include <qutim/contact.h>
 #include <qutim/icon.h>
 #include <qutim/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/tooltip.h>
 
 #include "wmanager.h"

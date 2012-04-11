@@ -30,7 +30,7 @@
 #include <QtEndian>
 #include <QEventLoop>
 #include <QTimer>
-#include <QDebug>
+#include <qutim/debug.h>
 
 namespace Core
 {
@@ -82,19 +82,19 @@ void MultimediaSound::play()
 
         in >> riffId >> riffLength >> waveId >> waveFmt >> waveLength;
         if (riffId != RIFF_str || waveId != WAVE_str || waveFmt != fmt_str) {
-            qWarning() << m_filename << "is not valid WAV file";
+			warning() << m_filename << "is not valid WAV file";
             return;
         }
 
         in >> type >> channels >> frequency >> bytesPerSec >> align >> bitsPerSample;
         in.skipRawData(waveLength - 16);
         if (type != 1) {
-            qWarning("Unsupported WAV compression type: 0x%s", qPrintable(QString::number(type, 16)));
+			warning() << QString("Unsupported WAV compression type: 0x%1").arg(QString::number(type, 16));
             return;
         }
         in >> dataId >> dataSize;
         if (dataId != data_str) {
-            qWarning() << m_filename << "is not valid WAV file";
+			warning() << m_filename << "is not valid WAV file";
             return;
         }
     }
@@ -109,7 +109,7 @@ void MultimediaSound::play()
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 
     if (!info.isFormatSupported(format)) {
-        qWarning() << "Audio format not supported by backend, cannot play audio";
+		warning() << "Audio format not supported by backend, cannot play audio";
         return;
     }
     QAudioOutput *audio = new QAudioOutput(info, format, this);

@@ -37,7 +37,7 @@ namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-static QString toString(Notification::Type type)
+static QString toString(Notification::Type type, const QString &argument)
 {
 	QString title;
 	switch(type) {
@@ -51,6 +51,8 @@ static QString toString(Notification::Type type)
 		break;
 	case Notification::AppStartup:
 		title = QObject::tr("qutIM launched");
+		// We don't have place for argument
+		return title;
 		break;
 	case Notification::BlockedMessage:
 		title = QObject::tr("Blocked message from %1");
@@ -80,13 +82,17 @@ static QString toString(Notification::Type type)
 	case Notification::System:
 	default:
 		title = QObject::tr("System notify");
+		// We don't have place for argument
+		return title;
 	}
-	return title;
+	return title.arg(argument);
 }
 
 static inline ChatUnit *getUnitForSession(QObject *obj)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+	if (ChatUnit *contact = unit->metaContact())
+			unit = contact;
 	return unit ? unit->account()->getUnitForSession(unit) : 0;
 }
 
@@ -115,7 +121,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	QString sender_name = request.property("senderName", QString());
 	QObject *sender = request.object();
 	if (!sender) {
-		request.setTitle(toString(reqType).arg(sender_name));
+		request.setTitle(toString(reqType, sender_name));
 		return;
 	}
 
@@ -127,7 +133,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 			if(sender_name.isEmpty())
 				sender_name = sender->property("id").toString();
 		}
-		QString title = toString(request.type()).arg(sender_name);
+		QString title = toString(request.type(), sender_name);
 		if (reqType == Notification::UserChangedStatus) {
 			Status status = request.property("status", Status());
 			title = title.arg(status.name().toString());
@@ -223,7 +229,7 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 
 void NotificationFilterImpl::onOpenChatClicked(const NotificationRequest &request)
 {
-	ChatUnit *unit = qobject_cast<ChatUnit*>(request.object());
+	ChatUnit *unit = getUnitForSession(request.object());
 	if (!unit)
 		return;
 	ChatSession *session = ChatLayer::get(unit);
@@ -236,7 +242,7 @@ void NotificationFilterImpl::onIgnoreChatClicked(const NotificationRequest &requ
 	QVariant msgVar = request.property("message", QVariant());
 	if (msgVar.isNull())
 		return;
-	ChatUnit *unit = qobject_cast<ChatUnit*>(request.object());
+	ChatUnit *unit = getUnitForSession(request.object());
 	if (!unit)
 		return;
 	ChatSession *session = ChatLayer::get(unit, false);
@@ -256,8 +262,10 @@ void NotificationFilterImpl::onSessionActivated(bool active)
 	ChatSession *session = sender_cast<ChatSession*>(sender());
 	ChatUnit *unit = getUnitForSession(session->unit());
 	if (unit) {
-		foreach (Notification *notification, m_notifications.values(unit))
-			notification->reject();
+		foreach (const QWeakPointer<Notification> &notification, m_notifications.values(unit)) {
+			if (notification)
+				notification.data()->reject();
+		}
 		m_notifications.remove(unit);
 		disconnect(unit, 0, this, 0);
 	}

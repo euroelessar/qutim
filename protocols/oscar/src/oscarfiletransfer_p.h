@@ -34,7 +34,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTcpServer>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QHostInfo>
 #include <QThread>
 
@@ -135,7 +135,7 @@ public slots:
 protected:
 	void connectToProxy(const QHostAddress &address, quint16 port);
 private slots:
-	void readData();
+	void onReadyRead();
 	void connected();
 	void disconnected();
 	void onTimeout();
@@ -229,12 +229,12 @@ private slots:
 private:
 	friend class OftServer;
 	friend class OftFileTransferFactory;
-	QPointer<OftSocket> m_socket;
-	QPointer<OftServer> m_server;
+	QWeakPointer<OftSocket> m_socket;
+	QWeakPointer<OftServer> m_server;
 	QScopedPointer<QIODevice> m_data;
 	OftFileTransferFactory *m_transfer;
-	QPointer<IcqContact> m_contact;
-	QPointer<IcqAccount> m_account;
+	QWeakPointer<IcqContact> m_contact;
+	QWeakPointer<IcqAccount> m_account;
 	quint64 m_cookie;
 	quint16 m_stage;
 	bool m_proxy;

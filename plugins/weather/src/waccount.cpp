@@ -212,7 +212,7 @@ void WAccount::fillStrings(QString &text, QString &html, const QDomElement &elem
 	if (key != QLatin1String("%%")) {
 		text.replace(key, element.text());
 		html.replace(key, Qt::escape(element.text()));
-		qDebug() << key;
+		debug() << key;
 	}
 	key.chop(1);
 	
@@ -223,7 +223,7 @@ void WAccount::fillStrings(QString &text, QString &html, const QDomElement &elem
 		        % QLatin1Char('/')
 		        % attribute.nodeName()
 		        % QLatin1Char('%');
-		qDebug() << attributeKey;
+		debug() << attributeKey;
 		text.replace(attributeKey, attribute.nodeValue());
 		html.replace(attributeKey, Qt::escape(attribute.nodeValue()));
 	}

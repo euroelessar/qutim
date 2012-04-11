@@ -123,13 +123,13 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 #endif
 		m_cursor = textEdit->cursorForPosition(pos);
 	} else if (QTextEdit *tmp = qobject_cast<QTextEdit*>(object)) {
-		globalPos = textEdit->mapToGlobal(pos);
+		globalPos = tmp->mapToGlobal(pos);
 #ifdef Q_WS_MAEMO_5
 		menu = new QMenu();
 #else
 		menu = tmp->createStandardContextMenu(globalPos);
 #endif
-		m_cursor = textEdit->cursorForPosition(pos);
+		m_cursor = tmp->cursorForPosition(pos);
 	} else {
 		Q_ASSERT(!"Unknown object type, check connection");
 		return;

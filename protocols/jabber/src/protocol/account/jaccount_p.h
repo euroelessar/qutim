@@ -34,6 +34,8 @@
 //#include <jreen/pubsubmanager.h>
 #include "../../sdk/jabber.h"
 #include <QSignalMapper>
+#include <QNetworkProxy>
+
 namespace Jreen
 {
 class Client;
@@ -51,6 +53,7 @@ public:
 	inline ~JAccountPrivate() {}
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
+	QNetworkProxy proxy;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;
@@ -62,6 +65,8 @@ public:
 	QString nick;
 	QString avatar;
 	QVariantMap parameters;
+	QString pgpKeyId;
+	QString currentPGPKeyId;
 	Status status;
 	bool hasChangedParameters;
 	bool isOnline;

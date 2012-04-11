@@ -35,7 +35,7 @@
 #include "floatingbutton.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/conference.h>
@@ -89,8 +89,9 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	m_chatWidget = new QWidget(m_stack);
 	setCentralWidget(m_stack);
-
-	QWidget *view = ChatViewFactory::instance()->createViewWidget();
+	
+	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
+	QWidget *view = factory->createViewWidget();
 	view->setFocusProxy(m_chatInput);
 
 	QScrollArea *chatViewScrollArea = new QScrollArea();
@@ -206,7 +207,7 @@ void StackedChatWidget::loadSettings()
 							 );
 
 		ConfigGroup keyGroup = cfg.group("keys");
-		qDebug() << "Load new settings" << keyGroup.childGroups();
+		debug() << "Load new settings" << keyGroup.childGroups();
 		if (keyGroup.hasChildGroup(m_key)) {
 			debug() << "load settings for key" << m_key;
 			keyGroup.beginGroup(m_key);
@@ -225,6 +226,7 @@ void StackedChatWidget::loadSettings()
 		setProperty("loaded",true);
 	}
 	m_chatInput->setSendKey(cfg.value("sendKey", SendEnter));
+	m_chatInput->setAutoResize(cfg.value("autoResize", false));
 }
 
 StackedChatWidget::~StackedChatWidget()
@@ -240,7 +242,7 @@ StackedChatWidget::~StackedChatWidget()
 	group.sync();
 }
 
-QPlainTextEdit *StackedChatWidget::getInputField() const
+QTextEdit *StackedChatWidget::getInputField() const
 {
 	return m_chatInput;
 }
@@ -313,13 +315,13 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	setTitle(session);
 
 	if(m_currentSession) {
-		if(m_currentSession == session) {
+		if(m_currentSession.data() == session) {
 			m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 			return;
 		}
-		m_currentSession->setActive(false);
+		m_currentSession.data()->setActive(false);
 	}
-	emit currentSessionChanged(session,m_currentSession);
+	emit currentSessionChanged(session,m_currentSession.data());
 	m_currentSession = session;
 
 	m_sessionList->setCurrentSession(session);

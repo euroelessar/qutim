@@ -48,7 +48,7 @@ namespace Core
 									const QIcon &icon = QIcon(),
 									QWidget *parent = 0);
 	private:
-		QPointer<AbstractSearchForm> m_contactSearchDialog;
+		QWeakPointer<AbstractSearchForm> m_contactSearchDialog;
 		QList<AbstractSearchFactory*> m_contactSearchFactories;
 	};
 

@@ -26,6 +26,7 @@
 #include "chatsessionimpl.h"
 #include <QDateTime>
 #include <QTextBlock>
+#include <QKeyEvent>
 #include <QTextDocumentFragment>
 #include <qutim/notification.h>
 #include <qutim/debug.h>
@@ -73,11 +74,12 @@ QString ChatEdit::textEditToPlainText()
 }
 
 ChatEdit::ChatEdit(QWidget *parent) :
-	QPlainTextEdit(parent),
-	m_session(0),
+	QTextEdit(parent),
 	m_sendKey(SendCtrlEnter)
 {
-	setMinimumHeight(QFontMetrics(font()).height()*2);
+	setMinimumHeight(QFontMetrics(font()).height() * 2);
+	setAcceptRichText(false);
+	m_autoResize = false;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
 
@@ -121,7 +123,7 @@ bool ChatEdit::event(QEvent *event)
 			m_entersCount = 0;
 		}
 	}
-	return QPlainTextEdit::event(event);
+	return QTextEdit::event(event);
 }
 
 void ChatEdit::send()
@@ -131,7 +133,7 @@ void ChatEdit::send()
 	if(!m_session || trimmed.isEmpty())
 		return;
 	
-	ChatUnit *unit = m_session->getCurrentUnit();
+	ChatUnit *unit = m_session.data()->getCurrentUnit();
 	if (trimmed.startsWith(QLatin1Char('/')) && trimmed.size() > 1) {
 		int index = trimmed.indexOf(QLatin1Char(' '));
 		QStringRef cmd = trimmed.midRef(1, (index == -1 ? trimmed.size() : index) - 1);
@@ -176,8 +178,9 @@ void ChatEdit::send()
 	message.setIncoming(false);
 	message.setChatUnit(unit);
 	message.setTime(QDateTime::currentDateTime());
+	MessageHandler::traceHandlers();
 
-	qint64 result = m_session->appendMessage(message);
+	qint64 result = m_session.data()->appendMessage(message);
 	if (MessageHandler::Error != -result)
 		clear();
 //	if (!unit->sendMessage(message)) {
@@ -196,17 +199,37 @@ void ChatEdit::onTextChanged()
 {
 	if(!m_session)
 		return;
+	if(m_autoResize) {
+		QFontMetrics fontHeight = fontMetrics();
+		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
+		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
+		debug() << "New docHeight is: " << docHeight;
+		if (docHeight == previousTextHeight)
+			return;
+
+		previousTextHeight = docHeight;
+		const int resHeight = qMin(window()->height() / 3, qMax(docHeight, fontHeight.height()));
+		setMinimumHeight(resHeight);
+		setMaximumHeight(resHeight);
+	}
 
 	QString text = textEditToPlainText();
 	if(!m_session || text.trimmed().isEmpty())
-		m_session->setChatState(ChatStateActive);
+		m_session.data()->setChatState(ChatStateActive);
 	else
-		m_session->setChatState(ChatStateComposing);
+		m_session.data()->setChatState(ChatStateComposing);
 }
 
 void ChatEdit::setSendKey(SendMessageKey key)
 {
 	m_sendKey = key;
+}
+
+void ChatEdit::setAutoResize(bool resize)
+{
+	if(!resize)
+		setMaximumHeight(QWIDGETSIZE_MAX);
+	m_autoResize = resize;
 }
 
 }

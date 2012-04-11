@@ -35,7 +35,7 @@
 #include <QInputDialog>
 #include <qutim/message.h>
 #include <QDateTime>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "vmessages.h"
 #include "vconnection.h"
 #include <qutim/settingslayer.h>
@@ -57,22 +57,22 @@ VkontakteProtocol::~VkontakteProtocol()
 	delete m_mainSettings;
 	m_mainSettings = 0;
 
-	foreach (VAccount *acc, *d_func()->accounts)
-		acc->saveSettings();
+	foreach (VAccount *account, d_func()->accounts)
+		account->saveSettings();
 	self = 0;
 }
 
 Account* VkontakteProtocol::account(const QString& id) const
 {
 	Q_D(const VkontakteProtocol);
-	return d->accounts_hash->value(id);
+	return d->accounts.value(id);
 }
 QList< Account* > VkontakteProtocol::accounts() const
 {
 	Q_D(const VkontakteProtocol);
-	QList<Account *> accounts;
-	QHash<QString, QPointer<VAccount> >::const_iterator it;
-	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
+	AccountList accounts;
+	VAccountHash::const_iterator it;
+	for (it = d->accounts.begin(); it != d->accounts.end(); it++)
 		accounts.append(it.value());
 	return accounts;
 
@@ -82,7 +82,7 @@ void VkontakteProtocol::loadAccounts()
 	Q_D(VkontakteProtocol);
 	QList<Status> statuses;
 	statuses << Status(Status::Online)
-			<< Status(Status::Offline);
+			 << Status(Status::Offline);
 	foreach (Status status, statuses) {
 		status.initIcon("vkontakte");
 		Status::remember(status, "vkontakte");
@@ -104,11 +104,11 @@ void VkontakteProtocol::loadAccounts()
 //	MenuController::addAction<VContact>(&sms_gen);
 
 	QStringList accounts = config("general").value("accounts", QStringList());
-	foreach(const QString &uid, accounts) {
-		VAccount *acc = new VAccount(uid,this);
-		d->accounts_hash->insert(uid, acc);
+	foreach (const QString &uid, accounts) {
+		VAccount *acc = new VAccount(uid, this);
+		d->accounts.insert(uid, acc);
 		acc->loadSettings();
-		connect(acc,SIGNAL(destroyed(QObject*)),d,SLOT(onAccountDestroyed(QObject*)));
+		connect(acc, SIGNAL(destroyed(QObject*)), d, SLOT(onAccountDestroyed(QObject*)));
 		emit accountCreated(acc);
 	}
 
@@ -130,8 +130,8 @@ QVariant VkontakteProtocol::data(DataType type)
 
 void VkontakteProtocolPrivate::onAccountDestroyed(QObject *obj)
 {
-	VAccount *acc = reinterpret_cast<VAccount*>(obj);
-	accounts->remove(accounts->key(acc));
+	VAccount *account = static_cast<VAccount*>(obj);
+	accounts.remove(accounts.key(account));
 }
 
 void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)

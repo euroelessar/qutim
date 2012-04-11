@@ -26,7 +26,7 @@
 #include "rosterstorage.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3
 {

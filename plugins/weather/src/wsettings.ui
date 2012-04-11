@@ -57,112 +57,55 @@
       <attribute name="title">
        <string>Settings</string>
       </attribute>
-      <widget class="QLabel" name="intervalLabel">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>4</y>
-         <width>87</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Refresh period:</string>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="intervalBox">
-       <property name="geometry">
-        <rect>
-         <x>304</x>
-         <y>4</y>
-         <width>71</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="suffix">
-        <string>min.</string>
-       </property>
-       <property name="minimum">
-        <number>25</number>
-       </property>
-       <property name="maximum">
-        <number>3600</number>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="showStatusBox">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>31</y>
-         <width>205</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Show weather in the status row</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QRadioButton" name="useDefaultTheme">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>56</y>
-         <width>131</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Use default theme</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QRadioButton" name="useCustomTheme">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>81</y>
-         <width>137</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Use custom theme:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="themePath">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>106</y>
-         <width>112</width>
-         <height>23</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="chooseButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>304</x>
-         <y>106</y>
-         <width>77</width>
-         <height>24</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Choose...</string>
-       </property>
-      </widget>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Theme name:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="themeNameBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="intervalBox">
+         <property name="suffix">
+          <string>min.</string>
+         </property>
+         <property name="minimum">
+          <number>25</number>
+         </property>
+         <property name="maximum">
+          <number>3600</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="intervalLabel">
+         <property name="text">
+          <string>Refresh period:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="showStatusBox">
+         <property name="text">
+          <string>Show weather in the status row</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="aboutTab">
       <attribute name="title">
@@ -199,40 +142,7 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>useDefaultTheme</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>themePath</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>171</x>
-     <y>97</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>154</x>
-     <y>145</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useDefaultTheme</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>chooseButton</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>171</x>
-     <y>97</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>333</x>
-     <y>146</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>testclick()</slot>
  </slots>

@@ -47,6 +47,7 @@ enum { ItemRole = Qt::UserRole + 1};
 
 JServiceBrowserModule::JServiceBrowserModule()
 {
+	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("Menu", "Additional"));
 	m_account = 0;
 }
 
@@ -164,7 +165,7 @@ void JServiceBrowser::getItems(QTreeWidgetItem *item)
 {
 	Jreen::Disco::Item di = item->data(0, ItemRole).value<Jreen::Disco::Item>();
 	if (!item->childCount() && (di.actions() & Jreen::Disco::Item::ActionExpand)) {
-		Jreen::DiscoReply *reply = p->disco->requestInfo(di);
+		Jreen::DiscoReply *reply = p->disco->requestItems(di);
 		reply->setProperty("item", qVariantFromValue(item));
 		p->cleanupHandler.add(reply);
 		connect(reply, SIGNAL(itemsReceived(Jreen::Disco::ItemList)),

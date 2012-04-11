@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -27,7 +27,7 @@
 #define QUICKCHATVIEWWIDGET_H
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <QWebView>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeItem;
 

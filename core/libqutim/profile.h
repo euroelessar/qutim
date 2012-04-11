@@ -48,7 +48,9 @@ public:
 	
 public slots:
 	QString configPath();
+	QString configPath(bool *isSystem);
 	bool acceptData(const QVariantMap &profilesData, const QString &password, QString *error = NULL);
+	bool acceptData(const QVariantMap &profilesData, const QString &password, bool checkHash, QString *error = NULL);
 
 signals:
 	void error(const QString &text);

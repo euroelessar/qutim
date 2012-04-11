@@ -27,6 +27,7 @@
 
 #include "modulemanager.h"
 #include "protocol.h"
+#include "../3rdparty/qtsolutions/qtlocalpeer.h"
 #include <QSet>
 
 namespace qutim_sdk_0_3
@@ -58,18 +59,17 @@ class ModuleManagerPrivate
 public:
 	inline ModuleManagerPrivate() :
 			is_inited(false),
-			isServicesInited(false),
-			protocols_hash(new QHash<QString, QPointer<Protocol> >())
+            isServicesInited(false)
 	{}
-	inline ~ModuleManagerPrivate() { delete protocols_hash; }
-	QList<QPointer<Plugin> > plugins;
+    inline ~ModuleManagerPrivate() {}
+	void initLocalPeer(const QString &message, bool *shouldExit);
+
+    QList<QWeakPointer<Plugin> > plugins;
+	QScopedPointer<QtLocalPeer> localPeer;
 	bool is_inited;
 	bool isServicesInited;
-	union { // This union is intended to be used as reinterpret_cast =)
-		QHash<QString, QPointer<Protocol> > *protocols_hash;
-		QHash<QString, Protocol *> *protocols;
-	};
-	QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
+    ProtocolHash protocols;
+    QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 	QHash<QByteArray, QObject *> services;
 	QObjectList serviceOrder;
 	QHash<QByteArray, ExtensionInfo> extensionsHash;
@@ -94,7 +94,7 @@ protected:
 
 bool isCoreInited();
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid);
-ProtocolMap allProtocols();
+ProtocolHash allProtocols();
 
 }
 

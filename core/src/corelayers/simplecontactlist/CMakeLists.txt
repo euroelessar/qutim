@@ -5,7 +5,7 @@ qutim_add_plugin(simplecontactlist
 	EXTENSION_HEADER contactlist/simplecontactlist.h
 	EXTENSION_CLASS Core::SimpleContactList::Module
 	SOURCE_DIR contactlist
-	DISPLAY_NAME "Simple ContactList"
+	DISPLAY_NAME "Simple contact list"
 	DESCRIPTION "Default qutIM contact list implementation. Just simple"
 	COMPILE_FLAGS "-DSIMPLECONTACTLIST_LIBRARY"
 )
@@ -13,8 +13,8 @@ qutim_add_plugin(simplecontactlist
 qutim_add_plugin(simplecontactdelegate
 	SUBPLUGIN
 	SOURCE_DIR simplecontactdelegate
-	DISPLAY_NAME "ContactDelegate"
-	DESCRIPTION "Just simple"
+	DISPLAY_NAME "Contact delegate"
+	DESCRIPTION "Default contact delegate. Just simple"
 	DEPENDS simplecontactlist
 	LINK_LIBRARIES simplecontactlist
 )
@@ -26,7 +26,12 @@ set(DEVEL_HEADERS
 	contactlist/simplestatusdialog.h
 	contactlist/simplecontactlist.h
 	contactlist/simplecontactlistsettings.h
+	contactlist/simplecontactlistitem.h
 	contactlist/lineedit.h
+)
+install(FILES ${DEVEL_HEADERS}
+	DESTINATION include/qutim/simplecontactlist
+	COMPONENT CoreDevel
 )
 qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
 

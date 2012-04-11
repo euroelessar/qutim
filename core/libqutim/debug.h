@@ -30,10 +30,6 @@
 #include <QDebug>
 #include "libqutim_global.h"
 
-//#if !(defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE))
-//extern qptrdiff qutim_plugin_id();
-//#endif
-
 namespace qutim_sdk_0_3
 {
 	enum DebugLevel
@@ -41,53 +37,36 @@ namespace qutim_sdk_0_3
 		DebugInfo = 0,
 		DebugVerbose,
 		DebugVeryVerbose
-#if 1
-		,
-		Info = DebugInfo,
-		Verbose = DebugVerbose,
-		VeryVerbose = DebugVeryVerbose
-#endif
 	};
 
 	LIBQUTIM_EXPORT QDebug debug_helper(quint64, DebugLevel, QtMsgType);
-//	LIBQUTIM_EXPORT qptrdiff debug_area_helper(const char *str);
+	LIBQUTIM_EXPORT void debugAddPluginId(quint64, const QMetaObject *meta);
 	LIBQUTIM_EXPORT void debugClearConfig();
-    
-//#ifndef QUTIM_DEBUG_AREA
-//#if defined (LIBQUTIM_LIBRARY)
-//# define QUTIM_DEBUG_AREA "libqutim"
-//#elif defined (QUTIM_CORE)
-//# define QUTIM_DEBUG_AREA "core"
-//#else
-//# define QUTIM_DEBUG_AREA ""
-//#endif
-//	
-//	inline qptrdiff debug_area(const char *str)
-//	{
-//		static qptrdiff area = debug_area_helper(str);
-//		return area;
-//	}
 
-#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE) || 1
-	inline QDebug debug(DebugLevel level = Info)
+#ifndef QUTIM_PLUGIN_ID
+	inline QDebug debug(DebugLevel level = DebugInfo)
 	{ return debug_helper(0, level, QtDebugMsg); }
-	inline QDebug warning(DebugLevel level = Info)
+	inline QDebug warning(DebugLevel level = DebugInfo)
 	{ return debug_helper(0, level, QtWarningMsg); }
-	inline QDebug critical(DebugLevel level = Info)
+	inline QDebug critical(DebugLevel level = DebugInfo)
 	{ return debug_helper(0, level, QtCriticalMsg); }
-	inline QDebug fatal(DebugLevel level = Info)
+	inline QDebug fatal(DebugLevel level = DebugInfo)
 	{ return debug_helper(0, level, QtFatalMsg); }
 #else
+# define QUTIM_DEBUG_ID_CONVERT_HELPER(A) 0x ## A ## ULL
+# define QUTIM_DEBUG_ID_CONVERT(A) QUTIM_DEBUG_ID_CONVERT_HELPER(A)
 	inline quint64 qutim_plugin_id()
-	{ return Q_UINT64_C(QUTIM_PLUGIN_ID); }
-	inline QDebug debug(DebugLevel level = Info)
+	{ return QUTIM_DEBUG_ID_CONVERT(QUTIM_PLUGIN_ID); }
+	inline QDebug debug(DebugLevel level = DebugInfo)
 	{ return debug_helper(qutim_plugin_id(), level, QtDebugMsg); }
-	inline QDebug warning(DebugLevel level = Info)
+	inline QDebug warning(DebugLevel level = DebugInfo)
 	{ return debug_helper(qutim_plugin_id(), level, QtWarningMsg); }
-	inline QDebug critical(DebugLevel level = Info)
+	inline QDebug critical(DebugLevel level = DebugInfo)
 	{ return debug_helper(qutim_plugin_id(), level, QtCriticalMsg); }
-	inline QDebug fatal(DebugLevel level = Info)
+	inline QDebug fatal(DebugLevel level = DebugInfo)
 	{ return debug_helper(qutim_plugin_id(), level, QtFatalMsg); }
+# undef QUTIM_DEBUG_ID_CONVERT_HELPER
+# undef QUTIM_DEBUG_ID_CONVERT
 #endif
 }
 #endif // DEBUG_H

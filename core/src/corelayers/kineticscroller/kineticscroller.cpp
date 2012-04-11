@@ -69,9 +69,11 @@ void KineticScroller::enableScrolling(QObject *widget)
 	m_widgets.insert(widget);
 	connect(widget, SIGNAL(destroyed(QObject*)), SLOT(onWidgetDeath(QObject*)));
 	if (m_scrollingType != -1) {
-		QtScroller::grabGesture(widget, static_cast<QtScroller::ScrollerGestureType>(m_scrollingType));
-		if (QAbstractItemView *view = qobject_cast<QAbstractItemView*>(widget->parent()))
+		if (QAbstractItemView *view = qobject_cast<QAbstractItemView*>(widget->parent())) {
 			view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+			view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+		}
+		QtScroller::grabGesture(widget, static_cast<QtScroller::ScrollerGestureType>(m_scrollingType));
 	}
 }
 

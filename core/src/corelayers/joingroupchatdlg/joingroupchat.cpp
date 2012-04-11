@@ -39,7 +39,7 @@
 #include <QCommandLinkButton>
 #include <QLatin1Literal>
 #include <qutim/icon.h>
-#include <itemdelegate.h>
+#include <qutim/itemdelegate.h>
 #include "joinpage.h"
 #include <qutim/servicemanager.h>
 

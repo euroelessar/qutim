@@ -51,10 +51,10 @@ AWNService::AWNService()
         QDBusReply<QStringList> r;
         r = mes;
         m_capabilities = r.value();
-        qDebug() << "[AWN] dock capabilities: " << m_capabilities;
+		debug() << "[AWN] dock capabilities: " << m_capabilities;
     }
 	else {
-        qDebug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
+		debug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
         return;
     }
     if(! m_capabilities.contains("dock-item-icon-file")  ||
@@ -124,7 +124,7 @@ bool AWNService::eventFilter(QObject *o, QEvent *event)
         qlonglong xid = w->effectiveWinId();
         QDBusMessage mes = m_awn->call("GetItemByXid",xid);
         if(mes.type()!=QDBusMessage::ReplyMessage)
-            qDebug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
+			debug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
         else
         {
             QDBusReply<QDBusObjectPath> r;
@@ -249,7 +249,7 @@ int AWNService::addDockMenu(QString caption, QString icon_name, QString containe
         m_menus << r.value();
         return r.value();
     }
-    qDebug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
+	debug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
     return -1;
 }
 
@@ -259,7 +259,7 @@ void AWNService::removeDockMenu(int id)
         return;
     QDBusMessage mes = m_item->call("RemoveMenuItem",id);
     if(mes.type()==QDBusMessage::ErrorMessage)
-        qDebug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
+		debug() << "[AWN] error: " << mes.errorName() << " : " << mes.errorMessage();
     else
         m_menus.removeAll(id);
 }
@@ -278,7 +278,7 @@ void AWNService::setItem(QDBusObjectPath item_path)
                                           this,
                                           SLOT(onMenuItemActivated(int)));
     qApp->removeEventFilter(this);
-    qDebug() << "[AWN] finds item path: " << item_path.path();
+	debug() << "[AWN] finds item path: " << item_path.path();
     m_showhide_menu = addDockMenu(tr("Show/Hide"),"view-refresh");
     m_readall_menu = addDockMenu(tr("Read all messages"),"mail-unread-new");
     m_online_menu = addDockMenu(tr("Go online"),"user-online");
@@ -355,14 +355,14 @@ void AWNService::onMenuItemActivated(int id)
     }
     else
     {
-        qDebug() << "[AWN] unknown menu item, RIP";
+		debug() << "[AWN] unknown menu item, RIP";
         removeDockMenu(id);
     }
 }
 
 void AWNService::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
-    qDebug() << "[AWN] account created: " << account->name();
+	debug() << "[AWN] account created: " << account->name();
     if (m_accounts.contains(account))
         return;
     m_accounts << account;

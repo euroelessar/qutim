@@ -32,15 +32,17 @@ class QDeclarativeEngine;
 
 namespace qutim_sdk_0_3
 {
-	class ScriptTools
-	{
-	public:
-		static void prepareEngine(QScriptEngine *engine);
-		static void prepareEngine(QDeclarativeEngine *engine);
-	private:
-		ScriptTools();
-		~ScriptTools();
-	};
+class LIBQUTIM_EXPORT ScriptTools
+{
+public:
+	static QScriptEngine *engineInstance();
+	//		QDeclarativeEngine *declarativeEngineInstance();
+	static void prepareEngine(QScriptEngine *engine);
+	static void prepareEngine(QDeclarativeEngine *engine);
+private:
+	ScriptTools();
+	~ScriptTools();
+};
 }
 
 #endif // SCRIPTTOOLS_H

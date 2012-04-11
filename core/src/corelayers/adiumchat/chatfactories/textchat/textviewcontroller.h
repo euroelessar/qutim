@@ -30,7 +30,7 @@
 #include <QTextDocument>
 #include <QTextBrowser>
 #include <QCache>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QDateTime>
 #include <QTextObjectInterface>
 #include <QMovie>
@@ -67,8 +67,8 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 public:
     TextViewController();
 	virtual ~TextViewController();
-	virtual void setChatSession(ChatSessionImpl *session);
-	virtual ChatSessionImpl *getSession() const;
+	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
+	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
@@ -98,12 +98,11 @@ private:
 	QString makeName(const qutim_sdk_0_3::Message &mes);
 	bool shouldBreak(const QDateTime &time);
 	
-	QPointer<QTextBrowser> m_textEdit;
-	ChatSessionImpl *m_session;
+	QWeakPointer<QTextBrowser> m_textEdit;
+	qutim_sdk_0_3::ChatSession *m_session;
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;
-	QString m_lastIncomingMessage;
 	bool m_isLastIncoming;
 	bool m_animateEmoticons;
 	bool m_atAnimation;
@@ -111,6 +110,7 @@ private:
 	int m_scrollBarPosition;
 	int m_bulletSize;
 	QFont m_font;
+	QColor m_backgroundColor;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;

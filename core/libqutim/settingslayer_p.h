@@ -32,6 +32,8 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMultiMap>
+#include <QWeakPointer>
+#include "debug.h"
 
 class QLineEdit;
 namespace qutim_sdk_0_3
@@ -40,20 +42,21 @@ struct ConnectInfo
 {
 	ConnectInfo(const char *s, QObject *r, const char *m) : signal(s), receiver(r), member(m) {}
 	QByteArray signal;
-	QPointer<QObject> receiver;
+	QWeakPointer<QObject> receiver;
 	QByteArray member;
 };
 
 class SettingsItemPrivate
 {
 public:
-	SettingsItemPrivate() : gen(0), type(Settings::Invalid),priority(50) {}
+	SettingsItemPrivate() : gen(0), type(Settings::Invalid),order(50),priority(50) {}
 	mutable const ObjectGenerator *gen;
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-	mutable QPointer<SettingsWidget> widget;
+	mutable QWeakPointer<SettingsWidget> widget;
 	QList<ConnectInfo> connections;
+	int order;
 	int priority;
 };
 
@@ -105,7 +108,7 @@ protected:
 	virtual ~AutoSettingsGenerator() {}
 	virtual QObject *generateHelper() const
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		if(m_object.isNull())
 			m_object = new AutoSettingsWidget(p);
 		return m_object.data();
@@ -116,7 +119,7 @@ protected:
 	}
 private:
 	AutoSettingsItemPrivate *p;
-	mutable QPointer<QObject> m_object;
+	mutable QWeakPointer<QObject> m_object;
 };
 
 class AutoSettingsFileChooser;
@@ -164,7 +167,7 @@ protected:
 	virtual ~DataSettingsGenerator() {}
 	virtual QObject *generateHelper() const
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		if(m_object.isNull())
 			m_object = new DataSettingsWidget(p);
 		return m_object.data();
@@ -175,7 +178,7 @@ protected:
 	}
 private:
 	DataSettingsItemPrivate *p;
-	mutable QPointer<QObject> m_object;
+	mutable QWeakPointer<QObject> m_object;
 };
 
 typedef QMultiMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;

@@ -31,13 +31,14 @@
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <QStringBuilder>
-#include "itemdelegate.h"
+#include <qutim/itemdelegate.h>
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <qutim/configbase.h>
 #include <qutim/notification.h>
 #include <qutim/plugin.h>
 #include <qutim/protocol.h>
+#include <QRegExp>
 
 namespace Core
 {
@@ -46,13 +47,18 @@ PluginChooserWidget::PluginChooserWidget() :
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
-	ui->treeView->setModel(m_model);
+	m_proxymodel = new SimpleFilterProxyModel(this);
+	m_proxymodel->setSourceModel(m_model);
+	m_proxymodel->setFilterKeyColumn(-1);
+	m_proxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	ui->treeView->setModel(m_proxymodel);
 	ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 	ui->treeView->setIndentation(0);
 
-	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
+	connect(m_model, SIGNAL(itemChanged(QStandardItem*)), SLOT(onItemChanged(QStandardItem*)));
+	connect(ui->search, SIGNAL(textChanged(QString)), this, SLOT(filterPlugins(QString)));
 #ifdef Q_WS_S60
-	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
+	connect(ui->treeView, SIGNAL(clicked(QModelIndex)), SLOT(onItemClicked(QModelIndex)));
 #endif
 }
 PluginChooserWidget::~PluginChooserWidget()
@@ -66,14 +72,12 @@ void PluginChooserWidget::loadImpl()
 	Config group = Config().group("plugins/list");
 	QStandardItem *parent_item = m_model->invisibleRootItem();
 
-	QList<QPointer<Plugin> > plugins = pluginsList();
+    QList<QWeakPointer<Plugin> > plugins = pluginsList();
 	QStringList helper;
-	for (int i = 0; i < plugins.size(); i++)
-	{
-		const PluginInfo &info = plugins.at(i)->info();
-		QLatin1String class_name(plugins.at(i)->metaObject()->className());
-		if (!m_plugin_items.contains(info.name()))
-		{
+    for (int i = 0; i < plugins.size(); i++) {
+        const PluginInfo &info = plugins.at(i).data()->info();
+        QLatin1String class_name(plugins.at(i).data()->metaObject()->className());
+        if (!m_plugin_items.contains(info.name())) {
 			QIcon icon = info.icon();
 			if (icon.isNull() || !icon.availableSizes().count())
 				icon = Icon("applications-system");
@@ -88,7 +92,7 @@ void PluginChooserWidget::loadImpl()
 			item->setCheckState((group.value(class_name, true) ? Qt::Checked : Qt::Unchecked));
 			parent_item->insertRow(index, item);
 			m_plugin_items.insert(class_name, item);
-			m_plugins.insert(class_name, plugins.at(i));
+            m_plugins.insert(class_name, plugins.at(i).data());
 		}
 	}
 }
@@ -101,7 +105,7 @@ void PluginChooserWidget::saveImpl()
 	Config group = Config().group("plugins/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
 	bool needRestart = false;
-	for (it = m_plugin_items.constBegin();it!=m_plugin_items.constEnd();it++)
+	for (it = m_plugin_items.constBegin();it!=m_plugin_items.constEnd();++it)
 	{
 		bool oldValue = group.value(it.key(), true);
 		bool newValue = (it.value()->checkState() == Qt::Checked ? true : false);
@@ -166,6 +170,10 @@ void PluginChooserWidget::onItemClicked(QModelIndex index)
 	}
 }
 
+void PluginChooserWidget::filterPlugins(const QString& pluginname)
+{
+	m_proxymodel->setFilterWildcard(pluginname);
+}
 
 }
 

@@ -29,7 +29,7 @@
 #include "connection.h"
 #include "oscarstatus.h"
 #include "oscarauth.h"
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3 {
 

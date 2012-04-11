@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include <QPointer>
 #include <QStringBuilder>
 #include "account_p.h"
 #include "contact.h"
@@ -132,7 +131,7 @@ void Account::setStatus(Status status)
 {
 	Q_D(Account);
 
-	Status::ChangeReason reason = static_cast<Status::ChangeReason>(status.property("changeReason",static_cast<int>(Status::ByUser)));
+	Status::ChangeReason reason = status.changeReason();
 
 	switch(reason) {
 	case Status::ByUser:

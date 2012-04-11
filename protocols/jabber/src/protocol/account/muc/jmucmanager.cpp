@@ -31,7 +31,7 @@
 #include "jbookmarkmanager.h"
 #include "jinvitemanager.h"
 #include "jmucsession.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/icon.h>
 #include <qutim/status.h>
 #include "../roster/jsoftwaredetection.h"
@@ -49,15 +49,18 @@ class JMUCManagerPrivate
 {
 	Q_DECLARE_PUBLIC(JMUCManager)
 public:
-	JMUCManagerPrivate(JMUCManager *q) : q_ptr(q) {}
+	JMUCManagerPrivate(JMUCManager *q) : q_ptr(q), waitingForPrivacyList(false) {}
 	JMUCManager *q_ptr;
 	JAccount *account;
 	JBookmarkManager *bookmarkManager;
 	//JInviteManager *inviteManager;
 	QHash<QString, JMUCSession *> rooms;
-	QList<JMUCSession *> roomsToConnect;
+	QList<QWeakPointer<JMUCSession> > roomsToConnect;
+	bool waitingForPrivacyList;
 	void connectAll()
 	{
+		if (waitingForPrivacyList)
+			return;
 		foreach (JMUCSession *session, rooms) {
 			Jreen::MUCRoom *room = session->room();
 			debug() << room->isJoined() << (room->presence() != Presence::Unavailable);
@@ -66,14 +69,19 @@ public:
 				session->join();
 			}
 		}
-		for (int i = 0; i < roomsToConnect.size(); i++)
-			roomsToConnect.at(i)->join();
+		foreach (const QWeakPointer<JMUCSession> &room, roomsToConnect) {
+			if (room)
+				room.data()->join();
+		}
 		roomsToConnect.clear();
 	}
 	void leaveAll()
 	{
 		foreach (JMUCSession *room, rooms) {
-			room->leave();
+			if (room->isJoined()) {
+				room->leave();
+				roomsToConnect << room;
+			}
 		}
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status status)
@@ -110,8 +118,9 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 {
 	Q_D(JMUCManager);
 	Jreen::PrivacyManager *manager = d->account->privacyManager();
-	qDebug() << Q_FUNC_INFO << name << manager->activeList();
+	debug() << Q_FUNC_INFO << name << manager->activeList();
 	if (name == manager->activeList()) {
+		d->waitingForPrivacyList = false;
 		QSet<QString> badList;
 		QSet<Jreen::JID> conferences;
 		foreach (JMUCSession *muc, d->rooms)
@@ -122,7 +131,7 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 			while (it.hasNext()) {
 				const JID &jid = it.next();
 				const PrivacyItem &item = items.at(i);
-				qDebug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
+				debug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
 				if ((item.stanzaTypes() & PrivacyItem::PresenceOut) && item.check(jid)) {
 					if (item.action() == PrivacyItem::Deny)
 						badList << jid.domain();
@@ -130,31 +139,31 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 				}
 			}
 		}
-		if (badList.isEmpty()) {
-			d->connectAll();
-			return;
+		if (!badList.isEmpty()) {
+			QSetIterator<QString> it2(badList);
+			QList<Jreen::PrivacyItem> newList = items;
+			while (it2.hasNext()) {
+				QString domain = it2.next();
+				Jreen::JID jid;
+				jid.setDomain(domain);
+				Jreen::PrivacyItem item;
+				item.setAction(PrivacyItem::Allow);
+				item.setOrder(0);
+				item.setJID(jid);
+				item.setStanzaTypes(PrivacyItem::PresenceOut);
+				newList.prepend(item);
+			}
+			manager->setList(name, newList);
 		}
-		QSetIterator<QString> it2(badList);
-		QList<Jreen::PrivacyItem> newList = items;
-		while (it2.hasNext()) {
-			QString domain = it2.next();
-			Jreen::JID jid;
-			jid.setDomain(domain);
-			Jreen::PrivacyItem item;
-			item.setAction(PrivacyItem::Allow);
-			item.setOrder(0);
-			item.setJID(jid);
-			item.setStanzaTypes(PrivacyItem::PresenceOut);
-			newList.prepend(item);
-		}
-		manager->setList(name, newList);
 		d->connectAll();
 	}
 }
 
 void JMUCManager::onActiveListChanged(const QString &name)
 {
-	d_func()->account->privacyManager()->requestList(name);
+	Q_D(JMUCManager);
+	d->waitingForPrivacyList = true;
+	d->account->privacyManager()->requestList(name);
 }
 
 void JMUCManager::bookmarksChanged()
@@ -208,6 +217,7 @@ void JMUCManager::join(const QString &conference, const QString &nick, const QSt
 		Jreen::PrivacyManager *manager = d->account->privacyManager();
 		emit conferenceCreated(room);
 		d->roomsToConnect << room;
+		d->waitingForPrivacyList = true;
 		manager->requestList(manager->activeList());
 	} else {
 		room = d->rooms.value(conference);

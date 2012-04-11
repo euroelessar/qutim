@@ -57,7 +57,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	pal.setColor(QPalette::Text, Qt::white);
 	m_ui->xmlBrowser->viewport()->setPalette(pal);
 	QTextDocument *doc = m_ui->xmlBrowser->document();
-	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
+//	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
 	doc->clear();
 	
 	QTextFrameFormat format = doc->rootFrame()->frameFormat();
@@ -128,11 +128,17 @@ XmlConsole::~XmlConsole()
 
 void XmlConsole::init(Account *account)
 {
-	m_client = qobject_cast<Client*>(account->property("client"));
+	Client *client = qobject_cast<Client*>(account->property("client"));
+	init(client);
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
-										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
-										   this, SLOT(show())),
-					   "Additional");
+	                                       QT_TRANSLATE_NOOP("Jabber", "Xml console"),
+	                                       this, SLOT(show())),
+	                   "Additional");
+}
+
+void XmlConsole::init(Jreen::Client *client)
+{
+	m_client = client;
 	m_client->addXmlStreamHandler(this);
 }
 
@@ -219,7 +225,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 				token->startTag.empty = true;
 			else if (d->depth > 1)
 				d->tokens << new StackToken(d->reader);
-			if (d->depth == 2) {
+			if (isVisible() && d->depth == 2) {
 				QTextCursor cursor(m_ui->xmlBrowser->document());
 				cursor.movePosition(QTextCursor::End);
 				cursor.beginEditBlock();
@@ -304,9 +310,11 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 					lastType = token->type;
 					if (lastType == QXmlStreamReader::StartElement && token->startTag.empty)
 						lastType = QXmlStreamReader::EndElement;
-					delete token;
 				}
 				cursor.endEditBlock();
+			}
+			if (d->depth == 2) {
+				qDeleteAll(d->tokens);
 				d->tokens.clear();
 			}
 			d->depth--;
@@ -330,8 +338,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 //	if (d->reader.tokenType() == QXmlStreamReader::Invalid)
 //		dbg << d->reader.error() << d->reader.errorString();
 	if (!incoming && d->depth > 1) {
-		qFatal("outgoing depth %d on\n\"%s\"", d->depth,
-			   qPrintable(QString::fromUtf8(data, data.size())));
+		fatal() << "outgoing depth" << d->depth << "on\n" << QString::fromUtf8(data, data.size());
 	}
 }
 
@@ -385,9 +392,10 @@ void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 		node.block.setLineCount(ok ? node.lineCount : 0);
 		//		qDebug() << node.block.lineCount();
 	}
-	QAbstractTextDocumentLayout *layout = m_ui->xmlBrowser->document()->documentLayout();
-	Q_ASSERT(qobject_cast<QPlainTextDocumentLayout*>(layout));
-	qobject_cast<QPlainTextDocumentLayout*>(layout)->requestUpdate();
+//	QAbstractTextDocumentLayout *layout = m_ui->xmlBrowser->document()->documentLayout();
+//	layout.
+//	Q_ASSERT(qobject_cast<QPlainTextDocumentLayout*>(layout));
+//	qobject_cast<QPlainTextDocumentLayout*>(layout)->requestUpdate();
 }
 
 void Jabber::XmlConsole::on_saveButton_clicked()

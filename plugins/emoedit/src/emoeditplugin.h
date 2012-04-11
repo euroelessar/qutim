@@ -27,7 +27,7 @@
 #define EMOEDITPLUGIN_H
 
 #include <qutim/plugin.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/emoticons.h>
 #include <QTextObjectInterface>
 

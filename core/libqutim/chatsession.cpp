@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include "messagesession.h"
+#include "chatsession.h"
 #include "messagehandler.h"
 #include "objectgenerator.h"
 #include "servicemanager.h"
+#include "notification.h"
 #include "account.h"
 #include "history.h"
-#include <QPointer>
 #include <QBasicTimer>
 #include <QDateTime>
 #include <numeric>
@@ -120,7 +120,7 @@ qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
 qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (!message.chatUnit()) {
-		qWarning("Message \"%s\" must have a chatUnit", qPrintable(message.text()));
+		warning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
 	
@@ -128,8 +128,10 @@ qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 	messageHookMap()->insert(&message, this);
 	int result = MessageHandler::handle(message, &reason);
 	if (MessageHandler::Accept != result) {
-		// TODO optional user notification
-//		Notifications:￼end(result)
+		NotificationRequest request(Notification::BlockedMessage);
+		request.setObject(message.chatUnit());
+		request.setText(reason);
+		request.send();
 		messageHookMap()->remove(&message);
 		return -result;
 	}
@@ -186,11 +188,13 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),
+	                                QLatin1String("HandlerHook"),
 	                                MessageHandler::ChatInPriority,
 	                                MessageHandler::ChatOutPriority);
 	MessageHandler::registerHandler(p()->senderHook.data(),
+	                                QLatin1String("SenderHook"),
 	                                MessageHandler::NormalPriortity,
-	                                MessageHandler::LowPriority);
+	                                MessageHandler::SenderPriority);
 }
 
 ChatLayer::~ChatLayer()

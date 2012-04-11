@@ -48,8 +48,8 @@ public:
 	ProfileDialog(Config &config, ModuleManager *parent = 0);
 	~ProfileDialog();
 	static Config profilesInfo();
-	static QString profilesConfigPath();
-	static bool acceptProfileInfo(const Config &config, const QString &password);
+	static QString profilesConfigPath(bool *isSystem = 0);
+	static bool acceptProfileInfo(const Config &config, const QString &password, bool checkHash = true);
 
 protected slots:
 	void login(const QString &password);

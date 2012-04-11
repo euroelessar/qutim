@@ -28,10 +28,10 @@
 #include "chatviewfactory.h"
 #include <qutim/conference.h>
 #include <qutim/configbase.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <chatlayer/chatsessionimpl.h>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
 
@@ -93,7 +93,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 
 void AbstractChatForm::onSettingsChanged()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 	foreach (AbstractChatWidget *widget, m_chatWidgets) {
 		if (widget)
 			widget->loadSettings();

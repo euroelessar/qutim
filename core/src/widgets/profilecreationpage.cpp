@@ -55,6 +55,7 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
     ui->setupUi(this);
+	qDebug("%s???", Q_FUNC_INFO);
 	QDir dir = QApplication::applicationDirPath();
 	QFileInfo dirInfo = dir.absolutePath();
 	if (!dirInfo.isWritable()) {
@@ -77,6 +78,8 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 	registerField("configDir", ui->configEdit);
 	registerField("historyDir", ui->historyEdit);
 	registerField("dataDir", ui->dataEdit);
+	registerField("downloadClients", ui->downloadClientsBox);
+	ui->advancedGroup->setVisible(ui->advancedBox->isChecked());
 
 	connect(ui->dataButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
 	connect(ui->configButton, SIGNAL(clicked()), SLOT(onPathSelectTriggered()));
@@ -198,7 +201,7 @@ bool ProfileCreationPage::validatePage()
 	m_password.clear();
 	info = ui->configBox->itemData(ui->configBox->currentIndex()).value<ExtensionInfo>();
 	QList<ConfigBackend*> &configBackends = get_config_backends();
-	qDebug() << configBackends.count();
+	debug() << configBackends.count();
 	for (int i = 0; i < ui->configBox->count(); i++) {
 		ExtensionInfo extInfo = ui->configBox->itemData(i).value<ExtensionInfo>();
 		ConfigBackend *backend = extInfo.generator()->generate<ConfigBackend>();
@@ -207,6 +210,7 @@ bool ProfileCreationPage::validatePage()
 		else
 			configBackends.append(backend);
 	}
+	debugClearConfig();
 	
 	m_is_valid = true;
 	return true;

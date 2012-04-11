@@ -27,7 +27,6 @@
 #ifndef ACTIONTOOLBAR_P_H
 #define ACTIONTOOLBAR_P_H
 #include <QObject>
-#include <QPointer>
 #include <QPoint>
 #include <QVariant>
 #include "localizedstring.h"
@@ -55,7 +54,6 @@ public:
 	QList<ActionValue::Ptr> actions;
 	QList<ObjectGenerator::Ptr> holders;
 	QVariant data;
-	QPoint dragPos;
 	bool moveHookEnabled;
 	ActionToolBar *q_ptr;
 	QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);

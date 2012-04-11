@@ -25,7 +25,6 @@
 
 #include "quickchatviewcontroller.h"
 #include <qutim/message.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/thememanager.h>
 #include <QDeclarativeComponent>
 #include <QStringBuilder>
@@ -40,39 +39,13 @@
 #include <qutim/notification.h>
 #include <QImageReader>
 #include <qutim/servicemanager.h>
+#include <qutim/utils.h>
 #include <QPlainTextEdit>
-#include <qutim/adiumchat/abstractchatform.h>
-#include <qutim/adiumchat/chatlayerimpl.h>
 
 namespace Core {
 namespace AdiumChat {
 
 using namespace qutim_sdk_0_3;
-
-static QString makeUrls (QString html) //TODO temporary
-{
-	html = Qt::escape(html);
-	html.replace("\n", "<br />");
-	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
-							  Qt::CaseInsensitive);
-	Q_ASSERT(linkRegExp.isValid());
-	int pos = 0;
-	while(((pos = linkRegExp.indexIn(html, pos)) != -1))
-	{
-		QString link = linkRegExp.cap(0);
-		QString tmplink = link;
-		if (tmplink.toLower().startsWith("www."))
-			tmplink.prepend("http://");
-		else if(!tmplink.contains("//"))
-			tmplink.prepend("mailto:");
-		static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
-		tmplink = hrefTemplate.arg(tmplink, link);
-		html.replace(pos, link.length(), tmplink);
-		pos += tmplink.count();
-	}
-	return html;
-}
 
 static QVariant messageToVariant(const Message &mes)
 {
@@ -98,7 +71,7 @@ static QVariant messageToVariant(const Message &mes)
 	QString body = isMe ? mes.text().mid(4) : mes.text();
 	if (isMe)
 		map.insert(QLatin1String("action"), true);
-	map.insert(QLatin1String("body"), makeUrls(body));
+	map.insert(QLatin1String("body"), UrlParser::parseUrls(body));
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
@@ -153,7 +126,6 @@ static QString chatStateToString(ChatState state)
 
 QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *parent) :
 	QGraphicsScene(parent),
-	m_session(0),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
 	m_engine(engine)
@@ -178,9 +150,9 @@ void QuickChatController::clearChat()
 	emit clearChatField();
 }
 
-ChatSessionImpl* QuickChatController::getSession() const
+ChatSession *QuickChatController::getSession() const
 {
-	return m_session;
+	return m_session.data();
 }
 
 void QuickChatController::loadHistory()
@@ -188,28 +160,28 @@ void QuickChatController::loadHistory()
 	debug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->read(m_session->getUnit(), max_num);
+	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);
 		mess.setProperty("history", true);
 		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session->getUnit());
+			mess.setChatUnit(m_session.data()->getUnit());
 		appendMessage(mess);
 	}
 }
 
-void QuickChatController::setChatSession(ChatSessionImpl* session)
+void QuickChatController::setChatSession(ChatSession *session)
 {
-	if (m_session == session)
+	if (m_session.data() == session)
 		return;
 
 	if(m_session) {
-		m_session->disconnect(this);
-		m_session->removeEventFilter(this);
+		m_session.data()->disconnect(this);
+		m_session.data()->removeEventFilter(this);
 	} else
 		m_session = session;
-	m_session->installEventFilter(this);
+	m_session.data()->installEventFilter(this);
 	loadSettings();
 	emit sessionChanged(session);
 
@@ -219,7 +191,7 @@ void QuickChatController::setChatSession(ChatSessionImpl* session)
 
 QDeclarativeItem *QuickChatController::rootItem() const
 {
-	return m_item;
+	return m_item.data();
 }
 
 bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
@@ -253,15 +225,15 @@ void QuickChatController::loadTheme(const QString &name)
 
 void QuickChatController::setRootItem(QDeclarativeItem *rootItem)
 {
-	if (m_item == rootItem)
+	if (m_item.data() == rootItem)
 		return;
 	if (m_item) {
-		removeItem(m_item);
-		m_item->deleteLater();
+		removeItem(m_item.data());
+		m_item.data()->deleteLater();
 	}
 	m_item = rootItem;
-	addItem(m_item);
-	emit rootItemChanged(m_item);
+	addItem(m_item.data());
+	emit rootItemChanged(m_item.data());
 }
 
 QString QuickChatController::parseEmoticons(const QString &text) const
@@ -300,12 +272,12 @@ QString QuickChatController::parseEmoticons(const QString &text) const
 
 QObject *QuickChatController::unit() const
 {
-	return m_session ? m_session->unit() : 0;
+	return m_session ? m_session.data()->unit() : 0;
 }
 
 QString QuickChatController::chatState() const
 {
-	return chatStateToString(m_session ? m_session->unit()->chatState() : ChatStateGone);
+	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatStateGone);
 }
 
 void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
@@ -315,8 +287,11 @@ void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
 
 void QuickChatController::appendText(const QString &text)
 {
-	debug() << Q_FUNC_INFO << text << m_session;
-	ChatLayerImpl::insertText(m_session, text % QLatin1Literal(" "));
+	debug() << Q_FUNC_INFO << text << m_session.data();
+	QMetaObject::invokeMethod(m_session.data(),
+	                          "insertText",
+	                          Q_ARG(ChatSession*, m_session.data()),
+	                          Q_ARG(QString, text + QLatin1String(" ")));
 }
 
 } // namespace AdiumChat

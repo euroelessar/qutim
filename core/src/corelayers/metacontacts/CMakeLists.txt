@@ -4,5 +4,5 @@ qutim_add_plugin( metacontacts
 	EXTENSION_CLASS Core::MetaContacts::Manager
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Simple MetaContacts"
-	DESCRIPTION "Default qutIM MetaContacts implementation, very stupid one"
+        DESCRIPTION "Default qutIM MetaContacts implementation"
 )

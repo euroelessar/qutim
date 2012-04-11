@@ -37,11 +37,12 @@
 #include <QRegExp>
 #include <QDateTime>
 #include <qutim/objectgenerator.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
 #include <qutim/notification.h>
 #include <qutim/passworddialog.h>
+#include <qutim/systemintegration.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -494,7 +495,7 @@ void IrcConnection::sendNextMessage()
 		return;
 
 	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
-	debug(VeryVerbose) << ">>>>" << data.trimmed();
+	debug() << ">>>>" << data.trimmed();
 	m_socket->write(data);
 
 	m_lastMessageTime = QDateTime::currentDateTime().toTime_t();
@@ -547,7 +548,7 @@ void IrcConnection::readData()
 {
 	while (m_socket->canReadLine()) {
 		QString msg = m_codec->toUnicode(m_socket->readLine());
-		debug(VeryVerbose) << "<<<<" << msg.trimmed();
+		debug() << "<<<<" << msg.trimmed();
 		static QRegExp rx("^(:([^\\s!@]+|)(\\S+|)\\s+|)(\\w+|\\d{3})(\\s+(.*)|)");
 		if (rx.indexIn(msg) == 0) {
 			QString params = rx.cap(6);
@@ -595,8 +596,9 @@ void IrcConnection::readData()
 
 void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	debug(Verbose) << "New connection state:" << state;
+	debug(DebugVerbose) << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
+		SystemIntegration::keepAlive(m_socket);
 		IrcServer server = m_servers.at(m_currentServer);
 		if (server.protectedByPassword) {
 			if (m_passDialog) {

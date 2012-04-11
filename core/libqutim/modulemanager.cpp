@@ -45,7 +45,6 @@
 #include <QSettings>
 #include <QDir>
 #include <QApplication>
-#include <QPointer>
 #include <QMetaMethod>
 #include <QDebug>
 #include <QVarLengthArray>
@@ -53,7 +52,15 @@
 #include <QDesktopServices>
 #include <QTime>
 #include <QQueue>
+#include <QUrl>
+#include <qendian.h>
 #include "objectgenerator.h"
+
+#ifdef NO_SYSTEM_QXT
+# include "../3rdparty/qxt/qxtcommandoptions.h"
+#else
+# include <qxtcommandoptions.h>
+#endif
 
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
@@ -68,7 +75,7 @@
 # include <QLibraryInfo>
 #endif
 
-#define NO_COMMANDS 1
+//#define NO_COMMANDS 1
 
 namespace qutim_sdk_0_3
 {
@@ -76,33 +83,33 @@ LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 
 // Static Fields
 static ModuleManager *managerSelf = NULL;
-static ModuleManagerPrivate *p = NULL;
+static ModuleManagerPrivate *d = NULL;
 
 ExtensionInfoList extensionList()
 {
-	return (managerSelf && p && p->is_inited) ? p->extensions : ExtensionInfoList();
+    return (managerSelf && d && d->is_inited) ? d->extensions : ExtensionInfoList();
 }
 
-QList<QPointer<Plugin> > pluginsList()
+QList<QWeakPointer<Plugin> > pluginsList()
 {
-	return (managerSelf && p && p->is_inited) ? p->plugins : QList<QPointer<Plugin> >();
+    return (managerSelf && d && d->is_inited) ? d->plugins : QList<QWeakPointer<Plugin> >();
 }
 
 bool isCoreInited()
 {
-	return managerSelf && p && p->is_inited;
+    return managerSelf && d && d->is_inited;
 }
 
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 {
 	Q_ASSERT((module == 0) ^ (iid == 0));
 	GeneratorList list;
-	if (!managerSelf || !p)
+    if (!managerSelf || !d)
 		return list;
 	if (module && !iid)
 		iid = module->className();
 	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
-	ExtensionNode *node = p->nodes.value(id);
+    ExtensionNode *node = d->nodes.value(id);
 	if (!node)
 		return list;
 	// BFS
@@ -123,23 +130,23 @@ GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 	return list;
 }
 
-ProtocolMap allProtocols()
+ProtocolHash allProtocols()
 {
-	ProtocolMap map;
+    ProtocolHash map;
 	if(ObjectGenerator::isInited())
-		map = *p->protocols;
+        map = d->protocols;
 	return map;
 }
 
 static ExtensionNode *ensureNode(const QMetaObject *meta)
 {
 	QByteArray id = QByteArray::fromRawData(meta->className(), qstrlen(meta->className()));
-	ExtensionNodeHash::Iterator it = p->nodes.find(id);
-	if (it != p->nodes.end())
+    ExtensionNodeHash::Iterator it = d->nodes.find(id);
+    if (it != d->nodes.end())
 		return it.value();
 	ExtensionNode *parent = meta->superClass() ? ensureNode(meta->superClass()) : 0;
 	id.detach();
-	ExtensionNode *node = p->nodes.insert(id, new ExtensionNode).value();
+    ExtensionNode *node = d->nodes.insert(id, new ExtensionNode).value();
 	if (parent)
 		parent->children << node;
 	return node;
@@ -147,10 +154,10 @@ static ExtensionNode *ensureNode(const QMetaObject *meta)
 
 static ExtensionNode *ensureNode(const QByteArray &id)
 {
-	ExtensionNodeHash::Iterator it = p->nodes.find(id);
-	if (it != p->nodes.end())
+    ExtensionNodeHash::Iterator it = d->nodes.find(id);
+    if (it != d->nodes.end())
 		return it.value();
-	return p->nodes.insert(id, new ExtensionNode).value();
+    return d->nodes.insert(id, new ExtensionNode).value();
 }
 
 static void addExtension(const ExtensionInfo &info)
@@ -180,37 +187,110 @@ QString formatVersion(quint32 version)
 
 static void printVersion()
 {
-	QString version;
-	QTextStream str(&version);
-	str << "\n  " << qApp->applicationName() << ' ' << versionString()
-		<< " based on Qt " << qVersion() << "\n\n";
-	foreach (Plugin *plugin, p->plugins) {
-		PluginInfo info = plugin->info();
-		str << "  " << info.name() << ' ' << formatVersion(info.version())
-			<< ' ' << info.description() <<  '\n';
-	}
-
-	str << "\n  " << "GPL v2 or any later" << '\n';
-	qDebug("%s", qPrintable(version));
-}
-
-static void printHelp(const QList<CommandArgumentsHandler*> &handlers)
-{
+	QTextStream str(stdout);
+	str << qApp->applicationName() << " version " << versionString() << endl
+		<< "Using Qt version " << qVersion() << endl
+		<< "GPL v3 or any later" << endl;
+//	foreach (Plugin *plugin, p->plugins) {
+//		PluginInfo info = plugin->info();
+//		str << "  " << info.name() << ' ' << formatVersion(info.version())
+//			<< ' ' << info.description() <<  '\n';
+//	}
 }
 #endif // NO_COMMANDS
 
-static bool checkQtPluginData(const char *data, QString *error)
+struct InfoToken
 {
-	Q_UNUSED(data);
-	Q_UNUSED(error);
+	const char *key;
+	uint keyLength;
+	const char *value;
+	uint valueLength;
+};
+
+bool scanNextInfoToken(InfoToken &token, const char * &data)
+{
+	while (isspace(*data))
+		++data;
+	if (!*data)
+		return false;
+	token.key = token.value = 0;
+	token.keyLength = token.valueLength = 0;
+	token.key = data;
+	while (*data && *data != '=')
+		++data;
+	token.keyLength = (data - token.key);
+	if (!*data)
+		return false;
+	++data;
+	token.value = data;
+	while (*data && *data != '\n')
+		++data;
+	token.valueLength = (data - token.value);
 	return true;
 }
 
-static bool checkQutIMPluginData(const char *data, QString *error)
+static bool checkQutIMPluginData(const char *data, quint64 *debugId, QString *error)
 {
-	Q_UNUSED(data);
-	Q_UNUSED(error);
-	return true;
+	InfoToken token;
+	bool isValidPattern = false;
+	bool isValidQutimVersion = false;
+	while (scanNextInfoToken(token, data)) {
+		if (!qstrncmp("pattern", token.key, token.keyLength)) {
+			isValidPattern = !qstrncmp("QUTIM_PLUGIN_VERIFICATION_DATA", token.value, token.valueLength);
+			if (!isValidPattern)
+				break;
+		} else if (!qstrncmp("debugid", token.key, token.keyLength)) {
+			if (token.valueLength != 16) {
+				*error = QLatin1String("Invalid plugin identification number");
+				return false;
+			}
+			QByteArray data = QByteArray::fromRawData(token.value, token.valueLength);
+			QByteArray number = QByteArray::fromHex(data);
+			if (number.size() != 8) {
+				*error = QLatin1String("Invalid plugin identification number");
+				return false;
+			}
+			*debugId = qFromBigEndian<quint64>(reinterpret_cast<const uchar *>(number.constData()));
+		} else if (!qstrncmp("libqutim", token.key, token.keyLength)) {
+			isValidQutimVersion = token.valueLength == qstrlen(versionString())
+								  && !qstrncmp(versionString(), token.value, token.valueLength);
+		}
+	}
+	if (!isValidPattern)
+		*error = QLatin1String("There is no valid qutIM's plugin verification data");
+	else if (!isValidQutimVersion)
+		*error = QLatin1String("Plugin is built with incompatible libqutim's version");
+	return isValidPattern && isValidQutimVersion;
+}
+
+void ModuleManagerPrivate::initLocalPeer(const QString &message, bool *shouldExit)
+{
+	*shouldExit = false;
+	d->localPeer.reset(new QtLocalPeer(managerSelf));
+	if (d->localPeer->isClient()) {
+		if (d->localPeer->sendMessage(message, 1000)) {
+			*shouldExit = true;
+			return;
+		}
+		// Assume we became a server
+		Q_ASSERT(!d->localPeer->isClient());
+	}
+	QObject::connect(d->localPeer.data(), SIGNAL(messageReceived(QString)),
+					 managerSelf, SLOT(_q_messageReceived(QString)));
+}
+
+void ModuleManager::_q_messageReceived(const QString &message)
+{
+	if (message.startsWith(QLatin1String("arguments: "))) {
+		QByteArray data = QByteArray::fromBase64(message.section(QLatin1Char(' '), 1).toLatin1());
+		QDataStream s(&data, QIODevice::ReadOnly);
+		QStringList args;
+		s >> args;
+		qDebug() << "Received message with:" << args;
+	} else if (message.startsWith(QLatin1String("url: "))) {
+		QUrl url(message.section(QLatin1Char(' '), 1));
+		QDesktopServices::openUrl(url);
+	}
 }
 
 /**
@@ -218,11 +298,11 @@ static bool checkQutIMPluginData(const char *data, QString *error)
   */
 ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 {
-	qDebug() << QIcon::themeSearchPaths();
+	debug() << QIcon::themeSearchPaths();
 	Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
 	VariantHook::init();
 	qRegisterMetaTypeStreamOperators<Status>();
-	p = new ModuleManagerPrivate;
+    d = new ModuleManagerPrivate;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
 	qApp->setApplicationVersion(versionString());
@@ -244,20 +324,80 @@ ModuleManager::~ModuleManager()
   */
 void ModuleManager::loadPlugins(const QStringList &additional_paths)
 {
+#ifndef NO_COMMANDS
+	const QStringList args = qApp->arguments();
+
+	QxtCommandOptions parser;
+	parser.add("help", "This help message");
+	parser.alias("help", "?");
+	parser.alias("help", "h");
+
+	parser.add("version", "Show version information");
+	parser.alias("version", "v");
+	
+	parser.add("single-instance", "Run single instance");
+	parser.add("open-url", "Open url", QxtCommandOptions::ValueRequired);
+
+	parser.parse(args);
+	
+	QString messageToServer;
+	
+	if (parser.count("single-instance")) {
+		messageToServer = QLatin1String("arguments: ");
+		QByteArray data;
+		{
+			QDataStream s(&data, QIODevice::WriteOnly);
+			s << args;
+		}
+		messageToServer += QLatin1String(data.toBase64());
+	} else if (parser.count("open-url")) {
+		messageToServer = QLatin1String("url: ");
+		messageToServer += parser.value("open-url").toString();
+	} else if (args.count() == 2) {
+		const QString &possibleUrl = args[1];
+		QUrl url = QUrl::fromEncoded(possibleUrl.toUtf8());
+		if (url.isValid() && !url.scheme().isEmpty())
+			messageToServer = QLatin1String("url: ") + possibleUrl;
+	}
+
+	if (!messageToServer.isEmpty()) {
+		bool shouldExit = false;
+		d->initLocalPeer(messageToServer, &shouldExit);
+		if (shouldExit) {
+			exit(0);
+			return;
+		}
+	}
+
+	if (parser.positional().isEmpty()) {
+		if (parser.count("version")) {
+			printVersion();
+			exit(0);
+			return;
+		}
+
+		if (parser.showUnrecognizedWarning()) {
+			parser.showUsage(true);
+			exit(0);
+			return;
+		}
+	}
+#endif
+	
 	// Static plugins
 	foreach (QObject *object, QPluginLoader::staticInstances()) {
 		if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 			plugin->init();
-			if (plugin->p->validate()) {
-				plugin->p->info.data()->inited = 1;
-				p->plugins.append(plugin);
-				p->extensions << plugin->avaiableExtensions();
+            if (plugin->p->validate()) {
+                plugin->p->info.data()->inited = 1;
+                d->plugins.append(plugin);
+                d->extensions << plugin->avaiableExtensions();
 			}
 		}
 	}
 
 	QStringList paths;
-	p->extensions << coreExtensions();
+    d->extensions << coreExtensions();
 
 #if	defined(Q_OS_SYMBIAN)
 	// simple S60 plugins loader
@@ -342,12 +482,11 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifndef Q_OS_SYMBIAN
 				// Just don't load old plugins
 				typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
-				typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
-				QtPluginVerificationFunction qtVerificationFunction = NULL;
 #ifdef QUTIM_TEST_PERFOMANCE
 				QTime timer;
 				int libLoadTime, verifyTime, instanceTime, initTime;
+				quint64 debugId = 0;
 #endif // QUTIM_TEST_PERFOMANCE
 				{
 #ifdef QUTIM_TEST_PERFOMANCE
@@ -360,26 +499,25 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						timer.restart();
 #endif // QUTIM_TEST_PERFOMANCE
 						verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
-						            lib->resolve("qutim_plugin_query_verification_data"));
-						qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
-						            lib->resolve("qt_plugin_query_verification_data"));
+									lib->resolve("qutim_plugin_query_verification_data"));
 #ifdef QUTIM_TEST_PERFOMANCE
 						verifyTime = timer.elapsed();
 						timer.restart();
 #endif // QUTIM_TEST_PERFOMANCE
-						if (!verificationFunction || !qtVerificationFunction) {
+						if (!verificationFunction) {
 							lib->unload();
-							qDebug("'%s' has no valid verification data", qPrintable(filename));
+							qDebug() << filename << " has no valid verification data";
 							continue;
 						}
 						QString error;
-						if (!checkQtPluginData(qtVerificationFunction(), &error)
-						        || !checkQutIMPluginData(verificationFunction(), &error)) {
-							qDebug("Error while loading plugin '%s': %s",
-							       qPrintable(filename), qPrintable(error));
+						if (!checkQutIMPluginData(verificationFunction(), &debugId, &error)) {
+							lib->unload();
+							qDebug() << "Error while loading plugin " << filename << ": " << error;
+							continue;
+							continue;
 						}
 					} else {
-						qDebug("%s", qPrintable(lib->errorString()));
+						qDebug() << lib->errorString();
 						nextTry << files[i];
 						pluginPathsList.remove(filename);
 						continue;
@@ -393,18 +531,20 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #endif // QUTIM_TEST_PERFOMANCE
 				
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+					if (debugId)
+						debugAddPluginId(debugId, plugin->metaObject());
 					plugin->init();
 #ifdef QUTIM_TEST_PERFOMANCE
 					initTime = timer.elapsed();
-					qDebug("\"%s\":\nload: %d ms, verify: %d ms, instance: %d ms, init: %d ms",
-					       qPrintable(files[i].fileName()), libLoadTime, verifyTime, instanceTime, initTime);
+					debug() << files[i].fileName() << ":\nload:" << libLoadTime << "ms, verify:" << verifyTime
+							<< "ms, instance:" << instanceTime << "ms, init:" << initTime << "ms";
 #endif // QUTIM_TEST_PERFOMANCE
-					if (plugin->p->validate()) {
-						plugin->p->info.data()->inited = 1;
-						p->plugins.append(plugin);
-						p->extensions << plugin->avaiableExtensions();
+                    if (plugin->p->validate()) {
+                        plugin->p->info.data()->inited = 1;
+                        d->plugins.append(plugin);
+                        d->extensions << plugin->avaiableExtensions();
 						foreach(ExtensionInfo info, plugin->avaiableExtensions())
-							p->extsPlugins.insert(info.name(), plugin);
+                            d->extsPlugins.insert(info.name(), plugin);
 					} else {
 						delete object;
 					}
@@ -412,7 +552,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					if (object)
 						delete object;
 					else {
-						qWarning("%s", qPrintable(loader->errorString()));
+						warning() << loader->errorString();
 #ifdef Q_OS_SYMBIAN
 						QMessageBox msg;
 						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
@@ -431,38 +571,42 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 		}
 	}
 
-#ifndef NO_COMMANDS	
-	QStringList args = qApp->arguments();
-	if (args.size() > 1) {
-		QList<CommandArgumentsHandler*> handlers;
-		foreach (Plugin *plugin, p->plugins) {
-			CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin);
-			if (handler)
-				handlers << handler;
-		}
+#ifndef NO_COMMANDS
+//	{
+//		QMap<QString, Plugin *> handlers;
+//		QMap<QString, Plugin*>::Iterator it;
+//		foreach (QWeakPointer<Plugin> plugin, d->plugins) {
+//			if (CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin.data()))
+//				handlers.insert(handler->argumentHandlerName(), plugin.data());
+//		}
 
-		QStringList::iterator it = args.begin();
-		QStringList::iterator itend = args.end();
-		// Skip program name
-		it++;
-		for (; it != itend; it++) {
-			if (*it == QLatin1String("-v") || *it == QLatin1String("--version")) {
-				printVersion();
-				qApp->quit();
-				return;
-			}
-			if (*it == QLatin1String("-h") || *it == QLatin1String("--help")) {
-				printHelp(handlers);
-				qApp->quit();
-				return;
-			}
-		}
-	}
+//		if (parser.count("help") || parser.positional().size() > 1) {
+//			for (; it != handlers.end(); ++it) {
+//				Plugin *plugin = it.value();
+//				parser.addSection(plugin->info().name() + " (" + it.key() + ")");
+//			}
+//			parser.showUsage();
+//			exit(0);
+//			return;
+//		}
+
+//		if (!parser.positional().isEmpty()) {
+//			for (; it != handlers.end(); ++it) {
+//				Plugin *plugin = it.value();
+//				CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin);
+//				foreach (const CommandArgument &argument, handler->arguments()) {
+//					parser.add(argument.name(), argument.description(), argument.types(), argument.group());
+//					foreach (const QString &alias, argument.aliases())
+//						parser.alias(argument.name(), alias);
+//				}
+//			}
+//		}
+//	}
 #endif // NO_COMMANDS
 
-	foreach (const ExtensionInfo &info, p->extensions) {
+    foreach (const ExtensionInfo &info, d->extensions) {
 		addExtension(info);
-		p->extensionsHash.insert(info.generator()->metaObject()->className(), info);
+        d->extensionsHash.insert(info.generator()->metaObject()->className(), info);
 	}
 }
 
@@ -470,7 +614,7 @@ ExtensionInfoList ModuleManager::extensions(const char *iid) const
 {
 	ExtensionInfoList list;
 	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
-	ExtensionNode *node = p->nodes.value(id);
+    ExtensionNode *node = d->nodes.value(id);
 	if (!node)
 		return list;
 	// BFS
@@ -505,10 +649,10 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
 	for (int i = 0; i < exts.size(); ++i) {
 		const ObjectGenerator *generator = exts.at(i).generator();
 		QObject *obj = generator->generate();
-		qDebug("Found %s for %s", generator->metaObject()->className(), meta->className());
+		debug() << QString("Found %1 for %2").arg(generator->metaObject()->className(), meta->className());
 		return obj;
 	}
-	qWarning("%s extension isn't found", meta->className());
+	warning() << meta->className() << " extension isn't found";
 	return 0;
 }
 
@@ -527,10 +671,10 @@ void ModuleManager::initExtensions()
 			const QMetaObject *meta = info.generator()->metaObject();
 			QByteArray name = MetaObjectBuilder::info(meta, "Extension");
 			if (name.isEmpty()) {
-				qWarning("%s has no 'Extension' class info", meta->className());
+				warning() << meta->className() << " has no 'Extension' class info";
 				continue;
 			}
-			qDebug("Found '%s' for '%s'", meta->className(), name.constData());
+			debug() << "Found " << meta->className() << " for " << name.constData();
 			configBackends << info.generator()->generate<ConfigBackend>();
 		}
 	}
@@ -538,14 +682,14 @@ void ModuleManager::initExtensions()
 	Config pluginsConfig;
 	pluginsConfig.beginGroup("plugins/list");
 	{
-		foreach (Plugin *plugin, p->plugins) {
-			if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-				disabledPlugins << plugin->info().data();
+        foreach (QWeakPointer<Plugin> plugin, d->plugins) {
+            if (!pluginsConfig.value(plugin.data()->metaObject()->className(), true))
+                disabledPlugins << plugin.data()->info().data();
 		}
-		for (int i = 0; i < p->extensions.size(); i++) {
-			PluginInfo::Data *data = p->extensions.at(i).data()->plugin.data();
+        for (int i = 0; i < d->extensions.size(); i++) {
+            PluginInfo::Data *data = d->extensions.at(i).data()->plugin.data();
 			if (disabledPlugins.contains(data)) {
-				p->extensions.removeAt(i);
+                d->extensions.removeAt(i);
 				i--;
 				break;
 			}
@@ -554,18 +698,19 @@ void ModuleManager::initExtensions()
 
 	QSet<QByteArray> usedExtensions;
 	{
-		const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
+        const QHash<QByteArray, ExtensionInfo> &extsHash = d->extensionsHash;
 		ConfigGroup group = Config().group("protocols");
 		QVariantMap selected = group.value("list", QVariantMap());
 		bool changed = false;
 		QVariantMap::const_iterator it = selected.constBegin();
+		QSet<QString> choosedProtocols;
 		for (; it != selected.constEnd(); it++) {
-			const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
-			//				Plugin *plugin = p->extsPlugins.value(info.name());
-			//				if(plugin)
-			//					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-			//						continue;
-
+			QString className = it.value().toString();
+			if (className == QLatin1String("none")) {
+				choosedProtocols.insert(it.key());
+				continue;
+			}
+			const ExtensionInfo info = extsHash.value(className.toLatin1());
 			if (info.generator() && info.generator()->extends<Protocol>()) {
 				const QMetaObject *meta = info.generator()->metaObject();
 				QByteArray name = MetaObjectBuilder::info(meta, "Protocol");
@@ -573,41 +718,42 @@ void ModuleManager::initExtensions()
 					continue;
 				debug() << name << meta->className();
 				Protocol *protocol = info.generator()->generate<Protocol>();
-				p->protocols_hash->insert(protocol->id(), protocol);
+                d->protocols.insert(protocol->id(), protocol);
+				choosedProtocols.insert(it.key());
 				usedExtensions << meta->className();
+
+                connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 			}
 		}
 		const ExtensionInfoList exts = extensions(Protocol::staticMetaObject.className()); //p->extensions;
 		ExtensionInfoList::const_iterator it2 = exts.constBegin();
 		for(; it2 != exts.end(); it2++) {
-			//				Plugin *plugin = p->extsPlugins.value(it2->name());
-			//				if (plugin)
-			//					if (!pluginsConfig.value<bool>(plugin->metaObject()->className(), true))
-			//						continue;
-
 			const ObjectGenerator *gen = it2->generator();
 			const QMetaObject *meta = gen->metaObject();
 			QString name = QLatin1String(MetaObjectBuilder::info(meta, "Protocol"));
-			if (name.isEmpty() || p->protocols->contains(name))
+            if (name.isEmpty() || choosedProtocols.contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
-			p->protocols_hash->insert(protocol->id(), protocol);
+            d->protocols.insert(protocol->id(), protocol);
+			choosedProtocols.insert(name);
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
 			changed = true;
+
+            connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 		}
 		if (changed) {
 			group.setValue("list", selected);
 			group.sync();
 		}
 	}
-	p->is_inited = true;
-	for (int i = 0; i < p->extensions.size(); i++) {
-		const QMetaObject *meta = p->extensions.at(i).generator()->metaObject();
+    d->is_inited = true;
+    for (int i = 0; i < d->extensions.size(); i++) {
+        const QMetaObject *meta = d->extensions.at(i).generator()->metaObject();
 		for (int j = 0; j < meta->classInfoCount(); j++) {
 			QMetaClassInfo info = meta->classInfo(j);
 			if (!qstrcmp(info.name(), "DependsOn") && !usedExtensions.contains(info.value())) {
-				p->extensions.removeAt(i);
+                d->extensions.removeAt(i);
 				i--;
 				break;
 			}
@@ -630,7 +776,7 @@ void ModuleManager::initExtensions()
 #endif
 			exts.at(i).generator()->generate<StartupModule>();
 #ifdef QUTIM_TEST_PERFOMANCE
-			qDebug("Startup: \"%s\", %d ms", exts.at(i).generator()->metaObject()->className(), timer.elapsed());
+			debug() << "Startup:" << exts.at(i).generator()->metaObject()->className() << "," << timer.elapsed() << "ms";
 #endif
 		}
 	}
@@ -642,15 +788,15 @@ void ModuleManager::initExtensions()
 #endif
 		proto->loadAccounts();
 #ifdef QUTIM_TEST_PERFOMANCE
-		qDebug("\"%s\", load: %d ms", qPrintable(proto->id()), timer.elapsed());
+		debug() << proto->id() << ", load:" << timer.elapsed() << "ms";
 #endif
 	}
 
 	if (MetaContactManager *manager = MetaContactManager::instance())
 		manager->loadContacts();
 
-	for (int i = 0; i < p->plugins.size(); i++) {
-		Plugin *plugin = p->plugins.at(i);
+    for (int i = 0; i < d->plugins.size(); i++) {
+        Plugin *plugin = d->plugins.at(i).data();
 		//			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
 		if (plugin && !disabledPlugins.contains(plugin->info().data())) {
 			if (plugin->info().capabilities() & Plugin::Loadable) {
@@ -662,12 +808,12 @@ void ModuleManager::initExtensions()
 					plugin->info().data()->loaded = 1;
 				} else {
 #ifdef QUTIM_TEST_PERFOMANCE
-					qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
+					debug() << plugin->metaObject()->className() <<  ", load:" << timer.elapsed() << "ms";
 #endif
 					continue;
 				}
 #ifdef QUTIM_TEST_PERFOMANCE
-				qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
+				debug() << plugin->metaObject()->className() << ", load:" << timer.elapsed() << "ms";
 #endif
 				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
 					QList<Plugin*> plugins = factory->loadPlugins();
@@ -676,12 +822,12 @@ void ModuleManager::initExtensions()
 						if (!pluginsConfig.value(subPlugin->metaObject()->className(), true))
 							disabledPlugins << subPlugin->info().data();
 						subPlugin->init();
-						p->plugins << subPlugin;
+                        d->plugins << subPlugin;
 					}
 				}
 			}
 		}
-		qDebug("%d %d %s", i, p->plugins.size(), p->plugins.at(i)->metaObject()->className());
+		debug() << i << d->plugins.size() << d->plugins.at(i).data()->metaObject()->className();
 	}
 	Event("startup").send();
 }
@@ -689,14 +835,22 @@ void ModuleManager::initExtensions()
 void ModuleManager::onQuit()
 {
 	Event("aboutToQuit").send();
-	foreach(Plugin *plugin, p->plugins) {
-		if (plugin && plugin->info().data()->loaded) {
-			plugin->unload();
+    foreach(QWeakPointer<Plugin> plugin, d->plugins) {
+        if (!plugin.isNull() && plugin.data()->info().data()->loaded) {
+            plugin.data()->unload();
 		}
+        delete plugin.data();
 	}
-	qDeleteAll(p->plugins);
 	ServiceManagerPrivate::get(ServiceManager::instance())->deinit();
-	qDeleteAll(*(p->protocols));
+
+    foreach (QString key, d->protocols.keys())
+        d->protocols.take(key)->deleteLater();
+}
+
+void ModuleManager::_q_protocolDestroyed(QObject *obj)
+{
+    QString key = d->protocols.key(static_cast<Protocol*>(obj));
+    d->protocols.remove(key);
 }
 
 void ModuleManager::virtual_hook(int id, void *data)
@@ -706,3 +860,4 @@ void ModuleManager::virtual_hook(int id, void *data)
 }
 }
 
+#include "modulemanager.moc"

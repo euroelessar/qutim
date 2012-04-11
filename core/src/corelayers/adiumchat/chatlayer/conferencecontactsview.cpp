@@ -31,6 +31,9 @@
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
 #include <qutim/adiumchat/chatlayerimpl.h>
+#include "chatforms/abstractchatform.h"
+#include <QTextEdit>
+#include <QPlainTextEdit>
 
 namespace Core
 {
@@ -64,8 +67,23 @@ public:
 		Q_Q(ConferenceContactsView);
 		QModelIndex index = q->currentIndex();
 		Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-		if (buddy)
-			ChatLayerImpl::insertText(session, buddy->title() + QLatin1String(" "));
+		if (buddy) {
+			QString nick = buddy->title();
+			AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
+			QObject *obj = form->textEdit(session);
+			QTextCursor cursor;
+			if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
+				cursor = edit->textCursor();
+			else if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj))
+				cursor = edit->textCursor();
+			else
+				return;
+			if(cursor.atStart())
+				cursor.insertText(nick + ": ");
+			else
+				cursor.insertText(nick + " ");
+			static_cast<QWidget*>(obj)->setFocus();
+		}
 	}
 
 	void _q_service_changed(const QByteArray &name, QObject *service)
@@ -89,7 +107,7 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 
 	d->action = new QAction(tr("Insert Nick"),this);
 	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
-	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_insert_nick()));
+//	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_insert_nick()));
 	addAction(d->action);
 
 	QTimer::singleShot(0, this, SLOT(_q_init_scrolling()));
@@ -152,7 +170,16 @@ bool ConferenceContactsView::event(QEvent *event)
 
 ConferenceContactsView::~ConferenceContactsView()
 {
+	
+}
 
+void ConferenceContactsView::mouseReleaseEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::MiddleButton) {
+		d_func()->_q_insert_nick();
+	} else {
+		QListView::mouseReleaseEvent(e);
+	}
 }
 
 void ConferenceContactsView::changeEvent(QEvent *ev)

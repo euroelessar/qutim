@@ -25,7 +25,7 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "abstractcontactmodel.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <QtGui/QContextMenuEvent>
 #include <QHeaderView>
 #include <qutim/icon.h>
@@ -66,10 +66,10 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 	connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(onCollapsed(QModelIndex)));
 	connect(this, SIGNAL(expanded(QModelIndex)), SLOT(onExpanded(QModelIndex)));
 
-	setModel(model);
+	setContactModel(model);
 }
 
-void TreeView::setModel(AbstractContactModel *model)
+void TreeView::setContactModel(AbstractContactModel *model)
 {
 	storeClosedTags();
 	Config group = Config().group("contactList").group(model->metaObject()->className());
@@ -108,7 +108,7 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 	ContactItemType type = getItemType(index);
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
-		qDebug("%s", qPrintable(buddy->id()));
+		debug() << buddy->id();
 		buddy->showMenu(event->globalPos());
 	}
 }
@@ -165,7 +165,7 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 				 index.data(BuddyRole));
 		ev.send();
 	}
-	//			qDebug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
+	//			debug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
 	//			if (drag->exec(supportedActions, defaultDropAction) == Qt::MoveAction)
 	//				d->clearOrRemove();
 	//			{}

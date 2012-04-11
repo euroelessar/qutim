@@ -88,6 +88,7 @@ private:
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;
 	QList<QAction *> m_statusActions;
+	QList<ActionGenerator*> m_actionGenerators;
 	QString m_pressedKeys;
 };
 

@@ -1,0 +1,20 @@
+Basic Installation
+==================
+
+        qutIM uses the cmake build system. The simple instructions for
+building qutIM are these commands:
+
+                        mkdir ../qutim-build && cd ../qutim-build
+                        cmake ../qutim
+                        make
+                        make install
+
+        Various components of qutIM have other dependencies as well.
+If these are not met when the 'cmake' command is run, those components
+will not be built. The output of 'cmake' should make it clear what these
+dependencies are and how to meet them.
+
+        Arguments can be given to cmake similar to those given to a traditional
+configure script, like the install prefix. See 'cmake --help-full' for more
+information. For example, 'configure --prefix=/usr/lib' translates to
+'cmake -DCMAKE_INSTALL_PREFIX=/usr/lib'.

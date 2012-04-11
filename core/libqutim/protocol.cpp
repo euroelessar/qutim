@@ -32,111 +32,111 @@
 
 namespace qutim_sdk_0_3
 {
-	AccountCreationWizard::AccountCreationWizard(Protocol *protocol) : QObject(protocol)
-	{
-	}
+AccountCreationWizard::AccountCreationWizard(Protocol *protocol) : QObject(protocol)
+{
+}
 
-	AccountCreationWizard::~AccountCreationWizard()
-	{
-	}
+AccountCreationWizard::~AccountCreationWizard()
+{
+}
 
-	ExtensionInfo AccountCreationWizard::info() const
-	{
-		QVariant info = property("protocolinfo");
-		if (!info.canConvert<ExtensionInfo>())
-			info = parent()->property("extensioninfo");
-		return info.value<ExtensionInfo>();
-	}
+ExtensionInfo AccountCreationWizard::info() const
+{
+    QVariant info = property("protocolinfo");
+    if (!info.canConvert<ExtensionInfo>())
+        info = parent()->property("extensioninfo");
+    return info.value<ExtensionInfo>();
+}
 
-	void AccountCreationWizard::setInfo(const ExtensionInfo &info)
-	{
-		setProperty("protocolinfo", qVariantFromValue(info));
-	}
+void AccountCreationWizard::setInfo(const ExtensionInfo &info)
+{
+    setProperty("protocolinfo", qVariantFromValue(info));
+}
 
-	void AccountCreationWizard::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
+void AccountCreationWizard::virtual_hook(int id, void *data)
+{
+    Q_UNUSED(id);
+    Q_UNUSED(data);
+}
 
-	Protocol::Protocol() : d_ptr(new ProtocolPrivate)
-	{
-	}
-	
-	Protocol::Protocol(ProtocolPrivate &p) : d_ptr(&p)
-	{
-	}
+Protocol::Protocol() : d_ptr(new ProtocolPrivate)
+{
+}
 
-	Protocol::~Protocol()
-	{
-	}
+Protocol::Protocol(ProtocolPrivate &p) : d_ptr(&p)
+{
+}
 
-	Config Protocol::config()
-	{
-		return Config(id());
-	}
+Protocol::~Protocol()
+{
+}
 
-	ConfigGroup Protocol::config(const QString &group)
-	{
-		return config().group(group);
-	}
+Config Protocol::config()
+{
+    return Config(id());
+}
 
-	QString Protocol::id() const
-	{
-		Q_D(const Protocol);
-		if(d->id.isNull())
-			d->id = QString::fromUtf8(MetaObjectBuilder::info(metaObject(), "Protocol"));
-		return d->id;
-	}
+ConfigGroup Protocol::config(const QString &group)
+{
+    return config().group(group);
+}
 
-	QStringList Protocol::supportedAccountParameters() const
-	{
-		QStringList properties;
-		const_cast<Protocol*>(this)->virtual_hook(SupportedAccountParametersHook, &properties);
-		return properties;
-	}
+QString Protocol::id() const
+{
+    Q_D(const Protocol);
+    if(d->id.isNull())
+        d->id = QString::fromUtf8(MetaObjectBuilder::info(metaObject(), "Protocol"));
+    return d->id;
+}
 
-	Account *Protocol::createAccount(const QString &id, const QVariantMap &parameters)
-	{
-		CreateAccountArgument argument = { id, parameters, NULL };
-		const_cast<Protocol*>(this)->virtual_hook(CreateAccountHook, &argument);
-		return argument.account;
-	}
+QStringList Protocol::supportedAccountParameters() const
+{
+    QStringList properties;
+    const_cast<Protocol*>(this)->virtual_hook(SupportedAccountParametersHook, &properties);
+    return properties;
+}
 
-	void Protocol::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
+Account *Protocol::createAccount(const QString &id, const QVariantMap &parameters)
+{
+    CreateAccountArgument argument = { id, parameters, NULL };
+    const_cast<Protocol*>(this)->virtual_hook(CreateAccountHook, &argument);
+    return argument.account;
+}
 
-	QVariant Protocol::data(DataType type)
-	{
-		switch (type) {
-		case ProtocolIdName:
-			return "ID";
-		case ProtocolContainsContacts:
-			return false;
-		default:
-			return QVariant();
-		}
-	}
+void Protocol::virtual_hook(int id, void *data)
+{
+    Q_UNUSED(id);
+    Q_UNUSED(data);
+}
 
-	void Protocol::removeAccount(Account *account, RemoveFlag flags)
-	{
-		Config general = config().group("general");
-		QStringList accounts = general.value("accounts",QStringList());
-		accounts.removeAll(account->id());
-		general.setValue("accounts",accounts);
-		general.sync();
-		emit accountRemoved(account);
+QVariant Protocol::data(DataType type)
+{
+    switch (type) {
+    case ProtocolIdName:
+        return "ID";
+    case ProtocolContainsContacts:
+        return false;
+    default:
+        return QVariant();
+    }
+}
 
-		if (flags & DeleteAccount)
-			account->deleteLater();
-	}
+void Protocol::removeAccount(Account *account, RemoveFlag flags)
+{
+    Config general = config().group("general");
+    QStringList accounts = general.value("accounts",QStringList());
+    accounts.removeAll(account->id());
+    general.setValue("accounts",accounts);
+    general.sync();
+    emit accountRemoved(account);
 
-	ProtocolMap Protocol::all()
-	{
-		return allProtocols();
-	}
+    if (flags & DeleteAccount)
+        account->deleteLater();
+}
+
+ProtocolHash Protocol::all()
+{
+    return allProtocols();
+}
 }
 

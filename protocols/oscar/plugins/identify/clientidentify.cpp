@@ -170,6 +170,7 @@ void ClientIdentify::identify(IcqContact *contact)
 	IDENTIFY_CLIENT( LibGaim );
 	IDENTIFY_CLIENT( Jimm );
 	IDENTIFY_CLIENT( Mip );
+	IDENTIFY_CLIENT( Jasmine );
 	IDENTIFY_CLIENT( Trillian );
 	IDENTIFY_CLIENT( Climm );
 	IDENTIFY_CLIENT( Im2 );
@@ -298,7 +299,7 @@ void ClientIdentify::identify_by_DCInfo()
 		setClientData("IM+", "implus");
 	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_info) && (m_ext_status_info == 0x3b7248ed)) {
 		setClientData("KXicq2", "kxicq");
-	} else if ((m_info == 0xfffff666)) {
+    } else if (m_info == 0xfffff666) {
 		m_client_id = QString("R&Q %1").arg((unsigned int)m_ext_info);
 		setClientIcon("rnq");
 	} else if ((m_info == 0x66666666) && (m_ext_status_info == 0x66666666)) {
@@ -582,20 +583,29 @@ void ClientIdentify::identify_qutIM()
 			QString os = SystemInfo::systemID2String(type, ver);
 			os.prepend('(');
 			os.append (')');
-			int ver1 = verStr[1];
-			int ver2 = verStr[2];
-			int ver3 = verStr[3];
+			int ver1 = quint8(verStr[1]);
+			int ver2 = quint8(verStr[2]);
+			int ver3 = quint8(verStr[3]);
+			int ver4 = quint8(verStr[4]);
 			unsigned char svn1 = verStr[4];
 			unsigned char svn2 = verStr[5];
 			if (ver1 == 0x42) {
 				m_client_id = QString("oldk8 v%1.%2 (%3) %4").arg(ver2).arg(ver3).
 						           arg((unsigned int)((svn1 << 0x08))).arg(os);
 			} else {
-				if (svn1 | svn2)
+				if (svn2) {
 					m_client_id = QString("qutIM v%1.%2.%3 svn%4 %5").arg(ver1).arg(ver2).arg(ver3).
 							                  arg((unsigned int)((svn1 << 0x08) | svn2)).arg(os);
-				else
-					m_client_id = QString("qutIM v%1.%2.%3 %4").arg(ver1).arg(ver2).arg(ver3).arg(os);
+				} else {
+					QString fixVersion;
+					if (ver4 > 0) {
+						fixVersion = QString::number(ver4);
+						fixVersion.prepend(QLatin1Char('.'));
+					}
+					m_client_id = QString("qutIM v%1.%2.%3%4 %5")
+					        .arg(QString::number(ver1), QString::number(ver2),
+					             QString::number(ver3), fixVersion, os);
+				}
 			}
 		}
 		setClientIcon("qutim");
@@ -1055,6 +1065,29 @@ void ClientIdentify::identify_Mip()
 	}
 	if(!m_client_id.isEmpty())
 		setClientIcon("mip");
+}
+
+void ClientIdentify::identify_Jasmine()
+{
+	static const oscar::Capability ICQ_CAPABILITY_JASMINExID  (0x4a, 0x61, 0x73, 0x6d, 0x69, 0x6e,
+	                                                           0x65, 0x20, 0x49, 0x43, 0x51, 0x20,
+	                                                           0x23, 0x23, 0x23, 0x23 );
+	static const oscar::Capability ICQ_CAPABILITY_JASMINExVER (0x4a, 0x61, 0x73, 0x6d, 0x69, 0x6e,
+	                                                           0x65, 0x20, 0x76, 0x65, 0x72, 0xff,
+	                                                           0x00, 0x00, 0x00, 0x00 );
+	if (m_client_caps.match(ICQ_CAPABILITY_JASMINExID)) {
+		oscar::Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_JASMINExVER);
+		if (cap != m_client_caps.constEnd()) {
+			QByteArray data = cap->data();
+			const char *cap_str = data.constData() + 12;
+			m_client_id = QLatin1String("Jasmine ");
+			m_client_id += QString(QLatin1String("%1.%2.%3"))
+			               .arg(QString::number(quint8(cap_str[0])),
+			                    QString::number(quint8(cap_str[1])),
+			                    QString::number(quint8(cap_str[2])));
+			setClientIcon(QLatin1String("jasmine"));
+		}
+	}
 }
 
 void ClientIdentify::identify_Trillian()

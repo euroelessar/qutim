@@ -2,14 +2,22 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( libqutim )
 
+QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
+	"Single profile by default" 
+	"qutIM will be compiled without multiply profiles by default"
+	ON
+)
+
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
 FILE( GLOB HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
-FILE( GLOB SRC_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.cpp" )
-FILE( GLOB HDR_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.h" )
 
-LIST( APPEND SRC ${SRC_GAME} )
-LIST( APPEND HDR ${HDR_GAME} )
+# Some utils, may be deprecated in 0.4 release
+FILE( GLOB SRC_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/utils/*.cpp" )
+FILE( GLOB HDR_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/utils/*.h" )
+
+LIST( APPEND SRC ${SRC_UTILS} )
+LIST( APPEND HDR ${HDR_UTILS} )
 
 # Add K8JSON
 option( SYSTEM_K8JSON "Use system k8json" off )
@@ -30,6 +38,31 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm_p.h" )
 
+# Add Qxt's options implementation
+set( QXT_FIND_COMPONENTS QxtCore )
+find_package( Qxt )
+message("QxtCore: ${QXT_FOUND_QXTCORE}")
+if( QXT_FOUND_QXTCORE )
+	list( APPEND EXTRA_LIBS ${QXT_QXTCORE_LIB_RELEASE} )
+	include_directories( ${QXT_QXTCORE_INCLUDE_DIR} )
+else()
+	add_definitions( -DQXT_STATIC -DNO_SYSTEM_QXT )
+	list( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtglobal.h" )
+	list( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtcommandoptions.h" )
+	list( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qxt/qxtcommandoptions.cpp" )
+endif()
+
+# Add QtLocalPeer
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlocalpeer.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlocalpeer.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile.h" )
+if( WIN32 )
+    LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile_win.cpp" )
+else()
+    LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtsolutions/qtlockedfile_unix.cpp" )
+endif()
+
 # Add SlidingStackedWidget
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
@@ -39,16 +72,6 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/f
 # Add flowlayout code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.h" )
-
-# Add itemdelegate
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.h" )
-
-# Add avatarfilter
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
 
 # MinGW special options
 # Not sure if those applicable for linux
@@ -73,10 +96,10 @@ INCLUDE( ${QT_USE_FILE} )
 INCLUDE_DIRECTORIES(
 	.
 	..
+        utils
 	../3rdparty/k8json/
 	../3rdparty/jdns/
 	../3rdparty/qtdwm/
-	../3rdparty/qticonloader/
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook
 )
@@ -105,6 +128,11 @@ set_target_properties(libqutim PROPERTIES
 	DEFINE_SYMBOL LIBQUTIM_LIBRARY
 )
 
+if(MSVC)
+	get_target_property( libqutim_flags libqutim COMPILE_FLAGS )
+	set( libqutim_flags "${libqutim_flags} -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Zc:wchar_t-" )
+	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${libqutim_flags}" )
+endif()
 #if( CMAKE_COMPILER_IS_GNUCXX )
 #	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )
 #endif( CMAKE_COMPILER_IS_GNUCXX )
@@ -114,14 +142,8 @@ file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook" )
 configure_file( version.h.cmake "${CMAKE_CURRENT_BINARY_DIR}/include/qutim_hook/libqutim_version.h" )
 file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
-	if( NOT ${header} MATCHES ".*_p\\.h" )
-#		if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-#			file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
-#		"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
-#	"
-#			)
-#		endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-		LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
+        if( NOT ${header} MATCHES ".*_p\\.h" )
+                LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
 
@@ -140,12 +162,13 @@ IF(APPLE)
 		COCOA_LIBRARY
 	)
 	LIST(APPEND EXTRA_LIBS ${CARBON_LIBRARY} ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY})
+ELSEIF(UNIX)
+	LIST(APPEND EXTRA_LIBS ${X11_LIBRARIES})
 ENDIF (APPLE)
 
 IF(WIN32)
 	LIST(APPEND EXTRA_LIBS ws2_32)
 ENDIF()
-
 
 # Link with Qt
 qutim_target_link_libraries( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})

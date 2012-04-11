@@ -44,7 +44,6 @@ public:
 protected slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionDestroyed(QObject *session);
-	void sendAlert();
 	void setAlert(bool on);
 private:
 	int sessionCount;

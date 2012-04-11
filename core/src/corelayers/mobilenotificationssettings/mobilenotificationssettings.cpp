@@ -62,10 +62,10 @@ MobileNotifyEnabler::MobileNotifyEnabler(QObject* parent): QObject(parent)
 {
 	reloadSettings();
 	connect(NotificationManager::instance(),
-			SIGNAL(backendCreated(QByteArray,NotificationBackend*)),
+			SIGNAL(backendCreated(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onBackendCreated(QByteArray)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendDestroyed(QByteArray,NotificationBackend*)),
+			SIGNAL(backendDestroyed(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
 			SLOT(onBackendDestroyed(QByteArray)));
 }
 
@@ -140,9 +140,9 @@ void MobileNotifyEnabler::filter(NotificationRequest &request)
 	{
 		// Ignore conference messages that do not contain user nick
 		if (Conference *conf = qobject_cast<Conference*>(request.object())) {
-			QString msg = request.text();
 			Buddy *me = conf->me();
-			if (me && !msg.contains(me->name()) && !msg.contains(me->id()))
+			const Message msg = request.property("message", Message());
+			if (me && !msg.property("mention", false))
 				request.reject("confMessageWithoutUserNick");
 		}
 	}

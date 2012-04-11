@@ -58,11 +58,10 @@ public:
 	~JMUCSession();
 	QString id() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
-	bool sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message);
+	bool sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message);
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
-	bool isJoined();
 	bool isAutoJoin();
 	void setAutoJoin(bool join);
 	bool isError();
@@ -78,16 +77,19 @@ public:
 	void setTopic(const QString &topic);
 	void setConferenceTopic(const QString &topic);
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+	void handleDeath(const QString &name);
 protected:
 	void loadSettings();
-	//			// MUCRoomHandler
+	virtual void doJoin();
+	virtual void doLeave();
 protected slots:
 	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
-	void onMessage(const Jreen::Message &msg, bool priv);
+	void onMessage(Jreen::Message msg, bool priv);
 	void onSubjectChanged(const QString &subject, const QString &nick);
 	void onServiceMessage(const Jreen::Message &msg);
 	void onError(Jreen::Error::Ptr error);
 	void onNickSelected(const QString &nick);
+	void onCaptchaFilled();
 	//			bool handleMUCRoomCreation(gloox::MUCRoom *room);
 	//			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
 	//										const std::string &reason);
@@ -102,8 +104,6 @@ protected slots:
 	//			void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
 	//			void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
 public slots:
-	void join();
-	void leave();
 	void kick(const QString &nick, const QString &reason = QString());
 	void ban(const QString &nick, const QString &reason = QString());
 	void moder(const QString &nick, const QString &reason = QString());
@@ -116,6 +116,7 @@ public slots:
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();
+	void joinedChanged();
 signals:
 	void nickChanged(const QString &nick);
 	void initClose();

@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -45,8 +46,6 @@ protected:
 	void loadImpl();
 	void saveImpl();
 	void cancelImpl();
-private slots:
-	void onModifiedChanged();
 private:
     Ui::SettingsWidget *ui;
 };

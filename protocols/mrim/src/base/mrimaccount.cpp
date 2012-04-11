@@ -82,7 +82,7 @@ void MrimAccount::setAccountStatus(const Status &status)
 
 void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
 {
-	qDebug() << info;
+	debug() << info;
 	QMap<QString, QString>::const_iterator it, it2;
     it = info.find(QLatin1String("MESSAGES.TOTAL"));
     it2 = info.find(QLatin1String("MESSAGES.UNREAD"));

@@ -35,6 +35,7 @@
 #include <qutim/shortcut.h>
 #include <qutim/emoticons.h>
 #include "chatforms/abstractchatform.h"
+#include "quoterwidget.h"
 
 namespace Core
 {
@@ -63,7 +64,7 @@ public:
 	
 	void showImpl(QAction *action, QObject *)
 	{
-		qDebug("%s", Q_FUNC_INFO);
+		debug() << Q_FUNC_INFO;
 		action->setVisible(!Emoticons::theme().isNull());
 	}
 
@@ -85,11 +86,6 @@ void ChatLayerPlugin::init()
 	setInfo(name, description, QUTIM_VERSION);
 	setCapabilities(Loadable);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
-
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Rederick Asher"),
-			  QT_TRANSLATE_NOOP("Task", "Artist"),
-			  QLatin1String("chaoticblack@gmail.com"),
-			  QLatin1String("litsovet.ru"));
 }
 
 bool ChatLayerPlugin::load()
@@ -159,27 +155,43 @@ void ChatLayerPlugin::onInsertEmoticon(QAction *act,QObject *controller)
 
 void ChatLayerPlugin::onQuote(QObject *controller)
 {
-	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller)) {
-		ChatSessionImpl *session = chat->currentSession();
-		const QString quote = session->quote();
-		if (quote.isEmpty())
-			return;
-		const QString newLine = QLatin1String("\n> ");
-		QString text;
-		if (chat->getInputField()->textCursor().atStart())
-			text = QLatin1String("> ");
-		else
-			text = newLine;
-		text.reserve(text.size() + quote.size() * 1.2);
-		for (int i = 0; i < quote.size(); ++i) {
-			if (quote[i] == QLatin1Char('\n') || quote[i].unicode() == QChar::ParagraphSeparator)
-				text += newLine;
-			else
-				text += quote[i];
+	AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller);
+	if (!chat)
+		return;
+	ChatSessionImpl *session = chat->currentSession();
+	const QString quote = session->quote();
+	if (quote.isEmpty()) {
+		const MessageList messages = session->lastMessages();
+		debug() << messages.size();
+		if (!messages.isEmpty()) {
+			QuoterWidget *widget = new QuoterWidget(messages, controller);
+			connect(widget, SIGNAL(quoteChoosed(QString,QObject*)), SLOT(onQuote(QString,QObject*)));
 		}
-		text += QLatin1Char('\n');
-		chat->getInputField()->insertPlainText(text);
+		return;
 	}
+	onQuote(quote, controller);
+}
+
+void ChatLayerPlugin::onQuote(const QString &quote, QObject *controller)
+{
+	AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller);
+	if (!chat)
+		return;
+	const QString newLine = QLatin1String("\n> ");
+	QString text;
+	if (chat->getInputField()->textCursor().atStart())
+		text = QLatin1String("> ");
+	else
+		text = newLine;
+	text.reserve(text.size() + quote.size() * 1.2);
+	for (int i = 0; i < quote.size(); ++i) {
+		if (quote[i] == QLatin1Char('\n') || quote[i].unicode() == QChar::ParagraphSeparator)
+			text += newLine;
+		else
+			text += quote[i];
+	}
+	text += QLatin1Char('\n');
+	chat->getInputField()->insertPlainText(text);
 }
 
 }

@@ -105,8 +105,7 @@ void IrcProtocol::loadAccounts()
 	gen->setPriority(35);
 	gen->setType(ActionTypeContactList | 0x2000);
 	MenuController::addAction<IrcAccount>(gen);
-	gen = new IrcJoinLeftActionGenerator(this, SLOT(onJoinLeftChannel(QObject*)));
-	MenuController::addAction<IrcChannel>(gen);
+
 	// Register status actions.
 	Status status(Status::Online);
 	status.initIcon("irc");
@@ -132,7 +131,8 @@ QList<Account *> IrcProtocol::accounts() const
 	QList<Account *> accounts;
 	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
-		accounts.append(it.value().data());
+		if (!it.value().isNull())
+			accounts.append(it.value().data());
 	return accounts;
 }
 

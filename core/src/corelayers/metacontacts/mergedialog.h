@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Sergei Lopatin <magist3r@gmail.com>
 **
 *****************************************************************************
 **
@@ -41,26 +42,26 @@ class Model;
 
 
 namespace Ui {
-    class MergeDialog;
+	class MergeDialog;
 }
 class MetaContactImpl;
 class MergeDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	explicit MergeDialog(QWidget *parent = 0);
-    ~MergeDialog();
+	~MergeDialog();
 	void setMetaContact(MetaContactImpl *contact);
 protected:
-    virtual void closeEvent(QCloseEvent* );	
+	virtual void closeEvent(QCloseEvent* );
 private slots:
-	void addContact(qutim_sdk_0_3::Contact *);
-	void removeContact(qutim_sdk_0_3::Contact *);
 	void setName(const QString &name);
 	void nameChanged(const QString &name);
+	void onClicked();
+	void accept();
 private:
-    Ui::MergeDialog *ui;
+	Ui::MergeDialog *ui;
 	Model *m_model;
 };
 

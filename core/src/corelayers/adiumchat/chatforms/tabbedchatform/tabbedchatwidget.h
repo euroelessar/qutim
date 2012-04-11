@@ -51,7 +51,8 @@ enum ChatFlag
 	SwitchDesktopOnActivate	=       0x08,
 	DeleteSessionOnClose	=		0x10,
 	TabsOnBottom			=		0x20,
-	MenuBar					=		0x40
+	MenuBar					=		0x40,
+	UseQutimIcon            =       0x80
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag)
@@ -69,7 +70,7 @@ public:
 	virtual void actionRemoved(int index);
 	virtual void actionsCleared();
 	virtual void addAction(ActionGenerator *gen);
-	virtual QPlainTextEdit *getInputField() const;
+	virtual QTextEdit *getInputField() const;
 	virtual bool contains(ChatSessionImpl *session) const;
 	virtual ChatSessionImpl *currentSession()  const;
 	virtual ~TabbedChatWidget();
@@ -97,7 +98,7 @@ private:
 	ChatViewWidget *m_chatViewWidget;
 	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;
-	QPointer<ChatSessionImpl> m_currentSession;
+	QWeakPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
 	QList<QAction*> m_unitChatActionList;

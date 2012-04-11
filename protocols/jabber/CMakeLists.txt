@@ -6,10 +6,17 @@ if( JABBER )
 	if( SYSTEM_JREEN )
 		find_package( PkgConfig )
 		pkg_check_modules( JREEN REQUIRED libjreen )
+		link_directories( ${JREEN_LIBRARY_DIRS} )
 	else()
 		ADD_SUBDIRECTORY(jreen)
 		LIST(APPEND INCLUDE_DIRS "${JREEN_INCLUDE_DIRS}")
 	endif()
+endif()
+
+find_package(QCA2)
+if( NOT QCA2_FOUND )
+	message(STATUS "Could not find QCA2, skipping Jabber plugin")
+	return()
 endif()
 
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/src" )
@@ -18,6 +25,6 @@ qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
 	DESCRIPTION "Implementation of jabber protocol based on jreen library"
 	GROUP "Protocols"
-	LINK_LIBRARIES ${JREEN_LIBRARIES}
-	INCLUDE_DIRS ${JREEN_INCLUDE_DIRS}
+	LINK_LIBRARIES ${JREEN_LIBRARIES} ${QCA2_LIBRARIES}
+	INCLUDE_DIRS ${JREEN_INCLUDE_DIRS} ${QCA2_INCLUDE_DIR}
 )

@@ -38,12 +38,6 @@
        <verstretch>3</verstretch>
       </sizepolicy>
      </property>
-     <property name="iconSize">
-      <size>
-       <width>32</width>
-       <height>32</height>
-      </size>
-     </property>
      <property name="uniformRowHeights">
       <bool>true</bool>
      </property>

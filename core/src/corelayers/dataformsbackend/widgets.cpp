@@ -28,6 +28,7 @@
 #include <QRegExpValidator>
 #include "datalayout.h"
 #include "widgetgenerator.h"
+#include <qutim/debug.h>
 
 Q_DECLARE_METATYPE(QList<QIcon>);
 Q_DECLARE_METATYPE(QList<QPixmap>);
@@ -176,7 +177,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 			current = i;
 		addItem(str, ids.value(i));
 	}
-	qDebug() << Q_FUNC_INFO << value << alt << count();
+	debug() << Q_FUNC_INFO << value << alt << count();
 
 	setEditable(item.property("editable", false));
 	setMinimumContentsLength(12);
@@ -207,7 +208,7 @@ DataItem ComboBox::item() const
 {
 	DataItem item = m_item;
 	item.setName(objectName());
-	qDebug() << Q_FUNC_INFO << currentText();
+	debug() << Q_FUNC_INFO << currentText();
 	item.setData(currentText());
 	item.setProperty("identificator", itemData(currentIndex()));
 	return item;
@@ -717,7 +718,7 @@ DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *
 		setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_layout = new DataLayout(items, dataForm, items.property<quint16>("columns", 1), this);
-	m_layout->addItems(items.subitems());
+	m_layout->addDataItems(items.subitems());
 
 	QVariant spacing = items.property("horizontalSpacing");
 	if (spacing.canConvert(QVariant::Int))

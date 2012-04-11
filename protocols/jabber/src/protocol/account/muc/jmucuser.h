@@ -47,6 +47,7 @@ public:
 	~JMUCUser();
 	QString title() const;
 	QString name() const;
+	void setUserName(const QString &name);
 	QString avatar() const;
 	QString avatarHash() const;
 	void setAvatar(const QString &hex);

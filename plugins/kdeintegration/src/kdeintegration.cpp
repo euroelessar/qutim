@@ -39,6 +39,8 @@
 #include <qutim/event.h>
 #include <QCoreApplication>
 #include <KAboutData>
+#include <KStandardDirs>
+#include <qutim/systeminfo.h>
 #include <kcmdlineargs.h>
 #include <QDebug>
 
@@ -66,7 +68,6 @@ KdePlugin::KdePlugin()
 
 void KdePlugin::init()
 {
-	//		QApplication::setPalette(KGlobalSettings::createApplicationPalette());
 	menu_creator_hook = kmenu_creator;
 	KAboutData aboutData(QCoreApplication::applicationName().toUtf8(),
 						 QByteArray(),
@@ -75,31 +76,25 @@ void KdePlugin::init()
 	aboutData.setProgramIconName(QLatin1String("qutim"));
 	aboutData.setHomepage("http://qutim.org");
 
-//	aboutData.addAuthor(ki18n("Ruslan Nigmatullin"), ki18n("Developer"), "euroelessar@yandex.ru");
-//	aboutData.addAuthor(ki18n("Aleksey Sidorov"), ki18n("Developer"), "gorthauer87@yandex.ru");
 	aboutData.setShortDescription(ki18n("Communicate over IM"));
-	aboutData.addLicense(KAboutData::License_GPL_V2);
+	aboutData.addLicense(KAboutData::License_GPL_V3);
 	aboutData.setBugAddress("https://bugs.launchpad.net/qutim/+filebug");
 	aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 	KGlobal::setActiveComponent(KComponentData(aboutData));
 
-	// Don't know better way to know application arguments from here
-	QStringList args = QCoreApplication::arguments();
-	int argc = args.count();
-	char **argv = (char **) malloc(sizeof(char *) * argc);
-	for (int i = 0; i < argc; i++)
-		argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
+	// Don't transfer options to KDE, we handle all of them ourself in ModuleManager
+//	// Don't know better way to know application arguments from here
+//	QStringList args = QCoreApplication::arguments();
+//	int argc = args.count();
+//	char **argv = (char **) malloc(sizeof(char *) * argc);
+//	for (int i = 0; i < argc; i++)
+//		argv[i] = qstrdup(args.at(i).toLocal8Bit().constData());
 	// Whe shouldn't free memory because KCmdLineArgs stores pointers internally to it
-	KCmdLineArgs::init(argc, argv, KGlobal::activeComponent().aboutData());
+	KCmdLineArgs::init(KGlobal::activeComponent().aboutData());
 
 	ExtensionIcon kdeIcon("kde");
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("euroelessar"));
+	addAuthor(QLatin1String("sauron"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "KDE integration"),
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
 			KDE_VERSION << 8, kdeIcon);

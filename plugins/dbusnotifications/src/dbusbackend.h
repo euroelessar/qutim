@@ -22,8 +22,8 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef GROWLBACKEND_H
-#define GROWLBACKEND_H
+#ifndef DBUSNOTIFICATIONSBACKEND_H
+#define DBUSNOTIFICATIONSBACKEND_H
 
 #include <qutim/notification.h>
 #include <qutim/sound.h>
@@ -48,9 +48,9 @@ protected slots:
 private:
 	struct NotificationData
 	{
-		QPointer<QObject> sender;
+		QWeakPointer<QObject> sender;
 		QString body;
-		QList<QPointer<qutim_sdk_0_3::Notification> > notifications;
+		QList<QWeakPointer<qutim_sdk_0_3::Notification> > notifications;
 		QMultiHash<QString, qutim_sdk_0_3::NotificationAction> actions;
 	};
 	void ignore(NotificationData &data);
@@ -63,5 +63,5 @@ private:
 
 };
 
-#endif // GROWLBACKEND_H
+#endif // DBUSNOTIFICATIONSBACKEND_H
 

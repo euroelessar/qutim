@@ -26,9 +26,15 @@
 #include <kiconloader.h>
 #include <kicon.h>
 #include <kcomponentdata.h>
+#include <KStandardDirs>
+#include <qutim/debug.h>
+#include <qutim/systeminfo.h>
 
 KdeIconLoader::KdeIconLoader()
 {
+	KStandardDirs *dirs = KGlobal::dirs();
+	dirs->addResourceDir("icon", SystemInfo::getPath(SystemInfo::SystemShareDir) + QLatin1String("/icons/"), false);
+	dirs->addResourceDir("icon", SystemInfo::getPath(SystemInfo::ShareDir) + QLatin1String("/icons/"), true);
 	KIconLoader::global()->reconfigure("qutim", 0);
 }
 
@@ -44,7 +50,7 @@ QMovie *KdeIconLoader::doLoadMovie(const QString &name)
 
 QString KdeIconLoader::doIconPath(const QString &name, uint iconSize)
 {
-	return KIconLoader::global()->iconPath(name, iconSize, true);
+	return KIconLoader::global()->iconPath(name, -iconSize, true);
 }
 
 QString KdeIconLoader::doMoviePath(const QString &name, uint iconSize)

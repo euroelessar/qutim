@@ -31,7 +31,7 @@
 #include <qutim/config.h>
 #include <qutim/contact.h>
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/qtwin.h>
@@ -39,6 +39,7 @@
 #include <qutim/shortcut.h>
 #include <qutim/systemintegration.h>
 #include <qutim/utils.h>
+#include <qutim/statusactiongenerator.h>
 #include <QAbstractItemDelegate>
 #include <QAction>
 #include <QApplication>
@@ -55,8 +56,9 @@
 
 namespace Core {
 namespace SimpleContactList {
-struct ToryWidgetPrivate
+class ToryWidgetPrivate
 {
+public:
 	TreeView *view;
 	ServicePointer<AbstractContactModel> model;
 	ActionToolBar *mainToolBar;
@@ -66,6 +68,7 @@ struct ToryWidgetPrivate
 	QAction *statusTextAction;
 	QHash<Account *, QToolButton *> accounts;
 	QActionGroup *statusGroup;
+	QList<ActionGenerator*> actionGenerators;
 };
 
 ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
@@ -170,6 +173,7 @@ ToryWidget::~ToryWidget()
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());
+	qDeleteAll(d_func()->actionGenerators);
 }
 
 void ToryWidget::addButton(ActionGenerator *generator)
@@ -189,12 +193,14 @@ TreeView *ToryWidget::contactView()
 
 QAction *ToryWidget::createGlobalStatus(Status::Type type)
 {
-	Status s = Status(type);
-	QAction *act = new QAction(s.icon(), s.name(), this);
-	connect(act, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
-	d_func()->statusGroup->addAction(act);
-	act->setData(type);
-	return act;
+	Q_D(ToryWidget);
+	ActionGenerator *generator = new StatusActionGenerator(Status(type));
+	QAction *action = generator->generate<QAction>();
+	connect(action, SIGNAL(triggered(bool)), SLOT(onStatusChanged()));
+	d->actionGenerators << generator;
+	d->statusGroup->addAction(action);
+	action->setData(type);
+	return action;
 }
 
 void ToryWidget::loadGeometry()
@@ -324,11 +330,22 @@ void ToryWidget::onStatusChanged()
 				Status status = account->status();
 				status.setType(type);
 				status.setSubtype(0);
-				status.setProperty("changeReason",Status::ByUser);
+				status.setChangeReason(Status::ByUser);
 				account->setStatus(status);
 			}
 		}
 	}
+}
+
+bool ToryWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::LanguageChange) {
+		Q_D(ToryWidget);
+		d->globalStatus->setText(tr("Global status"));
+		d->statusTextAction->setText(tr("Set Status Text"));
+		event->accept();
+	}
+	return QMainWindow::event(event);
 }
 
 bool ToryWidget::eventFilter(QObject *obj, QEvent *event)
@@ -354,7 +371,10 @@ void ToryWidget::initMenu()
 	gen->setShortcut(QLatin1String("contactListActivateMainMenu"));
 	QAction *before = d->mainToolBar->actions().count() ? d->mainToolBar->actions().first() : 0;
 	d->mainToolBar->insertAction(before, gen);
-	SystemIntegration::show(this);
+	Config config("appearance");
+	config.beginGroup("contactList");
+	if(config.value<bool>("showContactListOnStartup", true))
+		SystemIntegration::show(this);
 }
 
 void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
@@ -362,7 +382,7 @@ void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject 
 	Q_D(ToryWidget);
 	Q_UNUSED(old);
 	if (name == "ContactModel") {
-		d->view->setModel(d->model);
+		d->view->setContactModel(d->model);
 		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
 	} else if (name == "ContactDelegate") {
 		d->view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));

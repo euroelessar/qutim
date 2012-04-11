@@ -32,7 +32,7 @@
 #include <qutim/config.h>
 #include <qutim/contact.h>
 #include <qutim/icon.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/qtwin.h>
@@ -54,8 +54,9 @@
 namespace Core {
 namespace SimpleContactList {
 
-struct MacWidgetPrivate
+class MacWidgetPrivate
 {
+public:
     TreeView *view;
     AbstractContactModel *model;
     QLineEdit *searchBar;
@@ -76,7 +77,6 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
     setWindowIcon(Icon("qutim"));
 
-    resize(150,0);//hack
     setAttribute(Qt::WA_AlwaysShowToolTips);
     loadGeometry();
 
@@ -87,11 +87,6 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     QVBoxLayout *layout = new QVBoxLayout(w);
     layout->setMargin(1);
     layout->setSpacing(0);
-
-    if (QtWin::isCompositionEnabled()) {
-        QtWin::extendFrameIntoClientArea(this);
-        setContentsMargins(0, 0, 0, 0);
-    }
 
     Config cfg;
     cfg.beginGroup("contactlist");
@@ -172,17 +167,10 @@ void MacWidget::removeButton(ActionGenerator *generator)
 void MacWidget::loadGeometry()
 {
     QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-    if (geom.isNull()) {
-        QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-        //black magic
-        int width = size().width();
-        int x = rect.width() - width;
-        int y = 0;
-        int height = rect.height();
-        QRect geometry(x, y, width, height);
-        setGeometry(geometry);
-    } else {
+    if (!geom.isNull())
         restoreGeometry(geom);
+    else {
+        resize(200, 600);
     }
 }
 

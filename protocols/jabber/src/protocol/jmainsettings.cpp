@@ -22,15 +22,18 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#include "jmainsettings.h"
+
 #include "ui_jmainsettings.h"
+#include "jmainsettings.h"
 #include "jprotocol.h"
 #include "account/jaccount.h"
+#include "account/jpgpkeydialog.h"
+#include "account/jpgpsupport.h"
 #include <jreen/client.h>
 
 namespace Jabber
 {
-JMainSettings::JMainSettings() : ui(new Ui::JMainSettings)
+JMainSettings::JMainSettings() : ui(new ::Ui::JMainSettings)
 {
 	ui->setupUi(this);
 	listenChildrenStates();
@@ -44,6 +47,18 @@ void JMainSettings::setController(QObject *controller)
 	m_account = qobject_cast<JAccount*>(controller);
 }
 
+void JMainSettings::updatePGPText()
+{
+	if (m_keyEntry.isNull()) {
+		ui->pgpLabel->setText(tr("No key selected"));
+	} else {
+		QString text = m_keyEntry.id().right(8);
+		text += QLatin1String(" ");
+		text += m_keyEntry.name();
+		ui->pgpLabel->setText(text);
+	}
+}
+
 JMainSettings::~JMainSettings()
 {
 	delete ui;
@@ -53,22 +68,27 @@ void JMainSettings::loadImpl()
 {
 	if(!m_account) //TODO add global config
 		return;
-	Config general = m_account->config("general");
-	ui->resourceEdit->setText(general.value("resource",m_account->client()->jid().resource()));
+	Config general = m_account.data()->config("general");
+	ui->resourceEdit->setText(general.value("resource",m_account.data()->client()->jid().resource()));
 	ui->avatarRequestCheck->setChecked(!general.value("getAvatars", true));
-	ui->passwdEdit->setText(m_account->getPassword());
+	ui->passwdEdit->setText(m_account.data()->getPassword());
+	ui->encryptionBox->setCurrentIndex(general.value("encryption", Jreen::Client::Auto));
+	ui->compressionBox->setCurrentIndex(general.value("compression", Jreen::Client::Auto));
+	QString pgpKeyId = general.value("pgpKeyId", QString());
+	m_keyEntry = JPGPSupport::instance()->findEntry(pgpKeyId, JPGPSupport::SecretKey);
+	updatePGPText();
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
 	ui->autodetectBox->setCheckState(state);
 	ui->portBox->setValue(general.value("port",5222));
-	ui->serverEdit->setText(general.value("server",m_account->client()->server()));
+	ui->serverEdit->setText(general.value("server",m_account.data()->client()->server()));
 
 //	general.beginGroup("bosh");
 //	general.value("use", false))
 //	general.endGroup();
 
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
-	Config priority = m_account->config("priority");
+	Config priority = m_account.data()->config("priority");
 	ui->onlinePriority->setValue(priority.value("online", 3));
 	ui->ffchatPriority->setValue(priority.value("ffchat", 3));
 	ui->awayPriority->setValue(priority.value("away", 2));
@@ -82,11 +102,14 @@ void JMainSettings::cancelImpl()
 
 void JMainSettings::saveImpl()
 {
-	Config general = m_account->config("general");
+	Config general = m_account.data()->config("general");
 	QString defaultResource = ui->resourceEdit->text().isEmpty() ? "qutIM" : ui->resourceEdit->text();
 	general.setValue("resource", defaultResource);
 	general.setValue("getAvatars", !ui->avatarRequestCheck->isChecked());
-	m_account->setPasswd(ui->passwdEdit->text());
+	m_account.data()->setPasswd(ui->passwdEdit->text());
+	general.setValue("encryption", static_cast<Jreen::Client::FeatureConfig>(ui->encryptionBox->currentIndex()));
+	general.setValue("compression", static_cast<Jreen::Client::FeatureConfig>(ui->compressionBox->currentIndex()));
+	general.setValue("pgpKeyId", m_keyEntry.isNull() ? QString() : m_keyEntry.id());
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 
 	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
@@ -97,7 +120,7 @@ void JMainSettings::saveImpl()
 	general.setValue("autoDetect",autoDetect);
 
 	general.sync();
-	Config priority = m_account->config("priority");
+	Config priority = m_account.data()->config("priority");
 	priority.setValue("online", ui->onlinePriority->value());
 	priority.setValue("ffchat", ui->ffchatPriority->value());
 	priority.setValue("away", ui->awayPriority->value());
@@ -105,5 +128,31 @@ void JMainSettings::saveImpl()
 	priority.setValue("dnd", ui->dndPriority->value());
 	priority.sync();
 }
+
+void JMainSettings::on_selectPGPButton_clicked()
+{
+	setEnabled(false);
+	JPGPKeyDialog *dialog = new JPGPKeyDialog(JPGPKeyDialog::SecretKeys, m_account.data()->pgpKeyId(), this);
+	dialog->show();
+	connect(dialog, SIGNAL(finished(int)), SLOT(onPGPKeyDialogFinished(int)));
 }
 
+void JMainSettings::on_removePGPButton_clicked()
+{
+	m_keyEntry = QCA::KeyStoreEntry();
+	updatePGPText();
+	emit modifiedChanged(true);
+}
+
+void JMainSettings::onPGPKeyDialogFinished(int result)
+{
+	setEnabled(true);
+	if (result == QDialog::Accepted) {
+		JPGPKeyDialog *dialog = qobject_cast<JPGPKeyDialog*>(sender());
+		Q_ASSERT(dialog);
+		m_keyEntry = dialog->keyStoreEntry();
+		updatePGPText();
+		emit modifiedChanged(true);
+	}
+}
+}

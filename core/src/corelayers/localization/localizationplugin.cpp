@@ -26,6 +26,8 @@
 #include "localizationplugin.h"
 #include "localizationmodule.h"
 #include <qutim/plugin.h>
+#include <qutim/systeminfo.h>
+#include <QDebug>
 
 using namespace qutim_sdk_0_3;
 

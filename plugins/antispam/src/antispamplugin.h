@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,10 +23,12 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+
 #ifndef ANTISPAMPLUGIN_H
 #define ANTISPAMPLUGIN_H
+
 #include <qutim/plugin.h>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace Antispam {
 
@@ -42,7 +45,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QPointer<Handler> m_handler;
+	QWeakPointer<Handler> m_handler;
 };
 
 }

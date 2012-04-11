@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -36,12 +37,7 @@ SettingsWidget::SettingsWidget() :
     ui(new Ui::SettingsWidget)
 {
     ui->setupUi(this);
-
-	connect(ui->answerEdit, SIGNAL(textChanged()), SLOT(onModifiedChanged()));
-	connect(ui->questionEdit, SIGNAL(textChanged()), SLOT(onModifiedChanged()));
-	connect(ui->successEdit, SIGNAL(textChanged()), SLOT(onModifiedChanged()));
-	connect(ui->enabledBox, SIGNAL(stateChanged(int)), SLOT(onModifiedChanged()));
-	connect(ui->authHandleBox, SIGNAL(stateChanged(int)), SLOT(onModifiedChanged()));
+	listenChildrenStates();
 }
 
 SettingsWidget::~SettingsWidget()
@@ -76,15 +72,6 @@ void SettingsWidget::saveImpl()
 void SettingsWidget::cancelImpl()
 {
 	loadImpl();
-}
-
-void SettingsWidget::onModifiedChanged()
-{
-	ui->questionEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
-	ui->answerEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
-	ui->successEdit->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
-	ui->authHandleBox->setEnabled(ui->enabledBox->checkState() == Qt::Checked);
-	emit modifiedChanged(true);
 }
 
 } // namespace Antispam

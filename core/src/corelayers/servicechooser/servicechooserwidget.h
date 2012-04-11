@@ -28,6 +28,7 @@
 #include <qutim/settingswidget.h>
 #include <QHash>
 #include <QModelIndex>
+#include "simplefilterproxymodel.h"
 
 namespace qutim_sdk_0_3 
 {
@@ -59,10 +60,12 @@ public:
 private slots:
 	void onItemChanged(QStandardItem*);
 	void onItemClicked(QModelIndex index);
+	void filterServices(const QString& servicename);
 private:
 	void clear();
 	Ui::ServiceChooser *ui;
 	QStandardItemModel *m_model;
+	SimpleFilterProxyModel *m_proxymodel;
 	QHash<QByteArray, ServiceItem *> m_service_items;
 };
 

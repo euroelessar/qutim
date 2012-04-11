@@ -60,9 +60,7 @@ void NowPlaying::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author","Alexey Prokhin"),
 			  QT_TRANSLATE_NOOP("Task","Developer"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));
-	addAuthor(QT_TRANSLATE_NOOP("Author","Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task","Developer"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Now Playing Mpris"),
 				 QT_TRANSLATE_NOOP("Plugin", "Mpris support for now playing plugin"),
 				 new GeneralGenerator<MprisPlayerFactory, PlayerFactory>(),
@@ -94,7 +92,6 @@ bool NowPlaying::load()
 		obj->installEventFilter(this);
 		m_playerFactories.append(obj);
 	}
-	loadSettings();
 
 	SettingsItem* settings = new GeneralSettingsItem<SettingsUI>(
 				Settings::Plugin,
@@ -102,10 +99,11 @@ bool NowPlaying::load()
 				QT_TRANSLATE_NOOP("NowPlaying", "Now Playing"));
 	Settings::registerItem(settings);
 
-	m_stopStartAction = new StopStartActionGenerator(this, m_isWorking);
+	m_stopStartAction = new StopStartActionGenerator(this, false, false);
 	MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 	if (contactList)
 		contactList->addAction(m_stopStartAction);
+	loadSettings();
 	return true;
 }
 
@@ -149,13 +147,17 @@ bool NowPlaying::eventFilter(QObject *obj, QEvent *ev)
 void NowPlaying::loadSettings()
 {
 	Config cfg = config("global");
-	m_isWorking = cfg.value("isWorking", false);
 	foreach (AccountTuneStatus *account, m_accounts)
 		account->loadSettings();
 	foreach (AccountTuneStatus *factory, m_factories)
 		factory->loadSettings();
 	initPlayer(cfg.value("player", QString("amarok")));
+	if (!m_player)
+		m_isWorking = false;
+	else
+		m_isWorking = cfg.value("isWorking", false);
 	m_forAllAccounts = cfg.value("enableForAllAccounts", true);
+	m_stopStartAction->setState(m_isWorking, !!m_player);
 }
 
 void NowPlaying::initPlayer(const QString &playerId, PlayerFactory *factory)
@@ -195,17 +197,16 @@ void NowPlaying::initPlayer(const QString &playerId, PlayerFactory *factory)
 
 void NowPlaying::setState(bool isWorking)
 {
-	//Q_ASSERT(!(!m_player && m_isWorking));
-	if (m_isWorking == isWorking || !m_player)
+	if (m_isWorking == isWorking)
 		return;
 	m_isWorking = isWorking;
-	m_stopStartAction->setState(isWorking);
+	m_stopStartAction->setState(isWorking, !!m_player);
 	config("global").setValue("isWorking", isWorking);
+	if (!m_player)
+		return;
 	if (isWorking) {
 		m_player->startWatching();
 		m_player->requestState();
-		//			if (m_player->isPlaying())
-		//				setStatuses(m_player->trackInfo());
 	} else {
 		m_player->stopWatching();
 		clearStatuses();
@@ -228,7 +229,7 @@ void NowPlaying::playingStatusChanged(bool isPlaying)
 
 void NowPlaying::setStatuses(const TrackInfo &info)
 {
-	qDebug() << info.location.toString();
+	debug() << info.location.toString();
 	foreach (AccountTuneStatus *account, m_accounts)
 		account->setStatus(info);
 }
@@ -265,28 +266,35 @@ void NowPlaying::accountDeleted(QObject *obj)
 	}
 }
 
-StopStartActionGenerator::StopStartActionGenerator(QObject* module, bool isWorking):
+StopStartActionGenerator::StopStartActionGenerator(QObject* module, bool isWorking, bool isEnabled):
 	ActionGenerator(QIcon(":images/images/logo.png"),
 		LocalizedString(),
 		module,
-		SLOT(stopStartActionTrigged()))
+		SLOT(stopStartActionTrigged())),
+    m_isEnabled(isEnabled)
 {
 	setCheckable(true);
-	setState(isWorking);
+	setState(isWorking, isEnabled);
 }
 
 void StopStartActionGenerator::showImpl(QAction *action, QObject* /*obj*/)
 {
 	action->setText(m_text);
 	action->setToolTip(m_text);
+//	action->setEnabled(m_isEnabled);
 }
 
-void StopStartActionGenerator::setState(bool isWorking)
+void StopStartActionGenerator::setState(bool isWorking, bool isEnabled)
 {
+	Q_UNUSED(isEnabled);
 	setChecked(isWorking);
 	m_text = isWorking ?
 				QT_TRANSLATE_NOOP("NowPlaying",  "Stop now playing") :
 				QT_TRANSLATE_NOOP("NowPlaying", "Start now playing");
+	foreach (QAction *action, actions()) {
+		action->setChecked(isWorking);
+//		action->setEnabled(isEnabled);
+	}
 }
 
 } }

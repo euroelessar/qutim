@@ -1,1 +1,1 @@
-$localized{Weather}%: %temperature%°%units/temp% (%weathertext%)
+%localized{Weather}%: %temperature%°%units/temp% (%weathertext%)

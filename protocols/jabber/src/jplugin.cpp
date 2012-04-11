@@ -37,33 +37,28 @@
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
+#include "protocol/modules/proxy/jproxymanager.h"
 
 namespace Jabber
 {
 JPlugin::JPlugin()
 {
-	qDebug("%s", Q_FUNC_INFO);
 }
 
 void JPlugin::init()
 {
-	qDebug("%s", Q_FUNC_INFO);
 	qRegisterMetaType<QSet<QString> >("QSet<QString>");
 	ExtensionIcon jabberIcon("im-jabber");
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0),
 			jabberIcon);
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("daschenko@gmail.com"));
+	addAuthor(QLatin1String("reindeer"));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("zodiac.nv@gmail.com"));
 	addAuthor(QLatin1String("euroelessar"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task", "Developer"),
-			  QLatin1String("sauron@qutim.org"));
+	addAuthor(QLatin1String("sauron"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 				 new GeneralGenerator<JProtocol>(),
@@ -118,10 +113,6 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Implementation of VCard info requests"),
 				 new GeneralGenerator<JVCardManager, JabberExtension>(),
 				 ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
-	//			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
-	//			ExtensionIcon(""));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
 				 new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
@@ -134,14 +125,18 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
 				 new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
 				 ExtensionIcon(""));
-	/*addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
 				QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
 				new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
 				ExtensionIcon(""));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
 				QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
 				new GeneralGenerator<JActivityChooser, JabberExtension>(),
-				ExtensionIcon(""));*/
+				ExtensionIcon(""));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
+				 new SingletonGenerator<JProxyManager, NetworkProxyManager>(),
+				 ExtensionIcon("im-jabber"));
 }
 
 bool JPlugin::load()

@@ -40,16 +40,13 @@ class VWallSession : public Conference
 public:
 	explicit VWallSession(const QString& id, VAccount *account);
 	virtual QString id() const;
-	virtual void join();
-	virtual void leave();
 	virtual Buddy* me() const;
 	virtual bool sendMessage(const qutim_sdk_0_3::Message& message);
     virtual ~VWallSession();
     virtual QString title() const;
-signals:
-
-public slots:
-	
+protected:
+	virtual void doJoin();
+	virtual void doLeave();
 private:
 	QScopedPointer<VWallSessionPrivate> d_ptr;
 };

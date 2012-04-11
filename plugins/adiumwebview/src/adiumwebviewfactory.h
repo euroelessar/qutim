@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -36,15 +36,22 @@ class SettingsItem;
 
 namespace Adium {
 
-class WebViewFactory : public Core::AdiumChat::ChatViewFactory
+class WebViewFactory : public QObject, public Core::AdiumChat::ChatViewFactory
 {
-    Q_OBJECT
+	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewFactory)
+	Q_CLASSINFO("Service", "ChatViewFactory")
+	Q_CLASSINFO("Uses", "ChatForm")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	WebViewFactory();
 	virtual QWidget *createViewWidget();
 	virtual QObject *createViewController();
     virtual ~WebViewFactory();
+	
+signals:
+	void settingsSaved();
+	
 private:
 	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
 };

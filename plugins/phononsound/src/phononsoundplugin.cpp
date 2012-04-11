@@ -28,9 +28,7 @@
 
 void PhononSoundPlugin::init()
 {
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("euroelessar@yandex.ru"));
+	addAuthor(QLatin1String("euroelessar"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Phonon sound engine"),
 			QT_TRANSLATE_NOOP("Plugin", "Sound engine based on KDE sound engine"),
 			PLUGIN_VERSION(0, 1, 0, 0),

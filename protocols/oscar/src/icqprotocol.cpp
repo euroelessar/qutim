@@ -36,7 +36,7 @@
 #include <qutim/icon.h>
 #include <qutim/systeminfo.h>
 #include <QStringList>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace qutim_sdk_0_3 {
 

@@ -55,6 +55,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 	bool singleProfile = false;
 #endif
 	singleProfile = config.value("singleProfile", singleProfile);
+
 	QWizard *wizard = 0;
 	StatisticsHelper *helper = 0;
 	if (singleProfile) {
@@ -68,11 +69,13 @@ ModuleManagerImpl::ModuleManagerImpl()
 				wizard = new QWizard();
 				wizard->addPage(new SubmitPage(helper, wizard));
 			}
-
-			if(ProfileDialog::acceptProfileInfo(config, QString())) {
+			
+			bool systemProfiles = false;
+			ProfileDialog::profilesConfigPath(&systemProfiles);
+			if(ProfileDialog::acceptProfileInfo(config, QString(), !systemProfiles)) {
 				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
-				qWarning("Can't login");
+				warning() << "Can't login";
 				QDialog *dialog = new ProfileDialog(config, this);
 				SystemIntegration::show(dialog);
 			}
@@ -98,11 +101,11 @@ void ModuleManagerImpl::initExtensions()
 {
 	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
 	path += QLatin1String("/ca-certs/*.pem");
-	qDebug() << QSslSocket::defaultCaCertificates().size();
-	qDebug() << QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
-	qDebug() << QSslSocket::defaultCaCertificates().size();
-	
-	qDebug() << SystemInfo::getPath(SystemInfo::SystemConfigDir);
+	QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
+	path.chop(3);
+	path += QLatin1String("crt");
+	QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
+
 	ModuleManager::initExtensions();
 
 	NotificationRequest request(Notification::AppStartup);

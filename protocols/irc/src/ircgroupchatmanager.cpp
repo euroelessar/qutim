@@ -26,7 +26,7 @@
 #include "ircgroupchatmanager.h"
 #include "ircchannel_p.h"
 #include "ircaccount_p.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 
 namespace qutim_sdk_0_3 {
 namespace irc {

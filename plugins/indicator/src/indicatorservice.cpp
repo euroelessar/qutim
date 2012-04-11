@@ -70,10 +70,10 @@ IndicatorService::~IndicatorService()
 
 void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
-	qutim_sdk_0_3::debug() << "[Indicator] onSessionCreated";
+	qutim_sdk_0_3::debug() << "onSessionCreated";
 	if (sessionIndicators.contains(session))
 		return;
-	qutim_sdk_0_3::debug() << "[Indicator] List doesn't contain session. Adding indicator";
+	qutim_sdk_0_3::debug() << "List doesn't contain session. Adding indicator";
 	QIndicate::Indicator *indicator = new QIndicate::Indicator;
 	sessionIndicators.insert(session, indicator);
 	
@@ -101,21 +101,21 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 
 void IndicatorService::onSessionDestroyed(QObject *session)
 {
-	qutim_sdk_0_3::debug() << "[Indicator] onSessionDestroyed";
+	qutim_sdk_0_3::debug() << "onSessionDestroyed";
 	qutim_sdk_0_3::ChatSession *_session = static_cast<qutim_sdk_0_3::ChatSession*>(session);
 	delete sessionIndicators.take(_session);
 }
 
 void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
 {
-	qutim_sdk_0_3::debug() << "[Indicator] onUnreadChanged";
+	qutim_sdk_0_3::debug() << "onUnreadChanged";
 	if (messages.isEmpty())
 		return;
-	qutim_sdk_0_3::debug() << "[Indicator] Message list isn't empty. Looking for session.";
+	qutim_sdk_0_3::debug() << "Message list isn't empty. Looking for session.";
 	qutim_sdk_0_3::ChatSession* session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
 	if (!session || session->isActive())
 		return;
-	qutim_sdk_0_3::debug() << "[Indicator] session exists and not active.";
+	qutim_sdk_0_3::debug() << "session exists and not active.";
 
 	QIndicate::Indicator *indicator = sessionIndicators.value(session);
 	if (!indicator)
@@ -144,7 +144,7 @@ void IndicatorService::loadSettings()
 
 void IndicatorService::onSessionActivated(bool active)
 {
-	qutim_sdk_0_3::debug() << "[Indicator] onSessionActivated";
+	qutim_sdk_0_3::debug() << "onSessionActivated";
 	if (!active)
 		return;
 	qutim_sdk_0_3::ChatSession *session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
@@ -162,7 +162,7 @@ void IndicatorService::onSessionActivated(bool active)
 
 void IndicatorService::onIndicatorDisplay(QIndicate::Indicator* indicator)
 {
-	qutim_sdk_0_3::debug() << "[Indicator] onIndicatorDisplay";
+	qutim_sdk_0_3::debug() << "onIndicatorDisplay";
 	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(indicator);
 	if (!sessionIndicators.contains(session))
 		return;
@@ -171,7 +171,7 @@ void IndicatorService::onIndicatorDisplay(QIndicate::Indicator* indicator)
 
 void IndicatorService::showMainWindow()
 {
-	qutim_sdk_0_3::debug() << "[Indicator] showMainWindow";
+	qutim_sdk_0_3::debug() << "showMainWindow";
 	if (QObject *obj = qutim_sdk_0_3::ServiceManager::getByName("ContactList"))
 	{
 		QMetaObject::invokeMethod(obj, "show");

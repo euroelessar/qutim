@@ -55,7 +55,7 @@ protected:
 	RequestPtr currentRequest() { return m_currentRequest; }
 	RequestsListModel *requestsModel() { return m_requestsModel; }
 	ResultModel *resultModel() { return m_resultModel; }
-	QWidget *searchFieldsWidget() { return m_searchFieldsWidget; }
+	QWidget *searchFieldsWidget() { return m_searchFieldsWidget.data(); }
 	void clearActionButtons();
 	void actionButtonClicked(QAction *button, const QList<QModelIndex> &selected);
 private slots:
@@ -64,7 +64,7 @@ protected:
 	bool event(QEvent *e);
 private:
 	RequestPtr m_currentRequest;
-	QPointer<AbstractDataForm> m_searchFieldsWidget;
+	QWeakPointer<AbstractDataForm> m_searchFieldsWidget;
 	ResultModel *m_resultModel;
 	RequestsListModel *m_requestsModel;
 	bool m_done;

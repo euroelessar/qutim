@@ -26,6 +26,7 @@
 #define JACCOUNTWIZARDPAGE_H
 
 #include <QWizardPage>
+#include <QNetworkAccessManager>
 #include "jaccountwizard.h"
 
 namespace Ui
@@ -46,7 +47,15 @@ public:
 	QString jid();
 	QString passwd();
 	bool isSavePasswd();
+	virtual int nextId() const;
+	
+private slots:
+	void on_newAccountButton_clicked();
+	void on_oldAccountButton_clicked();
+	void onFinished(QNetworkReply *reply);
+	
 private:
+	QNetworkAccessManager m_networkManager;
 	JAccountWizard *m_accountWizard;
 	JAccountType m_type;
 	Ui::JAccountWizardPage *ui;

@@ -33,6 +33,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QTextDocument>
+#include <QStringBuilder>
 
 namespace UrlPreview {
 
@@ -61,7 +62,7 @@ void UrlHandler::loadSettings()
 	m_maxImageSize.setWidth(cfg.value(QLatin1String("maxWidth"), 800));
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
-	m_template = "<br><b>" + tr("URL Preview") + "</b>: <i>%TYPE%, %SIZE% " + tr("bytes") + "</i><br>";
+	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
 	m_imageTemplate = "<img src=\"%URL%\" style=\"display: none;\" "
 								 "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
 								 "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
@@ -70,9 +71,9 @@ void UrlHandler::loadSettings()
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
-	m_html5AudioTemplate = "<audio controls=\"controls\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/> Something went wrong.</audio>";
+	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
-	m_html5VideoTemplate = "<video controls=\"controls\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />Something went wrong.</video>";
+	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
 	m_enableHTML5Audio = cfg.value("HTML5Audio", true);
@@ -86,7 +87,6 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
     if (!session || !session->property("supportJavaScript").toBool())
 		return UrlHandler::Accept;
 
-	debug() << Q_FUNC_INFO;
 	QString html = message.html();
 //	if (html.isEmpty()) {
 //		html = Qt::escape(message.text());
@@ -220,7 +220,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			size = hrx.cap(1).toInt();
 	}
 	
-	qDebug() << url << reply->rawHeaderList() << type;
+	debug() << url << reply->rawHeaderList() << type;
 	if (type.isNull())
 		return;
 

@@ -29,6 +29,7 @@
 #include <QFileInfo>
 #include <QTextDocument>
 #include <qutim/icon.h>
+#include <qutim/debug.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -68,7 +69,7 @@ void qippda::loadMessages(const QString &path)
 			protocol = protocols[protocol.toLower()];
 			if(protocol.isEmpty())
 			{
-				qWarning("Unknown protocol: \"%s\"", qPrintable(files[i].fileName()));
+				warning() << "Unknown protocol:" << files[i].fileName();
 				continue;
 			}
 		}

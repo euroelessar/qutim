@@ -32,7 +32,7 @@
 #include <qutim/icon.h>
 #include "qutim/metaobjectbuilder.h"
 #include <QStringBuilder>
-#include "itemdelegate.h"
+#include <qutim/itemdelegate.h>
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <qutim/configbase.h>
@@ -49,6 +49,7 @@ ProtocolChooserWidget::ProtocolChooserWidget() :
 	ui->treeView->setItemDelegate(new  ItemDelegate(ui->treeView));
 	ui->treeView->setAnimated(false);
 	ui->treeView->setExpandsOnDoubleClick(false);
+	ui->search->hide();
 	connect(ui->treeView,SIGNAL(activated(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
@@ -89,20 +90,23 @@ void ProtocolChooserWidget::loadImpl()
 		item->setData(info.description().toString(),DescriptionRole);
 		if (selected.value(name).toString() == ServiceChooser::className(info))
 			item->setCheckState(Qt::Checked);
-		item->setData(ServiceChooser::className(info),ServiceItem::ExtentionInfoRole);
+		item->setData(QLatin1String(ServiceChooser::className(info)),
+		              ServiceItem::ExtentionInfoRole);
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }
+
 void ProtocolChooserWidget::cancelImpl()
 {
 
 }
+
 void ProtocolChooserWidget::saveImpl()
 {
 	Config group = Config().group("protocols/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
 	for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
-		QVariant service;
+		QVariant service = QLatin1String("none");
 		for (int i =0;i!=it.value()->rowCount();i++) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(it.value()->child(i)->data(Qt::CheckStateRole).toInt());
 			if (state == Qt::Checked) {

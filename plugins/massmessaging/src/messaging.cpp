@@ -39,10 +39,7 @@ namespace MassMessaging
 void MassMessaging::init()
 {
 	debug() << Q_FUNC_INFO;
-	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
-			  QT_TRANSLATE_NOOP("Task","Author"),
-			  QLatin1String("gorthauer87@yandex.ru"),
-			  QLatin1String("sauron.me"));
+	addAuthor(QLatin1String("sauron"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "MassMessaging"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple messaging to contact list"),
 			PLUGIN_VERSION(0, 1, 0, 0));
@@ -72,14 +69,14 @@ void MassMessaging::onActionTriggered()
 {
 	if (!m_dialog) {
 		m_dialog = new MessagingDialog();
-		centerizeWidget(m_dialog);
+		centerizeWidget(m_dialog.data());
 	}
 #ifdef Q_WS_MAEMO_5
-	m_dialog->setParent(QApplication::activeWindow());
-	m_dialog->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
-	m_dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
+	m_dialog.data()->setParent(QApplication::activeWindow());
+	m_dialog.data()->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
+	m_dialog.data()->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
-	SystemIntegration::show(m_dialog);
+	SystemIntegration::show(m_dialog.data());
 }
 }
 

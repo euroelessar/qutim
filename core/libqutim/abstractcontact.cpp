@@ -42,7 +42,7 @@ AbstractContact::~AbstractContact()
 {
 }
 
-QString AbstractContact::id()
+QString AbstractContact::id() const
 {
 	return p->id;
 }

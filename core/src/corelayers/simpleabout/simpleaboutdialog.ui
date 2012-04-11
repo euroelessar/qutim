@@ -130,7 +130,7 @@
      <item row="1" column="1">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string notr="true">&lt;a href=&quot;http://gitorious.org/qutim&quot;&gt;http://gitorious.org/qutim/&lt;/a&gt;</string>
+        <string notr="true">&lt;a href=&quot;http://github.com/euroelessar/qutim/&quot;&gt;http://github.com/euroelessar/qutim/&lt;/a&gt;</string>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>

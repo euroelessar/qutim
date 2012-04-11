@@ -184,7 +184,7 @@ class ActionCollectionPrivate : public QSharedData
 	Q_DISABLE_COPY(ActionCollectionPrivate)
 public:
 	inline ActionCollectionPrivate()  : controller(0), actionsRef(0), showRef(0) {}
-	inline ~ActionCollectionPrivate() {}
+	~ActionCollectionPrivate();
 	MenuController *controller;
 	QList<ActionInfoV2> actionInfos;
 	QList<ActionInfoV2> dynamicActions;

@@ -25,7 +25,7 @@
 
 #include "scriptinforequest.h"
 #include <QScriptEngine>
-#include <QDebug>
+#include <qutim/debug.h>
 
 namespace qutim_sdk_0_3
 {
@@ -34,11 +34,11 @@ ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValu
     : QObject(parent), m_func(func), m_error(error)
 {
 	if (!parent) {
-		qDebug() << Q_FUNC_INFO;
+		debug() << Q_FUNC_INFO;
 		deleteLater();
 		return;
 	}
-	qDebug() << Q_FUNC_INFO;
+	debug() << Q_FUNC_INFO;
 	connect(parent, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
 			SLOT(onStateChanged(qutim_sdk_0_3::InfoRequest::State)));
 	connect(this, SIGNAL(destroyed()), parent, SLOT(deleteLater()));
@@ -52,7 +52,7 @@ ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValu
 
 void ScriptInfoRequest::onStateChanged(qutim_sdk_0_3::InfoRequest::State state)
 {
-	qDebug() << Q_FUNC_INFO << state;
+	debug() << Q_FUNC_INFO << state;
 	if (state == InfoRequest::Requesting)
 		return;
 	InfoRequest *request = qobject_cast<InfoRequest*>(parent());
@@ -69,7 +69,7 @@ void ScriptInfoRequest::onStateChanged(qutim_sdk_0_3::InfoRequest::State state)
 	DataItem item = request->dataItem();
 	QList<QScriptValue> args;
 	args << m_func.engine()->toScriptValue(item);
-	qDebug() << Q_FUNC_INFO;
+	debug() << Q_FUNC_INFO;
 	Q_ASSERT(m_func.isFunction());
 	m_func.call(m_func, args);
 	deleteLater();
@@ -80,7 +80,7 @@ void ScriptInfoRequest::handleError(const char *name, const QString &text)
 	InfoRequest *request = qobject_cast<InfoRequest*>(parent());
 	Q_ASSERT(request);
 	request->deleteLater();
-	qDebug() << Q_FUNC_INFO << m_error.isFunction();
+	debug() << Q_FUNC_INFO << m_error.isFunction();
 	if (m_error.isFunction()) {
 		QScriptValue error = m_func.engine()->newObject();
 		error.setProperty(QLatin1String("name"), name);

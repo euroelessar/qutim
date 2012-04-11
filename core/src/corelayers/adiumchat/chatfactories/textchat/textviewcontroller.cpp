@@ -34,14 +34,15 @@
 #include <qutim/servicemanager.h>
 #include <qutim/chatunit.h>
 #include <qutim/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/conference.h>
 #include <qutim/account.h>
 #include <qutim/history.h>
 #include <qutim/debug.h>
 #include <qutim/emoticons.h>
 #include <qutim/thememanager.h>
-#include <chatlayer/chatsessionimpl.h>
+#include <qutim/utils.h>
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
@@ -60,6 +61,7 @@ TextViewController::TextViewController()
 	m_groupUntil = cfg.value<ushort>(QLatin1String("groupUntil"), 900);
 	cfg.beginGroup(QLatin1String("textview"));
 	m_animateEmoticons = cfg.value(QLatin1String("animateEmoticons"), true);
+	m_backgroundColor.setNamedColor(cfg.value(QLatin1String("backgroundColor"), QLatin1String("white")));
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
@@ -93,14 +95,14 @@ TextViewController::~TextViewController()
 {
 }
 
-void TextViewController::setChatSession(ChatSessionImpl *session)
+void TextViewController::setChatSession(ChatSession *session)
 {
 	m_session = session;
 	m_session->installEventFilter(this);
 	loadHistory();
 }
 
-ChatSessionImpl *TextViewController::getSession() const
+ChatSession *TextViewController::getSession() const
 {
 	return m_session;
 }
@@ -169,8 +171,6 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 		m_lastSender = currentSender;
 		m_lastTime = msg.time();
 		m_isLastIncoming = msg.isIncoming();
-		if (m_isLastIncoming)
-			m_lastIncomingMessage = msg.text();
 		cursor.insertText(QLatin1String("\n"));
 		bool showReceived = msg.isIncoming();
 		if (msg.property("history", false))
@@ -194,7 +194,7 @@ void TextViewController::appendText(QTextCursor &cursor, const QString &text,
 	urlFormat.setForeground(m_urlColor);
 	urlFormat.setFontUnderline(true);
 	urlFormat.setAnchor(true);
-	foreach (const UrlToken &textToken, ChatViewFactory::parseUrls(text)) {
+	foreach (const UrlParser::UrlToken &textToken, UrlParser::tokenize(text)) {
 		if (!textToken.url.isEmpty()) {
 			urlFormat.setAnchorHref(textToken.url);
 			cursor.insertText(textToken.text.toString(), urlFormat);
@@ -241,9 +241,9 @@ bool TextViewController::isNearBottom()
 {
 	if (!m_textEdit)
 		return true;
-	QScrollBar *scrollBar = m_textEdit->verticalScrollBar();
+	QScrollBar *scrollBar = m_textEdit.data()->verticalScrollBar();
 	qreal percentage = scrollBar->maximum() - scrollBar->value();
-	percentage /= m_textEdit->viewport()->height();
+	percentage /= m_textEdit.data()->viewport()->height();
 	return percentage < 0.2;
 }
 
@@ -286,7 +286,7 @@ int TextViewController::addEmoticon(const QString &filename)
 void TextViewController::ensureScrolling()
 {
 	if (m_textEdit) {
-		QScrollBar *scrollBar = m_textEdit->verticalScrollBar();
+		QScrollBar *scrollBar = m_textEdit.data()->verticalScrollBar();
 //		qreal percentage = scrollBar->maximum() - scrollBar->value();
 //		percentage /= m_textEdit->viewport()->height();
 //		debug() << percentage;
@@ -328,9 +328,9 @@ void TextViewController::animate()
 		return;
 	}
 	QAbstractTextDocumentLayout *layout = documentLayout();
-	QRect visibleRect(0, m_textEdit->verticalScrollBar()->value(),
-	                  m_textEdit->viewport()->width(),
-	                  m_textEdit->viewport()->height());
+	QRect visibleRect(0, m_textEdit.data()->verticalScrollBar()->value(),
+					  m_textEdit.data()->viewport()->width(),
+					  m_textEdit.data()->viewport()->height());
 	int begin = layout->hitTest(visibleRect.topLeft(), Qt::FuzzyHit);
 	int end = layout->hitTest(visibleRect.bottomRight(), Qt::FuzzyHit);
 	int *indexesEnd = movie->indexes.data() + movie->indexes.size();
@@ -343,12 +343,12 @@ void TextViewController::animate()
 	QSize emoticonSize = movie->frameRect().size();
 	for (int *i = beginIndex; i != endIndex; i++) {
 		cursor.setPosition(*i);
-		QRect cursorRect = m_textEdit->cursorRect(cursor);
+		QRect cursorRect = m_textEdit.data()->cursorRect(cursor);
 		region += QRectF(cursorRect.topLeft(), emoticonSize).toAlignedRect();
 	}
-	region &= m_textEdit->viewport()->visibleRegion();
+	region &= m_textEdit.data()->viewport()->visibleRegion();
 	if (!region.isEmpty())
-		m_textEdit->viewport()->update(region);
+		m_textEdit.data()->viewport()->update(region);
 }
 
 QPixmap TextViewController::createBullet(const QColor &color)
@@ -433,17 +433,21 @@ void TextViewController::clearChat()
 
 QString TextViewController::quote()
 {
-	QTextCursor cursor = m_textEdit->textCursor();
-	return cursor.hasSelection() ? cursor.selectedText() : m_lastIncomingMessage;
+	QTextCursor cursor = m_textEdit.data()->textCursor();
+	return cursor.hasSelection() ? cursor.selectedText() : QString();
 }
 
 void TextViewController::setTextEdit(QTextBrowser *edit)
 {
 	if (m_textEdit)
-		disconnect(m_textEdit, 0, this, 0);
+		disconnect(m_textEdit.data(), 0, this, 0);
 	m_textEdit = edit;
-	if (m_textEdit)
-		connect(m_textEdit, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+	if (m_textEdit) {
+		connect(m_textEdit.data(), SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+		QPalette p = m_textEdit.data()->viewport()->palette();
+		p.setColor(QPalette::Base, m_backgroundColor);
+		m_textEdit.data()->viewport()->setPalette(p);
+	}
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->setPaused(!edit);
 }
@@ -461,7 +465,7 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 			cursor.deleteChar();
 			if (msgEvent->success())
 				cursor.insertImage(QLatin1String("bullet-received"));
-			else if (msgEvent->success())
+			else
 				cursor.insertImage(QLatin1String("bullet-error"));
 			cursor.endEditBlock();
 //			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);

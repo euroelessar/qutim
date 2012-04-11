@@ -51,14 +51,14 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 	ui->labelQtVer ->setText(tr("Based on Qt %1 (%2 bit).")
 	                         .arg(QLatin1String(qVersion()), QString::number(QSysInfo::WordSize)));
 	QFile licenseFile(":/GPL");
-	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
+	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 3"
 								" or (at your option) any later version.</div>"
 								"<div>qutIM resources such as themes, icons, sounds may come along with a "
-								"different license.</div><br><hr><br>").arg(versionString());
+								"different license.</div><br><hr><br>");
 	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		license += Qt::escape(QLatin1String(licenseFile.readAll()));
 	} else {
-		license += "<a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2</a>";
+		license += QLatin1String("<a href=\"http://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>");
 	}
 	license.replace(QLatin1String("\n\n"), "<br><br>");
 	ui->texteditLicense->setHtml(license);

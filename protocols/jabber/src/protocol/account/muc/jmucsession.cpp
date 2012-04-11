@@ -33,7 +33,7 @@
 #include "jbookmarkmanager.h"
 #include <qutim/message.h>
 #include <jreen/message.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/delayeddelivery.h>
 #include "../../../jabber_global.h"
@@ -45,10 +45,15 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
+#include "../dataform/jdataform.h"
+#include <jreen/captcha.h>
+#include <QVBoxLayout>
 #include <qutim/notification.h>
 #include <QApplication>
 #include <qutim/debug.h>
 #include <QInputDialog>
+#include <QLabel>
+#include <QTimer>
 
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
@@ -58,22 +63,67 @@ namespace Jabber
 class JMUCSessionPrivate
 {
 public:
-	QPointer<JAccount> account;
+	void removeUser(JMUCSession *session, JMUCUser *user);
+	JMUCUser *addUser(JMUCSession *session, const QString &nick);
+	JMUCUser *getUser(const QString &nick);
+	bool containsUser(const QString &nick);
+	
+	QWeakPointer<JAccount> account;
+	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
+	QWeakPointer<QWidget> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
 	QHash<QString, quint64> messages;
 	QHash<QString, JMUCUser *> users;
-	bool isJoined;
 	bool isAutoRejoin;
 	Jreen::Bookmark::Conference bookmark;
-	QPointer<JConferenceConfig> config;
+	QWeakPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
 	QDateTime lastMessage;
 	QString *thread;
 };
+
+void JMUCSessionPrivate::removeUser(JMUCSession *conference, JMUCUser *user)
+{
+	if (ChatSession *session = ChatLayer::get(conference, false))
+		session->removeContact(user);
+	
+	if (ChatSession *session = ChatLayer::get(user, false)) {
+		QObject::connect(session, SIGNAL(destroyed()), user, SLOT(deleteLater()));
+	} else {
+		users.remove(user->name());
+		user->deleteLater();
+	}
+}
+
+JMUCUser *JMUCSessionPrivate::addUser(JMUCSession *conference, const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	if (!user) {
+		user = new JMUCUser(conference, nick);
+		users.insert(nick, user);
+	} else if (ChatSession *session = ChatLayer::get(conference, false)) {
+		QObject::disconnect(session, SIGNAL(destroyed()), user, SLOT(deleteLater()));
+	}
+	return user;
+}
+
+JMUCUser *JMUCSessionPrivate::getUser(const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	if (user && user->presenceType() != Presence::Unavailable)
+		return user;
+	return 0;
+}
+
+bool JMUCSessionPrivate::containsUser(const QString &nick)
+{
+	JMUCUser *user = users.value(nick);
+	return (user && user->presenceType() != Presence::Unavailable);
+}
 
 JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccount *account) :
 	Conference(account), d_ptr(new JMUCSessionPrivate)
@@ -83,23 +133,23 @@ JMUCSession::JMUCSession(const Jreen::JID &room, const QString &password, JAccou
 	d->account = account;
 	d->room = new Jreen::MUCRoom(account->client(), room);
 	d->room->setPassword(password);
+	d->filters << new JMessageReceiptFilter(account, 0);
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
 			this, SLOT(onParticipantPresence(Jreen::Presence,const Jreen::MUCRoom::Participant*)));
 	connect(d->room, SIGNAL(presenceReceived(Jreen::Presence,const Jreen::MUCRoom::Participant*)),
-			d->account->softwareDetection(), SLOT(handlePresence(Jreen::Presence)));
+			d->account.data()->softwareDetection(), SLOT(handlePresence(Jreen::Presence)));
 	connect(d->room, SIGNAL(messageReceived(Jreen::Message,bool)),
 			this, SLOT(onMessage(Jreen::Message,bool)));
 	connect(d->room, SIGNAL(serviceMessageReceived(Jreen::Message)),
 			this, SLOT(onServiceMessage(Jreen::Message)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
-	connect(d->room, SIGNAL(leaved()), this, SIGNAL(left()));
-	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
+	connect(d->room, SIGNAL(leaved()), this, SLOT(joinedChanged()));
+	connect(d->room, SIGNAL(joined()), this, SLOT(joinedChanged()));
 	connect(d->room, SIGNAL(error(Jreen::Error::Ptr)),
 			this, SLOT(onError(Jreen::Error::Ptr)));
 	//	if (!password.isEmpty())
 	//		d->room->setPassword(password);
-	d->isJoined = false;
 	d->isError = false;
 	d->thread = 0;
 	d->title = room.bare();
@@ -129,6 +179,8 @@ JMUCSession::~JMUCSession()
 	Q_D(JMUCSession);
 	if (d->account)
 		d->room->leave();
+	foreach (Jreen::MessageFilter *filter, d->filters)
+		delete filter;
 }
 
 qutim_sdk_0_3::Buddy *JMUCSession::me() const
@@ -155,32 +207,30 @@ void JMUCSession::setNick(const QString &nick)
 		emit nickChanged(nick);
 }
 
-void JMUCSession::join()
+void JMUCSession::doJoin()
 {
 	Q_D(JMUCSession);
-	if(d->isJoined || !d->account->client()->isConnected())
+	if(isJoined() || !d->account.data()->client()->isConnected())
 		return;
-	d->isJoined = true;
 	d->room->join();
-	setChatState(ChatStateActive);
+	emit joined();
 }
 
-void JMUCSession::leave()
+void JMUCSession::doLeave()
 {
 	Q_D(JMUCSession);
-	if(!d->isJoined)
+	if(!isJoined())
 		return;
 	d->room->leave();
-	d->isJoined = false;
-	setChatState(ChatStateGone);
-	ChatSession *session = ChatLayer::get(this, false);
 	//remove users
-	foreach (QString name, d->users.keys()) {
-		JMUCUser *user = d->users.take(name);
-		if (session)
-			session->removeContact(user);
-		user->deleteLater();
+	const Presence presence(Presence::Unavailable, JID());
+	foreach (JMUCUser *user, d->users) {
+		if (user->presenceType() == Presence::Unavailable)
+			continue;
+		user->setStatus(presence);
+		d->removeUser(this, user);
 	}
+	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)
@@ -228,11 +278,6 @@ void JMUCSession::owner(const QString &nick, const QString &reason)
 	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationOwner, reason);
 }
 
-bool JMUCSession::isJoined()
-{
-	return d_func()->isJoined;
-}
-
 QString JMUCSession::id() const
 {
 	Q_D(const JMUCSession);
@@ -242,8 +287,8 @@ QString JMUCSession::id() const
 bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
-	qDebug() << d->jid;
-	qDebug() << d->jid.bareJID();
+	debug() << d->jid;
+	debug() << d->jid.bareJID();
 
 	if (account()->status() == Status::Offline)
 		return false;
@@ -266,20 +311,25 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 		}
 	}
 	Jreen::Message jMsg(Jreen::Message::Groupchat, d->jid.bareJID(), message.text());
-	jMsg.setID(d->account->client()->getID());
+	jMsg.setID(d->account.data()->client()->getID());
 	d->messages.insert(jMsg.id(), message.id());
-	d->account->client()->send(jMsg);
+	d->account.data()->client()->send(jMsg);
 	return true;
 }
 
-bool JMUCSession::sendPrivateMessage(const QString &id, const qutim_sdk_0_3::Message &message)
+bool JMUCSession::sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
 	if (account()->status() == Status::Offline)
 		return false;
-	Jreen::Message jMsg(Jreen::Message::Chat, id, message.text());
-	jMsg.setID(d->account->client()->getID());
-	d->account->client()->send(jMsg);
+	Jreen::Message msg(Jreen::Message::Chat,
+					   user->id(),
+					   message.text(),
+					   message.property("subject").toString());
+	msg.setID(QString::number(message.id()));
+	foreach (Jreen::MessageFilter *filter, d->filters)
+		filter->decorate(msg);
+	d->account.data()->client()->send(msg);
 	return true;
 }
 
@@ -298,27 +348,22 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		if (!reason.isEmpty())
 			text = text % " (" % reason % ")";
 		if (isSelf) {
-			leave();
 			QString msgtxt = (isBan ? tr("You has been banned at ") : tr("You has been kicked from ")) % id() % "\n";
 			if (!reason.isEmpty())
 				msgtxt = msgtxt % tr("with reason: ") % reason.append("\n");
 			if (!isBan) {
 				msgtxt = msgtxt % tr("Do you want to rejoin?");
 				if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
-										 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
-					join();
+										 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+					QTimer::singleShot(0, this, SLOT(join()));
+				}
 			} else {
 				QMessageBox::warning(0, tr("You have been banned"), msgtxt, QMessageBox::Ok);
 			}
 		} else {
-			JMUCUser *user = d->users.take(nick);
-			if (ChatSession *session = ChatLayer::get(this, false)) {
-				session->removeContact(user);
-			}
-			if (ChatSession *session = ChatLayer::get(user, false)) {
-				user->setParent(session);
-			} else
-				user->deleteLater();
+			JMUCUser *user = d->getUser(nick);
+			user->setStatus(presence);
+			d->removeUser(this, user);
 		}
 		notificationType = Notification::ChatUserLeft;
 	} else if (participant->isNickChanged()) {
@@ -327,24 +372,21 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			return;
 		text = nick % tr(" is now known as ") % newNick;
 		JMUCUser *user = d->users.value(nick, 0);
+		if (!user) {
+			warning() << "Nick change presence for unknown contact";
+			return;
+		}
 		d->users.insert(newNick, user);
 		d->users.remove(nick);
-		QString previous = user->name();
-		reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
-		emit user->nameChanged(newNick, previous);
-		emit user->titleChanged(newNick, previous);
-		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
-		//			if (session)
-		//				session->session()->setResource(participant.newNick);
+		user->setUserName(newNick);
 		if (isSelf) {
 			emit nickChanged(newNick);
 			emit meChanged(me());
 		}
-		user->setStatus(presence);
 	} else {
-		JMUCUser *user = d->users.value(nick, 0);
+		JMUCUser *user = d->getUser(nick);
 		if (!user && presence.subtype() != Presence::Unavailable) {
-			user = new JMUCUser(this, nick);
+			user = d->addUser(this, nick);
 			user->setStatus(presence);
 			user->setMUCAffiliation(participant->affiliation());
 			user->setMUCRole(participant->role());
@@ -364,23 +406,20 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 				text = text % tr(" as") % tr(" participant");
 			else if (participant->role() == MUCRoom::RoleVisitor)
 				text = text % tr(" as") % tr(" visitor");
-			d->users.insert(nick, user);
+			// addUser doesn't handle addition to the session
 			if (ChatSession *session = ChatLayer::get(this, false))
 				session->addContact(user);
 			notificationType = Notification::ChatUserJoined;
 		} else if (!user) {
 			return;
-		} else if (presence.subtype() == Presence::Unavailable) {
-			text = nick % tr(" has left the room");
-			d->users.remove(nick);
-			if (ChatSession *session = ChatLayer::get(this, false))
-				session->removeContact(user);
-			user->deleteLater();
-			notificationType = Notification::ChatUserLeft;
 		} else {
 			user->setStatus(presence);
+			if (presence.subtype() == Presence::Unavailable) {
+				text = nick % tr(" has left the room");
+				d->removeUser(this, user);
+				notificationType = Notification::ChatUserLeft;
+			}
 		}
-		//user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
 		if (presence.subtype() != Presence::Unavailable &&
 				(user->role() != participant->role()
 				 || user->affiliation() != participant->affiliation())) {
@@ -409,25 +448,8 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			user->setMUCAffiliation(participant->affiliation());
 			user->setMUCRole(participant->role());
 		}
-//		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
-//			VCardUpdate::Ptr vcard = presence.payload<VCardUpdate>();
-//			if(vcard && vcard->hasPhotoInfo()) {
-//				QString hash = vcard->photoHash();
-//				if (user->avatarHash() != hash) {
-//					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
-//						user->setAvatar(hash);
-//					else if (d->avatarsAutoLoad)
-//						d->account->vCardManager()->fetchVCard(user->id());
-//				}
-//			}
-//		}
-		//WTF?  Oo
-		//if (!d->isJoined && isSelf) {
-		//	d->isJoined = true;
-		//	emit joined();
-		//}
 	}
-	if (!text.isEmpty() && (d->isJoined || participant->isKicked() || participant->isBanned())) {
+	if (!text.isEmpty() && (isJoined() || participant->isKicked() || participant->isBanned())) {
 		NotificationRequest request(notificationType);
 		request.setObject(this);
 		request.setText(text);
@@ -436,7 +458,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 	}
 }
 
-void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
+void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 {
 	Q_D(JMUCSession);
 	//	Q_ASSERT(room == d->room);
@@ -447,9 +469,13 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 	//		d->thread = 0;
 	//	}
 	QString nick = msg.from().resource();
-	JMUCUser *user = d->users.value(nick, 0);
+	JMUCUser *user = d->getUser(nick);
 	if (priv) {
 		if (!user)
+			return;
+		foreach (Jreen::MessageFilter *filter, d->filters)
+			filter->filter(msg);
+		if (msg.body().isEmpty())
 			return;
 		qutim_sdk_0_3::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(user);
@@ -495,7 +521,30 @@ void JMUCSession::onMessage(const Jreen::Message &msg, bool priv)
 
 void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 {
-	//TODO add capthca handler
+	Q_D(JMUCSession);
+	Captcha::Ptr captcha = msg.payload<Captcha>();
+	if (captcha && captcha->form()) {
+		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
+		               .arg(d->jid.bare());
+		delete d->captchaForm.data();
+		d->captchaForm = new QWidget;
+		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm.data());
+		QLabel *label = new QLabel(text, d->captchaForm.data());
+		JDataForm *form = new JDataForm(captcha->form(),
+		                                      msg.payloads<BitsOfBinary>(),
+		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
+		                                      d->captchaForm.data());
+		form->layout()->setMargin(0);
+		layout->addWidget(label);
+		layout->addWidget(form);
+		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
+		connect(form->widget(), SIGNAL(accepted()), d->captchaForm.data(), SLOT(deleteLater()));
+		connect(form->widget(), SIGNAL(rejected()), d->captchaForm.data(), SLOT(deleteLater()));
+		Client *client = d->account.data()->client();
+		connect(client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)), d->captchaForm.data(), SLOT(deleteLater()));
+		d->captchaForm.data()->show();
+		return;
+	}
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
@@ -654,6 +703,11 @@ void JMUCSession::closeConfigDialog()
 	//	d_func()->isConfiguring = false;
 }
 
+void JMUCSession::joinedChanged()
+{
+	setJoined(d_func()->room->isJoined());
+}
+
 bool JMUCSession::enabledConfiguring()
 {
 	//TODO add signal configuring changed
@@ -689,8 +743,10 @@ Jreen::MUCRoom *JMUCSession::room()
 ChatUnitList JMUCSession::lowerUnits()
 {
 	ChatUnitList list;
-	foreach(ChatUnit *unit, d_func()->users)
-		list << unit;
+	foreach(JMUCUser *unit, d_func()->users) {
+		if (unit->presenceType() != Presence::Unavailable)
+			list << unit;
+	}
 	return list;
 }
 
@@ -729,6 +785,11 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 	d_func()->room->invite(contact->id(), reason);
 }
 
+void JMUCSession::handleDeath(const QString &name)
+{
+	d_func()->users.remove(name);
+}
+
 void JMUCSession::onError(Jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
@@ -739,7 +800,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 		request.setObject(this);
 		request.setText(message);
 		request.send();
-		QString resource = d->account->client()->jid().resource();
+		QString resource = d->account.data()->client()->jid().resource();
 		if (!d->room->nick().endsWith(resource)) {
 			QString nick = d->room->nick();
 			nick += QLatin1Char('/');
@@ -771,6 +832,18 @@ void JMUCSession::onNickSelected(const QString &nick)
 		d->room->setNick(nick);
 		join();
 	}
+}
+
+void JMUCSession::onCaptchaFilled()
+{
+	Q_D(JMUCSession);
+	JDataForm *form = qobject_cast<JDataForm*>(sender());
+	Client *client = d->account.data()->client();
+	Jreen::IQ iq(Jreen::IQ::Set, d->jid.bareJID());
+	Captcha::Ptr captcha = Captcha::Ptr::create();
+	captcha->setForm(form->getDataForm());
+	iq.addPayload(captcha);
+	client->send(iq);
 }
 
 }

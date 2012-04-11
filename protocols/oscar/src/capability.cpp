@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 typedef QHash<Capability, QString> CapName;
-Q_GLOBAL_STATIC(CapName, capName);
+Q_GLOBAL_STATIC(CapName, capName)
 
 Capability::Capability()
 {
@@ -50,13 +50,13 @@ Capability::Capability(const QByteArray &data)
 		data1 |= qFromBigEndian<quint16>((const uchar *) data.constData());
 		data2 = shortUuid().data2;
 		data3 = shortUuid().data3;
-		memcpy(data4, shortUuid().data4, 8);
+		memcpy(data4, shortUuid().data4, sizeof(data4));
 	} else if (data.size() == 16) {
 		const uchar *src = (const uchar *) data.constData();
 		data1 = qFromBigEndian<quint32>(src);
 		data2 = qFromBigEndian<quint16>(src + 4);
 		data3 = qFromBigEndian<quint16>(src + 6);
-		memcpy(data4, src + 8, 8);
+		memcpy(data4, src + 8, sizeof(data4));
 	}
 }
 
@@ -98,7 +98,7 @@ bool Capability::isShort() const
 {
 	if ((data1 >> 16) != 0x0946)
 		return false;
-	return data2 == shortUuid().data2 && data3 == shortUuid().data3 && !memcmp(data4, shortUuid().data4, 16);
+	return data2 == shortUuid().data2 && data3 == shortUuid().data3 && !memcmp(data4, shortUuid().data4, sizeof(data4));
 }
 
 bool Capability::operator==(const QUuid &rhs) const
@@ -236,3 +236,8 @@ StandartCapability::StandartCapability(const QString &name, quint16 data) :
 
 } } // namespace qutim_sdk_0_3::oscar
 
+QDebug operator<<(QDebug debug, qutim_sdk_0_3::oscar::Capability &capability)
+{
+	debug.nospace() << capability.toString();
+	return debug.space();
+}

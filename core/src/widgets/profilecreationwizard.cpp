@@ -32,6 +32,7 @@
 #include "profilecreationpage.h"
 #include <qutim/jsonfile.h>
 #include <qutim/config.h>
+#include <qutim/debug.h>
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -90,8 +91,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		path = "qutim-" + randomString(6) + "-profile";
 	} while (tmpDir.exists(path));
 	if (!tmpDir.mkpath(path) || !tmpDir.cd(path)) {
-		qFatal("Can't access or create directory '%s'",
-			   qPrintable(tmpDir.absoluteFilePath(path)));
+		fatal() << "Can't access or create directory" << tmpDir.absoluteFilePath(path);
 	}
 	QVector<QDir> &systemDirs = *system_info_dirs();
 	systemDirs[SystemInfo::ConfigDir] = tmpDir.absoluteFilePath("config");
@@ -99,7 +99,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	systemDirs[SystemInfo::ShareDir] = tmpDir.absoluteFilePath("share");
 	for (int i = SystemInfo::ConfigDir; i <= SystemInfo::ShareDir; i++)
 		tmpDir.mkdir(systemDirs[i].dirName());
-	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
+	debug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
 	setProperty("singleProfile",singleProfile);
 	setProperty("password",password);
@@ -202,6 +202,11 @@ void ProfileCreationWizard::done(int result)
 				config.endArray();
 				config.setValue("current", field("id"));
 			}
+		}
+		{
+			Config config;
+			config.beginGroup(QLatin1String("plugins/list"));
+			config.setValue(QLatin1String("Updater::UpdaterPlugin"), field(QLatin1String("portable")).toBool());
 		}
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 	} else if (m_singleProfile) {

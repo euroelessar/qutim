@@ -48,7 +48,10 @@
 #include "roster/jsoftwaredetection.h"
 #include <jreen/pubsubmanager.h>
 #include <jreen/connectionbosh.h>
+#include <jreen/directconnection.h>
 #include <qutim/debug.h>
+#include <qutim/networkproxy.h>
+#include "jpgpsupport.h"
 
 namespace Jabber {
 
@@ -87,7 +90,7 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
-	client->setPresence(JStatus::statusToPresence(status), status.text(), priority);
+	JPGPSupport::instance()->send(q, status, priority);
 	q->setAccountStatus(status);
 }
 
@@ -104,6 +107,10 @@ void JAccountPrivate::setPresence(Jreen::Presence presence)
 void JAccountPrivate::_q_connected()
 {
 	Q_Q(JAccount);
+	if (currentPGPKeyId != pgpKeyId) {
+		currentPGPKeyId = pgpKeyId;
+		emit q->pgpKeyIdChanged(currentPGPKeyId);
+	}
 	applyStatus(status);
 	conferenceManager.data()->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
@@ -131,7 +138,7 @@ void JAccountPrivate::_q_on_password_finished(int result)
 
 void JAccountPrivate::_q_on_module_loaded(int i)
 {
-	qDebug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
+	debug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
 	loadedModules |= i;
 	if (loadedModules == 3)
 		_q_connected();
@@ -154,24 +161,28 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 
 	switch(reason) {
 	case Client::User:
-		s.setProperty("changeReason", Status::ByUser);
+		s.setChangeReason(Status::ByUser);
 		break;
 	case Client::AuthorizationError: {
-		s.setProperty("changeReason", Status::ByAuthorizationFailed);
+		s.setChangeReason(Status::ByAuthorizationFailed);
 		//q->setPasswd(QString());
 		break;
 	}
 	case Client::HostUnknown:
 	case Client::ItemNotFound:
 	case Client::SystemShutdown:
-		s.setProperty("changeReason", Status::ByFatalError);
+	case Client::NoSupportedFeature:
+	case Client::NoAuthorizationSupport:
+	case Client::NoEncryptionSupport:
+	case Client::NoCompressionSupport:
+		s.setChangeReason(Status::ByFatalError);
 		break;
 	case Client::RemoteStreamError:
 	case Client::RemoteConnectionFailed:
 	case Client::InternalServerError:
 	case Client::Conflict:
 	case Client::Unknown:
-		s.setProperty("changeReason", Status::ByNetworkError);
+		s.setChangeReason(Status::ByNetworkError);
 		break;
 	}
 
@@ -261,16 +272,23 @@ JAccount::JAccount(const QString &id) :
 			ext->init(this);
 		}
 	}
+	JPGPSupport::instance()->addAccount(this);
 }
 
 JAccount::~JAccount()
 {
+	JPGPSupport::instance()->removeAccount(this);
 }
 
 ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 {
-	if (qobject_cast<JContactResource*>(unit) && !qobject_cast<JMUCUser*>(unit))
-		unit = unit->upperUnit();
+	Q_D(JAccount);
+	if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+		if (ChatUnit *self = d->roster->selfContact(resource->id()))
+			unit = self;
+		if (!qobject_cast<JMUCUser*>(unit))
+			unit = resource->upperUnit();
+	}
 	return unit;
 }
 
@@ -295,11 +313,14 @@ void JAccount::loadSettings()
 	d->nick = cfg.value("nick", id());
 	if (cfg.hasChildKey("photoHash"))
 		setAvatarHex(cfg.value("photoHash", QString()));
+	d->pgpKeyId = cfg.value("pgpKeyId", QString());
 
 	Jreen::JID jid(id());
 	if (!d->client->isConnected()) {
-		jid.setResource(cfg.value("resource", QLatin1String("qutIM/Jreen")));
+		jid.setResource(cfg.value("resource", QLatin1String("qutIM")));
 	}
+	d->client->setFeatureConfig(Client::Encryption, cfg.value("encryption", Client::Auto));
+	d->client->setFeatureConfig(Client::Compression, cfg.value("compression", Client::Auto));
 	{
 		cfg.beginGroup("bosh");
 		if (cfg.value("use", false)) {
@@ -406,6 +427,11 @@ void JAccount::loadParameters()
 	emit parametersChanged(d->parameters);
 }
 
+QString JAccount::pgpKeyId() const
+{
+	return d_func()->currentPGPKeyId;
+}
+
 void JAccount::virtual_hook(int id, void *data)
 {
 	switch (id) {
@@ -480,6 +506,8 @@ void JAccount::setStatus(Status status)
 	Status old = this->status();
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
+		QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
+		d->client->setProxy(proxy);
 		if (d->passwordDialog) {
 			/* nothing */
 		} else if(d->client->password().isEmpty()) {
@@ -491,7 +519,7 @@ void JAccount::setStatus(Status status)
 		} else {
 			d->client->connectToServer();
 			d->status = status;
-			setAccountStatus(Status::instance(Status::Connecting, "jabber"));
+			setAccountStatus(Status::createConnecting(status, "jabber"));
 		}
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;
@@ -500,15 +528,11 @@ void JAccount::setStatus(Status status)
 		d->client->disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->applyStatus(status);
-		//		d->client->setPresence(JStatus::statusToPresence(status), status.text());
 	}
 }
 
 void JAccount::setAccountStatus(Status status)
 {
-	Q_D(JAccount);
-	if (status != Status::Connecting && status != Status::Offline)
-		d->conferenceManager.data()->setPresenceToRooms(d->client->presence());
 	Account::setStatus(status);
 }
 

@@ -90,7 +90,8 @@ void SimpleContactlistSettings::loadImpl()
 	ui->avatarsBox->setChecked(config.value("showAvatars", true));
 	ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
 	ui->statusBox->setChecked(config.value("showStatusText", true));
-        ui->liteBox->setChecked(config.value("liteMode", true));
+	ui->liteBox->setChecked(config.value("liteMode", true));
+	ui->onstartupBox->setChecked(config.value("showContactListOnStartup", true));
 
 	// Load extendes statuses
 	config.beginGroup("extendedStatuses");
@@ -103,7 +104,7 @@ void SimpleContactlistSettings::loadImpl()
 	int size = config.value("statusIconSize",0);
 	SizeMap::const_iterator it;
 	int index = -1;
-	for (int i = 0;i!=ui->sizesBox->count();i++) {
+	for (int i = 0;i!=ui->sizesBox->count();++i) {
 		if (size == ui->sizesBox->itemData(i).toInt()) {
 			index = i;
 			break;
@@ -124,6 +125,7 @@ void SimpleContactlistSettings::saveImpl()
 	config.setValue("showExtendedInfoIcons", ui->extendedInfoBox->isChecked());
 	config.setValue("showAvatars", ui->avatarsBox->isChecked());
 	config.setValue("liteMode", ui->liteBox->isChecked());
+	config.setValue("showContactListOnStartup", ui->onstartupBox->isChecked());
 	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
 	if (size == 0)
 		config.remove("statusIconSize");
@@ -145,7 +147,7 @@ void SimpleContactlistSettings::reloadCombobox()
 	SizeMap sizeMap;
 	size_map_init(sizeMap);
 	SizeMap::const_iterator it;
-	for (it = sizeMap.constBegin();it!=sizeMap.constEnd();it++) {
+	for (it = sizeMap.constBegin();it!=sizeMap.constEnd();++it) {
 		ui->sizesBox->addItem(it->toString());
 		ui->sizesBox->setItemData(ui->sizesBox->count()-1,it.key());
 	}

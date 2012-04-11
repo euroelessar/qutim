@@ -78,7 +78,7 @@ QScriptValue messageHandlerRegister(QScriptContext *context, QScriptEngine *engi
 	if (context->argument(0).isNumber())
 		priority = context->argument(0).toInt32();
 	if (MessageHandler *handler = get_value(context->thisObject()).data())
-		MessageHandler::registerHandler(handler, priority);
+		MessageHandler::registerHandler(handler, QLatin1String("SomeScript"), priority, priority);
 	return engine->undefinedValue();
 }
 

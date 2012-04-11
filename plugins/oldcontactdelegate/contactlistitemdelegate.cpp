@@ -32,8 +32,7 @@
 #include <qutim/tooltip.h>
 #include <qutim/servicemanager.h>
 #include <qutim/thememanager.h>
-#include <qutim/settingslayer.h>
-#include <3rdparty/avatarfilter/avatarfilter.h>
+#include <qutim/avatarfilter.h>
 #include <QDir>
 #include <QFile>
 #include <QScrollBar>
@@ -80,6 +79,10 @@ bool OldContactDelegatePlugin::unload()
 
 ContactListItemDelegate::ContactListItemDelegate(QObject *parent) : QAbstractItemDelegate(parent)
 {
+//	m_settings.reset(new GeneralSettingsItem<OldDelegateSettings>(
+//	                     Settings::General, QIcon(),
+//	                     QT_TRANSLATE_NOOP("ContactList", "Contact list")));
+//	Settings::registerItem(m_settings.data());
 	m_margin = 1;
 	m_styleType = LightStyle;
 	reloadSettings();
@@ -88,6 +91,7 @@ ContactListItemDelegate::ContactListItemDelegate(QObject *parent) : QAbstractIte
 
 ContactListItemDelegate::~ContactListItemDelegate()
 {
+//	Settings::removeItem(m_settings.data());
 }
 
 void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option2, const QModelIndex &index) const

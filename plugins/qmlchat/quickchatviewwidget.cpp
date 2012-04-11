@@ -34,6 +34,8 @@
 namespace Core {
 namespace AdiumChat {
 
+using namespace qutim_sdk_0_3;
+
 QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
 	QGraphicsView(parent)
 {
@@ -54,10 +56,10 @@ QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
 
 void QuickChatViewWidget::setViewController(QObject* object)
 {
-	if (m_controller == object)
+	if (m_controller.data() == object)
 		return;
 	if (m_controller)
-		m_controller->disconnect(this);
+		m_controller.data()->disconnect(this);
 	QuickChatController* controller = qobject_cast<QuickChatController*>(object);
 	m_controller = controller;
 	if (controller) {
@@ -81,7 +83,7 @@ void QuickChatViewWidget::resizeEvent(QResizeEvent *event)
 void QuickChatViewWidget::updateView()
 {
 	if (m_controller) {
-		QDeclarativeItem *declarativeItemRoot = m_controller->rootItem();
+		QDeclarativeItem *declarativeItemRoot = m_controller.data()->rootItem();
 		if (declarativeItemRoot) {
 			if (!qFuzzyCompare(width(), declarativeItemRoot->width()))
 				declarativeItemRoot->setWidth(width());

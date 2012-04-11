@@ -29,7 +29,7 @@
 
 #include <QScrollArea>
 #include <QAction>
-#include <QPointer>
+#include <QWeakPointer>
 
 namespace Core
 {
@@ -64,7 +64,7 @@ public:
 signals:
 	void insertSmile(const QString &code);
 private:
-	QPointer<ChatEmoticonsWidget> m_emoticons_widget;
+	QWeakPointer<ChatEmoticonsWidget> m_emoticons_widget;
 private slots:
 	void onInsertSmile(const QString &code);
 	void triggerEmoticons();

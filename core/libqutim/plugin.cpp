@@ -153,6 +153,80 @@ namespace qutim_sdk_0_3
 		return d->fileName;
 	}
 
+	class CommandArgumentPrivate : public QSharedData
+	{
+	public:
+		CommandArgumentPrivate() : group(-1) {}
+		CommandArgumentPrivate(const CommandArgumentPrivate &o)
+			: QSharedData(o), name(o.name), desc(o.desc), types(o.types), group(o.group), aliases(o.aliases) {}
+		CommandArgumentPrivate(const QString &name, const QString &desc, CommandArgument::Types types, int group)
+			: name(name), desc(desc), types(types), group(group) {}
+
+		QString name;
+		QString desc;
+		CommandArgument::Types types;
+		int group;
+		QStringList aliases;
+	};
+
+	CommandArgument::CommandArgument(const QString &name, const QString &desc, Types types, int group)
+		: d(new CommandArgumentPrivate(name, desc, types, group))
+	{
+	}
+
+	CommandArgument::CommandArgument(const CommandArgument &o) : d(o.d)
+	{
+	}
+
+	CommandArgument &CommandArgument::operator =(const CommandArgument &o)
+	{
+		d = o.d;
+		return *this;
+	}
+
+	CommandArgument::~CommandArgument()
+	{
+	}
+
+	QString CommandArgument::name() const
+	{
+		return d->name;
+	}
+
+	QString CommandArgument::description() const
+	{
+		return d->desc;
+	}
+
+	CommandArgument::Types CommandArgument::types() const
+	{
+		return d->types;
+	}
+
+	int CommandArgument::group() const
+	{
+		return d->group;
+	}
+
+	void CommandArgument::setAliases(const QStringList &aliases)
+	{
+		d->aliases = aliases;
+	}
+
+	void CommandArgument::addAlias(const QStringList &alias)
+	{
+		d->aliases << alias;
+	}
+
+	QStringList CommandArgument::aliases() const
+	{
+		return d->aliases;
+	}
+
+	CommandArgumentsHandler::~CommandArgumentsHandler()
+	{
+	}
+
 	Plugin::Plugin() : p(new PluginPrivate)
 	{
 	}

@@ -25,8 +25,8 @@
 #ifndef CHATEDIT_H
 #define CHATEDIT_H
 
-#include <QPlainTextEdit>
-#include <QPointer>
+#include <QTextEdit>
+#include <QWeakPointer>
 #include "chatforms/abstractchatwidget.h"
 
 namespace qutim_sdk_0_3
@@ -48,13 +48,14 @@ enum SendMessageKey
 
 using namespace qutim_sdk_0_3;
 class ChatSessionImpl;
-class ADIUMCHAT_EXPORT ChatEdit : public QPlainTextEdit
+class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
 {
     Q_OBJECT
 public:
     explicit ChatEdit(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
 	void setSendKey(SendMessageKey key);
+	void setAutoResize(bool resize);
 public slots:
 	void send();
 protected:
@@ -63,9 +64,11 @@ protected:
 protected slots:
 	void onTextChanged();
 private:
-	QPointer<ChatSessionImpl> m_session;
+	QWeakPointer<ChatSessionImpl> m_session;
 	int m_entersCount;
+	int previousTextHeight;
 	SendMessageKey m_sendKey;
+	bool m_autoResize;
 	QTextCursor m_enterPosition;
 };
 

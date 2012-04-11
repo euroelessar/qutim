@@ -36,7 +36,7 @@
 #include <qutim/event.h>
 #include <qutim/systeminfo.h>
 #include <purple.h>
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include <qutim/debug.h>
 #include <QCoreApplication>
 #include <QLibrary>
@@ -58,7 +58,7 @@ struct QuetzalConversationHandler
 			purple_conversation_destroy(conversation);
 		}
 	}
-	QPointer<ChatSession> isAlive;
+	QWeakPointer<ChatSession> isAlive;
 	QList<PurpleConversation*> conversations;
 };
 
@@ -200,12 +200,12 @@ void quetzal_write_im(PurpleConversation *conv, const char *who,
 	}
 	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data);
 	debug() << Q_FUNC_INFO << who << handler;
-	ChatUnit *unit = handler->isAlive->unit();
+	ChatUnit *unit = handler->isAlive.data()->unit();
 	Message mess = quetzal_convert_message(message, flags, mtime);
 	if (!mess.isIncoming())
 		return;
 	mess.setChatUnit(unit);
-	handler->isAlive->appendMessage(mess);
+	handler->isAlive.data()->appendMessage(mess);
 }
 
 void quetzal_write_conv(PurpleConversation *conv,
@@ -218,7 +218,7 @@ void quetzal_write_conv(PurpleConversation *conv,
 	debug() << Q_FUNC_INFO << name << conv->account->username;
 	ChatUnit *unit;
 	if (conv->type == PURPLE_CONV_TYPE_IM)
-		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive->unit();
+		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive.data()->unit();
 	else
 		unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	Message message = quetzal_convert_message(text, flags, mtime);
@@ -273,7 +273,7 @@ gboolean quetzal_has_focus(PurpleConversation *conv)
 {
 	ChatSession *session;
 	if (conv->type == PURPLE_CONV_TYPE_IM)
-		session = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive;
+		session = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive.data();
 	else
 		session = ChatLayer::get(reinterpret_cast<ChatUnit*>(conv->ui_data), false);
 	return session && session->isActive();
@@ -340,13 +340,13 @@ void quetzal_debug_print(PurpleDebugLevel level, const char *category, const cha
 	QByteArray arg(arg_s);
 	arg.chop(1);
 	if (level >= PURPLE_DEBUG_FATAL)
-		qFatal("[quetzal/%s]: %s", category, arg.constData());
+		fatal() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_ERROR)
-		qCritical("[quetzal/%s]: %s", category, arg.constData());
+		critical() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_WARNING)
-		qWarning("[quetzal/%s]: %s", category, arg.constData());
+		warning() << "[quetzal/" << category << "]: " << arg.constData();
 	else
-		qDebug("[quetzal/%s]: %s", category, arg.constData());
+		debug() << "[quetzal/" << category << "]: " << arg.constData();
 }
 
 gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
@@ -700,7 +700,7 @@ void QuetzalPlugin::init()
 	for(GList *it = purple_plugins_get_protocols(); it != NULL; it = it->next)
 	{
 		PurplePlugin *protocol = (PurplePlugin *)it->data;
-		qDebug("Protocol: %s", protocol->info->name);
+		debug() << "Protocol: " << protocol->info->name;
 		QuetzalProtocolGenerator *gen = new QuetzalProtocolGenerator(protocol);
 		addExtension(LocalizedString(protocol->info->name),
 					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),

@@ -35,15 +35,17 @@ namespace Jabber
 class JContactResourcePrivate
 {
 public:
-	JContactResourcePrivate(qutim_sdk_0_3::ChatUnit *c) :
+	JContactResourcePrivate(QObject *c) :
 		contact(c),
-		presence(Jreen::Presence::Unavailable,Jreen::JID(c->id())) {}
-	qutim_sdk_0_3::ChatUnit *contact;
+	    presence(Jreen::Presence::Unavailable,Jreen::JID(c->property("id").toString())) {}
+	QObject *contact;
 	QString id;
 	QString name;
 	Jreen::Presence presence;
 	QSet<QString> features;
 	QHash<QString, QVariantHash> extInfo;
+	QCA::PGPKey pgpKey;
+	QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus;
 };
 }
 

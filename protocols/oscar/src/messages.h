@@ -162,6 +162,13 @@ protected:
 
 } } // namespace qutim_sdk_0_3::oscar
 
+template <>
+inline QDebug operator<<(QDebug debug, const qutim_sdk_0_3::oscar::Tlv2711Type &type)
+{
+	debug << qMakePair(type.first.toString(), type.second);
+	return debug;
+}
+
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::MessagePlugin, "org.qutim.oscar.MessagePlugin");
 

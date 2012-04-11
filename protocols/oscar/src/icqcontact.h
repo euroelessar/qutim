@@ -60,7 +60,6 @@ public:
 	virtual bool sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);
-	void setGroup(const QString &group);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 	IcqAccount *account();
@@ -68,7 +67,7 @@ public:
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(const Status &status, bool notification = true);
 	ChatState chatState() const;
-	QList<FeedbagItem> feedbagItems() const;
+	void updateFromItem();
 signals:
 	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
 private:

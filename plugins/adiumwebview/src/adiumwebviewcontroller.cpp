@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -25,8 +25,8 @@
 
 #include "adiumwebviewcontroller.h"
 #include "../lib/webkitnetworkaccessmanager.h"
+#include <qutim/utils.h>
 #include <qutim/message.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/thememanager.h>
 #include <qutim/debug.h>
 #include <qutim/account.h>
@@ -35,8 +35,7 @@
 #include <qutim/emoticons.h>
 #include <qutim/notification.h>
 #include <qutim/servicemanager.h>
-#include <qutim/adiumchat/abstractchatform.h>
-#include <qutim/adiumchat/chatlayerimpl.h>
+#include <qutim/chatsession.h>
 #include <QPlainTextEdit>
 #include <QWebFrame>
 #include <QWebInspector>
@@ -118,7 +117,7 @@ WebViewController::~WebViewController()
 {
 }
 
-void WebViewController::setChatSession(ChatSessionImpl* session)
+void WebViewController::setChatSession(ChatSession *session)
 {
 	if (m_session.data() == session)
 		return;
@@ -130,15 +129,15 @@ void WebViewController::setChatSession(ChatSessionImpl* session)
 		        this, SLOT(onTopicChanged(QString)));
 	}
 	if (!m_isPreview) {
-		loadSettings();
+		loadSettings(false);
 		clearChat();
 		loadHistory();
 	}
 }
 
-ChatSessionImpl *WebViewController::getSession() const
+ChatSession *WebViewController::getSession() const
 {
-	return static_cast<ChatSessionImpl *>(m_session.data());
+	return m_session.data();
 }
 
 bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
@@ -159,21 +158,8 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
-	// FIXME: Move somewhere outside this plugin
-	const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
 	Message copy = msg;
-	QString html;
-	foreach (const UrlToken &token, Core::AdiumChat::ChatViewFactory::parseUrls(copy.html())) {
-		if (token.url.isEmpty()) {
-			html += token.text.toString();
-		} else {
-			QUrl url = QUrl::fromUserInput(token.url);
-			QByteArray urlEncoded = url.toEncoded();
-			html += hrefTemplate.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
-			                         url.toString(),
-			                         token.text.toString());
-		}
-	}
+	QString html = UrlParser::parseUrls(copy.html());
 	copy.setProperty("messageId", msg.id());
 	if (msg.property("topic", false)) {
 		copy.setHtml(html);
@@ -182,6 +168,8 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			updateTopic();
 		return;
 	}
+	if (msg.property("firstFocus", true))
+		clearFocusClass();
 	// We don't want emoticons in topic
 	html = Emoticons::theme().parseEmoticons(html);
 	copy.setHtml(html);
@@ -202,10 +190,7 @@ void WebViewController::clearChat()
 
 QString WebViewController::quote()
 {
-	QString quote = selectedText();
-	if (quote.isEmpty())
-		quote = m_last.text();
-	return quote;
+	return selectedText();
 }
 
 WebKitMessageViewStyle *WebViewController::style()
@@ -265,7 +250,7 @@ bool WebViewController::eventFilter(QObject *obj, QEvent *ev)
 				elem.removeClass(QLatin1String("notDelivered"));
 				elem.addClass(QLatin1String("delivered"));
 			} else {
-				elem.addClass(QLatin1String("failedToDevliver"));
+				elem.addClass(QLatin1String("failedToDeliver"));
 			}
 		}
 		return true;
@@ -305,7 +290,7 @@ bool WebViewController::zoomImage(QWebElement elem)
 
 void WebViewController::debugLog(const QString &message)
 {
-	qDebug("WebKit: %s", qPrintable(message));
+	debug() << "WebKit: " << message;
 }
 
 void WebViewController::appendNick(const QVariant &nick)
@@ -359,15 +344,17 @@ void WebViewController::appendText(const QVariant &text)
 	}
 }
 
-void WebViewController::loadSettings()
+void WebViewController::loadSettings(bool onFly)
 {
-	Config config("appearance/adiumChat");
-	config.beginGroup("style");
-	QString styleName = config.value(QLatin1String("name"), QLatin1String("default"));
-	m_style.setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), styleName));
-	m_style.setShowUserIcons(config.value(QLatin1String("showUserIcons"), true));
-	m_style.setShowHeader(config.value(QLatin1String("showHeader"), true));
-	config.beginGroup(styleName);
+	Config config(QLatin1String("appearance/adiumChat"));
+	config.beginGroup(QLatin1String("style"));
+	if (!onFly) {
+		m_styleName = config.value(QLatin1String("name"), QLatin1String("default"));
+		m_style.setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
+		m_style.setShowUserIcons(config.value(QLatin1String("showUserIcons"), true));
+		m_style.setShowHeader(config.value(QLatin1String("showHeader"), true));
+	}
+	config.beginGroup(m_styleName);
 	QString variant = config.value(QLatin1String("variant"), m_style.defaultVariant());
 	m_style.setActiveVariant(variant);
 	m_style.setCustomBackgroundType(config.value(QLatin1String("backgroundType"),
@@ -395,6 +382,13 @@ void WebViewController::loadSettings()
 		}
 	}
 	m_style.setCustomStyle(css);
+}
+
+void WebViewController::onSettingsSaved()
+{
+	loadSettings(true);
+	evaluateJavaScript(m_style.scriptForChangingVariant());
+	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
 }
 
 void WebViewController::loadHistory()
@@ -428,8 +422,7 @@ void WebViewController::onTopicChanged(const QString &topic)
 {
 	if (m_topic.text() == topic)
 		return;
-	m_topic.setText(topic);
-	m_topic.setProperty("html", QString());
+	m_topic.setText(QString());
 	if (!m_isLoading)
 		updateTopic();
 }
@@ -439,12 +432,43 @@ void WebViewController::updateTopic()
 	QWebElement element = mainFrame()->findFirstElement(QLatin1String("#topic"));
 	if (element.isNull())
 		return;
+	if (!m_session)
+		return;
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
-		m_topic.setText(conference->topic());
+		if (!conference) {
+			warning() << "Called WebViewController::updateTopic for non-conference";
+			m_topic.setText(QString());
+			m_topic.setHtml(QString());
+		} else {
+			m_topic.setText(conference->topic());
+			m_topic.setHtml(QString());
+			m_topic.setHtml(UrlParser::parseUrls(m_topic.html()));
+		}
 		m_topic.setTime(QDateTime::currentDateTime());
 	}
 	element.setInnerXml(m_style.templateForContent(m_topic, false));
+}
+
+void WebViewController::setTopic()
+{
+	QWebElement element = mainFrame()->findFirstElement(QLatin1String("#topicEdit"));
+	Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
+	if (element.isNull() || !conference)
+		return;
+	conference->setTopic(element.toPlainText());
+	updateTopic();
+}
+
+void WebViewController::clearFocusClass()
+{
+	QWebElementCollection elements = mainFrame()->findAllElements(QLatin1String(".focus"));
+	QString focusClass = QLatin1String("focus");
+	QString firstFocusClass = QLatin1String("firstFocus");
+	foreach (QWebElement element, elements) {
+		element.removeClass(focusClass);
+		element.removeClass(firstFocusClass);
+	}
 }
 
 void WebViewController::onContentsChanged()

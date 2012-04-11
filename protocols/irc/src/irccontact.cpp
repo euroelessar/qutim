@@ -27,26 +27,12 @@
 #include "ircaccount_p.h"
 #include "ircconnection.h"
 #include "ircavatar.h"
-#include <qutim/messagesession.h>
+#include <qutim/chatsession.h>
 #include "QApplication"
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
-
-void IrcContactPrivate::ref()
-{
-	m_ref.ref();
-}
-
-void IrcContactPrivate::deref()
-{
-	if (m_ref.deref() && ChatLayer::instance()) {
-		ChatSession *session = ChatLayer::instance()->getSession(q, false);
-		if (!session)
-			q->deleteLater();
-	}
-}
 
 void IrcContactPrivate::updateNick(const QString &newNick)
 {
@@ -69,6 +55,25 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 IrcContact::~IrcContact()
 {
 	Q_ASSERT(d->m_ref == 0);
+	account()->removeContact(d->nick);
+}
+
+void IrcContact::ref()
+{
+	if (d->m_ref++ == 0) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::disconnect(session, SIGNAL(destroyed()), this, SLOT(destroyLater()));
+	}
+}
+
+void IrcContact::deref()
+{
+	if (--d->m_ref == 0) {
+		if (ChatSession *session = ChatLayer::get(this, false))
+			QObject::connect(session, SIGNAL(destroyed()), this, SLOT(destroyLater()));
+		else
+			destroyLater();
+	}
 }
 
 QString IrcContact::id() const
@@ -149,10 +154,12 @@ QString IrcContact::realName() const
 	return d->realName;
 }
 
-void IrcContact::onSessionDestroyed()
+void IrcContact::destroyLater()
 {
-	if (d->m_ref == 0)
+	if (d->m_ref == 0) {
+		account()->removeContact(d->nick);
 		deleteLater();
+	}
 }
 
 void IrcContact::handleMode(const QString &who, const QString &mode, const QString &param)

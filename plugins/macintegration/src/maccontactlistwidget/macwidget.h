@@ -42,7 +42,7 @@ class QLineEdit;
 
 namespace Core {
 namespace SimpleContactList {
-struct MacWidgetPrivate;
+class MacWidgetPrivate;
 
 enum MacMenuId
 {

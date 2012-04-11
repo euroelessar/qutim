@@ -28,7 +28,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QAction>
-#include <itemdelegate.h>
+#include <qutim/itemdelegate.h>
 #include <qutim/event.h>
 #include <qutim/account.h>
 #include <qutim/groupchatmanager.h>
@@ -74,7 +74,7 @@ void BookmarksPage::setModel(BookmarksModel *model)
 void BookmarksPage::updateDataForm(DataItem fields)
 {
 	if (m_dataForm)
-		m_dataForm->deleteLater();
+		m_dataForm.data()->deleteLater();
 
 	if (fields.isNull()) {
 		GroupChatManager *manager = account()->groupChatManager();
@@ -87,8 +87,8 @@ void BookmarksPage::updateDataForm(DataItem fields)
 
 	m_dataForm = AbstractDataForm::get(fields);
 	if (m_dataForm) {
-		m_dataForm->setParent(this);
-		m_dataForm->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+		m_dataForm.data()->setParent(this);
+		m_dataForm.data()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 		m_layout->insertWidget(2,m_dataForm.data());
 	}
 }
@@ -104,7 +104,7 @@ void BookmarksPage::onSave()
 	GroupChatManager *manager = account()->groupChatManager();
 	if (!manager)
 		return;
-	DataItem fields = m_dataForm->item();
+	DataItem fields = m_dataForm.data()->item();
 	DataItem oldFields = this->fields(m_bookmarksBox->currentIndex());
 	if (fields.isNull())
 		return;

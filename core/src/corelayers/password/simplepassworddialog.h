@@ -39,6 +39,8 @@ namespace Core
 		explicit SimplePasswordDialog();
 		virtual void setAccount(Account *account);
 		virtual void setValidator(QValidator *validator);
+
+		void virtual_hook(int id, void *data);
 	private:
 		QWeakPointer<SimplePasswordWidget> m_widget;
 		friend class SimplePasswordWidget;

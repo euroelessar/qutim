@@ -62,7 +62,7 @@ private slots:
 	void onAccountPropertiesTriggered();
 private:
 	Ui::AccountCreatorList *ui;
-	QPointer<AccountCreatorWizard> m_wizard;
+	QWeakPointer<AccountCreatorWizard> m_wizard;
 };
 }
 

@@ -28,9 +28,9 @@
 
 #include <QGraphicsScene>
 #include <qutim/adiumchat/chatviewfactory.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/chatsession.h>
 #include <QVariant>
-#include <QPointer>
+#include <QWeakPointer>
 
 class QDeclarativeEngine;
 class QDeclarativeItem;
@@ -39,7 +39,7 @@ class QDeclarativeContext;
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatController : public QGraphicsScene, public ChatViewController
+class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
@@ -50,8 +50,8 @@ class QuickChatController : public QGraphicsScene, public ChatViewController
 public:
 	QuickChatController(QDeclarativeEngine *engine, QObject *parent = 0);
 	virtual ~QuickChatController();
-	virtual void setChatSession(ChatSessionImpl *session);
-	virtual ChatSessionImpl *getSession() const;
+	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
+	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
 	QDeclarativeItem *rootItem() const;
@@ -72,21 +72,21 @@ signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
 	void clearChatField();
-	void sessionChanged(Core::AdiumChat::ChatSessionImpl *);
+	void sessionChanged(QObject *);
 	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	QPointer<ChatSessionImpl> m_session;
+	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;
-	QPointer<QDeclarativeItem> m_item;
+	QWeakPointer<QDeclarativeItem> m_item;
 };
 
 } // namespace AdiumChat
 } // namespace Core
 
-Q_DECLARE_METATYPE(Core::AdiumChat::QuickChatController*);
+Q_DECLARE_METATYPE(Core::AdiumChat::QuickChatController*)
 
 #endif // QUICKCHATVIEWCONTROLLER_H
 
