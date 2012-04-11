@@ -68,11 +68,13 @@ public:
 	
 	ActionValue(const ActionKey &key);
 	~ActionValue();
-	
+
+	static QObject *controller(QAction *action);
 	static ActionValue::Ptr get(const ActionGenerator *gen, QObject *controller);
 	static ActionValue::Ptr get(const ActionInfoV2 &info);
 	static ActionValue::WeakPtr find(const ActionGenerator *gen, QObject *controller);
 	static QList<ActionValue::WeakPtr> find(const ActionGenerator *gen);
+	static void handleDeath(const ActionGenerator *gen);
 	
 	ActionKey key;
 	QWeakPointer<QAction> action;

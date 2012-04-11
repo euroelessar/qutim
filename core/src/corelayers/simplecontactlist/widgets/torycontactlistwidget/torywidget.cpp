@@ -173,6 +173,7 @@ ToryWidget::~ToryWidget()
 	Config config;
 	config.beginGroup("contactList");
 	config.setValue("geometry", saveGeometry());
+	qDeleteAll(d_func()->statusGroup->actions());
 	qDeleteAll(d_func()->actionGenerators);
 }
 
@@ -181,9 +182,9 @@ void ToryWidget::addButton(ActionGenerator *generator)
 	d_func()->mainToolBar->addAction(generator);
 }
 
-void ToryWidget::removeButton(ActionGenerator *)
+void ToryWidget::removeButton(ActionGenerator *generator)
 {
-	//d_func()->mainToolBar->removeAction(generator);
+	d_func()->mainToolBar->removeAction(generator);
 }
 
 TreeView *ToryWidget::contactView()
