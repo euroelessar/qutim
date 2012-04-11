@@ -57,6 +57,11 @@ ActionValue::~ActionValue()
 	delete action.data();
 }
 
+QObject *ActionValue::controller(QAction *action)
+{
+	return actionControllerMap()->value(action);
+}
+
 ActionValue::Ptr ActionValue::get(const ActionGenerator *gen, QObject *controller)
 {
 	ActionKey key(controller, gen);
@@ -88,6 +93,40 @@ QList<ActionValue::WeakPtr> ActionValue::find(const ActionGenerator *gen)
 			result << it.value();
 	}
 	return result;
+}
+
+void ActionValue::handleDeath(const ActionGenerator *gen)
+{
+	MenuActionMap::Iterator it;
+	MenuActionMap::Iterator endit = globalActions()->end();
+	foreach (const ActionValue::WeakPtr &valuePtr, find(gen)) {
+		ActionValue *value = valuePtr.data();
+		MenuController *controller = qobject_cast<MenuController*>(value->key.first);
+		if (controller) {
+			MenuControllerPrivate *p = MenuControllerPrivate::get(controller);
+			const QMetaObject *meta = controller->metaObject();
+			while (meta) {
+				it = globalActions()->find(meta);
+				for (; it != endit; ++it) {
+					if (it.key() != meta)
+						break;
+					if (it.value().gen != gen)
+						continue;
+					p->actions.removeAction(ActionInfoV2(it.value(), controller));
+				}
+				meta = meta->superClass();
+			}
+			controller->removeAction(gen);
+		}
+	}
+	it = globalActions()->begin();
+	for (; it != endit;) {
+		ActionInfo &info = it.value();
+		if (info.gen == gen)
+			globalActions()->erase(it++);
+		else
+			++it;
+	}
 }
 
 const QByteArray &menuNameBySet(const QByteArray &name)
