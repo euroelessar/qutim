@@ -211,7 +211,7 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 	//Maemo dbus implementation
 	QWeakPointer<QObject> sender = data.sender;
 	if (name == "default" ) {
-		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
+		ChatUnit *unit = qobject_cast<ChatUnit *>(sender.data());
 
 		if (unit) {
 			ChatUnit *metaContact = unit->metaContact();

@@ -73,7 +73,7 @@ void MassMessaging::onActionTriggered()
 	}
 #ifdef Q_WS_MAEMO_5
 	m_dialog.data()->setParent(QApplication::activeWindow());
-	m_dialog.data()->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
+	m_dialog.data()->setWindowFlags(m_dialog.data()->windowFlags() | Qt::Window);
 	m_dialog.data()->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 	SystemIntegration::show(m_dialog.data());
