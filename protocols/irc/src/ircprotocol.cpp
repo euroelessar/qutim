@@ -120,7 +120,7 @@ void IrcProtocol::loadAccounts()
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &network, accounts) {
 		IrcAccount *acc = new IrcAccount(network);
-		d->accounts_hash->insert(network, acc);
+		d->accounts_hash.insert(network, acc);
 		acc->updateSettings();
 		emit accountCreated(acc);
 	}
@@ -130,7 +130,7 @@ QList<Account *> IrcProtocol::accounts() const
 {
 	QList<Account *> accounts;
 	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
-	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
+	for (it = d->accounts_hash.begin(); it != d->accounts_hash.end(); it++)
 		if (!it.value().isNull())
 			accounts.append(it.value().data());
 	return accounts;
@@ -138,15 +138,15 @@ QList<Account *> IrcProtocol::accounts() const
 
 Account *IrcProtocol::account(const QString &id) const
 {
-	return d->accounts_hash->value(id).data();
+	return d->accounts_hash.value(id).data();
 }
 
 IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
 {
-	IrcAccount *account = d->accounts_hash->value(id).data();
+	IrcAccount *account = d->accounts_hash.value(id).data();
 	if (!account && create) {
 		account = new IrcAccount(id);
-		d->accounts_hash->insert(id, account);
+		d->accounts_hash.insert(id, account);
 		emit accountCreated(account);
 	}
 	return account;
@@ -304,7 +304,7 @@ void IrcProtocol::updateSettings()
 {
 	Config cfg = config("general");
 	d->enableColoring = cfg.value("enableColoring", true);
-	foreach (QWeakPointer<IrcAccount> acc, *d->accounts_hash)
+	foreach (QWeakPointer<IrcAccount> acc, d->accounts_hash)
 		acc.data()->updateSettings();
 }
 
