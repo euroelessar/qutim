@@ -257,6 +257,10 @@ bool JContact::event(QEvent *ev)
 		d->account->client()->send(presence);
 		d->account->roster()->synchronize();
 		return true;
+	} else if (ev->type() == MetaContactChangeEvent::eventType()) {
+		MetaContactChangeEvent *event = static_cast<MetaContactChangeEvent*>(ev);
+		QString id = event->newMetaContact() ? event->newMetaContact()->id() : QString();
+		d->account->roster()->handleChange(this, id);
 	}
 	return Contact::event(ev);
 }

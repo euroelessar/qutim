@@ -63,9 +63,19 @@ public:
 	JRoster *q_ptr;
 	RosterStorage *storage;
 	QHash<QString, JContact*> contacts;
+	QHash<QString, Jreen::MetaContactStorage::Item> metacontacts;
+	Jreen::MetaContactStorage *metaStorage;
 	bool showNotifications;
 	bool ignoreChanges;
+	bool atMetaLoad;
+	bool atMetaSync;
 };
+
+static QEvent::Type metaContactSyncType()
+{
+	static QEvent::Type type = static_cast<QEvent::Type>(QEvent::registerEventType());
+	return type;
+}
 
 Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 {
@@ -105,6 +115,12 @@ JRoster::JRoster(JAccount *account) :
 	d->ignoreChanges = false;
 	d->storage = RosterStorage::instance();
 	d->account->setContactsFactory(d);
+	d->metaStorage = new Jreen::MetaContactStorage(account->client());
+	d->metaStorage->setPrivateXml(d->account->privateXml());
+	d->atMetaLoad = false;
+	d->atMetaSync = false;
+	connect(d->metaStorage, SIGNAL(metaContactsReceived(Jreen::MetaContactStorage::ItemList)),
+	        SLOT(onMetaContactsReceived(Jreen::MetaContactStorage::ItemList)));
 	connect(d->account->client(),SIGNAL(presenceReceived(Jreen::Presence)),
 			this,SLOT(handleNewPresence(Jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
@@ -192,6 +208,7 @@ void JRoster::onLoaded(const QList<QSharedPointer<Jreen::RosterItem> > &items)
 	d->showNotifications = false;
 	AbstractRoster::onLoaded(items);
 	d->showNotifications = true;
+	d->metaStorage->requestMetaContacts();
 }
 
 JContact *JRoster::createContact(const Jreen::JID &id)
@@ -318,6 +335,15 @@ void JRoster::handleSelfPresence(Jreen::Presence presence)
 		contact->setStatus(presence);
 	if (contactCreated)
 		emit d->account->contactCreated(contact);
+}
+
+void JRoster::syncMetaContacts()
+{
+	Q_D(JRoster);
+	if (!d->atMetaSync) {
+		qApp->postEvent(this, new QEvent(metaContactSyncType()), Qt::LowEventPriority);
+		d->atMetaSync = true;
+	}
 }
 
 void JRoster::onDisconnected()
@@ -474,6 +500,35 @@ void JRoster::onContactDestroyed(QObject *obj)
 	d->contacts.remove(d->contacts.key(c));
 }
 
+void JRoster::onMetaContactsReceived(const Jreen::MetaContactStorage::ItemList &items)
+{
+	Q_D(JRoster);
+	d->atMetaLoad = true;
+	QSet<QString> removedContacts = QSet<QString>::fromList(d->metacontacts.keys());
+	foreach (const Jreen::MetaContactStorage::Item &item, items) {
+		JContact *contact = d->contacts.value(item.jid().bare());
+        if (!contact)
+            continue;
+        MetaContact *metaContact = qobject_cast<MetaContact*>(contact->metaContact());
+		removedContacts.remove(item.jid().bare());
+        if (metaContact && metaContact->id() == item.tag())
+            continue;
+        ChatUnit *unit = MetaContactManager::instance()->getUnit(item.tag(), true);
+        metaContact = qobject_cast<MetaContact*>(unit);
+        Q_ASSERT(metaContact);
+        metaContact->addContact(contact);
+		d->metacontacts.insert(contact->id(), item);
+    }
+	foreach (const QString &jid, removedContacts) {
+		JContact *contact = d->contacts.value(jid);
+		MetaContact *metaContact = qobject_cast<MetaContact*>(contact->metaContact());
+		Q_ASSERT(metaContact);
+		metaContact->removeContact(contact);
+		d->metacontacts.remove(jid);
+	}
+	d->atMetaLoad = false;
+}
+
 void JRoster::removeSubscription(const JContact *contact)
 {
 	Q_D(JRoster);
@@ -510,6 +565,35 @@ void JRoster::setGroups(const JContact *contact, const QStringList &groups)
 		i->setGroups(groups);
 		synchronize();
 	}
+}
+
+void JRoster::handleChange(JContact *contact, const QString &metaTag)
+{
+	Q_D(JRoster);
+	if (d->atMetaLoad)
+		return;
+
+	if (metaTag.isEmpty()) {
+		d->metacontacts.remove(contact->id());
+	} else {
+		Jreen::MetaContactStorage::Item item;
+		item.setJID(contact->id());
+		item.setTag(metaTag);
+		d->metacontacts.insert(contact->id(), item);
+	}
+	if (d->account->client()->isConnected())
+		syncMetaContacts();
+}
+
+bool JRoster::event(QEvent *ev)
+{
+	if (ev->type() == metaContactSyncType()) {
+		Q_D(JRoster);
+		d->metaStorage->storeMetaContacts(d->metacontacts.values());
+		d->atMetaSync = false;
+		return true;
+	}
+	return Jreen::AbstractRoster::event(ev);
 }
 
 void JRoster::setName(const JContact *contact, const QString &name)

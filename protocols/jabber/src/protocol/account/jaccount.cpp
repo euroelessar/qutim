@@ -219,12 +219,12 @@ JAccount::JAccount(const QString &id) :
 
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 	d->loadedModules = 0;
-	d->roster = new JRoster(this);
 	d->privacyManager = new PrivacyManager(d->client.data());
+	d->pubSubManager = new Jreen::PubSub::Manager(d->client.data());
+	d->privateXml = new Jreen::PrivateXml(d->client.data());
+	d->roster = new JRoster(this);
 	Jreen::Capabilities::Ptr caps = d->client->presence().payload<Jreen::Capabilities>();
 	caps->setNode(QLatin1String("http://qutim.org/"));
-	d->privateXml = new Jreen::PrivateXml(d->client.data());
-	d->pubSubManager = new Jreen::PubSub::Manager(d->client.data());
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
