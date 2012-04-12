@@ -186,6 +186,20 @@ void OTRCrypt::init()
 
 bool OTRCrypt::load()
 {
+	Config config;
+	config.beginGroup("otr");
+	Policy policy = config.value("policy", PolicyAuto);
+	m_notify = config.value("notify", true);
+	m_state = otrl_userstate_create();
+	Policy policies[] = {
+	    PolicyOff,
+	    PolicyEnabled,
+	    PolicyAuto,
+	    PolicyRequire,
+	    policy
+	};
+	for (size_t i = 0; i < sizeof(policies) / sizeof(policies[0]); ++i)
+		m_connections << new OtrMessaging(policies[i], m_state);
 	m_action.reset(new OtrActionGenerator);
 	m_preHandler.reset(new OtrMessagePreHandler);
 	MessageHandler::registerHandler(m_preHandler.data(),
@@ -203,20 +217,6 @@ bool OTRCrypt::load()
 	                         Icon("dialog-password"),
 	                         QT_TRANSLATE_NOOP("OTRCrypt", "OTR Messaging")));
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
-	Config config;
-	config.beginGroup("otr");
-	Policy policy = config.value("policy", PolicyAuto);
-	m_notify = config.value("notify", true);
-	m_state = otrl_userstate_create();
-	Policy policies[] = {
-	    PolicyOff,
-	    PolicyEnabled,
-	    PolicyAuto,
-	    PolicyRequire,
-	    policy
-	};
-	for (size_t i = 0; i < sizeof(policies) / sizeof(policies[0]); ++i)
-		m_connections << new OtrMessaging(policies[i], m_state);
 	Settings::registerItem(m_settingsItem.data());
 	return true;
 }
@@ -228,6 +228,8 @@ bool OTRCrypt::unload()
 	m_preHandler.reset(0);
 	m_postHandler.reset(0);
 	m_action.reset(0);
+	qDeleteAll(m_closures);
+	m_closures.clear();
 	qDeleteAll(m_connections);
 	m_connections.clear();
 	otrl_userstate_free(m_state);

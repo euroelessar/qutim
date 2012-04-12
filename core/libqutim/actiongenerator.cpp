@@ -94,6 +94,7 @@ void ActionGeneratorHelper::updateSequence(const QString &id, const QKeySequence
 
 void ActionGeneratorHelper::handleDeath(ActionGeneratorPrivate *data)
 {
+	ActionValue::handleDeath(data->q_ptr);
 	QList<QAction*> actions = m_actions.keys(data);
 	for (int i = 0; i < actions.size(); ++i)
 		actions.at(i)->deleteLater();
