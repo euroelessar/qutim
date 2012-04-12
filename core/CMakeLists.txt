@@ -198,18 +198,7 @@ QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	ON
 )
 
-IF(APPLE)
-        set(DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
-        IF(NOT CMAKE_BUILD_TYPE)
-                set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
-	ENDIF(NOT CMAKE_BUILD_TYPE)
-ELSE(APPLE)
-        set(DEFAULT_QUTIM_GUI_TYPE "")
-ENDIF(APPLE)
-SET(QUTIM_GUI_TYPE ${DEFAULT_QUTIM_GUI_TYPE} CACHE STRING "qutIM GUI TYPE" )
-IF(QUTIM_GUI_TYPE)
-	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
-ENDIF()
+SET(QUTIM_GUI_TYPE "WIN32 MACOSX_BUNDLE" CACHE STRING "qutIM GUI TYPE" )
 
 QUTIM_ADD_EXECUTABLE(qutim
 	${QUTIM_GUI_TYPE}
@@ -302,6 +291,7 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
 	_mac_deploy_plugin(crypto qca-ossl)
 	_mac_deploy_plugin(crypto qca-cyrus-sasl)
+	_mac_deploy_plugin(crypto qca-gnupg)
 
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
@@ -366,6 +356,12 @@ SET(QUTIM_ADDITIONAL_ART_PATH "-NOTFOUND" CACHE PATH "Path to additional artwork
 IF(QUTIM_ADDITIONAL_ART_PATH)
 	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
 ENDIF()
+
+option(QUTIM_INSTALL_ICON_THEME "Install built-in icon theme based on oxygen" OFF)
+if(QUTIM_INSTALL_ICON_THEME)
+	message(STATUS "qutIM built-in icon theme will be installed")
+	qutim_add_artwork(../artwork/icons)
+endif()
 
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
@@ -433,6 +429,7 @@ if(QUTIM_CREATE_BUNDLE)
         iconengines/qsvgicon
         crypto/qca-ossl
         crypto/qca-sasl
+		crypto/qca-gnupg
     )
 
     deploy_qml_modules(${QML_MODULES})
