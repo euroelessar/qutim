@@ -38,16 +38,10 @@ namespace irc {
 class IrcProtocolPrivate
 {
 public:
-	inline IrcProtocolPrivate() :
-		accounts_hash(new QHash<QString, QWeakPointer<IrcAccount> > ())
-	{ }
-	inline ~IrcProtocolPrivate() { delete accounts_hash; }
+	inline IrcProtocolPrivate() { }
+	inline ~IrcProtocolPrivate() { }
 	static QString getColorByMircCode(const QString &code);
-	union
-	{
-		QHash<QString, QWeakPointer<IrcAccount> > *accounts_hash;
-		QHash<QString, IrcAccount *> *accounts;
-	};
+	QHash<QString, QWeakPointer<IrcAccount> > accounts_hash;
 	QWeakPointer<ChatSession> activeSession;
 	ActionGenerator *autojoinAction;
 	static bool enableColoring;

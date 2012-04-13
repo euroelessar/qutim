@@ -1,8 +1,15 @@
-Version ???:
-	* Fixed switching from autoresize to normal TextEdit.
+Version 0.3.1:
+	* Added PGP support
+	* Added OTR support
 	* Added ability to disable showing of ContactList on startup
-	* Added ability of starting up in minimized mode.
+	* Added ability of starting up in minimized mode
 	* Added filtration in ServiceChooser and PluginChooser
+	* Added "melva" chat style
+	* Added metacontacts synchronization for Jabber accounts
+	* Improved support for Adium Chat Styles
+	* Improved quotering support
+	* Fixed switching from autoresize to normal TextEdit
+	* Fixed several crashes
 
 Version 0.3:
 	* Inital logged release.
