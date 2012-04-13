@@ -71,7 +71,7 @@ public:
 	    time(QDateTime::currentDateTime()), in(false),
 	    id(++message_id) {}
 	MessagePrivate(const MessagePrivate &o) :
-		DynamicPropertyData(o), text(o.text), time(o.time),
+		DynamicPropertyData(o), text(o.text), html(o.html), time(o.time),
 		in(o.in), chatUnit(o.chatUnit), id(++message_id) {}
 	~MessagePrivate() {}
 	QString text;
