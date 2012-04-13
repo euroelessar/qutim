@@ -168,7 +168,7 @@ void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			updateTopic();
 		return;
 	}
-	if (msg.property("firstFocus", true))
+	if (msg.property("firstFocus", false))
 		clearFocusClass();
 	// We don't want emoticons in topic
 	html = Emoticons::theme().parseEmoticons(html);
