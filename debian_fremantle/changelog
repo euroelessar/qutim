@@ -1,3 +1,9 @@
+qutim (0.3.1-maemo-0) fremantle; urgency=low
+
+  * Major 0.3 Release
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Fri, 13 Apr 2012 12:51:18 +0600
+
 qutim (0.2.80-maemo-15) fremantle; urgency=low
 
   * Fix ICQ connection issue
