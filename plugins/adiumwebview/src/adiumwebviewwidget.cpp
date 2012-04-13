@@ -29,6 +29,9 @@
 #include <qutim/servicemanager.h>
 #include <QWebFrame>
 #include <QApplication>
+#ifdef Q_WS_MAEMO_5
+#include <QMouseEvent>
+#endif
 
 namespace Adium {
 
@@ -41,6 +44,10 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 		QMetaObject::invokeMethod(scroller,
 								  "enableScrolling",
 								  Q_ARG(QObject*, this));
+#ifdef Q_WS_MAEMO_5
+	mousePressed = false;
+	installEventFilter(this);
+#endif
 }
 
 void WebViewWidget::setViewController(QObject* object)
@@ -60,6 +67,29 @@ void WebViewWidget::setViewController(QObject* object)
 	else
 		setPage(new QWebPage(this));
 }
+
+#ifdef Q_WS_MAEMO_5
+bool WebViewWidget::eventFilter(QObject *, QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+	if (static_cast<QMouseEvent *>(e)->button() == Qt::LeftButton)
+	    mousePressed = true;
+	break;
+    case QEvent::MouseButtonRelease:
+	if (static_cast<QMouseEvent *>(e)->button() == Qt::LeftButton)
+	    mousePressed = false;
+	break;
+    case QEvent::MouseMove:
+	if (mousePressed)
+	    return true;
+	break;
+    default:
+	break;
+    }
+    return false;
+}
+#endif
 
 } // namespace Adium
 

@@ -1,3 +1,4 @@
+opt/qutim/lib/qutim/plugins/libadiumwebview.so
 opt/qutim/lib/qutim/plugins/libbirthdayreminder.so
 opt/qutim/lib/qutim/plugins/libblogimprover.so
 opt/qutim/lib/qutim/plugins/libchatspellchecker.so
@@ -6,7 +7,6 @@ opt/qutim/lib/qutim/plugins/libhunspeller.so
 opt/qutim/lib/qutim/plugins/libmassmessaging.so
 opt/qutim/lib/qutim/plugins/libofftherecord.so
 opt/qutim/lib/qutim/plugins/libyandexnarod.so
-opt/qutim/lib/qutim/plugins/libwebkitchat.so
 opt/qutim/lib/qutim/plugins/libqmlchat.so
 opt/qutim/lib/qutim/plugins/liburlpreview.so
 opt/qutim/lib/qutim/plugins/libweather.so
