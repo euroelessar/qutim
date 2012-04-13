@@ -7,3 +7,5 @@ qtcreator-build
 build
 android
 libs
+debian_harmattan/qutim
+debian_harmattan/qutim-dbg

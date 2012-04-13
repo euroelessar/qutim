@@ -38,6 +38,7 @@
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
 #include "protocol/modules/proxy/jproxymanager.h"
+#include "protocol/modules/jinglesupport/jinglesupport.h"
 
 namespace Jabber
 {
@@ -137,6 +138,12 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
 				 new SingletonGenerator<JProxyManager, NetworkProxyManager>(),
 				 ExtensionIcon("im-jabber"));
+#ifdef JABBER_HAVE_MULTIMEDIA
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
+				 new GeneralGenerator<JingleSupport, JabberExtension>(),
+				 ExtensionIcon(""));
+#endif
 }
 
 bool JPlugin::load()

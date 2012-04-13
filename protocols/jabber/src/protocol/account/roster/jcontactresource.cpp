@@ -36,6 +36,7 @@
 #include <jreen/chatstate.h>
 #include <jreen/message.h>
 #include <jreen/client.h>
+#include <jreen/jinglemanager.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -223,6 +224,18 @@ bool JContactResource::checkFeature(const QString &feature) const
 bool JContactResource::checkFeature(const std::string &feature) const
 {
 	return d_ptr->features.contains(QString::fromStdString(feature));
+}
+
+bool JContactResource::canCall() const
+{
+	Jreen::Client *client = static_cast<const JAccount*>(account())->client();
+	return client->jingleManager()->checkSupport(d_ptr->features);
+}
+
+void JContactResource::call(const QStringList &contents)
+{
+	Jreen::Client *client = static_cast<JAccount*>(account())->client();
+	client->jingleManager()->createSession(d_func()->id, contents);
 }
 
 ChatUnit *JContactResource::upperUnit()

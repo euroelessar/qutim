@@ -8,9 +8,19 @@ if( JABBER )
 		pkg_check_modules( JREEN REQUIRED libjreen )
 		link_directories( ${JREEN_LIBRARY_DIRS} )
 	else()
-		ADD_SUBDIRECTORY(jreen)
-		LIST(APPEND INCLUDE_DIRS "${JREEN_INCLUDE_DIRS}")
+		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+		add_subdirectory( jreen )
+		list( APPEND INCLUDE_DIRS "${JREEN_INCLUDE_DIR}" )
 	endif()
+endif()
+
+find_package(QtMobility)
+if( ${QT_MOBILITY_FOUND} AND ${QT_MOBILITY_MULTIMEDIAKIT_FOUND} )
+	list( APPEND INCLUDE_DIRS ${QT_MOBILITY_MULTIMEDIAKIT_INCLUDE_DIR} ${QT_MOBILITY_INCLUDE_DIR} ${QT_MOBILITY_PARENT_INCLUDE_DIR} )
+	list( APPEND JABBER_LINK_LIBRARIES ${QT_MOBILITY_MULTIMEDIAKIT_LIBRARY} )
+	add_definitions( "-DJABBER_HAVE_MULTIMEDIA=1" )
+else()
+	message("Module MultimediaKit not found. Jingle support is disabled.")
 endif()
 
 find_package(QCA2)
@@ -25,6 +35,6 @@ qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
 	DESCRIPTION "Implementation of jabber protocol based on jreen library"
 	GROUP "Protocols"
-	LINK_LIBRARIES ${JREEN_LIBRARIES} ${QCA2_LIBRARIES}
-	INCLUDE_DIRS ${JREEN_INCLUDE_DIRS} ${QCA2_INCLUDE_DIR}
+	LINK_LIBRARIES ${JREEN_LIBRARIES} ${QCA2_LIBRARIES} ${JABBER_LINK_LIBRARIES}
+	INCLUDE_DIRS ${JREEN_INCLUDE_DIRS} ${QCA2_INCLUDE_DIR} ${INCLUDE_DIRS}
 )

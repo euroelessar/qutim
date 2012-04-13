@@ -588,6 +588,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		TLVMap tlvs = sn.read<TLVMap>();
 		quint32 ip = tlvs.value(0x0a).read<quint32>();
 		d->ext_ip = QHostAddress(ip);
+
 		//debug() << conn->externalIP();
 		break;
 	}

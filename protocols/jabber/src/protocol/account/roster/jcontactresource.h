@@ -81,6 +81,8 @@ public:
 	bool checkFeature(const QLatin1String &feature) const;
 	bool checkFeature(const QString &feature) const;
 	bool checkFeature(const std::string &feature) const;
+	Q_INVOKABLE bool canCall() const;
+	Q_INVOKABLE void call(const QStringList &contents);
 	ChatUnit *upperUnit();
 	QString avatar() const;
 	QString text() const;
