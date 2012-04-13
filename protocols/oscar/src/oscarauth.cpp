@@ -169,6 +169,14 @@ QVariantMap OscarResponse::rawResult() const
 OscarAuth::OscarAuth(IcqAccount *account) :
     QObject(account), m_account(account), m_state(Invalid)
 {
+#if defined(OSCAR_USE_QCA2)
+	static bool qcaInited = false;
+	if (!qcaInited) {
+		qcaInited = true;
+		QCA::init();
+		QCA::setAppName("qutim");
+	}
+#endif
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
 	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
@@ -186,6 +194,14 @@ void OscarAuth::setProxy(const QNetworkProxy &proxy)
 
 void OscarAuth::login()
 {
+#if defined(OSCAR_USE_QCA2)
+	if (!QCA::isSupported("hmac(sha256)")) {
+		critical(DebugVeryVerbose) << "HMAC-SHA1 feature for QCA is not found. Try to install qca2-plugin-ossl";
+		emit error(AbstractConnection::InternalClientError);
+		deleteLater();
+		return;
+	}
+#endif
 	Config cfg = m_account->config(QLatin1String("general"));
 	QVariantMap token = cfg.value(QLatin1String("token"), QVariantMap(), Config::Crypted);
 	if (!token.isEmpty()) {
@@ -231,12 +247,6 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
 				mac.size());
 	return mac.toBase64();
 #elif defined(OSCAR_USE_QCA2)
-	static bool qcaInited = false;
-	if (!qcaInited) {
-		qcaInited = true;
-		QCA::init();
-		QCA::setAppName("qutim");
-	}
 	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
 	hash.update(array);
 	return hash.final().toByteArray().toBase64();
