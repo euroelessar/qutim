@@ -1,6 +1,8 @@
 opt/qutim/bin/qutim
 opt/qutim/lib/lib*
-opt/qutim/lib/qutim/plugins/liba*
+opt/qutim/lib/qutim/plugins/libadiumchat.so
+opt/qutim/lib/qutim/plugins/libaccountcreator.so
+opt/qutim/lib/qutim/plugins/libaddcontactdlg.so
 opt/qutim/lib/qutim/plugins/libbearer*
 opt/qutim/lib/qutim/plugins/libchatnotificationsbackend.so
 opt/qutim/lib/qutim/plugins/libclconf.so
