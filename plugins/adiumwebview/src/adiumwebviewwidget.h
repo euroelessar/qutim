@@ -43,6 +43,10 @@ public:
     virtual void setViewController(QObject* controller);
 private:
 	QWeakPointer<WebViewController> m_controller;
+#ifdef Q_WS_MAEMO_5
+	bool mousePressed;
+	virtual bool eventFilter(QObject *, QEvent *e);
+#endif
 };
 
 } // namespace Adium
