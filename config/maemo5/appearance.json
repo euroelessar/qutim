@@ -1,0 +1,21 @@
+{
+   "chat": {
+    "behavior": {
+     "widget": {
+      "keys": {
+       "session": {
+        "geometry": "@ByteArray(AdnQywABAAAAAAAAAAAAOAAAAx8AAAHfAAAAZAAAACgAAAK7AAABtwAAAAACAA==)",
+        "vSplitter": "@ByteArray(AAAA/wAAAAAAAAACAAACWAAAANYBAAAADgEAAAAC)"
+       }
+      }
+     }
+    },
+    "notificationsInActiveChat": false
+   },
+   "emoticons": {
+    "theme": "Kolobok-static"
+   },
+   "sound": {
+    "theme": "default"
+   }
+  }
