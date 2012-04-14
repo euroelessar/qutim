@@ -28,6 +28,7 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QLabel>
+#include <QScrollArea>
 #include <QTextBrowser>
 #include <qutim/systeminfo.h>
 #include <QNetworkRequest>
@@ -53,8 +54,16 @@ SubmitPage::SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent)
 		setSubTitle(tr("Your system settings differ from the ones sent last time"));
 	}
 	if (helper->action() == StatisticsHelper::NeedToAskInit
-	        || helper->action() == StatisticsHelper::NeedToAskUpdate) {
-		QVBoxLayout *l = new QVBoxLayout(this);
+			|| helper->action() == StatisticsHelper::NeedToAskUpdate) {
+		QVBoxLayout *scrollArealayout = new QVBoxLayout(this);
+		scrollArealayout->setMargin(0);
+		QScrollArea *scrollArea = new QScrollArea(this);
+		scrollArealayout->addWidget(scrollArea);
+		scrollArea->setFrameShape(QFrame::NoFrame);
+		QWidget *scrollWidget = new QWidget(this);
+		scrollArea->setWidget(scrollWidget);
+		scrollArea->setWidgetResizable(true);
+		QVBoxLayout *l = new QVBoxLayout(scrollWidget);
 		m_submitBox = new QCheckBox(tr("Would you like to send details about your current setup?"), this);
 		m_submitBox->setChecked(true);
 		m_dontAskLater = new QCheckBox(tr("Dont's ask me later"), this);
@@ -62,7 +71,13 @@ SubmitPage::SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent)
 		QLabel *label = new QLabel(tr("Information to be transferred to the qutIM's authors:"), this);
 		m_information = new QTextBrowser(this);
 		m_information->setHtml(m_helper->infoHtml());
-		
+		m_information->setMinimumHeight(100);
+
+#ifdef Q_WS_MAEMO_5
+		m_submitBox->setMaximumHeight(40);
+		m_dontAskLater->setMaximumHeight(40);
+#endif
+
 		l->addWidget(m_submitBox);
 		l->addWidget(label);
 		l->addWidget(m_information);
