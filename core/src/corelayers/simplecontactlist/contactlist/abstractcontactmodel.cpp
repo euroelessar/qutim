@@ -366,6 +366,7 @@ QIcon AbstractContactModel::getIconForNotification(Notification *notification) c
 		return d->birthdayIcon;
 	case Notification::BlockedMessage:
 	case Notification::System:
+	case Notification::Attention:
 		return d->defaultNotificationIcon;
 	}
 	return QIcon();

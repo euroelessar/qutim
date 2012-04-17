@@ -78,6 +78,9 @@ static QString toString(Notification::Type type, const QString &argument)
 	case Notification::UserTyping:
 		title = QObject::tr("%1 is typing");
 		break;
+	case Notification::Attention:
+		title = QObject::tr("%1 call you");
+		break;
 	case Notification::FileTransferCompleted:
 	case Notification::System:
 	default:
@@ -175,6 +178,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	case Notification::ChatUserJoined:
 	case Notification::ChatUserLeft:
 	case Notification::UserHasBirthday:
+	case Notification::Attention:
 		{
 			NotificationAction action(QObject::tr("Open chat"),
 									  this,
