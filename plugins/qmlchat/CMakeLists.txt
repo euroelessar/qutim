@@ -15,6 +15,7 @@ qutim_add_plugin(qmlchat
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Modern chat view based on power of QtQuick"
 	DEPENDS adiumchat
+	LINK_LIBRARIES adiumchat
 	QT_LIBRARIES DECLARATIVE OPENGL
 )
 
