@@ -7,6 +7,8 @@ if(QUTIM_CREATE_BUNDLE)
     set(APPS ${BUNDLE_PATH})
     list(APPEND DIRS
         ${QT_LIBRARY_DIR}
+        "${CMAKE_INSTALL_PREFIX}/${PLUGINSDIR}"
+        "${CMAKE_INSTALL_PREFIX}/${LIBDIR}"
     )
     if(WIN32)
         get_filename_component(_dir ${QT_QMAKE_EXECUTABLE} PATH)
@@ -38,8 +40,6 @@ if(QUTIM_CREATE_BUNDLE)
     deploy_qt_plugins(${QT_PLUGINS})
 
     INSTALL(CODE "
-        list(APPEND DIRS \"${CMAKE_INSTALL_PREFIX}/${PLUGINSDIR}\"
-            \"${CMAKE_INSTALL_PREFIX}/${LIBDIR}\")
         file(GLOB_RECURSE QTPLUGINS
           \"\${CMAKE_INSTALL_PREFIX}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
         include(BundleUtilities)
