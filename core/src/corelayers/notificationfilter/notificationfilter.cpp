@@ -79,7 +79,7 @@ static QString toString(Notification::Type type, const QString &argument)
 		title = QObject::tr("%1 is typing");
 		break;
 	case Notification::Attention:
-		title = QObject::tr("%1 call you");
+		title = QObject::tr("%1 asks for your attention");
 		break;
 	case Notification::FileTransferCompleted:
 	case Notification::System:
