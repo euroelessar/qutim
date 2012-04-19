@@ -61,7 +61,7 @@ public:
 	JPGPDecryptReply(QObject *parent);
 	
 signals:
-	void finished(ChatUnit *unit, ChatUnit *unitForSession, const Jreen::Message &message);
+	void finished(qutim_sdk_0_3::ChatUnit *unit, qutim_sdk_0_3::ChatUnit *unitForSession, const Jreen::Message &message);
 };
 
 class JPGPSupport : public QObject
