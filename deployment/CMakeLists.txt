@@ -40,10 +40,10 @@ if(QUTIM_CREATE_BUNDLE)
     deploy_qt_plugins(${QT_PLUGINS})
 
     INSTALL(CODE "
-        file(GLOB_RECURSE QTPLUGINS
+		file(GLOB_RECURSE LIBS
           \"\${CMAKE_INSTALL_PREFIX}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
         include(BundleUtilities)
-        fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
+		fixup_bundle(\"${APPS}\" \"\${LIBS}\" \"${DIRS}\")
         " COMPONENT Runtime)
 endif()
  
