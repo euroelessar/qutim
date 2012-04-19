@@ -34,6 +34,7 @@ set(QUTIM_BUNDLE_NAME qutim.app)
 add_subdirectory(core)
 add_subdirectory(translations)
 add_subdirectory(config)
+add_subdirectory(deployment)
 
 # ADD_CUSTOM_TARGET(uninstall
 #   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
