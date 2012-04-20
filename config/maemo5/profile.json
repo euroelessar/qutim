@@ -1,0 +1,227 @@
+{
+   "BlogImprover": {},
+   "Maemo5": {},
+   "antispam": {},
+   "appearance": {},
+   "birthdayReminder": {},
+   "contactList": {
+    "Core::SimpleContactList::TreeModel": {
+     "closedTags": []
+    },
+    "geometry": "@ByteArray(AdnQywABAAAAAAAAAAAAAAAAAx8AAAHfAAAAAAAAAEwAAAMfAAAB8wAAAAACAA==)"
+   },
+   "filetransfer": {},
+   "highlighter": {
+    "regexps": []
+   },
+   "localization": {},
+   "notification": {
+    "AppStartup": {
+     "ChatNotifications": false,
+     "ContactList": false,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "BlockedMessage": {
+     "ChatNotifications": false,
+     "ContactList": false,
+     "Led": false,
+     "Popup": true,
+     "Sound": true,
+     "Tray": false,
+     "Vibration": false
+    },
+    "ChatIncomingMessage": {
+     "ChatNotifications": false,
+     "ContactList": true,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "ChatOutgoingMessage": {
+     "ChatNotifications": false,
+     "ContactList": false,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "ChatUserJoined": {
+     "ChatNotifications": true,
+     "ContactList": false,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "ChatUserLeft": {
+     "ChatNotifications": true,
+     "ContactList": false,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "FileTransferCompleted": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": true,
+     "Popup": true,
+     "Sound": true,
+     "Tray": true,
+     "Vibration": true
+    },
+    "IncomingMessage": {
+     "ChatNotifications": false,
+     "ContactList": true,
+     "Led": true,
+     "Popup": true,
+     "Sound": true,
+     "Tray": true,
+     "Vibration": true
+    },
+    "OutgoingMessage": {
+     "ChatNotifications": false,
+     "ContactList": false,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "System": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": false,
+     "Popup": true,
+     "Sound": true,
+     "Tray": false,
+     "Vibration": false
+    },
+    "UserChangedStatus": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "UserHasBirthday": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": false,
+     "Popup": true,
+     "Sound": true,
+     "Tray": false,
+     "Vibration": false
+    },
+    "UserOffline": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "UserOnline": {
+     "ChatNotifications": true,
+     "ContactList": true,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "UserTyping": {
+     "ChatNotifications": false,
+     "ContactList": true,
+     "Led": false,
+     "Popup": false,
+     "Sound": false,
+     "Tray": false,
+     "Vibration": false
+    },
+    "ignoreConfMsgsWithoutUserNick": true
+   },
+   "otr": {
+    "notify": true,
+    "policy": 2
+   },
+   "plugins": {
+    "list": {
+     "Updater::UpdaterPlugin": false
+    }
+   },
+   "protocols": {
+    "list": {
+     "aim": "Quetzal::Protocol::prpl_aim",
+     "gadu-gadu": "Quetzal::Protocol::prpl_gg",
+     "groupwise": "Quetzal::Protocol::prpl_novell",
+     "icq": "qutim_sdk_0_3::oscar::IcqProtocol",
+     "irc": "qutim_sdk_0_3::irc::IrcProtocol",
+     "jabber": "Jabber::JProtocol",
+     "mrim": "MrimProtocol",
+     "msn": "Quetzal::Protocol::prpl_msn",
+     "mxit": "Quetzal::Protocol::prpl_loubserp_mxit",
+     "myspaceim": "Quetzal::Protocol::prpl_myspace",
+     "qq": "Quetzal::Protocol::prpl_qq",
+     "simple": "Quetzal::Protocol::prpl_simple",
+     "vkontakte": "VkontakteProtocol",
+     "yahoo": "Quetzal::Protocol::prpl_yahoo",
+     "yahoo japan": "Quetzal::Protocol::prpl_yahoojp",
+     "zephyr": "Quetzal::Protocol::prpl_zephyr"
+    }
+   },
+   "serviceicons": {},
+   "services": {
+    "list": {
+     "AboutDialog": "Core::MobileAboutCreator",
+     "ActionBoxModule": "Core::SimpleActionBoxGenerator",
+     "AddContact": "Core::AddContactModule",
+     "AuthorizationService": "Core::AuthService",
+     "AutoAway": "Core::IdleStatusChanger",
+     "Bearer": "BearerManager",
+     "ChatForm": "Core::AdiumChat::StackedChatForm",
+     "ChatLayer": "Core::AdiumChat::ChatLayerImpl",
+     "ChatViewFactory": "Core::AdiumChat::TextViewFactory",
+     "ContactDelegate": "Core::ContactDelegate",
+     "ContactInfo": "Core::MobileContactInfo",
+     "ContactList": "Core::SimpleContactList::Module",
+     "ContactListWidget": "Core::SimpleContactList::SimpleWidget",
+     "ContactModel": "Core::SimpleContactList::TreeModel",
+     "DataFormsBackend": "Core::DefaultDataFormsBackend",
+     "FileTransferManager": "Core::SimpleFileTransfer",
+     "IconLoader": "Core::IconLoaderImpl",
+     "Idle": "Maemo5Idle",
+     "JoinGroupChat": "Core::JoinGroupChatModule",
+     "Led": "Maemo5Led",
+     "MetaContactManager": "Core::MetaContacts::Manager",
+     "NotificationSettings": "Core::MobileNotificationsSettings",
+     "Popup": "DBusBackend",
+     "RosterStorage": "Core::SimpleRosterStorage",
+     "SearchForm": "Core::MobileSearchFormFactory",
+     "SearchLayer": "Core::SearchLayer",
+     "SettingsLayer": "Core::MobileSettingsLayerImpl",
+     "Sound": "PhononSoundBackend",
+     "SpellChecker": "HunSpellChecker",
+     "TrayIcon": "Maemo5Tray",
+     "Vibration": "Maemo5Vibra"
+    }
+   },
+   "shortcuts": {},
+   "speller": {
+    "language": "en-ru"
+   },
+   "urlPreview": {},
+   "yandex": {}
+  }
