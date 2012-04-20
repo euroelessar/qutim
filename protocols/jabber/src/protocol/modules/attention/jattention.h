@@ -47,7 +47,7 @@ public:
 	virtual void init(qutim_sdk_0_3::Account *account);
 private:
 	qutim_sdk_0_3::Account *m_account;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_sendAttentionActionGenerator;
+	static QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_sendAttentionActionGenerator;
 private slots:
 	void onAttentionClicked(QObject *obj);
 	void onAttentionDone(bool success);

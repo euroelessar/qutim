@@ -38,6 +38,7 @@ namespace Jabber {
 
 using namespace qutim_sdk_0_3;
 
+QScopedPointer<qutim_sdk_0_3::ActionGenerator> JAttention::m_sendAttentionActionGenerator;
 
 JAttention::JAttention()
 {
@@ -51,8 +52,10 @@ void JAttention::init(qutim_sdk_0_3::Account *account)
 	connect(client, SIGNAL(messageReceived(Jreen::Message)), this, SLOT(onMessageReceived(Jreen::Message)));
 	// ChatSession! Handle activated() !
 
-	m_sendAttentionActionGenerator.reset(new SendAttentionActionGenerator(this, SLOT(onAttentionClicked(QObject*))));
-	MenuController::addAction<JContact>(m_sendAttentionActionGenerator.data());
+	if(!m_sendAttentionActionGenerator) {
+		m_sendAttentionActionGenerator.reset(new SendAttentionActionGenerator(this, SLOT(onAttentionClicked(QObject*))));
+		MenuController::addAction<JContact>(m_sendAttentionActionGenerator.data());
+	}
 }
 
 SendAttentionActionGenerator::SendAttentionActionGenerator(QObject *obj, const char *slot)
@@ -74,7 +77,7 @@ void SendAttentionActionGenerator::showImpl(QAction *action, QObject *obj)
 
 	action->setEnabled(true);
 
-	action->setText(tr("Send Attention"));
+	action->setText(QObject::tr("Send Attention"));
 	action->setIcon(Icon(QLatin1String("dialog-warning")));
 }
 
