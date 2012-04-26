@@ -67,7 +67,8 @@ public:
 		UserHasBirthday,
 		UserTyping,
 		System,
-		LastType = System
+		Attention,
+		LastType = Attention
 	};
 	enum State
 	{

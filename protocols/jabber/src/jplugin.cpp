@@ -38,6 +38,7 @@
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
 #include "protocol/modules/proxy/jproxymanager.h"
+#include "protocol/modules/attention/jattention.h"
 
 namespace Jabber
 {
@@ -137,6 +138,10 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber proxy support"),
 				 new SingletonGenerator<JProxyManager, NetworkProxyManager>(),
 				 ExtensionIcon("im-jabber"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Attention support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Jabber Attention support (XEP-0224)"),
+				 new SingletonGenerator<JAttention, JabberExtension>(),
+				 ExtensionIcon("dialog-warning"));
 }
 
 bool JPlugin::load()
