@@ -440,9 +440,62 @@ namespace qutim_sdk_0_3
 		                          "(#[\\w\\+\\.\\[\\]!%\\$/\\\\\\(\\)\\|,:;@&=~-]*)?)?",
 		                          Qt::CaseInsensitive);
 		Q_ASSERT(linkRegExp.isValid());
+		QList<QPair<int, int> > tags;
+		int currentTag = 0;
+		if (flags & Html) {
+			enum TagParserState {
+				AtText,
+				AtTag,
+				AtSingleQuote,
+				AtDoubleQuote
+			};
+			TagParserState state = AtText;
+			int start = 0;
+			for (int i = 0; i < text.size(); ++i) {
+				QChar ch = text.at(i);
+				switch (state) {
+				case AtText:
+					if (ch == QLatin1Char('<')) {
+						state = AtTag;
+						start = i;
+					}
+					break;
+				case AtTag:
+					if (ch == QLatin1Char('>')) {
+						tags << qMakePair(start, i);
+						state = AtText;
+					} else if (ch == QLatin1Char('\'')) {
+						state = AtSingleQuote;
+					} else if (ch == QLatin1Char('\"')) {
+						state = AtDoubleQuote;
+					}
+					break;
+				case AtSingleQuote:
+					if (ch == QLatin1Char('\''))
+						state = AtTag;
+					break;
+				case AtDoubleQuote:
+					if (ch == QLatin1Char('\"'))
+						state = AtTag;
+					break;
+				}
+			}
+		}
 		int pos = 0;
 		int lastPos = 0;
 		while (((pos = linkRegExp.indexIn(text, pos)) != -1)) {
+			QString link = linkRegExp.cap(0);
+			while (currentTag < tags.size() && tags.at(currentTag).second < pos)
+				currentTag++;
+			if (currentTag < tags.size()) {
+				const QPair<int, int> &pair = tags.at(currentTag);
+				int left = qBound(pair.first, pos, pair.second);
+				int right = qBound(pair.first, pos + link.size(), pair.second);
+				if (left != right) {
+					pos += link.size();
+					continue;
+				}
+			}
 			UrlToken tok = { text.midRef(lastPos, pos - lastPos), QString() };
 			if (!tok.text.isEmpty()) {
 				if (!result.isEmpty() && result.last().url.isEmpty()) {
@@ -452,7 +505,6 @@ namespace qutim_sdk_0_3
 					result << tok;
 				}
 			}
-			QString link = linkRegExp.cap(0);
 			tok.text = text.midRef(pos, link.size());
 			pos += link.size();
 			if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))

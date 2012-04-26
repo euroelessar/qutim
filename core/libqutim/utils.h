@@ -42,7 +42,8 @@ class LIBQUTIM_EXPORT UrlParser
 {
 public:
 	enum Flag {
-		None = 0x00
+		None = 0x00,
+		Html = 0x01
 	};
 	Q_DECLARE_FLAGS(Flags, Flag)
 	struct UrlToken
