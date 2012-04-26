@@ -45,6 +45,13 @@
 			"Sound": true,
 			"Tray": false
 		},
+		"Attention": {
+			"ChatNotifications": true,
+			"ContactList": false,
+			"Popup": true,
+			"Sound": false,
+			"Tray": false
+		},
 		"BlockedMessage": {
 			"ChatNotifications": false,
 			"ContactList": false,

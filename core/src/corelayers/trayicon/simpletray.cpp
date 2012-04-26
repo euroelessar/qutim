@@ -316,6 +316,7 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 	case Notification::UserChangedStatus:
 	case Notification::BlockedMessage:
 	case Notification::System:
+	case Notification::Attention:
 		return m_defaultNotificationIcon;
 	}
 	return QIcon();

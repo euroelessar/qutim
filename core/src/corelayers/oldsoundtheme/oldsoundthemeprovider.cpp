@@ -51,6 +51,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		Notification::UserHasBirthday,
 		Notification::UserTyping,
 		Notification::System,
+		Notification::Attention,
 	    // And again some of them for legacy names
 		Notification::UserOnline,
 		Notification::UserOffline,
@@ -81,6 +82,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		"UserHasBirthday",
 		"UserTyping",
 		"System",
+		"Attention",
 		"c_online",
 		"c_offline",
 		"c_changed_status",
