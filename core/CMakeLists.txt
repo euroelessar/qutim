@@ -123,7 +123,6 @@ REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 set(QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "Path to qutim sources")
 set(QUTIM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE FILEPATH "Path to qutim build directory")
 option(QUTIM_COPY_PLUGINS_TO_BINARY_DIR "Copy plugins to qutim build directory" OFF)
-option(QUTIM_CREATE_BUNDLE "Create application bundle on make install" OFF)
 set(QUTIM_LIBRARY libqutim)
 
 # For Apple set the icns file containing icons
@@ -198,21 +197,8 @@ QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	ON
 )
 
-IF(APPLE)
-        set(DEFAULT_QUTIM_GUI_TYPE "MACOSX_BUNDLE")
-        IF(NOT CMAKE_BUILD_TYPE)
-                set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
-	ENDIF(NOT CMAKE_BUILD_TYPE)
-ELSE(APPLE)
-        set(DEFAULT_QUTIM_GUI_TYPE "")
-ENDIF(APPLE)
-SET(QUTIM_GUI_TYPE ${DEFAULT_QUTIM_GUI_TYPE} CACHE STRING "qutIM GUI TYPE" )
-IF(QUTIM_GUI_TYPE)
-	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
-ENDIF()
-
 QUTIM_ADD_EXECUTABLE(qutim
-	${QUTIM_GUI_TYPE}
+	WIN32 MACOSX_BUNDLE
 	${SOURCES}
 	${HEADERS}
 	${MOC_SRCS}
@@ -302,6 +288,7 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
 	_mac_deploy_plugin(crypto qca-ossl)
 	_mac_deploy_plugin(crypto qca-cyrus-sasl)
+	_mac_deploy_plugin(crypto qca-gnupg)
 
 	add_custom_command(TARGET qutim-bundle POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
@@ -367,6 +354,12 @@ IF(QUTIM_ADDITIONAL_ART_PATH)
 	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
 ENDIF()
 
+option(QUTIM_INSTALL_ICON_THEME "Install built-in icon theme based on oxygen" OFF)
+if(QUTIM_INSTALL_ICON_THEME)
+	message(STATUS "qutIM built-in icon theme will be installed")
+	qutim_add_artwork(../artwork/icons)
+endif()
+
 CPACK_ADD_COMPONENT(Core
 	DISPLAY_NAME "Core"
 	DESCRIPTION "TODO"
@@ -402,46 +395,3 @@ IF(WIN32)
 		endif()
 ENDIF(WIN32)
 
-if(QUTIM_CREATE_BUNDLE)
-    include(InstallRequiredSystemLibraries)
-    include(QtBundleUtils)
-    define_bundle_paths(qutim)
-    set(APPS ${BUNDLE_PATH})
-    list(APPEND DIRS
-        ${QT_LIBRARY_DIR}
-    )
-    if(WIN32)
-        get_filename_component(_dir ${QT_QMAKE_EXECUTABLE} PATH)
-        list(APPEND DIRS ${_dir})
-    endif()
-
-    list(APPEND QT_PLUGINS
-        bearer/qgenericbearer
-        bearer/qnativewifibearer
-        codecs/qcncodecs
-        codecs/qjpcodecs
-        codecs/qjpcodecs
-        codecs/qkrcodecs
-        codecs/qtwcodecs
-        imageformats/qsvg
-        imageformats/qgif
-        imageformats/qjpeg
-        imageformats/qico
-        imageformats/qmng
-        imageformats/qtga
-        imageformats/qtiff
-        iconengines/qsvgicon
-        crypto/qca-ossl
-        crypto/qca-sasl
-    )
-
-    deploy_qml_modules(${QML_MODULES})
-    deploy_qt_plugins(${QT_PLUGINS})
-
-    INSTALL(CODE "
-        file(GLOB_RECURSE QTPLUGINS
-          \"\${CMAKE_INSTALL_PREFIX}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-        include(BundleUtilities)
-        fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
-        " COMPONENT Runtime)
-endif()

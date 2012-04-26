@@ -48,7 +48,7 @@ Maemo5Idle::Maemo5Idle()
 
 void Maemo5Idle::doCheck()
 {
-	emit secondsIdle(idleMinutes);
+	emit secondsIdle(idleMinutes*60);
 }
 
 void Maemo5Idle::setDisplayState(const QString &state)

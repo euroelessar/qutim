@@ -203,7 +203,8 @@ LocalizedStringList Notification::typeStrings()
 			 << QT_TRANSLATE_NOOP("Notification", "Contact changed status")
 			 << QT_TRANSLATE_NOOP("Notification", "Contact birthday")
 			 << QT_TRANSLATE_NOOP("Notification", "Contact typing")
-			 << QT_TRANSLATE_NOOP("Notification", "System");
+			 << QT_TRANSLATE_NOOP("Notification", "System")
+			 << QT_TRANSLATE_NOOP("Notification", "Contact asks for your attention");
 	}
 	return list;
 }
@@ -231,7 +232,8 @@ LocalizedStringList Notification::descriptionStrings()
 			 << QT_TRANSLATE_NOOP("Notification", "A contact has changed status")
 			 << QT_TRANSLATE_NOOP("Notification", "A contact has birthday!")
 			 << QT_TRANSLATE_NOOP("Notification", "A contact is typing")
-			 << QT_TRANSLATE_NOOP("Notification", "A system notification");
+			 << QT_TRANSLATE_NOOP("Notification", "A system notification")
+			 << QT_TRANSLATE_NOOP("Notification", "Attention notification");
 	}
 	return list;
 }

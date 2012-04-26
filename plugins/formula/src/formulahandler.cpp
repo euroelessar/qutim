@@ -63,7 +63,6 @@ MessageHandler::Result FormulaHandler::doHandle(Message &message, QString *reaso
 		lastIndex = index;
     }
 	html.midRef(lastIndex, html.size() - lastIndex).appendTo(&newHtml);
-	debug() << html << newHtml;
 	message.setHtml(newHtml);
 	return Accept;
 }
