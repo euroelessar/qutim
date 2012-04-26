@@ -159,7 +159,7 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
 	Message copy = msg;
-	QString html = UrlParser::parseUrls(copy.html());
+	QString html = UrlParser::parseUrls(copy.html(), UrlParser::Html);
 	copy.setProperty("messageId", msg.id());
 	if (msg.property("topic", false)) {
 		copy.setHtml(html);

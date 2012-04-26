@@ -282,6 +282,7 @@
 			var img = document.createElement('img');
 			img.setAttribute('src', node.getAttribute('src'));
 			img.setAttribute('alt', node.firstChild.nodeValue);
+			img.setAttribute('title', node.firstChild.nodeValue);
 			img.className = node.className;
 			node.parentNode.replaceChild(img, node);
 		}

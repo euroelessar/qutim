@@ -31,7 +31,6 @@
 #include <qutim/account.h>
 #include <qutim/notification.h>
 #include <qutim/thememanager.h>
-#include <qutim/adiumchat/chatsessionimpl.h>
 #include <QWebFrame>
 #include <QLabel>
 #include <QSpacerItem>
@@ -65,7 +64,7 @@ WebViewAppearance::WebViewAppearance(): ui(new Ui::chatAppearance), m_isFillingS
 	Q_ASSERT(shareDir.exists(QLatin1String("Preview.plist")));
 	m_preview = WebKitPreviewLoader().loadPreview(shareDir.filePath(QLatin1String("Preview.plist")));
 	m_controller = new WebViewController(true);
-	m_controller->setChatSession(static_cast<Core::AdiumChat::ChatSessionImpl*>(m_preview->session.data()));
+	m_controller->setChatSession(m_preview->session.data());
 	ui->chatPreview->setPage(m_controller);
 	m_style = m_controller->style();
 }
