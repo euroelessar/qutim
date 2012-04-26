@@ -36,7 +36,7 @@
 #include <jreen/chatstate.h>
 #include <jreen/message.h>
 #include <jreen/client.h>
-#include <jreen/jinglemanager.h>
+#include <jreen/experimental/jinglemanager.h>
 
 using namespace qutim_sdk_0_3;
 

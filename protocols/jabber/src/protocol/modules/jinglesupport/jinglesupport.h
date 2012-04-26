@@ -29,8 +29,8 @@
 
 #include "../../../sdk/jabber.h"
 #include <jreen/client.h>
-#include <jreen/jinglemanager.h>
-#include <jreen/jingleaudiocontent.h>
+#include <jreen/experimental/jinglemanager.h>
+#include <jreen/experimental/jingleaudiocontent.h>
 #include <qutim/actiongenerator.h>
 
 namespace qutim_sdk_0_3
@@ -72,7 +72,7 @@ public:
     JingleSupport();
     ~JingleSupport();
 	
-	virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	virtual void init(qutim_sdk_0_3::Account *account);
 	
 private slots:
 	void onCallAction(QAction *action, QObject *object);

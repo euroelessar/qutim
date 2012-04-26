@@ -29,7 +29,7 @@
 #include "../../account/roster/jcontact.h"
 #include "../../account/roster/jcontactresource.h"
 #include "../../account/jaccount.h"
-#include <jreen/jinglesession.h>
+#include <jreen/experimental/jinglesession.h>
 #include <qutim/servicemanager.h>
 #include <qutim/icon.h>
 #include <qutim/menucontroller.h>
@@ -182,12 +182,10 @@ JingleSupport::~JingleSupport()
 	jingleMap()->remove(m_account);
 }
 
-void JingleSupport::init(qutim_sdk_0_3::Account *account, const JabberParams &params)
+void JingleSupport::init(qutim_sdk_0_3::Account *account)
 {
-	qDebug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
 	m_account = static_cast<JAccount*>(account);
-	m_client = params.item<Jreen::Client>();
+	m_client = m_account->client();
 	connect(m_client->jingleManager(), SIGNAL(sessionCreated(Jreen::JingleSession*)),
 	        SLOT(onSessionCreated(Jreen::JingleSession*)));
 	jingleMap()->insert(m_account, this);
