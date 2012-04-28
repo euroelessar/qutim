@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-//#ifdef JABBER_HAVE_MULTIMEDIA
+#ifdef JABBER_HAVE_MULTIMEDIA
 
 #include "jinglesupport.h"
 #include "../../account/roster/jcontact.h"
@@ -291,4 +291,4 @@ ChatUnit *JingleSupport::unitBySession(Jreen::JingleSession *session, bool creat
 
 }
 
-//#endif
+#endif

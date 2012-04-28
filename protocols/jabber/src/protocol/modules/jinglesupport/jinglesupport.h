@@ -25,7 +25,7 @@
 
 #ifndef JINGLESUPPORT_H
 #define JINGLESUPPORT_H
-//#ifdef JABBER_HAVE_MULTIMEDIA
+#ifdef JABBER_HAVE_MULTIMEDIA
 
 #include "../../../sdk/jabber.h"
 #include <jreen/client.h>
@@ -96,6 +96,6 @@ private:
 
 }
 
-//#endif
+#endif
 
 #endif // JINGLESUPPORT_H
