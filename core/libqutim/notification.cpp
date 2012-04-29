@@ -204,7 +204,7 @@ LocalizedStringList Notification::typeStrings()
 			 << QT_TRANSLATE_NOOP("Notification", "Contact birthday")
 			 << QT_TRANSLATE_NOOP("Notification", "Contact typing")
 			 << QT_TRANSLATE_NOOP("Notification", "System")
-			 << QT_TRANSLATE_NOOP("Notification", "Contact asks for your attention");
+			 << QT_TRANSLATE_NOOP("Notification", "Contact is asking for your attention");
 	}
 	return list;
 }

@@ -122,7 +122,7 @@ void JAttention::onAttentionDone(bool success)
 {
 	NotificationRequest request(Notification::System);
 	if(!success)
-		request.setText(tr("User don't support attentions."));
+		request.setText(tr("Contact's client does not suppoort attentions"));
 	else
 		request.setText(tr("Trying to attract attention."));
 	request.send();
