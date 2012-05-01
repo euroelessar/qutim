@@ -124,7 +124,7 @@ void LoggerPlugin::reloadSettings()
 			logfile = fopen(path.toLocal8Bit(), "w");
 //			logfile.open(path.toLocal8Bit(), ios::out | ios::trunc);
 		else
-			logfile = fopen(path.toLocal8Bit(), "wa");
+			logfile = fopen(path.toLocal8Bit(), "a");
 //			logfile.open(path.toLocal8Bit(), ios::app);
 	} else if (!enable && logfile) {
 		fflush(logfile);
