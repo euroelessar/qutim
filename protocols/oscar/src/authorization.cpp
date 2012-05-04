@@ -167,8 +167,8 @@ void Authorization::onAuthChanged(IcqContact *contact, bool auth)
     else {
         QVariantHash extStatus;
         extStatus.insert("id", "authorization");
-        extStatus.insert("title", QObject::tr("Not authorized"));
-        extStatus.insert("icon", QVariant::fromValue(ExtensionIcon("dialog-warning")));
+        extStatus.insert("title", tr("Not authorized"));
+        extStatus.insert("icon", qVariantFromValue(ExtensionIcon("dialog-warning")));
         extStatus.insert("description", QString());
         extStatus.insert("showInTooltip", true);
         extStatus.insert("priorityInContactList", 80);
