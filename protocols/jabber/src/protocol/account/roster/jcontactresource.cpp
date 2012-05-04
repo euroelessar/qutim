@@ -36,7 +36,9 @@
 #include <jreen/chatstate.h>
 #include <jreen/message.h>
 #include <jreen/client.h>
-#include <jreen/experimental/jinglemanager.h>
+#ifdef JABBER_HAVE_MULTIMEDIA
+# include <jreen/experimental/jinglemanager.h>
+#endif
 
 using namespace qutim_sdk_0_3;
 
@@ -228,14 +230,21 @@ bool JContactResource::checkFeature(const std::string &feature) const
 
 bool JContactResource::canCall() const
 {
+#ifdef JABBER_HAVE_MULTIMEDIA
 	Jreen::Client *client = static_cast<const JAccount*>(account())->client();
 	return client->jingleManager()->checkSupport(d_ptr->features);
+#else
+	return false;
+#endif
 }
 
 void JContactResource::call(const QStringList &contents)
 {
+	Q_UNUSED(contents);
+#ifdef JABBER_HAVE_MULTIMEDIA
 	Jreen::Client *client = static_cast<JAccount*>(account())->client();
 	client->jingleManager()->createSession(d_func()->id, contents);
+#endif
 }
 
 ChatUnit *JContactResource::upperUnit()

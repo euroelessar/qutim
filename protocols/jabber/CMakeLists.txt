@@ -1,6 +1,7 @@
 # This option is defined at qutim_add_plugin macros,
 # but I have to know user's decision before looking for Jreen
 option(JABBER "Enable Jabber plugin" ${QUTIM_ENABLE_ALL_PLUGINS})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 if( JABBER )
 	option( SYSTEM_JREEN "Use system Jreen" off )
 	if( SYSTEM_JREEN )
@@ -8,7 +9,6 @@ if( JABBER )
 		pkg_check_modules( JREEN REQUIRED libjreen )
 		link_directories( ${JREEN_LIBRARY_DIRS} )
 	else()
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 		add_subdirectory( jreen )
 		list( APPEND INCLUDE_DIRS "${JREEN_INCLUDE_DIR}" )
 	endif()
