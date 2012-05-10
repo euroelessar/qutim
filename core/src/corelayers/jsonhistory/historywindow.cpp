@@ -458,7 +458,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 								cursor.insertText(sender.toString());
 							}
 							cursor.insertText(QLatin1Literal(" (")
-											  % history_date_time.time().toString()
+											  % history_date_time.toString("dd.MM.yyyy hh:mm:ss")
 											  % QLatin1Literal(")"));
 							cursor.setCharFormat(defaultFont);
 							cursor.insertText(newLine);
