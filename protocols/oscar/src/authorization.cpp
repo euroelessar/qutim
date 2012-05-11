@@ -161,22 +161,22 @@ void Authorization::onAuthChanged(IcqContact *contact, bool auth)
 	contact->setProperty("authorizedBy", auth);
 	foreach (QAction *action, m_authActionGen->actions(contact))
 		action->setText(authActionText(auth));
-    Status status = contact->status();
-    if (auth)
-        status.removeExtendedInfo("authorization");
-    else {
-        QVariantHash extStatus;
-        extStatus.insert("id", "authorization");
-        extStatus.insert("title", tr("Not authorized"));
-        extStatus.insert("icon", qVariantFromValue(ExtensionIcon("dialog-warning")));
-        extStatus.insert("description", QString());
-        extStatus.insert("showInTooltip", true);
-        extStatus.insert("priorityInContactList", 80);
-        extStatus.insert("priorityInTooltip", 30);
-        extStatus.insert("iconPosition", qVariantFromValue(ToolTipEvent::IconBeforeDescription));
-        status.setExtendedInfo("authorization", extStatus);
-    }
-    contact->setStatus(status, false);
+	Status status = contact->status();
+	if (auth)
+		status.removeExtendedInfo("authorization");
+	else {
+		QVariantHash extStatus;
+		extStatus.insert("id", "authorization");
+		extStatus.insert("title", tr("Not authorized"));
+		extStatus.insert("icon", qVariantFromValue(ExtensionIcon("dialog-warning")));
+		extStatus.insert("description", QString());
+		extStatus.insert("showInTooltip", true);
+		extStatus.insert("priorityInContactList", 80);
+		extStatus.insert("priorityInTooltip", 30);
+		extStatus.insert("iconPosition", qVariantFromValue(ToolTipEvent::IconBeforeDescription));
+		status.setExtendedInfo("authorization", extStatus);
+	}
+	contact->setStatus(status, false);
 }
 
 } } // namespace qutim_sdk_0_3::oscar
