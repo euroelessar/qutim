@@ -391,7 +391,8 @@ void init(SystemInfoPrivate *d)
 	if (uname(&uname_info) == 0) {
 		d->os_full = uname_info.sysname;
 		long revision = 0;
-		if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
+		if (sscanf(uname_info.version, "r%ld", &revision) == 1 ||
+			sscanf(uname_info.version, "hrev%ld", &revision) == 1) {
 			
 			char version[16];
 			snprintf(version, sizeof(version), "%ld", revision);

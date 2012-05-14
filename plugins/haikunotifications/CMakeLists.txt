@@ -1,4 +1,4 @@
-if(BEOS)
+if(BEOS OR HAIKU)
 	qutim_add_plugin(haikunotifications
 		DISPLAY_NAME "Haiku notifications"
 		DESCRIPTION "Notification system integrated into Haiku"
