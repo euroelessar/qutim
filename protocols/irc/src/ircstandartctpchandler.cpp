@@ -27,6 +27,7 @@
 #include "ircaccount.h"
 #include "ircconnection.h"
 #include <qutim/libqutim_version.h>
+#include <qutim/systeminfo.h>
 #include <QDateTime>
 
 namespace qutim_sdk_0_3 {
@@ -55,9 +56,10 @@ void IrcStandartCtpcHandler::handleCtpcRequest(IrcAccount *account, const QStrin
 						 .arg(m_conn->supportedCtpcTags().join(","));
 		account->sendCtpcReply(sender, "CLIENTINFO", params);
 	} else if (cmd == "VERSION") {
-		QString params = QString("IRC plugin %1, qutim %2")
+		QString params = QString("IRC plugin %1, qutim %2 running on %3")
 						 .arg(qutimIrcVersionStr())
-						 .arg(versionString());
+						 .arg(versionString())
+						 .arg(SystemInfo::getFullName());
 		account->sendCtpcReply(sender, "VERSION", params);
 	} else if (cmd == "TIME") {
 		account->sendCtpcReply(sender, "TIME", QDateTime::currentDateTime().toString("ddd MMM dd hh:mm:ss yyyy"));
