@@ -30,8 +30,6 @@
 
 namespace HistoryManager {
 
-#define SIGNATURE "JPHA"
-
 struct ContactHistory{
 	QString uin;
 	QList<qutim_sdk_0_3::Message> history;
@@ -47,8 +45,8 @@ public:
 	virtual QString name();
 	virtual QIcon icon();
 	virtual bool chooseFile() { return true; }
-	static QString ReadMUTF8String(QDataStream &in);
-	static QString ReadWin1251String(QDataStream &in);
+	static QString readMUTF8String(QDataStream &in);
+	static QString readWin1251String(QDataStream &in);
 	friend QDataStream &operator >> (QDataStream &in, ContactHistory &contact);
 	friend QDataStream &operator >> (QDataStream &in, qutim_sdk_0_3::Message &message);
 private:

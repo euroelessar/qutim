@@ -32,6 +32,8 @@
 using namespace qutim_sdk_0_3;
 
 namespace HistoryManager {
+	
+#define SIGNATURE "JPHA"
 
 QTextCodec *jasmineim::codec = QTextCodec::codecForName("cp-1251");
 
@@ -43,23 +45,25 @@ jasmineim::~jasmineim ()
 {
 }
 
-QString jasmineim::ReadMUTF8String (QDataStream &in)
+QString jasmineim::readMUTF8String (QDataStream &in)
 {
 	qint16 len;
 	in >> len;
-	char *data = new char[len];
+	char *data = new char[len + 1];
 	in.readRawData (data, len);
+	data[len] = '\0';
 	QString retVal = QString::fromUtf8(data, len);
 	delete[] data;
 	return retVal;
 }
 
-QString jasmineim::ReadWin1251String (QDataStream &in)
+QString jasmineim::readWin1251String (QDataStream &in)
 {
 	quint32 len;
 	in >> len;
-	char *data = new char[len];
+	char *data = new char[len + 1];
 	in.readRawData (data, len);
+	data[len] = '\0';
 	QString retVal = codec->toUnicode(data);
 	retVal.resize(len);
 	delete[] data;
@@ -76,7 +80,7 @@ QDataStream &operator >> (QDataStream &in, Message &message)
 	QDateTime date(QDateTime::fromTime_t(milliseconds / 1000));
 	date.addMSecs(milliseconds % 1000);
 	message.setTime(date);
-	message.setText(jasmineim::ReadWin1251String(in));
+	message.setText(jasmineim::readWin1251String(in));
 	return in;
 }
 
@@ -84,7 +88,7 @@ QDataStream &operator >> (QDataStream &in, ContactHistory &contact)
 {
 	int readed;
 	Message msg;
-	contact.uin = jasmineim::ReadMUTF8String(in);
+	contact.uin = jasmineim::readMUTF8String(in);
 	in >> readed;
 	if (readed < 1)
 		return in;
@@ -113,10 +117,10 @@ void jasmineim::loadMessages (const QString &path)
 	if (!file.open (QIODevice::ReadOnly))
 		return;
 	QDataStream input(&file);
-	if(ReadMUTF8String(input) != QString(SIGNATURE))
+	if(readMUTF8String(input) != QString(SIGNATURE))
 		return;
 	setProtocol("icq");
-	QString account = ReadMUTF8String(input);
+	QString account = readMUTF8String(input);
 	setAccount(account);
 	QList<ContactHistory> allContacts;
 	while(!input.atEnd())
@@ -148,7 +152,7 @@ bool jasmineim::validate (const QString &path)
 	if (!file.open (QIODevice::ReadOnly))
 		return false;
 	QDataStream input(&file);
-	bool retVal = ReadMUTF8String(input) == QString(SIGNATURE);
+	bool retVal = readMUTF8String(input) == QString(SIGNATURE);
 	file.close();
 	return retVal;
 }
