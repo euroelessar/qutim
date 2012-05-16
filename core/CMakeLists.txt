@@ -113,6 +113,18 @@ else(MINGW)
 	LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)
 
+if(HAIKU)
+	find_program( HAIKU_RC_CONVERTER rc )
+	
+	if( NOT HAIKU_RC_CONVERTER )
+		message("No RC converter (Haiku's rc) found.")
+		return()
+	endif()
+
+	execute_process( COMMAND "${HAIKU_RC_CONVERTER}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/qutim.icons.rdef" "-o" "${CMAKE_CURRENT_BINARY_DIR}/qutim.rsrc" )
+endif(HAIKU)
+
 add_subdirectory(libqutim)
 
 find_package(QutIM REQUIRED)
@@ -296,6 +308,28 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 		)
 
 ENDIF(APPLE AND QUTIM_BUNDLE_LOCATION)
+
+if(HAIKU)
+	find_program( HAIKU_RC_COMPILER xres )
+	if( NOT HAIKU_RC_COMPILER )
+		message("No RC compiler (Haiku's xres) found.")
+		return()
+	endif()
+	
+	find_program( HAIKU_MIMESET mimeset )
+	if( NOT HAIKU_MIMESET )
+		message("Haiku's mimeset is not found.")
+		return()
+	endif()
+
+	add_custom_command(TARGET qutim POST_BUILD
+		COMMAND ${HAIKU_RC_COMPILER} ARGS
+			"-o" ${QUTIM_BINARY_DIR}/qutim
+			${QUTIM_BINARY_DIR}/qutim.rsrc
+		COMMAND ${HAIKU_MIMESET} ARGS
+			"-f" ${QUTIM_BINARY_DIR}/qutim
+	)
+endif(HAIKU)
 
 if(LANGUAGE)
 	LANGUAGE_UPDATE( core ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )
