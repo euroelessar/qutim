@@ -49,7 +49,7 @@ public:
 	QHash<ChatSession*, MessageList> unreadMessages;
 public slots:
 	void onConnectStateChanged(VConnectionState state);
-	void onHistoryRecieved(); //TODO move to vconnection
+	void onHistoryReceived(); //TODO move to vconnection
 	void onMessageSended();
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &list);
 };

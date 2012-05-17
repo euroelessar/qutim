@@ -136,7 +136,7 @@ QByteArray MrimPacket::toByteArray()
 
 bool MrimPacket::readFrom(QIODevice& device)
 {
-	Q_ASSERT(mode() == Recieve);
+	Q_ASSERT(mode() == Receive);
 	
 	if (state() == ReadHeader)
 	{

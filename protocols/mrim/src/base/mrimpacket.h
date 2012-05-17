@@ -72,13 +72,13 @@ public:
 
     enum PacketMode
     {
-        Recieve,
+        Receive,
         Compose
     };
 
 public:	
 
-    MrimPacket(PacketMode mode = Recieve);
+    MrimPacket(PacketMode mode = Receive);
     virtual ~MrimPacket();
 
     static QString errorString(PacketError errCode);
@@ -102,7 +102,7 @@ public:
     QByteArray toByteArray();
     qint64 writeTo(QIODevice *device, bool waitForWritten = false);
 
-    //Recieve mode
+    //Receive mode
     bool readFrom(QIODevice& device);
     qint32 readTo(LPString &str, bool unicode = false);
     qint32 readTo(QString *str, bool unicode = false);

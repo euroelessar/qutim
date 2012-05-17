@@ -84,13 +84,13 @@ file.read(var);
 		/**
 		* @brief Load file's json data to @a variant
 		*
-		* @return @b True if file was succesfully parsed, else @b false
+		* @return @b True if file was successfully parsed, else @b false
 		*/
 		bool load(QVariant &variant);
 		/**
 		* @brief Save content of @a variant as json to file
 		*
-		* @return @b True if file was succesfully parsed, else @b false
+		* @return @b True if file was successfully parsed, else @b false
 		*/
 		bool save(const QVariant &variant);
 #ifndef Q_QDOC

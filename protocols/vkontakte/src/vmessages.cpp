@@ -39,7 +39,7 @@
 #include <QTextDocument>
 #include <QApplication>
 
-void VMessagesPrivate::onHistoryRecieved()
+void VMessagesPrivate::onHistoryReceived()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
@@ -138,7 +138,7 @@ void VMessages::getHistory()
 	data.insert("filters", "1");
 	data.insert("preview_length", "0");
 	QNetworkReply *reply = d->connection->get("messages.get", data);
-	connect(reply, SIGNAL(finished()), d, SLOT(onHistoryRecieved()));
+	connect(reply, SIGNAL(finished()), d, SLOT(onHistoryReceived()));
 }
 
 void VMessages::sendMessage(const Message& message)

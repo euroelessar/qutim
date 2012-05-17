@@ -107,7 +107,7 @@ private:
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
 	QAction *m_spacer;
-	QAction *m_recieverList;
+	QAction *m_receiverList;
 	QAction *m_unitActions;
 	ConferenceContactsView *m_contactView;
 	QString m_key;

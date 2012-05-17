@@ -142,7 +142,7 @@ void DumpHistoryPage::completed()
 	}
 	else if(m_state == SavingHistory)
 	{
-		setSubTitle(tr("History has been succesfully imported."));
+		setSubTitle(tr("History has been successfully imported."));
 		m_state = Finished;
 		m_parent->button(QWizard::BackButton)->setEnabled(true);
 		m_parent->button(QWizard::CancelButton)->setEnabled(true);

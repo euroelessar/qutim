@@ -103,7 +103,7 @@ private:
 	QAction *m_actSeparator;
 	QList<QAction*> m_unitChatActionList;
 	QAction *m_spacer;
-	QAction *m_recieverList;
+	QAction *m_receiverList;
 	ConferenceContactsView *m_contactView;
 	QString m_key;
 	QVBoxLayout *m_layout;
