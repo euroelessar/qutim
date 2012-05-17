@@ -109,7 +109,7 @@ void AuthDialogWrapper::showDialog(qutim_sdk_0_3::Contact* contact, const QStrin
 	{
 		AuthDialogWrapper *current = m_managers()->at(i);
 		if (isIncoming) {
-			current->setTitle(QT_TRANSLATE_NOOP("ContactInfo", "Recieved authorizarion request from %1:")
+			current->setTitle(QT_TRANSLATE_NOOP("ContactInfo", "Received authorizarion request from %1:")
 					.toString().arg(contact->title()));
 		} else {
 			current->setTitle(QT_TRANSLATE_NOOP("ContactInfo", "Send authorizarion request to %1:")

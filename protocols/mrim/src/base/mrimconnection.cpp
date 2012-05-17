@@ -351,7 +351,7 @@ void MrimConnection::readyRead()
 bool MrimConnection::processPacket()
 {
     Q_ASSERT(p->readPacket.isFinished());
-	debug(DebugVeryVerbose)<<"Recieved packet of type"<<hex<<p->readPacket.msgType();
+	debug(DebugVeryVerbose)<<"Received packet of type"<<hex<<p->readPacket.msgType();
 
     bool handled = false;
     QHandlersMap::iterator it = p->handlers.find(p->readPacket.msgType());

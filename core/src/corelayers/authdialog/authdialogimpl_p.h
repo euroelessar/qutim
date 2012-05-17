@@ -64,7 +64,7 @@ public:
 		ui->requestMessage->setText(text);
 		QString title;
 		if (incoming) {
-			title = QT_TRANSLATE_NOOP("ContactInfo", "Recieved authorizarion request from %1:")
+			title = QT_TRANSLATE_NOOP("ContactInfo", "Received authorizarion request from %1:")
 					.toString().arg(contact->title());
 			ui->requestMessage->setReadOnly(true);
 		} else {
