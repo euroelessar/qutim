@@ -80,7 +80,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_sessionList(new SessionListWidget(this)),
 	m_chatInput(new ChatEdit(this)),
-	m_recieverList(new QAction(tr("Send to"),this)),
+	m_receiverList(new QAction(tr("Send to"),this)),
 	m_unitActions(new QAction(Icon("preferences-contact-list"),tr("Actions"),this)),
 	m_contactView(new ConferenceContactsView(this)),
 	m_key(key)
@@ -121,7 +121,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	sendToolBar->addAction(m_unitActions);
 	sendToolBar->setOrientation(Qt::Vertical);
 #endif
-	sendToolBar->addAction(m_recieverList);
+	sendToolBar->addAction(m_receiverList);
 	chatInputLayout->addWidget(sendToolBar);
 
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
@@ -149,11 +149,11 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 
 #ifndef Q_WS_MAEMO_5
-	m_recieverList->setIcon(Icon("view-choose"));
+	m_receiverList->setIcon(Icon("view-choose"));
 #else
-	m_recieverList->setIcon(Icon("chat_enter"));
+	m_receiverList->setIcon(Icon("chat_enter"));
 #endif
-	connect(m_recieverList, SIGNAL(triggered()), m_chatInput, SLOT(send()));
+	connect(m_receiverList, SIGNAL(triggered()), m_chatInput, SLOT(send()));
 	setAttribute(Qt::WA_AcceptTouchEvents);
 	connect(m_stack, SIGNAL(animationFinished()), this, SLOT(animationFinished()));
 	connect(m_stack, SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),this,SLOT(fingerGesture(enum SlidingStackedWidget::SlideDirection)));
@@ -341,7 +341,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 	menuBar->clear();
 	menuBar->addMenu(session->getUnit()->menu());
-	m_recieverList->setMenu(session->menu());
+	m_receiverList->setMenu(session->menu());
 #ifndef QUTIM_MOBILE_UI
 	delete m_unitActions->menu();
 	QMenu *menu = session->unit()->menu(false);

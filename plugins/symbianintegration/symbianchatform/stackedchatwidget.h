@@ -85,7 +85,7 @@ private:
 	SessionListWidget *m_sessionList;
 	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
-	QAction *m_recieverList;
+	QAction *m_receiverList;
 	SlidingStackedWidget *m_stack;
 	QWidget *m_chatWidget;
 	QPointer<QAction> m_unitActions;

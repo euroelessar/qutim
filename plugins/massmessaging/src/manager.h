@@ -59,7 +59,7 @@ private:
 	virtual void timerEvent(QTimerEvent* ev);
 	QString parseText(const QString &msg,Contact *c);
 	QList<QStandardItem *> m_contacts;
-	QQueue<QStandardItem *> m_recievers;
+	QQueue<QStandardItem *> m_receivers;
 	QStandardItemModel *m_model;
 	QBasicTimer m_timer; //just simple
 	int m_total_item_count;

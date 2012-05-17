@@ -347,7 +347,7 @@ QString AbstractConnection::errorString()
 	case ConnectionLimitExceeded :
 		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum");
 	case ConnectionLimitExceededReservation:
-		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum (reservation)");
+		return QCoreApplication::translate("ConnectionError", "The number of users connected from this IP has reached the maximum (reservation)");
 	case RateLimitExceededReservation:
 		return QCoreApplication::translate("ConnectionError", "Rate limit exceeded (reservation). Please try to reconnect in a few minutes");
 	case UserHeavilyWarned:
@@ -367,7 +367,7 @@ QString AbstractConnection::errorString()
 	case AgeLimit:
 		return QCoreApplication::translate("ConnectionError", "Account suspended because of your age (age < 13)");
 	case AnotherClientLogined:
-		return QCoreApplication::translate("ConnectionError", "Another client is loggin with this uin");
+		return QCoreApplication::translate("ConnectionError", "Another client is logging with this UIN");
 	case HostNotFound:
 		return QCoreApplication::translate("ConnectionError", "No IP addresses were found for the host");
 	case SocketError:

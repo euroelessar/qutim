@@ -187,7 +187,7 @@ void MrimConnection::disconnected()
         }
         else
         {
-            critical()<<"Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!";
+            critical()<<"Oh god! This is epic fail! We didn't receive any server, so connection couldn't be established!";
         }
     } else emit loggedOut();
 }
@@ -351,7 +351,7 @@ void MrimConnection::readyRead()
 bool MrimConnection::processPacket()
 {
     Q_ASSERT(p->readPacket.isFinished());
-	debug(DebugVeryVerbose)<<"Recieved packet of type"<<hex<<p->readPacket.msgType();
+	debug(DebugVeryVerbose)<<"Received packet of type"<<hex<<p->readPacket.msgType();
 
     bool handled = false;
     QHandlersMap::iterator it = p->handlers.find(p->readPacket.msgType());

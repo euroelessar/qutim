@@ -94,7 +94,7 @@ int ImportHistoryPage::nextId() const
 
 void ImportHistoryPage::completed()
 {
-	setSubTitle(tr("%n message(s) have been succesfully loaded to memory.", 0, m_parent->getMessageNum())
+	setSubTitle(tr("%n message(s) have been successfully loaded to memory.", 0, m_parent->getMessageNum())
 				+ " " + tr("It has taken %n ms.", 0, m_helper->getTime()));
 	m_completed = true;
 	m_ui->progressBar->setValue(m_ui->progressBar->maximum());
