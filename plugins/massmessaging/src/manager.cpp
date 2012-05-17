@@ -69,7 +69,7 @@ QAbstractItemModel* Manager::model() const
 void Manager::reload()
 {
 	m_model->clear();
-	m_recievers.clear();
+	m_receivers.clear();
 	m_contacts.clear();
 	foreach(Protocol *proto, Protocol::all()) {
 		QStandardItem *proto_item = new MessagingItem(proto->id());
@@ -99,7 +99,7 @@ void Manager::reload()
 QString Manager::parseText(const QString& msg, Contact* c)
 {
 	QString parsed_message = msg;
-	parsed_message.replace("{reciever}",c->title());
+	parsed_message.replace("{receiver}",c->title());
 	parsed_message.replace("{sender}",c->account()->name());
 	parsed_message.replace("{time}",QTime::currentTime().toString());
 	return parsed_message;
@@ -112,10 +112,10 @@ void Manager::start(const QString &message, int interval)
 	foreach (QStandardItem *item, m_contacts) {
 		Qt::CheckState state = static_cast<Qt::CheckState>(item->data(Qt::CheckStateRole).value<int>());
 		if (state == Qt::Checked)
-			m_recievers.enqueue(item);
+			m_receivers.enqueue(item);
 	}
-	m_total_item_count = m_recievers.count();
-	if (m_recievers.count()) {
+	m_total_item_count = m_receivers.count();
+	if (m_receivers.count()) {
 		m_timer.start(interval, this);
 		QTimerEvent ev(m_timer.timerId());
 		timerEvent(&ev);
@@ -127,7 +127,7 @@ void Manager::start(const QString &message, int interval)
 void Manager::stop()
 {
 	m_timer.stop();
-	m_recievers.clear();
+	m_receivers.clear();
 	emit finished(true);
 }
 Manager::~Manager()
@@ -138,16 +138,16 @@ Manager::~Manager()
 void Manager::timerEvent(QTimerEvent* ev)
 {
 	if (ev->timerId() == m_timer.timerId()) {
-		if (m_recievers.count()) {
-			QStandardItem *item = m_recievers.dequeue();
+		if (m_receivers.count()) {
+			QStandardItem *item = m_receivers.dequeue();
 			if (Contact *c = item->data(Qt::UserRole).value<Contact *>()) {
 				Message msg (parseText(m_message,c));
 				c->sendMessage(msg);
-				emit update(m_total_item_count - m_recievers.count(),
+				emit update(m_total_item_count - m_receivers.count(),
 							m_total_item_count,
 							c->title());
 			}
-			if (!m_recievers.count())
+			if (!m_receivers.count())
 				stop();
 		}
 		else

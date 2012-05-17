@@ -73,7 +73,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_chatViewWidget(0),
 	m_tabBar(new TabBar(this)),
 	m_chatInput(new ChatEdit(this)),
-	m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
+	m_receiverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
 	m_contactView(new ConferenceContactsView(this)),
 	m_key(key),
 	m_unitAction(0),
@@ -151,9 +151,9 @@ void TabbedChatWidget::loadSettings()
 			addToolBar(Qt::TopToolBarArea, m_toolbar);
 
 			//simple hack
-			m_recieverList->setMenu(new QMenu);
-			m_toolbar->addAction(m_recieverList);
-			m_recieverList->menu()->deleteLater();
+			m_receiverList->setMenu(new QMenu);
+			m_toolbar->addAction(m_receiverList);
+			m_receiverList->menu()->deleteLater();
 
 			QWidget* spacer = new QWidget(this);
 			spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -172,12 +172,12 @@ void TabbedChatWidget::loadSettings()
 			m_toolbar->addWidget(spacer);
 
 			QToolButton *btn = new QToolButton(this);
-			m_recieverList->setText(tr("Send"));
+			m_receiverList->setText(tr("Send"));
 			btn->setToolButtonStyle(Qt::ToolButtonTextOnly);
 			//simple hack
-			m_recieverList->setMenu(new QMenu);
-			btn->setDefaultAction(m_recieverList);
-			m_recieverList->menu()->deleteLater();
+			m_receiverList->setMenu(new QMenu);
+			btn->setDefaultAction(m_receiverList);
+			m_receiverList->menu()->deleteLater();
 			connect(btn,SIGNAL(clicked(bool)),m_chatInput,SLOT(send()));
 			m_toolbar->addWidget(btn);
 			btn->setAutoRaise(false);
@@ -371,7 +371,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	m_chatViewWidget->setViewController(session->controller());
 
 	m_actions.setController(session->getUnit());
-	m_recieverList->setMenu(session->menu());
+	m_receiverList->setMenu(session->menu());
 
 	if(m_flags & MenuBar) {
 		delete m_unitAction->menu();

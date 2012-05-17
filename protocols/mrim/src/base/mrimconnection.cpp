@@ -187,7 +187,7 @@ void MrimConnection::disconnected()
         }
         else
         {
-            critical()<<"Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!";
+            critical()<<"Oh god! This is epic fail! We didn't receive any server, so connection couldn't be established!";
         }
     } else emit loggedOut();
 }

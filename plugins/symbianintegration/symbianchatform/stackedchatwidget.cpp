@@ -58,7 +58,7 @@ namespace Symbian
 StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	AbstractChatWidget(parent),
 	m_chatInput(new ChatEdit(this)),
-	m_recieverList(new QAction(tr("Send to"),this)),
+	m_receiverList(new QAction(tr("Send to"),this)),
 	m_stack(new SlidingStackedWidget(this)),
 	m_chatWidget(new QWidget(m_stack)),
 	m_menu(new MenuController(this))
@@ -103,7 +103,7 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	leftBtn->setPopupMode(QToolButton::InstantPopup);
 
 	QToolButton *rightBtn = new QToolButton(this);
-	rightBtn->setDefaultAction(m_recieverList);
+	rightBtn->setDefaultAction(m_receiverList);
 
 	chatInputLayout->setMargin(0);
 	chatInputLayout->addWidget(leftBtn);
@@ -121,7 +121,7 @@ StackedChatWidget::StackedChatWidget(QWidget *parent) :
 	connect(m_sessionList,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 	connect(m_stack,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 
-	m_recieverList->setIcon(Icon("view-choose"));
+	m_receiverList->setIcon(Icon("view-choose"));
 
 	setAttribute(Qt::WA_AcceptTouchEvents);
 	connect(m_stack, SIGNAL(fingerGesture(enum SlidingStackedWidget::SlideDirection)),
@@ -242,7 +242,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	else
 		m_stack->removeWidget(m_confContactView);
 
-	m_recieverList->setMenu(session->menu());
+	m_receiverList->setMenu(session->menu());
 
 	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 }
