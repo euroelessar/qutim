@@ -64,11 +64,11 @@ public:
 		ui->requestMessage->setText(text);
 		QString title;
 		if (incoming) {
-			title = QT_TRANSLATE_NOOP("ContactInfo", "Received authorizarion request from %1:")
+			title = QT_TRANSLATE_NOOP("ContactInfo", "Received authorization request from %1:")
 					.toString().arg(contact->title());
 			ui->requestMessage->setReadOnly(true);
 		} else {
-			title = QT_TRANSLATE_NOOP("ContactInfo", "Send authorizarion request to %1:")
+			title = QT_TRANSLATE_NOOP("ContactInfo", "Send authorization request to %1:")
 					.toString().arg(contact->title());
 		}
 		ui->requestTitle->setText(title);
