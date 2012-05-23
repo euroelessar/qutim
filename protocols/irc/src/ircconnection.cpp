@@ -185,7 +185,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		QString text = params.value(1);
 		if (ctpcRx.indexIn(text) == 0) { // Is it CTPC request?
 			bool handled = false;
-			QString ctpcCmd = ctpcRx.cap(1);
+			QString ctpcCmd = (ctpcRx.cap(1)).toUpper();
 			foreach (IrcCtpcHandler *handler, m_ctpcHandlers.values(ctpcCmd)) {
 				handled = true;
 				handler->handleCtpcRequest(account, name, host, params.value(0), ctpcCmd, ctpcRx.cap(3));
