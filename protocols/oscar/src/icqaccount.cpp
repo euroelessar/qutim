@@ -248,6 +248,9 @@ void IcqAccount::setStatus(Status status_helper)
 		} else if (d->conn->error() == AbstractConnection::RateLimitExceeded) {
 			status.setChangeReason(Status::ByNetworkError);
 			status.setProperty("reconnectTimeout", 1200);
+		} else if (d->conn->error() == AbstractConnection::AnotherClientLogined) {
+			// Disable reconnecting
+			status.setChangeReason(Status::ByUser);
 		} else {
 			status.setChangeReason(Status::ByFatalError);
 		}
