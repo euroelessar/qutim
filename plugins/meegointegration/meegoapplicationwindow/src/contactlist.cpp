@@ -27,6 +27,7 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <qutim/thememanager.h>
+#include <qutim/event.h>
 #include "notificationmanagerwrapper.h"
 #include "contactlistmodel.h"
 
@@ -54,6 +55,7 @@ ContactList::ContactList()
 		m_accounts << protocol->accounts();
 	}
 	m_protocols = Protocol::all().values();
+	Event::eventManager()->installEventFilter(this);
 }
 
 void ContactList::init()
@@ -143,6 +145,17 @@ QString ContactList::statusIcon(const QVariant &type, const QString &subtype)
 		break;
 	}
 	return iconName;
+}
+
+bool ContactList::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (ev->type() == Event::eventType()) {
+		if (!qstrcmp(Event::getId(static_cast<Event*>(ev)->id), "startup")) {
+			Event::eventManager()->removeEventFilter(this);
+			emit started();
+		}
+	}
+	return QObject::eventFilter(obj, ev);
 }
 
 void ContactList::onAccountAdded(qutim_sdk_0_3::Account *account)

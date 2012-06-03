@@ -43,6 +43,13 @@ PageStackWindow {
 				tabGroup.currentTab = chatTab
 		}
 	}
+    Connections {
+		target: root.contactList
+        onStarted: {
+            if (contactList.accounts.length === 0)
+                pageStack.push(accountCreatorPageComponent);
+        }
+    }
 	Connections {
 		target: application
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
@@ -79,9 +86,6 @@ PageStackWindow {
 	}
 	AddContactDialog {
 		id:addContactDialog
-	}
-	AccountCreatorDialog {
-		id:accountCreatorDialog
 	}
 	Notifications
 	{
@@ -245,17 +249,13 @@ PageStackWindow {
 		    }
 
 		onAccepted: statistics.setDecisition(!submitBox.checked, dontAskLater.checked);
-
 	}
 
 	Component.onCompleted: {
 		if (statistics.action == Statistics.NeedToAskInit
-				|| statistics.action == statistics.NeedToAskUpdate) {
+				|| statistics.action == Statistics.NeedToAskUpdate) {
 			statisticsGatherer.open();
 		}
-        if (contactList.accounts.length === 0)
-            pageStack.push(accountCreatorPageComponent)
-		//accountCreatorDialog.checkOpen();
 	}
 
 }

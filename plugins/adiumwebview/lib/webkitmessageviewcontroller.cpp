@@ -343,6 +343,7 @@ void WebKitMessageViewController::setPage(QWebPage *page)
 	}
 	m_page = page;
 	if (page) {
+		page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 		connect(page, SIGNAL(loadFinished(bool)), SLOT(onLoadFinished()));
 		connect(page, SIGNAL(linkClicked(QUrl)), SLOT(onLinkClicked(QUrl)));
 		onObjectCleared();

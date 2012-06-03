@@ -59,6 +59,8 @@ public:
 	
 	static QUrl statusUrl(const QVariant &type, const QString &subtype);
 	static QString statusIcon(const QVariant &type, const QString &subtype);
+	
+	bool eventFilter(QObject *obj, QEvent *ev);
 
 public slots:
 	static QString statusName(const QVariant &type);
@@ -70,6 +72,7 @@ private slots:
 	void onAccountRemoved(qutim_sdk_0_3::Account *account);
 	
 signals:
+	void started();
 	void statusChanged(MeegoIntegration::StatusWrapper::Type);
 	void accountsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Account> &accounts);
 	void protocolsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Protocol> &protocols);

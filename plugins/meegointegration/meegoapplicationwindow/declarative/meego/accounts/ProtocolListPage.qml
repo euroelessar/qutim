@@ -12,8 +12,13 @@ Page {
         model: ListModel {
             ListElement {
                 title: "Jabber"
-                subtitle: "Xmpp"
+                subtitle: "Xmpp, Ya.Online, GTalk, LiveJournal"
                 pageSource: "JabberPage.qml"
+            }
+            ListElement {
+                title: "ICQ"
+                subtitle: "Oscar"
+                pageSource: "OscarPage.qml"
             }
         }
         delegate: ListDelegate {

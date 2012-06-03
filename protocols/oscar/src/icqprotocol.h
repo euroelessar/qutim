@@ -58,6 +58,7 @@ public slots:
 	void updateSettings();
 protected:
 	void loadAccounts();
+	virtual void virtual_hook(int id, void *data);
 private:
 	QScopedPointer<IcqProtocolPrivate> d_ptr;
 	static IcqProtocol *self;
