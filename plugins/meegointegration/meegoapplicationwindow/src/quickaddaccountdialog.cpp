@@ -34,14 +34,16 @@
 #include <qutim/systemintegration.h>
 #include <qutim/settingslayer.h>
 #include "accountcreatorlist.h"
+#include "quicksettingslayer.h"
 
 
 namespace MeegoIntegration
 {
 QuickAddAccountDialog::QuickAddAccountDialog() {
-	SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
-				Settings::General, Icon("meeting-attending"),
-				QT_TRANSLATE_NOOP("Settings", "Accounts"));
+	SettingsItem *item = new QuickSettingsItem(
+							 QLatin1String("accounts/AccountCreatorPage.qml"),
+							 Settings::General, Icon("meeting-attending"),
+							 QT_TRANSLATE_NOOP("Settings", "Accounts"));
 	item->setPriority(100);
 	Settings::registerItem(item);
 

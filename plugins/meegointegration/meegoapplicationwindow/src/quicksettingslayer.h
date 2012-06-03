@@ -32,6 +32,36 @@ namespace MeegoIntegration
 {
 class QuickSettingsModel;
 
+class QuickGenerator : public qutim_sdk_0_3::ObjectGenerator
+{
+public:
+	QuickGenerator(const QString &component);
+	~QuickGenerator();
+
+protected:
+	virtual QObject *generateHelper() const;
+	virtual const QMetaObject *metaObject() const;
+
+private:
+	const QString m_component;
+};
+
+class QuickSettingsItem : public qutim_sdk_0_3::SettingsItem
+{
+public:
+	QuickSettingsItem(const QString &component, qutim_sdk_0_3::Settings::Type type,
+					  const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text);
+	QuickSettingsItem(const QString &component, qutim_sdk_0_3::Settings::Type type,
+					  const qutim_sdk_0_3::LocalizedString &text);
+	virtual ~QuickSettingsItem();
+
+protected:
+	virtual const qutim_sdk_0_3::ObjectGenerator *generator() const;
+
+private:
+	const QString m_component;
+};
+
 class QuickSettingsLayer : public qutim_sdk_0_3::SettingsLayer
 {
     Q_OBJECT

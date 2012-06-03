@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "meegointegration.h"
+#include "quicksettingslayer.h"
 
 namespace MeegoIntegration {
 using namespace qutim_sdk_0_3;
@@ -61,6 +62,14 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 		m_window->showWidget(widget);
 		return QVariant();
 	}
+	case GetSettingsGenerator: {
+		SettingsItem *item = data.value<SettingsItem*>();
+		const QByteArray name = item->text().original();
+		ObjectGenerator *generator = NULL;
+		if (name == "Auto-away")
+			generator = new QuickGenerator(QLatin1String("settings/AutoAwayPage.qml"));
+		return qVariantFromValue(generator);
+	}
 	default:
 		break;
 	}
@@ -77,6 +86,7 @@ bool MeeGoIntegration::canHandle(SystemIntegration::Operation operation) const
 {
 	switch (operation) {
 	case ShowWidget:
+	case GetSettingsGenerator:
 		return true;
 	default:
 		return false;

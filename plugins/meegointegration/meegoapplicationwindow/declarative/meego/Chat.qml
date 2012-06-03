@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import QtWebKit 1.0
 import "messageDelegate"
 
 Page {
@@ -35,7 +36,57 @@ Page {
 	property variant menu: ControlledMenu {
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
-	ListView {
+    Connections {
+		target: root.chat
+        onSessionCreated: session.page = webViewComponent.createObject(root, { "session": session })
+	}
+    Component {
+        id: webViewComponent
+        Item {
+            id: item
+            anchors.top: root.top
+            anchors.bottom: textField.top
+            anchors.left: root.left
+            anchors.right: root.right
+            visible: root.chat.activeSession === controller.session
+            property QtObject session
+            Flickable {
+                id: flickable
+                anchors.fill: parent
+                contentWidth: Math.max(root.width, webView.width)
+                contentHeight: Math.max(root.height, webView.height)
+                pressDelay: 200
+    
+                WebView {
+                    id: webView
+                    preferredWidth: flickable.width
+                    preferredHeight: flickable.height
+                    onAlert: console.log(message)
+                    settings.defaultFontSize: controller.fontSize
+                    settings.standardFontFamily: controller.fontFamily
+                    settings.fixedFontFamily: controller.fontFamily
+                    settings.serifFontFamily: controller.fontFamily
+                    settings.sansSerifFontFamily: controller.fontFamily
+                    javaScriptWindowObjects: ChatController {
+                        id: controller
+                        WebView.windowObjectName: "client"
+                        webView: webView
+                        session: item.session
+                        Component.onCompleted: controller.fixFlickable(item)
+                    }
+                    Connections {
+                        target: controller.session
+                        onMessageAppended: controller.append(message)
+                    }
+                }
+            }
+            ScrollDecorator {
+                flickableItem: flickable
+            }
+        }
+    }
+
+	/*ListView {
 		id: listView
 		anchors { top: parent.top; bottom: textField.top }
 		width: parent.width
@@ -44,10 +95,7 @@ Page {
 		onCountChanged: {
 			positionViewAtIndex(listView.count - 1, ListView.Contain)
 		}
-	}
-	ScrollDecorator {
-		flickableItem: listView
-	}
+	}*/
 //	Connections {
 //		target: root.chat
 //		onActiveSessionChanged: {

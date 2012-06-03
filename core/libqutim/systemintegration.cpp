@@ -25,6 +25,7 @@
 
 #include "systemintegration_p.h"
 #include "objectgenerator.h"
+#include "settingslayer.h"
 #include <limits>
 #include <QStringList>
 #include <QWidget>
@@ -168,6 +169,12 @@ void SystemIntegration::show(QWidget *widget)
 void SystemIntegration::keepAlive(QAbstractSocket *socket)
 {
 	process(KeepAliveSocket, qVariantFromValue<QObject*>(socket));
+}
+
+ObjectGenerator *SystemIntegration::settingsGenerator(SettingsItem *item)
+{
+	QVariant result = process(GetSettingsGenerator, qVariantFromValue(item));
+	return result.value<ObjectGenerator*>();
 }
 
 }

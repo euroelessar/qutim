@@ -33,6 +33,9 @@ class QAbstractSocket;
 
 namespace qutim_sdk_0_3
 {
+class SettingsItem;
+class ObjectGenerator;
+
 class LIBQUTIM_EXPORT SystemIntegration : public QObject
 {
 	Q_OBJECT
@@ -52,7 +55,8 @@ public:
 	enum Operation
 	{
 		ShowWidget,
-		KeepAliveSocket
+		KeepAliveSocket,
+		GetSettingsGenerator
 	};
 
 	enum IconSizeEnum
@@ -85,6 +89,7 @@ public:
 	
 	static void show(QWidget *widget);
 	static void keepAlive(QAbstractSocket *socket);
+	static ObjectGenerator *settingsGenerator(SettingsItem *item);
 	static QVariant value(Attribute attr, const QVariant &data = QVariant());
 	static QVariant process(Operation act, const QVariant &data = QVariant());
 //	virtual void show(QWidget *widget);
@@ -98,6 +103,8 @@ protected:
 	friend struct IntegrationData;
 };
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ObjectGenerator*)
 
 #endif // SYSTEMINTEGRATION_H
 

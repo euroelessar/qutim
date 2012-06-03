@@ -36,6 +36,7 @@
 #include "joingroupchatwrapper.h"
 #include "settingswrapper.h"
 #include "quickwidgetproxy.h"
+#include "quickconfig.h"
 #include "notificationwrapper.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
 
@@ -64,6 +65,7 @@ ApplicationWindow::ApplicationWindow()
 	SettingsWrapper::init();
 	AddAccountDialogWrapper::init();
 	NotificationWrapper::init();
+	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 
@@ -99,6 +101,11 @@ void ApplicationWindow::showWidget(QWidget *widget)
 		connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
 		emit widgetShown(widget);
 	}
+}
+
+QDeclarativeEngine *ApplicationWindow::engine() const
+{
+	return m_view->engine();
 }
 
 void ApplicationWindow::closeWidget()

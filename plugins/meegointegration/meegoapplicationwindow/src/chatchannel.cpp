@@ -32,14 +32,94 @@
 #include <qutim/thememanager.h>
 #include <qutim/conference.h>
 #include <qutim/notification.h>
+#include <QWebPage>
+#include <QWebFrame>
+#include <QWebElement>
 #include <QDateTime>
+#include <QGraphicsObject>
 
 namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 
+ChatController::ChatController()
+	: WebKitMessageViewController(false), m_webView(0)
+{
+}
+
+ChatController::~ChatController()
+{
+}
+
+QString ChatController::fontFamily() const
+{
+	return m_fontFamily;
+}
+
+int ChatController::fontSize() const
+{
+	return m_fontSize;
+}
+
+QObject *ChatController::webView() const
+{
+	return m_webView;
+}
+
+void ChatController::setWebView(QObject *webView)
+{
+	if (m_webView != webView) {
+		m_webView = webView;
+		emit webViewChanged(webView);
+		QString script = QLatin1String("client.handleElement(document.querySelector('*'));");
+        QMetaObject::invokeMethod(m_webView, "evaluateJavaScript",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(QString, script));
+	}
+}
+
+void ChatController::fixFlickable(QObject *object)
+{
+	QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+	graphicsObject->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+}
+
+void ChatController::append(const Message &message)
+{
+	appendMessage(message);
+}
+
+void ChatController::handleElement(const QWebElement &element)
+{
+	setPage(element.webFrame()->page());
+}
+
+void ChatController::appendNick(const QVariant &nick)
+{
+	emit nickAppended(nick.toString());
+}
+
+void ChatController::appendText(const QVariant &text)
+{
+	emit textAppended(text.toString());
+}
+
+void ChatController::setDefaultFont(const QString &family, int size)
+{
+	QFontInfo info(QFont(family, size));
+	size = info.pixelSize();
+	if (m_fontFamily != family) {
+		m_fontFamily = family;
+		emit fontFamilyChanged(family);
+	}
+	if (m_fontSize != size) {
+		m_fontSize = size;
+		emit fontSizeChanged(size);
+	}
+}
+
 ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
-    : ChatSession(Chat::instance()), m_unit(unit)
+	: ChatSession(Chat::instance()), m_unit(unit), m_page(0)
 {
 	m_model = new ChatMessageModel(this);
 	m_units = new ChatChannelUsersModel(this);
@@ -133,6 +213,19 @@ QObject *ChatChannel::units() const
 	return m_units;
 }
 
+QObject *ChatChannel::page() const
+{
+	return m_page;
+}
+
+void ChatChannel::setPage(QObject *page)
+{
+	if (m_page != page) {
+		m_page = page;
+		emit pageChanged(page);
+	}
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
@@ -144,7 +237,8 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		QString html = Qt::escape(message.text()).replace(QLatin1String("\n"), QLatin1String("<br>"));
 		message.setProperty("html", html);
 	}
-	m_model->append(message);
+	emit messageAppended(message);
+	//m_model->append(message);
 	if (!isActive()) {
 		Notification::send(message);
 		m_unread.append(message);

@@ -5,13 +5,12 @@ import com.nokia.extras 1.0
 Page {
 	id: root
 	property QtObject model
-	
-	Component {
+    
+    Component {
 		id: proxyPageComponent
 		ProxyPage {
 			id: proxyPage
 			onFinished: proxyPage.widget.save()
-			onWidgetChanged: proxyPage.widget.load()
 		}
 	}
 	
@@ -25,12 +24,12 @@ Page {
 			subtitle: ""
 			iconSource: ""
 			onClicked: {
-				root.pageStack.push(proxyPageComponent, { "widget": root.model.widget(index) });
-//				if (model.isWidget) {
-//					root.pageStack.push(proxyPageComponent, { "widget": model.widget });
-//				} else {
-//					root.pageStack.push(proxyPageComponent, { "widget": model.graphicsItem });
-//				}
+                var widget = root.model.widget(index);
+                widget.load();
+				if (model.isWidget)
+					root.pageStack.push(proxyPageComponent, { "widget": widget });
+				else
+					root.pageStack.push(widget);
 			}
 			MoreIndicator {
 				anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 5 }

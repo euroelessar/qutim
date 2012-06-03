@@ -63,15 +63,19 @@ QObject *QuickSettingsModel::widget(int index)
 {
 	SettingsItem *item = m_items.value(index);
 	if (item) {
-		SettingsWidget *widget = item->widget();
-		widget->setController(m_controller);
-		return widget;
+		QObject *object = item->object();
+		if (SettingsWidget *widget = qobject_cast<SettingsWidget*>(object))
+			widget->setController(m_controller);
+		else
+			object->setProperty("controller", qVariantFromValue(m_controller));
+		return object;
 	}
 	return NULL;
 }
 
 int QuickSettingsModel::rowCount(const QModelIndex &parent) const
 {
+	Q_UNUSED(parent);
 	return m_items.size();
 }
 
@@ -86,11 +90,10 @@ QVariant QuickSettingsModel::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return item->text().toString();
 	case IsWidget:
-		return true;
+		return item->isWidget();
 	case Widget:
-		return qVariantFromValue<QObject*>(item->widget());
 	case GraphicsItem:
-		return qVariantFromValue<QObject*>(NULL);
+		return qVariantFromValue<QObject*>(item->object());
 	default:
 		return QVariant();
 	}

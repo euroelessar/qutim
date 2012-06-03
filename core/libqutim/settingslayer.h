@@ -26,10 +26,12 @@
 #ifndef SETTINGSLAYER_H
 #define SETTINGSLAYER_H
 
+#include <qglobal.h>
 #include "localizedstring.h"
 #include "objectgenerator.h"
 #include <QWeakPointer>
 #include <QWidget>
+#include <QGraphicsObject>
 #include <QIcon>
 #include <QComboBox>
 
@@ -114,6 +116,9 @@ public:
 	QIcon icon() const;
 	LocalizedString text() const;
 	SettingsWidget *widget() const;
+	QGraphicsObject *graphicsObject() const;
+	QObject *object() const;
+	bool isWidget() const;
 	void clearWidget();
 	void connect(const char *signal, QObject *receiver, const char *member);
 	int order() const;
@@ -236,6 +241,8 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 };
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::SettingsItem*)
 
 #endif // SETTINGSLAYER_H
 

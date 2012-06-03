@@ -54,7 +54,7 @@ public:
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-	mutable QWeakPointer<SettingsWidget> widget;
+	mutable QWeakPointer<QObject> object;
 	QList<ConnectInfo> connections;
 	int order;
 	int priority;

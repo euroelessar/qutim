@@ -40,6 +40,7 @@
 #include <QSet>
 #include "icon.h"
 #include "servicemanager.h"
+#include "systemintegration.h"
 
 namespace qutim_sdk_0_3
 {
@@ -94,22 +95,44 @@ LocalizedString SettingsItem::text() const
 
 SettingsWidget *SettingsItem::widget() const
 {
+	return qobject_cast<SettingsWidget*>(object());
+}
+
+QGraphicsObject *SettingsItem::graphicsObject() const
+{
+	return qobject_cast<QGraphicsObject*>(object());
+}
+
+QObject *SettingsItem::object() const
+{
 	Q_D(const SettingsItem);
-	if(!d->gen)
+	if (!d->gen)
+		d->gen = SystemIntegration::settingsGenerator(const_cast<SettingsItem*>(this));
+	if (!d->gen)
 		d->gen = generator();
-	if(d->gen && d->widget.isNull()) {
-		d->widget = d->gen->generate<SettingsWidget>();
+	if(d->gen && d->object.isNull()) {
+		d->object = d->gen->generate<QObject>();
 		foreach (const ConnectInfo &info, d->connections)
-			QObject::connect(d->widget.data(), info.signal, info.receiver.data(), info.member);
+			QObject::connect(d->object.data(), info.signal, info.receiver.data(), info.member);
 	}
-	return d->widget.data();
+	return d->object.data();
+}
+
+bool SettingsItem::isWidget() const
+{
+	Q_D(const SettingsItem);
+	if (!d->gen)
+		d->gen = SystemIntegration::settingsGenerator(const_cast<SettingsItem*>(this));
+	if (!d->gen)
+		d->gen = generator();
+	return d->gen && d->gen->extends<SettingsWidget>();
 }
 
 void SettingsItem::clearWidget()
 {
 	Q_D(SettingsItem);
-	if(!d->widget.isNull())
-		delete d->widget.data();
+	if(!d->object.isNull())
+		delete d->object.data();
 }
 
 void SettingsItem::connect(const char *signal, QObject *receiver, const char *member)

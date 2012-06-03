@@ -44,9 +44,11 @@ Chat::~Chat()
 
 void Chat::init()
 {
+	qRegisterMetaType<Message>();
 	qmlRegisterType<ChatLayer>();
 	qmlRegisterType<ChatSession>();
 	qmlRegisterType<ChatChannel>();
+	qmlRegisterType<ChatController>("org.qutim", 0, 3, "ChatController");
 	qmlRegisterType<ChatChannelModel>("org.qutim", 0, 3, "ChatChannelModel");
 }
 

@@ -12,8 +12,7 @@ if( ADIUMWEBVIEW_BUILD_TYPE STREQUAL "STATIC" )
     set( ADIUMWEBVIEW_TYPE "STATIC" )
     message( STATUS "libqutim-adiumwebview will be linked staticaly" )
 endif()
-
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES} )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES} ${QT_QTWEBKIT_INCLUDE_DIR} )
 
 qutim_wrap_cpp( MOC_SRC ${HDR} )
 qt4_wrap_ui( UIS_H ${FORMS} )
@@ -22,6 +21,7 @@ add_library( qutim-adiumwebview ${ADIUMWEBVIEW_TYPE} ${SRC} ${MOC_SRC} ${UIS_H} 
 
 qutim_target_link_libraries(qutim-adiumwebview
     ${QT_LIBRARIES}
+	${QT_QTWEBKIT_LIBRARY}
 	${QUTIM_LIBRARY}
     )
 

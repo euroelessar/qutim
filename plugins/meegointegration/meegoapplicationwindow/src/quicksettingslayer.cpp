@@ -25,7 +25,12 @@
 
 #include "quicksettingslayer.h"
 #include "quicksettingsmodel.h"
+#include "applicationwindow.h"
 #include <qutim/menucontroller.h>
+#include <qutim/servicemanager.h>
+#include <qutim/thememanager.h>
+#include <QDeclarativeItem>
+#include <QDeclarativeComponent>
 
 namespace MeegoIntegration
 {
@@ -73,6 +78,49 @@ void QuickSettingsLayer::show(QObject *object)
 		SettingsLayer::show(controller);
 	else
 		Settings::showWidget();
+}
+
+QuickGenerator::QuickGenerator(const QString &component) : m_component(component)
+{
+}
+
+QuickGenerator::~QuickGenerator()
+{
+}
+
+QObject *QuickGenerator::generateHelper() const
+{
+	ServicePointer<ApplicationWindow> app;
+	QString filePath = ThemeManager::path(QLatin1String("declarative"),
+	                                      QLatin1String("meego"));
+	QUrl url = QUrl::fromLocalFile(filePath + QLatin1Char('/') + m_component);
+	QDeclarativeComponent component(app->engine(), url);
+	qDebug() << url << component.isLoading() << component.isError() << component.errorString();
+	return component.create();
+}
+
+const QMetaObject *QuickGenerator::metaObject() const
+{
+	return &QDeclarativeItem::staticMetaObject;
+}
+
+QuickSettingsItem::QuickSettingsItem(const QString &component, Settings::Type type, const QIcon &icon, const LocalizedString &text)
+	: SettingsItem(type, icon, text), m_component(component)
+{
+}
+
+QuickSettingsItem::QuickSettingsItem(const QString &component, Settings::Type type, const LocalizedString &text)
+	: SettingsItem(type, text), m_component(component)
+{
+}
+
+QuickSettingsItem::~QuickSettingsItem()
+{
+}
+
+const ObjectGenerator *QuickSettingsItem::generator() const
+{
+	return new QuickGenerator(m_component);
 }
 }
 

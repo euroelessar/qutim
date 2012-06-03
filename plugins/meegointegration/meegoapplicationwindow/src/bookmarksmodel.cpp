@@ -25,7 +25,7 @@
 ****************************************************************************/
 
 #include "bookmarksmodel.h"
-#include <itemdelegate.h>
+#include <qutim/itemdelegate.h>
 #include <qutim/icon.h>
 #include <qutim/groupchatmanager.h>
 #include <qutim/protocol.h>

@@ -40,6 +40,8 @@ class ApplicationWindow : public QObject
 public:
     explicit ApplicationWindow();
 	void showWidget(QWidget *widget);
+	
+	QDeclarativeEngine *engine() const;
 
 signals:
 	void widgetShown(QObject *widget);

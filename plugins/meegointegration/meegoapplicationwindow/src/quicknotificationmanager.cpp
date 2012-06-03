@@ -78,7 +78,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 
 		switch (notification->request().type()) {
 		case Notification::IncomingMessage:
-		case Notification::ChatIncomingMessage:
+		case Notification::ChatIncomingMessage: {
 			m_notifications << notification;
 			QList<MNotification *> notifs= MNotification::notifications();
 
@@ -89,8 +89,10 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 
 			MNotification * notif = new MNotification(MNotification::ImEvent,"qutIM: new "+QString::number(m_notifications.count())+ " messages",text);
 			notif->publish();
-
-
+			break;
+		}
+		default:
+			break;
 		}
 		connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
 			SLOT(onNotificationFinished()));
