@@ -53,10 +53,12 @@ ContactList::ContactList()
 		        SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 		m_accounts << protocol->accounts();
 	}
+	m_protocols = Protocol::all().values();
 }
 
 void ContactList::init()
 {
+	qmlRegisterType<Protocol>();
 	qmlRegisterType<Account>();
 	qmlRegisterType<ChatUnit>();
 	qmlRegisterType<Contact>();
@@ -80,6 +82,14 @@ void ContactList::setStatus(StatusWrapper::Type type)
 QDeclarativeListProperty<qutim_sdk_0_3::Account> ContactList::accounts()
 {
 	QDeclarativeListProperty<qutim_sdk_0_3::Account> list(this, m_accounts);
+	list.append = NULL;
+	list.clear = NULL;
+	return list;
+}
+
+QDeclarativeListProperty<qutim_sdk_0_3::Protocol> ContactList::protocols()
+{
+	QDeclarativeListProperty<qutim_sdk_0_3::Protocol> list(this, m_protocols);
 	list.append = NULL;
 	list.clear = NULL;
 	return list;
@@ -138,11 +148,13 @@ QString ContactList::statusIcon(const QVariant &type, const QString &subtype)
 void ContactList::onAccountAdded(qutim_sdk_0_3::Account *account)
 {
 	m_accounts << account;
+	emit accountsChanged(accounts());
 }
 
 void ContactList::onAccountRemoved(qutim_sdk_0_3::Account *account)
 {
 	m_accounts.removeAll(account);
+	emit accountsChanged(accounts());
 }
 }
 

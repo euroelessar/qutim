@@ -7,7 +7,6 @@ import ".."
 
 SettingsItemPage {
     id: root
-    anchors.margins:10
     impl: QtObject {
         function save() {
             config.setValue("away-enabled", awayCheckBox.checked);
@@ -32,6 +31,7 @@ SettingsItemPage {
         spacing: 10
         Row {
 			spacing: 10
+            anchors.right: parent.right
 			Label { text: qsTr("Set status \"Away\"") }
 			Switch { id: awayCheckBox; anchors.right: parent.right; }
 		}
@@ -46,6 +46,7 @@ SettingsItemPage {
         }
         Row {
 			spacing: 10
+            anchors.right: parent.right
 			Label { text: qsTr("Set status \"Not available\"") }
             Switch { id: naCheckBox; anchors.right: parent.right; }
 		}

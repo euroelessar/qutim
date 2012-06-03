@@ -26,6 +26,7 @@
 import QtQuick 1.0
 import com.nokia.meego 1.0
 import org.qutim 0.3
+import "accounts"
 
 PageStackWindow {
 	id: root
@@ -50,6 +51,11 @@ PageStackWindow {
 	Component {
 		id: proxyPageComponent
 		ProxyPage {
+		}
+	}
+    Component {
+		id: accountCreatorPageComponent
+		AccountCreatorPage {
 		}
 	}
 	Statistics {
@@ -247,7 +253,9 @@ PageStackWindow {
 				|| statistics.action == statistics.NeedToAskUpdate) {
 			statisticsGatherer.open();
 		}
-		accountCreatorDialog.checkOpen();
+        if (contactList.accounts.length === 0)
+            pageStack.push(accountCreatorPageComponent)
+		//accountCreatorDialog.checkOpen();
 	}
 
 }

@@ -11,17 +11,9 @@ Page {
     property QtObject controller
     function save() { impl.save(); }
     function load() { impl.load(); }
-    
-    tools: ToolBarLayout {
+   
+    tools: SettingsToolBarLayout {
         id: toolBarLayout
-        ToolIcon {
-            visible: true
-            platformIconId: "toolbar-previous"
-            onClicked: {
-                impl.save();
-                saved();
-                pageStack.pop();
-            }
-        }
+        page: root
     }
 }
