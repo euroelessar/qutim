@@ -5,21 +5,29 @@ import com.nokia.extras 1.0
 import org.qutim 0.3
 import ".."
 
-Page {
+SettingsItemPage {
     id: root
     anchors.margins: 10
-    ServiceManager {
-		id: serviceManager
-	}
+    property alias account: root.controller
+    impl: QtObject {
+        function save() {
+            config.setValue("general/passwd", passwordField.text, Config.Crypted);
+            config.setValue("general/resource", resourceField.text);
+        }
+        function load() {
+            passwordField.text = config.value("general/passwd", "", Config.Crypted);
+            resourceField.text = config.value("general/resource", "qutIM");
+        }
+    }
+    Config {
+        id: config
+        object: root.account
+    }
     Column {
         spacing: 10
         Label {
-            text: qsTr("Jabber ID:")
-        }
-        TextField {
-            id: jidField
             width: root.width
-            inputMethodHints: Qt.ImhNoPredictiveText
+            text: qsTr("Jabber ID:") + " <i>" + (root.account === null ? "" : root.account.id) + "</i>"
         }
         Label {
             text: qsTr("Password:")
@@ -27,32 +35,19 @@ Page {
         TextField {
             id: passwordField
             width: root.width
-            inputMethodHints: Qt.ImhHiddenText
+            echoMode: TextInput.PasswordEchoOnEdit
+        }
+        Label {
+            text: qsTr("Resource:")
+        }
+        TextField {
+            id: resourceField
+            width: root.width
         }
     }
-
-    tools: ToolBarLayout {
+    
+    tools: SettingsToolBarLayout {
 		id: toolBarLayout
-		ToolIcon {
-			visible: true
-			platformIconId: "toolbar-previous"
-			onClicked: pageStack.pop()
-		}
-        ToolButton {
-            text: qsTr("Create")
-            enabled: jidField.text !== ""
-            onClicked: {
-                var protocols = serviceManager.contactList.protocols;
-                for (var i = 0; i < protocols.length; ++i) {
-                    var protocol = protocols[i];
-                    if (protocol.id === "jabber") {
-                        protocol.createAccount(jidField.text, { "password": passwordField.text });
-                        var page = pageStack.find(function(page) { return page.impl && page.contactList; });
-                        pageStack.pop(page);
-                        break;
-                    }
-                }
-            }
-        }
+        page: root
 	}
 }

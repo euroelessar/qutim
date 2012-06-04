@@ -13,7 +13,8 @@ SettingsItemPage {
         function load() {
         }
     }
-    property variant contactList: serviceManager.contactList
+    property QtObject contactList: serviceManager.contactList
+    property QtObject settingsLayer: serviceManager.settingsLayer
     ServiceManager {
 		id: serviceManager
 	}
@@ -39,8 +40,11 @@ SettingsItemPage {
         delegate: ItemDelegate {
             title: modelData.name === "" ? modelData.id : modelData.name
             subtitle: modelData.id
-			onClicked: {
-			}
+            onClicked: settingsLayer.show(modelData)
+            onPressAndHold: {
+                menu.account = modelData
+                menu.open()
+            }
             MoreIndicator {
 				anchors {
                     right: parent.right
@@ -49,5 +53,24 @@ SettingsItemPage {
                 }
 			}
 		}
+    }
+    Menu {
+        id: menu
+        property QtObject account
+        visualParent: pageStack
+        MenuLayout {
+            MenuItem {
+                text: qsTr("Remove account")
+                onClicked: queryDialog.open()
+            }
+        }
+    }
+    QueryDialog {
+        id: queryDialog
+        titleText: menu.account.id
+        message: qsTr("Do you really want to remove account?")
+        acceptButtonText: qsTr("Remove")
+        rejectButtonText: qsTr("Cancel")
+        onAccepted: menu.account.protocol.removeAccount(menu.account)
     }
 }

@@ -100,7 +100,7 @@ public:
           Be careful, this method actually delete your account.
           It is recommended to display a confirmation dialog box.
         */
-    virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
+    Q_INVOKABLE virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
     static ProtocolHash all();
 signals:
     void accountCreated(qutim_sdk_0_3::Account *);
