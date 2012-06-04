@@ -5,21 +5,27 @@ import com.nokia.extras 1.0
 import org.qutim 0.3
 import ".."
 
-Page {
+SettingsItemPage {
     id: root
     anchors.margins: 10
-    ServiceManager {
-		id: serviceManager
-	}
+    property alias account: root.controller
+    impl: QtObject {
+        function save() {
+            config.setValue("general/passwd", passwordField.text, Config.Crypted);
+        }
+        function load() {
+            passwordField.text = config.value("general/passwd", "", Config.Crypted);
+        }
+    }
+    Config {
+        id: config
+        object: root.account
+    }
     Column {
         spacing: 10
         Label {
-	    text: qsTr("Email:")
-        }
-        TextField {
-            id: jidField
             width: root.width
-            inputMethodHints: Qt.ImhNoPredictiveText
+	    text: qsTr("Email:") + " <i>" + (root.account === null ? "" : root.account.id) + "</i>"
         }
         Label {
             text: qsTr("Password:")
@@ -27,32 +33,12 @@ Page {
         TextField {
             id: passwordField
             width: root.width
-            inputMethodHints: Qt.ImhHiddenText
+            echoMode: TextInput.PasswordEchoOnEdit
         }
     }
 
-    tools: ToolBarLayout {
+    tools: SettingsToolBarLayout {
 		id: toolBarLayout
-		ToolIcon {
-			visible: true
-			platformIconId: "toolbar-previous"
-			onClicked: pageStack.pop()
-		}
-        ToolButton {
-            text: qsTr("Create")
-            enabled: jidField.text !== ""
-            onClicked: {
-                var protocols = serviceManager.contactList.protocols;
-                for (var i = 0; i < protocols.length; ++i) {
-                    var protocol = protocols[i];
-		    if (protocol.id === "mrim") {
-                        protocol.createAccount(jidField.text, { "password": passwordField.text });
-                        var page = pageStack.find(function(page) { return page.impl && page.contactList; });
-                        pageStack.pop(page);
-                        break;
-                    }
-                }
-            }
-        }
+        page: root
 	}
 }

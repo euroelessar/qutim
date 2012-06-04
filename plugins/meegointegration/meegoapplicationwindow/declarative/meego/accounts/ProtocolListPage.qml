@@ -23,7 +23,7 @@ Page {
 	    ListElement {
 		title: "Mail.ru"
 		subtitle: "Mrim"
-		pageSource: "MrimPage.qml"
+		pageSource: "CreateMrimPage.qml"
 	    }
         }
         delegate: ListDelegate {
