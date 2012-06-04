@@ -57,6 +57,7 @@ Page {
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString
 		section.delegate: sectionHeading
+		clip:true
 	}
 	// The delegate for each section header
 	Component {

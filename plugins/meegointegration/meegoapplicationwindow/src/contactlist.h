@@ -70,6 +70,7 @@ public slots:
 private slots:
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
 	void onAccountRemoved(qutim_sdk_0_3::Account *account);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	
 signals:
 	void started();

@@ -56,7 +56,7 @@ Sheet {
 		anchors.margins:10
 		anchors.fill: parent
 
-		Row {
+		Column {
 			anchors.right: parent.right
 			anchors.left: parent.left
 			anchors.top: parent.top
@@ -71,7 +71,8 @@ Sheet {
 			}
 
 			Text {
-				anchors.right: versionText.left
+				anchors.right: parent.right
+				anchors.top: versionText.bottom
 				id:programName
 				font.pointSize: 60
 				text: "qutIM"
@@ -100,7 +101,8 @@ Sheet {
 		ListView {
 			id: mainInfo
 			spacing: 20
-			anchors{top:programLine.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
+			anchors.topMargin:40
+			anchors{top:parent.top; left:parent.left; right:parent.right;bottom:parent.bottom}
 
 			model: ListModel { }
 			delegate: Text {

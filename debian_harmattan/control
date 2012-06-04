@@ -2,7 +2,7 @@ Source: qutim
 Section: user/network
 Priority: extra
 Maintainer: Eugene Degtyarev <degtep@gmail.com>
-Build-Depends: debhelper (>= 5),locales,cmake, libgconf2-6,libssl-dev,libxext-dev,libqt4-dev,libqca2-dev,libqca2-plugin-ossl,libidn11-dev, libqtm-dev
+Build-Depends: debhelper (>= 5),locales,cmake, libgconf2-6,libssl-dev,libxext-dev,libqt4-dev,libqca2-dev,libqca2-plugin-ossl,libidn11-dev, libqtm-dev,applauncherd-dev,libmeegotouchevents-dev
 Standards-Version: 3.7.2
 
 Package: qutim
