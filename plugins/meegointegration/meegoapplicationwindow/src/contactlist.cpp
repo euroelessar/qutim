@@ -35,6 +35,23 @@ namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 
+static bool isStatusChange(const qutim_sdk_0_3::Status &status)
+{
+	if (status.type() == Status::Offline) {
+		foreach(Protocol *proto, Protocol::all()) {
+			foreach(Account *a, proto->accounts()) {
+				//				debug() << a->status().name() << a->status().type();
+				if (a->status().type()!=Status::Offline)
+					return false;
+			}
+		}
+		return true;
+	}
+	else
+		return true;
+}
+
+
 AccountList allAccounts()
 {
 	AccountList accounts;
@@ -161,6 +178,8 @@ bool ContactList::eventFilter(QObject *obj, QEvent *ev)
 void ContactList::onAccountAdded(qutim_sdk_0_3::Account *account)
 {
 	m_accounts << account;
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 	emit accountsChanged(accounts());
 }
 
@@ -168,6 +187,14 @@ void ContactList::onAccountRemoved(qutim_sdk_0_3::Account *account)
 {
 	m_accounts.removeAll(account);
 	emit accountsChanged(accounts());
+}
+
+void ContactList::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	if (isStatusChange(status)) {
+		m_globalStatus = status;
+		emit statusChanged(static_cast<StatusWrapper::Type>(m_globalStatus.type()));
+	}
 }
 }
 

@@ -66,7 +66,7 @@ Sheet {
 		Text {
 			id:header
 			anchors{top:parent.top; left:parent.left; right:parent.right}
-			font.pointSize: 40
+			font.pointSize: 35
 			text:qsTr("Select protocol:")
 		}
 
@@ -74,7 +74,7 @@ Sheet {
 			id:mainInfo
 			spacing: 20
 			anchors{top:header.bottom; left:parent.left; right:parent.right;bottom:parent.bottom}
-
+			clip:true
 			model: handler
 			delegate: ItemDelegate {
 				title: account.id
