@@ -808,11 +808,11 @@ QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type)
 	int slashIndex = name.lastIndexOf('/');
 	if (slashIndex != -1) {
 		const_cast<Config*>(this)->beginGroup(name.mid(0, slashIndex));
-		name = name.mid(slashIndex+1);
+		name = name.mid(slashIndex + 1);
 	}
-	const ConfigLevel::Ptr &level = d->levels.at(0);
+	const ConfigLevel::Ptr &level = d->current();
 	QVariant var;
-	QList<ConfigAtom::Ptr> &atoms = d->current()->atoms;
+	QList<ConfigAtom::Ptr> &atoms = level->atoms;
 	for (int i = 0; i < atoms.size(); i++) {
 		ConfigAtom::Ptr atom = level->atoms.at(i);
 		Q_ASSERT(atom->typeMap);
@@ -831,16 +831,15 @@ QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type)
 void Config::setValue(const QString &key, const QVariant &value, ValueFlags type)
 {
 	Q_D(Config);
-	const ConfigLevel::Ptr &level = d->levels.at(0);
-	if (level->atoms.isEmpty())
+	if (d->levels.at(0)->atoms.isEmpty())
 		return;
 	QString name = key;
 	int slashIndex = name.lastIndexOf('/');
 	if (slashIndex != -1) {
 		beginGroup(name.mid(0, slashIndex));
-		name = name.mid(slashIndex);
+		name = name.mid(slashIndex + 1);
 	}
-	ConfigAtom::Ptr atom = level->atoms.at(0);
+	ConfigAtom::Ptr atom = d->current()->atoms.at(0);
 	Q_ASSERT(atom->typeMap);
 	QVariant var = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
 	QVariant &currentVar = (*atom->map)[name];

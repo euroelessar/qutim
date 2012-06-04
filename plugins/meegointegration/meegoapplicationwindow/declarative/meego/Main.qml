@@ -51,6 +51,10 @@ PageStackWindow {
             }
         }
     }
+    Connections {
+		target: root.settings
+        onSettingsRequested: pageStack.push(settingsPageComponent, { "model": model })
+	}
 	Connections {
 		target: application
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
@@ -187,7 +191,7 @@ PageStackWindow {
 			}
 			MenuItem {
 				text: qsTr("Settings")
-			    onClicked: root.pageStack.push(settingsPageComponent) //settingsDialog.open();
+			    onClicked: root.settings.show();
 			}
 
 		    }
@@ -197,7 +201,6 @@ PageStackWindow {
 		id: settingsPageComponent
 		SettingsPage {
 			id: settingsPage
-			model: settings.model
 		}
 	}
 

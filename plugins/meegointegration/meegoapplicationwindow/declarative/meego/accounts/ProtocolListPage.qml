@@ -13,12 +13,12 @@ Page {
             ListElement {
                 title: "Jabber"
                 subtitle: "Xmpp, Ya.Online, GTalk, LiveJournal"
-                pageSource: "JabberPage.qml"
+                pageSource: "CreateJabberPage.qml"
             }
             ListElement {
                 title: "ICQ"
                 subtitle: "Oscar"
-                pageSource: "OscarPage.qml"
+                pageSource: "CreateOscarPage.qml"
             }
         }
         delegate: ListDelegate {

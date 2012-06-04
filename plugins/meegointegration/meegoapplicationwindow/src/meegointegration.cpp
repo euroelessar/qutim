@@ -25,6 +25,7 @@
 
 #include "meegointegration.h"
 #include "quicksettingslayer.h"
+#include <QDebug>
 
 namespace MeegoIntegration {
 using namespace qutim_sdk_0_3;
@@ -54,6 +55,17 @@ QVariant MeeGoIntegration::doGetValue(SystemIntegration::Attribute attr, const Q
 	return QVariant();
 }
 
+class SettingsItemHook : public SettingsItem
+{
+public:
+	using SettingsItem::generator;
+	static ObjectGenerator *generator(SettingsItem *item)
+	{
+		const ObjectGenerator *gen = static_cast<SettingsItemHook*>(item)->generator();
+		return const_cast<ObjectGenerator*>(gen);
+	}
+};
+
 QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVariant &data) const
 {
 	switch (act) {
@@ -64,10 +76,19 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 	}
 	case GetSettingsGenerator: {
 		SettingsItem *item = data.value<SettingsItem*>();
+		const QString iconName = item->icon().name();
 		const QByteArray name = item->text().original();
 		ObjectGenerator *generator = NULL;
-		if (name == "Auto-away")
+		if (name == "Auto-away") {
 			generator = new QuickGenerator(QLatin1String("settings/AutoAwayPage.qml"));
+		} else if (name == "Icq account settings") {
+			generator = new QuickGenerator(QLatin1String("accounts/OscarPage.qml"));
+		} else if (name == "Main settings") {
+			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
+			const QMetaObject *meta = gen->metaObject();
+			if (!qstrcmp(meta->className(), "Jabber::JMainSettings"))
+				generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
+		}
 		return qVariantFromValue(generator);
 	}
 	default:
