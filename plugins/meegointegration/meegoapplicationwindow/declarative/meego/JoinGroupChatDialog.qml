@@ -148,7 +148,7 @@ Sheet {
 					id:bookmarks
 					spacing: 20
 					anchors{ left:parent.left; right:parent.right; top:accounts.bottom;bottom:parent.bottom}
-	
+					clip:true
 					model: bookmarksModel
 	
 					delegate:Column {
