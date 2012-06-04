@@ -57,6 +57,8 @@ public:
 	QVariant data(DataType type);
 protected slots:
 	void onAccountDestroyed(QObject *obj);
+protected:
+	virtual void virtual_hook(int id, void *data);
 private:
     Q_DISABLE_COPY(MrimProtocol)
 	void addAccount(MrimAccount *account);

@@ -167,3 +167,41 @@ MrimProtocol::AccountCreationError MrimProtocol::createAccount(const QString& em
     return err;
 }
 
+void MrimProtocol::virtual_hook(int id, void *data)
+{
+	switch (id) {
+	case SupportedAccountParametersHook: {
+		QStringList &properties = *reinterpret_cast<QStringList*>(data);
+		properties << QLatin1String("password");
+		break;
+	}
+	case CreateAccountHook: {
+		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
+		QString validEmail = Utils::stripEmail(argument.id);
+		if (!validEmail.isEmpty())
+		{//email is compliant
+		    ConfigGroup cfg = config("general");
+		    QStringList accounts = cfg.value("accounts",QStringList());
+
+		    if (!accounts.contains(validEmail))
+		    {//account is new, saving
+			MrimAccount *account = new MrimAccount(validEmail);
+			QString password = argument.parameters.value(QLatin1String("password")).toString();
+			account->config().group("general").setValue("passwd", password, Config::Crypted);
+			account->config().sync();//save account settings
+				    addAccount(account);
+
+			accounts << validEmail;
+			cfg.setValue("accounts",accounts);
+			cfg.sync(); //save global settings
+		    }
+		}
+
+
+		break;
+	}
+	default:
+		Protocol::virtual_hook(id, data);
+	}
+}
+

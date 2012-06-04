@@ -20,6 +20,11 @@ Page {
                 subtitle: "Oscar"
                 pageSource: "OscarPage.qml"
             }
+	    ListElement {
+		title: "Mail.ru"
+		subtitle: "Mrim"
+		pageSource: "MrimPage.qml"
+	    }
         }
         delegate: ListDelegate {
             onClicked: pageStack.push(Qt.createComponent(model.pageSource))
