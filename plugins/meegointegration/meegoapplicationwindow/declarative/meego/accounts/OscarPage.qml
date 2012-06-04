@@ -18,6 +18,7 @@ Page {
         }
         TextField {
             id: idField
+            width: root.width
             inputMethodHints: Qt.ImhDigitsOnly
         }
         Label {
@@ -25,6 +26,7 @@ Page {
         }
         TextField {
             id: passwordField
+            width: root.width
             inputMethodHints: Qt.ImhHiddenText
         }
     }
@@ -38,6 +40,7 @@ Page {
 		}
         ToolButton {
             text: qsTr("Create")
+            visible: true
             enabled: idField.text !== ""
             onClicked: {
                 var protocols = serviceManager.contactList.protocols;
@@ -45,8 +48,8 @@ Page {
                     var protocol = protocols[i];
                     if (protocol.id === "icq") {
                         protocol.createAccount(idField.text, { "password": passwordField.text });
-                        pageStack.pop();
-                        pageStack.pop();
+                        var page = pageStack.find(function(page) { return page.impl && page.contactList; });
+                        pageStack.pop(page);
                         break;
                     }
                 }

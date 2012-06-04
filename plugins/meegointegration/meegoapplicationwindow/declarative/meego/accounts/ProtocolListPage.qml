@@ -22,10 +22,7 @@ Page {
             }
         }
         delegate: ListDelegate {
-            onClicked: {
-                pageLoader.source = model.pageSource
-                pageStack.push(pageLoader.item)
-            }
+            onClicked: pageStack.push(Qt.createComponent(model.pageSource))
             MoreIndicator {
 				anchors {
                     right: parent.right
@@ -33,9 +30,6 @@ Page {
                     rightMargin: 5
                 }
 			}
-        }
-        Loader {
-            id: pageLoader
         }
     }
     tools: ToolBarLayout {

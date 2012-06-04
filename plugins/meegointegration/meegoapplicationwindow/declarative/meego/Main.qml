@@ -46,8 +46,9 @@ PageStackWindow {
     Connections {
 		target: root.contactList
         onStarted: {
-            if (contactList.accounts.length === 0)
+            if (contactList.accounts.length === 0) {
                 pageStack.push(accountCreatorPageComponent);
+            }
         }
     }
 	Connections {
@@ -62,7 +63,7 @@ PageStackWindow {
 	}
     Component {
 		id: accountCreatorPageComponent
-		AccountCreatorPage {
+		ProtocolListPage {
 		}
 	}
 	Statistics {

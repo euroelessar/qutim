@@ -18,12 +18,15 @@ Page {
         }
         TextField {
             id: jidField
+            width: root.width
+            inputMethodHints: Qt.ImhNoPredictiveText
         }
         Label {
             text: qsTr("Password:")
         }
         TextField {
             id: passwordField
+            width: root.width
             inputMethodHints: Qt.ImhHiddenText
         }
     }
@@ -44,8 +47,8 @@ Page {
                     var protocol = protocols[i];
                     if (protocol.id === "jabber") {
                         protocol.createAccount(jidField.text, { "password": passwordField.text });
-                        pageStack.pop();
-                        pageStack.pop();
+                        var page = pageStack.find(function(page) { return page.impl && page.contactList; });
+                        pageStack.pop(page);
                         break;
                     }
                 }
