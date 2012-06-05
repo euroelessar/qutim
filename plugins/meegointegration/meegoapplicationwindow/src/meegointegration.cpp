@@ -110,6 +110,7 @@ bool MeeGoIntegration::canHandle(SystemIntegration::Operation operation) const
 	switch (operation) {
 	case ShowWidget:
 	case GetSettingsGenerator:
+	case KeepAliveSocket:
 		return true;
 	default:
 		return false;
