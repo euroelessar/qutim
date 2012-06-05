@@ -83,6 +83,8 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("settings/AutoAwayPage.qml"));
 		} else if (name == "Icq account settings") {
 			generator = new QuickGenerator(QLatin1String("accounts/OscarPage.qml"));
+		} else if (name == "Connection manager") {
+			generator = new QuickGenerator(QLatin1String("settings/ConnectionManagerPage.qml"));
 		} else if (name == "Main settings") {
 			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
 			const QMetaObject *meta = gen->metaObject();
