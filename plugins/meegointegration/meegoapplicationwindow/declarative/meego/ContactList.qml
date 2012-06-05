@@ -79,7 +79,7 @@ Page {
 		id: filterField
 		anchors { left: parent.left; bottom: parent.bottom; right: accountStatusTool.left }
 		platformSipAttributes: SipAttributes { actionKeyHighlighted: true }
-		placeholderText: "Search contact"
+		placeholderText: qsTr("Search contact")
 		platformStyle: TextFieldStyle { paddingRight: clearButton.width }
 		Image {
 			id: clearButton
