@@ -103,7 +103,7 @@ Sheet {
 			spacing: 20
 			anchors.topMargin:40
 			anchors{top:parent.top; left:parent.left; right:parent.right;bottom:parent.bottom}
-
+			interactive: false
 			model: ListModel { }
 			delegate: Text {
 				anchors{left: parent.left; right: parent.right}
