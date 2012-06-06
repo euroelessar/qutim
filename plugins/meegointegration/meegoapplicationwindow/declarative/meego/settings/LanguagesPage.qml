@@ -49,12 +49,23 @@ SettingsItemPage {
 		    title: modelData
 		    subtitle: modelData
 		    onClicked: {
-			    //OpenConfirmDialog
-			    config.setValue("localization/lang",modelData);
-			    //RetranslateUi
+			    queryChangeLanguage.lang = modelData;
+			    queryChangeLanguage.open();
 		    }
 		}
 	    }
 	}
+    }
+    QueryDialog {
+	    id:queryChangeLanguage
+
+	    acceptButtonText: qsTr("Yes")
+	    rejectButtonText: qsTr("No")
+	    property variant lang:"";
+	    titleText: qsTr("You really want change \nqutIM language to ") + lang + "?";
+	    onAccepted:{
+		    config.setValue("localization/lang",lang);
+	    }
+
     }
 }
