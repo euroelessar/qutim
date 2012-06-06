@@ -41,7 +41,7 @@
 #include "notificationwrapper.h"
 #include "thememanagerwrapper.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
-
+#include "languagesmodel.h"
 #include "menumodel.h"
 #include "addaccountdialogwrapper.h"
 #include <QApplication>
@@ -71,6 +71,7 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
+	qmlRegisterType<LanguagesModel>("org.qutim", 0, 3, "LanguagesModel");
 	ThemeManagerWrapper::init();
 
 	QFont font;
