@@ -39,6 +39,7 @@
 #include "quickregexpservice.h"
 #include "quickconfig.h"
 #include "notificationwrapper.h"
+#include "thememanagerwrapper.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
 
 #include "menumodel.h"
@@ -70,6 +71,7 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
+	ThemeManagerWrapper::init();
 
 	QFont font;
 	font.setFamily(QLatin1String("Nokia Pure"));
