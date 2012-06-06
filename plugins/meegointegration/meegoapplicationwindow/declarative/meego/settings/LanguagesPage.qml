@@ -62,7 +62,8 @@ SettingsItemPage {
 	    acceptButtonText: qsTr("Yes")
 	    rejectButtonText: qsTr("No")
 	    property variant lang:"";
-	    titleText: qsTr("You really want change \nqutIM language to ") + lang + "?";
+	    titleText: qsTr("Language change")
+	    message: qsTr("Do you really want to change qutIM's language to %1?").arg(lang)
 	    onAccepted:{
 		    config.setValue("localization/lang",lang);
 	    }
