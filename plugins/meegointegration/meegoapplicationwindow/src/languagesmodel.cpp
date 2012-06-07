@@ -77,19 +77,20 @@ LanguagesModel::LanguagesModel(QObject *parent) :
 			QTranslator translator;
 			translator.load(QLatin1String("core.qm"), dir.absolutePath());
 			languageName = translator.translate("Localization", "<Language>", "Localized language name");
-			if (languageName.isEmpty())
-			{
-				QLocale locale(lang);
-				languageName = QLocale::languageToString(locale.language());
-				if (languageName.isEmpty())
-					languageName = lang;
-				if (locale.country() != QLocale::AnyCountry) {
-					languageCountry = locale.country();
-				}
-			}
-			else
+			if (!languageName.isEmpty())
 			{
 				languageCountry = translator.translate("Localization", "<Country>","Localized country name, empty if localization is country-independent");
+			}
+		}
+
+		if (languageName.isEmpty())
+		{
+			QLocale locale(lang);
+			languageName = QLocale::languageToString(locale.language());
+			if (languageName.isEmpty())
+				languageName = lang;
+			if (locale.country() != QLocale::AnyCountry) {
+				languageCountry = locale.country();
 			}
 		}
 
@@ -115,7 +116,7 @@ QVariant LanguagesModel::data(const QModelIndex &index, int role) const
 	LanguageModel *langModel=m_languages[index.row()];
 	switch (role) {
 	case Qt::DisplayRole:
-		if (langModel->languageCountry.isEmpty())
+		if (!langModel->languageCountry.isEmpty())
 			return langModel->languageName+"("+langModel->languageCountry+")";
 		else
 			return langModel->languageName;
