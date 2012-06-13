@@ -23,17 +23,17 @@
 **
 ****************************************************************************/
 
-#include "ircctpchandler.h"
+#include "ircctcphandler.h"
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-IrcCtpcHandler::~IrcCtpcHandler()
+IrcCtcpHandler::~IrcCtcpHandler()
 {
 }
 
-void IrcCtpcHandler::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+void IrcCtcpHandler::handleCtcpResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 										const QString &receiver, const QString &cmd, const QString &params)
 {
 	Q_UNUSED(account);

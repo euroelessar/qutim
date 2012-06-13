@@ -247,16 +247,16 @@ void IrcAccount::send(IrcCommandAlias *alias,
 	d->conn->send(command, highPriority);
 }
 
-void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd,
+void IrcAccount::sendCtcpRequest(const QString &contact, const QString &cmd,
 								 const QString &params, bool highPriority)
 {
-	d->conn->sendCtpcRequest(contact, cmd, params, highPriority);
+	d->conn->sendCtcpRequest(contact, cmd, params, highPriority);
 }
 
-void IrcAccount::sendCtpcReply(const QString &contact, const QString &cmd,
+void IrcAccount::sendCtcpReply(const QString &contact, const QString &cmd,
 							   const QString &params, bool highPriority)
 {
-	d->conn->sendCtpcReply(contact, cmd, params, highPriority);
+	d->conn->sendCtcpReply(contact, cmd, params, highPriority);
 }
 
 void IrcAccount::setName(const QString &name) const
