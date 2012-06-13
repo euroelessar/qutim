@@ -191,6 +191,7 @@ AbstractChatWidget *AbstractChatForm::widget(const QString &key)
 			break;
 		}
 #endif
+		emit widgetCreated(widget);
 	}
 	debug() << widget << key;
 	return widget;
