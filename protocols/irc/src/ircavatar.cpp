@@ -44,15 +44,15 @@ IrcAvatar *IrcAvatar::self = 0;
 IrcAvatar::IrcAvatar(QObject *parent) :
 	QObject(parent)
 {
-	m_ctpcCmds << "AVATAR";
+	m_ctcpCmds << "AVATAR";
 }
 
 void IrcAvatar::requestAvatar(IrcContact *contact)
 {
-	contact->account()->sendCtpcRequest(contact->id(), "AVATAR", QString());
+	contact->account()->sendCtcpRequest(contact->id(), "AVATAR", QString());
 }
 
-void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &,
+void IrcAvatar::handleCtcpRequest(IrcAccount *account, const QString &sender, const QString &,
 								  const QString &, const QString &cmd, const QString &)
 {
     if (cmd != "AVATAR") {
@@ -61,10 +61,10 @@ void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, co
     }
 	QString avatar = account->avatar();
 	if (!avatar.isEmpty())
-		account->sendCtpcReply(sender, "AVATAR", avatar);
+		account->sendCtcpReply(sender, "AVATAR", avatar);
 }
 
-void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+void IrcAvatar::handleCtcpResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 								   const QString &, const QString &cmd, const QString &params)
 {
 	Q_UNUSED(cmd);

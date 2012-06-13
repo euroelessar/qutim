@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef IRCCTPCHANDLER_H
-#define IRCCTPCHANDLER_H
+#ifndef IRCCTCPHANDLER_H
+#define IRCCTCPHANDLER_H
 
 #include "ircglobal.h"
 #include <QStringList>
@@ -35,22 +35,22 @@ namespace irc {
 
 class IrcAccount;
 
-class IrcCtpcHandler
+class IrcCtcpHandler
 {
 public:
-	virtual ~IrcCtpcHandler();
-	virtual void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
+	virtual ~IrcCtcpHandler();
+	virtual void handleCtcpRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
 								   const QString &receiver, const QString &cmd, const QString &params) = 0;
-	virtual void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+	virtual void handleCtcpResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 									const QString &receiver, const QString &cmd, const QString &params) = 0;
-	QStringList ctpcCmds() { return m_ctpcCmds; }
+	QStringList ctcpCmds() { return m_ctcpCmds; }
 protected:
-	QStringList m_ctpcCmds;
+	QStringList m_ctcpCmds;
 };
 
 } } // namespace qutim_sdk_0_3::irc
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::irc::IrcCtpcHandler, "org.qutim.irc.IrcCtpcHandler");
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::irc::IrcCtcpHandler, "org.qutim.irc.IrcCtcpHandler");
 
-#endif // IRCCTPCHANDLER_H
+#endif // IRCCTCPHANDLER_H
 

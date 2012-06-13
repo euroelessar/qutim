@@ -158,18 +158,18 @@ QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringLis
 	gen->enableAutoDeleteOfCommand();
 
 
-#define REGISTER_CTPC_CMD(TITLE) \
+#define REGISTER_CTCP_CMD(TITLE) \
 	gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
 	gen->setType(0x00002); \
 	gen->setPriority(80); \
 	MenuController::addAction<IrcChannelParticipant>(gen); \
 	registerAlias(cmd);
 
-#define CREATE_CTPC_CMD(NAME, CMD, TITLE) \
+#define CREATE_CTCP_CMD(NAME, CMD, TITLE) \
 	cmd = new IrcCommandAlias(NAME, "PRIVMSG %o :\001" CMD "\001", \
 							  IrcCommandAlias::Participant | \
 							  IrcCommandAlias::PrivateChat); \
-	REGISTER_CTPC_CMD(TITLE)
+	REGISTER_CTCP_CMD(TITLE)
 
 #define ADD_MODE(MODE, PRIORITY, NAME, TITLE)\
 	cmd = new IrcCommandAlias(NAME, "MODE %n "MODE" %o", IrcCommandAlias::Participant);\
@@ -188,7 +188,7 @@ void IrcCommandAlias::initStandartAliases()
 	IrcCommandAlias *cmd = 0;
 	IrcActionGenerator *gen = 0;
 
-	registerAlias(new IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
+	registerAlias(new IrcCommandAlias("ctcp", "PRIVMSG %1 :\001%2-\001"));
 	registerAlias(new IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
 								  IrcCommandAlias::Console));
 	registerAlias(new IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
@@ -233,13 +233,13 @@ void IrcCommandAlias::initStandartAliases()
 	ADD_BAN_CMD_EXT("*!%u@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@*.host"), "\nKICK %n %o")
 	ADD_BAN_CMD_EXT("*!%u@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@domain"), "\nKICK %n %o")
 
-	// CTPC commands
+	// CTCP commands
 	cmd = new IrcPingAlias;
-	REGISTER_CTPC_CMD(QT_TR_NOOP("Ping"));
-	CREATE_CTPC_CMD("clientinfo", "CLIENTINFO", QT_TR_NOOP("Request client information"));
-	CREATE_CTPC_CMD("version", "VERSION", QT_TR_NOOP("Request version"));
-	CREATE_CTPC_CMD("time", "TIME", QT_TR_NOOP("Request time"));
-	CREATE_CTPC_CMD("avatar", "AVATAR", QT_TR_NOOP("Avatar"));
+	REGISTER_CTCP_CMD(QT_TR_NOOP("Ping"));
+	CREATE_CTCP_CMD("clientinfo", "CLIENTINFO", QT_TR_NOOP("Request client information"));
+	CREATE_CTCP_CMD("version", "VERSION", QT_TR_NOOP("Request version"));
+	CREATE_CTCP_CMD("time", "TIME", QT_TR_NOOP("Request time"));
+	CREATE_CTCP_CMD("avatar", "AVATAR", QT_TR_NOOP("Avatar"));
 
 	// Modes commands
 	const QList<QByteArray> modesGroup = QList<QByteArray>() << QT_TR_NOOP("Modes").original();
