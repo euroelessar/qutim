@@ -26,7 +26,7 @@
 #ifndef IRCAVATAR_H
 #define IRCAVATAR_H
 
-#include "ircctpchandler.h"
+#include "ircctcphandler.h"
 #include <QNetworkAccessManager>
 
 namespace qutim_sdk_0_3 {
@@ -36,7 +36,7 @@ namespace irc {
 class IrcContact;
 class IrcAccount;
 
-class IrcAvatar : public QObject, public IrcCtpcHandler
+class IrcAvatar : public QObject, public IrcCtcpHandler
 {
 	Q_OBJECT
 public:
@@ -44,9 +44,9 @@ public:
 	void requestAvatar(IrcContact *contact);
 	static IrcAvatar *instance() { if (!self) self = new IrcAvatar; return self; }
 protected:
-	virtual void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
+	virtual void handleCtcpRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
 								   const QString &receiver, const QString &cmd, const QString &params);
-	virtual void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+	virtual void handleCtcpResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 									const QString &receiver, const QString &cmd, const QString &params);
 private slots:
 	void avatarReceived(QNetworkReply *reply);
