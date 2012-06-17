@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 #include "vaccountcreator.h"
-#include "../vkontakteprotocol.h"
 #include "ui_vaccountwizardpage.h"
-#include "../vkontakteprotocol_p.h"
 #include "../vaccount.h"
+#include "vprotocol.h"
+
+using namespace qutim_sdk_0_3;
 
 class VAccountWizardPage: public QWizardPage
 {
@@ -62,9 +63,9 @@ bool VAccountWizardPage::validatePage()
 
 
 
-VAccountCreator::VAccountCreator() : AccountCreationWizard(VkontakteProtocol::instance())
+VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance())
 {
-	protocol = VkontakteProtocol::instance();
+	m_protocol = VProtocol::instance();
 }
 VAccountCreator::~VAccountCreator()
 {
@@ -82,19 +83,18 @@ QList< QWizardPage* > VAccountCreator::createPages(QWidget* parent)
 
 void VAccountCreator::finished()
 {
-	VAccount *account = new VAccount(page->email());
+	VAccount *account = new VAccount(page->email(), m_protocol);
 	if (page->isSavePassword()) {
 		ConfigGroup cfg = account->config().group("general");
 		cfg.setValue("passwd", page->password(), Config::Crypted);
 		cfg.sync();
 	}
-	ConfigGroup cfg = protocol->config().group("general");
+	ConfigGroup cfg = m_protocol->config().group("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	protocol->d_func()->accounts.insert(account->id(), account);
+	m_protocol->addAccount(account);
 	page->deleteLater();
-	emit protocol->accountCreated(account);
 }
 

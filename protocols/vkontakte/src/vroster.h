@@ -27,56 +27,30 @@
 #define VROSTER_H
 
 #include <QObject>
-#include "vkontakte_global.h"
-
-namespace qutim_sdk_0_3 {
-	class Config;
-}
-
-class VConnection;
-class VContact;
-class VRosterPrivate;
-class LIBVKONTAKTE_EXPORT VRoster : public QObject
-{
-	Q_OBJECT
-	Q_DECLARE_PRIVATE(VRoster)
-public:
-	VRoster(VConnection *connection);
-	virtual ~VRoster();
-	VContact *getContact(const QString &uid, bool create);
-	VContact *getContact(const QVariantMap &data, bool create);
-	Config config();
-public slots:
-	void loadSettings();
-	void saveSettings();
-	void getProfile();
-	void getTagList();
-	void getFriendList(); //TODO I think that we need a way to get information on parts
-	void setActivity(const Status &activity); //TBD i think that we need a create a separated class
-	void requestAvatar(QObject *contact);
-	void updateProfile(VContact *contact);
-private:
-	QScopedPointer<VRosterPrivate> d_ptr;
-};
+#include <QHash>
 
 namespace vk {
 class Roster;
 }
-
-namespace playground {
+class VAccount;
+class VContact;
+class VContactsFactory;
 
 class VRoster : public QObject
 {
 	Q_OBJECT
 public:
-	VRoster(vk::Roster *roster);
-	VContact *contact(int id);
-	VContact *contact(int id) const;
+	VRoster(VAccount *account);
+	VContact *contact(const QString &id);
+	VContact *contact(const QString &id) const;
+private slots:
+	void onContactDestroyed(QObject *obj);
 private:
+	VAccount *m_account;
 	vk::Roster *m_roster;
+	QHash<QString, VContact*> m_contactHash;
 };
 
-} //namespace playground
 
 #endif // VROSTER_H
 

@@ -30,20 +30,23 @@
 #include <qutim/status.h>
 #include <QSet>
 
-using namespace qutim_sdk_0_3;
+namespace vk {
+class Connection;
+} //namespace vk
 
 class VConnection;
 class VAccount;
 class VContact;
 
-class VInfoFactory : public QObject, public InfoRequestFactory
+class VInfoFactory : public QObject, public qutim_sdk_0_3::InfoRequestFactory
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::InfoRequestFactory)
 public:
 	VInfoFactory(VAccount *account);
 	virtual SupportLevel supportLevel(QObject *object);
 protected:
-	virtual InfoRequest *createrDataFormRequest(QObject *object);
+	virtual qutim_sdk_0_3::InfoRequest *createrDataFormRequest(QObject *object);
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
 private:
@@ -53,7 +56,7 @@ private:
 	QSet<VContact *> m_contacts;
 };
 
-class VInfoRequest : public InfoRequest
+class VInfoRequest : public qutim_sdk_0_3::InfoRequest
 {
 	Q_OBJECT
 public:
@@ -75,9 +78,9 @@ public:
 	};
 
     VInfoRequest(QObject *parent);
-	virtual DataItem createDataItem() const;
+	virtual qutim_sdk_0_3::DataItem createDataItem() const;
 	virtual void doRequest(const QSet<QString> &hints);
-	virtual void doUpdate(const DataItem &dataItem);
+	virtual void doUpdate(const qutim_sdk_0_3::DataItem &dataItem);
 	virtual void doCancel();
 signals:
 	void canceled();
@@ -86,12 +89,12 @@ private slots:
 	void onAddressEnsured();
 private:
 	void ensureAddress(DataType type);
-	void addItem(DataType type, DataItem &group, const QVariant &data) const;
-	inline void addItem(DataType type, DataItem &group, const char *name) const
+	void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const QVariant &data) const;
+	inline void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const char *name) const
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
 	QString m_id;
-	VConnection *m_connection;
+	vk::Connection *m_connection;
 	int m_unknownCount;
 	QVariantMap m_data;
 };

@@ -25,39 +25,35 @@
 
 #ifndef VCONTACT_H
 #define VCONTACT_H
-#include "vkontakte_global.h"
 #include <qutim/contact.h>
+
+namespace vk {
+class Buddy;
+}
 
 class VAccount;
 class VContactPrivate;
-class LIBVKONTAKTE_EXPORT VContact : public Contact
+class VContact : public qutim_sdk_0_3::Contact
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(VContact)
 public:
-	VContact(const QString& id, VAccount* account);
+	VContact(vk::Buddy *contact, VAccount* account);
+
 	virtual QString id() const;
 	virtual bool isInList() const;
-	virtual bool sendMessage(const Message& message);
+	virtual bool sendMessage(const qutim_sdk_0_3::Message& message);
 	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
-	void setContactTags(const QStringList& tags);
-	void setContactInList(bool inList);
-	void setOnline(bool set);
-	void setActivity(const QString &activity);
-	QString activity() const;
-	virtual Status status() const;
+	virtual qutim_sdk_0_3::Status status() const;
 	virtual ~VContact();
 	virtual QStringList tags() const;
 	virtual QString name() const;
-	void setContactName(const QString& name);
 	virtual void setName(const QString& name);
-	void setAvatar(const QString &avatar);
 	virtual QString avatar() const;
-	VAccount *account() const;
+	QString activity() const;
 private:
 	virtual bool event(QEvent *ev);
-	QScopedPointer<VContactPrivate> d_ptr;
+	vk::Buddy *m_buddy;
 };
 
 Q_DECLARE_METATYPE(VContact*)

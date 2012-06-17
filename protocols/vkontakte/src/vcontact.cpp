@@ -24,56 +24,40 @@
 ****************************************************************************/
 
 #include "vcontact.h"
-#include "vconnection.h"
 #include "vaccount.h"
-#include "vmessages.h"
 #include "vroster.h"
 #include "vinforequest.h"
 #include <qutim/tooltip.h>
 #include <qutim/inforequest.h>
 #include <qutim/notification.h>
+#include <qutim/message.h>
 
-class VContactPrivate
+#include <vk/contact.h>
+
+using namespace qutim_sdk_0_3;
+
+VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
+	m_buddy(contact)
 {
-public:
-	bool online;
-	QString id;
-	bool inList;
-	QStringList tags;
-	QList<int> tagIds;
-	QString name;
-	QString avatar;
-	QString activity;
-	VAccount *account;
-};
-
-
-VContact::VContact(const QString& id, VAccount* account): Contact(account), d_ptr(new VContactPrivate)
-{
-	Q_D(VContact);
-	d->id = id;
-	d->account = account;
-	d->online = false;
-	d->inList = false;
 }
 
 
 QString VContact::id() const
 {
-	return d_func()->id;
+	return QString::number(m_buddy->id());
 }
 
 bool VContact::isInList() const
 {
-	return d_func()->inList;
+	//TODO add check for not in roster contacts
+	return true;
 }
 
 bool VContact::sendMessage(const Message& message)
 {
-	Q_D(VContact);
-	if (d->account->connection()->connectionState() != Connected)
+	if (!m_buddy->client()->isOnline())
 		return false;
-	d_func()->account->connection()->messages()->sendMessage(message);
+	m_buddy->sendMessage(message.text());
 	return true;
 }
 
@@ -87,60 +71,16 @@ void VContact::setInList(bool inList)
 	Q_UNUSED(inList);
 }
 
-void VContact::setContactTags(const QStringList& tags)
-{
-	Q_D(VContact);
-	if (d->tags != tags) {
-		QStringList previous = d->tags;
-		d->tags = tags;
-		emit tagsChanged(tags, previous);
-	}
-}
-
-void VContact::setContactInList(bool inList)
-{
-	Q_D(VContact);
-	if (d->inList != inList) {
-		d->inList = inList;
-		emit inListChanged(d->inList);
-	}
-}
-
 Status VContact::status() const
 {
-	Q_D(const VContact);
-	Status status = Status::instance(d->online ? Status::Online : Status::Offline, "vkontakte");
-	status.setText(d->activity);
+	Status status = Status::instance(m_buddy->isOnline() ? Status::Online : Status::Offline, "vkontakte");
+	status.setText(m_buddy->activity());
 	return status;
-}
-
-void VContact::setOnline(bool set)
-{
-	Q_D(VContact);
-	if (d->online != set) {
-		Status previous = status();
-		d->online = set;
-		Status status = this->status();
-		setChatState(set ? ChatStateInActive : ChatStateGone);
-		NotificationRequest request(this, status, previous);
-		request.send();
-		emit statusChanged(status, previous);
-	}
-}
-
-void VContact::setActivity(const QString &activity)
-{
-	Q_D(VContact);
-	if (d->activity != activity) {
-		Status previous = status();
-		d->activity = activity;
-		emit statusChanged(status(), previous);
-	}
 }
 
 QString VContact::activity() const
 {
-	return d_func()->activity;
+	return m_buddy->activity();
 }
 
 VContact::~VContact()
@@ -150,22 +90,12 @@ VContact::~VContact()
 
 QStringList VContact::tags() const
 {
-	return d_func()->tags;
+	return m_buddy->tags();
 }
 
 QString VContact::name() const
 {
-	return d_func()->name;
-}
-
-void VContact::setContactName(const QString& name)
-{
-	Q_D(VContact);
-	if (d->name != name) {
-		QString previous = d->name;
-		d->name = name;
-		emit nameChanged(name, previous);
-	}
+	return m_buddy->name();
 }
 
 void VContact::setName(const QString& name)
@@ -173,39 +103,18 @@ void VContact::setName(const QString& name)
 	Q_UNUSED(name);
 }
 
-void VContact::setAvatar(const QString &avatar)
-{
-	Q_D(VContact);
-	if (d->avatar != avatar) {
-		d->avatar = avatar;
-		emit avatarChanged(avatar);
-	}
-}
-
 QString VContact::avatar() const
 {
-	return d_func()->avatar;
+	return m_buddy->photoSource();
 }
 
 bool VContact::event(QEvent *ev)
 {
-	Q_D(VContact);
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QString mobile = property("mobilePhone").toString();
-		if (!mobile.isEmpty())
-			event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone"),
-							mobile,
-							ExtensionIcon("phone"));
-		if (!d->activity.isEmpty())
-			event->addField(QT_TRANSLATE_NOOP("ContactInfo","Activity"),
-							d->activity);
+		if (!activity().isEmpty())
+			event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Activity"),
+							activity());
 	}
 	return Contact::event(ev);
 }
-
-VAccount *VContact::account() const
-{
-	return d_func()->account;
-}
-
