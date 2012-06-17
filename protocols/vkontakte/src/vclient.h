@@ -1,6 +1,6 @@
 #ifndef VCLIENT_H
 #define VCLIENT_H
-#include <client.h>
+#include <vk/client.h>
 
 class VClient : public vk::Client
 {

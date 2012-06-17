@@ -8,11 +8,9 @@ namespace qutim_sdk_0_3
 class SettingsItem;
 }
 
-namespace playground {
 class VAccount;
-} //namespace playground
-typedef QList<playground::VAccount*> VAccountList;
-typedef QHash<QString, playground::VAccount*> VAccountHash;
+typedef QList<VAccount*> VAccountList;
+typedef QHash<QString, VAccount*> VAccountHash;
 
 class  VProtocol : public qutim_sdk_0_3::Protocol
 {
@@ -20,11 +18,15 @@ class  VProtocol : public qutim_sdk_0_3::Protocol
     Q_CLASSINFO("Protocol", "vkontakte")
 public:
     VProtocol();
-    virtual ~VProtocol();
+
+	virtual ~VProtocol();
     virtual qutim_sdk_0_3::Account* account(const QString& id) const;
     virtual void loadAccounts();
     virtual QList<qutim_sdk_0_3::Account*> accounts() const;
     virtual QVariant data(DataType type);
+
+	static VProtocol *instance();
+	void addAccount(VAccount *account);
 protected:
 private slots:
     void onWebPageTriggered(QObject*);

@@ -20,7 +20,7 @@ VProtocol::VProtocol() :
 VProtocol::~VProtocol()
 {
     Settings::removeItem(m_mainSettings.data());
-	foreach (playground::VAccount *account, m_accounts)
+	foreach (VAccount *account, m_accounts)
         account->saveSettings();
 }
 
@@ -38,7 +38,7 @@ void VProtocol::loadAccounts()
     foreach (Status status, statuses) {
         status.initIcon("vkontakte");
         Status::remember(status, "vkontakte");
-		MenuController::addAction(new StatusActionGenerator(status), &playground::VAccount::staticMetaObject);
+		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
     }
 
     ActionGenerator *gen = new ActionGenerator(Icon("applications-internet"),
@@ -50,7 +50,7 @@ void VProtocol::loadAccounts()
 
     QStringList accounts = config("general").value("accounts", QStringList());
     foreach (const QString &email, accounts) {
-		playground::VAccount *account = new playground::VAccount(email, this);
+		VAccount *account = new VAccount(email, this);
         m_accounts.insert(email, account);
         account->loadSettings();
         connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
@@ -60,13 +60,13 @@ void VProtocol::loadAccounts()
     m_mainSettings.reset(new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,
                                                                    Icon("im-vkontakte"),
                                                                    QT_TRANSLATE_NOOP("Vkontakte", "Account settings")));
-	Settings::registerItem<playground::VAccount>(m_mainSettings.data());
+	Settings::registerItem<VAccount>(m_mainSettings.data());
 }
 
 QList<qutim_sdk_0_3::Account *> VProtocol::accounts() const
 {
     AccountList list;
-	foreach (playground::VAccount *account, m_accounts)
+	foreach (VAccount *account, m_accounts)
         list.append(account);
     return list;
 }
@@ -83,6 +83,18 @@ QVariant VProtocol::data(qutim_sdk_0_3::Protocol::DataType type)
 	}
 }
 
+VProtocol *VProtocol::instance()
+{
+	static VProtocol pointer;
+	return &pointer;
+}
+
+void VProtocol::addAccount(VAccount *account)
+{
+	m_accounts.insert(account->email(), account);
+	emit accountCreated(account);
+}
+
 void VProtocol::onWebPageTriggered(QObject *obj)
 {
     VContact *contact = qobject_cast<VContact*>(obj);
@@ -93,6 +105,6 @@ void VProtocol::onWebPageTriggered(QObject *obj)
 
 void VProtocol::onAccountDestroyed(QObject *obj)
 {
-	playground::VAccount *account = static_cast<playground::VAccount*>(obj);
+	VAccount *account = static_cast<VAccount*>(obj);
     m_accounts.remove(m_accounts.key(account));
 }

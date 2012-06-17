@@ -34,6 +34,7 @@
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
 
+using namespace qutim_sdk_0_3;
 
 void VkontaktePlugin::init()
 {

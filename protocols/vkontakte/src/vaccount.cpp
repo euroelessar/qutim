@@ -27,140 +27,16 @@
 #include <qutim/chatunit.h>
 #include <qutim/passworddialog.h>
 #include "vcontact.h"
-#include "vkontakteprotocol.h"
-#include "vconnection.h"
-#include "vconnection_p.h"
+#include "vprotocol.h"
 #include "vroster.h"
-#include "vaccount_p.h"
-#include <qutim/inforequest.h>
 #include "vinforequest.h"
 
-#include <roster.h>
-#include <contact.h>
+#include <vk/roster.h>
+#include <vk/contact.h>
 
 #include "vprotocol.h"
 
-VAccount::VAccount(const QString& email,QObject *parent) :
-	Account(email, VkontakteProtocol::instance()),
-	d_ptr(new VAccountPrivate)
-{
-	setInfoRequestFactory(new VInfoFactory(this));
-	Q_D(VAccount);
-	d->q_ptr = this;
-	setParent(protocol());
-	d->connection = new VConnection(this,this);
-	setStatus(Status::instance(Status::Offline,"vkontakte"));
-}
-
-VContact* VAccount::getContact(const QString& uid, bool create)
-{
-	return d_func()->connection->roster()->getContact(uid, create);
-}
-
-ChatUnit* VAccount::getUnit(const QString& unitId, bool create)
-{
-	return getContact(unitId,create);
-}
-
-void VAccount::loadSettings()
-{
-	d_func()->name = config().value("general/name", QString());
-}
-
-void VAccount::saveSettings()
-{
-	d_func()->connection->saveSettings();
-}
-
-VAccount::~VAccount()
-{
-	//	saveSettings();
-}
-
-QString VAccount::name() const
-{
-	return d_func()->name;
-}
-
-void VAccount::setAccountName(const QString &name)
-{
-	Q_D(VAccount);
-	if (d->name != name) {
-		QString previous = d->name;
-		d->name = name;
-		config().setValue("general/name", name);
-		emit nameChanged(name, previous);
-	}
-}
-
-QString VAccount::password()
-{
-	Config cfg = config("general");
-	QString password = cfg.value("passwd", QString(), Config::Crypted);
-	if (password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(this);
-		if (dialog->exec() == PasswordDialog::Accepted) {
-			password = dialog->password();
-			if (dialog->remember())
-				cfg.setValue("passwd", password, Config::Crypted);
-		}
-		dialog->deleteLater();
-	}
-	return password;
-}
-
-QString VAccount::uid() const
-{
-	return d_func()->uid;
-}
-
-void VAccount::setUid(const QString& uid)
-{
-	d_func()->uid = uid;
-}
-
-void VAccount::setStatus(Status status)
-{
-	Q_D(VAccount);
-	VConnectionState state = statusToState(status.type());
-
-	switch (state) {
-	case Connected: {
-		if (d->connection->connectionState() == Disconnected)
-			d->connection->connectToHost();
-		else if(d->connection->connectionState() == Connected)
-			d->connection->roster()->setActivity(status);
-		break;
-	}
-	case Disconnected: {
-		if (d->connection->connectionState() != Disconnected)
-			d->connection->disconnectFromHost();
-		saveSettings();
-		break;
-	}
-	default: {
-		break;
-	}
-	}
-	Account::setStatus(status);
-}
-
-VConnection *VAccount::connection()
-{
-	return d_func()->connection;
-}
-
-const VConnection *VAccount::connection() const
-{
-	return d_func()->connection;
-}
-
-VContactList VAccount::contacts() const
-{
-	return findChildren<VContact*>();
-}
-
-namespace playground {
+using namespace qutim_sdk_0_3;
 
 VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	Account(email, protocol),
@@ -201,6 +77,16 @@ int VAccount::uid() const
 QString VAccount::email() const
 {
 	return m_client->login();
+}
+
+vk::Connection *VAccount::connection() const
+{
+	return m_client->connection();
+}
+
+vk::Roster *VAccount::roster() const
+{
+	return m_client->roster();
 }
 
 void VAccount::loadSettings()
@@ -263,4 +149,3 @@ ChatUnit *VAccount::getUnit(const QString &unitId, bool create)
 	return 0;
 }
 
-} //namespace playground
