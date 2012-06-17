@@ -1,13 +1,12 @@
 set(QT_USE_QTNETWORK true)
-set(QT_USE_QTSCRIPT true)
-set(QT_USE_QTWEBKIT true)
+
+add_subdirectory(lib)
 
 qutim_add_plugin(vkontakte
-	COMPILE_FLAGS "-DVKONTAKTE_LIBRARY"
-	DISPLAY_NAME "VKontakte"
-	DESCRIPTION "Simple implementation of vkontakte"
+	DISPLAY_NAME "vkontakte"
+	DESCRIPTION "New implementation of vk.com protocol"
 	GROUP "Protocols"
-	QT_LIBRARIES WEBKIT
+	INCLUDE_DIRS lib/src/api
+	LINK_LIBRARIES vk
+	QT_LIBRARIES webkit
 )
-
-qutim_add_extensions_dir(plugins)

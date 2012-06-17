@@ -35,11 +35,15 @@
 #include <qutim/inforequest.h>
 #include "vinforequest.h"
 
+#include <roster.h>
+#include <contact.h>
+
+#include "vprotocol.h"
+
 VAccount::VAccount(const QString& email,QObject *parent) :
 	Account(email, VkontakteProtocol::instance()),
 	d_ptr(new VAccountPrivate)
 {
-	setParent(parent);
 	setInfoRequestFactory(new VInfoFactory(this));
 	Q_D(VAccount);
 	d->q_ptr = this;
@@ -70,7 +74,7 @@ void VAccount::saveSettings()
 
 VAccount::~VAccount()
 {
-//	saveSettings();
+	//	saveSettings();
 }
 
 QString VAccount::name() const
@@ -121,22 +125,22 @@ void VAccount::setStatus(Status status)
 	VConnectionState state = statusToState(status.type());
 
 	switch (state) {
-		case Connected: {
-			if (d->connection->connectionState() == Disconnected)
-				d->connection->connectToHost();
-			else if(d->connection->connectionState() == Connected)
-				d->connection->roster()->setActivity(status);
-			break;
-		}
-		case Disconnected: {
-			if (d->connection->connectionState() != Disconnected)
-				d->connection->disconnectFromHost();
-				saveSettings();
-			break;
-		}
-		default: {
-			break;
-		}		
+	case Connected: {
+		if (d->connection->connectionState() == Disconnected)
+			d->connection->connectToHost();
+		else if(d->connection->connectionState() == Connected)
+			d->connection->roster()->setActivity(status);
+		break;
+	}
+	case Disconnected: {
+		if (d->connection->connectionState() != Disconnected)
+			d->connection->disconnectFromHost();
+		saveSettings();
+		break;
+	}
+	default: {
+		break;
+	}
 	}
 	Account::setStatus(status);
 }
@@ -156,3 +160,107 @@ VContactList VAccount::contacts() const
 	return findChildren<VContact*>();
 }
 
+namespace playground {
+
+VAccount::VAccount(const QString &email, VProtocol *protocol) :
+	Account(email, protocol),
+	m_client(new VClient(email, this))
+{
+	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
+}
+
+QString VAccount::name() const
+{
+	if (!m_name.isEmpty())
+		return m_name;
+	return Account::name();
+}
+
+void VAccount::setStatus(Status status)
+{
+	switch (status.type()) {
+	case Status::Offline:
+		m_client->disconnectFromHost();
+		saveSettings();
+		if (status.changeReason() == Status::ByAuthorizationFailed)
+			config("general").setValue("passwd", "");
+		break;
+	case Status::Connecting:
+		break;
+	default:
+		m_client->setPassword(requestPassword());
+		m_client->connectToHost();
+	};
+}
+
+int VAccount::uid() const
+{
+	return m_client->me()->id();
+}
+
+QString VAccount::email() const
+{
+	return m_client->login();
+}
+
+void VAccount::loadSettings()
+{
+	m_name = config().value("general/name", QString());
+}
+
+void VAccount::saveSettings()
+{
+	//TODO
+}
+
+QString VAccount::requestPassword()
+{
+	Config cfg = config("general");
+	QString password = cfg.value("passwd", QString(), Config::Crypted);
+	if (password.isEmpty()) {
+		PasswordDialog *dialog = PasswordDialog::request(this);
+		if (dialog->exec() == PasswordDialog::Accepted) {
+			password = dialog->password();
+			if (dialog->remember())
+				cfg.setValue("passwd", password, Config::Crypted);
+		}
+		dialog->deleteLater();
+	}
+	return password;
+}
+
+void VAccount::onClientStateChanged(vk::Client::State state)
+{
+	Status status;
+	switch (state) {
+	case vk::Client::StateOffline:
+		status.setType(Status::Offline);
+		break;
+	case vk::Client::StateInvisible:
+		status.setType(Status::Invisible);
+		break;
+	case vk::Client::StateConnecting:
+		status.setType(Status::Connecting);
+		break;
+	case vk::Client::StateOnline:
+		status.setType(Status::Online);
+		break;
+	default:
+		break;
+	}
+	Account::setStatus(status);
+}
+
+void VAccount::setAccountName(const QString &name)
+{
+	m_name = name;
+	QString old = m_name;
+	emit nameChanged(name, old);
+}
+
+ChatUnit *VAccount::getUnit(const QString &unitId, bool create)
+{
+	return 0;
+}
+
+} //namespace playground
