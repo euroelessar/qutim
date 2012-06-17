@@ -28,6 +28,8 @@
 #include <qutim/account.h>
 #include "vkontakte_global.h"
 
+#include "vclient.h"
+
 class VAccountPrivate;
 class VContact;
 typedef QList<VContact*> VContactList;
@@ -63,6 +65,38 @@ private:
 	friend class VRosterPrivate;
 	friend class VRoster;
 };
+
+class VProtocol;
+class VClient;
+namespace playground {
+
+class VAccount : public qutim_sdk_0_3::Account
+{
+	Q_OBJECT
+public:
+	VAccount(const QString &email, VProtocol *protocol);
+	VContact *getContact(int uid, bool create = false);
+
+	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
+	virtual QString name() const;
+	virtual void setStatus(Status status);
+	void setAccountName(const QString &name);
+
+	int uid() const;
+	QString email() const;
+public slots:
+	void loadSettings();
+	void saveSettings();
+protected:
+	QString requestPassword();
+private slots:
+	void onClientStateChanged(vk::Client::State);
+private:
+	VClient *m_client;
+	QString m_name;
+};
+
+} //namespace playground
 
 #endif // VKONTAKTEACCOUNT_H
 

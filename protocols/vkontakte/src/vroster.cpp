@@ -38,6 +38,8 @@
 #include <QDir>
 #include <qutim/json.h>
 
+#include <roster.h>
+
 #define VK_PHOTO_ID "photo_medium"
 
 inline void setObjectAvatar(QObject *obj, const QString &path)
@@ -424,3 +426,19 @@ void VRosterPrivate::onContactDestroyed(QObject *obj)
 	contacts.remove(contacts.key(contact));
 }
 
+namespace playground {
+
+VRoster::VRoster(vk::Roster *roster) : QObject(roster),
+	m_roster(roster)
+{
+}
+
+VContact *VRoster::contact(int id)
+{
+}
+
+VContact *VRoster::contact(int id) const
+{
+}
+
+} //namespace playground

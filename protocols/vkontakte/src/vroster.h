@@ -59,5 +59,24 @@ private:
 	QScopedPointer<VRosterPrivate> d_ptr;
 };
 
+namespace vk {
+class Roster;
+}
+
+namespace playground {
+
+class VRoster : public QObject
+{
+	Q_OBJECT
+public:
+	VRoster(vk::Roster *roster);
+	VContact *contact(int id);
+	VContact *contact(int id) const;
+private:
+	vk::Roster *m_roster;
+};
+
+} //namespace playground
+
 #endif // VROSTER_H
 
