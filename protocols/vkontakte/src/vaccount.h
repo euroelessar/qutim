@@ -28,11 +28,13 @@
 #include <qutim/account.h>
 
 #include "vclient.h"
+#include <QPointer>
 
 class VContact;
 typedef QList<VContact*> VContactList;
 class VProtocol;
 class VClient;
+class VRoster;
 
 class VAccount : public qutim_sdk_0_3::Account
 {
@@ -44,21 +46,25 @@ public:
 	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
 	virtual void setStatus(qutim_sdk_0_3::Status status);
-	void setAccountName(const QString &name);
 
 	int uid() const;
 	QString email() const;
 	vk::Connection *connection() const;
-	vk::Roster *roster() const;
+	vk::Client *client() const;
 public slots:
 	void loadSettings();
 	void saveSettings();
 protected:
+	VRoster *roster() const;
+	VRoster *roster();
 	QString requestPassword();
 private slots:
 	void onClientStateChanged(vk::Client::State);
+	void onNameChanged(const QString &name);
+	void onMeChanged(vk::Contact *me);
 private:
 	VClient *m_client;
+	QPointer<VRoster> m_roster;
 	QString m_name;
 
 	friend class VRoster;

@@ -27,12 +27,15 @@
 #include "vaccount.h"
 #include "vroster.h"
 #include "vinforequest.h"
+
 #include <qutim/tooltip.h>
 #include <qutim/inforequest.h>
 #include <qutim/notification.h>
 #include <qutim/message.h>
 
 #include <vk/contact.h>
+
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
@@ -49,8 +52,7 @@ QString VContact::id() const
 
 bool VContact::isInList() const
 {
-	//TODO add check for not in roster contacts
-	return true;
+	return m_buddy->isFriend();
 }
 
 bool VContact::sendMessage(const Message& message)
@@ -81,6 +83,21 @@ Status VContact::status() const
 QString VContact::activity() const
 {
 	return m_buddy->activity();
+}
+
+void VContact::setTyping(bool set)
+{
+	if (set) {
+		if (m_typingTimer.isNull()) {
+			m_typingTimer = new QTimer(this);
+			m_typingTimer->setInterval(5000);
+			connect(m_typingTimer, SIGNAL(timeout()), SLOT(setTyping()));
+			connect(m_typingTimer, SIGNAL(timeout()), m_typingTimer, SLOT(deleteLater()));
+		}
+		m_typingTimer->start();
+		setChatState(ChatStateComposing);
+	} else
+		setChatState(ChatStateActive);
 }
 
 VContact::~VContact()

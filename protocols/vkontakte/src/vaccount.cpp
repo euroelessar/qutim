@@ -43,13 +43,12 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	m_client(new VClient(email, this))
 {
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
+	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
 }
 
 QString VAccount::name() const
 {
-	if (!m_name.isEmpty())
-		return m_name;
-	return Account::name();
+	return m_client->me()->name();
 }
 
 void VAccount::setStatus(Status status)
@@ -84,9 +83,16 @@ vk::Connection *VAccount::connection() const
 	return m_client->connection();
 }
 
-vk::Roster *VAccount::roster() const
+VRoster *VAccount::roster()
 {
-	return m_client->roster();
+	if (m_roster.isNull())
+		m_roster = new VRoster(this);
+	return m_roster;
+}
+
+vk::Client *VAccount::client() const
+{
+	return m_client;
 }
 
 void VAccount::loadSettings()
@@ -97,6 +103,23 @@ void VAccount::loadSettings()
 void VAccount::saveSettings()
 {
 	//TODO
+}
+
+VRoster *VAccount::roster() const
+{
+	return m_roster.data();
+}
+
+void VAccount::onNameChanged(const QString &name)
+{
+	m_name = name;
+	QString old = m_name;
+	emit nameChanged(name, old);
+}
+
+void VAccount::onMeChanged(vk::Contact *me)
+{
+	connect(me, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 }
 
 QString VAccount::requestPassword()
@@ -135,17 +158,13 @@ void VAccount::onClientStateChanged(vk::Client::State state)
 		break;
 	}
 	Account::setStatus(status);
-}
 
-void VAccount::setAccountName(const QString &name)
-{
-	m_name = name;
-	QString old = m_name;
-	emit nameChanged(name, old);
+	if (m_client->isOnline())
+		m_client->roster()->sync();
 }
 
 ChatUnit *VAccount::getUnit(const QString &unitId, bool create)
 {
-	return 0;
+	return roster()->contact(unitId.toInt(), create);
 }
 
