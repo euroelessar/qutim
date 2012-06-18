@@ -28,9 +28,14 @@
 
 #include <QObject>
 #include <QHash>
+#include <vk/contact.h>
+#include <QTimer>
 
 namespace vk {
 class Roster;
+class Contact;
+class Buddy;
+class Message;
 }
 class VAccount;
 class VContact;
@@ -41,14 +46,23 @@ class VRoster : public QObject
 	Q_OBJECT
 public:
 	VRoster(VAccount *account);
-	VContact *contact(const QString &id);
-	VContact *contact(const QString &id) const;
+	VContact *contact(int id, bool create = true);
+	VContact *contact(int id) const;
+protected slots:
+	VContact *createContact(vk::Buddy *buddy);
 private slots:
 	void onContactDestroyed(QObject *obj);
+	void onAddFriend(vk::Buddy *buddy);
+
+	void onMessageAdded(const vk::Message &msg);
+	void onMessageDeleted(int mid);
+	void onMessageFlagsReplaced(int mid, int mask, int userId = 0);
+	void onMessageFlagsReseted(int mid, int mask, int userId = 0);
+	void onContactTyping(int userId);
 private:
 	VAccount *m_account;
 	vk::Roster *m_roster;
-	QHash<QString, VContact*> m_contactHash;
+	QHash<int, VContact*> m_contactHash;
 };
 
 

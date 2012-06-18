@@ -26,6 +26,7 @@
 #ifndef VCONTACT_H
 #define VCONTACT_H
 #include <qutim/contact.h>
+#include <QPointer>
 
 namespace vk {
 class Buddy;
@@ -51,9 +52,12 @@ public:
 	virtual void setName(const QString& name);
 	virtual QString avatar() const;
 	QString activity() const;
+public slots:
+	void setTyping(bool set = false);
 private:
 	virtual bool event(QEvent *ev);
 	vk::Buddy *m_buddy;
+	QPointer<QTimer> m_typingTimer;
 };
 
 Q_DECLARE_METATYPE(VContact*)
