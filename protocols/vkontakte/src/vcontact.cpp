@@ -54,6 +54,7 @@ VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
 
 
@@ -108,9 +109,10 @@ void VContact::handleMessage(const vk::Message &msg)
 
 	qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
 	s->appendMessage(coreMessage);
-	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-
-	m_unreadMessages.append(coreMessage);
+	if (!s->isActive())
+		m_unreadMessages.append(coreMessage);
+	else
+		m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
 }
 
 void VContact::setStatus(const Status &status)
@@ -126,7 +128,6 @@ vk::ChatSession *VContact::chatSession()
 		m_chatSession = new vk::ChatSession(m_buddy);
 		qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
 		m_chatSession->setParent(s);
-		connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 	}
 	return m_chatSession.data();
 }
@@ -255,4 +256,10 @@ void VContact::onUnreadChanged(MessageList unread)
 	//foreach (Message msg, unread)
 	//	idList.append(msg.property("mid").toInt());
 	//chatSession()->markMessagesAsRead(idList, false);
+}
+
+void VContact::onSessionCreated(ChatSession *session)
+{
+	if (session->unit() == this)
+		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }
