@@ -26,9 +26,14 @@
 #ifndef VCONTACT_H
 #define VCONTACT_H
 #include <qutim/contact.h>
+#include <qutim/chatsession.h>
 #include <QPointer>
 #include <vk/contact.h>
 
+namespace vk {
+class ChatSession;
+class Message;
+}
 
 class VAccount;
 class VContactPrivate;
@@ -50,8 +55,11 @@ public:
 	virtual void setName(const QString& name);
 	virtual QString avatar() const;
 	QString activity() const;
+
+	void handleMessage(const vk::Message &message);
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
+	vk::ChatSession *chatSession();
 public slots:
 	void setTyping(bool set = false);
 private slots:
@@ -59,13 +67,17 @@ private slots:
 	void onStatusChanged(vk::Contact::Status);
 	void onTagsChanged(const QStringList &tags);
 	void onNameChanged(const QString &name);
+	void onMessageSent(const QVariant &response);
+	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 private:
 	virtual bool event(QEvent *ev);
 	vk::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
+	QPointer<vk::ChatSession> m_chatSession;
 	qutim_sdk_0_3::Status m_status;
 	QString m_name;
 	QStringList m_tags;
+	qutim_sdk_0_3::MessageList m_unreadMessages;
 };
 
 Q_DECLARE_METATYPE(VContact*)
