@@ -69,6 +69,7 @@ private slots:
 	void onNameChanged(const QString &name);
 	void onMessageSent(const QVariant &response);
 	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 private:
 	virtual bool event(QEvent *ev);
 	vk::Buddy *m_buddy;
