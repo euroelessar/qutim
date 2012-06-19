@@ -40,7 +40,6 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 
 	vk::LongPoll *poll = m_account->client()->longPoll();
 	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
-	connect(poll, SIGNAL(contactStatusChanged(int,vk::Buddy::Status)), SLOT(onContactStatusChanged(int,vk::Buddy::Status)));
 	connect(poll, SIGNAL(contactTyping(int)), SLOT(onContactTyping(int)));
 }
 
@@ -80,7 +79,7 @@ void VRoster::onMessageAdded(const vk::Message &msg)
 
 	} else {
 		VContact *unit = contact(msg.fromId());
-		qutim_sdk_0_3::Message coreMessage(msg.body());
+		qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
 		coreMessage.setChatUnit(unit);
 		coreMessage.setIncoming(true);
 		qutim_sdk_0_3::ChatLayer::get(unit, true)->appendMessage(coreMessage);
@@ -98,4 +97,3 @@ void VRoster::onContactTyping(int userId)
 	VContact *c = contact(userId);
 	c->setTyping(true);
 }
-

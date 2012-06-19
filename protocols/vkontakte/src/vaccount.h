@@ -62,6 +62,7 @@ private slots:
 	void onClientStateChanged(vk::Client::State);
 	void onNameChanged(const QString &name);
 	void onMeChanged(vk::Contact *me);
+	void onInvisibleChanged(bool set);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;
