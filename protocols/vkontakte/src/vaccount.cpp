@@ -44,6 +44,7 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 {
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
 	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
+	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
 }
 
 QString VAccount::name() const
@@ -53,6 +54,7 @@ QString VAccount::name() const
 
 void VAccount::setStatus(Status status)
 {
+	m_client->setActivity(status.text());
 	switch (status.type()) {
 	case Status::Offline:
 		m_client->disconnectFromHost();
@@ -65,6 +67,7 @@ void VAccount::setStatus(Status status)
 	default:
 		m_client->setPassword(requestPassword());
 		m_client->connectToHost();
+		m_client->setInvisible(status == Status::Invisible);
 	};
 }
 
@@ -122,6 +125,15 @@ void VAccount::onMeChanged(vk::Contact *me)
 	connect(me, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 }
 
+void VAccount::onInvisibleChanged(bool set)
+{
+	if (m_client->connectionState() == vk::Client::StateOnline) {
+		Status s = status();
+		s.setType(set ? Status::Invisible : Status::Online);
+		Account::setStatus(s);
+	}
+}
+
 QString VAccount::requestPassword()
 {
 	Config cfg = config("general");
@@ -145,14 +157,11 @@ void VAccount::onClientStateChanged(vk::Client::State state)
 	case vk::Client::StateOffline:
 		status.setType(Status::Offline);
 		break;
-	case vk::Client::StateInvisible:
-		status.setType(Status::Invisible);
-		break;
 	case vk::Client::StateConnecting:
 		status.setType(Status::Connecting);
 		break;
 	case vk::Client::StateOnline:
-		status.setType(Status::Online);
+		status.setType(m_client->isInvisible() ? Status::Invisible : Status::Online);
 		break;
 	default:
 		break;

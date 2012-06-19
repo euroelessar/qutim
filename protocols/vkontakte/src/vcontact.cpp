@@ -42,6 +42,15 @@ using namespace qutim_sdk_0_3;
 VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_buddy(contact)
 {
+	m_status = Status::instance(m_buddy->isOnline() ? Status::Online : Status::Offline, "vkontakte");
+	m_status.setText(m_buddy->activity());
+	m_name = m_buddy->name();
+	m_tags = m_buddy->tags();
+
+	connect(m_buddy, SIGNAL(statusChanged(vk::Contact::Status)), SLOT(onStatusChanged(vk::Contact::Status)));
+	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
+	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
+	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
 }
 
 
@@ -75,14 +84,19 @@ void VContact::setInList(bool inList)
 
 Status VContact::status() const
 {
-	Status status = Status::instance(m_buddy->isOnline() ? Status::Online : Status::Offline, "vkontakte");
-	status.setText(m_buddy->activity());
-	return status;
+	return m_status;
 }
 
 QString VContact::activity() const
 {
-	return m_buddy->activity();
+	return m_status.text();
+}
+
+void VContact::setStatus(const Status &status)
+{
+	Status old = m_status;
+	m_status = status;
+	emit statusChanged(status, old);
 }
 
 void VContact::setTyping(bool set)
@@ -100,6 +114,12 @@ void VContact::setTyping(bool set)
 		setChatState(ChatStateActive);
 }
 
+void VContact::onActivityChanged(const QString &activity)
+{
+	m_status.setText(activity);
+	setStatus(m_status);
+}
+
 VContact::~VContact()
 {
 
@@ -107,12 +127,12 @@ VContact::~VContact()
 
 QStringList VContact::tags() const
 {
-	return m_buddy->tags();
+	return m_tags;
 }
 
 QString VContact::name() const
 {
-	return m_buddy->name();
+	return m_name;
 }
 
 void VContact::setName(const QString& name)
@@ -134,4 +154,38 @@ bool VContact::event(QEvent *ev)
 							activity());
 	}
 	return Contact::event(ev);
+}
+
+
+void VContact::onStatusChanged(vk::Contact::Status status)
+{
+	Status::Type type;
+	switch (status) {
+	case vk::Contact::Offline:
+		type = Status::Offline;
+		break;
+	case vk::Contact::Online:
+		type = Status::Online;
+		break;
+	case vk::Contact::Away:
+		type = Status::Away;
+	default:
+		break;
+	}
+	m_status.setType(type);
+	setStatus(m_status);
+}
+
+void VContact::onTagsChanged(const QStringList &tags)
+{
+	QStringList old = m_tags;
+	m_tags = tags;
+	emit tagsChanged(tags, old);
+}
+
+void VContact::onNameChanged(const QString &name)
+{
+	QString old = m_name;
+	m_name = name;
+	emit nameChanged(name, old);
 }

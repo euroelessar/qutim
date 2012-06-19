@@ -27,10 +27,8 @@
 #define VCONTACT_H
 #include <qutim/contact.h>
 #include <QPointer>
+#include <vk/contact.h>
 
-namespace vk {
-class Buddy;
-}
 
 class VAccount;
 class VContactPrivate;
@@ -52,12 +50,22 @@ public:
 	virtual void setName(const QString& name);
 	virtual QString avatar() const;
 	QString activity() const;
+protected:
+	void setStatus(const qutim_sdk_0_3::Status &status);
 public slots:
 	void setTyping(bool set = false);
+private slots:
+	void onActivityChanged(const QString &activity);
+	void onStatusChanged(vk::Contact::Status);
+	void onTagsChanged(const QStringList &tags);
+	void onNameChanged(const QString &name);
 private:
 	virtual bool event(QEvent *ev);
 	vk::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
+	qutim_sdk_0_3::Status m_status;
+	QString m_name;
+	QStringList m_tags;
 };
 
 Q_DECLARE_METATYPE(VContact*)
