@@ -32,10 +32,13 @@
 #include <qutim/inforequest.h>
 #include <qutim/notification.h>
 #include <qutim/message.h>
+#include <qutim/chatsession.h>
 
 #include <vk/contact.h>
+#include <vk/chatsession.h>
 
 #include <QTimer>
+#include <QApplication>
 
 using namespace qutim_sdk_0_3;
 
@@ -68,7 +71,10 @@ bool VContact::sendMessage(const Message& message)
 {
 	if (!m_buddy->client()->isOnline())
 		return false;
-	m_buddy->sendMessage(message.text());
+	vk::Reply *reply = chatSession()->sendMessage(message.text(),
+												  message.property("subject").toString()); //TODO don't use vk::Reply, use vlongpoll instead
+	reply->setProperty("id", message.id());
+	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
 	return true;
 }
 
@@ -92,11 +98,37 @@ QString VContact::activity() const
 	return m_status.text();
 }
 
+void VContact::handleMessage(const vk::Message &msg)
+{
+	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+	coreMessage.setChatUnit(this);
+	coreMessage.setIncoming(true);
+	coreMessage.setProperty("mid", msg.id());
+	coreMessage.setProperty("subject", msg.subject());
+
+	qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+	s->appendMessage(coreMessage);
+	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+
+	m_unreadMessages.append(coreMessage);
+}
+
 void VContact::setStatus(const Status &status)
 {
 	Status old = m_status;
 	m_status = status;
 	emit statusChanged(status, old);
+}
+
+vk::ChatSession *VContact::chatSession()
+{
+	if (m_chatSession.isNull()) {
+		m_chatSession = new vk::ChatSession(m_buddy);
+		qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+		m_chatSession->setParent(s);
+		connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	}
+	return m_chatSession.data();
 }
 
 void VContact::setTyping(bool set)
@@ -188,4 +220,39 @@ void VContact::onNameChanged(const QString &name)
 	QString old = m_name;
 	m_name = name;
 	emit nameChanged(name, old);
+}
+
+void VContact::onMessageSent(const QVariant &response)
+{
+	int mid = response.toInt();
+	int id = sender()->property("id").toUInt();
+	ChatSession *s = ChatLayer::get(this);
+	if (id && mid)
+		qApp->postEvent(s, new MessageReceiptEvent(id, true));
+}
+
+void VContact::onUnreadChanged(MessageList unread)
+{
+	vk::IdList idList;
+	MessageList::iterator i = m_unreadMessages.begin();
+	for (; i != m_unreadMessages.end(); i++) {
+		int index = -1;
+		MessageList::iterator j = unread.begin();
+		for (; j != unread.end(); j++) {
+			if (i->id() == j->id()) {
+				index = j - unread.begin();
+				unread.removeAt(index);
+				break;
+			}
+		}
+		if (index == -1)
+			idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
+	}
+	if (idList.count())
+		chatSession()->markMessagesAsRead(idList, true);
+
+	idList.clear();
+	//foreach (Message msg, unread)
+	//	idList.append(msg.property("mid").toInt());
+	//chatSession()->markMessagesAsRead(idList, false);
 }

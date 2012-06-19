@@ -79,10 +79,7 @@ void VRoster::onMessageAdded(const vk::Message &msg)
 
 	} else {
 		VContact *unit = contact(msg.fromId());
-		qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
-		coreMessage.setChatUnit(unit);
-		coreMessage.setIncoming(true);
-		qutim_sdk_0_3::ChatLayer::get(unit, true)->appendMessage(coreMessage);
+		unit->handleMessage(msg);
 	}
 
 }
