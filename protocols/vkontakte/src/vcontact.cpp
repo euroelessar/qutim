@@ -74,7 +74,7 @@ bool VContact::sendMessage(const Message& message)
 		return false;
 	vk::Reply *reply = chatSession()->sendMessage(message.text(),
 												  message.property("subject").toString()); //TODO don't use vk::Reply, use vlongpoll instead
-	reply->setProperty("id", message.id());
+	reply->setProperty("message", qVariantFromValue(message));
 	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
 	return true;
 }
@@ -101,18 +101,31 @@ QString VContact::activity() const
 
 void VContact::handleMessage(const vk::Message &msg)
 {
+	MessageList::iterator i = m_sentMessages.begin();
+	for (; i != m_sentMessages.end(); i++) {
+		int mid = i->property("mid").toInt();
+		if (mid == msg.id()) {
+			ChatSession *s = ChatLayer::get(this);
+			qApp->postEvent(s, new MessageReceiptEvent(i->id(), true));
+			m_sentMessages.removeAt(i - m_sentMessages.begin());
+			return;
+		}
+	}
 	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
 	coreMessage.setChatUnit(this);
-	coreMessage.setIncoming(true);
+	coreMessage.setIncoming(msg.isIncoming());
 	coreMessage.setProperty("mid", msg.id());
 	coreMessage.setProperty("subject", msg.subject());
 
 	qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+	if (msg.isIncoming()) {
+		if (!s->isActive())
+			m_unreadMessages.append(coreMessage);
+		else
+			m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
+	} else
+		coreMessage.setProperty("history", true);
 	s->appendMessage(coreMessage);
-	if (!s->isActive())
-		m_unreadMessages.append(coreMessage);
-	else
-		m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
 }
 
 void VContact::setStatus(const Status &status)
@@ -226,10 +239,11 @@ void VContact::onNameChanged(const QString &name)
 void VContact::onMessageSent(const QVariant &response)
 {
 	int mid = response.toInt();
-	int id = sender()->property("id").toUInt();
-	ChatSession *s = ChatLayer::get(this);
-	if (id && mid)
-		qApp->postEvent(s, new MessageReceiptEvent(id, true));
+	if (mid) {
+		Message msg = sender()->property("mid").value<Message>();
+		msg.setProperty("mid", response.toInt());
+		m_sentMessages << msg;
+	}
 }
 
 void VContact::onUnreadChanged(MessageList unread)
