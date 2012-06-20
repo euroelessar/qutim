@@ -74,14 +74,10 @@ void VRoster::onAddFriend(vk::Buddy *buddy)
 
 void VRoster::onMessageAdded(const vk::Message &msg)
 {
-	if (msg.fromId() == m_account->uid()) {
-		VContact *unit = contact(msg.toId());
-
-	} else {
-		VContact *unit = contact(msg.fromId());
-		unit->handleMessage(msg);
-	}
-
+	if (msg.fromId() == m_account->uid())
+		contact(msg.toId())->handleMessage(msg);
+	else
+		contact(msg.fromId())->handleMessage(msg);
 }
 
 void VRoster::onContactDestroyed(QObject *obj)
