@@ -91,6 +91,8 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("settings/HighlighterPage.qml"));
 		} else if (name == "Localization") {
 			generator = new QuickGenerator(QLatin1String("settings/LanguagesPage.qml"));
+		} else if (name == "Sounds") {
+			generator = new QuickGenerator(QLatin1String("settings/SoundThemePage.qml"));
 		} else if (name == "Main settings") {
 			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
 			const QMetaObject *meta = gen->metaObject();

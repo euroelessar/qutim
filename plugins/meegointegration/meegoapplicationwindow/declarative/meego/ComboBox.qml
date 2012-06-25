@@ -37,7 +37,7 @@ Rectangle {
         Label {
             id: valueLabel
             anchors { left: wrapper.left; right: image.left; topMargin: 5; top: titleLabel.bottom }
-            text: currentItem.name
+            text: currentItem.name === undefined ? "" : currentItem.name
             
             font.family: comboBox.platformStyle.fontFamily
             font.weight: comboBox.platformStyle.subfontWeight

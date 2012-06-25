@@ -24,6 +24,8 @@ SettingsItemPage {
             listModel.clear();
             nickSwitch.checked = config.value("highlighter/enableAutoHighlights", true);
             var regexps = config.value("highlighter/regexps");
+            if (regexps === undefined)
+                return;
             for (var i = 0; i < regexps.length; ++i) {
                 var regexp = regexpService.fromRegExp(regexps[i].regexp);
                 listModel.append(regexp);

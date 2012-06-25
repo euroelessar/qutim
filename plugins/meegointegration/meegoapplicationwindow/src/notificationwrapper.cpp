@@ -47,6 +47,8 @@ NotificationWrapper::~NotificationWrapper()
 void NotificationWrapper::init()
 {
 	qmlRegisterType<NotificationWrapper>("org.qutim", 0, 3, "Notifications");
+	qmlRegisterUncreatableType<Notification>("org.qutim", 0, 3, "Notification",
+											 QLatin1String("There is no public constructor"));
 }
 
 void NotificationWrapper::connect(QuickNoficationManager * manager)
