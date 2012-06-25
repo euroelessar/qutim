@@ -81,6 +81,7 @@ class ChatChannel : public qutim_sdk_0_3::ChatSession
 	Q_PROPERTY(QObject *page READ page WRITE setPage NOTIFY pageChanged)
 	Q_PROPERTY(QObject* model READ model CONSTANT)
 	Q_PROPERTY(QObject* units READ units CONSTANT)
+	Q_PROPERTY(bool supportJavaScript READ supportJavaScript CONSTANT)
 public:
 	ChatChannel(qutim_sdk_0_3::ChatUnit *unit);
 	virtual ~ChatChannel();
@@ -99,12 +100,16 @@ public:
 	QObject *units() const;
 	QObject *page() const;
 	void setPage(QObject *page);
+	bool supportJavaScript() const;
+	
+	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
 	
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
 	
 signals:
+	void javaScriptRequest(const QString &javaScript, QVariant *variant);
 	void messageAppended(const qutim_sdk_0_3::Message &message);
 	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
 	void unreadCountChanged(int);

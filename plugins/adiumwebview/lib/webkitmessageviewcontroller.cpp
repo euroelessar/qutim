@@ -111,6 +111,8 @@ void WebKitMessageViewController::setSession(qutim_sdk_0_3::ChatSession *session
 			connect(m_session.data()->unit(), SIGNAL(topicChanged(QString,QString)),
 			        this, SLOT(onTopicChanged(QString)));
 		}
+		connect(session, SIGNAL(javaScriptRequest(QString,QVariant*)),
+				this, SLOT(onJavaScriptRequest(QString,QVariant*)));
 		if (m_page)
 			init();
 		emit sessionChanged(session);
@@ -334,6 +336,11 @@ void WebKitMessageViewController::setTopic()
 		return;
 	conference->setTopic(element.toPlainText());
 	updateTopic();
+}
+
+void WebKitMessageViewController::onJavaScriptRequest(const QString &javaScript, QVariant *variant)
+{
+	*variant = evaluateJavaScript(javaScript);
 }
 
 void WebKitMessageViewController::setPage(QWebPage *page)

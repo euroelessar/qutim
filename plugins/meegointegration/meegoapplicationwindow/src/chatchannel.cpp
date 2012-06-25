@@ -226,6 +226,18 @@ void ChatChannel::setPage(QObject *page)
 	}
 }
 
+bool ChatChannel::supportJavaScript() const
+{
+	return true;
+}
+
+QVariant ChatChannel::evaluateJavaScript(const QString &script)
+{
+	QVariant result;
+	emit javaScriptRequest(script, &result);
+	return result;
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
