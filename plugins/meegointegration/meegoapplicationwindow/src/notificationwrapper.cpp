@@ -60,6 +60,42 @@ void NotificationWrapper::connect(QuickNoficationManager * manager)
 	}
 }
 
+QString NotificationWrapper::typeName(int type)
+{
+	const QMetaObject *meta = &Notification::staticMetaObject;
+	const int enumIndex = meta->indexOfEnumerator("Type");
+	const QMetaEnum e = meta->enumerator(enumIndex);
+	return QLatin1String(e.key(type));
+}
+
+QString NotificationWrapper::typeText(int type)
+{
+	return Notification::typeText(static_cast<Notification::Type>(type));
+}
+
+QString NotificationWrapper::descriptionText(int type)
+{
+	return Notification::descriptionText(static_cast<Notification::Type>(type));
+}
+
+QStringList NotificationWrapper::backendTypes()
+{
+	QStringList result;
+	foreach (NotificationBackend *backend, NotificationBackend::all())
+		result << QStringList(backend->backendType());
+	return result;
+}
+
+QString NotificationWrapper::backendDescription(const QString &backendType)
+{
+	const QByteArray type = backendType.toLatin1();
+	NotificationBackend *backend = NotificationBackend::get(type);
+	QString description = backend->description().toString();
+	if (description.isEmpty())
+		description = backendType;
+	return description;
+}
+
 bool NotificationWrapper::windowActive()
 {
 	return m_windowActive;
