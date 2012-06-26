@@ -74,7 +74,7 @@ bool VContact::sendMessage(const Message& message)
 		return false;
 	vk::Reply *reply = chatSession()->sendMessage(message.text(),
 												  message.property("subject").toString()); //TODO don't use vk::Reply, use vlongpoll instead
-	reply->setProperty("message", qVariantFromValue(message));
+	reply->setProperty("id", message.id());
 	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
 	return true;
 }
@@ -101,13 +101,13 @@ QString VContact::activity() const
 
 void VContact::handleMessage(const vk::Message &msg)
 {
-	MessageList::iterator i = m_sentMessages.begin();
+	SentMessagesList::iterator i = m_sentMessages.begin();
 	for (; i != m_sentMessages.end(); i++) {
-		int mid = i->property("mid").toInt();
-		if (mid == msg.id()) {
+		if (i->second == msg.id()) {
 			ChatSession *s = ChatLayer::get(this);
-			qApp->postEvent(s, new MessageReceiptEvent(i->id(), true));
+			qApp->postEvent(s, new MessageReceiptEvent(i->first, true));
 			m_sentMessages.removeAt(i - m_sentMessages.begin());
+			return;
 			return;
 		}
 	}
@@ -240,9 +240,8 @@ void VContact::onMessageSent(const QVariant &response)
 {
 	int mid = response.toInt();
 	if (mid) {
-		Message msg = sender()->property("mid").value<Message>();
-		msg.setProperty("mid", response.toInt());
-		m_sentMessages << msg;
+		int id = sender()->property("id").toInt();
+		m_sentMessages << QPair<int, int>(id, mid);
 	}
 }
 

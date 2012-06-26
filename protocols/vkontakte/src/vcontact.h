@@ -79,7 +79,8 @@ private:
 	QString m_name;
 	QStringList m_tags;
 	qutim_sdk_0_3::MessageList m_unreadMessages;
-	qutim_sdk_0_3::MessageList m_sentMessages;
+	typedef QList<QPair<int, int> > SentMessagesList;
+	SentMessagesList m_sentMessages;
 };
 
 Q_DECLARE_METATYPE(VContact*)
