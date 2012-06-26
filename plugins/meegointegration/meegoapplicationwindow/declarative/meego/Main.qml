@@ -36,6 +36,7 @@ PageStackWindow {
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
 	property variant settings:  serviceManager.settingsLayer
+    property variant vibration:  serviceManager.vibration
 	Connections {
 		target: root.chat
 		onShown: {
@@ -92,15 +93,13 @@ PageStackWindow {
 	AddContactDialog {
 		id:addContactDialog
 	}
-	Notifications
-	{
+	Notifications {
 		id:notifications
-		windowActive:platformWindow.active
+		windowActive: platformWindow.active
+        onWindowActiveChanged: root.vibration.windowActive = windowActive
 	}
 
 	initialPage: Page {
-
-		
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -148,10 +147,6 @@ PageStackWindow {
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
-//				TabIcon {
-//					platformIconId: "toolbar-settings"
-//					tab: settingsTab
-//				}
 			}
 
 			ToolIcon {

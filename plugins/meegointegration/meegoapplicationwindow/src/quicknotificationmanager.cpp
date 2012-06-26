@@ -51,8 +51,7 @@ QuickNoficationManager::QuickNoficationManager() :
 
 void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
-	if (!m_connected)
-	{
+	if (!m_connected) {
 		NotificationWrapper::connect(this);
 		m_connected = true;
 		qDebug()<<"Connect to qml notificatinManager";
@@ -68,8 +67,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 
 	}
 
-	if (!m_active)
-	{
+	if (!m_active) {
 		ref(notification);
 		NotificationRequest request = notification->request();
 
@@ -82,12 +80,12 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 			m_notifications << notification;
 			QList<MNotification *> notifs= MNotification::notifications();
 
-			for (int i=0;i<notifs.count();i++)
-			{
+			for (int i=0; i < notifs.count(); i++)
 				notifs.at(i)->remove();
-			}
 
-			MNotification * notif = new MNotification(MNotification::ImEvent,"qutIM: new "+QString::number(m_notifications.count())+ " messages",text);
+			MNotification *notif = new MNotification(MNotification::ImEvent,
+													 tr("qutIM: %n new messages", 0, m_notifications.count()),
+													 text);
 			notif->publish();
 			break;
 		}
@@ -97,8 +95,6 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 		connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
 			SLOT(onNotificationFinished()));
 	}
-
-
 }
 
 
@@ -116,7 +112,7 @@ void QuickNoficationManager::onNotificationFinished()
 
 void QuickNoficationManager::setWindowActive(bool active)
 {
-	m_active=active;
+	m_active = active;
 }
 
 }

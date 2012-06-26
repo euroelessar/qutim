@@ -43,98 +43,112 @@
 			"ContactList": false,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"Attention": {
 			"ChatNotifications": true,
 			"ContactList": false,
 			"Popup": true,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": true
 		},
 		"BlockedMessage": {
 			"ChatNotifications": false,
 			"ContactList": false,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"ChatIncomingMessage": {
 			"ChatNotifications": false,
 			"ContactList": true,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"ChatOutgoingMessage": {
 			"ChatNotifications": false,
 			"ContactList": false,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"ChatUserJoined": {
 			"ChatNotifications": true,
 			"ContactList": false,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"ChatUserLeft": {
 			"ChatNotifications": true,
 			"ContactList": false,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"FileTransferCompleted": {
 			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": true
+			"Tray": true,
+			"Vibration": false
 		},
 		"IncomingMessage": {
 			"ChatNotifications": false,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": true
+			"Tray": true,
+			"Vibration": true
 		},
 		"OutgoingMessage": {
 			"ChatNotifications": false,
 			"ContactList": false,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"System": {
 			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"UserChangedStatus": {
 			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": false,
 			"Sound": false,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"UserHasBirthday": {
 			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"UserOffline": {
 			"ChatNotifications": true,
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 		"UserOnline": {
 			"ChatNotifications": true,
@@ -148,7 +162,8 @@
 			"ContactList": true,
 			"Popup": true,
 			"Sound": true,
-			"Tray": false
+			"Tray": false,
+			"Vibration": false
 		},
 	},
 	"plugins": {

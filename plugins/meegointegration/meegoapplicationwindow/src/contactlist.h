@@ -45,6 +45,7 @@ class ContactList : public qutim_sdk_0_3::MenuController
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactList")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "Vibration")
 	Q_PROPERTY(MeegoIntegration::StatusWrapper::Type status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts READ accounts NOTIFY accountsChanged)
 	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Protocol> protocols READ protocols NOTIFY protocolsChanged)
