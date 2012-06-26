@@ -45,11 +45,16 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
 	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
+
+	setInfoRequestFactory(new VInfoFactory(this));
+	VAccount::setStatus(Status::instance(Status::Offline, "vkontakte"));
 }
 
 QString VAccount::name() const
 {
-	return m_client->me()->name();
+	if (m_client->me())
+		return m_client->me()->name();
+	return email();
 }
 
 void VAccount::setStatus(Status status)
@@ -152,21 +157,21 @@ QString VAccount::requestPassword()
 
 void VAccount::onClientStateChanged(vk::Client::State state)
 {
-	Status status;
+	Status s = status();
 	switch (state) {
 	case vk::Client::StateOffline:
-		status.setType(Status::Offline);
+		s.setType(Status::Offline);
 		break;
 	case vk::Client::StateConnecting:
-		status.setType(Status::Connecting);
+		s.setType(Status::Connecting);
 		break;
 	case vk::Client::StateOnline:
-		status.setType(m_client->isInvisible() ? Status::Invisible : Status::Online);
+		s.setType(m_client->isInvisible() ? Status::Invisible : Status::Online);
 		break;
 	default:
 		break;
 	}
-	Account::setStatus(status);
+	Account::setStatus(s);
 
 	if (m_client->isOnline())
 		m_client->roster()->sync();

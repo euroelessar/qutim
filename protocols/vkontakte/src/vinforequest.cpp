@@ -100,6 +100,8 @@ static bool isStatusOnline(const Status &status)
 VInfoFactory::VInfoFactory(VAccount *account) :
 	QObject(account), m_account(account)
 {
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)));
 }
 
 VInfoFactory::SupportLevel VInfoFactory::supportLevel(QObject *object)
@@ -108,7 +110,7 @@ VInfoFactory::SupportLevel VInfoFactory::supportLevel(QObject *object)
 	if (m_account == object) {
 		level = ReadOnly;
 	} else if (VContact *contact = qobject_cast<VContact*>(object)) {
-		if (contact->account() != m_account)
+		if (contact->account() == m_account)
 			level = ReadOnly;
 	}
 	if (level == ReadOnly && !isStatusOnline(m_account->status()))

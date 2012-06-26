@@ -49,9 +49,10 @@ protected:
 	virtual qutim_sdk_0_3::InfoRequest *createrDataFormRequest(QObject *object);
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
-private:
+private slots:
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);
+private:
 	VAccount *m_account;
 	QSet<VContact *> m_contacts;
 };

@@ -133,6 +133,8 @@ void VContact::setStatus(const Status &status)
 	Status old = m_status;
 	m_status = status;
 	emit statusChanged(status, old);
+	NotificationRequest request(this, status, old);
+	request.send();
 }
 
 vk::ChatSession *VContact::chatSession()
