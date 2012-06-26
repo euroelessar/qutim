@@ -40,6 +40,8 @@
 #include "quickconfig.h"
 #include "notificationwrapper.h"
 #include "thememanagerwrapper.h"
+#include "soundthemewrapper.h"
+#include "quickmaskeffect.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
 #include "languagesmodel.h"
 #include "menumodel.h"
@@ -72,6 +74,9 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 	qmlRegisterType<LanguagesModel>("org.qutim", 0, 3, "LanguagesModel");
+	qmlRegisterType<SoundThemeWrapper>("org.qutim", 0, 3, "SoundTheme");
+	qmlRegisterType<QuickMaskEffect>("org.qutim", 0, 3, "MaskEffect");
+
 	ThemeManagerWrapper::init();
 
 	QFont font;

@@ -44,8 +44,10 @@ public:
 	virtual ~QuickNoficationManager();
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 	void setWindowActive(bool active);
+	
 protected slots:
 	void onNotificationFinished();
+	
 private:
 	QList<Notification*> m_notifications;
 	QHash<QObject*, MNotification*> m_ids;

@@ -33,7 +33,8 @@ enum {
 	IdRole = Qt::UserRole,
 	ContactRole,
 	AlphabetRole,
-	StatusTextRole
+	StatusTextRole,
+	AvatarRole
 };
 
 ContactListModel::ContactListModel()
@@ -45,6 +46,7 @@ ContactListModel::ContactListModel()
 	roleNames.insert(ContactRole, "contact");
 	roleNames.insert(AlphabetRole, "alphabet");
 	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
 	setRoleNames(roleNames);
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
@@ -137,6 +139,8 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const
 		return contact->title().at(0).toUpper();
 	case StatusTextRole:
 		return contact->status().text();
+	case AvatarRole:
+		return contact->avatar();
 	default:
 		return QVariant();
 	}

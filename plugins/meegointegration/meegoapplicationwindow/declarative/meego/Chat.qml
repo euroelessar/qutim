@@ -36,9 +36,16 @@ Page {
 	property variant menu: ControlledMenu {
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
+    property variant currentSessionPage
     Connections {
 		target: root.chat
-        onSessionCreated: session.page = webViewComponent.createObject(root, { "session": session })
+        onActiveSessionChanged: {
+            var session = root.chat.activeSession;
+            if (!session.page) {
+                session.page = webViewComponent.createObject(root, { "session": session });
+            }
+            root.currentSessionPage = session.page;
+        }
 	}
     Component {
         id: webViewComponent
@@ -48,15 +55,22 @@ Page {
             anchors.bottom: textField.top
             anchors.left: root.left
             anchors.right: root.right
-            visible: root.chat.activeSession === controller.session
+            visible: item === root.currentSessionPage
             property QtObject session
+
             Flickable {
                 id: flickable
                 anchors.fill: parent
                 contentWidth: Math.max(root.width, webView.width)
                 contentHeight: Math.max(root.height, webView.height)
                 pressDelay: 200
-    
+                clip: true
+                onHeightChanged: flickable.scrollToBottom()
+                
+                function scrollToBottom() {
+                    flickable.contentY = flickable.contentHeight - flickable.height;
+                }
+                
                 WebView {
                     id: webView
                     preferredWidth: flickable.width
@@ -72,12 +86,12 @@ Page {
                         WebView.windowObjectName: "client"
                         webView: webView
                         session: item.session
-                        Component.onCompleted: controller.fixFlickable(item)
                     }
                     Connections {
                         target: controller.session
                         onMessageAppended: controller.append(message)
                     }
+                    onHeightChanged: flickable.scrollToBottom()
                 }
             }
             ScrollDecorator {
@@ -86,16 +100,6 @@ Page {
         }
     }
 
-	/*ListView {
-		id: listView
-		anchors { top: parent.top; bottom: textField.top }
-		width: parent.width
-		model: chat.activeSession ? chat.activeSession.model : null
-		delegate: MessageDelegate {}
-		onCountChanged: {
-			positionViewAtIndex(listView.count - 1, ListView.Contain)
-		}
-	}*/
 //	Connections {
 //		target: root.chat
 //		onActiveSessionChanged: {

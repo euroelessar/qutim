@@ -75,6 +75,9 @@ public slots:
 	virtual void appendText(const QVariant &text) = 0;
 	void setTopic();
 	
+private slots:
+	void onJavaScriptRequest(const QString &javaScript, QVariant *variant);
+	
 protected:
 	void setPage(QWebPage *page);
 	virtual void setDefaultFont(const QString &family, int size) = 0;

@@ -226,25 +226,40 @@ void ChatChannel::setPage(QObject *page)
 	}
 }
 
+bool ChatChannel::supportJavaScript() const
+{
+	return true;
+}
+
+QVariant ChatChannel::evaluateJavaScript(const QString &script)
+{
+	QVariant result;
+	emit javaScriptRequest(script, &result);
+	return result;
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
 		emit messageReceived(&message);
 	else
 		emit messageSent(&message);
-
-	if (message.property("html", QString()).isEmpty()) {
-		QString html = Qt::escape(message.text()).replace(QLatin1String("\n"), QLatin1String("<br>"));
-		message.setProperty("html", html);
-	}
-	emit messageAppended(message);
-	//m_model->append(message);
-	if (!isActive()) {
-		Notification::send(message);
+	
+	if (message.property("spam", false) || message.property("hide", false))
+		return message.id();
+	
+	bool service = message.property("service", false);
+	
+	if ((!isActive() && !service) && message.isIncoming()) {
 		m_unread.append(message);
 		emit unreadChanged(m_unread);
 		emit unreadCountChanged(m_unread.count());
 	}
+	
+	if (!message.property("silent", false) && !isActive())
+		Notification::send(message);
+	
+	emit messageAppended(message);
 	return message.id();
 }
 

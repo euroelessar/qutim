@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#ifndef IRCSTANDARTCTPCHANDLER_H
-#define IRCSTANDARTCTPCHANDLER_H
+#ifndef IRCSTANDARTCTCPHANDLER_H
+#define IRCSTANDARTCTCPHANDLER_H
 
 #include "ircglobal.h"
-#include "ircctpchandler.h"
+#include "ircctcphandler.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -36,15 +36,15 @@ namespace irc {
 class IrcAccount;
 class IrcConnection;
 
-class IrcStandartCtpcHandler : public QObject, public IrcCtpcHandler
+class IrcStandartCtcpHandler : public QObject, public IrcCtcpHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcCtpcHandler)
+	Q_INTERFACES(qutim_sdk_0_3::irc::IrcCtcpHandler)
 public:
-	IrcStandartCtpcHandler(IrcConnection *conn);
-	void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
+	IrcStandartCtcpHandler(IrcConnection *conn);
+	void handleCtcpRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
 						   const QString &receiver, const QString &cmd, const QString &params);
-	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+	void handleCtcpResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 							const QString &receiver, const QString &cmd, const QString &params);
 private:
 	IrcConnection *m_conn;
@@ -52,5 +52,5 @@ private:
 
 } } // namespace namespace qutim_sdk_0_3::irc
 
-#endif // IRCSTANDARTCTPCHANDLER_H
+#endif // IRCSTANDARTCTCPHANDLER_H
 

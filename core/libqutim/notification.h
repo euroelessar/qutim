@@ -86,6 +86,8 @@ public:
 	static LocalizedStringList typeStrings();
 	static LocalizedString descriptionString(Type type);
 	static LocalizedStringList descriptionStrings();
+	Q_INVOKABLE static QString typeText(Type type);
+	Q_INVOKABLE static QString descriptionText(Type type);
 public slots:
 	void accept();
 	void ignore();

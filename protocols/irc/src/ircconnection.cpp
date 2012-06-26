@@ -31,7 +31,7 @@
 #include "ircchannelparticipant.h"
 #include "ircavatar.h"
 #include "ircwhoisreplieshandler.h"
-#include "ircstandartctpchandler.h"
+#include "ircstandartctcphandler.h"
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>
@@ -48,7 +48,7 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
+static QRegExp ctcpRx("^\\001(\\S+)( (.*)|)\\001");
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent), m_hostLookupId(0)
@@ -66,8 +66,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	// Register handlers
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcServerMessageHandler>())
 		registerHandler(gen->generate<IrcServerMessageHandler>());
-	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcCtpcHandler>())
-		registerCtpcHandler(gen->generate<IrcCtpcHandler>());
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcCtcpHandler>())
+		registerCtcpHandler(gen->generate<IrcCtcpHandler>());
 	registerHandler(new IrcWhoisRepliesHandler(this));
 
 	m_cmds
@@ -105,8 +105,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 306;  // RPL_NOWAWAY
 	registerHandler(this);
 
-	registerCtpcHandler(new IrcStandartCtpcHandler(this));
-	registerCtpcHandler(IrcAvatar::instance());
+	registerCtcpHandler(new IrcStandartCtcpHandler(this));
+	registerCtcpHandler(IrcAvatar::instance());
 }
 
 IrcConnection::~IrcConnection()
@@ -125,10 +125,10 @@ void IrcConnection::registerHandler(IrcServerMessageHandler *handler)
 		m_handlers.insert(cmd.value(), handler);
 }
 
-void IrcConnection::registerCtpcHandler(IrcCtpcHandler *handler)
+void IrcConnection::registerCtcpHandler(IrcCtcpHandler *handler)
 {
-	foreach (const QString &cmd, handler->ctpcCmds())
-		m_ctpcHandlers.insert(cmd, handler);
+	foreach (const QString &cmd, handler->ctcpCmds())
+		m_ctcpHandlers.insert(cmd, handler);
 }
 
 void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  const QString &host,
@@ -183,15 +183,15 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 			debug() << "Incorrect PING request";		
 	} else if (cmd == "PRIVMSG") {
 		QString text = params.value(1);
-		if (ctpcRx.indexIn(text) == 0) { // Is it CTPC request?
+		if (ctcpRx.indexIn(text) == 0) { // Is it CTCP request?
 			bool handled = false;
-			QString ctpcCmd = (ctpcRx.cap(1)).toUpper();
-			foreach (IrcCtpcHandler *handler, m_ctpcHandlers.values(ctpcCmd)) {
+			QString ctcpCmd = (ctcpRx.cap(1)).toUpper();
+			foreach (IrcCtcpHandler *handler, m_ctcpHandlers.values(ctcpCmd)) {
 				handled = true;
-				handler->handleCtpcRequest(account, name, host, params.value(0), ctpcCmd, ctpcRx.cap(3));
+				handler->handleCtcpRequest(account, name, host, params.value(0), ctcpCmd, ctcpRx.cap(3));
 			}
 			if (!handled)
-				debug() << "Unknown CTPC request" << ctpcCmd << "from" << name;
+				debug() << "Unknown CTCP request" << ctcpCmd << "from" << name;
 			return;
 		}
 		handleTextMessage(name, host, params.value(0), params.value(1));
@@ -261,15 +261,15 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 			contact->handleMode(name, params.value(1), params.value(2));
 	} else if (cmd == "NOTICE") {
 		QString text = params.value(1);
-		if (ctpcRx.indexIn(text) == 0) {
+		if (ctcpRx.indexIn(text) == 0) {
 			bool handled = false;
-			QString ctpcCmd = ctpcRx.cap(1);
-			foreach (IrcCtpcHandler *handler, m_ctpcHandlers.values(ctpcCmd)) {
+			QString ctcpCmd = ctcpRx.cap(1);
+			foreach (IrcCtcpHandler *handler, m_ctcpHandlers.values(ctcpCmd)) {
 				handled = true;
-				handler->handleCtpcResponse(account, name, host, params.value(0), ctpcCmd, ctpcRx.cap(3));
+				handler->handleCtcpResponse(account, name, host, params.value(0), ctcpCmd, ctcpRx.cap(3));
 			}
 			if (!handled)
-				debug() << "Unknown CTPC response" << ctpcCmd << "from" << name;
+				debug() << "Unknown CTCP response" << ctcpCmd << "from" << name;
 			return;
 		}
 		QString msg = QString("%1: %2").arg(name).arg(text);
@@ -349,20 +349,20 @@ void IrcConnection::send(QString command, bool highPriority)
 	}
 }
 
-void IrcConnection::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
+void IrcConnection::sendCtcpRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
 {
-	QString ctpc(cmd);
+	QString ctcp(cmd);
 	if (!params.isEmpty())
-		ctpc += " " + params;
-	send(QString("PRIVMSG %1 :\001%2\001").arg(contact).arg(ctpc), highPriority);
+		ctcp += " " + params;
+	send(QString("PRIVMSG %1 :\001%2\001").arg(contact).arg(ctcp), highPriority);
 }
 
-void IrcConnection::sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
+void IrcConnection::sendCtcpReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority)
 {
-	QString ctpc(cmd);
+	QString ctcp(cmd);
 	if (!params.isEmpty())
-		ctpc += " " + params;
-	send(QString("NOTICE %1 :\001%2\001").arg(contact).arg(ctpc), highPriority);
+		ctcp += " " + params;
+	send(QString("NOTICE %1 :\001%2\001").arg(contact).arg(ctcp), highPriority);
 }
 
 void IrcConnection::disconnectFromHost(bool force)

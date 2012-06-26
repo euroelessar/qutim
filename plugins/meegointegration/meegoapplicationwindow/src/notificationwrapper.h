@@ -43,6 +43,13 @@ public:
 	void setWindowActive(bool active);
 	static void init();
 	static void connect(QuickNoficationManager * manager);
+	
+public slots:
+	static QString typeName(int type);
+	static QString typeText(int type);
+	static QString descriptionText(int type);
+	static QStringList backendTypes();
+	static QString backendDescription(const QString &backendType);
 
 signals:
 	void windowActiveChanged(bool active);

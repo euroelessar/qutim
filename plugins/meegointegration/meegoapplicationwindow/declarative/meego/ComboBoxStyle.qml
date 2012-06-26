@@ -17,5 +17,5 @@ ButtonStyle {
     
     // Background Color
     property color itemBackgroundColor: "transparent"
-    property color itemSelectedBackgroundColor: "#3D3D3D"
+    property color itemSelectedBackgroundColor: inverted ? "#3D3D3D" : "#DEDBDE"
 }

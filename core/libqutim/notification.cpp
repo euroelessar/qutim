@@ -204,7 +204,7 @@ LocalizedStringList Notification::typeStrings()
 			 << QT_TRANSLATE_NOOP("Notification", "Contact birthday")
 			 << QT_TRANSLATE_NOOP("Notification", "Contact typing")
 			 << QT_TRANSLATE_NOOP("Notification", "System")
-			 << QT_TRANSLATE_NOOP("Notification", "Contact is asking for your attention");
+			 << QT_TRANSLATE_NOOP("Notification", "Attention notification");
 	}
 	return list;
 }
@@ -233,9 +233,19 @@ LocalizedStringList Notification::descriptionStrings()
 			 << QT_TRANSLATE_NOOP("Notification", "A contact has birthday!")
 			 << QT_TRANSLATE_NOOP("Notification", "A contact is typing")
 			 << QT_TRANSLATE_NOOP("Notification", "A system notification")
-			 << QT_TRANSLATE_NOOP("Notification", "Attention notification");
+			 << QT_TRANSLATE_NOOP("Notification", "Contact is asking for your attention");
 	}
 	return list;
+}
+
+QString Notification::typeText(Notification::Type type)
+{
+	return typeString(type).toString();
+}
+
+QString Notification::descriptionText(Notification::Type type)
+{
+	return descriptionString(type).toString();
 }
 
 LocalizedString Notification::descriptionString(Type type)
