@@ -1,0 +1,14 @@
+Index: qutim/debian/qutim/usr/share/qutim/webkitstyle/default/Contents/Info.plist
+===================================================================
+@@ -18,9 +18,9 @@
+ 	<key>DefaultBackgroundColor</key>
+ 	<string>FFFFFF</string>
+ 	<key>DefaultFontFamily</key>
+-	<string>Arial</string>
++	<string>Nokia Pure</string>
+ 	<key>DefaultFontSize</key>
+-	<integer>10</integer>
++	<integer>15</integer>
+ 	<key>DisableCustomBackground</key>
+ 	<false/>
+ 	<key>MessageViewVersion</key>
