@@ -97,6 +97,8 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("settings/NotificationsPage.qml"));
 		} else if (name == "UrlPreview") {
 			generator = new QuickGenerator(QLatin1String("settings/UrlPreviewPage.qml"));
+		} else if (name == "Chat") {
+			generator = new QuickGenerator(QLatin1String("settings/ChatPage.qml"));
 		} else if (name == "Main settings") {
 			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
 			const QMetaObject *meta = gen->metaObject();

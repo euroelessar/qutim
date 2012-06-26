@@ -4,9 +4,9 @@ import com.nokia.extras 1.0
 import org.qutim 0.3
 import ".."
 
-Row {
-    spacing: 10
+Item {
     width: parent.width
+    height: Math.max(labelItem.height, switchItem.height)
     property alias text: labelItem.text
     property alias checked: switchItem.checked
     Label {
@@ -14,6 +14,7 @@ Row {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: switchItem.left
+        anchors.rightMargin: 10
         text: qsTr("Set status \"Away\"")
     }
     Switch {

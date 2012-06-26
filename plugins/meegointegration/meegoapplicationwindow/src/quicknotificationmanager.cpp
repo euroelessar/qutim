@@ -83,7 +83,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 			for (int i=0; i < notifs.count(); i++)
 				notifs.at(i)->remove();
 
-			MNotification *notif = new MNotification(MNotification::ImEvent,
+			MNotification *notif = new MNotification(MNotification::ImReceivedEvent,
 													 tr("qutIM: %n new messages", 0, m_notifications.count()),
 													 text);
 			notif->publish();

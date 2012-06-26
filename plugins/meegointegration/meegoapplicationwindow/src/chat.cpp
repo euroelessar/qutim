@@ -28,6 +28,9 @@
 #include <QDeclarativeEngine>
 #include <qutim/thememanager.h>
 #include "chatchannelmodel.h"
+#include "chatpreview.h"
+#include "chatviewstyle.h"
+#include "chatcontroller.h"
 
 namespace MeegoIntegration
 {
@@ -50,6 +53,8 @@ void Chat::init()
 	qmlRegisterType<ChatChannel>();
 	qmlRegisterType<ChatController>("org.qutim", 0, 3, "ChatController");
 	qmlRegisterType<ChatChannelModel>("org.qutim", 0, 3, "ChatChannelModel");
+	qmlRegisterType<ChatPreview>("org.qutim", 0, 3, "ChatPreview");
+	qmlRegisterUncreatableType<ChatViewStyle>("org.qutim", 0, 3, "ChatViewStyle", "");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)

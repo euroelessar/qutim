@@ -149,7 +149,8 @@ void WebKitMessageViewController::appendMessage(const qutim_sdk_0_3::Message &ms
 
 void WebKitMessageViewController::clearChat()
 {
-	Q_ASSERT(!m_session.isNull());
+	if (!m_session || !m_page)
+		return;
 	m_last = Message();
 	m_isLoading = true;
 	loaderLoop()->addPage(m_page, m_style.baseTemplateForChat(m_session.data()));
@@ -176,11 +177,26 @@ bool WebKitMessageViewController::eventFilter(QObject *obj, QEvent *ev)
 	return QObject::eventFilter(obj, ev);
 }
 
+bool WebKitMessageViewController::isPreview() const
+{
+	return m_isPreview;
+}
+
+void WebKitMessageViewController::setPreview(bool preview)
+{
+	if (m_isPreview != preview) {
+		m_isPreview = preview;
+		emit previewChanged(m_isPreview);
+		if (m_session && m_page)
+			init();
+	}
+}
+
 QVariant WebKitMessageViewController::evaluateJavaScript(const QString &script)
 {
 	// We can't always provide the result, sorry ;)
 	QVariant result;
-	if (!m_session || m_isLoading)
+	if (!m_session || m_isLoading || !m_page)
 		m_pendingScripts << script;
 	else
 		result = m_page->mainFrame()->evaluateJavaScript(script);

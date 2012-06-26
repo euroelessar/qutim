@@ -27,8 +27,6 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
-import QtWebKit 1.0
-import "messageDelegate"
 
 Page {
 	id: root
@@ -49,64 +47,12 @@ Page {
 	}
     Component {
         id: webViewComponent
-        Item {
-            id: item
-            anchors.top: root.top
-            anchors.bottom: textField.top
-            anchors.left: root.left
-            anchors.right: root.right
+        ChatView {
+            width: root.width
+            height: root.height - textField.height
             visible: item === root.currentSessionPage
-            property QtObject session
-
-            Flickable {
-                id: flickable
-                anchors.fill: parent
-                contentWidth: Math.max(root.width, webView.width)
-                contentHeight: Math.max(root.height, webView.height)
-                pressDelay: 200
-                clip: true
-                onHeightChanged: flickable.scrollToBottom()
-                
-                function scrollToBottom() {
-                    flickable.contentY = flickable.contentHeight - flickable.height;
-                }
-                
-                WebView {
-                    id: webView
-                    preferredWidth: flickable.width
-                    preferredHeight: flickable.height
-                    onAlert: console.log(message)
-                    settings.defaultFontSize: controller.fontSize
-                    settings.standardFontFamily: controller.fontFamily
-                    settings.fixedFontFamily: controller.fontFamily
-                    settings.serifFontFamily: controller.fontFamily
-                    settings.sansSerifFontFamily: controller.fontFamily
-                    javaScriptWindowObjects: ChatController {
-                        id: controller
-                        WebView.windowObjectName: "client"
-                        webView: webView
-                        session: item.session
-                    }
-                    Connections {
-                        target: controller.session
-                        onMessageAppended: controller.append(message)
-                    }
-                    onHeightChanged: flickable.scrollToBottom()
-                }
-            }
-            ScrollDecorator {
-                flickableItem: flickable
-            }
         }
     }
-
-//	Connections {
-//		target: root.chat
-//		onActiveSessionChanged: {
-//			if (root.chat.activeSession)
-//				tabGroup.currentTab = chatTab
-//		}
-//	}
 	TextArea {
 		id: textField
 		anchors { left: parent.left; bottom: parent.bottom }
@@ -119,9 +65,9 @@ Page {
 		anchors { top: textField.top; right: parent.right; }
 		platformIconId: "toolbar-send-chat"
 		onClicked: {
-			var result = chat.activeSession.send(textField.text)
+			var result = chat.activeSession.send(textField.text);
 			if (result != -2)
-				textField.text = ""
+				textField.text = "";
 		}
 	}
 }
