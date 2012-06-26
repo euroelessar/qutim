@@ -33,7 +33,8 @@ enum {
 	IdRole = Qt::UserRole,
 	ContactRole,
 	AlphabetRole,
-	StatusTextRole
+	StatusTextRole,
+	AvatarRole
 };
 
 ChatChannelUsersModel::ChatChannelUsersModel(QObject *parent) :
@@ -46,6 +47,7 @@ ChatChannelUsersModel::ChatChannelUsersModel(QObject *parent) :
 	roleNames.insert(ContactRole, "contact");
 	roleNames.insert(AlphabetRole, "alphabet");
 	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
 	setRoleNames(roleNames);
 	
 	m_statusPrefix = QLatin1String("icon-m-common");
@@ -166,6 +168,8 @@ QVariant ChatChannelUsersModel::data(const QModelIndex &index, int role) const
 		return unit->title().at(0).toUpper();
 	case StatusTextRole:
 		return unit->status().text();
+	case AvatarRole:
+		return unit->avatar();
 	default:
 		return QVariant();
 	}

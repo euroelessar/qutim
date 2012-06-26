@@ -40,7 +40,7 @@ Page {
 		width: parent.width
 		anchors.fill: parent
 		model: unitsModel
-		delegate: ItemDelegate {
+		delegate: ContactItem {
 			onClicked: {
 				root.chat.session(model.contact).active = true
 				root.chat.show()
