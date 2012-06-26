@@ -178,7 +178,7 @@ VInfoRequest::VInfoRequest(QObject *parent) :
 	m_unknownCount(0)
 {
 	if (VAccount *account = qobject_cast<VAccount*>(parent)) {
-		m_id = account->uid();
+		m_id = QString::number(account->uid());
 		m_connection = account->connection();
 	} else if (VContact *contact = qobject_cast<VContact*>(parent)) {
 		m_id = contact->id();

@@ -78,7 +78,9 @@ void VAccount::setStatus(Status status)
 
 int VAccount::uid() const
 {
-	return m_client->me()->id();
+	if (m_client->me())
+		return m_client->me()->id();
+	return 0;
 }
 
 QString VAccount::email() const
