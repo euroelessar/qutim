@@ -41,7 +41,7 @@ void msgHandler(QtMsgType type, const char *msg)
 		previousHandler(type, msg);
 	if (msg[0] == 'M' && QChar(QLatin1Char(msg[1])).isUpper())
 		return;
-	fprintf(stderr, "%s", msg);
+	fprintf(stderr, "%s\n", msg);
 }
 
 VibroBackend::VibroBackend()

@@ -135,7 +135,7 @@ void ProxySettingsWidget::saveImpl()
 			return;
 		if (m_typeBox->currentIndex() == 1) { // The user chose the global proxy
 			cfg.setValue("useGlobalProxy", true);
-			proxy = NetworkProxyInfo::proxy(cfg.value("type", QString()));
+			proxy = NetworkProxyInfo::proxy(globalCfg.value("type", QString()));
 			if (proxy) {
 				settings = proxy->settings(globalCfg);
 				if (settings.subitem("type").isNull())
