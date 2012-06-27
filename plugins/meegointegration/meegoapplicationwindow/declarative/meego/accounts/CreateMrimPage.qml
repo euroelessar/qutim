@@ -34,7 +34,7 @@ Page {
 		TextField {
 			id: passwordField
 			width: root.width
-			inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+            echoMode: TextInput.Password
 			platformSipAttributes: SipAttributes {
 				actionKeyLabel: qsTr("Create")
 				actionKeyHighlighted: true
