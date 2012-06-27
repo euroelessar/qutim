@@ -36,7 +36,7 @@ ifeq ($(FULLBUILD),true)
 	-DCMAKE_INSTALL_PREFIX="/opt/qutim" -DMAEMO6=1 \
 	-DQUTIM_DEVELOPER_BUILD=off -DCMAKE_BUILD_TYPE=release -DWITH_DOXYGEN=off \
 	-DADIUMCHAT=off -DADDCONTACTDLG=off -DAESCRYPTO=off -DANTIBOSS=off -DAUTHDIALOG=off \
-	-DACCOUNTCREATOR=off -DASPELLER=off -DASTRAL=off -DAWN=off -DANTISPAM=off\
+	-DACCOUNTCREATOR=off -DASPELLER=off -DASTRAL=off -DAWN=off \
 	-DBIRTHDAYREMINDER=off \
 	-DCHATSPELLCHECKER=off -DCONTACTINFO=off \
 	-DDATAFORMSBACKEND=off -DDBUSAPI=off -DDBUSNOTIFICATIONS=off \
@@ -53,6 +53,7 @@ ifeq ($(FULLBUILD),true)
 	-DOLDCONTACTDELEGATE=off -DOFFTHERECORD=off \
 	-DPLUGMAN=off -DPASSWORD=off -DPHOTOALBUM=off -DPROXYSETTINGS=off \
 	-DQMLCHAT=off -DQRCICONS=off -DQSOUNDBACKEND=off -DQUETZAL=off -DQUTIM_GENERATE_DOCS=off \
+	-DQTICONS=off \
 	-DSCRIPTAPI=off -DSDLSOUND=off -DSEARCHDIALOG=off -DSIMPLEABOUT=off -DSIMPLECONTACTLIST=off  \
 	-DSOFTKEYSACTIONBOX=off -DSYMBIANINTEGRATION=off -DSHORTCUTSETTINGS=off -DSIMPLEACTIONBOX=off -DSERVICECHOOSER=off \
 	-DSIMPLEACTIONS=off \
@@ -123,8 +124,8 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-#	export QUILT_PATCHES=debian/patches 
-#	dh_quilt_patch
+	export QUILT_PATCHES=debian/patches 
+	dh_quilt_patch
 #	dh_installman
 	dh_link
 	dh_strip -a --dbg-package=qutim-dbg
@@ -137,7 +138,7 @@ binary-arch: build install
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-#	dh_quilt_unpatch
+	dh_quilt_unpatch
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure
