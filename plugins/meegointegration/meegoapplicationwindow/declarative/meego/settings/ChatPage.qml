@@ -29,6 +29,12 @@ SettingsItemPage {
             styleBox.currentIndex = styleBox.indexOf(styleName);
         }
     }
+    Timer {
+        interval: 100
+        running: true
+        repeat: false
+        onTriggered: chatPreview.rebuildChat()
+    }
     property QtObject style: chatView.controller.style
     ThemeManager {
         id: themeManager
@@ -45,7 +51,7 @@ SettingsItemPage {
         }
         function updateFont() {
             var fontFamily = fontFamiliesBox.currentItem.name;
-            var fontSize = fontSizesBox.currentItem.name;
+            var fontSize = fontSizeField.value;
             chatView.controller.setDefaultFont(fontFamily, fontSize);
         }
     }
@@ -83,7 +89,7 @@ SettingsItemPage {
                     var fontSize = config.value(configPrefix + "fontSize", root.style.defaultFontSize);
                     variantBox.currentIndex = variantBox.indexOf(variant, 0);
                     fontFamiliesBox.currentIndex = fontFamiliesBox.indexOf(fontFamily, 0);
-                    fontSizesBox.currentIndex = fontSizesBox.indexOf(fontSize, 0);
+                    fontSizeField.text = fontSize;
                     chatPreview.rebuildChat();
                     chatPreview.updateFont();
                 }
@@ -119,15 +125,24 @@ SettingsItemPage {
                 title: qsTr("Font family")
                 onCurrentItemChanged: chatPreview.updateFont()
             }
-            ComboBox {
-                id: fontSizesBox
-                title: qsTr("Font size")
-                onCurrentItemChanged: chatPreview.updateFont()
+            Label {
+                text: qsTr("Font size")
+            }
+            TextField {
+                id: fontSizeField
+                width: parent.width
+                property int value: parseInt(fontSizeField.text)
+                validator: IntValidator {
+                    id: validator
+                    bottom: 1
+                    top: 120
+                }
+                inputMethodHints: Qt.ImhDigitsOnly
+                onValueChanged: chatPreview.updateFont()
             }
         }
     }
     Component.onCompleted: {
         fontFamiliesBox.items = chatPreview.fontFamilies;
-        fontSizesBox.items = chatPreview.fontSizes;
     }
 }
