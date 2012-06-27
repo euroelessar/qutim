@@ -5,11 +5,13 @@ import com.nokia.extras 1.0
 ToolBarLayout {
     id: toolBarLayout
     property Item page
+    property bool acceptableInput: true
 
     ToolIcon {
         id: toolIcon
         visible: true
-        platformIconId: "toolbar-previous"
+        enabled: toolBarLayout.acceptableInput
+        platformIconId: "toolbar-previous" + (enabled ? "" : "-dimmed")
         onClicked: {
             toolBarLayout.page.impl.save();
             toolBarLayout.page.saved();

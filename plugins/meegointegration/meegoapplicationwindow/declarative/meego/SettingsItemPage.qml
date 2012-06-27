@@ -6,6 +6,7 @@ Page {
     id: root
     anchors.margins: 10
     property bool modified: false
+    property bool acceptableInput: true
     signal saved
     property QtObject impl
     property QtObject controller
@@ -15,5 +16,6 @@ Page {
     tools: SettingsToolBarLayout {
         id: toolBarLayout
         page: root
+        acceptableInput: root.acceptableInput
     }
 }

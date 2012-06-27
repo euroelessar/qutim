@@ -11,16 +11,17 @@ SettingsItemPage {
         function save() {
             config.setValue("away-enabled", awayCheckBox.checked);
             config.setValue("na-enabled", naCheckBox.checked);
-            config.setValue("away-secs", awaySlider.value * 60);
-            config.setValue("na-secs", naSlider.value * 60);
+            config.setValue("away-secs", parseInt(awayField.text) * 60);
+            config.setValue("na-secs", parseInt(naField.text) * 60);
         }
         function load() {
             awayCheckBox.checked = config.value("away-enabled", true);
             naCheckBox.checked = config.value("na-enabled", true);
-            awaySlider.value = config.value("away-secs", 180) / 60;
-            naSlider.value = config.value("na-secs", 600) / 60;
+            awayField.text = config.value("away-secs", 180) / 60;
+            naField.text = config.value("na-secs", 600) / 60;
         }
     }
+    acceptableInput: awayField.acceptableInput && naField.acceptableInput
     Config {
         id: config
         path: "auto-away"
@@ -29,35 +30,31 @@ SettingsItemPage {
     Column {
 		anchors.fill: parent
         spacing: 10
-        Row {
-			spacing: 10
-            anchors.right: parent.right
-			Label { text: qsTr("Set status \"Away\"") }
-			Switch { id: awayCheckBox; anchors.right: parent.right; }
-		}
-        Slider {
-            id: awaySlider
-            stepSize: 1
-            valueIndicatorVisible: true
-            valueIndicatorText: qsTr("%n minutes", "", value);
-            minimumValue: 1
-            maximumValue: 120
-            enabled: awayCheckBox.checked
+        SwitchRow {
+            id: awayCheckBox
+            text: qsTr("Set status \"Away\" in %n minutes", "", parseInt(awayField.text))
         }
-        Row {
-			spacing: 10
-            anchors.right: parent.right
-			Label { text: qsTr("Set status \"Not available\"") }
-            Switch { id: naCheckBox; anchors.right: parent.right; }
-		}
-        Slider {
-            id: naSlider
-            stepSize: 1
-            valueIndicatorVisible: true
-            valueIndicatorText: qsTr("%n minutes", "", value);
-            minimumValue: 1
-            maximumValue: 120
-            enabled: naCheckBox.checked
+        TextField {
+            id: awayField
+            readOnly: !awayCheckBox.checked
+            validator: IntValidator {
+                bottom: 1
+                top: 120
+            }
+            inputMethodHints: Qt.ImhDigitsOnly
+        }
+        SwitchRow {
+            id: naCheckBox
+            text: qsTr("Set status \"Not available\" in %n minutes", "", parseInt(naField.text))
+        }
+        TextField {
+            id: naField
+            readOnly: !naCheckBox.checked
+            validator: IntValidator {
+                bottom: 1
+                top: 120
+            }
+            inputMethodHints: Qt.ImhDigitsOnly
         }
     }
 }

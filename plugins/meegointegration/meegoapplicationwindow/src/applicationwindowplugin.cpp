@@ -41,6 +41,7 @@
 #include "quickaddaccountdialog.h"
 #include "addaccountdialogwrapper.h"
 #include "meegointegration.h"
+#include "quickiconloader.h"
 
 namespace MeegoIntegration
 {
@@ -89,6 +90,9 @@ namespace MeegoIntegration
 		addExtension<QuickAddAccountDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo account creator"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo account creator"));
+		addExtension<QuickIconLoader>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo icon loader noop"),
+			    QT_TRANSLATE_NOOP("Plugin", "Noop for icon loader service"));
 	}
 }
 
