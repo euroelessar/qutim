@@ -33,7 +33,7 @@ SettingsItemPage {
         TextField {
             id: passwordField
             width: root.width
-            echoMode: TextInput.PasswordEchoOnEdit
+	    echoMode: TextInput.Password
         }
     }
 

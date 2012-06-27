@@ -21,12 +21,12 @@ SettingsItemPage {
             config.setValue(configPrefix + "fontSize", controller.fontSize);
         }
         function load() {
-            var style = root.style;
-            var styleName = config.value("style/name", "default");
-            userIconsSwitch.checked = config.value("style/showUserIcons", true);
+	    var style = root.style;
+	    var styleName = config.value("style/name", "default");
+	    userIconsSwitch.checked = config.value("style/showUserIcons", true);
             headerSwitch.checked = config.value("style/showHeader", true);
-            styleBox.items = themeManager.list("webkitstyle");
-            styleBox.currentIndex = styleBox.indexOf(styleName);
+	    styleBox.items = themeManager.list("webkitstyle");
+	    styleBox.currentIndex = styleBox.indexOf(styleName);
         }
     }
     property QtObject style: chatView.controller.style
@@ -128,6 +128,6 @@ SettingsItemPage {
     }
     Component.onCompleted: {
         fontFamiliesBox.items = chatPreview.fontFamilies;
-        fontSizesBox.items = chatPreview.fontSizes;
+	fontSizesBox.items = chatPreview.fontSizes;
     }
 }
