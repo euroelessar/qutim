@@ -1,0 +1,133 @@
+{
+   "notification": {
+    "AppStartup": {
+     "ChatNotifications": false,
+     "Popup": true,
+     "Sound": false,
+     "Vibration": false
+    },
+    "Attention": {
+     "ChatNotifications": true,
+     "Popup": true,
+     "Sound": false,
+     "Vibration": true
+    },
+    "BlockedMessage": {
+     "ChatNotifications": false,
+     "Popup": true,
+     "Sound": true,
+     "Vibration": true
+    },
+    "ChatIncomingMessage": {
+     "ChatNotifications": false,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "ChatOutgoingMessage": {
+     "ChatNotifications": false,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "ChatUserJoined": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "ChatUserLeft": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "FileTransferCompleted": {
+     "ChatNotifications": true,
+     "Popup": true,
+     "Sound": true,
+     "Vibration": true
+    },
+    "IncomingMessage": {
+     "ChatNotifications": false,
+     "Popup": true,
+     "Sound": true,
+     "Vibration": true
+    },
+    "OutgoingMessage": {
+     "ChatNotifications": false,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "System": {
+     "ChatNotifications": true,
+     "Popup": true,
+     "Sound": true,
+     "Vibration": false
+    },
+    "UserChangedStatus": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "UserHasBirthday": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": true,
+     "Vibration": false
+    },
+    "UserOffline": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "UserOnline": {
+     "ChatNotifications": true,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    },
+    "UserTyping": {
+     "ChatNotifications": false,
+     "Popup": false,
+     "Sound": false,
+     "Vibration": false
+    }
+   },
+   "plugins": {
+    "list": {}
+   },
+   "protocols": {
+    "list": {
+     "icq": "qutim_sdk_0_3::oscar::IcqProtocol",
+     "jabber": "Jabber::JProtocol",
+     "mrim": "MrimProtocol"
+    }
+   },
+   "serviceicons": {},
+   "services": {
+    "list": {
+     "AboutDialog": "MeegoIntegration::QuickAboutDialog",
+     "AccountCreator": "MeegoIntegration::QuickAddAccountDialog",
+     "AddContact": "MeegoIntegration::QuickAddContactDialog",
+     "ApplicationWindow": "MeegoIntegration::ApplicationWindow",
+     "AuthorizationService": "MeegoIntegration::QuickAuthDialog",
+     "AutoAway": "Core::IdleStatusChanger",
+     "Bearer": "BearerManager",
+     "ChatLayer": "MeegoIntegration::Chat",
+     "ContactList": "MeegoIntegration::ContactList",
+     "IconLoader": "MeegoIntegration::QuickIconLoader",
+     "Idle": "MeegoIntegration::Maemo6Idle",
+     "JoinGroupChat": "MeegoIntegration::QuickJoinGroupChat",
+     "NotificationSettings": "Core::MobileNotificationsSettings",
+     "Popup": "MeegoIntegration::QuickNoficationManager",
+     "RosterStorage": "Core::SimpleRosterStorage",
+     "SettingsLayer": "MeegoIntegration::QuickSettingsLayer",
+     "Sound": "PhononSoundBackend",
+     "Vibration": "Core::VibroBackend"
+    }
+   }
+  }
