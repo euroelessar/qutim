@@ -46,7 +46,7 @@ SettingsItemPage {
         }
         Label {
             width: parent.width
-            text: "Question:"
+            text: qsTr("Question")
         }
         TextArea {
             id: questionField
@@ -56,7 +56,7 @@ SettingsItemPage {
         }
         Label {
             width: parent.width
-            text: "Answers (semicolon as a separator):"
+            text: qsTr("Answers (semicolon as a separator)")
         }
         TextArea {
             id: answersField
@@ -66,7 +66,7 @@ SettingsItemPage {
         }
         Label {
             width: parent.width
-            text: "Message on correct answer:"
+            text: qsTr("Message on correct answer")
         }
         TextArea {
             id: messageField
