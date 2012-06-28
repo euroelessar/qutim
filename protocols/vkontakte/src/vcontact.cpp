@@ -36,11 +36,15 @@
 
 #include <vk/contact.h>
 #include <vk/chatsession.h>
+#include <vk/contentdownloader.h>
 
 #include <QTimer>
 #include <QApplication>
+#include <QUrl>
 
 using namespace qutim_sdk_0_3;
+
+#define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMedium
 
 VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_buddy(contact)
@@ -54,7 +58,12 @@ VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(m_buddy, SIGNAL(photoSourceChanged(QString,vk::Contact::PhotoSize)),
+			SLOT(onPhotoSourceChanged(QString,vk::Contact::PhotoSize)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+
+	downloadAvatar(m_buddy->photoSource(vk::Contact::PhotoSizeMedium));
 }
 
 
@@ -190,7 +199,7 @@ void VContact::setName(const QString& name)
 
 QString VContact::avatar() const
 {
-	return m_buddy->photoSource();
+	return m_avatar;
 }
 
 bool VContact::event(QEvent *ev)
@@ -204,6 +213,16 @@ bool VContact::event(QEvent *ev)
 	return Contact::event(ev);
 }
 
+void VContact::downloadAvatar(const QString &url)
+{
+	if (!url.isEmpty()) {
+		vk::ContentDownloader *downloader = new vk::ContentDownloader(this);
+		connect(downloader, SIGNAL(downloadFinished(QString)), SLOT(onAvatarDownloaded(QString)));
+		connect(downloader, SIGNAL(downloadFinished(QString)),
+				downloader, SLOT(deleteLater()));
+		downloader->download(QUrl(url));
+	}
+}
 
 void VContact::onStatusChanged(vk::Contact::Status status)
 {
@@ -277,4 +296,16 @@ void VContact::onSessionCreated(ChatSession *session)
 {
 	if (session->unit() == this)
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+}
+
+void VContact::onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize size)
+{
+	if (size == VK_PHOTO_SOURCE)
+		downloadAvatar(source);
+}
+
+void VContact::onAvatarDownloaded(const QString &path)
+{
+	m_avatar = path;
+	emit avatarChanged(path);
 }

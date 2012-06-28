@@ -60,6 +60,8 @@ public:
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
 	vk::ChatSession *chatSession();
+	virtual bool event(QEvent *ev);
+	void downloadAvatar(const QString &url);
 public slots:
 	void setTyping(bool set = false);
 private slots:
@@ -70,14 +72,16 @@ private slots:
 	void onMessageSent(const QVariant &response);
 	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize);
+	void onAvatarDownloaded(const QString &path);
 private:
-	virtual bool event(QEvent *ev);
 	vk::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
 	QPointer<vk::ChatSession> m_chatSession;
 	qutim_sdk_0_3::Status m_status;
 	QString m_name;
 	QStringList m_tags;
+	QString m_avatar;
 	qutim_sdk_0_3::MessageList m_unreadMessages;
 	typedef QList<QPair<int, int> > SentMessagesList;
 	SentMessagesList m_sentMessages;
