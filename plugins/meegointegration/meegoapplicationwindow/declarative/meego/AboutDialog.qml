@@ -72,7 +72,6 @@ Sheet {
 
 			Text {
 				anchors.right: parent.right
-				anchors.top: versionText.bottom
 				id:programName
 				font.pointSize: 60
 				text: "qutIM"
