@@ -45,6 +45,15 @@ bool itemLessThen(SettingsItem *a, SettingsItem *b)
 	return a->text().toString() < b->text().toString();
 }
 
+static void filterItems(qutim_sdk_0_3::SettingsItemList &items)
+{
+	for (int i = items.size() - 1; i >= 0; --i) {
+		const QByteArray name = items.at(i)->text().original();
+		if (name == "Icq")
+			items.removeAt(i);
+	}
+}
+
 void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller)
 {
 	m_controller = controller;
@@ -55,6 +64,7 @@ void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items, 
 	}
 	beginInsertRows(QModelIndex(), 0, items.size());
 	m_items = items;
+	filterItems(m_items);
 	qSort(m_items.begin(), m_items.end(), itemLessThen);
 	endInsertRows();
 }
