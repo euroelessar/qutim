@@ -42,8 +42,8 @@ Page {
 			subtitle: channel.unit.id
 			iconSource: __suggestIcon(channel.unit, channel.unreadCount)
 			onClicked: {
-				channel.active = true
-				channel.showChat()
+                chat.activeSession = channel;
+				channel.showChat();
 			}
 			function __suggestIcon(unit, unreadCount) {
                 var iconId = "icon-m-";
@@ -66,7 +66,11 @@ Page {
 				id: closeButton
 				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
 				platformIconId: "toolbar-close"
-				onClicked: channel.destroy()
+                onClicked: {
+                    if (unit.conference)
+                        unit.leave();
+                    channel.close()
+                }
 			}
 		}
 	}

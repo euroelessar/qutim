@@ -42,8 +42,9 @@ Page {
 		model: unitsModel
 		delegate: ContactItem {
 			onClicked: {
-				root.chat.session(model.contact).active = true
-				root.chat.show()
+                var session = root.chat.session(model.contact);
+                chat.activeSession = session;
+                root.chat.show();
 			}
 		}
 		section.property: "alphabet"

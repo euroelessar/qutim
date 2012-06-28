@@ -58,6 +58,7 @@ public:
 	QObject *model() const;
 	Q_INVOKABLE qint64 send(const QString &text);
 	Q_INVOKABLE void showChat();
+	Q_INVOKABLE void close();
 	QObject *units() const;
 	QObject *page() const;
 	void setPage(QObject *page);

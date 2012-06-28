@@ -54,6 +54,9 @@ ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
 ChatChannel::~ChatChannel()
 {
 	setActive(false);
+	Chat *chat = static_cast<Chat*>(Chat::instance());
+	if (chat && chat->activeSession() == this)
+		chat->setActiveSession(0);
 }
 
 qutim_sdk_0_3::ChatUnit *ChatChannel::getUnit() const
@@ -126,6 +129,11 @@ qint64 ChatChannel::send(const QString &text)
 void ChatChannel::showChat()
 {
 	static_cast<Chat*>(Chat::instance())->show();
+}
+
+void ChatChannel::close()
+{
+	deleteLater();
 }
 
 QObject *ChatChannel::units() const
