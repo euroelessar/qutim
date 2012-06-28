@@ -19,6 +19,10 @@ Rectangle {
             comboBox.model.append({ name: items[i] });
     }
     
+    function append(fieldName) {
+        comboBox.model.append({ name: fieldName });
+    }
+    
     function indexOf(name, def) {
         for (var i = 0; i < comboBox.model.count; ++i) {
             var item = comboBox.model.get(i);

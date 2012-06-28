@@ -46,6 +46,8 @@
 #include "languagesmodel.h"
 #include "menumodel.h"
 #include "addaccountdialogwrapper.h"
+#include "quickdataform.h"
+#include "quickproxyhelper.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
@@ -76,6 +78,8 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<LanguagesModel>("org.qutim", 0, 3, "LanguagesModel");
 	qmlRegisterType<SoundThemeWrapper>("org.qutim", 0, 3, "SoundTheme");
 	qmlRegisterType<QuickMaskEffect>("org.qutim", 0, 3, "MaskEffect");
+	qmlRegisterType<QuickDataForm>("org.qutim", 0, 3, "DataForm");
+	qmlRegisterType<QuickProxyHelper>("org.qutim", 0, 3, "ProxyHelper");
 
 	ThemeManagerWrapper::init();
 

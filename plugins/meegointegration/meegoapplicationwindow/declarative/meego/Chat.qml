@@ -48,9 +48,10 @@ Page {
     Component {
         id: webViewComponent
         ChatView {
+            id: chatView
             width: root.width
             height: root.height - textField.height
-            visible: item === root.currentSessionPage
+            visible: chatView === root.currentSessionPage
         }
     }
 	TextArea {
