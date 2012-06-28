@@ -126,5 +126,13 @@ void ApplicationWindow::closeWidget()
 {
 	emit widgetClosed();
 }
+
+void ApplicationWindow::activate()
+{
+	QWidget *window = m_view->window();
+	window->activateWindow();
+	window->show();
+	window->raise();
+}
 }
 

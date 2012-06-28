@@ -34,6 +34,7 @@
 #include <QBuffer>
 #include "notificationwrapper.h"
 #include "addaccountdialogwrapper.h"
+#include <QDBusConnection>
 
 
 namespace MeegoIntegration
@@ -41,52 +42,55 @@ namespace MeegoIntegration
 
 using namespace qutim_sdk_0_3;
 
+QuickNotificationManagerAdaptor::QuickNotificationManagerAdaptor(QuickNoficationManager *manager)
+	: QDBusAbstractAdaptor(manager), m_manager(manager)
+{
+}
+
+void QuickNotificationManagerAdaptor::activate()
+{
+	m_manager->activate();
+}
+
 QuickNoficationManager::QuickNoficationManager() :
 	NotificationBackend("Popup")
 {
 	setDescription(QT_TR_NOOP("Show popup"));
+	new QuickNotificationManagerAdaptor(this);
+	QDBusConnection connection = QDBusConnection::sessionBus();
+	connection.registerObject("/NotificationManager", this);
+	connection.registerService("org.qutim");
 }
 
-
+QuickNoficationManager::~QuickNoficationManager()
+{
+	foreach (MNotification *notification, MNotification::notifications())
+		notification->remove();
+}
 
 void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *notification)
 {
 	if (!m_connected) {
 		NotificationWrapper::connect(this);
 		m_connected = true;
-		qDebug()<<"Connect to qml notificatinManager";
 
 		bool showAc=true;
 		foreach (Protocol *proto,Protocol::all()) {
 			if (!proto->accounts().isEmpty())
 			showAc=false;
 		}
-		qDebug()<<"Show account creator:"<<showAc;
 		if (showAc)
-		AddAccountDialogWrapper::showDialog();
+			AddAccountDialogWrapper::showDialog();
 
 	}
 
 	if (!m_active) {
 		ref(notification);
-		NotificationRequest request = notification->request();
-
-
-		QString text = Qt::escape(request.text());
-
 		switch (notification->request().type()) {
 		case Notification::IncomingMessage:
 		case Notification::ChatIncomingMessage: {
 			m_notifications << notification;
-			QList<MNotification *> notifs= MNotification::notifications();
-
-			for (int i=0; i < notifs.count(); i++)
-				notifs.at(i)->remove();
-
-			MNotification *notif = new MNotification(MNotification::ImReceivedEvent,
-													 tr("qutIM: %n new messages", 0, m_notifications.count()),
-													 text);
-			notif->publish();
+			updateNotification();
 			break;
 		}
 		default:
@@ -97,22 +101,61 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 	}
 }
 
-
-QuickNoficationManager::~QuickNoficationManager()
+void QuickNoficationManager::setWindowActive(bool active)
 {
+	m_active = active;
 }
 
+void QuickNoficationManager::updateNotification()
+{
+	QList<MNotification *> notifs = MNotification::notifications();
+
+	for (int i = 0; i < notifs.count(); i++)
+		notifs.at(i)->remove();
+
+	if (m_notifications.isEmpty())
+		return;
+
+	MNotification *notification = new MNotification(MNotification::ImReceivedEvent);
+	MRemoteAction action("org.qutim",
+						 "/NotificationManager",
+						 "org.qutim.NoficationManager",
+						 "activate");
+	NotificationRequest request = m_notifications.last()->request();
+	QString text;
+	if (request.object()) {
+		text = request.object()->property("title").toString();
+		text += QLatin1String(": ");
+	}
+	text += Qt::escape(request.text());
+	notification->setBody(text);
+	notification->setSummary(tr("qutIM: %n new messages", 0, m_notifications.count()));
+	notification->setAction(action);
+	notification->publish();
+}
+
+void QuickNoficationManager::activate()
+{
+	QSet<ChatUnit*> objects;
+	foreach (Notification *notification, m_notifications)
+		objects << qobject_cast<ChatUnit*>(notification->request().object());
+	objects.remove(0);
+	if (objects.size() == 1) {
+		ChatSession *session = ChatLayer::get(*objects.begin(), false);
+		if (session) {
+			emit requestChannel(session);
+			return;
+		}
+	}
+	emit requestChannelList();
+}
 
 void QuickNoficationManager::onNotificationFinished()
 {
 	Notification *notif = sender_cast<Notification*>(sender());
 	deref(notif);
 	m_notifications.removeOne(notif);
-}
-
-void QuickNoficationManager::setWindowActive(bool active)
-{
-	m_active = active;
+	updateNotification();
 }
 
 }

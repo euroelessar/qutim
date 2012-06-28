@@ -49,6 +49,7 @@ signals:
 
 public slots:
 	void closeWidget();
+	void activate();
 	
 private:
 	QDeclarativeView *m_view;

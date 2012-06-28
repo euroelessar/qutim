@@ -25,6 +25,7 @@
 
 #include "chatchannelusersmodel.h"
 #include "contactlist.h"
+#include <QDeclarativeEngine>
 
 namespace MeegoIntegration
 {
@@ -68,6 +69,7 @@ void ChatChannelUsersModel::setStatusPrefix(const QString &prefix)
 
 void ChatChannelUsersModel::addUnit(Buddy *unit)
 {
+	QDeclarativeEngine::setObjectOwnership(unit, QDeclarativeEngine::CppOwnership);
 	const Node node(unit);
 	const QList<Node>::Iterator it = qLowerBound(m_units.begin(), m_units.end(), node);
 	if (it != m_units.end() && it->unit == unit)

@@ -33,10 +33,12 @@ PageStackWindow {
 	ServiceManager {
 		id: serviceManager
 	}
+    property variant applicationWindow:  serviceManager.applicationWindow
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
 	property variant settings:  serviceManager.settingsLayer
     property variant vibration:  serviceManager.vibration
+    property variant popup:  serviceManager.popup
 	Connections {
 		target: root.chat
 		onShown: {
@@ -60,6 +62,19 @@ PageStackWindow {
 		target: application
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
+	}
+    Connections {
+		target: root.popup
+        onRequestChannelList: {
+            tabGroup.currentTab = channelListTab;
+            // Is there any better way to make window active?..
+            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+        }
+        onRequestChannel: {
+            root.chat.activeSession = channel;
+            tabGroup.currentTab = chatTab;
+            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+        }
 	}
 	Component {
 		id: proxyPageComponent
