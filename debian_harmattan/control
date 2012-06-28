@@ -11,8 +11,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},libidn11,libqca2-plugin-ossl
 Description: qutIM - is powerful instant messenger
  qutIM is crossplatform multiprotocol instant messengrer with module-based architecture. Protocols' support can be provided by several plugins, some of them are our own implementations of protocols, and some of them uses 3rd party libraries and technologies. Every plugin may be disabled through graphic interface.
- Supported protocols: Oscar(ICQ), Jabber, Mail.ru(MRIM), IRC, Vkontakte 
- Supported langugages: En, Ru, Bg, Cz
+ Supported protocols: Oscar(ICQ), Jabber, Mail.ru(MRIM)
+ Supported langugages: En, Ru, Bg, Cz, Ar, Be, Cs, De, Sk, Uk, Zh
 XSBC-Maemo-Display-Name: qutIM
 XSBC-Bugtracker: https://launchpad.net/qutim
 XB-Maemo-Icon-26:

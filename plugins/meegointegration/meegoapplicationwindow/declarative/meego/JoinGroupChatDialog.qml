@@ -86,8 +86,8 @@ Sheet {
 		function chooseValue() {
 			console.log("Choose join account");
 			var values = handler.accountIds();
-			if (values.length==1){
-				accountsDialog.selectedIndex=0;
+			if (values.length===1){
+				accountsDialog.selectedIndex = 0;
 				handler.setAccount(accountsDialog.selectedIndex);
 				return;
 			}
@@ -358,7 +358,11 @@ Sheet {
 	}
 	Component.onCompleted: {
 		pageStack.push(mainPageComponent);
-		handler.accountIds();
+		var values = handler.accountIds();
+		if (values.length===1){
+			accountsDialog.selectedIndex=0;
+			handler.setAccount(accountsDialog.selectedIndex);
+		}
 
 	}
 }

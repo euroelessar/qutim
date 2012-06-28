@@ -144,16 +144,17 @@ void JoinGroupChatWrapper::fillBookmarks(Account *account)
 	m_bookmarksBoxModel->startUpdating();
 	m_bookmarksModel->startUpdating();
 
-	QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
-	m_bookmarksModel->addItem(BookmarkNew,
-								  QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
-								  fields);
-	fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
-	m_bookmarksModel->addItem(BookmarkEdit,
-								  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
-								  fields);
+//TODO: need to implement
+//	QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
+//	m_bookmarksModel->addItem(BookmarkNew,
+//								  QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
+//								  fields);
+//	fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
+//	m_bookmarksModel->addItem(BookmarkEdit,
+//								  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
+//								  fields);
 
-	m_bookmarksBoxModel->addItem(BookmarkEmptyItem,QString());
+//	m_bookmarksBoxModel->addItem(BookmarkEmptyItem,QString());
 	//Bookmarks
 	fillBookmarks(manager->bookmarks());
 	//Recent items
