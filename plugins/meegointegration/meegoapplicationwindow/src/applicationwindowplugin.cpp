@@ -51,6 +51,9 @@ namespace MeegoIntegration
 		qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Main window of application");
 		setInfo(name, description, PLUGIN_VERSION(0, 1, 0, 0));
 		addExtension<ApplicationWindow>(name, description);
+		addExtension<QuickNoficationManager>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<Chat>(
 			    QT_TRANSLATE_NOOP("Plugin", "Meego chat page"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple chat based on QML elements"));
@@ -81,9 +84,6 @@ namespace MeegoIntegration
 		addExtension<AccountsModel>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGoAccounts Model"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple accounts model"));
-		addExtension<QuickNoficationManager>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<QuickSettingsLayer>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
