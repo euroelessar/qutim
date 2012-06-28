@@ -10,6 +10,6 @@ qutim_add_plugin(vkontakte
 	DESCRIPTION "New implementation of vk.com protocol"
 	GROUP "Protocols"
 	INCLUDE_DIRS
-	LINK_LIBRARIES vk
+	LINK_LIBRARIES vkit
 	QT_LIBRARIES webkit
 )

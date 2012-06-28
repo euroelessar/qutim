@@ -28,6 +28,8 @@ public:
 	static VProtocol *instance();
 	void addAccount(VAccount *account);
 protected:
+    qutim_sdk_0_3::Account *doCreateAccount(const QString &email, const QVariantMap &parameters);
+    virtual void virtual_hook(int id, void *data);
 private slots:
     void onWebPageTriggered(QObject*);
     void onAccountDestroyed(QObject*);

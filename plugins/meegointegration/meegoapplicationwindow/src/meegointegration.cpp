@@ -76,7 +76,6 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 	}
 	case GetSettingsGenerator: {
 		SettingsItem *item = data.value<SettingsItem*>();
-		const QString iconName = item->icon().name();
 		const QByteArray name = item->text().original();
 		ObjectGenerator *generator = NULL;
 		if (name == "Auto-away") {
@@ -108,6 +107,11 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			const QMetaObject *meta = gen->metaObject();
 			if (!qstrcmp(meta->className(), "Jabber::JMainSettings"))
 				generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
+		} else if (name == "Account settings") {
+			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
+			const QMetaObject *meta = gen->metaObject();
+			if (!qstrcmp(meta->className(), "VAccountSettings"))
+				generator = new QuickGenerator(QLatin1String("accounts/VKPage.qml"));
 		}
 		return qVariantFromValue(generator);
 	}

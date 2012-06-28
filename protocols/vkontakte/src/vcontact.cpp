@@ -44,7 +44,7 @@
 
 using namespace qutim_sdk_0_3;
 
-#define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMedium
+#define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMediumRec
 
 VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_buddy(contact)

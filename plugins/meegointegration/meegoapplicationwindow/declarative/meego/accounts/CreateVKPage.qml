@@ -11,7 +11,7 @@ Page {
 	ServiceManager {
 		id: serviceManager
 	}
-    FlickableColumn {
+	FlickableColumn {
 		spacing: 10
         anchors.fill: parent
 		Label {
@@ -46,6 +46,11 @@ Page {
 				passwordField.closeSoftwareInputPanel();
 			}
 		}
+        SwitchRow {
+            id: saveSwitch
+            text: qsTr("Save password")
+            checked: true
+        }
 	}
 
 	function createAccount()
@@ -53,8 +58,11 @@ Page {
 		var protocols = serviceManager.contactList.protocols;
 		for (var i = 0; i < protocols.length; ++i) {
 			var protocol = protocols[i];
-			if (protocol.id === "mrim") {
-				protocol.createAccount(jidField.text, { "password": passwordField.text });
+			if (protocol.id === "vkontakte") {
+				protocol.createAccount(jidField.text, {
+                                           "password": passwordField.text,
+                                           "savePassword": saveSwitch.checked
+                                       });
 				var page = pageStack.find(function(page) { return page.impl && page.contactList; });
 				pageStack.pop(page);
 				break;

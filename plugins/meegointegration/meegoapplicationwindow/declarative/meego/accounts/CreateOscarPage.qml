@@ -11,8 +11,9 @@ Page {
 	ServiceManager {
 		id: serviceManager
 	}
-	Column {
+    FlickableColumn {
 		spacing: 10
+        anchors.fill: parent
 		Label {
 			text: qsTr("UIN:")
 		}

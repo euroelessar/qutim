@@ -47,6 +47,7 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
+	m_roster = new VRoster(this);
 	VAccount::setStatus(Status::instance(Status::Offline, "vkontakte"));
 }
 
@@ -95,8 +96,6 @@ vk::Connection *VAccount::connection() const
 
 VRoster *VAccount::roster()
 {
-	if (m_roster.isNull())
-		m_roster = new VRoster(this);
 	return m_roster;
 }
 

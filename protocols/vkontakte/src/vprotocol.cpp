@@ -92,7 +92,40 @@ VProtocol *VProtocol::instance()
 void VProtocol::addAccount(VAccount *account)
 {
 	m_accounts.insert(account->email(), account);
-	emit accountCreated(account);
+    emit accountCreated(account);
+}
+
+Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &parameters)
+{
+	const QString password = parameters.value("password").toString();
+	const bool savePassword = parameters.value("savePassword", false).toBool();
+
+    VAccount *account = new VAccount(email, this);
+	if (savePassword) {
+		Config cfg = account->config();
+		cfg.beginGroup("general");
+		cfg.setValue("passwd", password, Config::Crypted);
+	}
+	Config cfg = config();
+	cfg.beginGroup("general");
+	QStringList accounts = cfg.value("accounts", QStringList());
+	accounts << account->id();
+	cfg.setValue("accounts", accounts);
+	addAccount(account);
+    return account;
+}
+
+void VProtocol::virtual_hook(int id, void *data)
+{
+    switch (id) {
+	case CreateAccountHook: {
+		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
+		argument.account = doCreateAccount(argument.id, argument.parameters);
+		break;
+	}
+	default:
+		Protocol::virtual_hook(id, data);
+	}
 }
 
 void VProtocol::onWebPageTriggered(QObject *obj)

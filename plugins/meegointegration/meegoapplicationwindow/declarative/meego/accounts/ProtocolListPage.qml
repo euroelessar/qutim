@@ -10,21 +10,7 @@ Page {
     ListView {
         anchors.fill: parent
         model: ListModel {
-            ListElement {
-                title: "Jabber"
-                subtitle: "Xmpp, Ya.Online, GTalk, LiveJournal"
-                pageSource: "CreateJabberPage.qml"
-            }
-            ListElement {
-                title: "ICQ"
-                subtitle: "Oscar"
-                pageSource: "CreateOscarPage.qml"
-            }
-	    ListElement {
-		title: "Mail.ru"
-		subtitle: "Mrim"
-		pageSource: "CreateMrimPage.qml"
-	    }
+            id: listModel
         }
         delegate: ListDelegate {
             onClicked: pageStack.push(Qt.createComponent(model.pageSource))
@@ -45,4 +31,30 @@ Page {
 			onClicked: pageStack.pop()
 		}
 	}
+    Component.onCompleted: {
+        var protocols = [
+                    {
+                        title: "Jabber",
+                        subtitle: qsTr("Xmpp, Ya.Online, GTalk, LiveJournal"),
+                        pageSource: "CreateJabberPage.qml"
+                    },
+                    {
+                        title: "ICQ",
+                        subtitle: "Oscar",
+                        pageSource: "CreateOscarPage.qml"
+                    },
+                    {
+                        title: qsTr("VKontakte"),
+                        subtitle: qsTr("VKontakte social network"),
+                        pageSource: "CreateVKPage.qml"
+                    },
+                    {
+                        title: "Mail.ru",
+                        subtitle: qsTr("Mail.ru Instant Messenger"),
+                        pageSource: "CreateMrimPage.qml"
+                    }
+                ];
+        for (var i = 0; i < protocols.length; ++i)
+            listModel.append(protocols[i]);
+    }
 }
