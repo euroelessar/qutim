@@ -96,7 +96,16 @@ PageStackWindow {
 	Notifications {
 		id:notifications
 		windowActive: platformWindow.active
-        onWindowActiveChanged: root.vibration.windowActive = windowActive
+        onWindowActiveChanged: {
+            root.vibration.windowActive = windowActive
+            var session = root.chat.activeSession;
+            if (session !== undefined && session !== null && tabGroup.currentTab === chatTab) {
+                if (windowActive)
+                    session.active = true;
+                else
+                    session.active = false;
+            }
+        }
 	}
 
 	initialPage: Page {
@@ -125,6 +134,17 @@ PageStackWindow {
 				id: conferenceUsersTab
 				chat: root.chat
 			}
+            
+            onCurrentTabChanged: {
+                var session = root.chat.activeSession;
+                if (session !== undefined && session !== null) {
+                    if (currentTab !== chatTab) {
+                        session.active = false;
+                    } else {
+                        session.active = true;
+                    }
+                }
+            }
 		}
 		tools: ToolBarLayout {
 			ButtonRow {

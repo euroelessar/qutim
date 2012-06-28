@@ -18,7 +18,7 @@ SettingsItemPage {
             configPrefix += styleBox.currentItem.name + "/";
             config.setValue(configPrefix + "variant", style.activeVariant);
             config.setValue(configPrefix + "fontFamily", controller.fontFamily);
-            config.setValue(configPrefix + "fontSize", controller.fontSize);
+            config.setValue(configPrefix + "fontSize", fontSizeField.value);
         }
         function load() {
 	    var style = root.style;
