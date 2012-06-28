@@ -1,0 +1,10 @@
+opt/qutim/bin/qutim
+opt/qutim/lib/*
+opt/qutim/share/apps/qutim/languages/*
+opt/qutim/share/apps/qutim/sounds/*
+opt/qutim/share/apps/qutim/data/*
+opt/qutim/share/apps/qutim/declarative/*
+opt/qutim/share/apps/qutim/webkitstyle/*
+opt/qutim/share/qutim/*
+usr/share/applications/*
+usr/share/icons/hicolor/*

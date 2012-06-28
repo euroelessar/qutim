@@ -1,0 +1,98 @@
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Alpha-Classic/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Alpha-Classic/Contents/Info.plist	2012-06-27 16:41:27.834027494 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Alpha-Classic/Contents/Info.plist	2012-06-27 16:46:28.086252821 +0600
+@@ -18,9 +18,9 @@
+ 	<key>DefaultBackgroundColor</key>
+ 	<string>FFFFFF</string>
+ 	<key>DefaultFontFamily</key>
+-	<string>Verdana</string>
++	<string>Nokia Pure Text</string>
+ 	<key>DefaultFontSize</key>
+-	<integer>8</integer>
++	<integer>14</integer>
+ 	<key>DisableCustomBackground</key>
+ 	<false/>
+ 	<key>ShowsUserIcons</key>
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Maemo/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Maemo/Contents/Info.plist	2012-06-27 16:42:05.533553546 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Maemo/Contents/Info.plist	2012-06-27 16:47:14.293671946 +0600
+@@ -18,9 +18,9 @@
+ 	<key>DefaultBackgroundColor</key>
+ 	<string>000000</string>
+ 	<key>DefaultFontFamily</key>
+-	<string>Nokia Sans</string>
++	<string>Nokia Pure Text</string>
+ 	<key>DefaultFontSize</key>
+-	<integer>16</integer>
++	<integer>14</integer>
+ 	<key>MessageViewVersion</key>
+ 	<integer>4</integer>
+ 	<key>DisableCustomBackground</key>
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Tory/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Tory/Contents/Info.plist	2012-06-27 16:46:01.798583293 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/Tory/Contents/Info.plist	2012-06-27 16:48:04.093045845 +0600
+@@ -18,9 +18,9 @@
+ 	<key>DefaultBackgroundColor</key>
+ 	<string>FFFFFF</string>
+ 	<key>DefaultFontFamily</key>
+-	<string>Arial</string>
++	<string>Nokia Pure Text</string>
+ 	<key>DefaultFontSize</key>
+-	<integer>10</integer>
++	<integer>14</integer>
+ 	<key>MessageViewVersion</key>
+ 	<integer>4</integer>
+     <key>DefaultVariant</key>
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/default/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/default/Contents/Info.plist	2012-06-27 16:41:49.429755999 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/default/Contents/Info.plist	2012-06-27 16:47:34.133422487 +0600
+@@ -18,9 +18,9 @@
+ 	<key>DefaultBackgroundColor</key>
+ 	<string>FFFFFF</string>
+ 	<key>DefaultFontFamily</key>
+-	<string>Arial</string>
++	<string>Nokia Pure Text</string>
+ 	<key>DefaultFontSize</key>
+-	<integer>10</integer>
++	<integer>14</integer>
+ 	<key>DisableCustomBackground</key>
+ 	<false/>
+ 	<key>MessageViewVersion</key>
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/gajim-like/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/gajim-like/Contents/Info.plist	2012-06-27 16:41:59.253632496 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/gajim-like/Contents/Info.plist	2012-06-27 16:47:24.057549150 +0600
+@@ -30,10 +30,10 @@
+ 	<string>FFFFFF</string>
+ 
+ 	<key>DefaultFontFamily</key>
+-	<string>Arial</string>
++	<string>Nokia Pure Text</string>
+ 
+ 	<key>DefaultFontSize</key>
+-	<integer>11</integer>
++	<integer>14</integer>
+ 
+ 	<key>ShowIncomingFonts</key>
+ 	<false/>
+Index: qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/melwa/Contents/Info.plist
+===================================================================
+--- qutim.orig/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/melwa/Contents/Info.plist	2012-06-27 16:42:19.433378803 +0600
++++ qutim/debian/qutim/opt/qutim/share/apps/qutim/webkitstyle/melwa/Contents/Info.plist	2012-06-27 16:47:52.777188103 +0600
+@@ -30,10 +30,10 @@
+ 	<string>FFFFFF</string>
+ 
+ 	<key>DefaultFontFamily</key>
+-	<string>Arial</string>
++	<string>Nokia Pure Text</string>
+ 
+ 	<key>DefaultFontSize</key>
+-	<integer>11</integer>
++	<integer>14</integer>
+ 
+ 	<key>ShowIncomingFonts</key>
+ 	<false/>

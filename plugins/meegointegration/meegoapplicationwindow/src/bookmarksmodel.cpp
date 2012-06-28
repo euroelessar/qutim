@@ -179,17 +179,17 @@ void BookmarksModel::fill(QString accountId)
 					return;
 
 				startUpdating();
+//TODO: need to implement
+//				QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
+//				addItem(BookmarkNew,
+//					QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
+//					fields);
+//				fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
+//				addItem(BookmarkEdit,
+//					QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
+//					fields);
 
-				QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
-				addItem(BookmarkNew,
-					QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
-					fields);
-				fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
-				addItem(BookmarkEdit,
-					QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
-					fields);
-
-				addItem(BookmarkEmptyItem,QString());
+//				addItem(BookmarkEmptyItem,QString());
 				//Bookmarks
 				fillBookmarks(manager->bookmarks());
 				//Recent items

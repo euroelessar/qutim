@@ -66,9 +66,12 @@ Page {
 		anchors { top: textField.top; right: parent.right; }
 		platformIconId: "toolbar-send-chat"
 		onClicked: {
-			var result = chat.activeSession.send(textField.text);
-			if (result != -2)
-				textField.text = "";
+			if (textField.text!=="")
+			{
+				var result = chat.activeSession.send(textField.text);
+				if (result !== -2)
+					textField.text = "";
+			}
 		}
 	}
 }
