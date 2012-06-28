@@ -67,8 +67,8 @@ Page {
 				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
 				platformIconId: "toolbar-close"
                 onClicked: {
-                    if (unit.conference)
-                        unit.leave();
+                    if (channel.unit.conference)
+                        channel.unit.leave();
                     channel.close()
                 }
 			}

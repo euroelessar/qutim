@@ -7,7 +7,7 @@ import "constants.js" as UI
 
 Item {
     id: listItem
-    height: UI.LIST_ITEM_HEIGHT
+    height: 74 //UI.LIST_ITEM_HEIGHT
     width: parent.width
     clip: true
     signal clicked
