@@ -55,9 +55,6 @@ private slots:
 	void onAddFriend(vk::Buddy *buddy);
 
 	void onMessageAdded(const vk::Message &msg);
-	void onMessageDeleted(int mid);
-	void onMessageFlagsReplaced(int mid, int mask, int userId = 0);
-	void onMessageFlagsReseted(int mid, int mask, int userId = 0);
 	void onContactTyping(int userId);
 private:
 	VAccount *m_account;
