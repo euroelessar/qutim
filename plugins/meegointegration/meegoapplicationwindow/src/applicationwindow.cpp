@@ -117,6 +117,7 @@ ApplicationWindow::ApplicationWindow()
 ApplicationWindow::~ApplicationWindow()
 {
 	self = 0;
+	delete m_view;
 }
 
 void ApplicationWindow::showWidget(QWidget *widget)
