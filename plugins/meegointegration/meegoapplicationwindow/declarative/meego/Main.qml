@@ -34,6 +34,7 @@ PageStackWindow {
 		id: serviceManager
 	}
     property variant applicationWindow:  serviceManager.applicationWindow
+    property variant contactInfo: serviceManager.contactInfo
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
 	property variant settings:  serviceManager.settingsLayer
@@ -52,6 +53,13 @@ PageStackWindow {
             if (contactList.accounts.length === 0) {
                 pageStack.push(accountCreatorPageComponent);
             }
+        }
+    }
+    Connections {
+		target: root.contactInfo
+        onShowRequest: {
+            console.log("showRequest")
+            pageStack.push(contactInfoPageComponent)
         }
     }
     Connections {
@@ -84,6 +92,12 @@ PageStackWindow {
     Component {
 		id: accountCreatorPageComponent
 		ProtocolListPage {
+		}
+	}
+    Component {
+		id: contactInfoPageComponent
+		ContactInfoPage {
+            contactInfo: root.contactInfo
 		}
 	}
 	Statistics {

@@ -37,6 +37,7 @@ class ApplicationWindow : public QObject
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "PasswordDialog")
+	Q_CLASSINFO("Uses", "ContactInfo")
 public:
     explicit ApplicationWindow();
 	~ApplicationWindow();

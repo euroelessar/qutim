@@ -195,7 +195,9 @@ void QuickDataForm::addItem(const DataItem &item)
 			foreach (const DataItem &subitem, item.subitems())
 	            addItem(subitem);
 		} else {
-//			return new Label(dataForm, item, parent);
+			ComponentCreator creator(this, item.name(), "dataform/DataLabelRaw.qml");
+			creator.object()->setProperty("title", item.title().toString());
+			creator.object()->setProperty("text", item.data());
 		}
 	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
 //		return new StringListGroup(dataForm, item, parent);
