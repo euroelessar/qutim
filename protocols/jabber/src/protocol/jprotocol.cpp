@@ -41,6 +41,7 @@
 #include <QInputDialog>
 #include <qutim/debug.h>
 #include <jreen/logger.h>
+#include <qutim/datasettingsobject.h>
 
 namespace Jabber
 {
@@ -193,7 +194,7 @@ void JProtocol::loadActions()
 
 	Settings::registerItem<JAccount>(d->mainSettings);
 
-	Settings::registerItem<JMUCSession>(new GeneralSettingsItem<JConferenceConfig>(
+	Settings::registerItem<JMUCSession>(new GeneralDataSettingsItem<JConferenceConfig>(
 	                                        Settings::Protocol,
 	                                        QIcon(),
 	                                        QT_TRANSLATE_NOOP("Settings", "Room configuration")));

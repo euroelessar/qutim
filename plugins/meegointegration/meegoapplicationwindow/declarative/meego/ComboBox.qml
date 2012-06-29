@@ -13,10 +13,12 @@ Rectangle {
     property alias pressed: mouseArea.pressed
     property variant items: []
     
-    onItemsChanged: {
+    onItemsChanged: __repopulateModel();
+    
+    function __repopulateModel() {
         comboBox.model.clear();
-        for (var i = 0; i < items.length; ++i)
-            comboBox.model.append({ name: items[i] });
+        for (var i = 0; i < comboBox.items.length; ++i)
+            comboBox.model.append({ name: comboBox.items[i] });
     }
     
     function append(fieldName) {
@@ -30,6 +32,11 @@ Rectangle {
                 return i;
         }
         return def || -1;
+    }
+    
+    Component.onCompleted: {
+        console.debug("Component.onCompleted", comboBox.items);
+        __repopulateModel();
     }
     
     width: parent.width

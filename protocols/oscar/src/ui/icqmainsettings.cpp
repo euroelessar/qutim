@@ -31,6 +31,7 @@
 #include <QVBoxLayout>
 #include "../settingsextension.h"
 #include <qutim/objectgenerator.h>
+#include <qutim/debug.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -115,10 +116,8 @@ static QStringList codecs()
 	return codecs;
 }
 
-IcqMainSettings::IcqMainSettings() :
-	m_layout(new QVBoxLayout(this))
+IcqMainSettings::IcqMainSettings()
 {
-	m_layout->setMargin(0);
 	/*foreach(int codec, QTextCodec::availableMibs())
   ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
 }
@@ -135,23 +134,24 @@ void IcqMainSettings::loadImpl()
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	if (!codec)
 		codec = QTextCodec::codecForLocale();
-	QString codecNameLower = codecName.toLower();
 
 	foreach (QString itr, codecs()) {
-		itr = itr.toLower();
-		if (codecNameLower == itr)
+		if (codecName.compare(itr, Qt::CaseInsensitive) == 0)
 			break;
-		foreach(const QByteArray &alias, codec->aliases())
-		{
-			if (QString::fromLatin1(alias).toLower() == itr) {
+		bool shouldBreak = false;
+		foreach(const QByteArray &alias, codec->aliases()) {
+			if (QString::fromLatin1(alias).compare(itr, Qt::CaseInsensitive) == 0) {
 				codecName = itr;
-				goto codecNameFound;
+				shouldBreak = true;
+				break;
 			}
 		}
+		if (shouldBreak)
+			break;
 	}
-
-	codecNameFound:
-		DataItem item;
+	if (codecName == QLatin1String("System"))
+		codecName = codecs()[0];
+	DataItem item;
 	{
 		DataItem subitem("mainSettings", tr("General"), QVariant());
 		subitem.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
@@ -163,11 +163,7 @@ void IcqMainSettings::loadImpl()
 	}
 	foreach (SettingsExtension *extension, settingsExtensions())
 		extension->loadSettings(item, cfg);
-	m_extSettings.reset(AbstractDataForm::get(item));
-	if (m_extSettings) {
-		connect(m_extSettings.data(), SIGNAL(changed()), SLOT(extSettingsChanged()));
-		m_layout->insertWidget(0, m_extSettings.data());
-	}
+	setItem(item);
 }
 
 void IcqMainSettings::cancelImpl()
@@ -175,32 +171,22 @@ void IcqMainSettings::cancelImpl()
 	loadImpl();
 }
 
-void IcqMainSettings::saveImpl()
+void IcqMainSettings::saveImpl(const qutim_sdk_0_3::DataItem &mainItem)
 {
-	if (m_extSettings) {
-		Config cfg = IcqProtocol::instance()->config();
-		DataItem item = m_extSettings->item();
-		foreach (SettingsExtension *extension, settingsExtensions())
-			extension->saveSettings(item, cfg);
+	Config cfg = IcqProtocol::instance()->config();
+	foreach (SettingsExtension *extension, settingsExtensions())
+		extension->saveSettings(mainItem, cfg);
 
-		cfg.beginGroup("general");
-		item = item.subitem("mainSettings");
-		cfg.setValue("avatars", !item.subitem("avatars").data<bool>());
-		QString codecName = item.subitem("codec").data<QString>();
-		if (codecName == systemCodec)
-			codecName = QTextCodec::codecForLocale()->name();
-		cfg.setValue("codec", codecName);
-		cfg.setValue("aimContacts", item.subitem("aimContacts").data<bool>());
-		cfg.endGroup();
-
-		m_extSettings->clearState();
-	}
+	cfg.beginGroup("general");
+	DataItem item = mainItem.subitem("mainSettings");
+	cfg.setValue("avatars", !item.subitem("avatars").data<bool>());
+	QString codecName = item.subitem("codec").data<QString>();
+	if (codecName == systemCodec)
+		codecName = QTextCodec::codecForLocale()->name();
+	cfg.setValue("codec", codecName);
+	cfg.setValue("aimContacts", item.subitem("aimContacts").data<bool>());
+	cfg.endGroup();
 	IcqProtocol::instance()->updateSettings();
-}
-
-void IcqMainSettings::extSettingsChanged()
-{
-	emit modifiedChanged(true);
 }
 
 

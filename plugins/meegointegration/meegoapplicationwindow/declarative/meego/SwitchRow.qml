@@ -15,7 +15,6 @@ Item {
         anchors.left: parent.left
         anchors.right: switchItem.left
         anchors.rightMargin: 10
-        text: qsTr("Set status \"Away\"")
     }
     Switch {
         id: switchItem

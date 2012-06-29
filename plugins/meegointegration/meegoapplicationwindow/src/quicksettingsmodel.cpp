@@ -47,11 +47,12 @@ bool itemLessThen(SettingsItem *a, SettingsItem *b)
 
 static void filterItems(qutim_sdk_0_3::SettingsItemList &items)
 {
-	for (int i = items.size() - 1; i >= 0; --i) {
-		const QByteArray name = items.at(i)->text().original();
-		if (name == "Icq")
-			items.removeAt(i);
-	}
+	Q_UNUSED(items);
+//	for (int i = items.size() - 1; i >= 0; --i) {
+//		const QByteArray name = items.at(i)->text().original();
+//		if (name == "Icq")
+//			items.removeAt(i);
+//	}
 }
 
 void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller)

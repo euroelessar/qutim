@@ -135,52 +135,6 @@ public slots:
 	void onButtonClicked(bool toggled);
 };
 
-class DataSettingsWidgetPrivate;
-class DataSettingsWidget : public SettingsWidget
-{
-	Q_OBJECT
-public:
-	DataSettingsWidget(DataSettingsItemPrivate *pr);
-	virtual ~DataSettingsWidget();
-protected:
-	virtual void loadImpl();
-	virtual void saveImpl();
-	virtual void cancelImpl();
-private:
-	DataSettingsItemPrivate *p;
-	QScopedPointer<DataSettingsWidgetPrivate> g;
-};
-
-class DataSettingsItemPrivate : public SettingsItemPrivate
-{
-public:
-	QString config;
-	QString group;
-	DataItem item;
-};
-
-class DataSettingsGenerator : public ObjectGenerator
-{
-public:
-	DataSettingsGenerator(DataSettingsItemPrivate *pr) : p(pr) {}
-protected:
-	virtual ~DataSettingsGenerator() {}
-	virtual QObject *generateHelper() const
-	{
-		debug() << Q_FUNC_INFO;
-		if(m_object.isNull())
-			m_object = new DataSettingsWidget(p);
-		return m_object.data();
-	}
-	virtual const QMetaObject *metaObject() const
-	{
-		return &DataSettingsWidget::staticMetaObject;
-	}
-private:
-	DataSettingsItemPrivate *p;
-	mutable QWeakPointer<QObject> m_object;
-};
-
 typedef QMultiMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
 
 }

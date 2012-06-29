@@ -27,15 +27,23 @@
 #define QUICKSETTINGSLAYER_H
 
 #include <qutim/settingslayer.h>
+#include <qutim/datasettingsobject.h>
 
 namespace MeegoIntegration
 {
 class QuickSettingsModel;
 
+struct DataSettingsObjectCreator
+{
+	DataSettingsObjectCreator(qutim_sdk_0_3::SettingsItem *item);
+	qutim_sdk_0_3::DataSettingsItem *item;
+	qutim_sdk_0_3::DataSettingsObject *create();
+};
+
 class QuickGenerator : public qutim_sdk_0_3::ObjectGenerator
 {
 public:
-	QuickGenerator(const QString &component);
+	QuickGenerator(const QString &component, DataSettingsObjectCreator *creator = 0);
 	~QuickGenerator();
 
 protected:
@@ -44,6 +52,7 @@ protected:
 
 private:
 	const QString m_component;
+	DataSettingsObjectCreator *m_creator;
 };
 
 class QuickSettingsItem : public qutim_sdk_0_3::SettingsItem

@@ -27,6 +27,7 @@ signals:
 protected:
     void buildContent();
     void updateItem(qutim_sdk_0_3::DataItem &item);
+	void addGroup(const qutim_sdk_0_3::DataItem &item);
     void addLabel(const qutim_sdk_0_3::DataItem &item);
     void addItem(const qutim_sdk_0_3::DataItem &item);
     QDeclarativeComponent *loadComponent(const QString &name);

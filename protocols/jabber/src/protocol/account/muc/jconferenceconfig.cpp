@@ -33,28 +33,20 @@ namespace Jabber
 using namespace Jreen;
 struct JConferenceConfigPrivate
 {
-//	Ui::RoomConfig *ui;
-	JDataForm *form;
+	DataForm::Ptr form;
 	MUCRoom *room;
 };
 
 JConferenceConfig::JConferenceConfig() : p(new JConferenceConfigPrivate)
 {
-	(new QGridLayout(this))->setMargin(0);
 	p->room = 0;
-	p->form = 0;
-//	p->ui = new Ui::RoomConfig();
-//	p->ui->setupUi(this);
-//	p->ui->okButton->setIcon(Icon(""));
-//	p->ui->applyButton->setIcon(Icon(""));
-//	p->ui->cancelButton->setIcon(Icon(""));
 }
 
 JConferenceConfig::~JConferenceConfig()
 {
 }
 
-void JConferenceConfig::setController(QObject *controller)
+void JConferenceConfig::setControllerImpl(QObject *controller)
 {
 	JMUCSession *session = qobject_cast<JMUCSession*>(controller);
 	if (!session)
@@ -69,9 +61,10 @@ void JConferenceConfig::loadImpl()
 	p->room->requestRoomConfig();
 }
 
-void JConferenceConfig::saveImpl()
+void JConferenceConfig::saveImpl(const qutim_sdk_0_3::DataItem &item)
 {
-	p->room->setRoomConfig(p->form->getDataForm());
+	JDataForm::convertFromDataItem(p->form, item);
+	p->room->setRoomConfig(p->form);
 }
 
 void JConferenceConfig::cancelImpl()
@@ -80,25 +73,9 @@ void JConferenceConfig::cancelImpl()
 
 void JConferenceConfig::onConfigurationReceived(const Jreen::DataForm::Ptr &form)
 {
-	QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
-	if (p->form) {
-		p->form->deleteLater();
-		gridLayout->removeWidget(p->form);
-	}
-	p->form = new JDataForm(form, AbstractDataForm::NoButton, this);
-	connect(p->form->widget(), SIGNAL(changed()), this, SLOT(onDataChanged()));
-//	connect(p->form->widget(), SIGNAL(clicked(int)))
-//	p->ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-//	p->ui->scrollArea->setWidgetResizable(true);
-//	p->ui->scrollAreaWidgetContents->setLayout(layout);
-//	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-//	p->form->setSizePolicy(sizePolicy);
-	gridLayout->addWidget(p->form);
+	p->form = form;
+	setItem(JDataForm::convertToDataItem(form));
 }
 
-void JConferenceConfig::onDataChanged()
-{
-	emit modifiedChanged(true);
-}
 }
 

@@ -57,6 +57,69 @@ void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, c
                             qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons)
 {
 	this->form = form;
+	
+	DataItem root = JDataForm::convertToDataItem(form, bobs);
+	QGridLayout *layout = new QGridLayout(that);
+	that->setLayout(layout);
+	layout->addWidget(widget = AbstractDataForm::get(root, buttons));
+	QObject::connect(widget, SIGNAL(accepted()), that, SIGNAL(accepted()));
+}
+
+JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
+					 AbstractDataForm::StandardButtons buttons, QWidget *parent)
+	: QWidget(parent), d_ptr(new JDataFormPrivate)
+{
+	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), buttons);
+}
+
+JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
+                     AbstractDataForm::StandardButtons buttons, QWidget *parent)
+    : QWidget(parent), d_ptr(new JDataFormPrivate)
+{
+	d_func()->init(this, form, bobs, buttons);
+}
+
+JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent)
+    : QWidget(parent), d_ptr(new JDataFormPrivate)
+{
+	d_func()->init(this, form, bobs, qutim_sdk_0_3::AbstractDataForm::NoButton);
+}
+
+JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent)
+    : QWidget(parent), d_ptr(new JDataFormPrivate)
+{
+	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), qutim_sdk_0_3::AbstractDataForm::NoButton);
+}
+
+JDataForm::~JDataForm()
+{
+}
+
+qutim_sdk_0_3::AbstractDataForm *JDataForm::widget()
+{
+	return d_func()->widget;
+}
+
+QString optionValueByLabel(const Jreen::DataFormField &field, const QString &label)
+{
+	Jreen::DataFormOptionContainer options = field.cast<Jreen::DataFormOptionContainer>();
+	for (int i = 0; i < options.optionsCount(); i++) {
+		if (options.optionLabel(i) == label)
+			return options.optionValue(i);
+	}
+	return QString();
+}
+
+Jreen::DataForm::Ptr JDataForm::getDataForm()
+{
+	Q_D(JDataForm);
+	DataItem item = d->widget->item();
+	convertFromDataItem(d->form, item);
+	return d->form;
+}
+
+DataItem JDataForm::convertToDataItem(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs)
+{
 	DataItem root(form->title());
 	for (int i = 0; i < form->fieldsCount(); i++) {
 		Jreen::DataFormField field = form->field(i);
@@ -131,64 +194,14 @@ void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, c
 			root << item;
 		}
 	}
-	QGridLayout *layout = new QGridLayout(that);
-	that->setLayout(layout);
-	layout->addWidget(widget = AbstractDataForm::get(root, buttons));
-	QObject::connect(widget, SIGNAL(accepted()), that, SIGNAL(accepted()));
+	return root;
 }
 
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
-					 AbstractDataForm::StandardButtons buttons, QWidget *parent)
-	: QWidget(parent), d_ptr(new JDataFormPrivate)
+void JDataForm::convertFromDataItem(const Jreen::DataForm::Ptr &form, const DataItem &item)
 {
-	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), buttons);
-}
-
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-                     AbstractDataForm::StandardButtons buttons, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
-{
-	d_func()->init(this, form, bobs, buttons);
-}
-
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
-{
-	d_func()->init(this, form, bobs, qutim_sdk_0_3::AbstractDataForm::NoButton);
-}
-
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
-{
-	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), qutim_sdk_0_3::AbstractDataForm::NoButton);
-}
-
-JDataForm::~JDataForm()
-{
-}
-
-qutim_sdk_0_3::AbstractDataForm *JDataForm::widget()
-{
-	return d_func()->widget;
-}
-
-QString optionValueByLabel(const Jreen::DataFormField &field, const QString &label)
-{
-	Jreen::DataFormOptionContainer options = field.cast<Jreen::DataFormOptionContainer>();
-	for (int i = 0; i < options.optionsCount(); i++) {
-		if (options.optionLabel(i) == label)
-			return options.optionValue(i);
-	}
-	return QString();
-}
-
-Jreen::DataForm::Ptr JDataForm::getDataForm()
-{
-	Q_D(JDataForm);
-	d->form->setType(Jreen::DataForm::Submit);
-	DataItem item = d->widget->item();
-	for (int i = 0; i < d->form->fieldsCount(); i++) {
-		Jreen::DataFormField field = d->form->field(i);
+	form->setType(Jreen::DataForm::Submit);
+	for (int i = 0; i < form->fieldsCount(); i++) {
+		Jreen::DataFormField field = form->field(i);
 		DataItem currentItem = item.subitem(field.var(), true);
 		QVariant data = currentItem.data();
 		
@@ -209,7 +222,7 @@ Jreen::DataForm::Ptr JDataForm::getDataForm()
 			field.setValue(data.toString());
 		}
 	}
-	return d->form;
 }
+
 }
 

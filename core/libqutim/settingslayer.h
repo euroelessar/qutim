@@ -212,20 +212,6 @@ private:
 	QScopedPointer<AutoSettingsFileChooserPrivate> d_ptr;
 };
 
-class DataSettingsItemPrivate;
-class LIBQUTIM_EXPORT DataSettingsItem : public SettingsItem
-{
-	Q_DECLARE_PRIVATE(DataSettingsItem)
-public:
-	DataSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text);
-	DataSettingsItem(Settings::Type type, const LocalizedString &text);
-	virtual ~DataSettingsItem();
-	void setConfig(const QString &config, const QString &group);
-	void setDataItem(const DataItem &item);
-private:
-	virtual const ObjectGenerator *generator() const;
-};
-
 class LIBQUTIM_EXPORT SettingsLayer : public QObject
 {
 	Q_OBJECT

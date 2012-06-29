@@ -106,7 +106,7 @@ void QuickDataForm::updateItem(DataItem &item)
 //			return new IconListWidget(dataForm, item, parent);
     } else {
         item.setData(object->property("text").toString());
-    }
+	}
 }
 
 static QPixmap variantToPixmap(const QVariant &data, const QSize &size)
@@ -152,11 +152,11 @@ public:
         m_object->setParentItem(form->m_column);
         if (!id.isEmpty())
             form->m_items.insert(id, m_object);
+		m_component->completeCreate();
     }
     
     ~ComponentCreator()
     {
-        m_component->completeCreate();
     }
     
     QDeclarativeItem *object() const
@@ -169,6 +169,12 @@ private:
     QDeclarativeItem *m_object;
     QDeclarativeComponent *m_component;
 };
+
+void QuickDataForm::addGroup(const DataItem &item)
+{
+	ComponentCreator creator(this, QString(), "dataform/DataSeparator.qml");
+    creator.object()->setProperty("text", item.title().toString());
+}
 
 void QuickDataForm::addLabel(const DataItem &item)
 {
@@ -184,21 +190,25 @@ void QuickDataForm::addItem(const DataItem &item)
         return;
     QVariant::Type type = item.data().type();
     if (item.isReadOnly()) {
-//		if (item.hasSubitems()) {
-//			if (twoColumn)
-//				*twoColumn = true;
-//			return new DataGroup(dataForm, item, parent);
-//		} else {
+		if (item.hasSubitems()) {
+			addGroup(item);
+			foreach (const DataItem &subitem, item.subitems())
+	            addItem(subitem);
+		} else {
 //			return new Label(dataForm, item, parent);
-//		}
+		}
 	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
 //		return new StringListGroup(dataForm, item, parent);
 	} else if (item.isAllowedModifySubitems()) {
 //		return new ModifiableGroup(dataForm, item, parent);
 	} else if (item.hasSubitems()) {
-//		return new DataGroup(dataForm, item, parent);
+		addGroup(item);
+		foreach (const DataItem &subitem, item.subitems())
+            addItem(subitem);
 	} else if (type == QVariant::Bool) {
-//		return new CheckBox(dataForm, item, parent);
+		ComponentCreator creator(this, item.name(), "dataform/DataSwitch.qml");
+		creator.object()->setProperty("text", item.title().toString());
+		creator.object()->setProperty("checked", item.data());
 	} else if (type == QVariant::Date) {
 //		return new DateEdit(dataForm, item, parent);
 	} else if (type == QVariant::DateTime) {
@@ -229,7 +239,11 @@ void QuickDataForm::addItem(const DataItem &item)
             str = item.data().toString();
         QStringList alt = variantToStringList(item.property("alternatives"));
         if (!alt.isEmpty()) {
-//          return new ComboBox(dataForm, str, alt, false, item, parent);
+			ComponentCreator creator(this, item.name(), "dataform/DataComboBox.qml");
+			creator.object()->setProperty("title", item.title().toString());
+			creator.object()->setProperty("items", alt);
+			creator.object()->setProperty("currentIndex", alt.indexOf(str));
+			//QMetaObject::invokeMethod(creator.object(), "__repopulateModel");
         } else {
             addLabel(item);
             ComponentCreator creator(this, item.name(), item.property("multiline", false)
