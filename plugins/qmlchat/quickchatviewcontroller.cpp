@@ -37,6 +37,8 @@
 #include <qutim/history.h>
 #include <qutim/emoticons.h>
 #include <qutim/notification.h>
+#include <qutim/declarativeview.h>
+
 #include <QImageReader>
 #include <qutim/servicemanager.h>
 #include <qutim/utils.h>
@@ -124,11 +126,11 @@ static QString chatStateToString(ChatState state)
 	return stateStr;
 }
 
-QuickChatController::QuickChatController(QDeclarativeEngine *engine, QObject *parent) :
+QuickChatController::QuickChatController(QObject *parent) :
 	QGraphicsScene(parent),
 	m_themeName(QLatin1String("default")),
 	//	m_engine(engine) //TODO use one engine for all controllers
-	m_engine(engine)
+    m_engine(DeclarativeView::engine())
 {
 	m_context = new QDeclarativeContext(m_engine, this);
 	m_context->setContextProperty("controller", this);

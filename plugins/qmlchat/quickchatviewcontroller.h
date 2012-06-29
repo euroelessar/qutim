@@ -48,7 +48,7 @@ class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatV
 	Q_PROPERTY(QObject* unit READ unit NOTIFY sessionChanged)
 	Q_PROPERTY(QString chatState READ chatState NOTIFY chatStateChanged)
 public:
-	QuickChatController(QDeclarativeEngine *engine, QObject *parent = 0);
+    QuickChatController(QObject *parent = 0);
 	virtual ~QuickChatController();
 	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
 	virtual qutim_sdk_0_3::ChatSession *getSession() const;
