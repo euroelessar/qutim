@@ -51,7 +51,6 @@ public:
 	virtual QObject *createViewController();
     virtual ~QuickChatViewFactory();
 private:
-	QDeclarativeEngine *m_engine;
 	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
 };
 
