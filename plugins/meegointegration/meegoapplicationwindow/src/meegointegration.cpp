@@ -112,7 +112,7 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("settings/AntispamPage.qml"));
 		else if (name == "Global proxy" || name == "Proxy")
 			generator = new QuickGenerator(QLatin1String("settings/ProxyPage.qml"));
-		return qVariantFromValue(generator ? generator : gen.data());
+		return qVariantFromValue(generator ? generator : gen.take());
 	}
 	default:
 		break;
