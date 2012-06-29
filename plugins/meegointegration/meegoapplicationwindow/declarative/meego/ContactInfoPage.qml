@@ -23,10 +23,20 @@ Page {
     
     tools: ToolBarLayout {
 		id: toolBarLayout
-		ToolIcon {
+        ToolIcon {
 			visible: true
 			platformIconId: "toolbar-previous"
 			onClicked: pageStack.pop()
+		}
+        ToolButton {
+			visible: true
+            text: qsTr("Request")
+            onClicked: root.contactInfo.request()
+		}
+        ToolButton {
+			visible: !root.contactInfo.readOnly
+            text: qsTr("Save")
+            onClicked: root.contactInfo.save(dataForm.item)
 		}
 	}
 }
