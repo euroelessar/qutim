@@ -48,6 +48,7 @@
 #include "addaccountdialogwrapper.h"
 #include "quickdataform.h"
 #include "quickproxyhelper.h"
+#include "quickmenubuilder.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
@@ -57,8 +58,11 @@ namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 
+static ApplicationWindow *self = 0;
+
 ApplicationWindow::ApplicationWindow()
 {
+	self = this;
 	QApplication::setStyle(QLatin1String("Plastique"));
 	m_view = MDeclarativeCache::qDeclarativeView();
 	ServiceManagerWrapper::init();
@@ -71,6 +75,7 @@ ApplicationWindow::ApplicationWindow()
 	SettingsWrapper::init();
 	AddAccountDialogWrapper::init();
 	NotificationWrapper::init();
+	qmlRegisterUncreatableType<MenuController>("org.qutim", 0, 3, "MenuController", "Abstract class");
 	qmlRegisterType<QuickRegExpService>("org.qutim", 0, 3, "RegExpService");
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
@@ -80,6 +85,7 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<QuickMaskEffect>("org.qutim", 0, 3, "MaskEffect");
 	qmlRegisterType<QuickDataForm>("org.qutim", 0, 3, "DataForm");
 	qmlRegisterType<QuickProxyHelper>("org.qutim", 0, 3, "ProxyHelper");
+	qmlRegisterType<QuickMenuBuilder>("org.qutim", 0, 3, "MenuBuilder");
 
 	ThemeManagerWrapper::init();
 
@@ -105,7 +111,12 @@ ApplicationWindow::ApplicationWindow()
 	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
 	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
 	m_view->showFullScreen();
+	
+}
 
+ApplicationWindow::~ApplicationWindow()
+{
+	self = 0;
 }
 
 void ApplicationWindow::showWidget(QWidget *widget)
@@ -120,6 +131,11 @@ void ApplicationWindow::showWidget(QWidget *widget)
 QDeclarativeEngine *ApplicationWindow::engine() const
 {
 	return m_view->engine();
+}
+
+ApplicationWindow *ApplicationWindow::instance()
+{
+	return self;
 }
 
 void ApplicationWindow::closeWidget()

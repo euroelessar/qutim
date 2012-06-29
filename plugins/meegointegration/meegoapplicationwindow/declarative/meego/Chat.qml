@@ -31,7 +31,10 @@ import org.qutim 0.3
 Page {
 	id: root
 	property variant chat
-	property variant menu: ControlledMenu {
+	property variant menu: contactMenu
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
     property variant currentSessionPage

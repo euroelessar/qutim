@@ -33,9 +33,9 @@ Page {
 	property variant contactList
 	property variant showOffline:false
 	property variant chat
-	property variant menu: ControlledMenu {
-		controller: contactList
-	}
+//	property variant menu: ControlledMenu {
+//		controller: contactList
+//	}
 //    MaskedItem {
 //        id: maskedItem
 //        visible: false
@@ -48,6 +48,10 @@ Page {
 		showOffline: root.showOffline
 		statusPrefix: "icon-m"
 	}
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
+    }
 	ListView {
 		id: listViewItem
 		width: parent.width
@@ -59,6 +63,10 @@ Page {
                 var session = root.chat.session(model.contact);
                 chat.activeSession = session;
                 root.chat.show();
+            }
+            onPressAndHold: {
+                contactMenu.controller = model.contact;
+                contactMenu.open();
             }
         }
 

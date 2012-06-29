@@ -185,17 +185,10 @@ PageStackWindow {
 			}
 
 			ToolIcon {
+                id: menuIcon
 				property variant menu: tabGroup.currentTab.menu
-				//				visible: menu !== undefined
-				//				Menu {
-				//					id: menu
-				//					visualParent: root.pageStack
-				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:mainMenu.open()
-//				onClicked: (menu.status == DialogStatus.Closed)
-//					   ? menu.open()
-//					   : menu.close()
+                onClicked: (menu === undefined ? mainMenu : menu).open()
 			}
 
 		}
@@ -238,49 +231,37 @@ PageStackWindow {
 	Sheet {
 		id: statisticsGatherer
 
-		acceptButtonText: qsTr("Send")
+        acceptButtonText: submitBox.checked ? qsTr("Send") : qsTr("Don't send")
 		rejectButtonText: qsTr("Cancel")
 
-		content: Flickable {
-			anchors.fill: parent
-			anchors.leftMargin: 10
-			anchors.rightMargin: 10
-			anchors.topMargin: 10
-			flickableDirection: Flickable.VerticalFlick
-			Column {
-			    id: col2
-			    anchors.top: parent.top
-			    anchors.left: parent.left
-			    anchors.right: parent.right
-			    spacing: 10
-			    CheckBox{
-				    id:submitBox
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Would you like to send details about your current setup?")
+        content: FlickableColumn {
+            anchors.fill: parent
+			anchors.margins: 10
+            spacing: 10
+            
+            CheckBox {
+                id:submitBox
+                width: parent.width
+                text: qsTr("Would you like to send details about your current setup?")
+                checked: true
 
-			    }
-			    CheckBox{
-				    id:dontAskLater
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Dont's ask me later")
-			    }
-			    Label
-			    {
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Information to be transferred to the qutIM's authors:")
-			    }
-
-			    TextArea
-			    {
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text:statistics.infoHtml
-			    }
-			}
-		    }
+            }
+            CheckBox {
+                id:dontAskLater
+                width: parent.width
+                text: qsTr("Dont's ask me later")
+                checked: false
+            }
+            Label {
+                width: parent.width
+                text: qsTr("Information to be transferred to the qutIM's authors:")
+            }
+            TextArea {
+                width: parent.width
+                text: statistics.infoHtml
+                readOnly: true
+            }
+        }
 
 		onAccepted: statistics.setDecisition(!submitBox.checked, dontAskLater.checked);
 	}
