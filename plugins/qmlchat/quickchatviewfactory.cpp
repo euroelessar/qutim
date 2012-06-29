@@ -34,8 +34,7 @@
 namespace Core {
 namespace AdiumChat {
 
-QuickChatViewFactory::QuickChatViewFactory() :
-	m_engine(new QDeclarativeEngine(this))
+QuickChatViewFactory::QuickChatViewFactory()
 {
 	m_appearanceSettings = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"),
 																   QT_TRANSLATE_NOOP("Settings","Chat"));
@@ -44,7 +43,7 @@ QuickChatViewFactory::QuickChatViewFactory() :
 
 QObject* QuickChatViewFactory::createViewController()
 {
-	return new QuickChatController(m_engine);
+    return new QuickChatController();
 }
 
 QWidget* QuickChatViewFactory::createViewWidget()
