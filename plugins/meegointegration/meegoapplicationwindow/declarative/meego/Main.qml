@@ -193,12 +193,12 @@ PageStackWindow {
 					tab: channelListTab
 				}
 				TabIcon {
-					platformIconId: "toolbar-new-chat"
+                    platformIconId: "toolbar-new-chat" + (enabled ? "" : "-dimmed")
 					tab: chatTab
 					enabled: chat.activeSession !== null
 				}
 				TabIcon {
-					platformIconId: "toolbar-new-chat"
+					platformIconId: "toolbar-list" + (enabled ? "" : "-dimmed")
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
