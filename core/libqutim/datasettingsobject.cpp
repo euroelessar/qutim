@@ -67,7 +67,8 @@ class DataSettingsWidgetPrivate
 public:
 };
 
-DataSettingsWidget::DataSettingsWidget(DataSettingsObject *object) : m_object(object)
+DataSettingsWidget::DataSettingsWidget(DataSettingsObject *object)
+	: m_object(object), m_form(0)
 {
     m_layout = new QVBoxLayout(this);
     m_layout->setMargin(0);
