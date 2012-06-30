@@ -189,11 +189,21 @@ void SimpleActions::onCopyIdTriggered(QObject *obj)
 void SimpleActions::onContactRenameAction(QObject *o)
 {
 	Contact *contact = sender_cast<Contact*>(o);
-	QString result = QInputDialog::getText(QApplication::activeWindow(), tr("Rename contact %1").arg(contact->title()),
-										   tr("Input new name for contact %1").arg(contact->title()),
-										   QLineEdit::Normal,
-										   contact->name());
-	contact->setName(result);
+	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
+	dialog->setWindowTitle(tr("Rename contact %1").arg(contact->title()));
+    dialog->setLabelText(tr("Input new name for contact %1").arg(contact->title()));
+    dialog->setTextValue(contact->name());
+	dialog->setProperty("contact", qVariantFromValue(contact));
+	SystemIntegration::show(dialog);
+	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onContactNameSelected(QString)));
+	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+	connect(contact, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
+}
+
+void SimpleActions::onContactNameSelected(const QString &name)
+{
+	Contact *contact = sender()->property("contact").value<Contact*>();
+	contact->setName(name);
 }
 
 void SimpleActions::onShowInfoAction(QObject *obj)

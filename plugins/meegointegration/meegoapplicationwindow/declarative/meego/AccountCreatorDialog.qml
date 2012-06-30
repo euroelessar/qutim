@@ -57,8 +57,7 @@ Sheet {
 			onVisibleChanged: if (__currentContainer) __currentContainer.visible = visible;
 		}
 	}
-	Page
-	{
+	Page {
 		id:mainPage
 		anchors.margins:10
 		anchors.fill: parent

@@ -47,6 +47,7 @@
 #include "../roster/jsoftwaredetection.h"
 #include "../dataform/jdataform.h"
 #include <jreen/captcha.h>
+#include <qutim/systemintegration.h>
 #include <QVBoxLayout>
 #include <qutim/notification.h>
 #include <QApplication>
@@ -813,7 +814,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 		dialog->setWindowTitle(message);
 	    dialog->setLabelText(QCoreApplication::translate("Jabber", "Please select another nickname"));
 	    dialog->setTextValue(d->room->nick());
-		dialog->show();
+		SystemIntegration::show(dialog);
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onNickSelected(QString)));
 		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	} else if (error->condition() == Error::Forbidden) {

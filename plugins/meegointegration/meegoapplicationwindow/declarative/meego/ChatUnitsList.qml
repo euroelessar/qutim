@@ -35,6 +35,10 @@ Page {
 	ListModel {
 		id: emptyModel
 	}
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
+    }
 	ListView {
 		id: listViewItem
 		width: parent.width
@@ -46,6 +50,10 @@ Page {
                 chat.activeSession = session;
                 root.chat.show();
 			}
+            onPressAndHold: {
+                contactMenu.controller = model.contact;
+                contactMenu.open();
+            }
 		}
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString

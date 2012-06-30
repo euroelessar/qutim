@@ -49,10 +49,12 @@
 #include "quickdataform.h"
 #include "quickproxyhelper.h"
 #include "quickmenubuilder.h"
+#include "quickinputdialog.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
 #include <QDeclarativeContext>
+#include <QInputDialog>
 
 namespace MeegoIntegration
 {
@@ -76,6 +78,7 @@ ApplicationWindow::ApplicationWindow()
 	AddAccountDialogWrapper::init();
 	NotificationWrapper::init();
 	qmlRegisterUncreatableType<MenuController>("org.qutim", 0, 3, "MenuController", "Abstract class");
+	qmlRegisterUncreatableType<QuickInputDialog>("org.qutim", 0, 3, "QInputDialog", "Enum holder");
 	qmlRegisterType<QuickRegExpService>("org.qutim", 0, 3, "RegExpService");
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
@@ -122,8 +125,9 @@ ApplicationWindow::~ApplicationWindow()
 
 void ApplicationWindow::showWidget(QWidget *widget)
 {
-	if (widget)
-	{
+	if (QInputDialog *dialog = qobject_cast<QInputDialog*>(widget)) {
+		emit dialogShown(new QuickInputDialog(dialog));
+	} else if (widget) {
 		connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
 		emit widgetShown(widget);
 	}

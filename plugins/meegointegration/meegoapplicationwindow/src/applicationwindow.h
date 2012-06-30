@@ -30,6 +30,7 @@
 
 namespace MeegoIntegration
 {
+
 class ApplicationWindow : public QObject
 {
     Q_OBJECT
@@ -48,6 +49,7 @@ public:
 	static ApplicationWindow *instance();
 
 signals:
+	void dialogShown(QObject *widget);
 	void widgetShown(QObject *widget);
 	void widgetClosed();
 
@@ -58,6 +60,7 @@ public slots:
 private:
 	QDeclarativeView *m_view;
 };
+
 }
 
 #endif // APPLICATIONWINDOW_H

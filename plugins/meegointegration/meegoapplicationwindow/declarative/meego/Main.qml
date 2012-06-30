@@ -68,6 +68,10 @@ PageStackWindow {
 	}
 	Connections {
 		target: application
+        onDialogShown: {
+            inputDialog.widget = widget;
+            inputDialog.open();
+        }
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
 	}
@@ -103,9 +107,11 @@ PageStackWindow {
 	Statistics {
 		id: statistics
 	}
-
-	PasswordDialog{
-		id:passwordDialog
+    InputDialog {
+		id: inputDialog
+	}
+	PasswordDialog {
+		id: passwordDialog
 	}
 	SettingsDialog {
 		id:settingsDialog

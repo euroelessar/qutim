@@ -51,6 +51,7 @@ private slots:
 	void onCopyIdCreated(QAction *, QObject *);
 	void onCopyIdTriggered(QObject *obj);
 	void onContactRenameAction(QObject*);
+	void onContactNameSelected(const QString &name);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
 	void onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
