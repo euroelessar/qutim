@@ -55,6 +55,9 @@
 #include <MDeclarativeCache>
 #include <QDeclarativeContext>
 #include <QInputDialog>
+#include <QMessageBox>
+
+QML_DECLARE_TYPE(QMessageBox)
 
 namespace MeegoIntegration
 {
@@ -78,6 +81,7 @@ ApplicationWindow::ApplicationWindow()
 	AddAccountDialogWrapper::init();
 	NotificationWrapper::init();
 	qmlRegisterUncreatableType<MenuController>("org.qutim", 0, 3, "MenuController", "Abstract class");
+	qmlRegisterUncreatableType<QMessageBox>("org.qutim", 0, 3, "QMessageBox", "Abstract class");
 	qmlRegisterUncreatableType<QuickInputDialog>("org.qutim", 0, 3, "QInputDialog", "Enum holder");
 	qmlRegisterType<QuickRegExpService>("org.qutim", 0, 3, "RegExpService");
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
@@ -127,6 +131,8 @@ void ApplicationWindow::showWidget(QWidget *widget)
 {
 	if (QInputDialog *dialog = qobject_cast<QInputDialog*>(widget)) {
 		emit dialogShown(new QuickInputDialog(dialog));
+	} else if (QMessageBox *messageBox = qobject_cast<QMessageBox*>(widget)) {
+		emit queryDialogShown(messageBox);
 	} else if (widget) {
 		connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
 		emit widgetShown(widget);

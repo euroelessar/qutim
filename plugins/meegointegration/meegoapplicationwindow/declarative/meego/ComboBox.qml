@@ -16,6 +16,8 @@ Rectangle {
     onItemsChanged: __repopulateModel();
     
     function __repopulateModel() {
+        if (comboBox.items.length === 0)
+            return;
         comboBox.model.clear();
         for (var i = 0; i < comboBox.items.length; ++i)
             comboBox.model.append({ name: comboBox.items[i] });

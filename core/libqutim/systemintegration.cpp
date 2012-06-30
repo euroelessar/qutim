@@ -29,6 +29,7 @@
 #include <limits>
 #include <QStringList>
 #include <QWidget>
+#include <QDialog>
 #include <QApplication>
 #include <QAbstractSocket>
 
@@ -116,6 +117,13 @@ QVariant DefaultSystemIntegration::doProcess(Operation act, const QVariant &data
 #endif
 		break;
 	}
+	case OpenDialog: {
+		QWidget *widget = data.value<QWidget*>();
+		if (QDialog *dialog = qobject_cast<QDialog*>(widget))
+			dialog->open();
+		else
+			SystemIntegration::show(widget);
+	}
 	default:
 		break;
 	}
@@ -130,7 +138,7 @@ bool DefaultSystemIntegration::canHandle(Attribute attribute) const
 
 bool DefaultSystemIntegration::canHandle(Operation operation) const
 {
-	return operation == ShowWidget;
+	return operation == ShowWidget || operation == OpenDialog;
 }
 
 SystemIntegration::SystemIntegration()
@@ -164,6 +172,11 @@ void SystemIntegration::virtual_hook(int type, void *data)
 void SystemIntegration::show(QWidget *widget)
 {
 	process(ShowWidget, qVariantFromValue(widget));
+}
+
+void SystemIntegration::open(QDialog *dialog)
+{
+	process(OpenDialog, qVariantFromValue<QWidget*>(dialog));
 }
 
 void SystemIntegration::keepAlive(QAbstractSocket *socket)

@@ -84,6 +84,7 @@ protected:
 	virtual void doLeave();
 protected slots:
 	void onParticipantPresence(const Jreen::Presence &presence, const Jreen::MUCRoom::Participant *part);
+	void onRejoinChoosed(int result);
 	void onMessage(Jreen::Message msg, bool priv);
 	void onSubjectChanged(const QString &subject, const QString &nick);
 	void onServiceMessage(const Jreen::Message &msg);

@@ -34,6 +34,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/icon.h>
 #include <qutim/status.h>
+#include <qutim/systemintegration.h>
 #include "../roster/jsoftwaredetection.h"
 //Jreen
 #include <jreen/client.h>
@@ -193,8 +194,12 @@ void JMUCManager::join(const QString &conference, const QString &nick, const QSt
 	}
 	if (room && room->me() && !nick.isEmpty() && room->me()->name() != nick) {
 		if (room->isJoined()) {
-			QMessageBox::warning(0, tr("Join groupchat on")+" "+room->id(),
-								 tr("You already in conference with another nick"));
+			QMessageBox *dialog = new QMessageBox(QMessageBox::Warning,
+												  tr("Join groupchat on %1").arg(room->id()),
+												  tr("You already in conference with another nick"),
+												  QMessageBox::Ok);
+			connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+			SystemIntegration::open(dialog);
 		} else {
 			room->setBookmark(Bookmark::Conference());
 			closeMUCSession(room);

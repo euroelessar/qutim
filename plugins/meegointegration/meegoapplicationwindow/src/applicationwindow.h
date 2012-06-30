@@ -50,6 +50,7 @@ public:
 
 signals:
 	void dialogShown(QObject *widget);
+	void queryDialogShown(QObject *widget);
 	void widgetShown(QObject *widget);
 	void widgetClosed();
 

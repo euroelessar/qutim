@@ -194,7 +194,7 @@ void SimpleActions::onContactRenameAction(QObject *o)
     dialog->setLabelText(tr("Input new name for contact %1").arg(contact->title()));
     dialog->setTextValue(contact->name());
 	dialog->setProperty("contact", qVariantFromValue(contact));
-	SystemIntegration::show(dialog);
+	SystemIntegration::open(dialog);
 	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onContactNameSelected(QString)));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	connect(contact, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
@@ -254,16 +254,25 @@ void SimpleActions::onContactAddRemoveAction(QObject *obj)
 {
 	Contact *contact = sender_cast<Contact*>(obj);
 	if(contact->isInList()) {
-		int ret = QMessageBox::question(qApp->activeWindow(),
-										QT_TRANSLATE_NOOP("AddContact", "Remove contact"),
-										tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
-										QMessageBox::Ok,
-										QMessageBox::Cancel);
-		if(ret != QMessageBox::Ok)
-			return;
-
+		QMessageBox *dialog = new QMessageBox(QMessageBox::Question,
+											  QCoreApplication::translate("AddContact", "Remove contact"),
+											  tr("Are you sure you want to delete a contact %1 from the roster?").arg(contact->title()),
+											  QMessageBox::Yes | QMessageBox::No);
+		dialog->setProperty("contact", qVariantFromValue(contact));
+		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+		connect(contact, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
+		connect(dialog, SIGNAL(finished(int)), SLOT(onRemoveChoosed(int)));
+		SystemIntegration::open(dialog);
+	} else {
+		contact->setInList(true);
 	}
-	contact->setInList(!contact->isInList());
+}
+
+void SimpleActions::onRemoveChoosed(int result)
+{
+	Contact *contact = sender()->property("contact").value<Contact*>();
+	if (result == QMessageBox::Yes)
+		contact->setInList(false);
 }
 
 void SimpleActions::onContactAddRemoveActionDestroyed()

@@ -72,6 +72,10 @@ PageStackWindow {
             inputDialog.widget = widget;
             inputDialog.open();
         }
+        onQueryDialogShown: {
+            messageBox.widget = widget;
+            messageBox.open();
+        }
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
 	}
@@ -104,12 +108,20 @@ PageStackWindow {
             contactInfo: root.contactInfo
 		}
 	}
+    Component {
+		id: joinGroupChatPageComponent
+		JoinGroupChatDialog {
+		}
+	}
 	Statistics {
 		id: statistics
 	}
     InputDialog {
 		id: inputDialog
 	}
+    MessageBox {
+        id: messageBox
+    }
 	PasswordDialog {
 		id: passwordDialog
 	}
@@ -118,9 +130,6 @@ PageStackWindow {
 	}
 	AuthDialog {
 		id:authDialog
-	}
-	JoinGroupChatDialog {
-		id:joinGroupChatDialog
 	}
 	AboutDialog {
 		id:aboutDialog
@@ -222,7 +231,7 @@ PageStackWindow {
 			}
 			MenuItem {
 				text: qsTr("Join group chat")
-			    onClicked: joinGroupChatDialog.open();
+			    onClicked: pageStack.push(joinGroupChatPageComponent)
 			}
 			MenuItem {
 				text: qsTr("About qutIM")

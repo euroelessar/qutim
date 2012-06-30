@@ -267,7 +267,7 @@ void JProtocol::onKickUser(QObject *obj)
     dialog->setLabelText(tr("Enter kick reason for %1").arg(user->name()));
 	dialog->setTextValue(QString());
 	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
-	SystemIntegration::show(dialog);
+	SystemIntegration::open(dialog);
 	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onKickReasonSelected(QString)));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	connect(user, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
@@ -290,7 +290,7 @@ void JProtocol::onBanUser(QObject *obj)
     dialog->setLabelText(tr("Enter ban reason for %1").arg(user->name()));
 	dialog->setTextValue(QString());
 	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
-	SystemIntegration::show(dialog);
+	SystemIntegration::open(dialog);
 	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onBanReasonSelected(QString)));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	connect(user, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));

@@ -69,6 +69,7 @@ public:
 QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVariant &data) const
 {
 	switch (act) {
+	case OpenDialog:
 	case ShowWidget: {
 		QWidget *widget = data.value<QWidget*>();
 		m_window->showWidget(widget);
@@ -132,6 +133,7 @@ bool MeeGoIntegration::canHandle(SystemIntegration::Operation operation) const
 	case ShowWidget:
 	case GetSettingsGenerator:
 	case KeepAliveSocket:
+	case OpenDialog:
 		return true;
 	default:
 		return false;

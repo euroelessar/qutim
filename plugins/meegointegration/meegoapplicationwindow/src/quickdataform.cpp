@@ -4,6 +4,7 @@
 #include <qutim/localizedstring.h>
 #include <qutim/thememanager.h>
 #include <qutim/metaobjectbuilder.h>
+#include <qutim/debug.h>
 
 namespace MeegoIntegration
 {
@@ -28,6 +29,7 @@ QVariant QuickDataForm::item()
 void QuickDataForm::setItem(const QVariant &item)
 {
     m_item = item.value<DataItem>();
+	qDebug() << Q_FUNC_INFO << m_item.subitems().count();
     emit itemChanged(item);
     buildContent();
 }
@@ -189,6 +191,7 @@ void QuickDataForm::addItem(const DataItem &item)
     if (item.isNull())
         return;
     QVariant::Type type = item.data().type();
+	qDebug() << Q_FUNC_INFO << item.title().toString() << type;
     if (item.isReadOnly()) {
 		if (item.hasSubitems()) {
 			addGroup(item);

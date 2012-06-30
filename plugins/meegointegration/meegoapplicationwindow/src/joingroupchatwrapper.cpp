@@ -48,7 +48,12 @@ JoinGroupChatWrapper::JoinGroupChatWrapper()
 	m_bookmarksBoxModel = new BookmarksModel();
 	m_bookmarksModel = new BookmarksModel();
 	m_managers()->append(this);
-	m_accounts = new QList<Account*>;
+	foreach (Protocol *protocol, Protocol::all()) {
+		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach (Account *account, protocol->accounts())
+			onAccountCreated(account);
+	}
 
 }
 
@@ -66,20 +71,25 @@ JoinGroupChatWrapper::~JoinGroupChatWrapper()
 
 QStringList JoinGroupChatWrapper::accountIds()
 {
-	m_accountIds.clear();
-	m_accounts->clear();
-	foreach (Protocol *protocol, Protocol::all()) {
-		foreach (Account *account, protocol->accounts())
-		{
-			m_accountIds.append(account->id());
-			m_accounts->append(account);
-		}
+//	foreach (GroupChatManager *manager, GroupChatManager::allManagers()) {
+//		m_accounts->append(manager->account());
+//		m_accountIds
+//	}
 
-	}
-	if (m_accounts->count() == 1)
-	{
-		setAccount(0);
-	}
+//	m_accountIds.clear();
+//	m_accounts->clear();
+//	foreach (Protocol *protocol, Protocol::all()) {
+//		foreach (Account *account, protocol->accounts())
+//		{
+//			m_accountIds.append(account->id());
+//			m_accounts->append(account);
+//		}
+
+//	}
+//	if (m_accounts->count() == 1)
+//	{
+//		setAccount(0);
+//	}
 	return m_accountIds;
 }
 
@@ -91,22 +101,50 @@ QString JoinGroupChatWrapper::currentAccountId()
 		return QString();
 }
 
-Account * JoinGroupChatWrapper::currentAccount()
+Account* JoinGroupChatWrapper::currentAccount()
 {
 	return m_currentAccount;
 }
 
+void JoinGroupChatWrapper::setCurrentAccount(Account *currentAccount)
+{
+	if (m_currentAccount != currentAccount) {
+		m_currentAccount = currentAccount;
+		emit currentAccountChanged(currentAccount);
+		if (m_currentAccount)
+			rebuildBookmarks();
+	}
+}
+
+QVariantList JoinGroupChatWrapper::bookmarks() const
+{
+	return m_variantBookmarks;
+}
+
+QVariantList JoinGroupChatWrapper::recent() const
+{
+	return m_variantRecent;
+}
+
+QDeclarativeListProperty<Account> JoinGroupChatWrapper::accounts()
+{
+	QDeclarativeListProperty<Account> list(this, m_accounts);
+	list.append = 0;
+	list.clear = 0;
+	return list;
+}
+
 void JoinGroupChatWrapper::setAccount(int index)
 {
-	Account *account = m_accounts->at(index);
-	if (!account) {
-		qDebug()<<"No Account";
-		m_bookmarksModel->clear();
-		return;
-	}
-	//fillBookmarks(account);
-	m_currentAccount = account;
-	emit currentAccountIdChanged();
+//	Account *account = m_accounts->at(index);
+//	if (!account) {
+//		qDebug()<<"No Account";
+//		m_bookmarksModel->clear();
+//		return;
+//	}
+//	//fillBookmarks(account);
+//	m_currentAccount = account;
+//	emit currentAccountIdChanged();
 }
 
 void JoinGroupChatWrapper::fillBookmarks(const QList<DataItem> &bookmarks, bool recent)
@@ -199,17 +237,42 @@ void JoinGroupChatWrapper::onItemActivated(const QModelIndex &index)
 	}
 }
 
-void JoinGroupChatWrapper::join(QVariant data)
+QVariant JoinGroupChatWrapper::fields()
 {
-	Account *account = currentAccount();
-	GroupChatManager *manager = account->groupChatManager();
-		if (!manager)
-			return;
-		DataItem bookmark = data.value<DataItem>();
-		manager->join(bookmark);
-		qDebug()<<"Join";
-		emit joined();
+	GroupChatManager *manager = m_currentAccount->groupChatManager();
+	Q_ASSERT(manager);
+	DataItem item = manager->fields();
+	qDebug() << Q_FUNC_INFO << item.subitems().count();
+	return qVariantFromValue(item);
+}
 
+bool JoinGroupChatWrapper::join(const DataItem &item)
+{
+	GroupChatManager *manager = m_currentAccount->groupChatManager();
+	Q_ASSERT(manager);
+	return manager->join(item);
+}
+
+bool JoinGroupChatWrapper::remove(const DataItem &item)
+{
+	GroupChatManager *manager = m_currentAccount->groupChatManager();
+	Q_ASSERT(manager);
+	if (manager->removeBookmark(item)) {
+		rebuildBookmarks();
+		return true;
+	}
+	return false;
+}
+
+bool JoinGroupChatWrapper::save(const DataItem &item, const DataItem &oldItem)
+{
+	GroupChatManager *manager = m_currentAccount->groupChatManager();
+	Q_ASSERT(manager);
+	if (manager->storeBookmark(item, oldItem)) {
+		rebuildBookmarks();
+		return true;
+	}
+	return false;
 }
 
 void JoinGroupChatWrapper::onBookmarksChanged()
@@ -222,6 +285,66 @@ void JoinGroupChatWrapper::showDialog()
 	for (int i = 0; i < m_managers()->count();i++)
 	{
 		emit m_managers()->at(i)->shown();
+	}
+}
+
+void JoinGroupChatWrapper::onAccountCreated(qutim_sdk_0_3::Account *account, bool first)
+{
+	if (first) {
+		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
+		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
+	}
+	if (!account->groupChatManager())
+		return;
+	m_accounts << account;
+	emit accountsChanged(accounts());
+}
+
+void JoinGroupChatWrapper::onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
+{
+	Account *account = qobject_cast<Account*>(sender());
+	int index = m_accounts.indexOf(account);
+	if (index < 0 && manager) {
+		onAccountCreated(account, false);
+	} else if (index != -1 && !manager) {
+		m_accounts.removeAt(index);
+		emit accountsChanged(accounts());
+	}
+}
+
+void JoinGroupChatWrapper::onAccountDeath(QObject *object)
+{
+	Account *account = static_cast<Account*>(object);
+	m_accounts.removeOne(account);
+	emit accountsChanged(accounts());
+}
+
+void JoinGroupChatWrapper::rebuildBookmarks()
+{
+	GroupChatManager *manager = m_currentAccount->groupChatManager();
+	Q_ASSERT(manager);
+	fillBookmarks((m_bookmarks = manager->bookmarks()), m_variantBookmarks);
+	fillBookmarks((m_recent = manager->recent()), m_variantRecent);
+	emit bookmarksChanged(m_variantBookmarks);
+	emit recentChanged(m_variantRecent);
+}
+
+void JoinGroupChatWrapper::fillBookmarks(const QList<DataItem> &bookmarks, QVariantList &list)
+{
+	list.clear();
+	foreach (const DataItem &item, bookmarks) {
+		QVariantMap data;
+		data.insert("item", qVariantFromValue(item));
+		data.insert("title", item.title().toString());
+		QVariantMap fields;
+		foreach (const DataItem &subitem, item.subitems()) {
+			if (subitem.property("showInBookmarkInfo", true))
+				fields.insert(subitem.title(), subitem.data());
+		}
+		data.insert("fields", fields);
+		data.insert("bookmark", &list == &m_variantBookmarks);
+		list << data;
 	}
 }
 

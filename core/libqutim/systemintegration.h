@@ -30,6 +30,7 @@
 #include <QVariant>
 
 class QAbstractSocket;
+class QDialog;
 
 namespace qutim_sdk_0_3
 {
@@ -56,7 +57,8 @@ public:
 	{
 		ShowWidget,
 		KeepAliveSocket,
-		GetSettingsGenerator
+		GetSettingsGenerator,
+		OpenDialog
 	};
 
 	enum IconSizeEnum
@@ -88,6 +90,7 @@ public:
 	virtual int priority() = 0;
 	
 	static void show(QWidget *widget);
+	static void open(QDialog *dialog);
 	static void keepAlive(QAbstractSocket *socket);
 	static ObjectGenerator *settingsGenerator(SettingsItem *item);
 	static QVariant value(Attribute attr, const QVariant &data = QVariant());
