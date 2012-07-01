@@ -133,6 +133,7 @@ void ChatChannel::showChat()
 
 void ChatChannel::close()
 {
+	static_cast<Chat*>(Chat::instance())->handleSessionDeath(this);
 	deleteLater();
 }
 

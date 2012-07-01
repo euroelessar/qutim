@@ -41,11 +41,19 @@ Page {
     Connections {
 		target: root.chat
         onActiveSessionChanged: {
-            var session = root.chat.activeSession;
-            if (!session.page) {
-                session.page = webViewComponent.createObject(root, { "session": session });
-            }
             root.currentSessionPage = session.page;
+        }
+        onSessionCreated: {
+            if (!session.page)
+                session.page = webViewComponent.createObject(root, { "session": session });
+            root.currentSessionPage = session.page;
+        }
+        onSessionDestroyed: {
+            if (session.page) {
+                var page = session.page;
+                session.page = null;
+                page.destroy();
+            }
         }
 	}
     Component {
@@ -54,6 +62,7 @@ Page {
             id: chatView
             width: root.width
             height: root.height - textField.height
+            //visible: chatView.session.active
             visible: chatView === root.currentSessionPage
         }
     }

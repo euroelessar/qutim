@@ -110,6 +110,11 @@ void Chat::setActiveSession(qutim_sdk_0_3::ChatSession *session)
 	}
 }
 
+void Chat::handleSessionDeath(ChatSession *session)
+{
+	emit sessionDestroyed(session);
+}
+
 void Chat::show()
 {
 	emit shown();
