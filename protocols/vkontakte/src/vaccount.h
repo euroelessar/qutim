@@ -39,6 +39,7 @@ class VRoster;
 class VAccount : public qutim_sdk_0_3::Account
 {
 	Q_OBJECT
+    Q_PROPERTY(vk::Client* client READ client CONSTANT)
 public:
 	VAccount(const QString &email, VProtocol *protocol);
 	VContact *getContact(int uid, bool create = false);

@@ -22,16 +22,22 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#include "vclient.h"
+#ifndef VPHOTOVIEWER_H
+#define VPHOTOVIEWER_H
 
-VClient::VClient(const QString &login, QObject *parent) :
-    vk::Client(parent)
+#include <QObject>
+#include <qutim/actiongenerator.h>
+
+class VPhotoViewer : public QObject
 {
-    setLogin(login);
-}
+    Q_OBJECT
+public:
+    explicit VPhotoViewer(QObject *parent = 0);
+    virtual ~VPhotoViewer();
+private slots:
+    void onViewPhotoTriggered(QObject*);
+private:
+    QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactGen;
+};
 
-QObject *VClient::request(const QString &method, const QVariantMap &args)
-{
-    return vk::Client::request(method, args);
-}
-
+#endif // VPHOTOVIEWER_H

@@ -134,7 +134,12 @@ void VContact::handleMessage(const vk::Message &msg)
 			m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
 	} else
 		coreMessage.setProperty("history", true);
-	s->appendMessage(coreMessage);
+    s->appendMessage(coreMessage);
+}
+
+vk::Client *VContact::client() const
+{
+    return m_buddy->client();
 }
 
 void VContact::setStatus(const Status &status)
@@ -308,4 +313,10 @@ void VContact::onAvatarDownloaded(const QString &path)
 {
 	m_avatar = path;
 	emit avatarChanged(path);
+}
+
+
+vk::Buddy *VContact::buddy() const
+{
+    return m_buddy;
 }
