@@ -11,5 +11,7 @@ qutim_add_plugin(vkontakte
 	GROUP "Protocols"
 	INCLUDE_DIRS
 	LINK_LIBRARIES vkit
-	QT_LIBRARIES webkit
+        QT_LIBRARIES webkit declarative
 )
+
+qutim_add_artwork(share/vphotoalbum)
