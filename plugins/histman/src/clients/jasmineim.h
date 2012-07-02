@@ -51,6 +51,8 @@ public:
 	friend QDataStream &operator >> (QDataStream &in, qutim_sdk_0_3::Message &message);
 private:
 	static QTextCodec *codec;
+	static bool isOldFormat;
+	static bool isIcqImport;
 };
 
 }

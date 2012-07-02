@@ -33,9 +33,13 @@ using namespace qutim_sdk_0_3;
 
 namespace HistoryManager {
 	
-#define SIGNATURE "JPHA"
+#define OLD_SIGNATURE 0x00044A50
+#define NEW_SIGNATURE 0x4A484132
+#define NEW_MSG_SIGN_LEN 3
 
 QTextCodec *jasmineim::codec = QTextCodec::codecForName("cp-1251");
+bool jasmineim::isOldFormat = true;
+bool jasmineim::isIcqImport = true;
 
 jasmineim::jasmineim()
 {
@@ -73,14 +77,35 @@ QString jasmineim::readWin1251String (QDataStream &in)
 QDataStream &operator >> (QDataStream &in, Message &message)
 {
 	quint8 isInputMsg;
-	bool isXtrazMsg;
 	quint64 milliseconds;
-	in >> isInputMsg >> isXtrazMsg >> milliseconds;
+	in >> isInputMsg;
+	if (jasmineim::isIcqImport)
+	{
+		bool isXtrazMsg;
+		in >> isXtrazMsg;
+		if (!jasmineim::isOldFormat)
+		{
+			// this is place for future empowerment
+			int skipThis;
+			in >> skipThis;
+		}
+	}
+	in >> milliseconds;
+	if (!jasmineim::isIcqImport)
+	{
+		// this is place for future empowerment
+		int skipThis;
+		in >> skipThis;
+	}
+	QString msgText;
+	if (jasmineim::isOldFormat)
+		msgText = jasmineim::readWin1251String(in);
+	else in >> msgText;
 	message.setIncoming(isInputMsg > 0);
 	QDateTime date(QDateTime::fromTime_t(milliseconds / 1000));
 	date.addMSecs(milliseconds % 1000);
 	message.setTime(date);
-	message.setText(jasmineim::readWin1251String(in));
+	message.setText(msgText);
 	return in;
 }
 
@@ -88,12 +113,26 @@ QDataStream &operator >> (QDataStream &in, ContactHistory &contact)
 {
 	int readed;
 	Message msg;
-	contact.uin = jasmineim::readMUTF8String(in);
+	if (jasmineim::isOldFormat)
+	{
+		contact.uin = jasmineim::readMUTF8String(in);
+	}
+	else
+	{
+		in >> contact.uin;
+	}
 	in >> readed;
-	if (readed < 1)
-		return in;
 	in.skipRawData(readed);
+	if (jasmineim::isOldFormat && (readed < 1))
+		return in;
 	in >> readed;
+	if (!jasmineim::isOldFormat)
+	{
+		in.skipRawData(NEW_MSG_SIGN_LEN);
+		readed -= NEW_MSG_SIGN_LEN;
+		if (readed < 1)
+			return in;
+	}
 	char *data = new char[readed];
 	readed = in.readRawData(data, readed);
 	QByteArray m(data, readed);
@@ -117,10 +156,40 @@ void jasmineim::loadMessages (const QString &path)
 	if (!file.open (QIODevice::ReadOnly))
 		return;
 	QDataStream input(&file);
-	if(readMUTF8String(input) != QString(SIGNATURE))
+	quint32 magic;
+	input >> magic;
+	isOldFormat = magic == OLD_SIGNATURE;
+	if (isOldFormat)
+		input.skipRawData(2);
+	if(!isOldFormat && (magic != NEW_SIGNATURE))
 		return;
-	setProtocol("icq");
-	QString account = readMUTF8String(input);
+	QString account;
+	if (isOldFormat) 
+		account = readMUTF8String(input);
+	else input >> account;
+	QString protocol;
+	if (isOldFormat)
+		protocol = QString("icq");
+	else
+	{
+		quint8 protocolType, subType;
+		input >> protocolType >> subType;
+		switch (protocolType)
+		{
+			case 0:
+				protocol = QString("icq");
+				break;
+			case 1:
+				protocol = QString("jabber");
+				isIcqImport = false;
+				break;
+			case 2:
+				protocol = QString("mrim");
+				isIcqImport = false;
+				break;
+		}
+	}
+	setProtocol(protocol);
 	setAccount(account);
 	QList<ContactHistory> allContacts;
 	while(!input.atEnd())
@@ -152,7 +221,12 @@ bool jasmineim::validate (const QString &path)
 	if (!file.open (QIODevice::ReadOnly))
 		return false;
 	QDataStream input(&file);
-	bool retVal = readMUTF8String(input) == QString(SIGNATURE);
+	quint32 magic;
+	input >> magic;
+	bool retVal = magic == OLD_SIGNATURE;
+	if (retVal)
+		input.skipRawData(2);
+	else retVal = magic == NEW_SIGNATURE;
 	file.close();
 	return retVal;
 }
