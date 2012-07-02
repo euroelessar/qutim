@@ -158,6 +158,7 @@ DeclarativeView::DeclarativeView(QWidget *parent) :
 
     viewport()->setFocusPolicy(Qt::NoFocus);
     setFocusPolicy(Qt::StrongFocus);
+    setFrameShape(QFrame::NoFrame);
 
     setScene(new QGraphicsScene(this));
     scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
