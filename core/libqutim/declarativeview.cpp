@@ -263,7 +263,7 @@ bool DeclarativeView::eventFilter(QObject *watched, QEvent *e)
             }
         }
     }
-    return DeclarativeView::eventFilter(watched, e);
+    return QGraphicsView::eventFilter(watched, e);
 }
 
 QObject *DeclarativeView::rootObject() const
