@@ -454,8 +454,9 @@ void IrcConnection::tryConnectToNextServer()
 		else
 			m_socket->setPeerVerifyMode(QSslSocket::VerifyPeer);
 		m_socket->connectToHostEncrypted(server.hostName, server.port);
-	} else
+	} else {
 		m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
+	}
 }
 
 void IrcConnection::hostFound(const QHostInfo &host)
