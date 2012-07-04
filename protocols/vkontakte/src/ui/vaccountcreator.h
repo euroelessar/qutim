@@ -39,7 +39,7 @@ public:
 	virtual QList< QWizardPage* > createPages(QWidget* parent);
 	void finished();
 private:
-	VAccountWizardPage *page;
+	VAccountWizardPage *m_page;
 	VProtocol *m_protocol;
 };
 
