@@ -448,13 +448,13 @@ void IrcConnection::tryConnectToNextServer()
 	}
 	m_currentNick = -1;
 	IrcServer server = m_servers.at(m_currentServer);
-	if (server.ssl)
+	if (server.ssl) {
 		if (server.acceptNotValidCert)
 			m_socket->setPeerVerifyMode(QSslSocket::QueryPeer);
 		else
 			m_socket->setPeerVerifyMode(QSslSocket::VerifyPeer);
 		m_socket->connectToHostEncrypted(server.hostName, server.port);
-	else
+	} else
 		m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
 }
 
