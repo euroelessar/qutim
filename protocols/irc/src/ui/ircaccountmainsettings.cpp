@@ -96,7 +96,7 @@ void IrcAccountMainSettings::reloadSettings(IrcAccount *account)
 		IrcServer server;
 		server.hostName = cfg.value("hostName", QString());
 		server.ssl = cfg.value("ssl", false);
-		server.acceptNotValidCert = cfg.value("acceptNotValidCert", QString());
+		server.acceptNotValidCert = cfg.value("acceptNotValidCert", false);
 		server.port = cfg.value("port", server.ssl ? 6667 : 6697);
 		server.protectedByPassword = cfg.value("protectedByPassword", false);
 		if (server.protectedByPassword)
