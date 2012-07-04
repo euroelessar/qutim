@@ -78,6 +78,7 @@ void IrcAccountMainSettings::saveToConfig(Config &cfg)
 		cfg.setValue<int>("port", server.port);
 		cfg.setValue("protectedByPassword", server.protectedByPassword);
 		cfg.setValue("ssl", server.ssl);
+		cfg.setValue("acceptNotValidCert", server.acceptNotValidCert);
 		if (server.protectedByPassword)
 			cfg.setValue("password", server.password, Config::Crypted);
 	}
@@ -95,6 +96,7 @@ void IrcAccountMainSettings::reloadSettings(IrcAccount *account)
 		IrcServer server;
 		server.hostName = cfg.value("hostName", QString());
 		server.ssl = cfg.value("ssl", false);
+		server.acceptNotValidCert = cfg.value("acceptNotValidCert", QString());
 		server.port = cfg.value("port", server.ssl ? 6667 : 6697);
 		server.protectedByPassword = cfg.value("protectedByPassword", false);
 		if (server.protectedByPassword)
@@ -178,6 +180,7 @@ inline IrcServer IrcAccountMainSettings::currentServer()
 	server.protectedByPassword = ui->protectedByPasswordBox->isChecked();
 	server.password = ui->passwordEdit->text();
 	server.ssl = ui->sslBox->isChecked();
+	server.acceptNotValidCert = ui->sslCertBox->isChecked();
 	return server;
 }
 
@@ -203,12 +206,14 @@ void IrcAccountMainSettings::onCurrentServerChanged(int row)
 		ui->protectedByPasswordBox->setChecked(server.protectedByPassword);
 		ui->passwordEdit->setText(server.password);
 		ui->sslBox->setChecked(server.ssl);
+		ui->sslCertBox->setChecked(server.acceptNotValidCert);
 	} else {
 		ui->serverEdit->clear();
 		ui->portBox->setValue(6667);
 		ui->protectedByPasswordBox->setChecked(false);
 		ui->passwordEdit->clear();
 		ui->sslBox->setChecked(false);
+		ui->sslCertBox->setChecked(false);
 	}
 	ui->updateServerButton->setEnabled(isServerChecked);
 	ui->removeServerButton->setEnabled(isServerChecked);
