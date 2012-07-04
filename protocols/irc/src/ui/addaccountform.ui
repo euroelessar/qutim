@@ -148,6 +148,13 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0" colspan="4">
+          <widget class="QCheckBox" name="sslCertBox">
+           <property name="text">
+            <string>Accept invalid ssl certificate</string>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="0" colspan="4">
           <widget class="QCheckBox" name="sslBox">
            <property name="text">

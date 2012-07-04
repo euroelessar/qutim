@@ -48,6 +48,7 @@ struct IrcServer
 	bool protectedByPassword;
 	QString password;
 	bool ssl;
+	bool acceptNotValidCert;
 };
 
 class IrcConnection : public QObject, public IrcServerMessageHandler
