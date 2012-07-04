@@ -401,6 +401,7 @@ void IrcConnection::loadSettings()
 		IrcServer server;
 		server.hostName = cfg.value("hostName", QString());
 		server.ssl = cfg.value("ssl", false);
+		server.acceptNotValidCert = cfg.value("acceptNotValidCert", false);
 		server.port = cfg.value("port", server.ssl ? 6667 : 6697);
 		server.protectedByPassword = cfg.value("protectedByPassword", false);
 		if (server.protectedByPassword)
@@ -447,10 +448,15 @@ void IrcConnection::tryConnectToNextServer()
 	}
 	m_currentNick = -1;
 	IrcServer server = m_servers.at(m_currentServer);
-	if (server.ssl)
+	if (server.ssl) {
+		if (server.acceptNotValidCert)
+			m_socket->setPeerVerifyMode(QSslSocket::QueryPeer);
+		else
+			m_socket->setPeerVerifyMode(QSslSocket::VerifyPeer);
 		m_socket->connectToHostEncrypted(server.hostName, server.port);
-	else
+	} else {
 		m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
+	}
 }
 
 void IrcConnection::hostFound(const QHostInfo &host)
