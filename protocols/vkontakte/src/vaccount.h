@@ -30,6 +30,7 @@
 #include "vclient.h"
 #include <QPointer>
 
+class QWebPage;
 class VContact;
 typedef QList<VContact*> VContactList;
 class VProtocol;
@@ -64,6 +65,7 @@ private slots:
 	void onNameChanged(const QString &name);
 	void onMeChanged(vk::Contact *me);
 	void onInvisibleChanged(bool set);
+	void onAuthConfirmRequested(QWebPage *page);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;

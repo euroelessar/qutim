@@ -21,7 +21,7 @@ public:
 		Touch,
 		Wap
 	};
-	explicit OAuthConnection(QObject *parent = 0);
+	explicit OAuthConnection(int appId, QObject *parent = 0);
 	virtual ~OAuthConnection();
 
 	virtual void connectToHost(const QString &login, const QString &password);

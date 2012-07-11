@@ -26,6 +26,8 @@
 #include "vaccount.h"
 #include <qutim/chatunit.h>
 #include <qutim/passworddialog.h>
+#include <qutim/systemintegration.h>
+
 #include "vcontact.h"
 #include "vprotocol.h"
 #include "vroster.h"
@@ -35,6 +37,11 @@
 #include <vk/contact.h>
 
 #include "vprotocol.h"
+#include "oauth/oauthconnection.h"
+
+#include <QWebView>
+
+const static int qutimId = 1865463;
 
 using namespace qutim_sdk_0_3;
 
@@ -47,6 +54,10 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
 	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
+
+	vk::OAuthConnection *connection = new vk::OAuthConnection(qutimId, this);
+	m_client->setConnection(connection);
+	connect(connection, SIGNAL(authConfirmRequested(QWebPage*)), SLOT(onAuthConfirmRequested(QWebPage*)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
@@ -140,6 +151,14 @@ void VAccount::onInvisibleChanged(bool set)
 		s.setType(set ? Status::Invisible : Status::Online);
 		Account::setStatus(s);
 	}
+}
+
+void VAccount::onAuthConfirmRequested(QWebPage *page)
+{
+	QWebView *view = new QWebView;
+	view->setPage(page);
+	connect(page, SIGNAL(destroyed()), view, SLOT(deleteLater()));
+	SystemIntegration::show(view);
 }
 
 QString VAccount::requestPassword()

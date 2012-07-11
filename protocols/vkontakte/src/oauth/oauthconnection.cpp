@@ -6,6 +6,11 @@
 #include <QStringBuilder>
 #include <QNetworkRequest>
 
+#include <qutim/json.h>
+
+#include <QDebug>
+#include <QWebElement>
+
 namespace vk {
 
 const static QUrl authUrl("http://api.vk.com/oauth/authorize");
@@ -16,15 +21,25 @@ class OAuthConnectionPrivate
 {
 	Q_DECLARE_PUBLIC(OAuthConnection)
 public:
-	OAuthConnectionPrivate(OAuthConnection *q) : q_ptr(q),
-		clientId(QLatin1String("qutIM")),
+	OAuthConnectionPrivate(OAuthConnection *q, int clientId) : q_ptr(q),
+		clientId(clientId),
 		scope(QStringList() << QLatin1String("notify")
 							<< QLatin1String("friends")
 							<< QLatin1String("photos")
 							<< QLatin1String("audio")
 							<< QLatin1String("video")
 							<< QLatin1String("docs")
-							<< QLatin1String("notes")),
+							<< QLatin1String("notes")
+							<< QLatin1String("pages")
+							<< QLatin1String("status")
+							<< QLatin1String("offers")
+							<< QLatin1String("questions")
+							<< QLatin1String("wall")
+							<< QLatin1String("groups")
+							<< QLatin1String("messages")
+							<< QLatin1String("notifications")
+							<< QLatin1String("stats")
+							<< QLatin1String("ads")),
 		redirectUri(QLatin1String("http://oauth.vk.com/blank.html")),
 		displayType(OAuthConnection::Touch),
 		responseType(QLatin1String("token")),
@@ -37,7 +52,7 @@ public:
 	vk::Client::State connectionState;
 
 	//OAuth settings
-	QString clientId; //appId
+	int clientId; //appId
 	QStringList scope; //settings
 	QString redirectUri;
 	OAuthConnection::DisplayType displayType;
@@ -52,23 +67,41 @@ public:
 	QDateTime expiresIn;
 
 	void requestToken();
-	void setConnectionState(vk::Client::State state);
+	void setConnectionState(Client::State state);
 	void _q_loadFinished(bool);
 };
 
 
-OAuthConnection::OAuthConnection(QObject *parent) :
+OAuthConnection::OAuthConnection(int appId, QObject *parent) :
 	Connection(parent),
-	d_ptr(new OAuthConnectionPrivate(this))
+	d_ptr(new OAuthConnectionPrivate(this, appId))
+{
+}
+
+OAuthConnection::~OAuthConnection()
 {
 }
 
 void OAuthConnection::connectToHost(const QString &login, const QString &password)
 {
+	Q_D(OAuthConnection);
+	if (d->login != login || d->password != password) {
+		d->accessToken.clear();
+		d->expiresIn = QDateTime();
+		d->login = login;
+		d->password = password;
+	}
+	if (d->accessToken.isNull() || d->expiresIn < QDateTime::currentDateTime()) {
+		d->requestToken();
+		d->setConnectionState(Client::StateConnecting);
+	} else
+		d->setConnectionState(Client::StateOnline);
 }
 
 void OAuthConnection::disconnectFromHost()
 {
+	Q_D(OAuthConnection);
+	d->setConnectionState(Client::StateOffline);
 }
 
 QNetworkReply *OAuthConnection::request(const QString &method, const QVariantMap &args)
@@ -107,7 +140,7 @@ void OAuthConnectionPrivate::requestToken()
 		q->connect(webPage->mainFrame(), SIGNAL(loadFinished(bool)), SLOT(_q_loadFinished(bool)));
 	}
 	QUrl url = authUrl;
-	url.addQueryItem(QLatin1String("client_id"), clientId);
+	url.addQueryItem(QLatin1String("client_id"), QByteArray::number(clientId));
 	url.addQueryItem(QLatin1String("scope"), scope.join(","));
 	url.addQueryItem(QLatin1String("redirect_uri"), redirectUri);
 	const char *type[] = {
@@ -134,18 +167,34 @@ void OAuthConnectionPrivate::_q_loadFinished(bool ok)
 {
 	Q_Q(OAuthConnection);
 	QUrl url = webPage->mainFrame()->url();
-	if (!ok || !url.encodedQueryItemValue("error").isEmpty()) {
-		if (webPage->mainFrame()->url() == authUrl) {
-			emit q->authConfirmRequested(webPage.data());
+	QVariantMap response = qutim_sdk_0_3::Json::parse(webPage->mainFrame()->toPlainText().toUtf8()).toMap();
+	qDebug() << url << response;
+	if (ok && response.value("error").isNull()) {
+		url = QUrl("http://foo.bar?" + url.fragment()); //evil hack for parse fragment as query items
+		qDebug() << url;
+		if (!url.hasEncodedQueryItem("access_token")) {
+			if (!webPage->view()) {
+				QWebFrame *frame = webPage->mainFrame();
+
+				QWebElement element = frame->findFirstElement("input[name=email]");
+				element.setAttribute("value", login);
+				element = frame->findFirstElement("input[name=pass]");
+				element.setAttribute("value", password);
+				element = frame->findFirstElement("#login_enter");
+				element.setFocus();
+				emit q->authConfirmRequested(webPage.data());
+			}
 		} else {
 			accessToken = url.encodedQueryItemValue("access_token");
 			expiresIn = QDateTime::fromTime_t(QDateTime::currentDateTime().toTime_t() +
 											  url.encodedQueryItemValue("expires_in").toUInt());
 			uid = url.encodedQueryItemValue("user_id").toInt();
+			setConnectionState(Client::StateOnline);
+			webPage->deleteLater();
 		}
 	} else {
-		setConnectionState(vk::Client::StateOffline);
-		emit q->error(vk::Client::AuthorizationError);
+		setConnectionState(Client::StateOffline);
+		emit q->error(Client::AuthorizationError);
 	}
 }
 
