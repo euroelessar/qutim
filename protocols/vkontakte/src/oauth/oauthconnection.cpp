@@ -168,10 +168,8 @@ void OAuthConnectionPrivate::_q_loadFinished(bool ok)
 	Q_Q(OAuthConnection);
 	QUrl url = webPage->mainFrame()->url();
 	QVariantMap response = qutim_sdk_0_3::Json::parse(webPage->mainFrame()->toPlainText().toUtf8()).toMap();
-	qDebug() << url << response;
 	if (ok && response.value("error").isNull()) {
 		url = QUrl("http://foo.bar?" + url.fragment()); //evil hack for parse fragment as query items
-		qDebug() << url;
 		if (!url.hasEncodedQueryItem("access_token")) {
 			if (!webPage->view()) {
 				QWebFrame *frame = webPage->mainFrame();
