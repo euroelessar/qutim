@@ -26,6 +26,7 @@
 #include "ui_vaccountwizardpage.h"
 #include "../vaccount.h"
 #include "vprotocol.h"
+#include <qutim/extensioninfo.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -47,9 +48,9 @@ VAccountWizardPage::VAccountWizardPage(VAccountCreator* account_wizard) : m_acco
 	ui.setupUi(this);
 	{
 		//TODO email validator
-// 		QRegExp rx("[1-9][0-9]{1,9}");
-// 		QValidator *validator = new QRegExpValidator(rx, this);
-// 		ui.emailEdit->setValidator(validator);
+		// 		QRegExp rx("[1-9][0-9]{1,9}");
+		// 		QValidator *validator = new QRegExpValidator(rx, this);
+		// 		ui.emailEdit->setValidator(validator);
 	}
 	ui.emailEdit->setFocus();
 }
@@ -63,10 +64,15 @@ bool VAccountWizardPage::validatePage()
 
 
 
-VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance())
+VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance()),
+	m_page(0),
+	m_protocol(VProtocol::instance())
 {
-	m_protocol = VProtocol::instance();
+	ExtensionInfo info(QT_TRANSLATE_NOOP("Protocol", "vk.com"),
+					   QT_TRANSLATE_NOOP("Protocol", "Add vk.com account"));
+	setInfo(info);
 }
+
 VAccountCreator::~VAccountCreator()
 {
 
@@ -75,18 +81,18 @@ VAccountCreator::~VAccountCreator()
 QList< QWizardPage* > VAccountCreator::createPages(QWidget* parent)
 {
 	Q_UNUSED(parent);
-	page = new VAccountWizardPage(this);
+	m_page = new VAccountWizardPage(this);
 	QList<QWizardPage *> pages;
-	pages << page;
+	pages << m_page;
 	return pages;
 }
 
 void VAccountCreator::finished()
 {
-	VAccount *account = new VAccount(page->email(), m_protocol);
-	if (page->isSavePassword()) {
+	VAccount *account = new VAccount(m_page->email(), m_protocol);
+	if (m_page->isSavePassword()) {
 		ConfigGroup cfg = account->config().group("general");
-		cfg.setValue("passwd", page->password(), Config::Crypted);
+		cfg.setValue("passwd", m_page->password(), Config::Crypted);
 		cfg.sync();
 	}
 	ConfigGroup cfg = m_protocol->config().group("general");
@@ -95,6 +101,6 @@ void VAccountCreator::finished()
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
 	m_protocol->addAccount(account);
-	page->deleteLater();
+	m_page->deleteLater();
 }
 

@@ -29,6 +29,10 @@
 #include <QtDeclarative>
 #include <QTimer>
 
+namespace qutim_sdk_0_3 {
+class DeclarativeView;
+} //namespace qutim
+
 class QDeclarativeView;
 namespace KineticPopups {
 
@@ -102,7 +106,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
 	QHash<qutim_sdk_0_3::Notification*, QuickNotify*>  m_notifyHash;
-	QDeclarativeView *m_view;
+    qutim_sdk_0_3::DeclarativeView *m_view;
 	QTimer m_timeout;
 };
 

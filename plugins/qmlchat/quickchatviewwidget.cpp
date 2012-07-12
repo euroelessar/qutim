@@ -37,21 +37,12 @@ namespace AdiumChat {
 using namespace qutim_sdk_0_3;
 
 QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
-	QGraphicsView(parent)
+    DeclarativeView(parent)
 {
 #ifndef QT_NO_OPENGL
 	if (Config("appearance/qmlChat").value("openGL", false))
 		setViewport(new QGLWidget(QGLFormat(QGLFormat::defaultFormat())));
 #endif
-	setOptimizationFlags(QGraphicsView::DontSavePainterState);
-	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-	// These seem to give the best performance
-	setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
-	viewport()->setFocusPolicy(Qt::NoFocus);
-	setFocusPolicy(Qt::StrongFocus);
 }
 
 void QuickChatViewWidget::setViewController(QObject* object)
@@ -66,37 +57,17 @@ void QuickChatViewWidget::setViewController(QObject* object)
 		controller->setItemIndexMethod(QGraphicsScene::NoIndex);
 		controller->setStickyFocus(true);  //### needed for correct focus handling
 		setScene(controller);
-		updateView();
 		connect(controller, SIGNAL(rootItemChanged(QDeclarativeItem*)),
 				this, SLOT(onRootChanged(QDeclarativeItem*)));
+        setRootObject(controller->rootItem());
 	} else {
 		setScene(new QGraphicsScene(this));
 	}
 }
 
-void QuickChatViewWidget::resizeEvent(QResizeEvent *event)
+void QuickChatViewWidget::onRootChanged(QDeclarativeItem *item)
 {
-	updateView();
-	QGraphicsView::resizeEvent(event);
-}
-
-void QuickChatViewWidget::updateView()
-{
-	if (m_controller) {
-		QDeclarativeItem *declarativeItemRoot = m_controller.data()->rootItem();
-		if (declarativeItemRoot) {
-			if (!qFuzzyCompare(width(), declarativeItemRoot->width()))
-				declarativeItemRoot->setWidth(width());
-			if (!qFuzzyCompare(height(), declarativeItemRoot->height()))
-				declarativeItemRoot->setHeight(height());
-			setSceneRect(declarativeItemRoot->boundingRect());
-		}
-	}
-}
-
-void QuickChatViewWidget::onRootChanged(QDeclarativeItem *)
-{
-	updateView();
+    setRootObject(item);
 }
 
 } // namespace AdiumChat
