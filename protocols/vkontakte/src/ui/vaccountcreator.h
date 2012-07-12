@@ -32,7 +32,7 @@ class VAccountWizardPage;
 class VAccountCreator : public qutim_sdk_0_3::AccountCreationWizard
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "VkontakteProtocol")
+	Q_CLASSINFO("DependsOn", "VProtocol")
 public:
 	VAccountCreator();
 	virtual ~VAccountCreator();
