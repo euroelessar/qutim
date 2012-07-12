@@ -29,8 +29,14 @@ public:
 	virtual QNetworkReply *request(const QString &method, const QVariantMap &args = QVariantMap());
 	virtual Client::State connectionState() const;
 	virtual int uid() const;
+
+	QByteArray accessToken() const;
+	time_t expiresIn() const;
+	void setAccessToken(const QByteArray &token, time_t expiresIn = 0);
+	void setUid(int uid);
 signals:
 	void authConfirmRequested(QWebPage *page);
+	void accessTokenChanged(const QByteArray &token, time_t expiresIn);
 protected:
 	QScopedPointer<OAuthConnectionPrivate> d_ptr;
 

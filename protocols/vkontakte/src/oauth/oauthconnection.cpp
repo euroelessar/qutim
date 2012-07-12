@@ -39,11 +39,13 @@ public:
 							<< QLatin1String("messages")
 							<< QLatin1String("notifications")
 							<< QLatin1String("stats")
-							<< QLatin1String("ads")),
+							<< QLatin1String("ads")
+							<< QLatin1String("offline")),
 		redirectUri(QLatin1String("http://oauth.vk.com/blank.html")),
 		displayType(OAuthConnection::Touch),
 		responseType(QLatin1String("token")),
-		uid(0)
+		uid(0),
+		expiresIn(0)
 	{
 
 	}
@@ -64,11 +66,12 @@ public:
 	//response
 	QByteArray accessToken;
 	int uid;
-	QDateTime expiresIn;
+	time_t expiresIn;
 
 	void requestToken();
 	void setConnectionState(Client::State state);
 	void _q_loadFinished(bool);
+	void clear();
 };
 
 
@@ -86,12 +89,13 @@ void OAuthConnection::connectToHost(const QString &login, const QString &passwor
 {
 	Q_D(OAuthConnection);
 	if (d->login != login || d->password != password) {
-		d->accessToken.clear();
-		d->expiresIn = QDateTime();
+		if (!(d->login.isNull() || d->password.isNull()))
+			d->clear();
 		d->login = login;
 		d->password = password;
 	}
-	if (d->accessToken.isNull() || d->expiresIn < QDateTime::currentDateTime()) {
+	if (!d->uid || d->accessToken.isNull()
+			|| (d->expiresIn && d->expiresIn < QDateTime::currentDateTime().toTime_t())) {
 		d->requestToken();
 		d->setConnectionState(Client::StateConnecting);
 	} else
@@ -129,6 +133,31 @@ Client::State OAuthConnection::connectionState() const
 int OAuthConnection::uid() const
 {
 	return d_func()->uid;
+}
+
+QByteArray OAuthConnection::accessToken() const
+{
+	return d_func()->accessToken;
+}
+
+time_t OAuthConnection::expiresIn() const
+{
+	return d_func()->expiresIn;
+}
+
+void OAuthConnection::setAccessToken(const QByteArray &token, time_t expiresIn)
+{
+	Q_D(OAuthConnection);
+	if (!(d->accessToken == token && d->expiresIn == expiresIn)) {
+		d->accessToken = token;
+		d->expiresIn = expiresIn;
+		emit accessTokenChanged(token, expiresIn);
+	}
+}
+
+void OAuthConnection::setUid(int uid)
+{
+	d_func()->uid = uid;
 }
 
 void OAuthConnectionPrivate::requestToken()
@@ -184,9 +213,12 @@ void OAuthConnectionPrivate::_q_loadFinished(bool ok)
 			}
 		} else {
 			accessToken = url.encodedQueryItemValue("access_token");
-			expiresIn = QDateTime::fromTime_t(QDateTime::currentDateTime().toTime_t() +
-											  url.encodedQueryItemValue("expires_in").toUInt());
+			expiresIn = url.encodedQueryItemValue("expires_in").toUInt();
+			if (expiresIn)
+				expiresIn += QDateTime::currentDateTime().toTime_t(); //not infinity token
 			uid = url.encodedQueryItemValue("user_id").toInt();
+			emit q->accessTokenChanged(accessToken, expiresIn);
+
 			setConnectionState(Client::StateOnline);
 			webPage->deleteLater();
 		}
@@ -194,6 +226,12 @@ void OAuthConnectionPrivate::_q_loadFinished(bool ok)
 		setConnectionState(Client::StateOffline);
 		emit q->error(Client::AuthorizationError);
 	}
+}
+
+void OAuthConnectionPrivate::clear()
+{
+	accessToken.clear();
+	expiresIn = 0;
 }
 
 } // namespace vk

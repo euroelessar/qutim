@@ -49,15 +49,11 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	Account(email, protocol),
 	m_client(new VClient(email, this))
 {
-    setObjectName("VAccount");
+	setObjectName("VAccount");
 
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
 	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
-
-	vk::OAuthConnection *connection = new vk::OAuthConnection(qutimId, this);
-	m_client->setConnection(connection);
-	connect(connection, SIGNAL(authConfirmRequested(QWebPage*)), SLOT(onAuthConfirmRequested(QWebPage*)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
@@ -74,20 +70,22 @@ QString VAccount::name() const
 void VAccount::setStatus(Status status)
 {
 	m_client->setActivity(status.text());
-	switch (status.type()) {
-	case Status::Offline:
-		m_client->disconnectFromHost();
-		saveSettings();
-		if (status.changeReason() == Status::ByAuthorizationFailed)
-			config("general").setValue("passwd", "");
-		break;
-	case Status::Connecting:
-		break;
-	default:
-		m_client->setPassword(requestPassword());
-		m_client->connectToHost();
-		m_client->setInvisible(status == Status::Invisible);
-	};
+	if (Account::status().type() != status.type()) {
+		switch (status.type()) {
+		case Status::Offline:
+			m_client->disconnectFromHost();
+			saveSettings();
+			if (status.changeReason() == Status::ByAuthorizationFailed)
+				config("general").setValue("passwd", "");
+			break;
+		case Status::Connecting:
+			break;
+		default:
+			m_client->setPassword(requestPassword());
+			m_client->connectToHost();
+			m_client->setInvisible(status == Status::Invisible);
+		};
+	}
 }
 
 int VAccount::uid() const
@@ -119,12 +117,23 @@ vk::Client *VAccount::client() const
 
 void VAccount::loadSettings()
 {
-	m_name = config().value("general/name", QString());
+	Config cfg = config();
+	m_name = cfg.value("general/name", QString());
+	vk::OAuthConnection *connection = new vk::OAuthConnection(qutimId, this);
+	connection->setUid(cfg.value("access/uid", 0));
+	connection->setAccessToken(cfg.value("access/token", QByteArray(), Config::Crypted),
+							   cfg.value("access/expires", 0));
+	connect(connection, SIGNAL(authConfirmRequested(QWebPage*)), SLOT(onAuthConfirmRequested(QWebPage*)));
+	connect(connection, SIGNAL(accessTokenChanged(QByteArray,time_t)), SLOT(setAccessToken(QByteArray,time_t)));
+	m_client->setConnection(connection);
 }
 
 void VAccount::saveSettings()
 {
-	//TODO
+	config().setValue("access/uid", uid());
+	config().setValue("general/name", m_name);
+	if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
+		setAccessToken(c->accessToken(), c->expiresIn());
 }
 
 VRoster *VAccount::roster() const
@@ -159,6 +168,13 @@ void VAccount::onAuthConfirmRequested(QWebPage *page)
 	view->setPage(page);
 	connect(page, SIGNAL(destroyed()), view, SLOT(deleteLater()));
 	SystemIntegration::show(view);
+}
+
+void VAccount::setAccessToken(const QByteArray &token, time_t expiresIn)
+{
+	Config cfg = config().group("access");
+	cfg.setValue("token", token, Config::Crypted);
+	cfg.setValue("expires", expiresIn);
 }
 
 QString VAccount::requestPassword()

@@ -26,6 +26,7 @@
 #include "ui_vaccountwizardpage.h"
 #include "../vaccount.h"
 #include "vprotocol.h"
+#include <qutim/extensioninfo.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -67,6 +68,9 @@ VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance()
 	m_page(0),
 	m_protocol(VProtocol::instance())
 {
+	ExtensionInfo info(QT_TRANSLATE_NOOP("Protocol", "vk.com"),
+					   QT_TRANSLATE_NOOP("Protocol", "Add vk.com account"));
+	setInfo(info);
 }
 
 VAccountCreator::~VAccountCreator()
