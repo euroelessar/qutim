@@ -57,6 +57,8 @@ public:
 	QString activity() const;
 
 	void handleMessage(const vk::Message &message);
+    vk::Client *client() const;
+    vk::Buddy *buddy() const;
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
 	vk::ChatSession *chatSession();

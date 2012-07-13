@@ -30,6 +30,7 @@
 #include "vclient.h"
 #include <QPointer>
 
+class QWebPage;
 class VContact;
 typedef QList<VContact*> VContactList;
 class VProtocol;
@@ -39,6 +40,7 @@ class VRoster;
 class VAccount : public qutim_sdk_0_3::Account
 {
 	Q_OBJECT
+    Q_PROPERTY(vk::Client* client READ client CONSTANT)
 public:
 	VAccount(const QString &email, VProtocol *protocol);
 	VContact *getContact(int uid, bool create = false);
@@ -63,6 +65,8 @@ private slots:
 	void onNameChanged(const QString &name);
 	void onMeChanged(vk::Contact *me);
 	void onInvisibleChanged(bool set);
+	void onAuthConfirmRequested(QWebPage *page);
+	void setAccessToken(const QByteArray &token, time_t expiresIn);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;

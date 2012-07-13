@@ -111,12 +111,11 @@ QString VContact::activity() const
 void VContact::handleMessage(const vk::Message &msg)
 {
 	SentMessagesList::iterator i = m_sentMessages.begin();
-	for (; i != m_sentMessages.end(); i++) {
+	for (; i != m_sentMessages.end(); ++i) {
 		if (i->second == msg.id()) {
 			ChatSession *s = ChatLayer::get(this);
 			qApp->postEvent(s, new MessageReceiptEvent(i->first, true));
 			m_sentMessages.removeAt(i - m_sentMessages.begin());
-			return;
 			return;
 		}
 	}
@@ -134,7 +133,12 @@ void VContact::handleMessage(const vk::Message &msg)
 			m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
 	} else
 		coreMessage.setProperty("history", true);
-	s->appendMessage(coreMessage);
+    s->appendMessage(coreMessage);
+}
+
+vk::Client *VContact::client() const
+{
+    return m_buddy->client();
 }
 
 void VContact::setStatus(const Status &status)
@@ -270,10 +274,10 @@ void VContact::onUnreadChanged(MessageList unread)
 {
 	vk::IdList idList;
 	MessageList::iterator i = m_unreadMessages.begin();
-	for (; i != m_unreadMessages.end(); i++) {
+	for (; i != m_unreadMessages.end(); ++i) {
 		int index = -1;
 		MessageList::iterator j = unread.begin();
-		for (; j != unread.end(); j++) {
+		for (; j != unread.end(); ++j) {
 			if (i->id() == j->id()) {
 				index = j - unread.begin();
 				unread.removeAt(index);
@@ -308,4 +312,10 @@ void VContact::onAvatarDownloaded(const QString &path)
 {
 	m_avatar = path;
 	emit avatarChanged(path);
+}
+
+
+vk::Buddy *VContact::buddy() const
+{
+    return m_buddy;
 }

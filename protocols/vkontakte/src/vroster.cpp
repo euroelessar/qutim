@@ -47,7 +47,7 @@ VContact *VRoster::contact(int id, bool create)
 {
 	VContact *c = m_contactHash.value(id);
 	if (!c && create && id != m_account->uid()) {
-		vk::Buddy *buddy = static_cast<vk::Buddy*>(m_account->client()->roster()->contact(id));
+		vk::Buddy *buddy = m_account->client()->roster()->buddy(id);
 		c = createContact(buddy);
 	}
 	return c;
