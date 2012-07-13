@@ -13,8 +13,8 @@
 
 namespace vk {
 
-const static QUrl authUrl("http://api.vk.com/oauth/authorize");
-const static QUrl apiUrl("https://api.vk.com/method/");
+static const char *authUrl = "http://api.vk.com/oauth/authorize";
+static const char *apiUrl = "https://api.vk.com/method/";
 
 class OAuthConnection;
 class OAuthConnectionPrivate
@@ -113,7 +113,7 @@ QNetworkReply *OAuthConnection::request(const QString &method, const QVariantMap
 	Q_D(OAuthConnection);
 
 	//TODO test expiresIn
-	QUrl url = apiUrl;
+	QUrl url = QUrl(apiUrl);
 	url.setPath(url.path() % QLatin1Literal("/") % method);
 	QVariantMap::const_iterator it = args.constBegin();
 	for (; it != args.constEnd(); it++)
@@ -168,7 +168,7 @@ void OAuthConnectionPrivate::requestToken()
 		webPage->setNetworkAccessManager(q);
 		q->connect(webPage->mainFrame(), SIGNAL(loadFinished(bool)), SLOT(_q_loadFinished(bool)));
 	}
-	QUrl url = authUrl;
+	QUrl url = QUrl(authUrl);
 	url.addQueryItem(QLatin1String("client_id"), QByteArray::number(clientId));
 	url.addQueryItem(QLatin1String("scope"), scope.join(","));
 	url.addQueryItem(QLatin1String("redirect_uri"), redirectUri);
