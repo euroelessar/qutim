@@ -113,7 +113,7 @@ void sim::loadMessages(const QString &path)
 				acccount = tmp_string.section("+", 0, 0);
 				contact  = tmp_string.section("+", 1);
 			}
-			setProtocol(protocol);
+			setProtocol(protocol.toLower());
 			setAccount(acccount);
 			setContact(contact);
 			setValue(++num);

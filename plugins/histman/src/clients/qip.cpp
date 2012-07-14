@@ -48,7 +48,7 @@ void qip::loadMessages(const QString &path)
 	QString account = dir.dirName();
 	if(!dir.cd("History"))
 		return;
-	setProtocol("ICQ");
+	setProtocol("icq");
 	setAccount(account);
 	QStringList files = dir.entryList(QStringList() << "*.txt", QDir::Files);
 	setMaxValue(files.size());

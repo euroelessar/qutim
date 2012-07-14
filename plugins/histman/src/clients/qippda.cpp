@@ -49,9 +49,9 @@ void qippda::loadMessages(const QString &path)
 	if(!dir.cd("History"))
 		return;
 	QHash<QString,QString> protocols;
-	protocols[QLatin1String("icq")]    = QLatin1String("ICQ");
-	protocols[QLatin1String("jabber")] = QLatin1String("Jabber");
-	protocols[QLatin1String("mra")]    = QLatin1String("MRIM");
+	protocols[QLatin1String("icq")]    = QLatin1String("icq");
+	protocols[QLatin1String("jabber")] = QLatin1String("jabber");
+	protocols[QLatin1String("mra")]    = QLatin1String("mrim");
 	QStringList filters = QStringList() << QLatin1String("*.qhf") << QLatin1String("*.ahf");
 	QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
 	setMaxValue(files.size());
@@ -63,7 +63,7 @@ void qippda::loadMessages(const QString &path)
 			protocol.chop(1);
 		// Old qip pda has only ICQ support and files are named like 1_myuin_hisuin
 		if(protocol.isEmpty())
-			protocol = QLatin1String("ICQ");
+			protocol = QLatin1String("icq");
 		else
 		{
 			protocol = protocols[protocol.toLower()];
