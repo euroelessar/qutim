@@ -27,82 +27,45 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
-import QtWebKit 1.0
-import "messageDelegate"
 
 Page {
 	id: root
 	property variant chat
-	property variant menu: ControlledMenu {
+	property variant menu: contactMenu
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
+    property variant currentSessionPage
     Connections {
 		target: root.chat
-        onSessionCreated: session.page = webViewComponent.createObject(root, { "session": session })
+        onActiveSessionChanged: {
+            root.currentSessionPage = session.page;
+        }
+        onSessionCreated: {
+            if (!session.page)
+                session.page = webViewComponent.createObject(root, { "session": session });
+            root.currentSessionPage = session.page;
+        }
+        onSessionDestroyed: {
+            if (session.page) {
+                var page = session.page;
+                session.page = null;
+                page.destroy();
+            }
+        }
 	}
     Component {
         id: webViewComponent
-        Item {
-            id: item
-            anchors.top: root.top
-            anchors.bottom: textField.top
-            anchors.left: root.left
-            anchors.right: root.right
-            visible: root.chat.activeSession === controller.session
-            property QtObject session
-            Flickable {
-                id: flickable
-                anchors.fill: parent
-                contentWidth: Math.max(root.width, webView.width)
-                contentHeight: Math.max(root.height, webView.height)
-                pressDelay: 200
-    
-                WebView {
-                    id: webView
-                    preferredWidth: flickable.width
-                    preferredHeight: flickable.height
-                    onAlert: console.log(message)
-                    settings.defaultFontSize: controller.fontSize
-                    settings.standardFontFamily: controller.fontFamily
-                    settings.fixedFontFamily: controller.fontFamily
-                    settings.serifFontFamily: controller.fontFamily
-                    settings.sansSerifFontFamily: controller.fontFamily
-                    javaScriptWindowObjects: ChatController {
-                        id: controller
-                        WebView.windowObjectName: "client"
-                        webView: webView
-                        session: item.session
-                        Component.onCompleted: controller.fixFlickable(item)
-                    }
-                    Connections {
-                        target: controller.session
-                        onMessageAppended: controller.append(message)
-                    }
-                }
-            }
-            ScrollDecorator {
-                flickableItem: flickable
-            }
+        ChatView {
+            id: chatView
+            width: root.width
+            height: root.height - textField.height
+            //visible: chatView.session.active
+            visible: chatView === root.currentSessionPage
         }
     }
-
-	/*ListView {
-		id: listView
-		anchors { top: parent.top; bottom: textField.top }
-		width: parent.width
-		model: chat.activeSession ? chat.activeSession.model : null
-		delegate: MessageDelegate {}
-		onCountChanged: {
-			positionViewAtIndex(listView.count - 1, ListView.Contain)
-		}
-	}*/
-//	Connections {
-//		target: root.chat
-//		onActiveSessionChanged: {
-//			if (root.chat.activeSession)
-//				tabGroup.currentTab = chatTab
-//		}
-//	}
 	TextArea {
 		id: textField
 		anchors { left: parent.left; bottom: parent.bottom }
@@ -115,9 +78,12 @@ Page {
 		anchors { top: textField.top; right: parent.right; }
 		platformIconId: "toolbar-send-chat"
 		onClicked: {
-			var result = chat.activeSession.send(textField.text)
-			if (result != -2)
-				textField.text = ""
+			if (textField.text!=="")
+			{
+				var result = chat.activeSession.send(textField.text);
+				if (result !== -2)
+					textField.text = "";
+			}
 		}
 	}
 }

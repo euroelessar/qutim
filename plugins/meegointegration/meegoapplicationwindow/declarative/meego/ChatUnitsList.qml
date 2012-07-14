@@ -35,16 +35,25 @@ Page {
 	ListModel {
 		id: emptyModel
 	}
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
+    }
 	ListView {
 		id: listViewItem
 		width: parent.width
 		anchors.fill: parent
 		model: unitsModel
-		delegate: ItemDelegate {
+		delegate: ContactItem {
 			onClicked: {
-				root.chat.session(model.contact).active = true
-				root.chat.show()
+                var session = root.chat.session(model.contact);
+                chat.activeSession = session;
+                root.chat.show();
 			}
+            onPressAndHold: {
+                contactMenu.controller = model.contact;
+                contactMenu.open();
+            }
 		}
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString

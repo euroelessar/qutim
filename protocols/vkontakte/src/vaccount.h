@@ -26,41 +26,52 @@
 #ifndef VKONTAKTEACCOUNT_H
 #define VKONTAKTEACCOUNT_H
 #include <qutim/account.h>
-#include "vkontakte_global.h"
 
-class VAccountPrivate;
+#include "vclient.h"
+#include <QPointer>
+
+class QWebPage;
 class VContact;
 typedef QList<VContact*> VContactList;
-class VConnection;
+class VProtocol;
+class VClient;
 class VRoster;
-class VWallSession;
-class LIBVKONTAKTE_EXPORT VAccount : public Account
+
+class VAccount : public qutim_sdk_0_3::Account
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(VAccount)
+    Q_PROPERTY(vk::Client* client READ client CONSTANT)
 public:
-	VAccount(const QString& email,QObject *parent = 0);
-	virtual VContact* getContact(const QString& uid, bool create = false);
-	virtual ChatUnit* getUnit(const QString& unitId, bool create = false);
-	QString uid() const;
+	VAccount(const QString &email, VProtocol *protocol);
+	VContact *getContact(int uid, bool create = false);
+
+	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
-	void setAccountName(const QString &name);
-	QString email() const {return id();} //alias for id
-	void setUid(const QString &uid);
-	virtual void setStatus(Status status);
-	virtual ~VAccount();
-	VConnection *connection();
-	const VConnection *connection() const;
-	VContactList contacts() const;
+	virtual void setStatus(qutim_sdk_0_3::Status status);
+
+	int uid() const;
+	QString email() const;
+	vk::Connection *connection() const;
+	vk::Client *client() const;
 public slots:
 	void loadSettings();
 	void saveSettings();
 protected:
-	QString password();
+	VRoster *roster() const;
+	VRoster *roster();
+	QString requestPassword();
+private slots:
+	void onClientStateChanged(vk::Client::State);
+	void onNameChanged(const QString &name);
+	void onMeChanged(vk::Contact *me);
+	void onInvisibleChanged(bool set);
+	void onAuthConfirmRequested(QWebPage *page);
+	void setAccessToken(const QByteArray &token, time_t expiresIn);
 private:
-	QScopedPointer<VAccountPrivate> d_ptr;
-	friend class VConnection;
-	friend class VRosterPrivate;
+	VClient *m_client;
+	QPointer<VRoster> m_roster;
+	QString m_name;
+
 	friend class VRoster;
 };
 

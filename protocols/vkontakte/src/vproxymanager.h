@@ -26,18 +26,17 @@
 #ifndef VPROXYMANAGER_H
 #define VPROXYMANAGER_H
 
-#include "vkontakte_global.h"
 #include <qutim/networkproxy.h>
 
-class VProxyManager : public QObject, public NetworkProxyManager
+class VProxyManager : public QObject, public qutim_sdk_0_3::NetworkProxyManager
 {
 	Q_OBJECT
 	Q_CLASSINFO("DependsOn", "VkontakteProtocol")
 	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
 public:
 	VProxyManager();
-	QList<NetworkProxyInfo*> proxies();
-	void setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings);
+	QList<qutim_sdk_0_3::NetworkProxyInfo*> proxies();
+	void setProxy(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::NetworkProxyInfo *proxy, const qutim_sdk_0_3::DataItem &settings);
 };
 
 #endif // VPROXYMANAGER_H

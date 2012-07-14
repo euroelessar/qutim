@@ -30,6 +30,7 @@
 
 namespace MeegoIntegration
 {
+
 class ApplicationWindow : public QObject
 {
     Q_OBJECT
@@ -37,22 +38,30 @@ class ApplicationWindow : public QObject
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "PasswordDialog")
+	Q_CLASSINFO("Uses", "ContactInfo")
 public:
     explicit ApplicationWindow();
+	~ApplicationWindow();
+	
 	void showWidget(QWidget *widget);
 	
 	QDeclarativeEngine *engine() const;
+	static ApplicationWindow *instance();
 
 signals:
+	void dialogShown(QObject *widget);
+	void queryDialogShown(QObject *widget);
 	void widgetShown(QObject *widget);
 	void widgetClosed();
 
 public slots:
 	void closeWidget();
+	void activate();
 	
 private:
 	QDeclarativeView *m_view;
 };
+
 }
 
 #endif // APPLICATIONWINDOW_H

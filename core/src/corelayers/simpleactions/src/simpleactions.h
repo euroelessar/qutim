@@ -51,11 +51,13 @@ private slots:
 	void onCopyIdCreated(QAction *, QObject *);
 	void onCopyIdTriggered(QObject *obj);
 	void onContactRenameAction(QObject*);
+	void onContactNameSelected(const QString &name);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
 	void onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
 	void onContactAddRemoveActionCreated(QAction *, QObject *);
 	void onContactAddRemoveAction(QObject*);
+	void onRemoveChoosed(int result);
 	void onContactAddRemoveActionDestroyed();
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);

@@ -41,6 +41,8 @@
 #include "quickaddaccountdialog.h"
 #include "addaccountdialogwrapper.h"
 #include "meegointegration.h"
+#include "quickiconloader.h"
+#include "quickcontactinfo.h"
 
 namespace MeegoIntegration
 {
@@ -50,6 +52,9 @@ namespace MeegoIntegration
 		qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Main window of application");
 		setInfo(name, description, PLUGIN_VERSION(0, 1, 0, 0));
 		addExtension<ApplicationWindow>(name, description);
+		addExtension<QuickNoficationManager>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
+			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<Chat>(
 			    QT_TRANSLATE_NOOP("Plugin", "Meego chat page"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple chat based on QML elements"));
@@ -80,15 +85,18 @@ namespace MeegoIntegration
 		addExtension<AccountsModel>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGoAccounts Model"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple accounts model"));
-		addExtension<QuickNoficationManager>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<QuickSettingsLayer>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
 		addExtension<QuickAddAccountDialog>(
 			    QT_TRANSLATE_NOOP("Plugin", "MeeGo account creator"),
 			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo account creator"));
+		addExtension<QuickIconLoader>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo icon loader noop"),
+			    QT_TRANSLATE_NOOP("Plugin", "Noop for icon loader service"));
+		addExtension<QuickContactInfo>(
+			    QT_TRANSLATE_NOOP("Plugin", "MeeGo contact info"),
+			    QT_TRANSLATE_NOOP("Plugin", "Shows information about contact"));
 	}
 }
 

@@ -33,9 +33,13 @@ PageStackWindow {
 	ServiceManager {
 		id: serviceManager
 	}
+    property variant applicationWindow:  serviceManager.applicationWindow
+    property variant contactInfo: serviceManager.contactInfo
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
 	property variant settings:  serviceManager.settingsLayer
+    property variant vibration:  serviceManager.vibration
+    property variant popup:  serviceManager.popup
 	Connections {
 		target: root.chat
 		onShown: {
@@ -52,13 +56,41 @@ PageStackWindow {
         }
     }
     Connections {
+		target: root.contactInfo
+        onShowRequest: {
+            console.log("showRequest")
+            pageStack.push(contactInfoPageComponent)
+        }
+    }
+    Connections {
 		target: root.settings
         onSettingsRequested: pageStack.push(settingsPageComponent, { "model": model })
 	}
 	Connections {
 		target: application
+        onDialogShown: {
+            inputDialog.widget = widget;
+            inputDialog.open();
+        }
+        onQueryDialogShown: {
+            messageBox.widget = widget;
+            messageBox.open();
+        }
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
+	}
+    Connections {
+		target: root.popup
+        onRequestChannelList: {
+            tabGroup.currentTab = channelListTab;
+            // Is there any better way to make window active?..
+            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+        }
+        onRequestChannel: {
+            root.chat.activeSession = channel;
+            tabGroup.currentTab = chatTab;
+            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+        }
 	}
 	Component {
 		id: proxyPageComponent
@@ -70,12 +102,28 @@ PageStackWindow {
 		ProtocolListPage {
 		}
 	}
+    Component {
+		id: contactInfoPageComponent
+		ContactInfoPage {
+            contactInfo: root.contactInfo
+		}
+	}
+    Component {
+		id: joinGroupChatPageComponent
+		JoinGroupChatDialog {
+		}
+	}
 	Statistics {
 		id: statistics
 	}
-
-	PasswordDialog{
-		id:passwordDialog
+    InputDialog {
+		id: inputDialog
+	}
+    MessageBox {
+        id: messageBox
+    }
+	PasswordDialog {
+		id: passwordDialog
 	}
 	SettingsDialog {
 		id:settingsDialog
@@ -83,24 +131,28 @@ PageStackWindow {
 	AuthDialog {
 		id:authDialog
 	}
-	JoinGroupChatDialog {
-		id:joinGroupChatDialog
-	}
 	AboutDialog {
 		id:aboutDialog
 	}
 	AddContactDialog {
 		id:addContactDialog
 	}
-	Notifications
-	{
+	Notifications {
 		id:notifications
-		windowActive:platformWindow.active
+		windowActive: platformWindow.active
+        onWindowActiveChanged: {
+            root.vibration.windowActive = windowActive
+            var session = root.chat.activeSession;
+            if (session !== undefined && session !== null && tabGroup.currentTab === chatTab) {
+                if (windowActive)
+                    session.active = true;
+                else
+                    session.active = false;
+            }
+        }
 	}
 
 	initialPage: Page {
-
-		
 		AnimatedTabGroup {
 			id: tabGroup
 			anchors.fill: parent
@@ -126,6 +178,17 @@ PageStackWindow {
 				id: conferenceUsersTab
 				chat: root.chat
 			}
+            
+            onCurrentTabChanged: {
+                var session = root.chat.activeSession;
+                if (session !== undefined && session !== null) {
+                    if (currentTab !== chatTab) {
+                        session.active = false;
+                    } else {
+                        session.active = true;
+                    }
+                }
+            }
 		}
 		tools: ToolBarLayout {
 			ButtonRow {
@@ -139,33 +202,22 @@ PageStackWindow {
 					tab: channelListTab
 				}
 				TabIcon {
-					platformIconId: "toolbar-new-chat"
+                    platformIconId: "toolbar-new-chat" + (enabled ? "" : "-dimmed")
 					tab: chatTab
 					enabled: chat.activeSession !== null
 				}
 				TabIcon {
-					platformIconId: "toolbar-new-chat"
+					platformIconId: "toolbar-list" + (enabled ? "" : "-dimmed")
 					tab: conferenceUsersTab
 					enabled: chat.activeSession !== null && chat.activeSession.unit.conference
 				}
-//				TabIcon {
-//					platformIconId: "toolbar-settings"
-//					tab: settingsTab
-//				}
 			}
 
 			ToolIcon {
+                id: menuIcon
 				property variant menu: tabGroup.currentTab.menu
-				//				visible: menu !== undefined
-				//				Menu {
-				//					id: menu
-				//					visualParent: root.pageStack
-				//				}
 				platformIconId: "toolbar-view-menu"
-				onClicked:mainMenu.open()
-//				onClicked: (menu.status == DialogStatus.Closed)
-//					   ? menu.open()
-//					   : menu.close()
+                onClicked: (menu === undefined ? mainMenu : menu).open()
 			}
 
 		}
@@ -179,7 +231,7 @@ PageStackWindow {
 			}
 			MenuItem {
 				text: qsTr("Join group chat")
-			    onClicked: joinGroupChatDialog.open();
+			    onClicked: pageStack.push(joinGroupChatPageComponent)
 			}
 			MenuItem {
 				text: qsTr("About qutIM")
@@ -208,49 +260,37 @@ PageStackWindow {
 	Sheet {
 		id: statisticsGatherer
 
-		acceptButtonText: qsTr("Send")
+        acceptButtonText: submitBox.checked ? qsTr("Send") : qsTr("Don't send")
 		rejectButtonText: qsTr("Cancel")
 
-		content: Flickable {
-			anchors.fill: parent
-			anchors.leftMargin: 10
-			anchors.rightMargin: 10
-			anchors.topMargin: 10
-			flickableDirection: Flickable.VerticalFlick
-			Column {
-			    id: col2
-			    anchors.top: parent.top
-			    anchors.left: parent.left
-			    anchors.right: parent.right
-			    spacing: 10
-			    CheckBox{
-				    id:submitBox
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Would you like to send details about your current setup?")
+        content: FlickableColumn {
+            anchors.fill: parent
+			anchors.margins: 10
+            spacing: 10
+            
+            CheckBox {
+                id:submitBox
+                width: parent.width
+                text: qsTr("Would you like to send details about your current setup?")
+                checked: true
 
-			    }
-			    CheckBox{
-				    id:dontAskLater
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Dont's ask me later")
-			    }
-			    Label
-			    {
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text: qsTr("Information to be transferred to the qutIM's authors:")
-			    }
-
-			    TextArea
-			    {
-				    anchors.left: parent.left
-				    anchors.right: parent.right
-				    text:statistics.infoHtml
-			    }
-			}
-		    }
+            }
+            CheckBox {
+                id:dontAskLater
+                width: parent.width
+                text: qsTr("Dont's ask me later")
+                checked: false
+            }
+            Label {
+                width: parent.width
+                text: qsTr("Information to be transferred to the qutIM's authors:")
+            }
+            TextArea {
+                width: parent.width
+                text: statistics.infoHtml
+                readOnly: true
+            }
+        }
 
 		onAccepted: statistics.setDecisition(!submitBox.checked, dontAskLater.checked);
 	}

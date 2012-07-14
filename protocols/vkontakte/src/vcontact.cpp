@@ -24,56 +24,67 @@
 ****************************************************************************/
 
 #include "vcontact.h"
-#include "vconnection.h"
 #include "vaccount.h"
-#include "vmessages.h"
 #include "vroster.h"
 #include "vinforequest.h"
+
 #include <qutim/tooltip.h>
 #include <qutim/inforequest.h>
 #include <qutim/notification.h>
+#include <qutim/message.h>
+#include <qutim/chatsession.h>
 
-class VContactPrivate
+#include <vk/contact.h>
+#include <vk/chatsession.h>
+#include <vk/contentdownloader.h>
+
+#include <QTimer>
+#include <QApplication>
+#include <QUrl>
+
+using namespace qutim_sdk_0_3;
+
+#define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMediumRec
+
+VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
+	m_buddy(contact)
 {
-public:
-	bool online;
-	QString id;
-	bool inList;
-	QStringList tags;
-	QList<int> tagIds;
-	QString name;
-	QString avatar;
-	QString activity;
-	VAccount *account;
-};
+	m_status = Status::instance(m_buddy->isOnline() ? Status::Online : Status::Offline, "vkontakte");
+	m_status.setText(m_buddy->activity());
+	m_name = m_buddy->name();
+	m_tags = m_buddy->tags();
 
+	connect(m_buddy, SIGNAL(statusChanged(vk::Contact::Status)), SLOT(onStatusChanged(vk::Contact::Status)));
+	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
+	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
+	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
+	connect(m_buddy, SIGNAL(photoSourceChanged(QString,vk::Contact::PhotoSize)),
+			SLOT(onPhotoSourceChanged(QString,vk::Contact::PhotoSize)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
-VContact::VContact(const QString& id, VAccount* account): Contact(account), d_ptr(new VContactPrivate)
-{
-	Q_D(VContact);
-	d->id = id;
-	d->account = account;
-	d->online = false;
-	d->inList = false;
+	downloadAvatar(m_buddy->photoSource(vk::Contact::PhotoSizeMedium));
 }
 
 
 QString VContact::id() const
 {
-	return d_func()->id;
+	return QString::number(m_buddy->id());
 }
 
 bool VContact::isInList() const
 {
-	return d_func()->inList;
+	return m_buddy->isFriend();
 }
 
 bool VContact::sendMessage(const Message& message)
 {
-	Q_D(VContact);
-	if (d->account->connection()->connectionState() != Connected)
+	if (!m_buddy->client()->isOnline())
 		return false;
-	d_func()->account->connection()->messages()->sendMessage(message);
+	vk::Reply *reply = chatSession()->sendMessage(message.text(),
+												  message.property("subject").toString()); //TODO don't use vk::Reply, use vlongpoll instead
+	reply->setProperty("id", message.id());
+	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
 	return true;
 }
 
@@ -87,60 +98,87 @@ void VContact::setInList(bool inList)
 	Q_UNUSED(inList);
 }
 
-void VContact::setContactTags(const QStringList& tags)
-{
-	Q_D(VContact);
-	if (d->tags != tags) {
-		QStringList previous = d->tags;
-		d->tags = tags;
-		emit tagsChanged(tags, previous);
-	}
-}
-
-void VContact::setContactInList(bool inList)
-{
-	Q_D(VContact);
-	if (d->inList != inList) {
-		d->inList = inList;
-		emit inListChanged(d->inList);
-	}
-}
-
 Status VContact::status() const
 {
-	Q_D(const VContact);
-	Status status = Status::instance(d->online ? Status::Online : Status::Offline, "vkontakte");
-	status.setText(d->activity);
-	return status;
-}
-
-void VContact::setOnline(bool set)
-{
-	Q_D(VContact);
-	if (d->online != set) {
-		Status previous = status();
-		d->online = set;
-		Status status = this->status();
-		setChatState(set ? ChatStateInActive : ChatStateGone);
-		NotificationRequest request(this, status, previous);
-		request.send();
-		emit statusChanged(status, previous);
-	}
-}
-
-void VContact::setActivity(const QString &activity)
-{
-	Q_D(VContact);
-	if (d->activity != activity) {
-		Status previous = status();
-		d->activity = activity;
-		emit statusChanged(status(), previous);
-	}
+	return m_status;
 }
 
 QString VContact::activity() const
 {
-	return d_func()->activity;
+	return m_status.text();
+}
+
+void VContact::handleMessage(const vk::Message &msg)
+{
+	SentMessagesList::iterator i = m_sentMessages.begin();
+	for (; i != m_sentMessages.end(); ++i) {
+		if (i->second == msg.id()) {
+			ChatSession *s = ChatLayer::get(this);
+			qApp->postEvent(s, new MessageReceiptEvent(i->first, true));
+			m_sentMessages.removeAt(i - m_sentMessages.begin());
+			return;
+		}
+	}
+	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+	coreMessage.setChatUnit(this);
+	coreMessage.setIncoming(msg.isIncoming());
+	coreMessage.setProperty("mid", msg.id());
+	coreMessage.setProperty("subject", msg.subject());
+
+	qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+	if (msg.isIncoming()) {
+		if (!s->isActive())
+			m_unreadMessages.append(coreMessage);
+		else
+			m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
+	} else
+		coreMessage.setProperty("history", true);
+    s->appendMessage(coreMessage);
+}
+
+vk::Client *VContact::client() const
+{
+    return m_buddy->client();
+}
+
+void VContact::setStatus(const Status &status)
+{
+	Status old = m_status;
+	m_status = status;
+	emit statusChanged(status, old);
+	NotificationRequest request(this, status, old);
+	request.send();
+}
+
+vk::ChatSession *VContact::chatSession()
+{
+	if (m_chatSession.isNull()) {
+		m_chatSession = new vk::ChatSession(m_buddy);
+		qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+		m_chatSession->setParent(s);
+	}
+	return m_chatSession.data();
+}
+
+void VContact::setTyping(bool set)
+{
+	if (set) {
+		if (m_typingTimer.isNull()) {
+			m_typingTimer = new QTimer(this);
+			m_typingTimer->setInterval(5000);
+			connect(m_typingTimer, SIGNAL(timeout()), SLOT(setTyping()));
+			connect(m_typingTimer, SIGNAL(timeout()), m_typingTimer, SLOT(deleteLater()));
+		}
+		m_typingTimer->start();
+		setChatState(ChatStateComposing);
+	} else
+		setChatState(ChatStateActive);
+}
+
+void VContact::onActivityChanged(const QString &activity)
+{
+	m_status.setText(activity);
+	setStatus(m_status);
 }
 
 VContact::~VContact()
@@ -150,22 +188,12 @@ VContact::~VContact()
 
 QStringList VContact::tags() const
 {
-	return d_func()->tags;
+	return m_tags;
 }
 
 QString VContact::name() const
 {
-	return d_func()->name;
-}
-
-void VContact::setContactName(const QString& name)
-{
-	Q_D(VContact);
-	if (d->name != name) {
-		QString previous = d->name;
-		d->name = name;
-		emit nameChanged(name, previous);
-	}
+	return m_name;
 }
 
 void VContact::setName(const QString& name)
@@ -173,39 +201,121 @@ void VContact::setName(const QString& name)
 	Q_UNUSED(name);
 }
 
-void VContact::setAvatar(const QString &avatar)
-{
-	Q_D(VContact);
-	if (d->avatar != avatar) {
-		d->avatar = avatar;
-		emit avatarChanged(avatar);
-	}
-}
-
 QString VContact::avatar() const
 {
-	return d_func()->avatar;
+	return m_avatar;
 }
 
 bool VContact::event(QEvent *ev)
 {
-	Q_D(VContact);
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QString mobile = property("mobilePhone").toString();
-		if (!mobile.isEmpty())
-			event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone"),
-							mobile,
-							ExtensionIcon("phone"));
-		if (!d->activity.isEmpty())
-			event->addField(QT_TRANSLATE_NOOP("ContactInfo","Activity"),
-							d->activity);
+		if (!activity().isEmpty())
+			event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Activity"),
+							activity());
 	}
 	return Contact::event(ev);
 }
 
-VAccount *VContact::account() const
+void VContact::downloadAvatar(const QString &url)
 {
-	return d_func()->account;
+	if (!url.isEmpty()) {
+		vk::ContentDownloader *downloader = new vk::ContentDownloader(this);
+		connect(downloader, SIGNAL(downloadFinished(QString)), SLOT(onAvatarDownloaded(QString)));
+		connect(downloader, SIGNAL(downloadFinished(QString)),
+				downloader, SLOT(deleteLater()));
+		downloader->download(QUrl(url));
+	}
 }
 
+void VContact::onStatusChanged(vk::Contact::Status status)
+{
+	Status::Type type;
+	switch (status) {
+	case vk::Contact::Offline:
+		type = Status::Offline;
+		break;
+	case vk::Contact::Online:
+		type = Status::Online;
+		break;
+	case vk::Contact::Away:
+		type = Status::Away;
+	default:
+		break;
+	}
+	m_status.setType(type);
+	setStatus(m_status);
+}
+
+void VContact::onTagsChanged(const QStringList &tags)
+{
+	QStringList old = m_tags;
+	m_tags = tags;
+	emit tagsChanged(tags, old);
+}
+
+void VContact::onNameChanged(const QString &name)
+{
+	QString old = m_name;
+	m_name = name;
+	emit nameChanged(name, old);
+}
+
+void VContact::onMessageSent(const QVariant &response)
+{
+	int mid = response.toInt();
+	if (mid) {
+		int id = sender()->property("id").toInt();
+		m_sentMessages << QPair<int, int>(id, mid);
+	}
+}
+
+void VContact::onUnreadChanged(MessageList unread)
+{
+	vk::IdList idList;
+	MessageList::iterator i = m_unreadMessages.begin();
+	for (; i != m_unreadMessages.end(); ++i) {
+		int index = -1;
+		MessageList::iterator j = unread.begin();
+		for (; j != unread.end(); ++j) {
+			if (i->id() == j->id()) {
+				index = j - unread.begin();
+				unread.removeAt(index);
+				break;
+			}
+		}
+		if (index == -1)
+			idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
+	}
+	if (idList.count())
+		chatSession()->markMessagesAsRead(idList, true);
+
+	idList.clear();
+	//foreach (Message msg, unread)
+	//	idList.append(msg.property("mid").toInt());
+	//chatSession()->markMessagesAsRead(idList, false);
+}
+
+void VContact::onSessionCreated(ChatSession *session)
+{
+	if (session->unit() == this)
+		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+}
+
+void VContact::onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize size)
+{
+	if (size == VK_PHOTO_SOURCE)
+		downloadAvatar(source);
+}
+
+void VContact::onAvatarDownloaded(const QString &path)
+{
+	m_avatar = path;
+	emit avatarChanged(path);
+}
+
+
+vk::Buddy *VContact::buddy() const
+{
+    return m_buddy;
+}

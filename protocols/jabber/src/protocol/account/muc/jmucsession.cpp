@@ -47,6 +47,7 @@
 #include "../roster/jsoftwaredetection.h"
 #include "../dataform/jdataform.h"
 #include <jreen/captcha.h>
+#include <qutim/systemintegration.h>
 #include <QVBoxLayout>
 #include <qutim/notification.h>
 #include <QApplication>
@@ -353,12 +354,20 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 				msgtxt = msgtxt % tr("with reason: ") % reason.append("\n");
 			if (!isBan) {
 				msgtxt = msgtxt % tr("Do you want to rejoin?");
-				if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
-										 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-					QTimer::singleShot(0, this, SLOT(join()));
-				}
+				QMessageBox *dialog = new QMessageBox(QMessageBox::Question,
+													  tr("You have been kicked"),
+													  msgtxt,
+													  QMessageBox::Yes | QMessageBox::No);
+				connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+				connect(dialog, SIGNAL(finished(int)), SLOT(onRejoinChoosed(int)));
+				SystemIntegration::open(dialog);
 			} else {
-				QMessageBox::warning(0, tr("You have been banned"), msgtxt, QMessageBox::Ok);
+				QMessageBox *dialog = new QMessageBox(QMessageBox::Warning,
+													  tr("You have been banned"),
+													  msgtxt,
+													  QMessageBox::Ok);
+				connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+				SystemIntegration::open(dialog);
 			}
 		} else {
 			JMUCUser *user = d->getUser(nick);
@@ -456,6 +465,12 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		request.setProperty("senderName", nick);
 		request.send();
 	}
+}
+
+void JMUCSession::onRejoinChoosed(int result)
+{
+	if (result == QMessageBox::Yes)
+		QTimer::singleShot(0, this, SLOT(join()));
 }
 
 void JMUCSession::onMessage(Jreen::Message msg, bool priv)
@@ -813,7 +828,7 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 		dialog->setWindowTitle(message);
 	    dialog->setLabelText(QCoreApplication::translate("Jabber", "Please select another nickname"));
 	    dialog->setTextValue(d->room->nick());
-		dialog->show();
+		SystemIntegration::open(dialog);
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onNickSelected(QString)));
 		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 	} else if (error->condition() == Error::Forbidden) {

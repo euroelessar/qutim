@@ -38,9 +38,23 @@ namespace Jabber {
 
 using namespace qutim_sdk_0_3;
 
-QScopedPointer<qutim_sdk_0_3::ActionGenerator> JAttention::m_sendAttentionActionGenerator;
+Q_GLOBAL_STATIC(JAttentionInfo::WeakPtr, weakInfo)
 
 JAttention::JAttention()
+{
+	JAttentionInfo::WeakPtr &info = *weakInfo();
+	if (info) {
+		m_info = info.toStrongRef();
+	} else {
+		m_info = JAttentionInfo::Ptr::create();
+		m_info->generator.reset(new SendAttentionActionGenerator(
+									this, SLOT(onAttentionClicked(QObject*))));
+		MenuController::addAction<JContact>(m_info->generator.data());
+		info = m_info.toWeakRef();
+	}
+}
+
+JAttention::~JAttention()
 {
 }
 
@@ -51,11 +65,6 @@ void JAttention::init(qutim_sdk_0_3::Account *account)
 	Jreen::Client *client = qobject_cast<Jreen::Client*>(acc->property("client").value<QObject*>());
 	connect(client, SIGNAL(messageReceived(Jreen::Message)), this, SLOT(onMessageReceived(Jreen::Message)));
 	// ChatSession! Handle activated() !
-
-	if(!m_sendAttentionActionGenerator) {
-		m_sendAttentionActionGenerator.reset(new SendAttentionActionGenerator(this, SLOT(onAttentionClicked(QObject*))));
-		MenuController::addAction<JContact>(m_sendAttentionActionGenerator.data());
-	}
 }
 
 SendAttentionActionGenerator::SendAttentionActionGenerator(QObject *obj, const char *slot)

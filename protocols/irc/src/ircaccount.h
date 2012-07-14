@@ -68,9 +68,9 @@ public:
 			  IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  QStringList params = QStringList(),
 			  const ExtendedParams &extParams = ExtendedParams()) const;
-	void sendCtpcRequest(const QString &contact, const QString &cmd,
+	void sendCtcpRequest(const QString &contact, const QString &cmd,
 						 const QString &param, bool highPriority = true);
-	void sendCtpcReply(const QString &contact, const QString &cmd,
+	void sendCtcpReply(const QString &contact, const QString &cmd,
 					   const QString &params, bool highPriority = true);
 	void setName(const QString &name) const;
 	IrcProtocol *protocol();

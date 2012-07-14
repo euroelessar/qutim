@@ -27,37 +27,41 @@
 #define VROSTER_H
 
 #include <QObject>
-#include "vkontakte_global.h"
+#include <QHash>
+#include <vk/contact.h>
+#include <QTimer>
 
-namespace qutim_sdk_0_3 {
-	class Config;
+namespace vk {
+class Roster;
+class Contact;
+class Buddy;
+class Message;
 }
-
-class VConnection;
+class VAccount;
 class VContact;
-class VRosterPrivate;
-class LIBVKONTAKTE_EXPORT VRoster : public QObject
+class VContactsFactory;
+
+class VRoster : public QObject
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(VRoster)
 public:
-	VRoster(VConnection *connection);
-	virtual ~VRoster();
-	VContact *getContact(const QString &uid, bool create);
-	VContact *getContact(const QVariantMap &data, bool create);
-	Config config();
-public slots:
-	void loadSettings();
-	void saveSettings();
-	void getProfile();
-	void getTagList();
-	void getFriendList(); //TODO I think that we need a way to get information on parts
-	void setActivity(const Status &activity); //TBD i think that we need a create a separated class
-	void requestAvatar(QObject *contact);
-	void updateProfile(VContact *contact);
+	VRoster(VAccount *account);
+	VContact *contact(int id, bool create = true);
+	VContact *contact(int id) const;
+protected slots:
+	VContact *createContact(vk::Buddy *buddy);
+private slots:
+	void onContactDestroyed(QObject *obj);
+	void onAddFriend(vk::Buddy *buddy);
+
+	void onMessageAdded(const vk::Message &msg);
+	void onContactTyping(int userId);
 private:
-	QScopedPointer<VRosterPrivate> d_ptr;
+	VAccount *m_account;
+	vk::Roster *m_roster;
+	QHash<int, VContact*> m_contactHash;
 };
+
 
 #endif // VROSTER_H
 

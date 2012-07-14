@@ -301,6 +301,8 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	debug() << QIcon::themeSearchPaths();
 	Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
 	VariantHook::init();
+	qRegisterMetaType<QObject*>();
+	qRegisterMetaType<QAction*>("QAction*");
 	qRegisterMetaTypeStreamOperators<Status>();
     d = new ModuleManagerPrivate;
 	managerSelf = this;

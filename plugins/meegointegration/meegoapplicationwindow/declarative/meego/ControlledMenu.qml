@@ -30,45 +30,14 @@ import org.qutim 0.3
 
 Menu {
 	id: root
-	property alias controller: menuModel.controller
-	property variant __model : VisualDataModel {
-		id: visualModel
-        model: MenuModel {
-			id: menuModel
-		}
-
-        delegate: MenuItem {
-			text: action.text
-			visible: action.visible && action.enabled
-			onClicked: {
-				console.log("ControllerMenu", action.text, model.hasModelChildren)
-				if (model.hasModelChildren) {
-					visualModel.rootIndex = visualModel.modelIndex(index)
-				} else {
-					action.trigger()
-					root.close()
-				}
-			}
-			MoreIndicator {
-				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-				visible: model.hasModelChildren
-			}
-		}
+	property QtObject controller
+    property QtObject menuBuilder: MenuBuilder {
+        id: builder
+        // Reference to Column inside MenuLayout
+        menu: menuLayout.children[0]
+        controller: root.controller
     }
-	Column {
-		id: menuLayout
-		
-		anchors.left: parent.left
-		anchors.right: parent.right
-		height: childrenRect.height
-		
-		Repeater {
-			id: repeater
-			model: visualModel
-		}
-		
-		function closeLayout() {
-			// Do nothing
-		}
-	}
+    MenuLayout {
+        id: menuLayout
+    }
 }

@@ -26,12 +26,14 @@
 #include "vinforequest.h"
 #include "vaccount.h"
 #include "vcontact.h"
-#include "vconnection.h"
 #include <qutim/json.h>
 #include <QNetworkReply>
 #include <QDate>
 #include <QDebug>
 #include <QCache>
+#include <vk/connection.h>
+
+using namespace qutim_sdk_0_3;
 
 void init_names(QStringList &names)
 {
@@ -59,18 +61,18 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, names, init_names(*x))
 void init_titles(QList<LocalizedString> &titles)
 {
 	titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "First name")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Last name")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Gender")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "City")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Country")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Photo")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "University")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
-			<< QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
+		   << QT_TRANSLATE_NOOP("ContactInfo", "First name")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Last name")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Gender")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "City")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Country")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Photo")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "University")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
+		   << QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
 }
 
 Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x))
@@ -98,6 +100,8 @@ static bool isStatusOnline(const Status &status)
 VInfoFactory::VInfoFactory(VAccount *account) :
 	QObject(account), m_account(account)
 {
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)));
 }
 
 VInfoFactory::SupportLevel VInfoFactory::supportLevel(QObject *object)
@@ -106,7 +110,7 @@ VInfoFactory::SupportLevel VInfoFactory::supportLevel(QObject *object)
 	if (m_account == object) {
 		level = ReadOnly;
 	} else if (VContact *contact = qobject_cast<VContact*>(object)) {
-		if (contact->account() != m_account)
+		if (contact->account() == m_account)
 			level = ReadOnly;
 	}
 	if (level == ReadOnly && !isStatusOnline(m_account->status()))
@@ -174,7 +178,7 @@ VInfoRequest::VInfoRequest(QObject *parent) :
 	m_unknownCount(0)
 {
 	if (VAccount *account = qobject_cast<VAccount*>(parent)) {
-		m_id = account->uid();
+		m_id = QString::number(account->uid());
 		m_connection = account->connection();
 	} else if (VContact *contact = qobject_cast<VContact*>(parent)) {
 		m_id = contact->id();
@@ -232,7 +236,7 @@ void VInfoRequest::doRequest(const QSet<QString> &hints)
 	data.insert("fields",
 				"uid,first_name,last_name,nickname,sex,bdate,city,"
 				"country,photo_medium,has_mobile,contacts,education");
-	QNetworkReply *reply = m_connection->get("getProfiles", data);
+	QNetworkReply *reply = m_connection->request("getProfiles", data);
 	connect(this, SIGNAL(canceled()), reply, SLOT(deleteLater()));
 	connect(reply, SIGNAL(finished()), this, SLOT(onRequestFinished()));
 	setState(InfoRequest::Requesting);
@@ -314,7 +318,7 @@ void VInfoRequest::ensureAddress(DataType type)
 		data.insert(QLatin1String("cids"), QString::number(id));
 		FuncPointerHelper *helper = new FuncPointerHelper;
 		helper->mapper = mapper;
-		QNetworkReply *reply = m_connection->get(method, data);
+		QNetworkReply *reply = m_connection->request(method, data);
 		reply->setProperty("field", field);
 		reply->setProperty("mapper", reinterpret_cast<qptrdiff>(helper));
 		connect(this, SIGNAL(canceled()), reply, SLOT(deleteLater()));
@@ -327,7 +331,7 @@ void VInfoRequest::addItem(DataType type, DataItem &group, const QVariant &data)
 {
 	DataItem item(names()->at(type), titles()->at(type), data);
 	if (type == BDate && data.canConvert<QDate>()
-		&& data.value<QDate>().year() == 1900)
+			&& data.value<QDate>().year() == 1900)
 		item.setProperty("hideYear", true);
 	group.addSubitem(item);
 }

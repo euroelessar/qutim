@@ -1,3 +1,9 @@
+qutim (0.3.1.0) harmattan; urgency=low
+
+  * Major release
+
+ -- Eugene Degtyarev <degtep@gmail.com>  Wed, 27 Jun 2012 00:40:57 +0600
+
 qutim (0.2.80.2) natty; urgency=low
 
   * Fix ICQ connection issue 

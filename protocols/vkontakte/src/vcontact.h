@@ -25,39 +25,68 @@
 
 #ifndef VCONTACT_H
 #define VCONTACT_H
-#include "vkontakte_global.h"
 #include <qutim/contact.h>
+#include <qutim/chatsession.h>
+#include <QPointer>
+#include <vk/contact.h>
+
+namespace vk {
+class ChatSession;
+class Message;
+}
 
 class VAccount;
 class VContactPrivate;
-class LIBVKONTAKTE_EXPORT VContact : public Contact
+class VContact : public qutim_sdk_0_3::Contact
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(VContact)
 public:
-	VContact(const QString& id, VAccount* account);
+	VContact(vk::Buddy *contact, VAccount* account);
+
 	virtual QString id() const;
 	virtual bool isInList() const;
-	virtual bool sendMessage(const Message& message);
+	virtual bool sendMessage(const qutim_sdk_0_3::Message& message);
 	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
-	void setContactTags(const QStringList& tags);
-	void setContactInList(bool inList);
-	void setOnline(bool set);
-	void setActivity(const QString &activity);
-	QString activity() const;
-	virtual Status status() const;
+	virtual qutim_sdk_0_3::Status status() const;
 	virtual ~VContact();
 	virtual QStringList tags() const;
 	virtual QString name() const;
-	void setContactName(const QString& name);
 	virtual void setName(const QString& name);
-	void setAvatar(const QString &avatar);
 	virtual QString avatar() const;
-	VAccount *account() const;
-private:
+	QString activity() const;
+
+	void handleMessage(const vk::Message &message);
+    vk::Client *client() const;
+    vk::Buddy *buddy() const;
+protected:
+	void setStatus(const qutim_sdk_0_3::Status &status);
+	vk::ChatSession *chatSession();
 	virtual bool event(QEvent *ev);
-	QScopedPointer<VContactPrivate> d_ptr;
+	void downloadAvatar(const QString &url);
+public slots:
+	void setTyping(bool set = false);
+private slots:
+	void onActivityChanged(const QString &activity);
+	void onStatusChanged(vk::Contact::Status);
+	void onTagsChanged(const QStringList &tags);
+	void onNameChanged(const QString &name);
+	void onMessageSent(const QVariant &response);
+	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize);
+	void onAvatarDownloaded(const QString &path);
+private:
+	vk::Buddy *m_buddy;
+	QPointer<QTimer> m_typingTimer;
+	QPointer<vk::ChatSession> m_chatSession;
+	qutim_sdk_0_3::Status m_status;
+	QString m_name;
+	QStringList m_tags;
+	QString m_avatar;
+	qutim_sdk_0_3::MessageList m_unreadMessages;
+	typedef QList<QPair<int, int> > SentMessagesList;
+	SentMessagesList m_sentMessages;
 };
 
 Q_DECLARE_METATYPE(VContact*)

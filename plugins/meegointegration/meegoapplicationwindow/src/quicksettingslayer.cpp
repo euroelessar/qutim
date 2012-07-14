@@ -31,10 +31,31 @@
 #include <qutim/thememanager.h>
 #include <QDeclarativeItem>
 #include <QDeclarativeComponent>
+#include <QDeclarativeEngine>
 
 namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
+
+class DataSettingsItemHook : public DataSettingsItem
+{
+public:
+	using SettingsItem::generator;
+	static DataSettingsObject *create(DataSettingsItem *item)
+	{
+		return static_cast<DataSettingsItemHook*>(item)->createObject();
+	}
+};
+
+DataSettingsObjectCreator::DataSettingsObjectCreator(SettingsItem *item)
+	: item(static_cast<DataSettingsItem*>(item))
+{
+}
+
+DataSettingsObject *DataSettingsObjectCreator::create()
+{
+	return DataSettingsItemHook::create(item);
+}
 
 QuickSettingsLayer::QuickSettingsLayer()
 {
@@ -80,12 +101,14 @@ void QuickSettingsLayer::show(QObject *object)
 		Settings::showWidget();
 }
 
-QuickGenerator::QuickGenerator(const QString &component) : m_component(component)
+QuickGenerator::QuickGenerator(const QString &component, DataSettingsObjectCreator *creator)
+	: m_component(component), m_creator(creator)
 {
 }
 
 QuickGenerator::~QuickGenerator()
 {
+	delete m_creator;
 }
 
 QObject *QuickGenerator::generateHelper() const
@@ -96,7 +119,14 @@ QObject *QuickGenerator::generateHelper() const
 	QUrl url = QUrl::fromLocalFile(filePath + QLatin1Char('/') + m_component);
 	QDeclarativeComponent component(app->engine(), url);
 	qDebug() << url << component.isLoading() << component.isError() << component.errorString();
-	return component.create();
+	QObject *settingsPage = component.beginCreate(app->engine()->rootContext());
+	if (m_creator) {
+		QObject *object = m_creator->create();
+		object->setParent(settingsPage);
+		settingsPage->setProperty("object", qVariantFromValue(object));
+	}
+	component.completeCreate();
+	return settingsPage;
 }
 
 const QMetaObject *QuickGenerator::metaObject() const

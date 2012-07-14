@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE qutimsounds>
+<qutimsounds>
+	<sounds>
+		<sound event="c_online" >
+			<file>c_online.wav</file>
+		</sound>
+		<sound event="c_offline" >
+			<file>c_offline.wav</file>
+		</sound>
+		<sound event="c_changed_status" >
+			<file>c_changed_status.wav</file>
+		</sound>
+		<sound event="c_typing" >
+			<file>c_typing.wav</file>
+		</sound>
+		<sound event="c_blocked_message" >
+			<file>c_blocked_message.wav</file>
+		</sound>
+		<sound event="c_birth" >
+			<file>c_birth.wav</file>
+		</sound>
+		<sound event="start" >
+			<file>start.wav</file>
+		</sound>
+		<sound event="m_get" >
+			<file>m_get.wav</file>
+		</sound>
+		<sound event="m_send" >
+			<file>m_send.wav</file>
+		</sound>
+		<sound event="sys_event" >
+			<file>sys_event.wav</file>
+		</sound>
+		<sound event="sys_event" >
+			<file>sys_custom.wav</file>
+		</sound>
+
+
+
+  
+  <sound event="connect" >
+   <file>connect.wav</file>
+  </sound>
+  <sound event="disconnect" >
+   <file>disconnect.wav</file>
+  </sound>
+
+  
+  
+
+  
+ </sounds>
+</qutimsounds>

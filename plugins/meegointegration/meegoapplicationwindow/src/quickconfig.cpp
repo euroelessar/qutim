@@ -13,7 +13,9 @@ QuickConfig::QuickConfig(QObject *parent) :
 QVariant QuickConfig::value(const QString &key, const QVariant &def, ValueFlags type)
 {
 	qDebug() << "value" << key << def << type;
-	return m_config.value(key, def, static_cast<Config::ValueFlag>(int(type)));
+	QVariant result = m_config.value(key, def, static_cast<Config::ValueFlag>(int(type)));
+	qDebug() << Q_FUNC_INFO << result;
+	return result;
 }
 
 void QuickConfig::setValue(const QString &key, const QVariant &value, ValueFlags type)

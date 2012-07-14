@@ -29,6 +29,7 @@
 #define JOINGROUPCHATWRAPPER_H
 
 #include <QDialog>
+#include <QDeclarativeListProperty>
 #include <qutim/actiongenerator.h>
 #include <qutim/dataforms.h>
 #include "quickjoingroupchat.h"
@@ -56,8 +57,10 @@ enum ItemRole
 class JoinGroupChatWrapper : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QString currentAccountId READ currentAccountId NOTIFY currentAccountIdChanged)
-
+	Q_PROPERTY(qutim_sdk_0_3::Account *currentAccount READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
+	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts READ accounts NOTIFY accountsChanged)
+	Q_PROPERTY(QVariantList bookmarks READ bookmarks NOTIFY bookmarksChanged)
+	Q_PROPERTY(QVariantList recent READ recent NOTIFY recentChanged)
 public:
 	JoinGroupChatWrapper();
 	~JoinGroupChatWrapper();
@@ -65,9 +68,18 @@ public:
 	static void init();
 	static void showDialog();
 	QString currentAccountId();
-	Account * currentAccount();
+	Account *currentAccount();
+	void setCurrentAccount(Account *currentAccount);
+	QVariantList bookmarks() const;
+	QVariantList recent() const;
+	
+	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
 
 signals:
+	void accountsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Account> &accounts);
+	void currentAccountChanged(qutim_sdk_0_3::Account *currentAccount);
+	void bookmarksChanged(const QVariantList &bookmarks);
+	void recentChanged(const QVariantList &recent);
 	void currentAccountIdChanged();
 	void joinDialogShown();
 	void bookmarkEditDialogShown();
@@ -78,19 +90,36 @@ public slots:
 	Q_INVOKABLE void setAccount(int index);
 	void fillBookmarks(Account *account);
 	Q_INVOKABLE void onItemActivated(const QModelIndex &index);
-	Q_INVOKABLE void join(QVariant data);
 	void onBookmarksChanged();
+	
+	QVariant fields();
+	bool join(const qutim_sdk_0_3::DataItem &item);
+	bool remove(const qutim_sdk_0_3::DataItem &item);
+	bool save(const qutim_sdk_0_3::DataItem &item, const qutim_sdk_0_3::DataItem &oldItem);
+	
+protected slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
+	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountDeath(QObject *object);
 
 private:
+	void rebuildBookmarks();
+	void fillBookmarks(const QList<DataItem> &bookmarks, QVariantList &list);
+	
 	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
 	Account *account(int index);
 	QAction *m_closeAction;
 	QAction *m_backAction;
 	BookmarksModel *m_bookmarksModel;
 	BookmarksModel *m_bookmarksBoxModel;
-	Account * m_currentAccount;
-	QList<Account*> *m_accounts;
 	QStringList m_accountIds;
+	
+	Account *m_currentAccount;
+	QList<qutim_sdk_0_3::Account*> m_accounts;
+	QList<DataItem> m_bookmarks;
+	QList<DataItem> m_recent;
+	QVariantList m_variantBookmarks;
+	QVariantList m_variantRecent;
 
 };
 

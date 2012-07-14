@@ -35,6 +35,13 @@ namespace MeegoIntegration
 	class JoinGroupChatWrapper;
 	using namespace qutim_sdk_0_3;
 	
+	class JoinGroupChatGenerator : public ActionGenerator
+	{
+	public:
+		JoinGroupChatGenerator(QObject *module);
+		void showImpl(QAction *action, QObject *obj);
+	};	
+	
 	class QuickJoinGroupChat : public QObject
 	{
 		Q_OBJECT
@@ -47,15 +54,9 @@ namespace MeegoIntegration
 	public slots:
 		void onJoinGroupChatTriggered();
 	private:
+		QScopedPointer<ActionGenerator> m_button;
 		QScopedPointer<JoinGroupChatWrapper> m_chat;
 	};
-	
-	class JoinGroupChatGenerator : public ActionGenerator
-	{
-	public:
-		JoinGroupChatGenerator(QObject *module);
-		void showImpl(QAction *action, QObject *obj);
-	};	
 	
 }
 #endif // QUICKJOINGROUPCHAT_H

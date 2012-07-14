@@ -69,6 +69,7 @@ public:
 QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVariant &data) const
 {
 	switch (act) {
+	case OpenDialog:
 	case ShowWidget: {
 		QWidget *widget = data.value<QWidget*>();
 		m_window->showWidget(widget);
@@ -76,28 +77,43 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 	}
 	case GetSettingsGenerator: {
 		SettingsItem *item = data.value<SettingsItem*>();
-		const QString iconName = item->icon().name();
 		const QByteArray name = item->text().original();
 		ObjectGenerator *generator = NULL;
-		if (name == "Auto-away") {
+		QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
+		const QMetaObject *meta = gen->metaObject();
+		QLatin1String className = QLatin1String(meta->className());
+		if (className == QLatin1String("Jabber::JMainSettings"))
+			generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
+		else if (className == QLatin1String("VAccountSettings"))
+			generator = new QuickGenerator(QLatin1String("accounts/VKPage.qml"));
+		else if (className == QLatin1String("qutim_sdk_0_3::DataSettingsWidget"))
+			generator = new QuickGenerator(QLatin1String("settings/DataItemPage.qml"),
+										   new DataSettingsObjectCreator(item));
+		else if (name == "Auto-away")
 			generator = new QuickGenerator(QLatin1String("settings/AutoAwayPage.qml"));
-		} else if (name == "Icq account settings") {
+		else if (name == "Icq account settings")
 			generator = new QuickGenerator(QLatin1String("accounts/OscarPage.qml"));
-		} else if (name == "Connection manager") {
+		else if (name == "Connection manager")
 			generator = new QuickGenerator(QLatin1String("settings/ConnectionManagerPage.qml"));
-		} else if (name == "BlogImprover") {
+		else if (name == "BlogImprover")
 			generator = new QuickGenerator(QLatin1String("settings/BlogImproverPage.qml"));
-		} else if (name == "Highlighter") {
+		else if (name == "Highlighter")
 			generator = new QuickGenerator(QLatin1String("settings/HighlighterPage.qml"));
-		} else if (name == "Localization") {
+		else if (name == "Localization")
 			generator = new QuickGenerator(QLatin1String("settings/LanguagesPage.qml"));
-		} else if (name == "Main settings") {
-			QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
-			const QMetaObject *meta = gen->metaObject();
-			if (!qstrcmp(meta->className(), "Jabber::JMainSettings"))
-				generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
-		}
-		return qVariantFromValue(generator);
+		else if (name == "Sounds")
+			generator = new QuickGenerator(QLatin1String("settings/SoundThemePage.qml"));
+		else if (name == "Notifications")
+			generator = new QuickGenerator(QLatin1String("settings/NotificationsPage.qml"));
+		else if (name == "UrlPreview")
+			generator = new QuickGenerator(QLatin1String("settings/UrlPreviewPage.qml"));
+		else if (name == "Chat")
+			generator = new QuickGenerator(QLatin1String("settings/ChatPage.qml"));
+		else if (name == "Antispam")
+			generator = new QuickGenerator(QLatin1String("settings/AntispamPage.qml"));
+		else if (name == "Global proxy" || name == "Proxy")
+			generator = new QuickGenerator(QLatin1String("settings/ProxyPage.qml"));
+		return qVariantFromValue(generator ? generator : gen.take());
 	}
 	default:
 		break;
@@ -117,6 +133,7 @@ bool MeeGoIntegration::canHandle(SystemIntegration::Operation operation) const
 	case ShowWidget:
 	case GetSettingsGenerator:
 	case KeepAliveSocket:
+	case OpenDialog:
 		return true;
 	default:
 		return false;

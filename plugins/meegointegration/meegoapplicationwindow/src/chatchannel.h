@@ -29,49 +29,10 @@
 #include <QDeclarativeComponent>
 #include <qutim/chatsession.h>
 #include "chatmessagemodel.h"
-#include "../../../adiumwebview/lib/webkitmessageviewcontroller.h"
 
 namespace MeegoIntegration
 {
 class ChatChannelUsersModel;
-
-class ChatController : public WebKitMessageViewController
-{
-	Q_OBJECT
-	Q_PROPERTY(QString fontFamily READ fontFamily NOTIFY fontFamilyChanged)
-	Q_PROPERTY(int fontSize READ fontSize NOTIFY fontSizeChanged)
-	Q_PROPERTY(QObject* webView READ webView WRITE setWebView NOTIFY webViewChanged)
-public:
-	ChatController();
-	~ChatController();
-	
-	QString fontFamily() const;
-	int fontSize() const;
-	QObject *webView() const;
-	void setWebView(QObject *webView);
-	
-public slots:
-	void fixFlickable(QObject *object);
-	void append(const qutim_sdk_0_3::Message &message);
-	void handleElement(const QWebElement &element);
-	
-protected:
-	virtual void appendNick(const QVariant &nick);
-	virtual void appendText(const QVariant &text);
-	virtual void setDefaultFont(const QString &family, int size);
-
-signals:
-	void nickAppended(const QString &nick);
-	void textAppended(const QString &text);
-	void fontFamilyChanged(const QString &fontFamily);
-	void fontSizeChanged(int fontSize);
-	void webViewChanged(QObject *webView);
-	
-private:
-	QString m_fontFamily;
-	int m_fontSize;
-	QObject * m_webView;
-};
 
 class ChatChannel : public qutim_sdk_0_3::ChatSession
 {
@@ -81,6 +42,7 @@ class ChatChannel : public qutim_sdk_0_3::ChatSession
 	Q_PROPERTY(QObject *page READ page WRITE setPage NOTIFY pageChanged)
 	Q_PROPERTY(QObject* model READ model CONSTANT)
 	Q_PROPERTY(QObject* units READ units CONSTANT)
+	Q_PROPERTY(bool supportJavaScript READ supportJavaScript CONSTANT)
 public:
 	ChatChannel(qutim_sdk_0_3::ChatUnit *unit);
 	virtual ~ChatChannel();
@@ -96,15 +58,20 @@ public:
 	QObject *model() const;
 	Q_INVOKABLE qint64 send(const QString &text);
 	Q_INVOKABLE void showChat();
+	Q_INVOKABLE void close();
 	QObject *units() const;
 	QObject *page() const;
 	void setPage(QObject *page);
+	bool supportJavaScript() const;
+	
+	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
 	
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
 	
 signals:
+	void javaScriptRequest(const QString &javaScript, QVariant *variant);
 	void messageAppended(const qutim_sdk_0_3::Message &message);
 	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
 	void unreadCountChanged(int);

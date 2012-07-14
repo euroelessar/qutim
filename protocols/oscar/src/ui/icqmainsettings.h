@@ -30,6 +30,7 @@
 #include <qutim/settingswidget.h>
 #include <qutim/config.h>
 #include <qutim/dataforms.h>
+#include <qutim/datasettingsobject.h>
 
 class QVBoxLayout;
 
@@ -37,7 +38,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class IcqMainSettings: public SettingsWidget
+class IcqMainSettings: public DataSettingsObject
 {
 	Q_OBJECT
 public:
@@ -45,12 +46,7 @@ public:
 	virtual ~IcqMainSettings();
 	virtual void loadImpl();
 	virtual void cancelImpl();
-	virtual void saveImpl();
-private slots:
-	void extSettingsChanged();
-private:
-	QScopedPointer<AbstractDataForm> m_extSettings;
-	QVBoxLayout *m_layout;
+	virtual void saveImpl(const qutim_sdk_0_3::DataItem &item);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

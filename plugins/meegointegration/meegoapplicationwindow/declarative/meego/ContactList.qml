@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
@@ -33,27 +33,43 @@ Page {
 	property variant contactList
 	property variant showOffline:false
 	property variant chat
-	property variant menu: ControlledMenu {
-		controller: contactList
-	}
+//	property variant menu: ControlledMenu {
+//		controller: contactList
+//	}
+//    MaskedItem {
+//        id: maskedItem
+//        visible: false
+//        mask: 
+//    }
+
 	ContactListModel {
 		id: listModel
 		filter: filterField.text
 		showOffline: root.showOffline
-		statusPrefix: "icon-m-common"
+		statusPrefix: "icon-m"
 	}
+    ControlledMenu {
+        id: contactMenu
+        visualParent: pageStack
+    }
 	ListView {
 		id: listViewItem
 		width: parent.width
 		anchors.top: parent.top
 		anchors.bottom: accountStatusTool.top
 		model: listModel
-		delegate: ItemDelegate {
-			onClicked: {
-				root.chat.session(model.contact).active = true
-				root.chat.show()
-			}
-		}
+        delegate: ContactItem {
+            onClicked: {
+                var session = root.chat.session(model.contact);
+                chat.activeSession = session;
+                root.chat.show();
+            }
+            onPressAndHold: {
+                contactMenu.controller = model.contact;
+                contactMenu.open();
+            }
+        }
+
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString
 		section.delegate: sectionHeading

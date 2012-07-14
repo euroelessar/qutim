@@ -28,6 +28,9 @@
 #include <QDeclarativeEngine>
 #include <qutim/thememanager.h>
 #include "chatchannelmodel.h"
+#include "chatpreview.h"
+#include "chatviewstyle.h"
+#include "chatcontroller.h"
 
 namespace MeegoIntegration
 {
@@ -50,6 +53,8 @@ void Chat::init()
 	qmlRegisterType<ChatChannel>();
 	qmlRegisterType<ChatController>("org.qutim", 0, 3, "ChatController");
 	qmlRegisterType<ChatChannelModel>("org.qutim", 0, 3, "ChatChannelModel");
+	qmlRegisterType<ChatPreview>("org.qutim", 0, 3, "ChatPreview");
+	qmlRegisterUncreatableType<ChatViewStyle>("org.qutim", 0, 3, "ChatViewStyle", "");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
@@ -63,6 +68,8 @@ qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool
 	ChatChannel *channel = 0;
 	if (create) {
 		channel = new ChatChannel(unit);
+		QDeclarativeEngine::setObjectOwnership(channel, QDeclarativeEngine::CppOwnership);
+		QDeclarativeEngine::setObjectOwnership(unit, QDeclarativeEngine::CppOwnership);
 		connect(channel, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 		connect(channel, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		m_channels << channel;
@@ -95,7 +102,17 @@ qutim_sdk_0_3::ChatSession *Chat::activeSession() const
 
 void Chat::setActiveSession(qutim_sdk_0_3::ChatSession *session)
 {
-	session->setActive(true);
+	if (session != m_activeSession) {
+		m_activeSession = session;
+		emit activeSessionChanged(session);
+		if (session)
+			session->setActive(true);
+	}
+}
+
+void Chat::handleSessionDeath(ChatSession *session)
+{
+	emit sessionDestroyed(session);
 }
 
 void Chat::show()
@@ -105,19 +122,20 @@ void Chat::show()
 
 void Chat::onSessionActivated(bool active)
 {
-	ChatSession *session = static_cast<ChatSession*>(sender());
-	if (active && m_activeSession != session) {
-		if (m_activeSession) {
-			blockSignals(true);
-			m_activeSession->setActive(false);
-			blockSignals(false);
-		}
-		m_activeSession = session;
-		emit activeSessionChanged(m_activeSession);
-	} else if (m_activeSession == session && !active) {
-		m_activeSession = NULL;
-		emit activeSessionChanged(m_activeSession);
-	}
+	Q_UNUSED(active);
+//	ChatSession *session = static_cast<ChatSession*>(sender());
+//	if (active && m_activeSession != session) {
+//		if (m_activeSession) {
+//			blockSignals(true);
+//			m_activeSession->setActive(false);
+//			blockSignals(false);
+//		}
+//		m_activeSession = session;
+//		emit activeSessionChanged(m_activeSession);
+//	} else if (m_activeSession == session && !active) {
+//		m_activeSession = NULL;
+//		emit activeSessionChanged(m_activeSession);
+//	}
 }
 
 void Chat::onSessionDestroyed(QObject *object)

@@ -36,6 +36,7 @@
 #include <qutim/debug.h>
 #include <qutim/utils.h>
 #include <qutim/qtwin.h>
+#include <qutim/declarativeview.h>
 
 namespace KineticPopups {
 
@@ -114,7 +115,7 @@ void PopupAttributes::setFrameStyle(FrameStyle frameStyle)
 
 QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	PopupWidget(parent),
-	m_view(new QDeclarativeView(this))
+    m_view(new DeclarativeView(this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAttribute(Qt::WA_ShowWithoutActivating);
@@ -125,13 +126,13 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	setAttribute(Qt::WA_TranslucentBackground);
 	m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 	m_view->viewport()->setAutoFillBackground(false);
+    m_view->setResizeMode(DeclarativeView::SizeRootObjectToView);
 
 	QVBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(m_view);
 	l->setMargin(0);
 	setLayout(l);
 	connect(m_view, SIGNAL(sceneResized(QSize)), SIGNAL(sizeChanged(QSize)));
-	m_view->setResizeMode(QDeclarativeView::SizeViewToRootObject);
 	m_view->rootContext()->setContextProperty(QLatin1String("popup"), this);
 
 	//TODO optimize!
@@ -149,7 +150,7 @@ void QuickPopupWidget::loadTheme(const QString &themeName)
 	QString themePath = ThemeManager::path(QLatin1String("quickpopup"), themeName);
 	QString filename = themePath % QLatin1Literal("/main.qml");
 	m_view->setSource(QUrl::fromLocalFile(filename));//url - main.qml
-	if (m_view->status() == QDeclarativeView::Error)
+    if (m_view->status() == DeclarativeView::Error)
 		reject();
 
 	PopupAttributes *attributes = m_view->rootObject()->findChild<PopupAttributes*>("attributes");

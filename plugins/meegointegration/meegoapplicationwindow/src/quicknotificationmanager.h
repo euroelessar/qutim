@@ -29,11 +29,28 @@
 #include <qutim/sound.h>
 #include <QSet>
 #include <MNotification>
+#include <QDBusAbstractAdaptor>
 
 namespace MeegoIntegration
 {
 
 using namespace qutim_sdk_0_3;
+
+class QuickNoficationManager;
+
+class QuickNotificationManagerAdaptor : public QDBusAbstractAdaptor
+{
+	Q_OBJECT
+	Q_CLASSINFO("D-Bus Interface", "org.qutim.NoficationManager")
+public:
+	QuickNotificationManagerAdaptor(QuickNoficationManager *manager);
+	
+public slots:
+	void activate();
+	
+private:
+	QuickNoficationManager *m_manager;
+};
 
 class QuickNoficationManager : public QObject, public qutim_sdk_0_3::NotificationBackend
 {
@@ -44,8 +61,16 @@ public:
 	virtual ~QuickNoficationManager();
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 	void setWindowActive(bool active);
+	void updateNotification();
+	void activate();
+	
 protected slots:
 	void onNotificationFinished();
+	
+signals:
+	void requestChannelList();
+	void requestChannel(QObject *channel);
+	
 private:
 	QList<Notification*> m_notifications;
 	QHash<QObject*, MNotification*> m_ids;

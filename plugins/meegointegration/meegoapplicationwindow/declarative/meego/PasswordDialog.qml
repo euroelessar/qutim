@@ -54,7 +54,7 @@ Dialog {
 			anchors.horizontalCenter: parent.horizontalCenter
 			id:passwordText
 			placeholderText: qsTr("Password")
-			echoMode: TextInput.PasswordEchoOnEdit
+			echoMode: TextInput.Password
 			onTextChanged: handler.passwordText = text
 		}
 		Row {

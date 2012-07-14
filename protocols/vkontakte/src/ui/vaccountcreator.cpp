@@ -23,10 +23,12 @@
 **
 ****************************************************************************/
 #include "vaccountcreator.h"
-#include "../vkontakteprotocol.h"
 #include "ui_vaccountwizardpage.h"
-#include "../vkontakteprotocol_p.h"
 #include "../vaccount.h"
+#include "vprotocol.h"
+#include <qutim/extensioninfo.h>
+
+using namespace qutim_sdk_0_3;
 
 class VAccountWizardPage: public QWizardPage
 {
@@ -46,9 +48,9 @@ VAccountWizardPage::VAccountWizardPage(VAccountCreator* account_wizard) : m_acco
 	ui.setupUi(this);
 	{
 		//TODO email validator
-// 		QRegExp rx("[1-9][0-9]{1,9}");
-// 		QValidator *validator = new QRegExpValidator(rx, this);
-// 		ui.emailEdit->setValidator(validator);
+		// 		QRegExp rx("[1-9][0-9]{1,9}");
+		// 		QValidator *validator = new QRegExpValidator(rx, this);
+		// 		ui.emailEdit->setValidator(validator);
 	}
 	ui.emailEdit->setFocus();
 }
@@ -62,10 +64,15 @@ bool VAccountWizardPage::validatePage()
 
 
 
-VAccountCreator::VAccountCreator() : AccountCreationWizard(VkontakteProtocol::instance())
+VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance()),
+	m_page(0),
+	m_protocol(VProtocol::instance())
 {
-	protocol = VkontakteProtocol::instance();
+	ExtensionInfo info(QT_TRANSLATE_NOOP("Protocol", "vk.com"),
+					   QT_TRANSLATE_NOOP("Protocol", "Add vk.com account"));
+	setInfo(info);
 }
+
 VAccountCreator::~VAccountCreator()
 {
 
@@ -74,27 +81,26 @@ VAccountCreator::~VAccountCreator()
 QList< QWizardPage* > VAccountCreator::createPages(QWidget* parent)
 {
 	Q_UNUSED(parent);
-	page = new VAccountWizardPage(this);
+	m_page = new VAccountWizardPage(this);
 	QList<QWizardPage *> pages;
-	pages << page;
+	pages << m_page;
 	return pages;
 }
 
 void VAccountCreator::finished()
 {
-	VAccount *account = new VAccount(page->email());
-	if (page->isSavePassword()) {
+	VAccount *account = new VAccount(m_page->email(), m_protocol);
+	if (m_page->isSavePassword()) {
 		ConfigGroup cfg = account->config().group("general");
-		cfg.setValue("passwd", page->password(), Config::Crypted);
+		cfg.setValue("passwd", m_page->password(), Config::Crypted);
 		cfg.sync();
 	}
-	ConfigGroup cfg = protocol->config().group("general");
+	ConfigGroup cfg = m_protocol->config().group("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	protocol->d_func()->accounts.insert(account->id(), account);
-	page->deleteLater();
-	emit protocol->accountCreated(account);
+	m_protocol->addAccount(account);
+	m_page->deleteLater();
 }
 

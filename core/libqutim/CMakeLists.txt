@@ -80,6 +80,7 @@ if(MINGW)
     LIST( APPEND COMPILE_FLAGS "-mthreads" )
 endif(MINGW)
 
+set(QT_USE_QTDECLARATIVE true)
 FIND_PACKAGE( Qt4 REQUIRED )
 
 option(WITH_DOXYGEN "" ON)

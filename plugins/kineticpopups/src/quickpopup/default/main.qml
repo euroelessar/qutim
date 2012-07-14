@@ -5,7 +5,7 @@ Rectangle {
 	id: main
 
 	width: 300
-	height: childrenRect.height
+    height: childrenRect.height
 	color: "transparent"
 
 	PopupAttributes {
@@ -151,7 +151,7 @@ Rectangle {
 		acceptedButtons: Qt.LeftButton | Qt.RightButton
 		onClicked: {
 			console.log("Clicked");
-			if (mouse.button == Qt.RightButton)
+            if (mouse.button === Qt.RightButton)
 				popup.ignore();
 			else
 				popup.accept();
@@ -175,8 +175,7 @@ Rectangle {
 			actions.model = notify.actions;
 
 			//TODO write image provider for avatars
-			console.log ("Avatarpath " + body.text.length + " " + attributes.trimLength);
-			if(notify.avatar != "undefined")
+            if (notify.avatar !== "undefined")
 				image.source = notify.avatar;
 		}
 	}

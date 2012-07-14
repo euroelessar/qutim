@@ -62,7 +62,9 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 private slots:
 	void onKickUser(QObject* obj);
+	void onKickReasonSelected(const QString &reason);
 	void onBanUser(QObject* obj);
+	void onBanReasonSelected(const QString &reason);
 	void onConvertToMuc(QObject* obj);
 	void onShowConfigDialog(QObject *obj);
 	void onSaveRemoveBookmarks(QObject *obj);

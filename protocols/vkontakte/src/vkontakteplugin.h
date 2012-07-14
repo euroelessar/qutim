@@ -26,15 +26,13 @@
 #ifndef VKONTAKTEPLUGIN_H
 #define VKONTAKTEPLUGIN_H
 #include <qutim/plugin.h>
-#include "vkontakte_global.h"
-
 
 namespace qutim_sdk_0_3
 {
 class SettingsItem;
 }
 
-class VkontaktePlugin : public Plugin
+class VkontaktePlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
 public:

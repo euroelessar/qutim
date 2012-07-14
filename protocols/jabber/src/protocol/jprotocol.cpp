@@ -41,6 +41,9 @@
 #include <QInputDialog>
 #include <qutim/debug.h>
 #include <jreen/logger.h>
+#include <qutim/datasettingsobject.h>
+#include <qutim/systemintegration.h>
+#include <QApplication>
 
 namespace Jabber
 {
@@ -193,7 +196,7 @@ void JProtocol::loadActions()
 
 	Settings::registerItem<JAccount>(d->mainSettings);
 
-	Settings::registerItem<JMUCSession>(new GeneralSettingsItem<JConferenceConfig>(
+	Settings::registerItem<JMUCSession>(new GeneralDataSettingsItem<JConferenceConfig>(
 	                                        Settings::Protocol,
 	                                        QIcon(),
 	                                        QT_TRANSLATE_NOOP("Settings", "Room configuration")));
@@ -258,8 +261,22 @@ void JProtocol::onKickUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
+	
+	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
+	dialog->setWindowTitle(tr("Kick"));
+    dialog->setLabelText(tr("Enter kick reason for %1").arg(user->name()));
+	dialog->setTextValue(QString());
+	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
+	SystemIntegration::open(dialog);
+	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onKickReasonSelected(QString)));
+	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+	connect(user, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
+}
+
+void JProtocol::onKickReasonSelected(const QString &reason)
+{
+	JMUCUser *user = static_cast<JMUCUser*>(sender()->property("user").value<QObject*>());
 	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-	QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
 	muc->room()->kick(user->name(), reason);
 }
 
@@ -267,8 +284,22 @@ void JProtocol::onBanUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
+	
+	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
+	dialog->setWindowTitle(tr("Ban"));
+    dialog->setLabelText(tr("Enter ban reason for %1").arg(user->name()));
+	dialog->setTextValue(QString());
+	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
+	SystemIntegration::open(dialog);
+	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onBanReasonSelected(QString)));
+	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+	connect(user, SIGNAL(destroyed()), dialog, SLOT(deleteLater()));
+}
+
+void JProtocol::onBanReasonSelected(const QString &reason)
+{
+	JMUCUser *user = static_cast<JMUCUser*>(sender()->property("user").value<QObject*>());
 	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-	QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
 	muc->room()->ban(user->name(), reason);
 }
 

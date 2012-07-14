@@ -25,6 +25,7 @@
 
 #include "contactlistmodel.h"
 #include "contactlist.h"
+#include <QDeclarativeEngine>
 
 namespace MeegoIntegration
 {
@@ -33,7 +34,8 @@ enum {
 	IdRole = Qt::UserRole,
 	ContactRole,
 	AlphabetRole,
-	StatusTextRole
+	StatusTextRole,
+	AvatarRole
 };
 
 ContactListModel::ContactListModel()
@@ -45,8 +47,10 @@ ContactListModel::ContactListModel()
 	roleNames.insert(ContactRole, "contact");
 	roleNames.insert(AlphabetRole, "alphabet");
 	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
 	setRoleNames(roleNames);
 	foreach (Protocol *protocol, Protocol::all()) {
+		QDeclarativeEngine::setObjectOwnership(protocol, QDeclarativeEngine::CppOwnership);
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach (Account *account, protocol->accounts())
@@ -137,6 +141,8 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const
 		return contact->title().at(0).toUpper();
 	case StatusTextRole:
 		return contact->status().text();
+	case AvatarRole:
+		return contact->avatar();
 	default:
 		return QVariant();
 	}
@@ -144,6 +150,7 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const
 
 void ContactListModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
+	QDeclarativeEngine::setObjectOwnership(account, QDeclarativeEngine::CppOwnership);
 	connect(account, SIGNAL(destroyed(QObject*)),
 	        SLOT(onAccountDeath(QObject*)));
 
@@ -169,6 +176,7 @@ bool ContactListModel::Item::operator <(const ContactListModel::Item &o) const
 
 void ContactListModel::onContactCreated(qutim_sdk_0_3::Contact *contact)
 {
+	QDeclarativeEngine::setObjectOwnership(contact, QDeclarativeEngine::CppOwnership);
 	connect(contact, SIGNAL(destroyed(QObject*)),
 	        SLOT(onContactDeath(QObject*)));
 	connect(contact, SIGNAL(titleChanged(QString,QString)),

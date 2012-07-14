@@ -27,8 +27,8 @@ SettingsItemPage {
 	}
     }
 
-    ThemeManager {
-		id: themeManager
+    LanguagesModel {
+		id: languagesModel
 	}
     Config {
 	id: config
@@ -43,13 +43,14 @@ SettingsItemPage {
 	    width: flickable.width
 	    spacing: 10
 	    Repeater {
-		model: themeManager.list("languages")
+		model: languagesModel
 		ItemDelegate {
 		    id: objectItem
-		    title: modelData
-		    subtitle: modelData
+		    title: fullName
+		    subtitle: lang
 		    onClicked: {
-			    queryChangeLanguage.lang = modelData;
+			    queryChangeLanguage.lang = lang;
+			    queryChangeLanguage.langFullName = fullName;
 			    queryChangeLanguage.open();
 		    }
 		}
@@ -61,9 +62,10 @@ SettingsItemPage {
 
 	    acceptButtonText: qsTr("Yes")
 	    rejectButtonText: qsTr("No")
+	    property variant langFullName:"";
 	    property variant lang:"";
 	    titleText: qsTr("Language change")
-	    message: qsTr("Do you really want to change qutIM's language to %1?").arg(lang)
+	    message: qsTr("Do you really want to change qutIM's language to %1?").arg(langFullName)
 	    onAccepted:{
 		    config.setValue("localization/lang",lang);
 	    }

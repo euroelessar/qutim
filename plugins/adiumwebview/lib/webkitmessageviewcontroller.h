@@ -54,6 +54,7 @@ class ADIUMWEBVIEW_EXPORT WebKitMessageViewController : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(qutim_sdk_0_3::ChatSession* session READ session WRITE setSession NOTIFY sessionChanged)
+	Q_PROPERTY(bool preview READ isPreview WRITE setPreview NOTIFY previewChanged)
 
 public:
 	WebKitMessageViewController(bool isPreview);
@@ -62,11 +63,13 @@ public:
 	qutim_sdk_0_3::ChatSession *session() const;
 	void setSession(qutim_sdk_0_3::ChatSession *session);
 	WebKitMessageViewStyle *style();
-	void clearChat();
 	void appendMessage(const qutim_sdk_0_3::Message &msg);
 	bool eventFilter(QObject *obj, QEvent *);
+	bool isPreview() const;
+	void setPreview(bool preview);
 	
 public slots:
+	void clearChat();
 	QVariant evaluateJavaScript(const QString &script);
 	bool zoomImage(QWebElement elem);
 	void debugLog(const QString &message);
@@ -74,10 +77,13 @@ public slots:
 	void contextMenu(const QVariant &nickVar);
 	virtual void appendText(const QVariant &text) = 0;
 	void setTopic();
+	virtual void setDefaultFont(const QString &family, int size) = 0;
+	
+private slots:
+	void onJavaScriptRequest(const QString &javaScript, QVariant *variant);
 	
 protected:
 	void setPage(QWebPage *page);
-	virtual void setDefaultFont(const QString &family, int size) = 0;
 	void clearFocusClass();
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
 	void loadSettings(bool onFly);
@@ -85,6 +91,7 @@ protected:
 	
 signals:
 	void sessionChanged(qutim_sdk_0_3::ChatSession *session);
+	void previewChanged(bool preview);
 	
 private slots:
 	void onSettingsSaved();

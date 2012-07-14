@@ -40,21 +40,34 @@
 #include "quickconfig.h"
 #include "notificationwrapper.h"
 #include "thememanagerwrapper.h"
+#include "soundthemewrapper.h"
+#include "quickmaskeffect.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
-
+#include "languagesmodel.h"
 #include "menumodel.h"
 #include "addaccountdialogwrapper.h"
+#include "quickdataform.h"
+#include "quickproxyhelper.h"
+#include "quickmenubuilder.h"
+#include "quickinputdialog.h"
 #include <QApplication>
 #include <QGLWidget>
 #include <MDeclarativeCache>
 #include <QDeclarativeContext>
+#include <QInputDialog>
+#include <QMessageBox>
+
+QML_DECLARE_TYPE(QMessageBox)
 
 namespace MeegoIntegration
 {
 using namespace qutim_sdk_0_3;
 
+static ApplicationWindow *self = 0;
+
 ApplicationWindow::ApplicationWindow()
 {
+	self = this;
 	QApplication::setStyle(QLatin1String("Plastique"));
 	m_view = MDeclarativeCache::qDeclarativeView();
 	ServiceManagerWrapper::init();
@@ -67,10 +80,20 @@ ApplicationWindow::ApplicationWindow()
 	SettingsWrapper::init();
 	AddAccountDialogWrapper::init();
 	NotificationWrapper::init();
+	qmlRegisterUncreatableType<MenuController>("org.qutim", 0, 3, "MenuController", "Abstract class");
+	qmlRegisterUncreatableType<QMessageBox>("org.qutim", 0, 3, "QMessageBox", "Abstract class");
+	qmlRegisterUncreatableType<QuickInputDialog>("org.qutim", 0, 3, "QInputDialog", "Enum holder");
 	qmlRegisterType<QuickRegExpService>("org.qutim", 0, 3, "RegExpService");
 	qmlRegisterType<QuickConfig>("org.qutim", 0, 3, "Config");
 	qmlRegisterType<QuickWidgetProxy>("org.qutim", 0, 3, "WidgetProxy");
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
+	qmlRegisterType<LanguagesModel>("org.qutim", 0, 3, "LanguagesModel");
+	qmlRegisterType<SoundThemeWrapper>("org.qutim", 0, 3, "SoundTheme");
+	qmlRegisterType<QuickMaskEffect>("org.qutim", 0, 3, "MaskEffect");
+	qmlRegisterType<QuickDataForm>("org.qutim", 0, 3, "DataForm");
+	qmlRegisterType<QuickProxyHelper>("org.qutim", 0, 3, "ProxyHelper");
+	qmlRegisterType<QuickMenuBuilder>("org.qutim", 0, 3, "MenuBuilder");
+
 	ThemeManagerWrapper::init();
 
 	QFont font;
@@ -95,13 +118,22 @@ ApplicationWindow::ApplicationWindow()
 	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
 	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
 	m_view->showFullScreen();
+	
+}
 
+ApplicationWindow::~ApplicationWindow()
+{
+	self = 0;
+	delete m_view;
 }
 
 void ApplicationWindow::showWidget(QWidget *widget)
 {
-	if (widget)
-	{
+	if (QInputDialog *dialog = qobject_cast<QInputDialog*>(widget)) {
+		emit dialogShown(new QuickInputDialog(dialog));
+	} else if (QMessageBox *messageBox = qobject_cast<QMessageBox*>(widget)) {
+		emit queryDialogShown(messageBox);
+	} else if (widget) {
 		connect(widget,SIGNAL(destroyed()),this,SLOT(closeWidget()));
 		emit widgetShown(widget);
 	}
@@ -112,9 +144,22 @@ QDeclarativeEngine *ApplicationWindow::engine() const
 	return m_view->engine();
 }
 
+ApplicationWindow *ApplicationWindow::instance()
+{
+	return self;
+}
+
 void ApplicationWindow::closeWidget()
 {
 	emit widgetClosed();
+}
+
+void ApplicationWindow::activate()
+{
+	QWidget *window = m_view->window();
+	window->activateWindow();
+	window->show();
+	window->raise();
 }
 }
 

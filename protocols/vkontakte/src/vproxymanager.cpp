@@ -25,11 +25,13 @@
 
 #include "vproxymanager.h"
 #include "vaccount.h"
-#include "vconnection.h"
-#include "vkontakteprotocol.h"
+#include "vprotocol.h"
+#include <vk/connection.h>
+
+using namespace qutim_sdk_0_3;
 
 VProxyManager::VProxyManager() :
-	NetworkProxyManager(VkontakteProtocol::instance())
+	NetworkProxyManager(VProtocol::instance())
 {
 }
 
@@ -46,8 +48,7 @@ QList<NetworkProxyInfo*> VProxyManager::proxies()
 void VProxyManager::setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings)
 {
 	Q_UNUSED(proxy);
-	Q_ASSERT(qobject_cast<VAccount*>(account));
-	VAccount *acc = qobject_cast<VAccount*>(account);
-	acc->connection()->setProxy(toNetworkProxy(settings));
+	VAccount *vaccount = qobject_cast<VAccount*>(account);
+	vaccount->connection()->setProxy(toNetworkProxy(settings));
 }
 

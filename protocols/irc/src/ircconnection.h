@@ -27,7 +27,7 @@
 #define IRCCONNECTION_H
 
 #include "ircservermessagehandler.h"
-#include "ircctpchandler.h"
+#include "ircctcphandler.h"
 #include "ircprotocol.h"
 #include "ircaccount.h"
 #include <QSslSocket>
@@ -48,6 +48,7 @@ struct IrcServer
 	bool protectedByPassword;
 	QString password;
 	bool ssl;
+	bool acceptNotValidCert;
 };
 
 class IrcConnection : public QObject, public IrcServerMessageHandler
@@ -59,10 +60,10 @@ public:
 	virtual ~IrcConnection();
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
-	void registerCtpcHandler(IrcCtpcHandler *handler);
+	void registerCtcpHandler(IrcCtcpHandler *handler);
 	void send(QString command, bool highPriority = true);
-	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
-	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
+	void sendCtcpRequest(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
+	void sendCtcpReply(const QString &contact, const QString &cmd, const QString &params, bool highPriority = true);
 	void disconnectFromHost(bool force = false);
 	QTcpSocket *socket();
 	void loadSettings();
@@ -71,7 +72,7 @@ public:
 	const QString &nick() const { return m_nick; }
 	bool autoRequestWhois() const { return m_autoRequestWhois; }
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
-	QStringList supportedCtpcTags() { return m_ctpcHandlers.keys(); }
+	QStringList supportedCtcpTags() { return m_ctcpHandlers.keys(); }
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
@@ -88,7 +89,7 @@ private slots:
 private:
 	QSslSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
-	QMultiMap<QString, IrcCtpcHandler*> m_ctpcHandlers;
+	QMultiMap<QString, IrcCtcpHandler*> m_ctcpHandlers;
 	IrcAccount *m_account;
 	QList<IrcServer> m_servers;
 	int m_currentServer;

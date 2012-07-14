@@ -39,25 +39,27 @@ ifeq ($(FULLBUILD),true)
 	-DACCOUNTCREATOR=off -DASPELLER=off -DASTRAL=off -DAWN=off \
 	-DBIRTHDAYREMINDER=off \
 	-DCHATSPELLCHECKER=off -DCONTACTINFO=off \
-	-DDATAFORMSBACKEND=off -DDBUSAPI=off -DEMOTICONSSETTINGS=off -DFILETRANSFER=off  -DDBUSNOTIFICATIONS=off \
-	-DFILETRANSFERSETTINGS=off -DFLOATIES=off \
+	-DDATAFORMSBACKEND=off -DDBUSAPI=off -DDBUSNOTIFICATIONS=off \
+	-DEMOTICONSSETTINGS=off -DEMOEDIT=off \
+	-DFILETRANSFER=off -DFILETRANSFERSETTINGS=off -DFLOATIES=off \
 	-DHISTMAN=off -DHUMANITY=off -DHUNSPELLER=off -DHUMANITY-ICONS=off -DHAIKUNOTIFICATIONS=off \
 	-DIDLEDETECTOR=off -DINDICATOR=off -DIRC=off \
 	-DJOINCHATDIALOG=off -DJOINGROUPCHATDLG=off \
 	-DKDEINTEGRATION=off -DKINETICPOPUPS=off -DKINETICSCROLLER=off \
 	-DLOGGER=off -DLINUXINTEGRATION=off \
 	-DMACINTEGRATION=off -DMETACONTACTS=off -DMIGRATION02X03=off -DMOBILEABOUT=off -DMOBILECONTACTINFO=off \
-	-DMOBILESETTINGSDIALOG=off -DMULTIMEDIABACKEND=off -DMASSMESSAGING=off -DMOBILENOTIFICATIONSSETTINGS=off -DMAEMO5INTEGRATION=off \
+	-DMOBILESETTINGSDIALOG=off -DMULTIMEDIABACKEND=off -DMASSMESSAGING=off -DMAEMO5INTEGRATION=off \
 	-DNOTIFICATIONSSETTINGS=off -DNOWPLAYING=off \
 	-DOLDCONTACTDELEGATE=off -DOFFTHERECORD=off \
 	-DPLUGMAN=off -DPASSWORD=off -DPHOTOALBUM=off \
 	-DQMLCHAT=off -DQRCICONS=off -DQSOUNDBACKEND=off -DQUETZAL=off -DQUTIM_GENERATE_DOCS=off \
+	-DQTICONS=off \
 	-DSCRIPTAPI=off -DSDLSOUND=off -DSEARCHDIALOG=off -DSIMPLEABOUT=off -DSIMPLECONTACTLIST=off  \
 	-DSOFTKEYSACTIONBOX=off -DSYMBIANINTEGRATION=off -DSHORTCUTSETTINGS=off -DSIMPLEACTIONBOX=off -DSERVICECHOOSER=off \
 	-DTABBEDCHATFORM=off -DTRAYICON=off \
 	-DUNITYLAUNCHER=off \
-	-DVKONTAKTE=off \
 	-DWEATHER=off -DWININTEGRATION=off \
+	-DUPDATER=off \
 	-DXSETTINGSDIALOG=off \
 	-DYANDEXNAROD=off \
 	$(SOURCEDIR) -L
@@ -95,7 +97,7 @@ install: build
 
 
 	# Add here commands to install the package into debian/qutim.
-	$(MAKE) --directory=$(BUILDDIR) DESTDIR=$(CURDIR)/debian/qutim install
+	$(MAKE) --directory=$(BUILDDIR) DESTDIR=$(CURDIR)/debian/tmp install
 
 
 # Build architecture-independent files here.
@@ -106,10 +108,10 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-#	dh_installchangelogs 
+	dh_installchangelogs 
 #	dh_installdocs
 #	dh_installexamples
-#	dh_install --sourcedir=debian/tmp -v
+	dh_install --sourcedir=debian/tmp -v
 #	dh_installmenu
 #	dh_installdebconf	
 #	dh_installlogrotate
@@ -120,8 +122,8 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-#	export QUILT_PATCHES=debian/patches 
-#	dh_quilt_patch
+	export QUILT_PATCHES=debian/patches 
+	dh_quilt_patch
 #	dh_installman
 	dh_link
 	dh_strip -a --dbg-package=qutim-dbg
@@ -134,7 +136,7 @@ binary-arch: build install
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-#	dh_quilt_unpatch
+	dh_quilt_unpatch
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure

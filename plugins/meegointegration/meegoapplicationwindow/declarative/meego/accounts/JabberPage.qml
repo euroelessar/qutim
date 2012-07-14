@@ -23,8 +23,9 @@ SettingsItemPage {
         id: config
         object: root.account
     }
-    Column {
-        spacing: 10
+    FlickableColumn {
+		spacing: 10
+        anchors.fill: parent
         Label {
             width: root.width
             text: qsTr("Jabber ID:") + " <i>" + (root.account === null ? "" : root.account.id) + "</i>"
@@ -35,7 +36,7 @@ SettingsItemPage {
         TextField {
             id: passwordField
             width: root.width
-            echoMode: TextInput.PasswordEchoOnEdit
+	    echoMode: TextInput.Password
         }
         Label {
             text: qsTr("Resource:")

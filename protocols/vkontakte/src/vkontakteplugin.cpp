@@ -24,31 +24,32 @@
 ****************************************************************************/
 
 #include "vkontakteplugin.h"
-#include <qutim/debug.h>
-#include "vkontakteprotocol.h"
 #include "ui/vaccountcreator.h"
+#include "vaccount.h"
+#include "vproxymanager.h"
+#include "vprotocol.h"
+#include "experimental/vphotoviewer.h"
+
+#include <qutim/debug.h>
 #include <qutim/settingslayer.h>
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
-#include "vaccount.h"
-#include "vproxymanager.h"
+
+using namespace qutim_sdk_0_3;
 
 void VkontaktePlugin::init()
 {
 	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Vkontakte"),
-			QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
-			PLUGIN_VERSION(0, 0, 1, 0));
+			QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on vk.com/developers api"),
+			PLUGIN_VERSION(1, 6, 0, 0));
 	addAuthor(QLatin1String("sauron"));
-// 	addAuthor(QT_TRANSLATE_NOOP("Author", "Rustam Chakin"),
-// 			  QT_TRANSLATE_NOOP("Task", "Founder"),
-// 			  QLatin1String(""));
 
 	ExtensionIcon vicon = ExtensionIcon("im-vkontakte");
 
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "vkontakte"),
 				 QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on desktop.api"),
-				 new GeneralGenerator<VkontakteProtocol>(),
+				 new GeneralGenerator<VProtocol>(),
 				 vicon
 				 );
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Vkontakte account creator"),
@@ -59,6 +60,11 @@ void VkontaktePlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for Vkontakte"),
 				 new GeneralGenerator<VProxyManager, NetworkProxyManager>(),
 				 vicon);
+    //addExtension(QT_TRANSLATE_NOOP("Plugin", "Photo album"),
+    //             QT_TRANSLATE_NOOP("Plugin", "Photo album viewer for vk.com users"),
+    //             new GeneralGenerator<VPhotoViewer>(),
+    //             vicon);
+    new VPhotoViewer(this);
 }
 bool VkontaktePlugin::load()
 {

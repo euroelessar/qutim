@@ -104,19 +104,19 @@ void JoinChatDialog::joinBookmark(QListWidgetItem *item)
 
 void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account, bool first)
 {
-	if (!account->groupChatManager())
-		return;
-	m_ui->accountBox->addItem(account->status().icon(), account->id(),
-	                          qVariantFromValue(account));
-	if (m_ui->accountBox->count() == 1)
-		m_ui->accountBox->setCurrentIndex(0);
-	if (first) {
+    if (first) {
 		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 		        SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
 		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
 		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
 	}
+	if (!account->groupChatManager())
+		return;
+	m_ui->accountBox->addItem(account->status().icon(), account->id(),
+	                          qVariantFromValue(account));
+	if (m_ui->accountBox->count() == 1)
+		m_ui->accountBox->setCurrentIndex(0);
 }
 
 void JoinChatDialog::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
@@ -165,7 +165,7 @@ void JoinChatDialog::on_accountBox_currentIndexChanged(int index)
 		return;
 	}
 	m_ui->splitter->setEnabled(true);
-	rebuildItems(1);
+	rebuildItems(index);
 }
 
 void JoinChatDialog::onDataChanged()

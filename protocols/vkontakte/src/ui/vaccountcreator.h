@@ -25,23 +25,22 @@
 #ifndef VACCOUNTCREATOR_H
 #define VACCOUNTCREATOR_H
 #include <QWizardPage>
-#include "../vkontakte_global.h"
 #include <qutim/protocol.h>
 
-class VkontakteProtocol;
+class VProtocol;
 class VAccountWizardPage;
-class VAccountCreator : public AccountCreationWizard
+class VAccountCreator : public qutim_sdk_0_3::AccountCreationWizard
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "VkontakteProtocol")
+	Q_CLASSINFO("DependsOn", "VProtocol")
 public:
 	VAccountCreator();
 	virtual ~VAccountCreator();
 	virtual QList< QWizardPage* > createPages(QWidget* parent);
 	void finished();
 private:
-	VAccountWizardPage *page;
-	VkontakteProtocol *protocol;
+	VAccountWizardPage *m_page;
+	VProtocol *m_protocol;
 };
 
 #endif // VACCOUNTCREATOR_H

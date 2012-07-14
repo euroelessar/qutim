@@ -11,6 +11,35 @@ Rectangle {
     property alias currentIndex: selectionDialog.selectedIndex
     property variant currentItem: model.get(currentIndex)
     property alias pressed: mouseArea.pressed
+    property variant items: []
+    
+    onItemsChanged: __repopulateModel();
+    
+    function __repopulateModel() {
+        if (comboBox.items.length === 0)
+            return;
+        comboBox.model.clear();
+        for (var i = 0; i < comboBox.items.length; ++i)
+            comboBox.model.append({ name: comboBox.items[i] });
+    }
+    
+    function append(fieldName) {
+        comboBox.model.append({ name: fieldName });
+    }
+    
+    function indexOf(name, def) {
+        for (var i = 0; i < comboBox.model.count; ++i) {
+            var item = comboBox.model.get(i);
+            if (item.name === name)
+                return i;
+        }
+        return def || -1;
+    }
+    
+    Component.onCompleted: {
+        console.debug("Component.onCompleted", comboBox.items);
+        __repopulateModel();
+    }
     
     width: parent.width
     height: wrapper.height + wrapper.anchors.topMargin + wrapper.anchors.bottomMargin
@@ -37,7 +66,7 @@ Rectangle {
         Label {
             id: valueLabel
             anchors { left: wrapper.left; right: image.left; topMargin: 5; top: titleLabel.bottom }
-            text: currentItem.name
+            text: currentItem === undefined ? "" : currentItem.name
             
             font.family: comboBox.platformStyle.fontFamily
             font.weight: comboBox.platformStyle.subfontWeight

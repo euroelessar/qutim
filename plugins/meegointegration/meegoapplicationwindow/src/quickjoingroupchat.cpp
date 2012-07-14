@@ -47,20 +47,35 @@ static bool isSupportGroupchat()
 	return false;
 }
 
+JoinGroupChatGenerator::JoinGroupChatGenerator(QObject* module)
+	: ActionGenerator(Icon("meeting-attending"),
+					  QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
+					  module,
+					  SLOT(onJoinGroupChatTriggered()))
+{
+}
+
+void JoinGroupChatGenerator::showImpl(QAction *action, QObject *)
+{
+	action->setEnabled(isSupportGroupchat());
+}
+
 QuickJoinGroupChat::QuickJoinGroupChat()
 {
-	QObject *contactList = ServiceManager::getByName("ContactList");
+	ServicePointer<MenuController> contactList("ContactList");
 	if (contactList) {
-		MenuController *controller = qobject_cast<MenuController*>(contactList);
-		Q_ASSERT(controller);
-		static QScopedPointer<ActionGenerator> button(new JoinGroupChatGenerator(this));
-		controller->addAction(button.data());
+		m_button.reset(new JoinGroupChatGenerator(this));
+		contactList->addAction(m_button.data());
 	}
 }
 
 QuickJoinGroupChat::~QuickJoinGroupChat()
 {
-
+	if (m_button) {
+		ServicePointer<MenuController> contactList("ContactList");
+		contactList->removeAction(m_button.data());
+		m_button.reset(0);
+	}
 }
 
 void QuickJoinGroupChat::onJoinGroupChatTriggered()
@@ -68,19 +83,5 @@ void QuickJoinGroupChat::onJoinGroupChatTriggered()
 	JoinGroupChatWrapper::showDialog();
 }
 
-JoinGroupChatGenerator::JoinGroupChatGenerator(QObject* module):
-	ActionGenerator(Icon("meeting-attending"),
-		QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
-		module,
-		SLOT(onJoinGroupChatTriggered())
-		)
-{
-
-}
-
-void JoinGroupChatGenerator::showImpl(QAction *action, QObject *)
-{
-	action->setEnabled(isSupportGroupchat());
-}
 }
 

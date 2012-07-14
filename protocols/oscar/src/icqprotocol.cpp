@@ -66,7 +66,7 @@ void IcqProtocol::loadAccounts()
 {
 	Q_D(IcqProtocol);
 
-	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
+	Settings::registerItem(new GeneralDataSettingsItem<IcqMainSettings>(
 							   Settings::Protocol,
 							   Icon("im-icq"),
 							   QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
