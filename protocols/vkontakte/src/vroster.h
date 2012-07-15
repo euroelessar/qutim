@@ -29,6 +29,7 @@
 #include <QObject>
 #include <QHash>
 #include <vk/contact.h>
+#include <qutim/status.h>
 #include <QTimer>
 
 namespace vk {
