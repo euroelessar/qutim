@@ -117,7 +117,7 @@ void VGroupChat::onJoinedChanged(bool set)
 
 QString VGroupChat::id() const
 {
-	return m_chatSession->uid();
+	return QString::number(m_chatSession->uid());
 }
 
 QString VGroupChat::title() const
