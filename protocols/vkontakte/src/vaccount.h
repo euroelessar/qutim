@@ -53,6 +53,7 @@ public:
 	QString email() const;
 	vk::Connection *connection() const;
 	vk::Client *client() const;
+	VContact *me() const;
 public slots:
 	void loadSettings();
 	void saveSettings();
@@ -62,14 +63,14 @@ protected:
 	QString requestPassword();
 private slots:
 	void onClientStateChanged(vk::Client::State);
-	void onNameChanged(const QString &name);
-	void onMeChanged(vk::Contact *me);
+	void onMeChanged(vk::Buddy *me);
 	void onInvisibleChanged(bool set);
 	void onAuthConfirmRequested(QWebPage *page);
 	void setAccessToken(const QByteArray &token, time_t expiresIn);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;
+	QPointer<VContact> m_me;
 	QString m_name;
 
 	friend class VRoster;

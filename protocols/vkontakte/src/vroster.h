@@ -40,6 +40,7 @@ class Message;
 }
 class VAccount;
 class VContact;
+class VGroupChat;
 class VContactsFactory;
 
 class VRoster : public QObject
@@ -49,18 +50,22 @@ public:
 	VRoster(VAccount *account);
 	VContact *contact(int id, bool create = true);
 	VContact *contact(int id) const;
+	VGroupChat *groupChat(int id, bool create = true);
+	VGroupChat *groupChat(int id) const;
 protected slots:
 	VContact *createContact(vk::Buddy *buddy);
 private slots:
 	void onContactDestroyed(QObject *obj);
+	void onGroupChatDestroyed(QObject *obj);
 	void onAddFriend(vk::Buddy *buddy);
 
 	void onMessageAdded(const vk::Message &msg);
-	void onContactTyping(int userId);
+	void onContactTyping(int userId, int chatId);
 private:
 	VAccount *m_account;
 	vk::Roster *m_roster;
 	QHash<int, VContact*> m_contactHash;
+	QHash<int, VGroupChat*> m_groupChatHash;
 };
 
 

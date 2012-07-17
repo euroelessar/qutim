@@ -52,7 +52,7 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	setObjectName("VAccount");
 
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
-	connect(m_client, SIGNAL(meChanged(vk::Contact*)), SLOT(onMeChanged(vk::Contact*)));
+	connect(m_client, SIGNAL(meChanged(vk::Buddy*)), SLOT(onMeChanged(vk::Buddy*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
@@ -115,6 +115,11 @@ vk::Client *VAccount::client() const
 	return m_client;
 }
 
+VContact *VAccount::me() const
+{
+	return m_me.data();
+}
+
 void VAccount::loadSettings()
 {
 	Config cfg = config();
@@ -141,16 +146,12 @@ VRoster *VAccount::roster() const
 	return m_roster.data();
 }
 
-void VAccount::onNameChanged(const QString &name)
+void VAccount::onMeChanged(vk::Buddy *me)
 {
-	m_name = name;
-	QString old = m_name;
-	emit nameChanged(name, old);
-}
-
-void VAccount::onMeChanged(vk::Contact *me)
-{
-	connect(me, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
+	if (m_me)
+		m_me->deleteLater();
+	m_me = new VContact(me, this);
+	connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 }
 
 void VAccount::onInvisibleChanged(bool set)

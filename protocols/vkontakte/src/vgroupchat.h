@@ -35,9 +35,18 @@ class Buddy;
 
 class VGroupChat : public qutim_sdk_0_3::Conference
 {
+	Q_OBJECT
 public:
     VGroupChat(VAccount *account, int chatId);
     ~VGroupChat();
+	void setTyping(int uid, bool set);
+	VContact *findContact(int uid) const;
+
+	virtual qutim_sdk_0_3::Buddy *me() const;
+	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
+	virtual QString id() const;
+	virtual QString title() const;
+	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 protected:
     virtual void doJoin();
     virtual void doLeave();
@@ -46,10 +55,12 @@ protected slots:
     void onBuddyRemoved(vk::Buddy *buddy);
     void onUserDestroyed(QObject *obj);
     void onJoinedChanged(bool set);
+	void onTitleChanged(const QString &title);
 private:
-    VAccount *account() const;
+	VAccount *m_account;
     vk::GroupChatSession *m_chatSession;
     QHash<vk::Buddy*, VContact*> m_buddies;
+	QString m_title;
 };
 
 #endif // VGROUPCHAT_H

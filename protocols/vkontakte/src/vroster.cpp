@@ -26,12 +26,15 @@
 #include "vroster.h"
 #include "vcontact.h"
 #include "vaccount.h"
+#include "vgroupchat.h"
 
 #include <vk/roster.h>
 #include <vk/longpoll.h>
 #include <vk/message.h>
 
 #include <qutim/chatsession.h>
+
+using namespace qutim_sdk_0_3;
 
 VRoster::VRoster(VAccount *account) : QObject(account),
 	m_account(account)
@@ -40,7 +43,7 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 
 	vk::LongPoll *poll = m_account->client()->longPoll();
 	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
-	connect(poll, SIGNAL(contactTyping(int)), SLOT(onContactTyping(int)));
+	connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
 }
 
 VContact *VRoster::contact(int id, bool create)
@@ -56,6 +59,22 @@ VContact *VRoster::contact(int id, bool create)
 VContact *VRoster::contact(int id) const
 {
 	return m_contactHash.value(id);
+}
+
+VGroupChat *VRoster::groupChat(int id, bool create)
+{
+	VGroupChat *c = m_groupChatHash.value(id);
+	if (!c && create) {
+		c = new VGroupChat(m_account, id);
+		connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
+		m_groupChatHash.insert(id, c);
+	}
+	return c;
+}
+
+VGroupChat *VRoster::groupChat(int id) const
+{
+	return m_groupChatHash.value(id);
 }
 
 VContact *VRoster::createContact(vk::Buddy *buddy)
@@ -74,10 +93,17 @@ void VRoster::onAddFriend(vk::Buddy *buddy)
 
 void VRoster::onMessageAdded(const vk::Message &msg)
 {
-	if (msg.fromId() == m_account->uid())
-		contact(msg.toId())->handleMessage(msg);
-	else
-		contact(msg.fromId())->handleMessage(msg);
+	if (msg.flags() & vk::Message::FlagChat) {
+		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
+		VGroupChat *c = groupChat(id);
+	} else {
+		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
+		VContact *c = contact(id);
+		if (c)
+			c->handleMessage(msg);
+		else
+			warning() << "Unable to find reciever with id in roster" << id;
+	}
 }
 
 void VRoster::onContactDestroyed(QObject *obj)
@@ -85,8 +111,19 @@ void VRoster::onContactDestroyed(QObject *obj)
 	m_contactHash.remove(m_contactHash.key(static_cast<VContact*>(obj)));
 }
 
-void VRoster::onContactTyping(int userId)
+void VRoster::onGroupChatDestroyed(QObject *obj)
 {
-	VContact *c = contact(userId);
-	c->setTyping(true);
+	m_contactHash.remove(m_contactHash.key(static_cast<VContact*>(obj)));
+}
+
+void VRoster::onContactTyping(int userId, int chatId)
+{
+	if (!chatId) {
+		VContact *c = contact(userId);
+		c->setTyping(true);
+	} else {
+		VGroupChat *c = groupChat(chatId);
+		c->setChatState(ChatStateComposing);
+		ChatLayer::get(c);
+	}
 }
