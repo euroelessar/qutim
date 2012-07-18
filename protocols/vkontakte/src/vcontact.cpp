@@ -46,10 +46,28 @@ using namespace qutim_sdk_0_3;
 
 #define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMediumRec
 
+static Status::Type convertStatus(vk::Contact::Status status)
+{
+	Status::Type type;
+	switch (status) {
+	case vk::Contact::Offline:
+		type = Status::Offline;
+		break;
+	case vk::Contact::Online:
+		type = Status::Online;
+		break;
+	case vk::Contact::Away:
+		type = Status::Away;
+	default:
+		break;
+	}
+	return type;
+}
+
 VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_buddy(contact)
 {
-	m_status = Status::instance(m_buddy->isOnline() ? Status::Online : Status::Offline, "vkontakte");
+	m_status = Status::instance(convertStatus(m_buddy->status()), "vkontakte");
 	m_status.setText(m_buddy->activity());
 	m_name = m_buddy->name();
 	m_tags = m_buddy->tags();
@@ -230,20 +248,7 @@ void VContact::downloadAvatar(const QString &url)
 
 void VContact::onStatusChanged(vk::Contact::Status status)
 {
-	Status::Type type;
-	switch (status) {
-	case vk::Contact::Offline:
-		type = Status::Offline;
-		break;
-	case vk::Contact::Online:
-		type = Status::Online;
-		break;
-	case vk::Contact::Away:
-		type = Status::Away;
-	default:
-		break;
-	}
-	m_status.setType(type);
+	m_status.setType(convertStatus(status));
 	setStatus(m_status);
 }
 

@@ -116,6 +116,7 @@ VProtocol *VProtocol::instance()
 void VProtocol::addAccount(VAccount *account)
 {
 	m_accounts.insert(account->email(), account);
+	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
     emit accountCreated(account);
 }
 
@@ -141,7 +142,12 @@ Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &par
 
 void VProtocol::virtual_hook(int id, void *data)
 {
-    switch (id) {
+	switch (id) {
+	case SupportedAccountParametersHook: {
+		QStringList &properties = *reinterpret_cast<QStringList*>(data);
+		properties << QLatin1String("password");
+		break;
+	}
 	case CreateAccountHook: {
 		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
 		argument.account = doCreateAccount(argument.id, argument.parameters);
