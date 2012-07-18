@@ -1,4 +1,4 @@
-opt/qutim/bin/qutim
+opt/qutim/bin/*
 opt/qutim/lib/*
 opt/qutim/share/apps/qutim/languages/*
 opt/qutim/share/apps/qutim/sounds/*
