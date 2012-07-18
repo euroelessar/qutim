@@ -36,14 +36,12 @@ VGroupChat::VGroupChat(VAccount *account, int chatId) :
 {
 	m_chatSession->setParent(this);
 	m_title = m_chatSession->title();
-	if (m_chatSession->client()->isOnline()) {
-		setJoined(true);
-		m_chatSession->getInfo();
-		m_chatSession->getHistory();
-	}
+	if (m_chatSession->client()->isOnline())
+		onJoinedChanged(true);
 	connect(m_chatSession, SIGNAL(participantAdded(vk::Buddy*)), this, SLOT(onBuddyAdded(vk::Buddy*)));
 	connect(m_chatSession, SIGNAL(participantRemoved(vk::Buddy*)), this, SLOT(onBuddyRemoved(vk::Buddy*)));
 	connect(m_chatSession, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
+	connect(m_chatSession, SIGNAL(messageAdded(vk::Message)), SLOT(handleMessage(vk::Message)));
 	connect(account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(setJoined(bool)));
 }
 
@@ -61,6 +59,18 @@ void VGroupChat::setTyping(int uid, bool set)
 VContact *VGroupChat::findContact(int uid) const
 {
 	return m_buddies.value(qobject_cast<vk::Buddy*>(m_chatSession->findParticipant(uid)));
+}
+
+void VGroupChat::handleMessage(const vk::Message &msg)
+{
+	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+	coreMessage.setChatUnit(findParticipant(msg.isIncoming() ? msg.fromId() : msg.toId()));
+	coreMessage.setIncoming(msg.isIncoming());
+	coreMessage.setProperty("mid", msg.id());
+	coreMessage.setProperty("subject", msg.subject());
+
+	ChatSession *s = ChatLayer::get(this);
+	s->appendMessage(coreMessage);
 }
 
 Buddy *VGroupChat::me() const
@@ -131,6 +141,12 @@ ChatUnitList VGroupChat::lowerUnits()
 	foreach (ChatUnit *unit, m_buddies.values())
 		list.append(unit);
 	return list;
+}
+
+ChatUnit *VGroupChat::findParticipant(int uid) const
+{
+	vk::Buddy *buddy = m_chatSession->findParticipant(uid);
+	return m_buddies.value(buddy);
 }
 
 bool VGroupChat::sendMessage(const Message &message)

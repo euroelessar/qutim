@@ -47,6 +47,9 @@ public:
 	virtual QString id() const;
 	virtual QString title() const;
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
+	qutim_sdk_0_3::ChatUnit *findParticipant(int uid) const;
+public slots:
+	void handleMessage(const vk::Message &message);
 protected:
     virtual void doJoin();
     virtual void doLeave();

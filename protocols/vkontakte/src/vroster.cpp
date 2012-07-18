@@ -40,6 +40,7 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 	m_account(account)
 {
 	connect(m_account->client()->roster(), SIGNAL(friendAdded(vk::Buddy*)), SLOT(onAddFriend(vk::Buddy*)));
+	connect(m_account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
 
 	vk::LongPoll *poll = m_account->client()->longPoll();
 	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
@@ -88,14 +89,25 @@ VContact *VRoster::createContact(vk::Buddy *buddy)
 
 void VRoster::onAddFriend(vk::Buddy *buddy)
 {
-	createContact(buddy);
+	if (!m_contactHash.value(buddy->id()))
+		createContact(buddy);
+}
+
+void VRoster::onOnlineChanged(bool isOnline)
+{
+	if (isOnline) {
+		vk::Reply *reply = m_account->client()->roster()->getMessages(0, 50, vk::Message::FilterUnread);
+		connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessagesRecieved(QVariant)));
+	}
 }
 
 void VRoster::onMessageAdded(const vk::Message &msg)
 {
-	if (msg.flags() & vk::Message::FlagChat) {
+	if (false) {
 		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
 		VGroupChat *c = groupChat(id);
+		if (c)
+			c->handleMessage(msg);
 	} else {
 		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
 		VContact *c = contact(id);
@@ -123,7 +135,17 @@ void VRoster::onContactTyping(int userId, int chatId)
 		c->setTyping(true);
 	} else {
 		VGroupChat *c = groupChat(chatId);
-		c->setChatState(ChatStateComposing);
-		ChatLayer::get(c);
+		//TODO
+		//c->setChatState(ChatStateComposing);
 	}
+}
+
+void VRoster::onMessagesRecieved(const QVariant &response)
+{
+	QVariantList list = response.toList();
+	list.removeFirst();
+	vk::MessageList msgList = vk::Message::fromVariantList(list, m_account->client());
+	foreach (vk::Message msg, msgList)
+		if (msg.isUnread() && msg.isIncoming())
+			onMessageAdded(msg);
 }

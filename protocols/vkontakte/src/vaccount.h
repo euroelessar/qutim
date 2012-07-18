@@ -67,6 +67,7 @@ private slots:
 	void onInvisibleChanged(bool set);
 	void onAuthConfirmRequested(QWebPage *page);
 	void setAccessToken(const QByteArray &token, time_t expiresIn);
+	void onError(vk::Client::Error);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;

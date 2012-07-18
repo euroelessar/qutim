@@ -58,7 +58,8 @@ private slots:
 	void onContactDestroyed(QObject *obj);
 	void onGroupChatDestroyed(QObject *obj);
 	void onAddFriend(vk::Buddy *buddy);
-
+	void onOnlineChanged(bool isOnline);
+	void onMessagesRecieved(const QVariant &response);
 	void onMessageAdded(const vk::Message &msg);
 	void onContactTyping(int userId, int chatId);
 private:

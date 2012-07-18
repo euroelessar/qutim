@@ -37,7 +37,7 @@
 #include <vk/contact.h>
 
 #include "vprotocol.h"
-#include "oauth/oauthconnection.h"
+#include <vk/auth/oauthconnection.h>
 
 #include <QWebView>
 
@@ -54,6 +54,7 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
 	connect(m_client, SIGNAL(meChanged(vk::Buddy*)), SLOT(onMeChanged(vk::Buddy*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
+	connect(m_client, SIGNAL(error(vk::Client::Error)), SLOT(onError(vk::Client::Error)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
@@ -176,6 +177,12 @@ void VAccount::setAccessToken(const QByteArray &token, time_t expiresIn)
 	Config cfg = config().group("access");
 	cfg.setValue("token", token, Config::Crypted);
 	cfg.setValue("expires", expiresIn);
+}
+
+void VAccount::onError(vk::Client::Error error)
+{
+	if (error == vk::Client::ErrorAuthorizationFailed)
+		config("general").setValue("passwd", "");
 }
 
 QString VAccount::requestPassword()
