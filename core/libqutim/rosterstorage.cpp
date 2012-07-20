@@ -40,26 +40,10 @@ ContactsFactory::~ContactsFactory()
 {
 }
 
-class FakeRosterStorage : public RosterStorage
-{
-public:
-	FakeRosterStorage() {}
-
-	virtual QString load(Account *) { return QString(); }
-	virtual void addContact(Contact *, const QString &) {}
-	virtual void updateContact(Contact *, const QString &) {}
-	virtual void removeContact(Contact *, const QString &) {}
-};
-
 RosterStorage *RosterStorage::instance()
 {
-	static RosterStorage *self = NULL;
-	if (!self && ObjectGenerator::isInited()) {
-		self = ServiceManager::getByName<RosterStorage*>("RosterStorage");
-		if (!self)
-			self = new FakeRosterStorage;
-	}
-	return self;
+	static ServicePointer<RosterStorage> self;
+	return self.data();
 }
 
 RosterStorage::RosterStorage() : d_ptr(new RosterStoragePrivate)
