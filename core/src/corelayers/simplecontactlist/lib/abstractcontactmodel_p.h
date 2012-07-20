@@ -91,29 +91,15 @@ public:
 	bool showOffline;
 };
 
+static ServicePointer<ContactComparator> contactComparator;
+
 template<typename ContactItem>
 bool contactLessThan(ContactItem *a, ContactItem *b) {
-	int result;
-
-	//int unreadA = 0;
-	//int unreadB = 0;
-	//ChatSession *session = ChatLayer::get(a->getContact(),false);
-	//if(session)
-	//	unreadA = session->unread().count();
-	//session = ChatLayer::get(b->getContact(),false);
-	//if(session)
-	//	unreadB = session->unread().count();
-	//result = unreadA - unreadB;
-	//if(result)
-	//	return result < 0;
-	result = a->getStatus().type() - b->getStatus().type();
-	if (result)
-		return result < 0;
 	Contact * const aContact = a->getContact();
 	Contact * const bContact = b->getContact();
-	if (!bContact || !aContact)
+	if (!bContact || !aContact || contactComparator.isNull())
 		return false;
-	return aContact->title().compare(bContact->title(), Qt::CaseInsensitive) < 0;
+	return contactComparator.data()->compare(aContact, bContact);
 }
 
 template<typename TagContainer, typename TagItem, typename ContactItem>

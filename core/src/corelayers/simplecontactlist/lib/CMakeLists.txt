@@ -1,0 +1,42 @@
+set(CMAKE_SIMPLECONTACTLIST_VERSION_MAJOR    0  CACHE INT "Major qutIM-SimpleContactList version number" FORCE)
+set(CMAKE_SIMPLECONTACTLIST_VERSION_MINOR    1  CACHE INT "Minor qutIM-SimpleContactList version number" FORCE)
+set(CMAKE_SIMPLECONTACTLIST_VERSION_PATCH    0  CACHE INT "Release qutIM-SimpleContactList version number" FORCE)
+set(CMAKE_SIMPLECONTACTLIST_VERSION_STRING "${CMAKE_SIMPLECONTACTLIST_VERSION_MAJOR}.${CMAKE_SIMPLECONTACTLIST_VERSION_MINOR}.${CMAKE_SIMPLECONTACTLIST_VERSION_PATCH}" CACHE STRING "qutIM-SimpleContactList version string" FORCE)
+
+file( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
+file( GLOB HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
+file( GLOB FORMS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui" )
+
+set( SIMPLECONTACTLIST_TYPE "SHARED" )
+if( SIMPLECONTACTLIST_BUILD_TYPE STREQUAL "STATIC" )
+    set( SIMPLECONTACTLIST_TYPE "STATIC" )
+    message( STATUS "libqutim-simplecontactlist will be linked staticaly" )
+endif()
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
+
+qutim_wrap_cpp(MOC_SRC ${HDR})
+qt4_wrap_ui(UIS_H ${FORMS})
+
+add_library(qutim-simplecontactlist ${SIMPLECONTACTLIST_TYPE} ${SRC} ${MOC_SRC} ${UIS_H} ${HDR})
+
+qutim_target_link_libraries(qutim-simplecontactlist
+    ${QT_LIBRARIES}
+	${QUTIM_LIBRARY}
+    )
+
+
+set_target_properties(qutim-simplecontactlist PROPERTIES
+    VERSION ${CMAKE_SIMPLECONTACTLIST_VERSION_STRING}
+    SOVERSION ${CMAKE_SIMPLECONTACTLIST_VERSION_MAJOR}
+    DEFINE_SYMBOL SIMPLECONTACTLIST_LIBRARY
+)
+
+install( TARGETS qutim-simplecontactlist 
+	RUNTIME DESTINATION bin
+		COMPONENT Core
+		LIBRARY DESTINATION lib${LIB_SUFFIX}
+		COMPONENT Core
+		ARCHIVE DESTINATION lib${LIB_SUFFIX}
+		COMPONENT CoreDevel
+	BUNDLE DESTINATION library
+)

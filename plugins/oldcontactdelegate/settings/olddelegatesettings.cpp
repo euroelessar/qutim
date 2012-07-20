@@ -30,6 +30,7 @@
 #include <qutim/protocol.h>
 #include <qutim/systeminfo.h>
 #include <qutim/thememanager.h>
+#include <qutim/servicemanager.h>
 
 typedef QMap<int,LocalizedString> Sizes;
 

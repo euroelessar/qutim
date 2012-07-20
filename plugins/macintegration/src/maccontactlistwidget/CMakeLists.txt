@@ -12,6 +12,7 @@ qutim_add_plugin(maccontactlistwidget
 	DISPLAY_NAME "Mac Contactlist"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Mac OS X contactlist"
-	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+        DEPENDS qutim-simplecontactlist
+        LINK_LIBRARIES qutim-simplecontactlist
+)
 )

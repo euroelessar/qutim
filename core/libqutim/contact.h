@@ -101,6 +101,23 @@ signals:
 private:
 	friend class MetaContact;
 };
+
+class LIBQUTIM_EXPORT ContactComparator : public QObject
+{
+	Q_OBJECT
+	Q_CLASSINFO("Service", "ContactComparator")
+public:
+	virtual int compare(Contact *a, Contact *b) = 0;
+	static ContactComparator *instance();
+	void startListen(qutim_sdk_0_3::Contact *contact);
+	void stopListen(qutim_sdk_0_3::Contact *contact);
+protected:
+	virtual void doStartListen(qutim_sdk_0_3::Contact *contact) = 0;
+	virtual void doStopListen(qutim_sdk_0_3::Contact *contact) = 0;
+signals:
+	void contactChanged(qutim_sdk_0_3::Contact*);
+};
+
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Contact*)

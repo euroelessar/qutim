@@ -27,9 +27,11 @@
 #include "account.h"
 #include "icon.h"
 #include "metacontact.h"
+#include "servicemanager.h"
 
 namespace qutim_sdk_0_3
 {
+
 Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)
 {
 }
@@ -40,13 +42,6 @@ Contact::Contact(ContactPrivate &d, Account *account) : Buddy(d, account)
 
 Contact::~Contact()
 {
-	//		if(Account *account = qobject_cast<Account *>(parent()))
-	//		{
-	//			ConfigGroup data = account->config("contacts").group(id()).group("data");
-	//			foreach(const QByteArray &name, dynamicPropertyNames())
-	//				data.setValue(name, property(name));
-	//			data.sync();
-	//		}
 }
 
 QStringList Contact::tags() const
@@ -70,5 +65,10 @@ bool Contact::event(QEvent *e)
 	return Buddy::event(e);
 }
 
+ContactComparator *ContactComparator::instance()
+{
+	static ServicePointer<ContactComparator> self;
+	return self.data();
 }
 
+}

@@ -33,196 +33,196 @@
 
 namespace qutim_sdk_0_3
 {
-	class ContactSearchFactoryPrivate : public AbstractSearchFactoryPrivate
-	{
-	};
+class ContactSearchFactoryPrivate : public AbstractSearchFactoryPrivate
+{
+};
 
-	class GeneralContactSearchFactoryPrivate : public ContactSearchFactoryPrivate
+class GeneralContactSearchFactoryPrivate : public ContactSearchFactoryPrivate
+{
+public:
+	struct Item
 	{
-	public:
-		struct Item
+		Item() :
+			account(0)
 		{
-			Item() :
-				account(0)
-			{
-			}
-			Item(Account *account_) :
-				account(account_),
-				id(account->id()),
-				status(account->status())
-			{
-			}
-			bool isActive() const{ return status != Status::Offline; }
-			Account *account;
-			QString id;
-			Status status;
-		};
-		Item addAccount(Account *account);
-		GeneralContactSearchFactory *q;
-		QHash<QString, Item> accounts;
-		Protocol *protocol;
+		}
+		Item(Account *account_) :
+			account(account_),
+			id(account->id()),
+			status(account->status())
+		{
+		}
+		bool isActive() const{ return status != Status::Offline; }
+		Account *account;
+		QString id;
+		Status status;
 	};
-	typedef GeneralContactSearchFactoryPrivate::Item AccountItem;
-	typedef QHash<QString, AccountItem> AccountsHash;
+	Item addAccount(Account *account);
+	GeneralContactSearchFactory *q;
+	QHash<QString, Item> accounts;
+	Protocol *protocol;
+};
+typedef GeneralContactSearchFactoryPrivate::Item AccountItem;
+typedef QHash<QString, AccountItem> AccountsHash;
 
-	ContactSearchRequest::ContactSearchRequest()
-	{
-	}
+ContactSearchRequest::ContactSearchRequest()
+{
+}
 
-	ContactSearchRequest::~ContactSearchRequest()
-	{
-	}
+ContactSearchRequest::~ContactSearchRequest()
+{
+}
 
 
-	int ContactSearchRequest::actionCount() const
-	{
-		return 1;
-	}
+int ContactSearchRequest::actionCount() const
+{
+	return 1;
+}
 
-	QVariant ContactSearchRequest::actionData(int index, int role)
-	{
-		if (index == 0) {
-			if (role == Qt::DisplayRole) {
-				return tr("Add contact");
-			} else if (role == Qt::DecorationRole) {
-				return Icon("edit-add-contact");
-			}
-		}
-		return QVariant();
-	}
-
-	void ContactSearchRequest::actionActivated(int actionIndex, int row)
-	{
-		if (actionIndex == 0) {
-			Contact *c = contact(row);
-			if (c)
-				c->addToList();
+QVariant ContactSearchRequest::actionData(int index, int role)
+{
+	if (index == 0) {
+		if (role == Qt::DisplayRole) {
+			return tr("Add contact");
+		} else if (role == Qt::DecorationRole) {
+			return Icon("edit-add-contact");
 		}
 	}
+	return QVariant();
+}
 
-	ContactSearchFactory::ContactSearchFactory() :
-		AbstractSearchFactory()
-	{
+void ContactSearchRequest::actionActivated(int actionIndex, int row)
+{
+	if (actionIndex == 0) {
+		Contact *c = contact(row);
+		if (c)
+			c->addToList();
 	}
+}
 
-	ContactSearchFactory::~ContactSearchFactory()
-	{
-	}
+ContactSearchFactory::ContactSearchFactory() :
+	AbstractSearchFactory()
+{
+}
 
-	ContactSearchFactory::ContactSearchFactory(ContactSearchFactoryPrivate *d) :
-		AbstractSearchFactory(d)
-	{
-	}
+ContactSearchFactory::~ContactSearchFactory()
+{
+}
 
-	AccountItem GeneralContactSearchFactoryPrivate::addAccount(Account *account)
-	{
-		AccountItem item(account);
-		accounts.insert(item.id, item);
-		QObject::connect(account, SIGNAL(destroyed()),
-						 q, SLOT(accountRemoved()));
-		QObject::connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-						 q, SLOT(accountStatusChanged(qutim_sdk_0_3::Status)));
-		return item;
-	}
+ContactSearchFactory::ContactSearchFactory(ContactSearchFactoryPrivate *d) :
+	AbstractSearchFactory(d)
+{
+}
 
-	GeneralContactSearchFactory::GeneralContactSearchFactory(Protocol *protocol) :
-		ContactSearchFactory(new GeneralContactSearchFactoryPrivate)
-	{
-		Q_D(GeneralContactSearchFactory);
-		d->q = this;
-		d->protocol = protocol;
-		foreach (Account *account, protocol->accounts())
-			d->addAccount(account);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(accountAdded(qutim_sdk_0_3::Account*)));
-	}
-	
-	GeneralContactSearchFactory::~GeneralContactSearchFactory()
-	{
-	}
-	
-	QStringList GeneralContactSearchFactory::requestList() const
-	{
-		Q_D(const GeneralContactSearchFactory);
-		QStringList requests;
-		foreach (const AccountItem &item, d->accounts) {
-			if (item.isActive())
-				requests << item.id;
-		}
-		return requests;
-	}
+AccountItem GeneralContactSearchFactoryPrivate::addAccount(Account *account)
+{
+	AccountItem item(account);
+	accounts.insert(item.id, item);
+	QObject::connect(account, SIGNAL(destroyed()),
+					 q, SLOT(accountRemoved()));
+	QObject::connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					 q, SLOT(accountStatusChanged(qutim_sdk_0_3::Status)));
+	return item;
+}
 
-	QVariant GeneralContactSearchFactory::data(const QString &request, int role)
-	{
-		Q_D(const GeneralContactSearchFactory);
-		if (role == Qt::DisplayRole || role == Qt::DecorationRole) {
-			AccountsHash::const_iterator itr = d->accounts.find(request);
-			if (itr != d->accounts.end() && itr->isActive()) {
-				if (role == Qt::DisplayRole)
-					return itr->id;
-				else if (role == Qt::DecorationRole)
-					return itr->status.icon();
-			}
-		}
-		return QVariant();
-	}
+GeneralContactSearchFactory::GeneralContactSearchFactory(Protocol *protocol) :
+	ContactSearchFactory(new GeneralContactSearchFactoryPrivate)
+{
+	Q_D(GeneralContactSearchFactory);
+	d->q = this;
+	d->protocol = protocol;
+	foreach (Account *account, protocol->accounts())
+		d->addAccount(account);
+	connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+}
 
-	Account *GeneralContactSearchFactory::account(const QString &name) const
-	{
-		Q_D(const GeneralContactSearchFactory);
-		AccountsHash::const_iterator itr = d->accounts.find(name);
-		if (itr != d->accounts.end())
-			return itr->isActive() ? itr->account : 0;
-		return 0;
-	}
+GeneralContactSearchFactory::~GeneralContactSearchFactory()
+{
+}
 
-	Protocol *GeneralContactSearchFactory::protocol() const
-	{
-		return d_func()->protocol;
-	}
-	
-	void GeneralContactSearchFactory::accountAdded(qutim_sdk_0_3::Account *account)
-	{
-		Q_D(GeneralContactSearchFactory);
-		const AccountItem &item = d->addAccount(account);
+QStringList GeneralContactSearchFactory::requestList() const
+{
+	Q_D(const GeneralContactSearchFactory);
+	QStringList requests;
+	foreach (const AccountItem &item, d->accounts) {
 		if (item.isActive())
-			emit requestAdded(account->id());
+			requests << item.id;
 	}
-	
-	void GeneralContactSearchFactory::accountRemoved()
-	{
-		Q_D(GeneralContactSearchFactory);
-		Account *account = reinterpret_cast<Account*>(sender());
-		AccountsHash::iterator itr = d->accounts.begin();
-		AccountsHash::iterator endItr = d->accounts.end();
-		while (itr != endItr) {
-			if (itr->account == account) {
-				QString name = itr->id;
-				d->accounts.erase(itr);
-				if (itr->isActive())
-					emit requestRemoved(name);
-				break;
-			}
-			++itr;
-		}
-	}
+	return requests;
+}
 
-	void GeneralContactSearchFactory::accountStatusChanged(const qutim_sdk_0_3::Status &status)
-	{
-		Q_D(GeneralContactSearchFactory);
-		Q_ASSERT(qobject_cast<Account*>(sender()));
-		Account *account = reinterpret_cast<Account*>(sender());
-		AccountsHash::iterator itr = d->accounts.find(account->id());
-		if (itr != d->accounts.end()) {
-			bool active = itr->isActive();
-			itr->status = status;
-			if (active && status == Status::Offline)
-				emit requestRemoved(itr->id);
-			else if (!active && status != Status::Offline)
-				emit requestAdded(itr->id);
-			else
-				emit requestUpdated(itr->id);
+QVariant GeneralContactSearchFactory::data(const QString &request, int role)
+{
+	Q_D(const GeneralContactSearchFactory);
+	if (role == Qt::DisplayRole || role == Qt::DecorationRole) {
+		AccountsHash::const_iterator itr = d->accounts.find(request);
+		if (itr != d->accounts.end() && itr->isActive()) {
+			if (role == Qt::DisplayRole)
+				return itr->id;
+			else if (role == Qt::DecorationRole)
+				return itr->status.icon();
 		}
 	}
+	return QVariant();
+}
+
+Account *GeneralContactSearchFactory::account(const QString &name) const
+{
+	Q_D(const GeneralContactSearchFactory);
+	AccountsHash::const_iterator itr = d->accounts.find(name);
+	if (itr != d->accounts.end())
+		return itr->isActive() ? itr->account : 0;
+	return 0;
+}
+
+Protocol *GeneralContactSearchFactory::protocol() const
+{
+	return d_func()->protocol;
+}
+
+void GeneralContactSearchFactory::accountAdded(qutim_sdk_0_3::Account *account)
+{
+	Q_D(GeneralContactSearchFactory);
+	const AccountItem &item = d->addAccount(account);
+	if (item.isActive())
+		emit requestAdded(account->id());
+}
+
+void GeneralContactSearchFactory::accountRemoved()
+{
+	Q_D(GeneralContactSearchFactory);
+	Account *account = reinterpret_cast<Account*>(sender());
+	AccountsHash::iterator itr = d->accounts.begin();
+	AccountsHash::iterator endItr = d->accounts.end();
+	while (itr != endItr) {
+		if (itr->account == account) {
+			QString name = itr->id;
+			d->accounts.erase(itr);
+			if (itr->isActive())
+				emit requestRemoved(name);
+			break;
+		}
+		++itr;
+	}
+}
+
+void GeneralContactSearchFactory::accountStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	Q_D(GeneralContactSearchFactory);
+	Q_ASSERT(qobject_cast<Account*>(sender()));
+	Account *account = reinterpret_cast<Account*>(sender());
+	AccountsHash::iterator itr = d->accounts.find(account->id());
+	if (itr != d->accounts.end()) {
+		bool active = itr->isActive();
+		itr->status = status;
+		if (active && status == Status::Offline)
+			emit requestRemoved(itr->id);
+		else if (!active && status != Status::Offline)
+			emit requestAdded(itr->id);
+		else
+			emit requestUpdated(itr->id);
+	}
+}
 }
 
