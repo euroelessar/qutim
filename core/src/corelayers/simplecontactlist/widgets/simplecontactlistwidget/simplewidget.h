@@ -28,8 +28,8 @@
 #ifndef SIMPLEWIDGET_H
 #define SIMPLEWIDGET_H
 #include <QMainWindow>
-#include <abstractcontactlist.h>
-#include <simplecontactlistview.h>
+#include <qutim/simplecontactlist/abstractcontactlist.h>
+#include <qutim/simplecontactlist/simplecontactlistview.h>
 #include <qutim/servicemanager.h>
 #include <qutim/status.h>
 

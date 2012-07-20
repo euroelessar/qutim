@@ -1,4 +1,4 @@
-include_directories(.)
+add_subdirectory(lib)
 
 qutim_add_plugin(simplecontactlist
 	EXTENSION
@@ -8,6 +8,7 @@ qutim_add_plugin(simplecontactlist
 	DISPLAY_NAME "Simple contact list"
 	DESCRIPTION "Default qutIM contact list implementation. Just simple"
 	COMPILE_FLAGS "-DSIMPLECONTACTLIST_LIBRARY"
+	LINK_LIBRARIES qutim-simplecontactlist
 )
 
 qutim_add_plugin(simplecontactdelegate
@@ -16,18 +17,19 @@ qutim_add_plugin(simplecontactdelegate
 	DISPLAY_NAME "Contact delegate"
 	DESCRIPTION "Default contact delegate. Just simple"
 	DEPENDS simplecontactlist
-	LINK_LIBRARIES simplecontactlist
+	LINK_LIBRARIES qutim-simplecontactlist
 )
 
 set(DEVEL_HEADERS
-	contactlist/abstractcontactlist.h
-	contactlist/abstractcontactmodel.h
-	contactlist/simplecontactlistview.h
-	contactlist/simplestatusdialog.h
-	contactlist/simplecontactlist.h
-	contactlist/simplecontactlistsettings.h
-	contactlist/simplecontactlistitem.h
-	contactlist/lineedit.h
+	lib/abstractcontactlist.h
+	lib/abstractcontactmodel.h
+	lib/simplecontactlistview.h
+	lib/simplestatusdialog.h
+	lib/simplecontactlist_global.h
+	lib/servicechooser.h
+	lib/simplecontactlistitem.h
+	lib/lineedit.h
+	lib/abstractcontactmodel_p.h
 )
 install(FILES ${DEVEL_HEADERS}
 	DESTINATION include/qutim/simplecontactlist

@@ -25,8 +25,8 @@
 #ifndef TORYWIDGET_H
 #define TORYWIDGET_H
 #include <QMainWindow>
-#include <abstractcontactlist.h>
-#include <simplecontactlistview.h>
+#include <qutim/simplecontactlist/abstractcontactlist.h>
+#include <qutim/simplecontactlist/simplecontactlistview.h>
 #include <qutim/status.h>
 
 namespace qutim_sdk_0_3

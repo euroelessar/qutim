@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #include "separatedcontactlistmodel.h"
-#include "abstractcontactmodel_p.h"
+#include "qutim/simplecontactlist/abstractcontactmodel_p.h"
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
 #include <qutim/mimeobjectdata.h>

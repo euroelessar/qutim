@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 #include "torywidget.h"
-#include <abstractcontactmodel.h>
-#include <simplestatusdialog.h>
+#include <qutim/simplecontactlist/abstractcontactmodel.h>
+#include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/actiontoolbar.h>

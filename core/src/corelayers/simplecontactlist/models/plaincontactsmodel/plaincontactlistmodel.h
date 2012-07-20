@@ -26,9 +26,9 @@
 #define PLAINCONTACTLISTMODEL_H
 
 #include <QAbstractItemModel>
-#include <simplecontactlistitem.h>
+#include <qutim/simplecontactlist/simplecontactlistitem.h>
 #include <qutim/chatsession.h>
-#include <abstractcontactmodel.h>
+#include <qutim/simplecontactlist/abstractcontactmodel.h>
 
 namespace Core
 {

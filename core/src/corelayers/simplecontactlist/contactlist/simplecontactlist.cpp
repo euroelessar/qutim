@@ -23,10 +23,14 @@
 **
 ****************************************************************************/
 #include "simplecontactlist.h"
-#include "simplecontactlistview.h"
-#include "simplecontactlistitem.h"
-#include "abstractcontactmodel.h"
+
+#include <qutim/simplecontactlist/simplecontactlistitem.h>
+#include <qutim/simplecontactlist/abstractcontactmodel.h>
+#include <qutim/simplecontactlist/simplestatusdialog.h>
+#include <qutim/simplecontactlist/abstractcontactlist.h>
+#include <qutim/simplecontactlist/simplecontactlistview.h>
 #include "simplecontactlistsettings.h"
+
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
@@ -43,7 +47,6 @@
 #include <qutim/qtwin.h>
 #include <qutim/shortcut.h>
 #include <QMainWindow>
-#include "simplestatusdialog.h"
 #include <qutim/servicemanager.h>
 #include <qutim/settingslayer.h>
 #include <QAbstractItemDelegate>
