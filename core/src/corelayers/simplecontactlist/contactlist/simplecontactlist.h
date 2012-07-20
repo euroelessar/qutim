@@ -27,7 +27,7 @@
 
 #include <qutim/actiontoolbar.h>
 #include <qutim/status.h>
-#include "abstractcontactlist.h"
+#include <qutim/menucontroller.h>
 
 namespace qutim_sdk_0_3
 {
@@ -43,7 +43,7 @@ namespace SimpleContactList
 {
 struct ModulePrivate;
 
-class SIMPLECONTACTLIST_EXPORT Module : public MenuController
+class Module : public MenuController
 {
 	Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)

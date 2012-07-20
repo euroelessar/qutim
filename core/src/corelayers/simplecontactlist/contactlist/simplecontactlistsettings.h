@@ -26,9 +26,9 @@
 #ifndef CONTACTLISTSETTINGS_H
 #define CONTACTLISTSETTINGS_H
 
-#include "simplecontactlist_global.h"
 #include <qutim/settingswidget.h>
 #include <qutim/servicemanager.h>
+#include <qutim/simplecontactlist/servicechooser.h>
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QHash>
@@ -44,40 +44,6 @@ namespace qutim_sdk_0_3 {
 namespace Core {
 
 using namespace qutim_sdk_0_3;
-
-class SIMPLECONTACTLIST_EXPORT ContactListSettingsExtention : public SettingsWidget
-{
-	Q_OBJECT
-public:
-	ContactListSettingsExtention();
-	virtual ~ContactListSettingsExtention();
-};
-
-class ServiceChooser : public QGroupBox
-{
-	Q_OBJECT
-public:
-	ServiceChooser(const QByteArray &service,
-				   const LocalizedString &desc,
-				   const QByteArray &currentService,
-				   ExtensionInfoList &services,
-				   QWidget *parent = 0);
-	void setCurrentService(const QByteArray &service);
-	QByteArray currentService() { return m_currentService; }
-	ExtensionInfo currentServiceInfo();
-	QByteArray service() { return m_service; }
-signals:
-	void serviceChanged(const QByteArray &newService, const QByteArray &oldService);
-private slots:
-	void onButtonToggled(bool checked);
-	void onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
-private:
-	QLayout *m_layout;
-	QHash<QByteArray, QRadioButton*> m_buttons;
-	QHash<QByteArray, ExtensionInfo> m_infos;
-	QByteArray m_service;
-	QByteArray m_currentService;
-};
 
 class ContactListSettings : public SettingsWidget
 {
@@ -107,9 +73,6 @@ private:
 };
 
 } // namespace Core
-
-Q_DECLARE_INTERFACE(Core::ContactListSettingsExtention, "org.qutim.core.ContactListSettingsExtention")
-
 
 #endif // CONTACTLISTSETTINGS_H
 
