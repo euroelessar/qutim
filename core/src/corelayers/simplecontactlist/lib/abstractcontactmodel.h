@@ -39,6 +39,7 @@ class Contact;
 class Account;
 class Buddy;
 class ChatSession;
+class ContactComparator;
 }
 
 namespace Core {
@@ -53,6 +54,7 @@ class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel,
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
 	Q_CLASSINFO("RuntimeSwitch", "yes")
+	Q_CLASSINFO("Uses", "ContactComparator")
 	Q_DECLARE_PRIVATE(AbstractContactModel)
 public:
 	virtual ~AbstractContactModel();
@@ -107,13 +109,17 @@ protected:
 	QIcon getIconForNotification(qutim_sdk_0_3::Notification *notification) const;
 	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
 	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
+	void setContactsComparator(qutim_sdk_0_3::ContactComparator *comparator);
 private slots:
 	void init();
 	void onNotificationFinished();
 	void onContactDestroyed();
+	void onContactChanged(qutim_sdk_0_3::Contact *contact);
+	void onServiceChanged(QObject *now, QObject *old);
 protected:
 	virtual void filterAllList() = 0;
 	virtual void updateContactData(qutim_sdk_0_3::Contact *contact) = 0;
+	virtual void doContactChange(qutim_sdk_0_3::Contact *contact) = 0;
 	virtual void processEvent(ChangeEvent *ev) = 0;
 protected:
 	QScopedPointer<AbstractContactModelPrivate> d_ptr;

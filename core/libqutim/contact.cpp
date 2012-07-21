@@ -65,10 +65,14 @@ bool Contact::event(QEvent *e)
 	return Buddy::event(e);
 }
 
-ContactComparator *ContactComparator::instance()
+void ContactComparator::startListen(Contact *contact)
 {
-	static ServicePointer<ContactComparator> self;
-	return self.data();
+	doStartListen(contact);
+}
+
+void ContactComparator::stopListen(Contact *contact)
+{
+	doStopListen(contact);
 }
 
 }

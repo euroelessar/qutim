@@ -155,6 +155,10 @@ AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObje
 	d->transferCompletedIcon   = Icon(QLatin1String("document-save-filetransfer-comleted"));
 	d->birthdayIcon            = Icon(QLatin1String("view-calendar-birthday"));
 	d->defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
+
+	ServiceManager *manager = ServiceManager::instance();
+	connect(manager, SIGNAL(serviceChanged(QObject*,QObject*)), SLOT(onServiceChanged(QObject*,QObject*)));
+	connect(contactComparator.data(), SIGNAL(contactChanged(qutim_sdk_0_3::Contact*)), SLOT(onContactChanged(qutim_sdk_0_3::Contact*)));
 }
 
 AbstractContactModel::~AbstractContactModel()
@@ -390,6 +394,12 @@ ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, cons
 	return item;
 }
 
+void AbstractContactModel::setContactsComparator(ContactComparator *comparator)
+{
+	connect(comparator, SIGNAL(contactChanged(qutim_sdk_0_3::Contact*)), SLOT(onContactChanged(qutim_sdk_0_3::Contact*)));
+	filterAllList();
+}
+
 void AbstractContactModel::init()
 {
 	MetaContactManager * const manager = MetaContactManager::instance();
@@ -440,6 +450,19 @@ void AbstractContactModel::onContactDestroyed()
 	}
 	if (d->notifications.isEmpty())
 		d->notificationTimer.stop();
+}
+
+void AbstractContactModel::onContactChanged(Contact *contact)
+{
+	doContactChange(contact);
+}
+
+void AbstractContactModel::onServiceChanged(QObject *now, QObject *old)
+{
+	if (ContactComparator *c = qobject_cast<ContactComparator*>(now)) {
+		setContactsComparator(c);
+		old->disconnect(this);
+	}
 }
 
 } // namespace SimpleContactList

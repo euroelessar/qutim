@@ -108,7 +108,6 @@ class LIBQUTIM_EXPORT ContactComparator : public QObject
 	Q_CLASSINFO("Service", "ContactComparator")
 public:
 	virtual int compare(Contact *a, Contact *b) = 0;
-	static ContactComparator *instance();
 	void startListen(qutim_sdk_0_3::Contact *contact);
 	void stopListen(qutim_sdk_0_3::Contact *contact);
 protected:

@@ -99,7 +99,7 @@ bool contactLessThan(ContactItem *a, ContactItem *b) {
 	Contact * const bContact = b->getContact();
 	if (!bContact || !aContact || contactComparator.isNull())
 		return false;
-	return contactComparator.data()->compare(aContact, bContact);
+	return contactComparator.data()->compare(aContact, bContact) < 0;
 }
 
 template<typename TagContainer, typename TagItem, typename ContactItem>
