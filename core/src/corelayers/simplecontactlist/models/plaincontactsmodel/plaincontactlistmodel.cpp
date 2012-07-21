@@ -142,10 +142,6 @@ void PlainModel::addContact(Contact *contact)
 
 	connect(contact, SIGNAL(destroyed(QObject*)),
 			SLOT(contactDeleted(QObject*)));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
-	connect(contact, SIGNAL(nameChanged(QString,QString)),
-			SLOT(contactNameChanged(QString)));
 	connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
 			SLOT(contactTagsChanged(QStringList)));
 	connect(contact, SIGNAL(inListChanged(bool)),
@@ -243,27 +239,6 @@ void PlainModel::removeContact(Contact *contact)
 	removeFromContactList(contact,false);
 }
 
-void PlainModel::contactStatusChanged(const Status &status)
-{
-	Q_D(PlainModel);
-	ContactItem *item = d->contactHash.value(reinterpret_cast<Contact *>(sender()));
-	if (!item)
-		return;
-	item->status = status;
-	if (!changeContactVisibility(item, isVisible(item)))
-		updateContact(item, true);
-}
-
-void PlainModel::contactNameChanged(const QString &name)
-{
-	Q_D(PlainModel);
-	Q_UNUSED(name);
-	ContactItem *item = d->contactHash.value(reinterpret_cast<Contact *>(sender()));
-	if (!item || !isVisible(item))
-		return;
-	updateContact(item, true);
-}
-
 void PlainModel::contactTagsChanged(const QStringList &tags)
 {
 	Q_D(PlainModel);
@@ -322,6 +297,17 @@ void PlainModel::updateContactData(Contact *contact)
 		return;
 	QModelIndex index = createIndex(d->contacts.indexOf(item), 0, item);
 	emit dataChanged(index, index);
+}
+
+void PlainModel::doContactChange(Contact *contact)
+{
+	Q_D(PlainModel);
+	ContactItem *item = d->contactHash.value(contact);
+	if (!item)
+		return;
+	item->status = contact->status();
+	if (!changeContactVisibility(item, isVisible(item)))
+		updateContact(item, true);
 }
 
 bool PlainModel::changeContactVisibility(ContactItem *item, bool visibility)

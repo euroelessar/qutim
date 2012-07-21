@@ -204,14 +204,11 @@ void TreeModel::addContact(Contact *contact)
 
 	connect(contact, SIGNAL(destroyed(QObject*)),
 			SLOT(contactDeleted(QObject*)));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
-	connect(contact, SIGNAL(nameChanged(QString,QString)),
-			SLOT(contactNameChanged(QString)));
 	connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
 			SLOT(contactTagsChanged(QStringList)));
 	connect(contact, SIGNAL(inListChanged(bool)),
 			SLOT(onContactInListChanged(bool)));
+	contactComparator.data()->startListen(contact);
 
 	QStringList tags = contact->tags();
 	if(tags.isEmpty())
@@ -337,27 +334,7 @@ void TreeModel::removeContact(Contact *contact)
 	}
 	contact->disconnect(this);
 	removeFromContactList(contact,false);
-}
-
-void TreeModel::contactStatusChanged(const Status &status)
-{
-	ContactData::Ptr itemData = d_func()->contacts.value(qobject_cast<Contact *>(sender()));
-	updateContactStatus<TreeModelPrivate, TagItem, ContactData, ContactItem>(itemData, status);
-}
-
-void TreeModel::contactNameChanged(const QString &name)
-{
-	Q_D(TreeModel);
-	Q_UNUSED(name);
-	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = d->contacts.value(contact);
-	if(!item_data)
-		return;
-	const QList<ContactItem *> &items = item_data->items;
-	if (items.isEmpty() || !isVisible(items.first()))
-		return;
-	for(int i = 0; i < items.size(); i++)
-		updateContact(items.at(i), true);
+	contactComparator.data()->stopListen(contact);
 }
 
 void TreeModel::onContactInListChanged(bool)
@@ -482,6 +459,21 @@ bool TreeModel::eventFilter(QObject *obj, QEvent *ev)
 		return false;
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
+}
+
+void TreeModel::doContactChange(Contact *contact)
+{
+	Q_D(TreeModel);
+	ContactData::Ptr itemData = d->contacts.value(contact);
+	if (!itemData)
+		return;
+	const QList<ContactItem *> &items = itemData->items;
+	if (items.isEmpty() || !isVisible(items.first()))
+		return;
+	for(int i = 0; i < items.size(); i++)
+		updateContact(items.at(i), true);
+
+	updateContactStatus<TreeModelPrivate, TagItem, ContactData, ContactItem>(itemData, contact->status());
 }
 
 void TreeModel::saveTagOrder()
