@@ -2,7 +2,7 @@ add_subdirectory(lib)
 
 qutim_add_plugin(simplecontactlist
 	EXTENSION
-	EXTENSION_HEADER contactlist/simplecontactlist.h
+        EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/contactlist/simplecontactlist.h
 	EXTENSION_CLASS Core::SimpleContactList::Module
 	SOURCE_DIR contactlist
 	DISPLAY_NAME "Simple contact list"
