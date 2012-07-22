@@ -125,8 +125,6 @@ public slots:
 	void removeContact(qutim_sdk_0_3::Contact *contact);
 protected slots:
 	void contactDeleted(QObject *obj);
-	void contactStatusChanged(qutim_sdk_0_3::Status status);
-	void contactNameChanged(const QString &name);
 	void contactTagsChanged(const QStringList &tags);
 	void onContactInListChanged(bool isInList);
 	AccountItem *onAccountCreated(qutim_sdk_0_3::Account *);
@@ -138,6 +136,7 @@ protected:
 	void updateContactData(Contact *contact);
 	void processEvent(ChangeEvent *ev);
 	bool eventFilter(QObject *obj, QEvent *ev);
+	virtual void doContactChange(Contact *contact);
 private:
 	friend class TagItem;
 	friend class ContactItem;

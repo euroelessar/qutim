@@ -78,6 +78,7 @@ VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
 	connect(m_buddy, SIGNAL(photoSourceChanged(QString,vk::Contact::PhotoSize)),
 			SLOT(onPhotoSourceChanged(QString,vk::Contact::PhotoSize)));
+	connect(m_buddy, SIGNAL(isFriendChanged(bool)), SIGNAL(inListChanged(bool)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 

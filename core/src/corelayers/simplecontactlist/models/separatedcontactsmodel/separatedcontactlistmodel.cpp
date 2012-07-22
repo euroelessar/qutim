@@ -374,27 +374,6 @@ void SeparatedModel::removeContact(Contact *contact)
 	removeFromContactList(contact,false);
 }
 
-void SeparatedModel::contactStatusChanged(Status status)
-{
-	ContactData::Ptr itemData = d_func()->contacts.value(qobject_cast<Contact *>(sender()));
-	updateContactStatus<AccountItem, TagItem, ContactData, ContactItem>(itemData, status);
-}
-
-void SeparatedModel::contactNameChanged(const QString &name)
-{
-	Q_D(SeparatedModel);
-	Q_UNUSED(name);
-	Contact *contact = qobject_cast<Contact *>(sender());
-	ContactData::Ptr item_data = d->contacts.value(contact);
-	if(!item_data)
-		return;
-	const QList<ContactItem *> &items = item_data->items;
-	if (items.isEmpty() || !isVisible(items.first()))
-		return;
-	for(int i = 0; i < items.size(); i++)
-		updateContact(items.at(i), true);
-}
-
 void SeparatedModel::onContactInListChanged(bool)
 {
 	//Contact *contact = qobject_cast<Contact*>(sender());
@@ -412,7 +391,6 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 	updateContactTags<AccountItem, TagItem, ContactData, ContactItem>(
 			accountItem, item_data, tags_helper);
 }
-
 
 AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
@@ -567,6 +545,19 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 		return false;
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
+}
+
+void SeparatedModel::doContactChange(Contact *contact)
+{
+	ContactData::Ptr itemData = d_func()->contacts.value(contact);
+	if(!itemData)
+		return;
+	const QList<ContactItem *> &items = itemData->items;
+	if (items.isEmpty() || !isVisible(items.first()))
+		return;
+	for(int i = 0; i < items.size(); i++)
+		updateContact(items.at(i), true);
+	updateContactStatus<AccountItem, TagItem, ContactData, ContactItem>(itemData, contact->status());
 }
 
 void SeparatedModel::saveTagOrder(AccountItem *accountItem)
