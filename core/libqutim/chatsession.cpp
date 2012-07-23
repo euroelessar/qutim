@@ -136,6 +136,7 @@ qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 		return -result;
 	}
 	messageHookMap()->remove(&message);
+	message.chatUnit()->setLastActivity(message.time());
 	return message.id();
 }
 

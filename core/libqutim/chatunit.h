@@ -29,6 +29,7 @@
 #include "menucontroller.h"
 #include <QMetaType>
 #include <QEvent>
+#include <QDateTime>
 
 namespace qutim_sdk_0_3
 {
@@ -60,98 +61,101 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(QString id READ id CONSTANT)
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
+	Q_PROPERTY(QDateTime lastActivity READ lastActivity NOTIFY lastActivityChanged)
 	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
 	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
 	/**
-  * @brief default ChatUnit's contructor
-  *
-  * @param account Pointer to chatunit's account
-  */
+	* @brief default ChatUnit's contructor
+	*
+	* @param account Pointer to chatunit's account
+	*/
 	ChatUnit(Account *account);
 	/**
-  * @brief ChatUnit's contructor
-  *
-  * @param d ChatUnitPrivate
-  *
-  * @param account Pointer to chatunit's account
-  *
-  * @internal For internal use only
-  */
+	* @brief ChatUnit's contructor
+	*
+	* @param d ChatUnitPrivate
+	*
+	* @param account Pointer to chatunit's account
+	*
+	* @internal For internal use only
+	*/
 	ChatUnit(ChatUnitPrivate &d, Account *account);
 	/**
-  * @brief ChatUnit's destructor
-  */
+	* @brief ChatUnit's destructor
+	*/
 	virtual ~ChatUnit();
 	/**
-  * @brief Returns chatunit's identification, which is unique for account
-  *
-  * @return ChatUnit's identitification string
-  */
+	* @brief Returns chatunit's identification, which is unique for account
+	*
+	* @return ChatUnit's identitification string
+	*/
 	virtual QString id() const = 0;
 	/**
-  * @brief Returns chatunit's representable name
-  *
-  * @return ChatUnit's name
-  */
+	* @brief Returns chatunit's representable name
+	*
+	* @return ChatUnit's name
+	*/
 	virtual QString title() const;
 	/**
-  * @brief Returns pointer to chatunits's @ref Account
-  *
-  * @return Pointer to account
-  */
+	* @brief Returns pointer to chatunits's @ref Account
+	*
+	* @return Pointer to account
+	*/
 	Account *account();
 	/**
-  * @brief Returns pointer to chatunits's @ref Account
-  *
-  * @return Pointer to account
-  */
+	* @brief Returns pointer to chatunits's @ref Account
+	*
+	* @return Pointer to account
+	*/
 	const Account *account() const;
 	bool isConference() const;
 	/**
-  * @brief send message to chatunit
-  *
-  * @param message Message, which to be sent to the recipient
-  */
+	* @brief send message to chatunit
+	*
+	* @param message Message, which to be sent to the recipient
+	*/
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message) = 0;
-	
+
 	Q_INVOKABLE bool send(const qutim_sdk_0_3::Message &message);
 	/**
-  * @brief Returns TODO
-  *
-  * @return ChatUnitList
-  */
+	* @brief Returns TODO
+	*
+	* @return ChatUnitList
+	*/
 	Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatUnit*> lowerUnits();
 	/**
-  * @brief Returns TODO
-  *
-  * @return Pointer to upper chatunit
-  */
+	* @brief Returns TODO
+	*
+	* @return Pointer to upper chatunit
+	*/
 	Q_INVOKABLE virtual qutim_sdk_0_3::ChatUnit *upperUnit();
 	/**
-  * @brief Returns TODO
-  *
-  * @return Pointer to upper buddy
-  */
+	* @brief Returns TODO
+	*
+	* @return Pointer to upper buddy
+	*/
 	ChatUnit *buddy();
 	const ChatUnit *buddy() const;
 	/**
-  * @brief Returns TODO
-  *
-  * @return Pointer to upper metaContact or 0 if upper metaContact doesn't exist.
-  */
+	* @brief Returns TODO
+	*
+	* @return Pointer to upper metaContact or 0 if upper metaContact doesn't exist.
+	*/
 	ChatUnit *metaContact();
 	const ChatUnit *metaContact() const;
 	virtual const ChatUnit *getHistoryUnit() const;
-public slots:
-	quint64 sendMessage(const QString &text);
+	QDateTime lastActivity() const;
+	void setLastActivity(const QDateTime &time = QDateTime::currentDateTime());
 	/**
-  * @brief Sets a new chat state
-  *
-  * @param state New ChatState
-  */
+	* @brief Sets a new chat state
+	*
+	* @param state New ChatState
+	*/
 	void setChatState(qutim_sdk_0_3::ChatState state);
 	qutim_sdk_0_3::ChatState chatState() const;
+public slots:
+	quint64 sendMessage(const QString &text);
 signals:
 	/*!
 	Notify that ChatUnit's \a title is changed, may be because of
@@ -163,6 +167,7 @@ signals:
    */
 	void lowerUnitAdded(ChatUnit *unit);
 	void chatStateChanged(qutim_sdk_0_3::ChatState current,qutim_sdk_0_3::ChatState previous);
+	void lastActivityChanged(const QDateTime &current, const QDateTime &previous);
 };
 
 /**
