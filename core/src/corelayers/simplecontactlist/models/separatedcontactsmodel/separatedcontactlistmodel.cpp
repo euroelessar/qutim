@@ -222,14 +222,11 @@ void SeparatedModel::addContact(Contact *contact)
 
 	connect(contact, SIGNAL(destroyed(QObject*)),
 			SLOT(contactDeleted(QObject*)));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
-	connect(contact, SIGNAL(nameChanged(QString,QString)),
-			SLOT(contactNameChanged(QString)));
 	connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
 			SLOT(contactTagsChanged(QStringList)));
 	connect(contact, SIGNAL(inListChanged(bool)),
 			SLOT(onContactInListChanged(bool)));
+    contactComparator.data()->startListen(contact);
 
 	QStringList tags = contact->tags();
 	if(tags.isEmpty())
@@ -371,7 +368,8 @@ void SeparatedModel::removeContact(Contact *contact)
 {
 	Q_ASSERT(contact);
 	contact->disconnect(this);
-	removeFromContactList(contact,false);
+    removeFromContactList(contact, false);
+    contactComparator.data()->stopListen(contact);
 }
 
 void SeparatedModel::onContactInListChanged(bool)
@@ -543,7 +541,7 @@ bool SeparatedModel::eventFilter(QObject *obj, QEvent *ev)
 		else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
 			removeContact(metaEvent->contact());
 		return false;
-	}
+    }
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
 
@@ -554,8 +552,8 @@ void SeparatedModel::doContactChange(Contact *contact)
 		return;
     updateContactStatus<AccountItem, TagItem, ContactData, ContactItem>(itemData, contact->status());
 	const QList<ContactItem *> &items = itemData->items;
-	if (items.isEmpty() || !isVisible(items.first()))
-		return;
+    //if (items.isEmpty() || !isVisible(items.first()))
+    //	return;
 	for(int i = 0; i < items.size(); i++)
 		updateContact(items.at(i), true);
 }

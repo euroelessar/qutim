@@ -86,7 +86,7 @@ void VAccount::setStatus(Status status)
 			m_client->connectToHost();
 			m_client->setInvisible(status == Status::Invisible);
 		};
-	}
+    }
 }
 
 int VAccount::uid() const
@@ -124,7 +124,6 @@ VContact *VAccount::me() const
 void VAccount::loadSettings()
 {
 	Config cfg = config();
-	m_name = cfg.value("general/name", QString());
 	vk::OAuthConnection *connection = new vk::OAuthConnection(qutimId, this);
 	connection->setUid(cfg.value("access/uid", 0));
 	connection->setAccessToken(cfg.value("access/token", QByteArray(), Config::Crypted),
@@ -137,8 +136,7 @@ void VAccount::loadSettings()
 void VAccount::saveSettings()
 {
 	config().setValue("access/uid", uid());
-	config().setValue("general/name", m_name);
-	if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
+    if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
 		setAccessToken(c->accessToken(), c->expiresIn());
 }
 
@@ -151,7 +149,8 @@ void VAccount::onMeChanged(vk::Buddy *me)
 {
 	if (m_me)
 		m_me->deleteLater();
-	m_me = new VContact(me, this);
+    //m_me = new VContact(me, this);
+    m_me = m_roster->contact(me->id());
 	connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 }
 

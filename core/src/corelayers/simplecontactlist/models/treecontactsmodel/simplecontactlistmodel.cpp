@@ -469,8 +469,8 @@ void TreeModel::doContactChange(Contact *contact)
 		return;
     updateContactStatus<TreeModelPrivate, TagItem, ContactData, ContactItem>(itemData, contact->status());
 	const QList<ContactItem *> &items = itemData->items;
-	if (items.isEmpty() || !isVisible(items.first()))
-		return;
+    //if (items.isEmpty() || !isVisible(items.first()))
+    //	return;
 	for(int i = 0; i < items.size(); i++)
 		updateContact(items.at(i), true);
 }

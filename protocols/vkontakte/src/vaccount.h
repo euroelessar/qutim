@@ -47,7 +47,7 @@ public:
 
 	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
-	virtual void setStatus(qutim_sdk_0_3::Status status);
+    virtual void setStatus(qutim_sdk_0_3::Status status);
 
 	int uid() const;
 	QString email() const;
