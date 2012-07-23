@@ -4,6 +4,7 @@ namespace Core {
 
 StatusComparator::StatusComparator()
 {
+    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Sort by contact's status"));
 }
 
 int StatusComparator::compare(qutim_sdk_0_3::Contact *a, qutim_sdk_0_3::Contact *b)

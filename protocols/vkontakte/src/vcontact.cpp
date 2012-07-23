@@ -72,7 +72,8 @@ VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_name = m_buddy->name();
 	m_tags = m_buddy->tags();
 
-	connect(m_buddy, SIGNAL(statusChanged(vk::Contact::Status)), SLOT(onStatusChanged(vk::Contact::Status)));
+    connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
+    connect(m_buddy, SIGNAL(statusChanged(vk::Contact::Status)), SLOT(onStatusChanged(vk::Contact::Status)));
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));

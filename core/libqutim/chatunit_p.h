@@ -39,6 +39,7 @@ public:
 	Account *account;
 	ChatState chatState;
 	QWeakPointer<Notification> composingNotification;
+	QDateTime lastActivity;
 };
 }
 
