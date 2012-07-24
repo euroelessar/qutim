@@ -32,41 +32,48 @@
 #include <qutim/status.h>
 #include <QTimer>
 
+namespace qutim_sdk_0_3 {
+class ContactsFactory;
+} //namespace qutim_sdk_0_3
+
 namespace vk {
 class Roster;
 class Contact;
 class Buddy;
 class Message;
 }
+
 class VAccount;
 class VContact;
 class VGroupChat;
 class VContactsFactory;
+class VRosterFactory;
 
 class VRoster : public QObject
 {
 	Q_OBJECT
 public:
 	VRoster(VAccount *account);
+    virtual ~VRoster();
 	VContact *contact(int id, bool create = true);
 	VContact *contact(int id) const;
 	VGroupChat *groupChat(int id, bool create = true);
 	VGroupChat *groupChat(int id) const;
+    qutim_sdk_0_3::ContactsFactory *contactsFactory() const;
 protected slots:
 	VContact *createContact(vk::Buddy *buddy);
 private slots:
 	void onContactDestroyed(QObject *obj);
 	void onGroupChatDestroyed(QObject *obj);
-	void onAddFriend(vk::Buddy *buddy);
+    void onAddBuddy(vk::Buddy *buddy);
+    void onBuddyUpdated(vk::Buddy *buddy);
+    void onBuddyRemoved(int id);
 	void onOnlineChanged(bool isOnline);
 	void onMessagesRecieved(const QVariant &response);
 	void onMessageAdded(const vk::Message &msg);
 	void onContactTyping(int userId, int chatId);
 private:
-	VAccount *m_account;
-	vk::Roster *m_roster;
-	QHash<int, VContact*> m_contactHash;
-	QHash<int, VGroupChat*> m_groupChatHash;
+    QScopedPointer<VRosterFactory> p;
 };
 
 

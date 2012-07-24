@@ -33,25 +33,80 @@
 #include <vk/message.h>
 
 #include <qutim/chatsession.h>
+#include <qutim/servicemanager.h>
+#include <qutim/rosterstorage.h>
+#include <QMetaProperty>
 
 using namespace qutim_sdk_0_3;
 
-VRoster::VRoster(VAccount *account) : QObject(account),
-	m_account(account)
+class VRosterFactory : public ContactsFactory
 {
-	connect(m_account->client()->roster(), SIGNAL(friendAdded(vk::Buddy*)), SLOT(onAddFriend(vk::Buddy*)));
-	connect(m_account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
+public:
+    VRosterFactory(VAccount *account, VRoster *roster) :
+        account(account), roster(roster),
+        addContactGuard(false)
+    {
+    }
 
-	vk::LongPoll *poll = m_account->client()->longPoll();
+    virtual Contact *addContact(const QString &id, const QVariantMap &data)
+    {
+        VContact *c = roster->contact(id.toInt());
+        vk::Contact::fillContact(c->buddy(), data);
+        c->buddy()->setIsFriend(data.value("friend").toBool());
+        return c;
+    }
+    virtual void serialize(Contact *obj, QVariantMap &data) {
+        VContact *contact = qobject_cast<VContact*>(obj);
+        if (!contact)
+            return;
+        vk::Buddy *buddy = contact->buddy();
+        const QMetaObject *meta = buddy->metaObject();
+        for (int i = 0; i != meta->propertyCount(); i++) {
+            QMetaProperty property = meta->property(i);
+            QString name = property.name();
+            if (property.isStored(buddy) && name.leftRef(3) == "_q_") {
+                name.remove(0, 3);
+                data.insert(name, property.read(buddy));
+            }
+        }
+        data.insert("friend", buddy->isFriend());
+    }
+
+    VAccount *account;
+    VRoster *roster;
+    ServicePointer<RosterStorage> storage;
+    QHash<int, VContact*> contactHash;
+    QHash<int, VGroupChat*> groupChatHash;
+    bool addContactGuard;
+
+    QString loadRoster();
+};
+
+VRoster::VRoster(VAccount *account) : QObject(account),
+    p(new VRosterFactory(account, this))
+{
+    account->setContactsFactory(p.data());
+    p->loadRoster();
+
+    connect(p->account->client()->roster(), SIGNAL(buddyAdded(vk::Buddy*)), SLOT(onAddBuddy(vk::Buddy*)));
+    connect(p->account->client()->roster(), SIGNAL(buddyUpdated(vk::Buddy*)), SLOT(onBuddyUpdated(vk::Buddy*)));
+    connect(p->account->client()->roster(), SIGNAL(contactRemoved(int)), SLOT(onBuddyRemoved(int)));
+    connect(p->account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
+
+    vk::LongPoll *poll = p->account->client()->longPoll();
 	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
-	connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
+    connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
+}
+
+VRoster::~VRoster()
+{
 }
 
 VContact *VRoster::contact(int id, bool create)
 {
-	VContact *c = m_contactHash.value(id);
-	if (!c && create && id != m_account->uid()) {
-		vk::Buddy *buddy = m_account->client()->roster()->buddy(id);
+    VContact *c = p->contactHash.value(id);
+    if (!c && create && id != p->account->uid()) {
+        vk::Buddy *buddy = p->account->client()->roster()->buddy(id);
 		c = createContact(buddy);
 	}
 	return c;
@@ -59,44 +114,66 @@ VContact *VRoster::contact(int id, bool create)
 
 VContact *VRoster::contact(int id) const
 {
-	return m_contactHash.value(id);
+    return p->contactHash.value(id);
 }
 
 VGroupChat *VRoster::groupChat(int id, bool create)
 {
-	VGroupChat *c = m_groupChatHash.value(id);
+    VGroupChat *c = p->groupChatHash.value(id);
 	if (!c && create) {
-		c = new VGroupChat(m_account, id);
+        c = new VGroupChat(p->account, id);
 		connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
-		m_groupChatHash.insert(id, c);
+        p->groupChatHash.insert(id, c);
 	}
 	return c;
 }
 
 VGroupChat *VRoster::groupChat(int id) const
 {
-	return m_groupChatHash.value(id);
+    return p->groupChatHash.value(id);
+}
+
+ContactsFactory *VRoster::contactsFactory() const
+{
+    return p.data();
 }
 
 VContact *VRoster::createContact(vk::Buddy *buddy)
 {
-	VContact *contact  = new VContact(buddy, m_account);
+    VContact *contact  = new VContact(buddy, p->account);
 	connect(contact, SIGNAL(destroyed(QObject*)), SLOT(onContactDestroyed(QObject*)));
-	m_contactHash.insert(buddy->id(), contact);
-	emit m_account->contactCreated(contact);
+    p->contactHash.insert(buddy->id(), contact);
+    emit p->account->contactCreated(contact);
+    if (!p->addContactGuard)
+        p->storage.data()->addContact(contact);
 	return contact;
 }
 
-void VRoster::onAddFriend(vk::Buddy *buddy)
+void VRoster::onAddBuddy(vk::Buddy *buddy)
 {
-	if (!m_contactHash.value(buddy->id()))
+    if (!p->contactHash.value(buddy->id())) {
 		createContact(buddy);
+        if (!buddy->isFriend())
+            buddy->update(QStringList() << VK_COMMON_FIELDS);
+    }
+}
+
+void VRoster::onBuddyUpdated(vk::Buddy *buddy)
+{
+    VContact *c = contact(buddy->id());
+    p->storage.data()->updateContact(c);
+}
+
+void VRoster::onBuddyRemoved(int id)
+{
+    VContact *c = contact(id);
+    p->storage.data()->removeContact(c);
 }
 
 void VRoster::onOnlineChanged(bool isOnline)
 {
 	if (isOnline) {
-		vk::Reply *reply = m_account->client()->roster()->getMessages(0, 50, vk::Message::FilterUnread);
+        vk::Reply *reply = p->account->client()->roster()->getMessages(0, 50, vk::Message::FilterUnread);
 		connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessagesRecieved(QVariant)));
 	}
 }
@@ -120,12 +197,12 @@ void VRoster::onMessageAdded(const vk::Message &msg)
 
 void VRoster::onContactDestroyed(QObject *obj)
 {
-	m_contactHash.remove(m_contactHash.key(static_cast<VContact*>(obj)));
+    p->contactHash.remove(p->contactHash.key(static_cast<VContact*>(obj)));
 }
 
 void VRoster::onGroupChatDestroyed(QObject *obj)
 {
-	m_contactHash.remove(m_contactHash.key(static_cast<VContact*>(obj)));
+    p->contactHash.remove(p->contactHash.key(static_cast<VContact*>(obj)));
 }
 
 void VRoster::onContactTyping(int userId, int chatId)
@@ -144,8 +221,17 @@ void VRoster::onMessagesRecieved(const QVariant &response)
 {
 	QVariantList list = response.toList();
 	list.removeFirst();
-	vk::MessageList msgList = vk::Message::fromVariantList(list, m_account->client());
+    vk::MessageList msgList = vk::Message::fromVariantList(list, p->account->client());
 	foreach (vk::Message msg, msgList)
 		if (msg.isUnread() && msg.isIncoming())
 			onMessageAdded(msg);
+}
+
+
+QString VRosterFactory::loadRoster()
+{
+    addContactGuard = true;
+    QString version = storage->load(account);
+    addContactGuard = false;
+    return version;
 }

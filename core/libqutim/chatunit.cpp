@@ -42,167 +42,186 @@ Q_GLOBAL_STATIC(QSet<ChatUnit*>, all_chat_units)
 LIBQUTIM_EXPORT QSet<ChatUnit*> get_all_chat_units()
 {
 #ifndef QT_NO_DEBUG
-	return *all_chat_units();
+    return *all_chat_units();
 #else
-	return QSet<ChatUnit*>();
+    return QSet<ChatUnit*>();
 #endif
 }
 
 ChatUnit::ChatUnit(Account *account) : MenuController(*new ChatUnitPrivate(this), account)
 {
-	d_func()->account = account;
+    d_func()->account = account;
 #ifndef QT_NO_DEBUG
-	all_chat_units()->insert(this);
+    all_chat_units()->insert(this);
 #endif
 }
 
 ChatUnit::ChatUnit(ChatUnitPrivate &d, Account *account) : MenuController(d, account)
 {
-	d_func()->account = account;
+    d_func()->account = account;
 #ifndef QT_NO_DEBUG
-	all_chat_units()->insert(this);
+    all_chat_units()->insert(this);
 #endif
 }
 
 ChatUnit::~ChatUnit()
 {
 #ifndef QT_NO_DEBUG
-	all_chat_units()->remove(this);
+    all_chat_units()->remove(this);
 #endif
 }
 
 QString ChatUnit::title() const
 {
-	QString title = property("name").toString();
-	return title.isEmpty() ? id() : title;
+    QString title = property("name").toString();
+    return title.isEmpty() ? id() : title;
 }
 
 Account *ChatUnit::account()
 {
-	return d_func()->account;
+    return d_func()->account;
 }
 
 const Account *ChatUnit::account() const
 {
-	return d_func()->account;
+    return d_func()->account;
 }
 
 bool ChatUnit::isConference() const
 {
-	return qobject_cast<const Conference*>(this) != NULL;
+    return qobject_cast<const Conference*>(this) != NULL;
 }
 
 bool ChatUnit::send(const qutim_sdk_0_3::Message &message)
 {
-	return sendMessage(message);
+    return sendMessage(message);
 }
 
 ChatUnitList ChatUnit::lowerUnits()
 {
-	return ChatUnitList();
+    return ChatUnitList();
 }
 
 ChatUnit *ChatUnit::upperUnit()
 {
-	return 0;
+    return 0;
 }
 
 quint64 ChatUnit::sendMessage(const QString &text)
 {
-	Message message(text);
-	message.setIncoming(false);
-	message.setChatUnit(this);
-	bool ok = sendMessage(message);
-	return ok ? message.id() : Q_UINT64_C(~0);
+    Message message(text);
+    message.setIncoming(false);
+    message.setChatUnit(this);
+    bool ok = sendMessage(message);
+    return ok ? message.id() : Q_UINT64_C(~0);
 }
 
 void ChatUnit::setChatState(ChatState state)
 {
-	Q_D(ChatUnit);
-	emit chatStateChanged(state,d->chatState);
-	d->chatState = state;
-	if (d->composingNotification)
-		d->composingNotification.data()->reject();
-	if (state == ChatStateComposing) {
-		NotificationRequest request(Notification::UserTyping);
-		request.setObject(this);
-		d->composingNotification = request.send();
-	}
+    Q_D(ChatUnit);
+    if (state != d->chatState) {
+        ChatState old = d->chatState;
+        d->chatState = state;
+        emit chatStateChanged(state, old);
+        if (d->composingNotification)
+            d->composingNotification.data()->reject();
+        if (state == ChatStateComposing) {
+            NotificationRequest request(Notification::UserTyping);
+            request.setObject(this);
+            d->composingNotification = request.send();
+            setLastActivity(QDateTime::currentDateTime());
+        }
+    }
 }
 
 ChatState ChatUnit::chatState() const
 {
-	return d_func()->chatState;
+    return d_func()->chatState;
 }
 
 ChatUnit *ChatUnit::buddy()
 {
-	ChatUnit *u = this;
-	while (u) {
-		if (qobject_cast<Buddy*>(u))
-			return u;
-		u = u->upperUnit();
-	}
-	return this;
+    ChatUnit *u = this;
+    while (u) {
+        if (qobject_cast<Buddy*>(u))
+            return u;
+        u = u->upperUnit();
+    }
+    return this;
 }
 
 const ChatUnit *ChatUnit::buddy() const
 {
-	return const_cast<ChatUnit*>(this)->buddy();
+    return const_cast<ChatUnit*>(this)->buddy();
 }
 
 ChatUnit* ChatUnit::metaContact()
 {
-	ChatUnit *u = this;
-	while (u) {
-		if (qobject_cast<MetaContact*>(u))
-			return u;
-		u = u->upperUnit();
-	}
-	return 0;
+    ChatUnit *u = this;
+    while (u) {
+        if (qobject_cast<MetaContact*>(u))
+            return u;
+        u = u->upperUnit();
+    }
+    return 0;
 }
 
 const ChatUnit* ChatUnit::metaContact() const
 {
-	return const_cast<ChatUnit*>(this)->metaContact();
+    return const_cast<ChatUnit*>(this)->metaContact();
 }
 
 
 ChatStateEvent::ChatStateEvent(ChatState state) :
-	QEvent(eventType()), m_state(state)
+    QEvent(eventType()), m_state(state)
 {
 
 }
 
 QEvent::Type ChatStateEvent::eventType()
 {
-	static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
-	return type;
+    static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
+    return type;
 }
 
 const ChatUnit* ChatUnit::getHistoryUnit() const
 {
-	ChatUnit *u = const_cast<ChatUnit *>(this);
-	ChatUnit *buddy = 0;
-	if (qobject_cast<Contact*>(u))
-		return u;
-	else if (qobject_cast<Buddy*>(u))
-		buddy = u;
-	ChatUnit *p;
-	while ((p = u->upperUnit()) != 0) {
-		if (qobject_cast<MetaContact*>(p)) {
-			break;
-		} else if (qobject_cast<Contact*>(p)) {
-			buddy = p;
-			break;
-		} else if (qobject_cast<Conference*>(p)) {
-			break;
-		} else if (qobject_cast<Buddy*>(p) && !buddy) {
-			buddy = p;
-		}
-		u = p;
-	}
-	return buddy ? buddy : u;
+    ChatUnit *u = const_cast<ChatUnit *>(this);
+    ChatUnit *buddy = 0;
+    if (qobject_cast<Contact*>(u))
+        return u;
+    else if (qobject_cast<Buddy*>(u))
+        buddy = u;
+    ChatUnit *p;
+    while ((p = u->upperUnit()) != 0) {
+        if (qobject_cast<MetaContact*>(p)) {
+            break;
+        } else if (qobject_cast<Contact*>(p)) {
+            buddy = p;
+            break;
+        } else if (qobject_cast<Conference*>(p)) {
+            break;
+        } else if (qobject_cast<Buddy*>(p) && !buddy) {
+            buddy = p;
+        }
+        u = p;
+    }
+    return buddy ? buddy : u;
+}
+
+QDateTime ChatUnit::lastActivity() const
+{
+    return d_func()->lastActivity;
+}
+
+void ChatUnit::setLastActivity(const QDateTime &time)
+{
+    Q_D(ChatUnit);
+    if (d->lastActivity != time) {
+        QDateTime old = d->lastActivity;
+        d->lastActivity = time;
+        emit lastActivityChanged(time, old);
+    }
 }
 
 }

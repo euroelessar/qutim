@@ -432,7 +432,7 @@ bool AbstractContactModel::isVisible(ContactItem *item)
 template<typename TagContainer, typename TagItem, typename ContactItem>
 void AbstractContactModel::moveTag(ChangeEvent *ev)
 {
-	TagContainer *p;
+    TagContainer *p = 0;
 	int to = -2, globalTo = -2;
 	if (ev->parent->type == ContactType) {
 		TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;

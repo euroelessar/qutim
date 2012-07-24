@@ -38,6 +38,7 @@ ContactListSettings::ContactListSettings()
 {
 	m_layout = new QVBoxLayout(this);
 
+    addService("ContactComparator", QT_TR_NOOP("Sorting"));
 	addService("ContactModel", QT_TR_NOOP("Model"));
 	addService("ContactListWidget", QT_TR_NOOP("Widget style"));
 	addService("ContactDelegate", QT_TR_NOOP("Contacts style"));
