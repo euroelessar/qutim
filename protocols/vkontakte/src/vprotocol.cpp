@@ -36,9 +36,13 @@
 
 using namespace qutim_sdk_0_3;
 
+static VProtocol *self = 0;
+
 VProtocol::VProtocol() :
     qutim_sdk_0_3::Protocol()
 {
+    Q_ASSERT(!self);
+    self = this;
 }
 
 VProtocol::~VProtocol()
@@ -106,8 +110,9 @@ QVariant VProtocol::data(qutim_sdk_0_3::Protocol::DataType type)
 
 VProtocol *VProtocol::instance()
 {
-	static VProtocol pointer;
-	return &pointer;
+    if (!self)
+        self = new VProtocol();
+    return self;
 }
 
 void VProtocol::addAccount(VAccount *account)

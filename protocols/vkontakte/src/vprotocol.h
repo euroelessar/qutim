@@ -49,8 +49,8 @@ public:
     virtual QList<qutim_sdk_0_3::Account*> accounts() const;
     virtual QVariant data(DataType type);
 
-	static VProtocol *instance();
-	void addAccount(VAccount *account);
+    static VProtocol *instance();
+    void addAccount(VAccount *account);
 protected:
     qutim_sdk_0_3::Account *doCreateAccount(const QString &email, const QVariantMap &parameters);
     virtual void virtual_hook(int id, void *data);
