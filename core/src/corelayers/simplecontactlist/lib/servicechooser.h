@@ -17,7 +17,7 @@ public:
     virtual ~ContactListSettingsExtention();
 };
 
-class ServiceChooser : public QGroupBox
+class SIMPLECONTACTLIST_EXPORT ServiceChooser : public QGroupBox
 {
     Q_OBJECT
 public:
