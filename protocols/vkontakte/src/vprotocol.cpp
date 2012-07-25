@@ -75,10 +75,7 @@ void VProtocol::loadAccounts()
     QStringList accounts = config("general").value("accounts", QStringList());
     foreach (const QString &email, accounts) {
 		VAccount *account = new VAccount(email, this);
-        m_accounts.insert(email, account);
-        account->loadSettings();
-        connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
-        emit accountCreated(account);
+        addAccount(account);
     }
 
     m_mainSettings.reset(new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,
@@ -115,8 +112,9 @@ VProtocol *VProtocol::instance()
 
 void VProtocol::addAccount(VAccount *account)
 {
-	m_accounts.insert(account->email(), account);
-	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
+    m_accounts.insert(account->email(), account);
+    account->loadSettings();
+    connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
     emit accountCreated(account);
 }
 

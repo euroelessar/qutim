@@ -147,11 +147,12 @@ VRoster *VAccount::roster() const
 
 void VAccount::onMeChanged(vk::Buddy *me)
 {
-	if (m_me)
-		m_me->deleteLater();
-    //m_me = new VContact(me, this);
-    m_me = m_roster->contact(me->id());
-	connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+    if (!m_me || m_me->buddy() != me) {
+        if (m_me)
+            m_me->deleteLater();
+        m_me = m_roster->contact(me->id());
+        connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+    }
 }
 
 void VAccount::onInvisibleChanged(bool set)

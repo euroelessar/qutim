@@ -46,6 +46,8 @@ public:
         account(account), roster(roster),
         addContactGuard(false)
     {
+        rosterUpdater.setInterval(90000);
+        roster->connect(&rosterUpdater, SIGNAL(timeout()), account->client()->roster(), SLOT(sync()));
     }
 
     virtual Contact *addContact(const QString &id, const QVariantMap &data)
@@ -78,6 +80,7 @@ public:
     QHash<int, VContact*> contactHash;
     QHash<int, VGroupChat*> groupChatHash;
     bool addContactGuard;
+    QTimer rosterUpdater;
 
     QString loadRoster();
 };
@@ -94,7 +97,7 @@ VRoster::VRoster(VAccount *account) : QObject(account),
     connect(p->account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
 
     vk::LongPoll *poll = p->account->client()->longPoll();
-	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
+    connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
     connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
 }
 
@@ -107,9 +110,9 @@ VContact *VRoster::contact(int id, bool create)
     VContact *c = p->contactHash.value(id);
     if (!c && create && id != p->account->uid()) {
         vk::Buddy *buddy = p->account->client()->roster()->buddy(id);
-		c = createContact(buddy);
-	}
-	return c;
+        c = createContact(buddy);
+    }
+    return c;
 }
 
 VContact *VRoster::contact(int id) const
@@ -120,12 +123,12 @@ VContact *VRoster::contact(int id) const
 VGroupChat *VRoster::groupChat(int id, bool create)
 {
     VGroupChat *c = p->groupChatHash.value(id);
-	if (!c && create) {
+    if (!c && create) {
         c = new VGroupChat(p->account, id);
-		connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
+        connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
         p->groupChatHash.insert(id, c);
-	}
-	return c;
+    }
+    return c;
 }
 
 VGroupChat *VRoster::groupChat(int id) const
@@ -141,18 +144,18 @@ ContactsFactory *VRoster::contactsFactory() const
 VContact *VRoster::createContact(vk::Buddy *buddy)
 {
     VContact *contact  = new VContact(buddy, p->account);
-	connect(contact, SIGNAL(destroyed(QObject*)), SLOT(onContactDestroyed(QObject*)));
+    connect(contact, SIGNAL(destroyed(QObject*)), SLOT(onContactDestroyed(QObject*)));
     p->contactHash.insert(buddy->id(), contact);
     emit p->account->contactCreated(contact);
     if (!p->addContactGuard)
         p->storage.data()->addContact(contact);
-	return contact;
+    return contact;
 }
 
 void VRoster::onAddBuddy(vk::Buddy *buddy)
 {
     if (!p->contactHash.value(buddy->id())) {
-		createContact(buddy);
+        createContact(buddy);
         if (!buddy->isFriend())
             buddy->update(QStringList() << VK_COMMON_FIELDS);
     }
@@ -172,27 +175,29 @@ void VRoster::onBuddyRemoved(int id)
 
 void VRoster::onOnlineChanged(bool isOnline)
 {
-	if (isOnline) {
+    if (isOnline) {
         vk::Reply *reply = p->account->client()->roster()->getMessages(0, 50, vk::Message::FilterUnread);
-		connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessagesRecieved(QVariant)));
-	}
+        connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessagesRecieved(QVariant)));
+        p->rosterUpdater.start();
+    } else
+        p->rosterUpdater.stop();
 }
 
 void VRoster::onMessageAdded(const vk::Message &msg)
 {
-	if (false) {
-		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
-		VGroupChat *c = groupChat(id);
-		if (c)
-			c->handleMessage(msg);
-	} else {
-		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
-		VContact *c = contact(id);
-		if (c)
-			c->handleMessage(msg);
-		else
-			warning() << "Unable to find reciever with id in roster" << id;
-	}
+    if (false) {
+        int id = msg.isIncoming() ? msg.fromId() : msg.toId();
+        VGroupChat *c = groupChat(id);
+        if (c)
+            c->handleMessage(msg);
+    } else {
+        int id = msg.isIncoming() ? msg.fromId() : msg.toId();
+        VContact *c = contact(id);
+        if (c)
+            c->handleMessage(msg);
+        else
+            warning() << "Unable to find reciever with id in roster" << id;
+    }
 }
 
 void VRoster::onContactDestroyed(QObject *obj)
@@ -207,24 +212,24 @@ void VRoster::onGroupChatDestroyed(QObject *obj)
 
 void VRoster::onContactTyping(int userId, int chatId)
 {
-	if (!chatId) {
-		VContact *c = contact(userId);
-		c->setTyping(true);
-	} else {
-		VGroupChat *c = groupChat(chatId);
-		//TODO
-		//c->setChatState(ChatStateComposing);
-	}
+    if (!chatId) {
+        VContact *c = contact(userId);
+        c->setTyping(true);
+    } else {
+        VGroupChat *c = groupChat(chatId);
+        //TODO
+        //c->setChatState(ChatStateComposing);
+    }
 }
 
 void VRoster::onMessagesRecieved(const QVariant &response)
 {
-	QVariantList list = response.toList();
-	list.removeFirst();
+    QVariantList list = response.toList();
+    list.removeFirst();
     vk::MessageList msgList = vk::Message::fromVariantList(list, p->account->client());
-	foreach (vk::Message msg, msgList)
-		if (msg.isUnread() && msg.isIncoming())
-			onMessageAdded(msg);
+    foreach (vk::Message msg, msgList)
+        if (msg.isUnread() && msg.isIncoming())
+            onMessageAdded(msg);
 }
 
 
