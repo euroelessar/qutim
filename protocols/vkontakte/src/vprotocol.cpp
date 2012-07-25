@@ -39,88 +39,88 @@ using namespace qutim_sdk_0_3;
 static VProtocol *self = 0;
 
 VProtocol::VProtocol() :
-    qutim_sdk_0_3::Protocol()
+	qutim_sdk_0_3::Protocol()
 {
-    Q_ASSERT(!self);
-    self = this;
+	Q_ASSERT(!self);
+	self = this;
 }
 
 VProtocol::~VProtocol()
 {
-    Settings::removeItem(m_mainSettings.data());
+	Settings::removeItem(m_mainSettings.data());
 	foreach (VAccount *account, m_accounts)
-        account->saveSettings();
+		account->saveSettings();
 }
 
 qutim_sdk_0_3::Account *VProtocol::account(const QString &email) const
 {
-    return m_accounts.value(email);
+	return m_accounts.value(email);
 }
 
 void VProtocol::loadAccounts()
 {
-    QList<Status> statuses;
-    statuses << Status(Status::Online)
-             << Status(Status::Offline)
-             << Status(Status::Invisible);
-    foreach (Status status, statuses) {
-        status.initIcon("vkontakte");
-        Status::remember(status, "vkontakte");
+	QList<Status> statuses;
+	statuses << Status(Status::Online)
+			 << Status(Status::Offline)
+			 << Status(Status::Invisible);
+	foreach (Status status, statuses) {
+		status.initIcon("vkontakte");
+		Status::remember(status, "vkontakte");
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
-    }
+	}
 
-    ActionGenerator *gen = new ActionGenerator(Icon("applications-internet"),
-                               QT_TRANSLATE_NOOP("Vkontakte", "Open homepage"),
-                               this,
-                               SLOT(onWebPageTriggered(QObject*)));
-    gen->setType(ActionTypeContactList);
-    MenuController::addAction<VContact>(gen);
+	ActionGenerator *gen = new ActionGenerator(Icon("applications-internet"),
+											   QT_TRANSLATE_NOOP("Vkontakte", "Open homepage"),
+											   this,
+											   SLOT(onWebPageTriggered(QObject*)));
+	gen->setType(ActionTypeContactList);
+	MenuController::addAction<VContact>(gen);
 
-    QStringList accounts = config("general").value("accounts", QStringList());
-    foreach (const QString &email, accounts) {
+	QStringList accounts = config("general").value("accounts", QStringList());
+	foreach (const QString &email, accounts) {
 		VAccount *account = new VAccount(email, this);
-        addAccount(account);
-    }
+		addAccount(account);
+	}
 
-    m_mainSettings.reset(new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,
-                                                                   Icon("im-vkontakte"),
-                                                                   QT_TRANSLATE_NOOP("Vkontakte", "Account settings")));
+	m_mainSettings.reset(new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,
+																   Icon("im-vkontakte"),
+																   QT_TRANSLATE_NOOP("Vkontakte", "Account settings")));
 	Settings::registerItem<VAccount>(m_mainSettings.data());
 }
 
 QList<qutim_sdk_0_3::Account *> VProtocol::accounts() const
 {
-    AccountList list;
+	AccountList list;
 	foreach (VAccount *account, m_accounts)
-        list.append(account);
-    return list;
+		list.append(account);
+	return list;
 }
 
 QVariant VProtocol::data(qutim_sdk_0_3::Protocol::DataType type)
 {
-    switch (type) {
-        case ProtocolIdName:
-            return tr("id");
-        case ProtocolContainsContacts:
-            return true;
-        default:
-            return QVariant();
+	switch (type) {
+	case ProtocolIdName:
+		return tr("id");
+	case ProtocolContainsContacts:
+		return true;
+	default:
+		return QVariant();
 	}
 }
 
 VProtocol *VProtocol::instance()
 {
-    if (!self)
-        self = new VProtocol();
-    return self;
+	if (!self)
+		self = new VProtocol();
+	return self;
 }
 
 void VProtocol::addAccount(VAccount *account)
 {
-    m_accounts.insert(account->email(), account);
-    account->loadSettings();
-    connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
-    emit accountCreated(account);
+	m_accounts.insert(account->email(), account);
+	account->loadSettings();
+	connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
+	emit accountCreated(account);
 }
 
 Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &parameters)
@@ -128,7 +128,7 @@ Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &par
 	const QString password = parameters.value("password").toString();
 	const bool savePassword = parameters.value("savePassword", false).toBool();
 
-    VAccount *account = new VAccount(email, this);
+	VAccount *account = new VAccount(email, this);
 	if (savePassword) {
 		Config cfg = account->config();
 		cfg.beginGroup("general");
@@ -140,7 +140,7 @@ Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &par
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	addAccount(account);
-    return account;
+	return account;
 }
 
 void VProtocol::virtual_hook(int id, void *data)
@@ -163,14 +163,14 @@ void VProtocol::virtual_hook(int id, void *data)
 
 void VProtocol::onWebPageTriggered(QObject *obj)
 {
-    VContact *contact = qobject_cast<VContact*>(obj);
-    Q_ASSERT(obj);
-    QUrl url ("http://vkontakte.ru/id" + contact->id());
-    QDesktopServices::openUrl(url);
+	VContact *contact = qobject_cast<VContact*>(obj);
+	Q_ASSERT(obj);
+	QUrl url ("http://vkontakte.ru/id" + contact->id());
+	QDesktopServices::openUrl(url);
 }
 
 void VProtocol::onAccountDestroyed(QObject *obj)
 {
 	VAccount *account = static_cast<VAccount*>(obj);
-    m_accounts.remove(m_accounts.key(account));
+	m_accounts.remove(m_accounts.key(account));
 }

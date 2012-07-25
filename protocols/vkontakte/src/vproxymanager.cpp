@@ -40,7 +40,7 @@ QList<NetworkProxyInfo*> VProxyManager::proxies()
 	static QList<NetworkProxyInfo*> list;
 	if (list.isEmpty()) {
 		list << Socks5ProxyInfo::instance()
-			<< HttpProxyInfo::instance();
+			 << HttpProxyInfo::instance();
 	}
 	return list;
 }

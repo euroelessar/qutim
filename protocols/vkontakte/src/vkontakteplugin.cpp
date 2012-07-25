@@ -60,11 +60,11 @@ void VkontaktePlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for Vkontakte"),
 				 new GeneralGenerator<VProxyManager, NetworkProxyManager>(),
 				 vicon);
-    //addExtension(QT_TRANSLATE_NOOP("Plugin", "Photo album"),
-    //             QT_TRANSLATE_NOOP("Plugin", "Photo album viewer for vk.com users"),
-    //             new GeneralGenerator<VPhotoViewer>(),
-    //             vicon);
-    new VPhotoViewer(this);
+	//addExtension(QT_TRANSLATE_NOOP("Plugin", "Photo album"),
+	//             QT_TRANSLATE_NOOP("Plugin", "Photo album viewer for vk.com users"),
+	//             new GeneralGenerator<VPhotoViewer>(),
+	//             vicon);
+	new VPhotoViewer(this);
 }
 bool VkontaktePlugin::load()
 {
