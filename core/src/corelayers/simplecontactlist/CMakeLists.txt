@@ -7,7 +7,6 @@ qutim_add_plugin(simplecontactlist
 	SOURCE_DIR contactlist
 	DISPLAY_NAME "Simple contact list"
 	DESCRIPTION "Default qutIM contact list implementation. Just simple"
-	COMPILE_FLAGS "-DSIMPLECONTACTLIST_LIBRARY"
 	LINK_LIBRARIES qutim-simplecontactlist
 )
 
