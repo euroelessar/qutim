@@ -28,10 +28,10 @@
 
 class VClient : public vk::Client
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit VClient(const QString &login, QObject *parent = 0);
-    Q_INVOKABLE QObject *request(const QString &method, const QVariantMap &args = QVariantMap());
+	explicit VClient(const QString &login, QObject *parent = 0);
+	Q_INVOKABLE QObject *request(const QString &method, const QVariantMap &args = QVariantMap());
 };
 
 #endif // VCLIENT_H

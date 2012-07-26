@@ -54,26 +54,26 @@ class VRoster : public QObject
 	Q_OBJECT
 public:
 	VRoster(VAccount *account);
-    virtual ~VRoster();
+	virtual ~VRoster();
 	VContact *contact(int id, bool create = true);
 	VContact *contact(int id) const;
 	VGroupChat *groupChat(int id, bool create = true);
 	VGroupChat *groupChat(int id) const;
-    qutim_sdk_0_3::ContactsFactory *contactsFactory() const;
+	qutim_sdk_0_3::ContactsFactory *contactsFactory() const;
 protected slots:
 	VContact *createContact(vk::Buddy *buddy);
 private slots:
 	void onContactDestroyed(QObject *obj);
 	void onGroupChatDestroyed(QObject *obj);
-    void onAddBuddy(vk::Buddy *buddy);
-    void onBuddyUpdated(vk::Buddy *buddy);
-    void onBuddyRemoved(int id);
+	void onAddBuddy(vk::Buddy *buddy);
+	void onBuddyUpdated(vk::Buddy *buddy);
+	void onBuddyRemoved(int id);
 	void onOnlineChanged(bool isOnline);
 	void onMessagesRecieved(const QVariant &response);
 	void onMessageAdded(const vk::Message &msg);
 	void onContactTyping(int userId, int chatId);
 private:
-    QScopedPointer<VRosterFactory> p;
+	QScopedPointer<VRosterFactory> p;
 };
 
 

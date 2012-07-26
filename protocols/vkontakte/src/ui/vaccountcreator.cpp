@@ -65,8 +65,7 @@ bool VAccountWizardPage::validatePage()
 
 
 VAccountCreator::VAccountCreator() : AccountCreationWizard(VProtocol::instance()),
-	m_page(0),
-	m_protocol(VProtocol::instance())
+	m_page(0)
 {
 	ExtensionInfo info(QT_TRANSLATE_NOOP("Protocol", "vk.com"),
 					   QT_TRANSLATE_NOOP("Protocol", "Add vk.com account"));
@@ -89,18 +88,19 @@ QList< QWizardPage* > VAccountCreator::createPages(QWidget* parent)
 
 void VAccountCreator::finished()
 {
-	VAccount *account = new VAccount(m_page->email(), m_protocol);
+	VProtocol *protocol = VProtocol::instance();
+	VAccount *account = new VAccount(m_page->email(), protocol);
 	if (m_page->isSavePassword()) {
 		ConfigGroup cfg = account->config().group("general");
 		cfg.setValue("passwd", m_page->password(), Config::Crypted);
 		cfg.sync();
 	}
-	ConfigGroup cfg = m_protocol->config().group("general");
+	ConfigGroup cfg = protocol->config().group("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	m_protocol->addAccount(account);
+	protocol->addAccount(account);
 	m_page->deleteLater();
 }
 
