@@ -60,7 +60,6 @@ public slots:
 protected:
 	VRoster *roster() const;
 	VRoster *roster();
-	QString requestPassword();
 private slots:
 	void onClientStateChanged(vk::Client::State);
 	void onMeChanged(vk::Buddy *me);

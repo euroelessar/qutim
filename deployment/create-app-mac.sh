@@ -20,6 +20,6 @@ FLAGS="-DCMAKE_BUILD_TYPE=Release \
 
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
-echo "Build qutIM release in ${BUILD_DIR}"
+echo "Build qutIM release"
 cmake ${SOURCE_DIR} ${FLAGS}
 make install

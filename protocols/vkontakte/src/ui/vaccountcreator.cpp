@@ -36,8 +36,6 @@ public:
 	VAccountWizardPage(VAccountCreator *account_wizard);
 	bool validatePage();
 	QString email() { return ui.emailEdit->text(); }
-	QString password() { return ui.passwdEdit->text(); }
-	bool isSavePassword() { return ui.savePasswdCheck->isChecked(); }
 private:
 	VAccountCreator *m_account_wizard;
 	Ui::VAccountWizardPage ui;
@@ -56,7 +54,7 @@ VAccountWizardPage::VAccountWizardPage(VAccountCreator* account_wizard) : m_acco
 }
 bool VAccountWizardPage::validatePage()
 {
-	if (email().isEmpty() || (isSavePassword() && password().isEmpty()))
+    if (email().isEmpty())
 		return false;
 	m_account_wizard->finished();
 	return true;
@@ -90,11 +88,6 @@ void VAccountCreator::finished()
 {
 	VProtocol *protocol = VProtocol::instance();
 	VAccount *account = new VAccount(m_page->email(), protocol);
-	if (m_page->isSavePassword()) {
-		ConfigGroup cfg = account->config().group("general");
-		cfg.setValue("passwd", m_page->password(), Config::Crypted);
-		cfg.sync();
-	}
 	ConfigGroup cfg = protocol->config().group("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
 	accounts << account->id();

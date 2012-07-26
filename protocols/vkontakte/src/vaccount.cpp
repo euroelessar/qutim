@@ -76,13 +76,10 @@ void VAccount::setStatus(Status status)
 		case Status::Offline:
 			m_client->disconnectFromHost();
 			saveSettings();
-			if (status.changeReason() == Status::ByAuthorizationFailed)
-				config("general").setValue("passwd", "");
 			break;
 		case Status::Connecting:
 			break;
 		default:
-			m_client->setPassword(requestPassword());
 			m_client->connectToHost();
 			m_client->setInvisible(status == Status::Invisible);
 		};
@@ -183,22 +180,6 @@ void VAccount::onError(vk::Client::Error error)
 {
 	if (error == vk::Client::ErrorAuthorizationFailed)
 		config("general").setValue("passwd", "");
-}
-
-QString VAccount::requestPassword()
-{
-	Config cfg = config("general");
-	QString password = cfg.value("passwd", QString(), Config::Crypted);
-	if (password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(this);
-		if (dialog->exec() == PasswordDialog::Accepted) {
-			password = dialog->password();
-			if (dialog->remember())
-				cfg.setValue("passwd", password, Config::Crypted);
-		}
-		dialog->deleteLater();
-	}
-	return password;
 }
 
 void VAccount::onClientStateChanged(vk::Client::State state)
