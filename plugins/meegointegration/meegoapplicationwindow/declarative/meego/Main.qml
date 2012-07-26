@@ -281,6 +281,14 @@ PageStackWindow {
                 text: qsTr("Dont's ask me later")
                 checked: false
             }
+	    Text {
+		    id:privacy
+		    anchors.horizontalCenter: parent.horizontalCenter
+		    text: "<a href=\"%1\">Privacy Policy</a>".arg(CONST.PRIVACY_POLICY_LINK);
+		    onLinkActivated: {
+			    Qt.openUrlExternally(link);
+		    }
+	    }
             Label {
                 width: parent.width
                 text: qsTr("Information to be transferred to the qutIM's authors:")
