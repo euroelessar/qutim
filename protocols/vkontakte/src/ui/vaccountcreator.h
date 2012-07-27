@@ -40,7 +40,6 @@ public:
 	void finished();
 private:
 	VAccountWizardPage *m_page;
-	VProtocol *m_protocol;
 };
 
 #endif // VACCOUNTCREATOR_H

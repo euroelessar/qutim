@@ -146,6 +146,7 @@ void PlainModel::addContact(Contact *contact)
 			SLOT(contactTagsChanged(QStringList)));
 	connect(contact, SIGNAL(inListChanged(bool)),
 			SLOT(onContactInListChanged(bool)));
+    contactComparator.data()->startListen(contact);
 
 	QStringList tags = contact->tags();
 	if(tags.isEmpty())
@@ -236,7 +237,8 @@ void PlainModel::removeContact(Contact *contact)
 		}
 	}
 	contact->disconnect(this);
-	removeFromContactList(contact,false);
+    removeFromContactList(contact, false);
+    contactComparator.data()->stopListen(contact);
 }
 
 void PlainModel::contactTagsChanged(const QStringList &tags)

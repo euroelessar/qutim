@@ -40,14 +40,14 @@ class VRoster;
 class VAccount : public qutim_sdk_0_3::Account
 {
 	Q_OBJECT
-    Q_PROPERTY(vk::Client* client READ client CONSTANT)
+	Q_PROPERTY(vk::Client* client READ client CONSTANT)
 public:
 	VAccount(const QString &email, VProtocol *protocol);
 	VContact *getContact(int uid, bool create = false);
 
 	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
-    virtual void setStatus(qutim_sdk_0_3::Status status);
+	virtual void setStatus(qutim_sdk_0_3::Status status);
 
 	int uid() const;
 	QString email() const;
@@ -60,7 +60,6 @@ public slots:
 protected:
 	VRoster *roster() const;
 	VRoster *roster();
-	QString requestPassword();
 private slots:
 	void onClientStateChanged(vk::Client::State);
 	void onMeChanged(vk::Buddy *me);

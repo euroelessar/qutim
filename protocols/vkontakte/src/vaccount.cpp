@@ -76,17 +76,14 @@ void VAccount::setStatus(Status status)
 		case Status::Offline:
 			m_client->disconnectFromHost();
 			saveSettings();
-			if (status.changeReason() == Status::ByAuthorizationFailed)
-				config("general").setValue("passwd", "");
 			break;
 		case Status::Connecting:
 			break;
 		default:
-			m_client->setPassword(requestPassword());
 			m_client->connectToHost();
 			m_client->setInvisible(status == Status::Invisible);
 		};
-    }
+	}
 }
 
 int VAccount::uid() const
@@ -136,7 +133,7 @@ void VAccount::loadSettings()
 void VAccount::saveSettings()
 {
 	config().setValue("access/uid", uid());
-    if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
+	if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
 		setAccessToken(c->accessToken(), c->expiresIn());
 }
 
@@ -147,11 +144,12 @@ VRoster *VAccount::roster() const
 
 void VAccount::onMeChanged(vk::Buddy *me)
 {
-	if (m_me)
-		m_me->deleteLater();
-    //m_me = new VContact(me, this);
-    m_me = m_roster->contact(me->id());
-	connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+	if (!m_me || m_me->buddy() != me) {
+		if (m_me)
+			m_me->deleteLater();
+		m_me = m_roster->contact(me->id());
+		connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+	}
 }
 
 void VAccount::onInvisibleChanged(bool set)
@@ -182,22 +180,6 @@ void VAccount::onError(vk::Client::Error error)
 {
 	if (error == vk::Client::ErrorAuthorizationFailed)
 		config("general").setValue("passwd", "");
-}
-
-QString VAccount::requestPassword()
-{
-	Config cfg = config("general");
-	QString password = cfg.value("passwd", QString(), Config::Crypted);
-	if (password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(this);
-		if (dialog->exec() == PasswordDialog::Accepted) {
-			password = dialog->password();
-			if (dialog->remember())
-				cfg.setValue("passwd", password, Config::Crypted);
-		}
-		dialog->deleteLater();
-	}
-	return password;
 }
 
 void VAccount::onClientStateChanged(vk::Client::State state)
