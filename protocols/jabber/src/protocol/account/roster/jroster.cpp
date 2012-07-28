@@ -43,6 +43,7 @@
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
 #include <QApplication>
+#include <jreen/pgpencrypted.h>
 //Jreen
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
@@ -414,6 +415,8 @@ void JRoster::onMessageDecrypted(ChatUnit *chatUnit, ChatUnit *unitForSession, c
 	coreMessage.setProperty("subject",message.subject());
 	coreMessage.setChatUnit(chatUnit);
 	coreMessage.setIncoming(true);
+	if (message.payload<Jreen::PGPEncrypted>())
+		coreMessage.setProperty("pgpEncrypted", true);
 	ChatLayer::get(unitForSession, true)->appendMessage(coreMessage);
 }
 

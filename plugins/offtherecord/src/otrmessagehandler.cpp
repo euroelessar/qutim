@@ -52,13 +52,13 @@ void OtrMessagePreHandler::encrypt(Message &message)
     QString encrypted = closure->getMessaging()->encryptMessage(
             unit->account()->id(),
             unit->id(),
-            message.text(),
+            message.html(),
             item);
 	if (encrypted != message.text()) {
 		message.setProperty("__otr__text", message.text());
 		message.setProperty("__otr__html", message.html());
-		message.setText(encrypted);
-		message.setHtml(QString());
+		message.setText(unescape(encrypted));
+		message.setHtml(encrypted);
 	}
 }
 
@@ -76,8 +76,9 @@ void OtrMessagePreHandler::decrypt(Message &message)
 		                        message.text(),
 		                        item);
 		if (message.text() != decrypted) {
-			message.setText(decrypted);
-			message.setHtml(QString());
+			message.setText(unescape(decrypted));
+			message.setHtml(decrypted);
+			message.setProperty("otrEncrypted", true);
 		}
     }
 }
@@ -100,6 +101,7 @@ MessageHandler::Result OtrMessagePostHandler::doHandle(Message &message, QString
 		if (!text.isEmpty()) {
 			message.setText(text);
 			message.setHtml(html);
+			message.setProperty("otrEncrypted", true);
 			message.setProperty("__otr__text", QVariant());
 			message.setProperty("__otr__html", QVariant());
 		}

@@ -203,7 +203,8 @@ QString OtrInternal::decryptMessage(const QString& from, const QString& to,
 
     tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
     if( tlv ){
-            sendCustomNessage(item,tr("%1 has ended the OTR session. You should do the same.").arg(item.m_item_name));
+            sendCustomNessage(item,tr("%1 has ended the OTR session. You should do the same.")
+			                  .arg(Qt::escape(item.m_item_name)));
             gone_insecure(context);
     }
 
@@ -838,7 +839,10 @@ void OtrInternal::new_fingerprint(OtrlUserState us, const char *accountname,
     item.m_protocol_name = QString(protocol);
     item.m_item_name = QString(username);
     item.m_item_type = 0;
-    sendCustomNessage(item,tr("Account %1 has received new fingerprint from %2 :\n %3").arg(QString(accountname)).arg(QString(username)).arg(QString(fpHuman)));
+    sendCustomNessage(item,tr("Account %1 has received new fingerprint from %2 :\n %3")
+	                  .arg(Qt::escape(accountname))
+	                  .arg(Qt::escape(username))
+	                  .arg(Qt::escape(fpHuman)));
 //    QMessageBox mb(QMessageBox::Information, tr("qutim-otr"),
 //                   tr("Account ") + QString(accountname) + tr(" has received new fingerprint from ")
 //                   + QString(username) + ":\n" + QString(fpHuman),
@@ -875,7 +879,8 @@ void OtrInternal::sendCustomNessage(TreeModelItem &item, QString msg)
 	message.setProperty("service", true);
 	message.setProperty("store", false);
 	message.setIncoming(true);
-	message.setText(msg);
+	message.setText(unescape(msg));
+	message.setHtml(msg);
 	ChatLayer::get(message.chatUnit(), true)->append(message);
 	
 //    msg.replace("<b>"," ");
