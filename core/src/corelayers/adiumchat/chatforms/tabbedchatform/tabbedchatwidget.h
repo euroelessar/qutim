@@ -45,14 +45,15 @@ using namespace qutim_sdk_0_3;
 
 enum ChatFlag
 {
-	AdiumToolbar			=       0x01,
-	IconsOnTabs				=       0x02,
-	SendTypingNotification	=       0x04,
-	SwitchDesktopOnActivate	=       0x08,
-	DeleteSessionOnClose	=		0x10,
-	TabsOnBottom			=		0x20,
-	MenuBar					=		0x40,
-	UseQutimIcon            =       0x80
+	AdiumToolbar			=       0x001,
+	IconsOnTabs				=       0x002,
+	SendTypingNotification	=       0x004,
+	SwitchDesktopOnActivate	=       0x008,
+	DeleteSessionOnClose	=		0x010,
+	TabsOnBottom			=		0x020,
+	MenuBar					=		0x040,
+	UseQutimIcon            =       0x080,
+	ShowRoster				=		0x100
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag)
@@ -112,6 +113,9 @@ private:
 	QAction *m_unitAction;
 	QSplitter *m_vSplitter;
 	QWidget *m_view;
+	QWidget *m_centralWidget;
+	QPointer<QWidget> m_roster;
+	QSplitter *m_hSplitter;
 };
 
 }

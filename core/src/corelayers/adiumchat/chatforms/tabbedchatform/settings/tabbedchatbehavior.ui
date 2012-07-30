@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>298</height>
+    <width>481</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,7 +117,7 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="12" column="0">
     <widget class="QCheckBox" name="autoresizeBox">
      <property name="text">
       <string>Autoresize the input field</string>
@@ -128,6 +128,13 @@
     <widget class="QCheckBox" name="customIconBox">
      <property name="text">
       <string>Show context-related window icon</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QCheckBox" name="rosterBox">
+     <property name="text">
+      <string>Show roster in chatWindow</string>
      </property>
     </widget>
    </item>

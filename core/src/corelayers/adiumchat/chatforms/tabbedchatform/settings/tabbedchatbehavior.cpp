@@ -71,6 +71,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->menuBox);
 	lookForWidgetState(ui->customIconBox);
 	lookForWidgetState(ui->autoresizeBox);
+	lookForWidgetState(ui->rosterBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -99,9 +100,6 @@ void TabbedChatBehavior::loadImpl()
 						   | SwitchDesktopOnActivate
 						   | AdiumToolbar
 						   | TabsOnBottom
-#ifdef Q_WS_MAC
-						   | MenuBar
-#endif
 						   );
 
 	ui->tabPositionBox->setCurrentIndex(m_flags & TabsOnBottom ? 1 : 0);
@@ -114,8 +112,9 @@ void TabbedChatBehavior::loadImpl()
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
 	ui->stateBox->setChecked(m_flags & IconsOnTabs);
-	ui->customIconBox->setChecked(!(m_flags & UseQutimIcon));
 	ui->menuBox->setChecked(m_flags & MenuBar);
+	ui->rosterBox->setChecked(m_flags & ShowRoster);
+	ui->customIconBox->setChecked(!(m_flags & UseQutimIcon));
 	ui->autoresizeBox->setChecked(m_autoresize);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
@@ -133,6 +132,7 @@ void TabbedChatBehavior::saveImpl()
 	setFlags(IconsOnTabs, ui->stateBox->isChecked());
 	setFlags(UseQutimIcon, !ui->customIconBox->isChecked());
 	setFlags(MenuBar, ui->menuBox->isChecked());
+	setFlags(ShowRoster, ui->rosterBox->isChecked());
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);
