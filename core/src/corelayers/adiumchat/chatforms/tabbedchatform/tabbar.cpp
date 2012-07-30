@@ -68,10 +68,10 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	key = new Shortcut ("chatPrevious",this);
 	connect(key,SIGNAL(activated()),SLOT(showPreviousTab()));
 
-	connect(this,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
-	connect(this,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
-	connect(this,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
-	connect(this,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onContextMenu(QPoint)));
+	connect(this, SIGNAL(currentChanged(int)), SLOT(onCurrentChanged(int)));
+	connect(this, SIGNAL(tabCloseRequested(int)), SLOT(onCloseRequested(int)));
+	connect(this, SIGNAL(tabMoved(int,int)), SLOT(onTabMoved(int,int)));
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onContextMenu(QPoint)));
 	connect(p->sessionList,SIGNAL(triggered(QAction*)),SLOT(onSessionListActionTriggered(QAction*)));
 }
 
