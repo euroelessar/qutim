@@ -145,6 +145,7 @@ void TabbedChatWidget::loadSettings()
 							 | SwitchDesktopOnActivate
 							 | AdiumToolbar
 							 | TabsOnBottom
+							 | ShowRoster
 							 );
 
 		QWidget *tabBar = m_tabBar;
