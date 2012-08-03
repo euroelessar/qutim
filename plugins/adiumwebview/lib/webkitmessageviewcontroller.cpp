@@ -296,7 +296,7 @@ void WebKitMessageViewController::loadHistory()
 		mess.setProperty("history", true);
 		if (!mess.chatUnit()) //TODO FIXME
 			mess.setChatUnit(m_session.data()->unit());
-		appendMessage(mess);
+		m_session.data()->append(mess);
 	}
 }
 

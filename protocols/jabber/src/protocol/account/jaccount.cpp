@@ -227,6 +227,7 @@ JAccount::JAccount(const QString &id) :
 	caps->setNode(QLatin1String("http://qutim.org/"));
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
+	connect(d->messageSessionManager, SIGNAL(messageEcnrypted(quint64)), SIGNAL(messageEcnrypted(quint64)));
 	d->softwareDetection = new JSoftwareDetection(this);
 	d->client->presence().addExtension(new VCardUpdate());
 

@@ -29,6 +29,8 @@
 #include <qutim/rosterstorage.h>
 #include <qutim/messagehandler.h>
 #include "networkmanager.h"
+#include "settingswidget.h"
+#include <qutim/settingslayer.h>
 
 namespace Control {
 
@@ -45,14 +47,18 @@ public:
 	
 	int accountId(const QString &protocol, const QString &id) const;
 	void setAccountId(const QString &protocol, const QString &id, int pid);
+	qutim_sdk_0_3::MessageList messages(qutim_sdk_0_3::ChatUnit *unit);
+	NetworkManager *networkManager();
 	
 protected slots:
+	void loadSettings(bool init = false);
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountRemoved(qutim_sdk_0_3::Account *account);
 	void onContactCreated(qutim_sdk_0_3::Contact *contact);
 	void onContactUpdated();
 	void onContactRemoved(qutim_sdk_0_3::Contact *contact);
 	void onContactInListChanged(bool inList);
+	void onQuickAnswerClicked(QObject *object);
 	
 protected:
 	void connectAccount(qutim_sdk_0_3::Account *account);
@@ -63,12 +69,16 @@ protected:
 private:
 	struct AccountContext
 	{
-		AccountContext() : id(-1) {}
+		AccountContext() : id(-1), created(false) {}
 		int id;
+		bool created;
 		QMap<qutim_sdk_0_3::Contact*, int> indexes;
 		QList<int> freeIndexes;
 	};
 	static RosterManager *self;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_autoReplyGenerator;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_quickAnswerGenerator;
+	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 	NetworkManager *m_manager;
 	QVariantList m_actions;
 	QMap<qutim_sdk_0_3::Account*, AccountContext> m_contexts;

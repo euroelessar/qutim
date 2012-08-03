@@ -391,8 +391,8 @@ void JRoster::onNewMessage(Jreen::Message message)
 	}
 	
 	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
-		connect(reply, SIGNAL(finished(ChatUnit*,ChatUnit*,Jreen::Message)),
-		        SLOT(onMessageDecrypted(ChatUnit*,ChatUnit*,Jreen::Message)));
+		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
+		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
 	} else {
 		onMessageDecrypted(unitForSession, chatUnit, message);
 	}

@@ -158,7 +158,9 @@ void JMessageSessionManager::sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qu
 					   message.text(),
 					   message.property("subject").toString());
 	msg.setID(QString::number(message.id()));
-	if (!JPGPSupport::instance()->send(s, unit, msg))
+	if (JPGPSupport::instance()->send(s, unit, msg))
+		emit messageEcnrypted(message.id());
+	else
 		s->sendMessage(msg);
 	//We will close the session at Jreen together with a session in qutim
 	s->setParent(ChatLayer::get(const_cast<ChatUnit*>(message.chatUnit()),true));

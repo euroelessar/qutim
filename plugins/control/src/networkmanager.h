@@ -54,13 +54,13 @@ class Action
 {
 public:
 	enum Type {
-		GetAccounts,
 		AddAccount,
 		RemoveAccount,
 		AddContact,
 		UpdateContact,
 		RemoveContact,
-		Message
+		Message,
+		TypesCount
 	} type;
 	AccountId account;
 	Action *prev;
@@ -79,6 +79,7 @@ public:
 class ContactAction : public Action
 {
 public:
+	ContactAction(Type type) : Action(type) {}
 	ContactAction(Type type, qutim_sdk_0_3::Contact *contact)
 	    : Action(type), id(contact->id()), name(contact->name()),
 	      groups(contact->tags())
@@ -98,6 +99,7 @@ public:
 	QDateTime time;
 	QString text;
 	bool incoming;
+	QStringList encryption;
 };
 
 class ActionList
@@ -106,6 +108,7 @@ public:
 	ActionList();
 	~ActionList();
 	
+	void clear();
 	Action *first();
 	Action *last();
 	bool isEmpty() const;
@@ -127,17 +130,25 @@ private:
 class NetworkManager : public QNetworkAccessManager
 {
 	Q_OBJECT
+	Q_PROPERTY(QStringList answers READ answers NOTIFY answersChanged)
 public:
 	explicit NetworkManager(QObject *parent = 0);
 	
 	void timerEvent(QTimerEvent *ev);
+	void loadSettings(bool init, bool *changed);
+	void clearQueue();
 	
+	QStringList answers() const;
+	
+	void addAccount(qutim_sdk_0_3::Account *account);
 	void addAccount(const QString &protocol, const QString &id);
+	void removeAccount(qutim_sdk_0_3::Account *account);
 	void removeAccount(const QString &protocol, const QString &id);
 	void addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
 	void updateContact(qutim_sdk_0_3::Contact *contact);
 	void sendMessage(const qutim_sdk_0_3::Message &message);
+	void sendRequest(qutim_sdk_0_3::Contact *contact, const QString &text);
 	
 	QNetworkReply *post(const QUrl &url, const QByteArray &body);
 	QNetworkReply *get(const QUrl &url);
@@ -145,18 +156,28 @@ public:
 protected slots:
 	void onReplyFinished(QNetworkReply *reply);
 	void trySend();
+	void onMessageEncrypted(quint64 id);
 	
 protected:
+	void rebuildAnswers();
+	void loadActions();
+	void storeActions();
 	void onTimer();
 	
 signals:
+	void answersChanged(const QStringList &answers);
 	
 public slots:
 	
 private:
 	QBasicTimer m_timer;
+	QString m_username;
 	QUrl m_base;
-	QNetworkReply *m_current;
+	QStringList m_answers;
+	QStringList m_networkAnswers;
+	QStringList m_localAnswers;
+	QNetworkReply *m_answersReply;
+	QNetworkReply *m_currentReply;
 	ActionList m_actions;
 };
 

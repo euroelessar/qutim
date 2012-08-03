@@ -28,9 +28,12 @@
 #include <qutim/message.h>
 #include <qutim/json.h>
 #include <qutim/servicemanager.h>
+#include <qutim/notification.h>
+#include <qutim/chatsession.h>
 #include <QDebug>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QTextDocument>
 #include "rostermanager.h"
 
 #define LOGIN_URL (QLatin1String("api/login"))
@@ -39,8 +42,6 @@
 #define GET_ACCOUNTS_URL (QLatin1String("api/getAccounts"))
 #define MODIFY_ROSTER_URL (QLatin1String("api/modifyRoster"))
 #define APPEND_MESSAGE_URL (QLatin1String("api/appendMessages"))
-
-Q_GLOBAL_STATIC(qutim_sdk_0_3::ServicePointer<Control::RosterManager>, rosterManager)
 
 namespace Control {
 
@@ -59,6 +60,9 @@ namespace Control {
 
 using namespace qutim_sdk_0_3;
 
+static quint64 encryptedMessageId;
+static bool encryptedMessageIdInited = false;
+
 AccountId::AccountId(qutim_sdk_0_3::Account *account)
     : id(account->id()), protocol(account->protocol()->id())
 {
@@ -76,12 +80,18 @@ ActionList::ActionList()
 
 ActionList::~ActionList()
 {
+	clear();
+}
+
+void ActionList::clear()
+{
 	Action *action = m_first;
 	while (action) {
 		Action *next = action->next;
 		delete action;
 		action = next;
 	}
+	m_first = m_last = 0;
 }
 
 Action *ActionList::first()
@@ -167,9 +177,8 @@ void ActionList::remove(Action *action)
 }
 
 NetworkManager::NetworkManager(QObject *parent) :
-    QNetworkAccessManager(parent), m_current(0)
+    QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
-	m_base = QUrl(QLatin1String("http://localhost/"));
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
 }
 
@@ -181,12 +190,52 @@ void NetworkManager::timerEvent(QTimerEvent *event)
 		QNetworkAccessManager::timerEvent(event);
 }
 
+void NetworkManager::loadSettings(bool init, bool *changed)
+{
+	Config config("control");
+	config.beginGroup("general");
+	QString username = config.value("username", QString());
+	QUrl base = QUrl::fromUserInput(config.value("url", QString()));
+	m_localAnswers = config.value("answers", QStringList());
+	rebuildAnswers();
+	if (username != m_username || base != m_base)
+		*changed = true;
+	else
+		*changed = false;
+	m_username = username;
+	m_base = base;
+	if (init)
+		loadActions();
+}
+
+void NetworkManager::clearQueue()
+{
+	m_actions.clear();
+	delete m_currentReply;
+	m_currentReply = 0;
+}
+
+QStringList NetworkManager::answers() const
+{
+	return m_answers;
+}
+
+void NetworkManager::addAccount(Account *account)
+{
+	addAccount(account->protocol()->id(), account->id());
+}
+
 void NetworkManager::addAccount(const QString &protocol, const QString &id)
 {
 	AccountAction *action = new AccountAction(Action::AddAccount);
 	action->account = AccountId(id, protocol);
 	m_actions << action;
 	trySend();
+}
+
+void NetworkManager::removeAccount(Account *account)
+{
+	removeAccount(account->protocol()->id(), account->id());
 }
 
 void NetworkManager::removeAccount(const QString &protocol, const QString &id)
@@ -218,14 +267,33 @@ void NetworkManager::updateContact(qutim_sdk_0_3::Contact *contact)
 void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	MessageAction *action = new MessageAction();
-	ChatUnit *contact = message.chatUnit();
+	ChatUnit *contact = const_cast<ChatUnit*>(message.chatUnit()->getHistoryUnit());
 	action->account = AccountId(contact->account());
 	action->contact = contact->id();
 	action->time = message.time();
 	action->text = message.text();
 	action->incoming = message.isIncoming();
+	if (message.property("otrEncrypted", false))
+		action->encryption << QLatin1String("otr");
+	if (message.property("pgpEncrypted", false)
+	        || (encryptedMessageIdInited
+	            && encryptedMessageId == message.id())) {
+		action->encryption << QLatin1String("pgp");
+	}
 	m_actions << action;
 	trySend();
+}
+
+void NetworkManager::sendRequest(Contact *contact, const QString &text)
+{
+	Config config("control");
+	config.beginGroup("general");
+	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "text/plain");
+	QNetworkReply *reply = QNetworkAccessManager::post(request, text.toUtf8());
+	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
+	reply->setProperty("__control_contact", qVariantFromValue(contact));
 }
 
 static QByteArray paranoicEscape(const QByteArray &raw)
@@ -259,15 +327,56 @@ QNetworkReply *NetworkManager::get(const QUrl &url)
 void NetworkManager::onReplyFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
-	Q_ASSERT(reply == m_current);
-	m_current = 0;
-	QByteArray readData = reply->readAll();
+	if (reply->error() != QNetworkReply::NoError
+	        && reply->error() != QNetworkReply::AuthenticationRequiredError) {
+		NotificationRequest request(Notification::System);
+		request.setTitle(tr("Control plugin"));
+		request.setText(tr("Error connecting to %1:\n%2")
+		                .arg(reply->request().url().toString())
+		                .arg(reply->errorString()));
+		request.send();
+	}
+	const QByteArray readData = reply->readAll();
+	if (reply == m_answersReply) {
+		m_answersReply = 0;
+		if (reply->error() == QNetworkReply::NoError) {
+			QVariantMap data = Json::parse(readData).toMap();
+			qDebug() << data << data.value("success");
+			if (data.value("success").toBool()) {
+				m_networkAnswers = data.value("body").toStringList();
+				rebuildAnswers();
+			}
+		} else {
+			if (!m_timer.isActive())
+				m_timer.start(60000, this);
+		}
+		return;
+	} else if (Contact *contact = reply->property("__control_contact").value<Contact*>()) {
+		if (reply->error() == QNetworkReply::NoError) {
+			ChatSession *session = ChatLayer::get(contact, true);
+			QString text = QString::fromUtf8(readData);
+			QMetaObject::invokeMethod(ChatLayer::instance(),
+			                          "insertText",
+			                          Q_ARG(qutim_sdk_0_3::ChatSession*, session),
+			                          Q_ARG(QString, text));
+			NotificationRequest request(Notification::System);
+			request.setTitle(tr("Control plugin"));
+			request.setText(tr("Received reply from server:\n%1").arg(text));
+			request.send();
+		}
+		return;
+	}
+	Q_ASSERT(reply == m_currentReply);
+	m_currentReply = 0;
 	qDebug() << reply->error() << reply->errorString() << readData;
 	if (reply->request().url().path().endsWith(LOGIN_URL)) {
 		if (reply->error() != QNetworkReply::NoError) {
-			qFatal("Invalid credentials");
+			NotificationRequest request(Notification::System);
+			request.setTitle(tr("Control plugin"));
+			request.setText(tr("Invalid login or/and password. Please set right one in settings"));
+			request.send();
 		} else {
-			m_timer.start(0, this);
+			trySend();
 		}
 	} else {
 		Scope::Ptr scope = reply->property("scope").value<Scope::Ptr>();
@@ -277,13 +386,13 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			QVariantMap data;
 			Config config("control");
 			config.beginGroup("general");
-			data.insert("username", config.value("usename", QString()));
+			data.insert("username", m_username);
 			data.insert("password", config.value("password", QString(), Config::Crypted));
 			data.insert("remember", true);
 			QUrl url = m_base.resolved(QUrl(LOGIN_URL));
 			QNetworkReply *reply = post(url, Json::generate(data));
-			m_current = reply;
-		} else {
+			m_currentReply = reply;
+		} else if (reply->error() == QNetworkReply::NoError) {
 			QVariantMap data = Json::parse(readData).toMap();
 			qDebug() << data << data.value("success");
 			if (data.value("success").toBool()) {
@@ -291,7 +400,11 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 				int accountId = body.value("accountId", -1).toInt();
 				RosterManager::instance()->setAccountId(scope->account.protocol, scope->account.id, accountId);
 			}
-			m_timer.start(0, this);
+			trySend();
+		} else {
+			if (!m_timer.isActive())
+				m_timer.start(60000, this);
+			m_actions.prepend(scope->actions);
 		}
 	}
 }
@@ -302,22 +415,139 @@ static const char *actionTypes[] = {
     "remove"
 };
 
+static Action *loadAction(Config &config, int index)
+{
+	Action *action = NULL;
+	config.setArrayIndex(index);
+	Action::Type type = config.value("type", Action::TypesCount);
+	switch (type) {
+	case Action::AddAccount:
+	case Action::RemoveAccount:
+		action = new AccountAction(type);
+		break;
+	case Action::AddContact:
+	case Action::UpdateContact:
+	case Action::RemoveContact:
+		action = new ContactAction(type);
+		static_cast<ContactAction*>(action)->id = config.value("id", QString());
+		static_cast<ContactAction*>(action)->name = config.value("name", QString());
+		static_cast<ContactAction*>(action)->groups = config.value("groups", QStringList());
+		break;
+	case Action::Message:
+		action = new MessageAction();
+		static_cast<MessageAction*>(action)->contact = config.value("contact", QString());
+		static_cast<MessageAction*>(action)->time = config.value("time", QDateTime());
+		static_cast<MessageAction*>(action)->text = config.value("text", QString());
+		static_cast<MessageAction*>(action)->incoming = config.value("incoming", false);
+		static_cast<MessageAction*>(action)->encryption = config.value("encryption", QStringList());
+		break;
+	default:
+		break;
+	}
+	action->account.id = config.value("accountId", QString());
+	action->account.protocol = config.value("protocol", QString());
+	return action;
+}
+
+static void storeAction(Config &config, int index, Action *action)
+{
+	config.setArrayIndex(index);
+	config.setValue("accountId", action->account.id);
+	config.setValue("protocol", action->account.protocol);
+	config.setValue("type", action->type);
+	switch (action->type) {
+	case Action::AddAccount:
+	case Action::RemoveAccount:
+		break;
+	case Action::AddContact:
+	case Action::UpdateContact:
+	case Action::RemoveContact:
+		config.setValue("id", static_cast<ContactAction*>(action)->id);
+		config.setValue("name", static_cast<ContactAction*>(action)->name);
+		config.setValue("groups", static_cast<ContactAction*>(action)->groups);
+		break;
+	case Action::Message:
+		config.setValue("contact", static_cast<MessageAction*>(action)->contact);
+		config.setValue("time", static_cast<MessageAction*>(action)->time);
+		config.setValue("text", static_cast<MessageAction*>(action)->text);
+		config.setValue("incoming", static_cast<MessageAction*>(action)->incoming);
+		config.setValue("encryption", static_cast<MessageAction*>(action)->encryption);
+		break;
+	default:
+		break;
+	}
+}
+
 void NetworkManager::trySend()
 {
-	if (!m_timer.isActive() && !m_current)
+	if (!m_timer.isActive() && !m_currentReply)
 		m_timer.start(0, this);
+	storeActions();
+}
+
+void NetworkManager::onMessageEncrypted(quint64 id)
+{
+	encryptedMessageIdInited = true;
+	encryptedMessageId = id;
+}
+
+void NetworkManager::rebuildAnswers()
+{
+	QStringList answers = m_networkAnswers + m_localAnswers;
+	if (answers != m_answers) {
+		m_answers = answers;
+		emit answersChanged(m_answers);
+	}
+}
+
+void NetworkManager::loadActions()
+{
+	Config cache("controlCache");
+	int size = cache.beginArray("actions");
+	for (int i = 0; i < size; ++i) {
+		if (Action *action = loadAction(cache, i))
+			m_actions.append(action);
+	}
+	trySend();
+}
+
+void NetworkManager::storeActions()
+{
+	Config cache("controlCache");
+	int oldSize = cache.beginArray("actions");
+	int size = 0;
+	if (m_currentReply) {
+		Scope::Ptr scope = m_currentReply->property("scope").value<Scope::Ptr>();
+		if (scope) {
+			Action *action = scope->actions.first();
+			while (action) {
+				storeAction(cache, size, action);
+				++size;
+				action = action->next;
+			}
+		}
+	}
+	Action *action = m_actions.first();
+	while (action) {
+		storeAction(cache, size, action);
+		++size;
+		action = action->next;
+	}
+	for (int i = oldSize - 1; i >= size; --i)
+		cache.remove(i);
 }
 	
 void NetworkManager::onTimer()
 {
 	m_timer.stop();
+	if (m_networkAnswers.isEmpty() && !m_answersReply)
+		m_answersReply = get(m_base.resolved(QUrl(GET_ANSWERS_URL)));
 	if (m_actions.isEmpty())
 		return;
 	bool messages = false;
 	ActionList actions;
 	AccountId account;
 	Action *action = m_actions.first();
-	//qDebug() << m_actions.count() << actions.isEmpty();
 	while (action) {
 		Action *next = action->next;
 		if (actions.isEmpty() || (messages && action->type != Action::Message)) {
@@ -325,14 +555,12 @@ void NetworkManager::onTimer()
 			account = action->account;
 			messages = (action->type == Action::Message);
 		}
-		//qDebug() << action->account.id << action->account.protocol << account.id << account.protocol;
 		if (messages || action->account == account) {
 			m_actions.remove(action);
 			actions.append(action);
 		}
 		action = next;
 	}
-	//qDebug() << m_actions.count() << "+" << actions.count();
 	QVariant body;
 	if (messages) {
 		account.protocol = QString();
@@ -349,6 +577,7 @@ void NetworkManager::onTimer()
 			data.insert("contact", message->contact);
 			data.insert("message", message->text);
 			data.insert("incoming", message->incoming);
+			data.insert("encryption", message->encryption);
 			messages << data;
 		}
 		body = messages;
@@ -425,7 +654,7 @@ void NetworkManager::onTimer()
 	scope->account = account;
 	reply->setProperty("scope", qVariantFromValue(scope));
 	qDebug() << Json::generate(body);
-	m_current = reply;
+	m_currentReply = reply;
 }
 
 } // namespace Control

@@ -393,7 +393,7 @@ void TextViewController::loadHistory()
 		mess.setProperty("history", true);
 		if (!mess.chatUnit()) //TODO FIXME
 			mess.setChatUnit(m_session->getUnit());
-		appendMessage(mess);
+		m_session->append(mess);
 	}
 	m_lastSender.clear();
 }

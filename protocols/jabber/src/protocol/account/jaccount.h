@@ -98,6 +98,7 @@ protected:
 signals:
 	void avatarChanged(const QString &avatar);
 	void pgpKeyIdChanged(QString pgpKeyId);
+	void messageEcnrypted(quint64 messageId);
 	
 public slots:
 	void loadSettings();

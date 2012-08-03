@@ -470,6 +470,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 
 	paths.removeDuplicates();
 	QSet<QString> pluginPathsList;
+	QMap<QString, QString> errors;
 
 	foreach (const QString &path, paths) {
 		QDir plugins_dir = path;
@@ -496,6 +497,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #endif // QUTIM_TEST_PERFOMANCE
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
 					if (lib->load()) {
+						errors.remove(filename);
 #ifdef QUTIM_TEST_PERFOMANCE
 						libLoadTime = timer.elapsed();
 						timer.restart();
@@ -508,18 +510,17 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #endif // QUTIM_TEST_PERFOMANCE
 						if (!verificationFunction) {
 							lib->unload();
-							qDebug() << filename << " has no valid verification data";
+							errors.insert(filename, filename + " has no valid verification data");
 							continue;
 						}
 						QString error;
 						if (!checkQutIMPluginData(verificationFunction(), &debugId, &error)) {
 							lib->unload();
-							qDebug() << "Error while loading plugin " << filename << ": " << error;
-							continue;
+							errors.insert(filename, "Error while loading plugin " + filename + ": " + error);
 							continue;
 						}
 					} else {
-						qDebug() << lib->errorString();
+						errors.insert(filename, lib->errorString());
 						nextTry << files[i];
 						pluginPathsList.remove(filename);
 						continue;
@@ -554,7 +555,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					if (object)
 						delete object;
 					else {
-						warning() << loader->errorString();
+						errors.insert(filename, loader->errorString());
 #ifdef Q_OS_SYMBIAN
 						QMessageBox msg;
 						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
@@ -571,6 +572,8 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 				break;
 			}
 		}
+		foreach (const QString &error, errors)
+			qDebug() << error;
 	}
 
 #ifndef NO_COMMANDS

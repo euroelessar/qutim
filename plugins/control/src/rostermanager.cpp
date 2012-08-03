@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "rostermanager.h"
+#include "autoreplybuttonaction.h"
+#include "quickanswerbuttonaction.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/contact.h>
 #include <qutim/debug.h>
 #include <qutim/event.h>
+#include <qutim/chatsession.h>
 #include <QStringBuilder>
 #include <QSet>
 
@@ -36,20 +39,18 @@ namespace Control {
 
 using namespace qutim_sdk_0_3;
 
+struct MessageListContainer {
+	typedef QSharedPointer<MessageListContainer> Ptr;
+	MessageList messages;
+};
+
+}
+
+Q_DECLARE_METATYPE(Control::MessageListContainer::Ptr)
+
+namespace Control {
+
 RosterManager *RosterManager::self = NULL;
-
-//static QString accountConfigPath(const QString &protocol, const QString &id)
-//{
-//	return QLatin1Literal("control/")
-//	        % protocol
-//	        % QLatin1Char('.')
-//	        % id;
-//}
-
-//static QString accountConfigPath(Account *account)
-//{
-//	return accountConfigPath(account->protocol()->id(), account->id());
-//}
 
 static Config accountConfig(Account *account)
 {
@@ -58,7 +59,6 @@ static Config accountConfig(Account *account)
 	config.beginGroup(account->protocol()->id());
 	config.beginGroup(account->id());
 	return config;
-//	return Config(accountConfigPath(account));
 }
 
 RosterManager::RosterManager()
@@ -66,13 +66,25 @@ RosterManager::RosterManager()
 	Q_ASSERT(!self);
 	self = this;
 	m_manager = new NetworkManager(this);
+	m_autoReplyGenerator.reset(new AutoReplyButtonActionGenerator);
+	m_quickAnswerGenerator.reset(new QuickAnswerButtonActionGenerator(this, SLOT(onQuickAnswerClicked(QObject*))));
+	MenuController::addAction<Contact>(m_autoReplyGenerator.data());
+	MenuController::addAction<Contact>(m_quickAnswerGenerator.data());
+	m_settingsItem = new GeneralSettingsItem<Control::SettingsWidget>(
+	                     Settings::Plugin,	QIcon(),
+						 QT_TRANSLATE_NOOP("Plugin", "Control"));
+	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
+	Settings::registerItem(m_settingsItem);
 	Event::eventManager()->installEventFilter(this);
 	MessageHandler::registerHandler(this, "Control", ChatInPriority - 1, ChatOutPriority - 1);
+	loadSettings(true);
 	onStarted();
 }
 
 RosterManager::~RosterManager()
 {
+	Settings::removeItem(m_settingsItem);
+	delete m_settingsItem;
 	self = 0;
 	MessageHandler::unregisterHandler(this);
 }
@@ -109,29 +121,55 @@ int RosterManager::accountId(const QString &protocol, const QString &id) const
 void RosterManager::setAccountId(const QString &protocol, const QString &id, int pid)
 {
 	Protocol *proto = Protocol::all().value(protocol);
-	if (!proto)
+	if (!proto || pid < 0)
 		return;
 	Account *account = proto->account(id);
 	if (m_contexts.contains(account)) {
 		Config cfg = accountConfig(account);
 		cfg.setValue("id", pid);
+		cfg.setValue("created", true);
 		m_contexts[account].id = pid;
+	}
+}
+
+void RosterManager::loadSettings(bool init)
+{
+	bool changed = false;
+	m_manager->loadSettings(init, &changed);
+	if (changed && !init) {
+		m_manager->clearQueue();
+		{
+			Config config("control");
+			config.remove("accounts");
+		}
+		foreach (Account *account, m_contexts.keys()) {
+			m_manager->addAccount(account);
+			foreach (Contact *contact, account->findChildren<Contact*>()) {
+				if (contact->isInList())
+					m_manager->addContact(contact);
+			}
+		}
 	}
 }
 
 void RosterManager::onAccountCreated(Account *account)
 {
+	if (account->inherits("Jabber::JAccount")) {
+		connect(account, SIGNAL(messageEcnrypted(quint64)),
+		        m_manager, SLOT(onMessageEncrypted(quint64)));
+	}
 	connectAccount(account);
 	AccountContext &context = m_contexts[account];
 	const QString idName = QLatin1String("id");
 	Config cfg = accountConfig(account);
 	context.id = cfg.value(idName, -1);
-	const bool newAccount = context.id < 0;
+	context.created = cfg.value("created", false);
+	const bool newAccount = !context.created;
 	qDebug() << account->id() << context.id << newAccount;
 	if (newAccount)
 		m_manager->addAccount(account->protocol()->id(), account->id());
 	foreach (Contact *contact, account->findChildren<Contact*>()) {
-		if(newAccount)
+		if (newAccount && contact->isInList())
 			onContactCreated(contact);
 		else
 			connectContact(contact);
@@ -168,6 +206,11 @@ void RosterManager::onContactInListChanged(bool inList)
 		onContactRemoved(contact);
 }
 
+void RosterManager::onQuickAnswerClicked(QObject *object)
+{
+	new QuickAnswerMenu(qobject_cast<Contact*>(object));
+}
+
 void RosterManager::connectAccount(Account *account)
 {
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
@@ -187,8 +230,35 @@ void RosterManager::connectContact(Contact *contact)
 MessageHandler::Result RosterManager::doHandle(Message &message, QString *reason)
 {
 	Q_UNUSED(reason);
-	m_manager->sendMessage(message);
+	if (message.property("service", false))
+		return Accept;
+	if (ChatSession *session = ChatLayer::get(message.chatUnit(), false)) {
+		MessageListContainer::Ptr container = session->property("__control_container").value<MessageListContainer::Ptr>();
+		if (!container) {
+			container = MessageListContainer::Ptr::create();
+			session->setProperty("__control_container", qVariantFromValue(container));
+		}
+		if (message.isIncoming())
+			container->messages << message;
+	}
+	if (!message.property("history", false))
+		m_manager->sendMessage(message);
 	return Accept;
+}
+
+MessageList RosterManager::messages(ChatUnit *unit)
+{
+	if (ChatSession *session = ChatLayer::get(unit, false)) {
+		MessageListContainer::Ptr container = session->property("__control_container").value<MessageListContainer::Ptr>();
+		if (container)
+			return container->messages;
+	}
+	return MessageList();
+}
+
+NetworkManager *RosterManager::networkManager()
+{
+	return m_manager;
 }
 
 typedef QPair<QString, QString> PairString;
@@ -219,7 +289,9 @@ void RosterManager::onStarted()
 			const PairString pair(protocol, id);
 			if (!accounts.contains(pair)) {
 				m_manager->removeAccount(protocol, id);
-//				config.remove(id);
+				config.beginGroup(id);
+				config.setValue("created", false);
+				config.endGroup();
 			}
 			oldAccounts << pair;
 		}

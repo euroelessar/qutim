@@ -76,6 +76,10 @@ public:
 	void sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qutim_sdk_0_3::Message &message);
 public slots:
 	virtual void handleMessage(const Jreen::Message &message);
+	
+signals:
+	void messageEcnrypted(quint64 messageId);
+	
 private:
 	QScopedPointer<JMessageSessionManagerPrivate> d_ptr;
 };

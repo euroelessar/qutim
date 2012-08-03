@@ -731,6 +731,7 @@ int OtrInternal::is_logged_in(const char *accountname, const char *protocol,
 	item.m_account_name = QString::fromUtf8(accountname);
 	item.m_item_name = QString::fromUtf8(recipient);
 	Buddy *buddy = item.unit();
+	qDebug() << protocol << accountname << recipient << buddy;
 	if (buddy && buddy->status() != Status::Offline)
 		return 1;
 	else

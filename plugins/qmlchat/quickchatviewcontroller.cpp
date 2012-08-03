@@ -169,7 +169,7 @@ void QuickChatController::loadHistory()
 		mess.setProperty("history", true);
 		if (!mess.chatUnit()) //TODO FIXME
 			mess.setChatUnit(m_session.data()->getUnit());
-		appendMessage(mess);
+		m_session.data()->append(mess);
 	}
 }
 
