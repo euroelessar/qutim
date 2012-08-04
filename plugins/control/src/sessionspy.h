@@ -27,6 +27,7 @@
 #define CONTROL_SESSIONSPY_H
 
 #include <qutim/messagehandler.h>
+#include <qutim/chatsession.h>
 
 namespace Control {
 
@@ -34,7 +35,7 @@ class SessionSpy : public qutim_sdk_0_3::MessageHandler
 {
 public:
 	SessionSpy();
-	
+
 	static void install(qutim_sdk_0_3::ChatSession *session);
 };
 
