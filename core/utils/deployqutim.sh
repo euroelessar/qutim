@@ -44,6 +44,7 @@ function deploy_binary() {
 			if [ ! -r "$path/Contents/Frameworks/$lib" ]; then
 				mkdir -p "$path/Contents/Frameworks/"
 				cp "$target" "$path/Contents/Frameworks/$lib"
+				chmod 755 "$path/Contents/Frameworks/$lib"
 				deploy_binary "$path/Contents/Frameworks/$lib" "$path"
 			fi
 		fi
