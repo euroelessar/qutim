@@ -30,6 +30,7 @@
 #include <QDateTime>
 #include <QUrl>
 #include <QBasicTimer>
+#include <QSslCertificate>
 #include <qutim/account.h>
 #include <qutim/contact.h>
 
@@ -157,6 +158,7 @@ protected slots:
 	void onReplyFinished(QNetworkReply *reply);
 	void trySend();
 	void onMessageEncrypted(quint64 id);
+	void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 	
 protected:
 	void rebuildAnswers();
@@ -170,6 +172,7 @@ signals:
 public slots:
 	
 private:
+	QSslCertificate m_certificate;
 	QBasicTimer m_timer;
 	QString m_username;
 	QUrl m_base;

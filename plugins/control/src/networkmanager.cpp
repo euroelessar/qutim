@@ -30,10 +30,12 @@
 #include <qutim/servicemanager.h>
 #include <qutim/notification.h>
 #include <qutim/chatsession.h>
+#include <qutim/systeminfo.h>
 #include <QDebug>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QTextDocument>
+#include <QSslError>
 #include "rostermanager.h"
 
 #define LOGIN_URL (QLatin1String("api/login"))
@@ -180,6 +182,15 @@ NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
+	QString file = SystemInfo::getDir(SystemInfo::SystemShareDir).filePath("certs/control.pem");
+	m_certificate = QSslCertificate::fromPath(file).value(0);
+	if (!m_certificate.isValid()) {
+		NotificationRequest request(Notification::System);
+		request.setTitle(tr("Control plugin"));
+		request.setText(tr("Put server's certificate at \"%1\"")
+		                .arg(file));
+		request.send();
+	}
 }
 
 void NetworkManager::timerEvent(QTimerEvent *event)
@@ -489,6 +500,16 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 {
 	encryptedMessageIdInited = true;
 	encryptedMessageId = id;
+}
+
+void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+	foreach (const QSslError &error, errors) {
+		if (error.certificate() == m_certificate) {
+			reply->ignoreSslErrors();
+			return;
+		}
+	}
 }
 
 void NetworkManager::rebuildAnswers()
