@@ -78,26 +78,27 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_key(key),
 	m_unitAction(0),
 	m_vSplitter(new QSplitter(Qt::Vertical, this)),
-	m_view(0)
+	m_view(0),
+	m_centralWidget(new QWidget(this)),
+	m_hSplitter(0)
 {
 	m_actions.addHandler(this);
 	m_actions.show();
 	setAttribute(Qt::WA_DeleteOnClose);
-	QWidget *centralWidget = new QWidget(this);
-	setCentralWidget(centralWidget);
+	setCentralWidget(m_centralWidget);
 	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
 	setView(factory->createViewWidget());
 
 	m_vSplitter->setObjectName(QLatin1String("vSplitter"));
 	m_vSplitter->addWidget(m_chatInput);
 
-	QSplitter *hSplitter = new QSplitter(Qt::Horizontal, this);
-	hSplitter->setObjectName(QLatin1String("hSplitter"));
-	hSplitter->addWidget(m_vSplitter);
-	hSplitter->addWidget(m_contactView);
+	m_hSplitter = new QSplitter(Qt::Horizontal, this);
+	m_hSplitter->setObjectName(QLatin1String("hSplitter"));
+	m_hSplitter->addWidget(m_vSplitter);
+	m_hSplitter->addWidget(m_contactView);
 
-	m_layout = new QVBoxLayout(centralWidget);
-	m_layout->addWidget(hSplitter);
+	m_layout = new QVBoxLayout(m_centralWidget);
+	m_layout->addWidget(m_hSplitter);
 #ifdef Q_WS_MAC
 	m_layout->setMargin(0);
 	m_layout->setSpacing(1);
@@ -213,10 +214,10 @@ void TabbedChatWidget::loadSettings()
 		else
 			m_attributes |= UseCustomIcon;
 
-		if(m_flags & MenuBar) {
+		ServicePointer<MenuController> contactList("ContactList");
+		if (m_flags & MenuBar) {
 			setMenuBar(new QMenuBar(this));
 
-			ServicePointer<MenuController> contactList("ContactList");
 			if (contactList) {
 				QAction *general = menuBar()->addAction(tr("&Actions"));
 				general->setMenu(contactList->menu(false));
@@ -230,6 +231,20 @@ void TabbedChatWidget::loadSettings()
 			}
 			accounts->setMenu(menu);
 			m_unitAction = menuBar()->addAction(tr("&Chat"));
+		}
+		if (m_flags & ShowRoster && !contactList.isNull()) {
+			QWidget *roster = 0;
+			contactList->metaObject()->invokeMethod(contactList.data(), "widget",
+													Q_RETURN_ARG(QWidget*, roster));
+			if (roster) {
+				m_hSplitter->insertWidget(0, roster);
+				m_roster = roster;
+			}
+		} else {
+			if (m_roster) {
+				//TODO remove splitter
+				m_roster->setParent(0);
+			}
 		}
 
         ConfigGroup keyGroup = cfg.group("keys");
@@ -272,6 +287,8 @@ TabbedChatWidget::~TabbedChatWidget()
 	delete m_tabBar;
 	delete m_chatInput;
 	delete m_contactView;
+	if (m_roster)
+		m_roster->setParent(0);
 }
 
 QTextEdit *TabbedChatWidget::getInputField() const
