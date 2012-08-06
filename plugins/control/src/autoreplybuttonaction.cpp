@@ -37,8 +37,8 @@ namespace Control
 
 using namespace qutim_sdk_0_3;
 
-AutoReplyButtonActionGenerator::AutoReplyButtonActionGenerator()
-    : ActionGenerator(QIcon(), LocalizedString(), 0, 0)
+AutoReplyButtonActionGenerator::AutoReplyButtonActionGenerator(QObject *object, const char *slot)
+    : ActionGenerator(QIcon(), LocalizedString(), object, slot)
 {
 	setType(ActionTypeChatButton);
 }
@@ -77,7 +77,7 @@ void AutoReplyButtonAction::setController(QObject *controller)
 
 QWidget *AutoReplyButtonAction::createWidget(QWidget *parent)
 {
-	return new AutoReplyButton(parent, m_controller.data());
+	return new AutoReplyButton(this, parent);
 }
 
 void AutoReplyButtonAction::deleteWidget(QWidget *widget)
@@ -85,46 +85,28 @@ void AutoReplyButtonAction::deleteWidget(QWidget *widget)
 	QWidgetAction::deleteWidget(widget);
 }
 
-AutoReplyButton::AutoReplyButton(QWidget *parent, Contact *contact)
-    : QWidget(parent), m_contact(contact)
+AutoReplyButton::AutoReplyButton(QAction *action, QWidget *parent)
+    : QWidget(parent), m_action(action)
 {
-	qDebug() << Q_FUNC_INFO << parent << m_contact;
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	m_spinBox = new QSpinBox(this);
 	m_spinBox->setMinimum(1);
 	m_button = new QToolButton(this);
-	m_button->setIcon(Icon(""));
+	m_button->setText(tr("Send"));
+//	m_button->setIcon(Icon(""));
 	layout->addWidget(m_spinBox);
 	layout->addWidget(m_button);
 	connect(m_button, SIGNAL(clicked()), SLOT(onButtonClicked()));
-	MessageList messages = History::instance()->read(m_contact, 10);
-	foreach (const Message &message, messages) {
-		if (message.isIncoming())
-			m_messages << message;
-	}
 }
 
 AutoReplyButton::~AutoReplyButton()
 {
-	qDebug() << Q_FUNC_INFO << m_contact;
 }
 
 void AutoReplyButton::onButtonClicked()
 {
-	const MessageList messages = RosterManager::instance()->messages(m_contact);
-	const int first = qMax(0, messages.size() - m_spinBox->value());
-	QString text;
-	for (int i = first; i < messages.size(); ++i) {
-		const Message &message = messages.at(i);
-		text += message.text();
-		text += QLatin1Char('\n');
-	}
-	text.chop(1);
-	NotificationRequest request(Notification::System);
-	request.setTitle(tr("Control plugin"));
-	request.setText(tr("qutIM sends request to server:\n%1").arg(text));
-	request.send();
-	RosterManager::instance()->networkManager()->sendRequest(m_contact, text);
+	m_action->setProperty("__control_count", m_spinBox->value());
+	m_action->trigger();
 }
 
 }

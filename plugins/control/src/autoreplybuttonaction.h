@@ -40,7 +40,7 @@ namespace Control
 class AutoReplyButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
 {
 public:
-	AutoReplyButtonActionGenerator();
+	AutoReplyButtonActionGenerator(QObject *object, const char *slot);
 	
 protected:
 	virtual QObject *generateHelper() const;
@@ -72,17 +72,16 @@ class AutoReplyButton : public QWidget
 {
 	Q_OBJECT
 public:
-	AutoReplyButton(QWidget *parent, qutim_sdk_0_3::Contact *contact);
+	AutoReplyButton(QAction *action, QWidget *parent);
 	~AutoReplyButton();
 	
 protected slots:
 	void onButtonClicked();
 	
 private:
-	qutim_sdk_0_3::Contact *m_contact;
+	QAction *m_action;
 	QSpinBox *m_spinBox;
 	QToolButton *m_button;
-	qutim_sdk_0_3::MessageList m_messages;
 };
 
 }

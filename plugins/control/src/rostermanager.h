@@ -58,6 +58,7 @@ protected slots:
 	void onContactUpdated();
 	void onContactRemoved(qutim_sdk_0_3::Contact *contact);
 	void onContactInListChanged(bool inList);
+	void onAutoReplyClicked(QAction *action, QObject *object);
 	void onQuickAnswerClicked(QObject *object);
 	
 protected:

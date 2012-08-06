@@ -32,6 +32,8 @@
 #include <qutim/debug.h>
 #include <qutim/event.h>
 #include <qutim/chatsession.h>
+#include <qutim/servicemanager.h>
+#include <qutim/notification.h>
 #include <QStringBuilder>
 #include <QSet>
 
@@ -66,10 +68,13 @@ RosterManager::RosterManager()
 	Q_ASSERT(!self);
 	self = this;
 	m_manager = new NetworkManager(this);
-	m_autoReplyGenerator.reset(new AutoReplyButtonActionGenerator);
+	m_autoReplyGenerator.reset(new AutoReplyButtonActionGenerator(this, SLOT(onAutoReplyClicked(QAction*,QObject*))));
 	m_quickAnswerGenerator.reset(new QuickAnswerButtonActionGenerator(this, SLOT(onQuickAnswerClicked(QObject*))));
-	MenuController::addAction<Contact>(m_autoReplyGenerator.data());
-	MenuController::addAction<Contact>(m_quickAnswerGenerator.data());
+	ServicePointer<QObject> form("ChatForm");
+	if (form) {
+		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
+		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+	}
 	m_settingsItem = new GeneralSettingsItem<Control::SettingsWidget>(
 	                     Settings::Plugin,	QIcon(),
 						 QT_TRANSLATE_NOOP("Plugin", "Control"));
@@ -83,6 +88,11 @@ RosterManager::RosterManager()
 
 RosterManager::~RosterManager()
 {
+	ServicePointer<QObject> form("ChatForm");
+	if (form) {
+		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
+		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+	}
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
 	self = 0;
@@ -125,10 +135,12 @@ void RosterManager::setAccountId(const QString &protocol, const QString &id, int
 		return;
 	Account *account = proto->account(id);
 	if (m_contexts.contains(account)) {
+		AccountContext &context = m_contexts[account];
+		context.id = pid;
+		context.created = true;
 		Config cfg = accountConfig(account);
 		cfg.setValue("id", pid);
-		cfg.setValue("created", true);
-		m_contexts[account].id = pid;
+		cfg.setValue("created", context.created);
 	}
 }
 
@@ -165,7 +177,6 @@ void RosterManager::onAccountCreated(Account *account)
 	context.id = cfg.value(idName, -1);
 	context.created = cfg.value("created", false);
 	const bool newAccount = !context.created;
-	qDebug() << account->id() << context.id << newAccount;
 	if (newAccount)
 		m_manager->addAccount(account->protocol()->id(), account->id());
 	foreach (Contact *contact, account->findChildren<Contact*>()) {
@@ -174,6 +185,15 @@ void RosterManager::onAccountCreated(Account *account)
 		else
 			connectContact(contact);
 	}
+}
+
+void RosterManager::onAccountRemoved(Account *account)
+{
+	AccountContext &context = m_contexts[account];
+	context.created = false;
+	Config cfg = accountConfig(account);
+	cfg.setValue("created", context.created);
+	m_manager->removeAccount(account);
 }
 
 void RosterManager::onContactCreated(Contact *contact)
@@ -206,8 +226,42 @@ void RosterManager::onContactInListChanged(bool inList)
 		onContactRemoved(contact);
 }
 
+static QObject *activeContact()
+{
+	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
+		if (session->isActive())
+			return session->unit();
+	}
+	return 0;
+}
+
+void RosterManager::onAutoReplyClicked(QAction *action, QObject *object)
+{
+	object = activeContact();
+	qDebug() << Q_FUNC_INFO << action << object;
+	Contact *contact = qobject_cast<Contact*>(object);
+	Q_ASSERT(contact);
+	const int count = action->property("__control_count").toInt();
+	const MessageList messages = RosterManager::messages(contact);
+	const int first = qMax(0, messages.size() - count);
+	QString text;
+	for (int i = first; i < messages.size(); ++i) {
+		const Message &message = messages.at(i);
+		text += message.text();
+		text += QLatin1Char('\n');
+	}
+	text.chop(1);
+	NotificationRequest request(Notification::System);
+	request.setTitle(tr("Control plugin"));
+	request.setText(tr("qutIM sends request to server:\n%1").arg(text));
+	request.send();
+	m_manager->sendRequest(contact, text);
+}
+
 void RosterManager::onQuickAnswerClicked(QObject *object)
 {
+	object = activeContact();
+	qDebug() << Q_FUNC_INFO << object;
 	new QuickAnswerMenu(qobject_cast<Contact*>(object));
 }
 
