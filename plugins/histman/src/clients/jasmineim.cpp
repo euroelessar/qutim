@@ -32,7 +32,7 @@
 using namespace qutim_sdk_0_3;
 
 namespace HistoryManager {
-	
+
 #define OLD_SIGNATURE 0x00044A50
 #define NEW_SIGNATURE 0x4A484132
 #define NEW_MSG_SIGN_LEN 3
@@ -45,30 +45,28 @@ jasmineim::jasmineim()
 {
 }
 
-jasmineim::~jasmineim ()
+jasmineim::~jasmineim()
 {
 }
 
-QString jasmineim::readMUTF8String (QDataStream &in)
+QString jasmineim::readMUTF8String(QDataStream &in)
 {
 	qint16 len;
 	in >> len;
-	char *data = new char[len + 1];
-	in.readRawData (data, len);
-	data[len] = '\0';
+	QByteArray data(len, Qt::Uninitialized);
+	in >> data;
 	QString retVal = QString::fromUtf8(data, len);
-	delete[] data;
 	return retVal;
 }
 
-QString jasmineim::readWin1251String (QDataStream &in)
+QString jasmineim::readWin1251String(QDataStream &in)
 {
 	quint32 len;
 	in >> len;
 	char *data = new char[len + 1];
-	in.readRawData (data, len);
+	in.readRawData(data, len);
 	data[len] = '\0';
-	QString retVal = codec->toUnicode(data);
+	QString retVal = codec->toUnicode(data, len);
 	retVal.resize(len);
 	delete[] data;
 	return retVal;
@@ -79,20 +77,17 @@ QDataStream &operator >> (QDataStream &in, Message &message)
 	quint8 isInputMsg;
 	quint64 milliseconds;
 	in >> isInputMsg;
-	if (jasmineim::isIcqImport)
-	{
+	if (jasmineim::isIcqImport)	{
 		bool isXtrazMsg;
 		in >> isXtrazMsg;
-		if (!jasmineim::isOldFormat)
-		{
+		if (!jasmineim::isOldFormat) {
 			// this is place for future empowerment
 			int skipThis;
 			in >> skipThis;
 		}
 	}
 	in >> milliseconds;
-	if (!jasmineim::isIcqImport)
-	{
+	if (!jasmineim::isIcqImport) {
 		// this is place for future empowerment
 		int skipThis;
 		in >> skipThis;
@@ -102,141 +97,116 @@ QDataStream &operator >> (QDataStream &in, Message &message)
 		msgText = jasmineim::readWin1251String(in);
 	else in >> msgText;
 	message.setIncoming(isInputMsg > 0);
-	QDateTime date(QDateTime::fromTime_t(milliseconds / 1000));
-	date.addMSecs(milliseconds % 1000);
+	QDateTime date;
+	date.setMSecsSinceEpoch(milliseconds);
 	message.setTime(date);
 	message.setText(msgText);
 	return in;
 }
 
-QDataStream &operator >> (QDataStream &in, ContactHistory &contact)
-{
-	int readed;
-	Message msg;
-	if (jasmineim::isOldFormat)
-	{
-		contact.uin = jasmineim::readMUTF8String(in);
-	}
-	else
-	{
-		in >> contact.uin;
-	}
-	in >> readed;
-	in.skipRawData(readed);
-	if (jasmineim::isOldFormat && (readed < 1))
-		return in;
-	in >> readed;
-	if (!jasmineim::isOldFormat)
-	{
-		in.skipRawData(NEW_MSG_SIGN_LEN);
-		readed -= NEW_MSG_SIGN_LEN;
-		if (readed < 1)
-			return in;
-	}
-	char *data = new char[readed];
-	readed = in.readRawData(data, readed);
-	QByteArray m(data, readed);
-	delete[] data;
-	QDataStream msgs(&m, QIODevice::ReadOnly);
-	while (!msgs.atEnd())
-	{
-		msgs >> msg;
-		contact.history.append(msg);
-	}
-	m.clear ();
-	return in;
-}
-
-void jasmineim::loadMessages (const QString &path)
+void jasmineim::loadMessages(const QString &path)
 {
 	QFileInfo info(path);
-	if(!info.exists() || !info.isFile())
+	if (!info.exists() || !info.isFile())
 		return;
 	QFile file(path);
-	if (!file.open (QIODevice::ReadOnly))
+	if (!file.open(QIODevice::ReadOnly))
 		return;
 	QDataStream input(&file);
 	quint32 magic;
 	input >> magic;
-	isOldFormat = magic == OLD_SIGNATURE;
+	isOldFormat = (magic == OLD_SIGNATURE);
 	if (isOldFormat)
 		input.skipRawData(2);
-	if(!isOldFormat && (magic != NEW_SIGNATURE))
+	if (!isOldFormat && (magic != NEW_SIGNATURE))
 		return;
 	QString account;
-	if (isOldFormat) 
+	if (isOldFormat)
 		account = readMUTF8String(input);
 	else input >> account;
 	QString protocol;
-	if (isOldFormat)
-		protocol = QString("icq");
-	else
-	{
+	if (isOldFormat) {
+		protocol = QLatin1String("icq");
+	} else {
 		quint8 protocolType, subType;
 		input >> protocolType >> subType;
-		switch (protocolType)
-		{
+		switch (protocolType) {
 			case 0:
-				protocol = QString("icq");
+				protocol = QLatin1String("icq");
 				break;
 			case 1:
-				protocol = QString("jabber");
+				protocol = QLatin1String("jabber");
 				isIcqImport = false;
 				break;
 			case 2:
-				protocol = QString("mrim");
+				protocol = QLatin1String("mrim");
 				isIcqImport = false;
 				break;
 		}
 	}
 	setProtocol(protocol);
 	setAccount(account);
-	QList<ContactHistory> allContacts;
-	while(!input.atEnd())
-	{
-		ContactHistory contact;
-		input >> contact;
-		allContacts.append(contact);
-	}
-	setMaxValue(allContacts.size());
-	for (int i = 0; i < allContacts.size(); i++)
-	{
-		setValue(i + 1);
-		setContact(allContacts[i].uin);
-		QList<Message> msgs = allContacts[i].history;
-		foreach (Message msg, allContacts[i].history)
-		{
-			appendMessage(msg);
+	setMaxValue(file.size());
+	while(!input.atEnd()) {
+		int readed;
+		Message msg;
+		QString uin;
+		if (jasmineim::isOldFormat)
+			uin = jasmineim::readMUTF8String(input);
+		else
+			input >> uin;
+		setContact(uin);
+		input >> readed;
+		input.skipRawData(readed);
+		if (jasmineim::isOldFormat && (readed < 1))
+			continue;
+		input >> readed;
+		if (!jasmineim::isOldFormat) {
+			input.skipRawData(NEW_MSG_SIGN_LEN);
+			readed -= NEW_MSG_SIGN_LEN;
+			if (readed < 1)
+				continue;
 		}
+		char *data = new char[readed];
+		readed = input.readRawData(data, readed);
+		QByteArray m(data, readed);
+		delete[] data;
+		QDataStream msgs(&m, QIODevice::ReadOnly);
+		while (!msgs.atEnd()) {
+			msgs >> msg;
+			appendMessage(msg);
+			setValue(file.pos());
+		}
+		m.clear();
 	}
 	file.close();
 }
 
-bool jasmineim::validate (const QString &path)
+bool jasmineim::validate(const QString &path)
 {
 	QFileInfo info(path);
-	if(!info.exists() || !info.isFile())
+	if (!info.exists() || !info.isFile())
 		return false;
 	QFile file(path);
-	if (!file.open (QIODevice::ReadOnly))
+	if (!file.open(QIODevice::ReadOnly))
 		return false;
 	QDataStream input(&file);
 	quint32 magic;
 	input >> magic;
-	bool retVal = magic == OLD_SIGNATURE;
+	bool retVal = (magic == OLD_SIGNATURE);
 	if (retVal)
 		input.skipRawData(2);
-	else retVal = magic == NEW_SIGNATURE;
+	else retVal = (magic == NEW_SIGNATURE);
 	file.close();
 	return retVal;
 }
 
-QString jasmineim::name ()
+QString jasmineim::name()
 {
 	return "Jasmine";
 }
 
-QIcon jasmineim::icon ()
+QIcon jasmineim::icon()
 {
 	return Icon("jasmine");
 }

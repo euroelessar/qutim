@@ -30,11 +30,6 @@
 
 namespace HistoryManager {
 
-struct ContactHistory{
-	QString uin;
-	QList<qutim_sdk_0_3::Message> history;
-};
-
 class jasmineim : public HistoryImporter
 {
 public:
@@ -47,7 +42,6 @@ public:
 	virtual bool chooseFile() { return true; }
 	static QString readMUTF8String(QDataStream &in);
 	static QString readWin1251String(QDataStream &in);
-	friend QDataStream &operator >> (QDataStream &in, ContactHistory &contact);
 	friend QDataStream &operator >> (QDataStream &in, qutim_sdk_0_3::Message &message);
 private:
 	static QTextCodec *codec;
