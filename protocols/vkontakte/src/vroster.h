@@ -28,7 +28,7 @@
 
 #include <QObject>
 #include <QHash>
-#include <vk/contact.h>
+#include <vreen/contact.h>
 #include <qutim/status.h>
 #include <QTimer>
 
@@ -36,7 +36,7 @@ namespace qutim_sdk_0_3 {
 class ContactsFactory;
 } //namespace qutim_sdk_0_3
 
-namespace vk {
+namespace Vreen {
 class Roster;
 class Contact;
 class Buddy;
@@ -61,16 +61,16 @@ public:
 	VGroupChat *groupChat(int id) const;
 	qutim_sdk_0_3::ContactsFactory *contactsFactory() const;
 protected slots:
-	VContact *createContact(vk::Buddy *buddy);
+	VContact *createContact(Vreen::Buddy *buddy);
 private slots:
 	void onContactDestroyed(QObject *obj);
 	void onGroupChatDestroyed(QObject *obj);
-	void onAddBuddy(vk::Buddy *buddy);
-	void onBuddyUpdated(vk::Buddy *buddy);
+	void onAddBuddy(Vreen::Buddy *buddy);
+	void onBuddyUpdated(Vreen::Buddy *buddy);
 	void onBuddyRemoved(int id);
 	void onOnlineChanged(bool isOnline);
 	void onMessagesRecieved(const QVariant &response);
-	void onMessageAdded(const vk::Message &msg);
+	void onMessageAdded(const Vreen::Message &msg);
 	void onContactTyping(int userId, int chatId);
 private:
 	QScopedPointer<VRosterFactory> p;

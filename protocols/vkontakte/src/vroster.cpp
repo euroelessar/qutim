@@ -28,9 +28,9 @@
 #include "vaccount.h"
 #include "vgroupchat.h"
 
-#include <vk/roster.h>
-#include <vk/longpoll.h>
-#include <vk/message.h>
+#include <vreen/roster.h>
+#include <vreen/longpoll.h>
+#include <vreen/message.h>
 
 #include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
@@ -53,7 +53,7 @@ public:
 	virtual Contact *addContact(const QString &id, const QVariantMap &data)
 	{
 		VContact *c = roster->contact(id.toInt());
-		vk::Contact::fillContact(c->buddy(), data);
+		Vreen::Contact::fillContact(c->buddy(), data);
 		c->buddy()->setIsFriend(data.value("friend").toBool());
 		return c;
 	}
@@ -61,7 +61,7 @@ public:
 		VContact *contact = qobject_cast<VContact*>(obj);
 		if (!contact)
 			return;
-		vk::Buddy *buddy = contact->buddy();
+		Vreen::Buddy *buddy = contact->buddy();
 		const QMetaObject *meta = buddy->metaObject();
 		for (int i = 0; i != meta->propertyCount(); i++) {
 			QMetaProperty property = meta->property(i);
@@ -91,13 +91,13 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 	account->setContactsFactory(p.data());
 	p->loadRoster();
 
-	connect(p->account->client()->roster(), SIGNAL(buddyAdded(vk::Buddy*)), SLOT(onAddBuddy(vk::Buddy*)));
-	connect(p->account->client()->roster(), SIGNAL(buddyUpdated(vk::Buddy*)), SLOT(onBuddyUpdated(vk::Buddy*)));
+	connect(p->account->client()->roster(), SIGNAL(buddyAdded(Vreen::Buddy*)), SLOT(onAddBuddy(Vreen::Buddy*)));
+	connect(p->account->client()->roster(), SIGNAL(buddyUpdated(Vreen::Buddy*)), SLOT(onBuddyUpdated(Vreen::Buddy*)));
 	connect(p->account->client()->roster(), SIGNAL(contactRemoved(int)), SLOT(onBuddyRemoved(int)));
 	connect(p->account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
 
-	vk::LongPoll *poll = p->account->client()->longPoll();
-	connect(poll, SIGNAL(messageAdded(vk::Message)), SLOT(onMessageAdded(vk::Message)));
+	Vreen::LongPoll *poll = p->account->client()->longPoll();
+	connect(poll, SIGNAL(messageAdded(Vreen::Message)), SLOT(onMessageAdded(Vreen::Message)));
 	connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
 }
 
@@ -109,7 +109,7 @@ VContact *VRoster::contact(int id, bool create)
 {
 	VContact *c = p->contactHash.value(id);
 	if (!c && create && id != p->account->uid()) {
-		vk::Buddy *buddy = p->account->client()->roster()->buddy(id);
+		Vreen::Buddy *buddy = p->account->client()->roster()->buddy(id);
 		c = createContact(buddy);
 	}
 	return c;
@@ -141,7 +141,7 @@ ContactsFactory *VRoster::contactsFactory() const
 	return p.data();
 }
 
-VContact *VRoster::createContact(vk::Buddy *buddy)
+VContact *VRoster::createContact(Vreen::Buddy *buddy)
 {
 	VContact *contact  = new VContact(buddy, p->account);
 	connect(contact, SIGNAL(destroyed(QObject*)), SLOT(onContactDestroyed(QObject*)));
@@ -152,7 +152,7 @@ VContact *VRoster::createContact(vk::Buddy *buddy)
 	return contact;
 }
 
-void VRoster::onAddBuddy(vk::Buddy *buddy)
+void VRoster::onAddBuddy(Vreen::Buddy *buddy)
 {
 	if (!p->contactHash.value(buddy->id())) {
 		createContact(buddy);
@@ -161,7 +161,7 @@ void VRoster::onAddBuddy(vk::Buddy *buddy)
 	}
 }
 
-void VRoster::onBuddyUpdated(vk::Buddy *buddy)
+void VRoster::onBuddyUpdated(Vreen::Buddy *buddy)
 {
 	VContact *c = contact(buddy->id());
 	p->storage.data()->updateContact(c);
@@ -176,14 +176,14 @@ void VRoster::onBuddyRemoved(int id)
 void VRoster::onOnlineChanged(bool isOnline)
 {
 	if (isOnline) {
-		vk::Reply *reply = p->account->client()->roster()->getMessages(0, 50, vk::Message::FilterUnread);
+		Vreen::Reply *reply = p->account->client()->roster()->getMessages(0, 50, Vreen::Message::FilterUnread);
 		connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessagesRecieved(QVariant)));
 		p->rosterUpdater.start();
 	} else
 		p->rosterUpdater.stop();
 }
 
-void VRoster::onMessageAdded(const vk::Message &msg)
+void VRoster::onMessageAdded(const Vreen::Message &msg)
 {
 	if (false) {
 		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
@@ -226,8 +226,8 @@ void VRoster::onMessagesRecieved(const QVariant &response)
 {
 	QVariantList list = response.toList();
 	list.removeFirst();
-	vk::MessageList msgList = vk::Message::fromVariantList(list, p->account->client());
-	foreach (vk::Message msg, msgList)
+	Vreen::MessageList msgList = Vreen::Message::fromVariantList(list, p->account->client());
+	foreach (Vreen::Message msg, msgList)
 		if (msg.isUnread() && msg.isIncoming())
 			onMessageAdded(msg);
 }

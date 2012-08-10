@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "vgroupchat.h"
-#include <vk/groupchatsession.h>
+#include <vreen/groupchatsession.h>
 #include <vcontact.h>
 
 using namespace qutim_sdk_0_3;
@@ -32,16 +32,16 @@ using namespace qutim_sdk_0_3;
 VGroupChat::VGroupChat(VAccount *account, int chatId) :
 	Conference(account),
 	m_account(account),
-	m_chatSession(new vk::GroupChatSession(chatId, account->client()))
+	m_chatSession(new Vreen::GroupChatSession(chatId, account->client()))
 {
 	m_chatSession->setParent(this);
 	m_title = m_chatSession->title();
 	if (m_chatSession->client()->isOnline())
 		onJoinedChanged(true);
-	connect(m_chatSession, SIGNAL(participantAdded(vk::Buddy*)), this, SLOT(onBuddyAdded(vk::Buddy*)));
-	connect(m_chatSession, SIGNAL(participantRemoved(vk::Buddy*)), this, SLOT(onBuddyRemoved(vk::Buddy*)));
+	connect(m_chatSession, SIGNAL(participantAdded(Vreen::Buddy*)), this, SLOT(onBuddyAdded(Vreen::Buddy*)));
+	connect(m_chatSession, SIGNAL(participantRemoved(Vreen::Buddy*)), this, SLOT(onBuddyRemoved(Vreen::Buddy*)));
 	connect(m_chatSession, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
-	connect(m_chatSession, SIGNAL(messageAdded(vk::Message)), SLOT(handleMessage(vk::Message)));
+	connect(m_chatSession, SIGNAL(messageAdded(Vreen::Message)), SLOT(handleMessage(Vreen::Message)));
 	connect(account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(setJoined(bool)));
 }
 
@@ -58,10 +58,10 @@ void VGroupChat::setTyping(int uid, bool set)
 
 VContact *VGroupChat::findContact(int uid) const
 {
-	return m_buddies.value(qobject_cast<vk::Buddy*>(m_chatSession->findParticipant(uid)));
+	return m_buddies.value(qobject_cast<Vreen::Buddy*>(m_chatSession->findParticipant(uid)));
 }
 
-void VGroupChat::handleMessage(const vk::Message &msg)
+void VGroupChat::handleMessage(const Vreen::Message &msg)
 {
 	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
 	coreMessage.setChatUnit(findParticipant(msg.isIncoming() ? msg.fromId() : msg.toId()));
@@ -88,7 +88,7 @@ void VGroupChat::doLeave()
 	m_chatSession->removeParticipant(m_account->client()->me());
 }
 
-void VGroupChat::onBuddyAdded(vk::Buddy *buddy)
+void VGroupChat::onBuddyAdded(Vreen::Buddy *buddy)
 {
 	VContact *user = new VContact(buddy, m_account);
 	if (ChatSession *session = ChatLayer::get(this, false))
@@ -97,7 +97,7 @@ void VGroupChat::onBuddyAdded(vk::Buddy *buddy)
 	connect(user, SIGNAL(destroyed(QObject*)), SLOT(onUserDestroyed(QObject*)));
 }
 
-void VGroupChat::onBuddyRemoved(vk::Buddy *buddy)
+void VGroupChat::onBuddyRemoved(Vreen::Buddy *buddy)
 {
 	VContact *user = m_buddies.take(buddy);
 	if (ChatSession *session = ChatLayer::get(this, false))
@@ -145,7 +145,7 @@ ChatUnitList VGroupChat::lowerUnits()
 
 ChatUnit *VGroupChat::findParticipant(int uid) const
 {
-	vk::Buddy *buddy = m_chatSession->findParticipant(uid);
+	Vreen::Buddy *buddy = m_chatSession->findParticipant(uid);
 	return m_buddies.value(buddy);
 }
 

@@ -24,9 +24,9 @@
 ****************************************************************************/
 #ifndef VCLIENT_H
 #define VCLIENT_H
-#include <vk/client.h>
+#include <vreen/client.h>
 
-class VClient : public vk::Client
+class VClient : public Vreen::Client
 {
 	Q_OBJECT
 public:

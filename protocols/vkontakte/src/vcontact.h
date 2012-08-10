@@ -28,9 +28,9 @@
 #include <qutim/contact.h>
 #include <qutim/chatsession.h>
 #include <QPointer>
-#include <vk/contact.h>
+#include <vreen/contact.h>
 
-namespace vk {
+namespace Vreen {
 class ChatSession;
 class Message;
 }
@@ -41,7 +41,7 @@ class VContact : public qutim_sdk_0_3::Contact
 {
 	Q_OBJECT
 public:
-	VContact(vk::Buddy *contact, VAccount* account);
+	VContact(Vreen::Buddy *contact, VAccount* account);
 
 	virtual QString id() const;
 	virtual bool isInList() const;
@@ -56,30 +56,30 @@ public:
 	virtual QString avatar() const;
 	QString activity() const;
 
-	void handleMessage(const vk::Message &message);
-    vk::Client *client() const;
-    vk::Buddy *buddy() const;
+	void handleMessage(const Vreen::Message &message);
+    Vreen::Client *client() const;
+    Vreen::Buddy *buddy() const;
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
-	vk::ChatSession *chatSession();
+	Vreen::ChatSession *chatSession();
 	virtual bool event(QEvent *ev);
 	void downloadAvatar(const QString &url);
 public slots:
 	void setTyping(bool set = false);
 private slots:
 	void onActivityChanged(const QString &activity);
-	void onStatusChanged(vk::Contact::Status);
+	void onStatusChanged(Vreen::Contact::Status);
 	void onTagsChanged(const QStringList &tags);
 	void onNameChanged(const QString &name);
 	void onMessageSent(const QVariant &response);
 	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
-	void onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize);
+	void onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize);
 	void onAvatarDownloaded(const QString &path);
 private:
-	vk::Buddy *m_buddy;
+	Vreen::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
-	QPointer<vk::ChatSession> m_chatSession;
+	QPointer<Vreen::ChatSession> m_chatSession;
 	qutim_sdk_0_3::Status m_status;
 	QString m_name;
 	QStringList m_tags;
