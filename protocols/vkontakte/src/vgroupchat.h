@@ -28,7 +28,7 @@
 #include <qutim/conference.h>
 #include "vaccount.h"
 
-namespace vk {
+namespace Vreen {
 class GroupChatSession;
 class Buddy;
 }
@@ -49,20 +49,20 @@ public:
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 	qutim_sdk_0_3::ChatUnit *findParticipant(int uid) const;
 public slots:
-	void handleMessage(const vk::Message &message);
+	void handleMessage(const Vreen::Message &message);
 protected:
     virtual void doJoin();
     virtual void doLeave();
 protected slots:
-    void onBuddyAdded(vk::Buddy *buddy);
-    void onBuddyRemoved(vk::Buddy *buddy);
+    void onBuddyAdded(Vreen::Buddy *buddy);
+    void onBuddyRemoved(Vreen::Buddy *buddy);
     void onUserDestroyed(QObject *obj);
     void onJoinedChanged(bool set);
 	void onTitleChanged(const QString &title);
 private:
 	VAccount *m_account;
-    vk::GroupChatSession *m_chatSession;
-    QHash<vk::Buddy*, VContact*> m_buddies;
+    Vreen::GroupChatSession *m_chatSession;
+    QHash<Vreen::Buddy*, VContact*> m_buddies;
 	QString m_title;
 };
 

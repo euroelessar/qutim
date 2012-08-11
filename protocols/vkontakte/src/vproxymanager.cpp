@@ -26,7 +26,7 @@
 #include "vproxymanager.h"
 #include "vaccount.h"
 #include "vprotocol.h"
-#include <vk/connection.h>
+#include <vreen/connection.h>
 
 using namespace qutim_sdk_0_3;
 

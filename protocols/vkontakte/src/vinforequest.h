@@ -30,9 +30,9 @@
 #include <qutim/status.h>
 #include <QSet>
 
-namespace vk {
+namespace Vreen {
 class Connection;
-} //namespace vk
+} //namespace Vreen
 
 class VConnection;
 class VAccount;
@@ -95,7 +95,7 @@ private:
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
 	QString m_id;
-	vk::Connection *m_connection;
+	Vreen::Connection *m_connection;
 	int m_unknownCount;
 	QVariantMap m_data;
 };

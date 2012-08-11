@@ -40,7 +40,7 @@ class VRoster;
 class VAccount : public qutim_sdk_0_3::Account
 {
 	Q_OBJECT
-	Q_PROPERTY(vk::Client* client READ client CONSTANT)
+	Q_PROPERTY(Vreen::Client* client READ client CONSTANT)
 public:
 	VAccount(const QString &email, VProtocol *protocol);
 	VContact *getContact(int uid, bool create = false);
@@ -51,8 +51,8 @@ public:
 
 	int uid() const;
 	QString email() const;
-	vk::Connection *connection() const;
-	vk::Client *client() const;
+	Vreen::Connection *connection() const;
+	Vreen::Client *client() const;
 	VContact *me() const;
 public slots:
 	void loadSettings();
@@ -61,12 +61,12 @@ protected:
 	VRoster *roster() const;
 	VRoster *roster();
 private slots:
-	void onClientStateChanged(vk::Client::State);
-	void onMeChanged(vk::Buddy *me);
+	void onClientStateChanged(Vreen::Client::State);
+	void onMeChanged(Vreen::Buddy *me);
 	void onInvisibleChanged(bool set);
 	void onAuthConfirmRequested(QWebPage *page);
 	void setAccessToken(const QByteArray &token, time_t expiresIn);
-	void onError(vk::Client::Error);
+	void onError(Vreen::Client::Error);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;

@@ -34,9 +34,9 @@
 #include <qutim/message.h>
 #include <qutim/chatsession.h>
 
-#include <vk/contact.h>
-#include <vk/chatsession.h>
-#include <vk/contentdownloader.h>
+#include <vreen/contact.h>
+#include <vreen/chatsession.h>
+#include <vreen/contentdownloader.h>
 
 #include <QTimer>
 #include <QApplication>
@@ -44,19 +44,19 @@
 
 using namespace qutim_sdk_0_3;
 
-#define VK_PHOTO_SOURCE vk::Contact::PhotoSizeMediumRec
+#define VK_PHOTO_SOURCE Vreen::Contact::PhotoSizeMediumRec
 
-static Status::Type convertStatus(vk::Contact::Status status)
+static Status::Type convertStatus(Vreen::Contact::Status status)
 {
 	Status::Type type;
 	switch (status) {
-	case vk::Contact::Offline:
+	case Vreen::Contact::Offline:
 		type = Status::Offline;
 		break;
-	case vk::Contact::Online:
+	case Vreen::Contact::Online:
 		type = Status::Online;
 		break;
-	case vk::Contact::Away:
+	case Vreen::Contact::Away:
 		type = Status::Away;
 	default:
 		break;
@@ -64,7 +64,7 @@ static Status::Type convertStatus(vk::Contact::Status status)
 	return type;
 }
 
-VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
+VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
 	m_buddy(contact)
 {
 	m_status = Status::instance(convertStatus(m_buddy->status()), "vkontakte");
@@ -73,17 +73,17 @@ VContact::VContact(vk::Buddy *contact, VAccount* account): Contact(account),
 	m_tags = m_buddy->tags();
 
     connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
-    connect(m_buddy, SIGNAL(statusChanged(vk::Contact::Status)), SLOT(onStatusChanged(vk::Contact::Status)));
+    connect(m_buddy, SIGNAL(statusChanged(Vreen::Contact::Status)), SLOT(onStatusChanged(Vreen::Contact::Status)));
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
-	connect(m_buddy, SIGNAL(photoSourceChanged(QString,vk::Contact::PhotoSize)),
-			SLOT(onPhotoSourceChanged(QString,vk::Contact::PhotoSize)));
+	connect(m_buddy, SIGNAL(photoSourceChanged(QString,Vreen::Contact::PhotoSize)),
+			SLOT(onPhotoSourceChanged(QString,Vreen::Contact::PhotoSize)));
 	connect(m_buddy, SIGNAL(isFriendChanged(bool)), SIGNAL(inListChanged(bool)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
-	downloadAvatar(m_buddy->photoSource(vk::Contact::PhotoSizeMedium));
+	downloadAvatar(m_buddy->photoSource(Vreen::Contact::PhotoSizeMedium));
 }
 
 
@@ -101,8 +101,8 @@ bool VContact::sendMessage(const Message& message)
 {
 	if (!m_buddy->client()->isOnline())
 		return false;
-	vk::Reply *reply = chatSession()->sendMessage(message.text(),
-												  message.property("subject").toString()); //TODO don't use vk::Reply, use vlongpoll instead
+	Vreen::Reply *reply = chatSession()->sendMessage(message.text(),
+												  message.property("subject").toString()); //TODO don't use Vreen::Reply, use vlongpoll instead
 	reply->setProperty("id", message.id());
 	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
 	return true;
@@ -128,7 +128,7 @@ QString VContact::activity() const
 	return m_status.text();
 }
 
-void VContact::handleMessage(const vk::Message &msg)
+void VContact::handleMessage(const Vreen::Message &msg)
 {
 	SentMessagesList::iterator i = m_sentMessages.begin();
 	for (; i != m_sentMessages.end(); ++i) {
@@ -150,13 +150,13 @@ void VContact::handleMessage(const vk::Message &msg)
 		if (!s->isActive())
 			m_unreadMessages.append(coreMessage);
 		else
-			m_chatSession->markMessagesAsRead(vk::IdList() << msg.id(), true);
+			m_chatSession->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
 	} else
 		coreMessage.setProperty("history", true);
     s->appendMessage(coreMessage);
 }
 
-vk::Client *VContact::client() const
+Vreen::Client *VContact::client() const
 {
     return m_buddy->client();
 }
@@ -170,10 +170,10 @@ void VContact::setStatus(const Status &status)
 	request.send();
 }
 
-vk::ChatSession *VContact::chatSession()
+Vreen::ChatSession *VContact::chatSession()
 {
 	if (m_chatSession.isNull()) {
-		m_chatSession = new vk::ChatSession(m_buddy);
+		m_chatSession = new Vreen::ChatSession(m_buddy);
 		qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
 		m_chatSession->setParent(s);
 	}
@@ -240,7 +240,7 @@ bool VContact::event(QEvent *ev)
 void VContact::downloadAvatar(const QString &url)
 {
 	if (!url.isEmpty()) {
-		vk::ContentDownloader *downloader = new vk::ContentDownloader(this);
+		Vreen::ContentDownloader *downloader = new Vreen::ContentDownloader(this);
 		connect(downloader, SIGNAL(downloadFinished(QString)), SLOT(onAvatarDownloaded(QString)));
 		connect(downloader, SIGNAL(downloadFinished(QString)),
 				downloader, SLOT(deleteLater()));
@@ -248,7 +248,7 @@ void VContact::downloadAvatar(const QString &url)
 	}
 }
 
-void VContact::onStatusChanged(vk::Contact::Status status)
+void VContact::onStatusChanged(Vreen::Contact::Status status)
 {
 	m_status.setType(convertStatus(status));
 	setStatus(m_status);
@@ -279,7 +279,7 @@ void VContact::onMessageSent(const QVariant &response)
 
 void VContact::onUnreadChanged(MessageList unread)
 {
-	vk::IdList idList;
+	Vreen::IdList idList;
 	MessageList::iterator i = m_unreadMessages.begin();
 	for (; i != m_unreadMessages.end(); ++i) {
 		int index = -1;
@@ -309,7 +309,7 @@ void VContact::onSessionCreated(ChatSession *session)
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }
 
-void VContact::onPhotoSourceChanged(const QString &source, vk::Contact::PhotoSize size)
+void VContact::onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize size)
 {
 	if (size == VK_PHOTO_SOURCE)
 		downloadAvatar(source);
@@ -322,7 +322,7 @@ void VContact::onAvatarDownloaded(const QString &path)
 }
 
 
-vk::Buddy *VContact::buddy() const
+Vreen::Buddy *VContact::buddy() const
 {
     return m_buddy;
 }
