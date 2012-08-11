@@ -44,6 +44,7 @@
 #include <jreen/chatstate.h>
 #include "jroster.h"
 #include "../jpgpsupport.h"
+#include "jaccountresource.h"
 
 namespace Jabber
 {
@@ -422,7 +423,7 @@ void JContact::setAvatar(const QString &hex)
 	int length = d->avatar.length() - pos;
 	d->hash = QStringRef(&d->avatar, pos, length);
 	emit avatarChanged(d->avatar);
-	if (d->inList) {
+	if (!qobject_cast<JAccountResource*>(this) && d->inList) {
 		RosterStorage::instance()->updateContact(this, d->account->roster()->version());
 	}
 }
@@ -452,7 +453,7 @@ void JContact::setPGPKeyId(QString pgpKey)
 {
 	Q_D(JContact);
 	d->pgpKey = pgpKey;
-	if (d->inList && !d->account->roster()->ignoreChanges())
+	if (!qobject_cast<JAccountResource*>(this) && d->inList && !d->account->roster()->ignoreChanges())
 		RosterStorage::instance()->updateContact(this);
 	emit pgpKeyChangedId(pgpKey);
 }
