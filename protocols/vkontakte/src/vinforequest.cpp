@@ -31,7 +31,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QCache>
-#include <vk/connection.h>
+#include <vreen/connection.h>
 
 using namespace qutim_sdk_0_3;
 

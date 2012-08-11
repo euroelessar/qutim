@@ -33,11 +33,11 @@
 #include "vroster.h"
 #include "vinforequest.h"
 
-#include <vk/roster.h>
-#include <vk/contact.h>
+#include <vreen/roster.h>
+#include <vreen/contact.h>
 
 #include "vprotocol.h"
-#include <vk/auth/oauthconnection.h>
+#include <vreen/auth/oauthconnection.h>
 
 #include <QWebView>
 
@@ -51,10 +51,10 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 {
 	setObjectName("VAccount");
 
-	connect(m_client, SIGNAL(connectionStateChanged(vk::Client::State)), SLOT(onClientStateChanged(vk::Client::State)));
-	connect(m_client, SIGNAL(meChanged(vk::Buddy*)), SLOT(onMeChanged(vk::Buddy*)));
+	connect(m_client, SIGNAL(connectionStateChanged(Vreen::Client::State)), SLOT(onClientStateChanged(Vreen::Client::State)));
+	connect(m_client, SIGNAL(meChanged(Vreen::Buddy*)), SLOT(onMeChanged(Vreen::Buddy*)));
 	connect(m_client, SIGNAL(invisibleChanged(bool)), SLOT(onInvisibleChanged(bool)));
-	connect(m_client, SIGNAL(error(vk::Client::Error)), SLOT(onError(vk::Client::Error)));
+	connect(m_client, SIGNAL(error(Vreen::Client::Error)), SLOT(onError(Vreen::Client::Error)));
 
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
@@ -98,7 +98,7 @@ QString VAccount::email() const
 	return m_client->login();
 }
 
-vk::Connection *VAccount::connection() const
+Vreen::Connection *VAccount::connection() const
 {
 	return m_client->connection();
 }
@@ -108,7 +108,7 @@ VRoster *VAccount::roster()
 	return m_roster;
 }
 
-vk::Client *VAccount::client() const
+Vreen::Client *VAccount::client() const
 {
 	return m_client;
 }
@@ -121,7 +121,7 @@ VContact *VAccount::me() const
 void VAccount::loadSettings()
 {
 	Config cfg = config();
-	vk::OAuthConnection *connection = new vk::OAuthConnection(qutimId, this);
+	Vreen::OAuthConnection *connection = new Vreen::OAuthConnection(qutimId, this);
 	connection->setUid(cfg.value("access/uid", 0));
 	connection->setAccessToken(cfg.value("access/token", QByteArray(), Config::Crypted),
 							   cfg.value("access/expires", 0));
@@ -133,7 +133,7 @@ void VAccount::loadSettings()
 void VAccount::saveSettings()
 {
 	config().setValue("access/uid", uid());
-	if (vk::OAuthConnection *c = qobject_cast<vk::OAuthConnection*>(m_client->connection()))
+	if (Vreen::OAuthConnection *c = qobject_cast<Vreen::OAuthConnection*>(m_client->connection()))
 		setAccessToken(c->accessToken(), c->expiresIn());
 }
 
@@ -142,7 +142,7 @@ VRoster *VAccount::roster() const
 	return m_roster.data();
 }
 
-void VAccount::onMeChanged(vk::Buddy *me)
+void VAccount::onMeChanged(Vreen::Buddy *me)
 {
 	if (!m_me || m_me->buddy() != me) {
 		if (m_me)
@@ -154,7 +154,7 @@ void VAccount::onMeChanged(vk::Buddy *me)
 
 void VAccount::onInvisibleChanged(bool set)
 {
-	if (m_client->connectionState() == vk::Client::StateOnline) {
+	if (m_client->connectionState() == Vreen::Client::StateOnline) {
 		Status s = status();
 		s.setType(set ? Status::Invisible : Status::Online);
 		Account::setStatus(s);
@@ -176,23 +176,23 @@ void VAccount::setAccessToken(const QByteArray &token, time_t expiresIn)
 	cfg.setValue("expires", expiresIn);
 }
 
-void VAccount::onError(vk::Client::Error error)
+void VAccount::onError(Vreen::Client::Error error)
 {
-	if (error == vk::Client::ErrorAuthorizationFailed)
+	if (error == Vreen::Client::ErrorAuthorizationFailed)
 		config("general").setValue("passwd", "");
 }
 
-void VAccount::onClientStateChanged(vk::Client::State state)
+void VAccount::onClientStateChanged(Vreen::Client::State state)
 {
 	Status s = status();
 	switch (state) {
-	case vk::Client::StateOffline:
+	case Vreen::Client::StateOffline:
 		s.setType(Status::Offline);
 		break;
-	case vk::Client::StateConnecting:
+	case Vreen::Client::StateConnecting:
 		s.setType(Status::Connecting);
 		break;
-	case vk::Client::StateOnline:
+	case Vreen::Client::StateOnline:
 		s.setType(m_client->isInvisible() ? Status::Invisible : Status::Online);
 		break;
 	default:
