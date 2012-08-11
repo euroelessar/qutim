@@ -36,6 +36,7 @@
 #include <QNetworkReply>
 #include <QTextDocument>
 #include <QSslError>
+#include <QSslConfiguration>
 #include "rostermanager.h"
 
 #define LOGIN_URL (QLatin1String("api/login"))
@@ -182,14 +183,25 @@ NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
-	QString file = SystemInfo::getDir(SystemInfo::SystemShareDir).filePath("certs/control.pem");
-	m_certificate = QSslCertificate::fromPath(file).value(0);
-	if (!m_certificate.isValid()) {
-		NotificationRequest request(Notification::System);
-		request.setTitle(tr("Control plugin"));
-		request.setText(tr("Put server's certificate at \"%1\"")
-		                .arg(file));
-		request.send();
+	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
+	struct {
+		const char *fileName;
+		QString error;
+		QSslCertificate *cert;
+	} files[] = {
+		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate },
+		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate }
+	};
+	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
+		QString file = shareDir.filePath(QLatin1String(files[i].fileName));
+		QSslCertificate &certificate = *files[i].cert;
+		certificate = QSslCertificate::fromPath(file).value(0);
+		if (!certificate.isValid()) {
+			NotificationRequest request(Notification::System);
+			request.setTitle(tr("Control plugin"));
+			request.setText(files[i].error.arg(file));
+			request.send();
+		}
 	}
 }
 
@@ -301,6 +313,9 @@ void NetworkManager::sendRequest(Contact *contact, const QString &text)
 	config.beginGroup("general");
 	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
 	QNetworkRequest request(url);
+	QSslConfiguration ssl;
+	ssl.setLocalCertificate(m_localCertificate);
+	request.setSslConfiguration(ssl);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "text/plain");
 	QNetworkReply *reply = QNetworkAccessManager::post(request, text.toUtf8());
 	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
@@ -505,7 +520,7 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
 	foreach (const QSslError &error, errors) {
-		if (error.certificate() == m_certificate) {
+		if (error.certificate() == m_remoteCertificate) {
 			reply->ignoreSslErrors();
 			return;
 		}

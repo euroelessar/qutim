@@ -172,7 +172,8 @@ signals:
 public slots:
 	
 private:
-	QSslCertificate m_certificate;
+	QSslCertificate m_localCertificate;
+	QSslCertificate m_remoteCertificate;
 	QBasicTimer m_timer;
 	QString m_username;
 	QUrl m_base;
