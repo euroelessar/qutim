@@ -16,6 +16,6 @@
 [submodule "artwork"]
 	path = artwork
 	url = git://github.com/gorthauer/artwork.git
-[submodule "protocols/vkontakte/lib"]
-	path = protocols/vkontakte/lib
-	url = https://github.com/gorthauer/vkit.git
+[submodule "protocols/vkontakte/vreen"]
+	path = protocols/vkontakte/vreen
+	url = git://github.com/gorthauer/vreen.git

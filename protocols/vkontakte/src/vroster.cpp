@@ -93,7 +93,7 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 
 	connect(p->account->client()->roster(), SIGNAL(buddyAdded(Vreen::Buddy*)), SLOT(onAddBuddy(Vreen::Buddy*)));
 	connect(p->account->client()->roster(), SIGNAL(buddyUpdated(Vreen::Buddy*)), SLOT(onBuddyUpdated(Vreen::Buddy*)));
-	connect(p->account->client()->roster(), SIGNAL(contactRemoved(int)), SLOT(onBuddyRemoved(int)));
+	connect(p->account->client()->roster(), SIGNAL(buddyRemoved(int)), SLOT(onBuddyRemoved(int)));
 	connect(p->account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
 
 	Vreen::LongPoll *poll = p->account->client()->longPoll();
@@ -218,7 +218,7 @@ void VRoster::onContactTyping(int userId, int chatId)
 	} else {
 		VGroupChat *c = groupChat(chatId);
 		//TODO
-		//c->setChatState(ChatStateComposing);
+		c->setChatState(ChatStateComposing);
 	}
 }
 
