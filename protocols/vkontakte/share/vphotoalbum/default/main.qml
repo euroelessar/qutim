@@ -2,6 +2,9 @@ import QtQuick 1.0
 
 Rectangle {
     id: root
+
+    property bool fullScreen: false
+
     width: 400
     height: 600
 
@@ -10,15 +13,102 @@ Rectangle {
         text: qsTr("%1's photoalbum").arg(contact.name)
     }
 
-    GridView {
-        id: photoView
+    Component {
+        id: delegate
+        Package {
+            Item {
+                id: listItem
+                width: photoListView.width
+                height: photoListView.height
+                Package.name: 'list'
+            }
+            Item {
+                id: gridItem
+                width: photoGridView.cellWidth - photoGridView.spacing
+                height: photoGridView.cellHeight - photoGridView.spacing
+                Package.name: 'grid'
+            }
 
+            Image {
+                id: wrapper
+                source: src_big
+                fillMode: Image.PreserveAspectCrop
+                smooth: true
+                clip: true
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        photoListView.currentIndex = index
+                        //if (wrapper.state === "inList")
+                        //    wrapper.state = "inGrid"
+                        //else
+                        //    wrapper.state = "inList"
+                        fullScreen = !fullScreen
+                    }
+                }
+
+                state: 'inGrid'
+                states: [
+                    State {
+                        when: fullScreen
+                        name: 'inList'
+                        ParentChange {
+                            target: wrapper
+                            parent: listItem
+                            width: listItem.width
+                            height: listItem.height
+                        }
+                        //PropertyChanges { target: wrapper; clip: false }
+                    },
+                    State {
+                        when: !fullScreen
+                        name: 'inGrid'
+                        ParentChange {
+                            target: wrapper; parent: gridItem
+                            x: 0; y: 0; width: gridItem.width; height: gridItem.height
+                        }
+                    }
+                ]
+
+                transitions: [
+                    Transition {
+                        ParentAnimation {
+                            //target: wrapper; via: foreground
+                            NumberAnimation { properties: 'x,y,width,height'; duration: 300 }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    VisualDataModel {
+        id: dataModel
+        delegate: delegate
         model: photoModel
+    }
 
-        cellWidth: 106
-        cellHeight: 106
+    Item {
+        id: foreground
+        anchors.fill: parent
+    }
 
-        clip: true
+    GridView {
+        id: photoGridView
+
+        onCurrentIndexChanged: positionViewAtIndex(currentIndex, GridView.Contain)
+
+        visible: !fullScreen
+
+        property int spacing: 6
+
+        model: dataModel.parts.grid
+        currentIndex: photoListView.currentIndex
+
+        cellWidth: 150
+        cellHeight: 150
+
         anchors {
             top: header.bottom
             left: root.left
@@ -26,29 +116,28 @@ Rectangle {
             bottom: root.bottom
             margins: 6
         }
+    }
 
-        delegate: Image {
-            source: src
-            width: 100
-            height: 100
-            fillMode: Image.PreserveAspectCrop
-            clip: true
+    ListView {
+        id: photoListView
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    //simple hack
-                    var photos = []
-                    for (var i = 0; i !== page.model.count; i++)
-                        photos.push(page.model.get(i))
 
-                    var properties = {
-                        "model" : photos,
-                        "currentIndex" : index
-                    }
-                }
-            }
+        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+
+        orientation: ListView.Horizontal
+        snapMode: ListView.SnapToItem
+        visible: fullScreen
+
+        anchors {
+            top: header.bottom
+            left: root.left
+            right: root.right
+            bottom: root.bottom
+            margins: 0
         }
+
+        model: dataModel.parts.list
+        currentIndex: photoGridView.currentIndex
     }
 
     PhotoModel {
@@ -69,6 +158,6 @@ Rectangle {
     }
 
     ScrollDecorator {
-        flickableItem: photoView
+        flickableItem: photoGridView
     }
 }
