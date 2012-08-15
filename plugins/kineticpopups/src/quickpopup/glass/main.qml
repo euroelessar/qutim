@@ -160,7 +160,6 @@ Rectangle {
 				str = str.substring(0, attributes.trimLength - 3) + "...";
 			body.text = str;
 
-
 			subject.text = notify.title;
 			actions.model = notify.actions;
 
