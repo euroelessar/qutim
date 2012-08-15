@@ -13,18 +13,19 @@ public:
 	explicit DockTile(QObject *parent = 0);
 protected:
 	QAction *createStatusAction(qutim_sdk_0_3::Status::Type type);
-	void createStatuses(QMenu *parent);
 private slots:
-	void onStatusTriggered();
+    void onStatusTriggered(QAction *);
+    void onSessionTriggered();
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionDestroyed();
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	int calculateUnread() const;
 private:
 	QScopedPointer<QMenu> m_menu;
-	QAction *m_status_separator;
-	QAction *m_session_separator;
-	QList<qutim_sdk_0_3::ChatSession*> m_sessions;
+    QAction *m_statusSeparator;
+    QAction *m_sessionSeparator;
+    QActionGroup *m_statusGroup;
+    QHash<qutim_sdk_0_3::ChatSession*, QAction*> m_sessions;
 };
 
 #endif // DOCKTILE_H
