@@ -210,7 +210,7 @@ void DeclarativeView::resizeEvent(QResizeEvent *event)
 void DeclarativeView::setRootObject(QObject *object)
 {
     Q_D(DeclarativeView);
-    if (d->rootObject == object || !scene())
+	if (d->rootObject == object || !scene())
         return;
     if (QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(object)) {
         scene()->addItem(declarativeItem);
