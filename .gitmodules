@@ -19,3 +19,6 @@
 [submodule "protocols/vkontakte/vreen"]
 	path = protocols/vkontakte/vreen
 	url = git://github.com/gorthauer/vreen.git
+[submodule "plugins/docktile/qtdocktile"]
+	path = plugins/docktile/qtdocktile
+	url = git://github.com/gorthauer/QtDockTile.git
