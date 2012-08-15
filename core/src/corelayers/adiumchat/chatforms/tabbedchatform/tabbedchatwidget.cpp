@@ -102,7 +102,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_layout = new QVBoxLayout(centralWidget());
 	m_layout->addWidget(m_hSplitter);
 #ifdef Q_WS_MAC
-	m_layout->setMargin(0);
+    m_layout->setMargin(0);
 	m_layout->setSpacing(1);
 #endif
 
@@ -222,9 +222,9 @@ void TabbedChatWidget::loadSettings()
 			m_layout->insertWidget(0, tabBar);
 			//m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
-			setContentsMargins(0, 0, 0, 1);
+            setContentsMargins(0, 0, 0, 1);
 #endif
-		}
+        }
 
 		if (m_flags & UseQutimIcon)
 			m_attributes &= ~UseCustomIcon;
@@ -473,7 +473,7 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 
 void TabbedChatWidget::ensureToolBar()
 {
-	if (QtWin::isCompositionEnabled()) {
+    if (QtWin::isCompositionEnabled() && m_flags & AdiumToolbar) {
 		m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
 		centralWidget()->setAutoFillBackground(true);
 		QtWin::extendFrameIntoClientArea(this,
@@ -482,8 +482,8 @@ void TabbedChatWidget::ensureToolBar()
 										 m_toolbar->sizeHint().height(),
 										 0
 										 );
-		setContentsMargins(0, 0, 0, 0);
-	}
+        setContentsMargins(0, 0, 0, 0);
+    }
 }
 
 void TabbedChatWidget::activateWindow()
