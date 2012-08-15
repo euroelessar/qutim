@@ -127,7 +127,7 @@ void TabbedChatWidget::setView(QWidget *view)
 
 	if (!m_chatViewLayout) {
 		QWidget *w = new QWidget(this);
-		w->setLayout(m_chatViewLayout = new QVBoxLayout(this));
+		m_chatViewLayout = new QVBoxLayout(w);
 		m_chatViewLayout->setMargin(0);
 		m_vSplitter->insertWidget(0, w);
 	}
@@ -205,11 +205,11 @@ void TabbedChatWidget::loadSettings()
 			QHBoxLayout *l = new QHBoxLayout(tabBar);
 			l->setMargin(0);
 			btn = new QToolButton(this);
-			btn->setDefaultAction(m_sessionList);
 			btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			btn->setAutoRaise(true);
 			btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			btn->setPopupMode(QToolButton::InstantPopup);
+			btn->setDefaultAction(m_sessionList);
 			l->addWidget(m_tabBar);
 			l->addWidget(btn);
 		}
@@ -220,7 +220,7 @@ void TabbedChatWidget::loadSettings()
 			setContentsMargins(1, 1, 1, 1);
 		} else {
 			m_layout->insertWidget(0, tabBar);
-			m_tabBar->setDocumentMode(true);
+			//m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
 			setContentsMargins(0, 0, 0, 1);
 #endif
