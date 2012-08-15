@@ -100,10 +100,12 @@ public slots:
 	void ignore();
 	void accept();
 	void reject();
+	void timeout();
 private slots:
 	void onAtributesChanged();
 protected:
 	void mouseReleaseEvent(QMouseEvent *event);
+	virtual bool event(QEvent *ev);
 private:
 	QHash<qutim_sdk_0_3::Notification*, QuickNotify*>  m_notifyHash;
     qutim_sdk_0_3::DeclarativeView *m_view;

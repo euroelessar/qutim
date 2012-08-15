@@ -50,10 +50,10 @@ Item {
     property Flickable flickableItem
     property int orientation: Qt.Vertical
 
-    property int __scrollSize: 12
+    property int __scrollSize: 9
 
-    width:  orientation == Qt.Vertical ? __scrollSize : flickableItem.width - __scrollSize
-    height: orientation == Qt.Vertical ? flickableItem.height - __scrollSize : __scrollSize
+    width:  orientation == Qt.Vertical ? __scrollSize : Math.max(flickableItem.width, __scrollSize * 3) - __scrollSize
+    height: orientation == Qt.Vertical ? Math.max(flickableItem.height, __scrollSize * 3) - __scrollSize : __scrollSize
     anchors.right:  flickableItem.right
     opacity: 0
 

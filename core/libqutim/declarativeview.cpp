@@ -216,6 +216,7 @@ void DeclarativeView::setRootObject(QObject *object)
         scene()->addItem(declarativeItem);
         d->rootObject = declarativeItem;
         d->rootItem = declarativeItem;
+		declarativeItem->setFlag(QGraphicsItem::ItemIsMovable, false);
     } else if (QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject *>(object)) {
         scene()->addItem(graphicsObject);
         d->rootObject = graphicsObject;
@@ -264,7 +265,7 @@ bool DeclarativeView::eventFilter(QObject *watched, QEvent *e)
             }
         }
     }
-    return QGraphicsView::eventFilter(watched, e);
+	return QGraphicsView::eventFilter(watched, e);
 }
 
 QObject *DeclarativeView::rootObject() const
