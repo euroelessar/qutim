@@ -142,7 +142,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	m_timeout.setInterval(cfg.value("timeout", 5000));
 	cfg.endGroup();
 
-	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(reject()));
+	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
 void QuickPopupWidget::loadTheme(const QString &themeName)
@@ -206,6 +206,15 @@ void QuickPopupWidget::reject()
 	emit finished();
 }
 
+void QuickPopupWidget::timeout()
+{
+	//check cursor position
+	QPoint p = QCursor::pos();
+	QRect g = geometry();
+	if (!g.contains(p))
+		reject();
+}
+
 void QuickPopupWidget::onAtributesChanged()
 {
 	PopupAttributes *attributes = qobject_cast<PopupAttributes*>(sender());
@@ -262,6 +271,13 @@ void QuickPopupWidget::mouseReleaseEvent(QMouseEvent *event)
 		accept();
 	else if (event->button() == Qt::RightButton)
 		ignore();
+}
+
+bool QuickPopupWidget::event(QEvent *ev)
+{
+	if (ev->type() == QEvent::HoverLeave && !m_timeout.isActive())
+		reject();
+	return PopupWidget::event(ev);
 }
 
 } // namespace KineticPopups

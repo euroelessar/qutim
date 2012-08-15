@@ -108,14 +108,15 @@ private:
 	ConferenceContactsView *m_contactView;
 	QString m_key;
 	QVBoxLayout *m_layout;
+	QVBoxLayout *m_chatViewLayout;
 	ChatFlags m_flags;
 	QAction *m_sessionList;
 	QAction *m_unitAction;
 	QSplitter *m_vSplitter;
 	QWidget *m_view;
-	QWidget *m_centralWidget;
 	QPointer<QWidget> m_roster;
 	QSplitter *m_hSplitter;
+	QPointer<QDockWidget> m_dockWidget;
 };
 
 }

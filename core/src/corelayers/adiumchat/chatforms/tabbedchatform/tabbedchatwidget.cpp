@@ -44,6 +44,7 @@
 #include <QMenuBar>
 #include <qutim/account.h>
 #include <QSwipeGesture>
+#include <QDockWidget>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -76,16 +77,17 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_receiverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
 	m_contactView(new ConferenceContactsView(this)),
 	m_key(key),
+	m_layout(0),
+	m_chatViewLayout(0),
 	m_unitAction(0),
 	m_vSplitter(new QSplitter(Qt::Vertical, this)),
 	m_view(0),
-	m_centralWidget(new QWidget(this)),
 	m_hSplitter(0)
 {
 	m_actions.addHandler(this);
 	m_actions.show();
 	setAttribute(Qt::WA_DeleteOnClose);
-	setCentralWidget(m_centralWidget);
+	setCentralWidget(new QWidget(this));
 	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
 	setView(factory->createViewWidget());
 
@@ -97,7 +99,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_hSplitter->addWidget(m_vSplitter);
 	m_hSplitter->addWidget(m_contactView);
 
-	m_layout = new QVBoxLayout(m_centralWidget);
+	m_layout = new QVBoxLayout(centralWidget());
 	m_layout->addWidget(m_hSplitter);
 #ifdef Q_WS_MAC
 	m_layout->setMargin(0);
@@ -122,9 +124,15 @@ void TabbedChatWidget::setView(QWidget *view)
 {
 	if (m_view)
 		m_view->deleteLater();
-	view->setParent(centralWidget());
+
+	if (!m_chatViewLayout) {
+		QWidget *w = new QWidget(this);
+		w->setLayout(m_chatViewLayout = new QVBoxLayout(this));
+		m_chatViewLayout->setMargin(0);
+		m_vSplitter->insertWidget(0, w);
+	}
+	m_chatViewLayout->addWidget(view);
 	m_chatViewWidget = qobject_cast<ChatViewWidget*>(view);
-	m_vSplitter->insertWidget(0, view);
 
 	if (QAbstractScrollArea *area = qobject_cast<QAbstractScrollArea*>(view)) {
 		area->viewport()->grabGesture(Qt::SwipeGesture);
@@ -147,8 +155,14 @@ void TabbedChatWidget::loadSettings()
 							 | TabsOnBottom
 							 );
 
+		//simple options check for roster
+		if (m_flags & ShowRoster) {
+			m_flags &= ~AdiumToolbar;
+			m_flags &= ~TabsOnBottom;
+		}
+
 		QWidget *tabBar = m_tabBar;
-		if(m_flags & AdiumToolbar) {
+		if( m_flags & AdiumToolbar) {
 			addToolBar(Qt::TopToolBarArea, m_toolbar);
 
 			//simple hack
@@ -164,7 +178,10 @@ void TabbedChatWidget::loadSettings()
 			m_toolbar->setIconSize(QSize(22, 22));
 			setUnifiedTitleAndToolBar(true);
 		} else {
-			m_layout->addWidget(m_toolbar);
+			if (m_flags & ShowRoster)
+				m_chatViewLayout->addWidget(m_toolbar);
+			else
+				m_layout->addWidget(m_toolbar);
 			m_toolbar->setIconSize(QSize(16,16));
 			m_toolbar->setStyleSheet(QLatin1String("QToolBar{background:none;border:none;}"));
 			QWidget* spacer = new QWidget(this);
@@ -237,13 +254,20 @@ void TabbedChatWidget::loadSettings()
 			contactList->metaObject()->invokeMethod(contactList.data(), "widget",
 													Q_RETURN_ARG(QWidget*, roster));
 			if (roster) {
-				m_hSplitter->insertWidget(0, roster);
+				if (!m_dockWidget) {
+					m_dockWidget = new QDockWidget(tr("Contacts"), this);
+					m_dockWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+					addDockWidget(Qt::LeftDockWidgetArea, m_dockWidget.data());
+				}
+				//m_hSplitter->insertWidget(0, roster);
 				m_roster = roster;
+				m_dockWidget->setWidget(roster);
 			}
 		} else {
 			if (m_roster) {
 				//TODO remove splitter
 				m_roster->setParent(0);
+				m_dockWidget->deleteLater();
 			}
 		}
 
