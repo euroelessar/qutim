@@ -108,6 +108,7 @@ QSize ItemDeledate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
 
 QuickAnswerMenu::QuickAnswerMenu(Contact *contact) : m_contact(contact)
 {
+	setDragEnabled(false);
 	setVerticalScrollMode(ScrollPerPixel);
 	setItemDelegate(new ItemDeledate(this));
 	setAlternatingRowColors(true);
