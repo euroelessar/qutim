@@ -146,7 +146,16 @@ void Module::addButton(ActionGenerator *generator)
         p->toolBarButtons << generator;
     AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
     if (w)
-        w->addButton(generator);
+		w->addButton(generator);
+}
+
+void Module::removeButton(ActionGenerator *generator)
+{
+	if (p->toolBarButtons.removeOne(generator)) {
+		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
+	    if (w)
+			w->removeButton(generator);
+	}
 }
 
 void Module::show()

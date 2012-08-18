@@ -53,7 +53,8 @@ class Module : public MenuController
 public:
 	Module();
 	virtual ~Module();
-	Q_INVOKABLE void addButton(ActionGenerator *generator);
+	Q_INVOKABLE void addButton(qutim_sdk_0_3::ActionGenerator *generator);
+	Q_INVOKABLE void removeButton(qutim_sdk_0_3::ActionGenerator *generator);
 	Q_INVOKABLE QWidget *widget();
 protected:
 	bool event(QEvent *);

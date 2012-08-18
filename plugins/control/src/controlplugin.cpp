@@ -25,6 +25,7 @@
 
 #include "controlplugin.h"
 #include "rostermanager.h"
+#include <qutim/debug.h>
 
 namespace Control {
 

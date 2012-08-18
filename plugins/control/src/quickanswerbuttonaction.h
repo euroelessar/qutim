@@ -28,7 +28,9 @@
 
 #include <qutim/actiongenerator.h>
 #include <qutim/contact.h>
+#include <QWidgetAction>
 #include <QListWidget>
+#include <QStyledItemDelegate>
 
 namespace Control {
 
@@ -53,8 +55,8 @@ class QuickAnswerButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
 public:
 	QuickAnswerButtonActionGenerator(QObject *object, const char *slot);
 	
-//protected:
-//	virtual QObject *generateHelper() const;
+protected:
+	virtual QObject *generateHelper() const;
 //	virtual void createImpl(QAction *action,QObject *obj) const;
 //	virtual void showImpl(QAction *action,QObject *obj);
 //	virtual void hideImpl(QAction *action,QObject *obj);
@@ -62,7 +64,17 @@ public:
 private:
 };
 
-class QuickAnswerButtonAction : public QAction
+class ItemDeledate : public QStyledItemDelegate
+{
+public:
+	ItemDeledate(QObject *parent = 0);
+	void paint(QPainter *painter,
+               const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
+};
+
+class QuickAnswerButtonAction : public QWidgetAction
 {
 	Q_OBJECT
 public:
@@ -72,6 +84,9 @@ signals:
 	
 public slots:
 	
+protected:
+	virtual QWidget *createWidget(QWidget *parent);
+    virtual void deleteWidget(QWidget *widget);
 };
 
 } // namespace Control

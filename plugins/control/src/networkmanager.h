@@ -154,6 +154,9 @@ public:
 	QNetworkReply *post(const QUrl &url, const QByteArray &body);
 	QNetworkReply *get(const QUrl &url);
 	
+public slots:
+	void updateAnswers();
+	
 protected slots:
 	void onReplyFinished(QNetworkReply *reply);
 	void trySend();

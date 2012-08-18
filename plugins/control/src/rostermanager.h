@@ -60,6 +60,7 @@ protected slots:
 	void onContactInListChanged(bool inList);
 	void onAutoReplyClicked(QAction *action, QObject *object);
 	void onQuickAnswerClicked(QObject *object);
+	void onGroupsClicked(QAction *action);
 	
 protected:
 	void connectAccount(qutim_sdk_0_3::Account *account);
@@ -79,6 +80,7 @@ private:
 	static RosterManager *self;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_autoReplyGenerator;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_quickAnswerGenerator;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_groupGenerator;
 	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 	NetworkManager *m_manager;
 	QVariantList m_actions;

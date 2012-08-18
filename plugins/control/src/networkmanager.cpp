@@ -350,6 +350,11 @@ QNetworkReply *NetworkManager::get(const QUrl &url)
 	return QNetworkAccessManager::get(request);
 }
 
+void NetworkManager::updateAnswers()
+{
+	m_answersReply = get(m_base.resolved(QUrl(GET_ANSWERS_URL)));
+}
+
 void NetworkManager::onReplyFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
@@ -367,7 +372,7 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 		m_answersReply = 0;
 		if (reply->error() == QNetworkReply::NoError) {
 			QVariantMap data = Json::parse(readData).toMap();
-			qDebug() << data << data.value("success");
+			debug() << data << data.value("success");
 			if (data.value("success").toBool()) {
 				m_networkAnswers = data.value("body").toStringList();
 				rebuildAnswers();
@@ -394,7 +399,7 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 	}
 	Q_ASSERT(reply == m_currentReply);
 	m_currentReply = 0;
-	qDebug() << reply->error() << reply->errorString() << readData;
+	debug() << reply->error() << reply->errorString() << readData;
 	if (reply->request().url().path().endsWith(LOGIN_URL)) {
 		if (reply->error() != QNetworkReply::NoError) {
 			NotificationRequest request(Notification::System);
@@ -420,7 +425,7 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			m_currentReply = reply;
 		} else if (reply->error() == QNetworkReply::NoError) {
 			QVariantMap data = Json::parse(readData).toMap();
-			qDebug() << data << data.value("success");
+			debug() << data << data.value("success");
 			if (data.value("success").toBool()) {
 				QVariantMap body = data.value("body").toMap();
 				int accountId = body.value("accountId", -1).toInt();
@@ -577,7 +582,7 @@ void NetworkManager::onTimer()
 {
 	m_timer.stop();
 	if (m_networkAnswers.isEmpty() && !m_answersReply)
-		m_answersReply = get(m_base.resolved(QUrl(GET_ANSWERS_URL)));
+		updateAnswers();
 	if (m_actions.isEmpty())
 		return;
 	bool messages = false;
@@ -689,7 +694,7 @@ void NetworkManager::onTimer()
 	scope->actions.prepend(actions);
 	scope->account = account;
 	reply->setProperty("scope", qVariantFromValue(scope));
-	qDebug() << Json::generate(body);
+	debug() << Json::generate(body);
 	m_currentReply = reply;
 }
 

@@ -54,7 +54,7 @@ SearchLayer::SearchLayer()
 									  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
 									  this,
 									  SLOT(showContactSearch(QObject*)));
-		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
+		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, button.data()));
         gen->addHandler(ActionVisibilityChangedHandler,this);
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		if (controller)

@@ -139,7 +139,7 @@ SimpleActions::SimpleActions()
 			SLOT(onNotificationBackendDestroyed(QByteArray)));
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList)
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_disableSound.data()));
+		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_disableSound.data()));
 
 	foreach (Protocol *proto, Protocol::all()) {
 		foreach (Account *acc, proto->accounts())

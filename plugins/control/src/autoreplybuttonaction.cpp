@@ -92,7 +92,7 @@ AutoReplyButton::AutoReplyButton(QAction *action, QWidget *parent)
 	m_spinBox = new QSpinBox(this);
 	m_spinBox->setMinimum(1);
 	m_button = new QToolButton(this);
-	m_button->setText(tr("Send"));
+	m_button->setText(tr("Bin lookup"));
 //	m_button->setIcon(Icon(""));
 	layout->addWidget(m_spinBox);
 	layout->addWidget(m_button);

@@ -33,6 +33,7 @@ namespace Control {
 class ControlPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
+	Q_CLASSINFO("DebugName", "Control")
 public:
 	explicit ControlPlugin();
 	

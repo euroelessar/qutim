@@ -34,8 +34,12 @@
 #include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
 #include <qutim/notification.h>
+#include <qutim/icon.h>
 #include <QStringBuilder>
 #include <QSet>
+
+#define NONGROUP_MODEL_ID "Core::SimpleContactList::NonGroupModel"
+#define DEFAULT_MODEL_ID "Core::SimpleContactList::TreeModel"
 
 namespace Control {
 
@@ -70,10 +74,17 @@ RosterManager::RosterManager()
 	m_manager = new NetworkManager(this);
 	m_autoReplyGenerator.reset(new AutoReplyButtonActionGenerator(this, SLOT(onAutoReplyClicked(QAction*,QObject*))));
 	m_quickAnswerGenerator.reset(new QuickAnswerButtonActionGenerator(this, SLOT(onQuickAnswerClicked(QObject*))));
+	//QT_TRANSLATE_NOOP("RosterManager", "Show groups")
+	m_groupGenerator.reset(new ActionGenerator(Icon("view-group"), "Show groups",
+	                                           this, SLOT(onGroupsClicked(QAction*))));
 	ServicePointer<QObject> form("ChatForm");
 	if (form) {
 		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
 		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+	}
+	ServicePointer<QObject> contactList("ContactList");
+	if (contactList) {
+		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_groupGenerator.data()));
 	}
 	m_settingsItem = new GeneralSettingsItem<Control::SettingsWidget>(
 	                     Settings::Plugin,	QIcon(),
@@ -92,6 +103,10 @@ RosterManager::~RosterManager()
 	if (form) {
 		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
 		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+	}
+	ServicePointer<QObject> contactList("ContactList");
+	if (contactList) {
+		QMetaObject::invokeMethod(contactList, "removeButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_groupGenerator.data()));
 	}
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
@@ -238,7 +253,7 @@ static QObject *activeContact()
 void RosterManager::onAutoReplyClicked(QAction *action, QObject *object)
 {
 	object = activeContact();
-	qDebug() << Q_FUNC_INFO << action << object;
+	debug() << Q_FUNC_INFO << action << object;
 	Contact *contact = qobject_cast<Contact*>(object);
 	Q_ASSERT(contact);
 	const int count = action->property("__control_count").toInt();
@@ -261,8 +276,34 @@ void RosterManager::onAutoReplyClicked(QAction *action, QObject *object)
 void RosterManager::onQuickAnswerClicked(QObject *object)
 {
 	object = activeContact();
-	qDebug() << Q_FUNC_INFO << object;
+	debug() << Q_FUNC_INFO << object;
 	new QuickAnswerMenu(qobject_cast<Contact*>(object));
+}
+
+void RosterManager::onGroupsClicked(QAction *action)
+{
+	Q_UNUSED(action);
+	ServicePointer<QObject> model("ContactModel");
+	if (model) {
+		const char *modelId = model->metaObject()->className();
+		bool isNonGroup = !qstrcmp(modelId, NONGROUP_MODEL_ID);
+		Config config("control");
+		config.beginGroup("groupsButton");
+		QByteArray newModelId;
+		if (isNonGroup) {
+			newModelId = config.value("model", QLatin1String(DEFAULT_MODEL_ID)).toLatin1();
+		} else {
+			config.setValue("model", QLatin1String(modelId));
+			newModelId = NONGROUP_MODEL_ID;
+		}
+		ExtensionInfoList list = ServiceManager::instance()->listImplementations("ContactModel");
+		foreach (const ExtensionInfo &info, list) {
+			if (info.generator()->metaObject()->className() == newModelId) {
+				ServiceManager::instance()->setImplementation("ContactModel", info);
+				return;
+			}
+		}
+	}
 }
 
 void RosterManager::connectAccount(Account *account)
