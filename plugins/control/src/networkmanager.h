@@ -149,7 +149,7 @@ public:
 	void removeContact(qutim_sdk_0_3::Contact *contact);
 	void updateContact(qutim_sdk_0_3::Contact *contact);
 	void sendMessage(const qutim_sdk_0_3::Message &message);
-	void sendRequest(qutim_sdk_0_3::Contact *contact, const QString &text);
+	void sendRequest(qutim_sdk_0_3::ChatUnit *contact, const QString &text);
 	
 	QNetworkReply *post(const QUrl &url, const QByteArray &body);
 	QNetworkReply *get(const QUrl &url);

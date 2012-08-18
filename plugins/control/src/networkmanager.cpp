@@ -307,7 +307,7 @@ void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 	trySend();
 }
 
-void NetworkManager::sendRequest(Contact *contact, const QString &text)
+void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
 {
 	Config config("control");
 	config.beginGroup("general");
@@ -382,7 +382,7 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 				m_timer.start(60000, this);
 		}
 		return;
-	} else if (Contact *contact = reply->property("__control_contact").value<Contact*>()) {
+	} else if (ChatUnit *contact = reply->property("__control_contact").value<ChatUnit*>()) {
 		if (reply->error() == QNetworkReply::NoError) {
 			ChatSession *session = ChatLayer::get(contact, true);
 			QString text = QString::fromUtf8(readData);

@@ -106,7 +106,7 @@ QSize ItemDeledate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
 	return QStyledItemDelegate::sizeHint(opt4, index);
 }
 
-QuickAnswerMenu::QuickAnswerMenu(Contact *contact) : m_contact(contact)
+QuickAnswerMenu::QuickAnswerMenu(ChatUnit *contact) : m_contact(contact)
 {
 	setDragEnabled(false);
 	setVerticalScrollMode(ScrollPerPixel);

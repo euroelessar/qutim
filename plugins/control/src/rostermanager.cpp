@@ -254,18 +254,23 @@ void RosterManager::onAutoReplyClicked(QAction *action, QObject *object)
 {
 	object = activeContact();
 	debug() << Q_FUNC_INFO << action << object;
-	Contact *contact = qobject_cast<Contact*>(object);
+	ChatUnit *contact = qobject_cast<ChatUnit*>(object);
 	Q_ASSERT(contact);
-	const int count = action->property("__control_count").toInt();
-	const MessageList messages = RosterManager::messages(contact);
-	const int first = qMax(0, messages.size() - count);
+	ChatSession *session = ChatLayer::get(contact, false);
 	QString text;
-	for (int i = first; i < messages.size(); ++i) {
-		const Message &message = messages.at(i);
-		text += message.text();
-		text += QLatin1Char('\n');
+	if (session)
+		QMetaObject::invokeMethod(session, "quote", Q_RETURN_ARG(QString, text));
+	if (text.isEmpty()) {
+		const int count = action->property("__control_count").toInt();
+		const MessageList messages = RosterManager::messages(contact);
+		const int first = qMax(0, messages.size() - count);
+		for (int i = first; i < messages.size(); ++i) {
+			const Message &message = messages.at(i);
+			text += message.text();
+			text += QLatin1Char('\n');
+		}
+		text.chop(1);
 	}
-	text.chop(1);
 	NotificationRequest request(Notification::System);
 	request.setTitle(tr("Control plugin"));
 	request.setText(tr("qutIM sends request to server:\n%1").arg(text));
@@ -277,7 +282,9 @@ void RosterManager::onQuickAnswerClicked(QObject *object)
 {
 	object = activeContact();
 	debug() << Q_FUNC_INFO << object;
-	new QuickAnswerMenu(qobject_cast<Contact*>(object));
+	ChatUnit *contact = qobject_cast<ChatUnit*>(object);
+	if (contact)
+		new QuickAnswerMenu(contact);
 }
 
 void RosterManager::onGroupsClicked(QAction *action)
