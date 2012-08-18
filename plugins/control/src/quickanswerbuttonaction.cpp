@@ -89,6 +89,7 @@ void ItemDeledate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 	if (opt4.state & QStyle::State_MouseOver) {
 		opt4.state &= ~QStyle::State_MouseOver;
 		opt4.state |= QStyle::State_Selected;
+		opt4.state |= QStyle::State_HasFocus;
 	}
 	QStyledItemDelegate::paint(painter, opt4, index);
 	painter->setBrush(QBrush(Qt::transparent));
@@ -129,7 +130,7 @@ QuickAnswerMenu::QuickAnswerMenu(ChatUnit *contact) : m_contact(contact)
 	if (QCursor::pos().x() < geom.x() + geom.width() / 2)
 		geom.setX(geom.x() + geom.width() / 2);
 	else
-		geom.setY(geom.y() - geom.width() / 2);
+		geom.setWidth(geom.width() / 2);
 	menu->setGeometry(geom);
 	menu->show();
 	connect(contact, SIGNAL(destroyed()), SLOT(close()));
