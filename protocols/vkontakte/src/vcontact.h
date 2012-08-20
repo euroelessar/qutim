@@ -29,10 +29,10 @@
 #include <qutim/chatsession.h>
 #include <QPointer>
 #include <vreen/contact.h>
+#include <vreen/message.h>
 
 namespace Vreen {
 class ChatSession;
-class Message;
 }
 
 class VAccount;
@@ -57,8 +57,8 @@ public:
 	QString activity() const;
 
 	void handleMessage(const Vreen::Message &message);
-    Vreen::Client *client() const;
-    Vreen::Buddy *buddy() const;
+	Vreen::Client *client() const;
+	Vreen::Buddy *buddy() const;
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
 	Vreen::ChatSession *chatSession();
@@ -85,8 +85,11 @@ private:
 	QStringList m_tags;
 	QString m_avatar;
 	qutim_sdk_0_3::MessageList m_unreadMessages;
+
+	uint m_unreachedMessagesCount;
 	typedef QList<QPair<int, int> > SentMessagesList;
 	SentMessagesList m_sentMessages;
+	Vreen::MessageList m_pendingMessages;
 };
 
 Q_DECLARE_METATYPE(VContact*)
