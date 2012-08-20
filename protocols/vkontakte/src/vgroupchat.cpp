@@ -63,14 +63,15 @@ VContact *VGroupChat::findContact(int uid) const
 
 void VGroupChat::handleMessage(const Vreen::Message &msg)
 {
-	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
-	coreMessage.setChatUnit(findParticipant(msg.isIncoming() ? msg.fromId() : msg.toId()));
-	coreMessage.setIncoming(msg.isIncoming());
-	coreMessage.setProperty("mid", msg.id());
-	coreMessage.setProperty("subject", msg.subject());
+	//TODO
+	//qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+	//coreMessage.setChatUnit(findParticipant(msg.isIncoming() ? msg.fromId() : msg.toId()));
+	//coreMessage.setIncoming(msg.isIncoming());
+	//coreMessage.setProperty("mid", msg.id());
+	//coreMessage.setProperty("subject", msg.subject());
 
-	ChatSession *s = ChatLayer::get(this);
-	s->appendMessage(coreMessage);
+	//ChatSession *s = ChatLayer::get(this);
+	//s->appendMessage(coreMessage);
 }
 
 Buddy *VGroupChat::me() const

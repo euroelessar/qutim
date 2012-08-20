@@ -37,8 +37,8 @@ class VGroupChat : public qutim_sdk_0_3::Conference
 {
 	Q_OBJECT
 public:
-    VGroupChat(VAccount *account, int chatId);
-    ~VGroupChat();
+	VGroupChat(VAccount *account, int chatId);
+	~VGroupChat();
 	void setTyping(int uid, bool set);
 	VContact *findContact(int uid) const;
 
@@ -51,18 +51,18 @@ public:
 public slots:
 	void handleMessage(const Vreen::Message &message);
 protected:
-    virtual void doJoin();
-    virtual void doLeave();
+	virtual void doJoin();
+	virtual void doLeave();
 protected slots:
-    void onBuddyAdded(Vreen::Buddy *buddy);
-    void onBuddyRemoved(Vreen::Buddy *buddy);
-    void onUserDestroyed(QObject *obj);
-    void onJoinedChanged(bool set);
+	void onBuddyAdded(Vreen::Buddy *buddy);
+	void onBuddyRemoved(Vreen::Buddy *buddy);
+	void onUserDestroyed(QObject *obj);
+	void onJoinedChanged(bool set);
 	void onTitleChanged(const QString &title);
 private:
 	VAccount *m_account;
-    Vreen::GroupChatSession *m_chatSession;
-    QHash<Vreen::Buddy*, VContact*> m_buddies;
+	Vreen::GroupChatSession *m_chatSession;
+	QHash<Vreen::Buddy*, VContact*> m_buddies;
 	QString m_title;
 };
 

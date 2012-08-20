@@ -65,15 +65,16 @@ static Status::Type convertStatus(Vreen::Contact::Status status)
 }
 
 VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
-	m_buddy(contact)
+	m_buddy(contact),
+	m_unreachedMessagesCount(0)
 {
 	m_status = Status::instance(convertStatus(m_buddy->status()), "vkontakte");
 	m_status.setText(m_buddy->activity());
 	m_name = m_buddy->name();
 	m_tags = m_buddy->tags();
 
-    connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
-    connect(m_buddy, SIGNAL(statusChanged(Vreen::Contact::Status)), SLOT(onStatusChanged(Vreen::Contact::Status)));
+	connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
+	connect(m_buddy, SIGNAL(statusChanged(Vreen::Contact::Status)), SLOT(onStatusChanged(Vreen::Contact::Status)));
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
@@ -102,9 +103,10 @@ bool VContact::sendMessage(const Message& message)
 	if (!m_buddy->client()->isOnline())
 		return false;
 	Vreen::Reply *reply = chatSession()->sendMessage(message.text(),
-												  message.property("subject").toString()); //TODO don't use Vreen::Reply, use vlongpoll instead
+													 message.property("subject").toString()); //TODO don't use Vreen::Reply, use vlongpoll instead
 	reply->setProperty("id", message.id());
 	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
+	m_unreachedMessagesCount++;
 	return true;
 }
 
@@ -130,6 +132,11 @@ QString VContact::activity() const
 
 void VContact::handleMessage(const Vreen::Message &msg)
 {
+	if (!msg.isIncoming() && m_unreachedMessagesCount) {
+		m_pendingMessages.append(msg);
+		return;
+	}
+
 	SentMessagesList::iterator i = m_sentMessages.begin();
 	for (; i != m_sentMessages.end(); ++i) {
 		if (i->second == msg.id()) {
@@ -153,12 +160,12 @@ void VContact::handleMessage(const Vreen::Message &msg)
 			m_chatSession->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
 	} else
 		coreMessage.setProperty("history", true);
-    s->appendMessage(coreMessage);
+	s->appendMessage(coreMessage);
 }
 
 Vreen::Client *VContact::client() const
 {
-    return m_buddy->client();
+	return m_buddy->client();
 }
 
 void VContact::setStatus(const Status &status)
@@ -270,10 +277,19 @@ void VContact::onNameChanged(const QString &name)
 
 void VContact::onMessageSent(const QVariant &response)
 {
+	m_unreachedMessagesCount--;
 	int mid = response.toInt();
 	if (mid) {
 		int id = sender()->property("id").toInt();
 		m_sentMessages << QPair<int, int>(id, mid);
+	} else {
+		//TODO undelivered messages check
+	}
+
+	if (!m_unreachedMessagesCount) {
+		foreach (Vreen::Message msg, m_pendingMessages) {
+			handleMessage(msg);
+		}
 	}
 }
 
@@ -324,5 +340,5 @@ void VContact::onAvatarDownloaded(const QString &path)
 
 Vreen::Buddy *VContact::buddy() const
 {
-    return m_buddy;
+	return m_buddy;
 }
