@@ -44,8 +44,6 @@
 
 using namespace qutim_sdk_0_3;
 
-#define VK_PHOTO_SOURCE Vreen::Contact::PhotoSizeMediumRec
-
 static Status::Type convertStatus(Vreen::Contact::Status status)
 {
 	Status::Type type;
@@ -84,7 +82,7 @@ VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
-	downloadAvatar(m_buddy->photoSource(Vreen::Contact::PhotoSizeMedium));
+	account->downloadAvatar(this);
 }
 
 
@@ -233,6 +231,14 @@ QString VContact::avatar() const
 	return m_avatar;
 }
 
+void VContact::setAvatar(const QString &path)
+{
+	if (m_avatar != path) {
+		m_avatar = path;
+		emit avatarChanged(path);
+	}
+}
+
 bool VContact::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
@@ -242,17 +248,6 @@ bool VContact::event(QEvent *ev)
 							activity());
 	}
 	return Contact::event(ev);
-}
-
-void VContact::downloadAvatar(const QString &url)
-{
-	if (!url.isEmpty()) {
-		Vreen::ContentDownloader *downloader = new Vreen::ContentDownloader(this);
-		connect(downloader, SIGNAL(downloadFinished(QString)), SLOT(onAvatarDownloaded(QString)));
-		connect(downloader, SIGNAL(downloadFinished(QString)),
-				downloader, SLOT(deleteLater()));
-		downloader->download(QUrl(url));
-	}
 }
 
 void VContact::onStatusChanged(Vreen::Contact::Status status)
@@ -325,20 +320,18 @@ void VContact::onSessionCreated(ChatSession *session)
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }
 
-void VContact::onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize size)
+void VContact::onPhotoSourceChanged(const QString &, Vreen::Contact::PhotoSize size)
 {
 	if (size == VK_PHOTO_SOURCE)
-		downloadAvatar(source);
+		account()->downloadAvatar(this);
 }
-
-void VContact::onAvatarDownloaded(const QString &path)
-{
-	m_avatar = path;
-	emit avatarChanged(path);
-}
-
 
 Vreen::Buddy *VContact::buddy() const
 {
 	return m_buddy;
+}
+
+VAccount *VContact::account()
+{
+	return static_cast<VAccount*>(Contact::account());
 }

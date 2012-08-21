@@ -54,16 +54,17 @@ public:
 	virtual QString name() const;
 	virtual void setName(const QString& name);
 	virtual QString avatar() const;
+	void setAvatar(const QString &path);
 	QString activity() const;
 
 	void handleMessage(const Vreen::Message &message);
 	Vreen::Client *client() const;
 	Vreen::Buddy *buddy() const;
+	VAccount *account();
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
 	Vreen::ChatSession *chatSession();
 	virtual bool event(QEvent *ev);
-	void downloadAvatar(const QString &url);
 public slots:
 	void setTyping(bool set = false);
 private slots:
@@ -75,7 +76,6 @@ private slots:
 	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize);
-	void onAvatarDownloaded(const QString &path);
 private:
 	Vreen::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
