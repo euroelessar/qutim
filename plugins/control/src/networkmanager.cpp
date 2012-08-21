@@ -183,19 +183,28 @@ NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
+	connect(this, SIGNAL(sslErrors(QNetworkReply*, QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*, QList<QSslError>)));
 	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
 	struct {
 		const char *fileName;
 		QString error;
 		QSslCertificate *cert;
+		bool useKey;
 	} files[] = {
-		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate },
-		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate }
+		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate, true },
+		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate, false }
 	};
 	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
 		QString file = shareDir.filePath(QLatin1String(files[i].fileName));
 		QSslCertificate &certificate = *files[i].cert;
 		certificate = QSslCertificate::fromPath(file).value(0);
+
+		if(files[i].useKey) {
+			QFile device(file);
+			device.open(QFile::ReadOnly);
+			m_privateKey = QSslKey(&device, QSsl::Rsa);
+		}
+
 		if (!certificate.isValid()) {
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));
@@ -307,21 +316,6 @@ void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 	trySend();
 }
 
-void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
-{
-	Config config("control");
-	config.beginGroup("general");
-	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
-	QNetworkRequest request(url);
-	QSslConfiguration ssl;
-	ssl.setLocalCertificate(m_localCertificate);
-	request.setSslConfiguration(ssl);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "text/plain");
-	QNetworkReply *reply = QNetworkAccessManager::post(request, text.toUtf8());
-	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
-	reply->setProperty("__control_contact", qVariantFromValue(contact));
-}
-
 static QByteArray paranoicEscape(const QByteArray &raw)
 {
 	static char hex[17] = "0123456789ABCDEF";
@@ -334,6 +328,23 @@ static QByteArray paranoicEscape(const QByteArray &raw)
 		escaped += hex[c & 0x0f];
 	}
 	return escaped;
+}
+
+void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
+{
+	Config config("control");
+	config.beginGroup("general");
+	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
+	QNetworkRequest request(url);
+	QSslConfiguration ssl;
+	ssl.setLocalCertificate(m_localCertificate);
+	ssl.setPrivateKey(m_privateKey);
+	request.setSslConfiguration(ssl);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+	QByteArray data = "request=" + paranoicEscape(text.toUtf8());
+	QNetworkReply *reply = QNetworkAccessManager::post(request, data);
+	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
+	reply->setProperty("__control_contact", qVariantFromValue(contact));
 }
 
 QNetworkReply *NetworkManager::post(const QUrl &url, const QByteArray &body)
@@ -393,6 +404,8 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));
 			request.setText(tr("Received reply from server:\n%1").arg(text));
+			//qDebug() << reply->rawHeaderPairs();
+			//qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 			request.send();
 		}
 		return;
@@ -577,7 +590,7 @@ void NetworkManager::storeActions()
 	for (int i = oldSize - 1; i >= size; --i)
 		cache.remove(i);
 }
-	
+
 void NetworkManager::onTimer()
 {
 	m_timer.stop();
