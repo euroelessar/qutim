@@ -29,6 +29,7 @@
 #include <QNetworkAccessManager>
 #include <QDateTime>
 #include <QUrl>
+#include <QSslKey>
 #include <QBasicTimer>
 #include <QSslCertificate>
 #include <qutim/account.h>
@@ -42,11 +43,11 @@ public:
 	AccountId() {}
 	AccountId(qutim_sdk_0_3::Account *account);
 	AccountId(const QString &id, const QString &protocol);
-	
+
 	bool isEmpty() const { return id.isEmpty(); }
 	bool operator ==(const AccountId &o) const
 	{ return id == o.id && protocol == o.protocol; }
-	
+
 	QString id;
 	QString protocol;
 };
@@ -108,14 +109,14 @@ class ActionList
 public:
 	ActionList();
 	~ActionList();
-	
+
 	void clear();
 	Action *first();
 	Action *last();
 	bool isEmpty() const;
 	bool hasSingleElement() const;
 	int count() const;
-	
+
 	inline void operator <<(Action *action) { append(action); }
 	void append(Action *action);
 	void append(ActionList &o);
@@ -134,13 +135,13 @@ class NetworkManager : public QNetworkAccessManager
 	Q_PROPERTY(QStringList answers READ answers NOTIFY answersChanged)
 public:
 	explicit NetworkManager(QObject *parent = 0);
-	
+
 	void timerEvent(QTimerEvent *ev);
 	void loadSettings(bool init, bool *changed);
 	void clearQueue();
-	
+
 	QStringList answers() const;
-	
+
 	void addAccount(qutim_sdk_0_3::Account *account);
 	void addAccount(const QString &protocol, const QString &id);
 	void removeAccount(qutim_sdk_0_3::Account *account);
@@ -150,33 +151,34 @@ public:
 	void updateContact(qutim_sdk_0_3::Contact *contact);
 	void sendMessage(const qutim_sdk_0_3::Message &message);
 	void sendRequest(qutim_sdk_0_3::ChatUnit *contact, const QString &text);
-	
+
 	QNetworkReply *post(const QUrl &url, const QByteArray &body);
 	QNetworkReply *get(const QUrl &url);
-	
+
 public slots:
 	void updateAnswers();
-	
+
 protected slots:
 	void onReplyFinished(QNetworkReply *reply);
 	void trySend();
 	void onMessageEncrypted(quint64 id);
 	void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
-	
+
 protected:
 	void rebuildAnswers();
 	void loadActions();
 	void storeActions();
 	void onTimer();
-	
+
 signals:
 	void answersChanged(const QStringList &answers);
-	
+
 public slots:
-	
+
 private:
 	QSslCertificate m_localCertificate;
 	QSslCertificate m_remoteCertificate;
+	QSslKey m_privateKey;
 	QBasicTimer m_timer;
 	QString m_username;
 	QUrl m_base;
