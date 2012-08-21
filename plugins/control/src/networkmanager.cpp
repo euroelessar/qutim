@@ -183,19 +183,28 @@ NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
+	connect(this, SIGNAL(sslErrors(QNetworkReply*, QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*, QList<QSslError>)));
 	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
 	struct {
 		const char *fileName;
 		QString error;
 		QSslCertificate *cert;
+		bool useKey;
 	} files[] = {
-		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate },
-		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate }
+		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate, true },
+		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate, false }
 	};
 	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
 		QString file = shareDir.filePath(QLatin1String(files[i].fileName));
 		QSslCertificate &certificate = *files[i].cert;
 		certificate = QSslCertificate::fromPath(file).value(0);
+
+		if(files[i].useKey) {
+			QFile device(file);
+			device.open(QFile::ReadOnly);
+			m_privateKey = QSslKey(&device, QSsl::Rsa);
+		}
+
 		if (!certificate.isValid()) {
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));
@@ -315,6 +324,7 @@ void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
 	QNetworkRequest request(url);
 	QSslConfiguration ssl;
 	ssl.setLocalCertificate(m_localCertificate);
+	ssl.setPrivateKey(m_privateKey);
 	request.setSslConfiguration(ssl);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "text/plain");
 	QNetworkReply *reply = QNetworkAccessManager::post(request, text.toUtf8());
@@ -577,7 +587,7 @@ void NetworkManager::storeActions()
 	for (int i = oldSize - 1; i >= size; --i)
 		cache.remove(i);
 }
-	
+
 void NetworkManager::onTimer()
 {
 	m_timer.stop();
