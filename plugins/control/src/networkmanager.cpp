@@ -316,22 +316,6 @@ void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 	trySend();
 }
 
-void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
-{
-	Config config("control");
-	config.beginGroup("general");
-	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
-	QNetworkRequest request(url);
-	QSslConfiguration ssl;
-	ssl.setLocalCertificate(m_localCertificate);
-	ssl.setPrivateKey(m_privateKey);
-	request.setSslConfiguration(ssl);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "text/plain");
-	QNetworkReply *reply = QNetworkAccessManager::post(request, text.toUtf8());
-	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
-	reply->setProperty("__control_contact", qVariantFromValue(contact));
-}
-
 static QByteArray paranoicEscape(const QByteArray &raw)
 {
 	static char hex[17] = "0123456789ABCDEF";
@@ -344,6 +328,23 @@ static QByteArray paranoicEscape(const QByteArray &raw)
 		escaped += hex[c & 0x0f];
 	}
 	return escaped;
+}
+
+void NetworkManager::sendRequest(ChatUnit *contact, const QString &text)
+{
+	Config config("control");
+	config.beginGroup("general");
+	QUrl url = QUrl::fromUserInput(config.value("requestUrl", QString()));
+	QNetworkRequest request(url);
+	QSslConfiguration ssl;
+	ssl.setLocalCertificate(m_localCertificate);
+	ssl.setPrivateKey(m_privateKey);
+	request.setSslConfiguration(ssl);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+	QByteArray data = "request=" + paranoicEscape(text.toUtf8());
+	QNetworkReply *reply = QNetworkAccessManager::post(request, data);
+	connect(contact, SIGNAL(destroyed()), reply, SLOT(deleteLater()));
+	reply->setProperty("__control_contact", qVariantFromValue(contact));
 }
 
 QNetworkReply *NetworkManager::post(const QUrl &url, const QByteArray &body)
@@ -403,6 +404,8 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));
 			request.setText(tr("Received reply from server:\n%1").arg(text));
+			//qDebug() << reply->rawHeaderPairs();
+			//qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 			request.send();
 		}
 		return;
