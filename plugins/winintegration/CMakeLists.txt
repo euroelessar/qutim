@@ -22,10 +22,13 @@ if(WINTHINGS_APILAYER_LIBRARY)
 
 	qutim_add_extensions_dir(subplugins)
 
-	INSTALL(DIRECTORY share
-		DESTINATION .
+	IF(QUTIM_INSTALL_ICONS)
+		FILE(GLOB WIN_ICONS "../../artwork/icons/tray/win/*.svg")
+		INSTALL(FILES ${WIN_ICONS}
+			DESTINATION share/icons/qutim-default/scalable/
 			COMPONENT Core
-	)
+		)
+	ENDIF()
 
 else()
 	message(STATUS "'Windows Integration' plugin will be skipped.")
