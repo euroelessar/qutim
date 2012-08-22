@@ -144,6 +144,7 @@ void VContact::handleMessage(const Vreen::Message &msg)
 			return;
 		}
 	}
+
 	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
 	coreMessage.setChatUnit(this);
 	coreMessage.setIncoming(msg.isIncoming());
@@ -287,6 +288,7 @@ void VContact::onMessageSent(const QVariant &response)
 		foreach (Vreen::Message msg, m_pendingMessages) {
 			handleMessage(msg);
 		}
+		m_pendingMessages.clear();
 	}
 }
 
@@ -309,11 +311,7 @@ void VContact::onUnreadChanged(MessageList unread)
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);
-
 	idList.clear();
-	//foreach (Message msg, unread)
-	//	idList.append(msg.property("mid").toInt());
-	//chatSession()->markMessagesAsRead(idList, false);
 }
 
 void VContact::onSessionCreated(ChatSession *session)
