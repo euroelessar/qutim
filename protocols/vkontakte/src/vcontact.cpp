@@ -171,8 +171,10 @@ void VContact::setStatus(const Status &status)
 	Status old = m_status;
 	m_status = status;
 	emit statusChanged(status, old);
-	NotificationRequest request(this, status, old);
-	request.send();
+	if (old.type() != status.type()) {
+		NotificationRequest request(this, status, old);
+		request.send();
+	}
 }
 
 Vreen::ChatSession *VContact::chatSession()
