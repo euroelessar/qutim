@@ -26,13 +26,15 @@
 #include "vgroupchat.h"
 #include <vreen/groupchatsession.h>
 #include <vcontact.h>
+#include <QApplication>
 
 using namespace qutim_sdk_0_3;
 
 VGroupChat::VGroupChat(VAccount *account, int chatId) :
 	Conference(account),
 	m_account(account),
-	m_chatSession(new Vreen::GroupChatSession(chatId, account->client()))
+	m_chatSession(new Vreen::GroupChatSession(chatId, account->client())),
+	m_unreachedMessagesCount(0)
 {
 	m_chatSession->setParent(this);
 	m_title = m_chatSession->title();
@@ -42,6 +44,8 @@ VGroupChat::VGroupChat(VAccount *account, int chatId) :
 	connect(m_chatSession, SIGNAL(participantRemoved(Vreen::Buddy*)), this, SLOT(onBuddyRemoved(Vreen::Buddy*)));
 	connect(m_chatSession, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
 	connect(m_chatSession, SIGNAL(messageAdded(Vreen::Message)), SLOT(handleMessage(Vreen::Message)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(setJoined(bool)));
 }
 
@@ -63,15 +67,41 @@ VContact *VGroupChat::findContact(int uid) const
 
 void VGroupChat::handleMessage(const Vreen::Message &msg)
 {
-	//TODO
-	//qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
-	//coreMessage.setChatUnit(findParticipant(msg.isIncoming() ? msg.fromId() : msg.toId()));
-	//coreMessage.setIncoming(msg.isIncoming());
-	//coreMessage.setProperty("mid", msg.id());
-	//coreMessage.setProperty("subject", msg.subject());
+	if (!msg.fromId()) {
+		Vreen::Reply *reply = m_account->client()->getMessage(msg.id());
+		connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageGet(QVariant)));
+	} else {
+		if (!msg.isIncoming() && m_unreachedMessagesCount) {
+			m_pendingMessages.append(msg);
+			return;
+		}
 
-	//ChatSession *s = ChatLayer::get(this);
-	//s->appendMessage(coreMessage);
+		SentMessagesList::iterator i = m_sentMessages.begin();
+		for (; i != m_sentMessages.end(); ++i) {
+			if (i->second == msg.id()) {
+				ChatSession *s = ChatLayer::get(this);
+				qApp->postEvent(s, new MessageReceiptEvent(i->first, true));
+				m_sentMessages.removeAt(i - m_sentMessages.begin());
+				return;
+			}
+		}
+
+		qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+		coreMessage.setChatUnit(findParticipant(msg.fromId()));
+		coreMessage.setIncoming(msg.isIncoming());
+		coreMessage.setProperty("mid", msg.id());
+		coreMessage.setProperty("subject", msg.subject());
+
+		ChatSession *s = ChatLayer::get(this);
+		if (msg.isIncoming()) {
+			if (!s->isActive())
+				m_unreadMessages.append(coreMessage);
+			else
+				m_chatSession->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
+		} else
+			coreMessage.setProperty("history", true);
+		s->appendMessage(coreMessage);
+	}
 }
 
 Buddy *VGroupChat::me() const
@@ -121,7 +151,7 @@ void VGroupChat::onUserDestroyed(QObject *obj)
 void VGroupChat::onJoinedChanged(bool set)
 {
 	if (set) {
-		m_chatSession->getHistory();
+		//m_chatSession->getHistory();
 		m_chatSession->getInfo();
 	}
 }
@@ -150,11 +180,19 @@ ChatUnit *VGroupChat::findParticipant(int uid) const
 	return m_buddies.value(buddy);
 }
 
+Vreen::GroupChatSession *VGroupChat::chatSession() const
+{
+	return m_chatSession;
+}
+
 bool VGroupChat::sendMessage(const Message &message)
 {
 	if (!m_account->client()->isOnline())
 		return false;
-	m_chatSession->sendMessage(message.text(), message.property("subject").toString());
+	Vreen::Reply *reply = m_chatSession->sendMessage(message.text(), message.property("subject").toString());
+	reply->setProperty("id", message.id());
+	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
+	m_unreachedMessagesCount++;
 	return true;
 }
 
@@ -165,4 +203,62 @@ void VGroupChat::onTitleChanged(const QString &title)
 		m_title = title;
 		emit titleChanged(title, old);
 	}
+}
+
+void VGroupChat::onMessageGet(const QVariant &response)
+{
+	QVariantList list = response.toList();
+	if (list.count()) {
+		Q_UNUSED(list.takeFirst());
+		Vreen::MessageList messageList = Vreen::Message::fromVariantList(list, m_account->client());
+		foreach (Vreen::Message msg, messageList)
+			handleMessage(msg);
+	}
+}
+
+void VGroupChat::onMessageSent(const QVariant &response)
+{
+	m_unreachedMessagesCount--;
+	int mid = response.toInt();
+	if (mid) {
+		int id = sender()->property("id").toInt();
+		m_sentMessages << QPair<int, int>(id, mid);
+	} else {
+		//TODO undelivered messages check
+	}
+
+	if (!m_unreachedMessagesCount) {
+		foreach (Vreen::Message msg, m_pendingMessages) {
+			handleMessage(msg);
+		}
+		m_pendingMessages.clear();
+	}
+}
+
+void VGroupChat::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
+{
+	Vreen::IdList idList;
+	MessageList::iterator i = m_unreadMessages.begin();
+	for (; i != m_unreadMessages.end(); ++i) {
+		int index = -1;
+		MessageList::iterator j = unread.begin();
+		for (; j != unread.end(); ++j) {
+			if (i->id() == j->id()) {
+				index = j - unread.begin();
+				unread.removeAt(index);
+				break;
+			}
+		}
+		if (index == -1)
+			idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
+	}
+	if (idList.count())
+		chatSession()->markMessagesAsRead(idList, true);
+	idList.clear();
+}
+
+void VGroupChat::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+{
+	if (session->unit() == this)
+		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }

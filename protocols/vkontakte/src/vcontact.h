@@ -84,8 +84,9 @@ private:
 	QString m_name;
 	QStringList m_tags;
 	QString m_avatar;
-	qutim_sdk_0_3::MessageList m_unreadMessages;
 
+	//TODO rewrite on unite message handler
+	qutim_sdk_0_3::MessageList m_unreadMessages;
 	uint m_unreachedMessagesCount;
 	typedef QList<QPair<int, int> > SentMessagesList;
 	SentMessagesList m_sentMessages;
