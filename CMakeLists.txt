@@ -26,6 +26,10 @@ option(QUTIM_INSTALL_OXYGEN_THEME "Install built-in icon theme based on oxygen" 
 option(QUTIM_INSTALL_UBUNTU_THEME "Install ubuntu tray icon theme" OFF)
 option(QUTIM_INSTALL_SOUND_THEME "Install built-in sound theme" OFF)
 
+if( MAEMO5 )
+	set(QUTIM_INSTALL_OXYGEN_THEME ON CACHE INTERNAL "")
+	set(QUTIM_INSTALL_SOUND_THEME ON CACHE INTERNAL "")
+endif()
 find_package( Qt4 REQUIRED )
 list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 include(CPackOptions.cmake.in)
