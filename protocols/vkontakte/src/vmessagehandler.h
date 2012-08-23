@@ -5,14 +5,14 @@
 
 class VMessageHandler : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit VMessageHandler(QObject *parent = 0);
-    
+	explicit VMessageHandler(QObject *parent = 0);
+
 signals:
-    
+
 public slots:
-    
+
 };
 
 #endif // VMESSAGEHANDLER_H

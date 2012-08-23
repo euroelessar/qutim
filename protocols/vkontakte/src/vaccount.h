@@ -30,6 +30,12 @@
 #include "vclient.h"
 #include <QPointer>
 
+#define VK_PHOTO_SOURCE Vreen::Contact::PhotoSizeMediumRec
+
+namespace Vreen {
+class ContentDownloader;
+} //namespace Vreen
+
 class QWebPage;
 class VContact;
 typedef QList<VContact*> VContactList;
@@ -43,7 +49,7 @@ class VAccount : public qutim_sdk_0_3::Account
 	Q_PROPERTY(Vreen::Client* client READ client CONSTANT)
 public:
 	VAccount(const QString &email, VProtocol *protocol);
-	VContact *getContact(int uid, bool create = false);
+	VContact *contact(int uid, bool create = false);
 
 	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
@@ -54,12 +60,15 @@ public:
 	Vreen::Connection *connection() const;
 	Vreen::Client *client() const;
 	VContact *me() const;
+	void downloadAvatar(VContact *contact);
 public slots:
 	void loadSettings();
 	void saveSettings();
 protected:
 	VRoster *roster() const;
 	VRoster *roster();
+	Vreen::ContentDownloader *contentDownloader() const;
+	Vreen::ContentDownloader *contentDownloader();
 private slots:
 	void onClientStateChanged(Vreen::Client::State);
 	void onMeChanged(Vreen::Buddy *me);
@@ -67,11 +76,14 @@ private slots:
 	void onAuthConfirmRequested(QWebPage *page);
 	void setAccessToken(const QByteArray &token, time_t expiresIn);
 	void onError(Vreen::Client::Error);
+	void onContentDownloaded(const QString &path);
 private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;
 	QPointer<VContact> m_me;
 	QString m_name;
+	QPointer<Vreen::ContentDownloader> m_contentDownloader;
+	QHash<QString, VContact*> m_contentRecieversHash;
 
 	friend class VRoster;
 };

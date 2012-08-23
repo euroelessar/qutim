@@ -127,6 +127,7 @@ VGroupChat *VRoster::groupChat(int id, bool create)
 		c = new VGroupChat(p->account, id);
 		connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
 		p->groupChatHash.insert(id, c);
+		emit p->account->conferenceCreated(c);
 	}
 	return c;
 }
@@ -185,8 +186,8 @@ void VRoster::onOnlineChanged(bool isOnline)
 
 void VRoster::onMessageAdded(const Vreen::Message &msg)
 {
-	if (false) {
-		int id = msg.isIncoming() ? msg.fromId() : msg.toId();
+	if (msg.chatId()) {
+		int id = msg.chatId();
 		VGroupChat *c = groupChat(id);
 		if (c)
 			c->handleMessage(msg);
@@ -217,8 +218,7 @@ void VRoster::onContactTyping(int userId, int chatId)
 		c->setTyping(true);
 	} else {
 		VGroupChat *c = groupChat(chatId);
-		//TODO
-		c->setChatState(ChatStateComposing);
+		c->setTyping(userId, true);
 	}
 }
 
@@ -227,9 +227,13 @@ void VRoster::onMessagesRecieved(const QVariant &response)
 	QVariantList list = response.toList();
 	list.removeFirst();
 	Vreen::MessageList msgList = Vreen::Message::fromVariantList(list, p->account->client());
-	foreach (Vreen::Message msg, msgList)
-		if (msg.isUnread() && msg.isIncoming())
+	foreach (Vreen::Message msg, msgList) {
+		if (msg.isUnread() && msg.isIncoming()) {
 			onMessageAdded(msg);
+		}
+		if (msg.chatId())
+			groupChat(msg.chatId());
+	}
 }
 
 
