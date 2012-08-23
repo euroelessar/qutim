@@ -27,12 +27,15 @@ if(NOT QT_QTDOCKTILE_FOUND)
 	set(QT_QTDOCKTILE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/qtdocktile/include/QtDockTile CACHE INTERNAL "")
 
 	#evil hack for reindeer deploy script
-	add_custom_command(TARGET qutim-bundle POST_BUILD
-		COMMAND ${CMAKE_COMMAND}
+	if(APPLE)
+		get_target_property(DOCK_PLUGIN_LOCATION macdocktile LOCATION)
+		set(_pluginDir "${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/docktile/macdocktile.dylib")
+		add_custom_command(TARGET qutim-bundle POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
 			ARGS -E copy
-			macdocktile
-			${QUTIM_BUNDLE_LOCATION}/Contents/PlugIns/docktile/${plugin}
-	)
+			${DOCK_PLUGIN_LOCATION} ${_pluginDir}
+		)
+	endif()
 endif()
 
 qutim_add_plugin("docktile"
