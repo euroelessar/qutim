@@ -161,8 +161,10 @@ ENDIF(APPLE)
 IF(APPLE)
         IF(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
 		set (QUTIM_BUNDLE_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/qutim.app")
+		add_custom_target(qutim-deploy ALL)
 		add_custom_target(qutim-bundle ALL)
 		add_dependencies(qutim-bundle qutim translations)
+		add_dependencies(qutim-deploy qutim-bundle)
 	ELSE(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
 		message (WARNING "You have to use Unix Makefiles generator to automatically bundle deploying")
 		set (QUTIM_BUNDLE_LOCATION "")
@@ -302,10 +304,11 @@ IF(APPLE AND QUTIM_BUNDLE_LOCATION)
 	_mac_deploy_plugin(crypto qca-cyrus-sasl)
 	_mac_deploy_plugin(crypto qca-gnupg)
 
-	add_custom_command(TARGET qutim-bundle POST_BUILD
+	add_custom_command(TARGET qutim-deploy POST_BUILD
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/deployqutim.sh
-			${QUTIM_BUNDLE_LOCATION}
-		)
+		${QUTIM_BUNDLE_LOCATION}
+		DEPENDS qutim-bundle
+	)
 
 ENDIF(APPLE AND QUTIM_BUNDLE_LOCATION)
 
