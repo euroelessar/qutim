@@ -25,7 +25,7 @@ if(WINTHINGS_APILAYER_LIBRARY)
 	IF(QUTIM_INSTALL_ICONS)
 		FILE(GLOB WIN_ICONS "../../artwork/icons/tray/win/*.svg")
 		INSTALL(FILES ${WIN_ICONS}
-			DESTINATION share/icons/qutim-default/scalable/
+			DESTINATION share/icons/qutim-default/scalable/status/
 			COMPONENT Core
 		)
 	ENDIF()
