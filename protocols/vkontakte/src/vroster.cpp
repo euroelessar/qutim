@@ -127,6 +127,7 @@ VGroupChat *VRoster::groupChat(int id, bool create)
 		c = new VGroupChat(p->account, id);
 		connect(c, SIGNAL(destroyed(QObject*)), SLOT(onGroupChatDestroyed(QObject*)));
 		p->groupChatHash.insert(id, c);
+		emit p->account->conferenceCreated(c);
 	}
 	return c;
 }
@@ -216,9 +217,8 @@ void VRoster::onContactTyping(int userId, int chatId)
 		VContact *c = contact(userId);
 		c->setTyping(true);
 	} else {
-		//VGroupChat *c = groupChat(chatId);
-		//TODO
-		//c->setChatState(ChatStateComposing);
+		VGroupChat *c = groupChat(chatId);
+		c->setTyping(userId, true);
 	}
 }
 
@@ -231,6 +231,8 @@ void VRoster::onMessagesRecieved(const QVariant &response)
 		if (msg.isUnread() && msg.isIncoming()) {
 			onMessageAdded(msg);
 		}
+		if (msg.chatId())
+			groupChat(msg.chatId());
 	}
 }
 

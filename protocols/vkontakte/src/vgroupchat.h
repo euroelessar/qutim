@@ -43,6 +43,7 @@ public:
 	~VGroupChat();
 	void setTyping(int uid, bool set);
 	VContact *findContact(int uid) const;
+	inline VContact *contact(int uid);
 
 	virtual qutim_sdk_0_3::Buddy *me() const;
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);

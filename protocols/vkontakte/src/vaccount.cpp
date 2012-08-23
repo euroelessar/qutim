@@ -62,6 +62,11 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	VAccount::setStatus(Status::instance(Status::Offline, "vkontakte"));
 }
 
+VContact *VAccount::contact(int uid, bool create)
+{
+	return m_roster->contact(uid, create);
+}
+
 QString VAccount::name() const
 {
 	if (m_client->me())
