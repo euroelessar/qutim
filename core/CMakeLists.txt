@@ -354,18 +354,25 @@ INSTALL(TARGETS qutim
 	BUNDLE DESTINATION .
 		COMPONENT Core
 )
+set(QUTIM_ICON_PATHS share/applications)
+IF(QUTIM_INSTALL_ICONS)
+#	get_filename_component(_icons_path "../artwork/icons/qutim/icons" ABSOLUTE)
+#	get_filename_component(_pixmaps_path "../artwork/icons/qutim/pixmaps" ABSOLUTE)
+	#set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ${_icons_path} ${_pixmaps_path})
+	set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/qutim/icons ../artwork/icons/qutim/pixmaps)
+ENDIF()
 
 IF(UNIX AND NOT APPLE AND NOT MAEMO5)
-	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
+	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
 		DESTINATION share
 			COMPONENT Core
 	)
 ENDIF()
 
 IF(MAEMO5)
-	INSTALL(DIRECTORY share/applications share/icons share/pixmaps
+	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
 		DESTINATION /usr/share
-			COMPONENT Core
+		COMPONENT Core
 	)
 ENDIF()
 
@@ -386,15 +393,39 @@ qutim_add_devel_component(CoreDevel
 )
 
 #additional artwork sources
-SET(QUTIM_ADDITIONAL_ART_PATH "-NOTFOUND" CACHE PATH "Path to additional artwork")
-IF(QUTIM_ADDITIONAL_ART_PATH)
-	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
-ENDIF()
+#SET(QUTIM_ADDITIONAL_ART_PATH "-NOTFOUND" CACHE PATH "Path to additional artwork")
+#IF(QUTIM_ADDITIONAL_ART_PATH)
+        #QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
+#ENDIF()
 
-option(QUTIM_INSTALL_ICON_THEME "Install built-in icon theme based on oxygen" OFF)
-if(QUTIM_INSTALL_ICON_THEME)
-	message(STATUS "qutIM built-in icon theme will be installed")
-	qutim_add_artwork(../artwork/icons)
+if(QUTIM_INSTALL_ICONS)
+	INSTALL(DIRECTORY ../artwork/icons/qutim-default ../artwork/icons/user-status/hicolor
+		DESTINATION ${QUTIM_SHARE_DIR}/icons
+		COMPONENT Artwork
+	)
+	
+	if(QUTIM_INSTALL_OXYGEN_THEME)
+		message(STATUS "qutIM built-in icon theme will be installed")
+		INSTALL(DIRECTORY ../artwork/icons/oxygen
+			DESTINATION ${QUTIM_SHARE_DIR}/icons
+			COMPONENT Artwork
+			)
+	endif()
+	if(QUTIM_INSTALL_UBUNTU_THEME)
+		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-light/*
+			DESTINATION share/icons/ubuntu-mono-light/scalable/status
+			COMPONENT Artwork
+		)
+		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-dark/*
+			DESTINATION share/icons/ubuntu-mono-dark/scalable/status
+			COMPONENT Artwork
+		)
+	ENDIF()
+endif()
+
+if(QUTIM_INSTALL_SOUND_THEME)
+	message(STATUS "qutIM built-in sound theme will be installed")
+	qutim_add_artwork(../artwork/sounds)
 endif()
 
 CPACK_ADD_COMPONENT(Core

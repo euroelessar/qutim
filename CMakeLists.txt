@@ -21,7 +21,15 @@ set(QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE 
 set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 
 option(QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON)
+option(QUTIM_INSTALL_ICONS "Install icons from artwork dir" ON)
+option(QUTIM_INSTALL_OXYGEN_THEME "Install built-in icon theme based on oxygen" OFF)
+option(QUTIM_INSTALL_UBUNTU_THEME "Install ubuntu tray icon theme" OFF)
+option(QUTIM_INSTALL_SOUND_THEME "Install built-in sound theme" OFF)
 
+if( MAEMO5 )
+	set(QUTIM_INSTALL_OXYGEN_THEME ON CACHE INTERNAL "")
+	set(QUTIM_INSTALL_SOUND_THEME ON CACHE INTERNAL "")
+endif()
 find_package( Qt4 REQUIRED )
 list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 include(CPackOptions.cmake.in)

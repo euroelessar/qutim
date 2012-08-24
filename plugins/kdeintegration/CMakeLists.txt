@@ -17,8 +17,9 @@ qutim_add_plugin(kdeintegration
 	LINK_LIBRARIES ${KDE4_KUTILS_LIBS} ${KDE4_KIO_LIBS} ${KDE4_KNOTIFYCONFIG_LIBS}
 	INCLUDE_DIRS ${KDE4_INCLUDES}
 	)
-
-install( FILES icons/qutim.svg
-	DESTINATION "${DATA_INSTALL_DIR}/desktoptheme/default/icons"
-	COMPONENT Artwork
-	)
+if(QUTIM_INSTALL_ICONS)
+	install( FILES ../../artwork/icons/tray/KDE/qutim.svg
+		DESTINATION "${DATA_INSTALL_DIR}/desktoptheme/default/icons"
+		COMPONENT Artwork
+		)
+endif()
