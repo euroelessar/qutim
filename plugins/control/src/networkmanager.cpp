@@ -183,27 +183,29 @@ NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
 	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
-	connect(this, SIGNAL(sslErrors(QNetworkReply*, QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*, QList<QSslError>)));
+	connect(this, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
 	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
 	struct {
 		const char *fileName;
 		QString error;
 		QSslCertificate *cert;
-		bool useKey;
+		QSslKey *key;
 	} files[] = {
-		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate, true },
-		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate, false }
+		{ "certs/client.pem", tr("Put local certificate at \"%1\""), &m_localCertificate, &m_privateKey },
+		{ "certs/server.pem", tr("Put server's certificate at \"%1\""), &m_remoteCertificate, NULL }
 	};
 	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
 		QString file = shareDir.filePath(QLatin1String(files[i].fileName));
 		QSslCertificate &certificate = *files[i].cert;
 		certificate = QSslCertificate::fromPath(file).value(0);
 
-		if(files[i].useKey) {
+		if(files[i].key) {
 			QFile device(file);
 			device.open(QFile::ReadOnly);
-			m_privateKey = QSslKey(&device, QSsl::Rsa);
+			*files[i].key = QSslKey(&device, QSsl::Rsa);
 		}
+
+		debug() << file << certificate.isValid() << (files[i].key && !files[i].key->isNull());
 
 		if (!certificate.isValid()) {
 			NotificationRequest request(Notification::System);
@@ -363,12 +365,15 @@ QNetworkReply *NetworkManager::get(const QUrl &url)
 
 void NetworkManager::updateAnswers()
 {
+	if (m_base.isEmpty())
+		return;
 	m_answersReply = get(m_base.resolved(QUrl(GET_ANSWERS_URL)));
 }
 
 void NetworkManager::onReplyFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
+	debug() << Q_FUNC_INFO << reply->errorString() << reply->error() << reply->rawHeaderPairs();
 	if (reply->error() != QNetworkReply::NoError
 	        && reply->error() != QNetworkReply::AuthenticationRequiredError) {
 		NotificationRequest request(Notification::System);
@@ -427,6 +432,8 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 		Q_ASSERT(scope);
 		if (reply->error() == QNetworkReply::AuthenticationRequiredError) {
 			m_actions.prepend(scope->actions);
+			if (m_username.isEmpty())
+				return;
 			QVariantMap data;
 			Config config("control");
 			config.beginGroup("general");
@@ -537,12 +544,18 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 
 void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+	bool onlyNoError = true;
 	foreach (const QSslError &error, errors) {
+		if (error.error() != QSslError::NoError)
+			onlyNoError = false;
+		debug() << Q_FUNC_INFO << error.error() << error.errorString();
 		if (error.certificate() == m_remoteCertificate) {
 			reply->ignoreSslErrors();
 			return;
 		}
 	}
+	if (onlyNoError)
+		reply->ignoreSslErrors();
 }
 
 void NetworkManager::rebuildAnswers()
@@ -596,7 +609,7 @@ void NetworkManager::onTimer()
 	m_timer.stop();
 	if (m_networkAnswers.isEmpty() && !m_answersReply)
 		updateAnswers();
-	if (m_actions.isEmpty())
+	if (m_actions.isEmpty() || m_base.isEmpty())
 		return;
 	bool messages = false;
 	ActionList actions;
