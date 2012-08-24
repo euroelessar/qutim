@@ -38,6 +38,7 @@
 #include "clients/psi.h"
 #include "clients/gajim.h"
 #include "clients/miranda.h"
+#include "clients/jasmineim.h"
 #include <qutim/objectgenerator.h>
 
 #include <qutim/icon.h>
@@ -71,7 +72,8 @@ ChooseClientPage::ChooseClientPage(HistoryManagerWindow *parent) :
 			<< new licq
 			<< new psi
 			<< new gajim
-			<< new miranda;
+			<< new miranda
+			<< new jasmineim;
 
 	QMap<QString, HistoryImporter *> clients;
 	foreach(HistoryImporter *client, m_clients_list)
