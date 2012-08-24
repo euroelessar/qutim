@@ -295,9 +295,9 @@ void init(SystemInfoPrivate *d)
 	d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 	d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
 	d->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
-#if defined(Q_OS_WIN32)
-	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../config");
-	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share");
+#if defined(QUTIM_SHARE_DIR)
+	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR) % QLatin1Literal("/config");
+	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR);
 #elif defined(Q_OS_MAC)
 	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../Resources/config");
 	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../Resources/share");
@@ -305,8 +305,7 @@ void init(SystemInfoPrivate *d)
 	d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String(":/config");
 	d->dirs[SystemInfo::SystemShareDir]    = QLatin1String("e:/system/apps/qutim/share");
 #else
-	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../share/qutim/config");
-	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share/apps/qutim");
+# error QUTIM_SHARE_DIR undefined!
 #endif
 	d->timezone_offset = 0;
 	d->timezone_str = "N/A";

@@ -97,7 +97,7 @@ ELSE()
 	SET(QUTIM_SHARE_DIR_DEF share/apps/qutim)
 ENDIF()
 #SET(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}" CACHE DESCRIPTION "qutIM share dir")
-set(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}")
+set(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}" CACHE STRING "QutIM share dir")
 
 macro(qutim_add_artwork category_dir)
 	file(GLOB artworks ${category_dir} "${category_dir}/*")
