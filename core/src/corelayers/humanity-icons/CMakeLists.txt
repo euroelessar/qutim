@@ -1,1 +1,0 @@
-QUTIM_ADD_ARTWORK_DIR(qutim)
