@@ -35,6 +35,7 @@
 
 #include <vreen/roster.h>
 #include <vreen/contact.h>
+#include <vreen/contentdownloader.h>
 
 #include "vprotocol.h"
 #include <vreen/auth/oauthconnection.h>
@@ -59,6 +60,11 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
 	VAccount::setStatus(Status::instance(Status::Offline, "vkontakte"));
+}
+
+VContact *VAccount::contact(int uid, bool create)
+{
+	return m_roster->contact(uid, create);
 }
 
 QString VAccount::name() const
@@ -118,6 +124,13 @@ VContact *VAccount::me() const
 	return m_me.data();
 }
 
+void VAccount::downloadAvatar(VContact *contact)
+{
+	QUrl url = contact->buddy()->photoSource(VK_PHOTO_SOURCE);
+	QString path = contentDownloader()->download(url);
+	m_contentRecieversHash.insert(path, contact);
+}
+
 void VAccount::loadSettings()
 {
 	Config cfg = config();
@@ -140,6 +153,21 @@ void VAccount::saveSettings()
 VRoster *VAccount::roster() const
 {
 	return m_roster.data();
+}
+
+Vreen::ContentDownloader *VAccount::contentDownloader() const
+{
+	return m_contentDownloader.data();
+}
+
+Vreen::ContentDownloader *VAccount::contentDownloader()
+{
+	if (!m_contentDownloader) {
+		m_contentDownloader = new Vreen::ContentDownloader(this);
+		connect(m_contentDownloader.data(), SIGNAL(downloadFinished(QString)),
+				SLOT(onContentDownloaded(QString)), Qt::QueuedConnection);
+	}
+	return m_contentDownloader.data();
 }
 
 void VAccount::onMeChanged(Vreen::Buddy *me)
@@ -180,6 +208,13 @@ void VAccount::onError(Vreen::Client::Error error)
 {
 	if (error == Vreen::Client::ErrorAuthorizationFailed)
 		config("general").setValue("passwd", "");
+}
+
+void VAccount::onContentDownloaded(const QString &path)
+{
+	VContact *c = m_contentRecieversHash.take(path);
+	if (c)
+		c->setAvatar(path);
 }
 
 void VAccount::onClientStateChanged(Vreen::Client::State state)

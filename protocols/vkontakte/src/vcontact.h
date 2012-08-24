@@ -29,10 +29,10 @@
 #include <qutim/chatsession.h>
 #include <QPointer>
 #include <vreen/contact.h>
+#include <vreen/message.h>
 
 namespace Vreen {
 class ChatSession;
-class Message;
 }
 
 class VAccount;
@@ -54,16 +54,17 @@ public:
 	virtual QString name() const;
 	virtual void setName(const QString& name);
 	virtual QString avatar() const;
+	void setAvatar(const QString &path);
 	QString activity() const;
 
 	void handleMessage(const Vreen::Message &message);
-    Vreen::Client *client() const;
-    Vreen::Buddy *buddy() const;
+	Vreen::Client *client() const;
+	Vreen::Buddy *buddy() const;
+	VAccount *account();
 protected:
 	void setStatus(const qutim_sdk_0_3::Status &status);
 	Vreen::ChatSession *chatSession();
 	virtual bool event(QEvent *ev);
-	void downloadAvatar(const QString &url);
 public slots:
 	void setTyping(bool set = false);
 private slots:
@@ -75,7 +76,6 @@ private slots:
 	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize);
-	void onAvatarDownloaded(const QString &path);
 private:
 	Vreen::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
@@ -84,9 +84,13 @@ private:
 	QString m_name;
 	QStringList m_tags;
 	QString m_avatar;
+
+	//TODO rewrite on unite message handler
 	qutim_sdk_0_3::MessageList m_unreadMessages;
+	uint m_unreachedMessagesCount;
 	typedef QList<QPair<int, int> > SentMessagesList;
 	SentMessagesList m_sentMessages;
+	Vreen::MessageList m_pendingMessages;
 };
 
 Q_DECLARE_METATYPE(VContact*)

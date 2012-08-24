@@ -44,8 +44,6 @@
 
 using namespace qutim_sdk_0_3;
 
-#define VK_PHOTO_SOURCE Vreen::Contact::PhotoSizeMediumRec
-
 static Status::Type convertStatus(Vreen::Contact::Status status)
 {
 	Status::Type type;
@@ -65,15 +63,16 @@ static Status::Type convertStatus(Vreen::Contact::Status status)
 }
 
 VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
-	m_buddy(contact)
+	m_buddy(contact),
+	m_unreachedMessagesCount(0)
 {
 	m_status = Status::instance(convertStatus(m_buddy->status()), "vkontakte");
 	m_status.setText(m_buddy->activity());
 	m_name = m_buddy->name();
 	m_tags = m_buddy->tags();
 
-    connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
-    connect(m_buddy, SIGNAL(statusChanged(Vreen::Contact::Status)), SLOT(onStatusChanged(Vreen::Contact::Status)));
+	connect(m_buddy, SIGNAL(destroyed()), SLOT(deleteLater()));
+	connect(m_buddy, SIGNAL(statusChanged(Vreen::Contact::Status)), SLOT(onStatusChanged(Vreen::Contact::Status)));
 	connect(m_buddy, SIGNAL(activityChanged(QString)), SLOT(onActivityChanged(QString)));
 	connect(m_buddy, SIGNAL(nameChanged(QString)), SLOT(onNameChanged(QString)));
 	connect(m_buddy, SIGNAL(tagsChanged(QStringList)), SLOT(onTagsChanged(QStringList)));
@@ -83,7 +82,7 @@ VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
-	downloadAvatar(m_buddy->photoSource(Vreen::Contact::PhotoSizeMedium));
+	account->downloadAvatar(this);
 }
 
 
@@ -102,9 +101,10 @@ bool VContact::sendMessage(const Message& message)
 	if (!m_buddy->client()->isOnline())
 		return false;
 	Vreen::Reply *reply = chatSession()->sendMessage(message.text(),
-												  message.property("subject").toString()); //TODO don't use Vreen::Reply, use vlongpoll instead
+													 message.property("subject").toString()); //TODO don't use Vreen::Reply, use vlongpoll instead
 	reply->setProperty("id", message.id());
 	connect(reply, SIGNAL(resultReady(QVariant)), SLOT(onMessageSent(QVariant)));
+	m_unreachedMessagesCount++;
 	return true;
 }
 
@@ -130,6 +130,11 @@ QString VContact::activity() const
 
 void VContact::handleMessage(const Vreen::Message &msg)
 {
+	if (!msg.isIncoming() && m_unreachedMessagesCount) {
+		m_pendingMessages.append(msg);
+		return;
+	}
+
 	SentMessagesList::iterator i = m_sentMessages.begin();
 	for (; i != m_sentMessages.end(); ++i) {
 		if (i->second == msg.id()) {
@@ -139,6 +144,7 @@ void VContact::handleMessage(const Vreen::Message &msg)
 			return;
 		}
 	}
+
 	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
 	coreMessage.setChatUnit(this);
 	coreMessage.setIncoming(msg.isIncoming());
@@ -153,12 +159,12 @@ void VContact::handleMessage(const Vreen::Message &msg)
 			m_chatSession->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
 	} else
 		coreMessage.setProperty("history", true);
-    s->appendMessage(coreMessage);
+	s->appendMessage(coreMessage);
 }
 
 Vreen::Client *VContact::client() const
 {
-    return m_buddy->client();
+	return m_buddy->client();
 }
 
 void VContact::setStatus(const Status &status)
@@ -166,8 +172,10 @@ void VContact::setStatus(const Status &status)
 	Status old = m_status;
 	m_status = status;
 	emit statusChanged(status, old);
-	NotificationRequest request(this, status, old);
-	request.send();
+	if (old.type() != status.type()) {
+		NotificationRequest request(this, status, old);
+		request.send();
+	}
 }
 
 Vreen::ChatSession *VContact::chatSession()
@@ -226,6 +234,14 @@ QString VContact::avatar() const
 	return m_avatar;
 }
 
+void VContact::setAvatar(const QString &path)
+{
+	if (m_avatar != path) {
+		m_avatar = path;
+		emit avatarChanged(path);
+	}
+}
+
 bool VContact::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
@@ -235,17 +251,6 @@ bool VContact::event(QEvent *ev)
 							activity());
 	}
 	return Contact::event(ev);
-}
-
-void VContact::downloadAvatar(const QString &url)
-{
-	if (!url.isEmpty()) {
-		Vreen::ContentDownloader *downloader = new Vreen::ContentDownloader(this);
-		connect(downloader, SIGNAL(downloadFinished(QString)), SLOT(onAvatarDownloaded(QString)));
-		connect(downloader, SIGNAL(downloadFinished(QString)),
-				downloader, SLOT(deleteLater()));
-		downloader->download(QUrl(url));
-	}
 }
 
 void VContact::onStatusChanged(Vreen::Contact::Status status)
@@ -270,10 +275,20 @@ void VContact::onNameChanged(const QString &name)
 
 void VContact::onMessageSent(const QVariant &response)
 {
+	m_unreachedMessagesCount--;
 	int mid = response.toInt();
 	if (mid) {
 		int id = sender()->property("id").toInt();
 		m_sentMessages << QPair<int, int>(id, mid);
+	} else {
+		//TODO undelivered messages check
+	}
+
+	if (!m_unreachedMessagesCount) {
+		foreach (Vreen::Message msg, m_pendingMessages) {
+			handleMessage(msg);
+		}
+		m_pendingMessages.clear();
 	}
 }
 
@@ -296,11 +311,7 @@ void VContact::onUnreadChanged(MessageList unread)
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);
-
 	idList.clear();
-	//foreach (Message msg, unread)
-	//	idList.append(msg.property("mid").toInt());
-	//chatSession()->markMessagesAsRead(idList, false);
 }
 
 void VContact::onSessionCreated(ChatSession *session)
@@ -309,20 +320,18 @@ void VContact::onSessionCreated(ChatSession *session)
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }
 
-void VContact::onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize size)
+void VContact::onPhotoSourceChanged(const QString &, Vreen::Contact::PhotoSize size)
 {
 	if (size == VK_PHOTO_SOURCE)
-		downloadAvatar(source);
+		account()->downloadAvatar(this);
 }
-
-void VContact::onAvatarDownloaded(const QString &path)
-{
-	m_avatar = path;
-	emit avatarChanged(path);
-}
-
 
 Vreen::Buddy *VContact::buddy() const
 {
-    return m_buddy;
+	return m_buddy;
+}
+
+VAccount *VContact::account()
+{
+	return static_cast<VAccount*>(Contact::account());
 }

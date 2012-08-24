@@ -38,6 +38,8 @@ ProxyAccount::ProxyAccount(Account *account) :
 			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			SIGNAL(nameChanged(QString,QString)));
+
+    setStatus(m_account->status());
 }
 
 QString ProxyAccount::name() const

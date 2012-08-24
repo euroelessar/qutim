@@ -271,26 +271,26 @@ void TabbedChatWidget::loadSettings()
 			}
 		}
 
-        ConfigGroup keyGroup = cfg.group("keys");
+		ConfigGroup keyGroup = cfg.group("keys");
 		debug() << "Load new settings" << keyGroup.childGroups();
-        if (keyGroup.hasChildGroup(m_key)) {
-            debug() << "load settings for key" << m_key;
-            keyGroup.beginGroup(m_key);
-            QByteArray geom = keyGroup.value("geometry", QByteArray());
-            restoreGeometry(geom);
-            foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
-                geom = keyGroup.value(splitter->objectName(), QByteArray());
-                debug() << "found splitter" << geom;
-                splitter->restoreState(geom);
-            }
-            keyGroup.endGroup();
-        } else {
-            resize(600, 400);
-            centerizeWidget(this);
-        }
-        setProperty("loaded",true);
-    }
-    m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+		if (keyGroup.hasChildGroup(m_key)) {
+			debug() << "load settings for key" << m_key;
+			keyGroup.beginGroup(m_key);
+			QByteArray geom = keyGroup.value("geometry", QByteArray());
+			restoreGeometry(geom);
+			foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
+				geom = keyGroup.value(splitter->objectName(), QByteArray());
+				debug() << "found splitter" << geom;
+				splitter->restoreState(geom);
+			}
+			keyGroup.endGroup();
+		} else {
+			resize(600, 400);
+			centerizeWidget(this);
+		}
+		setProperty("loaded",true);
+	}
+	m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
 	m_chatInput->setAutoResize(cfg.value("autoResize", false));
 
 	if(m_flags & IconsOnTabs)
@@ -473,7 +473,7 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 
 void TabbedChatWidget::ensureToolBar()
 {
-	if (QtWin::isCompositionEnabled()) {
+	if (QtWin::isCompositionEnabled() && m_flags & AdiumToolbar) {
 		m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
 		centralWidget()->setAutoFillBackground(true);
 		QtWin::extendFrameIntoClientArea(this,
