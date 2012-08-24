@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="icons/qutim_64.png">share/icons/hicolor/64x64/apps/qutim.png</file>
-        <file alias="icons/user-identity.png">share/icons/hicolor/64x64/places/user-identity.png</file>
         <file alias="GPL">GPL</file>
         <file alias="devels/degtep.json">devels/degtep.json</file>
         <file alias="devels/euroelessar.json">devels/euroelessar.json</file>
