@@ -5,8 +5,8 @@ add_subdirectory(libs)
 
 if(WINTHINGS_APILAYER_LIBRARY)
 	if (MSVC)
-        set(WININT_CFLAGS "/Zc:wchar_t-")
-    endif()
+		set(WININT_CFLAGS "/Zc:wchar_t-")
+	endif()
 	
 	qutim_add_plugin( winint2
 		DISPLAY_NAME   "Windows Integration"
@@ -14,7 +14,7 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		GROUP "Windows Seven Integration"
 		LINK_LIBRARIES wapiqtwrapper ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTNETWORK_LIBRARY}
 		INCLUDE_DIRS   "libs/include" ${QT_QTNETWORK_INCLUDE_DIR}
-        COMPILE_FLAGS ${WININT_CFLAGS}
+		COMPILE_FLAGS ${WININT_CFLAGS}
 	)
 
 	ADD_SUBDIRECTORY(wininthelper)
