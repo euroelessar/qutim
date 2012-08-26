@@ -34,4 +34,3 @@ qutim_add_plugin(vkontakte
 )
 
 qutim_add_artwork(share/vphotoalbum)
-add_custom_directory(share/vphotoalbum DESCRIPTION "VPhotoalbum")
