@@ -410,11 +410,11 @@ if(QUTIM_INSTALL_ICONS)
 	endif()
 	if(QUTIM_INSTALL_UBUNTU_THEME)
 		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-light/*
-            DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-light/scalable/status
+			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-light/scalable/status
 			COMPONENT Artwork
 		)
 		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-dark/*
-            DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status
+			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status
 			COMPONENT Artwork
 		)
 	ENDIF()
