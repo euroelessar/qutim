@@ -1,0 +1,28 @@
+import qbs.base 1.0
+import qbs.fileinfo 1.0 as FileInfo
+
+Project {
+	property string qutim_version_major: '0'
+    property string qutim_version_minor: '3'
+    property string qutim_version_release: '1'
+    property string qutim_version_patch: '1'
+	property string qutim_version: qutim_version_major + '.' + qutim_version_minor + '.' + qutim_version_release + '.' + qutim_version_patch
+	property bool declarativeUi: false
+	property var additionalCppDefines: []
+    property string shareDir: "share"
+
+    moduleSearchPaths: "qbs"
+
+	references: [        
+        "core/3rdparty/k8json.qbs",
+        "core/3rdparty/qxdg.qbs",
+        "core/3rdparty/flowlayout.qbs",
+        "core/3rdparty/slidingstackedwidget.qbs",
+        "core/3rdparty/qxt.qbs",
+        "core/3rdparty/qtdwm.qbs",
+        "core/3rdparty/qtsolutions.qbs",
+        "core/libqutim.qbs",
+        "core/libqutim-headers.qbs",
+    ]
+}
+
