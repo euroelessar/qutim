@@ -356,9 +356,6 @@ INSTALL(TARGETS qutim
 )
 set(QUTIM_ICON_PATHS share/applications)
 IF(QUTIM_INSTALL_ICONS)
-#	get_filename_component(_icons_path "../artwork/icons/qutim/icons" ABSOLUTE)
-#	get_filename_component(_pixmaps_path "../artwork/icons/qutim/pixmaps" ABSOLUTE)
-	#set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ${_icons_path} ${_pixmaps_path})
 	set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/qutim/icons ../artwork/icons/qutim/pixmaps)
 ENDIF()
 
@@ -413,11 +410,11 @@ if(QUTIM_INSTALL_ICONS)
 	endif()
 	if(QUTIM_INSTALL_UBUNTU_THEME)
 		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-light/*
-			DESTINATION share/icons/ubuntu-mono-light/scalable/status
+            DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-light/scalable/status
 			COMPONENT Artwork
 		)
 		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-dark/*
-			DESTINATION share/icons/ubuntu-mono-dark/scalable/status
+            DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status
 			COMPONENT Artwork
 		)
 	ENDIF()
