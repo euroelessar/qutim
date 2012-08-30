@@ -819,5 +819,5 @@ void FileTransferManager::virtual_hook(int id, void *data)
 
 }
 
-#include "filetransfer.moc"
+#include "moc_filetransfer.cpp"
 

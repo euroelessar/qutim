@@ -118,5 +118,5 @@ void Conference::leave()
 
 }
 
-#include "conference.moc"
+#include "moc_conference.cpp"
 
