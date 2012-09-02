@@ -111,7 +111,7 @@ void VGroupChat::handleMessage(const Vreen::Message &msg)
 			if (!s->isActive())
 				m_unreadMessages.append(coreMessage);
 			else
-				m_chatSession->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
+				chatSession()->markMessagesAsRead(Vreen::IdList() << msg.id(), true);
 		} else
 			coreMessage.setProperty("history", true);
 		s->appendMessage(coreMessage);
