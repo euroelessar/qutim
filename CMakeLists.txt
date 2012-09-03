@@ -39,6 +39,16 @@ set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins")
 set(QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE)
 set(QUTIM_BUNDLE_NAME qutim.app)
 
+#Disable "bad" plugins by default
+set(BAD_PLUGINS_LIST QRCICONS AWN ANTIBOSS QMLCHAT PLUGMAN)
+if(WIN32)
+    set(BAD_PLUGINS_LIST ${BAD_PLUGINS_LIST} DBUSAPI KOPETEEMOTICONSBACKEND DBUSNOTIFICATIONS)
+endif()
+
+foreach(plugin ${BAD_PLUGINS_LIST})
+       set(${plugin} off CACHE INTERNAL "")
+endforeach()
+
 add_subdirectory(core)
 add_subdirectory(translations)
 add_subdirectory(config)
