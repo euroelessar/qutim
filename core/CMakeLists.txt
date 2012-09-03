@@ -409,11 +409,13 @@ if(QUTIM_INSTALL_ICONS)
 			)
 	endif()
 	if(QUTIM_INSTALL_UBUNTU_THEME)
-		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-light/*
+		FILE(GLOB UBUNTU_LIGHT "../../artwork/icons/tray/ubuntu-mono-light/*.svg")
+		FILE(GLOB UBUNTU_DARK "../../artwork/icons/tray/ubuntu-mono-dark/*.svg")
+		INSTALL(FILES ${UBUNTU_LIGHT}
 			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-light/scalable/status
 			COMPONENT Artwork
 		)
-		INSTALL(FILES ../../artwork/icons/tray/ubuntu-mono-dark/*
+		INSTALL(FILES ${UBUNTU_DARK}
 			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status
 			COMPONENT Artwork
 		)
