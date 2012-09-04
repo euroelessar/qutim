@@ -8,6 +8,8 @@ find_package(PkgConfig)
 if(SYSTEM_QTDOCKTILE)
 	if(PKG_CONFIG_FOUND)
 		pkg_check_modules(QT_QTDOCKTILE REQUIRED qtdocktile)
+		#another spike. In pkgconfig LIBRARIES macro list only lib names
+		set(QT_QTDOCKTILE_LIBRARIES ${QT_QTDOCKTILE_LDFLAGS})
 	endif()
 endif()
 if(NOT QT_QTDOCKTILE_FOUND)
