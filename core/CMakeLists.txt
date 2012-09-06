@@ -354,20 +354,21 @@ INSTALL(TARGETS qutim
 	BUNDLE DESTINATION .
 		COMPONENT Core
 )
-set(QUTIM_ICON_PATHS share/applications)
+set(QUTIM_SHARE_PATHS share/applications)
 IF(QUTIM_INSTALL_ICONS)
-	set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/qutim/icons ../artwork/icons/qutim/pixmaps)
+	set(QUTIM_SHARE_PATHS ${QUTIM_SHARE_PATHS} ../artwork/icons/qutim/icons ../artwork/icons/qutim/pixmaps)
 ENDIF()
 
+
 IF(UNIX AND NOT APPLE AND NOT MAEMO5)
-	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
+	INSTALL(DIRECTORY ${QUTIM_SHARE_PATHS}
 		DESTINATION share
 			COMPONENT Core
 	)
 ENDIF()
 
 IF(MAEMO5)
-	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
+	INSTALL(DIRECTORY ${QUTIM_SHARE_PATHS}
 		DESTINATION /usr/share
 		COMPONENT Core
 	)
@@ -396,7 +397,11 @@ qutim_add_devel_component(CoreDevel
 #ENDIF()
 
 if(QUTIM_INSTALL_ICONS)
-	INSTALL(DIRECTORY ../artwork/icons/qutim-default ../artwork/icons/user-status/hicolor
+	set(QUTIM_ICON_PATHS ../artwork/icons/qutim-default ../artwork/icons/user-status/hicolor )
+	if(UNIX AND NOT APPLE)
+		set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/humanity/hicolor)
+	endif()
+	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
 		DESTINATION ${QUTIM_SHARE_DIR}/icons
 		COMPONENT Artwork
 	)
@@ -409,14 +414,14 @@ if(QUTIM_INSTALL_ICONS)
 			)
 	endif()
 	if(QUTIM_INSTALL_UBUNTU_THEME)
-		FILE(GLOB UBUNTU_LIGHT "../../artwork/icons/tray/ubuntu-mono-light/*.svg")
-		FILE(GLOB UBUNTU_DARK "../../artwork/icons/tray/ubuntu-mono-dark/*.svg")
+		FILE(GLOB UBUNTU_LIGHT "../artwork/icons/tray/ubuntu-mono-light/*.svg")
+		FILE(GLOB UBUNTU_DARK "../artwork/icons/tray/ubuntu-mono-dark/*.svg")
 		INSTALL(FILES ${UBUNTU_LIGHT}
-			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-light/scalable/status
+			DESTINATION share/icons/ubuntu-mono-light/scalable/status/
 			COMPONENT Artwork
 		)
 		INSTALL(FILES ${UBUNTU_DARK}
-			DESTINATION ${QUTIM_SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status
+			DESTINATION share/icons/ubuntu-mono-dark/scalable/status/
 			COMPONENT Artwork
 		)
 	ENDIF()
