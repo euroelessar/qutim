@@ -244,7 +244,7 @@ endif()
 
 set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
 set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
-set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${QUTIM_SHARE_DIR}\\\" ")
+#set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${QUTIM_SHARE_DIR}\\\" ")
 
 qutim_target_link_libraries(qutim
 	${QT_LIBRARIES}
@@ -397,9 +397,15 @@ qutim_add_devel_component(CoreDevel
 #ENDIF()
 
 if(QUTIM_INSTALL_ICONS)
-	set(QUTIM_ICON_PATHS ../artwork/icons/qutim-default ../artwork/icons/user-status/hicolor )
+	list(APPEND QUTIM_ICON_PATHS
+		../artwork/icons/qutim-default
+		../artwork/icons/user-status/hicolor
+	)
 	if(UNIX AND NOT APPLE)
-		set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/humanity/hicolor)
+		list(APPEND QUTIM_ICON_PATHS
+			${QUTIM_ICON_PATHS}
+			../artwork/icons/humanity/hicolor
+		)
 	endif()
 	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
 		DESTINATION ${QUTIM_SHARE_DIR}/icons
