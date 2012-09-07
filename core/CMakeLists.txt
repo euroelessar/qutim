@@ -405,7 +405,13 @@ if(QUTIM_INSTALL_ICONS)
 		DESTINATION ${QUTIM_SHARE_DIR}/icons
 		COMPONENT Artwork
 	)
-	
+	if(APPLE)
+		file(GLOB MACOSX_TRAY "../artwork/icons/tray/MacOS/*.svg")
+		install(FILES ${MACOSX_TRAY}
+			DESTINATION ${QUTIM_SHARE_DIR}/icons/qutim-default/scalable/status/
+			COMPONENT Artwork
+		)
+	endif()
 	if(QUTIM_INSTALL_OXYGEN_THEME)
 		message(STATUS "qutIM built-in icon theme will be installed")
 		INSTALL(DIRECTORY ../artwork/icons/oxygen
@@ -417,11 +423,11 @@ if(QUTIM_INSTALL_ICONS)
 		FILE(GLOB UBUNTU_LIGHT "../artwork/icons/tray/ubuntu-mono-light/*.svg")
 		FILE(GLOB UBUNTU_DARK "../artwork/icons/tray/ubuntu-mono-dark/*.svg")
 		INSTALL(FILES ${UBUNTU_LIGHT}
-			DESTINATION share/icons/ubuntu-mono-light/scalable/status/
+			DESTINATION ${SHARE_DIR}/icons/ubuntu-mono-light/scalable/status/
 			COMPONENT Artwork
 		)
 		INSTALL(FILES ${UBUNTU_DARK}
-			DESTINATION share/icons/ubuntu-mono-dark/scalable/status/
+			DESTINATION ${SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status/
 			COMPONENT Artwork
 		)
 	ENDIF()
