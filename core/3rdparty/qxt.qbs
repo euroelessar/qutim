@@ -4,7 +4,7 @@ import "./3rdPartyLibrary.qbs" as ThirdPartyLibrary
 ThirdPartyLibrary {
     name: "qxt"
 
-	Depends { name: "qt"; submodules: [ 'core', 'gui' ] }
+    Depends { name: "qt"; submodules: [ 'core' ] }
 
     files: [
         "qxt/qxtcommandoptions.h",

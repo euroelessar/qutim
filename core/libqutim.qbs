@@ -19,7 +19,8 @@ DynamicLibrary {
     Depends { name: "slidingstackedwidget" }
     Depends { name: "qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative' ] }
+    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
+    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
 
     cpp.includePaths: [
         "3rdparty",

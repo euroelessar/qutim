@@ -4,7 +4,7 @@ import "./3rdPartyLibrary.qbs" as ThirdPartyLibrary
 ThirdPartyLibrary {
     name: "qtsolutions"
 
-	Depends { name: "qt"; submodules: [ 'core', 'gui' ] }
+    Depends { name: "qt"; submodules: [ 'core' ] }
 
     files: [
         "qtsolutions/qtlocalpeer.h",
