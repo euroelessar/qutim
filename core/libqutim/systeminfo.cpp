@@ -298,8 +298,7 @@ void init(SystemInfoPrivate *d)
 #if defined(QUTIM_SHARE_DIR)
 	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR) % QLatin1Literal("/config");
 	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR);
-#endif
-#if defined(Q_OS_MAC)
+#elif defined(Q_OS_MAC)
 	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../Resources/config");
 	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../Resources/share");
 #elif defined(Q_OS_SYMBIAN)

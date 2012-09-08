@@ -244,8 +244,18 @@ endif()
 
 set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
 set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
-#TODO add rules for MacosX and Windows
-set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${QUTIM_SHARE_DIR}\\\" ")
+
+if(APPLE)
+	set(__qutim_share_dir "/../Resources/share")
+else()
+	set(__qutim_share_dir ${QUTIM_SHARE_DIR})
+endif()
+
+#TODO add rules for Windows
+set_target_properties(libqutim
+	PROPERTIES
+	COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${__qutim_share_dir}\\\" "
+)
 
 qutim_target_link_libraries(qutim
 	${QT_LIBRARIES}
