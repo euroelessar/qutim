@@ -239,5 +239,5 @@ void WidgetPlacer::loadSettings()
 
 } // namespace KineticPopups
 
-#include "widgetplacer.moc"
+#include "moc_widgetplacer.cpp"
 
