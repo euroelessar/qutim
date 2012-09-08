@@ -23,6 +23,7 @@ Project {
         "core/3rdparty/qtsolutions.qbs",
         "core/libqutim.qbs",
         "core/libqutim-headers.qbs",
+        "core/qutim.qbs"
     ]
 }
 
