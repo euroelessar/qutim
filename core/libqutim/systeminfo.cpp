@@ -177,8 +177,8 @@ struct OsRelease
 static bool osReleaseDetect(SystemInfoPrivate *d)
 {
 	OsRelease files[] = {
-	    { "/etc/os-release",  "NAME",       "VERSION",         "PRETTY_NAME"         },
-	    { "/etc/lsb-release", "DISTRIB_ID", "DISTRIB_RELEASE", "DISTRIB_DESCRIPTION" }
+		{ "/etc/os-release",  "NAME",       "VERSION",         "PRETTY_NAME"         },
+		{ "/etc/lsb-release", "DISTRIB_ID", "DISTRIB_RELEASE", "DISTRIB_DESCRIPTION" }
 	};
 	
 	QFile releaseFile;
@@ -299,8 +299,8 @@ void init(SystemInfoPrivate *d)
 	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR) % QLatin1Literal("/config");
 	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR);
 #elif defined(Q_OS_SYMBIAN)
-    d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String(":/config");
-    d->dirs[SystemInfo::SystemShareDir]    = QLatin1String("e:/system/apps/qutim/share");
+	d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String(":/config");
+	d->dirs[SystemInfo::SystemShareDir]    = QLatin1String("e:/system/apps/qutim/share");
 #else
 # error QUTIM_SHARE_DIR undefined!
 #endif
@@ -360,7 +360,7 @@ void init(SystemInfoPrivate *d)
 #if defined(Q_OS_FREEBSD)
 	QProcess processUname;
 	processUname.start(QLatin1String("uname"),
-	                   QStringList() << QLatin1String("-r") << QLatin1String("-p"));
+					   QStringList() << QLatin1String("-r") << QLatin1String("-p"));
 	if(!processUname.waitForFinished(1000))
 		return;
 	d->os_name = QLatin1String("FreeBSD");
@@ -376,11 +376,11 @@ void init(SystemInfoPrivate *d)
 		version_info versionInfo;
 		BFile file;
 		if ( file.SetTo(path.Path(), B_READ_ONLY) == B_OK
-			&& appFileInfo.SetTo(&file) == B_OK
-			&& appFileInfo.GetVersionInfo(&versionInfo, B_APP_VERSION_KIND) == B_OK
-			&& versionInfo.short_info[0] != '\0') {
-				d->os_name = versionInfo.short_info;
-			}
+			 && appFileInfo.SetTo(&file) == B_OK
+			 && appFileInfo.GetVersionInfo(&versionInfo, B_APP_VERSION_KIND) == B_OK
+			 && versionInfo.short_info[0] != '\0') {
+			d->os_name = versionInfo.short_info;
+		}
 	}
 
 	utsname uname_info;
@@ -388,7 +388,7 @@ void init(SystemInfoPrivate *d)
 		d->os_full = uname_info.sysname;
 		long revision = 0;
 		if (sscanf(uname_info.version, "r%ld", &revision) == 1 ||
-			sscanf(uname_info.version, "hrev%ld", &revision) == 1) {
+				sscanf(uname_info.version, "hrev%ld", &revision) == 1) {
 			
 			char version[16];
 			snprintf(version, sizeof(version), "%ld", revision);
@@ -404,9 +404,9 @@ void init(SystemInfoPrivate *d)
 #elif defined(MEEGO_EDITION)
 	d->os_name = QLatin1String("MeeGo");
 	d->os_version = QString(QLatin1String("%1.%2"))
-	        .arg(MEEGO_VERSION_MAJOR)
-	        .arg(MEEGO_VERSION_MINOR);
-//	        .arg(MEEGO_VERSION_PATCH)
+					.arg(MEEGO_VERSION_MAJOR)
+					.arg(MEEGO_VERSION_MINOR);
+	//	        .arg(MEEGO_VERSION_PATCH)
 #ifdef MEEGO_EDITION_HARMATTAN
 	d->os_version += QLatin1String(" Harmattan");
 #endif
@@ -417,7 +417,7 @@ void init(SystemInfoPrivate *d)
 	if (!osReleaseDetect(d)) {
 		// attempt to get LSB version before trying the distro-specific approach
 		d->os_full = lsbRelease(QStringList() << "--description" << "--short");
-	
+
 		if (d->os_full.isEmpty()) {
 			unixHeuristicDetect(d);
 		} else {
@@ -476,7 +476,7 @@ void init(SystemInfoPrivate *d)
 	if(osvi.wSuiteMask & VER_SUITE_WH_SERVER)
 		special_info |= SuiteHomeServer;
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
-			| (quint8(osvi.wProductType) << 8)  | special_info;
+					   | (quint8(osvi.wProductType) << 8)  | special_info;
 
 	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
 	d->os_version = d->os_full.section(' ', 1);
