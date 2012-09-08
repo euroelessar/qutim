@@ -11,8 +11,6 @@ ThirdPartyLibrary {
         "qtsolutions/qtlockedfile.h",
         "qtsolutions/qtlocalpeer.cpp",
         "qtsolutions/qtlockedfile.cpp",
-        "qtsolutions/qtlockedfile_unix.cpp",
-
     ]
 
     Group {

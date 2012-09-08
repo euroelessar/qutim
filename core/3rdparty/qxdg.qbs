@@ -24,4 +24,5 @@ ThirdPartyLibrary {
 		"q-xdg/src/xdgthemechooser.cpp",
 		"q-xdg/src/xdgthemechooser.h"
 	]
+    cpp.defines: [ "XDG_STATIC" ]
 }

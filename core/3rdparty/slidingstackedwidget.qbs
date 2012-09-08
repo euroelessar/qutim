@@ -13,4 +13,5 @@ ThirdPartyLibrary {
 		"slidingstackedwidget/slidingstackedwidget.cpp",
 		"slidingstackedwidget/slidingstackedwidget.h"
 	]
+    cpp.defines: [ "LIBQUTIM_LIBRARY" ]
 }
