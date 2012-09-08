@@ -29,7 +29,7 @@ DynamicLibrary {
     ]
 
     cpp.dynamicLibraries: {
-        if (qbs.targetOS == 'linux' || qbs.targetOS == 'freebsd') {
+        if (qbs.targetOS === 'linux' || qbs.targetOS === 'freebsd') {
             return [ 'X11' ];
         }
         return [];
@@ -37,7 +37,11 @@ DynamicLibrary {
 
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
-    cpp.defines: [ "LIBQUTIM_LIBRARY", "QUTIM_SHARE_DIR=\"" + project.shareDir + "\""]
+    cpp.defines: [
+        "LIBQUTIM_LIBRARY",
+        "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
+        "NO_SYSTEM_QXT"
+    ]
 
     files: [
         "libqutim/abstractsearchrequest.h",
@@ -225,5 +229,4 @@ DynamicLibrary {
         "libqutim/version.cpp",
         "libqutim/widgetactiongenerator.cpp",
     ]
-
 }

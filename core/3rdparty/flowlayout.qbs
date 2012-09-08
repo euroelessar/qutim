@@ -11,4 +11,5 @@ ThirdPartyLibrary {
 		"flowlayout/flowlayout.cpp",
 		"flowlayout/flowlayout.h"
 	]
+    cpp.defines: [ "LIBQUTIM_LIBRARY" ]
 }

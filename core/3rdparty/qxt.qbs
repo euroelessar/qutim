@@ -11,5 +11,5 @@ ThirdPartyLibrary {
         "qxt/qxtglobal.h",
         "qxt/qxtcommandoptions.cpp",
     ]
-
+    cpp.defines: [ "QXT_STATIC" ]
 }
