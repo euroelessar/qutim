@@ -5,6 +5,7 @@ ThirdPartyLibrary {
 	name: "flowlayout"
 
 	Depends { name: "qt"; submodules: [ 'core', 'gui' ] }
+    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
 
 	files: [
 		"flowlayout/flowlayout.cpp",
