@@ -6,14 +6,12 @@ Application {
 
 	Depends { name: "cpp" }
 	Depends { name: "libqutim" }
-	Depends { name: "qt"; submodules: [ 'core', 'gui', 'network' ] }
+    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
+    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
 	
 	cpp.includePaths: [
-		"./lib",
-		buildDirectory
-	]
-	cpp.rpaths: [
-		"$ORIGIN/../lib"
+        buildDirectory + "/include/qutim",
+        buildDirectory + "/include"
 	]
 	
 	files: [
@@ -28,6 +26,10 @@ Application {
 			"src/declarative/requesthelper.cpp",
 			"src/declarative/requesthelper.h"
 		]
+        cpp.defines: [ "QUTIM_DECLARATIVE_UI" ]
+
+        Depends { name: "qt.quick1" }
+
 	}
 	Group {
 		condition: !project.declarativeUi
@@ -47,6 +49,5 @@ Application {
 			"src/widgets/submitpage.cpp",
 			"src/widgets/submitpage.h"
 		]
-		cpp.defines: [ "QUTIM_DECLARATIVE_UI" ]
 	}
 }
