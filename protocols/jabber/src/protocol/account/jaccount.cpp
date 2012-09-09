@@ -602,5 +602,5 @@ QString JAccount::identity(const QString &category, const QString &type) const
 
 } // Jabber namespace
 
-#include "jaccount.moc"
+#include "moc_jaccount.cpp"
 

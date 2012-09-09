@@ -244,7 +244,18 @@ endif()
 
 set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
 set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
-set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${QUTIM_SHARE_DIR}\\\" ")
+
+if(APPLE)
+	set(__qutim_share_dir "/../Resources/share")
+else()
+	set(__qutim_share_dir ${QUTIM_SHARE_DIR})
+endif()
+
+#TODO add rules for Windows
+set_target_properties(libqutim
+	PROPERTIES
+	COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -DQUTIM_SHARE_DIR=\\\"${__qutim_share_dir}\\\" "
+)
 
 qutim_target_link_libraries(qutim
 	${QT_LIBRARIES}
@@ -397,15 +408,27 @@ qutim_add_devel_component(CoreDevel
 #ENDIF()
 
 if(QUTIM_INSTALL_ICONS)
-	set(QUTIM_ICON_PATHS ../artwork/icons/qutim-default ../artwork/icons/user-status/hicolor )
+	list(APPEND QUTIM_ICON_PATHS
+		../artwork/icons/qutim-default
+		../artwork/icons/user-status/hicolor
+	)
 	if(UNIX AND NOT APPLE)
-		set(QUTIM_ICON_PATHS ${QUTIM_ICON_PATHS} ../artwork/icons/humanity/hicolor)
+		list(APPEND QUTIM_ICON_PATHS
+			${QUTIM_ICON_PATHS}
+			../artwork/icons/humanity/hicolor
+		)
 	endif()
 	INSTALL(DIRECTORY ${QUTIM_ICON_PATHS}
 		DESTINATION ${QUTIM_SHARE_DIR}/icons
 		COMPONENT Artwork
 	)
-	
+	if(APPLE)
+		file(GLOB MACOSX_TRAY "../artwork/icons/tray/MacOS/*.svg")
+		install(FILES ${MACOSX_TRAY}
+			DESTINATION ${QUTIM_SHARE_DIR}/icons/qutim-default/scalable/status/
+			COMPONENT Artwork
+		)
+	endif()
 	if(QUTIM_INSTALL_OXYGEN_THEME)
 		message(STATUS "qutIM built-in icon theme will be installed")
 		INSTALL(DIRECTORY ../artwork/icons/oxygen
@@ -417,11 +440,11 @@ if(QUTIM_INSTALL_ICONS)
 		FILE(GLOB UBUNTU_LIGHT "../artwork/icons/tray/ubuntu-mono-light/*.svg")
 		FILE(GLOB UBUNTU_DARK "../artwork/icons/tray/ubuntu-mono-dark/*.svg")
 		INSTALL(FILES ${UBUNTU_LIGHT}
-			DESTINATION share/icons/ubuntu-mono-light/scalable/status/
+			DESTINATION ${SHARE_DIR}/icons/ubuntu-mono-light/scalable/status/
 			COMPONENT Artwork
 		)
 		INSTALL(FILES ${UBUNTU_DARK}
-			DESTINATION share/icons/ubuntu-mono-dark/scalable/status/
+			DESTINATION ${SHARE_DIR}/icons/ubuntu-mono-dark/scalable/status/
 			COMPONENT Artwork
 		)
 	ENDIF()

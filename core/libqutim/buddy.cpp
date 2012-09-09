@@ -135,5 +135,5 @@ void BuddyPrivate::_q_status_changed(const Status &now, const Status &old)
 
 }
 
-#include "buddy.moc"
+#include "moc_buddy.cpp"
 
