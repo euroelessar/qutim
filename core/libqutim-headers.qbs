@@ -19,7 +19,7 @@ Product {
             var cmd = new JavaScriptCommand();
             cmd.description = "generating libqutim_version.h";
             cmd.highlight = "codegen";
-            cmd.qutim_version = project.qutim_version;
+            cmd.qutim_version = product.qutim_version;
             cmd.qutim_version_major = product.qutim_version_major;
             cmd.qutim_version_minor = product.qutim_version_minor;
             cmd.qutim_version_release = product.qutim_version_release;
