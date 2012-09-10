@@ -318,5 +318,5 @@ void JMUCManager::leave(const QString &room)
 
 }
 
-#include "jmucmanager.moc"
+#include "moc_jmucmanager.cpp"
 

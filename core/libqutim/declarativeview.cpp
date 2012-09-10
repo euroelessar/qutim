@@ -300,4 +300,4 @@ void DeclarativeView::setResizeMode(DeclarativeView::ResizeMode mode)
 
 } // namespace qutim_sdk_0_3
 
-#include "declarativeview.moc"
+#include "moc_declarativeview.cpp"

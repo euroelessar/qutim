@@ -865,4 +865,4 @@ void ModuleManager::virtual_hook(int id, void *data)
 }
 }
 
-#include "modulemanager.moc"
+#include "moc_modulemanager.cpp"

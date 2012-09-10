@@ -13,9 +13,10 @@ else()
 endif()
 option(DECLARATIVE_UI "Use declarative UI" ${DEFAULT_DECLARATIVE_UI})
 
-set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
-set( QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
-set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
+set(QUTIM_BUNDLE_NAME qutim.app)
+set(QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
+set(QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
+set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 set(QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
 set(QUTIM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set(QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
@@ -37,7 +38,6 @@ include(QutIMMacros)
 
 set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins")
 set(QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE)
-set(QUTIM_BUNDLE_NAME qutim.app)
 
 #Disable "bad" plugins by default
 set(BAD_PLUGINS_LIST QRCICONS AWN ANTIBOSS QMLCHAT PLUGMAN)
