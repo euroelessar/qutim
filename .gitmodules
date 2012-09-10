@@ -22,3 +22,6 @@
 [submodule "plugins/docktile/qtdocktile"]
 	path = plugins/docktile/qtdocktile
 	url = git://github.com/gorthauer/QtDockTile.git
+[submodule "qbs"]
+	path = qbs
+	url = git://github.com/qutIM/qbs-labs
