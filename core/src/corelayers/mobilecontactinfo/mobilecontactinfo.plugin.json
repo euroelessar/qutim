@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile information window about a contact",
+	"pluginDescription": "qutIM implementation of the information window for mobiles",
+	"extensionHeader": "mobilecontactinfo.h",
+	"extensionClass": "Core::MobileContactInfo"
+}

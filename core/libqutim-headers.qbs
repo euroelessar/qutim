@@ -24,7 +24,7 @@ Product {
             cmd.qutim_version_minor = product.qutim_version_minor;
             cmd.qutim_version_release = product.qutim_version_release;
             cmd.qutim_version_patch = product.qutim_version_patch;
-            cmd.onWindows = (product.modules.qbs.targetOS == "windows");
+            cmd.onWindows = (product.modules.qbs.targetOS === "windows");
             cmd.sourceCode = function() {
                 var file = new TextFile(input.fileName);
                 var content = file.readAll();
@@ -43,7 +43,7 @@ Product {
                 var global = output.fileName.replace("libqutim_version.h", "libqutim_global.h");
                 file = new TextFile(global, TextFile.WriteOnly);
                 file.truncate();
-                file.write("#include \"" + input.fileName.replace("version.h.cmake", "qutim/libqutim_global.h") + "\"\n");
+                file.write("#include \"" + input.fileName.replace("version.h.cmake", "libqutim_global.h") + "\"\n");
                 file.close();
                 var local = output.fileName.replace("qutim/libqutim_version.h", "libqutim_version.h");
                 file = new TextFile(local, TextFile.WriteOnly);
@@ -129,6 +129,7 @@ Product {
             "libqutim/systemintegration.h",
             "libqutim/tcpsocket.h",
             "libqutim/thememanager.h",
+            "libqutim/tooltip.h",
             "libqutim/utils/avatarfilter.h",
             "libqutim/utils.h",
             "libqutim/utils/itemdelegate.h",

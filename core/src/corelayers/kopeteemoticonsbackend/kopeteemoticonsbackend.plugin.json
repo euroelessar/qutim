@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "qutIM and Kopete emoticons",
+	"pluginDescription": "Default qutIM emoticons backend",
+	"extensionHeader": "kopeteemoticonsbackend.h",
+	"extensionClass": "KopeteEmoticonsBackend"
+}

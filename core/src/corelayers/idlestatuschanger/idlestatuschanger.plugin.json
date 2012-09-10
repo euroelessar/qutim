@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "AutoAway",
+	"pluginDescription": "Automatically changes status of accounts on inactivity",
+	"extensionHeader": "idlestatuschanger.h",
+	"extensionClass": "Core::IdleStatusChanger"
+}

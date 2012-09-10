@@ -25,4 +25,8 @@ ThirdPartyLibrary {
 		"q-xdg/src/xdgthemechooser.h"
 	]
     cpp.defines: [ "XDG_STATIC" ]
+	ProductModule {
+		Depends { name: "cpp" }
+		cpp.defines: [ "XDG_STATIC" ]
+	}
 }

@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Add contact dialog",
+	"pluginDescription": "Simple add contact dialog",
+	"extensionHeader": "addcontact.h",
+	"extensionClass": "Core::AddContactModule"
+}

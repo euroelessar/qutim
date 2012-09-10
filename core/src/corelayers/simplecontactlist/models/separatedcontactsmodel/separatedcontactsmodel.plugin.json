@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Separated contacts model",
+	"pluginDescription": "Contact list model, which show accounts, tags and contacts",
+	"extensionHeader": "separatedcontactlistmodel.h",
+	"extensionClass": "Core::SimpleContactList::SeparatedModel"
+}

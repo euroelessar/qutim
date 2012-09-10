@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Chat notifications backend",
+	"pluginDescription": "Prints information about events into chats",
+	"extensionHeader": "chatnotificationsbackend.h",
+	"extensionClass": "Core::ChatNotificationsBackend,qutim_sdk_0_3::StartupModule"
+}

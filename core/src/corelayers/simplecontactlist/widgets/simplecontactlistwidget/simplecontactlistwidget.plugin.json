@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple",
+	"pluginDescription": "Default qutIM contactlist widget implementation with global status button",
+	"extensionHeader": "simplewidget.h",
+	"extensionClass": "Core::SimpleContactList::SimpleWidget"
+}

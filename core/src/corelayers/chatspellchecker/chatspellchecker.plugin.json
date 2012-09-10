@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Chat spell checker",
+	"pluginDescription": "Highlights grammar errors and provides spelling suggestions for misspelled words in chats",
+	"extensionHeader": "chatspellchecker.h",
+	"extensionClass": "Core::ChatSpellChecker,qutim_sdk_0_3::StartupModule"
+}

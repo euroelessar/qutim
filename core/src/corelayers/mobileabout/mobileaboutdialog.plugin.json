@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile about dialog",
+	"pluginDescription": "Mobile dialog about qutIM and it's authors",
+	"extensionHeader": "mobileaboutcreator.h",
+	"extensionClass": "Core::MobileAboutCreator"
+}

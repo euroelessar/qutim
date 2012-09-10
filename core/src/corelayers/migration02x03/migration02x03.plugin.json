@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mirgation 0.2 to 0.3",
+	"pluginDescription": "Module for migration from 0.2 to 0.3",
+	"extensionHeader": "migrationpagecreator.h",
+	"extensionClass": "Core::MigrationPageCreator"
+}

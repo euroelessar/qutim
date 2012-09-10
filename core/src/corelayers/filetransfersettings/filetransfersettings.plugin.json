@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "File transfer settings",
+	"pluginDescription": "Default implementation of the file transfer settings widget",
+	"extensionHeader": "filetransfersettings.h",
+	"extensionClass": "Core::FileTransferSettings,qutim_sdk_0_3::StartupModule"
+}

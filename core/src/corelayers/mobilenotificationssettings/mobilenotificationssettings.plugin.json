@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile notifications settings",
+	"pluginDescription": "Mobile settings widget set for notifications",
+	"extensionHeader": "mobilenotificationssettings.h",
+	"extensionClass": "Core::MobileNotificationsSettings"
+}

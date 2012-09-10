@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Adium-like WebView",
+	"pluginDescription": "Well-look stylished view based on WebKit and Adium ideas",
+	"extensionHeader": "src/adiumwebviewfactory.h",
+	"extensionClass": "Adium::WebViewFactory"
+}

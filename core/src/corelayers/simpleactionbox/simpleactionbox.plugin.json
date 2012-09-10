@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "SimpleActionBox",
+	"pluginDescription": "Simple actionbox module",
+	"extensionHeader": "simpleactionbox.h",
+	"extensionClass": "Core::SimpleActionBoxGenerator"
+}

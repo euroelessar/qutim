@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Text view",
+	"pluginDescription": "Fast and light chat view",
+	"extensionHeader": "textviewfactory.h",
+	"extensionClass": "Core::AdiumChat::TextViewFactory"
+}

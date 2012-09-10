@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple conference join dialog",
+	"pluginDescription": "Conference join dialog adopted for Desktop systems",
+	"extensionHeader": "joinchatmodule.h",
+	"extensionClass": "Core::JoinChatModule"
+}

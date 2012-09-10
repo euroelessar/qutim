@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile Settings dialog",
+	"pluginDescription": "Kickoff style settings dialog specialy for Maemo/MeeGo",
+	"extensionHeader": "mobilesettingslayerimpl.h",
+	"extensionClass": "Core::MobileSettingsLayerImpl"
+}

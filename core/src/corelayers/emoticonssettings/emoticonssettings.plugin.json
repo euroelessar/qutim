@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Emoticons settings",
+	"pluginDescription": "Default settings widget set for emoticons",
+	"extensionHeader": "emoticonssettings.h",
+	"extensionClass": "Core::EmoticonsSettings,qutim_sdk_0_3::StartupModule"
+}

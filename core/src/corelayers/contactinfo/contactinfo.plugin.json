@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple information window about a contact",
+	"pluginDescription": "Default qutIM implementation of the information window",
+	"extensionHeader": "contactinfo.h",
+	"extensionClass": "Core::ContactInfo"
+}

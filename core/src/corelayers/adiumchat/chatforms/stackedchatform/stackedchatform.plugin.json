@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile",
+	"pluginDescription": "Stacked chatform for mobile devices",
+	"extensionHeader": "stackedchatform.h",
+	"extensionClass": "Core::AdiumChat::StackedChatForm"
+}
