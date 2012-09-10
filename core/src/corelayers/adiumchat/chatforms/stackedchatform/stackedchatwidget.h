@@ -28,8 +28,10 @@
 #define STACKEDCHATWIDGET_H
 
 #include <QWidget>
-#include <chatforms/abstractchatwidget.h>
+#include <qutim/adiumchat/abstractchatwidget.h>
 #include <slidingstackedwidget.h>
+#include "../../chatlayer/chatsessionimpl.h"
+#include "../../chatlayer/chatlayerimpl.h"
 #include "floatingbutton.h"
 
 #ifdef Q_WS_MAEMO_5

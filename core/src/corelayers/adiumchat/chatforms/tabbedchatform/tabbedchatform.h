@@ -25,7 +25,7 @@
 #ifndef TABBEDCHATFORM_H
 #define TABBEDCHATFORM_H
 
-#include <chatforms/abstractchatform.h>
+#include <qutim/adiumchat/abstractchatform.h>
 
 namespace qutim_sdk_0_3
 {

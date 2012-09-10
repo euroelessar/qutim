@@ -2,7 +2,7 @@ import qbs.base 1.0
 
 Application {
 	name: "qutim"
-	destination: "bin"
+    destination: "bin"
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
