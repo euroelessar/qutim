@@ -76,9 +76,9 @@ Project {
 //        "protocols/jabber/jabber.qbs",
 //        "protocols/jabber/jreen/jreen.qbs",
 //        "plugins/adiumwebview/adiumwebview.qbs",
-        "plugins/adiumwebview/lib/qutim-adiumwebview.qbs"
+        "plugins/adiumwebview/lib/qutim-adiumwebview.qbs",
         "protocols/vkontakte/vreen/src/api.qbs", //vreen
-        "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
+ //       "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
 //        "protocols/vkontakte/vkontakte.qbs",
         "protocols/oscar/3rdparty/hmac.qbs",
         "protocols/oscar/oscar.qbs",

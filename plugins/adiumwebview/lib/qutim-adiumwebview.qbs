@@ -14,7 +14,9 @@ Product {
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     Depends { name: "Qt.gui" }
+    Depends { name: "Qt.network" }
     Depends { name: "Qt.webkit" }
+    Depends { name: "libqutim" }
  
     //cpp.warningLevel: "all"
     cpp.includePaths: [
