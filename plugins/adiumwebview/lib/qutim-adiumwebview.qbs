@@ -14,6 +14,7 @@ Product {
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     Depends { name: "Qt.gui" }
+    Depends { name: "Qt.webkit" }
  
     //cpp.warningLevel: "all"
     cpp.includePaths: [

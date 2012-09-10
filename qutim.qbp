@@ -73,9 +73,9 @@ Project {
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
         "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
-        "protocols/jabber/jabber.qbs",
-        "protocols/jabber/jreen/jreen.qbs",
-        "plugins/adiumwebview/adiumwebview.qbs",
+//        "protocols/jabber/jabber.qbs",
+//        "protocols/jabber/jreen/jreen.qbs",
+//        "plugins/adiumwebview/adiumwebview.qbs",
         "plugins/adiumwebview/lib/qutim-adiumwebview.qbs"
     ]
 }
