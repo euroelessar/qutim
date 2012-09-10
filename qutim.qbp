@@ -88,11 +88,14 @@ Project {
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
         "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
-        "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
-        "plugins/macintegration/src/macdock/macdock.qbs",
-        "plugins/macintegration/src/macgrowl/macgrowl.qbs",
-        "plugins/macintegration/src/macidle/macidle.qbs",
-        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
+        "protocols/vkontakte/vreen/src/api.qbs", //vreen
+        "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
+//        "protocols/vkontakte/vkontakte.qbs",
+        "protocols/oscar/3rdparty/hmac.qbs",
+        "protocols/oscar/oscar.qbs",
+        "protocols/oscar/plugins/identify.qbs",
+        "protocols/oscar/plugins/xstatus.qbs",
+        "protocols/mrim/mrim.qbs",
     ]
 }
 
