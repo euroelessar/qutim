@@ -25,6 +25,7 @@
 
 #include "chatlayerplugin.h"
 #include "chatlayerimpl.h"
+#include "chatsessionimpl.h"
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>

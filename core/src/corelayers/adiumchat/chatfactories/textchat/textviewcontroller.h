@@ -26,7 +26,7 @@
 #ifndef TEXTVIEWCONTROLLER_H
 #define TEXTVIEWCONTROLLER_H
 
-#include <chatlayer/chatviewfactory.h>
+#include <qutim/adiumchat/chatviewfactory.h>
 #include <QTextDocument>
 #include <QTextBrowser>
 #include <QCache>

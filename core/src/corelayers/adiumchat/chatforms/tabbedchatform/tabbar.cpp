@@ -25,8 +25,8 @@
 #include "tabbar.h"
 #include <QStyle>
 #include <QAction>
-#include <chatlayer/chatsessionimpl.h>
-#include <chatlayer/chatlayerimpl.h>
+#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/adiumchat/chatlayerimpl.h>
 #include <qutim/tooltip.h>
 #include <qutim/icon.h>
 #include <QDropEvent>

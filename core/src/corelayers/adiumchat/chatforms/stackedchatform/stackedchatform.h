@@ -27,7 +27,7 @@
 #ifndef STACKEDCHATFORM_H
 #define STACKEDCHATFORM_H
 
-#include <chatforms/abstractchatform.h>
+#include <qutim/adiumchat/abstractchatform.h>
 
 namespace qutim_sdk_0_3
 {
