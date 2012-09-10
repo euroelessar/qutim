@@ -8,7 +8,7 @@ ThirdPartyLibrary {
 	Depends { name: "qt"; submodules: [ 'core', 'gui' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
 
-    cpp.defines: [ "LIBQUTIM_LIBRARY" ]
+    cpp.defines: [ "LIBQUTIM_STATIC" ]
 
     ProductModule {
         Depends { name: "cpp" }

@@ -53,6 +53,10 @@ DynamicLibrary {
             cpp.defines: [ "QUTIM_DECLARATIVE_UI" ]
         }
     }
+//    Properties {
+//        condition: qbs.platform !== "windows"
+//        cpp.cxxFlags: "-fvisibility=hidden"
+//    }
 
     files: [
         'libqutim/*.h',
