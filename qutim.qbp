@@ -72,7 +72,9 @@ Project {
         "core/src/corelayers/softkeysactionbox/softkeysactionbox.qbs",
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
-        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs"
+        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
+        "protocols/jabber/jabber.qbs",
+        "protocols/jabber/jreen/jreen.qbs"
     ]
 }
 
