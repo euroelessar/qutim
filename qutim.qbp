@@ -90,12 +90,15 @@ Project {
         "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
         "protocols/vkontakte/vreen/src/api.qbs", //vreen
         "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
-//        "protocols/vkontakte/vkontakte.qbs",
+        "protocols/vkontakte/vkontakte.qbs",
         "protocols/oscar/3rdparty/hmac.qbs",
         "protocols/oscar/oscar.qbs",
         "protocols/oscar/plugins/identify.qbs",
         "protocols/oscar/plugins/xstatus.qbs",
         "protocols/mrim/mrim.qbs",
+        "protocols/jabber/jreen/jreen.qbs",
+        //"protocols/jabber/jabber.qbs",
+        //"protocols/quetzal/quetzal.qbs",
     ]
 }
 

@@ -61,19 +61,11 @@ DynamicLibrary {
             product.buildDirectory + "/include/qutim",
             product.buildDirectory + "/include"
         ]
-        cpp.defines: {
-            var defines = [];
-            if (project.declarativeUi)
-                defines.push("QUTIM_DECLARATIVE_UI");
-            if (project.singleProfile)
-                defines.push("QUTIM_SINGLE_PROFILE");
-            return defines;
+        Properties {
+            condition: project.declarativeUi
+            cpp.defines: outer.concat("QUTIM_DECLARATIVE_UI")
         }
     }
-//    Properties {
-//        condition: qbs.platform !== "windows"
-//        cpp.cxxFlags: "-fvisibility=hidden"
-//    }
 
     files: [
         'libqutim/*.h',
