@@ -2,7 +2,7 @@ import "../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: 'identify'
-    name: "identify"
+    name: "oscaridentify"
 
     Depends { name: "oscar" }
 }
