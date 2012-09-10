@@ -25,8 +25,6 @@ DynamicLibrary {
 	Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
 
     cpp.includePaths: [
-        "3rdparty",
-        "3rdparty/qxt",
         buildDirectory + "/include/qutim"
     ]
 
@@ -42,7 +40,6 @@ DynamicLibrary {
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
-        "NO_SYSTEM_QXT"
     ]
 
     ProductModule {
