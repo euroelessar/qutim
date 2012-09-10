@@ -21,12 +21,10 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-	Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-	Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "mac.carbon"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "mac.cocoa"; condition: qbs.targetOS === 'mac' }
 
     cpp.includePaths: [
-        "3rdparty",
-        "3rdparty/qxt",
         buildDirectory + "/include/qutim"
     ]
 
@@ -42,7 +40,6 @@ DynamicLibrary {
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
-        "NO_SYSTEM_QXT"
     ]
 
     ProductModule {
@@ -56,6 +53,10 @@ DynamicLibrary {
             cpp.defines: [ "QUTIM_DECLARATIVE_UI" ]
         }
     }
+//    Properties {
+//        condition: qbs.platform !== "windows"
+//        cpp.cxxFlags: "-fvisibility=hidden"
+//    }
 
     files: [
         'libqutim/*.h',

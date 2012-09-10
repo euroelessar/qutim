@@ -22,4 +22,5 @@ Application {
             "*.ui"
         ]
 	}
+    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME
 }
