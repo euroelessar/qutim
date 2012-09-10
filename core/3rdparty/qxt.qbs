@@ -12,4 +12,12 @@ ThirdPartyLibrary {
         "qxt/qxtcommandoptions.cpp",
     ]
     cpp.defines: [ "QXT_STATIC" ]
+
+    ProductModule {
+        Depends { name: "cpp" }
+        cpp.includePaths: [
+            "qxt"
+        ]
+        cpp.defines: [ "NO_SYSTEM_QXT" ]
+    }
 }

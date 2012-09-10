@@ -21,7 +21,13 @@ Product {
 
     Group {
         prefix: sourcePath !== '' ? sourcePath + '/' : ''
-        files: [ '*.cpp', '*.mm', '*.h', '*.ui' ]
+        files: [ '*.cpp', '*.h', '*.ui' ]
+        recursive: true
+    }
+    Group {
+        condition: qbs.targetOS === 'mac'
+        prefix: sourcePath !== '' ? sourcePath + '/' : ''
+        files: [ '*.mm' ]
         recursive: true
     }
     Group {
@@ -35,7 +41,7 @@ Product {
 
         Artifact {
             fileTags: [ "cpp", "moc_cpp" ]
-            fileName: product.name + "genplugin.cpp"
+            fileName: 'GeneratedFiles/' + product.name + '/' + product.name + "genplugin.cpp"
         }
 
         prepare: {
