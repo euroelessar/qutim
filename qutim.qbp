@@ -72,7 +72,15 @@ Project {
         "core/src/corelayers/softkeysactionbox/softkeysactionbox.qbs",
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
-        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs"
+        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
+        "protocols/vkontakte/vreen/src/api.qbs", //vreen
+        "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
+//        "protocols/vkontakte/vkontakte.qbs",
+        "protocols/oscar/3rdparty/hmac.qbs",
+        "protocols/oscar/oscar.qbs",
+        "protocols/oscar/plugins/identify.qbs",
+        "protocols/oscar/plugins/xstatus.qbs",
+        "protocols/mrim/mrim.qbs",
     ]
 }
 

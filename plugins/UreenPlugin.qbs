@@ -21,7 +21,7 @@ Product {
 
     Group {
         prefix: sourcePath !== '' ? sourcePath + '/' : ''
-        files: [ '*.cpp', '*.h', '*.ui' ]
+        files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
         recursive: true
     }
     Group {
