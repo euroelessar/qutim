@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Notification filter",
+	"pluginDescription": "Notification filter",
+	"extensionHeader": "notificationfilter.h",
+	"extensionClass": "Core::NotificationFilterImpl,qutim_sdk_0_3::NotificationFilter,qutim_sdk_0_3::StartupModule"
+}

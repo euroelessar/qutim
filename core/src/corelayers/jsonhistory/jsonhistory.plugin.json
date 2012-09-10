@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Json History",
+	"pluginDescription": "Default qutIM history implementation, based on JavaScript Object Notation",
+	"extensionHeader": "jsonhistory.h",
+	"extensionClass": "Core::JsonHistory"
+}

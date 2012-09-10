@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Tree contacts model",
+	"pluginDescription": "Contact list model, which show tags and contacts",
+	"extensionHeader": "simplecontactlistmodel.h",
+	"extensionClass": "Core::SimpleContactList::TreeModel"
+}

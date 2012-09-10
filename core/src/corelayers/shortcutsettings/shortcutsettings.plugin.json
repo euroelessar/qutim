@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Shortcut settings",
+	"pluginDescription": "",
+	"extensionHeader": "shortcutsettings.h",
+	"extensionClass": "Core::ShortcutSettings,qutim_sdk_0_3::StartupModule"
+}

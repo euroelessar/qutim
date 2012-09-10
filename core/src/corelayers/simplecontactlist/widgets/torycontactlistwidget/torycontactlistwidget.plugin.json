@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Tory Contactlist",
+	"pluginDescription": "Tory contactlist",
+	"extensionHeader": "torywidget.h",
+	"extensionClass": "Core::SimpleContactList::ToryWidget"
+}

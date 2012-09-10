@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Classic",
+	"pluginDescription": "Default qutIM chatform implementation for adiumchat",
+	"extensionHeader": "tabbedchatform.h",
+	"extensionClass": "Core::AdiumChat::TabbedChatForm"
+}

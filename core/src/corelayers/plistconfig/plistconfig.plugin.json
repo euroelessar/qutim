@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "PList config",
+	"pluginDescription": "Additional qutIM config implementation for Apple plists",
+	"extensionHeader": "plistconfigbackend.h",
+	"extensionClass": "Core::PListConfigBackend"
+}

@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Data forms backend",
+	"pluginDescription": "Default qutIM implementation of the data forms",
+	"extensionHeader": "dataformsbackend.h",
+	"extensionClass": "Core::DefaultDataFormsBackend"
+}

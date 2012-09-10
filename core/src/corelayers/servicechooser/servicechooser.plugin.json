@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Service chooser",
+	"pluginDescription": "TODO",
+	"extensionHeader": "servicechooser.h",
+	"extensionClass": "Core::ServiceChooser,qutim_sdk_0_3::StartupModule"
+}

@@ -14,4 +14,9 @@ ThirdPartyLibrary {
 		"slidingstackedwidget/slidingstackedwidget.h"
 	]
     cpp.defines: [ "LIBQUTIM_LIBRARY" ]
+
+    ProductModule {
+        Depends { name: "cpp" }
+        cpp.includePaths: product.path + "/slidingstackedwidget"
+    }
 }

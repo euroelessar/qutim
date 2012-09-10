@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Resource Icon Loader",
+	"pluginDescription": "Very simple icon loader from compiled resources for embedded devices",
+	"extensionHeader": "qresourceiconloader.h",
+	"extensionClass": "Embedded::ResourceIconLoader"
+}

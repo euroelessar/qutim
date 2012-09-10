@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "File transfer manager",
+	"pluginDescription": "Default qutIM file transfer manager",
+	"extensionHeader": "simplefiletransfer.h",
+	"extensionClass": "Core::SimpleFileTransfer"
+}
