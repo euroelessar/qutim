@@ -44,6 +44,10 @@ DynamicLibrary {
         "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
         "NO_SYSTEM_QXT"
     ]
+    Properties {
+        condition: project.singleProfile
+        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+    }
 
     ProductModule {
         Depends { name: "cpp" }
@@ -51,9 +55,13 @@ DynamicLibrary {
             product.buildDirectory + "/include/qutim",
             product.buildDirectory + "/include"
         ]
-        Properties {
-            condition: project.declarativeUi
-            cpp.defines: [ "QUTIM_DECLARATIVE_UI" ]
+        cpp.defines: {
+            var defines = [];
+            if (project.declarativeUi)
+                defines.push("QUTIM_DECLARATIVE_UI");
+            if (project.singleProfile)
+                defines.push("QUTIM_SINGLE_PROFILE");
+            return defines;
         }
     }
 

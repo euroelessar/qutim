@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 #include "contactdelegate.h"
-#include <libqutim/buddy.h>
-#include <libqutim/tooltip.h>
+#include <qutim/buddy.h>
+#include <qutim/tooltip.h>
 #include <QApplication>
 #include <QHelpEvent>
 #include <QTreeView>

@@ -26,7 +26,7 @@
 #ifndef TEXTVIEWFACTORY_H
 #define TEXTVIEWFACTORY_H
 
-#include <chatlayer/chatviewfactory.h>
+#include <qutim/adiumchat/chatviewfactory.h>
 
 namespace Core
 {
