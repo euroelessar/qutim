@@ -22,5 +22,6 @@ Application {
             "*.cpp",
             "*.ui"
         ]
-    }
+	}
+    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME
 }
