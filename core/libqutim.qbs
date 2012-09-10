@@ -21,8 +21,8 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-	Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-	Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "mac.carbon"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "mac.cocoa"; condition: qbs.targetOS === 'mac' }
 
     cpp.includePaths: [
         buildDirectory + "/include/qutim"
