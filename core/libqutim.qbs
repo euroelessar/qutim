@@ -9,6 +9,12 @@ DynamicLibrary {
     property string versionRelease: project.qutim_version_release
     property string versionPatch: project.qutim_version_patch
     property string version: project.qutim_version
+    property string shareDir: {
+        if (qbs.targetOS === "mac")
+            return "/Resources/share";
+        else
+            return project.shareDir;
+    }
 
     Depends { name: "qutim-headers" }
     Depends { name: "k8json" }
@@ -41,7 +47,7 @@ DynamicLibrary {
     cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
+        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
         "NO_SYSTEM_QXT"
     ]
     Properties {
@@ -50,6 +56,8 @@ DynamicLibrary {
     }
 
     ProductModule {
+        property string basePath
+
         Depends { name: "cpp" }
         cpp.includePaths: [
             product.buildDirectory + "/include/qutim",
