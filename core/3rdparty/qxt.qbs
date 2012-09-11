@@ -14,6 +14,6 @@ ThirdPartyLibrary {
         cpp.includePaths: [
             "qxt"
         ]
-        cpp.defines: [ "NO_SYSTEM_QXT" ]
+        cpp.defines: [ "NO_SYSTEM_QXT", "QXT_STATIC" ]
     }
 }

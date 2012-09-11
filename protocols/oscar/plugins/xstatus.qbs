@@ -2,7 +2,7 @@ import "../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: 'xstatus'
-    name: "xstatus"
+    name: "oscarxstatus"
 
     Depends { name: "oscar" }
 }

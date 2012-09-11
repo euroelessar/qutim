@@ -23,6 +23,5 @@ Application {
             "*.ui"
         ]
 	}
-    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME
-    }
+    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
 }
