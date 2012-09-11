@@ -11,6 +11,7 @@ DynamicLibrary {
 
     cpp.dynamicLibraryPrefix: ""
     cpp.defines: "SIMPLECONTACTLIST_LIBRARY"
+    destination: "lib"
 
     Group {
         files: [
