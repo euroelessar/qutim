@@ -5,5 +5,5 @@ UreenPlugin {
     sourcePath: ""
 
 	Depends { name: "adiumchat" }
-    Depends { name: "slidingstackedwidget" }
+    //Depends { name: "slidingstackedwidget" }
 }
