@@ -15,14 +15,15 @@ DynamicLibrary {
     Depends { name: "qxt" }
     Depends { name: "qxdg" }
     Depends { name: "qtdwm" }
-    Depends { name: "flowlayout" }
-    Depends { name: "slidingstackedwidget" }
     Depends { name: "qtsolutions" }
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
     Depends { name: "mac.carbon"; condition: qbs.targetOS === 'mac' }
     Depends { name: "mac.cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
+    Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
+
 
     cpp.includePaths: [
         buildDirectory + "/include/qutim"
@@ -46,7 +47,10 @@ DynamicLibrary {
         Depends { name: "cpp" }
         cpp.includePaths: [
             product.buildDirectory + "/include/qutim",
-            product.buildDirectory + "/include"
+            product.buildDirectory + "/include",
+            "3rdparty/slidingstackedwidget",
+            "3rdparty/flowlayout",
+            "3rdparty/"
         ]
         Properties {
             condition: project.declarativeUi
@@ -60,4 +64,14 @@ DynamicLibrary {
         'libqutim/utils/*.h',
         'libqutim/utils/*.cpp'
     ]
+
+    //TODO separate this libraries like qutim-adiumwebview
+    Group {
+        prefix: "3rdparty/slidingstackedwidget/"
+        files: ["*.h", "*.cpp"]
+    }
+    Group {
+        prefix: "3rdparty/flowlayout/"
+        files: ["*.h", "*.cpp"]
+    }
 }
