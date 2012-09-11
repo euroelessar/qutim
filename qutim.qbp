@@ -86,7 +86,12 @@ Project {
         "core/src/corelayers/softkeysactionbox/softkeysactionbox.qbs",
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
-        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs"
+        "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
+        "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
+        "plugins/macintegration/src/macdock/macdock.qbs",
+        "plugins/macintegration/src/macgrowl/macgrowl.qbs",
+        "plugins/macintegration/src/macidle/macidle.qbs",
+        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
     ]
 }
 
