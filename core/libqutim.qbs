@@ -46,7 +46,6 @@ DynamicLibrary {
     ProductModule {
         Depends { name: "cpp" }
         cpp.includePaths: [
-            product.buildDirectory + "/include/qutim",
             product.buildDirectory + "/include",
             "3rdparty/slidingstackedwidget",
             "3rdparty/flowlayout",
