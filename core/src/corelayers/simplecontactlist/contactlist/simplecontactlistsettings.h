@@ -64,7 +64,7 @@ private slots:
 private:
 	QVBoxLayout *m_layout;
 	QHash<const ObjectGenerator*, SettingsWidget*> m_widgetCache;
-	QHash<QByteArray, ServiceChooser*> m_serviceChoosers;
+	QHash<QByteArray, ServiceBox*> m_serviceChoosers;
 	QHash<QByteArray, const ObjectGenerator*> m_extensions;
 	QHash<QByteArray, SettingsWidget*> m_extensionWidgets;
 	QList<SettingsWidget*> m_staticExtensionWidgets;

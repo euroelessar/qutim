@@ -16,7 +16,7 @@ ContactListSettingsExtention::~ContactListSettingsExtention()
 {
 }
 
-ServiceChooser::ServiceChooser(const QByteArray &service,
+ServiceBox::ServiceBox(const QByteArray &service,
                                const LocalizedString &title,
                                const QByteArray &currentService,
                                ExtensionInfoList &services,
@@ -44,7 +44,7 @@ ServiceChooser::ServiceChooser(const QByteArray &service,
             SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 }
 
-void ServiceChooser::setCurrentService(const QByteArray &service)
+void ServiceBox::setCurrentService(const QByteArray &service)
 {
     QRadioButton *button = m_buttons.value(service);
     if (!button)
@@ -56,12 +56,12 @@ void ServiceChooser::setCurrentService(const QByteArray &service)
     button->blockSignals(false);
 }
 
-ExtensionInfo ServiceChooser::currentServiceInfo()
+ExtensionInfo ServiceBox::currentServiceInfo()
 {
     return m_infos.value(m_currentService);
 }
 
-void ServiceChooser::onButtonToggled(bool checked)
+void ServiceBox::onButtonToggled(bool checked)
 {
     if (!checked)
         return;
@@ -73,7 +73,7 @@ void ServiceChooser::onButtonToggled(bool checked)
     m_currentService = newService;
 }
 
-void ServiceChooser::onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject)
+void ServiceBox::onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject)
 {
     if (name == m_service && oldObject->metaObject()->className() == m_currentService)
         setCurrentService(newObject->metaObject()->className());

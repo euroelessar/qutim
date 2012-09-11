@@ -67,7 +67,7 @@ void ContactListSettings::addService(const QByteArray &service, const LocalizedS
 	QByteArray currentService = serviceObj->metaObject()->className();
 	if (services.size() > 1) {
 		m_services.insert(currentService);
-		ServiceChooser *chooser = new ServiceChooser(service, title, currentService, services, this);
+		ServiceBox *chooser = new ServiceBox(service, title, currentService, services, this);
 		m_layout->addWidget(chooser);
 		m_serviceChoosers.insert(service, chooser);
 		connect(chooser,
@@ -126,7 +126,7 @@ void ContactListSettings::saveImpl()
 {
 	m_modified = false;
 	bool showNotification = false;
-	foreach (ServiceChooser *chooser, m_serviceChoosers) {
+	foreach (ServiceBox *chooser, m_serviceChoosers) {
 		QByteArray serviceName = chooser->service();
 		ExtensionInfo info = chooser->currentServiceInfo();
 		showNotification = !ServiceManager::setImplementation(serviceName, info) || showNotification;
@@ -146,7 +146,7 @@ void ContactListSettings::saveImpl()
 void ContactListSettings::cancelImpl()
 {
 	m_modified = false;
-	foreach (ServiceChooser *chooser, m_serviceChoosers) {
+	foreach (ServiceBox *chooser, m_serviceChoosers) {
 		QObject *serviceObj = ServiceManager::getByName(chooser->service());
 		if (serviceObj)
 			chooser->setCurrentService(serviceObj->metaObject()->className());
