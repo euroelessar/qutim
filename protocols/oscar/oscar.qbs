@@ -3,17 +3,17 @@ import "../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     property bool useThirdPartyHmac: true
 
-    cpp.defines: ["LIBOSCAR_LIBRARY"]
+    cpp.defines: base.concat([ "LIBOSCAR_LIBRARY" ])
 
     Depends { name: "qca"; condition: !useThirdPartyHmac }
 
     Properties {
         condition: !useThirdPartyHmac
-        cpp.defines: outer.concat("OSCAR_USE_QCA2")
+        cpp.defines: outer.concat([ "OSCAR_USE_QCA2" ])
     }
     Properties {
         condition: useThirdPartyHmac
-        cpp.defines: outer.concat("OSCAR_USE_3RDPARTY_HMAC")
+        cpp.defines: outer.concat([ "OSCAR_USE_3RDPARTY_HMAC" ])
     }
 
     //hmac

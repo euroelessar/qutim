@@ -4,4 +4,8 @@ UreenPlugin {
     Depends { name: "adiumchat" }
     Depends { name: "qt.webkit" }
     Depends { name: "qutim-adiumwebview" }
+
+    Group {
+        FileTags: [ "install" ]
+        files
 }

@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Linux integration",
+	"pluginDescription": "Linux integration",
+	"extensionHeader": "linuxintegration.h",
+	"extensionClass": "LinuxIntegration"
+}
