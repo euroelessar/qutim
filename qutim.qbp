@@ -17,8 +17,8 @@ Project {
 	references: [        
         "core/3rdparty/k8json.qbs",
         "core/3rdparty/qxdg.qbs",
-        "core/3rdparty/flowlayout.qbs",
-        "core/3rdparty/slidingstackedwidget.qbs",
+        //"core/3rdparty/flowlayout.qbs",
+        //"core/3rdparty/slidingstackedwidget.qbs",
         "core/3rdparty/qxt.qbs",
         "core/3rdparty/qtdwm.qbs",
         "core/3rdparty/qtsolutions.qbs",
