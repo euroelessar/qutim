@@ -45,8 +45,7 @@ DynamicLibrary {
     cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-        "NO_SYSTEM_QXT"
+        "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
     ]
     Properties {
         condition: project.singleProfile
@@ -58,8 +57,10 @@ DynamicLibrary {
 
         Depends { name: "cpp" }
         cpp.includePaths: [
-            product.buildDirectory + "/include/qutim",
-            product.buildDirectory + "/include"
+            product.buildDirectory + "/include",
+            "3rdparty/slidingstackedwidget",
+            "3rdparty/flowlayout",
+            "3rdparty/"
         ]
         Properties {
             condition: project.declarativeUi
