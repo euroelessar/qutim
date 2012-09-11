@@ -41,7 +41,7 @@ Product {
 
         Artifact {
             fileTags: [ "cpp", "moc_cpp" ]
-            fileName: 'GeneratedFiles/' + product.name + '/' + product.name + "genplugin.cpp"
+            fileName: "GeneratedFiles/" + product.name + "/" + product.name + "genplugin.cpp"
         }
 
         prepare: {

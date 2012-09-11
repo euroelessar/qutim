@@ -3,6 +3,7 @@ import qbs.base 1.0
 Application {
 	name: "qutim"
     destination: "bin"
+    property bool installSoundTheme: true
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
@@ -10,8 +11,8 @@ Application {
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
     Depends { name: "qt.quick1"; condition: project.declarativeUi }
 	
-	files: [
-		"main.cpp"
+    files: [
+        "main.cpp"
     ]
 
     Group {
@@ -23,4 +24,5 @@ Application {
         ]
 	}
     cpp.rpaths: ["$ORIGIN/../lib"] //FIXME
+    }
 }

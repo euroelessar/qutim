@@ -33,23 +33,23 @@
 
 namespace Core
 {
-ServiceChooser::ServiceChooser(QObject* parent): QObject(parent)
+ServiceChoooser::ServiceChoooser(QObject* parent): QObject(parent)
 {
-	GeneralSettingsItem<ServiceChooserWidget> *item = new GeneralSettingsItem<ServiceChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service chooser"));
+	GeneralSettingsItem<ServiceChoooserWidget> *item = new GeneralSettingsItem<ServiceChoooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service chooser"));
 	Settings::registerItem(item);
-	GeneralSettingsItem<ProtocolChooserWidget> *item2 = new GeneralSettingsItem<ProtocolChooserWidget>(Settings::Protocol, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Protocol chooser"));
+	GeneralSettingsItem<ProtocolChoooserWidget> *item2 = new GeneralSettingsItem<ProtocolChoooserWidget>(Settings::Protocol, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Protocol chooser"));
 	Settings::registerItem(item2);
-	GeneralSettingsItem<PluginChooserWidget> *item3 = new GeneralSettingsItem<PluginChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Plugin chooser"));
+	GeneralSettingsItem<PluginChoooserWidget> *item3 = new GeneralSettingsItem<PluginChoooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Plugin chooser"));
 	Settings::registerItem(item3);
 	deleteLater();
 }
 
-const char *ServiceChooser::className(const ExtensionInfo &info)
+const char *ServiceChoooser::className(const ExtensionInfo &info)
 {
 	return info.generator()->metaObject()->className();
 }
 
-QString ServiceChooser::html(const qutim_sdk_0_3::ExtensionInfo& info)
+QString ServiceChoooser::html(const qutim_sdk_0_3::ExtensionInfo& info)
 {
 	QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
 	html += tr("<b>Description: </b> %1 <br />").arg(info.description());
