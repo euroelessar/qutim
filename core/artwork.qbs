@@ -3,19 +3,44 @@ import qbs.fileinfo as FileInfo
 
 Product {
     type: "installed_content"
-    qbs.installDir:  {
+    property string shareDir: {
         if (qbs.targetOS === "mac")
             return "qutim.app/Contents/Resources/share"
         else
             return project.shareDir
     }
+    qbs.installDir: shareDir
 
+    property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
     property bool installOxygenTheme: true
     property bool installUbuntuTheme: true
 
     Depends { name: "qutimscope" }
+
+    Group {
+        condition: installConfig
+        fileTags: "install"
+        qbs.installDir: shareDir + "/config"
+        prefix: {
+            if (qbs.targetOS === "mac")
+                return "../config/mac/";
+            else if (qbs.targetOS === "windows")
+                return "../config/win/";
+            else
+                return "../config/generic/";
+        }
+        files: "*.json"
+    }
+
+    Group {
+        fileTags: [ "artwork" ]
+        qutimscope.basePath: "share"
+        prefix: "share/qutim/"
+        recursive: true
+        files: "*"
+    }
 
     Group {
         condition: installSoundTheme
@@ -56,7 +81,7 @@ Product {
     Group {
         condition: installIcons && qbs.targetOS === "mac"
         fileTags: [ "install" ]
-        qbs.installDir: project.shareDir + "/icons/qutim-default/scalable/status/"
+        qbs.installDir: shareDir + "/icons/qutim-default/scalable/status/"
         files: "../artwork/icons/tray/MacOS/*.svg"
     }
 
@@ -72,14 +97,14 @@ Product {
     Group {
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
-        qbs.installDir: project.shareDir + "/icons/ubuntu-mono-light/scalable/status/"
+        qbs.installDir: shareDir + "/icons/ubuntu-mono-light/scalable/status/"
         files: "../artwork/icons/tray/ubuntu-mono-light/*.svg"
     }
 
     Group {
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
-        qbs.installDir: project.shareDir + "/icons/ubuntu-mono-dark/scalable/status/"
+        qbs.installDir: shareDir + "/icons/ubuntu-mono-dark/scalable/status/"
         files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
