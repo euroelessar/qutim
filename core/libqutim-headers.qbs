@@ -40,16 +40,6 @@ Product {
                 file.truncate();
                 file.write(content);
                 file.close();
-//                var global = output.fileName.replace("libqutim_version.h", "libqutim_global.h");
-//                file = new TextFile(global, TextFile.WriteOnly);
-//                file.truncate();
-//                file.write("#include \"" + input.fileName.replace("version.h.cmake", "libqutim_global.h") + "\"\n");
-//                file.close();
-//                var local = output.fileName.replace("qutim/libqutim_version.h", "libqutim_version.h");
-//                file = new TextFile(local, TextFile.WriteOnly);
-//                file.truncate();
-//                file.write("#include \"" + output.fileName + "\"\n");
-//                file.close();
             }
             return cmd;
         }

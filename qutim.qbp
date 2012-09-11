@@ -91,6 +91,7 @@ Project {
         "protocols/vkontakte/vreen/src/api.qbs", //vreen
         "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
         "protocols/vkontakte/vkontakte.qbs",
+        "protocols/oscar/3rdparty/hmac.qbs",
         "protocols/oscar/oscar.qbs",
         "protocols/oscar/plugins/identify.qbs",
         "protocols/oscar/plugins/xstatus.qbs",
