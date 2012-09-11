@@ -3,6 +3,7 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 DynamicLibrary {
     name: "libqutim-simplecontactlist"
+    destination: "lib"
 
     Depends { name: "cpp" }
     Depends { name: "libqutim" }

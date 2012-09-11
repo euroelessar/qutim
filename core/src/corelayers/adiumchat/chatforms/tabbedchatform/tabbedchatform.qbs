@@ -5,4 +5,5 @@ UreenPlugin {
     sourcePath: ""
 
     Depends { name: "adiumchat" }
+    Depends { name: "x11" }
 }
