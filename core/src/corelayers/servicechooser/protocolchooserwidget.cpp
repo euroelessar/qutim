@@ -40,8 +40,8 @@
 
 namespace Core
 {
-ProtocolChooserWidget::ProtocolChooserWidget() :
-	ui(new Ui::ServiceChooser),
+ProtocolChoooserWidget::ProtocolChoooserWidget() :
+	ui(new Ui::ServiceChoooser),
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
@@ -54,12 +54,12 @@ ProtocolChooserWidget::ProtocolChooserWidget() :
 
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 }
-ProtocolChooserWidget::~ProtocolChooserWidget()
+ProtocolChoooserWidget::~ProtocolChoooserWidget()
 {
 	delete ui;
 }
 
-void ProtocolChooserWidget::loadImpl()
+void ProtocolChoooserWidget::loadImpl()
 {
 	clear();
 	ConfigGroup group = Config().group("protocols");
@@ -85,23 +85,23 @@ void ProtocolChooserWidget::loadImpl()
 		ServiceItem *item = new ServiceItem(icon,info.name());
 		//ServiceItem *item = new ServiceItem(icon,info.name());
 
-		item->setToolTip(ServiceChooser::html(info));
+		item->setToolTip(ServiceChoooser::html(info));
 		item->setCheckable(true);
 		item->setData(info.description().toString(),DescriptionRole);
-		if (selected.value(name).toString() == ServiceChooser::className(info))
+		if (selected.value(name).toString() == ServiceChoooser::className(info))
 			item->setCheckState(Qt::Checked);
-		item->setData(QLatin1String(ServiceChooser::className(info)),
+		item->setData(QLatin1String(ServiceChoooser::className(info)),
 		              ServiceItem::ExtentionInfoRole);
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }
 
-void ProtocolChooserWidget::cancelImpl()
+void ProtocolChoooserWidget::cancelImpl()
 {
 
 }
 
-void ProtocolChooserWidget::saveImpl()
+void ProtocolChoooserWidget::saveImpl()
 {
 	Config group = Config().group("protocols/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
@@ -119,18 +119,18 @@ void ProtocolChooserWidget::saveImpl()
 	Notification::send(tr("To take effect you must restart qutIM"));
 }
 
-void ProtocolChooserWidget::clear()
+void ProtocolChoooserWidget::clear()
 {
 	m_model->clear();
 	m_protocol_items.clear();
 }
 
-void ProtocolChooserWidget::onItemChanged(QStandardItem* )
+void ProtocolChoooserWidget::onItemChanged(QStandardItem* )
 {
 	emit modifiedChanged(true);
 }
 
-void ProtocolChooserWidget::onItemClicked(QModelIndex index)
+void ProtocolChoooserWidget::onItemClicked(QModelIndex index)
 {
 	if (ui->treeView->isExpanded(index))
 		ui->treeView->collapse(index);
