@@ -2,6 +2,7 @@ import "../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     Depends { name: "jreen" }
+    Depends { name: "qca" }
 
-    cpp.includePaths: ["src", "src/experimental", "src/ui"]
+    cpp.includePaths: ["src"]
 }
