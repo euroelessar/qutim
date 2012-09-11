@@ -26,55 +26,45 @@ DynamicLibrary {
     Depends { name: "qxt" }
     Depends { name: "qxdg" }
     Depends { name: "qtdwm" }
-    Depends { name: "flowlayout" }
-    Depends { name: "slidingstackedwidget" }
     Depends { name: "qtsolutions" }
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-	Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-	Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
+    Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
+    Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
 
     cpp.includePaths: [
-        "3rdparty",
-        "3rdparty/qxt",
         buildDirectory + "/include/qutim"
     ]
-
-    cpp.dynamicLibraries: {
-        if (qbs.targetOS === 'linux' || qbs.targetOS === 'freebsd') {
-            return [ 'X11' ];
-        }
-        return [];
-    }
 
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-        "NO_SYSTEM_QXT"
     ]
-    Properties {
-        condition: project.singleProfile
-        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
-    }
 
     ProductModule {
         property string basePath
 
         Depends { name: "cpp" }
         cpp.includePaths: [
-            product.buildDirectory + "/include/qutim",
-            product.buildDirectory + "/include"
+            product.buildDirectory + "/include",
+            "3rdparty/slidingstackedwidget",
+            "3rdparty/flowlayout",
+            "3rdparty/"
         ]
-        cpp.defines: {
-            var defines = [];
-            if (project.declarativeUi)
-                defines.push("QUTIM_DECLARATIVE_UI");
-            if (project.singleProfile)
-                defines.push("QUTIM_SINGLE_PROFILE");
-            return defines;
+        cpp.defines: []
+        Properties {
+            condition: project.declarativeUi
+            cpp.defines: outer.concat("QUTIM_DECLARATIVE_UI")
+        }
+        Properties {
+            condition: project.singleProfile
+            cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
         }
     }
 
@@ -84,4 +74,14 @@ DynamicLibrary {
         'libqutim/utils/*.h',
         'libqutim/utils/*.cpp'
     ]
+
+    //TODO separate this libraries like qutim-adiumwebview
+    Group {
+        prefix: "3rdparty/slidingstackedwidget/"
+        files: ["*.h", "*.cpp"]
+    }
+    Group {
+        prefix: "3rdparty/flowlayout/"
+        files: ["*.h", "*.cpp"]
+    }
 }

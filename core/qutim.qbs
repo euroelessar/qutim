@@ -28,5 +28,6 @@ Product {
             "*.cpp",
             "*.ui"
         ]
-    }
+	}
+    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
 }
