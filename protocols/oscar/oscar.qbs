@@ -3,7 +3,6 @@ import "../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     property bool useThirdPartyHmac: true
 
-    sourcePath: 'src'
     cpp.defines: ["LIBOSCAR_LIBRARY"]
 
     Depends { name: "qca"; condition: !useThirdPartyHmac }
@@ -19,6 +18,7 @@ UreenPlugin {
 
     //hmac
     Group {
+        condition: useThirdPartyHmac
         prefix: "3rdparty/hmac/"
         files: [ "*.c", "*.h" ]
     }
