@@ -14,7 +14,8 @@ Project {
 
     moduleSearchPaths: [ "modules", "qbs/modules" ]
 
-	references: [        
+    references: [
+        "translations.qbs",
         "core/3rdparty/k8json.qbs",
         "core/3rdparty/qxdg.qbs",
         "core/3rdparty/flowlayout.qbs",
