@@ -9,6 +9,12 @@ DynamicLibrary {
     property string versionRelease: project.qutim_version_release
     property string versionPatch: project.qutim_version_patch
     property string version: project.qutim_version
+    property string shareDir: {
+        if (qbs.targetOS === "mac")
+            return "/Resources/share";
+        else
+            return project.shareDir;
+    }
 
     Depends { name: "qutim-headers" }
     Depends { name: "k8json" }
@@ -24,8 +30,9 @@ DynamicLibrary {
     Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
     Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
 
-
     cpp.includePaths: [
+        "3rdparty",
+        "3rdparty/qxt",
         buildDirectory + "/include/qutim"
     ]
 
@@ -40,10 +47,17 @@ DynamicLibrary {
     cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
+        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
 
+    Properties {
+        condition: project.singleProfile
+        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+    }
+
     ProductModule {
+        property string basePath
+
         Depends { name: "cpp" }
         cpp.includePaths: [
             product.buildDirectory + "/include",

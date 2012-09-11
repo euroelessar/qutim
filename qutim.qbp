@@ -10,8 +10,9 @@ Project {
 	property bool declarativeUi: false
 	property var additionalCppDefines: []
     property string shareDir: "share"
+    property bool singleProfile: true
 
-    moduleSearchPaths: "qbs/modules"
+    moduleSearchPaths: [ "modules", "qbs/modules" ]
 
 	references: [        
         "core/3rdparty/k8json.qbs",
@@ -21,12 +22,17 @@ Project {
         "core/3rdparty/qxt.qbs",
         "core/3rdparty/qtdwm.qbs",
         "core/3rdparty/qtsolutions.qbs",
+        "core/artwork.qbs",
         "core/libqutim.qbs",
         "core/libqutim-headers.qbs",
         "core/qutim.qbs",
         "core/src/corelayers/accountcreator/accountcreator.qbs",
         "core/src/corelayers/addcontactdlg/addcontactdlg.qbs",
-//        "core/src/corelayers/adiumchat/adiumchat.qbs",
+        "core/src/corelayers/adiumchat/adiumchat.qbs",
+        "core/src/corelayers/adiumchat/adiumchat-headers.qbs",
+        "core/src/corelayers/adiumchat/chatfactories/textchat/textchat.qbs",
+        "core/src/corelayers/adiumchat/chatforms/stackedchatform/stackedchatform.qbs",
+        "core/src/corelayers/adiumchat/chatforms/tabbedchatform/tabbedchatform.qbs",
         "core/src/corelayers/adiumsrvicons/adiumsrvicons.qbs",
         "core/src/corelayers/authdialog/authdialog.qbs",
         "core/src/corelayers/chatnotificationsbackend/chatnotificationsbackend.qbs",
@@ -67,7 +73,15 @@ Project {
         "core/src/corelayers/simpleabout/simpleabout.qbs",
         "core/src/corelayers/simpleactionbox/simpleactionbox.qbs",
         "core/src/corelayers/simpleactions/simpleactions.qbs",
-//        "core/src/corelayers/simplecontactlist/simplecontactlist.qbs",
+        "core/src/corelayers/simplecontactlist/libqutim-simplecontactlist.qbs",
+        "core/src/corelayers/simplecontactlist/models/plaincontactsmodel/plaincontactsmodel.qbs",
+        "core/src/corelayers/simplecontactlist/models/separatedcontactsmodel/separatedcontactsmodel.qbs",
+        "core/src/corelayers/simplecontactlist/models/treecontactsmodel/treecontactsmodel.qbs",
+        "core/src/corelayers/simplecontactlist/simplecontactdelegate/simplecontactdelegate.qbs",
+        "core/src/corelayers/simplecontactlist/simplecontactlist.qbs",
+        "core/src/corelayers/simplecontactlist/simplecontactlist-headers.qbs",
+        "core/src/corelayers/simplecontactlist/widgets/simplecontactlistwidget/simplecontactlistwidget.qbs",
+        "core/src/corelayers/simplecontactlist/widgets/torycontactlistwidget/torycontactlistwidget.qbs",
         "core/src/corelayers/simplerosterstorage/simplerosterstorage.qbs",
         "core/src/corelayers/softkeysactionbox/softkeysactionbox.qbs",
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",

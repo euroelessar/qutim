@@ -27,7 +27,7 @@
 
 #include <QWidget>
 #include <qutim/settingswidget.h>
-#include <chatlayer/chatedit.h>
+#include <qutim/adiumchat/chatedit.h>
 #include "../tabbedchatwidget.h"
 
 namespace Ui {

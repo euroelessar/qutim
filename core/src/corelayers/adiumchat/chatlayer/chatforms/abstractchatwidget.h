@@ -29,8 +29,6 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QTextCursor>
-#include "../chatsessionimpl.h"
-#include "../chatlayerimpl.h"
 #include <qutim/actiongenerator.h>
 #include "chatlayer_global.h"
 
@@ -44,6 +42,9 @@ namespace Core
 {
 namespace AdiumChat
 {
+
+class ChatSessionImpl;
+class ChatLayerImpl;
 
 using namespace qutim_sdk_0_3;
 
@@ -68,7 +69,7 @@ public:
 
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
-	void addSessions(const ChatSessionList &sessions);
+    void addSessions(const QList<ChatSessionImpl*> &sessions);
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
 	virtual void loadSettings() = 0;
