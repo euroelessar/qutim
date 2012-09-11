@@ -97,7 +97,9 @@ Project {
         "protocols/mrim/mrim.qbs",
         "protocols/jabber/jreen/jreen.qbs",
         "protocols/jabber/jabber.qbs",
-        //"protocols/quetzal/quetzal.qbs",
+        "protocols/quetzal/quetzal.qbs",
+        "protocols/irc/irc.qbs",
+        "protocols/astral/astral.qbs",
     ]
 }
 
