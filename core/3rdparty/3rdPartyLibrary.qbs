@@ -9,15 +9,9 @@ StaticLibrary {
     Depends { name: "qutim-headers" }
 
     Group {
-        condition: sourcePath !== null
+        condition: sourcePath !== undefined
         prefix: sourcePath + '/'
-        files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
-        recursive: true
-    }
-    Group {
-        condition: sourcePath !== null && qbs.targetOS === 'mac'
-        prefix: sourcePath + '/'
-        files: [ '*.mm' ]
+        files: [ '*.cpp', '*.h', '*.ui', "*.c", "*.mm" ]
         recursive: true
     }
 
