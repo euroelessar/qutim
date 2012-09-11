@@ -7,6 +7,6 @@ UreenPlugin {
 	Depends { name: "qt.webkit"; condition: qbs.targetOS !== "symbian" }
     Properties {
         condition: qbs.targetOS !== "symbian"
-        cpp.defines: outer.concat([ "QTSCROLLER_NO_WEBKIT" ])
+        cpp.defines: [ "QTSCROLLER_NO_WEBKIT" ]
     }
 }
