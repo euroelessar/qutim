@@ -42,8 +42,8 @@
 
 namespace Core
 {
-PluginChooserWidget::PluginChooserWidget() :
-	ui(new Ui::ServiceChooser),
+PluginChoooserWidget::PluginChoooserWidget() :
+	ui(new Ui::ServiceChoooser),
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
@@ -61,12 +61,12 @@ PluginChooserWidget::PluginChooserWidget() :
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)), SLOT(onItemClicked(QModelIndex)));
 #endif
 }
-PluginChooserWidget::~PluginChooserWidget()
+PluginChoooserWidget::~PluginChoooserWidget()
 {
 	delete ui;
 }
 
-void PluginChooserWidget::loadImpl()
+void PluginChoooserWidget::loadImpl()
 {
 	clear();
 	Config group = Config().group("plugins/list");
@@ -96,11 +96,11 @@ void PluginChooserWidget::loadImpl()
 		}
 	}
 }
-void PluginChooserWidget::cancelImpl()
+void PluginChoooserWidget::cancelImpl()
 {
 
 }
-void PluginChooserWidget::saveImpl()
+void PluginChoooserWidget::saveImpl()
 {
 	Config group = Config().group("plugins/list");
 	QHash<QString, ServiceItem *>::const_iterator it;
@@ -131,18 +131,18 @@ void PluginChooserWidget::saveImpl()
 		Notification::send(tr("To take effect you must restart qutIM"));
 }
 
-void PluginChooserWidget::clear()
+void PluginChoooserWidget::clear()
 {
 	m_model->clear();
 	m_plugin_items.clear();
 }
 
-void PluginChooserWidget::onItemChanged(QStandardItem* )
+void PluginChoooserWidget::onItemChanged(QStandardItem* )
 {
 	emit modifiedChanged(true);
 }
 
-QString PluginChooserWidget::html(const qutim_sdk_0_3::PluginInfo& info)
+QString PluginChoooserWidget::html(const qutim_sdk_0_3::PluginInfo& info)
 {
 	QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
 	html += tr("<b>Description: </b> %1 <br />").arg(info.description());
@@ -162,7 +162,7 @@ QString PluginChooserWidget::html(const qutim_sdk_0_3::PluginInfo& info)
 	return html;
 }
 
-void PluginChooserWidget::onItemClicked(QModelIndex index)
+void PluginChoooserWidget::onItemClicked(QModelIndex index)
 {
 	QStandardItem *item = m_model->itemFromIndex(index);
 	if (item) {
@@ -170,7 +170,7 @@ void PluginChooserWidget::onItemClicked(QModelIndex index)
 	}
 }
 
-void PluginChooserWidget::filterPlugins(const QString& pluginname)
+void PluginChoooserWidget::filterPlugins(const QString& pluginname)
 {
 	m_proxymodel->setFilterWildcard(pluginname);
 }

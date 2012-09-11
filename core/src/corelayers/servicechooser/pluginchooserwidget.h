@@ -40,7 +40,7 @@ class Plugin;
 
 namespace Ui
 {
-class ServiceChooser;
+class ServiceChoooser;
 }
 
 class QStandardItem;
@@ -51,15 +51,15 @@ namespace Core
 class ServiceItem;
 using namespace qutim_sdk_0_3;
 
-class PluginChooserWidget : public SettingsWidget
+class PluginChoooserWidget : public SettingsWidget
 {
 	Q_OBJECT
 public:
-	PluginChooserWidget();
+	PluginChoooserWidget();
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-	virtual ~PluginChooserWidget();
+	virtual ~PluginChoooserWidget();
 private slots:
 	void onItemChanged(QStandardItem*);
 	void onItemClicked(QModelIndex index);
@@ -67,7 +67,7 @@ private slots:
 private:
 	void clear();
 	QString html(const qutim_sdk_0_3::PluginInfo& info);
-	Ui::ServiceChooser *ui;
+	Ui::ServiceChoooser *ui;
 	QStandardItemModel *m_model;
 	SimpleFilterProxyModel *m_proxymodel;
 	QHash<QString, ServiceItem *> m_plugin_items;
