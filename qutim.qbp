@@ -12,7 +12,7 @@ Project {
     property string shareDir: "share"
     property bool singleProfile: true
 
-    moduleSearchPaths: "qbs/modules"
+    moduleSearchPaths: [ "modules", "qbs/modules" ]
 
 	references: [        
         "core/3rdparty/k8json.qbs",
@@ -22,6 +22,7 @@ Project {
         "core/3rdparty/qxt.qbs",
         "core/3rdparty/qtdwm.qbs",
         "core/3rdparty/qtsolutions.qbs",
+        "core/artwork.qbs",
         "core/libqutim.qbs",
         "core/libqutim-headers.qbs",
         "core/qutim.qbs",
