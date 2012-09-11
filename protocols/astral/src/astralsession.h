@@ -26,8 +26,8 @@
 #define ASTRALSESSION_H
 
 #include <qutim/chatunit.h>
-#include <TelepathyQt4/TextChannel>
-#include <TelepathyQt4/Message>
+#include <TelepathyQt/TextChannel>
+#include <TelepathyQt/Message>
 
 using namespace qutim_sdk_0_3;
 using namespace Tp;

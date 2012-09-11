@@ -39,10 +39,14 @@
 # define LIBQUTIM_NO_EXPORT
 #endif
 
+#ifndef LIBQUTIM_STATIC
 #if defined(LIBQUTIM_LIBRARY)
 #  define LIBQUTIM_EXPORT Q_DECL_EXPORT
 #else
 #  define LIBQUTIM_EXPORT Q_DECL_IMPORT
+#endif
+#else
+#define LIBQUTIM_EXPORT
 #endif
 
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5)

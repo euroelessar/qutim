@@ -17,11 +17,11 @@ public:
     virtual ~ContactListSettingsExtention();
 };
 
-class SIMPLECONTACTLIST_EXPORT ServiceChooser : public QGroupBox
+class SIMPLECONTACTLIST_EXPORT ServiceBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    ServiceChooser(const QByteArray &service,
+	ServiceBox(const QByteArray &service,
                    const qutim_sdk_0_3::LocalizedString &desc,
                    const QByteArray &currentService,
                    qutim_sdk_0_3::ExtensionInfoList &services,
