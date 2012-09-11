@@ -29,28 +29,18 @@ DynamicLibrary {
     Depends { name: "mac.cocoa"; condition: qbs.targetOS === 'mac' }
     Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
     Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
+    Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
 
     cpp.includePaths: [
         buildDirectory + "/include/qutim"
     ]
 
-    cpp.dynamicLibraries: {
-        if (qbs.targetOS === 'linux' || qbs.targetOS === 'freebsd') {
-            return [ 'X11' ];
-        }
-        return [];
-    }
-
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + project.shareDir + "\"",
+        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
-    Properties {
-        condition: project.singleProfile
-        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
-    }
 
     ProductModule {
         property string basePath
@@ -62,9 +52,14 @@ DynamicLibrary {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
+        cpp.defines: []
         Properties {
             condition: project.declarativeUi
             cpp.defines: outer.concat("QUTIM_DECLARATIVE_UI")
+        }
+        Properties {
+            condition: project.singleProfile
+            cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
         }
     }
 
