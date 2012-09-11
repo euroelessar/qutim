@@ -7,4 +7,8 @@ ThirdPartyLibrary {
 
 	Depends { name: "qt"; submodules: [ 'core', 'gui' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
+
+    ProductModule {
+        Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' }
+    }
 }

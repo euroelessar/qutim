@@ -2,7 +2,7 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: ''
-	cpp.includePaths: '.'
+    cpp.includePaths: '.'
 
-	Depends { name: "slidingstackedwidget" }
+    //Depends { name: "slidingstackedwidget" }
 }
