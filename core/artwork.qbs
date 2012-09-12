@@ -3,17 +3,19 @@ import qbs.fileinfo as FileInfo
 
 Product {
     type: "installed_content"
+    name: "nameless-artwork"
 
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
     property bool installOxygenTheme: true
     property bool installUbuntuTheme: true
+    property string qutim_version: project.qutim_version
 
-    Depends { name: "qutimscope" }
+    Depends { name: "qt.core" }
     Depends { name: "artwork" }
     
-    property string shareDir: qutimscope.shareDir
+    property string shareDir: artwork.shareDir
 
     Group {
         condition: installConfig
@@ -32,7 +34,7 @@ Product {
 
     Group {
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "share"
+        artwork.basePath: "share"
         prefix: "share/qutim/"
         recursive: true
         files: "*"
@@ -41,7 +43,7 @@ Product {
     Group {
         condition: installSoundTheme
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "../artwork"
+        artwork.basePath: "../artwork"
         prefix: "../artwork/sounds/"
         recursive: true
         files: "*"
@@ -50,7 +52,7 @@ Product {
     Group {
         condition: installIcons
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "../artwork"
+        artwork.basePath: "../artwork"
         prefix: "../artwork/icons/qutim-default/"
         recursive: true
         files: "*"
@@ -59,7 +61,7 @@ Product {
     Group {
         condition: installIcons
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "../artwork"
+        artwork.basePath: "../artwork"
         prefix: "../artwork/icons/user-status/hicolor/"
         recursive: true
         files: "*"
@@ -68,7 +70,7 @@ Product {
     Group {
         condition: installIcons && qbs.targetOS === "linux"
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "../artwork"
+        artwork.basePath: "../artwork"
         prefix: "../artwork/icons/humanity/hicolor/"
         recursive: true
         files: "*"
@@ -84,7 +86,7 @@ Product {
     Group {
         condition: installIcons && installOxygenTheme
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "../artwork"
+        artwork.basePath: "../artwork"
         prefix: "../artwork/icons/oxygen/"
         recursive: true
         files: "*"
@@ -104,4 +106,49 @@ Product {
         files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
+    Group {
+        condition: qbs.targetOS === "mac"
+        fileTags: [ "install" ]
+        qbs.installDir: "qutim.app/Contents/Resources"
+        files: "qutim.icns"
+    }
+
+    Group {
+        condition: qbs.targetOS === "mac"
+        fileTags: [ "infoPlist" ]
+        files: "Info.plist"
+    }
+
+    Group {
+        condition: qbs.targetOS === "mac"
+        fileTags: [ "install" ]
+        qbs.installDir: "qutim.app/Contents/Resources/qt_menu.nib/"
+        prefix: qt.core.libPath + '/QtGui' + qt.core.libInfix + '.framework/Versions/' + qt.core.versionMajor + '/Resources/qt_menu.nib/'
+        files: '*.nib'
+    }
+
+    Rule {
+        inputs: [ "infoPlist" ]
+        Artifact {
+            fileTags: [ "installed_content" ]
+            fileName: "qutim.app/Contents/" + input.fileName
+        }
+
+        prepare: {
+            var cmd = new JavaScriptCommand();
+            cmd.version = product.qutim_version;
+            cmd.sourceCode = function() {
+                var file = new TextFile(input.fileName);
+                var content = file.readAll().replace(/VERSION/g, version);
+                file.close();
+                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file.truncate();
+                file.write(content);
+                file.close();
+            }
+            cmd.description = "installing " + FileInfo.fileName(output.fileName);
+            cmd.highlight = "linker";
+            return cmd;
+        }
+    }
 }
