@@ -3,12 +3,16 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 DynamicLibrary {
     name: "libqutim-simplecontactlist"
+<<<<<<< HEAD
+    destination: "lib"
+=======
     destination: {
         if (qbs.targetOS === "mac")
             return "qutim.app/Contents/MacOS";
         else
             return "lib";
     }
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
 
     Depends { name: "cpp" }
     Depends { name: "libqutim" }

@@ -1,0 +1,37 @@
+import "../../plugins/UreenPlugin.qbs" as UreenPlugin
+
+UreenPlugin {
+    property bool useThirdPartyHmac: true
+
+<<<<<<< HEAD
+    cpp.defines: base.concat([ "LIBOSCAR_LIBRARY" ])
+
+    Depends { name: "qca"; condition: !useThirdPartyHmac }
+
+    Properties {
+        condition: !useThirdPartyHmac
+        cpp.defines: outer.concat([ "OSCAR_USE_QCA2" ])
+    }
+    Properties {
+        condition: useThirdPartyHmac
+        cpp.defines: outer.concat([ "OSCAR_USE_3RDPARTY_HMAC" ])
+    }
+
+    //hmac
+    Group {
+        condition: useThirdPartyHmac
+        prefix: "3rdparty/hmac/"
+        files: [ "*.c", "*.h" ]
+=======
+    sourcePath: 'src'
+    cpp.defines: ["LIBOSCAR_LIBRARY"]
+
+    Depends { name: "qca"; condition: !useThirdPartyHmac }
+    Depends { name: "hmac"; condition: useThirdPartyHmac } 
+
+    Properties {
+        condition: !useThirdPartyHmac
+        cpp.defines: outer.concat("OSCAR_USE_QCA2")
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
+    }
+}

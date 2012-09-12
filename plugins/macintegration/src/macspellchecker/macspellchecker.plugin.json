@@ -1,0 +1,7 @@
+{
+    "pluginIcon": "",
+    "pluginName": "SpellChecker",
+    "pluginDescription": "Mac OS X spell checker",
+    "extensionHeader": "macspellchecker.h",
+    "extensionClass": "MacIntegration::MacSpellChecker"
+}

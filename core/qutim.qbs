@@ -1,8 +1,14 @@
 import qbs.base 1.0
 
-Application {
+Product {
 	name: "qutim"
-    destination: "bin"
+    type: "application"
+    destination: {
+        if (qbs.targetOS === "mac")
+            return product.name + ".app/Contents/MacOS";
+        else
+            return "bin";
+    }
     property bool installSoundTheme: true
 
 	Depends { name: "cpp" }

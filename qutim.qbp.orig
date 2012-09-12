@@ -90,24 +90,27 @@ Project {
         "core/src/corelayers/soundthemeselector/soundthemeselector.qbs",
         "core/src/corelayers/trayicon/trayicon.qbs",
         "core/src/corelayers/xsettingsdialog/xsettingsdialog.qbs",
+<<<<<<< HEAD
+//        "protocols/jabber/jabber.qbs",
+//        "protocols/jabber/jreen/jreen.qbs",
+        "protocols/vkontakte/vreen/src/api.qbs", //vreen
+        "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
+        "protocols/vkontakte/vkontakte.qbs",
+=======
         "protocols/vkontakte/vreen/src/api.qbs", //vreen
         "protocols/vkontakte/vreen/src/oauth/oauth.qbs",
         "protocols/vkontakte/vkontakte.qbs",
         "protocols/oscar/3rdparty/hmac.qbs",
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
         "protocols/oscar/oscar.qbs",
         "protocols/oscar/plugins/identify.qbs",
         "protocols/oscar/plugins/xstatus.qbs",
         "protocols/mrim/mrim.qbs",
         "protocols/jabber/jreen/jreen.qbs",
         "protocols/jabber/jabber.qbs",
-        "protocols/quetzal/quetzal.qbs",
+<<<<<<< HEAD
+  //      "protocols/quetzal/quetzal.qbs",
         "protocols/irc/irc.qbs",
-        "protocols/astral/astral.qbs",
-        "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
-        "plugins/macintegration/src/macdock/macdock.qbs",
-        "plugins/macintegration/src/macgrowl/macgrowl.qbs",
-        "plugins/macintegration/src/macidle/macidle.qbs",
-        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
         "plugins/adiumwebview/adiumwebview.qbs",
         "plugins/adiumwebview/lib/qutim-adiumwebview.qbs",
         "plugins/aescrypto/aescrypto.qbs",
@@ -159,6 +162,16 @@ Project {
      //   "plugins/winintegration/winintegration.qbs",
         "plugins/yandexnarod/yandexnarod.qbs"
   //      "protocols/astral/astral.qbs",
+=======
+        "protocols/quetzal/quetzal.qbs",
+        "protocols/irc/irc.qbs",
+        "protocols/astral/astral.qbs",
+        "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
+        "plugins/macintegration/src/macdock/macdock.qbs",
+        "plugins/macintegration/src/macgrowl/macgrowl.qbs",
+        "plugins/macintegration/src/macidle/macidle.qbs",
+        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
     ]
 }
 

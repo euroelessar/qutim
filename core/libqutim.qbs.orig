@@ -30,11 +30,18 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
+<<<<<<< HEAD
+    Depends { name: "mac.carbon"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "mac.cocoa"; condition: qbs.targetOS === 'mac' }
+    Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
+    Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
+=======
     Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
     Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
     Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
     Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
     Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
 
     cpp.includePaths: [
         buildDirectory + "/include/qutim"
@@ -62,6 +69,11 @@ DynamicLibrary {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
+<<<<<<< HEAD
+        Properties {
+            condition: project.declarativeUi
+            cpp.defines: outer.concat("QUTIM_DECLARATIVE_UI")
+=======
         cpp.defines: []
         Properties {
             condition: project.declarativeUi
@@ -70,6 +82,7 @@ DynamicLibrary {
         Properties {
             condition: project.singleProfile
             cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
         }
     }
 

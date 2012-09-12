@@ -13,7 +13,11 @@ Product {
     property string projectPath: project.path
     property string sourcePath: "src"
     // FIXME
+<<<<<<< HEAD
     cpp.defines: [ "QUTIM_PLUGIN_ID=0123456789abcdef" ]
+=======
+    cpp.defines: 'QUTIM_PLUGIN_ID=0123456789abcdef'
+>>>>>>> 34f7f27943f32f5ca43880368b6c0bd78964626f
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
 
     Depends { name: "cpp" }

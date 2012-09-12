@@ -1,0 +1,7 @@
+{
+    "pluginIcon": "",
+    "pluginName": "IdleManager",
+    "pluginDescription": "Mac OS X idle manager",
+    "extensionHeader": "macidle.h",
+    "extensionClass": "MacIntegration::MacIdle"
+}
