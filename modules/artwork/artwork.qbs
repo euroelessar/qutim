@@ -2,19 +2,20 @@ import qbs.base 1.0
 import qbs.fileinfo as FileInfo
 
 Module {
-    Depends { name: "qutimscope" }
+    property string basePath
+    property string shareDir: qutimscope.shareDir
 
-    qbs.installDir: qutimscope.shareDir
+    Depends { name: "qutimscope" }
 
     Rule {
         inputs: [ "artwork" ]
         Artifact {
             fileTags: [ "installed_content" ]
             fileName: {
-                var basePath = input.modules.qutimscope.basePath;
+                var basePath = input.modules.artwork.basePath;
                 var fileName = input.baseDir + "/" + input.fileName;
                 var relativePath = FileInfo.relativePath(basePath, fileName);
-                return input.modules.qbs.installDir + "/" + relativePath;
+                return input.modules.artwork.shareDir + "/" + input.modules.qbs.installDir + "/" + relativePath;
             }
         }
 
