@@ -4,9 +4,9 @@ UreenPlugin {
     property bool useThirdPartyHmac: true
 
     cpp.defines: base.concat([ "LIBOSCAR_LIBRARY" ])
-    sourcePath: 'src'
 
     Depends { name: "qca"; condition: !useThirdPartyHmac }
+    Depends { name: "hmac"; condition: useThirdPartyHmac }
 
     Properties {
         condition: !useThirdPartyHmac
