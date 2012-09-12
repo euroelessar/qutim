@@ -9,7 +9,9 @@ Project {
 	property string qutim_version: qutim_version_major + '.' + qutim_version_minor + '.' + qutim_version_release + '.' + qutim_version_patch
 	property bool declarativeUi: false
 	property var additionalCppDefines: []
-    property string shareDir: "share"
+    //property string shareDir: {
+    //}
+
     property bool singleProfile: true
 
     moduleSearchPaths: [ "modules", "qbs/modules" ]
@@ -105,7 +107,58 @@ Project {
         "plugins/macintegration/src/macdock/macdock.qbs",
         "plugins/macintegration/src/macgrowl/macgrowl.qbs",
         "plugins/macintegration/src/macidle/macidle.qbs",
-        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
+        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs",
+        "plugins/adiumwebview/adiumwebview.qbs",
+        "plugins/adiumwebview/lib/qutim-adiumwebview.qbs",
+        "plugins/aescrypto/aescrypto.qbs",
+        "plugins/antiboss/antiboss.qbs",
+        "plugins/antispam/antispam.qbs",
+        "plugins/aspeller/aspeller.qbs",
+        "plugins/awn/awn.qbs",
+        "plugins/birthdayreminder/birthdayreminder.qbs",
+        "plugins/blogimprover/blogimprover.qbs",
+        "plugins/clconf/clconf.qbs",
+       // "plugins/control/control.qbs",
+        "plugins/dbusapi/dbusapi.qbs",
+       // "plugins/dbusnotifications/dbusnotifications.qbs",
+       // "plugins/docktile/docktile.qbs",
+        "plugins/emoedit/emoedit.qbs",
+        "plugins/floaties/floaties.qbs",
+        "plugins/formula/formula.qbs",
+      //  "plugins/haikunotifications/haikunotifications.qbs",
+        "plugins/highlighter/highlighter.qbs",
+        "plugins/histman/histman.qbs",
+        "plugins/hunspeller/hunspeller.qbs",
+       // "plugins/imagepub/imagepub.qbs",
+       // "plugins/indicator/indicator.qbs",
+     //   "plugins/kdeintegration/kdeintegration.qbs",
+       // "plugins/kineticpopups/kineticpopups.qbs",
+        "plugins/linuxintegration/linuxintegration.qbs",
+        "plugins/logger/logger.qbs",
+       // "plugins/macintegration/macintegration.qbs",
+       // "plugins/maemo5integration/maemo5integration.qbs",
+        "plugins/massmessaging/massmessaging.qbs",
+       // "plugins/meegointegration/meegointegration.qbs",
+       // "plugins/mobility/mobility.qbs",
+        //"plugins/nowplaying/nowplaying.qbs",
+        "plugins/offtherecord/offtherecord.qbs",
+        //"plugins/oldcontactdelegate/oldcontactdelegate.qbs",
+     //   "plugins/phononsound/phononsound.qbs",
+      //  "plugins/plugman/plugman.qbs",
+      //  "plugins/qmlchat/qmlchat.qbs",
+       // "plugins/qrcicons/qrcicons.qbs",
+        "plugins/scriptapi/scriptapi.qbs",
+    //    "plugins/sdlsound/sdlsound.qbs",
+       // "plugins/sqlhistory/sqlhistory.qbs",
+      //  "plugins/symbianintegration/symbianintegration.qbs",
+        "plugins/unreadmessageskeeper/unreadmessageskeeper.qbs",
+        "plugins/updater/updater.qbs",
+        "plugins/urlpreview/urlpreview.qbs",
+        "plugins/weather/weather.qbs",
+       // "plugins/webhistory/webhistory.qbs",
+     //   "plugins/winintegration/winintegration.qbs",
+        "plugins/yandexnarod/yandexnarod.qbs"
+  //      "protocols/astral/astral.qbs",
     ]
 }
 

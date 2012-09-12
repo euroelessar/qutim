@@ -13,7 +13,7 @@ Product {
     property string projectPath: project.path
     property string sourcePath: "src"
     // FIXME
-    cpp.defines: 'QUTIM_PLUGIN_ID=0123456789abcdef'
+    cpp.defines: [ "QUTIM_PLUGIN_ID=0123456789abcdef" ]
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
 
     Depends { name: "cpp" }
@@ -22,7 +22,13 @@ Product {
 
     Group {
         prefix: sourcePath !== '' ? sourcePath + '/' : ''
-        files: [ '*.cpp', '*.mm', '*.h', '*.ui' ]
+        files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
+        recursive: true
+    }
+    Group {
+        condition: qbs.targetOS === 'mac'
+        prefix: sourcePath !== '' ? sourcePath + '/' : ''
+        files: [ '*.mm' ]
         recursive: true
     }
     Group {

@@ -18,7 +18,7 @@ DynamicLibrary {
         if (qbs.targetOS === "mac")
             return "/Resources/share";
         else
-            return project.shareDir;
+            return "share";
     }
 
     Depends { name: "qutim-headers" }
@@ -46,6 +46,7 @@ DynamicLibrary {
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
+
     Properties {
         condition: project.singleProfile
         cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
