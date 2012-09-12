@@ -9,7 +9,7 @@ UreenPlugin {
     Depends { name: "qutimscope" }
 
 /*    Group {
-        FileTags: [ "artwork" ]
+        FileTags: [ "artwork" ] // Don't work
         qutimscope.basePath: "."
         prefix: "data/"
         recursive: true

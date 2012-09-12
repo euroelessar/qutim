@@ -107,7 +107,7 @@ Project {
         "plugins/macintegration/src/macdock/macdock.qbs",
         "plugins/macintegration/src/macgrowl/macgrowl.qbs",
         "plugins/macintegration/src/macidle/macidle.qbs",
-        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs"
+        "plugins/macintegration/src/macspellchecker/macspellchecker.qbs",
         "plugins/adiumwebview/adiumwebview.qbs",
         "plugins/adiumwebview/lib/qutim-adiumwebview.qbs",
         "plugins/aescrypto/aescrypto.qbs",

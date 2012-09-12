@@ -3,12 +3,9 @@ import qbs.fileinfo as FileInfo
 
 Product {
     type: "installed_content"
-    property string shareDir: {
-        if (qbs.targetOS === "mac")
-            return "qutim.app/Contents/Resources/share"
-        else
-            return project.shareDir
-    }
+    Depends { name: "qutimscope" }
+
+    property string shareDir: qutimscope.shareDir
     property string lconvertPath: qt.core.binPath + "/lconvert"
     property string lreleasePath: qt.core.binPath + "/lrelease"
 

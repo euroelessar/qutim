@@ -2,18 +2,9 @@ import qbs.base 1.0
 import qbs.fileinfo as FileInfo
 
 Module {
-   // property string shareDir: ""
-//    qbs.installDir: { print("sharedir->>>>>>>>>>>>" + project.shareDir); return project.shareDir }
-    property string shareDir: {
-        if (qbs.targetOS === "mac")
-            return "qutim.app/Contents/Resources/share"
-        else
-            return "share"
-    }
-
-    qbs.installDir: shareDir
-    
     Depends { name: "qutimscope" }
+
+    qbs.installDir: qutimscope.shareDir
 
     Rule {
         inputs: [ "artwork" ]

@@ -4,16 +4,6 @@ import qbs.fileinfo as FileInfo
 Product {
     type: "installed_content"
 
-//    qbs.installDir: shareDir
-//    artwork.shareDir: shareDir
-/*    property string shareDir: {
-        if (qbs.targetOS === "mac")
-           return "qutim.app/Contents/Resources/share"
-               else
-           return "share"
-    }
-//           i*/
-
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
@@ -23,7 +13,7 @@ Product {
     Depends { name: "qutimscope" }
     Depends { name: "artwork" }
     
-    property string shareDir: artwork.shareDir
+    property string shareDir: qutimscope.shareDir
 
     Group {
         condition: installConfig
