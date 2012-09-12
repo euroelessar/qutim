@@ -28,7 +28,7 @@
 
 #include <qutim/chatsession.h>
 #include <qutim/spellchecker.h>
-#include "hunspell/hunspell.hxx"
+#include <hunspell/hunspell.hxx>
 #include <QObject>
 
 using namespace qutim_sdk_0_3;
