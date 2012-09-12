@@ -7,6 +7,7 @@ UreenPlugin {
     sourcePath: 'src'
 
     Depends { name: "qca"; condition: !useThirdPartyHmac }
+    Depends { name: "hmac"; condition: useThirdPartyHmac }
 
     Properties {
         condition: !useThirdPartyHmac
