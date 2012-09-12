@@ -46,6 +46,10 @@ DynamicLibrary {
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
+    Properties {
+        condition: project.singleProfile
+        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+    }
 
     ProductModule {
         property string basePath
