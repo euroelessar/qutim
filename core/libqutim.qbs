@@ -13,7 +13,7 @@ DynamicLibrary {
         if (qbs.targetOS === "mac")
             return "/Resources/share";
         else
-            return project.shareDir;
+            return "share";
     }
 
     Depends { name: "qutim-headers" }

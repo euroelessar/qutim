@@ -3,13 +3,16 @@ import qbs.fileinfo as FileInfo
 
 Product {
     type: "installed_content"
-    property string shareDir: {
+
+//    qbs.installDir: shareDir
+//    artwork.shareDir: shareDir
+/*    property string shareDir: {
         if (qbs.targetOS === "mac")
-            return "qutim.app/Contents/Resources/share"
-        else
-            return project.shareDir
+           return "qutim.app/Contents/Resources/share"
+               else
+           return "share"
     }
-    qbs.installDir: shareDir
+//           i*/
 
     property bool installConfig: true
     property bool installSoundTheme: true
@@ -18,6 +21,9 @@ Product {
     property bool installUbuntuTheme: true
 
     Depends { name: "qutimscope" }
+    Depends { name: "artwork" }
+    
+    property string shareDir: artwork.shareDir
 
     Group {
         condition: installConfig
@@ -108,29 +114,4 @@ Product {
         files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
-    Rule {
-        inputs: [ "artwork" ]
-        Artifact {
-            fileTags: [ "installed_content" ]
-            fileName: {
-                var basePath = input.modules.qutimscope.basePath;
-                var fileName = input.baseDir + "/" + input.fileName;
-                var relativePath = FileInfo.relativePath(basePath, fileName);
-                return input.modules.qbs.installDir + "/" + relativePath;
-            }
-        }
-
-        prepare: {
-            var cmd = new JavaScriptCommand();
-            cmd.sourceCode = function() {
-                File.remove(output.fileName);
-                if (!File.copy(input.fileName, output.fileName))
-                    throw "Cannot install '" + input.fileName + "' as '" + output.fileName + "'";
-            }
-            cmd.description = "installing " + FileInfo.fileName(output.fileName);
-            cmd.highlight = "linker";
-            return cmd;
-        }
-
-    }
 }
