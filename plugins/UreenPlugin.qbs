@@ -14,6 +14,7 @@ Product {
     property string sourcePath: "src"
     // FIXME
     cpp.defines: 'QUTIM_PLUGIN_ID=0123456789abcdef'
+    cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ "core", "gui", "network", "script" ] }
@@ -35,7 +36,7 @@ Product {
 
         Artifact {
             fileTags: [ "cpp", "moc_cpp" ]
-            fileName: "GeneratedFiles/" + product.name + "/" + product.name + "genplugin.cpp"
+            fileName: 'GeneratedFiles/' + product.name + '/' + product.name + "genplugin.cpp"
         }
 
         prepare: {

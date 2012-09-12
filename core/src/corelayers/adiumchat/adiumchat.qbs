@@ -4,9 +4,9 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     sourcePath: "chatlayer"
 
-    Depends { name: "flowlayout" }
+    //Depends { name: "flowlayout" }
     Depends { name: "adiumchat-headers" }
-	ProductModule {
+    ProductModule {
 		Depends { name: "cpp" }
         Depends { name: "adiumchat-headers" }
         cpp.includePaths: [
