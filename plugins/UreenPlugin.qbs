@@ -1,6 +1,5 @@
 import qbs.base 1.0
 import qbs.fileinfo as FileInfo
-import "./Utils.js" as Utils
 
 Product {
     type: 'dynamiclibrary'
