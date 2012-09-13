@@ -1,5 +1,6 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    sourcePath: ""
+    condition: false //please, port to new sdk version
+    sourcePath: ''
 }
