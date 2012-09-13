@@ -78,4 +78,24 @@ Product {
             return cmd;
         }
     }
+
+    Rule {
+        inputs: ["qdbusxml"]
+
+        Artifact {
+            fileTags: ['hpp']
+            fileName: 'GeneratedFiles/' + product.name + '/' + 'org_freedesktop_notification.h' /*FileInfo.baseName(input.fileName).replace('.', '_')*/ //file info is buggy
+        }
+
+        prepare: {
+            var args = [input.fileName,
+                        "-a",
+                        output.fileName
+                    ];
+            var cmd = new Command(product.qt.core.binPath + '/qdbusxml2cpp', args);
+            cmd.description = 'cpp ' + FileInfo.fileName(input.fileName);
+            cmd.highlight = 'codegen';
+            return cmd;
+        }
+    }
 }
