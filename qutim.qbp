@@ -145,7 +145,7 @@ Project {
         //"plugins/mobility/mobility.qbs",
         //"plugins/nowplaying/nowplaying.qbs",
         "plugins/offtherecord/offtherecord.qbs",
-        //"plugins/oldcontactdelegate/oldcontactdelegate.qbs",
+        "plugins/oldcontactdelegate/oldcontactdelegate.qbs",
         "plugins/phononsound/phononsound.qbs",
         //"plugins/plugman/plugman.qbs",
         "plugins/qmlchat/qmlchat.qbs",

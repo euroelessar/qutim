@@ -79,44 +79,4 @@ Product {
             return cmd;
         }
     }
-
-    Rule {
-        inputs: ['qdbusxml']
-
-        Artifact {
-            fileTags: ['cpp', 'moc_cpp', /*'qdbuscpp'*/]
-            fileName: 'GeneratedFiles/' + product.name + '/' + Utils.dbusToCppName(input.fileName)
-        }
-
-        prepare: {
-            var fn = FileInfo.baseName(output.fileName);
-            var name = fn //fn.replace('.cpp', '.h') + ':' + fn;
-            var args = [input.fileName,
-                        '-p',
-                        name,
-                        //'-m'
-                    ];
-            var cmd = new Command(product.qt.core.binPath + '/qdbusxml2cpp', args);
-            cmd.description = 'qdbusxml2cpp ' + FileInfo.fileName(output.fileName);
-            cmd.highlight = 'codegen';
-            cmd.workingDirectory = FileInfo.path(output.fileName);
-            return cmd;
-        }
-    }
-
-//    Rule {
-//        inputs: ['qdbuscpp']
-
-//        Artifact {
-//            fileTags: ['hpp']
-//            fileName: 'GeneratedFiles/' + product.name + '/' + input.fileName.replace('cpp', 'h')
-//        }
-
-//        prepare: {
-//            var dummy = new JavaScriptCommand();
-//            dummy.description = 'qdbusxml2cpp ' + FileInfo.fileName(output.fileName);
-//            dummy.highlight = 'codegen';
-//            return dummy;
-//        }
-//    }
 }
