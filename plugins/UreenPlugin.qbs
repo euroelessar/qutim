@@ -1,5 +1,6 @@
 import qbs.base 1.0
 import qbs.fileinfo as FileInfo
+import "./Utils.js" as Utils
 
 Product {
     type: 'dynamiclibrary'
@@ -80,22 +81,42 @@ Product {
     }
 
     Rule {
-        inputs: ["qdbusxml"]
+        inputs: ['qdbusxml']
 
         Artifact {
-            fileTags: ['hpp']
-            fileName: 'GeneratedFiles/' + product.name + '/' + 'org_freedesktop_notification.h' /*FileInfo.baseName(input.fileName).replace('.', '_')*/ //file info is buggy
+            fileTags: ['cpp', 'moc_cpp', /*'qdbuscpp'*/]
+            fileName: 'GeneratedFiles/' + product.name + '/' + Utils.dbusToCppName(input.fileName)
         }
 
         prepare: {
+            var fn = FileInfo.baseName(output.fileName);
+            var name = fn //fn.replace('.cpp', '.h') + ':' + fn;
             var args = [input.fileName,
-                        "-a",
-                        output.fileName
+                        '-p',
+                        name,
+                        //'-m'
                     ];
             var cmd = new Command(product.qt.core.binPath + '/qdbusxml2cpp', args);
-            cmd.description = 'cpp ' + FileInfo.fileName(input.fileName);
+            cmd.description = 'qdbusxml2cpp ' + FileInfo.fileName(output.fileName);
             cmd.highlight = 'codegen';
+            cmd.workingDirectory = FileInfo.path(output.fileName);
             return cmd;
         }
     }
+
+//    Rule {
+//        inputs: ['qdbuscpp']
+
+//        Artifact {
+//            fileTags: ['hpp']
+//            fileName: 'GeneratedFiles/' + product.name + '/' + input.fileName.replace('cpp', 'h')
+//        }
+
+//        prepare: {
+//            var dummy = new JavaScriptCommand();
+//            dummy.description = 'qdbusxml2cpp ' + FileInfo.fileName(output.fileName);
+//            dummy.highlight = 'codegen';
+//            return dummy;
+//        }
+//    }
 }

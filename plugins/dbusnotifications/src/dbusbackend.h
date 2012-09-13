@@ -27,7 +27,7 @@
 
 #include <qutim/notification.h>
 #include <qutim/sound.h>
-#include "org_freedesktop_notification.h"
+#include "org_freedesktop_notifications.h"
 
 QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
 const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
