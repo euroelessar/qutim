@@ -34,7 +34,7 @@ Product {
 
     Group {
         fileTags: [ "artwork" ]
-        artwork.basePath: "share"
+        artwork.basePath: "share/qutim"
         prefix: "share/qutim/"
         recursive: true
         files: "*"
@@ -61,8 +61,9 @@ Product {
     Group {
         condition: installIcons
         fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
-        prefix: "../artwork/icons/user-status/hicolor/"
+        artwork.basePath: "../artwork/icons/user-status"
+        qbs.installDir: "icons"
+        prefix: "../artwork/icons/user-status/"
         recursive: true
         files: "*"
     }
@@ -70,8 +71,9 @@ Product {
     Group {
         condition: installIcons && qbs.targetOS === "linux"
         fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
-        prefix: "../artwork/icons/humanity/hicolor/"
+        artwork.basePath: "../artwork/icons/humanity"
+        qbs.installDir: "icons"
+        prefix: "../artwork/icons/humanity/"
         recursive: true
         files: "*"
     }
