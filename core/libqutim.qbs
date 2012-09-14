@@ -24,7 +24,6 @@ DynamicLibrary {
     Depends { name: "qutim-headers" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
-    Depends { name: "qxdg" }
     Depends { name: "qtdwm" }
     Depends { name: "qtsolutions" }
     Depends { name: "cpp" }
