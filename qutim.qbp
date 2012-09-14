@@ -145,7 +145,7 @@ Project {
         "plugins/mobility/src/bearermanager/bearermanager.qbs",
         "plugins/mobility/src/multimediabackend/multimediabackend.qbs",
         //"plugins/mobility/src/vibrobackend/vibrobackend.qbs",
-        //"plugins/nowplaying/nowplaying.qbs",
+        "plugins/nowplaying/nowplaying.qbs",
         "plugins/offtherecord/offtherecord.qbs",
         "plugins/oldcontactdelegate/oldcontactdelegate.qbs",
         "plugins/phononsound/phononsound.qbs",
