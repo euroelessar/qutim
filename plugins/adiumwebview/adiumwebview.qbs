@@ -9,7 +9,7 @@ UreenPlugin {
 
     Group {
         fileTags: [ "artwork" ]
-        artwork.basePath: "."
+        artwork.basePath: "./"
         prefix: "data/"
         recursive: true
         files: "*"
