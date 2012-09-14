@@ -7,13 +7,11 @@ UreenPlugin {
     Depends { name: "qt.webkit" }
     Depends { name: "qutim-adiumwebview" }
     Depends { name: "artwork" }
-    Depends { name: "qutimscope" }
 
     Group {
         fileTags: [ "artwork" ]
-        qutimscope.basePath: ''
-        prefix: "data/webview/"
-        files: '*'
+        artwork.basePath: "./"
+        prefix: "data/"
         recursive: true
     }
 }

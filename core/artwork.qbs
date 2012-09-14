@@ -61,7 +61,8 @@ Product {
     Group {
         condition: installIcons
         fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
+        artwork.shareDir: shareDir + "/icons"
+        artwork.basePath: "../artwork/icons/user-status"
         prefix: "../artwork/icons/user-status/hicolor/"
         recursive: true
         files: "*"
