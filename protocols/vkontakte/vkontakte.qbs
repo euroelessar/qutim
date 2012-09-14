@@ -7,14 +7,13 @@ UreenPlugin {
     Depends { name: "vreenoauth" }
     Depends { name: "qt.quick1" }
     Depends { name: "qt.webkit" }
-    Depends { name: "qutimscope" }
     Depends { name: "artwork" }
 
     cpp.includePaths: ["src"]
 
     Group {
         fileTags: [ "artwork" ]
-        qutimscope.basePath: "share"
+        artwork.basePath: "share"
         prefix: "share/vphotoalbum/"
         files: '*'
         recursive: true

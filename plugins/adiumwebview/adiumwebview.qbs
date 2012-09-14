@@ -10,8 +10,9 @@ UreenPlugin {
 
     Group {
         fileTags: [ "artwork" ]
-        artwork.basePath: "./"
-        prefix: "data/"
+        artwork.basePath: '.'
+        prefix: "data/webview/"
+        files: '*'
         recursive: true
     }
 }

@@ -6,7 +6,6 @@ UreenPlugin {
 
     Depends { name: "libqutim-simplecontactlist" }
     Depends { name: "qt.xml" }
-    Depends { name: "qutimscope" }
     Depends { name: "artwork" }
 
     cpp.includePaths: [
@@ -16,7 +15,7 @@ UreenPlugin {
 
     Group {
         fileTags: [ "artwork" ]
-        qutimscope.basePath: ''
+        artwork.basePath: '.'
         prefix: "olddelegate/"
         files: '*'
         recursive: true
