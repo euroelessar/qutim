@@ -2,7 +2,7 @@ import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: ''
-    type: base.concat("installed_content")
+    type: ['installed_content', 'dynamiclibrary']
 
     Depends { name: "libqutim-simplecontactlist" }
     Depends { name: "qt.xml" }
@@ -17,7 +17,7 @@ UreenPlugin {
     Group {
         fileTags: [ "artwork" ]
         qutimscope.basePath: ''
-        prefix: "olddelegate"
+        prefix: "olddelegate/"
         files: '*'
         recursive: true
     }

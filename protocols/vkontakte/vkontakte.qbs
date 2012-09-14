@@ -1,7 +1,7 @@
 import "../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    type: base.concat("installed_content")
+    type: ['installed_content', 'dynamiclibrary']
 
     Depends { name: "vreen" }
     Depends { name: "vreenoauth" }
