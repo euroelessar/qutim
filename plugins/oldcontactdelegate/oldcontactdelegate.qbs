@@ -9,7 +9,7 @@ UreenPlugin {
     Depends { name: "artwork" }
 
     cpp.includePaths: [
-        '.',
+        product.path,
         'settings',
     ]
 

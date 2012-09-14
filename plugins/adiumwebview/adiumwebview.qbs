@@ -1,8 +1,7 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    type: ['installed_content', 'dynamiclibrary']
-
+    type: [ "dynamiclibrary", "installed_content" ]
     Depends { name: "adiumchat" }
     Depends { name: "qt.webkit" }
     Depends { name: "qutim-adiumwebview" }
@@ -10,9 +9,9 @@ UreenPlugin {
 
     Group {
         fileTags: [ "artwork" ]
-        artwork.basePath: '.'
-        prefix: "data/webview/"
-        files: '*'
+        artwork.basePath: "./"
+        prefix: "data/"
         recursive: true
+        files: "*"
     }
 }
