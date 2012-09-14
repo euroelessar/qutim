@@ -7,8 +7,6 @@ Module {
 
     Depends { name: "qutimscope" }
 
-    //qbs.installDir: qutimscope.shareDir //buggy, sometimes directly install to buildDirectory
-
     Rule {
         inputs: [ "artwork" ]
         Artifact {
