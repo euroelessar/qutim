@@ -8,7 +8,7 @@ Product {
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
-    property bool installOxygenTheme: true
+    property bool installOxygenTheme: !qbs.targetOS === "linux"
     property bool installUbuntuTheme: true
     property string qutim_version: project.qutim_version
 
@@ -17,7 +17,7 @@ Product {
     
     property string shareDir: artwork.shareDir
 
-    Group {
+    Group {  // config files
         condition: installConfig
         fileTags: "install"
         qbs.installDir: shareDir + "/config"
@@ -32,7 +32,7 @@ Product {
         files: "*.json"
     }
 
-    Group {
+    Group { // webkitstyle and ca-certs
         fileTags: [ "artwork" ]
         artwork.basePath: "share/qutim"
         prefix: "share/qutim/"
@@ -40,7 +40,7 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { //sounds
         condition: installSoundTheme
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork"
@@ -49,7 +49,25 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { // desktop file
+        condition: qbs.targetOS === "linux"
+        fileTags: [ "install" ]
+        prefix: "share/applications/"
+        recursive: true
+        files: "*"
+    }
+
+    Group { // qutim.png and default tray icons
+        condition: installIcons && qbs.targetOS === "linux"
+        fileTags: [ "artwork" ]
+        artwork.shareDir: "share"
+        artwork.basePath: "../artwork/icons/qutim"
+        prefix: "../artwork/icons/qutim/"
+        recursive: true
+        files: "*"
+    }
+    
+    Group { // default icon theme
         condition: installIcons
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork"
@@ -58,7 +76,7 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { // user-status icons
         condition: installIcons
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork/icons/user-status"
@@ -68,7 +86,7 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { // humanity icons
         condition: installIcons && qbs.targetOS === "linux"
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork/icons/humanity"
@@ -78,7 +96,7 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { // Mac tray icons
         condition: installIcons && qbs.targetOS === "mac"
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/qutim-default/scalable/status/"
@@ -94,7 +112,7 @@ Product {
         files: "*"
     }
 
-    Group {
+    Group { // Ubuntu tray icons
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/ubuntu-mono-light/scalable/status/"
