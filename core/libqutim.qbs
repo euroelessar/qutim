@@ -18,9 +18,10 @@ DynamicLibrary {
         if (qbs.targetOS === "mac")
             return "/Resources/share";
         else
-            return "share";
+            return qutimscope.shareDir;
     }
 
+    Depends { name: "qutimscope" }
     Depends { name: "qutim-headers" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
