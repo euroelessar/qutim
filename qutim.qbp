@@ -149,7 +149,7 @@ Project {
         "plugins/nowplaying/nowplaying.qbs",
         "plugins/offtherecord/offtherecord.qbs",
         "plugins/oldcontactdelegate/oldcontactdelegate.qbs",
-        "plugins/phononsound/phononsound.qbs",
+        //"plugins/phononsound/phononsound.qbs",
         //"plugins/plugman/plugman.qbs",
         "plugins/qmlchat/qmlchat.qbs",
         //"plugins/qrcicons/qrcicons.qbs",
