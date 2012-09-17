@@ -8,7 +8,7 @@ Product {
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
-    property bool installOxygenTheme: !qbs.targetOS === "linux"
+    property bool installOxygenTheme: qbs.targetOS !== "linux"
     property bool installUbuntuTheme: true
     property string qutim_version: project.qutim_version
 
