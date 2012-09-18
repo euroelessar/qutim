@@ -212,7 +212,7 @@ void MobileNotificationSettings::onItemChanged(QTreeWidgetItem *item, int column
 {
 	Q_UNUSED(item);
 	Q_UNUSED(column);
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 } // namespace Core

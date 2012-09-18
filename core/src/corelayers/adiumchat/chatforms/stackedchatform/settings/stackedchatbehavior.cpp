@@ -127,7 +127,7 @@ void StackedChatBehavior::setFlags(AdiumChat::ChatFlags type, bool set)
 void StackedChatBehavior::onButtonClicked(int id)
 {
 	m_send_message_key = static_cast<AdiumChat::SendMessageKey>(id);
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 }

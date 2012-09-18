@@ -68,6 +68,6 @@ void VAccountSettings::setController(QObject *controller)
 
 void VAccountSettings::onPasswdChanged(const QString &)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 

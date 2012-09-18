@@ -127,7 +127,7 @@ void ProtocolChoooserWidget::clear()
 
 void ProtocolChoooserWidget::onItemChanged(QStandardItem* )
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void ProtocolChoooserWidget::onItemClicked(QModelIndex index)

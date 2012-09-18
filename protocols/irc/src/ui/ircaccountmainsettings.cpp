@@ -119,7 +119,7 @@ QWidgetList IrcAccountMainSettings::editableWidgets()
 
 void IrcAccountMainSettings::initSettingsWidget(SettingsWidget *widget)
 {
-	connect(this, SIGNAL(modifiedChanged(bool)), widget, SIGNAL(modifiedChanged(bool)));
+//	connect(this, SIGNAL(modifiedChanged(bool)), widget, SIGNAL(modifiedChanged(bool)));
 	m_widget = widget;
 }
 
@@ -140,6 +140,16 @@ void IrcAccountMainSettings::addServer(const IrcServer &server)
 	onCurrentServerChanged(ui->serversWidget->row(item));
 }
 
+class SettingsWidgetHook : public SettingsWidget
+{
+public:
+	using SettingsWidget::setModified;
+	static void setModified(SettingsWidget *widget, bool modified)
+	{
+		static_cast<SettingsWidgetHook*>(widget)->setModified(modified);
+	}
+};
+
 void IrcAccountMainSettings::onEditServer()
 {
 	int row = ui->serversWidget->currentRow();
@@ -147,8 +157,8 @@ void IrcAccountMainSettings::onEditServer()
 	IrcServer server = currentServer();
 	m_servers[row] = server;
 	ui->serversWidget->currentItem()->setText(QString("%1:%2").arg(server.hostName).arg(server.port));
-	if (m_widget && !m_widget.data()->isModified())
-		emit modifiedChanged(true);
+	if (m_widget)
+		SettingsWidgetHook::setModified(m_widget.data(), true);
 }
 
 void IrcAccountMainSettings::onRemoveServer()

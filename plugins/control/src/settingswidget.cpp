@@ -132,13 +132,13 @@ void SettingsWidget::addAnswer(const QString &text)
 
 void SettingsWidget::onModified()
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void SettingsWidget::on_addButton_clicked()
 {
 	addAnswer();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 } // namespace Control

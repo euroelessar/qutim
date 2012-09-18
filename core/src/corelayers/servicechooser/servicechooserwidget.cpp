@@ -148,7 +148,7 @@ void ServiceChoooserWidget::clear()
 
 void ServiceChoooserWidget::onItemChanged(QStandardItem* )
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void ServiceChoooserWidget::onItemClicked(QModelIndex index)

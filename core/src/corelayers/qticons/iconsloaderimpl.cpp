@@ -80,7 +80,7 @@ void IconLoaderSettings::cancelImpl()
 
 void IconLoaderSettings::onCurrentIndexChanged(int index)
 {
-	emit modifiedChanged(index != m_index);
+	setModified(index != m_index);
 }
 
 IconLoaderImpl::IconLoaderImpl()

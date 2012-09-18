@@ -98,7 +98,7 @@ void HighlighterSettings::onRemoveButtonClicked()
 	Q_ASSERT(item);
 	m_items.removeOne(item);
 	delete item->item();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void HighlighterSettings::on_addRegexp_clicked()
@@ -114,7 +114,7 @@ void HighlighterSettings::on_addRegexp_clicked()
 	connect(item, SIGNAL(buttonClicked()), this, SLOT(onRemoveButtonClicked()));
 	m_items << item;
 
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void HighlighterSettings::validateInputRegexp()

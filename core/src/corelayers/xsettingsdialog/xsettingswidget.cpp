@@ -108,15 +108,11 @@ void XSettingsWidget::cancelImpl()
 
 void XSettingsWidget::onModifiedChanged(bool modified)
 {
-	int count = m_changed.count();
 	if (modified)
 		m_changed.insert(sender());
 	else
 		m_changed.remove(sender());
-	if (count > 0 && m_changed.count() == 0)
-		emit modifiedChanged(false);
-	else if (count == 0 && m_changed.count() > 0)
-		emit modifiedChanged(true);
+	setModified(!m_changed.isEmpty());
 }
 
 } // namespace Core

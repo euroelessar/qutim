@@ -123,7 +123,7 @@ void ChatAppearance::cancelImpl()
 
 void ChatAppearance::onStateChanged(int)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void ChatAppearance::loadImpl()
@@ -178,7 +178,7 @@ void ChatAppearance::onThemeChanged(int index)
 	m_controller->loadTheme(m_currentStyleName);
 	makePage();
 	if (!isLoad)
-		emit modifiedChanged(true);
+		setModified(true);
 	isLoad = false;
 }
 

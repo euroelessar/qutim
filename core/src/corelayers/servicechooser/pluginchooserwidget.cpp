@@ -139,7 +139,7 @@ void PluginChoooserWidget::clear()
 
 void PluginChoooserWidget::onItemChanged(QStandardItem* )
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 QString PluginChoooserWidget::html(const qutim_sdk_0_3::PluginInfo& info)

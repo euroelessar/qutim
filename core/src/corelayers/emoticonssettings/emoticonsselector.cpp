@@ -80,7 +80,7 @@ void EmoticonsSelector::currentIndexChanged(const QString& text)
 		emoticon->start();
 	}
 	m_selected_theme = text;
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void EmoticonsSelector::clearEmoticonsPreview()

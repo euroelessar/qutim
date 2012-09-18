@@ -40,15 +40,14 @@ INCLUDE(QutIMMacros)
 
 #simple hack for include dirs
 macro(LIST_SUBDIRECTORIES retval curdir)
-	file(GLOB sub-dir RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${curdir}/*)
-	set(list_of_dirs "")
-	foreach(dir ${sub-dir})
+        file(GLOB __subdir RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${curdir}/*)
+        foreach(dir ${__subdir})
 		#TODO fix IS DIRECTORY macro
-		if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${curdir}/${dir})
-			message(STATUS "Found 3rdparty dir: ${CMAKE_CURRENT_SOURCE_DIR}/${curdir}/${dir}")
+                if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
+                        list(APPEND ${retval} "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
+                        message(STATUS "Found 3rdparty dir: ${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
 		endif()
-	endforeach()
-	set(${retval} ${sub-dir})
+        endforeach()
 endmacro()
 
 LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
