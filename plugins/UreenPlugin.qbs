@@ -3,15 +3,7 @@ import qbs.fileinfo as FileInfo
 
 Product {
     condition: {
-        var tags = [ 'core' ];
-        if (qbs.targetOS === 'mac')
-            tags.concat('mac');
-        if (qbs.targetOS === 'linux')
-            tags.concat('linux', 'kde');
-        if (qbs.targetOS === 'windows')
-            tags.concat('windows');
-        tags.concat('desktop');
-
+        var tags = qutimscope.pluginTags;
         for (var i in pluginTags) {
             if (tags.indexOf(pluginTags[i]) !== -1)
                 return true;

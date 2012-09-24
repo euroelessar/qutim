@@ -10,4 +10,15 @@ Module {
         else
             return "share";
     }
+    property var pluginTags: {
+        var tags = [ 'core' ];
+        if (qbs.targetOS === 'mac')
+            tags.concat('mac');
+        if (qbs.targetOS === 'linux')
+            tags.concat('linux', 'kde');
+        if (qbs.targetOS === 'windows')
+            tags.concat('windows');
+        tags.concat('desktop');
+        return tags;
+    }
 }
