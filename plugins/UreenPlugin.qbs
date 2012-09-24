@@ -2,6 +2,27 @@ import qbs.base 1.0
 import qbs.fileinfo as FileInfo
 
 Product {
+    condition: {
+        var tags = [ 'core' ];
+        if (qbs.targetOS === 'mac')
+            tags.concat('mac');
+        if (qbs.targetOS === 'linux')
+            tags.concat('linux', 'kde');
+        if (qbs.targetOS === 'windows')
+            tags.concat('windows');
+        tags.concat('desktop');
+
+        for (var i in pluginTags) {
+            if (tags.indexOf(pluginTags[i]) !== -1)
+                return true;
+        }
+        return false;
+    }
+
+    property string projectPath: project.path
+    property string sourcePath: "src"
+    property var pluginTags: ['core']
+
     type: 'dynamiclibrary'
     name: FileInfo.fileName(product.path);
     destination: {
@@ -10,15 +31,15 @@ Product {
         else
             return "lib/qutim/plugins";
     }
-    property string projectPath: project.path
-    property string sourcePath: "src"
     // FIXME
     cpp.defines: [ "QUTIM_PLUGIN_ID=0123456789abcdef" ]
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
+    cpp.visibility: 'hidden'
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ "core", "gui", "network", "script" ] }
     Depends { name: "libqutim" }
+    Depends { name: "qutimscope" }
 
     Group {
         prefix: sourcePath !== '' ? sourcePath + '/' : ''

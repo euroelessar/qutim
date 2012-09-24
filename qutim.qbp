@@ -164,7 +164,6 @@ Project {
         //"plugins/webhistory/webhistory.qbs",
         //"plugins/winintegration/winintegration.qbs",
         "plugins/yandexnarod/yandexnarod.qbs"
-        //"protocols/astral/astral.qbs",
     ]
 }
 

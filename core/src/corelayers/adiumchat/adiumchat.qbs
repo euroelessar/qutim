@@ -3,6 +3,7 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: "chatlayer"
+    cpp.defines: base.concat('ADIUMCHAT_LIBRARY')
 
     //Depends { name: "flowlayout" }
     Depends { name: "adiumchat-headers" }
