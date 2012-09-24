@@ -17,6 +17,7 @@ DynamicLibrary {
 
     cpp.dynamicLibraryPrefix: ""
     cpp.defines: "SIMPLECONTACTLIST_LIBRARY"
+    cpp.visibility: 'hidden'
 
     Group {
         files: [

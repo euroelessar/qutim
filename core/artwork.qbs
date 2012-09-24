@@ -133,11 +133,11 @@ Product {
         files: "qutim.icns"
     }
 
-    Group {
-        condition: qbs.targetOS === "mac"
-        fileTags: [ "infoPlist" ]
-        files: "Info.plist"
-    }
+//    Group {
+//        condition: qbs.targetOS === "mac"
+//        fileTags: [ "infoPlist" ]
+//        files: "Info.plist"
+//    }
 
     Group {
         condition: qbs.targetOS === "mac"
