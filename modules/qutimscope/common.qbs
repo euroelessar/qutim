@@ -10,15 +10,18 @@ Module {
         else
             return "share";
     }
-    property var pluginTags: {
-        var tags = [ 'core' ];
-        if (qbs.targetOS === 'mac')
-            tags.concat('mac');
-        if (qbs.targetOS === 'linux')
-            tags.concat('linux', 'kde');
-        if (qbs.targetOS === 'windows')
-            tags.concat('windows');
-        tags.concat('desktop');
-        return tags;
+    property var pluginTags: ['core', 'desktop']
+
+    Properties {
+        condition: qbs.targetOS === 'linux'
+        pluginTags: outer.concat(['linux'])
+    }
+    Properties {
+        condition: qbs.targetOS === 'windows'
+        pluginTags: outer.concat('windows')
+    }
+    Properties {
+        condition: qbs.targetOS === 'mac'
+        pluginTags: outer.concat('mac')
     }
 }

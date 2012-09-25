@@ -1,5 +1,4 @@
 import qbs.base 1.0
-import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 DynamicLibrary {
     name: "libqutim-simplecontactlist"
@@ -15,7 +14,7 @@ DynamicLibrary {
     Depends { name: "qt"; submodules: [ "core", "gui" ] }
     Depends { name: "simplecontactlist-headers" }
 
-    cpp.dynamicLibraryPrefix: ""
+    //cpp.dynamicLibraryPrefix: ""
     cpp.defines: "SIMPLECONTACTLIST_LIBRARY"
     cpp.visibility: 'hidden'
 
