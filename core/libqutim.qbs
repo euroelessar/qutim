@@ -40,8 +40,8 @@ DynamicLibrary {
         buildDirectory + "/include/qutim"
     ]
 
-    cpp.dynamicLibraryPrefix: ""
-    cpp.staticLibraryPrefix: ""
+    //cpp.dynamicLibraryPrefix: ""
+    //cpp.staticLibraryPrefix: ""
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",

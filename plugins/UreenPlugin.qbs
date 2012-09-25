@@ -4,10 +4,12 @@ import qbs.fileinfo as FileInfo
 Product {
     condition: {
         var tags = qutimscope.pluginTags;
-        for (var i in pluginTags) {
-            if (tags.indexOf(pluginTags[i]) !== -1)
+        var selectedTags = [].concat(pluginTags);
+        for (var i in selectedTags) {
+            if (tags.indexOf(selectedTags[i]) !== -1)
                 return true;
         }
+        print('skipping plugin ' + name + '(tags: ' + tags + ' selected: ' + pluginTags + ')')
         return false;
     }
 
