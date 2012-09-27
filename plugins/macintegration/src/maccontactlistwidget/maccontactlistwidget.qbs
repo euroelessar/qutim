@@ -4,5 +4,5 @@ UreenPlugin {
     pluginTags: 'mac'
     sourcePath: ""
 
-    Depends { name: "libqutim-simplecontactlist" }
+    Depends { name: "qutim-simplecontactlist" }
 }

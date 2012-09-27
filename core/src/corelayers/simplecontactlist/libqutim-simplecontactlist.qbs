@@ -1,7 +1,7 @@
 import qbs.base 1.0
 
 DynamicLibrary {
-    name: "libqutim-simplecontactlist"
+    name: "qutim-simplecontactlist"
     destination: {
         if (qbs.targetOS === "mac")
             return "qutim.app/Contents/MacOS";
@@ -14,7 +14,6 @@ DynamicLibrary {
     Depends { name: "qt"; submodules: [ "core", "gui" ] }
     Depends { name: "simplecontactlist-headers" }
 
-    //cpp.dynamicLibraryPrefix: ""
     cpp.defines: "SIMPLECONTACTLIST_LIBRARY"
     cpp.visibility: 'hidden'
 

@@ -9,7 +9,7 @@ Product {
             if (tags.indexOf(selectedTags[i]) !== -1)
                 return true;
         }
-        print('skipping plugin ' + name + '(tags: ' + tags + ' selected: ' + pluginTags + ')')
+        print('Skipping plugin ' + name + '(selected tags: ' + tags + ' | plugin tags: ' + pluginTags + ')')
         return false;
     }
 
