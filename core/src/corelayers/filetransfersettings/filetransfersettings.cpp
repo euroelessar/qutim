@@ -57,7 +57,7 @@ FileTransferSettingsWidget::FileTransferSettingsWidget() :
 void FileTransferSettingsWidget::clearState()
 {
 	m_changed = false;
-	emit modifiedChanged(false);
+	setModified(false);
 }
 
 void FileTransferSettingsWidget::loadImpl()
@@ -96,7 +96,7 @@ void FileTransferSettingsWidget::onChanged()
 {
 	if (!m_changed) {
 		m_changed = true;
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 

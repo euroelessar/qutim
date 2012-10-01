@@ -86,7 +86,7 @@ void SoundThemeSelector::cancelImpl()
 
 void SoundThemeSelector::currentIndexChanged(const QString& text)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 	m_model->clear();
 	fillModel(Sound::theme(text));
 	ui->treeView->resizeColumnToContents(1);

@@ -180,7 +180,7 @@ void WebViewAppearance::onVariableChanged()
 {
 	updateCustomScript();
 	m_controller->evaluateJavaScript(m_style->scriptForSettingCustomStyle());
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::makeSettings()
@@ -195,7 +195,7 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 	SignalBlocker backgroundTypeBlocker(ui->backgroundTypeBox);
 	
 	if (!m_styleName.isEmpty())
-		emit modifiedChanged(true);
+		setModified(true);
 	m_styleName = styleName;
 	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
 	
@@ -296,21 +296,21 @@ void WebViewAppearance::on_variantBox_currentIndexChanged(const QString &variant
 {
 	m_style->setActiveVariant(variant);
 	m_controller->evaluateJavaScript(m_style->scriptForChangingVariant());
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_showUserIconBox_clicked(bool checked)
 {
     m_style->setShowUserIcons(checked);
 	rebuildChatView();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_showHeaderBox_clicked(bool checked)
 {
     m_style->setShowHeader(checked);
 	rebuildChatView();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_fontButton_clicked()
@@ -321,14 +321,14 @@ void WebViewAppearance::on_fontButton_clicked()
 	QFontInfo info(newFont);
 	if (ok && newFont != oldFont) {
 		setDefaultFont(newFont.family(), info.pointSize());
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 
 void WebViewAppearance::on_defaultFontButton_clicked()
 {
 	setDefaultFont(m_style->defaultFontFamily(), m_style->defaultFontSize());
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_customBackgroundBox_clicked(bool checked)
@@ -336,14 +336,14 @@ void WebViewAppearance::on_customBackgroundBox_clicked(bool checked)
 	m_style->setCustomBackgroundPath(checked ? backgroundPath() : QString());
 	m_style->setCustomBackgroundColor(checked ? backgroundColor() : QColor());
 	rebuildChatView();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_backgroundTypeBox_currentIndexChanged(int index)
 {
     m_style->setCustomBackgroundType(static_cast<WebKitMessageViewStyle::WebkitBackgroundType>(index));
 	rebuildChatView();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_imageButton_clicked(bool checked)
@@ -362,7 +362,7 @@ void WebViewAppearance::on_imageButton_clicked(bool checked)
 	}
 	m_style->setCustomBackgroundPath(newPath);
 	rebuildChatView();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WebViewAppearance::on_colorButton_clicked(bool checked)
@@ -385,7 +385,7 @@ void WebViewAppearance::on_colorButton_clicked(bool checked)
 	if (shouldRebuild) {
 		m_style->setCustomBackgroundColor(newColor);
 		rebuildChatView();
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 

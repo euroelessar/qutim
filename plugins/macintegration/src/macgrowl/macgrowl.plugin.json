@@ -1,0 +1,7 @@
+{
+    "pluginIcon": "growl",
+    "pluginName": "Growl notifications",
+    "pluginDescription": "Default Mac Os X Notifications",
+    "extensionHeader": "growlbackend.h",
+    "extensionClass": "GrowlBackend"
+}

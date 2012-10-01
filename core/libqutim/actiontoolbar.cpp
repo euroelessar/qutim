@@ -370,5 +370,5 @@ void ActionToolBar::hideEvent(QHideEvent *event)
 
 }
 
-#include "actiontoolbar.moc"
+#include "moc_actiontoolbar.cpp"
 

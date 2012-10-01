@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "JSON config",
+	"pluginDescription": "Default qutIM config implementation. Based on JSON.",
+	"extensionHeader": "jsonconfigbackend.h",
+	"extensionClass": "Core::JsonConfigBackend"
+}

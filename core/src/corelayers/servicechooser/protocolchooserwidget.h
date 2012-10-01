@@ -36,7 +36,7 @@ class ExtensionInfo;
 }
 namespace Ui
 {
-class ServiceChooser;
+class ServiceChoooser;
 }
 
 class QStandardItem;
@@ -47,21 +47,21 @@ namespace Core
 class ServiceItem;
 using namespace qutim_sdk_0_3;
 
-class ProtocolChooserWidget : public SettingsWidget
+class ProtocolChoooserWidget : public SettingsWidget
 {
 	Q_OBJECT
 public:
-	ProtocolChooserWidget();
+	ProtocolChoooserWidget();
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-	virtual ~ProtocolChooserWidget();
+	virtual ~ProtocolChoooserWidget();
 private slots:
 	void onItemChanged(QStandardItem*);
 	void onItemClicked(QModelIndex index);
 private:
 	void clear();
-	Ui::ServiceChooser *ui;
+	Ui::ServiceChoooser *ui;
 	QStandardItemModel *m_model;
 	QHash<QString, ServiceItem *> m_protocol_items;
 };

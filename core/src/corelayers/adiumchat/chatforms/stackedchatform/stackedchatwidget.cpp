@@ -26,15 +26,15 @@
 
 #include "stackedchatwidget.h"
 #include <qutim/servicemanager.h>
-#include <chatlayer/chatviewfactory.h>
+#include <qutim/adiumchat/chatviewfactory.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
-#include <chatlayer/sessionlistwidget.h>
+#include <qutim/adiumchat/sessionlistwidget.h>
 #include "fingerswipegesture.h"
 #include "floatingbutton.h"
-#include <chatlayer/chatedit.h>
-#include <chatlayer/conferencecontactsview.h>
+#include <qutim/adiumchat/chatedit.h>
+#include <qutim/adiumchat/conferencecontactsview.h>
 #include <QTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>

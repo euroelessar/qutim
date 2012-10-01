@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "No crypto",
+	"pluginDescription": "Store passwords in plaintext. Easy to read. Easy to recover.",
+	"extensionHeader": "nocryptoservice.h",
+	"extensionClass": "Core::NoCryptoService"
+}

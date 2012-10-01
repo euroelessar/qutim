@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Idle detector",
+	"pluginDescription": "Native idle detector, based on system api",
+	"extensionHeader": "idle.h",
+	"extensionClass": "Psi::Idle"
+}

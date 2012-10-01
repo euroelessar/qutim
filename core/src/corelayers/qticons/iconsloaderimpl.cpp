@@ -31,6 +31,12 @@
 #include <QFormLayout>
 #include <qutim/icon.h>
 
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+#	define QUTIM_DEFAULT_ICON_THEME "qutim-default"
+#else
+#	define QUTIM_DEFAULT_ICON_THEME ""
+#endif
+
 namespace Core
 {
 Q_GLOBAL_STATIC_WITH_ARGS(XdgIconManager, iconManager,
@@ -50,7 +56,7 @@ void IconLoaderSettings::loadImpl()
 {
 	m_box->clear();
 	m_index = -1;
-	QString themeId = Config().group("appearance").value("theme", QString());
+	QString themeId = Config().group("appearance").value("theme", QUTIM_DEFAULT_ICON_THEME);
 	foreach (const QString &id, iconManager()->themeIds(false)) {
 		const XdgIconTheme *theme = iconManager()->themeById(id);
 		m_box->addItem(QIcon(), theme->name(), theme->id());
@@ -74,7 +80,7 @@ void IconLoaderSettings::cancelImpl()
 
 void IconLoaderSettings::onCurrentIndexChanged(int index)
 {
-	emit modifiedChanged(index != m_index);
+	setModified(index != m_index);
 }
 
 IconLoaderImpl::IconLoaderImpl()
@@ -119,7 +125,7 @@ QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)
 void IconLoaderImpl::onSettingsChanged()
 {
 	const XdgIconTheme *defTheme = iconManager()->defaultTheme();
-	QString id = Config().group("appearance").value<QString>("theme", QString());
+	QString id = Config().group("appearance").value<QString>("theme", QUTIM_DEFAULT_ICON_THEME);
 	const XdgIconTheme *theme;
 	theme = iconManager()->themeById(id);
 	if (!theme && defTheme && defTheme->id() != "hicolor") {

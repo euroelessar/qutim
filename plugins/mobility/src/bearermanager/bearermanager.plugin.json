@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Network bearer Manager",
+	"pluginDescription": "Used to monitor the availability of network.",
+	"extensionHeader": "bearermanager.h",
+	"extensionClass": "BearerManager"
+}

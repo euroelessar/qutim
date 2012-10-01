@@ -94,7 +94,7 @@ void StackedChatBehavior::cancelImpl()
 
 void StackedChatBehavior::onValueChanged()
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 } // namespace Symbian

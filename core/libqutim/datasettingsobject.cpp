@@ -97,7 +97,7 @@ void DataSettingsWidget::onItemChanged(const DataItem &item)
 
 void DataSettingsWidget::onChanged()
 {
-    emit modifiedChanged(true);
+    setModified(true);
 }
 
 void DataSettingsWidget::loadImpl()

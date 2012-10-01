@@ -581,5 +581,5 @@ void JProtocol::onAccountDestroyed(QObject *obj)
 }
 }
 
-#include <jprotocol.moc>
+#include "moc_jprotocol.cpp"
 

@@ -117,10 +117,10 @@ void Maemo5Settings::cancelImpl()
 
 void Maemo5Settings::onSettingsChanged(int)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 void Maemo5Settings::onSettingsChanged()
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 

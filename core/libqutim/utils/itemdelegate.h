@@ -16,7 +16,7 @@
 #define ITEMDELEGATE_H
 
 #include <QAbstractItemDelegate>
-#include "../../libqutim/libqutim_global.h"
+#include "libqutim_global.h"
 
 class QTreeView;
 class QListView;

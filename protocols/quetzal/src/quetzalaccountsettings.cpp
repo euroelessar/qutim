@@ -215,6 +215,6 @@ void QuetzalAccountSettings::setAccount(PurpleAccount *account, PurplePlugin *pr
 
 void QuetzalAccountSettings::onChanged()
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 

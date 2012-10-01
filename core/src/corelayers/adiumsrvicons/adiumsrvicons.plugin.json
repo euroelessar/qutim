@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Adium service icons",
+	"pluginDescription": "Protocol icons powered by Adium ServiceIcons packs",
+	"extensionHeader": "serviceicons.h",
+	"extensionClass": "Adium::ServiceIcons,qutim_sdk_0_3::IconWrapper"
+}

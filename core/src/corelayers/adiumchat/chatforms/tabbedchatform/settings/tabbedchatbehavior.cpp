@@ -163,7 +163,7 @@ void TabbedChatBehavior::setFlags(AdiumChat::ChatFlags type, bool set)
 void TabbedChatBehavior::onButtonClicked(int id)
 {
 	m_send_message_key = static_cast<AdiumChat::SendMessageKey>(id);
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 }

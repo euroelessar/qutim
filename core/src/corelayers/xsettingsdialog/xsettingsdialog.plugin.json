@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "X Settings dialog",
+	"pluginDescription": "Default qutIM settings dialog implementation with OS X style top bar",
+	"extensionHeader": "xsettingslayerimpl.h",
+	"extensionClass": "Core::XSettingsLayerImpl"
+}

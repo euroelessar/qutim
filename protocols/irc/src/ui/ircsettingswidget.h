@@ -48,6 +48,7 @@ public:
 	{
 	}
 
+protected:
 	virtual void loadImpl()
 	{
 		Q_ASSERT(m_account);
@@ -74,7 +75,6 @@ public:
 			Config cfg = m_account->config();
 			m_widget->saveToConfig(cfg);
 			cfg.sync();
-			emit saved();
 			m_account->updateSettings();
 		}
 	}

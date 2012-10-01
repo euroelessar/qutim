@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple tray",
+	"pluginDescription": "Default qutIM system tray icon implementation",
+	"extensionHeader": "simpletray.h",
+	"extensionClass": "Core::SimpleTray"
+}

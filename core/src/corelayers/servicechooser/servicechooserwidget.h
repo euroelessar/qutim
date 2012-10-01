@@ -37,7 +37,7 @@ class ExtensionInfo;
 
 namespace Ui
 {
-class ServiceChooser;
+class ServiceChoooser;
 }
 
 class QStandardItem;
@@ -48,22 +48,22 @@ namespace Core
 class ServiceItem;
 using namespace qutim_sdk_0_3;
 
-class ServiceChooserWidget : public SettingsWidget
+class ServiceChoooserWidget : public SettingsWidget
 {
 	Q_OBJECT
 public:
-	ServiceChooserWidget();
+	ServiceChoooserWidget();
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-	virtual ~ServiceChooserWidget();
+	virtual ~ServiceChoooserWidget();
 private slots:
 	void onItemChanged(QStandardItem*);
 	void onItemClicked(QModelIndex index);
 	void filterServices(const QString& servicename);
 private:
 	void clear();
-	Ui::ServiceChooser *ui;
+	Ui::ServiceChoooser *ui;
 	QStandardItemModel *m_model;
 	SimpleFilterProxyModel *m_proxymodel;
 	QHash<QByteArray, ServiceItem *> m_service_items;

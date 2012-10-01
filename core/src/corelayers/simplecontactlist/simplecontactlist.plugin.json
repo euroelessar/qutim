@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple contact list",
+	"pluginDescription": "Default qutIM contact list implementation. Just simple",
+	"extensionHeader": "contactlist/simplecontactlist.h",
+	"extensionClass": "Core::SimpleContactList::Module"
+}

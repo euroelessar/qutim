@@ -26,8 +26,9 @@
 #define TABBEDCHATWIDGET_H
 
 #include <QWidget>
-#include <chatforms/abstractchatwidget.h>
-
+#include <qutim/adiumchat/abstractchatwidget.h>
+#include "../../chatlayer/chatsessionimpl.h"
+#include "../../chatlayer/chatlayerimpl.h"
 
 namespace qutim_sdk_0_3
 {

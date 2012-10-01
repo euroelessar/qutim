@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple MetaContacts",
+	"pluginDescription": "Default qutIM MetaContacts implementation, very stupid one",
+	"extensionHeader": "manager.h",
+	"extensionClass": "Core::MetaContacts::Manager"
+}

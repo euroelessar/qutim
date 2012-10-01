@@ -58,12 +58,16 @@ namespace qutim_sdk_0_3
 		void save();
 		void cancel();
 	signals:
+#if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
+private: // don't tell moc, doxygen or kdevelop, but those signals are in fact private
+#endif
 		void modifiedChanged(bool have_changes);
 		void saved();
 	protected:
 		virtual void loadImpl() = 0;
 		virtual void saveImpl() = 0;
 		virtual void cancelImpl() = 0;
+		void setModified(bool modified);
 		void listenChildrenStates(const QWidgetList &exceptions = QWidgetList());
 		const char *lookForWidgetState(QWidget *widget, const char *property = 0, const char *signal = 0);
 		virtual void virtual_hook(int id, void *data);

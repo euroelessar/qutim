@@ -97,6 +97,7 @@ struct SettingsWidgetPrivate
 	QSignalMapper *mapper;
 	QList<WidgetInfo> infos;
 	uint changed_num;
+	bool modified;
 	bool sleep; // Used to block signal sending on widget changing it's status
 	void clearValues();
 };
@@ -113,6 +114,7 @@ void SettingsWidgetPrivate::clearValues()
 		info.is_changed = false;
 	}
 	changed_num = 0;
+	modified = false;
 }
 
 SettingsWidget::SettingsWidget(QWidget *parent) :
@@ -122,6 +124,7 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
 	p->mapper = new QSignalMapper(this);
 	connect(p->mapper, SIGNAL(mapped(int)), this, SLOT(onStateChanged(int)));
 	p->changed_num = 0;
+	p->modified = false;
 	p->sleep = true;
 }
 
@@ -131,7 +134,7 @@ SettingsWidget::~SettingsWidget()
 
 bool SettingsWidget::isModified() const
 {
-	return p->changed_num > 0;
+	return (p->modified || p->changed_num > 0);
 }
 
 void SettingsWidget::load()
@@ -144,13 +147,14 @@ void SettingsWidget::load()
 
 void SettingsWidget::save()
 {
-//		if(!isModified())
-//			return;
+	if(!isModified())
+		return;
 	p->sleep = true;
 	saveImpl();
 	p->clearValues();
 	p->sleep = false;
 	emit saved();
+	emit modifiedChanged(false);
 }
 
 void SettingsWidget::cancel()
@@ -167,7 +171,9 @@ void SettingsWidget::cancel()
 	}
 	cancelImpl();
 	p->changed_num = 0;
+	p->modified = false;
 	p->sleep = false;
+	emit modifiedChanged(false);
 }
 
 #ifdef Q_CC_MSVC
@@ -243,6 +249,7 @@ void SettingsWidget::onStateChanged(int index)
 {
 	if (index < 0 || index >= p->infos.size() || p->sleep)
 		return;
+	const bool oldModified = isModified();
 	WidgetInfo &info = p->infos[index];
 	QVariant value = info.obj.data()->property(info.property);
 	bool equal = info.value == value;
@@ -253,10 +260,8 @@ void SettingsWidget::onStateChanged(int index)
 	else
 		return;
 	info.is_changed = !equal;
-	if (p->changed_num == 0 && equal)
-		emit modifiedChanged(false);
-	else if (p->changed_num == 1 && !equal)
-		emit modifiedChanged(true);
+	if (oldModified != isModified())
+		emit modifiedChanged(!oldModified);
 }
 
 void SettingsWidget::virtual_hook(int id, void *data)
@@ -268,6 +273,14 @@ void SettingsWidget::virtual_hook(int id, void *data)
 void SettingsWidget::setController(QObject *controller)
 {
 	Q_UNUSED(controller);
+}
+
+void SettingsWidget::setModified(bool modified)
+{
+	const bool oldModified = isModified();
+	p->modified = modified;
+	if (oldModified != isModified())
+		emit modifiedChanged(!oldModified);
 }
 
 }

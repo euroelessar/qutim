@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Qt Kinetic scroller",
+	"pluginDescription": "Kinetic scroller from upcoming Qt release",
+	"extensionHeader": "kineticscroller.h",
+	"extensionClass": "Core::KineticScroller"
+}

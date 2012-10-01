@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Sound theme selector",
+	"pluginDescription": "Simple sound theme selector",
+	"extensionHeader": "soundthemesettings.h",
+	"extensionClass": "Core::SoundThemeSettings,qutim_sdk_0_3::StartupModule"
+}

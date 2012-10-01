@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Mobile conference join dialog",
+	"pluginDescription": "Conference join dialog adopted for touch devices with small screen",
+	"extensionHeader": "joingroupchatmodule.h",
+	"extensionClass": "Core::JoinGroupChatModule"
+}

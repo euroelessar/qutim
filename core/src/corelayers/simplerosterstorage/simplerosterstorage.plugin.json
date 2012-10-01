@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Simple roster storage",
+	"pluginDescription": "Stores roster during offline at local storage",
+	"extensionHeader": "simplerosterstorage.h",
+	"extensionClass": "Core::SimpleRosterStorage"
+}

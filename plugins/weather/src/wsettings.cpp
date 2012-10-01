@@ -129,7 +129,7 @@ void WSettings::on_addButton_clicked()
 	connect(item, SIGNAL(buttonClicked()), this, SLOT(onRemoveButtonClicked()));
 	m_items << item;
 
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void WSettings::on_searchButton_clicked()

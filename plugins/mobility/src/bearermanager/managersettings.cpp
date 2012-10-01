@@ -75,7 +75,7 @@ void ManagerSettings::addAccount(Account *account)
 
 void ManagerSettings::onCheckedStateChanged(int)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 

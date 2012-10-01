@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Notifications settings",
+	"pluginDescription": "Default settings widget set for notifications",
+	"extensionHeader": "notificationssettings.h",
+	"extensionClass": "Core::NotificationsSettings"
+}

@@ -141,7 +141,7 @@ void JMainSettings::on_removePGPButton_clicked()
 {
 	m_keyEntry = QCA::KeyStoreEntry();
 	updatePGPText();
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
 void JMainSettings::onPGPKeyDialogFinished(int result)
@@ -152,7 +152,7 @@ void JMainSettings::onPGPKeyDialogFinished(int result)
 		Q_ASSERT(dialog);
 		m_keyEntry = dialog->keyStoreEntry();
 		updatePGPText();
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 }

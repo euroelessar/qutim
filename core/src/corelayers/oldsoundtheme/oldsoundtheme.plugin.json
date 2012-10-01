@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "qutIM sound themes",
+	"pluginDescription": "Default qutIM sound theme engine",
+	"extensionHeader": "oldsoundthemebackend.h",
+	"extensionClass": "Core::OldSoundThemeBackend"
+}

@@ -98,7 +98,7 @@ void PopupAppearance::getThemes()
 
 void PopupAppearance::onCurrentIndexChanged(int)
 {
-	emit modifiedChanged(true);
+	setModified(true);
 	preview();
 }
 

@@ -1,0 +1,7 @@
+{
+    "pluginIcon": "",
+    "pluginName": "Mac Contactlist",
+    "pluginDescription": "Mac OS X contactlist",
+    "extensionHeader": "macwidget.h",
+    "extensionClass": "Core::SimpleContactList::MacWidget"
+}

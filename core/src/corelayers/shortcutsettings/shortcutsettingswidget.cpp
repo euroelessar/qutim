@@ -118,7 +118,7 @@ namespace Core
 	
 	void ShortcutSettingsWidget::onItemChanged ( QStandardItem* item )
 	{
-		emit modifiedChanged(true);
+		setModified(true);
 		if (!m_changed_items.contains(item))
 			m_changed_items.append(item);
 	}

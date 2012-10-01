@@ -41,8 +41,8 @@
 
 namespace Core
 {
-ServiceChooserWidget::ServiceChooserWidget() :
-	ui(new Ui::ServiceChooser),
+ServiceChoooserWidget::ServiceChoooserWidget() :
+	ui(new Ui::ServiceChoooser),
 	m_model(new QStandardItemModel)
 {
 	ui->setupUi(this);
@@ -60,7 +60,7 @@ ServiceChooserWidget::ServiceChooserWidget() :
 	connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 	connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 }
-ServiceChooserWidget::~ServiceChooserWidget()
+ServiceChoooserWidget::~ServiceChoooserWidget()
 {
 	delete ui;
 }
@@ -76,7 +76,7 @@ const char *serviceIcon(const char *serviceName)
 	return "applications-system";
 }
 
-void ServiceChooserWidget::loadImpl()
+void ServiceChoooserWidget::loadImpl()
 {
 	clear();
 	ConfigGroup group = Config().group("services");
@@ -104,10 +104,10 @@ void ServiceChooserWidget::loadImpl()
 						 Icon("applications-system");
 			ServiceItem *item = new ServiceItem(icon,info.name());
 
-			item->setToolTip(ServiceChooser::html(info));
+			item->setToolTip(ServiceChoooser::html(info));
 			item->setCheckable(true);
 			item->setData(info.description().toString(),DescriptionRole);
-			if (selected.value(serviceName).toString() == ServiceChooser::className(info))
+			if (selected.value(serviceName).toString() == ServiceChoooser::className(info))
 				item->setCheckState(Qt::Checked);
 			item->setData(qVariantFromValue(info), ServiceItem::ExtentionInfoRole);
 
@@ -116,12 +116,12 @@ void ServiceChooserWidget::loadImpl()
 	}
 }
 
-void ServiceChooserWidget::cancelImpl()
+void ServiceChoooserWidget::cancelImpl()
 {
 
 }
 
-void ServiceChooserWidget::saveImpl()
+void ServiceChoooserWidget::saveImpl()
 {
 	bool showNotification = false;
 	QHash<QByteArray, ServiceItem *>::const_iterator it;
@@ -140,18 +140,18 @@ void ServiceChooserWidget::saveImpl()
 		Notification::send(tr("To take effect you must restart qutIM"));
 }
 
-void ServiceChooserWidget::clear()
+void ServiceChoooserWidget::clear()
 {
 	m_model->clear();
 	m_service_items.clear();
 }
 
-void ServiceChooserWidget::onItemChanged(QStandardItem* )
+void ServiceChoooserWidget::onItemChanged(QStandardItem* )
 {
-	emit modifiedChanged(true);
+	setModified(true);
 }
 
-void ServiceChooserWidget::onItemClicked(QModelIndex index)
+void ServiceChoooserWidget::onItemClicked(QModelIndex index)
 {
 	if (ui->treeView->isExpanded(index))
 		ui->treeView->collapse(index);
@@ -166,7 +166,7 @@ void ServiceChooserWidget::onItemClicked(QModelIndex index)
 #endif
 }
 
-void ServiceChooserWidget::filterServices(const QString &servicename)
+void ServiceChoooserWidget::filterServices(const QString &servicename)
 {
 	m_proxymodel->setFilterWildcard(servicename);
 }

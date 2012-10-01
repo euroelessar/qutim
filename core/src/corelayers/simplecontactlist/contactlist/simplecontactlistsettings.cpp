@@ -173,7 +173,7 @@ void ContactListSettings::onServiceChanged(const QByteArray &newService, const Q
 
 	if (!m_modified) {
 		m_modified = true;
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 
@@ -181,7 +181,7 @@ void ContactListSettings::onModifiedChanged(bool haveChanges)
 {
 	if (haveChanges && !m_modified) {
 		m_modified = true;
-		emit modifiedChanged(true);
+		setModified(true);
 	}
 }
 

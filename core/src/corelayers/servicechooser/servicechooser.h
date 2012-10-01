@@ -38,12 +38,12 @@ namespace Core
 {
 using namespace qutim_sdk_0_3;
 
-class ServiceChooser : public QObject, public qutim_sdk_0_3::StartupModule
+class ServiceChoooser : public QObject, public qutim_sdk_0_3::StartupModule
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
-	ServiceChooser(QObject* parent = 0);
+	ServiceChoooser(QObject* parent = 0);
 	static const char *className(const ExtensionInfo &info);
 	static QString html(const ExtensionInfo &info);
 };

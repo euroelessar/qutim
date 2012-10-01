@@ -30,7 +30,7 @@
 #include <QScopedPointer>
 #include <QGraphicsEffect>
 #include <QIcon>
-#include "../../libqutim/libqutim_global.h"
+#include "libqutim_global.h"
 
 
 namespace qutim_sdk_0_3
