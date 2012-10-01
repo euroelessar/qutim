@@ -100,7 +100,7 @@ Project {
         "protocols/mrim/mrim.qbs",
         "protocols/jabber/jreen/jreen.qbs",
         "protocols/jabber/jabber.qbs",
-   //     "protocols/quetzal/quetzal.qbs",i
+        "protocols/quetzal/quetzal.qbs",
         "protocols/irc/irc.qbs",
      //   "protocols/astral/astral.qbs",
         "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
@@ -142,7 +142,6 @@ Project {
         // "plugins/maemo5integration/maemo5integration.qbs",
         "plugins/massmessaging/massmessaging.qbs",
         //"plugins/meegointegration/meegointegration.qbs",
-        //"plugins/mobility/mobility.qbs",
         "plugins/mobility/src/bearermanager/bearermanager.qbs",
         "plugins/mobility/src/multimediabackend/multimediabackend.qbs",
         //"plugins/mobility/src/vibrobackend/vibrobackend.qbs",
@@ -164,7 +163,6 @@ Project {
         //"plugins/webhistory/webhistory.qbs",
         //"plugins/winintegration/winintegration.qbs",
         "plugins/yandexnarod/yandexnarod.qbs"
-        //"protocols/astral/astral.qbs",
     ]
 }
 

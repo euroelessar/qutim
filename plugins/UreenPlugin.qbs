@@ -2,6 +2,21 @@ import qbs.base 1.0
 import qbs.fileinfo as FileInfo
 
 Product {
+    condition: {
+        var tags = qutimscope.pluginTags;
+        var selectedTags = [].concat(pluginTags);
+        for (var i in selectedTags) {
+            if (tags.indexOf(selectedTags[i]) !== -1)
+                return true;
+        }
+        print('Skipping plugin ' + name + '(selected tags: ' + tags + ' | plugin tags: ' + pluginTags + ')')
+        return false;
+    }
+
+    property string projectPath: project.path
+    property string sourcePath: "src"
+    property var pluginTags: ['core']
+
     type: 'dynamiclibrary'
     name: FileInfo.fileName(product.path);
     destination: {
@@ -10,15 +25,15 @@ Product {
         else
             return "lib/qutim/plugins";
     }
-    property string projectPath: project.path
-    property string sourcePath: "src"
     // FIXME
     cpp.defines: [ "QUTIM_PLUGIN_ID=0123456789abcdef" ]
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
+    cpp.visibility: 'hidden'
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ "core", "gui", "network", "script" ] }
     Depends { name: "libqutim" }
+    Depends { name: "qutimscope" }
 
     Group {
         prefix: sourcePath !== '' ? sourcePath + '/' : ''

@@ -5,5 +5,5 @@ UreenPlugin {
 	name: "simplecontactdelegate"
     sourcePath: ""
 
-    Depends { name: "libqutim-simplecontactlist" }
+    Depends { name: "qutim-simplecontactlist" }
 }

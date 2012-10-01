@@ -8,7 +8,7 @@ DynamicLibrary {
         else
             return "lib";
     }
-    
+
     property string versionMajor: project.qutim_version_major
     property string versionMinor: project.qutim_version_minor
     property string versionRelease: project.qutim_version_release

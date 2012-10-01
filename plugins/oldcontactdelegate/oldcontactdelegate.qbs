@@ -4,7 +4,7 @@ UreenPlugin {
     sourcePath: ''
     type: ['installed_content', 'dynamiclibrary']
 
-    Depends { name: "libqutim-simplecontactlist" }
+    Depends { name: "qutim-simplecontactlist" }
     Depends { name: "qt.xml" }
     Depends { name: "artwork" }
 
