@@ -9,7 +9,7 @@ Product {
     property bool installSoundTheme: true
     property bool installIcons: true
     property bool installOxygenTheme: qbs.targetOS !== "linux"
-    property bool installUbuntuTheme: true
+    property bool installUbuntuTheme: qbs.targetOS === "linux"
     property string qutim_version: project.qutim_version
 
     Depends { name: "qt.core" }
