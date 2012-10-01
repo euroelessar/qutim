@@ -21,7 +21,7 @@ Product {
     Rule {
         inputs: [ "po" ]
         Artifact {
-            fileTags: [ "ts" ]
+            fileTags: [ "qutim_ts" ]
             fileName: "GeneratedFiles/" + input.baseDir + "/" + input.fileName.replace(/.po$/, ".ts")
         }
 
@@ -45,7 +45,7 @@ Product {
     }
 
     Rule {
-        inputs: [ "ts" ]
+        inputs: [ "qutim_ts" ]
         Artifact {
             fileTags: [ "installed_content" ]
             fileName: {

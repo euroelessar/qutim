@@ -10,4 +10,18 @@ Module {
         else
             return "share";
     }
+    property var pluginTags: ['core', 'desktop']
+
+    Properties {
+        condition: qbs.targetOS === 'linux'
+        pluginTags: outer.concat(['linux'])
+    }
+    Properties {
+        condition: qbs.targetOS === 'windows'
+        pluginTags: outer.concat('windows')
+    }
+    Properties {
+        condition: qbs.targetOS === 'mac'
+        pluginTags: outer.concat('mac')
+    }
 }

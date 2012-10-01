@@ -2,7 +2,7 @@ import "../UreenPlugin.qbs" as UreenPlugin
 import qbs.fileinfo 1.0 as FileInfo
 
 UreenPlugin {
-    condition: qbs.targetOS === 'linux'
+    pluginTags: 'linux'
 
     sourcePath: '.'
     Depends { name: 'qt.dbus' }
