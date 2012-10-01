@@ -2,6 +2,6 @@
 	"pluginIcon": "",
 	"pluginName": "Kinetic popups",
 	"pluginDescription": "Growl-like popups, based on power of Qt Quick",
-	"extensionHeader": "backend.h",
+    "extensionHeader": "src/backend.h",
 	"extensionClass": "KineticPopups::Backend"
 }
