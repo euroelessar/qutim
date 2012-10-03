@@ -38,8 +38,6 @@
 #include <qutim/systeminfo.h>
 #include <attica/content.h>
 #include <attica/downloaditem.h>
-#include <quasar/tar.h>
-#include <quasar/zip.h>
 
 #include <QListView>
 

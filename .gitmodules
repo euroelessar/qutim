@@ -7,9 +7,6 @@
 [submodule "3rdparty/k8json"]
 	path = core/3rdparty/k8json
 	url = git://gitorious.org/+qutim-developers/k8jsonqt/qutim-developers-k8json.git
-[submodule "plugman/3rdparty/quasar"]
-	path = plugins/plugman/3rdparty/quasar
-	url = git://gitorious.org/libquasar/libquasar.git
 [submodule "jabber/jreen"]
 	path = protocols/jabber/jreen
 	url = git://github.com/euroelessar/jreen.git

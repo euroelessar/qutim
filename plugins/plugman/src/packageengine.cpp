@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "packageengine.h"
+#include "plugmanarchive.h"
 #include <QNetworkReply>
 #include <QPixmap>
 #include <QDirIterator>
@@ -31,8 +32,6 @@
 #include <qutim/systeminfo.h>
 #include <qutim/jsonfile.h>
 #include <attica/downloaditem.h>
-#include <quasar/tar.h>
-#include <quasar/zip.h>
 
 using namespace Attica;
 using namespace qutim_sdk_0_3;
@@ -265,24 +264,6 @@ void PackageEngine::onNetworkRequestFinished()
 		file.open(QIODevice::WriteOnly);
 		file.write(reply->readAll());
 	}
-	Quasar::Archive *archive = 0;
-	
-	if (mimeType == QLatin1String("application/zip")) {
-        archive = new Quasar::Zip(fileName);
-    } else if (mimeType == QLatin1String("application/tar")
-	           || mimeType == QLatin1String("application/x-tar")
-               || mimeType == QLatin1String("application/x-gzip")
-               || mimeType == QLatin1String("application/x-bzip")
-               || mimeType == QLatin1String("application/x-lzma")
-               || mimeType == QLatin1String("application/x-xz")
-               || mimeType == QLatin1String("application/x-bzip-compressed-tar")
-               || mimeType == QLatin1String("application/x-compressed-tar") ) {
-        archive = new Quasar::Tar(fileName);
-    } else {
-		warning() << "Not an archive";
-		return;
-    }
-	archive->open(QIODevice::ReadOnly);
 	
 	QDir tmp = QDir::temp();
 	QString subpath = QLatin1String("qutim-plugman-") + QString::number(qrand());
@@ -294,7 +275,11 @@ void PackageEngine::onNetworkRequestFinished()
 		critical() << "Can't enter subdirectory at temporary path" << tmp;
 		return;
 	}
-	archive->directory()->copyTo(tmp.absolutePath());
+	QString error;
+	if (!PlugmanArchive::extract(fileName, subpath, &error)) {
+		critical() << "Can't extract archive" << fileName << "to" << subpath << "(" + error + ")";
+		return;
+	}
 	bool before = blockSignals(true);
 	remove(entry);
 	blockSignals(before);
@@ -328,7 +313,6 @@ void PackageEngine::onNetworkRequestFinished()
 	entry.setStatus(PackageEntry::Installed);
 	entry.setInstalledFiles(files);
 	entry.setInstalledVersion(entry.content().version());
-	delete archive;
 	QFile::remove(fileName);
 	emit entryChanged(entry.id());
 }
