@@ -81,6 +81,10 @@ static bool plugman_copy_data(struct archive *ar, const QDir &dir, const QString
 {
     // TODO: Add check for ../.-like hacks
     QString filePath = dir.filePath(entry);
+    const QFileInfo fileInfo(filePath);
+    const QString path = fileInfo.absolutePath();
+    if (!dir.exists(path))
+        dir.mkpath(path);
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly))
         return false;
@@ -111,7 +115,10 @@ bool PlugmanArchive::extract(const QString &file, const QString &path, QString *
     }
     const QDir dir = path;
     const bool doExtract = true;
-    const bool verbose = false;
+    const bool verbose = true;
+
+    if (verbose)
+        qDebug("Try to extract \"%s\" to \"%s\"", qPrintable(file), qPrintable(path));
 
     int r;
     struct archive *arc = archive_read_new();

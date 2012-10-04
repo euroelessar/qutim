@@ -43,9 +43,10 @@ enum ItemsType
 PackageDownloadDialog::PackageDownloadDialog(const QStringList &categories, const QString &path) :
     ui(new Ui::PackageDownloadDialog)
 {
-    ui->setupUi(this);
-	m_engine = new PackageEngine(categories, path, this);
-	m_model = new PackageModel(m_engine);
+	ui->setupUi(this);
+	m_model = new PackageModel(this);
+	m_model->setCategories(categories);
+	m_model->setPath(path);
 	ui->listView->setModel(m_model);
 	ui->listView->setItemDelegate(new PackageDelegate);
 	ui->listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -99,9 +100,9 @@ void PackageDownloadDialog::onWidgetButtonClicked()
 	PackageEntryWidget *widget = static_cast<PackageEntryWidget*>(sender());
 	Q_ASSERT(qobject_cast<PackageEntryWidget*>(static_cast<QObject*>(widget)));
 	if (widget->entry().status() == PackageEntry::Installed)
-		m_engine->remove(widget->entry());
+		m_model->engine()->remove(widget->entry());
 	else
-		m_engine->install(widget->entry());
+		m_model->engine()->install(widget->entry(), m_model->path());
 }
 
 void PackageDownloadDialog::onTypeChecked(int type)
@@ -110,7 +111,7 @@ void PackageDownloadDialog::onTypeChecked(int type)
 	case MostRatingItems:
 	case MostDownloadsItems:
 	case NewestItems:
-		m_model->setSortMode(static_cast<Attica::Provider::SortMode>(type));
+		m_model->setSortMode(static_cast<PackageModel::SortMode>(type));
 		break;
 	case InstalledItems:
 		

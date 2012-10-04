@@ -36,20 +36,22 @@
 using namespace Attica;
 using namespace qutim_sdk_0_3;
 
-PackageEngine::PackageEngine(const QStringList &categories, const QString &path, QObject *parent)
-    : QObject(parent), m_categoriesNames(categories)
+PackageEngine::PackageEngine(QObject *parent)
+	: QObject(parent)
 {
-	m_path = SystemInfo::getDir(SystemInfo::ShareDir).filePath(path);
-	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)), this, SLOT(onProviderAdded(Attica::Provider)));
+	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)),
+			this, SLOT(onProviderAdded(Attica::Provider)));
 	if (m_manager.defaultProviderFiles().isEmpty()) {
 		m_manager.addProviderFile(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
 		m_manager.addProviderFile(QUrl(QLatin1String("http://qutim.org/ocs/providers.xml")));
 	} else {
 		m_manager.loadDefaultProviders();
 	}
-	m_idCounter = qrand();
-	
-	JsonFile file(m_path + QLatin1String("/cache.json"));
+	m_idCounter = (qint64(qrand()) << 32) | quint32(qrand());
+
+	const QString fileName = SystemInfo::getDir(SystemInfo::ShareDir)
+							 .filePath(QLatin1String("packages.json"));
+	JsonFile file(fileName);
 	QVariant var;
 	if (file.load(var)) {
 		foreach (var, var.toList()) {
@@ -114,7 +116,9 @@ PackageEngine::~PackageEngine()
 		entries.append(data);
 	}
 
-	JsonFile file(m_path + QLatin1String("/cache.json"));
+	const QString fileName = SystemInfo::getDir(SystemInfo::ShareDir)
+							 .filePath(QLatin1String("packages.json"));
+	JsonFile file(fileName);
 	file.save(entries);
 }
 
@@ -136,14 +140,10 @@ void PackageEngine::onCategoriesJobFinished(Attica::BaseJob *baseJob)
 {
 	baseJob->deleteLater();
 	ListJob<Category> *job = static_cast<ListJob<Category>*>(baseJob);
-	Category::List list = job->itemList();
-	for (int i = 0; i < m_categoriesNames.size(); i++) {
-		for (int j = 0; j < list.size(); j++) {
-			if (list.at(j).name() == m_categoriesNames.at(i))
-				m_categories.append(list.at(j));
-		}
+	m_categories = job->itemList();
+	for (int j = 0; j < m_categories.size(); j++) {
+		debug() << j << m_categories[j].name();
 	}
-	m_categoriesNames.clear();
 //	[23:25:57] "23" "Emoticon Theme" 
 //	[23:25:57] "24" "Kopete Style 0.11" 
 //	[23:25:57] "26" "Kopete Style 0.12+" 
@@ -151,15 +151,27 @@ void PackageEngine::onCategoriesJobFinished(Attica::BaseJob *baseJob)
 	
 }
 
-qint64 PackageEngine::requestContents(const QString &search, Attica::Provider::SortMode mode,
-                                      uint page, uint pageSize)
+qint64 PackageEngine::requestContents(const Attica::Category::List &categories, const QString &search,
+									  Attica::Provider::SortMode mode, uint page, uint pageSize)
 {
-	ListJob<Content> *contentJob = m_provider.searchContents(m_categories, search, mode, page, pageSize);
+	ListJob<Content> *contentJob = m_provider.searchContents(categories, search, mode, page, pageSize);
 	connect(contentJob, SIGNAL(finished(Attica::BaseJob*)), this, SLOT(onContentJobFinished(Attica::BaseJob*)));
 	qint64 id = m_idCounter++;
 	contentJob->setProperty("jobId", id);
 	contentJob->start();
 	return id;
+}
+
+Category::List PackageEngine::resolveCategories(const QStringList &categoriesNames) const
+{
+	Category::List categories;
+	for (int i = 0; i < categoriesNames.size(); i++) {
+		for (int j = 0; j < m_categories.size(); j++) {
+			if (m_categories.at(j).name() == categoriesNames.at(i))
+				categories.append(m_categories.at(j));
+		}
+	}
+	return categories;
 }
 
 void PackageEngine::onContentJobFinished(Attica::BaseJob *baseJob)
@@ -203,12 +215,13 @@ void PackageEngine::remove(const PackageEntry &entry)
 	emit entryChanged(entry.id());
 }
 
-void PackageEngine::install(const PackageEntry &entry)
+void PackageEngine::install(const PackageEntry &entry, const QString &path)
 {
 	PackageEntry entryHook = entry;
 	Attica::Content content = entry.content();
 	ItemJob<DownloadItem> *contentJob = m_provider.downloadLink(content.id());
 	contentJob->setProperty("contentId", entry.id());
+	contentJob->setProperty("path", path);
 	connect(contentJob, SIGNAL(finished(Attica::BaseJob*)), SLOT(onDownloadJobFinished(Attica::BaseJob*)));
 	contentJob->start();
 	if (entry.status() == PackageEntry::Installed)
@@ -235,6 +248,7 @@ void PackageEngine::onDownloadJobFinished(Attica::BaseJob *baseJob)
 	debug() << item.url();
 	QNetworkRequest request(item.url());
 	QNetworkReply *reply = m_networkManager.get(request);
+	reply->setProperty("path", job->property("path"));
 	reply->setProperty("contentId", job->property("contentId"));
 	connect(reply, SIGNAL(finished()), this, SLOT(onNetworkRequestFinished()));
 }
@@ -276,7 +290,7 @@ void PackageEngine::onNetworkRequestFinished()
 		return;
 	}
 	QString error;
-	if (!PlugmanArchive::extract(fileName, subpath, &error)) {
+	if (!PlugmanArchive::extract(fileName, tmp.absolutePath(), &error)) {
 		critical() << "Can't extract archive" << fileName << "to" << subpath << "(" + error + ")";
 		return;
 	}
@@ -284,7 +298,9 @@ void PackageEngine::onNetworkRequestFinished()
 	remove(entry);
 	blockSignals(before);
 	QStringList files;
-	QDir dir = m_path;
+	QString path = reply->property("path").toString();
+	QString fullPath = SystemInfo::getDir(SystemInfo::ShareDir).filePath(path);
+	QDir dir = fullPath;
 	QList<QString> dirsToRemove;
 	dirsToRemove << tmp.absolutePath();
 	QDirIterator it(tmp.absolutePath(), QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);

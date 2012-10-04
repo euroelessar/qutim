@@ -52,7 +52,6 @@ protected slots:
 	
 private:
     Ui::PackageDownloadDialog *ui;
-	PackageEngine *m_engine;
 	PackageModel *m_model;
 	QVector<PackageEntryWidget*> m_widgets;
 };

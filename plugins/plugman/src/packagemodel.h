@@ -39,27 +39,68 @@ struct PackageItem
 class PackageModel : public QAbstractListModel
 {
     Q_OBJECT
+	Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+	Q_PROPERTY(QStringList categories READ categories WRITE setCategories NOTIFY categoriesChanged)
+	Q_PROPERTY(SortMode sortMode READ sortMode WRITE setSortMode NOTIFY sortModeChanged)
+	Q_ENUMS(SortMode)
+	Q_ENUMS(Status)
 public:
-    explicit PackageModel(PackageEngine *engine);
+	enum SortMode
+	{
+		Newest = Attica::Provider::Newest,
+		Alphabetical = Attica::Provider::Alphabetical,
+		Rating = Attica::Provider::Rating,
+		Downloads = Attica::Provider::Downloads
+	};
+	enum Status
+	{
+		Invalid = PackageEntry::Invalid,
+		Installable = PackageEntry::Installable,
+		Updateable = PackageEntry::Updateable,
+		Installing = PackageEntry::Installing,
+		Updating = PackageEntry::Updating,
+		Installed = PackageEntry::Installed
+	};
+
+	explicit PackageModel(QObject *parent = 0);
 	
 	void setFilter(const QString &filter);
-	void setSortMode(Attica::Provider::SortMode mode);
+	QString filter() const;
+	void setSortMode(SortMode mode);
+	SortMode sortMode() const;
+	void setPath(const QString &path);
+	QString path() const;
+	void setCategories(const QStringList &categories);
+	QStringList categories() const;
+
+	PackageEngine *engine() const;
+
+	void reset();
 	
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	
 public slots:
 	void requestNextPage();
+	void remove(int index);
+	void install(int index);
+
+signals:
+	void filterChanged(const QString &filter);
+	void sortModeChanged(SortMode sortMode);
+	void pathChanged(const QString &path);
+	void categoriesChanged(const QStringList &categories);
 	
 private slots:
 	void onContentsReceived(const PackageEntry::List &list, qint64 id);
-	void onPreviewLoaded(const QString &id, const QPixmap &preview);
 	void onEntryChanged(const QString &id);
 	
 private:
 	PackageEngine *m_engine;
 	QString m_filter;
-	Attica::Provider::SortMode m_mode;
+	QString m_path;
+	QStringList m_categories;
+	SortMode m_mode;
 	QHash<QString, int> m_indexes;
 	PackageEntry::List m_contents;
 	int m_pageSize;

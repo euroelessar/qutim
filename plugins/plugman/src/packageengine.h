@@ -37,15 +37,17 @@ class PackageEngine : public QObject
 {
 	Q_OBJECT
 public:
-    PackageEngine(const QStringList &categories, const QString &path, QObject *parent = 0);
+	PackageEngine(QObject *parent = 0);
 	~PackageEngine();
 	
 	bool isInitialized();
-	qint64 requestContents(const QString& search = QString(),
+	qint64 requestContents(const Attica::Category::List &categories = Attica::Category::List(),
+						   const QString& search = QString(),
 	                       Attica::Provider::SortMode mode = Attica::Provider::Rating,
 	                       uint page = 0, uint pageSize = 10);
+	Attica::Category::List resolveCategories(const QStringList &categoriesNames) const;
 	void remove(const PackageEntry &entry);
-	void install(const PackageEntry &entry);
+	void install(const PackageEntry &entry, const QString &path);
 	void loadPreview(const PackageEntry &entry);
 	
 signals:
@@ -64,11 +66,9 @@ private slots:
 	
 private:
 	qint64 m_idCounter;
-	QNetworkAccessManager m_networkManager;
-	QString m_path;
-	QStringList m_categoriesNames;
-	QHash<QString, PackageEntry> m_entries;
 	Attica::Category::List m_categories;
+	QNetworkAccessManager m_networkManager;
+	QHash<QString, PackageEntry> m_entries;
 	Attica::ProviderManager m_manager;
 	Attica::Provider m_provider;
 };
