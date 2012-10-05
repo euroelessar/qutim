@@ -29,6 +29,7 @@
 #include <qutim/systemintegration.h>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QPointer>
 
 namespace Core {
 
@@ -55,6 +56,7 @@ public:
 	{
 		m_isIncoming = incoming;
 		m_contact = contact;
+		connect(m_contact.data(), SIGNAL(destroyed()), SLOT(close()));
 		QMenu *menu = contact->menu(false);
 		m_contactActionsBtn->setMenu(menu);
 
@@ -82,7 +84,7 @@ public:
 		return ui->requestMessage->toPlainText();
 	}
 	bool isIncoming() { return m_isIncoming; }
-	Contact *contact() { return m_contact; }
+	Contact *contact() { return m_contact.data(); }
 	virtual ~AuthDialogPrivate() {
 		delete ui;
 	}
@@ -90,7 +92,7 @@ private:
 	Ui::AuthDialog *ui;
 	QPushButton *m_contactActionsBtn;
 	bool m_isIncoming;
-	Contact *m_contact;
+	QPointer<Contact> m_contact;
 };
 }
 #endif // AUTHDIALOGIMPL_P_H

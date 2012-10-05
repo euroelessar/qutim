@@ -79,28 +79,30 @@ void AuthService::handleReply(Reply *reply)
 void AuthService::onAccepted()
 {
 	AuthDialogPrivate *dialog = qobject_cast<AuthDialogPrivate*>(sender());
-	Contact *c = dialog->contact();
-	if(dialog->isIncoming()) {
-		debug() << "Send reply";
-		Reply event = Reply(Reply::Accept, c);
-		qApp->sendEvent(c,&event);
-	}
-	else {
-		debug() << "Send request";
-		Request event = Request(c,dialog->text());
-		qApp->sendEvent(c,&event);
+	if (Contact *contact = dialog->contact()) {
+		if (dialog->isIncoming()) {
+			debug() << "Send reply";
+			Reply event = Reply(Reply::Accept, contact);
+			qApp->sendEvent(contact,&event);
+		} else {
+			debug() << "Send request";
+			Request event = Request(contact,dialog->text());
+			qApp->sendEvent(contact,&event);
+		}
 	}
 }
 
 void AuthService::onRejected()
 {
 	AuthDialogPrivate *dialog = qobject_cast<AuthDialogPrivate*>(sender());
-	Contact *c = dialog->contact();
-	if(dialog->isIncoming()) {
-		Reply event = Reply(Reply::Reject, c);
-		qApp->sendEvent(c, &event);
-	} else
-		c->deleteLater(); //remove temporary contact
+	if (Contact *contact = dialog->contact()) {
+		if (dialog->isIncoming()) {
+			Reply event = Reply(Reply::Reject, contact);
+			qApp->sendEvent(contact, &event);
+		} else {
+			contact->deleteLater(); //remove temporary contact
+		}
+	}
 }
 
 } // namespace Core
