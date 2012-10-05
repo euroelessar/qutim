@@ -92,7 +92,7 @@ static bool plugman_copy_data(struct archive *ar, const QDir &dir, const QString
     int r;
     const void *buff;
     size_t size;
-    off_t offset;
+    qint64 offset;
 
     for (;;) {
         r = archive_read_data_block(ar, &buff, &size, &offset);
