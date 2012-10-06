@@ -49,7 +49,7 @@
 #include <QWidgetAction>
 #include <QTimer>
 #include <QKeyEvent>
-#include <qutim/simplecontactlist/lineedit.h>
+#include "macsearchfield.h"
 
 namespace Core {
 namespace SimpleContactList {
@@ -57,9 +57,10 @@ namespace SimpleContactList {
 class MacWidgetPrivate
 {
 public:
-    TreeView *view;
+	TreeView *view;
     AbstractContactModel *model;
-    QLineEdit *searchBar;
+    MacSearchField *searchBar;
+	QToolBar *toolBar;
     QAction *statusTextAction;
     QVector<MenuController*> controllers;
     QVector<QMenu*> menus;
@@ -89,7 +90,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     layout->setSpacing(0);
 
     Config cfg;
-    cfg.beginGroup("contactlist");
+	cfg.beginGroup("contactlist");
 
     d->model = ServiceManager::getByName<AbstractContactModel *>("ContactModel");
     d->view = new TreeView(d->model, this);
@@ -100,13 +101,24 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     d->view->setFrameShadow(QFrame::Plain);
     d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    d->searchBar = new LineEdit(this);
-    layout->insertWidget(0, d->searchBar);
-    connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
-    connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
-    d->searchBar->setVisible(false);
-    d->view->installEventFilter(this);
-    d->searchBar->installEventFilter(this);
+	d->toolBar = addToolBar(tr("Search"));
+	QWidget *toolBarWidget = new QWidget(this);
+	toolBarWidget->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred));
+	QVBoxLayout *toolBarLayout = new QVBoxLayout(toolBarWidget);
+	toolBarLayout->setMargin(0);
+	d->toolBar->addWidget(toolBarWidget);
+
+	d->searchBar = new MacSearchField(this);
+	toolBarLayout->addWidget(d->searchBar);
+
+	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
+	d->searchBar->installEventFilter(this);
+	d->searchBar->hide();
+	// TEMP
+	d->toolBar->hide();
+
+	d->view->installEventFilter(this);
 
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
 #ifdef Q_OS_MAC
@@ -155,7 +167,6 @@ void MacWidget::addMenu(const QString &title, MacMenuId id)
 
 void MacWidget::addButton(ActionGenerator *generator)
 {
-    //d_func()->controllers[MacMenuRoster]->addAction(generator);
     MenuController::addAction<RosterMenuController>(generator);
 }
 
@@ -169,9 +180,8 @@ void MacWidget::loadGeometry()
     QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
     if (!geom.isNull())
         restoreGeometry(geom);
-    else {
-        resize(200, 600);
-    }
+	else
+		resize(200, 600);
 }
 
 void MacWidget::showStatusDialog()
@@ -280,33 +290,43 @@ bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
     Q_D(MacWidget);
     if (obj == d->view) {
         if (ev->type() == QEvent::KeyPress) {
-            QKeyEvent *event = static_cast<QKeyEvent*>(ev);
-            if (d->view->hasFocus() && d->searchBar->isHidden())
+			QKeyEvent *event = static_cast<QKeyEvent*>(ev);
+			if (event->key() == Qt::Key_Backspace)
+				d->pressedKeys.chop(1);
+			else if (d->view->hasFocus())
                 d->pressedKeys.append(event->text());
 
-            if (d->pressedKeys.count() > 1) {
-                d->searchBar->show();
+			if (d->pressedKeys.count() > 1) {
+				d->searchBar->show();
+				// TEMP
+				d->toolBar->show();
+				d->searchBar->setFocus();
                 d->searchBar->setText(d->pressedKeys);
-                d->searchBar->setFocus();
-            }
+				d->pressedKeys.clear();
+			}
             ev->accept();
         } else if (ev->type() == QEvent::FocusOut && d->searchBar->isHidden()) {
             d->pressedKeys.clear();
         }
     } else if (obj == d->searchBar) {
-        if (ev->type() == QEvent::FocusOut) {
-            d->pressedKeys.clear();
-            //d->searchBar->clear();
-            //d->searchBar->hide();
-        } else if (ev->type() == QEvent::FocusIn)
-            d->pressedKeys.clear();
-    }
+		if (ev->type() == QEvent::FocusOut) {
+			d->pressedKeys.clear();
+			d->searchBar->setText(QString());
+			d->searchBar->hide();
+			// TEMP
+			d->toolBar->hide();
+		} else if (ev->type() == QEvent::FocusIn) {
+			d->pressedKeys.clear();
+		}
+	}
     return QMainWindow::eventFilter(obj, ev);
 }
 
 void MacWidget::onTextChanged(const QString &text)
 {
-    d_func()->searchBar->setVisible(!text.isEmpty());
+	d_func()->searchBar->setVisible(!text.isEmpty());
+	// TEMP
+	d_func()->toolBar->setVisible(!text.isEmpty());
 }
 
 } // namespace SimpleContactList

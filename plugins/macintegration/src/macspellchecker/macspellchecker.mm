@@ -42,6 +42,14 @@ bool MacSpellChecker::isCorrect(const QString &word) const
 		return false;
 }
 
+static QString mac_NSString_to_QString(NSString *string)
+{
+	NSRange range = NSMakeRange(0, [string length]);
+	QScopedArrayPointer<unichar> chars(new unichar[range.length + 1]);
+	[string getCharacters: chars.data() range: range];
+	return QString::fromUtf16(chars.data(), range.length);
+}
+
 QStringList MacSpellChecker::suggest(const QString &word) const
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -55,15 +63,8 @@ QStringList MacSpellChecker::suggest(const QString &word) const
 	if (array) {
 		unsigned int count = [array count];
 		for (unsigned int i = 0; i < count; i++) {
-			NSRange res_range;
 			NSString *suggest_word = [array objectAtIndex:i];
-			res_range.location = 0;
-			res_range.length = [suggest_word length];
-			unichar *chars = new unichar[res_range.length];
-			[suggest_word getCharacters:chars range:res_range];
-			QString str = QString::fromUtf16(chars, res_range.length);
-			delete[] chars;
-			result.append(str);
+			result << mac_NSString_to_QString(suggest_word);
 		}
 	}
 	[pool release];
