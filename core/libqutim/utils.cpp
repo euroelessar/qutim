@@ -273,10 +273,10 @@ namespace qutim_sdk_0_3
 						appendStr(str, QDate::longDayName(date.dayOfWeek()), length);
 						break;
 					case L'b':
-						appendStr(str, QDate::shortMonthName(date.day()), length);
+						appendStr(str, QDate::shortMonthName(date.month()), length);
 						break;
 					case L'B':
-						appendStr(str, QDate::longMonthName(date.day()), length);
+						appendStr(str, QDate::longMonthName(date.month()), length);
 						break;
 					case L'c':
 						appendStr(str, QLocale::system().toString(datetime), length);
