@@ -23,15 +23,19 @@
 **
 ****************************************************************************/
 #include "tabbar.h"
-#include <QStyle>
-#include <QAction>
 #include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/adiumchat/chatlayerimpl.h>
 #include <qutim/tooltip.h>
 #include <qutim/icon.h>
-#include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/shortcut.h>
+#include <QStyle>
+#include <QAction>
+#include <QDropEvent>
+#include <QCoreApplication>
+#include <QAbstractButton>
+#include <QStyleOption>
+#include <QPainter>
 
 namespace Core
 {
@@ -45,6 +49,109 @@ struct TabBarPrivate
 	QMenu *sessionList;
 };
 
+class CloseButton : public QAbstractButton
+{
+public:
+	CloseButton(const QIcon &icon) : m_icon(icon), m_drawClose(false)
+	{
+		setFocusPolicy(Qt::NoFocus);
+		setCursor(Qt::ArrowCursor);
+		setToolTip(QCoreApplication::translate("CloseButton", "Close Tab"));
+		resize(sizeHint());
+	}
+
+	~CloseButton()
+	{
+	}
+
+	void setIcon(const QIcon &icon)
+	{
+		m_icon = icon;
+		update();
+	}
+
+	QSize sizeHint() const
+	{
+		ensurePolished();
+		const int width = style()->pixelMetric(QStyle::PM_ButtonIconSize, 0, this);
+		const int height = style()->pixelMetric(QStyle::PM_ButtonIconSize, 0, this);
+		return QSize(width, height);
+	}
+
+	void enterEvent(QEvent *event)
+	{
+		if (isEnabled())
+			update();
+		QAbstractButton::enterEvent(event);
+	}
+
+	void leaveEvent(QEvent *event)
+	{
+		if (isEnabled())
+			update();
+		QAbstractButton::leaveEvent(event);
+	}
+
+	void paintEvent(QPaintEvent *)
+	{
+		QPainter p(this);
+		QStyleOption opt;
+		opt.init(this);
+		opt.state |= QStyle::State_AutoRaise;
+		if (isEnabled() && underMouse() && !isChecked() && !isDown())
+			opt.state |= QStyle::State_Raised;
+		if (isChecked())
+			opt.state |= QStyle::State_On;
+		if (isDown())
+			opt.state |= QStyle::State_Sunken;
+
+		if (const QTabBar *tb = qobject_cast<const QTabBar *>(parent())) {
+			int index = tb->currentIndex();
+			QTabBar::ButtonPosition position = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, tb);
+			if (tb->tabButton(index, position) == this)
+				opt.state |= QStyle::State_Selected;
+		}
+
+		if (m_drawClose) {
+			const int closeWidth = style()->pixelMetric(QStyle::PM_TabCloseIndicatorWidth, 0, this);
+			const int closeHeight = style()->pixelMetric(QStyle::PM_TabCloseIndicatorHeight, 0, this);
+			const QSize closeSize(closeWidth, closeHeight);
+			const QSize realSize = size();
+			const QSize delta = (realSize - closeSize) / 2;
+			p.translate(delta.width(), delta.height());
+			style()->drawPrimitive(QStyle::PE_IndicatorTabClose, &opt, &p, this);
+		} else {
+			QIcon::Mode mode;
+			if (!(opt.state & QStyle::State_Enabled))
+				mode = QIcon::Disabled;
+			else if (opt.state & QStyle::State_Selected)
+				mode = QIcon::Selected;
+			else
+				mode = QIcon::Normal;
+			QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
+			m_icon.paint(&p, opt.rect, Qt::AlignCenter, mode, state);
+		}
+	}
+
+	void setDrawClose(bool drawClose)
+	{
+		if (m_drawClose != drawClose) {
+			m_drawClose = drawClose;
+			update();
+		}
+	}
+
+private:
+	QIcon m_icon;
+	bool m_drawClose;
+};
+
+static inline QTabBar::ButtonPosition closeButtonSide(TabBar *bar)
+{
+	const int position = bar->style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, bar);
+	return static_cast<QTabBar::ButtonPosition>(position);
+}
+
 TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 {
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -55,7 +162,8 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 	setMovable(true);
 #ifdef Q_WS_MAC
-	setClosableActiveTab(true);
+	setTabsClosable(true);
+	setDrawBase(false);
 #else
 	setTabsClosable(true);
 #endif
@@ -101,31 +209,28 @@ void TabBar::setTabsClosable(bool closable)
 
 void TabBar::mouseMoveEvent(QMouseEvent *event)
 {
-	int hoveredTab = -1;
-	if (p->closableActiveTab)
-		for (int tab = 0; tab < count(); tab++) {
-			QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
-			if (QWidget *button = tabButton(tab, closeSide))
-				button->setVisible(false);
-			if (tabRect(tab).contains(event->pos()))
-				hoveredTab = tab;
+#ifdef Q_OS_MAC
+	const QTabBar::ButtonPosition position = closeButtonSide(this);
+	for (int index = 0; index < count(); ++index) {
+		if (CloseButton *button = static_cast<CloseButton*>(tabButton(index, position))) {
+			const bool contains = tabRect(index).contains(event->pos());
+			button->setDrawClose(contains);
 		}
-	if (hoveredTab != -1) {
-		QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
-		if (QWidget *button = tabButton(hoveredTab, closeSide))
-			button->setVisible(true);
 	}
+#endif
 	return QTabBar::mouseMoveEvent(event);
 }
 
 void TabBar::leaveEvent(QEvent *event)
 {
-	if (p->closableActiveTab)
-		for (int tab = 0; tab < count(); tab++) {
-			QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
-			if (QWidget *button = tabButton(tab, closeSide))
-				button->setVisible(false);
+#ifdef Q_OS_MAC
+	const QTabBar::ButtonPosition position = closeButtonSide(this);
+	for (int index = 0; index < count(); ++index) {
+		if (CloseButton *button = static_cast<CloseButton*>(tabButton(index, position))) {
+			button->setDrawClose(false);
 		}
+	}
+#endif
 	return QTabBar::leaveEvent(event);
 }
 
@@ -135,15 +240,22 @@ void TabBar::addSession(ChatSessionImpl *session)
 	ChatUnit *u = session->getUnit();
 	QIcon icon = ChatLayerImpl::iconForState(u->chatState(), u);
 	p->sessionList->addAction(icon, u->title());
+#ifdef Q_OS_MAC
+	addTab(u->title());
+	const int index = count() - 1;
+	CloseButton *button = new CloseButton(icon);
+	setTabButton(index, closeButtonSide(this), button);
+#else
 	addTab(icon, u->title());
-
-#if defined(Q_WS_MAC)
-	if (closableActiveTab()) {
-		QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
-		if (QWidget *button = tabButton(count()-1, closeSide))
-			button->setVisible(false);
-	}
 #endif
+
+//#if defined(Q_WS_MAC)
+//	if (closableActiveTab()) {
+//		QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
+//		if (QWidget *button = tabButton(count()-1, closeSide))
+//			button->setVisible(false);
+//	}
+//#endif
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
@@ -311,7 +423,13 @@ void TabBar::statusChanged(const Status &status, ChatSessionImpl *session)
 
 void TabBar::setSessionIcon(ChatSessionImpl *session, const QIcon &icon)
 {
+#ifdef Q_OS_MAC
+	const int index = indexOf(session);
+	CloseButton *button = static_cast<CloseButton*>(tabButton(index, closeButtonSide(this)));
+	button->setIcon(icon);
+#else
 	setTabIcon(indexOf(session), icon);
+#endif
 	p->sessionList->actions().at(indexOf(session))->setIcon(icon);
 }
 

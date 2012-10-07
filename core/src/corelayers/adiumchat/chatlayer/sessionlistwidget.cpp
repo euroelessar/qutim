@@ -186,15 +186,15 @@ bool SessionListWidget::event(QEvent *event)
 		}
 	} else 
 #endif
-		if (event->type() == QEvent::ContextMenu) {
-			QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
-			ChatSessionImpl *s = session(row(itemAt(ev->pos())));
-			if(s) {
-				s->unit()->showMenu(ev->globalPos());
-				return true;
-			}
-
+	if (event->type() == QEvent::ContextMenu) {
+		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
+		ChatSessionImpl *s = session(row(itemAt(ev->pos())));
+		if(s) {
+			s->unit()->showMenu(ev->globalPos());
+			return true;
 		}
+
+	}
 	return QListWidget::event(event);
 }
 

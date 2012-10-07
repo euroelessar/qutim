@@ -26,6 +26,7 @@
 #define AUTHDIALOGIMPL_P_H
 #include "ui_authdialog.h"
 #include <qutim/contact.h>
+#include <qutim/account.h>
 #include <qutim/systemintegration.h>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -52,11 +53,12 @@ public:
 #endif
 		setAttribute(Qt::WA_DeleteOnClose);
 	}
-	void show(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
+	void show(qutim_sdk_0_3::Contact *contact, const QString &text, bool incoming)
 	{
 		m_isIncoming = incoming;
-		m_contact = contact;
-		connect(m_contact.data(), SIGNAL(destroyed()), SLOT(close()));
+		m_account = contact->account();
+		m_contactId = contact->id();
+		connect(m_account.data(), SIGNAL(destroyed()), SLOT(close()));
 		QMenu *menu = contact->menu(false);
 		m_contactActionsBtn->setMenu(menu);
 
@@ -79,20 +81,36 @@ public:
 		SystemIntegration::show(this);
 		raise();
 	}
+
 	QString text() const
 	{
 		return ui->requestMessage->toPlainText();
 	}
-	bool isIncoming() { return m_isIncoming; }
-	Contact *contact() { return m_contact.data(); }
-	virtual ~AuthDialogPrivate() {
+
+	bool isIncoming()
+	{
+		return m_isIncoming;
+	}
+
+	Contact *contact()
+	{
+		if (m_account) {
+			ChatUnit *unit = m_account.data()->unit(m_contactId, true);
+			return qobject_cast<Contact*>(unit);
+		}
+		return NULL;
+	}
+
+	virtual ~AuthDialogPrivate()
+	{
 		delete ui;
 	}
 private:
 	Ui::AuthDialog *ui;
 	QPushButton *m_contactActionsBtn;
 	bool m_isIncoming;
-	QPointer<Contact> m_contact;
+	QPointer<Account> m_account;
+	QString m_contactId;
 };
 }
 #endif // AUTHDIALOGIMPL_P_H

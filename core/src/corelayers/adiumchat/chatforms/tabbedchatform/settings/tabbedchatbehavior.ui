@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>455</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,45 +15,26 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <property name="rowWrapPolicy">
-    <enum>QFormLayout::WrapLongRows</enum>
-   </property>
-   <property name="labelAlignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    <enum>QFormLayout::FieldsStayAtSizeHint</enum>
    </property>
    <property name="leftMargin">
     <number>4</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>12</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>4</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>1</number>
    </property>
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="title">
       <string>Send Key</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2"/>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="storeBox">
-     <property name="text">
-      <string>Store service messages in history</string>
-     </property>
     </widget>
    </item>
    <item row="2" column="0">
@@ -90,51 +71,58 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="4" column="1">
     <widget class="QComboBox" name="tabPositionBox"/>
    </item>
-   <item row="6" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Form layout:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="5" column="1">
     <widget class="QComboBox" name="formLayoutBox"/>
    </item>
-   <item row="8" column="0">
+   <item row="1" column="0" colspan="2">
+    <widget class="QCheckBox" name="storeBox">
+     <property name="text">
+      <string>Store service messages in history</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
     <widget class="QCheckBox" name="stateBox">
      <property name="text">
       <string>Chat state icons on tabs</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="7" column="0" colspan="2">
     <widget class="QCheckBox" name="menuBox">
      <property name="text">
       <string>Show menubar</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
-    <widget class="QCheckBox" name="autoresizeBox">
-     <property name="text">
-      <string>Autoresize the input field</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
+   <item row="8" column="0" colspan="2">
     <widget class="QCheckBox" name="customIconBox">
      <property name="text">
       <string>Show context-related window icon</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="9" column="0" colspan="2">
     <widget class="QCheckBox" name="rosterBox">
      <property name="text">
       <string>Show roster in chatWindow</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QCheckBox" name="autoresizeBox">
+     <property name="text">
+      <string>Autoresize the input field</string>
      </property>
     </widget>
    </item>

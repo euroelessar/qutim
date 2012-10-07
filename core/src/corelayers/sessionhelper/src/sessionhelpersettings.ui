@@ -14,14 +14,17 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="layout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   <property name="leftMargin">
+    <number>4</number>
    </property>
    <property name="topMargin">
     <number>0</number>
    </property>
-   <property name="bottomMargin">
+   <property name="rightMargin">
     <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
    </property>
    <item row="0" column="0" colspan="2">
     <widget class="QCheckBox" name="activateMultichatBox">

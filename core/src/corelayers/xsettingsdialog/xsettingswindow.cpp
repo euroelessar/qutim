@@ -81,8 +81,8 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->controller = controller;
     setWindowModality(controller ? Qt::WindowModal : Qt::NonModal);
 	//setup ui
-	QWidget *w = new QWidget(this);
-	QVBoxLayout *l = new QVBoxLayout(w);
+	QWidget *widget = new QWidget(this);
+	QVBoxLayout *l = new QVBoxLayout(widget);
 	Config cfg;
 	cfg.beginGroup("xsettings/window");
 	QByteArray data;
@@ -103,10 +103,10 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 		}
 	}
 	//init widgets
-	p->splitter = new QSplitter(Qt::Horizontal,w);
-	p->listWidget = new QListWidget(w);
+	p->splitter = new QSplitter(Qt::Horizontal,widget);
+	p->listWidget = new QListWidget(widget);
 
-	p->stackedWidget = new QStackedWidget(w);
+	p->stackedWidget = new QStackedWidget(widget);
 	//default widget
 	QWidget *empty = new QWidget(this);
 
@@ -124,14 +124,14 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
     else
         buttons = QDialogButtonBox::Save | QDialogButtonBox::Cancel;
 
-    p->buttonBox = new QDialogButtonBox(buttons, Qt::Horizontal, w);
+	p->buttonBox = new QDialogButtonBox(buttons, Qt::Horizontal, widget);
 	l->addWidget(p->buttonBox);
     p->buttonBox->setVisible(controller);
 	//init actiontoolbar
-	setCentralWidget(w);
+	setCentralWidget(widget);
     setUnifiedTitleAndToolBarOnMac(true);
 
-	p->toolBar = new ActionToolBar(w);
+	p->toolBar = new ActionToolBar(widget);
 	addToolBar(Qt::TopToolBarArea,p->toolBar);
 
 	int width = style()->pixelMetric(QStyle::PM_IconViewIconSize);
@@ -150,7 +150,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	size = QSize(width, width);
 	p->listWidget->setIconSize(size);
 
-	p->group = new QActionGroup(w);
+	p->group = new QActionGroup(widget);
 	p->group->setExclusive(true);
 	//connections
     connect(p->group,SIGNAL(triggered(QAction*)), SLOT(onGroupActionTriggered(QAction*)));

@@ -53,12 +53,21 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->tabPositionBox->addItem(tr("South"),true);
 	ui->formLayoutBox->addItem(tr("Classic"),false);
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
-#ifdef Q_WS_MAC
-	ui->formLayoutBox->setVisible(false); //Classic layout is really ugly
-#endif
 
 #if defined(Q_WS_MAC) || defined(Q_WS_WIN)
+	int row;
+	QFormLayout::ItemRole role;
+	ui->formLayout->getWidgetPosition(ui->menuBox, &row, &role);
+	ui->formLayout->removeItem(ui->formLayout->itemAt(row, role));
 	ui->menuBox->setVisible(false);
+#endif
+
+#ifdef Q_WS_MAC
+	ui->formLayout->getWidgetPosition(ui->formLayoutBox, &row, &role);
+	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::LabelRole));
+	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::FieldRole));
+	ui->label_4->hide();
+	ui->formLayoutBox->hide(); //Classic layout is really ugly
 #endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
