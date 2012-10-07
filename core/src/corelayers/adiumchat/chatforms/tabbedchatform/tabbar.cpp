@@ -444,11 +444,10 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 	} else {
 		icon = Icon("mail-unread-new");
-		title.insert(0,QChar('*'));
+		title.prepend(QLatin1Char('*'));
 	}
-	p->sessionList->actions().at(index)->setIcon(icon);
 
-	setTabIcon(index, icon);
+	setSessionIcon(session, icon);
 	setTabText(index, title);
 }
 
