@@ -72,6 +72,7 @@ public:
 	BuddyPicture *buddyPicture;
 	QString name;
 	QString avatar;
+	bool htmlEnabled;
 	QHash<quint64, Cookie> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;

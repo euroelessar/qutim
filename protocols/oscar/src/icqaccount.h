@@ -47,6 +47,7 @@ class LIBOSCAR_EXPORT IcqAccount: public Account
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqAccount)
 	Q_PROPERTY(QString avatar WRITE setAvatar READ avatar NOTIFY avatarChanged)
+	Q_PROPERTY(bool htmlEnabled READ isHtmlEnabled WRITE setHtmlEnabled NOTIFY htmlEnabledChanged)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
@@ -70,13 +71,19 @@ public:
 	QList<Capability> capabilities() const;
 	void registerRosterPlugin(RosterPlugin *plugin);
 	void setProxy(const QNetworkProxy &proxy);
+	bool isHtmlEnabled() const;
+
 signals:
 	void avatarChanged(const QString &avatar);
 	void loginFinished();
 	void settingsUpdated();
 	void proxyUpdated(const QNetworkProxy &proxy);
+	void htmlEnabledChanged(bool htmlEnabled);
+
 public slots:
 	void updateSettings();
+	void setHtmlEnabled(bool htmlEnabled);
+
 private slots:
 	void onPasswordEntered(const QString &password, bool remember);
 	void onContactRemoved();
@@ -92,6 +99,7 @@ private:
 	friend class IcqContact;
 	friend class MessagesHandler;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
+	bool m_htmlEnabled;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

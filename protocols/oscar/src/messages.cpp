@@ -380,7 +380,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 			connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
 		m.setChatUnit(contact);
 		IcqContactPrivate *d = contact->d_func();
-		if (d->flags & html_support) {
+		if ((d->flags & html_support) && contact->account()->isHtmlEnabled()) {
 			QString plain = unescape(message);
 			m.setText(plain);
 			if (plain != message)
@@ -761,7 +761,7 @@ void MessageSender::prepareMessage(IcqContact *contact, MessageSender::MessageDa
 	IcqContactPrivate *d = contact->d_func();
 	QString msgText;
 	data.id = message.id();
-	if (d->flags & html_support)
+	if ((d->flags & html_support) && contact->account()->isHtmlEnabled())
 		msgText = message.property("html").toString();
 	if (msgText.isEmpty())
 		msgText = message.text();
@@ -771,9 +771,9 @@ void MessageSender::prepareMessage(IcqContact *contact, MessageSender::MessageDa
 		data.channel = 1;
 		data.utfEnabled = false;
 	} else {
-		data.msgs = d->flags & utf8_support ?
-					 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull) :
-					 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
+		data.msgs = (d->flags & utf8_support)
+					? splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull)
+					: splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
 		data.channel = 2;
 		data.utfEnabled = d->flags & utf8_support;
 	}

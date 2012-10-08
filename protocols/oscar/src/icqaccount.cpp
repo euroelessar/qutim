@@ -123,6 +123,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->q_ptr = this;
 	d->messageSender.reset(new MessageSender(this));
 	Config cfg = config("general");
+	d->htmlEnabled = cfg.value("htmlEnabled", false);
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	{
@@ -153,8 +154,10 @@ IcqAccount::IcqAccount(const QString &uin) :
 	// qutIM some shit
 	d->caps.append(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
 	d->caps.append(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
-	// HTML messages
-	d->caps.append(ICQ_CAPABILITY_HTMLMSGS);
+	if (d->htmlEnabled) {
+		// HTML messages
+		d->caps.append(ICQ_CAPABILITY_HTMLMSGS);
+	}
 	// ICQ typing
 	d->caps.append(ICQ_CAPABILITY_TYPING);
 	// Xtraz
@@ -441,6 +444,11 @@ void IcqAccount::setProxy(const QNetworkProxy &proxy)
 	emit proxyUpdated(proxy);
 }
 
+bool IcqAccount::isHtmlEnabled() const
+{
+	return d_func()->htmlEnabled;
+}
+
 void IcqAccount::updateSettings()
 {
 	Q_D(IcqAccount);
@@ -452,6 +460,15 @@ void IcqAccount::updateSettings()
 	else
 		removeCapability("aimContacts");
 	emit settingsUpdated();
+}
+
+void IcqAccount::setHtmlEnabled(bool htmlEnabled)
+{
+	Q_D(IcqAccount);
+	if (d->htmlEnabled != htmlEnabled) {
+		d->htmlEnabled = htmlEnabled;
+		emit htmlEnabledChanged(htmlEnabled);
+	}
 }
 
 void IcqAccount::onContactRemoved()
