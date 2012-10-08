@@ -81,6 +81,7 @@ private slots:
 	void onSessionListActionTriggered(QAction *);
 	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onCloseButtonClicked();
 private:
 	QScopedPointer<TabBarPrivate> p;
 };

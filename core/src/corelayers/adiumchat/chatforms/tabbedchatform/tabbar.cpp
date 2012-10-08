@@ -244,6 +244,7 @@ void TabBar::addSession(ChatSessionImpl *session)
 	addTab(u->title());
 	const int index = count() - 1;
 	CloseButton *button = new CloseButton(icon);
+	connect(button, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
 	setTabButton(index, closeButtonSide(this), button);
 #else
 	addTab(icon, u->title());
@@ -370,6 +371,18 @@ void TabBar::onStatusChanged(const qutim_sdk_0_3::Status &status)
 	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
 	if(s)
 		statusChanged(status,s);
+}
+
+void TabBar::onCloseButtonClicked()
+{
+	QObject *object = sender();
+	ButtonPosition position = closeButtonSide(this);
+	for (int i = 0; i < count(); ++i) {
+		if (tabButton(i, position) == object) {
+			emit tabCloseRequested(i);
+			return;
+		}
+	}
 }
 
 bool TabBar::event(QEvent *event)
