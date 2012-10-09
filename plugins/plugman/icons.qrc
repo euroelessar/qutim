@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="/" >
-    <file>icons/core/down.png</file>
-    <file>icons/core/up.png</file>
-    <file>icons/core/package.png</file>
-    <file>icons/core/configure.png</file>
-    <file>icons/core/find.png</file>
-  </qresource>
-</RCC>
