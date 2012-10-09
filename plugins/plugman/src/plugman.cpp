@@ -31,6 +31,7 @@
 #include <QProgressBar>
 #include <QProcess>
 #include <QNetworkReply>
+#include <qdeclarative.h>
 #include <qutim/icon.h>
 #include <qutim/menucontroller.h>
 #include <qutim/actiongenerator.h>
@@ -54,6 +55,7 @@ void PackageManagerPlugin::init()
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("euroelessar"));
 //	addAuthor(QLatin1String("sauron"));
+	qmlRegisterType<PackageModel>("org.qutim.plugman", 0, 3, "PackageModel");
 }
 
 bool PackageManagerPlugin::load()

@@ -49,7 +49,7 @@ PackageModel::PackageModel(QObject *parent)
 	names.insert(Qt::DisplayRole, "title");
 	names.insert(Qt::DecorationRole, "imageSource");
 	names.insert(DescriptionPage, "description");
-	names.insert(StateRole, "state");
+	names.insert(StateRole, "status");
 	names.insert(DetailRole, "detailPage");
 	names.insert(AuthorNameRole, "authorName");
 	names.insert(AuthorEmailRole, "authorEmail");

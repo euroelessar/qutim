@@ -41,12 +41,13 @@ PackageEngine::PackageEngine(QObject *parent)
 {
 	connect(&m_manager, SIGNAL(providerAdded(Attica::Provider)),
 			this, SLOT(onProviderAdded(Attica::Provider)));
-	if (m_manager.defaultProviderFiles().isEmpty()) {
-		m_manager.addProviderFile(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
-		m_manager.addProviderFile(QUrl(QLatin1String("http://qutim.org/ocs/providers.xml")));
-	} else {
-		m_manager.loadDefaultProviders();
-	}
+	m_manager.addProviderFile(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
+//	if (m_manager.defaultProviderFiles().isEmpty()) {
+//		m_manager.addProviderFile(QUrl(QLatin1String("http://download.kde.org/ocs/providers.xml")));
+//		m_manager.addProviderFile(QUrl(QLatin1String("http://qutim.org/ocs/providers.xml")));
+//	} else {
+//		m_manager.loadDefaultProviders();
+//	}
 	m_idCounter = (qint64(qrand()) << 32) | quint32(qrand());
 
 	const QString fileName = SystemInfo::getDir(SystemInfo::ShareDir)

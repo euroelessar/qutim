@@ -30,6 +30,7 @@
 #include "packageengine.h"
 #include "packagemodel.h"
 #include "packageentrywidget.h"
+#include <qutim/declarativeview.h>
 
 namespace Ui {
     class PackageDownloadDialog;
@@ -41,19 +42,10 @@ class PackageDownloadDialog : public QDialog
 
 public:
     explicit PackageDownloadDialog(const QStringList &categories, const QString &path);
-    ~PackageDownloadDialog();
-
-protected slots:
-    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-	void onRowsInserted(const QModelIndex &parent, int first, int last);
-	void onWidgetButtonClicked();
-	void onTypeChecked(int type);
-	void onScrollBarValueChanged(int value);
+	~PackageDownloadDialog();
 	
 private:
-    Ui::PackageDownloadDialog *ui;
-	PackageModel *m_model;
-	QVector<PackageEntryWidget*> m_widgets;
+	qutim_sdk_0_3::DeclarativeView *m_view;
 };
 
 #endif // PACKAGEDOWNLOADDIALOG_H

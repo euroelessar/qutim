@@ -40,6 +40,7 @@ class PackageModel : public QAbstractListModel
 {
     Q_OBJECT
 	Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+	Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
 	Q_PROPERTY(QStringList categories READ categories WRITE setCategories NOTIFY categoriesChanged)
 	Q_PROPERTY(SortMode sortMode READ sortMode WRITE setSortMode NOTIFY sortModeChanged)
 	Q_ENUMS(SortMode)
