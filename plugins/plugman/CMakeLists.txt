@@ -14,4 +14,7 @@ qutim_add_plugin(plugman
 	DISPLAY_NAME "Package Manager"
 	DESCRIPTION "Provides possibility to Get Hot New Stuff from open community"
         LINK_LIBRARIES ${LIBATTICA_LIBRARIES}
+	QT_LIBRARIES DECLARATIVE
 )
+
+qutim_add_artwork_dir(qml)
