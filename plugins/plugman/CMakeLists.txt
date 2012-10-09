@@ -15,3 +15,5 @@ qutim_add_plugin(plugman
 	DESCRIPTION "Provides possibility to Get Hot New Stuff from open community"
         LINK_LIBRARIES ${LIBATTICA_LIBRARIES}
 )
+
+qutim_add_artwork(qml)
