@@ -224,8 +224,8 @@ void IcqAccount::setStatus(Status status_helper)
 		return;
 	}
 	if (current.type() == status.type() && status.type() == Status::Offline) {
-		// Disable reconnecting
-		status.setChangeReason(Status::ByUser);
+//		// Disable reconnecting
+//		status.setChangeReason(Status::ByUser);
 		Account::setStatus(status);
 		emit statusChanged(status, current);
 		return;
@@ -234,7 +234,7 @@ void IcqAccount::setStatus(Status status_helper)
 		QAbstractSocket::SocketState state = d->conn->state();
 		if (state != QTcpSocket::UnconnectedState) {
 			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
-			status.setChangeReason(Status::ByUser);
+//			status.setChangeReason(Status::ByUser);
 			d->lastStatus = status;
 		} else if (d->conn->error() == AbstractConnection::NoError ||
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||

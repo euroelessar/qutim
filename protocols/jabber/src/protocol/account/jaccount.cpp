@@ -161,7 +161,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 
 	switch(reason) {
 	case Client::User:
-		s.setChangeReason(Status::ByUser);
+		s = proposedStatus;
 		break;
 	case Client::AuthorizationError: {
 		s.setChangeReason(Status::ByAuthorizationFailed);
@@ -524,8 +524,12 @@ void JAccount::setStatus(Status status)
 		}
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;
+		Status jabberStatus = Status::instance(Status::Offline, "jabber");
+		status.setIcon(jabberStatus.icon());
+		status.setSubtype(jabberStatus.subtype());
+		d->proposedStatus = status;
 		if (force)
-			setAccountStatus(Status::instance(Status::Offline, "jabber"));
+			setAccountStatus(status);
 		d->client->disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->applyStatus(status);

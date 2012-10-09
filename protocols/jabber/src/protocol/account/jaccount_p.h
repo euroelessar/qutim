@@ -54,6 +54,7 @@ public:
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
 	QNetworkProxy proxy;
+	Status proposedStatus;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;

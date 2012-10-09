@@ -47,6 +47,8 @@ BearerManager::BearerManager(QObject *parent) :
 {
 	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "BearerManager"));
 
+	m_isOnline = m_confManager->isOnline();
+
 	foreach (Protocol *p, Protocol::all()) {
 		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -74,6 +76,9 @@ BearerManager::BearerManager(QObject *parent) :
 
 void BearerManager::onOnlineStatusChanged(bool isOnline)
 {
+	if (m_isOnline == isOnline)
+		return;
+	m_isOnline = isOnline;
 	if (!isOnline) {
 		m_accountsToConnect.clear();
 		m_timer.stop();
@@ -90,8 +95,9 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 			account->setStatus(status);
 		}
 	}
-	Notification::send(isOnline ? tr("Network is available!")
-								: tr("Network is unreachable!"));
+	// It's annoying
+//	Notification::send(isOnline ? tr("Network is available!")
+//								: tr("Network is unreachable!"));
 	emit onlineStateChanged(isOnline);
 }
 

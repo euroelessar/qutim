@@ -201,26 +201,28 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 void OscarConnection::onDisconnect()
 {
 	Status status = m_account->status();
-	status.setType(Status::Offline);
+	if (status != Status::Offline) {
+		status.setType(Status::Offline);
 	
-	Status::ChangeReason reason;
-	switch (error()) {
-	case MismatchNickOrPassword:
-		reason = Status::ByAuthorizationFailed;
-		break;
-	case InternalError:
-		reason = Status::ByFatalError;
-		break;
-	case NoError:
-		reason = Status::ByUser;
-		break;
-	default:
-		reason = Status::ByNetworkError;
-		break;
+		Status::ChangeReason reason;
+		switch (error()) {
+		case MismatchNickOrPassword:
+			reason = Status::ByAuthorizationFailed;
+			break;
+		case InternalError:
+			reason = Status::ByFatalError;
+			break;
+		case NoError:
+			reason = Status::ByUser;
+			break;
+		default:
+			reason = Status::ByNetworkError;
+			break;
+		}
+		status.setChangeReason(reason);
+
+		m_account->setStatus(status);
 	}
-	status.setChangeReason(reason);
-	
-	m_account->setStatus(status);
 	AbstractConnection::onDisconnect();
 }
 

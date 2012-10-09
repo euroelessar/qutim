@@ -83,6 +83,7 @@ private:
 	};
 
 	QBasicTimer m_timer;
+	bool m_isOnline;
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
 	ReconnectList m_accountsToConnect;
