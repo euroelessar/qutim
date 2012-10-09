@@ -48,7 +48,7 @@ void DeclarativeViewPrivate::initResize()
 	} else if (graphicsWidgetRoot) {
 		graphicsWidgetRoot->installEventFilter(q);
 	}
-	//_q_updateView();
+	_q_updateView();
 }
 
 QSize DeclarativeViewPrivate::rootObjectSize() const
@@ -101,6 +101,7 @@ void DeclarativeViewPrivate::_q_updateView()
 				rootItem->setWidth(q->width());
 			if (!qFuzzyCompare(q->height(), rootItem->height()))
 				rootItem->setHeight(q->height());
+			q->scene()->setSceneRect(0, 0, q->width(), q->height());
 		}
 	} else if (graphicsWidgetRoot) {
 		if (resizeMode == DeclarativeView::SizeViewToRootObject){
