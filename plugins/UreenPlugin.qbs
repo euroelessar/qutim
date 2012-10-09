@@ -16,6 +16,31 @@ Product {
     property string projectPath: project.path
     property string sourcePath: "src"
     property var pluginTags: ['core']
+    // FIXME: add Cache support
+    function numberToHex(number, length) {
+        if (number < 0)
+            number = (~number) - 1;
+        var str = '';
+        str = number.toString(16);
+        while (str.length < length)
+            str = '0' + str;
+        return str;
+    }
+    function hashCode(str) {
+        if (str.length === 0)
+            return 0;
+        var hash = [0, 0];
+        for (var i = 0; i < str.length; i++) {
+            var ch = str.charCodeAt(i);
+            hash[i & 1] = ((hash[i & 1] << 5) - hash[i & 1]) + ch;
+            hash[i & 1] = hash[i & 1] & hash[i & 1];
+        }
+        return numberToHex(hash[0], 8) + numberToHex(hash[1], 8);
+    }
+    property string pluginId: {
+        print(name, hashCode(name));
+        return hashCode(name);
+    }
 
     type: 'dynamiclibrary'
     name: FileInfo.fileName(product.path);
@@ -25,8 +50,7 @@ Product {
         else
             return "lib/qutim/plugins";
     }
-    // FIXME
-    cpp.defines: [ "QUTIM_PLUGIN_ID=0123456789abcdef" ]
+    cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId ]
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
     cpp.visibility: 'hidden'
 
