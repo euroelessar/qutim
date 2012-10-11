@@ -258,7 +258,6 @@ void IcqContact::setTags(const QStringList &tags)
 	}
 	if (groupItem.isNull()) {
 		QString group = tags.value(0);
-		FeedbagItem groupItem;
 		if (group.isEmpty())
 			groupItem = d->getNotInListGroup();
 		else
@@ -266,7 +265,9 @@ void IcqContact::setTags(const QStringList &tags)
 		if (!groupItem.isInList())
 			groupItem.add();
 	}
-	
+
+	Q_ASSERT(!groupItem.isNull());
+	Q_ASSERT(!item.isNull());
 	if (item.groupId() != groupItem.groupId()) {
 		FeedbagItem oldItem = item;
 		oldItem.remove();
