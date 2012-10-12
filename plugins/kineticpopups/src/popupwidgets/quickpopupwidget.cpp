@@ -126,7 +126,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	setAttribute(Qt::WA_TranslucentBackground);
 	m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 	m_view->viewport()->setAutoFillBackground(false);
-    m_view->setResizeMode(DeclarativeView::SizeRootObjectToView);
+	m_view->setResizeMode(DeclarativeView::SizeViewToRootObject);
 
 	QVBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(m_view);
