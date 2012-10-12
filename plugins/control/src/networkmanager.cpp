@@ -46,6 +46,8 @@
 #define MODIFY_ROSTER_URL (QLatin1String("api/modifyRoster"))
 #define APPEND_MESSAGE_URL (QLatin1String("api/appendMessages"))
 
+#define DO_NOT_CHECK_SERVER_CERTIFICATE
+
 namespace Control {
 
 struct Scope
@@ -544,6 +546,9 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 
 void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+#ifdef DO_NOT_CHECK_SERVER_CERTIFICATE
+    reply->ignoreSslErrors();
+#else
 	bool onlyNoError = true;
 	foreach (const QSslError &error, errors) {
 		if (error.error() != QSslError::NoError)
@@ -556,6 +561,7 @@ void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &e
 	}
 	if (onlyNoError)
 		reply->ignoreSslErrors();
+#endif
 }
 
 void NetworkManager::rebuildAnswers()
