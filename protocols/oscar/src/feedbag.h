@@ -72,7 +72,7 @@ public:
 	FeedbagItem(Feedbag *feedbag, quint16 type, quint16 itemId, quint16 groupId, const QString &name = QString());
 	FeedbagItem(const FeedbagItem &item);
 	virtual ~FeedbagItem();
-	const FeedbagItem &operator=(const FeedbagItem &item);
+	FeedbagItem &operator=(const FeedbagItem &item);
 	void add();
 	void update();
 	void updateOrAdd();

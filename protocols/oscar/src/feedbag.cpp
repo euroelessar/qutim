@@ -29,6 +29,7 @@
 #include "oscarconnection.h"
 #include "icqaccount.h"
 #include <qutim/protocol.h>
+#include <qutim/debug.h>
 #include <QCoreApplication>
 #include <QQueue>
 #include <QDateTime>
@@ -48,12 +49,14 @@ QString getCompressedName(quint16 type, const QString &name)
 		// Check is cheaper
 		for (int i = 0; ok && i < name.size(); ++i)
 			ok &= name[i].isLower();
+		debug() << "compressedName:" << name << "is" << ok;
 		compressedName = ok ? name : name.toLower();
 	} else {
 		bool ok = true;
 		// Check is cheaper
 		for (int i = 0; ok && i < name.size(); ++i)
 			ok &= !name[i].isSpace() && name[i].isLower();
+		debug() << "compressedName:" << name << "is" << ok;
 		if (ok) {
 			compressedName = name;
 		} else {
@@ -214,15 +217,18 @@ void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType opera
 		qApp->postEvent(feedbag, new QEvent(FeedbagPrivate::updateEvent()));
 	// Optimize changes
 	for (int i = 0; i < d->modifyQueue.size(); ++i) {
-		const FeedbagQueueItem &queueItem = d->modifyQueue.at(i);
+		FeedbagQueueItem &queueItem = d->modifyQueue[i];
 		if (queueItem.item.pairId() == item.pairId()) {
-			if (queueItem.type == Feedbag::Add && operation == Feedbag::Modify)
+			Q_ASSERT(!(queueItem.type == operation && operation == Feedbag::Add));
+			if (queueItem.type == Feedbag::Add && operation == Feedbag::Modify) {
 				operation = Feedbag::Add;
+				queueItem.item = item;
+				return;
+			}
 			d->modifyQueue.removeAt(i);
 			if (queueItem.type == Feedbag::Add && operation == Feedbag::Remove)
-				return;
-			else
-				break;
+				operation = Feedbag::Modify;
+			break;
 		}
 	}
 	if (item.type() == SsiBuddy) {
@@ -296,7 +302,7 @@ FeedbagItem::~FeedbagItem()
 {
 }
 
-const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
+FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
 {
 	d = item.d;
 	return *this;
@@ -884,6 +890,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 {
 	QList<FeedbagItem> items;
 	const QString uniqueName = getCompressedName(type, name);
+	debug() << Q_FUNC_INFO << __LINE__ << type << name << flags;
 	if (!(flags & DontLoadLocal)) {
 		if (type == SsiBuddy) {
 			for (GroupHash::Iterator it = d->root.regulars.begin();
@@ -894,8 +901,10 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 					FeedbagItem item = d->itemsById.value(qMakePair(type, id));
 					if (!item.isNull()) {
 						items << item;
-						if (flags & ReturnOne)
+						if (flags & ReturnOne) {
+							debug() << Q_FUNC_INFO << "Found exaclty one element";
 							return items;
+						}
 					}
 				}
 			}
@@ -906,17 +915,24 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 				FeedbagItem item = d->itemsById.value(qMakePair(type, id));
 				if (!item.isNull()) {
 					items << item;
-					if (flags & ReturnOne)
+					if (flags & ReturnOne) {
+						debug() << Q_FUNC_INFO << "Found exaclty one element";
 						return items;
+					}
 				}
 			}
 		}
 	}
 	if (items.isEmpty() && (flags & CreateItem)) {
+		debug() << Q_FUNC_INFO << "Need to create new item";
 		items << FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type != SsiGroup ? uniqueItemId(type) : 0,
 						   type == SsiGroup ? uniqueItemId(type) : 0,
 						   name);
+	} else if (items.isEmpty()) {
+		debug() << Q_FUNC_INFO << "List is empty, but it's ok";
+	} else {
+		debug() << Q_FUNC_INFO << "Found all needed elements";
 	}
 	return items;
 }
@@ -929,8 +945,10 @@ FeedbagItem Feedbag::groupItem(quint16 id, ItemLoadFlags flags) const
 FeedbagItem Feedbag::groupItem(const QString &name, ItemLoadFlags flags) const
 {
 	QList<FeedbagItem> list = items(SsiGroup, name, flags | ReturnOne);
+	debug() << Q_FUNC_INFO << "Found" << list.size() << "items";
 	if (list.isEmpty())
 		return FeedbagItem();
+	debug() << Q_FUNC_INFO << "First one is null: " << list.first().isNull();
 	return list.first();
 }
 
