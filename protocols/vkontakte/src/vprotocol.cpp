@@ -25,7 +25,6 @@
 #include "vprotocol.h"
 #include "vcontact.h"
 #include "vaccount.h"
-#include "ui/vaccountsettings.h"
 
 #include <qutim/status.h>
 #include <qutim/statusactiongenerator.h>
@@ -47,9 +46,6 @@ VProtocol::VProtocol() :
 
 VProtocol::~VProtocol()
 {
-	Settings::removeItem(m_mainSettings.data());
-	foreach (VAccount *account, m_accounts)
-		account->saveSettings();
 }
 
 qutim_sdk_0_3::Account *VProtocol::account(const QString &email) const
@@ -81,11 +77,6 @@ void VProtocol::loadAccounts()
 		VAccount *account = new VAccount(email, this);
 		addAccount(account);
 	}
-
-	m_mainSettings.reset(new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,
-																   Icon("im-vkontakte"),
-																   QT_TRANSLATE_NOOP("Vkontakte", "Account settings")));
-	Settings::registerItem<VAccount>(m_mainSettings.data());
 }
 
 QList<qutim_sdk_0_3::Account *> VProtocol::accounts() const
