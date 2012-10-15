@@ -215,7 +215,8 @@ void IcqAccount::setStatus(Status status_helper)
 	Status status = OscarStatus(status_helper);
 	Status current = this->status();
 	debug() << Q_FUNC_INFO << current << "->" << status;
-	if (current.type() == Status::Connecting && status.type() != Status::Offline) {
+    if (current.type() == Status::Connecting
+            && status.type() > Status::Offline) {
 		d->lastStatus = status;
 		if (d->conn->state() == QAbstractSocket::UnconnectedState
 		        && status != Status::Connecting) {
@@ -277,7 +278,7 @@ void IcqAccount::setStatus(Status status_helper)
 			d->conn->sendStatus(status);
 		}
 	}
-	{
+    {
 		Config statusCfg = config().group("general/lastStatus");
 		statusCfg.setValue("type", d->lastStatus.type());
 		statusCfg.setValue("subtype", d->lastStatus.subtype());

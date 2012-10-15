@@ -224,16 +224,19 @@ void VRoster::onContactTyping(int userId, int chatId)
 
 void VRoster::onMessagesRecieved(const QVariant &response)
 {
-	QVariantList list = response.toList();
-	list.removeFirst();
-	Vreen::MessageList msgList = Vreen::Message::fromVariantList(list, p->account->client());
-	foreach (Vreen::Message msg, msgList) {
-		if (msg.isUnread() && msg.isIncoming()) {
-			onMessageAdded(msg);
-		}
-		if (msg.chatId())
-			groupChat(msg.chatId());
-	}
+    QVariantList list = response.toList();
+    if (list.count()) {
+        list.removeFirst();
+        Vreen::MessageList msgList = Vreen::Message::fromVariantList(list,
+                                                                     p->account->client());
+        foreach (Vreen::Message msg, msgList) {
+            if (msg.isUnread() && msg.isIncoming()) {
+                onMessageAdded(msg);
+            }
+            if (msg.chatId())
+                groupChat(msg.chatId());
+        }
+    }
 }
 
 
