@@ -177,7 +177,9 @@ void VAccount::onMeChanged(Vreen::Buddy *me)
 		if (m_me)
 			m_me->deleteLater();
 		m_me = m_roster->contact(me->id());
-		connect(m_me.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+		config().setValue("access/uid", uid());
+		connect(m_me.data(), SIGNAL(nameChanged(QString, QString)),
+				SIGNAL(nameChanged(QString, QString)));
 	}
 }
 
@@ -194,7 +196,7 @@ void VAccount::onAuthConfirmRequested(QWebPage *page)
 {
 	QWebView *view = new QWebView;
 	view->setPage(page);
-    view->resize(1024, 768);
+	view->resize(1024, 768);
 	connect(page, SIGNAL(destroyed()), view, SLOT(deleteLater()));
 	SystemIntegration::show(view);
 }
