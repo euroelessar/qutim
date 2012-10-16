@@ -41,6 +41,7 @@
 #include <vreen/auth/oauthconnection.h>
 
 #include <QWebView>
+#include <QWebFrame>
 
 const static int qutimId = 1865463;
 
@@ -193,6 +194,7 @@ void VAccount::onAuthConfirmRequested(QWebPage *page)
 {
 	QWebView *view = new QWebView;
 	view->setPage(page);
+    view->resize(1024, 768);
 	connect(page, SIGNAL(destroyed()), view, SLOT(deleteLater()));
 	SystemIntegration::show(view);
 }
