@@ -22,6 +22,9 @@ Product {
     cpp.includePaths: [
         "."
     ]
+    cpp.defines: [
+        "ADIUMWEBVIEW_LIBRARY"
+    ]
     
     files: [
         "*.h",
