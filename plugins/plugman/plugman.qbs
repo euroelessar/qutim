@@ -5,7 +5,7 @@ UreenPlugin {
 
     Depends { name: "artwork" }
     Depends { name: "attica" }
-    Depends { name: 'qt.quick1' }
+    Depends { name: 'qt.declarative' }
 
     Group {
         fileTags: [ "artwork" ]
