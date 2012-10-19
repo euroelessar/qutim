@@ -3,7 +3,7 @@ import "../UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     type: [ "dynamiclibrary", "installed_content" ]
 
-    Depends { name: 'qt.quick1' }
+    Depends { name: 'qt.declarative' }
     Depends { name: "artwork" }
 
     Group {

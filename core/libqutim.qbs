@@ -28,7 +28,7 @@ DynamicLibrary {
     Depends { name: "qtdwm" }
     Depends { name: "qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick1' ] }
+    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative' ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
     Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
     Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }

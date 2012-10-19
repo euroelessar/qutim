@@ -17,7 +17,7 @@ Product {
     Depends { name: "libqutim" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-    Depends { name: "qt.quick1"; condition: project.declarativeUi }
+    Depends { name: "qt.declarative"; condition: project.declarativeUi }
 	
     files: [
         "main.cpp"
