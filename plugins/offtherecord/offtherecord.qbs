@@ -1,11 +1,7 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    Depends { name: "otr" }
+    pluginTags: ['linux', 'crypto', 'mac']
 
-    //temporary hack
-    Properties {
-        condition: qbs.toolchain === "mingw"
-        cpp.defines: ["OTR_INTERNAL"]
-    }
+    Depends { name: "otr" }    
 }
