@@ -46,7 +46,7 @@ struct TreeModelItem
 	quint8 m_item_type;
 };
 
-#ifndef Q_CC_MSVC
+#if !defined(Q_CC_MSVC) && !defined(OTR_INTERNAL)
 extern "C"
 {
 #include <libotr/proto.h>
