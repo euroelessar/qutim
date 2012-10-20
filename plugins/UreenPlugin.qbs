@@ -38,7 +38,7 @@ Product {
         return numberToHex(hash[0], 8) + numberToHex(hash[1], 8);
     }
     property string pluginId: {
-        print(name, hashCode(name));
+        //print(name, hashCode(name));
         return hashCode(name);
     }
 
@@ -47,6 +47,8 @@ Product {
     destination: {
         if (qbs.targetOS === 'mac')
             return "qutim.app/Contents/PlugIns";
+        else if (qbs.targetOS === 'windows')
+            return "bin/plugins"
         else
             return "lib/qutim/plugins";
     }
