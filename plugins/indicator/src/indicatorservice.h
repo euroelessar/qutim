@@ -25,19 +25,33 @@
 #ifndef INDICATORSERVICE_23DW9H42
 #define INDICATORSERVICE_23DW9H42
 
+#define QUTIM_DESKTOP_BASENAME "qutim.desktop"
 #ifndef DESKTOPDIR
 # define DESKTOPDIR ""
 #endif
-#define QUTIM_DESKTOP_FILE DESKTOPDIR "/qutim.desktop"
+#define QUTIM_DESKTOP_FILE DESKTOPDIR "/" QUTIM_DESKTOP_BASENAME
 
+#ifdef QUANTAL
+#include <messaging-menu-qt/messaging-menu.hpp>
+#else /* QUANTAL */
 #include <qindicateindicator.h>
 #include <qindicateserver.h>
+#endif
 
 #include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 
-typedef QHash<qutim_sdk_0_3::ChatSession*, QIndicate::Indicator*> HashIndicator;
+#ifdef QUANTAL
+typedef MessagingMenu::Application::Source Source;
+typedef Source& SourceRef;
+typedef MessagingMenu::Application Server;
+#else /* QUANTAL */
+typedef QIndicate::Indicator Source;
+typedef Source* SourceRef;
+typedef QIndicate::Server Server;
+#endif
+typedef QHash<qutim_sdk_0_3::ChatSession*, Source*> HashIndicator;
 
 class IndicatorService : public qutim_sdk_0_3::MenuController
 {
@@ -57,13 +71,17 @@ protected slots:
 	void loadSettings();
 	/* Indicator stuff */
 	void onSessionActivated(bool);
+#ifdef QUANTAL
+	void onIndicatorDisplay(MessagingMenu::Application::Source&);
+#else /* QUANTAL */
 	void onIndicatorDisplay(QIndicate::Indicator*);
+#endif /* QUANTAL */
 	void showMainWindow();
 private:
 	HashIndicator sessionIndicators;
 	QString desktopName;
-	QIndicate::Server* indicateServer;
-	QIndicate::Indicator *quitButton;
+	Server *indicateServer;
+	Source *quitButton;
 };
 
 #endif /* end of include guard: INDICATORSERVICE_23DW9H42 */
