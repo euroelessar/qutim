@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include <qindicateindicator.h>
 #include "indicatorservice.h"
 #include <qutim/debug.h>
 #include <qutim/icon.h>
