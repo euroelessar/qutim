@@ -16,8 +16,11 @@ Project {
 
     moduleSearchPaths: [ "modules", "qbs/modules" ]
 
+    // references: [ "core/*.qbs", "protocols/*.qbs", "plugins/*.qbs" ]
+    // recursive: true
+
     references: [
-        "translations.qbs",
+        "translations/translations.qbs",
         "core/3rdparty/k8json.qbs",
         "core/3rdparty/qxdg.qbs",
         //"core/3rdparty/flowlayout.qbs",
@@ -103,10 +106,12 @@ Project {
         "protocols/quetzal/quetzal.qbs",
         "protocols/irc/irc.qbs",
      //   "protocols/astral/astral.qbs",
+     //   "plugins/autoreply/autoreply.qbs",
         "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
         "plugins/macintegration/src/macdock/macdock.qbs",
         "plugins/macintegration/src/macgrowl/macgrowl.qbs",
         "plugins/macintegration/src/macidle/macidle.qbs",
+    //    "plugins/macintegration/src/macnotifications/macnotifications.qbs",
         "plugins/macintegration/src/macspellchecker/macspellchecker.qbs",
         "plugins/adiumwebview/adiumwebview.qbs",
         "plugins/adiumwebview/lib/qutim-adiumwebview.qbs",
