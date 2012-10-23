@@ -34,7 +34,8 @@ IndicatorService::IndicatorService()
 #ifdef QUANTAL
     : desktopName( QUTIM_DESKTOP_BASENAME )
     , indicateServer(new Server(desktopName, this))
-    , quitButton(&indicateServer->createSourceString(QLatin1String("quitButton"), QT_TRANSLATE_NOOP("Plugin", "Close qutIM"), qutim_sdk_0_3::Icon("application-exit"), ""))
+    , mainWindowButton(&indicateServer->createSourceString(QLatin1String("mainWindowButton"), QT_TRANSLATE_NOOP("Plugin", "Show main window"), qutim_sdk_0_3::Icon("qutim"), "", true, 0))
+    , quitButton(&indicateServer->createSourceString(QLatin1String("quitButton"), QT_TRANSLATE_NOOP("Plugin", "Close qutIM"), qutim_sdk_0_3::Icon("application-exit"), "", true, 100))
 #else /* QUANTAL */
 	: desktopName( QUTIM_DESKTOP_FILE )
 	, indicateServer(Server::defaultInstance())
@@ -96,7 +97,7 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
     Source *indicator = &indicateServer->createSourceTime(
             QString::number(reinterpret_cast<quintptr>(session)),
             session->getUnit()->title(),
-            QIcon(),
+            qutim_sdk_0_3::Icon("applications-email-panel"),
             QDateTime::currentDateTime(),
             true
             );
@@ -193,8 +194,6 @@ void IndicatorService::loadSettings()
 void IndicatorService::onSessionActivated(bool active)
 {
 	qutim_sdk_0_3::debug() << "onSessionActivated";
-	if (!active)
-		return;
 	qutim_sdk_0_3::ChatSession *session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
 	if (!session)
 		return;
@@ -205,7 +204,7 @@ void IndicatorService::onSessionActivated(bool active)
     indicator->setTime(QDateTime::currentDateTime());
     indicator->setAttention(false);
     indicator->setCount(session->unread().count());
-    indicator->setIcon(QIcon());
+    indicator->setIcon(qutim_sdk_0_3::Icon("qutim-online"));
 #else /* QUANTAL */
 	indicator->setTimeProperty(QDateTime::currentDateTime());
 	indicator->setDrawAttentionProperty(false);
@@ -220,7 +219,15 @@ void IndicatorService::onIndicatorDisplay(SourceRef indicator)
 	qutim_sdk_0_3::debug() << "onIndicatorDisplay";
 #ifdef QUANTAL
     if (indicator.getLabel() == QT_TRANSLATE_NOOP("Plugin", "Close qutIM"))
+    {
         qApp->quit();
+        return;
+    }
+    if (indicator.getLabel() == QT_TRANSLATE_NOOP("Plugin", "Show main window"))
+    {
+        showMainWindow();
+        return;
+    }
 	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(&indicator);
 #else /* QUANTAL */
 	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(indicator);

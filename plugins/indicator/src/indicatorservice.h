@@ -81,6 +81,9 @@ private:
 	HashIndicator sessionIndicators;
 	QString desktopName;
 	Server *indicateServer;
+#ifdef QUANTAL
+	Source *mainWindowButton;
+#endif /* QUANTAL */
 	Source *quitButton;
 };
 
