@@ -287,6 +287,9 @@ void ModuleManager::_q_messageReceived(const QString &message)
 		QStringList args;
 		s >> args;
 		qDebug() << "Received message with:" << args;
+		ServicePointer<QObject> contactList("ContactList");
+		if (contactList)
+			QMetaObject::invokeMethod(contactList.data(), "show", Qt::QueuedConnection);
 	} else if (message.startsWith(QLatin1String("url: "))) {
 		QUrl url(message.section(QLatin1Char(' '), 1));
 		QDesktopServices::openUrl(url);
@@ -336,15 +339,21 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 
 	parser.add("version", "Show version information");
 	parser.alias("version", "v");
-	
-	parser.add("single-instance", "Run single instance");
+
+	parser.add("single-instance", "Run single instance", QxtCommandOptions::NoValue, 0x15);
+	parser.add("new-instance", "Run new instance", QxtCommandOptions::NoValue, 0x15);
 	parser.add("open-url", "Open url", QxtCommandOptions::ValueRequired);
 
 	parser.parse(args);
 	
 	QString messageToServer;
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_WS_MAEMO_5) && !defined(MEEGO_EDITION))
+	bool singleInstance = !parser.count("new-instance");
+#else
+	bool singleInstance = parser.count("single-instance");
+#endif
 	
-	if (parser.count("single-instance")) {
+	if (singleInstance) {
 		messageToServer = QLatin1String("arguments: ");
 		QByteArray data;
 		{
