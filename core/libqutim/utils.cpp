@@ -33,7 +33,7 @@
 #include <QApplication>
 #include <QUrl>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class WeekDate
 	{
@@ -225,15 +225,15 @@ namespace qutim_sdk_0_3
 			// I don't understand the difference
 		case L'z':
 			if (length < 4)
-				str += qutim_sdk_0_3::SystemInfo::getTimezone();
+				str += Ureen::SystemInfo::getTimezone();
 			else
 				// There should be localized name, but I don't know how get it
-				str += qutim_sdk_0_3::SystemInfo::getTimezone();
+				str += Ureen::SystemInfo::getTimezone();
 			break;
 		case L'Z': {
 				if (length == 4)
 					str += QLatin1String("GMT");
-				int offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
+				int offset = Ureen::SystemInfo::getTimezoneOffset();
 				if (offset < 0)
 					str += QLatin1Char('+');
 				else

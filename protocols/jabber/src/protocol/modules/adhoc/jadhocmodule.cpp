@@ -34,7 +34,7 @@
 #include <QAction>
 
 //using namespace gloox;
-//using namespace qutim_sdk_0_3;
+//using namespace Ureen;
 
 //namespace Jabber
 //{
@@ -42,7 +42,7 @@
 //{
 //}
 
-//void JAdHocModule::init(qutim_sdk_0_3::Account *account)
+//void JAdHocModule::init(Ureen::Account *account)
 //{
 //	static JAdHocModule *self = 0;
 //	m_account = static_cast<JAccount *>(account);

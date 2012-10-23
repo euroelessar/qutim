@@ -34,7 +34,7 @@
 #include <QBuffer>
 #include <QDBusPendingReply>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct DBusNotifyImageData
 {
@@ -114,7 +114,7 @@ DBusBackend::DBusBackend() :
 
 
 
-void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
+void DBusBackend::handleNotification(Ureen::Notification *notification)
 {
 	ref(notification);
 	NotificationRequest request = notification->request();

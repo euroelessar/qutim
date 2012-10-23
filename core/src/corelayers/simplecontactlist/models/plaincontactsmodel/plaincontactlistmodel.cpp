@@ -272,13 +272,13 @@ QStringList PlainModel::tags() const
 void PlainModel::init()
 {
 	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)), this, SLOT(onAccountCreated(Ureen::Account*)));
 		foreach(Account *account, proto->accounts())
 			onAccountCreated(account);
 	}
 }
 
-void PlainModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts)
+void PlainModel::setContacts(const QList<Ureen::Contact*> &contacts)
 {
 	foreach (Contact *contact, contacts)
 		addContact(contact);
@@ -358,12 +358,12 @@ bool PlainModel::eventFilter(QObject *obj, QEvent *ev)
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
 
-void PlainModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+void PlainModel::onAccountCreated(Ureen::Account *account)
 {
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		addContact(contact);
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			this, SLOT(addContact(Ureen::Contact*)));
 }
 
 }

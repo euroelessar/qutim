@@ -27,7 +27,7 @@
 #include <QtCore/QCoreApplication>
 #include <QSharedData>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	// It may be usefull for localizable XMPP string
 	// i.e. Message with body in several languages
@@ -79,7 +79,7 @@ namespace qutim_sdk_0_3
 	{
 		StaticConstructor()
 		{
-			qRegisterMetaTypeStreamOperators<LocalizedString>("qutim_sdk_0_3::LocalizedString");
+			qRegisterMetaTypeStreamOperators<LocalizedString>("Ureen::LocalizedString");
 		}
 	} staticConstructor;
 }

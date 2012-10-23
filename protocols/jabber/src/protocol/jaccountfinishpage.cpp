@@ -31,7 +31,7 @@
 namespace Jabber
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 JAccountFinishPage::JAccountFinishPage(JAccountWizard *accountWizard, QWidget *parent) :
     QWizardPage(parent),

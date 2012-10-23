@@ -28,7 +28,7 @@
 #include "contact_p.h"
 #include <QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class MetaContactPrivate : public ContactPrivate
 {

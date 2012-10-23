@@ -231,7 +231,7 @@ void JActivityChooserWindow::sendActivity()
 		data.insert("specific", ui->activitiesWidget->currentItem()->data(0, Qt::UserRole + 2).toString());
 		data.insert("description", ui->textEdit->toPlainText());
 	}
-	qutim_sdk_0_3::Event ev("jabber-personal-event", "activity", data, true);
+	Ureen::Event ev("jabber-personal-event", "activity", data, true);
 	qApp->sendEvent(m_account, &ev);
 }
 
@@ -244,10 +244,10 @@ JActivityChooser::JActivityChooser()
 {
 }
 
-void JActivityChooser::init(qutim_sdk_0_3::Account *account)
+void JActivityChooser::init(Ureen::Account *account)
 {
 	m_account = account;
-	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
+	m_eventId = Ureen::Event::registerType("jabber-personal-event");
 	// Add action to context menu
 	m_action.reset(new JActivityChooserAction(QIcon(), tr("Set activity"), this, SLOT(show(QObject*))));
 	m_action->setType(0x60000);
@@ -273,8 +273,8 @@ void JActivityChooser::show(QObject *obj)
 
 bool JActivityChooser::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
-		qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(ev);
+	if (ev->type() == Ureen::Event::eventType()) {
+		Ureen::Event *customEvent = static_cast<Ureen::Event*>(ev);
 		if (customEvent->id == m_eventId && obj == m_account &&
 				customEvent->at<QString>(0) == "activity")
 		{

@@ -31,7 +31,7 @@
 #include <qutim/notification.h>
 #include "notificationsettings.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class SettingsItem;
 }
 
@@ -47,14 +47,14 @@ public:
 	explicit NotificationsSettings(QObject *parent = 0);
 	~NotificationsSettings();
 private:
-	qutim_sdk_0_3::SettingsItem *m_settings;
+	Ureen::SettingsItem *m_settings;
 	NotifyEnabler *m_enabler;
 };
 
-class NotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
+class NotifyEnabler: public QObject, public Ureen::NotificationFilter
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::NotificationFilter)
+	Q_INTERFACES(Ureen::NotificationFilter)
 public:
 	NotifyEnabler(QObject *parent = 0);
 public slots:
@@ -63,7 +63,7 @@ public slots:
 	void onBackendCreated(const QByteArray &type);
 	void onBackendDestroyed(const QByteArray &type);
 protected:
-	virtual void filter(qutim_sdk_0_3::NotificationRequest &request);
+	virtual void filter(Ureen::NotificationRequest &request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
 	bool m_notificationsInActiveChat;

@@ -29,7 +29,7 @@
 #include <qutim/plugin.h>
 #include "indicatorservice.h"
 
-class IndicatorPlugin : public qutim_sdk_0_3::Plugin
+class IndicatorPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

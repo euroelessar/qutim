@@ -32,7 +32,7 @@
 #include "feedbag.h"
 #include "oscarstatus.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -41,8 +41,8 @@ class OscarConnection;
 class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler qutim_sdk_0_3::oscar::FeedbagItemHandler)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::SNACHandler Ureen::oscar::FeedbagItemHandler)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	Roster();
 	
@@ -60,12 +60,12 @@ protected:
 private slots:
 	void reloadingStarted();
 	void loginFinished();
-	void accountAdded(qutim_sdk_0_3::Account *account);
+	void accountAdded(Ureen::Account *account);
 private:
 	void setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ROSTER_P_H
 

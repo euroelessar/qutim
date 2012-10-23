@@ -28,7 +28,7 @@
 #include "servicemanager.h"
 #include <QDebug>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class IconWrapperPrivate
 {

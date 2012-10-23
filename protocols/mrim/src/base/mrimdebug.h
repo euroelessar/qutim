@@ -29,7 +29,7 @@
 #include <QDebug>
 #include <qutim/debug.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 #endif // MRIMDEBUG_H
 

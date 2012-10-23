@@ -33,7 +33,7 @@
 #include "sdk/jabber.h"
 #include <jreen/disco.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ChatUnit;
 }
 

@@ -34,7 +34,7 @@
 
 #define PLUGIN_VERSION(major, minor, secminor, patch) QUTIM_MAKE_VERSION(major, minor, secminor, patch)
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ModuleManager;
 class PluginInfoData;
@@ -186,8 +186,8 @@ public:
 LIBQUTIM_EXPORT QList<QWeakPointer<Plugin> > pluginsList();
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::PluginInfo::Capabilities)
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::PluginInfo::Capabilities)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::Plugin::Capabilities)
 
 #ifdef QUTIM_STATIC_PLUGIN
 
@@ -229,8 +229,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 #define QUTIM_EXPORT_PLUGIN(Plugin) \
     QUTIM_EXPORT_PLUGIN2(Plugin, Plugin)
 #endif		
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::PluginFactory, "org.qutim.PluginFactory")
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::CommandArgumentsHandler, "org.qutim.CommandArgumentsHandler")
+Q_DECLARE_INTERFACE(Ureen::PluginFactory, "org.qutim.PluginFactory")
+Q_DECLARE_INTERFACE(Ureen::CommandArgumentsHandler, "org.qutim.CommandArgumentsHandler")
 
 #endif // PLUGIN_H
 

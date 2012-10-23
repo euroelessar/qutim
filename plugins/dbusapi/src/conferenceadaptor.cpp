@@ -31,8 +31,8 @@ ConferenceAdaptor::ConferenceAdaptor(const QDBusConnection &dbus, Conference *co
 {
 	connect(conf, SIGNAL(topicChanged(QString,QString)),
 	        this, SIGNAL(topicChanged(QString)));
-	connect(conf, SIGNAL(meChanged(qutim_sdk_0_3::Buddy*)),
-			this, SLOT(onMeChanged(qutim_sdk_0_3::Buddy*)));
+	connect(conf, SIGNAL(meChanged(Ureen::Buddy*)),
+			this, SLOT(onMeChanged(Ureen::Buddy*)));
 }
 
 QDBusObjectPath ConferenceAdaptor::me() const
@@ -42,7 +42,7 @@ QDBusObjectPath ConferenceAdaptor::me() const
 	return path;
 }
 
-void ConferenceAdaptor::onMeChanged(qutim_sdk_0_3::Buddy *buddy)
+void ConferenceAdaptor::onMeChanged(Ureen::Buddy *buddy)
 {
 	QDBusObjectPath path = ChatUnitAdaptor::ensurePath(m_dbus, buddy);
 	emit meChanged(path);

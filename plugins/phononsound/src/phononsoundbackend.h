@@ -32,7 +32,7 @@
 #include <phonon/audiooutput.h>
 #include <QStringList>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class PhononSoundBackend : public SoundBackend
 {

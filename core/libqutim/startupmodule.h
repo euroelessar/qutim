@@ -27,7 +27,7 @@
 
 #include "libqutim_global.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class LIBQUTIM_EXPORT StartupModule
 {
@@ -36,9 +36,9 @@ public:
 	virtual ~StartupModule();
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::StartupModule, "org.qutim.StartupModule")
+Q_DECLARE_INTERFACE(Ureen::StartupModule, "org.qutim.StartupModule")
 
 #endif // STARTUPMODULE_H
 

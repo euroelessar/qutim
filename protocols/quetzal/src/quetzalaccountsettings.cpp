@@ -28,7 +28,7 @@
 #include "quetzalprotocol.h"
 #include <QVBoxLayout>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalAccountSettings::QuetzalAccountSettings()
 {

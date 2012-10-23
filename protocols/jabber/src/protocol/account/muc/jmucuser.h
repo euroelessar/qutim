@@ -61,7 +61,7 @@ public:
 	void setMUCRole(MUCRoom::Role role);
 	QString realJid() const;
 	void setRealJid(const QString &jid);
-	bool sendMessage(const qutim_sdk_0_3::Message &message);
+	bool sendMessage(const Ureen::Message &message);
 public slots:
 	void kick(const QString &reason = QString());
 	void ban(const QString &reason = QString());

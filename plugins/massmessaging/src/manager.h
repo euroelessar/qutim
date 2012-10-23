@@ -34,7 +34,7 @@
 class QStandardItem;
 class QAbstractItemModel;
 class QStandardItemModel;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Contact;
 }
 namespace MassMessaging

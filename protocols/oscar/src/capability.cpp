@@ -27,7 +27,7 @@
 #include <QDataStream>
 #include <QtEndian>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -132,7 +132,7 @@ bool Capability::match(const Capability &o, quint8 len) const
 {
 	len = qMin<quint8>(len, Size);
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN 
-	if (sizeof(qutim_sdk_0_3::oscar::Capability) == 16)
+	if (sizeof(Ureen::oscar::Capability) == 16)
 		return !memcmp(this, &o, len);
 #endif
 	uchar a[Size];
@@ -234,9 +234,9 @@ StandartCapability::StandartCapability(const QString &name, quint16 data) :
 	capName()->insert(*this, name);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-QDebug operator<<(QDebug debug, qutim_sdk_0_3::oscar::Capability &capability)
+QDebug operator<<(QDebug debug, Ureen::oscar::Capability &capability)
 {
 	debug.nospace() << capability.toString();
 	return debug.space();

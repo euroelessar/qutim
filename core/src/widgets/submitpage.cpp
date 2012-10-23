@@ -40,9 +40,9 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-SubmitPage::SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent)
+SubmitPage::SubmitPage(Ureen::StatisticsHelper *helper, QWizard *parent)
     : QWizardPage(parent)
 {
 	m_helper = helper;

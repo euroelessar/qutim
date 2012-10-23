@@ -30,7 +30,7 @@
 #include <qutim/shortcut.h>
 #include <QSet>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AntiBossPlugin : public Plugin
 {

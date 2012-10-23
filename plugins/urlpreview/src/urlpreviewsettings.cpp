@@ -26,7 +26,7 @@
 #include "urlpreviewsettings.h"
 #include <qutim/config.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 UrlPreviewSettings::UrlPreviewSettings()
 	: ui(new Ui::UrlPreviewSettingsForm)

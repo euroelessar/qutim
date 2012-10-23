@@ -32,7 +32,7 @@
 class QAbstractSocket;
 class QDialog;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class SettingsItem;
 class ObjectGenerator;
@@ -107,7 +107,7 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ObjectGenerator*)
+Q_DECLARE_METATYPE(Ureen::ObjectGenerator*)
 
 #endif // SYSTEMINTEGRATION_H
 

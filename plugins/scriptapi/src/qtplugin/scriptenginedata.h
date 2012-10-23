@@ -31,7 +31,7 @@
 
 class QScriptEngine;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ScriptMessage;
 class ScriptServices;
@@ -57,7 +57,7 @@ public:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptEngineData::Ptr)
+Q_DECLARE_METATYPE(Ureen::ScriptEngineData::Ptr)
 
 #endif // SCRIPTENGINEDATA_H
 

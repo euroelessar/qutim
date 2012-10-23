@@ -29,7 +29,7 @@
 #include <QEvent>
 
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class Contact;
@@ -83,7 +83,7 @@ LIBQUTIM_EXPORT QObject *service(); //alias
 
 }//namespace Authorization
 
-}//namespace qutim_sdk_0_3
+}//namespace Ureen
 
 
 #endif // AUTHORIZATIONDIALOG_H

@@ -30,7 +30,7 @@
 #include <QFile>
 #include <QThread>
 
-//using namespace qutim_sdk_0_3;
+//using namespace Ureen;
 
 //namespace Jabber
 //{
@@ -131,7 +131,7 @@
 //	virtual FileTransferEngine *create(ChatUnit *unit);
 //	inline gloox::SOCKS5BytestreamServer *server() { return m_server; }
 //protected slots:
-//	void onAccountCreated(qutim_sdk_0_3::Account *account);
+//	void onAccountCreated(Ureen::Account *account);
 //private:
 //	gloox::SOCKS5BytestreamServer *m_server;
 //	QList<QPointer<JFileTransferHandler> > m_handlers;

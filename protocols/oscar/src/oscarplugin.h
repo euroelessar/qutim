@@ -28,7 +28,7 @@
 
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -43,7 +43,7 @@ public:
 	bool unload();
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARPLUGIN_H
 

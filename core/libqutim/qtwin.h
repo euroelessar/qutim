@@ -28,7 +28,7 @@
 #include "libqutim_global.h"
 
 class QColor;
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	/**
 	* @brief This is a helper namespace for using the Desktop Window Manager

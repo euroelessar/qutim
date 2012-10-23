@@ -63,12 +63,12 @@ Q_DECLARE_METATYPE(Control::Scope::Ptr)
 
 namespace Control {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static quint64 encryptedMessageId;
 static bool encryptedMessageIdInited = false;
 
-AccountId::AccountId(qutim_sdk_0_3::Account *account)
+AccountId::AccountId(Ureen::Account *account)
     : id(account->id()), protocol(account->protocol()->id())
 {
 }
@@ -282,25 +282,25 @@ void NetworkManager::removeAccount(const QString &protocol, const QString &id)
 	trySend();
 }
 
-void NetworkManager::addContact(qutim_sdk_0_3::Contact *contact)
+void NetworkManager::addContact(Ureen::Contact *contact)
 {
 	m_actions << new ContactAction(Action::AddContact, contact);
 	trySend();
 }
 
-void NetworkManager::removeContact(qutim_sdk_0_3::Contact *contact)
+void NetworkManager::removeContact(Ureen::Contact *contact)
 {
 	m_actions << new ContactAction(Action::RemoveContact, contact);
 	trySend();
 }
 
-void NetworkManager::updateContact(qutim_sdk_0_3::Contact *contact)
+void NetworkManager::updateContact(Ureen::Contact *contact)
 {
 	m_actions << new ContactAction(Action::UpdateContact, contact);
 	trySend();
 }
 
-void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
+void NetworkManager::sendMessage(const Ureen::Message &message)
 {
 	MessageAction *action = new MessageAction();
 	ChatUnit *contact = const_cast<ChatUnit*>(message.chatUnit()->getHistoryUnit());
@@ -406,7 +406,7 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			QString text = QString::fromUtf8(readData);
 			QMetaObject::invokeMethod(ChatLayer::instance(),
 			                          "insertText",
-			                          Q_ARG(qutim_sdk_0_3::ChatSession*, session),
+			                          Q_ARG(Ureen::ChatSession*, session),
 			                          Q_ARG(QString, text));
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));

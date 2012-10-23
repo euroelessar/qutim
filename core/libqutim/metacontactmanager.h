@@ -28,7 +28,7 @@
 
 #include "account.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ModuleManager;
 class MetaContact;

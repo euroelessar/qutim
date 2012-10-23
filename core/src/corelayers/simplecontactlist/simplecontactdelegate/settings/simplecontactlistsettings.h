@@ -39,7 +39,7 @@ namespace Ui {
 namespace Core
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class SimpleContactlistSettings : public ContactListSettingsExtention
 {

@@ -67,9 +67,9 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 public:
     TextViewController();
 	virtual ~TextViewController();
-	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
-	virtual qutim_sdk_0_3::ChatSession *getSession() const;
-	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
+	virtual void setChatSession(Ureen::ChatSession *session);
+	virtual Ureen::ChatSession *getSession() const;
+	virtual void appendMessage(const Ureen::Message &msg);
 	void appendText(QTextCursor &cursor, const QString &text, const QTextCharFormat &format, bool emo);
 	virtual void clearChat();
 	virtual QString quote();
@@ -95,11 +95,11 @@ private:
 	void init();
 	void loadHistory();
 	int addEmoticon(const QString &filename);
-	QString makeName(const qutim_sdk_0_3::Message &mes);
+	QString makeName(const Ureen::Message &mes);
 	bool shouldBreak(const QDateTime &time);
 	
 	QWeakPointer<QTextBrowser> m_textEdit;
-	qutim_sdk_0_3::ChatSession *m_session;
+	Ureen::ChatSession *m_session;
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;

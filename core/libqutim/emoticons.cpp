@@ -34,7 +34,7 @@
 #include <QtGui/QTextDocument>
 #include <QDebug>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 #define nullThemeName QLatin1String("")
 

@@ -31,7 +31,7 @@
 #include <QDBusObjectPath>
 #include <QDBusConnection>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QMap<ChatUnit*, QDBusObjectPath> ChatUnitPathHash;
 

@@ -59,7 +59,7 @@
 //		m_options.insert(option,  QString::fromStdString((*it).first));
 //	}
 //	if (!commands.empty()) {
-//		addButton(tr("Next"), qutim_sdk_0_3::Icon("go-next"), SLOT(doExecute()));
+//		addButton(tr("Next"), Ureen::Icon("go-next"), SLOT(doExecute()));
 //	}
 //}
 
@@ -79,13 +79,13 @@
 //		QIcon icon;
 //		switch (note->severity()) {
 //		case Adhoc::Command::Note::Info:
-//			icon = qutim_sdk_0_3::Icon("dialog-information");
+//			icon = Ureen::Icon("dialog-information");
 //			break;
 //		case Adhoc::Command::Note::Warning:
-//			icon = qutim_sdk_0_3::Icon("dialog-warning");
+//			icon = Ureen::Icon("dialog-warning");
 //			break;
 //		case Adhoc::Command::Note::Error:
-//			icon = qutim_sdk_0_3::Icon("dialog-error");
+//			icon = Ureen::Icon("dialog-error");
 //			break;
 //		default:
 //			return;
@@ -107,27 +107,27 @@
 //	}
 
 //	if (command.status() == Adhoc::Command::Completed) {
-//		addButton(tr("Ok"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(close()));
+//		addButton(tr("Ok"), Ureen::Icon("dialog-ok-apply"), SLOT(close()));
 //		return;
 //	}
 
 //	if (command.actions() & Adhoc::Command::Execute) {
-//		addButton(tr("Finish"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doExecute()));
+//		addButton(tr("Finish"), Ureen::Icon("dialog-ok-apply"), SLOT(doExecute()));
 //	}
 //	if (command.actions() & Adhoc::Command::Cancel) {
-//		addButton(tr("Cancel"), qutim_sdk_0_3::Icon("dialog-cancel"), SLOT(doCancel()));
+//		addButton(tr("Cancel"), Ureen::Icon("dialog-cancel"), SLOT(doCancel()));
 //	}
 //	if (command.actions() & Adhoc::Command::Previous) {
-//		addButton(tr("Previous"), qutim_sdk_0_3::Icon("go-previous"), SLOT(doPrevious()));
+//		addButton(tr("Previous"), Ureen::Icon("go-previous"), SLOT(doPrevious()));
 //	}
 //	if (command.actions() & Adhoc::Command::Next) {
-//		addButton(tr("Next"), qutim_sdk_0_3::Icon("go-next"), SLOT(doNext()));
+//		addButton(tr("Next"), Ureen::Icon("go-next"), SLOT(doNext()));
 //	}
 //	if (command.actions() & Adhoc::Command::Complete) {
-//		addButton(tr("Complete"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doComplete()));
+//		addButton(tr("Complete"), Ureen::Icon("dialog-ok-apply"), SLOT(doComplete()));
 //	}
 //	if (command.actions() == 0) {
-//		addButton(tr("Ok"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doComplete()));
+//		addButton(tr("Ok"), Ureen::Icon("dialog-ok-apply"), SLOT(doComplete()));
 //	}
 //}
 

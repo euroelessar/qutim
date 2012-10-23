@@ -42,10 +42,10 @@ AstralProtocol::~AstralProtocol()
 	QObject::d_ptr->metaObject = 0;
 }
 
-QList<qutim_sdk_0_3::Account *> AstralProtocol::accounts() const
+QList<Ureen::Account *> AstralProtocol::accounts() const
 {
-	QList<qutim_sdk_0_3::Account*> accounts;
-	foreach(qutim_sdk_0_3::Account *acc, p->accounts)
+	QList<Ureen::Account*> accounts;
+	foreach(Ureen::Account *acc, p->accounts)
 	{
 		if(acc)
 			accounts << acc;
@@ -53,7 +53,7 @@ QList<qutim_sdk_0_3::Account *> AstralProtocol::accounts() const
 	return accounts;
 }
 
-qutim_sdk_0_3::Account *AstralProtocol::account(const QString &id) const
+Ureen::Account *AstralProtocol::account(const QString &id) const
 {
 	return p->accounts.value(id);
 }

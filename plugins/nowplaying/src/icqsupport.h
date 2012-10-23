@@ -32,7 +32,7 @@ namespace Ui {
 	class IcqSettings;
 }
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 

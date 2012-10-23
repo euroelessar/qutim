@@ -31,7 +31,7 @@
 #include <QDBusConnection>
 #include <qutim/conference.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ConferenceAdaptor : public QDBusAbstractAdaptor
 {
@@ -56,7 +56,7 @@ signals:
 	void joined();
 	
 private slots:
-	void onMeChanged(qutim_sdk_0_3::Buddy *buddy);
+	void onMeChanged(Ureen::Buddy *buddy);
 private:
 	QDBusConnection m_dbus;
 };

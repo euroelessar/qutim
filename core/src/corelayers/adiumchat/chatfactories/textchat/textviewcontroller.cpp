@@ -44,7 +44,7 @@
 #include <qutim/utils.h>
 #include <QTimer>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
@@ -107,7 +107,7 @@ ChatSession *TextViewController::getSession() const
 	return m_session;
 }
 
-void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
+void TextViewController::appendMessage(const Ureen::Message &msg)
 {
 	if (msg.text().isEmpty())
 		return;
@@ -302,7 +302,7 @@ void TextViewController::onAnchorClicked(const QUrl &url)
 		QObject *form = ServiceManager::getByName("ChatForm");
 		QObject *obj = 0;
 		if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
-									  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session)) && obj) {
+									  Q_ARG(Ureen::ChatSession*, m_session)) && obj) {
 			QTextCursor cursor;
 			if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
 				cursor = edit->textCursor();

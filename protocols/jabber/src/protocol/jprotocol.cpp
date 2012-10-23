@@ -116,7 +116,7 @@ public:
 		a->setText(!s->bookmark().isValid() ? QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") :
 											 QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
 	}
-	void _q_status_changed(qutim_sdk_0_3::Status)
+	void _q_status_changed(Ureen::Status)
 	{
 		QMap<QObject*, QAction*> actions = subscribeGen->actions();
 		QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();
@@ -411,8 +411,8 @@ void JProtocol::addAccount(JAccount *account, bool loadSettings)
 
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(_q_status_changed(Ureen::Status)));
 	d->mainSettings->connect(SIGNAL(saved()),
 							 account, SLOT(loadSettings()));
 }

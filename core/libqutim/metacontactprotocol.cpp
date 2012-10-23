@@ -26,7 +26,7 @@
 #include "metacontactprotocol_p.h"
 #include "metacontactmanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	MetaProtocol::MetaProtocol(MetaContactManager *manager) : Protocol(*new MetaProtocolPrivate)
 	{

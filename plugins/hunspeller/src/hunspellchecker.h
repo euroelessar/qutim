@@ -31,7 +31,7 @@
 #include <hunspell/hunspell.hxx>
 #include <QObject>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class HunSpellChecker : public SpellChecker
 {

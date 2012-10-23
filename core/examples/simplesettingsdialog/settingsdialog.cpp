@@ -26,7 +26,7 @@
 #include "ui_settingsdialog.h"
 #include <qutim/settingswidget.h>
 
-SettingsDialog::SettingsDialog ( const qutim_sdk_0_3::SettingsItemList& settings)
+SettingsDialog::SettingsDialog ( const Ureen::SettingsItemList& settings)
 : ui (new Ui::SettingsDialog)
 {
 	m_setting_list = settings;

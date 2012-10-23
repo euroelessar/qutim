@@ -28,7 +28,7 @@
 #include <QSharedData>
 #include <QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Q_GLOBAL_STATIC(QObject, eventManagerHandler)
 

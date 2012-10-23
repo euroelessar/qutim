@@ -29,7 +29,7 @@
 #include <TelepathyQt4/TextChannel>
 #include <TelepathyQt4/Message>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Tp;
 
 struct AstralSessionPrivate;
@@ -42,7 +42,7 @@ public:
 	AstralSession(const TextChannelPtr &channel, AstralAccount *acc);
 	virtual ~AstralSession();
 	virtual QString id() const;
-	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
+	virtual bool sendMessage(const Ureen::Message &message);
 private slots:
 	void onMessageReceived(const Tp::ReceivedMessage &message);
 	void onMessageSent(Tp::PendingOperation *operation);

@@ -38,7 +38,7 @@
 
 #define CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE 1
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Q_GLOBAL_STATIC(QList<ConfigBackend*>, all_config_backends)
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends()

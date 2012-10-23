@@ -34,14 +34,14 @@
 namespace Core {
 namespace AdiumChat {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum Role {
 	MessageRole = Qt::UserRole + 1
 };
 
 // TODO: Remove duplication of code
-QString getUnitNick(const qutim_sdk_0_3::Message &message)
+QString getUnitNick(const Ureen::Message &message)
 {
 	QObject *source = 0;
 	QString id = message.property("senderId", QString());

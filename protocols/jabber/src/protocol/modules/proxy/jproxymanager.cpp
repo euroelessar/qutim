@@ -30,7 +30,7 @@
 #include <jreen/client.h>
 #include <jreen/connection.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Jabber {
 

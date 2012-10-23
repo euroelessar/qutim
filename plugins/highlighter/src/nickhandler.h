@@ -39,13 +39,13 @@
 
 namespace Highlighter {
 
-class NickHandler : public QObject, public qutim_sdk_0_3::MessageHandler
+class NickHandler : public QObject, public Ureen::MessageHandler
 {
     Q_OBJECT
 public:
 	explicit NickHandler();
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Ureen::MessageHandler::Result doHandle(Ureen::Message &message, QString *reason);
 public slots:
 	void loadSettings();
 private:

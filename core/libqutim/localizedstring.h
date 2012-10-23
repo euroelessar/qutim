@@ -36,15 +36,15 @@
 # undef QT_TRANSLATE_NOOP_UTF8
 # undef QT_TRANSLATE_NOOP3
 # undef QT_TRANSLATE_NOOP3_UTF8
-# define QT_TR_NOOP(x)                            qutim_sdk_0_3::LocalizedString(staticMetaObject.className(), x)
-# define QT_TR_NOOP_UTF8(x)                       qutim_sdk_0_3::LocalizedString(staticMetaObject.className(), x)
-# define QT_TRANSLATE_NOOP(scope, x)              qutim_sdk_0_3::LocalizedString(scope, x)
-# define QT_TRANSLATE_NOOP_UTF8(scope, x)         qutim_sdk_0_3::LocalizedString(scope, x)
-# define QT_TRANSLATE_NOOP3(scope,x,comment)      qutim_sdk_0_3::LocalizedString(scope, x)
-# define QT_TRANSLATE_NOOP3_UTF8(scope,x,comment) qutim_sdk_0_3::LocalizedString(scope, x)
+# define QT_TR_NOOP(x)                            Ureen::LocalizedString(staticMetaObject.className(), x)
+# define QT_TR_NOOP_UTF8(x)                       Ureen::LocalizedString(staticMetaObject.className(), x)
+# define QT_TRANSLATE_NOOP(scope, x)              Ureen::LocalizedString(scope, x)
+# define QT_TRANSLATE_NOOP_UTF8(scope, x)         Ureen::LocalizedString(scope, x)
+# define QT_TRANSLATE_NOOP3(scope,x,comment)      Ureen::LocalizedString(scope, x)
+# define QT_TRANSLATE_NOOP3_UTF8(scope,x,comment) Ureen::LocalizedString(scope, x)
 #endif // NO_AUTOLOCALIZATION
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class LIBQUTIM_EXPORT LocalizedString
 	{
@@ -82,8 +82,8 @@ namespace qutim_sdk_0_3
 	typedef QList<LocalizedString> LocalizedStringList;
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::LocalizedStringList);
-Q_DECLARE_METATYPE(qutim_sdk_0_3::LocalizedString);
+Q_DECLARE_METATYPE(Ureen::LocalizedStringList);
+Q_DECLARE_METATYPE(Ureen::LocalizedString);
 
 #endif // LOCALIZEDSTRING_H
 

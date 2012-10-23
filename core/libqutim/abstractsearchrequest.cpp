@@ -25,7 +25,7 @@
 #include "abstractsearchrequest_p.h"
 #include <QSet>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	AbstractSearchRequest::AbstractSearchRequest()
 	{

@@ -26,7 +26,7 @@
 #include "systeminfo.h"
 #include <QMultiMap>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ThemeManagerData
 {
@@ -76,8 +76,8 @@ static inline QStringList listThemes(QDir shareDir, const QString &category)
 QStringList ThemeManager::list(const QString &category)
 {
 	QStringList theme_list;
-	theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir),category);
-	theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir),category);
+	theme_list << listThemes(SystemInfo::getDir(Ureen::SystemInfo::ShareDir),category);
+	theme_list << listThemes(SystemInfo::getDir(Ureen::SystemInfo::SystemShareDir),category);
 	foreach (const QDir &dir, data()->paths)
 		theme_list << listThemes(dir, category);
 	foreach (const QDir &dir, data()->categoryPaths.values(category))
@@ -95,11 +95,11 @@ void ThemeManager::addPath(const QString &path_, const QString &category)
 QList<QDir> ThemeManager::categoryDirs(const QString &category)
 {
 	QList<QDir> list;
-	QDir dir = SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir);
+	QDir dir = SystemInfo::getDir(Ureen::SystemInfo::ShareDir);
 	if (dir.cd(category))
 		list << dir;
 
-	dir = SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir);
+	dir = SystemInfo::getDir(Ureen::SystemInfo::SystemShareDir);
 	if (dir.cd(category))
 		list << dir;
 

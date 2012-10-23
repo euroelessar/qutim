@@ -26,10 +26,10 @@
 #include "ircsettingswidget.h"
 #include "../ircaccount.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 

@@ -33,7 +33,7 @@
 #include "conference.h"
 #include "notification.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 #ifndef QT_NO_DEBUG
 Q_GLOBAL_STATIC(QSet<ChatUnit*>, all_chat_units)
@@ -92,7 +92,7 @@ bool ChatUnit::isConference() const
     return qobject_cast<const Conference*>(this) != NULL;
 }
 
-bool ChatUnit::send(const qutim_sdk_0_3::Message &message)
+bool ChatUnit::send(const Ureen::Message &message)
 {
     return sendMessage(message);
 }

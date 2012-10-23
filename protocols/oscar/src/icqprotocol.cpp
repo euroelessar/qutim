@@ -38,7 +38,7 @@
 #include <QStringList>
 #include <QWeakPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -174,5 +174,5 @@ QVariant IcqProtocol::data(DataType type)
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

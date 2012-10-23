@@ -31,7 +31,7 @@
 #include "irccontact.h"
 #include "ircprotocol.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class ChatSession;
 
@@ -100,7 +100,7 @@ private:
 	QScopedPointer<IrcAccountPrivate> d;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCACCOUNT_H
 

@@ -29,7 +29,7 @@
 #include "infometarequest.h"
 #include "abstractmetarequest_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -56,7 +56,7 @@ public:
 	void handleWork(const DataUnit &data);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // INFOMETAREQUEST_P_H
 

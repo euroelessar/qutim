@@ -26,7 +26,7 @@
 #include "highlightersettings.h"
 #include <qutim/config.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 HighlighterSettings::HighlighterSettings()
 {

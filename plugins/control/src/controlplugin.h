@@ -30,7 +30,7 @@
 
 namespace Control {
 
-class ControlPlugin : public qutim_sdk_0_3::Plugin
+class ControlPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Control")

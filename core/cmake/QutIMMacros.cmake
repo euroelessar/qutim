@@ -286,15 +286,15 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 "#include \"${QUTIM_${plugin_name}_EXTENSION_HEADER}\"
 #include <qutim/plugin.h>
 
-class ${plugin_name}Plugin : public qutim_sdk_0_3::Plugin
+class ${plugin_name}Plugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:
 	virtual void init()
 	{
-		qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(\"${QUTIM_${plugin_name}_ICON}\"));
-		qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP(\"Plugin\", \"${QUTIM_${plugin_name}_DISPLAY_NAME}\");
-		qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP(\"Plugin\", \"${QUTIM_${plugin_name}_DESCRIPTION}\");
+		Ureen::ExtensionIcon icon(QLatin1String(\"${QUTIM_${plugin_name}_ICON}\"));
+		Ureen::LocalizedString name = QT_TRANSLATE_NOOP(\"Plugin\", \"${QUTIM_${plugin_name}_DISPLAY_NAME}\");
+		Ureen::LocalizedString description = QT_TRANSLATE_NOOP(\"Plugin\", \"${QUTIM_${plugin_name}_DESCRIPTION}\");
 		setInfo(name, description, QUTIM_VERSION, icon);
 		addExtension<${QUTIM_${plugin_name}_EXTENSION_CLASS}>(name, description, icon);
 	}

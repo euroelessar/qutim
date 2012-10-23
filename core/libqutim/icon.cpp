@@ -28,7 +28,7 @@
 #include "iconloader.h"
 #include "objectgenerator.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	Icon::Icon(const QString &name) : QIcon(IconLoader::loadIcon(name))
 	{

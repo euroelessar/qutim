@@ -27,7 +27,7 @@
 #include "icon.h"
 #include "objectgenerator.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ExtensionIconData : public QSharedData
 {

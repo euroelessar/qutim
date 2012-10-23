@@ -46,12 +46,12 @@ signals:
 public slots:
 
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionUnreadChanged();
 	void onSessionDeath(QObject *object);
 	
 private:
-	QList<qutim_sdk_0_3::ChatSession*> m_sessions;
+	QList<Ureen::ChatSession*> m_sessions;
 };
 }
 

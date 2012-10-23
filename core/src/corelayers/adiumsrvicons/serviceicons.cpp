@@ -29,7 +29,7 @@
 #include <qutim/servicemanager.h>
 #include <QStringBuilder>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Adium
 {

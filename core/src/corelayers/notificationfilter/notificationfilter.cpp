@@ -35,7 +35,7 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static QString toString(Notification::Type type, const QString &argument)
 {
@@ -102,14 +102,14 @@ static inline ChatUnit *getUnitForSession(QObject *obj)
 NotificationFilterImpl::NotificationFilterImpl()
 {
 	registerFilter(this, LowPriority);
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 
 	foreach (Protocol *proto, Protocol::all()) {
 		foreach (Account *acc, proto->accounts())
 			onAccountCreated(acc);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountCreated(Ureen::Account*)));
 	}
 }
 
@@ -182,14 +182,14 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 		{
 			NotificationAction action(QObject::tr("Open chat"),
 									  this,
-									  SLOT(onOpenChatClicked(qutim_sdk_0_3::NotificationRequest)));
+									  SLOT(onOpenChatClicked(Ureen::NotificationRequest)));
 			action.setType(NotificationAction::AcceptButton);
 			request.addAction(action);
 		}
 		{
 			NotificationAction action(QObject::tr("Ignore"),
 									  this,
-									  SLOT(onIgnoreChatClicked(qutim_sdk_0_3::NotificationRequest)));
+									  SLOT(onIgnoreChatClicked(Ureen::NotificationRequest)));
 			action.setType(NotificationAction::IgnoreButton);
 			request.addAction(action);
 		}
@@ -224,7 +224,7 @@ void NotificationFilterImpl::notificationCreated(Notification *notification)
 			QTimer::singleShot(5000, notification, SLOT(reject()));
 		} else {
 			m_notifications.insert(unit, notification);
-			connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 					SLOT(onNotificationFinished()));
 			connect(unit, SIGNAL(destroyed()), SLOT(onUnitDestroyed()), Qt::UniqueConnection);
 		}
@@ -254,7 +254,7 @@ void NotificationFilterImpl::onIgnoreChatClicked(const NotificationRequest &requ
 		session->markRead(msgVar.value<Message>().id());
 }
 
-void NotificationFilterImpl::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void NotificationFilterImpl::onSessionCreated(Ureen::ChatSession *session)
 {
 	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 }
@@ -289,14 +289,14 @@ void NotificationFilterImpl::onUnitDestroyed()
 	m_notifications.remove(static_cast<ChatUnit*>(sender()));
 }
 
-void NotificationFilterImpl::onAccountCreated(qutim_sdk_0_3::Account *account)
+void NotificationFilterImpl::onAccountCreated(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status,Ureen::Status)));
 }
 
-void NotificationFilterImpl::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-													const qutim_sdk_0_3::Status &previous)
+void NotificationFilterImpl::onAccountStatusChanged(const Ureen::Status &status,
+													const Ureen::Status &previous)
 {
 	Account *acc = sender_cast<Account*>(sender());
 	if (status.type() != Status::Offline && previous.type() == Status::Connecting) {

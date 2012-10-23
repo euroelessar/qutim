@@ -31,7 +31,7 @@
 #include <qutim/protocol.h>
 #include "metacontactimpl.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
@@ -41,7 +41,7 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 {
 }
 
-MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
+MessageHandler::Result MetaContactMessageHandler::doHandle(Ureen::Message &message, QString *reason)
 {
 	Q_UNUSED(reason);
 	if (message.isIncoming() && !qobject_cast<MetaContactImpl*>(message.chatUnit())) {

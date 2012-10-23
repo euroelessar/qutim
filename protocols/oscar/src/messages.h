@@ -34,7 +34,7 @@
 #include <QTimer>
 #include <qutim/message.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -160,17 +160,17 @@ protected:
 	QSet<Tlv2711Type> m_tlvs2711Types;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 template <>
-inline QDebug operator<<(QDebug debug, const qutim_sdk_0_3::oscar::Tlv2711Type &type)
+inline QDebug operator<<(QDebug debug, const Ureen::oscar::Tlv2711Type &type)
 {
 	debug << qMakePair(type.first.toString(), type.second);
 	return debug;
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::MessagePlugin, "org.qutim.oscar.MessagePlugin");
+Q_DECLARE_INTERFACE(Ureen::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
+Q_DECLARE_INTERFACE(Ureen::oscar::MessagePlugin, "org.qutim.oscar.MessagePlugin");
 
 #endif /* MESSAGES_H_ */
 

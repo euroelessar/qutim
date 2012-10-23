@@ -29,7 +29,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum {
 	HasChildrenRole = -1,
@@ -66,7 +66,7 @@ QObject *MenuModel::controller() const
 
 void MenuModel::setController(QObject *object)
 {
-	qutim_sdk_0_3::MenuController *controller = qobject_cast<MenuController*>(object);
+	Ureen::MenuController *controller = qobject_cast<MenuController*>(object);
 	if (m_controller == controller)
 		return;
 	m_controller = controller;

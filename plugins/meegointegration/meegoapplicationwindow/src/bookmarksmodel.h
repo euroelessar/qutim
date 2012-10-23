@@ -32,7 +32,7 @@
 #include <qutim/dataforms.h>
 
 namespace MeegoIntegration {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum BookmarkType
 {
 	BookmarkNew,

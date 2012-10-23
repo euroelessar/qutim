@@ -83,12 +83,12 @@ AWNService::AWNService()
     m_iconTimer->start(500);
     m_cwc = new ChatWindowController(this);
     qApp->installEventFilter(this);
-    connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+    connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),this, SLOT(onSessionCreated(Ureen::ChatSession*)));
     QMap<QString, Protocol*> protocols;
     foreach (Protocol *proto, Protocol::all()) {
         protocols.insert(proto->id(), proto);
-        connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-                this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+        connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+                this, SLOT(onAccountCreated(Ureen::Account*)));
         foreach(Account *a, proto->accounts())
             emit onAccountCreated(a);
     }
@@ -152,9 +152,9 @@ void AWNService::onItemRemoved(QDBusObjectPath path)
     }
 }
 
-void AWNService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void AWNService::onSessionCreated(Ureen::ChatSession *session)
 {
-    connect(session, SIGNAL(unreadChanged(const qutim_sdk_0_3::MessageList&)), SLOT(onUnreadChanged(const qutim_sdk_0_3::MessageList&)));
+    connect(session, SIGNAL(unreadChanged(const Ureen::MessageList&)), SLOT(onUnreadChanged(const Ureen::MessageList&)));
 }
 
 void AWNService::onUnreadChanged(const MessageList &unread)
@@ -360,14 +360,14 @@ void AWNService::onMenuItemActivated(int id)
     }
 }
 
-void AWNService::onAccountCreated(qutim_sdk_0_3::Account *account)
+void AWNService::onAccountCreated(Ureen::Account *account)
 {
 	debug() << "[AWN] account created: " << account->name();
     if (m_accounts.contains(account))
         return;
     m_accounts << account;
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-            this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+            this, SLOT(onStatusChanged(Ureen::Status)));
     connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
     if (!m_activeAccount) {
         if (account->status().type() != Status::Offline)
@@ -381,7 +381,7 @@ void AWNService::onAccountDestroyed(QObject *obj)
     m_accounts.removeAll(static_cast<Account*>(obj));
 }
 
-void AWNService::onStatusChanged(const qutim_sdk_0_3::Status &status)
+void AWNService::onStatusChanged(const Ureen::Status &status)
 {
     Account *account = qobject_cast<Account*>(sender());
     if (account == m_activeAccount || !m_activeAccount) {

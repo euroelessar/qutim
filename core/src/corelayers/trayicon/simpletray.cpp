@@ -105,13 +105,13 @@ SimpleTray::SimpleTray() :
 	m_defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 	connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 			this, SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				this, SLOT(onAccountCreated(Ureen::Account*)));
 	}
 	m_protocols = protocols.values();
 
@@ -177,10 +177,10 @@ void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 	}
 }
 
-void SimpleTray::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void SimpleTray::onSessionCreated(Ureen::ChatSession *session)
 {
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session, SIGNAL(unreadChanged(Ureen::MessageList)),
+			this, SLOT(onUnreadChanged(Ureen::MessageList)));
 	connect(session, SIGNAL(destroyed()), this, SLOT(onSessionDestroyed()));
 }
 
@@ -191,7 +191,7 @@ void SimpleTray::onSessionDestroyed()
 	updateGeneratedIcon();
 }
 
-void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
+void SimpleTray::onUnreadChanged(Ureen::MessageList unread)
 {
 	ChatSession *session = sender_cast<ChatSession*>(sender());
 
@@ -248,7 +248,7 @@ void SimpleTray::handleNotification(Notification *notification)
 	}
 
 	ref(notification);
-	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+	connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 			SLOT(onNotificationFinished()));
 
 	if (!m_iconTimer.isActive() && m_blink && m_showIcon) {
@@ -400,8 +400,8 @@ public:
 		action->setIcon(m_account->status().icon());
 		QMenu *menu = m_account->menu(false);
 		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
-		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		QObject::connect(m_account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+						 action, SLOT(onStatusChanged(Ureen::Status)));
 		action->setMenu(menu);
 		return action;
 	}
@@ -484,7 +484,7 @@ void SimpleTray::onAccountDestroyed(QObject *obj)
 	validateProtocolActions();
 }
 
-void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
+void SimpleTray::onAccountCreated(Ureen::Account *account)
 {
 	if (m_actions.contains(account))
 		return;
@@ -494,8 +494,8 @@ void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
 	m_actions.insert(account, gen);
 	addAction(gen);
 	connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onStatusChanged(Ureen::Status)));
 	if (!m_activeAccount) {
 		if (account->status().type() != Status::Offline)
 			m_activeAccount = account;
@@ -506,7 +506,7 @@ void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
 	validateProtocolActions();
 }
 
-void SimpleTray::onStatusChanged(const qutim_sdk_0_3::Status &status)
+void SimpleTray::onStatusChanged(const Ureen::Status &status)
 {
 	Account *account = qobject_cast<Account*>(sender());
 	if (account == m_activeAccount || !m_activeAccount) {

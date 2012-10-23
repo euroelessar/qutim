@@ -33,7 +33,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class AboutDialogWrapper : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(QString developers READ developers NOTIFY developersChanged)
@@ -69,7 +69,7 @@ private:
 	QString m_version;
 	QString m_license;
 
-	QString toHtml(const QList<qutim_sdk_0_3::PersonInfo> &persons, bool useTask);
+	QString toHtml(const QList<Ureen::PersonInfo> &persons, bool useTask);
 
 	static QuickAboutDialog *m_currentDialog;
 

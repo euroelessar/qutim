@@ -29,7 +29,7 @@
 #include <qutim/message.h>
 #include <qutim/chatunit.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 inline Message *get_value(const QScriptValue &obj)
 {

@@ -33,7 +33,7 @@
 
 Q_DECLARE_METATYPE(int*)
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalEventLoop *QuetzalEventLoop::m_self = NULL;
 

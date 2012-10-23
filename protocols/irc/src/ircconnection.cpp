@@ -44,7 +44,7 @@
 #include <qutim/passworddialog.h>
 #include <qutim/systemintegration.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -674,5 +674,5 @@ void IrcConnection::passwordEntered(const QString &password, bool remember)
 	tryNextNick();
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

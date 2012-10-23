@@ -34,7 +34,7 @@
 #include "account.h"
 #include "protocol.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
 {

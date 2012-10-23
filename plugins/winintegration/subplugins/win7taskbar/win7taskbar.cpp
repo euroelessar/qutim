@@ -32,7 +32,7 @@
 #include <qutim/servicemanager.h>
 #include <WinThings/TaskbarPreviews.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void Win7Features::init()
 {
@@ -48,7 +48,7 @@ bool Win7Features::load()
 	thumbnails  = new WThumbnails;
 	overlayIcon = new WOverlayIcon;
 	//connect(WinIntegration::instance(), SIGNAL(reloadSettigs()), thumbnails,  SLOT(reloadSetting())); // no need - loads them once
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), thumbnails, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)), thumbnails, SLOT(onSessionCreated(Ureen::ChatSession*)));
 	TaskbarPreviews::setWindowAttributes(ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>(), TA_Flip3D_ExcludeBelow | TA_Peek_ExcludeFrom);
 	WinIntegration::instance()->enabledPlugin(WI_Win7Taskbar);
 	return true;

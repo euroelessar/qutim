@@ -391,8 +391,8 @@ void JRoster::onNewMessage(Jreen::Message message)
 	}
 	
 	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
-		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
-		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
+		connect(reply, SIGNAL(finished(Ureen::ChatUnit*,Ureen::ChatUnit*,Jreen::Message)),
+		        SLOT(onMessageDecrypted(Ureen::ChatUnit*,Ureen::ChatUnit*,Jreen::Message)));
 	} else {
 		onMessageDecrypted(unitForSession, chatUnit, message);
 	}
@@ -406,7 +406,7 @@ void JRoster::onMessageDecrypted(ChatUnit *chatUnit, ChatUnit *unitForSession, c
 		chatUnit = unitForSession;
 	if (!unitForSession)
 		unitForSession = chatUnit;
-	qutim_sdk_0_3::Message coreMessage;
+	Ureen::Message coreMessage;
 	if(Jreen::DelayedDelivery::Ptr d = message.when())
 		coreMessage.setTime(d->dateTime());
 	else

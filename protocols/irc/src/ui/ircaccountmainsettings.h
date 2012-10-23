@@ -35,7 +35,7 @@ namespace Ui {
 	class AddAccountForm;
 }
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -75,7 +75,7 @@ private:
 
 typedef IrcSettingsWidget<IrcAccountMainSettings> IrcAccountMainSettingsWidget;
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 
 #endif // IRCACCOUNTMAINSETTINGS_H
 

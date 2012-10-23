@@ -36,7 +36,7 @@
 namespace Core {
 namespace MetaContacts {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Model::Model(QObject *parent) :
 	QStandardItemModel(parent)

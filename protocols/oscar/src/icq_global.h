@@ -36,7 +36,7 @@
 #  define LIBOSCAR_EXPORT Q_DECL_IMPORT
 #endif
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -232,7 +232,7 @@ const quint16 dc_type               = 0x0004;
 
 #define BOS_SERVER_SUPPORTS_SSL 0
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQ_GLOBAL_H
 

@@ -61,7 +61,7 @@ QML_DECLARE_TYPE(QMessageBox)
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static ApplicationWindow *self = 0;
 

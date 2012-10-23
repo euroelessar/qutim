@@ -28,7 +28,7 @@
 #include "chatunit_p.h"
 #include "buddy.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class BuddyPrivate : public ChatUnitPrivate
@@ -36,7 +36,7 @@ class BuddyPrivate : public ChatUnitPrivate
 	Q_DECLARE_PUBLIC(Buddy)
 public:
 	BuddyPrivate(Buddy *b) : ChatUnitPrivate(b) {}
-	void _q_status_changed(const qutim_sdk_0_3::Status &now,const qutim_sdk_0_3::Status &old);
+	void _q_status_changed(const Ureen::Status &now,const Ureen::Status &old);
 
 };
 

@@ -30,7 +30,7 @@
 #include <qutim/simplecontactlist/simplecontactlistview.h>
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 class Contact;
@@ -69,10 +69,10 @@ public:
 private slots:
 	void showStatusDialog();
 	void changeStatusTextAccepted();
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status);
 	void onAccountDestroyed(QObject *obj);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
+	void onSessionCreated(Ureen::ChatSession*);
 	void onSessionDestroyed();
 	void onActivatedSession(bool state);
 	void initMenu();

@@ -30,7 +30,7 @@
 #include <qutim/status.h>
 #include "icq_global.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -64,7 +64,7 @@ private:
 	static IcqProtocol *self;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQPROTOCOL_H
 

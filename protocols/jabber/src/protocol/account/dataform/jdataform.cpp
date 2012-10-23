@@ -35,7 +35,7 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JDataFormPrivate
 {
@@ -47,14 +47,14 @@ public:
 	{
 	}
 	void init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-	          qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons);
+	          Ureen::AbstractDataForm::StandardButtons buttons);
 	Jreen::DataForm::Ptr form;
 	DataItem item;
 	AbstractDataForm *widget;
 };
 
 void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-                            qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons)
+                            Ureen::AbstractDataForm::StandardButtons buttons)
 {
 	this->form = form;
 	
@@ -82,20 +82,20 @@ JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOf
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent)
     : QWidget(parent), d_ptr(new JDataFormPrivate)
 {
-	d_func()->init(this, form, bobs, qutim_sdk_0_3::AbstractDataForm::NoButton);
+	d_func()->init(this, form, bobs, Ureen::AbstractDataForm::NoButton);
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent)
     : QWidget(parent), d_ptr(new JDataFormPrivate)
 {
-	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), qutim_sdk_0_3::AbstractDataForm::NoButton);
+	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), Ureen::AbstractDataForm::NoButton);
 }
 
 JDataForm::~JDataForm()
 {
 }
 
-qutim_sdk_0_3::AbstractDataForm *JDataForm::widget()
+Ureen::AbstractDataForm *JDataForm::widget()
 {
 	return d_func()->widget;
 }

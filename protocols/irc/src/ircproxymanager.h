@@ -29,22 +29,22 @@
 #include "ircglobal.h"
 #include <qutim/networkproxy.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
 class IrcProxyManager : public QObject, public NetworkProxyManager
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::irc::IrcProtocol")
-	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
+	Q_CLASSINFO("DependsOn", "Ureen::irc::IrcProtocol")
+	Q_INTERFACES(Ureen::NetworkProxyManager)
 public:
 	IrcProxyManager();
 	QList<NetworkProxyInfo*> proxies();
 	void setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings);
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCPROXYMANAGER_H
 

@@ -32,7 +32,7 @@
 
 class QIcon;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class LocalizedString;
 class DataItem;
@@ -186,10 +186,10 @@ protected:
 	HttpProxyInfo();
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
-//Q_DECLARE_METATYPE(qutim_sdk_0_3::NetworkProxyInfo)
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::NetworkProxyManager, "org.qutim.core.NetworkProxyManager");
+//Q_DECLARE_METATYPE(Ureen::NetworkProxyInfo)
+Q_DECLARE_INTERFACE(Ureen::NetworkProxyManager, "org.qutim.core.NetworkProxyManager");
 
 #endif // NETWORKPROXY_H
 

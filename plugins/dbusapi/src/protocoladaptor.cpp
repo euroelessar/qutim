@@ -34,8 +34,8 @@ extern quint16 dbus_adaptor_event_id;
 ProtocolAdaptor::ProtocolAdaptor(const QDBusConnection &dbus, Protocol *parent) :
 		QDBusAbstractAdaptor(parent), m_dbus(dbus), m_protocol(parent)
 {
-	connect(parent, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), 
-			this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	connect(parent, SIGNAL(accountCreated(Ureen::Account*)), 
+			this, SLOT(onAccountCreated(Ureen::Account*)));
 	QString path = QLatin1String("/Protocol/");
 	path += parent->id().replace('-', '_').replace(' ', '_');
 	m_path = QDBusObjectPath(path);
@@ -43,7 +43,7 @@ ProtocolAdaptor::ProtocolAdaptor(const QDBusConnection &dbus, Protocol *parent) 
 		onAccountCreated(account);
 }
 
-void ProtocolAdaptor::onAccountCreated(qutim_sdk_0_3::Account *account)
+void ProtocolAdaptor::onAccountCreated(Ureen::Account *account)
 {
 	AccountAdaptor *adaptor = new AccountAdaptor(m_dbus, m_path, account);
 	Event(dbus_adaptor_event_id, qVariantFromValue<Account*>(account)).send();

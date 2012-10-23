@@ -35,7 +35,7 @@
 #include <QRect>
 #include <QDesktopWidget>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class StatisticsHelperPrivate
 {

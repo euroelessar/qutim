@@ -33,7 +33,7 @@
 #include <KIcon>
 
 using namespace Sonnet;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Ui {
     class KdeSpellerSettings;

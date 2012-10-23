@@ -30,7 +30,7 @@
 #include <QVariantMap>
 #include <QNetworkReply>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Config;
 class StatisticsHelperPrivate;

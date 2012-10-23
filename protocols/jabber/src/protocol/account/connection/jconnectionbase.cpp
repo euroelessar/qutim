@@ -30,7 +30,7 @@
 //namespace Jabber
 //{
 //using namespace gloox;
-//using namespace qutim_sdk_0_3;
+//using namespace Ureen;
 
 //JConnectionBase::JConnectionBase(ConnectionDataHandler *cdh) : ConnectionBase(cdh)
 //{
@@ -65,7 +65,7 @@
 //		info->lookupSrvRecord(QLatin1String("xmpp-client"),
 //							  QLatin1String("tcp"),
 //							  QString::fromStdString(m_server));
-//		qutim_sdk_0_3::debug() << "Looking srv records for:" << QString::fromStdString(m_server);
+//		Ureen::debug() << "Looking srv records for:" << QString::fromStdString(m_server);
 //	}
 //}
 
@@ -94,13 +94,13 @@
 //	for(;it!=records.constEnd();it++) {
 //		QString host = it->name;
 //		int port = it->port;
-//		qutim_sdk_0_3::debug() << "hosts" << host << port;
+//		Ureen::debug() << "hosts" << host << port;
 //		QString hostr = host;
 //		hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
 //		if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
 //			m_server = host.toStdString();
 //			m_port = port;
-//			qutim_sdk_0_3::debug() << "resolved host" << host << port;
+//			Ureen::debug() << "resolved host" << host << port;
 //			break;
 //		}
 //	}

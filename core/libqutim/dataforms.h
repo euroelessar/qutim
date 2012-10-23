@@ -37,7 +37,7 @@
 
 class QValidator;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class DataItemPrivate;
@@ -593,7 +593,7 @@ signals:
 	void rejected();
 	void helpRequested();
 	void clicked(int buttonIndex);
-	void clicked(qutim_sdk_0_3::AbstractDataForm::StandardButton standartButton);
+	void clicked(Ureen::AbstractDataForm::StandardButton standartButton);
 	/**
 	The signal is emitted when the state of the data form has been changed.
 	\see isChanged()
@@ -634,8 +634,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons)
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::DataItem>)
+Q_DECLARE_METATYPE(Ureen::DataItem)
+Q_DECLARE_METATYPE(QList<Ureen::DataItem>)
 #endif
 
 #endif // DATAFORMS_H

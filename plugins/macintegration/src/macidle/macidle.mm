@@ -110,7 +110,7 @@ void MacIdle::setIdleOn(MacIdle::Reason reason)
 		statusType = Status::NA;
 	else
 		statusType = Status::Away;
-	foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+	foreach(Ureen::Protocol *proto, Ureen::Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			Status status = account->status();
 			if (status.type() != Status::Online && status.type() != Status::FreeChat
@@ -132,7 +132,7 @@ void MacIdle::setIdleOn(MacIdle::Reason reason)
 void MacIdle::setIdleOff()
 {
 	Q_D(MacIdle);
-	foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+	foreach(Ureen::Protocol *proto, Ureen::Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			if (d->idleAccounts.contains(account)) {
 				account->setStatus(d->idleAccounts.take(account));

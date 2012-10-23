@@ -39,7 +39,7 @@
 #include <QApplication>
 #include <QStyle>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {	
 static ActionGenerator *createGenerator(int data, const LocalizedString &text, bool showIconSize = false)
 {

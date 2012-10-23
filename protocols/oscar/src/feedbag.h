@@ -32,7 +32,7 @@
 #include <QSharedData>
 #include <qutim/config.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -131,7 +131,7 @@ Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
+	Q_INTERFACES(Ureen::oscar::SNACHandler)
 public:		
 	enum ModifyType {
 		Add = ListsAddToList,
@@ -185,7 +185,7 @@ signals:
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 private:
 	friend class FeedbagPrivate;
 	friend class FeedbagItem;
@@ -209,11 +209,11 @@ private:
 	quint16 m_priority;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, const qutim_sdk_0_3::oscar::FeedbagItem &item);
-LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, qutim_sdk_0_3::oscar::Feedbag::ModifyType type);
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::FeedbagItemHandler, "org.qutim.oscar.FeedbagItemHandler");
+LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, const Ureen::oscar::FeedbagItem &item);
+LIBOSCAR_EXPORT QDebug &operator<<(QDebug &stream, Ureen::oscar::Feedbag::ModifyType type);
+Q_DECLARE_INTERFACE(Ureen::oscar::FeedbagItemHandler, "org.qutim.oscar.FeedbagItemHandler");
 
 #endif // FEEDBAG_H
 

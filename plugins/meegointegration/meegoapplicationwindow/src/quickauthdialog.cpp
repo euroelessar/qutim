@@ -37,7 +37,7 @@ namespace MeegoIntegration
 QuickAuthDialog::QuickAuthDialog() {
 }
 
-void QuickAuthDialog::accept(const QString &message, bool isIncoming, qutim_sdk_0_3::Contact* c)
+void QuickAuthDialog::accept(const QString &message, bool isIncoming, Ureen::Contact* c)
 {
 	if(isIncoming) {
 		qDebug() << "Send reply";

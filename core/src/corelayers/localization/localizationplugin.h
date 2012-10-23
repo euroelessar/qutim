@@ -30,7 +30,7 @@
 
 namespace Core
 {
-class LocalizationPlugin : public qutim_sdk_0_3::Plugin
+class LocalizationPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

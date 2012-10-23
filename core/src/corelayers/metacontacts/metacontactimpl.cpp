@@ -33,7 +33,7 @@
 #include <QLatin1Literal>
 #include <qutim/rosterstorage.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
@@ -55,7 +55,7 @@ bool contactLessThan(Contact *a, Contact *b)
 
 MetaContactImpl::MetaContactImpl(const QString &id) : m_id(id), m_activeContact(0)
 {
-	connect(ChatLayer::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(),SIGNAL(sessionCreated(Ureen::ChatSession*)), this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 }
 
 MetaContactImpl::~MetaContactImpl()
@@ -113,12 +113,12 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 
 	m_contacts.append(contact);
 	MetaContact::addContact(contact);
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+	connect(contact, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
 			SLOT(onContactStatusChanged()));
 	connect(contact, SIGNAL(avatarChanged(QString)),
 			SLOT(setAvatar(QString)));
-	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(contact, SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)),
+			SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)));
 	connect(contact, SIGNAL(destroyed(QObject*)),
 	        SLOT(onContactDeath(QObject*)));
 
@@ -237,7 +237,7 @@ void MetaContactImpl::setAvatar(const QString& path)
 	RosterStorage::instance()->updateContact(this);
 }
 
-qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
+Ureen::ChatUnitList MetaContactImpl::lowerUnits()
 {
 	ChatUnitList list;
 	for (int i = 0;i != m_contacts.count(); i++)
@@ -245,7 +245,7 @@ qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 	return list;
 }
 
-const qutim_sdk_0_3::ChatUnit* MetaContactImpl::getHistoryUnit() const
+const Ureen::ChatUnit* MetaContactImpl::getHistoryUnit() const
 {
 	//TODO improve history
 	return m_activeContact;
@@ -269,7 +269,7 @@ bool MetaContactImpl::event(QEvent* ev)
 		ChatStateEvent *event = static_cast<ChatStateEvent*>(ev);
 		qApp->sendEvent(m_activeContact,event);
 	}
-	return qutim_sdk_0_3::MetaContact::event(ev);
+	return Ureen::MetaContact::event(ev);
 }
 
 void MetaContactImpl::addContacts(QList<Contact*> contacts, bool remove)

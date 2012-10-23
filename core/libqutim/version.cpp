@@ -25,7 +25,7 @@
 
 #include "libqutim_version.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 quint8 versionMajor()
 {

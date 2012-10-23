@@ -29,7 +29,7 @@
 #include <qutim/chatsession.h>
 #include <QDateTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -439,5 +439,5 @@ void IrcChannel::clear(ChatSession *session)
 
 }
 
-} // namespace qutim_sdk_0_3::irc
+} // namespace Ureen::irc
 

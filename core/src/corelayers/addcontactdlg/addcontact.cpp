@@ -40,7 +40,7 @@ namespace Core
 bool isSupportAddContact()
 {
 	foreach (Protocol *p,Protocol::all()) {
-		bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
+		bool support = p->data(Ureen::Protocol::ProtocolContainsContacts).toBool();
 		if (support) {
 			foreach (Account *a,p->accounts()) {
 				if (a->status() != Status::Offline) {
@@ -121,8 +121,8 @@ AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_p
 					d->accounts.insert(acc->id(), acc);
 					d->buttons.insert(acc->id(), button);
 					changeState(acc, acc->status());
-					connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-							SLOT(changeState(qutim_sdk_0_3::Status)));
+					connect(acc, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+							SLOT(changeState(Ureen::Status)));
 				}
 		if (d->accounts.count() == 1)
 			setAccount(d->accounts.values().at(0));
@@ -207,13 +207,13 @@ void AddContact::onShowInfoClicked()
 		QMetaObject::invokeMethod(obj, "show", Q_ARG(QObject*, unit));
 }
 
-void AddContact::changeState(const qutim_sdk_0_3::Status &status)
+void AddContact::changeState(const Ureen::Status &status)
 {
 	if (Account *account = qobject_cast<Account *>(sender()))
 		changeState(account, status);
 }
 
-void AddContact::changeState(Account *account, const qutim_sdk_0_3::Status &status)
+void AddContact::changeState(Account *account, const Ureen::Status &status)
 {
 	if (QToolButton *button = d_func()->buttons.value(account->id())) {
 		if (status == Status::Connecting || status == Status::Offline) {

@@ -36,20 +36,20 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JInfoRequest;
 
 class JVCardManager : public QObject, public JabberExtension, public InfoRequestFactory
 {
 	Q_OBJECT
-	Q_INTERFACES(Jabber::JabberExtension qutim_sdk_0_3::InfoRequestFactory)
+	Q_INTERFACES(Jabber::JabberExtension Ureen::InfoRequestFactory)
 	Q_CLASSINFO("DebugName", "Jabber::VCardManager")
 public:
 	JVCardManager();
 	~JVCardManager();
 	
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 	static QString ensurePhoto(const Jreen::VCard::Photo &photo, QString *path = NULL);
 
 protected: // InformationRequestFactory stuff
@@ -62,16 +62,16 @@ protected slots:
 	void onConnected();
 	void onVCardReceived(const Jreen::VCard::Ptr &vcard, const Jreen::JID &jid);
 	void onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-								const qutim_sdk_0_3::Status &previous);
+	void onAccountStatusChanged(const Ureen::Status &status,
+								const Ureen::Status &previous);
 	
 private:
 	friend class JInfoRequest;
 	bool m_autoLoad;
-	qutim_sdk_0_3::Account *m_account;
+	Ureen::Account *m_account;
 	Jreen::Client *m_client;
 	Jreen::VCardManager *m_manager;
-	QSet<qutim_sdk_0_3::ChatUnit*> m_observedUnits;
+	QSet<Ureen::ChatUnit*> m_observedUnits;
 };
 
 }

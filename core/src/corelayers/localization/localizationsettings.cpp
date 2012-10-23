@@ -33,7 +33,7 @@
 #include <qutim/icon.h>
 #include <qutim/thememanager.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

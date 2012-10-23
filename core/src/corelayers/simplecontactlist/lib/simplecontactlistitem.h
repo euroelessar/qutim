@@ -31,7 +31,7 @@
 #include <QMetaType>
 #include "simplecontactlist_global.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

@@ -27,7 +27,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum {
 	ChannelRole = Qt::UserRole,
 	UnreadCountRole
@@ -44,8 +44,8 @@ ChatChannelModel::ChatChannelModel(QObject *parent) :
 	setRoleNames(roleNames);
 	
 	ChatLayer *chatLayer = ChatLayer::instance();
-	connect(chatLayer, SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-	        SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(chatLayer, SIGNAL(sessionCreated(Ureen::ChatSession*)),
+	        SLOT(onSessionCreated(Ureen::ChatSession*)));
 	foreach (ChatSession *session, chatLayer->sessions())
 		onSessionCreated(session);
 }
@@ -75,7 +75,7 @@ QVariant ChatChannelModel::data(const QModelIndex &index, int role) const
 	}
 }
 
-void ChatChannelModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void ChatChannelModel::onSessionCreated(Ureen::ChatSession *session)
 {
 	connect(session, SIGNAL(destroyed(QObject*)),
 	        SLOT(onSessionDeath(QObject*)));

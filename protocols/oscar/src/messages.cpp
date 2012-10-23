@@ -36,7 +36,7 @@
 #include <QHostAddress>
 #include <QApplication>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -175,8 +175,8 @@ MessagesHandler::MessagesHandler()
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(),
-			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+			SIGNAL(accountCreated(Ureen::Account*)),
+			SLOT(accountAdded(Ureen::Account*)));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
@@ -359,7 +359,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		message = handleChannel4Message(contact, tlvs);
 		break;
 	default:
-		qutim_sdk_0_3::warning() << "Unknown message channel:" << channel;
+		Ureen::warning() << "Unknown message channel:" << channel;
 	}
 	if (!message.isEmpty()) {
 		// qip always requires a message response, even if it has sent
@@ -813,5 +813,5 @@ void MessageSender::messageTimeout(const Cookie &cookie)
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

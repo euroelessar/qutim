@@ -49,8 +49,8 @@ JoinGroupChatWrapper::JoinGroupChatWrapper()
 	m_bookmarksModel = new BookmarksModel();
 	m_managers()->append(this);
 	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+		        SLOT(onAccountCreated(Ureen::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -288,11 +288,11 @@ void JoinGroupChatWrapper::showDialog()
 	}
 }
 
-void JoinGroupChatWrapper::onAccountCreated(qutim_sdk_0_3::Account *account, bool first)
+void JoinGroupChatWrapper::onAccountCreated(Ureen::Account *account, bool first)
 {
 	if (first) {
-		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+		connect(account, SIGNAL(groupChatManagerChanged(Ureen::GroupChatManager*)),
+		        SLOT(onManagerChanged(Ureen::GroupChatManager*)));
 		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
 	}
 	if (!account->groupChatManager())
@@ -301,7 +301,7 @@ void JoinGroupChatWrapper::onAccountCreated(qutim_sdk_0_3::Account *account, boo
 	emit accountsChanged(accounts());
 }
 
-void JoinGroupChatWrapper::onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
+void JoinGroupChatWrapper::onManagerChanged(Ureen::GroupChatManager *manager)
 {
 	Account *account = qobject_cast<Account*>(sender());
 	int index = m_accounts.indexOf(account);

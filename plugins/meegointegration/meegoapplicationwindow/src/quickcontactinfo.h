@@ -12,7 +12,7 @@ class QuickContactInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QObject *object READ object WRITE setObject NOTIFY objectChanged)
-    Q_PROPERTY(qutim_sdk_0_3::DataItem item READ item NOTIFY itemChanged)
+    Q_PROPERTY(Ureen::DataItem item READ item NOTIFY itemChanged)
     Q_PROPERTY(bool readOnly READ readOnly NOTIFY readOnlyChanged)
     Q_CLASSINFO("Service", "ContactInfo")
 public:
@@ -20,31 +20,31 @@ public:
     
     QObject *object();
     void setObject(QObject *object);
-    qutim_sdk_0_3::DataItem item();
+    Ureen::DataItem item();
     bool readOnly();
     
 public slots:
     void show(QObject *object); 
     void request();
-    void save(const qutim_sdk_0_3::DataItem &item);
+    void save(const Ureen::DataItem &item);
     
 signals:
     void objectChanged(QObject *object);
-    void itemChanged(const qutim_sdk_0_3::DataItem &item);
+    void itemChanged(const Ureen::DataItem &item);
     void readOnlyChanged(bool readOnly);
     void showRequest();
     
 private slots:
-	void onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state);
+	void onRequestStateChanged(Ureen::InfoRequest::State state);
     
 private:
-	qutim_sdk_0_3::DataItem filterItems(const qutim_sdk_0_3::DataItem &item, bool readOnly = false);
-	void filterItemsHelper(const qutim_sdk_0_3::DataItem &item, qutim_sdk_0_3::DataItem &result, bool readOnly);
-	bool isItemEmpty(const qutim_sdk_0_3::DataItem &item);
+	Ureen::DataItem filterItems(const Ureen::DataItem &item, bool readOnly = false);
+	void filterItemsHelper(const Ureen::DataItem &item, Ureen::DataItem &result, bool readOnly);
+	bool isItemEmpty(const Ureen::DataItem &item);
     
 private:
-    qutim_sdk_0_3::DataItem m_item;
-	qutim_sdk_0_3::InfoRequest *m_request;
+    Ureen::DataItem m_item;
+	Ureen::InfoRequest *m_request;
 	QObject *m_object;
 	bool m_readWrite;
 };

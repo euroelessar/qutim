@@ -31,7 +31,7 @@
 #include <TelepathyQt4/Connection>
 
 using namespace Tp;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct AstralContactPrivate;
 class AstralAccount;
@@ -49,7 +49,7 @@ enum AstralStatusType
 	AstralError         = 8
 };
 
-class AstralContact : public qutim_sdk_0_3::Contact
+class AstralContact : public Ureen::Contact
 {
 	Q_OBJECT
 public:
@@ -59,7 +59,7 @@ public:
 	virtual QStringList tags() const;
 	virtual QString name() const;
 	virtual Status status() const;
-	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
+	virtual bool sendMessage(const Ureen::Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);
 	virtual bool isInList() const;

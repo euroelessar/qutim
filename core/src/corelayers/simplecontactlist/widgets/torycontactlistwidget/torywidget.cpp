@@ -161,8 +161,8 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	foreach(Protocol *protocol, Protocol::all()) {
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account *)),
+				this, SLOT(onAccountCreated(Ureen::Account *)));
 	}
 	QTimer timer;
 	timer.singleShot(0, this, SLOT(initMenu()));
@@ -248,7 +248,7 @@ void ToryWidget::changeStatusTextAccepted()
 	config.sync();
 }
 
-void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
+void ToryWidget::onAccountCreated(Ureen::Account *account)
 {
 	Q_D(ToryWidget);
 	if (!d->accountsContainer) {
@@ -275,8 +275,8 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	button->setMinimumSize(22, 22);
 
 	d->accountsContainer->addWidget(button);
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status)));
 	connect(account, SIGNAL(destroyed(QObject *)),SLOT(onAccountDestroyed(QObject *)));
 	d->accounts.insert(account, button);
 	QString text = d->statusTextAction->data().toString();
@@ -287,7 +287,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	}
 }
 
-void ToryWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void ToryWidget::onAccountStatusChanged(const Ureen::Status &status)
 {
 	Q_D(ToryWidget);
 	Account *account = qobject_cast<Account *>(sender());
@@ -296,7 +296,7 @@ void ToryWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	Q_ASSERT(button);
 	button->setIcon(status.icon());
 	bool isOnline = false;
-	foreach(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::Account::all()) {
+	foreach(Ureen::Account *account, Ureen::Account::all()) {
 		Status::Type type = account->status().type();
 		if (type != Status::Offline && type != Status::Connecting) {
 			isOnline = true;
@@ -326,7 +326,7 @@ void ToryWidget::onStatusChanged()
 {
 	if (QAction *a = qobject_cast<QAction *>(sender())) {
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
-		foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+		foreach(Ureen::Protocol *proto, Ureen::Protocol::all()) {
 			foreach(Account *account, proto->accounts()) {
 				Status status = account->status();
 				status.setType(type);
@@ -395,7 +395,7 @@ void ToryWidget::onActivatedSession(bool state)
 	Q_UNUSED(state);
 }
 
-void ToryWidget::onSessionCreated(qutim_sdk_0_3::ChatSession*)
+void ToryWidget::onSessionCreated(Ureen::ChatSession*)
 {
 
 }

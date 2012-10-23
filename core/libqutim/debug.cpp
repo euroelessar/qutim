@@ -29,7 +29,7 @@
 #include "metaobjectbuilder.h"
 #include <QTime>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class NoDebugStream: public QIODevice
 {

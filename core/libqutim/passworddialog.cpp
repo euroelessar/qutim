@@ -27,7 +27,7 @@
 #include "account.h"
 #include <QEventLoop>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Q_GLOBAL_STATIC_WITH_ARGS(const ObjectGenerator*, data, (NULL))
 

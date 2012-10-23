@@ -29,7 +29,7 @@
 #include "../connection.h"
 #include "metainfo_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -131,5 +131,5 @@ QString AbstractMetaRequest::readSString(const DataUnit &data)
 	return str;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

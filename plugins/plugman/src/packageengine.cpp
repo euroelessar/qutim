@@ -34,7 +34,7 @@
 #include <attica/downloaditem.h>
 
 using namespace Attica;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 PackageEngine::PackageEngine(QObject *parent)
 	: QObject(parent)

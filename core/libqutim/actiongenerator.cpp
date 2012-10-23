@@ -34,7 +34,7 @@
 #include <QLatin1Literal>
 
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Q_GLOBAL_STATIC(ActionGeneratorHelper, localizationHelper)
 

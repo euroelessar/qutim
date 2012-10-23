@@ -31,7 +31,7 @@
 #include <QPainter>
 #include <QFont>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 WOverlayIcon::WOverlayIcon()
 {

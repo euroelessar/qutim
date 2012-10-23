@@ -30,9 +30,9 @@
 #include "ircaccount.h"
 #include <qutim/localizedstring.h>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcCommandAlias*)
+Q_DECLARE_METATYPE(Ureen::irc::IrcCommandAlias*)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 IrcActionGenerator::IrcActionGenerator(const QIcon &icon,
@@ -108,5 +108,5 @@ void IrcActionsManager::onIrcActionTriggered(QAction *action, QObject *controlle
 }
 
 } // namespace irc
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

@@ -29,7 +29,7 @@
 namespace BlogImprover
 {
 
-	using namespace qutim_sdk_0_3;
+	using namespace Ureen;
 
 	void BlogImproverPlugin::init()
 	{
@@ -50,10 +50,10 @@ namespace BlogImprover
 
 
 		m_handler.reset(new BlogImproverHandler);
-		qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
+		Ureen::MessageHandler::registerHandler(m_handler.data(),
 		                                               QLatin1String("BlogImprover"),
-													   qutim_sdk_0_3::MessageHandler::HighPriority,
-													   qutim_sdk_0_3::MessageHandler::HighPriority);
+													   Ureen::MessageHandler::HighPriority,
+													   Ureen::MessageHandler::HighPriority);
 		m_settingsItem.data()->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 		return true;
 	}

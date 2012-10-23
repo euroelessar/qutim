@@ -28,7 +28,7 @@
 
 #include <QScrollArea>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 };
@@ -41,12 +41,12 @@ class GroupChatPage : public QScrollArea
     Q_OBJECT
 public:
     explicit GroupChatPage(QWidget *parent = 0);
-	virtual void setAccount(qutim_sdk_0_3::Account *account) {m_account = account;}
-	qutim_sdk_0_3::Account *account() const {return m_account;}
+	virtual void setAccount(Ureen::Account *account) {m_account = account;}
+	Ureen::Account *account() const {return m_account;}
 protected:
 	QVBoxLayout *m_layout;
 private:
-	qutim_sdk_0_3::Account *m_account;
+	Ureen::Account *m_account;
 
 };
 

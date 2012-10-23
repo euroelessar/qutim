@@ -37,7 +37,7 @@ public:
 private slots:
     void onViewPhotoTriggered(QObject*);
 private:
-    QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactGen;
+    QScopedPointer<Ureen::ActionGenerator> m_contactGen;
 };
 
 #endif // VPHOTOVIEWER_H

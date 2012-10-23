@@ -35,7 +35,7 @@ namespace Core
 {
 namespace MetaContacts
 {
-class MetaContactImpl : public qutim_sdk_0_3::MetaContact
+class MetaContactImpl : public Ureen::MetaContact
 {
 	Q_OBJECT
 public:
@@ -46,16 +46,16 @@ public:
 	virtual QString avatar() const;
 	virtual QString name() const { return m_name; }
 	virtual void setName(const QString &name);
-	virtual qutim_sdk_0_3::Status status() const;
+	virtual Ureen::Status status() const;
 	virtual QStringList tags() const { return m_tags; }
 	virtual void setTags(const QStringList &tags);
-	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
+	virtual bool sendMessage(const Ureen::Message &message);
 	virtual void addContact(Contact *contact);
 	void addContacts(QList<Contact*> contacts, bool remove = false);
 	virtual void removeContact(Contact *contact);
-	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
+	virtual Ureen::ChatUnitList lowerUnits();
 	inline const QList<Contact*> &contacts() const { return m_contacts; }
-	virtual const qutim_sdk_0_3::ChatUnit* getHistoryUnit() const;
+	virtual const Ureen::ChatUnit* getHistoryUnit() const;
 	void setContactName(const QString &name);
 	void setContactAvatar(const QString &name);
 	void setContactTags(const QStringList &tags);
@@ -70,13 +70,13 @@ protected:
 	void removeContact(Contact *contact, bool dead);
 protected slots:
 	void onContactStatusChanged();
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onContactDeath(QObject *contact);
 private:
 	virtual bool event(QEvent *ev);
 	QString m_id;
 	QString m_name;
-	qutim_sdk_0_3::Status m_status;
+	Ureen::Status m_status;
 	QStringList m_tags;
 	QList<Contact*> m_contacts;
 	QString m_lastAvatar;

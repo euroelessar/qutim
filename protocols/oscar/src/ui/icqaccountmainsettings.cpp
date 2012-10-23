@@ -27,7 +27,7 @@
 #include "../icqaccount.h"
 #include "../icqprotocol_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -278,5 +278,5 @@ void IcqAccountMainSettingsWidget::saveImpl()
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

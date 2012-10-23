@@ -31,7 +31,7 @@
 #include <QStringBuilder>
 #include "json.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QHash<QString, PersonInfoData::Ptr> PersonInfoMap;
 Q_GLOBAL_STATIC(PersonInfoMap, personInfoMap)

@@ -38,7 +38,7 @@ public:
 	enum { IsWidget = Qt::UserRole, Widget, GraphicsItem };
     explicit QuickSettingsModel(QObject *parent = 0);
 	
-	void setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller);
+	void setItems(const Ureen::SettingsItemList &items, QObject *controller);
 	
 	Q_INVOKABLE QObject *widget(int index);
 	
@@ -47,7 +47,7 @@ public:
 	
 private:
 	QObject *m_controller;
-	qutim_sdk_0_3::SettingsItemList m_items;
+	Ureen::SettingsItemList m_items;
 };
 }
 

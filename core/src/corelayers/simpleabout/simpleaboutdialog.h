@@ -43,7 +43,7 @@ public:
 	explicit SimpleAboutDialog(QWidget *parent = 0);
 	~SimpleAboutDialog();
 
-	QString toHtml(const QList<qutim_sdk_0_3::PersonInfo> &persons, bool useTask);
+	QString toHtml(const QList<Ureen::PersonInfo> &persons, bool useTask);
 
 private:
 	Ui::SimpleAboutDialog *ui;

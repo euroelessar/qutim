@@ -220,15 +220,15 @@ inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date
 		// I don't understand the difference
 	case L'z':
 		if (length < 4)
-			str += "Asia/Yekaterinburg"; // qutim_sdk_0_3::SystemInfo::getTimezone();
+			str += "Asia/Yekaterinburg"; // Ureen::SystemInfo::getTimezone();
 		else
 			// There should be localized name, but I don't know how get it
-			str += "Asia/Yekaterinburg"; // qutim_sdk_0_3::SystemInfo::getTimezone();
+			str += "Asia/Yekaterinburg"; // Ureen::SystemInfo::getTimezone();
 		break;
 	case L'Z': {
 			if (length == 4)
 				str += QLatin1String("GMT");
-			int offset = +6; // qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
+			int offset = +6; // Ureen::SystemInfo::getTimezoneOffset();
 			if (offset < 0)
 				str += QLatin1Char('+');
 			else

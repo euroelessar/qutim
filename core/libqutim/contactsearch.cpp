@@ -31,7 +31,7 @@
 #include "contact.h"
 #include "icon.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ContactSearchFactoryPrivate : public AbstractSearchFactoryPrivate
 {
@@ -120,8 +120,8 @@ AccountItem GeneralContactSearchFactoryPrivate::addAccount(Account *account)
 	accounts.insert(item.id, item);
 	QObject::connect(account, SIGNAL(destroyed()),
 					 q, SLOT(accountRemoved()));
-	QObject::connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-					 q, SLOT(accountStatusChanged(qutim_sdk_0_3::Status)));
+	QObject::connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+					 q, SLOT(accountStatusChanged(Ureen::Status)));
 	return item;
 }
 
@@ -133,8 +133,8 @@ GeneralContactSearchFactory::GeneralContactSearchFactory(Protocol *protocol) :
 	d->protocol = protocol;
 	foreach (Account *account, protocol->accounts())
 		d->addAccount(account);
-	connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+	connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+			SLOT(accountAdded(Ureen::Account*)));
 }
 
 GeneralContactSearchFactory::~GeneralContactSearchFactory()
@@ -181,7 +181,7 @@ Protocol *GeneralContactSearchFactory::protocol() const
 	return d_func()->protocol;
 }
 
-void GeneralContactSearchFactory::accountAdded(qutim_sdk_0_3::Account *account)
+void GeneralContactSearchFactory::accountAdded(Ureen::Account *account)
 {
 	Q_D(GeneralContactSearchFactory);
 	const AccountItem &item = d->addAccount(account);
@@ -207,7 +207,7 @@ void GeneralContactSearchFactory::accountRemoved()
 	}
 }
 
-void GeneralContactSearchFactory::accountStatusChanged(const qutim_sdk_0_3::Status &status)
+void GeneralContactSearchFactory::accountStatusChanged(const Ureen::Status &status)
 {
 	Q_D(GeneralContactSearchFactory);
 	Q_ASSERT(qobject_cast<Account*>(sender()));

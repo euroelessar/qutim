@@ -33,7 +33,7 @@
 
 class QScriptEngine;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatUnit;
 class MessagePrivate;
@@ -88,9 +88,9 @@ LIBQUTIM_EXPORT QString unescape(const QString &html);
 typedef QList<Message> MessageList;
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Message)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Message*)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::MessageList)
+Q_DECLARE_METATYPE(Ureen::Message)
+Q_DECLARE_METATYPE(Ureen::Message*)
+Q_DECLARE_METATYPE(Ureen::MessageList)
 
 #endif // LIBQUTIM_MESSAGE_H
 

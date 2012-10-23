@@ -28,7 +28,7 @@
 
 #include "ircactiongenerator.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 class IrcActionGeneratorPrivate
@@ -48,7 +48,7 @@ public slots:
 	void onIrcActionTriggered(QAction *action, QObject *controller);
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCACTIONGENERATOR_P_H
 

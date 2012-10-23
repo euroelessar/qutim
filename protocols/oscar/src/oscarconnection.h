@@ -31,7 +31,7 @@
 #include "oscarauth.h"
 #include <QWeakPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -61,7 +61,7 @@ protected:
 private slots:
 	void onDisconnect();
 	void onError(ConnectionError error);
-	void md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
+	void md5Error(Ureen::oscar::AbstractConnection::ConnectionError error);
 	void accountInfoReceived(bool ok);
 private:
 	void setIdle(bool allow);
@@ -75,7 +75,7 @@ private:
 //	QPointer<Md5Login> m_md5login;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARCONNECTION_H
 

@@ -31,7 +31,7 @@
 class ScriptEngine;
 class QScriptValue;
 
-class ScriptPluginWrapper : public qutim_sdk_0_3::Plugin
+class ScriptPluginWrapper : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

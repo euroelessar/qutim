@@ -33,7 +33,7 @@
 #include <qutim/inforequest.h>
 #include <QTimer>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class BirthdayUpdater : public QObject
 {
@@ -45,9 +45,9 @@ signals:
 	void birthdayUpdated(Contact *contact, const QDate &birthday);
 private slots:
 	void onUpdateNext();
-	void onStatusChanged(const qutim_sdk_0_3::Status &current,
-						 const qutim_sdk_0_3::Status &previous);
-	void onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state);
+	void onStatusChanged(const Ureen::Status &current,
+						 const Ureen::Status &previous);
+	void onRequestStateChanged(Ureen::InfoRequest::State state);
 private:
 	Account *m_account;
 	InfoRequestFactory *m_factory;
@@ -65,9 +65,9 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountCreated(Ureen::Account *account);
 	void onAccountDestroyed(QObject *obj);
-	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+	void onContactCreated(Ureen::Contact *contact);
 	void onBirthdayUpdated(Contact *contact, const QDate &birthday);
 	void onNotificationTimeout();
 	void reloadSettings();

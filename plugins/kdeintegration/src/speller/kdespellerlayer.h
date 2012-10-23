@@ -31,7 +31,7 @@
 #include <sonnet/speller.h>
 #include <qutim/spellchecker.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Sonnet;
 
 class KdeSpellerLayer : public SpellChecker

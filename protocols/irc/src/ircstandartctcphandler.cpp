@@ -30,7 +30,7 @@
 #include <qutim/systeminfo.h>
 #include <QDateTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -92,5 +92,5 @@ void IrcStandartCtcpHandler::handleCtcpResponse(IrcAccount *account, const QStri
 	}
 }
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 

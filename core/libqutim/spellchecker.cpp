@@ -27,7 +27,7 @@
 #include "servicemanager.h"
 #include "objectgenerator.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 SpellChecker::SpellChecker()
 {
@@ -49,5 +49,5 @@ void SpellChecker::virtual_hook(int id, void *data)
 	Q_UNUSED(data);
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

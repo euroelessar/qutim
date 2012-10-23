@@ -37,7 +37,7 @@ class QVBoxLayout;
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef InfoRequestFactory::SupportLevel SupportLevel;
 
@@ -48,7 +48,7 @@ public:
 	MainWindow();
 	void setObject(QObject *object, SupportLevel type);
 private slots:
-	void onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state);
+	void onRequestStateChanged(Ureen::InfoRequest::State state);
 	void onRequestButton();
 	void onSaveButton();
 private:

@@ -32,7 +32,7 @@
 #include <mce/dbus-names.h>
 
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 
 Maemo5Vibra::Maemo5Vibra() :	NotificationBackend("Vibration")
@@ -46,7 +46,7 @@ Maemo5Vibra::Maemo5Vibra() :	NotificationBackend("Vibration")
 
 
 
-void Maemo5Vibra::handleNotification(qutim_sdk_0_3::Notification *notification)
+void Maemo5Vibra::handleNotification(Ureen::Notification *notification)
 {
 	ref(notification);
 	vibrate(vibrationTime);

@@ -28,7 +28,7 @@
 
 namespace Jabber {
 
-typedef QList<qutim_sdk_0_3::LocalizedString> ActivityNames;
+typedef QList<Ureen::LocalizedString> ActivityNames;
 
 static void init_general_names(ActivityNames &names)
 {
@@ -167,7 +167,7 @@ QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<Jreen::P
 		iconName += QLatin1Char('-') + activity->specificName();
 	}
 	iconName += QLatin1String("-jabber");
-	qutim_sdk_0_3::ExtensionIcon icon(iconName);
+	Ureen::ExtensionIcon icon(iconName);
 	data.insert(QLatin1String("icon"), qVariantFromValue(icon));
 	data.insert(QLatin1String("title"), title);
 	if (!activity->text().isEmpty())
@@ -177,12 +177,12 @@ QVariantHash JPersonActivityConverter::convertFrom(const QSharedPointer<Jreen::P
 	return data;
 }
 
-qutim_sdk_0_3::LocalizedString JPersonActivityConverter::generalTitle(Jreen::Activity::General general)
+Ureen::LocalizedString JPersonActivityConverter::generalTitle(Jreen::Activity::General general)
 {
 	return generalNames()->value(general);
 }
 
-qutim_sdk_0_3::LocalizedString JPersonActivityConverter::specificTitle(Jreen::Activity::Specific specific)
+Ureen::LocalizedString JPersonActivityConverter::specificTitle(Jreen::Activity::Specific specific)
 {
 	return specificNames()->value(specific);
 }

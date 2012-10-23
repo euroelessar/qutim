@@ -30,7 +30,7 @@
 #include "actiongenerator.h"
 #include <QIcon>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class NotificationBackend;
@@ -96,7 +96,7 @@ signals:
 	void accepted();
 	void ignored();
 	void rejected();
-	void finished(qutim_sdk_0_3::Notification::State state);
+	void finished(Ureen::Notification::State state);
 protected:
 	Notification(const NotificationRequest &request);
 	QScopedPointer<NotificationPrivate> d_ptr;
@@ -232,21 +232,21 @@ public:
 	static void disableBackend(const QByteArray &type);
 	static bool isBackendEnabled(const QByteArray &type);
 signals:
-	void backendCreated(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
-	void backendDestroyed(const QByteArray &type, qutim_sdk_0_3::NotificationBackend *backend);
+	void backendCreated(const QByteArray &type, Ureen::NotificationBackend *backend);
+	void backendDestroyed(const QByteArray &type, Ureen::NotificationBackend *backend);
 	void backendStateChanged(const QByteArray &type, bool enabled);
 private:
 	friend class NotificationBackend;
 	NotificationManager();
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Notification*)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationRequest)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationAction)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::NotificationBackend*)
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::NotificationFilter, "org.qutim.core.NotificationFilter")
+Q_DECLARE_METATYPE(Ureen::Notification*)
+Q_DECLARE_METATYPE(Ureen::NotificationRequest)
+Q_DECLARE_METATYPE(Ureen::NotificationAction)
+Q_DECLARE_METATYPE(Ureen::NotificationBackend*)
+Q_DECLARE_INTERFACE(Ureen::NotificationFilter, "org.qutim.core.NotificationFilter")
 
 #endif // NOTIFICATION_H
 

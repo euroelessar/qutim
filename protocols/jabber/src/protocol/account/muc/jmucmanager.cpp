@@ -43,7 +43,7 @@
 namespace Jabber
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Jreen;
 
 class JMUCManagerPrivate
@@ -85,7 +85,7 @@ public:
 			}
 		}
 	}
-	void _q_status_changed(qutim_sdk_0_3::Status status)
+	void _q_status_changed(Ureen::Status status)
 	{		
 		if (status == Status::Offline)
 			leaveAll();
@@ -107,8 +107,8 @@ JMUCManager::JMUCManager(JAccount *account, QObject *parent) :
 			this, SLOT(onListReceived(QString,QList<Jreen::PrivacyItem>)));
 	connect(d->account->privacyManager(), SIGNAL(activeListChanged(QString)),
 			this, SLOT(onActiveListChanged(QString)));
-	connect(d->account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status)));
+	connect(d->account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(_q_status_changed(Ureen::Status)));
 }
 
 JMUCManager::~JMUCManager()

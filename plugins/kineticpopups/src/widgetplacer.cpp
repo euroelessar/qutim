@@ -35,7 +35,7 @@
 
 namespace KineticPopups {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class WidgetPlacer;
 class WidgetPlacerPrivate
@@ -212,7 +212,7 @@ PopupWidgetList WidgetPlacer::widgets() const
 	return d_func()->popups;
 }
 
-//PopupWidget *WidgetPlacer::findPopupWidget(qutim_sdk_0_3::Notification *notify)
+//PopupWidget *WidgetPlacer::findPopupWidget(Ureen::Notification *notify)
 //{
 //	foreach (PopupWidget *widget, d_func()->popups) {
 //		if (widget->notify() == notify)

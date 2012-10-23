@@ -33,7 +33,7 @@
 #include <QApplication>
 #include <QAbstractSocket>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct IntegrationData
 {

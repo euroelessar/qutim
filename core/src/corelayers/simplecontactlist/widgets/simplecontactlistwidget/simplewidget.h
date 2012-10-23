@@ -33,7 +33,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 class Contact;
@@ -68,8 +68,8 @@ protected:
 private slots:
 	void onServiceChanged(const QByteArray &name, QObject *now, QObject *old);
 	void init();
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status);
 	void onAccountDestroyed(QObject *obj);
 	void onStatusChanged();
 	void onSearchActivated();

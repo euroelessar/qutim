@@ -30,7 +30,7 @@ signals:
 private:
 	QObject *m_object;
     QString m_path;
-    qutim_sdk_0_3::Config m_config;
+    Ureen::Config m_config;
 };
 
 #endif // QUICKCONFIG_H

@@ -28,7 +28,7 @@
 #include "irccontact_p.h"
 #include "ircchannel.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -50,8 +50,8 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 	connect(d->contact.data(), SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(d->contact.data(), SIGNAL(quit(QString)), SIGNAL(quit(QString)));
 	connect(d->contact.data(), SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
-	connect(d->contact.data(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(d->contact.data(), SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SIGNAL(statusChanged(Ureen::Status,Ureen::Status)));
 }
 
 IrcChannelParticipant::~IrcChannelParticipant()
@@ -167,5 +167,5 @@ QString IrcChannelParticipant::host() const
 	return d->contact.data()->host();
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

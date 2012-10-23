@@ -82,9 +82,9 @@ class OtrClosure : public QObject
 	Q_OBJECT
 	
 public:
-	OtrClosure(qutim_sdk_0_3::ChatUnit *unit);
+	OtrClosure(Ureen::ChatUnit *unit);
 	~OtrClosure();
-	qutim_sdk_0_3::ChatUnit *unit() const;
+	Ureen::ChatUnit *unit() const;
 	int getPolicy() const;
 	OtrMessaging* getMessaging(){return m_otr;}
 	int getCurrentId(){int id = m_id; m_id++; return id;}
@@ -97,7 +97,7 @@ private:
 	int m_id;
 	int m_policy;
 	OtrMessaging* m_otr;
-	qutim_sdk_0_3::ChatUnit *m_unit;
+	Ureen::ChatUnit *m_unit;
 	QString       m_myAccount;
 	QString       m_otherJid;
 	TreeModelItem m_item;

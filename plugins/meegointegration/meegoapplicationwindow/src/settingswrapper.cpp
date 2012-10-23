@@ -31,7 +31,7 @@
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Q_GLOBAL_STATIC(QList<SettingsWrapper*>, m_managers)
 QuickSettingsLayer* SettingsWrapper::m_currentDialog;

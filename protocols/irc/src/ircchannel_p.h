@@ -28,7 +28,7 @@
 
 #include "ircchannel.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -49,7 +49,7 @@ public:
 
 }
 
-} // namespace qutim_sdk_0_3::irc
+} // namespace Ureen::irc
 
 #endif // IRCCHANNEL_P_H
 

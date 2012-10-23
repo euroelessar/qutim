@@ -72,8 +72,8 @@ AccountCreatorList::AccountCreatorList() :
 	addItem->setData(SeparatorRole,true);
 
 	foreach(Protocol *protocol, Protocol::all()) {
-		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
-		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
+		connect(protocol,SIGNAL(accountCreated(Ureen::Account*)),SLOT(addAccount(Ureen::Account*)));
+		connect(protocol,SIGNAL(accountRemoved(Ureen::Account*)),SLOT(removeAccount(Ureen::Account*)));
 		foreach(Account *account, protocol->accounts())	{
 			addAccount(account);
 		}
@@ -118,7 +118,7 @@ void AccountCreatorList::changeEvent(QEvent *e)
 	}
 }
 
-void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
+void AccountCreatorList::addAccount(Ureen::Account *account)
 {
 	Icon protoIcon(QLatin1String("im-") + account->protocol()->id()); //FIXME wtf?
 	debug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
@@ -164,7 +164,7 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	accountItem->setData(DescriptionRole,fields);
 }
 
-void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
+void AccountCreatorList::removeAccount(Ureen::Account *removed)
 {
 	for (int index = 0; index != ui->listWidget->count();index++) {
 		QListWidgetItem *item = ui->listWidget->item(index);

@@ -33,7 +33,7 @@
 #include <QDateTime>
 #include <QQueue>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -100,7 +100,7 @@ public:
 	QTimer aliveTimer;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif //CONNECTION_P_H
 

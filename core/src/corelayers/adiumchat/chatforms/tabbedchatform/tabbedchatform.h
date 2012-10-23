@@ -27,7 +27,7 @@
 
 #include <qutim/adiumchat/abstractchatform.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
@@ -47,7 +47,7 @@ public:
 protected:
 	virtual AbstractChatWidget *createWidget(const QString &key);
 private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	Ureen::SettingsItem *m_settingsItem;
 };
 
 }

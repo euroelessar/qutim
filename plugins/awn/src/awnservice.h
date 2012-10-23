@@ -33,7 +33,7 @@
 
 #include <Qt/QtDBus>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AWNService : public MenuController
 {
@@ -70,12 +70,12 @@ private:
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
-	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onSessionCreated(Ureen::ChatSession*);
+	void onUnreadChanged(const Ureen::MessageList&);
+	void onStatusChanged(const Ureen::Status &status);
 	void onItemRemoved(QDBusObjectPath path);
 	void onMenuItemActivated(int);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountCreated(Ureen::Account *);
 	void onAccountDestroyed(QObject *obj);
 
 	void setDockIcon(QString icon_name);

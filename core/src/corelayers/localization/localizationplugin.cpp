@@ -29,7 +29,7 @@
 #include <qutim/systeminfo.h>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
@@ -39,7 +39,7 @@ void LocalizationPlugin::init()
 	LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Localization");
 	LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Default qutIM localization engine");
 	setInfo(name, description, QUTIM_VERSION, icon);
-	addExtension<Core::LocalizationModule,qutim_sdk_0_3::StartupModule>(name, description, icon);
+	addExtension<Core::LocalizationModule,Ureen::StartupModule>(name, description, icon);
 	
 	QStringList langs = LocalizationModule::determineSystemLocale();
 	if (!langs.isEmpty())

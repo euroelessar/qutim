@@ -35,9 +35,9 @@
 #include <QDateTime>
 #include <QLatin1String>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem)
+Q_DECLARE_METATYPE(Ureen::oscar::FeedbagItem)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -781,8 +781,8 @@ Feedbag::Feedbag(IcqAccount *acc):
 		}
 	}
 	cfg.endGroup();
-	connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(acc, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(statusChanged(Ureen::Status,Ureen::Status)));
 }
 
 Feedbag::~Feedbag()
@@ -1158,7 +1158,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 }
 
-void Feedbag::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+void Feedbag::statusChanged(const Ureen::Status &current, const Ureen::Status &previous)
 {
 	if (current == Status::Offline && previous != Status::Offline) {
 		d->modifyQueue.clear();
@@ -1177,9 +1177,9 @@ FeedbagItemHandler::FeedbagItemHandler(quint16 priority) :
 {
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-QDebug &operator<<(QDebug &stream, const qutim_sdk_0_3::oscar::FeedbagItem &item)
+QDebug &operator<<(QDebug &stream, const Ureen::oscar::FeedbagItem &item)
 {
 	QString name = qPrintable(item.name());
 	if (!name.isEmpty())
@@ -1187,11 +1187,11 @@ QDebug &operator<<(QDebug &stream, const qutim_sdk_0_3::oscar::FeedbagItem &item
 	else
 		stream.nospace() << "Type: ";
 	stream.nospace() << item.type() << "; ";
-	if (item.type() != qutim_sdk_0_3::oscar::SsiGroup)
+	if (item.type() != Ureen::oscar::SsiGroup)
 		stream.nospace() << "item id: " << item.itemId() << "; ";
 	stream.nospace() << "group id: " << item.groupId() << " (";
 	bool first = true;
-	foreach(const qutim_sdk_0_3::oscar::TLV &tlv, item.constData())
+	foreach(const Ureen::oscar::TLV &tlv, item.constData())
 	{
 		if (!first)
 			stream.nospace() << ", ";

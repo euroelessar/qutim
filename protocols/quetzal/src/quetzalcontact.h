@@ -30,7 +30,7 @@
 #include <purple.h>
 #include <qutim/configbase.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class QuetzalAccount;
 

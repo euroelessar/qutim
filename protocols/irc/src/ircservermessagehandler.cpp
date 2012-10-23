@@ -25,7 +25,7 @@
 
 #include "ircservermessagehandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -51,5 +51,5 @@ IrcServerMessageHandler::~IrcServerMessageHandler()
 {
 }
 
-} } // namespace qutim_sdk_0_3:: irc
+} } // namespace Ureen:: irc
 

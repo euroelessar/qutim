@@ -30,7 +30,7 @@
 #include <QScriptValue>
 #include <QScriptable>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ScriptSettingsWidget : public SettingsWidget
 {

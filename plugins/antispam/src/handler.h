@@ -33,7 +33,7 @@
 
 namespace Antispam {
 
-class Handler : public QObject, public qutim_sdk_0_3::MessageHandler
+class Handler : public QObject, public Ureen::MessageHandler
 {
 	Q_OBJECT
 public:
@@ -44,7 +44,7 @@ public slots:
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
-    virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+    virtual Result doHandle(Ureen::Message &message, QString *reason);
 
 protected slots:
 	void onServiceChanged(const QByteArray &name);
@@ -55,7 +55,7 @@ private:
 	QString m_question;
 	QString m_success;
 	QStringList m_answers;
-	qutim_sdk_0_3::ServicePointer<QObject> m_authorization;
+	Ureen::ServicePointer<QObject> m_authorization;
 };
 
 } // namespace Antispam

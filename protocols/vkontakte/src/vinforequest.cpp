@@ -33,7 +33,7 @@
 #include <QCache>
 #include <vreen/connection.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void init_names(QStringList &names)
 {
@@ -100,8 +100,8 @@ static bool isStatusOnline(const Status &status)
 VInfoFactory::VInfoFactory(VAccount *account) :
 	QObject(account), m_account(account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status, Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status, Ureen::Status)));
 }
 
 VInfoFactory::SupportLevel VInfoFactory::supportLevel(QObject *object)
@@ -153,8 +153,8 @@ bool VInfoFactory::stopObserve(QObject *object)
 	return false;
 }
 
-void VInfoFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-										  const qutim_sdk_0_3::Status &previous)
+void VInfoFactory::onAccountStatusChanged(const Ureen::Status &status,
+										  const Ureen::Status &previous)
 {
 	bool isOnline = isStatusOnline(status);
 	bool wasOnline = isStatusOnline(previous);

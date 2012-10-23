@@ -32,22 +32,22 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-class ChatNotificationsBackend : public QObject, public qutim_sdk_0_3::StartupModule, public qutim_sdk_0_3::NotificationBackend
+class ChatNotificationsBackend : public QObject, public Ureen::StartupModule, public Ureen::NotificationBackend
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+	Q_INTERFACES(Ureen::StartupModule)
 public:
     ChatNotificationsBackend();
 protected:
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionActivated(bool active);
 	void onUnitDestroyed();
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_currentSession;
+	QWeakPointer<Ureen::ChatSession> m_currentSession;
 	QMap<ChatUnit *, MessageList> m_unaddedMessages;
 };
 

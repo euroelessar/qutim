@@ -34,7 +34,7 @@
 #include "event.h"
 #include <QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QMap<QAction*, QObject*> ActionControllerMap;
 Q_GLOBAL_STATIC(ActionMap, actionMap)
@@ -480,7 +480,7 @@ ActionCollection::ActionCollection(MenuController* controller) :
 	d->controller = controller;
 }
 
-ActionCollection& ActionCollection::operator=(const qutim_sdk_0_3::ActionCollection &other)
+ActionCollection& ActionCollection::operator=(const Ureen::ActionCollection &other)
 {
 	d_ptr = other.d_ptr;
 	return *this;
@@ -500,7 +500,7 @@ QAction* ActionCollection::action(int index) const
 	return action;
 }
 
-ActionCollection::ActionCollection(const qutim_sdk_0_3::ActionCollection& other) : d_ptr(other.d_ptr)
+ActionCollection::ActionCollection(const Ureen::ActionCollection& other) : d_ptr(other.d_ptr)
 {
 }
 

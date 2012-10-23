@@ -28,7 +28,7 @@
 
 #include "metafield.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -45,7 +45,7 @@ const AgesList &ages();
 const FieldNamesList &fields();
 const FieldNamesList &fields_names();
 
-} } // namespace qutim_sdk_0_3::Oscar
+} } // namespace Ureen::Oscar
 
 #endif // METAFIELDS_H
 

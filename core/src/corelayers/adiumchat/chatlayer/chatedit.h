@@ -29,7 +29,7 @@
 #include <QWeakPointer>
 #include <qutim/adiumchat/abstractchatwidget.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 }
@@ -46,7 +46,7 @@ enum SendMessageKey
 	SendDoubleEnter
 };
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class ChatSessionImpl;
 class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
 {

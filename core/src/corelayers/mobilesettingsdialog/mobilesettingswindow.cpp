@@ -63,7 +63,7 @@ struct MobileSettingsWindowPrivate
 	QMap<Settings::Type,QListWidgetItem*> categoryMap;
 };
 
-MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller) :
+MobileSettingsWindow::MobileSettingsWindow(const Ureen::SettingsItemList& settings, QObject* controller) :
 	p(new MobileSettingsWindowPrivate)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -127,7 +127,7 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 }
 
 
-void MobileSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
+void MobileSettingsWindow::update(const Ureen::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet()))
 		item->clearWidget();
@@ -139,7 +139,7 @@ MobileSettingsWindow::~MobileSettingsWindow()
 {
 }
 
-void MobileSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& settings)
+void MobileSettingsWindow::loadSettings(const Ureen::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item,settings) {
 		p->items.insertMulti(item->type(),item);

@@ -33,7 +33,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class QuickAddContactDialog : public QObject {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "AddContact")
@@ -43,7 +43,7 @@ class QuickAddContactDialog : public QObject {
 public:
 	QuickAddContactDialog();
 public slots:
-	void show(qutim_sdk_0_3::Account *account, const QString &id = QString(),
+	void show(Ureen::Account *account, const QString &id = QString(),
 		  const QString &name = QString(), const QStringList &tags = QStringList());
 	void accept(const QString &password, bool remember);
 	void cancel();

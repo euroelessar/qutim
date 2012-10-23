@@ -37,7 +37,7 @@ class QToolButton;
 namespace Control
 {
 
-class AutoReplyButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class AutoReplyButtonActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	AutoReplyButtonActionGenerator(QObject *object, const char *slot);
@@ -65,7 +65,7 @@ protected:
     virtual void deleteWidget(QWidget *widget);
 	
 private:
-	QWeakPointer<qutim_sdk_0_3::Contact> m_controller;
+	QWeakPointer<Ureen::Contact> m_controller;
 };
 
 class AutoReplyButton : public QWidget

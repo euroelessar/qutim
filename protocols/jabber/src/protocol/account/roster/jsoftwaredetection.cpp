@@ -40,7 +40,7 @@
 #include <jreen/error.h>
 #include <QUrl>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace gloox;
 
 namespace Jabber

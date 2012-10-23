@@ -32,7 +32,7 @@ namespace Ui {
     class AccountCreatorList;
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class Account;
 }
@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3
 class QListWidgetItem;
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class AccountCreatorList : public SettingsWidget
 {
 	Q_OBJECT
@@ -53,8 +53,8 @@ protected:
 	virtual void cancelImpl();
 	void changeEvent(QEvent *e);
 private slots:
-	void addAccount(qutim_sdk_0_3::Account *account);
-	void removeAccount(qutim_sdk_0_3::Account *account);
+	void addAccount(Ureen::Account *account);
+	void removeAccount(Ureen::Account *account);
 	void listViewClicked(QListWidgetItem *item);
 	void onWizardDestroyed();
 	void onAccountRemoveTriggered();

@@ -29,7 +29,7 @@
 #include <QtDeclarative>
 #include <QTimer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class DeclarativeView;
 } //namespace qutim
 
@@ -42,19 +42,19 @@ class QuickNotify : public QObject
 	Q_PROPERTY(QString title READ title)
 	Q_PROPERTY(QString text  READ text)
 	Q_PROPERTY(QObject* object READ object)
-	Q_PROPERTY(qutim_sdk_0_3::Notification::Type type READ type)
+	Q_PROPERTY(Ureen::Notification::Type type READ type)
 	Q_PROPERTY(QObjectList actions READ actions)
 public:
-	QuickNotify(qutim_sdk_0_3::Notification *notify);
+	QuickNotify(Ureen::Notification *notify);
 	QString title() const;
 	QString text() const;
 	QObject* object() const;
-	qutim_sdk_0_3::Notification::Type type() const;
+	Ureen::Notification::Type type() const;
 	QObjectList actions() const;
 private slots:
 	void onActionTriggered();
 private:
-	qutim_sdk_0_3::Notification *m_notify;
+	Ureen::Notification *m_notify;
 	QObjectList m_actions;
 };
 
@@ -88,8 +88,8 @@ class QuickPopupWidget : public PopupWidget
 	Q_OBJECT
 public:
     QuickPopupWidget(QWidget *parent = 0);
-	virtual void addNotification(qutim_sdk_0_3::Notification* notify);
-	virtual qutim_sdk_0_3::NotificationList notifications() const;
+	virtual void addNotification(Ureen::Notification* notify);
+	virtual Ureen::NotificationList notifications() const;
 	virtual ~QuickPopupWidget();
 	virtual QSize sizeHint() const;
 	void setPopupAttributes(PopupAttributes *attributes = 0);
@@ -107,8 +107,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 	virtual bool event(QEvent *ev);
 private:
-	QHash<qutim_sdk_0_3::Notification*, QuickNotify*>  m_notifyHash;
-    qutim_sdk_0_3::DeclarativeView *m_view;
+	QHash<Ureen::Notification*, QuickNotify*>  m_notifyHash;
+    Ureen::DeclarativeView *m_view;
 	QTimer m_timeout;
 };
 

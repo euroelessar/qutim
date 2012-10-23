@@ -27,7 +27,7 @@
 #include "util.h"
 #include <QIODevice>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -94,5 +94,5 @@ void FLAP::clear()
 	m_data.clear();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

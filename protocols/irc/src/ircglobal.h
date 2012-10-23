@@ -31,13 +31,13 @@
 
 #define QUTIM_IRC_VERSION_STR "0.1.0.0"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
 QString qutimIrcVersionStr();
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCGLOBAL_H
 

@@ -31,7 +31,7 @@
 #include "qutim/inforequest.h"
 
 class QAction;
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ActionGenerator;
 class Status;
@@ -54,13 +54,13 @@ private slots:
 	void onContactNameSelected(const QString &name);
 	void onShowInfoAction(QObject *obj);
 	void onShowInfoActionCreated(QAction *, QObject *);
-	void onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
+	void onInformationSupportLevelChanged(Ureen::InfoRequestFactory::SupportLevel level);
 	void onContactAddRemoveActionCreated(QAction *, QObject *);
 	void onContactAddRemoveAction(QObject*);
 	void onRemoveChoosed(int result);
 	void onContactAddRemoveActionDestroyed();
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &);
 	void inListChanged(bool);
 	void onDisableSoundActionCreated(QAction *, QObject *);
 	void onDisableSoundAction(QAction *action);
@@ -73,13 +73,13 @@ private slots:
 private:
 	void setDisableSoundActionVisibility(const QByteArray &backendType, bool visible);
 private:
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_tagEditGen;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_copyIdGen;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactRenameGen;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactAddRemoveGen;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_showInfoGen;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_disableSound;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_joinGroupLeaveGen;
+	QScopedPointer<Ureen::ActionGenerator> m_tagEditGen;
+	QScopedPointer<Ureen::ActionGenerator> m_copyIdGen;
+	QScopedPointer<Ureen::ActionGenerator> m_contactRenameGen;
+	QScopedPointer<Ureen::ActionGenerator> m_contactAddRemoveGen;
+	QScopedPointer<Ureen::ActionGenerator> m_showInfoGen;
+	QScopedPointer<Ureen::ActionGenerator> m_disableSound;
+	QScopedPointer<Ureen::ActionGenerator> m_joinGroupLeaveGen;
 };
 
 } // namespace Core

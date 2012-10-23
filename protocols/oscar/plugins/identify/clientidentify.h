@@ -33,7 +33,7 @@
 #include "../../src/oscarroster.h"
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 class Contact;
@@ -62,9 +62,9 @@ enum CapabilityFlag
 class ClientIdentify : public Plugin, public RosterPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::RosterPlugin)
+	Q_INTERFACES(Ureen::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Identify")
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
 	ClientIdentify();
@@ -223,7 +223,7 @@ inline bool ClientIdentify::AvatarSupport() const
 	return m_flags & avatar_support;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif /*CLIENTIDENTIFY_H_*/
 

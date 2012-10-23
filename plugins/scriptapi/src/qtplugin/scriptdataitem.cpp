@@ -31,7 +31,7 @@
 #include <QScriptEngine>
 #include <QScriptValueIterator>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct ScriptDataItemPtr
 {
@@ -236,5 +236,5 @@ QString ScriptDataItem::name() const
 }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptDataItemPtr)
+Q_DECLARE_METATYPE(Ureen::ScriptDataItemPtr)
 

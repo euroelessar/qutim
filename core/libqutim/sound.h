@@ -32,7 +32,7 @@
 #include <QSharedDataPointer>
 #include "notification.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Message;
 

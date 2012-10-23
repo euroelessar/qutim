@@ -28,7 +28,7 @@
 #include "ircaccount_p.h"
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 IrcGroupChatManager::IrcGroupChatManager(IrcAccount *account) :
@@ -239,5 +239,5 @@ void IrcGroupChatManager::addBookmark(const IrcBookmark &bookmark, const QString
 }
 
 } // namespace irc
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

@@ -29,7 +29,7 @@
 #include <qutim/inforequest.h>
 #include <QScriptValue>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ScriptInfoRequest : public QObject
 {
@@ -41,7 +41,7 @@ public:
 signals:
 
 public slots:
-	void onStateChanged(qutim_sdk_0_3::InfoRequest::State);
+	void onStateChanged(Ureen::InfoRequest::State);
 
 private:
 	void handleError(const char *name, const QString &text);

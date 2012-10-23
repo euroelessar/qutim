@@ -33,7 +33,7 @@ namespace Ui {
     class BirthdayReminderSettings;
 }
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class BirthdayReminderSettings : public SettingsWidget
 {

@@ -28,7 +28,7 @@
 #define UTILS_H
 #include "libqutim_global.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 template<typename T>
@@ -60,9 +60,9 @@ private:
 	~UrlParser();
 };
 
-} //namespace qutim_sdk_0_3
+} //namespace Ureen
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::UrlParser::Flags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::UrlParser::Flags)
 
 #endif // UTILS_H
 

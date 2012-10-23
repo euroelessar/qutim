@@ -33,30 +33,30 @@
 #include <qutim/account.h>
 #include "statuswrapper.h"
 
-QML_DECLARE_TYPE(qutim_sdk_0_3::Protocol)
-QML_DECLARE_TYPE_HASMETATYPE(qutim_sdk_0_3::Account)
-QML_DECLARE_TYPE_HASMETATYPE(qutim_sdk_0_3::ChatUnit)
-QML_DECLARE_TYPE_HASMETATYPE(qutim_sdk_0_3::Contact)
+QML_DECLARE_TYPE(Ureen::Protocol)
+QML_DECLARE_TYPE_HASMETATYPE(Ureen::Account)
+QML_DECLARE_TYPE_HASMETATYPE(Ureen::ChatUnit)
+QML_DECLARE_TYPE_HASMETATYPE(Ureen::Contact)
 
 namespace MeegoIntegration
 {
-class ContactList : public qutim_sdk_0_3::MenuController
+class ContactList : public Ureen::MenuController
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactList")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "Vibration")
 	Q_PROPERTY(MeegoIntegration::StatusWrapper::Type status READ status WRITE setStatus NOTIFY statusChanged)
-	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts READ accounts NOTIFY accountsChanged)
-	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Protocol> protocols READ protocols NOTIFY protocolsChanged)
+	Q_PROPERTY(QDeclarativeListProperty<Ureen::Account> accounts READ accounts NOTIFY accountsChanged)
+	Q_PROPERTY(QDeclarativeListProperty<Ureen::Protocol> protocols READ protocols NOTIFY protocolsChanged)
 public:
     explicit ContactList();
 	
 	static void init();
 	StatusWrapper::Type status() const;
 	void setStatus(StatusWrapper::Type type);
-	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
-	QDeclarativeListProperty<qutim_sdk_0_3::Protocol> protocols();
+	QDeclarativeListProperty<Ureen::Account> accounts();
+	QDeclarativeListProperty<Ureen::Protocol> protocols();
 	
 	static QUrl statusUrl(const QVariant &type, const QString &subtype);
 	static QString statusIcon(const QVariant &type, const QString &subtype);
@@ -69,21 +69,21 @@ public slots:
 	static QUrl statusUrl(const QVariant &type);
 	
 private slots:
-	void onAccountAdded(qutim_sdk_0_3::Account *account);
-	void onAccountRemoved(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onAccountAdded(Ureen::Account *account);
+	void onAccountRemoved(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status);
 	
 signals:
 	void started();
 	void statusChanged(MeegoIntegration::StatusWrapper::Type);
-	void accountsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Account> &accounts);
-	void protocolsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Protocol> &protocols);
+	void accountsChanged(const QDeclarativeListProperty<Ureen::Account> &accounts);
+	void protocolsChanged(const QDeclarativeListProperty<Ureen::Protocol> &protocols);
 	
 //	Q_INVOKABLE void addButton(ActionGenerator *generator);
 private:
-	qutim_sdk_0_3::Status m_globalStatus;
-	qutim_sdk_0_3::AccountList m_accounts;
-	QList<qutim_sdk_0_3::Protocol*> m_protocols;
+	Ureen::Status m_globalStatus;
+	Ureen::AccountList m_accounts;
+	QList<Ureen::Protocol*> m_protocols;
 };
 }
 

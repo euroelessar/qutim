@@ -38,7 +38,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AddAccountDialogWrapper : public QAbstractListModel {
 	Q_OBJECT

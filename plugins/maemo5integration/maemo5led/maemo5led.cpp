@@ -31,7 +31,7 @@
 #include <mce/dbus-names.h>
 
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 
 Maemo5Led::Maemo5Led() :	NotificationBackend("Led")
@@ -46,7 +46,7 @@ Maemo5Led::Maemo5Led() :	NotificationBackend("Led")
 }
 
 
-void Maemo5Led::handleNotification(qutim_sdk_0_3::Notification *notification)
+void Maemo5Led::handleNotification(Ureen::Notification *notification)
 {
 	ref(notification);
 	if (display_off || showLedWhenDisplayOn)

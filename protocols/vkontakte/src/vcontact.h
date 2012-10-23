@@ -37,7 +37,7 @@ class ChatSession;
 
 class VAccount;
 class VContactPrivate;
-class VContact : public qutim_sdk_0_3::Contact
+class VContact : public Ureen::Contact
 {
 	Q_OBJECT
 public:
@@ -45,10 +45,10 @@ public:
 
 	virtual QString id() const;
 	virtual bool isInList() const;
-	virtual bool sendMessage(const qutim_sdk_0_3::Message& message);
+	virtual bool sendMessage(const Ureen::Message& message);
 	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
-	virtual qutim_sdk_0_3::Status status() const;
+	virtual Ureen::Status status() const;
 	virtual ~VContact();
 	virtual QStringList tags() const;
 	virtual QString name() const;
@@ -62,7 +62,7 @@ public:
 	Vreen::Buddy *buddy() const;
 	VAccount *account();
 protected:
-	void setStatus(const qutim_sdk_0_3::Status &status);
+	void setStatus(const Ureen::Status &status);
 	Vreen::ChatSession *chatSession();
 	virtual bool event(QEvent *ev);
 public slots:
@@ -73,20 +73,20 @@ private slots:
 	void onTagsChanged(const QStringList &tags);
 	void onNameChanged(const QString &name);
 	void onMessageSent(const QVariant &response);
-	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onUnreadChanged(Ureen::MessageList unread);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onPhotoSourceChanged(const QString &source, Vreen::Contact::PhotoSize);
 private:
 	Vreen::Buddy *m_buddy;
 	QPointer<QTimer> m_typingTimer;
 	QPointer<Vreen::ChatSession> m_chatSession;
-	qutim_sdk_0_3::Status m_status;
+	Ureen::Status m_status;
 	QString m_name;
 	QStringList m_tags;
 	QString m_avatar;
 
 	//TODO rewrite on unite message handler
-	qutim_sdk_0_3::MessageList m_unreadMessages;
+	Ureen::MessageList m_unreadMessages;
 	uint m_unreachedMessagesCount;
 	typedef QList<QPair<int, int> > SentMessagesList;
 	SentMessagesList m_sentMessages;

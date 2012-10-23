@@ -38,26 +38,26 @@ class VConnection;
 class VAccount;
 class VContact;
 
-class VInfoFactory : public QObject, public qutim_sdk_0_3::InfoRequestFactory
+class VInfoFactory : public QObject, public Ureen::InfoRequestFactory
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::InfoRequestFactory)
+	Q_INTERFACES(Ureen::InfoRequestFactory)
 public:
 	VInfoFactory(VAccount *account);
 	virtual SupportLevel supportLevel(QObject *object);
 protected:
-	virtual qutim_sdk_0_3::InfoRequest *createrDataFormRequest(QObject *object);
+	virtual Ureen::InfoRequest *createrDataFormRequest(QObject *object);
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
 private slots:
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-								const qutim_sdk_0_3::Status &previous);
+	void onAccountStatusChanged(const Ureen::Status &status,
+								const Ureen::Status &previous);
 private:
 	VAccount *m_account;
 	QSet<VContact *> m_contacts;
 };
 
-class VInfoRequest : public qutim_sdk_0_3::InfoRequest
+class VInfoRequest : public Ureen::InfoRequest
 {
 	Q_OBJECT
 public:
@@ -79,9 +79,9 @@ public:
 	};
 
     VInfoRequest(QObject *parent);
-	virtual qutim_sdk_0_3::DataItem createDataItem() const;
+	virtual Ureen::DataItem createDataItem() const;
 	virtual void doRequest(const QSet<QString> &hints);
-	virtual void doUpdate(const qutim_sdk_0_3::DataItem &dataItem);
+	virtual void doUpdate(const Ureen::DataItem &dataItem);
 	virtual void doCancel();
 signals:
 	void canceled();
@@ -90,8 +90,8 @@ private slots:
 	void onAddressEnsured();
 private:
 	void ensureAddress(DataType type);
-	void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const QVariant &data) const;
-	inline void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const char *name) const
+	void addItem(DataType type, Ureen::DataItem &group, const QVariant &data) const;
+	inline void addItem(DataType type, Ureen::DataItem &group, const char *name) const
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
 	QString m_id;

@@ -27,7 +27,7 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 	

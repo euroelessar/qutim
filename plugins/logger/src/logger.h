@@ -31,7 +31,7 @@
 namespace Logger
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class LoggerPlugin : public Plugin
 {

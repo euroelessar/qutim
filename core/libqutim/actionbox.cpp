@@ -32,7 +32,7 @@
 #include "debug.h"
 #include "servicemanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 ActionBox::ActionBox(QWidget *parent) :

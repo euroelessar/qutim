@@ -29,7 +29,7 @@
 #include "metacontact.h"
 #include "servicemanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)

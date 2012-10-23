@@ -28,7 +28,7 @@
 #include <QScriptString>
 #include <QScriptEngine>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 ScriptMessagePropertyIterator::ScriptMessagePropertyIterator(const QScriptValue &object, Message *msg)
     : QScriptClassPropertyIterator(object), m_msg(msg), m_id(-1)

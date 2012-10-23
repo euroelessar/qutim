@@ -26,7 +26,7 @@
 #include "quetzalrequest.h"
 #include <QLabel>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalRequestDialog::QuetzalRequestDialog(const char *title, const char *primary,
 										   const char *secondary, PurpleRequestType type,

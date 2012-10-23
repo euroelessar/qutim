@@ -31,7 +31,7 @@
 #include <qutim/config.h>
 #include <QTimer>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 WThumbnails::WThumbnails()
 	: chatWindow(0), tabId(0), pp(0)
@@ -60,10 +60,10 @@ void WThumbnails::onChatwindowDestruction(QObject *)
 	chatWindow = 0;
 }
 
-void WThumbnails::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
+void WThumbnails::onSessionCreated(Ureen::ChatSession *s)
 {
 	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
-	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), pp, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(s, SIGNAL(unreadChanged(Ureen::MessageList)), pp, SLOT(onUnreadChanged(Ureen::MessageList)));
 }
 
 void WThumbnails::onSessionActivated(bool)

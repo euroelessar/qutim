@@ -33,7 +33,7 @@ namespace Core
 {
 namespace AdiumChat
 {
-class ChatLayerPlugin : public qutim_sdk_0_3::Plugin
+class ChatLayerPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

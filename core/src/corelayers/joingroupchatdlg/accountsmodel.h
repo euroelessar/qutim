@@ -29,14 +29,14 @@
 #include <QAbstractListModel>
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Account;
 class GroupChatManager;
 }
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AccountsModel : public QAbstractListModel
 {
@@ -46,12 +46,12 @@ public:
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountCreated(Ureen::Account *account);
 	void onAccountDestroyed(QObject *account);
 	void onAccountNameChanged();
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-								const qutim_sdk_0_3::Status &previous);
-	void onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountStatusChanged(const Ureen::Status &current,
+								const Ureen::Status &previous);
+	void onGroupChatManagerChanged(Ureen::GroupChatManager *manager);
 private:
 	QString title(Account *account) const;
 	int findPlaceForAccount(Account *account) const;

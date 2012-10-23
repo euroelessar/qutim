@@ -36,7 +36,7 @@
 #include <QVariant>
 #include <qutim/authorizationdialog.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -433,5 +433,5 @@ void IcqContact::infoReceived(bool ok)
 	req->deleteLater();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

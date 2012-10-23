@@ -42,7 +42,7 @@
 #include <QApplication>
 #include <QUrl>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static Status::Type convertStatus(Vreen::Contact::Status status)
 {
@@ -79,8 +79,8 @@ VContact::VContact(Vreen::Buddy *contact, VAccount* account): Contact(account),
 	connect(m_buddy, SIGNAL(photoSourceChanged(QString,Vreen::Contact::PhotoSize)),
 			SLOT(onPhotoSourceChanged(QString,Vreen::Contact::PhotoSize)));
 	connect(m_buddy, SIGNAL(isFriendChanged(bool)), SIGNAL(inListChanged(bool)));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 
 	account->downloadAvatar(this);
 }
@@ -145,13 +145,13 @@ void VContact::handleMessage(const Vreen::Message &msg)
 		}
 	}
 
-	qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+	Ureen::Message coreMessage(msg.body().replace("<br>", "\n"));
 	coreMessage.setChatUnit(this);
 	coreMessage.setIncoming(msg.isIncoming());
 	coreMessage.setProperty("mid", msg.id());
 	coreMessage.setProperty("subject", msg.subject());
 
-	qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+	Ureen::ChatSession *s = ChatLayer::get(this);
 	if (msg.isIncoming()) {
 		if (!s->isActive())
 			m_unreadMessages.append(coreMessage);
@@ -182,7 +182,7 @@ Vreen::ChatSession *VContact::chatSession()
 {
 	if (m_chatSession.isNull()) {
 		m_chatSession = new Vreen::ChatSession(m_buddy);
-		qutim_sdk_0_3::ChatSession *s = ChatLayer::get(this);
+		Ureen::ChatSession *s = ChatLayer::get(this);
 		m_chatSession->setParent(s);
 	}
 	return m_chatSession.data();
@@ -317,7 +317,7 @@ void VContact::onUnreadChanged(MessageList unread)
 void VContact::onSessionCreated(ChatSession *session)
 {
 	if (session->unit() == this)
-		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+		connect(session, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged(Ureen::MessageList)));
 }
 
 void VContact::onPhotoSourceChanged(const QString &, Vreen::Contact::PhotoSize size)

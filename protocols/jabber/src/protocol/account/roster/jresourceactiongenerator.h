@@ -31,11 +31,11 @@ namespace Jabber
 {
 	class JResourceActionGeneratorPrivate;
 
-	class JResourceActionGenerator : public qutim_sdk_0_3::ActionGenerator
+	class JResourceActionGenerator : public Ureen::ActionGenerator
 	{
 		Q_DECLARE_PRIVATE(JResourceActionGenerator)
 	public:
-		JResourceActionGenerator(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+		JResourceActionGenerator(const QIcon &icon, const Ureen::LocalizedString &text,
 								const QObject *receiver, const char *member);
 		virtual ~JResourceActionGenerator();
 		void setFeature(const QString &feature);

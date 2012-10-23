@@ -41,7 +41,7 @@ namespace Jabber {
 		AccountTypeYandex
 	};
 
-	class JAccountWizard : public qutim_sdk_0_3::AccountCreationWizard
+	class JAccountWizard : public Ureen::AccountCreationWizard
 	{
 		Q_OBJECT
 		Q_CLASSINFO("DependsOn", "Jabber::JProtocol")

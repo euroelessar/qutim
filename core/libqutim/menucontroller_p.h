@@ -29,7 +29,7 @@
 
 #include "menucontroller.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ActionCollectionPrivate;
 
@@ -122,7 +122,7 @@ public:
 	void addHandler(ActionHandler *handler);
 	void removeHandler(ActionHandler *handler);
 
-	// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
+	// Access to actions, they should be sorted by Ureen::actionLessThan
 	int count() const;
 	int size() const;
 	// Can be accessed only after first ref's call

@@ -38,7 +38,7 @@
 
 namespace BlogImprover {
 
-class BlogImproverHandler : public QObject, public qutim_sdk_0_3::MessageHandler
+class BlogImproverHandler : public QObject, public Ureen::MessageHandler
 {
     Q_OBJECT
 public:
@@ -53,7 +53,7 @@ public:
 	};
 
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Ureen::MessageHandler::Result doHandle(Ureen::Message &message, QString *reason);
 public slots:
 	void loadSettings();
 private:
@@ -73,9 +73,9 @@ private:
 	QString m_nickTemplate;
 	QString m_postTemplate;
 	QString m_tagTemplate;
-	void handlePsto(qutim_sdk_0_3::Message &message);
-	void handleJuick(qutim_sdk_0_3::Message &message);
-	void handleBnw(qutim_sdk_0_3::Message &message);
+	void handlePsto(Ureen::Message &message);
+	void handleJuick(Ureen::Message &message);
+	void handleBnw(Ureen::Message &message);
 };
 
 } // namespace BlogImprover

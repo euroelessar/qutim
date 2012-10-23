@@ -30,7 +30,7 @@
 #include <QFile>
 #include <QTextStream>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static const uint qutim_meta_data_ScriptPlugin_hook[] = {
 

@@ -17,7 +17,7 @@
 #include <qutim/icon.h>
 #include <qutim/contact.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum OtrState {
 	StartConversation,
@@ -250,7 +250,7 @@ OTRCrypt *OTRCrypt::instance()
 	return self;
 }
 
-OtrClosure *OTRCrypt::ensureClosure(qutim_sdk_0_3::ChatUnit *unit)
+OtrClosure *OTRCrypt::ensureClosure(Ureen::ChatUnit *unit)
 {
 	OtrClosure * &closure = m_closures[unit];
 	if (!closure)

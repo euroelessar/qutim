@@ -28,7 +28,7 @@
 #include "buddy.h"
 #include "metacontact.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	struct Private
 	{

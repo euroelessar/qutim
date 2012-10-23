@@ -29,7 +29,7 @@
 #include "libqutim_global.h"
 #include <QVariantMap>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Config;
 class ProfilePrivate;

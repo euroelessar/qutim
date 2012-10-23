@@ -278,8 +278,8 @@
 //	m_server = 0;
 //	Protocol *proto = Protocol::all().value("jabber");
 //	if (qobject_cast<JProtocol*>(proto)) {
-//		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-//				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+//		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+//				this, SLOT(onAccountCreated(Ureen::Account*)));
 //		foreach (Account *acc, proto->accounts())
 //			onAccountCreated(acc);
 //	}

@@ -34,7 +34,7 @@
 #include <QSettings>
 #include <qutim/qtwin.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QColor GetUserSelectedAeroColor()
 {
@@ -54,7 +54,7 @@ WThumbnailsProvider::WThumbnailsProvider(WThumbnails *parent)
 	grView         = new QGraphicsView;
 	grView->setScene(new QGraphicsScene);
 	sceneBgItem    = grView->scene()->addPixmap(sceneBgImage);
-	//qutimIconItem  = grView->scene()->addPixmap(qutim_sdk_0_3::Icon("qutim").pixmap(ICON_SIZE, ICON_SIZE));
+	//qutimIconItem  = grView->scene()->addPixmap(Ureen::Icon("qutim").pixmap(ICON_SIZE, ICON_SIZE));
 	//qutimIconItem->setOpacity(0.25);
 
 	textUnreadTitle        = grView->scene()->addText(QString());
@@ -89,7 +89,7 @@ void WThumbnailsProvider::onUnreadChanged(unsigned chats, unsigned confs)
 	this->unreadConfs = confs;
 }
 
-void WThumbnailsProvider::onUnreadChanged(qutim_sdk_0_3::MessageList list)
+void WThumbnailsProvider::onUnreadChanged(Ureen::MessageList list)
 {
 	ChatSession *sess = list.isEmpty() ? 0 : ChatLayer::get(list.first().chatUnit(), false);
 	int lastSendersCount = 3;

@@ -59,9 +59,9 @@ OldContactDelegatePlugin::OldContactDelegatePlugin()
 
 void OldContactDelegatePlugin::init()
 {
-	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
-	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Old contact delegate");
-	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Port of contact list delegate from 0.2");
+	Ureen::ExtensionIcon icon(QLatin1String(""));
+	Ureen::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Old contact delegate");
+	Ureen::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Port of contact list delegate from 0.2");
 	setInfo(name, description, QUTIM_VERSION, icon);
 	addExtension<ContactListItemDelegate>(name, description, icon);
 	addExtension<OldDelegateSettings, Core::ContactListSettingsExtention>(name, description, icon);

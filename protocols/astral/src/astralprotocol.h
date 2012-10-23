@@ -37,8 +37,8 @@ class AstralProtocol : public Protocol
 public:
 	AstralProtocol(ConnectionManagerPtr manager, QMetaObject *meta);
 	virtual ~AstralProtocol();
-	virtual QList<qutim_sdk_0_3::Account *> accounts() const;
-	virtual qutim_sdk_0_3::Account *account(const QString &id) const;
+	virtual QList<Ureen::Account *> accounts() const;
+	virtual Ureen::Account *account(const QString &id) const;
 	virtual AccountCreationWizard *accountCreationWizard();
 	ConnectionManagerPtr connectionManager();
 	AccountManagerPtr accountManager();

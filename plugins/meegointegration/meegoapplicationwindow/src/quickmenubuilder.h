@@ -9,7 +9,7 @@ namespace MeegoIntegration {
 
 class QuickMenuBuilder;
 
-class QuickActionFilter : public QObject, public qutim_sdk_0_3::ActionHandler
+class QuickActionFilter : public QObject, public Ureen::ActionHandler
 {
     Q_OBJECT
 public:
@@ -29,17 +29,17 @@ private:
     QList<QAction*> m_visibleActions;
 };
 
-class QuickMenuBuilder : public QObject, public qutim_sdk_0_3::ActionHandler
+class QuickMenuBuilder : public QObject, public Ureen::ActionHandler
 {
     Q_OBJECT
-    Q_PROPERTY(qutim_sdk_0_3::MenuController *controller READ controller WRITE setController NOTIFY controllerChanged)
+    Q_PROPERTY(Ureen::MenuController *controller READ controller WRITE setController NOTIFY controllerChanged)
     Q_PROPERTY(QDeclarativeItem *menu READ menu WRITE setMenu NOTIFY menuChanged)
 public:
     explicit QuickMenuBuilder(QObject *parent = 0);
     ~QuickMenuBuilder();
     
-    qutim_sdk_0_3::MenuController *controller() const;
-    void setController(qutim_sdk_0_3::MenuController *controller);
+    Ureen::MenuController *controller() const;
+    void setController(Ureen::MenuController *controller);
     QDeclarativeItem *menu() const;
     void setMenu(QDeclarativeItem *menu);
     
@@ -53,12 +53,12 @@ protected:
     void setItemParent(QDeclarativeItem *item, QDeclarativeItem *menu);
     
 signals:
-    void controllerChanged(qutim_sdk_0_3::MenuController *controller);
+    void controllerChanged(Ureen::MenuController *controller);
     void menuChanged(QDeclarativeItem *menu);
     
 private:
-    qutim_sdk_0_3::MenuController *m_controller;
-    qutim_sdk_0_3::ActionContainer m_container;
+    Ureen::MenuController *m_controller;
+    Ureen::ActionContainer m_container;
     QDeclarativeItem *m_menu;
     QDeclarativeComponent *m_delegate;
     QList<QDeclarativeItem *> m_items;

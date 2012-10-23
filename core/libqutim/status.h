@@ -32,7 +32,7 @@
 #include <QIcon>
 #include <QEvent>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class StatusPrivate;
 class ExtendedStatusesEventPrivate;
@@ -131,15 +131,15 @@ private:
 }
 
 class QDebug;
-LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status::Type status);
-LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, const qutim_sdk_0_3::Status &status);
-LIBQUTIM_EXPORT QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status);
-LIBQUTIM_EXPORT QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status);
+LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, Ureen::Status::Type status);
+LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, const Ureen::Status &status);
+LIBQUTIM_EXPORT QDataStream &operator<<(QDataStream &out, const Ureen::Status &status);
+LIBQUTIM_EXPORT QDataStream &operator>>(QDataStream &in, Ureen::Status &status);
 
-Q_ENUMS(qutim_sdk_0_3::Status::Type)
-Q_ENUMS(qutim_sdk_0_3::Status::ChangeReason)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Status)
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Status::ChangeReason)
+Q_ENUMS(Ureen::Status::Type)
+Q_ENUMS(Ureen::Status::ChangeReason)
+Q_DECLARE_METATYPE(Ureen::Status)
+Q_DECLARE_METATYPE(Ureen::Status::ChangeReason)
 
 #endif // STATUS_H
 

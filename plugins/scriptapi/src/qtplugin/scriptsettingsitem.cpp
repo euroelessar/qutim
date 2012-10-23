@@ -29,7 +29,7 @@
 #include <QMetaType>
 #include <QScriptEngine>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct ScriptSettingsItemData;
 
@@ -159,5 +159,5 @@ QString ScriptSettingsItem::name() const
 }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptSettingsItemData::Ptr)
+Q_DECLARE_METATYPE(Ureen::ScriptSettingsItemData::Ptr)
 

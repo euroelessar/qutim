@@ -199,8 +199,8 @@ YandexNarodFactory::YandexNarodFactory() :
 	foreach (Protocol *protocol, Protocol::all()) {
 		foreach (Account *account, protocol->accounts())
 			onAccountAdded(account);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountAdded(Ureen::Account*)));
 	}
 }
 
@@ -246,13 +246,13 @@ YandexNarodAuthorizator *YandexNarodFactory::authorizator()
 	return scope()->authorizator;
 }
 
-void YandexNarodFactory::onAccountAdded(qutim_sdk_0_3::Account *account)
+void YandexNarodFactory::onAccountAdded(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status)));
 }
 
-void YandexNarodFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void YandexNarodFactory::onAccountStatusChanged(const Ureen::Status &status)
 {
 	bool isOnline = status != Status::Offline && status != Status::Connecting;
 	foreach (ChatUnit *unit, m_observedUnits.values(sender()))

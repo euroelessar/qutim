@@ -73,7 +73,7 @@ struct XSettingsWindowPrivate
 	QWidget *parent;
 };
 
-XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller, QWidget *parent) :
+XSettingsWindow::XSettingsWindow(const Ureen::SettingsItemList& settings, QObject* controller, QWidget *parent) :
 	QMainWindow(parent),
 	p(new XSettingsWindowPrivate)
 {
@@ -166,7 +166,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 }
 
 
-void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
+void XSettingsWindow::update(const Ureen::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet())) {
 		QPair<int, QString> id = qMakePair(item->priority(), item->text().toString());
@@ -194,7 +194,7 @@ XSettingsWindow::~XSettingsWindow()
 	cfg.setValue("splitterState", p->splitter->saveState());
 }
 
-void XSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& settings)
+void XSettingsWindow::loadSettings(const Ureen::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item,settings) {
 		//QListWidgetItem *list_item = new QListWidgetItem(item->icon(),item->text(),p->listWidget);

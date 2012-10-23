@@ -30,7 +30,7 @@
 #include "libqutim_global.h"
 #include "extensioninfo.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class ServiceManagerPrivate;
@@ -134,7 +134,7 @@ Q_INLINE_TEMPLATE ServicePointerData::Ptr ServiceManager::getDataHelper(void *)
 	return getData(qobject_interface_iid<T*>());
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // SERVICEMANAGER_H
 

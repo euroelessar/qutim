@@ -29,7 +29,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum {
 	IdRole = Qt::UserRole,
 	ContactRole,
@@ -51,8 +51,8 @@ ContactListModel::ContactListModel()
 	setRoleNames(roleNames);
 	foreach (Protocol *protocol, Protocol::all()) {
 		QDeclarativeEngine::setObjectOwnership(protocol, QDeclarativeEngine::CppOwnership);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+		        SLOT(onAccountCreated(Ureen::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -148,14 +148,14 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const
 	}
 }
 
-void ContactListModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+void ContactListModel::onAccountCreated(Ureen::Account *account)
 {
 	QDeclarativeEngine::setObjectOwnership(account, QDeclarativeEngine::CppOwnership);
 	connect(account, SIGNAL(destroyed(QObject*)),
 	        SLOT(onAccountDeath(QObject*)));
 
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-				this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+				this, SLOT(onContactCreated(Ureen::Contact*)));
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		onContactCreated(contact);
 
@@ -174,15 +174,15 @@ bool ContactListModel::Item::operator <(const ContactListModel::Item &o) const
 	return cmp < 0;
 }
 
-void ContactListModel::onContactCreated(qutim_sdk_0_3::Contact *contact)
+void ContactListModel::onContactCreated(Ureen::Contact *contact)
 {
 	QDeclarativeEngine::setObjectOwnership(contact, QDeclarativeEngine::CppOwnership);
 	connect(contact, SIGNAL(destroyed(QObject*)),
 	        SLOT(onContactDeath(QObject*)));
 	connect(contact, SIGNAL(titleChanged(QString,QString)),
 	        SLOT(onContactTitleChanged(QString,QString)));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-	        SLOT(onContactStatusChanged(qutim_sdk_0_3::Status)));
+	connect(contact, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+	        SLOT(onContactStatusChanged(Ureen::Status)));
 	m_titles.insert(contact, contact->title());
 	checkVisibility(contact);
 }
@@ -218,7 +218,7 @@ void ContactListModel::onContactTitleChanged(const QString &title, const QString
 	emit countChanged(m_contacts.size());
 }
 
-void ContactListModel::onContactStatusChanged(const qutim_sdk_0_3::Status &status)
+void ContactListModel::onContactStatusChanged(const Ureen::Status &status)
 {
 	Q_UNUSED(status);
 	checkVisibility(static_cast<Contact*>(sender()));
@@ -244,7 +244,7 @@ void ContactListModel::checkVisibility()
 	emit countChanged(m_contacts.size());
 }
 
-void ContactListModel::checkVisibility(qutim_sdk_0_3::Contact *contact, bool forced)
+void ContactListModel::checkVisibility(Ureen::Contact *contact, bool forced)
 {
 	int index = indexOfContact(contact);
 	bool visible = m_contacts.value(index).contact == contact;
@@ -270,7 +270,7 @@ void ContactListModel::checkVisibility(qutim_sdk_0_3::Contact *contact, bool for
 		emit countChanged(m_contacts.size());
 }
 
-bool ContactListModel::isVisible(qutim_sdk_0_3::Contact *contact)
+bool ContactListModel::isVisible(Ureen::Contact *contact)
 {
 	if (!m_filter.isEmpty()) {
 		return contact->id().contains(m_filter, Qt::CaseInsensitive)
@@ -282,7 +282,7 @@ bool ContactListModel::isVisible(qutim_sdk_0_3::Contact *contact)
 	}
 }
 
-int ContactListModel::indexOfContact(qutim_sdk_0_3::Contact *contact) const
+int ContactListModel::indexOfContact(Ureen::Contact *contact) const
 {
 	const Item item = { contact->title(), contact };
 	return qLowerBound(m_contacts.begin(), m_contacts.end(), item)

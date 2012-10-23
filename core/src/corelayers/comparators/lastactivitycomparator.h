@@ -11,9 +11,9 @@ class LastActivityComparator : public StatusComparator
 	Q_CLASSINFO("SettingsDescription", "Sort by contact's last activity")
 public:
 	explicit LastActivityComparator();
-	virtual int compare(qutim_sdk_0_3::Contact *a, qutim_sdk_0_3::Contact *b);
+	virtual int compare(Ureen::Contact *a, Ureen::Contact *b);
 protected:
-	virtual void doStartListen(qutim_sdk_0_3::Contact *contact);
+	virtual void doStartListen(Ureen::Contact *contact);
 };
 
 } // namespace Core

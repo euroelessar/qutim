@@ -42,7 +42,7 @@ namespace Symbian
 {
 
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class StackedChatBehavior : public SettingsWidget
 {
 	Q_OBJECT

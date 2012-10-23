@@ -34,7 +34,7 @@
 namespace Core {
 namespace AdiumChat {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
     DeclarativeView(parent)

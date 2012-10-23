@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 #include "ui_urlpreviewsettings.h"
 
-class UrlPreviewSettings : public qutim_sdk_0_3::SettingsWidget
+class UrlPreviewSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

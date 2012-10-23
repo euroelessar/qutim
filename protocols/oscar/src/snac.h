@@ -29,7 +29,7 @@
 #include "tlv.h"
 #include "cookie.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -65,7 +65,7 @@ private:
 	int m_msec;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // SNAC_H
 

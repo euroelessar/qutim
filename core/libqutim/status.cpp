@@ -26,7 +26,7 @@
 #include <QByteArray>
 #include "icon.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct StatusHashKey
 {
@@ -44,7 +44,7 @@ struct StatusHashKey
 };
 }
 
-uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
+uint qHash(const Ureen::StatusHashKey &value)
 {
 	// Simple hash algorithm
 	const uint p = 373;
@@ -65,7 +65,7 @@ uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
 typedef QHash<QString, QVariantHash> ExtendedStatus;
 Q_DECLARE_METATYPE(ExtendedStatus)
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class StatusPrivate : public DynamicPropertyData
 {
@@ -452,34 +452,34 @@ QEvent::Type ExtendedInfosEvent::eventType()
 }
 }
 
-QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
+QDebug operator<<(QDebug dbg, Ureen::Status::Type status)
 {
 	switch (status) {
-	case qutim_sdk_0_3::Status::Online:
+	case Ureen::Status::Online:
 		return dbg << "Status::Online";
-	case qutim_sdk_0_3::Status::FreeChat:
+	case Ureen::Status::FreeChat:
 		return dbg << "Status::FreeChat";
-	case qutim_sdk_0_3::Status::Away:
+	case Ureen::Status::Away:
 		return dbg << "Status::Away";
-	case qutim_sdk_0_3::Status::NA:
+	case Ureen::Status::NA:
 		return dbg << "Status::NA";
-	case qutim_sdk_0_3::Status::DND:
+	case Ureen::Status::DND:
 		return dbg << "Status::DND";
-	case qutim_sdk_0_3::Status::Invisible:
+	case Ureen::Status::Invisible:
 		return dbg << "Status::Invisible";
-	case qutim_sdk_0_3::Status::Offline:
+	case Ureen::Status::Offline:
 		return dbg << "Status::Offline";
 	default:
 		return dbg << "Status::Unknown";
 	}
 }
 
-QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Status &status)
+QDebug operator<<(QDebug dbg, const Ureen::Status &status)
 {
 	return operator <<(dbg, status.type());
 }
 
-QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status)
+QDataStream &operator<<(QDataStream &out, const Ureen::Status &status)
 {
 	out << status.type() << status.text() << status.subtype() << status.icon().name();
 	QHash<QString, QVariantHash>::const_iterator it = status.extendedInfos().constBegin();
@@ -489,7 +489,7 @@ QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status)
 	return out;
 }
 
-QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status)
+QDataStream &operator>>(QDataStream &in, Ureen::Status &status)
 {
 	int type;
 	QString text;
@@ -497,9 +497,9 @@ QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status)
 	QString icon;
 	int count;
 	in >> type >> text >> subtype >> icon >> count;
-	status.setType(static_cast<qutim_sdk_0_3::Status::Type>(type));
+	status.setType(static_cast<Ureen::Status::Type>(type));
 	status.setText(text);
-	status.setIcon(qutim_sdk_0_3::Icon(icon));
+	status.setIcon(Ureen::Icon(icon));
 
 	for (int i = 0; i < count; i++) {
 		QString key;

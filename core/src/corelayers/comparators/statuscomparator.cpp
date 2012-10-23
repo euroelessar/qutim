@@ -7,7 +7,7 @@ StatusComparator::StatusComparator()
     Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Sort by contact's status"));
 }
 
-int StatusComparator::compare(qutim_sdk_0_3::Contact *a, qutim_sdk_0_3::Contact *b)
+int StatusComparator::compare(Ureen::Contact *a, Ureen::Contact *b)
 {
 	int result = a->status().type() - b->status().type();
 	if (result)
@@ -15,20 +15,20 @@ int StatusComparator::compare(qutim_sdk_0_3::Contact *a, qutim_sdk_0_3::Contact 
 	return a->title().compare(b->title(), Qt::CaseInsensitive);
 }
 
-void StatusComparator::doStartListen(qutim_sdk_0_3::Contact *contact)
+void StatusComparator::doStartListen(Ureen::Contact *contact)
 {
 	connect(contact, SIGNAL(nameChanged(QString,QString)), SLOT(onContactChanged()));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)), SLOT(onContactChanged()));
+	connect(contact, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)), SLOT(onContactChanged()));
 }
 
-void StatusComparator::doStopListen(qutim_sdk_0_3::Contact *contact)
+void StatusComparator::doStopListen(Ureen::Contact *contact)
 {
 	contact->disconnect(this);
 }
 
 void StatusComparator::onContactChanged()
 {
-	emit contactChanged(static_cast<qutim_sdk_0_3::Contact*>(sender()));
+	emit contactChanged(static_cast<Ureen::Contact*>(sender()));
 }
 
 } // namespace Core

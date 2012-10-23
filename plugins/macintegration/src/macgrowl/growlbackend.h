@@ -28,7 +28,7 @@
 
 #include <qutim/notification.h>
 class GrowlNotificationWrapper;
-class GrowlBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
+class GrowlBackend : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
@@ -37,7 +37,7 @@ public:
 	GrowlBackend();
 	virtual ~GrowlBackend();
 protected:
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 private:
 	QScopedPointer<GrowlNotificationWrapper> m_wrapper;
 };

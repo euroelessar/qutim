@@ -36,7 +36,7 @@
 #include <kdeversion.h>
 #include <QHash>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 KdeAboutAppDialog::KdeAboutAppDialog()
 {

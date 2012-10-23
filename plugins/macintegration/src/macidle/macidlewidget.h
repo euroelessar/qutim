@@ -31,7 +31,7 @@ namespace Ui {
 class MacIdleWidget;
 }
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class MacIdleWidget : public SettingsWidget
 {

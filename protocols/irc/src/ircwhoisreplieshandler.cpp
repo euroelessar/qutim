@@ -28,7 +28,7 @@
 #include "ircaccount.h"
 #include <QDateTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -121,5 +121,5 @@ void IrcWhoisRepliesHandler::handleMessage(class IrcAccount *account, const QStr
 	}
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

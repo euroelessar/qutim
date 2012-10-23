@@ -31,15 +31,15 @@
 #include "abstractmetarequest_p.h"
 #include "../snachandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
 class MetaInfo: public QObject, public SNACHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::SNACHandler)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	MetaInfo();
 	static MetaInfo &instance() { Q_ASSERT(self); return *self; }
@@ -48,15 +48,15 @@ public:
 	bool removeRequest(AbstractMetaRequest *request);
 	quint16 nextId() { return ++m_sequence; }
 private slots:
-	void onNewAccount(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onNewAccount(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status);
 private:
 	quint16 m_sequence;
 	QHash<quint16, AbstractMetaRequest*> m_requests;
 	static MetaInfo *self;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // METAINFO_P_H
 

@@ -38,7 +38,7 @@
 
 #include <QTimer>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 BearerManager::BearerManager(QObject *parent) :
 	QObject(parent),
@@ -50,10 +50,10 @@ BearerManager::BearerManager(QObject *parent) :
 	m_isOnline = m_confManager->isOnline();
 
 	foreach (Protocol *p, Protocol::all()) {
-		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+		connect(p, SIGNAL(accountCreated(Ureen::Account*)),
+				this, SLOT(onAccountCreated(Ureen::Account*)));
+		connect(p, SIGNAL(accountRemoved(Ureen::Account*)),
+				this, SLOT(onAccountRemoved(Ureen::Account*)));
 
 		foreach (Account *a, p->accounts())
 			onAccountCreated(a);
@@ -101,7 +101,7 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 	emit onlineStateChanged(isOnline);
 }
 
-void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
+void BearerManager::onAccountCreated(Ureen::Account *account)
 {
 	Config config = account->config();
 	bool autoConnect = config.value("autoConnect", true);
@@ -120,11 +120,11 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 		account->setStatus(status);
 
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status, Ureen::Status)),
+			this, SLOT(onStatusChanged(Ureen::Status)));
 }
 
-void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
+void BearerManager::onStatusChanged(Ureen::Status status)
 {
 	Account *account = sender_cast<Account*>(sender());
 	
@@ -161,7 +161,7 @@ void BearerManager::onAccountDestroyed(QObject* obj)
 	onAccountRemoved(static_cast<Account*>(obj));
 }
 
-void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
+void BearerManager::onAccountRemoved(Ureen::Account *account)
 {
 	m_accountsToConnect.remove(account);
 	if (m_accountsToConnect.isEmpty())

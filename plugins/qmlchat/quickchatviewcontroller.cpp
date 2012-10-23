@@ -47,7 +47,7 @@
 namespace Core {
 namespace AdiumChat {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static QVariant messageToVariant(const Message &mes)
 {
@@ -140,7 +140,7 @@ QuickChatController::~QuickChatController()
 {
 }
 
-void QuickChatController::appendMessage(const qutim_sdk_0_3::Message& msg)
+void QuickChatController::appendMessage(const Ureen::Message& msg)
 {
 	if (msg.text().isEmpty())
 		return;
@@ -187,8 +187,8 @@ void QuickChatController::setChatSession(ChatSession *session)
 	loadSettings();
 	emit sessionChanged(session);
 
-	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
+	connect(session->unit(), SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)),
+			this, SLOT(onChatStateChanged(Ureen::ChatState)));
 }
 
 QDeclarativeItem *QuickChatController::rootItem() const
@@ -282,7 +282,7 @@ QString QuickChatController::chatState() const
 	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatStateGone);
 }
 
-void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
+void QuickChatController::onChatStateChanged(Ureen::ChatState state)
 {
 	emit chatStateChanged(chatStateToString(state));
 }

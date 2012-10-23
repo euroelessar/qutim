@@ -87,7 +87,7 @@ QString JContact::id() const
 	return d_func()->jid;
 }
 
-bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
+bool JContact::sendMessage(const Ureen::Message &message)
 {
 	Q_D(JContact);
 	if(d->account->status() == Status::Offline || d->account->status() == Status::Connecting)
@@ -285,10 +285,10 @@ bool JContact::hasResource(const QString &resource)
 void JContact::addResource(const QString &resource)
 {
 	JContactResource *res = new JContactResource(this, resource);
-	connect(res, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(resourceStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	connect(res,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(res, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(resourceStatusChanged(Ureen::Status,Ureen::Status)));
+	connect(res,SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)),
+			this,SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)));
 	d_func()->resources.insert(resource, res);
 	emit lowerUnitAdded(res);
 }

@@ -20,7 +20,7 @@
 
 class QTreeView;
 class QListView;
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 enum ItemRole
 {
@@ -65,6 +65,6 @@ private:
 
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::ItemRoles);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::ItemRoles);
 
 #endif // ITEMDELEGATE_H

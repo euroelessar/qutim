@@ -32,7 +32,7 @@
 #include <qutim/chatunit.h>
 #include "ui_historywindow.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

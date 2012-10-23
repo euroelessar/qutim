@@ -27,7 +27,7 @@
 #include "objectgenerator_p.h"
 #include <QtCore/QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	ExtensionInfoData::ExtensionInfoData() : gen(0)
 	{

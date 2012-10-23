@@ -30,7 +30,7 @@
 #include "ui_icqsettings.h"
 #include <QTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 
@@ -102,8 +102,8 @@ namespace nowplaying {
 
 	bool IcqTuneStatus::eventFilter(QObject *obj, QEvent *e)
 	{
-		if (obj == m_account && e->type() == qutim_sdk_0_3::Event::eventType()) {
-			qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(e);
+		if (obj == m_account && e->type() == Ureen::Event::eventType()) {
+			Ureen::Event *customEvent = static_cast<Ureen::Event*>(e);
 			if (customEvent->id == icqXstatusAboutToBeChanged) {
 				if (!NowPlaying::instance()->isWorking() && m_settings.deactivated)
 					return false;

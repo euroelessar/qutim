@@ -27,7 +27,7 @@
 #include "protocol.h"
 #include "servicemanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 static void initEngine(QScriptEngine *engine)

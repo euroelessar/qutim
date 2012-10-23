@@ -36,7 +36,7 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JMessageSession;
 class JAccount;
@@ -44,7 +44,7 @@ class JMUCUser;
 class JMUCSessionPrivate;
 class JSessionConvertor;
 
-class JMUCSession : public qutim_sdk_0_3::Conference
+class JMUCSession : public Ureen::Conference
 		//			,
 		//			public gloox::MUCRoomHandler,
 		//			public gloox::MUCRoomConfigHandler
@@ -57,8 +57,8 @@ public:
 	//			JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread);
 	~JMUCSession();
 	QString id() const;
-	bool sendMessage(const qutim_sdk_0_3::Message &message);
-	bool sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message);
+	bool sendMessage(const Ureen::Message &message);
+	bool sendPrivateMessage(JMUCUser *user, const Ureen::Message &message);
 	void setBookmark(const Jreen::Bookmark::Conference &bookmark);
 	Jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
@@ -66,8 +66,8 @@ public:
 	void setAutoJoin(bool join);
 	bool isError();
 	Jreen::MUCRoom *room();
-	qutim_sdk_0_3::Buddy *me() const;
-	Q_INVOKABLE qutim_sdk_0_3::ChatUnit *participant(const QString &nick);
+	Ureen::Buddy *me() const;
+	Q_INVOKABLE Ureen::ChatUnit *participant(const QString &nick);
 	QString nick();
 	void setNick(const QString &nick);
 	QString title() const;
@@ -76,7 +76,7 @@ public:
 	QString topic() const;
 	void setTopic(const QString &topic);
 	void setConferenceTopic(const QString &topic);
-	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+	void invite(Ureen::Contact *contact, const QString &reason = QString());
 	void handleDeath(const QString &name);
 protected:
 	void loadSettings();

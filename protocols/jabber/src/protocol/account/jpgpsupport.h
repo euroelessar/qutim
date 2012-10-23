@@ -38,14 +38,14 @@ class JContact;
 class JContactResource;
 class JPGPSupportPrivate;
 
-class AssignPGPKeyActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class AssignPGPKeyActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	AssignPGPKeyActionGenerator(QObject *obj, const char *slot);
 	void showImpl(QAction *action,QObject *obj);
 };
 
-class ToggleEncryptionActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class ToggleEncryptionActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	ToggleEncryptionActionGenerator(QObject *obj, const char *slot);
@@ -61,7 +61,7 @@ public:
 	JPGPDecryptReply(QObject *parent);
 	
 signals:
-	void finished(qutim_sdk_0_3::ChatUnit *unit, qutim_sdk_0_3::ChatUnit *unitForSession, const Jreen::Message &message);
+	void finished(Ureen::ChatUnit *unit, Ureen::ChatUnit *unitForSession, const Jreen::Message &message);
 };
 
 class JPGPSupport : public QObject

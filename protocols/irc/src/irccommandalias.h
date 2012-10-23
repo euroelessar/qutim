@@ -29,7 +29,7 @@
 #include "ircglobal.h"
 #include <QSharedDataPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -61,7 +61,7 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types)
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCOMMANDALIAS_H
 

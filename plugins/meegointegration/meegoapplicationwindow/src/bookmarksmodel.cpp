@@ -32,7 +32,7 @@
 
 namespace MeegoIntegration {
 const static int m_max_recent_count = 4;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QHash<BookmarkType, QIcon> Icons;
 void init_icons(Icons &icons)

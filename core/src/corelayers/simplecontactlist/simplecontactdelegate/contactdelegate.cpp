@@ -87,9 +87,9 @@ ContactDelegatePlugin::ContactDelegatePlugin()
 
 void ContactDelegatePlugin::init()
 {
-	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
-	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "ContactDelegate");
-	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Just simple");
+	Ureen::ExtensionIcon icon(QLatin1String(""));
+	Ureen::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "ContactDelegate");
+	Ureen::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Just simple");
 	setInfo(name, description, QUTIM_VERSION, icon);
 	addExtension<Core::ContactDelegate>(name, description, icon);
 	addExtension<Core::SimpleContactlistSettings, ContactListSettingsExtention>(name, description, icon);

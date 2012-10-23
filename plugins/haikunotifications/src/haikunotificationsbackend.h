@@ -28,14 +28,14 @@
 #include <qutim/notification.h>
 #include <qutim/sound.h>
 
-class HaikuNotificationsBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
+class HaikuNotificationsBackend : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
 public:
 	HaikuNotificationsBackend();
 	virtual ~HaikuNotificationsBackend();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 };
 
 #endif // HAIKUNOTIFICATIONSBACKEND_H

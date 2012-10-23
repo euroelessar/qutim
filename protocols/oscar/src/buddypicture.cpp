@@ -36,7 +36,7 @@
 #include <QNetworkProxy>
 #include <QCryptographicHash>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -326,5 +326,5 @@ void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteA
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -31,7 +31,7 @@
 
 #include "useragent.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 MrimUserAgent::MrimUserAgent( const QString &clientID, const QString &versionStr, const QString &buildVer,
                       quint8 protoMajorVer, quint8 protoMinorVer )

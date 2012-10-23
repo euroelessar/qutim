@@ -28,7 +28,7 @@
 #include "qutim/contactsearch.h"
 #include "metainfo/findcontactsmetarequest.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -59,13 +59,13 @@ private:
 class OscarContactSearchFactory : public GeneralContactSearchFactory
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	OscarContactSearchFactory();
 	virtual ContactSearchRequest *request(const QString &name) const;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARCONTACTSEARCH_H
 

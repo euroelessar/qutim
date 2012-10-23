@@ -30,7 +30,7 @@
 #include <QHash>
 #include <QMetaClassInfo>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 ServicePointerData::ServicePointerData() : object(0)
@@ -199,5 +199,5 @@ ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
 	return data.toWeakRef();
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

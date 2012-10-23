@@ -31,7 +31,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/config.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 class IrcAccount;
@@ -48,7 +48,7 @@ struct IrcBookmark
 
 class IrcGroupChatManager : public GroupChatManager
 {
-	Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
+	Q_INTERFACES(Ureen::GroupChatManager)
 public:
 	IrcGroupChatManager(IrcAccount *account);
 	IrcAccount *account() const { return reinterpret_cast<IrcAccount*>(GroupChatManager::account()); }
@@ -70,7 +70,7 @@ private:
 };
 
 } // namespace irc
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // IRCGROUPCHATMANAGER_H
 

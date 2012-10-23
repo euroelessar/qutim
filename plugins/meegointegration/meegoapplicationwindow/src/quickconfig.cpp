@@ -3,7 +3,7 @@
 #include <qutim/protocol.h>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickConfig::QuickConfig(QObject *parent) :
     QObject(parent)

@@ -34,7 +34,7 @@ namespace Jabber
 class JMUCUserPrivate : public JContactResourcePrivate
 {
 public:
-	JMUCUserPrivate(qutim_sdk_0_3::ChatUnit *c) :
+	JMUCUserPrivate(Ureen::ChatUnit *c) :
 		JContactResourcePrivate(c) {}
 	QString avatar;
 	QStringRef hash;
@@ -209,7 +209,7 @@ void JMUCUser::setRealJid(const QString &jid)
 	d_func()->realJid = jid;
 }
 
-bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
+bool JMUCUser::sendMessage(const Ureen::Message &message)
 {
 	return d_func()->muc.data()->sendPrivateMessage(this, message);
 }

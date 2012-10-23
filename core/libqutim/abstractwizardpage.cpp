@@ -25,7 +25,7 @@
 
 #include "abstractwizardpage.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	AbstractWizardPage::AbstractWizardPage()
 	{

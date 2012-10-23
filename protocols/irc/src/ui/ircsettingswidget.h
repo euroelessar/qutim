@@ -31,7 +31,7 @@
 #include <QSpacerItem>
 #include "../ircaccount.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -90,7 +90,7 @@ private:
 	IrcAccount *m_account;
 };
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 
 #endif // IRCSETTINGSWIDGET_H
 

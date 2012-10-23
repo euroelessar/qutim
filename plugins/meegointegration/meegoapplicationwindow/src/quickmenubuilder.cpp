@@ -7,7 +7,7 @@
 
 namespace MeegoIntegration {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickActionFilter::QuickActionFilter(QuickMenuBuilder *parent)
     : QObject(parent), m_builder(parent)
@@ -93,12 +93,12 @@ QuickMenuBuilder::~QuickMenuBuilder()
     m_container.hide();
 }
 
-qutim_sdk_0_3::MenuController *QuickMenuBuilder::controller() const
+Ureen::MenuController *QuickMenuBuilder::controller() const
 {
     return m_controller;
 }
 
-void QuickMenuBuilder::setController(qutim_sdk_0_3::MenuController *controller)
+void QuickMenuBuilder::setController(Ureen::MenuController *controller)
 {
     if (m_controller != controller) {
         m_controller = controller;

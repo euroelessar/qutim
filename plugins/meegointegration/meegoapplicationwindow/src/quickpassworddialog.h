@@ -30,7 +30,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class QuickPasswordDialog : public PasswordDialog {
 	Q_OBJECT
 

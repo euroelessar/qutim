@@ -53,17 +53,17 @@ private:
 class ADIUMWEBVIEW_EXPORT WebKitMessageViewController : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(qutim_sdk_0_3::ChatSession* session READ session WRITE setSession NOTIFY sessionChanged)
+	Q_PROPERTY(Ureen::ChatSession* session READ session WRITE setSession NOTIFY sessionChanged)
 	Q_PROPERTY(bool preview READ isPreview WRITE setPreview NOTIFY previewChanged)
 
 public:
 	WebKitMessageViewController(bool isPreview);
 	~WebKitMessageViewController();
 	
-	qutim_sdk_0_3::ChatSession *session() const;
-	void setSession(qutim_sdk_0_3::ChatSession *session);
+	Ureen::ChatSession *session() const;
+	void setSession(Ureen::ChatSession *session);
 	WebKitMessageViewStyle *style();
-	void appendMessage(const qutim_sdk_0_3::Message &msg);
+	void appendMessage(const Ureen::Message &msg);
 	bool eventFilter(QObject *obj, QEvent *);
 	bool isPreview() const;
 	void setPreview(bool preview);
@@ -85,12 +85,12 @@ private slots:
 protected:
 	void setPage(QWebPage *page);
 	void clearFocusClass();
-	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
+	bool isContentSimiliar(const Ureen::Message &a, const Ureen::Message &b);
 	void loadSettings(bool onFly);
 	void loadHistory();
 	
 signals:
-	void sessionChanged(qutim_sdk_0_3::ChatSession *session);
+	void sessionChanged(Ureen::ChatSession *session);
 	void previewChanged(bool preview);
 	
 private slots:
@@ -106,14 +106,14 @@ private:
 	void init();
 	
 	QWebPage *m_page;
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QWeakPointer<Ureen::ChatSession> m_session;
 	QString m_styleName;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;
 	bool m_isPreview;
 	QStringList m_pendingScripts;
-	qutim_sdk_0_3::Message m_last;
-	qutim_sdk_0_3::Message m_topic;
+	Ureen::Message m_last;
+	Ureen::Message m_topic;
 };
 
 #endif // WEBKITMESSAGEVIEWCONTROLLER_H

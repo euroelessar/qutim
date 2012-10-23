@@ -75,8 +75,8 @@ void ChatSessionModel::addContact(Buddy *unit)
 	m_units.insert(index, unit);
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
 	        this, SLOT(onNameChanged(QString,QString)));
-	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(unit, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onStatusChanged(Ureen::Status)));
 	connect(unit, SIGNAL(destroyed(QObject*)),
 	        this, SLOT(onContactDestroyed(QObject*)));
 	endInsertRows();
@@ -115,7 +115,7 @@ void ChatSessionModel::onNameChanged(const QString &title, const QString &oldTit
 	}
 }
 
-void ChatSessionModel::onStatusChanged(const qutim_sdk_0_3::Status &)
+void ChatSessionModel::onStatusChanged(const Ureen::Status &)
 {
 	Buddy *unit = qobject_cast<Buddy*>(sender());
 	Q_ASSERT(unit);

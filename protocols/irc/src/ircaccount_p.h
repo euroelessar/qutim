@@ -34,7 +34,7 @@
 #include "ui/ircconsole.h"
 #include "ui/ircchannellist.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -67,7 +67,7 @@ public:
 	static QHash<QString, QString> logMsgColors;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCACCOUNT_P_H
 

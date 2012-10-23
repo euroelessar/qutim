@@ -34,7 +34,7 @@
 namespace Jabber
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JProtocolPrivate;
 class JAccount;
@@ -76,7 +76,7 @@ private:
 	static JProtocol *self;
 	QScopedPointer<JProtocolPrivate> d_ptr;
 
-	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(qutim_sdk_0_3::Status))
+	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(Ureen::Status))
 	Q_PRIVATE_SLOT(d_func(), void _q_subscription_changed(Jreen::RosterItem::SubscriptionType))
 	Q_PRIVATE_SLOT(d_func(), void _q_conference_bookmark_changed())
 };

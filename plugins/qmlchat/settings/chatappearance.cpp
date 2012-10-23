@@ -54,7 +54,7 @@ public:
 		return ChatAppearance::tr("Vasya Pupkin");
 	}
 
-	virtual bool sendMessage(const qutim_sdk_0_3::Message& message)
+	virtual bool sendMessage(const Ureen::Message& message)
 	{
 		Q_UNUSED(message);
 		return true;

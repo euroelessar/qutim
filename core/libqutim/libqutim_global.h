@@ -51,7 +51,7 @@
 #	endif
 #endif
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	LIBQUTIM_EXPORT void centerizeWidget(QWidget *widget); //move widget to center of current screen
 }

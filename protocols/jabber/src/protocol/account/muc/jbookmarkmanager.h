@@ -30,22 +30,22 @@
 #include <jreen/bookmarkstorage.h>
 #include <QMetaType>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class DataItem;
 }
 
 namespace Jabber {
 
-using qutim_sdk_0_3::DataItem;
+using Ureen::DataItem;
 
 struct JBookmarkManagerPrivate;
 class JAccount;
 
-class JBookmarkManager : public QObject, public qutim_sdk_0_3::GroupChatManager
+class JBookmarkManager : public QObject, public Ureen::GroupChatManager
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
+	Q_INTERFACES(Ureen::GroupChatManager)
 public:
 	JBookmarkManager(JAccount *account);
 	~JBookmarkManager();

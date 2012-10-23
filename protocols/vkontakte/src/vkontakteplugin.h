@@ -27,12 +27,12 @@
 #define VKONTAKTEPLUGIN_H
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class SettingsItem;
 }
 
-class VkontaktePlugin : public qutim_sdk_0_3::Plugin
+class VkontaktePlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

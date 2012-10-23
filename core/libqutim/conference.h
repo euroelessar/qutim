@@ -28,7 +28,7 @@
 #include "chatunit.h"
 #include "buddy.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ConferencePrivate;
 class Buddy;
@@ -37,7 +37,7 @@ class LIBQUTIM_EXPORT Conference : public ChatUnit
 {
 	Q_DECLARE_PRIVATE(Conference)
 	Q_PROPERTY(QString topic READ topic WRITE setTopic NOTIFY topicChanged)
-	Q_PROPERTY(qutim_sdk_0_3::Buddy* me READ me NOTIFY meChanged)
+	Q_PROPERTY(Ureen::Buddy* me READ me NOTIFY meChanged)
 	Q_PROPERTY(bool isJoined READ isJoined NOTIFY joinedChanged)
 	Q_OBJECT
 public:
@@ -50,10 +50,10 @@ public:
 public slots:
 	void join();
 	void leave();
-	virtual void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
+	virtual void invite(Ureen::Contact *contact, const QString &reason = QString());
 signals:
 	void topicChanged(const QString &current, const QString &previous);
-	void meChanged(qutim_sdk_0_3::Buddy *me);
+	void meChanged(Ureen::Buddy *me);
 	void left();
 	void joined();
 	void joinedChanged(bool isJoined);
@@ -67,8 +67,8 @@ protected:
 
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Conference*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Conference*>)
+Q_DECLARE_METATYPE(Ureen::Conference*)
+Q_DECLARE_METATYPE(QList<Ureen::Conference*>)
 
 #endif // CONFERENCE_H
 

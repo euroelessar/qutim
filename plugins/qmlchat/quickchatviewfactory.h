@@ -29,7 +29,7 @@
 #include <QWidget>
 #include <qutim/adiumchat/chatviewfactory.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class SettingsItem;
 }
@@ -51,7 +51,7 @@ public:
 	virtual QObject *createViewController();
     virtual ~QuickChatViewFactory();
 private:
-	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
+	Ureen::SettingsItem *m_appearanceSettings;
 };
 
 } // namespace AdiumChat

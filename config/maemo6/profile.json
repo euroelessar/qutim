@@ -102,7 +102,7 @@
    },
    "protocols": {
     "list": {
-     "icq": "qutim_sdk_0_3::oscar::IcqProtocol",
+     "icq": "Ureen::oscar::IcqProtocol",
      "jabber": "Jabber::JProtocol",
      "mrim": "MrimProtocol"
     }

@@ -34,7 +34,7 @@
 
 class QVBoxLayout;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -46,10 +46,10 @@ public:
 	virtual ~IcqMainSettings();
 	virtual void loadImpl();
 	virtual void cancelImpl();
-	virtual void saveImpl(const qutim_sdk_0_3::DataItem &item);
+	virtual void saveImpl(const Ureen::DataItem &item);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQMAINSETTINGS_H
 

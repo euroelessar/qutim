@@ -29,7 +29,7 @@
 #include "metafields_p.h"
 #include <QDate>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -301,5 +301,5 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	return true;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

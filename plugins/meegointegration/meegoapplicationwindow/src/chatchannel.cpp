@@ -36,9 +36,9 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
+ChatChannel::ChatChannel(Ureen::ChatUnit *unit)
 	: ChatSession(Chat::instance()), m_unit(unit), m_page(0)
 {
 	m_model = new ChatMessageModel(this);
@@ -59,12 +59,12 @@ ChatChannel::~ChatChannel()
 		chat->setActiveSession(0);
 }
 
-qutim_sdk_0_3::ChatUnit *ChatChannel::getUnit() const
+Ureen::ChatUnit *ChatChannel::getUnit() const
 {
 	return m_unit;
 }
 
-void ChatChannel::setChatUnit(qutim_sdk_0_3::ChatUnit* unit)
+void ChatChannel::setChatUnit(Ureen::ChatUnit* unit)
 {
 	m_unit = unit;
 }
@@ -92,7 +92,7 @@ void ChatChannel::markRead(quint64 id)
 	}
 }
 
-qutim_sdk_0_3::MessageList ChatChannel::unread() const
+Ureen::MessageList ChatChannel::unread() const
 {
 	return m_unread;
 }
@@ -102,12 +102,12 @@ int ChatChannel::unreadCount() const
 	return m_unread.count();
 }
 
-void ChatChannel::addContact(qutim_sdk_0_3::Buddy *c)
+void ChatChannel::addContact(Ureen::Buddy *c)
 {
 	m_units->addUnit(c);
 }
 
-void ChatChannel::removeContact(qutim_sdk_0_3::Buddy *c)
+void ChatChannel::removeContact(Ureen::Buddy *c)
 {
 	m_units->removeUnit(c);
 }
@@ -167,7 +167,7 @@ QVariant ChatChannel::evaluateJavaScript(const QString &script)
 	return result;
 }
 
-qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
+qint64 ChatChannel::doAppendMessage(Ureen::Message &message)
 {
 	if (message.isIncoming())
 		emit messageReceived(&message);

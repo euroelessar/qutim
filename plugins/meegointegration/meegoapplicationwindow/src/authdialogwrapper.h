@@ -33,7 +33,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class AuthDialogWrapper : public QObject {
 	Q_OBJECT
 	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
@@ -54,7 +54,7 @@ public:
 	Q_INVOKABLE void accept();
 	Q_INVOKABLE void cancel();
 	static void init();
-	static void showDialog(qutim_sdk_0_3::Contact* contact, const QString message, bool isIncoming, QuickAuthDialog * authDialog);
+	static void showDialog(Ureen::Contact* contact, const QString message, bool isIncoming, QuickAuthDialog * authDialog);
 
 signals:
 	void titleChanged();

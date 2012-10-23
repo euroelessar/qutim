@@ -42,7 +42,7 @@
 
 #include <QListView>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace PackageManager;
 using namespace Attica;
 
@@ -60,7 +60,7 @@ void PackageManagerPlugin::init()
 
 bool PackageManagerPlugin::load()
 {
-	m_gen = new ActionGenerator(qutim_sdk_0_3::Icon("download"),
+	m_gen = new ActionGenerator(Ureen::Icon("download"),
 	                            QT_TRANSLATE_NOOP("PackageManager", "Manage packages"),
 	                            this, SLOT(onManagerButtonClicked()));
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList"))

@@ -27,7 +27,7 @@
 
 #include "../../base/mrimprotocol.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct MrimAccountWizardPrivate;
 

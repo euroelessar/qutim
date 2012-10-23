@@ -46,8 +46,8 @@ BirthdayUpdater::BirthdayUpdater(Account *account, InfoRequestFactory *factory, 
 	m_factory = account->infoRequestFactory();
 	m_updateTimer.setInterval(30000);
 	connect(&m_updateTimer, SIGNAL(timeout()), SLOT(onUpdateNext()));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onStatusChanged(Ureen::Status,Ureen::Status)));
 }
 
 void BirthdayUpdater::update(Contact *contact)
@@ -94,14 +94,14 @@ void BirthdayUpdater::onUpdateNext()
 	
 	static QSet<QString> hints = QSet<QString>() << "birthday";
 	InfoRequest *request = m_factory->createrDataFormRequest(contact);
-	connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
-			SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+	connect(request, SIGNAL(stateChanged(Ureen::InfoRequest::State)),
+			SLOT(onRequestStateChanged(Ureen::InfoRequest::State)));
 	request->requestData(hints);
 	if (m_waitingUpdate.isEmpty())
 		m_updateTimer.stop();
 }
 
-void BirthdayUpdater::onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State state)
+void BirthdayUpdater::onRequestStateChanged(Ureen::InfoRequest::State state)
 {
 	if (state == InfoRequest::RequestDone) {
 		InfoRequest *request = sender_cast<InfoRequest*>(sender());
@@ -115,8 +115,8 @@ void BirthdayUpdater::onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State st
 	}
 }
 
-void BirthdayUpdater::onStatusChanged(const qutim_sdk_0_3::Status &current,
-									  const qutim_sdk_0_3::Status &previous)
+void BirthdayUpdater::onStatusChanged(const Ureen::Status &current,
+									  const Ureen::Status &previous)
 {
 	bool isOnline = isStatusOnline(current);
 	bool wasOnline = isStatusOnline(previous);
@@ -148,8 +148,8 @@ bool BirthdayReminder::load()
 	foreach (Protocol *proto, Protocol::all()) {
 		foreach (Account *account, proto->accounts())
 			onAccountCreated(account);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountCreated(Ureen::Account*)));
 	}
 	connect(&m_notificationTimer, SIGNAL(timeout()), SLOT(onNotificationTimeout()));
 	m_notificationTimer.start();
@@ -184,7 +184,7 @@ bool BirthdayReminder::unload()
 	return true;
 }
 
-void BirthdayReminder::onAccountCreated(qutim_sdk_0_3::Account *account)
+void BirthdayReminder::onAccountCreated(Ureen::Account *account)
 {
 	InfoRequestFactory *factory = account->infoRequestFactory();
 	if (!factory)
@@ -194,8 +194,8 @@ void BirthdayReminder::onAccountCreated(qutim_sdk_0_3::Account *account)
 	m_accounts.insert(account, updater);
 	connect(updater, SIGNAL(birthdayUpdated(Contact*,QDate)),
 			SLOT(onBirthdayUpdated(Contact*,QDate)));
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			SLOT(onContactCreated(Ureen::Contact*)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			SLOT(onAccountDestroyed(QObject*)));
 	
@@ -209,7 +209,7 @@ void BirthdayReminder::onAccountDestroyed(QObject *obj)
 		updater->deleteLater();
 }
 
-void BirthdayReminder::onContactCreated(qutim_sdk_0_3::Contact *contact)
+void BirthdayReminder::onContactCreated(Ureen::Contact *contact)
 {
 	QDate currentDate = QDate::currentDate();
 	Account *acc = contact->account();

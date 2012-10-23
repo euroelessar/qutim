@@ -28,15 +28,15 @@
 
 #include <qutim/networkproxy.h>
 
-class VProxyManager : public QObject, public qutim_sdk_0_3::NetworkProxyManager
+class VProxyManager : public QObject, public Ureen::NetworkProxyManager
 {
 	Q_OBJECT
 	Q_CLASSINFO("DependsOn", "VkontakteProtocol")
-	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
+	Q_INTERFACES(Ureen::NetworkProxyManager)
 public:
 	VProxyManager();
-	QList<qutim_sdk_0_3::NetworkProxyInfo*> proxies();
-	void setProxy(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::NetworkProxyInfo *proxy, const qutim_sdk_0_3::DataItem &settings);
+	QList<Ureen::NetworkProxyInfo*> proxies();
+	void setProxy(Ureen::Account *account, Ureen::NetworkProxyInfo *proxy, const Ureen::DataItem &settings);
 };
 
 #endif // VPROXYMANAGER_H

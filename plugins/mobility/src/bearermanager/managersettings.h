@@ -28,7 +28,7 @@
 #include <QWidget>
 #include <qutim/settingswidget.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 }
@@ -39,7 +39,7 @@ class ManagerSettings;
 
 class QCheckBox;
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ManagerSettings : public SettingsWidget
 {

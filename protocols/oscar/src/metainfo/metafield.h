@@ -30,7 +30,7 @@
 #include "qutim/inforequest.h"
 #include "../icq_global.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -137,15 +137,15 @@ typedef QHash<MetaField, QVariant> MetaInfoValuesHash;
 
 QDebug operator<<(QDebug dbg, const Category &cat);
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-inline uint qHash(const qutim_sdk_0_3::oscar::MetaField &field)
+inline uint qHash(const Ureen::oscar::MetaField &field)
 {
 	return qHash(static_cast<int>(field.value()));
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);
+Q_DECLARE_METATYPE(Ureen::oscar::Category);
+Q_DECLARE_METATYPE(Ureen::oscar::CategoryList);
 
 
 #endif // METAFIELD_H

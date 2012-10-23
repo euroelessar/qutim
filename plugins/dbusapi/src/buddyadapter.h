@@ -31,7 +31,7 @@
 #include <QDBusConnection>
 #include <qutim/buddy.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class BuddyAdapter : public QDBusAbstractAdaptor
 {
@@ -39,7 +39,7 @@ class BuddyAdapter : public QDBusAbstractAdaptor
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.Buddy")
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 	Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status NOTIFY statusChanged)
+	Q_PROPERTY(Ureen::Status status READ status NOTIFY statusChanged)
 public:
 	explicit BuddyAdapter(Buddy *buddy);
 	inline QString name() const { return self()->name(); }
@@ -48,7 +48,7 @@ public:
 	inline Status status() const { return self()->status(); }
 signals:
 	void avatarChanged(const QString &path);
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 	void nameChanged(const QString &current, const QString &previous);
 private:
 	inline Buddy *self() const { return static_cast<Buddy*>(parent()); }

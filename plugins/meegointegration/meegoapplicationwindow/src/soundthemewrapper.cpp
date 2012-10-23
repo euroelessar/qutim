@@ -4,7 +4,7 @@
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 SoundThemeWrapper::SoundThemeWrapper(QObject *parent) :
     QObject(parent)

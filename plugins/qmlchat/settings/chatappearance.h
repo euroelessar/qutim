@@ -39,7 +39,7 @@ namespace Core
 namespace AdiumChat
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class ChatVariable;
 class ChatViewController;
 class QuickChatController;

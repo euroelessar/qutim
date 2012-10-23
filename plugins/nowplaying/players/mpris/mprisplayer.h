@@ -39,14 +39,14 @@ struct DBusMprisPlayerStatus
 
 Q_DECLARE_METATYPE(DBusMprisPlayerStatus)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 
 	class MprisPlayer : public QObject, public Player
 	{
 		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::nowplaying::Player)
+		Q_INTERFACES(Ureen::nowplaying::Player)
 	public:
 		MprisPlayer(const QString &id);
 		void init();

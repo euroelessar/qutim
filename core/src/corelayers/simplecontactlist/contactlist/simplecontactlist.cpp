@@ -244,11 +244,11 @@ void Module::onSelectTagsTriggered()
     dialog->deleteLater();
 }
 
-void Module::addContact(qutim_sdk_0_3::Contact *contact)
+void Module::addContact(Ureen::Contact *contact)
 {
 #if 1
     p->model->metaObject()->invokeMethod(p->model, "addContact",
-                                         Q_ARG(qutim_sdk_0_3::Contact*, contact));
+                                         Q_ARG(Ureen::Contact*, contact));
 #else
     p->model->addContact(contact);
 #endif

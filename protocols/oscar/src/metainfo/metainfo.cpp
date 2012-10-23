@@ -33,7 +33,7 @@
 #include <QDate>
 #include <QEventLoop>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -46,8 +46,8 @@ MetaInfo::MetaInfo() :
 	self = this;
 	m_infos << SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply)
 		<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
-	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			this, SLOT(onNewAccount(qutim_sdk_0_3::Account*)));
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(Ureen::Account*)),
+			this, SLOT(onNewAccount(Ureen::Account*)));
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		onNewAccount(account);
 }
@@ -110,13 +110,13 @@ bool MetaInfo::removeRequest(AbstractMetaRequest *request)
 	return m_requests.remove(request->id()) > 0;
 }
 
-void MetaInfo::onNewAccount(qutim_sdk_0_3::Account *account)
+void MetaInfo::onNewAccount(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status)));
 }
 
-void MetaInfo::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void MetaInfo::onAccountStatusChanged(const Ureen::Status &status)
 {
 	if (status == Status::Offline) {
 		QHash<quint16, AbstractMetaRequest*> requests = m_requests;
@@ -126,5 +126,5 @@ void MetaInfo::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

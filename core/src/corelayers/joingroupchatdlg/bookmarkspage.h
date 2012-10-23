@@ -44,7 +44,7 @@ public:
 signals:
 	void bookmarksChanged();
 public slots:
-	void updateDataForm(qutim_sdk_0_3::DataItem fields);
+	void updateDataForm(Ureen::DataItem fields);
 protected:
 	void showEvent(QShowEvent *);
 private slots:
@@ -53,10 +53,10 @@ private slots:
 	void onRemove();
 private:
 	bool isRecent(int index);
-	qutim_sdk_0_3::DataItem fields(int index);
+	Ureen::DataItem fields(int index);
 	QComboBox *m_bookmarksBox;
 	QAction *m_removeAction;
-	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QWeakPointer<Ureen::AbstractDataForm> m_dataForm;
 };
 
 } // namespace Core

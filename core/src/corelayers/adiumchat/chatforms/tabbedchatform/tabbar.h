@@ -35,7 +35,7 @@ namespace Core
 namespace AdiumChat
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ChatSessionImpl;
 struct TabBarPrivate;
@@ -76,11 +76,11 @@ private slots:
 	void onRemoveSession(QObject *obj);
 	void onTabMoved(int from,int to);
 	void onTitleChanged(const QString &title);
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
+	void onUnreadChanged(const Ureen::MessageList &unread);
 	void onContextMenu(const QPoint &pos);
 	void onSessionListActionTriggered(QAction *);
-	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
-	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onChatStateChanged(Ureen::ChatState now, Ureen::ChatState old);
+	void onStatusChanged(const Ureen::Status &status);
 	void onCloseButtonClicked();
 private:
 	QScopedPointer<TabBarPrivate> p;

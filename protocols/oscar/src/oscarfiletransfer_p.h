@@ -38,7 +38,7 @@
 #include <QHostInfo>
 #include <QThread>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 
@@ -247,8 +247,8 @@ private:
 class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::MessagePlugin)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	explicit OftFileTransferFactory();
 	virtual void processMessage(IcqContact *contact,
@@ -263,8 +263,8 @@ public:
 	virtual FileTransferJob *create(ChatUnit *unit);
 	static OftServer *getFreeServer();
 private slots:
-	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void capabilitiesChanged(const Ureen::oscar::Capabilities &capabilities);
+	void onAccountCreated(Ureen::Account *account);
 	void onAccountDestroyed(QObject *account);
 	void reloadSettings();
 private:
@@ -284,16 +284,16 @@ private:
 class OscarFileTransferSettings : public QObject, public SettingsExtension
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SettingsExtension)
+	Q_INTERFACES(Ureen::oscar::SettingsExtension)
 public:
 	virtual void loadSettings(DataItem &item, Config cfg);
 	virtual void saveSettings(const DataItem &item, Config cfg);
 private slots:
 	void onAllowAnyPortChanged(const QString &fieldName, const QVariant &data,
-							   qutim_sdk_0_3::AbstractDataForm *dataForm);
+							   Ureen::AbstractDataForm *dataForm);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCAR_FILETRANSFER_H
 

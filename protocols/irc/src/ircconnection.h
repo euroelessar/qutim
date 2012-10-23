@@ -35,7 +35,7 @@
 
 class QHostInfo;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class PasswordDialog;
 
@@ -54,7 +54,7 @@ struct IrcServer
 class IrcConnection : public QObject, public IrcServerMessageHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler)
+	Q_INTERFACES(Ureen::irc::IrcServerMessageHandler)
 public:
 	explicit IrcConnection(IrcAccount *account, QObject *parent = 0);
 	virtual ~IrcConnection();
@@ -108,7 +108,7 @@ private:
 	QWeakPointer<PasswordDialog> m_passDialog;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCONNECTION_H
 

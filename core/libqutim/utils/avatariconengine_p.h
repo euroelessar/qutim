@@ -29,7 +29,7 @@
 
 #include <QtGui/QIconEngineV2>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 /**
@@ -49,5 +49,5 @@ private:
 	QIcon m_overlay;
 };
 
-} //qutim_sdk_0_3
+} //Ureen
 #endif // AVATARICONENGINE_P_H

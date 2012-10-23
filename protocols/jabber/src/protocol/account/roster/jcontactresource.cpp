@@ -40,7 +40,7 @@
 # include <jreen/experimental/jinglemanager.h>
 #endif
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Jabber
 {
@@ -96,7 +96,7 @@ QString JContactResource::title() const
 	}
 }
 
-bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
+bool JContactResource::sendMessage(const Ureen::Message &message)
 {
 	JAccount *a = static_cast<JAccount*>(account());
 

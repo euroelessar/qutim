@@ -34,7 +34,7 @@
 
 class QUrl;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -68,8 +68,8 @@ protected:
 	void startSession(const QByteArray &token, const QByteArray &sessionKey);
 	
 signals:
-	void stateChanged(qutim_sdk_0_3::oscar::OscarAuth::State);
-	void error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
+	void stateChanged(Ureen::oscar::OscarAuth::State);
+	void error(Ureen::oscar::AbstractConnection::ConnectionError error);
 	
 private slots:
 	void onPasswordDialogFinished(int result);
@@ -92,7 +92,7 @@ private:
 	QObjectCleanupHandler m_cleanupHandler;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARAUTH_H
 

@@ -37,7 +37,7 @@
 
 namespace UrlPreview {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 UrlHandler::UrlHandler() :
 	m_netman(new QNetworkAccessManager(this))
@@ -145,7 +145,7 @@ const QRegExp &UrlHandler::getLinkRegExp()
 	return linkRegExp;
 }
 
-void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 id)
+void UrlHandler::checkLink(QString &link, Ureen::ChatUnit *from, qint64 id)
 {
 	const QString oldLink = link;
 	const char *entitiesIn[] = { "&quot;", "&gt;", "&lt;", "&amp;" };

@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "dynamicpropertydata_p.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	QVariant DynamicPropertyData::property(const char *name, const QVariant &def,
 										   const QList<QByteArray> &gNames,

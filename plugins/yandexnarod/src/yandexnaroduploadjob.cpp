@@ -36,7 +36,7 @@
 #include <QFileDialog>
 #include <QNetworkCookieJar>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 YandexNarodBuffer::YandexNarodBuffer(const QString &fileName, QIODevice *file,
 									 const QByteArray &boundary, QObject *parent) :
@@ -107,7 +107,7 @@ qint64 YandexNarodBuffer::writeData(const char *data, qint64 len)
 	return -1;
 }
 
-YandexNarodUploadJob::YandexNarodUploadJob(qutim_sdk_0_3::ChatUnit *contact,
+YandexNarodUploadJob::YandexNarodUploadJob(Ureen::ChatUnit *contact,
 										   YandexNarodFactory *factory) :
 	FileTransferJob(contact, Outgoing, factory)
 {

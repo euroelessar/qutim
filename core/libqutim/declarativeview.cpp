@@ -7,7 +7,7 @@
 #include <QDeclarativeContext>
 #include <QGraphicsWidget>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 static QPointer<QDeclarativeEngine> m_engine;
 
@@ -299,6 +299,6 @@ void DeclarativeView::setResizeMode(DeclarativeView::ResizeMode mode)
 	}
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #include "moc_declarativeview.cpp"

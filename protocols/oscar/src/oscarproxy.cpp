@@ -28,7 +28,7 @@
 #include "icqaccount.h"
 #include <qutim/dataforms.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace oscar {
 
 OscarProxyManager::OscarProxyManager() :
@@ -55,5 +55,5 @@ void OscarProxyManager::setProxy(Account *account, NetworkProxyInfo *proxy, cons
 	acc->setProxy(toNetworkProxy(settings));
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

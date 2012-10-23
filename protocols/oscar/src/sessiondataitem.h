@@ -28,7 +28,7 @@
 
 #include "dataunit.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -169,7 +169,7 @@ struct fromDataUnitHelper<SessionDataItemMap>
 	}
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // SESSIONDATAITEM_H
 

@@ -31,7 +31,7 @@
 #include <qutim/networkproxy.h>
 #include <qutim/systemintegration.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -762,5 +762,5 @@ void AbstractConnection::sendAlivePacket()
 	debug() << "Alive packet has been sent";
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -26,7 +26,7 @@
 #include "snac.h"
 #include "util.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -100,5 +100,5 @@ void SNAC::lock()
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

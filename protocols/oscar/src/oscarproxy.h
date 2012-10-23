@@ -29,21 +29,21 @@
 #include "icq_global.h"
 #include <qutim/networkproxy.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace oscar {
 
 class OscarProxyManager : public QObject, public NetworkProxyManager
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
-	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::NetworkProxyManager)
 public:
 	OscarProxyManager();
 	QList<NetworkProxyInfo*> proxies();
 	void setProxy(Account *account, NetworkProxyInfo *proxy, const DataItem &settings);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARPROXY_H
 

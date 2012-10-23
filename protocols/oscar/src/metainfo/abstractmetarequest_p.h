@@ -29,7 +29,7 @@
 #include "abstractmetarequest.h"
 #include <QTimer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -44,7 +44,7 @@ public:
 	QString errorString;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ABSTRACTMETAINFOREQUEST_P_H
 

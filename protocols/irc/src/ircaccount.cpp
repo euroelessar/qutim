@@ -34,7 +34,7 @@
 #include <qutim/dataforms.h>
 #include <QTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -398,5 +398,5 @@ void IrcAccount::onContactNickChanged(const QString &nick, const QString &oldNic
 	d->contacts.insert(nick, contact);
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

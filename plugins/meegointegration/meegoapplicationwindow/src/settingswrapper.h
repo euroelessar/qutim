@@ -32,7 +32,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class SettingsWrapper : public QObject {
 	Q_OBJECT
 

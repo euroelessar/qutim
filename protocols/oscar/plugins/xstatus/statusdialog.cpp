@@ -31,7 +31,7 @@
 #include "../../src/icqaccount.h"
 #include <QPushButton>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -116,5 +116,5 @@ void CustomStatusDialog::onAwayTextChanged()
 		ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

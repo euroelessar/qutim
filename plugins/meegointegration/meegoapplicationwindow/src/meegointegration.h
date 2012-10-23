@@ -32,7 +32,7 @@
 
 namespace MeegoIntegration {
 
-class MeeGoIntegration : public qutim_sdk_0_3::SystemIntegration
+class MeeGoIntegration : public Ureen::SystemIntegration
 {
     Q_OBJECT
 public:
@@ -52,7 +52,7 @@ signals:
 public slots:
 
 private:
-	qutim_sdk_0_3::ServicePointer<ApplicationWindow> m_window;
+	Ureen::ServicePointer<ApplicationWindow> m_window;
 };
 
 }

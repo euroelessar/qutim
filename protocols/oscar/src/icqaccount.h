@@ -33,7 +33,7 @@
 #include <QHostAddress>
 #include <QNetworkProxy>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -102,7 +102,7 @@ private:
 	bool m_htmlEnabled;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQACCOUNT_H
 

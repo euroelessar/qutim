@@ -31,7 +31,7 @@
 #include "metainfo/updateaccountinfometarequest.h"
 #include <QWeakPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -48,8 +48,8 @@ protected:
 	virtual bool startObserve(QObject *object);
 	virtual bool stopObserve(QObject *object);
 private slots:
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-								const qutim_sdk_0_3::Status &previous);
+	void onAccountStatusChanged(const Ureen::Status &status,
+								const Ureen::Status &previous);
 private:
 	QSet<IcqContact*> m_contacts;
 	IcqAccount *m_account;
@@ -86,7 +86,7 @@ private:
 	};
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARINFOREQUEST_H
 

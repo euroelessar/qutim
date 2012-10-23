@@ -31,7 +31,7 @@
 #include "irccommandalias.h"
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -48,7 +48,7 @@ public:
 	static QMultiHash<QString, IrcCommandAlias*> aliases;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCPROTOCOL_P_H
 

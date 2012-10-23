@@ -36,7 +36,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/notification.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -47,8 +47,8 @@ Roster::Roster()
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(),
-			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+			SIGNAL(accountCreated(Ureen::Account*)),
+			SLOT(accountAdded(Ureen::Account*)));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
@@ -428,7 +428,7 @@ void Roster::loginFinished()
 	}
 }
 
-void Roster::accountAdded(qutim_sdk_0_3::Account *acc)
+void Roster::accountAdded(Ureen::Account *acc)
 {
 	Q_ASSERT(qobject_cast<IcqAccount*>(acc));
 	IcqAccount *account = static_cast<IcqAccount*>(acc);
@@ -449,5 +449,5 @@ RosterPlugin::~RosterPlugin()
 {
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

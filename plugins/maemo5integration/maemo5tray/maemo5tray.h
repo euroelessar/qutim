@@ -34,7 +34,7 @@
 #include <qutim/iconloader.h>
 
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 
 class Maemo5Tray : public QObject, public NotificationBackend
@@ -48,8 +48,8 @@ public:
 	~Maemo5Tray();
 private slots:
 	void onActivated();
-	void onAccountCreated(qutim_sdk_0_3::Account *);
-	void onStatusChanged(const qutim_sdk_0_3::Status &);
+	void onAccountCreated(Ureen::Account *);
+	void onStatusChanged(const Ureen::Status &);
 	void onNotificationFinished();
 protected:
 	virtual void handleNotification(Notification *notification);

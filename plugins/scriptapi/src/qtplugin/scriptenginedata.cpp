@@ -30,7 +30,7 @@
 #include "scriptdataitem.h"
 #include <QScriptEngine>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QMap<QScriptEngine*, ScriptEngineData*> DataMap;
 Q_GLOBAL_STATIC(DataMap, dataMap)

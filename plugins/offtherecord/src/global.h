@@ -16,28 +16,28 @@ struct TreeModelItem
 		m_item_type = 0xff;
 	}
 
-	TreeModelItem(qutim_sdk_0_3::ChatUnit *unit)
+	TreeModelItem(Ureen::ChatUnit *unit)
 	{
 		m_item_name = unit->id();
-		qutim_sdk_0_3::Account *account = unit->account();
+		Ureen::Account *account = unit->account();
 		m_account_name = account->id();
 		m_protocol_name = account->protocol()->id();
 		m_item_type = 0;
 	}
 	
-	qutim_sdk_0_3::Buddy *unit()
+	Ureen::Buddy *unit()
 	{
-		qutim_sdk_0_3::debug() << "Trying to convert TreeModelItem {"
+		Ureen::debug() << "Trying to convert TreeModelItem {"
 		                       << m_protocol_name
 		                       << ", "
 		                       << m_account_name
 		                       << ", "
 		                       << m_item_name
 		                       << "}";
-		qutim_sdk_0_3::Protocol *protocol = qutim_sdk_0_3::Protocol::all().value(m_protocol_name);
-		qutim_sdk_0_3::Account *account = protocol->account(m_account_name);
+		Ureen::Protocol *protocol = Ureen::Protocol::all().value(m_protocol_name);
+		Ureen::Account *account = protocol->account(m_account_name);
 		Q_ASSERT(account);
-		return qobject_cast<qutim_sdk_0_3::Buddy*>(account->getUnit(m_item_name));
+		return qobject_cast<Ureen::Buddy*>(account->getUnit(m_item_name));
 	}
 
 	QString m_protocol_name;

@@ -28,7 +28,7 @@
 
 #include "abstractmetarequest.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -87,7 +87,7 @@ T ShortInfoMetaRequest::value(MetaField val, const T &defaultValue) {
 	return res.value<T>();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // INFOMETAREQUEST_H
 

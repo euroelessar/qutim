@@ -34,40 +34,40 @@
 #include "jcontactresource.h"
 
 //using namespace gloox;
-//using namespace qutim_sdk_0_3;
+//using namespace Ureen;
 
 //namespace Jabber
 //{
-//inline qutim_sdk_0_3::ChatState gloox2qutIM(gloox::ChatStateType state)
+//inline Ureen::ChatState gloox2qutIM(gloox::ChatStateType state)
 //{
 //	switch (state) {
 //	case gloox::ChatStateActive:
-//		return qutim_sdk_0_3::ChatStateActive;
+//		return Ureen::ChatStateActive;
 //	case gloox::ChatStateInactive:
-//		return qutim_sdk_0_3::ChatStateInActive;
+//		return Ureen::ChatStateInActive;
 //	case gloox::ChatStateGone:
-//		return qutim_sdk_0_3::ChatStateGone;
+//		return Ureen::ChatStateGone;
 //	case gloox::ChatStateComposing:
-//		return qutim_sdk_0_3::ChatStateComposing;
+//		return Ureen::ChatStateComposing;
 //	case gloox::ChatStatePaused:
-//		return qutim_sdk_0_3::ChatStatePaused;
+//		return Ureen::ChatStatePaused;
 //	default:
-//		return qutim_sdk_0_3::ChatStateInActive;
+//		return Ureen::ChatStateInActive;
 //	}
 //}
 
-//inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
+//inline gloox::ChatStateType qutIM2gloox(Ureen::ChatState state)
 //{
 //	switch (state) {
-//	case qutim_sdk_0_3::ChatStateActive:
+//	case Ureen::ChatStateActive:
 //		return gloox::ChatStateActive;
-//	case qutim_sdk_0_3::ChatStateInActive:
+//	case Ureen::ChatStateInActive:
 //		return gloox::ChatStateInactive;
-//	case qutim_sdk_0_3::ChatStateGone:
+//	case Ureen::ChatStateGone:
 //		return gloox::ChatStateGone;
-//	case qutim_sdk_0_3::ChatStateComposing:
+//	case Ureen::ChatStateComposing:
 //		return gloox::ChatStateComposing;
-//	case qutim_sdk_0_3::ChatStatePaused:
+//	case Ureen::ChatStatePaused:
 //		return gloox::ChatStatePaused;
 //	default:
 //		return gloox::ChatStateInvalid;
@@ -140,7 +140,7 @@
 ////		if (receipt->rcpt() == Receipt::Received) {
 ////			const ReceiptTrack &track = it.value();
 ////			if (track.session) {
-////				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(track.id, true);
+////				QEvent *ev = new Ureen::MessageReceiptEvent(track.id, true);
 ////				qApp->postEvent(track.session, ev);
 ////			}
 ////			map->erase(it);
@@ -220,7 +220,7 @@
 //	return d_func()->session;
 //}
 
-//bool JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
+//bool JMessageSession::sendMessage(const Ureen::Message &message)
 //{
 //	Q_D(JMessageSession);
 
@@ -246,7 +246,7 @@
 //		d->handler->setSessionId(this, d->id);
 //		d->followChanges = false;
 //	}
-//	qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
+//	Ureen::Message coreMsg(QString::fromStdString(msg.body()));
 //#if 1
 //	// Workaround for a problem when messages from different resources of a contact
 //	// are handled by one JMessageSession.

@@ -35,8 +35,8 @@ AccountsModel::AccountsModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
 	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountCreated(Ureen::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -62,16 +62,16 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-void AccountsModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+void AccountsModel::onAccountCreated(Ureen::Account *account)
 {
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			this, SLOT(onAccountNameChanged()));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status,Ureen::Status)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-			this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+	connect(account, SIGNAL(groupChatManagerChanged(Ureen::GroupChatManager*)),
+			this, SLOT(onGroupChatManagerChanged(Ureen::GroupChatManager*)));
 	if (account->groupChatManager())
 		addAccount(account);
 }
@@ -104,7 +104,7 @@ void AccountsModel::onAccountNameChanged()
 	}
 }
 
-void AccountsModel::onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
+void AccountsModel::onGroupChatManagerChanged(Ureen::GroupChatManager *manager)
 {
 	Q_ASSERT(qobject_cast<Account*>(sender()));
 	Account *account = static_cast<Account*>(sender());
@@ -114,8 +114,8 @@ void AccountsModel::onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *m
 		removeAccount(account, true);
 }
 
-void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-										   const qutim_sdk_0_3::Status &previous)
+void AccountsModel::onAccountStatusChanged(const Ureen::Status &current,
+										   const Ureen::Status &previous)
 {
 	Q_UNUSED(current);
 	Q_UNUSED(previous);

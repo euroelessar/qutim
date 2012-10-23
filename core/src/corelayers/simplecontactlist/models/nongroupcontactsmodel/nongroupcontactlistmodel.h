@@ -94,7 +94,7 @@ public:
 	NonGroupModel(QObject *parent = 0);
 	virtual ~NonGroupModel();
 	virtual QList<Contact*> contacts() const;
-	virtual void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts);
+	virtual void setContacts(const QList<Ureen::Contact*> &contacts);
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -108,19 +108,19 @@ public:
 					  int row, int column, const QModelIndex &parent);
 	QStringList tags() const;
 public slots:
-	void addContact(qutim_sdk_0_3::Contact *contact);
-	void removeContact(qutim_sdk_0_3::Contact *contact);
+	void addContact(Ureen::Contact *contact);
+	void removeContact(Ureen::Contact *contact);
 protected slots:
 	void contactDeleted(QObject *obj);
 	void contactTagsChanged(const QStringList &tags);
 	void onContactInListChanged(bool isInList);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountCreated(Ureen::Account *);
 	void init();
 protected:
 	TagItem *inListTag();
 	TagItem *notInListTag();
 	
-	void addAccount(qutim_sdk_0_3::Account *account);
+	void addAccount(Ureen::Account *account);
 	void filterAllList();
 	void updateContactData(Contact *contact);
 	void processEvent(ChangeEvent *ev);

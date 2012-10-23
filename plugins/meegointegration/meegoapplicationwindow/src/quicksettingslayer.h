@@ -35,12 +35,12 @@ class QuickSettingsModel;
 
 struct DataSettingsObjectCreator
 {
-	DataSettingsObjectCreator(qutim_sdk_0_3::SettingsItem *item);
-	qutim_sdk_0_3::DataSettingsItem *item;
-	qutim_sdk_0_3::DataSettingsObject *create();
+	DataSettingsObjectCreator(Ureen::SettingsItem *item);
+	Ureen::DataSettingsItem *item;
+	Ureen::DataSettingsObject *create();
 };
 
-class QuickGenerator : public qutim_sdk_0_3::ObjectGenerator
+class QuickGenerator : public Ureen::ObjectGenerator
 {
 public:
 	QuickGenerator(const QString &component, DataSettingsObjectCreator *creator = 0);
@@ -55,32 +55,32 @@ private:
 	DataSettingsObjectCreator *m_creator;
 };
 
-class QuickSettingsItem : public qutim_sdk_0_3::SettingsItem
+class QuickSettingsItem : public Ureen::SettingsItem
 {
 public:
-	QuickSettingsItem(const QString &component, qutim_sdk_0_3::Settings::Type type,
-					  const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text);
-	QuickSettingsItem(const QString &component, qutim_sdk_0_3::Settings::Type type,
-					  const qutim_sdk_0_3::LocalizedString &text);
+	QuickSettingsItem(const QString &component, Ureen::Settings::Type type,
+					  const QIcon &icon, const Ureen::LocalizedString &text);
+	QuickSettingsItem(const QString &component, Ureen::Settings::Type type,
+					  const Ureen::LocalizedString &text);
 	virtual ~QuickSettingsItem();
 
 protected:
-	virtual const qutim_sdk_0_3::ObjectGenerator *generator() const;
+	virtual const Ureen::ObjectGenerator *generator() const;
 
 private:
 	const QString m_component;
 };
 
-class QuickSettingsLayer : public qutim_sdk_0_3::SettingsLayer
+class QuickSettingsLayer : public Ureen::SettingsLayer
 {
     Q_OBJECT
 	Q_PROPERTY(QObject* model READ model CONSTANT)
 public:
     explicit QuickSettingsLayer();
 	
-	virtual void show(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
+	virtual void show(const Ureen::SettingsItemList &settings, QObject *controller = 0);
 	virtual void close(QObject* controller = 0);
-	virtual void update(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
+	virtual void update(const Ureen::SettingsItemList &settings, QObject *controller = 0);
 	
 	QObject *model();
 	Q_INVOKABLE void show(QObject *object = 0);
@@ -89,7 +89,7 @@ signals:
 	void settingsRequested(QObject *model);
 
 private:
-	QMap<QObject*, qutim_sdk_0_3::SettingsItemList> m_items;
+	QMap<QObject*, Ureen::SettingsItemList> m_items;
 	QMap<QObject*, QuickSettingsModel*> m_models;
 };
 }

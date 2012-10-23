@@ -37,23 +37,23 @@ class StatusWrapper : public QObject
 public:
 	enum Type
 	{
-		Connecting = qutim_sdk_0_3::Status::Connecting,
-		Online = qutim_sdk_0_3::Status::Online,
-		FreeChat = qutim_sdk_0_3::Status::FreeChat,
-		Away = qutim_sdk_0_3::Status::Away,
-		NA = qutim_sdk_0_3::Status::NA,
-		DND = qutim_sdk_0_3::Status::DND,
-		Invisible = qutim_sdk_0_3::Status::Invisible,
-		Offline = qutim_sdk_0_3::Status::Offline
+		Connecting = Ureen::Status::Connecting,
+		Online = Ureen::Status::Online,
+		FreeChat = Ureen::Status::FreeChat,
+		Away = Ureen::Status::Away,
+		NA = Ureen::Status::NA,
+		DND = Ureen::Status::DND,
+		Invisible = Ureen::Status::Invisible,
+		Offline = Ureen::Status::Offline
 	};
 
 	enum ChangeReason
 	{
-		ByUser = qutim_sdk_0_3::Status::ByUser,
-		ByIdle = qutim_sdk_0_3::Status::ByIdle,
-		ByAuthorizationFailed = qutim_sdk_0_3::Status::ByAuthorizationFailed,
-		ByNetworkError = qutim_sdk_0_3::Status::ByNetworkError,
-		ByFatalError = qutim_sdk_0_3::Status::ByFatalError
+		ByUser = Ureen::Status::ByUser,
+		ByIdle = Ureen::Status::ByIdle,
+		ByAuthorizationFailed = Ureen::Status::ByAuthorizationFailed,
+		ByNetworkError = Ureen::Status::ByNetworkError,
+		ByFatalError = Ureen::Status::ByFatalError
 	};
 	
     explicit StatusWrapper(QObject *parent = 0);

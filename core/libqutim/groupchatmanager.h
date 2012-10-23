@@ -27,7 +27,7 @@
 
 #include "libqutim_global.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class DataItem;
@@ -90,7 +90,7 @@ private:
 
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::GroupChatManager, "org.qutim.core.GroupChatManager");
+Q_DECLARE_INTERFACE(Ureen::GroupChatManager, "org.qutim.core.GroupChatManager");
 
 #endif // GROUPCHATMANAGER_H
 

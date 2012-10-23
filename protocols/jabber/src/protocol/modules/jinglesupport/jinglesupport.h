@@ -33,7 +33,7 @@
 #include <jreen/experimental/jingleaudiocontent.h>
 #include <qutim/actiongenerator.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatUnit;
 }
@@ -72,7 +72,7 @@ public:
     JingleSupport();
     ~JingleSupport();
 	
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 	
 private slots:
 	void onCallAction(QAction *action, QObject *object);
@@ -83,10 +83,10 @@ private slots:
 	void onStateChanged(Jreen::JingleContent::State state);
 	
 protected:
-	qutim_sdk_0_3::ChatUnit *unitBySession(Jreen::JingleSession *session, bool create = true);
+	Ureen::ChatUnit *unitBySession(Jreen::JingleSession *session, bool create = true);
 	
 private:
-//	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_button;
+//	QScopedPointer<Ureen::ActionGenerator> m_button;
 	Jreen::Client *m_client;
 	JAccount *m_account;
 	QHash<Jreen::JingleContent *, JingleHelper *> m_helpers;

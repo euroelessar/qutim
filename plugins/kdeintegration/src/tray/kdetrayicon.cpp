@@ -36,7 +36,7 @@
 #include <QMetaType>
 #include <QApplication>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 #define ICON_ONLINE QLatin1String("qutim-online")
 #define ICON_OFFLINE QLatin1String("qutim-offline")
@@ -116,8 +116,8 @@ public:
 		prepareAction(action);
 		action->setIcon(m_account->status().icon());
 		QMenu *menu = m_account->menu(false);
-		QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-						 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		QObject::connect(m_account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+						 action, SLOT(onStatusChanged(Ureen::Status)));
 		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 		action->setMenu(menu);
 		return action;
@@ -150,8 +150,8 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				this, SLOT(onAccountCreated(Ureen::Account*)));
 	}
 	m_protocols = protocols.values();
 
@@ -207,7 +207,7 @@ void KdeTrayIcon::onAccountDestroyed(QObject *obj)
 	validateProtocolActions();
 }
 
-void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
+void KdeTrayIcon::onAccountCreated(Ureen::Account *account)
 {
 	if (m_actions.contains(account))
 		return;
@@ -219,7 +219,7 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 	addAction(gen);
 	connect(account, SIGNAL(destroyed(QObject*)),
 	        SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
 			SLOT(validateIcon()));
 	validateIcon();
 	validateProtocolActions();
@@ -231,7 +231,7 @@ void KdeTrayIcon::handleNotification(Notification *notification)
 	m_notifications << notification;
 
 	m_item->setStatus(KStatusNotifierItem::NeedsAttention);
-	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+	connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 			SLOT(onNotificationFinished()));
 }
 

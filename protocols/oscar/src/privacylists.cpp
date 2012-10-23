@@ -28,7 +28,7 @@
 #include "icqprotocol.h"
 #include <qutim/icon.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -169,7 +169,7 @@ PrivacyLists::PrivacyLists() :
 	m_types << SsiPermit << SsiDeny << SsiIgnore << SsiVisibility;
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
-	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), SLOT(accountAdded(qutim_sdk_0_3::Account*)));
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(Ureen::Account*)), SLOT(accountAdded(Ureen::Account*)));
 	IcqProtocol::instance()->installEventFilter(this);
 
 	// Create privacy actions for contacts.
@@ -363,13 +363,13 @@ bool PrivacyLists::eventFilter(QObject *obj, QEvent *e)
 	return QObject::eventFilter(obj, e);
 }
 
-void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)
+void PrivacyLists::accountAdded(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(statusChanged(Ureen::Status,Ureen::Status)));
 }
 
-void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous)
+void PrivacyLists::statusChanged(const Ureen::Status &status, const Ureen::Status &previous)
 {
 	IcqAccount *account = qobject_cast<IcqAccount*>(sender());
 	Q_ASSERT(account);
@@ -403,5 +403,5 @@ void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status, const quti
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -30,7 +30,7 @@
 #include <QAudioOutput>
 #include <QThread>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

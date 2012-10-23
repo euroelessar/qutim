@@ -36,14 +36,14 @@
 
 #include "astralroster.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Tp;
 
 class AstralProtocol;
 class AstralSessionManager;
 struct AstralAccountPrivate;
 
-class AstralAccount : public qutim_sdk_0_3::Account
+class AstralAccount : public Ureen::Account
 {
 	Q_OBJECT
 public:

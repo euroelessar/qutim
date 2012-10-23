@@ -39,7 +39,7 @@
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProtocolSeparatorActionGenerator;
 class StatusAction: public QAction
@@ -49,7 +49,7 @@ public:
 	StatusAction(QObject* parent);
 
 public slots:
-	void onStatusChanged(qutim_sdk_0_3::Status status);
+	void onStatusChanged(Ureen::Status status);
 };
 
 class SimpleTray : public MenuController, public NotificationBackend
@@ -66,12 +66,12 @@ public:
 	void clActivationStateChanged(bool activated);
 private slots:
 	void onActivated(QSystemTrayIcon::ActivationReason);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionDestroyed();
-	void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
+	void onUnreadChanged(Ureen::MessageList unread);
 	void onAccountDestroyed(QObject *obj);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
-	void onStatusChanged(const qutim_sdk_0_3::Status &);
+	void onAccountCreated(Ureen::Account *);
+	void onStatusChanged(const Ureen::Status &);
 	void onNotificationFinished();
 	void reloadSettings();
 protected:

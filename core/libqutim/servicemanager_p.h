@@ -29,7 +29,7 @@
 #include "servicemanager.h"
 #include <QHash>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 typedef QHash<QByteArray, ExtensionInfoList> ServiceHash;

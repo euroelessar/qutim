@@ -39,7 +39,7 @@ class ContactWidget : public QWidget
     Q_OBJECT
 public:
 	ContactWidget(const QPersistentModelIndex &index, QAbstractItemView *view,
-				  qutim_sdk_0_3::Contact *contact);
+				  Ureen::Contact *contact);
 	~ContactWidget();
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -57,7 +57,7 @@ protected:
 private:
 	QPersistentModelIndex m_index;
 	QAbstractItemView *m_view;
-	qutim_sdk_0_3::Contact *m_contact;
+	Ureen::Contact *m_contact;
     FloatiesPlugin *m_plugin;
     bool m_mouse_pressed;
     QPoint m_position;

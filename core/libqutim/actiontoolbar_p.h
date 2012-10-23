@@ -37,7 +37,7 @@ class QActionGroup;
 class QMenu;
 class QAction;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ActionToolBar;
 class ActionGenerator;

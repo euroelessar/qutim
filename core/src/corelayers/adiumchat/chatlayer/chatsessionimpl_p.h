@@ -36,7 +36,7 @@
 class QMenu;
 class QTextDocument;
 class QActionGroup;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Contact;
 }
 
@@ -46,7 +46,7 @@ namespace Core
 namespace AdiumChat
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ChatSessionModel;
 class ChatSessionImpl;

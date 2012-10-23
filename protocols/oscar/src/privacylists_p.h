@@ -28,7 +28,7 @@
 #include "feedbag.h"
 #include <qutim/actiongenerator.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 class Contact;
@@ -79,8 +79,8 @@ private:
 class PrivacyLists : public QObject, public FeedbagItemHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::FeedbagItemHandler)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::FeedbagItemHandler)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
     PrivacyLists();
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
@@ -92,8 +92,8 @@ protected:
 private slots:
 	void onModifyPrivateList(QAction *action, QObject *object);
 	void onModifyPrivacy(QAction *action, QObject *object);
-	void accountAdded(qutim_sdk_0_3::Account *account);
-	void statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous);
+	void accountAdded(Ureen::Account *account);
+	void statusChanged(const Ureen::Status &status, const Ureen::Status &previous);
 private:
 	bool handleVisibility(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
 	bool handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
@@ -104,7 +104,7 @@ private:
 	Visibility m_currentVisibility;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // PRIVACYLISTS_H
 

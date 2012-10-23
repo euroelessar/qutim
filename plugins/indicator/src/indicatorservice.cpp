@@ -34,7 +34,7 @@ IndicatorService::IndicatorService()
 #ifdef QUANTAL
     : desktopName( QUTIM_DESKTOP_BASENAME )
     , indicateServer(new Server(desktopName, this))
-    , quitButton(&indicateServer->createSourceString(QLatin1String("quitButton"), QT_TRANSLATE_NOOP("Plugin", "Close qutIM"), qutim_sdk_0_3::Icon("application-exit"), ""))
+    , quitButton(&indicateServer->createSourceString(QLatin1String("quitButton"), QT_TRANSLATE_NOOP("Plugin", "Close qutIM"), Ureen::Icon("application-exit"), ""))
 #else /* QUANTAL */
 	: desktopName( QUTIM_DESKTOP_FILE )
 	, indicateServer(Server::defaultInstance())
@@ -51,28 +51,28 @@ IndicatorService::IndicatorService()
 	indicateServer->show();
 	connect(indicateServer, SIGNAL(serverDisplay()), SLOT(showMainWindow()));
 #endif /* QUANTAL */
-	connect(qutim_sdk_0_3::ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(Ureen::ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)), SLOT(onSessionCreated(Ureen::ChatSession*)));
 
-	//QImage icon = qutim_sdk_0_3::Icon("qutim").pixmap(64).toImage();
+	//QImage icon = Ureen::Icon("qutim").pixmap(64).toImage();
 
 	qApp->setQuitOnLastWindowClosed(false);
 
 	/* Quit Button */
 #ifndef QUANTAL
 	quitButton->setNameProperty(QT_TRANSLATE_NOOP("Plugin", "Close qutIM"));
-	QImage icon = qutim_sdk_0_3::Icon("application-exit").pixmap(64).toImage();
+	QImage icon = Ureen::Icon("application-exit").pixmap(64).toImage();
 	connect(quitButton, SIGNAL(display(QIndicate::Indicator*)), qApp, SLOT(quit()));
 	quitButton->setIconProperty(icon);
 	quitButton->show();
 #endif /* QUANTAL */
-	foreach (qutim_sdk_0_3::ChatSession *session, qutim_sdk_0_3::ChatLayer::instance()->sessions())
+	foreach (Ureen::ChatSession *session, Ureen::ChatLayer::instance()->sessions())
 		onSessionCreated(session);
 }
 
 IndicatorService::~IndicatorService()
 {
-	disconnect(qutim_sdk_0_3::ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-	           this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	disconnect(Ureen::ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+	           this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 #ifdef QUANTAL
     //indicateServer->unregisterApp();
 #else /* QUANTAL */
@@ -85,12 +85,12 @@ IndicatorService::~IndicatorService()
 #endif /* QUANTAL */
 }
 
-void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void IndicatorService::onSessionCreated(Ureen::ChatSession *session)
 {
-	qutim_sdk_0_3::debug() << "onSessionCreated";
+	Ureen::debug() << "onSessionCreated";
 	if (sessionIndicators.contains(session))
 		return;
-	qutim_sdk_0_3::debug() << "List doesn't contain session. Adding indicator";
+	Ureen::debug() << "List doesn't contain session. Adding indicator";
 
 #ifdef QUANTAL
     Source *indicator = &indicateServer->createSourceTime(
@@ -107,27 +107,27 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	sessionIndicators.insert(session, indicator);
 
 	connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
-	connect(session, SIGNAL(unreadChanged(const qutim_sdk_0_3::MessageList&)),
-	        SLOT(onUnreadChanged(const qutim_sdk_0_3::MessageList&)));
+	connect(session, SIGNAL(unreadChanged(const Ureen::MessageList&)),
+	        SLOT(onUnreadChanged(const Ureen::MessageList&)));
 	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 #ifdef QUANTAL
     indicator->setAttention(!session->unread().isEmpty());
     indicator->setCount(session->unread().count());
     if (!session->unread().isEmpty())
-        indicator->setIcon(qutim_sdk_0_3::Icon("mail-unread-new"));
+        indicator->setIcon(Ureen::Icon("mail-unread-new"));
 #else /* QUANTAL */
 	connect(indicator, SIGNAL(display(QIndicate::Indicator*)),
 	        SLOT(onIndicatorDisplay(MessagingMenu::Application::Source)), Qt::QueuedConnection);
 
 	QString name = session->getUnit()->title();
-	qutim_sdk_0_3::debug() << "Setting indicator name: " << name;
+	Ureen::debug() << "Setting indicator name: " << name;
 	indicator->setNameProperty(name);
 	indicator->setTimeProperty(QDateTime::currentDateTime());
 	indicator->setDrawAttentionProperty(!session->unread().isEmpty());
 	indicator->setCountProperty(session->unread().count());
 	QImage icon;
 	if (!session->unread().isEmpty())
-		icon = qutim_sdk_0_3::Icon("mail-unread-new").pixmap(64).toImage();
+		icon = Ureen::Icon("mail-unread-new").pixmap(64).toImage();
 	indicator->setIconProperty(icon);
 	indicator->setIndicatorProperty("subtype", "im");
 	indicator->setIndicatorProperty("sender", name);
@@ -137,8 +137,8 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 
 void IndicatorService::onSessionDestroyed(QObject *session)
 {
-	qutim_sdk_0_3::debug() << "onSessionDestroyed";
-	qutim_sdk_0_3::ChatSession *_session = static_cast<qutim_sdk_0_3::ChatSession*>(session);
+	Ureen::debug() << "onSessionDestroyed";
+	Ureen::ChatSession *_session = static_cast<Ureen::ChatSession*>(session);
     Source *indicator = sessionIndicators.take(_session);
 #ifdef QUANTAL
     indicateServer->removeSource(*indicator);
@@ -147,16 +147,16 @@ void IndicatorService::onSessionDestroyed(QObject *session)
 #endif /* QUANTAL */
 }
 
-void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
+void IndicatorService::onUnreadChanged(const Ureen::MessageList &messages)
 {
-	qutim_sdk_0_3::debug() << "onUnreadChanged";
+	Ureen::debug() << "onUnreadChanged";
 	if (messages.isEmpty())
 		return;
-	qutim_sdk_0_3::debug() << "Message list isn't empty. Looking for session.";
-	qutim_sdk_0_3::ChatSession* session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
+	Ureen::debug() << "Message list isn't empty. Looking for session.";
+	Ureen::ChatSession* session = qobject_cast<Ureen::ChatSession*>(sender());
 	if (!session || session->isActive())
 		return;
-	qutim_sdk_0_3::debug() << "session exists and not active.";
+	Ureen::debug() << "session exists and not active.";
 
 	Source *indicator = sessionIndicators.value(session);
 	if (!indicator)
@@ -165,12 +165,12 @@ void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &message
 #ifdef QUANTAL
     indicator->setTime(time);
     indicator->setAttention(true);
-    indicator->setIcon(qutim_sdk_0_3::Icon("mail-unread-new"));
+    indicator->setIcon(Ureen::Icon("mail-unread-new"));
     indicator->setCount(session->unread().count());
 #else /* QUANTAL */
 	indicator->setTimeProperty(time);
 	indicator->setDrawAttentionProperty(true);
-	QImage icon = qutim_sdk_0_3::Icon("mail-unread-new").pixmap(64).toImage();
+	QImage icon = Ureen::Icon("mail-unread-new").pixmap(64).toImage();
 	indicator->setIconProperty(icon);
 	indicator->setCountProperty(session->unread().count());
 	// TODO: ->setIconProperty(QImage)
@@ -178,7 +178,7 @@ void IndicatorService::onUnreadChanged(const qutim_sdk_0_3::MessageList &message
 #endif /* QUANTAL */
 }
 
-void IndicatorService::onAccountCreated(qutim_sdk_0_3::Account *)
+void IndicatorService::onAccountCreated(Ureen::Account *)
 {
 }
 
@@ -192,10 +192,10 @@ void IndicatorService::loadSettings()
 
 void IndicatorService::onSessionActivated(bool active)
 {
-	qutim_sdk_0_3::debug() << "onSessionActivated";
+	Ureen::debug() << "onSessionActivated";
 	if (!active)
 		return;
-	qutim_sdk_0_3::ChatSession *session = qobject_cast<qutim_sdk_0_3::ChatSession*>(sender());
+	Ureen::ChatSession *session = qobject_cast<Ureen::ChatSession*>(sender());
 	if (!session)
 		return;
 	Source *indicator = sessionIndicators.value(session);
@@ -217,13 +217,13 @@ void IndicatorService::onSessionActivated(bool active)
 
 void IndicatorService::onIndicatorDisplay(SourceRef indicator)
 {
-	qutim_sdk_0_3::debug() << "onIndicatorDisplay";
+	Ureen::debug() << "onIndicatorDisplay";
 #ifdef QUANTAL
     if (indicator.getLabel() == QT_TRANSLATE_NOOP("Plugin", "Close qutIM"))
         qApp->quit();
-	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(&indicator);
+	Ureen::ChatSession* session = sessionIndicators.key(&indicator);
 #else /* QUANTAL */
-	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(indicator);
+	Ureen::ChatSession* session = sessionIndicators.key(indicator);
 #endif /* QUANTAL */
 	if (!sessionIndicators.contains(session))
 		return;
@@ -232,8 +232,8 @@ void IndicatorService::onIndicatorDisplay(SourceRef indicator)
 
 void IndicatorService::showMainWindow()
 {
-	qutim_sdk_0_3::debug() << "showMainWindow";
-	if (QObject *obj = qutim_sdk_0_3::ServiceManager::getByName("ContactList"))
+	Ureen::debug() << "showMainWindow";
+	if (QObject *obj = Ureen::ServiceManager::getByName("ContactList"))
 	{
 		QMetaObject::invokeMethod(obj, "show");
 		QWidget *objWidget = qobject_cast<QWidget*>(obj);

@@ -45,11 +45,11 @@ namespace KdeIntegration
 		StatusAction(QObject* parent);
 
 	public slots:
-		void onStatusChanged(qutim_sdk_0_3::Status status);
+		void onStatusChanged(Ureen::Status status);
 	};
 }
 
-class KdeTrayIcon : public qutim_sdk_0_3::MenuController, public qutim_sdk_0_3::NotificationBackend
+class KdeTrayIcon : public Ureen::MenuController, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "TrayIcon")
@@ -62,20 +62,20 @@ public:
 	
 private slots:
 	void onAccountDestroyed(QObject *obj);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountCreated(Ureen::Account *);
 	void onNotificationFinished();
 	void validateIcon();
 private:
-	void handleNotification(qutim_sdk_0_3::Notification *notification);
+	void handleNotification(Ureen::Notification *notification);
 	void validateProtocolActions();
 	KStatusNotifierItem *m_item;
-	QMap<qutim_sdk_0_3::Account*, qutim_sdk_0_3::ActionGenerator*> m_actions;
+	QMap<Ureen::Account*, Ureen::ActionGenerator*> m_actions;
 	QList<KdeIntegration::ProtocolSeparatorActionGenerator*> m_protocolActions;
-	QList<qutim_sdk_0_3::Account*> m_accounts;
-	QWeakPointer<qutim_sdk_0_3::Account> m_activeAccount;
-	QList<qutim_sdk_0_3::Protocol*> m_protocols;
-	QList<qutim_sdk_0_3::Notification*> m_notifications;
-	qutim_sdk_0_3::Icon m_currentIcon;
+	QList<Ureen::Account*> m_accounts;
+	QWeakPointer<Ureen::Account> m_activeAccount;
+	QList<Ureen::Protocol*> m_protocols;
+	QList<Ureen::Notification*> m_notifications;
+	Ureen::Icon m_currentIcon;
 };
 
 class KdeStatusNotifierItem : public KStatusNotifierItem

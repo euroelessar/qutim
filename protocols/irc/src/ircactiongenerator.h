@@ -29,7 +29,7 @@
 #include "ircglobal.h"
 #include <qutim/actiongenerator.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace irc {
 
 class IrcActionGeneratorPrivate;
@@ -50,7 +50,7 @@ private:
 };
 
 } // namespace irc
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // IRCACTIONGENERATOR_H
 

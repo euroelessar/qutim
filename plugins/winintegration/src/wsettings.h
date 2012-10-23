@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 #include "ui_wsettings.h"
 
-class WSettingsWidget : public qutim_sdk_0_3::SettingsWidget
+class WSettingsWidget : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 

@@ -32,7 +32,7 @@
 
 namespace Jabber {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 JMoodChooserWindow::JMoodChooserWindow(Account *account, const QString &text,
 									   const QString &mood, QWidget *parent) :
 	QDialog(parent),
@@ -80,7 +80,7 @@ void JMoodChooserWindow::sendMood()
 		data.insert("description", ui->textEdit->toPlainText());
 		data.insert("mood", mood);
 	}
-	qutim_sdk_0_3::Event ev("jabber-personal-event", "mood", data, true);
+	Ureen::Event ev("jabber-personal-event", "mood", data, true);
 	qApp->sendEvent(m_account, &ev);
 }
 
@@ -93,10 +93,10 @@ JMoodChooser::JMoodChooser()
 {
 }
 
-void JMoodChooser::init(qutim_sdk_0_3::Account *account)
+void JMoodChooser::init(Ureen::Account *account)
 {
 	m_account = account;
-	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
+	m_eventId = Ureen::Event::registerType("jabber-personal-event");
 	// Add action to context menu
 	m_actionGenerator.reset(new JMoodChooserAction(QIcon(), tr("Set mood"),
 	                                               this, SLOT(showMoodChooser(QObject*))));
@@ -118,8 +118,8 @@ void JMoodChooser::showMoodChooser(QObject *obj)
 
 bool JMoodChooser::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
-		qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(ev);
+	if (ev->type() == Ureen::Event::eventType()) {
+		Ureen::Event *customEvent = static_cast<Ureen::Event*>(ev);
 		if (customEvent->id == m_eventId && obj == m_account &&
 				customEvent->at<QString>(0) == "mood")
 		{

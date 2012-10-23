@@ -31,7 +31,7 @@
 #include <QDBusObjectPath>
 #include <QDBusConnection>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QMap<ChatSession*, QDBusObjectPath> ChatSessionPathHash;
 
@@ -41,7 +41,7 @@ class ChatSessionAdapter : public QDBusAbstractAdaptor
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.ChatSession")
 	Q_PROPERTY(QDBusObjectPath chatUnit READ chatUnit WRITE setChatUnit)
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
-	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
+	Q_PROPERTY(Ureen::MessageList unread READ unread NOTIFY unreadChanged)
 public:
 	static const ChatSessionPathHash &hash();
 	static QDBusObjectPath ensurePath(QDBusConnection dbus, ChatSession *session);
@@ -59,24 +59,24 @@ public:
 public slots:
 	void addContact(const QDBusObjectPath &buddy);
 	void removeContact(const QDBusObjectPath &buddy);
-	inline qint64 appendMessage(qutim_sdk_0_3::Message &message);
+	inline qint64 appendMessage(Ureen::Message &message);
 	inline qint64 appendMessage(const QString &text);
 	inline void activate() { setActive(true); }
 	inline void markRead(quint64 id) { m_session->markRead(id); }
 	
 signals:
-	void messageReceived(const qutim_sdk_0_3::Message &message);
-	void messageSent(const qutim_sdk_0_3::Message &message);
+	void messageReceived(const Ureen::Message &message);
+	void messageSent(const Ureen::Message &message);
 	void contactAdded(const QDBusObjectPath &buddy, const QString &id);
 	void contactRemoved(const QDBusObjectPath &buddy, const QString &id);
 	void activated(bool active);
-	void unreadChanged(const qutim_sdk_0_3::MessageList &messages);
+	void unreadChanged(const Ureen::MessageList &messages);
 	
 private slots:
-	void onMessageReceived(qutim_sdk_0_3::Message *message);
-	void onMessageSent(qutim_sdk_0_3::Message *message);
-	void onContactAdded(qutim_sdk_0_3::Buddy *c);
-	void onContactRemoved(qutim_sdk_0_3::Buddy *c);
+	void onMessageReceived(Ureen::Message *message);
+	void onMessageSent(Ureen::Message *message);
+	void onContactAdded(Ureen::Buddy *c);
+	void onContactRemoved(Ureen::Buddy *c);
 	
 private:
 	ChatSession *m_session;
@@ -84,7 +84,7 @@ private:
 	QDBusObjectPath m_path;
 };
 
-qint64 ChatSessionAdapter::appendMessage(qutim_sdk_0_3::Message &message)
+qint64 ChatSessionAdapter::appendMessage(Ureen::Message &message)
 {
 	return m_session->appendMessage(message);
 }

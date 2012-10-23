@@ -44,7 +44,7 @@
 #include <kcmdlineargs.h>
 #include <QDebug>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QMenu *(*_menu_creator_hook)(const QString &title, QWidget *parent);
 extern LIBQUTIM_EXPORT _menu_creator_hook menu_creator_hook;

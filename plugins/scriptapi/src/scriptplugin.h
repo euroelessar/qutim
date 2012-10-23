@@ -33,15 +33,15 @@
 #include <QPushButton>
 #include <QScriptEngine>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ScriptPlugin;
 
-class ScriptMessageHandler : public qutim_sdk_0_3::MessageHandler
+class ScriptMessageHandler : public Ureen::MessageHandler
 {
 public:
 	ScriptMessageHandler(ScriptPlugin *parent);
-	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Result doHandle(Ureen::Message &message, QString *reason);
 	
 	void openContext(ChatUnit *unit);
 	void closeContext();
@@ -50,10 +50,10 @@ private:
 	QScriptEngine *m_engine;
 };
 
-class ScriptPlugin : public Plugin, public qutim_sdk_0_3::PluginFactory
+class ScriptPlugin : public Plugin, public Ureen::PluginFactory
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::PluginFactory)
+	Q_INTERFACES(Ureen::PluginFactory)
 public:
     explicit ScriptPlugin();
 	virtual void init();

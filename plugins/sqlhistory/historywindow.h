@@ -63,7 +63,7 @@ private:
 	void fillAccountComboBox();
 	void setIcons();
 	Ui::HistoryWindowClass ui;
-	qutim_sdk_0_3::TreeModelItem m_item;
+	Ureen::TreeModelItem m_item;
     QString m_history_path;
 	QString m_search_word;
 	SqlEngine *m_engine;

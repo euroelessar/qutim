@@ -29,7 +29,7 @@
 #include "libqutim_global.h"
 #include <QVariant>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ModuleManager;
 class ExtensionInfo;

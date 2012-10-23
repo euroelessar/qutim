@@ -32,7 +32,7 @@ namespace SimpleContactList {
 
 class TreeView;
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AbstractContactModel;
 class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget

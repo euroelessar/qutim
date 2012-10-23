@@ -29,14 +29,14 @@
 #include <qutim/plugin.h>
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ChatSession;
 class Message;
 }
 
 namespace SessionHelper {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class SessionHelper : public Plugin
 {
@@ -48,10 +48,10 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
+	void sessionCreated(Ureen::ChatSession*);
 	void reloadSettings();
 private:
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	Ureen::SettingsItem *m_settingsItem;
 	bool m_activateMultichat;
 };
 

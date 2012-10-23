@@ -29,7 +29,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum {
 	IdRole = Qt::UserRole,
 	ContactRole,
@@ -81,8 +81,8 @@ void ChatChannelUsersModel::addUnit(Buddy *unit)
 	        this, SLOT(onUnitDeath(QObject*)));
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
 	        this, SLOT(onTitleChanged(QString,QString)));
-	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(unit, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onStatusChanged(Ureen::Status)));
 	endInsertRows();
 	emit countChanged(m_units.size());
 }
@@ -114,7 +114,7 @@ void ChatChannelUsersModel::onUnitDeath(QObject *object)
 	}
 }
 
-void ChatChannelUsersModel::onStatusChanged(const qutim_sdk_0_3::Status &)
+void ChatChannelUsersModel::onStatusChanged(const Ureen::Status &)
 {
 	Buddy *unit = static_cast<Buddy*>(sender());
 	Q_ASSERT(unit);

@@ -29,7 +29,7 @@
 #include "oscarconnection.h"
 #include <QHostInfo>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -58,7 +58,7 @@ private:
 	int m_hostReqId;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // MD5LOGIN_H
 

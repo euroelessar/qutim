@@ -35,7 +35,7 @@
 
 namespace Antispam {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Authorization;
 
 #define ANTISPAM_PROPERTY "antispamInfo"

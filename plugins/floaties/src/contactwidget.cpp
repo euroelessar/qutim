@@ -36,7 +36,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/tooltip.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ItemViewHook : public QAbstractItemView
 {
@@ -53,7 +53,7 @@ ContactWidget::ContactWidget(const QPersistentModelIndex &index, QAbstractItemVi
 	connect(contact, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 	connect(contact, SIGNAL(avatarChanged(QString)), this, SLOT(update()));
 	connect(contact, SIGNAL(titleChanged(QString,QString)), this, SLOT(update()));
-	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+	connect(contact, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
 			this, SLOT(update()));
 #if defined(Q_OS_MAC)
 	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);

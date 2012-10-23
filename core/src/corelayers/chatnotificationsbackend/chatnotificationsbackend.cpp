@@ -29,15 +29,15 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 ChatNotificationsBackend::ChatNotificationsBackend() :
 	NotificationBackend("ChatNotifications")
 {
 	setDescription(QT_TR_NOOP("Add message to chat"));
 	allowRejectedNotifications("sessionIsActive");
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 }
 
 void ChatNotificationsBackend::handleNotification(Notification *notification)

@@ -33,7 +33,7 @@
 
 #define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -63,7 +63,7 @@ LIBOSCAR_EXPORT QTextCodec *utf16Codec();
 LIBOSCAR_EXPORT QTextCodec *defaultCodec();
 LIBOSCAR_EXPORT QTextCodec *detectCodec();
 
-} } } // namespace qutim_sdk_0_3::oscar::Util
+} } } // namespace Ureen::oscar::Util
 
 #endif // UTIL_H
 

@@ -31,7 +31,7 @@
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 static const QVariant::Handler *lastHandler = 0;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	static void construct(QVariant::Private *d, const void *copy)
 	{
@@ -121,15 +121,15 @@ namespace qutim_sdk_0_3
 	}
 	
 	const QVariant::Handler VariantHook::handler = {
-		qutim_sdk_0_3::construct,
-		qutim_sdk_0_3::clear,
-		qutim_sdk_0_3::isNull,
+		Ureen::construct,
+		Ureen::clear,
+		Ureen::isNull,
 		0,
 		0,
-		qutim_sdk_0_3::compare,
-		qutim_sdk_0_3::convert,
+		Ureen::compare,
+		Ureen::convert,
 		0,
-		qutim_sdk_0_3::streamDebug
+		Ureen::streamDebug
 	};
 	
 	void VariantHook::init()

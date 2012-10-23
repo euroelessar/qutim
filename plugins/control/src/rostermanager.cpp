@@ -43,7 +43,7 @@
 
 namespace Control {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct MessageListContainer {
 	typedef QSharedPointer<MessageListContainer> Ptr;
@@ -79,12 +79,12 @@ RosterManager::RosterManager()
 	                                           this, SLOT(onGroupsClicked(QAction*))));
 	ServicePointer<QObject> form("ChatForm");
 	if (form) {
-		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
-		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+		QMetaObject::invokeMethod(form, "addAction", Q_ARG(Ureen::ActionGenerator*, m_autoReplyGenerator.data()));
+		QMetaObject::invokeMethod(form, "addAction", Q_ARG(Ureen::ActionGenerator*, m_quickAnswerGenerator.data()));
 	}
 	ServicePointer<QObject> contactList("ContactList");
 	if (contactList) {
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_groupGenerator.data()));
+		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(Ureen::ActionGenerator*, m_groupGenerator.data()));
 	}
 	m_settingsItem = new GeneralSettingsItem<Control::SettingsWidget>(
 	                     Settings::Plugin,	QIcon(),
@@ -101,12 +101,12 @@ RosterManager::~RosterManager()
 {
 	ServicePointer<QObject> form("ChatForm");
 	if (form) {
-		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
-		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_quickAnswerGenerator.data()));
+		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(Ureen::ActionGenerator*, m_autoReplyGenerator.data()));
+		QMetaObject::invokeMethod(form, "removeAction", Q_ARG(Ureen::ActionGenerator*, m_quickAnswerGenerator.data()));
 	}
 	ServicePointer<QObject> contactList("ContactList");
 	if (contactList) {
-		QMetaObject::invokeMethod(contactList, "removeButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_groupGenerator.data()));
+		QMetaObject::invokeMethod(contactList, "removeButton", Q_ARG(Ureen::ActionGenerator*, m_groupGenerator.data()));
 	}
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
@@ -315,8 +315,8 @@ void RosterManager::onGroupsClicked(QAction *action)
 
 void RosterManager::connectAccount(Account *account)
 {
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-	        SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+	        SLOT(onContactCreated(Ureen::Contact*)));
 }
 
 void RosterManager::connectContact(Contact *contact)
@@ -372,10 +372,10 @@ void RosterManager::onStarted()
 	PairStringList accounts;
 	PairStringList oldAccounts;
 	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		connect(protocol, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+		        SLOT(onAccountCreated(Ureen::Account*)));
+		connect(protocol, SIGNAL(accountRemoved(Ureen::Account*)),
+		        SLOT(onAccountRemoved(Ureen::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}

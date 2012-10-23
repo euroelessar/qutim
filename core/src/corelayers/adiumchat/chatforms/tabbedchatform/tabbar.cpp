@@ -260,16 +260,16 @@ void TabBar::addSession(ChatSessionImpl *session)
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
-	connect(u, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(u, SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)),
+			this, SLOT(onChatStateChanged(Ureen::ChatState,Ureen::ChatState)));
 	if (Buddy *buddy = qobject_cast<Buddy*>(u))
 		connect(buddy,
-				SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
 				this,
-				SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+				SLOT(onStatusChanged(Ureen::Status)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
-	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session,SIGNAL(unreadChanged(Ureen::MessageList)),
+			this,SLOT(onUnreadChanged(Ureen::MessageList)));
 }
 
 void TabBar::removeSession(ChatSessionImpl *session)
@@ -355,7 +355,7 @@ void TabBar::onTitleChanged(const QString &title)
 	setTabText(indexOf(s),title);
 }
 
-void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
+void TabBar::onChatStateChanged(Ureen::ChatState now, Ureen::ChatState)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);
@@ -364,7 +364,7 @@ void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::Cha
 		chatStateChanged(now,s);
 }
 
-void TabBar::onStatusChanged(const qutim_sdk_0_3::Status &status)
+void TabBar::onStatusChanged(const Ureen::Status &status)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);
@@ -446,7 +446,7 @@ void TabBar::setSessionIcon(ChatSessionImpl *session, const QIcon &icon)
 	p->sessionList->actions().at(indexOf(session))->setIcon(icon);
 }
 
-void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+void TabBar::onUnreadChanged(const Ureen::MessageList &unread)
 {
 	ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
 	int index = indexOf(session);

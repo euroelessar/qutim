@@ -35,7 +35,7 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 MobileNotificationsSettings::MobileNotificationsSettings(QObject *parent) :
 	QObject(parent),
@@ -62,10 +62,10 @@ MobileNotifyEnabler::MobileNotifyEnabler(QObject* parent): QObject(parent)
 {
 	reloadSettings();
 	connect(NotificationManager::instance(),
-			SIGNAL(backendCreated(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
+			SIGNAL(backendCreated(QByteArray,Ureen::NotificationBackend*)),
 			SLOT(onBackendCreated(QByteArray)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendDestroyed(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
+			SIGNAL(backendDestroyed(QByteArray,Ureen::NotificationBackend*)),
 			SLOT(onBackendDestroyed(QByteArray)));
 }
 

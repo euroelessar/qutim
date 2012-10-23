@@ -30,7 +30,7 @@
 #include <QScriptClassPropertyIterator>
 #include <qutim/servicemanager.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QHash<QScriptString, ServicePointer<QObject> > ScriptServiceHash;
 

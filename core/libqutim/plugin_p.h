@@ -29,7 +29,7 @@
 #include "plugin.h"
 #include <QVariant>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class PersonInfoData : public QSharedData
 	{

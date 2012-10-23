@@ -5,7 +5,7 @@
 
 namespace Core {
 
-class ContactComparators : public qutim_sdk_0_3::Plugin
+class ContactComparators : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "ContactComparators")

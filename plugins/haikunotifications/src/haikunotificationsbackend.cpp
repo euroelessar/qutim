@@ -37,7 +37,7 @@
 #include <Bitmap.h>
 #endif
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 HaikuNotificationsBackend::HaikuNotificationsBackend() :
 	NotificationBackend("Popup")
@@ -47,7 +47,7 @@ HaikuNotificationsBackend::HaikuNotificationsBackend() :
 
 
 
-void HaikuNotificationsBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
+void HaikuNotificationsBackend::handleNotification(Ureen::Notification *notification)
 {
 	//ref(notification);
 	NotificationRequest request = notification->request();

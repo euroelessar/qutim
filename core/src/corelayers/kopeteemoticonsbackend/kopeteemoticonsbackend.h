@@ -27,7 +27,7 @@
 #define KOPETEEMOTICONSBACKEND_H
 #include <qutim/emoticons.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class KopeteEmoticonsBackend : public EmoticonsBackend
 {

@@ -31,7 +31,7 @@
 class WThumbnails;
 class WOverlayIcon;
 
-class Win7Features : public qutim_sdk_0_3::Plugin
+class Win7Features : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "WinIntegration/Win7Features")

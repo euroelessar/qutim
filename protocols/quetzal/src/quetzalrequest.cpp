@@ -39,7 +39,7 @@
 #include "quetzalfiledialog.h"
 #include "quetzalaccount.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QString quetzal_create_label(const char *primary, const char *secondary)
 {

@@ -28,19 +28,19 @@
 
 #include <qutim/messagehandler.h>
 
-class OtrMessagePreHandler : public qutim_sdk_0_3::MessageHandler
+class OtrMessagePreHandler : public Ureen::MessageHandler
 {
 public:
-	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Result doHandle(Ureen::Message &message, QString *reason);
 	
-	void encrypt(qutim_sdk_0_3::Message &message);
-	void decrypt(qutim_sdk_0_3::Message &message);
+	void encrypt(Ureen::Message &message);
+	void decrypt(Ureen::Message &message);
 };
 
-class OtrMessagePostHandler : public qutim_sdk_0_3::MessageHandler
+class OtrMessagePostHandler : public Ureen::MessageHandler
 {
 public:
-	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Result doHandle(Ureen::Message &message, QString *reason);
 };
 
 #endif // OTRMESSAGEHANDLER_H

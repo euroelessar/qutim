@@ -50,7 +50,7 @@
 #define DEBUG() if (!(*isDebug())) {} else debug()
 
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -498,5 +498,5 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 	return sha256hmac(array, sessionSecret);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

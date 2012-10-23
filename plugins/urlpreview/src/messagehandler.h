@@ -46,13 +46,13 @@ enum PreviewFlag
 Q_DECLARE_FLAGS(PreviewFlags, PreviewFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(UrlPreview::PreviewFlags)
 
-class UrlHandler : public QObject, public qutim_sdk_0_3::MessageHandler
+class UrlHandler : public QObject, public Ureen::MessageHandler
 {
     Q_OBJECT
 public:
 	explicit UrlHandler();
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Ureen::MessageHandler::Result doHandle(Ureen::Message &message, QString *reason);
 public slots:
 	void loadSettings();
 private slots:
@@ -61,7 +61,7 @@ private slots:
 	void netmanSslErrors(QNetworkReply *, const QList<QSslError> &);
 private:
 	static const QRegExp &getLinkRegExp();
-	void checkLink(QString &url, qutim_sdk_0_3::ChatUnit *from, qint64 id);
+	void checkLink(QString &url, Ureen::ChatUnit *from, qint64 id);
 	QNetworkAccessManager *m_netman;
 	PreviewFlags m_flags;
 	QString m_template;

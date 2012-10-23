@@ -74,8 +74,8 @@ void AddContactDialogWrapper::loadAccounts()
 				m_accounts->append(acc);
 				endInsertRows();
 				changeState(acc, acc->status());
-				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-					SLOT(changeState(qutim_sdk_0_3::Status)));
+				connect(acc, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+					SLOT(changeState(Ureen::Status)));
 			}
 
 	if (m_accounts->count() == 1)
@@ -91,13 +91,13 @@ void AddContactDialogWrapper::loadAccounts()
 
 }
 
-void AddContactDialogWrapper::changeState(const qutim_sdk_0_3::Status &status)
+void AddContactDialogWrapper::changeState(const Ureen::Status &status)
 {
 	if (Account *account = qobject_cast<Account *>(sender()))
 		changeState(account, status);
 }
 
-void AddContactDialogWrapper::changeState(Account *account, const qutim_sdk_0_3::Status &status)
+void AddContactDialogWrapper::changeState(Account *account, const Ureen::Status &status)
 {
 	Q_UNUSED(status)
 

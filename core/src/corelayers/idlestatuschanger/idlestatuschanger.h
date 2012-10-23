@@ -28,7 +28,7 @@
 #include <qutim/libqutim_global.h>
 #include <qutim/account.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

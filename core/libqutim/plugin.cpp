@@ -27,7 +27,7 @@
 #include "objectgenerator_p.h"
 #include <QtCore/QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	PluginInfoData::PluginInfoData()
 	    : version(PLUGIN_VERSION(0, 0, 0, 1)), inited(0), loaded(0)

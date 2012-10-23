@@ -72,12 +72,12 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
-	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session,SIGNAL(unreadChanged(Ureen::MessageList)),
+			this,SLOT(onUnreadChanged(Ureen::MessageList)));
 	connect(session->getUnit(),
-			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			SIGNAL(chatStateChanged(Ureen::ChatState,Ureen::ChatState)),
 			this,
-			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+			SLOT(onChatStateChanged(Ureen::ChatState,Ureen::ChatState)));
 
 	QTimer::singleShot(0, this, SLOT(initScrolling()));
 }
@@ -208,7 +208,7 @@ void SessionListWidget::chatStateChanged(ChatState state, ChatSessionImpl *sessi
 	item(indexOf(session))->setIcon(icon);
 }
 
-void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+void SessionListWidget::onUnreadChanged(const Ureen::MessageList &unread)
 {
 	ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
 	int index = indexOf(session);
@@ -229,7 +229,7 @@ void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread
 	i->setText(title);
 }
 
-void SessionListWidget::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
+void SessionListWidget::onChatStateChanged(Ureen::ChatState now, Ureen::ChatState)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);

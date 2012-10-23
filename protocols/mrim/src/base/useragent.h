@@ -66,7 +66,7 @@ public:
     QString toString() const;
     QString toReadable() const;
     bool isEmpty() const;
-    qutim_sdk_0_3::ExtensionIcon icon() const;
+    Ureen::ExtensionIcon icon() const;
 private:
 	QSharedDataPointer<UserAgentData> d;
 };

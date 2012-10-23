@@ -176,7 +176,7 @@ void QuetzalChat::update(PurpleConvUpdateType type)
 	}
 }
 
-void QuetzalChat::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
+void QuetzalChat::invite(Ureen::Contact *contact, const QString &reason)
 {
 	QByteArray who = contact->id().toUtf8();
 	purple_conv_chat_invite_user(PURPLE_CONV_CHAT(m_conv), who.constData(),

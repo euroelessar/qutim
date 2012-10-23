@@ -45,12 +45,12 @@ enum SubPluginsList {
 Q_DECLARE_FLAGS(SubPlugins, SubPluginsList)
 Q_DECLARE_OPERATORS_FOR_FLAGS(SubPlugins)
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
 
-class WININT_EXPORTS WinIntegration : public qutim_sdk_0_3::Plugin
+class WININT_EXPORTS WinIntegration : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "WinIntegration")
@@ -73,8 +73,8 @@ signals:
 	void reloadSettigs();
 
 public slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onUnreadChanged(qutim_sdk_0_3::MessageList);
+	void onSessionCreated(Ureen::ChatSession*);
+	void onUnreadChanged(Ureen::MessageList);
 	void onSettingsSaved();
 	void updateAssocs();
 
@@ -84,7 +84,7 @@ private:
 	void VistaSmallFeatures(bool);
 	void XpSmallFeatures(bool); // win2k && winXP
 	static WinIntegration *pluginInstance;
-	qutim_sdk_0_3::SettingsItem* settingsItem;
+	Ureen::SettingsItem* settingsItem;
 	LinksOpenner links;
 };
 

@@ -31,7 +31,7 @@
 #include <QDBusConnection>
 #include <qutim/chatsession.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ChatLayerAdapter : public QDBusAbstractAdaptor
 {
@@ -46,7 +46,7 @@ public slots:
 signals:
 	void sessionCreated(const QDBusObjectPath &sessionPath);
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 private:
 	QDBusConnection m_dbus;
 	int m_lastId;

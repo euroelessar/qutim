@@ -43,12 +43,12 @@ class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-    DataLayout(const qutim_sdk_0_3::DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
+    DataLayout(const Ureen::DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
-    qutim_sdk_0_3::DataItem item() const;
-    qutim_sdk_0_3::DataItem item(bool hasSubitems) const;
-    void addDataItem(const qutim_sdk_0_3::DataItem &item);
-    void addDataItems(const QList<qutim_sdk_0_3::DataItem> &items);
+    Ureen::DataItem item() const;
+    Ureen::DataItem item(bool hasSubitems) const;
+    void addDataItem(const Ureen::DataItem &item);
+    void addDataItems(const QList<Ureen::DataItem> &items);
 	void addSpacer();
 	void addRow(QWidget *widget) { addRow(0, widget); }
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);

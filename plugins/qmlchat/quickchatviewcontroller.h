@@ -50,9 +50,9 @@ class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatV
 public:
     QuickChatController(QObject *parent = 0);
 	virtual ~QuickChatController();
-	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
-	virtual qutim_sdk_0_3::ChatSession *getSession() const;
-	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
+	virtual void setChatSession(Ureen::ChatSession *session);
+	virtual Ureen::ChatSession *getSession() const;
+	virtual void appendMessage(const Ureen::Message &msg);
 	virtual void clearChat();
 	QDeclarativeItem *rootItem() const;
 	Q_INVOKABLE QString parseEmoticons(const QString &) const;
@@ -64,7 +64,7 @@ public slots:
 	void appendText(const QString &string);
 protected slots:
 	void loadHistory();
-	void onChatStateChanged(qutim_sdk_0_3::ChatState state);
+	void onChatStateChanged(Ureen::ChatState state);
 protected:
 	bool eventFilter(QObject *, QEvent *);
 	void setRootItem(QDeclarativeItem *rootItem);
@@ -76,7 +76,7 @@ signals:
 	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QWeakPointer<Ureen::ChatSession> m_session;
 	QString m_themeName;
 	QDeclarativeEngine *m_engine;
 	QDeclarativeContext *m_context;

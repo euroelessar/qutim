@@ -55,7 +55,7 @@ namespace Core
 		// set the next icon from Maemo's theme
 		setIcon(QIcon::fromTheme(QLatin1String("general_forward")));
 #else
-		setIcon(qutim_sdk_0_3::Icon("arrow-right"));
+		setIcon(Ureen::Icon("arrow-right"));
 #endif
 	    }
 	    else if (type==1) {
@@ -63,7 +63,7 @@ namespace Core
 		// set the close icon from Maemo's theme
 		setIcon(QIcon::fromTheme(QLatin1String("camera_overlay_close")));
 #else
-		setIcon(qutim_sdk_0_3::Icon("dialog-close"));
+		setIcon(Ureen::Icon("dialog-close"));
 #endif
 	    }
 	    else if (type==2) {
@@ -71,7 +71,7 @@ namespace Core
 		// set the close icon from Maemo's theme
 		setIcon(QIcon::fromTheme(QLatin1String("general_contacts_button")));
 #else
-		setIcon(qutim_sdk_0_3::Icon("view-user-offline-kopete"));
+		setIcon(Ureen::Icon("view-user-offline-kopete"));
 #endif
 	    }
 	    else if (type==4) {

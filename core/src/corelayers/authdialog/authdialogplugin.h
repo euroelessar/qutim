@@ -31,7 +31,7 @@
 
 namespace Core {
 
-class AuthDialogPlugin : public qutim_sdk_0_3::Plugin
+class AuthDialogPlugin : public Ureen::Plugin
 {
     Q_OBJECT
 public:

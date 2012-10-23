@@ -52,16 +52,16 @@ ChatSessionAdapter::ChatSessionAdapter(const QDBusConnection &dbus, ChatSession 
 	(*counter())++;
 	chatSessionHash()->insert(session, m_path);
 	connect(session, SIGNAL(activated(bool)), this, SIGNAL(activated(bool)));
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
-			this, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)));
-	connect(session, SIGNAL(contactAdded(qutim_sdk_0_3::Buddy*)),
-			this, SLOT(onContactAdded(qutim_sdk_0_3::Buddy*)));
-	connect(session, SIGNAL(contactRemoved(qutim_sdk_0_3::Buddy*)),
-			this, SLOT(onContactRemoved(qutim_sdk_0_3::Buddy*)));
-	connect(session, SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),
-			this, SLOT(onMessageReceived(qutim_sdk_0_3::Message*)));
-	connect(session, SIGNAL(messageSent(qutim_sdk_0_3::Message*)),
-			this, SLOT(onMessageSent(qutim_sdk_0_3::Message*)));
+	connect(session, SIGNAL(unreadChanged(Ureen::MessageList)),
+			this, SIGNAL(unreadChanged(Ureen::MessageList)));
+	connect(session, SIGNAL(contactAdded(Ureen::Buddy*)),
+			this, SLOT(onContactAdded(Ureen::Buddy*)));
+	connect(session, SIGNAL(contactRemoved(Ureen::Buddy*)),
+			this, SLOT(onContactRemoved(Ureen::Buddy*)));
+	connect(session, SIGNAL(messageReceived(Ureen::Message*)),
+			this, SLOT(onMessageReceived(Ureen::Message*)));
+	connect(session, SIGNAL(messageSent(Ureen::Message*)),
+			this, SLOT(onMessageSent(Ureen::Message*)));
 }
 
 ChatSessionAdapter::~ChatSessionAdapter()
@@ -98,23 +98,23 @@ void ChatSessionAdapter::removeContact(const QDBusObjectPath &buddyPath)
 		m_session->removeContact(buddy);
 }
 
-void ChatSessionAdapter::onMessageReceived(qutim_sdk_0_3::Message *message)
+void ChatSessionAdapter::onMessageReceived(Ureen::Message *message)
 {
 	emit messageReceived(*message);
 }
 
-void ChatSessionAdapter::onMessageSent(qutim_sdk_0_3::Message *message)
+void ChatSessionAdapter::onMessageSent(Ureen::Message *message)
 {
 	emit messageSent(*message);
 }
 
-void ChatSessionAdapter::onContactAdded(qutim_sdk_0_3::Buddy *buddy)
+void ChatSessionAdapter::onContactAdded(Ureen::Buddy *buddy)
 {
 	QDBusObjectPath path = ChatUnitAdaptor::ensurePath(m_dbus, buddy);
 	emit contactAdded(path, buddy->id());
 }
 
-void ChatSessionAdapter::onContactRemoved(qutim_sdk_0_3::Buddy *buddy)
+void ChatSessionAdapter::onContactRemoved(Ureen::Buddy *buddy)
 {
 	QDBusObjectPath path = ChatUnitAdaptor::ensurePath(m_dbus, buddy);
 	emit contactRemoved(path, buddy->id());

@@ -30,7 +30,7 @@
 #include "menucontroller_p.h"
 #include "notification.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatUnitPrivate : public MenuControllerPrivate
 {

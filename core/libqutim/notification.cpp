@@ -38,7 +38,7 @@
 #include <QMultiMap>
 #include <QApplication>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 typedef QHash<QByteArray, NotificationBackend*> NotificationBackendHash;
 Q_GLOBAL_STATIC(NotificationBackendHash, backendHash)
@@ -733,5 +733,5 @@ NotificationManager::NotificationManager()
 	cfg.endGroup();
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

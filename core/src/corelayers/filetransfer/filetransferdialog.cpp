@@ -65,11 +65,11 @@ ActionWidget::ActionWidget(FileTransferJob *job, QWidget *parent) :
 	l->addWidget(removeButton, 0, 2);
 
 	onStateChanged(job->state());
-	connect(job, SIGNAL(stateChanged(qutim_sdk_0_3::FileTransferJob::State)),
-			SLOT(onStateChanged(qutim_sdk_0_3::FileTransferJob::State)));
+	connect(job, SIGNAL(stateChanged(Ureen::FileTransferJob::State)),
+			SLOT(onStateChanged(Ureen::FileTransferJob::State)));
 }
 
-void ActionWidget::onStateChanged(qutim_sdk_0_3::FileTransferJob::State state)
+void ActionWidget::onStateChanged(Ureen::FileTransferJob::State state)
 {
 	m_stopButton->setVisible(state == FileTransferJob::Initiation ||
 							 state == FileTransferJob::Started);

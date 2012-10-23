@@ -35,27 +35,27 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-class NotificationFilterImpl : public QObject, public qutim_sdk_0_3::NotificationFilter, public qutim_sdk_0_3::StartupModule
+class NotificationFilterImpl : public QObject, public Ureen::NotificationFilter, public Ureen::StartupModule
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::NotificationFilter qutim_sdk_0_3::StartupModule)
+	Q_INTERFACES(Ureen::NotificationFilter Ureen::StartupModule)
 public:
 	NotificationFilterImpl();
 	virtual ~NotificationFilterImpl();
 	virtual void filter(NotificationRequest &request);
 	virtual void notificationCreated(Notification *notification);
 private slots:
-	void onOpenChatClicked(const qutim_sdk_0_3::NotificationRequest &request);
-	void onIgnoreChatClicked(const qutim_sdk_0_3::NotificationRequest &request);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onOpenChatClicked(const Ureen::NotificationRequest &request);
+	void onIgnoreChatClicked(const Ureen::NotificationRequest &request);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionActivated(bool active);
 	void onNotificationFinished();
 	void onUnitDestroyed();
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-								const qutim_sdk_0_3::Status &previous);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status,
+								const Ureen::Status &previous);
 	void onAccountConnected();
 private:
 	typedef QMultiHash<ChatUnit*, QWeakPointer<Notification> > Notifications;

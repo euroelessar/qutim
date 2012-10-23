@@ -367,7 +367,7 @@ void TabbedChatWidget::addSession(ChatSessionImpl *session)
 	m_tabBar->addSession(session);
 
 	connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged()));
+	connect(session, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged()));
 	connect(session, SIGNAL(controllerDestroyed(QObject*)),
 			this, SLOT(onControllerDestroyed(QObject*)));
 }

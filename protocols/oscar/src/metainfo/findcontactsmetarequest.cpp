@@ -27,7 +27,7 @@
 #include "tlvbasedmetarequest_p.h"
 #include "metafields_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -91,5 +91,5 @@ bool FindContactsMetaRequest::handleData(quint16 type, const DataUnit &data)
 	return true;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

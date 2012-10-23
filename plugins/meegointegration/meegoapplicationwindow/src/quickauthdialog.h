@@ -30,7 +30,7 @@
 #include <qutim/notification.h>
 #include <qutim/contact.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 namespace Authorization
 {
@@ -41,7 +41,7 @@ class Reply;
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Authorization;
 
 class QuickAuthDialog : public QObject {
@@ -51,7 +51,7 @@ class QuickAuthDialog : public QObject {
 public:
 	QuickAuthDialog();
 public:
-	void accept(const QString &message, bool isIncoming, qutim_sdk_0_3::Contact* c);
+	void accept(const QString &message, bool isIncoming, Ureen::Contact* c);
 	void cancel(Contact *c, bool isIncoming);
 protected:
 	bool event(QEvent *event);

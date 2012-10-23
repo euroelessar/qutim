@@ -33,7 +33,7 @@
 #include <qutim/account.h>
 #include <qutim/servicemanager.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 LinksOpenner::LinksOpenner(QObject *parent) :
 	 QObject(parent)

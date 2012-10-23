@@ -38,7 +38,7 @@ namespace Ui {
 	class OldDelegateSettings;
 }
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class OldDelegateSettings : public Core::ContactListSettingsExtention
 {

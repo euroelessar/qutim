@@ -41,7 +41,7 @@ class AccountId
 {
 public:
 	AccountId() {}
-	AccountId(qutim_sdk_0_3::Account *account);
+	AccountId(Ureen::Account *account);
 	AccountId(const QString &id, const QString &protocol);
 
 	bool isEmpty() const { return id.isEmpty(); }
@@ -82,7 +82,7 @@ class ContactAction : public Action
 {
 public:
 	ContactAction(Type type) : Action(type) {}
-	ContactAction(Type type, qutim_sdk_0_3::Contact *contact)
+	ContactAction(Type type, Ureen::Contact *contact)
 	    : Action(type), id(contact->id()), name(contact->name()),
 	      groups(contact->tags())
 	{
@@ -142,15 +142,15 @@ public:
 
 	QStringList answers() const;
 
-	void addAccount(qutim_sdk_0_3::Account *account);
+	void addAccount(Ureen::Account *account);
 	void addAccount(const QString &protocol, const QString &id);
-	void removeAccount(qutim_sdk_0_3::Account *account);
+	void removeAccount(Ureen::Account *account);
 	void removeAccount(const QString &protocol, const QString &id);
-	void addContact(qutim_sdk_0_3::Contact *contact);
-	void removeContact(qutim_sdk_0_3::Contact *contact);
-	void updateContact(qutim_sdk_0_3::Contact *contact);
-	void sendMessage(const qutim_sdk_0_3::Message &message);
-	void sendRequest(qutim_sdk_0_3::ChatUnit *contact, const QString &text);
+	void addContact(Ureen::Contact *contact);
+	void removeContact(Ureen::Contact *contact);
+	void updateContact(Ureen::Contact *contact);
+	void sendMessage(const Ureen::Message &message);
+	void sendRequest(Ureen::ChatUnit *contact, const QString &text);
 
 	QNetworkReply *post(const QUrl &url, const QByteArray &body);
 	QNetworkReply *get(const QUrl &url);

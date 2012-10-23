@@ -28,7 +28,7 @@
 
 #include <qutim/systemintegration.h>
 
-class KdeSystemIntegration : public qutim_sdk_0_3::SystemIntegration
+class KdeSystemIntegration : public Ureen::SystemIntegration
 {
     Q_OBJECT
 public:

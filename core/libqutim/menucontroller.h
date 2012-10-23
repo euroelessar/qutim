@@ -31,7 +31,7 @@
 #include <QtGui/QMenu>
 #include "debug.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class SettingsItem;
@@ -240,7 +240,7 @@ public:
 	void addHandler(ActionHandler *handler);
 	void removeHandler(ActionHandler *handler);
 
-	// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
+	// Access to actions, they should be sorted by Ureen::actionLessThan
 	int count() const;
 	int size() const;
 	// Can be accessed only after first ref's call
@@ -280,10 +280,10 @@ Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen,
 
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::MenuController*)
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::MenuController::MenuFlags)
+Q_DECLARE_METATYPE(Ureen::MenuController*)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::MenuController::MenuFlags)
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 template<typename T>

@@ -46,7 +46,7 @@
 # define OSCAR_SSL_SUPPORT
 #endif
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -106,7 +106,7 @@ typedef QTcpSocket Socket;
 class LIBOSCAR_EXPORT AbstractConnection : public QObject, public SNACHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
+	Q_INTERFACES(Ureen::oscar::SNACHandler)
 	Q_DECLARE_PRIVATE(AbstractConnection)
 public:
 	enum ConnectionError
@@ -176,7 +176,7 @@ public:
 	void registerInitializationSnacs(const QList<SNACInfo> &snacs, bool append = true);
 	void registerInitializationSnac(quint16 family, quint16 subtype);
 signals:
-	void error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
+	void error(Ureen::oscar::AbstractConnection::ConnectionError error);
 	void disconnected();
 protected:
 	AbstractConnection(AbstractConnectionPrivate *d);
@@ -205,7 +205,7 @@ private:
 	QScopedPointer<AbstractConnectionPrivate> d_ptr;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // CONNECTION_H
 

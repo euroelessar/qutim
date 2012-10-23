@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "startupmodule.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 StartupModule::StartupModule()
 {
@@ -34,5 +34,5 @@ StartupModule::~StartupModule()
 {
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

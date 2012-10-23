@@ -32,7 +32,7 @@
 #define DECLARE_CAPABILITY(name, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16) \
 const StandartCapability name(#name, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -206,7 +206,7 @@ DECLARE_CAPABILITY(ICQ_CAPABILITY_PSIG_MESSAGE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x
 												0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 												0x00, 0x00, 0x00, 0x00);
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif /*CAPABILITIES_H_*/
 

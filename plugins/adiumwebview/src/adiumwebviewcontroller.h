@@ -66,9 +66,9 @@ public:
 	WebViewController(bool isPreview = false);
 	virtual ~WebViewController();
 	
-	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
-	virtual qutim_sdk_0_3::ChatSession *getSession() const;
-	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
+	virtual void setChatSession(Ureen::ChatSession *session);
+	virtual Ureen::ChatSession *getSession() const;
+	virtual void appendMessage(const Ureen::Message &msg);
 	virtual void clearChat();
 	virtual QString quote();
 	WebKitMessageViewStyle *style();
@@ -88,7 +88,7 @@ public slots:
 	
 protected:
 	void clearFocusClass();
-	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
+	bool isContentSimiliar(const Ureen::Message &a, const Ureen::Message &b);
 	void loadSettings(bool onFly);
 	void loadHistory();
 	
@@ -102,14 +102,14 @@ private slots:
 	void onLinkClicked(const QUrl &url);
 	
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QWeakPointer<Ureen::ChatSession> m_session;
 	QString m_styleName;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;
 	bool m_isPreview;
 	QStringList m_pendingScripts;
-	qutim_sdk_0_3::Message m_last;
-	qutim_sdk_0_3::Message m_topic;
+	Ureen::Message m_last;
+	Ureen::Message m_topic;
 };
 
 } // namespace Adium

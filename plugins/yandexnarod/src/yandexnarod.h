@@ -35,7 +35,7 @@
 #include "yandexnarodsettings.h"
 #include "yandexnarodauthorizator.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class YandexNarodPlugin : public Plugin
 {
@@ -70,8 +70,8 @@ public:
 	static QNetworkAccessManager *networkManager();
 	static YandexNarodAuthorizator *authorizator();
 private slots:
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
-	void onAccountAdded(qutim_sdk_0_3::Account *account);
+	void onAccountStatusChanged(const Ureen::Status &status);
+	void onAccountAdded(Ureen::Account *account);
 private:
 	typedef QMultiMap<QObject*, ChatUnit*> Observers;
 	Observers m_observedUnits;

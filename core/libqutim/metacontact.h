@@ -28,7 +28,7 @@
 
 #include "contact.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class MetaContactPrivate;
 
@@ -49,8 +49,8 @@ public:
 	virtual ChatUnitList lowerUnits();
 	//		virtual const ChatUnit *getHistoryUnit() const;
 signals:
-	void contactAdded(qutim_sdk_0_3::Contact *);
-	void contactRemoved(qutim_sdk_0_3::Contact *);
+	void contactAdded(Ureen::Contact *);
+	void contactRemoved(Ureen::Contact *);
 };
 
 class LIBQUTIM_EXPORT MetaContactChangeEvent : public QEvent

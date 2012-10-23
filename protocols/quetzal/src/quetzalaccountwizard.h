@@ -53,13 +53,13 @@ private:
 	bool m_isUsernameFilled;
 	QuetzalProtocol *m_proto;
 	PurpleAccount *m_account;
-	qutim_sdk_0_3::AbstractDataForm *m_generalWidget;
+	Ureen::AbstractDataForm *m_generalWidget;
 	QuetzalAccountSettings *m_settingsWidget;
 	QAbstractButton *m_registerButton;
 	bool m_isRegistering;
 };
 
-class QuetzalAccountWizard : public qutim_sdk_0_3::AccountCreationWizard
+class QuetzalAccountWizard : public Ureen::AccountCreationWizard
 {
 	Q_OBJECT
 public:

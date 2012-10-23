@@ -34,7 +34,7 @@
 #include <qutim/debug.h>
 
 namespace Core {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 RequestHelper::RequestHelper(QObject *parent) : QNetworkAccessManager(parent)
 {
 	QRect size = qApp->desktop()->screenGeometry();

@@ -27,7 +27,7 @@
 
 #include "abstractsearchrequest.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Protocol;
 class Account;
@@ -72,9 +72,9 @@ public:
 	Account *account(const QString &name) const;
 	Protocol *protocol() const;
 private slots:
-	void accountAdded(qutim_sdk_0_3::Account *account);
+	void accountAdded(Ureen::Account *account);
 	void accountRemoved();
-	void accountStatusChanged(const qutim_sdk_0_3::Status &status);
+	void accountStatusChanged(const Ureen::Status &status);
 };
 }
 

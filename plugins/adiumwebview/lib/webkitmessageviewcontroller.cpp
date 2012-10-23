@@ -36,7 +36,7 @@
 #include <QDesktopServices>
 #include <QWebFrame>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 WebViewLoaderLoop::WebViewLoaderLoop()
 {
@@ -97,12 +97,12 @@ WebKitMessageViewController::~WebKitMessageViewController()
 {
 }
 
-qutim_sdk_0_3::ChatSession *WebKitMessageViewController::session() const
+Ureen::ChatSession *WebKitMessageViewController::session() const
 {
 	return m_session.data();
 }
 
-void WebKitMessageViewController::setSession(qutim_sdk_0_3::ChatSession *session)
+void WebKitMessageViewController::setSession(Ureen::ChatSession *session)
 {
 	if (m_session.data() != session) {
 		m_session = session;
@@ -124,7 +124,7 @@ WebKitMessageViewStyle *WebKitMessageViewController::style()
 	return &m_style;
 }
 
-void WebKitMessageViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
+void WebKitMessageViewController::appendMessage(const Ureen::Message &msg)
 {
 	Message copy = msg;
 	QString html = UrlParser::parseUrls(copy.html(), UrlParser::Html);

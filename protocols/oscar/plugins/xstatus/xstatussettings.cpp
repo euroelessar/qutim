@@ -26,7 +26,7 @@
 #include "xstatussettings.h"
 #include <qutim/config.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 namespace oscar {
 
 XStatusSettings::XStatusSettings()
@@ -54,5 +54,5 @@ void XStatusSettings::saveSettings(const DataItem &item, Config cfg)
 	cfg.endGroup();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

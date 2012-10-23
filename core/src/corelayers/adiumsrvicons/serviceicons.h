@@ -31,10 +31,10 @@
 
 namespace Adium
 {
-	class ServiceIcons : public QObject, public qutim_sdk_0_3::IconWrapper
+	class ServiceIcons : public QObject, public Ureen::IconWrapper
 	{
 		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::IconWrapper)
+		Q_INTERFACES(Ureen::IconWrapper)
 	public:
 		ServiceIcons();
 		virtual ~ServiceIcons();

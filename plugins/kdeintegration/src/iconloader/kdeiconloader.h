@@ -27,7 +27,7 @@
 
 #include <qutim/iconloader.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class KdeIconLoader : public IconLoader
 {

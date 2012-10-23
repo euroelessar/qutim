@@ -28,7 +28,7 @@
 #include <qutim/plugin.h>
 #include <khelpmenu.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace KdeIntegration
 {

@@ -37,9 +37,9 @@ namespace Ui {
 namespace Core
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-class SessionHelperSettings : public qutim_sdk_0_3::SettingsWidget
+class SessionHelperSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

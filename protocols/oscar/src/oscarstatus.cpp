@@ -29,7 +29,7 @@
 #include <qutim/statusactiongenerator.h>
 #include "icqaccount.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -239,5 +239,5 @@ OscarStatusData OscarStatus::getStatusData(int id)
 	return OscarStatusData();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

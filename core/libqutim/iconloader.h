@@ -31,7 +31,7 @@
 class QIcon;
 class QMovie;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class IconWrapperPrivate;
 class LIBQUTIM_EXPORT IconWrapper
@@ -56,14 +56,14 @@ public:
 };
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::IconWrapper, "org.qutim.IconWrapper/1.1")
+Q_DECLARE_INTERFACE(Ureen::IconWrapper, "org.qutim.IconWrapper/1.1")
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
-class LIBQUTIM_EXPORT IconLoader : public QObject, protected qutim_sdk_0_3::IconWrapper
+class LIBQUTIM_EXPORT IconLoader : public QObject, protected Ureen::IconWrapper
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::IconWrapper)
+	Q_INTERFACES(Ureen::IconWrapper)
 	Q_CLASSINFO("Service", "IconLoader")
 public:
 	enum StdSize

@@ -256,8 +256,8 @@ JAccount::JAccount(const QString &id) :
 	
 	d->roster->loadFromStorage();
 
-	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
+	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(Ureen::Conference*)),
+			this, SIGNAL(conferenceCreated(Ureen::Conference*)));
 	
 //	d->params.addItem<Jreen::Client>(d->client);
 //	d->params.addItem<Jreen::PubSub::Manager>(d->pubSubManager);

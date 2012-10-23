@@ -35,7 +35,7 @@ namespace Core {
 namespace AdiumChat {
 
 class QuickChatController;
-class QuickChatViewWidget : public qutim_sdk_0_3::DeclarativeView, public Core::AdiumChat::ChatViewWidget
+class QuickChatViewWidget : public Ureen::DeclarativeView, public Core::AdiumChat::ChatViewWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)

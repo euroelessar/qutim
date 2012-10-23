@@ -30,7 +30,7 @@
 #include "libqutim_global.h"
 #include <QDir>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct SystemInfoPrivate;
 

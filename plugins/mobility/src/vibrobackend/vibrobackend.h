@@ -34,7 +34,7 @@ namespace Core
 
 QTM_USE_NAMESPACE
 
-class VibroBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
+class VibroBackend : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Vibration")
@@ -42,7 +42,7 @@ class VibroBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
 public:
 	VibroBackend();
 	virtual ~VibroBackend();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 	void setWindowActive(bool active);
 	bool windowActive() const;
 	

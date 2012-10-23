@@ -29,8 +29,9 @@
 #include "debug.h"
 #include "notification.h"
 #include "groupchatmanager.h"
+#include "accountmanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 AccountHook::AccountHook(AccountPrivate &p, Protocol *protocol)
     : MenuController(p, protocol)
@@ -173,11 +174,7 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 
 AccountList Account::all()
 {
-	AccountList list;
-	foreach(Protocol *proto, Protocol::all())
-		foreach(Account *account, proto->accounts())
-			list.append(account);
-	return list;
+    return Ureen::AccountManager::instance()->validAccounts();
 }
 
 GroupChatManager *Account::groupChatManager()

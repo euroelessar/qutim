@@ -30,7 +30,7 @@
 #include "capability.h"
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -90,7 +90,7 @@ protected:
 	OscarStatusData getStatusData(int id);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // OSCARSTATUS_H
 

@@ -28,7 +28,7 @@
 
 #include <qutim/systemintegration.h>
 
-class LinuxIntegration : public qutim_sdk_0_3::SystemIntegration
+class LinuxIntegration : public Ureen::SystemIntegration
 {
 	Q_OBJECT
 public:

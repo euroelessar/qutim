@@ -33,7 +33,7 @@ IndicatorPlugin::IndicatorPlugin ()
 
 void IndicatorPlugin::init ()
 {
-	qutim_sdk_0_3::ExtensionIcon icon("info");
+	Ureen::ExtensionIcon icon("info");
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Vsevolod Velichko"),
 			QT_TRANSLATE_NOOP("Task", "Developer"),
 			QLatin1String("torkvema@gmail.com")

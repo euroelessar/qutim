@@ -40,9 +40,9 @@
 #include <QRegExp>
 #include <QTextDocument>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*)
+Q_DECLARE_METATYPE(Ureen::irc::IrcAccount*)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -90,8 +90,8 @@ IrcProtocol::~IrcProtocol()
 
 void IrcProtocol::loadAccounts()
 {
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 	// Register actions.
 	ActionGenerator *gen = new ActionGenerator(QIcon(),
 					QT_TRANSLATE_NOOP("IRC", "Show console..."),
@@ -339,7 +339,7 @@ QVariant IrcProtocol::data(DataType type)
 	}
 }
 
-void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void IrcProtocol::onSessionCreated(Ureen::ChatSession *session)
 {
 	connect(session, SIGNAL(activated(bool)), this, SLOT(onSessionActivated(bool)));
 }
@@ -373,5 +373,5 @@ void IrcProtocol::onAutojoinChecked(QObject *channel_helper)
 	channel->setAutoJoin(!channel->autoJoin());
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

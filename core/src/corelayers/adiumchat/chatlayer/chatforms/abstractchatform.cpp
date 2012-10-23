@@ -44,8 +44,8 @@ AbstractChatForm::AbstractChatForm()
 {
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QObject*,QObject*)),
 	        SLOT(onServiceChanged(QObject*,QObject*)));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 }
 
 void AbstractChatForm::onChatWidgetDestroyed(QObject *object)
@@ -215,12 +215,12 @@ AbstractChatForm::~AbstractChatForm()
 	}
 }
 
-void AbstractChatForm::addAction(qutim_sdk_0_3::ActionGenerator *gen)
+void AbstractChatForm::addAction(Ureen::ActionGenerator *gen)
 {
 	m_actions.append(gen);
 }
 
-void AbstractChatForm::removeAction(qutim_sdk_0_3::ActionGenerator *gen)
+void AbstractChatForm::removeAction(Ureen::ActionGenerator *gen)
 {
 	m_actions.removeAll(gen);
 }

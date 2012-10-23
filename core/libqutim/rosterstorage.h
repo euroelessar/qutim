@@ -29,7 +29,7 @@
 #include "libqutim_global.h"
 #include <QVariantMap>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class RosterStoragePrivate;
 class Contact;
@@ -64,7 +64,7 @@ private:
 };
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::ContactsFactory, "org.qutim.ContactsFactory")
+Q_DECLARE_INTERFACE(Ureen::ContactsFactory, "org.qutim.ContactsFactory")
 
 #endif // ROSTERSTORAGE_H
 

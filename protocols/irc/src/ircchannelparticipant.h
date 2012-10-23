@@ -28,7 +28,7 @@
 
 #include <qutim/buddy.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -75,7 +75,7 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(IrcChannelParticipant::IrcParticipantFlags)
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCHANNELPARTICIPANT_H
 

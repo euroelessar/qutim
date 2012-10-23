@@ -28,7 +28,7 @@
 #include "buddy.h"
 #include "protocol.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 typedef QMultiHash<QObject*, InfoObserver*> ObserversHash;

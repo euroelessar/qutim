@@ -9,7 +9,7 @@
 #include <qutim/account.h>
 #include <qutim/icon.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 DockTile::DockTile(QObject *parent) :
 	QtDockTile(parent),
@@ -40,8 +40,8 @@ DockTile::DockTile(QObject *parent) :
 
 	setMenu(m_menu.data());
 
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 	connect(m_statusGroup, SIGNAL(triggered(QAction*)), SLOT(onStatusTriggered(QAction*)));
 }
 
@@ -58,7 +58,7 @@ QAction *DockTile::createStatusAction(Status::Type type)
 void DockTile::onStatusTriggered(QAction *a)
 {
 	Status::Type type = static_cast<Status::Type>(a->data().value<int>());
-	foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+	foreach(Ureen::Protocol *proto, Ureen::Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			Status status = account->status();
 			status.setType(type);
@@ -77,7 +77,7 @@ void DockTile::onSessionTriggered()
 		session->activate();
 }
 
-void DockTile::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void DockTile::onSessionCreated(Ureen::ChatSession *session)
 {
 	QAction *action = new QAction(Icon("view-choose"), session->unit()->title(), this);
 	connect(action, SIGNAL(triggered()), SLOT(onSessionTriggered()));
@@ -86,7 +86,7 @@ void DockTile::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	m_menu->insertAction(m_sessionSeparator, action);
 	setMenu(m_menu.data());
 
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged(Ureen::MessageList)));
 	connect(session, SIGNAL(destroyed()), SLOT(onSessionDestroyed()));
 }
 
@@ -98,7 +98,7 @@ void DockTile::onSessionDestroyed()
 	m_sessions.remove(session);
 }
 
-void DockTile::onUnreadChanged(const qutim_sdk_0_3::MessageList &)
+void DockTile::onUnreadChanged(const Ureen::MessageList &)
 {
 	int unread = calculateUnread();
 	if (unread)

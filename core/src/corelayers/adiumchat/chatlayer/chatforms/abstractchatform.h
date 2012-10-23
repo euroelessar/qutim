@@ -31,7 +31,7 @@
 #include <QWeakPointer>
 #include "chatlayer_global.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ChatSession;
 class ActionGenerator;
 }
@@ -53,18 +53,18 @@ class ADIUMCHAT_EXPORT AbstractChatForm : public QObject
 public:
 	explicit AbstractChatForm();
 	~AbstractChatForm();
-	Q_INVOKABLE QObject *textEdit(qutim_sdk_0_3::ChatSession *session);
+	Q_INVOKABLE QObject *textEdit(Ureen::ChatSession *session);
 	Q_INVOKABLE QWidgetList chatWidgets();
-	Q_INVOKABLE QWidget *chatWidget(qutim_sdk_0_3::ChatSession *session) const;
-	Q_INVOKABLE void addAction(qutim_sdk_0_3::ActionGenerator *gen);
-	Q_INVOKABLE void removeAction(qutim_sdk_0_3::ActionGenerator *gen);
+	Q_INVOKABLE QWidget *chatWidget(Ureen::ChatSession *session) const;
+	Q_INVOKABLE void addAction(Ureen::ActionGenerator *gen);
+	Q_INVOKABLE void removeAction(Ureen::ActionGenerator *gen);
 protected:
 	virtual AbstractChatWidget *createWidget(const QString &key) = 0;
 	Q_INVOKABLE AbstractChatWidget *widget(const QString &key);
 signals:
 	void widgetCreated(QWidget *widget);
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
+	void onSessionCreated(Ureen::ChatSession*);
 	void onChatWidgetDestroyed(QObject *object);
 	void onSessionActivated(bool active);
 	void onSettingsChanged();
@@ -72,8 +72,8 @@ private slots:
 private:
 	QHash<QString, AbstractChatWidget*> m_chatWidgets;
 	QString getWidgetId(ChatSessionImpl *sess) const;
-	AbstractChatWidget *findWidget(qutim_sdk_0_3::ChatSession *sess) const;
-	QList<qutim_sdk_0_3::ActionGenerator*> m_actions;
+	AbstractChatWidget *findWidget(Ureen::ChatSession *sess) const;
+	QList<Ureen::ActionGenerator*> m_actions;
 };
 }
 }

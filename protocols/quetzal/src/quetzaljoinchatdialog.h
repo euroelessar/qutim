@@ -43,22 +43,22 @@ struct QuetzalChatGuard
 
 class QuetzalAccount;
 
-class QuetzalJoinChatManager : public qutim_sdk_0_3::GroupChatManager
+class QuetzalJoinChatManager : public Ureen::GroupChatManager
 {
 public:
 	QuetzalJoinChatManager(QuetzalAccount *account);
 	~QuetzalJoinChatManager();
 	
-	virtual qutim_sdk_0_3::DataItem fields() const;
-	virtual bool join(const qutim_sdk_0_3::DataItem &fields);
-	virtual bool storeBookmark(const qutim_sdk_0_3::DataItem &fields, const qutim_sdk_0_3::DataItem &oldFields);
-	virtual bool removeBookmark(const qutim_sdk_0_3::DataItem &fields);
-	virtual QList<qutim_sdk_0_3::DataItem> bookmarks() const;
-	virtual QList<qutim_sdk_0_3::DataItem> recent() const;
+	virtual Ureen::DataItem fields() const;
+	virtual bool join(const Ureen::DataItem &fields);
+	virtual bool storeBookmark(const Ureen::DataItem &fields, const Ureen::DataItem &oldFields);
+	virtual bool removeBookmark(const Ureen::DataItem &fields);
+	virtual QList<Ureen::DataItem> bookmarks() const;
+	virtual QList<Ureen::DataItem> recent() const;
 
 protected:
-	QList<qutim_sdk_0_3::DataItem> convertChats(bool recent) const;
-	qutim_sdk_0_3::DataItem fields(const char *alias, GHashTable *comps) const;
+	QList<Ureen::DataItem> convertChats(bool recent) const;
+	Ureen::DataItem fields(const char *alias, GHashTable *comps) const;
 //	void changeEvent(QEvent *e);
 
 //protected slots:

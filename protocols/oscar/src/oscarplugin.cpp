@@ -39,7 +39,7 @@
 #include "ui/icqmainsettings.h"
 #include <qutim/settingslayer.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -49,7 +49,7 @@ OscarPlugin::OscarPlugin()
 
 void OscarPlugin::init()
 {
-	qRegisterMetaTypeStreamOperators<FeedbagItem>("qutim_sdk_0_3::oscar::FeedbagItem");
+	qRegisterMetaTypeStreamOperators<FeedbagItem>("Ureen::oscar::FeedbagItem");
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
 			QT_TRANSLATE_NOOP("Plugin", "Module-based implementation of Oscar protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0));
@@ -113,7 +113,7 @@ bool OscarPlugin::unload()
 	return false;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-QUTIM_EXPORT_PLUGIN2(oscar,qutim_sdk_0_3::oscar::OscarPlugin)
+QUTIM_EXPORT_PLUGIN2(oscar,Ureen::oscar::OscarPlugin)
 

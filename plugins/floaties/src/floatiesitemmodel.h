@@ -57,10 +57,10 @@ public:
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	
-	QPersistentModelIndex addContact(qutim_sdk_0_3::Contact *contact);
-	void removeContact(qutim_sdk_0_3::Contact *contact);
+	QPersistentModelIndex addContact(Ureen::Contact *contact);
+	void removeContact(Ureen::Contact *contact);
 private:
-	QList<qutim_sdk_0_3::Contact*> m_contacts;
+	QList<Ureen::Contact*> m_contacts;
 };
 
 #endif // FLOATIESITEMMODEL_H

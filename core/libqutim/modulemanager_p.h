@@ -30,7 +30,7 @@
 #include "../3rdparty/qtsolutions/qtlocalpeer.h"
 #include <QSet>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 enum ModuleFlag
 {

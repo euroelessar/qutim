@@ -189,18 +189,18 @@ void JBookmarkManager::clearRecent()
 
 DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isBookmark) const
 {
-	qutim_sdk_0_3::DataItem item(bookmark.name().isEmpty() ? bookmark.jid().bare() : bookmark.name());
+	Ureen::DataItem item(bookmark.name().isEmpty() ? bookmark.jid().bare() : bookmark.name());
 	if (bookmark.isValid()) {
 		item.setProperty("bookmark", qVariantFromValue(bookmark));
 	}
 	{
-		qutim_sdk_0_3::DataItem nameItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name());
+		Ureen::DataItem nameItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name());
 		nameItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(nameItem);
 	}
 	{
 		QString conference = !bookmark.jid().isValid() ? QString("talks@conference.qutim.org") : bookmark.jid().bare();
-		qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), conference);
+		Ureen::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), conference);
 		//TODO, add validator
 		//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
 		conferenceItem.setProperty("mandatory", true);
@@ -210,18 +210,18 @@ DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isB
 	}
 	{
 		QString name = bookmark.nick().isEmpty() ? p->account->name() : bookmark.nick();
-		qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), name);
+		Ureen::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), name);
 		nickItem.setProperty("mandatory", true);
 		item.addSubitem(nickItem);
 	}
 	{
-		qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), bookmark.password());
+		Ureen::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), bookmark.password());
 		passwordItem.setProperty("password", true);
 		passwordItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(passwordItem);
 	}
 	{
-		qutim_sdk_0_3::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin()));
+		Ureen::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin()));
 		autoJoinItem.setProperty("showInBookmarkInfo", false);
 		item.addSubitem(autoJoinItem);
 	}

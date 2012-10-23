@@ -31,7 +31,7 @@
 #include <qutim/settingslayer.h>
 #include <QComboBox>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {

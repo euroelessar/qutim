@@ -29,7 +29,7 @@
 #include "message.h"
 #include <QDateTime>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class ChatUnit;
 	

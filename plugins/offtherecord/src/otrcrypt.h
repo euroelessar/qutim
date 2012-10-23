@@ -30,7 +30,7 @@
 
 using namespace OtrSupport;
 
-class OtrActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class OtrActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	OtrActionGenerator();
@@ -38,7 +38,7 @@ public:
 	void showImpl(QAction *action,QObject *obj);
 };
 
-class OTRCrypt : public qutim_sdk_0_3::Plugin
+class OTRCrypt : public Ureen::Plugin
 {
     Q_OBJECT
 	Q_CLASSINFO("DebugName", "OTR")
@@ -52,14 +52,14 @@ public:
 	
 	static OTRCrypt *instance();
 	
-	OtrClosure *ensureClosure(qutim_sdk_0_3::ChatUnit *unit);
-	OtrClosure *getClosure(qutim_sdk_0_3::ChatUnit *unit);
+	OtrClosure *ensureClosure(Ureen::ChatUnit *unit);
+	OtrClosure *getClosure(Ureen::ChatUnit *unit);
 	OtrMessaging *connectionForPolicy(int policy);
 	bool notifyUser() const;
 	void updateAction(OtrClosure *closure);
-	void disableAccount(qutim_sdk_0_3::Account *account);
-	void enableAccount(qutim_sdk_0_3::Account *account);
-	bool isEnabledAccount(qutim_sdk_0_3::Account *account);
+	void disableAccount(Ureen::Account *account);
+	void enableAccount(Ureen::Account *account);
+	bool isEnabledAccount(Ureen::Account *account);
 	
 signals:
 
@@ -71,9 +71,9 @@ private:
 	QScopedPointer<OtrActionGenerator> m_action;
 	QScopedPointer<OtrMessagePreHandler> m_preHandler;
 	QScopedPointer<OtrMessagePostHandler> m_postHandler;
-	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
-	QHash<qutim_sdk_0_3::ChatUnit*, OtrClosure*> m_closures;
-	QSet<qutim_sdk_0_3::Account*> m_disabledAccounts;
+	QScopedPointer<Ureen::SettingsItem> m_settingsItem;
+	QHash<Ureen::ChatUnit*, OtrClosure*> m_closures;
+	QSet<Ureen::Account*> m_disabledAccounts;
 	QList<OtrMessaging*> m_connections;
 	OtrlUserState m_state;
 	bool m_notify;

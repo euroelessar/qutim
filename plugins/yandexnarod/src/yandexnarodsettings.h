@@ -33,7 +33,7 @@
 #include "yandexnarodauthorizator.h"
 #include <qutim/settingswidget.h>
 
-class YandexNarodSettings  : public qutim_sdk_0_3::SettingsWidget
+class YandexNarodSettings  : public Ureen::SettingsWidget
 {
 	Q_OBJECT;
 

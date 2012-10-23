@@ -142,7 +142,7 @@ void PluginChoooserWidget::onItemChanged(QStandardItem* )
 	setModified(true);
 }
 
-QString PluginChoooserWidget::html(const qutim_sdk_0_3::PluginInfo& info)
+QString PluginChoooserWidget::html(const Ureen::PluginInfo& info)
 {
 	QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
 	html += tr("<b>Description: </b> %1 <br />").arg(info.description());

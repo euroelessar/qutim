@@ -29,19 +29,19 @@
 #include <QObject>
 #include <qutim/startupmodule.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ExtensionInfo;
 }
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-class ServiceChoooser : public QObject, public qutim_sdk_0_3::StartupModule
+class ServiceChoooser : public QObject, public Ureen::StartupModule
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+	Q_INTERFACES(Ureen::StartupModule)
 public:
 	ServiceChoooser(QObject* parent = 0);
 	static const char *className(const ExtensionInfo &info);

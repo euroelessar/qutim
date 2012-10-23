@@ -41,8 +41,8 @@ public:
 	
 	QString statusPrefix();
 	void setStatusPrefix(const QString &prefix);
-	void addUnit(qutim_sdk_0_3::Buddy *unit);
-	void removeUnit(qutim_sdk_0_3::Buddy *unit);
+	void addUnit(Ureen::Buddy *unit);
+	void removeUnit(Ureen::Buddy *unit);
 	
 	// QAbstractListModel
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -54,16 +54,16 @@ signals:
 	
 private slots:
 	void onUnitDeath(QObject *object);
-	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onStatusChanged(const Ureen::Status &status);
 	void onTitleChanged(const QString &title, const QString &oldTitle);
 	
 private:
 	struct Node {
-		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
-		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+		Node(Ureen::Buddy *u, const QString &t) : title(t), unit(u) {}
+		Node(Ureen::Buddy *u) : title(u->title()), unit(u) {}
 		Node() : unit(NULL) {}
 		QString title;
-		qutim_sdk_0_3::Buddy *unit;
+		Ureen::Buddy *unit;
 		
 		bool operator <(const Node &o) const
 		{

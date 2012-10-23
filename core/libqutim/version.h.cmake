@@ -31,7 +31,7 @@
 
 #define QUTIM_CHECK_VERSION(major, minor, secminor, patch) (QUTIM_VERSION >= QUTIM_MAKE_VERSION(major, minor, secminor, patch))
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 LIBQUTIM_EXPORT quint8 versionMajor();
 LIBQUTIM_EXPORT quint8 versionMinor();

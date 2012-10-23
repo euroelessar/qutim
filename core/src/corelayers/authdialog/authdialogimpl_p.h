@@ -34,7 +34,7 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class AuthDialogPrivate : public QDialog
 {
@@ -53,7 +53,7 @@ public:
 #endif
 		setAttribute(Qt::WA_DeleteOnClose);
 	}
-	void show(qutim_sdk_0_3::Contact *contact, const QString &text, bool incoming)
+	void show(Ureen::Contact *contact, const QString &text, bool incoming)
 	{
 		m_isIncoming = incoming;
 		m_account = contact->account();

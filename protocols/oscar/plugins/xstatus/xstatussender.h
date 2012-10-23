@@ -29,7 +29,7 @@
 #include <QTimer>
 #include "../../src/icqcontact.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -54,7 +54,7 @@ public:
 	static void sendXStatus(IcqContact *contact, quint64 cookie);
 private slots:
 	void sendXStatus();
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 private:
 	friend class XStatusSenderList;
 	XStatusSender(IcqAccount *account);
@@ -64,7 +64,7 @@ private:
 	uint m_lastTime; // unix time when the last xstraz packet was sent
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // XSTATUSSENDER_H
 

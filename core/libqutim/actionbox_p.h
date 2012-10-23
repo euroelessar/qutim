@@ -27,7 +27,7 @@
 #define ACTIONBOX_P_H
 #include <QObject>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class ActionBox;

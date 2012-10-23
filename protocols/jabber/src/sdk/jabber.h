@@ -44,7 +44,7 @@ class MessageFilter;
 class MessageSession;
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 }
@@ -73,7 +73,7 @@ public:
 
 	\sa JabberParams
   */
-	virtual void init(qutim_sdk_0_3::Account *account) = 0;
+	virtual void init(Ureen::Account *account) = 0;
 };
 
 /*!

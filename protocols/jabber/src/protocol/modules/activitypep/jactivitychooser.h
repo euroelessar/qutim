@@ -30,13 +30,13 @@
 #include <qutim/actiongenerator.h>
 
 class QTreeWidgetItem;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Account;
 }
 
 namespace Jabber {
 
-using qutim_sdk_0_3::Account;
+using Ureen::Account;
 namespace Ui {
 class JActivityChooserWindow;
 }
@@ -66,7 +66,7 @@ class JActivityChooser : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JActivityChooser();
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 private slots:
 	void show(QObject *obj);
 protected:
@@ -80,12 +80,12 @@ private:
 	QString m_currentText;
 };
 
-class JActivityChooserAction : public qutim_sdk_0_3::ActionGenerator
+class JActivityChooserAction : public Ureen::ActionGenerator
 {
 public:
-	JActivityChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+	JActivityChooserAction(const QIcon &icon, const Ureen::LocalizedString &text,
 						   const QObject *receiver, const char *member);
-	JActivityChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+	JActivityChooserAction(const QIcon &icon, const Ureen::LocalizedString &text,
 						   const char *member);
 protected:
 	virtual void showImpl(QAction *action, QObject *obj);

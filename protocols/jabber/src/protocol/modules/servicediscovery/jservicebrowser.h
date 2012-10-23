@@ -46,11 +46,11 @@ class JServiceBrowserModule : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JServiceBrowserModule();
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 public slots:
 	void showWindow();
 private:
-	qutim_sdk_0_3::Account *m_account;
+	Ureen::Account *m_account;
 //	QWeakPointer<QWidget> m_widget;
 };
 
@@ -58,7 +58,7 @@ class JServiceBrowser : public QWidget
 {
 	Q_OBJECT
 public:
-	JServiceBrowser(qutim_sdk_0_3::Account *account, bool isConference = false, QWidget *parent = 0);
+	JServiceBrowser(Ureen::Account *account, bool isConference = false, QWidget *parent = 0);
 	~JServiceBrowser();
 private slots:
 	void getItems(QTreeWidgetItem *item);

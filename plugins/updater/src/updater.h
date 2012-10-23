@@ -33,14 +33,14 @@
 #include <QQueue>
 #include <QUrl>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
 
 namespace Updater {
 
-class UpdaterPlugin : public qutim_sdk_0_3::Plugin
+class UpdaterPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Updater")

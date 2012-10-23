@@ -35,7 +35,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class DataSettingsItemHook : public DataSettingsItem
 {
@@ -62,7 +62,7 @@ QuickSettingsLayer::QuickSettingsLayer()
 	m_models[0] = new QuickSettingsModel(this);
 }
 
-void QuickSettingsLayer::show(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller)
+void QuickSettingsLayer::show(const Ureen::SettingsItemList &settings, QObject *controller)
 {
 	QuickSettingsModel * &model = m_models[controller];
 	if (model) {
@@ -81,7 +81,7 @@ void QuickSettingsLayer::close(QObject *controller)
 //	m_items.remove(controller);
 }
 
-void QuickSettingsLayer::update(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller)
+void QuickSettingsLayer::update(const Ureen::SettingsItemList &settings, QObject *controller)
 {
 	Q_ASSERT(m_models.contains(controller));
 	m_items[controller] = settings;

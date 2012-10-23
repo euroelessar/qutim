@@ -29,7 +29,7 @@
 #include "../../src/connection.h"
 #include "xstatus.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -100,7 +100,7 @@ void XStatusRequester::updateXStatus()
 }
 
 
-void XStatusRequester::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+void XStatusRequester::statusChanged(const Ureen::Status &current, const Ureen::Status &previous)
 {
 	bool wasOffline = previous == Status::Offline || previous == Status::Connecting;
 	bool isOffline = current == Status::Offline || current == Status::Connecting;
@@ -117,8 +117,8 @@ XStatusRequester::XStatusRequester(IcqAccount *account) :
 {
 	m_timer.setInterval(TIMEOUT_BETWEEN_REQUESTS * 1000);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(updateXStatus()));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(statusChanged(Ureen::Status,Ureen::Status)));
 }
 
 void XStatusRequester::updateXStatusImpl(IcqContact *contact)
@@ -133,5 +133,5 @@ void XStatusRequester::updateXStatusImpl(IcqContact *contact)
 	m_lastTime = QDateTime::currentDateTime().toTime_t();
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

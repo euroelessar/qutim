@@ -34,14 +34,14 @@ class QStackedLayout;
 class QFormLayout;
 class QComboBox;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 	class Account;
 	class NetworkProxyInfo;
 }
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProxySettingsWidget: public SettingsWidget
 {
@@ -62,10 +62,10 @@ private:
 	Account *m_account;
 };
 
-class ProxySettings : public QObject, public qutim_sdk_0_3::StartupModule
+class ProxySettings : public QObject, public Ureen::StartupModule
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+	Q_INTERFACES(Ureen::StartupModule)
 public:
     ProxySettings();
 };

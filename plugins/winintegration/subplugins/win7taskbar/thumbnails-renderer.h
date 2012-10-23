@@ -31,7 +31,7 @@
 #include <QList>
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class ChatSession;
 }
@@ -42,7 +42,7 @@ class WThumbnailsProvider : public PreviewProvider
 {
 	Q_OBJECT
 
-	typedef QList<qutim_sdk_0_3::ChatSession *> SessionsList;
+	typedef QList<Ureen::ChatSession *> SessionsList;
 
 	QGraphicsPixmapItem *qutimIconItem;
 	QGraphicsPixmapItem *sceneBgItem;
@@ -71,7 +71,7 @@ public:
 public slots:
 	void reloadSettings();
 	void onUnreadChanged(unsigned chats, unsigned confs);
-	void onUnreadChanged(qutim_sdk_0_3::MessageList);
+	void onUnreadChanged(Ureen::MessageList);
 	void onSessionDestroyed(QObject *);
 	void prepareLivePreview();
 };

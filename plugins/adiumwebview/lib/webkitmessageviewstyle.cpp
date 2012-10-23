@@ -41,7 +41,7 @@
 #include <qutim/protocol.h>
 #include <qutim/thememanager.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class WebKitMessageViewStylePrivate
 {
@@ -143,7 +143,7 @@ public:
 	" onkeydown=\"if (event.keyCode == 13 && !event.shiftKey) { event.preventDefault(); this.setAttribute('contentsEditable', false); client.setTopic(); }\">%1</span>"
 #define ACTION_SPAN "<span class='actionMessageUserName'>%1</span><span class='actionMessageBody'>%2</span>"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 LIBQUTIM_EXPORT QString convertTimeDate(const QString &macFormat, const QDateTime &datetime);
 LIBQUTIM_EXPORT QString &validateCpp(QString &text);
 }
@@ -416,7 +416,7 @@ void WebKitMessageViewStyle::setCustomStyle(const QString &style)
 	d->customStyle = style;
 }
 
-QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session)
+QString WebKitMessageViewStyle::baseTemplateForChat(Ureen::ChatSession *session)
 {
 	Q_D(WebKitMessageViewStyle);
 	QString templateHTML;
@@ -464,7 +464,7 @@ QString WebKitMessageViewStyle::scriptForSettingCustomStyle()
 	return QString::fromLatin1("setCustomStylesheet(\"%1\");").arg(d->customStyle);
 }
 
-QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent)
+QString WebKitMessageViewStyle::scriptForAppendingContent(const Ureen::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent)
 {
 	Q_D(WebKitMessageViewStyle);
 	
@@ -511,7 +511,7 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 	return script.arg(validateCpp(newHTML));
 }
 
-QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session)
+QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, Ureen::ChatSession *session)
 {
 	Q_D(WebKitMessageViewStyle);
 	ChatUnit *unit = session->unit();
@@ -802,7 +802,7 @@ void WebKitMessageViewStyle::loadTemplates()
 	                            QObject::tr("Download %fileName%"));
 }
 
-QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar)
+QString WebKitMessageViewStyle::templateForContent(const Ureen::Message &message, bool contentIsSimilar)
 {
 	Q_D(WebKitMessageViewStyle);
 	QString result;
@@ -842,7 +842,7 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 	return result;
 }
 
-WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qutim_sdk_0_3::Message &message)
+WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const Ureen::Message &message)
 {
 	QObject *source = 0;
 	UnitData result;
@@ -879,7 +879,7 @@ WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qut
 	return result;
 }
 
-QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar)
+QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const Ureen::Message &message, bool contentIsSimilar)
 {
 	Q_D(WebKitMessageViewStyle);
 	UnitData contentSource = getSourceData(message);

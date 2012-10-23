@@ -38,7 +38,7 @@
 #include <QTextDocument>
 #include <QComboBox>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace HistoryManager {
 
@@ -106,7 +106,7 @@ void HistoryManagerWindow::appendMessage(const Message &message)
 	Q_ASSERT(m_contact);
 	QDate date = message.time().date();
 	qint64 month_id = date.year() * 100 + date.month();
-	qutim_sdk_0_3::MessageList &month = m_contact->operator [](month_id);
+	Ureen::MessageList &month = m_contact->operator [](month_id);
 	int position = qLowerBound(month.begin(), month.end(), message, compare_message_helper) - month.begin();
 	if(month.size() != position
 	   && month[position].time() == message.time()
@@ -170,8 +170,8 @@ ConfigWidget HistoryManagerWindow::createAccountWidget(const QString &protocol)
 	label->setText(html);
 	QComboBox *combo = new QComboBox;
 	combo->setEditable(true);
-	if (qutim_sdk_0_3::Protocol *proto = qutim_sdk_0_3::Protocol::all().value(protocol)) {
-		foreach (qutim_sdk_0_3::Account *acc, proto->accounts())
+	if (Ureen::Protocol *proto = Ureen::Protocol::all().value(protocol)) {
+		foreach (Ureen::Account *acc, proto->accounts())
 			combo->addItem(acc->id(), acc->id());
 	}
 	return ConfigWidget(label, combo);

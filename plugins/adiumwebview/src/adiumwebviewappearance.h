@@ -43,7 +43,7 @@ namespace Adium
 class WebViewVariable;
 class WebViewController;
 
-class WebViewAppearance : public qutim_sdk_0_3::SettingsWidget
+class WebViewAppearance : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

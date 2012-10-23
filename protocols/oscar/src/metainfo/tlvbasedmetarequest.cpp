@@ -27,7 +27,7 @@
 #include "metafields_p.h"
 #include <QDate>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -195,5 +195,5 @@ void TlvBasedMetaRequest::sendTlvBasedRequest(quint16 type) const
 	sendRequest(type, data);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -32,8 +32,8 @@
 struct WebKitPreview
 {
 	typedef QSharedPointer<WebKitPreview> Ptr;
-	QScopedPointer<qutim_sdk_0_3::ChatSession> session;
-	qutim_sdk_0_3::MessageList messages;
+	QScopedPointer<Ureen::ChatSession> session;
+	Ureen::MessageList messages;
 };
 
 class ADIUMWEBVIEW_EXPORT WebKitPreviewLoader

@@ -33,7 +33,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtGui/QWidget>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 #define CLIENT_ID "ecc5ea995f054a6a9acf6a64318bce33"
 

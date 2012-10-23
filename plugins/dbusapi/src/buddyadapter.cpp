@@ -32,7 +32,7 @@ BuddyAdapter::BuddyAdapter(Buddy *buddy) :
 			this, SIGNAL(nameChanged(QString,QString)));
 	connect(buddy, SIGNAL(avatarChanged(QString)),
 			this, SIGNAL(avatarChanged(QString)));
-	connect(buddy, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(buddy, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)));
 }
 

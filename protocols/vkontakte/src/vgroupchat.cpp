@@ -30,7 +30,7 @@
 #include <QApplication>
 #include <qutim/notification.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 VGroupChat::VGroupChat(VAccount *account, int chatId) :
 	Conference(account),
@@ -45,8 +45,8 @@ VGroupChat::VGroupChat(VAccount *account, int chatId) :
 	connect(m_chatSession, SIGNAL(participantRemoved(Vreen::Buddy*)), this, SLOT(onBuddyRemoved(Vreen::Buddy*)));
 	connect(m_chatSession, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
 	connect(m_chatSession, SIGNAL(messageAdded(Vreen::Message)), SLOT(handleMessage(Vreen::Message)));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(onSessionCreated(Ureen::ChatSession*)));
 
 	connect(m_chatSession, SIGNAL(isJoinedChanged(bool)), SLOT(setJoined(bool)));
 	connect(this, SIGNAL(joinedChanged(bool)), SLOT(onJoinedChanged(bool)));
@@ -95,7 +95,7 @@ void VGroupChat::handleMessage(const Vreen::Message &msg)
 			}
 		}
 
-		qutim_sdk_0_3::Message coreMessage(msg.body().replace("<br>", "\n"));
+		Ureen::Message coreMessage(msg.body().replace("<br>", "\n"));
 		coreMessage.setChatUnit(this);
 		coreMessage.setIncoming(msg.isIncoming());
 
@@ -140,7 +140,7 @@ void VGroupChat::onBuddyAdded(Vreen::Buddy *buddy)
 		if (ChatSession *session = ChatLayer::get(this, false)) {
 			session->addContact(user);
 
-			NotificationRequest request(qutim_sdk_0_3::Notification::ChatUserJoined);
+			NotificationRequest request(Ureen::Notification::ChatUserJoined);
 			request.setObject(this);
 			request.setText(tr("%1 has joined the room").arg(user->title()));
 			request.setProperty("senderName", user->name());
@@ -158,7 +158,7 @@ void VGroupChat::onBuddyRemoved(Vreen::Buddy *buddy)
 		if (ChatSession *session = ChatLayer::get(this, false)) {
 			session->removeContact(user);
 
-			NotificationRequest request(qutim_sdk_0_3::Notification::ChatUserLeft);
+			NotificationRequest request(Ureen::Notification::ChatUserLeft);
 			request.setObject(this);
 			request.setText(tr("%1 has left the room").arg(user->title()));
 			request.setProperty("senderName", user->name());
@@ -269,7 +269,7 @@ void VGroupChat::onMessageSent(const QVariant &response)
 	}
 }
 
-void VGroupChat::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
+void VGroupChat::onUnreadChanged(Ureen::MessageList unread)
 {
 	Vreen::IdList idList;
 	MessageList::iterator i = m_unreadMessages.begin();
@@ -291,8 +291,8 @@ void VGroupChat::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 	idList.clear();
 }
 
-void VGroupChat::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void VGroupChat::onSessionCreated(Ureen::ChatSession *session)
 {
 	if (session->unit() == this)
-		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+		connect(session, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged(Ureen::MessageList)));
 }

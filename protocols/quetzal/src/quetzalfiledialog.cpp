@@ -26,7 +26,7 @@
 #include <QEvent>
 #include <qutim/debug.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalFileDialog::QuetzalFileDialog(const char *title, const QString &dirname,
 									 GCallback ok_cb, GCallback cancel_cb,

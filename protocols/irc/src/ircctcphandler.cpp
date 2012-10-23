@@ -25,7 +25,7 @@
 
 #include "ircctcphandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -44,5 +44,5 @@ void IrcCtcpHandler::handleCtcpResponse(IrcAccount *account, const QString &send
 	Q_UNUSED(params);
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

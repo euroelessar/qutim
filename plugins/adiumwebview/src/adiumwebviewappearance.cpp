@@ -44,7 +44,7 @@
 namespace Adium
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class SignalBlocker
 {

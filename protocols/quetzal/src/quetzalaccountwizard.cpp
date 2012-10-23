@@ -31,7 +31,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalProtocol *quetzal_find_protocol(const QMetaObject *meta)
 {

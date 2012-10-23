@@ -1,15 +1,15 @@
 #include "${extensionHeader}"
 #include <qutim/plugin.h>
 
-class ${productName}Plugin : public qutim_sdk_0_3::Plugin
+class ${productName}Plugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:
 	virtual void init()
 	{
-		qutim_sdk_0_3::ExtensionIcon icon(QLatin1String("${pluginIcon}"));
-		qutim_sdk_0_3::LocalizedString name("Plugin", "${pluginName}");
-		qutim_sdk_0_3::LocalizedString description("Plugin", "${pluginDescription}");
+		Ureen::ExtensionIcon icon(QLatin1String("${pluginIcon}"));
+		Ureen::LocalizedString name("Plugin", "${pluginName}");
+		Ureen::LocalizedString description("Plugin", "${pluginDescription}");
 		setInfo(name, description, QUTIM_VERSION, icon);
 		addExtension<${extensionClass}>(name, description, icon);
 	}

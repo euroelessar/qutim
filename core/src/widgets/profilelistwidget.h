@@ -31,7 +31,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QWidget>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class Config;
 }

@@ -29,14 +29,14 @@
 #include <qutim/notification.h>
 #include <QtDBus>
 
-class Maemo5Vibra : public QObject, public qutim_sdk_0_3::NotificationBackend
+class Maemo5Vibra : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Vibration")
 public:
 	Maemo5Vibra();
 	virtual ~Maemo5Vibra();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 protected slots:
 	void setDisplayState(const QString &state);
 	void displayStateChanged(const QDBusMessage &message);

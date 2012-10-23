@@ -38,11 +38,11 @@ namespace Core
 
 bool isSupportAddContact()
 {
-	foreach (qutim_sdk_0_3::Protocol *p,qutim_sdk_0_3::Protocol::all()) {
-		bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
+	foreach (Ureen::Protocol *p,Ureen::Protocol::all()) {
+		bool support = p->data(Ureen::Protocol::ProtocolContainsContacts).toBool();
 		if (support) {
-			foreach (qutim_sdk_0_3::Account *a,p->accounts()) {
-				if (a->status() != qutim_sdk_0_3::Status::Offline) {
+			foreach (Ureen::Account *a,p->accounts()) {
+				if (a->status() != Ureen::Status::Offline) {
 					return true;
 				}
 			}

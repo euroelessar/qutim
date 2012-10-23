@@ -28,7 +28,7 @@
 #include <QDebug>
 
 namespace MeegoIntegration {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 MeeGoIntegration::MeeGoIntegration()
 {
@@ -86,7 +86,7 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
 		else if (className == QLatin1String("VAccountSettings"))
 			generator = new QuickGenerator(QLatin1String("accounts/VKPage.qml"));
-		else if (className == QLatin1String("qutim_sdk_0_3::DataSettingsWidget"))
+		else if (className == QLatin1String("Ureen::DataSettingsWidget"))
 			generator = new QuickGenerator(QLatin1String("settings/DataItemPage.qml"),
 										   new DataSettingsObjectCreator(item));
 		else if (name == "Auto-away")

@@ -35,7 +35,7 @@
 namespace Control
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 AutoReplyButtonActionGenerator::AutoReplyButtonActionGenerator(QObject *object, const char *slot)
     : ActionGenerator(QIcon(), LocalizedString(), object, slot)

@@ -30,7 +30,7 @@
 #include <QDateTime>
 #include <QTimer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -182,5 +182,5 @@ quint64 Cookie::generateId()
 	return ++id;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

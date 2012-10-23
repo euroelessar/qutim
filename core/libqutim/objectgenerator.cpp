@@ -28,7 +28,7 @@
 #include <QtCore/QCoreApplication>
 #include "modulemanager_p.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 ObjectGeneratorHolderData::ObjectGeneratorHolderData(ObjectGenerator *generator) : QSharedData()
 {

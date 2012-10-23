@@ -62,7 +62,7 @@ VibroBackend::~VibroBackend()
 {
 }
 
-void VibroBackend::handleNotification(qutim_sdk_0_3::Notification *)
+void VibroBackend::handleNotification(Ureen::Notification *)
 {
 	if (m_windowActive)
 		m_effect->start();

@@ -30,7 +30,7 @@
 
 namespace BlogImprover {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 BlogImproverHandler::BlogImproverHandler()
 {

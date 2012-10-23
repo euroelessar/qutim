@@ -32,7 +32,7 @@
 #include <qutim/config.h>
 #include <QHash>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 class Protocol;
@@ -97,7 +97,7 @@ public slots:
 private slots:
 	void stopStartActionTrigged();
 	void playingStatusChanged(bool);
-	void accountCreated(qutim_sdk_0_3::Account*);
+	void accountCreated(Ureen::Account*);
 	void accountDeleted(QObject*);
 	void setStatuses(const TrackInfo &info);
 private:
@@ -127,9 +127,9 @@ private:
 	bool m_isEnabled;
 };
 
-inline qutim_sdk_0_3::Config config(const QString &group = QString())
+inline Ureen::Config config(const QString &group = QString())
 {
-	qutim_sdk_0_3::Config cfg("nowplaying");
+	Ureen::Config cfg("nowplaying");
 	return !group.isEmpty() ? cfg.group(group) : cfg;
 }
 } }

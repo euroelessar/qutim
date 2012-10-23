@@ -30,10 +30,10 @@
 
 namespace Antispam {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 SettingsWidget::SettingsWidget() :
-	qutim_sdk_0_3::SettingsWidget(),
+	Ureen::SettingsWidget(),
     ui(new Ui::SettingsWidget)
 {
     ui->setupUi(this);

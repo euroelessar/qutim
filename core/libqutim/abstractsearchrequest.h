@@ -30,7 +30,7 @@
 #include "localizedstring.h"
 #include "dataforms.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class AbstractSearchFactoryPrivate;
 
@@ -82,7 +82,7 @@ namespace qutim_sdk_0_3
 		QScopedPointer<AbstractSearchFactoryPrivate> d_ptr;
 	};
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // ABSTRACTSEARCHREQUEST_H
 

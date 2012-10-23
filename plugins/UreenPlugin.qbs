@@ -53,6 +53,16 @@ Product {
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId ]
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
     cpp.visibility: 'hidden'
+    cpp.cxxFlags: []
+
+    Properties {
+        condition: qbs.toolchain !== "msvc"
+        cpp.cxxFlags: outer.concat([ "-std=c++0x" ])
+    }
+    Properties {
+        condition: qbs.targetOS === "mac"
+        cpp.cxxFlags: outer.concat([ "-stdlib=libc++" ])
+    }
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ "core", "gui", "network", "script" ] }

@@ -29,7 +29,7 @@
 #include <QUrl>
 #include <QMetaType>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 
@@ -46,7 +46,7 @@ namespace nowplaying {
 } 
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::nowplaying::TrackInfo)
+Q_DECLARE_METATYPE(Ureen::nowplaying::TrackInfo)
 
 #endif // TRACKINFO_H
 

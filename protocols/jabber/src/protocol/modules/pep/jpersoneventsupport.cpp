@@ -39,7 +39,7 @@
 namespace Jabber
 {
 	using namespace Jreen;
-	using namespace qutim_sdk_0_3;
+	using namespace Ureen;
 	
 //	typedef QMap<Account*, JPersonEventSupport*> SupportMap;
 //	Q_GLOBAL_STATIC(SupportMap, supportMap);
@@ -107,7 +107,7 @@ namespace Jabber
 		connect(m_manager, SIGNAL(eventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)),
 				this, SLOT(onEventReceived(Jreen::PubSub::Event::Ptr,Jreen::JID)));
 		account->installEventFilter(this);
-		m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
+		m_eventId = Ureen::Event::registerType("jabber-personal-event");
 		foreach (const ObjectGenerator *ext, ObjectGenerator::module<PersonEventConverter>()) {
 			PersonEventConverter *converter = ext->generate<PersonEventConverter>();
 			m_converters.insert(converter->entityType(), converter);
@@ -117,8 +117,8 @@ namespace Jabber
 	
 	bool JPersonEventSupport::eventFilter(QObject *obj, QEvent *ev)
 	{
-		if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
-			qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(ev);
+		if (ev->type() == Ureen::Event::eventType()) {
+			Ureen::Event *customEvent = static_cast<Ureen::Event*>(ev);
 			if (customEvent->id == m_eventId && obj == m_account) {
 				QString name = customEvent->at<QString>(0);
 				bool needSet = customEvent->at<bool>(2);
@@ -164,7 +164,7 @@ namespace Jabber
 					else
 						contact->removeExtendedInfo(name);
 				}
-				qutim_sdk_0_3::Event ev(m_eventId, name, data, false);
+				Ureen::Event ev(m_eventId, name, data, false);
 				qApp->sendEvent(receiver, &ev);
 			}
 		}

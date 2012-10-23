@@ -51,8 +51,8 @@ bool ClConfPlugin::load()
 	foreach (Protocol *protocol, Protocol::all()) {
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountCreated(Ureen::Account*)));
 	}
 	return true;
 }
@@ -62,11 +62,11 @@ bool ClConfPlugin::unload()
 	return false;
 }
 
-void ClConfPlugin::onAccountCreated(qutim_sdk_0_3::Account *account)
+void ClConfPlugin::onAccountCreated(Ureen::Account *account)
 {
 	m_accounts.insert(account, new ProxyAccount(account));
-	connect(account, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			SLOT(onConferenceCreated(qutim_sdk_0_3::Conference*)));
+	connect(account, SIGNAL(conferenceCreated(Ureen::Conference*)),
+			SLOT(onConferenceCreated(Ureen::Conference*)));
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	foreach (Conference *conference, account->findChildren<Conference*>())
 		onConferenceCreated(conference);
@@ -77,13 +77,13 @@ void ClConfPlugin::onAccountDestroyed(QObject *account)
 	m_accounts.take(account)->deleteLater();
 }
 
-void ClConfPlugin::onConferenceCreated(qutim_sdk_0_3::Conference *conference)
+void ClConfPlugin::onConferenceCreated(Ureen::Conference *conference)
 {
 	QObject *cl = ServiceManager::getByName("ContactList");
 	if (cl) {
 		ProxyContact *contact = new ProxyContact(conference);
 		cl->metaObject()->invokeMethod(cl, "addContact",
-									   Q_ARG(qutim_sdk_0_3::Contact*, contact));
+									   Q_ARG(Ureen::Contact*, contact));
 	}
 }
 

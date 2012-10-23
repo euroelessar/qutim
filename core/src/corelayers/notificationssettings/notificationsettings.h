@@ -39,7 +39,7 @@ typedef QList<QSet<QByteArray> > EnabledNotificationTypes;
 
 QString notificationTypeName(int type);
 
-class NotificationSettings : public qutim_sdk_0_3::SettingsWidget
+class NotificationSettings : public Ureen::SettingsWidget
 {
     Q_OBJECT
 public:

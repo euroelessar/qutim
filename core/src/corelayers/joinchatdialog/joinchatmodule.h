@@ -51,7 +51,7 @@ private:
 	QWeakPointer<JoinChatDialog> m_dialog;
 };
 
-class JoinChatGenerator : public qutim_sdk_0_3::ActionGenerator
+class JoinChatGenerator : public Ureen::ActionGenerator
 {
 public:
 	JoinChatGenerator(QObject *module);

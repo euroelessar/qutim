@@ -33,7 +33,7 @@
 #include <qutim/objectgenerator.h>
 #include <qutim/debug.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -171,7 +171,7 @@ void IcqMainSettings::cancelImpl()
 	loadImpl();
 }
 
-void IcqMainSettings::saveImpl(const qutim_sdk_0_3::DataItem &mainItem)
+void IcqMainSettings::saveImpl(const Ureen::DataItem &mainItem)
 {
 	Config cfg = IcqProtocol::instance()->config();
 	foreach (SettingsExtension *extension, settingsExtensions())
@@ -190,5 +190,5 @@ void IcqMainSettings::saveImpl(const qutim_sdk_0_3::DataItem &mainItem)
 }
 
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

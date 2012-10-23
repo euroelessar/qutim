@@ -32,14 +32,14 @@
 QDBusArgument &operator<< (QDBusArgument &arg, const QImage &image);
 const QDBusArgument &operator>> (const QDBusArgument &arg, QImage &image);
 
-class DBusBackend : public QObject, public qutim_sdk_0_3::NotificationBackend
+class DBusBackend : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
 public:
 	DBusBackend();
 	virtual ~DBusBackend();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
 	void capabilitiesCallFinished(QDBusPendingCallWatcher* watcher);
@@ -50,8 +50,8 @@ private:
 	{
 		QWeakPointer<QObject> sender;
 		QString body;
-		QList<QWeakPointer<qutim_sdk_0_3::Notification> > notifications;
-		QMultiHash<QString, qutim_sdk_0_3::NotificationAction> actions;
+		QList<QWeakPointer<Ureen::Notification> > notifications;
+		QMultiHash<QString, Ureen::NotificationAction> actions;
 	};
 	void ignore(NotificationData &data);
 private:

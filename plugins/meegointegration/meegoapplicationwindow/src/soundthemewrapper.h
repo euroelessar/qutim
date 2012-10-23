@@ -30,7 +30,7 @@ signals:
     void nameChanged(const QString &name);
     
 private:
-    qutim_sdk_0_3::SoundTheme m_theme;
+    Ureen::SoundTheme m_theme;
 };
 }
 

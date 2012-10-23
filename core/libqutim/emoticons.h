@@ -30,7 +30,7 @@
 #include <QSharedData>
 #include <QStringList>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class EmoticonsProvider;
 struct EmoticonsThemeData;
@@ -136,7 +136,7 @@ LIBQUTIM_EXPORT void setTheme(const EmoticonsTheme &theme);
 }
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::EmoticonsTheme::ParseMode)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ureen::EmoticonsTheme::ParseMode)
 
 #endif // EMOTICONS_H
 

@@ -5,7 +5,7 @@
 
 namespace MeegoIntegration {
 
-class QuickIconLoader : public qutim_sdk_0_3::IconLoader
+class QuickIconLoader : public Ureen::IconLoader
 {
     Q_OBJECT
 public:

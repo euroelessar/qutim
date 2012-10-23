@@ -35,7 +35,7 @@ class QStandardItemModel;
 class QStandardItem;
 namespace Core
 {
-	using namespace qutim_sdk_0_3;
+	using namespace Ureen;
 	class ShortcutSettingsWidget : public SettingsWidget
 	{
 		Q_OBJECT

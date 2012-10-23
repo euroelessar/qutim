@@ -34,7 +34,7 @@
 
 class QDebug;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -108,9 +108,9 @@ inline uint Capability::hash() const
 
 LIBOSCAR_EXPORT QDebug operator<<(QDebug debug, Capability &capability);
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-inline uint qHash(const qutim_sdk_0_3::oscar::Capability &capability)
+inline uint qHash(const Ureen::oscar::Capability &capability)
 {
 	return capability.hash();
 }

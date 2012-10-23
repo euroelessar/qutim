@@ -28,17 +28,17 @@
 #include <qutim/notification.h>
 #include <QHash>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class SettingsItem;
 }
 
 namespace KineticPopups {
 
 class PopupWidget;
-typedef QMultiHash<PopupWidget*, QWeakPointer<qutim_sdk_0_3::Notification> > NotificationHash;
+typedef QMultiHash<PopupWidget*, QWeakPointer<Ureen::Notification> > NotificationHash;
 
 class WidgetPlacer;
-class Backend : public QObject, public qutim_sdk_0_3::NotificationBackend
+class Backend : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
@@ -46,14 +46,14 @@ class Backend : public QObject, public qutim_sdk_0_3::NotificationBackend
 public:
 	Backend();
 	virtual ~Backend();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 protected slots:
 	void onPopupDestroyed(QObject *obj);
-	bool split(qutim_sdk_0_3::Notification *notify);
+	bool split(Ureen::Notification *notify);
 private:
 	WidgetPlacer *m_placer;
 	NotificationHash m_activeNotifyHash;
-	qutim_sdk_0_3::SettingsItem *m_item;
+	Ureen::SettingsItem *m_item;
 };
 
 } // namespace KineticPopups

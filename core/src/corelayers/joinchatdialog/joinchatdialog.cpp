@@ -33,7 +33,7 @@
 #include <QPushButton>
 #include <QKeyEvent>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 JoinChatDialog::JoinChatDialog(QWidget *parent) :
     QDialog(parent), m_ui(new Ui::JoinChat)
@@ -64,8 +64,8 @@ JoinChatDialog::JoinChatDialog(QWidget *parent) :
 	m_ui->conferenceListWidget->installEventFilter(this);
 	
 	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+		        SLOT(onAccountCreated(Ureen::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -102,13 +102,13 @@ void JoinChatDialog::joinBookmark(QListWidgetItem *item)
 		close();
 }
 
-void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account, bool first)
+void JoinChatDialog::onAccountCreated(Ureen::Account *account, bool first)
 {
     if (first) {
-		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-		        SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+		connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+		        SLOT(onAccountStatusChanged(Ureen::Status)));
+		connect(account, SIGNAL(groupChatManagerChanged(Ureen::GroupChatManager*)),
+		        SLOT(onManagerChanged(Ureen::GroupChatManager*)));
 		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
 	}
 	if (!account->groupChatManager())
@@ -119,7 +119,7 @@ void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account, bool firs
 		m_ui->accountBox->setCurrentIndex(0);
 }
 
-void JoinChatDialog::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void JoinChatDialog::onAccountStatusChanged(const Ureen::Status &status)
 {
 	Account *account = qobject_cast<Account*>(sender());
 	int index = m_ui->accountBox->findData(qVariantFromValue(account));
@@ -127,7 +127,7 @@ void JoinChatDialog::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 		m_ui->accountBox->setItemIcon(index, status.icon());
 }
 
-void JoinChatDialog::onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
+void JoinChatDialog::onManagerChanged(Ureen::GroupChatManager *manager)
 {
 	Account *account = qobject_cast<Account*>(sender());
 	int index = m_ui->accountBox->findData(qVariantFromValue(account));
@@ -243,7 +243,7 @@ void JoinChatDialog::rebuildItems(int index)
 	}
 }
 
-qutim_sdk_0_3::GroupChatManager *JoinChatDialog::groupChatManager()
+Ureen::GroupChatManager *JoinChatDialog::groupChatManager()
 {
 	int index = m_ui->accountBox->currentIndex();
 	Account *account = m_ui->accountBox->itemData(index).value<Account*>();

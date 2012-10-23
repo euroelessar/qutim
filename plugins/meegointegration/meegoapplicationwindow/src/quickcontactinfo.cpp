@@ -8,7 +8,7 @@
 
 namespace MeegoIntegration {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef InfoRequestFactory::SupportLevel SupportLevel;
 
@@ -66,8 +66,8 @@ void QuickContactInfo::show(QObject *object)
 	m_request = InfoRequestFactory::dataFormRequest(object);
 
 	if (m_request) {
-		connect(m_request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
-				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+		connect(m_request, SIGNAL(stateChanged(Ureen::InfoRequest::State)),
+				SLOT(onRequestStateChanged(Ureen::InfoRequest::State)));
 		m_request->requestData();
 	}
 
@@ -100,7 +100,7 @@ void QuickContactInfo::request()
     }
 }
 
-void QuickContactInfo::save(const qutim_sdk_0_3::DataItem &item)
+void QuickContactInfo::save(const Ureen::DataItem &item)
 {
 	if (m_request) {
 		m_request->cancel();

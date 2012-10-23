@@ -41,7 +41,7 @@ int FloatiesItemModel::rowCount(const QModelIndex &parent) const
 
 QVariant FloatiesItemModel::data(const QModelIndex &index, int role) const
 {
-	qutim_sdk_0_3::Contact *contact = m_contacts.at(index.row());
+	Ureen::Contact *contact = m_contacts.at(index.row());
 	switch(role)
 	{
 	case Qt::EditRole:
@@ -65,7 +65,7 @@ QVariant FloatiesItemModel::data(const QModelIndex &index, int role) const
 	}
 }
 
-QPersistentModelIndex FloatiesItemModel::addContact(qutim_sdk_0_3::Contact *contact)
+QPersistentModelIndex FloatiesItemModel::addContact(Ureen::Contact *contact)
 {
 	beginInsertRows(QModelIndex(), m_contacts.size(), m_contacts.size());
 	m_contacts.append(contact);
@@ -74,7 +74,7 @@ QPersistentModelIndex FloatiesItemModel::addContact(qutim_sdk_0_3::Contact *cont
 	return QPersistentModelIndex(modelIndex);
 }
 
-void FloatiesItemModel::removeContact(qutim_sdk_0_3::Contact *contact)
+void FloatiesItemModel::removeContact(Ureen::Contact *contact)
 {
 	int index = m_contacts.indexOf(contact);
 	if (index == -1)

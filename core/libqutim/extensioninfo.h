@@ -32,7 +32,7 @@
 #include <QMetaType>
 #include <QtGui/QIcon>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ExtensionInfoData;
 
@@ -77,7 +77,7 @@ LIBQUTIM_EXPORT ExtensionInfoList extensionList();
 //	{ return extensionList<T>(reinterpret_cast<T *>(0)); }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ExtensionInfo)
+Q_DECLARE_METATYPE(Ureen::ExtensionInfo)
 
 #endif // EXTENSIONINFO_H
 

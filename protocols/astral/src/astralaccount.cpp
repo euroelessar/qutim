@@ -41,7 +41,7 @@ struct AstralAccountPrivate
 	QHash<QString, QPointer<AstralSession> > sessions;
 };
 
-AstralAccount::AstralAccount(AstralProtocol *protocol, const QString &id) : qutim_sdk_0_3::Account(id, protocol), p(new AstralAccountPrivate)
+AstralAccount::AstralAccount(AstralProtocol *protocol, const QString &id) : Ureen::Account(id, protocol), p(new AstralAccountPrivate)
 {
 //	p->protocol = protocol;
 ////	p->roster = new AstralRoster(this, 0);

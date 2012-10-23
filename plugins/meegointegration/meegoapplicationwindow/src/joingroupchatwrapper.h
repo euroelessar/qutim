@@ -37,14 +37,14 @@
 
 class QModelIndex;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 }
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum ItemRole
 {
@@ -57,8 +57,8 @@ enum ItemRole
 class JoinGroupChatWrapper : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(qutim_sdk_0_3::Account *currentAccount READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
-	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts READ accounts NOTIFY accountsChanged)
+	Q_PROPERTY(Ureen::Account *currentAccount READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
+	Q_PROPERTY(QDeclarativeListProperty<Ureen::Account> accounts READ accounts NOTIFY accountsChanged)
 	Q_PROPERTY(QVariantList bookmarks READ bookmarks NOTIFY bookmarksChanged)
 	Q_PROPERTY(QVariantList recent READ recent NOTIFY recentChanged)
 public:
@@ -73,11 +73,11 @@ public:
 	QVariantList bookmarks() const;
 	QVariantList recent() const;
 	
-	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
+	QDeclarativeListProperty<Ureen::Account> accounts();
 
 signals:
-	void accountsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Account> &accounts);
-	void currentAccountChanged(qutim_sdk_0_3::Account *currentAccount);
+	void accountsChanged(const QDeclarativeListProperty<Ureen::Account> &accounts);
+	void currentAccountChanged(Ureen::Account *currentAccount);
 	void bookmarksChanged(const QVariantList &bookmarks);
 	void recentChanged(const QVariantList &recent);
 	void currentAccountIdChanged();
@@ -93,13 +93,13 @@ public slots:
 	void onBookmarksChanged();
 	
 	QVariant fields();
-	bool join(const qutim_sdk_0_3::DataItem &item);
-	bool remove(const qutim_sdk_0_3::DataItem &item);
-	bool save(const qutim_sdk_0_3::DataItem &item, const qutim_sdk_0_3::DataItem &oldItem);
+	bool join(const Ureen::DataItem &item);
+	bool remove(const Ureen::DataItem &item);
+	bool save(const Ureen::DataItem &item, const Ureen::DataItem &oldItem);
 	
 protected slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
-	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountCreated(Ureen::Account *account, bool first = true);
+	void onManagerChanged(Ureen::GroupChatManager *manager);
 	void onAccountDeath(QObject *object);
 
 private:
@@ -115,7 +115,7 @@ private:
 	QStringList m_accountIds;
 	
 	Account *m_currentAccount;
-	QList<qutim_sdk_0_3::Account*> m_accounts;
+	QList<Ureen::Account*> m_accounts;
 	QList<DataItem> m_bookmarks;
 	QList<DataItem> m_recent;
 	QVariantList m_variantBookmarks;

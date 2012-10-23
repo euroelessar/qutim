@@ -28,7 +28,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalInputDialog::QuetzalInputDialog(const char *title, const char *primary,
 									   const char *secondary, const char *default_value,

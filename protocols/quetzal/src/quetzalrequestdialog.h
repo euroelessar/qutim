@@ -45,16 +45,16 @@ protected slots:
 	virtual void closeRequest();
 	virtual void onClicked(int);
 protected:
-	qutim_sdk_0_3::DataItem createItem(const char *title, const char *primary, const char *secondary);
-	void createItem(const qutim_sdk_0_3::DataItem &item, const char *okText, const char *cancelText);
-	void createItem(const qutim_sdk_0_3::DataItem &item, const qutim_sdk_0_3::AbstractDataForm::Buttons &);
+	Ureen::DataItem createItem(const char *title, const char *primary, const char *secondary);
+	void createItem(const Ureen::DataItem &item, const char *okText, const char *cancelText);
+	void createItem(const Ureen::DataItem &item, const Ureen::AbstractDataForm::Buttons &);
 	virtual void closeEvent(QCloseEvent *);
 	void *userData() { return m_user_data; }
 	QVBoxLayout *boxLayout() { return m_boxLayout; }
 	QDialogButtonBox *buttonBox() { return m_buttonBox; }
-	qutim_sdk_0_3::AbstractDataForm *form() { return m_form; }
+	Ureen::AbstractDataForm *form() { return m_form; }
 private:
-	qutim_sdk_0_3::AbstractDataForm *m_form;
+	Ureen::AbstractDataForm *m_form;
 	QVBoxLayout *m_boxLayout;
 	QDialogButtonBox *m_buttonBox;
 	PurpleRequestType m_type;

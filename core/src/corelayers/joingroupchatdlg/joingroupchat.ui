@@ -73,13 +73,13 @@
     </widget>
    </item>
    <item>
-    <widget class="qutim_sdk_0_3::ActionBox" name="actionBox" native="true"/>
+    <widget class="Ureen::ActionBox" name="actionBox" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qutim_sdk_0_3::ActionBox</class>
+   <class>Ureen::ActionBox</class>
    <extends>QWidget</extends>
    <header location="global">qutim/actionbox.h</header>
    <container>1</container>

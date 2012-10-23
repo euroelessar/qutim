@@ -29,7 +29,7 @@
 #include <qutim/adiumchat/abstractchatwidget.h>
 #include <slidingstackedwidget.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ActionBox;
 }
@@ -49,7 +49,7 @@ class ConferenceContactsView;
 namespace Symbian
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class StackedChatWidget : public AbstractChatWidget
 {

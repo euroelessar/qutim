@@ -29,7 +29,7 @@
 #include "ircglobal.h"
 #include <QStringList>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -63,9 +63,9 @@ protected:
 	QList<IrcCommand> m_cmds;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::irc::IrcServerMessageHandler, "org.qutim.irc.IrcServerMessageHandler");
+Q_DECLARE_INTERFACE(Ureen::irc::IrcServerMessageHandler, "org.qutim.irc.IrcServerMessageHandler");
 
 #endif // IRCSERVERMESSAGEHANDLER_H
 

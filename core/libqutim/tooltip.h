@@ -33,7 +33,7 @@
 #include <QEvent>
 #include <QVariant>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class Buddy;
 	class ToolTipEventPrivate;
@@ -91,7 +91,7 @@ namespace qutim_sdk_0_3
 	};
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ToolTipEvent::IconPosition)
+Q_DECLARE_METATYPE(Ureen::ToolTipEvent::IconPosition)
 
 #endif // TOOLTIPMANAGER_H
 

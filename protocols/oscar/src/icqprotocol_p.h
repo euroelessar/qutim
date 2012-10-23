@@ -29,7 +29,7 @@
 #include "icqaccount.h"
 #include "icqprotocol.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -50,7 +50,7 @@ public slots:
 	void removeAccount(QObject *obj);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQPROTOCOL_P_H
 

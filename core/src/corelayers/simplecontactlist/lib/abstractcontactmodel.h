@@ -33,7 +33,7 @@
 #include <qutim/message.h>
 #include <qutim/notification.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Contact;
 class Account;
@@ -49,7 +49,7 @@ class AbstractContactModelPrivate;
 class ChangeEvent;
 class ItemHelper;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel, public qutim_sdk_0_3::NotificationBackend
+class SIMPLECONTACTLIST_EXPORT AbstractContactModel : public QAbstractItemModel, public Ureen::NotificationBackend
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactModel")
@@ -60,8 +60,8 @@ public:
 	virtual ~AbstractContactModel();
 	QSet<QString> selectedTags() const;
 	Q_INVOKABLE virtual QStringList tags() const;
-	Q_INVOKABLE virtual QList<qutim_sdk_0_3::Contact*> contacts() const = 0;
-	Q_INVOKABLE virtual void setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts) = 0;
+	Q_INVOKABLE virtual QList<Ureen::Contact*> contacts() const = 0;
+	Q_INVOKABLE virtual void setContacts(const QList<Ureen::Contact*> &contacts) = 0;
 public slots:
 	bool showOffline() const;
 	void hideShowOffline();
@@ -87,7 +87,7 @@ protected:
 	QVariant accountData(const QModelIndex &index, int role) const;
 	template<typename TagContainer, typename TagItem,
 			 typename ContactData, typename ContactItem>
-	void updateContactStatus(typename ContactData::Ptr item_data, const qutim_sdk_0_3::Status &status);
+	void updateContactStatus(typename ContactData::Ptr item_data, const Ureen::Status &status);
 	template<typename TagContainer, typename TagItem,
 			 typename ContactData, typename ContactItem>
 	void updateContactTags(TagContainer *p, typename ContactData::Ptr item_data, const QStringList &tags);
@@ -105,21 +105,21 @@ protected:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 					  int row, int column, const QModelIndex &parent);
 	void timerEvent(QTimerEvent *timerEvent);
-	void handleNotification(qutim_sdk_0_3::Notification *notification);
-	QIcon getIconForNotification(qutim_sdk_0_3::Notification *notification) const;
+	void handleNotification(Ureen::Notification *notification);
+	QIcon getIconForNotification(Ureen::Notification *notification) const;
 	static void setEncodedData(QMimeData *mimeData, const QString &type, const QModelIndex &index);
 	static ItemHelper *decodeMimeData(const QMimeData *mimeData, const QString &type);
-	void setContactsComparator(qutim_sdk_0_3::ContactComparator *comparator);
+	void setContactsComparator(Ureen::ContactComparator *comparator);
 private slots:
 	void init();
 	void onNotificationFinished();
 	void onContactDestroyed();
-	void onContactChanged(qutim_sdk_0_3::Contact *contact);
+	void onContactChanged(Ureen::Contact *contact);
 	void onServiceChanged(QObject *now, QObject *old);
 protected:
 	virtual void filterAllList() = 0;
-	virtual void updateContactData(qutim_sdk_0_3::Contact *contact) = 0;
-	virtual void doContactChange(qutim_sdk_0_3::Contact *contact) = 0;
+	virtual void updateContactData(Ureen::Contact *contact) = 0;
+	virtual void doContactChange(Ureen::Contact *contact) = 0;
 	virtual void processEvent(ChangeEvent *ev) = 0;
 protected:
 	QScopedPointer<AbstractContactModelPrivate> d_ptr;

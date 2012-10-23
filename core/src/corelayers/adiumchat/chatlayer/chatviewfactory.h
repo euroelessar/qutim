@@ -28,7 +28,7 @@
 #include <QWidget>
 #include "chatlayer_global.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatSession;
 class ChatUnit;
@@ -63,9 +63,9 @@ class ChatViewController
 {
 public:
 	virtual ~ChatViewController() {}
-	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session) = 0;
-	virtual qutim_sdk_0_3::ChatSession *getSession() const = 0;
-	virtual void appendMessage(const qutim_sdk_0_3::Message &msg) = 0;
+	virtual void setChatSession(Ureen::ChatSession *session) = 0;
+	virtual Ureen::ChatSession *getSession() const = 0;
+	virtual void appendMessage(const Ureen::Message &msg) = 0;
 	virtual void clearChat() {}
 	virtual QString quote() { return QString(); }
 };

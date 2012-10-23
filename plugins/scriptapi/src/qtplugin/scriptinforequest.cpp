@@ -27,7 +27,7 @@
 #include <QScriptEngine>
 #include <qutim/debug.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
 									 InfoRequest *parent)
@@ -39,8 +39,8 @@ ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValu
 		return;
 	}
 	debug() << Q_FUNC_INFO;
-	connect(parent, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
-			SLOT(onStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+	connect(parent, SIGNAL(stateChanged(Ureen::InfoRequest::State)),
+			SLOT(onStateChanged(Ureen::InfoRequest::State)));
 	connect(this, SIGNAL(destroyed()), parent, SLOT(deleteLater()));
 
 	InfoRequest::State state = parent->state();
@@ -50,7 +50,7 @@ ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValu
 		onStateChanged(state);
 }
 
-void ScriptInfoRequest::onStateChanged(qutim_sdk_0_3::InfoRequest::State state)
+void ScriptInfoRequest::onStateChanged(Ureen::InfoRequest::State state)
 {
 	debug() << Q_FUNC_INFO << state;
 	if (state == InfoRequest::Requesting)

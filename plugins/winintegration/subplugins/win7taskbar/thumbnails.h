@@ -28,7 +28,7 @@
 
 #include <QObject>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class ChatSession;
 }
@@ -46,7 +46,7 @@ public:
 public slots:
 	void onChatwindowDestruction(QObject*);
 	void onSessionActivated(bool);
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *);
+	void onSessionCreated(Ureen::ChatSession *);
 	void onUnreadChanged(unsigned, unsigned);
 	void reloadSetting();
 

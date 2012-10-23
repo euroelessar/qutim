@@ -28,7 +28,7 @@
 #include <QStyle>
 #include <qutim/icon.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 LineEdit::LineEdit(QWidget *parent)
 	: QLineEdit(parent)

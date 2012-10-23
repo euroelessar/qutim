@@ -39,14 +39,14 @@ class SubmitPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-    SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent);
+    SubmitPage(Ureen::StatisticsHelper *helper, QWizard *parent);
 
 	virtual bool validatePage();
 private:
 	QCheckBox *m_submitBox;
 	QCheckBox *m_dontAskLater;
 	QTextBrowser *m_information;
-	qutim_sdk_0_3::StatisticsHelper *m_helper;
+	Ureen::StatisticsHelper *m_helper;
 };
 
 } // namespace Core

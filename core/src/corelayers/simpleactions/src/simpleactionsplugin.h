@@ -30,7 +30,7 @@
 namespace Core {
 
 class SimpleActions;
-class SimpleActionsPlugin : public qutim_sdk_0_3::Plugin
+class SimpleActionsPlugin : public Ureen::Plugin
 {
     Q_OBJECT
 	Q_CLASSINFO("Uses", "ContactInfo")

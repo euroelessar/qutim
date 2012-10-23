@@ -29,9 +29,9 @@
 #include <QAbstractListModel>
 #include <qutim/filetransfer.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::FileTransferJob*);
+Q_DECLARE_METATYPE(Ureen::FileTransferJob*);
 
 namespace Core {
 

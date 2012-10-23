@@ -27,7 +27,7 @@
 #include <QFileInfo>
 #include <QTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 	

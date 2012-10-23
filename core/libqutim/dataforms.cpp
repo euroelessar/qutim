@@ -32,7 +32,7 @@ Q_DECLARE_METATYPE(QList<QPixmap>)
 Q_DECLARE_METATYPE(QList<QImage>)
 Q_DECLARE_METATYPE(QValidator*)
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class DataItemPrivate : public DynamicPropertyData
 {

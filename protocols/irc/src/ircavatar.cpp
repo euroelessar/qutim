@@ -33,9 +33,9 @@
 #include <QCryptographicHash>
 #include <qutim/systeminfo.h>
 
-Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::irc::IrcContact>)
+Q_DECLARE_METATYPE(QWeakPointer<Ureen::irc::IrcContact>)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -115,5 +115,5 @@ QString IrcAvatar::getAvatarDir() const
 	return QString("%1/avatars/irc/").arg(SystemInfo::getPath(SystemInfo::ConfigDir));
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

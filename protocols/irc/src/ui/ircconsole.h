@@ -33,7 +33,7 @@ namespace Ui {
 	class IrcConsoleForm;
 }
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -55,7 +55,7 @@ private:
 	IrcAccount *m_account;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCONSOLE_H
 

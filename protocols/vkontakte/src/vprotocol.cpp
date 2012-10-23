@@ -33,12 +33,12 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static VProtocol *self = 0;
 
 VProtocol::VProtocol() :
-	qutim_sdk_0_3::Protocol()
+	Ureen::Protocol()
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -48,7 +48,7 @@ VProtocol::~VProtocol()
 {
 }
 
-qutim_sdk_0_3::Account *VProtocol::account(const QString &email) const
+Ureen::Account *VProtocol::account(const QString &email) const
 {
 	return m_accounts.value(email);
 }
@@ -79,7 +79,7 @@ void VProtocol::loadAccounts()
 	}
 }
 
-QList<qutim_sdk_0_3::Account *> VProtocol::accounts() const
+QList<Ureen::Account *> VProtocol::accounts() const
 {
 	AccountList list;
 	foreach (VAccount *account, m_accounts)
@@ -87,7 +87,7 @@ QList<qutim_sdk_0_3::Account *> VProtocol::accounts() const
 	return list;
 }
 
-QVariant VProtocol::data(qutim_sdk_0_3::Protocol::DataType type)
+QVariant VProtocol::data(Ureen::Protocol::DataType type)
 {
 	switch (type) {
 	case ProtocolIdName:

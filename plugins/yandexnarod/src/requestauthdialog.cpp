@@ -33,7 +33,7 @@ YandexNarodRequestAuthDialog::YandexNarodRequestAuthDialog(QWidget *parent) : QD
 	ui.frameCaptcha->hide();
 	this->setFixedHeight(180);
 	this->setMaximumHeight(180);
-	qutim_sdk_0_3::centerizeWidget(this);
+	Ureen::centerizeWidget(this);
 }
 
 

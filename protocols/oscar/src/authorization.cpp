@@ -32,7 +32,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/tooltip.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -85,10 +85,10 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		QString reason = sn.read<QString, qint16>();
 		IcqContact *contact = conn->account()->getContact(uin, true);
 		if (contact) {
-			QEvent *event = new qutim_sdk_0_3::Authorization::Reply(qutim_sdk_0_3::Authorization::Reply::New,
+			QEvent *event = new Ureen::Authorization::Reply(Ureen::Authorization::Reply::New,
 																	contact,
 																	reason);
-			qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
+			qApp->postEvent(Ureen::Authorization::service(),event);
 		}
 		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
@@ -104,11 +104,11 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			if(reason.isEmpty())
 				reason = isAccepted ? QT_TRANSLATE_NOOP("ContactList", "Authorization request accepted")
 									: QT_TRANSLATE_NOOP("ContactList", "Authorization request declined");
-			QEvent *event = new qutim_sdk_0_3::Authorization::Reply(isAccepted ? qutim_sdk_0_3::Authorization::Reply::Accepted
-																			   : qutim_sdk_0_3::Authorization::Reply::Rejected,
+			QEvent *event = new Ureen::Authorization::Reply(isAccepted ? Ureen::Authorization::Reply::Accepted
+																			   : Ureen::Authorization::Reply::Rejected,
 																	contact,
 																	reason);
-			qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
+			qApp->postEvent(Ureen::Authorization::service(),event);
 		}
 		debug() << "Auth response" << uin << isAccepted << reason;
 		break;
@@ -140,9 +140,9 @@ void Authorization::onSendRequestClicked(QObject *object)
 {
 	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
 	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
-	QEvent *event = new qutim_sdk_0_3::Authorization::Request(contact,
+	QEvent *event = new Ureen::Authorization::Request(contact,
 															  QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"));
-	qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
+	qApp->postEvent(Ureen::Authorization::service(),event);
 }
 
 void Authorization::onGrantAuthClicked(QObject *object)
@@ -179,5 +179,5 @@ void Authorization::onAuthChanged(IcqContact *contact, bool auth)
 	contact->setStatus(status, false);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

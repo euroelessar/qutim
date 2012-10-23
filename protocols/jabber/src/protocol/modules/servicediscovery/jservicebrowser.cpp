@@ -42,7 +42,7 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum { ItemRole = Qt::UserRole + 1};
 
 JServiceBrowserModule::JServiceBrowserModule()

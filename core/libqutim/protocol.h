@@ -31,7 +31,7 @@
 
 class QWizardPage;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ExtensionInfo;
 class Contact;
@@ -92,19 +92,19 @@ public:
     QString id() const;
     QStringList supportedAccountParameters() const;
     Q_INVOKABLE Account *createAccount(const QString &id, const QVariantMap &parameters);
-    Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
-    Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
+    Q_INVOKABLE virtual QList<Ureen::Account*> accounts() const = 0;
+    Q_INVOKABLE virtual Ureen::Account *account(const QString &id) const = 0;
     virtual QVariant data(DataType type);
     /*!
           Remove account from qutIM, protocols can reimplement this method.
           Be careful, this method actually delete your account.
           It is recommended to display a confirmation dialog box.
         */
-    Q_INVOKABLE virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
+    Q_INVOKABLE virtual void removeAccount(Ureen::Account *account, RemoveFlag flags = DeleteAccount);
     static ProtocolHash all();
 signals:
-    void accountCreated(qutim_sdk_0_3::Account *);
-    void accountRemoved(qutim_sdk_0_3::Account *);
+    void accountCreated(Ureen::Account *);
+    void accountRemoved(Ureen::Account *);
 protected:
     virtual void virtual_hook(int id, void *data);
 private:

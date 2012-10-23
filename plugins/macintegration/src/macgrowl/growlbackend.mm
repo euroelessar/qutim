@@ -38,7 +38,7 @@
 -(void) ClickCallback;  // Called when user clicks on notification.
 @end
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 @implementation GrowlInterface
 
@@ -90,7 +90,7 @@ using namespace qutim_sdk_0_3;
 }
 
 -(void) ClickCallback {
-	qutim_sdk_0_3::debug() << "Growl notification clicked!";
+	Ureen::debug() << "Growl notification clicked!";
 	return;
 }
 

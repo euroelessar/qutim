@@ -35,7 +35,7 @@
 #include "cryptoservice.h"
 #include "debug.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();

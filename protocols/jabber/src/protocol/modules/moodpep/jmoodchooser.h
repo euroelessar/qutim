@@ -30,7 +30,7 @@
 #include <qutim/actiongenerator.h>
 
 class QListWidgetItem;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Account;
 }
 
@@ -44,7 +44,7 @@ class JMoodChooserWindow : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit JMoodChooserWindow(qutim_sdk_0_3::Account *account, const QString &text,
+	explicit JMoodChooserWindow(Ureen::Account *account, const QString &text,
 								const QString &mood, QWidget *parent = 0);
 	~JMoodChooserWindow();
 private slots:
@@ -52,7 +52,7 @@ private slots:
 	void onCurrentItemChanged(QListWidgetItem *item);
 private:
 	Ui::JMoodChooserWindow *ui;
-	qutim_sdk_0_3::Account *m_account;
+	Ureen::Account *m_account;
 	QListWidgetItem *m_noMoodItem;
 };
 
@@ -62,25 +62,25 @@ class JMoodChooser : public QObject, public JabberExtension
 	Q_INTERFACES(Jabber::JabberExtension)
 public:
 	JMoodChooser();
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 private slots:
 	void showMoodChooser(QObject *obj);
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 private:
 	int m_eventId;
-	qutim_sdk_0_3::Account *m_account;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_actionGenerator;
+	Ureen::Account *m_account;
+	QScopedPointer<Ureen::ActionGenerator> m_actionGenerator;
 	QString m_currentMood;
 	QString m_currentText;
 };
 
-class JMoodChooserAction : public qutim_sdk_0_3::ActionGenerator
+class JMoodChooserAction : public Ureen::ActionGenerator
 {
 public:
-	JMoodChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+	JMoodChooserAction(const QIcon &icon, const Ureen::LocalizedString &text,
 					   const QObject *receiver, const char *member);
-	JMoodChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+	JMoodChooserAction(const QIcon &icon, const Ureen::LocalizedString &text,
 					   const char *member);
 protected:
 	virtual void showImpl(QAction *action, QObject *obj);

@@ -57,7 +57,7 @@
 #include <QTimer>
 
 using namespace Jreen;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Jabber
 {
@@ -184,7 +184,7 @@ JMUCSession::~JMUCSession()
 		delete filter;
 }
 
-qutim_sdk_0_3::Buddy *JMUCSession::me() const
+Ureen::Buddy *JMUCSession::me() const
 {
 	Q_D(const JMUCSession);
 	return d->users.value(d->room->nick());
@@ -285,7 +285,7 @@ QString JMUCSession::id() const
 	return d->room->id();
 }
 
-bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
+bool JMUCSession::sendMessage(const Ureen::Message &message)
 {
 	Q_D(JMUCSession);
 	debug() << d->jid;
@@ -318,7 +318,7 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	return true;
 }
 
-bool JMUCSession::sendPrivateMessage(JMUCUser *user, const qutim_sdk_0_3::Message &message)
+bool JMUCSession::sendPrivateMessage(JMUCUser *user, const Ureen::Message &message)
 {
 	Q_D(JMUCSession);
 	if (account()->status() == Status::Offline)
@@ -492,14 +492,14 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 			filter->filter(msg);
 		if (msg.body().isEmpty())
 			return;
-		qutim_sdk_0_3::Message coreMsg(msg.body());
+		Ureen::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(user);
 		coreMsg.setIncoming(true); // msg.from().resource() != d->room->nick());
 		ChatSession *chatSession = ChatLayer::get(user, true);
 		chatSession->appendMessage(coreMsg);
 	} else {
 		d->lastMessage = QDateTime::currentDateTime();
-		qutim_sdk_0_3::Message coreMsg(msg.body());
+		Ureen::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(this);
 		coreMsg.setProperty("senderName", nick);
 		if (user)
@@ -516,7 +516,7 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		if (!coreMsg.isIncoming() && !when) {
 			QHash<QString, quint64>::iterator it = d->messages.find(msg.id());
 			if (it != d->messages.end()) {
-				qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
+				qApp->postEvent(chatSession, new Ureen::MessageReceiptEvent(it.value(), true));
 				d->messages.erase(it);
 			}
 			return;
@@ -563,7 +563,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	if (!msg.subject().isEmpty())
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
-	qutim_sdk_0_3::Message coreMsg(msg.body());
+	Ureen::Message coreMsg(msg.body());
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
 	coreMsg.setProperty("silent", true);
@@ -587,7 +587,7 @@ void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 	Q_D(JMUCSession);
 	if (d->topic == subject)
 		return;
-	qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % subject);
+	Ureen::Message msg(tr("Subject:") % "\n" % subject);
 	msg.setChatUnit(this);
 	msg.setTime(QDateTime::currentDateTime());
 	msg.setProperty("topic", true);
@@ -795,7 +795,7 @@ void JMUCSession::setAutoJoin(bool join)
 	d_func()->isAutoRejoin = join;
 }
 
-void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
+void JMUCSession::invite(Ureen::Contact *contact, const QString &reason)
 {
 	d_func()->room->invite(contact->id(), reason);
 }

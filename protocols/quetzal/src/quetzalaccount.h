@@ -32,12 +32,12 @@
 #include <qutim/rosterstorage.h>
 #include <QBasicTimer>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class QuetzalProtocol;
 struct QuetzalAccountPasswordInfo;
 
-class QuetzalContactsFactory : public qutim_sdk_0_3::ContactsFactory
+class QuetzalContactsFactory : public Ureen::ContactsFactory
 {
 public:
 	QuetzalContactsFactory(QuetzalAccount *account);

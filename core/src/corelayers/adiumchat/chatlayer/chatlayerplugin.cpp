@@ -78,7 +78,7 @@ protected:
 	}
 };
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void ChatLayerPlugin::init()
 {

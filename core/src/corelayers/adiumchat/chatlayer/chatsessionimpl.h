@@ -36,7 +36,7 @@ class QAbstractItemModel;
 class QWebPage;
 class ChatViewController;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
 }
@@ -46,7 +46,7 @@ namespace Core
 namespace AdiumChat
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class ChatStyleOutput;
 class ChatSessionModel;
 class ChatSessionImplPrivate;
@@ -82,7 +82,7 @@ public:
 	bool isJavaScriptSupported() const;
 signals:
 	void buddiesChanged();
-	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);
+	void chatUnitChanged(Ureen::ChatUnit *);
 	void javaScriptSupportChanged(bool has);
 	void controllerDestroyed(QObject *);
 public slots:

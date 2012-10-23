@@ -26,7 +26,7 @@
 #include "updateaccountinfometarequest.h"
 #include "tlvbasedmetarequest_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -58,5 +58,5 @@ bool UpdateAccountInfoMetaRequest::handleData(quint16 type, const DataUnit &data
 	return false;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

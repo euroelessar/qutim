@@ -33,7 +33,7 @@
 #include <QVariantMap>
 #include <QCoreApplication>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ChatSession;
 class Message;
 }
@@ -65,11 +65,11 @@ public:
 	
 	void setStylePath(const QString &path);
 	void setCustomStyle(const QString &style);
-	QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session);
-	QString templateForContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
+	QString baseTemplateForChat(Ureen::ChatSession *session);
+	QString templateForContent(const Ureen::Message &message, bool contentIsSimilar);
 	QString scriptForChangingVariant();
 	QString scriptForSettingCustomStyle();
-	QString scriptForAppendingContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent);
+	QString scriptForAppendingContent(const Ureen::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent);
 	QStringList variants();
 	QString defaultVariant() const;
 	QString activeVariant() const;
@@ -115,9 +115,9 @@ private:
 	QStringList validSenderColors();
 	void loadTemplates();
 	void releaseResources();
-	UnitData getSourceData(const qutim_sdk_0_3::Message &message);
-	QString &fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
-	QString &fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session);
+	UnitData getSourceData(const Ureen::Message &message);
+	QString &fillKeywords(QString &inString, const Ureen::Message &message, bool contentIsSimilar);
+	QString &fillKeywordsForBaseTemplate(QString &inString, Ureen::ChatSession *session);
 	QString stringWithFormat(const QString &str, const QStringList &args);
 	
 	QScopedPointer<WebKitMessageViewStylePrivate> d_ptr;

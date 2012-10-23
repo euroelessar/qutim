@@ -28,7 +28,7 @@
 #include "icqcontact.h"
 #include "oscarstatus.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -189,5 +189,5 @@ ContactSearchRequest *OscarContactSearchFactory::request(const QString &name) co
 	return new OscarContactSearch(acc);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

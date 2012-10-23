@@ -29,7 +29,7 @@
 #include "ircctcphandler.h"
 #include <QNetworkAccessManager>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -56,7 +56,7 @@ private:
 	static IrcAvatar *self;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCAVATAR_H
 

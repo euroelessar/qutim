@@ -29,7 +29,7 @@
 #include <qutim/plugin.h>
 #include "formulahandler.h"
 
-class FormulaPlugin : public qutim_sdk_0_3::Plugin
+class FormulaPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Formula")

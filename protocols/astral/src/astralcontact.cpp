@@ -32,7 +32,7 @@ struct AstralContactPrivate
 	QStringList tags;
 };
 
-AstralContact::AstralContact(AstralAccount *acc, const ContactPtr &impl) : qutim_sdk_0_3::Contact(acc), p(new AstralContactPrivate)
+AstralContact::AstralContact(AstralAccount *acc, const ContactPtr &impl) : Ureen::Contact(acc), p(new AstralContactPrivate)
 {
 	p->impl = impl;
 	connect(p->impl.data(), SIGNAL(aliasChanged(QString)), this, SIGNAL(nameChanged(QString)));
@@ -51,7 +51,7 @@ QString AstralContact::id() const
 	return p->impl->id();
 }
 
-bool AstralContact::sendMessage(const qutim_sdk_0_3::Message &message)
+bool AstralContact::sendMessage(const Ureen::Message &message)
 {
 //	p->impl->
 	Q_UNUSED(message);

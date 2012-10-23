@@ -32,7 +32,7 @@
 #include <QHash>
 #include <QIcon>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class NetworkProxyManagerPrivate
@@ -281,5 +281,5 @@ HttpProxyInfo::HttpProxyInfo()
 {
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 

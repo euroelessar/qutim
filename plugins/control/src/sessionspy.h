@@ -31,12 +31,12 @@
 
 namespace Control {
 
-class SessionSpy : public qutim_sdk_0_3::MessageHandler
+class SessionSpy : public Ureen::MessageHandler
 {
 public:
 	SessionSpy();
 
-	static void install(qutim_sdk_0_3::ChatSession *session);
+	static void install(Ureen::ChatSession *session);
 };
 
 } // namespace Control

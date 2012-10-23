@@ -45,7 +45,7 @@
 
 const static int qutimId = 1865463;
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 VAccount::VAccount(const QString &email, VProtocol *protocol) :
 	Account(email, protocol),

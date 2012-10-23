@@ -50,7 +50,7 @@ public:
 	virtual bool validatePage();
 	virtual bool isComplete() const;
 	virtual int nextId() const;
-	qutim_sdk_0_3::LocalizedString fieldText(Jreen::RegistrationData::FieldType type);
+	Ureen::LocalizedString fieldText(Jreen::RegistrationData::FieldType type);
 	
 private slots:
 	void onFieldsReceived(const Jreen::RegistrationData &data);
@@ -63,7 +63,7 @@ private:
 	Jreen::Client *m_client;
 	Jreen::RegistrationManager *m_manager;
 	JDataForm *m_jabberForm;
-	qutim_sdk_0_3::AbstractDataForm *m_form;
+	Ureen::AbstractDataForm *m_form;
 	QString m_error;
 	bool m_registered;
 };

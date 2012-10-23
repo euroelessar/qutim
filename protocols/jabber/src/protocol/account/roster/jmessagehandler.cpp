@@ -65,7 +65,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 				id = message.id(); //for slowpoke client such as Miranda			
 			if(unit)
 				qApp->postEvent(ChatLayer::get(unit),
-								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+								new Ureen::MessageReceiptEvent(id.toUInt(), true));
 		} else {
 			//TODO send this request only when message marked as read
 			Jreen::Message request(Jreen::Message::Chat,
@@ -81,7 +81,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 	Jreen::ChatState *state = message.payload<Jreen::ChatState>().data();
 	if(state) {
 		if(unit)
-			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
+			unit->setChatState(static_cast<Ureen::ChatState>(state->state()));
 	}
 }
 
@@ -148,7 +148,7 @@ void JMessageSessionManager::handleMessage(const Jreen::Message &message)
 	return Jreen::MessageSessionManager::handleMessage(message);
 }
 
-void JMessageSessionManager::sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qutim_sdk_0_3::Message &message)
+void JMessageSessionManager::sendMessage(Ureen::ChatUnit *unit, const Ureen::Message &message)
 {
 	JID jid = unit->id();
 	Jreen::MessageSession *s = session(jid, Jreen::Message::Chat, true);

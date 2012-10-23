@@ -45,7 +45,7 @@ public:
 	~PackageDownloadDialog();
 	
 private:
-	qutim_sdk_0_3::DeclarativeView *m_view;
+	Ureen::DeclarativeView *m_view;
 };
 
 #endif // PACKAGEDOWNLOADDIALOG_H

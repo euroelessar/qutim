@@ -44,7 +44,7 @@
 #include <qutim/plugin.h>
 #include <qutim/settingslayer.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum ShowFlag
 {
@@ -106,7 +106,7 @@ enum SelectionTypes
 	Down   = 5000000
 };
 
-class OldContactDelegatePlugin : public qutim_sdk_0_3::Plugin
+class OldContactDelegatePlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "OldContactDelegate")
@@ -232,7 +232,7 @@ private:
 	int m_margin;
 	QMap<QString,QVariant> m_styleHash;
 private:
-//	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settings;
+//	QScopedPointer<Ureen::SettingsItem> m_settings;
 	ShowFlags m_showFlags;
 	QHash<QString, bool> m_extInfo;
 	int m_statusIconSize;

@@ -31,7 +31,7 @@
 #include <QDBusConnection>
 #include <qutim/contact.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ContactAdaptor : public QDBusAbstractAdaptor
 {

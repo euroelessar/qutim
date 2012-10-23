@@ -31,7 +31,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/config.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -44,9 +44,9 @@ public:
 	virtual void saveSettings(const DataItem &item, Config cfg) = 0;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::SettingsExtension, "org.qutim.oscar.SettingsExtension");
+Q_DECLARE_INTERFACE(Ureen::oscar::SettingsExtension, "org.qutim.oscar.SettingsExtension");
 
 #endif // SETTINGSEXTENSION_H
 

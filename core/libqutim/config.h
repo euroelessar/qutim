@@ -31,7 +31,7 @@
 #include <QSharedData>
 #include <QMetaTypeId>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 #ifndef Q_QDOC
 namespace EnumDetectorHelper
@@ -282,15 +282,15 @@ Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const char (&value)[
 
 // Config() is synonym for Config("profile"), so redefine construct method for it
 template <>
-Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<qutim_sdk_0_3::Config>(const qutim_sdk_0_3::Config *t)
+Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<Ureen::Config>(const Ureen::Config *t)
 {
 if (!t) {
-	return new qutim_sdk_0_3::Config(QVariantMap());
+	return new Ureen::Config(QVariantMap());
 }
-return new qutim_sdk_0_3::Config(*t);
+return new Ureen::Config(*t);
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Config)
+Q_DECLARE_METATYPE(Ureen::Config)
 
 #endif // CONFIG_H
 

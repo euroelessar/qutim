@@ -96,7 +96,7 @@ ChatSessionImpl::~ChatSessionImpl()
 
 void ChatSessionImpl::addContact(Buddy* c)
 {
-	//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	//		connect(c,SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),SLOT(statusChanged(Ureen::Status)));
 	d_func()->model.data()->addContact(c);
 	emit buddiesChanged();
 }

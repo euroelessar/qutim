@@ -29,7 +29,7 @@
 #include "qutim/protocol.h"
 #include <QWizardPage>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -50,7 +50,7 @@ private:
 class IcqAccountCreationWizard: public AccountCreationWizard
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	IcqAccountCreationWizard();
 	~IcqAccountCreationWizard();
@@ -59,7 +59,7 @@ private:
 	IcqAccWizardPage *m_page;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ACCOUNTCREATOR_H
 

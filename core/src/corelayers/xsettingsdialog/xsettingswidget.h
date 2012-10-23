@@ -33,7 +33,7 @@
 
 namespace Core {
 
-class XSettingsWidget : public qutim_sdk_0_3::SettingsWidget
+class XSettingsWidget : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:
@@ -41,8 +41,8 @@ public:
 
 	virtual void setController(QObject *controller);
 
-	void addItem(qutim_sdk_0_3::SettingsItem *item);
-	bool removeItem(qutim_sdk_0_3::SettingsItem *item);
+	void addItem(Ureen::SettingsItem *item);
+	bool removeItem(Ureen::SettingsItem *item);
 
 protected:
 	virtual void loadImpl();
@@ -54,7 +54,7 @@ private slots:
 
 private:
 	QObject *m_controller;
-	qutim_sdk_0_3::SettingsItemList m_items;
+	Ureen::SettingsItemList m_items;
 	QList<SettingsWidget*> m_widgets;
 	QSet<QObject*> m_changed;
 	QVBoxLayout *m_layout;

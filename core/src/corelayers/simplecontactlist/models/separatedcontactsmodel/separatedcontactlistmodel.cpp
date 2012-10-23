@@ -390,12 +390,12 @@ void SeparatedModel::contactTagsChanged(const QStringList &tags_helper)
 			accountItem, item_data, tags_helper);
 }
 
-AccountItem *SeparatedModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+AccountItem *SeparatedModel::onAccountCreated(Ureen::Account *account)
 {
 	return addAccount(account, true);
 }
 
-AccountItem *SeparatedModel::addAccount(qutim_sdk_0_3::Account *account, bool addContacts)
+AccountItem *SeparatedModel::addAccount(Ureen::Account *account, bool addContacts)
 {
 	Q_D(SeparatedModel);
 	AccountItem *item = new AccountItem;
@@ -411,8 +411,8 @@ AccountItem *SeparatedModel::addAccount(qutim_sdk_0_3::Account *account, bool ad
 		foreach (Contact *contact, account->findChildren<Contact*>())
 			addContact(contact);
 	}
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			this, SLOT(addContact(Ureen::Contact*)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(onAccountDestroyed(QObject*)));
 	return item;
@@ -443,17 +443,17 @@ void SeparatedModel::init()
 	delete initData;
 }
 
-void SeparatedModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts_helper)
+void SeparatedModel::setContacts(const QList<Ureen::Contact*> &contacts_helper)
 {
 	Q_D(SeparatedModel);
 	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				this, SLOT(onAccountCreated(Ureen::Account*)));
 		foreach(Account *account, proto->accounts())
 			addAccount(account, d->initData);
 	}
 
-	QList<qutim_sdk_0_3::Contact*> contacts;
+	QList<Ureen::Contact*> contacts;
 	if (d->initData) {
 		contacts = d->initData->contacts;
 		d->initData = 0;

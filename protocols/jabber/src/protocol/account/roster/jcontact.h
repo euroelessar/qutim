@@ -36,14 +36,14 @@ namespace Jreen
 class Presence;
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class InfoRequest;
 }
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JContactPrivate;
 class JContactResource;
@@ -60,7 +60,7 @@ public:
 	JContact(const QString &jid, JAccount *account);
 	~JContact();
 	QString id() const;
-	bool sendMessage(const qutim_sdk_0_3::Message &message);
+	bool sendMessage(const Ureen::Message &message);
 	void setName(const QString &name);
 	void setContactName(const QString &name);
 	void setTags(const QStringList &tags);
@@ -104,7 +104,7 @@ protected:
 	void fillMaxResource();
 	virtual bool event(QEvent *event);
 private slots:
-	void resourceStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void resourceStatusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 private:
 	friend class JRoster;
 	QScopedPointer<JContactPrivate> d_ptr;

@@ -30,7 +30,7 @@
 #include <qutim/status.h>
 
 namespace Core {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class AddContactPrivate;
 
 class AddContact : public QDialog
@@ -46,14 +46,14 @@ public:
 	void setContactTags(const QStringList &tags);
 protected:
 	void setAccount(Account *account);
-	void changeState(Account *account, const qutim_sdk_0_3::Status &status);
+	void changeState(Account *account, const Ureen::Status &status);
 private slots:
 	void on_okButton_clicked();
 	void on_cancelButton_clicked();
 	void onStartChatClicked();
 	void onShowInfoClicked();
 	void setAccount();
-	void changeState(const qutim_sdk_0_3::Status &status);
+	void changeState(const Ureen::Status &status);
 	void currentChanged(int index);
 private:
 	QScopedPointer<AddContactPrivate> d_ptr;
@@ -69,7 +69,7 @@ public:
 	AddContactModule();
 	~AddContactModule();
 public slots:
-	void show(qutim_sdk_0_3::Account *account, const QString &id = QString(),
+	void show(Ureen::Account *account, const QString &id = QString(),
 	          const QString &name = QString(), const QStringList &tags = QStringList());
 private slots:
 	void show();

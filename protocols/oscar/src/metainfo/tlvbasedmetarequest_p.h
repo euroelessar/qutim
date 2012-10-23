@@ -30,7 +30,7 @@
 #include "abstractmetarequest_p.h"
 #include "../tlv.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -47,7 +47,7 @@ public:
 	MetaInfoValuesHash values;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // TLVBASEDMETAINFOREQUEST_P_H
 

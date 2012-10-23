@@ -38,7 +38,7 @@
 #include <vcontact.h>
 #include <vaccount.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 VPhotoViewer::VPhotoViewer(QObject *parent) :
     QObject(parent)

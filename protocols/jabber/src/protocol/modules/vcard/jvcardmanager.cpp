@@ -157,15 +157,15 @@ public:
 	using Account::setInfoRequestFactory;
 };
 
-void JVCardManager::init(qutim_sdk_0_3::Account *account)
+void JVCardManager::init(Ureen::Account *account)
 {
 	m_account = account;
 	Config config = m_account->protocol()->config("general");
 	m_autoLoad = config.value("getavatars", true);
 	m_client = qobject_cast<Jreen::Client*>(account->property("client"));
 	m_manager = new Jreen::VCardManager(m_client);
-	connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(m_account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status,Ureen::Status)));
 	connect(m_manager, SIGNAL(vCardFetched(Jreen::VCard::Ptr,Jreen::JID)),
 	        SLOT(onVCardReceived(Jreen::VCard::Ptr,Jreen::JID)));
 	connect(m_manager, SIGNAL(vCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)),
@@ -219,8 +219,8 @@ bool JVCardManager::stopObserve(QObject *object)
 	return false;
 }
 
-void JVCardManager::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-										   const qutim_sdk_0_3::Status &previous)
+void JVCardManager::onAccountStatusChanged(const Ureen::Status &status,
+										   const Ureen::Status &previous)
 {
 	bool isOnline = isStatusOnline(status);
 	bool wasOnline = isStatusOnline(previous);

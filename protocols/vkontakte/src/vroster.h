@@ -32,9 +32,9 @@
 #include <qutim/status.h>
 #include <QTimer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ContactsFactory;
-} //namespace qutim_sdk_0_3
+} //namespace Ureen
 
 namespace Vreen {
 class Roster;
@@ -59,7 +59,7 @@ public:
 	VContact *contact(int id) const;
 	VGroupChat *groupChat(int id, bool create = true);
 	VGroupChat *groupChat(int id) const;
-	qutim_sdk_0_3::ContactsFactory *contactsFactory() const;
+	Ureen::ContactsFactory *contactsFactory() const;
 protected slots:
 	VContact *createContact(Vreen::Buddy *buddy);
 private slots:

@@ -31,7 +31,7 @@
 #include <QDateTime>
 
 class QTextDocument;
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class Account;
@@ -44,15 +44,15 @@ class LIBQUTIM_EXPORT ChatSession : public QObject
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ChatSession)
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
-	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
+	Q_PROPERTY(Ureen::MessageList unread READ unread NOTIFY unreadChanged)
 	Q_PROPERTY(QDateTime dateOpened READ dateOpened WRITE setDateOpened NOTIFY dateOpenedChanged)
 public:
 	virtual ~ChatSession();
 	
 	virtual ChatUnit *getUnit() const = 0;
-	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
-	Q_INVOKABLE virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
-	Q_INVOKABLE qint64 append(qutim_sdk_0_3::Message &message);
+	Q_INVOKABLE inline Ureen::ChatUnit *unit() const { return getUnit(); }
+	Q_INVOKABLE virtual void setChatUnit(Ureen::ChatUnit* unit) = 0;
+	Q_INVOKABLE qint64 append(Ureen::Message &message);
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
@@ -60,24 +60,24 @@ public:
 	QDateTime dateOpened() const;
 	void setDateOpened(const QDateTime &date);
 public slots:
-	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
-	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
-	qint64 appendMessage(qutim_sdk_0_3::Message &message);
+	virtual void addContact(Ureen::Buddy *c) = 0;
+	virtual void removeContact(Ureen::Buddy *c) = 0;
+	qint64 appendMessage(Ureen::Message &message);
 	void setActive(bool active);
 	inline void activate() { setActive(true); }
 	inline qint64 appendMessage(const QString &text)
 	{ Message msg(text); return appendMessage(msg); }
 protected:
 	virtual void doSetActive(bool active) = 0;
-	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
+	virtual qint64 doAppendMessage(Ureen::Message &message) = 0;
 signals:
 	void dateOpenedChanged(const QDateTime &date);
-	void messageReceived(qutim_sdk_0_3::Message *message);
-	void messageSent(qutim_sdk_0_3::Message *message);
-	void contactAdded(qutim_sdk_0_3::Buddy *c);
-	void contactRemoved(qutim_sdk_0_3::Buddy *c);
+	void messageReceived(Ureen::Message *message);
+	void messageSent(Ureen::Message *message);
+	void contactAdded(Ureen::Buddy *c);
+	void contactRemoved(Ureen::Buddy *c);
 	void activated(bool active);
-	void unreadChanged(const qutim_sdk_0_3::MessageList &);
+	void unreadChanged(const Ureen::MessageList &);
 protected:
 	ChatSession(ChatLayer *chat);
 	virtual void virtual_hook(int id, void *data);
@@ -99,16 +99,16 @@ public:
 	ChatSession *getSession(QObject *obj, bool create = true);
 	ChatSession *getSession(Account *acc, const QString &id, bool create = true);
 	virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
-	Q_INVOKABLE inline qutim_sdk_0_3::ChatSession *session(QObject *obj, bool create = true);
+	Q_INVOKABLE inline Ureen::ChatSession *session(QObject *obj, bool create = true);
 	static ChatSession *get(ChatUnit *unit, bool create = true);
-	Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatSession*> sessions() = 0;
+	Q_INVOKABLE virtual QList<Ureen::ChatSession*> sessions() = 0;
 	bool isAlerted() const;
 	void alert(bool on);
 	void alert(int msecs);
 	bool event(QEvent *);
 	
 signals:
-	void sessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void sessionCreated(Ureen::ChatSession *session);
 	void alertStatusChanged(bool);
 protected:
 	ChatUnit *getUnitForSession(ChatUnit *unit) const;
@@ -125,8 +125,8 @@ ChatSession *ChatLayer::session(QObject *obj, bool create)
 
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatSession*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatSession*>)
+Q_DECLARE_METATYPE(Ureen::ChatSession*)
+Q_DECLARE_METATYPE(QList<Ureen::ChatSession*>)
 
 #endif // LIBQUTIM_CHATSESSION_H
 

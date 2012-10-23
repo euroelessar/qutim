@@ -30,11 +30,11 @@
 #include <qutim/menucontroller.h>
 #include <qdeclarative.h>
 
-QML_DECLARE_TYPE_HASMETATYPE(qutim_sdk_0_3::MenuController)
+QML_DECLARE_TYPE_HASMETATYPE(Ureen::MenuController)
 
 namespace MeegoIntegration
 {
-class MenuModel : public QAbstractListModel, public qutim_sdk_0_3::ActionHandler
+class MenuModel : public QAbstractListModel, public Ureen::ActionHandler
 {
     Q_OBJECT
 	Q_PROPERTY(QObject* controller READ controller WRITE setController NOTIFY controllerChanged)
@@ -83,8 +83,8 @@ private:
 	Node *ensureNode(const QList<QByteArray> &menu);
 	Node *nodeCast(const QModelIndex &index) const;
 	Node m_root;
-	qutim_sdk_0_3::MenuController *m_controller;
-	qutim_sdk_0_3::ActionContainer m_container;
+	Ureen::MenuController *m_controller;
+	Ureen::ActionContainer m_container;
 	QList<Node::Ptr> m_actions;
 };
 }

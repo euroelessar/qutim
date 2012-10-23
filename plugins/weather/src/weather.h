@@ -30,7 +30,7 @@
 
 #include "wprotocol.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class WeatherPlugin : public Plugin
 {

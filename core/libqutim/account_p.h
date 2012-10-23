@@ -33,7 +33,7 @@
 #include "groupchatmanager_p.h"
 #include "rosterstorage.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class AccountPrivate : public MenuControllerPrivate
 {

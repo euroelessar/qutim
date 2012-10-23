@@ -33,7 +33,7 @@
 #include <qutim/servicemanager.h>
 #include <QVariantMap>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 namespace nowplaying
@@ -83,8 +83,8 @@ bool NowPlaying::load()
 		itr.next();
 		foreach (Account *account, itr.key()->accounts())
 			accountCreated(account);
-		connect(itr.key(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(accountCreated(qutim_sdk_0_3::Account*)));
+		connect(itr.key(), SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(accountCreated(Ureen::Account*)));
 	}
 
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<PlayerFactory>()) {
@@ -240,7 +240,7 @@ void NowPlaying::clearStatuses()
 		account->removeStatus();
 }
 
-void NowPlaying::accountCreated(qutim_sdk_0_3::Account *account)
+void NowPlaying::accountCreated(Ureen::Account *account)
 {
 	AccountTuneStatus *factory = m_factories.value(account->protocol());
 	if (!factory)
@@ -299,5 +299,5 @@ void StopStartActionGenerator::setState(bool isWorking, bool isEnabled)
 
 } }
 
-QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::nowplaying::NowPlaying)
+QUTIM_EXPORT_PLUGIN(Ureen::nowplaying::NowPlaying)
 

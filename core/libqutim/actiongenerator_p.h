@@ -30,7 +30,7 @@
 #include "shortcut_p.h"
 #include <QObjectCleanupHandler>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct LegacyActionData
 {

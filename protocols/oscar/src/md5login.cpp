@@ -31,7 +31,7 @@
 #include <QUrl>
 #include <QNetworkProxy>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -160,5 +160,5 @@ void Md5Login::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

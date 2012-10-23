@@ -38,7 +38,7 @@ class QuickAnswerMenu : public QListWidget
 {
 	Q_OBJECT
 public:
-	QuickAnswerMenu(qutim_sdk_0_3::ChatUnit *contact);
+	QuickAnswerMenu(Ureen::ChatUnit *contact);
 	
 	void mousePressEvent(QMouseEvent *);
 	
@@ -47,10 +47,10 @@ protected slots:
 	void onItemClicked(QListWidgetItem *item);
 	
 private:
-	qutim_sdk_0_3::ChatUnit *m_contact;
+	Ureen::ChatUnit *m_contact;
 };
 
-class QuickAnswerButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class QuickAnswerButtonActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	QuickAnswerButtonActionGenerator(QObject *object, const char *slot);

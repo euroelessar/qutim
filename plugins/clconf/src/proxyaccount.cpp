@@ -30,12 +30,12 @@
 ProxyAccount::ProxyAccount(Account *account) :
 	Account(account->id(), account->protocol()), m_account(account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)));
-	connect(account, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onStatusChanged(Ureen::Status,Ureen::Status)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			SIGNAL(contactCreated(Ureen::Contact*)));
+	connect(account, SIGNAL(conferenceCreated(Ureen::Conference*)),
+			SIGNAL(conferenceCreated(Ureen::Conference*)));
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			SIGNAL(nameChanged(QString,QString)));
 
@@ -65,7 +65,7 @@ ChatUnit *ProxyAccount::getUnit(const QString &unitId, bool create)
 	return m_account->getUnit(unitId, create);
 }
 
-void ProxyAccount::onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+void ProxyAccount::onStatusChanged(const Ureen::Status &current, const Ureen::Status &previous)
 {
 	Account::setStatus(current);
 	emit statusChanged(current, previous);

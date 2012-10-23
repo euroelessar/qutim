@@ -91,7 +91,7 @@
 //typedef QString (*_qutim_system_info_hook)(const QString &os_full, const QString &os_name, const QString &os_version);
 //LIBQUTIM_EXPORT _qutim_system_info_hook qutim_system_info_hook = 0;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct SystemInfoPrivate
 {

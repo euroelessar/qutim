@@ -30,7 +30,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	void EventTest::testE(Event &event)
 	{

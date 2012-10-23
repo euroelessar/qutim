@@ -8,7 +8,7 @@ class QDeclarativeContext;
 class QDeclarativeItem;
 class QUrl;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class DeclarativeViewPrivate;
 
@@ -38,7 +38,7 @@ public:
 	void setResizeMode(ResizeMode);
 signals:
 	void sceneResized(const QSize &size);
-	void statusChanged(qutim_sdk_0_3::DeclarativeView::Status);
+	void statusChanged(Ureen::DeclarativeView::Status);
 protected:
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void setRootObject(QObject *object);
@@ -50,6 +50,6 @@ private:
 	Q_PRIVATE_SLOT(d_func(), void _q_continueExecute())
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // QUTIM_SDK_0_3_DECLARATIVEVIEW_H

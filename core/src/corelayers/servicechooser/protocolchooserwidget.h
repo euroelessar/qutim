@@ -30,7 +30,7 @@
 #include <QHash>
 #include <QModelIndex>
 
-namespace qutim_sdk_0_3 
+namespace Ureen 
 {
 class ExtensionInfo;
 }
@@ -45,7 +45,7 @@ namespace Core
 {
 
 class ServiceItem;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProtocolChoooserWidget : public SettingsWidget
 {

@@ -28,9 +28,9 @@
 
 #include "sound.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
-class SoundHandler : public QObject, public qutim_sdk_0_3::NotificationBackend
+class SoundHandler : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 public:
@@ -38,7 +38,7 @@ public:
 	virtual void handleNotification(Notification *notification);
 };
 
-} //namespace qutim_sdk_0_3
+} //namespace Ureen
 
 #endif // SOUND_P_H
 

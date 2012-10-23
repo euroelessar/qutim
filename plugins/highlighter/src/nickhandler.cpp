@@ -31,7 +31,7 @@
 
 namespace Highlighter {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 NickHandler::NickHandler()
 {

@@ -40,14 +40,14 @@ namespace Ui {
 class JoinGroupChat;
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 }
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class BookmarksModel;
 class JoinGroupChat : public QDialog

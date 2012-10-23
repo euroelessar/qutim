@@ -31,7 +31,7 @@
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class ProfileCreationWizard : public QWizard
 {
 	Q_OBJECT

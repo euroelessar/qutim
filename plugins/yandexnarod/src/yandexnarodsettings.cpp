@@ -27,7 +27,7 @@
 #include "yandexnarodsettings.h"
 #include <qutim/configbase.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 YandexNarodSettings::YandexNarodSettings()
 {

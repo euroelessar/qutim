@@ -27,7 +27,7 @@
 #include "../ircprotocol.h"
 #include "../ircaccount.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -106,5 +106,5 @@ void IrcAccountCreationWizard::finished()
 	account->updateSettings();
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

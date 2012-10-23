@@ -28,7 +28,7 @@
 #include <qutim/debug.h>
 #include <qutim/json.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -95,5 +95,5 @@ extern QTextCodec *detectCodec()
 	return codecWrapper();
 }
 
-} } } // namespace qutim_sdk_0_3::oscar::Util
+} } } // namespace Ureen::oscar::Util
 

@@ -40,7 +40,7 @@ namespace PubSub { class Manager; }
 
 namespace Jabber {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 //using namespace gloox;
 
 class JAccountPrivate;

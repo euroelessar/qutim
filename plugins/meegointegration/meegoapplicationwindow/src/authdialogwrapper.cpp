@@ -102,7 +102,7 @@ void AuthDialogWrapper::cancel()
 	m_currentDialog->cancel(contact(),isIncoming());
 }
 
-void AuthDialogWrapper::showDialog(qutim_sdk_0_3::Contact* contact, const QString message, bool isIncoming, QuickAuthDialog * authDialog)
+void AuthDialogWrapper::showDialog(Ureen::Contact* contact, const QString message, bool isIncoming, QuickAuthDialog * authDialog)
 {
 	m_currentDialog = authDialog;
 	for (int i = 0; i < m_managers()->count();i++)

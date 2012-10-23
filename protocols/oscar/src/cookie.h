@@ -30,7 +30,7 @@
 #include <QSharedPointer>
 #include "dataunit.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -83,7 +83,7 @@ struct fromDataUnitHelper<Cookie>
 	}
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // COOKIE_H
 

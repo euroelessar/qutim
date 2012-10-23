@@ -27,7 +27,7 @@
 #include "scriptenginedata.h"
 #include <QScriptEngine>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ScriptMessageHandlerObject : public MessageHandler
 {
@@ -167,5 +167,5 @@ QString ScriptMessageHandler::name() const
 }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptMessageHandlerObject::Ptr)
+Q_DECLARE_METATYPE(Ureen::ScriptMessageHandlerObject::Ptr)
 

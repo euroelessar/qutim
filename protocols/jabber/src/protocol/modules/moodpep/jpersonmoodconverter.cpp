@@ -31,7 +31,7 @@
 
 namespace Jabber
 {
-	typedef QList<qutim_sdk_0_3::LocalizedString> MoodsNames;
+	typedef QList<Ureen::LocalizedString> MoodsNames;
 	static void init_moods_names(MoodsNames &names)
 	{
 		
@@ -161,14 +161,14 @@ namespace Jabber
 		data.insert(QLatin1String("title"), qVariantFromValue(moodsNames()->value(mood->type())));
 		if (!mood->text().isEmpty())
 			data.insert(QLatin1String("description"), mood->text());
-		qutim_sdk_0_3::ExtensionIcon icon(QLatin1String("user-status-") + mood->typeName());
+		Ureen::ExtensionIcon icon(QLatin1String("user-status-") + mood->typeName());
 		data.insert(QLatin1String("icon"), qVariantFromValue(icon));
 		data.insert(QLatin1String("showInTooltip"), true);
 		data.insert(QLatin1String("priorityInTooltip"), 70);
 		return data;
 	}
 
-	QList<qutim_sdk_0_3::LocalizedString> JPersonMoodConverter::moods()
+	QList<Ureen::LocalizedString> JPersonMoodConverter::moods()
 	{
 		return *moodsNames();
 	}

@@ -31,7 +31,7 @@
 #include <QSharedDataPointer>
 #include <QMetaType>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class PersonInfoData;
 
@@ -145,7 +145,7 @@ PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
 	};
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::PersonInfo)
+Q_DECLARE_METATYPE(Ureen::PersonInfo)
 
 #endif // PERSONINFO_H
 

@@ -34,7 +34,7 @@
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class QuickNoficationManager;
 
@@ -52,14 +52,14 @@ private:
 	QuickNoficationManager *m_manager;
 };
 
-class QuickNoficationManager : public QObject, public qutim_sdk_0_3::NotificationBackend
+class QuickNoficationManager : public QObject, public Ureen::NotificationBackend
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "Popup")
 public:
 	QuickNoficationManager();
 	virtual ~QuickNoficationManager();
-	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+	virtual void handleNotification(Ureen::Notification *notification);
 	void setWindowActive(bool active);
 	void updateNotification();
 	void activate();

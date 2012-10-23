@@ -30,7 +30,7 @@
 #include <QStandardItemModel>
 #include <QWeakPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class MetaContact;
 class Contact;
 }
@@ -46,15 +46,15 @@ public:
     explicit Model(QObject *parent = 0);
 	void setMetaContact(MetaContactImpl*);
 	MetaContactImpl *metaContact() const;
-    QList<qutim_sdk_0_3::Contact*> getContacts() const;
+    QList<Ureen::Contact*> getContacts() const;
 public slots:
 	void searchContacts(const QString &name);
 	void activated(const QModelIndex &index);
 signals:
-	void addContactTriggered(qutim_sdk_0_3::Contact*);
-	void removeContactTriggered(qutim_sdk_0_3::Contact*);
+	void addContactTriggered(Ureen::Contact*);
+	void removeContactTriggered(Ureen::Contact*);
 private:
-	void addContact(qutim_sdk_0_3::Contact *,QStandardItem *root);
+	void addContact(Ureen::Contact *,QStandardItem *root);
 	QWeakPointer<MetaContactImpl> m_metaContact;
     QStandardItem *m_metaRoot;
 	QStandardItem *m_searchRoot;

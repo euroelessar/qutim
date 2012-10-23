@@ -29,7 +29,7 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QHash<BookmarkType, QIcon> Icons;
 void init_icons(Icons &icons)

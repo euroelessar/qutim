@@ -32,7 +32,7 @@
 #include <qutim/config.h>
 #include <qutim/servicemanager.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Ui;
 
 WSettingsWidget::WSettingsWidget()

@@ -34,7 +34,7 @@
 
 namespace Control {
 
-class RosterManager : public QObject, public qutim_sdk_0_3::MessageHandler
+class RosterManager : public QObject, public Ureen::MessageHandler
 {
 	Q_OBJECT
 public:
@@ -47,25 +47,25 @@ public:
 	
 	int accountId(const QString &protocol, const QString &id) const;
 	void setAccountId(const QString &protocol, const QString &id, int pid);
-	qutim_sdk_0_3::MessageList messages(qutim_sdk_0_3::ChatUnit *unit);
+	Ureen::MessageList messages(Ureen::ChatUnit *unit);
 	NetworkManager *networkManager();
 	
 protected slots:
 	void loadSettings(bool init = false);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountRemoved(qutim_sdk_0_3::Account *account);
-	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountRemoved(Ureen::Account *account);
+	void onContactCreated(Ureen::Contact *contact);
 	void onContactUpdated();
-	void onContactRemoved(qutim_sdk_0_3::Contact *contact);
+	void onContactRemoved(Ureen::Contact *contact);
 	void onContactInListChanged(bool inList);
 	void onAutoReplyClicked(QAction *action, QObject *object);
 	void onQuickAnswerClicked(QObject *object);
 	void onGroupsClicked(QAction *action);
 	
 protected:
-	void connectAccount(qutim_sdk_0_3::Account *account);
-	void connectContact(qutim_sdk_0_3::Contact *contact);
-	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	void connectAccount(Ureen::Account *account);
+	void connectContact(Ureen::Contact *contact);
+	virtual Result doHandle(Ureen::Message &message, QString *reason);
 	void onStarted();
 	
 private:
@@ -74,17 +74,17 @@ private:
 		AccountContext() : id(-1), created(false) {}
 		int id;
 		bool created;
-		QMap<qutim_sdk_0_3::Contact*, int> indexes;
+		QMap<Ureen::Contact*, int> indexes;
 		QList<int> freeIndexes;
 	};
 	static RosterManager *self;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_autoReplyGenerator;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_quickAnswerGenerator;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_groupGenerator;
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	QScopedPointer<Ureen::ActionGenerator> m_autoReplyGenerator;
+	QScopedPointer<Ureen::ActionGenerator> m_quickAnswerGenerator;
+	QScopedPointer<Ureen::ActionGenerator> m_groupGenerator;
+	Ureen::SettingsItem *m_settingsItem;
 	NetworkManager *m_manager;
 	QVariantList m_actions;
-	QMap<qutim_sdk_0_3::Account*, AccountContext> m_contexts;
+	QMap<Ureen::Account*, AccountContext> m_contexts;
 };
 
 } // namespace Control

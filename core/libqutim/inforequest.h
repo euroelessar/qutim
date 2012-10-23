@@ -32,7 +32,7 @@
 #include <QSet>
 #include <QHash>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class InfoRequest;
 class InfoRequestPrivate;
@@ -94,8 +94,8 @@ public:
 	template <typename T>
 	T value(const QString &name, const T &def = T()) const;
 signals:
-	void stateChanged(qutim_sdk_0_3::InfoRequest::State state);
-	void errorStringChanged(const qutim_sdk_0_3::LocalizedString &error);
+	void stateChanged(Ureen::InfoRequest::State state);
+	void errorStringChanged(const Ureen::LocalizedString &error);
 protected:
 	InfoRequest(QObject *object);
 	void setState(State state);
@@ -128,7 +128,7 @@ public:
 	InfoRequestFactory::SupportLevel supportLevel() const;
 
 signals:
-	void supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
+	void supportLevelChanged(Ureen::InfoRequestFactory::SupportLevel level);
 	
 private slots:
 	void onObjectDestroyed(QObject *object);
@@ -140,7 +140,7 @@ private:
 
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::InfoRequestFactory, "org.qutim.InfoRequestFactory")
+Q_DECLARE_INTERFACE(Ureen::InfoRequestFactory, "org.qutim.InfoRequestFactory")
 
 #endif // INFOREQUEST_H
 

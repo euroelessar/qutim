@@ -29,7 +29,7 @@
 #define urlpreviewPLUGIN_H
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
@@ -37,12 +37,12 @@ namespace qutim_sdk_0_3
 namespace UrlPreview {
 
 class UrlHandler;
-class UrlPreviewPlugin : public qutim_sdk_0_3::Plugin
+class UrlPreviewPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "UrlPreview")
 	Q_CLASSINFO("Uses", "ChatLayer")
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	Ureen::SettingsItem *m_settingsItem;
 public:
 	virtual void init();
 	virtual bool load();

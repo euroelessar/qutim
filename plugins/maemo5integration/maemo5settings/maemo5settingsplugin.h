@@ -30,7 +30,7 @@
 #include <qutim/settingslayer.h>
 #include "maemo5settings.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class Maemo5SettingsPlugin : public Plugin
 {

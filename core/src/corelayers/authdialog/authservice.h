@@ -27,7 +27,7 @@
 #define AUTHSERVICE_H
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 namespace Authorization
 {
@@ -37,7 +37,7 @@ class Reply;
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Authorization;
 
 class AuthService : public QObject

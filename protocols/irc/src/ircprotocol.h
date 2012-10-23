@@ -32,7 +32,7 @@
 
 class QAction;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class ChatSession;
 
@@ -66,7 +66,7 @@ protected:
 	bool event(QEvent *ev);
 	void loadAccounts();
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionActivated(bool active);
 	void onJoinLeftChannel(QObject *channel);
 	void onAutojoinChecked(QObject *channel);
@@ -75,7 +75,7 @@ private:
 	static IrcProtocol *self;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCPROTOCOL_H
 

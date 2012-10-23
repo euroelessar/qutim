@@ -32,7 +32,7 @@
 #include "configbase.h"
 #include <QFileInfo>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 SoundBackend::SoundBackend()

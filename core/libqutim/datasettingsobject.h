@@ -5,7 +5,7 @@
 #include "settingslayer.h"
 #include "dataforms.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class DataSettingsItemPrivate;
 class DataSettingsGenerator;
@@ -15,30 +15,30 @@ class LIBQUTIM_EXPORT DataSettingsObject : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(DataSettingsObject)
-    Q_PROPERTY(qutim_sdk_0_3::DataItem item READ item NOTIFY itemChanged)
+    Q_PROPERTY(Ureen::DataItem item READ item NOTIFY itemChanged)
     Q_PROPERTY(QObject *controller READ controller WRITE setController NOTIFY controllerChanged)
 public:
     DataSettingsObject(QObject *parent = 0);
     ~DataSettingsObject();
     
-    qutim_sdk_0_3::DataItem item() const;
+    Ureen::DataItem item() const;
     void setController(QObject *controller);
     QObject *controller() const;
     
 public slots:
     void load();
-    void save(const qutim_sdk_0_3::DataItem &item);
+    void save(const Ureen::DataItem &item);
     void cancel();
     
 protected:
     virtual void loadImpl() = 0;
-    virtual void saveImpl(const qutim_sdk_0_3::DataItem &item) = 0;
+    virtual void saveImpl(const Ureen::DataItem &item) = 0;
     virtual void cancelImpl();
     virtual void setControllerImpl(QObject *controller);
-    void setItem(const qutim_sdk_0_3::DataItem &item);
+    void setItem(const Ureen::DataItem &item);
     
 signals:
-    void itemChanged(const qutim_sdk_0_3::DataItem &item);
+    void itemChanged(const Ureen::DataItem &item);
     void controllerChanged(QObject *controller);
     
 private:
@@ -75,6 +75,6 @@ protected:
     }
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // QUTIM_SDK_0_3_DATASETTINGSOBJECT_H

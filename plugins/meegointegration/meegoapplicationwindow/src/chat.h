@@ -31,11 +31,11 @@
 
 namespace MeegoIntegration
 {
-class Chat : public qutim_sdk_0_3::ChatLayer
+class Chat : public Ureen::ChatLayer
 {
     Q_OBJECT
 	Q_CLASSINFO("Uses", "IconLoader")
-	Q_PROPERTY(qutim_sdk_0_3::ChatSession* activeSession READ activeSession WRITE setActiveSession NOTIFY activeSessionChanged)
+	Q_PROPERTY(Ureen::ChatSession* activeSession READ activeSession WRITE setActiveSession NOTIFY activeSessionChanged)
 	Q_PROPERTY(QDeclarativeListProperty<MeegoIntegration::ChatChannel> channels READ channels NOTIFY channelsChanged)
 public:
     explicit Chat();
@@ -43,17 +43,17 @@ public:
 	
 	static void init();
 	
-	virtual qutim_sdk_0_3::ChatSession *getSession(qutim_sdk_0_3::ChatUnit *unit, bool create = true);
-	virtual QList<qutim_sdk_0_3::ChatSession*> sessions();
+	virtual Ureen::ChatSession *getSession(Ureen::ChatUnit *unit, bool create = true);
+	virtual QList<Ureen::ChatSession*> sessions();
 	QDeclarativeListProperty<ChatChannel> channels();
-	qutim_sdk_0_3::ChatSession *activeSession() const;
-	void setActiveSession(qutim_sdk_0_3::ChatSession *session);
-	void handleSessionDeath(qutim_sdk_0_3::ChatSession *session);
+	Ureen::ChatSession *activeSession() const;
+	void setActiveSession(Ureen::ChatSession *session);
+	void handleSessionDeath(Ureen::ChatSession *session);
 	Q_INVOKABLE void show();
 	
 signals:
-	void sessionDestroyed(qutim_sdk_0_3::ChatSession *session);
-	void activeSessionChanged(qutim_sdk_0_3::ChatSession *session);
+	void sessionDestroyed(Ureen::ChatSession *session);
+	void activeSessionChanged(Ureen::ChatSession *session);
 	void channelsChanged(const QDeclarativeListProperty<ChatChannel> &channels);
 	void shown();
 	
@@ -63,7 +63,7 @@ private slots:
 	
 private:
 	QList<ChatChannel*> m_channels;
-	qutim_sdk_0_3::ChatSession *m_activeSession;
+	Ureen::ChatSession *m_activeSession;
 };
 }
 

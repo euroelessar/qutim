@@ -28,7 +28,7 @@
 #include <QUrl>
 #include <QTextDocument>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 FormulaHandler::FormulaHandler()
 {

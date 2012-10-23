@@ -30,7 +30,7 @@
 
 class QIODevice;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -55,7 +55,7 @@ private:
 	quint16 m_length;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // FLAP_H
 

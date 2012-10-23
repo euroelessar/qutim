@@ -28,7 +28,7 @@
 
 #include "message.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class LIBQUTIM_EXPORT MessageHandler

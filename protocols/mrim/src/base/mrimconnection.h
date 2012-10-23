@@ -36,7 +36,7 @@
 #include "mrimpacket.h"
 #include "messages.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class MrimAccount;
 class MrimContact;

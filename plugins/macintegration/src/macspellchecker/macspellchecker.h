@@ -29,7 +29,7 @@
 
 namespace MacIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class MacSpellChecker : public SpellChecker
 {

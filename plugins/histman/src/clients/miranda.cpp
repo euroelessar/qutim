@@ -30,7 +30,7 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace HistoryManager {
 

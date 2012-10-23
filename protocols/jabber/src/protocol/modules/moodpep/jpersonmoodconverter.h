@@ -43,7 +43,7 @@ namespace Jabber
 		virtual int entityType() const;
 		virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const;
 		virtual QVariantHash convertFrom(const QSharedPointer<Jreen::Payload> &entity) const;
-		static QList<qutim_sdk_0_3::LocalizedString> moods();
+		static QList<Ureen::LocalizedString> moods();
 	};
 
 	class JPersonMoodRegistrator : public QObject

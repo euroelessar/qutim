@@ -28,7 +28,7 @@
 #include "ircproxymanager.h"
 #include "ui/accountcreator.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -54,7 +54,7 @@ void IrcPlugin::init()
 				 ExtensionIcon("im-irc"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Proxy support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for IRC protocol"),
-				 new GeneralGenerator<IrcProxyManager, qutim_sdk_0_3::NetworkProxyManager>(),
+				 new GeneralGenerator<IrcProxyManager, Ureen::NetworkProxyManager>(),
 				 ExtensionIcon("im-irc"));
 }
 
@@ -73,7 +73,7 @@ QString qutimIrcVersionStr()
 	return QUTIM_IRC_VERSION_STR;
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
-QUTIM_EXPORT_PLUGIN2(irc, qutim_sdk_0_3::irc::IrcPlugin)
+QUTIM_EXPORT_PLUGIN2(irc, Ureen::irc::IrcPlugin)
 

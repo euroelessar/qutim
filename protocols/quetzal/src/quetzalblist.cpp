@@ -28,7 +28,7 @@
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void quetzal_new_list(PurpleBuddyList *list)
 {

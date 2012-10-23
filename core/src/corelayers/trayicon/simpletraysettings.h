@@ -38,7 +38,7 @@ namespace Core {
 
 extern const char * traySettingsFilename;
 
-class SimpletraySettings : public qutim_sdk_0_3::SettingsWidget
+class SimpletraySettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT	
 public:

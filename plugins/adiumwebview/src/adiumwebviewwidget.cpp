@@ -35,7 +35,7 @@
 
 namespace Adium {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 WebViewWidget::WebViewWidget(QWidget *parent)
 	: QWebView(parent)

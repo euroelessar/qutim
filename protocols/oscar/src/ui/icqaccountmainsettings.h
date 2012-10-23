@@ -34,7 +34,7 @@ namespace Ui {
 
 class QVBoxLayout;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -79,7 +79,7 @@ private:
 	IcqAccount *m_account;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQACCOUNTMAINSETTINGS_H
 

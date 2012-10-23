@@ -25,7 +25,7 @@
 
 #include "metafields_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -743,5 +743,5 @@ const FieldNamesList &fields_names()
 	return list;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

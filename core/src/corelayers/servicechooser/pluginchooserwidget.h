@@ -31,7 +31,7 @@
 #include <QModelIndex>
 #include "simplefilterproxymodel.h"
 
-namespace qutim_sdk_0_3 
+namespace Ureen 
 {
 class ExtensionInfo;
 class PluginInfo;
@@ -49,7 +49,7 @@ namespace Core
 {
 
 class ServiceItem;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class PluginChoooserWidget : public SettingsWidget
 {
@@ -66,7 +66,7 @@ private slots:
 	void filterPlugins(const QString& pluginname);
 private:
 	void clear();
-	QString html(const qutim_sdk_0_3::PluginInfo& info);
+	QString html(const Ureen::PluginInfo& info);
 	Ui::ServiceChoooser *ui;
 	QStandardItemModel *m_model;
 	SimpleFilterProxyModel *m_proxymodel;

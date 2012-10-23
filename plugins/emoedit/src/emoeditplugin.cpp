@@ -69,8 +69,8 @@ void EmoEditPlugin::init()
 bool EmoEditPlugin::load()
 {
 	m_theme.reset(new EmoticonsTheme(Emoticons::theme()));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 	foreach (ChatSession *session, ChatLayer::instance()->sessions())
 		onSessionCreated(session);
 	return true;
@@ -108,7 +108,7 @@ void EmoEditPlugin::drawObject(QPainter *painter, const QRectF &rect, QTextDocum
 	painter->drawPixmap(rect, pixmap, pixmap.rect());
 }
 
-void EmoEditPlugin::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void EmoEditPlugin::onSessionCreated(Ureen::ChatSession *session)
 {
 	QTextDocument *doc = session->getInputField();
 	if (!doc)

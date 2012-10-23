@@ -27,7 +27,7 @@
 #include "ui_console.h"
 #include "../ircaccount.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -72,5 +72,5 @@ void IrcConsoleFrom::changeEvent(QEvent *e)
     }
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

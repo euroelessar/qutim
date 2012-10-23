@@ -31,7 +31,7 @@
 #include "status.h"
 #include <QMetaType>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatUnit;
 class Contact;
@@ -73,8 +73,8 @@ class LIBQUTIM_EXPORT Account
 	Q_DECLARE_PRIVATE(Account)
 	Q_OBJECT
 	Q_PROPERTY(QString id READ id)
-	Q_PROPERTY(qutim_sdk_0_3::Protocol* protocol READ protocol CONSTANT)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
+	Q_PROPERTY(Ureen::Protocol* protocol READ protocol CONSTANT)
+	Q_PROPERTY(Ureen::Status status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
 public:
@@ -151,7 +151,7 @@ public:
 	*/
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 
-	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
+	Q_INVOKABLE inline Ureen::ChatUnit *unit(const QString &unitId, bool create = false);
 
 	QVariantMap parameters() const;
 	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
@@ -178,11 +178,11 @@ signals:
 	/*!
 	  Signal is emitted when new \a contact was created.
 	*/
-	void contactCreated(qutim_sdk_0_3::Contact *contact);
+	void contactCreated(Ureen::Contact *contact);
 	/*!
 	  Signal is emitted when new \a conference was created.
 	*/
-	void conferenceCreated(qutim_sdk_0_3::Conference *conference);
+	void conferenceCreated(Ureen::Conference *conference);
 	/*!
 	  Signal is emitted when account's \a name was changed.
 	*/
@@ -190,13 +190,13 @@ signals:
 	/*!
 	  Signal is emitted when account's \a status was changed.
 	*/
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 	/*!
 	  Signal is emitted whenever the group chat manager has been reset.
 
 	  \see groupChatManager(), resetGroupChatManager()
 	*/
-	void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void groupChatManagerChanged(Ureen::GroupChatManager *manager);
 	void parametersChanged(const QVariantMap &parameters);
 };
 
@@ -206,8 +206,8 @@ ChatUnit *Account::unit(const QString &unitId, bool create)
 }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Account*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Account*>)
+Q_DECLARE_METATYPE(Ureen::Account*)
+Q_DECLARE_METATYPE(QList<Ureen::Account*>)
 
 #endif // ACCOUNT_H
 

@@ -41,7 +41,7 @@
 #include <qutim/conference.h>
 #include <qt_windows.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 WinIntegration *WinIntegration::pluginInstance = 0;
 
@@ -76,7 +76,7 @@ bool WinIntegration::load()
 		Settings::Plugin,	QIcon(),
 		QT_TRANSLATE_NOOP("Plugin", "Windows Integration"));
 	Settings::registerItem(settingsItem);
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)), SLOT(onSessionCreated(Ureen::ChatSession*)));
 	QSysInfo::WinVersion wv = QSysInfo::windowsVersion();
 	switch (wv) { // falling through is not a mistake
 	case QSysInfo::WV_WINDOWS7 : Win7SmallFeatures(true);
@@ -119,12 +119,12 @@ QWidget* WinIntegration::oneOfChatWindows()
 	return widget;
 }
 
-void WinIntegration::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
+void WinIntegration::onSessionCreated(Ureen::ChatSession *s)
 {
-	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
+	connect(s, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged(Ureen::MessageList)), Qt::UniqueConnection);
 }
 
-void WinIntegration::onUnreadChanged(qutim_sdk_0_3::MessageList)
+void WinIntegration::onUnreadChanged(Ureen::MessageList)
 {
 	QList<ChatSession*> sessions = ChatLayer::instance()->sessions();
 	quint32 unreadConfs = 0, unreadChats = 0;

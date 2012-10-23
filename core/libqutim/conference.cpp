@@ -28,7 +28,7 @@
 #include <QTextDocument>
 #include <QLatin1Literal>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class ConferencePrivate : public ChatUnitPrivate
@@ -74,7 +74,7 @@ void Conference::setTopic(const QString &topic)
 	Q_UNUSED(topic);
 }
 
-void Conference::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
+void Conference::invite(Ureen::Contact *contact, const QString &reason)
 {
 	Q_UNUSED(contact);
 	Q_UNUSED(reason);

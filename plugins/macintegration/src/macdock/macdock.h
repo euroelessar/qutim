@@ -29,12 +29,13 @@
 #include <qutim/chatsession.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <QSystemTrayIcon>
 #include <QBasicTimer>
 
 namespace MacIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class MacDockPrivate;
 class MacDock : public MenuController
@@ -51,10 +52,10 @@ public:
 	void dockIconClickEvent();
 	void loadSettings();
 private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionDestroyed();
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+    void onUnreadChanged(const Ureen::MessageList &unread);
+    void onAccountCreated(Ureen::Account *account);
 	void setStatusIcon();
 	void onStatusChanged();
 	void onActivatedSession(bool state);

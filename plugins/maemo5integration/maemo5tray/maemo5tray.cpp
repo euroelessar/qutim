@@ -56,8 +56,8 @@ Maemo5Tray::Maemo5Tray() :
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				this, SLOT(onAccountCreated(Ureen::Account*)));
 	}
 
 	m_protocols = protocols.values();
@@ -121,7 +121,7 @@ void Maemo5Tray::handleNotification(Notification *notification)
 	}
 
 	ref(notification);
-	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+	connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 			SLOT(onNotificationFinished()));
 	if (notification == currentNotification())
 		updateGeneratedIcon();
@@ -200,15 +200,15 @@ static QString iconPathForStatus(const Status &status)
 }
 
 
-void Maemo5Tray::onAccountCreated(qutim_sdk_0_3::Account *account)
+void Maemo5Tray::onAccountCreated(Ureen::Account *account)
 {
 	m_accounts << account;
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onStatusChanged(Ureen::Status)));
 
 }
 
-void Maemo5Tray::onStatusChanged(const qutim_sdk_0_3::Status &status)
+void Maemo5Tray::onStatusChanged(const Ureen::Status &status)
 {
 	Account *account = qobject_cast<Account*>(sender());
 	if (account == m_activeAccount || !m_activeAccount) {

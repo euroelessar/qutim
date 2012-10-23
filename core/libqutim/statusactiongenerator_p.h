@@ -28,7 +28,7 @@
 #include "actiongenerator_p.h"
 #include "statusactiongenerator.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class StatusActionGeneratorPrivate : public ActionGeneratorPrivate
 {

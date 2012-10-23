@@ -32,7 +32,7 @@
 #include <QStringList>
 #include <qutim/protocol.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProtocolAdaptor : public QDBusAbstractAdaptor
 {
@@ -49,7 +49,7 @@ public slots:
 signals:
 	void accountCreated(const QDBusObjectPath &path, const QString &id);
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountCreated(Ureen::Account *);
 private:
 	QDBusConnection m_dbus;
 	Protocol *m_protocol;

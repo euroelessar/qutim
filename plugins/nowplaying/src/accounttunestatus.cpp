@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "accounttunestatus.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 

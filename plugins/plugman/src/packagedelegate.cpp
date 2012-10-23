@@ -27,7 +27,7 @@
 #include "packageentry.h"
 #include <qutim/debug.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 // From KNewStuff
 enum {

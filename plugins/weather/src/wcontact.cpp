@@ -41,7 +41,7 @@ WContact::WContact(const QString &code, const QString &name, Account *account)
 	addToList();
 	QMetaObject::invokeMethod(ServiceManager::getByName("ContactList"),
 	                          "addContact",
-	                          Q_ARG(qutim_sdk_0_3::Contact*, this));
+	                          Q_ARG(Ureen::Contact*, this));
 }
 
 WContact::~WContact()

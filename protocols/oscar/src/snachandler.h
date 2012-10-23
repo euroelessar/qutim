@@ -31,7 +31,7 @@
 #include "snac.h"
 #include "util.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -49,9 +49,9 @@ protected:
 	QList<SNACInfo> m_infos;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::SNACHandler, "org.qutim.oscar.SNACHandler")
+Q_DECLARE_INTERFACE(Ureen::oscar::SNACHandler, "org.qutim.oscar.SNACHandler")
 
 #endif // SNACHANDLER_H
 

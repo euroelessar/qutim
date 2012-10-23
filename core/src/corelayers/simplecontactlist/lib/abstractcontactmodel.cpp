@@ -36,15 +36,15 @@
 #include <QTimer>
 #include <QMimeData>
 
-Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::Contact>)
+Q_DECLARE_METATYPE(QWeakPointer<Ureen::Contact>)
 #define CONTACT_PROPERTY "__contactList_contact"
 
 namespace Core {
 namespace SimpleContactList {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-typedef QWeakPointer<qutim_sdk_0_3::Contact> ContactPtr;
+typedef QWeakPointer<Ureen::Contact> ContactPtr;
 
 Contact *getRealUnit(Notification *notification)
 {
@@ -158,7 +158,7 @@ AbstractContactModel::AbstractContactModel(AbstractContactModelPrivate *d, QObje
 
 	ServiceManager *manager = ServiceManager::instance();
 	connect(manager, SIGNAL(serviceChanged(QObject*,QObject*)), SLOT(onServiceChanged(QObject*,QObject*)));
-	connect(contactComparator.data(), SIGNAL(contactChanged(qutim_sdk_0_3::Contact*)), SLOT(onContactChanged(qutim_sdk_0_3::Contact*)));
+	connect(contactComparator.data(), SIGNAL(contactChanged(Ureen::Contact*)), SLOT(onContactChanged(Ureen::Contact*)));
 }
 
 AbstractContactModel::~AbstractContactModel()
@@ -335,7 +335,7 @@ void AbstractContactModel::handleNotification(Notification *notification)
 	Notification *old = notifications.first();
 	notifications.append(notification);
 	ref(notification);
-	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+	connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 			SLOT(onNotificationFinished()));
 
 	if (notifications.first() != old)
@@ -396,7 +396,7 @@ ItemHelper *AbstractContactModel::decodeMimeData(const QMimeData *mimeData, cons
 
 void AbstractContactModel::setContactsComparator(ContactComparator *comparator)
 {
-	connect(comparator, SIGNAL(contactChanged(qutim_sdk_0_3::Contact*)), SLOT(onContactChanged(qutim_sdk_0_3::Contact*)));
+	connect(comparator, SIGNAL(contactChanged(Ureen::Contact*)), SLOT(onContactChanged(Ureen::Contact*)));
 	filterAllList();
 }
 
@@ -404,8 +404,8 @@ void AbstractContactModel::init()
 {
 	MetaContactManager * const manager = MetaContactManager::instance();
 	if (manager) {
-		connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-				this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+		connect(MetaContactManager::instance(), SIGNAL(contactCreated(Ureen::Contact*)),
+				this, SLOT(addContact(Ureen::Contact*)));
 	}
 }
 

@@ -26,19 +26,19 @@ signals:
     
 protected:
     void buildContent();
-    void updateItem(qutim_sdk_0_3::DataItem &item);
-	void addGroup(const qutim_sdk_0_3::DataItem &item);
-    void addLabel(const qutim_sdk_0_3::DataItem &item);
-    void addItem(const qutim_sdk_0_3::DataItem &item);
+    void updateItem(Ureen::DataItem &item);
+	void addGroup(const Ureen::DataItem &item);
+    void addLabel(const Ureen::DataItem &item);
+    void addItem(const Ureen::DataItem &item);
     QDeclarativeComponent *loadComponent(const QString &name);
     
 protected slots:
     void onHeightChanged();
 
 private:
-    qutim_sdk_0_3::DataItem m_item;
+    Ureen::DataItem m_item;
     QString m_basePath;
-    qutim_sdk_0_3::ServicePointer<ApplicationWindow> m_app;
+    Ureen::ServicePointer<ApplicationWindow> m_app;
     QHash<QString, QDeclarativeComponent *> m_componentsCache;
     QHash<QString, QDeclarativeItem *> m_items;
     bool m_hasSubitems;

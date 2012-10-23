@@ -33,7 +33,7 @@
 #include "buddypicture.h"
 #include <qutim/passworddialog.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -84,7 +84,7 @@ public:
 	QScopedPointer<MessageSender> messageSender;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQACCOUNT_P_H
 

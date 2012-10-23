@@ -26,7 +26,7 @@
 #include "tlv.h"
 #include <QDataStream>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -46,5 +46,5 @@ TLVMap::operator QByteArray() const
 	return data;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -33,7 +33,7 @@
 class QuetzalAccount;
 class QVBoxLayout;
 
-class QuetzalAccountSettings : public qutim_sdk_0_3::SettingsWidget
+class QuetzalAccountSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:
@@ -49,7 +49,7 @@ protected slots:
 private:
 	QVariant fromOption(PurpleAccountOption *option);
 	
-	QScopedPointer<qutim_sdk_0_3::AbstractDataForm> m_form;
+	QScopedPointer<Ureen::AbstractDataForm> m_form;
 	QVBoxLayout *m_layout;
 	PurpleAccount *m_account;
 	PurplePluginProtocolInfo *m_info;

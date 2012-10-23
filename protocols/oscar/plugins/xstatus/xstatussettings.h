@@ -28,21 +28,21 @@
 
 #include "../../src/settingsextension.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
 class XStatusSettings : public QObject, public SettingsExtension
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SettingsExtension)
+	Q_INTERFACES(Ureen::oscar::SettingsExtension)
 public:
 	XStatusSettings();
 	void loadSettings(DataItem &item, Config cfg);
 	void saveSettings(const DataItem &item, Config cfg);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // XSTATUSSETTINGS_H
 

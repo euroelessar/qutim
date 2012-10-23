@@ -26,7 +26,7 @@
 #include "blogimproversettings.h"
 #include <qutim/config.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 BlogImproverSettings::BlogImproverSettings()
 	: ui(new Ui::BlogImproverSettingsForm)

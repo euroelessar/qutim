@@ -33,7 +33,7 @@
 #include <QByteArray>
 class QObject;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	/**
 	* @brief Namepsace provides both low and high levels for parsing and

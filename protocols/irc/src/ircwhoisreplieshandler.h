@@ -28,14 +28,14 @@
 
 #include "ircservermessagehandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
 class IrcWhoisRepliesHandler : public QObject, public IrcServerMessageHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler)
+	Q_INTERFACES(Ureen::irc::IrcServerMessageHandler)
 public:
 	IrcWhoisRepliesHandler(QObject *parent = 0);
 	virtual ~IrcWhoisRepliesHandler();
@@ -43,7 +43,7 @@ public:
 							   const IrcCommand &cmd, const QStringList &params);
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // WHOISREPLIESHANDLER_H
 

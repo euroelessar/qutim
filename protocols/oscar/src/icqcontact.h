@@ -33,7 +33,7 @@
 #include "feedbag.h"
 #include <qutim/extensionicon.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -69,7 +69,7 @@ public:
 	ChatState chatState() const;
 	void updateFromItem();
 signals:
-	void capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities);
+	void capabilitiesChanged(const Ureen::oscar::Capabilities &capabilities);
 private:
 	virtual bool event(QEvent *);
 	void setAvatar(const QString &avatar);
@@ -83,7 +83,7 @@ protected:
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQCONTACT_H
 

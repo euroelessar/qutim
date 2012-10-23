@@ -28,13 +28,13 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void AuthDialogPlugin::init()
 {
-	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
-	qutim_sdk_0_3::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Authorization dialog");
-	qutim_sdk_0_3::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog");
+	Ureen::ExtensionIcon icon(QLatin1String(""));
+	Ureen::LocalizedString name = QT_TRANSLATE_NOOP("Plugin", "Authorization dialog");
+	Ureen::LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog");
 	setInfo(name, description, QUTIM_VERSION, icon);
 	addAuthor(QLatin1String("sauron"));
 	addExtension<Core::AuthService>(name, description, icon);

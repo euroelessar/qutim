@@ -2,7 +2,7 @@
 
 void DockPlugin::init()
 {
-	qutim_sdk_0_3::ExtensionIcon icon("info");
+	Ureen::ExtensionIcon icon("info");
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Aleksey Sidorov"),
 			QT_TRANSLATE_NOOP("Task", "Developer"),
 			QLatin1String("gorthauer87@ya.ru")

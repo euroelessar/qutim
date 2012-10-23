@@ -28,7 +28,7 @@
 #include "vprotocol.h"
 #include <qutim/extensioninfo.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class VAccountWizardPage: public QWizardPage
 {

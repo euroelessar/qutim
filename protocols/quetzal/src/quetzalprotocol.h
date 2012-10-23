@@ -32,7 +32,7 @@
 #include <purple.h>
 #include "quetzalaccountwizard.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class QuetzalMetaObject;
 class QuetzalAccount;
@@ -48,7 +48,7 @@ public:
     virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }
 	virtual QVariant data(DataType type);
-	virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
+	virtual void removeAccount(Ureen::Account *account, RemoveFlag flags = DeleteAccount);
 	static QHash<PurplePlugin *, QuetzalProtocol *> &protocols()
 	{
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;

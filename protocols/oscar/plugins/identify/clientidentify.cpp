@@ -39,7 +39,7 @@
 #include <qutim/tooltip.h>
 #include <qutim/contact.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -1425,7 +1425,7 @@ void ClientIdentify::identify_NaimIcq()
 												     0x00, 0x00, 0x00, 0x00);*/
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::ClientIdentify);
+QUTIM_EXPORT_PLUGIN(Ureen::oscar::ClientIdentify);
 

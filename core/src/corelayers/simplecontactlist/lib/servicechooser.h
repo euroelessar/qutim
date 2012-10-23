@@ -9,7 +9,7 @@
 
 namespace Core {
 
-class SIMPLECONTACTLIST_EXPORT ContactListSettingsExtention : public qutim_sdk_0_3::SettingsWidget
+class SIMPLECONTACTLIST_EXPORT ContactListSettingsExtention : public Ureen::SettingsWidget
 {
     Q_OBJECT
 public:
@@ -22,13 +22,13 @@ class SIMPLECONTACTLIST_EXPORT ServiceChooser : public QGroupBox
     Q_OBJECT
 public:
     ServiceChooser(const QByteArray &service,
-                   const qutim_sdk_0_3::LocalizedString &desc,
+                   const Ureen::LocalizedString &desc,
                    const QByteArray &currentService,
-                   qutim_sdk_0_3::ExtensionInfoList &services,
+                   Ureen::ExtensionInfoList &services,
                    QWidget *parent = 0);
     void setCurrentService(const QByteArray &service);
     QByteArray currentService() { return m_currentService; }
-    qutim_sdk_0_3::ExtensionInfo currentServiceInfo();
+    Ureen::ExtensionInfo currentServiceInfo();
     QByteArray service() { return m_service; }
 signals:
     void serviceChanged(const QByteArray &newService, const QByteArray &oldService);
@@ -38,7 +38,7 @@ private slots:
 private:
     QLayout *m_layout;
     QHash<QByteArray, QRadioButton*> m_buttons;
-    QHash<QByteArray, qutim_sdk_0_3::ExtensionInfo> m_infos;
+    QHash<QByteArray, Ureen::ExtensionInfo> m_infos;
     QByteArray m_service;
     QByteArray m_currentService;
 };

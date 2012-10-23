@@ -39,7 +39,7 @@ namespace Ui {
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class SimpleFileTransfer;
 class FileTransferJobModel;
 
@@ -49,7 +49,7 @@ class ActionWidget : public QWidget
 public:
 	ActionWidget(FileTransferJob *job, QWidget *parent = 0);
 private slots:
-	void onStateChanged(qutim_sdk_0_3::FileTransferJob::State);
+	void onStateChanged(Ureen::FileTransferJob::State);
 private:
 	QToolButton *m_stopButton;
 };

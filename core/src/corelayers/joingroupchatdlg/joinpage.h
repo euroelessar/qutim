@@ -49,7 +49,7 @@ protected:
 signals:
 	void joined();
 private:
-	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QWeakPointer<Ureen::AbstractDataForm> m_dataForm;
 	QAction *m_joinAction;
 };
 

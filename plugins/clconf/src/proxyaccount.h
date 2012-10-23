@@ -29,7 +29,7 @@
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProxyAccount : public Account
 {
@@ -41,7 +41,7 @@ public:
 	virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 private slots:
-	void onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void onStatusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 protected:
 	bool event(QEvent *ev);
 private:

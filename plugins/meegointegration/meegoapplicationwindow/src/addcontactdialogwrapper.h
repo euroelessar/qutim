@@ -35,7 +35,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class AddContactDialogWrapper : public QAbstractListModel {
 	Q_OBJECT
 	Q_PROPERTY(QString contactIdLabel READ contactIdLabel WRITE setContactIdLabel NOTIFY contactIdLabelChanged)
@@ -68,10 +68,10 @@ signals:
 
 private slots:
 	void setAccount();
-	void changeState(const qutim_sdk_0_3::Status &status);
+	void changeState(const Ureen::Status &status);
 
 protected:
-	void changeState(Account *account, const qutim_sdk_0_3::Status &status);
+	void changeState(Account *account, const Ureen::Status &status);
 
 private:
 	QString m_idLabel;

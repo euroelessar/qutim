@@ -29,7 +29,7 @@
 
 class VProtocol;
 class VAccountWizardPage;
-class VAccountCreator : public qutim_sdk_0_3::AccountCreationWizard
+class VAccountCreator : public Ureen::AccountCreationWizard
 {
 	Q_OBJECT
 	Q_CLASSINFO("DependsOn", "VProtocol")

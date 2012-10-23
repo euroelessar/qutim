@@ -1,6 +1,6 @@
 #include "datasettingsobject_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 DataSettingsObject::DataSettingsObject(QObject *parent) :
     QObject(parent), d_ptr(new DataSettingsObjectPrivate)
@@ -72,8 +72,8 @@ DataSettingsWidget::DataSettingsWidget(DataSettingsObject *object)
 {
     m_layout = new QVBoxLayout(this);
     m_layout->setMargin(0);
-    connect(object, SIGNAL(itemChanged(qutim_sdk_0_3::DataItem)),
-            this, SLOT(onItemChanged(qutim_sdk_0_3::DataItem)));
+    connect(object, SIGNAL(itemChanged(Ureen::DataItem)),
+            this, SLOT(onItemChanged(Ureen::DataItem)));
 }
 
 DataSettingsWidget::~DataSettingsWidget()
@@ -144,4 +144,4 @@ const ObjectGenerator *DataSettingsItem::generator() const
     return new DataSettingsGenerator(const_cast<DataSettingsItem*>(this));
 }
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen

@@ -46,10 +46,19 @@ DynamicLibrary {
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
+    cpp.cxxFlags: []
 
     Properties {
         condition: project.singleProfile
         cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+    }
+    Properties {
+        condition: qbs.toolchain !== "msvc"
+        cpp.cxxFlags: outer.concat([ "-std=c++0x" ])
+    }
+    Properties {
+        condition: qbs.targetOS === "mac"
+        cpp.cxxFlags: outer.concat([ "-stdlib=libc++" ])
     }
 
     ProductModule {

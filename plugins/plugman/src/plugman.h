@@ -30,13 +30,13 @@
 #include <QNetworkAccessManager>
 //#include "packageengine.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ActionGenerator;
 }
 
 namespace PackageManager
 {
-class PackageManagerPlugin : public qutim_sdk_0_3::Plugin
+class PackageManagerPlugin : public Ureen::Plugin
 {
     Q_OBJECT
 public:
@@ -48,7 +48,7 @@ public slots:
 	void onManagerButtonClicked();
 
 private:
-	qutim_sdk_0_3::ActionGenerator *m_gen;
+	Ureen::ActionGenerator *m_gen;
 //	PackageEngine *m_emoticonsEngine;
 //	PackageEngine *m_stylesEngine;
 };

@@ -30,7 +30,7 @@
 #include <QStringList>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 void *quetzal_notify_message(PurpleNotifyMsgType type, const char *title,
 							 const char *primary, const char *secondary)

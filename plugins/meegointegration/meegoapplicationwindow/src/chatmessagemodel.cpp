@@ -33,7 +33,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 enum {
 	TimeRole = Qt::UserRole,
 	IncomingRole,
@@ -73,7 +73,7 @@ ChatMessageModel::ChatMessageModel(QObject *parent) :
 	parent->installEventFilter(this);
 }
 
-void ChatMessageModel::append(qutim_sdk_0_3::Message &msg)
+void ChatMessageModel::append(Ureen::Message &msg)
 {
 	beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
 	m_messages << msg;

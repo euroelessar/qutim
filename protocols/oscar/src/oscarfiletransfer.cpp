@@ -35,7 +35,7 @@
 #include <QTimer>
 #include <QApplication>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -1048,8 +1048,8 @@ OftFileTransferFactory::OftFileTransferFactory():
 	foreach (IcqAccount *account, IcqProtocol::instance()->accountsHash())
 		onAccountCreated(account);
 	connect(IcqProtocol::instance(),
-			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+			SIGNAL(accountCreated(Ureen::Account*)),
+			SLOT(onAccountCreated(Ureen::Account*)));
 	connect(IcqProtocol::instance(),
 			SIGNAL(settingsUpdated()),
 			SLOT(reloadSettings()));
@@ -1098,9 +1098,9 @@ bool OftFileTransferFactory::startObserve(ChatUnit *unit)
 	if (!qobject_cast<IcqContact*>(unit))
 		return false;
 	connect(unit,
-			SIGNAL(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)),
+			SIGNAL(capabilitiesChanged(Ureen::oscar::Capabilities)),
 			this,
-			SLOT(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)));
+			SLOT(capabilitiesChanged(Ureen::oscar::Capabilities)));
 	return true;
 }
 
@@ -1109,9 +1109,9 @@ bool OftFileTransferFactory::stopObserve(ChatUnit *unit)
 	if (!qobject_cast<IcqContact*>(unit))
 		return false;
 	disconnect(unit,
-			   SIGNAL(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)),
+			   SIGNAL(capabilitiesChanged(Ureen::oscar::Capabilities)),
 			   this,
-			   SLOT(capabilitiesChanged(qutim_sdk_0_3::oscar::Capabilities)));
+			   SLOT(capabilitiesChanged(Ureen::oscar::Capabilities)));
 	return true;
 }
 
@@ -1145,7 +1145,7 @@ OftServer *OftFileTransferFactory::getFreeServer()
 	return 0;
 }
 
-void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Capabilities &capabilities)
+void OftFileTransferFactory::capabilitiesChanged(const Ureen::oscar::Capabilities &capabilities)
 {
 	IcqContact *contact = qobject_cast<IcqContact*>(sender());
 	if (!contact)
@@ -1153,7 +1153,7 @@ void OftFileTransferFactory::capabilitiesChanged(const qutim_sdk_0_3::oscar::Cap
 	changeAvailability(contact, capabilities.match(ICQ_CAPABILITY_AIMSENDFILE));
 }
 
-void OftFileTransferFactory::onAccountCreated(qutim_sdk_0_3::Account *account)
+void OftFileTransferFactory::onAccountCreated(Ureen::Account *account)
 {
 	m_connections.insert(account, AccountConnections());
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
@@ -1242,7 +1242,7 @@ void OscarFileTransferSettings::loadSettings(DataItem &item, Config cfg)
 					  allowAnyPort);
 		item.setDataChangedHandler(
 				this,
-				SLOT(onAllowAnyPortChanged(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*))
+				SLOT(onAllowAnyPortChanged(QString,QVariant,Ureen::AbstractDataForm*))
 				);
 		settings.addSubitem(item);
 	}
@@ -1286,5 +1286,5 @@ void OscarFileTransferSettings::onAllowAnyPortChanged(const QString &fieldName, 
 		object->setProperty("enabled", !data.toBool());
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

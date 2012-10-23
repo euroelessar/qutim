@@ -25,14 +25,14 @@
 #include "../../include/player.h"
 #include <QtDBus>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 	
 	class MprisPlayerFactory : public QObject, public PlayerFactory
 	{
 		Q_OBJECT
-		Q_INTERFACES(qutim_sdk_0_3::nowplaying::PlayerFactory)
+		Q_INTERFACES(Ureen::nowplaying::PlayerFactory)
 	public:
 		MprisPlayerFactory();
 		QMap<QString, Player::Info> players();

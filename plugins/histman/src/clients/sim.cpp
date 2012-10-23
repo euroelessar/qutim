@@ -31,7 +31,7 @@
 #include <QTextDocument>
 #include <qutim/icon.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace HistoryManager {
 

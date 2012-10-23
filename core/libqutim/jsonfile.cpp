@@ -33,7 +33,7 @@
 #include <QDir>
 #include "debug.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class JsonFilePrivate
 	{

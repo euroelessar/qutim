@@ -110,17 +110,17 @@ void KopeteEmoticonsProvider::loadTheme()
 
 bool KopeteEmoticonsProvider::addEmoticon(const QString& imgPath, const QStringList& codes)
 {
-    return qutim_sdk_0_3::EmoticonsProvider::addEmoticon(imgPath, codes);
+    return Ureen::EmoticonsProvider::addEmoticon(imgPath, codes);
 }
 
 bool KopeteEmoticonsProvider::removeEmoticon(const QStringList& codes)
 {
-    return qutim_sdk_0_3::EmoticonsProvider::removeEmoticon(codes);
+    return Ureen::EmoticonsProvider::removeEmoticon(codes);
 }
 
 bool KopeteEmoticonsProvider::saveTheme()
 {
-    return qutim_sdk_0_3::EmoticonsProvider::saveTheme();
+    return Ureen::EmoticonsProvider::saveTheme();
 }
 
 QString KopeteEmoticonsProvider::themeName() const

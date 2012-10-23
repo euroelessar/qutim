@@ -18,7 +18,7 @@
 #include <qutim/config.h>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 OtrSettingsWidget::OtrSettingsWidget()
     : ui(new Ui::OtrSettingsWidget)

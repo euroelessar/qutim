@@ -29,7 +29,7 @@
 #include "ircaccountmainsettings.h"
 #include "ircaccountnicksettings.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -61,7 +61,7 @@ private:
 class IrcAccountCreationWizard: public AccountCreationWizard
 {
 	Q_OBJECT
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::irc::IrcProtocol")
+	Q_CLASSINFO("DependsOn", "Ureen::irc::IrcProtocol")
 public:
 	IrcAccountCreationWizard();
 	~IrcAccountCreationWizard();
@@ -72,7 +72,7 @@ private:
 	IrcNickWizardPage *m_nicksPage;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // ACCOUNTCREATOR_H
 

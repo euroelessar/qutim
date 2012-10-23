@@ -28,7 +28,7 @@
 #include "ircconnection.h"
 #include "ircprotocol.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -55,5 +55,5 @@ void IrcProxyManager::setProxy(Account *account, NetworkProxyInfo *proxy, const 
 	acc->d->conn->socket()->setProxy(toNetworkProxy(settings));
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

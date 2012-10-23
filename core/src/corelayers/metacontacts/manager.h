@@ -30,7 +30,7 @@
 #include "metacontactimpl.h"
 #include "messagehandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class RosterStorage;
 }
 
@@ -40,14 +40,14 @@ namespace MetaContacts
 {
 
 class Factory;
-class Manager : public qutim_sdk_0_3::MetaContactManager
+class Manager : public Ureen::MetaContactManager
 {
 	Q_OBJECT
 	Q_CLASSINFO("Uses", "RosterStorage")
 public:
 	Manager();
 	virtual ~Manager();
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
+	virtual Ureen::ChatUnit *getUnit(const QString &unitId, bool create = false);
 	void removeContact(const QString &id) { m_contacts.remove(id); }
 	virtual QString name() const;
 protected:
@@ -56,10 +56,10 @@ private slots:
 	void initActions();
 	void onSplitTriggered(QObject*);
 	void onCreateTriggered(QObject*);
-	void onContactCreated(qutim_sdk_0_3::Contact*);
+	void onContactCreated(Ureen::Contact*);
 private:
 	QHash<QString, MetaContactImpl*> m_contacts;
-	qutim_sdk_0_3::RosterStorage *m_storage;
+	Ureen::RosterStorage *m_storage;
 	QScopedPointer<Factory> m_factory;
 	friend class Factory;
 	bool m_blockUpdate;

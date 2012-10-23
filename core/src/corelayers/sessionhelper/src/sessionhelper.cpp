@@ -52,8 +52,8 @@ bool SessionHelper::load()
 																		QT_TRANSLATE_NOOP("Settings","Chat"));
 
 	ChatLayer *layer = ChatLayer::instance();
-	connect(layer,SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
+	connect(layer,SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(sessionCreated(Ureen::ChatSession*))
 			);
 
 	m_settingsItem->setOrder(100);
@@ -70,7 +70,7 @@ bool SessionHelper::unload()
 	return true;
 }
 
-void SessionHelper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
+void SessionHelper::sessionCreated(Ureen::ChatSession* session)
 {
 	if(m_activateMultichat) {
 		if(qobject_cast<Conference*>(session->unit()))

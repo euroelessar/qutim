@@ -33,7 +33,7 @@
 #include <QtCore/QEvent>
 #include <QAction>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ActionGenerator;
 class ActionGeneratorPrivate;
@@ -188,7 +188,7 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ActionGenerator*)
+Q_DECLARE_METATYPE(Ureen::ActionGenerator*)
 
 #endif // ACTIONGENERATOR_H
 

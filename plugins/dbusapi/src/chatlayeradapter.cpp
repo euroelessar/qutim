@@ -32,8 +32,8 @@ ChatLayerAdapter::ChatLayerAdapter(const QDBusConnection &dbus) :
 {
 	QList<QDBusObjectPath> list = sessions();
 	Q_UNUSED(list);
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 }
 
 QDBusObjectPath ChatLayerAdapter::session(const QDBusObjectPath &chatUnit, bool create)
@@ -62,7 +62,7 @@ QList<QDBusObjectPath> ChatLayerAdapter::sessions() const
 	return list;
 }
 
-void ChatLayerAdapter::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void ChatLayerAdapter::onSessionCreated(Ureen::ChatSession *session)
 {
 	QDBusObjectPath path = ChatSessionAdapter::ensurePath(m_dbus, session);
 	emit sessionCreated(path);

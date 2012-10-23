@@ -29,7 +29,7 @@
 #include <QMetaType>
 #include <purple.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 struct QuetzalActionInfo;
 
 class QuetzalActionGenerator : public ActionGenerator

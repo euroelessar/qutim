@@ -51,9 +51,9 @@ typedef QIndicate::Indicator Source;
 typedef Source* SourceRef;
 typedef QIndicate::Server Server;
 #endif
-typedef QHash<qutim_sdk_0_3::ChatSession*, Source*> HashIndicator;
+typedef QHash<Ureen::ChatSession*, Source*> HashIndicator;
 
-class IndicatorService : public qutim_sdk_0_3::MenuController
+class IndicatorService : public Ureen::MenuController
 {
 	Q_OBJECT
 public:
@@ -61,13 +61,13 @@ public:
 	virtual ~IndicatorService();
 protected slots:
 	/* Tray layer slots */
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
+	void onSessionCreated(Ureen::ChatSession*);
 	void onSessionDestroyed(QObject* session);
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
+	void onUnreadChanged(const Ureen::MessageList&);
 	////// void onActivated(QSystemTrayIcon::ActivationReason);
-	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountCreated(Ureen::Account *);
 	void onAccountDestroyed(QObject *obj);
-	////// void onStatusChanged(const qutim_sdk_0_3::Status &);
+	////// void onStatusChanged(const Ureen::Status &);
 	void loadSettings();
 	/* Indicator stuff */
 	void onSessionActivated(bool);

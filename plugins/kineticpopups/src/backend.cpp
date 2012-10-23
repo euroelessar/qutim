@@ -33,7 +33,7 @@
 
 namespace KineticPopups {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Backend::Backend() :
 	NotificationBackend("Popup"),
@@ -59,7 +59,7 @@ Backend::~Backend()
 	delete m_item;
 }
 
-void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
+void Backend::handleNotification(Ureen::Notification *notification)
 {
 	ref(notification);
 	if (!split(notification)) {
@@ -82,7 +82,7 @@ void Backend::onPopupDestroyed(QObject *obj)
 	m_activeNotifyHash.remove(popup);
 }
 
-bool Backend::split(qutim_sdk_0_3::Notification *notify)
+bool Backend::split(Ureen::Notification *notify)
 {
 	NotificationHash::const_iterator it = m_activeNotifyHash.constBegin();
 	for (; it != m_activeNotifyHash.constEnd(); ++it) {

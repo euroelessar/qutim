@@ -33,12 +33,12 @@ namespace Core
 {
 namespace MetaContacts
 {
-class MetaContactMessageHandler : public qutim_sdk_0_3::MessageHandler
+class MetaContactMessageHandler : public Ureen::MessageHandler
 {
 public:
 	MetaContactMessageHandler();
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	virtual Ureen::MessageHandler::Result doHandle(Ureen::Message &message, QString *reason);
 };
 
 }

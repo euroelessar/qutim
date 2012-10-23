@@ -36,7 +36,7 @@ namespace Jreen
 class Presence;
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Status;
 class InfoRequest;
@@ -44,27 +44,27 @@ class InfoRequest;
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JAccount;
 class JContact;
 class JContactResourcePrivate;
 
-class JContactResource : public qutim_sdk_0_3::Buddy
+class JContactResource : public Ureen::Buddy
 {
 	Q_OBJECT
 	Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 	Q_DECLARE_PRIVATE(JContactResource)
 	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
-	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
-	JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);
+	JContactResource(Ureen::ChatUnit *parent, const QString &name);
+	JContactResource(Ureen::ChatUnit *parent, JContactResourcePrivate &ptr);
 	JContactResource(JAccount *parent, const QString &name);
 	~JContactResource();
 	QString name() const;
 	QString id() const;
 	QString title() const;
-	bool sendMessage(const qutim_sdk_0_3::Message &message);
+	bool sendMessage(const Ureen::Message &message);
 	void setPriority(int priority);
 	int priority();
 	QCA::PGPKey pgpKey() const;

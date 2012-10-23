@@ -50,7 +50,7 @@ public:
 	};
     explicit HistoryManagerWindow(QWidget *parent = 0);
     virtual ~HistoryManagerWindow();
-	virtual void appendMessage(const qutim_sdk_0_3::Message &message);
+	virtual void appendMessage(const Ureen::Message &message);
 	virtual void setProtocol(const QString &protocol);
 	virtual void setAccount(const QString &account);
 	virtual void setContact(const QString &contact);

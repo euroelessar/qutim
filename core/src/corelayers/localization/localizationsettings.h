@@ -37,7 +37,7 @@ class QListWidgetItem;
 
 namespace Core
 {
-class LocalizationSettings : public qutim_sdk_0_3::SettingsWidget
+class LocalizationSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

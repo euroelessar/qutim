@@ -30,7 +30,7 @@
 #include <QWidget>
 #include <QScopedPointer>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	struct SettingsWidgetPrivate;
 	class AutoSettingsGenerator;

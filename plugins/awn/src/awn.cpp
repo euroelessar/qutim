@@ -34,7 +34,7 @@ AWNPlugin::AWNPlugin ()
 
 void AWNPlugin::init ()
 {
-    qutim_sdk_0_3::ExtensionIcon icon("info");
+    Ureen::ExtensionIcon icon("info");
     addAuthor(QT_TRANSLATE_NOOP("Author", "Stanislav (proDOOMman) Kosolapov"),
               QT_TRANSLATE_NOOP("Task", "Developer"),
               QLatin1String("prodoomman@shell.tor.hu")

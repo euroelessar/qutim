@@ -32,7 +32,7 @@
 #include "quetzalaccount.h"
 #include <qutim/dataforms.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuetzalJoinChatManager::QuetzalJoinChatManager(QuetzalAccount *account) :
 		GroupChatManager(account)

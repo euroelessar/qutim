@@ -6,7 +6,7 @@ namespace Core {
 
 void ContactComparators::init()
 {
-	qutim_sdk_0_3::ExtensionIcon icon(QLatin1String(""));
+	Ureen::ExtensionIcon icon(QLatin1String(""));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Contact comparators"),
 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM contacts comparators collection"),
 			QUTIM_VERSION, icon);

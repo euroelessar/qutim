@@ -32,7 +32,7 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JMUCSession;
 struct JConferenceConfigPrivate;
@@ -48,7 +48,7 @@ public:
 
 protected:
 	virtual void loadImpl();
-	virtual void saveImpl(const qutim_sdk_0_3::DataItem &item);
+	virtual void saveImpl(const Ureen::DataItem &item);
 	virtual void cancelImpl();
 
 protected slots:

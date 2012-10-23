@@ -32,7 +32,7 @@
 
 namespace Jabber {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class JPersonActivityConverter : public QObject , public PersonEventConverter
 {
@@ -45,8 +45,8 @@ public:
 	virtual int entityType() const;
 	virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const;
 	virtual QVariantHash convertFrom(const QSharedPointer<Jreen::Payload> &entity) const;
-	static qutim_sdk_0_3::LocalizedString generalTitle(Jreen::Activity::General general);
-	static qutim_sdk_0_3::LocalizedString specificTitle(Jreen::Activity::Specific specific);
+	static Ureen::LocalizedString generalTitle(Jreen::Activity::General general);
+	static Ureen::LocalizedString specificTitle(Jreen::Activity::Specific specific);
 };
 
 class JPersonActivityRegistrator : public QObject

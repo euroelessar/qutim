@@ -38,7 +38,7 @@
 #include <qutim/contact.h>
 #include <qutim/filetransfer.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class YandexNarodFactory;
 
 class YandexNarodBuffer : public QIODevice

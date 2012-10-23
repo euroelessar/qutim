@@ -31,10 +31,10 @@
 
 namespace Core
 {
-class LocalizationModule : public QObject, public qutim_sdk_0_3::StartupModule
+class LocalizationModule : public QObject, public Ureen::StartupModule
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
+	Q_INTERFACES(Ureen::StartupModule)
 public:
 	LocalizationModule();
 

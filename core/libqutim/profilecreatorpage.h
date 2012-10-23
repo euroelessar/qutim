@@ -29,7 +29,7 @@
 #include "extensioninfo.h"
 #include <QWizardPage>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class LIBQUTIM_EXPORT ProfileCreatorPage : public QObject
 	{

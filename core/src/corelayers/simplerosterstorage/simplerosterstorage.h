@@ -30,24 +30,24 @@
 
 namespace Core
 {
-class SimpleRosterStorage : public qutim_sdk_0_3::RosterStorage
+class SimpleRosterStorage : public Ureen::RosterStorage
 {
 	Q_OBJECT
 public:
     SimpleRosterStorage();
     ~SimpleRosterStorage();
 	
-	virtual QString load(qutim_sdk_0_3::Account *account);
-	virtual void addContact(qutim_sdk_0_3::Contact *contact, const QString &version = QString());
-	virtual void updateContact(qutim_sdk_0_3::Contact *contact, const QString &version = QString());
-	virtual void removeContact(qutim_sdk_0_3::Contact *contact, const QString &version = QString());
+	virtual QString load(Ureen::Account *account);
+	virtual void addContact(Ureen::Contact *contact, const QString &version = QString());
+	virtual void updateContact(Ureen::Contact *contact, const QString &version = QString());
+	virtual void removeContact(Ureen::Contact *contact, const QString &version = QString());
 private:
 	struct AccountContext
 	{
-		QMap<qutim_sdk_0_3::Contact*, int> indexes;
+		QMap<Ureen::Contact*, int> indexes;
 		QList<int> freeIndexes;
 	};
-	QMap<qutim_sdk_0_3::Account*, AccountContext> m_contexts;
+	QMap<Ureen::Account*, AccountContext> m_contexts;
 };
 }
 

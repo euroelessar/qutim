@@ -32,7 +32,7 @@
 #include <QDebug>
 #include "avatariconengine_p.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class AvatarFilterPrivate

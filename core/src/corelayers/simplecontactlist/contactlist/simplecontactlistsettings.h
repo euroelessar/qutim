@@ -37,13 +37,13 @@
 class QLayout;
 class QVBoxLayout;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 	class ObjectGenerator;
 }
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ContactListSettings : public SettingsWidget
 {

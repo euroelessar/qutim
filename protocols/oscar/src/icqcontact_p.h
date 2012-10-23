@@ -33,7 +33,7 @@
 #include <QDateTime>
 #include <QTimer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -102,7 +102,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // ICQCONTACT_PH_H
 

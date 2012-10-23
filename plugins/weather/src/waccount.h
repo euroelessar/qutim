@@ -32,7 +32,7 @@
 #include <qutim/settingslayer.h>
 #include <QNetworkAccessManager>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class WProtocol;
 class WContact;

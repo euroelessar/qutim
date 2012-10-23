@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 #include "ui_blogimproversettings.h"
 
-class BlogImproverSettings : public qutim_sdk_0_3::SettingsWidget
+class BlogImproverSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

@@ -30,7 +30,7 @@
 #include "metaobjectbuilder.h"
 #include "modulemanager_p.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 AccountCreationWizard::AccountCreationWizard(Protocol *protocol) : QObject(protocol)
 {

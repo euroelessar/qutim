@@ -33,12 +33,12 @@
 #include <QBasicTimer>
 #include <QDateTime>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Account;
 class SettingsItem;
 }
 
-typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
+typedef QHash<Ureen::Account*, Ureen::Status> StatusHash;
 
 class ManagerSettings;
 class QNetworkConfigurationManager;
@@ -58,25 +58,25 @@ signals:
 
 private slots:
 	void onOnlineStatusChanged(bool isOnline);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountRemoved(qutim_sdk_0_3::Account *account);
+	void onAccountCreated(Ureen::Account *account);
+	void onAccountRemoved(Ureen::Account *account);
 	void onAccountDestroyed(QObject *obj);
-	void onStatusChanged(qutim_sdk_0_3::Status status);
+	void onStatusChanged(Ureen::Status status);
 
 private:	
 	bool isNetworkOnline() const;
-	void changeStatus(qutim_sdk_0_3::Account *a,
-					  const qutim_sdk_0_3::Status::Type &status);
+	void changeStatus(Ureen::Account *a,
+					  const Ureen::Status::Type &status);
 
-	typedef QPair<uint, qutim_sdk_0_3::Account*> ReconnectInfo;
+	typedef QPair<uint, Ureen::Account*> ReconnectInfo;
 
 	class ReconnectList : private QList<ReconnectInfo>
 	{
 	public:
-		void remove(qutim_sdk_0_3::Account *account);
-		void insert(qutim_sdk_0_3::Account *account, int timeout);
+		void remove(Ureen::Account *account);
+		void insert(Ureen::Account *account, int timeout);
 
-		QList<qutim_sdk_0_3::Account*> takeNearest();
+		QList<Ureen::Account*> takeNearest();
 		bool isEmpty() const;
 		int secsTo() const;
 		void clear();
@@ -87,7 +87,7 @@ private:
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
 	ReconnectList m_accountsToConnect;
-	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_item;
+	QScopedPointer<Ureen::SettingsItem> m_item;
 };
 
 #endif // BEARERMANAGER_H

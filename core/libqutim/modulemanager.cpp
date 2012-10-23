@@ -77,7 +77,7 @@
 
 //#define NO_COMMANDS 1
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 

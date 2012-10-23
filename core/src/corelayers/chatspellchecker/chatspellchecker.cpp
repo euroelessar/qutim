@@ -57,13 +57,13 @@ ChatSpellChecker::ChatSpellChecker() : m_chatForm("ChatForm")
 {
 	if (m_speller)
 		connect(m_speller, SIGNAL(dictionaryChanged()), SLOT(onDictionaryChanged()));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			this, SLOT(onSessionCreated(Ureen::ChatSession*)));
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 	        SLOT(onServiceChanged(QByteArray)));
 }
 
-void ChatSpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void ChatSpellChecker::onSessionCreated(Ureen::ChatSession *session)
 {
 	Q_ASSERT(session);
 	QTextDocument *inputField = session->getInputField();
@@ -85,12 +85,12 @@ void ChatSpellChecker::onInputFieldDestroyed(QObject *obj)
 
 void ChatSpellChecker::onSessionActivated(bool activated)
 {
-	qutim_sdk_0_3::ChatSession *session = static_cast<qutim_sdk_0_3::ChatSession*>(sender());
+	Ureen::ChatSession *session = static_cast<Ureen::ChatSession*>(sender());
 	Q_ASSERT(session);
 	QObject *tmp;
 	session->metaObject()->invokeMethod(m_chatForm, "textEdit", Qt::DirectConnection,
 										Q_RETURN_ARG(QObject*, tmp),
-										Q_ARG(qutim_sdk_0_3::ChatSession *, session));
+										Q_ARG(Ureen::ChatSession *, session));
 	QWidget *textEdit = qobject_cast<QWidget*>(tmp);
 	if (!qobject_cast<QPlainTextEdit*>(textEdit) &&
 		!qobject_cast<QTextEdit*>(textEdit)) {

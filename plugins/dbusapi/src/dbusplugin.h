@@ -29,7 +29,7 @@
 #include <qutim/plugin.h>
 #include <QDBusConnection>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class DBusPlugin : public Plugin
 {

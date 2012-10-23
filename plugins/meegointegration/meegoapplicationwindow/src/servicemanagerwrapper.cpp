@@ -30,7 +30,7 @@ namespace MeegoIntegration
 {
 ServiceManagerWrapper::ServiceManagerWrapper()
 {
-	qutim_sdk_0_3::ServiceManager *manager = qutim_sdk_0_3::ServiceManager::instance();
+	Ureen::ServiceManager *manager = Ureen::ServiceManager::instance();
 	foreach (const QByteArray &name, manager->names())
 		onServiceChanged(name, manager->getByName(name));
 }

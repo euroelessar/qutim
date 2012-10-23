@@ -29,7 +29,7 @@
 #include "irccontact.h"
 #include <QSet>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -55,7 +55,7 @@ private:
 	mutable int m_ref;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCONTACT_P_H
 

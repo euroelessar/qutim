@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(QWeakPointer<QAction>)
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QWeakPointer<QAction> ActionPtr;
 
@@ -132,20 +132,20 @@ SimpleActions::SimpleActions()
 	m_disableSound->setCheckable(true);
 	m_disableSound->subscribe(this, SLOT(onDisableSoundActionCreated(QAction*,QObject*)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendCreated(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
+			SIGNAL(backendCreated(QByteArray,Ureen::NotificationBackend*)),
 			SLOT(onNotificationBackendCreated(QByteArray)));
 	connect(NotificationManager::instance(),
-			SIGNAL(backendDestroyed(QByteArray,qutim_sdk_0_3::NotificationBackend*)),
+			SIGNAL(backendDestroyed(QByteArray,Ureen::NotificationBackend*)),
 			SLOT(onNotificationBackendDestroyed(QByteArray)));
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList)
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_disableSound.data()));
+		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(Ureen::ActionGenerator*, m_disableSound.data()));
 
 	foreach (Protocol *proto, Protocol::all()) {
 		foreach (Account *acc, proto->accounts())
 			onAccountCreated(acc);
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)),
+				SLOT(onAccountCreated(Ureen::Account*)));
 	}
 	connect(NotificationManager::instance(), SIGNAL(backendStateChanged(QByteArray,bool)),
 			SLOT(onNotificationBackendStateChanged(QByteArray,bool)));
@@ -225,8 +225,8 @@ void SimpleActions::onShowInfoActionCreated(QAction *action, QObject *controller
 	InfoObserver *observer = new InfoObserver(controller);
 	updatInfoAction(action, observer->supportLevel());
 	observer->setProperty("action", qVariantFromValue<ActionPtr>(action));
-	connect(observer, SIGNAL(supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)),
-			SLOT(onInformationSupportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel)));
+	connect(observer, SIGNAL(supportLevelChanged(Ureen::InfoRequestFactory::SupportLevel)),
+			SLOT(onInformationSupportLevelChanged(Ureen::InfoRequestFactory::SupportLevel)));
 	connect(action, SIGNAL(destroyed()), observer, SLOT(deleteLater()));
 }
 
@@ -284,13 +284,13 @@ void SimpleActions::onContactAddRemoveActionDestroyed()
 	}
 }
 
-void SimpleActions::onAccountCreated(qutim_sdk_0_3::Account *account)
+void SimpleActions::onAccountCreated(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status)));
 }
 
-void SimpleActions::onAccountStatusChanged(const qutim_sdk_0_3::Status &)
+void SimpleActions::onAccountStatusChanged(const Ureen::Status &)
 {
 	QMap<QObject*, QAction*> actions = m_contactAddRemoveGen->actions();
 	QMap<QObject*, QAction*>::const_iterator it = actions.constBegin();

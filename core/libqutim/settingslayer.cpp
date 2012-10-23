@@ -42,7 +42,7 @@
 #include "servicemanager.h"
 #include "systemintegration.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 SettingsItem::SettingsItem(SettingsItemPrivate &d) : d_ptr(&d)
@@ -411,7 +411,7 @@ void ensure_settings_private()
 		settings_private_helper();
 }
 
-void registerItem(qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
+void registerItem(Ureen::SettingsItem* item, const QMetaObject* meta)
 {
 	Q_ASSERT(item && meta);
 	ensure_settings_private();

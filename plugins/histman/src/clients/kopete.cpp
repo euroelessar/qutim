@@ -31,7 +31,7 @@
 #include <qutim/account.h>
 #include <qutim/buddy.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace HistoryManager {
 
@@ -81,9 +81,9 @@ QString kopete::guessID(const QString &kopete_id)
 	static QHash<QString, QString> hash;
 	if(hash.isEmpty())
 	{
-		foreach (qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+		foreach (Ureen::Protocol *proto, Ureen::Protocol::all()) {
 			kopete_id_helper(hash, proto->id());
-			foreach (qutim_sdk_0_3::Account *account, proto->accounts()) {
+			foreach (Ureen::Account *account, proto->accounts()) {
 				kopete_id_helper(hash, account->id());
 				foreach (Buddy *buddy, account->findChildren<Buddy*>())
 					kopete_id_helper(hash, buddy->id());

@@ -29,7 +29,7 @@
 #include "ircglobal.h"
 #include <QStringList>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -48,9 +48,9 @@ protected:
 	QStringList m_ctcpCmds;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::irc::IrcCtcpHandler, "org.qutim.irc.IrcCtcpHandler");
+Q_DECLARE_INTERFACE(Ureen::irc::IrcCtcpHandler, "org.qutim.irc.IrcCtcpHandler");
 
 #endif // IRCCTCPHANDLER_H
 

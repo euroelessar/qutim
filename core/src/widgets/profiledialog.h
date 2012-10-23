@@ -30,7 +30,7 @@
 #include <QListWidgetItem>
 #include "modulemanagerimpl.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class Config;
 }

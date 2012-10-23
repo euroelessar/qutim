@@ -17,7 +17,7 @@ public:
     QObject *account() const;
     void setAccount(QObject *account);
     
-    qutim_sdk_0_3::Config config() const;
+    Ureen::Config config() const;
     
 public slots:
     int count();
@@ -31,8 +31,8 @@ signals:
     void accountChanged(QObject *account);
 
 private:
-    qutim_sdk_0_3::Account *m_account;
-    QList<qutim_sdk_0_3::NetworkProxyInfo *> m_infos;
+    Ureen::Account *m_account;
+    QList<Ureen::NetworkProxyInfo *> m_infos;
 };
 
 } // namespace MeegoIntegration

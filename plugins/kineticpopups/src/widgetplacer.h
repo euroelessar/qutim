@@ -29,7 +29,7 @@
 #include <QObject>
 
 class QSize;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Notification;
 }
 
@@ -54,7 +54,7 @@ public:
 	virtual ~WidgetPlacer();
 	void addWidget(PopupWidget *widget);
 	PopupWidgetList widgets() const;
-	//PopupWidget *findPopupWidget(qutim_sdk_0_3::Notification *);
+	//PopupWidget *findPopupWidget(Ureen::Notification *);
 	void setCorner(Corner corner);
 	Corner corner() const;
 public slots:

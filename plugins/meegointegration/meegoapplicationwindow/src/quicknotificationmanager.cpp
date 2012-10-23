@@ -40,7 +40,7 @@
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickNotificationManagerAdaptor::QuickNotificationManagerAdaptor(QuickNoficationManager *manager)
 	: QDBusAbstractAdaptor(manager), m_manager(manager)
@@ -68,7 +68,7 @@ QuickNoficationManager::~QuickNoficationManager()
 		notification->remove();
 }
 
-void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *notification)
+void QuickNoficationManager::handleNotification(Ureen::Notification *notification)
 {
 	if (!m_connected) {
 		NotificationWrapper::connect(this);
@@ -98,7 +98,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 		default:
 			break;
 		}
-		connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+		connect(notification, SIGNAL(finished(Ureen::Notification::State)),
 			SLOT(onNotificationFinished()));
 	}
 }

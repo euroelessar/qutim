@@ -35,7 +35,7 @@
 #include "blogimproversettings.h"
 #include "blogimproverhandler.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
@@ -43,7 +43,7 @@ namespace qutim_sdk_0_3
 namespace BlogImprover {
 
 class BlogImproverHandler;
-class BlogImproverPlugin : public qutim_sdk_0_3::Plugin
+class BlogImproverPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "BlogImprover")
@@ -54,7 +54,7 @@ public:
 	virtual bool unload();
 private:
 	QScopedPointer<BlogImproverHandler> m_handler;
-	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
+	QScopedPointer<Ureen::SettingsItem> m_settingsItem;
 };
 
 } // namespace BlogImprover

@@ -30,7 +30,7 @@
 #include <qutim/thememanager.h>
 #include <QVBoxLayout>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 PackageDownloadDialog::PackageDownloadDialog(const QStringList &categories, const QString &path) :
 	m_view(new DeclarativeView(this))

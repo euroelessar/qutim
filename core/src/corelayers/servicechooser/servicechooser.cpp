@@ -49,7 +49,7 @@ const char *ServiceChoooser::className(const ExtensionInfo &info)
 	return info.generator()->metaObject()->className();
 }
 
-QString ServiceChoooser::html(const qutim_sdk_0_3::ExtensionInfo& info)
+QString ServiceChoooser::html(const Ureen::ExtensionInfo& info)
 {
 	QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
 	html += tr("<b>Description: </b> %1 <br />").arg(info.description());

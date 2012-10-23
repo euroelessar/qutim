@@ -34,14 +34,14 @@ class QListWidgetItem;
 class QStackedWidget;
 class QActionGroup;
 class QModelIndex;
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ActionToolBar;
 }
 
 namespace Core
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct MobileSettingsWindowPrivate;
 class MobileSettingsWindow : public QMainWindow

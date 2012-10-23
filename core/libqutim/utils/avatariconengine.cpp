@@ -28,7 +28,7 @@
 #include "avatarfilter.h"
 #include <QPainter>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 AvatarIconEngine::AvatarIconEngine(const QString &path,const QIcon &overlay) :
@@ -81,4 +81,4 @@ QPixmap AvatarIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::Sta
 		return pixmap;
 }
 
-} //qutim_sdk_0_3
+} //Ureen

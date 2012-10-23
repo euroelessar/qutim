@@ -49,7 +49,7 @@ QString AstralSession::id() const
 	return p->channel->interface<Client::ChannelInterface>()->path();
 }
 
-bool AstralSession::sendMessage(const qutim_sdk_0_3::Message &message)
+bool AstralSession::sendMessage(const Ureen::Message &message)
 {
 	if(!message.text().isEmpty())
 	{
@@ -65,7 +65,7 @@ void AstralSession::onMessageReceived(const Tp::ReceivedMessage &message)
 {
 	if(ChatLayer *chat = ChatLayer::instance())
 	{
-		qutim_sdk_0_3::Message mes;
+		Ureen::Message mes;
 		AstralContact *contact = p->account->roster()->contact(message.sender());
 		mes.setChatUnit(contact);
 		mes.setText(message.text());

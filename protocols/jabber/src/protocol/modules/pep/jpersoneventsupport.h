@@ -41,7 +41,7 @@ namespace Jabber
 //	public:
 //		JPersonalEventFilterFactory();
 //		virtual ~JPersonalEventFilterFactory();
-//		virtual gloox::MessageFilter *create(qutim_sdk_0_3::Account *account,
+//		virtual gloox::MessageFilter *create(Ureen::Account *account,
 //											 const JabberParams &params,
 //											 gloox::MessageSession *session);
 		
@@ -65,7 +65,7 @@ namespace Jabber
 	public:
 		JPersonEventSupport();
 		virtual ~JPersonEventSupport();
-		virtual void init(qutim_sdk_0_3::Account *account);
+		virtual void init(Ureen::Account *account);
 		virtual bool eventFilter(QObject *obj, QEvent *ev);
 	protected slots:
 		void onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from);
@@ -127,7 +127,7 @@ namespace Jabber
 //        virtual void handleDefaultNodeConfig(const std::string &, const gloox::JID &, const gloox::DataForm *,
 //											 const gloox::Error  *error = 0) { Q_UNUSED(error); }
 	private:
-		qutim_sdk_0_3::Account *m_account;
+		Ureen::Account *m_account;
 		Jreen::PubSub::Manager *m_manager;
 		quint16 m_eventId;
 		QMap<int, PersonEventConverter*> m_converters;

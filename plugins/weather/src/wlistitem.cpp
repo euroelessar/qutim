@@ -39,7 +39,7 @@ WListItem::WListItem(const QString &city, const QString &state, const QString &i
 	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
 	m_label->setSizePolicy(policy);
 	m_button = new QPushButton(tr("Remove"), this);
-	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
+	m_button->setIcon(Ureen::Icon(QLatin1String("list-remove")));
 	connect(m_button, SIGNAL(clicked(bool)), this, SIGNAL(buttonClicked()));
 	
 	QHBoxLayout *layout = new QHBoxLayout(this);

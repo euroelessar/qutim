@@ -27,7 +27,7 @@
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 enum Roles {
 	ContentRole = Qt::UserRole,

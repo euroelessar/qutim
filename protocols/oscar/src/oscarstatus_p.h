@@ -28,7 +28,7 @@
 
 #include "oscarstatus.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -41,9 +41,9 @@ public:
 	void insert(const OscarStatusData &status);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CapabilityHash);
+Q_DECLARE_METATYPE(Ureen::oscar::CapabilityHash);
 
 #endif // OSCARSTATUS_P_H
 

@@ -25,7 +25,7 @@
 
 #include "webkitpreviewunits_p.h"
 
-WebKitPreviewChatUnit::WebKitPreviewChatUnit(const QVariantMap &data, qutim_sdk_0_3::Account *account)
+WebKitPreviewChatUnit::WebKitPreviewChatUnit(const QVariantMap &data, Ureen::Account *account)
     : ChatUnit(account), m_data(data)
 {
 }
@@ -49,13 +49,13 @@ QString WebKitPreviewChatUnit::avatar() const
 	return m_data.value(QLatin1String("UserIcon Name")).toString();
 }
 
-bool WebKitPreviewChatUnit::sendMessage(const qutim_sdk_0_3::Message &message)
+bool WebKitPreviewChatUnit::sendMessage(const Ureen::Message &message)
 {
 	Q_UNUSED(message);
 	return false;
 }
 
-WebKitPreviewAccount::WebKitPreviewAccount(const QVariantMap &data, qutim_sdk_0_3::Protocol *protocol)
+WebKitPreviewAccount::WebKitPreviewAccount(const QVariantMap &data, Ureen::Protocol *protocol)
     : Account(data.value(QLatin1String("UID")).toString(), protocol), m_data(data)
 {
 }
@@ -74,7 +74,7 @@ QString WebKitPreviewAccount::avatar() const
 	return m_data.value(QLatin1String("UserIcon Name")).toString();
 }
 
-qutim_sdk_0_3::ChatUnit *WebKitPreviewAccount::getUnit(const QString &unitId, bool create)
+Ureen::ChatUnit *WebKitPreviewAccount::getUnit(const QString &unitId, bool create)
 {
 	Q_UNUSED(unitId);
 	Q_UNUSED(create);
@@ -90,12 +90,12 @@ WebKitPreviewProtocol::~WebKitPreviewProtocol()
 {
 }
 
-QList<qutim_sdk_0_3::Account*> WebKitPreviewProtocol::accounts() const
+QList<Ureen::Account*> WebKitPreviewProtocol::accounts() const
 {
-	return QList<qutim_sdk_0_3::Account*>();
+	return QList<Ureen::Account*>();
 }
 
-qutim_sdk_0_3::Account *WebKitPreviewProtocol::account(const QString &id) const
+Ureen::Account *WebKitPreviewProtocol::account(const QString &id) const
 {
 	Q_UNUSED(id);
 	return 0;
@@ -113,12 +113,12 @@ WebKitPreviewSession::~WebKitPreviewSession()
 {
 }
 
-qutim_sdk_0_3::ChatUnit *WebKitPreviewSession::getUnit() const
+Ureen::ChatUnit *WebKitPreviewSession::getUnit() const
 {
 	return m_unit;
 }
 
-void WebKitPreviewSession::setChatUnit(qutim_sdk_0_3::ChatUnit *unit)
+void WebKitPreviewSession::setChatUnit(Ureen::ChatUnit *unit)
 {
 	m_unit = unit;
 }
@@ -133,17 +133,17 @@ void WebKitPreviewSession::markRead(quint64 id)
 	Q_UNUSED(id);
 }
 
-qutim_sdk_0_3::MessageList WebKitPreviewSession::unread() const
+Ureen::MessageList WebKitPreviewSession::unread() const
 {
-	return qutim_sdk_0_3::MessageList();
+	return Ureen::MessageList();
 }
 
-void WebKitPreviewSession::addContact(qutim_sdk_0_3::Buddy *c)
+void WebKitPreviewSession::addContact(Ureen::Buddy *c)
 {
 	Q_UNUSED(c);
 }
 
-void WebKitPreviewSession::removeContact(qutim_sdk_0_3::Buddy *c)
+void WebKitPreviewSession::removeContact(Ureen::Buddy *c)
 {
 	Q_UNUSED(c);
 }
@@ -153,7 +153,7 @@ void WebKitPreviewSession::doSetActive(bool active)
 	Q_UNUSED(active);
 }
 
-qint64 WebKitPreviewSession::doAppendMessage(qutim_sdk_0_3::Message &message)
+qint64 WebKitPreviewSession::doAppendMessage(Ureen::Message &message)
 {
 	return message.id();
 }

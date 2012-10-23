@@ -28,11 +28,11 @@
 
 #include <qutim/config.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
-	class JsonConfigBackend : public qutim_sdk_0_3::ConfigBackend
+	class JsonConfigBackend : public Ureen::ConfigBackend
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Extension", "json")

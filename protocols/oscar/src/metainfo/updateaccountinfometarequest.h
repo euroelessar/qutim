@@ -28,7 +28,7 @@
 
 #include "tlvbasedmetarequest.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -47,7 +47,7 @@ protected:
 	virtual bool handleData(quint16 type, const DataUnit &data);
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // UPDATEACCOUNTINFOMETAREQUEST_H
 

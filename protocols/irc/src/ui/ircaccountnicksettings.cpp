@@ -28,7 +28,7 @@
 #include "ui_editnickform.h"
 #include <qutim/config.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -91,5 +91,5 @@ QWidgetList IrcAccountNickSettings::editableWidgets()
 	return list;
 }
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 

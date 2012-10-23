@@ -32,7 +32,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3 
+namespace Ureen 
 {
 class Conference;
 }
@@ -56,7 +56,7 @@ class JMUCManager : public QObject
 public:
 	JMUCManager(JAccount *account, QObject *parent = 0);
 	~JMUCManager();
-	qutim_sdk_0_3::ChatUnit *muc(const Jreen::JID &jid);
+	Ureen::ChatUnit *muc(const Jreen::JID &jid);
 	JBookmarkManager *bookmarkManager();
 	void syncBookmarks();
 	void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
@@ -65,7 +65,7 @@ public:
 	bool event(QEvent *event);
 	void appendMUCSession(JMUCSession *room);
 signals:
-	void conferenceCreated(qutim_sdk_0_3::Conference*);
+	void conferenceCreated(Ureen::Conference*);
 private slots:
 	//TODO rewrite on private slots
 	void onListReceived(const QString &name, const QList<Jreen::PrivacyItem> &items);
@@ -76,7 +76,7 @@ protected:
 	void closeMUCSession(JMUCSession *room);
 private:
 	QScopedPointer<JMUCManagerPrivate> d_ptr;
-	Q_PRIVATE_SLOT(d_func() , void _q_status_changed(qutim_sdk_0_3::Status))
+	Q_PRIVATE_SLOT(d_func() , void _q_status_changed(Ureen::Status))
 };
 }
 

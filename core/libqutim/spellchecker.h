@@ -28,7 +28,7 @@
 
 #include "libqutim_global.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 /**
   The SpellChecker class is used for spell checking.
@@ -78,7 +78,7 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 };
 
-} // namespace qutim_sdk_0_3
+} // namespace Ureen
 
 #endif // SPELLCHECKER_H
 

@@ -34,7 +34,7 @@
 struct AspellConfig;
 struct AspellSpeller;
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ASpellChecker : public SpellChecker
 {

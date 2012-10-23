@@ -34,7 +34,7 @@
 #include <QCoreApplication>
 #include "debug.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 // is must be named as a lot of another variables
 static QWeakPointer<CryptoService> self;

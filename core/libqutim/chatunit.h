@@ -31,7 +31,7 @@
 #include <QEvent>
 #include <QDateTime>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class MetaContact;
@@ -62,7 +62,7 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
 	Q_PROPERTY(QDateTime lastActivity READ lastActivity NOTIFY lastActivityChanged)
-	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
+	Q_PROPERTY(Ureen::Account* account READ account CONSTANT)
 	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
 	/**
@@ -115,21 +115,21 @@ public:
 	*
 	* @param message Message, which to be sent to the recipient
 	*/
-	virtual bool sendMessage(const qutim_sdk_0_3::Message &message) = 0;
+	virtual bool sendMessage(const Ureen::Message &message) = 0;
 
-	Q_INVOKABLE bool send(const qutim_sdk_0_3::Message &message);
+	Q_INVOKABLE bool send(const Ureen::Message &message);
 	/**
 	* @brief Returns TODO
 	*
 	* @return ChatUnitList
 	*/
-	Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatUnit*> lowerUnits();
+	Q_INVOKABLE virtual QList<Ureen::ChatUnit*> lowerUnits();
 	/**
 	* @brief Returns TODO
 	*
 	* @return Pointer to upper chatunit
 	*/
-	Q_INVOKABLE virtual qutim_sdk_0_3::ChatUnit *upperUnit();
+	Q_INVOKABLE virtual Ureen::ChatUnit *upperUnit();
 	/**
 	* @brief Returns TODO
 	*
@@ -152,8 +152,8 @@ public:
 	*
 	* @param state New ChatState
 	*/
-	void setChatState(qutim_sdk_0_3::ChatState state);
-	qutim_sdk_0_3::ChatState chatState() const;
+	void setChatState(Ureen::ChatState state);
+	Ureen::ChatState chatState() const;
 public slots:
 	quint64 sendMessage(const QString &text);
 signals:
@@ -166,7 +166,7 @@ signals:
 	Notifies that new lower unit is added.
    */
 	void lowerUnitAdded(ChatUnit *unit);
-	void chatStateChanged(qutim_sdk_0_3::ChatState current,qutim_sdk_0_3::ChatState previous);
+	void chatStateChanged(Ureen::ChatState current,Ureen::ChatState previous);
 	void lastActivityChanged(const QDateTime &current, const QDateTime &previous);
 };
 
@@ -199,9 +199,9 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatUnit*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatUnit*>)
-Q_ENUMS(qutim_sdk_0_3::ChatState)
+Q_DECLARE_METATYPE(Ureen::ChatUnit*)
+Q_DECLARE_METATYPE(QList<Ureen::ChatUnit*>)
+Q_ENUMS(Ureen::ChatState)
 
 #endif // CHATUNIT_H
 

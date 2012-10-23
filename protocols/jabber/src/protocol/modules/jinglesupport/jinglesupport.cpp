@@ -37,7 +37,7 @@
 #include <QAudioOutput>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Jabber
 {
@@ -182,7 +182,7 @@ JingleSupport::~JingleSupport()
 	jingleMap()->remove(m_account);
 }
 
-void JingleSupport::init(qutim_sdk_0_3::Account *account)
+void JingleSupport::init(Ureen::Account *account)
 {
 	m_account = static_cast<JAccount*>(account);
 	m_client = m_account->client();

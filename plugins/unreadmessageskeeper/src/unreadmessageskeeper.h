@@ -29,14 +29,14 @@
 #include <qutim/plugin.h>
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class ChatSession;
 class Message;
 }
 
 namespace UnreadMessagesKeeper {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class UnreadMessagesKeeper : public Plugin
 {
@@ -48,8 +48,8 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private slots:
-	void sessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &list);
+	void sessionCreated(Ureen::ChatSession*);
+	void onUnreadChanged(const Ureen::MessageList &list);
 private:
 };
 

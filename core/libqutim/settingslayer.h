@@ -35,7 +35,7 @@
 #include <QIcon>
 #include <QComboBox>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class SettingsWidget;
 class SettingsItem;
@@ -228,7 +228,7 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::SettingsItem*)
+Q_DECLARE_METATYPE(Ureen::SettingsItem*)
 
 #endif // SETTINGSLAYER_H
 

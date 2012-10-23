@@ -34,7 +34,7 @@
 #include <QDateTime>
 #include <numeric>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 typedef QMap<Message*, ChatSession*> MessageHookMap;
 Q_GLOBAL_STATIC(MessageHookMap, messageHookMap)
@@ -112,12 +112,12 @@ ChatSession::~ChatSession()
 {
 }
 
-qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
+qint64 ChatSession::append(Ureen::Message &message)
 {
 	return appendMessage(message);
 }
 
-qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
+qint64 ChatSession::appendMessage(Ureen::Message &message)
 {
 	if (!message.chatUnit()) {
 		warning() << "Message" << message.text() << "must have a chatUnit";
@@ -186,7 +186,7 @@ public:
 
 ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 {
-	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
+	qRegisterMetaType<Ureen::MessageList>("Ureen::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
 	MessageHandler::registerHandler(p()->handlerHook.data(),

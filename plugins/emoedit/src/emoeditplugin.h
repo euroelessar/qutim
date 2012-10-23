@@ -31,7 +31,7 @@
 #include <qutim/emoticons.h>
 #include <QTextObjectInterface>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class EmoEditPlugin : public Plugin, public QTextObjectInterface
 {
@@ -48,7 +48,7 @@ public:
     virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
 							int posInDocument, const QTextFormat &format);
 protected slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionDestroyed(QObject *session);
 	void onDocumentContentsChanged(QTextDocument *doc = 0);
 private:

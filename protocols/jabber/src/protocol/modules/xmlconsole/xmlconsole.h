@@ -48,7 +48,7 @@ public:
 	XmlConsole(QWidget *parent = 0);
 	~XmlConsole();
 	
-	void init(qutim_sdk_0_3::Account *account);
+	void init(Ureen::Account *account);
 	void init(Jreen::Client *client);
 	virtual void handleStreamBegin();
 	virtual void handleStreamEnd();

@@ -29,7 +29,7 @@
 #include "actiontoolbar.h"
 #include <QWidgetAction>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	struct WidgetActionGeneratorPrivate;
 

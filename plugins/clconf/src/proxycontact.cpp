@@ -41,8 +41,8 @@ ProxyContact::ProxyContact(Conference *conf) :
 	connect(m_conf.data(), SIGNAL(titleChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(m_conf.data(), SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
 	connect(m_conf.data(), SIGNAL(joinedChanged(bool)), SLOT(updateStatus()));
-	connect(m_conf.data()->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(m_conf.data()->account(), SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status,Ureen::Status)));
 	updateStatus();
 }
 
@@ -91,8 +91,8 @@ bool ProxyContact::sendMessage(const Message &message)
 	return m_conf ? m_conf.data()->sendMessage(message) : false;
 }
 
-void ProxyContact::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-										  const qutim_sdk_0_3::Status &previous)
+void ProxyContact::onAccountStatusChanged(const Ureen::Status &current,
+										  const Ureen::Status &previous)
 {
 	if (previous.type() != Status::Offline && current.type() == Status::Offline)
 		updateStatus();

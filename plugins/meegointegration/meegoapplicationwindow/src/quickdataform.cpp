@@ -9,7 +9,7 @@
 namespace MeegoIntegration
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickDataForm::QuickDataForm(QDeclarativeItem *parent) :
     QDeclarativeItem(parent), m_hasSubitems(false), m_column(0)

@@ -61,7 +61,7 @@ void JConferenceConfig::loadImpl()
 	p->room->requestRoomConfig();
 }
 
-void JConferenceConfig::saveImpl(const qutim_sdk_0_3::DataItem &item)
+void JConferenceConfig::saveImpl(const Ureen::DataItem &item)
 {
 	JDataForm::convertFromDataItem(p->form, item);
 	p->room->setRoomConfig(p->form);

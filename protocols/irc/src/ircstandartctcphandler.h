@@ -29,7 +29,7 @@
 #include "ircglobal.h"
 #include "ircctcphandler.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -39,7 +39,7 @@ class IrcConnection;
 class IrcStandartCtcpHandler : public QObject, public IrcCtcpHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcCtcpHandler)
+	Q_INTERFACES(Ureen::irc::IrcCtcpHandler)
 public:
 	IrcStandartCtcpHandler(IrcConnection *conn);
 	void handleCtcpRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
@@ -50,7 +50,7 @@ private:
 	IrcConnection *m_conn;
 };
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 
 #endif // IRCSTANDARTCTCPHANDLER_H
 

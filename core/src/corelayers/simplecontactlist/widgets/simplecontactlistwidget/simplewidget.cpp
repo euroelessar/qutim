@@ -55,7 +55,7 @@
 namespace Core {
 namespace SimpleContactList {
 
-static bool isStatusChange(const qutim_sdk_0_3::Status &status)
+static bool isStatusChange(const Ureen::Status &status)
 {
 	if (status.type() == Status::Offline) {
 		foreach(Protocol *proto, Protocol::all()) {
@@ -148,7 +148,7 @@ SimpleWidget::SimpleWidget()
 	layout->addWidget(m_statusBtn);
 
 	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)), this, SLOT(onAccountCreated(Ureen::Account*)));
 		foreach(Account *account, proto->accounts()) {
 			onAccountCreated(account);
 		}
@@ -257,12 +257,12 @@ void SimpleWidget::onSearchActivated()
 	m_searchBar->setFocus(Qt::PopupFocusReason);
 }
 
-void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
+void SimpleWidget::onAccountCreated(Ureen::Account *account)
 {
 	//TODO add account icon
 	QAction *action = new QAction(account->status().icon(), account->id(), m_statusBtn);
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status)));
 	connect(account, SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 	m_actions.insert(account, action);
 	QMenu *contextMenu = account->menu(false);
@@ -271,7 +271,7 @@ void SimpleWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	m_statusBtn->menu()->addAction(action);
 }
 
-void SimpleWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void SimpleWidget::onAccountStatusChanged(const Ureen::Status &status)
 {
 	Account *account = sender_cast<Account *>(sender());
 	QAction *action = m_actions.value(account);

@@ -37,7 +37,7 @@ class QuoterWidget : public QListWidget
 {
 	Q_OBJECT
 public:
-	QuoterWidget(const qutim_sdk_0_3::MessageList &messages, QObject *controller);
+	QuoterWidget(const Ureen::MessageList &messages, QObject *controller);
 	~QuoterWidget();
 	
 signals:

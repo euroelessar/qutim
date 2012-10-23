@@ -88,10 +88,10 @@ void FileTransferJobModel::handleJob(FileTransferJob *job, FileTransferJob *oldJ
 			SIGNAL(progressChanged(qint64)),
 			SLOT(updateJob()));
 	connect(job,
-			SIGNAL(stateStringChanged(qutim_sdk_0_3::LocalizedString)),
+			SIGNAL(stateStringChanged(Ureen::LocalizedString)),
 			SLOT(updateJob()));
 	connect(job,
-			SIGNAL(errorStringChanged(qutim_sdk_0_3::LocalizedString)),
+			SIGNAL(errorStringChanged(Ureen::LocalizedString)),
 			SLOT(updateJob()));
 	connect(job,
 			SIGNAL(destroyed(QObject*)),

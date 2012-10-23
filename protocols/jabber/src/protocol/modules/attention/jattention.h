@@ -32,7 +32,7 @@
 #include "../../../sdk/jabber.h"
 #include <jreen/client.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class Account;
 }
 
@@ -43,7 +43,7 @@ class JAttentionInfo
 public:
 	typedef QWeakPointer<JAttentionInfo> WeakPtr;
 	typedef QSharedPointer<JAttentionInfo> Ptr;
-	QScopedPointer<qutim_sdk_0_3::ActionGenerator> generator;
+	QScopedPointer<Ureen::ActionGenerator> generator;
 };
 
 class JAttention : public QObject, public JabberExtension
@@ -53,7 +53,7 @@ class JAttention : public QObject, public JabberExtension
 public:
 	JAttention();
 	~JAttention();
-	virtual void init(qutim_sdk_0_3::Account *account);
+	virtual void init(Ureen::Account *account);
 	
 private slots:
 	void onAttentionClicked(QObject *obj);
@@ -61,11 +61,11 @@ private slots:
 	void onMessageReceived(const Jreen::Message &message);
 	
 private:
-	qutim_sdk_0_3::Account *m_account;
+	Ureen::Account *m_account;
 	JAttentionInfo::Ptr m_info;
 };
 
-class SendAttentionActionGenerator : public qutim_sdk_0_3::ActionGenerator
+class SendAttentionActionGenerator : public Ureen::ActionGenerator
 {
 public:
 	SendAttentionActionGenerator(QObject *obj, const char *slot);

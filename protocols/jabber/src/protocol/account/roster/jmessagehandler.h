@@ -31,7 +31,7 @@
 //Jreen
 #include <jreen/messagesession.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ChatUnit;
 class Message;
@@ -73,7 +73,7 @@ class JMessageSessionManager : public Jreen::MessageSessionManager
 public:
 	JMessageSessionManager(JAccount *account);
 	virtual ~JMessageSessionManager();
-	void sendMessage(qutim_sdk_0_3::ChatUnit *unit, const qutim_sdk_0_3::Message &message);
+	void sendMessage(Ureen::ChatUnit *unit, const Ureen::Message &message);
 public slots:
 	virtual void handleMessage(const Jreen::Message &message);
 	

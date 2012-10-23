@@ -12,20 +12,20 @@ class DockTile : public QtDockTile
 public:
 	explicit DockTile(QObject *parent = 0);
 protected:
-	QAction *createStatusAction(qutim_sdk_0_3::Status::Type type);
+	QAction *createStatusAction(Ureen::Status::Type type);
 private slots:
 	void onStatusTriggered(QAction *);
 	void onSessionTriggered();
-	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionCreated(Ureen::ChatSession *session);
 	void onSessionDestroyed();
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
+	void onUnreadChanged(const Ureen::MessageList &unread);
 	int calculateUnread() const;
 private:
 	QScopedPointer<QMenu> m_menu;
 	QAction *m_statusSeparator;
 	QAction *m_sessionSeparator;
 	QActionGroup *m_statusGroup;
-	QHash<qutim_sdk_0_3::ChatSession*, QAction*> m_sessions;
+	QHash<Ureen::ChatSession*, QAction*> m_sessions;
 };
 
 #endif // DOCKTILE_H

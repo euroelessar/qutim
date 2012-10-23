@@ -30,7 +30,7 @@
 #include <qutim/chatsession.h>
 #include "QApplication"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -225,5 +225,5 @@ void IrcContact::setRealName(const QString &name)
 	d->realName = name;
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

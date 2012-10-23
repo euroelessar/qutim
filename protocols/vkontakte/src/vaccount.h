@@ -43,7 +43,7 @@ class VProtocol;
 class VClient;
 class VRoster;
 
-class VAccount : public qutim_sdk_0_3::Account
+class VAccount : public Ureen::Account
 {
 	Q_OBJECT
 	Q_PROPERTY(Vreen::Client* client READ client CONSTANT)
@@ -51,9 +51,9 @@ public:
 	VAccount(const QString &email, VProtocol *protocol);
 	VContact *contact(int uid, bool create = false);
 
-	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
+	virtual Ureen::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
-	virtual void setStatus(qutim_sdk_0_3::Status status);
+	virtual void setStatus(Ureen::Status status);
 
 	int uid() const;
 	QString email() const;

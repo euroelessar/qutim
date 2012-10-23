@@ -26,7 +26,7 @@
 #include "metafield.h"
 #include "metafields_p.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -231,5 +231,5 @@ MetaInfoValuesHash MetaField::dataItemToHash(const DataItem &items, bool allItem
 }
 
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -33,9 +33,9 @@ namespace Core {
 QPixmap variantToPixmap(const QVariant &data, const QSize &size);
 QStringList variantToStringList(const QVariant &data);
 
-QWidget *getTitle(DefaultDataForm *dataForm, const qutim_sdk_0_3::DataItem &item, const Qt::Alignment &alignment, QWidget *parent = 0);
-QWidget *getWidget(DefaultDataForm *dataForm, const qutim_sdk_0_3::DataItem &item, QWidget *parent = 0, bool *twoColumn = 0);
-qutim_sdk_0_3::DataItem getDataItem(QWidget *title, QWidget *data);
+QWidget *getTitle(DefaultDataForm *dataForm, const Ureen::DataItem &item, const Qt::Alignment &alignment, QWidget *parent = 0);
+QWidget *getWidget(DefaultDataForm *dataForm, const Ureen::DataItem &item, QWidget *parent = 0, bool *twoColumn = 0);
+Ureen::DataItem getDataItem(QWidget *title, QWidget *data);
 
 } // namespace Core
 

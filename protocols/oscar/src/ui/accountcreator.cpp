@@ -29,7 +29,7 @@
 #include <QVBoxLayout>
 #include "../icqprotocol.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -76,5 +76,5 @@ QList<QWizardPage *> IcqAccountCreationWizard::createPages(QWidget *parent)
 	return pages;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

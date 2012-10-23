@@ -31,7 +31,7 @@
 #include <QtCore/QSharedData>
 #include <QMetaType>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class ExtensionIconData;
 
@@ -51,7 +51,7 @@ private:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ExtensionIcon);
+Q_DECLARE_METATYPE(Ureen::ExtensionIcon);
 
 #endif // EXTENSIONICON_H
 

@@ -39,7 +39,7 @@ Q_DECLARE_METATYPE(QValidator*);
 namespace Core
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 static QValidator *getValidator(const QVariant &validator, QWidget *object)
 {
@@ -64,7 +64,7 @@ static inline void connectSignalsHelper(QWidget *widget, DefaultDataForm *dataFo
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
 		QObject::connect(widget, dataChangedSignal, widget, SLOT(onChanged()));
-		QObject::connect(widget, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+		QObject::connect(widget, SIGNAL(changed(QString,QVariant,Ureen::AbstractDataForm*)),
 						 item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -199,7 +199,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,Ureen::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -381,7 +381,7 @@ LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QStrin
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,Ureen::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -609,7 +609,7 @@ IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget 
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,Ureen::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -750,7 +750,7 @@ StringListGroup::StringListGroup(DefaultDataForm *dataForm, const DataItem &item
 		dataForm->addWidget(item.name(), this);
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,Ureen::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 		connect(this, SIGNAL(rowAdded()), SLOT(onChanged()));
 		connect(this, SIGNAL(rowRemoved()), SLOT(onChanged()));

@@ -41,8 +41,8 @@
 #include <qutim/debug.h>
 #include "profiledialog.h"
 
-using namespace qutim_sdk_0_3;
-namespace qutim_sdk_0_3
+using namespace Ureen;
+namespace Ureen
 {
 LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();

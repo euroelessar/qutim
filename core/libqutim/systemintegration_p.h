@@ -28,7 +28,7 @@
 
 #include "systemintegration.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class DefaultSystemIntegration : public SystemIntegration
 	{

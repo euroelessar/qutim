@@ -28,7 +28,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickSettingsModel::QuickSettingsModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -45,7 +45,7 @@ bool itemLessThen(SettingsItem *a, SettingsItem *b)
 	return a->text().toString() < b->text().toString();
 }
 
-static void filterItems(qutim_sdk_0_3::SettingsItemList &items)
+static void filterItems(Ureen::SettingsItemList &items)
 {
 	Q_UNUSED(items);
 //	for (int i = items.size() - 1; i >= 0; --i) {
@@ -55,7 +55,7 @@ static void filterItems(qutim_sdk_0_3::SettingsItemList &items)
 //	}
 }
 
-void QuickSettingsModel::setItems(const qutim_sdk_0_3::SettingsItemList &items, QObject *controller)
+void QuickSettingsModel::setItems(const Ureen::SettingsItemList &items, QObject *controller)
 {
 	m_controller = controller;
 	if (!m_items.isEmpty()) {

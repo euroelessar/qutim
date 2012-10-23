@@ -36,7 +36,7 @@
 
 namespace Control {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QuickAnswerButtonActionGenerator::QuickAnswerButtonActionGenerator(QObject *object, const char *slot)
     : ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Control", "Answer"), object, slot)
@@ -157,7 +157,7 @@ void QuickAnswerMenu::onItemClicked(QListWidgetItem *item)
 	debug() << item->text() << session << session->getInputField();
 	QMetaObject::invokeMethod(ChatLayer::instance(),
 	                          "insertText",
-	                          Q_ARG(qutim_sdk_0_3::ChatSession*, session),
+	                          Q_ARG(Ureen::ChatSession*, session),
 	                          Q_ARG(QString, item->text()));
 	close();
 }

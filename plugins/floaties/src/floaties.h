@@ -34,7 +34,7 @@
 #include <qutim/protocol.h>
 #include <QAbstractItemView>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class FloatiesPlugin : public Plugin
 {
@@ -47,7 +47,7 @@ public:
 public slots:
 	void onRemoveContact(QObject *obj);
 protected:
-	ContactWidget *createWidget(qutim_sdk_0_3::Contact *contact);
+	ContactWidget *createWidget(Ureen::Contact *contact);
 private:
 	QWeakPointer<QAbstractItemView> m_view;
 	quint16 m_eventId;

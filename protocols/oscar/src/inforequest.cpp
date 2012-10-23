@@ -32,7 +32,7 @@
 
 Q_DECLARE_METATYPE(QHostAddress)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -45,8 +45,8 @@ static bool isStatusOnline(const Status &status)
 IcqInfoRequestFactory::IcqInfoRequestFactory(IcqAccount *account) :
 	QObject(account), m_account(account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			SLOT(onAccountStatusChanged(Ureen::Status,Ureen::Status)));
 }
 
 IcqInfoRequestFactory::SupportLevel IcqInfoRequestFactory::supportLevel(QObject *object)
@@ -97,8 +97,8 @@ bool IcqInfoRequestFactory::stopObserve(QObject *object)
 	return false;
 }
 
-void IcqInfoRequestFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
-												   const qutim_sdk_0_3::Status &previous)
+void IcqInfoRequestFactory::onAccountStatusChanged(const Ureen::Status &status,
+												   const Ureen::Status &previous)
 {
 	bool isOnline = isStatusOnline(status);
 	bool wasOnline = isStatusOnline(previous);
@@ -390,5 +390,5 @@ void IcqInfoRequest::handleError(AbstractMetaRequest *request)
 }
 
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 

@@ -33,7 +33,7 @@ Q_DECLARE_METATYPE(Control::AnswerLine::Guard)
 
 namespace Control {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 AnswerLine::AnswerLine(const QString &text, QListWidget *list)
 {
@@ -41,7 +41,7 @@ AnswerLine::AnswerLine(const QString &text, QListWidget *list)
 	m_textEdit = new QPlainTextEdit(this);
 	
 	QPushButton *button = new QPushButton(tr("Remove"), this);
-	button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
+	button->setIcon(Ureen::Icon(QLatin1String("list-remove")));
 	layout->addWidget(m_textEdit);
 	layout->addWidget(button);
 	connect(button, SIGNAL(clicked()), SLOT(onButtonClicked()));

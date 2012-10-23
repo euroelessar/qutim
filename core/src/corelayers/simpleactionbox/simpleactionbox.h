@@ -33,7 +33,7 @@ class QToolButton;
 class QHBoxLayout;
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class SimpleActionBoxModule : public ActionBoxModule
 {

@@ -82,8 +82,8 @@ void MobileContactInfoWindow::setObject(QObject *obj, SupportLevel type)
 	request = InfoRequestFactory::dataFormRequest(obj);
 
 	if (request) {
-		connect(request, SIGNAL(stateChanged(qutim_sdk_0_3::InfoRequest::State)),
-				SLOT(onRequestStateChanged(qutim_sdk_0_3::InfoRequest::State)));
+		connect(request, SIGNAL(stateChanged(Ureen::InfoRequest::State)),
+				SLOT(onRequestStateChanged(Ureen::InfoRequest::State)));
 		request->requestData();
 	}
 

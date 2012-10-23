@@ -39,7 +39,7 @@
 #include "ui_wsettings.h"
 #include "wlistitem.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class WSettings : public SettingsWidget
 {

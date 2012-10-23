@@ -38,7 +38,7 @@ namespace KineticPopups
 {
 
 class AbstractPopupWidget;
-class PopupAppearance : public qutim_sdk_0_3::SettingsWidget
+class PopupAppearance : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

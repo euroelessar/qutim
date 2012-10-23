@@ -3,5 +3,5 @@
 	"pluginName": "Proxy settings",
 	"pluginDescription": "Default implementation of proxy settings widget",
 	"extensionHeader": "proxysettings.h",
-	"extensionClass": "Core::ProxySettings,qutim_sdk_0_3::StartupModule"
+	"extensionClass": "Core::ProxySettings,Ureen::StartupModule"
 }

@@ -45,8 +45,8 @@ void UnreadMessagesKeeper::init()
 bool UnreadMessagesKeeper::load()
 {
 	ChatLayer *layer = ChatLayer::instance();
-	connect(layer,SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
+	connect(layer,SIGNAL(sessionCreated(Ureen::ChatSession*)),
+			SLOT(sessionCreated(Ureen::ChatSession*))
 			);
 
 	Config cfg("unreadmessages");
@@ -87,12 +87,12 @@ bool UnreadMessagesKeeper::unload()
 	return true;
 }
 
-void UnreadMessagesKeeper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
+void UnreadMessagesKeeper::sessionCreated(Ureen::ChatSession* session)
 {
-	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session,SIGNAL(unreadChanged(Ureen::MessageList)),SLOT(onUnreadChanged(Ureen::MessageList)));
 }
 
-void UnreadMessagesKeeper::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)
+void UnreadMessagesKeeper::onUnreadChanged(const Ureen::MessageList &list)
 {
 	ChatSession *s = qobject_cast<ChatSession*>(sender());
 	ChatUnit *u = s->getUnit();

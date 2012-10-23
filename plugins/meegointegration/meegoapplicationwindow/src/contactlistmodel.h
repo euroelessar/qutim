@@ -67,21 +67,21 @@ signals:
 	void countChanged(int count);
 	
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountCreated(Ureen::Account *account);
 	void onAccountDeath(QObject *object);
-	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+	void onContactCreated(Ureen::Contact *contact);
 	void onContactTitleChanged(const QString &title, const QString &oldTitle);
-	void onContactStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onContactStatusChanged(const Ureen::Status &status);
 	void onContactDeath(QObject *object);
 	
 private:
 	void checkVisibility();
-	void checkVisibility(qutim_sdk_0_3::Contact *contact, bool forced = false);
-	bool isVisible(qutim_sdk_0_3::Contact *contact);
-	int indexOfContact(qutim_sdk_0_3::Contact *contact) const;
+	void checkVisibility(Ureen::Contact *contact, bool forced = false);
+	bool isVisible(Ureen::Contact *contact);
+	int indexOfContact(Ureen::Contact *contact) const;
 	struct Item {
 		QString title;
-		qutim_sdk_0_3::Contact *contact;
+		Ureen::Contact *contact;
 		
 		bool operator <(const Item &o) const;
 	};

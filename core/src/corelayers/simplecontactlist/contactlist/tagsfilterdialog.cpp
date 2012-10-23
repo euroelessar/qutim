@@ -30,7 +30,7 @@ namespace Core
 {
 namespace SimpleContactList
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 TagsFilterDialog::TagsFilterDialog(const QStringList &tags,QWidget *parent) :
 	QDialog(parent),

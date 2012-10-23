@@ -28,7 +28,7 @@
 
 #include "abstractmetarequest.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -47,7 +47,7 @@ protected:
 	void sendTlvBasedRequest(quint16 type) const;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // TLVBASEDMETAINFOREQUEST_H
 

@@ -33,7 +33,7 @@
 #include <k8json/k8json.h>
 #include <QMetaProperty>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	namespace Json
 	{

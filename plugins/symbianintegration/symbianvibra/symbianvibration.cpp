@@ -27,7 +27,7 @@
 
 namespace Symbian
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Vibration::Vibration() :
     NotificationBackend("Vibration"),
@@ -41,7 +41,7 @@ Vibration::~Vibration()
 	delete m_vibra;
 }
 
-void Vibration::handleNotification(qutim_sdk_0_3::Notification *notification)
+void Vibration::handleNotification(Ureen::Notification *notification)
 {
 	Q_UNUSED(notification);
 	// Think about better value

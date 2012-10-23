@@ -29,20 +29,20 @@
 #include <QLatin1Literal>
 #include "iconloader.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Buddy::Buddy(Account *account) :
 	ChatUnit(*new BuddyPrivate(this), account)
 {
-	connect(this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(this, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(_q_status_changed(Ureen::Status,Ureen::Status)));
 }
 
 Buddy::Buddy(BuddyPrivate &d, Account *account) :
 	ChatUnit(d, account)
 {
-	connect(this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(_q_status_changed(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(this, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(_q_status_changed(Ureen::Status,Ureen::Status)));
 }
 
 Buddy::~Buddy()

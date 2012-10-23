@@ -55,9 +55,9 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void rebuildItems(int index);
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
-	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+	void onAccountCreated(Ureen::Account *account, bool first = true);
+	void onAccountStatusChanged(const Ureen::Status &status);
+	void onManagerChanged(Ureen::GroupChatManager *manager);
 	void onAccountDeath(QObject *object);
 	void joinConference();
 	void onDataChanged();
@@ -65,11 +65,11 @@ private slots:
 	void joinBookmark(QListWidgetItem *item);
 
 private:
-	qutim_sdk_0_3::GroupChatManager *groupChatManager();
+	Ureen::GroupChatManager *groupChatManager();
 
 	Ui::JoinChat *m_ui;
-	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
-	qutim_sdk_0_3::Account *m_currentAcount;
+	QWeakPointer<Ureen::AbstractDataForm> m_dataForm;
+	Ureen::Account *m_currentAcount;
 
 };
 

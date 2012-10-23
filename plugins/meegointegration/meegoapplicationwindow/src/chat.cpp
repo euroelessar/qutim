@@ -34,7 +34,7 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Chat::Chat() : m_activeSession(0)
 {
@@ -57,7 +57,7 @@ void Chat::init()
 	qmlRegisterUncreatableType<ChatViewStyle>("org.qutim", 0, 3, "ChatViewStyle", "");
 }
 
-qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
+Ureen::ChatSession *Chat::getSession(Ureen::ChatUnit *unit, bool create)
 {
 	// We don't wont to have separate channels for contact and his resource
 	unit = const_cast<ChatUnit*>(unit->getHistoryUnit());
@@ -79,7 +79,7 @@ qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool
 	return channel;
 }
 
-QList<qutim_sdk_0_3::ChatSession*> Chat::sessions()
+QList<Ureen::ChatSession*> Chat::sessions()
 {
 	QList<ChatSession*> channels;
 	foreach (ChatChannel *channel, m_channels)
@@ -95,12 +95,12 @@ QDeclarativeListProperty<ChatChannel> Chat::channels()
 	return list;
 }
 
-qutim_sdk_0_3::ChatSession *Chat::activeSession() const
+Ureen::ChatSession *Chat::activeSession() const
 {
 	return m_activeSession;
 }
 
-void Chat::setActiveSession(qutim_sdk_0_3::ChatSession *session)
+void Chat::setActiveSession(Ureen::ChatSession *session)
 {
 	if (session != m_activeSession) {
 		m_activeSession = session;

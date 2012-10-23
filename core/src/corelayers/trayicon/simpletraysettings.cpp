@@ -29,7 +29,7 @@
 #include <qutim/config.h>
 
 namespace Core {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 const char * traySettingsFilename = "simpletray";
 

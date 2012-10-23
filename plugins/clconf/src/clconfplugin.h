@@ -44,9 +44,9 @@ public:
 	static ClConfPlugin *instance() { Q_ASSERT(self); return self; }
 	ProxyAccount *account(Account *account) { return m_accounts.value(account); }
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountCreated(Ureen::Account *account);
 	void onAccountDestroyed(QObject *account);
-	void onConferenceCreated(qutim_sdk_0_3::Conference *conference);
+	void onConferenceCreated(Ureen::Conference *conference);
 private:
 	static ClConfPlugin *self;
 	QHash<QObject *, ProxyAccount *> m_accounts;

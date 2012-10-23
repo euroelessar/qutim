@@ -25,7 +25,7 @@
 #include "groupchatmanager_p.h"
 #include "account.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 void GroupChatManagersList::addManager(GroupChatManager *manager)

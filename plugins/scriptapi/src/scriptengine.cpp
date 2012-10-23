@@ -44,7 +44,7 @@
 #include <QDebug>
 #include <QMetaEnum>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QScriptValue scriptConsoleLog(QScriptContext *ctxt, QScriptEngine *e)
 {

@@ -35,7 +35,7 @@ class QDir;
 class QUrl;
 class QIcon;
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 class ChatUnit;
@@ -78,8 +78,8 @@ class LIBQUTIM_EXPORT FileTransferJob : public QObject
 	Q_PROPERTY(qint64 totalSize READ totalSize NOTIFY totalSizeChanged)
 	Q_PROPERTY(qint64 fileSize READ fileSize NOTIFY fileSizeChanged)
 	Q_PROPERTY(qint64 progress READ progress NOTIFY progressChanged)
-	Q_PROPERTY(qutim_sdk_0_3::FileTransferJob::State state READ state NOTIFY stateChanged)
-	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *chatUnit READ chatUnit)
+	Q_PROPERTY(Ureen::FileTransferJob::State state READ state NOTIFY stateChanged)
+	Q_PROPERTY(Ureen::ChatUnit *chatUnit READ chatUnit)
 public:
 	enum Direction { Outgoing, Incoming };
 	enum ErrorType { NetworkError, Canceled, NotSupported, IOError, NoError };
@@ -138,10 +138,10 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 	void progressChanged(qint64);
 	void totalSizeChanged(qint64);
 	void currentIndexChanged(int);
-	void error(qutim_sdk_0_3::FileTransferJob::ErrorType, qutim_sdk_0_3::FileTransferJob *newJob);
-	void errorStringChanged(const qutim_sdk_0_3::LocalizedString &);
-	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
-	void stateStringChanged(const qutim_sdk_0_3::LocalizedString &);
+	void error(Ureen::FileTransferJob::ErrorType, Ureen::FileTransferJob *newJob);
+	void errorStringChanged(const Ureen::LocalizedString &);
+	void stateChanged(Ureen::FileTransferJob::State);
+	void stateStringChanged(const Ureen::LocalizedString &);
 	void finished();
 	void accepted();
 private:

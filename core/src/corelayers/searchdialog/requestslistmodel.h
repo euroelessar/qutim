@@ -33,7 +33,7 @@
 
 namespace Core {
 
-	using namespace qutim_sdk_0_3;
+	using namespace Ureen;
 
 	typedef AbstractSearchFactory *FactoryPtr;
 	typedef QSharedPointer<AbstractSearchRequest> RequestPtr;

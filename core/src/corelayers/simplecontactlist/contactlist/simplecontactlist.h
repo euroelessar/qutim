@@ -29,13 +29,13 @@
 #include <qutim/status.h>
 #include <qutim/menucontroller.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 class Contact;
 }
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
@@ -53,8 +53,8 @@ class Module : public MenuController
 public:
 	Module();
 	virtual ~Module();
-	Q_INVOKABLE void addButton(qutim_sdk_0_3::ActionGenerator *generator);
-	Q_INVOKABLE void removeButton(qutim_sdk_0_3::ActionGenerator *generator);
+	Q_INVOKABLE void addButton(Ureen::ActionGenerator *generator);
+	Q_INVOKABLE void removeButton(Ureen::ActionGenerator *generator);
 	Q_INVOKABLE QWidget *widget();
 protected:
 	bool event(QEvent *);
@@ -62,7 +62,7 @@ public slots:
 	void show();
 	void hide();
 	void changeVisibility();
-	void addContact(qutim_sdk_0_3::Contact *);
+	void addContact(Ureen::Contact *);
 private slots:
 	void onConfigureClicked(QObject*);
 	void onQuitTriggered(QObject *);

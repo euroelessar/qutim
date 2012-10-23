@@ -51,12 +51,12 @@ AccountAdaptor::AccountAdaptor(const QDBusConnection &dbus, const QDBusObjectPat
 	m_path = QDBusObjectPath(path);
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			this, SIGNAL(nameChanged(QString,QString)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
-	connect(account, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			this, SLOT(onConferenceCreated(qutim_sdk_0_3::Conference*)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			this, SLOT(onContactCreated(Ureen::Contact*)));
+	connect(account, SIGNAL(conferenceCreated(Ureen::Conference*)),
+			this, SLOT(onConferenceCreated(Ureen::Conference*)));
 	accountHash()->insert(account, m_path);
 	foreach (Contact *contact, qFindChildren<Contact*>(account))
 		ChatUnitAdaptor::ensurePath(m_dbus, contact);

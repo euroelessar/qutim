@@ -41,7 +41,7 @@
 #include <QApplication>
 #include <qutim/systemintegration.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -281,8 +281,8 @@ XStatusHandler::XStatusHandler()
 
     foreach (Account *account, IcqProtocol::instance()->accounts())
         onAccountAdded(account);
-    connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-            SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+    connect(IcqProtocol::instance(), SIGNAL(accountCreated(Ureen::Account*)),
+            SLOT(onAccountAdded(Ureen::Account*)));
     connect(IcqProtocol::instance(), SIGNAL(settingsUpdated()), SLOT(loadSettings()));
 
     IcqProtocol::instance()->installEventFilter(this);
@@ -437,8 +437,8 @@ bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
         extStatus.insert("name", tr("X-Status"));
         extStatus.insert("settingsDescription", tr("Show contact X-Status icon"));
         event->addInfo("xstatus", extStatus);
-    } else if (e->type() == qutim_sdk_0_3::Event::eventType()) {
-        qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(e);
+    } else if (e->type() == Ureen::Event::eventType()) {
+        Ureen::Event *customEvent = static_cast<Ureen::Event*>(e);
         if (customEvent->id == m_change) {
             // Handle icq-change-xstatus event
             IcqAccount *account = qobject_cast<IcqAccount*>(obj);
@@ -479,7 +479,7 @@ void XStatusHandler::onCustomDialogAccepted()
     setAcountXstatus(dialog->account(), extStatus, xstatus);
 }
 
-void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
+void XStatusHandler::onAccountAdded(Ureen::Account *account)
 {
     Q_ASSERT(qobject_cast<IcqAccount*>(account));
     QVariantHash extStatus;
@@ -495,7 +495,7 @@ void XStatusHandler::loadSettings()
     m_xstatusAutoRequest = IcqProtocol::instance()->config("xstatus").value("xstatusAutorequest", true);
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::XStatusPlugin);
+QUTIM_EXPORT_PLUGIN(Ureen::oscar::XStatusPlugin);
 

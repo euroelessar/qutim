@@ -42,7 +42,7 @@ public:
 	virtual bool chooseFile() { return true; }
 	static QString readMUTF8String(QDataStream &in);
 	static QString readWin1251String(QDataStream &in);
-	friend QDataStream &operator >> (QDataStream &in, qutim_sdk_0_3::Message &message);
+	friend QDataStream &operator >> (QDataStream &in, Ureen::Message &message);
 private:
 	static QTextCodec *codec;
 	static bool isOldFormat;

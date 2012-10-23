@@ -25,7 +25,7 @@
 #include "statusactiongenerator_p.h"
 #include "account.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 Q_GLOBAL_STATIC(StatusActionHandler, statusActionHandler);
 

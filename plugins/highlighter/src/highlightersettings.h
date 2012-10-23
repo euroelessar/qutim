@@ -32,7 +32,7 @@
 #include <QEvent>
 #include "ui_highlightersettings.h"
 
-class HighlighterSettings : public qutim_sdk_0_3::SettingsWidget
+class HighlighterSettings : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

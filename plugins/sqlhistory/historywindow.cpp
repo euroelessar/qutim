@@ -115,7 +115,7 @@ void HistoryWindow::fillAccountComboBox()
 		QString protocol_name = query.value(0).toString();
 		Icon protocol_icon(protocol_name.toLower(), IconInfo::Protocol);
 		QString account_name = query.value(1).toString();
-		qutim_sdk_0_3::TreeModelItem item;
+		Ureen::TreeModelItem item;
 		item.protocol = protocol_name;
 		item.account = account_name;
 		item.name = account_name;
@@ -141,7 +141,7 @@ void HistoryWindow::fillContactComboBox(int index)
 		while (query.next()) {
 			QString item_name = query.value(0).toString();
 			Icon protocol_icon(protocol.toLower(), IconInfo::Protocol);
-			qutim_sdk_0_3::TreeModelItem item;
+			Ureen::TreeModelItem item;
 			item.protocol = protocol;
 			item.account = account;
 			item.name = item_name;
@@ -301,7 +301,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 			uint from_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 00:00:00", "yyyy-MM-dd HH:mm:ss").toTime_t();
 			uint to_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 23:59:59", "yyyy-MM-dd HH:mm:ss").toTime_t();
 
-			qutim_sdk_0_3::TreeModelItem account_item;
+			Ureen::TreeModelItem account_item;
 			account_item.protocol = protocol;
 			account_item.account = account;
 			account_item.name = account;
@@ -311,7 +311,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				account_nickname = SystemsCity::PluginSystem()->getAdditionalInfoAboutContact(account_item).at(0);
 			}
 
-			qutim_sdk_0_3::TreeModelItem contact_item;
+			Ureen::TreeModelItem contact_item;
 			contact_item.protocol = protocol;
 			contact_item.account = account;
 			contact_item.name = itemname;

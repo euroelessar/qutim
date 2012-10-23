@@ -30,7 +30,7 @@
 #include <qutim/settingslayer.h>
 #include "ui_maemo5settings.h"
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class Maemo5Settings : public SettingsWidget
 {

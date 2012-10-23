@@ -31,7 +31,7 @@
 #include <qutim/notification.h>
 #include "mobilenotificationsettings.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 class SettingsItem;
 }
 
@@ -49,14 +49,14 @@ public:
 	explicit MobileNotificationsSettings(QObject *parent = 0);
 	~MobileNotificationsSettings();
 private:
-	qutim_sdk_0_3::SettingsItem *m_settings;
+	Ureen::SettingsItem *m_settings;
 	MobileNotifyEnabler *m_enabler;
 };
 
-class MobileNotifyEnabler: public QObject, public qutim_sdk_0_3::NotificationFilter
+class MobileNotifyEnabler: public QObject, public Ureen::NotificationFilter
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::NotificationFilter)
+	Q_INTERFACES(Ureen::NotificationFilter)
 public:
 	MobileNotifyEnabler(QObject *parent = 0);
 public slots:
@@ -64,7 +64,7 @@ public slots:
 	void onBackendCreated(const QByteArray &type);
 	void onBackendDestroyed(const QByteArray &type);
 protected:
-	virtual void filter(qutim_sdk_0_3::NotificationRequest& request);
+	virtual void filter(Ureen::NotificationRequest& request);
 private:
 	EnabledNotificationTypes m_enabledTypes;
 	bool m_notificationsInActiveChat;

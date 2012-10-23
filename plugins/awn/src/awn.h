@@ -27,7 +27,7 @@
 
 #include <qutim/plugin.h>
 
-class AWNPlugin : public qutim_sdk_0_3::Plugin
+class AWNPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

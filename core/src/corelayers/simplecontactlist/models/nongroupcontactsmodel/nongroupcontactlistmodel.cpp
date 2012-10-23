@@ -384,16 +384,16 @@ TagItem *NonGroupModel::notInListTag()
 	return ensureTag<TagItem>(d_func(), tr("Not in list"));
 }
 
-void NonGroupModel::setContacts(const QList<qutim_sdk_0_3::Contact*> &contacts_helper)
+void NonGroupModel::setContacts(const QList<Ureen::Contact*> &contacts_helper)
 {
 	Q_D(NonGroupModel);
 	foreach(Protocol *proto, Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		connect(proto, SIGNAL(accountCreated(Ureen::Account*)), this, SLOT(onAccountCreated(Ureen::Account*)));
 		foreach(Account *account, proto->accounts())
 			onAccountCreated(account);
 	}
 
-	QList<qutim_sdk_0_3::Contact*> contacts;
+	QList<Ureen::Contact*> contacts;
 	if (d->initData) {
 		contacts = d->initData->contacts;
 		d->initData = 0;
@@ -493,17 +493,17 @@ void NonGroupModel::saveTagOrder()
 	group.setValue("tags", tags);
 }
 
-void NonGroupModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+void NonGroupModel::onAccountCreated(Ureen::Account *account)
 {
 	foreach (Contact *contact, account->findChildren<Contact*>())
 		addContact(contact);
 	addAccount(account);
 }
 
-void NonGroupModel::addAccount(qutim_sdk_0_3::Account *account)
+void NonGroupModel::addAccount(Ureen::Account *account)
 {
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
+	connect(account, SIGNAL(contactCreated(Ureen::Contact*)),
+			this, SLOT(addContact(Ureen::Contact*)));
 }
 
 }

@@ -29,7 +29,7 @@
 #include "icq_global.h"
 #include "messages.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -109,7 +109,7 @@ private:
 	QSharedDataPointer<XtrazPrivate> d;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // XTRAZ_H
 

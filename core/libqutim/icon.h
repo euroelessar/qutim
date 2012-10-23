@@ -29,7 +29,7 @@
 #include "libqutim_global.h"
 #include <QIcon>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class LIBQUTIM_EXPORT Icon : public QIcon
 	{

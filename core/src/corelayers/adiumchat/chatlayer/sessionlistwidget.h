@@ -32,7 +32,7 @@
 namespace Core {
 namespace AdiumChat {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ChatSessionImpl;
 class SessionListWidgetPrivate;
@@ -63,8 +63,8 @@ private slots:
 	void onActivated(QListWidgetItem*);
 	void onRemoveSession(QObject *obj);
 	void onTitleChanged(const QString &title);
-	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
-	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
+	void onUnreadChanged(const Ureen::MessageList &unread);
+	void onChatStateChanged(Ureen::ChatState now, Ureen::ChatState old);
 	void onCloseSessionTriggered();
 	void initScrolling();
 private:

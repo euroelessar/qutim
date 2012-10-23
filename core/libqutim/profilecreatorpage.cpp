@@ -26,7 +26,7 @@
 #include "profilecreatorpage.h"
 #include <QVariant>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	ProfileCreatorPage::ProfileCreatorPage()
 	{

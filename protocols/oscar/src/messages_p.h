@@ -29,7 +29,7 @@
 #include "messages.h"
 #include <qutim/chatsession.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -38,8 +38,8 @@ class MessageSender;
 class MessagesHandler : public QObject, public SNACHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::SNACHandler)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	MessagesHandler();
 	virtual ~MessagesHandler();
@@ -47,7 +47,7 @@ public:
 private slots:
 	void loginFinished();
 	void settingsUpdated();
-	void accountAdded(qutim_sdk_0_3::Account *account);
+	void accountAdded(Ureen::Account *account);
 private:
 	void handleMessage(IcqAccount *account, const SNAC &snac);
 	void handleResponse(IcqAccount *account, const SNAC &snac);
@@ -90,7 +90,7 @@ private:
 	QTimer m_messagesTimer;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif /* MESSAGES_P_H_ */
 

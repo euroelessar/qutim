@@ -28,7 +28,7 @@
 #include <qutim/contact.h>
 #include <QSystemSemaphore>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 MessageHandler::Result OtrMessagePreHandler::doHandle(Message &message, QString *reason)
 {

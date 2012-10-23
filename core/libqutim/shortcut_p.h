@@ -29,7 +29,7 @@
 #include "shortcut.h"
 #include <QSet>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class GeneralShortcutInfo;
 

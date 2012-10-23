@@ -4,7 +4,7 @@
 #include <QPointer>
 #include "docktile.h"
 
-class DockPlugin : public qutim_sdk_0_3::Plugin
+class DockPlugin : public Ureen::Plugin
 {
 public:
 	virtual void init();

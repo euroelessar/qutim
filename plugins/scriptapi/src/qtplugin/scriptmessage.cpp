@@ -30,7 +30,7 @@
 #include <QScriptValueIterator>
 #include <qutim/debug.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 struct ScriptMessageData
 {
@@ -114,7 +114,7 @@ ScriptMessage::ScriptMessage(QScriptEngine *engine) : QScriptClass(engine)
 	ScriptEngineData::data(engine)->message = this;
 	qScriptRegisterMetaType(engine, messageToScriptValue, messageFromScriptValue);
 	qScriptRegisterMetaType(engine, messagePtrToScriptValue, messagePtrFromScriptValue);
-	qRegisterMetaType<qutim_sdk_0_3::Message>("qutim_sdk_0_3::Message&");
+	qRegisterMetaType<Ureen::Message>("Ureen::Message&");
 	m_prototype = engine->newObject(this);
 	QScriptValue ctor = engine->newFunction(createMessage);
     engine->globalObject().setProperty(name(), ctor);
@@ -187,5 +187,5 @@ QString ScriptMessage::name() const
 }
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ScriptMessageData)
+Q_DECLARE_METATYPE(Ureen::ScriptMessageData)
 

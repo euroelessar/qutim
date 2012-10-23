@@ -34,7 +34,7 @@
 #include <qutim/plugin.h>
 #include <QScopedPointer>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 
@@ -87,9 +87,9 @@ public:
 class XStatusHandler: public QObject, public Tlv2711Plugin, public RosterPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::Tlv2711Plugin qutim_sdk_0_3::oscar::RosterPlugin)
+	Q_INTERFACES(Ureen::oscar::Tlv2711Plugin Ureen::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Xstatus")
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
 	XStatusHandler();
     virtual ~XStatusHandler();
@@ -107,7 +107,7 @@ protected:
 private slots:
 	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
-	void onAccountAdded(qutim_sdk_0_3::Account *account);
+	void onAccountAdded(Ureen::Account *account);
 	void loadSettings();
 private:
 	int m_aboutToBeChanged;
@@ -117,7 +117,7 @@ private:
     QScopedPointer<ActionGenerator> m_gen;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // XSTATUS_H
 

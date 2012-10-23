@@ -40,21 +40,21 @@ namespace Core
 {
 namespace MetaContacts
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Manager::Manager() : 
 	m_storage(RosterStorage::instance()),
 	m_factory(new Factory(this)),
 	m_blockUpdate(false)
 {
-	connect(this, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)), SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+	connect(this, SIGNAL(contactCreated(Ureen::Contact*)), SLOT(onContactCreated(Ureen::Contact*)));
 	QTimer::singleShot(0, this, SLOT(initActions()));
 	setContactsFactory(m_factory.data());
 	m_handler.reset(new MetaContactMessageHandler);
-	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
+	Ureen::MessageHandler::registerHandler(m_handler.data(),
 	                                               QLatin1String("MetaContact"),
-	                                               qutim_sdk_0_3::MessageHandler::HighPriority,
-	                                               qutim_sdk_0_3::MessageHandler::HighPriority);
+	                                               Ureen::MessageHandler::HighPriority,
+	                                               Ureen::MessageHandler::HighPriority);
 	//TODO implement logic
 	m_name = Profile::instance()->value("name").toString();
 	if (m_name.isEmpty())
@@ -107,7 +107,7 @@ QString Manager::name() const
 	return m_name;
 }
 
-void Manager::onContactCreated(qutim_sdk_0_3::Contact *contact)
+void Manager::onContactCreated(Ureen::Contact *contact)
 {
 	if(!m_blockUpdate) {
 		m_storage->addContact(contact);

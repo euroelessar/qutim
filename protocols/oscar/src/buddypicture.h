@@ -32,7 +32,7 @@
 #include "feedbag.h"
 #include "oscarroster.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -54,7 +54,7 @@ enum IconItemType
 class BuddyPicture: public AbstractConnection, public FeedbagItemHandler, public RosterPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::FeedbagItemHandler qutim_sdk_0_3::oscar::RosterPlugin)
+	Q_INTERFACES(Ureen::oscar::FeedbagItemHandler Ureen::oscar::RosterPlugin)
 public:
 	BuddyPicture(IcqAccount *account, QObject *parent = 0);
 	virtual ~BuddyPicture();
@@ -86,7 +86,7 @@ private:
 	static QByteArray emptyHash;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif /* BUDDYPICTURE_H_ */
 

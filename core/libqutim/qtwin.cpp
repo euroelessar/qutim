@@ -30,7 +30,7 @@
 #include <QPalette>
 #include <QApplication>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 	namespace QtWin {
 

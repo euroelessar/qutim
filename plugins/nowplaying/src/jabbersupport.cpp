@@ -29,7 +29,7 @@
 #include "ui_jabbersettings.h"
 #include "nowplaying.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying {
 

@@ -37,7 +37,7 @@ class ChatMessageModel : public QAbstractListModel
 public:
     explicit ChatMessageModel(QObject *parent = 0);
 
-	void append(qutim_sdk_0_3::Message &msg);
+	void append(Ureen::Message &msg);
 	bool eventFilter(QObject *, QEvent *);
 	
 	// QAbstractListModel
@@ -49,7 +49,7 @@ signals:
 public slots:
 
 private:
-	QString createSenderName(const qutim_sdk_0_3::Message &msg) const;
+	QString createSenderName(const Ureen::Message &msg) const;
 	struct Item
 	{
 		QString plainText;
@@ -57,7 +57,7 @@ private:
 	};
 	QList<Item> m_items;
 
-	QList<qutim_sdk_0_3::Message> m_messages;
+	QList<Ureen::Message> m_messages;
 };
 }
 

@@ -28,7 +28,7 @@
 
 #include "tlv.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -42,9 +42,9 @@ public:
 	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs) = 0;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::RosterPlugin, "org.qutim.oscar.RosterPlugin");
+Q_DECLARE_INTERFACE(Ureen::oscar::RosterPlugin, "org.qutim.oscar.RosterPlugin");
 
 #endif // ROSTER_H
 

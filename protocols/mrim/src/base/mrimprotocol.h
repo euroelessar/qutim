@@ -29,7 +29,7 @@
 
 #include <qutim/protocol.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 struct MrimProtocolPrivate;
 class MrimAccount;

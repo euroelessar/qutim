@@ -36,7 +36,7 @@
 
 namespace Jabber {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 Q_GLOBAL_STATIC(JAttentionInfo::WeakPtr, weakInfo)
 
@@ -58,7 +58,7 @@ JAttention::~JAttention()
 {
 }
 
-void JAttention::init(qutim_sdk_0_3::Account *account)
+void JAttention::init(Ureen::Account *account)
 {
 	m_account = account;
 	JAccount *acc = qobject_cast<JAccount*>(account);

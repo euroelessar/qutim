@@ -135,7 +135,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     d->statusTextAction->setData(lastStatus);
     d->menus[MacMenuAccounts]->addSeparator();
     foreach(Protocol *protocol, Protocol::all())
-        connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
+        connect(protocol, SIGNAL(accountCreated(Ureen::Account *)), this, SLOT(onAccountCreated(Ureen::Account *)));
 
     QTimer timer;
     timer.singleShot(0, this, SLOT(initMenu()));
@@ -211,7 +211,7 @@ void MacWidget::changeStatusTextAccepted()
     config.sync();
 }
 
-void MacWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
+void MacWidget::onAccountCreated(Ureen::Account *account)
 {
     Q_D(MacWidget);
     QAction *action = new QAction(account->status().icon(), account->id(), this);
@@ -226,12 +226,12 @@ void MacWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
         account->setStatus(status);
     }
 
-    connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-            this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+    connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+            this, SLOT(onAccountStatusChanged(Ureen::Status)));
     connect(account, SIGNAL(destroyed(QObject *)),SLOT(onAccountDestroyed(QObject *)));
 }
 
-void MacWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void MacWidget::onAccountStatusChanged(const Ureen::Status &status)
 {
     Q_D(MacWidget);
     Account *account = qobject_cast<Account *>(sender());
@@ -247,7 +247,7 @@ void MacWidget::onAccountDestroyed(QObject *obj)
     d_func()->accountActions.take(account)->deleteLater();
 }
 
-void MacWidget::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void MacWidget::onSessionCreated(Ureen::ChatSession *session)
 {
     Q_D(MacWidget);
     QAction *action = new QAction(session->getUnit()->title(), d->menus[MacMenuChats]);
@@ -281,8 +281,8 @@ void MacWidget::initMenu()
     d->menuBar->addMenu(d->menus[MacMenuAccounts]);
     d->menuBar->addMenu(d->menus[MacMenuChats]);
     d->menuBar->addMenu(d->menus[MacMenuRoster]);
-    connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession *)),
-            this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession *)));
+    connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession *)),
+            this, SLOT(onSessionCreated(Ureen::ChatSession *)));
 }
 
 bool MacWidget::eventFilter(QObject *obj, QEvent *ev)

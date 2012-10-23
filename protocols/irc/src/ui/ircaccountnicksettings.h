@@ -34,7 +34,7 @@ namespace Ui {
 	class EditNickForm;
 }
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -57,7 +57,7 @@ private:
 
 typedef IrcSettingsWidget<IrcAccountNickSettings> IrcAccountNickSettingsWidget;
 
-} } // namespace namespace qutim_sdk_0_3::irc
+} } // namespace namespace Ureen::irc
 
 #endif // IRCACCOUNTNICKSETTINGS_H
 

@@ -50,7 +50,7 @@ namespace Core
 {
 namespace AdiumChat
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ChatSessionModel : public QAbstractListModel
 {
@@ -59,19 +59,19 @@ public:
 	explicit ChatSessionModel(ChatSessionImpl *parent = 0);
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addContact(qutim_sdk_0_3::Buddy *c);
-	void removeContact(qutim_sdk_0_3::Buddy *c);
+	void addContact(Ureen::Buddy *c);
+	void removeContact(Ureen::Buddy *c);
 private slots:
 	void onNameChanged(const QString &title, const QString &oldTitle);
-	void onStatusChanged(const qutim_sdk_0_3::Status &status);
+	void onStatusChanged(const Ureen::Status &status);
 	void onContactDestroyed(QObject *obj);
 private:
 	struct Node {
-		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
-		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+		Node(Ureen::Buddy *u, const QString &t) : title(t), unit(u) {}
+		Node(Ureen::Buddy *u) : title(u->title()), unit(u) {}
 		Node() : unit(NULL) {}
 		QString title;
-		qutim_sdk_0_3::Buddy *unit;
+		Ureen::Buddy *unit;
 		
 		bool operator <(const Node &o) const
 		{

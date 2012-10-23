@@ -29,7 +29,7 @@
 #include "feedbag.h"
 #include <qutim/actiongenerator.h>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -44,8 +44,8 @@ protected:
 class Authorization : public QObject, public SNACHandler, public FeedbagItemHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler qutim_sdk_0_3::oscar::FeedbagItemHandler)
-	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
+	Q_INTERFACES(Ureen::oscar::SNACHandler Ureen::oscar::FeedbagItemHandler)
+	Q_CLASSINFO("DependsOn", "Ureen::oscar::IcqProtocol")
 public:
     Authorization();
 	static Authorization *instance() { Q_ASSERT(self); return self; }
@@ -62,7 +62,7 @@ private:
 	ActionGenerator *m_authActionGen;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // AUTHORIZATION_H
 

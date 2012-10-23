@@ -29,7 +29,7 @@
 #include "buddy.h"
 #include <QSet>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 class MetaContact;
@@ -108,19 +108,19 @@ class LIBQUTIM_EXPORT ContactComparator : public QObject
 	Q_CLASSINFO("Service", "ContactComparator")
 public:
 	virtual int compare(Contact *a, Contact *b) = 0;
-	void startListen(qutim_sdk_0_3::Contact *contact);
-	void stopListen(qutim_sdk_0_3::Contact *contact);
+	void startListen(Ureen::Contact *contact);
+	void stopListen(Ureen::Contact *contact);
 protected:
-	virtual void doStartListen(qutim_sdk_0_3::Contact *contact) = 0;
-	virtual void doStopListen(qutim_sdk_0_3::Contact *contact) = 0;
+	virtual void doStartListen(Ureen::Contact *contact) = 0;
+	virtual void doStopListen(Ureen::Contact *contact) = 0;
 signals:
-	void contactChanged(qutim_sdk_0_3::Contact*);
+	void contactChanged(Ureen::Contact*);
 };
 
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Contact*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Contact*>)
+Q_DECLARE_METATYPE(Ureen::Contact*)
+Q_DECLARE_METATYPE(QList<Ureen::Contact*>)
 
 #endif // CONTACT_H
 

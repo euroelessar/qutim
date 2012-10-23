@@ -46,7 +46,7 @@ namespace HistoryManager
 //		bool in;
 //	};
 
-	typedef QMap<qint64,   qutim_sdk_0_3::MessageList> Contact;
+	typedef QMap<qint64,   Ureen::MessageList> Contact;
 	typedef QHash<QString, Contact>                    Account;
 	typedef QHash<QString, Account>                    Protocol;
 
@@ -57,7 +57,7 @@ namespace HistoryManager
 	protected:
 		virtual ~DataBaseInterface() {}
 	public:
-		virtual void appendMessage(const qutim_sdk_0_3::Message &message) = 0;
+		virtual void appendMessage(const Ureen::Message &message) = 0;
 		virtual void setProtocol(const QString &protocol) = 0;
 		virtual void setAccount(const QString &account) = 0;
 		virtual void setContact(const QString &contact) = 0;
@@ -82,7 +82,7 @@ namespace HistoryManager
 		virtual QString additionalInfo() { return QString(); }
 		virtual bool chooseFile() { return false; }
 	protected:
-		inline void appendMessage(const qutim_sdk_0_3::Message &message) { m_data_base->appendMessage(message); }
+		inline void appendMessage(const Ureen::Message &message) { m_data_base->appendMessage(message); }
 		inline void setProtocol(const QString &protocol) { m_data_base->setProtocol(protocol); }
 		inline void setAccount(const QString &account) { m_data_base->setAccount(account); }
 		inline void setContact(const QString &contact) { m_data_base->setContact(contact); }

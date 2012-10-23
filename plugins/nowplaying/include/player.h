@@ -31,7 +31,7 @@
 #include <QObject>
 #include <QIcon>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace nowplaying 
 {
@@ -121,7 +121,7 @@ namespace nowplaying
 	};
 } }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::nowplaying::Player, "org.qutim.qutim_sdk_0_3.nowplaying.Player")
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::nowplaying::PlayerFactory, "org.qutim.qutim_sdk_0_3.nowplaying.PlayerFactory")
+Q_DECLARE_INTERFACE(Ureen::nowplaying::Player, "org.qutim.Ureen.nowplaying.Player")
+Q_DECLARE_INTERFACE(Ureen::nowplaying::PlayerFactory, "org.qutim.Ureen.nowplaying.PlayerFactory")
 #endif // PLAYER_H
 

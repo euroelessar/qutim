@@ -101,7 +101,7 @@ namespace Jabber
 			data.insert(QLatin1String("title"), QT_TRANSLATE_NOOP("Tune", "Now listening").toString());
 			data.insert(QLatin1String("description"), description);
 			data.insert(QLatin1String("icon"),
-						qVariantFromValue(qutim_sdk_0_3::ExtensionIcon("user-status-listening_to_music")));
+						qVariantFromValue(Ureen::ExtensionIcon("user-status-listening_to_music")));
 			data.insert(QLatin1String("showInTooltip"), true);
 			data.insert(QLatin1String("priorityInTooltip"), 70);
 		}

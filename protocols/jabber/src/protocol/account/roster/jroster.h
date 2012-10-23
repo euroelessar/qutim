@@ -37,7 +37,7 @@
 
 namespace Jabber
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class JAccount;
 class JContact;
 class JContactResource;
@@ -80,7 +80,7 @@ protected slots:
 	void handleSubscription(Jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
 	void onNewMessage(Jreen::Message message); //TODO move this method to JMessageManager
-	void onMessageDecrypted(qutim_sdk_0_3::ChatUnit *unit, qutim_sdk_0_3::ChatUnit *unitForSession, const Jreen::Message &message);
+	void onMessageDecrypted(Ureen::ChatUnit *unit, Ureen::ChatUnit *unitForSession, const Jreen::Message &message);
 	void onContactDestroyed(QObject *obj);
 	void onMetaContactsReceived(const Jreen::MetaContactStorage::ItemList &items);
 private:

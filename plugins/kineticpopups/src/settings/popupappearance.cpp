@@ -40,7 +40,7 @@
 namespace KineticPopups
 {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 PopupAppearance::PopupAppearance () :
 	ui(new Ui::AppearanceSettings)

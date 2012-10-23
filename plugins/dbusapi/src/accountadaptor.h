@@ -31,7 +31,7 @@
 #include <QDBusConnection>
 #include <qutim/account.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 typedef QMap<Account*, QDBusObjectPath> AccountPathHash;
 
@@ -40,7 +40,7 @@ class AccountAdaptor : public QDBusAbstractAdaptor
 	Q_OBJECT
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.Account")
 	Q_PROPERTY(QString id READ id)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
+	Q_PROPERTY(Ureen::Status status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QDBusObjectPath protocol READ protocol)
 public:
@@ -59,11 +59,11 @@ public slots:
 	QStringList contacts() const;
 signals:
 	void nameChanged(const QString &current, const QString &previous);
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 	void contactCreated(const QDBusObjectPath &path, const QString &id);
 private slots:
-	void onContactCreated(qutim_sdk_0_3::Contact *contact);
-	void onConferenceCreated(qutim_sdk_0_3::Conference *conference);
+	void onContactCreated(Ureen::Contact *contact);
+	void onConferenceCreated(Ureen::Conference *conference);
 private:
 	QDBusConnection m_dbus;
 	Account *m_account;

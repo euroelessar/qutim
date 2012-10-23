@@ -34,7 +34,7 @@
 
 Q_DECLARE_METATYPE(QTextDocument *)
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -235,5 +235,5 @@ void IrcChannelListForm::changeEvent(QEvent *e)
     }
 }
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 

@@ -55,7 +55,7 @@ void qScriptValueToSequence<QSet<QString> >(const QScriptValue &value, QSet<QStr
 	}
 }
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 template <typename T>
 QScriptValue qobjectToScriptValue(QScriptEngine *engine, const T &t)
@@ -214,7 +214,7 @@ template <typename T>
 void scriptRegisterEnum(QScriptEngine *engine)
 {
 	Q_UNUSED(engine);
-	qRegisterMetaType<typename QIntegerForSizeof<T>::Signed>("qutim_sdk_0_3::InfoRequest::State");
+	qRegisterMetaType<typename QIntegerForSizeof<T>::Signed>("Ureen::InfoRequest::State");
 //	return qScriptRegisterMetaType<T>(engine, enumToScriptValue, enumFromScriptValue);
 }
 
@@ -282,11 +282,11 @@ public:
 	{
 		static QWeakPointer<QObject> instance;
 		if (!instance)
-			instance = QWeakPointer<QObject>(new qutim_sdk_0_3::ScriptExtensionPlugin);
+			instance = QWeakPointer<QObject>(new Ureen::ScriptExtensionPlugin);
 		return instance.data();
 	}
 } static_qtscript_qutim_0_3_PluginInstance;
 
 Q_DECLARE_METATYPE(QSet<QString>)
-//Q_DECLARE_METATYPE(qutim_sdk_0_3::InfoRequest::State)
+//Q_DECLARE_METATYPE(Ureen::InfoRequest::State)
 

@@ -31,40 +31,40 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 
-class WebKitPreviewChatUnit : public qutim_sdk_0_3::ChatUnit
+class WebKitPreviewChatUnit : public Ureen::ChatUnit
 {
 	Q_OBJECT
 	Q_PROPERTY(QString avatar READ avatar CONSTANT)
 public:
-	WebKitPreviewChatUnit(const QVariantMap &data, qutim_sdk_0_3::Account *account);
+	WebKitPreviewChatUnit(const QVariantMap &data, Ureen::Account *account);
 	~WebKitPreviewChatUnit();
 	
 	QString id() const;
 	QString title() const;
 	QString avatar() const;
-	bool sendMessage(const qutim_sdk_0_3::Message &message);
+	bool sendMessage(const Ureen::Message &message);
 	
 private:
 	QVariantMap m_data;
 };
 
-class WebKitPreviewAccount : public qutim_sdk_0_3::Account
+class WebKitPreviewAccount : public Ureen::Account
 {
 	Q_OBJECT
 	Q_PROPERTY(QString avatar READ avatar CONSTANT)
 public:
-	WebKitPreviewAccount(const QVariantMap &data, qutim_sdk_0_3::Protocol *protocol);
+	WebKitPreviewAccount(const QVariantMap &data, Ureen::Protocol *protocol);
 	~WebKitPreviewAccount();
 
 	QString name() const;
 	QString avatar() const;
-	qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = true);
+	Ureen::ChatUnit *getUnit(const QString &unitId, bool create = true);
 
 private:
 	QVariantMap m_data;
 };
 
-class WebKitPreviewProtocol : public qutim_sdk_0_3::Protocol
+class WebKitPreviewProtocol : public Ureen::Protocol
 {
 	Q_OBJECT
 	Q_CLASSINFO("Protocol", "preview")
@@ -72,34 +72,34 @@ public:
 	WebKitPreviewProtocol(QObject *parent);
 	~WebKitPreviewProtocol();
 	
-	QList<qutim_sdk_0_3::Account*> accounts() const;
-	qutim_sdk_0_3::Account *account(const QString &id) const;
+	QList<Ureen::Account*> accounts() const;
+	Ureen::Account *account(const QString &id) const;
 	void loadAccounts();
 
 private:
 };
 
-class WebKitPreviewSession : public qutim_sdk_0_3::ChatSession
+class WebKitPreviewSession : public Ureen::ChatSession
 {
 	Q_OBJECT
 public:
 	WebKitPreviewSession();
 	~WebKitPreviewSession();
 	
-	qutim_sdk_0_3::ChatUnit *getUnit() const;
-	void setChatUnit(qutim_sdk_0_3::ChatUnit* unit);
+	Ureen::ChatUnit *getUnit() const;
+	void setChatUnit(Ureen::ChatUnit* unit);
 	QTextDocument *getInputField();
 	void markRead(quint64 id);
-	qutim_sdk_0_3::MessageList unread() const;
-	void addContact(qutim_sdk_0_3::Buddy *c);
-	void removeContact(qutim_sdk_0_3::Buddy *c);
+	Ureen::MessageList unread() const;
+	void addContact(Ureen::Buddy *c);
+	void removeContact(Ureen::Buddy *c);
 	
 protected:
 	void doSetActive(bool active);
-	qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
+	qint64 doAppendMessage(Ureen::Message &message);
 	
 private:
-	qutim_sdk_0_3::ChatUnit *m_unit;
+	Ureen::ChatUnit *m_unit;
 };
 
 #endif // WEBKITPREVIEWUNITS_P_H

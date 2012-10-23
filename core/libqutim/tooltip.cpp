@@ -38,7 +38,7 @@
 #include <QToolTip>
 #include <QTextDocument>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	typedef QMultiMap<quint8, QString> FieldsMap;
 

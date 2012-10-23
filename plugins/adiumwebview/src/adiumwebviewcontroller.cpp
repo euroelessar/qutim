@@ -44,7 +44,7 @@
 
 namespace Adium {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 using namespace Core::AdiumChat;
 
 WebViewLoaderLoop::WebViewLoaderLoop()
@@ -156,7 +156,7 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 	return false;
 }
 
-void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
+void WebViewController::appendMessage(const Ureen::Message &msg)
 {
 	Message copy = msg;
 	QString html = UrlParser::parseUrls(copy.html(), UrlParser::Html);
@@ -298,7 +298,7 @@ void WebViewController::appendNick(const QVariant &nick)
 	QObject *form = ServiceManager::getByName("ChatForm");
 	QObject *obj = 0;
 	if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
-								  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session.data())) && obj) {
+								  Q_ARG(Ureen::ChatSession*, m_session.data())) && obj) {
 		QTextCursor cursor;
 		if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
 			cursor = edit->textCursor();
@@ -330,7 +330,7 @@ void WebViewController::appendText(const QVariant &text)
 	QObject *form = ServiceManager::getByName("ChatForm");
 	QObject *obj = 0;
 	if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
-								  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session.data())) && obj) {
+								  Q_ARG(Ureen::ChatSession*, m_session.data())) && obj) {
 		QTextCursor cursor;
 		if (QTextEdit *edit = qobject_cast<QTextEdit*>(obj))
 			cursor = edit->textCursor();

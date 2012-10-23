@@ -26,7 +26,7 @@ public:
 	
 public slots:
 	void fixFlickable(QObject *object);
-	void append(const qutim_sdk_0_3::Message &message);
+	void append(const Ureen::Message &message);
 	void handleElement(const QWebElement &element);
 	
 protected:

@@ -31,13 +31,13 @@ namespace Core {
 namespace MetaContacts {
 
 class Manager;
-class Factory : public qutim_sdk_0_3::ContactsFactory
+class Factory : public Ureen::ContactsFactory
 {
 public:
 	Factory(Manager *manager);
 	virtual ~Factory();
-	virtual qutim_sdk_0_3::Contact *addContact(const QString &id, const QVariantMap &data);
-	virtual void serialize(qutim_sdk_0_3::Contact *contact, QVariantMap &data);
+	virtual Ureen::Contact *addContact(const QString &id, const QVariantMap &data);
+	virtual void serialize(Ureen::Contact *contact, QVariantMap &data);
 private:
 	Manager *m_manager;
 };

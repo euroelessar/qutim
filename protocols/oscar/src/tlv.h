@@ -36,7 +36,7 @@
 
 class QDataStream;
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -229,7 +229,7 @@ inline QDebug &operator<<(QDebug &stream, const TLV &data)
 	return stream;
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // TLV_H
 

@@ -31,7 +31,7 @@
 #include <typeinfo>
 #include <limits>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace oscar {
 
@@ -393,7 +393,7 @@ T DataUnit::read(QTextCodec *codec, ByteOrder bo) const
 	return fromDataUnitHelper<T>::fromByteArray(*this, codec, read<L>(bo));
 }
 
-} } // namespace qutim_sdk_0_3::oscar
+} } // namespace Ureen::oscar
 
 #endif // DATAUNIT_H
 

@@ -26,7 +26,7 @@
 #include "objectgenerator.h"
 #include "servicemanager.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 namespace Authorization
@@ -51,5 +51,5 @@ QEvent::Type Reply::eventType()
 
 }//namespace Authorization
 
-}//namespace qutim_sdk_0_3
+}//namespace Ureen
 

@@ -30,7 +30,7 @@
 #include <QIcon>
 #include <QMetaType>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class Account;
 class Message;
@@ -42,7 +42,7 @@ class LIBQUTIM_EXPORT Buddy : public ChatUnit
 	Q_DECLARE_PRIVATE(Buddy)
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 	Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status NOTIFY statusChanged)
+	Q_PROPERTY(Ureen::Status status READ status NOTIFY statusChanged)
 public:
 	Buddy(Account *account);
 	Buddy(BuddyPrivate &d, Account *account);
@@ -69,18 +69,18 @@ public:
 //	virtual	void setStatus(const Status &);
 signals:
 	void avatarChanged(const QString &path);
-	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void statusChanged(const Ureen::Status &current, const Ureen::Status &previous);
 	void nameChanged(const QString &current, const QString &previous);
 protected:
 	bool event(QEvent *ev);
 private:
 	//TODO move to protocols
-	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(const qutim_sdk_0_3::Status &now,const qutim_sdk_0_3::Status &old))
+	Q_PRIVATE_SLOT(d_func(), void _q_status_changed(const Ureen::Status &now,const Ureen::Status &old))
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::Buddy*)
-Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Buddy*>)
+Q_DECLARE_METATYPE(Ureen::Buddy*)
+Q_DECLARE_METATYPE(QList<Ureen::Buddy*>)
 
 #endif // BUDDY_H
 

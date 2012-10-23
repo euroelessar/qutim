@@ -35,7 +35,7 @@ namespace Ui {
 	class IrcChannelListForm;
 }
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 namespace irc {
 
@@ -97,7 +97,7 @@ private:
 	ChannelsModel *m_model;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCHANNELLIST_H
 

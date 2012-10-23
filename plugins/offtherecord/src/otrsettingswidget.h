@@ -24,7 +24,7 @@ namespace Ui {
 class OtrSettingsWidget;
 }
 
-class OtrSettingsWidget : public qutim_sdk_0_3::SettingsWidget
+class OtrSettingsWidget : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 public:

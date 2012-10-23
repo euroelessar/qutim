@@ -26,7 +26,7 @@
 #include "scriptservices.h"
 #include <QScriptEngine>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 ScriptServicesPropertyIterator::ScriptServicesPropertyIterator(const QScriptValue &object, const ScriptServiceHash &hash)
     : QScriptClassPropertyIterator(object), m_it(hash)

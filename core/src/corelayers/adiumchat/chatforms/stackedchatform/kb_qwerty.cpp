@@ -52,9 +52,9 @@ kb_Qwerty::kb_Qwerty(QWidget *parent) :
 {
     ui->setupUi(this);
 
-	ui->btShift->setIcon(qutim_sdk_0_3::Icon("top"));
-	ui->btNewLine->setIcon(qutim_sdk_0_3::Icon("undo"));
-	ui->btDel->setIcon(qutim_sdk_0_3::Icon("back"));
+	ui->btShift->setIcon(Ureen::Icon("top"));
+	ui->btNewLine->setIcon(Ureen::Icon("undo"));
+	ui->btDel->setIcon(Ureen::Icon("back"));
 
     //Setup all connections
     foreach(QAbstractButton *button, ui->bgDirectInput->buttons())

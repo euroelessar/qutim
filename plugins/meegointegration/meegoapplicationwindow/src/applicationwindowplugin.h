@@ -27,7 +27,7 @@
 
 namespace MeegoIntegration
 {
-class Plugin : public qutim_sdk_0_3::Plugin
+class Plugin : public Ureen::Plugin
 {
 	Q_OBJECT
 public:

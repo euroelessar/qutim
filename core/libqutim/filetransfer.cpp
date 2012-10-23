@@ -36,7 +36,7 @@
 #include <QDirIterator>
 #include <QBitArray>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 #define REMEMBER_ALL_ABILITIES 1
@@ -526,11 +526,11 @@ void FileTransferObserverPrivate::_q_clearObserverData(QObject *unit)
 	scope->list.removeOne(q);
 	if (scope->list.isEmpty()) {
 		if (unit) {
-			QList<FileTransferFactory*> &list = qutim_sdk_0_3::scope()->factories;
+			QList<FileTransferFactory*> &list = Ureen::scope()->factories;
 			for (int i = 0; i < list.size(); i++)
 				list.at(i)->stopObserve(reinterpret_cast<ChatUnit*>(unit));
 		}
-		qutim_sdk_0_3::scope()->observers.erase(scope);
+		Ureen::scope()->observers.erase(scope);
 	}
 	isEmpty = true;
 }

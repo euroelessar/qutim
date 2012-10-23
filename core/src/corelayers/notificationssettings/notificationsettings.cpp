@@ -37,7 +37,7 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 QString notificationTypeName(int type)
 {
@@ -53,7 +53,7 @@ QString notificationTypeName(int type)
 }
 
 NotificationSettings::NotificationSettings(QWidget *parent) :
-	qutim_sdk_0_3::SettingsWidget(parent), m_currentRow(-1)
+	Ureen::SettingsWidget(parent), m_currentRow(-1)
 {
 	QVBoxLayout *layout =  new QVBoxLayout(this);
 	layout->setContentsMargins(0, 6, 6, 6);

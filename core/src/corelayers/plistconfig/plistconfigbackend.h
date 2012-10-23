@@ -31,11 +31,11 @@
 class QDomDocument;
 class QDomNode;
 class QDomElement;
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 namespace Core
 {
-	class PListConfigBackend : public qutim_sdk_0_3::ConfigBackend
+	class PListConfigBackend : public Ureen::ConfigBackend
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Extension", "plist")

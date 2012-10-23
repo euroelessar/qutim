@@ -30,7 +30,7 @@
 #include <qutim/debug.h>
 #include <qutim/libqutim_version.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 YandexNarodNetMan::YandexNarodNetMan(QObject *parent) : QObject(parent)
 {

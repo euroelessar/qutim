@@ -31,7 +31,7 @@
 namespace Ui {
 class SoundThemeSelector;
 }
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class SoundTheme;
 }
@@ -39,7 +39,7 @@ class QStandardItemModel;
 class QModelIndex;
 namespace Core
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class SoundThemeSelector : public SettingsWidget
 {

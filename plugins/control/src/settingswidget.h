@@ -56,7 +56,7 @@ private:
 	QListWidgetItem *m_item;
 };
 
-class SettingsWidget : public qutim_sdk_0_3::SettingsWidget
+class SettingsWidget : public Ureen::SettingsWidget
 {
 	Q_OBJECT
 	

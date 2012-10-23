@@ -26,7 +26,7 @@
 #include "messagehandler.h"
 #include "debug.h"
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 
 struct MessageHandlerInfo

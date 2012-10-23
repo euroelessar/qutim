@@ -30,7 +30,7 @@
 #define HIGHLIGHTERPLUGIN_H
 #include <qutim/plugin.h>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 	class SettingsItem;
 }
@@ -38,7 +38,7 @@ namespace qutim_sdk_0_3
 namespace Highlighter {
 
 class NickHandler;
-class HighlighterPlugin : public qutim_sdk_0_3::Plugin
+class HighlighterPlugin : public Ureen::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Highlighter")
@@ -49,7 +49,7 @@ public:
 	virtual bool unload();
 private:
 	QWeakPointer<NickHandler> m_handler;
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
+	Ureen::SettingsItem *m_settingsItem;
 };
 }
 

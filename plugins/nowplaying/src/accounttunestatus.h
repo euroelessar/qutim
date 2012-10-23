@@ -28,7 +28,7 @@
 #include "../include/trackinfo.h"
 #include <QWidget>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class Account;
 class SettingsWidget;

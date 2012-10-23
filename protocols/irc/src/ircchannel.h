@@ -30,7 +30,7 @@
 #include <qutim/notification.h>
 #include "ircglobal.h"
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class ChatSession;
 
@@ -91,7 +91,7 @@ private:
 	QScopedPointer<IrcChannelPrivate> d;
 };
 
-} } // namespace qutim_sdk_0_3::irc
+} } // namespace Ureen::irc
 
 #endif // IRCCHANNEL_H
 

@@ -29,7 +29,7 @@
 #include <purple.h>
 #include <qutim/buddy.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 class QuetzalChat;
 
 class QuetzalChatUser : public Buddy

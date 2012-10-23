@@ -30,7 +30,7 @@
 
 namespace Core
 {
-	class SearchDialogPlugin : public qutim_sdk_0_3::Plugin
+	class SearchDialogPlugin : public Ureen::Plugin
 	{
 		Q_OBJECT
 	public:

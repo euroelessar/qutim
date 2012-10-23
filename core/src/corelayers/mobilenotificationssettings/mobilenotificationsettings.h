@@ -48,7 +48,7 @@ protected:
 	void setData(int column, int role, const QVariant &value, bool checkState);
 };
 
-class MobileNotificationSettings : public qutim_sdk_0_3::SettingsWidget
+class MobileNotificationSettings : public Ureen::SettingsWidget
 {
     Q_OBJECT
 public:
@@ -67,7 +67,7 @@ private slots:
 private:
 	struct Backend
 	{
-		qutim_sdk_0_3::NotificationBackend *backend;
+		Ureen::NotificationBackend *backend;
 		QTreeWidgetItem *item;
 	};
 

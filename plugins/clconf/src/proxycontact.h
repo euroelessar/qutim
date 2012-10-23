@@ -29,7 +29,7 @@
 #include <qutim/conference.h>
 #include <qutim/contact.h>
 
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
 class ProxyContact : public Contact
 {
@@ -47,8 +47,8 @@ public:
 	virtual bool sendMessage(const Message &message);
 	Conference *conference() const { return m_conf.data(); }
 private slots:
-	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-								const qutim_sdk_0_3::Status &previous);
+	void onAccountStatusChanged(const Ureen::Status &current,
+								const Ureen::Status &previous);
 	void updateStatus();
 protected:
 	bool event(QEvent *ev);

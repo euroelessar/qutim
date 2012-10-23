@@ -5,12 +5,12 @@
 #include "settingslayer_p.h"
 #include <QVBoxLayout>
 
-namespace qutim_sdk_0_3 {
+namespace Ureen {
 
 class DataSettingsObjectPrivate
 {
 public:
-    qutim_sdk_0_3::DataItem item;
+    Ureen::DataItem item;
     QObject *controller;
 };
 
@@ -24,7 +24,7 @@ public:
     void setController(QObject *controller);
     
 protected slots:
-    void onItemChanged(const qutim_sdk_0_3::DataItem &item);
+    void onItemChanged(const Ureen::DataItem &item);
     void onChanged();
     
 protected:

@@ -32,7 +32,7 @@
 class ScriptMessagePropertyIterator : public QScriptClassPropertyIterator
 {
 public:
-    ScriptMessagePropertyIterator(const QScriptValue &object, qutim_sdk_0_3::Message *msg);
+    ScriptMessagePropertyIterator(const QScriptValue &object, Ureen::Message *msg);
 	
     virtual bool hasNext() const;
     virtual void next();
@@ -45,7 +45,7 @@ public:
 
     virtual QScriptString name() const;
 private:
-	qutim_sdk_0_3::Message *m_msg;
+	Ureen::Message *m_msg;
 	int m_id;
 };
 

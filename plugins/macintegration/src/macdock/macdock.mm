@@ -29,6 +29,7 @@
 #include <qutim/extensioninfo.h>
 #include <qutim/servicemanager.h>
 #include <qutim/config.h>
+#include <qutim/accountmanager.h>
 #include <QApplication>
 #include <QLabel>
 #import <AppKit/NSDockTile.h>
@@ -86,14 +87,11 @@ MacDock::MacDock() : d_ptr(new MacDockPrivate())
 	createDockDeps();
 	d->tray = 0;
 	loadSettings();
-	setStatusIcon();
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-	foreach (qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
-		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
-		connect(proto, SIGNAL(accountRemoved(qutim_sdk_0_3::Account *)), this, SLOT(setStatusIcon()));
-	}
+    setStatusIcon();
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(Ureen::ChatSession*)),
+            this, SLOT(onSessionCreated(Ureen::ChatSession*)));
+    connect(Ureen::AccountManager::instance(), SIGNAL(validAccountCreated(Ureen::Account*)),
+            SLOT(onAccountCreated(Ureen::Account*)));
 	qApp->setQuitOnLastWindowClosed(false);
 }
 
@@ -197,7 +195,7 @@ void MacDock::onStatusChanged()
 {
 	if (QAction *a = qobject_cast<QAction *>(sender())) {
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
-		foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
+		foreach(Ureen::Protocol *proto, Ureen::Protocol::all()) {
 			foreach(Account *account, proto->accounts()) {
 				Status status = account->status();
 				status.setType(type);
@@ -209,7 +207,7 @@ void MacDock::onStatusChanged()
 	}
 }
 
-void MacDock::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+void MacDock::onSessionCreated(Ureen::ChatSession *session)
 {
 	Q_D(MacDock);
 	d->chatMenu->setEnabled(true);
@@ -218,7 +216,7 @@ void MacDock::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 	connect(action, SIGNAL(triggered()), session, SLOT(activate()));
 	d->chatMenu->addAction(action);
 	d->aliveSessions.insert(session, action);
-	connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session, SIGNAL(unreadChanged(Ureen::MessageList)), SLOT(onUnreadChanged(Ureen::MessageList)));
 	connect(session, SIGNAL(activated(bool)), this, SLOT(onActivatedSession(bool)));
 	connect(session, SIGNAL(destroyed()), SLOT(onSessionDestroyed()));
 }
@@ -239,7 +237,7 @@ void MacDock::onActivatedSession(bool state)
 	d_func()->aliveSessions.value(session)->setChecked(state);
 }
 
-void MacDock::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+void MacDock::onUnreadChanged(const Ureen::MessageList &unread)
 {
 	ChatSession *session = static_cast<ChatSession*>(sender());
 	Q_ASSERT(session != NULL);
@@ -292,10 +290,10 @@ void MacDock::dockIconClickEvent()
 		d->unreadSessions.keys().first()->activate();
 }
 
-void MacDock::onAccountCreated(qutim_sdk_0_3::Account *account)
+void MacDock::onAccountCreated(Ureen::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(setStatusIcon()));
+    connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+            this, SLOT(setStatusIcon()));
 }
 
 void MacDock::setStatusIcon()
@@ -305,8 +303,8 @@ void MacDock::setStatusIcon()
 	bool start = true;
 	Status::Type globalStatus = Status::Offline;
 	bool isStatusGlobal = true;
-	foreach(qutim_sdk_0_3::Protocol *protocol, qutim_sdk_0_3::Protocol::all()) {
-		foreach(qutim_sdk_0_3::Account *account, protocol->accounts()) {
+	foreach(Ureen::Protocol *protocol, Ureen::Protocol::all()) {
+		foreach(Ureen::Account *account, protocol->accounts()) {
 			Status::Type type = account->status().type();
 			switch (type) {
 			case Status::Online:

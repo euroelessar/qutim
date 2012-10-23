@@ -27,7 +27,7 @@
 #include <QStringList>
 #include <QWeakPointer>
 
-namespace qutim_sdk_0_3
+namespace Ureen
 {
 class MimeObjectDataPrivate
 {

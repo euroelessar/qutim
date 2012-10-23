@@ -33,9 +33,9 @@
 
 namespace MeegoIntegration
 {
-using namespace qutim_sdk_0_3;
+using namespace Ureen;
 
-static bool isStatusChange(const qutim_sdk_0_3::Status &status)
+static bool isStatusChange(const Ureen::Status &status)
 {
 	if (status.type() == Status::Offline) {
 		foreach(Protocol *proto, Protocol::all()) {
@@ -65,10 +65,10 @@ ContactList::ContactList()
 	init();
 	NotificationManagerWrapper::init();
 	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
-		connect(protocol, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+		connect(protocol, SIGNAL(accountCreated(Ureen::Account*)),
+		        SLOT(onAccountAdded(Ureen::Account*)));
+		connect(protocol, SIGNAL(accountRemoved(Ureen::Account*)),
+		        SLOT(onAccountRemoved(Ureen::Account*)));
 		m_accounts << protocol->accounts();
 	}
 	m_protocols = Protocol::all().values();
@@ -98,17 +98,17 @@ void ContactList::setStatus(StatusWrapper::Type type)
 	emit statusChanged(type);
 }
 
-QDeclarativeListProperty<qutim_sdk_0_3::Account> ContactList::accounts()
+QDeclarativeListProperty<Ureen::Account> ContactList::accounts()
 {
-	QDeclarativeListProperty<qutim_sdk_0_3::Account> list(this, m_accounts);
+	QDeclarativeListProperty<Ureen::Account> list(this, m_accounts);
 	list.append = NULL;
 	list.clear = NULL;
 	return list;
 }
 
-QDeclarativeListProperty<qutim_sdk_0_3::Protocol> ContactList::protocols()
+QDeclarativeListProperty<Ureen::Protocol> ContactList::protocols()
 {
-	QDeclarativeListProperty<qutim_sdk_0_3::Protocol> list(this, m_protocols);
+	QDeclarativeListProperty<Ureen::Protocol> list(this, m_protocols);
 	list.append = NULL;
 	list.clear = NULL;
 	return list;
@@ -175,21 +175,21 @@ bool ContactList::eventFilter(QObject *obj, QEvent *ev)
 	return QObject::eventFilter(obj, ev);
 }
 
-void ContactList::onAccountAdded(qutim_sdk_0_3::Account *account)
+void ContactList::onAccountAdded(Ureen::Account *account)
 {
 	m_accounts << account;
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(Ureen::Status,Ureen::Status)),
+			this, SLOT(onAccountStatusChanged(Ureen::Status)));
 	emit accountsChanged(accounts());
 }
 
-void ContactList::onAccountRemoved(qutim_sdk_0_3::Account *account)
+void ContactList::onAccountRemoved(Ureen::Account *account)
 {
 	m_accounts.removeAll(account);
 	emit accountsChanged(accounts());
 }
 
-void ContactList::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+void ContactList::onAccountStatusChanged(const Ureen::Status &status)
 {
 	if (isStatusChange(status)) {
 		m_globalStatus = status;
