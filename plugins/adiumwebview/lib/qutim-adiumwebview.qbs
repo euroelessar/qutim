@@ -1,4 +1,6 @@
-Product {
+import "../../../core/Framework.qbs" as Framework
+
+Framework {
     name: "qutim-adiumwebview"
    
     property string versionMajor: '0'
@@ -7,8 +9,7 @@ Product {
     property string version: versionMajor+'.'+versionMinor+'.'+versionRelease
    
     moduleSearchPaths: "../../../qbs/modules"
- 
-    destination: "lib"
+
     type: ["dynamiclibrary", "installed_content"]
  
     Depends { name: "cpp" }

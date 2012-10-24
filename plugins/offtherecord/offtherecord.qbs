@@ -1,5 +1,7 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    Depends { name: "otr" }
+    pluginTags: ['linux', 'crypto', 'mac']
+
+    Depends { name: "otr" }    
 }

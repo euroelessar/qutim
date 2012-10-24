@@ -101,7 +101,7 @@ Project {
         "protocols/oscar/plugins/identify.qbs",
         "protocols/oscar/plugins/xstatus.qbs",
         "protocols/mrim/mrim.qbs",
-        "protocols/jabber/jreen/jreen.qbs",
+        "protocols/jabber/jreen/src/src.qbs",
         "protocols/jabber/jabber.qbs",
         "protocols/quetzal/quetzal.qbs",
         "protocols/irc/irc.qbs",
