@@ -166,7 +166,7 @@ QVariant PackageModel::data(const QModelIndex &index, int role) const
 	case DetailRole:
 		return entry.content().detailpage();
 	case DescriptionPage:
-		return entry.content().description();
+        return entry.content().description().replace("\r", QString());
 	case AuthorNameRole:
 		return entry.content().author();
 	case AuthorEmailRole:
