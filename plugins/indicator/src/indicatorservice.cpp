@@ -34,7 +34,6 @@ IndicatorService::IndicatorService()
 #ifdef QUANTAL
     : desktopName( QUTIM_DESKTOP_BASENAME )
     , indicateServer(new Server(desktopName, this))
-    , mainWindowButton(&indicateServer->createSourceString(QLatin1String("mainWindowButton"), QT_TRANSLATE_NOOP("Plugin", "Show main window"), qutim_sdk_0_3::Icon("qutim"), "", true, 0))
     , quitButton(&indicateServer->createSourceString(QLatin1String("quitButton"), QT_TRANSLATE_NOOP("Plugin", "Close qutIM"), qutim_sdk_0_3::Icon("application-exit"), "", true, 100))
 #else /* QUANTAL */
 	: desktopName( QUTIM_DESKTOP_FILE )
@@ -221,11 +220,6 @@ void IndicatorService::onIndicatorDisplay(SourceRef indicator)
     if (indicator.getLabel() == QT_TRANSLATE_NOOP("Plugin", "Close qutIM"))
     {
         qApp->quit();
-        return;
-    }
-    if (indicator.getLabel() == QT_TRANSLATE_NOOP("Plugin", "Show main window"))
-    {
-        showMainWindow();
         return;
     }
 	qutim_sdk_0_3::ChatSession* session = sessionIndicators.key(&indicator);
