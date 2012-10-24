@@ -43,6 +43,7 @@ class PackageModel : public QAbstractListModel
 	Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
 	Q_PROPERTY(QStringList categories READ categories WRITE setCategories NOTIFY categoriesChanged)
 	Q_PROPERTY(SortMode sortMode READ sortMode WRITE setSortMode NOTIFY sortModeChanged)
+    Q_PROPERTY(bool loading READ isLoading NOTIFY isLoadingChanged)
 	Q_ENUMS(SortMode)
 	Q_ENUMS(Status)
 public:
@@ -73,6 +74,7 @@ public:
 	QString path() const;
 	void setCategories(const QStringList &categories);
 	QStringList categories() const;
+    bool isLoading() const;
 
 	PackageEngine *engine() const;
 
@@ -91,10 +93,14 @@ signals:
 	void sortModeChanged(SortMode sortMode);
 	void pathChanged(const QString &path);
 	void categoriesChanged(const QStringList &categories);
+    void isLoadingChanged(bool);
 	
 private slots:
 	void onContentsReceived(const PackageEntry::List &list, qint64 id);
 	void onEntryChanged(const QString &id);
+
+protected:
+    void setIsLoading(bool isLoading);
 	
 private:
 	PackageEngine *m_engine;
@@ -107,6 +113,7 @@ private:
 	int m_pageSize;
 	int m_pagesCount;
 	qint64 m_requestId;
+    bool m_isLoading;
 };
 
 #endif // PACKAGEMODEL_H

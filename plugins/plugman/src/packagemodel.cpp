@@ -40,7 +40,8 @@ enum Roles {
 };
 
 PackageModel::PackageModel(QObject *parent)
-	: QAbstractListModel(parent), m_engine(new PackageEngine(this)), m_mode(Newest)
+    : QAbstractListModel(parent), m_engine(new PackageEngine(this)), m_mode(Newest),
+      m_isLoading(false)
 {
 	m_pageSize = 20;
 	m_pagesCount = 0;
@@ -117,7 +118,12 @@ void PackageModel::setCategories(const QStringList &categories)
 
 QStringList PackageModel::categories() const
 {
-	return m_categories;
+    return m_categories;
+}
+
+bool PackageModel::isLoading() const
+{
+    return m_isLoading;
 }
 
 PackageEngine *PackageModel::engine() const
@@ -174,6 +180,7 @@ QVariant PackageModel::data(const QModelIndex &index, int role) const
 
 void PackageModel::onContentsReceived(const PackageEntry::List &list, qint64 id)
 {
+    setIsLoading(false);
 	if (m_requestId != id)
 		return;
 	debug() << "Contents received" << list.size();
@@ -192,21 +199,33 @@ void PackageModel::onContentsReceived(const PackageEntry::List &list, qint64 id)
 
 void PackageModel::onEntryChanged(const QString &id)
 {
+    setIsLoading(false);
 	const int index = m_indexes.value(id, -1);
 	if (index == -1)
 		return;
 	const QModelIndex modelIndex = QAbstractListModel::index(index);
-	emit dataChanged(modelIndex, modelIndex);
+    emit dataChanged(modelIndex, modelIndex);
+}
+
+void PackageModel::setIsLoading(bool isLoading)
+{
+    if (m_isLoading != isLoading) {
+        m_isLoading = isLoading;
+        emit isLoadingChanged(isLoading);
+    }
 }
 
 void PackageModel::requestNextPage()
 {
 	if (m_requestId != -1)
 		return;
+
 	m_requestId = m_engine->requestContents(
 					  m_engine->resolveCategories(m_categories),
 					  m_filter, static_cast<Attica::Provider::SortMode>(m_mode),
 					  m_pagesCount, m_pageSize);
+
+    setIsLoading(true);
 }
 
 void PackageModel::remove(int index)
@@ -217,5 +236,7 @@ void PackageModel::remove(int index)
 void PackageModel::install(int index)
 {
 	m_engine->install(m_contents.at(index), m_path);
+
+    setIsLoading(true);
 }
 

@@ -2,23 +2,79 @@ import QtQuick 1.1
 import QtDesktop 0.1
 import org.qutim.plugman 0.3
 
-Item {
+Item { //TODO use Window or Dialog with qml desktop components viewer
     id: root
+
+    Header {
+        id: header
+        width: parent.width
+        height: 32
+
+        Row {
+            anchors.fill: parent
+            anchors.rightMargin: 5
+
+            layoutDirection: Qt.RightToLeft
+
+            ComboBox {
+                id: orderByBox
+
+                property int sortOrder: orderByModel.get(selectedIndex).value
+
+                width: 200
+
+                tooltip: qsTr("Order By")
+                anchors.verticalCenter: parent.verticalCenter
+
+                //HACK no way to translate this
+                model: ListModel {
+                    id: orderByModel
+                    ListElement {
+                        text: "Newest"
+                        value: PackageModel.Newest
+                    }
+                    ListElement {
+                        text: "Rating"
+                        value: PackageModel.Rating
+                    }
+                    ListElement {
+                        text: "Most downloads"
+                        value: PackageModel.Downloads
+                    }
+                }
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: qsTr("Order by: ")
+            }
+
+
+            BusyIndicator {
+
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                anchors.verticalCenter: parent.verticalCenter
+                visible: packageModel.loading
+            }
+        }
+    }
+
     ListView {
         id: listView
         anchors.margins: 4
         spacing: 4
         anchors {
             left: parent.left
-            top: parent.top
+            top: header.bottom
             bottom: parent.bottom
-            right: groupBox.left
+            right: parent.right
         }
         model: PackageModel {
             id: packageModel
             categories: [ "Emoticon Theme" ]
             path: "emoticons"
-            sortMode: orderByColumn.checkedButton.value
+            sortMode: orderByBox.sortOrder
         }
         delegate: Item {
             width: listView.width
@@ -110,41 +166,5 @@ Item {
             }
         }
         clip: true
-    }
-    GroupBox {
-        id: groupBox
-        title: qsTr("Order by:")
-        adjustToContentSize: true
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            right: parent.right
-            rightMargin: 8
-            bottomMargin: 8
-        }
-
-        ButtonColumn {
-            id: orderByColumn
-            exclusive: true
-            RadioButton {
-                text: qsTr("Newest")
-                checked: true
-                property int value: PackageModel.Newest
-//                    KeyNavigation.tab: area
-//                    KeyNavigation.backtab: r1
-            }
-            RadioButton {
-                text: qsTr("Rating")
-                property int value: PackageModel.Rating
-            }
-            RadioButton {
-                text: qsTr("Most downloads")
-                property int value: PackageModel.Downloads
-            }
-//            RadioButton {
-//                text: qsTr("Installed")
-//                property int value: PackageModel.Newest
-//            }
-        }
     }
 }
