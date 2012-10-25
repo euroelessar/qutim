@@ -49,6 +49,7 @@ PackageDownloadDialog::PackageDownloadDialog(const QStringList &categories, cons
 	m_view->setSource(QUrl::fromLocalFile(themePath + "/main.qml"));
 
 	setAttribute(Qt::WA_DeleteOnClose);
+    setWindowTitle(tr("Get Hot New Stuff"));
     resize(800, 800);
 }
 
