@@ -23,6 +23,7 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
                 anchors.verticalCenter: parent.verticalCenter
                 placeholderText: qsTr("Search")
                 width: 200
+                height: orderByBox.height
             }
 
             ComboBox {
