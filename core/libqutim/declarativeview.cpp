@@ -1,4 +1,5 @@
 #include "declarativeview.h"
+#include "icon.h"
 #include <QPointer>
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
@@ -6,8 +7,31 @@
 #include <QLayout>
 #include <QDeclarativeContext>
 #include <QGraphicsWidget>
+#include <QDeclarativeImageProvider>
 
 namespace qutim_sdk_0_3 {
+
+class IconImageProvider: public QDeclarativeImageProvider
+{
+public:
+    IconImageProvider()
+        : QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
+    {
+    }
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+    {
+        Q_UNUSED(size);
+        int pos = id.lastIndexOf('/');
+        QString iconName = id.right(id.length() - pos);
+        Icon icon = Icon(iconName);
+        if (size)
+            *size = QSize(128, 128);
+
+        int width = requestedSize.width() > 0 ? requestedSize.width() : size->width();
+        return icon.pixmap(width);
+    }
+};
 
 static QPointer<QDeclarativeEngine> m_engine;
 
@@ -37,6 +61,15 @@ public:
 	void _q_updateView();
 	void _q_continueExecute();
 };
+
+namespace  {
+
+void initEngine(QDeclarativeEngine *engine)
+{
+    engine->addImageProvider("qutim", new IconImageProvider);
+}
+
+} //namespace
 
 void DeclarativeViewPrivate::initResize()
 {
@@ -143,7 +176,7 @@ void DeclarativeViewPrivate::_q_continueExecute()
 		return;
 	}
 
-	q->setRootObject(obj);
+    q->setRootObject(obj);
 }
 
 DeclarativeView::DeclarativeView(QWidget *parent) :
@@ -174,13 +207,15 @@ void DeclarativeView::setEngine(QDeclarativeEngine *engine)
 {
 	Q_ASSERT(!m_engine);
 	m_engine = engine;
+    initEngine(engine);
 }
 
 QDeclarativeEngine *DeclarativeView::engine()
 {
-	if (!m_engine) {
-		m_engine = new QDeclarativeEngine();
-	}
+    if (!m_engine) {
+        m_engine = new QDeclarativeEngine();
+        initEngine(m_engine.data());
+    }
 	return m_engine;
 }
 

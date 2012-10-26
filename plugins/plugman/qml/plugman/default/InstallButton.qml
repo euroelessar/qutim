@@ -18,27 +18,28 @@ Button {
             break;
         case PackageModel.Installable:
             text = qsTr("Install");
-            //                        iconSource = "image://desktoptheme/dialog-ok"
+            iconSource = "image://qutim/download"
             break;
         case PackageModel.Updateable:
             text = qsTr("Update");
-            //                        iconSource = "image://desktoptheme/system-software-update"
+            iconSource = "image://qutim/system-software-update"
             break;
         case PackageModel.Installing:
             text = qsTr("Installing");
-            //                        iconSource = "image://desktoptheme/dialog-ok"
+            iconSource = "image://qutim/dialog-ok"
             break;
         case PackageModel.Updating:
             text = qsTr("Updating");
-            //                        iconSource = "image://desktoptheme/dialog-ok"
+            iconSource = "image://qutim/download"
             break;
         case PackageModel.Installed:
             text = qsTr("Uninstall");
-            //                        iconSource = "image://desktoptheme/edit-delete"
+            iconSource = "image://qutim/edit-delete"
             break;
         }
         return { text: text, iconSource: iconSource };
     }
+
     onClicked: {
         if (status == PackageModel.Installable || status == PackageModel.Updateable)
             packageModel.install(index);

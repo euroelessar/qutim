@@ -18,6 +18,8 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
             spacing: 5
 
             TextField {
+                id: searchField
+
                 anchors.verticalCenter: parent.verticalCenter
                 placeholderText: qsTr("Search")
                 width: 200
@@ -52,7 +54,6 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
             }
 
             Text {
-                id: searchField
                 anchors.verticalCenter: parent.verticalCenter
                 text: qsTr("Order by: ")
             }
@@ -83,7 +84,7 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
             categories: [ "Emoticon Theme" ]
             path: "emoticons"
             sortMode: orderByBox.sortOrder
-            //filter: searchField.text
+            filter: searchField.text
         }
         delegate: ItemDelegate {}
         clip: true

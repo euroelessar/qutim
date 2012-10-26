@@ -13,7 +13,7 @@ Item {
         width: 100
         height: Math.min(sourceSize.height, 100)
 
-        source: imageSource ? imageSource : "images/utilities-file-archiver.png"
+        source: imageSource ? imageSource : "image://qutim/utilities-file-archiver"
         fillMode: Image.PreserveAspectFit
         clip: true
         smooth: true
