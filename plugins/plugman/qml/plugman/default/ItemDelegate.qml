@@ -2,10 +2,14 @@ import QtQuick 1.1
 import QtDesktop 0.1
 import org.qutim.plugman 0.3
 
-Item {
+Rectangle {
     id: root
+
     height: 120
     width: parent ? parent.width : 300
+    color: index % 2 ? syspal.alternateBase : "transparent"
+
+    SystemPalette { id: syspal }
 
     Image {
         id: preview
@@ -41,8 +45,9 @@ Item {
             top: parent.top
             right: parent.right
             bottom: parent.bottom
-            leftMargin: 5
-            rightMargin: 5
+            leftMargin: 10
+            rightMargin: 10
+            topMargin: 10
         }
 
         Text {
@@ -60,7 +65,7 @@ Item {
             text: description
             elide: Text.ElideRight
             wrapMode: Text.Wrap
-            maximumLineCount: 4
+            maximumLineCount: 3
 
             TooltipArea {
                 id: tooltip
@@ -68,8 +73,21 @@ Item {
                 text: description
             }
         }
+    }
 
-        InstallButton {
+    InstallButton {
+        anchors {
+            bottom: hr.top
+            bottomMargin: 3
+            left: column.left
         }
+    }
+
+    Rectangle {
+        id: hr
+        width: parent.width
+        height: 1
+        anchors.bottom: parent.bottom
+        color: syspal.window
     }
 }

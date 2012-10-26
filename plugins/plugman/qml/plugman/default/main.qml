@@ -62,8 +62,6 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
 
     ListView {
         id: listView
-        anchors.margins: 4
-        spacing: 4
         anchors {
             left: parent.left
             top: header.bottom
