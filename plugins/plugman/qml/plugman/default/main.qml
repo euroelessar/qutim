@@ -57,15 +57,6 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
                 anchors.verticalCenter: parent.verticalCenter
                 text: qsTr("Order by: ")
             }
-
-
-            BusyIndicator {
-
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                anchors.verticalCenter: parent.verticalCenter
-                visible: packageModel.loading
-            }
         }
     }
 
@@ -88,5 +79,24 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
         }
         delegate: ItemDelegate {}
         clip: true
+    }
+
+    Balloon {
+        width: 75
+        height: 75
+        radius: 10
+
+        anchors.centerIn: parent
+        opacity: packageModel.loading
+
+        BusyIndicator {
+            running: parent.visible
+            anchors.centerIn: parent
+            inverted: true
+
+            implicitWidth: 64
+            implicitHeight: 64
+        }
+
     }
 }
