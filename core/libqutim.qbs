@@ -1,13 +1,8 @@
 import qbs.base 1.0
+import "Framework.qbs" as Framework
 
-DynamicLibrary {
+Framework {
     name: "libqutim"
-    destination: {
-        if (qbs.targetOS === "mac")
-            return "qutim.app/Contents/MacOS";
-        else
-            return "lib";
-    }
 
     property string versionMajor: project.qutim_version_major
     property string versionMinor: project.qutim_version_minor

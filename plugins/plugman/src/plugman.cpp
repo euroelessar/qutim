@@ -37,6 +37,7 @@
 #include <qutim/actiongenerator.h>
 #include <qutim/servicemanager.h>
 #include <qutim/systeminfo.h>
+#include <qutim/systemintegration.h>
 #include <attica/content.h>
 #include <attica/downloaditem.h>
 
@@ -84,7 +85,7 @@ void PackageManagerPlugin::onManagerButtonClicked()
 {
 	QDialog *dialog = new PackageDownloadDialog(QStringList(QLatin1String("Emoticon Theme")),
 	                                            QLatin1String("emoticons"));
-	dialog->show();
+    SystemIntegration::show(dialog);
 }
 
 QUTIM_EXPORT_PLUGIN(PackageManager::PackageManagerPlugin)
