@@ -283,8 +283,8 @@ void VGroupChat::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 				break;
 			}
 		}
-		if (index == -1)
-			idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
+        if (index == -1)
+            idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);

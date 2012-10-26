@@ -1,13 +1,7 @@
-import qbs.base 1.0
+import "../../../../core/Framework.qbs" as Framework
 
-DynamicLibrary {
+Framework {
     name: "qutim-simplecontactlist"
-    destination: {
-        if (qbs.targetOS === "mac")
-            return "qutim.app/Contents/MacOS";
-        else
-            return "lib";
-    }
 
     Depends { name: "cpp" }
     Depends { name: "libqutim" }

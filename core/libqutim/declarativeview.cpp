@@ -1,4 +1,30 @@
+/****************************************************************************
+**
+** qutIM - instant messenger
+**
+** Copyright © 2012 Aleksey Sidorov <gorthauer87@yandex.ru>
+**
+*****************************************************************************
+**
+** $QUTIM_BEGIN_LICENSE$
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+** See the GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program.  If not, see http://www.gnu.org/licenses/.
+** $QUTIM_END_LICENSE$
+**
+****************************************************************************/
+
 #include "declarativeview.h"
+#include "icon.h"
 #include <QPointer>
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
@@ -6,8 +32,31 @@
 #include <QLayout>
 #include <QDeclarativeContext>
 #include <QGraphicsWidget>
+#include <QDeclarativeImageProvider>
 
 namespace qutim_sdk_0_3 {
+
+class IconImageProvider: public QDeclarativeImageProvider
+{
+public:
+	IconImageProvider()
+		: QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
+	{
+	}
+
+	QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+	{
+		Q_UNUSED(size);
+		int pos = id.lastIndexOf('/');
+		QString iconName = id.right(id.length() - pos);
+		Icon icon = Icon(iconName);
+		if (size)
+			*size = QSize(128, 128);
+
+		int width = requestedSize.width() > 0 ? requestedSize.width() : size->width();
+		return icon.pixmap(width);
+	}
+};
 
 static QPointer<QDeclarativeEngine> m_engine;
 
@@ -37,6 +86,15 @@ public:
 	void _q_updateView();
 	void _q_continueExecute();
 };
+
+namespace  {
+
+void initEngine(QDeclarativeEngine *engine)
+{
+	engine->addImageProvider("qutim", new IconImageProvider);
+}
+
+} //namespace
 
 void DeclarativeViewPrivate::initResize()
 {
@@ -174,12 +232,14 @@ void DeclarativeView::setEngine(QDeclarativeEngine *engine)
 {
 	Q_ASSERT(!m_engine);
 	m_engine = engine;
+	initEngine(engine);
 }
 
 QDeclarativeEngine *DeclarativeView::engine()
 {
 	if (!m_engine) {
 		m_engine = new QDeclarativeEngine();
+		initEngine(m_engine.data());
 	}
 	return m_engine;
 }
