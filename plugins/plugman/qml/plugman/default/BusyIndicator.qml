@@ -1,7 +1,7 @@
 import QtQuick 1.1
 
 Item {
-	id: indicator
+    id: indicator
 
 	property alias running : rotation.running
     property int period: 800
@@ -18,7 +18,7 @@ Item {
 		id: spinner
         source: "images/spinner/busy_indicator_" + indicator.implicitWidth + (inverted ? "_inverted" : "") + ".png"
 		smooth: true
-	}
+    }
 
 	Timer {
 		id: rotation
@@ -28,5 +28,5 @@ Item {
 		onTriggered: {
             spinner.rotation = spinner.rotation + __rotation;
 		}
-	}
+    }
 }

@@ -12,10 +12,10 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
 
         Row {
             anchors.fill: parent
-            anchors.rightMargin: 5
+            anchors.rightMargin: 6
 
             layoutDirection: Qt.RightToLeft
-            spacing: 5
+            spacing: 6
 
             TextField {
                 id: searchField
@@ -59,6 +59,16 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
                 text: qsTr("Order by: ")
             }
         }
+
+        Text {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                leftMargin: 24
+            }
+            text: qsTr("Get emoticons")
+            font.bold: true
+        }
     }
 
     ListView {
@@ -78,6 +88,10 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
         }
         delegate: ItemDelegate {}
         clip: true
+
+        ScrollDecorator {
+            flickableItem: listView
+        }
     }
 
     Balloon {

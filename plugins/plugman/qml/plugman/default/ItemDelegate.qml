@@ -5,7 +5,7 @@ import org.qutim.plugman 0.3
 Rectangle {
     id: root
 
-    height: 120
+    height: 140
     width: parent ? parent.width : 300
     color: index % 2 ? syspal.alternateBase : "transparent"
 
@@ -65,7 +65,7 @@ Rectangle {
             text: description
             elide: Text.ElideRight
             wrapMode: Text.Wrap
-            maximumLineCount: 3
+            maximumLineCount: 4
 
             TooltipArea {
                 id: tooltip
@@ -79,7 +79,7 @@ Rectangle {
         anchors {
             bottom: hr.top
             bottomMargin: 3
-            left: column.left
+            horizontalCenter: preview.horizontalCenter
         }
     }
 
