@@ -88,6 +88,9 @@ LIBQUTIM_EXPORT QString unescape(const QString &html);
 typedef QList<Message> MessageList;
 }
 
+LIBQUTIM_EXPORT QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg);
+
+
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Message)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Message*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::MessageList)

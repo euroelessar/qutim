@@ -37,13 +37,16 @@
 
 QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
 {
-    return dbg.nospace() << QLatin1String("Ureen::Message(")
-                         << QLatin1String("id:") << msg.id()
-                         << QLatin1String(" chatUnit:") << msg.chatUnit()
-                         << QLatin1String(" isIncoming:") << msg.isIncoming()
-                         << QLatin1String(" text:") << msg.text()
-                         << QLatin1String(" time:") << msg.time()
-                         << QLatin1String(")");
+    dbg.nospace() << QLatin1String("Ureen::Message(")
+                  << QLatin1String("id: ") << msg.id()
+                  << QLatin1String("chatUnit: ") << msg.chatUnit()
+                  << QLatin1String("isIncoming: ") << msg.isIncoming()
+                  << QLatin1String("text: ") << msg.text()
+                  << QLatin1String("time: ") << msg.time()
+                  << QLatin1String("properties: (");
+    foreach (QByteArray name, msg.dynamicPropertyNames())
+        dbg.nospace() << name << ": " << msg.property(name);
+    return dbg.nospace() << QLatin1String(") )");
 }
 
 namespace qutim_sdk_0_3

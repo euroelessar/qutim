@@ -300,7 +300,7 @@ void VContact::onUnreadChanged(MessageList unread)
 		int index = -1;
 		MessageList::iterator j = unread.begin();
 		for (; j != unread.end(); ++j) {
-			if (i->id() == j->id()) {
+            if (i->property("mid") == j->property("mid")) {
 				index = j - unread.begin();
 				unread.removeAt(index);
 				break;
@@ -311,7 +311,6 @@ void VContact::onUnreadChanged(MessageList unread)
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);
-	idList.clear();
 }
 
 void VContact::onSessionCreated(ChatSession *session)

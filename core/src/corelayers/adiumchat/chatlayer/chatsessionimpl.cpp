@@ -117,7 +117,9 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	if (message.property("spam", false) || message.property("hide", false))
 		return message.id();
 
-	if ((!isActive() && !message.property("service", false)) && message.isIncoming()) {
+    if ((!isActive() && !message.property("service", false))
+            && message.isIncoming()
+            && !message.property("history", false)) {
 		d->unread.append(message);
 		unreadChanged(d->unread);
 	}
