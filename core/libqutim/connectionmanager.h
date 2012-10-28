@@ -28,19 +28,30 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include <QStringList>
 #include "pendingreply.h"
 
-namespace Ureen {
+namespace Ureen
+{
+
+class Connection;
 
 typedef QMap<QString, QVariantMap> ProtocolPropertiesMap;
+
+}
+
+
+namespace Ureen
+{
 
 class ConnectionManagerPrivate;
 
 class ConnectionManager : public QObject
 {
     Q_OBJECT
+//    Q_PROPERTY(Ureen::ProtocolPropertiesMap protocols READ protocols)
+    Q_FLAGS(ParameterFlag ParameterFlags)
     Q_DECLARE_PRIVATE(ConnectionManager)
-    Q_PROPERTY(Ureen::ProtocolPropertiesMap protocols READ protocols CONSTANT)
 public:
     enum ParameterFlag {
         Required = 1,
@@ -63,13 +74,13 @@ public:
     ~ConnectionManager();
 
     QStringList listProtocols() const;
-
     ProtocolPropertiesMap protocols() const;
+
+    virtual PendingReply<QList<ParameterSpecification> > getParameters(const QString &protocol);
+    virtual PendingReply<Connection*> requestConnection() = 0;
     
 signals:
-    
-public slots:
-    virtual PendingReply<QList<ParameterSpecification> > getParameters(const QString &protocol);
+    void connectionCreated(Ureen::Connection *connection, const QString &protocol);
 
 protected:
     void updateProtocols(const ProtocolPropertiesMap &protocols);
@@ -79,5 +90,9 @@ private:
 };
 
 } // namespace Ureen
+
+Q_DECLARE_METATYPE(QList<Ureen::ConnectionManager::ParameterSpecification>)
+
+Q_DECLARE_METATYPE(Ureen::Connection*)
 
 #endif // UREEN_CONNECTIONMANAGER_H

@@ -54,6 +54,7 @@ Product {
     cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
     cpp.visibility: 'hidden'
     cpp.cxxFlags: []
+    cpp.linkerFlags: []
 
     Properties {
         condition: qbs.toolchain !== "msvc"
@@ -62,6 +63,7 @@ Product {
     Properties {
         condition: qbs.targetOS === "mac"
         cpp.cxxFlags: outer.concat([ "-stdlib=libc++" ])
+        cpp.linkerFlags: outer.concat([ "-stdlib=libc++" ])
     }
 
     Depends { name: "cpp" }

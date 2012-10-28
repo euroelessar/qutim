@@ -47,6 +47,7 @@ DynamicLibrary {
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
     ]
     cpp.cxxFlags: []
+    cpp.linkerFlags: []
 
     Properties {
         condition: project.singleProfile
@@ -59,6 +60,7 @@ DynamicLibrary {
     Properties {
         condition: qbs.targetOS === "mac"
         cpp.cxxFlags: outer.concat([ "-stdlib=libc++" ])
+        cpp.linkerFlags: outer.concat([ "-stdlib=libc++" ])
     }
 
     ProductModule {

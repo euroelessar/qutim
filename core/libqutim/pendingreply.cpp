@@ -31,7 +31,10 @@ namespace Ureen {
 class PendingReplyData : public QSharedData
 {
 public:
+    PendingReplyData() : resultReady(false) {}
     QList<PendingReplyBase::HandlerBase*> handlers;
+    QVariantList result;
+    bool resultReady;
 };
 
 PendingReplyBase::PendingReplyBase(int) : data(new PendingReplyData)
@@ -55,7 +58,28 @@ PendingReplyBase::~PendingReplyBase()
 
 void PendingReplyBase::addHandler(PendingReplyBase::HandlerBase *handler)
 {
+    if (data->resultReady) {
+        handler->handle(data->result);
+    }
     data->handlers << handler;
+}
+
+void PendingReplyBase::setResult_private(const QVariant &arg1, const QVariant &arg2,
+                                         const QVariant &arg3, const QVariant &arg4,
+                                         const QVariant &arg5, const QVariant &arg6,
+                                         const QVariant &arg7, const QVariant &arg8)
+{
+    data->resultReady = true;
+    data->result.clear();
+    data->result << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8;
+    while (!data->result.isEmpty() && data->result.last().isNull()) {
+        data->result.removeLast();
+    }
+    foreach (HandlerBase *handler, data->handlers) {
+        if (handler->object()) {
+            handler->handle(data->result);
+        }
+    }
 }
 
 } // namespace Ureen
