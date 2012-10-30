@@ -76,6 +76,7 @@ SettingsWidget::SettingsWidget()
     : ui(new Ui::SettingsWidget)
 {
 	ui->setupUi(this);
+    setSizePolicy(sizePolicy().horizontalPolicy(), QSizePolicy::MinimumExpanding);
 	QSizePolicy policy = ui->answersList->sizePolicy();
 	policy.setVerticalPolicy(QSizePolicy::MinimumExpanding);
 	ui->answersList->setSizePolicy(policy);

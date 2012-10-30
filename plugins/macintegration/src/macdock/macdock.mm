@@ -78,7 +78,7 @@ public:
 MacDock::MacDock() : d_ptr(new MacDockPrivate())
 {
 	Q_D(MacDock);
-	d->standartIcon = Icon("qutim");
+	d->standartIcon = Icon("qutim-online");
 	d->offlineIcon = Icon("qutim-offline");
 	d->standartTrayIcon = Icon("qutim-online-mono");
 	d->offlineTrayIcon = Icon("qutim-offline-mono");
