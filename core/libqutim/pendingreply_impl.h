@@ -28,9 +28,14 @@
 
 #include <QMetaType>
 #include <QVariant>
+#include <QSharedPointer>
 
 namespace Ureen
 {
+
+template<typename T1 = void, typename T2 = void, typename T3 = void, typename T4 = void,
+         typename T5 = void, typename T6 = void, typename T7 = void, typename T8 = void>
+class PendingReply;
 
 namespace Internal
 {
@@ -41,20 +46,107 @@ struct PendyngReplyFinisher;
 
 class UncreatableClass
 {
+private:
+    template<typename T1, typename T2, typename T3, typename T4,
+             typename T5, typename T6, typename T7, typename T8>
+    friend class Ureen::PendingReply;
     UncreatableClass() {}
-    ~UncreatableClass() {}
+
 public:
+    ~UncreatableClass() {}
 };
 
-template <typename T>
+template <typename T, bool condition>
 struct SafeArgument
 {
     typedef T Type;
 };
-template <>
-struct SafeArgument<void>
+template <bool condition>
+struct SafeArgument<void, condition>
 {
     typedef UncreatableClass Type;
+};
+template <typename T>
+struct SafeArgument<T, false>
+{
+    typedef UncreatableClass Type;
+};
+template <>
+struct SafeArgument<void, false>
+{
+    typedef UncreatableClass Type;
+};
+
+typedef void *(*InitFunction)(void *object);
+typedef void (*DestroyFunction)(void *object);
+
+template <typename T>
+struct TypeFunctions
+{
+    static void *init(void *data)
+    {
+        if (!data)
+            return new T();
+        return new T(*reinterpret_cast<T*>(data));
+    }
+
+    static void destory(void *data)
+    {
+        delete reinterpret_cast<T*>(data);
+    }
+};
+
+template <>
+struct TypeFunctions<UncreatableClass>
+{
+    static void *init(void *)
+    {
+        return 0;
+    }
+
+    static void destory(void *)
+    {
+    }
+};
+
+class Variable
+{
+public:
+    typedef QSharedPointer<Variable> Ptr;
+    typedef QList<Ptr> PtrList;
+
+    template <typename T>
+    static Ptr create(const T &data)
+    {
+        InitFunction init = TypeFunctions<T>::init;
+        DestroyFunction destroy = TypeFunctions<T>::destory;
+        return Ptr(new Variable(destroy, init(const_cast<T*>(&data))));
+    }
+
+    ~Variable()
+    {
+        m_destroy(m_data);
+    }
+
+    void *data() const
+    {
+        return m_data;
+    }
+
+    template <typename T>
+    const T *data() const
+    {
+        return reinterpret_cast<T*>(m_data);
+    }
+
+private:
+    Variable(DestroyFunction destroy, void *data)
+        : m_destroy(destroy), m_data(data)
+    {
+    }
+
+    DestroyFunction m_destroy;
+    void *m_data;
 };
 
 template<bool Condition, class T = void> struct EnableIf {};
@@ -169,24 +261,23 @@ template <typename T>
 class GenericArgument
 {
 public:
-    GenericArgument(const QVariant &data)
-        : m_valid(data.isValid()), m_data(data.value<T>())
+    GenericArgument(void *data)
+        : m_data(data)
     {
     }
 
     operator QGenericArgument() const
     {
-        if (m_valid) {
+        if (m_data) {
             const int type = qMetaTypeId<T>();
-            return QGenericArgument(QMetaType::typeName(type), &m_data);
+            return QGenericArgument(QMetaType::typeName(type), m_data);
         } else {
             return QGenericArgument(0);
         }
     }
 
 private:
-    bool m_valid;
-    T m_data;
+    void *m_data;
 };
 
 template <>

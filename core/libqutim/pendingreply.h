@@ -49,7 +49,7 @@ public:
         virtual ~HandlerBase() {}
 
         QObject *object() const { return m_object; }
-        virtual void handle(const QVariantList &data) = 0;
+        virtual void handle(int count, void **data) = 0;
 
     private:
         QObject *m_object;
@@ -66,39 +66,28 @@ protected:
     template<typename T1, typename T2, typename T3, typename T4,
              typename T5, typename T6, typename T7, typename T8, int Count>
     friend struct PendyngReplyFinisher;
-    void setResult_private(const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(),
-                           const QVariant &arg3 = QVariant(), const QVariant &arg4 = QVariant(),
-                           const QVariant &arg5 = QVariant(), const QVariant &arg6 = QVariant(),
-                           const QVariant &arg7 = QVariant(), const QVariant &arg8 = QVariant());
+    void setResult_private(const Internal::Variable::PtrList &args);
 
 private:
     QExplicitlySharedDataPointer<PendingReplyData> data;
 };
 
-template<typename T1 = void, typename T2 = void, typename T3 = void, typename T4 = void,
-         typename T5 = void, typename T6 = void, typename T7 = void, typename T8 = void>
-class PendingReply : protected PendingReplyBase
+template<typename T1, typename T2, typename T3, typename T4,
+         typename T5, typename T6, typename T7, typename T8>
+class PendingReplyTemplateBase : protected PendingReplyBase
 {
     typedef Internal::List<T1, Internal::List<T2, Internal::List<T3, Internal::List<T4,
             Internal::List<T5, Internal::List<T6, Internal::List<T7, Internal::List<T8,
             void> > > > > > > > Parameters;
     typedef Internal::ParametersInfo<Parameters> ParametersInfo;
-//    typedef typename Internal::SafeArgument<T1>::Type T1;
-//    typedef typename Internal::SafeArgument<T2>::Type T2;
-//    typedef typename Internal::SafeArgument<T3>::Type T3;
-//    typedef typename Internal::SafeArgument<T4>::Type T4;
-//    typedef typename Internal::SafeArgument<T5>::Type T5;
-//    typedef typename Internal::SafeArgument<T6>::Type T6;
-//    typedef typename Internal::SafeArgument<T7>::Type T7;
-//    typedef typename Internal::SafeArgument<T8>::Type T8;
 
 public:
     enum { Count = ParametersInfo::Count };
 
-    PendingReply() : PendingReplyBase(0) {}
-    PendingReply(const PendingReply &other) : PendingReplyBase(other) {}
-    PendingReply &operator=(const PendingReply &other) { PendingReplyBase::operator =(other); return *this; }
-    ~PendingReply() {}
+    PendingReplyTemplateBase() : PendingReplyBase(0) {}
+    PendingReplyTemplateBase(const PendingReplyTemplateBase &other) : PendingReplyBase(other) {}
+    PendingReplyTemplateBase &operator=(const PendingReplyTemplateBase &other) { PendingReplyBase::operator =(other); return *this; }
+    ~PendingReplyTemplateBase() {}
 
     template <typename Method>
     void connect(QObject *object, Method method)
@@ -117,8 +106,13 @@ public:
         }
         const QMetaMethod method = meta->method(index);
 #ifndef QT_NO_DEBUG
-        // This is rather slow operation, disable it for release
-        const QList<QByteArray> parameterTypes = method.parameterTypes();
+//        // This is rather slow operation, disable it for release
+//        const QList<QByteArray> expectedParameterTypes = method.parameterTypes();
+//        QList<QByteArray> parameterTypes;
+//        if (expectedParameterTypes.size() > Count) {
+//            qWarning("PendingReply::connect: Method %s::%s has to have exactly one argument of type %s",
+//                     meta->className(), methodName, QMetaType::typeName(type));
+//        }
 //        const int type = qMetaTypeId<T>();
 //        if (parameterTypes.count() != 1 || QMetaType::typeName(type) != parameterTypes[0]) {
 //            qWarning("PendingReply::connect: Method %s::%s has to have exactly one argument of type %s",
@@ -129,17 +123,24 @@ public:
         addHandler(new MetaHandler(object, method));
     }
 
-//    void setResult() { setResult_private(); }
-//    void setResult(const T1 &arg1)
-//    { setResult_private(qVariantFromValue(arg1)); }
-//    void setResult(const T1 &arg1, const T2 &arg2)
-//    { setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2)); }
-//    void setResult(const T1 &arg1, const T2 &arg2, const T3 &arg3)
-//    { setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2), qVariantFromValue(arg3)); }
-//    void setResult(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
-//    { setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2), qVariantFromValue(arg3), qVariantFromValue(arg4)); }
+protected:
+    template <typename F1, typename F2, typename F3, typename F4,
+              typename F5, typename F6, typename F7, typename F8>
+    void setResult_impl(const F1 &arg1, const F2 &arg2, const F3 &arg3, const F4 &arg4,
+                        const F5 &arg5, const F6 &arg6, const F7 &arg7, const F8 &arg8 )
+    {
+        Internal::Variable::PtrList args;
+        if (Count >= 1) args << Internal::Variable::create(arg1);
+        if (Count >= 2) args << Internal::Variable::create(arg2);
+        if (Count >= 3) args << Internal::Variable::create(arg3);
+        if (Count >= 4) args << Internal::Variable::create(arg4);
+        if (Count >= 5) args << Internal::Variable::create(arg5);
+        if (Count >= 6) args << Internal::Variable::create(arg6);
+        if (Count >= 7) args << Internal::Variable::create(arg7);
+        if (Count >= 8) args << Internal::Variable::create(arg8);
+        setResult_private(args);
+    }
 
-private:
     template<typename F1, typename F2, typename F3, typename F4,
              typename F5, typename F6, typename F7, typename F8, int Count>
     friend struct Internal::PendyngReplyFinisher;
@@ -152,9 +153,10 @@ private:
         {
         }
 
-        void handle(const QVariantList &data)
+        void handle(int count, void **data)
         {
-            Internal::CallHelper<Method, ParametersInfo::Count>::template call<Parameters>(m_method, data);
+            Q_ASSERT(count == Count);
+            Internal::CallHelper<Method, Count>::template call<Parameters>(m_method, data);
         }
 
     private:
@@ -167,18 +169,17 @@ private:
         {
         }
 
-        void handle(const QVariantList &data)
+        void handle(int count, void **data)
         {
-            const int attributesCount = m_method.attributes();
-            Q_ASSERT(data.size() >= attributesCount);
-            Internal::GenericArgument<T1> arg1(0 < attributesCount ? data[0] : QVariant());
-            Internal::GenericArgument<T2> arg2(1 < attributesCount ? data[1] : QVariant());
-            Internal::GenericArgument<T3> arg3(2 < attributesCount ? data[2] : QVariant());
-            Internal::GenericArgument<T4> arg4(3 < attributesCount ? data[3] : QVariant());
-            Internal::GenericArgument<T5> arg5(4 < attributesCount ? data[4] : QVariant());
-            Internal::GenericArgument<T6> arg6(5 < attributesCount ? data[5] : QVariant());
-            Internal::GenericArgument<T7> arg7(6 < attributesCount ? data[6] : QVariant());
-            Internal::GenericArgument<T8> arg8(7 < attributesCount ? data[7] : QVariant());
+            Q_ASSERT(count == Count);
+            Internal::GenericArgument<T1> arg1(data[0]);
+            Internal::GenericArgument<T2> arg2(data[1]);
+            Internal::GenericArgument<T3> arg3(data[2]);
+            Internal::GenericArgument<T4> arg4(data[3]);
+            Internal::GenericArgument<T5> arg5(data[4]);
+            Internal::GenericArgument<T6> arg6(data[5]);
+            Internal::GenericArgument<T7> arg7(data[6]);
+            Internal::GenericArgument<T8> arg8(data[7]);
             m_method.invoke(object(), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
         }
 
@@ -187,98 +188,76 @@ private:
     };
 };
 
-namespace Internal
-{
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8, int Count>
-struct PendyngReplyFinisher;
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8>
-struct PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8, 0>
-{
-    typedef PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> PR;
-    static typename Internal::EnableIf<PR::Count == 0>::Type finish(PR &reply)
-    { reply.setResult_private(); }
-};
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8>
-struct PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8, 1>
-{
-    typedef PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> PR;
-    static typename Internal::EnableIf<PR::Count == 1>::Type finish(PR &reply, const T1 &arg1)
-    { reply.setResult_private(qVariantFromValue(arg1)); }
-};
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8>
-struct PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8, 2>
-{
-    typedef PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> PR;
-    static typename Internal::EnableIf<PR::Count == 2>::Type finish(PR &reply, const T1 &arg1, const T2 &arg2)
-    { reply.setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2)); }
-};
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8>
-struct PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8, 3>
-{
-    typedef PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> PR;
-    static typename Internal::EnableIf<PR::Count == 3>::Type finish(PR &reply, const T1 &arg1, const T2 &arg2, const T3 &arg3)
-    { reply.setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2), qVariantFromValue(arg3)); }
-};
-template<typename T1, typename T2, typename T3, typename T4, typename T5,
-         typename T6, typename T7, typename T8>
-struct PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8, 4>
-{
-    typedef PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> PR;
-    static typename Internal::EnableIf<PR::Count == 4>::Type finish(PR &reply, const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
-    { reply.setResult_private(qVariantFromValue(arg1), qVariantFromValue(arg2), qVariantFromValue(arg3), qVariantFromValue(arg4)); }
-};
-
-
 template<typename T1, typename T2, typename T3, typename T4,
          typename T5, typename T6, typename T7, typename T8>
-struct PendyngReplyFinisherHelper : public PendyngReplyFinisher<T1, T2, T3, T4, T5, T6, T7, T8,
-        PendingReply<T1, T2, T3, T4, T5, T6, T7, T8>::Count>
+class PendingReply : public PendingReplyTemplateBase<T1, T2, T3, T4, T5, T6, T7, T8>
 {
+public:
+    typedef typename Internal::SafeArgument<T1, true>::Type S1;
+    typedef typename Internal::SafeArgument<T2, true>::Type S2;
+    typedef typename Internal::SafeArgument<T3, true>::Type S3;
+    typedef typename Internal::SafeArgument<T4, true>::Type S4;
+    typedef typename Internal::SafeArgument<T5, true>::Type S5;
+    typedef typename Internal::SafeArgument<T6, true>::Type S6;
+    typedef typename Internal::SafeArgument<T7, true>::Type S7;
+    typedef typename Internal::SafeArgument<T8, true>::Type S8;
+    typedef PendingReplyTemplateBase<T1, T2, T3, T4, T5, T6, T7, T8> Base;
+    enum { Count = Base::Count };
+
+    void setResult(const typename Internal::SafeArgument<T1, Count == 1>::Type &arg1)
+    { this->setResult_impl(arg1, S2(), S3(), S4(), S5(), S6(), S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 2>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 2>::Type &arg2)
+    { this->setResult_impl(arg1, arg2, S3(), S4(), S5(), S6(), S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 3>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 3>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 3>::Type &arg3)
+    { this->setResult_impl(arg1, arg2, arg3, S4(), S5(), S6(), S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 4>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 4>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 4>::Type &arg3,
+                   const typename Internal::SafeArgument<T4, Count == 4>::Type &arg4)
+    { this->setResult_impl(arg1, arg2, arg3, arg4, S5(), S6(), S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 5>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 5>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 5>::Type &arg3,
+                   const typename Internal::SafeArgument<T4, Count == 5>::Type &arg4,
+                   const typename Internal::SafeArgument<T5, Count == 5>::Type &arg5)
+    { this->setResult_impl(arg1, arg2, arg3, arg4, arg5, S6(), S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 6>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 6>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 6>::Type &arg3,
+                   const typename Internal::SafeArgument<T4, Count == 6>::Type &arg4,
+                   const typename Internal::SafeArgument<T5, Count == 6>::Type &arg5,
+                   const typename Internal::SafeArgument<T6, Count == 6>::Type &arg6)
+    { this->setResult_impl(arg1, arg2, arg3, arg4, arg5, arg6, S7(), S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 7>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 7>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 7>::Type &arg3,
+                   const typename Internal::SafeArgument<T4, Count == 7>::Type &arg4,
+                   const typename Internal::SafeArgument<T5, Count == 7>::Type &arg5,
+                   const typename Internal::SafeArgument<T6, Count == 7>::Type &arg6,
+                   const typename Internal::SafeArgument<T7, Count == 7>::Type &arg7)
+    { this->setResult_impl(arg1, arg2, arg3, arg4, arg5, arg6, arg7, S8()); }
+    void setResult(const typename Internal::SafeArgument<T1, Count == 8>::Type &arg1,
+                   const typename Internal::SafeArgument<T2, Count == 8>::Type &arg2,
+                   const typename Internal::SafeArgument<T3, Count == 8>::Type &arg3,
+                   const typename Internal::SafeArgument<T4, Count == 8>::Type &arg4,
+                   const typename Internal::SafeArgument<T5, Count == 8>::Type &arg5,
+                   const typename Internal::SafeArgument<T6, Count == 8>::Type &arg6,
+                   const typename Internal::SafeArgument<T7, Count == 8>::Type &arg7,
+                   const typename Internal::SafeArgument<T8, Count == 8>::Type &arg8)
+    { this->setResult_impl(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); }
 };
 
-}
+template<>
+class PendingReply<void, void, void, void, void, void, void> : public PendingReplyTemplateBase<void, void, void, void, void, void, void, void>
+{
+    typedef Internal::UncreatableClass S;
 
-template<typename T1, typename T2, typename T3, typename T4,
-         typename T5, typename T6, typename T7, typename T8>
-void finishPendingReply(PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> &reply)
-{
-    Internal::PendyngReplyFinisherHelper<T1, T2, T3, T4, T5, T6, T7, T8>::finish(reply);
-}
-template<typename T1, typename T2, typename T3, typename T4,
-         typename T5, typename T6, typename T7, typename T8>
-void finishPendingReply(PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> &reply,
-                        const T1 &arg1)
-{
-    Internal::PendyngReplyFinisherHelper<T1, T2, T3, T4, T5, T6, T7, T8>::finish(reply, arg1);
-}
-template<typename T1, typename T2, typename T3, typename T4,
-         typename T5, typename T6, typename T7, typename T8>
-void finishPendingReply(PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> &reply,
-                        const T1 &arg1, const T2 &arg2)
-{
-    Internal::PendyngReplyFinisherHelper<T1, T2, T3, T4, T5, T6, T7, T8>::finish(reply, arg1, arg2);
-}
-template<typename T1, typename T2, typename T3, typename T4,
-         typename T5, typename T6, typename T7, typename T8>
-void finishPendingReply(PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> &reply,
-                        const T1 &arg1, const T2 &arg2, const T3 &arg3)
-{
-    Internal::PendyngReplyFinisherHelper<T1, T2, T3, T4, T5, T6, T7, T8>::finish(reply, arg1, arg2, arg3);
-}
-template<typename T1, typename T2, typename T3, typename T4,
-         typename T5, typename T6, typename T7, typename T8>
-void finishPendingReply(PendingReply<T1, T2, T3, T4, T5, T6, T7, T8> &reply,
-                        const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
-{
-    Internal::PendyngReplyFinisherHelper<T1, T2, T3, T4, T5, T6, T7, T8>::finish(reply, arg1, arg2, arg3, arg4);
-}
+public:
+    void setResult() { this->setResult_impl(S(), S(), S(), S(), S(), S(), S(), S()); }
+};
 
 } // namespace Ureen
 

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "jplugin.h"
+#include "protocol/jconnectionmanager.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
 #include "protocol/modules/vcard/jvcardmanager.h"
@@ -60,11 +61,15 @@ void JPlugin::init()
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("zodiac.nv@gmail.com"));
 	addAuthor(QLatin1String("euroelessar"));
-	addAuthor(QLatin1String("sauron"));
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
-				 QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
-				 new GeneralGenerator<JProtocol>(),
-				 jabberIcon);
+    addAuthor(QLatin1String("sauron"));
+    addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
+                 QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
+                 new GeneralGenerator<JProtocol>(),
+                 jabberIcon);
+    addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
+                 QT_TRANSLATE_NOOP("Plugin", "Jabber connection manager"),
+                 new GeneralGenerator<JConnectionManager>(),
+                 jabberIcon);
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for Jabber protocol"),
 				 new GeneralGenerator<JAccountWizard>(),

@@ -23,35 +23,13 @@
 **
 ****************************************************************************/
 
-#include "jconnectionmanager.h"
+#include "connection.h"
 
-namespace Jabber {
+namespace Ureen {
 
-using namespace Ureen;
-
-JConnectionManager::JConnectionManager()
+Connection::Connection(QObject *parent) :
+    QObject(parent)
 {
-    ProtocolPropertiesMap properties;
-    QVariantMap protocol;
-    protocol.insert("", "");
-    properties.insert("jabber", protocol);
-    updateProtocols(properties);
 }
 
-PendingReply<QList<ConnectionManager::ParameterSpecification> > JConnectionManager::getParameters(const QString &protocol)
-{
-    Q_ASSERT(protocol == "jabber");
-    QList<ParameterSpecification> specifications;
-    PendingReply<QList<ConnectionManager::ParameterSpecification> > reply;
-    reply.setResult(specifications);
-    return reply;
-}
-
-PendingReply<Ureen::Connection*> JConnectionManager::requestConnection()
-{
-    PendingReply<Ureen::Connection*> reply;
-    reply.setResult(0);
-    return reply;
-}
-
-} // namespace Jabber
+} // namespace Ureen
