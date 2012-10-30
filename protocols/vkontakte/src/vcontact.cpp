@@ -273,10 +273,11 @@ void VContact::onNameChanged(const QString &name)
 	emit nameChanged(name, old);
 }
 
-void VContact::onMessageSent(const QVariant &response)
+void VContact::onMessageSent(const QVariant &)
 {
+    auto reply = static_cast<Vreen::SendMessageReply*>(sender());
 	m_unreachedMessagesCount--;
-	int mid = response.toInt();
+    int mid = reply->result();
 	if (mid) {
 		int id = sender()->property("id").toInt();
 		m_sentMessages << QPair<int, int>(id, mid);

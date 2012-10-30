@@ -34,6 +34,7 @@ qutim_add_plugin(vkontakte
     INCLUDE_DIRS ${VREEN_INCLUDE_DIRS} ${VREENOAUTH_INCLUDE_DIRS}
     LINK_LIBRARIES ${VREEN_LIBRARIES} ${VREENOAUTH_LIBRARIES}
     QT_LIBRARIES webkit declarative
+    CXX11
 )
 
 qutim_add_artwork(share/vphotoalbum)
