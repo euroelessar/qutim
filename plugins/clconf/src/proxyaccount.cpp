@@ -39,7 +39,7 @@ ProxyAccount::ProxyAccount(Account *account) :
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			SIGNAL(nameChanged(QString,QString)));
 
-    setStatus(m_account->status());
+	Account::setStatus(m_account->status());
 }
 
 QString ProxyAccount::name() const

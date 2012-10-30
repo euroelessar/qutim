@@ -316,6 +316,8 @@ void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 	            && encryptedMessageId == message.id())) {
 		action->encryption << QLatin1String("pgp");
 	}
+    if (message.property("autoreply", false))
+        action->encryption << QLatin1String("autoreply");
 	m_actions << action;
 	trySend();
 }
@@ -645,12 +647,13 @@ void NetworkManager::onTimer()
 			const qint64 time = message->time.toMSecsSinceEpoch() / 1000;
 			const int account = RosterManager::instance()
 			                    ->accountId(message->account.protocol, message->account.id);
-			data.insert("time", time); //message->time.toString("yyyy-MM-dd hh:mm:ss"));
+            data.insert("time", time);
 			data.insert("account", account);
 			data.insert("contact", message->contact);
 			data.insert("message", message->text);
-			data.insert("incoming", message->incoming);
-			data.insert("encryption", message->encryption);
+            data.insert("incoming", message->incoming);
+            data.insert("encryption", message->encryption);
+            data.insert("info", message->encryption);
 			messages << data;
 		}
 		body = messages;

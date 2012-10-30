@@ -106,7 +106,7 @@ Project {
         "protocols/quetzal/quetzal.qbs",
         "protocols/irc/irc.qbs",
      //   "protocols/astral/astral.qbs",
-     //   "plugins/autoreply/autoreply.qbs",
+        "plugins/autoreply/autoreply.qbs",
         "plugins/macintegration/src/maccontactlistwidget/maccontactlistwidget.qbs",
         "plugins/macintegration/src/macdock/macdock.qbs",
         "plugins/macintegration/src/macgrowl/macgrowl.qbs",
