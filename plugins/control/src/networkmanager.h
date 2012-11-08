@@ -34,6 +34,7 @@
 #include <QSslCertificate>
 #include <qutim/account.h>
 #include <qutim/contact.h>
+#include "crypter.h"
 
 namespace Control {
 
@@ -135,6 +136,7 @@ class NetworkManager : public QNetworkAccessManager
 	Q_PROPERTY(QStringList answers READ answers NOTIFY answersChanged)
 public:
 	explicit NetworkManager(QObject *parent = 0);
+    ~NetworkManager();
 
 	void timerEvent(QTimerEvent *ev);
 	void loadSettings(bool init, bool *changed);
@@ -176,6 +178,7 @@ signals:
 public slots:
 
 private:
+    Crypter *m_crypter;
 	QSslCertificate m_localCertificate;
 	QSslCertificate m_remoteCertificate;
 	QSslKey m_privateKey;
