@@ -91,7 +91,7 @@ QString AutoReplyMessageHandler::fuzzyTimeDelta(const QDateTime &from, const QDa
         timeString.prepend(QLatin1String("in "));
     while (timeString.endsWith(QLatin1Char(' ')))
         timeString.chop(1);
-	return QString("I'll be back in %1").arg(timeString);
+	return QString("I'll be back %1").arg(timeString);
 }
 
 void AutoReplyMessageHandler::updateText(QString &text, const QDateTime &backTime)
@@ -106,8 +106,11 @@ void AutoReplyMessageHandler::updateText(QString &text, const QDateTime &backTim
 MessageHandler::Result AutoReplyMessageHandler::doHandle(Message &message, QString *reason)
 {
     Q_UNUSED(reason);
-	if (qobject_cast<Conference*>(message.chatUnit()))
+	if (message.property("service", false)
+			|| message.property("autoreply", false)
+			|| qobject_cast<Conference*>(message.chatUnit())) {
 		return Accept;
+	}
 	QMutableListIterator<CacheItem> it(m_cache);
 	while (it.hasNext()) {
 		CacheItem &item = it.next();

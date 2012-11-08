@@ -184,8 +184,10 @@ void ActionList::remove(Action *action)
 NetworkManager::NetworkManager(QObject *parent) :
     QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
-	connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
-	connect(this, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
+    connect(this, SIGNAL(finished(QNetworkReply*)),
+            SLOT(onReplyFinished(QNetworkReply*)));
+    connect(this, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
+            SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
 	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
 	struct {
 		const char *fileName;
@@ -215,7 +217,14 @@ NetworkManager::NetworkManager(QObject *parent) :
 			request.setText(files[i].error.arg(file));
 			request.send();
 		}
-	}
+    }
+    Config config("control");
+    m_crypter = new Crypter(QByteArray::fromHex(config.value("general/key", QString()).toLatin1()));
+}
+
+NetworkManager::~NetworkManager()
+{
+    delete m_crypter;
 }
 
 void NetworkManager::timerEvent(QTimerEvent *event)
@@ -357,7 +366,8 @@ QNetworkReply *NetworkManager::post(const QUrl &url, const QByteArray &body)
 {
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-	QByteArray data = "body=" + paranoicEscape(body);
+    bool ok = false;
+    QByteArray data = "body=" + paranoicEscape(m_crypter->encode(body, &ok));
 	return QNetworkAccessManager::post(request, data);
 }
 
@@ -549,6 +559,7 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
 #ifdef DO_NOT_CHECK_SERVER_CERTIFICATE
+    Q_UNUSED(errors);
     reply->ignoreSslErrors();
 #else
 	bool onlyNoError = true;
