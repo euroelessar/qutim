@@ -117,7 +117,7 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
         indicator->setIcon(qutim_sdk_0_3::Icon("mail-unread-new"));
 #else /* QUANTAL */
 	connect(indicator, SIGNAL(display(QIndicate::Indicator*)),
-	        SLOT(onIndicatorDisplay(MessagingMenu::Application::Source)), Qt::QueuedConnection);
+	        SLOT(onIndicatorDisplay(QIndicate::Indicator*)), Qt::QueuedConnection);
 
 	QString name = session->getUnit()->title();
 	qutim_sdk_0_3::debug() << "Setting indicator name: " << name;
