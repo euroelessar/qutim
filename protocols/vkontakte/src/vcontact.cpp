@@ -273,10 +273,11 @@ void VContact::onNameChanged(const QString &name)
 	emit nameChanged(name, old);
 }
 
-void VContact::onMessageSent(const QVariant &response)
+void VContact::onMessageSent(const QVariant &)
 {
+	auto reply = static_cast<Vreen::SendMessageReply*>(sender());
 	m_unreachedMessagesCount--;
-	int mid = response.toInt();
+	int mid = reply->result();
 	if (mid) {
 		int id = sender()->property("id").toInt();
 		m_sentMessages << QPair<int, int>(id, mid);
@@ -300,7 +301,7 @@ void VContact::onUnreadChanged(MessageList unread)
 		int index = -1;
 		MessageList::iterator j = unread.begin();
 		for (; j != unread.end(); ++j) {
-			if (i->id() == j->id()) {
+			if (i->property("mid") == j->property("mid")) {
 				index = j - unread.begin();
 				unread.removeAt(index);
 				break;
@@ -311,7 +312,6 @@ void VContact::onUnreadChanged(MessageList unread)
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);
-	idList.clear();
 }
 
 void VContact::onSessionCreated(ChatSession *session)

@@ -18,4 +18,15 @@ UreenPlugin {
         files: '*'
         recursive: true
     }
+
+    Properties {
+        condition: qbs.toolchain !== 'msvc'
+        cpp.cxxFlags: base.concat([ "-std=c++11" ])
+    }
+    Properties {
+        condition: qbs.targetOS === "mac"
+        cpp.cxxFlags: base.concat([ "-stdlib=libc++" ])
+    }
+
+
 }

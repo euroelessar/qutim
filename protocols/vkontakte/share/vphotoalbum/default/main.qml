@@ -116,6 +116,10 @@ Rectangle {
             bottom: root.bottom
             margins: 6
         }
+
+        ScrollDecorator {
+            flickableItem: photoGridView
+        }
     }
 
     ListView {
@@ -155,9 +159,5 @@ Rectangle {
             if (client.online)
                 photoModel.getAll(contact.id)
         }
-    }
-
-    ScrollDecorator {
-        flickableItem: photoGridView
     }
 }

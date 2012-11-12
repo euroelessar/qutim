@@ -33,6 +33,21 @@
 #include "chatunit.h"
 #include "account.h"
 #include "protocol.h"
+#include <QDebug>
+
+QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
+{
+	dbg.nospace() << QLatin1String("Ureen::Message(")
+				  << QLatin1String("id: ") << msg.id()
+				  << QLatin1String("chatUnit: ") << msg.chatUnit()
+				  << QLatin1String("isIncoming: ") << msg.isIncoming()
+				  << QLatin1String("text: ") << msg.text()
+				  << QLatin1String("time: ") << msg.time()
+				  << QLatin1String("properties: (");
+	foreach (QByteArray name, msg.dynamicPropertyNames())
+		dbg.nospace() << name << ": " << msg.property(name);
+	return dbg.nospace() << QLatin1String(") )");
+}
 
 namespace qutim_sdk_0_3
 {
@@ -67,9 +82,9 @@ static quint64 message_id = 0;
 class MessagePrivate : public DynamicPropertyData
 {
 public:
-	MessagePrivate() : 
-	    time(QDateTime::currentDateTime()), in(false),
-	    id(++message_id) {}
+	MessagePrivate() :
+		time(QDateTime::currentDateTime()), in(false),
+		id(++message_id) {}
 	MessagePrivate(const MessagePrivate &o) :
 		DynamicPropertyData(o), text(o.text), html(o.html), time(o.time),
 		in(o.in), chatUnit(o.chatUnit), id(++message_id) {}
@@ -108,23 +123,23 @@ public:
 namespace CompiledProperty
 {
 static QList<QByteArray> names = QList<QByteArray>()
-<< "text"
-<< "html"
-<< "time"
-<< "in"
-<< "chatUnit";
+								 << "text"
+								 << "html"
+								 << "time"
+								 << "in"
+								 << "chatUnit";
 static QList<Getter> getters   = QList<Getter>()
-<< static_cast<Getter>(&MessagePrivate::getText)
-<< static_cast<Getter>(&MessagePrivate::getHtml)
-<< static_cast<Getter>(&MessagePrivate::getTime)
-<< static_cast<Getter>(&MessagePrivate::getIn)
-<< static_cast<Getter>(&MessagePrivate::getChatUnit);
+								 << static_cast<Getter>(&MessagePrivate::getText)
+								 << static_cast<Getter>(&MessagePrivate::getHtml)
+								 << static_cast<Getter>(&MessagePrivate::getTime)
+								 << static_cast<Getter>(&MessagePrivate::getIn)
+								 << static_cast<Getter>(&MessagePrivate::getChatUnit);
 static QList<Setter> setters   = QList<Setter>()
-<< static_cast<Setter>(&MessagePrivate::setText)
-<< static_cast<Setter>(&MessagePrivate::setHtml)
-<< static_cast<Setter>(&MessagePrivate::setTime)
-<< static_cast<Setter>(&MessagePrivate::setIn)
-<< static_cast<Setter>(&MessagePrivate::setChatUnit);
+								 << static_cast<Setter>(&MessagePrivate::setText)
+								 << static_cast<Setter>(&MessagePrivate::setHtml)
+								 << static_cast<Setter>(&MessagePrivate::setTime)
+								 << static_cast<Setter>(&MessagePrivate::setIn)
+								 << static_cast<Setter>(&MessagePrivate::setChatUnit);
 }
 
 Message::Message() : p(new MessagePrivate)

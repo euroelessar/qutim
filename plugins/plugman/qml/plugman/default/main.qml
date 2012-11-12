@@ -12,10 +12,10 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
 
         Row {
             anchors.fill: parent
-            anchors.rightMargin: 5
+            anchors.rightMargin: 6
 
             layoutDirection: Qt.RightToLeft
-            spacing: 5
+            spacing: 6
 
             TextField {
                 id: searchField
@@ -23,6 +23,7 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
                 anchors.verticalCenter: parent.verticalCenter
                 placeholderText: qsTr("Search")
                 width: 200
+                height: orderByBox.height
             }
 
             ComboBox {
@@ -57,22 +58,21 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
                 anchors.verticalCenter: parent.verticalCenter
                 text: qsTr("Order by: ")
             }
+        }
 
-
-            BusyIndicator {
-
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                anchors.verticalCenter: parent.verticalCenter
-                visible: packageModel.loading
+        Text {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                leftMargin: 24
             }
+            text: qsTr("Get emoticons")
+            font.bold: true
         }
     }
 
     ListView {
         id: listView
-        anchors.margins: 4
-        spacing: 4
         anchors {
             left: parent.left
             top: header.bottom
@@ -88,5 +88,28 @@ Item { //TODO use Window or Dialog with qml desktop components viewer
         }
         delegate: ItemDelegate {}
         clip: true
+
+        ScrollDecorator {
+            flickableItem: listView
+        }
+    }
+
+    Balloon {
+        width: 75
+        height: 75
+        radius: 10
+
+        anchors.centerIn: parent
+        opacity: packageModel.loading
+
+        BusyIndicator {
+            running: parent.visible
+            anchors.centerIn: parent
+            inverted: true
+
+            implicitWidth: 64
+            implicitHeight: 64
+        }
+
     }
 }

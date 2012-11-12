@@ -69,10 +69,10 @@ void MessageHandler::registerHandler(MessageHandler *handler, const QString &nam
 	for (int i = 0; i < 2; ++i) {
 		MessageHandlerInfo info = { priorities[i], name, handler };
 		int index = qUpperBound(lists[i]->constBegin(),
-		                        lists[i]->constEnd(),
-		                        info,
-		                        qGreater<MessageHandlerInfo>())
-		        - lists[i]->constBegin();
+								lists[i]->constEnd(),
+								info,
+								qGreater<MessageHandlerInfo>())
+					- lists[i]->constBegin();
 		lists[i]->insert(index, info);
 	}
 }

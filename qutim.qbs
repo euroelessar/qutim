@@ -21,7 +21,7 @@ Project {
 
     references: [
         "translations/translations.qbs",
-        "core/3rdparty/k8json.qbs",
+        "core/3rdparty/k8json/k8json.qbs",
         "core/3rdparty/qxdg.qbs",
         //"core/3rdparty/flowlayout.qbs",
         //"core/3rdparty/slidingstackedwidget.qbs",

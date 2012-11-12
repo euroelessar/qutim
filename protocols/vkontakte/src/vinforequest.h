@@ -31,7 +31,7 @@
 #include <QSet>
 
 namespace Vreen {
-class Connection;
+class Client;
 } //namespace Vreen
 
 class VConnection;
@@ -95,7 +95,7 @@ private:
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
 	
 	QString m_id;
-	Vreen::Connection *m_connection;
+	Vreen::Client *m_client;
 	int m_unknownCount;
 	QVariantMap m_data;
 };

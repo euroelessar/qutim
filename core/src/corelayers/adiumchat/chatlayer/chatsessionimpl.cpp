@@ -47,7 +47,7 @@ enum { LastMessagesCount = 5 };
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	hasJavaScript(false),
-    focus(InFocus),
+	focus(InFocus),
 	myselfChatState(ChatStateInActive)
 {
 }
@@ -58,7 +58,7 @@ ChatSessionImplPrivate::~ChatSessionImplPrivate()
 
 ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	: ChatSession(chat),
-	d_ptr(new ChatSessionImplPrivate)
+	  d_ptr(new ChatSessionImplPrivate)
 {
 	Q_D(ChatSessionImpl);
 	d->input = new QTextDocument(this);
@@ -117,7 +117,9 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	if (message.property("spam", false) || message.property("hide", false))
 		return message.id();
 
-	if ((!isActive() && !message.property("service", false)) && message.isIncoming()) {
+	if ((!isActive() && !message.property("service", false))
+			&& message.isIncoming()
+			&& !message.property("history", false)) {
 		d->unread.append(message);
 		unreadChanged(d->unread);
 	}
@@ -128,17 +130,17 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 	bool service = message.property("service").isValid();
 	const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
 	if (!service && !conf
-		&& message.chatUnit() != d->current_unit.data()
-		&& message.isIncoming()
-		&& !message.property("history", false))
+			&& message.chatUnit() != d->current_unit.data()
+			&& message.isIncoming()
+			&& !message.property("history", false))
 	{
 		d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 	}
 	
 	if (!message.property("service", false)
-	        && (!conf || message.property("mention", false))
-	        && message.isIncoming()
-	        && !message.property("history", false)) {
+			&& (!conf || message.property("mention", false))
+			&& message.isIncoming()
+			&& !message.property("history", false)) {
 		ChatLayer::instance()->alert(300);
 		if (conf) {
 			ServicePointer<AbstractChatForm> form("ChatForm");
@@ -269,53 +271,10 @@ void ChatSessionImpl::doSetActive(bool active)
 	}
 }
 
-bool ChatSessionImpl::event(QEvent *ev)
-{
-//	if (ev->type() == MessageEventHook::eventType()) {
-//		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
-//		debug() << Q_FUNC_INFO;
-//		d_func()->getController()->appendMessage(messageEvent->message);
-//		return true;
-//	}
-	return ChatSession::event(ev);
-}
-
 QAbstractItemModel* ChatSessionImpl::getModel() const
 {
 	return d_func()->model.data();
 }
-
-//ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
-//{
-//	//TODO may be need to move to protocols?
-//	switch(type) {
-//		case Status::Offline: {
-//			return ChatStateGone;
-//			break;
-//		}
-//		case Status::NA: {
-//			return ChatStateInActive;
-//			break;
-//		}
-//		case Status::Away: {
-//			return ChatStateInActive;
-//			break;
-//		}
-//		case Status::DND: {
-//			return ChatStateInActive;
-//			break;
-//		}
-//		case Status::Online: {
-//			return ChatStateActive;
-//			break;
-//		}
-//		default: {
-//			break;
-//		}
-//	}
-//	//It is a good day to die!
-//	return ChatStateActive;
-//}
 
 QTextDocument* ChatSessionImpl::getInputField()
 {
@@ -380,20 +339,20 @@ void ChatSessionImplPrivate::onActiveTimeout()
 {
 	Q_Q(ChatSessionImpl);
 	switch(myselfChatState) {
-		case ChatStateComposing:
-			q->setChatState(ChatStatePaused);
-			break;
-		case ChatStatePaused:
-			q->setChatState(ChatStateActive);
-			break;
-		case ChatStateActive:
-			q->setChatState(ChatStateInActive);
-			break;
-		case ChatStateInActive:
-			q->setChatState(ChatStateGone);
-			break;
-		default:
-			break;
+	case ChatStateComposing:
+		q->setChatState(ChatStatePaused);
+		break;
+	case ChatStatePaused:
+		q->setChatState(ChatStateActive);
+		break;
+	case ChatStateActive:
+		q->setChatState(ChatStateInActive);
+		break;
+	case ChatStateInActive:
+		q->setChatState(ChatStateGone);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -410,21 +369,21 @@ void ChatSessionImpl::setChatState(ChatState state)
 	}
 	d->myselfChatState = state;
 	switch(state) {
-		case ChatStateComposing:
+	case ChatStateComposing:
 		// By xep-0085 this time should be 30 secs, but it's too huge
-			d->inactive_timer.setInterval(10000);
-			break;
-		case ChatStatePaused:
-			d->inactive_timer.setInterval(30000);
-			break;
-		case ChatStateActive:
-			d->inactive_timer.setInterval(120000);
-			break;
-		case ChatStateInActive:
-			d->inactive_timer.setInterval(600000);
-			break;
-		default:
-			break;
+		d->inactive_timer.setInterval(10000);
+		break;
+	case ChatStatePaused:
+		d->inactive_timer.setInterval(30000);
+		break;
+	case ChatStateActive:
+		d->inactive_timer.setInterval(120000);
+		break;
+	case ChatStateInActive:
+		d->inactive_timer.setInterval(600000);
+		break;
+	default:
+		break;
 	}
 	d->inactive_timer.start();
 }
