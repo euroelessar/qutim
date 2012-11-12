@@ -277,18 +277,17 @@ void VGroupChat::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 		int index = -1;
 		MessageList::iterator j = unread.begin();
 		for (; j != unread.end(); ++j) {
-			if (i->id() == j->id()) {
+			if (i->property("mid") == j->property("mid")) {
 				index = j - unread.begin();
 				unread.removeAt(index);
 				break;
 			}
 		}
-        if (index == -1)
-            idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
+		if (index == -1)
+			idList.append(m_unreadMessages.takeAt(i-m_unreadMessages.begin()).property("mid").toInt());
 	}
 	if (idList.count())
 		chatSession()->markMessagesAsRead(idList, true);
-	idList.clear();
 }
 
 void VGroupChat::onSessionCreated(qutim_sdk_0_3::ChatSession *session)

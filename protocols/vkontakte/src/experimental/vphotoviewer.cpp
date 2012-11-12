@@ -61,6 +61,7 @@ void VPhotoViewer::onViewPhotoTriggered(QObject *obj)
     DeclarativeView *view = new DeclarativeView();
     view->rootContext()->setContextProperty("client", contact->client());
     view->rootContext()->setContextProperty("contact", contact->buddy());
+    view->setResizeMode(DeclarativeView::SizeRootObjectToView);
 
     QString theme_name = "default";
     QString themePath = ThemeManager::path("vphotoalbum",theme_name);

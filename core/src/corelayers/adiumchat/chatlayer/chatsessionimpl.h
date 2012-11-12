@@ -76,7 +76,6 @@ public:
 	void doSetActive(bool active = true);
 	void setChatUnit(ChatUnit* unit);
 	QMenu *menu();
-	bool event(QEvent *);
 	void setChatState(ChatState state);
 	ChatState getChatState() const;
 	bool isJavaScriptSupported() const;

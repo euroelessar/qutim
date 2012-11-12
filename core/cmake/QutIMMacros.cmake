@@ -219,7 +219,7 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 macro (QUTIM_ADD_PLUGIN plugin_name)
 	qutim_parse_arguments(QUTIM_${plugin_name}
 	"DISPLAY_NAME;ICON;DESCRIPTION;LINK_LIBRARIES;QT_LIBRARIES;SOURCE_DIR;DECLARATIVE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
-	"SUBPLUGIN;EXTENSION;STATIC;"
+	"SUBPLUGIN;EXTENSION;STATIC;CXX11"
 	${ARGN}
 	)
 	if( NOT QUTIM_${plugin_name}_GROUP )
@@ -379,6 +379,12 @@ Q_IMPORT_PLUGIN(${plugin_name})
 			endif(NOT WIN32)
 		endif()
 	endif()
+
+	if(QUTIM_${plugin_name}_CXX11)
+		update_cxx_compiler_flag(${plugin_name} "-std=c++0x" CXX_11)
+		update_cxx_compiler_flag(${plugin_name} "-stdlib=libc++" STD_LIBCXX)
+	endif()
+
 	if( NOT QUTIM_${plugin_name}_DEBUG_ID )
 		string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef QUTIM_${plugin_name}_DEBUG_ID_TMP)
 		set( QUTIM_${plugin_name}_DEBUG_ID ${QUTIM_${plugin_name}_DEBUG_ID_TMP} CACHE INTERNAL "" )
@@ -480,4 +486,14 @@ foreach( extension ${qutim_core_extensions} )
 		endif()
     endif()
 endforeach( extension )
+endmacro()
+
+include(CheckCXXCompilerFlag)
+
+macro(QUTIM_UPDATE_CXX_COMPILER_FLAG target flag name)
+    check_cxx_compiler_flag(${flag} COMPILER_SUPPORTS_${name}_FLAG)
+    if(COMPILER_SUPPORTS_${name}_FLAG)
+	add_definitions(${flag})
+    endif()
+    set(${name} TRUE)
 endmacro()

@@ -179,12 +179,12 @@ VInfoRequest::VInfoRequest(QObject *parent) :
 {
 	if (VAccount *account = qobject_cast<VAccount*>(parent)) {
 		m_id = QString::number(account->uid());
-		m_connection = account->connection();
+		m_client = account->client();
 	} else if (VContact *contact = qobject_cast<VContact*>(parent)) {
 		m_id = contact->id();
-		m_connection = static_cast<VAccount*>(contact->account())->connection();
+		m_client = static_cast<VAccount*>(contact->account())->client();
 	}
-	Q_ASSERT(m_connection);
+	Q_ASSERT(m_client);
 }
 
 DataItem VInfoRequest::createDataItem() const
@@ -236,9 +236,9 @@ void VInfoRequest::doRequest(const QSet<QString> &hints)
 	data.insert("fields",
 				"uid,first_name,last_name,nickname,sex,bdate,city,"
 				"country,photo_medium,has_mobile,contacts,education");
-	QNetworkReply *reply = m_connection->request("getProfiles", data);
+	Vreen::Reply *reply = m_client->request("getProfiles", data);
 	connect(this, SIGNAL(canceled()), reply, SLOT(deleteLater()));
-	connect(reply, SIGNAL(finished()), this, SLOT(onRequestFinished()));
+	connect(reply, SIGNAL(resultReady(QVariant)), this, SLOT(onRequestFinished()));
 	setState(InfoRequest::Requesting);
 }
 
@@ -256,10 +256,8 @@ void VInfoRequest::doCancel()
 
 void VInfoRequest::onRequestFinished()
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	QByteArray rawData = reply->readAll();
-	debug() << Q_FUNC_INFO << rawData;
-	m_data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
+	Vreen::Reply *reply = qobject_cast<Vreen::Reply*>(sender());
+	m_data = reply->response().toList().value(0).toMap();
 	ensureAddress(Country);
 	ensureAddress(City);
 	if (m_unknownCount == 0)
@@ -273,13 +271,11 @@ struct FuncPointerHelper
 
 void VInfoRequest::onAddressEnsured()
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Vreen::Reply *reply = qobject_cast<Vreen::Reply*>(sender());
 	QString field = reply->property("field").toString();
 	qptrdiff tmp = reply->property("mapper").value<qptrdiff>();
 	FuncPointerHelper *helper = reinterpret_cast<FuncPointerHelper*>(tmp);
-	QByteArray rawData = reply->readAll();
-	debug() << Q_FUNC_INFO << rawData;
-	QVariantMap data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
+	QVariantMap data = reply->response().toList().value(0).toMap();
 	QString name = data.value("name").toString();
 	m_data.insert(field, name);
 	helper->mapper->insert(data.value("cid").toInt(), new QString(name));
@@ -318,11 +314,11 @@ void VInfoRequest::ensureAddress(DataType type)
 		data.insert(QLatin1String("cids"), QString::number(id));
 		FuncPointerHelper *helper = new FuncPointerHelper;
 		helper->mapper = mapper;
-		QNetworkReply *reply = m_connection->request(method, data);
+		Vreen::Reply *reply = m_client->request(method, data);
 		reply->setProperty("field", field);
 		reply->setProperty("mapper", reinterpret_cast<qptrdiff>(helper));
 		connect(this, SIGNAL(canceled()), reply, SLOT(deleteLater()));
-		connect(reply, SIGNAL(finished()), this, SLOT(onAddressEnsured()));
+		connect(reply, SIGNAL(resultReady(QVariant)), this, SLOT(onAddressEnsured()));
 		m_unknownCount++;
 	}
 }

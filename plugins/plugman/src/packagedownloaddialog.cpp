@@ -46,7 +46,7 @@ PackageDownloadDialog::PackageDownloadDialog(const QStringList &categories, cons
 	QString themeName = config.value("theme", "default");
 	QString themePath = ThemeManager::path(QLatin1String("plugman"), themeName);
 	qDebug("PlugMan: %s", qPrintable(themePath + "/main.qml"));
-	m_view->setSource(QUrl::fromLocalFile(themePath + "/main.qml"));
+    m_view->setSource(QUrl::fromLocalFile(themePath + "/main.qml"));
 
 	setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(tr("Get Hot New Stuff"));

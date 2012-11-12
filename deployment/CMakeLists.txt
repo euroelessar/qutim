@@ -15,6 +15,11 @@ if(QUTIM_CREATE_BUNDLE)
         list(APPEND DIRS ${_dir})
     endif()
 
+    list(APPEND QML_MODULES
+        QtDesktop
+        Qt
+    )
+
     list(APPEND QT_PLUGINS
         bearer/qgenericbearer
         bearer/qnativewifibearer
@@ -34,7 +39,7 @@ if(QUTIM_CREATE_BUNDLE)
         crypto/qca-ossl
         crypto/qca-sasl
         crypto/qca-gnupg
-    ) 
+    )
 
     deploy_qml_modules(${QML_MODULES})
     deploy_qt_plugins(${QT_PLUGINS})

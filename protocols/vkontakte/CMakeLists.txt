@@ -19,6 +19,8 @@ if(NOT VREEN_FOUND)
     set(VREEN_WITH_QMLAPI OFF CACHE INTERNAL "")
     set(VREEN_WITH_OAUTH ON CACHE INTERNAL "")
     set(VREEN_INSTALL_HEADERS OFF CACHE INTERNAL "")
+    set(VREEN_WITH_EXAMPLES OFF CACHE INTERNAL "")
+    set(VREEN_WITH_TESTS OFF CACHE INTERNAL "")
     add_subdirectory(vreen)
     message(STATUS "Using internal copy of vreen")
     set(VREEN_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vreen/include CACHE INTERNAL "")
@@ -34,6 +36,7 @@ qutim_add_plugin(vkontakte
     INCLUDE_DIRS ${VREEN_INCLUDE_DIRS} ${VREENOAUTH_INCLUDE_DIRS}
     LINK_LIBRARIES ${VREEN_LIBRARIES} ${VREENOAUTH_LIBRARIES}
     QT_LIBRARIES webkit declarative
+    CXX11
 )
 
 qutim_add_artwork(share/vphotoalbum)
