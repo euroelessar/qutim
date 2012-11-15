@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>qutIM</Name>
+    <Version>0.3.1</Version>
+    <Title>qutIM installer</Title>
+    <Publisher>qutIM developers team</Publisher>
+    <StartMenuDir>qutIM</StartMenuDir>
+    <UninstallerName>maintain</UninstallerName>
+    <TargetDir>@homeDir@/qutIM</TargetDir>
+    <ProductUrl>http://qutim.org</ProductUrl>
+    <RunProgram>@TargetDir@/bin/qutIM</RunProgram>
+</Installer>

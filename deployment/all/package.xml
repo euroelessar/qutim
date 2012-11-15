@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+ <Package>
+     <DisplayName>qutIM</DisplayName>
+     <Description>qutIM instant messenger</Description>
+     <Description xml:lang="ru_RU">qutIM клиент обмена мгновенными сообщениями</Description>
+     <Version>0.3.1</Version>
+     <ReleaseDate>2012-11-12</ReleaseDate>
+     <Virtual>false</Virtual>
+     <Licenses>
+         <License name="GPLv2" file="GPL" />
+     </Licenses>
+     <SortingPriority>123</SortingPriority>
+     <Default>script</Default>
+     <Script>installScript.qs</Script>
+     <ForcedInstallation>true</ForcedInstallation>
+     <Essential>true</Essential>
+ </Package>
