@@ -30,8 +30,8 @@
 #include <QWidget>
 #include <qutim/adiumchat/abstractchatwidget.h>
 #include <slidingstackedwidget.h>
-#include "../../chatlayer/chatsessionimpl.h"
-#include "../../chatlayer/chatlayerimpl.h"
+#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/adiumchat/chatlayerimpl.h>
 #include "floatingbutton.h"
 
 #ifdef Q_WS_MAEMO_5

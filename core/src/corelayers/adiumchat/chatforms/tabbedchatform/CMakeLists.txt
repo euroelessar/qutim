@@ -5,6 +5,6 @@ qutim_add_plugin(tabbedchatform
 	DISPLAY_NAME "Classic"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Default qutIM chatform implementation for adiumchat"
-	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat
+	DEPENDS qutim-adiumchat
+	LINK_LIBRARIES qutim-adiumchat
 )

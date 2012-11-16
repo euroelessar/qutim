@@ -32,10 +32,10 @@
 #include <qutim/shortcut.h>
 #include <qutim/conference.h>
 #include <qutim/servicemanager.h>
-#include "chatsessionimpl.h"
-#include "conferencetabcompletion.h"
-#include "chatforms/abstractchatform.h"
-#include "chatviewfactory.h"
+#include <qutim/adiumchat/chatsessionimpl.h>
+#include <qutim/adiumchat/conferencetabcompletion.h>
+#include <qutim/adiumchat/abstractchatform.h>
+#include <qutim/adiumchat/chatviewfactory.h>
 #include <QPlainTextEdit>
 
 namespace Core
@@ -206,3 +206,4 @@ void ChatLayerImpl::onServiceChanged(QObject *now)
 }
 }
 
+#include "moc_chatlayerimpl.cpp"

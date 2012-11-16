@@ -6,5 +6,5 @@ qutim_add_plugin(textchat
 	DISPLAY_NAME "Text view"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Fast and light chat view"
-	DEPENDS adiumchat
+	DEPENDS qutim-adiumchat
 )

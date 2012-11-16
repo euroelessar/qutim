@@ -4,6 +4,6 @@ import "../../../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     sourcePath: ""
 
-    Depends { name: "adiumchat" }
+    Depends { name: "qutim-adiumchat" }
     Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
 }

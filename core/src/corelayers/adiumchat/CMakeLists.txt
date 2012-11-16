@@ -7,25 +7,26 @@ qutim_add_plugin(adiumchat
 	SOURCE_DIR chatlayer
 	DISPLAY_NAME "Webkit chat layer"
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
-	COMPILE_FLAGS "-DADIUMCHAT_LIBRARY"
+	DEPENDS qutim-adiumchat
+	LINK_LIBRARIES qutim-adiumchat
 )
 
+add_subdirectory(lib)
 add_subdirectory(chatforms)
 add_subdirectory(chatfactories)
 
 set(DEVEL_HEADERS
-	chatlayer/chatforms/abstractchatform.h
-	chatlayer/chatforms/abstractchatwidget.h
-	chatlayer/chatedit.h
-	chatlayer/chatlayer_global.h
-	chatlayer/chatlayerimpl.h
-	chatlayer/chatlayerplugin.h
-	chatlayer/chatsessionimpl.h
-	chatlayer/chatsessionmodel.h
-	chatlayer/chatviewfactory.h
-	chatlayer/conferencecontactsview.h
-	chatlayer/conferencetabcompletion.h
-	chatlayer/sessionlistwidget.h
+	lib/abstractchatform.h
+	lib/abstractchatwidget.h
+	lib/chatedit.h
+	lib/chatlayer_global.h
+	lib/chatlayerimpl.h
+	lib/chatsessionimpl.h
+	lib/chatsessionmodel.h
+	lib/chatviewfactory.h
+	lib/conferencecontactsview.h
+	lib/conferencetabcompletion.h
+	lib/sessionlistwidget.h
 
 )
 install(FILES ${DEVEL_HEADERS}
