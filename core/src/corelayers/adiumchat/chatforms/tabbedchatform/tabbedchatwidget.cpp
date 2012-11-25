@@ -417,7 +417,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	m_chatViewWidget->setViewController(session->controller());
 
 	m_actions.setController(session->getUnit());
-	m_receiverList->setMenu(session->menu(m_flags & Uid2Menu));
+	m_receiverList->setMenu(session->menu(m_flags & ShowReceiverId));
 
 	if(m_flags & MenuBar) {
 		delete m_unitAction->menu();

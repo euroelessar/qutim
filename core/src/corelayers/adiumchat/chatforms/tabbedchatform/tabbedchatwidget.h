@@ -55,7 +55,7 @@ enum ChatFlag
 	MenuBar					=		0x040,
 	UseQutimIcon            =       0x080,
 	ShowRoster				=		0x100,
-	Uid2Menu				=		0x200
+	ShowReceiverId				=		0x200
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag)

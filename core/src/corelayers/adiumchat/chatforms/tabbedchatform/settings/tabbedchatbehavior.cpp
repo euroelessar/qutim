@@ -81,7 +81,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->customIconBox);
 	lookForWidgetState(ui->autoresizeBox);
 	lookForWidgetState(ui->rosterBox);
-	lookForWidgetState(ui->uid2menuBox);
+	lookForWidgetState(ui->receiverIdBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -126,7 +126,7 @@ void TabbedChatBehavior::loadImpl()
 	ui->rosterBox->setChecked(m_flags & ShowRoster);
 	ui->customIconBox->setChecked(!(m_flags & UseQutimIcon));
 	ui->autoresizeBox->setChecked(m_autoresize);
-	ui->uid2menuBox->setChecked(m_flags & Uid2Menu);
+	ui->receiverIdBox->setChecked(m_flags & ShowReceiverId);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 }
@@ -144,7 +144,7 @@ void TabbedChatBehavior::saveImpl()
 	setFlags(UseQutimIcon, !ui->customIconBox->isChecked());
 	setFlags(MenuBar, ui->menuBox->isChecked());
 	setFlags(ShowRoster, ui->rosterBox->isChecked());
-	setFlags(Uid2Menu, ui->uid2menuBox->isChecked());
+	setFlags(ShowReceiverId, ui->receiverIdBox->isChecked());
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);

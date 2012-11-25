@@ -341,7 +341,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 	menuBar->clear();
 	menuBar->addMenu(session->getUnit()->menu());
-	m_receiverList->setMenu(session->menu(m_flags & Uid2Menu));
+	m_receiverList->setMenu(session->menu(m_flags & ShowReceiverId));
 #ifndef QUTIM_MOBILE_UI
 	delete m_unitActions->menu();
 	QMenu *menu = session->unit()->menu(false);
