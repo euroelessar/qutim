@@ -55,7 +55,8 @@ enum ChatFlag
 	TabsOnBottom			=		0x020,
 	MenuBar					=		0x040,
 	UseQutimIcon            =       0x080,
-	ShowRoster				=		0x100
+	ShowRoster				=		0x100,
+	Uid2Menu				=		0x200
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag)
@@ -90,7 +91,7 @@ public slots:
 protected:
 	bool event(QEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);
-protected slots:	
+protected slots:
 	void onSessionActivated(bool active);
 	void ensureToolBar();
 	void onUnreadChanged();

@@ -75,7 +75,7 @@ public:
 	QAbstractItemModel *getModel() const;
 	void doSetActive(bool active = true);
 	void setChatUnit(ChatUnit* unit);
-	QMenu *menu();
+	QMenu *menu(bool uid2menu);
 	void setChatState(ChatState state);
 	ChatState getChatState() const;
 	bool isJavaScriptSupported() const;
