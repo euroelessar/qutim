@@ -49,7 +49,7 @@ ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	hasJavaScript(false),
 	focus(InFocus),
 	myselfChatState(ChatStateInActive),
-	m_uid2menu(false)
+	m_showReceiverId(false)
 {
 }
 
@@ -422,7 +422,7 @@ void ChatSessionImplPrivate::refillMenu()
 		ChatUnit *unit = chatUnit.data();
 		fillMenu(menu.data(), unit, unit->lowerUnits());
 	} else {
-		Q_UNUSED(q->menu(m_uid2menu));
+		Q_UNUSED(q->menu(m_showReceiverId));
 	}
 }
 
@@ -457,7 +457,7 @@ void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUni
 			// That unit does not have any lower units
 			// so just create an action for it.
 			act = new QAction(menu);
-			if (m_uid2menu)
+			if (m_showReceiverId)
 				act->setText(QString("%1 (%2)").arg(lower->title(), lower->id()));
 			else
 				act->setText(lower->title());
@@ -478,7 +478,7 @@ void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUni
 	}
 }
 
-QMenu *ChatSessionImpl::menu(bool uid2menu)
+QMenu *ChatSessionImpl::menu(bool showReceiverId)
 {
 	Q_D(ChatSessionImpl);
 	//for JMessageSession
@@ -486,7 +486,7 @@ QMenu *ChatSessionImpl::menu(bool uid2menu)
 	//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
 	ChatUnit *unit = d->chatUnit.data();
 	if (!d->menu && qobject_cast<Conference*>(unit) == 0) {
-		d->m_uid2menu = uid2menu;
+		d->m_showReceiverId = showReceiverId;
 		d->menu = new QMenu();
 		if (!d->group) {
 			d->group = new QActionGroup(d->menu.data());

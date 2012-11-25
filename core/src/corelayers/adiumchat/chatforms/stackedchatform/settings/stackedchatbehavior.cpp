@@ -55,7 +55,7 @@ StackedChatBehavior::StackedChatBehavior() :
 	lookForWidgetState(ui->recentBox);
 	lookForWidgetState(ui->groupUntil);
 	lookForWidgetState(ui->autoresizeBox);
-	lookForWidgetState(ui->uid2menuBox);
+	lookForWidgetState(ui->receiverIdBox);
 }
 
 StackedChatBehavior::~StackedChatBehavior()
@@ -87,7 +87,7 @@ void StackedChatBehavior::loadImpl()
 	m_send_message_key = widget.value("sendKey", AdiumChat::SendEnter);
 	static_cast<QRadioButton *>(m_group->button(m_send_message_key))->setChecked(true);
 	ui->autoresizeBox->setChecked(widget.value<bool>("autoResize",false));
-	ui->uid2menuBox->setChecked(m_flags & Uid2Menu);
+	ui->receiverIdBox->setChecked(m_flags & ShowReceiverId);
 	Config history = cfg.group("chat/history");
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages", 5));
@@ -103,7 +103,7 @@ void StackedChatBehavior::saveImpl()
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);
 	widget.setValue("autoResize",ui->autoresizeBox->isChecked());
-	setFlags(Uid2Menu, ui->uid2menuBox->isChecked());
+	setFlags(ShowReceiverId, ui->receiverIdBox->isChecked());
 	Config history = appearance.group("chat/history");
 	history.setValue("storeServiceMessages",ui->storeBox->isChecked());
 	history.setValue("maxDisplayMessages",ui->recentBox->value());

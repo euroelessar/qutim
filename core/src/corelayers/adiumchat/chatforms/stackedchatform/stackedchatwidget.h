@@ -60,7 +60,7 @@ enum ChatFlag
 	SendTypingNotification	=       0x01,
 	SwitchDesktopOnActivate	=       0x02,
 	DeleteSessionOnClose	=	0x04,
-	Uid2Menu		=	0x08,
+	ShowReceiverId		=	0x08,
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
