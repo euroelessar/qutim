@@ -60,6 +60,7 @@ enum ChatFlag
 	SendTypingNotification	=       0x01,
 	SwitchDesktopOnActivate	=       0x02,
 	DeleteSessionOnClose	=	0x04,
+	ShowReceiverId		=	0x08,
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
@@ -88,7 +89,7 @@ public slots:
 	virtual void loadSettings();
 protected:
 	bool event(QEvent *event);
-protected slots:	
+protected slots:
 	void onSessionActivated(bool active);
 	void onUnreadChanged();
 	void onCurrentChanged(int index);

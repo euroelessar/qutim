@@ -98,7 +98,14 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0" colspan="2">
+        <widget class="QCheckBox" name="receiverIdBox">
+         <property name="text">
+          <string>Show contact id in receiver menu</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
         <widget class="QCheckBox" name="autoresizeBox">
          <property name="text">
           <string>Autoresize the input field </string>

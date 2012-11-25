@@ -89,7 +89,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	m_chatWidget = new QWidget(m_stack);
 	setCentralWidget(m_stack);
-	
+
 	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
 	QWidget *view = factory->createViewWidget();
 	view->setFocusProxy(m_chatInput);
@@ -341,7 +341,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 
 	menuBar->clear();
 	menuBar->addMenu(session->getUnit()->menu());
-	m_receiverList->setMenu(session->menu());
+	m_receiverList->setMenu(session->menu(m_flags & ShowReceiverId));
 #ifndef QUTIM_MOBILE_UI
 	delete m_unitActions->menu();
 	QMenu *menu = session->unit()->menu(false);
