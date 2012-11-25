@@ -85,6 +85,7 @@ public:
 	MessageList lastMessages;
 	ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
+	bool m_showReceiverId;
 public slots:
 	void onActiveTimeout();
 	void onResourceChosen(bool active);
