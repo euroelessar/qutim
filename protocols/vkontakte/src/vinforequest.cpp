@@ -292,12 +292,12 @@ void VInfoRequest::ensureAddress(DataType type)
 	NameMapper *mapper;
 	switch (type) {
 	case Country:
-		method = QLatin1String("getCountries");
+		method = QLatin1String("places.getCountries");
 		field = QLatin1String("country");
 		mapper = countries();
 		break;
 	case City:
-		method = QLatin1String("getCities");
+		method = QLatin1String("places.getCities");
 		field = QLatin1String("city");
 		mapper = cities();
 		break;
