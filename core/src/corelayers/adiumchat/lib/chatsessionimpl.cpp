@@ -29,7 +29,7 @@
 #include "chatsessionmodel.h"
 #include <QApplication>
 #include "chatsessionimpl_p.h"
-#include "chatforms/abstractchatform.h"
+#include "abstractchatform.h"
 #include <qutim/message.h>
 #include <qutim/account.h>
 #include <qutim/notification.h>

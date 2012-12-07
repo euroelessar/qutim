@@ -4,5 +4,5 @@ import "../../../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     sourcePath: ""
 
-    Depends { name: "adiumchat" }
+    Depends { name: "qutim-adiumchat" }
 }

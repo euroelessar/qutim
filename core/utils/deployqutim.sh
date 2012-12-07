@@ -58,3 +58,8 @@ find "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/PlugIns" -type f | \
 while read file; do
 	deploy_binary "$file" "$BUNDLE"
 done
+
+qtconf="[Paths] \n
+	Plugins = PlugIns"
+
+echo $qtconf > $BUNDLE/Contents/Resources/qt.conf

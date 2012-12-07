@@ -24,18 +24,18 @@
 ****************************************************************************/
 
 #include "chatlayerplugin.h"
-#include "chatlayerimpl.h"
-#include "chatsessionimpl.h"
+#include <qutim/adiumchat/chatlayerimpl.h>
+#include <qutim/adiumchat/chatsessionimpl.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
 #include <QWidgetAction>
 #include "actions/chatemoticonswidget.h"
 #include <QPlainTextEdit>
-#include "chatforms/abstractchatwidget.h"
+#include <qutim/adiumchat/abstractchatwidget.h>
 #include <qutim/shortcut.h>
 #include <qutim/emoticons.h>
-#include "chatforms/abstractchatform.h"
+#include <qutim/adiumchat/abstractchatform.h>
 #include "quoterwidget.h"
 
 namespace Core

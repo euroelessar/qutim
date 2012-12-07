@@ -5,16 +5,18 @@ Product {
 
     property bool installSoundTheme: true
 
-    type: "application"
+    type: ["application", "installed_content"]
     destination: {
         if (qbs.targetOS === "mac")
             return product.name + ".app/Contents/MacOS";
         else
             return "bin";
     }
+    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
+    Depends { name: "deploy" }
     Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
     Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
     Depends { name: "qt.declarative"; condition: project.declarativeUi }
@@ -30,6 +32,18 @@ Product {
             "*.cpp",
             "*.ui"
         ]
-	}
-    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
+    }
+
+    Group {
+        condition: qbs.targetOS === "mac"
+        fileTags: "plugins"
+        prefix: deploy.pluginPath
+        files: [
+            "imageformats", "iconengines",
+            //"crypto",
+            "phonon_backend",
+            "bearer", "codecs",
+            "graphicssystems", "sqldrivers"
+        ]
+    }
 }

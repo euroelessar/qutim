@@ -30,8 +30,8 @@
 #include <qutim/servicemanager.h>
 #include <QAbstractItemDelegate>
 #include <qutim/servicemanager.h>
-#include <qutim/adiumchat/chatlayerimpl.h>
-#include "chatforms/abstractchatform.h"
+#include <qutim/chatsession.h>
+#include "abstractchatform.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
 
