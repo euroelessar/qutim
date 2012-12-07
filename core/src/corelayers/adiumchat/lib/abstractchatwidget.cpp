@@ -28,8 +28,8 @@
 #include <qutim/conference.h>
 #include <QAbstractItemModel>
 #include <qutim/avatarfilter.h>
-#include "../chatsessionimpl.h"
-#include "../chatlayerimpl.h"
+#include "chatsessionimpl.h"
+#include "chatlayerimpl.h"
 
 namespace Core
 {

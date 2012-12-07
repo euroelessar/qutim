@@ -27,7 +27,6 @@
 #define CHATLAYERIMPL_H
 #include <qutim/chatsession.h>
 #include <QWeakPointer>
-#include "chatlayerplugin.h"
 #include "chatlayer_global.h"
 
 using namespace qutim_sdk_0_3;

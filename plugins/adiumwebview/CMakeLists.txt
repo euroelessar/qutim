@@ -8,7 +8,7 @@ if( NOT DECLARATIVE_UI )
 		EXTENSION_CLASS "Adium::WebViewFactory, Core::AdiumChat::ChatViewFactory"
 		DISPLAY_NAME "Adium-like WebView"
 		DESCRIPTION "Well-look stylished view based on WebKit and Adium ideas"
-		DEPENDS adiumchat
+		DEPENDS qutim-adiumchat
 		LINK_LIBRARIES qutim-adiumwebview
 		QT_LIBRARIES WEBKIT
 	)

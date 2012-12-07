@@ -27,7 +27,7 @@
 
 #include <QTextEdit>
 #include <QWeakPointer>
-#include <qutim/adiumchat/abstractchatwidget.h>
+#include "abstractchatform.h"
 
 namespace qutim_sdk_0_3
 {

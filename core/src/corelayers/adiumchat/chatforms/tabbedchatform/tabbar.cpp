@@ -359,7 +359,7 @@ void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::Cha
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);
-	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayer::get(unit,false));
 	if(s)
 		chatStateChanged(now,s);
 }
@@ -368,7 +368,7 @@ void TabBar::onStatusChanged(const qutim_sdk_0_3::Status &status)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);
-	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayer::get(unit,false));
 	if(s)
 		statusChanged(status,s);
 }

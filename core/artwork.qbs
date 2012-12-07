@@ -130,7 +130,7 @@ Product {
         condition: qbs.targetOS === "mac"
         fileTags: [ "install" ]
         qbs.installDir: "qutim.app/Contents/Resources"
-        files: "qutim.icns"
+        files: ["qutim.icns", "qt.conf"]
     }
 
     Group {
