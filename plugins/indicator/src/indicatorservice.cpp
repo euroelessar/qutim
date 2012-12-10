@@ -96,7 +96,7 @@ void IndicatorService::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
     Source *indicator = &indicateServer->createSourceTime(
             QString::number(reinterpret_cast<quintptr>(session)),
             session->getUnit()->title(),
-            qutim_sdk_0_3::Icon("applications-email-panel"),
+            QIcon(),
             QDateTime::currentDateTime(),
             true
             );
@@ -203,7 +203,7 @@ void IndicatorService::onSessionActivated(bool active)
     indicator->setTime(QDateTime::currentDateTime());
     indicator->setAttention(false);
     indicator->setCount(session->unread().count());
-    indicator->setIcon(qutim_sdk_0_3::Icon("qutim-online"));
+    indicator->setIcon(QIcon());
 #else /* QUANTAL */
 	indicator->setTimeProperty(QDateTime::currentDateTime());
 	indicator->setDrawAttentionProperty(false);
