@@ -9,8 +9,8 @@ import org.qutim 0.3
      property bool hasWidget: widget !== null
      titleText: hasWidget ? widget.windowTitle : ""
      message: hasWidget ? widget.text : ""
-     acceptButtonText: fixName(guessAcceptButtonName(widget.standardButtons).text)
-     rejectButtonText: fixName(guessRejectButtonName(widget.standardButtons).text)
+     acceptButtonText: (widget !== null) ? fixName(guessAcceptButtonName(widget.standardButtons).text) : ""
+     rejectButtonText: (widget !== null) ? fixName(guessRejectButtonName(widget.standardButtons).text) : ""
      
      property variant positiveButtons: [
          { value: QMessageBox.Ok, text: "OK" },

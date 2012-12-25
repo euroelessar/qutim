@@ -25,7 +25,6 @@
 
 #include "maemo6idle.h"
 
-
 namespace MeegoIntegration
 {
 
@@ -35,19 +34,22 @@ Maemo6Idle::Maemo6Idle()
 	connect(m_qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)),
 	        this, SLOT(activityChanged(MeeGo::QmActivity::Activity)));
 	m_activity = m_qmActivity->get();
+    m_idleSeconds = 0;
 
 	idle_timer = new QBasicTimer();
-	idle_timer->start(60000,this);
+    idle_timer->start(60000, this);
 }
 
 void Maemo6Idle::timerEvent(QTimerEvent* ev)
 {
 	Q_UNUSED(ev);
 
-	if (m_activity == MeeGo::QmActivity::Active)
-	idleSeconds += 60;
+    if (m_activity != MeeGo::QmActivity::Active)
+    {
+        m_idleSeconds += 60;
+    }
 
-	emit secondsIdle(idleSeconds);
+    emit secondsIdle(m_idleSeconds);
 }
 
 void Maemo6Idle::activityChanged (MeeGo::QmActivity::Activity activity)
@@ -55,12 +57,13 @@ void Maemo6Idle::activityChanged (MeeGo::QmActivity::Activity activity)
 	m_activity = activity;
 	if (m_activity == MeeGo::QmActivity::Active)
 	{
-		idleSeconds = 0;
-		idle_timer->stop();
+        m_idleSeconds = 0;
+        idle_timer->stop();
 	}
 	else
 	{
-		idle_timer->start(60000,this);
+        m_idleSeconds = 0;
+        idle_timer->start(60000,this);
 	}
 }
 }
