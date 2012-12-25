@@ -2,6 +2,7 @@ opt/qutim/bin/*
 opt/qutim/lib/*
 opt/qutim/share/apps/qutim/languages/*
 opt/qutim/share/apps/qutim/sounds/*
+opt/qutim/share/apps/qutim/emoticons/*
 opt/qutim/share/apps/qutim/data/*
 opt/qutim/share/apps/qutim/declarative/*
 opt/qutim/share/apps/qutim/webkitstyle/*

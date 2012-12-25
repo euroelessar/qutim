@@ -62,7 +62,6 @@ Sheet {
 		anchors.margins:10
 		anchors.fill: parent
 
-
 		Text {
 			id:header
 			anchors{top:parent.top; left:parent.left; right:parent.right}
@@ -81,77 +80,60 @@ Sheet {
 				subtitle: account.name
 				enabled: isEnabled
 				onClicked: handler.setAccount(account.id);
-
-
 			}
 		}
-
-
 	}
 
 	Page
 	{
 		id:addContactPage
-		Column {
-			anchors.fill: parent
-			id: addContactDialogContent
-			spacing: 10
-			Text {
-				id:addContactHeader
-				anchors.horizontalCenter: parent.horizontalCenter;
-				font.pointSize: 30
-				text:qsTr("Add contact for")
-			}
 
-			Text {
-				id:addContactId
-				anchors.horizontalCenter: parent.horizontalCenter;
-				font.pointSize: 30
-				text: handler.contactIdLabel
-			}
+		Text {
+			id:addContactHeader
+			anchors.horizontalCenter: parent.horizontalCenter;
+			anchors.top: parent.top
+			font.pointSize: 30
+			text:qsTr("Add contact for")
+		}
 
-			Row {
-				anchors.horizontalCenter: parent.horizontalCenter
-				anchors.right: parent.right
-				spacing: 10
-				Label {
-					id:addContactIdLabel
-					anchors.right: parent.horizontalCenter
-					anchors.rightMargin: 10
-					text: qsTr("Contact ID")
-				}
-				TextField {
-					anchors.left: parent.horizontalCenter
-					anchors.right: parent.right
-					id:addContactIdText
-				}
-			}
+		Text {
+			id:addContactId
+			anchors.horizontalCenter: parent.horizontalCenter;
+			anchors.top: addContactHeader.bottom
+			anchors.topMargin: 20
+			font.pointSize: 30
+			text: handler.contactIdLabel
+		}
 
-			Row {
-				anchors.horizontalCenter: parent.horizontalCenter
-				anchors.right: parent.right
-				spacing: 10
-				Label {
-					id:addContactNameLabel
-					anchors.right: parent.horizontalCenter
-					anchors.rightMargin: 10
+		Label {
+			id:addContactIdLabel
+			anchors{right: parent.horizontalCenter; rightMargin: 10; top: addContactId.bottom; topMargin: 20}
+			text: qsTr("Contact ID")
+		}
+		TextField {
+			id:addContactIdText
+			anchors{left: parent.horizontalCenter; leftMargin: 10; right: parent.right; top: addContactId.bottom; topMargin: 20}
+		}
 
-					text: qsTr("Name for contact")
-				}
-				TextField {
-					anchors.left: parent.horizontalCenter
-					anchors.right: parent.right
-					id:addContactNameText
-				}
-			}
-			Button {
-				id:acceptButton;
-				anchors.horizontalCenter: parent.horizontalCenter;
-				text: qsTr("Add contact");
-				onClicked: {
-					handler.addContact(addContactIdText.text,addContactNameText.text);
-					addContactDialog.accept();
-				}
+		Label {
+			id:addContactNameLabel
+			anchors{right: parent.horizontalCenter; rightMargin: 10; top: addContactIdText.bottom; topMargin: 20}
+			text: qsTr("Name for contact")
+		}
+		TextField {
+			id:addContactNameText
+			anchors{left: parent.horizontalCenter; leftMargin: 10; right: parent.right; top: addContactIdText.bottom; topMargin: 20}
+		}
+
+		Button {
+			id:acceptButton;
+			anchors.horizontalCenter: parent.horizontalCenter;
+			anchors.top: addContactNameText.bottom;
+			anchors.topMargin: 20
+			text: qsTr("Add contact");
+			onClicked: {
+				handler.addContact(addContactIdText.text,addContactNameText.text);
+				addContactDialog.accept();
 			}
 		}
 
@@ -166,11 +148,11 @@ Sheet {
 	}
 
 	onStatusChanged: {
-		if (status == PageStatus.Inactive && pageStack.currentPage != mainPage) {
+		if (status === PageStatus.Inactive && pageStack.currentPage !== mainPage) {
 			pageStack.clear();
 			pageStack.push(mainPage);
 		}
-		if (status == DialogStatus.Opening)
+		if (status === DialogStatus.Opening)
 			handler.loadAccounts();
 	}
 	Component.onCompleted: {
