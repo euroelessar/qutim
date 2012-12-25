@@ -32,51 +32,82 @@ Page {
 	id: root
 	property variant chat
 	property variant menu: contactMenu
-    ControlledMenu {
-        id: contactMenu
-        visualParent: pageStack
+
+	ControlledMenu {
+		id: contactMenu
+		visualParent: pageStack
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
-    property variant currentSessionPage
-    Connections {
+
+	property variant currentSessionPage
+
+	Connections {
 		target: root.chat
-        onActiveSessionChanged: {
-            root.currentSessionPage = session.page;
-        }
-        onSessionCreated: {
-            if (!session.page)
-                session.page = webViewComponent.createObject(root, { "session": session });
-            root.currentSessionPage = session.page;
-        }
-        onSessionDestroyed: {
-            if (session.page) {
-                var page = session.page;
-                session.page = null;
-                page.destroy();
-            }
-        }
+		onActiveSessionChanged: {
+			root.currentSessionPage = session.page;
+		}
+		onSessionCreated: {
+			if (!session.page)
+				session.page = webViewComponent.createObject(root, { "session": session });
+			root.currentSessionPage = session.page;
+		}
+		onSessionDestroyed: {
+			if (session.page) {
+				var page = session.page;
+				session.page = null;
+				page.destroy();
+			}
+		}
 	}
-    Component {
-        id: webViewComponent
-        ChatView {
-            id: chatView
-            width: root.width
-            height: root.height - textField.height
-            //visible: chatView.session.active
-            visible: chatView === root.currentSessionPage
-        }
-    }
+
+	Component {
+		id: webViewComponent
+		ChatView {
+			id: chatView
+			width: root.width
+			height: root.height - textField.height
+			//visible: chatView.session.active
+			visible: chatView === root.currentSessionPage
+		}
+	}
+
+	EmoticonsDialog {
+		id:emoticonsDialog
+		onAccepted: {
+			if (emoticonsDialog.selectedEmoticon !== undefined)
+				textField.text += emoticonsDialog.selectedEmoticon
+			textField.focus = true
+		}
+		onRejected: textField.focus = true
+	}
+
+	Emoticons{
+		id:emoticons
+	}
+
+	ToolButton {
+		id: emoticonsButton
+		width: visible ? 50 : 0
+		height: 50
+		anchors { top: textField.top; left: parent.left; topMargin:5; leftMargin:5; bottomMargin: 5 }
+		iconSource: "image://theme/icon-m-messaging-smiley-happy"
+		onClicked: emoticonsDialog.open()
+		visible: emoticons.isCurrentEmoticonsAvailable
+	}
+
 	TextArea {
 		id: textField
-		anchors { left: parent.left; bottom: parent.bottom }
+		anchors { left: emoticonsButton.right; bottom: parent.bottom; right: sendButton.left; leftMargin:5; rightMargin:5}
 		placeholderText: qsTr("Write anything")
 		height: Math.min(200, implicitHeight)
-		width: parent.width - sendButton.width
 	}
-	ToolIcon {
+
+	ToolButton {
 		id: sendButton
-		anchors { top: textField.top; right: parent.right; }
-		platformIconId: "toolbar-send-chat"
+		width: 50
+		height: 50
+		anchors { top: textField.top; right: parent.right; topMargin:5; rightMargin:5}
+		iconSource: "image://theme/icon-m-toolbar-send-chat"
 		onClicked: {
 			if (textField.text!=="")
 			{
