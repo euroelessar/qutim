@@ -27,6 +27,7 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import org.qutim 0.3
 import "accounts"
+import "constants.js" as CONST
 
 PageStackWindow {
 	id: root
