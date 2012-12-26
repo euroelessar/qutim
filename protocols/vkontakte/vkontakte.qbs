@@ -10,6 +10,7 @@ UreenPlugin {
     Depends { name: "artwork" }
 
     cpp.includePaths: ["src"]
+    cpp.cxxFlags: base
 
     Group {
         fileTags: [ "artwork" ]
@@ -21,12 +22,10 @@ UreenPlugin {
 
     Properties {
         condition: qbs.toolchain !== 'msvc'
-        cpp.cxxFlags: base.concat([ "-std=c++11" ])
+        cpp.cxxFlags: outer.concat([ "-std=c++11" ])
     }
     Properties {
         condition: qbs.targetOS === "mac"
-        cpp.cxxFlags: base.concat([ "-stdlib=libc++" ])
+        cpp.cxxFlags: outer.concat([ "-stdlib=libc++" ])
     }
-
-
 }
