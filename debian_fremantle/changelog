@@ -1,3 +1,10 @@
+qutim (0.3.1-maemo-1) fremantle; urgency=low
+
+  * Bugfixes
+  * Removed VK protocol
+
+ -- smith <smith@smith-VirtualBox>  Wed, 26 Dec 2012 19:57:22 +0600
+
 qutim (0.3.1-maemo-0) fremantle; urgency=low
 
   * Major 0.3 Release

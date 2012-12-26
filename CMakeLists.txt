@@ -36,6 +36,13 @@ list(APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
 include(CPackOptions.cmake.in)
 include(QutIMMacros)
 
+if(MAEMO5) #simple hack for broken maemo 5 QtDeclarative definition
+SET(QT_QTDECLARATIVE_LIBRARY "/usr/lib/libQtDeclarative.so")
+SET(QT_QTDECLARATIVE_INCLUDE_DIR "/usr/include/QtDeclarative/")
+SET(QT_QTDECLARATIVE_FOUND true)
+INCLUDE_DIRECTORIES(${QT_QTDECLARATIVE_INCLUDE_DIR})
+endif()
+
 set(QUTIM_ADDITIONAL_PATHS "protocols" "plugins")
 set(QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE)
 
