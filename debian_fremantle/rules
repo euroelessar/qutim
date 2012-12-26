@@ -20,11 +20,39 @@ else
 	CFLAGS += -O2
 endif
 
+BUILDDIR ?= build
+SOURCEDIR ?= ..
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
-	cmake -DCMAKE_INSTALL_PREFIX="/opt/qutim" -DWININTEGRATION=false -DAESCRYPTO=false -DSDLSOUND=false -DANTIBOSS=false -DKDEINTEGRATION=false -DMAC-INTEGRATION=false -DASPELLER=false -DAWN=false -DLOGGER=false -DNOWPLAYING=false -DINDICATOR=false -DASTRAL=false -DCONTACTINFO=false -DQSOUNDBACKEND=false -DSOFTKEYSACTIONBOX=false -DTRAYICON=false -DMIGRATION02X03=false -DKINETICPOPUPS=false -DXSETTINGSDIALOG=false -DWITH_DOXYGEN=false -DTABBEDCHATFORM=false -DSYMBIANINTEGRATION=false -DHISTMAN=false -DKINETICSCROLLER=false -DFLOATIES=false -DMACINTEGRATION=false -DQRCICONS=false -DSIMPLEABOUT=false -DTORYCONTACTLISTWIDGET=false -DFLOATIES=false -DMACCONTACTLISTWIDGET=false -DSIMPLEABOUT=false  -DPLUGMAN=false -DNOTIFICATIONSSETTINGS=false -DMAEMO5=true -DJOINCHATDIALOG=false -DUNITYLAUNCHER=false -DMOBILITY=true -DMULTIMEDIABACKEND=false -DBEARERMANAGER=true -DQUTIM_DEVELOPER_BUILD=false  -DCMAKE_BUILD_TYPE=release -DSCRIPTAPI=false -DHUMANITY-ICONS=false -DIDLEDETECTOR=false -DHAIKUNOTIFICATIONS=false -DQUTIM_GENERATE_DOCS=false -DLINUXINTEGRATION=false -DMEEGOINTEGRATION=false . -L
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR) && cmake \
+	-DCMAKE_INSTALL_PREFIX="/opt/qutim" -DMAEMO5=1 \
+	-DQUTIM_DEVELOPER_BUILD=off -DCMAKE_BUILD_TYPE=release -DWITH_DOXYGEN=off -DQUTIM_GENERATE_DOCS=off \
+	-DAESCRYPTO=off -DANTIBOSS=off -DASPELLER=off -DAWN=off -DASTRAL=off \
+	-DBEARERMANAGER=on \
+	-DCONTACTINFO=off \
+	-DFLOATIES=off \
+	-DHISTMAN=off -DHUMANITY-ICONS=off -DHAIKUNOTIFICATIONS=off \
+	-DINDICATOR=off -DNOTIFICATIONSSETTINGS=off -DIDLEDETECTOR=off \
+	-DJOINCHATDIALOG=off \
+	-DKDEINTEGRATION=off -DKINETICPOPUPS=off -DKINETICSCROLLER=off \
+	-DLOGGER=off -DLINUXINTEGRATION=off \
+	-DMAC-INTEGRATION=off -DMIGRATION02X03=off \
+	-DMOBILITY=on -DMULTIMEDIABACKEND=off -DMEEGOINTEGRATION=off \
+	-DNOWPLAYING=off  \
+	-DPLUGMAN=off \
+	-DQRCICONS=off -DQMLCHAT=on \
+	-DSDLSOUND=off -DQSOUNDBACKEND=off -DSOFTKEYSACTIONBOX=off  \
+	-DSYMBIANINTEGRATION=off -DSIMPLEABOUT=off -DSCRIPTAPI=off \
+	-DTRAYICON=off -DTABBEDCHATFORM=off -DTORYCONTACTLISTWIDGET=off \
+	-DUNITYLAUNCHER=off \
+	-DVKONTAKTE=off \
+	-DWININTEGRATION=off   \
+	-DXSETTINGSDIALOG=off \
+	$(SOURCEDIR) -L
+
 	touch configure-stamp
 
 
@@ -34,7 +62,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	$(MAKE) --directory=$(BUILDDIR)
 	#docbook-to-man debian/qutim.sgml > qutim.1
 
 	touch $@
@@ -45,7 +73,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	-$(MAKE) --directory=$(BUILDDIR) clean
 
 	dh_clean  
 
@@ -57,7 +85,7 @@ install: build
 
 
 	# Add here commands to install the package into debian/qutim.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) --directory=$(BUILDDIR) DESTDIR=$(CURDIR)/debian/tmp install
 
 
 # Build architecture-independent files here.
