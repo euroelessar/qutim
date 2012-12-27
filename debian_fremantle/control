@@ -2,7 +2,7 @@ Source: qutim
 Section: user/network
 Priority: extra
 Maintainer: Eugene Degtyarev <degtep@gmail.com>
-Build-Depends: debhelper (>= 5),locales,cmake,mce-dev,libgconf2-6,libssl-dev,libxext-dev,libqt4-dev,libqca-cyrus-sasl(>=2.0.0beta3-5),libqca2-dev,libqca2-plugin-ossl,libpurple-dev, pidgin-dev,libidn11-dev,libhunspell-dev,maemo-optify, libqtm-dev,lconvert,libotr2-dev
+Build-Depends: debhelper (>= 5),locales,cmake,mce-dev,libgconf2-6,libssl-dev,libxext-dev,libqt4-dev,libqca-cyrus-sasl(>=2.0.0beta3-5),libqca2-dev,libqca2-plugin-ossl,pidgin-dev,libidn11-dev,libhunspell-dev,maemo-optify, libqtm-dev,lconvert,libotr2-dev
 Standards-Version: 3.7.2
 
 Package: qutim
@@ -125,8 +125,8 @@ XB-Maemo-Icon-26:
 Package: qutim-extra-protocols
 Section: user/network
 Architecture: any
-Depends: qutim,libpurple0
-Description: IRC and all pidgin protocols for qutIM
+Depends: qutim, libpurple0, vreen
+Description: IRC, Vkontakte, and all pidgin protocols for qutIM. CSSU-Thumb may be required.
 XSBC-Maemo-Display-Name: qutIM extra protocols
 XSBC-Bugtracker: https://launchpad.net/qutim
 XB-Maemo-Icon-26:
