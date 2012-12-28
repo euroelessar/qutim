@@ -56,9 +56,10 @@ SettingsItemPage {
 
 	Flickable {
 		id: emoticonsFlickable
-		anchors{ top: emoticonThemesBox.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; topMargin: 10; }
+		anchors{ top: emoticonThemesBox.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; }
 		contentWidth: emoticonsGrid.width
 		contentHeight: emoticonsGrid.height
+		clip:true
 		flickableDirection: Flickable.VerticalFlick
 
 		Grid {

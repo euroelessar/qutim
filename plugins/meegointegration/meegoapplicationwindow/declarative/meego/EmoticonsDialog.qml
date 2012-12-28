@@ -21,28 +21,36 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import org.qutim 0.3
 
-Sheet {
+Rectangle {
 	id: emoticonsDialog
-	rejectButtonText: qsTr("Close")
-	onRejected: emoticonsDialog.selectedEmoticon = undefined
-	property string orientation: width > height ? "landscape" : "portrait"
 	property variant selectedEmoticon
 	property variant __currentEmoticons: emoticons.currentEmoticons
+
+	function hide() {
+		state = "hidden"
+	}
+
+	function show() {
+		state = "visible"
+	}
+
+	color: "white"
+	state: "hidden"
 
 	Emoticons {
 		id: emoticons
 	}
 
-	content: Flickable {
+	Flickable {
 		anchors.fill: parent
 		contentWidth: emoticonsGrid.width
 		contentHeight: emoticonsGrid.height
-		anchors.topMargin: 10
+		clip: true
 		flickableDirection: Flickable.VerticalFlick
 
 		Grid {
 			id: emoticonsGrid
-			columns:  emoticonsDialog.orientation === "portrait" ? 5 : 10
+			columns:  width <= 500 ? 5 : 10
 			width: parent.width
 
 			Repeater {
@@ -64,12 +72,26 @@ Sheet {
 						anchors.fill: animatedEmoticon
 						hoverEnabled: true
 						onClicked: {
-							selectedEmoticon = emoticons.currentEmoticonString(modelData)
-							emoticonsDialog.accept()
+							selectedEmoticon = emoticons.currentEmoticonString(modelData);
+							hide();
 						}
 					}
 				}
 			}
 		}
 	}
+
+	states: [
+		State {
+			name: "visible"
+			PropertyChanges { target: emoticonsDialog; z: 10 }
+			PropertyChanges { target: emoticonsDialog; selectedEmoticon: undefined }
+			PropertyChanges { target: emoticonsDialog; visible: true }
+		},
+		State {
+			name: "hidden"
+			PropertyChanges { target: emoticonsDialog; visible: false }
+		}
+	]
 }
+

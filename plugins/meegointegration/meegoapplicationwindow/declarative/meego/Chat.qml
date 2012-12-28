@@ -64,8 +64,7 @@ Page {
 		id: webViewComponent
 		ChatView {
 			id: chatView
-			width: root.width
-			height: root.height - textField.height
+			anchors{ top:parent.top; left:parent.left; right:parent.right; bottom: textField.top}
 			//visible: chatView.session.active
 			visible: chatView === root.currentSessionPage
 		}
@@ -73,12 +72,17 @@ Page {
 
 	EmoticonsDialog {
 		id:emoticonsDialog
-		onAccepted: {
-			if (emoticonsDialog.selectedEmoticon !== undefined)
-				textField.text += emoticonsDialog.selectedEmoticon
+		anchors{ top:parent.top; left:parent.left; right:parent.right; bottom: textField.top}
+		onStateChanged: {
+			if (emoticonsDialog.state === "hidden" && emoticonsDialog.selectedEmoticon !== undefined)
+			{
+				var currentPosition = textField.cursorPosition;
+				textField.text = [textField.text.toString().slice(0, textField.cursorPosition),
+						  emoticonsDialog.selectedEmoticon, textField.text.toString().slice(textField.cursorPosition)].join('');
+				textField.cursorPosition = currentPosition + emoticonsDialog.selectedEmoticon.length
+			}
 			textField.focus = true
 		}
-		onRejected: textField.focus = true
 	}
 
 	Emoticons{
@@ -91,7 +95,12 @@ Page {
 		height: 50
 		anchors { top: textField.top; left: parent.left; topMargin:5; leftMargin:5; bottomMargin: 5 }
 		iconSource: "image://theme/icon-m-messaging-smiley-happy"
-		onClicked: emoticonsDialog.open()
+		onClicked: {
+			if (emoticonsDialog.state === "hidden")
+				emoticonsDialog.show();
+			else
+				emoticonsDialog.hide();
+		}
 		visible: emoticons.isCurrentEmoticonsAvailable
 	}
 
