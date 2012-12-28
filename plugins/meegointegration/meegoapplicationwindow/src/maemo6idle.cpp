@@ -65,6 +65,7 @@ void Maemo6Idle::activityChanged (MeeGo::QmActivity::Activity activity)
         m_idleSeconds = 0;
         idle_timer->start(60000,this);
 	}
+    emit secondsIdle(m_idleSeconds);
 }
 }
 
