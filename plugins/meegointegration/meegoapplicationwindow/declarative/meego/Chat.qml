@@ -27,11 +27,24 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "components"
 
 Page {
 	id: root
 	property variant chat
 	property variant menu: contactMenu
+
+	PageHeader {
+		id: header
+		anchors.top: parent.top
+		text: chat.activeSession ? chat.activeSession.unit.title : ""
+		iconSource: chat.activeSession ? chat.statusUrl(chat.activeSession.unit.status) : ""
+		clickable: true
+		onClicked: {
+			if (menu !== undefined)
+				menu.open()
+		}
+	}
 
 	ControlledMenu {
 		id: contactMenu
@@ -64,7 +77,7 @@ Page {
 		id: webViewComponent
 		ChatView {
 			id: chatView
-			anchors{ top:parent.top; left:parent.left; right:parent.right; bottom: textField.top}
+			anchors{ top:header.bottom; left:parent.left; right:parent.right; bottom: textField.top}
 			//visible: chatView.session.active
 			visible: chatView === root.currentSessionPage
 		}
@@ -72,7 +85,7 @@ Page {
 
 	EmoticonsDialog {
 		id:emoticonsDialog
-		anchors{ top:parent.top; left:parent.left; right:parent.right; bottom: textField.top}
+		anchors{ top:header.top; left:parent.left; right:parent.right; bottom: textField.top}
 		onStateChanged: {
 			if (emoticonsDialog.state === "hidden" && emoticonsDialog.selectedEmoticon !== undefined)
 			{

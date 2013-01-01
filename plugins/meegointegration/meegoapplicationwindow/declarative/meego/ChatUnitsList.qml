@@ -27,33 +27,38 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "components"
 
 Page {
 	id: root
 	property variant chat
 	property variant unitsModel: chat.activeSession ? chat.activeSession.units : emptyModel
+	PageHeader {
+		id: header
+		anchors.top: parent.top
+		text: qsTr("Participants")
+	}
 	ListModel {
 		id: emptyModel
 	}
-    ControlledMenu {
-        id: contactMenu
-        visualParent: pageStack
-    }
+	ControlledMenu {
+		id: contactMenu
+		visualParent: pageStack
+	}
 	ListView {
 		id: listViewItem
-		width: parent.width
-		anchors.fill: parent
+		anchors{top:header.bottom; left:parent.left; right:parent.right; bottom:parent.bottom}
 		model: unitsModel
 		delegate: ContactItem {
 			onClicked: {
-                var session = root.chat.session(model.contact);
-                chat.activeSession = session;
-                root.chat.show();
+				var session = root.chat.session(model.contact);
+				chat.activeSession = session;
+				root.chat.show();
 			}
-            onPressAndHold: {
-                contactMenu.controller = model.contact;
-                contactMenu.open();
-            }
+			onPressAndHold: {
+				contactMenu.controller = model.contact;
+				contactMenu.open();
+			}
 		}
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString
@@ -61,25 +66,25 @@ Page {
 	}
 	// The delegate for each section header
 	Component {
-        id: sectionHeading
-        Rectangle {
-            width: root.width
-            height: childrenRect.height
+		id: sectionHeading
+		Rectangle {
+			width: root.width
+			height: childrenRect.height
 			color: Qt.rgba(0, 0, 0, 0.2)
-            Text {
+			Text {
 				anchors.right: parent.right
 				anchors.rightMargin: 15
-                text: section
-                font.bold: true
+				text: section
+				font.bold: true
 				font.pixelSize: 20
-            }
-        }
-    }
+			}
+		}
+	}
 
 
 	SectionScroller {
-        listView: listViewItem
-    }
+		listView: listViewItem
+	}
 	ScrollDecorator {
 		flickableItem: listViewItem
 	}

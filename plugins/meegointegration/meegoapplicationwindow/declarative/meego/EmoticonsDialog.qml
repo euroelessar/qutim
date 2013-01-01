@@ -50,7 +50,7 @@ Rectangle {
 
 		Grid {
 			id: emoticonsGrid
-			columns:  width <= 500 ? 5 : 10
+			columns: screen.currentOrientation === Screen.Portrait ? 5 : 10
 			width: parent.width
 
 			Repeater {

@@ -50,6 +50,14 @@ public:
 	void setActiveSession(qutim_sdk_0_3::ChatSession *session);
 	void handleSessionDeath(qutim_sdk_0_3::ChatSession *session);
 	Q_INVOKABLE void show();
+
+    static QUrl statusUrl(const QVariant &type, const QString &subtype);
+    static QString statusIcon(const QVariant &type, const QString &subtype);
+
+public slots:
+    static QString statusName(const QVariant &type);
+    static QString statusIcon(const QVariant &type);
+    static QUrl statusUrl(const QVariant &type);
 	
 signals:
 	void sessionDestroyed(qutim_sdk_0_3::ChatSession *session);
