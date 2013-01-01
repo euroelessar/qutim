@@ -8,7 +8,6 @@ import "../constants.js" as UI
 
 SettingsItemPage {
 	id: emoticonsPage
-	property string orientation: width > height ? "landscape" : "portrait"
 	property variant __currentEmoticons: emoticons.currentEmoticons
 
 	impl: QtObject {
@@ -64,7 +63,7 @@ SettingsItemPage {
 
 		Grid {
 			id: emoticonsGrid
-			columns:  emoticonsPage.orientation === "portrait" ? 5 : 10
+			columns: screen.currentOrientation === Screen.Portrait ? 5 : 10
 			width: parent.width
 
 			Repeater {

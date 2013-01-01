@@ -143,5 +143,55 @@ void Chat::onSessionDestroyed(QObject *object)
 	ChatChannel *session = static_cast<ChatChannel*>(object);
 	m_channels.removeOne(session);
 }
+
+QUrl Chat::statusUrl(const QVariant &type, const QString &subtype)
+{
+    return QUrl::fromUserInput(QLatin1String("image://theme/") + statusIcon(type, subtype));
+}
+
+QString Chat::statusIcon(const QVariant &type, const QString &subtype)
+{
+    QString iconName = subtype + QLatin1String("-presence-");
+    int statusType = type.toInt();
+    if (type.canConvert<Status>())
+        statusType = type.value<Status>().type();
+    switch (statusType) {
+    case Status::Online:
+    case Status::FreeChat:
+        iconName += QLatin1String("online");
+        break;
+    case Status::Away:
+        iconName += QLatin1String("away");
+        break;
+    case Status::NA:
+    case Status::DND:
+        iconName += QLatin1String("busy");
+        break;
+    case Status::Offline:
+        iconName += QLatin1String("offline");
+        break;
+    default:
+    case Status::Connecting:
+    case Status::Invisible:
+        iconName += QLatin1String("unknown");
+        break;
+    }
+    return iconName;
+}
+
+QString Chat::statusName(const QVariant &type)
+{
+    return Status(static_cast<Status::Type>(type.toInt())).name().toString();
+}
+
+QUrl Chat::statusUrl(const QVariant &type)
+{
+    return statusUrl(type, QLatin1String("icon-m"));
+}
+
+QString Chat::statusIcon(const QVariant &type)
+{
+    return statusIcon(type, QLatin1String("icon-m"));
+}
 }
 

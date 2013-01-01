@@ -27,36 +27,42 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "components"
 
 Page {
 	id: root
 	property variant chat
+	PageHeader {
+		id: header
+		anchors.top: parent.top
+		text: qsTr("Open chats")
+	}
 	ListView {
 		id: listView
 		model: ChatChannelModel {
 			
 		}
-		anchors.fill: parent
+		anchors{top:header.bottom; left:parent.left; right:parent.right; bottom:parent.bottom}
 		delegate: ItemDelegate {
 			title: channel.unit.title
 			subtitle: channel.unit.id
 			iconSource: __suggestIcon(channel.unit, channel.unreadCount)
 			onClicked: {
-                chat.activeSession = channel;
+				chat.activeSession = channel;
 				channel.showChat();
 			}
 			function __suggestIcon(unit, unreadCount) {
-                var iconId = "icon-m-";
+				var iconId = "icon-m-";
 				if (unreadCount > 0) {
 					iconId += "content-sms";
 				} else if (unit.conference) {
 					iconId += "content-chat";
 				} else {
-//					var filePath = unit.avatar;
-//					if (filePath === undefined || filePath == "")
-						iconId += "content-avatar-placeholder";
-//					else
-//						return "file://" + filePath;
+					//					var filePath = unit.avatar;
+					//					if (filePath === undefined || filePath == "")
+					iconId += "content-avatar-placeholder";
+					//					else
+					//						return "file://" + filePath;
 				}
 				if (theme.inverse)
 					iconId += "-inverse";
@@ -66,11 +72,11 @@ Page {
 				id: closeButton
 				anchors { verticalCenter: parent.verticalCenter; right: parent.right }
 				platformIconId: "toolbar-close"
-                onClicked: {
-                    if (channel.unit.conference)
-                        channel.unit.leave();
-                    channel.close()
-                }
+				onClicked: {
+					if (channel.unit.conference)
+						channel.unit.leave();
+					channel.close()
+				}
 			}
 		}
 	}
