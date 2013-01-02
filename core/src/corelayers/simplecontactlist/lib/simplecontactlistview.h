@@ -34,16 +34,14 @@ namespace Core
 namespace SimpleContactList
 {
 
-class AbstractContactModel;
-
 class SIMPLECONTACTLIST_EXPORT TreeView : public QTreeView
 {
 	Q_OBJECT
 public:
-	TreeView(AbstractContactModel *model, QWidget *parent = 0);
+	TreeView(QAbstractItemModel *model, QWidget *parent = 0);
 	virtual void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight);
 	virtual ~TreeView();
-	void setContactModel(AbstractContactModel *model);
+	void setContactModel(QAbstractItemModel *model);
 protected:
 	void contextMenuEvent(QContextMenuEvent *);
 	void startDrag(Qt::DropActions supportedActions);

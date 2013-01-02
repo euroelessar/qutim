@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 #include "torywidget.h"
-#include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
 #include <qutim/actiongenerator.h>
@@ -60,7 +59,7 @@ class ToryWidgetPrivate
 {
 public:
 	TreeView *view;
-	ServicePointer<AbstractContactModel> model;
+	ServicePointer<QAbstractItemModel> model;
 	ActionToolBar *mainToolBar;
 	QHBoxLayout *accountsContainer;
 	QLineEdit *searchBar;

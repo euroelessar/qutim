@@ -255,8 +255,9 @@ bool VContact::event(QEvent *ev)
 
 void VContact::onStatusChanged(Vreen::Contact::Status status)
 {
-	m_status.setType(convertStatus(status));
-	setStatus(m_status);
+	Status newStatus = m_status;
+	newStatus.setType(convertStatus(status));
+	setStatus(newStatus);
 }
 
 void VContact::onTagsChanged(const QStringList &tags)

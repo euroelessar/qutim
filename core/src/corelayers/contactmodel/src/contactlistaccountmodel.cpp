@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,31 +22,36 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef ABSTRACTCONTACTLIST_H
-#define ABSTRACTCONTACTLIST_H
-#include <qutim/menucontroller.h>
-#include "simplecontactlist_global.h"
 
-namespace Core {
-namespace SimpleContactList {
-
-class TreeView;
+#include "contactlistaccountmodel.h"
 
 using namespace qutim_sdk_0_3;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget
+ContactListAccountModel::ContactListAccountModel(QObject *parent) :
+    ContactListBaseModel(parent)
 {
-public:
-	virtual ~AbstractContactListWidget() {}
-	virtual void addButton(ActionGenerator *generator) = 0;
-	virtual void removeButton(ActionGenerator *generator) = 0;
-	virtual TreeView *contactView() = 0;
-};
+    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show accounts and contacts"));
+}
 
-} // namespace SimpleContactList
-} // namespace Core
+void ContactListAccountModel::addAccount(Account *account)
+{
+    ensureAccount(account, rootNode());
+}
 
-Q_DECLARE_INTERFACE(Core::SimpleContactList::AbstractContactListWidget, "org.qutim.core.AbstractContactListWidget")
+void ContactListAccountModel::removeAccount(Account *account)
+{
+    eraseAccount(account, rootNode());
+}
 
-#endif // ABSTRACTCONTACTLIST_H
+void ContactListAccountModel::addContact(Contact *contact)
+{
+    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+    ContactNode *contactNode = ensureContact(contact, accountNode);
+    Q_UNUSED(contactNode);
+}
 
+void ContactListAccountModel::removeContact(Contact *contact)
+{
+    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+    eraseContact(contact, accountNode);
+}

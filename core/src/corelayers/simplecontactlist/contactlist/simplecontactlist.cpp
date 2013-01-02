@@ -25,7 +25,6 @@
 #include "simplecontactlist.h"
 
 #include <qutim/simplecontactlist/simplecontactlistitem.h>
-#include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/simplecontactlist/abstractcontactlist.h>
 #include <qutim/simplecontactlist/simplecontactlistview.h>
@@ -68,9 +67,10 @@ namespace SimpleContactList
 
 struct ModulePrivate
 {
+	ModulePrivate() : model("ContactModel") {}
     ~ModulePrivate() {}
     ServicePointer<QWidget> widget;
-    ServicePointer<AbstractContactModel> model;
+	ServicePointer<QAbstractItemModel> model;
     QScopedPointer<ActionGenerator> tagsGenerator;
     QList<ActionGenerator*> toolBarButtons;
 };
@@ -217,29 +217,31 @@ void Module::init()
     addButton(p->tagsGenerator.data());
 
     // TODO: choose another, non-kopete icon
-    ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"), QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), this, SLOT(onHideShowOffline()));
+	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"), QT_TRANSLATE_NOOP("ContactList","Hide offline"), this, SLOT(onHideShowOffline()));
     gen->setCheckable(true);
-    gen->setChecked(!p->model->showOffline());
+	gen->setChecked(!p->model->property("showOffline").toBool());
     gen->setToolTip(QT_TRANSLATE_NOOP("ContactList", "Hide offline"));
     addButton(gen);
 }
 
 void Module::onResetTagsTriggered()
 {
-    p->model->filterList(QStringList());
+	p->model->setProperty("filterTags", QStringList());
 }
 
 void Module::onSelectTagsTriggered()
 {
-    QStringList tags = p->model->tags();
+	QStringList tags = p->model->property("tags").toStringList();
     TagsFilterDialog *dialog = new TagsFilterDialog(tags, p->widget);
-    if (!p->model->selectedTags().isEmpty())
-        tags = p->model->selectedTags().toList();
-    dialog->setSelectedTags(tags);
+	QStringList selectedTags = p->model->property("filterTags").toStringList();
+	if (selectedTags.isEmpty())
+		selectedTags = tags;
+	dialog->setSelectedTags(selectedTags);
     SystemIntegration::show(dialog);
     centerizeWidget(dialog);
     if (dialog->exec()) {
-        p->model->filterList(dialog->selectedTags());
+		selectedTags = dialog->selectedTags();
+		p->model->setProperty("filterTags", selectedTags);
     }
     dialog->deleteLater();
 }
@@ -247,8 +249,8 @@ void Module::onSelectTagsTriggered()
 void Module::addContact(qutim_sdk_0_3::Contact *contact)
 {
 #if 1
-    p->model->metaObject()->invokeMethod(p->model, "addContact",
-                                         Q_ARG(qutim_sdk_0_3::Contact*, contact));
+	QMetaObject::invokeMethod(p->model, "addContact",
+							  Q_ARG(qutim_sdk_0_3::Contact*, contact));
 #else
     p->model->addContact(contact);
 #endif
@@ -256,15 +258,17 @@ void Module::addContact(qutim_sdk_0_3::Contact *contact)
 
 void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
 {
-    Q_UNUSED(old);
     if (name == "ContactModel") {
         AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
         if (!widget)
             return;
+		QList<qutim_sdk_0_3::Contact*> contacts;
         widget->contactView()->setContactModel(p->model);
-        AbstractContactModel *oldModel = qobject_cast<AbstractContactModel*>(old);
-        if (oldModel)
-            p->model->setContacts(oldModel->contacts());
+
+		if (old) {
+			QMetaObject::invokeMethod(old,  "contacts", Q_RETURN_ARG(QList<qutim_sdk_0_3::Contact*>, contacts));
+			QMetaObject::invokeMethod(p->model, "setContacts", Q_ARG(QList<qutim_sdk_0_3::Contact*>, contacts));
+		}
     } else if (name == "ContactListWidget") {
         AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
         if (w) {
@@ -276,7 +280,7 @@ void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old
 
 void Module::onHideShowOffline()
 {
-    p->model->hideShowOffline();
+	QMetaObject::invokeMethod(p->model, "inverseOfflineVisibility");
 }
 
 }

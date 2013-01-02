@@ -29,7 +29,6 @@
 #include <QPushButton>
 #include <QAction>
 #include <qutim/qtwin.h>
-#include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <QAbstractItemDelegate>
 #include <QHBoxLayout>
 #include <qutim/icon.h>
@@ -373,7 +372,7 @@ void SimpleWidget::init()
 		SystemIntegration::show(this);
 }
 
-AbstractContactModel *SimpleWidget::model() const
+QAbstractItemModel *SimpleWidget::model() const
 {
 	return m_model;
 }

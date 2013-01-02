@@ -70,10 +70,8 @@ void SimpleTagsEditor::load()
 {
 	QStringList tags;
 	// Try to request tag list from the contact model
-	if (QObject *model = ServiceManager::getByName("ContactModel")) {
-		model->metaObject()->invokeMethod(model, "tags",
-				Qt::AutoConnection, Q_RETURN_ARG(QStringList, tags));
-	}
+	if (QObject *model = ServiceManager::getByName("ContactModel"))
+		tags = model->property("tags").toStringList();
 
 	if (tags.isEmpty()) {
 		// There is no ContactModel service, or it does not have

@@ -1,7 +1,0 @@
-{
-	"pluginIcon": "",
-	"pluginName": "Plain list contacts model",
-	"pluginDescription": "Contact list model, which shows only contacts",
-	"extensionHeader": "plaincontactlistmodel.h",
-	"extensionClass": "Core::SimpleContactList::PlainModel"
-}

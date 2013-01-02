@@ -24,7 +24,6 @@
 ****************************************************************************/
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
-#include "abstractcontactmodel.h"
 #include <qutim/chatsession.h>
 #include <QtGui/QContextMenuEvent>
 #include <QHeaderView>
@@ -44,7 +43,7 @@ namespace Core
 namespace SimpleContactList
 {
 
-TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(parent)
+TreeView::TreeView(QAbstractItemModel *model, QWidget *parent) : QTreeView(parent)
 {
 	connect(this, SIGNAL(activated(QModelIndex)),
 			this, SLOT(onClick(QModelIndex)));
@@ -69,7 +68,7 @@ TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(par
 	setContactModel(model);
 }
 
-void TreeView::setContactModel(AbstractContactModel *model)
+void TreeView::setContactModel(QAbstractItemModel *model)
 {
 	storeClosedTags();
 	Config group = Config().group("contactList").group(model->metaObject()->className());
@@ -88,7 +87,7 @@ void TreeView::initScrolling()
 
 void TreeView::onClick(const QModelIndex &index)
 {
-	ContactItemType type = getItemType(index);
+	ContactItemType type = static_cast<ContactItemType>(index.data(ItemTypeRole).toInt());
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		if (ChatSession *session = ChatLayer::get(buddy, true))
@@ -105,7 +104,7 @@ void TreeView::onClick(const QModelIndex &index)
 void TreeView::contextMenuEvent(QContextMenuEvent *event)
 {
 	QModelIndex index = indexAt(event->pos());
-	ContactItemType type = getItemType(index);
+	ContactItemType type = static_cast<ContactItemType>(index.data(ItemTypeRole).toInt());
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		debug() << buddy->id();
@@ -155,7 +154,7 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 	else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
 		defaultDropAction = Qt::CopyAction;
 	if (drag->exec(supportedActions, defaultDropAction) == Qt::IgnoreAction
-			&& getItemType(index) == ContactType) {
+			&& index.data(ItemTypeRole).toInt() == ContactType) {
 		if (QWidget *widget = QApplication::topLevelAt(QCursor::pos())) {
 			if (widget->window() == this->window())
 				return;
@@ -217,7 +216,7 @@ void TreeView::storeClosedTags()
 
 void TreeView::checkTag(const QModelIndex &parent, QAbstractItemModel *model)
 {
-	for (int i = 0, c = model->rowCount(parent); i != c; ++i) {
+	for (int i = 0, count = model->rowCount(parent); i < count; ++i) {
 		QModelIndex index = model->index(i, 0, parent);
 		checkTag(index, model);
 		if (!m_closedIndexes.contains(index.data(TagName).toString()))

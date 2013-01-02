@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,31 +22,24 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef ABSTRACTCONTACTLIST_H
-#define ABSTRACTCONTACTLIST_H
-#include <qutim/menucontroller.h>
-#include "simplecontactlist_global.h"
 
-namespace Core {
-namespace SimpleContactList {
+#ifndef CONTACTLISTGROUPMODEL_H
+#define CONTACTLISTGROUPMODEL_H
 
-class TreeView;
+#include "contactlistbasemodel.h"
 
-using namespace qutim_sdk_0_3;
-
-class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget
+class ContactListGroupModel : public ContactListBaseModel
 {
+    Q_OBJECT
+    Q_CLASSINFO("SettingsDescription", "Show tags and contacts")
 public:
-	virtual ~AbstractContactListWidget() {}
-	virtual void addButton(ActionGenerator *generator) = 0;
-	virtual void removeButton(ActionGenerator *generator) = 0;
-	virtual TreeView *contactView() = 0;
+    explicit ContactListGroupModel(QObject *parent = 0);
+
+    virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
+                                   const QStringList &current,
+                                   const QStringList &previous);
+    virtual void addContact(qutim_sdk_0_3::Contact *contact);
+    virtual void removeContact(qutim_sdk_0_3::Contact *contact);
 };
 
-} // namespace SimpleContactList
-} // namespace Core
-
-Q_DECLARE_INTERFACE(Core::SimpleContactList::AbstractContactListWidget, "org.qutim.core.AbstractContactListWidget")
-
-#endif // ABSTRACTCONTACTLIST_H
-
+#endif // CONTACTLISTGROUPMODEL_H

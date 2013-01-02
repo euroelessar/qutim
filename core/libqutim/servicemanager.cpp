@@ -105,7 +105,10 @@ void ServiceManagerPrivate::deinit()
 ServicePointerData *ServiceManagerPrivate::data(const QByteArray &name)
 {
 	QSharedPointer<ServicePointerData> &d = hash[name];
-	if (!d) d = QSharedPointer<ServicePointerData>::create();
+	if (!d) {
+		d = QSharedPointer<ServicePointerData>::create();
+		d->name = name;
+	}
 	return d.data();
 }
 
@@ -194,8 +197,10 @@ ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
 {
 	ServiceManagerPrivate *d = ServiceManagerPrivate::get(instance());
 	QSharedPointer<ServicePointerData> &data = d->hash[name];
-	if (!data)
+	if (!data) {
 		data = QSharedPointer<ServicePointerData>::create();
+		data->name = name;
+	}
 	return data.toWeakRef();
 }
 

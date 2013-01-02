@@ -20,8 +20,7 @@ qutim_add_plugin(simplecontactdelegate
 )
 
 set(DEVEL_HEADERS
-	lib/abstractcontactlist.h
-	lib/abstractcontactmodel.h
+        lib/abstractcontactlist.h
 	lib/simplecontactlistview.h
 	lib/simplestatusdialog.h
 	lib/simplecontactlist_global.h
@@ -38,4 +37,3 @@ qutim_generate_includes("qutim/simplecontactlist" ${DEVEL_HEADERS})
 
 
 add_subdirectory(widgets)
-add_subdirectory(models)

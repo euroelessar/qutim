@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -22,31 +22,23 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef ABSTRACTCONTACTLIST_H
-#define ABSTRACTCONTACTLIST_H
-#include <qutim/menucontroller.h>
-#include "simplecontactlist_global.h"
 
-namespace Core {
-namespace SimpleContactList {
-
-class TreeView;
+#include "contactlistplainmodel.h"
 
 using namespace qutim_sdk_0_3;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactListWidget
+ContactListPlainModel::ContactListPlainModel(QObject *parent) :
+    ContactListBaseModel(parent)
 {
-public:
-	virtual ~AbstractContactListWidget() {}
-	virtual void addButton(ActionGenerator *generator) = 0;
-	virtual void removeButton(ActionGenerator *generator) = 0;
-	virtual TreeView *contactView() = 0;
-};
+    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show only contacts"));
+}
 
-} // namespace SimpleContactList
-} // namespace Core
+void ContactListPlainModel::addContact(Contact *contact)
+{
+    ensureContact(contact, rootNode());
+}
 
-Q_DECLARE_INTERFACE(Core::SimpleContactList::AbstractContactListWidget, "org.qutim.core.AbstractContactListWidget")
-
-#endif // ABSTRACTCONTACTLIST_H
-
+void ContactListPlainModel::removeContact(Contact *contact)
+{
+    eraseContact(contact, rootNode());
+}

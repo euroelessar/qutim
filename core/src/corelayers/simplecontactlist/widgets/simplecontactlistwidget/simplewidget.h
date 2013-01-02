@@ -60,7 +60,7 @@ public:
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
 	virtual TreeView *contactView();
-	AbstractContactModel *model() const;
+	QAbstractItemModel *model() const;
 protected:
 	QAction *createGlobalStatusAction(Status::Type type);
 	bool event(QEvent *event);
@@ -81,7 +81,7 @@ private slots:
 #endif
 private:
 	TreeView *m_view;
-	ServicePointer<AbstractContactModel> m_model;
+	ServicePointer<QAbstractItemModel> m_model;
 	ActionToolBar *m_mainToolBar;
 	QPushButton *m_statusBtn;
     QLineEdit *m_searchBar;

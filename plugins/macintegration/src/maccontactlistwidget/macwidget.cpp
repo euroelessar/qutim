@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "macwidget_p.h"
-#include <qutim/simplecontactlist/abstractcontactmodel.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
 #include <qutim/actiongenerator.h>
@@ -58,7 +57,7 @@ class MacWidgetPrivate
 {
 public:
 	TreeView *view;
-    AbstractContactModel *model;
+	QAbstractItemModel *model;
     MacSearchField *searchBar;
 	QToolBar *toolBar;
     QAction *statusTextAction;
@@ -92,7 +91,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     Config cfg;
 	cfg.beginGroup("contactlist");
 
-    d->model = ServiceManager::getByName<AbstractContactModel *>("ContactModel");
+	d->model = ServiceManager::getByName<QAbstractItemModel *>("ContactModel");
     d->view = new TreeView(d->model, this);
     layout->addWidget(d->view);
     d->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate *>("ContactDelegate"));
@@ -111,7 +110,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->searchBar = new MacSearchField(this);
 	toolBarLayout->addWidget(d->searchBar);
 
-	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(setFilterFixedString(QString)));
 	connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
 	d->searchBar->installEventFilter(this);
 	d->searchBar->hide();
@@ -172,7 +171,12 @@ void MacWidget::addButton(ActionGenerator *generator)
 
 void MacWidget::removeButton(ActionGenerator *generator)
 {
-    d_func()->controllers[MacMenuRoster]->removeAction(generator);
+	d_func()->controllers[MacMenuRoster]->removeAction(generator);
+}
+
+TreeView *MacWidget::contactView()
+{
+	return d_func()->view;
 }
 
 void MacWidget::loadGeometry()
