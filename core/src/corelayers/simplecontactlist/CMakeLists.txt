@@ -27,7 +27,6 @@ set(DEVEL_HEADERS
 	lib/servicechooser.h
 	lib/simplecontactlistitem.h
 	lib/lineedit.h
-	lib/abstractcontactmodel_p.h
 )
 install(FILES ${DEVEL_HEADERS}
 	DESTINATION include/qutim/simplecontactlist
