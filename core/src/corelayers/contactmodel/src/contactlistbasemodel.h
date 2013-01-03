@@ -44,7 +44,12 @@ enum ContactListItemRole
 	AccountRole,
 	ColorRole,
 	TagNameRole,
-	NotificationRole
+	NotificationRole,
+	StatusTextRole,
+	StatusIconNameRole,
+	ContactRole,
+	AlphabetRole,
+	IdRole
 };
 
 enum ContactListItemType

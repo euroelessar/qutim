@@ -70,7 +70,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 		return true;
 }
 
-SimpleWidget::SimpleWidget()
+SimpleWidget::SimpleWidget() : m_model("ContactModel")
 {
 	if (1) {} else Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Default style"));
 	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));

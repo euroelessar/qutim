@@ -50,6 +50,12 @@ public:
 	QStringList tags() const;
 	QStringList filterTags() const;
 
+	virtual QStringList mimeTypes() const;
+	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+							  int row, int column, const QModelIndex &parent);
+	virtual Qt::DropActions supportedDropActions() const;
+
 public slots:
 	void setFilterTags(const QStringList &filterTags);
 	void inverseOfflineVisibility();

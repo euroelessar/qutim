@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "contactlistfrontmodel.h"
+#include "contactlistmimedata.h"
 #include <qutim/protocol.h>
 #include <QtDebug>
 
@@ -35,6 +36,21 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	Config config;
 	config.beginGroup("contactList");
 	m_showOffline = config.value("showOffline", true);
+
+	QHash<int, QByteArray> roleNames;
+	roleNames.insert(IdRole, "id");
+	roleNames.insert(Qt::DisplayRole, "title");
+	roleNames.insert(StatusIconNameRole, "statusIconName");
+	roleNames.insert(ContactsCountRole, "totalCount");
+	roleNames.insert(OnlineContactsCountRole, "onlineCount");
+	roleNames.insert(TagNameRole, "name");
+	roleNames.insert(NotificationRole, "notification");
+	roleNames.insert(ItemTypeRole, "itemType");
+	roleNames.insert(ContactRole, "contact");
+	roleNames.insert(AlphabetRole, "alphabet");
+	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
+	setRoleNames(roleNames);
 
 	sort(0);
 	setDynamicSortFilter(true);
@@ -68,6 +84,76 @@ QStringList ContactListFrontModel::tags() const
 QStringList ContactListFrontModel::filterTags() const
 {
 	return m_filterTags;
+}
+
+QStringList ContactListFrontModel::mimeTypes() const
+{
+	return QStringList()
+			<< ContactListMimeData::objectMimeType()
+			<< ContactListMimeData::modelIndexListMimeType();
+}
+
+QMimeData *ContactListFrontModel::mimeData(const QModelIndexList &indexes) const
+{
+	QModelIndexList filteredList;
+	QObject *contact = NULL;
+	foreach (const QModelIndex &index, indexes) {
+		switch (index.data(ItemTypeRole).toInt()) {
+		case ContactType:
+			contact = index.data(ContactRole).value<QObject*>();
+			Q_ASSERT(qobject_cast<Contact*>(contact));
+			// fall through
+		case TagType:
+			filteredList << index;
+		default:
+			break;
+		}
+	}
+	if (filteredList.isEmpty())
+		return NULL;
+	ContactListMimeData *mimeData = new ContactListMimeData();
+	mimeData->setIndexes(filteredList);
+	mimeData->setObject(contact);
+	return mimeData;
+}
+
+bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+	Q_UNUSED(column);
+	const ContactListMimeData *data = qobject_cast<const ContactListMimeData*>(genericData);
+	QPersistentModelIndex persistentIndex = data->indexes().value(0);
+	if (!persistentIndex.isValid())
+		return false;
+	QModelIndex index = persistentIndex;
+	const ContactListItemType parentType = static_cast<ContactListItemType>(parent.data(ItemTypeRole).toInt());
+	const ContactListItemType type = static_cast<ContactListItemType>(index.data(ItemTypeRole).toInt());
+	if (parentType == TagType && type == ContactType) {
+		const QString tag = parent.data(TagNameRole).toString();
+		Contact *contact = qobject_cast<Contact*>(index.data(ContactRole).value<QObject*>());
+		Q_ASSERT(contact);
+		QStringList tags = contact->tags();
+		if (tags.contains(tag))
+			return false;
+		if (action == Qt::MoveAction)
+			tags.removeOne(index.parent().data(TagNameRole).toString());
+		tags.append(tag);
+		contact->setTags(tags);
+		return true;
+	} else if (parentType == AccountType && type == TagType) {
+		// TODO: Reorder tags
+		Q_UNUSED(row);
+		return false;
+	} else if (parentType == type && type == ContactType) {
+		// TODO: Implement metacontacts creating
+		return false;
+	} else {
+		return false;
+	}
+}
+
+Qt::DropActions ContactListFrontModel::supportedDropActions() const
+{
+	return Qt::CopyAction | Qt::MoveAction;
 }
 
 void ContactListFrontModel::setFilterTags(const QStringList &filterTags)
@@ -173,12 +259,25 @@ bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 
 bool ContactListFrontModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-	Contact *leftContact = qobject_cast<Contact*>(left.data(BuddyRole).value<Buddy*>());
-	Contact *rightContact = qobject_cast<Contact*>(right.data(BuddyRole).value<Buddy*>());
-	if (!leftContact || !rightContact) {
-		// Show contacts always first
-		return leftContact > rightContact;
-	} else {
+	const ContactListItemType leftType = static_cast<ContactListItemType>(left.data(ItemTypeRole).toInt());
+	const ContactListItemType rightType = static_cast<ContactListItemType>(right.data(ItemTypeRole).toInt());
+	if (leftType != rightType)
+		return leftType < rightType;
+
+	switch (leftType) {
+	case ContactType: {
+		Contact *leftContact = qobject_cast<Contact*>(left.data(BuddyRole).value<Buddy*>());
+		Contact *rightContact = qobject_cast<Contact*>(right.data(BuddyRole).value<Buddy*>());
+		Q_ASSERT(leftContact);
+		Q_ASSERT(rightContact);
 		return m_comparator->compare(leftContact, rightContact) < 0;
 	}
+	case TagType:
+	case AccountType:
+		return left.data(TagNameRole).toString()
+				.compare(right.data(TagNameRole).toString(), Qt::CaseInsensitive) < 0;
+	default:
+		break;
+	}
+	return false;
 }

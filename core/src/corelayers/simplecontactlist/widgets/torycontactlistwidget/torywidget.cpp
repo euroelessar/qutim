@@ -58,6 +58,8 @@ namespace SimpleContactList {
 class ToryWidgetPrivate
 {
 public:
+	ToryWidgetPrivate() : model("ContactModel") {}
+
 	TreeView *view;
 	ServicePointer<QAbstractItemModel> model;
 	ActionToolBar *mainToolBar;

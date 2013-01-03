@@ -157,10 +157,20 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return contact->status().icon();
 		case ItemTypeRole:
 			return ContactType;
+		case StatusTextRole:
+			return contact->status().text();
 		case StatusRole:
 			return qVariantFromValue(contact->status());
 		case AvatarRole:
 			return contact->avatar();
+		case AlphabetRole:
+			return contact->title().at(0).toUpper();
+		case ContactRole:
+			return qVariantFromValue<QObject*>(contact);
+		case IdRole:
+			return contact->id();
+		case StatusIconNameRole:
+			return contact->status().icon().name();
 		case BuddyRole:
 			return qVariantFromValue<Buddy*>(contact);
 		default:
