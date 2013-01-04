@@ -58,7 +58,7 @@ namespace SimpleContactList {
 class ToryWidgetPrivate
 {
 public:
-	ToryWidgetPrivate() : model("ContactModel") {}
+	ToryWidgetPrivate() : model("ContactModel"), accountsContainer(NULL) {}
 
 	TreeView *view;
 	ServicePointer<QAbstractItemModel> model;
@@ -153,7 +153,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	connect(searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
 	d->mainToolBar->addAction(searchBtn);
 	layout->insertWidget(0, d->searchBar);
-	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(setFilterFixedString(QString)));
 
 	connect(ServiceManager::instance(),
 			SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
@@ -385,7 +385,7 @@ void ToryWidget::onServiceChanged(const QByteArray &name, QObject *now, QObject 
 	Q_UNUSED(old);
 	if (name == "ContactModel") {
 		d->view->setContactModel(d->model);
-		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(filterList(QString)));
+		connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(setFilterFixedString(QString)));
 	} else if (name == "ContactDelegate") {
 		d->view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));
 	}

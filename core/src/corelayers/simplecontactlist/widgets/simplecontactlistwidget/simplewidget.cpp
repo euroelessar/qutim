@@ -119,7 +119,7 @@ SimpleWidget::SimpleWidget() : m_model("ContactModel")
 	m_searchBar = new LineEdit(this);
 	m_searchBar->setVisible(false);
 	layout->addWidget(m_searchBar);
-	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
+	connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(setFilterFixedString(QString)));
 	connect(m_searchBar, SIGNAL(textChanged(QString)), SLOT(onTextChanged(QString)));
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	m_searchBar->setPlaceholderText(tr("Search contact"));
@@ -408,7 +408,7 @@ void SimpleWidget::onServiceChanged(const QByteArray &name, QObject *now, QObjec
 {
 	if (name == "ContactModel") {
 		m_view->setContactModel(m_model);
-		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(filterList(QString)));
+		connect(m_searchBar, SIGNAL(textChanged(QString)), m_model, SLOT(setFilterFixedString(QString)));
 	} else if (name == "ContactDelegate") {
 		m_view->setItemDelegate(sender_cast<QAbstractItemDelegate*>(now));
 	}
