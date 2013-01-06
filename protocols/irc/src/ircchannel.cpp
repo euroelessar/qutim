@@ -262,7 +262,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		setJoined(true);
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
-		connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
+		connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString,QString)));
 		connect(user, SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 		d->users.insert(nick, user);
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
