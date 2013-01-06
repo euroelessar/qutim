@@ -381,8 +381,8 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	endif()
 
 	if(QUTIM_${plugin_name}_CXX11)
-		update_cxx_compiler_flag(${plugin_name} "-std=c++0x" CXX_11)
-		update_cxx_compiler_flag(${plugin_name} "-stdlib=libc++" STD_LIBCXX)
+        qutim_update_cxx_compiler_flag(${plugin_name} "-std=c++0x" CXX_11)
+        qutim_update_cxx_compiler_flag(${plugin_name} "-stdlib=libc++" STD_LIBCXX)
 	endif()
 
 	if( NOT QUTIM_${plugin_name}_DEBUG_ID )
