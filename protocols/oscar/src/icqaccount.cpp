@@ -53,10 +53,7 @@ PasswordValidator::State PasswordValidator::validate(QString &input, int &pos) c
 	Q_UNUSED(pos);
 	if (input.isEmpty())
 		return Intermediate;
-	if (input.size() > 8)
-		return Invalid;
-	else
-		return Acceptable;
+	return Acceptable;
 }
 
 QString IcqAccountPrivate::password()
