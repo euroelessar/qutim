@@ -24,21 +24,38 @@
 ****************************************************************************/
 
 #include "contactlistbasemodel.h"
+#include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/icon.h>
 #include <qutim/event.h>
 
-#include <QtAlgorithms>
 #include <QCoreApplication>
 #include <QStringBuilder>
+#include <QQueue>
+#include <QtAlgorithms>
 #include <QtDebug>
 
 using namespace qutim_sdk_0_3;
 
 ContactListBaseModel::ContactListBaseModel(QObject *parent) :
-	QAbstractItemModel(parent)
+	QAbstractItemModel(parent), NotificationBackend("ContactList")
 {
+	setDescription(QT_TR_NOOP("Blink icon in the contact list"));
+	allowRejectedNotifications("confMessageWithoutUserNick");
+
+	m_showNotificationIcon = false;
+
+	m_mailIcon = Icon(QLatin1String("mail-message-new-qutim"));
+	m_typingIcon = Icon(QLatin1String("im-status-message-edit"));
+	m_chatUserJoinedIcon = Icon(QLatin1String("list-add-user-conference"));
+	m_chatUserLeftIcon = Icon(QLatin1String("list-remove-user-conference"));
+	m_qutimIcon = Icon(QLatin1String("qutim"));
+	m_transferCompletedIcon = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	m_birthdayIcon = Icon(QLatin1String("view-calendar-birthday"));
+	m_defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
+
 	m_realAccountRequestId = Event::registerType("real-account-request");
+	m_realUnitRequestId = Event::registerType("real-chatunit-request");
 }
 
 QModelIndex ContactListBaseModel::index(int row, int column, const QModelIndex &parent) const
@@ -157,6 +174,10 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return name.isEmpty() ? contact->id() : name;
 		}
 		case Qt::DecorationRole:
+			if (m_showNotificationIcon) {
+				if (Notification *notification = m_notificationHash.value(contact).value(0))
+					return findNotificationIcon(notification);
+			}
 			return contact->status().icon();
 		case ItemTypeRole:
 			return ContactType;
@@ -172,6 +193,10 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return qVariantFromValue<QObject*>(contact);
 		case IdRole:
 			return contact->id();
+		case NotificationRole:
+			if (Notification *notification = m_notificationHash.value(contact).value(0))
+				return notification->request().type();
+			return -1;
 		case StatusIconNameRole:
 			return contact->status().icon().name();
 		case BuddyRole:
@@ -181,6 +206,120 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 		}
 	}
 	return QVariant();
+}
+
+void ContactListBaseModel::handleNotification(Notification *notification)
+{
+	Contact *contact = findRealContact(notification);
+	if (!contact || !m_contactHash.contains(contact))
+		return;
+
+	if (!m_notificationTimer.isActive()) {
+		m_showNotificationIcon = true;
+		m_notificationTimer.start(500, this);
+	}
+
+	NotificationList &queue = m_notificationHash[contact];
+	NotificationList::Iterator it = qUpperBound(queue.begin(), queue.end(),
+												notification, Comparator());
+	queue.insert(it, notification);
+	ref(notification);
+
+	connect(notification, SIGNAL(finished(qutim_sdk_0_3::Notification::State)),
+			this, SLOT(onNotificationFinished()));
+
+	if (queue.first() == notification)
+		onContactChanged(contact, true);
+}
+
+void ContactListBaseModel::timerEvent(QTimerEvent *event)
+{
+	if (event->timerId() == m_notificationTimer.timerId()) {
+		m_showNotificationIcon = !m_showNotificationIcon;
+
+		for (NotificationHash::Iterator it = m_notificationHash.begin();
+			 it != m_notificationHash.end();
+			 ++it) {
+			onContactChanged(it.key());
+		}
+		return;
+	}
+	return QAbstractItemModel::timerEvent(event);
+}
+
+void ContactListBaseModel::onNotificationFinished()
+{
+	Notification *notification = qobject_cast<Notification*>(sender());
+	Q_ASSERT(notification);
+
+	Contact *contact = findRealContact(notification);
+	Q_ASSERT(contact);
+	if (!m_contactHash.contains(contact))
+		return;
+
+	NotificationList &queue = m_notificationHash[contact];
+	bool changed = (queue.first() == notification);
+	queue.removeOne(notification);
+
+	if (queue.isEmpty()) {
+		m_notificationHash.remove(contact);
+		if (m_notificationHash.isEmpty()) {
+			m_showNotificationIcon = false;
+			m_notificationTimer.stop();
+		}
+	}
+
+	if (changed)
+		onContactChanged(contact, true);
+}
+
+QIcon ContactListBaseModel::findNotificationIcon(Notification *notification) const
+{
+	const NotificationRequest request = notification->request();
+	switch (request.type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+		return m_mailIcon;
+	case Notification::UserTyping:
+		return m_typingIcon;
+	case Notification::UserOnline:
+	case Notification::UserOffline:
+	case Notification::UserChangedStatus:
+		return request.property("previousStatus", Status(Status::Offline)).icon();
+	case Notification::ChatUserJoined:
+		return m_chatUserJoinedIcon;
+	case Notification::ChatUserLeft:
+		return m_chatUserLeftIcon;
+	case Notification::AppStartup:
+		return m_qutimIcon;
+	case Notification::FileTransferCompleted:
+		return m_transferCompletedIcon;
+	case Notification::UserHasBirthday:
+		return m_birthdayIcon;
+	case Notification::BlockedMessage:
+	case Notification::System:
+	case Notification::Attention:
+		return m_defaultNotificationIcon;
+	}
+	return QIcon();
+}
+
+int ContactListBaseModel::findNotificationPriority(Notification *notification)
+{;
+	const NotificationRequest request = notification->request();
+	switch (request.type()) {
+	case Notification::IncomingMessage:
+	case Notification::OutgoingMessage:
+	case Notification::ChatIncomingMessage:
+	case Notification::ChatOutgoingMessage:
+		return 10;
+	case Notification::UserTyping:
+		return 0;
+	default:
+		return 5;
+	}
 }
 
 QStringList ContactListBaseModel::tags() const
@@ -237,6 +376,10 @@ void ContactListBaseModel::onAccountRemoved(Account *account)
 void ContactListBaseModel::onContactDestroyed(QObject *obj)
 {
 	Contact *contact = static_cast<Contact*>(obj);
+
+	if (m_notificationHash.remove(contact) > 0 && m_notificationHash.isEmpty())
+		m_notificationTimer.stop();
+
 	ContactHash::Iterator it = m_contactHash.find(contact);
 
 	if (it != m_contactHash.end()) {
@@ -270,19 +413,46 @@ void ContactListBaseModel::onContactAdded(Contact *contact)
 
 void ContactListBaseModel::onContactRemoved(Contact *contact)
 {
+	if (m_notificationHash.remove(contact) > 0 && m_notificationHash.isEmpty())
+		m_notificationTimer.stop();
+
 	removeContact(contact);
 
 	disconnectContact(contact);
 }
 
-void ContactListBaseModel::onContactChanged(Contact *contact)
+void ContactListBaseModel::onContactChanged(Contact *contact, bool parentsChanged)
 {
 	ContactHash::Iterator it = m_contactHash.find(contact);
 
+	QSet<BaseNode*> used;
+	QQueue<BaseNode*> queue;
+
 	if (it != m_contactHash.end()) {
-		foreach (ContactNode *node, *it) {
-			QModelIndex index = createIndex(node);
-			dataChanged(index, index);
+		if (parentsChanged) {
+			foreach (ContactNode *node, *it) {
+				QModelIndex index = createIndex(node);
+				dataChanged(index, index);
+			}
+		} else {
+			// Restricted nodes
+			used << NULL << &m_root;
+
+			foreach (ContactNode *node, *it) {
+				used << node;
+				queue.enqueue(node);
+			}
+
+			while (!queue.isEmpty()) {
+				BaseNode *node = queue.dequeue();
+				QModelIndex index = createIndex(node);
+				dataChanged(index, index);
+
+				if (!used.contains(node->parent())) {
+					used << node->parent();
+					queue.enqueue(node->parent());
+				}
+			}
 		}
 	}
 }
@@ -492,6 +662,34 @@ Account *ContactListBaseModel::findRealAccount(Account *account)
 	QCoreApplication::sendEvent(account, &event);
 	Account *realAccount = event.at<Account*>(0);
 	return realAccount ? realAccount : account;
+}
+
+Contact *ContactListBaseModel::findRealContact(Notification *notification)
+{
+	const char *contactProperty = "contactList_realContact";
+	if (Contact *contact = notification->property(contactProperty).value<Contact*>())
+		return contact;
+
+	ChatUnit *unit = qobject_cast<ChatUnit*>(notification->request().object());
+	if (!unit)
+		return 0;
+
+	Event event(m_realUnitRequestId);
+	QCoreApplication::sendEvent(unit, &event);
+
+	Contact *contact = event.at<Contact*>(0);
+	while (unit && !contact) {
+		if ((contact = qobject_cast<Contact*>(unit)))
+			break;
+		unit = unit->upperUnit();
+	}
+
+	// TODO: Add metacontact support
+//	if (Contact *meta = qobject_cast<MetaContact*>(contact ? contact->metaContact() : 0))
+//		contact = meta;
+
+	notification->setProperty(contactProperty, qVariantFromValue(contact));
+	return contact;
 }
 
 void ContactListBaseModel::addTags(const QStringList &tags)

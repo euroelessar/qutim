@@ -228,6 +228,8 @@ bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 		if (!regexp.isEmpty()) {
 			return contact->id().contains(regexp) || contact->name().contains(regexp);
 		} else {
+			if (index.data(NotificationRole).toInt() >= Notification::IncomingMessage)
+				return true;
 			if (!m_filterTags.isEmpty()) {
 				bool hasAny = false;
 				foreach (const QString &tag, contact->tags()) {
@@ -238,7 +240,7 @@ bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 				if (!hasAny)
 					return false;
 			}
-			if (!m_showOffline && !index.data(NotificationRole).toBool()) {
+			if (!m_showOffline) {
 				const Status status = index.data(StatusRole).value<Status>();
 				return status != Status::Offline;
 			}

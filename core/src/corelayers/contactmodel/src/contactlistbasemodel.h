@@ -26,10 +26,12 @@
 #ifndef CONTACTLISTMODELBASE_H
 #define CONTACTLISTMODELBASE_H
 
-#include <QAbstractItemModel>
 #include <qutim/account.h>
 #include <qutim/contact.h>
 #include <qutim/servicemanager.h>
+#include <qutim/notification.h>
+#include <QAbstractItemModel>
+#include <QBasicTimer>
 
 class ContactListFrontModel;
 
@@ -60,7 +62,7 @@ enum ContactListItemType
 	AccountType = 102
 };
 
-class ContactListBaseModel : public QAbstractItemModel
+class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::NotificationBackend
 {
     Q_OBJECT
 	Q_CLASSINFO("Service", "ContactBackendModel")
@@ -79,6 +81,10 @@ public:
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+
+	virtual void timerEvent(QTimerEvent *event);
 
 	QStringList tags() const;
 
@@ -227,10 +233,11 @@ private slots:
 	void onContactDestroyed(QObject *obj);
 	void onContactAdded(qutim_sdk_0_3::Contact *contact);
 	void onContactRemoved(qutim_sdk_0_3::Contact *contact);
-	void onContactChanged(qutim_sdk_0_3::Contact *contact);
+	void onContactChanged(qutim_sdk_0_3::Contact *contact, bool parentsChanged = false);
 	void onContactChanged();
 	void onContactTagsChanged(const QStringList &current, const QStringList &previous);
 	void onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void onNotificationFinished();
 
 	void connectContact(qutim_sdk_0_3::Contact *contact);
 	void disconnectContact(qutim_sdk_0_3::Contact *contact);
@@ -251,6 +258,11 @@ private:
 		{ return first.contact < second; }
 		inline bool operator() (qutim_sdk_0_3::Contact *first, const ContactNode &second) const
 		{ return first < second.contact; }
+		inline bool operator() (qutim_sdk_0_3::Notification *first, qutim_sdk_0_3::Notification *second)
+		{
+			return ContactListBaseModel::findNotificationPriority(first)
+					> ContactListBaseModel::findNotificationPriority(second);
+		}
 	};
 
 	bool findNode(BaseNode *node) const;
@@ -258,6 +270,9 @@ private:
 
 	void findContacts(QSet<qutim_sdk_0_3::Contact*> &contacts, BaseNode *current);
 	qutim_sdk_0_3::Account *findRealAccount(qutim_sdk_0_3::Account *account);
+	qutim_sdk_0_3::Contact *findRealContact(qutim_sdk_0_3::Notification *notification);
+	QIcon findNotificationIcon(qutim_sdk_0_3::Notification *notification) const;
+	static int findNotificationPriority(qutim_sdk_0_3::Notification *notification);
 	void addTags(const QStringList &tags);
 
 	void updateItemCount(qutim_sdk_0_3::Contact *contact, ContactListNode *parent, int online, int total);
@@ -274,15 +289,28 @@ private:
 	{ return node_cast<T*>(extractNode(index)); }
 
 	typedef QHash<qutim_sdk_0_3::Contact*, QList<ContactNode *> > ContactHash;
-	typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Account*> AccountHash;
+	typedef QList<qutim_sdk_0_3::Notification *> NotificationList;
+	typedef QHash<qutim_sdk_0_3::Contact*, NotificationList> NotificationHash;
 	friend class ContactListFrontModel;
 
 	RootNode m_root;
 	ContactHash m_contactHash;
+	NotificationHash m_notificationHash;
 	mutable QStringList m_emptyTags;
 	QStringList m_tags;
-    qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
+	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
+	QIcon m_mailIcon;
+	QIcon m_typingIcon;
+	QIcon m_chatUserJoinedIcon;
+	QIcon m_chatUserLeftIcon;
+	QIcon m_qutimIcon;
+	QIcon m_transferCompletedIcon;
+	QIcon m_birthdayIcon;
+	QIcon m_defaultNotificationIcon;
+	QBasicTimer m_notificationTimer;
 	quint16 m_realAccountRequestId;
+	quint16 m_realUnitRequestId;
+	bool m_showNotificationIcon;
 };
 
 #endif // CONTACTLISTMODELBASE_H
