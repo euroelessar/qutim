@@ -52,6 +52,8 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	roleNames.insert(AvatarRole, "avatar");
 	setRoleNames(roleNames);
 
+	setFilterCaseSensitivity(Qt::CaseInsensitive);
+	setSortCaseSensitivity(Qt::CaseInsensitive);
 	sort(0);
 	setDynamicSortFilter(true);
 	onServiceChanged(m_model.name(), m_model, NULL);
@@ -199,6 +201,8 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 			foreach(Protocol *proto, Protocol::all()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 						newModel, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+				connect(proto, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
+						newModel, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 				foreach(Account *account, proto->accounts())
 					newModel->onAccountCreated(account, !oldModel);
 			}

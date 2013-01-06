@@ -26,8 +26,10 @@
 #include "contactlistbasemodel.h"
 #include <qutim/protocol.h>
 #include <qutim/icon.h>
+#include <qutim/event.h>
 
 #include <QtAlgorithms>
+#include <QCoreApplication>
 #include <QStringBuilder>
 #include <QtDebug>
 
@@ -36,6 +38,7 @@ using namespace qutim_sdk_0_3;
 ContactListBaseModel::ContactListBaseModel(QObject *parent) :
 	QAbstractItemModel(parent)
 {
+	m_realAccountRequestId = Event::registerType("real-account-request");
 }
 
 QModelIndex ContactListBaseModel::index(int row, int column, const QModelIndex &parent) const
@@ -202,9 +205,33 @@ void ContactListBaseModel::removeAccount(Account *account)
 	Q_UNUSED(account);
 }
 
+void ContactListBaseModel::onAccountCreated(Account *account, bool addContacts)
+{
+	addAccount(account);
+
+	if (addContacts) {
+		foreach (Contact *contact, account->findChildren<Contact*>())
+			onContactAdded(contact);
+	}
+
+	connect(account, SIGNAL(destroyed(QObject*)),
+			this, SLOT(onAccountDestroyed(QObject*)));
+	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(onContactAdded(qutim_sdk_0_3::Contact*)));
+}
+
 void ContactListBaseModel::onAccountDestroyed(QObject *obj)
 {
 	removeAccountNode(static_cast<Account*>(obj), &m_root);
+}
+
+void ContactListBaseModel::onAccountRemoved(Account *account)
+{
+	disconnect(account);
+
+	removeAccount(account);
+
+	removeAccountNode(account, &m_root);
 }
 
 void ContactListBaseModel::onContactDestroyed(QObject *obj)
@@ -297,23 +324,10 @@ void ContactListBaseModel::onStatusChanged(const Status &current, const Status &
 	}
 }
 
-void ContactListBaseModel::onAccountCreated(Account *account, bool addContacts)
-{
-	addAccount(account);
-
-	if (addContacts) {
-		foreach (Contact *contact, account->findChildren<Contact*>())
-			onContactAdded(contact);
-	}
-
-	connect(account, SIGNAL(destroyed(QObject*)),
-			this, SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(onContactAdded(qutim_sdk_0_3::Contact*)));
-}
-
 ContactListBaseModel::AccountNode *ContactListBaseModel::ensureAccount(Account *account, ContactListBaseModel::AccountListNode *parent)
 {
+	account = findRealAccount(account);
+
 	QModelIndex index = createIndex(parent);
 
 	for (int i = 0; i < parent->accounts.size(); ++i) {
@@ -470,6 +484,14 @@ void ContactListBaseModel::findContacts(QSet<Contact *> &contacts, ContactListBa
 		for (int i = 0; i < list->accounts.size(); ++i)
 			findContacts(contacts, &list->accounts[i]);
 	}
+}
+
+Account *ContactListBaseModel::findRealAccount(Account *account)
+{
+	Event event(m_realAccountRequestId);
+	QCoreApplication::sendEvent(account, &event);
+	Account *realAccount = event.at<Account*>(0);
+	return realAccount ? realAccount : account;
 }
 
 void ContactListBaseModel::addTags(const QStringList &tags)
