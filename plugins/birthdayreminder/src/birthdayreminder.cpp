@@ -255,8 +255,8 @@ void BirthdayReminder::checkContactBirthday(Contact *contact, const QDate &birth
 {
 	if (!birthday.isValid())
 		return;
-	
-	QDate nextBirthday(current.year(), birthday.month(), birthday.day());
+
+	QDate nextBirthday = birthday.addYears(current.year() - birthday.year());
 	if (nextBirthday < current)
 		nextBirthday = nextBirthday.addYears(1);
 	int daysToBirthday = current.daysTo(nextBirthday);
