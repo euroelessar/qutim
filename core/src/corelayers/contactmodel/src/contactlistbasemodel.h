@@ -221,7 +221,9 @@ signals:
 	void tagsChanged(const QStringList &tags);
 
 private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account, bool addContacts = true);
 	void onAccountDestroyed(QObject *obj);
+	void onAccountRemoved(qutim_sdk_0_3::Account *account);
 	void onContactDestroyed(QObject *obj);
 	void onContactAdded(qutim_sdk_0_3::Contact *contact);
 	void onContactRemoved(qutim_sdk_0_3::Contact *contact);
@@ -229,7 +231,6 @@ private slots:
 	void onContactChanged();
 	void onContactTagsChanged(const QStringList &current, const QStringList &previous);
 	void onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
-	void onAccountCreated(qutim_sdk_0_3::Account *account, bool addContacts = true);
 
 	void connectContact(qutim_sdk_0_3::Contact *contact);
 	void disconnectContact(qutim_sdk_0_3::Contact *contact);
@@ -256,6 +257,7 @@ private:
 	bool findNode(BaseNode *node, BaseNode *current) const;
 
 	void findContacts(QSet<qutim_sdk_0_3::Contact*> &contacts, BaseNode *current);
+	qutim_sdk_0_3::Account *findRealAccount(qutim_sdk_0_3::Account *account);
 	void addTags(const QStringList &tags);
 
 	void updateItemCount(qutim_sdk_0_3::Contact *contact, ContactListNode *parent, int online, int total);
@@ -272,6 +274,7 @@ private:
 	{ return node_cast<T*>(extractNode(index)); }
 
 	typedef QHash<qutim_sdk_0_3::Contact*, QList<ContactNode *> > ContactHash;
+	typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Account*> AccountHash;
 	friend class ContactListFrontModel;
 
 	RootNode m_root;
@@ -279,6 +282,7 @@ private:
 	mutable QStringList m_emptyTags;
 	QStringList m_tags;
     qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
+	quint16 m_realAccountRequestId;
 };
 
 #endif // CONTACTLISTMODELBASE_H
