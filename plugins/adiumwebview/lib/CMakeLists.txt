@@ -25,7 +25,6 @@ qutim_target_link_libraries(qutim-adiumwebview
 	${QUTIM_LIBRARY}
     )
 
-
 set_target_properties(qutim-adiumwebview PROPERTIES
     VERSION ${CMAKE_ADIUMWEBVIEW_VERSION_STRING}
     SOVERSION ${CMAKE_ADIUMWEBVIEW_VERSION_MAJOR}
@@ -41,3 +40,10 @@ install( TARGETS qutim-adiumwebview
 		COMPONENT CoreDevel
 	BUNDLE DESTINATION library
 )
+
+
+install(FILES ${HDR}
+	DESTINATION include/qutim/adiumwebview
+	COMPONENT CoreDevel
+)
+qutim_generate_includes("qutim/adiumwebview" ${HDR})

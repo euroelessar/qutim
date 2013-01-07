@@ -60,21 +60,22 @@ ChatSpellChecker::ChatSpellChecker() : m_chatForm("ChatForm")
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
-	        SLOT(onServiceChanged(QByteArray)));
+			SLOT(onServiceChanged(QByteArray)));
 }
 
 void ChatSpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	Q_ASSERT(session);
 	QTextDocument *inputField = session->getInputField();
-	Q_ASSERT(inputField);
-	SpellHighlighter *highlighter = new SpellHighlighter(inputField);
-	if (m_chatForm) {
-		connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
-		// We use m_highlighter only in onAddToDictionaryTriggered
-		// which run only when ChatForm service is enabled (i.e., m_chatForm != 0).
-		m_highlighters.insert(inputField, highlighter);
-		connect(inputField, SIGNAL(destroyed(QObject*)), SLOT(onInputFieldDestroyed(QObject*)));
+	if (inputField) {
+		SpellHighlighter *highlighter = new SpellHighlighter(inputField);
+		if (m_chatForm) {
+			connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
+			// We use m_highlighter only in onAddToDictionaryTriggered
+			// which run only when ChatForm service is enabled (i.e., m_chatForm != 0).
+			m_highlighters.insert(inputField, highlighter);
+			connect(inputField, SIGNAL(destroyed(QObject*)), SLOT(onInputFieldDestroyed(QObject*)));
+		}
 	}
 }
 
@@ -93,7 +94,7 @@ void ChatSpellChecker::onSessionActivated(bool activated)
 										Q_ARG(qutim_sdk_0_3::ChatSession *, session));
 	QWidget *textEdit = qobject_cast<QWidget*>(tmp);
 	if (!qobject_cast<QPlainTextEdit*>(textEdit) &&
-		!qobject_cast<QTextEdit*>(textEdit)) {
+			!qobject_cast<QTextEdit*>(textEdit)) {
 		return;
 	}
 
@@ -101,7 +102,7 @@ void ChatSpellChecker::onSessionActivated(bool activated)
 	if (activated) {
 		connect(textEdit, SIGNAL(customContextMenuRequested(QPoint)),
 				this, SLOT(onTextEditContextMenuRequested(QPoint)),
-		        Qt::UniqueConnection);
+				Qt::UniqueConnection);
 	} else {
 		textEdit->setContextMenuPolicy(Qt::DefaultContextMenu);
 		disconnect(textEdit, SIGNAL(customContextMenuRequested(QPoint)),
@@ -147,7 +148,7 @@ void ChatSpellChecker::onTextEditContextMenuRequested(const QPoint &pos)
 				m_word = blockText.mid(m_wordBegin, m_wordEnd - m_wordBegin);
 			}
 		}
-	
+
 		if (!m_word.isEmpty() && !m_speller->isCorrect(m_word)) {
 			QAction *before = !menu->actions().isEmpty() ? menu->actions().first() : 0;
 			Q_ASSERT(m_speller);
