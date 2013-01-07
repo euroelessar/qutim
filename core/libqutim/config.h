@@ -281,14 +281,14 @@ Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const char (&value)[
 }
 
 // Config() is synonym for Config("profile"), so redefine construct method for it
-//template <>
-//Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<qutim_sdk_0_3::Config>(const qutim_sdk_0_3::Config *t)
-//{
-//if (!t) {
-//    return new qutim_sdk_0_3::Config(QVariantMap());
-//}
-//return new qutim_sdk_0_3::Config(*t);
-//}
+template <>
+Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<qutim_sdk_0_3::Config>(const qutim_sdk_0_3::Config *t)
+{
+if (!t) {
+    return new qutim_sdk_0_3::Config(QVariantMap());
+}
+return new qutim_sdk_0_3::Config(*t);
+}
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Config)
 
