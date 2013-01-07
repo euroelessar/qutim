@@ -68,6 +68,7 @@ class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::No
 	Q_CLASSINFO("Service", "ContactBackendModel")
 	Q_CLASSINFO("RuntimeSwitch", "yes")
 	Q_CLASSINFO("Uses", "ContactComparator")
+	Q_CLASSINFO("Uses", "MetaContactManager")
 	Q_CLASSINFO("SettingsDescription", "Blank model")
 	Q_PROPERTY(QStringList tags READ tags NOTIFY tagsChanged)
 public:
@@ -96,7 +97,11 @@ public:
 	virtual void addContact(qutim_sdk_0_3::Contact *contact) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Contact *contact) = 0;
 
+private:
+	class Comparator;
+
 protected:
+	class ContactNode;
 	class AccountNode;
 	class ContactListNode;
 	class TagListNode;
@@ -112,6 +117,26 @@ protected:
 		TagNodeType             = 0x20 | ContactListNodeType,
 		AccountNodeType         = 0x40 | TagListNodeType,
 		RootNodeType            = 0x80 | AccountListNodeType
+	};
+
+	template <typename T>
+	class Pointer
+	{
+	public:
+		explicit Pointer(T *data) : m_guard(data), m_data(data) {}
+
+		T *data() const { Q_ASSERT(m_guard); return m_guard.data(); }
+		bool operator! () const { return !m_guard; }
+		bool operator== (T *other) const { return m_data == other; }
+		bool operator!= (T *other) const { return m_data != other; }
+
+	private:
+		friend class Comparator;
+		friend class AccountNode;
+		friend class ContactNode;
+
+		QWeakPointer<T> m_guard;
+		T *m_data;
 	};
 
     class BaseNode
@@ -136,10 +161,10 @@ protected:
 			: BaseNode(ContactNodeType, &parent), contact(contact) {}
 
 		inline ContactListNode *parent() const { return static_cast<ContactListNode*>(BaseNode::parent()); }
-		inline bool operator  <(const ContactNode &other) const { return contact  < other.contact; }
-		inline bool operator ==(const ContactNode &other) const { return contact == other.contact; }
+		inline bool operator  <(const ContactNode &other) const { return contact.m_data  < other.contact.m_data; }
+		inline bool operator ==(const ContactNode &other) const { return contact.m_data == other.contact.m_data; }
 
-		qutim_sdk_0_3::Contact *contact;
+		Pointer<qutim_sdk_0_3::Contact> contact;
 	};
 
 	class ContactListNode : public BaseNode
@@ -189,10 +214,10 @@ protected:
 
 		inline AccountListNode *parent() const { return static_cast<AccountListNode*>(BaseNode::parent()); }
 
-		inline bool operator  <(const AccountNode &other) const { return account  < other.account; }
-		inline bool operator ==(const AccountNode &other) const { return account == other.account; }
+		inline bool operator  <(const AccountNode &other) const { return account.m_data  < other.account.m_data; }
+		inline bool operator ==(const AccountNode &other) const { return account.m_data == other.account.m_data; }
 
-		qutim_sdk_0_3::Account *account;
+		Pointer<qutim_sdk_0_3::Account> account;
 	};
 
 	class AccountListNode : public TagListNode
@@ -247,17 +272,17 @@ private:
 	{
 	public:
 		inline bool operator() (const AccountNode &first, qutim_sdk_0_3::Account *second) const
-		{ return first.account < second; }
+		{ return first.account.m_data < second; }
 		inline bool operator() (qutim_sdk_0_3::Account *first, const AccountNode &second) const
-		{ return first < second.account; }
+		{ return first < second.account.m_data; }
 		inline bool operator() (const TagNode &first, const QString &second) const
 		{ return first.name < second; }
 		inline bool operator() (const QString &first, const TagNode &second) const
 		{ return first < second.name; }
 		inline bool operator() (const ContactNode &first, qutim_sdk_0_3::Contact *second) const
-		{ return first.contact < second; }
+		{ return first.contact.m_data < second; }
 		inline bool operator() (qutim_sdk_0_3::Contact *first, const ContactNode &second) const
-		{ return first < second.contact; }
+		{ return first < second.contact.m_data; }
 		inline bool operator() (qutim_sdk_0_3::Notification *first, qutim_sdk_0_3::Notification *second)
 		{
 			return ContactListBaseModel::findNotificationPriority(first)

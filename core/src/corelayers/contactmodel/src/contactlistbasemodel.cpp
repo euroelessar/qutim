@@ -126,7 +126,9 @@ bool ContactListBaseModel::hasChildren(const QModelIndex &parent) const
 QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 {
 	if (AccountNode *node = extractNode<AccountNode>(index)) {
-		Account *account = node->account;
+		if (!node->account)
+			return QVariant();
+		Account *account = node->account.data();
 		switch (role) {
 		case Qt::DisplayRole:
 			return QString(account->name()
@@ -166,7 +168,9 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 	} else if (ContactNode *node = extractNode<ContactNode>(index)) {
-		Contact *contact = node->contact;
+		if (!node->contact)
+			return QVariant();
+		Contact *contact = node->contact.data();
 		switch (role) {
 		case Qt::EditRole:
 		case Qt::DisplayRole: {
@@ -349,8 +353,16 @@ void ContactListBaseModel::onAccountCreated(Account *account, bool addContacts)
 	addAccount(account);
 
 	if (addContacts) {
-		foreach (Contact *contact, account->findChildren<Contact*>())
-			onContactAdded(contact);
+		foreach (Contact *contact, account->findChildren<Contact*>()) {
+			if (!contact->metaContact())
+				onContactAdded(contact);
+			if (MetaContact *metaContact = qobject_cast<MetaContact*>(contact)) {
+				foreach (ChatUnit *unit, metaContact->lowerUnits()) {
+					if (Contact *subContact = qobject_cast<Contact*>(unit))
+						onContactRemoved(subContact);
+				}
+			}
+		}
 	}
 
 	connect(account, SIGNAL(destroyed(QObject*)),
@@ -367,6 +379,14 @@ void ContactListBaseModel::onAccountDestroyed(QObject *obj)
 void ContactListBaseModel::onAccountRemoved(Account *account)
 {
 	disconnect(account);
+
+	// TODO: Check if it works
+	foreach (MetaContact *metaContact, account->findChildren<MetaContact*>()) {
+		foreach (ChatUnit *unit, metaContact->lowerUnits()) {
+			if (Contact *contact = qobject_cast<Contact*>(unit))
+				onContactAdded(contact);
+		}
+	}
 
 	removeAccount(account);
 
@@ -644,7 +664,7 @@ void ContactListBaseModel::findContacts(QSet<Contact *> &contacts, ContactListBa
 {
 	if (ContactListNode *list = node_cast<ContactListNode*>(current)) {
 		for (int i = 0; i < list->contacts.size(); ++i)
-			contacts.insert(list->contacts[i].contact);
+			contacts.insert(list->contacts[i].contact.data());
 	}
 	if (TagListNode *list = node_cast<TagListNode*>(current)) {
 		for (int i = 0; i < list->tags.size(); ++i)
@@ -684,9 +704,8 @@ Contact *ContactListBaseModel::findRealContact(Notification *notification)
 		unit = unit->upperUnit();
 	}
 
-	// TODO: Add metacontact support
-//	if (Contact *meta = qobject_cast<MetaContact*>(contact ? contact->metaContact() : 0))
-//		contact = meta;
+	if (Contact *meta = qobject_cast<MetaContact*>(contact ? contact->metaContact() : 0))
+		contact = meta;
 
 	notification->setProperty(contactProperty, qVariantFromValue(contact));
 	return contact;
@@ -754,7 +773,7 @@ void ContactListBaseModel::clearContacts(ContactListBaseModel::BaseNode *current
 {
 	if (ContactListNode *list = node_cast<ContactListNode*>(current)) {
 		for (int i = 0; i < list->contacts.size(); ++i)
-			m_contactHash.remove(list->contacts[i].contact);
+			m_contactHash.remove(list->contacts[i].contact.data());
 	}
 	if (TagListNode *list = node_cast<TagListNode*>(current)) {
 		for (int i = 0; i < list->tags.size(); ++i)

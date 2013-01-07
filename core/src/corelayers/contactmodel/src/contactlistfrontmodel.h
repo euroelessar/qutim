@@ -29,6 +29,7 @@
 #include "contactlistbasemodel.h"
 #include <qutim/contact.h>
 #include <qutim/servicemanager.h>
+#include <qutim/metacontactmanager.h>
 #include <QSortFilterProxyModel>
 
 class ContactListFrontModel : public QSortFilterProxyModel
@@ -38,6 +39,7 @@ class ContactListFrontModel : public QSortFilterProxyModel
 	Q_CLASSINFO("RuntimeSwitch", "yes")
 	Q_CLASSINFO("Uses", "ContactComparator")
 	Q_CLASSINFO("Uses", "ContactBackendModel")
+	Q_CLASSINFO("Uses", "MetaContactManager")
 	Q_PROPERTY(bool showOffline READ offlineVisibility WRITE setOfflineVisibility NOTIFY offlineVisibilityChanged)
 	Q_PROPERTY(QStringList tags READ tags NOTIFY tagsChanged)
 	Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
@@ -55,6 +57,7 @@ public:
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 							  int row, int column, const QModelIndex &parent);
 	virtual Qt::DropActions supportedDropActions() const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 public slots:
 	void setFilterTags(const QStringList &filterTags);
@@ -79,6 +82,7 @@ protected:
 	bool m_showOffline;
 	QStringList m_filterTags;
 	qutim_sdk_0_3::ServicePointer<ContactListBaseModel> m_model;
+	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MetaContactManager> m_metaManager;
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
 };
 

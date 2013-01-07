@@ -36,6 +36,7 @@
 #include <QApplication>
 #include <qutim/systemintegration.h>
 #include <qutim/servicemanager.h>
+#include <qutim/account.h>
 #include <QTimer>
 
 namespace Core
@@ -107,18 +108,22 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 	ContactItemType type = static_cast<ContactItemType>(index.data(ItemTypeRole).toInt());
 	if (type == ContactType) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
-		debug() << buddy->id();
 		buddy->showMenu(event->globalPos());
+	} else if (type == AccountType) {
+		Account *account = index.data(AccountRole).value<Account*>();
+		account->showMenu(event->globalPos());
 	}
 }
 
 void TreeView::startDrag(Qt::DropActions supportedActions)
 {
 	QModelIndex index = selectedIndexes().value(0);
+
 	if (!index.isValid())
 		return;
 
 	QMimeData *data = model()->mimeData(QModelIndexList() << index);
+
 	if (!data)
 		return;
 	QRect rect;
