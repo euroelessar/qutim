@@ -32,7 +32,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMultiMap>
-#include <QWeakPointer>
+#include <QPointer>
 #include "debug.h"
 
 class QLineEdit;
@@ -42,7 +42,7 @@ struct ConnectInfo
 {
 	ConnectInfo(const char *s, QObject *r, const char *m) : signal(s), receiver(r), member(m) {}
 	QByteArray signal;
-	QWeakPointer<QObject> receiver;
+    QPointer<QObject> receiver;
 	QByteArray member;
 };
 
@@ -54,7 +54,7 @@ public:
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-	mutable QWeakPointer<QObject> object;
+    mutable QPointer<QObject> object;
 	QList<ConnectInfo> connections;
 	int order;
 	int priority;
@@ -119,7 +119,7 @@ protected:
 	}
 private:
 	AutoSettingsItemPrivate *p;
-	mutable QWeakPointer<QObject> m_object;
+    mutable QPointer<QObject> m_object;
 };
 
 class AutoSettingsFileChooser;

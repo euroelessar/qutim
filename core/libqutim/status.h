@@ -91,8 +91,7 @@ public:
 
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
-	T property(const char *name, const T &def) const
-	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }
+    T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 
 	void initIcon(const QString &protocol = QString());
@@ -111,6 +110,13 @@ public:
 private:
 	QSharedDataPointer<StatusPrivate> d;
 };
+
+template<typename T>
+T Status::property(const char *name, const T &def) const
+{
+    QVariant var = property(name, QVariant::fromValue<T>(def));
+    return var.value<T>();
+}
 
 /**
    The ExtendedInfosEvent class is used to request supported extended status infos

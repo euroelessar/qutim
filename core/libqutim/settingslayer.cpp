@@ -25,7 +25,7 @@
 
 #include "settingslayer_p.h"
 #include "objectgenerator.h"
-#include <QtGui/QApplication>
+#include <QCoreApplication>
 #include "settingswidget.h"
 #include "dataforms.h"
 #include <QVariant>

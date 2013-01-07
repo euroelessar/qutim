@@ -27,7 +27,8 @@
 #define OBJECTGENERATOR_H
 
 #include "libqutim_global.h"
-#include <QWeakPointer>
+#include <QPointer>
+#include <QSharedDataPointer>
 
 namespace qutim_sdk_0_3
 {
@@ -323,7 +324,7 @@ protected:
 	/**
 	* @brief Pointer to instance of object
 	*/
-	mutable QWeakPointer<QObject> m_object;
+	mutable QPointer<QObject> m_object;
 };
 }
 

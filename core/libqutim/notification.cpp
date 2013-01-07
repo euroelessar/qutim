@@ -73,7 +73,7 @@ public:
 	NotificationRequestPrivate(const NotificationRequestPrivate& o) :
 		DynamicPropertyData(o), object(o.object), pixmap(o.pixmap), text(o.text),
 		title(o.title), type(o.type), actions(o.actions) {}
-	QWeakPointer<QObject> object;
+    QPointer<QObject> object;
 	QPixmap pixmap;
 	QString text;
 	QString title;
@@ -91,9 +91,9 @@ public:
 	{}
 	QIcon icon;
 	LocalizedString title;
-    QWeakPointer<QObject> receiver;
+    QPointer<QObject> receiver;
 	QByteArray method;
-    QWeakPointer<Notification> notification;
+    QPointer<Notification> notification;
 	NotificationAction::Type type;
 };
 

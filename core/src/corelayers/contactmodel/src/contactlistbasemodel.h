@@ -135,7 +135,7 @@ protected:
 		friend class AccountNode;
 		friend class ContactNode;
 
-		QWeakPointer<T> m_guard;
+		QPointer<T> m_guard;
 		T *m_data;
 	};
 

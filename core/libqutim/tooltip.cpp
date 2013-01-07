@@ -30,7 +30,7 @@
 #include "account.h"
 #include "protocol.h"
 #include "iconloader.h"
-#include <QWeakPointer>
+#include <QPointer>
 #include <QCoreApplication>
 #include <QAbstractItemView>
 #include <QHelpEvent>
@@ -152,7 +152,7 @@ namespace qutim_sdk_0_3
 	struct ToolTipManagerData
 	{
 		ToolTipManagerData() : isInited(false) {}
-		QWeakPointer<ToolTip> self;
+		QPointer<ToolTip> self;
 		bool isInited;
 	};
 

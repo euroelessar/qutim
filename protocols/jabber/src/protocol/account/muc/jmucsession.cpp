@@ -69,10 +69,10 @@ public:
 	JMUCUser *getUser(const QString &nick);
 	bool containsUser(const QString &nick);
 	
-	QWeakPointer<JAccount> account;
+	QPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
-	QWeakPointer<QWidget> captchaForm;
+	QPointer<QWidget> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
@@ -80,7 +80,7 @@ public:
 	QHash<QString, JMUCUser *> users;
 	bool isAutoRejoin;
 	Jreen::Bookmark::Conference bookmark;
-	QWeakPointer<JConferenceConfig> config;
+	QPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
 	QDateTime lastMessage;

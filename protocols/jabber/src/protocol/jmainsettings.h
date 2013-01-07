@@ -29,7 +29,7 @@
 
 #include <qutim/settingswidget.h>
 #include <qutim/configbase.h>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QtCrypto>
 
 namespace Ui
@@ -62,7 +62,7 @@ private slots:
 private:
 	Ui::JMainSettings *ui;
 	QCA::KeyStoreEntry m_keyEntry;
-	QWeakPointer<JAccount> m_account;
+	QPointer<JAccount> m_account;
 };
 }
 

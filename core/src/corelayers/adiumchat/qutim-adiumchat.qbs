@@ -7,6 +7,8 @@ Framework {
     Depends { name: "cpp" }
     Depends { name: "libqutim" }
     Depends { name: "qt"; submodules: [ "core", "gui" ] }
+    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
+
     cpp.defines: "ADIUMCHAT_LIBRARY"
     cpp.visibility: 'hidden'
 

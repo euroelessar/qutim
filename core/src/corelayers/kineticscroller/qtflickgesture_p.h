@@ -60,12 +60,12 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
 
 private:
-	QWeakPointer<QObject> receiver;
+	QPointer<QObject> receiver;
     QtScroller *receiverScroller;
     Qt::MouseButton button; // NoButton == Touch
     bool macIgnoreWheel;
     // QWidget::mapFromGlobal is very expensive on X11, so we cache the global position of the widget
-	QWeakPointer<QWidget> receiverWindow;
+	QPointer<QWidget> receiverWindow;
     QPoint receiverWindowPos;
 
     static PressDelayHandler *pressDelayHandler;

@@ -41,8 +41,8 @@ public:
 	inline IrcProtocolPrivate() { }
 	inline ~IrcProtocolPrivate() { }
 	static QString getColorByMircCode(const QString &code);
-	QHash<QString, QWeakPointer<IrcAccount> > accounts_hash;
-	QWeakPointer<ChatSession> activeSession;
+	QHash<QString, QPointer<IrcAccount> > accounts_hash;
+    QWeakPointer<ChatSession> activeSession;
 	ActionGenerator *autojoinAction;
 	static bool enableColoring;
 	static QMultiHash<QString, IrcCommandAlias*> aliases;

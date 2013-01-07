@@ -40,7 +40,7 @@ public:
 public slots:
 	void createWidget();
 private:
-	QWeakPointer<QWidget> m_widget;
+	QPointer<QWidget> m_widget;
 };
 
 #endif

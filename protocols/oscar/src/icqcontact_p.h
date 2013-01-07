@@ -37,7 +37,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-inline uint qHash(const QWeakPointer<IcqContact> &ptr)
+inline uint qHash(const QPointer<IcqContact> &ptr)
 { return qHash(ptr.data()); }
 
 enum SsiBuddyTlvs
@@ -67,7 +67,7 @@ private slots:
 	void sendState();
 private:
 	void sendState(IcqContact *contact, ChatState state);
-	QHash<QWeakPointer<IcqContact>, ChatState> m_states;
+	QHash<QPointer<IcqContact>, ChatState> m_states;
 	QTimer m_timer;
 };
 

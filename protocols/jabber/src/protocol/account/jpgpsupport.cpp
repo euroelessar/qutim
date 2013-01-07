@@ -197,7 +197,7 @@ class VerifyReply : public QCA::SecureMessage
 public:
 	VerifyReply(QCA::SecureMessageSystem *system);
 
-	QWeakPointer<JContactResource> resource;
+	QPointer<JContactResource> resource;
 };
 
 VerifyReply::VerifyReply(QCA::SecureMessageSystem *system) : QCA::SecureMessage(system)
@@ -450,8 +450,8 @@ public:
 	DecryptReply(const Jreen::Message &m, QCA::SecureMessageSystem *system);
 	
 	JPGPDecryptReply *reply;
-	QWeakPointer<ChatUnit> unit;
-	QWeakPointer<ChatUnit> unitForSession;
+	QPointer<ChatUnit> unit;
+	QPointer<ChatUnit> unitForSession;
 	Jreen::Message message;
 };
 

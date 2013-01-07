@@ -68,7 +68,7 @@ struct XSettingsWindowPrivate
 	QMap<Settings::Type,SettingsItem*> items;
 	QList<SettingsWidget*> modifiedWidgets;
 	QMap<Settings::Type,QAction*> actionMap;
-	QMap<QPair<int, QString>, QWeakPointer<XSettingsWidget> > widgetsCache;
+	QMap<QPair<int, QString>, QPointer<XSettingsWidget> > widgetsCache;
 	QAction *currentAction;
 	QWidget *parent;
 };
@@ -170,7 +170,7 @@ void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet())) {
 		QPair<int, QString> id = qMakePair(item->priority(), item->text().toString());
-		QWeakPointer<XSettingsWidget> widget = p->widgetsCache.value(id);
+		QPointer<XSettingsWidget> widget = p->widgetsCache.value(id);
 		if (widget && widget.data()->removeItem(item)) {
 			p->widgetsCache.remove(id);
 			delete widget.data();
@@ -286,7 +286,7 @@ void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
 	XSettingsItemInfo info = item->data(Qt::UserRole).value<XSettingsItemInfo>();
 	if (info.items.isEmpty())
 		return;
-	QWeakPointer<XSettingsWidget> &widget = p->widgetsCache[qMakePair(info.priority, info.text)];
+	QPointer<XSettingsWidget> &widget = p->widgetsCache[qMakePair(info.priority, info.text)];
 	if (!widget)
 		widget = new XSettingsWidget(p->stackedWidget);
 	if (p->stackedWidget->indexOf(widget.data()) == -1) {

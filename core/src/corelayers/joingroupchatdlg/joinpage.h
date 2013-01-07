@@ -27,7 +27,7 @@
 #define JOINPAGE_H
 
 #include <QScrollArea>
-#include <QWeakPointer>
+#include <QPointer>
 #include "groupchatpage.h"
 #include <qutim/dataforms.h>
 
@@ -49,7 +49,7 @@ protected:
 signals:
 	void joined();
 private:
-	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
 	QAction *m_joinAction;
 };
 

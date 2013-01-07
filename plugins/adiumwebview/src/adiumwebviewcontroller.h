@@ -32,7 +32,7 @@
 #include <QWebPage>
 #include <QWebElement>
 #include <QVariant>
-#include <QWeakPointer>
+#include <QPointer>
 
 class QDeclarativeEngine;
 class QDeclarativeItem;
@@ -54,7 +54,7 @@ private slots:
 	void onPageDestroyed();
 	
 private:
-	QList<QWeakPointer<QWebPage> > m_pages;
+	QList<QPointer<QWebPage> > m_pages;
 	QStringList m_htmls;
 };
 
@@ -102,7 +102,7 @@ private slots:
 	void onLinkClicked(const QUrl &url);
 	
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QPointer<qutim_sdk_0_3::ChatSession> m_session;
 	QString m_styleName;
 	WebKitMessageViewStyle m_style;
 	bool m_isLoading;

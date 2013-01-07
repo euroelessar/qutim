@@ -34,7 +34,7 @@
 #include <QSignalMapper>
 #include <QMetaObject>
 #include <QMetaProperty>
-#include <QWeakPointer>
+#include <QPointer>
 #include <algorithm>
 
 namespace qutim_sdk_0_3
@@ -86,7 +86,7 @@ static AbstractWidgetInfo * widget_infos[] = {
 
 struct WidgetInfo
 {
-	QWeakPointer<QWidget> obj;
+	QPointer<QWidget> obj;
 	const char *property;
 	QVariant value;
 	bool is_changed;

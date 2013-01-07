@@ -72,7 +72,7 @@ private:
 	QMap<qutim_sdk_0_3::Account*, qutim_sdk_0_3::ActionGenerator*> m_actions;
 	QList<KdeIntegration::ProtocolSeparatorActionGenerator*> m_protocolActions;
 	QList<qutim_sdk_0_3::Account*> m_accounts;
-	QWeakPointer<qutim_sdk_0_3::Account> m_activeAccount;
+	QPointer<qutim_sdk_0_3::Account> m_activeAccount;
 	QList<qutim_sdk_0_3::Protocol*> m_protocols;
 	QList<qutim_sdk_0_3::Notification*> m_notifications;
 	qutim_sdk_0_3::Icon m_currentIcon;

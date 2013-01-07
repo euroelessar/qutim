@@ -63,13 +63,20 @@ public:
 	quint64 id() const;
 	QVariant property(const char *name, const QVariant &def = QVariant()) const;
 	template<typename T>
-	T property(const char *name, const T &def) const
-	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }
+    T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 	QList<QByteArray> dynamicPropertyNames() const;
 private:
 	QSharedDataPointer<MessagePrivate> p;
 };
+
+template<typename T>
+T Message::property(const char *name, const T &def) const
+{
+    QVariant var = property(name, QVariant::fromValue<T>(def));
+    return var.value<T>();
+}
+
 
 class LIBQUTIM_EXPORT MessageReceiptEvent : public QEvent
 {

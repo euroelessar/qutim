@@ -48,9 +48,9 @@ protected slots:
 private:
 	struct NotificationData
 	{
-		QWeakPointer<QObject> sender;
+		QPointer<QObject> sender;
 		QString body;
-		QList<QWeakPointer<qutim_sdk_0_3::Notification> > notifications;
+		QList<QPointer<qutim_sdk_0_3::Notification> > notifications;
 		QMultiHash<QString, qutim_sdk_0_3::NotificationAction> actions;
 	};
 	void ignore(NotificationData &data);

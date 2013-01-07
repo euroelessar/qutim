@@ -311,7 +311,7 @@ void VInfoRequest::ensureAddress(DataType type)
 		m_data.insert(field, *obj);
 	} else {
 		QVariantMap data;
-		data.insert(QLatin1String("cids"), QString::number(id));
+        data.insert(QLatin1String("country"), QString::number(id));
 		FuncPointerHelper *helper = new FuncPointerHelper;
 		helper->mapper = mapper;
 		Vreen::Reply *reply = m_client->request(method, data);

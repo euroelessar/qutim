@@ -62,9 +62,9 @@ namespace EnumDetectorHelper
 	{
 	public:
 		static QVariant convertToVariant(const T &t)
-		{ return qVariantFromValue(t); }
+        { return QVariant::fromValue(t); }
 		static T convertFromVariant(const QVariant &t)
-		{ return qVariantValue<T>(t); }
+        { return t.value<T>(); }
 	};
 
 	template <typename T>
@@ -72,7 +72,7 @@ namespace EnumDetectorHelper
 	{
 	public:
 		static QVariant convertToVariant(const T &t)
-		{ return qVariantFromValue(int(t)); }
+        { return QVariant::fromValue(int(t)); }
 		static T convertFromVariant(const QVariant &v)
 		{ return static_cast<T>(v.toInt()); }
 	};
@@ -191,7 +191,7 @@ private:
 template <typename T>
 void configSaveHelper(QVariant &var, const T *t)
 {
-	var = qVariantFromValue(t);
+    var = QVariant::fromValue(t);
 }
 
 template <typename T>
@@ -285,7 +285,7 @@ template <>
 Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<qutim_sdk_0_3::Config>(const qutim_sdk_0_3::Config *t)
 {
 if (!t) {
-	return new qutim_sdk_0_3::Config(QVariantMap());
+    return new qutim_sdk_0_3::Config(QVariantMap());
 }
 return new qutim_sdk_0_3::Config(*t);
 }

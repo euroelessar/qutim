@@ -36,7 +36,7 @@
 #include <qutim/icon.h>
 #include <qutim/systeminfo.h>
 #include <QStringList>
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace qutim_sdk_0_3 {
 
@@ -118,7 +118,7 @@ QList<Account *> IcqProtocol::accounts() const
 {
 	Q_D(const IcqProtocol);
 	QList<Account *> accounts;
-	QHash<QString, QWeakPointer<IcqAccount> >::const_iterator it;
+	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
 	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
 		accounts.append(it.value().data());
 	return accounts;
@@ -157,7 +157,7 @@ void IcqProtocol::updateSettings()
 	QString codecName = cfg.value("codec", localeCodecName);
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	Util::setAsciiCodec(codec ? codec : QTextCodec::codecForLocale());
-	foreach (QWeakPointer<IcqAccount> acc, *d->accounts_hash)
+	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
 		acc.data()->updateSettings();
 	emit settingsUpdated();
 }

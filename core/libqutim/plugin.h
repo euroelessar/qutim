@@ -183,7 +183,7 @@ public:
     virtual QList<Plugin*> loadPlugins() = 0;
 };
 
-LIBQUTIM_EXPORT QList<QWeakPointer<Plugin> > pluginsList();
+LIBQUTIM_EXPORT QList<QPointer<Plugin> > pluginsList();
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::PluginInfo::Capabilities)
@@ -195,7 +195,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 # define QUTIM_DEBUG_ID_CONVERT(A) QUTIM_DEBUG_ID_CONVERT_HELPER(A)
 # define QUTIM_PLUGIN_INSTANCE_BODY(IMPLEMENTATION) \
 		{ \
-			static QT_PREPEND_NAMESPACE(QWeakPointer)<QT_PREPEND_NAMESPACE(QObject)> _instance; \
+			static QT_PREPEND_NAMESPACE(QPointer)<QT_PREPEND_NAMESPACE(QObject)> _instance; \
 			if (!_instance) {      \
 				_instance = new IMPLEMENTATION; \
 				debugAddPluginId(QUTIM_DEBUG_ID_CONVERT(QUTIM_PLUGIN_ID), &IMPLEMENTATION::staticMetaObject);\

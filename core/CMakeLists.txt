@@ -410,6 +410,7 @@ if(QUTIM_INSTALL_ICONS)
 	list(APPEND QUTIM_ICON_PATHS
 		../artwork/icons/qutim-default
 		../artwork/icons/user-status/hicolor
+		../artwork/icons/qutim/icons/hicolor
 	)
 	if(UNIX AND NOT APPLE)
 		list(APPEND QUTIM_ICON_PATHS
