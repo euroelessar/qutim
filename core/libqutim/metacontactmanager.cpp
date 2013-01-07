@@ -58,10 +58,8 @@ MetaContact *MetaContactManager::createContact()
 
 MetaContactManager *MetaContactManager::instance()
 {
-	static MetaContactManager *self = 0;
-	if (!self && ObjectGenerator::isInited())
-		self = qobject_cast<MetaContactManager*>(ServiceManager::getByName("MetaContactManager"));
-	return self;
+	static ServicePointer<MetaContactManager> self;
+	return self.data();
 }
 
 bool MetaContactManager::eventFilter(QObject *obj, QEvent *ev)

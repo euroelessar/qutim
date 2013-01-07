@@ -54,9 +54,11 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 
 	setFilterCaseSensitivity(Qt::CaseInsensitive);
 	setSortCaseSensitivity(Qt::CaseInsensitive);
+	setSupportedDragActions(supportedDropActions());
 	sort(0);
 	setDynamicSortFilter(true);
 	onServiceChanged(m_model.name(), m_model, NULL);
+	onServiceChanged(m_metaManager.name(), m_metaManager, NULL);
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 }
@@ -158,6 +160,27 @@ Qt::DropActions ContactListFrontModel::supportedDropActions() const
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
+Qt::ItemFlags ContactListFrontModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
+	const ContactListItemType type = static_cast<ContactListItemType>(index.data(ItemTypeRole).toInt());
+	switch (type) {
+	case ContactType:
+		flags |= Qt::ItemIsEditable;
+		// fall through
+	case TagType:
+		flags |= Qt::ItemIsDragEnabled;
+		flags |= Qt::ItemIsDropEnabled;
+		// fall through
+	case AccountType:
+	default:
+		break;
+	}
+
+	return flags;
+}
+
 void ContactListFrontModel::setFilterTags(const QStringList &filterTags)
 {
 	if (m_filterTags == filterTags)
@@ -214,6 +237,11 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 			}
 		}
 		setSourceModel(newModel);
+	} else if (name == m_metaManager.name()) {
+		if (MetaContactManager *oldManager = qobject_cast<MetaContactManager*>(oldObject))
+			m_model->onAccountRemoved(oldManager);
+		if (m_metaManager)
+			m_model->onAccountCreated(m_metaManager);
 	}
 }
 
