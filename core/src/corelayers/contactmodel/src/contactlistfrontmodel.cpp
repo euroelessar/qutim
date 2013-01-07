@@ -36,6 +36,9 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	Config config;
 	config.beginGroup("contactList");
 	m_showOffline = config.value("showOffline", true);
+	QVariantMap order = config.value("order", QVariantMap());
+	for (QVariantMap::Iterator it = order.begin(); it != order.end(); ++it)
+		m_order[it.key()] = it.value().toStringList();
 
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(IdRole, "id");
@@ -143,10 +146,29 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 		tags.append(tag);
 		contact->setTags(tags);
 		return true;
-	} else if (parentType == AccountType && type == TagType) {
-		// TODO: Reorder tags
-		Q_UNUSED(row);
-		return false;
+	} else if (parent == index.parent()) {
+		const QString parentName = parent.data(TagNameRole).toString();
+		const QString indexName = parent.data(TagNameRole).toString();
+		QStringList &order = m_order[parentName];
+		if (order.indexOf(indexName) == row)
+			return true;
+		order.clear();
+		QModelIndex originalParent = mapToSource(parent);
+		for (int i = 0, count = sourceModel()->rowCount(originalParent); i < count; ++i)
+			order << sourceModel()->index(i, 0, originalParent).data(TagNameRole).toString();
+		int currentIndex = mapToSource(index).row();
+		int newIndex = (row == 0 ? 0 : (1 + mapToSource(index.sibling(row - 1, 0)).row()));
+		if (currentIndex != newIndex) {
+			order.move(currentIndex, newIndex);
+
+			Config config;
+			config.beginGroup("contactList");
+			config.beginGroup("order");
+			config.setValue(parentName, order);
+
+			invalidate();
+		}
+		return true;
 	} else if (parentType == type && type == ContactType) {
 		// TODO: Implement metacontacts creating
 		return false;
@@ -171,10 +193,10 @@ Qt::ItemFlags ContactListFrontModel::flags(const QModelIndex &index) const
 		// fall through
 	case TagType:
 		flags |= Qt::ItemIsDragEnabled;
-		flags |= Qt::ItemIsDropEnabled;
 		// fall through
 	case AccountType:
 	default:
+		flags |= Qt::ItemIsDropEnabled;
 		break;
 	}
 
@@ -307,9 +329,17 @@ bool ContactListFrontModel::lessThan(const QModelIndex &left, const QModelIndex 
 		return m_comparator->compare(leftContact, rightContact) < 0;
 	}
 	case TagType:
-	case AccountType:
-		return left.data(TagNameRole).toString()
-				.compare(right.data(TagNameRole).toString(), Qt::CaseInsensitive) < 0;
+	case AccountType: {
+		const QString parentName = left.parent().data(TagNameRole).toString();
+		const QStringList order = m_order[parentName];
+		const QString leftName = left.data(TagNameRole).toString();
+		const QString rightName = right.data(TagNameRole).toString();
+		const int leftIndex = order.indexOf(leftName);
+		const int rightIndex = order.indexOf(rightName);
+		return leftIndex < rightIndex
+				|| (leftIndex == rightIndex
+					&& leftName.compare(rightName, Qt::CaseInsensitive) < 0);
+	}
 	default:
 		break;
 	}

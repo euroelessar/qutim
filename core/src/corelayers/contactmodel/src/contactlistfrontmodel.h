@@ -81,6 +81,7 @@ protected:
 protected:
 	bool m_showOffline;
 	QStringList m_filterTags;
+	QHash<QString, QStringList> m_order;
 	qutim_sdk_0_3::ServicePointer<ContactListBaseModel> m_model;
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MetaContactManager> m_metaManager;
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
