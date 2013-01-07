@@ -41,7 +41,7 @@ namespace Jabber {
 class JAttentionInfo
 {
 public:
-	typedef QWeakPointer<JAttentionInfo> WeakPtr;
+    typedef QWeakPointer<JAttentionInfo> WeakPtr;
 	typedef QSharedPointer<JAttentionInfo> Ptr;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> generator;
 };

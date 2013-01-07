@@ -30,7 +30,7 @@
 #include <QTextDocument>
 #include <QTextBrowser>
 #include <QCache>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QDateTime>
 #include <QTextObjectInterface>
 #include <QMovie>
@@ -98,7 +98,7 @@ private:
 	QString makeName(const qutim_sdk_0_3::Message &mes);
 	bool shouldBreak(const QDateTime &time);
 	
-	QWeakPointer<QTextBrowser> m_textEdit;
+	QPointer<QTextBrowser> m_textEdit;
 	qutim_sdk_0_3::ChatSession *m_session;
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;

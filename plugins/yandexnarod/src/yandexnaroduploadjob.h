@@ -82,7 +82,7 @@ private:
 #endif
 	QVariantMap m_someData;
 	QTimer m_timer;
-	QWeakPointer<QIODevice> m_data;
+	QPointer<QIODevice> m_data;
 };
 
 #endif

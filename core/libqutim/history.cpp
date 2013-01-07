@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3
 {
 	struct Private
 	{
-		QWeakPointer<History> self;
+		QPointer<History> self;
 	};
 	static Private *p = NULL;
 

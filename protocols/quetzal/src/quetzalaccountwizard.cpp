@@ -181,7 +181,7 @@ bool QuetzalAccountWizardPage::isComplete() const
 void quetzal_register_callback(PurpleAccount *account, gboolean succeeded, void *user_data)
 {
 	debug() << Q_FUNC_INFO << bool(succeeded);
-	QWeakPointer<QObject> *pointer = reinterpret_cast<QWeakPointer<QObject>*>(user_data);
+	QPointer<QObject> *pointer = reinterpret_cast<QPointer<QObject>*>(user_data);
 	QuetzalAccountWizardPage *page = qobject_cast<QuetzalAccountWizardPage*>(pointer->data());
 	delete pointer;
 	if (page)
@@ -213,7 +213,7 @@ void QuetzalAccountWizardPage::onRegisterButtonClicked()
 	createAccount();
 	emit completeChanged();
 	purple_account_set_register_callback(m_account, quetzal_register_callback,
-										 new QWeakPointer<QObject>(this));
+										 new QPointer<QObject>(this));
 	purple_account_register(m_account);
 	wizard()->button(QWizard::BackButton)->setEnabled(false);
 	m_generalWidget->setEnabled(false);

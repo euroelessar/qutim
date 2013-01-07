@@ -58,7 +58,7 @@ private slots:
 								const qutim_sdk_0_3::Status &previous);
 	void onAccountConnected();
 private:
-	typedef QMultiHash<ChatUnit*, QWeakPointer<Notification> > Notifications;
+	typedef QMultiHash<ChatUnit*, QPointer<Notification> > Notifications;
 	Notifications m_notifications;
 	QHash<Account*, QTimer*> m_connectingAccounts;
 };

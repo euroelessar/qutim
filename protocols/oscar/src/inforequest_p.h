@@ -29,7 +29,7 @@
 #include "qutim/inforequest.h"
 #include "metainfo/infometarequest.h"
 #include "metainfo/updateaccountinfometarequest.h"
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace qutim_sdk_0_3 {
 
@@ -74,8 +74,8 @@ private slots:
 private:
 	void addItem(const MetaField &field, DataItem &group) const;
 	void handleError(AbstractMetaRequest *request);
-	QWeakPointer<ShortInfoMetaRequest> m_request;
-	QWeakPointer<UpdateAccountInfoMetaRequest> m_updater;
+	QPointer<ShortInfoMetaRequest> m_request;
+	QPointer<UpdateAccountInfoMetaRequest> m_updater;
 	MetaInfoValuesHash m_values;
 	bool m_accountInfo;
 	DataItem m_item;

@@ -46,7 +46,7 @@ struct FileTransferScope
 	struct Observer
 	{
 		Observer();
-		QList<QWeakPointer<FileTransferObserver> > list;
+		QList<QPointer<FileTransferObserver> > list;
 		ChatUnit *unit;
 #ifdef REMEMBER_ALL_ABILITIES
 		QBitArray abilities;

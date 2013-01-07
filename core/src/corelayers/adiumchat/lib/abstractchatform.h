@@ -28,7 +28,7 @@
 
 #include <QWidget>
 #include <QHash>
-#include <QWeakPointer>
+#include <QPointer>
 #include "chatlayer_global.h"
 
 namespace qutim_sdk_0_3 {

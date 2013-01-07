@@ -93,7 +93,7 @@ public:
 	QString html;
 	QDateTime time;
 	bool in;
-	QWeakPointer<ChatUnit> chatUnit;
+	QPointer<ChatUnit> chatUnit;
 	quint64 id;
 	QVariant getText() const { return text; }
 	void setText(const QVariant &val) { text = val.toString(); }
@@ -246,7 +246,7 @@ QEvent::Type MessageReceiptEvent::eventType()
 	return type;
 }
 
-Q_GLOBAL_STATIC(QWeakPointer<QTextDocument>, document)
+Q_GLOBAL_STATIC(QPointer<QTextDocument>, document)
 
 QString unescape(const QString &html)
 {

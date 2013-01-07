@@ -70,7 +70,7 @@ private:
 	void moveServer(int row, int newRow);
 	Ui::AddAccountForm *ui;
 	QList<IrcServer> m_servers;
-	QWeakPointer<SettingsWidget> m_widget;
+	QPointer<SettingsWidget> m_widget;
 };
 
 typedef IrcSettingsWidget<IrcAccountMainSettings> IrcAccountMainSettingsWidget;

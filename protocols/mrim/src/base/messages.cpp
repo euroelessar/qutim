@@ -47,14 +47,14 @@ struct MsgIdLink
 {
 	MsgIdLink(quint64 i, MrimContact *c) : msgId(i), unit(c) {}
     quint64 msgId;
-	QWeakPointer<MrimContact> unit;
+	QPointer<MrimContact> unit;
 };
 
 class MessagesPrivate
 {
 public:
     quint32 msgSeq;
-	QWeakPointer<MrimConnection> conn;
+	QPointer<MrimConnection> conn;
 	QCache<quint32, MsgIdLink> msgIdLink;
 #ifndef NO_RTF_SUPPORT
     Rtf *rtf;

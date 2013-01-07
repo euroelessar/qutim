@@ -56,7 +56,7 @@ public:
 	JBookmarkManager *bookmarkManager;
 	//JInviteManager *inviteManager;
 	QHash<QString, JMUCSession *> rooms;
-	QList<QWeakPointer<JMUCSession> > roomsToConnect;
+	QList<QPointer<JMUCSession> > roomsToConnect;
 	bool waitingForPrivacyList;
 	void connectAll()
 	{
@@ -70,7 +70,7 @@ public:
 				session->join();
 			}
 		}
-		foreach (const QWeakPointer<JMUCSession> &room, roomsToConnect) {
+		foreach (const QPointer<JMUCSession> &room, roomsToConnect) {
 			if (room)
 				room.data()->join();
 		}

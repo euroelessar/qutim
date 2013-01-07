@@ -113,7 +113,7 @@ protected:
 		return m_object.data();
 	}
 private:
-	mutable QWeakPointer<QObject> m_object;
+	mutable QPointer<QObject> m_object;
     PurplePlugin *m_protocol;
     const QuetzalMetaObject *m_meta;
 };

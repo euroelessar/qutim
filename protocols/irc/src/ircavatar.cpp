@@ -33,7 +33,7 @@
 #include <QCryptographicHash>
 #include <qutim/systeminfo.h>
 
-Q_DECLARE_METATYPE(QWeakPointer<qutim_sdk_0_3::irc::IrcContact>)
+Q_DECLARE_METATYPE(QPointer<qutim_sdk_0_3::irc::IrcContact>)
 
 namespace qutim_sdk_0_3 {
 
@@ -72,7 +72,7 @@ void IrcAvatar::handleCtcpResponse(IrcAccount *account, const QString &sender, c
 	QUrl avatarUrl(avatarUrlStr);
 	if (!avatarUrl.isValid())
 		return;
-	QWeakPointer<IrcContact> contact = account->getContact(sender, senderHost);
+	QPointer<IrcContact> contact = account->getContact(sender, senderHost);
 	if (!contact)
 		return;
 	QDir configDir = SystemInfo::getDir(SystemInfo::ConfigDir);
@@ -96,7 +96,7 @@ void IrcAvatar::handleCtcpResponse(IrcAccount *account, const QString &sender, c
 void IrcAvatar::avatarReceived(QNetworkReply *reply)
 {
 	if (reply->rawHeader("Content-Length").toInt() < 256000) {
-		QWeakPointer<IrcContact> contact = reply->property("contact").value<QWeakPointer<IrcContact> >();
+		QPointer<IrcContact> contact = reply->property("contact").value<QPointer<IrcContact> >();
 		if (!contact)
 			return;
 		QString avatarPath = reply->property("avatarPath").toString();

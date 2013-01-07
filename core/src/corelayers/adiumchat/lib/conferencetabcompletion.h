@@ -87,7 +87,7 @@ private:
 	QStringList suggestedCompletion_;
 	int  suggestedIndex_;
 
-	QWeakPointer<QTextEdit> textEdit_;
+	QPointer<QTextEdit> textEdit_;
 	ChatSessionImpl *m_chatSession;
 	QString last_referrer_;
 };

@@ -47,7 +47,7 @@ private slots:
 	void onSessionActivated(bool active);
 	void onUnitDestroyed();
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_currentSession;
+	QPointer<qutim_sdk_0_3::ChatSession> m_currentSession;
 	QMap<ChatUnit *, MessageList> m_unaddedMessages;
 };
 

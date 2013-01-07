@@ -177,7 +177,7 @@ QList<PersonInfo> PersonInfo::authors()
 	// May be we should use QMap and get result finally from it withour QVector and qSort?
 	StringPersonHash authors;
 	StringPersonHash::iterator it;
-    foreach (QWeakPointer<Plugin> plugin, pluginsList()) {
+    foreach (QPointer<Plugin> plugin, pluginsList()) {
         foreach (const PersonInfo &person, plugin.data()->info().authors()) {
 			it = authors.find(person.name());
 			if (it == authors.end())

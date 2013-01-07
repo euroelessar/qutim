@@ -35,8 +35,8 @@ namespace irc {
 class IrcChannelParticipantPrivate
 {
 public:
-	QWeakPointer<IrcContact> contact;
-	QWeakPointer<IrcChannel> channel;
+	QPointer<IrcContact> contact;
+	QPointer<IrcChannel> channel;
 	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 

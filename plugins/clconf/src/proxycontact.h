@@ -55,7 +55,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
 	Status m_status;
-	QWeakPointer<Conference> m_conf;
+	QPointer<Conference> m_conf;
 };
 
 #endif // PROXYCONTACT_H

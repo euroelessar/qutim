@@ -28,7 +28,7 @@
 #include <qutim/dataforms.h>
 #include "abstractdatawidget.h"
 #include "dataformsbackend.h"
-#include <QWeakPointer>
+#include <QPointer>
 
 class QGridLayout;
 class QPushButton;
@@ -75,7 +75,7 @@ private:
 	void setRow(const WidgetLine &line, int row);
 	Qt::Alignment labelAlignment() const;
 	mutable Qt::Alignment m_labelAlignment;
-	mutable QWeakPointer<QStyle> m_style;
+	mutable QPointer<QStyle> m_style;
 };
 
 } // namespace Core

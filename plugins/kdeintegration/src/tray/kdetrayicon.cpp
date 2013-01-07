@@ -87,7 +87,7 @@ public:
 
 private:
 	Protocol *m_proto;
-	mutable QWeakPointer<QAction> m_action;
+	mutable QPointer<QAction> m_action;
 };
 
 void StatusAction::onStatusChanged(Status status)

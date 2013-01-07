@@ -291,7 +291,7 @@ private:
     QScopedPointer<QMouseEvent> pressDelayEvent;
     bool sendingEvent;
     Qt::MouseButton mouseButton;
-	QWeakPointer<QWidget> mouseTarget;
+    QWeakPointer<QWidget> mouseTarget;
 };
 
 

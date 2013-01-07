@@ -45,7 +45,7 @@ struct ExtensionNode
 
 struct PluginData
 {
-	QWeakPointer<Plugin> plugin;
+	QPointer<Plugin> plugin;
 	PluginInfo info;
 };
 
@@ -64,7 +64,7 @@ public:
     inline ~ModuleManagerPrivate() {}
 	void initLocalPeer(const QString &message, bool *shouldExit);
 
-    QList<QWeakPointer<Plugin> > plugins;
+    QList<QPointer<Plugin> > plugins;
 	QScopedPointer<QtLocalPeer> localPeer;
 	bool is_inited;
 	bool isServicesInited;

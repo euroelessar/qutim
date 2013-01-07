@@ -280,9 +280,9 @@ public:
 	
 	static QObject *createInstance()
 	{
-		static QWeakPointer<QObject> instance;
+		static QPointer<QObject> instance;
 		if (!instance)
-			instance = QWeakPointer<QObject>(new qutim_sdk_0_3::ScriptExtensionPlugin);
+			instance = QPointer<QObject>(new qutim_sdk_0_3::ScriptExtensionPlugin);
 		return instance.data();
 	}
 } static_qtscript_qutim_0_3_PluginInstance;

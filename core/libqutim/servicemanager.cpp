@@ -201,7 +201,7 @@ ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
 		data = QSharedPointer<ServicePointerData>::create();
 		data->name = name;
 	}
-	return data.toWeakRef();
+    return data.toWeakRef();
 }
 
 } // namespace qutim_sdk_0_3

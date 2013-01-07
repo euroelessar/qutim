@@ -64,7 +64,7 @@ struct ScriptSettingsItemData
 	QScriptValue generatorFunc;
 	ScriptSettingsGenerator generator;
 	QScriptValue widgetGuard;
-	QWeakPointer<QWidget> widget;
+	QPointer<QWidget> widget;
 };
 
 QObject *ScriptSettingsGenerator::generateHelper() const
@@ -73,7 +73,7 @@ QObject *ScriptSettingsGenerator::generateHelper() const
 		return d->widget.data();
 	d->widgetGuard = d->generatorFunc.call(d->that);
 	QWidget *widget = d->widgetGuard.toVariant().value<QWidget*>();
-	d->widget = QWeakPointer<QWidget>(widget);
+	d->widget = QPointer<QWidget>(widget);
 	return widget;
 }
 

@@ -41,7 +41,7 @@ public:
 	MUCRoom::Affiliation affiliation;
 	MUCRoom::Role role;
 	QString realJid;
-	QWeakPointer<JMUCSession> muc;
+	QPointer<JMUCSession> muc;
 };
 
 JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :

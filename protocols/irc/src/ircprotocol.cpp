@@ -129,7 +129,7 @@ void IrcProtocol::loadAccounts()
 QList<Account *> IrcProtocol::accounts() const
 {
 	QList<Account *> accounts;
-	QHash<QString, QWeakPointer<IrcAccount> >::const_iterator it;
+	QHash<QString, QPointer<IrcAccount> >::const_iterator it;
 	for (it = d->accounts_hash.begin(); it != d->accounts_hash.end(); it++)
 		if (!it.value().isNull())
 			accounts.append(it.value().data());
@@ -304,7 +304,7 @@ void IrcProtocol::updateSettings()
 {
 	Config cfg = config("general");
 	d->enableColoring = cfg.value("enableColoring", true);
-	foreach (QWeakPointer<IrcAccount> acc, d->accounts_hash)
+	foreach (QPointer<IrcAccount> acc, d->accounts_hash)
 		acc.data()->updateSettings();
 }
 

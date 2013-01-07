@@ -64,7 +64,7 @@ protected:
 	bool event(QEvent *e);
 private:
 	RequestPtr m_currentRequest;
-	QWeakPointer<AbstractDataForm> m_searchFieldsWidget;
+	QPointer<AbstractDataForm> m_searchFieldsWidget;
 	ResultModel *m_resultModel;
 	RequestsListModel *m_requestsModel;
 	bool m_done;

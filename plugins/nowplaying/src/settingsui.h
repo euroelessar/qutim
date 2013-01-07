@@ -33,7 +33,7 @@
 #include <qutim/account.h>
 #include <QHash>
 #include <QDebug>
-#include <QWeakPointer>
+#include <QPointer>
 #include <qutim/dataforms.h>
 
 namespace Ui {
@@ -72,7 +72,7 @@ namespace nowplaying {
 		Ui::NowPlayingSettings *ui;
 		bool m_enableForAllAccounts;
 		QList<AccountTuneStatus*> m_accounts;
-		QWeakPointer<AccountTuneStatus> m_currentAccount;
+		QPointer<AccountTuneStatus> m_currentAccount;
 		QHash<AccountTuneStatus*, AccountTuneSettings*> m_settingWidgets;
 		QHash<QString, QWidget*> m_playerWidgets;
 		NowPlaying *m_manager;

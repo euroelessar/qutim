@@ -26,7 +26,7 @@
 #ifndef SIMPLEFILETRANSFER_H
 #define SIMPLEFILETRANSFER_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <qutim/filetransfer.h>
 #include <qutim/actiongenerator.h>
 #include "filetransferdialog.h"
@@ -68,7 +68,7 @@ private slots:
 	void onSendThroughSpecificFactory();
 private:
 	FileTransferJobModel *m_model;
-	QWeakPointer<FileTransferDialog> m_dialog;
+	QPointer<FileTransferDialog> m_dialog;
 	ActionGenerator *m_sendFileActionGen;
 };
 

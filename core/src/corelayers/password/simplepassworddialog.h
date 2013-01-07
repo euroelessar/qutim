@@ -42,7 +42,7 @@ namespace Core
 
 		void virtual_hook(int id, void *data);
 	private:
-		QWeakPointer<SimplePasswordWidget> m_widget;
+		QPointer<SimplePasswordWidget> m_widget;
 		friend class SimplePasswordWidget;
 	};
 }

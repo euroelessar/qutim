@@ -39,7 +39,7 @@ class LIBQUTIM_EXPORT ServicePointerData : public QSharedData
 {
 	Q_DISABLE_COPY(ServicePointerData)
 public:
-	typedef QWeakPointer<ServicePointerData> Ptr;
+    typedef QWeakPointer<ServicePointerData> Ptr;
 	ServicePointerData();
 
 	QByteArray name;

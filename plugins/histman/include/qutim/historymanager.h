@@ -106,8 +106,8 @@ namespace HistoryManager
 		virtual QIcon icon() = 0;
 	private:
 		friend class DataBaseInterface;
-		DataBaseInterface *m_data_base;
-	};
+        //DataBaseInterface *m_data_base;
+    };
 }
 
 Q_DECLARE_INTERFACE(HistoryManager::HistoryImporter, "org.qutim.HistoryManager.HistoryImporter")

@@ -614,7 +614,7 @@ void AbstractDataForm::virtual_hook(int id, void *data)
 
 DataFormsBackend *DataFormsBackend::instance()
 {
-    static QWeakPointer<DataFormsBackend> self;
+    static QPointer<DataFormsBackend> self;
 	if(self.isNull() && ObjectGenerator::isInited())
 		self = qobject_cast<DataFormsBackend *>(ServiceManager::getByName("DataFormsBackend"));
     return self.data();

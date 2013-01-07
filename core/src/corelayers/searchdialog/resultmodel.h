@@ -27,7 +27,7 @@
 #define RESULTMODEL_H
 
 #include <QAbstractListModel>
-#include <QWeakPointer>
+#include <QPointer>
 #include "requestslistmodel.h"
 
 namespace Core {

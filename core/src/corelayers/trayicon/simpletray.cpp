@@ -38,6 +38,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QString>
+#include <QPointer>
 
 namespace Core
 {
@@ -52,8 +53,7 @@ public:
 	void showImpl(QAction *, QObject *);
 private:
 	Protocol *m_proto;
-	QToolButton *m_btn;
-	mutable QWeakPointer<QAction> m_action;
+    mutable QPointer<QAction> m_action;
 };
 
 #ifdef Q_WS_WIN
@@ -438,7 +438,7 @@ QObject *ProtocolSeparatorActionGenerator::generateHelper() const
 #ifndef Q_WS_MAC
 	QToolButton *m_btn = new QToolButton();
 	QWidgetAction *widget = new QWidgetAction(action);
-	m_action = QWeakPointer<QAction>(widget);
+    m_action = widget;
 	widget->setDefaultWidget(m_btn);
 	QObject::connect(widget, SIGNAL(destroyed()), action, SLOT(deleteLater()));
 	QObject::connect(widget, SIGNAL(destroyed()), m_btn, SLOT(deleteLater()));

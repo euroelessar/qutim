@@ -29,7 +29,7 @@
 #include <qglobal.h>
 #include "localizedstring.h"
 #include "objectgenerator.h"
-#include <QWeakPointer>
+#include <QPointer>
 #include <QWidget>
 #include <QGraphicsObject>
 #include <QIcon>

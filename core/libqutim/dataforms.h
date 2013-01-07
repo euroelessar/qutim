@@ -376,8 +376,7 @@ public:
 	\see setProperty()
   */
 	template<typename T>
-	T property(const char *name, const T &def = T()) const
-	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }
+    T property(const char *name, const T &def = T()) const;
 	/**
 	Sets \a name property to be \a value.
 	\see property()
@@ -391,6 +390,12 @@ protected:
 #endif
 };
 
+template<typename T>
+T DataItem::property(const char *name, const T &def) const
+{
+    QVariant var = property(name, QVariant::fromValue<T>(def));
+    return var.value<T>();
+}
 
 class LIBQUTIM_EXPORT ReadOnlyDataItem : public DataItem
 {
