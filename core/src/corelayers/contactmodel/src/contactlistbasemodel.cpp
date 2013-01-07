@@ -449,7 +449,7 @@ void ContactListBaseModel::onContactChanged(Contact *contact, bool parentsChange
 	QQueue<BaseNode*> queue;
 
 	if (it != m_contactHash.end()) {
-		if (parentsChanged) {
+		if (!parentsChanged) {
 			foreach (ContactNode *node, *it) {
 				QModelIndex index = createIndex(node);
 				dataChanged(index, index);
