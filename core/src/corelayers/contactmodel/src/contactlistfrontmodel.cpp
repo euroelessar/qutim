@@ -124,6 +124,20 @@ QMimeData *ContactListFrontModel::mimeData(const QModelIndexList &indexes) const
 	return mimeData;
 }
 
+struct ContactListOrderComparator
+{
+	const QStringList &order;
+
+	inline bool operator() (const QString &leftName, const QString &rightName) const
+	{
+		const int leftIndex = order.indexOf(leftName);
+		const int rightIndex = order.indexOf(rightName);
+		return leftIndex < rightIndex
+				|| (leftIndex == rightIndex
+					&& leftName.compare(rightName, Qt::CaseInsensitive) < 0);
+	}
+};
+
 bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
 	Q_UNUSED(column);
@@ -148,17 +162,25 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 		return true;
 	} else if (parent == index.parent()) {
 		const QString parentName = parent.data(TagNameRole).toString();
-		const QString indexName = parent.data(TagNameRole).toString();
+		const QString indexName = index.data(TagNameRole).toString();
+
 		QStringList &order = m_order[parentName];
-		if (order.indexOf(indexName) == row)
-			return true;
-		order.clear();
-		QModelIndex originalParent = mapToSource(parent);
-		for (int i = 0, count = sourceModel()->rowCount(originalParent); i < count; ++i)
-			order << sourceModel()->index(i, 0, originalParent).data(TagNameRole).toString();
-		int currentIndex = mapToSource(index).row();
-		int newIndex = (row == 0 ? 0 : (1 + mapToSource(index.sibling(row - 1, 0)).row()));
-		if (currentIndex != newIndex) {
+
+		ContactListOrderComparator comparator = { order };
+		QModelIndex sourceParent = mapToSource(parent);
+		QStringList allNames;
+		for (int i = 0, count = sourceModel()->rowCount(sourceParent); i < count; ++i)
+			allNames << sourceModel()->index(i, 0, sourceParent).data(TagNameRole).toString();
+		qSort(allNames.begin(), allNames.end(), comparator);
+
+		order = allNames;
+
+		const int currentIndex = allNames.indexOf(indexName);
+		allNames.removeAt(currentIndex);
+		const QString targetName = QSortFilterProxyModel::index(row, 0, parent).data(TagNameRole).toString();
+		const int newIndex = allNames.indexOf(targetName);
+
+		if (newIndex != currentIndex) {
 			order.move(currentIndex, newIndex);
 
 			Config config;
@@ -168,7 +190,31 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 
 			invalidate();
 		}
+
+		qDebug() << row << currentIndex << newIndex;
+
 		return true;
+//		return false;
+
+//		allNames.removeOne(indexName);
+//		int newIndex = 0;
+//		if (row > 0) {
+//			const QString siblingName = index.sibling(row - 1, 0).data(TagNameRole).toString();
+//			const int siblingIndex = allNames.indexOf(siblingName);
+//			newIndex = siblingIndex + 1;
+//		}
+//		if (currentIndex != newIndex) {
+//			allNames.insert(newIndex, indexName);
+//			order = allNames;
+
+//			Config config;
+//			config.beginGroup("contactList");
+//			config.beginGroup("order");
+//			config.setValue(parentName, order);
+
+//			invalidate();
+//		}
+//		return true;
 	} else if (parentType == type && type == ContactType) {
 		// TODO: Implement metacontacts creating
 		return false;
@@ -331,14 +377,10 @@ bool ContactListFrontModel::lessThan(const QModelIndex &left, const QModelIndex 
 	case TagType:
 	case AccountType: {
 		const QString parentName = left.parent().data(TagNameRole).toString();
-		const QStringList order = m_order[parentName];
+		const ContactListOrderComparator comparator = { m_order[parentName] };
 		const QString leftName = left.data(TagNameRole).toString();
 		const QString rightName = right.data(TagNameRole).toString();
-		const int leftIndex = order.indexOf(leftName);
-		const int rightIndex = order.indexOf(rightName);
-		return leftIndex < rightIndex
-				|| (leftIndex == rightIndex
-					&& leftName.compare(rightName, Qt::CaseInsensitive) < 0);
+		return comparator(leftName, rightName);
 	}
 	default:
 		break;
