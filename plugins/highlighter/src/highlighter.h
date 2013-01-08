@@ -48,7 +48,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QWeakPointer<NickHandler> m_handler;
+	QPointer<NickHandler> m_handler;
 	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 };
 }

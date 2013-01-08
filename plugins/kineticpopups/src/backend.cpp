@@ -75,7 +75,7 @@ void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
 void Backend::onPopupDestroyed(QObject *obj)
 {
 	PopupWidget *popup = static_cast<PopupWidget*>(obj);
-	foreach (QWeakPointer<Notification> notify, m_activeNotifyHash.values(popup)) {
+	foreach (QPointer<Notification> notify, m_activeNotifyHash.values(popup)) {
 		if (notify)
 			deref(notify.data());
 	}

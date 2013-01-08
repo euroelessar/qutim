@@ -29,6 +29,7 @@
 #include <QListWidget>
 #include <QTimer>
 #include <qutim/message.h>
+#include <QPointer>
 
 namespace Core {
 namespace AdiumChat {
@@ -48,7 +49,7 @@ public slots:
 	
 private:
 	QTimer m_timer;
-	QWeakPointer<QObject> m_controller;
+	QPointer<QObject> m_controller;
 };
 
 } // namespace AdiumChat

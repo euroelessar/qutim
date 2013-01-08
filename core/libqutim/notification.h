@@ -166,8 +166,7 @@ public:
 	bool isBackendBlocked(const QByteArray &backendType);
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
-	T property(const char *name, const T &def) const
-	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }
+    T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 	void addAction(const NotificationAction &action);
 	static void addAction(Notification::Type type, const NotificationAction &action);
@@ -176,6 +175,13 @@ private:
 	friend class Notification;
 	QSharedDataPointer<NotificationRequestPrivate> d_ptr;
 };
+
+template<typename T>
+T NotificationRequest::property(const char *name, const T &def) const
+{
+    QVariant var = property(name, QVariant::fromValue<T>(def));
+    return var.value<T>();
+}
 
 class LIBQUTIM_EXPORT NotificationFilter
 {

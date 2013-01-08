@@ -43,13 +43,13 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-Q_DECLARE_METATYPE(QWeakPointer<QAction>)
+Q_DECLARE_METATYPE(QPointer<QAction>)
 
 namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-typedef QWeakPointer<QAction> ActionPtr;
+typedef QPointer<QAction> ActionPtr;
 
 namespace AddRemove
 {

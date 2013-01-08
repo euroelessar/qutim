@@ -28,9 +28,8 @@
 
 #include "objectgenerator.h"
 #include "localizedstring.h"
-#include <QtGui/QIcon>
-#include <QtGui/QAction>
-#include <QtCore/QEvent>
+#include <QIcon>
+#include <QEvent>
 #include <QAction>
 
 namespace qutim_sdk_0_3
@@ -104,7 +103,7 @@ private:
 // their lifetime (making disabled/checked and so on)
 // It should be usefull to create method for getting QAction for MenuController passed
 // as argument. BTW, unique actions should be created only once for each object, use i.e.
-// QWeakPointer at cache and QSharedPointer at ActionContainer
+// QPointer at cache and QSharedPointer at ActionContainer
 //
 // Try to remove any use of legacy ActionGenerator's members everywhere at qutIM
 class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator

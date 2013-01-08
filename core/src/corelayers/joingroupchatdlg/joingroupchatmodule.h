@@ -46,7 +46,7 @@ public:
 public slots:
     void onJoinGroupChatTriggered();
 private:
-    QWeakPointer<JoinGroupChat> m_chat;
+    QPointer<JoinGroupChat> m_chat;
     QScopedPointer<ActionGenerator> m_gen;
 };
 

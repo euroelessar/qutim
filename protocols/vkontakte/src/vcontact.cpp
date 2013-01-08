@@ -46,7 +46,7 @@ using namespace qutim_sdk_0_3;
 
 static Status::Type convertStatus(Vreen::Contact::Status status)
 {
-	Status::Type type;
+    Status::Type type(Status::Offline);
 	switch (status) {
 	case Vreen::Contact::Offline:
 		type = Status::Offline;

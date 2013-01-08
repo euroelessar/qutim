@@ -209,7 +209,7 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 
 #ifdef Q_WS_MAEMO_5
 	//Maemo dbus implementation
-	QWeakPointer<QObject> sender = data.sender;
+	QPointer<QObject> sender = data.sender;
 	if (name == "default" ) {
 		ChatUnit *unit = qobject_cast<ChatUnit *>(sender.data());
 
@@ -226,7 +226,7 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &name)
 inline void DBusBackend::ignore(NotificationData &data)
 {
 	Q_UNUSED(data);
-	foreach (const QWeakPointer<Notification> &notification, data.notifications)
+	foreach (const QPointer<Notification> &notification, data.notifications)
 		if (notification)
 			notification.data()->ignore();
 }
@@ -246,7 +246,7 @@ void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
 		if (reason == 2)
 			ignore(*itr);
 		m_ids.remove(itr->sender.data());
-		foreach (const QWeakPointer<Notification> &notification, itr->notifications)
+		foreach (const QPointer<Notification> &notification, itr->notifications)
 			if (notification)
 				deref(notification.data());
 		m_notifications.erase(itr);

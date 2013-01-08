@@ -267,14 +267,14 @@ void NowPlaying::accountDeleted(QObject *obj)
 }
 
 StopStartActionGenerator::StopStartActionGenerator(QObject* module, bool isWorking, bool isEnabled):
-	ActionGenerator(QIcon(":images/images/logo.png"),
-		LocalizedString(),
-		module,
-		SLOT(stopStartActionTrigged())),
+    ActionGenerator(QIcon(":images/images/logo.png"),
+                    LocalizedString(),
+                    module,
+                    SLOT(stopStartActionTrigged())),
     m_isEnabled(isEnabled)
 {
-	setCheckable(true);
-	setState(isWorking, isEnabled);
+    setCheckable(true);
+    setState(isWorking, isEnabled);
 }
 
 void StopStartActionGenerator::showImpl(QAction *action, QObject* /*obj*/)

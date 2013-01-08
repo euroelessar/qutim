@@ -55,7 +55,7 @@ void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 
 void ChatStateUpdater::sendState()
 {
-	QMutableHashIterator<QWeakPointer<IcqContact>, ChatState> it(m_states);
+	QMutableHashIterator<QPointer<IcqContact>, ChatState> it(m_states);
 	while (it.hasNext()) {
 		IcqContact *contact = it.next().key().data();
 		if (!contact) {

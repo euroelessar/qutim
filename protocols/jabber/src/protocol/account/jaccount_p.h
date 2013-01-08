@@ -72,8 +72,8 @@ public:
 	bool hasChangedParameters;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
-	QWeakPointer<JMUCManager> conferenceManager;
-	QWeakPointer<PasswordDialog> passwordDialog;
+	QPointer<JMUCManager> conferenceManager;
+	QPointer<PasswordDialog> passwordDialog;
 	QSignalMapper signalMapper;
 	int loadedModules;
 	int priority;

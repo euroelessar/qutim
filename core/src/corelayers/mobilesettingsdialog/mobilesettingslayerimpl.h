@@ -44,7 +44,7 @@ public:
 	virtual void show(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
 	virtual void update(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
 private:
-	QHash<const QObject *,QWeakPointer< MobileSettingsWindow> > m_dialogs;
+	QHash<const QObject *,QPointer< MobileSettingsWindow> > m_dialogs;
 };
 
 }

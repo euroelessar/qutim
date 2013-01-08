@@ -28,7 +28,7 @@
 #define MENUUNIT_H
 
 #include "actiongenerator.h"
-#include <QtGui/QMenu>
+#include <QMenu>
 #include "debug.h"
 
 namespace qutim_sdk_0_3

@@ -37,7 +37,7 @@ struct LegacyActionData
 	LegacyActionData() : controller(NULL), menu(NULL), checkable(false), checked(false) {}
 	MenuController *controller;
 	QMenu *menu;
-    mutable QList<QWeakPointer<QObject> > handlers;
+    mutable QList<QPointer<QObject> > handlers;
 	bool checkable;
 	bool checked;
 };
@@ -69,7 +69,7 @@ public:
 	QIcon icon;
 	LocalizedString text;
 	LocalizedString toolTip;
-    QWeakPointer<QObject> receiver;
+    QPointer<QObject> receiver;
 	QMap<int, QList<QObject* > > subcribers;
 	QList<QPair<QObject*, QByteArray> > receivers;
 	QByteArray member;
@@ -127,8 +127,8 @@ public:
 
 	QAction *action();
 private:
-	QWeakPointer<QObject> m_object;
-	QWeakPointer<QAction> m_action;
+	QPointer<QObject> m_object;
+	QPointer<QAction> m_action;
 	const ActionGenerator *m_generator;
 };
 

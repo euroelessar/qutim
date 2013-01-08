@@ -44,7 +44,7 @@ Q_GLOBAL_STATIC(QSet<QByteArray>, menuNameSet)
 
 ActionValue::ActionValue(const ActionKey &k) : key(k)
 {
-	action = QWeakPointer<QAction>(key.second->generate<QAction>());
+	action = QPointer<QAction>(key.second->generate<QAction>());
 	Q_ASSERT(action);
 	key.second->create(action.data(), key.first);
 	actionControllerMap()->insert(action.data(), key.first);

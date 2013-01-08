@@ -28,7 +28,7 @@
 #define ANTISPAMPLUGIN_H
 
 #include <qutim/plugin.h>
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace Antispam {
 
@@ -45,7 +45,7 @@ public:
 	virtual bool load();
 	virtual bool unload();
 private:
-	QWeakPointer<Handler> m_handler;
+	QPointer<Handler> m_handler;
 };
 
 }

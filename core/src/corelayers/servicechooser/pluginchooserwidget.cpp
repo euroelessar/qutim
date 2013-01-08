@@ -72,7 +72,7 @@ void PluginChoooserWidget::loadImpl()
 	Config group = Config().group("plugins/list");
 	QStandardItem *parent_item = m_model->invisibleRootItem();
 
-    QList<QWeakPointer<Plugin> > plugins = pluginsList();
+    QList<QPointer<Plugin> > plugins = pluginsList();
 	QStringList helper;
     for (int i = 0; i < plugins.size(); i++) {
         const PluginInfo &info = plugins.at(i).data()->info();

@@ -48,7 +48,7 @@ public slots:
 
 private:
 	QScopedPointer<JoinChatGenerator> m_action;
-	QWeakPointer<JoinChatDialog> m_dialog;
+	QPointer<JoinChatDialog> m_dialog;
 };
 
 class JoinChatGenerator : public qutim_sdk_0_3::ActionGenerator

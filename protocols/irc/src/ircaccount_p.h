@@ -57,9 +57,9 @@ public:
 	IrcConnection *conn;
 	QHash<QString, IrcContact *> contacts;
 	QHash<QString, IrcChannel *> channels;
-	QWeakPointer<IrcConsoleFrom> consoleForm;
+	QPointer<IrcConsoleFrom> consoleForm;
 	QString log;
-	QWeakPointer<IrcChannelListForm> channelListForm;
+	QPointer<IrcChannelListForm> channelListForm;
 	QString avatar;
 	QScopedPointer<IrcGroupChatManager> groupManager;
 	QList<LastCommand> lastCommands;

@@ -14,7 +14,10 @@ Project {
 
     property bool singleProfile: true
 
-    moduleSearchPaths: [ "modules", "qbs/modules" ]
+    moduleSearchPaths: [
+        "modules", "qbs/modules",
+        "protocols/vkontakte/vreen/modules"
+    ]
 
     // references: [ "core/*.qbs", "protocols/*.qbs", "plugins/*.qbs" ]
     // recursive: true

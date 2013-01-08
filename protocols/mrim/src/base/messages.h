@@ -26,7 +26,7 @@
 #define MESSAGES_H
 
 #include <QObject>
-#include <QWeakPointer>
+#include <QPointer>
 #include <qutim/message.h>
 
 #include "mrimpacket.h"

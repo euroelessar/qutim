@@ -105,7 +105,7 @@ private:
 	QTimer m_messagesTimer;
 	uint m_lastMessageTime; // unix time when the last message had been sent
 	bool m_autoRequestWhois;
-	QWeakPointer<PasswordDialog> m_passDialog;
+	QPointer<PasswordDialog> m_passDialog;
 };
 
 } } // namespace qutim_sdk_0_3::irc

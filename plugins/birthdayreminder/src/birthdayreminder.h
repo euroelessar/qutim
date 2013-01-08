@@ -51,7 +51,7 @@ private slots:
 private:
 	Account *m_account;
 	InfoRequestFactory *m_factory;
-	QList<QWeakPointer<Contact> > m_waitingUpdate;
+	QList<QPointer<Contact> > m_waitingUpdate;
 	quint8 m_updateFails;
 	QTimer m_updateTimer;
 };

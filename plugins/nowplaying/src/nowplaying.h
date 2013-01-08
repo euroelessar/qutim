@@ -124,7 +124,7 @@ public:
 	void setState(bool isWorking, bool isEnabled);
 private:
 	QString m_text;
-	bool m_isEnabled;
+    bool m_isEnabled;
 };
 
 inline qutim_sdk_0_3::Config config(const QString &group = QString())

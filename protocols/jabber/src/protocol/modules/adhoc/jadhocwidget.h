@@ -27,7 +27,7 @@
 
 #include <QtGui/QRadioButton>
 #include <QMap>
-#include <QWeakPointer>
+#include <QPointer>
 #include "../../account/dataform/jdataform.h"
 #include <qutim/localizedstring.h>
 #include <qutim/icon.h>

@@ -63,7 +63,7 @@ void BirthdayUpdater::update(Contact *contact)
 void BirthdayUpdater::onUpdateNext()
 {
 	Contact *contact = 0;
-	QMutableListIterator<QWeakPointer<Contact> > itr(m_waitingUpdate);
+	QMutableListIterator<QPointer<Contact> > itr(m_waitingUpdate);
 	while (itr.hasNext()) {
 		if (!itr.next()) {
 			itr.remove();

@@ -64,7 +64,7 @@ class ActionValue : public QSharedData
 	Q_DISABLE_COPY(ActionValue)
 public:
 	typedef QSharedPointer<ActionValue> Ptr;
-	typedef QWeakPointer<ActionValue> WeakPtr;
+    typedef QWeakPointer<ActionValue> WeakPtr;
 	
 	ActionValue(const ActionKey &key);
 	~ActionValue();
@@ -77,7 +77,7 @@ public:
 	static void handleDeath(const ActionGenerator *gen);
 	
 	ActionKey key;
-	QWeakPointer<QAction> action;
+	QPointer<QAction> action;
 };
 typedef QMap<ActionKey, ActionValue::WeakPtr> ActionMap;
 
@@ -170,7 +170,7 @@ private slots:
 	void onAboutToHide();
 
 private:
-	QWeakPointer<MenuController> m_controller;
+	QPointer<MenuController> m_controller;
 	MenuControllerPrivate * d_func() const
 	{ return m_controller ? MenuControllerPrivate::get(m_controller.data()) : 0; }
 	bool m_shown;

@@ -30,7 +30,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>
-#include <QWeakPointer>
+#include <QPointer>
 #include <qutim/dataforms.h>
 
 class QLabel;
@@ -58,7 +58,7 @@ protected:
 	Qt::Alignment labelAlignment();
 private:
 	mutable Qt::Alignment m_labelAlignment;
-    mutable QWeakPointer<QStyle> m_style;
+    mutable QPointer<QStyle> m_style;
 	int m_row;
 	struct WidgetLine {
 		WidgetLine(QWidget *t, QWidget *d) :

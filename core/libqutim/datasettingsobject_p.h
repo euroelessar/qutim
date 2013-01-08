@@ -60,7 +60,7 @@ protected:
 	}
 private:
 	DataSettingsItem *m_item;
-	mutable QWeakPointer<QObject> m_object;
+	mutable QPointer<QObject> m_object;
 };
 
 }

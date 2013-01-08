@@ -90,9 +90,9 @@ ExtensionInfoList extensionList()
     return (managerSelf && d && d->is_inited) ? d->extensions : ExtensionInfoList();
 }
 
-QList<QWeakPointer<Plugin> > pluginsList()
+QList<QPointer<Plugin> > pluginsList()
 {
-    return (managerSelf && d && d->is_inited) ? d->plugins : QList<QWeakPointer<Plugin> >();
+    return (managerSelf && d && d->is_inited) ? d->plugins : QList<QPointer<Plugin> >();
 }
 
 bool isCoreInited()
@@ -589,7 +589,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 //	{
 //		QMap<QString, Plugin *> handlers;
 //		QMap<QString, Plugin*>::Iterator it;
-//		foreach (QWeakPointer<Plugin> plugin, d->plugins) {
+//		foreach (QPointer<Plugin> plugin, d->plugins) {
 //			if (CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin.data()))
 //				handlers.insert(handler->argumentHandlerName(), plugin.data());
 //		}
@@ -696,7 +696,7 @@ void ModuleManager::initExtensions()
 	Config pluginsConfig;
 	pluginsConfig.beginGroup("plugins/list");
 	{
-        foreach (QWeakPointer<Plugin> plugin, d->plugins) {
+        foreach (QPointer<Plugin> plugin, d->plugins) {
             if (!pluginsConfig.value(plugin.data()->metaObject()->className(), true))
                 disabledPlugins << plugin.data()->info().data();
 		}
@@ -849,7 +849,7 @@ void ModuleManager::initExtensions()
 void ModuleManager::onQuit()
 {
 	Event("aboutToQuit").send();
-    foreach(QWeakPointer<Plugin> plugin, d->plugins) {
+    foreach(QPointer<Plugin> plugin, d->plugins) {
         if (!plugin.isNull() && plugin.data()->info().data()->loaded) {
             plugin.data()->unload();
 		}

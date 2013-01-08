@@ -51,7 +51,7 @@ public slots:
 	void showWindow();
 private:
 	qutim_sdk_0_3::Account *m_account;
-//	QWeakPointer<QWidget> m_widget;
+//	QPointer<QWidget> m_widget;
 };
 
 class JServiceBrowser : public QWidget

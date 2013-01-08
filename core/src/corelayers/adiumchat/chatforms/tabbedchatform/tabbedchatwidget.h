@@ -102,7 +102,7 @@ private:
 	ChatViewWidget *m_chatViewWidget;
 	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;
-	QWeakPointer<ChatSessionImpl> m_currentSession;
+	QPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
 	QList<QAction*> m_unitChatActionList;

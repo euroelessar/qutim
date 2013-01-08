@@ -26,7 +26,7 @@
 #define CHATEDIT_H
 
 #include <QTextEdit>
-#include <QWeakPointer>
+#include <QPointer>
 #include "abstractchatform.h"
 
 namespace qutim_sdk_0_3
@@ -64,7 +64,7 @@ protected:
 protected slots:
 	void onTextChanged();
 private:
-	QWeakPointer<ChatSessionImpl> m_session;
+	QPointer<ChatSessionImpl> m_session;
 	int m_entersCount;
 	int previousTextHeight;
 	SendMessageKey m_sendKey;

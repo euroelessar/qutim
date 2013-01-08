@@ -38,7 +38,7 @@ public:
 	ChatUnitPrivate(ChatUnit *u) : MenuControllerPrivate(u),account(0),chatState(ChatStateInActive) {}
 	Account *account;
 	ChatState chatState;
-	QWeakPointer<Notification> composingNotification;
+	QPointer<Notification> composingNotification;
 	QDateTime lastActivity;
 };
 }

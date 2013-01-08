@@ -31,6 +31,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/status.h>
 #include <QDialog>
+#include <QPointer>
 
 class QListWidgetItem;
 
@@ -68,7 +69,7 @@ private:
 	qutim_sdk_0_3::GroupChatManager *groupChatManager();
 
 	Ui::JoinChat *m_ui;
-	QWeakPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
 	qutim_sdk_0_3::Account *m_currentAcount;
 
 };

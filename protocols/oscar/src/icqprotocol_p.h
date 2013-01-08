@@ -38,12 +38,12 @@ class IcqProtocolPrivate : public QObject
 	Q_OBJECT
 public:
 	inline IcqProtocolPrivate() :
-		accounts_hash(new QHash<QString, QWeakPointer<IcqAccount> > ())
+		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
 	{ }
 	inline ~IcqProtocolPrivate() { delete accounts_hash; }
 	union
 	{
-		QHash<QString, QWeakPointer<IcqAccount> > *accounts_hash;
+		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
 		QHash<QString, IcqAccount *> *accounts;
 	};
 public slots:

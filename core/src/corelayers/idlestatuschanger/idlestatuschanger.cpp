@@ -77,7 +77,7 @@ void IdleStatusChanger::onIdle(int secs)
 			&& secs > m_naSecs
 			&& m_naEnabled) {
 		refillAccounts();
-		foreach (const QWeakPointer<Account> &acc, m_accounts) {
+		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
 				acc.data()->setStatus(m_naStatus);
 		}
@@ -86,7 +86,7 @@ void IdleStatusChanger::onIdle(int secs)
 			   && secs > m_awaySecs
 			   && m_awayEnabled) {
 		refillAccounts();
-		foreach (const QWeakPointer<Account> &acc, m_accounts) {
+		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
 				acc.data()->setStatus(m_awayStatus);
 		}

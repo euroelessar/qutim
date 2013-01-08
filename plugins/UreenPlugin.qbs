@@ -58,6 +58,7 @@ Product {
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: [ "core", "gui", "network", "script" ] }
+    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
     Depends { name: "libqutim" }
     Depends { name: "qutimscope" }
 

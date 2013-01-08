@@ -26,7 +26,7 @@
 #ifndef CHATLAYERIMPL_H
 #define CHATLAYERIMPL_H
 #include <qutim/chatsession.h>
-#include <QWeakPointer>
+#include <QPointer>
 #include "chatlayer_global.h"
 
 using namespace qutim_sdk_0_3;
@@ -62,7 +62,7 @@ private slots:
 	void onServiceChanged(QObject *now);
 private:
 	ChatSessionHash  m_chatSessions;
-	QWeakPointer<ConfTabCompletion> m_tabCompletion;
+	QPointer<ConfTabCompletion> m_tabCompletion;
 };
 
 }
