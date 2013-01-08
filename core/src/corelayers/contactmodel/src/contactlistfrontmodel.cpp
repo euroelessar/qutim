@@ -191,30 +191,7 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 			invalidate();
 		}
 
-		qDebug() << row << currentIndex << newIndex;
-
 		return true;
-//		return false;
-
-//		allNames.removeOne(indexName);
-//		int newIndex = 0;
-//		if (row > 0) {
-//			const QString siblingName = index.sibling(row - 1, 0).data(TagNameRole).toString();
-//			const int siblingIndex = allNames.indexOf(siblingName);
-//			newIndex = siblingIndex + 1;
-//		}
-//		if (currentIndex != newIndex) {
-//			allNames.insert(newIndex, indexName);
-//			order = allNames;
-
-//			Config config;
-//			config.beginGroup("contactList");
-//			config.beginGroup("order");
-//			config.setValue(parentName, order);
-
-//			invalidate();
-//		}
-//		return true;
 	} else if (parentType == type && type == ContactType) {
 		// TODO: Implement metacontacts creating
 		return false;
