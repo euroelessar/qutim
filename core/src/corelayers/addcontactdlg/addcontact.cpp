@@ -29,6 +29,7 @@
 #include <qutim/icon.h>
 #include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
+#include <qutim/accountmanager.h>
 #include <QStringBuilder>
 #include <QToolButton>
 #include <QPushButton>
@@ -39,14 +40,10 @@ namespace Core
 
 bool isSupportAddContact()
 {
-	foreach (Protocol *p,Protocol::all()) {
-		bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
-		if (support) {
-			foreach (Account *a,p->accounts()) {
-				if (a->status() != Status::Offline) {
-					return true;
-				}
-			}
+	foreach (Account *account, AccountManager::instance()->validAccounts()) {
+		if (account->protocol()->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool()
+				&& account->status() != Status::Offline) {
+			return true;
 		}
 	}
 	return false;
@@ -106,24 +103,24 @@ AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_p
 		setAccount(account);
 	} else {
 		d->ui->stackedWidget->setCurrentIndex(0);
-		foreach (Protocol *protocol, Protocol::all())
-			if (protocol->data(Protocol::ProtocolContainsContacts).toBool() && !protocol->accounts().isEmpty())
-				foreach (Account *acc, protocol->accounts()) {
-					QToolButton *button = new QToolButton(d->ui->accountPage);
-					button->setText(acc->id());
-					QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-					button->setSizePolicy(sizePolicy);
+		foreach (Account *acc, AccountManager::instance()->validAccounts()) {
+			if (account->protocol()->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool()) {
+				QToolButton *button = new QToolButton(d->ui->accountPage);
+				button->setText(acc->id());
+				QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+				button->setSizePolicy(sizePolicy);
 #if !defined(Q_OS_SYMBIAN)
-					button->setAutoRaise(true);
+				button->setAutoRaise(true);
 #endif
-					connect(button, SIGNAL(clicked()), SLOT(setAccount()));
-					d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
-					d->accounts.insert(acc->id(), acc);
-					d->buttons.insert(acc->id(), button);
-					changeState(acc, acc->status());
-					connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-							SLOT(changeState(qutim_sdk_0_3::Status)));
-				}
+				connect(button, SIGNAL(clicked()), SLOT(setAccount()));
+				d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
+				d->accounts.insert(acc->id(), acc);
+				d->buttons.insert(acc->id(), button);
+				changeState(acc, acc->status());
+				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+						SLOT(changeState(qutim_sdk_0_3::Status)));
+			}
+		}
 		if (d->accounts.count() == 1)
 			setAccount(d->accounts.values().at(0));
 	}

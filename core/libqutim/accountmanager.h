@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,3 +23,49 @@
 **
 ****************************************************************************/
 
+#ifndef QUTIM_SDK_0_3_ACCOUNTMANAGER_H
+#define QUTIM_SDK_0_3_ACCOUNTMANAGER_H
+
+#include "account.h"
+
+namespace qutim_sdk_0_3 {
+
+class AccountManagerPrivate;
+class ModuleManager;
+
+class LIBQUTIM_EXPORT AccountManager : public QObject
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(AccountManager)
+	Q_PROPERTY(QList<qutim_sdk_0_3::Account*> validAccounts READ validAccounts NOTIFY validAccountsChanged)
+	Q_PROPERTY(QList<qutim_sdk_0_3::Account*> invalidAccounts READ invalidAccounts NOTIFY invalidAccountsChanged)
+private:
+	explicit AccountManager(QObject *parent = 0);
+
+public:
+	~AccountManager();
+
+	static AccountManager *instance();
+
+	QList<qutim_sdk_0_3::Account*> accounts() const;
+	QList<qutim_sdk_0_3::Account*> validAccounts() const;
+	QList<qutim_sdk_0_3::Account*> invalidAccounts() const;
+    
+signals:
+	void accountCreated(qutim_sdk_0_3::Account *account);
+	void accountRemoved(qutim_sdk_0_3::Account *account);
+	void accountsChanged(const QList<qutim_sdk_0_3::Account*> &accounts);
+	void validAccountsChanged(const QList<qutim_sdk_0_3::Account*> &validAccounts);
+	void invalidAccountsChanged(const QList<qutim_sdk_0_3::Account*> &invalidAccounts);
+
+private:
+	Q_PRIVATE_SLOT(d_func(), void _q_onAccountCreated(qutim_sdk_0_3::Account*))
+	Q_PRIVATE_SLOT(d_func(), void _q_onAccountRemoved(qutim_sdk_0_3::Account*))
+
+	friend class ModuleManager;
+	QScopedPointer<AccountManagerPrivate> d_ptr;
+};
+
+} // namespace qutim_sdk_0_3
+
+#endif // QUTIM_SDK_0_3_ACCOUNTMANAGER_H

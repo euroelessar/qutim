@@ -26,6 +26,7 @@
 #include "contactlistfrontmodel.h"
 #include "contactlistmimedata.h"
 #include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <QtDebug>
 
 using namespace qutim_sdk_0_3;

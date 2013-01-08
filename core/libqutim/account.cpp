@@ -29,6 +29,7 @@
 #include "debug.h"
 #include "notification.h"
 #include "groupchatmanager.h"
+#include "accountmanager.h"
 
 namespace qutim_sdk_0_3
 {
@@ -174,9 +175,8 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 AccountList Account::all()
 {
 	AccountList list;
-	foreach(Protocol *proto, Protocol::all())
-		foreach(Account *account, proto->accounts())
-			list.append(account);
+	if (AccountManager *manager = AccountManager::instance())
+		list << manager->validAccounts() << manager->invalidAccounts();
 	return list;
 }
 

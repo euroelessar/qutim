@@ -28,6 +28,7 @@
 #include <qutim/account.h>
 #include <qutim/settingslayer.h>
 #include <qutim/servicemanager.h>
+#include <qutim/accountmanager.h>
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
@@ -76,14 +77,13 @@ AccountCreatorList::AccountCreatorList() :
 	addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
 	addItem->setData(SeparatorRole,true);
 
-	foreach(Protocol *protocol, Protocol::all()) {
-		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
-		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, protocol->accounts())	{
-			addAccount(account);
-		}
-	}
+	connect(AccountManager::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(addAccount(qutim_sdk_0_3::Account*)));
+	connect(AccountManager::instance(), SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
+			SLOT(removeAccount(qutim_sdk_0_3::Account*)));
 
+	foreach (Account *account, AccountManager::instance()->accounts())
+		addAccount(account);
 }
 
 AccountCreatorList::~AccountCreatorList()
@@ -126,7 +126,6 @@ void AccountCreatorList::changeEvent(QEvent *e)
 void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 {
 	Icon protoIcon(QLatin1String("im-") + account->protocol()->id()); //FIXME wtf?
-	debug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
 	if (!protoIcon.actualSize(QSize(1,1)).isValid())
 		protoIcon = Icon("applications-internet");
 
@@ -192,13 +191,6 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 	AccountCreatorWizard *wizard = new AccountCreatorWizard();
 	connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
 	SystemIntegration::show(wizard);
-//#if defined(QUTIM_MOBILE_UI)
-//	SystemIntegration::show(wizard);
-//#else
-//	centerizeWidget(wizard);
-//	wizard->show();
-//	wizard->raise();
-//#endif
 }
 
 void AccountCreatorList::onAccountRemoveTriggered()

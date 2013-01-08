@@ -52,7 +52,9 @@ protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
+
 	void changeEvent(QEvent *e);
+
 private slots:
 	void addAccount(qutim_sdk_0_3::Account *account);
 	void removeAccount(qutim_sdk_0_3::Account *account);
@@ -60,6 +62,7 @@ private slots:
 	void onWizardDestroyed();
 	void onAccountRemoveTriggered();
 	void onAccountPropertiesTriggered();
+
 private:
 	Ui::AccountCreatorList *ui;
 	QPointer<AccountCreatorWizard> m_wizard;

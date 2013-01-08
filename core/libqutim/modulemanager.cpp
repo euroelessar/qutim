@@ -41,6 +41,7 @@
 #include "servicemanager_p.h"
 #include "libqutim_version.h"
 #include "sound_p.h"
+#include "accountmanager.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -762,6 +763,8 @@ void ModuleManager::initExtensions()
 		}
 	}
     d->is_inited = true;
+	new AccountManager(this);
+	Event("core-inited").send();
     for (int i = 0; i < d->extensions.size(); i++) {
         const QMetaObject *meta = d->extensions.at(i).generator()->metaObject();
 		for (int j = 0; j < meta->classInfoCount(); j++) {
