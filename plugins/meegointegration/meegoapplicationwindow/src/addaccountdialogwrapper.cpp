@@ -35,7 +35,6 @@
 #include <qutim/extensioninfo.h>
 #include <qutim/icon.h>
 #include <qutim/metaobjectbuilder.h>
-#include <qutim/debug.h>
 #include <qutim/servicemanager.h>
 
 
@@ -111,11 +110,9 @@ void AddAccountDialogWrapper::showDialog(QuickAddAccountDialog * dialog)
 
 void AddAccountDialogWrapper::showDialog()
 {
-	qDebug()<<"Show Account Creator Dialog";
 	for (int i = 0; i < m_managers()->count();i++)
 	{
-		m_managers()->at(i)->loadAccounts();
-		qDebug()<<"Show Account Creator";
+        m_managers()->at(i)->loadAccounts();
 		emit m_managers()->at(i)->shown();
 	}
 }

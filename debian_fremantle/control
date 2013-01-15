@@ -125,8 +125,8 @@ XB-Maemo-Icon-26:
 Package: qutim-extra-protocols
 Section: user/network
 Architecture: any
-Depends: qutim,libpurple0
-Description: IRC, Vkontakte, and all pidgin protocols for qutIM
+Depends: qutim, libpurple0, vreen
+Description: IRC, Vkontakte, and all pidgin protocols for qutIM. CSSU-Thumb may be required.
 XSBC-Maemo-Display-Name: qutIM extra protocols
 XSBC-Bugtracker: https://launchpad.net/qutim
 XB-Maemo-Icon-26:

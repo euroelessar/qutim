@@ -1,6 +1,4 @@
 opt/qutim/lib/qutim/plugins/libquetzal.so
 opt/qutim/lib/qutim/plugins/libirc.so
 opt/qutim/lib/qutim/plugins/libvkontakte.so
-opt/qutim/lib/qutim/plugins/libvkontaktewall.so
-opt/qutim/lib/qutim/plugins/libvphotoalbum.so
 opt/qutim/share/apps/qutim/vphotoalbum/*

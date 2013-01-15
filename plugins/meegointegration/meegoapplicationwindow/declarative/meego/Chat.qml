@@ -27,56 +27,109 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "components"
 
 Page {
 	id: root
 	property variant chat
 	property variant menu: contactMenu
-    ControlledMenu {
-        id: contactMenu
-        visualParent: pageStack
+
+	PageHeader {
+		id: header
+		anchors.top: parent.top
+		text: chat.activeSession ? chat.activeSession.unit.title : ""
+		iconSource: chat.activeSession ? chat.statusUrl(chat.activeSession.unit.status) : ""
+		clickable: true
+		onClicked: {
+			if (menu !== undefined)
+				menu.open()
+		}
+	}
+
+	ControlledMenu {
+		id: contactMenu
+		visualParent: pageStack
 		controller: chat.activeSession ? chat.activeSession.unit : null
 	}
-    property variant currentSessionPage
-    Connections {
+
+	property variant currentSessionPage
+
+	Connections {
 		target: root.chat
-        onActiveSessionChanged: {
-            root.currentSessionPage = session.page;
-        }
-        onSessionCreated: {
-            if (!session.page)
-                session.page = webViewComponent.createObject(root, { "session": session });
-            root.currentSessionPage = session.page;
-        }
-        onSessionDestroyed: {
-            if (session.page) {
-                var page = session.page;
-                session.page = null;
-                page.destroy();
-            }
-        }
+		onActiveSessionChanged: {
+			root.currentSessionPage = session.page;
+		}
+		onSessionCreated: {
+			if (!session.page)
+				session.page = webViewComponent.createObject(root, { "session": session });
+			root.currentSessionPage = session.page;
+		}
+		onSessionDestroyed: {
+			if (session.page) {
+				var page = session.page;
+				session.page = null;
+				page.destroy();
+			}
+		}
 	}
-    Component {
-        id: webViewComponent
-        ChatView {
-            id: chatView
-            width: root.width
-            height: root.height - textField.height
-            //visible: chatView.session.active
-            visible: chatView === root.currentSessionPage
-        }
-    }
+
+	Component {
+		id: webViewComponent
+		ChatView {
+			id: chatView
+			anchors{ top:header.bottom; left:parent.left; right:parent.right; bottom: textField.top}
+			//visible: chatView.session.active
+			visible: chatView === root.currentSessionPage
+		}
+	}
+
+	EmoticonsDialog {
+		id:emoticonsDialog
+		anchors{ top:header.top; left:parent.left; right:parent.right; bottom: textField.top}
+		onStateChanged: {
+			if (emoticonsDialog.state === "hidden" && emoticonsDialog.selectedEmoticon !== undefined)
+			{
+				var currentPosition = textField.cursorPosition;
+				textField.text = [textField.text.toString().slice(0, textField.cursorPosition),
+						  emoticonsDialog.selectedEmoticon, textField.text.toString().slice(textField.cursorPosition)].join('');
+				textField.cursorPosition = currentPosition + emoticonsDialog.selectedEmoticon.length
+			}
+			textField.focus = true
+		}
+	}
+
+	Emoticons{
+		id:emoticons
+	}
+
+	ToolButton {
+		id: emoticonsButton
+		width: visible ? 50 : 0
+		height: 50
+		anchors { top: textField.top; left: parent.left; topMargin:5; leftMargin:5; bottomMargin: 5 }
+		iconSource: "image://theme/icon-m-messaging-smiley-happy"
+		onClicked: {
+			if (emoticonsDialog.state === "hidden")
+				emoticonsDialog.show();
+			else
+				emoticonsDialog.hide();
+		}
+		visible: emoticons.isCurrentEmoticonsAvailable
+	}
+
 	TextArea {
 		id: textField
-		anchors { left: parent.left; bottom: parent.bottom }
+		anchors { left: emoticonsButton.right; bottom: parent.bottom; right: sendButton.left; leftMargin:5; rightMargin:5}
 		placeholderText: qsTr("Write anything")
 		height: Math.min(200, implicitHeight)
-		width: parent.width - sendButton.width
 	}
-	ToolIcon {
+
+	ToolButton {
 		id: sendButton
-		anchors { top: textField.top; right: parent.right; }
-		platformIconId: "toolbar-send-chat"
+		width: 50
+		height: 50
+		anchors { top: textField.top; right: parent.right; topMargin:5; rightMargin:5}
+		iconSource: "image://theme/icon-m-toolbar-send-chat"
 		onClicked: {
 			if (textField.text!=="")
 			{

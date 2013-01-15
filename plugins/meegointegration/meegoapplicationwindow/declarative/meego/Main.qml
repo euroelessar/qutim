@@ -27,19 +27,20 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import org.qutim 0.3
 import "accounts"
+import "constants.js" as CONST
 
 PageStackWindow {
 	id: root
 	ServiceManager {
 		id: serviceManager
 	}
-    property variant applicationWindow:  serviceManager.applicationWindow
-    property variant contactInfo: serviceManager.contactInfo
+	property variant applicationWindow:  serviceManager.applicationWindow
+	property variant contactInfo: serviceManager.contactInfo
 	property variant contactList:  serviceManager.contactList
 	property variant chat:  serviceManager.chatLayer
 	property variant settings:  serviceManager.settingsLayer
-    property variant vibration:  serviceManager.vibration
-    property variant popup:  serviceManager.popup
+	property variant vibration:  serviceManager.vibration
+	property variant popup:  serviceManager.popup
 	Connections {
 		target: root.chat
 		onShown: {
@@ -47,68 +48,68 @@ PageStackWindow {
 				tabGroup.currentTab = chatTab
 		}
 	}
-    Connections {
+	Connections {
 		target: root.contactList
-        onStarted: {
-            if (contactList.accounts.length === 0) {
-                pageStack.push(accountCreatorPageComponent);
-            }
-        }
-    }
-    Connections {
+		onStarted: {
+			if (contactList.accounts.length === 0) {
+				pageStack.push(accountCreatorPageComponent);
+			}
+		}
+	}
+	Connections {
 		target: root.contactInfo
-        onShowRequest: {
-            console.log("showRequest")
-            pageStack.push(contactInfoPageComponent)
-        }
-    }
-    Connections {
+		onShowRequest: {
+			console.log("showRequest")
+			pageStack.push(contactInfoPageComponent)
+		}
+	}
+	Connections {
 		target: root.settings
-        onSettingsRequested: pageStack.push(settingsPageComponent, { "model": model })
+		onSettingsRequested: pageStack.push(settingsPageComponent, { "model": model })
 	}
 	Connections {
 		target: application
-        onDialogShown: {
-            inputDialog.widget = widget;
-            inputDialog.open();
-        }
-        onQueryDialogShown: {
-            messageBox.widget = widget;
-            messageBox.open();
-        }
+		onDialogShown: {
+			inputDialog.widget = widget;
+			inputDialog.open();
+		}
+		onQueryDialogShown: {
+			messageBox.widget = widget;
+			messageBox.open();
+		}
 		onWidgetShown: root.pageStack.push(proxyPageComponent, { "widget": widget })
 		onWidgetClosed: root.pageStack.pop(proxyPageComponent)
 	}
-    Connections {
+	Connections {
 		target: root.popup
-        onRequestChannelList: {
-            tabGroup.currentTab = channelListTab;
-            // Is there any better way to make window active?..
-            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
-        }
-        onRequestChannel: {
-            root.chat.activeSession = channel;
-            tabGroup.currentTab = chatTab;
-            Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
-        }
+		onRequestChannelList: {
+			tabGroup.currentTab = channelListTab;
+			// Is there any better way to make window active?..
+			Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+		}
+		onRequestChannel: {
+			root.chat.activeSession = channel;
+			tabGroup.currentTab = chatTab;
+			Qt.openUrlExternally("file:///usr/share/applications/qutim.desktop");
+		}
 	}
 	Component {
 		id: proxyPageComponent
 		ProxyPage {
 		}
 	}
-    Component {
+	Component {
 		id: accountCreatorPageComponent
 		ProtocolListPage {
 		}
 	}
-    Component {
+	Component {
 		id: contactInfoPageComponent
 		ContactInfoPage {
-            contactInfo: root.contactInfo
+			contactInfo: root.contactInfo
 		}
 	}
-    Component {
+	Component {
 		id: joinGroupChatPageComponent
 		JoinGroupChatDialog {
 		}
@@ -116,12 +117,12 @@ PageStackWindow {
 	Statistics {
 		id: statistics
 	}
-    InputDialog {
+	InputDialog {
 		id: inputDialog
 	}
-    MessageBox {
-        id: messageBox
-    }
+	MessageBox {
+		id: messageBox
+	}
 	PasswordDialog {
 		id: passwordDialog
 	}
@@ -140,16 +141,16 @@ PageStackWindow {
 	Notifications {
 		id:notifications
 		windowActive: platformWindow.active
-        onWindowActiveChanged: {
-            root.vibration.windowActive = windowActive
-            var session = root.chat.activeSession;
-            if (session !== undefined && session !== null && tabGroup.currentTab === chatTab) {
-                if (windowActive)
-                    session.active = true;
-                else
-                    session.active = false;
-            }
-        }
+		onWindowActiveChanged: {
+			root.vibration.windowActive = windowActive
+			var session = root.chat.activeSession;
+			if (session !== undefined && session !== null && tabGroup.currentTab === chatTab) {
+				if (windowActive)
+					session.active = true;
+				else
+					session.active = false;
+			}
+		}
 	}
 
 	initialPage: Page {
@@ -178,17 +179,17 @@ PageStackWindow {
 				id: conferenceUsersTab
 				chat: root.chat
 			}
-            
-            onCurrentTabChanged: {
-                var session = root.chat.activeSession;
-                if (session !== undefined && session !== null) {
-                    if (currentTab !== chatTab) {
-                        session.active = false;
-                    } else {
-                        session.active = true;
-                    }
-                }
-            }
+
+			onCurrentTabChanged: {
+				var session = root.chat.activeSession;
+				if (session !== undefined && session !== null) {
+					if (currentTab !== chatTab) {
+						session.active = false;
+					} else {
+						session.active = true;
+					}
+				}
+			}
 		}
 		tools: ToolBarLayout {
 			ButtonRow {
@@ -202,7 +203,7 @@ PageStackWindow {
 					tab: channelListTab
 				}
 				TabIcon {
-                    platformIconId: "toolbar-new-chat" + (enabled ? "" : "-dimmed")
+					platformIconId: "toolbar-new-chat" + (enabled ? "" : "-dimmed")
 					tab: chatTab
 					enabled: chat.activeSession !== null
 				}
@@ -214,39 +215,39 @@ PageStackWindow {
 			}
 
 			ToolIcon {
-                id: menuIcon
+				id: menuIcon
 				property variant menu: tabGroup.currentTab.menu
 				platformIconId: "toolbar-view-menu"
-                onClicked: (menu === undefined ? mainMenu : menu).open()
+				onClicked: mainMenu.open()
 			}
 
 		}
 		Menu {
-		    id: mainMenu
+			id: mainMenu
 
-		    content: MenuLayout {
-			MenuItem {
-				text: qsTr("Show/hide offline contacts")
-			    onClicked: contactListTab.showOffline=!contactListTab.showOffline;
-			}
-			MenuItem {
-				text: qsTr("Join group chat")
-			    onClicked: pageStack.push(joinGroupChatPageComponent)
-			}
-			MenuItem {
-				text: qsTr("About qutIM")
-			    onClicked: aboutDialog.open();
-			}
-			MenuItem {
-				text: qsTr("Add contact")
-			    onClicked: addContactDialog.open();
-			}
-			MenuItem {
-				text: qsTr("Settings")
-			    onClicked: root.settings.show();
-			}
+			content: MenuLayout {
+				MenuItem {
+					text: qsTr("Show/hide offline contacts")
+					onClicked: contactListTab.showOffline=!contactListTab.showOffline;
+				}
+				MenuItem {
+					text: qsTr("Join group chat")
+					onClicked: pageStack.push(joinGroupChatPageComponent)
+				}
+				MenuItem {
+					text: qsTr("About qutIM")
+					onClicked: aboutDialog.open();
+				}
+				MenuItem {
+					text: qsTr("Add contact")
+					onClicked: addContactDialog.open();
+				}
+				MenuItem {
+					text: qsTr("Settings")
+					onClicked: root.settings.show();
+				}
 
-		    }
+			}
 		}
 	}
 	Component {
@@ -260,37 +261,45 @@ PageStackWindow {
 	Sheet {
 		id: statisticsGatherer
 
-        acceptButtonText: submitBox.checked ? qsTr("Send") : qsTr("Don't send")
+		acceptButtonText: submitBox.checked ? qsTr("Send") : qsTr("Don't send")
 		rejectButtonText: qsTr("Cancel")
 
-        content: FlickableColumn {
-            anchors.fill: parent
+		content: FlickableColumn {
+			anchors.fill: parent
 			anchors.margins: 10
-            spacing: 10
-            
-            CheckBox {
-                id:submitBox
-                width: parent.width
-                text: qsTr("Would you like to send details about your current setup?")
-                checked: true
+			spacing: 10
 
-            }
-            CheckBox {
-                id:dontAskLater
-                width: parent.width
-                text: qsTr("Dont's ask me later")
-                checked: false
-            }
-            Label {
-                width: parent.width
-                text: qsTr("Information to be transferred to the qutIM's authors:")
-            }
-            TextArea {
-                width: parent.width
-                text: statistics.infoHtml
-                readOnly: true
-            }
-        }
+			CheckBox {
+				id:submitBox
+				width: parent.width
+				text: qsTr("Would you like to send details about your current setup?")
+				checked: true
+
+			}
+			CheckBox {
+				id:dontAskLater
+				width: parent.width
+				text: qsTr("Dont's ask me later")
+				checked: false
+			}
+			Text {
+				id:privacy
+				anchors.horizontalCenter: parent.horizontalCenter
+				text: "<a href=\"%1\">Privacy Policy</a>".arg(CONST.PRIVACY_POLICY_LINK);
+				onLinkActivated: {
+					Qt.openUrlExternally(link);
+				}
+			}
+			Label {
+				width: parent.width
+				text: qsTr("Information to be transferred to the qutIM's authors:")
+			}
+			TextArea {
+				width: parent.width
+				text: statistics.infoHtml
+				readOnly: true
+			}
+		}
 
 		onAccepted: statistics.setDecisition(!submitBox.checked, dontAskLater.checked);
 	}

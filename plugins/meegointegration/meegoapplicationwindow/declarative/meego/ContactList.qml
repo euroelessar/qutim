@@ -27,48 +27,57 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "components"
 
 Page {
 	id: root
 	property variant contactList
 	property variant showOffline:false
 	property variant chat
-//	property variant menu: ControlledMenu {
-//		controller: contactList
-//	}
-//    MaskedItem {
-//        id: maskedItem
-//        visible: false
-//        mask: 
-//    }
+	PageHeader {
+		id: header
+		anchors.top: parent.top
+		text: contactList.statusName(contactList.status)
+		clickable: true
+		property Sheet accountList
+		iconSource: contactList.statusUrl(contactList.status)
+		onClicked: {
+			accountList = accountListComponent.createObject(root)
+			accountList.open()
+		}
+	}
 
 	ContactListModel {
 		id: listModel
-		filter: filterField.text
 		showOffline: root.showOffline
 		statusPrefix: "icon-m"
 	}
-    ControlledMenu {
-        id: contactMenu
-        visualParent: pageStack
-    }
+	ControlledMenu {
+		id: contactMenu
+		visualParent: pageStack
+	}
 	ListView {
 		id: listViewItem
-		width: parent.width
-		anchors.top: parent.top
-		anchors.bottom: accountStatusTool.top
+		anchors{top: header.bottom; bottom: parent.bottom; left:parent.left; right:parent.right}
 		model: listModel
-        delegate: ContactItem {
-            onClicked: {
-                var session = root.chat.session(model.contact);
-                chat.activeSession = session;
-                root.chat.show();
-            }
-            onPressAndHold: {
-                contactMenu.controller = model.contact;
-                contactMenu.open();
-            }
-        }
+		header: SearchBar {
+			id: searchBar
+			placeholderText: qsTr("Search contact")
+			onSearchingTextChanged: {
+				listModel.filter = searchingText;
+			}
+		}
+		delegate: ContactItem {
+			onClicked: {
+				var session = root.chat.session(model.contact);
+				chat.activeSession = session;
+				root.chat.show();
+			}
+			onPressAndHold: {
+				contactMenu.controller = model.contact;
+				contactMenu.open();
+			}
+		}
 
 		section.property: "alphabet"
 		section.criteria: ViewSection.FullString
@@ -77,57 +86,24 @@ Page {
 	}
 	// The delegate for each section header
 	Component {
-        id: sectionHeading
-        Rectangle {
-            width: root.width
-            height: childrenRect.height
+		id: sectionHeading
+		Rectangle {
+			width: root.width
+			height: childrenRect.height
 			color: Qt.rgba(0, 0, 0, 0.2)
-            Text {
+			Text {
 				anchors.right: parent.right
 				anchors.rightMargin: 15
-                text: section
-                font.bold: true
+				text: section
+				font.bold: true
 				font.pixelSize: 20
-            }
-        }
-    }
-	TextField {
-		id: filterField
-		anchors { left: parent.left; bottom: parent.bottom; right: accountStatusTool.left }
-		platformSipAttributes: SipAttributes { actionKeyHighlighted: true }
-		placeholderText: qsTr("Search contact")
-		platformStyle: TextFieldStyle { paddingRight: clearButton.width }
-		Image {
-			id: clearButton
-			anchors.right: parent.right
-			anchors.verticalCenter: parent.verticalCenter
-			source: "image://theme/icon-m-input-clear"
-			MouseArea {
-				anchors.fill: parent
-				onClicked: {
-					inputContext.reset();
-					filterField.text = "";
-				}
 			}
 		}
 	}
 
-	ListButton {
-		id: accountStatusTool
-		anchors { right: parent.right; bottom: parent.bottom }
-		property Sheet accountList
-		iconSource: contactList.statusUrl(contactList.status)
-		text: contactList.statusName(contactList.status)
-		onClicked: {
-			accountList = accountListComponent.createObject(root)
-			accountList.open()
-		}
-	}
-
-
 	SectionScroller {
-        listView: listViewItem
-    }
+		listView: listViewItem
+	}
 	ScrollDecorator {
 		flickableItem: listViewItem
 	}
@@ -139,16 +115,16 @@ Page {
 			onRejected: accountListContent.destroy()
 			content: Flickable {
 				anchors.fill: parent
-	            anchors.leftMargin: 10
-		    anchors.topMargin: 10
-		    contentWidth: accountListColumn.width
-	            contentHeight: accountListColumn.height
-	            flickableDirection: Flickable.VerticalFlick
+				anchors.leftMargin: 10
+				anchors.topMargin: 10
+				contentWidth: accountListColumn.width
+				contentHeight: accountListColumn.height
+				flickableDirection: Flickable.VerticalFlick
 
-	            Column {
-	                id: accountListColumn
-	                anchors.top: parent.top
-	                spacing: 10
+				Column {
+					id: accountListColumn
+					anchors.top: parent.top
+					spacing: 10
 					Repeater {
 						model: [
 							Status.Online,
@@ -179,7 +155,7 @@ Page {
 							}
 						}
 					}
-	            }
+				}
 			}
 			ControlledMenu {
 				id: accountMenu
