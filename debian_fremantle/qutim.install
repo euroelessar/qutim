@@ -8,6 +8,7 @@ opt/qutim/lib/qutim/plugins/libbearer*
 opt/qutim/lib/qutim/plugins/libchatnotificationsbackend.so
 opt/qutim/lib/qutim/plugins/libclconf.so
 opt/qutim/lib/qutim/plugins/libcomparators.so 
+opt/qutim/lib/qutim/plugins/libcontactmodel.so 
 opt/qutim/lib/qutim/plugins/libdataformsbackend.so
 opt/qutim/lib/qutim/plugins/libdbusnotifications.so
 opt/qutim/lib/qutim/plugins/libe*
