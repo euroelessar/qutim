@@ -41,6 +41,7 @@
 #include "notificationwrapper.h"
 #include "thememanagerwrapper.h"
 #include "soundthemewrapper.h"
+#include "emoticonswrapper.h"
 #include "quickmaskeffect.h"
 #include "../../../../core/libqutim/statisticshelper_p.h"
 #include "languagesmodel.h"
@@ -89,6 +90,7 @@ ApplicationWindow::ApplicationWindow()
 	qmlRegisterType<StatisticsHelper>("org.qutim", 0, 3, "Statistics");
 	qmlRegisterType<LanguagesModel>("org.qutim", 0, 3, "LanguagesModel");
 	qmlRegisterType<SoundThemeWrapper>("org.qutim", 0, 3, "SoundTheme");
+	qmlRegisterType<EmoticonsWrapper>("org.qutim", 0, 3, "Emoticons");
 	qmlRegisterType<QuickMaskEffect>("org.qutim", 0, 3, "MaskEffect");
 	qmlRegisterType<QuickDataForm>("org.qutim", 0, 3, "DataForm");
 	qmlRegisterType<QuickProxyHelper>("org.qutim", 0, 3, "ProxyHelper");

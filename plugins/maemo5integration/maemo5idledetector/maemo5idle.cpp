@@ -34,13 +34,13 @@ Maemo5Idle::Maemo5Idle()
 	mDbusInterface = new QDBusInterface(MCE_SERVICE, MCE_REQUEST_PATH,
 					    MCE_REQUEST_IF, QDBusConnection::systemBus(),
 					    this);
-	display_off=false;
+	display_off = false;
 	QDBusConnection::systemBus().connect(MCE_SERVICE, MCE_SIGNAL_PATH, MCE_SIGNAL_IF,
 					     MCE_DISPLAY_SIG, this,SLOT(displayStateChanged(const QDBusMessage &)));
 	mDbusInterface->callWithCallback(MCE_DISPLAY_STATUS_GET, QList<QVariant>(), this, SLOT(setDisplayState(const QString &)));
 	
 	idle_timer = new QBasicTimer();
-	idle_timer->start(60000,this);
+	idle_timer->start(60000, this);
 	check_timer = new QTimer();
 	connect(check_timer, SIGNAL(timeout()), SLOT(doCheck()));
 	check_timer->start(60000); //every minute
@@ -48,7 +48,7 @@ Maemo5Idle::Maemo5Idle()
 
 void Maemo5Idle::doCheck()
 {
-	emit secondsIdle(idleMinutes*60);
+	emit secondsIdle(idleMinutes * 60);
 }
 
 void Maemo5Idle::setDisplayState(const QString &state)
@@ -56,15 +56,16 @@ void Maemo5Idle::setDisplayState(const QString &state)
 	if (!state.isEmpty()) {
 		if (state == MCE_DISPLAY_ON_STRING)
 		{
-			display_off=false;
+			display_off = false;
 			idle_timer->stop();
-			idleMinutes=0;
+			idleMinutes = 0;			
 		}
 		else if (state == MCE_DISPLAY_OFF_STRING)
 		{
-			display_off=true;
-			idle_timer->start(60000,this);
+			display_off = true;
+			idle_timer->start(60000, this);
 		}
+		emit secondsIdle(idleMinutes * 60);
 	}
 }
 
@@ -76,7 +77,8 @@ void Maemo5Idle::displayStateChanged(const QDBusMessage &message)
 
 void Maemo5Idle::timerEvent(QTimerEvent* ev)
 {
-	idleMinutes+=1;
+	idleMinutes += 1;
+	emit secondsIdle(idleMinutes * 60);
 	ev->accept();
 }
 

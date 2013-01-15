@@ -51,7 +51,7 @@ protected:
 private:
 	MeeGo::QmActivity::Activity m_activity;
 	QBasicTimer *idle_timer;
-	int idleSeconds;
+    int m_idleSeconds;
 	MeeGo::QmActivity *m_qmActivity;
 };
 }

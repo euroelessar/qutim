@@ -3,6 +3,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "../constants.js" as CONST
 import ".."
 
 Page {
@@ -46,6 +47,16 @@ Page {
 				passwordField.closeSoftwareInputPanel();
 			}
 		}
+
+		Text {
+			id:privacy
+			anchors.horizontalCenter: parent.horizontalCenter
+			text: "<a href=\"%1\">Privacy Policy</a>".arg(CONST.PRIVACY_POLICY_LINK);
+			onLinkActivated: {
+				Qt.openUrlExternally(link);
+			}
+		}
+
 	}
 
 	function createAccount()

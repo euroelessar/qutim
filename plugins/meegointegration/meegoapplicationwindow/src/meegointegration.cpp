@@ -81,7 +81,7 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 		ObjectGenerator *generator = NULL;
 		QScopedPointer<ObjectGenerator> gen(SettingsItemHook::generator(item));
 		const QMetaObject *meta = gen->metaObject();
-		QLatin1String className = QLatin1String(meta->className());
+        QLatin1String className = QLatin1String(meta->className());
 		if (className == QLatin1String("Jabber::JMainSettings"))
 			generator = new QuickGenerator(QLatin1String("accounts/JabberPage.qml"));
 		else if (className == QLatin1String("VAccountSettings"))
@@ -113,6 +113,8 @@ QVariant MeeGoIntegration::doProcess(SystemIntegration::Operation act, const QVa
 			generator = new QuickGenerator(QLatin1String("settings/AntispamPage.qml"));
 		else if (name == "Global proxy" || name == "Proxy")
 			generator = new QuickGenerator(QLatin1String("settings/ProxyPage.qml"));
+		else if (name == "Emoticons")
+			generator = new QuickGenerator(QLatin1String("settings/EmoticonsPage.qml"));
 		return qVariantFromValue(generator ? generator : gen.take());
 	}
 	default:

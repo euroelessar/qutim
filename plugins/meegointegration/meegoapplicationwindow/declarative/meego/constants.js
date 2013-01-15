@@ -26,6 +26,8 @@
 
 .pragma library
 
+var PRIVACY_POLICY_LINK = "http://wiki.qutim.org/en/privacypolicy";
+
 /* Margins */
 var INDENT_DEFAULT = 16;
 var CORNER_MARGINS = 22;

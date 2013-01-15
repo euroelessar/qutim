@@ -21,6 +21,7 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import org.qutim 0.3
+import "constants.js" as CONST
 
 Sheet {
 	id: aboutDialog
@@ -79,29 +80,20 @@ Sheet {
 
 		}
 
-
-//		ListModel {
-//			id:linksModel
-
-//			ListElement {
-//				name: qsTr("Project site")
-//				url: "http://qutim.org"
-//			}
-//			ListElement {
-//				name: sqTr("Source code repository")
-//				url: "http://github.com/euroelessar"
-//			}
-//			ListElement {
-//				name: qsTr("Bug tracker")
-//				url: "http://trac.qutim.org"
-//			}
-//		}
+		Text {
+			id:privacy
+			anchors.top: parent.top
+			text: "<a href=\"%1\">Privacy Policy</a>".arg(CONST.PRIVACY_POLICY_LINK);
+			onLinkActivated: {
+				Qt.openUrlExternally(link);
+			}
+		}
 
 		ListView {
 			id: mainInfo
 			spacing: 20
-			anchors.topMargin:40
-			anchors{top:parent.top; left:parent.left; right:parent.right;bottom:parent.bottom}
+			anchors.topMargin:45
+			anchors{top:parent.top; left:parent.left; right:parent.right; bottom:parent.bottom}
 			interactive: false
 			model: ListModel { }
 			delegate: Text {

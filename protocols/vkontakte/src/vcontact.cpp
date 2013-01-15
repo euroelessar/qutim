@@ -276,7 +276,7 @@ void VContact::onNameChanged(const QString &name)
 
 void VContact::onMessageSent(const QVariant &)
 {
-	auto reply = static_cast<Vreen::SendMessageReply*>(sender());
+	Vreen::SendMessageReply* reply = static_cast<Vreen::SendMessageReply*>(sender());
 	m_unreachedMessagesCount--;
 	int mid = reply->result();
 	if (mid) {
