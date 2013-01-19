@@ -5,7 +5,7 @@ UreenPlugin {
 
     Depends { name: "artwork" }
     Depends { name: "attica" }
-    Depends { name: "archive" }
+    Depends { name: "libarchive" }
     Depends { name: 'qt.declarative' }
     Depends { name: 'qt.opengl' }
 
