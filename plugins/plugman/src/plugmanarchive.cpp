@@ -4,19 +4,19 @@
 #include <QLibrary>
 
 extern "C" {
-Q_DECL_IMPORT struct archive* archive_read_new();
-Q_DECL_IMPORT int archive_read_data_block(struct archive *a,
+struct archive* archive_read_new();
+int archive_read_data_block(struct archive *a,
                                           const void **buff, size_t *size, qint64 *offset);
-Q_DECL_IMPORT int archive_read_support_compression_all(struct archive *);
-Q_DECL_IMPORT int archive_read_support_format_all(struct archive *);
-Q_DECL_IMPORT int archive_read_open_file(struct archive *,
+int archive_read_support_compression_all(struct archive *);
+int archive_read_support_format_all(struct archive *);
+int archive_read_open_file(struct archive *,
                                          const char *_filename, size_t _block_size);
-Q_DECL_IMPORT int archive_read_next_header(struct archive *,
+int archive_read_next_header(struct archive *,
                                            struct archive_entry **);
-Q_DECL_IMPORT const wchar_t * archive_entry_pathname_w(struct archive_entry *);
-Q_DECL_IMPORT int archive_read_free(struct archive *);
-Q_DECL_IMPORT int archive_read_close(struct archive *);
-Q_DECL_IMPORT const char *archive_error_string(struct archive *);
+const wchar_t * archive_entry_pathname_w(struct archive_entry *);
+int archive_read_free(struct archive *);
+int archive_read_close(struct archive *);
+const char *archive_error_string(struct archive *);
 }
 
 #define	ARCHIVE_EOF	  1
