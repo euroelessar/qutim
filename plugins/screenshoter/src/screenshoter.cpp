@@ -51,7 +51,7 @@ bool Screenshoter::load()
 {
 	if (!m_shortcut) {
 		m_shortcut = new GlobalShortcut("screenshot",this);
-		connect(m_shortcut,SIGNAL(activated()),this,SLOT(initShoter()));
+		connect(m_shortcut, SIGNAL(activated()), this, SLOT(initShoter()));
 	}
 	return true;
 }
