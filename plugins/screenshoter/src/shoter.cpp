@@ -33,9 +33,9 @@
 #include <QNetworkReply>
 #include <QHttpMultiPart>
 #include <qutim/config.h>
-#if defined Q_WS_WIN
+#if defined Q_OS_WIN
 #include <windows.h>
-#elif defined Q_WS_X11
+#elif defined Q_OS_LINUX
 #include <X11/Xlib.h>
 #endif
 Shoter::Shoter(QWidget *parent) :
@@ -183,10 +183,10 @@ void Shoter::reShot()
 	if (ui->comboBox_2->currentIndex()==0) {
 		pix=QPixmap::grabWindow(QApplication::desktop()->winId());
 	} else if (ui->comboBox_2->currentIndex()==1) {
-#if defined Q_WS_WIN
+#if defined Q_OS_WIN
 		HWND winf = GetForegroundWindow();
 		pix=QPixmap::grabWindow(winf);
-#elif defined Q_WS_X11
+#elif defined Q_OS_LINUX
 		Window winf;
 		Display *dpy;
 		dpy = XOpenDisplay(0);
