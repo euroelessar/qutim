@@ -35,27 +35,28 @@
 using namespace qutim_sdk_0_3;
 class Screenshoter : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
-    Q_CLASSINFO("DebugName","Screenshoter")
+	Q_OBJECT
+	Q_CLASSINFO("DebugName","Screenshoter")
+public:
+	Screenshoter();
 
 protected:
-    void resizeEvent(QResizeEvent *event);
-
-public:
-    Screenshoter();
-    virtual bool load();
-    virtual bool unload();
-    virtual void init();
-    Shoter *m_shoter;
-
-signals:
-    void link();
-
-public slots:
-    void initShoter();
+	void resizeEvent(QResizeEvent *event);
 
 private:
-    GlobalShortcut *m_shortcut;
+	virtual bool load();
+	virtual bool unload();
+	virtual void init();
+	Shoter m_shoter;
+	GlobalShortcut *m_shortcut;
+
+signals:
+	void link();
+
+public slots:
+	void initShoter();
+
+
 };
 
 #endif

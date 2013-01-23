@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'screenshoter.ui'
 **
-** Created: Tue Jan 22 19:29:39 2013
+** Created: Wed Jan 23 22:03:08 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -39,10 +39,10 @@ public:
     QSpacerItem *horizontalSpacer;
     QSpinBox *spinBox;
     QComboBox *comboBox_2;
-    QPushButton *ShotButton;
-    QPushButton *Button_send;
-    QPushButton *push_save;
-    QPushButton *Button_cancel;
+    QPushButton *btnShot;
+    QPushButton *btnSend;
+    QPushButton *btnSave;
+    QPushButton *btnCancel;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *Screenshoter)
@@ -105,25 +105,25 @@ public:
 
         horizontalLayout->addWidget(comboBox_2);
 
-        ShotButton = new QPushButton(centralWidget);
-        ShotButton->setObjectName(QString::fromUtf8("ShotButton"));
+        btnShot = new QPushButton(centralWidget);
+        btnShot->setObjectName(QString::fromUtf8("btnShot"));
 
-        horizontalLayout->addWidget(ShotButton);
+        horizontalLayout->addWidget(btnShot);
 
-        Button_send = new QPushButton(centralWidget);
-        Button_send->setObjectName(QString::fromUtf8("Button_send"));
+        btnSend = new QPushButton(centralWidget);
+        btnSend->setObjectName(QString::fromUtf8("btnSend"));
 
-        horizontalLayout->addWidget(Button_send);
+        horizontalLayout->addWidget(btnSend);
 
-        push_save = new QPushButton(centralWidget);
-        push_save->setObjectName(QString::fromUtf8("push_save"));
+        btnSave = new QPushButton(centralWidget);
+        btnSave->setObjectName(QString::fromUtf8("btnSave"));
 
-        horizontalLayout->addWidget(push_save);
+        horizontalLayout->addWidget(btnSave);
 
-        Button_cancel = new QPushButton(centralWidget);
-        Button_cancel->setObjectName(QString::fromUtf8("Button_cancel"));
+        btnCancel = new QPushButton(centralWidget);
+        btnCancel->setObjectName(QString::fromUtf8("btnCancel"));
 
-        horizontalLayout->addWidget(Button_cancel);
+        horizontalLayout->addWidget(btnCancel);
 
 
         verticalLayout->addLayout(horizontalLayout);
@@ -142,10 +142,10 @@ public:
     {
         Screenshoter->setWindowTitle(QApplication::translate("Screenshoter", "Screenshoter", 0, QApplication::UnicodeUTF8));
         label_2->setText(QString());
-        ShotButton->setText(QApplication::translate("Screenshoter", "Shot", 0, QApplication::UnicodeUTF8));
-        Button_send->setText(QApplication::translate("Screenshoter", "Send", 0, QApplication::UnicodeUTF8));
-        push_save->setText(QApplication::translate("Screenshoter", "Save as...", 0, QApplication::UnicodeUTF8));
-        Button_cancel->setText(QApplication::translate("Screenshoter", "Cancel", 0, QApplication::UnicodeUTF8));
+        btnShot->setText(QApplication::translate("Screenshoter", "Shot", 0, QApplication::UnicodeUTF8));
+        btnSend->setText(QApplication::translate("Screenshoter", "Send", 0, QApplication::UnicodeUTF8));
+        btnSave->setText(QApplication::translate("Screenshoter", "Save as...", 0, QApplication::UnicodeUTF8));
+        btnCancel->setText(QApplication::translate("Screenshoter", "Cancel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

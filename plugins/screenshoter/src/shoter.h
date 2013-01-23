@@ -32,40 +32,40 @@
 #include <QtGui>
 #include <QPixmap>
 #include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include "ui_screenshoter.h"
 
 class Shoter :public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent *event);
 public:
-    explicit Shoter(QWidget *parent = 0);
-    ~Shoter();
-
-    QPixmap pix;
-    QLabel label;
-    QProgressBar progressBar;
-    void writeSettings();
-    void readSettings();
+	explicit Shoter(QWidget *parent = 0);
+	~Shoter();
+	QPixmap pix;
+	QLabel label;
+	QProgressBar progressBar;
+	void writeSettings();
+	void readSettings();
 
 private slots:
-    void on_Button_send_clicked();
-    void on_Button_cancel_clicked();
-    void finishedSlot(QNetworkReply* reply);
-    void up_progress(qint64 recieved, qint64 total);
-    void on_push_save_clicked();
-    void on_ShotButton_clicked();
-    void reShot();
-    void setScreenShot();
+	void onButtonSendClicked();
+	void onButtonCancelClicked();
+	void finishedSlot(QNetworkReply *reply);
+	void upProgress(qint64 recieved, qint64 total);
+	void onPushSaveClicked();
+	void onShotButtonClicked();
+	void reShot();
+	void setScreenShot();
 
 private:
-    Ui::Screenshoter *ui;
-    void upload(QString host_url, QHttpMultiPart *multipart);
+	Ui::Screenshoter *ui;
+	void upload(const QString &hostUrl, QHttpMultiPart *multipart);
 
 signals:
-    void link();
+	void link();
 };
 
 #endif 
