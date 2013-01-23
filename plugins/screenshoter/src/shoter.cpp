@@ -11,7 +11,7 @@
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
+** the Free Software Foundation,   either version 3 of the License,   or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see http://www.gnu.org/licenses/.
+** along with this program.  If not,   see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
@@ -43,20 +43,20 @@ Shoter::Shoter(QWidget *parent) :
 	ui(new Ui::Screenshoter)
 {
 	ui->setupUi(this);
-	QObject::connect(ui->btnCancel,SIGNAL(clicked()),this,SLOT(onButtonCancelClicked()));
-	QObject::connect(ui->btnShot,SIGNAL(clicked()),this,SLOT(onShotButtonClicked()));
-	QObject::connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(onPushSaveClicked()));
-	QObject::connect(ui->btnSend,SIGNAL(clicked()),this,SLOT(onButtonSendClicked()));
+	QObject::connect(ui->btnCancel,  SIGNAL(clicked()),  this,  SLOT(onButtonCancelClicked()));
+	QObject::connect(ui->btnShot,  SIGNAL(clicked()),  this,  SLOT(onShotButtonClicked()));
+	QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
+	QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
 	this->pix = QPixmap::grabWindow(QApplication::desktop()->winId());
 	ui->statusBar->addWidget(&label);
 	label.setText(" Click \"Send\" to get the link!");
 	ui->statusBar->addWidget(&progressBar);
 	progressBar.hide();
 	setScreenShot();
-	ui->comboBox->addItem("pix.academ.org",1);
-	ui->comboBox->addItem("ompldr.org",2);
-	ui->comboBox_2->addItem("AllDesktop",1);
-	ui->comboBox_2->addItem("ActiveWindow",2);
+	ui->comboBox->addItem("pix.academ.org", 1);
+	ui->comboBox->addItem("ompldr.org", 2);
+	ui->comboBox_2->addItem("AllDesktop", 1);
+	ui->comboBox_2->addItem("ActiveWindow", 2);
 	ui->btnCancel->setShortcut(Qt::CTRL + Qt::Key_Q);
 	ui->btnCancel->setToolTip("Ctrl+Q");
 	ui->btnSend->setShortcut(Qt::CTRL + Qt::Key_P);
@@ -94,27 +94,27 @@ void Shoter::onButtonSendClicked()
 	/* Upload to pix.academ*/
 	if (ui->comboBox->currentIndex()==0) {
 		QHttpPart action;
-		action.setHeader(QNetworkRequest::ContentDispositionHeader,QVariant("name=\"action\""));
+		action.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("name=\"action\""));
 		action.setBody("upload_image");
 		QHttpPart image;
-		image.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("image/png"));
+		image.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 		image.setHeader(QNetworkRequest::ContentDispositionHeader,
 						QVariant("form-data; name=\"image\"; filename=\""+save_file+"\""));
 		image.setBodyDevice(open_file);
 		open_file->setParent(multi);
 		multi->append(action);
 		multi->append(image);
-		this->upload("http://pix.academ.org",multi);
+		this->upload("http://pix.academ.org", multi);
 		/* Upload to ompldr.org*/
 	} else if (ui->comboBox->currentIndex()==1) {
 		QHttpPart file1;
-		file1.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("image/png"));
+		file1.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 		file1.setHeader(QNetworkRequest::ContentDispositionHeader,
 						QVariant("form-data; name=\"file1\"; filename=\""+save_file+"\""));
 		file1.setBodyDevice(open_file);
 		open_file->setParent(multi);
 		multi->append(file1);
-		this->upload("http://ompldr.org/upload",multi);
+		this->upload("http://ompldr.org/upload", multi);
 	}
 }
 void Shoter::onButtonCancelClicked()
@@ -131,7 +131,7 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 		//		qDebug()<<string;
 		QRegExp rx("http://pix.academ.org/img[^\"]+|http://ompldr.org/[^<]+");
 		int pos=0;
-		while ((pos = rx.indexIn(string,pos)) != -1){
+		while ((pos = rx.indexIn(string, pos)) != -1){
 			list << rx.cap(0);
 			pos += rx.matchedLength();
 		}
@@ -147,7 +147,7 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 		label.setText(reply->errorString());
 	}
 }
-void Shoter::upProgress(qint64 recieved, qint64 total)
+void Shoter::upProgress(qint64 recieved,  qint64 total)
 {
 	if (total > 0 && recieved > 0) {
 		label.setText("");
@@ -163,8 +163,8 @@ void Shoter::upProgress(qint64 recieved, qint64 total)
 
 void Shoter::onPushSaveClicked()
 {
-	QString file_on_disk = QFileDialog::getSaveFileName(this,tr("Save File"),
-														tr("untitled.png"),tr("Images(*.png *.xpm *.jpg)"));
+	QString file_on_disk = QFileDialog::getSaveFileName(this, tr("Save File"),
+														tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
 	pix.save(file_on_disk);
 }
 
@@ -172,7 +172,7 @@ void Shoter::onShotButtonClicked()
 {
 	int sec = ui->spinBox->value();
 	QTimer *timer = new QTimer(this);
-	timer->singleShot(sec*1000,this,SLOT(reShot()));
+	timer->singleShot(sec*1000, this, SLOT(reShot()));
 	this->setHidden(true);
 	timer->start();
 }
@@ -191,7 +191,7 @@ void Shoter::reShot()
 		Display *dpy;
 		dpy = XOpenDisplay(0);
 		int ret;
-		XGetInputFocus(dpy,&winf,&ret);
+		XGetInputFocus(dpy, &winf, &ret);
 		pix = QPixmap::grabWindow(winf);
 #endif
 	}
@@ -203,14 +203,14 @@ void Shoter::reShot()
 void Shoter::resizeEvent(QResizeEvent* /* event */)
 {
 	QSize scaledSize = pix.size();
-	scaledSize.scale(ui->label_2->size(),Qt::KeepAspectRatio);
+	scaledSize.scale(ui->label_2->size(), Qt::KeepAspectRatio);
 	if (!ui->label_2->pixmap() || scaledSize != ui->label_2->pixmap()->size()) {
 		setScreenShot();
 	}
 }
 void Shoter::setScreenShot()
 {
-	ui->label_2->setPixmap(pix.scaled(ui->label_2->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+	ui->label_2->setPixmap(pix.scaled(ui->label_2->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 void Shoter::readSettings()
 {
@@ -224,19 +224,19 @@ void Shoter::writeSettings()
 {
 	qutim_sdk_0_3::Config p_settings;
 	p_settings.beginGroup(QLatin1String("Screenshoter"));
-	p_settings.setValue(QLatin1String("default"),QString::number(ui->comboBox->currentIndex()));
+	p_settings.setValue(QLatin1String("default"), QString::number(ui->comboBox->currentIndex()));
 	p_settings.endGroup();
 }
 
-void Shoter::upload(const QString &hostUrl, QHttpMultiPart *multipart)
+void Shoter::upload(const QString &hostUrl,  QHttpMultiPart *multipart)
 {
 	QNetworkAccessManager *netMgr = new QNetworkAccessManager(this);
-	QObject::connect(netMgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(finishedSlot(QNetworkReply*)));
+	QObject::connect(netMgr,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
 	QUrl url(hostUrl);
 	QNetworkRequest request(url);
-	QNetworkReply *r = netMgr->post(request,multipart);
+	QNetworkReply *r = netMgr->post(request,  multipart);
 	multipart->setParent(r);
-	QObject::connect(r,SIGNAL(uploadProgress(qint64,qint64)),this,SLOT(upProgress(qint64,qint64)));
+	QObject::connect(r,  SIGNAL(uploadProgress(qint64,  qint64)),  this,  SLOT(upProgress(qint64,  qint64)));
 	qDebug()<<url;
 }
 
