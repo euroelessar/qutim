@@ -47,9 +47,6 @@ protected:
 public:
     explicit Shoter(QWidget *parent = 0);
     ~Shoter();
-    QPixmap pix;
-    QLabel label;
-    QProgressBar progressBar;
     void writeSettings();
     void readSettings();
 
@@ -66,7 +63,10 @@ private slots:
 private:
     Ui::Screenshoter *ui;
     void upload(const QString &hostUrl, QHttpMultiPart *multipart);
-    void shot();
+	void shot(WId pwid);
+	QPixmap m_screenshot;
+	QLabel label;
+	QProgressBar progressBar;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QScreen *screen;
 #endif
