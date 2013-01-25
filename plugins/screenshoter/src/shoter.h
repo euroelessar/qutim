@@ -34,38 +34,45 @@
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include "ui_screenshoter.h"
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QScreen>
+#endif
 
 class Shoter :public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 protected:
-	void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event);
 public:
-	explicit Shoter(QWidget *parent = 0);
-	~Shoter();
-	QPixmap pix;
-	QLabel label;
-	QProgressBar progressBar;
-	void writeSettings();
-	void readSettings();
+    explicit Shoter(QWidget *parent = 0);
+    ~Shoter();
+    QPixmap pix;
+    QLabel label;
+    QProgressBar progressBar;
+    void writeSettings();
+    void readSettings();
 
 private slots:
-	void onButtonSendClicked();
-	void onButtonCancelClicked();
-	void finishedSlot(QNetworkReply *reply);
-	void upProgress(qint64 recieved, qint64 total);
-	void onPushSaveClicked();
-	void onShotButtonClicked();
-	void reShot();
-	void setScreenShot();
+    void onButtonSendClicked();
+    void onButtonCancelClicked();
+    void finishedSlot(QNetworkReply *reply);
+    void upProgress(qint64 recieved, qint64 total);
+    void onPushSaveClicked();
+    void onShotButtonClicked();
+    void reShot();
+    void setScreenShot();
 
 private:
-	Ui::Screenshoter *ui;
-	void upload(const QString &hostUrl, QHttpMultiPart *multipart);
+    Ui::Screenshoter *ui;
+    void upload(const QString &hostUrl, QHttpMultiPart *multipart);
+    void shot();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QScreen *screen;
+#endif
 
 signals:
-	void link();
+    void link();
 };
 
 #endif 
