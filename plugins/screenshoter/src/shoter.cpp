@@ -39,204 +39,229 @@
 #include <X11/Xlib.h>
 #endif
 Shoter::Shoter(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::Screenshoter)
+    QMainWindow(parent),
+    ui(new Ui::Screenshoter)
 {
-	ui->setupUi(this);
-	QObject::connect(ui->btnCancel,  SIGNAL(clicked()),  this,  SLOT(onButtonCancelClicked()));
-	QObject::connect(ui->btnShot,  SIGNAL(clicked()),  this,  SLOT(onShotButtonClicked()));
-	QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
-	QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
-	this->pix = QPixmap::grabWindow(QApplication::desktop()->winId());
-	ui->statusBar->addWidget(&label);
-	label.setText(" Click \"Send\" to get the link!");
-	ui->statusBar->addWidget(&progressBar);
-	progressBar.hide();
-	setScreenShot();
-	ui->comboBox->addItem("pix.academ.org", 1);
-	ui->comboBox->addItem("ompldr.org", 2);
-	ui->comboBox_2->addItem("AllDesktop", 1);
-	ui->comboBox_2->addItem("ActiveWindow", 2);
-	ui->btnCancel->setShortcut(Qt::CTRL + Qt::Key_Q);
-	ui->btnCancel->setToolTip("Ctrl+Q");
-	ui->btnSend->setShortcut(Qt::CTRL + Qt::Key_P);
-	ui->btnSend->setToolTip("Ctrl+P");
-	ui->btnSave->setShortcut(Qt::CTRL + Qt::Key_S);
-	ui->btnSave->setToolTip("Ctrl+S");
-	ui->btnShot->setShortcut(Qt::CTRL + Qt::Key_R);
-	ui->btnShot->setToolTip("Ctrl+R");
-	readSettings();
+    ui->setupUi(this);
+    QObject::connect(ui->btnCancel,  SIGNAL(clicked()),  this,  SLOT(onButtonCancelClicked()));
+    QObject::connect(ui->btnShot,  SIGNAL(clicked()),  this,  SLOT(onShotButtonClicked()));
+    QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
+    QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    screen = QGuiApplication::primaryScreen();
+#endif
+    shot();
+    ui->statusBar->addWidget(&label);
+    QFont font( "Arial", 9);
+    font.setPointSize(10);
+    label.setFont(font);
+    label.setText(" Click \"Send\" to get the link!");
+    ui->statusBar->addWidget(&progressBar);
+    progressBar.hide();
+    setScreenShot();
+    ui->comboBox->addItem("pix.academ.org", 1);
+    ui->comboBox->addItem("ompldr.org", 2);
+    ui->comboBox_2->addItem("AllDesktop", 1);
+    ui->comboBox_2->addItem("ActiveWindow", 2);
+    ui->btnCancel->setShortcut(Qt::CTRL + Qt::Key_Q);
+    ui->btnCancel->setToolTip("Ctrl+Q");
+    ui->btnSend->setShortcut(Qt::CTRL + Qt::Key_P);
+    ui->btnSend->setToolTip("Ctrl+P");
+    ui->btnSave->setShortcut(Qt::CTRL + Qt::Key_S);
+    ui->btnSave->setToolTip("Ctrl+S");
+    ui->btnShot->setShortcut(Qt::CTRL + Qt::Key_R);
+    ui->btnShot->setToolTip("Ctrl+R");
+    readSettings();
 
 }
 
 Shoter::~Shoter()
 {
-	writeSettings();
-	delete ui;
+    writeSettings();
+    delete ui;
 }
 
 void Shoter::onButtonSendClicked()
 {
-	/*Create file */
-	QDate date = QDate::currentDate();
-	QString name_file = date.toString();
-	QString save_file = name_file+".png";
-	QTemporaryFile file;
-	file.setFileName(save_file);
-	if (!pix.save(&file)) {
-		// qDebug("file is not saved");
-		exit(1);
-	}
-	qDebug()<<file.fileName();
-	QFile *open_file = new QFile(save_file);
-	open_file->open(QIODevice::ReadOnly);
-	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-	/* Upload to pix.academ*/
-	if (ui->comboBox->currentIndex()==0) {
-		QHttpPart action;
-		action.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("name=\"action\""));
-		action.setBody("upload_image");
-		QHttpPart image;
-		image.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-		image.setHeader(QNetworkRequest::ContentDispositionHeader,
-						QVariant("form-data; name=\"image\"; filename=\""+save_file+"\""));
-		image.setBodyDevice(open_file);
-		open_file->setParent(multi);
-		multi->append(action);
-		multi->append(image);
-		this->upload("http://pix.academ.org", multi);
-		/* Upload to ompldr.org*/
-	} else if (ui->comboBox->currentIndex()==1) {
-		QHttpPart file1;
-		file1.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-		file1.setHeader(QNetworkRequest::ContentDispositionHeader,
-						QVariant("form-data; name=\"file1\"; filename=\""+save_file+"\""));
-		file1.setBodyDevice(open_file);
-		open_file->setParent(multi);
-		multi->append(file1);
-		this->upload("http://ompldr.org/upload", multi);
-	}
+    /*Create file */
+    QDate date = QDate::currentDate();
+    QString name_file = date.toString();
+    QString save_file = name_file+".png";
+    QTemporaryFile file;
+    file.setFileName(save_file);
+    if (!pix.save(&file)) {
+        // qDebug("file is not saved");
+        exit(1);
+    }
+    qDebug()<<file.fileName();
+    QFile *open_file = new QFile(save_file);
+    open_file->open(QIODevice::ReadOnly);
+    QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    /* Upload to pix.academ*/
+    if (ui->comboBox->currentIndex()== 0) {
+        QHttpPart action;
+        action.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("name=\"action\""));
+        action.setBody("upload_image");
+        QHttpPart image;
+        image.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
+        image.setHeader(QNetworkRequest::ContentDispositionHeader,
+                        QVariant("form-data; name=\"image\"; filename=\""+save_file+"\""));
+        image.setBodyDevice(open_file);
+        open_file->setParent(multi);
+        multi->append(action);
+        multi->append(image);
+        this->upload("http://pix.academ.org", multi);
+        /* Upload to ompldr.org*/
+    } else if (ui->comboBox->currentIndex() == 1) {
+        QHttpPart file1;
+        file1.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
+        file1.setHeader(QNetworkRequest::ContentDispositionHeader,
+                        QVariant("form-data; name=\"file1\"; filename=\""+save_file+"\""));
+        file1.setBodyDevice(open_file);
+        open_file->setParent(multi);
+        multi->append(file1);
+        this->upload("http://ompldr.org/upload", multi);
+    }
 }
 void Shoter::onButtonCancelClicked()
 {
-	writeSettings();
-	this->close();
+    writeSettings();
+    this->close();
 }
 void Shoter::finishedSlot(QNetworkReply *reply)
 {
-	if (reply->error() == QNetworkReply::NoError) {
-		QByteArray bytes = reply->readAll();
-		QString string(bytes);
-		QStringList list;
-		//		qDebug()<<string;
-		QRegExp rx("http://pix.academ.org/img[^\"]+|http://ompldr.org/[^<]+");
-		int pos=0;
-		while ((pos = rx.indexIn(string, pos)) != -1){
-			list << rx.cap(0);
-			pos += rx.matchedLength();
-		}
-		QString text;
-		if (list.isEmpty()!=true) {
-			text = list.at(0);
-			label.setText("URL: <a href=\""+text+"\">"+text+"</a>");
-			label.setOpenExternalLinks(true);
-		} else {
-			label.setText("<FONT COLOR=red>&nbsp; Service unavailable!</FONT>");
-		}
-	} else {
-		label.setText(reply->errorString());
-	}
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray bytes = reply->readAll();
+        QString string(bytes);
+        QStringList list;
+        //		qDebug()<<string;
+        QRegExp rx("http://pix.academ.org/img[^\"]+|http://ompldr.org/[^<]+");
+        int pos = 0;
+        while ((pos = rx.indexIn(string, pos)) != -1){
+            list << rx.cap(0);
+            pos += rx.matchedLength();
+        }
+        QString text;
+        if (list.isEmpty() != true) {
+            text = list.at(0);
+            label.setText("URL: <a href=\""+text+"\">"+text+"</a>");
+            label.setOpenExternalLinks(true);
+        } else {
+            label.setText("<FONT COLOR=red>&nbsp; Service unavailable!</FONT>");
+        }
+    } else {
+        label.setText(reply->errorString());
+    }
 }
 void Shoter::upProgress(qint64 recieved,  qint64 total)
 {
-	if (total > 0 && recieved > 0) {
-		label.setText("");
-		progressBar.show();
-		progressBar.setMinimum(0);
-		progressBar.setMaximum(100);
-		progressBar.setValue((int) recieved*100/total);
-		if (progressBar.value()==100) {
-			progressBar.hide();
-		}
-	}
+    if (total > 0 && recieved > 0) {
+        label.setText("");
+        progressBar.show();
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(100);
+        progressBar.setValue((int) recieved*100/total);
+        if (progressBar.value() == 100) {
+            progressBar.hide();
+        }
+    }
 }
 
 void Shoter::onPushSaveClicked()
 {
-	QString file_on_disk = QFileDialog::getSaveFileName(this, tr("Save File"),
-														tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
-	pix.save(file_on_disk);
+    QString file_on_disk = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                                        tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
+    pix.save(file_on_disk);
 }
 
 void Shoter::onShotButtonClicked()
 {
-	int sec = ui->spinBox->value();
-	QTimer *timer = new QTimer(this);
-	timer->singleShot(sec*1000, this, SLOT(reShot()));
-	this->setHidden(true);
-	timer->start();
+    int sec = ui->spinBox->value();
+    QTimer *timer = new QTimer(this);
+    timer->singleShot(sec*1000, this, SLOT(reShot()));
+    this->setHidden(true);
+    timer->start();
 }
 
 void Shoter::reShot()
 {
-	ui->label_2->clear();
-	if (ui->comboBox_2->currentIndex()==0) {
-		pix=QPixmap::grabWindow(QApplication::desktop()->winId());
-	} else if (ui->comboBox_2->currentIndex()==1) {
+    ui->label_2->clear();
+    if (ui->comboBox_2->currentIndex() == 0) {
+        shot();
+    } else if (ui->comboBox_2->currentIndex() == 1) {
 #if defined Q_OS_WIN
-		HWND winf = GetForegroundWindow();
-		pix=QPixmap::grabWindow(winf);
-#elif defined Q_OS_LINUX
-		Window winf;
-		Display *dpy;
-		dpy = XOpenDisplay(0);
-		int ret;
-		XGetInputFocus(dpy, &winf, &ret);
-		pix = QPixmap::grabWindow(winf);
+        HWND winf = GetForegroundWindow();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        pix = QPixmap::grabWindow(winf);
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        pix = screen.grabWindow(winf);
 #endif
-	}
-	setScreenShot();
-	this->setVisible(true);
-	this->setFocus();
-	this->showNormal();
+#elif defined Q_OS_LINUX
+        Window winf;
+        Display *dpy;
+        dpy = XOpenDisplay(0);
+        int ret;
+        XGetInputFocus(dpy, &winf, &ret);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        pix = QPixmap::grabWindow(winf);
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        pix = screen.grabWindow(winf);
+#endif
+#endif
+    }
+    setScreenShot();
+    this->setVisible(true);
+    this->setFocus();
+    this->showNormal();
 }
 void Shoter::resizeEvent(QResizeEvent* /* event */)
 {
-	QSize scaledSize = pix.size();
-	scaledSize.scale(ui->label_2->size(), Qt::KeepAspectRatio);
-	if (!ui->label_2->pixmap() || scaledSize != ui->label_2->pixmap()->size()) {
-		setScreenShot();
-	}
+    QSize scaledSize = pix.size();
+    scaledSize.scale(ui->label_2->size(), Qt::KeepAspectRatio);
+    if (!ui->label_2->pixmap() || scaledSize != ui->label_2->pixmap()->size()) {
+        setScreenShot();
+    }
 }
 void Shoter::setScreenShot()
 {
-	ui->label_2->setPixmap(pix.scaled(ui->label_2->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    ui->label_2->setPixmap(pix.scaled(ui->label_2->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 void Shoter::readSettings()
 {
-	qutim_sdk_0_3::Config p_settings;
-	p_settings.beginGroup(QLatin1String("Screenshoter"));
-	int host = p_settings.value(QLatin1String("default")).toInt();
-	ui->comboBox->setCurrentIndex(host);
-	p_settings.endGroup();
+    qutim_sdk_0_3::Config p_settings;
+    p_settings.beginGroup(QLatin1String("Screenshoter"));
+    int host = p_settings.value(QLatin1String("default")).toInt();
+    ui->comboBox->setCurrentIndex(host);
+    p_settings.endGroup();
 }
 void Shoter::writeSettings()
 {
-	qutim_sdk_0_3::Config p_settings;
-	p_settings.beginGroup(QLatin1String("Screenshoter"));
-	p_settings.setValue(QLatin1String("default"), QString::number(ui->comboBox->currentIndex()));
-	p_settings.endGroup();
+    qutim_sdk_0_3::Config p_settings;
+    p_settings.beginGroup(QLatin1String("Screenshoter"));
+    p_settings.setValue(QLatin1String("default"), QString::number(ui->comboBox->currentIndex()));
+    p_settings.endGroup();
 }
 
 void Shoter::upload(const QString &hostUrl,  QHttpMultiPart *multipart)
 {
-	QNetworkAccessManager *netMgr = new QNetworkAccessManager(this);
-	QObject::connect(netMgr,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
-	QUrl url(hostUrl);
-	QNetworkRequest request(url);
-	QNetworkReply *r = netMgr->post(request,  multipart);
-	multipart->setParent(r);
-	QObject::connect(r,  SIGNAL(uploadProgress(qint64,  qint64)),  this,  SLOT(upProgress(qint64,  qint64)));
-	qDebug()<<url;
+    QNetworkAccessManager *netMgr = new QNetworkAccessManager(this);
+    QObject::connect(netMgr,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
+    QUrl url(hostUrl);
+    QNetworkRequest request(url);
+    QNetworkReply *r = netMgr->post(request,  multipart);
+    multipart->setParent(r);
+    QObject::connect(r,  SIGNAL(uploadProgress(qint64,  qint64)),  this,  SLOT(upProgress(qint64,  qint64)));
+    qDebug()<<url;
 }
 
+void Shoter::shot()
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    this->pix = QPixmap::grabWindow(QApplication::desktop()->winId());
+
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)  
+
+    this->pix = screen->grabWindow(QApplication::desktop()->winId());
+#endif 
+}

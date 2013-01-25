@@ -31,41 +31,43 @@ using namespace qutim_sdk_0_3;
 
 Screenshoter::Screenshoter()
 {
-	m_shortcut = 0;
+    m_shortcut = 0;
 }
 
 void Screenshoter::init()
 {
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "Screenshoter"),
-			QT_TRANSLATE_NOOP("Plugin", "Screenshot and upload to image hosting"),
-			PLUGIN_VERSION(0, 1, 0, 0));
-	setCapabilities(Loadable);
-	addAuthor(QLatin1String("trett"));
-	GlobalShortcut::registerSequence("screenshot", QT_TRANSLATE_NOOP("Screenshoter", "Screenshot"),
-									 QT_TRANSLATE_NOOP("Screenshoter", "Screenshoter"),
-									 QKeySequence("Ctrl+D")
-									 );
+    setInfo(QT_TRANSLATE_NOOP("Plugin", "Screenshoter"),
+            QT_TRANSLATE_NOOP("Plugin", "Screenshot and upload to image hosting"),
+            PLUGIN_VERSION(0, 1, 0, 0));
+    setCapabilities(Loadable);
+    addAuthor(QLatin1String("trett"));
+    GlobalShortcut::registerSequence("screenshot", QT_TRANSLATE_NOOP("Screenshoter", "Printscreen"),
+                                     QT_TRANSLATE_NOOP("Screenshoter", "Screenshoter"),
+                                     QKeySequence("")
+                                     );
 }
 
 bool Screenshoter::load()
 {
-	if (!m_shortcut) {
-		m_shortcut = new GlobalShortcut("screenshot",this);
-		connect(m_shortcut, SIGNAL(activated()), this, SLOT(initShoter()));
-	}
-	return true;
+    if (!m_shortcut) {
+        m_shortcut = new GlobalShortcut("screenshot",this);
+        connect(m_shortcut,SIGNAL(activated()),this,SLOT(initShoter()));
+    }
+    return true;
 }
 
 bool Screenshoter::unload()
 {
-	delete &m_shoter;
-	return true;
+    delete &m_shoter;
+    delete m_shortcut;
+    m_shortcut = 0;
+    return true;
 }
 
 void Screenshoter::initShoter()
 {
-	m_shoter.readSettings();
-	m_shoter.show();
+    m_shoter.readSettings();
+    m_shoter.show();
 }
 
 QUTIM_EXPORT_PLUGIN(Screenshoter)
