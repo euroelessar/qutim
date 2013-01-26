@@ -47,7 +47,7 @@ private:
 	virtual bool load();
 	virtual bool unload();
 	virtual void init();
-	Shoter m_shoter;
+	Shoter *m_shoter;
 	GlobalShortcut *m_shortcut;
 
 signals:
@@ -55,7 +55,6 @@ signals:
 
 public slots:
 	void initShoter();
-
 
 };
 

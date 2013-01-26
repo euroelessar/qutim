@@ -75,7 +75,14 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="comboBox">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer">
@@ -92,6 +99,12 @@
       </item>
       <item>
        <widget class="QSpinBox" name="spinBox">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="buttonSymbols">
          <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
@@ -107,10 +120,23 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_2"/>
+       <widget class="QComboBox" name="comboBox_2">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnShot">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Shot</string>
         </property>
@@ -118,6 +144,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnSend">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Send</string>
         </property>
@@ -125,6 +157,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnSave">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Save as...</string>
         </property>
@@ -132,6 +170,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnCancel">
+        <property name="font">
+         <font>
+          <family>Liberation Sans</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Cancel</string>
         </property>
