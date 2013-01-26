@@ -46,9 +46,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
 public:
     explicit Shoter(QWidget *parent = 0);
-    ~Shoter();
-    void writeSettings();
-    void readSettings();
+	~Shoter();	
+	void readSettings();
 
 private slots:
     void onButtonSendClicked();
@@ -62,17 +61,16 @@ private slots:
 
 private:
     Ui::Screenshoter *ui;
+    void shot(WId pwid);
     void upload(const QString &hostUrl, QHttpMultiPart *multipart);
-	void shot(WId pwid);
-	QPixmap m_screenshot;
-	QLabel label;
-	QProgressBar progressBar;
+    void writeSettings();
+    QPixmap m_screenshot;
+    QLabel label;
+    QProgressBar progressBar;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QScreen *screen;
 #endif
 
-signals:
-    void link();
 };
 
 #endif 

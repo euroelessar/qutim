@@ -173,9 +173,9 @@ void Shoter::onPushSaveClicked()
 void Shoter::onShotButtonClicked()
 {
 	int sec = ui->spinBox->value();
+	this->setHidden(true);
 	QTimer *timer = new QTimer(this);
 	timer->singleShot(sec*1000, this, SLOT(reShot()));
-	this->setHidden(true);
 	timer->start();
 }
 
@@ -212,7 +212,8 @@ void Shoter::resizeEvent(QResizeEvent* /* event */)
 }
 void Shoter::setScreenShot()
 {
-	ui->label_2->setPixmap(m_screenshot.scaled(ui->label_2->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	ui->label_2->setPixmap(m_screenshot.scaled(ui->label_2->size(),
+											   Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 void Shoter::readSettings()
 {
