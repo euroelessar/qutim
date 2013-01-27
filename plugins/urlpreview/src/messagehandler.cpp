@@ -233,18 +233,14 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		showPreviewHead = false;
 	}
 
-	static QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
+	static QRegExp urlrx("^https?://www\\.youtube\\.com/v/([\\w\\-]+)");
 	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
 		pstr = m_template;
-		if (type == QLatin1String("application/x-shockwave-flash")) {
-			showPreviewHead = false;
-			pstr.replace("%TYPE%", tr("YouTube video"));
-			pstr += m_youtubeTemplate;
-			pstr.replace("%YTID%", urlrx.cap(1));
-			pstr.replace("%SIZE%", tr("Unknown"));
-		} else {
-			pstr.replace("%SIZE%", QString::number(size));
-		}
+		showPreviewHead = false;
+		pstr.replace("%TYPE%", tr("YouTube video"));
+		pstr += m_youtubeTemplate;
+		pstr.replace("%YTID%", urlrx.cap(1));
+		pstr.replace("%SIZE%", tr("Unknown"));
 	}
 
 
