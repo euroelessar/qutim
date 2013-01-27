@@ -50,9 +50,6 @@ private:
 	Shoter *m_shoter;
 	GlobalShortcut *m_shortcut;
 
-signals:
-	void link();
-
 public slots:
 	void initShoter();
 

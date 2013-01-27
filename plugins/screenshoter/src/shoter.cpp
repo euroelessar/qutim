@@ -47,15 +47,10 @@ Shoter::Shoter(QWidget *parent) :
 	QObject::connect(ui->btnShot,  SIGNAL(clicked()),  this,  SLOT(onShotButtonClicked()));
 	QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
 	QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
-	shot(QApplication::desktop()->winId());
 	ui->statusBar->addWidget(&label);
-	QFont font( "Arial", 9);
-	font.setPointSize(10);
-	label.setFont(font);
 	label.setText(" Click \"Send\" to get the link!");
 	ui->statusBar->addWidget(&progressBar);
 	progressBar.hide();
-	setScreenShot();
 	ui->comboBox->addItem("pix.academ.org", 1);
 	ui->comboBox->addItem("ompldr.org", 2);
 	ui->comboBox_2->addItem("AllDesktop", 1);
@@ -197,7 +192,6 @@ void Shoter::reShot()
 		shot(winf);
 #endif
 	}
-	setScreenShot();
 	setVisible(true);
 	setFocus();
 	showNormal();
@@ -252,5 +246,11 @@ void Shoter::shot(WId pwid)
 #else
 #error Unsupported OS
 #endif 
+	setScreenShot();
 }
 
+void Shoter::startShoter()
+{
+	shot(QApplication::desktop()->winId());
+	show();
+}

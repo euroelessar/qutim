@@ -40,35 +40,36 @@
 
 class Shoter :public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent *event);
 public:
-    explicit Shoter(QWidget *parent = 0);
-	~Shoter();	
+	explicit Shoter(QWidget *parent = 0);
+	~Shoter();
 	void readSettings();
+	void startShoter();
 
 private slots:
-    void onButtonSendClicked();
-    void onButtonCancelClicked();
-    void finishedSlot(QNetworkReply *reply);
-    void upProgress(qint64 recieved, qint64 total);
-    void onPushSaveClicked();
-    void onShotButtonClicked();
-    void reShot();
-    void setScreenShot();
+	void onButtonSendClicked();
+	void onButtonCancelClicked();
+	void finishedSlot(QNetworkReply *reply);
+	void upProgress(qint64 recieved, qint64 total);
+	void onPushSaveClicked();
+	void onShotButtonClicked();
+	void setScreenShot();
+	void reShot();
 
 private:
-    Ui::Screenshoter *ui;
-    void shot(WId pwid);
-    void upload(const QString &hostUrl, QHttpMultiPart *multipart);
-    void writeSettings();
-    QPixmap m_screenshot;
-    QLabel label;
-    QProgressBar progressBar;
+	Ui::Screenshoter *ui;
+	void upload(const QString &hostUrl, QHttpMultiPart *multipart);
+	void shot(WId pwid);
+	void writeSettings();
+	QPixmap m_screenshot;
+	QLabel label;
+	QProgressBar progressBar;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    QScreen *screen;
+	QScreen *screen;
 #endif
 
 };
