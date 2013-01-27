@@ -12,7 +12,8 @@
   </property>
   <property name="font">
    <font>
-    <family>Segoe UI</family>
+    <family>Liberation Sans</family>
+    <pointsize>9</pointsize>
    </font>
   </property>
   <property name="acceptDrops">

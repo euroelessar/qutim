@@ -33,7 +33,6 @@ Screenshoter::Screenshoter()
 {
 	m_shortcut = 0;
 	m_shoter = new Shoter();
-
 }
 
 void Screenshoter::init()
@@ -69,7 +68,7 @@ bool Screenshoter::unload()
 void Screenshoter::initShoter()
 {
 	m_shoter->readSettings();
-	m_shoter->show();
+	m_shoter->startShoter();
 }
 
 QUTIM_EXPORT_PLUGIN(Screenshoter)
