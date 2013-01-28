@@ -77,16 +77,16 @@ void Shoter::onButtonSendClicked()
 	/*Create file */
 	QDate date = QDate::currentDate();
 	QString name_file = date.toString();
-	QString save_file = name_file+".png";
+	QString savedFile = name_file+".png";
 	QTemporaryFile file;
-	file.setFileName(save_file);
+	file.setFileName(savedFile);
 	if (!m_screenshot.save(&file)) {
 		qDebug("file is not saved");
 		exit(1);
 	}
 	// qDebug()<<file.fileName();
-	QFile *open_file = new QFile(save_file);
-	open_file->open(QIODevice::ReadOnly);
+	QFile *openFile = new QFile(savedFile);
+	openFile->open(QIODevice::ReadOnly);
 	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	/* Upload to pix.academ*/
 	if (ui->comboBox->currentIndex()== 0) {
@@ -96,28 +96,28 @@ void Shoter::onButtonSendClicked()
 		QHttpPart image;
 		image.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 		image.setHeader(QNetworkRequest::ContentDispositionHeader,
-						QVariant("form-data; name=\"image\"; filename=\""+save_file+"\""));
-		image.setBodyDevice(open_file);
-		open_file->setParent(multi);
+						QVariant("form-data; name=\"image\"; filename=\""+savedFile+"\""));
+		image.setBodyDevice(openFile);
+		openFile->setParent(multi);
 		multi->append(action);
 		multi->append(image);
-		this->upload("http://pix.academ.org", multi);
+		upload("http://pix.academ.org", multi);
 		/* Upload to ompldr.org*/
 	} else if (ui->comboBox->currentIndex() == 1) {
 		QHttpPart file1;
 		file1.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 		file1.setHeader(QNetworkRequest::ContentDispositionHeader,
-						QVariant("form-data; name=\"file1\"; filename=\""+save_file+"\""));
-		file1.setBodyDevice(open_file);
-		open_file->setParent(multi);
+						QVariant("form-data; name=\"file1\"; filename=\""+savedFile+"\""));
+		file1.setBodyDevice(openFile);
+		openFile->setParent(multi);
 		multi->append(file1);
-		this->upload("http://ompldr.org/upload", multi);
+		upload("http://ompldr.org/upload", multi);
 	}
 }
 void Shoter::onButtonCancelClicked()
 {
 	writeSettings();
-	this->close();
+	close();
 }
 void Shoter::finishedSlot(QNetworkReply *reply)
 {
@@ -168,7 +168,7 @@ void Shoter::onPushSaveClicked()
 void Shoter::onShotButtonClicked()
 {
 	int sec = ui->spinBox->value();
-	this->setHidden(true);
+	setHidden(true);
 	QTimer *timer = new QTimer(this);
 	timer->singleShot(sec*1000, this, SLOT(reShot()));
 	timer->start();
