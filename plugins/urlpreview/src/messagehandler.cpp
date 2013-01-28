@@ -29,6 +29,7 @@
 #include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
+#include <qutim/utils.h>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -87,67 +88,25 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
     if (!session || !session->property("supportJavaScript").toBool())
 		return UrlHandler::Accept;
 
-	QString html = message.html();
-//	if (html.isEmpty()) {
-//		html = Qt::escape(message.text());
-		QString newHtml;
-		const QRegExp &linkRegExp = getLinkRegExp();
-		int pos = 0;
-		int lastPos = 0;
-		while (((pos = linkRegExp.indexIn(html, pos)) != -1)) {
-			html.midRef(lastPos, pos - lastPos).appendTo(&newHtml);
+	const QString originalHtml = message.html();
+	QString html;
+	foreach (const UrlParser::UrlToken &token,
+			 UrlParser::tokenize(originalHtml, UrlParser::Html)) {
+		if (token.url.isEmpty()) {
+			html += token.text.toString();
+		} else {
 			static int uid = 1;
-			QString link = linkRegExp.cap(0);
-			const QString oldLink = link;
-			checkLink(link, const_cast<ChatUnit*>(message.chatUnit()), uid);
-			newHtml += link;
-			uid++;
-			pos = lastPos = pos + oldLink.size();
+			QString link = token.url;
+			checkLink(token.text, link, message.chatUnit(), uid++);
+			html += link;
 		}
-		html.midRef(lastPos, html.size() - lastPos).appendTo(&newHtml);
-		html = newHtml;
-//	} else {
-		//QTextDocument doc(html);
-		//const QRegExp &linkRegExp = getLinkRegExp();
-		//QTextCursor cursor(&doc);
-		//while (true) {
-		//	cursor = doc.find(linkRegExp, cursor);
-		//	if (cursor.isNull())
-		//		break;
-		//	QString link = cursor.selectedText();
-		//	checkLink(link, const_cast<ChatUnit*>(message.chatUnit()), message.id());
-		//	cursor.removeSelectedText();
-		//	cursor.insertHtml(link);
-		//}
-		//qDebug() << html << doc.toHtml();
-		//html = doc.toHtml();
-//	}
+	}
 	message.setHtml(html);
 	return UrlHandler::Accept;
 }
 
-const QRegExp &UrlHandler::getLinkRegExp()
+void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUnit *from, qint64 id)
 {
-#if 0
-	static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-							  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
-							  Qt::CaseInsensitive);
-#else
-	static QRegExp linkRegExp("([a-z]+(\\+[a-z]+)?://|www\\.)"
-							  "[\\w-]+(\\.[\\w-]+)*\\.\\w+"
-							  "(:\\d+)?"
-							  "(/[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@\\'&=~-]*"
-							  "(\\?[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@\\'&=~-]*)?"
-							  "(#[\\w\\+\\.\\[\\]!%\\$/\\\\\\(\\)\\|,:;@\\'&=~-]*)?)?",
-							  Qt::CaseInsensitive, QRegExp::RegExp2);
-#endif
-	Q_ASSERT(linkRegExp.isValid());
-	return linkRegExp;
-}
-
-void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 id)
-{
-	const QString oldLink = link;
 	const char *entitiesIn[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
 	const char *entitiesOut[] = { "\"", ">", "<", "&" };
 	const int entitiesCount = sizeof(entitiesIn) / sizeof(entitiesIn[0]);
@@ -157,20 +116,32 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 		             QLatin1String(entitiesOut[i]),
 		             Qt::CaseInsensitive);
 	}
-	
-	//TODO may be need refinement
-	if (link.toLower().startsWith("www."))
-		link.prepend("http://");
-	link = QUrl::fromEncoded(link.toUtf8()).toString();
-	link.replace(" ", QLatin1String("%20"));
 
-	static QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
-	Q_ASSERT(urlrx.isValid());
-	if (urlrx.indexIn(link)>-1 && (m_flags)) {
-		link = QLatin1String("http://www.youtube.com/v/") + urlrx.cap(1);
+	const QUrl url = QUrl::fromUserInput(link);
+
+	if (m_flags & PreviewYoutube) {
+		const QString youtubeId = (url.host() == QLatin1String("youtube.com")
+								   || url.host() == QLatin1String("www.youtube.com"))
+								  ? (url.path().startsWith(QLatin1String("/v/"))
+									 ? url.path().mid(3)
+									 : url.queryItemValue(QLatin1String("v")))
+								  : (url.host() == QLatin1String("youtu.be")
+									 ? url.path().mid(1)
+									 : QString());
+
+		if (!youtubeId.isEmpty()) {
+			QString html = m_template;
+			html.replace("%TYPE%", tr("YouTube video"));
+			html += m_youtubeTemplate;
+			html.replace("%YTID%", youtubeId);
+			html.replace("%SIZE%", tr("Unknown"));
+			html.prepend(originalLink.toString() + QLatin1String(" "));
+			link = html;
+			return;
+		}
 	}
 
-	QString uid = QString::number(id);
+	const QString uid = QString::number(id);
 
 	QNetworkRequest request;
 	request.setUrl(QUrl(link));
@@ -179,8 +150,8 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
-	//link = QUrl::fromEncoded(link.toUtf8()).toString();
-	link = QString::fromLatin1("%1 <span id='urlpreview%2'></span> ").arg(oldLink, uid);
+	link = QString::fromLatin1("%1 <span id='urlpreview%2'></span> ")
+		   .arg(originalLink.toString(), uid);
 
 	debug() << "url" << link;
 }
@@ -188,9 +159,10 @@ void UrlHandler::checkLink(QString &link, qutim_sdk_0_3::ChatUnit *from, qint64 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
-	QString url = reply->url().toString();
+	QUrl url = reply->url();
+	QString urlString = reply->url().toString();
 	QByteArray typeheader;
-	QString decodedUrl = QUrl::fromEncoded(url.toUtf8()).toString();
+	QString decodedUrl = QUrl::fromEncoded(urlString.toUtf8()).toString();
 	QString type;
 	QByteArray sizeheader;
 	quint64 size=0;
@@ -220,7 +192,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			size = hrx.cap(1).toInt();
 	}
 	
-	debug() << url << reply->rawHeaderList() << type;
+	debug() << urlString << reply->rawHeaderList() << type;
 	if (type.isNull())
 		return;
 
@@ -233,17 +205,6 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		showPreviewHead = false;
 	}
 
-	static QRegExp urlrx("^https?://www\\.youtube\\.com/v/([\\w\\-]+)");
-	if (urlrx.indexIn(url)==0 && m_enableYoutubePreview) {
-		pstr = m_template;
-		showPreviewHead = false;
-		pstr.replace("%TYPE%", tr("YouTube video"));
-		pstr += m_youtubeTemplate;
-		pstr.replace("%YTID%", urlrx.cap(1));
-		pstr.replace("%SIZE%", tr("Unknown"));
-	}
-
-
 	if (( ( (type == QLatin1String("audio/ogg") || type == QLatin1String("audio/mpeg")) || type == QLatin1String("application/ogg")) || type == QLatin1String("audio/x-wav") ) && m_enableHTML5Audio) {
 				pstr = m_template;
 				showPreviewHead = false;
@@ -254,7 +215,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 				} else {
 					pstr.replace("%FILETYPE%", type);
 				}
-				pstr.replace("%AUDIOURL%", url);
+				pstr.replace("%AUDIOURL%", urlString);
 				pstr.replace("%SIZE%", QString::number(size));
 			}
 
@@ -264,7 +225,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 				pstr.replace("%TYPE%", tr("HTML5 Video"));
 				pstr += m_html5VideoTemplate;
 				pstr.replace("%VIDEOTYPE%", type);
-				pstr.replace("%VIDEOURL%", url);
+				pstr.replace("%VIDEOURL%", urlString);
 				pstr.replace("%SIZE%", QString::number(size));
 			}
 
@@ -279,7 +240,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	typerx.setPattern("^image/");
 	if (type.contains(typerx) && 0 < size && size < m_maxFileSize && m_enableImagesPreview) {
 		QString amsg = m_imageTemplate;
-		amsg.replace("%URL%", url);
+		amsg.replace("%URL%", urlString);
 		amsg.replace("%UID%", uid);
 		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
 		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
