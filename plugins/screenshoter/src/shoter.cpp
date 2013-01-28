@@ -48,7 +48,6 @@ Shoter::Shoter(QWidget *parent) :
 	QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
 	QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
 	ui->statusBar->addWidget(&label);
-	label.setText(" Click \"Send\" to get the link!");
 	ui->statusBar->addWidget(&progressBar);
 	progressBar.hide();
 	ui->comboBox->addItem("pix.academ.org", 1);
@@ -63,7 +62,6 @@ Shoter::Shoter(QWidget *parent) :
 	ui->btnSave->setToolTip("Ctrl+S");
 	ui->btnShot->setShortcut(Qt::CTRL + Qt::Key_R);
 	ui->btnShot->setToolTip("Ctrl+R");
-	readSettings();
 }
 
 Shoter::~Shoter()
@@ -252,5 +250,6 @@ void Shoter::shot(WId pwid)
 void Shoter::startShoter()
 {
 	shot(QApplication::desktop()->winId());
+	label.setText(" Click \"Send\" to get the link!");
 	show();
 }
