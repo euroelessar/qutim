@@ -35,8 +35,11 @@
 #include <qutim/account.h>
 #include <QFileDialog>
 #include <QNetworkCookieJar>
+#include <QXmlQuery>
 
 using namespace qutim_sdk_0_3;
+
+#define WEBDAV_BASE_URL QLatin1String("https://webdav.yandex.ru/")
 
 YandexNarodUploadJob::YandexNarodUploadJob(qutim_sdk_0_3::ChatUnit *contact,
 										   YandexNarodFactory *factory) :
@@ -73,48 +76,62 @@ void YandexNarodUploadJob::doReceive()
 
 void YandexNarodUploadJob::sendImpl()
 {
-	setStateString(QT_TR_NOOP("Uploading file..."));
-
-	m_data = setCurrentIndex(0);
-
-	if (!m_data->open(QIODevice::ReadOnly)) {
-		setError(IOError);
-		setErrorString(tr("Could not open file %1").arg(fileName()));
-		return;
-	}
-
-	QString fileName;
-	// TODO: Think about better solution
-//	fileName += QString::number(qrand(), 16);
-//	fileName += "-";
-	fileName += YandexNarodUploadJob::fileName();
-
-	QUrl url(QLatin1String("https://webdav.yandex.ru/"));
-	url.setPath(fileName);
-
-	YandexRequest request(QUrl("https://webdav.yandex.ru/" + fileName));
-	request.setRawHeader("Content-Length", QByteArray::number(m_data->size()));
-	request.setRawHeader("Content-Type", "application/octet-stream");
-	request.setRawHeader("Expect", "100-continue");
-
-	QNetworkReply *reply = YandexNarodFactory::networkManager()->put(request, m_data);
-	connect(reply, SIGNAL(finished()), this, SLOT(onUploadFinished()));
-	connect(reply, SIGNAL(uploadProgress(qint64,qint64)),
-			this, SLOT(onUploadProgress(qint64,qint64)));
-
 	setState(Started);
+	setStateString(QT_TR_NOOP("Creating directory..."));
+
+	// We need only resourcetype to detect if it is a directory
+	QByteArray data = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+					  "<propfind xmlns=\"DAV:\">"
+					  "<prop><resourcetype/></prop>"
+					  "</propfind>";
+
+	QUrl url(WEBDAV_BASE_URL);
+	url.setPath(QLatin1String("/qutim-filetransfer/"));
+	YandexRequest request(url);
+	request.setRawHeader("Depth", "1");
+	request.setRawHeader("Content-Length", QByteArray::number(data.size()));
+	request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+	QBuffer *buffer = new QBuffer;
+	buffer->setData(data);
+	buffer->open(QIODevice::ReadOnly);
+
+	QNetworkReply *reply = YandexNarodFactory::networkManager()
+						   ->sendCustomRequest(request, "PROPFIND", buffer);
+	buffer->setParent(reply);
+	connect(reply, SIGNAL(finished()), this, SLOT(onDirectoryChecked()));
 }
 
-bool YandexNarodUploadJob::processReply(QNetworkReply *reply)
+bool YandexNarodUploadJob::checkReply(QNetworkReply *reply)
 {
-	reply->deleteLater();
-	if (reply->error() == QNetworkReply::NoError)
-		return true;
+	const int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-	debug() << reply->request().url() << QString::fromUtf8(reply->readAll());
-	setError(NetworkError);
-	setErrorString(reply->errorString());
-	return false;
+	debug() << reply->request().url()
+			<< reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
+			<< reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute)
+			<< reply->request().attribute(QNetworkRequest::CustomVerbAttribute);
+
+	if (code == 507) {
+		setState(Error);
+		setError(NetworkError);
+		setErrorString(QT_TR_NOOP("Not anough space on storage"));
+		return false;
+	} else if (code == 413) {
+		setState(Error);
+		setError(NetworkError);
+		setErrorString(QT_TR_NOOP("File too large"));
+		return false;
+	} else if (code == 405
+			   && reply->request().attribute(QNetworkRequest::CustomVerbAttribute) == "MKCOL") {
+		// Directory is already created
+		return true;
+	} else if (code != 201) {
+		setState(Error);
+		setError(NetworkError);
+		return false;
+	}
+
+	return true;
 }
 
 void YandexNarodUploadJob::authorizationResult(YandexNarodAuthorizator::Result result, const QString &error)
@@ -125,6 +142,59 @@ void YandexNarodUploadJob::authorizationResult(YandexNarodAuthorizator::Result r
 		setError(NetworkError);
 		setErrorString(YandexNarodFactory::authorizator()->resultString(result, error));
 	}
+}
+
+void YandexNarodUploadJob::onDirectoryChecked()
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	reply->deleteLater();
+
+	QXmlQuery query;
+	query.setQuery(QLatin1String(""));
+	query.setFocus(reply);
+	query.evaluateTo(&files);
+
+	debug() << reply->request().url()
+			<< reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
+			<< reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute)
+			<< reply->request().attribute(QNetworkRequest::CustomVerbAttribute)
+			<< reply->readAll();
+//	QNetworkReply *reply = YandexNarodFactory::networkManager()
+//	                       ->sendCustomRequest(request, "MKCOL");
+//	connect(reply, SIGNAL(finished()), this, SLOT(onDirectoryCreated()));
+}
+
+void YandexNarodUploadJob::onDirectoryCreated()
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	reply->deleteLater();
+
+	if (!checkReply(reply))
+		return;
+
+	setStateString(QT_TR_NOOP("Uploading file..."));
+
+	m_data = setCurrentIndex(0);
+
+	if (!m_data->open(QIODevice::ReadOnly)) {
+		setError(IOError);
+		setErrorString(tr("Could not open file %1").arg(fileName()));
+		return;
+	}
+
+	QUrl url = reply->url().resolved(QUrl(fileName()));
+
+	YandexRequest request(url);
+	request.setRawHeader("Content-Length", QByteArray::number(m_data->size()));
+	request.setRawHeader("Content-Type", "application/octet-stream");
+	request.setRawHeader("Expect", "100-continue");
+
+	QNetworkReply *putReply = YandexNarodFactory::networkManager()->put(request, m_data);
+	connect(putReply, SIGNAL(finished()), this, SLOT(onUploadFinished()));
+	connect(putReply, SIGNAL(uploadProgress(qint64,qint64)),
+			this, SLOT(onUploadProgress(qint64,qint64)));
 }
 
 void YandexNarodUploadJob::onUploadProgress(qint64 bytesSent, qint64 bytesTotal)
@@ -139,29 +209,8 @@ void YandexNarodUploadJob::onUploadFinished()
 	Q_ASSERT(reply);
 	reply->deleteLater();
 
-	if (reply->error() != QNetworkReply::NoError) {
-		setState(Error);
-		setError(NetworkError);
+	if (!checkReply(reply))
 		return;
-	}
-
-	int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-	if (code == 507) {
-		setState(Error);
-		setError(NetworkError);
-		setErrorString(QT_TR_NOOP("Not anough space on storage"));
-		return;
-	} else if (code == 413) {
-		setState(Error);
-		setError(NetworkError);
-		setErrorString(QT_TR_NOOP("File too large"));
-		return;
-	} else if (code != 201) {
-		setState(Error);
-		setError(NetworkError);
-		return;
-	}
 
 	QUrl url = reply->url();
 	url.setEncodedQuery("publish");
@@ -197,5 +246,7 @@ void YandexNarodUploadJob::onPublishFinished()
 		s->appendMessage(message);
 	message.setProperty("service", false);
 	chatUnit()->account()->getUnitForSession(chatUnit())->send(message);
+
+	setState(Finished);
 }
 

@@ -53,12 +53,14 @@ protected:
 	virtual void doReceive();
 public slots:
 	void authorizationResult(YandexNarodAuthorizator::Result, const QString &error);
+	void onDirectoryChecked();
+	void onDirectoryCreated();
 	void onUploadProgress(qint64 bytesSent, qint64 bytesTotal);
 	void onUploadFinished();
 	void onPublishFinished();
 private:
 	void sendImpl();
-	bool processReply(QNetworkReply *reply);
+	bool checkReply(QNetworkReply *reply);
 private:
 	QPointer<QIODevice> m_data;
 };
