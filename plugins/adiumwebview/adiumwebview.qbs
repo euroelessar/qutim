@@ -11,7 +11,6 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: "./"
         prefix: "data/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 }

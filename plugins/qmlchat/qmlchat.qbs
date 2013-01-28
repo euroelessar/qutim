@@ -14,7 +14,6 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: "./"
         prefix: "qmlchat/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 }

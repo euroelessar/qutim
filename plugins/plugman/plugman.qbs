@@ -12,7 +12,6 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: "qml"
         prefix: "qml/plugman/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 }

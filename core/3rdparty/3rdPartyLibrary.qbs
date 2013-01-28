@@ -10,9 +10,8 @@ StaticLibrary {
 
     Group {
         condition: sourcePath !== undefined
-        prefix: sourcePath + '/'
+        prefix: sourcePath + '/**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c", "*.mm" ]
-        recursive: true
     }
 
     ProductModule {

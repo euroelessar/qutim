@@ -17,7 +17,6 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: '.'
         prefix: "olddelegate/"
-        files: '*'
-        recursive: true
+        files: '**'
     }
 }
