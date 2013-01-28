@@ -124,7 +124,9 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 								   || url.host() == QLatin1String("www.youtube.com"))
 								  ? (url.path().startsWith(QLatin1String("/v/"))
 									 ? url.path().mid(3)
-									 : url.queryItemValue(QLatin1String("v")))
+									 : (url.path().startsWith(QLatin1String("/embed/"))
+										? url.path().mid(7)
+										: url.queryItemValue(QLatin1String("v"))))
 								  : (url.host() == QLatin1String("youtu.be")
 									 ? url.path().mid(1)
 									 : QString());
@@ -159,10 +161,8 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
-	QUrl url = reply->url();
-	QString urlString = reply->url().toString();
+	QString url = reply->url().toString();
 	QByteArray typeheader;
-	QString decodedUrl = QUrl::fromEncoded(urlString.toUtf8()).toString();
 	QString type;
 	QByteArray sizeheader;
 	quint64 size=0;
@@ -192,7 +192,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			size = hrx.cap(1).toInt();
 	}
 	
-	debug() << urlString << reply->rawHeaderList() << type;
+	debug() << url << reply->rawHeaderList() << type;
 	if (type.isNull())
 		return;
 
@@ -205,30 +205,36 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		showPreviewHead = false;
 	}
 
-	if (( ( (type == QLatin1String("audio/ogg") || type == QLatin1String("audio/mpeg")) || type == QLatin1String("application/ogg")) || type == QLatin1String("audio/x-wav") ) && m_enableHTML5Audio) {
-				pstr = m_template;
-				showPreviewHead = false;
-				pstr.replace("%TYPE%", tr("HTML5 Audio"));
-				pstr += m_html5AudioTemplate;
-				if (type == QLatin1String("application/ogg")) {
-					pstr.replace("%FILETYPE%", "audio/ogg");
-				} else {
-					pstr.replace("%FILETYPE%", type);
-				}
-				pstr.replace("%AUDIOURL%", urlString);
-				pstr.replace("%SIZE%", QString::number(size));
-			}
+	if (m_enableHTML5Audio &&
+			(type == QLatin1String("audio/ogg")
+			 || type == QLatin1String("audio/mpeg")
+			 || type == QLatin1String("application/ogg")
+			 || type == QLatin1String("audio/x-wav"))) {
+		pstr = m_template;
+		showPreviewHead = false;
+		pstr.replace("%TYPE%", tr("HTML5 Audio"));
+		pstr += m_html5AudioTemplate;
+		if (type == QLatin1String("application/ogg")) {
+			pstr.replace("%FILETYPE%", "audio/ogg");
+		} else {
+			pstr.replace("%FILETYPE%", type);
+		}
+		pstr.replace("%AUDIOURL%", url);
+		pstr.replace("%SIZE%", QString::number(size));
+	}
 
-	if (((type == QLatin1String("video/webm") || type == QLatin1String("video/ogg")) || type == QLatin1String("video/mp4")) && m_enableHTML5Video) {
-				pstr = m_template;
-				showPreviewHead = false;
-				pstr.replace("%TYPE%", tr("HTML5 Video"));
-				pstr += m_html5VideoTemplate;
-				pstr.replace("%VIDEOTYPE%", type);
-				pstr.replace("%VIDEOURL%", urlString);
-				pstr.replace("%SIZE%", QString::number(size));
-			}
-
+	if (m_enableHTML5Video &&
+			(type == QLatin1String("video/webm")
+			 || type == QLatin1String("video/ogg")
+			 || type == QLatin1String("video/mp4"))) {
+		pstr = m_template;
+		showPreviewHead = false;
+		pstr.replace("%TYPE%", tr("HTML5 Video"));
+		pstr += m_html5VideoTemplate;
+		pstr.replace("%VIDEOTYPE%", type);
+		pstr.replace("%VIDEOURL%", url);
+		pstr.replace("%SIZE%", QString::number(size));
+	}
 
 	if (showPreviewHead) {
 		QString sizestr = size ? QString::number(size) : tr("Unknown");
@@ -240,7 +246,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	typerx.setPattern("^image/");
 	if (type.contains(typerx) && 0 < size && size < m_maxFileSize && m_enableImagesPreview) {
 		QString amsg = m_imageTemplate;
-		amsg.replace("%URL%", urlString);
+		amsg.replace("%URL%", url);
 		amsg.replace("%UID%", uid);
 		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
 		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
