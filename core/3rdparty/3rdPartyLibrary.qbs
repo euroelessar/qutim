@@ -6,7 +6,6 @@ StaticLibrary {
     destination: "lib"
 
     Depends { name: "cpp" }
-    Depends { name: "qutim-headers" }
 
     Group {
         condition: sourcePath !== undefined
