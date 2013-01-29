@@ -10,6 +10,12 @@ include_directories( ${LIBATTICA_INCLUDE_DIR}
 	"${CMAKE_CURRENT_BINARY_DIR}/include"
 )
 
+find_library(LIBARCHIVE_LIBRARIES archive)
+if(NOT LIBARCHIVE_LIBRARIES)
+    message(STATUS "libarchive is not found. Can't build package manager")
+    return()
+endif()
+
 if(MSVC)
         set(PLUGMAN_CFLAGS "/Zc:wchar_t-")
 endif()
@@ -17,7 +23,7 @@ endif()
 qutim_add_plugin(plugman
 	DISPLAY_NAME "Package Manager"
 	DESCRIPTION "Provides possibility to Get Hot New Stuff from open community"
-        LINK_LIBRARIES ${LIBATTICA_LIBRARIES}
+	LINK_LIBRARIES ${LIBATTICA_LIBRARIES} ${LIBARCHIVE_LIBRARIES}
 	QT_LIBRARIES DECLARATIVE
         COMPILE_FLAGS ${PLUGMAN_CFLAGS}
 )
