@@ -420,10 +420,6 @@ void Roster::loginFinished()
 				emit itr.key()->tagsChanged(tags, itr.value());
 			++itr;
 		}
-		foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
-			emit contact->inListChanged(true);
-			emit contact->tagsChanged(contact->tags(), QStringList());
-		}
 		d->connectingInfo.reset();
 	}
 }
