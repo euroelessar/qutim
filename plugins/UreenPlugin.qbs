@@ -63,15 +63,13 @@ Product {
     Depends { name: "qutimscope" }
 
     Group {
-        prefix: sourcePath !== '' ? sourcePath + '/' : ''
+        prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
-        recursive: true
     }
     Group {
         condition: qbs.targetOS === 'mac'
-        prefix: sourcePath !== '' ? sourcePath + '/' : ''
+        prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
-        recursive: true
     }
     Group {
         fileTags: [ "pluginTemplate" ]

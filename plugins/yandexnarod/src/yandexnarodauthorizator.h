@@ -31,8 +31,6 @@
 #include <QNetworkCookieJar>
 #include <QPointer>
 
-#define HAS_NO_TOKEN_AUTHORIZATION 1
-
 class QNetworkAccessManager;
 
 class YandexNarodCookieJar : public QNetworkCookieJar

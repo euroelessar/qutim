@@ -90,106 +90,21 @@ bool YandexNarodPlugin::unload()
 
 void YandexNarodPlugin::loadCookies()
 {
-#if HAS_NO_TOKEN_AUTHORIZATION
-	Config config;
-	config.beginGroup("yandex");
-	QList<QNetworkCookie> cookies;
-	QStringList rawCookies = config.value("cookies", QStringList(), Config::Crypted);
-	foreach (const QString &cookie, rawCookies)
-		cookies << QNetworkCookie::parseCookies(cookie.toLatin1());
-	scope()->cookieJar->setAllCookies(cookies);
-#endif
+	// Do nothing
 }
 
 void YandexNarodPlugin::saveCookies()
 {
-#if HAS_NO_TOKEN_AUTHORIZATION
-	QStringList cookies;
-	foreach (const QNetworkCookie &cookie, scope()->cookieJar->allCookies())
-		cookies << QLatin1String(cookie.toRawForm());
-	Config config;
-	config.beginGroup("yandex");
-	config.setValue("cookies", cookies, Config::Crypted);
-#else
 	Config config;
 	config.beginGroup(QLatin1String("yandex"));
 	config.setValue(QLatin1String("token"), scope()->authorizator->token(), Config::Crypted);
-#endif
-}
-
-void YandexNarodPlugin::onActionClicked(QObject *obj)
-{
-	Q_UNUSED(obj);
-//	m_uploadWidget = new YandexNarodUploadDialog();
-//	connect(m_uploadWidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
-//
-//	m_uploadWidget->show();
-//
-//		fi.setFile(filepath);
-//		group.setValue("lastdir", fi.dir().path());
-//		group.sync();
-//
-//		m_netMan = new YandexNarodNetMan(m_uploadWidget);
-//		m_uploadWidget->setContact(contact);
-//		connect(m_netMan, SIGNAL(statusText(QString)), m_uploadWidget, SLOT(setStatus(QString)));
-//		connect(m_netMan, SIGNAL(statusFileName(QString)), m_uploadWidget, SLOT(setFilename(QString)));
-//		connect(m_netMan, SIGNAL(transferProgress(qint64,qint64)), m_uploadWidget, SLOT(progress(qint64,qint64)));
-//		connect(m_netMan, SIGNAL(uploadFileURL(QString)), this, SLOT(onFileURL(QString)));
-//		connect(m_netMan, SIGNAL(uploadFinished()), m_uploadWidget, SLOT(setDone()));
-//		m_netMan->startUploadFile(filepath);
-//	}
-//	else {
-//		delete m_uploadWidget; m_uploadWidget=0;
-//	}
-//
-//	authtest=false;
-}
-
-void YandexNarodPlugin::onManageClicked()
-{
-//	if (m_manageDialog.isNull()) {
-//		m_manageDialog = new YandexNarodManager();
-//		m_manageDialog->show();
-//	}
 }
 
 void YandexNarodPlugin::on_btnTest_clicked()
 {
 	YandexNarodSettings *settingsWidget = qobject_cast<YandexNarodSettings *>(sender());
-//	testnetman = new YandexNarodNetMan(settingsWidget);
-//	connect(testnetman, SIGNAL(statusText(QString)), settingsWidget, SLOT(setStatus(QString)));
-//	connect(testnetman, SIGNAL(finished()), this , SLOT(on_TestFinished()));
-//	debug() << settingsWidget->getLogin() << settingsWidget->getPasswd();
-//	testnetman->startAuthTest(settingsWidget->getLogin(), settingsWidget->getPasswd());
 	YandexNarodAuthorizator *auth = new YandexNarodAuthorizator(settingsWidget);
 	auth->requestAuthorization(settingsWidget->getLogin(), settingsWidget->getPasswd());
-}
-
-void YandexNarodPlugin::on_TestFinished()
-{
-//	delete testnetman;
-}
-
-void YandexNarodPlugin::actionStart()
-{
-}
-
-void YandexNarodPlugin::onFileURL(const QString &)
-{
-//	YandexNarodNetMan *netMan = qobject_cast<YandexNarodNetMan *>(sender());
-//	Q_ASSERT(netMan);
-//
-//	if (Contact *contact = netMan->contact()) {
-//		QString sendmsg = Config().group("yandexnarod").value("template", QString("File sent: %N (%S bytes)\n%U"));
-//		sendmsg.replace("%N", fi.fileName());
-//		sendmsg.replace("%U", url);
-//		sendmsg.replace("%S", QString::number(fi.size()));
-//		m_uploadWidget->setStatus(tr("File sent"));
-//		m_uploadWidget->close();
-//		Message message;
-//		message.setText(sendmsg);
-//		contact->account()->getUnitForSession(contact)->sendMessage(message);
-//	}
 }
 
 YandexNarodFactory::YandexNarodFactory() :
@@ -260,15 +175,11 @@ void YandexNarodFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &sta
 }
 
 YandexRequest::YandexRequest(const QUrl &url)
+	: QNetworkRequest(url)
 {
-	QUrl tmp = url;
-	tmp.addQueryItem(QLatin1String("oauth_token"), scope()->authorizator->token());
-	setUrl(tmp);
-	debug() << tmp;
-//	QByteArray token = scope()->authorizator->token().toLatin1();
-//	setRawHeader("Authorization", "OAuth " + token);
-//	debug() << token;
-//	setRawHeader("Authorization", token);
+	QByteArray token = scope()->authorizator->token().toLatin1();
+	setRawHeader("Authorization", "OAuth " + token);
+	setRawHeader("Accept", "*/*");
 }
 
 QUTIM_EXPORT_PLUGIN(YandexNarodPlugin)

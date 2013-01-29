@@ -36,6 +36,7 @@
 using namespace qutim_sdk_0_3;
 
 #define CLIENT_ID "ecc5ea995f054a6a9acf6a64318bce33"
+#define CLIENT_SECRET "14d62c76005a4b68b4501d1e3f754fc8"
 
 YandexNarodCookieJar::YandexNarodCookieJar(QNetworkAccessManager *manager)
     : QNetworkCookieJar(manager)
@@ -47,22 +48,12 @@ YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) 
 	QObject(parent), m_networkManager(parent)
 {
 	m_stage = Need;
-#if HAS_NO_TOKEN_AUTHORIZATION
-	foreach (const QNetworkCookie &cookie,
-			 parent->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
-		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
-			m_stage = Already;
-			break;
-		}
-	}
-#else
 	Config config;
 	config.beginGroup(QLatin1String("yandex"));
 	m_token = config.value(QLatin1String("token"), QString(), Config::Crypted);
 	
 	if (!m_token.isEmpty())
 		m_stage = Already;
-#endif
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), SLOT(onRequestFinished(QNetworkReply*)));
 }
 
@@ -119,25 +110,12 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 			emit result(Success);
 		return;
 	}
-	
-#if HAS_NO_TOKEN_AUTHORIZATION
-	QByteArray post = "login=" + QUrl::toPercentEncoding(login)
-					  + "&passwd=" + QUrl::toPercentEncoding(password)
-					  + "&twoweeks=yes";
-	QNetworkRequest request(QUrl(QLatin1String("https://passport.yandex.ru/passport?mode=auth")));
-	request.setRawHeader("Cache-Control", "no-cache");
-	request.setRawHeader("Accept", "*/*");
-	QByteArray userAgent = "qutIM/";
-	userAgent += versionString();
-	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
-	request.setRawHeader("User-Agent", userAgent);
-#else
+
 	QByteArray post = "grant_type=password&client_id=" CLIENT_ID
-	        "&username=" + QUrl::toPercentEncoding(login)
-	        + "&password=" + QUrl::toPercentEncoding(password);
-	debug() << post;
-	QNetworkRequest request(QUrl(QLatin1String("https://oauth.yandex.ru/token"));
-#endif
+					  "&client_secret=" CLIENT_SECRET
+					  "&username=" + QUrl::toPercentEncoding(login)
+					  + "&password=" + QUrl::toPercentEncoding(password, "", "+");
+	QNetworkRequest request(QUrl(QLatin1String("https://oauth.yandex.ru/token")));
 	request.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("application/x-www-form-urlencoded"));
 	m_reply = m_networkManager->post(request, post);
 }
@@ -148,26 +126,6 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 	if (reply != m_reply.data())
 		return;
 
-#if HAS_NO_TOKEN_AUTHORIZATION
-	if (reply->error() != QNetworkReply::NoError) {
-		debug() << reply->error() << reply->errorString();
-		emit result(Error, reply->errorString());
-		return;
-	}
-
-	foreach (const QNetworkCookie &cookie,
-			 m_networkManager->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
-		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
-			m_stage = Already;
-			emit result(Success);
-			emit needSaveCookies();
-			return;
-		}
-	}
-
-	m_stage = Need;
-	emit result(Failure);
-#else
 	QVariantMap data = Json::parse(reply->readAll()).toMap();
 	QVariantMap::Iterator error = data.find(QLatin1String("error"));
 	if (error != data.end() || reply->error() != QNetworkReply::NoError) {
@@ -188,10 +146,10 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 		expiresAt = QDateTime::currentDateTime();
 		expiresAt.addSecs(expiresIn.value().toInt());
 	}
+	debug() << accessToken << data;
 	m_token = accessToken;
 	m_stage = Already;
 	emit result(Success);
 	emit needSaveCookies();
-#endif
 }
 

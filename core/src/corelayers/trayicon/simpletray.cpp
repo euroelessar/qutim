@@ -82,7 +82,7 @@ public:
 #endif
 
 SimpleTray::SimpleTray() :
-	NotificationBackend("Tray")
+	NotificationBackend("Tray"), m_icon(NULL), m_settingsItem(NULL)
 {
 	setDescription(QT_TR_NOOP("Blink icon in the tray"));
 
@@ -148,6 +148,7 @@ SimpleTray::SimpleTray() :
 
 SimpleTray::~SimpleTray()
 {
+	delete m_icon;
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
 }

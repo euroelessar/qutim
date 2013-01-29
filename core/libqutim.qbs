@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.fileinfo 1.0 as FileInfo
 import "Framework.qbs" as Framework
 
 Framework {
@@ -17,7 +18,6 @@ Framework {
     }
 
     Depends { name: "qutimscope" }
-    Depends { name: "qutim-headers" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
     Depends { name: "qtdwm" }
@@ -32,7 +32,8 @@ Framework {
     Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
 
     cpp.includePaths: [
-        buildDirectory + "/include/qutim"
+        "libqutim",
+        product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim"
     ]
 
     cpp.dynamicLibraryPrefix: ""
@@ -52,7 +53,8 @@ Framework {
 
         Depends { name: "cpp" }
         cpp.includePaths: [
-            product.buildDirectory + "/include",
+            product.buildDirectory + "/GeneratedFiles/libqutim/include",
+            product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim",
             "3rdparty/slidingstackedwidget",
             "3rdparty/flowlayout",
             "3rdparty/"
@@ -69,11 +71,16 @@ Framework {
     }
 
     files: [
-        'libqutim/*.h',
-        'libqutim/*.cpp',
-        'libqutim/utils/*.h',
-        'libqutim/utils/*.cpp'
+        'libqutim/**/*.cpp',
+        'libqutim/**/*_p.h',
+        'libqutim/version.h.cmake'
     ]
+
+    Group {
+        files: 'libqutim/**/*.h'
+        excludeFiles: 'libqutim/**/*_p.h'
+        fileTags: ["hpp", "devheader"]
+    }
 
     //TODO separate this libraries like qutim-adiumwebview
     Group {
@@ -83,5 +90,63 @@ Framework {
     Group {
         prefix: "3rdparty/flowlayout/"
         files: ["*.h", "*.cpp"]
+    }
+
+    Transformer {
+        inputs: [ "libqutim/version.h.cmake" ]
+        Artifact {
+            fileName: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
+            fileTags: [ "hpp" ]
+        }
+        prepare: {
+            var cmd = new JavaScriptCommand();
+            cmd.description = "generating libqutim_version.h";
+            cmd.highlight = "filegen";
+            cmd.qutim_version = product.version;
+            cmd.qutim_version_major = product.versionMajor;
+            cmd.qutim_version_minor = product.versionMinor;
+            cmd.qutim_version_release = product.versionRelease;
+            cmd.qutim_version_patch = product.versionPatch;
+            cmd.onWindows = (product.modules.qbs.targetOS === "windows");
+            cmd.sourceCode = function() {
+                var file = new TextFile(input.fileName);
+                var content = file.readAll();
+                // replace Windows line endings
+                if (onWindows)
+                    content = content.replace(/\r\n/g, "\n");
+                content = content.replace(/\${CMAKE_QUTIM_VERSION_STRING}/g, qutim_version);
+                content = content.replace(/\${CMAKE_QUTIM_VERSION_MAJOR}/g, qutim_version_major);
+                content = content.replace(/\${CMAKE_QUTIM_VERSION_MINOR}/g, qutim_version_minor);
+                content = content.replace(/\${CMAKE_QUTIM_VERSION_SECMINOR}/g, qutim_version_release);
+                content = content.replace(/\${CMAKE_QUTIM_VERSION_PATCH}/g, qutim_version_patch);
+                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file.truncate();
+                file.write(content);
+                file.close();
+            }
+            return cmd;
+        }
+    }
+
+    Rule {
+        inputs: [ "devheader" ]
+        Artifact {
+            fileTags: [ "hpp" ]
+            fileName: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
+        }
+
+        prepare: {
+            var cmd = new JavaScriptCommand();
+            cmd.sourceCode = function() {
+                var inputFile = new TextFile(input.fileName, TextFile.ReadOnly);
+                var file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file.truncate();
+                file.write("#include \"" + input.fileName + "\"\n"); //inputFile.readAll());
+                file.close();
+            }
+            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.highlight = "filegen";
+            return cmd;
+        }
     }
 }

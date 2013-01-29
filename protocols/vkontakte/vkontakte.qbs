@@ -16,8 +16,7 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: "share"
         prefix: "share/vphotoalbum/"
-        files: '*'
-        recursive: true
+        files: '**'
     }
 
     Properties {
