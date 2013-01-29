@@ -1,4 +1,5 @@
 import "../../../../core/Framework.qbs" as Framework
+import qbs.fileinfo 1.0 as FileInfo
 
 Framework {
     name: "qutim-simplecontactlist"
