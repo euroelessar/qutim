@@ -176,11 +176,12 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 		order = allNames;
 
 		const int currentIndex = allNames.indexOf(indexName);
-		allNames.removeAt(currentIndex);
+		allNames.removeOne(indexName);
 		const QString targetName = QSortFilterProxyModel::index(row, 0, parent).data(TagNameRole).toString();
-		const int newIndex = allNames.indexOf(targetName);
 
-		if (newIndex != currentIndex) {
+		int newIndex = allNames.indexOf(targetName);
+			if (newIndex == -1) newIndex = allNames.count();
+		if (newIndex != currentIndex && newIndex >= 0) {
 			order.move(currentIndex, newIndex);
 
 			Config config;
