@@ -60,8 +60,7 @@ private slots:
 	void authenticationRequired(QNetworkReply *, QAuthenticator *);
 	void netmanSslErrors(QNetworkReply *, const QList<QSslError> &);
 private:
-	static const QRegExp &getLinkRegExp();
-	void checkLink(QString &url, qutim_sdk_0_3::ChatUnit *from, qint64 id);
+	void checkLink(const QStringRef &originalLink, QString &url, qutim_sdk_0_3::ChatUnit *from, qint64 id);
 	QNetworkAccessManager *m_netman;
 	PreviewFlags m_flags;
 	QString m_template;

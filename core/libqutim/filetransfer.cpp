@@ -455,8 +455,8 @@ void FileTransferJob::setError(FileTransferJob::ErrorType err)
 					p->files = d->files;
 					p->dir = d->dir;
 					p->devices.resize(p->files.size());
-					job->doSend();
 					FileTransferManagerPrivate::get(scope()->manager)->handleJob(job, this);
+					job->doSend();
 				}
 			}
 		}
@@ -753,9 +753,9 @@ FileTransferJob *FileTransferManager::send(ChatUnit *unit, const QUrl &url, cons
 
 	if (factory) {
 		FileTransferJob *job = factory->create(unit);
-		job->send(url, title);
-		job->d_func()->skipToNextFactoryAtError = !specificFactory;
 		scope()->manager->handleJob(job, 0);
+		job->d_func()->skipToNextFactoryAtError = !specificFactory;
+		job->send(url, title);
 		return job;
 	}
 

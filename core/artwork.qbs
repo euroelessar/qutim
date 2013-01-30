@@ -36,8 +36,7 @@ Product {
         fileTags: [ "artwork" ]
         artwork.basePath: "share/qutim"
         prefix: "share/qutim/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { //sounds
@@ -45,16 +44,14 @@ Product {
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork"
         prefix: "../artwork/sounds/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // desktop file
         condition: qbs.targetOS === "linux"
         fileTags: [ "install" ]
         prefix: "share/applications/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // qutim.png and default tray icons
@@ -63,8 +60,7 @@ Product {
         artwork.shareDir: "share"
         artwork.basePath: "../artwork/icons/qutim"
         prefix: "../artwork/icons/qutim/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
     
     Group { // default icon theme
@@ -72,8 +68,7 @@ Product {
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork"
         prefix: "../artwork/icons/qutim-default/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // user-status icons
@@ -82,8 +77,7 @@ Product {
         artwork.basePath: "../artwork/icons/user-status"
         qbs.installDir: "icons"
         prefix: "../artwork/icons/user-status/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // humanity icons
@@ -92,8 +86,7 @@ Product {
         artwork.basePath: "../artwork/icons/humanity"
         qbs.installDir: "icons"
         prefix: "../artwork/icons/humanity/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // Mac tray icons
@@ -108,8 +101,7 @@ Product {
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork"
         prefix: "../artwork/icons/oxygen/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 
     Group { // Ubuntu tray icons

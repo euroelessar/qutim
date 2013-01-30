@@ -49,13 +49,7 @@ private:
 	void loadCookies();
 private slots:
 	void saveCookies();
-	void onActionClicked(QObject*);
-	void onManageClicked();
 	void on_btnTest_clicked();
-	void on_TestFinished();
-	void actionStart();
-//	void setCooks(QStringList cs) { cooks = cs; }
-	void onFileURL(const QString &);
 };
 
 class YandexNarodFactory : public FileTransferFactory

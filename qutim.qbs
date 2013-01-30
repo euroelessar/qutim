@@ -33,7 +33,7 @@ Project {
         "core/3rdparty/qtsolutions.qbs",
         "core/artwork.qbs",
         "core/libqutim.qbs",
-        "core/libqutim-headers.qbs",
+        //"core/libqutim-headers.qbs",
         "core/qutim.qbs",
         "core/src/corelayers/accountcreator/accountcreator.qbs",
         "core/src/corelayers/addcontactdlg/addcontactdlg.qbs",

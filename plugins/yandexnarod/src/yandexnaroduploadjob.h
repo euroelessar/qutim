@@ -41,22 +41,6 @@
 using namespace qutim_sdk_0_3;
 class YandexNarodFactory;
 
-class YandexNarodBuffer : public QIODevice
-{
-	Q_OBJECT
-public:
-	YandexNarodBuffer(const QString &fileName, QIODevice *file,
-					  const QByteArray &boundary, QObject *parent);
-	virtual ~YandexNarodBuffer();
-	virtual bool open(OpenMode mode);
-	virtual qint64 size() const;
-protected:
-	virtual qint64 readData(char *data, qint64 maxlen);
-	virtual qint64 writeData(const char *data, qint64 len);
-private:
-	QList<QIODevice *> m_devices;
-};
-
 class YandexNarodUploadJob : public FileTransferJob
 {
 	Q_OBJECT
@@ -69,19 +53,16 @@ protected:
 	virtual void doReceive();
 public slots:
 	void authorizationResult(YandexNarodAuthorizator::Result, const QString &error);
-	void someStrangeSlot();
-	void storageReply();
-	void uploadReply();
-	void progressReply();
+	void onDirectoryChecked();
+	void onDirectoryCreated();
+	void onUploadProgress(qint64 bytesSent, qint64 bytesTotal);
+	void onUploadFinished();
+	void onPublishFinished();
 private:
 	void sendImpl();
-	bool processReply(QNetworkReply *reply);
+	void uploadFile(const QUrl &url);
+	bool checkReply(QNetworkReply *reply);
 private:
-#if HAS_NO_TOKEN_AUTHORIZATION
-	QNetworkRequest m_request;
-#endif
-	QVariantMap m_someData;
-	QTimer m_timer;
 	QPointer<QIODevice> m_data;
 };
 

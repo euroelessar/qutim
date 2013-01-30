@@ -10,7 +10,6 @@ UreenPlugin {
         fileTags: [ "artwork" ]
         artwork.basePath: "src"
         prefix: "src/quickpopup/"
-        recursive: true
-        files: "*"
+        files: "**"
     }
 }

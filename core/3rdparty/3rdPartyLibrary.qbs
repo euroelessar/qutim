@@ -6,13 +6,11 @@ StaticLibrary {
     destination: "lib"
 
     Depends { name: "cpp" }
-    Depends { name: "qutim-headers" }
 
     Group {
         condition: sourcePath !== undefined
-        prefix: sourcePath + '/'
+        prefix: sourcePath + '/**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c", "*.mm" ]
-        recursive: true
     }
 
     ProductModule {

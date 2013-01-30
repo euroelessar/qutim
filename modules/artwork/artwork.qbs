@@ -15,7 +15,12 @@ Module {
                 var basePath = input.modules.artwork.basePath;
                 var fileName = input.baseDir + "/" + input.fileName;
                 var relativePath = FileInfo.relativePath(basePath, fileName);
-                return input.modules.artwork.shareDir + "/" + input.modules.qbs.installDir + "/" + relativePath;
+
+                var path = input.modules.artwork.shareDir + "/";
+                if (input.modules.qbs.installDir !== undefined)
+                    path += input.modules.qbs.installDir + "/";
+                path += relativePath;
+                return path;
             }
         }
 
