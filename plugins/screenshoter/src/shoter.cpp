@@ -62,6 +62,8 @@ Shoter::Shoter(QWidget *parent) :
 	ui->btnSave->setToolTip("Ctrl+S");
 	ui->btnShot->setShortcut(Qt::CTRL + Qt::Key_R);
 	ui->btnShot->setToolTip("Ctrl+R");
+	label.setTextFormat(Qt::PlainText);
+	label.installEventFilter(this);
 }
 
 Shoter::~Shoter()
@@ -119,6 +121,7 @@ void Shoter::onButtonCancelClicked()
 }
 void Shoter::finishedSlot(QNetworkReply *reply)
 {
+	QString labelText;
 	if (reply->error() == QNetworkReply::NoError) {
 		QByteArray bytes = reply->readAll();
 		QString string(bytes);
@@ -131,16 +134,22 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 			pos += rx.matchedLength();
 		}
 		QString text;
+
 		if (list.isEmpty() != true) {
 			text = list.at(0);
-			label.setText("URL: <a href=\""+text+"\">"+text+"</a>");
-			label.setOpenExternalLinks(true);
+			pal.setColor(QPalette::WindowText,Qt::blue);
+			labelText = " " + text;
+			label.setOpenExternalLinks(false);
 		} else {
-			label.setText("<FONT COLOR=red>&nbsp; Service unavailable!</FONT>");
+			pal.setColor(QPalette::WindowText,Qt::red);
+			labelText = " Service unavailable!";
 		}
 	} else {
-		label.setText(reply->errorString());
+		pal.setColor(QPalette::WindowText,Qt::red);
+		labelText = reply->errorString();
 	}
+	label.setPalette(pal);
+	label.setText(labelText);
 }
 void Shoter::upProgress(qint64 recieved,  qint64 total)
 {
@@ -159,7 +168,7 @@ void Shoter::upProgress(qint64 recieved,  qint64 total)
 void Shoter::onPushSaveClicked()
 {
 	QString file_on_disk = QFileDialog::getSaveFileName(this, tr("Save File"),
-														tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
+								tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
 	m_screenshot.save(file_on_disk);
 }
 
@@ -245,11 +254,52 @@ void Shoter::shot(WId pwid)
 #error Unsupported OS
 #endif 
 	setScreenShot();
+	label.installEventFilter(this);
 }
 
 void Shoter::startShoter()
 {
 	shot(QApplication::desktop()->winId());
+	pal.setColor(QPalette::WindowText,Qt::black);
+	label.setPalette(pal);
 	label.setText(" Click \"Send\" to get the link!");
 	show();
+}
+
+bool Shoter::eventFilter(QObject *obj, QEvent *evt)
+{
+	Q_UNUSED(obj);
+	if (evt->type() == QEvent::MouseButtonPress){
+		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(evt);
+		if (pMouseEvent->button() == Qt::LeftButton)
+			return true;
+	}
+	return false;
+}
+
+void Shoter::mousePressEvent(QMouseEvent *ev)
+{
+	if (ev->button() == Qt::LeftButton) {
+		m_DragPos = ev->pos();
+	}
+	QWidget::mousePressEvent(ev);
+}
+
+void Shoter::mouseMoveEvent(QMouseEvent *ev)
+{
+	if (ev->buttons() & Qt::LeftButton) {
+		int dst = (ev->pos()-m_DragPos).manhattanLength();
+		if (dst > QApplication::startDragDistance())
+			startDrg();
+	}
+	QWidget::mouseMoveEvent(ev);
+}
+
+void Shoter::startDrg()
+{
+	pMimeData = new QMimeData;
+	pMimeData->setText(label.text());
+	QDrag *pDrag = new QDrag(this);
+	pDrag->setMimeData(pMimeData);
+	pDrag->exec();
 }

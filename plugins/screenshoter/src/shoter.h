@@ -44,6 +44,10 @@ class Shoter :public QMainWindow
 
 protected:
 	void resizeEvent(QResizeEvent *event);
+	virtual bool eventFilter(QObject *obj, QEvent *evt);
+	virtual void mousePressEvent(QMouseEvent *ev);
+	virtual void mouseMoveEvent(QMouseEvent *ev);
+
 public:
 	explicit Shoter(QWidget *parent = 0);
 	~Shoter();
@@ -67,7 +71,11 @@ private:
 	void writeSettings();
 	QPixmap m_screenshot;
 	QLabel label;
+	QPoint m_DragPos;
+	void startDrg();
 	QProgressBar progressBar;
+	QMimeData *pMimeData;
+	QPalette pal;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 	QScreen *screen;
 #endif
