@@ -33,6 +33,7 @@
 #include <qutim/notification.h>
 #include <qutim/icon.h>
 #include <KStatusNotifierItem>
+#include <QPointer>
 
 namespace KdeIntegration
 {
