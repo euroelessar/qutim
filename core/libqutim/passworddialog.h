@@ -49,11 +49,13 @@ public:
 
 	virtual void setValidator(QValidator *validator) = 0;
 
+	QString login() const;
 	QString password() const;
 	bool remember() const;
 	int exec();
 	int result() const;
 	void setSaveButtonVisible(bool allow);
+	void setLoginEditVisible(bool allow);
 
 signals:
 #if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
@@ -64,12 +66,14 @@ private: // don't tell moc, doxygen or kdevelop, but those signals are in fact p
 	void finished(int result);
 
 protected:
+	void apply(const QString &login, const QString &password, bool remember);
 	void apply(const QString &password, bool remember);
 	void reject();
 	
 	enum PasswordDialogHook {
 		SetTextHook = 1,
-		SetShowSaveHook
+		SetShowSaveHook,
+		SetShowLoginHook
 	};
 	
 	struct SetTextArgument

@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #include "yandexnarod.h"
-#include "requestauthdialog.h"
 #include "yandexnarodauthorizator.h"
 #include "yandexnaroduploadjob.h"
 #include <qutim/actiongenerator.h>
@@ -37,6 +36,8 @@
 #include <qutim/settingslayer.h>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
+
+using namespace qutim_sdk_0_3;
 
 struct YandexNarodScope
 {
@@ -49,8 +50,8 @@ Q_GLOBAL_STATIC(YandexNarodScope, scope)
 
 void YandexNarodPlugin::init()
 {
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "YandexNarod"),
-			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
+			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
 			PLUGIN_VERSION(0, 2, 1, 0));
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("sauron"));
@@ -59,8 +60,8 @@ void YandexNarodPlugin::init()
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));
 	addAuthor(QLatin1String("boiler"));
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Narod"),
-				 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
+				 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
 				 new SingletonGenerator<YandexNarodFactory>(),
 				 ExtensionIcon(""));
 }
@@ -70,9 +71,9 @@ bool YandexNarodPlugin::load()
 	SettingsItem *settings = new GeneralSettingsItem<YandexNarodSettings>(
 			Settings::Plugin,
 			QIcon(),
-			QT_TRANSLATE_NOOP("Yandex", "Yandex Narod"));
-	settings->connect(SIGNAL(testclick()), this,  SLOT(on_btnTest_clicked()));
-	Settings::registerItem(settings);
+			QT_TRANSLATE_NOOP("Yandex", "Yandex.Disk"));
+//	Settings::registerItem(settings);
+	Q_UNUSED(settings);
 	scope()->networkManager = new QNetworkAccessManager(this);
 	scope()->cookieJar = new YandexNarodCookieJar(scope()->networkManager);
 	scope()->authorizator = new YandexNarodAuthorizator(scope()->networkManager);
@@ -98,13 +99,6 @@ void YandexNarodPlugin::saveCookies()
 	Config config;
 	config.beginGroup(QLatin1String("yandex"));
 	config.setValue(QLatin1String("token"), scope()->authorizator->token(), Config::Crypted);
-}
-
-void YandexNarodPlugin::on_btnTest_clicked()
-{
-	YandexNarodSettings *settingsWidget = qobject_cast<YandexNarodSettings *>(sender());
-	YandexNarodAuthorizator *auth = new YandexNarodAuthorizator(settingsWidget);
-	auth->requestAuthorization(settingsWidget->getLogin(), settingsWidget->getPasswd());
 }
 
 YandexNarodFactory::YandexNarodFactory() :

@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "yandexnarodauthorizator.h"
-#include "requestauthdialog.h"
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <qutim/json.h>
 #include <qutim/libqutim_version.h>
+#include <qutim/passworddialog.h>
 #include <QtCore/QDateTime>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtGui/QWidget>
@@ -75,20 +75,13 @@ void YandexNarodAuthorizator::requestAuthorization()
 	QString login = group.value("login", QString());
 	QString password = group.value("passwd", QString(), Config::Crypted);
 	if (login.isEmpty() || password.isEmpty()) {
-		YandexNarodRequestAuthDialog dialog;
-		dialog.show();
-		dialog.setLogin(login);
-		if (dialog.exec()) {
-			login = dialog.getLogin();
-			password = dialog.getPasswd();
-			if (dialog.getRemember()) {
-				group.setValue("login", login);
-				group.setValue("passwd", password, Config::Crypted);
-				group.sync();
-			}
-		} else {
-			emit result(Failure, tr("Has no login or password"));
-		}
+		PasswordDialog *dialog = PasswordDialog::request(
+									 tr("Yandex.Disk authorizarion"),
+									 tr("Enter your Yandex login and password"));
+		dialog->setLoginEditVisible(true);
+		dialog->setSaveButtonVisible(false);
+		connect(dialog, SIGNAL(finished(int)), SLOT(onDialogFinished(int)));
+		return;
 	}
 	return requestAuthorization(login, password);
 }
@@ -151,5 +144,17 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 	m_stage = Already;
 	emit result(Success);
 	emit needSaveCookies();
+}
+
+void YandexNarodAuthorizator::onDialogFinished(int dialogResult)
+{
+	PasswordDialog *dialog = qobject_cast<PasswordDialog*>(sender());
+	Q_ASSERT(dialog);
+	dialog->deleteLater();
+
+	if (dialogResult == PasswordDialog::Accepted)
+		requestAuthorization(dialog->login(), dialog->password());
+	else
+		emit result(Failure, tr("Has no login or password"));
 }
 

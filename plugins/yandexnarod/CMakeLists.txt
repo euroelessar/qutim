@@ -1,5 +1,5 @@
 qutim_add_plugin( yandexnarod
-	DISPLAY_NAME "YandexNarod"
-	DESCRIPTION "Send files via Yandex.Narod filehosting service"
+	DISPLAY_NAME "Yandex.Disk"
+	DESCRIPTION "Send files via Yandex.Disk"
 	QT_LIBRARIES XMLPATTERNS NETWORK
 )

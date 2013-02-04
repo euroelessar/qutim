@@ -54,6 +54,10 @@ void SimplePasswordDialog::virtual_hook(int id, void *data)
 		m_widget.data()->showSaveButton(*reinterpret_cast<bool*>(data));
 		break;
 	}
+	case SetShowLoginHook: {
+		m_widget.data()->showLoginEdit(*reinterpret_cast<bool*>(data));
+		break;
+	}
 	case SetTextHook: {
 		SetTextArgument *argument = reinterpret_cast<SetTextArgument*>(data);
 		m_widget.data()->setText(argument->title, argument->description);

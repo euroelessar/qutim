@@ -66,6 +66,7 @@ PasswordDialog *PasswordDialog::request(const QString &windowTitle, const QStrin
 class PasswordDialogPrivate
 {
 public:
+	QString login;
 	QString password;
 	bool remember;
 	int result;
@@ -84,6 +85,11 @@ PasswordDialog::~PasswordDialog()
 {
 }
 
+QString PasswordDialog::login() const
+{
+	return d_func()->login;
+}
+
 QString PasswordDialog::password() const
 {
 	return d_func()->password;
@@ -96,7 +102,13 @@ bool PasswordDialog::remember() const
 
 void PasswordDialog::apply(const QString &password, bool remember)
 {
+	apply(QString(), password, remember);
+}
+
+void PasswordDialog::apply(const QString &login, const QString &password, bool remember)
+{
 	Q_D(PasswordDialog);
+	d->login = login;
 	d->password = password;
 	d->remember = remember;
 	d->result = Accepted;
@@ -143,10 +155,16 @@ void PasswordDialog::setSaveButtonVisible(bool allow)
 	virtual_hook(SetShowSaveHook, &allow);
 }
 
+void PasswordDialog::setLoginEditVisible(bool allow)
+{
+	virtual_hook(SetShowLoginHook, &allow);
+}
+
 void PasswordDialog::virtual_hook(int id, void *data)
 {
 	Q_UNUSED(id);
 	Q_UNUSED(data);
 }
+
 }
 

@@ -27,17 +27,19 @@
 
 #ifndef YANDEXNARODPLUGIN_H
 #define YANDEXNARODPLUGIN_H
-#include <qutim/plugin.h>
-#include <QAction>
-#include <QFileDialog>
 
-#include "yandexnarodmanage.h"
 #include "yandexnarodsettings.h"
 #include "yandexnarodauthorizator.h"
 
-using namespace qutim_sdk_0_3;
+#include <qutim/plugin.h>
+#include <qutim/filetransfer.h>
+#include <qutim/status.h>
+#include <qutim/account.h>
 
-class YandexNarodPlugin : public Plugin
+#include <QAction>
+#include <QFileDialog>
+
+class YandexNarodPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugInfo", "Yandex")
@@ -45,29 +47,30 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+
 private:
 	void loadCookies();
+
 private slots:
 	void saveCookies();
-	void on_btnTest_clicked();
 };
 
-class YandexNarodFactory : public FileTransferFactory
+class YandexNarodFactory : public qutim_sdk_0_3::FileTransferFactory
 {
 	Q_OBJECT
 public:
 	YandexNarodFactory();
-	virtual bool checkAbility(ChatUnit *unit);
-	virtual bool startObserve(ChatUnit *unit);
-	virtual bool stopObserve(ChatUnit *unit);
-	virtual FileTransferJob *create(ChatUnit *unit);
+	virtual bool checkAbility(qutim_sdk_0_3::ChatUnit *unit);
+	virtual bool startObserve(qutim_sdk_0_3::ChatUnit *unit);
+	virtual bool stopObserve(qutim_sdk_0_3::ChatUnit *unit);
+	virtual qutim_sdk_0_3::FileTransferJob *create(qutim_sdk_0_3::ChatUnit *unit);
 	static QNetworkAccessManager *networkManager();
 	static YandexNarodAuthorizator *authorizator();
 private slots:
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
 private:
-	typedef QMultiMap<QObject*, ChatUnit*> Observers;
+	typedef QMultiMap<QObject*, qutim_sdk_0_3::ChatUnit*> Observers;
 	Observers m_observedUnits;
 };
 
