@@ -51,16 +51,22 @@ class UrlHandler : public QObject, public qutim_sdk_0_3::MessageHandler
     Q_OBJECT
 public:
 	explicit UrlHandler();
+
 protected:
 	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+
 public slots:
 	void loadSettings();
+
 private slots:
 	void netmanFinished(QNetworkReply *);
 	void authenticationRequired(QNetworkReply *, QAuthenticator *);
 	void netmanSslErrors(QNetworkReply *, const QList<QSslError> &);
+
 private:
 	void checkLink(const QStringRef &originalLink, QString &url, qutim_sdk_0_3::ChatUnit *from, qint64 id);
+	void updateData(qutim_sdk_0_3::ChatUnit *unit, const QString &uid, const QString &html);
+
 	QNetworkAccessManager *m_netman;
 	PreviewFlags m_flags;
 	QString m_template;
@@ -68,12 +74,14 @@ private:
 	QString m_youtubeTemplate;
 	QString m_html5AudioTemplate;
 	QString m_html5VideoTemplate;
+	QString m_yandexRichContentTemplate;
 	QSize m_maxImageSize;
 	quint64 m_maxFileSize;
 	bool m_enableYoutubePreview;
 	bool m_enableImagesPreview;
 	bool m_enableHTML5Audio;
 	bool m_enableHTML5Video;
+	bool m_enableYandexRichContent;
 };
 
 } // namespace UrlPreview
