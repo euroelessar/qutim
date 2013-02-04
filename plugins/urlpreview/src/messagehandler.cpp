@@ -170,23 +170,26 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
+
+	bool rcaIsValid = true;
+
 	if (reply->property("yandexRCA").toBool()) {
 		QVariantMap data = Json::parse(reply->readAll()).toMap();
 
-		debug() << data;
+		if (!data.contains("title") && !data.contains("content")) {
+			rcaIsValid = false;
+		} else {
+			QString html = m_yandexRichContentTemplate;
+			html.replace("%URL%", data.value("finalurl").toString());
+			html.replace("%IMAGE%", data.value("img").toList().value(0).toString());
+			html.replace("%TITLE%", data.value("title").toString().replace("\n", "<br/>"));
+			html.replace("%CONTENT%", data.value("content").toString().replace("\n", "<br/>"));
 
-		QString html = m_yandexRichContentTemplate;
-		html.replace("%URL%", data.value("finalurl").toString());
-		html.replace("%IMAGE%", data.value("img").toList().value(0).toString());
-		html.replace("%TITLE%", data.value("title").toString().replace("\n", "<br/>"));
-		html.replace("%CONTENT%", data.value("content").toString().replace("\n", "<br/>"));
-
-		debug() << html;
-
-		updateData(reply->property("unit").value<ChatUnit *>(),
-				   reply->property("uid").toString(),
-				   html);
-		return;
+			updateData(reply->property("unit").value<ChatUnit *>(),
+					   reply->property("uid").toString(),
+					   html);
+			return;
+		}
 	}
 
 	QString url = reply->url().toString();
@@ -264,7 +267,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		pstr.replace("%SIZE%", QString::number(size));
 	}
 
-	if (m_enableYandexRichContent &&
+	if (rcaIsValid && m_enableYandexRichContent &&
 			(type == QLatin1String("text/html")
 			 || type == QLatin1String("text/xhtml")
 			 || type == QLatin1String("application/xhtml")
