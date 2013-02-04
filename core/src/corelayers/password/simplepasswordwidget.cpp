@@ -57,6 +57,12 @@ void SimplePasswordWidget::showSaveButton(bool show)
 	ui->rememberCheckBox->setVisible(show);
 }
 
+void SimplePasswordWidget::showLoginEdit(bool show)
+{
+	ui->loginLineEdit->setVisible(show);
+	ui->label_3->setVisible(show);
+}
+
 void SimplePasswordWidget::setText(const QString &title, const QString &description)
 {
 	setWindowTitle(title);
@@ -81,7 +87,9 @@ void SimplePasswordWidget::changeEvent(QEvent *e)
 
 void SimplePasswordWidget::onAccept()
 {
-	m_parent->apply(ui->passwordLineEdit->text(), ui->rememberCheckBox->isChecked());
+	m_parent->apply(ui->loginLineEdit->text(),
+					ui->passwordLineEdit->text(),
+					ui->rememberCheckBox->isChecked());
 }
 
 void SimplePasswordWidget::onReject()

@@ -61,6 +61,7 @@ public:
 
 public slots:
 	void onRequestFinished(QNetworkReply *reply);
+	void onDialogFinished(int result);
 
 signals:
 	void result(YandexNarodAuthorizator::Result, const QString &error = QString());

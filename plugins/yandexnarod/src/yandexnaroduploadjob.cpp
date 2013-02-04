@@ -260,13 +260,10 @@ void YandexNarodUploadJob::onPublishFinished()
 	if (url.isRelative())
 		url = reply->url().resolved(url);
 
-	Config config;
-	config.beginGroup(QLatin1String("yandex/narod"));
-	QString text = config.value("template", tr("File sent: %N (%S bytes)\n%U",
-											   "Don't remove format arguments"));
-	text.replace("%N", fileName());
-	text.replace("%U", url.toString());
-	text.replace("%S", QString::number(m_data->size()));
+	QString text = tr("File sent: %1 (%n bytes)\nDownload url: %2",
+					  "%1 - filename, %2 - url",
+					  m_data->size())
+				   .arg(fileName(), url.toString());
 
 	Message message(text);
 	message.setIncoming(false);

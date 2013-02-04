@@ -33,48 +33,41 @@ YandexNarodSettings::YandexNarodSettings()
 {
 	m_authorizator = 0;
 	ui.setupUi(this);
-	ui.labelStatus->setText(NULL);
-
-	connect(ui.btnTest, SIGNAL(clicked()), this,  SLOT(onTestClick()));
+	ui.labelStatus->setText(QString());
 
 	lookForWidgetState(ui.editLogin);
 	lookForWidgetState(ui.editPasswd);
-	lookForWidgetState(ui.textTpl);
 }
 
 YandexNarodSettings::~YandexNarodSettings()
 {
-	
 }
 
 void YandexNarodSettings::loadImpl()
 {
-	Config group = Config().group("yandex");
-	Config narod = group.group("narod");
-	ui.editLogin->setText(group.value("login", QString()));
-	ui.editPasswd->setText(group.value("passwd", QString(), Config::Crypted));
-	ui.textTpl->setText(narod.value("template", QString("File sent: %N (%S bytes)\n%U")));
+	Config config;
+	config.beginGroup("yandex/disk");
+	ui.editLogin->setText(config.value("login", QString()));
+	ui.editPasswd->setText(config.value("passwd", QString(), Config::Crypted));
 }
 
 void YandexNarodSettings::saveImpl()
 {
-	Config group = Config().group("yandex");
-	Config narod = group.group("narod");
-	group.setValue("login", ui.editLogin->text());
-	group.setValue("passwd", ui.editPasswd->text(), Config::Crypted);
-	narod.setValue("template", ui.textTpl->toPlainText());
-	group.sync();
+	Config config;
+	config.beginGroup("yandex/disk");
+	config.setValue("login", ui.editLogin->text());
+	config.setValue("passwd", ui.editPasswd->text(), Config::Crypted);
 }
 
 void YandexNarodSettings::cancelImpl()
 {
 }
 
-void YandexNarodSettings::onTestClick()
+void YandexNarodSettings::on_testButton_clicked()
 {
-	if (m_authorizator) {
+	if (m_authorizator)
 		m_authorizator->deleteLater();
-	}
+
 	m_authorizator = new YandexNarodAuthorizator(this);
 	connect(m_authorizator, SIGNAL(result(YandexNarodAuthorizator::Result,QString)),
 			this, SLOT(authorizationResult(YandexNarodAuthorizator::Result,QString)));

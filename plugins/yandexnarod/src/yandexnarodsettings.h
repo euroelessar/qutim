@@ -35,30 +35,25 @@
 
 class YandexNarodSettings  : public qutim_sdk_0_3::SettingsWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 
 public:
 	YandexNarodSettings();
 	~YandexNarodSettings();
 	QString getLogin() { return ui.editLogin->text(); }
 	QString getPasswd() { return ui.editPasswd->text(); }
-	void btnTest_enabled(bool b) { ui.btnTest->setEnabled(b); }
 
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
 
 public slots:
-	void onTestClick();
+	void on_testButton_clicked();
 	void authorizationResult(YandexNarodAuthorizator::Result result, const QString &error);
 
 private:
 	YandexNarodAuthorizator *m_authorizator;
 	Ui::YandexNarodSettingsClass ui;
-
-signals:
-	void testclick();
-
 };
 #endif
 
