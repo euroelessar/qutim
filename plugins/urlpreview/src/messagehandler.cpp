@@ -171,14 +171,10 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
 
-	bool rcaIsValid = true;
-
 	if (reply->property("yandexRCA").toBool()) {
 		QVariantMap data = Json::parse(reply->readAll()).toMap();
 
-		if (!data.contains("title") && !data.contains("content")) {
-			rcaIsValid = false;
-		} else {
+		if (data.contains("title") || data.contains("content")) {
 			QString html = m_yandexRichContentTemplate;
 			html.replace("%URL%", data.value("finalurl").toString());
 			html.replace("%IMAGE%", data.value("img").toList().value(0).toString());
@@ -188,8 +184,8 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			updateData(reply->property("unit").value<ChatUnit *>(),
 					   reply->property("uid").toString(),
 					   html);
-			return;
 		}
+		return;
 	}
 
 	QString url = reply->url().toString();
@@ -267,7 +263,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		pstr.replace("%SIZE%", QString::number(size));
 	}
 
-	if (rcaIsValid && m_enableYandexRichContent &&
+	if (m_enableYandexRichContent &&
 			(type == QLatin1String("text/html")
 			 || type == QLatin1String("text/xhtml")
 			 || type == QLatin1String("application/xhtml")
@@ -280,7 +276,6 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		rcaReply->setProperty("yandexRCA", true);
 		rcaReply->setProperty("uid", reply->property("uid"));
 		rcaReply->setProperty("unit", reply->property("unit"));
-		return;
 	}
 
 	if (showPreviewHead) {
