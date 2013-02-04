@@ -26,10 +26,13 @@
 
 
 #include "messagehandler.h"
+
 #include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/chatsession.h>
 #include <qutim/utils.h>
+#include <qutim/json.h>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -75,10 +78,16 @@ void UrlHandler::loadSettings()
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
+	m_yandexRichContentTemplate = "<div class=\"yandex-rca\">"
+								  "<img align=\"left\" src=\"%IMAGE%\" width=\"30%\"/>"
+								  "<b>%TITLE%</b><br/>"
+								  "%CONTENT%<br/>"
+								  "</div>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
 	m_enableHTML5Audio = cfg.value("HTML5Audio", true);
 	m_enableHTML5Video = cfg.value("HTML5Video", true);
+	m_enableYandexRichContent = cfg.value("yandexRichContent", true);
 	cfg.endGroup();
 }
 
@@ -161,6 +170,25 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 void UrlHandler::netmanFinished(QNetworkReply *reply)
 {
 	reply->deleteLater();
+	if (reply->property("yandexRCA").toBool()) {
+		QVariantMap data = Json::parse(reply->readAll()).toMap();
+
+		debug() << data;
+
+		QString html = m_yandexRichContentTemplate;
+		html.replace("%URL%", data.value("finalurl").toString());
+		html.replace("%IMAGE%", data.value("img").toList().value(0).toString());
+		html.replace("%TITLE%", data.value("title").toString().replace("\n", "<br/>"));
+		html.replace("%CONTENT%", data.value("content").toString().replace("\n", "<br/>"));
+
+		debug() << html;
+
+		updateData(reply->property("unit").value<ChatUnit *>(),
+				   reply->property("uid").toString(),
+				   html);
+		return;
+	}
+
 	QString url = reply->url().toString();
 	QByteArray typeheader;
 	QString type;
@@ -236,6 +264,22 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		pstr.replace("%SIZE%", QString::number(size));
 	}
 
+	if (m_enableYandexRichContent &&
+			(type == QLatin1String("text/html")
+			 || type == QLatin1String("text/xhtml")
+			 || type == QLatin1String("application/xhtml")
+			 || type == QLatin1String("application/xhtml+xml"))) {
+		QUrl rcaUrl(QLatin1String("http://rca.yandex.com/"));
+		rcaUrl.addEncodedQueryItem("key", "svV1bfH1");
+		rcaUrl.addEncodedQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
+		QNetworkRequest request(rcaUrl);
+		QNetworkReply *rcaReply = m_netman->get(request);
+		rcaReply->setProperty("yandexRCA", true);
+		rcaReply->setProperty("uid", reply->property("uid"));
+		rcaReply->setProperty("unit", reply->property("unit"));
+		return;
+	}
+
 	if (showPreviewHead) {
 		QString sizestr = size ? QString::number(size) : tr("Unknown");
 		pstr = m_template;
@@ -251,11 +295,23 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
 		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
 		pstr += amsg;
-	}
+	}	
 
-	QString js = "urlpreview"+uid+".innerHTML = \""+pstr.replace("\"", "\\\"")+"\";";
-	ChatUnit *unit = reply->property("unit").value<ChatUnit *>();
+	updateData(reply->property("unit").value<ChatUnit *>(),
+			   uid,
+			   pstr);
+}
+
+void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &html)
+{
+	QString js = QLatin1Literal("urlpreview")
+				 % uid
+				 % QLatin1Literal(".innerHTML = \"")
+				 % QString(html).replace("\"", "\\\"")
+				 % QLatin1Literal("\";");
 	ChatSession *session = ChatLayer::get(unit);
+
+	debug() << unit << uid << js;
 
 	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }
