@@ -79,9 +79,10 @@ void UrlHandler::loadSettings()
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
 	m_yandexRichContentTemplate = "<div class=\"yandex-rca\">"
-								  "<img align=\"left\" src=\"%IMAGE%\" width=\"30%\"/>"
-								  "<b>%TITLE%</b><br/>"
-								  "%CONTENT%<br/>"
+								  "<img align=\"left\" src=\"%IMAGE%\" style=\"max-width: 30%\" class=\"yandex-rca-image\"/>"
+								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
+								  "<br/>"
+								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
 								  "</div>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
@@ -161,7 +162,7 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
-	link = QString::fromLatin1("%1 <span id='urlpreview%2'></span> ")
+	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2'></span> ")
 		   .arg(originalLink.toString(), uid);
 
 	debug() << "url" << link;
