@@ -2,16 +2,14 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Alexander Kazarin <boiler@co.ru>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
-** Copyright © 2012 Nicolay Izoderov <nico-izo@ya.ru>
+** Copyright © 2013 Tretyakov Roman <roman@trett.ru>
 **
 *****************************************************************************
 **
 ** $QUTIM_BEGIN_LICENSE$
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation,   either version 3 of the License,   or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -20,7 +18,7 @@
 ** See the GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not,   see http://www.gnu.org/licenses/.
+** along with this program.  If not, see http://www.gnu.org/licenses/.
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
