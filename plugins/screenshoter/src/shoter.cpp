@@ -33,6 +33,7 @@
 #include <QNetworkReply>
 #include <QHttpMultiPart>
 #include <qutim/config.h>
+#include <QDesktopWidget>
 #if defined Q_OS_WIN
 #include <windows.h>
 #elif defined Q_OS_LINUX
@@ -50,6 +51,7 @@ Shoter::Shoter(QWidget *parent) :
 	ui->statusBar->addWidget(&label);
 	ui->statusBar->addWidget(&progressBar);
 	progressBar.hide();
+	ui->comboBox->addItem("ipix.su", 0);
 	ui->comboBox->addItem("pix.academ.org", 1);
 	ui->comboBox->addItem("ompldr.org", 2);
 	ui->comboBox_2->addItem("AllDesktop", 1);
@@ -88,8 +90,17 @@ void Shoter::onButtonSendClicked()
 	QFile *openFile = new QFile(savedFile);
 	openFile->open(QIODevice::ReadOnly);
 	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-	/* Upload to pix.academ*/
+	/* Upload to ipix.su */
 	if (ui->comboBox->currentIndex()== 0) {
+		QHttpPart file;
+		file.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("image/png"));
+		file.setHeader(QNetworkRequest::ContentDispositionHeader,QVariant("form-data; name=\"file\"; filename=\""+savedFile+"\""));
+		file.setBodyDevice(openFile);
+		openFile->setParent(multi);
+		multi->append(file);
+		this->upload("http://ipix.su/api/upload",multi);
+		/* upload to pix.academ.org */
+	} else if (ui->comboBox->currentIndex() == 1) {
 		QHttpPart action;
 		action.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("name=\"action\""));
 		action.setBody("upload_image");
@@ -103,7 +114,7 @@ void Shoter::onButtonSendClicked()
 		multi->append(image);
 		upload("http://pix.academ.org", multi);
 		/* Upload to ompldr.org*/
-	} else if (ui->comboBox->currentIndex() == 1) {
+	} else if (ui->comboBox->currentIndex() == 2) {
 		QHttpPart file1;
 		file1.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 		file1.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -127,7 +138,7 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 		QString string(bytes);
 		QStringList list;
 		//		qDebug()<<string;
-		QRegExp rx("http://pix.academ.org/img[^\"]+|http://ompldr.org/[^<]+");
+		QRegExp rx("http://pix.academ.org/img[^\"]+|http://ompldr.org/[^<]+|http://ipix.su/.+");
 		int pos = 0;
 		while ((pos = rx.indexIn(string, pos)) != -1){
 			list << rx.cap(0);
@@ -150,6 +161,8 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 	}
 	label.setPalette(pal);
 	label.setText(labelText);
+	QClipboard *cb = QApplication::clipboard();
+	cb->setText(labelText);
 }
 void Shoter::upProgress(qint64 recieved,  qint64 total)
 {
@@ -168,7 +181,7 @@ void Shoter::upProgress(qint64 recieved,  qint64 total)
 void Shoter::onPushSaveClicked()
 {
 	QString file_on_disk = QFileDialog::getSaveFileName(this, tr("Save File"),
-								tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
+														tr("untitled.png"), tr("Images(*.png *.xpm *.jpg)"));
 	m_screenshot.save(file_on_disk);
 }
 

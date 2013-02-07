@@ -34,6 +34,7 @@
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include "ui_screenshoter.h"
+#include <QProgressBar>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QScreen>
 #endif
