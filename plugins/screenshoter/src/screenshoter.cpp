@@ -42,7 +42,7 @@ void Screenshoter::init()
 	addAuthor(QLatin1String("trett"));
 	GlobalShortcut::registerSequence("screenshot", QT_TRANSLATE_NOOP("Screenshoter", "Printscreen"),
 									 QT_TRANSLATE_NOOP("Screenshoter", "Screenshoter"),
-									 QKeySequence(tr(""))
+									 QKeySequence("")
 									 );
 }
 
