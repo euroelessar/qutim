@@ -26,7 +26,6 @@
 #include "shoter.h"
 #include <QFileDialog>
 #include <QPixmap>
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QHttpMultiPart>
@@ -36,6 +35,8 @@
 #include <windows.h>
 #elif defined Q_OS_LINUX
 #include <X11/Xlib.h>
+#else
+#error Unsupported OS
 #endif
 Shoter::Shoter(QWidget *parent) :
 	QMainWindow(parent),
@@ -46,9 +47,9 @@ Shoter::Shoter(QWidget *parent) :
 	QObject::connect(ui->btnShot,  SIGNAL(clicked()),  this,  SLOT(onShotButtonClicked()));
 	QObject::connect(ui->btnSave,  SIGNAL(clicked()),  this,  SLOT(onPushSaveClicked()));
 	QObject::connect(ui->btnSend,  SIGNAL(clicked()),  this, SLOT(onButtonSendClicked()));
-	ui->statusBar->addWidget(&label);
-	ui->statusBar->addWidget(&progressBar);
-	progressBar.hide();
+	ui->statusBar->addWidget(&m_linkLabel);
+	ui->statusBar->addWidget(&m_progressBar);
+	m_progressBar.hide();
 	ui->comboBox->addItem("ipix.su", 0);
 	ui->comboBox->addItem("pix.academ.org", 1);
 	ui->comboBox->addItem("ompldr.org", 2);
@@ -62,8 +63,10 @@ Shoter::Shoter(QWidget *parent) :
 	ui->btnSave->setToolTip("Ctrl+S");
 	ui->btnShot->setShortcut(Qt::CTRL + Qt::Key_R);
 	ui->btnShot->setToolTip("Ctrl+R");
-	label.setTextFormat(Qt::PlainText);
-	label.installEventFilter(this);
+	m_linkLabel.setTextFormat(Qt::PlainText);
+	m_linkLabel.installEventFilter(this);
+	m_manager = new QNetworkAccessManager(this);
+	QObject::connect(m_manager,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
 }
 
 Shoter::~Shoter()
@@ -130,6 +133,7 @@ void Shoter::onButtonCancelClicked()
 }
 void Shoter::finishedSlot(QNetworkReply *reply)
 {
+	reply->deleteLater();
 	QString labelText;
 	if (reply->error() == QNetworkReply::NoError) {
 		QByteArray bytes = reply->readAll();
@@ -146,32 +150,32 @@ void Shoter::finishedSlot(QNetworkReply *reply)
 
 		if (list.isEmpty() != true) {
 			text = list.at(0);
-			pal.setColor(QPalette::WindowText,Qt::blue);
+			m_pal.setColor(QPalette::WindowText,Qt::blue);
 			labelText = " " + text;
-			label.setOpenExternalLinks(false);
+			m_linkLabel.setOpenExternalLinks(false);
 		} else {
-			pal.setColor(QPalette::WindowText,Qt::red);
+			m_pal.setColor(QPalette::WindowText,Qt::red);
 			labelText = " Service unavailable!";
 		}
 	} else {
-		pal.setColor(QPalette::WindowText,Qt::red);
+		m_pal.setColor(QPalette::WindowText,Qt::red);
 		labelText = reply->errorString();
 	}
-	label.setPalette(pal);
-	label.setText(labelText);
+	m_linkLabel.setPalette(m_pal);
+	m_linkLabel.setText(labelText);
 	QClipboard *cb = QApplication::clipboard();
 	cb->setText(labelText);
 }
 void Shoter::upProgress(qint64 recieved,  qint64 total)
 {
 	if (total > 0 && recieved > 0) {
-		label.setText("");
-		progressBar.show();
-		progressBar.setMinimum(0);
-		progressBar.setMaximum(100);
-		progressBar.setValue((int) recieved*100/total);
-		if (progressBar.value() == 100) {
-			progressBar.hide();
+		m_linkLabel.setText("");
+		m_progressBar.show();
+		m_progressBar.setMinimum(0);
+		m_progressBar.setMaximum(100);
+		m_progressBar.setValue((int) recieved*100/total);
+		if (m_progressBar.value() == 100) {
+			m_progressBar.hide();
 		}
 	}
 }
@@ -245,11 +249,9 @@ void Shoter::writeSettings()
 
 void Shoter::upload(const QString &hostUrl,  QHttpMultiPart *multipart)
 {
-	QNetworkAccessManager *netMgr = new QNetworkAccessManager(this);
-	QObject::connect(netMgr,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
 	QUrl url(hostUrl);
 	QNetworkRequest request(url);
-	QNetworkReply *r = netMgr->post(request,  multipart);
+	QNetworkReply *r = m_manager->post(request,  multipart);
 	multipart->setParent(r);
 	QObject::connect(r,  SIGNAL(uploadProgress(qint64,  qint64)),  this,  SLOT(upProgress(qint64,  qint64)));
 }
@@ -258,22 +260,19 @@ void Shoter::shot(WId pwid)
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 	m_screenshot = QPixmap::grabWindow(pwid);
-#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)  
-	screen = QGuiApplication::primaryScreen();
-	m_screenshot = screen->grabWindow(pwid);
-#else
-#error Unsupported OS
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+	m_screenshot = QGuiApplication::primaryScreen()->grabWindow(pwid);
 #endif 
 	setScreenShot();
-	label.installEventFilter(this);
+	m_linkLabel.installEventFilter(this);
 }
 
 void Shoter::startShoter()
 {
 	shot(QApplication::desktop()->winId());
-	pal.setColor(QPalette::WindowText,Qt::black);
-	label.setPalette(pal);
-	label.setText(" Click \"Send\" to get the link!");
+	m_pal.setColor(QPalette::WindowText,Qt::black);
+	m_linkLabel.setPalette(m_pal);
+	m_linkLabel.setText(" Click \"Send\" to get the link!");
 	show();
 }
 
@@ -308,9 +307,9 @@ void Shoter::mouseMoveEvent(QMouseEvent *ev)
 
 void Shoter::startDrg()
 {
-	pMimeData = new QMimeData;
-	pMimeData->setText(label.text());
+	m_MimeData = new QMimeData;
+	m_MimeData->setText(m_linkLabel.text());
 	QDrag *pDrag = new QDrag(this);
-	pDrag->setMimeData(pMimeData);
+	pDrag->setMimeData(m_MimeData);
 	pDrag->exec();
 }

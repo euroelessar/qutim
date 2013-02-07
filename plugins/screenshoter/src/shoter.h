@@ -33,9 +33,6 @@
 #include <QNetworkAccessManager>
 #include "ui_screenshoter.h"
 #include <QProgressBar>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QScreen>
-#endif
 
 class Shoter :public QMainWindow
 {
@@ -68,17 +65,14 @@ private:
 	void upload(const QString &hostUrl, QHttpMultiPart *multipart);
 	void shot(WId pwid);
 	void writeSettings();
-	QPixmap m_screenshot;
-	QLabel label;
-	QPoint m_DragPos;
 	void startDrg();
-	QProgressBar progressBar;
-	QMimeData *pMimeData;
-	QPalette pal;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-	QScreen *screen;
-#endif
-
+	QPixmap m_screenshot;
+	QLabel m_linkLabel;
+	QPoint m_DragPos;
+	QProgressBar m_progressBar;
+	QMimeData *m_MimeData;
+	QPalette m_pal;
+	QNetworkAccessManager *m_manager;
 };
 
-#endif 
+#endif  // SHOTER_H
