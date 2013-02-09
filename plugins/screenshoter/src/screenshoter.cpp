@@ -30,7 +30,6 @@ using namespace qutim_sdk_0_3;
 Screenshoter::Screenshoter()
 {
 	m_shortcut = 0;
-	m_shoter = new Shoter();
 }
 
 void Screenshoter::init()
@@ -48,6 +47,7 @@ void Screenshoter::init()
 
 bool Screenshoter::load()
 {
+	m_shoter = new Shoter();
 	if (!m_shortcut) {
 		m_shortcut = new GlobalShortcut("screenshot",this);
 		connect(m_shortcut,SIGNAL(activated()),this,SLOT(initShoter()));
@@ -58,6 +58,7 @@ bool Screenshoter::load()
 bool Screenshoter::unload()
 {
 	delete m_shoter;
+	m_shoter = 0;
 	delete m_shortcut;
 	m_shortcut = 0;
 	return true;
