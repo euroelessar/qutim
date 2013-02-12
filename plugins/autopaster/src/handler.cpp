@@ -31,6 +31,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <qutim/config.h>
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
@@ -62,20 +63,16 @@ Handler::Result Handler::doHandle(Message &message, QString *reason)
 	Q_UNUSED(reason)
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
 	QTextDocument *doc = session->getInputField();
-	QRegExp rx("^http://.+");
 	if (!doc)
 		doc = qobject_cast<QTextDocument*>(sender());
 	m_fragment = new QTextDocumentFragment(doc);
 	if (doc->lineCount() >= m_lineCount && !message.isIncoming() && session->isActive()) {
-		if (!m_showDialogEverytime) { setHidden(true); accept(); }
-		if (exec() == QDialog::Accepted) {
-			if (rx.exactMatch(m_link) == true) {
-				message.setText(m_link);
-			} else {
-				message.setProperty("service", true);
-				message.setText(tr("Failed to send message to paste service, service reported error: %1").arg(m_link));
-			}
-		} else {
+		if (m_autoSubmit) QTimer::singleShot(1000,this,SLOT(accept()));
+		switch (exec()) {
+		case QDialog::Accepted:
+			sendMessage(message);
+			break;
+		case QDialog::Rejected:
 			return Accept;
 		}
 	}
@@ -145,7 +142,7 @@ void Handler::readSettings()
 {
 	Config cfg;
 	cfg.beginGroup("AutoPaster");
-	m_showDialogEverytime = cfg.value(QLatin1String("ShowDialogEverytime")).toBool();
+	m_autoSubmit = cfg.value(QLatin1String("AutoSubmit")).toBool();
 	m_defaultLocation = cfg.value(QLatin1String("DefaultLocation")).toInt();
 	m_lineCount = cfg.value(QLatin1String("LineCount")).toInt();
 	cfg.endGroup();
@@ -156,3 +153,15 @@ Handler::~Handler()
 {
 	delete ui;
 }
+
+void Handler::sendMessage(qutim_sdk_0_3::Message &message)
+{
+	QRegExp rx("^http://.+");
+	if (rx.exactMatch(m_link) == true) {
+		message.setText(m_link);
+	} else {
+		message.setProperty("service", true);
+		message.setText(tr("Failed to send message to paste service, service reported error: %1").arg(m_link));
+	}
+}
+
