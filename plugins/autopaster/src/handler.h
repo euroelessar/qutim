@@ -44,11 +44,10 @@ public:
 private:
 	Ui::Handler *ui;
 	QTextDocumentFragment *m_fragment;
-	qutim_sdk_0_3::Message m_message;
 	QNetworkAccessManager *m_manager;
 	QString m_link;
 	void append_part(QHttpMultiPart *multi, const QByteArray &name, const QByteArray &value);
-	bool m_showDialogEverytime;
+	bool m_autoSubmit;
 	int m_lineCount;
 	int m_defaultLocation;
 
@@ -56,6 +55,8 @@ public slots:
 	virtual void accept();
 	void finishedSlot(QNetworkReply *reply);
 	void readSettings();
+	void sendMessage(qutim_sdk_0_3::Message &message);
+
 protected:
 	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 

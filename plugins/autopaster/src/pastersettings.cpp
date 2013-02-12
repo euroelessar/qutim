@@ -18,7 +18,7 @@ void PasterSettings::loadImpl()
 {
 	Config cfg;
 	cfg.beginGroup("AutoPaster");
-	ui->checkBox->setChecked(cfg.value(QLatin1String("ShowDialogEverytime"), true));
+	ui->checkBox->setChecked(cfg.value(QLatin1String("AutoSubmit"), true));
 	ui->comboBox->setCurrentIndex(cfg.value(QLatin1String("DefaultLocation"),0));
 	ui->spinBox->setValue(cfg.value(QLatin1String("LineCount"),5));
 	cfg.endGroup();
@@ -28,7 +28,7 @@ void PasterSettings::saveImpl()
 {
 	Config cfg;
 	cfg.beginGroup("AutoPaster");
-	cfg.setValue(QLatin1String("ShowDialogEverytime"),ui->checkBox->isChecked());
+	cfg.setValue(QLatin1String("AutoSubmit"),ui->checkBox->isChecked());
 	cfg.setValue(QLatin1String("DefaultLocation"),QString::number(ui->comboBox->currentIndex()));
 	cfg.setValue(QLatin1String("LineCount"),ui->spinBox->value());
 	cfg.endGroup();
