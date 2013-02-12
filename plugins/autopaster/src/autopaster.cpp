@@ -48,8 +48,8 @@ bool Autopaster::load()
 	m_handler = new Handler();
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
 												   QLatin1String("Autopaster"),
-												   qutim_sdk_0_3::MessageHandler::LowPriority,
-												   qutim_sdk_0_3::MessageHandler::HighPriority+100500);
+												   qutim_sdk_0_3::MessageHandler::NormalPriortity,
+												   qutim_sdk_0_3::MessageHandler::SenderPriority);
 
 	m_settingsItem->connect(SIGNAL(saved()), m_handler, SLOT(readSettings()));
 	return true;
