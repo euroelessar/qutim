@@ -38,6 +38,7 @@ Handler::Handler(QWidget *parent):QDialog(parent),
 	ui(new Ui::Handler),m_link("")
 {
 	ui->setupUi(this);
+	setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	ui->locationBox->addItem("paste.ubuntu.com","http://paste.ubuntu.com");
 	ui->locationBox->addItem("hastebin.com","http://hastebin.com/documents");
 	ui->languageBox->addItem("Plain Text","text");
@@ -90,7 +91,7 @@ void Handler::accept()
 	QByteArray content = str.toAscii();
 	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	QByteArray hastebinBody;
-	switch (switchHost){
+	switch (switchHost) {
 	case 0:
 		append_part(multi,"poster","qutim");
 		append_part(multi,"syntax",syntax);
