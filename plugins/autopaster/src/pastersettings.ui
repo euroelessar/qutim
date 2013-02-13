@@ -60,45 +60,8 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QSpinBox" name="spinBox_2">
-     <property name="suffix">
-      <string>s</string>
-     </property>
-     <property name="maximum">
-      <number>3600</number>
-     </property>
-     <property name="value">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Delay before auto submit</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>spinBox_2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>137</x>
-     <y>67</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>158</x>
-     <y>97</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -59,7 +59,6 @@ private:
 	bool m_autoSubmit;
 	int m_lineCount;
 	int m_defaultLocation;
-	int m_delay;
 };
 
 #endif // PASTER_H
