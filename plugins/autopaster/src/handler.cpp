@@ -67,7 +67,7 @@ Handler::Result Handler::doHandle(Message &message, QString *reason)
 		doc = qobject_cast<QTextDocument*>(sender());
 	m_fragment = new QTextDocumentFragment(doc);
 	if (doc->lineCount() >= m_lineCount && !message.isIncoming() && session->isActive()) {
-		if (m_autoSubmit) QTimer::singleShot(1000,this,SLOT(accept()));
+		if (m_autoSubmit) QTimer::singleShot(m_delay,this,SLOT(accept()));
 		switch (exec()) {
 		case QDialog::Accepted:
 			sendMessage(message);
@@ -145,6 +145,7 @@ void Handler::readSettings()
 	m_autoSubmit = cfg.value(QLatin1String("AutoSubmit")).toBool();
 	m_defaultLocation = cfg.value(QLatin1String("DefaultLocation")).toInt();
 	m_lineCount = cfg.value(QLatin1String("LineCount")).toInt();
+	m_delay = cfg.value(QLatin1String("Delay")).toInt();
 	cfg.endGroup();
 	ui->locationBox->setCurrentIndex(m_defaultLocation);
 }
