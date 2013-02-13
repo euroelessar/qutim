@@ -131,14 +131,18 @@ class ChatEditLocker
 public:
 	ChatEditLocker(QWidget *widget) : m_widget(widget)
 	{
+		m_focus = widget->hasFocus();
 		m_widget->setDisabled(true);
 	}
 	~ChatEditLocker()
 	{
 		m_widget->setDisabled(false);
+		if (m_focus)
+			m_widget->setFocus();
 	}
 
 private:
+	bool m_focus;
 	QWidget *m_widget;
 };
 
