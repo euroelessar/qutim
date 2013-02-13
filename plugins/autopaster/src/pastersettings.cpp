@@ -8,8 +8,6 @@ AutoPasterSettings::AutoPasterSettings()
 	: ui(new Ui::Pastersettings)
 {
 	ui->setupUi(this);
-	foreach (PasterInterface *paster, AutoPasterHandler::pasters())
-		ui->comboBox->addItem(paster->name());
 	lookForWidgetState(ui->checkBox);
 	lookForWidgetState(ui->comboBox);
 	lookForWidgetState(ui->spinBox);
@@ -19,12 +17,16 @@ AutoPasterSettings::AutoPasterSettings()
 
 void AutoPasterSettings::loadImpl()
 {
+	ui->comboBox->clear();
+	foreach (PasterInterface *paster, AutoPasterHandler::pasters())
+		ui->comboBox->addItem(paster->name());
+
 	Config cfg;
 	cfg.beginGroup("AutoPaster");
 	ui->checkBox->setChecked(cfg.value(QLatin1String("AutoSubmit"), false));
 	ui->comboBox->setCurrentIndex(cfg.value(QLatin1String("DefaultLocation"), 0));
 	ui->spinBox->setValue(cfg.value(QLatin1String("LineCount"), 5));
-	ui->spinBox_2->setValue(cfg.value(QLatin1String("Delay"), 15000));
+	ui->spinBox_2->setValue(cfg.value(QLatin1String("Delay"), 5));
 	cfg.endGroup();
 }
 

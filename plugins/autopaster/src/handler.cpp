@@ -43,6 +43,7 @@ static AutoPasterHandler *self = NULL;
 AutoPasterHandler::AutoPasterHandler()
 {
 	Q_ASSERT(self == NULL);
+	self = this;
 
 	addPaster(new UbuntuPaster);
 	addPaster(new HastebinPaster);
@@ -78,7 +79,7 @@ AutoPasterHandler::Result AutoPasterHandler::doHandle(Message &message, QString 
 		AutoPasterDialog dialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
 
 		if (m_autoSubmit)
-			QTimer::singleShot(m_delay, &dialog, SLOT(accept()));
+			QTimer::singleShot(m_delay * 1000, &dialog, SLOT(accept()));
 
 		switch (dialog.exec()) {
 		case AutoPasterDialog::Accepted:
@@ -104,7 +105,7 @@ void AutoPasterHandler::readSettings()
 	m_autoSubmit = cfg.value(QLatin1String("AutoSubmit"), false);
 	m_defaultLocation = cfg.value(QLatin1String("DefaultLocation"), 0);
 	m_lineCount = cfg.value(QLatin1String("LineCount"), 5);
-	m_delay = cfg.value(QLatin1String("Delay"), 15000);
+	m_delay = cfg.value(QLatin1String("Delay"), 5);
 	cfg.endGroup();
 }
 
