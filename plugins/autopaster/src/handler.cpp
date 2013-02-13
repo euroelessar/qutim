@@ -53,6 +53,7 @@ Handler::Handler(QWidget *parent):QDialog(parent),
 	ui->languageBox->addItem("Java","java");
 	ui->languageBox->addItem("Makefile","make");
 	ui->languageBox->addItem("XML","xml");
+	ui->languageBox->addItem("CSS","css");
 	m_manager = new QNetworkAccessManager(this);
 	readSettings();
 	QObject::connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(finishedSlot(QNetworkReply*)));

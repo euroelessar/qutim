@@ -24,7 +24,7 @@ void PasterSettings::loadImpl()
 	ui->checkBox->setChecked(cfg.value(QLatin1String("AutoSubmit"), true));
 	ui->comboBox->setCurrentIndex(cfg.value(QLatin1String("DefaultLocation"),0));
 	ui->spinBox->setValue(cfg.value(QLatin1String("LineCount"),5));
-	ui->spinBox->setValue(cfg.value(QLatin1String("Delay"),1000));
+	ui->spinBox_2->setValue(cfg.value(QLatin1String("Delay"),1000));
 	cfg.endGroup();
 }
 
@@ -35,7 +35,7 @@ void PasterSettings::saveImpl()
 	cfg.setValue(QLatin1String("AutoSubmit"),ui->checkBox->isChecked());
 	cfg.setValue(QLatin1String("DefaultLocation"),QString::number(ui->comboBox->currentIndex()));
 	cfg.setValue(QLatin1String("LineCount"),ui->spinBox->value());
-	cfg.setValue(QLatin1String("Delay"),ui->spinBox->value());
+	cfg.setValue(QLatin1String("Delay"),ui->spinBox_2->value());
 	cfg.endGroup();
 }
 
