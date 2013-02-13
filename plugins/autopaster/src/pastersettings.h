@@ -6,13 +6,13 @@
 #include "ui_pastersettings.h"
 
 
-class PasterSettings : public qutim_sdk_0_3::SettingsWidget
+class AutoPasterSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
 
 public:
-	PasterSettings();
-	~PasterSettings();
+	AutoPasterSettings();
+	~AutoPasterSettings();
 
 protected:
 	virtual void loadImpl();
@@ -21,10 +21,6 @@ protected:
 
 private:
 	Ui::Pastersettings *ui;
-
-public slots:
-	void checkAutoSubmit();
-
 };
 
 #endif // PASTERSETTINGS_H
