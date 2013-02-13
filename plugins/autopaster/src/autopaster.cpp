@@ -46,16 +46,16 @@ void AutoPaster::loadSettings()
 
 bool AutoPaster::load()
 {
-	m_settingsItem = new GeneralSettingsItem<AutoPasterSettings>(
-						 Settings::Plugin,	QIcon(),
-						 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
-	Settings::registerItem(m_settingsItem);
-
 	m_handler = new AutoPasterHandler();
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
 												   QLatin1String("AutoPaster"),
 												   qutim_sdk_0_3::MessageHandler::NormalPriortity,
 												   qutim_sdk_0_3::MessageHandler::SenderPriority + 0x2000);
+
+	m_settingsItem = new GeneralSettingsItem<AutoPasterSettings>(
+						 Settings::Plugin,	QIcon(),
+						 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
+	Settings::registerItem(m_settingsItem);
 
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	return true;
