@@ -126,8 +126,29 @@ bool ChatEdit::event(QEvent *event)
 	return QTextEdit::event(event);
 }
 
+class ChatEditLocker
+{
+public:
+	ChatEditLocker(QWidget *widget) : m_widget(widget)
+	{
+		m_widget->setDisabled(true);
+	}
+	~ChatEditLocker()
+	{
+		m_widget->setDisabled(false);
+	}
+
+private:
+	QWidget *m_widget;
+};
+
 void ChatEdit::send()
 {
+	if (!isEnabled())
+		return;
+
+	ChatEditLocker locker(this);
+
 	QString text = textEditToPlainText();
 	QString trimmed = text.trimmed();
 	if(!m_session || trimmed.isEmpty())

@@ -78,10 +78,16 @@ AutoPasterHandler::Result AutoPasterHandler::doHandle(Message &message, QString 
 			&& message.text().count('\n') + 1 >= m_lineCount) {
 		AutoPasterDialog dialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
 
-		if (m_autoSubmit)
-			QTimer::singleShot(m_delay * 1000, &dialog, SLOT(accept()));
+		if (m_autoSubmit) {
+			QEventLoop loop;
+			QObject::connect(&dialog, SIGNAL(finished(int)), &loop, SLOT(quit()));
+			dialog.accept();
+			loop.exec();
+		} else {
+			dialog.exec();
+		}
 
-		switch (dialog.exec()) {
+		switch (dialog.result()) {
 		case AutoPasterDialog::Accepted:
 			message.setText(dialog.url().toString());
 			break;
@@ -101,11 +107,9 @@ AutoPasterHandler::Result AutoPasterHandler::doHandle(Message &message, QString 
 void AutoPasterHandler::readSettings()
 {
 	Config cfg;
-	cfg.beginGroup("AutoPaster");
-	m_autoSubmit = cfg.value(QLatin1String("AutoSubmit"), false);
-	m_defaultLocation = cfg.value(QLatin1String("DefaultLocation"), 0);
-	m_lineCount = cfg.value(QLatin1String("LineCount"), 5);
-	m_delay = cfg.value(QLatin1String("Delay"), 5);
-	cfg.endGroup();
+	cfg.beginGroup("autoPaster");
+	m_autoSubmit = cfg.value(QLatin1String("autoSubmit"), false);
+	m_defaultLocation = cfg.value(QLatin1String("defaultLocation"), 0);
+	m_lineCount = cfg.value(QLatin1String("lineCount"), 5);
 }
 
