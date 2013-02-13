@@ -22,6 +22,9 @@ protected:
 private:
 	Ui::Pastersettings *ui;
 
+public slots:
+	void checkAutoSubmit();
+
 };
 
 #endif // PASTERSETTINGS_H
