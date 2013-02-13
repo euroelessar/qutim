@@ -25,42 +25,41 @@
 #ifndef PASTER_H
 #define PASTER_H
 
-#include <QDialog>
-#include <qutim/chatsession.h>
-#include <QNetworkAccessManager>
-#include <qutim/messagehandler.h>
 #include <ui_handler.h>
-#include <QTextDocumentFragment>
+#include "pasterinterface.h"
+
+#include <qutim/chatsession.h>
+#include <qutim/messagehandler.h>
 #include <qutim/message.h>
 
-class Handler : public QDialog, public qutim_sdk_0_3::MessageHandler
+#include <QDialog>
+#include <QNetworkAccessManager>
+#include <QTextDocumentFragment>
+
+class AutoPasterHandler : public qutim_sdk_0_3::MessageHandler
 {
-	Q_OBJECT
-
 public:
-	explicit Handler(QWidget *parent = 0);
-	~Handler();
+	explicit AutoPasterHandler();
+	~AutoPasterHandler();
 
-private:
-	Ui::Handler *ui;
-	QString m_message;
-	QNetworkAccessManager *m_manager;
-	QString m_link;
-	void append_part(QHttpMultiPart *multi, const QByteArray &name, const QByteArray &value);
-	bool m_autoSubmit;
-	int m_lineCount;
-	int m_defaultLocation;
-	int m_delay;
+	void addPaster(PasterInterface *paster);
+
+	static QList<PasterInterface*> pasters();
 
 public slots:
-	virtual void accept();
-	void finishedSlot(QNetworkReply *reply);
 	void readSettings();
-	void sendMessage(qutim_sdk_0_3::Message &message);
 
 protected:
 	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 
+private:
+	QNetworkAccessManager m_manager;
+	QList<PasterInterface*> m_pasters;
+
+	bool m_autoSubmit;
+	int m_lineCount;
+	int m_defaultLocation;
+	int m_delay;
 };
 
 #endif // PASTER_H

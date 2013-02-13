@@ -29,41 +29,49 @@
 
 using namespace qutim_sdk_0_3;
 
-void Autopaster::init()
+void AutoPaster::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Autopaster"),
 			QT_TRANSLATE_NOOP("Plugin", "Paste your code to hosting"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("trett"));
+	addAuthor(QLatin1String("euroelessar"));
 }
 
-bool Autopaster::load()
+void AutoPaster::loadSettings()
 {
-	m_settingsItem = new GeneralSettingsItem<PasterSettings>(
+	m_handler->readSettings();
+}
+
+bool AutoPaster::load()
+{
+	m_settingsItem = new GeneralSettingsItem<AutoPasterSettings>(
 						 Settings::Plugin,	QIcon(),
 						 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
 	Settings::registerItem(m_settingsItem);
 
-	m_handler = new Handler();
+	m_handler = new AutoPasterHandler();
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
-												   QLatin1String("Autopaster"),
+												   QLatin1String("AutoPaster"),
 												   qutim_sdk_0_3::MessageHandler::NormalPriortity,
-												   qutim_sdk_0_3::MessageHandler::SenderPriority);
+												   qutim_sdk_0_3::MessageHandler::SenderPriority + 0x2000);
 
-	m_settingsItem->connect(SIGNAL(saved()), m_handler, SLOT(readSettings()));
+	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	return true;
 }
 
-bool Autopaster::unload()
+bool AutoPaster::unload()
 {
 	Settings::removeItem(m_settingsItem);
 	delete m_settingsItem;
+	m_settingsItem = 0;
 
 	delete m_handler;
 	m_handler = 0;
+
 	return true;
 }
 
 
-QUTIM_EXPORT_PLUGIN(Autopaster)
+QUTIM_EXPORT_PLUGIN(AutoPaster)

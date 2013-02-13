@@ -30,17 +30,20 @@
 #include "handler.h"
 
 
-class Autopaster : public qutim_sdk_0_3::Plugin
+class AutoPaster : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName","Autopaster")
-
-
-private:
+public:
 	virtual bool load();
 	virtual bool unload();
 	virtual void init();
-	Handler *m_handler;
+
+protected slots:
+	void loadSettings();
+
+private:
+	AutoPasterHandler *m_handler;
 	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 };
 
