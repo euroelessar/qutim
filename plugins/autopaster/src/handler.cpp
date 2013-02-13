@@ -32,6 +32,7 @@
 #include <QNetworkReply>
 #include <qutim/config.h>
 #include <QTimer>
+#include <qutim/json.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -83,8 +84,8 @@ void Handler::accept()
 	int switchHost = ui->locationBox->currentIndex();
 	QByteArray syntax = (ui->languageBox->itemData(ui->languageBox->currentIndex(),Qt::UserRole)).toByteArray();
 	QByteArray content = m_message.toAscii();
-	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	QByteArray hastebinBody;
+	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	switch (switchHost) {
 	case 0:
 		append_part(multi,"poster","qutim");
@@ -92,6 +93,7 @@ void Handler::accept()
 		append_part(multi,"content",content);
 		break;
 	case 1:
+		multi->deleteLater();
 		hastebinBody.append(content);
 		break;
 	}
@@ -115,10 +117,7 @@ void Handler::finishedSlot(QNetworkReply *reply)
 			QVariant answer = reply->header(QNetworkRequest::LocationHeader);
 			m_link = answer.toString();
 		} else {
-			QByteArray bytes = reply->readAll();
-			QString string(bytes);
-			string.replace(QRegExp("\\{\"key\":\"([a-z0-9]+)\"\\}"),"\\1");
-			//  qDebug()<<string;
+			QString string = Json::parse(reply->readAll()).toMap().value("key").toString();
 			m_link = "http://hastebin.com/" + string;
 		}
 	} else {
