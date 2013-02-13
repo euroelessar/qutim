@@ -62,12 +62,9 @@ Handler::Handler(QWidget *parent):QDialog(parent),
 Handler::Result Handler::doHandle(Message &message, QString *reason)
 {
 	Q_UNUSED(reason)
-	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-	QTextDocument *doc = session->getInputField();
-	if (!doc)
-		doc = qobject_cast<QTextDocument*>(sender());
-	m_fragment = new QTextDocumentFragment(doc);
-	if (doc->lineCount() >= m_lineCount && !message.isIncoming() && session->isActive()) {
+	if (!message.isIncoming() && !message.property("service", false) &&
+			!message.property("history", false) && message.text().count('\n') >= m_lineCount-1) {
+		m_message = message.text();
 		if (m_autoSubmit) QTimer::singleShot(m_delay,this,SLOT(accept()));
 		switch (exec()) {
 		case QDialog::Accepted:
@@ -82,11 +79,10 @@ Handler::Result Handler::doHandle(Message &message, QString *reason)
 
 void Handler::accept()
 {
-	QString str = m_fragment->toPlainText();
 	QString host = (ui->locationBox->itemData(ui->locationBox->currentIndex(),Qt::UserRole)).toString();
 	int switchHost = ui->locationBox->currentIndex();
 	QByteArray syntax = (ui->languageBox->itemData(ui->languageBox->currentIndex(),Qt::UserRole)).toByteArray();
-	QByteArray content = str.toAscii();
+	QByteArray content = m_message.toAscii();
 	QHttpMultiPart *multi = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	QByteArray hastebinBody;
 	switch (switchHost) {

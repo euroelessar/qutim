@@ -43,7 +43,7 @@ public:
 
 private:
 	Ui::Handler *ui;
-	QTextDocumentFragment *m_fragment;
+	QString m_message;
 	QNetworkAccessManager *m_manager;
 	QString m_link;
 	void append_part(QHttpMultiPart *multi, const QByteArray &name, const QByteArray &value);
