@@ -193,7 +193,6 @@ void Shoter::onShotButtonClicked()
 	setHidden(true);
 	QTimer *timer = new QTimer(this);
 	timer->singleShot(sec*1000, this, SLOT(reShot()));
-	timer->start();
 }
 
 void Shoter::reShot()
