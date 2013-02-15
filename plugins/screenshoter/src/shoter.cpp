@@ -191,8 +191,7 @@ void Shoter::onShotButtonClicked()
 {
 	int sec = ui->spinBox->value();
 	setHidden(true);
-	QTimer *timer = new QTimer(this);
-	timer->singleShot(sec*1000, this, SLOT(reShot()));
+	QQTimer::singleShot(sec*1000, this, SLOT(reShot()));
 }
 
 void Shoter::reShot()
