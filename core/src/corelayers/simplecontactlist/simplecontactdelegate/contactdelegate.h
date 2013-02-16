@@ -103,6 +103,8 @@ protected:
 	void setFlag(ContactDelegate::ShowFlags flag, bool on);
 private:
 	QScopedPointer<ContactDelegatePrivate> p;
+    QFont m_headerFont;
+    QFont m_contactFont;
 };
 
 }

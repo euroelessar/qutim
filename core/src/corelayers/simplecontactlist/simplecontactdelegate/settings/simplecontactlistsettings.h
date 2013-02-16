@@ -29,11 +29,12 @@
 #include <qutim/settingswidget.h>
 #include "../contactdelegate.h"
 #include <qutim/simplecontactlist/servicechooser.h>
+#include <QPushButton>
 
 class QCheckBox;
 
 namespace Ui {
-    class SimpleContactlistSettings;
+class SimpleContactlistSettings;
 }
 
 namespace Core
@@ -43,21 +44,31 @@ using namespace qutim_sdk_0_3;
 
 class SimpleContactlistSettings : public ContactListSettingsExtention
 {
-	Q_OBJECT
-	Q_INTERFACES(Core::ContactListSettingsExtention)
-	Q_CLASSINFO("ServiceSettings", "Core::ContactDelegate")
+    Q_OBJECT
+    Q_INTERFACES(Core::ContactListSettingsExtention)
+    Q_CLASSINFO("ServiceSettings", "Core::ContactDelegate")
 public:
-	explicit SimpleContactlistSettings();
-	~SimpleContactlistSettings();
-	virtual void loadImpl();
-	virtual void cancelImpl();
-	virtual void saveImpl();
+    explicit SimpleContactlistSettings();
+    ~SimpleContactlistSettings();
+    virtual void loadImpl();
+    virtual void cancelImpl();
+    virtual void saveImpl();
+
 private:
-	Ui::SimpleContactlistSettings *ui;
-	void reloadCombobox();
-	QHash<QString, QCheckBox *> m_statusesBoxes;
+    Ui::SimpleContactlistSettings *ui;
+    void reloadCombobox();
+    QHash<QString, QCheckBox *> m_statusesBoxes;
+    QFont m_headerFont;
+    QFont m_contactFont;
+    QString forContactFont;
+    QString forHeaderFont;
+    void setButtonText(QFont font, QPushButton *button);
+
+public slots:
+    void headerFontSettings();
+    void contactFontSettings();
 };
-	
+
 }
 
 
