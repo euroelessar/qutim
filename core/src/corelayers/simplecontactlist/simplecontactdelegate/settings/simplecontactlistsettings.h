@@ -60,9 +60,8 @@ private:
     QHash<QString, QCheckBox *> m_statusesBoxes;
     QFont m_headerFont;
     QFont m_contactFont;
-    QString forContactFont;
-    QString forHeaderFont;
     void setButtonText(QFont font, QPushButton *button);
+    void showFontDialog(QFont &font);
 
 public slots:
     void headerFontSettings();

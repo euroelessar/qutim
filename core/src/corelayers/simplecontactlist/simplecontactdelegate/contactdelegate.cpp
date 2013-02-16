@@ -122,9 +122,7 @@ void ContactDelegate::paint(QPainter *painter,
                             const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     // ajust contact font
-    //QFont font; //= SimpleContactlistSettings().m_contactFont;
     painter->setFont(m_contactFont);
-    //painter->setFont(QFont("Liberation Sans",9,QFont::Normal));
     QStyleOptionViewItemV4 opt(option);
     painter->save();
     QStyle *style = p->getStyle(option);
@@ -177,8 +175,6 @@ void ContactDelegate::paint(QPainter *painter,
         // Ajust header font
         QFont font = opt.font;
         font = m_headerFont;
-//        font.setBold(true);
-//        font.setPixelSize(12);
         painter->setFont(font);
 
         if (type == TagType) {

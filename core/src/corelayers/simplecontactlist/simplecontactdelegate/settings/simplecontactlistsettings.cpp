@@ -164,28 +164,32 @@ void SimpleContactlistSettings::reloadCombobox()
 
 void SimpleContactlistSettings::headerFontSettings()
 {
-    bool ok;
-    m_headerFont = QFontDialog::getFont(&ok,m_headerFont, this);
-    if (ok) {
-    saveImpl();
-    setButtonText(m_headerFont, ui->headerFontSettingsButton);
-    }
+
+    showFontDialog(m_headerFont);
+    setButtonText(m_headerFont,ui->headerFontSettingsButton);
 }
 
 void SimpleContactlistSettings::contactFontSettings()
 {
-    bool ok;
-    m_contactFont = QFontDialog::getFont(&ok,m_contactFont, this);
-    if (ok) {
-    saveImpl();
+    showFontDialog(m_contactFont);
     setButtonText(m_contactFont,ui->contactFontSettingsButton);
-    }
+
 }
+
 void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
 {
     button->setText
             (tr("%1 %2").arg( font.family()).arg( font.pointSize()));
     button->setFont(font);
+}
+
+void SimpleContactlistSettings::showFontDialog(QFont &font)
+{
+    bool ok;
+    font = QFontDialog::getFont(&ok,font, this);
+    if (ok) {
+        saveImpl();
+    }
 }
 }
 
