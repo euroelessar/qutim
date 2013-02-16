@@ -122,7 +122,7 @@ void ContactDelegate::paint(QPainter *painter,
                             const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     // ajust contact font
-    painter->setFont(m_contactFont);
+    if (!m_contactFont.family().isEmpty()) painter->setFont(m_contactFont);
     QStyleOptionViewItemV4 opt(option);
     painter->save();
     QStyle *style = p->getStyle(option);
@@ -174,9 +174,12 @@ void ContactDelegate::paint(QPainter *painter,
         }
         // Ajust header font
         QFont font = opt.font;
-        font = m_headerFont;
+        if (!m_headerFont.family().isEmpty()) {
+            font = m_headerFont;
+        } else {
+            font.setBold(true);
+        }
         painter->setFont(font);
-
         if (type == TagType) {
             QString count = index.data(ContactsCountRole).toString();
             QString online_count = index.data(OnlineContactsCountRole).toString();
