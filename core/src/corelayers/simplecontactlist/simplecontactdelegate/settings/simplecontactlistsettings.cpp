@@ -90,6 +90,7 @@ void SimpleContactlistSettings::loadImpl()
     reloadCombobox();
     connect(ui->headerFontSettingsButton,SIGNAL(clicked()),SLOT(headerFontSettings()));
     connect(ui->contactFontSettingsButton,SIGNAL(clicked()),SLOT(contactFontSettings()));
+    connect(ui->statusFontSettingsButton,SIGNAL(clicked()),SLOT(statusFontSettings()));
     Config config = Config("appearance").group("contactList");
     ui->avatarsBox->setChecked(config.value("showAvatars", true));
     ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
@@ -98,8 +99,10 @@ void SimpleContactlistSettings::loadImpl()
     ui->onstartupBox->setChecked(config.value("showContactListOnStartup", true));
     m_headerFont.fromString(config.value("HeaderFont").toString());
     m_contactFont.fromString(config.value("ContactFont").toString());
+    m_statusFont.fromString(config.value("StatusFont").toString());
     setButtonText(m_headerFont, ui->headerFontSettingsButton);
     setButtonText(m_contactFont,ui->contactFontSettingsButton);
+    setButtonText(m_statusFont,ui->statusFontSettingsButton);
     // Load extendes statuses
     config.beginGroup("extendedStatuses");
     foreach (QCheckBox *checkBox, m_statusesBoxes) {
@@ -136,6 +139,7 @@ void SimpleContactlistSettings::saveImpl()
     int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
     config.setValue("HeaderFont",m_headerFont.toString());
     config.setValue("ContactFont",m_contactFont.toString());
+    config.setValue("StatusFont",m_statusFont.toString());
     if (size == 0)
         config.remove("statusIconSize");
     else
@@ -164,7 +168,6 @@ void SimpleContactlistSettings::reloadCombobox()
 
 void SimpleContactlistSettings::headerFontSettings()
 {
-
     showFontDialog(m_headerFont);
     setButtonText(m_headerFont,ui->headerFontSettingsButton);
 }
@@ -174,6 +177,12 @@ void SimpleContactlistSettings::contactFontSettings()
     showFontDialog(m_contactFont);
     setButtonText(m_contactFont,ui->contactFontSettingsButton);
 
+}
+
+void SimpleContactlistSettings::statusFontSettings()
+{
+    showFontDialog(m_statusFont);
+    setButtonText(m_statusFont,ui->statusFontSettingsButton);
 }
 
 void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
@@ -191,5 +200,6 @@ void SimpleContactlistSettings::showFontDialog(QFont &font)
         saveImpl();
     }
 }
+
 }
 

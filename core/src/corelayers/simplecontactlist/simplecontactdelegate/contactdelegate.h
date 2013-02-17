@@ -105,6 +105,7 @@ private:
     QScopedPointer<ContactDelegatePrivate> p;
     QFont m_headerFont;
     QFont m_contactFont;
+    QFont m_statusFont;
 };
 
 }

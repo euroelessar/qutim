@@ -254,7 +254,11 @@ void ContactDelegate::paint(QPainter *painter,
             QRect status_rect = title_rect;
             status_rect.setTop(status_rect.top() + bounding.height());
             QFont font = opt.font;
-            font.setPointSize(font.pointSize()-2);
+            if (!m_statusFont.family().isEmpty()) {
+                font = m_statusFont;
+            } else {
+                font.setPointSize(font.pointSize()-2);
+            }
             QString text = status.text().remove(QLatin1Char('\n'));
             text = QFontMetrics(font).elidedText(text,Qt::ElideRight,status_rect.width());
             painter->setFont(font);
@@ -383,6 +387,7 @@ void ContactDelegate::reloadSettings()
     QHash<QString, bool> statuses;
     m_headerFont.fromString(cfg.value("HeaderFont").toString());
     m_contactFont.fromString(cfg.value("ContactFont").toString());
+    m_statusFont.fromString(cfg.value("StatusFont").toString());
     cfg.beginGroup("extendedStatuses");
     foreach (const QString &name, cfg.childKeys())
         statuses.insert(name, cfg.value(name, true));
