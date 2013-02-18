@@ -63,9 +63,9 @@ struct ContactDelegatePrivate
 	int statusIconSize;
 	int extIconSize;
 	bool liteMode;
-	QFont m_headerFont;
-	QFont m_contactFont;
-	QFont m_statusFont;
+	QFont headerFont;
+	QFont contactFont;
+	QFont statusFont;
 };
 
 struct ContactInfoComparator
@@ -125,8 +125,8 @@ void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	// ajust contact font
-	if (!p->m_contactFont.family().isEmpty())
-		painter->setFont(p->m_contactFont);
+	if (!p->contactFont.family().isEmpty())
+		painter->setFont(p->contactFont);
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
@@ -178,8 +178,8 @@ void ContactDelegate::paint(QPainter *painter,
 		}
 		// Ajust header font
 		QFont font = opt.font;
-		if (!p->m_headerFont.family().isEmpty()) {
-			font = p->m_headerFont;
+		if (!p->headerFont.family().isEmpty()) {
+			font = p->headerFont;
 		} else {
 			font.setBold(true);
 		}
@@ -259,8 +259,8 @@ void ContactDelegate::paint(QPainter *painter,
 			status_rect.setTop(status_rect.top() + bounding.height());
 			QFont font = opt.font;
 			// ajust staus font
-			if (!p->m_statusFont.family().isEmpty()) {
-				font = p->m_statusFont;
+			if (!p->statusFont.family().isEmpty()) {
+				font = p->statusFont;
 			} else {
 				font.setPointSize(font.pointSize()-2);
 			}
@@ -390,9 +390,9 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
-	p->m_headerFont.fromString(cfg.value("HeaderFont").toString());
-	p->m_contactFont.fromString(cfg.value("ContactFont").toString());
-	p->m_statusFont.fromString(cfg.value("StatusFont").toString());
+	p->headerFont.fromString(cfg.value("HeaderFont", QString()));
+	p->contactFont.fromString(cfg.value("ContactFont", QString()));
+	p->statusFont.fromString(cfg.value("StatusFont", QString()));
 	cfg.beginGroup("extendedStatuses");
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));

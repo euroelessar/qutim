@@ -61,16 +61,16 @@ private:
 	QFont m_headerFont;
 	QFont m_contactFont;
 	QFont m_statusFont;
-	void setButtonText(QFont font, QPushButton *button);
-	void showFontDialog(QFont &font);
+	void setButtonText(const QFont &font, QPushButton *button);
+	void showFontDialog(const QFont &font);
 
 public slots:
 	void headerFontSettings();
 	void contactFontSettings();
 	void statusFontSettings();
-	void onHeaderFontChoosed(QFont font);
-	void onContactFontChoosed(QFont font);
-	void onStatusFontChoosed(QFont font);
+	void onHeaderFontChoosed(const QFont &font);
+	void onContactFontChoosed(const QFont &font);
+	void onStatusFontChoosed(const QFont &font);
 };
 
 }

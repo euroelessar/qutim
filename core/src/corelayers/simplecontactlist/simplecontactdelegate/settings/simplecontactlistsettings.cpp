@@ -88,21 +88,21 @@ void SimpleContactlistSettings::cancelImpl()
 void SimpleContactlistSettings::loadImpl()
 {
 	reloadCombobox();
-	connect(ui->headerFontSettingsButton,SIGNAL(clicked()),SLOT(headerFontSettings()));
-	connect(ui->contactFontSettingsButton,SIGNAL(clicked()),SLOT(contactFontSettings()));
-	connect(ui->statusFontSettingsButton,SIGNAL(clicked()),SLOT(statusFontSettings()));
+	connect(ui->headerFontSettingsButton, SIGNAL(clicked()), SLOT(headerFontSettings()));
+	connect(ui->contactFontSettingsButton, SIGNAL(clicked()), SLOT(contactFontSettings()));
+	connect(ui->statusFontSettingsButton, SIGNAL(clicked()), SLOT(statusFontSettings()));
 	Config config = Config("appearance").group("contactList");
 	ui->avatarsBox->setChecked(config.value("showAvatars", true));
 	ui->extendedInfoBox->setChecked(config.value("showExtendedInfoIcons", true));
 	ui->statusBox->setChecked(config.value("showStatusText", true));
 	ui->liteBox->setChecked(config.value("liteMode", true));
 	ui->onstartupBox->setChecked(config.value("showContactListOnStartup", true));
-	m_headerFont.fromString(config.value("HeaderFont").toString());
-	m_contactFont.fromString(config.value("ContactFont").toString());
-	m_statusFont.fromString(config.value("StatusFont").toString());
+	m_headerFont.fromString(config.value("HeaderFont", QString()));
+	m_contactFont.fromString(config.value("ContactFont", QString()));
+	m_statusFont.fromString(config.value("StatusFont", QString()));
 	setButtonText(m_headerFont, ui->headerFontSettingsButton);
-	setButtonText(m_contactFont,ui->contactFontSettingsButton);
-	setButtonText(m_statusFont,ui->statusFontSettingsButton);
+	setButtonText(m_contactFont, ui->contactFontSettingsButton);
+	setButtonText(m_statusFont, ui->statusFontSettingsButton);
 	// Load extendes statuses
 	config.beginGroup("extendedStatuses");
 	foreach (QCheckBox *checkBox, m_statusesBoxes) {
@@ -137,9 +137,9 @@ void SimpleContactlistSettings::saveImpl()
 	config.setValue("liteMode", ui->liteBox->isChecked());
 	config.setValue("showContactListOnStartup", ui->onstartupBox->isChecked());
 	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
-	config.setValue("HeaderFont",m_headerFont.toString());
-	config.setValue("ContactFont",m_contactFont.toString());
-	config.setValue("StatusFont",m_statusFont.toString());
+	config.setValue("HeaderFont", m_headerFont.toString());
+	config.setValue("ContactFont", m_contactFont.toString());
+	config.setValue("StatusFont", m_statusFont.toString());
 	if (size == 0)
 		config.remove("statusIconSize");
 	else
@@ -181,7 +181,7 @@ void SimpleContactlistSettings::statusFontSettings()
 	showFontDialog(m_statusFont);
 }
 
-void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
+void SimpleContactlistSettings::setButtonText(const QFont &font, QPushButton *button)
 {
 	button->setText
 			(tr("%1 %2").arg( font.family()).arg( font.pointSize()));
@@ -189,7 +189,7 @@ void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
 	saveImpl();
 }
 
-void SimpleContactlistSettings::showFontDialog(QFont &font)
+void SimpleContactlistSettings::showFontDialog(const QFont &font)
 {
 	QFontDialog *dialog = new QFontDialog(this);
 	dialog->setCurrentFont(font);
@@ -203,21 +203,22 @@ void SimpleContactlistSettings::showFontDialog(QFont &font)
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 }
 
-void SimpleContactlistSettings::onHeaderFontChoosed(QFont font)
+void SimpleContactlistSettings::onHeaderFontChoosed(const QFont &font)
 {
 	m_headerFont = font;
-	setButtonText(m_headerFont,ui->headerFontSettingsButton);
+	setButtonText(m_headerFont, ui->headerFontSettingsButton);
 }
 
-void SimpleContactlistSettings::onContactFontChoosed(QFont font)
+void SimpleContactlistSettings::onContactFontChoosed(const QFont &font)
 {
 	m_contactFont = font;
-	setButtonText(m_contactFont,ui->contactFontSettingsButton);
+	setButtonText(m_contactFont, ui->contactFontSettingsButton);
 }
 
-void SimpleContactlistSettings::onStatusFontChoosed(QFont font)
+void SimpleContactlistSettings::onStatusFontChoosed(const QFont &font)
 {
 	m_statusFont = font;
-	setButtonText(m_statusFont,ui->statusFontSettingsButton);
+	setButtonText(m_statusFont, ui->statusFontSettingsButton);
 }
+
 }
