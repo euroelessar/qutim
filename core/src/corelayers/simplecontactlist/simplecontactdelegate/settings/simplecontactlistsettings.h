@@ -44,30 +44,30 @@ using namespace qutim_sdk_0_3;
 
 class SimpleContactlistSettings : public ContactListSettingsExtention
 {
-    Q_OBJECT
-    Q_INTERFACES(Core::ContactListSettingsExtention)
-    Q_CLASSINFO("ServiceSettings", "Core::ContactDelegate")
+	Q_OBJECT
+	Q_INTERFACES(Core::ContactListSettingsExtention)
+	Q_CLASSINFO("ServiceSettings", "Core::ContactDelegate")
 public:
-    explicit SimpleContactlistSettings();
-    ~SimpleContactlistSettings();
-    virtual void loadImpl();
-    virtual void cancelImpl();
-    virtual void saveImpl();
+	explicit SimpleContactlistSettings();
+	~SimpleContactlistSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
 
 private:
-    Ui::SimpleContactlistSettings *ui;
-    void reloadCombobox();
-    QHash<QString, QCheckBox *> m_statusesBoxes;
-    QFont m_headerFont;
-    QFont m_contactFont;
-    QFont m_statusFont;
-    void setButtonText(QFont font, QPushButton *button);
-    void showFontDialog(QFont &font);
+	Ui::SimpleContactlistSettings *ui;
+	void reloadCombobox();
+	QHash<QString, QCheckBox *> m_statusesBoxes;
+	QFont m_headerFont;
+	QFont m_contactFont;
+	QFont m_statusFont;
+	void setButtonText(QFont font, QPushButton *button);
+	void showFontDialog(QFont &font);
 
 public slots:
-    void headerFontSettings();
-    void contactFontSettings();
-    void statusFontSettings();
+	void headerFontSettings();
+	void contactFontSettings();
+	void statusFontSettings();
 };
 
 }
