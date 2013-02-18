@@ -63,6 +63,9 @@ struct ContactDelegatePrivate
 	int statusIconSize;
 	int extIconSize;
 	bool liteMode;
+	QFont m_headerFont;
+	QFont m_contactFont;
+	QFont m_statusFont;
 };
 
 struct ContactInfoComparator
@@ -122,8 +125,8 @@ void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	// ajust contact font
-	if (!m_contactFont.family().isEmpty())
-		painter->setFont(m_contactFont);
+	if (!p->m_contactFont.family().isEmpty())
+		painter->setFont(p->m_contactFont);
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
@@ -175,8 +178,8 @@ void ContactDelegate::paint(QPainter *painter,
 		}
 		// Ajust header font
 		QFont font = opt.font;
-		if (!m_headerFont.family().isEmpty()) {
-			font = m_headerFont;
+		if (!p->m_headerFont.family().isEmpty()) {
+			font = p->m_headerFont;
 		} else {
 			font.setBold(true);
 		}
@@ -255,8 +258,9 @@ void ContactDelegate::paint(QPainter *painter,
 			QRect status_rect = title_rect;
 			status_rect.setTop(status_rect.top() + bounding.height());
 			QFont font = opt.font;
-			if (!m_statusFont.family().isEmpty()) {
-				font = m_statusFont;
+			// ajust staus font
+			if (!p->m_statusFont.family().isEmpty()) {
+				font = p->m_statusFont;
 			} else {
 				font.setPointSize(font.pointSize()-2);
 			}
@@ -386,9 +390,9 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
-	m_headerFont.fromString(cfg.value("HeaderFont").toString());
-	m_contactFont.fromString(cfg.value("ContactFont").toString());
-	m_statusFont.fromString(cfg.value("StatusFont").toString());
+	p->m_headerFont.fromString(cfg.value("HeaderFont").toString());
+	p->m_contactFont.fromString(cfg.value("ContactFont").toString());
+	p->m_statusFont.fromString(cfg.value("StatusFont").toString());
 	cfg.beginGroup("extendedStatuses");
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));

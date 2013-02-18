@@ -176,7 +176,6 @@ void SimpleContactlistSettings::contactFontSettings()
 {
 	showFontDialog(m_contactFont);
 	setButtonText(m_contactFont,ui->contactFontSettingsButton);
-
 }
 
 void SimpleContactlistSettings::statusFontSettings()
