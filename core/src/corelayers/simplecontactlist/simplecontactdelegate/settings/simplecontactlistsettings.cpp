@@ -169,19 +169,16 @@ void SimpleContactlistSettings::reloadCombobox()
 void SimpleContactlistSettings::headerFontSettings()
 {
 	showFontDialog(m_headerFont);
-	setButtonText(m_headerFont,ui->headerFontSettingsButton);
 }
 
 void SimpleContactlistSettings::contactFontSettings()
 {
 	showFontDialog(m_contactFont);
-	setButtonText(m_contactFont,ui->contactFontSettingsButton);
 }
 
 void SimpleContactlistSettings::statusFontSettings()
 {
 	showFontDialog(m_statusFont);
-	setButtonText(m_statusFont,ui->statusFontSettingsButton);
 }
 
 void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
@@ -189,16 +186,38 @@ void SimpleContactlistSettings::setButtonText(QFont font, QPushButton *button)
 	button->setText
 			(tr("%1 %2").arg( font.family()).arg( font.pointSize()));
 	button->setFont(font);
+	saveImpl();
 }
 
 void SimpleContactlistSettings::showFontDialog(QFont &font)
 {
-	bool ok;
-	font = QFontDialog::getFont(&ok,font, this);
-	if (ok) {
-		saveImpl();
+	QFontDialog *dialog = new QFontDialog(this);
+	dialog->setCurrentFont(font);
+	if (font == m_headerFont) {
+		dialog->open(this, SLOT(onHeaderFontChoosed(QFont)));
+	} else if (font == m_contactFont) {
+		dialog->open(this, SLOT(onContactFontChoosed(QFont)));
+	} else if (font == m_statusFont) {
+		dialog->open(this, SLOT(onStatusFontChoosed(QFont)));
 	}
+	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 }
 
+void SimpleContactlistSettings::onHeaderFontChoosed(QFont font)
+{
+	m_headerFont = font;
+	setButtonText(m_headerFont,ui->headerFontSettingsButton);
 }
 
+void SimpleContactlistSettings::onContactFontChoosed(QFont font)
+{
+	m_contactFont = font;
+	setButtonText(m_contactFont,ui->contactFontSettingsButton);
+}
+
+void SimpleContactlistSettings::onStatusFontChoosed(QFont font)
+{
+	m_statusFont = font;
+	setButtonText(m_statusFont,ui->statusFontSettingsButton);
+}
+}

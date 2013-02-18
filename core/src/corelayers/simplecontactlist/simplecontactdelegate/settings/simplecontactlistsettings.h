@@ -68,6 +68,9 @@ public slots:
 	void headerFontSettings();
 	void contactFontSettings();
 	void statusFontSettings();
+	void onHeaderFontChoosed(QFont font);
+	void onContactFontChoosed(QFont font);
+	void onStatusFontChoosed(QFont font);
 };
 
 }
