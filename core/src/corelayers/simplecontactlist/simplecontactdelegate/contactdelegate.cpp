@@ -122,7 +122,8 @@ void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	// ajust contact font
-	if (!m_contactFont.family().isEmpty()) painter->setFont(m_contactFont);
+	if (!m_contactFont.family().isEmpty())
+		painter->setFont(m_contactFont);
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
