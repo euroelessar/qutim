@@ -168,17 +168,17 @@ void SimpleContactlistSettings::reloadCombobox()
 
 void SimpleContactlistSettings::headerFontSettings()
 {
-	showFontDialog(m_headerFont);
+	showFontDialog(m_headerFont,SLOT(onHeaderFontChoosed(QFont)));
 }
 
 void SimpleContactlistSettings::contactFontSettings()
 {
-	showFontDialog(m_contactFont);
+	showFontDialog(m_contactFont,SLOT(onContactFontChoosed(QFont)));
 }
 
 void SimpleContactlistSettings::statusFontSettings()
 {
-	showFontDialog(m_statusFont);
+	showFontDialog(m_statusFont,SLOT(onStatusFontChoosed(QFont)));
 }
 
 void SimpleContactlistSettings::setButtonText(const QFont &font, QPushButton *button)
@@ -189,17 +189,12 @@ void SimpleContactlistSettings::setButtonText(const QFont &font, QPushButton *bu
 	setModified(true);
 }
 
-void SimpleContactlistSettings::showFontDialog(const QFont &font)
+void SimpleContactlistSettings::showFontDialog(const QFont &font, const char *member)
 {
 	QFontDialog *dialog = new QFontDialog(this);
+	QByteArray slot = QMetaObject::normalizedSignature(member);
 	dialog->setCurrentFont(font);
-	if (font == m_headerFont) {
-		dialog->open(this, SLOT(onHeaderFontChoosed(QFont)));
-	} else if (font == m_contactFont) {
-		dialog->open(this, SLOT(onContactFontChoosed(QFont)));
-	} else if (font == m_statusFont) {
-		dialog->open(this, SLOT(onStatusFontChoosed(QFont)));
-	}
+	dialog->open(this, slot.data());
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 }
 

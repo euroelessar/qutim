@@ -62,9 +62,9 @@ private:
 	QFont m_contactFont;
 	QFont m_statusFont;
 	void setButtonText(const QFont &font, QPushButton *button);
-	void showFontDialog(const QFont &font);
+	void showFontDialog(const QFont &font, const char *member);
 
-public slots:
+private slots:
 	void headerFontSettings();
 	void contactFontSettings();
 	void statusFontSettings();
