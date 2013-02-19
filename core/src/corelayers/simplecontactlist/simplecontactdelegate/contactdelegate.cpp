@@ -63,6 +63,9 @@ struct ContactDelegatePrivate
 	int statusIconSize;
 	int extIconSize;
 	bool liteMode;
+	QFont headerFont;
+	QFont contactFont;
+	QFont statusFont;
 };
 
 struct ContactInfoComparator
@@ -70,14 +73,14 @@ struct ContactInfoComparator
 	ContactInfoComparator() : propertyName(QLatin1String("priorityInContactList"))
 	{
 	}
-	
+
 	bool operator()(const QVariantHash &a, const QVariantHash &b)
 	{
 		int p1 = a.value(propertyName).toInt();
 		int p2 = b.value(propertyName).toInt();
 		return p1 > p2;
 	}
-	
+
 	const QString propertyName;
 };
 
@@ -121,6 +124,10 @@ ContactDelegate::~ContactDelegate()
 void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+	// ajust contact font
+	if (p->contactFont.family().isEmpty())
+		p->contactFont.setFamily(p->contactFont.defaultFamily());
+	painter->setFont(p->contactFont);
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
@@ -170,20 +177,23 @@ void ContactDelegate::paint(QPainter *painter,
 
 			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
 		}
-
+		// Ajust header font
 		QFont font = opt.font;
-		font.setBold(true);
+		if (p->headerFont.family().isEmpty()) {
+			font.setFamily(font.defaultFamily());
+			font.setBold(true);
+		}
+		font = p->headerFont;
 		painter->setFont(font);
-
 		if (type == TagType) {
 			QString count = index.data(ContactsCountRole).toString();
 			QString online_count = index.data(OnlineContactsCountRole).toString();
 
 			QString txt = name % QLatin1Literal(" (")
-					% online_count
-					% QLatin1Char('/')
-					% count
-					% QLatin1Char(')');
+						  % online_count
+						  % QLatin1Char('/')
+						  % count
+						  % QLatin1Char(')');
 
 			txt = QFontMetrics(font).elidedText(txt, Qt::ElideMiddle, title_rect.width());
 			painter->drawText(title_rect,
@@ -203,7 +213,6 @@ void ContactDelegate::paint(QPainter *painter,
 		style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 		QRect bounding;
 		Status status = index.data(StatusRole).value<Status>();
-
 		if (p->showFlags & ShowExtendedInfoIcons) {
 			QList<QVariantHash> list = status.extendedInfos().values();
 			ContactInfoComparator comparator;
@@ -249,9 +258,13 @@ void ContactDelegate::paint(QPainter *painter,
 		if (isStatusText) {
 			QRect status_rect = title_rect;
 			status_rect.setTop(status_rect.top() + bounding.height());
-
 			QFont font = opt.font;
-			font.setPointSize(font.pointSize()-2);
+			// ajust status font
+			if (p->statusFont.family().isEmpty()) {
+				p->statusFont.setFamily(p->statusFont.defaultFamily());
+				font.setPointSize(font.pointSize()-2);
+			}
+			font = p->statusFont;
 			QString text = status.text().remove(QLatin1Char('\n'));
 			text = QFontMetrics(font).elidedText(text,Qt::ElideRight,status_rect.width());
 			painter->setFont(font);
@@ -363,7 +376,7 @@ void ContactDelegate::reloadSettings()
 	debug() << "reload settings";
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
-        p->liteMode = cfg.value("liteMode", true);
+	p->liteMode = cfg.value("liteMode", true);
 
 #ifdef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",
@@ -378,6 +391,9 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
+	p->headerFont.fromString(cfg.value("HeaderFont", QString()));
+	p->contactFont.fromString(cfg.value("ContactFont", QString()));
+	p->statusFont.fromString(cfg.value("StatusFont", QString()));
 	cfg.beginGroup("extendedStatuses");
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));
