@@ -183,6 +183,7 @@ void ContactDelegate::paint(QPainter *painter,
 			font.setFamily(font.defaultFamily());
 			font.setBold(true);
 		}
+		font = p->headerFont;
 		painter->setFont(font);
 		if (type == TagType) {
 			QString count = index.data(ContactsCountRole).toString();
