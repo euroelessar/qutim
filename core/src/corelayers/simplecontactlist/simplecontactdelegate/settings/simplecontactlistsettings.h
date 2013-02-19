@@ -64,7 +64,7 @@ private:
 	void setButtonText(const QFont &font, QPushButton *button);
 	void showFontDialog(const QFont &font, const char *member);
 
-private slots:
+public slots:
 	void headerFontSettings();
 	void contactFontSettings();
 	void statusFontSettings();
