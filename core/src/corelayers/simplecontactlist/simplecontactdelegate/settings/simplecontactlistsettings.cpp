@@ -186,7 +186,7 @@ void SimpleContactlistSettings::setButtonText(const QFont &font, QPushButton *bu
 	button->setText
 			(tr("%1 %2").arg( font.family()).arg( font.pointSize()));
 	button->setFont(font);
-	saveImpl();
+	setModified(true);
 }
 
 void SimpleContactlistSettings::showFontDialog(const QFont &font)
