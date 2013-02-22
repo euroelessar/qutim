@@ -53,7 +53,7 @@ public:
 	virtual Contact *addContact(const QString &id, const QVariantMap &data)
 	{
 		VContact *c = roster->contact(id.toInt());
-		Vreen::Contact::fillContact(c->buddy(), data);
+		Vreen::Contact::fill(c->buddy(), data);
 		c->buddy()->setIsFriend(data.value("friend").toBool());
 		return c;
 	}
