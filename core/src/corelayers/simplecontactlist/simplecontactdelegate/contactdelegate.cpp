@@ -229,7 +229,7 @@ void ContactDelegate::paint(QPainter *painter,
 					continue;
 				icon.paint(painter,
 						   option.rect.left() + p->horizontalPadding,
-						   option.rect.bottom() - p->verticalPadding - p->extIconSize,
+						   option.rect.top() + p->verticalPadding,
 						   title_rect.right() - p->horizontalPadding,
 						   p->extIconSize,
 						   Qt::AlignBottom |
