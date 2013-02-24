@@ -67,6 +67,7 @@ Shoter::Shoter(QWidget *parent) :
 	m_linkLabel.installEventFilter(this);
 	m_manager = new QNetworkAccessManager(this);
 	QObject::connect(m_manager,  SIGNAL(finished(QNetworkReply*)),  this,  SLOT(finishedSlot(QNetworkReply*)));
+	readSettings();
 }
 
 Shoter::~Shoter()
@@ -262,7 +263,6 @@ void Shoter::shot(WId pwid)
 	m_screenshot = QGuiApplication::primaryScreen()->grabWindow(pwid);
 #endif 
 	setScreenShot();
-	m_linkLabel.installEventFilter(this);
 }
 
 void Shoter::startShoter()
