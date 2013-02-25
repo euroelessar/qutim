@@ -125,8 +125,6 @@ void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	// ajust contact font
-	if (p->contactFont.family().isEmpty())
-		p->contactFont.setFamily(p->contactFont.defaultFamily());
 	painter->setFont(p->contactFont);
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
@@ -179,10 +177,6 @@ void ContactDelegate::paint(QPainter *painter,
 		}
 		// Ajust header font
 		QFont font = opt.font;
-		if (p->headerFont.family().isEmpty()) {
-			font.setFamily(font.defaultFamily());
-			font.setBold(true);
-		}
 		font = p->headerFont;
 		painter->setFont(font);
 		if (type == TagType) {
@@ -235,7 +229,7 @@ void ContactDelegate::paint(QPainter *painter,
 					continue;
 				icon.paint(painter,
 						   option.rect.left() + p->horizontalPadding,
-						   option.rect.bottom() - p->verticalPadding - p->extIconSize,
+						   option.rect.top() + p->verticalPadding,
 						   title_rect.right() - p->horizontalPadding,
 						   p->extIconSize,
 						   Qt::AlignBottom |
@@ -260,10 +254,6 @@ void ContactDelegate::paint(QPainter *painter,
 			status_rect.setTop(status_rect.top() + bounding.height());
 			QFont font = opt.font;
 			// ajust status font
-			if (p->statusFont.family().isEmpty()) {
-				p->statusFont.setFamily(p->statusFont.defaultFamily());
-				font.setPointSize(font.pointSize()-2);
-			}
 			font = p->statusFont;
 			QString text = status.text().remove(QLatin1Char('\n'));
 			text = QFontMetrics(font).elidedText(text,Qt::ElideRight,status_rect.width());
@@ -391,9 +381,9 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
-	p->headerFont.fromString(cfg.value("HeaderFont", QString()));
-	p->contactFont.fromString(cfg.value("ContactFont", QString()));
-	p->statusFont.fromString(cfg.value("StatusFont", QString()));
+	p->headerFont.fromString(cfg.value("HeaderFont",QString("Sans,9,-1,5,75,0,0,0,0,0")));
+	p->contactFont.fromString(cfg.value("ContactFont", QString("Sans,9,-1,5,50,0,0,0,0,0")));
+	p->statusFont.fromString(cfg.value("StatusFont", QString("Sans,7,-1,5,50,1,0,0,0,0")));
 	cfg.beginGroup("extendedStatuses");
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));
