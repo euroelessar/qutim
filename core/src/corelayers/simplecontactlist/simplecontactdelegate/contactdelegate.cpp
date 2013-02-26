@@ -381,9 +381,13 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
-	p->headerFont.fromString(cfg.value("HeaderFont",QString("Sans,9,-1,5,75,0,0,0,0,0")));
-	p->contactFont.fromString(cfg.value("ContactFont", QString("Sans,9,-1,5,50,0,0,0,0,0")));
-	p->statusFont.fromString(cfg.value("StatusFont", QString("Sans,7,-1,5,50,1,0,0,0,0")));
+	QFont tempFont;
+	p->contactFont.fromString(cfg.value("ContactFont", tempFont.toString()));
+	tempFont.setPointSize(tempFont.pointSize() - 2);
+	p->statusFont.fromString(cfg.value("StatusFont", tempFont.toString()));
+	tempFont.setBold(true);
+	tempFont.setPointSize(tempFont.pointSize() + 2);
+	p->headerFont.fromString(cfg.value("HeaderFont", tempFont.toString()));
 	cfg.beginGroup("extendedStatuses");
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));
