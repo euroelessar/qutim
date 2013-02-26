@@ -97,9 +97,13 @@ void SimpleContactlistSettings::loadImpl()
 	ui->statusBox->setChecked(config.value("showStatusText", true));
 	ui->liteBox->setChecked(config.value("liteMode", true));
 	ui->onstartupBox->setChecked(config.value("showContactListOnStartup", true));
-	m_headerFont.fromString(config.value("HeaderFont", QString()));
-	m_contactFont.fromString(config.value("ContactFont", QString()));
-	m_statusFont.fromString(config.value("StatusFont", QString()));
+	QFont tempFont(qApp->font());
+	m_contactFont.fromString(config.value("ContactFont", tempFont.toString()));
+	tempFont.setPointSize(tempFont.pointSize() - 2);
+	m_statusFont.fromString(config.value("StatusFont", tempFont.toString()));
+	tempFont.setBold(true);
+	tempFont.setPointSize(tempFont.pointSize() + 2);
+	m_headerFont.fromString(config.value("HeaderFont", tempFont.toString()));
 	setButtonText(m_headerFont, ui->headerFontSettingsButton);
 	setButtonText(m_contactFont, ui->contactFontSettingsButton);
 	setButtonText(m_statusFont, ui->statusFontSettingsButton);
