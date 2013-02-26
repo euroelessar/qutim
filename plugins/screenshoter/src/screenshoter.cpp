@@ -66,8 +66,8 @@ bool Screenshoter::unload()
 
 void Screenshoter::initShoter()
 {
-	m_shoter->readSettings();
 	m_shoter->startShoter();
+	m_shoter->readSettings();
 }
 
 QUTIM_EXPORT_PLUGIN(Screenshoter)

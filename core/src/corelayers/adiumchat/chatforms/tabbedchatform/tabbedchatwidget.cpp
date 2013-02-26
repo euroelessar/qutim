@@ -258,11 +258,12 @@ void TabbedChatWidget::loadSettings()
 			QWidget *roster = 0;
 			contactList->metaObject()->invokeMethod(contactList.data(), "widget",
 													Q_RETURN_ARG(QWidget*, roster));
+
 			if (roster) {
 				if (!m_dockWidget) {
 					m_dockWidget = new QDockWidget(tr("Contacts"), this);
 					m_dockWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
-					addDockWidget(Qt::LeftDockWidgetArea, m_dockWidget.data());
+					addDockWidget(cfg.value("RosterPosition", Qt::LeftDockWidgetArea), m_dockWidget.data());
 				}
 				//m_hSplitter->insertWidget(0, roster);
 				m_roster = roster;
@@ -306,11 +307,14 @@ void TabbedChatWidget::loadSettings()
 
 TabbedChatWidget::~TabbedChatWidget()
 {
-	ConfigGroup group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
+	ConfigGroup group = Config("appearance").group("chat/behavior/widget");
+	group.setValue("RosterPosition",dockWidgetArea(m_dockWidget));
+	group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
 	group.setValue("geometry", saveGeometry());
 	foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 		group.setValue(splitter->objectName(), splitter->saveState());
 	}
+
 	group.sync();
 
 	delete m_tabBar;
