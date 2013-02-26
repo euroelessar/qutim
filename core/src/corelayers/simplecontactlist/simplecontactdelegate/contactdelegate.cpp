@@ -381,7 +381,7 @@ void ContactDelegate::reloadSettings()
 	setFlag(ShowAvatars, cfg.value("showAvatars", true));
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
-	QFont tempFont;
+	QFont tempFont(qApp->font());
 	p->contactFont.fromString(cfg.value("ContactFont", tempFont.toString()));
 	tempFont.setPointSize(tempFont.pointSize() - 2);
 	p->statusFont.fromString(cfg.value("StatusFont", tempFont.toString()));
