@@ -6,6 +6,8 @@
 
 class DockPlugin : public qutim_sdk_0_3::Plugin
 {
+    Q_OBJECT
+    Q_CLASSINFO("DebugName", "DockPlugin")
 public:
 	virtual void init();
 	virtual bool load();
