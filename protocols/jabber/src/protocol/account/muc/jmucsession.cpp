@@ -349,7 +349,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		if (!reason.isEmpty())
 			text = text % " (" % reason % ")";
 		if (isSelf) {
-			QString msgtxt = (isBan ? tr("You has been banned at ") : tr("You has been kicked from ")) % id() % "\n";
+			QString msgtxt = (isBan ? tr("You have been banned at ") : tr("You have been kicked from ")) % id() % "\n";
 			if (!reason.isEmpty())
 				msgtxt = msgtxt % tr("with reason: ") % reason.append("\n");
 			if (!isBan) {

@@ -30,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>571</width>
-        <height>403</height>
+        <width>554</width>
+        <height>404</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_2">
@@ -159,7 +159,7 @@
           <item row="5" column="0" colspan="2">
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Choose cryptograhic module:</string>
+             <string>Choose cryptographic module:</string>
             </property>
            </widget>
           </item>

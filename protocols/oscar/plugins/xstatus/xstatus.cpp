@@ -156,17 +156,17 @@ static XStatusList init_xstatus_list()
          << XStatus(QT_TRANSLATE_NOOP("XStatus", "Sex"), "sex", 33,
                     Capability(0xe6, 0x01, 0xe4, 0x1c, 0x33, 0x73, 0x4b, 0xd1,
                                0xbc, 0x06, 0x81, 0x1d, 0x6c, 0x32, 0x3d, 0x82))
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Smoking"), "pipe", 32,
+		 << XStatus(QT_TRANSLATE_NOOP("XStatus", "Smoking"), "pipe", 32,
                     Capability(0x3F, 0xB0, 0xBD, 0x36, 0xAF, 0x3B, 0x4A, 0x60,
                                0x9E, 0xEF, 0xCF, 0x19, 0x0F, 0x6A, 0x5A, 0x7E))
-        #if 0 // disabled as plugin does not support icq moods.
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Cold"), "cold", 60)
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Crying"), "depressed", 61)
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Fear"), "afraid", 62)
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Reading"), "relaxing-reading", 63)
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "Sport"), "exercising-working_out", 64)
-         << XStatus(QT_TRANSLATE_NOOP("XStatus", "In tansport"), "traveling-on_a_bus", 65)
-        #endif
+		#if 0 // disabled as plugin does not support icq moods.
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "Cold"), "cold", 60)
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "Crying"), "depressed", 61)
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "Fear"), "afraid", 62)
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "Reading"), "relaxing-reading", 63)
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "Sport"), "exercising-working_out", 64)
+	  << XStatus(QT_TRANSLATE_NOOP("XStatus", "In transport"), "traveling-on_a_bus", 65)
+		#endif
             ;
     return list;
 }
