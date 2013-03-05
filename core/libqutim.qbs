@@ -107,7 +107,7 @@ Framework {
             cmd.qutim_version_minor = product.versionMinor;
             cmd.qutim_version_release = product.versionRelease;
             cmd.qutim_version_patch = product.versionPatch;
-            cmd.onWindows = (product.modules.qbs.targetOS === "windows");
+            cmd.onWindows = (product.moduleProperty("qbs", "targetOS") === "windows");
             cmd.sourceCode = function() {
                 var file = new TextFile(input.fileName);
                 var content = file.readAll();
