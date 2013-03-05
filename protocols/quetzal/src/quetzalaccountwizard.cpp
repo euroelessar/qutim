@@ -194,7 +194,7 @@ void QuetzalAccountWizardPage::handleRegisterResult(PurpleAccount *account, bool
 	Q_ASSERT(m_account == account);
 	if (succeeded) {
 		m_isRegistering = false;
-		setSubTitle(tr("Registration is succesfull\nComplete account creating by clicking on Finish button"));
+		setSubTitle(tr("Complete account creation by clicking on Finish button\nComplete creation of account by clicking on Finish button"));
 		// FIXME: Check for spacing elements
 		m_generalWidget->setData(QLatin1String("username"), QString::fromUtf8(account->username));
 	} else {

@@ -50,7 +50,7 @@
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>Enable auto highlights wher your nick was mentioned.</string>
+      <string>Enable auto highlights when your nick was mentioned.</string>
      </property>
      <property name="checked">
       <bool>true</bool>

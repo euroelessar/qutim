@@ -700,13 +700,13 @@ QString JPGPSupport::errorText(QCA::SecureMessage::Error error)
 		text = tr("Invalid key");
 		break;
 	case QCA::SecureMessage::ErrorEncryptExpired:
-		text = tr("Encrypting key expired");
+		text = tr("Encryption key expired");
 		break;
 	case QCA::SecureMessage::ErrorEncryptUntrusted:
-		text = tr("Encrypting key is untrusted");
+		text = tr("Encryption key is untrusted");
 		break;
 	case QCA::SecureMessage::ErrorEncryptInvalid:
-		text = tr("Encrypting key is invalid");
+		text = tr("Encryption key is invalid");
 		break;
 	case QCA::SecureMessage::ErrorNeedCard:
 		text = tr("PGP card is missing");
