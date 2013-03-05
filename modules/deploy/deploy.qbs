@@ -19,9 +19,9 @@ Module {
         Artifact {
             fileTags: [ "installed_content" ]
             fileName: {
-                var basePath = input.modules.deploy.pluginPath;
+                var basePath = input.moduleProperty('deploy', 'pluginPath');
                 var fileName = basePath + input.fileName;
-                return input.modules.deploy.pluginDestination + "/" + input.fileName;
+                return input.moduleProperty('deploy', 'pluginDestination') + "/" + input.fileName;
             }
         }
 

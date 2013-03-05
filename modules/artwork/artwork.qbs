@@ -12,13 +12,13 @@ Module {
         Artifact {
             fileTags: [ "installed_content" ]
             fileName: {
-                var basePath = input.modules.artwork.basePath;
+                var basePath = input.moduleProperty('artwork', 'basePath');
                 var fileName = input.baseDir + "/" + input.fileName;
                 var relativePath = FileInfo.relativePath(basePath, fileName);
 
-                var path = input.modules.artwork.shareDir + "/";
-                if (input.modules.qbs.installDir !== undefined)
-                    path += input.modules.qbs.installDir + "/";
+                var path = input.moduleProperty('artwork', 'shareDir') + "/";
+                if (input.moduleProperty('qbs', 'installDir')  !== undefined)
+                    path += input.moduleProperty('qbs', 'installDir') + "/";
                 path += relativePath;
                 return path;
             }
