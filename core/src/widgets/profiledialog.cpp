@@ -141,7 +141,7 @@ void ProfileDialog::on_profilesButton_clicked()
 	QString passr = QInputDialog::getText(this, tr("Repeat password"), tr("Repeat password:"), QLineEdit::Password);
 
 	if (pass != passr) {
-		QMessageBox::critical(this, tr("Incorrect password"), tr("Passwords doesn't match each other"));
+		QMessageBox::critical(this, tr("Incorrect password"), tr("Passwords don't match each other"));
 		return;
 	}
 

@@ -47,7 +47,7 @@ using namespace qutim_sdk_0_3;
 void UpdaterPlugin::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Updater"),
-			QT_TRANSLATE_NOOP("Plugin", "In therory this plugin is auto-updater of qutIM, but currently it updates only client icons"),
+			QT_TRANSLATE_NOOP("Plugin", "In theory this plugin is auto-updater of qutIM, but currently it updates only client icons"),
 			PLUGIN_VERSION(0, 1, 0, 0));
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("euroelessar"));
