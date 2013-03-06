@@ -308,6 +308,7 @@ void TabbedChatWidget::loadSettings()
 TabbedChatWidget::~TabbedChatWidget()
 {
 	ConfigGroup group = Config("appearance").group("chat/behavior/widget");
+	if (dockWidgetArea(m_dockWidget) != Qt::NoDockWidgetArea)
 	group.setValue("RosterPosition",m_dockWidget->isAreaAllowed(dockWidgetArea(m_dockWidget)) ?
 					   dockWidgetArea(m_dockWidget) : Qt::LeftDockWidgetArea);
 	group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
