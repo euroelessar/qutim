@@ -308,10 +308,11 @@ void TabbedChatWidget::loadSettings()
 TabbedChatWidget::~TabbedChatWidget()
 {
 	ConfigGroup group = Config("appearance").group("chat/behavior/widget");
-	if (dockWidgetArea(m_dockWidget) != Qt::NoDockWidgetArea)
-	group.setValue("RosterPosition",m_dockWidget->isAreaAllowed(dockWidgetArea(m_dockWidget)) ?
-					   dockWidgetArea(m_dockWidget) : Qt::LeftDockWidgetArea);
-	group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
+	Qt::DockWidgetArea area = dockWidgetArea(m_dockWidget);
+	if (area != Qt::NoDockWidgetArea && m_dockWidget->isAreaAllowed(area))
+		group.setValue("RosterPosition", area);
+	group.beginGroup("keys");
+	group.beginGroup(m_key);
 	group.setValue("geometry", saveGeometry());
 	foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 		group.setValue(splitter->objectName(), splitter->saveState());
