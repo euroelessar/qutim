@@ -74,9 +74,9 @@ void TreeView::setContactModel(QAbstractItemModel *model)
 	storeClosedTags();
 	Config group = Config().group("contactList").group(model->metaObject()->className());
 	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
-	connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-			SLOT(onRowsInserted(QModelIndex,int,int)));
 	QTreeView::setModel(model);
+	connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+			SLOT(onRowsInserted(QModelIndex,int,int)));	
 	checkTag(QModelIndex(), model);
 }
 
