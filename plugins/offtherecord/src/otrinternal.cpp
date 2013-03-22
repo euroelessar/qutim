@@ -857,7 +857,7 @@ void OtrInternal::abortSMP(ConnContext *context, TreeModelItem &item)
     otrl_message_abort_smp( m_userstate, &m_uiOps, this, context);
     if (context->active_fingerprint->trust && !context->active_fingerprint->trust[0]) {
         gone_secure(context);
-        sendCustomNessage(item,tr("Authentication aborded. The conversation is now insecure!"));
+        sendCustomNessage(item,tr("Authentication aborted. The conversation is now insecure!"));
     }
 }
 
