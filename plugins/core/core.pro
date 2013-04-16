@@ -20,7 +20,8 @@ SOURCES += \
     account.cpp \
     telepathy/telepathyaccountfactory.cpp \
     telepathy/telepathyaccount.cpp \
-    quickaccountmanager.cpp
+    quickaccountmanager.cpp \
+    contactlistmodel.cpp
 
 HEADERS += \
     core_plugin.h \
@@ -30,7 +31,8 @@ HEADERS += \
     telepathy/telepathyaccountfactory.h \
     telepathy/telepathyaccount.h \
     account_p.h \
-    quickaccountmanager.h
+    quickaccountmanager.h \
+    contactlistmodel.h
 
 INCLUDEPATH += /usr/include/telepathy-qt5
 LIBS += -ltelepathy-qt5

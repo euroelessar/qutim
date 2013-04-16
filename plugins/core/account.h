@@ -34,12 +34,27 @@ class AccountPrivate;
 class Account : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString protocolName READ protocolName CONSTANT)
+    Q_PROPERTY(QString serviceName READ serviceName NOTIFY serviceNameChanged)
+    Q_PROPERTY(QString displayName READ displayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
+    Q_PROPERTY(QString nickname READ nickname NOTIFY nicknameChanged)
 public:
     explicit Account(AccountPrivate &priv, QObject *parent);
     ~Account();
     
+    QString protocolName() const;
+    QString serviceName() const;
+    QString displayName() const;
+    QString iconName() const;
+    QString nickname() const;
+
 signals:
-    
+    void serviceNameChanged(const QString &serviceName);
+    void displayNameChanged(const QString &displayName);
+    void iconNameChanged(const QString &iconName);
+    void nicknameChanged(const QString &nickname);
+
 public slots:
     
 private:

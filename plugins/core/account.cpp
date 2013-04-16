@@ -28,8 +28,41 @@
 Account::Account(AccountPrivate &priv, QObject *parent) :
     QObject(parent), d(&priv)
 {
+    connect(d->account.data(), &Tp::Account::serviceNameChanged,
+            this, &Account::serviceNameChanged);
+    connect(d->account.data(), &Tp::Account::displayNameChanged,
+            this, &Account::displayNameChanged);
+    connect(d->account.data(), &Tp::Account::iconNameChanged,
+            this, &Account::iconNameChanged);
+    connect(d->account.data(), &Tp::Account::nicknameChanged,
+            this, &Account::nicknameChanged);
 }
 
 Account::~Account()
 {
+}
+
+QString Account::protocolName() const
+{
+    return d->account->protocolName();
+}
+
+QString Account::serviceName() const
+{
+    return d->account->serviceName();
+}
+
+QString Account::displayName() const
+{
+    return d->account->displayName();
+}
+
+QString Account::iconName() const
+{
+    return d->account->iconName();
+}
+
+QString Account::nickname() const
+{
+    return d->account->nickname();
 }
