@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=src
+Exec=/usr/bin/single-instance /opt/src/bin/src
+Icon=/usr/share/icons/hicolor/80x80/apps/src80.png
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
