@@ -23,18 +23,29 @@
 **
 ****************************************************************************/
 
-#ifndef ACCOUNT_P_H
-#define ACCOUNT_P_H
+#ifndef CONTACTLISTMIMEDATA_H
+#define CONTACTLISTMIMEDATA_H
 
-#include "account.h"
-#include "contactmanager.h"
-#include <TelepathyQt/Account>
+#include <qutim/mimeobjectdata.h>
+#include <QModelIndex>
 
-class AccountPrivate
+class ContactListMimeData : public MimeObjectData
 {
+    Q_OBJECT
 public:
-    Tp::AccountPtr account;
-    ContactManager *contactManager;
+    explicit ContactListMimeData();
+    virtual ~ContactListMimeData();
+
+    void setIndexes(const QModelIndexList &indexes);
+    void setIndexes(const QList<QPersistentModelIndex> &indexes);
+    QList<QPersistentModelIndex> indexes() const;
+    static QString modelIndexListMimeType();
+
+    virtual bool hasFormat(const QString &mimetype) const;
+    virtual QStringList formats() const;
+
+private:
+    QList<QPersistentModelIndex> m_indexes;
 };
 
-#endif // ACCOUNT_P_H
+#endif // CONTACTLISTMIMEDATA_H

@@ -23,18 +23,25 @@
 **
 ****************************************************************************/
 
-#ifndef ACCOUNT_P_H
-#define ACCOUNT_P_H
+#ifndef CONTACTLISTSEPARATEDMODEL_H
+#define CONTACTLISTSEPARATEDMODEL_H
 
-#include "account.h"
-#include "contactmanager.h"
-#include <TelepathyQt/Account>
+#include "contactlistbasemodel.h"
 
-class AccountPrivate
+class ContactListSeparatedModel : public ContactListBaseModel
 {
+    Q_OBJECT
+    Q_CLASSINFO("SettingsDescription", "Show accounts, tags and contacts")
 public:
-    Tp::AccountPtr account;
-    ContactManager *contactManager;
+    explicit ContactListSeparatedModel(QObject *parent = 0);
+
+    virtual void updateContactTags(Contact *contact,
+                                   const QStringList &current,
+                                   const QStringList &previous);
+    virtual void addAccount(Account *account);
+    virtual void removeAccount(Account *account);
+    virtual void addContact(Contact *contact);
+    virtual void removeContact(Contact *contact);
 };
 
-#endif // ACCOUNT_P_H
+#endif // CONTACTLISTSEPARATEDMODEL_H

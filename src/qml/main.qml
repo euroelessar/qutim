@@ -3,7 +3,7 @@ import QtQuick.Layouts 1.0
 import QtQuick.Window 2.1
 import QtQuick 2.1
 import org.qutim.core 0.4
-
+import "."
 
 Window {
     width: 250
@@ -45,13 +45,13 @@ Window {
         ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            frameVisible: true
             ListView {
 //                model: 1000
 //                delegate: Text { text: index }
                 model: contactListModel //accountManager.enabledAccounts
 
-                delegate: Text {
-                    text: displayName
+                delegate: ContactItem {
                 }
             }
         }
@@ -68,7 +68,9 @@ Window {
                 onTriggered: {}
             }
 
-            MenuSeparator {}
+            MenuSeparator {
+                visible: accountManager.enabledAccounts.length > 0
+            }
 
             Instantiator {
                 model: accountManager.enabledAccounts

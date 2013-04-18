@@ -69,7 +69,22 @@ public:
             Tp::AccountFactoryConstPtr accountFactory(new TelepathyAccountFactory(
                                                           QDBusConnection::sessionBus(),
                                                           Tp::Account::FeatureCore));
-            d->tpManager = Tp::AccountManager::create(accountFactory);
+            auto connectionFactory = Tp::ConnectionFactory::create(
+                        QDBusConnection::sessionBus(),
+                        Tp::Connection::FeatureConnected
+                        | Tp::Connection::FeatureRoster
+                        | Tp::Connection::FeatureSimplePresence
+                        | Tp::Connection::FeatureRosterGroups);
+            auto channelFactory = Tp::ChannelFactory::create(
+                        QDBusConnection::sessionBus());
+            auto contactFactory = Tp::ContactFactory::create(
+                        Tp::Contact::FeatureAlias
+                        | Tp::Contact::FeatureAvatarData
+                        | Tp::Contact::FeatureSimplePresence);
+            d->tpManager = Tp::AccountManager::create(accountFactory,
+                                                      connectionFactory,
+                                                      channelFactory,
+                                                      contactFactory);
             lconnect(d->tpManager->becomeReady(), [] (Tp::PendingReady *) {
                 QSharedPointer<AccountManagerPrivate> d = self.toStrongRef();
 

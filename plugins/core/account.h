@@ -26,19 +26,21 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include <QObject>
-#include <qqml.h>
+#include "contactmanager.h"
 
 class AccountPrivate;
 
 class Account : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(ContactManager* contactManager READ contactManager CONSTANT)
     Q_PROPERTY(QString protocolName READ protocolName CONSTANT)
     Q_PROPERTY(QString serviceName READ serviceName NOTIFY serviceNameChanged)
     Q_PROPERTY(QString displayName READ displayName NOTIFY displayNameChanged)
     Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
     Q_PROPERTY(QString nickname READ nickname NOTIFY nicknameChanged)
+    Q_PROPERTY(QString uniqueIdentifier READ uniqueIdentifier CONSTANT)
+    Q_PROPERTY(QString normalizedName READ normalizedName NOTIFY normalizedNameChanged)
 public:
     explicit Account(AccountPrivate &priv, QObject *parent);
     ~Account();
@@ -48,17 +50,24 @@ public:
     QString displayName() const;
     QString iconName() const;
     QString nickname() const;
+    QString uniqueIdentifier() const;
+    QString normalizedName() const;
+
+    ContactManager *contactManager() const;
 
 signals:
     void serviceNameChanged(const QString &serviceName);
     void displayNameChanged(const QString &displayName);
     void iconNameChanged(const QString &iconName);
     void nicknameChanged(const QString &nickname);
+    void normalizedNameChanged(const QString &normalizedName);
 
 public slots:
     
 private:
     QScopedPointer<AccountPrivate> d;
+    QString m_uniqueIdentifier;
+    QString m_normalizedName;
 };
 
 QML_DECLARE_TYPE(Account)

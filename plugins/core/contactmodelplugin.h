@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2013 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,18 +23,20 @@
 **
 ****************************************************************************/
 
-#ifndef ACCOUNT_P_H
-#define ACCOUNT_P_H
+#ifndef CONTACTMODELPLUGIN_H
+#define CONTACTMODELPLUGIN_H
 
-#include "account.h"
-#include "contactmanager.h"
-#include <TelepathyQt/Account>
+#include <qutim/plugin.h>
 
-class AccountPrivate
+class ContactModelPlugin : public qutim_sdk_0_3::Plugin
 {
+    Q_OBJECT
 public:
-    Tp::AccountPtr account;
-    ContactManager *contactManager;
+    explicit ContactModelPlugin();
+
+    void init();
+    bool load();
+    bool unload();
 };
 
-#endif // ACCOUNT_P_H
+#endif // CONTACTMODELPLUGIN_H

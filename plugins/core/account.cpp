@@ -24,10 +24,15 @@
 ****************************************************************************/
 
 #include "account_p.h"
+#include "contactmanager_p.h"
+#include "functional.h"
+#include <TelepathyQt/ConnectionManager>
 
 Account::Account(AccountPrivate &priv, QObject *parent) :
     QObject(parent), d(&priv)
 {
+    d->contactManager = new ContactManager(this);
+
     connect(d->account.data(), &Tp::Account::serviceNameChanged,
             this, &Account::serviceNameChanged);
     connect(d->account.data(), &Tp::Account::displayNameChanged,
@@ -36,6 +41,22 @@ Account::Account(AccountPrivate &priv, QObject *parent) :
             this, &Account::iconNameChanged);
     connect(d->account.data(), &Tp::Account::nicknameChanged,
             this, &Account::nicknameChanged);
+    connect(d->account.data(), &Tp::Account::normalizedNameChanged,
+            this, &Account::normalizedNameChanged);
+
+    connect(d->account.data(), &Tp::Account::connectionChanged,
+            [this] (const Tp::ConnectionPtr &connection) {
+        auto contactManager = connection ? connection->contactManager() : Tp::ContactManagerPtr();
+        d->contactManager->d->setContactManager(contactManager);
+    });
+    if (d->account->connection())
+        d->contactManager->d->setContactManager(d->account->connection()->contactManager());
+
+    d->account->becomeReady(Tp::Account::FeatureCore);
+
+//    lconnect(d->account->becomeReady(Tp::Account::FeatureCore),
+//             [this] (Tp::PendingReady *) {
+//    });
 }
 
 Account::~Account()
@@ -65,4 +86,19 @@ QString Account::iconName() const
 QString Account::nickname() const
 {
     return d->account->nickname();
+}
+
+QString Account::uniqueIdentifier() const
+{
+    return d->account->uniqueIdentifier();
+}
+
+QString Account::normalizedName() const
+{
+    return d->account->normalizedName();
+}
+
+ContactManager *Account::contactManager() const
+{
+    return d->contactManager;
 }

@@ -2,18 +2,17 @@
 #define CONTACTLISTMODEL_H
 
 #include <QAbstractProxyModel>
-#include <QSortFilterProxyModel>
+#include <QIdentityProxyModel>
+#include "contactlistfrontmodel.h"
 
-class ContactListModel : public QSortFilterProxyModel
+class ContactListModel : public QIdentityProxyModel
 {
     Q_OBJECT
 public:
     explicit ContactListModel(QObject *parent = 0);
-    
-signals:
-    
-public slots:
-    
+
+private:
+    ContactListFrontModel *m_model;
 };
 
 #endif // CONTACTLISTMODEL_H

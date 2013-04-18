@@ -1,6 +1,7 @@
 #include "contactlistmodel.h"
 
 ContactListModel::ContactListModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+    QIdentityProxyModel(parent), m_model(new ContactListFrontModel(this))
 {
+    setSourceModel(m_model);
 }

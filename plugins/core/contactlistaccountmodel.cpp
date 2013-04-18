@@ -23,18 +23,33 @@
 **
 ****************************************************************************/
 
-#ifndef ACCOUNT_P_H
-#define ACCOUNT_P_H
+#include "contactlistaccountmodel.h"
 
-#include "account.h"
-#include "contactmanager.h"
-#include <TelepathyQt/Account>
-
-class AccountPrivate
+ContactListAccountModel::ContactListAccountModel(QObject *parent) :
+    ContactListBaseModel(parent)
 {
-public:
-    Tp::AccountPtr account;
-    ContactManager *contactManager;
-};
+    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show accounts and contacts"));
+}
 
-#endif // ACCOUNT_P_H
+void ContactListAccountModel::addAccount(Account *account)
+{
+    ensureAccount(account, rootNode());
+}
+
+void ContactListAccountModel::removeAccount(Account *account)
+{
+    eraseAccount(account, rootNode());
+}
+
+void ContactListAccountModel::addContact(Contact *contact)
+{
+    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+    ContactNode *contactNode = ensureContact(contact, accountNode);
+    Q_UNUSED(contactNode);
+}
+
+void ContactListAccountModel::removeContact(Contact *contact)
+{
+    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+    eraseContact(contact, accountNode);
+}

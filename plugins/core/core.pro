@@ -21,7 +21,18 @@ SOURCES += \
     telepathy/telepathyaccountfactory.cpp \
     telepathy/telepathyaccount.cpp \
     quickaccountmanager.cpp \
-    contactlistmodel.cpp
+    contactlistmodel.cpp \
+    contactmanager.cpp \
+    contact.cpp \
+    contactlistfrontmodel.cpp \
+    contactlistbasemodel.cpp \
+    contactlistaccountmodel.cpp \
+    contactlistseparatedmodel.cpp \
+    contactlistplainmodel.cpp \
+    contactlistgroupmodel.cpp \
+    presence.cpp \
+    quickpresence.cpp
+#    contactlistmimedata.cpp \
 
 HEADERS += \
     core_plugin.h \
@@ -32,7 +43,21 @@ HEADERS += \
     telepathy/telepathyaccount.h \
     account_p.h \
     quickaccountmanager.h \
-    contactlistmodel.h
+    contactlistmodel.h \
+    contactmanager.h \
+    contact.h \
+    contactmanager_p.h \
+    contact_p.h \
+    contactlistbasemodel.h \
+    contactlistaccountmodel.h \
+    contactlistseparatedmodel.h \
+    contactlistplainmodel.h \
+    contactlistgroupmodel.h \
+    contactlistfrontmodel.h \
+    presence.h \
+    quickpresence.h \
+    presence_p.h
+#    contactlistmimedata.h \
 
 INCLUDEPATH += /usr/include/telepathy-qt5
 LIBS += -ltelepathy-qt5

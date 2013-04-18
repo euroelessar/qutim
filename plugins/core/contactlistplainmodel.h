@@ -23,18 +23,20 @@
 **
 ****************************************************************************/
 
-#ifndef ACCOUNT_P_H
-#define ACCOUNT_P_H
+#ifndef CONTACTLISTPLAINMODEL_H
+#define CONTACTLISTPLAINMODEL_H
 
-#include "account.h"
-#include "contactmanager.h"
-#include <TelepathyQt/Account>
+#include "contactlistbasemodel.h"
 
-class AccountPrivate
+class ContactListPlainModel : public ContactListBaseModel
 {
+    Q_OBJECT
+    Q_CLASSINFO("SettingsDescription", "Show only contacts")
 public:
-    Tp::AccountPtr account;
-    ContactManager *contactManager;
+    explicit ContactListPlainModel(QObject *parent = 0);
+
+    virtual void addContact(Contact *contact);
+    virtual void removeContact(Contact *contact);
 };
 
-#endif // ACCOUNT_P_H
+#endif // CONTACTLISTPLAINMODEL_H
