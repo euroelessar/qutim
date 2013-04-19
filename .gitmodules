@@ -1,0 +1,3 @@
+[submodule "artwork"]
+	path = artwork
+	url = git://github.com/gorthauer/artwork.git

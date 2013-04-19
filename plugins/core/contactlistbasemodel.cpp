@@ -166,6 +166,12 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return qVariantFromValue(contact->presence());
         case StatusTypeRole:
             return contact->presence().type();
+        case StatusIdRole: {
+            const auto presence = contact->presence();
+            return QString::number(presence.type())
+                    + "/"
+                    + presence.status();
+        }
 		case AvatarRole:
 			return contact->avatar();
 		case AlphabetRole:

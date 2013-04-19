@@ -27,4 +27,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     plugins/core \
-    src
+    src \
+    plugins/statustheme

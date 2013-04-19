@@ -1,7 +1,9 @@
 # Add more folders to ship with the application, here
 folder_01.source = qml
 folder_01.target = ../
-DEPLOYMENTFOLDERS = folder_01
+folder_statuses.source = ../artwork/icons/qutim-default/scalable/status
+folder_statuses.target = ../share
+DEPLOYMENTFOLDERS = folder_01 folder_statuses
 
 TARGET = qutim
 DESTDIR = ../

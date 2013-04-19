@@ -1,5 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 2.1
+import org.qutim.status 0.4
 
 Item {
     id: listItem
@@ -47,37 +48,56 @@ Item {
         anchors.fill: parent
         spacing: 2
 
-        ShaderEffect {
-            id: avatarImage
+        Item {
+            id: statusItem
             width: 24
             height: 24
             anchors.verticalCenter: parent.verticalCenter
 
-            property variant source: avatarImageSource
+            ShaderEffect {
+                id: avatarImage
+                anchors.fill: parent
+                visible: listItem.hasAvatar
 
-            property real thickness: 0.05
+                property variant source: avatarImageSource
 
-            fragmentShader: "
-                       varying highp vec2 qt_TexCoord0;
-                       uniform sampler2D source;
-                       uniform float thickness;
-                       void main(void)
-                       {
-                           highp vec4 texColor = texture2D(source, qt_TexCoord0.st);
-                           highp float x = 0.5 - abs(0.5 - qt_TexCoord0.x);
-                           highp float y = 0.5 - abs(0.5 - qt_TexCoord0.y);
-                           float factor = 1.0;
-                           if (x < thickness) {
-                               if (y > thickness)
-                                   factor = x / thickness;
-                               else {
-                                   factor = (y / thickness) * (x / thickness);
-                               }
-                           } else if (y < thickness)
-                               factor = y / thickness;
-                           gl_FragColor = texColor * factor;
-                   }
-                   "
+                property real thickness: 0.05
+
+                fragmentShader: "
+                           varying highp vec2 qt_TexCoord0;
+                           uniform sampler2D source;
+                           uniform float thickness;
+                           void main(void)
+                           {
+                               highp vec4 texColor = texture2D(source, qt_TexCoord0.st);
+                               highp float x = 0.5 - abs(0.5 - qt_TexCoord0.x);
+                               highp float y = 0.5 - abs(0.5 - qt_TexCoord0.y);
+                               float factor = 1.0;
+                               if (x < thickness) {
+                                   if (y > thickness)
+                                       factor = x / thickness;
+                                   else {
+                                       factor = (y / thickness) * (x / thickness);
+                                   }
+                               } else if (y < thickness)
+                                   factor = y / thickness;
+                               gl_FragColor = texColor * factor;
+                       }
+                       "
+            }
+
+            Image {
+                id: statusImage
+                width: listItem.hasAvatar ? parent.width / 2 : parent.width
+                height: listItem.hasAvatar ? parent.height / 2 : parent.height
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                smooth: false
+                sourceSize.width: width
+                sourceSize.height: height
+
+                source: "image://statustheme/" + model.statusId
+            }
         }
         
         Column {
@@ -85,7 +105,7 @@ Item {
 
             Text {
                 id: mainText
-                width: listItem.width - avatarImage.width - 4
+                width: listItem.width - statusItem.width - 4
                 text: model.title
                 font.weight: listItem.titleWeight
                 font.pixelSize: listItem.titleSize
@@ -97,7 +117,7 @@ Item {
 
             Text {
                 id: subText
-                width: listItem.width - avatarImage.width - 4
+                width: listItem.width - statusItem.width - 4
                 text: model.statusText
                 font.weight: listItem.subtitleWeight
                 font.pixelSize: listItem.subtitleSize

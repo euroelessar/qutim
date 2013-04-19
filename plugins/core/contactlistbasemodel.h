@@ -49,6 +49,7 @@ enum ContactListItemRole
 	StatusTextRole,
 	StatusIconNameRole,
     StatusTypeRole,
+    StatusIdRole,
 	ContactRole,
 	AlphabetRole,
 	IdRole

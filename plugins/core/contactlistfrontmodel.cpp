@@ -214,6 +214,7 @@ QHash<int, QByteArray> ContactListFrontModel::roleNames() const
     roleNames.insert(StatusTextRole, "statusText");
     roleNames.insert(StatusIconNameRole, "statusName");
     roleNames.insert(StatusTypeRole, "statusType");
+    roleNames.insert(StatusIdRole, "statusId");
     roleNames.insert(ContactsCountRole, "totalCount");
     roleNames.insert(OnlineContactsCountRole, "onlineCount");
     roleNames.insert(TagNameRole, "name");

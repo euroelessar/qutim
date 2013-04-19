@@ -1,11 +1,11 @@
 TEMPLATE = lib
 TARGET = core
-QMAKE_CXXFLAGS += -std=c++11
 QT += qml quick dbus
 CONFIG += qt plugin
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = org.qutim.core
 
+QMAKE_CXXFLAGS += -std=c++11
 DESTDIR = ../../imports/$$replace(uri, \., /)
 copy_qmldir.target = $$DESTDIR/qmldir
 copy_qmldir.depends = $$_PRO_FILE_PWD_/qmldir
