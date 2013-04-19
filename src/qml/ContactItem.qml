@@ -2,34 +2,30 @@
 import QtQuick 2.1
 import org.qutim.status 0.4
 
-Item {
+Rectangle {
     id: listItem
     height: 28
     width: parent.width
     clip: true
-    signal clicked
-    signal pressAndHold
     property bool hasAvatar: model.avatar !== ""
+
+    color: {
+        if (ListView.isCurrentItem)
+            return palette.highlight;
+        else
+            return index % 2 == 0 ? palette.alternateBase : palette.base
+    }
 
     property string fontFamily: "DejaVu Sans"
     
-    property int titleSize: 10 //UI.LIST_TILE_SIZE
+    property int titleSize: 10
     property int titleWeight: Font.Bold
-    property color titleColor: "#000000" //theme.inverted ? UI.LIST_TITLE_COLOR_INVERTED : UI.LIST_TITLE_COLOR
+    property color titleColor: ListView.isCurrentItem ? palette.highlightedText : palette.text
 
-    property int subtitleSize: 9 //UI.LIST_SUBTILE_SIZE
+    property int subtitleSize: 9
     property int subtitleWeight: Font.Light
-    property color subtitleColor: "#111111" //theme.inverted ? UI.LIST_SUBTITLE_COLOR_INVERTED : UI.LIST_SUBTITLE_COLOR
-    
-/*    BorderImage {
-        id: background
-        anchors.fill: parent
-        // Fill page porders
-        anchors.leftMargin: -UI.MARGIN_XLARGE
-        anchors.rightMargin: -UI.MARGIN_XLARGE
-        visible: mouseArea.pressed
-        source: "image://theme/meegotouch-list-background-pressed-center"
-    } */
+    property color subtitleColor: ListView.isCurrentItem ? palette.highlightedText : palette.text
+
     ShaderEffectSource {
         id: avatarImageSource
 
@@ -130,14 +126,14 @@ Item {
             }
         }
     }
-    MouseArea {
-        id: mouseArea;
-        anchors.fill: parent
-        onClicked: {
-            listItem.clicked();
-        }
-        onPressAndHold: {
-            listItem.pressAndHold();
-        }
-    }
+//    MouseArea {
+//        id: mouseArea;
+//        anchors.fill: parent
+//        onClicked: {
+//            listItem.clicked();
+//        }
+//        onPressAndHold: {
+//            listItem.pressAndHold();
+//        }
+//    }
 }

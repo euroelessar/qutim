@@ -28,6 +28,8 @@
 #include <QQmlEngine>
 #include <QQmlComponent>
 #include <QQuickWindow>
+
+#include <QStyleFactory>
 //#include "qtquick2applicationviewer.h"
 
 int main(int argc, char *argv[])

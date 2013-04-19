@@ -57,7 +57,6 @@ QImage StatusThemeImageProvider::requestImage(const QString &id, QSize *size, co
     reader.setScaledSize(requestedSize);
     reader.read(&image);
     *size = image.size();
-//    qDebug() << id << requestedSize << image.size();
     return image;
 }
 
