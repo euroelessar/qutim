@@ -61,6 +61,8 @@ Account::Account(AccountPrivate &priv, QObject *parent) :
 
 Account::~Account()
 {
+    delete d->contactManager;
+    d->contactManager = NULL;
 }
 
 QString Account::protocolName() const

@@ -4,6 +4,8 @@
 
 void ContactPrivate::setContact(const Tp::ContactPtr &contact)
 {
+    this->contact = contact;
+
     auto onPresenceChanged = [this] (const Tp::Presence &tpPresence) {
         Presence newPresence = PresenceData::create(tpPresence);
         if (presence == newPresence)
@@ -25,7 +27,7 @@ void ContactPrivate::setContact(const Tp::ContactPtr &contact)
             q->aliasChanged(alias);
         };
         auto onAvatarChanged = [this] (const Tp::AvatarData &newAvatar) {
-            if (avatar == newAvatar.fileName)
+            if (avatar == newAvatar.fileName || !this->contact->isAvatarTokenKnown())
                 return;
             avatar = newAvatar.fileName;
             q->aliasChanged(avatar);
@@ -69,8 +71,14 @@ void ContactPrivate::setContact(const Tp::ContactPtr &contact)
     }
 }
 
-Contact::Contact(Account *parent) :
-    QObject(parent), d(new ContactPrivate(this))
+Contact::Contact(ContactPrivate &priv, Account *parent)
+    : QObject(parent), d(&priv)
+{
+    priv.q = this;
+}
+
+Contact::Contact(Account *parent)
+    : QObject(parent), d(new ContactPrivate(this))
 {
     d->account = parent;
 }

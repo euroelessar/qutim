@@ -28,7 +28,13 @@
 #include "contactlistmodel.h"
 #include <TelepathyQt/Types>
 
-#include <qqml.h>
+#include <QQmlEngine>
+
+void CorePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
+{
+    Q_UNUSED(engine);
+    Q_UNUSED(uri);
+}
 
 void CorePlugin::registerTypes(const char *uri)
 {
@@ -39,5 +45,4 @@ void CorePlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<Account>(uri, 0, 4, "Account", "Creatable only by ureen core");
     qmlRegisterType<ContactListModel>(uri, 0, 4, "ContactListModel");
 }
-
 

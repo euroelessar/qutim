@@ -27,8 +27,8 @@
 #include "contactlistplainmodel.h"
 #include <QtDebug>
 
-ContactListFrontModel::ContactListFrontModel(QObject *parent) :
-	QSortFilterProxyModel(parent), m_showOffline(false)
+ContactListFrontModel::ContactListFrontModel(QObject *parent)
+    : QSortFilterProxyModel(parent), m_showOffline(false)
 {
 //	QVariantMap order = config.value("order", QVariantMap());
 //	for (QVariantMap::Iterator it = order.begin(); it != order.end(); ++it)

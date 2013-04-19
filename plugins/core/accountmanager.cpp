@@ -35,6 +35,11 @@
 
 static QWeakPointer<AccountManagerPrivate> self;
 
+enum AccountDestroyingPolicy {
+    DestroyAccount,
+    DoNotDestroyAccount
+};
+
 class AccountManagerPrivate
 {
 public:
@@ -92,11 +97,14 @@ public:
 
                 d->addAccountsSet(d->tpManager->filterAccounts(antiFilter),
                                   d->allAccounts,
-                                  &AccountManager::allAccountsChanged);
+                                  &AccountManager::allAccountsChanged,
+                                  DestroyAccount);
                 d->addAccountsSet(d->tpManager->enabledAccounts(),
                                   d->enabledAccounts,
-                                  &AccountManager::enabledAccountsChanged);
+                                  &AccountManager::enabledAccountsChanged,
+                                  DoNotDestroyAccount);
             });
+//            lconnect(qApp, &QCoreApplication::aboutToQuit)
         }
         d->managers << newManager;
 
@@ -105,7 +113,8 @@ public:
 
     void addAccountsSet(const Tp::AccountSetPtr &accountsSet,
                         QList<Account*> &accountsList,
-                        ListSignal changed)
+                        ListSignal changed,
+                        AccountDestroyingPolicy policy)
     {
         accountsSets << accountsSet;
 
@@ -120,9 +129,12 @@ public:
             updateList(accountsList, changed);
         });
         QObject::connect(accountsSet.data(), &Tp::AccountSet::accountRemoved,
-                [this, &accountsList, changed] (const Tp::AccountPtr &account) {
-            accountsList.removeOne(convert(account));
+                [this, &accountsList, changed, policy] (const Tp::AccountPtr &tpAccount) {
+            Account *account = convert(tpAccount);
+            accountsList.removeOne(account);
             updateList(accountsList, changed);
+            if (policy == DestroyAccount)
+                account->deleteLater();
         });
 
         updateList(accountsList, changed);
@@ -139,7 +151,6 @@ public:
     QList<Account*> enabledAccounts;
     QList<Account*> allAccounts;
     QList<Tp::AccountSetPtr> accountsSets;
-    QHash<Tp::AccountPtr, Account *> accountsHash;
 };
 
 AccountManager::AccountManager(QObject *parent):

@@ -29,37 +29,55 @@ Item {
         visible: mouseArea.pressed
         source: "image://theme/meegotouch-list-background-pressed-center"
     } */
-    
+    ShaderEffectSource {
+        id: avatarImageSource
+
+        sourceItem: AnimatedImage {
+            source: model.avatar
+            smooth: true
+            asynchronous: true
+            width: 24
+            height: 24
+        }
+
+        hideSource: true
+    }
     
     Row {
         anchors.fill: parent
         spacing: 2
-        
-        Image {
+
+        ShaderEffect {
             id: avatarImage
+            width: 24
+            height: 24
             anchors.verticalCenter: parent.verticalCenter
-            width: 24 //UI.LIST_ICON_SIZE
-            height: 24 //UI.LIST_ICON_SIZE
-            source: model.avatar
-//                    source: listItem.hasAvatar ? "image://theme/meegotouch-avatar-frame-small" : ""
-   /*         Image {
-                anchors.fill: parent
-                MaskEffect {
-                    id: maskEffect
-                    mask: Image {
-                        source: "image://theme/meegotouch-avatar-mask-small"
-                    }
-                }
-                effect: listItem.hasAvatar ? maskEffect : null
-                source: listItem.hasAvatar ? model.avatar : "image://theme/icon-m-content-avatar-placeholder"
-            }
-            Image {
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                width: UI.LIST_ICON_SIZE / 2
-                height: UI.LIST_ICON_SIZE / 2
-                source: model.iconSource
-            } */
+
+            property variant source: avatarImageSource
+
+            property real thickness: 0.05
+
+            fragmentShader: "
+                       varying highp vec2 qt_TexCoord0;
+                       uniform sampler2D source;
+                       uniform float thickness;
+                       void main(void)
+                       {
+                           highp vec4 texColor = texture2D(source, qt_TexCoord0.st);
+                           highp float x = 0.5 - abs(0.5 - qt_TexCoord0.x);
+                           highp float y = 0.5 - abs(0.5 - qt_TexCoord0.y);
+                           float factor = 1.0;
+                           if (x < thickness) {
+                               if (y > thickness)
+                                   factor = x / thickness;
+                               else {
+                                   factor = (y / thickness) * (x / thickness);
+                               }
+                           } else if (y < thickness)
+                               factor = y / thickness;
+                           gl_FragColor = texColor * factor;
+                   }
+                   "
         }
         
         Column {

@@ -8,9 +8,11 @@
 class ContactPrivate
 {
 public:
-    ContactPrivate(Contact *q_ptr) : q(q_ptr), inList(true)
+    ContactPrivate(Contact *q_ptr) : q(q_ptr), isAvatarKnown(false), inList(true)
     {
     }
+
+    static ContactPrivate *get(Contact *contact) { return contact->d.data(); }
 
     void setContact(const Tp::ContactPtr &contact);
 
@@ -23,6 +25,7 @@ public:
     QString avatar;
     QStringList groups;
     Presence presence;
+    bool isAvatarKnown;
     bool inList;
 };
 

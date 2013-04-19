@@ -42,6 +42,7 @@ signals:
     void avatarChanged(const QString &avatar);
 
 private:
+    Contact(ContactPrivate &priv, Account *parent);
     explicit Contact(Account *parent);
 
     friend class ContactManager;

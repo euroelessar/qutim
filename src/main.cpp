@@ -38,23 +38,28 @@ int main(int argc, char *argv[])
 //    viewer.setMainQmlFile(QStringLiteral("qml/ureen/main.qml"));
 //    viewer.showExpanded();
 
-    QQmlEngine engine;
-    engine.addImportPath(qApp->applicationDirPath() + "/imports");
-    QQmlComponent component(&engine);
-    component.loadUrl(QUrl::fromLocalFile(QStringLiteral("qml/main.qml")));
-    if (!component.isReady()) {
-        qWarning("%s", qPrintable(component.errorString()));
-        return -1;
+    int result;
+    {
+        QQmlEngine engine;
+        engine.addImportPath(qApp->applicationDirPath() + "/imports");
+        QQmlComponent component(&engine);
+        component.loadUrl(QUrl::fromLocalFile(QStringLiteral("qml/main.qml")));
+        if (!component.isReady()) {
+            qWarning("%s", qPrintable(component.errorString()));
+            return -1;
+        }
+        QObject *topLevel = component.create();
+        QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
+        if ( !window ) {
+            qWarning("Error: Your root item has to be a Window.");
+            return -1;
+        }
+        QObject::connect(&engine, SIGNAL(quit()), &app, SLOT(quit()));
+        window->show();
+        result = app.exec();
+        delete topLevel;
     }
-    QObject *topLevel = component.create();
-    QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
-    if ( !window ) {
-        qWarning("Error: Your root item has to be a Window.");
-        return -1;
-    }
-    QObject::connect(&engine, SIGNAL(quit()), &app, SLOT(quit()));
-    window->show();
+    qDebug() << "all should be dead";
 
-
-    return app.exec();
+    return result;
 }
