@@ -50,16 +50,9 @@ int main(int argc, char *argv[])
             qWarning("%s", qPrintable(component.errorString()));
             return -1;
         }
-        QObject *topLevel = component.create();
-        QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
-        if ( !window ) {
-            qWarning("Error: Your root item has to be a Window.");
-            return -1;
-        }
+        QScopedPointer<QObject> topLevel(component.create());
         QObject::connect(&engine, SIGNAL(quit()), &app, SLOT(quit()));
-        window->show();
         result = app.exec();
-        delete topLevel;
     }
     qDebug() << "all should be dead";
 
