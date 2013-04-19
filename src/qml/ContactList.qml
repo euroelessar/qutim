@@ -5,10 +5,13 @@ import QtQuick 2.1
 import org.qutim.core 0.4
 
 Window {
+    id: root
     width: 250
     height: 600
     minimumWidth: 100
     minimumHeight: 300
+
+    signal settingsRequested
 
     AccountManager {
         id: accountManager
@@ -86,6 +89,14 @@ Window {
             }
 
             MenuSeparator {
+            }
+
+            MenuItem {
+                text: "Show settings"
+                onTriggered: root.settingsRequested()
+            }
+
+            MenuSeparator {
                 visible: accountManager.enabledAccounts.length > 0
             }
 
@@ -102,31 +113,31 @@ Window {
             }
         }
 
-        Row {
-            id: accountsRow
-            Layout.fillWidth: true
-            height: 28
-            spacing: 2
-            layoutDirection: Qt.RightToLeft
-
-            Repeater {
-                model: accountManager.enabledAccounts
-
-                Image {
-                    anchors.verticalCenter: accountsRow.verticalCenter
-                    width: 24
-                    height: 24
-                    sourceSize.height: height
-                    sourceSize.width: width
-                    source: "image://statustheme/2/online"
-                }
-            }
-        }
-
-//        Button {
+//        Row {
+//            id: accountsRow
 //            Layout.fillWidth: true
-//            text: "Click me"
-//            onClicked: statusMenu.popup()
+//            height: 28
+//            spacing: 2
+//            layoutDirection: Qt.RightToLeft
+
+//            Repeater {
+//                model: accountManager.enabledAccounts
+
+//                Image {
+//                    anchors.verticalCenter: accountsRow.verticalCenter
+//                    width: 24
+//                    height: 24
+//                    sourceSize.height: height
+//                    sourceSize.width: width
+//                    source: "image://statustheme/2/online"
+//                }
+//            }
 //        }
+
+        Button {
+            Layout.fillWidth: true
+            text: "Click me"
+            onClicked: statusMenu.popup()
+        }
     }
 }
