@@ -26,6 +26,7 @@
 #include "core_plugin.h"
 #include "quickaccountmanager.h"
 #include "contactlistmodel.h"
+#include "config.h"
 #include <TelepathyQt/Types>
 
 #include <QQmlEngine>
@@ -44,5 +45,6 @@ void CorePlugin::registerTypes(const char *uri)
     qmlRegisterType<QuickAccountManager>(uri, 0, 4, "AccountManager");
     qmlRegisterUncreatableType<Account>(uri, 0, 4, "Account", "Creatable only by ureen core");
     qmlRegisterType<ContactListModel>(uri, 0, 4, "ContactListModel");
+    qmlRegisterType<Config>(uri, 0, 4, "Config");
 }
 

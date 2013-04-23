@@ -13,12 +13,22 @@ Window {
 
     signal settingsRequested
 
+    Config {
+        id: config
+        path: "desktop.contactList"
+        property string theme: "default"
+        property bool showOffline: false
+        property int value: 0
+    }
+
     AccountManager {
         id: accountManager
     }
 
     ContactListModel {
         id: contactListModel
+
+        showOffline: config.showOffline
     }
 
     ColumnLayout {

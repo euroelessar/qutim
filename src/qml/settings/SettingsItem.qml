@@ -4,7 +4,7 @@ Item {
     id: item
 
     property string title: "Example settings item"
-    property string iconSource: "image://icontheme/%1".arg(iconName)
+    property string iconSource: "image://icontheme/" + iconName
     property string iconName
 
     property Component component

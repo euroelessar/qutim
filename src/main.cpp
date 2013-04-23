@@ -23,29 +23,49 @@
 **
 ****************************************************************************/
 
-//#include <QtGui/QGuiApplication>
 #include <QApplication>
 #include <QQmlEngine>
 #include <QQmlComponent>
-#include <QQuickWindow>
+#include <QFileInfo>
 
-#include <QStyleFactory>
-//#include "qtquick2applicationviewer.h"
+static QString adjustPath(const QString &path)
+{
+#if defined(Q_OS_MAC)
+    if (!QDir::isAbsolutePath(path))
+        return QStringLiteral("%1/../Resources/%2")
+                .arg(QCoreApplication::applicationDirPath(), path);
+#elif defined(Q_OS_QNX)
+    if (!QDir::isAbsolutePath(path))
+        return QStringLiteral("app/native/%1").arg(path);
+#elif defined(Q_OS_UNIX) && !defined(Q_OS_ANDROID)
+    const QString pathInInstallDir =
+            QStringLiteral("%1/../%2").arg(QCoreApplication::applicationDirPath(), path);
+    if (QFileInfo(pathInInstallDir).exists())
+        return pathInInstallDir;
+#endif
+    return path;
+}
+
+static QUrl qmlFilePath(const QString &filePath)
+{
+    const QString adjustedPath = adjustPath(filePath);
+#ifdef Q_OS_ANDROID
+    return QUrl(QStringLiteral("assets:/") + adjustedPath);
+#else
+    return QUrl::fromLocalFile(adjustedPath);
+#endif
+}
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-//    QtQuick2ApplicationViewer viewer;
-//    viewer.setMainQmlFile(QStringLiteral("qml/ureen/main.qml"));
-//    viewer.showExpanded();
-
     int result;
     {
         QQmlEngine engine;
-        engine.addImportPath(qApp->applicationDirPath() + "/imports");
+        engine.addImportPath(adjustPath(QStringLiteral("imports")));
         QQmlComponent component(&engine);
-        component.loadUrl(QUrl::fromLocalFile(QStringLiteral("qml/main.qml")));
+        component.loadUrl(qmlFilePath(QStringLiteral("qml/main.qml")));
         if (!component.isReady()) {
             qWarning("%s", qPrintable(component.errorString()));
             return -1;

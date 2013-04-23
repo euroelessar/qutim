@@ -5,6 +5,7 @@ import "settings"
 Item {
     ContactList {
         id: contactList
+
         onSettingsRequested: settingsDialog.show()
     }
 

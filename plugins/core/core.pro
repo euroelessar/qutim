@@ -31,7 +31,8 @@ SOURCES += \
     contactlistplainmodel.cpp \
     contactlistgroupmodel.cpp \
     presence.cpp \
-    quickpresence.cpp
+    quickpresence.cpp \
+    config.cpp
 #    contactlistmimedata.cpp \
 
 HEADERS += \
@@ -56,7 +57,8 @@ HEADERS += \
     contactlistfrontmodel.h \
     presence.h \
     quickpresence.h \
-    presence_p.h
+    presence_p.h \
+    config.h
 #    contactlistmimedata.h \
 
 INCLUDEPATH += /usr/include/telepathy-qt5

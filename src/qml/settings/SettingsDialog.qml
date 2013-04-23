@@ -6,8 +6,6 @@ import QtQuick 2.1
 import org.qutim.core 0.4
 import org.qutim.icons 0.4
 
-import "."
-
 ApplicationWindow {
     id: root
 
