@@ -9,45 +9,14 @@ import org.qutim.icons 0.4
 ApplicationWindow {
     id: root
 
-    property list<SettingsItem> items
-    property Item initialItem: currentItem
+    property SettingsItem initialItem: settingsBehaviour.items[0]
+    property alias currentItem: settingsBehaviour.currentItem
+    property alias items: settingsBehaviour.items
 
-    readonly property SettingsItem currentItem: items[__currentIndex]
-
-    default property alias __items : root.items
-    property int __currentIndex: 0
-
-    function __replace(settingsItem) {
-        // remember old item
-        var oldItem = stack.currentItem;
-
-        __currentIndex = __indexOf(settingsItem);
-        var component = settingsItem.component;
-        var item = component.createObject(stack);
-
-        stack.push(item, {}, false, true);
-        if (oldItem) {
-            // remove old settings item on end of transition
-            stack.onBusyChanged.connect = function() {
-                oldItem.destroy(0);
-            }
-        }
-    }
-
-    // list<SettingsItem> doesn't have indexOf method
-    function __indexOf(item) {
-        var index = -1;
-        for (var i = 0; i !== items.count; i++) {
-            if (items[i] === item) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
+    default property alias __items : settingsBehaviour.items
 
     Component.onCompleted: {
-        __replace(initialItem);
+        stack.replace(initialItem);
     }
 
     width: 600
@@ -97,7 +66,7 @@ ApplicationWindow {
                 anchors.fill: parent
 
                 model: items
-                currentIndex: root.__currentIndex
+                currentIndex: settingsBehaviour.currentIndex
 
                 highlight: Rectangle {
                     z: currentItem.z
@@ -114,7 +83,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (modelData !== root.currentItem) {
-                            __replace(modelData);
+                            stack.replace(modelData);
                         }
                     }
 
@@ -163,6 +132,23 @@ ApplicationWindow {
     StackView {
         id: stack
 
+        function replace(settingsItem) {
+            // remember old item
+            var oldItem = currentItem;
+
+            settingsBehaviour.currentItem = settingsItem;
+            var component = settingsItem.component;
+            var item = component.createObject(stack);
+
+            push(item, {}, false, true);
+            if (oldItem) {
+                // remove old settings item on end of transition
+                onBusyChanged.connect = function() {
+                    oldItem.destroy(0);
+                }
+            }
+        }
+
         clip: true
 
         anchors {
@@ -173,6 +159,27 @@ ApplicationWindow {
 
             leftMargin: sideBar.anchors.leftMargin
             rightMargin: sideBar.anchors.rightMargin
+        }
+    }
+
+    QtObject {
+        id: settingsBehaviour
+
+        property list<SettingsItem> items
+
+        property SettingsItem currentItem
+        readonly property int currentIndex: indexOf(currentItem)
+
+        // list<SettingsItem> doesn't have indexOf method
+        function indexOf(item) {
+            var index = -1;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i] === item) {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
         }
     }
 }
