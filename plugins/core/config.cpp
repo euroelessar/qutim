@@ -1,21 +1,22 @@
 #include "config.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
 #include <QStandardPaths>
-#include <QStringBuilder>
 #include <QVariantHash>
-#include <QVariantMap>
-#include <QDebug>
-#include <QElapsedTimer>
 #include <QMetaProperty>
 #include <QFileSystemWatcher>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QDir>
 #include <QTimer>
+#include <QVector>
+#include <QPair>
+#include <QSet>
 
+#define CONFIG_PATH QStringLiteral("/qutim")
 #define CONFIG_FILE QStringLiteral("/qutim/config.json")
 
 static void populateConfig(QVariantHash &data, QString &prefix, const QJsonObject &object)
@@ -147,11 +148,16 @@ public:
     {
         path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
                 + CONFIG_FILE;
+        auto dirPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+                + CONFIG_PATH;
 
         config = loadConfig();
         lastModified = QFileInfo(path).lastModified();
 
-        watcher.addPath(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qutim");
+        if (!QFileInfo(dirPath).exists())
+            QDir().mkpath(dirPath);
+
+        watcher.addPath(dirPath);
         QObject::connect(&watcher, &QFileSystemWatcher::directoryChanged,
                          [this] (const QString &dirPath) {
             if (!QFileInfo(dirPath).exists()) {
@@ -258,6 +264,13 @@ void Config::componentComplete()
         auto slot = meta->method(startIndex + i - startPropertyIndex);
         auto name = m_path + '.' + property.name();
 
+        auto it = m_data->config.find(name);
+        if (it != m_data->config.end()) {
+            property.write(this, it.value());
+        } else {
+            m_data->config.insert(name, property.read(this));
+        }
+
         m_properties[name] = property;
         m_propertiesNames << name;
 
@@ -275,8 +288,6 @@ void Config::onPropertyChanged(int index)
     auto value = property.read(this);
 
     m_data->updateConfig(m_propertiesNames[index], value);
-
-    qDebug() << "Changed property" << index << property.name() << "to value" << value;
 }
 
 void Config::onValueChanged(const QString &key, const QVariant &value)
