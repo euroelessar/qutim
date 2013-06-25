@@ -192,7 +192,7 @@ DataItem JInfoRequest::createDataItem() const
 			// birthday
 			addItem(Birthday, general, d->vcard->birthday().date());
 			//// homepage
-			addItemList(Homepage, general, d->vcard->url().toString());
+			addItem(Homepage, general, QVariant::fromValue(d->vcard->url()));
 		}
 		if (!isAccount) {
 		//// telephone
@@ -497,6 +497,7 @@ JInfoRequest::DataType JInfoRequest::getAddressType(const Jreen::VCard::Address 
 void JInfoRequest::addItem(DataType type, DataItem &group, const QVariant &data) const
 {
 	DataItem item(names()->at(type), titles()->at(type), data);
+
 	group.addSubitem(item);
 }
 

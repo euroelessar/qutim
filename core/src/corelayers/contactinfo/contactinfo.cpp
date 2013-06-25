@@ -33,6 +33,8 @@
 #include <QFileDialog>
 #include <QLabel>
 #include <QScrollArea>
+#include <QTextDocument>
+#include <QUrl>
 #include <qutim/debug.h>
 #include <qutim/systemintegration.h>
 
@@ -140,6 +142,13 @@ void MainWindow::addItems(DataItem items)
 	avatarItem.setReadOnly(!readWrite);
 	avatarWidget.reset(AbstractDataForm::get(avatarItem));
 	if (avatarWidget) {
+		QString avatarPath = avatarItem.property("imagePath", QString());
+
+		if (!avatarPath.isEmpty()) {
+			avatarWidget->setToolTip(QString::fromLatin1("<img src=\"%1\"/>")
+									 .arg(Qt::escape(avatarPath)));
+		}
+
 		avatarWidget->setParent(this);
 		avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
@@ -156,6 +165,7 @@ void MainWindow::addItems(DataItem items)
 							   Qt::LinksAccessibleByKeyboard |
 							   Qt::TextSelectableByMouse |
 							   Qt::TextSelectableByKeyboard);
+	w->setOpenExternalLinks(true);
 	ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "Summary"));
 	ui.detailsStackedWidget->addWidget(scrollArea);
 	// Pages
@@ -213,16 +223,24 @@ QString MainWindow::summary(const DataItem &items, bool *titlePrinted)
 			needTitle = true;
 			text += QString("<b>%1:</b>  ").arg(item.title());
 			QVariant::Type type = item.data().type();
-			if (type == QVariant::Date)
+			if (type == QVariant::Date) {
 				text += item.data().toDate().toString(Qt::SystemLocaleLongDate);
-			else if (type == QVariant::DateTime)
+			} else if (type == QVariant::DateTime) {
 				text += item.data().toDateTime().toString(Qt::SystemLocaleLongDate);
-			else if (type == QVariant::Bool)
+			} else if (type == QVariant::Bool) {
 				text += item.data().toBool() ?
 							QT_TRANSLATE_NOOP("ContactInfo", "yes") :
 							QT_TRANSLATE_NOOP("ContactInfo", "no");
-			else
+			} else if (type == QVariant::Url) {
+				QUrl url = item.data().toUrl();
+				QByteArray urlEncoded = url.toEncoded();
+				text += QString::fromLatin1("<a href='%1' title='%2' target='_blank'>%3</a>")
+						.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
+							 url.toString(),
+							 Qt::escape(url.toString()));
+			} else {
 				text += str.replace(QRegExp("(\r\n|\n|\r)"), "<br>");
+			}
 			text += "<br>";
 		}
 	}

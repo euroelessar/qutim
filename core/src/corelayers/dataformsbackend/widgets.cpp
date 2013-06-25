@@ -26,15 +26,16 @@
 #include <qutim/icon.h>
 #include <QFileDialog>
 #include <QRegExpValidator>
+#include <QUrl>
 #include "datalayout.h"
 #include "widgetgenerator.h"
 #include <qutim/debug.h>
 
-Q_DECLARE_METATYPE(QList<QIcon>);
-Q_DECLARE_METATYPE(QList<QPixmap>);
-Q_DECLARE_METATYPE(QList<QImage>);
-Q_DECLARE_METATYPE(QLineEdit::EchoMode);
-Q_DECLARE_METATYPE(QValidator*);
+Q_DECLARE_METATYPE(QList<QIcon>)
+Q_DECLARE_METATYPE(QList<QPixmap>)
+Q_DECLARE_METATYPE(QList<QImage>)
+Q_DECLARE_METATYPE(QLineEdit::EchoMode)
+Q_DECLARE_METATYPE(QValidator*)
 
 namespace Core
 {
@@ -99,6 +100,14 @@ Label::Label(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
 		setFrameShadow(QFrame::Sunken);
 		setAlignment(Qt::AlignCenter);
 		return;
+	} else if (type == QVariant::Url) {
+		setOpenExternalLinks(true);
+		QUrl url = item.data().toUrl();
+		QByteArray urlEncoded = url.toEncoded();
+		value = QString::fromLatin1("<a href='%1' title='%2' target='_blank'>%3</a>")
+				.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
+					 url.toString(),
+					 Qt::escape(url.toString()));
 	} else if (type == QVariant::Bool) {
 		value = item.data().toBool() ?
 				QT_TRANSLATE_NOOP("DataForms", "yes") :

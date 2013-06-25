@@ -140,6 +140,8 @@ public:
 	Q_DECLARE_PUBLIC(MenuController)
 	typedef MenuController::MenuFlag MenuFlag;
 	MenuControllerPrivate(MenuController *c);
+	virtual ~MenuControllerPrivate() {}
+
 	MenuController *owner;
 	int flags;
 	MenuController *q_ptr;
