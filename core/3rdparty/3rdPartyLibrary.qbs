@@ -8,12 +8,13 @@ StaticLibrary {
     Depends { name: "cpp" }
 
     Group {
+        name: "Source"
         condition: sourcePath !== undefined
         prefix: sourcePath + '/**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c", "*.mm" ]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         cpp.includePaths: [
             "."

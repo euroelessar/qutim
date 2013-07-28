@@ -31,12 +31,12 @@
 #include <QHash>
 #include <QImageReader>
 #include <QStringBuilder>
-#include <QtGui/QTextDocument>
+#include <QTextDocument>
 #include <QDebug>
 
 namespace qutim_sdk_0_3
 {
-#define nullThemeName QLatin1String("")
+#define nullThemeName QStringLiteral("")
 
 namespace Emoticons
 {
@@ -184,7 +184,7 @@ void EmoticonsProvider::appendEmoticon(const QString &imgPath, const QStringList
 		e.picPath = imgPath;
 		e.picHTMLCode = imgHtml;
 		e.matchText = code.toLower();
-		e.matchTextEscaped = Qt::escape(code).toLower();
+		e.matchTextEscaped = code.toHtmlEscaped().toLower();
 		if (e.matchText.isEmpty() || e.matchTextEscaped.isEmpty())
 			continue;
 		QChar c1 = code.at(0);
@@ -200,7 +200,7 @@ void EmoticonsProvider::removeEmoticon(const QString &imgPath, const QStringList
 	p->order.removeAll(imgPath);
 	p->map.remove(imgPath);
 	foreach (const QString &code, codes) {
-		QString escaped = Qt::escape(code);
+		QString escaped = code.toHtmlEscaped();
 		if (code.isEmpty() || escaped.isEmpty())
 			continue;
 		QHash<QChar, QList<Emoticon> >::iterator it;

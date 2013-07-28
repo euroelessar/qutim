@@ -1,4 +1,4 @@
-import qbs.base 1.0
+import qbs.base
 
 Product {
 	name: "qutim"
@@ -13,19 +13,23 @@ Product {
             return "bin";
     }
     cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
+    cpp.cxxFlags: [
+        "-std=c++11"
+    ]
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
-    Depends { name: "deploy" }
-    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
-    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-    Depends { name: "qt.declarative"; condition: project.declarativeUi }
+//    Depends { name: "deploy" }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
+    Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor === 5 }
+    Depends { name: "Qt.declarative"; condition: project.declarativeUi }
 	
     files: [
         "main.cpp"
     ]
 
     Group {
+        name: "Source"
         prefix: project.declarativeUi ? "src/declarative/" : "src/widgets/"
         files: [
             "*.h",
@@ -35,15 +39,16 @@ Product {
     }
 
     Group {
-        condition: qbs.targetOS === "mac"
+        name: "Mac-specific"
+        condition: qbs.targetOS.contains("mac")
         fileTags: "plugins"
-        prefix: deploy.pluginPath
-        files: [
-            "imageformats", "iconengines",
-            //"crypto",
-            "phonon_backend",
-            "bearer", "codecs",
-            "graphicssystems", "sqldrivers"
-        ]
+//        prefix: deploy.pluginPath
+//        files: [
+//            "imageformats", "iconengines",
+//            //"crypto",
+//            "phonon_backend",
+//            "bearer", "codecs",
+//            "graphicssystems", "sqldrivers"
+//        ]
     }
 }

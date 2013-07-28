@@ -55,18 +55,12 @@ int main(int argc, char *argv[])
 #else
 	QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
-	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
 
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
 
-	// At first time use current time with pointers to initiators
-	qsrand(uint(std::time(0)) ^ qHash(qApp));
-	// At second random value
-	qsrand(uint(qrand()));
-	// It looks like Qt doesn't always use srand as backend of qsrand
-	srand(uint(qrand()));
+    qsrand(std::time(nullptr));
+    srand(qrand());
 
 	return app->exec();
 }

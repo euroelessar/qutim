@@ -51,7 +51,7 @@ struct DebugData
 		VeryVerbose = DebugVeryVerbose
 	};
 
-	inline DebugData() : meta(0), level(Default) {}
+	inline DebugData() : meta(0), name("[Core]:"), level(Default) {}
 	Level fixedLevel() const;
 
 	const QMetaObject *meta;
@@ -95,12 +95,7 @@ inline DebugData::Level DebugData::fixedLevel() const
 	return debugLevel == Default ? VeryVerbose : debugLevel;
 }
 
-inline void init_core_data(DebugData *data)
-{
-	data->name = "[Core]:";
-}
-
-Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugData, coreData, init_core_data(x.data()))
+Q_GLOBAL_STATIC(DebugData, coreData)
 
 QDebug debug_helper(quint64 debugId, DebugLevel level, QtMsgType type)
 {

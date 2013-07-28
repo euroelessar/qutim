@@ -29,6 +29,7 @@
 
 #include "libqutim_global.h"
 #include <QDir>
+#include <QString>
 
 namespace qutim_sdk_0_3
 {

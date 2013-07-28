@@ -95,7 +95,8 @@ namespace qutim_sdk_0_3
 {
 struct SystemInfoPrivate
 {
-	inline SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1) {}
+	SystemInfoPrivate();
+
 	QString os_full;
 	QString os_name;
 	QString os_version;
@@ -287,8 +288,9 @@ SystemInfo::~SystemInfo()
 {
 }
 
-void init(SystemInfoPrivate *d)
+SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 {
+    auto d = this;
 	//		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
 	//		d->timezone_offset = tmp_datetime.utcOffset();
 	// Initialize
@@ -516,7 +518,7 @@ void init(SystemInfoPrivate *d)
 #endif
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(SystemInfoPrivate, d_func, init(x.data()))
+Q_GLOBAL_STATIC(SystemInfoPrivate, d_func)
 
 LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs()
 { return &d_func()->dirs; }

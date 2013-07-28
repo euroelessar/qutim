@@ -37,7 +37,7 @@
 namespace qutim_sdk_0_3
 {
 // is must be named as a lot of another variables
-static QWeakPointer<CryptoService> self;
+static QPointer<CryptoService> self;
 
 CryptoService::CryptoService()
 {

@@ -26,7 +26,7 @@
 #include "tooltip.h"
 #include "account.h"
 #include <QTextDocument>
-#include <QLatin1Literal>
+#include <QStringBuilder>
 #include "iconloader.h"
 
 namespace qutim_sdk_0_3
@@ -85,15 +85,15 @@ bool Buddy::event(QEvent *ev)
 			if (ava.isEmpty())
 				ava = IconLoader::iconPath(QLatin1String("qutim"), 64);
 			QString text = QLatin1Literal("</td><td><img width=\"64\" src=\"")
-					% Qt::escape(ava)
+					% ava.toHtmlEscaped()
 					% QLatin1Literal("\"/></td></tr></table>");
 			event->addHtml(text, 5);
 		}
 		event->addHtml("<font size=-1>", 50);
 		QString text = QLatin1Literal("<b>")
-				% Qt::escape(name())
+                % name().toHtmlEscaped()
 				% QLatin1Literal("</b> &lt;")
-				% Qt::escape(id())
+                % id().toHtmlEscaped()
 				% QLatin1Literal("&gt;");
 		event->addHtml("</font>", 10);
 		event->addHtml(text, 90);

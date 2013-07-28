@@ -35,9 +35,6 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		static void init();
-		
-	private:
-		static const QVariant::Handler handler;
 	};
 }
 

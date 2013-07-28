@@ -27,8 +27,8 @@
 #include "menucontroller.h"
 #include "menucontroller_p.h"
 #include <QMetaMethod>
-#include <QtGui/QIcon>
-#include <QtGui/QAction>
+#include <QIcon>
+#include <QAction>
 #include <QtCore/QCoreApplication>
 #include "debug.h"
 #include <QLatin1Literal>

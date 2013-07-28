@@ -22,6 +22,7 @@
 #include "../../libqutim/localizedstring.h"
 #include <QTreeView>
 #include <QListView>
+#include <QStringBuilder>
 
 namespace qutim_sdk_0_3
 {
@@ -181,10 +182,10 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		description_font.setPointSize(opt.font.pointSize() - 1);
 
 		int titleWidth = rect.width() - getEditorSize(getWidget(opt), index).width();
-		title = elidedText(title_font, titleWidth, Qt::ElideRight, title);
+		title = QFontMetrics(title_font).elidedText(title, Qt::ElideRight, titleWidth);
 
 		QRect bounding;
-		QString desc = description(index, description_font, rect.width(), titleWidth);
+		QString desc = description(index, QFontMetrics(description_font), rect.width(), titleWidth);
 		painter->setFont(title_font);
 		painter->drawText(rect,
 						  (desc.isEmpty() ? Qt::AlignVCenter : Qt::AlignTop) | Qt::AlignLeft,

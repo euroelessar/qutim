@@ -30,13 +30,7 @@
 namespace qutim_sdk_0_3
 {
 
-static void initEngine(QScriptEngine *engine)
-{
-	Q_UNUSED(engine);
-//	ScriptTools::prepareEngine(engine);
-}
-
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QScriptEngine, scriptEngineInstance, initEngine(x.data()))
+Q_GLOBAL_STATIC(QScriptEngine, scriptEngineInstance)
 
 ScriptTools::ScriptTools()
 {

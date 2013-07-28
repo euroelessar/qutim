@@ -26,10 +26,10 @@
 #ifndef PROFILELISTWIDGET_H
 #define PROFILELISTWIDGET_H
 
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QWidget>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QWidget>
 
 namespace qutim_sdk_0_3
 {

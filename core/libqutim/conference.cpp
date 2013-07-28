@@ -26,7 +26,7 @@
 #include "chatunit_p.h"
 #include "tooltip.h"
 #include <QTextDocument>
-#include <QLatin1Literal>
+#include <QStringBuilder>
 
 namespace qutim_sdk_0_3
 {
@@ -84,14 +84,14 @@ bool Conference::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QString text = QLatin1Literal("<p><strong>")
-					   % Qt::escape(title())
-					   % QLatin1Literal("</strong> &lt;")
-					   % id()
-					   % QLatin1Literal("&gt;</p>")
-					   % QLatin1Literal("<p>")
-					   % Qt::escape(topic())
-					   % QLatin1Literal("</p>");
+        QString text = QStringLiteral("<p><strong>")
+                % title().toHtmlEscaped()
+                % QStringLiteral("</strong> &lt;")
+                % id().toHtmlEscaped()
+                % QStringLiteral("&gt;</p>")
+                % QStringLiteral("<p>")
+                % topic().toHtmlEscaped()
+                % QStringLiteral("</p>");
 		event->addHtml(text, 90);
 	}
 	return ChatUnit::event(ev);

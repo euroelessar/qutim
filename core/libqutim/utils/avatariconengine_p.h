@@ -27,7 +27,7 @@
 #ifndef AVATARICONENGINE_P_H
 #define AVATARICONENGINE_P_H
 
-#include <QtGui/QIconEngineV2>
+#include <QIconEngine>
 
 namespace qutim_sdk_0_3
 {
@@ -35,7 +35,7 @@ namespace qutim_sdk_0_3
 /**
   @private
 */
-class AvatarIconEngine : public QIconEngineV2
+class AvatarIconEngine : public QIconEngine
 {
 public:
 	AvatarIconEngine(const QString &path,const QIcon &overlay);
@@ -44,6 +44,7 @@ public:
 	virtual QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
 	virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
 	virtual QString key() const;
+    virtual AvatarIconEngine *clone() const;
 private:
 	QString m_path;
 	QIcon m_overlay;

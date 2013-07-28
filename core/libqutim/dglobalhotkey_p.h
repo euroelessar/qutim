@@ -28,11 +28,12 @@
 
 #include <QObject>
 #include <QAbstractEventDispatcher>
+#include <QAbstractNativeEventFilter>
 #include <QKeySequence>
 #include <QMap>
 #include <QHash>
 
-class dGlobalHotKey : public QObject
+class dGlobalHotKey : public QObject, public QAbstractNativeEventFilter
 {
 	Q_OBJECT
 
@@ -41,14 +42,13 @@ public:
 	~dGlobalHotKey();
 
 	static bool eventFilter( void *e );
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
 	static dGlobalHotKey *instance();
 
 	bool shortcut( const QString &s, bool a = true );
 	quint32 id( const QString &s );
 
-	#if defined( Q_WS_X11 )
-		bool error;
-	#endif
+
 
 signals:
 	void hotKeyPressed( quint32 k );
@@ -58,7 +58,9 @@ private:
 
 	quint32 nativeModifiers( Qt::KeyboardModifiers m );
 	quint32 nativeKeycode( Qt::Key k );
-	static QAbstractEventDispatcher::EventFilter eventDispatcherFilter;
+#if defined( Q_WS_X11 )
+    bool error;
+#endif
 };
 
 #endif // DGLOBALHOTKEY_H

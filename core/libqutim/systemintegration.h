@@ -107,7 +107,5 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::ObjectGenerator*)
-
 #endif // SYSTEMINTEGRATION_H
 

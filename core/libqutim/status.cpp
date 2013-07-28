@@ -24,7 +24,11 @@
 ****************************************************************************/
 
 #include <QByteArray>
+
+#include "status.h"
+#include "dynamicpropertydata_p.h"
 #include "icon.h"
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -44,11 +48,12 @@ struct StatusHashKey
 };
 }
 
-uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
+template <>
+uint qHash<qutim_sdk_0_3::StatusHashKey>(const qutim_sdk_0_3::StatusHashKey &value, uint seed)
 {
 	// Simple hash algorithm
 	const uint p = 373;
-	uint h = 0;
+	uint h = seed;
 	const char *c = value.name;
 	while (*c)
 		h = h * p + *(c++);
@@ -56,11 +61,6 @@ uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
 	h = h * p + value.subtype;
 	return h;
 }
-
-#include "status.h"
-#include "dynamicpropertydata_p.h"
-#include "icon.h"
-#include <QDebug>
 
 typedef QHash<QString, QVariantHash> ExtendedStatus;
 Q_DECLARE_METATYPE(ExtendedStatus)
@@ -94,30 +94,33 @@ public:
 	void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
-	QVariant getChangeReason() const { return qVariantFromValue(changeReason); }
+	QVariant getChangeReason() const { return QVariant::fromValue(changeReason); }
 	void setChangeReason(const QVariant &val) { changeReason = val.value<Status::ChangeReason>(); }
-	QVariant getExtendedStatuses() const { return qVariantFromValue(extStatuses); }
-	void setExtendedStatuses(const QVariant &val) { extStatuses = qVariantValue<ExtendedStatus>(val); }
+	QVariant getExtendedStatuses() const { return QVariant::fromValue(extStatuses); }
+    void setExtendedStatuses(const QVariant &val) { extStatuses = val.value<ExtendedStatus>(); }
 
 	void generateName();
 };
 
-typedef QVector<QSharedDataPointer<StatusPrivate> > StatusPrivateList;
-
-static void init_list(StatusPrivateList &list)
+class StatusPrivateList : public QVector<QSharedDataPointer<StatusPrivate> >
 {
-	list.reserve(Status::Offline - Status::Connecting + 1);
-	for (int i = Status::Connecting; i <= Status::Offline; i++) {
-		Status::Type type = static_cast<Status::Type>(i);
-		QSharedDataPointer<StatusPrivate> d(new StatusPrivate);
-		d->type = type;
-		d->generateName();
-		d->icon = Status::createIcon(type);
-		list.append(d);
-	}
-}
+public:
+    StatusPrivateList()
+    {
+        reserve(Status::Offline - Status::Connecting + 1);
+        for (int i = Status::Connecting; i <= Status::Offline; i++) {
+            Status::Type type = static_cast<Status::Type>(i);
+            QSharedDataPointer<StatusPrivate> d(new StatusPrivate);
+            d->type = type;
+            d->generateName();
+            d->icon = Status::createIcon(type);
+            append(d);
+        }
+    }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusPrivateList, statusList, init_list(*x))
+};
+
+Q_GLOBAL_STATIC(StatusPrivateList, statusList)
 
 static QSharedDataPointer<StatusPrivate> get_status_private(Status::Type type)
 {
@@ -379,7 +382,7 @@ Status Status::createConnecting(const Status &status, const char *proto)
 		connecting = Status(Status::Connecting);
 		connecting.initIcon(QLatin1String(proto));
 	}
-	connecting.setProperty("connectingGoal", qVariantFromValue(status));
+	connecting.setProperty("connectingGoal", QVariant::fromValue(status));
 	return connecting;
 }
 

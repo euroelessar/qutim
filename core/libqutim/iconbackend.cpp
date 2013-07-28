@@ -32,19 +32,19 @@ IconBackend::IconBackend(const QString &name) : m_name(name)
 
 void IconBackend::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
 {
-	QIconEngineV2 *engine = currentIconEngine();
+	QIconEngine *engine = currentIconEngine();
 	engine->paint(painter, rect, mode, state);
 }
 
 QSize IconBackend::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-	QIconEngineV2 *engine = currentIconEngine();
+	QIconEngine *engine = currentIconEngine();
 	return engine->actualSize(size, mode, state);
 }
 
 QPixmap IconBackend::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-	QIconEngineV2 *engine = currentIconEngine();
+	QIconEngine *engine = currentIconEngine();
 	return engine->pixmap(size, mode, state);
 }
 
@@ -61,7 +61,7 @@ QString IconBackend::key() const
 	return QLatin1String("qutIM");
 }
 
-QIconEngineV2 *IconBackend::clone() const
+QIconEngine *IconBackend::clone() const
 {
 	IconBackend *icon = new IconBackend;
 	icon->m_name = m_name;
@@ -83,7 +83,7 @@ bool IconBackend::write(QDataStream &out) const
 
 void IconBackend::virtual_hook(int id, void *data)
 {
-	QIconEngineV2 *engine = currentIconEngine();
+	QIconEngine *engine = currentIconEngine();
 	return engine->virtual_hook(id, data);
 }
 

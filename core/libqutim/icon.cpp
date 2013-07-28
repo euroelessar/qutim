@@ -47,7 +47,7 @@ namespace qutim_sdk_0_3
 # define IconNameHook 2
 	struct IconPrivateHook
 	{
-		QIconEngineV2 *engine;
+		QIconEngine *engine;
 		QAtomicInt ref;
 		int serialNum;
 		int detach_no;

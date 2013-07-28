@@ -38,8 +38,8 @@ typedef void (*ShortcutHandler)(const QString &id, const QKeySequence &sequence)
 
 struct ShortcutSelf
 {
-	ShortcutSelf() : inited(false) {}
-	void init();
+	ShortcutSelf();
+
 	void updateSequence(const QString &id, const QKeySequence &secuence);
 	static void addUpdateHandler(ShortcutHandler handler);
 	static void removeUpdateHandler(ShortcutHandler handler);

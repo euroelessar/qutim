@@ -63,7 +63,12 @@ QSize AvatarIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::S
 
 QString AvatarIconEngine::key() const
 {
-	return QLatin1String("AvatarIconEngiixne");
+    return QLatin1String("AvatarIconEngiixne");
+}
+
+AvatarIconEngine *AvatarIconEngine::clone() const
+{
+    return new AvatarIconEngine(*this);
 }
 
 QPixmap AvatarIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)

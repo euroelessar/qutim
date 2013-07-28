@@ -30,7 +30,7 @@
 #include "extensionicon.h"
 #include "objectgenerator.h"
 #include <QMetaType>
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace qutim_sdk_0_3
 {

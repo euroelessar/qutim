@@ -229,7 +229,7 @@ inline QMenu *create_menu(MenuController *controller)
 	if (title.isEmpty())
 		title = controller->property("id").toString();
 	QMenu *menu = menu_creator_hook ? menu_creator_hook(title, 0) : new QMenu(title);
-	//menu->setProperty("menuController", qVariantFromValue(controller));
+	//menu->setProperty("menuController", QVariant::fromValue(controller));
 	return menu;
 }
 

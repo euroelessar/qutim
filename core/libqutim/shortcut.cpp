@@ -76,7 +76,7 @@ namespace qutim_sdk_0_3
 		}
 	}
 	
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, __self, x->init())
+	Q_GLOBAL_STATIC(ShortcutSelf, __self)
 	
 	ShortcutSelf *self()
 	{
@@ -95,7 +95,7 @@ namespace qutim_sdk_0_3
 		return me;
 	}
 	
-	void ShortcutSelf::init()
+    ShortcutSelf::ShortcutSelf() : inited(false)
 	{
 		struct _Info
 		{

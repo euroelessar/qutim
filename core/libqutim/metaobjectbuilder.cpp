@@ -70,36 +70,37 @@ static int ensureIndex(const QByteArray &name, QByteArray &data, QMap<QByteArray
 
 QMetaObject *MetaObjectBuilder::generate()
 {
-	Q_D(MetaObjectBuilder);
-	QMetaObject *meta = new QMetaObject;
-	meta->d.superdata = d->parent;
-	QByteArray stringdata;
-	QVector<uint> data(14, 0);
-	data[0] = 4; // revision
-	data[1] = 0; // classname
-	stringdata += d->name;
-	stringdata += '\0';
-	if (!d->classInfos.isEmpty()) {
-		data[2] = d->classInfos.count();
-		data[3] = data.size();
-		QMap<QByteArray, int> map;
-		for (int i = 0; i < d->classInfos.size(); i++) {
-			const QPair<QByteArray, QByteArray> &pair = d->classInfos.at(i);
-			data += ensureIndex(pair.second, stringdata, map);
-			data += ensureIndex(pair.first, stringdata, map);
-		}
-	}
-	data += 0; // eod
-	{
-		void *tmp1 = qMalloc(stringdata.size() + 1);
-		qMemCopy(tmp1, stringdata.constData(), stringdata.size() + 1);
-		meta->d.stringdata = reinterpret_cast<char*>(tmp1);
-		void *tmp2 = qMalloc(data.size() * sizeof(uint));
-		qMemCopy(tmp2, data.constData(), data.size() * sizeof(uint));
-		meta->d.data = reinterpret_cast<uint*>(tmp2);
-	}
-	meta->d.extradata = 0;
-	return meta;
+    return NULL;
+//	Q_D(MetaObjectBuilder);
+//	QMetaObject *meta = new QMetaObject;
+//	meta->d.superdata = d->parent;
+//	QByteArray stringdata;
+//	QVector<uint> data(14, 0);
+//	data[0] = 4; // revision
+//	data[1] = 0; // classname
+//	stringdata += d->name;
+//	stringdata += '\0';
+//	if (!d->classInfos.isEmpty()) {
+//		data[2] = d->classInfos.count();
+//		data[3] = data.size();
+//		QMap<QByteArray, int> map;
+//		for (int i = 0; i < d->classInfos.size(); i++) {
+//			const QPair<QByteArray, QByteArray> &pair = d->classInfos.at(i);
+//			data += ensureIndex(pair.second, stringdata, map);
+//			data += ensureIndex(pair.first, stringdata, map);
+//		}
+//	}
+//	data += 0; // eod
+//	{
+//		void *tmp1 = malloc(stringdata.size() + 1);
+//		memcpy(tmp1, stringdata.constData(), stringdata.size() + 1);
+//		meta->d.stringdata = reinterpret_cast<char*>(tmp1);
+//		void *tmp2 = malloc(data.size() * sizeof(uint));
+//		memcpy(tmp2, data.constData(), data.size() * sizeof(uint));
+//		meta->d.data = reinterpret_cast<uint*>(tmp2);
+//	}
+//	meta->d.extradata = 0;
+//	return meta;
 }
 
 const char *MetaObjectBuilder::info(const QMetaObject *meta, const char *name)

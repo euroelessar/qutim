@@ -39,19 +39,15 @@ struct IntegrationData
 {
 	QList<SystemIntegration*> integrations;
 	
-	void init();
+	IntegrationData();
+
 	template <typename T>
 	SystemIntegration *find(T type);
 };
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(IntegrationData, integrationData, x->init())
+Q_GLOBAL_STATIC(IntegrationData, integrationData)
 
-inline bool integrationLessThan(SystemIntegration *a, SystemIntegration *b)
-{
-	return a->priority() > b->priority();
-}
-
-void IntegrationData::init()
+IntegrationData::IntegrationData()
 {
 	integrations.append(new DefaultSystemIntegration);
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<SystemIntegration>()) {
@@ -63,7 +59,10 @@ void IntegrationData::init()
 			integrations.append(integration);
 		}
 	}
-	qSort(integrations.begin(), integrations.end(), integrationLessThan);
+    qSort(integrations.begin(), integrations.end(),
+          [] (SystemIntegration *a, SystemIntegration *b) {
+        return a->priority() > b->priority();
+    });
 }
 
 template <typename T>
@@ -171,22 +170,22 @@ void SystemIntegration::virtual_hook(int type, void *data)
 
 void SystemIntegration::show(QWidget *widget)
 {
-	process(ShowWidget, qVariantFromValue(widget));
+	process(ShowWidget, QVariant::fromValue(widget));
 }
 
 void SystemIntegration::open(QDialog *dialog)
 {
-	process(OpenDialog, qVariantFromValue<QWidget*>(dialog));
+	process(OpenDialog, QVariant::fromValue<QWidget*>(dialog));
 }
 
 void SystemIntegration::keepAlive(QAbstractSocket *socket)
 {
-	process(KeepAliveSocket, qVariantFromValue<QObject*>(socket));
+	process(KeepAliveSocket, QVariant::fromValue<QObject*>(socket));
 }
 
 ObjectGenerator *SystemIntegration::settingsGenerator(SettingsItem *item)
 {
-	QVariant result = process(GetSettingsGenerator, qVariantFromValue(item));
+	QVariant result = process(GetSettingsGenerator, QVariant::fromValue(item));
 	return result.value<ObjectGenerator*>();
 }
 

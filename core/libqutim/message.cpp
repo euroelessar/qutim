@@ -100,7 +100,7 @@ public:
 	QVariant getHtml() const {
 		if (html.isEmpty()) {
 			QString &mutableHtml = const_cast<QString&>(html);
-			mutableHtml = Qt::escape(text);
+			mutableHtml = text.toHtmlEscaped();
 			// keep leading whitespaces
 			mutableHtml.replace(QLatin1String("\n "), QLatin1String("<br/>&nbsp;"));
 			mutableHtml.replace(QLatin1Char('\n'), QLatin1String("<br/>"));

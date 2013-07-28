@@ -69,7 +69,7 @@ StatusActionGenerator::StatusActionGenerator(const Status &status) :
 QObject *StatusActionGenerator::generateHelper() const
 {
 	QAction *action = prepareAction(new QAction(NULL));
-	action->setProperty("status", qVariantFromValue(d_func()->status));
+	action->setProperty("status", QVariant::fromValue(d_func()->status));
 	return action;
 }
 }

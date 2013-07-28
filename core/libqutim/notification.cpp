@@ -394,7 +394,7 @@ NotificationRequest::NotificationRequest(const Message &msg) :
 		d_ptr->type = msg.isIncoming() ? Notification::IncomingMessage :
 										 Notification::OutgoingMessage;
 	}
-	setProperty("message", qVariantFromValue(msg));
+	setProperty("message", QVariant::fromValue(msg));
 }
 
 NotificationRequest::NotificationRequest(Notification::Type type) :
@@ -408,8 +408,8 @@ NotificationRequest::NotificationRequest(Buddy *buddy, const Status &status, con
 {
 	d_ptr->text = status.text();
 	d_ptr->object = buddy;
-	setProperty("status", qVariantFromValue(status));
-	setProperty("previousStatus", qVariantFromValue(previous));
+	setProperty("status", QVariant::fromValue(status));
+	setProperty("previousStatus", QVariant::fromValue(previous));
 
 	Status::Type statusType = status.type();
 	d_ptr->type = Notification::UserChangedStatus;

@@ -30,7 +30,8 @@
 # define K8JSON_INCLUDE_COMPLEX_GENERATOR
 #endif
 
-#include <k8json/k8json.h>
+#include "../3rdparty/k8json/k8json.h"
+//#include <k8json/k8json.h>
 #include <QMetaProperty>
 
 namespace qutim_sdk_0_3

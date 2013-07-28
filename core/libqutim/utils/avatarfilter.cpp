@@ -103,7 +103,12 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 		if (cropSize > d->defaultSize.width() * 2)
 			pixmap = pixmap.scaled(d->defaultSize * 2, d->mode, Qt::FastTransformation);
 		pixmap = pixmap.scaled(d->defaultSize, d->mode, Qt::SmoothTransformation);
-		pixmap.setAlphaChannel(alpha);
+        {
+//            pixmap.setAlphaChannel(alpha);
+            QImage image = pixmap.toImage();
+            image.setAlphaChannel(alpha.toImage());
+            pixmap = QPixmap::fromImage(image);
+        }
 		QPixmapCache::insert(key, pixmap);
 	}
 	painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);

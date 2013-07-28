@@ -26,14 +26,14 @@
 #ifndef ICONBACKEND_P_H
 #define ICONBACKEND_P_H
 
-#include <QIconEngineV2>
+#include <QIconEngine>
 
 struct IconPrivateHelper
 {
-	QIconEngineV2 *engine;
+	QIconEngine *engine;
 };
 
-class IconBackend : public QIconEngineV2
+class IconBackend : public QIconEngine
 {
 public:
 	IconBackend(const QString &name);
@@ -46,14 +46,14 @@ public:
 	virtual void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
 
 	virtual QString key() const;
-	virtual QIconEngineV2 *clone() const;
+	virtual QIconEngine *clone() const;
 	virtual bool read(QDataStream &in);
 	virtual bool write(QDataStream &out) const;
 	virtual void virtual_hook(int id, void *data);
 private:
 	inline const QIcon &currentIcon() { return m_theme_icon; }
 	// I really hope, that there will be no version 1 engine
-	inline QIconEngineV2 *currentIconEngine() { return reinterpret_cast<IconPrivateHelper *>(m_theme_icon.data_ptr())->engine; }
+	inline QIconEngine *currentIconEngine() { return reinterpret_cast<IconPrivateHelper *>(m_theme_icon.data_ptr())->engine; }
 	QString m_name;
 	QIcon   m_theme_icon;
 };

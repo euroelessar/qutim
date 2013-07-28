@@ -493,7 +493,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 				pluginPathsList << filename;
 #ifndef Q_OS_SYMBIAN
 				// Just don't load old plugins
-				typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
+				typedef const char * (*QutimPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
 #ifdef QUTIM_TEST_PERFOMANCE
 				QTime timer;

@@ -50,7 +50,7 @@ ExtensionInfo AccountCreationWizard::info() const
 
 void AccountCreationWizard::setInfo(const ExtensionInfo &info)
 {
-    setProperty("protocolinfo", qVariantFromValue(info));
+    setProperty("protocolinfo", QVariant::fromValue(info));
 }
 
 void AccountCreationWizard::virtual_hook(int id, void *data)

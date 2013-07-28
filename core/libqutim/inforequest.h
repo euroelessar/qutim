@@ -114,7 +114,7 @@ template <typename T>
 T InfoRequest::value(const QString &name, const T &def) const
 {
 	QVariant val = value(name);
-	return val.isNull() ? def : qVariantValue<T>(val);
+    return val.isNull() ? def : val.value<T>();
 }
 
 class LIBQUTIM_EXPORT InfoObserver : public QObject

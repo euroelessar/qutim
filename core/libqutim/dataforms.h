@@ -133,7 +133,7 @@ class DataItemPrivate;
   DataItem item("iconList", tr("Icon list"), qutimIcon);
   QList<QIcon> alternatives;
   alternatives << Icon("kopete") << Icon("pidgin") << qutimIcon << Icon("psi");
-  item.setProperty("alternatives", qVariantFromValue(alternatives));
+  item.setProperty("alternatives", QVariant::fromValue(alternatives));
   root << item;
  }
  root << DataItem("image", tr("Image"), Icon(QLatin1String("qutim")).pixmap(64));
@@ -164,7 +164,7 @@ class DataItemPrivate;
   titleAlternatives
 	<< tr("Title alternative 1")
 	<< tr("Title alternative 2");
-  item.setProperty("titleAlternatives", qVariantFromValue(titleAlternatives));
+  item.setProperty("titleAlternatives", QVariant::fromValue(titleAlternatives));
   root << item;
  }
  QWidget *widget = DataFormsBackend::instance()->get(root);

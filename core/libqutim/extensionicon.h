@@ -27,7 +27,7 @@
 #define EXTENSIONICON_H
 
 #include "libqutim_global.h"
-#include <QtGui/QIcon>
+#include <QIcon>
 #include <QtCore/QSharedData>
 #include <QMetaType>
 

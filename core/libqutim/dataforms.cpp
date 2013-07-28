@@ -27,6 +27,8 @@
 #include "objectgenerator.h"
 #include "servicemanager.h"
 
+#include <QValidator>
+
 Q_DECLARE_METATYPE(QList<QIcon>)
 Q_DECLARE_METATYPE(QList<QPixmap>)
 Q_DECLARE_METATYPE(QList<QImage>)
@@ -378,7 +380,7 @@ ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QStringLi
 }
 
 ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const LocalizedStringList &data) :
-	DataItem(title, qVariantFromValue(data))
+	DataItem(title, QVariant::fromValue(data))
 {
 }
 
@@ -433,7 +435,7 @@ ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QString &
 }
 
 ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const LocalizedString &data) :
-	DataItem(title, qVariantFromValue(data))
+	DataItem(title, QVariant::fromValue(data))
 {
 }
 
@@ -446,7 +448,7 @@ StringListDataItem::StringListDataItem(const QString &name, const LocalizedStrin
 
 StringListDataItem::StringListDataItem(const QString &name, const LocalizedString &title,
 									   const LocalizedStringList &data, int maxStringsCount) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
 	setProperty("maxStringsCount", maxStringsCount);
 }
@@ -472,7 +474,7 @@ IconDataItem::IconDataItem(const QString &name, const LocalizedString &title, co
 	DataItem(name, title, data)
 {
 	setProperty("imageSize", imageSize);
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 }
 
 ImageDataItem::ImageDataItem(const QString &name, const LocalizedString &title, const QImage &data,
@@ -480,7 +482,7 @@ ImageDataItem::ImageDataItem(const QString &name, const LocalizedString &title, 
 	DataItem(name, title, data)
 {
 	setProperty("imageSize", imageSize);
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 }
 
 PixmapDataItem::PixmapDataItem(const QString &name, const LocalizedString &title, const QPixmap &data,
@@ -488,7 +490,7 @@ PixmapDataItem::PixmapDataItem(const QString &name, const LocalizedString &title
 	DataItem(name, title, data)
 {
 	setProperty("imageSize", imageSize);
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 }
 
 StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
@@ -496,10 +498,10 @@ StringChooserDataItem::StringChooserDataItem(const QString &name, const Localize
 											 bool editable, QValidator *validator) :
 	DataItem(name, title, data)
 {
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 	setProperty("editable", editable);
 	if (validator)
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 }
 
 StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
@@ -507,32 +509,32 @@ StringChooserDataItem::StringChooserDataItem(const QString &name, const Localize
 											 bool editable, QRegExp validator) :
 	DataItem(name, title, data)
 {
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 	setProperty("editable", editable);
 	if (!validator.isEmpty())
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 }
 
 StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
 											 const LocalizedStringList &alternatives, const LocalizedString &data,
 											 bool editable, QValidator *validator) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 	setProperty("editable", editable);
 	if (validator)
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 }
 
 StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
 											 const LocalizedStringList &alternatives, const LocalizedString &data,
 											 bool editable, QRegExp validator) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
-	setProperty("alternatives", qVariantFromValue(alternatives));
+	setProperty("alternatives", QVariant::fromValue(alternatives));
 	setProperty("editable", editable);
 	if (!validator.isEmpty())
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 }
 
 MultiLineStringDataItem::MultiLineStringDataItem(const QString &name, const LocalizedString &title,
@@ -544,7 +546,7 @@ MultiLineStringDataItem::MultiLineStringDataItem(const QString &name, const Loca
 
 MultiLineStringDataItem::MultiLineStringDataItem(const QString &name, const LocalizedString &title,
 												 const LocalizedString &data) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
 	setProperty("multiline", true);
 }
@@ -554,7 +556,7 @@ StringDataItem::StringDataItem(const QString &name, const LocalizedString &title
 	DataItem(name, title, data)
 {
 	if (validator)
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 	setProperty("password", password);
 }
 
@@ -563,25 +565,25 @@ StringDataItem::StringDataItem(const QString &name, const LocalizedString &title
 	DataItem(name, title, data)
 {
 	if (!validator.isEmpty())
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 	setProperty("password", password);
 }
 
 StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
 							   const LocalizedString &data, QValidator *validator, bool password) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
 	if (validator)
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 	setProperty("password", password);
 }
 
 StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
 							   const LocalizedString &data, QRegExp validator, bool password) :
-	DataItem(name, title, qVariantFromValue(data))
+	DataItem(name, title, QVariant::fromValue(data))
 {
 	if (!validator.isEmpty())
-		setProperty("validator", qVariantFromValue(validator));
+		setProperty("validator", QVariant::fromValue(validator));
 	setProperty("password", password);
 }
 

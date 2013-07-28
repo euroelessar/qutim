@@ -4,7 +4,7 @@ import "./3rdPartyLibrary.qbs" as ThirdPartyLibrary
 ThirdPartyLibrary {
     name: "qtsolutions"
 
-    Depends { name: "qt"; submodules: [ 'core' ] }
+    Depends { name: "Qt"; submodules: [ 'core' ] }
 
     files: [
         "qtsolutions/qtlocalpeer.h",
@@ -14,11 +14,13 @@ ThirdPartyLibrary {
     ]
 
     Group {
-        condition: qbs.targetOs === "windows"
+        name: "Windows-specific"
+        condition: qbs.targetOS.contains("windows")
         files: "qtsolutions/qtlockedfile_win.cpp"
     }
     Group {
-        condition: qbs.targetOs === "unix"
+        name: "Unix-specific"
+        condition: qbs.targetOS.contains("unix")
         files: "qtsolutions/qtlockedfile_unix.cpp"
     }
 }

@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "profilelistwidget.h"
-#include <QtGui/QGridLayout>
-#include <QtGui/QSpacerItem>
+#include <QGridLayout>
+#include <QSpacerItem>
 
 namespace Core
 {

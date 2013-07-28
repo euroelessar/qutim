@@ -5,12 +5,11 @@ ThirdPartyLibrary {
     name: "qxt"
     sourcePath: "qxt"
 
-    Depends { name: "qt"; submodules: [ 'core' ] }
+    Depends { name: "Qt"; submodules: [ 'core' ] }
 
     cpp.defines: [ "QXT_STATIC" ]
 
-    ProductModule {
-        Depends { name: "cpp" }
+    Export {
         cpp.includePaths: [
             "qxt"
         ]

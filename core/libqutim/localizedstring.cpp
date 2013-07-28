@@ -54,25 +54,7 @@ namespace qutim_sdk_0_3
 	{
 		if (m_ctx.isEmpty())
 			return QString::fromUtf8(m_str);
-		return QCoreApplication::translate(m_ctx.constData(), m_str.constData(), 0, QCoreApplication::UnicodeUTF8);
-	}
-
-	QDataStream &operator<<(QDataStream &out, const LocalizedString &str)
-	{
-		out << 1;
-		out << str.m_ctx;
-		out << str.m_str;
-		return out;
-	}
-
-	QDataStream &operator>>(QDataStream &in, LocalizedString &str)
-	{
-		int ver = 1;
-		in >> ver;
-		Q_ASSERT(ver == 1);
-		in >> str.m_ctx;
-		in >> str.m_str;
-		return in;
+		return QCoreApplication::translate(m_ctx.constData(), m_str.constData());
 	}
 
 	struct StaticConstructor
@@ -82,5 +64,23 @@ namespace qutim_sdk_0_3
 			qRegisterMetaTypeStreamOperators<LocalizedString>("qutim_sdk_0_3::LocalizedString");
 		}
 	} staticConstructor;
+}
+
+QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::LocalizedString &str)
+{
+    out << str.context();
+    out << str.original();
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::LocalizedString &str)
+{
+    QByteArray context;
+    QByteArray original;
+    in >> context;
+    in >> original;
+    str.setContext(context);
+    str.setOriginal(original);
+    return in;
 }
 

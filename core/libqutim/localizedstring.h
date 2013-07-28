@@ -44,6 +44,13 @@
 # define QT_TRANSLATE_NOOP3_UTF8(scope,x,comment) qutim_sdk_0_3::LocalizedString(scope, x)
 #endif // NO_AUTOLOCALIZATION
 
+namespace qutim_sdk_0_3 {
+class LocalizedString;
+}
+
+QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::LocalizedString &str);
+QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::LocalizedString &str);
+
 namespace qutim_sdk_0_3
 {
 	class LIBQUTIM_EXPORT LocalizedString
@@ -73,8 +80,6 @@ namespace qutim_sdk_0_3
 		inline bool operator<=(const LocalizedString &s) const { return !operator>(s); }
 		inline bool operator>=(const LocalizedString &s) const { return !operator<(s); }
 	private:
-		friend QDataStream &operator<<(QDataStream &out, const LocalizedString &str);
-		friend QDataStream &operator>>(QDataStream &in, LocalizedString &str);
 		QByteArray m_ctx;
 		QByteArray m_str;
 	};

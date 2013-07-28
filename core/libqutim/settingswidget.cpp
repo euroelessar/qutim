@@ -204,7 +204,7 @@ const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *prop
 {
 	const QMetaObject *meta = widget->metaObject();
 	WidgetInfo info = { widget, NULL, QVariant(), false };
-	bool free_signal = false;
+    QByteArray signalCopy;
 	// Firstly try to search this widget in predefined classes
 	if (!signal && !property) {
 		for (int i = 0, size = sizeof(widget_infos) / sizeof(AbstractWidgetInfo*); i < size; i++) {
@@ -223,25 +223,19 @@ const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *prop
 				&& ((property && !qstrcmp(prop.name(), property))
 					|| (!property && prop.isUser()))) {
 				info.property = prop.name();
-				const char *sig = prop.notifySignal().signature();
-				int len = strlen(sig);
-				char *str = (char *)qMalloc(sizeof(char) * (len + 2));
-				str[0] = QSIGNAL_CODE;
-				qstrcpy(str + 1, sig);
-				signal = str;
-				free_signal = true;
+				signalCopy = prop.notifySignal().methodSignature();
+                signalCopy.prepend(QSIGNAL_CODE);
+                signal = signalCopy.constData();
 				break;
 			}
 		}
 	}
-	bool result(signal);
+	bool result = !!signal;
 	if (result) {
 		p->mapper->setMapping(widget, p->infos.size());
 		connect(widget, signal, p->mapper, SLOT(map()));
 		p->infos << info;
 	}
-	if (free_signal)
-		qFree((void *)signal);
 	return result ? info.property : 0;
 }
 

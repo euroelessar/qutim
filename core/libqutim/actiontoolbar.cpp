@@ -94,8 +94,8 @@ static SizeList init_style_map()
 	return list;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(SizeList, sizeMap, *x = init_size_map())
-Q_GLOBAL_STATIC_WITH_INITIALIZER(SizeList, styleMap, *x = init_style_map())
+Q_GLOBAL_STATIC_WITH_ARGS(SizeList, sizeMap, (init_size_map()))
+Q_GLOBAL_STATIC_WITH_ARGS(SizeList, styleMap, (init_style_map()))
 
 QActionGroup *ActionToolBarPrivate::fillMenu(QMenu *menu, SizeList *map, int current)
 {

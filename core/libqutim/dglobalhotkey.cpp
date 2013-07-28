@@ -25,6 +25,8 @@
 
 #include "dglobalhotkey_p.h"
 
+#include <QGuiApplication>
+
 #if defined( Q_WS_WIN )
 # include <qt_windows.h>
 # ifndef MOD_NOREPEAT
@@ -38,15 +40,14 @@
 #endif
 #include <cwchar>
 
-QAbstractEventDispatcher::EventFilter dGlobalHotKey::eventDispatcherFilter = 0;
-
 dGlobalHotKey::dGlobalHotKey()
 {
-	eventDispatcherFilter = QAbstractEventDispatcher::instance()->setEventFilter( eventFilter );
+    qApp->eventDispatcher()->installNativeEventFilter(this);
 }
 
 dGlobalHotKey::~dGlobalHotKey()
 {
+    qApp->eventDispatcher()->removeNativeEventFilter(this);
 }
 
 #if defined( Q_WS_X11 )
@@ -115,10 +116,15 @@ bool dGlobalHotKey::eventFilter( void *e )
 		//undefined OS
 		Q_UNUSED(e);
 #endif
-
-	if (eventDispatcherFilter)
-		return eventDispatcherFilter(e);
 	return false;
+}
+
+bool dGlobalHotKey::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(eventType);
+    Q_UNUSED(message);
+    Q_UNUSED(result);
+    return false;
 }
 
 Q_GLOBAL_STATIC(dGlobalHotKey, dGlobalHotKeySelf)
@@ -220,7 +226,7 @@ quint32 dGlobalHotKey::id( const QString &s )
 	quint32 key, mods;
 	native( s, key, mods );
 
-	return mods ^ key;
+    return mods ^ key;
 }
 
 #if defined( Q_WS_WIN )

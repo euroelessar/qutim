@@ -32,6 +32,7 @@
 #include <QLocale>
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QRect>
 #include <QDesktopWidget>
 
@@ -95,17 +96,19 @@ void StatisticsHelperPrivate::init()
 
 void StatisticsHelperPrivate::sendInfo()
 {
-	QUrl url(QLatin1String("http://qutim.org/stats"));
+    QUrl url(QStringLiteral("http://qutim.org/stats"));
+	QUrlQuery query;
 	Config config = Profile::instance()->config();
 	config.beginGroup(QLatin1String("statistics"));
-	url.addQueryItem(QLatin1String("api"), QString::number(2));
+	query.addQueryItem(QLatin1String("api"), QString::number(2));
 	QString id = config.value(QLatin1String("key"), QString());
 	if (!id.isEmpty())
-		url.addQueryItem(QLatin1String("key"), id);
+		query.addQueryItem(QLatin1String("key"), id);
 	for (QVariantMap::ConstIterator it = systemInfo.constBegin();
 	     it != systemInfo.constEnd(); ++it) {
-		url.addQueryItem(it.key(), it.value().toString());
+		query.addQueryItem(it.key(), it.value().toString());
 	}
+    url.setQuery(query);
 	QObject::connect(manager.get(QNetworkRequest(url)), SIGNAL(finished()),
 	                 q_func(), SLOT(_q_on_finished()));
 }
