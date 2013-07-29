@@ -114,7 +114,7 @@ bool ModifiableWidget::isExpandable()
 	QVariant data = m_def.data();
 	QVariant alt = m_def.property("alternatives");
 	bool isLineEdit = (data.canConvert(QVariant::String) && alt.canConvert(QVariant::StringList)) ||
-					  (qVariantCanConvert<LocalizedString>(data) && qVariantCanConvert<LocalizedStringList>(alt));
+            (data.canConvert<LocalizedString>() && alt.canConvert<LocalizedStringList>());
 	return isLineEdit && m_def.property("multiline", false);
 }
 

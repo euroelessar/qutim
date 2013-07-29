@@ -45,10 +45,9 @@ MobileSearchForm::MobileSearchForm(const QList<AbstractSearchFactory*> &factorie
 	ui.progressBar->setVisible(false);
 	ui.resultView->setModel(resultModel());
 	ui.resultView->setItemDelegate(new ItemDelegate(this));
-	ui.resultView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	ui.resultView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui.requestBox->setModel(requestsModel());
 
-	m_action->setSoftKeyRole(QAction::PositiveSoftKey);
 	m_action->setText(QT_TRANSLATE_NOOP("SearchForm","Search"));
 	ui.actionBox->addAction(m_action);
 
@@ -60,7 +59,6 @@ MobileSearchForm::MobileSearchForm(const QList<AbstractSearchFactory*> &factorie
 
 	//Symbian close button
 	QAction *action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 }

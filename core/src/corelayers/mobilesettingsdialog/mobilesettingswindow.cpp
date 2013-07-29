@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QScrollArea>
 #include <slidingstackedwidget.h>
 #include <qutim/actionbox.h>
 #include <qutim/debug.h>
@@ -86,12 +87,10 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 
 	p->actionBox = new ActionBox(this);
 	p->backAct = new QAction(tr("Back"),this);
-	p->backAct->setSoftKeyRole(QAction::PositiveSoftKey);
 	p->backAct->setVisible(false);
 	p->actionBox->addAction(p->backAct);
 
 	p->closeAct = new QAction(tr("Close"),this);
-	p->closeAct->setSoftKeyRole(QAction::NegativeSoftKey);
 #ifndef Q_OS_SYMBIAN
 	p->closeAct->setVisible(false);
 #endif

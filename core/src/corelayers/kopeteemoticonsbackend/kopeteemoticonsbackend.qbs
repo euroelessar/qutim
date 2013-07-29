@@ -3,5 +3,5 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     sourcePath: ''
 	
-	Depends { name: "qt.xml" }
+	Depends { name: "Qt.xml" }
 }

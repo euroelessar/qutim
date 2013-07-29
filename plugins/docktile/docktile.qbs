@@ -1,5 +1,5 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    Depends { name: "qtdocktile" }
+    Depends { name: "Qtdocktile" }
 }

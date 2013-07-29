@@ -12,7 +12,7 @@ Product {
     property bool installUbuntuTheme: qbs.targetOS === "linux"
     property string qutim_version: project.qutim_version
 
-    Depends { name: "qt.core" }
+    Depends { name: "Qt.core" }
     Depends { name: "artwork" }
     
     property string shareDir: artwork.shareDir

@@ -1,5 +1,6 @@
 import "../../../../core/Framework.qbs" as Framework
-import qbs.fileinfo 1.0 as FileInfo
+import qbs.FileInfo
+import qbs.TextFile
 
 Framework {
     name: "qutim-adiumchat"
@@ -7,8 +8,7 @@ Framework {
 
     Depends { name: "cpp" }
     Depends { name: "libqutim" }
-    Depends { name: "qt"; submodules: [ "core", "gui" ] }
-    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
+    Depends { name: "Qt"; submodules: [ "core", "gui", "widgets" ] }
 
     cpp.defines: "ADIUMCHAT_LIBRARY"
     cpp.visibility: 'hidden'

@@ -64,9 +64,9 @@ NotificationSettings::NotificationSettings(QWidget *parent) :
 	m_typesWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_typesWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	m_typesWidget->horizontalHeader()->setStretchLastSection(true);
-	m_typesWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	m_typesWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	m_typesWidget->horizontalHeader()->hide();
-	m_typesWidget->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	m_typesWidget->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	m_typesWidget->verticalHeader()->hide();
 
 	for (int i = 0; i <= Notification::LastType; ++i) {

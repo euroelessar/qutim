@@ -146,7 +146,7 @@ void MainWindow::addItems(DataItem items)
 
 		if (!avatarPath.isEmpty()) {
 			avatarWidget->setToolTip(QString::fromLatin1("<img src=\"%1\"/>")
-									 .arg(Qt::escape(avatarPath)));
+									 .arg(avatarPath.toHtmlEscaped()));
 		}
 
 		avatarWidget->setParent(this);
@@ -237,7 +237,7 @@ QString MainWindow::summary(const DataItem &items, bool *titlePrinted)
 				text += QString::fromLatin1("<a href='%1' title='%2' target='_blank'>%3</a>")
 						.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
 							 url.toString(),
-							 Qt::escape(url.toString()));
+							 url.toString().toHtmlEscaped());
 			} else {
 				text += str.replace(QRegExp("(\r\n|\n|\r)"), "<br>");
 			}

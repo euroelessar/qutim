@@ -67,7 +67,7 @@ void ServiceChooser::onButtonToggled(bool checked)
         return;
     QRadioButton *button = qobject_cast<QRadioButton*>(sender());
     Q_ASSERT(button && !button->objectName().isEmpty());
-    QByteArray newService = button->objectName().toAscii();
+    QByteArray newService = button->objectName().toUtf8();
     Q_ASSERT(m_buttons.contains(newService));
     emit serviceChanged(newService, m_currentService);
     m_currentService = newService;

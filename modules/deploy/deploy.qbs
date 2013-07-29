@@ -2,7 +2,7 @@ import qbs.base 1.0
 import qbs.fileinfo as FileInfo
 
 Module {
-    Depends { name: "qt.core" }
+    Depends { name: "Qt.core" }
 
     property string pluginPath: FileInfo.joinPaths(qt.core.libPath, "/../plugins/")
     property string application: product.name + ".app"

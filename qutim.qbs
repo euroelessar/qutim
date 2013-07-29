@@ -10,7 +10,18 @@ Project {
     property string qutim_version: qutim_version_major + '.' + qutim_version_minor + '.' + qutim_version_release + '.' + qutim_version_patch
     property bool declarativeUi: false
     property var additionalCppDefines: []
-    property string shareDir: ""
+    property string shareDir: {
+        if (qbs.targetOS.contains("mac"))
+            return "qutim.app/Contents/Resources/share";
+        else if (qbs.targetOS.contains("linux"))
+            return "share/apps/qutim";
+        else
+            return "share";
+    }
+    property var pluginTags: {
+        var tags = [ "desktop", "core" ];
+        return tags.concat(qbs.targetOS);
+    }
 
     property bool singleProfile: true
 

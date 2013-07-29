@@ -46,7 +46,6 @@ JoinPage::JoinPage(QWidget *parent) :
 
 	m_joinAction = new QAction(this);
 	m_joinAction->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
-	m_joinAction->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(m_joinAction,SIGNAL(triggered()),SLOT(join()));
 	addAction(m_joinAction);
 }

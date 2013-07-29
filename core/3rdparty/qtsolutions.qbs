@@ -2,7 +2,7 @@ import qbs.base 1.0
 import "./3rdPartyLibrary.qbs" as ThirdPartyLibrary
 
 ThirdPartyLibrary {
-    name: "qtsolutions"
+    name: "Qtsolutions"
 
     Depends { name: "Qt"; submodules: [ 'core' ] }
 

@@ -52,11 +52,14 @@ public:
 	QStringList tags() const;
 	QStringList filterTags() const;
 
+    QHash<int, QByteArray> roleNames() const;
+
 	virtual QStringList mimeTypes() const;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 							  int row, int column, const QModelIndex &parent);
-	virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::DropActions supportedDragActions() const;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 public slots:

@@ -5,8 +5,8 @@ UreenPlugin {
     pluginTags: ['experimental']
     sourcePath: '.'
 
-    Depends { name: "qt.declarative" }
-    Depends { name: "qt.opengl" }
+    Depends { name: "Qt.declarative" }
+    Depends { name: "Qt.opengl" }
     Depends { name: "adiumchat" }
     Depends { name: "artwork" }
 

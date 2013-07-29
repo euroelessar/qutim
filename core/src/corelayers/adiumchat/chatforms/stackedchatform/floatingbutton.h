@@ -26,8 +26,8 @@
 #ifndef FLOATINGBUTTON_H
 #define FLOATINGBUTTON_H
 
-#include <QtGui/qtoolbutton.h>
-#include <QtGui/qevent.h>
+#include <qtoolbutton.h>
+#include <qevent.h>
 #include <qutim/icon.h>
 
 namespace Core

@@ -106,7 +106,6 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_activated(QModelIndex)));
 
 	d->action = new QAction(tr("Insert Nick"),this);
-	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
 //	connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_insert_nick()));
 	addAction(d->action);
 

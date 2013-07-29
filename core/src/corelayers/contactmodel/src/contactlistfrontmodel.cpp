@@ -40,24 +40,8 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	for (QVariantMap::Iterator it = order.begin(); it != order.end(); ++it)
 		m_order[it.key()] = it.value().toStringList();
 
-	QHash<int, QByteArray> roleNames;
-	roleNames.insert(IdRole, "id");
-	roleNames.insert(Qt::DisplayRole, "title");
-	roleNames.insert(StatusIconNameRole, "statusIconName");
-	roleNames.insert(ContactsCountRole, "totalCount");
-	roleNames.insert(OnlineContactsCountRole, "onlineCount");
-	roleNames.insert(TagNameRole, "name");
-	roleNames.insert(NotificationRole, "notification");
-	roleNames.insert(ItemTypeRole, "itemType");
-	roleNames.insert(ContactRole, "contact");
-	roleNames.insert(AlphabetRole, "alphabet");
-	roleNames.insert(StatusTextRole, "subtitle");
-	roleNames.insert(AvatarRole, "avatar");
-	setRoleNames(roleNames);
-
 	setFilterCaseSensitivity(Qt::CaseInsensitive);
 	setSortCaseSensitivity(Qt::CaseInsensitive);
-	setSupportedDragActions(supportedDropActions());
 	sort(0);
 	setDynamicSortFilter(true);
 	onServiceChanged(m_model.name(), m_model, NULL);
@@ -90,7 +74,25 @@ QStringList ContactListFrontModel::tags() const
 
 QStringList ContactListFrontModel::filterTags() const
 {
-	return m_filterTags;
+    return m_filterTags;
+}
+
+QHash<int, QByteArray> ContactListFrontModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+	roleNames.insert(IdRole, "id");
+	roleNames.insert(Qt::DisplayRole, "title");
+	roleNames.insert(StatusIconNameRole, "statusIconName");
+	roleNames.insert(ContactsCountRole, "totalCount");
+	roleNames.insert(OnlineContactsCountRole, "onlineCount");
+	roleNames.insert(TagNameRole, "name");
+	roleNames.insert(NotificationRole, "notification");
+	roleNames.insert(ItemTypeRole, "itemType");
+	roleNames.insert(ContactRole, "contact");
+	roleNames.insert(AlphabetRole, "alphabet");
+	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
+	return roleNames;
 }
 
 QStringList ContactListFrontModel::mimeTypes() const
@@ -203,7 +205,12 @@ bool ContactListFrontModel::dropMimeData(const QMimeData *genericData, Qt::DropA
 
 Qt::DropActions ContactListFrontModel::supportedDropActions() const
 {
-	return Qt::CopyAction | Qt::MoveAction;
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+Qt::DropActions ContactListFrontModel::supportedDragActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
 }
 
 Qt::ItemFlags ContactListFrontModel::flags(const QModelIndex &index) const

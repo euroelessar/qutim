@@ -396,7 +396,7 @@ void ChatSessionImplPrivate::onResourceChosen(bool active)
 		return;
 	Q_ASSERT(qobject_cast<QAction*>(sender()));
 	QAction *action = reinterpret_cast<QAction*>(sender());
-	current_unit = qVariantValue<ChatUnit*>(action->data());
+    current_unit = action->data().value<ChatUnit*>();
 }
 
 void ChatSessionImplPrivate::onSendToLastActiveResourceActivated(bool active)

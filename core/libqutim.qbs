@@ -21,11 +21,10 @@ Framework {
     //Depends { name: "qutimscope" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
-    //Depends { name: "qtdwm" }
-    Depends { name: "qtsolutions" }
+    //Depends { name: "Qtdwm" }
+    Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative' ] }
-    Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor === 5 }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative', 'widgets' ] }
     Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
     Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
     //Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }

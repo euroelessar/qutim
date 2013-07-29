@@ -150,7 +150,6 @@ QAction *AbstractSearchForm::actionAt(int i)
 	m_actions << button;
 	button->setProperty("actionIndex", i);
 	int soft_key_role = m_currentRequest->actionData(i,Qt::UserRole).toInt();
-	button->setSoftKeyRole(soft_key_role ? static_cast<QAction::SoftKeyRole>(soft_key_role) : QAction::PositiveSoftKey); //FIXME
 	return button;
 }
 

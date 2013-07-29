@@ -1,12 +1,12 @@
 import "../../../../core/Framework.qbs" as Framework
-import qbs.fileinfo 1.0 as FileInfo
+import qbs.FileInfo
 
 Framework {
     name: "qutim-simplecontactlist"
 
     Depends { name: "cpp" }
     Depends { name: "libqutim" }
-    Depends { name: "qt"; submodules: [ "core", "gui" ] }
+    Depends { name: "Qt"; submodules: [ "core", "gui", "widgets" ] }
     Depends { name: "simplecontactlist-headers" }
 
     cpp.defines: "SIMPLECONTACTLIST_LIBRARY"

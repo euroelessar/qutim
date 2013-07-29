@@ -217,13 +217,13 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::Plugin::Capabilities)
 # define QUTIM_EXPORT_STRING_HELPER(ID) #ID
 # define QUTIM_EXPORT_STRING(ID) QUTIM_EXPORT_STRING_HELPER(ID)
 # define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
-    Q_EXPORT_PLUGIN2(Plugin,Class) \
+    /* Q_EXPORT_PLUGIN2(Plugin,Class) */ \
     static const char *qutim_plugin_verification_data = \
     "pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
 	"debugid=" QUTIM_EXPORT_STRING(QUTIM_PLUGIN_ID)"\n" \
 	"libqutim=" QUTIM_VERSION_STRING"\0"; \
     Q_EXTERN_C Q_DECL_EXPORT \
-    const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
+    const char *qutim_plugin_query_verification_data() \
 { return qutim_plugin_verification_data; }
 
 #define QUTIM_EXPORT_PLUGIN(Plugin) \

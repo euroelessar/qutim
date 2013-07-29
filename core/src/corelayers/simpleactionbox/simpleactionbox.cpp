@@ -54,10 +54,7 @@ void SimpleActionBoxModule::addAction(QAction *action)
 	connect(action,SIGNAL(changed()),SLOT(onChanged()));
 	connect(button,SIGNAL(destroyed(QObject*)),SLOT(onButtonDestroyed(QObject*)));
 	connect(action,SIGNAL(destroyed()),button,SLOT(deleteLater()));
-	if (action->softKeyRole() == QAction::NegativeSoftKey)
-		m_layout->insertWidget(0,button);
-	else
-		m_layout->addWidget(button);
+	m_layout->addWidget(button);
 	QWidget::addAction(action);
 }
 

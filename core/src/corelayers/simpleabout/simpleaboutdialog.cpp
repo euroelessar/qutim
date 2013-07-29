@@ -56,7 +56,7 @@ SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
 								"<div>qutIM resources such as themes, icons, sounds may come along with a "
 								"different license.</div><br><hr><br>");
 	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		license += Qt::escape(QLatin1String(licenseFile.readAll()));
+		license += QString::fromUtf8(licenseFile.readAll()).toHtmlEscaped();
 	} else {
 		license += QLatin1String("<a href=\"http://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>");
 	}
@@ -70,18 +70,18 @@ QString SimpleAboutDialog::toHtml(const QList<PersonInfo> &persons, bool useTask
 	for (int i = 0; i < persons.size(); i++) {
 		const PersonInfo &info = persons.at(i);
 		html += QLatin1String("<p><div><b>");
-		html += Qt::escape(info.name());
+		html += info.name().toString().toHtmlEscaped();
 		html += QLatin1String("</b>");
 		if (useTask) {
 			html += QLatin1String("</div><div>");
-			html += Qt::escape(info.task());
+			html += info.task().toString().toHtmlEscaped();
 		}
 		html += QLatin1String("</div>");
 		if (!info.email().isEmpty()) {
 			html += QLatin1String("<div><a href=\"mailto:\"");
-			html += Qt::escape(info.email());
+			html += info.email().toString().toHtmlEscaped();
 			html += QLatin1String("\">");
-			html += Qt::escape(info.email());
+			html += info.email().toString().toHtmlEscaped();
 			html += QLatin1String("</a></div>");
 		}
 		html += QLatin1String("</p>");

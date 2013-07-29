@@ -50,9 +50,9 @@ QPixmap variantToPixmap(const QVariant &data, const QSize &size)
 
 QStringList variantToStringList(const QVariant &data)
 {
-	QStringList list = qVariantValue<QStringList>(data);
+	QStringList list = data.toStringList();
 	if (list.isEmpty()) {
-		foreach (const LocalizedString &str, qVariantValue<LocalizedStringList>(data))
+		foreach (const LocalizedString &str, data.value<LocalizedStringList>())
 			list << str;
 	}
 	return list;

@@ -25,13 +25,14 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include <qutim/chatsession.h>
-#include <QtGui/QContextMenuEvent>
+#include <QContextMenuEvent>
 #include <QHeaderView>
 #include <qutim/icon.h>
 #include <qutim/config.h>
 #include <qutim/event.h>
 #include <QPainter>
 #include <QDebug>
+#include <QDrag>
 #include <QLabel>
 #include <QApplication>
 #include <qutim/systemintegration.h>

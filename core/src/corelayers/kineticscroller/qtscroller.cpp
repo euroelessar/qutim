@@ -42,7 +42,7 @@
 #include <QGraphicsView>
 #include <QDesktopWidget>
 #include <QtCore/qmath.h>
-#include <QtGui/qevent.h>
+#include <qevent.h>
 #include <qnumeric.h>
 
 // completely optional warning, but you can go nuts if you forget to set the scroll mode right

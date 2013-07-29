@@ -5,11 +5,10 @@ ThirdPartyLibrary {
 	name: "qxdg"
     sourcePath: "q-xdg/src"
 
-    Depends { name: "qt"; submodules: [ 'core' ] }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'widgets' ] }
 
     cpp.defines: [ "XDG_STATIC" ]
-	ProductModule {
-		Depends { name: "cpp" }
+	Export {
 		cpp.defines: [ "XDG_STATIC" ]
 	}
 }

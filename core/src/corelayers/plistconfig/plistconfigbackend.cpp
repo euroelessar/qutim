@@ -31,6 +31,7 @@
 #include <QTime>
 #include <QTextCodec>
 #include <QRect>
+#include <QDataStream>
 #include <qutim/debug.h>
 
 namespace Core

@@ -98,7 +98,6 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit) : m_unit(unit)
 	setWindowFlags(windowFlags() | Qt::Window);
 
 	QAction *action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 	SystemIntegration::show(this);
@@ -442,7 +441,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 						history_in = message.value(inStr, false).toBool();
 						historyMessage = message.value(htmlStr).toString();
 						if (historyMessage.isEmpty()) {
-							historyMessage = Qt::escape(message.value(textStr).toString()).
+							historyMessage = message.value(textStr).toString().toHtmlEscaped().
 											 replace(QLatin1String("\n"), QLatin1String("<br>"));
 						}
 						QVariant sender = message.value(senderNameStr, history_in ? from_nickname : account_nickname);

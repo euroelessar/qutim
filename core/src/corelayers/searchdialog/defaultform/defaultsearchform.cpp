@@ -44,7 +44,7 @@ DefaultSearchForm::DefaultSearchForm(const QList<AbstractSearchFactory*> &factor
     ui.updateServiceButton->setVisible(false);
     ui.progressBar->setVisible(false);
     ui.resultView->setModel(resultModel());
-    ui.resultView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    ui.resultView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.requestBox->setModel(requestsModel());
     connect(ui.searchButton, SIGNAL(clicked()), SLOT(startSearch()));
     connect(ui.cancelButton, SIGNAL(clicked()), SLOT(cancelSearch()));

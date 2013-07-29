@@ -27,7 +27,7 @@
 #ifndef HISTORYWINDOW_H
 #define HISTORYWINDOW_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QByteArray>
 #include <qutim/chatunit.h>
 #include "ui_historywindow.h"

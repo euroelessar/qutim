@@ -53,7 +53,6 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose);
-	setAttribute(Qt::WA_MergeSoftkeysRecursively);
 
 	connect(ui->stackedWidget, SIGNAL(currentChanged(int)),
 			SLOT(onCurrentChanged(int)));
@@ -68,11 +67,9 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 	ui->accountBox->setModel(new AccountsModel(this));
 
 	m_closeAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
-	m_closeAction->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(m_closeAction,SIGNAL(triggered()),SLOT(close()));
 
 	m_backAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Back"),this);
-	m_backAction->setSoftKeyRole(QAction::PositiveSoftKey);
 	ui->actionBox->addAction(m_backAction);
 	connect(m_backAction,SIGNAL(triggered()),SLOT(onBackActionTriggered()));
 

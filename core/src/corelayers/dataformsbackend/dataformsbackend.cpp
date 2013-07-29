@@ -175,7 +175,7 @@ void DefaultDataForm::keyPressEvent(QKeyEvent *e)
 		switch (e->key()) {
 		case Qt::Key_Enter:
 		case Qt::Key_Return: {
-			foreach (QPushButton *btn, qFindChildren<QPushButton*>(this)) {
+			foreach (QPushButton *btn, findChildren<QPushButton*>()) {
 				if (btn->isDefault() && btn->isVisible()) {
 					if (btn->isEnabled())
 						btn->click();

@@ -107,7 +107,7 @@ Label::Label(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
 		value = QString::fromLatin1("<a href='%1' title='%2' target='_blank'>%3</a>")
 				.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
 					 url.toString(),
-					 Qt::escape(url.toString()));
+					 url.toString().toHtmlEscaped());
 	} else if (type == QVariant::Bool) {
 		value = item.data().toBool() ?
 				QT_TRANSLATE_NOOP("DataForms", "yes") :

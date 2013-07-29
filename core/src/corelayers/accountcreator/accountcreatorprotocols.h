@@ -25,7 +25,7 @@
 #ifndef ACCOUNTCREATORPROTOCOLS_H
 #define ACCOUNTCREATORPROTOCOLS_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include <qutim/protocol.h>
 
 using namespace qutim_sdk_0_3;

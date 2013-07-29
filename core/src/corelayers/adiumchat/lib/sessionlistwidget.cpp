@@ -52,7 +52,6 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onActivated(QListWidgetItem*)));
 
 	d->action = new QAction(tr("Close chat"), this);
-	d->action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(d->action, SIGNAL(triggered()), this, SLOT(onCloseSessionTriggered()));
 	addAction(d->action);
 

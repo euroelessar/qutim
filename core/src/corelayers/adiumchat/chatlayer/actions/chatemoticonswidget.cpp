@@ -71,7 +71,6 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	new FlowLayout(w);
 
 	QAction *action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 

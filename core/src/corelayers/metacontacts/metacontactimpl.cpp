@@ -262,7 +262,7 @@ bool MetaContactImpl::event(QEvent* ev)
 			qApp->sendEvent(contact, &contactEvent);
 			QString text = contactEvent.html();
 			if (!text.isEmpty())
-				event->addHtml(QLatin1Literal("<br/><br/>") % text);
+				event->addHtml(QStringLiteral("<br/><br/>") + text);
 		}
 		return true;
 	} else if(ev->type() == ChatStateEvent::eventType()) {

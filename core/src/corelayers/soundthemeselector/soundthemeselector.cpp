@@ -118,7 +118,7 @@ void SoundThemeSelector::fillModel(const SoundTheme &theme)
 
 		m_model->appendRow(items);
 	}
-	ui->treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui->treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
 void SoundThemeSelector::onClicked(const QModelIndex &index)

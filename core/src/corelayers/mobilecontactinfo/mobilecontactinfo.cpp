@@ -44,8 +44,6 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 	request(0),
 	actionBox(new ActionBox(this))
 {
-	setAttribute(Qt::WA_MergeSoftkeysRecursively);
-
 	scrollArea = new QScrollArea(this);
 	scrollArea->setWidgetResizable(true);
 	scrollArea->setFrameShape(QFrame::NoFrame);
@@ -61,16 +59,13 @@ MobileContactInfoWindow::MobileContactInfoWindow(QWidget *parent) :
 
 	QAction *action = new QAction(tr("Request details"), actionBox);
 	connect(action, SIGNAL(triggered()), SLOT(onRequestButton()));
-	action->setSoftKeyRole(QAction::PositiveSoftKey);
 	actionBox->addAction(action);
 	saveAction = new QAction(tr("Save"), actionBox);
-	saveAction->setSoftKeyRole(QAction::PositiveSoftKey);
 	connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
 	actionBox->addAction(saveAction);
 
 	//Symbian close button
 	action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 }

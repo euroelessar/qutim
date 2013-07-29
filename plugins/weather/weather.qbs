@@ -1,5 +1,5 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    Depends { name: "qt.xml" }
+    Depends { name: "Qt.xml" }
 }

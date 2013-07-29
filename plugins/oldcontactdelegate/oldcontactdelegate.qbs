@@ -5,7 +5,7 @@ UreenPlugin {
     type: ['installed_content', 'dynamiclibrary']
 
     Depends { name: "qutim-simplecontactlist" }
-    Depends { name: "qt.xml" }
+    Depends { name: "Qt.xml" }
     Depends { name: "artwork" }
 
     cpp.includePaths: [
