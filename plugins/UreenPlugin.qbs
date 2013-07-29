@@ -76,10 +76,15 @@ Product {
         fileTags: [ "pluginTemplate" ]
         files: '*.plugin.json'
     }
+    Group {
+        fileTags: [ "pluginCppTemplate" ]
+        files: [ templateFilePath ]
+    }
 
     Rule {
         inputs: ["pluginTemplate"]
         multiplex: true
+        explicitlyDependsOn: [ "pluginCppTemplate" ]
 
         Artifact {
             fileTags: [ "cpp", "moc_cpp" ]

@@ -45,10 +45,12 @@
 #include <QSplitter>
 #include <qutim/shortcut.h>
 #include <QToolButton>
+#include <QScrollArea>
 #include <slidingstackedwidget.h>
 #include <qutim/servicemanager.h>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QMenuBar>
 
 #ifdef Q_WS_MAEMO_5
 #include <kb_qwerty.h>

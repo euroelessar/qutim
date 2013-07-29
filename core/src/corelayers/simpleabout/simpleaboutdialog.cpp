@@ -79,9 +79,9 @@ QString SimpleAboutDialog::toHtml(const QList<PersonInfo> &persons, bool useTask
 		html += QLatin1String("</div>");
 		if (!info.email().isEmpty()) {
 			html += QLatin1String("<div><a href=\"mailto:\"");
-			html += info.email().toString().toHtmlEscaped();
+			html += info.email().toHtmlEscaped();
 			html += QLatin1String("\">");
-			html += info.email().toString().toHtmlEscaped();
+			html += info.email().toHtmlEscaped();
 			html += QLatin1String("</a></div>");
 		}
 		html += QLatin1String("</p>");
