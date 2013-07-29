@@ -3,7 +3,7 @@
 	url = git://github.com/euroelessar/qutim-translations.git
 [submodule "3rdparty/q-xdg"]
 	path = core/3rdparty/q-xdg
-	url = git://gitorious.org/+qutim-developers/q-xdg/qutim-developers-q-xdg.git
+	url = git://github.com/euroelessar/q-xdg.git
 [submodule "3rdparty/k8json"]
 	path = core/3rdparty/k8json
 	url = git://gitorious.org/+qutim-developers/k8jsonqt/qutim-developers-k8json.git

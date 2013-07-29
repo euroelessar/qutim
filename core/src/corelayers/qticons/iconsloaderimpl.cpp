@@ -25,6 +25,7 @@
 
 #include "iconsloaderimpl.h"
 #include <qutim/configbase.h>
+#include "../../../3rdparty/q-xdg/src/xdgiconmanager.h"
 #include <qutim/systeminfo.h>
 #include <qutim/debug.h>
 #include <QFormLayout>
@@ -55,7 +56,6 @@ void IconLoaderSettings::loadImpl()
 {
 	m_box->clear();
 	m_index = -1;
-    foreach (const QString QIcon::themeSearchPaths()
 	QString themeId = Config().group("appearance").value("theme", QUTIM_DEFAULT_ICON_THEME);
 	foreach (const QString &id, iconManager()->themeIds(false)) {
 		const XdgIconTheme *theme = iconManager()->themeById(id);

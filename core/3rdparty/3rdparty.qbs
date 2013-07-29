@@ -7,6 +7,7 @@ Project {
         "k8json/k8json.qbs",
         "qxt.qbs",
         "qtsolutions.qbs",
-        "qtdwm.qbs"
+        "qtdwm.qbs",
+        "qxdg.qbs"
     ]
 }
