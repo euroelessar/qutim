@@ -134,7 +134,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 			statusCfg.beginGroup("capabilities");
 			foreach (const QString &type, statusCfg.childKeys()) {
 				Capability cap(statusCfg.value("subtype", QString()));
-				lastStatus.setCapability(cap, type);
+				lastStatus.setCapability(type, cap);
 			}
 			statusCfg.endGroup();
 			d->lastStatus = lastStatus;

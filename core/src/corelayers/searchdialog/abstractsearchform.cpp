@@ -149,7 +149,6 @@ QAction *AbstractSearchForm::actionAt(int i)
 	QAction *button = new QAction(icon, text,this);
 	m_actions << button;
 	button->setProperty("actionIndex", i);
-	int soft_key_role = m_currentRequest->actionData(i,Qt::UserRole).toInt();
 	return button;
 }
 

@@ -82,7 +82,7 @@ private:
 	QString getDistId() const;
 	QString getClientName() const;
 	QString generateLanguage();
-	QByteArray generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url);
+	QByteArray generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url, const QUrlQuery &query);
 	
 	IcqAccount *m_account;
 	State m_state;

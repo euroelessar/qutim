@@ -205,7 +205,7 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
 //#if OSCAR_SSL_SUPPORT
-	d->socket->setProtocol(QSsl::TlsV1);
+	d->socket->setProtocol(QSsl::AnyProtocol);
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
 //#endif
 	d->account = account;

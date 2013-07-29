@@ -24,6 +24,7 @@ Project {
     }
 
     property bool singleProfile: true
+    moduleSearchPaths: "modules"
 
     references: [
         "core/3rdparty/3rdparty.qbs",

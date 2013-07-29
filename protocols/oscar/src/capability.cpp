@@ -123,7 +123,7 @@ QByteArray Capability::data() const
 		if (len > 6) { \
 			qToBigEndian((capability)->data3, buffer + 6); \
 			if (len > 8) { \
-				qMemCopy(buffer + 8, (capability)->data4, len - 8); \
+				memcpy(buffer + 8, (capability)->data4, len - 8); \
 			} \
 		} \
 	}

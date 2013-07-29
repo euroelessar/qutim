@@ -4,6 +4,8 @@ Project {
     name: "Protocols"
 
     references: [
-        "jabber/jabber.qbs"
+        "jabber/jabber.qbs",
+        "oscar/oscar.qbs",
+        "irc/irc.qbs"
     ]
 }

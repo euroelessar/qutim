@@ -100,26 +100,16 @@ void SlidingStackedWidget::slideInPrev() {
 void SlidingStackedWidget::slideInIdx(int idx, SlideDirection direction) {
 	//int idx, t_direction direction=Automatic
 
-	int offset = 0;
-
 	if (idx>count()-1) {
 		direction=m_vertical ? TopToBottom : RightToLeft;
 		idx = (idx) % count();
-		offset = -1;
 	}
 	else if (idx<0) {
 		direction= m_vertical ? BottomToTop: LeftToRight;
 		idx = (idx+count()) % count();
-		offset = 1;
 	}
 
-	//	QWidget *nextWidget = widget(idx);
-	//	if (!nextWidget || !nextWidget->isEnabled()){
-	//		slideInIdx(idx+offset);
-	//	}
-	//	else
 	slideInWgt(widget(idx),direction);
-	//widget() is a function inherited from QStackedWidget
 }
 
 

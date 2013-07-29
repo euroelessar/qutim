@@ -5,6 +5,7 @@ Project {
 
     references: [
         "libqutim.qbs",
-        "qutim.qbs"
+        "qutim.qbs",
+        "artwork.qbs"
     ]
 }

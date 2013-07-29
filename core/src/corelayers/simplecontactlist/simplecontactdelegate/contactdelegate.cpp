@@ -30,7 +30,7 @@
 #include <QTreeView>
 #include <qutim/avatarfilter.h>
 #include <QPainter>
-#include <QLatin1Literal>
+#include <QStringBuilder>
 #include <qutim/config.h>
 #include <qutim/settingslayer.h>
 #include "settings/simplecontactlistsettings.h"

@@ -1,5 +1,6 @@
 import "../../../../core/Framework.qbs" as Framework
 import qbs.FileInfo
+import qbs.TextFile
 
 Framework {
     name: "qutim-simplecontactlist"

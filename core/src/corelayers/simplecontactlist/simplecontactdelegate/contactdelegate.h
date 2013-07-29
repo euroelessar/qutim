@@ -60,6 +60,7 @@ struct ContactDelegatePrivate;
 class ContactDelegatePlugin: public Plugin
 {
 	Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName", "ContactDelegate")
 public:
 	ContactDelegatePlugin();

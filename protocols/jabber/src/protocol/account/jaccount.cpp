@@ -90,6 +90,16 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
+    // FIXME: Return GPG support
+    {
+        Presence::Type type = JStatus::statusToPresence(status);
+        client->setPresence(type, status.text(), priority);
+        const Presence presence = client->presence();
+        // We need this for peps
+        Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
+        client->send(copy);
+        q->conferenceManager()->setPresenceToRooms(presence);
+    }
 //	JPGPSupport::instance()->send(q, status, priority);
 	q->setAccountStatus(status);
 }

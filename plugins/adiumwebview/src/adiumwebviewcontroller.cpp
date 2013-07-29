@@ -477,7 +477,7 @@ void WebViewController::onContentsChanged()
 
 void WebViewController::onObjectCleared()
 {
-	mainFrame()->addToJavaScriptWindowObject(QLatin1String("client"), this, QScriptEngine::QtOwnership);
+	mainFrame()->addToJavaScriptWindowObject(QStringLiteral("client"), this, QWebFrame::QtOwnership);
 }
 
 void WebViewController::onLinkClicked(const QUrl &url)

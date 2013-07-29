@@ -35,6 +35,7 @@ namespace irc {
 class IrcPlugin: public Plugin
 {
 	Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName", "IRС")
 public:
 	IrcPlugin();

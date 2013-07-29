@@ -35,6 +35,7 @@ class JPlugin : public Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "Jabber")
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	JPlugin();
 	void init();

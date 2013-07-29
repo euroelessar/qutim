@@ -389,12 +389,14 @@ void JRoster::onNewMessage(Jreen::Message message)
 			chatUnit = contact;
 		unitForSession = contact;
 	}
+
+    Q_UNUSED(unitForSession);
 	
 //	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
 //		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
 //		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
 //	} else {
-//		onMessageDecrypted(unitForSession, chatUnit, message);
+		onMessageDecrypted(unitForSession, chatUnit, message);
 //	}
 }
 

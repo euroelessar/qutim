@@ -75,7 +75,7 @@ public:
 	BlurBehindManager(QWidget *w, const DWM_BLURBEHIND *bbStruct)
 		: BlurManager(w)
 	{
-		qMemCopy(&BlurBehindStruct, bbStruct, sizeof(DWM_BLURBEHIND));
+		memcpy(&BlurBehindStruct, bbStruct, sizeof(DWM_BLURBEHIND));
 		if (BlurBehindStruct.hRgnBlur)
 			CombineRgn(BlurBehindStruct.hRgnBlur, bbStruct->hRgnBlur, NULL, RGN_COPY);
 	}
@@ -100,7 +100,7 @@ public:
 	ExtendedFrameManager(QWidget *w, MARGINS *m)
 		: BlurManager(w)
 	{
-		qMemCopy(&margins, m, sizeof(MARGINS));
+		memcpy(&margins, m, sizeof(MARGINS));
 	}
 
 	virtual void reenable()

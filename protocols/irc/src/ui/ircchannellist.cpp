@@ -131,8 +131,8 @@ void ChannelsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
 						  const QModelIndex &index) const
 {
 	QVariant data = index.data();
-	if (qVariantCanConvert<QTextDocument *>(data)) {
-		QTextDocument *textDocument = qVariantValue<QTextDocument *>(data);
+	if (data.canConvert<QTextDocument *>()) {
+        QTextDocument *textDocument = data.value<QTextDocument *>();
 		QStyleOptionViewItemV4 option(opt);
 		QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 		painter->save();

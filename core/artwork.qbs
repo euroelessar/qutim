@@ -1,5 +1,7 @@
-import qbs.base 1.0
-import qbs.fileinfo as FileInfo
+import qbs.base
+import qbs.FileInfo
+import qbs.File
+import qbs.TextFile
 
 Product {
     type: "installed_content"
@@ -135,7 +137,7 @@ Product {
         condition: qbs.targetOS === "mac"
         fileTags: [ "install" ]
         qbs.installDir: "qutim.app/Contents/Resources/qt_menu.nib/"
-        prefix: qt.core.libPath + '/QtGui' + qt.core.libInfix + '.framework/Versions/' + qt.core.versionMajor + '/Resources/qt_menu.nib/'
+        prefix: Qt.core.libPath + '/QtGui' + Qt.core.libInfix + '.framework/Versions/' + Qt.core.versionMajor + '/Resources/qt_menu.nib/'
         files: '*.nib'
     }
 

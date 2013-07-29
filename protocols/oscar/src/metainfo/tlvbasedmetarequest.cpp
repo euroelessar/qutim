@@ -53,7 +53,7 @@ void TlvBasedMetaRequestPrivate::addField(quint16 id, MetaFieldEnum value, DataU
 {
 	if (!test || values.contains(value)) {
 		DataUnit tlv;
-		tlv.append(qVariantValue<T>(values.value(value)), LittleEndian);
+        tlv.append(values.value(value).value<T>(), LittleEndian);
 		data.appendTLV(id, tlv, LittleEndian);
 	}
 }

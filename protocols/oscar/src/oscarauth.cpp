@@ -33,21 +33,13 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#if defined(OSCAR_USE_3RDPARTY_HMAC)
-#ifdef Q_OS_HAIKU
-# define SHA2_TYPES
-#endif
-# include "../3rdparty/hmac/hmac_sha2.h"
-#elif defined(OSCAR_USE_QCA2)
-# include <QtCrypto>
-#else
-# error Oscar authorization module depends on hmac-sha256 support
-#endif
+#include <QUrlQuery>
+#include <QMessageAuthenticationCode>
 
 #define QUTIM_DEV_ID QLatin1String("ic1wrNpw38UenMs8")
 #define ICQ_LOGIN_URL "https://api.login.icq.net/auth/clientLogin"
 #define ICQ_START_SESSION_URL "http://api.icq.net/aim/startOSCARSession"
-#define DEBUG() if (!(*isDebug())) {} else debug()
+#define DEBUG() if (!(*isDebug())) {} else qDebug()
 
 
 namespace qutim_sdk_0_3 {
@@ -169,14 +161,6 @@ QVariantMap OscarResponse::rawResult() const
 OscarAuth::OscarAuth(IcqAccount *account) :
     QObject(account), m_account(account), m_state(Invalid)
 {
-#if defined(OSCAR_USE_QCA2)
-	static bool qcaInited = false;
-	if (!qcaInited) {
-		qcaInited = true;
-		QCA::init();
-		QCA::setAppName("qutim");
-	}
-#endif
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
 	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
@@ -194,14 +178,6 @@ void OscarAuth::setProxy(const QNetworkProxy &proxy)
 
 void OscarAuth::login()
 {
-#if defined(OSCAR_USE_QCA2)
-	if (!QCA::isSupported("hmac(sha256)")) {
-		critical(DebugVeryVerbose) << "HMAC-SHA1 feature for QCA is not found. Try to install qca2-plugin-ossl";
-		emit error(AbstractConnection::InternalClientError);
-		deleteLater();
-		return;
-	}
-#endif
 	Config cfg = m_account->config(QLatin1String("general"));
 	QVariantMap token = cfg.value(QLatin1String("token"), QVariantMap(), Config::Crypted);
 	if (!token.isEmpty()) {
@@ -237,22 +213,9 @@ void OscarAuth::onPasswordDialogFinished(int result)
 
 static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 {
-#if defined(OSCAR_USE_3RDPARTY_HMAC)
-	QByteArray mac(SHA256_DIGEST_SIZE, 0);
-	hmac_sha256(reinterpret_cast<unsigned char*>(const_cast<char*>(sessionSecret.data())),
-				sessionSecret.length(),
-				reinterpret_cast<unsigned char*>(const_cast<char*>(array.data())),
-				array.length(),
-				reinterpret_cast<unsigned char*>(mac.data()),
-				mac.size());
-	return mac.toBase64();
-#elif defined(OSCAR_USE_QCA2)
-	QCA::MessageAuthenticationCode hash(QLatin1String("hmac(sha256)"), sessionSecret);
-	hash.update(array);
-	return hash.final().toByteArray().toBase64();
-#else
-# error Oscar authorization module depends on hmac-sha256 support
-#endif
+    QMessageAuthenticationCode code(QCryptographicHash::Sha256, sessionSecret);
+    code.addData(array);
+    return code.result().toBase64();
 }
 
 static QByteArray paranoicEscape(const QByteArray &raw)
@@ -272,19 +235,19 @@ static QByteArray paranoicEscape(const QByteArray &raw)
 void OscarAuth::clientLogin(bool longTerm)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
-	url.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addQueryItem(QLatin1String("s"), m_account->id());
-	url.addQueryItem(QLatin1String("language"), generateLanguage());
-	url.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
+    QUrlQuery urlQuery;
+	urlQuery.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
+	urlQuery.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	urlQuery.addQueryItem(QLatin1String("s"), m_account->id());
+	urlQuery.addQueryItem(QLatin1String("language"), generateLanguage());
+	urlQuery.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
 	// FIXME: Sometimes passwords are cp-1251 (or any other windows-scpecific local encoding) encoded
-	url.addEncodedQueryItem("pwd", paranoicEscape(m_password.toUtf8()));
-	url.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
-	url.addQueryItem(QLatin1String("clientName"), getClientName());
-	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	QByteArray query = url.encodedQuery();
-	url.setEncodedQuery(QByteArray());
-	DEBUG() << Q_FUNC_INFO << url << query;
+	urlQuery.addQueryItem("pwd", m_password);
+	urlQuery.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
+	urlQuery.addQueryItem(QLatin1String("clientName"), getClientName());
+	urlQuery.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
+	QByteArray query = urlQuery.toString(QUrl::FullyEncoded).toLatin1();
+	DEBUG() << Q_FUNC_INFO << urlQuery.toString() << query;
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *reply = m_manager.post(request, query);
@@ -336,26 +299,28 @@ void OscarAuth::onClientLoginFinished()
 void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionKey)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_START_SESSION_URL);
-	url.addEncodedQueryItem("a", token.toPercentEncoding());
-	url.addQueryItem(QLatin1String("distId"), getDistId());
-	url.addQueryItem(QLatin1String("f"), QLatin1String("json"));
-	url.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
+    QUrlQuery query;
+	query.addQueryItem("a", QString::fromLatin1(token));
+	query.addQueryItem(QLatin1String("distId"), getDistId());
+	query.addQueryItem(QLatin1String("f"), QLatin1String("json"));
+	query.addQueryItem(QLatin1String("k"), QUTIM_DEV_ID);
 	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
 		localTime += cfg.value(QLatin1String("hostTimeDelta"), 0);
 	}
-	url.addQueryItem(QLatin1String("ts"), QString::number(localTime));
+	query.addQueryItem(QLatin1String("ts"), QString::number(localTime));
 //	Some strange error at ICQ servers. I receive "Parameter error" if it is set
 //	url.addQueryItem(QLatin1String("language"), generateLanguage());
-	url.addQueryItem(QLatin1String("majorVersion"), QString::number(versionMajor()));
-	url.addQueryItem(QLatin1String("minorVersion"), QString::number(versionMinor()));
-	url.addQueryItem(QLatin1String("pointVersion"), QLatin1String("0"));
-	url.addQueryItem(QLatin1String("clientName"), getClientName());
-	url.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
-	url.addEncodedQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "1" : "0");
-	url.addEncodedQueryItem("sig_sha256", generateSignature("GET", sessionKey, url));
-	DEBUG() << url.toEncoded();
+	query.addQueryItem(QLatin1String("majorVersion"), QString::number(versionMajor()));
+	query.addQueryItem(QLatin1String("minorVersion"), QString::number(versionMinor()));
+	query.addQueryItem(QLatin1String("pointVersion"), QLatin1String("0"));
+	query.addQueryItem(QLatin1String("clientName"), getClientName());
+	query.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
+	query.addQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "1" : "0");
+	query.addQueryItem("sig_sha256", QString::fromLatin1(generateSignature("GET", sessionKey, url, query)));
+	DEBUG() << query.toString(QUrl::FullyEncoded);
+    url.setQuery(query);
 	QNetworkRequest request(url);
 	//	Some strange error at ICQ servers. I receive "Parameter error" if it is set no anything else
 	request.setRawHeader("Accept-Language", generateLanguage().toLatin1());
@@ -474,9 +439,9 @@ QString OscarAuth::generateLanguage()
 		return QLatin1String("en-us");
 }
 
-QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url)
+QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url, const QUrlQuery &query)
 {
-	QList<QPair<QString, QString> > items = url.queryItems();
+    QList<QPair<QString, QString> > items = query.queryItems(QUrl::FullyDecoded);
 	qSort(items);
 	QByteArray array = method;
 	array += '&';
@@ -494,6 +459,8 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 	}
 	str.chop(1);
 	array += QUrl::toPercentEncoding(str, QByteArray(), "&=");
+
+    DEBUG() << "signature" << array;
 
 	return sha256hmac(array, sessionSecret);
 }

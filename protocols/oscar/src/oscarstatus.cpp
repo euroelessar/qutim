@@ -33,8 +33,9 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-static void init_status_list(OscarStatusList &list)
+static OscarStatusList init_status_list()
 {
+    OscarStatusList list;
 	list.insert(OscarStatusData(OscarAway, Status::Away));
 	list.insert(OscarStatusData(OscarInvisible, Status::Invisible));
 	list.insert(OscarStatusData(OscarDND, Status::DND));
@@ -48,8 +49,9 @@ static void init_status_list(OscarStatusList &list)
 								QT_TRANSLATE_NOOP("Status", "Busy")));
 	foreach (const OscarStatusData &data, list)
 		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
+    return list;
 }
-Q_GLOBAL_STATIC_WITH_INITIALIZER(OscarStatusList, statusList, init_status_list(*x));
+Q_GLOBAL_STATIC_WITH_ARGS(OscarStatusList, statusList, (init_status_list()))
 
 void OscarStatusList::insert(const OscarStatusData &data)
 {

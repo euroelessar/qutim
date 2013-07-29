@@ -218,7 +218,7 @@ QString IrcProtocol::ircFormatToHtml(const QString &msg_helper)
 	// \026 italic
 	// \017 normal
 	// \003xx,xx color
-	QString msg = Qt::escape(msg_helper);
+	QString msg = msg_helper.toHtmlEscaped();
 	QString result;
 	result.reserve(msg.size() + 20);
 	QStringList resettingTags; // list of tags for resetting format

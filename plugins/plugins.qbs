@@ -4,5 +4,6 @@ Project {
     name: "Plugins"
 
     references: [
+        "adiumwebview/adiumwebview.qbs"
     ]
 }

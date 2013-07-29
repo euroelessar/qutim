@@ -71,7 +71,7 @@ private:
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
 	bool m_is_idle;
-    QWeakPointer<OscarAuth> m_auth;
+    QPointer<OscarAuth> m_auth;
 //	QPointer<Md5Login> m_md5login;
 };
 

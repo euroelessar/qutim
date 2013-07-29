@@ -26,8 +26,9 @@
 #include "webkitcolorsadditions_p.h"
 #include <QVariant>
 
-void initColors(QStringList &list)
+QStringList initColors()
 {
+    QStringList list;
 	const char *colors[] = {
 	    "aqua", "aquamarine", "blue", "blueviolet", "brown", "burlywood",
 	    "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue",
@@ -54,9 +55,11 @@ void initColors(QStringList &list)
 	list.reserve(size);
 	for (int i = 0; i < size; ++i)
 		list << QLatin1String(colors[i]);
+
+    return list;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, validColors, initColors(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, validColors, (initColors()))
 
 WebKitColorsAdditions::WebKitColorsAdditions()
 {

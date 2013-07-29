@@ -158,7 +158,7 @@ static QString urlFromFilePath(const QString &filePath)
 
 static QString escapeString(const QString &text)
 {
-	return Qt::escape(text).replace(QLatin1Char('%'), QLatin1String("&#37;"));
+	return text.toHtmlEscaped().replace(QLatin1Char('%'), QLatin1String("&#37;"));
 }
 
 WebKitMessageViewStyle::WebKitMessageViewStyle() : d_ptr(new WebKitMessageViewStylePrivate)
@@ -454,7 +454,6 @@ QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *
 
 QString WebKitMessageViewStyle::scriptForChangingVariant()
 {
-	Q_D(WebKitMessageViewStyle);
 	return QString::fromLatin1("setStylesheet(\"mainStyle\",\"%1\");").arg(activeVariantPath());
 }
 
@@ -1090,7 +1089,6 @@ QString WebKitMessageViewStyle::pathForResource(const QString &name, const QStri
 
 QString WebKitMessageViewStyle::loadResourceFile(const QString &name, const QString &directory)
 {
-	Q_D(WebKitMessageViewStyle);
 	QString fileName = pathForResource(name, directory);
 	if (fileName.isEmpty())
 		return QString();
