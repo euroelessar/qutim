@@ -29,7 +29,7 @@
 #include <QDialog>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include <QtCrypto>
+//#include <QtCrypto>
 
 class QPushButton;
 

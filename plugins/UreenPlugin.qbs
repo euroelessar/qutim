@@ -67,19 +67,23 @@ Product {
     Depends { name: "libqutim" }
 
     Group {
+        name: "Source"
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
     }
     Group {
+        name: "Mac-specific"
         condition: qbs.targetOS === 'mac'
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
     }
     Group {
+        name: "Meta information"
         fileTags: [ "pluginTemplate" ]
         files: '*.plugin.json'
     }
     Group {
+        name: "Generic cpp template"
         fileTags: [ "pluginCppTemplate" ]
         files: [ templateFilePath ]
     }
