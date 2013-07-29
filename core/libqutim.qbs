@@ -11,12 +11,7 @@ Framework {
     property string versionRelease: project.qutim_version_release
     property string versionPatch: project.qutim_version_patch
     property string version: project.qutim_version
-    property string shareDir: {
-        if (qbs.targetOS === "mac")
-            return "/Resources/share";
-        else
-            return ""; //qutimscope.shareDir;
-    }
+    property string shareDir: project.shareDir
 
     //Depends { name: "qutimscope" }
     Depends { name: "k8json" }

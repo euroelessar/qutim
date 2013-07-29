@@ -4,9 +4,7 @@ import qbs.File
 
 Module {
     property string basePath
-    property string shareDir: qutimscope.shareDir
-
-    Depends { name: "qutimscope" }
+    property string shareDir: project.shareDir
 
     Rule {
         inputs: [ "artwork" ]
