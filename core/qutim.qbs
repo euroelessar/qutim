@@ -6,7 +6,7 @@ Product {
     property bool installSoundTheme: true
 
     type: ["application", "installed_content"]
-    destination: {
+    destinationDirectory: {
         if (qbs.targetOS === "mac")
             return product.name + ".app/Contents/MacOS";
         else

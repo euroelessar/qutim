@@ -47,7 +47,7 @@ Product {
 
     type: 'dynamiclibrary'
     name: FileInfo.fileName(sourceDirectory);
-    destination: {
+    destinationDirectory: {
         if (qbs.targetOS === 'mac')
             return "qutim.app/Contents/PlugIns";
         else if (qbs.targetOS === 'windows')
@@ -56,8 +56,11 @@ Product {
             return "lib/qutim/plugins";
     }
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId ]
-    cpp.rpaths: ["$ORIGIN/../../", "$ORIGIN"]
     cpp.visibility: 'hidden'
+    cpp.installNamePrefix: "@rpath/plugins/"
+    cpp.rpaths: qbs.targetOS.contains("osx")
+                ? ["@loader_path/../..", "@executable_path/.."]
+                : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: [ "core", "gui", "network", "script", "widgets" ] }

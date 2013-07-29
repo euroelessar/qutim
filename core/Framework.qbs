@@ -1,7 +1,7 @@
 import qbs.base 1.0
 
 DynamicLibrary {
-    destination: {
+    destinationDirectory: {
         if (qbs.targetOS === 'windows')
             return "bin";
         else

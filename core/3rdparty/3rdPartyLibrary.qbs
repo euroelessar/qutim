@@ -3,7 +3,7 @@ import qbs.base 1.0
 StaticLibrary {
     property string sourcePath
 
-    destination: "lib"
+    destinationDirectory: "lib"
 
     Depends { name: "cpp" }
 
