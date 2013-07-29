@@ -30,7 +30,7 @@
 #include <qutim/settingswidget.h>
 #include <qutim/configbase.h>
 #include <QPointer>
-#include <QtCrypto>
+//#include <QtCrypto>
 
 namespace Ui
 {
@@ -52,16 +52,16 @@ public:
 	void saveImpl();
 	virtual void setController(QObject *controller);
 
-	void updatePGPText();
+//	void updatePGPText();
 
 private slots:
-	void on_selectPGPButton_clicked();
-	void on_removePGPButton_clicked();
-	void onPGPKeyDialogFinished(int result);
+//	void on_selectPGPButton_clicked();
+//	void on_removePGPButton_clicked();
+//	void onPGPKeyDialogFinished(int result);
 
 private:
 	Ui::JMainSettings *ui;
-	QCA::KeyStoreEntry m_keyEntry;
+//	QCA::KeyStoreEntry m_keyEntry;
 	QPointer<JAccount> m_account;
 };
 }

@@ -244,7 +244,7 @@ void JAccountRegistrationPage::onError(const Error::Ptr &error)
 	}
 	if (!m_error.isEmpty()) {
 		m_error = QLatin1Literal("<span style=\"color: red\">")
-		          % Qt::escape(m_error).replace(QLatin1String("\n"), QLatin1String("<br>"))
+                  % m_error.toHtmlEscaped().replace(QLatin1String("\n"), QLatin1String("<br>"))
 		          % QLatin1Literal("</span>");
 	}
 	ui->errorLabel->setText(m_error);

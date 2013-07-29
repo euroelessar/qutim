@@ -28,7 +28,7 @@
 #include <qutim/buddy.h>
 #include <jreen/presence.h>
 #include <QSet>
-#include <QtCrypto>
+//#include <QtCrypto>
 #include "../roster/jmessagesessionowner.h"
 
 namespace Jreen
@@ -67,10 +67,10 @@ public:
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	void setPriority(int priority);
 	int priority();
-	QCA::PGPKey pgpKey() const;
-	void setPGPKey(const QCA::PGPKey &key);
-	QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus() const;
-	void setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus);
+//    QCA::PGPKey pgpKey() const;
+//    void setPGPKey(const QCA::PGPKey &key);
+//    QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus() const;
+//	void setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus);
 	Jreen::Presence::Type presenceType() const;
 	Jreen::Presence presence() const;
 	void setStatus(const Jreen::Presence presence);

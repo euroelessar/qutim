@@ -97,7 +97,7 @@ protected:
 	virtual void virtual_hook(int id, void *data);
 signals:
 	void avatarChanged(const QString &avatar);
-	void pgpKeyIdChanged(QString pgpKeyId);
+//	void pgpKeyIdChanged(QString pgpKeyId);
 	void messageEcnrypted(quint64 messageId);
 	
 public slots:

@@ -88,12 +88,12 @@ public:
 	void setAvatar(const QString &hex);
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
-	QString pgpKeyId() const;
-	void setPGPKeyId(QString pgpKeyId);
+//	QString pgpKeyId() const;
+//	void setPGPKeyId(QString pgpKeyId);
 	
 signals:
 	void subscriptionChanged(Jreen::RosterItem::SubscriptionType subscription);
-	void pgpKeyChangedId(QString pgpKeyId);
+//	void pgpKeyChangedId(QString pgpKeyId);
 	
 public slots:
 	void requestSubscription();
