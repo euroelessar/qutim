@@ -43,7 +43,7 @@
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
-#include "../jpgpsupport.h"
+//#include "../jpgpsupport.h"
 #include "jaccountresource.h"
 
 namespace Jabber
@@ -66,7 +66,7 @@ public:
 	QHash<QString, QVariantHash> extInfo;
 	Jreen::RosterItem::SubscriptionType subscription;
 	Status status;
-	QString pgpKey;
+//	QString pgpKey;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -323,7 +323,7 @@ void JContact::setStatus(const Jreen::Presence presence)
 		contactResource->setStatus(presence);
 		contactResource->blockSignals(false);
 		fillMaxResource();
-		JPGPSupport::instance()->verifyPGPSigning(contactResource);
+//		JPGPSupport::instance()->verifyPGPSigning(contactResource);
 	}
 	recalcStatus();
 	if (oldStatus.type() != d->status.type()) {
@@ -444,19 +444,19 @@ void JContact::removeExtendedInfo(const QString &name)
 	emit statusChanged(status(), current);
 }
 
-QString JContact::pgpKeyId() const
-{
-	return d_func()->pgpKey;
-}
+//QString JContact::pgpKeyId() const
+//{
+//	return d_func()->pgpKey;
+//}
 
-void JContact::setPGPKeyId(QString pgpKey)
-{
-	Q_D(JContact);
-	d->pgpKey = pgpKey;
-	if (!qobject_cast<JAccountResource*>(this) && d->inList && !d->account->roster()->ignoreChanges())
-		RosterStorage::instance()->updateContact(this);
-	emit pgpKeyChangedId(pgpKey);
-}
+//void JContact::setPGPKeyId(QString pgpKey)
+//{
+//	Q_D(JContact);
+//	d->pgpKey = pgpKey;
+//	if (!qobject_cast<JAccountResource*>(this) && d->inList && !d->account->roster()->ignoreChanges())
+//		RosterStorage::instance()->updateContact(this);
+//	emit pgpKeyChangedId(pgpKey);
+//}
 
 void JContact::resourceStatusChanged(const Status &current, const Status &previous)
 {

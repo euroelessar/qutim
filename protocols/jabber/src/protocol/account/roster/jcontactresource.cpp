@@ -51,7 +51,7 @@ JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
 	Q_D(JContactResource);
 	d->name = name;
 	d->id = parent->id() % QLatin1Char('/') % name;
-	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
+//	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
 	connect(parent, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 }
 
@@ -66,7 +66,7 @@ JContactResource::JContactResource(JAccount *account, const QString &name) :
 	Q_D(JContactResource);
 	d->name = name;
 	d->id = account->id() % QLatin1Char('/') % name;
-	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
+//	d->pgpVerifyStatus = QCA::SecureMessageSignature::NoKey;
 	connect(account, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 }
 
@@ -118,25 +118,25 @@ int JContactResource::priority()
 	return d_func()->presence.priority();
 }
 
-QCA::PGPKey JContactResource::pgpKey() const
-{
-	return d_func()->pgpKey;
-}
+//QCA::PGPKey JContactResource::pgpKey() const
+//{
+//	return d_func()->pgpKey;
+//}
 
-void JContactResource::setPGPKey(const QCA::PGPKey &key)
-{
-	d_func()->pgpKey = key;
-}
+//void JContactResource::setPGPKey(const QCA::PGPKey &key)
+//{
+//	d_func()->pgpKey = key;
+//}
 
-QCA::SecureMessageSignature::IdentityResult JContactResource::pgpVerifyStatus() const
-{
-	return d_func()->pgpVerifyStatus;
-}
+//QCA::SecureMessageSignature::IdentityResult JContactResource::pgpVerifyStatus() const
+//{
+//	return d_func()->pgpVerifyStatus;
+//}
 
-void JContactResource::setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus)
-{
-	d_func()->pgpVerifyStatus = pgpVerifyStatus;
-}
+//void JContactResource::setPGPVerifyStatus(QCA::SecureMessageSignature::IdentityResult pgpVerifyStatus)
+//{
+//	d_func()->pgpVerifyStatus = pgpVerifyStatus;
+//}
 
 Jreen::Presence::Type JContactResource::presenceType() const
 {

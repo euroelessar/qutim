@@ -27,8 +27,8 @@
 #include "jmainsettings.h"
 #include "jprotocol.h"
 #include "account/jaccount.h"
-#include "account/jpgpkeydialog.h"
-#include "account/jpgpsupport.h"
+//#include "account/jpgpkeydialog.h"
+//#include "account/jpgpsupport.h"
 #include <jreen/client.h>
 
 namespace Jabber
@@ -47,17 +47,17 @@ void JMainSettings::setController(QObject *controller)
 	m_account = qobject_cast<JAccount*>(controller);
 }
 
-void JMainSettings::updatePGPText()
-{
-	if (m_keyEntry.isNull()) {
-		ui->pgpLabel->setText(tr("No key selected"));
-	} else {
-		QString text = m_keyEntry.id().right(8);
-		text += QLatin1String(" ");
-		text += m_keyEntry.name();
-		ui->pgpLabel->setText(text);
-	}
-}
+//void JMainSettings::updatePGPText()
+//{
+//	if (m_keyEntry.isNull()) {
+//		ui->pgpLabel->setText(tr("No key selected"));
+//	} else {
+//		QString text = m_keyEntry.id().right(8);
+//		text += QLatin1String(" ");
+//		text += m_keyEntry.name();
+//		ui->pgpLabel->setText(text);
+//	}
+//}
 
 JMainSettings::~JMainSettings()
 {
@@ -74,9 +74,9 @@ void JMainSettings::loadImpl()
 	ui->passwdEdit->setText(m_account.data()->getPassword());
 	ui->encryptionBox->setCurrentIndex(general.value("encryption", Jreen::Client::Auto));
 	ui->compressionBox->setCurrentIndex(general.value("compression", Jreen::Client::Auto));
-	QString pgpKeyId = general.value("pgpKeyId", QString());
-	m_keyEntry = JPGPSupport::instance()->findEntry(pgpKeyId, JPGPSupport::SecretKey);
-	updatePGPText();
+//	QString pgpKeyId = general.value("pgpKeyId", QString());
+//	m_keyEntry = JPGPSupport::instance()->findEntry(pgpKeyId, JPGPSupport::SecretKey);
+//	updatePGPText();
 
 	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
 	ui->autodetectBox->setCheckState(state);
@@ -109,7 +109,7 @@ void JMainSettings::saveImpl()
 	m_account.data()->setPasswd(ui->passwdEdit->text());
 	general.setValue("encryption", static_cast<Jreen::Client::FeatureConfig>(ui->encryptionBox->currentIndex()));
 	general.setValue("compression", static_cast<Jreen::Client::FeatureConfig>(ui->compressionBox->currentIndex()));
-	general.setValue("pgpKeyId", m_keyEntry.isNull() ? QString() : m_keyEntry.id());
+//	general.setValue("pgpKeyId", m_keyEntry.isNull() ? QString() : m_keyEntry.id());
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 
 	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
@@ -129,30 +129,30 @@ void JMainSettings::saveImpl()
 	priority.sync();
 }
 
-void JMainSettings::on_selectPGPButton_clicked()
-{
-	setEnabled(false);
-	JPGPKeyDialog *dialog = new JPGPKeyDialog(JPGPKeyDialog::SecretKeys, m_account.data()->pgpKeyId(), this);
-	dialog->show();
-	connect(dialog, SIGNAL(finished(int)), SLOT(onPGPKeyDialogFinished(int)));
-}
+//void JMainSettings::on_selectPGPButton_clicked()
+//{
+//	setEnabled(false);
+//	JPGPKeyDialog *dialog = new JPGPKeyDialog(JPGPKeyDialog::SecretKeys, m_account.data()->pgpKeyId(), this);
+//	dialog->show();
+//	connect(dialog, SIGNAL(finished(int)), SLOT(onPGPKeyDialogFinished(int)));
+//}
 
-void JMainSettings::on_removePGPButton_clicked()
-{
-	m_keyEntry = QCA::KeyStoreEntry();
-	updatePGPText();
-	setModified(true);
-}
+//void JMainSettings::on_removePGPButton_clicked()
+//{
+//	m_keyEntry = QCA::KeyStoreEntry();
+//	updatePGPText();
+//	setModified(true);
+//}
 
-void JMainSettings::onPGPKeyDialogFinished(int result)
-{
-	setEnabled(true);
-	if (result == QDialog::Accepted) {
-		JPGPKeyDialog *dialog = qobject_cast<JPGPKeyDialog*>(sender());
-		Q_ASSERT(dialog);
-		m_keyEntry = dialog->keyStoreEntry();
-		updatePGPText();
-		setModified(true);
-	}
-}
+//void JMainSettings::onPGPKeyDialogFinished(int result)
+//{
+//	setEnabled(true);
+//	if (result == QDialog::Accepted) {
+//		JPGPKeyDialog *dialog = qobject_cast<JPGPKeyDialog*>(sender());
+//		Q_ASSERT(dialog);
+//		m_keyEntry = dialog->keyStoreEntry();
+//		updatePGPText();
+//		setModified(true);
+//	}
+//}
 }

@@ -30,8 +30,9 @@ namespace Jabber {
 
 typedef QList<qutim_sdk_0_3::LocalizedString> ActivityNames;
 
-static void init_general_names(ActivityNames &names)
+static ActivityNames init_general_names()
 {
+    ActivityNames names;
 	names.append(QT_TRANSLATE_NOOP("Activity", "Doing chores"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Drinking"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Eating"));
@@ -44,10 +45,12 @@ static void init_general_names(ActivityNames &names)
 	names.append(QT_TRANSLATE_NOOP("Activity", "Traveling"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Undefined"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Working"));
+    return names;
 }
 
-static void init_specific_names(ActivityNames &names)
+static ActivityNames init_specific_names()
 {
+    ActivityNames names;
 	names.append(QT_TRANSLATE_NOOP("Activity", "At the spa"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Brushing teeth"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Buying groceries"));
@@ -115,10 +118,11 @@ static void init_specific_names(ActivityNames &names)
 	names.append(QT_TRANSLATE_NOOP("Activity", "Watching TV"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Working out"));
 	names.append(QT_TRANSLATE_NOOP("Activity", "Writing"));
+    return names;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, generalNames, init_general_names(*x))
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityNames, specificNames, init_specific_names(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(ActivityNames, generalNames, (init_general_names()))
+Q_GLOBAL_STATIC_WITH_ARGS(ActivityNames, specificNames, (init_specific_names()))
 Q_GLOBAL_STATIC(JPersonActivityRegistrator, activityRegistrator)
 
 JPersonActivityConverter::JPersonActivityConverter()

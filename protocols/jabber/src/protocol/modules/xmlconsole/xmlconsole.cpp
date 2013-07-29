@@ -116,7 +116,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	m_stackOutgoing.commentColor = QColor(0xb2b2b2);
 
 	QAction *action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
+//	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 }

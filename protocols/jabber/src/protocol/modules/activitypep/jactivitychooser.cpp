@@ -44,8 +44,9 @@ struct ActivityGroup
 };
 typedef QList<ActivityGroup> ActivityGroups;
 
-static void init_activity_groups(ActivityGroups &activities)
+static ActivityGroups init_activity_groups()
 {
+    ActivityGroups activities;
 	{
 		ActivityGroup group(Jreen::Activity::DoingChores);
 		group.items.push_back(Jreen::Activity::BuyingGroceries);
@@ -157,9 +158,10 @@ static void init_activity_groups(ActivityGroups &activities)
 		group.items.push_back(Jreen::Activity::Writing);
 		activities.push_back(group);
 	}
+    return activities;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(ActivityGroups, allActivityGroups, init_activity_groups(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(ActivityGroups, allActivityGroups, (init_activity_groups()))
 
 JActivityChooserWindow::JActivityChooserWindow(Account *account,
 											   const QString &currentText,

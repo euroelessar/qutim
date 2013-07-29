@@ -29,7 +29,7 @@
 #include "../muc/jmucsession.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
-#include "../jpgpsupport.h"
+//#include "../jpgpsupport.h"
 #include <QFile>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
@@ -88,7 +88,7 @@ Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
 	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
 	int s10n = data.value(QLatin1String("s10n")).toInt();
 	contact->setContactSubscription(static_cast<Jreen::RosterItem::SubscriptionType>(s10n));
-	contact->setPGPKeyId(data.value(QLatin1String("pgpKeyId")).toString());
+//	contact->setPGPKeyId(data.value(QLatin1String("pgpKeyId")).toString());
 	contacts.insert(id, contact);
 	emit account->contactCreated(contact);
 	return contact;
@@ -103,7 +103,7 @@ void JRosterPrivate::serialize(Contact *generalContact, QVariantMap &data)
 	data.insert(QLatin1String("name"), contact->name());
 	data.insert(QLatin1String("tags"), contact->tags());
 	data.insert(QLatin1String("s10n"), contact->subscription());
-	data.insert(QLatin1String("pgpKeyId"), contact->pgpKeyId());
+//	data.insert(QLatin1String("pgpKeyId"), contact->pgpKeyId());
 }
 
 JRoster::JRoster(JAccount *account) :
@@ -390,12 +390,12 @@ void JRoster::onNewMessage(Jreen::Message message)
 		unitForSession = contact;
 	}
 	
-	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
-		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
-		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
-	} else {
-		onMessageDecrypted(unitForSession, chatUnit, message);
-	}
+//	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
+//		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
+//		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
+//	} else {
+//		onMessageDecrypted(unitForSession, chatUnit, message);
+//	}
 }
 
 void JRoster::onMessageDecrypted(ChatUnit *chatUnit, ChatUnit *unitForSession, const Jreen::Message &message)
@@ -415,8 +415,8 @@ void JRoster::onMessageDecrypted(ChatUnit *chatUnit, ChatUnit *unitForSession, c
 	coreMessage.setProperty("subject",message.subject());
 	coreMessage.setChatUnit(chatUnit);
 	coreMessage.setIncoming(true);
-	if (message.payload<Jreen::PGPEncrypted>())
-		coreMessage.setProperty("pgpEncrypted", true);
+//	if (message.payload<Jreen::PGPEncrypted>())
+//		coreMessage.setProperty("pgpEncrypted", true);
 	ChatLayer::get(unitForSession, true)->appendMessage(coreMessage);
 }
 
