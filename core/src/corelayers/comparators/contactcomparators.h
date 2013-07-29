@@ -8,6 +8,7 @@ namespace Core {
 class ContactComparators : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName", "ContactComparators")
 public:
 	virtual void init();

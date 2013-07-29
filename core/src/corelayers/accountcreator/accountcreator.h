@@ -35,6 +35,7 @@ namespace Core
 class AccountCreator : public Plugin
 {
 	Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	virtual void init();
 	virtual bool load();
