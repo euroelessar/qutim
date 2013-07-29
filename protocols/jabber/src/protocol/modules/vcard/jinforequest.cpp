@@ -35,78 +35,81 @@
 
 namespace Jabber
 {
-void init_names(QStringList &names)
+static QStringList init_names()
 {
-	const char *cnames[] = {
-		"nick",
-		"firstName",
-		"middleName",
-		"lastName",
-		"birthday",
-		"homepage",
-		"homePhone",
-		"workPhone",
-		"mobilePhone",
-		"phone",
-		"personalEmail",
-		"workEmail",
-		"email",
-		"homeAddress",
-		"workAddress",
-		"address",
-		"country",
-		"region",
-		"city",
-		"postcode",
-		"street",
-		"extendedAddress",
-		"postbox",
-		"orgName",
-		"orgUnit",
-		"title",
-		"role",
-		"about",
-		"features"
-	};
-	for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
-		names << QLatin1String(cnames[i]);
+    return QStringList()<<
+        QStringLiteral("nick")<<
+        QStringLiteral("firstName")<<
+        QStringLiteral("middleName")<<
+        QStringLiteral("lastName")<<
+        QStringLiteral("birthday")<<
+        QStringLiteral("homepage")<<
+        QStringLiteral("homePhone")<<
+        QStringLiteral("workPhone")<<
+        QStringLiteral("mobilePhone")<<
+        QStringLiteral("phone")<<
+        QStringLiteral("personalEmail")<<
+        QStringLiteral("workEmail")<<
+        QStringLiteral("email")<<
+        QStringLiteral("homeAddress")<<
+        QStringLiteral("workAddress")<<
+        QStringLiteral("address")<<
+        QStringLiteral("country")<<
+        QStringLiteral("region")<<
+        QStringLiteral("city")<<
+        QStringLiteral("postcode")<<
+        QStringLiteral("street")<<
+        QStringLiteral("extendedAddress")<<
+        QStringLiteral("postbox")<<
+        QStringLiteral("orgName")<<
+        QStringLiteral("orgUnit")<<
+        QStringLiteral("title")<<
+        QStringLiteral("role")<<
+        QStringLiteral("about")<<
+        QStringLiteral("features");
+
+//	for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
+//		names << QLatin1String(cnames[i]);
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, names, init_names(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, names, (init_names()))
 
-void init_titles(QList<LocalizedString> &titles)
+static QList<LocalizedString> init_titles()
 {
-	titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "First name")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Middle name")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Last name")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Homepage")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Work phone")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Phone")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Personal email")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Work email")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Email")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Home address")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Work address")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Address")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Country")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Region")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "City")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Postcode")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Street")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Address")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Postbox")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Company")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Department")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Position")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "Role")
-		   << QT_TRANSLATE_NOOP("ContactInfo", "About");
+
+    QList<LocalizedString> titles;
+    titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
+           << QT_TRANSLATE_NOOP("ContactInfo", "First name")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Middle name")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Last name")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Homepage")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Work phone")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Phone")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Personal email")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Work email")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Email")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Home address")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Work address")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Address")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Country")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Region")
+           << QT_TRANSLATE_NOOP("ContactInfo", "City")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Postcode")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Street")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Address")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Postbox")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Company")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Department")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Position")
+           << QT_TRANSLATE_NOOP("ContactInfo", "Role")
+           << QT_TRANSLATE_NOOP("ContactInfo", "About");
+    return titles;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(QList<LocalizedString>, titles, (init_titles()))
 
 class JInfoRequestPrivate
 {

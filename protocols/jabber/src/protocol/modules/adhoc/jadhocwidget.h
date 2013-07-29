@@ -25,7 +25,7 @@
 #ifndef JADHOCWIDGET_H
 #define JADHOCWIDGET_H
 
-#include <QtGui/QRadioButton>
+#include <QRadioButton>
 #include <QMap>
 #include <QPointer>
 #include "../../account/dataform/jdataform.h"

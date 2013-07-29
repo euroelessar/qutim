@@ -27,7 +27,7 @@
 #include "jcontact.h"
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
-#include <QtGui/QMenu>
+#include <QMenu>
 #include <QDebug>
 
 namespace Jabber

@@ -130,7 +130,7 @@ JServiceBrowser::JServiceBrowser(Account *account, bool isConference, QWidget *p
 	//		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 
 	QAction *action = new QAction(tr("Close"),this);
-	action->setSoftKeyRole(QAction::NegativeSoftKey);
+//	action->setSoftKeyRole(QAction::NegativeSoftKey);
 	connect(action, SIGNAL(triggered()), SLOT(close()));
 	addAction(action);
 	setAttribute(Qt::WA_DeleteOnClose, true);

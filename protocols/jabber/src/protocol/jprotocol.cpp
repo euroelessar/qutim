@@ -74,11 +74,11 @@ public:
 		q_ptr(q)
 	{
 //		debugAddPluginId(*jreenUniqueId(), &Jreen::Client::staticMetaObject);
-		Logger::addHandler(debugMessageHandler);
+//		Logger::addHandler(debugMessageHandler);
 	}
 	inline ~JProtocolPrivate()
 	{
-		Logger::removeHandler(debugMessageHandler);
+//		Logger::removeHandler(debugMessageHandler);
 		delete accounts;
 	}
 	QHash<QString, JAccount *> *accounts;
