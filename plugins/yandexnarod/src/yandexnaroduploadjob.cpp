@@ -242,8 +242,9 @@ void YandexNarodUploadJob::onUploadFinished()
 		return;
 
 	QUrl url = reply->url();
-	url.setEncodedQuery("publish");
+	url.setQuery("publish");
 	YandexRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *postReply = YandexNarodFactory::networkManager()->post(request, QByteArray());
 	connect(postReply, SIGNAL(finished()), SLOT(onPublishFinished()));
 

@@ -59,6 +59,8 @@ private:
 class BirthdayReminder : public Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+
 public:
 	BirthdayReminder();
 	virtual void init();

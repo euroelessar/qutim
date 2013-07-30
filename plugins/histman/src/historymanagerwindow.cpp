@@ -161,7 +161,7 @@ ConfigWidget HistoryManagerWindow::createAccountWidget(const QString &protocol)
 		html = protocol;
 	else
 	{
-		QString tmp = Qt::escape(protocol);
+        QString tmp = protocol.toHtmlEscaped();
 		tmp += " <img src=\"";
 		tmp += html;
 		tmp += "\"/>";

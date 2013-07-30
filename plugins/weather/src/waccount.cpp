@@ -28,6 +28,7 @@
 #include <qutim/thememanager.h>
 #include <QTextDocument>
 #include <QStringBuilder>
+#include <QDebug>
 
 WAccount::WAccount(WProtocol *protocol) : Account(QLatin1String("Weather"), protocol)
 {
@@ -80,13 +81,13 @@ void WAccount::setStatus(Status status)
 
 void WAccount::update(WContact *contact, bool needMessage)
 {
-	QUrl url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/current-conditions.asp"));
+	QUrlQuery url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/current-conditions.asp"));
 	url.addQueryItem(QLatin1String("location"), contact->id());
 	url.addQueryItem(QLatin1String("metric"), QString::number(1));
 	QString langId = WManager::currentLangId();
 	if (!langId.isEmpty())
 		url.addQueryItem(QLatin1String("langid"), langId);
-	QNetworkRequest request(url);
+	QNetworkRequest request(QUrl::fromEncoded(url.query(QUrl::FullyEncoded).toUtf8()));
 	request.setOriginatingObject(contact);
 	QNetworkReply *reply = m_manager.get(request);
 	reply->setProperty("needMessage", needMessage);
@@ -94,13 +95,13 @@ void WAccount::update(WContact *contact, bool needMessage)
 
 void WAccount::getForecast(WContact *contact)
 {
-	QUrl url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/forecast-data.asp"));
+	QUrlQuery url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/forecast-data.asp"));
 	url.addQueryItem(QLatin1String("location"), contact->id());
 	url.addQueryItem(QLatin1String("metric"), QString::number(1));
 	QString langId = WManager::currentLangId();
 	if (!langId.isEmpty())
 		url.addQueryItem(QLatin1String("langid"), langId);
-	QNetworkRequest request(url);
+	QNetworkRequest request(QUrl::fromEncoded(url.query(QUrl::FullyEncoded).toUtf8()));
 	request.setOriginatingObject(contact);
 	QNetworkReply *reply = m_manager.get(request);
 	reply->setProperty("needMessage", true);
@@ -211,7 +212,7 @@ void WAccount::fillStrings(QString &text, QString &html, const QDomElement &elem
 	QString key = prefix + QLatin1Char('%');
 	if (key != QLatin1String("%%")) {
 		text.replace(key, element.text());
-		html.replace(key, Qt::escape(element.text()));
+		html.replace(key, element.text().toHtmlEscaped());
 		debug() << key;
 	}
 	key.chop(1);
@@ -225,7 +226,7 @@ void WAccount::fillStrings(QString &text, QString &html, const QDomElement &elem
 		        % QLatin1Char('%');
 		debug() << attributeKey;
 		text.replace(attributeKey, attribute.nodeValue());
-		html.replace(attributeKey, Qt::escape(attribute.nodeValue()));
+		html.replace(attributeKey, attribute.nodeValue().toHtmlEscaped());
 	}
 	
 	if (!key.endsWith(QLatin1Char('%')))

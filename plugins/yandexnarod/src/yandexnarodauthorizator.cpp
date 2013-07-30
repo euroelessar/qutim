@@ -31,7 +31,7 @@
 #include <qutim/passworddialog.h>
 #include <QtCore/QDateTime>
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 using namespace qutim_sdk_0_3;
 

@@ -40,30 +40,32 @@ using namespace std;
 static FILE *logfile = NULL;
 //ofstream logfile;
 
-void SimpleLoggingHandler(QtMsgType type, const char *msg)
+void SimpleLoggingHandler(QtMsgType type, const QMessageLogContext &log, const QString &msgData)
 {
+	Q_UNUSED(log)
 	if (!logfile) {
 		if (type == QtFatalMsg)
 			abort();
 		return;
 	}
 	QByteArray currentTime = QTime::currentTime().toString().toLatin1();
+	QByteArray msg = msgData.toUtf8();
 	switch (type) {
 	default:
 	case QtDebugMsg:
-		fprintf(logfile, "%s Debug: %s\n", currentTime.constData(), msg);
+		fprintf(logfile, "%s Debug: %s\n", currentTime.constData(), msg.constData());
 //		logfile << QTime::currentTime().toString().toLatin1().data() << " Debug: " << msg << "\n";
 		break;
 	case QtCriticalMsg:
-		fprintf(logfile, "%s Critical: %s\n", currentTime.constData(), msg);
+		fprintf(logfile, "%s Critical: %s\n", currentTime.constData(), msg.constData());
 //		logfile << QTime::currentTime().toString().toLatin1().data() << " Critical: " << msg << "\n";
 		break;
 	case QtWarningMsg:
-		fprintf(logfile, "%s Warning: %s\n", currentTime.constData(), msg);
+		fprintf(logfile, "%s Warning: %s\n", currentTime.constData(), msg.constData());
 //		logfile << QTime::currentTime().toString().toLatin1().data() << " Warning: " << msg << "\n";
 		break;
 	case QtFatalMsg:
-		fprintf(logfile, "%s Fatal: %s\n", currentTime.constData(), msg);
+		fprintf(logfile, "%s Fatal: %s\n", currentTime.constData(), msg.constData());
 //		logfile << QTime::currentTime().toString().toLatin1().data() <<  " Fatal: " << msg << "\n";
 		abort();
 	}
@@ -90,7 +92,7 @@ bool LoggerPlugin::load()
 								SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
 	bool enable = config.value(QLatin1String("enable"), false);
 	reloadSettings();
-	qInstallMsgHandler(SimpleLoggingHandler);
+	qInstallMessageHandler(SimpleLoggingHandler);
 	debug() << tr("New session started, happy debuging ^_^");
 
 	AutoSettingsItem *settingsItem = new AutoSettingsItem(Settings::Plugin,
@@ -141,7 +143,7 @@ bool LoggerPlugin::unload()
 			fclose(logfile);
 			logfile = NULL;
 		}
-		qInstallMsgHandler(NULL);
+		qInstallMessageHandler(NULL);
 		Settings::removeItem(m_settingsItem);
 		m_settingsItem = 0;
 		return true;

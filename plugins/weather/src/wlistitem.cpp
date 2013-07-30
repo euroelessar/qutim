@@ -33,7 +33,7 @@ WListItem::WListItem(const QString &city, const QString &state, const QString &i
     : m_id(id), m_name(city), m_state(state)
 {
 	QString title = QString::fromLatin1("%1<br>%2")
-	        .arg(Qt::escape(city), Qt::escape(state));
+			.arg(city.toHtmlEscaped(), state.toHtmlEscaped());
 	m_label = new QLabel(title, this);
 	QSizePolicy policy = m_label->sizePolicy();
 	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);

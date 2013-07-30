@@ -36,7 +36,7 @@ HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *rege
 {
 
 	QString title = QString::fromLatin1("%1<br>%2")
-			.arg(Qt::escape(regex.pattern()), getTranslatedRegexpType(regex.patternSyntax()));
+            .arg(regex.pattern().toHtmlEscaped(), getTranslatedRegexpType(regex.patternSyntax()));
 	m_label = new QLabel(title, this);
 	QSizePolicy policy = m_label->sizePolicy();
 	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);

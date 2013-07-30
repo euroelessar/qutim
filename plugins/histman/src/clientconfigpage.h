@@ -26,7 +26,7 @@
 #ifndef CLIENTCONFIGPAGE_H
 #define CLIENTCONFIGPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include "historymanagerwindow.h"
 
 namespace Ui {

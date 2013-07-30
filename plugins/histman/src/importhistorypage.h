@@ -26,7 +26,7 @@
 #ifndef IMPORTHISTORYPAGE_H
 #define IMPORTHISTORYPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include "historymanagerwindow.h"
 #include <QThread>
 
