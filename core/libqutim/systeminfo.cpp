@@ -45,14 +45,14 @@
 #include <QTextCodec>
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/utsname.h>
 #endif
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <windows.h>
 
 // Nasty hack for VER_SUITE_PERSONAL =)
@@ -73,12 +73,12 @@
 # define VER_NT_WORKSTATION 0x0000001
 #endif
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include <CoreServices/CoreServices.h>
 #endif
 
 // Haiku!
-#if defined(Q_WS_HAIKU)
+#if defined(Q_OS_HAIKU)
 #include <sys/utsname.h>
 #include <Path.h>
 #include <FindDirectory.h>
@@ -113,8 +113,8 @@ enum WinFlag
 	SuiteHomeServer = 0x02
 };
 
-#if defined(Q_WS_X11) && !defined(Q_OS_FREEBSD) && !defined(MEEGO_EDITION) && !defined(Q_WS_MAEMO_5) && !defined(Q_OS_HAIKU)
-static QString lsbRelease(const QStringList& args)
+#if defined(Q_OS_LINUX) && !defined(Q_OS_FREEBSD) && !defined(MEEGO_EDITION) && !defined(Q_OS_MAEMO_5) && !defined(Q_OS_HAIKU)
+static bool lsbRelease(SystemInfoPrivate *d)
 {
 	QStringList path = QString(qgetenv("PATH")).split(':');
 	QString found;
@@ -129,29 +129,42 @@ static QString lsbRelease(const QStringList& args)
 	}
 
 	if (found.isEmpty()) {
-		return QString();
+		return false;
 	}
 
 	QProcess process;
-	process.start(found, args, QIODevice::ReadOnly);
+    process.start(found, QStringList(QStringLiteral("-dirs")), QIODevice::ReadOnly);
 
 	if(!process.waitForStarted())
-		return QString();   // process failed to start
+		return false;   // process failed to start
 
 	QTextStream stream(&process);
 	QString ret;
 
-	while(process.waitForReadyRead())
+	while (process.waitForReadyRead())
 		ret += stream.readAll();
 
-	ret = ret.trimmed();
-	if (ret.startsWith(QLatin1Char('\"')) && ret.endsWith(QLatin1Char('\"'))) {
-		ret.remove(0, 1);
-		ret.chop(1);
-	}
+    process.close();
 
-	process.close();
-	return ret.trimmed();
+    QStringList list = ret.split(QLatin1Char('\n'), QString::KeepEmptyParts);
+
+    if (list.size() >= 3) {
+        auto fixed = [] (QString value) {
+            value = value.trimmed();
+            if (value.startsWith(QLatin1Char('"')))
+				value.remove(0, 1);
+			if (value.endsWith(QLatin1Char('"')))
+				value.chop(1);
+            return value;
+        };
+
+        d->os_name = fixed(list[0]);
+        d->os_full = fixed(list[1]);
+        d->os_version = fixed(list[2]);
+        return true;
+    }
+
+    return false;
 }
 
 enum OsFlags {
@@ -327,7 +340,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_version_id = 0;
 
 	// Detect
-#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+#ifdef Q_OS_UNIX
 	time_t x;
 	time(&x);
 	char str[256];
@@ -399,7 +412,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 			d->os_full += ")";
 		}
 	}
-#elif defined(Q_WS_MAEMO_5)
+#elif defined(Q_OS_MAEMO_5)
 	d->os_full="Maemo 5 Nokia N900";
 	d->os_name="Maemo";
 	d->os_version="5";
@@ -413,23 +426,17 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_version += QLatin1String(" Harmattan");
 #endif
 	d->os_full = d->os_name + ' ' + d->os_version;
-#elif defined(Q_WS_X11)
+#elif defined(Q_OS_LINUX)
 
 	// Firstly try to get info from "/etc/os-release" or compatible as it's faster then invoking lsb_release
 	if (!osReleaseDetect(d)) {
 		// attempt to get LSB version before trying the distro-specific approach
-		d->os_full = lsbRelease(QStringList() << "--description" << "--short");
-
-		if (d->os_full.isEmpty()) {
-			unixHeuristicDetect(d);
-		} else {
-			d->os_name = lsbRelease(QStringList() << "--short" << "--id");
-			d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
-		}
+        if (!lsbRelease(d))
+            unixHeuristicDetect(d);
 	}
 
 
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
 	SInt32 minor_version, major_version, bug_fix;
 	Gestalt(gestaltSystemVersionMajor, &major_version);
 	Gestalt(gestaltSystemVersionMinor, &minor_version);
@@ -442,7 +449,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_full += d->os_version;
 #endif
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
 	TIME_ZONE_INFORMATION i;
 	//GetTimeZoneInformation(&i);
 	//d->timezone_offset = (-i.Bias) / 60;
@@ -619,6 +626,18 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 				str += " 7";
 			else
 				str += " Server 2008 R2";
+			break;
+        case 0x0602:
+			if(product == VER_NT_WORKSTATION)
+				str += " 8";
+			else
+				str += " Server 2012";
+			break;
+        case 0x0603:
+			if(product == VER_NT_WORKSTATION)
+				str += " 8.1";
+			else
+				str += " Server 2012 R2";
 			break;
 		default:
 			str += " NT ";
