@@ -10,8 +10,8 @@ Product {
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
-    property bool installOxygenTheme: qbs.targetOS !== "linux"
-    property bool installUbuntuTheme: qbs.targetOS === "linux"
+    property bool installOxygenTheme: !qbs.targetOS.contains("linux")
+    property bool installUbuntuTheme: qbs.targetOS.contains("linux")
     property string qutim_version: project.qutim_version
 
     Depends { name: "Qt.core" }
@@ -24,9 +24,9 @@ Product {
         fileTags: "install"
         qbs.installDir: shareDir + "/config"
         prefix: {
-            if (qbs.targetOS === "mac")
+            if (!qbs.targetOS.contains("mac"))
                 return "../config/mac/";
-            else if (qbs.targetOS === "windows")
+            else if (!qbs.targetOS.contains("windows"))
                 return "../config/win/";
             else
                 return "../config/generic/";
@@ -50,14 +50,14 @@ Product {
     }
 
     Group { // desktop file
-        condition: qbs.targetOS === "linux"
+        condition: !qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         prefix: "share/applications/"
         files: "**"
     }
 
     Group { // qutim.png and default tray icons
-        condition: installIcons && qbs.targetOS === "linux"
+        condition: installIcons && !qbs.targetOS.contains("linux")
         fileTags: [ "artwork" ]
         artwork.shareDir: "share"
         artwork.basePath: "../artwork/icons/qutim"
@@ -83,7 +83,7 @@ Product {
     }
 
     Group { // humanity icons
-        condition: installIcons && qbs.targetOS === "linux"
+        condition: installIcons && !qbs.targetOS.contains("linux")
         fileTags: [ "artwork" ]
         artwork.basePath: "../artwork/icons/humanity"
         qbs.installDir: "icons"
@@ -92,7 +92,7 @@ Product {
     }
 
     Group { // Mac tray icons
-        condition: installIcons && qbs.targetOS === "mac"
+        condition: installIcons && !qbs.targetOS.contains("mac")
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/qutim-default/scalable/status/"
         files: "../artwork/icons/tray/MacOS/*.svg"
@@ -121,20 +121,20 @@ Product {
     }
 
     Group {
-        condition: qbs.targetOS === "mac"
+        condition: !qbs.targetOS.contains("mac")
         fileTags: [ "install" ]
         qbs.installDir: "qutim.app/Contents/Resources"
         files: ["qutim.icns", "qt.conf"]
     }
 
     Group {
-        condition: qbs.targetOS === "mac"
+        condition: !qbs.targetOS.contains("mac")
         fileTags: [ "infoPlist" ]
         files: "Info.plist"
     }
 
     Group {
-        condition: qbs.targetOS === "mac"
+        condition: !qbs.targetOS.contains("mac")
         fileTags: [ "install" ]
         qbs.installDir: "qutim.app/Contents/Resources/qt_menu.nib/"
         prefix: Qt.core.libPath + '/QtGui' + Qt.core.libInfix + '.framework/Versions/' + Qt.core.versionMajor + '/Resources/qt_menu.nib/'
