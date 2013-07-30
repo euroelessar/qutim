@@ -12,7 +12,11 @@ Project {
         "birthdayreminder/birthdayreminder.qbs",
         "clconf/clconf.qbs",
         "emoedit/emoedit.qbs",
+        "formula/formula.qbs",
         "highlighter/highlighter.qbs",
-        "histman/histman.qbs"
+        "histman/histman.qbs",
+        "logger/logger.qbs",
+        "massmessaging/massmessaging.qbs",
+        "weather/weather.qbs"
     ]
 }

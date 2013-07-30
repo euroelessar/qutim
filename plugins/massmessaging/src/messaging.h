@@ -40,6 +40,7 @@ class MessagingDialog;
 class MassMessaging : public Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName", "MassMessaging")
 	Q_CLASSINFO("Uses", "ContactList")
 public:

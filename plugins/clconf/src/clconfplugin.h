@@ -34,7 +34,7 @@
 class ClConfPlugin : public Plugin
 {
 	Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("Service", "ConferenceManager")
 	Q_CLASSINFO("Uses", "ChatLayer")
 public:

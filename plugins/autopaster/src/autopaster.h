@@ -33,7 +33,7 @@
 class AutoPaster : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName","Autopaster")
 public:
 	virtual bool load();
