@@ -41,6 +41,7 @@ using namespace qutim_sdk_0_3;
 class UnreadMessagesKeeper : public Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName", "UnreadMessagesKeeper")
 	Q_CLASSINFO("Uses", "ChatLayer")
 public:

@@ -19,6 +19,7 @@ Project {
         "histman/histman.qbs",
         "logger/logger.qbs",
         "massmessaging/massmessaging.qbs",
+        "unreadmessageskeeper/unreadmessageskeeper.qbs",
         "weather/weather.qbs"
     ]
 }
