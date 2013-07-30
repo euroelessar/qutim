@@ -35,6 +35,7 @@ using namespace qutim_sdk_0_3;
 class WeatherPlugin : public Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	WeatherPlugin();

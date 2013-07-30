@@ -26,7 +26,7 @@
 #ifndef DUMPHISTORYPAGE_H
 #define DUMPHISTORYPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include <QThread>
 #include "historymanagerwindow.h"
 

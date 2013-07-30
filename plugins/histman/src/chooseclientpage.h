@@ -26,7 +26,7 @@
 #ifndef CHOOSECLIENTPAGE_H
 #define CHOOSECLIENTPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include <QListWidgetItem>
 #include "historymanagerwindow.h"
 
