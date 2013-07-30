@@ -8,6 +8,8 @@ Project {
         "dbusnotifications/dbusnotifications.qbs",
         "antispam/antispam.qbs",
         "autopaster/autopaster.qbs",
-        "autoreply/autoreply.qbs"
+        "autoreply/autoreply.qbs",
+        "birthdayreminder/birthdayreminder.qbs",
+        "clconf/clconf.qbs"
     ]
 }
