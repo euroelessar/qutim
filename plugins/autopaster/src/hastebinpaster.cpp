@@ -24,6 +24,6 @@ QUrl HastebinPaster::handle(QNetworkReply *reply, QString *)
 {
 	QString id = Json::parse(reply->readAll()).toMap().value("key").toString();
 	QUrl url("http://hastebin.com/");
-	url.setPath(id);
+	url.setPath("/" + id);
 	return url;
 }
