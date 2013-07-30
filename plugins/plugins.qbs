@@ -20,6 +20,7 @@ Project {
         "logger/logger.qbs",
         "massmessaging/massmessaging.qbs",
         "unreadmessageskeeper/unreadmessageskeeper.qbs",
-        "weather/weather.qbs"
+        "weather/weather.qbs",
+        "yandexnarod/yandexnarod.qbs"
     ]
 }
