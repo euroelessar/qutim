@@ -43,7 +43,7 @@ QString andrq::getString(QDataStream &in, int key)
 {
 	qint32 len;
 	in >> len;
-	char *data = (char *)qMalloc(len);
+    char *data = (char *)malloc(len);
 	in.readRawData(data, len);
 	int dh = 0, dl = 0;
 
@@ -73,7 +73,7 @@ QString andrq::getString(QDataStream &in, int key)
 	static QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
 	QTextCodec *codec = isValidUtf8(QByteArray::fromRawData(data, len)) ? utf8_codec : ansii_codec;
 	QString result = codec->toUnicode(data, len);
-	qFree(data);
+    free(data);
 	return result;
 }
 

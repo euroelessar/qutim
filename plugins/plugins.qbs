@@ -12,6 +12,7 @@ Project {
         "birthdayreminder/birthdayreminder.qbs",
         "clconf/clconf.qbs",
         "emoedit/emoedit.qbs",
-        "highlighter/highlighter.qbs"
+        "highlighter/highlighter.qbs",
+        "histman/histman.qbs"
     ]
 }

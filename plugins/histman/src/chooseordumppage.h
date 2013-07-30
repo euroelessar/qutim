@@ -26,7 +26,7 @@
 #ifndef CHOOSEORDUMPPAGE_H
 #define CHOOSEORDUMPPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include "historymanagerwindow.h"
 
 namespace Ui {
