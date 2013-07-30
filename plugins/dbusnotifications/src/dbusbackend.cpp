@@ -63,7 +63,7 @@ QDBusArgument& operator<< (QDBusArgument& arg, const DBusNotifyImageData &data) 
 	int channels = i.isGrayscale() ? 1 : (i.hasAlphaChannel() ? 4 : 3);
 	arg << i.depth() / channels;
 	arg << channels;
-	arg << QByteArray(reinterpret_cast<const char*>(i.bits()), i.numBytes());
+	arg << QByteArray(reinterpret_cast<const char*>(i.bits()), i.byteCount());
 	arg.endStructure();
 	return arg;
 }
@@ -120,7 +120,7 @@ void DBusBackend::handleNotification(qutim_sdk_0_3::Notification *notification)
 	NotificationRequest request = notification->request();
 	NotificationData data;
 
-	QString text = Qt::escape(request.text());
+	QString text = request.text().toHtmlEscaped();
 
 	QVariantMap hints;
 	if (!request.image().isNull()) {
