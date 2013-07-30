@@ -5,6 +5,9 @@ Project {
 
     references: [
         "adiumwebview/adiumwebview.qbs",
-        "dbusnotifications/dbusnotifications.qbs"
+        "dbusnotifications/dbusnotifications.qbs",
+        "antispam/antispam.qbs",
+        "autopaster/autopaster.qbs",
+        "autoreply/autoreply.qbs"
     ]
 }

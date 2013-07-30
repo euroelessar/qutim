@@ -12,6 +12,7 @@
 class AutoReplyPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activeChanged)
 	Q_PROPERTY(QString replyText READ replyText WRITE setReplyText NOTIFY replyTextChanged)
 	Q_PROPERTY(QDateTime backTime READ backTime WRITE setBackTime NOTIFY backTimeChanged)
