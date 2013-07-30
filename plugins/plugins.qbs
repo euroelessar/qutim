@@ -10,6 +10,8 @@ Project {
         "autopaster/autopaster.qbs",
         "autoreply/autoreply.qbs",
         "birthdayreminder/birthdayreminder.qbs",
-        "clconf/clconf.qbs"
+        "clconf/clconf.qbs",
+        "emoedit/emoedit.qbs",
+        "highlighter/highlighter.qbs"
     ]
 }
