@@ -134,12 +134,14 @@ void WSettings::on_addButton_clicked()
 
 void WSettings::on_searchButton_clicked()
 {
-	QUrlQuery url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/city-find.asp"));
+	QUrl url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/city-find.asp"));
+	QUrlQuery q;
 	QString langId = WManager::currentLangId();
 	if (!langId.isEmpty())
-		url.addQueryItem(QLatin1String("langid"), langId);
-	url.addQueryItem(QLatin1String("location"), ui.searchEdit->currentText());
-	m_networkManager->get(QNetworkRequest(QUrl::fromEncoded(url.query(QUrl::FullyEncoded).toUtf8())));
+		q.addQueryItem(QLatin1String("langid"), langId);
+	q.addQueryItem(QLatin1String("location"), ui.searchEdit->currentText());
+	url.setQuery(q);
+	m_networkManager->get(QNetworkRequest(url));
 	ui.addButton->setEnabled(false);
 }
 
