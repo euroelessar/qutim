@@ -81,13 +81,15 @@ void WAccount::setStatus(Status status)
 
 void WAccount::update(WContact *contact, bool needMessage)
 {
-	QUrlQuery url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/current-conditions.asp"));
-	url.addQueryItem(QLatin1String("location"), contact->id());
-	url.addQueryItem(QLatin1String("metric"), QString::number(1));
+	QUrl url(QLatin1String("http://forecastfox3.accuweather.com/adcbin/forecastfox3/current-conditions.asp"));
+	QUrlQuery q;
+	q.addQueryItem(QLatin1String("location"), contact->id());
+	q.addQueryItem(QLatin1String("metric"), QString::number(1));
 	QString langId = WManager::currentLangId();
 	if (!langId.isEmpty())
-		url.addQueryItem(QLatin1String("langid"), langId);
-	QNetworkRequest request(QUrl::fromEncoded(url.query(QUrl::FullyEncoded).toUtf8()));
+		q.addQueryItem(QLatin1String("langid"), langId);
+	url.setQuery(q);
+	QNetworkRequest request(url);
 	request.setOriginatingObject(contact);
 	QNetworkReply *reply = m_manager.get(request);
 	reply->setProperty("needMessage", needMessage);
