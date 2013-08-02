@@ -458,26 +458,27 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 	} else {
 		icon = Icon("mail-unread-new");
-		title.prepend(QLatin1Char('*'));
 	}
 
 	QPalette pal;
 	int unreadMessages = 0;
-	QString str;
+	bool messagesForMe = false;
+	QString str = title;
 	setTabTextColor(index, pal.color(QPalette::WindowText));
 	setSessionIcon(session, icon);
 	setTabText(index, title);
-
 	for (int i = 0; i < unread.size(); ++i) {
 		qutim_sdk_0_3::Message message = unread.at(i);
-		if (message.property("mention") == true || !qobject_cast<Conference*>(message.chatUnit())) {
-			unreadMessages ++;
-			str = title;
-			str.append(" (" + QString::number(unreadMessages) + ")");
-			setTabTextColor(index, pal.color(QPalette::Highlight));
-			setTabText(index, str);
-		}
+		unreadMessages ++;
+		messagesForMe |= (message.property("mention") == true || !qobject_cast<Conference*>(message.chatUnit()));
 	}
+	if (messagesForMe) {
+		str.prepend(QLatin1Char('*'));
+		setTabTextColor(index, pal.color(QPalette::Highlight));
+	}
+	if (unreadMessages > 0)
+		str.append(" (" + QString::number(unreadMessages) + ")");
+	setTabText(index, str);
 }
 
 void TabBar::onContextMenu(const QPoint &pos)
