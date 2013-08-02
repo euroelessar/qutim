@@ -55,12 +55,13 @@ Product {
         else
             return "lib/qutim/plugins";
     }
-    cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId ]
+    cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=" + name ]
     cpp.visibility: 'hidden'
     cpp.installNamePrefix: "@rpath/plugins/"
     cpp.rpaths: qbs.targetOS.contains("osx")
                 ? ["@loader_path/../..", "@executable_path/.."]
                 : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
+    cpp.createSymlinks: false
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: [ "core", "gui", "network", "script", "widgets" ] }

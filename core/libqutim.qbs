@@ -60,6 +60,9 @@ Framework {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
+        cpp.cxxFlags: [
+            "-std=c++11"
+        ]
         Properties {
             condition: project.declarativeUi
             cpp.defines: "QUTIM_DECLARATIVE_UI"

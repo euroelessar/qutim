@@ -218,20 +218,6 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
     return code.result().toBase64();
 }
 
-static QByteArray paranoicEscape(const QByteArray &raw)
-{
-	static char hex[17] = "0123456789ABCDEF";
-	QByteArray escaped;
-	escaped.reserve(raw.size() * 3);
-	for (int i = 0; i < raw.size(); ++i) {
-		const quint8 c = static_cast<quint8>(raw[i]);
-		escaped += '%';
-		escaped += hex[c >> 4];
-		escaped += hex[c & 0x0f];
-	}
-	return escaped;
-}
-
 void OscarAuth::clientLogin(bool longTerm)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);

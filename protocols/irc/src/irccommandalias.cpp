@@ -144,11 +144,11 @@ QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringLis
 		return QString();
 	QDateTime current = QDateTime::currentDateTime();
 	QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
-	return QString("PRIVMSG %1 :\001PING %2\001").arg(user).arg(timeStamp);
+	return QStringLiteral("PRIVMSG %1 :\001PING %2\001").arg(user).arg(timeStamp);
 }
 
 #define ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
-	cmd = new IrcCommandAlias(NAME, "MODE %n +b "MODE ADDITIONALCMD, IrcCommandAlias::Participant); \
+	cmd = new IrcCommandAlias(NAME, "MODE %n +b " MODE ADDITIONALCMD, IrcCommandAlias::Participant); \
 	gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
 	gen->setType(TYPE); \
 	MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
@@ -172,7 +172,7 @@ QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringLis
 	REGISTER_CTCP_CMD(TITLE)
 
 #define ADD_MODE(MODE, PRIORITY, NAME, TITLE)\
-	cmd = new IrcCommandAlias(NAME, "MODE %n "MODE" %o", IrcCommandAlias::Participant);\
+	cmd = new IrcCommandAlias(NAME, "MODE %n " MODE " %o", IrcCommandAlias::Participant);\
 	gen = new IrcActionGenerator(QIcon(), TITLE, cmd);\
 	gen->setPriority(PRIORITY);\
 	MenuController::addAction<IrcChannelParticipant>(gen, modesGroup);\
