@@ -39,6 +39,8 @@
 #include <QTextDocument>
 #include <QStringBuilder>
 
+#include <QUrlQuery>
+
 namespace UrlPreview {
 
 using namespace qutim_sdk_0_3;
@@ -130,13 +132,14 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	const QUrl url = QUrl::fromUserInput(link);
 
 	if (m_flags & PreviewYoutube) {
+        QString urlquery = QUrlQuery(url.query()).queryItemValue(QLatin1String("v"));
 		const QString youtubeId = (url.host() == QLatin1String("youtube.com")
 								   || url.host() == QLatin1String("www.youtube.com"))
 								  ? (url.path().startsWith(QLatin1String("/v/"))
 									 ? url.path().mid(3)
 									 : (url.path().startsWith(QLatin1String("/embed/"))
 										? url.path().mid(7)
-										: url.queryItemValue(QLatin1String("v"))))
+                                        : urlquery))
 								  : (url.host() == QLatin1String("youtu.be")
 									 ? url.path().mid(1)
 									 : QString());
@@ -198,15 +201,15 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	foreach (QString header, reply->rawHeaderList()) {
 		if (type.isEmpty()) {
 			hrx.setPattern("^content-type$");
-			if (hrx.indexIn(header)==0) typeheader = header.toAscii();
+            if (hrx.indexIn(header)==0) typeheader = header.toLatin1();
 		}
 		if (sizeheader.isEmpty()) {
 			hrx.setPattern("^content-range$");
-			if (hrx.indexIn(header)==0) sizeheader = header.toAscii();
+            if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
 		}
 		if (sizeheader.isEmpty()) {
 			hrx.setPattern("^content-length$");
-			if (hrx.indexIn(header)==0) sizeheader = header.toAscii();
+            if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
 		}
 	}
 	if (!typeheader.isEmpty()) {
@@ -270,8 +273,12 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			 || type == QLatin1String("application/xhtml")
 			 || type == QLatin1String("application/xhtml+xml"))) {
 		QUrl rcaUrl(QLatin1String("http://rca.yandex.com/"));
-		rcaUrl.addEncodedQueryItem("key", "svV1bfH1");
-		rcaUrl.addEncodedQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
+        QUrlQuery yaquery;
+        yaquery.addQueryItem("key", "svV1bfH1");
+        yaquery.addQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
+        rcaUrl.setQuery(yaquery);
+        //rcaUrl.addEncodedQueryItem("key", "svV1bfH1");
+        //rcaUrl.addEncodedQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
 		QNetworkRequest request(rcaUrl);
 		QNetworkReply *rcaReply = m_netman->get(request);
 		rcaReply->setProperty("yandexRCA", true);

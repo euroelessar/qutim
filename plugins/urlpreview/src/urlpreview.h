@@ -42,6 +42,7 @@ class UrlPreviewPlugin : public qutim_sdk_0_3::Plugin
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "UrlPreview")
 	Q_CLASSINFO("Uses", "ChatLayer")
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 public:
 	virtual void init();
