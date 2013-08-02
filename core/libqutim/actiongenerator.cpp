@@ -297,7 +297,7 @@ void ActionGeneratorPrivate::sendActionCreatedEvent(QAction *action, QObject *co
 		const char *member = receiver.second.constData() + 1;
 		int index = meta->indexOfMethod(member);
 		if (index == -1) {
-			warning() << "ActionGeneratorPrivate::onActionCreated: No such method" << meta->className() << "::" << member;
+			qWarning() << "ActionGeneratorPrivate::onActionCreated: No such method" << meta->className() << "::" << member;
 		}
 		QMetaMethod method = meta->method(index);
 		method.invoke(receiver.first, Q_ARG(QAction*, action), Q_ARG(QObject*, controller));

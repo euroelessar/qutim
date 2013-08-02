@@ -278,15 +278,15 @@ void TabbedChatWidget::loadSettings()
 		}
 
 		ConfigGroup keyGroup = cfg.group("keys");
-		debug() << "Load new settings" << keyGroup.childGroups();
+		qDebug() << "Load new settings" << keyGroup.childGroups();
 		if (keyGroup.hasChildGroup(m_key)) {
-			debug() << "load settings for key" << m_key;
+			qDebug() << "load settings for key" << m_key;
 			keyGroup.beginGroup(m_key);
 			QByteArray geom = keyGroup.value("geometry", QByteArray());
 			restoreGeometry(geom);
 			foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 				geom = keyGroup.value(splitter->objectName(), QByteArray());
-				debug() << "found splitter" << geom;
+				qDebug() << "found splitter" << geom;
 				splitter->restoreState(geom);
 			}
 			keyGroup.endGroup();

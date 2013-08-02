@@ -40,7 +40,7 @@ SimpleActionBoxModule::SimpleActionBoxModule()
 
 void SimpleActionBoxModule::addAction(QAction *action)
 {
-	debug() << "SimpleActionBox Added action" << action;
+	qDebug() << "SimpleActionBox Added action" << action;
 	if (actions().contains(action))
 		return;
 

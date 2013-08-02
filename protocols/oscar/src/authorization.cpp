@@ -90,7 +90,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 																	reason);
 			qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
 		}
-		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
+		qDebug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
 	}
 	case ListsFamily << 16 | ListsSrvAuthResponse: {
@@ -110,7 +110,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 																	reason);
 			qApp->postEvent(qutim_sdk_0_3::Authorization::service(),event);
 		}
-		debug() << "Auth response" << uin << isAccepted << reason;
+		qDebug() << "Auth response" << uin << isAccepted << reason;
 		break;
 	}
 	}

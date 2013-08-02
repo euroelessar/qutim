@@ -91,8 +91,8 @@ QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
 	setCurrentRow(count() - 1, QItemSelectionModel::SelectCurrent);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QWidget *activeWindow = qApp->activeWindow();
-	debug() << Q_FUNC_INFO << sizeHint() << size();
-	debug() << Q_FUNC_INFO << viewport()->size();
+	qDebug() << Q_FUNC_INFO << sizeHint() << size();
+	qDebug() << Q_FUNC_INFO << viewport()->size();
 	QRect rect = activeWindow->geometry();
 	QSize size = sizeHint().boundedTo(activeWindow->size());
 	QPoint position(rect.left() + (rect.width() - size.width()) / 2,
@@ -103,7 +103,7 @@ QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
 	connect(shortcut, SIGNAL(activated()), SLOT(nextRow()));
 	show();
 	setFocus(Qt::PopupFocusReason);
-	debug() << "Try to show";
+	qDebug() << "Try to show";
 	// Magic number!
 	m_timer.setInterval(800);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(deleteLater()));
@@ -112,8 +112,8 @@ QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
 
 QuoterWidget::~QuoterWidget()
 {
-	debug() << Q_FUNC_INFO << sizeHint() << size();
-	debug() << "Try to die";
+	qDebug() << Q_FUNC_INFO << sizeHint() << size();
+	qDebug() << "Try to die";
 	if (m_controller)
 		emit quoteChoosed(currentItem()->text(), m_controller.data());
 }

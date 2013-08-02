@@ -111,7 +111,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 	if (autoConnect && status == Status::Offline)
 		status = Status(Status::Online);
 	
-	debug() << account->id() << "is created with status" << status;
+	qDebug() << account->id() << "is created with status" << status;
 
 	bool isOnline = isNetworkOnline();
 
@@ -130,22 +130,22 @@ void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
 	
 	if (status == Status::Connecting) {
 		status = status.connectingGoal();
-		debug() << account->id() << "is connecting";
+		qDebug() << account->id() << "is connecting";
 	}
 	
 	if (status.changeReason() == Status::ByUser) {
-		debug() << account->id() << "changed status to" << status << "by user";
+		qDebug() << account->id() << "changed status to" << status << "by user";
 		m_statusHash.insert(account, status);
 		account->config().setValue("lastStatus", status);
 	} else if (status.changeReason() == Status::ByNetworkError && isNetworkOnline()) {
-		debug() << account->id() << "changed status to" << status << "by network error";
+		qDebug() << account->id() << "changed status to" << status << "by network error";
 		int reconnectTimeout = status.property("reconnectTimeout", 60);
 		m_accountsToConnect.insert(account, reconnectTimeout);
 		m_timer.start(m_accountsToConnect.secsTo() * 1000, this);
 	} else if (!isNetworkOnline()) {
-		debug() << account->id() << "changed status to" << status << " because inet is down";
+		qDebug() << account->id() << "changed status to" << status << " because inet is down";
 	} else {
-		debug() << account->id() << "changed status to" << status << " because" << status.changeReason();
+		qDebug() << account->id() << "changed status to" << status << " because" << status.changeReason();
 	}
 }
 
@@ -178,8 +178,8 @@ BearerManager::~BearerManager()
 //	for (; it != m_statusHash.constEnd(); it++) {
 //		Account *account = it.key();
 //		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
-//		debug() << account->id() << it.value() << account->status().icon().name();
-//		debug() << cfg.value(account->id(), Status()).icon().name();
+//		qDebug() << account->id() << it.value() << account->status().icon().name();
+//		qDebug() << cfg.value(account->id(), Status()).icon().name();
 //	}
 //	cfg.endGroup();
 }
@@ -189,7 +189,7 @@ void BearerManager::timerEvent(QTimerEvent *event)
 	if (event->timerId() == m_timer.timerId()) {
 		foreach (Account *account, m_accountsToConnect.takeNearest()) {
 			Status status = m_statusHash.value(account);
-			debug() << "change status of" << account->id() << "to" << status << "by timeout";
+			qDebug() << "change status of" << account->id() << "to" << status << "by timeout";
 			if (status != Status::Offline)
 				account->setStatus(status);
 		}
@@ -216,7 +216,7 @@ void BearerManager::ReconnectList::remove(Account *account)
 void BearerManager::ReconnectList::insert(Account *account, int timeout)
 {
 	remove(account);
-	debug() << account->id() << "reconnect timeout is" << timeout;
+	qDebug() << account->id() << "reconnect timeout is" << timeout;
 	uint time = QDateTime::currentDateTime().addSecs(timeout).toTime_t();
 	BearerManager::ReconnectInfo info = qMakePair(time, account);
 	Iterator it = qLowerBound(begin(), end(), info);

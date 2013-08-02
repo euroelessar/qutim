@@ -95,7 +95,7 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item,
 			connInfo->removedContacts.remove(contact->id());
 		bool added = (type == Feedbag::Add);
 		if (!added)
-			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
+			qDebug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		// isInList
 		if (!d->isInList) {
 			d->isInList = true;
@@ -166,7 +166,7 @@ void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 	case SsiBuddy: {
 		IcqContact *contact = account->getContact(item.name());
 		if (!contact) {
-			warning() << "The contact" << item.name() << "does not exist";
+			qWarning() << "The contact" << item.name() << "does not exist";
 			break;
 		}
 		removeContactFromGroup(contact, item.groupId());
@@ -175,7 +175,7 @@ void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 	case SsiGroup: {
 		foreach (IcqContact *contact, account->contacts())
 			removeContactFromGroup(contact, item.groupId());
-		debug() << "The group" << item.name() << "has been removed";
+		qDebug() << "The group" << item.name() << "has been removed";
 		break;
 	}
 	}
@@ -200,11 +200,11 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 //	}
 //	if (found) {
 //		if (items.isEmpty()) {
-////			debug().nospace() << "The contact " << contact->id()
+////			qDebug().nospace() << "The contact " << contact->id()
 ////					<< " (" << contact->name() << ") has been removed";
 //			removeContact(contact);
 //		} else {
-////			debug().nospace() << "The contact " << contact->id() << " ("
+////			qDebug().nospace() << "The contact " << contact->id() << " ("
 ////					<< contact->name() << ") has been removed from "
 ////					<< contact->account()->feedbag()->groupItem(groupId).name();
 //			emit contact->tagsChanged(contact->tags(), previous);
@@ -265,7 +265,7 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		handleUserOffline(conn->account(), sn);
 		break;
 	case BuddyFamily << 16 | UserSrvReplyBuddy:
-		debug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
+		qDebug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
 		break;
 	}
 }
@@ -298,7 +298,7 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	if (statusNoteData.contains(0x0d)) {
 		quint16 time = statusNoteData.value(0x0d).read<quint16>();
-		debug() << "Status note update time" << time;
+		qDebug() << "Status note update time" << time;
 	}
 	if (statusNoteData.contains(0x02)) {
 		DataUnit data(statusNoteData.value(0x02));
@@ -308,12 +308,12 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 		if (!encoding.isEmpty()) {
 			codec = QTextCodec::codecForName(encoding);
 			if (!codec)
-				debug() << "Server sent wrong encoding for status note";
+				qDebug() << "Server sent wrong encoding for status note";
 		}
 		if (!codec)
 			codec = utf8Codec();
 		status.setText(unescape(codec->toUnicode(note_data)));
-//		debug() << "status note" << status.text();
+//		qDebug() << "status note" << status.text();
 	}
 	// Updating capabilities
 	Capabilities newCaps;
@@ -438,7 +438,7 @@ void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &t
 	foreach (RosterPlugin *plugin, contact->account()->d_func()->rosterPlugins)
 		plugin->statusChanged(contact, status, tlvs);
 	contact->setStatus(status);
-//	debug() << contact->name() << "changed status to " << status.name();
+//	qDebug() << contact->name() << "changed status to " << status.name();
 }
 
 RosterPlugin::~RosterPlugin()

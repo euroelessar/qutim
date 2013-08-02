@@ -211,7 +211,7 @@ void IcqAccount::setStatus(Status status_helper)
 	Q_D(IcqAccount);
 	Status status = OscarStatus(status_helper);
 	Status current = this->status();
-	debug() << Q_FUNC_INFO << current << "->" << status;
+	qDebug() << Q_FUNC_INFO << current << "->" << status;
     if (current.type() == Status::Connecting
             && status.type() > Status::Offline) {
 		d->lastStatus = status;
@@ -288,7 +288,7 @@ void IcqAccount::setStatus(Status status_helper)
 		}
 		statusCfg.endGroup();
 	}
-	debug() << status << "with" << Status::connectingGoal(status);
+	qDebug() << status << "with" << Status::connectingGoal(status);
 	emit statusChanged(status, current);
 	Account::setStatus(status);
 }

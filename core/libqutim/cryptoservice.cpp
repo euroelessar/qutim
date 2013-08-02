@@ -42,7 +42,7 @@ static QPointer<CryptoService> self;
 CryptoService::CryptoService()
 {
     if (self) {
-		fatal() << "Double initialization of CryptoService, aborting";
+        qFatal("Double initialization of CryptoService, aborting");
         // ensure
         qApp->exit(1); //goodbye cruel world
     }

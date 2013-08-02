@@ -220,7 +220,7 @@ namespace Core
 		if (file.open(QFile::WriteOnly | QIODevice::Text)) {
 			QByteArray data;
 			Json::generate(data, entry, 2, variantGeneratorExt);
-//			debug() << QString::fromUtf8(data, data.size());
+//			qDebug() << QString::fromUtf8(data, data.size());
 			file.write(data);
 			file.close();
 		}

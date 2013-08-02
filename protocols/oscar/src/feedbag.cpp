@@ -49,14 +49,14 @@ QString getCompressedName(quint16 type, const QString &name)
 		// Check is cheaper
 		for (int i = 0; ok && i < name.size(); ++i)
 			ok &= name[i].isLower();
-		debug() << "compressedName:" << name << "is" << ok;
+		qDebug() << "compressedName:" << name << "is" << ok;
 		compressedName = ok ? name : name.toLower();
 	} else {
 		bool ok = true;
 		// Check is cheaper
 		for (int i = 0; ok && i < name.size(); ++i)
 			ok &= !name[i].isSpace() && name[i].isLower();
-		debug() << "compressedName:" << name << "is" << ok;
+		qDebug() << "compressedName:" << name << "is" << ok;
 		if (ok) {
 			compressedName = name;
 		} else {
@@ -265,13 +265,13 @@ bool FeedbagItemPrivate::isSendingAllowed(const FeedbagItem &item, Feedbag::Modi
 	FeedbagPrivate *d = feedbag->d.data();
 	Status::Type status = d->account->status().type();
 	if (status == Status::Offline || status == Status::Connecting) {
-		warning() << "Trying to send the feedbag item while offline:" << item;
+		qWarning() << "Trying to send the feedbag item while offline:" << item;
 		return false;
 	}
 	if (operation == Feedbag::Add) {
 		quint16 limit = d->limits.value(item.type());
 		if (limit > 0 && d->itemsByType.value(item.type()).size() >= limit) {
-			warning() << "Limit for feedbag item type" << item.type() << "exceeded";
+			qWarning() << "Limit for feedbag item type" << item.type() << "exceeded";
 			return false;
 		}
 	}
@@ -520,7 +520,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 {
 	Q_Q(Feedbag);
 	if (!handlers.contains(item.type())) {
-		debug() << "The feedbag item ignored:" << item;
+		qDebug() << "The feedbag item ignored:" << item;
 		return;
 	}
 	const QPair<quint16, quint16> id = item.pairId();
@@ -582,21 +582,21 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	if (!found) {
 		if (error == FeedbagError::NoError) {
 			if (type == Feedbag::Remove) {
-				debug(DebugVerbose) << "The feedbag item has been removed:" << item;
+				qWarning() << "The feedbag item has been removed:" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(DebugVerbose) << "The feedbag item has been updated:" << item;
+				qWarning() << "The feedbag item has been updated:" << item;
 			} else {
-				debug(DebugVerbose) << "The feedbag item has been added:" << item;
+				qWarning() << "The feedbag item has been added:" << item;
 			}
 		} else {
 			if (type == Feedbag::Remove) {
-				debug(DebugVerbose).nospace() << "The feedbag item has not been removed: "
+				qWarning().nospace() << "The feedbag item has not been removed: "
 				                         << error.errorString() << ". (" << error.code() << ")" << item;
 			} else if (type == Feedbag::Modify) {
-				debug(DebugVerbose) << "The feedbag item has not been updated:"
+				qWarning() << "The feedbag item has not been updated:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			} else {
-				debug(DebugVerbose) << "The feedbag item has not been added:"
+				qWarning() << "The feedbag item has not been added:"
 				               << error.errorString() << ". (" << error.code() << ")" << item;
 			}
 		}
@@ -663,7 +663,7 @@ FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 	quint16 itemType = snac.read<quint16>();
 	if (!handlers.contains(itemType)) {
 		// TODO: add better debugging.
-		debug() << "The feedbag item ignored with type" << itemType << "and name" << recordName;
+		qDebug() << "The feedbag item ignored with type" << itemType << "and name" << recordName;
 		snac.skipData(snac.read<quint16>());
 		return 0;
 	}
@@ -700,11 +700,11 @@ void FeedbagPrivate::updateList()
 //	qStableSort(modifyQueue.begin(), modifyQueue.end(), feedbagItemLessThan);
 	SNAC snac;
 	QList<FeedbagQueueItem> items;
-	debug() << "Trying to change" << modifyQueue.size() << "items:";
+	qDebug() << "Trying to change" << modifyQueue.size() << "items:";
 	for (int i = 0; i <= modifyQueue.size(); ++i) {
 		const FeedbagQueueItem *item = i < modifyQueue.size() ? &modifyQueue.at(i) : 0;
 		if (item)
-			debug() << item->type << item->item;
+			qDebug() << item->type << item->item;
 		QByteArray data = item ? item->item.d->data(item->type) : QByteArray();
 		if (!item || item->type != snac.subtype() || !snac.canAppend(data.size())) {
 			if (!items.isEmpty()) {
@@ -890,7 +890,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 {
 	QList<FeedbagItem> items;
 	const QString uniqueName = getCompressedName(type, name);
-	debug() << Q_FUNC_INFO << __LINE__ << type << name << flags;
+	qDebug() << Q_FUNC_INFO << __LINE__ << type << name << flags;
 	if (!(flags & DontLoadLocal)) {
 		if (type == SsiBuddy) {
 			for (GroupHash::Iterator it = d->root.regulars.begin();
@@ -902,7 +902,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 					if (!item.isNull()) {
 						items << item;
 						if (flags & ReturnOne) {
-							debug() << Q_FUNC_INFO << "Found exaclty one element";
+							qDebug() << Q_FUNC_INFO << "Found exaclty one element";
 							return items;
 						}
 					}
@@ -916,7 +916,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 				if (!item.isNull()) {
 					items << item;
 					if (flags & ReturnOne) {
-						debug() << Q_FUNC_INFO << "Found exaclty one element";
+						qDebug() << Q_FUNC_INFO << "Found exaclty one element";
 						return items;
 					}
 				}
@@ -924,15 +924,15 @@ QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFla
 		}
 	}
 	if (items.isEmpty() && (flags & CreateItem)) {
-		debug() << Q_FUNC_INFO << "Need to create new item";
+		qDebug() << Q_FUNC_INFO << "Need to create new item";
 		items << FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type != SsiGroup ? uniqueItemId(type) : 0,
 						   type == SsiGroup ? uniqueItemId(type) : 0,
 						   name);
 	} else if (items.isEmpty()) {
-		debug() << Q_FUNC_INFO << "List is empty, but it's ok";
+		qDebug() << Q_FUNC_INFO << "List is empty, but it's ok";
 	} else {
-		debug() << Q_FUNC_INFO << "Found all needed elements";
+		qDebug() << Q_FUNC_INFO << "Found all needed elements";
 	}
 	return items;
 }
@@ -945,10 +945,10 @@ FeedbagItem Feedbag::groupItem(quint16 id, ItemLoadFlags flags) const
 FeedbagItem Feedbag::groupItem(const QString &name, ItemLoadFlags flags) const
 {
 	QList<FeedbagItem> list = items(SsiGroup, name, flags | ReturnOne);
-	debug() << Q_FUNC_INFO << "Found" << list.size() << "items";
+	qDebug() << Q_FUNC_INFO << "Found" << list.size() << "items";
 	if (list.isEmpty())
 		return FeedbagItem();
-	debug() << Q_FUNC_INFO << "First one is null: " << list.first().isNull();
+	qDebug() << Q_FUNC_INFO << "First one is null: " << list.first().isNull();
 	return list.first();
 }
 
@@ -1037,7 +1037,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ListsFamily << 16 | ListsError: {
 		 ProtocolError error(sn);
-		 debug() << QString("Error (%1, %2): %3")
+		 qDebug() << QString("Error (%1, %2): %3")
 				 .arg(error.code(), 2, 16)
 				 .arg(error.subcode(), 2, 16)
 				 .arg(error.errorString());
@@ -1062,7 +1062,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
-		 debug() << "Local contactlist is up to date";
+		 qDebug() << "Local contactlist is up to date";
 		 d->firstPacket = true;
 		 d->finishLoading();
 		 break;
@@ -1077,12 +1077,12 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint8 version = sn.read<quint8>();
 		quint16 count = sn.read<quint16>();
 		bool isLast = !(sn.flags() & 0x0001);
-		debug() << "SSI: number of entries is" << count << "version is" << version;
+		qDebug() << "SSI: number of entries is" << count << "version is" << version;
 		for (uint i = 0; i < count; i++) {	
 			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
 			if (itemPrivate) {
 				FeedbagItem item(itemPrivate);
-				debug() << "Receive item:" << item;
+				qDebug() << "Receive item:" << item;
 				d->itemsList << item;
 //				d->handleItem(item, AddModify, FeedbagError::NoError);
 			}
@@ -1108,7 +1108,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ListsFamily << 16 | ListsUpdateGroup: // Server sends contact list updates
 	case ListsFamily << 16 | ListsAddToList: // Server sends new items
 	case ListsFamily << 16 | ListsRemoveFromList: { // Items have been removed
-		debug() << Q_FUNC_INFO << sn.data().toHex();
+		qDebug() << Q_FUNC_INFO << sn.data().toHex();
 		while (sn.dataSize() != 0) {
 			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
 			if (itemPrivate) {
@@ -1120,7 +1120,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsAck: {
 		while (sn.dataSize() != 0) {
-			debug() << "Received with id:" << sn.id();
+			qDebug() << "Received with id:" << sn.id();
 			QSet<quint16> groups;
 			foreach (FeedbagQueueItem operation, d->itemsForRequests.takeFirst()) {
 				FeedbagError error(sn);
@@ -1140,10 +1140,10 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ListsFamily << 16 | ListsCliModifyStart:
-		debug(DebugVerbose) << "The server has started modification of the contact list";
+		qWarning() << "The server has started modification of the contact list";
 		break;
 	case ListsFamily << 16 | ListsCliModifyEnd:
-		debug(DebugVerbose) << "The server has ended modification of the contact list";
+		qWarning() << "The server has ended modification of the contact list";
 		break;
 	// Server sends SSI service limitations to client
 	case ListsFamily << 16 | ListsSrvReplyLists: {

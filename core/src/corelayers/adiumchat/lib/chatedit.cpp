@@ -228,7 +228,7 @@ void ChatEdit::onTextChanged()
 		QFontMetrics fontHeight = fontMetrics();
 		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
 		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
-		debug() << "New docHeight is: " << docHeight;
+		qDebug() << "New docHeight is: " << docHeight;
 		if (docHeight == previousTextHeight)
 			return;
 

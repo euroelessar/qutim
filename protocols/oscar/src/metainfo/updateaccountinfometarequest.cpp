@@ -51,7 +51,7 @@ bool UpdateAccountInfoMetaRequest::handleData(quint16 type, const DataUnit &data
 {
 	Q_UNUSED(data);
 	if (type == 0x0c3f) {
-		debug() << "Account info successfully has been updated";
+		qDebug() << "Account info successfully has been updated";
 		emit infoUpdated();
 		return true;
 	}

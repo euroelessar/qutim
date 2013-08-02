@@ -49,7 +49,7 @@ struct StatusHashKey
 }
 
 template <>
-uint qHash<qutim_sdk_0_3::StatusHashKey>(const qutim_sdk_0_3::StatusHashKey &value, uint seed)
+uint qHash<qutim_sdk_0_3::StatusHashKey>(const qutim_sdk_0_3::StatusHashKey &value, uint seed) Q_DECL_NOTHROW
 {
 	// Simple hash algorithm
 	const uint p = 373;

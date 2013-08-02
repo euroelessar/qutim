@@ -239,7 +239,7 @@ void OscarConnection::onError(ConnectionError error)
 			str += error.errorString();
 		}
 
-		debug() << str;
+		qDebug() << str;
 		Notification::send(str);
 	}
 	AbstractConnection::onError(error);

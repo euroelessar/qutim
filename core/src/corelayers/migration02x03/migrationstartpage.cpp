@@ -98,14 +98,14 @@ void MigrationStartPage::initializePage()
 		setEnabled(false);
 		ui->importBox->setChecked(false);
 	} else {
-		debug() << configPath;
+		qDebug() << configPath;
 		QFileInfoList list = configPath.entryInfoList(QStringList() << "qutim.*",
 													  QDir::Dirs | QDir::NoDotAndDotDot);
 		QSettings settings(configPath.filePath("qutimsettings.ini"), QSettings::IniFormat);
 		settings.beginGroup("profiles");
 		QStringList knownProfiles = settings.value("list").toStringList();
 		QString currentProfile = knownProfiles.value(settings.value("last", -1).toInt());
-		debug() << knownProfiles << currentProfile << configPath.filePath("qutimsettings.ini");
+		qDebug() << knownProfiles << currentProfile << configPath.filePath("qutimsettings.ini");
 		// We have list of profiles but it may be corrupted so check every path
 		foreach (const QFileInfo &info, list) {
 			QString profileName = info.fileName().section('.', 1);
@@ -139,10 +139,10 @@ void MigrationStartPage::on_profileBox_currentIndexChanged(int index)
 		QSettings protoSettings(dir.filePath(protocol.lower + "settings.ini"),
 								QSettings::IniFormat);
 		protoSettings.beginGroup("accounts");
-		debug() << protocol.name << protoSettings.value("list").toStringList();
+		qDebug() << protocol.name << protoSettings.value("list").toStringList();
 		foreach (const QString &account, protoSettings.value("list").toStringList()) {
 			QString accFile = dir.filePath(protocol.config % '.' % account % "/accountsettings.ini");
-			debug() << accFile << QFile::exists(accFile);
+			qDebug() << accFile << QFile::exists(accFile);
 			if (QFile::exists(accFile)) {
 				QListWidgetItem *item = new QListWidgetItem(account % " (" % protocol.name % ")",
 															ui->accountsList);
@@ -162,7 +162,7 @@ bool MigrationStartPage::validatePage()
 	if (!ui->importBox->isChecked())
 		return true;
 	//	Firstly copy accounts
-	debug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
+	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	for (int i = 0; i < ui->accountsList->count(); i++) {
 		QListWidgetItem *item = ui->accountsList->item(i);
 		if (item->checkState() != Qt::Checked)
@@ -219,7 +219,7 @@ bool MigrationStartPage::validatePage()
 				}
 			}
 		}
-		debug() << "History was imported by " << time.elapsed() << "ms";
+		qDebug() << "History was imported by " << time.elapsed() << "ms";
 	}
 	//	TODO: Copy styles and other stuff
 	return true;

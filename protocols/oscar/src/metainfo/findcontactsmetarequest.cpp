@@ -81,7 +81,7 @@ bool FindContactsMetaRequest::handleData(quint16 type, const DataUnit &data)
 	contact.status = static_cast<Status>(data.read<quint16>(LittleEndian));
 	contact.gender = genders().value(data.read<quint8>());
 	contact.age = data.read<quint16>(LittleEndian);
-	debug() << "Contact found" << contact.uin << contact.nick << contact.firstName
+	qDebug() << "Contact found" << contact.uin << contact.nick << contact.firstName
 			<< contact.lastName << contact.email << contact.authFlag << contact.status
 			<< contact.gender << contact.age;
 	emit contactFound(contact);

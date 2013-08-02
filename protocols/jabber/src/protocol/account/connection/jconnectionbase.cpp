@@ -65,7 +65,7 @@
 //		info->lookupSrvRecord(QLatin1String("xmpp-client"),
 //							  QLatin1String("tcp"),
 //							  QString::fromStdString(m_server));
-//		qutim_sdk_0_3::debug() << "Looking srv records for:" << QString::fromStdString(m_server);
+//		qutim_sdk_0_3::qDebug() << "Looking srv records for:" << QString::fromStdString(m_server);
 //	}
 //}
 
@@ -94,13 +94,13 @@
 //	for(;it!=records.constEnd();it++) {
 //		QString host = it->name;
 //		int port = it->port;
-//		qutim_sdk_0_3::debug() << "hosts" << host << port;
+//		qutim_sdk_0_3::qDebug() << "hosts" << host << port;
 //		QString hostr = host;
 //		hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
 //		if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
 //			m_server = host.toStdString();
 //			m_port = port;
-//			qutim_sdk_0_3::debug() << "resolved host" << host << port;
+//			qutim_sdk_0_3::qDebug() << "resolved host" << host << port;
 //			break;
 //		}
 //	}

@@ -288,7 +288,7 @@ namespace Core
 
         if ( !QWidget::keyboardGrabber() )
         {
-            qutim_sdk_0_3::warning() << "Failed to grab the keyboard! Most likely qt's nograb option is active";
+            qWarning() << "Failed to grab the keyboard! Most likely qt's nograb option is active";
         }
 
         setDown (true);

@@ -168,7 +168,7 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2'></span> ")
 		   .arg(originalLink.toString(), uid);
 
-	debug() << "url" << link;
+	qDebug() << "url" << link;
 }
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
@@ -223,7 +223,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			size = hrx.cap(1).toInt();
 	}
 	
-	debug() << url << reply->rawHeaderList() << type;
+	qDebug() << url << reply->rawHeaderList() << type;
 	if (type.isNull())
 		return;
 
@@ -317,7 +317,7 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % QLatin1Literal("\";");
 	ChatSession *session = ChatLayer::get(unit);
 
-	debug() << unit << uid << js;
+	qDebug() << unit << uid << js;
 
 	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }

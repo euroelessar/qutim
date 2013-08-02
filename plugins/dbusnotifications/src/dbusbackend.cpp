@@ -85,7 +85,7 @@ DBusBackend::DBusBackend() :
 	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {
-		warning() << "Error connecting to notifications service.";
+		qWarning() << "Error connecting to notifications service.";
 	}
 	QDBusMessage message = QDBusMessage::createMethodCall(
 	            QLatin1String("org.freedesktop.Notifications"),

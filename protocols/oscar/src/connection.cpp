@@ -292,7 +292,7 @@ void AbstractConnection::setProxy(const QNetworkProxy &oldProxy)
 {
 	QNetworkProxy proxy = oldProxy;
 	proxy.setCapabilities(proxy.capabilities() &=~ QNetworkProxy::HostNameLookupCapability);
-	debug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
+	qDebug() << Q_FUNC_INFO << proxy.type() << proxy.hostName() << proxy.port() << proxy.capabilities();
 	d_func()->socket->setProxy(proxy);
 }
 
@@ -487,7 +487,7 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 		snac.lock();
 		send(flap);
 	}
-	debug(DebugVerbose) << dbgStr
+    qWarning() << dbgStr
 					  .arg(snac.family(), 4, 16, QChar('0'))
 					  .arg(snac.subtype(), 4, 16, QChar('0'))
 					  .arg(metaObject()->className());
@@ -501,7 +501,7 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 
 void AbstractConnection::processNewConnection()
 {
-	debug(DebugVerbose) << QString("processNewConnection: %1 %2 %3")
+	qWarning() << QString("processNewConnection: %1 %2 %3")
 					  .arg(flap().channel(), 2, 16, QChar('0'))
 					  .arg(flap().seqNum())
 					  .arg(flap().data().toHex().constData());
@@ -511,7 +511,7 @@ void AbstractConnection::processNewConnection()
 void AbstractConnection::processCloseConnection()
 {
 	Q_D(AbstractConnection);
-	debug(DebugVerbose) << QString("processCloseConnection: %1 %2 %3")
+	qWarning() << QString("processCloseConnection: %1 %2 %3")
 					  .arg(d->flap.channel(), 2, 16, QChar('0'))
 					  .arg(d->flap.seqNum())
 					  .arg(d->flap.data().toHex().constData());
@@ -589,7 +589,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint32 ip = tlvs.value(0x0a).read<quint32>();
 		d->ext_ip = QHostAddress(ip);
 
-		//debug() << conn->externalIP();
+		//qDebug() << conn->externalIP();
 		break;
 	}
 		// Server sends its services version numbers
@@ -640,11 +640,11 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		sn.read<QByteArray, quint16>(); // Unknown
 		quint16 code = sn.read<quint16>();
 		if (code == 2)
-			debug() << "Rate limits warning";
+			qDebug() << "Rate limits warning";
 		if (code == 3)
-			debug() << "Rate limits hit";
+			qDebug() << "Rate limits hit";
 		if (code == 4)
-			debug() << "Rate limits clear";
+			qDebug() << "Rate limits clear";
 		quint32 groupId = sn.read<quint16>();
 		if (d->rates.contains(groupId))
 			d->rates.value(groupId)->update(sn);
@@ -652,7 +652,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ServiceFamily << 16 | ServiceError: {
 		ProtocolError error(sn);
-		debug() << QString("Error (%1, %2): %3")
+		qDebug() << QString("Error (%1, %2): %3")
 				   .arg(error.code(), 2, 16)
 				   .arg(error.subcode(), 2, 16)
 				   .arg(error.errorString());
@@ -680,7 +680,7 @@ void AbstractConnection::processSnac()
 {
 	Q_D(AbstractConnection);
 	SNAC snac = SNAC::fromByteArray(d->flap.data());
-	debug(DebugVerbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
+	qWarning() << QString("SNAC(0x%1, 0x%2) is received from %3")
 					  .arg(snac.family(), 4, 16, QChar('0'))
 					  .arg(snac.subtype(), 4, 16, QChar('0'))
 					  .arg(metaObject()->className());
@@ -691,7 +691,7 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if (!found) {
-		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
+		qWarning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
 					 .arg(snac.family(), 4, 16, QChar('0'))
 					 .arg(snac.subtype(), 4, 16, QChar('0'))
 					 .arg(metaObject()->className());
@@ -702,7 +702,7 @@ void AbstractConnection::readData()
 {
 	Q_D(AbstractConnection);
 	if (d->socket->bytesAvailable() <= 0) {
-		debug() << "readyRead emmited but the socket is empty";
+		qDebug() << "readyRead emmited but the socket is empty";
 		return;
 	}
 	if (d->flap.readData(d->socket)) {
@@ -718,11 +718,11 @@ void AbstractConnection::readData()
 				processCloseConnection();
 				break;
 			default:
-				debug() << "Unknown shac channel" << hex << d->flap.channel();
+				qDebug() << "Unknown shac channel" << hex << d->flap.channel();
 			case 0x03:
 				break;
 			case 0x05:
-				debug() << "Connection alive!";
+				qDebug() << "Connection alive!";
 				break;
 			}
 			d->flap.clear();
@@ -731,7 +731,7 @@ void AbstractConnection::readData()
 		if (d->socket->bytesAvailable())
 			QTimer::singleShot(0, this, SLOT(readData()));
 	} else {
-		critical() << "Strange situation at" << Q_FUNC_INFO << ":" << __LINE__;
+		qCritical() << "Strange situation at" << Q_FUNC_INFO << ":" << __LINE__;
 		d->socket->close();
 	}
 }
@@ -741,7 +741,7 @@ void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 	if (state == QAbstractSocket::ConnectedState)
 		SystemIntegration::keepAlive(d_func()->socket);
 
-	debug(DebugVerbose) << "New connection state" << state << this->metaObject()->className();
+	qWarning() << "New connection state" << state << this->metaObject()->className();
 	if (state == QAbstractSocket::UnconnectedState) {
 		onDisconnect();
 		emit disconnected();
@@ -751,7 +751,7 @@ void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
 	setError(SocketError);
-	debug() << "Connection error:" << error << errorString();
+	qDebug() << "Connection error:" << error << errorString();
 }
 
 void AbstractConnection::sendAlivePacket()
@@ -759,7 +759,7 @@ void AbstractConnection::sendAlivePacket()
 	FLAP flap(0x05);
 	flap.append<quint16>(0);
 	send(flap);
-	debug() << "Alive packet has been sent";
+	qDebug() << "Alive packet has been sent";
 }
 
 } } // namespace qutim_sdk_0_3::oscar

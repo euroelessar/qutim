@@ -290,7 +290,7 @@ bool WebViewController::zoomImage(QWebElement elem)
 
 void WebViewController::debugLog(const QString &message)
 {
-	debug() << "WebKit: " << message;
+	qDebug() << "WebKit: " << message;
 }
 
 void WebViewController::appendNick(const QVariant &nick)
@@ -437,7 +437,7 @@ void WebViewController::updateTopic()
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
 		if (!conference) {
-			warning() << "Called WebViewController::updateTopic for non-conference";
+			qWarning() << "Called WebViewController::updateTopic for non-conference";
 			m_topic.setText(QString());
 			m_topic.setHtml(QString());
 		} else {

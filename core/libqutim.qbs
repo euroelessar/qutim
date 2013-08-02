@@ -36,7 +36,8 @@ Framework {
     cpp.defines: [
         "LIBQUTIM_LIBRARY",
         "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-        "QUTIM_SINGLE_PROFILE"
+        "QUTIM_SINGLE_PROFILE",
+        "QUTIM_PLUGIN_NAME=\"libqutim\""
     ]
     cpp.cxxFlags: [
         "-std=c++11"

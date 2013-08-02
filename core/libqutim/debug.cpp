@@ -140,5 +140,11 @@ void debugClearConfig()
 	}
 }
 
+QtMsgType debug_level(const char *name)
+{
+    (void) name;
+    return QtDebugMsg;
+}
+
 }
 

@@ -221,7 +221,7 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 
 	SettingsWidget *w = settingsItem->widget();
 	if(!p->scrollAreas.contains(w)) {
-		debug() << "create widget";
+		qDebug() << "create widget";
 		QScrollArea *area = new QScrollArea(this);
 		area->setFrameShape(QScrollArea::NoFrame);
 		area->setWidget(w);

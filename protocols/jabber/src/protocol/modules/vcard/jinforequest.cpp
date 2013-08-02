@@ -269,7 +269,7 @@ DataItem JInfoRequest::createDataItem() const
 	//JContactResource *c = qobject_cast<JContactResource*>(d->account->getUnit(d->contact));
 	//qDebug() << "get features from" << d->contact << d->account->getUnit(d->contact) << c;
 	//if(c) {
-	//	debug() << c->features();
+	//	qDebug() << c->features();
 	//	DataItem features(QT_TRANSLATE_NOOP("ContactInfo", "Features"));
 	//	addItemList(Features, features,c->features().toList());
 	//	item.addSubitem(features);

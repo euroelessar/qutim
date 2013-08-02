@@ -123,7 +123,7 @@ DataItem JDataForm::convertToDataItem(const Jreen::DataForm::Ptr &form, const QL
 	DataItem root(form->title());
 	for (int i = 0; i < form->fieldsCount(); i++) {
 		Jreen::DataFormField field = form->field(i);
-		debug() << "var + values" << field.var() << field.label() << field.values() << field.media();
+		qDebug() << "var + values" << field.var() << field.label() << field.values() << field.media();
 		QVariant data;
 		if (field.type() == Jreen::DataFormField::Boolean)
 			data = field.cast<Jreen::DataFormFieldBoolean>().value();
@@ -156,7 +156,7 @@ DataItem JDataForm::convertToDataItem(const Jreen::DataForm::Ptr &form, const QL
 			foreach (const Jreen::DataFormMedia::Uri &uri, media->uries()) {
 				const QUrl url = uri.url();
 				if (url.scheme() == QLatin1String("cid")) {
-					debug() << uri.url().toString(QUrl::RemoveScheme);
+					qDebug() << uri.url().toString(QUrl::RemoveScheme);
 					data = bobsMap.value(uri.url().toString(QUrl::RemoveScheme));
 					if (!data.isEmpty()) {
 						type = uri.type();
@@ -187,7 +187,7 @@ DataItem JDataForm::convertToDataItem(const Jreen::DataForm::Ptr &form, const QL
 					labels << options.optionLabel(i);
 					ids << options.optionValue(i);
 				}
-				debug() << labels << ids;
+				qDebug() << labels << ids;
 				item.setProperty("alternatives", labels);
 				item.setProperty("identificators", ids);
 			}

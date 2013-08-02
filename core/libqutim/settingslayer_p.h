@@ -108,7 +108,7 @@ protected:
 	virtual ~AutoSettingsGenerator() {}
 	virtual QObject *generateHelper() const
 	{
-		debug() << Q_FUNC_INFO;
+		qDebug() << Q_FUNC_INFO;
 		if(m_object.isNull())
 			m_object = new AutoSettingsWidget(p);
 		return m_object.data();

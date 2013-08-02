@@ -34,7 +34,7 @@ namespace Core {
 bool AuthService::event(QEvent *event)
 {
 	if(event->type() == Request::eventType()) {
-		debug() << "New request";
+		qDebug() << "New request";
 		Request *request = static_cast<Request*>(event);
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
 		connect(dialog,SIGNAL(accepted()), SLOT(onAccepted()));
@@ -52,7 +52,7 @@ bool AuthService::event(QEvent *event)
 
 void AuthService::handleReply(Reply *reply)
 {
-	debug() << "New reply"  << reply->replyType();
+	qDebug() << "New reply"  << reply->replyType();
 	switch(reply->replyType()) {
 	case Reply::New: {
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
@@ -81,11 +81,11 @@ void AuthService::onAccepted()
 	AuthDialogPrivate *dialog = qobject_cast<AuthDialogPrivate*>(sender());
 	if (Contact *contact = dialog->contact()) {
 		if (dialog->isIncoming()) {
-			debug() << "Send reply";
+			qDebug() << "Send reply";
 			Reply event = Reply(Reply::Accept, contact);
 			qApp->sendEvent(contact,&event);
 		} else {
-			debug() << "Send request";
+			qDebug() << "Send request";
 			Request event = Request(contact,dialog->text());
 			qApp->sendEvent(contact,&event);
 		}

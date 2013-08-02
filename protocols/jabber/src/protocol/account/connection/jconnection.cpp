@@ -301,7 +301,7 @@
 
 //void JConnection::handleLog(LogLevel level, LogArea area, const std::string &message)
 //{
-//	debug() << QString::fromStdString(message);
+//	qDebug() << QString::fromStdString(message);
 //}
 //}
 

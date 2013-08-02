@@ -241,8 +241,8 @@ void JSoftwareDetection::onInfoRequestFinished()
 		QString osVersion = form->field(QLatin1String("os_version")).value();
 		QString icon = getClientIcon(software);
 		QString client = getClientDescription(software, softwareVersion, os);
-		debug() << Q_FUNC_INFO << software << softwareVersion << os << osVersion;
-		debug() << Q_FUNC_INFO << icon << client;
+		qDebug() << Q_FUNC_INFO << software << softwareVersion << os << osVersion;
+		qDebug() << Q_FUNC_INFO << icon << client;
 
 		if (!software.isEmpty()) {
 			info.icon = icon;

@@ -135,7 +135,7 @@ static void resizeArray(QByteArray &data, int size)
 void OftHeader::writeData(QIODevice *dev)
 {
 	DataUnit data;
-	debug() << "Outgoing oft message with type" << hex << type;
+	qDebug() << "Outgoing oft message with type" << hex << type;
 	data.append<quint16>(type);
 	data.append<quint64>(cookie);
 	data.append<quint16>(encrypt);
@@ -218,7 +218,7 @@ void OftSocket::directConnect(const QHostAddress &addr, quint16 port)
 	connectToHost(addr, port);
 	m_clientPort = port;
 	m_timer.start();
-	debug().nospace() << "Trying to establish a direct connection to "
+	qDebug().nospace() << "Trying to establish a direct connection to "
 			<< addr.toString().toLocal8Bit().constData()
 			<< ":" << port;
 }
@@ -258,7 +258,7 @@ void OftSocket::proxyConnect(const QString &uin, QHostAddress addr, quint16 port
 void OftSocket::connectToProxy(const QHostAddress &addr, quint16 port)
 {
 	connectToHost(addr, port);
-	debug().nospace() << "Trying to connect to the proxy "
+	qDebug().nospace() << "Trying to connect to the proxy "
 			<< addr.toString().toLocal8Bit().constData()
 			<< ":" << port;
 	m_timer.start();
@@ -282,7 +282,7 @@ void OftSocket::onReadyRead()
 			data.setData(read(4));
 			m_len = data.read<quint16>() - 2;
 			if (data.read<quint16>() != 0x044A)
-				debug() << "Unknown proxy protocol version";
+				qDebug() << "Unknown proxy protocol version";
 		}
 		if (bytesAvailable() <= m_len) {
 			data.setData(read(m_len));
@@ -294,7 +294,7 @@ void OftSocket::onReadyRead()
 		data.skipData(4); // unknown
 		quint16 flags = data.read<quint16>();
 		Q_UNUSED(flags);
-		debug() << "Rendezvous proxy packet. Type" << type;
+		qDebug() << "Rendezvous proxy packet. Type" << type;
 		switch (type) {
 		case 0x0001 : { // error
 			quint16 code = data.read<quint16>();
@@ -307,7 +307,7 @@ void OftSocket::onReadyRead()
 				str = "Accept Period Timed Out";
 			else
 				str = QString("Unknown rendezvous proxy error: %1").arg(code);
-			debug() << "Rendezvous proxy error:" << str;
+			qDebug() << "Rendezvous proxy error:" << str;
 			setSocketError(QAbstractSocket::ProxyProtocolError);
 			setErrorString(str);
 			emit error(QAbstractSocket::ProxyProtocolError);
@@ -396,7 +396,7 @@ void OftServer::listen()
 {
 	m_timer.start();
 	QTcpServer::listen();
-	debug() << "Started listening for incoming connections on port" << serverPort();
+	qDebug() << "Started listening for incoming connections on port" << serverPort();
 	//emit m_conn->localPortChanged(serverPort());
 }
 
@@ -415,7 +415,7 @@ void OftServer::setConnection(OftConnection *conn)
 void OftServer::incomingConnection(int socketDescriptor)
 {
 	OftSocket *socket = new OftSocket(socketDescriptor);
-	debug().nospace() << "Incoming oscar transfer connection from "
+	qDebug().nospace() << "Incoming oscar transfer connection from "
 			<< socket->peerAddress().toString().toLatin1().constData()
 			<< ":" << socket->peerPort();
 	m_conn->setSocket(socket);
@@ -564,7 +564,7 @@ void OftConnection::close(bool error)
 void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 {
 	if (reqType == MsgRequest) {
-		debug() << m_contact.data()->id() << "has sent file transfer request";
+		qDebug() << m_contact.data()->id() << "has sent file transfer request";
 		m_stage = tlvs.value<quint16>(0x000A);
 		QHostAddress proxyIP(tlvs.value<quint32>(0x0002));
 		QHostAddress clientIP(tlvs.value<quint32>(0x0003));
@@ -599,7 +599,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				if (m_server)
 					m_server.data()->close();
 				if (m_socket) {
-					debug() << "Sender has sent the request for reverse connection (stage 2)"
+					qDebug() << "Sender has sent the request for reverse connection (stage 2)"
 							<< "but the connection already initialized at stage 1";
 					return;
 				}
@@ -616,7 +616,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		}
 
 		if (!errorStr.isEmpty()) {
-			debug() << errorStr;
+			qDebug() << errorStr;
 			close();
 			return;
 		}
@@ -641,9 +641,9 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 			m_socket.data()->proxyConnect(m_account.data()->id(), proxyIP, port);
 		connect(m_socket.data(), SIGNAL(timeout()), SLOT(startNextStage()));
 	} else if (reqType == MsgAccept) {
-		debug() << m_contact.data()->id() << "accepted file transfing";
+		qDebug() << m_contact.data()->id() << "accepted file transfing";
 	} else if (reqType == MsgCancel) {
-		debug() << m_contact.data()->id() << "canceled file transfing";
+		qDebug() << m_contact.data()->id() << "canceled file transfing";
 		close(false);
 		setState(Error);
 		setError(Canceled);
@@ -670,7 +670,7 @@ void OftConnection::setSocket(OftSocket *socket)
 		// emit localPortChanged(socket->localPort());
 	} else {
 		socket->deleteLater();
-		debug() << "Cannot change socket in an initialized oscar file transfer connection";
+		qDebug() << "Cannot change socket in an initialized oscar file transfer connection";
 	}
 }
 
@@ -728,7 +728,7 @@ void OftConnection::sendFileRequest()
 	}
 	ServerMessage message(m_contact.data(), data);
 	m_contact.data()->account()->connection()->send(message);
-	debug() << "A stage" << m_stage << "file transfer request has been sent";
+	qDebug() << "A stage" << m_stage << "file transfer request has been sent";
 }
 
 void OftConnection::connected()
@@ -753,11 +753,11 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 		startNextStage();
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {
-			debug() << "File transfer connection closed";
+			qDebug() << "File transfer connection closed";
 			setState(Finished);
 			close(false);
 		} else {
-			debug() << "File transfer connection error" << m_socket.data()->errorString();
+			qDebug() << "File transfer connection error" << m_socket.data()->errorString();
 			close();
 		}
 	}
@@ -766,7 +766,7 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 void OftConnection::onNewData()
 {
 	if (!m_data) {
-		debug() << "File transfer data has been received when the output file is not initialized";
+		qDebug() << "File transfer data has been received when the output file is not initialized";
 		return;
 	}
 	if (m_socket.data()->bytesAvailable() <= 0)
@@ -950,15 +950,15 @@ void OftConnection::onHeaderReaded()
 				error = QString("Oft message type %1 is not allowed during sending");
 		}
 		if (!error.isEmpty()) {
-			debug() << error.arg(m_header.type);
+			qDebug() << error.arg(m_header.type);
 			close();
 			return;
 		}
-		debug() << "Incoming oft message with type" << hex << m_header.type;
+		qDebug() << "Incoming oft message with type" << hex << m_header.type;
 		switch (m_header.type) {
 		case OftPrompt: { // Sender has sent us info about file transfer
 			if (m_data) {
-				debug() << "Prompt messages are not allowed during resuming receiving";
+				qDebug() << "Prompt messages are not allowed during resuming receiving";
 				return;
 			}
 
@@ -966,7 +966,7 @@ void OftConnection::onHeaderReaded()
 
 			int currentIndex = m_header.totalFiles - m_header.filesLeft;
 			if (currentIndex < 0 || currentIndex >= filesCount()) {
-				debug() << "Sender sent wrong OftPrompt filetransfer request";
+				qDebug() << "Sender sent wrong OftPrompt filetransfer request";
 				close();
 				break;
 			}
@@ -986,7 +986,7 @@ void OftConnection::onHeaderReaded()
 		}
 		case OftReceiverResume: { // Receiver wants to resume old file transfer
 			if (!m_data) {
-				debug() << "Sender sent OftReceiverResume filetransfer request before OftPrompt";
+				qDebug() << "Sender sent OftReceiverResume filetransfer request before OftPrompt";
 				close();
 				return;
 			}
@@ -998,7 +998,7 @@ void OftConnection::onHeaderReaded()
 		}
 		case OftSenderResume: { // Sender responded at our resuming request
 			if (!m_data) {
-				debug() << "The sender had sent OftReceiverResume filetransfer request"
+				qDebug() << "The sender had sent OftReceiverResume filetransfer request"
 						<< "before the receiver sent OftPromt";
 				close();
 				return;
@@ -1007,12 +1007,12 @@ void OftConnection::onHeaderReaded()
 			m_header.type = OftResumeAcknowledge;
 			if (m_header.bytesReceived) { // ok. resume receiving
 				flags = QIODevice::WriteOnly | QIODevice::Append;
-				debug() << "Receiving of file" << m_header.fileName << "will be resumed";
+				qDebug() << "Receiving of file" << m_header.fileName << "will be resumed";
 			} else { // sender said that our local file is corrupt
 				flags = QIODevice::WriteOnly;
 				m_header.receivedChecksum = 0xffff0000;
 				m_header.bytesReceived = 0;
-				debug() << "File" << m_header.fileName << "will be rewritten";
+				qDebug() << "File" << m_header.fileName << "will be rewritten";
 			}
 			if (m_data.data()->open(flags)) {
 				m_header.writeData(m_socket.data());
@@ -1034,7 +1034,7 @@ void OftConnection::onHeaderReaded()
 			break;
 		}
 		default:
-			debug() << "Unknown oft message type" << hex << m_header.type;
+			qDebug() << "Unknown oft message type" << hex << m_header.type;
 			m_socket.data()->dataReaded();
 		}
 	}
@@ -1065,7 +1065,7 @@ void OftFileTransferFactory::processMessage(IcqContact *contact,
 	TLVMap tlvs = DataUnit(data).read<TLVMap>();
 	OftConnection *conn = connection(contact->account(), cookie);
 	if (conn && conn->contact() != contact) {
-		debug() << "Cannot create two oscar file transfer with the same cookie" << cookie;
+		qDebug() << "Cannot create two oscar file transfer with the same cookie" << cookie;
 		return;
 	}
 	bool newRequest = reqType == MsgRequest && !conn;
@@ -1078,7 +1078,7 @@ void OftFileTransferFactory::processMessage(IcqContact *contact,
 			// We were waiting stage 1 message, but the contact had sent us something else.
 			conn->deleteLater();
 	} else {
-		debug() << "Skipped oscar file transfer request with unknown cookie";
+		qDebug() << "Skipped oscar file transfer request with unknown cookie";
 	}
 }
 

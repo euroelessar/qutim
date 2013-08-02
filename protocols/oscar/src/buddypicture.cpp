@@ -78,7 +78,7 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 {
 	if (setAvatar(reqObject, hash))
 		return;
-	debug() << "BuddyPicture: request avatar of" << reqObject->property("name");
+	qDebug() << "BuddyPicture: request avatar of" << reqObject->property("name");
 	SNAC snac(AvatarFamily, AvatarGetRequest);
 	snac.append<quint8>(reqObject->property("id").toString());
 	snac.append<quint8>(1); // unknown
@@ -159,7 +159,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		QByteArray hash = snac.read<QByteArray, quint8>();
 		snac.skipData(21);
 		QByteArray image = snac.read<QByteArray, quint16>();
-		debug() << "BuddyPicture: avatar of" << obj->property("name") << "received";
+		qDebug() << "BuddyPicture: avatar of" << obj->property("name") << "received";
 		saveImage(obj, image, hash);
 		break;
 	}
@@ -187,9 +187,9 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		QByteArray hash = snac.read<QByteArray, quint8>();
 		if (hash == m_avatarHash) {
 			saveImage(account(), m_accountAvatar, hash);
-			debug() << "Account's avatar has been successfully updated";
+			qDebug() << "Account's avatar has been successfully updated";
 		} else {
-			debug() << "Error occurred when updating account avatar";
+			qDebug() << "Error occurred when updating account avatar";
 		}
 		m_avatarHash.clear();
 		m_accountAvatar.clear();
@@ -234,14 +234,14 @@ void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVM
 	Q_UNUSED(status);
 	if (m_avatars && tlvs.contains(0x001d)) { // avatar
 		SessionDataItemMap items(tlvs.value(0x001d));
-		debug() << "BuddyPicture:" << contact->name() << "SessionDataItem:" << items;
+		qDebug() << "BuddyPicture:" << contact->name() << "SessionDataItem:" << items;
 		foreach (const SessionDataItem &item, items) {
 			if (item.type() != staticAvatar && item.type() != miniAvatar &&
 				item.type() != flashAvatar && item.type() != photoAvatar)
 			{
 				continue;
 			}
-			debug() << "BuddyPicture:" << contact->name() << "updated his/her avatar";
+			qDebug() << "BuddyPicture:" << contact->name() << "updated his/her avatar";
 			sendUpdatePicture(contact, item.type(), item.flags(), item.readData(16));
 			break;
 		}
@@ -277,13 +277,13 @@ bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
 	if (obj->property("iconHash").toByteArray() == hash)
 		return true;
 	if (hash == emptyHash) {
-		debug() << "BuddyPicture:" << obj->property("name") << "does not have avatar";
+		qDebug() << "BuddyPicture:" << obj->property("name") << "does not have avatar";
 		updateData(obj, hash, "");
 		return true;
 	} else {
 		QFileInfo file(getAvatarDir() + hash.toHex());
 		if (file.exists()) {
-			debug() << "BuddyPicture:" << obj->property("name") << "has avatar and it is already in cache:" <<
+			qDebug() << "BuddyPicture:" << obj->property("name") << "has avatar and it is already in cache:" <<
 					hash.toHex();
 			updateData(obj, hash, file.filePath());
 			return true;
@@ -319,10 +319,10 @@ void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteA
 		if (!iconFile.exists() && iconFile.open(QIODevice::WriteOnly)) {
 			iconFile.write(image);
 			updateData(obj, hash, imagePath);
-			debug() << "BuddyPicture: avatar of" << obj->property("name") << "stored in cache";
+			qDebug() << "BuddyPicture: avatar of" << obj->property("name") << "stored in cache";
 		}
 	} else {
-		debug() << "BuddyPicture: received empty avatar!";
+		qDebug() << "BuddyPicture: received empty avatar!";
 	}
 }
 

@@ -163,7 +163,7 @@ static ExtensionNode *ensureNode(const QByteArray &id)
 static void addExtension(const ExtensionInfo &info)
 {
 	const QMetaObject *meta = info.generator()->metaObject();
-	debug() << meta->className();
+	qDebug() << meta->className();
 	Q_ASSERT(meta);
 	ensureNode(meta)->infos << info;
 	const QList<QByteArray> interfaces = info.generator()->interfaces();
@@ -301,7 +301,7 @@ void ModuleManager::_q_messageReceived(const QString &message)
   */
 ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 {
-	debug() << QIcon::themeSearchPaths();
+	qDebug() << QIcon::themeSearchPaths();
 	Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
 	VariantHook::init();
 	qRegisterMetaType<QObject*>();
@@ -548,7 +548,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					plugin->init();
 #ifdef QUTIM_TEST_PERFOMANCE
 					initTime = timer.elapsed();
-					debug() << files[i].fileName() << ":\nload:" << libLoadTime << "ms, verify:" << verifyTime
+					qDebug() << files[i].fileName() << ":\nload:" << libLoadTime << "ms, verify:" << verifyTime
 							<< "ms, instance:" << instanceTime << "ms, init:" << initTime << "ms";
 #endif // QUTIM_TEST_PERFOMANCE
                     if (plugin->p->validate()) {
@@ -663,10 +663,10 @@ QObject *ModuleManager::initExtension(const QMetaObject *meta)
 	for (int i = 0; i < exts.size(); ++i) {
 		const ObjectGenerator *generator = exts.at(i).generator();
 		QObject *obj = generator->generate();
-		debug() << QString("Found %1 for %2").arg(generator->metaObject()->className(), meta->className());
+		qDebug() << QString("Found %1 for %2").arg(generator->metaObject()->className(), meta->className());
 		return obj;
 	}
-	warning() << meta->className() << " extension isn't found";
+	qWarning() << meta->className() << " extension isn't found";
 	return 0;
 }
 
@@ -685,10 +685,10 @@ void ModuleManager::initExtensions()
 			const QMetaObject *meta = info.generator()->metaObject();
 			QByteArray name = MetaObjectBuilder::info(meta, "Extension");
 			if (name.isEmpty()) {
-				warning() << meta->className() << " has no 'Extension' class info";
+				qWarning() << meta->className() << " has no 'Extension' class info";
 				continue;
 			}
-			debug() << "Found " << meta->className() << " for " << name.constData();
+			qDebug() << "Found " << meta->className() << " for " << name.constData();
 			configBackends << info.generator()->generate<ConfigBackend>();
 		}
 	}
@@ -730,7 +730,7 @@ void ModuleManager::initExtensions()
 				QByteArray name = MetaObjectBuilder::info(meta, "Protocol");
 				if (name.isEmpty() || name != it.key())
 					continue;
-				debug() << name << meta->className();
+				qDebug() << name << meta->className();
 				Protocol *protocol = info.generator()->generate<Protocol>();
                 d->protocols.insert(protocol->id(), protocol);
 				choosedProtocols.insert(it.key());
@@ -790,7 +790,7 @@ void ModuleManager::initExtensions()
 #endif
 			exts.at(i).generator()->generate<StartupModule>();
 #ifdef QUTIM_TEST_PERFOMANCE
-			debug() << "Startup:" << exts.at(i).generator()->metaObject()->className() << "," << timer.elapsed() << "ms";
+			qDebug() << "Startup:" << exts.at(i).generator()->metaObject()->className() << "," << timer.elapsed() << "ms";
 #endif
 		}
 	}
@@ -802,7 +802,7 @@ void ModuleManager::initExtensions()
 #endif
 		proto->loadAccounts();
 #ifdef QUTIM_TEST_PERFOMANCE
-		debug() << proto->id() << ", load:" << timer.elapsed() << "ms";
+		qDebug() << proto->id() << ", load:" << timer.elapsed() << "ms";
 #endif
 	}
 
@@ -822,12 +822,12 @@ void ModuleManager::initExtensions()
 					plugin->info().data()->loaded = 1;
 				} else {
 #ifdef QUTIM_TEST_PERFOMANCE
-					debug() << plugin->metaObject()->className() <<  ", load:" << timer.elapsed() << "ms";
+					qDebug() << plugin->metaObject()->className() <<  ", load:" << timer.elapsed() << "ms";
 #endif
 					continue;
 				}
 #ifdef QUTIM_TEST_PERFOMANCE
-				debug() << plugin->metaObject()->className() << ", load:" << timer.elapsed() << "ms";
+				qDebug() << plugin->metaObject()->className() << ", load:" << timer.elapsed() << "ms";
 #endif
 				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
 					QList<Plugin*> plugins = factory->loadPlugins();
@@ -841,7 +841,7 @@ void ModuleManager::initExtensions()
 				}
 			}
 		}
-		debug() << i << d->plugins.size() << d->plugins.at(i).data()->metaObject()->className();
+		qDebug() << i << d->plugins.size() << d->plugins.at(i).data()->metaObject()->className();
 	}
 	Event("startup").send();
 }

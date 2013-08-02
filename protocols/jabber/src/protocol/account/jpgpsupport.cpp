@@ -440,7 +440,7 @@
 //		reply->message.addPayload(new PGPEncrypted(text));
 //		reply->session->sendMessage(reply->message);
 //	} else {
-//		warning() << "Something went wrong with encryption" << reply->errorCode();
+//		qWarning() << "Something went wrong with encryption" << reply->errorCode();
 //	}
 //}
 

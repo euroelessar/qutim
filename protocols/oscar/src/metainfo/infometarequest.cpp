@@ -52,9 +52,9 @@ void ShortInfoMetaRequestPrivate::dump()
 	while (itr.hasNext()) {
 		itr.next();
 		if (itr.value().canConvert<CategoryList>())
-			debug() << itr.key().toString() << itr.value().value<CategoryList>();
+			qDebug() << itr.key().toString() << itr.value().value<CategoryList>();
 		else
-			debug() << itr.key().toString() << itr.value();
+			qDebug() << itr.key().toString() << itr.value();
 	}
 }
 
@@ -110,7 +110,7 @@ bool ShortInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 		if (genderId)
 			d->values.insert(Gender, genders().value(genderId));
 	}
-	debug() << d->uin << "short info:";
+	qDebug() << d->uin << "short info:";
 	d->dump();
 	close(true);
 	return true;
@@ -295,7 +295,7 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	emit infoUpdated(static_cast<State>(type));
 	if (type == StateAffilations) {
 		close(true);
-		debug() << d->uin << "full info:";
+		qDebug() << d->uin << "full info:";
 		d->dump();
 	}
 	return true;

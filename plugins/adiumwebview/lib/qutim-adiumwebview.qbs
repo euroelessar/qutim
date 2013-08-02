@@ -21,7 +21,8 @@ Framework {
         "."
     ]
     cpp.defines: [
-        "ADIUMWEBVIEW_LIBRARY"
+        "ADIUMWEBVIEW_LIBRARY",
+        "QUTIM_PLUGIN_NAME=\"" + name + "\""
     ]
     
     files: [

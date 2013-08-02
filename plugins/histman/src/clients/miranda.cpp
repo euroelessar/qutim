@@ -302,7 +302,7 @@ void miranda::loadMessages(const QString &path)
 				}
 			} else {
 				QHash<QString, QVariant> contact_settings = GetSettings(contact, protocol, data, decoder);
-				warning() << "Unknown protocol:" << protocol << contact_settings.keys();
+				qWarning() << "Unknown protocol:" << protocol << contact_settings.keys();
 			}
 		}
 		offset = contact.ofsNext;

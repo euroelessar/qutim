@@ -65,7 +65,7 @@ public:
 	
 	void showImpl(QAction *action, QObject *)
 	{
-		debug() << Q_FUNC_INFO;
+		qDebug() << Q_FUNC_INFO;
 		action->setVisible(!Emoticons::theme().isNull());
 	}
 
@@ -163,7 +163,7 @@ void ChatLayerPlugin::onQuote(QObject *controller)
 	const QString quote = session->quote();
 	if (quote.isEmpty()) {
 		const MessageList messages = session->lastMessages();
-		debug() << messages.size();
+		qDebug() << messages.size();
 		if (!messages.isEmpty()) {
 			QuoterWidget *widget = new QuoterWidget(messages, controller);
 			connect(widget, SIGNAL(quoteChoosed(QString,QObject*)), SLOT(onQuote(QString,QObject*)));

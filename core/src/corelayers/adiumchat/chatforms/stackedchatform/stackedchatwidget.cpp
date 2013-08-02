@@ -209,15 +209,15 @@ void StackedChatWidget::loadSettings()
 							 );
 
 		ConfigGroup keyGroup = cfg.group("keys");
-		debug() << "Load new settings" << keyGroup.childGroups();
+		qDebug() << "Load new settings" << keyGroup.childGroups();
 		if (keyGroup.hasChildGroup(m_key)) {
-			debug() << "load settings for key" << m_key;
+			qDebug() << "load settings for key" << m_key;
 			keyGroup.beginGroup(m_key);
 			QByteArray geom = keyGroup.value("geometry", QByteArray());
 			restoreGeometry(geom);
 			foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 				geom = keyGroup.value(splitter->objectName(), QByteArray());
-				debug() << "found splitter" << geom;
+				qDebug() << "found splitter" << geom;
 				splitter->restoreState(geom);
 			}
 			keyGroup.endGroup();
@@ -261,7 +261,7 @@ void StackedChatWidget::addAction(ActionGenerator *gen)
 
 void StackedChatWidget::addSession(ChatSessionImpl *session)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	m_sessionList->addSession(session);
 	connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged()));

@@ -238,7 +238,7 @@ QDir JsonHistoryScope::getAccountDir(const ChatUnit *unit) const
 //	struct MethodLiveCounter
 //	{
 //		MethodLiveCounter(const char *m, qint64 &t) : method(m), time(t) { timer.start(); }
-//		~MethodLiveCounter() { time += timer.elapsed(); debug() << method << "worked" << time << "ms"; }
+//		~MethodLiveCounter() { time += timer.elapsed(); qDebug() << method << "worked" << time << "ms"; }
 //		QElapsedTimer timer;
 //		const char *method;
 //		qint64 &time;

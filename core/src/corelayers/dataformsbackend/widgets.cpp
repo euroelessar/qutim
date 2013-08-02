@@ -186,7 +186,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 			current = i;
 		addItem(str, ids.value(i));
 	}
-	debug() << Q_FUNC_INFO << value << alt << count();
+	qDebug() << Q_FUNC_INFO << value << alt << count();
 
 	setEditable(item.property("editable", false));
 	setMinimumContentsLength(12);
@@ -217,7 +217,7 @@ DataItem ComboBox::item() const
 {
 	DataItem item = m_item;
 	item.setName(objectName());
-	debug() << Q_FUNC_INFO << currentText();
+	qDebug() << Q_FUNC_INFO << currentText();
 	item.setData(currentText());
 	item.setProperty("identificator", itemData(currentIndex()));
 	return item;

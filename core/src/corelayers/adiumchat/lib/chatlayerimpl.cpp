@@ -171,7 +171,7 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 
 	ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
 	Q_ASSERT(session);
-	debug() << "activate session" << session->unit()->title();
+	qDebug() << "activate session" << session->unit()->title();
 
 	if (qobject_cast<Conference*>(session->getUnit())) {
 		QObject *form = ServiceManager::getByName("ChatForm");

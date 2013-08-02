@@ -56,7 +56,7 @@ void IrcAvatar::handleCtcpRequest(IrcAccount *account, const QString &sender, co
 								  const QString &, const QString &cmd, const QString &)
 {
     if (cmd != "AVATAR") {
-		warning() << "[irq]: Wrong cmd!";
+		qWarning() << "[irq]: Wrong cmd!";
         return;
     }
 	QString avatar = account->avatar();

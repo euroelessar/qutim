@@ -42,32 +42,16 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QDebug debug_helper(quint64, DebugLevel, QtMsgType);
 	LIBQUTIM_EXPORT void debugAddPluginId(quint64, const QMetaObject *meta);
 	LIBQUTIM_EXPORT void debugClearConfig();
+    LIBQUTIM_EXPORT QtMsgType debug_level(const char *name);
 
-#ifndef QUTIM_PLUGIN_ID
-	LIBQUTIM_NO_EXPORT inline QDebug debug(DebugLevel level = DebugInfo)
-	{ return debug_helper(0, level, QtDebugMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug warning(DebugLevel level = DebugInfo)
-	{ return debug_helper(0, level, QtWarningMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug critical(DebugLevel level = DebugInfo)
-	{ return debug_helper(0, level, QtCriticalMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug fatal(DebugLevel level = DebugInfo)
-	{ return debug_helper(0, level, QtFatalMsg); }
-#else
-# define QUTIM_DEBUG_ID_CONVERT_HELPER(A) 0x ## A ## ULL
-# define QUTIM_DEBUG_ID_CONVERT(A) QUTIM_DEBUG_ID_CONVERT_HELPER(A)
-	LIBQUTIM_NO_EXPORT inline quint64 qutim_plugin_id()
-	{ return QUTIM_DEBUG_ID_CONVERT(QUTIM_PLUGIN_ID); }
-	LIBQUTIM_NO_EXPORT inline QDebug debug(DebugLevel level = DebugInfo)
-	{ return debug_helper(qutim_plugin_id(), level, QtDebugMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug warning(DebugLevel level = DebugInfo)
-	{ return debug_helper(qutim_plugin_id(), level, QtWarningMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug critical(DebugLevel level = DebugInfo)
-	{ return debug_helper(qutim_plugin_id(), level, QtCriticalMsg); }
-	LIBQUTIM_NO_EXPORT inline QDebug fatal(DebugLevel level = DebugInfo)
-	{ return debug_helper(qutim_plugin_id(), level, QtFatalMsg); }
-# undef QUTIM_DEBUG_ID_CONVERT_HELPER
-# undef QUTIM_DEBUG_ID_CONVERT
-#endif
+#undef qDebug
+#undef qWarning
+#undef qCritical
+#undef qFatal
+#define qDebug QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, QUTIM_PLUGIN_NAME).debug
+#define qWarning QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, QUTIM_PLUGIN_NAME).warning
+#define qCritical QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, QUTIM_PLUGIN_NAME).critical
+#define qFatal QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, QUTIM_PLUGIN_NAME).fatal
 }
 #endif // DEBUG_H
 

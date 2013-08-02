@@ -77,7 +77,7 @@ Contact* Factory::addContact(const QString& id, const QVariantMap& data)
 
 void Factory::serialize(Contact* contact, QVariantMap& data)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	MetaContactImpl *metaContact = static_cast<MetaContactImpl*>(contact);
 	data.insert(QLatin1String("avatar"), metaContact->avatar());
 	data.insert(QLatin1String("name"),metaContact->name());

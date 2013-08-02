@@ -288,8 +288,8 @@ QString JMUCSession::id() const
 bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JMUCSession);
-	debug() << d->jid;
-	debug() << d->jid.bareJID();
+	qDebug() << d->jid;
+	qDebug() << d->jid.bareJID();
 
 	if (account()->status() == Status::Offline)
 		return false;
@@ -382,7 +382,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		text = nick % tr(" is now known as ") % newNick;
 		JMUCUser *user = d->users.value(nick, 0);
 		if (!user) {
-			warning() << "Nick change presence for unknown contact";
+			qWarning() << "Nick change presence for unknown contact";
 			return;
 		}
 		d->users.insert(newNick, user);
@@ -808,7 +808,7 @@ void JMUCSession::handleDeath(const QString &name)
 void JMUCSession::onError(Jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
-	debug() << "error" << error->condition();
+	qDebug() << "error" << error->condition();
 	if (error->condition() == Error::Conflict) {
 		QString message = QCoreApplication::translate("Jabber", "You are already in conference with another nick");
 		NotificationRequest request(Notification::System);

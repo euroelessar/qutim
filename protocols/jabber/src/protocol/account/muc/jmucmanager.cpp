@@ -64,7 +64,7 @@ public:
 			return;
 		foreach (JMUCSession *session, rooms) {
 			Jreen::MUCRoom *room = session->room();
-			debug() << room->isJoined() << (room->presence() != Presence::Unavailable);
+			qDebug() << room->isJoined() << (room->presence() != Presence::Unavailable);
 			if (!room->isJoined() && room->presence() != Presence::Unavailable
 					&& !roomsToConnect.contains(session)) {
 				session->join();
@@ -119,7 +119,7 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 {
 	Q_D(JMUCManager);
 	Jreen::PrivacyManager *manager = d->account->privacyManager();
-	debug() << Q_FUNC_INFO << name << manager->activeList();
+	qDebug() << Q_FUNC_INFO << name << manager->activeList();
 	if (name == manager->activeList()) {
 		d->waitingForPrivacyList = false;
 		QSet<QString> badList;
@@ -132,7 +132,7 @@ void JMUCManager::onListReceived(const QString &name, const QList<Jreen::Privacy
 			while (it.hasNext()) {
 				const JID &jid = it.next();
 				const PrivacyItem &item = items.at(i);
-				debug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
+				qDebug() << jid << item.type() << item.jid() << item.check(jid) << item.action() << item.stanzaTypes();
 				if ((item.stanzaTypes() & PrivacyItem::PresenceOut) && item.check(jid)) {
 					if (item.action() == PrivacyItem::Deny)
 						badList << jid.domain();

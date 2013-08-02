@@ -59,7 +59,7 @@ static bool isStatusChange(const qutim_sdk_0_3::Status &status)
 	if (status.type() == Status::Offline) {
 		foreach(Protocol *proto, Protocol::all()) {
 			foreach(Account *a, proto->accounts()) {
-				//				debug() << a->status().name() << a->status().type();
+				//				qDebug() << a->status().name() << a->status().type();
 				if (a->status().type()!=Status::Offline)
 					return false;
 			}

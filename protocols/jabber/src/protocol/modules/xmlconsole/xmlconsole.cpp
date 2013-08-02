@@ -191,10 +191,10 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 	StackEnvironment *d = &(incoming ? m_stackIncoming : m_stackOutgoing);
 	d->reader.addData(data);
 	StackToken *token;
-//	debug() << incoming << data;
-//	debug() << "==================================================================";
+//	qDebug() << incoming << data;
+//	qDebug() << "==================================================================";
 	while (d->reader.readNext() > QXmlStreamReader::Invalid) {
-//		QDebug dbg = debug() << incoming << d->reader.tokenString();
+//		QDebug dbg = qDebug() << incoming << d->reader.tokenString();
 		switch(d->reader.tokenType()) {
 		case QXmlStreamReader::Comment: {
 			QTextCursor cursor(m_ui->xmlBrowser->document());
@@ -334,11 +334,11 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 			break;
 		}
 	}
-//	QDebug dbg = debug() << d->reader.tokenString();
+//	QDebug dbg = qDebug() << d->reader.tokenString();
 //	if (d->reader.tokenType() == QXmlStreamReader::Invalid)
 //		dbg << d->reader.error() << d->reader.errorString();
 	if (!incoming && d->depth > 1) {
-		fatal() << "outgoing depth" << d->depth << "on\n" << QString::fromUtf8(data, data.size());
+        qFatal("outgoing depth %d on\n%s", d->depth, data.constData());
 	}
 }
 

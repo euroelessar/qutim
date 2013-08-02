@@ -10,7 +10,10 @@ Framework {
     Depends { name: "libqutim" }
     Depends { name: "Qt"; submodules: [ "core", "gui", "widgets" ] }
 
-    cpp.defines: "ADIUMCHAT_LIBRARY"
+    cpp.defines: [
+        "ADIUMCHAT_LIBRARY",
+        "QUTIM_PLUGIN_NAME=\"" + name + "\""
+    ]
     cpp.visibility: 'hidden'
 
     files: "lib/*.cpp"

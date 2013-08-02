@@ -91,7 +91,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		path = "qutim-" + randomString(6) + "-profile";
 	} while (tmpDir.exists(path));
 	if (!tmpDir.mkpath(path) || !tmpDir.cd(path)) {
-		fatal() << "Can't access or create directory" << tmpDir.absoluteFilePath(path);
+        qFatal("Can't access or create directory: \"%s\"", qPrintable(tmpDir.absoluteFilePath(path)));
 	}
 	QVector<QDir> &systemDirs = *system_info_dirs();
 	systemDirs[SystemInfo::ConfigDir] = tmpDir.absoluteFilePath("config");
@@ -99,7 +99,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	systemDirs[SystemInfo::ShareDir] = tmpDir.absoluteFilePath("share");
 	for (int i = SystemInfo::ConfigDir; i <= SystemInfo::ShareDir; i++)
 		tmpDir.mkdir(systemDirs[i].dirName());
-	debug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
+	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
 	setProperty("singleProfile",singleProfile);
 	setProperty("password",password);

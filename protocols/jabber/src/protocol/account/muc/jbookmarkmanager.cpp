@@ -68,9 +68,9 @@ JBookmarkManager::~JBookmarkManager()
 
 void JBookmarkManager::onBookmarksReceived(const Jreen::Bookmark::Ptr &bookmark)
 {
-	debug() << "BookmarksReceived";
+	qDebug() << "BookmarksReceived";
 	if (bookmark) {
-		debug() <<  "count" << bookmark->conferences().count();
+		qDebug() <<  "count" << bookmark->conferences().count();
 		QList<Bookmark::Conference> tmpList(p->bookmarks);
 		p->bookmarks = bookmark->conferences();
 		foreach (const Bookmark::Conference &bookmark, tmpList) {
@@ -89,7 +89,7 @@ void JBookmarkManager::onBookmarksReceived(const Jreen::Bookmark::Ptr &bookmark)
 	//		}
 	if (!p->isLoaded) {
 		foreach (Bookmark::Conference bookmark, p->bookmarks) {
-			debug() << "check bookmark:" << bookmark.jid().full() << bookmark.autojoin();
+			qDebug() << "check bookmark:" << bookmark.jid().full() << bookmark.autojoin();
 			if (bookmark.autojoin())
 				p->account->conferenceManager()->join(bookmark.jid(),
 													  bookmark.nick(),
@@ -147,7 +147,7 @@ void JBookmarkManager::saveRecent(const QString &conference, const QString &nick
 bool JBookmarkManager::removeBookmark(const Jreen::Bookmark::Conference &bookmark)
 {
 	if (p->bookmarks.removeOne(bookmark)) {
-		debug() << p->bookmarks.size();
+		qDebug() << p->bookmarks.size();
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
 		return true;
@@ -263,7 +263,7 @@ bool JBookmarkManager::storeBookmark(const DataItem &fields, const DataItem &old
 	conf.setAutojoin(fields.subitem("autojoin").data<bool>());
 	if (!isValid)
 		p->bookmarks.append(conf);
-	debug() << p->bookmarks.size() << conf.autojoin();
+	qDebug() << p->bookmarks.size() << conf.autojoin();
 	writeToCache("bookmarks", p->bookmarks);
 	saveToServer();
 	return true;
@@ -293,7 +293,7 @@ QList<DataItem> JBookmarkManager::recent() const
 
 void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::Conference> &list)
 {
-	debug() << "WriteToCache";
+	qDebug() << "WriteToCache";
 	Config config = p->account->config();
 	int size = config.beginArray(type);
 	for (int i = 0; i < list.size(); i++) {
@@ -304,12 +304,12 @@ void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::C
 		config.setValue("nick", bookmark.nick());
 		config.setValue("password", bookmark.password(), Config::Crypted);
 		config.setValue("autojoin", bookmark.autojoin());
-		debug() << "save" << bookmark.name() << bookmark.jid().full();
+		qDebug() << "save" << bookmark.name() << bookmark.jid().full();
 	}
 	if (type == "bookmarks") {
-		debug() << "sizes" << size << list.size();
+		qDebug() << "sizes" << size << list.size();
 		for (int i = list.size() - 1; i >= size; i--) {
-			debug() << "remove element at" << i;
+			qDebug() << "remove element at" << i;
 			config.remove(i);
 		}
 		emit bookmarksChanged();

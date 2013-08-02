@@ -489,7 +489,7 @@ XtrazPrivate &XtrazPrivate::operator=(const XtrazPrivate &rhs)
 Xtraz::Xtraz(const QString &message) :
 	d(new XtrazPrivate)
 {
-	debug() << Q_FUNC_INFO << message;
+	qDebug() << Q_FUNC_INFO << message;
 	QXmlStreamReader xml(message);
 	QString query;
 	QString notify;

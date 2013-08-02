@@ -55,7 +55,7 @@ Product {
         else
             return "lib/qutim/plugins";
     }
-    cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=" + name ]
+    cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=\"" + name + "\""]
     cpp.visibility: 'hidden'
     cpp.installNamePrefix: "@rpath/plugins/"
     cpp.rpaths: qbs.targetOS.contains("osx")

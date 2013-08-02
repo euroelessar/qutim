@@ -123,7 +123,7 @@ void JAttention::onMessageReceived(const Jreen::Message &message)
 		//request.setObject(this);
 		request.setText(tr("%1 trying to attract your attention!").arg(message.from()));
 		request.send();
-		debug() << "ATTENTION!!!";
+		qDebug() << "ATTENTION!!!";
 	}
 }
 

@@ -58,13 +58,6 @@ enum JActionType
 	BanAction
 };
 
-//Q_GLOBAL_STATIC_WITH_ARGS(quint64, jreenUniqueId, ((quint64(qrand()) << 32) | quint64(qrand)))
-
-void debugMessageHandler(QtMsgType type, const char *msg)
-{
-	debug_helper(qutim_plugin_id(), DebugInfo, type) << msg;
-}
-
 class JProtocolPrivate
 {
 	Q_DECLARE_PUBLIC(JProtocol)
@@ -73,12 +66,9 @@ public:
 		accounts(new QHash<QString, JAccount *>),
 		q_ptr(q)
 	{
-//		debugAddPluginId(*jreenUniqueId(), &Jreen::Client::staticMetaObject);
-//		Logger::addHandler(debugMessageHandler);
 	}
 	inline ~JProtocolPrivate()
 	{
-//		Logger::removeHandler(debugMessageHandler);
 		delete accounts;
 	}
 	QHash<QString, JAccount *> *accounts;

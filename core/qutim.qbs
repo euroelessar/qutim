@@ -16,6 +16,9 @@ Product {
     cpp.cxxFlags: [
         "-std=c++11"
     ]
+    cpp.defines: [
+        "QUTIM_PLUGIN_NAME=\"qutim\""
+    ]
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }

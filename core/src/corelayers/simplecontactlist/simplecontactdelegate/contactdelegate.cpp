@@ -363,7 +363,7 @@ void ContactDelegate::setFlag(ShowFlags flag, bool on)
 
 void ContactDelegate::reloadSettings()
 {
-	debug() << "reload settings";
+	qDebug() << "reload settings";
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
 	p->liteMode = cfg.value("liteMode", true);

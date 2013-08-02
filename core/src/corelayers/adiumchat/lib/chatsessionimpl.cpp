@@ -106,7 +106,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 {
 	Q_D(ChatSessionImpl);
 	if (!message.chatUnit()) {
-		warning() << "Message" << message.text() << "must have a chatUnit";
+		qWarning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
 

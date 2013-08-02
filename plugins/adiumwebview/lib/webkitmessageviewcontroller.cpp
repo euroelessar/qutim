@@ -224,7 +224,7 @@ bool WebKitMessageViewController::zoomImage(QWebElement elem)
 
 void WebKitMessageViewController::debugLog(const QString &message)
 {
-	debug() << "WebKit: " << message;
+	qDebug() << "WebKit: " << message;
 }
 
 void WebKitMessageViewController::contextMenu(const QVariant &nickVar)
@@ -331,7 +331,7 @@ void WebKitMessageViewController::updateTopic()
 	if (m_topic.text().isEmpty()) {
 		Conference *conference = qobject_cast<Conference*>(m_session.data()->unit());
 		if (!conference) {
-			warning() << "Called WebKitMessageViewController::updateTopic for non-conference";
+			qWarning() << "Called WebKitMessageViewController::updateTopic for non-conference";
 			m_topic.setText(QString());
 			m_topic.setHtml(QString());
 		} else {

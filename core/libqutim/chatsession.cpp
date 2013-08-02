@@ -120,7 +120,7 @@ qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
 qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (!message.chatUnit()) {
-		warning() << "Message" << message.text() << "must have a chatUnit";
+		qWarning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
 	

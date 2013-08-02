@@ -126,7 +126,7 @@ void AccountCreatorList::changeEvent(QEvent *e)
 void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 {
 	Icon protoIcon(QLatin1String("im-") + account->protocol()->id()); //FIXME wtf?
-	debug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
+	qDebug() << protoIcon.availableSizes() << QLatin1String("im-") + account->protocol()->id();
 	if (!protoIcon.actualSize(QSize(1,1)).isValid())
 		protoIcon = Icon("applications-internet");
 
@@ -172,7 +172,7 @@ void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
 		QListWidgetItem *item = ui->listWidget->item(index);
 		Account *account = item->data(Qt::UserRole).value<Account*>();
 		if (account == removed) {
-			debug() << "removed account";
+			qDebug() << "removed account";
 			delete item;
 			return;
 		}

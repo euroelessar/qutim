@@ -49,7 +49,7 @@ public:
 	JProtocol();
 	virtual ~JProtocol();
 	static inline JProtocol *instance() {
-		if(!self) warning() << "JProtocol isn't created";
+		if(!self) qWarning() << "JProtocol isn't created";
 		return self;
 	}
 	virtual QList<Account *> accounts() const;

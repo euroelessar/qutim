@@ -164,7 +164,7 @@ namespace Core
 		root.appendChild(plist);
 		QFile output (file);
 		if (!output.open(QIODevice::WriteOnly)) {
-			warning() << tr("Cannot write to file %1").arg(file);
+			qWarning() << tr("Cannot write to file %1").arg(file);
 			return;
 		}
 		QTextStream out(&output);

@@ -170,7 +170,7 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 				 index.data(BuddyRole));
 		ev.send();
 	}
-	//			debug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
+	//			qDebug() << "DropAction" << drag->exec(supportedActions, defaultDropAction);
 	//			if (drag->exec(supportedActions, defaultDropAction) == Qt::MoveAction)
 	//				d->clearOrRemove();
 	//			{}

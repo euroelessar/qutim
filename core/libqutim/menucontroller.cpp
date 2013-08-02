@@ -1015,14 +1015,14 @@ void ActionHandlerHelper::onActionTriggered(QAction *action)
 	const QMetaObject *meta = obj->metaObject();
 	int index = meta->indexOfMethod(d->member.constData() + 1);
 	if (index == -1) {
-		warning() << "ActionHandler::onActionTriggered: No such method" << meta->className() << "::" << d->member.constData() + 1;
+		qWarning() << "ActionHandler::onActionTriggered: No such method" << meta->className() << "::" << d->member.constData() + 1;
 		return;
 	}
 	QMetaMethod method = meta->method(index);
 	//qDebug("DynamicMenu::onActionTriggered: Trying %s::%s",
 	//	   meta->className(), d->member.constData() + 1);
-	debug() << "DynamicMenu::onActionTriggered: Trying " << meta->className() << "::" << d->member.constData() + 1;
-	debug() << gen->text() << gen << action << controller;
+	qDebug() << "DynamicMenu::onActionTriggered: Trying " << meta->className() << "::" << d->member.constData() + 1;
+	qDebug() << gen->text() << gen << action << controller;
 	switch (d->connectionType) {
 	case ActionConnectionObjectOnly:
 		method.invoke(obj, Q_ARG(QObject*, controller));

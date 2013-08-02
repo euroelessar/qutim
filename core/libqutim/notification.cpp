@@ -353,7 +353,7 @@ void NotificationAction::trigger() const
         meta->method(index).invoke(d->receiver.data(),
                                    Q_ARG(NotificationRequest, d->notification.data()->request()));
 	} else {
-		warning() << "An invalid action has been triggered" << name;
+		qWarning() << "An invalid action has been triggered" << name;
 	}
 
 	if (d->type == AcceptButton)

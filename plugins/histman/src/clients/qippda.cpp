@@ -69,7 +69,7 @@ void qippda::loadMessages(const QString &path)
 			protocol = protocols[protocol.toLower()];
 			if(protocol.isEmpty())
 			{
-				warning() << "Unknown protocol:" << files[i].fileName();
+				qWarning() << "Unknown protocol:" << files[i].fileName();
 				continue;
 			}
 		}

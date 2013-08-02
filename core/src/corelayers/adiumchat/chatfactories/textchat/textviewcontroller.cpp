@@ -289,7 +289,7 @@ void TextViewController::ensureScrolling()
 		QScrollBar *scrollBar = m_textEdit.data()->verticalScrollBar();
 //		qreal percentage = scrollBar->maximum() - scrollBar->value();
 //		percentage /= m_textEdit->viewport()->height();
-//		debug() << percentage;
+//		qDebug() << percentage;
 //		if (percentage < 0.1)
 			scrollBar->setValue(scrollBar->maximum());
 	}
@@ -383,7 +383,7 @@ void TextViewController::init()
 
 void TextViewController::loadHistory()
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
 	MessageList messages = History::instance()->read(m_session->getUnit(), max_num);
@@ -426,7 +426,7 @@ bool TextViewController::shouldBreak(const QDateTime &time)
 
 void TextViewController::clearChat()
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	QTextDocument::clear();
 	init();
 }
@@ -457,7 +457,7 @@ bool TextViewController::eventFilter(QObject *obj, QEvent *ev)
 	if (ev->type() == MessageReceiptEvent::eventType()) {
 		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
 		int *pos = m_cache.take(msgEvent->id());
-		debug() << msgEvent->id() << (pos ? *pos : -1);
+		qDebug() << msgEvent->id() << (pos ? *pos : -1);
 		if (pos) {
 			QTextCursor cursor(this);
 			cursor.beginEditBlock();

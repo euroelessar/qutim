@@ -93,8 +93,8 @@ IconLoaderImpl::IconLoaderImpl()
 //	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
 //	entry->setName(QLatin1String("theme"));
 //	entry->setProperty("items", iconManager()->themeIds(false));
-//	debug() << "ICONS:" << iconManager()->themeIds(true);
-//	debug() << "ICONS:" << iconManager()->themeIds(false);
+//	qDebug() << "ICONS:" << iconManager()->themeIds(true);
+//	qDebug() << "ICONS:" << iconManager()->themeIds(false);
 	Settings::registerItem(m_settings.data());
 }
 
@@ -111,7 +111,7 @@ QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
 
 QString IconLoaderImpl::doIconPath(const QString &name, uint iconSize)
 {
-	debug() << Q_FUNC_INFO << name << iconSize << iconManager()->currentTheme()->getIconPath(name, iconSize);
+	qDebug() << Q_FUNC_INFO << name << iconSize << iconManager()->currentTheme()->getIconPath(name, iconSize);
 	return iconManager()->currentTheme()->getIconPath(name, iconSize);
 }
 

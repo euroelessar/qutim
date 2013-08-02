@@ -112,7 +112,7 @@ void MessageHandler::traceHandlers()
 	const char *titles[] = { "Incoming handlers:", "Outgoing handlers:" };
 	for (int i = 0; i < 2; ++i) {
 		MessageHandlerList &list = *lists[i];
-		QDebug dbg = debug();
+		QDebug dbg = qDebug();
 		dbg << titles[i];
 		dbg.nospace();
 		for (int j = 0; j < list.size(); ++j) {

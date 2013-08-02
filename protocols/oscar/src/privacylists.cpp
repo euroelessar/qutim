@@ -256,9 +256,9 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 		name = "visible";
 		if (isItemAdded) {
 			icon = "im-visible-contact-icq";
-			debug() << item.name() << "has been added to visible list";
+			qDebug() << item.name() << "has been added to visible list";
 		} else {
-			debug() << item.name() << "has been removed from visible list";
+			qDebug() << item.name() << "has been removed from visible list";
 		}
 		break;
 	}
@@ -266,9 +266,9 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 		name = "invisible";
 		if (isItemAdded) {
 			icon = "im-invisible-contact-icq";
-			debug() << item.name() << "has been added to invisible list";
+			qDebug() << item.name() << "has been added to invisible list";
 		} else {
-			debug() << item.name() << "has been removed from invisible list";
+			qDebug() << item.name() << "has been removed from invisible list";
 		}
 		break;
 	}
@@ -276,9 +276,9 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 		name = "ignore";
 		if (isItemAdded) {
 			icon = "im-ignore-contact-icq";
-			debug() << item.name() << "has been added to ignore list";
+			qDebug() << item.name() << "has been added to ignore list";
 		} else {
-			debug() << item.name() << "has been removed from ignore list";
+			qDebug() << item.name() << "has been removed from ignore list";
 		}
 		break;
 	default:

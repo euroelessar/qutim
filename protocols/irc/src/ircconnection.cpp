@@ -170,7 +170,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 	} else if (cmd == 353) { // RPL_NAMREPLY
 		QString channelName = params.value(2);
 		if (channelName.isEmpty())
-			debug() << "Incorrect RPL_NAMREPLY reply";
+			qDebug() << "Incorrect RPL_NAMREPLY reply";
 		IrcChannel *channel = m_account->getChannel(channelName, false);
 		if (channel)
 			channel->handleUserList(params.value(3).split(' ', QString::SkipEmptyParts));
@@ -180,7 +180,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (!server.isEmpty())
 			send(QString("PONG %1").arg(server));
 		else
-			debug() << "Incorrect PING request";		
+			qDebug() << "Incorrect PING request";		
 	} else if (cmd == "PRIVMSG") {
 		QString text = params.value(1);
 		if (ctcpRx.indexIn(text) == 0) { // Is it CTCP request?
@@ -191,7 +191,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 				handler->handleCtcpRequest(account, name, host, params.value(0), ctcpCmd, ctcpRx.cap(3));
 			}
 			if (!handled)
-				debug() << "Unknown CTCP request" << ctcpCmd << "from" << name;
+				qDebug() << "Unknown CTCP request" << ctcpCmd << "from" << name;
 			return;
 		}
 		handleTextMessage(name, host, params.value(0), params.value(1));
@@ -220,13 +220,13 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (contact)
 			contact->d->updateNick(params.value(0));
 		else
-			debug() << "NICK message from the unknown contact" << name;
+			qDebug() << "NICK message from the unknown contact" << name;
 	} else if (cmd == "QUIT") {
 		IrcContact *contact = account->getContact(name, false);
 		if (contact) {
 			emit contact->quit(params.value(0));
 		} else {
-			debug() << "QUIT message from the unknown contact" << name;
+			qDebug() << "QUIT message from the unknown contact" << name;
 		}
 	} else if (cmd == "ERROR") {
 		m_account->log(params.value(0), false, "ERROR");
@@ -269,7 +269,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 				handler->handleCtcpResponse(account, name, host, params.value(0), ctcpCmd, ctcpRx.cap(3));
 			}
 			if (!handled)
-				debug() << "Unknown CTCP response" << ctcpCmd << "from" << name;
+				qDebug() << "Unknown CTCP response" << ctcpCmd << "from" << name;
 			return;
 		}
 		QString msg = QString("%1: %2").arg(name).arg(text);
@@ -438,7 +438,7 @@ void IrcConnection::tryConnectToNextServer()
 	if (++m_currentServer >= m_servers.size())
 		error = tr("Cannot connect to %1 network").arg(m_account->name());
 	if (!error.isEmpty()) {
-		debug() << error;
+		qDebug() << error;
 		m_account->setStatus(Status::Offline);
 		NotificationRequest request(Notification::System);
 		request.setObject(m_account);
@@ -473,7 +473,7 @@ void IrcConnection::hostFound(const QHostInfo &host)
 void IrcConnection::tryNextNick()
 {
 	if (m_nicks.isEmpty()) {
-		debug() << "Set at least one nick before connecting";
+		qDebug() << "Set at least one nick before connecting";
 		return;
 	}
 	if (++m_currentNick >= m_nicks.size()) {
@@ -501,7 +501,7 @@ void IrcConnection::sendNextMessage()
 		return;
 
 	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
-	debug() << ">>>>" << data.trimmed();
+	qDebug() << ">>>>" << data.trimmed();
 	m_socket->write(data);
 
 	m_lastMessageTime = QDateTime::currentDateTime().toTime_t();
@@ -546,7 +546,7 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 	else
 		str = QString("%1 request");
 	str = str.arg(cmd);
-	debug() << str.toStdString().c_str() << "message on the channel" << channel
+	qDebug() << str.toStdString().c_str() << "message on the channel" << channel
 			<< "the account is not connected to";
 }
 
@@ -554,7 +554,7 @@ void IrcConnection::readData()
 {
 	while (m_socket->canReadLine()) {
 		QString msg = m_codec->toUnicode(m_socket->readLine());
-		debug() << "<<<<" << msg.trimmed();
+		qDebug() << "<<<<" << msg.trimmed();
 		static QRegExp rx("^(:([^\\s!@]+|)(\\S+|)\\s+|)(\\w+|\\d{3})(\\s+(.*)|)");
 		if (rx.indexIn(msg) == 0) {
 			QString params = rx.cap(6);
@@ -602,7 +602,7 @@ void IrcConnection::readData()
 
 void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	debug(DebugVerbose) << "New connection state:" << state;
+    qWarning() << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
 		SystemIntegration::keepAlive(m_socket);
 		IrcServer server = m_servers.at(m_currentServer);
@@ -630,7 +630,7 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 
 void IrcConnection::error(QAbstractSocket::SocketError error)
 {
-	debug() << "Connection error:" << error;
+	qDebug() << "Connection error:" << error;
 	NotificationRequest request(Notification::System);
 	request.setObject(m_account);
 	request.setText(tr("Network error: %1").arg(m_socket->errorString()));

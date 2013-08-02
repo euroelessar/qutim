@@ -67,21 +67,21 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				quint16 dataType = data.read<quint16>(LittleEndian);
 				quint8 success = data.read<quint8>(LittleEndian);
 				if (itr == m_requests.end()) {
-					debug() << "Unexpected metainfo response" << reqNumber;
+					qDebug() << "Unexpected metainfo response" << reqNumber;
 					return;
 				}
 				if (success == 0x0a) {
 					if (!itr.value()->handleData(dataType, data))
-						debug() << "Unexpected metainfo response with type" << hex << dataType;
+						qDebug() << "Unexpected metainfo response with type" << hex << dataType;
 				} else {
-					debug() << "Meta request failed" << hex << success;
+					qDebug() << "Meta request failed" << hex << success;
 					itr.value()->close(false, AbstractMetaRequest::ProtocolError, tr("Incorrect format of the metarequest"));
 				}
 			}
 		}
 	} else if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaError) {
 		ProtocolError error(snac);
-		debug() << QString("MetaInfo service error (%1, %2): %3")
+		qDebug() << QString("MetaInfo service error (%1, %2): %3")
 				.arg(error.code(), 2, 16)
 				.arg(error.subcode(), 2, 16)
 				.arg(error.errorString());

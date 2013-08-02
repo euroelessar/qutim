@@ -92,7 +92,7 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	Q_D(JContact);
 	if(d->account->status() == Status::Offline || d->account->status() == Status::Connecting)
 		return false;
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 
 	d->account->messageSessionManager()->sendMessage(this, message);
 	return true;
@@ -240,13 +240,13 @@ bool JContact::event(QEvent *ev)
 			event->addHtml("<hr>" + resourceEvent.html(), 9);
 		}
 	} else if(ev->type() == Authorization::Request::eventType()) {
-		debug() << "Handle auth request";
+		qDebug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
 		d->account->roster()->requestSubscription(d->jid,
 												  request->body());
 		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
-		debug() << "handle auth reply";
+		qDebug() << "handle auth reply";
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		//FIXME may be moved to the JRoster?
 		bool answer = (reply->replyType() == Authorization::Reply::Accept);

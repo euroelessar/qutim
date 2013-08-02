@@ -102,7 +102,7 @@ bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 
 	if(a->status() == Status::Offline || a->status() == Status::Connecting)
 		return false;
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 
 	a->messageSessionManager()->sendMessage(this, message);
 	return true;

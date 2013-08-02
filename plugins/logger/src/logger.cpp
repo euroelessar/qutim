@@ -74,7 +74,7 @@ void SimpleLoggingHandler(QtMsgType type, const QMessageLogContext &log, const Q
 
 void LoggerPlugin::init()
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Logger"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple file based logger for debug"),
 			PLUGIN_VERSION(0, 1, 0, 0));
@@ -93,7 +93,7 @@ bool LoggerPlugin::load()
 	bool enable = config.value(QLatin1String("enable"), false);
 	reloadSettings();
 	qInstallMessageHandler(SimpleLoggingHandler);
-	debug() << tr("New session started, happy debuging ^_^");
+	qDebug() << tr("New session started, happy debuging ^_^");
 
 	AutoSettingsItem *settingsItem = new AutoSettingsItem(Settings::Plugin,
 														  Icon("view-choose"),

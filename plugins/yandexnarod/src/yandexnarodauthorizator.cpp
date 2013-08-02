@@ -139,7 +139,7 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 		expiresAt = QDateTime::currentDateTime();
 		expiresAt.addSecs(expiresIn.value().toInt());
 	}
-	debug() << accessToken << data;
+	qDebug() << accessToken << data;
 	m_token = accessToken;
 	m_stage = Already;
 	emit result(Success);

@@ -72,7 +72,7 @@ bool JsonFile::load(QVariant &variant)
     const uchar *s = Json::skipBlanks(fmap, &len);
     bool result = (Json::parseRecord(variant, s, &len) != 0);
     if (!result)
-        debug() << "Parse error of json file " << d->file.fileName();
+        qDebug() << "Parse error of json file " << d->file.fileName();
     d->file.close();
     return result;
 }

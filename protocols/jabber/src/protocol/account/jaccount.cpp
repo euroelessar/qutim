@@ -148,7 +148,7 @@ void JAccountPrivate::_q_on_password_finished(int result)
 
 void JAccountPrivate::_q_on_module_loaded(int i)
 {
-	debug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
+	qDebug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
 	loadedModules |= i;
 	if (loadedModules == 3)
 		_q_connected();
@@ -205,10 +205,10 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 void JAccountPrivate::_q_init_extensions(const QSet<QString> &features)
 {
 	//Q_Q(JAccount);
-	debug() << "received features list" << features;
+	qDebug() << "received features list" << features;
 	//	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 	//		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
-	//			debug() << "init ext" << ext;
+	//			qDebug() << "init ext" << ext;
 	//			extensions.append(ext);
 	//			ext->init(q,params);
 	//		}

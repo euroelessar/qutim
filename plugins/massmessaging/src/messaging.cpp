@@ -38,7 +38,7 @@ namespace MassMessaging
 
 void MassMessaging::init()
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	addAuthor(QLatin1String("sauron"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "MassMessaging"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple messaging to contact list"),

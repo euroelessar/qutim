@@ -106,7 +106,7 @@
 
 //void JFileTransfer::setFiles(const QStringList &files)
 //{
-//	debug() << Q_FUNC_INFO << files << direction() << m_state;
+//	qDebug() << Q_FUNC_INFO << files << direction() << m_state;
 //	if (files.isEmpty())
 //		return;
 //	if (direction() == Send && m_state == StateNotStarted) {
@@ -146,7 +146,7 @@
 //{
 //	if (m_state != StateNotStarted)
 //		return;
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //	if (direction() == Receive) {
 //		SIProfileFT::StreamType type = SIProfileFT::FTTypeS5B;
 //		m_handler->profileFT()->acceptFT(m_from, m_sid, type);
@@ -163,34 +163,34 @@
 
 //void JFileTransfer::cancel()
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //	m_handler->profileFT()->declineFT(m_from, m_sid, SIManager::RequestRejected);
 //}
 
 //void JFileTransfer::handleBytestreamData(Bytestream *bs, const std::string &data)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransfer::handleBytestreamError(Bytestream *bs, const IQ &iq)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransfer::handleBytestreamOpen(Bytestream *bs)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransfer::handleBytestreamClose(Bytestream *bs)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //JFileTransferHandler::JFileTransferHandler(JAccount *account, JFileTransferFactory *factory) :
 //		QObject(account)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //	m_account = account;
 //	m_factory = factory;
 ////	m_account->client()->registerConnectionListener(this);
@@ -204,7 +204,7 @@
 //										   const std::string &date, const std::string &mimetype,
 //										   const std::string &desc, int stypes)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //	Q_UNUSED(date);
 //	Q_UNUSED(hash);
 //	Q_UNUSED(mimetype);
@@ -218,46 +218,46 @@
 
 //void JFileTransferHandler::handleFTRequestError(const IQ &iq, const std::string &sid)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransferHandler::handleFTBytestream(Bytestream* bs)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //const std::string JFileTransferHandler::handleOOBRequestResult(const JID &from, const JID &to,
 //															   const std::string &sid)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //	return gloox::EmptyString;
 //}
 
 //void JFileTransferHandler::handleIncomingBytestreamRequest(const std::string &sid, const JID &from)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransferHandler::handleIncomingBytestream(Bytestream *bs)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransferHandler::handleOutgoingBytestream(Bytestream *bs)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransferHandler::handleBytestreamError(const IQ &iq, const std::string &sid)
 //{
-//	debug() << Q_FUNC_INFO;
+//	qDebug() << Q_FUNC_INFO;
 //}
 
 //void JFileTransferHandler::onConnect()
 //{
 ////	ConnectionBase *connection = m_account->connection()->connection();
-////	debug() << Q_FUNC_INFO << connection; //static_cast<JConnectionBase*>(connection);
-//////	debug() << static_cast<JTC*>(connection);
+////	qDebug() << Q_FUNC_INFO << connection; //static_cast<JConnectionBase*>(connection);
+//////	qDebug() << static_cast<JTC*>(connection);
 ////	StreamHost sh = {
 ////		m_account->client()->jid(),
 ////		connection->localInterface(),
@@ -287,7 +287,7 @@
 
 //bool JFileTransferFactory::check(ChatUnit *unit)
 //{
-//	debug() << Q_FUNC_INFO << unit->metaObject()->className();
+//	qDebug() << Q_FUNC_INFO << unit->metaObject()->className();
 //	if (JContact *contact = qobject_cast<JContact*>(unit)) {
 //		QString cap = QString::fromStdString(gloox::XMLNS_SI);
 //		foreach (JContactResource *resource, contact->resources()) {

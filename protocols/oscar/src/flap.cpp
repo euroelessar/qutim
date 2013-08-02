@@ -64,8 +64,8 @@ bool FLAP::readData(QIODevice *dev)
 		int dataSize = data.dataSize();
 		quint8 checkValue = data.read<quint8>();
 		if (checkValue != 0x2a) {
-			debug() << "data.size() ==" << dataSize << "but 6 was expected";
-			debug() << "dev->read() returned" << checkValue << ", but 0x2a was expected";
+			qDebug() << "data.size() ==" << dataSize << "but 6 was expected";
+			qDebug() << "dev->read() returned" << checkValue << ", but 0x2a was expected";
 			return false;
 		}
 		m_channel = data.read<quint8>();
@@ -78,7 +78,7 @@ bool FLAP::readData(QIODevice *dev)
 		char *data = m_data.data() + m_data.size() - m_length;
 		int readed = dev->read(data, m_length);
 		if (readed < 0) {
-			debug() << "dev->read() read" << readed << " bytes";
+			qDebug() << "dev->read() read" << readed << " bytes";
 			return false;
 		}
 		m_length -= readed;

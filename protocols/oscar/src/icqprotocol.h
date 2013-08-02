@@ -46,7 +46,7 @@ class LIBOSCAR_EXPORT IcqProtocol: public Protocol
 public:
 	IcqProtocol();
 	virtual ~IcqProtocol();
-	static inline IcqProtocol *instance() { if (!self) warning() << "IcqProtocol isn't created"; return self; }
+	static inline IcqProtocol *instance() { if (!self) qWarning() << "IcqProtocol isn't created"; return self; }
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
 	QHash<QString, IcqAccount *> accountsHash() const;

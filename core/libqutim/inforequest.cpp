@@ -62,7 +62,7 @@ static inline bool isRequestBusy(InfoRequest::State state, bool showWarning = tr
 		state == InfoRequest::Updating)
 	{
 		if (showWarning)
-			warning() << "Can't make two information requests simultaneously";
+			qWarning() << "Can't make two information requests simultaneously";
 		return true;
 	}
 	return false;

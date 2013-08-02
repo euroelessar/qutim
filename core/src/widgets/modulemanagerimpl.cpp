@@ -75,7 +75,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 			if(ProfileDialog::acceptProfileInfo(config, QString(), !systemProfiles)) {
 				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
-				warning() << "Can't login";
+				qWarning() << "Can't login";
 				QDialog *dialog = new ProfileDialog(config, this);
 				SystemIntegration::show(dialog);
 			}
