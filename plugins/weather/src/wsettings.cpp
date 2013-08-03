@@ -45,10 +45,12 @@ WSettings::WSettings()
 
 WSettings::~WSettings()
 {
+	clearItems();
 }
 
 void WSettings::loadImpl()
 {
+	clearItems();
 	Config config(QLatin1String("weather"));
 	config.beginGroup(QLatin1String("main"));
 	ui.intervalBox->setValue(config.value(QLatin1String("interval"), 25));
@@ -184,4 +186,13 @@ void WSettings::on_searchEdit_activated(int index)
 	QVariant currentData = ui.searchEdit->itemData(index);
 	if (!currentData.isValid())
 		ui.searchButton->animateClick();
+}
+
+void WSettings::clearItems()
+{
+	for (QPointer<WListItem> item : m_items) {
+		if (item)
+			delete item.data();
+	}
+	m_items.clear();
 }
