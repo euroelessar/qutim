@@ -23,12 +23,13 @@
 **
 ****************************************************************************/
 
-#include <QByteArray>
-
 #include "status.h"
 #include "dynamicpropertydata_p.h"
 #include "icon.h"
 #include <QDebug>
+
+typedef QHash<QString, QVariantHash> ExtendedStatus;
+Q_DECLARE_METATYPE(ExtendedStatus)
 
 namespace qutim_sdk_0_3
 {
@@ -46,10 +47,8 @@ struct StatusHashKey
 				&& (o.name == name || !qstrcmp(o.name, name));
 	}
 };
-}
 
-template <>
-uint qHash<qutim_sdk_0_3::StatusHashKey>(const qutim_sdk_0_3::StatusHashKey &value, uint seed) Q_DECL_NOTHROW
+uint qHash(const qutim_sdk_0_3::StatusHashKey &value, uint seed = 0) Q_DECL_NOTHROW
 {
 	// Simple hash algorithm
 	const uint p = 373;
@@ -62,11 +61,6 @@ uint qHash<qutim_sdk_0_3::StatusHashKey>(const qutim_sdk_0_3::StatusHashKey &val
 	return h;
 }
 
-typedef QHash<QString, QVariantHash> ExtendedStatus;
-Q_DECLARE_METATYPE(ExtendedStatus)
-
-namespace qutim_sdk_0_3
-{
 class StatusPrivate : public DynamicPropertyData
 {
 public:
@@ -350,24 +344,12 @@ Q_GLOBAL_STATIC(StatusHash, statusHash)
 Status Status::instance(Type type, const char *proto, int subtype)
 {
 	StatusHashKey key = { proto, int(type), subtype };
-	//		QByteArray key;
-	//		key += proto;
-	//		key += '\0';
-	//		key += QByteArray::number(int(type));
-	//		key += '_';
-	//		key += QByteArray::number(subtype);
 	return statusHash()->value(key);
 }
 
 bool Status::remember(const Status &status, const char *proto)
 {
 	StatusHashKey key = { proto, int(status.type()), status.subtype() };
-	//		QByteArray key;
-	//		key += proto;
-	//		key += '\0';
-	//		key += QByteArray::number(int(status.type()));
-	//		key += '_';
-	//		key += QByteArray::number(status.subtype());
 	if (statusHash()->contains(key))
 		return false;
 	key.name = qstrdup(key.name);
