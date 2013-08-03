@@ -1,0 +1,57 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.kde.StatusNotifierWatcher">
+    <!-- methods -->
+    <method name="RegisterStatusNotifierItem">
+      <arg direction="in" type="s" name="service"/>
+    </method>
+    <method name="RegisterStatusNotifierHost">
+      <arg direction="in" type="s" name="service"/>
+    </method>
+    <!-- properties -->
+    <property access="read" type="as" name="RegisteredStatusNotifierItems">
+      <annotation value="QStringList" name="com.trolltech.QtDBus.QtTypeName.Out0"/>
+    </property>
+    <property access="read" type="b" name="IsStatusNotifierHostRegistered"/>
+    <property access="read" type="i" name="ProtocolVersion"/>
+    <!-- signals -->
+    <signal name="StatusNotifierItemRegistered">
+      <arg type="s"/>
+    </signal>
+    <signal name="StatusNotifierItemUnregistered">
+      <arg type="s"/>
+    </signal>
+    <signal name="StatusNotifierHostRegistered"/>
+    <signal name="StatusNotifierHostUnregistered"/>
+  </interface>
+  <interface name="org.freedesktop.DBus.Properties">
+    <method name="Get">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="property_name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="out"/>
+    </method>
+    <method name="Set">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="property_name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="in"/>
+    </method>
+    <method name="GetAll">
+      <arg name="interface_name" type="s" direction="in"/>
+      <arg name="values" type="a{sv}" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+    </method>
+  </interface>
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg name="xml_data" type="s" direction="out"/>
+    </method>
+  </interface>
+  <interface name="org.freedesktop.DBus.Peer">
+    <method name="Ping"/>
+    <method name="GetMachineId">
+      <arg name="machine_uuid" type="s" direction="out"/>
+    </method>
+  </interface>
+</node>
+
