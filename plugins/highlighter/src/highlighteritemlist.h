@@ -40,8 +40,6 @@ class HighlighterItemList : public QWidget
 	Q_OBJECT
 
 public:
-	typedef QSharedPointer<HighlighterItemList> Guard;
-	
 	HighlighterItemList(const QRegExp &regex, QListWidget *regexList);
 	~HighlighterItemList();
 	

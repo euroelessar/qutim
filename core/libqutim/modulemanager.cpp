@@ -548,7 +548,8 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 					plugin->init();
 #ifdef QUTIM_TEST_PERFOMANCE
 					initTime = timer.elapsed();
-					qDebug() << files[i].fileName() << ":\nload:" << libLoadTime << "ms, verify:" << verifyTime
+					qDebug() << files[i].fileName();
+                    qDebug() << "load:" << libLoadTime << "ms, verify:" << verifyTime
 							<< "ms, instance:" << instanceTime << "ms, init:" << initTime << "ms";
 #endif // QUTIM_TEST_PERFOMANCE
                     if (plugin->p->validate()) {

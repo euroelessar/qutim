@@ -30,6 +30,7 @@
 #include "highlighteritemlist.h"
 #include <QComboBox>
 #include <QEvent>
+#include <QPointer>
 #include "ui_highlightersettings.h"
 
 class HighlighterSettings : public qutim_sdk_0_3::SettingsWidget
@@ -42,6 +43,7 @@ protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
+    void clearItems();
 	virtual void changeEvent(QEvent *e);
 
 private slots:
@@ -53,7 +55,7 @@ signals:
 	void reloadSettings();
 private:
 	Ui::HighlighterSettingsForm ui;
-	QList<HighlighterItemList*> m_items;
+	QList<QPointer<HighlighterItemList>> m_items;
 };
 #endif // HIGHLIGHTERSETTINGS_H
 

@@ -45,8 +45,15 @@ HighlighterSettings::HighlighterSettings()
 	ui.regexptype->addItem(HighlighterItemList::getTranslatedRegexpType(QRegExp::W3CXmlSchema11), QVariant(QRegExp::W3CXmlSchema11));
 }
 
+HighlighterSettings::~HighlighterSettings()
+{
+    clearItems();
+}
+
 void HighlighterSettings::loadImpl()
 {
+    clearItems();
+
 	Config cfg;
 
 	cfg.beginGroup(QLatin1String("highlighter"));
@@ -85,11 +92,17 @@ void HighlighterSettings::saveImpl()
 
 void HighlighterSettings::cancelImpl()
 {
-	loadImpl();
+    loadImpl();
 }
 
-HighlighterSettings::~HighlighterSettings()
+void HighlighterSettings::clearItems()
 {
+    ui.regexpsList->clear();
+    for (QPointer<HighlighterItemList> item : m_items) {
+        if (item)
+            delete item.data();
+    }
+    m_items.clear();
 }
 
 void HighlighterSettings::onRemoveButtonClicked()

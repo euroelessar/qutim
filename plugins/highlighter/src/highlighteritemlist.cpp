@@ -28,13 +28,11 @@
 #include <QTextDocument>
 #include <qutim/icon.h>
 #include <QRegExp>
-
-Q_DECLARE_METATYPE(HighlighterItemList::Guard)
+#include <qutim/debug.h>
 
 HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *regexList)
 	: m_regexp(regex)
 {
-
 	QString title = QString::fromLatin1("%1<br>%2")
             .arg(regex.pattern().toHtmlEscaped(), getTranslatedRegexpType(regex.patternSyntax()));
 	m_label = new QLabel(title, this);
@@ -50,13 +48,13 @@ HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *rege
 	layout->addWidget(m_button);
 
 	m_item = new QListWidgetItem(regexList);
-	m_item->setData(Qt::UserRole, qVariantFromValue(Guard(this)));
 	m_item->setData(Qt::SizeHintRole, sizeHint());
 	regexList->setItemWidget(m_item, this);
 }
 
 HighlighterItemList::~HighlighterItemList()
 {
+    qDebug() << this;
 }
 
 QRegExp HighlighterItemList::regexp() const
