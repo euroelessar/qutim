@@ -431,7 +431,7 @@ void FileTransferJob::setFileProgress(qint64 fileProgress)
 {
 	Q_D(FileTransferJob);
 	qint64 delta = fileProgress - d->fileProgress;
-    if (delta == 0)
+    if (delta <= 0)
         return;
 	d->fileProgress = fileProgress;
 	d->progress += delta;
