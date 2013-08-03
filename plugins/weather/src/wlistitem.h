@@ -37,7 +37,6 @@ class WListItem : public QWidget
 	Q_OBJECT
 
 public:
-	typedef QSharedPointer<WListItem> Guard;
 	
 	WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList);
 	~WListItem();

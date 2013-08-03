@@ -27,7 +27,6 @@
 #include <QTextDocument>
 #include <qutim/icon.h>
 
-Q_DECLARE_METATYPE(WListItem::Guard)
 
 WListItem::WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList)
     : m_id(id), m_name(city), m_state(state)
@@ -47,7 +46,6 @@ WListItem::WListItem(const QString &city, const QString &state, const QString &i
 	layout->addWidget(m_button);
 
 	m_item = new QListWidgetItem(citiesList);
-	m_item->setData(Qt::UserRole, qVariantFromValue(Guard(this)));
 	m_item->setData(Qt::SizeHintRole, sizeHint());
 	citiesList->setItemWidget(m_item, this);
 }
