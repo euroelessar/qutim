@@ -60,6 +60,7 @@ public:
 
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
+	void clearItems();
 
 private slots:
 	void onRemoveButtonClicked();
@@ -75,7 +76,7 @@ private:
 	Ui::WSettingsClass ui;
 
 	QNetworkAccessManager *m_networkManager;
-	QList<WListItem*> m_items;
+	QList<QPointer<WListItem>> m_items;
 };
 
 #endif // WSETTINGS_H
