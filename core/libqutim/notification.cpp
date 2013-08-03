@@ -573,8 +573,10 @@ Notification *NotificationRequest::send()
 
 		backend->handleNotification(notification);
 	}
-	if (notification)
-		notification->d_func()->ref.deref();
+    if (notification) {
+        if (!notification->d_func()->ref.deref())
+            notification->deleteLater();
+    }
 	//TODO ref and deref impl
 	return notification;
 }
