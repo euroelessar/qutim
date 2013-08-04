@@ -69,7 +69,7 @@ void VPhotoViewer::onViewPhotoTriggered(QObject *obj)
 
     view->setSource(QUrl::fromLocalFile(filename));
     if (!view->status() == DeclarativeView::Ready) {
-        warning() << "Unable to load qml file";
+        qWarning() << "Unable to load qml file";
         view->deleteLater();
     } else {
         centerizeWidget(view);

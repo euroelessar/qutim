@@ -6,6 +6,7 @@ Project {
     references: [
         "jabber/jabber.qbs",
         "oscar/oscar.qbs",
-        "irc/irc.qbs"
+        "irc/irc.qbs",
+        "vkontakte/vkontakte.qbs"
     ]
 }

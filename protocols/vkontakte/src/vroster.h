@@ -72,6 +72,7 @@ private slots:
 	void onMessagesRecieved(const QVariant &response);
 	void onMessageAdded(const Vreen::Message &msg);
 	void onContactTyping(int userId, int chatId);
+    void onRosterSyncFinished(bool success);
 private:
 	QScopedPointer<VRosterFactory> p;
 };

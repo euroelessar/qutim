@@ -32,7 +32,8 @@ Project {
         "core/src/corelayers/corelayers.qbs",
         "plugins/plugins.qbs",
         "protocols/protocols.qbs",
-        "protocols/jabber/jreen/jreen.qbs"
+        "protocols/jabber/jreen/jreen.qbs",
+        "protocols/vkontakte/vreen/vreen.qbs"
     ]
 }
 
