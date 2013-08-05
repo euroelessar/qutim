@@ -35,9 +35,9 @@
 
 using namespace qutim_sdk_0_3;
 
-void init_names(QStringList &names)
+QStringList init_names()
 {
-	const char *cnames[] = {
+    QStringList names = {
 		"nick",
 		"firstName",
 		"lastName",
@@ -52,14 +52,13 @@ void init_names(QStringList &names)
 		"faculty",
 		"graduation"
 	};
-	for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
-		names << QLatin1String(cnames[i]);
+    return names;
 }
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, names, (init_names()))
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, names, init_names(*x))
-
-void init_titles(QList<LocalizedString> &titles)
+QList<LocalizedString> init_titles()
 {
+    QList<LocalizedString> titles;
 	titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "First name")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Last name")
@@ -73,18 +72,21 @@ void init_titles(QList<LocalizedString> &titles)
 		   << QT_TRANSLATE_NOOP("ContactInfo", "University")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
+    return titles;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(QList<LocalizedString>, titles, (init_titles()))
 
-void init_genders(QList<LocalizedString> &genders)
+QList<LocalizedString> init_genders()
 {
+    QList<LocalizedString> genders;
 	genders << QT_TRANSLATE_NOOP("ContactInfo", "Undefined")
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Female")
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Male");
+    return genders;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, genders, init_genders(*x))
+Q_GLOBAL_STATIC_WITH_ARGS(QList<LocalizedString>, genders, (init_genders()))
 
 typedef QCache<int, QString> NameMapper;
 

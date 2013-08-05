@@ -91,14 +91,19 @@ VRoster::VRoster(VAccount *account) : QObject(account),
 	account->setContactsFactory(p.data());
 	p->loadRoster();
 
-	connect(p->account->client()->roster(), SIGNAL(buddyAdded(Vreen::Buddy*)), SLOT(onAddBuddy(Vreen::Buddy*)));
-	connect(p->account->client()->roster(), SIGNAL(buddyUpdated(Vreen::Buddy*)), SLOT(onBuddyUpdated(Vreen::Buddy*)));
-	connect(p->account->client()->roster(), SIGNAL(buddyRemoved(int)), SLOT(onBuddyRemoved(int)));
+    auto roster = p->account->client()->roster();
+
+    connect(roster, SIGNAL(buddyAdded(Vreen::Buddy*)), SLOT(onAddBuddy(Vreen::Buddy*)));
+    connect(roster, SIGNAL(buddyUpdated(Vreen::Buddy*)), SLOT(onBuddyUpdated(Vreen::Buddy*)));
+    connect(roster, SIGNAL(buddyRemoved(int)), SLOT(onBuddyRemoved(int)));
 	connect(p->account->client(), SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineChanged(bool)));
 
 	Vreen::LongPoll *poll = p->account->client()->longPoll();
 	connect(poll, SIGNAL(messageAdded(Vreen::Message)), SLOT(onMessageAdded(Vreen::Message)));
 	connect(poll, SIGNAL(contactTyping(int, int)), SLOT(onContactTyping(int, int)));
+
+    /// new style
+    connect(roster, SIGNAL(syncFinished(bool)), SLOT(onRosterSyncFinished(bool)));
 }
 
 VRoster::~VRoster()
@@ -197,7 +202,7 @@ void VRoster::onMessageAdded(const Vreen::Message &msg)
 		if (c)
 			c->handleMessage(msg);
 		else
-			warning() << "Unable to find reciever with id in roster" << id;
+            qWarning() << "Unable to find reciever with id in roster" << id;
 	}
 }
 
@@ -219,7 +224,18 @@ void VRoster::onContactTyping(int userId, int chatId)
 	} else {
 		VGroupChat *c = groupChat(chatId);
 		c->setTyping(userId, true);
-	}
+    }
+}
+
+void VRoster::onRosterSyncFinished(bool success)
+{
+    auto roster = p->account->client()->roster();
+    if (success) {
+        for (Vreen::Buddy *buddy : roster->buddies()) {
+            if (buddy->isFriend())
+                onAddBuddy(buddy);
+        }
+    }
 }
 
 void VRoster::onMessagesRecieved(const QVariant &response)

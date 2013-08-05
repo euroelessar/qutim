@@ -10,7 +10,6 @@ UreenPlugin {
     Depends { name: "artwork" }
 
     cpp.includePaths: ["src"]
-    cpp.cxxFlags: base
 
     Group {
         fileTags: [ "artwork" ]
