@@ -184,7 +184,9 @@ QuickPopupWidget::~QuickPopupWidget()
 
 QSize QuickPopupWidget::sizeHint() const
 {
-	return m_view->sizeHint();
+	QSize sh = m_view->sizeHint();
+	sh.setHeight(m_view->height() + 40);
+	return sh;
 }
 
 void QuickPopupWidget::ignore()

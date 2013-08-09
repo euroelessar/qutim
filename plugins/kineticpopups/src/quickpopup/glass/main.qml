@@ -164,8 +164,8 @@ Rectangle {
 			actions.model = notify.actions;
 
 			//TODO write image provider for avatars
-            if(notify.avatar != "undefined")
-				image.source = notify.avatar;
+//            if(notify.avatar !== "undefined")
+//				image.source = notify.avatar;
 		}
 	}
 }
