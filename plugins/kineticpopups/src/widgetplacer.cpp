@@ -95,7 +95,7 @@ public:
 		//simple check
 		if (first < 0 || first >= (popups.count())) {
 			first = 0;
-			warning() << "WidgetPlacer::invalid first popup";
+			qDebug() << "WidgetPlacer::invalid first popup";
 		}
 
 		for (int i = first; i < popups.count(); i++) {
