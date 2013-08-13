@@ -78,6 +78,15 @@ QString QuickNotify::title() const
 	return title;
 }
 
+QString QuickNotify::avatar() const
+{
+	QObject *sender = m_notify->request().object();
+	if(!sender)
+		return "images/qutim.svg";
+	QString avatar = sender->property("avatar").toString();
+	return avatar;
+}
+
 Notification::Type QuickNotify::type() const
 {
 	return m_notify->request().type();
@@ -184,7 +193,9 @@ QuickPopupWidget::~QuickPopupWidget()
 
 QSize QuickPopupWidget::sizeHint() const
 {
-	return m_view->sizeHint();
+	QSize sh = m_view->sizeHint();
+	sh.setHeight(m_view->height() + 40);
+	return sh;
 }
 
 void QuickPopupWidget::ignore()
