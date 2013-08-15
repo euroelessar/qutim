@@ -1,0 +1,47 @@
+// type = (font, color, numeric, boolean)
+// label
+// label-LOCALE (label-ru_RU)
+// parameter — css-свойство, которое меняется
+// selector — css-класс, для которого меняется parameter
+// value — значение для parameter
+
+// для numeric
+// min
+// max
+// stюзе
+
+// $selector {$parameter: $value}
+
+// для boolean
+// true — значение при включенной галке
+// false — значение при выключенной галке
+
+[
+    {
+     "label": "Contact nick color",
+     "label-bg_BG": "Цвят на псевдонима на събеседника",
+     "label-ru_RU": "Цвет ника собеседника",
+     "parameter": "color",
+     "selector": ".inContentTime, .inMetaContact",
+     "type": "color",
+     "value": "#D63434"
+    },
+    {
+     "label": "My nick color",
+     "label-bg_BG": "Цвят на собствения псевдоним",
+     "label-ru_RU": "Цвет своего ника",
+     "parameter": "color",
+     "selector": ".outContentTime, .outMetaContact",
+     "type": "color",
+     "value": "#3473E3"
+    },
+    {
+     "label": "Mention color",
+     "label-bg_BG": "Цвят на собствения псевдоним",
+     "label-ru_RU": "Цвет упоминания своего ника",
+     "parameter": "color",
+     "selector": ".mention",
+     "type": "color",
+     "value": "#800080"
+    }
+]
