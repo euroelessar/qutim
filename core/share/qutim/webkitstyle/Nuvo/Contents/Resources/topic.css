@@ -1,0 +1,39 @@
+#topic {
+	color: #e6e6e6;
+	
+	height: 18px;
+	position: fixed;
+	background: #333;
+
+	top: 0px;
+	left: 80%;
+	right: 0px;
+
+	overflow: hidden;
+	padding: 5px;
+	padding-left: 10px;
+	margin-left: 8px;
+	margin-right: 8px;
+
+	-webkit-box-shadow: 0px 1px 3px #858585;
+			box-shadow: 0px 1px 3px #858585;
+
+	opacity: 0.5;
+	
+	border-radius: 0px 0px 3px 3px;
+	
+	-webkit-transition: all 0.5s linear;
+
+	float: right;
+}
+
+#topic:hover {
+	height: 350px;
+
+	top: 0px;
+	left: 0px;
+	right: 0px;
+
+	opacity: 0.95;
+
+}

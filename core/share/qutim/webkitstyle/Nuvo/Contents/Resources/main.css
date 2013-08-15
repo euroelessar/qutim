@@ -1,0 +1,111 @@
+body {
+	background-color: #F0F0F0;
+	height: 101%;
+}
+hr {
+    border:0px solid white;
+    border-bottom:1px dotted black;
+}
+.KopeteMessage {
+	margin-top: 4px;
+	border-bottom: 1px dotted #e6e6e6;
+	padding-bottom: 4px;
+} 
+div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
+	width: 16px;
+	height: 16px;
+	float: left;
+	margin-right: 4px;
+}
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:active { text-decoration: none; }
+
+.inMetaContact, .outMetaContact, .inActionMetacontact, .outActionMetacontact, .InternalDelim, .outContentTime, .inContentTime {
+	font-weight: bold;
+}
+.inContentTime, .inMetaContact {
+	color: #D63434;
+}
+.inMetaContact {
+	cursor: pointer;
+}
+.outContentTime, .outMetaContact {
+	color: #3473E3;
+}
+.inActionTime, .inActionMetacontact, .inActionMessage,
+.outActionTime, .outActionMetacontact, .outActionMessage {
+	color: green;
+}
+.InternalDelim{
+	color: #858585;
+	font-weight: bold;
+}
+.InternalMessage, .InternalTime {
+	color: #858585;
+}
+.toolTip {
+	min-width: 70px;
+	padding: 3px;
+	position: absolute;
+	border: solid 1px #858585;
+	background-color: #e6e6e6;
+
+	-webkit-border-radius: 3px;
+			border-radius: 3px;
+
+	-webkit-box-shadow: 0px 1px 3px #858585;
+			box-shadow: 0px 1px 3px #858585;
+}
+.toolTip span {
+	float: left;
+	clear: both;
+	/*white-space: nowrap;*/
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+.toolTip img {
+	max-width: 64px;
+	max-height: 64px;
+	display: block;
+	clear: both;
+}
+.mention,
+.incoming.mention {
+/*	color:#800080;*/
+	background-color: #e6e6e6;
+
+	padding: 3px;
+	padding-left: 5px;
+
+	border-left: 3px dotted #D63434;
+
+	-webkit-border-radius: 3px;
+			border-radius: 3px;
+}
+/*.mention .contentText {
+	color:#008080;
+}*/
+
+
+/*URL Preview*/
+
+.urlpreview img {
+	display: block-inline;
+
+	border: 2px solid #3473E3;
+	-webkit-border-radius: 3px;
+			border-radius: 3px;
+	
+	max-width: 99%;
+	height: auto;
+}
+
+.yandex-rca {
+	min-height: 134px;
+}
+
+.yandex-rca-image {
+	max-height: 128px;
+}
