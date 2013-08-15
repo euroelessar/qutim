@@ -23,16 +23,6 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="comboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="2">
     <widget class="QPushButton" name="pushButton">
      <property name="sizePolicy">
@@ -46,7 +36,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="6" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -59,7 +49,43 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0">
+   <item row="0" column="0" colspan="2">
+    <widget class="QComboBox" name="comboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelSlider">
+     <property name="text">
+      <string>Delay (ms): </string>
+     </property>
+     <property name="margin">
+      <number>6</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSpinBox" name="spinBox">
+     <property name="minimum">
+      <number>100</number>
+     </property>
+     <property name="maximum">
+      <number>60000</number>
+     </property>
+     <property name="singleStep">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>5000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Preview is unavailable</string>

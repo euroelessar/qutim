@@ -48,6 +48,7 @@ PopupAppearance::PopupAppearance () :
 	ui->setupUi(this);
 	connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
 	connect(ui->pushButton, SIGNAL(clicked(bool)), SLOT(onTestButtonClicked()));
+	connect(ui->spinBox, SIGNAL(valueChanged(int)), SLOT(onSpinBoxValueChanged(int)));
 }
 
 PopupAppearance::~PopupAppearance()
@@ -67,6 +68,8 @@ void PopupAppearance::loadImpl()
 	QString name = cfg.value("themeName", "default");
 	int index = ui->comboBox->findText(name);
 	ui->comboBox->setCurrentIndex(index);
+	int timeout = cfg.value("timeout", 5000);
+	ui->spinBox->setValue(timeout);
 	preview();
 
 	ui->comboBox->blockSignals(false);
@@ -78,6 +81,7 @@ void PopupAppearance::saveImpl()
 	Config cfg("behavior");
 	cfg.beginGroup("popup");
 	cfg.setValue("themeName", ui->comboBox->currentText());
+	cfg.setValue("timeout", ui->spinBox->value());
 	cfg.endGroup();
 	cfg.sync();
 }
@@ -108,6 +112,7 @@ void PopupAppearance::onTestButtonClicked()
 	cfg.beginGroup("popup");
 	QString name = cfg.value("themeName", "default");
 	cfg.setValue("themeName", ui->comboBox->currentText());
+	cfg.setValue("timeout", ui->spinBox->value());
 	cfg.sync();
 
 	NotificationRequest request(Notification::System);
@@ -127,6 +132,12 @@ void PopupAppearance::onTestButtonClicked()
 
 void PopupAppearance::preview()
 {
+}
+
+void PopupAppearance::onSpinBoxValueChanged(int)
+{
+	setModified(true);
+	preview();
 }
 
 } //namespace KineticPopups
