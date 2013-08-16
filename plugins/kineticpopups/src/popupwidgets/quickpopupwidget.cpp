@@ -148,7 +148,7 @@ QuickPopupWidget::QuickPopupWidget(QWidget* parent) :
 	Config cfg("behavior");
 	cfg.beginGroup("popup");
 	loadTheme(cfg.value("themeName", "default"));
-	m_timeout.setInterval(cfg.value("timeout", 5000));
+	m_timeout.setInterval(cfg.value("timeout", 5) * 1000);
 	cfg.endGroup();
 
 	connect(&m_timeout, SIGNAL(timeout()), this, SLOT(timeout()));
