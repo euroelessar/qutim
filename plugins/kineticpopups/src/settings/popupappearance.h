@@ -50,7 +50,7 @@ public:
 private slots:
 	void onCurrentIndexChanged(int index);
 	void onTestButtonClicked();
-	void onSpinBoxValueChanged(int);
+	void onSpinBoxValueChanged(double);
 private:
 	void getThemes();
 	void preview();
