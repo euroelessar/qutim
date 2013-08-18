@@ -91,23 +91,51 @@ a:active { text-decoration: none; }
 
 /*URL Preview*/
 
-.urlpreview img {
-	display: block-inline;
+.urlpreview {
+	color: #707070;
+	margin: 3px;
+}
 
-	border: 2px solid #3473E3;
+.urlpreview-image {
+/*	border: 2px solid #3473E3;
 	-webkit-border-radius: 3px;
-			border-radius: 3px;
-	
-	max-width: 99%;
+			border-radius: 3px;*/
+
+/*	display: block;*/
+
 	height: auto;
+	max-width: 99%;
+
+	padding: 10px;
+
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
 }
 
 .yandex-rca {
 	min-height: 134px;
+
+	padding: 10px;
+
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+}
+
+.yandex-rca-content {
+
 }
 
 .yandex-rca-image {
+/*	display: block;*/
+	margin-right: 5px;
+	padding: 3px;
+
+	border: 1px solid #e6e6e6;
+
 	max-height: 128px;
+	width: auto;
 }
 
 /*EXPERIMENTAL*/
