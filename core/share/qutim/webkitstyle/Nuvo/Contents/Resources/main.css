@@ -6,6 +6,12 @@ hr {
     border:0px solid white;
     border-bottom:1px dotted black;
 }
+
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:active { text-decoration: none; }
+
 .KopeteMessage {
 	margin-top: 4px;
 	border-bottom: 1px dotted #e6e6e6;
@@ -17,10 +23,6 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	float: left;
 	margin-right: 4px;
 }
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a:hover { text-decoration: underline; }
-a:active { text-decoration: none; }
 
 .inMetaContact, .outMetaContact, .inActionMetacontact, .outActionMetacontact, .InternalDelim, .outContentTime, .inContentTime {
 	font-weight: bold;
@@ -45,6 +47,27 @@ a:active { text-decoration: none; }
 .InternalMessage, .InternalTime {
 	color: #858585;
 }
+
+.mention,
+.incoming.mention {
+/*	color:#800080;*/
+	background-color: #e6e6e6;
+
+	padding: 3px;
+	padding-left: 5px;
+
+	border-left: 3px dotted #D63434;
+
+	-webkit-border-radius: 3px;
+			border-radius: 3px;
+}
+/*.mention .contentText {
+	color:#008080;
+}
+*/
+
+/*TOOLTIP*/
+
 .toolTip {
 	min-width: 70px;
 	padding: 3px;
@@ -71,56 +94,31 @@ a:active { text-decoration: none; }
 	display: block;
 	clear: both;
 }
-.mention,
-.incoming.mention {
-/*	color:#800080;*/
-	background-color: #e6e6e6;
 
-	padding: 3px;
-	padding-left: 5px;
-
-	border-left: 3px dotted #D63434;
-
-	-webkit-border-radius: 3px;
-			border-radius: 3px;
-}
-/*.mention .contentText {
-	color:#008080;
-}*/
-
-
-/*URL Preview*/
+/*URL PREVIEW*/
 
 .urlpreview {
 	color: #707070;
-	margin: 3px;
+	margin-top: 5px;
 }
 
 .urlpreview-image {
-/*	border: 2px solid #3473E3;
-	-webkit-border-radius: 3px;
-			border-radius: 3px;*/
-
-/*	display: block;*/
-
 	height: auto;
 	max-width: 99%;
 
 	padding: 10px;
-
 	background: white;
 	border: 1px solid #e6e6e6;
 	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
 }
 
+/*YANDEX RCA*/
+
 .yandex-rca {
-	min-height: 134px;
-
 	padding: 10px;
-
 	background: white;
 	border: 1px solid #e6e6e6;
-	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .yandex-rca-content {
@@ -128,17 +126,16 @@ a:active { text-decoration: none; }
 }
 
 .yandex-rca-image {
-/*	display: block;*/
-	margin-right: 5px;
+	margin-right: 10px;
 	padding: 3px;
-
 	border: 1px solid #e6e6e6;
-
-	max-height: 128px;
-	width: auto;
 }
 
 /*EXPERIMENTAL*/
+
+div {
+	overflow: hidden;
+}
 
 /*older messages*/
 
