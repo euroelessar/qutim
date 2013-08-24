@@ -1,0 +1,24 @@
+@importi url("../main.css");
+div.m_received {
+    background-image: url('../Images/Color/inmsg.svg');
+}
+
+div.m_sending, div.notDelivered {
+    background-image: url('../Images/Color/outmsg.svg');
+}
+
+div.m_sent, div.delivered {
+    background-image: url('../Images/Color/outmsgok.svg');
+}
+
+div.m_info {
+    background-image: url('../Images/Color/wink.svg');
+}
+
+div.m_action {
+    background-image: url('../Images/Color/action.svg');
+}
+
+div.m_topic {
+    background-image: url('../Images/Color/topic.svg');
+}
