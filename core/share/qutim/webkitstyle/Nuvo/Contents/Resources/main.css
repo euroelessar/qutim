@@ -103,6 +103,8 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 }
 
 .urlpreview-image {
+	box-sizing: border-box;
+	
 	height: auto;
 	max-width: 99%;
 
@@ -115,6 +117,7 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 /*YANDEX RCA*/
 
 .yandex-rca {
+
 	padding: 10px;
 	background: white;
 	border: 1px solid #e6e6e6;
@@ -126,6 +129,8 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 }
 
 .yandex-rca-image {
+	box-sizing: border-box;
+
 	margin-right: 10px;
 	padding: 3px;
 	border: 1px solid #e6e6e6;
