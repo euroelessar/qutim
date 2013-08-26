@@ -7,14 +7,14 @@ hr {
     border-bottom:1px dotted black;
 }
 
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a:hover { text-decoration: underline; }
-a:active { text-decoration: none; }
+a:link		{	text-decoration: none;		color: #3473e3;	}
+a:visited	{	text-decoration: none;		color: #3473e3;	}
+a:hover		{	text-decoration: underline;	color: #d63434;	}
+a:active	{	text-decoration: none;		color: #d63434;	}
 
 .KopeteMessage {
 	margin-top: 4px;
-	border-bottom: 1px dotted #e6e6e6;
+	border-bottom: 1px solid #e6e6e6;
 	padding-bottom: 4px;
 } 
 div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
@@ -58,8 +58,8 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 
 	border-left: 3px dotted #D63434;
 
-	-webkit-border-radius: 3px;
-			border-radius: 3px;
+	-webkit-border-radius: 2px;
+			border-radius: 2px;
 }
 /*.mention .contentText {
 	color:#008080;
