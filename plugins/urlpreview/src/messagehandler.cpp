@@ -80,8 +80,8 @@ void UrlHandler::loadSettings()
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
-	m_yandexRichContentTemplate = "<div class=\"yandex-rca\">"
-								  "<img align=\"left\" src=\"%IMAGE%\" style=\"max-width: 30%\" class=\"yandex-rca-image\"/>"
+	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\">"
+								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left;\" />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
 								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
