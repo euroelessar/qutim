@@ -82,6 +82,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->autoresizeBox);
 	lookForWidgetState(ui->rosterBox);
 	lookForWidgetState(ui->receiverIdBox);
+	lookForWidgetState(ui->fontSizeBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -129,6 +130,7 @@ void TabbedChatBehavior::loadImpl()
 	ui->receiverIdBox->setChecked(m_flags & ShowReceiverId);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
+	ui->fontSizeBox->setValue(chat.value<int>("chatFontSize", qApp->font().pointSize()));
 }
 
 void TabbedChatBehavior::saveImpl()
@@ -154,6 +156,7 @@ void TabbedChatBehavior::saveImpl()
 	history.setValue("maxDisplayMessages",ui->recentBox->value());
 	Config chat = appearance.group("chat");
 	chat.setValue("groupUntil",ui->groupUntil->value());
+	chat.setValue("chatFontSize", ui->fontSizeBox->value());
 	appearance.sync();
 }
 
