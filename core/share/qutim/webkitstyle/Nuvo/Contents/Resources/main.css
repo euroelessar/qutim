@@ -69,17 +69,14 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 /*TOOLTIP*/
 
 .toolTip {
-	min-width: 70px;
 	padding: 3px;
 	position: absolute;
-	border: solid 1px #858585;
-	background-color: #e6e6e6;
+	border: solid 1px #e6e6e6;
+	background-color: white;
 
-	-webkit-border-radius: 3px;
-			border-radius: 3px;
+	box-sizing: border-box;
 
-	-webkit-box-shadow: 0px 1px 3px #858585;
-			box-shadow: 0px 1px 3px #858585;
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
 }
 .toolTip span {
 	float: left;
@@ -89,8 +86,8 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	margin-bottom: 3px;
 }
 .toolTip img {
-	max-width: 64px;
-	max-height: 64px;
+	max-width: 128px;
+	max-height: 128px;
 	display: block;
 	clear: both;
 }
@@ -147,3 +144,5 @@ div {
 .history {
 	color: #707070;
 }
+
+/*SMACK MY*/
