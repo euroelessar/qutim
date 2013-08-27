@@ -47,6 +47,9 @@ private:
 	bool mousePressed;
 	virtual bool eventFilter(QObject *, QEvent *e);
 #endif
+public slots:
+	void showCustomContextMenu(const QPoint & point);
+	void insertQuoteText();
 };
 
 } // namespace Adium
