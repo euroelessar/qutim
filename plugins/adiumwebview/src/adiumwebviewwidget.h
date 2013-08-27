@@ -50,6 +50,7 @@ private:
 public slots:
 	void showCustomContextMenu(const QPoint & point);
 	void insertQuoteText();
+	void setPrevFocus(QObject *);
 };
 
 } // namespace Adium
