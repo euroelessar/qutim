@@ -7,14 +7,14 @@ hr {
     border-bottom:1px dotted black;
 }
 
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a:hover { text-decoration: underline; }
-a:active { text-decoration: none; }
+a:link		{	text-decoration: none;		color: #3473e3;	}
+a:visited	{	text-decoration: none;		color: #3473e3;	}
+a:hover		{	text-decoration: underline;	color: #d63434;	}
+a:active	{	text-decoration: none;		color: #d63434;	}
 
 .KopeteMessage {
 	margin-top: 4px;
-	border-bottom: 1px dotted #e6e6e6;
+	border-bottom: 1px solid #e6e6e6;
 	padding-bottom: 4px;
 } 
 div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
@@ -48,9 +48,10 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	color: #858585;
 }
 
+/*УПОМИНАНИЯ*/
 .mention,
 .incoming.mention {
-/*	color:#800080;*/
+	color: black;
 	background-color: #e6e6e6;
 
 	padding: 3px;
@@ -58,28 +59,28 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 
 	border-left: 3px dotted #D63434;
 
-	-webkit-border-radius: 3px;
-			border-radius: 3px;
+	-webkit-border-radius: 2px;
+			border-radius: 2px;
 }
+
+/*ПОСЛЕДУЮЩИЕ УПОМИНАНИЯ*/
+
 /*.mention .contentText {
 	color:#008080;
-}
-*/
+}*/
+
 
 /*TOOLTIP*/
 
 .toolTip {
-	min-width: 70px;
 	padding: 3px;
 	position: absolute;
-	border: solid 1px #858585;
-	background-color: #e6e6e6;
+	border: solid 1px #e6e6e6;
+	background-color: white;
 
-	-webkit-border-radius: 3px;
-			border-radius: 3px;
+	box-sizing: border-box;
 
-	-webkit-box-shadow: 0px 1px 3px #858585;
-			box-shadow: 0px 1px 3px #858585;
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
 }
 .toolTip span {
 	float: left;
@@ -89,8 +90,8 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	margin-bottom: 3px;
 }
 .toolTip img {
-	max-width: 64px;
-	max-height: 64px;
+	max-width: 128px;
+	max-height: 128px;
 	display: block;
 	clear: both;
 }
@@ -136,13 +137,13 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	border: 1px solid #e6e6e6;
 }
 
-/*EXPERIMENTAL*/
+/*EXPERIMENTAL. delete when win build 0.3.2 is done*/
 
 div {
 	overflow: hidden;
 }
 
-/*older messages*/
+/*OLDER MESSAGES*/
 
 .history {
 	color: #707070;
