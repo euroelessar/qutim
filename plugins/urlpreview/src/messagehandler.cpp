@@ -69,10 +69,10 @@ void UrlHandler::loadSettings()
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
-	m_imageTemplate = "<div class=urlpreview-image><img src=\"%URL%\" style=\"display: none;\" "
+	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
 								 "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
 								 "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
-								 "this.style.display='';\"></div><br>";
+								 "this.style.display='';\"><br>";
 	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
