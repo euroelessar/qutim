@@ -1,15 +1,15 @@
 #topic {
 	color: #e6e6e6;
-	
-	height: 18px;
-	position: fixed;
 	background: #333;
 
+	height: 18px;
+	min-width: 70px;
+
+	position: fixed;
 	top: 0px;
 	left: 80%;
 	right: 0px;
 
-	overflow: hidden;
 	padding: 5px;
 	padding-left: 10px;
 	margin-left: 8px;
@@ -23,8 +23,6 @@
 	border-radius: 0px 0px 3px 3px;
 	
 	-webkit-transition: all 0.5s linear;
-
-	float: right;
 }
 
 #topic:hover {
@@ -35,5 +33,4 @@
 	right: 0px;
 
 	opacity: 0.95;
-
 }
