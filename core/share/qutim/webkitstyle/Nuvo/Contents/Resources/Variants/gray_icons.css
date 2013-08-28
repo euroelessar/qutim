@@ -22,3 +22,12 @@ div.m_action {
 div.m_topic {
     background-image: url('../Images/Gray/topic.svg');
 }
+
+.action {
+	background-color: #e6e6e6;
+}
+
+.mention,
+.incoming.mention {
+	background-color: #e6e6e6;
+}
