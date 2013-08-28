@@ -1,7 +1,14 @@
-<div class="KopeteMessage" style="direction: %messageDirection%;">
+<!-- ПРОШЛЫЕ ВХОДЯЩИЕ ПОСЛЕ ПЕРВОГО СООБЩЕНИЯ  -->
+
+<div class="KopeteMessage %messageClasses%" style="direction: %messageDirection%;">
+
 <div class="m_received"></div>
+
 	<span class="inMetaContact" style="color: %senderColor%" onmouseover="showTooltip('%userIconPath%','%senderScreenName%', '%userIcons%')" onmouseout="hideTooltip();" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')"> %sender% </span>
+
 	<span class="inContentTime" style="color: %senderColor%">(%time{%H:%M:%S %d.%m.%Y}%):</span>
+
 	<span class="IncomingMessage" style="background-color: %textbackgroundcolor{#4386cf}%;"><br>%message%</span>
+	
 </div>
 <div id="insert"></div>

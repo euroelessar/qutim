@@ -23,6 +23,8 @@
 	border-radius: 0px 0px 3px 3px;
 	
 	-webkit-transition: all 0.5s linear;
+
+	overflow: hidden;
 }
 
 #topic:hover {
@@ -33,4 +35,6 @@
 	right: 0px;
 
 	opacity: 0.95;
+
+	border-radius: 0px 0px 5px 5px;
 }
