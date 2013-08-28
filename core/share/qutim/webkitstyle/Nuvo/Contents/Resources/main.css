@@ -17,7 +17,7 @@ a:active	{text-decoration: none;			color: #d63434;}
 	border-bottom: 1px solid #e6e6e6;
 	padding-bottom: 4px;
 } 
-div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
+div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
 	width: 16px;
 	height: 16px;
 	float: left;
@@ -43,6 +43,7 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 .outActionTime, .outActionMetacontact, .outActionMessage {
 	color: green;
 }
+
 .InternalDelim{
 	color: #858585;
 	font-weight: bold;
@@ -57,28 +58,33 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	font-size: 90%;
 }
 
-/*УПОМИНАНИЯ*/
+.action {
+	border-radius: 3px;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-bottom: 5px;
+	box-shadow:	inset -3px 0px 0px 0px #00a000,
+				inset 3px 0px 0px 0px #00a000,
+				inset 0px -1px 0px 0px #f2f2f2,
+				inset 0px 1px 0px 0px rgba(0,0,0,0.1)
+				;
+}
 
-/*.mention,
-.incoming.mention {
-	color: #020202;
-	background-color: #e6e6e6;
-	padding: 3px;
-	padding-left: 5px;
-	border-left: 3px solid #D63434;
-	-webkit-border-radius: 2px;
-			border-radius: 2px;
-}*/
+/*УПОМИНАНИЯ*/
 
 .mention,
 .incoming.mention {
-	color: #020202;
-	background-color: #e6e6e6;
-	padding: 3px;
-	padding-left: 5px;
-	border-left: 1px solid #D63434;
-	border-right: 1px solid #D63434;
-	box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);
+	border-radius: 3px;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-bottom: 5px;
+	box-shadow:	inset -3px 0px 0px 0px #D63434,
+				inset 3px 0px 0px 0px #D63434,
+				inset 0px -1px 0px 0px #f2f2f2,
+				inset 0px 1px 0px 0px rgba(0,0,0,0.1)
+				;
 }
 
 /*OLDER MESSAGES*/
@@ -117,6 +123,7 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 
 .urlpreview {
 	color: #707070;
+	overflow: hidden;			/*LEGACY qt4*/
 }
 .urlpreview-image {
 	box-sizing: border-box;
@@ -143,3 +150,5 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
+
+
