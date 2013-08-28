@@ -24,18 +24,22 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	margin-right: 4px;
 }
 
-.inMetaContact, .outMetaContact, .inActionMetacontact, .outActionMetacontact, .InternalDelim, .outContentTime, .inContentTime {
-	font-weight: bold;
-}
+/*ЗАГОЛОВКИ СООБЩЕНИЙ*/
+
 .inContentTime, .inMetaContact {
 	color: #D63434;
-}
-.inMetaContact {
-	cursor: pointer;
 }
 .outContentTime, .outMetaContact {
 	color: #3473E3;
 }
+.inMetaContact, .outMetaContact, .inActionMetacontact, .outActionMetacontact, .InternalDelim, .outContentTime, .inContentTime {
+	font-weight: bold;
+}
+.inMetaContact {
+	cursor: pointer;
+}
+
+
 .inActionTime, .inActionMetacontact, .inActionMessage,
 .outActionTime, .outActionMetacontact, .outActionMessage {
 	color: green;
@@ -48,27 +52,47 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	color: #858585;
 }
 
+/*ВРЕМЯ СООБЩЕНИЙ*/
+
+.inContentTime, .outContentTime {
+	font-size: 90%;
+}
+
 /*УПОМИНАНИЯ*/
-.mention,
+
+/*.mention,
 .incoming.mention {
-	color: black;
+	color: #020202;
 	background-color: #e6e6e6;
 
 	padding: 3px;
 	padding-left: 5px;
 
-	border-left: 3px dotted #D63434;
+	border-left: 3px solid #D63434;
 
 	-webkit-border-radius: 2px;
 			border-radius: 2px;
-}
-
-/*ПОСЛЕДУЮЩИЕ УПОМИНАНИЯ*/
-
-/*.mention .contentText {
-	color:#008080;
 }*/
 
+.mention,
+.incoming.mention {
+	color: #020202;
+	background-color: #e6e6e6;
+
+	padding: 3px;
+	padding-left: 5px;
+
+	border-left: 1px solid #D63434;
+	border-right: 1px solid #D63434;
+
+	box-shadow: inset 0px 1px 1px 0px rgba(0,0,0,0.1);
+}
+
+/*OLDER MESSAGES*/
+
+.history {
+	color: #707070;
+}
 
 /*TOOLTIP*/
 
@@ -80,7 +104,7 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 
 	box-sizing: border-box;
 
-	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1);
 }
 .toolTip span {
 	float: left;
@@ -96,13 +120,14 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	clear: both;
 }
 
+/*QUTIM ZONE. BE AWARE!!!*/
+
 /*URL PREVIEW*/
 
 .urlpreview {
 	color: #707070;
 	margin-top: 5px;
 }
-
 .urlpreview-image {
 	box-sizing: border-box;
 	
@@ -112,23 +137,20 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 	padding: 10px;
 	background: white;
 	border: 1px solid #e6e6e6;
-	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1);
 }
 
 /*YANDEX RCA*/
 
 .yandex-rca {
-
 	padding: 10px;
 	background: white;
 	border: 1px solid #e6e6e6;
-	box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
-
 .yandex-rca-content {
 
 }
-
 .yandex-rca-image {
 	box-sizing: border-box;
 
@@ -139,12 +161,6 @@ div.m_received,div.m_sending,div.m_sent,div.m_info, div.delivered, div.notDelive
 
 /*EXPERIMENTAL. delete when win build 0.3.2 is done*/
 
-div {
+/*div {
 	overflow: hidden;
-}
-
-/*OLDER MESSAGES*/
-
-.history {
-	color: #707070;
-}
+}*/
