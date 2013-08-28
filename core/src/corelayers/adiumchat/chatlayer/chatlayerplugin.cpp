@@ -193,6 +193,7 @@ void ChatLayerPlugin::onQuote(const QString &quote, QObject *controller)
 	}
 	text += QLatin1Char('\n');
 	chat->getInputField()->insertPlainText(text);
+	chat->getInputField()->setFocus();
 }
 
 }
