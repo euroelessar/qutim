@@ -37,11 +37,11 @@
     },
     {
      "label": "Mention color",
-     "label-bg_BG": "Цвят на собствения псевдоним",
+     "label-bg_BG": "Цвят на воображания собствения псевдоним",
      "label-ru_RU": "Цвет упоминания своего ника",
      "parameter": "color",
      "selector": ".mention",
      "type": "color",
-     "value": "#800080"
+     "value": "#020202"
     }
 ]

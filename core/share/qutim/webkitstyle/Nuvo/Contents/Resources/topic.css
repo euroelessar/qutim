@@ -23,6 +23,8 @@
 	border-radius: 0px 0px 3px 3px;
 	
 	-webkit-transition: all 0.5s linear;
+
+	overflow: hidden;
 }
 
 #topic:hover {
