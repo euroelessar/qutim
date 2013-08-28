@@ -9,10 +9,10 @@
   <string>English</string>
 
   <key>CFBundleGetInfoString</key>
-  <string>Default chat style for qutIM</string>
+  <string>Chat style for qutIM</string>
 
   <key>CFBundleIdentifier</key>
-  <string>default.chat.style</string>
+  <string>nuvo.chat.style</string>
 
   <key>CFBundleGetInfoString</key>
   <string>1.0</string>
@@ -21,7 +21,7 @@
   <string>1.0</string>
 
   <key>CFBundleName</key>
-  <string>qutIM default</string>
+  <string>qutIM Nuvo</string>
 
   <key>CFBundlePackageType</key>
   <string>qutIM chat style</string>
