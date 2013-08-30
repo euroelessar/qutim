@@ -2,5 +2,8 @@ import "../../../../plugins/UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: ''
-    cpp.dynamicLibraries: [ "xcb-screensaver", "xcb" ]
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.dynamicLibraries: [ "xcb-screensaver", "xcb" ]
+    }
 }

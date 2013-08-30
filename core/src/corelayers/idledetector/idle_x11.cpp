@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2003 Justin Karneges <justin@affinix.com>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "idle.h"
-#include <QDebug>
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 
 #include <QApplication>
@@ -38,7 +37,8 @@ static xcb_screen_t * screen;
 
 IdlePlatform::IdlePlatform()
 {
-
+	connection = xcb_connect (NULL, NULL);
+	screen = xcb_setup_roots_iterator (xcb_get_setup (connection)).data;
 }
 
 IdlePlatform::~IdlePlatform()
@@ -48,24 +48,18 @@ IdlePlatform::~IdlePlatform()
 
 bool IdlePlatform::init()
 {
-	connection = xcb_connect (NULL, NULL);
-	screen = xcb_setup_roots_iterator (xcb_get_setup (connection)).data;
 	return true;
 }
 
 int IdlePlatform::secondsIdle()
 {
-	xcb_screensaver_query_info_cookie_t cookie;
-	xcb_screensaver_query_info_reply_t *info;
+	xcb_screensaver_query_info_cookie_t cookie = xcb_screensaver_query_info (connection, screen->root);
+	xcb_screensaver_query_info_reply_t *info = xcb_screensaver_query_info_reply (connection, cookie, NULL);
 
-	cookie = xcb_screensaver_query_info (connection, screen->root);
-	info = xcb_screensaver_query_info_reply (connection, cookie, NULL);
-
-	uint32_t idle = info->ms_since_user_input;
+	uint idle = info->ms_since_user_input;
 	free (info);
 
-	int i = static_cast<int>(idle);
-	return i/1000;
+	return idle/1000;
 }
 
 } // namespace Psi
