@@ -24,6 +24,7 @@ Project {
         "yandexnarod/yandexnarod.qbs",
         "mobility/src/bearermanager/bearermanager.qbs",
         "urlpreview/urlpreview.qbs",
-        "kineticpopups/kineticpopups.qbs"
+        "kineticpopups/kineticpopups.qbs",
+        "linuxintegration/linuxintegration.qbs"
     ]
 }
