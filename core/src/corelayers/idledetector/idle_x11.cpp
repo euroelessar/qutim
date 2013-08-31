@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2003 Justin Karneges <justin@affinix.com>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -24,91 +24,46 @@
 ****************************************************************************/
 
 #include "idle.h"
-
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 
-#ifndef HAVE_XSS
-
-namespace Psi
-{
-IdlePlatform::IdlePlatform() {}
-IdlePlatform::~IdlePlatform() {}
-bool IdlePlatform::init() { return false; }
-int IdlePlatform::secondsIdle() { return 0; }
-}
-#else
-
-#include <qapplication.h>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QX11Info>
+#include <xcb/xcb.h>
+#include <xcb/screensaver.h>
+#include <QtX11Extras/QX11Info>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/extensions/scrnsaver.h>
-
-static XErrorHandler old_handler = 0;
-extern "C" int xerrhandler(Display* dpy, XErrorEvent* err)
-{
-	if(err->error_code == BadDrawable)
-		return 0;
-
-	return (*old_handler)(dpy, err);
-}
-
-namespace Psi
-{
-class IdlePlatform::Private
-{
-public:
-	Private() {}
-
-	XScreenSaverInfo *ss_info;
-};
+namespace Psi {
+static xcb_screen_t * screen;
 
 IdlePlatform::IdlePlatform()
 {
-	d = new Private;
-	d->ss_info = 0;
+	screen = xcb_setup_roots_iterator (xcb_get_setup (QX11Info::connection())).data;
 }
 
 IdlePlatform::~IdlePlatform()
 {
-	if(d->ss_info)
-		XFree(d->ss_info);
-	if(old_handler) {
-		XSetErrorHandler(old_handler);
-		old_handler = 0;
-	}
-	delete d;
+
 }
 
 bool IdlePlatform::init()
 {
-	if(d->ss_info)
-		return true;
-
-	old_handler = XSetErrorHandler(xerrhandler);
-
-	int event_base, error_base;
-	if(XScreenSaverQueryExtension(QX11Info::display(), &event_base, &error_base)) {
-		d->ss_info = XScreenSaverAllocInfo();
-		return true;
-	}
-	return false;
+	return true;
 }
 
 int IdlePlatform::secondsIdle()
 {
-	if(!d->ss_info)
-		return 0;
-	if(!XScreenSaverQueryInfo(QX11Info::display(), QX11Info::appRootWindow(), d->ss_info))
-		return 0;
-	return d->ss_info->idle / 1000;
+	xcb_screensaver_query_info_cookie_t cookie = xcb_screensaver_query_info (QX11Info::connection(), screen->root);
+	xcb_screensaver_query_info_reply_t *info = xcb_screensaver_query_info_reply (QX11Info::connection(), cookie, NULL);
+
+	uint idle = info->ms_since_user_input;
+	free (info);
+
+	return idle/1000;
 }
-}
+
+} // namespace Psi
 
 #endif
 
-#endif
+
 
