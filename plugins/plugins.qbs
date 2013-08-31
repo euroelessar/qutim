@@ -25,6 +25,7 @@ Project {
         "mobility/src/bearermanager/bearermanager.qbs",
         "urlpreview/urlpreview.qbs",
         "kineticpopups/kineticpopups.qbs",
-        "linuxintegration/linuxintegration.qbs"
+        "linuxintegration/linuxintegration.qbs",
+        "updater/updater.qbs"
     ]
 }
