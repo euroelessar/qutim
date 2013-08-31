@@ -30,15 +30,14 @@
 #include <QDesktopWidget>
 #include <xcb/xcb.h>
 #include <xcb/screensaver.h>
+#include <QtX11Extras/QX11Info>
 
 namespace Psi {
-static xcb_connection_t * connection;
 static xcb_screen_t * screen;
 
 IdlePlatform::IdlePlatform()
 {
-	connection = xcb_connect (NULL, NULL);
-	screen = xcb_setup_roots_iterator (xcb_get_setup (connection)).data;
+	screen = xcb_setup_roots_iterator (xcb_get_setup (QX11Info::connection())).data;
 }
 
 IdlePlatform::~IdlePlatform()
@@ -53,8 +52,8 @@ bool IdlePlatform::init()
 
 int IdlePlatform::secondsIdle()
 {
-	xcb_screensaver_query_info_cookie_t cookie = xcb_screensaver_query_info (connection, screen->root);
-	xcb_screensaver_query_info_reply_t *info = xcb_screensaver_query_info_reply (connection, cookie, NULL);
+	xcb_screensaver_query_info_cookie_t cookie = xcb_screensaver_query_info (QX11Info::connection(), screen->root);
+	xcb_screensaver_query_info_reply_t *info = xcb_screensaver_query_info_reply (QX11Info::connection(), cookie, NULL);
 
 	uint idle = info->ms_since_user_input;
 	free (info);
