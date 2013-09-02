@@ -1,6 +1,6 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    condition: qbs.targetOS === "linux"
+    condition: qbs.targetOS.contains("linux")
     sourcePath: ""
 }
