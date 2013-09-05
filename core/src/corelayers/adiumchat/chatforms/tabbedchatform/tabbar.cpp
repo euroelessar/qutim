@@ -36,7 +36,7 @@
 #include <QAbstractButton>
 #include <QStyleOption>
 #include <QPainter>
-#include <conference.h>
+#include <qutim/conference.h>
 
 namespace Core
 {
