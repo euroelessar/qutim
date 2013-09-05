@@ -29,6 +29,8 @@
 #include <qutim/servicemanager.h>
 #include <QWebFrame>
 #include <QApplication>
+#include <QMenu>
+#include <QContextMenuEvent>
 #ifdef Q_WS_MAEMO_5
 #include <QMouseEvent>
 #endif
@@ -48,6 +50,8 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 	mousePressed = false;
 	installEventFilter(this);
 #endif
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showCustomContextMenu(QPoint)));
 }
 
 void WebViewWidget::setViewController(QObject* object)
@@ -90,6 +94,47 @@ bool WebViewWidget::eventFilter(QObject *, QEvent *e)
     return false;
 }
 #endif
+
+void WebViewWidget::showCustomContextMenu(const QPoint &point)
+{
+	QMenu *menu = page()->createStandardContextMenu();
+	menu->setAttribute(Qt::WA_DeleteOnClose, true);
+	if(!selectedHtml().isEmpty()) {
+		QAction *quote = new QAction(tr("&Quote"), this);
+		menu->addAction(quote);
+		connect(quote, SIGNAL(triggered()), SLOT(insertQuoteText()));
+	}
+	menu->popup(mapToGlobal(point));
+	connect(menu, SIGNAL(destroyed(QObject*)), SLOT(setPrevFocus(QObject*)));
+}
+
+void WebViewWidget::insertQuoteText()
+{
+	QString text;
+	const QString newLine = QLatin1String("\n> ");
+	QString quote = m_controller->quote();
+	quote.prepend("> ");
+	for (int i = 0; i < quote.size(); ++i) {
+		if (quote[i] == QLatin1Char('\n') || quote[i].unicode() == QChar::ParagraphSeparator)
+			text += newLine;
+		else
+			text += quote[i];
+	}
+	text.reserve(text.size() + quote.size() * 1.2);
+	text += QLatin1Char('\n');
+	m_controller->appendText(text);
+}
+
+void WebViewWidget::setPrevFocus(QObject *)
+{
+	QObject *form = ServiceManager::getByName("ChatForm");
+	QObject *obj = 0;
+	if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
+									  Q_ARG(qutim_sdk_0_3::ChatSession*, m_controller->getSession())) && obj) {
+	if (QWidget *widget = qobject_cast<QWidget*>(obj))
+	widget->setFocus();
+	}
+}
 
 } // namespace Adium
 

@@ -67,9 +67,9 @@ void UrlHandler::loadSettings()
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
-	m_imageTemplate = "<img src=\"%URL%\" style=\"display: none;\" "
-								 "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
-								 "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
+	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
+								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px'; "
+								 "if (this.height>%MAXH%) { this.style.maxWidth=''; this.style.maxHeight='%MAXH%px'; } "
 								 "this.style.display='';\"><br>";
 	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
@@ -78,8 +78,8 @@ void UrlHandler::loadSettings()
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
-	m_yandexRichContentTemplate = "<div class=\"yandex-rca\">"
-								  "<img align=\"left\" src=\"%IMAGE%\" style=\"max-width: 30%\" class=\"yandex-rca-image\"/>"
+	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\">"
+								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left;\" />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
 								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
