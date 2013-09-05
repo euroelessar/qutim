@@ -48,6 +48,7 @@ PopupAppearance::PopupAppearance () :
 	ui->setupUi(this);
 	connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
 	connect(ui->pushButton, SIGNAL(clicked(bool)), SLOT(onTestButtonClicked()));
+	connect(ui->doubleSpinBox, SIGNAL(valueChanged(double)), SLOT(onSpinBoxValueChanged(double)));
 }
 
 PopupAppearance::~PopupAppearance()
@@ -67,8 +68,9 @@ void PopupAppearance::loadImpl()
 	QString name = cfg.value("themeName", "default");
 	int index = ui->comboBox->findText(name);
 	ui->comboBox->setCurrentIndex(index);
+	int timeout = static_cast<int>(cfg.value("timeout", 5));
+	ui->doubleSpinBox->setValue(timeout);
 	preview();
-
 	ui->comboBox->blockSignals(false);
 }
 
@@ -78,6 +80,7 @@ void PopupAppearance::saveImpl()
 	Config cfg("behavior");
 	cfg.beginGroup("popup");
 	cfg.setValue("themeName", ui->comboBox->currentText());
+	cfg.setValue("timeout", ui->doubleSpinBox->value());
 	cfg.endGroup();
 	cfg.sync();
 }
@@ -108,6 +111,7 @@ void PopupAppearance::onTestButtonClicked()
 	cfg.beginGroup("popup");
 	QString name = cfg.value("themeName", "default");
 	cfg.setValue("themeName", ui->comboBox->currentText());
+	cfg.setValue("timeout", ui->doubleSpinBox->value());
 	cfg.sync();
 
 	NotificationRequest request(Notification::System);
@@ -127,6 +131,12 @@ void PopupAppearance::onTestButtonClicked()
 
 void PopupAppearance::preview()
 {
+}
+
+void PopupAppearance::onSpinBoxValueChanged(double)
+{
+	setModified(true);
+	preview();
 }
 
 } //namespace KineticPopups

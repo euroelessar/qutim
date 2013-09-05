@@ -41,6 +41,7 @@ class QuickNotify : public QObject
 	Q_OBJECT
 	Q_PROPERTY(QString title READ title)
 	Q_PROPERTY(QString text  READ text)
+	Q_PROPERTY(QString avatar READ avatar)
 	Q_PROPERTY(QObject* object READ object)
 	Q_PROPERTY(qutim_sdk_0_3::Notification::Type type READ type)
 	Q_PROPERTY(QObjectList actions READ actions)
@@ -48,6 +49,7 @@ public:
 	QuickNotify(qutim_sdk_0_3::Notification *notify);
 	QString title() const;
 	QString text() const;
+	QString avatar() const;
 	QObject* object() const;
 	qutim_sdk_0_3::Notification::Type type() const;
 	QObjectList actions() const;

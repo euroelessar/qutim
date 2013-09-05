@@ -32,6 +32,8 @@
 #include <qutim/debug.h>
 #include <qutim/messagehandler.h>
 #include <QMetaProperty>
+#include <qutim/config.h>
+#include <QApplication>
 
 namespace Core
 {
@@ -40,6 +42,10 @@ namespace AdiumChat
 
 QString ChatEdit::textEditToPlainText()
 {
+	Config cfg = Config("appearance");
+	cfg.beginGroup("chat");
+	setFontPointSize(cfg.value("chatFontSize", qApp->font().pointSize()));
+	cfg.endGroup();
 	QTextDocument *doc = document();
 	QString result;
 	result.reserve(doc->characterCount());
@@ -81,6 +87,10 @@ ChatEdit::ChatEdit(QWidget *parent) :
 	setAcceptRichText(false);
 	m_autoResize = false;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
+	Config cfg = Config("appearance");
+	cfg.beginGroup("chat");
+	m_fontSize = cfg.value("chatFontSize", qApp->font().pointSize());
+	cfg.endGroup();
 }
 
 void ChatEdit::setSession(ChatSessionImpl *session)
@@ -88,6 +98,7 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 	m_session = session;
 	setDocument(session->getInputField());
 	setFocus();
+	setFontPointSize(m_fontSize);
 }
 
 bool ChatEdit::event(QEvent *event)
