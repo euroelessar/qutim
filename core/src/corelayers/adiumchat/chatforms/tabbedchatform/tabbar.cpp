@@ -36,7 +36,7 @@
 #include <QAbstractButton>
 #include <QStyleOption>
 #include <QPainter>
-#include <conference.h>
+#include <qutim/conference.h>
 
 namespace Core
 {
@@ -176,6 +176,10 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	connect(key,SIGNAL(activated()),SLOT(showNextTab()));
 	key = new Shortcut ("chatPrevious",this);
 	connect(key,SIGNAL(activated()),SLOT(showPreviousTab()));
+	key = new Shortcut("moveTabLeft", this);
+	connect(key, SIGNAL(activated()), SLOT(onMoveTabLeftActivated()));
+	key = new Shortcut("moveTabRight", this);
+	connect(key, SIGNAL(activated()), SLOT(onMoveTabRightActivated()));
 
 	connect(this, SIGNAL(currentChanged(int)), SLOT(onCurrentChanged(int)));
 	connect(this, SIGNAL(tabCloseRequested(int)), SLOT(onCloseRequested(int)));
@@ -520,6 +524,20 @@ void TabBar::showPreviousTab()
 		return;
 	int index = (count() + currentIndex() - 1) % count();
 	setCurrentIndex(index);
+}
+
+void TabBar::onMoveTabLeftActivated()
+{
+	qDebug() << Q_FUNC_INFO;
+	if (currentIndex() != 0)
+	moveTab(currentIndex(), currentIndex() - 1);
+}
+
+void TabBar::onMoveTabRightActivated()
+{
+	qDebug() << Q_FUNC_INFO;
+	if (currentIndex() < count())
+	moveTab(currentIndex(), currentIndex() + 1);
 }
 
 }
