@@ -61,6 +61,8 @@ public slots:
 	void showNextTab();
 	void showPreviousTab();
 	void closeCurrentTab();
+	void onMoveTabLeftActivated();
+	void onMoveTabRightActivated();
 signals:
 	void remove(ChatSessionImpl *session);
 protected:
