@@ -43,6 +43,7 @@ class JMUCUser : public JContactResource
 	Q_PROPERTY(QString photoHash READ avatarHash WRITE setAvatar)
 	Q_PROPERTY(int affiliation READ affiliation NOTIFY affiliationChanged)
 	Q_PROPERTY(int mucRole READ mucRole NOTIFY mucRoleChanged)
+	Q_PROPERTY(int priority READ priority NOTIFY priorityChanged)
 	Q_DECLARE_PRIVATE(JMUCUser)
 public:
 	JMUCUser(JMUCSession *muc, const QString &name);
@@ -54,15 +55,15 @@ public:
 	QString avatarHash() const;
 	int affiliation() const;
 	int mucRole() const;
+	int priority() const;
 	void setAvatar(const QString &hex);
 	void setName(const QString &name);
 	//			InfoRequest *infoRequest() const;
 	JMUCSession *muc() const;
 	ChatUnit *upperUnit();
 	MUCRoom::Affiliation affiliation();
-	void setMUCAffiliation(MUCRoom::Affiliation affiliation);
+	void setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoom::Role role);
 	MUCRoom::Role role();
-	void setMUCRole(MUCRoom::Role role);
 	QString realJid() const;
 	void setRealJid(const QString &jid);
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
@@ -75,6 +76,7 @@ protected:
 signals:
 	void affiliationChanged(const int &affiliation);
 	void mucRoleChanged(const int &mucRole);
+	void priorityChanged();
 };
 }
 

@@ -66,7 +66,7 @@ private slots:
 	void onNameChanged(const QString &title, const QString &oldTitle);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onContactDestroyed(QObject *obj);
-	void onAffilationChanged(const int &);
+	void onPriorityChanged();
 private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
@@ -74,13 +74,11 @@ private:
 		Node() : unit(NULL) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
-		int affiliationRole = unit->property("affiliation").toInt();
-		int mucRole = unit->property("mucRole").toInt();
-		int affiliation = affiliationRole + mucRole;
+		int priority = unit->property("priority").toInt();
 		
 		bool operator <(const Node &o) const
 		{
-			int cmp = o.affiliation - affiliation;
+			int cmp = o.priority - priority;
 			if (cmp == 0)
 				cmp = title.compare(o.title, Qt::CaseInsensitive);
 			return cmp < 0 || (cmp == 0 && unit < o.unit);
