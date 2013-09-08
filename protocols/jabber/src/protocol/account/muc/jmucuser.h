@@ -41,6 +41,8 @@ class JMUCUser : public JContactResource
 	Q_OBJECT
 	Q_PROPERTY(QString realJid READ realJid)
 	Q_PROPERTY(QString photoHash READ avatarHash WRITE setAvatar)
+	Q_PROPERTY(int affiliation READ affiliation NOTIFY affiliationChanged)
+	Q_PROPERTY(int mucRole READ mucRole NOTIFY mucRoleChanged)
 	Q_DECLARE_PRIVATE(JMUCUser)
 public:
 	JMUCUser(JMUCSession *muc, const QString &name);
@@ -50,6 +52,8 @@ public:
 	void setUserName(const QString &name);
 	QString avatar() const;
 	QString avatarHash() const;
+	int affiliation() const;
+	int mucRole() const;
 	void setAvatar(const QString &hex);
 	void setName(const QString &name);
 	//			InfoRequest *infoRequest() const;
@@ -68,6 +72,9 @@ public slots:
 protected:
 	bool event(QEvent *ev);
 	friend class JMUCSession;
+signals:
+	void affiliationChanged(const int &affiliation);
+	void mucRoleChanged(const int &mucRole);
 };
 }
 
