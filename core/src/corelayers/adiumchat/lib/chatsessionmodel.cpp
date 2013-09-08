@@ -77,23 +77,19 @@ void ChatSessionModel::addContact(Buddy *unit)
 	m_units.insert(index, unit);
 
 	auto unitMeta = unit->metaObject();
-	int funcIndex = unitMeta->indexOfProperty("affiliation");
-	QMetaProperty affiliationProperty = unitMeta->property(funcIndex);
-	QMetaMethod affiliationSignal = affiliationProperty.notifySignal();
-	funcIndex = metaObject()->indexOfSlot("onAffilationChanged(int)");
-	QMetaMethod affiliationSlot = metaObject()->method(funcIndex);
-	connect(unit, affiliationSignal, this, affiliationSlot);
-	funcIndex = unitMeta->indexOfProperty("mucRole");
-	QMetaProperty mucRoleProperty = unitMeta->property(funcIndex);
-	QMetaMethod mucRoleSignal = mucRoleProperty.notifySignal();
-	connect(unit, mucRoleSignal, this, affiliationSlot);
+	int funcIndex = unitMeta->indexOfProperty("priority");
+	QMetaProperty priorityProperty = unitMeta->property(funcIndex);
+	QMetaMethod affiliationSignal = priorityProperty.notifySignal();
+	funcIndex = metaObject()->indexOfSlot("onPriorityChanged()");
+	QMetaMethod prioritySlot = metaObject()->method(funcIndex);
 
+	connect(unit, affiliationSignal, this, prioritySlot);
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
-	        this, SLOT(onNameChanged(QString,QString)));
+			this, SLOT(onNameChanged(QString,QString)));
 	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	connect(unit, SIGNAL(destroyed(QObject*)),
-	        this, SLOT(onContactDestroyed(QObject*)));	
+			this, SLOT(onContactDestroyed(QObject*)));
 	endInsertRows();
 }
 
@@ -155,7 +151,7 @@ void ChatSessionModel::onContactDestroyed(QObject *object)
 	}
 }
 
-void ChatSessionModel::onAffilationChanged(const int &)
+void ChatSessionModel::onPriorityChanged()
 {
 	Buddy *unit = qobject_cast<Buddy*>(sender());
 	Q_ASSERT(unit);
@@ -166,7 +162,8 @@ void ChatSessionModel::onAffilationChanged(const int &)
 		m_units.replace(a, unit);
 	}
 	qSort(m_units.begin(), m_units.end(), [] (Node &unit1, Node &unit2) {
-		return unit1.affiliation > unit2.affiliation;
+		return (unit1.priority > unit2.priority ||
+				((unit1.priority == unit2.priority) && unit1.title < unit2.title));
 	});
 	endResetModel();
 }
