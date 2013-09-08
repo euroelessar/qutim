@@ -129,6 +129,7 @@ MUCRoom::Affiliation JMUCUser::affiliation()
 void JMUCUser::setMUCAffiliation(MUCRoom::Affiliation affiliation)
 {
 	d_func()->affiliation = affiliation;
+	emit affiliationChanged(int(affiliation));
 }
 
 MUCRoom::Role JMUCUser::role()
@@ -139,6 +140,7 @@ MUCRoom::Role JMUCUser::role()
 void JMUCUser::setMUCRole(MUCRoom::Role role)
 {
 	d_func()->role = role;
+	emit mucRoleChanged(int(role));
 }
 
 bool JMUCUser::event(QEvent *ev)
@@ -224,6 +226,16 @@ void JMUCUser::ban(const QString &reason)
 {
 	Q_D(JMUCUser);
 	d->muc.data()->room()->ban(d->name, reason);
+}
+
+int JMUCUser::affiliation() const
+{
+	return d_func()->affiliation;
+}
+
+int JMUCUser::mucRole() const
+{
+	return d_func()->role;
 }
 }
 

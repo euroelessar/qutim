@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -24,6 +25,7 @@
 ****************************************************************************/
 
 #include "chatsessionmodel.h"
+#include <QMetaMethod>
 
 namespace Core
 {
@@ -73,12 +75,25 @@ void ChatSessionModel::addContact(Buddy *unit)
 	int index = it - m_units.begin();
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, unit);
+
+	auto unitMeta = unit->metaObject();
+	int funcIndex = unitMeta->indexOfProperty("affiliation");
+	QMetaProperty affiliationProperty = unitMeta->property(funcIndex);
+	QMetaMethod affiliationSignal = affiliationProperty.notifySignal();
+	funcIndex = metaObject()->indexOfSlot("onAffilationChanged(int)");
+	QMetaMethod affiliationSlot = metaObject()->method(funcIndex);
+	connect(unit, affiliationSignal, this, affiliationSlot);
+	funcIndex = unitMeta->indexOfProperty("mucRole");
+	QMetaProperty mucRoleProperty = unitMeta->property(funcIndex);
+	QMetaMethod mucRoleSignal = mucRoleProperty.notifySignal();
+	connect(unit, mucRoleSignal, this, affiliationSlot);
+
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
 	        this, SLOT(onNameChanged(QString,QString)));
 	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	connect(unit, SIGNAL(destroyed(QObject*)),
-	        this, SLOT(onContactDestroyed(QObject*)));
+	        this, SLOT(onContactDestroyed(QObject*)));	
 	endInsertRows();
 }
 
@@ -138,6 +153,22 @@ void ChatSessionModel::onContactDestroyed(QObject *object)
 			return;
 		}
 	}
+}
+
+void ChatSessionModel::onAffilationChanged(const int &)
+{
+	Buddy *unit = qobject_cast<Buddy*>(sender());
+	Q_ASSERT(unit);
+
+	beginResetModel();
+	for (int a = 0; a < m_units.size(); ++a) {
+		unit = m_units.at(a).unit;
+		m_units.replace(a, unit);
+	}
+	qSort(m_units.begin(), m_units.end(), [] (Node &unit1, Node &unit2) {
+		return unit1.affiliation > unit2.affiliation;
+	});
+	endResetModel();
 }
 
 }
