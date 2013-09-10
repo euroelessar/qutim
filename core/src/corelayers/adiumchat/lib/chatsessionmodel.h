@@ -66,11 +66,12 @@ private slots:
 	void onNameChanged(const QString &title, const QString &oldTitle);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onContactDestroyed(QObject *obj);
-	void onPriorityChanged();
+	void onPriorityChanged(const int &oldPriority, const int &newPriority);
 private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
 		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+		Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) {}
 		Node() : unit(NULL) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;

@@ -128,9 +128,11 @@ MUCRoom::Affiliation JMUCUser::affiliation()
 
 void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoom::Role role)
 {
+	int oldPriority = priority();
 	d_func()->affiliation = affiliation;
 	d_func()->role = role;
-	emit priorityChanged();
+	int newPriority = priority();
+	emit priorityChanged(oldPriority, newPriority);
 }
 
 MUCRoom::Role JMUCUser::role()
@@ -235,7 +237,7 @@ int JMUCUser::mucRole() const
 
 int JMUCUser::priority() const
 {
-	int pr = int (d_func()->affiliation + d_func()->role);
+	int pr = d_func()->affiliation + d_func()->role * 10;
 	// little hack for fix Owner priority
 	if (d_func()->affiliation == MUCRoom::Affiliation::AffiliationOwner)
 		return pr + 2;

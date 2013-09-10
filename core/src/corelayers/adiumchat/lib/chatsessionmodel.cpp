@@ -80,7 +80,7 @@ void ChatSessionModel::addContact(Buddy *unit)
 	int funcIndex = unitMeta->indexOfProperty("priority");
 	QMetaProperty priorityProperty = unitMeta->property(funcIndex);
 	QMetaMethod affiliationSignal = priorityProperty.notifySignal();
-	funcIndex = metaObject()->indexOfSlot("onPriorityChanged()");
+	funcIndex = metaObject()->indexOfSlot("onPriorityChanged(int,int)");
 	QMetaMethod prioritySlot = metaObject()->method(funcIndex);
 
 	connect(unit, affiliationSignal, this, prioritySlot);
@@ -151,21 +151,23 @@ void ChatSessionModel::onContactDestroyed(QObject *object)
 	}
 }
 
-void ChatSessionModel::onPriorityChanged()
+void ChatSessionModel::onPriorityChanged(const int &oldPriority, const int &newPriority)
 {
-	Buddy *unit = qobject_cast<Buddy*>(sender());
-	Q_ASSERT(unit);
-
-	beginResetModel();
-	for (int a = 0; a < m_units.size(); ++a) {
-		unit = m_units.at(a).unit;
-		m_units.replace(a, unit);
+	Buddy *unit = static_cast<Buddy*>(sender());
+	QList<Node>::Iterator it;
+	it = qBinaryFind(m_units.begin(), m_units.end(), Node(unit, oldPriority));
+	Q_ASSERT(it != m_units.end());
+	const int from = it - m_units.begin();
+	it = qLowerBound(m_units.begin(), m_units.end(), Node(unit, newPriority));
+	int to = it - m_units.begin();
+	m_units[from].priority = newPriority;
+	if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+		if (to > from)
+			--to;
+		m_units.move(from, to);
+		Q_ASSERT(m_units[to].unit == unit);;
+		endMoveRows();
 	}
-	qSort(m_units.begin(), m_units.end(), [] (Node &unit1, Node &unit2) {
-		return (unit1.priority > unit2.priority ||
-				((unit1.priority == unit2.priority) && unit1.title < unit2.title));
-	});
-	endResetModel();
 }
 
 }
