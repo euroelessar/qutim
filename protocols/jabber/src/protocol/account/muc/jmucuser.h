@@ -76,7 +76,7 @@ protected:
 signals:
 	void affiliationChanged(const int &affiliation);
 	void mucRoleChanged(const int &mucRole);
-	void priorityChanged();
+	void priorityChanged(const int &oldPriority, const int &newPriority);
 };
 }
 
