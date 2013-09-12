@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -24,6 +25,7 @@
 ****************************************************************************/
 
 #include "chatsessionmodel.h"
+#include <QMetaMethod>
 
 namespace Core
 {
@@ -73,12 +75,21 @@ void ChatSessionModel::addContact(Buddy *unit)
 	int index = it - m_units.begin();
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, unit);
+
+	auto unitMeta = unit->metaObject();
+	int funcIndex = unitMeta->indexOfProperty("priority");
+	QMetaProperty priorityProperty = unitMeta->property(funcIndex);
+	QMetaMethod affiliationSignal = priorityProperty.notifySignal();
+	funcIndex = metaObject()->indexOfSlot("onPriorityChanged(int,int)");
+	QMetaMethod prioritySlot = metaObject()->method(funcIndex);
+
+	connect(unit, affiliationSignal, this, prioritySlot);
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
-	        this, SLOT(onNameChanged(QString,QString)));
+			this, SLOT(onNameChanged(QString,QString)));
 	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	connect(unit, SIGNAL(destroyed(QObject*)),
-	        this, SLOT(onContactDestroyed(QObject*)));
+			this, SLOT(onContactDestroyed(QObject*)));
 	endInsertRows();
 }
 
@@ -137,6 +148,25 @@ void ChatSessionModel::onContactDestroyed(QObject *object)
 			endRemoveRows();
 			return;
 		}
+	}
+}
+
+void ChatSessionModel::onPriorityChanged(const int &oldPriority, const int &newPriority)
+{
+	Buddy *unit = static_cast<Buddy*>(sender());
+	QList<Node>::Iterator it;
+	it = qBinaryFind(m_units.begin(), m_units.end(), Node(unit, oldPriority));
+	Q_ASSERT(it != m_units.end());
+	const int from = it - m_units.begin();
+	it = qLowerBound(m_units.begin(), m_units.end(), Node(unit, newPriority));
+	int to = it - m_units.begin();
+	m_units[from].priority = newPriority;
+	if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+		if (to > from)
+			--to;
+		m_units.move(from, to);
+		Q_ASSERT(m_units[to].unit == unit);;
+		endMoveRows();
 	}
 }
 

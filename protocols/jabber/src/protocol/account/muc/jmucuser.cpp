@@ -126,19 +126,18 @@ MUCRoom::Affiliation JMUCUser::affiliation()
 	return d_func()->affiliation;
 }
 
-void JMUCUser::setMUCAffiliation(MUCRoom::Affiliation affiliation)
+void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoom::Role role)
 {
+	int oldPriority = priority();
 	d_func()->affiliation = affiliation;
+	d_func()->role = role;
+	int newPriority = priority();
+	emit priorityChanged(oldPriority, newPriority);
 }
 
 MUCRoom::Role JMUCUser::role()
 {
 	return d_func()->role;
-}
-
-void JMUCUser::setMUCRole(MUCRoom::Role role)
-{
-	d_func()->role = role;
 }
 
 bool JMUCUser::event(QEvent *ev)
@@ -224,6 +223,25 @@ void JMUCUser::ban(const QString &reason)
 {
 	Q_D(JMUCUser);
 	d->muc.data()->room()->ban(d->name, reason);
+}
+
+int JMUCUser::affiliation() const
+{
+	return d_func()->affiliation;
+}
+
+int JMUCUser::mucRole() const
+{
+	return d_func()->role;
+}
+
+int JMUCUser::priority() const
+{
+	int pr = d_func()->affiliation + d_func()->role * 10;
+	// little hack for fix Owner priority
+	if (d_func()->affiliation == MUCRoom::Affiliation::AffiliationOwner)
+		return pr + 2;
+	return pr;
 }
 }
 
