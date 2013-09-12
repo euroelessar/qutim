@@ -239,7 +239,7 @@ int JMUCUser::priority() const
 {
 	int pr = d_func()->affiliation + d_func()->role * 10;
 	// little hack for fix Owner priority
-	if (d_func()->affiliation == MUCRoom::Affiliation::AffiliationOwner)
+	if (d_func()->affiliation == MUCRoom::AffiliationOwner)
 		return pr + 2;
 	return pr;
 }

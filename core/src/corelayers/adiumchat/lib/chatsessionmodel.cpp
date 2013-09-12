@@ -76,7 +76,7 @@ void ChatSessionModel::addContact(Buddy *unit)
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, unit);
 
-	auto unitMeta = unit->metaObject();
+	const QMetaObject* unitMeta = unit->metaObject();
 	int funcIndex = unitMeta->indexOfProperty("priority");
 	QMetaProperty priorityProperty = unitMeta->property(funcIndex);
 	QMetaMethod affiliationSignal = priorityProperty.notifySignal();
