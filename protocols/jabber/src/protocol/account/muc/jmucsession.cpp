@@ -397,8 +397,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		if (!user && presence.subtype() != Presence::Unavailable) {
 			user = d->addUser(this, nick);
 			user->setStatus(presence);
-			user->setMUCAffiliation(participant->affiliation());
-			user->setMUCRole(participant->role());
+			user->setMUCAffiliationAndRole(participant->affiliation(), participant->role());
 			if (participant->realJID().isValid())
 				user->setRealJid(participant->realJID());
 			text = user->realJid().isEmpty()
@@ -454,8 +453,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			} else if (participant->role() == MUCRoom::RoleVisitor)  {
 				text = text % tr(" visitor");
 			}
-			user->setMUCAffiliation(participant->affiliation());
-			user->setMUCRole(participant->role());
+			user->setMUCAffiliationAndRole(participant->affiliation(), participant->role());
 		}
 	}
 	if (!text.isEmpty() && (isJoined() || participant->isKicked() || participant->isBanned())) {

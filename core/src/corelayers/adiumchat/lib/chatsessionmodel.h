@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -65,17 +66,22 @@ private slots:
 	void onNameChanged(const QString &title, const QString &oldTitle);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onContactDestroyed(QObject *obj);
+	void onPriorityChanged(const int &oldPriority, const int &newPriority);
 private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
 		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+		Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) {}
 		Node() : unit(NULL) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
+		int priority = unit->property("priority").toInt();
 		
 		bool operator <(const Node &o) const
 		{
-			const int cmp = title.compare(o.title, Qt::CaseInsensitive);
+			int cmp = o.priority - priority;
+			if (cmp == 0)
+				cmp = title.compare(o.title, Qt::CaseInsensitive);
 			return cmp < 0 || (cmp == 0 && unit < o.unit);
 		}
 	};

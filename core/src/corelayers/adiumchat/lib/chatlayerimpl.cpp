@@ -62,6 +62,16 @@ void init()
 							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
 							   QKeySequence(QKeySequence::PreviousChild)
 							   );
+	Shortcut::registerSequence("moveTabLeft",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Move Tab Left"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
+							   QKeySequence(Qt::CTRL + Qt::Key_PageUp)
+							   );
+	Shortcut::registerSequence("moveTabRight",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Move Tab Right"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
+							   QKeySequence(Qt::CTRL + Qt::Key_PageDown)
+							   );
 }
 
 ChatLayerImpl::ChatLayerImpl()
