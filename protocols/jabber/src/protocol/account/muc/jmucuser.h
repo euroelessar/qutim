@@ -41,6 +41,9 @@ class JMUCUser : public JContactResource
 	Q_OBJECT
 	Q_PROPERTY(QString realJid READ realJid)
 	Q_PROPERTY(QString photoHash READ avatarHash WRITE setAvatar)
+	Q_PROPERTY(int affiliation READ affiliation NOTIFY affiliationChanged)
+	Q_PROPERTY(int mucRole READ mucRole NOTIFY mucRoleChanged)
+	Q_PROPERTY(int priority READ priority NOTIFY priorityChanged)
 	Q_DECLARE_PRIVATE(JMUCUser)
 public:
 	JMUCUser(JMUCSession *muc, const QString &name);
@@ -50,15 +53,17 @@ public:
 	void setUserName(const QString &name);
 	QString avatar() const;
 	QString avatarHash() const;
+	int affiliation() const;
+	int mucRole() const;
+	int priority() const;
 	void setAvatar(const QString &hex);
 	void setName(const QString &name);
 	//			InfoRequest *infoRequest() const;
 	JMUCSession *muc() const;
 	ChatUnit *upperUnit();
 	MUCRoom::Affiliation affiliation();
-	void setMUCAffiliation(MUCRoom::Affiliation affiliation);
+	void setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoom::Role role);
 	MUCRoom::Role role();
-	void setMUCRole(MUCRoom::Role role);
 	QString realJid() const;
 	void setRealJid(const QString &jid);
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
@@ -68,6 +73,10 @@ public slots:
 protected:
 	bool event(QEvent *ev);
 	friend class JMUCSession;
+signals:
+	void affiliationChanged(const int &affiliation);
+	void mucRoleChanged(const int &mucRole);
+	void priorityChanged(const int &oldPriority, const int &newPriority);
 };
 }
 
