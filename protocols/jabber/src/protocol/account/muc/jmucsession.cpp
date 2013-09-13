@@ -190,7 +190,7 @@ qutim_sdk_0_3::Buddy *JMUCSession::me() const
 	return d->users.value(d->room->nick());
 }
 
-ChatUnit *JMUCSession::participant(const QString &nick)
+ChatUnit *JMUCSession::findParticipant(const QString &nick)
 {
 	return d_func()->users.value(nick);
 }
@@ -223,15 +223,15 @@ void JMUCSession::doLeave()
 	if(!isJoined())
 		return;
 	d->room->leave();
-	//remove users
-	const Presence presence(Presence::Unavailable, JID());
-	foreach (JMUCUser *user, d->users) {
-		if (user->presenceType() == Presence::Unavailable)
-			continue;
-		user->setStatus(presence);
-		d->removeUser(this, user);
-	}
-	emit left();
+//	//remove users
+//	const Presence presence(Presence::Unavailable, JID());
+//	foreach (JMUCUser *user, d->users) {
+//		if (user->presenceType() == Presence::Unavailable)
+//			continue;
+//		user->setStatus(presence);
+//		d->removeUser(this, user);
+//	}
+//	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)
@@ -254,9 +254,19 @@ void JMUCSession::member(const QString &nick, const QString &reason)
 	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationMember, reason);
 }
 
+void JMUCSession::participant(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleParticipant, reason);
+}
+
 void JMUCSession::voice(const QString &nick, const QString &reason)
 {
 	d_func()->room->setRole(nick, MUCRoom::RoleParticipant, reason);
+}
+
+void JMUCSession::unvoice(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleVisitor, reason);
 }
 
 void JMUCSession::moder(const QString &nick, const QString &reason)
@@ -718,7 +728,19 @@ void JMUCSession::closeConfigDialog()
 
 void JMUCSession::joinedChanged()
 {
-	setJoined(d_func()->room->isJoined());
+	Q_D(JMUCSession);
+	if (!d->room->isJoined()) {
+		//remove users
+		const Presence presence(Presence::Unavailable, JID());
+		foreach (JMUCUser *user, d->users) {
+			if (user->presenceType() == Presence::Unavailable)
+				continue;
+			user->setStatus(presence);
+			d->removeUser(this, user);
+		}
+	}
+	
+	setJoined(d->room->isJoined());
 }
 
 bool JMUCSession::enabledConfiguring()
