@@ -516,8 +516,8 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 			if (it != d->messages.end()) {
 				qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
 				d->messages.erase(it);
+                return;
 			}
-			return;
 		}
 		if (!msg.subject().isEmpty()) {
 			coreMsg.setProperty("topic", true);
