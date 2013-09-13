@@ -127,6 +127,11 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 		request.setTitle(toString(reqType, sender_name));
 		return;
 	}
+	
+	const bool messageFromConference = qobject_cast<Conference *>(sender)
+	                                   && (request.type() == Notification::ChatIncomingMessage
+	                                       || request.type() == Notification::ChatOutgoingMessage);
+    const Message message = request.property("message", Message());
 
 	if (request.title().isEmpty()) {
 		if (sender && sender_name.isEmpty()) {
@@ -135,6 +140,12 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 				sender_name = sender->property("name").toString();
 			if(sender_name.isEmpty())
 				sender_name = sender->property("id").toString();
+		}
+		if (messageFromConference) {
+			QString conferenceSenderName = message.property("senderName", QString());
+            if (!conferenceSenderName.isEmpty()) {
+                sender_name = QStringLiteral("%1/%2").arg(sender_name, conferenceSenderName);
+            }
 		}
 		QString title = toString(request.type(), sender_name);
 		if (reqType == Notification::UserChangedStatus) {
@@ -145,7 +156,18 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 	}
 
 	if (request.image().isNull()) {
-		QString avatar = sender->property("avatar").toString();
+		QString avatar;
+        if (messageFromConference) {
+            QString conferenceSenderId = message.property("senderId", QString());
+            if (!conferenceSenderId.isEmpty() && message.chatUnit()) {
+                Account *account = message.chatUnit()->account();
+                if (ChatUnit *conferenceSender = account->unit(conferenceSenderId, false)) {
+                    avatar = conferenceSender->property("avatar").toString();
+                }
+            }
+        }
+        if (avatar.isEmpty())
+            avatar = sender->property("avatar").toString();
 		request.setImage(QPixmap(avatar));
 	}
 
