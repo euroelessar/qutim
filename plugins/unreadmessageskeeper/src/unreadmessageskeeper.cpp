@@ -29,9 +29,6 @@
 #include <qutim/protocol.h>
 #include <qutim/history.h>
 
-namespace UnreadMessagesKeeper
-{
-
 void UnreadMessagesKeeper::init()
 {
 	qDebug() << Q_FUNC_INFO;
@@ -108,7 +105,5 @@ void UnreadMessagesKeeper::onUnreadChanged(const qutim_sdk_0_3::MessageList &lis
 	cfg.endGroup();
 }
 
-}
-
-QUTIM_EXPORT_PLUGIN(UnreadMessagesKeeper::UnreadMessagesKeeper);
+QUTIM_EXPORT_PLUGIN(UnreadMessagesKeeper)
 

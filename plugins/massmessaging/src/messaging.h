@@ -28,16 +28,13 @@
 #include <qutim/plugin.h>
 #include <QAction>
 
-namespace MassMessaging
-{
-
 using namespace qutim_sdk_0_3;
 
 
 class Manager;
 class MessagingDialog;
 
-class MassMessaging : public Plugin
+class MessagingPlugin : public Plugin
 {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
@@ -53,6 +50,6 @@ private:
 	QPointer<MessagingDialog> m_dialog;
 };
 
-}
+
 #endif
 

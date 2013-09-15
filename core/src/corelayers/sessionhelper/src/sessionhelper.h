@@ -34,7 +34,7 @@ class ChatSession;
 class Message;
 }
 
-namespace SessionHelper {
+namespace Core {
 
 using namespace qutim_sdk_0_3;
 
@@ -56,6 +56,7 @@ private:
 	bool m_activateMultichat;
 };
 
-} //SessionHelper
+} //Core
+
 #endif //SESSIONHELPER_PLUGIN_H
 

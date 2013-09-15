@@ -143,7 +143,7 @@ protected:
 	virtual const ObjectGenerator *generator() const
 	{
 		// T must be based on SettingsWidget
-		register SettingsWidget *widget = reinterpret_cast<T *>(0);
+        SettingsWidget *widget = reinterpret_cast<T *>(0);
 		Q_UNUSED(widget);
 		return new GeneralGenerator<T>();
 	}
@@ -177,7 +177,7 @@ public:
 	template <typename T>
 	Entry *addEntry(const LocalizedString &text)
 	{
-		register QWidget *widget = reinterpret_cast<T *>(0);
+        QWidget *widget = reinterpret_cast<T *>(0);
 		Q_UNUSED(widget);
 		return addEntry(text, new GeneralGenerator<T>());
 	}
