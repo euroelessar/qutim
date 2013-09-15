@@ -37,35 +37,32 @@ class QStandardItemModel;
 namespace qutim_sdk_0_3 {
 class Contact;
 }
-namespace MassMessaging
-{
 
 class Manager : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	Manager(QObject* parent = 0);
-	virtual ~Manager();
-	QAbstractItemModel *model() const;
+    Manager(QObject* parent = 0);
+    virtual ~Manager();
+    QAbstractItemModel *model() const;
 public slots:
-	void reload();
-	void start(const QString &message, int interval = 15000);
-	void stop();
-	bool currentState();
+    void reload();
+    void start(const QString &message, int interval = 15000);
+    void stop();
+    bool currentState();
 signals:
-	void update (const uint &completed, const uint &total, const QString &text);
-	void finished(bool ok);
+    void update (const uint &completed, const uint &total, const QString &text);
+    void finished(bool ok);
 private:
-	virtual void timerEvent(QTimerEvent* ev);
-	QString parseText(const QString &msg,Contact *c);
-	QList<QStandardItem *> m_contacts;
-	QQueue<QStandardItem *> m_receivers;
-	QStandardItemModel *m_model;
-	QBasicTimer m_timer; //just simple
-	int m_total_item_count;
-	QString m_message;
+    virtual void timerEvent(QTimerEvent* ev);
+    QString parseText(const QString &msg,Contact *c);
+    QList<QStandardItem *> m_contacts;
+    QQueue<QStandardItem *> m_receivers;
+    QStandardItemModel *m_model;
+    QBasicTimer m_timer; //just simple
+    int m_total_item_count;
+    QString m_message;
 };
-}
 
 #endif // MANAGER_H
 

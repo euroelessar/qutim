@@ -34,8 +34,6 @@ class ChatSession;
 class Message;
 }
 
-namespace UnreadMessagesKeeper {
-
 using namespace qutim_sdk_0_3;
 
 class UnreadMessagesKeeper : public Plugin
@@ -54,6 +52,5 @@ private slots:
 private:
 };
 
-}
 #endif
 

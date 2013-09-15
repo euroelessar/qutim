@@ -32,8 +32,6 @@ namespace Ui
 class Dialog;
 }
 
-namespace MassMessaging
-{
 class Manager;
 class MessagingDialog : public QDialog
 {
@@ -50,6 +48,6 @@ private:
 	Ui::Dialog *ui;
 	Manager *m_manager;
 };
-}
+
 #endif // MESSAGINGDIALOG_H
 

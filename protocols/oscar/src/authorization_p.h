@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #ifndef AUTHORIZATION_P_H
-#define AUTHORIZATION__PH
+#define AUTHORIZATION_P_H
 
 #include "snachandler.h"
 #include "feedbag.h"
@@ -64,6 +64,6 @@ private:
 
 } } // namespace qutim_sdk_0_3::oscar
 
-#endif // AUTHORIZATION_H
+#endif // AUTHORIZATION_P_H
 
 
