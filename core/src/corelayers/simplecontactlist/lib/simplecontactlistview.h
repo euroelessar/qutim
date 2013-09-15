@@ -39,7 +39,7 @@ class SIMPLECONTACTLIST_EXPORT TreeView : public QTreeView
 	Q_OBJECT
 public:
 	TreeView(QAbstractItemModel *model, QWidget *parent = 0);
-	virtual void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight);
+    virtual void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight, const QVector<int> &roles = QVector<int>());
 	virtual ~TreeView();
 	void setContactModel(QAbstractItemModel *model);
 protected:

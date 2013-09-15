@@ -33,7 +33,7 @@
 #include <qutim/icon.h>
 #include <QTimer>
 
-namespace SessionHelper
+namespace Core
 {
 
 void SessionHelper::init()
@@ -85,7 +85,7 @@ void SessionHelper::reloadSettings()
 	m_activateMultichat = config.value<bool>("activateMultichat", true);
 }
 
-} //namespace SessionHelper
+} //namespace Core
 
-QUTIM_EXPORT_PLUGIN(SessionHelper::SessionHelper)
+QUTIM_EXPORT_PLUGIN(Core::SessionHelper)
 

@@ -286,7 +286,7 @@ private:
 	template<typename Interface>
 	Q_INLINE_TEMPLATE void addInterface(QList<QByteArray> &result, T *pointer = 0) const
 	{
-		register Interface *i = pointer;
+        Interface *i = pointer;
 		Q_UNUSED(i);
 		if (qobject_interface_iid<Interface*>())
 			result << qobject_interface_iid<Interface*>();

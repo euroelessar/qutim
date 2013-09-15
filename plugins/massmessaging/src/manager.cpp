@@ -32,8 +32,6 @@
 #include <qutim/message.h>
 #include <QTime>
 
-namespace MassMessaging
-{
 class MessagingItem : public QStandardItem
 {
 public:
@@ -160,7 +158,3 @@ bool Manager::currentState()
 {
 	return m_timer.isActive();
 }
-
-
-}
-
