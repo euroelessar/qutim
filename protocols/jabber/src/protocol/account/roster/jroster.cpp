@@ -372,7 +372,7 @@ void JRoster::onNewMessage(Jreen::Message message)
 	ChatUnit *muc = d->account->conferenceManager()->muc(message.from().bareJID());
 	if (muc) {
 		JMUCSession *session = static_cast<JMUCSession*>(muc);
-		chatUnit = session->participant(message.from().resource());
+		chatUnit = session->findParticipant(message.from().resource());
 		unitForSession = chatUnit;
 	} else {
 		JContact *contact = d->contacts.value(message.from().full());

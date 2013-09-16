@@ -76,7 +76,8 @@ public:
 	{
 		if (!message.isIncoming()
 		        && !message.property("service", false)
-		        && !message.property("history", false)) {
+		        && !message.property("history", false)
+		        && !message.property("donotsend", false)) {
 			if (!message.chatUnit()->send(message))
 				return Error;
 		}
