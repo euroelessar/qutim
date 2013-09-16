@@ -528,6 +528,10 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 				d->messages.erase(it);
                 return;
 			}
+			coreMsg.setProperty("donotsend", true);
+			
+			// Send "info" that message is received, yeah, that's a hack
+			qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(coreMsg.id(), true), Qt::LowEventPriority);
 		}
 		if (!msg.subject().isEmpty()) {
 			coreMsg.setProperty("topic", true);
