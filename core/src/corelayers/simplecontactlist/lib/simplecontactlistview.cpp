@@ -204,7 +204,7 @@ void TreeView::onRowsInserted(const QModelIndex &parent, int first, int last)
 
 void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
-    QTreeView::dataChanged(topLeft,bottomRight, roles);
+    QTreeView::dataChanged(topLeft,bottomRight);
 }
 
 TreeView::~TreeView()

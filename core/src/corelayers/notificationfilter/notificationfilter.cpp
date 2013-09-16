@@ -144,7 +144,7 @@ void NotificationFilterImpl::filter(NotificationRequest &request)
 		if (messageFromConference) {
 			QString conferenceSenderName = message.property("senderName", QString());
             if (!conferenceSenderName.isEmpty()) {
-                sender_name = QStringLiteral("%1/%2").arg(sender_name, conferenceSenderName);
+                sender_name = QString(QLatin1String("%1/%2")).arg(sender_name, conferenceSenderName);
             }
 		}
 		QString title = toString(request.type(), sender_name);
