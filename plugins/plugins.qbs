@@ -26,6 +26,7 @@ Project {
         "urlpreview/urlpreview.qbs",
         "kineticpopups/kineticpopups.qbs",
         "linuxintegration/linuxintegration.qbs",
-        "updater/updater.qbs"
+        "updater/updater.qbs",
+        "mobility/src/multimediabackend/multimediabackend.qbs"
     ]
 }

@@ -82,34 +82,35 @@ void MultimediaSound::play()
 
         in >> riffId >> riffLength >> waveId >> waveFmt >> waveLength;
         if (riffId != RIFF_str || waveId != WAVE_str || waveFmt != fmt_str) {
-			warning() << m_filename << "is not valid WAV file";
+			qWarning() << m_filename << "is not valid WAV file";
             return;
         }
 
         in >> type >> channels >> frequency >> bytesPerSec >> align >> bitsPerSample;
         in.skipRawData(waveLength - 16);
         if (type != 1) {
-			warning() << QString("Unsupported WAV compression type: 0x%1").arg(QString::number(type, 16));
+			qWarning() << QString("Unsupported WAV compression type: 0x%1").arg(QString::number(type, 16));
             return;
         }
         in >> dataId >> dataSize;
         if (dataId != data_str) {
-			warning() << m_filename << "is not valid WAV file";
+			qWarning() << m_filename << "is not valid WAV file";
             return;
         }
     }
 
-    QAudioFormat format;
-    format.setChannels(channels);
-    format.setFrequency(frequency);
-    format.setSampleSize(bitsPerSample);
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(bitsPerSample == 8 ? QAudioFormat::UnSignedInt : QAudioFormat::SignedInt);
-    format.setCodec("audio/pcm");
+	QAudioFormat format;
+	format.setSampleRate(frequency);
+	format.setChannelCount(channels);
+	format.setSampleSize(bitsPerSample);
+	format.setCodec("audio/pcm");
+	format.setByteOrder(QAudioFormat::LittleEndian);
+	format.setSampleType(bitsPerSample == 8 ? QAudioFormat::UnSignedInt : QAudioFormat::SignedInt);
+
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
 
     if (!info.isFormatSupported(format)) {
-		warning() << "Audio format not supported by backend, cannot play audio";
+		qWarning() << "Audio format not supported by backend, cannot play audio";
         return;
     }
     QAudioOutput *audio = new QAudioOutput(info, format, this);
