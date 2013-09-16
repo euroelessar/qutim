@@ -2,5 +2,5 @@ import "../../../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     sourcePath: '.'
-    Depends { name: 'qt.multimedia' }
+    Depends { name: 'Qt.multimedia' }
 }
