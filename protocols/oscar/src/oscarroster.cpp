@@ -294,6 +294,7 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 	} else {
 		status.setStatusType(Status::Online);
 	}
+	Q_UNUSED(statusFlags);
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	if (statusNoteData.contains(0x0d)) {

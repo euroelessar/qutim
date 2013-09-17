@@ -121,6 +121,19 @@ ContactDelegate::~ContactDelegate()
 {
 }
 
+const QIcon extract_icon(const QVariant &data, int extIconSize, bool *ok)
+{;
+	QIcon icon;
+	if (data.canConvert<ExtensionIcon>())
+		icon = data.value<ExtensionIcon>().toIcon();
+	else if (data.canConvert(QVariant::Icon))
+		icon = data.value<QIcon>();
+
+	*ok = !icon.pixmap(extIconSize).isNull();
+
+	return icon;
+}
+
 void ContactDelegate::paint(QPainter *painter,
 							const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -211,22 +224,24 @@ void ContactDelegate::paint(QPainter *painter,
 			QList<QVariantHash> list = status.extendedInfos().values();
 			ContactInfoComparator comparator;
 			qSort(list.begin(), list.end(), comparator);
-
-			QString icon = QLatin1String("icon");
-			QString showIcon = QLatin1String("showIcon");
-			QString id = QLatin1String("id");
+			
+			const QString iconId = QStringLiteral("icon");
+			const QString fallbackIconId = QStringLiteral("fallbackIcon");
+			const QString showIcon = QStringLiteral("showIcon");
+			const QString id = QStringLiteral("id");
 
 			foreach (const QVariantHash &hash, list) {
-				QVariant extIconVar = hash.value(icon);
-				QIcon icon;
-				if (extIconVar.canConvert<ExtensionIcon>())
-					icon = extIconVar.value<ExtensionIcon>().toIcon();
-				else if (extIconVar.canConvert(QVariant::Icon))
-					icon = extIconVar.value<QIcon>();
-				if (!hash.value(showIcon,true).toBool() || icon.pixmap(p->extIconSize).isNull())
+				if (!p->extInfo.value(hash.value(id).toString(), true) || !hash.value(showIcon, true).toBool())
 					continue;
-				if (!p->extInfo.value(hash.value(id).toString(), true))
-					continue;
+				
+				bool ok = false;
+				QIcon icon = extract_icon(hash.value(iconId), p->extIconSize, &ok);
+				if (!ok) {
+					icon = extract_icon(hash.value(fallbackIconId), p->extIconSize, &ok);
+					if (!ok)
+						continue;
+				}
+
 				icon.paint(painter,
 						   option.rect.left() + p->horizontalPadding,
 						   option.rect.top() + p->verticalPadding,

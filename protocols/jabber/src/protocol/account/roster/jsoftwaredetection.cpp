@@ -117,6 +117,7 @@ void JSoftwareDetection::handlePresence(const Jreen::Presence &presence)
 	if (JContactResource *resource = qobject_cast<JContactResource *>(unit)) {
 		if (!resource->features().isEmpty())
 			return;
+		setClientInfo(resource, "", "unknown-client");
 
 		QString node;
 		if (Jreen::Capabilities::Ptr caps = presence.payload<Jreen::Capabilities>()) {
@@ -310,9 +311,11 @@ void JSoftwareDetection::setClientInfo(JContactResource *resource, const QString
 {
 	QVariantHash clientInfo;
 	ExtensionIcon extIcon(icon);
+	ExtensionIcon fallbackIcon(QStringLiteral("unknown-client"));
 	clientInfo.insert("id", "client");
 	clientInfo.insert("title", tr("Possible client"));
 	clientInfo.insert("icon", QVariant::fromValue(extIcon));
+	clientInfo.insert("fallbackIcon", QVariant::fromValue(fallbackIcon));
 	clientInfo.insert("description", client);
 	clientInfo.insert("priority", 85);
 	resource->setExtendedInfo("client", clientInfo);
