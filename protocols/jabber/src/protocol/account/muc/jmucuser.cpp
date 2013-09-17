@@ -133,6 +133,27 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 	d_func()->role = role;
 	int newPriority = priority();
 	emit priorityChanged(oldPriority, newPriority);
+	
+	QString iconName;
+	if (affiliation == MUCRoom::AffiliationOwner)
+		iconName = QLatin1String("user-role-owner");
+	else if (affiliation == MUCRoom::AffiliationAdmin)
+		iconName = QLatin1String("user-role-admin");
+	else if (role == MUCRoom::RoleModerator)
+		iconName = QLatin1String("user-role-moderator");
+	else if (role == MUCRoom::RoleVisitor)
+		iconName = QLatin1String("user-role-visitor");
+	else if (affiliation == MUCRoom::AffiliationMember)
+		iconName = QLatin1String("user-role-member");
+	else
+		iconName = QLatin1String("user-role-participant");
+	
+	QVariantHash clientInfo;
+	ExtensionIcon extIcon(iconName);
+	clientInfo.insert("id", "mucRole");
+	clientInfo.insert("icon", QVariant::fromValue(extIcon));
+	clientInfo.insert("priority", 30);
+	setExtendedInfo("mucRole", clientInfo);
 }
 
 MUCRoom::Role JMUCUser::role()
