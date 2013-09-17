@@ -63,7 +63,6 @@ div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDeli
 	padding: 2px;
 	padding-left: 8px;
 	padding-right: 8px;
-	padding-bottom: 5px;
 	box-shadow:	inset -3px 0px 0px 0px #00a000,
 				inset 3px 0px 0px 0px #00a000,
 				inset 0px -1px 0px 0px #f2f2f2,
@@ -123,12 +122,11 @@ div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDeli
 
 .urlpreview {
 	color: #707070;
-	overflow: hidden;			/*LEGACY qt4*/
 }
 .urlpreview-image {
 	box-sizing: border-box;
 	height: auto;
-	max-width: 99%;
+	max-width: 99% !important;
 	padding: 10px;
 	background: white;
 	border: 1px solid #e6e6e6;
@@ -150,5 +148,3 @@ div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDeli
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
-
-
