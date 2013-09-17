@@ -311,7 +311,7 @@ void JSoftwareDetection::setClientInfo(JContactResource *resource, const QString
 {
 	QVariantHash clientInfo;
 	ExtensionIcon extIcon(icon);
-	ExtensionIcon fallbackIcon(QStringLiteral("unknown-client"));
+	ExtensionIcon fallbackIcon(QLatin1String("unknown-client"));
 	clientInfo.insert("id", "client");
 	clientInfo.insert("title", tr("Possible client"));
 	clientInfo.insert("icon", QVariant::fromValue(extIcon));

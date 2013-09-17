@@ -136,17 +136,17 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 	
 	QString iconName;
 	if (affiliation == MUCRoom::AffiliationOwner)
-		iconName = QStringLiteral("user-role-owner");
+		iconName = QLatin1String("user-role-owner");
 	else if (affiliation == MUCRoom::AffiliationAdmin)
-		iconName = QStringLiteral("user-role-admin");
+		iconName = QLatin1String("user-role-admin");
 	else if (role == MUCRoom::RoleModerator)
-		iconName = QStringLiteral("user-role-moderator");
+		iconName = QLatin1String("user-role-moderator");
 	else if (role == MUCRoom::RoleVisitor)
-		iconName = QStringLiteral("user-role-visitor");
+		iconName = QLatin1String("user-role-visitor");
 	else if (affiliation == MUCRoom::AffiliationMember)
-		iconName = QStringLiteral("user-role-member");
+		iconName = QLatin1String("user-role-member");
 	else
-		iconName = QStringLiteral("user-role-participant");
+		iconName = QLatin1String("user-role-participant");
 	
 	QVariantHash clientInfo;
 	ExtensionIcon extIcon(iconName);
