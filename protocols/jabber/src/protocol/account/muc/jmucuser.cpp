@@ -152,7 +152,7 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 	ExtensionIcon extIcon(iconName);
 	clientInfo.insert("id", "mucRole");
 	clientInfo.insert("icon", QVariant::fromValue(extIcon));
-	clientInfo.insert("priority", 30);
+	clientInfo.insert("priorityInContactList", 30);
 	setExtendedInfo("mucRole", clientInfo);
 }
 
