@@ -421,6 +421,7 @@ qutim_add_devel_component(CoreDevel
 if(QUTIM_INSTALL_ICONS)
 	list(APPEND QUTIM_ICON_PATHS
 		../artwork/icons/qutim-default
+		../artwork/icons/qutim-default-square
 		../artwork/icons/user-status/hicolor
 		../artwork/icons/qutim/icons/hicolor
 	)
