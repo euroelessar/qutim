@@ -1,6 +1,6 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    pluginTags: 'linux'
-    Depends { name: 'sdl.mixer'}
+    condition: qbs.targetOS.contains("linux")
+    cpp.dynamicLibraries: [ "SDL_mixer", "SDL" ]
 }

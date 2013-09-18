@@ -27,6 +27,7 @@ Project {
         "kineticpopups/kineticpopups.qbs",
         "linuxintegration/linuxintegration.qbs",
         "updater/updater.qbs",
-        "mobility/src/multimediabackend/multimediabackend.qbs"
+        "mobility/src/multimediabackend/multimediabackend.qbs",
+        "sdlsound/sdlsound.qbs"
     ]
 }
