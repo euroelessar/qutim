@@ -318,6 +318,7 @@ void JSoftwareDetection::setClientInfo(JContactResource *resource, const QString
 	clientInfo.insert("fallbackIcon", QVariant::fromValue(fallbackIcon));
 	clientInfo.insert("description", client);
 	clientInfo.insert("priority", 85);
+	clientInfo.insert("priorityInContactList", 85);
 	resource->setExtendedInfo("client", clientInfo);
 }
 
