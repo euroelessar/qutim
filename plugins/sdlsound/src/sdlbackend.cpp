@@ -47,7 +47,7 @@ public:
 		QByteArray file = filename.toUtf8();
 		chunk = Mix_LoadWAV(file.constData());
 		if (!chunk) {
-			warning() << "Can't open" << filename;
+			qWarning() << "Can't open" << filename;
 			return;
 		}
 	}
@@ -78,12 +78,12 @@ SDLSoundBackend::SDLSoundBackend()
 		audioBuffers = 8192;
 	
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0) {
-		critical() << "Can't init SDL";
+		qCritical() << "Can't init SDL";
 		return;
 	}
 	
 	if (Mix_OpenAudio(hz, SDLAudioFormat, SDLAudioChannels, audioBuffers)) {
-		critical() << "Unable to open audio for SDL";
+		qCritical() << "Unable to open audio for SDL";
 		return;
 	}
 	Mix_ChannelFinished(channelFinished);
