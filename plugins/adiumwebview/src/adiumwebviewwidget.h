@@ -43,6 +43,7 @@ public:
     virtual void setViewController(QObject* controller);
 private:
 	QPointer<WebViewController> m_controller;
+	QString m_seacher;
 #ifdef Q_WS_MAEMO_5
 	bool mousePressed;
 	virtual bool eventFilter(QObject *, QEvent *e);
@@ -50,6 +51,7 @@ private:
 public slots:
 	void showCustomContextMenu(const QPoint & point);
 	void insertQuoteText();
+	void searchSelectedText();
 	void setPrevFocus(QObject *);
 };
 

@@ -91,42 +91,42 @@
    <item row="5" column="1">
     <widget class="QComboBox" name="formLayoutBox"/>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QCheckBox" name="stateBox">
      <property name="text">
       <string>Chat state icons on tabs</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
     <widget class="QCheckBox" name="menuBox">
      <property name="text">
       <string>Show menubar</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
+   <item row="10" column="0" colspan="2">
     <widget class="QCheckBox" name="customIconBox">
      <property name="text">
       <string>Show context-related window icon</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="2">
+   <item row="11" column="0" colspan="2">
     <widget class="QCheckBox" name="rosterBox">
      <property name="text">
       <string>Show roster in chatWindow</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="2">
+   <item row="12" column="0" colspan="2">
     <widget class="QCheckBox" name="autoresizeBox">
      <property name="text">
       <string>Autoresize the input field</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="2">
+   <item row="13" column="0" colspan="2">
     <widget class="QCheckBox" name="receiverIdBox">
      <property name="text">
       <string>Show contact id in receiver menu</string>
@@ -149,6 +149,16 @@
       <number>48</number>
      </property>
     </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Default search:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QComboBox" name="searchBox"/>
    </item>
   </layout>
  </widget>
