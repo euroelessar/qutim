@@ -153,7 +153,7 @@
    <item row="7" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Default search:</string>
+      <string>Default search (only for webkit):</string>
      </property>
     </widget>
    </item>

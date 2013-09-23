@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -55,7 +56,7 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showCustomContextMenu(QPoint)));
 	Config cfg = Config("appearance");
 	cfg.beginGroup("chat");
-	m_seacher = cfg.value("defaultSearch", "Yandex");
+	m_searcher = cfg.value("defaultSearch", "Yandex");
 	cfg.endGroup();
 }
 
@@ -111,7 +112,7 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 		copy->setIcon(QIcon::fromTheme("edit-copy"));
 		QAction *quote = new QAction(tr("&Quote"), this);
 		quote->setIcon(QIcon::fromTheme("insert-text"));
-		QAction *search = new QAction(tr("&Search at " + m_seacher.toLocal8Bit()), this);
+		QAction *search = new QAction(tr("&Search at %1").arg(m_searcher), this);
 		search->setIcon(QIcon::fromTheme("edit-find"));
 		menu->addAction(copy);
 		menu->addAction(quote);
@@ -158,15 +159,13 @@ void WebViewWidget::setPrevFocus(QObject *)
 void WebViewWidget::searchSelectedText()
 {
 	QString text = m_controller->quote().trimmed();
-	if (m_seacher == "Yandex" && QLocale::system().name() == "ru_RU") {
-		text.prepend("http://yandex.ru/yandsearch?text=");
-	} else if (m_seacher == "Yandex") {
-		text.prepend("http://yandex.com/yandsearch?text=");
-	} else if (m_seacher == "Google") {
+	if (m_searcher == "Yandex") {
+		QString domain = m_yandexDomainDefine.getDomain();
+		text.prepend(domain + "yandsearch?text=");
+	} else if (m_searcher == "Google") {
 		text.prepend("http://www.google.com/search?q=");
 	}
-	QUrl url(text);
-	QDesktopServices::openUrl(url);
+	QDesktopServices::openUrl(QUrl(text));
 }
 } // namespace Adium
 

@@ -2,7 +2,6 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
 ** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
@@ -23,42 +22,34 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
+#pragma once
+#include <QLocale>
 
-#ifndef QUICKCHATVIEWWIDGET_H
-#define QUICKCHATVIEWWIDGET_H
-#include <qutim/adiumchat/chatviewfactory.h>
-#include <QWebView>
-#include <QPointer>
-#include "yandexdomaindefine.h"
-
-class QDeclarativeItem;
-
-namespace Adium {
-
-class WebViewController;
-class WebViewWidget : public QWebView, public Core::AdiumChat::ChatViewWidget
+struct YandexDomainDefine 
 {
-	Q_OBJECT
-	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
-public:
-	WebViewWidget(QWidget *parent = 0);
-    virtual void setViewController(QObject* controller);
-private:
-	QPointer<WebViewController> m_controller;
-	QString m_searcher;
-	YandexDomainDefine m_yandexDomainDefine;
-#ifdef Q_WS_MAEMO_5
-	bool mousePressed;
-	virtual bool eventFilter(QObject *, QEvent *e);
-#endif
-public slots:
-	void showCustomContextMenu(const QPoint & point);
-	void insertQuoteText();
-	void searchSelectedText();
-	void setPrevFocus(QObject *);
+	YandexDomainDefine(){}
+	~YandexDomainDefine(){}
+	QString defineDomain(){
+		switch(QLocale::system().country()) {
+		case QLocale::Kazakhstan:
+			return "kz";
+			break;
+		case QLocale::Ukraine:
+			return "ua";
+			break;
+		case QLocale::Belarus:
+			return "bl";
+			break;
+		case QLocale::Russia:
+			return "ru";
+			break;
+		case QLocale::Turkey:
+			return "com.tr";
+		default:
+			return "com";
+		}
+	}
+	QString getDomain(){
+		return "http://yandex." + defineDomain() + "/";
+	}
 };
-
-} // namespace Adium
-
-#endif // QUICKCHATVIEWWIDGET_H
-
