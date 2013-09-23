@@ -54,6 +54,10 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->formLayoutBox->addItem(tr("Classic"),false);
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
 
+	QStringList searchList;
+	searchList<<"Yandex"<<"Google";
+	ui->searchBox->addItems(searchList);
+
 #if defined(Q_WS_MAC) || defined(Q_WS_WIN)
 	int row;
 	QFormLayout::ItemRole role;
@@ -83,6 +87,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->rosterBox);
 	lookForWidgetState(ui->receiverIdBox);
 	lookForWidgetState(ui->fontSizeBox);
+	lookForWidgetState(ui->searchBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -131,6 +136,7 @@ void TabbedChatBehavior::loadImpl()
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 	ui->fontSizeBox->setValue(chat.value<int>("chatFontSize", qApp->font().pointSize()));
+	ui->searchBox->setCurrentText(chat.value<QString>("defaultSearch", "Yandex"));
 }
 
 void TabbedChatBehavior::saveImpl()
@@ -157,6 +163,7 @@ void TabbedChatBehavior::saveImpl()
 	Config chat = appearance.group("chat");
 	chat.setValue("groupUntil",ui->groupUntil->value());
 	chat.setValue("chatFontSize", ui->fontSizeBox->value());
+	chat.setValue("defaultSearch", ui->searchBox->currentText());
 	appearance.sync();
 }
 
