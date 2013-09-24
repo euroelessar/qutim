@@ -755,8 +755,7 @@ bool JMUCSession::enabledConfiguring()
 		return false;
 
 	MUCRoom::Affiliation affiliation = d->room->affiliation();
-	return affiliation == MUCRoom::AffiliationOwner
-	        || affiliation == MUCRoom::AffiliationAdmin;
+	return affiliation == MUCRoom::AffiliationOwner;
 }
 
 void JMUCSession::loadSettings()
