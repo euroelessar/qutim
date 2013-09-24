@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -31,6 +32,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QDesktopServices>
 #ifdef Q_WS_MAEMO_5
 #include <QMouseEvent>
 #endif
@@ -52,6 +54,10 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 #endif
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showCustomContextMenu(QPoint)));
+	Config cfg = Config("appearance");
+	cfg.beginGroup("chat");
+	m_searcher = cfg.value("defaultSearch", "Yandex");
+	cfg.endGroup();
 }
 
 void WebViewWidget::setViewController(QObject* object)
@@ -97,14 +103,28 @@ bool WebViewWidget::eventFilter(QObject *, QEvent *e)
 
 void WebViewWidget::showCustomContextMenu(const QPoint &point)
 {
-	QMenu *menu = page()->createStandardContextMenu();
+	QMenu *menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose, true);
-	if(!selectedHtml().isEmpty()) {
-		QAction *quote = new QAction(tr("&Quote"), this);
-		menu->addAction(quote);
-		connect(quote, SIGNAL(triggered()), SLOT(insertQuoteText()));
-	}
 	menu->popup(mapToGlobal(point));
+
+	if(!selectedHtml().isEmpty()) {
+		QAction *copy = page()->action(QWebPage::Copy);
+		copy->setIcon(QIcon::fromTheme("edit-copy"));
+		QAction *quote = new QAction(tr("&Quote"), this);
+		quote->setIcon(QIcon::fromTheme("insert-text"));
+		QAction *search = new QAction(tr("&Search at %1").arg(m_searcher), this);
+		search->setIcon(QIcon::fromTheme("edit-find"));
+		menu->addAction(copy);
+		menu->addAction(quote);
+		menu->addAction(search);
+		connect(quote, SIGNAL(triggered()), SLOT(insertQuoteText()));
+		connect(search, SIGNAL(triggered()), SLOT(searchSelectedText()));
+	}
+	menu->addSeparator();
+
+	QAction *inspect = page()->action(QWebPage::InspectElement);
+	inspect->setIcon(QIcon::fromTheme("document-properties"));
+	menu->addAction(inspect);
 	connect(menu, SIGNAL(destroyed(QObject*)), SLOT(setPrevFocus(QObject*)));
 }
 
@@ -136,5 +156,16 @@ void WebViewWidget::setPrevFocus(QObject *)
 	}
 }
 
+void WebViewWidget::searchSelectedText()
+{
+	QString text = m_controller->quote().trimmed();
+	if (m_searcher == "Yandex") {
+		QString domain = m_yandexDomainDefine.getDomain();
+		text.prepend(domain + "yandsearch?text=");
+	} else if (m_searcher == "Google") {
+		text.prepend("http://www.google.com/search?q=");
+	}
+	QDesktopServices::openUrl(QUrl(text));
+}
 } // namespace Adium
 
