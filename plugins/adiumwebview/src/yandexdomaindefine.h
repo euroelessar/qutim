@@ -40,7 +40,7 @@ struct YandexDomainDefine
 		case QLocale::Belarus:
 			return "bl";
 			break;
-		case QLocale::Russia:
+		case QLocale::RussianFederation:
 			return "ru";
 			break;
 		case QLocale::Turkey:

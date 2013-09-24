@@ -136,7 +136,14 @@ void TabbedChatBehavior::loadImpl()
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 	ui->fontSizeBox->setValue(chat.value<int>("chatFontSize", qApp->font().pointSize()));
-	ui->searchBox->setCurrentText(chat.value<QString>("defaultSearch", "Yandex"));
+	QString text = chat.value<QString>("defaultSearch", "Yandex");
+	int i = ui->searchBox->findText(text);
+	if (i != -1)
+		ui->searchBox->setCurrentIndex(i);
+	else if (ui->searchBox->isEditable())
+		ui->searchBox->setEditText(text);
+	else
+		ui->searchBox->setItemText(ui->searchBox->currentIndex(), text);
 }
 
 void TabbedChatBehavior::saveImpl()
