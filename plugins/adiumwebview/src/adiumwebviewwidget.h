@@ -47,6 +47,7 @@ private:
 	QPointer<WebViewController> m_controller;
 	QString m_searcher;
 	YandexDomainDefine m_yandexDomainDefine;
+	QUrl m_urlForOpen;
 #ifdef Q_WS_MAEMO_5
 	bool mousePressed;
 	virtual bool eventFilter(QObject *, QEvent *e);
@@ -55,6 +56,7 @@ public slots:
 	void showCustomContextMenu(const QPoint & point);
 	void insertQuoteText();
 	void searchSelectedText();
+	void openLinkFromContextMenu();
 	void setPrevFocus(QObject *);
 };
 
