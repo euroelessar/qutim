@@ -94,7 +94,9 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 	m_session = session;
 	setDocument(session->getInputField());
 	setFocus();
-	setFontPointSize(m_fontSize);
+	QFont chatEditFont = qApp->font();
+	chatEditFont.setPointSize(m_fontSize);
+	session->getInputField()->setDefaultFont(chatEditFont);
 }
 
 bool ChatEdit::event(QEvent *event)
