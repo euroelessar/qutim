@@ -70,7 +70,6 @@ private:
 	SendMessageKey m_sendKey;
 	bool m_autoResize;
 	QTextCursor m_enterPosition;
-	qreal m_fontSize;
 };
 
 }
