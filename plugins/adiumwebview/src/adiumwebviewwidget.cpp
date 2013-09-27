@@ -58,6 +58,7 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 	cfg.beginGroup("chat");
 	m_searcher = cfg.value("defaultSearch", "Yandex");
 	cfg.endGroup();
+	m_urlForOpen = 0;
 }
 
 void WebViewWidget::setViewController(QObject* object)
@@ -106,7 +107,18 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 	QMenu *menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose, true);
 	menu->popup(mapToGlobal(point));
+	bool linkUnderMouse = !QUrl(page()->frameAt(point)->hitTestContent(point).linkUrl()).isEmpty();
 
+	if (linkUnderMouse) {
+		m_urlForOpen = page()->frameAt(point)->hitTestContent(point).linkUrl();
+		QAction *openLink = page()->action(QWebPage::OpenLink);
+		openLink->setIcon(QIcon::fromTheme("document-open"));
+		QAction *copyLink = page()->action(QWebPage::CopyLinkToClipboard);
+		copyLink->setIcon(QIcon::fromTheme("edit-copy"));
+		menu->addAction(openLink);
+		menu->addAction(copyLink);
+		connect(openLink, SIGNAL(triggered()), SLOT(openLinkFromContextMenu()));
+	}
 	if(!selectedHtml().isEmpty()) {
 		QAction *copy = page()->action(QWebPage::Copy);
 		copy->setIcon(QIcon::fromTheme("edit-copy"));
@@ -114,12 +126,16 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 		quote->setIcon(QIcon::fromTheme("insert-text"));
 		QAction *search = new QAction(tr("&Search at %1").arg(m_searcher), this);
 		search->setIcon(QIcon::fromTheme("edit-find"));
-		menu->addAction(copy);
+		if (!linkUnderMouse)
+			menu->addAction(copy);
 		menu->addAction(quote);
-		menu->addAction(search);
+		if(!linkUnderMouse) {
+			menu->addAction(search);
+			connect(search, SIGNAL(triggered()), SLOT(searchSelectedText()));
+		}
 		connect(quote, SIGNAL(triggered()), SLOT(insertQuoteText()));
-		connect(search, SIGNAL(triggered()), SLOT(searchSelectedText()));
 	}
+
 	menu->addSeparator();
 
 	QAction *inspect = page()->action(QWebPage::InspectElement);
@@ -166,6 +182,12 @@ void WebViewWidget::searchSelectedText()
 		text.prepend("http://www.google.com/search?q=");
 	}
 	QDesktopServices::openUrl(QUrl(text));
+}
+
+void WebViewWidget::openLinkFromContextMenu()
+{
+	QDesktopServices::openUrl(m_urlForOpen);
+	m_urlForOpen = 0;
 }
 } // namespace Adium
 
