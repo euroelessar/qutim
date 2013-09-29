@@ -31,6 +31,11 @@ Framework {
         product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim"
     ]
 
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.dynamicLibraries: ["Qt5X11Extras", "X11"];
+    }
+
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
     cpp.defines: [

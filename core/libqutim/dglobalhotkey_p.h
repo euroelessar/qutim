@@ -47,7 +47,9 @@ public:
 
 	bool shortcut( const QString &s, bool a = true );
 	quint32 id( const QString &s );
-
+#if defined( Q_OS_LINUX )
+	bool error;
+#endif
 
 
 signals:
@@ -58,9 +60,6 @@ private:
 
 	quint32 nativeModifiers( Qt::KeyboardModifiers m );
 	quint32 nativeKeycode( Qt::Key k );
-#if defined( Q_WS_X11 )
-    bool error;
-#endif
 };
 
 #endif // DGLOBALHOTKEY_H

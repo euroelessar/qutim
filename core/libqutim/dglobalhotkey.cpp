@@ -27,15 +27,15 @@
 
 #include <QGuiApplication>
 
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 # include <qt_windows.h>
 # ifndef MOD_NOREPEAT
 #  define MOD_NOREPEAT 0x4000
 # endif // MOD_NOREPEAT
-#elif defined( Q_WS_X11 )
-# include <QX11Info>
+#elif defined( Q_OS_LINUX )
+# include <QtX11Extras/QX11Info>
 # include <X11/Xlib.h>
-#elif defined( Q_WS_MAC )
+#elif defined( Q_OS_MAC )
 # include <Carbon/Carbon.h>
 #endif
 #include <cwchar>
@@ -50,7 +50,7 @@ dGlobalHotKey::~dGlobalHotKey()
     qApp->eventDispatcher()->removeNativeEventFilter(this);
 }
 
-#if defined( Q_WS_X11 )
+#if defined( Q_OS_LINUX )
 
 static int ( *original_x_errhandler )( Display *display, XErrorEvent *event );
 static int qxt_x_errhandler( Display *display, XErrorEvent *event )
@@ -70,7 +70,7 @@ static int qxt_x_errhandler( Display *display, XErrorEvent *event )
 
 #endif
 
-#if defined( Q_WS_MAC )
+#if defined( Q_OS_MAC )
 
 typedef QPair< uint, uint > Identifier;
 static QMap< quint32, EventHotKeyRef > keyRefs;
@@ -90,12 +90,12 @@ OSStatus qxt_mac_handle_hot_key( EventHandlerCallRef /* nextHandler */, EventRef
 
 bool dGlobalHotKey::eventFilter( void *e )
 {
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 		MSG *m = ( MSG * ) e;
 
 		if ( m->message == WM_HOTKEY )
 			dGlobalHotKey::instance()->hotKeyPressed( HIWORD( m->lParam ) ^ LOWORD( m->lParam ) );
-#elif defined( Q_WS_X11 )
+#elif defined( Q_OS_LINUX )
 		XEvent *event = ( XEvent * ) e;
 
 		if ( event->type == KeyPress )
@@ -103,7 +103,7 @@ bool dGlobalHotKey::eventFilter( void *e )
 			XKeyEvent *key = ( XKeyEvent * ) event;
 			dGlobalHotKey::instance()->hotKeyPressed( key->keycode ^ ( key->state & ( ShiftMask | ControlMask | Mod1Mask | Mod4Mask ) ) );
 		}
-#elif defined( Q_WS_MAC )
+#elif defined( Q_OS_MAC )
 		EventRef event = ( EventRef ) e;
 		if ( GetEventClass( event ) == kEventClassKeyboard && GetEventKind( event ) == kEventHotKeyPressed )
 		{
@@ -139,12 +139,12 @@ bool dGlobalHotKey::shortcut( const QString &s, bool a )
 	quint32 key, mods;
 	native( s, key, mods );
 
-	#if defined( Q_WS_WIN )
+	#if defined( Q_OS_WIN )
 		if ( a )
 			return RegisterHotKey( 0, mods ^ key, mods | MOD_NOREPEAT, key );
 		else
 			return UnregisterHotKey( 0, mods ^ key );
-	#elif defined( Q_WS_X11 )
+	#elif defined( Q_OS_LINUX )
 		if ( a )
 		{
 			Display *display = QX11Info::display();
@@ -171,7 +171,7 @@ bool dGlobalHotKey::shortcut( const QString &s, bool a )
 
 			return !dGlobalHotKey::instance()->error;
 		}
-	#elif defined( Q_WS_MAC )
+	#elif defined( Q_OS_MAC )
 		if ( a )
 		{
 			if ( !qxt_mac_handler_installed )
@@ -229,7 +229,7 @@ quint32 dGlobalHotKey::id( const QString &s )
     return mods ^ key;
 }
 
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 
 quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
 {
@@ -393,7 +393,7 @@ quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 	}
 }
 
-#elif defined( Q_WS_X11 )
+#elif defined( Q_OS_LINUX )
 
 quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
 {
@@ -414,7 +414,7 @@ quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 	return XKeysymToKeycode( QX11Info::display(), XStringToKeysym( QKeySequence( k ).toString().toLatin1().data() ) );
 }
 
-#elif defined( Q_WS_MAC )
+#elif defined( Q_OS_MAC )
 
 quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
 {
