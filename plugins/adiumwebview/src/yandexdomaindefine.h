@@ -33,16 +33,12 @@ struct YandexDomainDefine
 		switch(QLocale::system().country()) {
 		case QLocale::Kazakhstan:
 			return "kz";
-			break;
 		case QLocale::Ukraine:
 			return "ua";
-			break;
 		case QLocale::Belarus:
 			return "bl";
-			break;
 		case QLocale::Russia:
 			return "ru";
-			break;
 		case QLocale::Turkey:
 			return "com.tr";
 		default:
