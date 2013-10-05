@@ -87,8 +87,8 @@ IconLoaderImpl::IconLoaderImpl()
 {
 	onSettingsChanged();
 	m_settings.reset(new GeneralSettingsItem<IconLoaderSettings>(
-	                     Settings::Appearance, loadIcon("preferences-desktop-icons"),
-	                     QT_TRANSLATE_NOOP("Settings", "Icons theme")));
+						 Settings::Appearance, iconManager->getIcon("preferences-desktop-icons"),
+						 QT_TRANSLATE_NOOP("Settings", "Icons theme")));
 //	item->setConfig(QString(), QLatin1String("appearance"));
 //	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
 //	entry->setName(QLatin1String("theme"));
