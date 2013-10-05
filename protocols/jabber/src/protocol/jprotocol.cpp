@@ -103,8 +103,13 @@ public:
 	void checkBookMark(JMUCSession *s, QAction *a)
 	{
 		a->setEnabled(s->account()->status() != Status::Offline);
-		a->setText(!s->bookmark().isValid() ? QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") :
-											 QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+		if (!s->bookmark().isValid()) {
+			a->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
+			a->setIcon(qutim_sdk_0_3::Icon("document-save"));
+		} else {
+			a->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+			a->setIcon(qutim_sdk_0_3::Icon("edit-delete"));
+		}
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
