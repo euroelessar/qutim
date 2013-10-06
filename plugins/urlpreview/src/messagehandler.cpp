@@ -81,10 +81,10 @@ void UrlHandler::loadSettings()
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
 	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\" >"
-								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left;\" onload=\"document.body.scrollTop = document.body.offsetHeight;\" />"
+								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left; />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
-								  "<span class=\"yandex-rca-content\" onload=\"document.body.scrollTop = document.body.offsetHeight;\">%CONTENT%</span>"
+								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
 								  "</div>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
@@ -314,7 +314,8 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % uid
 				 % QLatin1Literal(".innerHTML = \"")
 				 % QString(html).replace("\"", "\\\"")
-				 % QLatin1Literal("\";");
+				 % QLatin1Literal("\";")
+				 % QLatin1Literal("document.body.scrollTop = document.body.offsetHeight;");
 	ChatSession *session = ChatLayer::get(unit);
 
 	qDebug() << unit << uid << js;
