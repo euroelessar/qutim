@@ -85,12 +85,10 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for QIP"),
 				 new GeneralGenerator<QIPAccountWizard>(),
 				 ExtensionIcon("im-qip"));
-#ifndef Q_WS_S60
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
 				 QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
 				 new GeneralGenerator<XmlConsole, JabberExtension>(),
 				 ExtensionIcon("utilities-terminal"));
-#endif
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber AdHoc"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation of Ad-hoc Commands"),
 	//			new GeneralGenerator<JAdHocModule, JabberExtension>(),

@@ -546,7 +546,7 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 	else
 		str = QString("%1 request");
 	str = str.arg(cmd);
-	qDebug() << str.toStdString().c_str() << "message on the channel" << channel
+    qDebug() << str << "message on the channel" << channel
 			<< "the account is not connected to";
 }
 

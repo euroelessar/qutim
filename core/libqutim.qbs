@@ -20,8 +20,7 @@ Framework {
     Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative', 'widgets' ] }
-    Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-    Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
+
     //Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
     //Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
     //Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
@@ -33,22 +32,35 @@ Framework {
 
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
-    cpp.defines: [
-        "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-        "QUTIM_SINGLE_PROFILE",
-        "QUTIM_PLUGIN_NAME=\"libqutim\""
-    ]
-    cpp.cxxFlags: [
-        "-std=c++11"
-    ]
+    cpp.defines: {
+        var sharePath = qbs.targetOS.contains("osx") ? "Resources/share"
+                                                     : shareDir;
+        var defines = [
+                    "LIBQUTIM_LIBRARY",
+                    "QUTIM_SHARE_DIR=\"" + sharePath + "\"",
+                    "QUTIM_SINGLE_PROFILE",
+                    "QUTIM_PLUGIN_NAME=\"libqutim\""
+                ];
+        return defines;
+    }
+    cpp.cxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
 
-//    Properties {
-//        condition: project.singleProfile
-//        cpp.defines: base.concat([
-//            "QUTIM_SINGLE_PROFILE"
-//        ])
-//    }
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: ["Cocoa", "Carbon" ]
+    }
+
+    //    Properties {
+    //        condition: project.singleProfile
+    //        cpp.defines: base.concat([
+    //            "QUTIM_SINGLE_PROFILE"
+    //        ])
+    //    }
 
     Export {
         property string basePath
@@ -61,9 +73,19 @@ Framework {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
-        cpp.cxxFlags: [
-            "-std=c++11"
-        ]
+        cpp.cxxFlags: {
+            var flags = base.concat("-std=c++11");
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++");
+            return flags;
+        }
+        cpp.linkFlags: {
+            var flags = base;
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++ -lcxxrt");
+            return flags;
+        }
+
         Properties {
             condition: project.declarativeUi
             cpp.defines: "QUTIM_DECLARATIVE_UI"

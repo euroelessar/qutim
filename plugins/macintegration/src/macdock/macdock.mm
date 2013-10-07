@@ -31,6 +31,8 @@
 #include <qutim/config.h>
 #include <QApplication>
 #include <QLabel>
+
+#import <Cocoa/Cocoa.h>
 #import <AppKit/NSDockTile.h>
 
 extern void qt_mac_set_dock_menu(QMenu *);
