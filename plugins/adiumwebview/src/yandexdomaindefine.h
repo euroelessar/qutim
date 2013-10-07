@@ -37,7 +37,7 @@ struct YandexDomainDefine
 			return "ua";
 		case QLocale::Belarus:
 			return "bl";
-		case QLocale::Russia:
+		case QLocale::RussianFederation:
 			return "ru";
 		case QLocale::Turkey:
 			return "com.tr";
