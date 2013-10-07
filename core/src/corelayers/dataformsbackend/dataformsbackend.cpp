@@ -165,7 +165,7 @@ void DefaultDataForm::onButtonClicked(QAbstractButton *button)
 
 void DefaultDataForm::keyPressEvent(QKeyEvent *e)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period) {
 		e->accept();
 		reject();

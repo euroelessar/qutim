@@ -162,7 +162,7 @@ void ContactDelegate::paint(QPainter *painter,
 		if (!p->liteMode) {
 			QStyleOptionButton buttonOption;
 			buttonOption.state = option.state;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 			buttonOption.features = QStyleOptionButton::Flat;
 			buttonOption.state |= QStyle::State_Raised;
 			buttonOption.state &= ~QStyle::State_HasFocus;

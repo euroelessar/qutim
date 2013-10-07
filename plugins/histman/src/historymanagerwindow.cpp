@@ -79,7 +79,7 @@ HistoryManagerWindow::HistoryManagerWindow(QWidget *parent) :
 	m_message_num = 0;
 	m_qutim = new qutim();
 	setPixmap(WatermarkPixmap, QPixmap(":/pictures/wizard.png"));
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 	setWizardStyle(ModernStyle);
 #endif
 	setWindowTitle(tr("History manager"));
