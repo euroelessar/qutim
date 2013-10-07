@@ -11,8 +11,8 @@ Project {
     property bool declarativeUi: false
     property var additionalCppDefines: []
     property string shareDir: {
-        if (qbs.targetOS.contains("mac"))
-            return "qutim.app/Contents/Resources/share";
+        if (qbs.targetOS.contains("osx"))
+            return "bin/qutim.app/Contents/Resources/share";
         else if (qbs.targetOS.contains("linux"))
             return "share/apps/qutim";
         else

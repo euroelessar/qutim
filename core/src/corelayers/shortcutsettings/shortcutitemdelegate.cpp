@@ -63,7 +63,7 @@ void ShortcutItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 		QStyleOptionButton buttonOption;
 		buttonOption.state = option.state;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 		buttonOption.state |= QStyle::State_Raised;
 		buttonOption.features = QStyleOptionButton::Flat;
 		buttonOption.state &= ~QStyle::State_HasFocus;

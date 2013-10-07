@@ -54,7 +54,7 @@ namespace Core
         if (modifier & Qt::SHIFT)
             s += "Shift+";        
 		if (modifier & Qt::CTRL ) 
-#if defined(Q_WS_MAC)            
+#if defined(Q_OS_MAC)            
             s += "Command+";
 #else
             s += "Ctrl+";
