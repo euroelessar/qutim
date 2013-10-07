@@ -48,9 +48,9 @@ Product {
     type: 'dynamiclibrary'
     name: FileInfo.fileName(sourceDirectory);
     destinationDirectory: {
-        if (qbs.targetOS === 'mac')
-            return "qutim.app/Contents/PlugIns";
-        else if (qbs.targetOS === 'windows')
+        if (qbs.targetOS.contains('osx'))
+            return "bin/qutim.app/Contents/PlugIns";
+        else if (qbs.targetOS.contains('windows'))
             return "bin/plugins"
         else
             return "lib/qutim/plugins";
@@ -74,7 +74,7 @@ Product {
     }
     Group {
         name: "Mac-specific"
-        condition: qbs.targetOS === 'mac'
+        condition: qbs.targetOS.concat("osx")
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
     }

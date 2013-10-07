@@ -162,7 +162,7 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	p->sessionList = new QMenu(this);
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 	setMovable(true);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	setTabsClosable(true);
 	setDrawBase(false);
 #else
@@ -255,7 +255,7 @@ void TabBar::addSession(ChatSessionImpl *session)
 	addTab(icon, u->title());
 #endif
 
-//#if defined(Q_WS_MAC)
+//#if defined(Q_OS_MAC)
 //	if (closableActiveTab()) {
 //		QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
 //		if (QWidget *button = tabButton(count()-1, closeSide))

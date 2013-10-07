@@ -1,21 +1,12 @@
 import qbs.base
 
-Product {
+Application {
 	name: "qutim"
 
     property bool installSoundTheme: true
 
-    type: ["application", "installed_content"]
-    destinationDirectory: {
-        if (qbs.targetOS === "mac")
-            return product.name + ".app/Contents/MacOS";
-        else
-            return "bin";
-    }
+    destinationDirectory: "bin"
     cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
-    cpp.cxxFlags: [
-        "-std=c++11"
-    ]
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]
@@ -43,7 +34,7 @@ Product {
 
     Group {
         name: "Mac-specific"
-        condition: qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("osx")
         fileTags: "plugins"
 //        prefix: deploy.pluginPath
 //        files: [

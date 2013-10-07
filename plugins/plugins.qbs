@@ -28,6 +28,7 @@ Project {
         "linuxintegration/linuxintegration.qbs",
         "updater/updater.qbs",
         "mobility/src/multimediabackend/multimediabackend.qbs",
-        "sdlsound/sdlsound.qbs"
+        "sdlsound/sdlsound.qbs",
+        "macintegration/macintegration.qbs"
     ]
 }
