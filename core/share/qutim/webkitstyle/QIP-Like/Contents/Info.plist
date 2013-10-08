@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+ <dict>
+  <key>MessageViewVersion</key>
+  <integer>4</integer>
+
+  <key>CFBundleDevelopmentRegion</key>
+  <string>English</string>
+
+  <key>CFBundleGetInfoString</key>
+  <string>Chat style for qutIM</string>
+
+  <key>CFBundleIdentifier</key>
+  <string>qiplike.chat.style</string>
+
+  <key>CFBundleGetInfoString</key>
+  <string>1.0</string>
+
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>1.0</string>
+
+  <key>CFBundleName</key>
+  <string>QIP-Like</string>
+
+  <key>CFBundlePackageType</key>
+  <string>qutIM chat style</string>
+
+  <key>DefaultBackgroundColor</key>
+  <string>FFFFFF</string>
+
+  <key>DefaultFontFamily</key>
+  <string>Tahoma</string>
+
+  <key>DefaultFontSize</key>
+  <integer>10</integer>
+
+  <key>DisableCustomBackground</key>
+  <false/>
+
+  <key>ShowsUserIcons</key>
+  <true/>
+  
+  <key>AllowTextColors</key>
+  <true/>
+ 
+ </dict>
+</plist>
+
+
