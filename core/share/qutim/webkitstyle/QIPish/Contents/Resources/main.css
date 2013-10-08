@@ -1,0 +1,122 @@
+body {
+	background-color: #f5f5f5;
+	height: 101%;
+}
+
+a:link		{text-decoration: none;			color: #255AC5;}
+a:visited	{text-decoration: none;			color: #255AC5;}
+a:hover		{text-decoration: underline;	color: #255AC5;}
+a:active	{text-decoration: none;			color: #C80000;}
+
+.KopeteMessage {
+	padding-bottom: 2px;
+} 
+
+.InternalDelim,
+.InternalMessage,
+.inMetaContact,
+.outMetaContact,
+.inActionMetacontact,
+.outActionMetacontact {
+	font-weight: bold;
+}
+
+.inMetaContact,
+.inActionMetacontact {
+	color: #004080;
+}
+
+.outMetaContact,
+.outActionMetacontact {
+	color: #C80000;
+}
+
+.inMetaContact {
+	cursor: pointer;
+}
+
+.InternalDelim,
+.InternalMessage,
+.InternalTime {
+	color: #358000;
+}
+
+.InternalDelim,
+.InternalMessage,
+.InternalTime,
+.action,
+.inActionTime,
+.inActionMetacontact,
+.inActionMessage,
+.outActionTime,
+.outActionMetacontact,
+.outActionMessage {
+	font-size: 8pt;
+}
+
+.InternalTime,
+.inActionTime,
+.outActionTime {
+	margin-left: 11px;
+	color: grey;
+}
+
+.inContentTime,
+.outContentTime {
+	font-weight: normal;
+}
+
+.inContentTime {
+	color: grey;
+}
+
+.outContentTime,
+.mention,
+.incoming .mention,
+.mention .inContentTime {
+	color: #800080;
+}
+
+/*QUTIM ZONE. BE AWARE!!!*/
+
+/*URL PREVIEW*/
+
+.urlpreview {
+	color: #707070;
+}
+.urlpreview-image {
+	box-sizing: border-box;
+	height: auto;
+	max-width: 99% !important;
+	padding: 10px;
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+/*YANDEX RCA*/
+
+.yandex-rca {
+	padding: 10px;
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.1);
+}
+.yandex-rca-content {}
+.yandex-rca-image {
+	box-sizing: border-box;
+	margin-right: 10px;
+	padding: 3px;
+	border: 1px solid #e6e6e6;
+}
+
+/*EXREMENTE*/
+
+.border {
+	left: 0px;
+	top: 0px;
+	width: 99.8%;
+	height: 99.7%;
+	border: 1px #e6e6e6 inset;
+	position: fixed;
+}
