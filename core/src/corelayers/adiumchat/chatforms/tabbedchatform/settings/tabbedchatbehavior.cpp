@@ -58,7 +58,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	searchList<<"Yandex"<<"Google";
 	ui->searchBox->addItems(searchList);
 
-#if defined(Q_WS_MAC) || defined(Q_WS_WIN)
+#if defined(Q_OS_MAC) || defined(Q_WS_WIN)
 	int row;
 	QFormLayout::ItemRole role;
 	ui->formLayout->getWidgetPosition(ui->menuBox, &row, &role);
@@ -66,7 +66,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->menuBox->setVisible(false);
 #endif
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	ui->formLayout->getWidgetPosition(ui->formLayoutBox, &row, &role);
 	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::LabelRole));
 	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::FieldRole));

@@ -68,18 +68,18 @@ void UrlHandler::loadSettings()
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
 	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
-								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px'; "
+								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px';"
 								 "if (this.height>%MAXH%) { this.style.maxWidth=''; this.style.maxHeight='%MAXH%px'; } "
-								 "this.style.display='';\"><br>";
+								 "this.style.display=''; document.body.scrollTop = document.body.offsetHeight; \"><br>";
 	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
-								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
+								   "<img onload=\"document.body.scrollTop = document.body.offsetHeight;\" src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
-	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\">"
-								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left;\" />"
+	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\" >"
+								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left; />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
 								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
@@ -307,7 +307,8 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % uid
 				 % QLatin1Literal(".innerHTML = \"")
 				 % QString(html).replace("\"", "\\\"")
-				 % QLatin1Literal("\";");
+				 % QLatin1Literal("\";")
+				 % QLatin1Literal("document.body.scrollTop = document.body.offsetHeight;");
 	ChatSession *session = ChatLayer::get(unit);
 
 	debug() << unit << uid << js;
