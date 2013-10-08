@@ -1,8 +1,8 @@
 import "../../../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    pluginTags: 'mac'
+    pluginTags: 'osx'
     sourcePath: ""
 
-    Depends { name: "cocoa" }
+    cpp.frameworks: [ "Cocoa" ]
 }

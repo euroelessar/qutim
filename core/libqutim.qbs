@@ -1,5 +1,6 @@
-import qbs.base 1.0
-import qbs.fileinfo 1.0 as FileInfo
+import qbs.base
+import qbs.FileInfo
+import qbs.TextFile
 import "Framework.qbs" as Framework
 
 Framework {
@@ -10,26 +11,19 @@ Framework {
     property string versionRelease: project.qutim_version_release
     property string versionPatch: project.qutim_version_patch
     property string version: project.qutim_version
-    property string shareDir: {
-        if (qbs.targetOS === "mac")
-            return "/Resources/share";
-        else
-            return qutimscope.shareDir;
-    }
+    property string shareDir: project.shareDir
 
-    Depends { name: "qutimscope" }
+    //Depends { name: "qutimscope" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
-    Depends { name: "qtdwm" }
-    Depends { name: "qtsolutions" }
+    //Depends { name: "Qtdwm" }
+    Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative' ] }
-    Depends { name: "qt.widgets"; condition: qt.core.versionMajor === 5 }
-    Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-    Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
-    Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
-    Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
-    Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative', 'widgets' ] }
+
+    //Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
+    //Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
+    //Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
 
     cpp.includePaths: [
         "libqutim",
@@ -38,17 +32,37 @@ Framework {
 
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
-    cpp.defines: [
+    cpp.defines: {
+        var sharePath = qbs.targetOS.contains("osx") ? "Resources/share"
+                                                     : shareDir;
+        var defines = [
         "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-    ]
-
-    Properties {
-        condition: project.singleProfile
-        cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+                    "QUTIM_SHARE_DIR=\"" + sharePath + "\"",
+                    "QUTIM_SINGLE_PROFILE",
+                    "QUTIM_PLUGIN_NAME=\"libqutim\""
+                ];
+        return defines;
+    }
+    cpp.cxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
     }
 
-    ProductModule {
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: ["Cocoa", "Carbon" ]
+    }
+
+//    Properties {
+//        condition: project.singleProfile
+//        cpp.defines: base.concat([
+//            "QUTIM_SINGLE_PROFILE"
+//        ])
+//    }
+
+    Export {
         property string basePath
 
         Depends { name: "cpp" }
@@ -59,14 +73,26 @@ Framework {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
-        cpp.defines: []
+        cpp.cxxFlags: {
+            var flags = base.concat("-std=c++11");
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++");
+            return flags;
+        }
+        cpp.linkFlags: {
+            var flags = base;
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++ -lcxxrt");
+            return flags;
+        }
+
         Properties {
             condition: project.declarativeUi
-            cpp.defines: outer.concat("QUTIM_DECLARATIVE_UI")
+            cpp.defines: "QUTIM_DECLARATIVE_UI"
         }
         Properties {
             condition: project.singleProfile
-            cpp.defines: outer.concat([ "QUTIM_SINGLE_PROFILE" ])
+            cpp.defines: "QUTIM_SINGLE_PROFILE"
         }
     }
 
@@ -77,6 +103,7 @@ Framework {
     ]
 
     Group {
+        name: "Dev headers"
         files: 'libqutim/**/*.h'
         excludeFiles: 'libqutim/**/*_p.h'
         fileTags: ["hpp", "devheader"]
@@ -84,10 +111,12 @@ Framework {
 
     //TODO separate this libraries like qutim-adiumwebview
     Group {
+        name: "SlidingStackedWidget"
         prefix: "3rdparty/slidingstackedwidget/"
         files: ["*.h", "*.cpp"]
     }
     Group {
+        name: "FlowLayout"
         prefix: "3rdparty/flowlayout/"
         files: ["*.h", "*.cpp"]
     }

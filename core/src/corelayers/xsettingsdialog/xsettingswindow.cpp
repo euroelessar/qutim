@@ -142,7 +142,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->toolBar->setObjectName(QLatin1String("SettingsBar"));
 	p->toolBar->setMovable(false);
 
-#if defined (Q_WS_WIN32) || defined(Q_WS_MAC)
+#if defined (Q_WS_WIN32) || defined(Q_OS_MAC)
 	width = 22;
 #else
 	width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);

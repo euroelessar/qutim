@@ -42,10 +42,6 @@ namespace AdiumChat
 
 QString ChatEdit::textEditToPlainText()
 {
-	Config cfg = Config("appearance");
-	cfg.beginGroup("chat");
-	setFontPointSize(cfg.value("chatFontSize", qApp->font().pointSize()));
-	cfg.endGroup();
 	QTextDocument *doc = document();
 	QString result;
 	result.reserve(doc->characterCount());
@@ -87,10 +83,6 @@ ChatEdit::ChatEdit(QWidget *parent) :
 	setAcceptRichText(false);
 	m_autoResize = false;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
-	Config cfg = Config("appearance");
-	cfg.beginGroup("chat");
-	m_fontSize = cfg.value("chatFontSize", qApp->font().pointSize());
-	cfg.endGroup();
 }
 
 void ChatEdit::setSession(ChatSessionImpl *session)
@@ -98,7 +90,12 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 	m_session = session;
 	setDocument(session->getInputField());
 	setFocus();
-	setFontPointSize(m_fontSize);
+	QFont chatEditFont = qApp->font();
+	Config cfg = Config("appearance");
+	cfg.beginGroup("chat");
+	chatEditFont.setPointSize(cfg.value("chatFontSize", qApp->font().pointSize()));
+	cfg.endGroup();
+	session->getInputField()->setDefaultFont(chatEditFont);
 }
 
 bool ChatEdit::event(QEvent *event)
@@ -239,7 +236,7 @@ void ChatEdit::onTextChanged()
 		QFontMetrics fontHeight = fontMetrics();
 		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
 		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
-		debug() << "New docHeight is: " << docHeight;
+//		qDebug() << "New docHeight is: " << docHeight;
 		if (docHeight == previousTextHeight)
 			return;
 

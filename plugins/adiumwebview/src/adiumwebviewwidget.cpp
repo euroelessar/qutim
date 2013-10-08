@@ -33,6 +33,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QDesktopServices>
+#include <qutim/icon.h>
 #ifdef Q_WS_MAEMO_5
 #include <QMouseEvent>
 #endif
@@ -112,20 +113,20 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 	if (linkUnderMouse) {
 		m_urlForOpen = page()->frameAt(point)->hitTestContent(point).linkUrl();
 		QAction *openLink = page()->action(QWebPage::OpenLink);
-		openLink->setIcon(QIcon::fromTheme("document-open"));
+		openLink->setIcon(qutim_sdk_0_3::Icon("document-open"));
 		QAction *copyLink = page()->action(QWebPage::CopyLinkToClipboard);
-		copyLink->setIcon(QIcon::fromTheme("edit-copy"));
+		copyLink->setIcon(qutim_sdk_0_3::Icon("edit-copy"));
 		menu->addAction(openLink);
 		menu->addAction(copyLink);
 		connect(openLink, SIGNAL(triggered()), SLOT(openLinkFromContextMenu()));
 	}
 	if(!selectedHtml().isEmpty()) {
 		QAction *copy = page()->action(QWebPage::Copy);
-		copy->setIcon(QIcon::fromTheme("edit-copy"));
+		copy->setIcon(qutim_sdk_0_3::Icon("edit-copy"));
 		QAction *quote = new QAction(tr("&Quote"), this);
-		quote->setIcon(QIcon::fromTheme("insert-text"));
-		QAction *search = new QAction(tr("&Search at %1").arg(m_searcher), this);
-		search->setIcon(QIcon::fromTheme("edit-find"));
+		quote->setIcon(qutim_sdk_0_3::Icon("insert-text"));
+		QAction *search = new QAction(tr("&Search in %1").arg(m_searcher), this);
+		search->setIcon(qutim_sdk_0_3::Icon("edit-find"));
 		if (!linkUnderMouse)
 			menu->addAction(copy);
 		menu->addAction(quote);
@@ -139,7 +140,7 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 	menu->addSeparator();
 
 	QAction *inspect = page()->action(QWebPage::InspectElement);
-	inspect->setIcon(QIcon::fromTheme("document-properties"));
+	inspect->setIcon(qutim_sdk_0_3::Icon("document-properties"));
 	menu->addAction(inspect);
 	connect(menu, SIGNAL(destroyed(QObject*)), SLOT(setPrevFocus(QObject*)));
 }
