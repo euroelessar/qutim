@@ -12,7 +12,7 @@
   <string>Chat style for qutIM</string>
 
   <key>CFBundleIdentifier</key>
-  <string>qiplike.chat.style</string>
+  <string>qipish.chat.style</string>
 
   <key>CFBundleGetInfoString</key>
   <string>1.0</string>
@@ -21,7 +21,7 @@
   <string>1.0</string>
 
   <key>CFBundleName</key>
-  <string>QIP-Like</string>
+  <string>QIPish</string>
 
   <key>CFBundlePackageType</key>
   <string>qutIM chat style</string>
