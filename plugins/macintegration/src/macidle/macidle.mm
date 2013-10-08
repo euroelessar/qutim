@@ -1,3 +1,5 @@
+#import <Cocoa/Cocoa.h>
+
 #include "macidle.h"
 #include "macidle-global.h"
 #include "macidlewidget.h"
@@ -52,8 +54,9 @@ MacIntegration::MacIdle* pIdleStatusChanger = 0;
 
 namespace MacIntegration
 {
-struct MacIdlePrivate
+class MacIdlePrivate
 {
+public:
 	IdleHandler *idleHandler;
 	QTimer *timer;
 	bool isAwayEnabled;

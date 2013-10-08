@@ -436,7 +436,7 @@ QObject *ProtocolSeparatorActionGenerator::generateHelper() const
 	QFont font = action->font();
 	font.setBold(true);
 	action->setFont(font);
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 	QToolButton *m_btn = new QToolButton();
 	QWidgetAction *widget = new QWidgetAction(action);
     m_action = widget;

@@ -32,8 +32,7 @@ namespace MacIntegration
 {
 using namespace qutim_sdk_0_3;
 
-struct MacIdlePrivate;
-
+class MacIdlePrivate;
 class MacIdle : public QObject
 {
 	Q_OBJECT
