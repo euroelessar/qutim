@@ -112,11 +112,16 @@ a:active	{text-decoration: none;			color: #C80000;}
 
 /*EXREMENTE*/
 
-.border {
+/*#chat {
+	z-index: 1;
+}*/
+
+/*.border {
+	z-index: 0;
 	left: 0px;
 	top: 0px;
 	width: 99.8%;
 	height: 99.7%;
 	border: 1px #e6e6e6 inset;
 	position: fixed;
-}
+}*/
