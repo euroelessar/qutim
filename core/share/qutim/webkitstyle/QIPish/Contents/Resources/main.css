@@ -109,14 +109,3 @@ a:active	{text-decoration: none;			color: #C80000;}
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
-
-/*EXREMENTE*/
-
-.border {
-	left: 0px;
-	top: 0px;
-	width: 99.8%;
-	height: 99.7%;
-	border: 1px #e6e6e6 inset;
-	position: fixed;
-}
