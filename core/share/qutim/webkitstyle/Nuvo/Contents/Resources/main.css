@@ -148,14 +148,3 @@ div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDeli
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
-
-/*EXREMENTE*/
-
-.border {
-	left: 0px;
-	top: 0px;
-	width: 99.8%;
-	height: 99.7%;
-	border: 1px #e6e6e6 inset;
-	position: fixed;
-}
