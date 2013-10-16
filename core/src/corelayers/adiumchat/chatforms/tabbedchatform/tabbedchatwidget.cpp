@@ -46,8 +46,8 @@
 #include <QSwipeGesture>
 #include <QDockWidget>
 
-#ifdef Q_WS_X11
-# include <QX11Info>
+#ifdef Q_OS_LINUX
+# include <QtX11Extras/QX11Info>
 # include <X11/Xutil.h>
 # include <X11/Xlib.h>
 # include <X11/Xatom.h>
@@ -60,7 +60,7 @@
 #ifdef Status
 # undef Status
 #endif
-#endif //Q_WS_X11
+#endif //Q_OS_LINUX
 
 namespace Core
 {
@@ -500,7 +500,7 @@ void TabbedChatWidget::ensureToolBar()
 
 void TabbedChatWidget::activateWindow()
 {
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
 	if (m_flags & SwitchDesktopOnActivate) {
 		static Atom NET_ACTIVE_WINDOW = 0;
 		XClientMessageEvent xev;
@@ -521,7 +521,7 @@ void TabbedChatWidget::activateWindow()
 
 		XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, SubstructureNotifyMask | SubstructureRedirectMask, (XEvent*)&xev);
 	}
-#endif//Q_WS_X11
+#endif//Q_OS_LINUX
 	AbstractChatWidget::activateWindow();
 }
 
