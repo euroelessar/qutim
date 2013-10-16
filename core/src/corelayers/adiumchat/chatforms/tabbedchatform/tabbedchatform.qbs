@@ -5,5 +5,8 @@ UreenPlugin {
     sourcePath: ""
 
     Depends { name: "qutim-adiumchat" }
-    Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
+    Properties {
+        condition: qbs.targetOS.contains('linux')
+        cpp.dynamicLibraries: ["X11","Qt5X11Extras" ]
+    }
 }
