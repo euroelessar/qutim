@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>223</height>
+    <width>435</width>
+    <height>319</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QCheckBox" name="imagesPreview">
      <property name="text">
       <string>Images preview</string>
@@ -111,7 +111,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <widget class="QCheckBox" name="youtubePreview">
      <property name="text">
       <string>YouTube preview</string>
@@ -121,7 +121,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="QCheckBox" name="HTML5Audio">
      <property name="text">
       <string>HTML5 Audio</string>
@@ -131,7 +131,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="8" column="1">
     <widget class="QCheckBox" name="HTML5Video">
      <property name="text">
       <string>HTML5 Video</string>
@@ -140,6 +140,23 @@
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Urlfilter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Please, divide your words with &quot;;&quot;.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QPlainTextEdit" name="exceptionList"/>
    </item>
   </layout>
  </widget>
