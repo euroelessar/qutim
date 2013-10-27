@@ -39,6 +39,7 @@ UrlPreviewSettings::UrlPreviewSettings()
 	lookForWidgetState(ui->imagesPreview);
 	lookForWidgetState(ui->HTML5Audio);
 	lookForWidgetState(ui->HTML5Video);
+	lookForWidgetState(ui->yandexRCA);
 	lookForWidgetState(ui->exceptionList);
 }
 
@@ -53,8 +54,8 @@ void UrlPreviewSettings::loadImpl()
 	ui->imagesPreview->setChecked(cfg.value("imagesPreview", true));
 	ui->HTML5Audio->setChecked(cfg.value("HTML5Audio", true));
 	ui->HTML5Video->setChecked(cfg.value("HTML5Video", true));
-	QString str = cfg.value("exceptionList", "");
-	ui->exceptionList->insertPlainText(str);
+	ui->yandexRCA->setChecked(cfg.value("YandexRichContent", true));
+	ui->exceptionList->insertPlainText(cfg.value("exceptionList", ""));
 	cfg.endGroup();
 }
 
@@ -69,6 +70,7 @@ void UrlPreviewSettings::saveImpl()
 	cfg.setValue("imagesPreview", ui->imagesPreview->isChecked());
 	cfg.setValue("HTML5Audio", ui->HTML5Audio->isChecked());
 	cfg.setValue("HTML5Video", ui->HTML5Video->isChecked());
+	cfg.setValue("YandexRichContent", ui->yandexRCA->isChecked());
 	cfg.setValue("exceptionList", ui->exceptionList->toPlainText());
 	cfg.endGroup();
 }
