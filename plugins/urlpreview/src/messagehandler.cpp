@@ -89,7 +89,7 @@ void UrlHandler::loadSettings()
 	m_enableHTML5Audio = cfg.value("HTML5Audio", true);
 	m_enableHTML5Video = cfg.value("HTML5Video", true);
 	m_enableYandexRichContent = cfg.value("yandexRichContent", true);
-	m_exceptionList = cfg.value("exceptionList","").split(";");
+	m_exceptionList = cfg.value("exceptionList", QStringList());
 	cfg.endGroup();
 }
 
@@ -129,9 +129,8 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	}
 
 	foreach (QString key, m_exceptionList) {
-		if(link.contains(QRegExp(key))) {
+		if(link.contains(key))
 			return;
-		}
 	}
 	const QUrl url = QUrl::fromUserInput(link);
 
