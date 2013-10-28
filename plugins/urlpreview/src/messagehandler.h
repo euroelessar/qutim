@@ -30,6 +30,7 @@
 #include <qutim/messagehandler.h>
 #include <QSslError>
 #include <QSize>
+#include <QStringList>
 
 
 class QNetworkAccessManager;
