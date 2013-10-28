@@ -82,6 +82,7 @@ private:
 	bool m_enableHTML5Audio;
 	bool m_enableHTML5Video;
 	bool m_enableYandexRichContent;
+	QStringList m_exceptionList;
 };
 
 } // namespace UrlPreview
