@@ -71,7 +71,7 @@ void UrlPreviewSettings::saveImpl()
 	cfg.setValue("HTML5Audio", ui->HTML5Audio->isChecked());
 	cfg.setValue("HTML5Video", ui->HTML5Video->isChecked());
 	cfg.setValue("YandexRichContent", ui->yandexRCA->isChecked());
-	cfg.setValue("exceptionList", ui->exceptionList->toPlainText().split(";"));
+	cfg.setValue("exceptionList", ui->exceptionList->toPlainText().split(";", QString::SkipEmptyParts));
 	cfg.endGroup();
 }
 
