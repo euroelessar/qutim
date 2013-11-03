@@ -69,14 +69,14 @@ private slots:
 	void onPriorityChanged(const int &oldPriority, const int &newPriority);
 private:
 	struct Node {
-		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
-		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
-		Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) {}
-		Node() : unit(NULL) {}
+		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) { priority = unit->property("priority").toInt(); }
+		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) { priority = unit->property("priority").toInt(); }
+		Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) { priority = unit->property("priority").toInt(); }
+		Node() : unit(NULL), priority(0) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
-		int priority = unit->property("priority").toInt();
-		
+		int priority;
+
 		bool operator <(const Node &o) const
 		{
 			int cmp = o.priority - priority;
