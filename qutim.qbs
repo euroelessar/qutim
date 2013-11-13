@@ -18,13 +18,19 @@ Project {
         else
             return "share";
     }
+    property string qutim_qml_path: "bin"
     property var pluginTags: {
         var tags = [ "desktop", "core" ];
         return tags.concat(qbs.targetOS);
     }
-
     property bool singleProfile: true
-    moduleSearchPaths: "modules"
+
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        qutim_qml_path: "bin/qutim.app/Contents/MacOs/qml"
+    }
+
+    qbsSearchPaths: "."
 
     references: [
         "core/3rdparty/3rdparty.qbs",

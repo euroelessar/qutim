@@ -30,7 +30,7 @@
 #include <qutim/buddy.h>
 #include <qutim/debug.h>
 #include <QBuffer>
-#import <GrowlApplicationBridge.h>
+#import <Growl/GrowlApplicationBridge.h>
 
 @interface GrowlInterface :NSObject <GrowlApplicationBridgeDelegate> {
 }
@@ -90,7 +90,7 @@ using namespace qutim_sdk_0_3;
 }
 
 -(void) ClickCallback {
-	qutim_sdk_0_3::debug() << "Growl notification clicked!";
+    qDebug() << "Growl notification clicked!";
 	return;
 }
 

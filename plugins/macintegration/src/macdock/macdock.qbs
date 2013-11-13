@@ -1,7 +1,7 @@
 import "../../../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    pluginTags: 'osx-todo'
+    pluginTags: 'osx'
     sourcePath: ""
 
     cpp.frameworks: [ "Cocoa" ]
