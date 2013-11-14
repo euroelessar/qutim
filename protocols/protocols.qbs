@@ -8,6 +8,8 @@ Project {
 
         Properties {
             vreen_qml_path: qutim_qml_path
+            vreen_lib_path: qutim_lib_path
+            vreen_libexec_path: qutim_libexec_path
             name: "vreen-imported"
         }
     }

@@ -5,7 +5,7 @@ Application {
 
     property bool installSoundTheme: true
 
-    destinationDirectory: "bin"
+    destinationDirectory: qutim_bin_path
     cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
@@ -13,7 +13,6 @@ Application {
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
-//    Depends { name: "deploy" }
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
     Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor === 5 }
     Depends { name: "Qt.declarative"; condition: project.declarativeUi }
@@ -33,16 +32,8 @@ Application {
     }
 
     Group {
-        name: "Mac-specific"
-        condition: qbs.targetOS.contains("osx")
-        fileTags: "plugins"
-//        prefix: deploy.pluginPath
-//        files: [
-//            "imageformats", "iconengines",
-//            //"crypto",
-//            "phonon_backend",
-//            "bearer", "codecs",
-//            "graphicssystems", "sqldrivers"
-//        ]
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: qutim_bin_path
     }
 }
