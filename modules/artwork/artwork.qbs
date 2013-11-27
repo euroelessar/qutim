@@ -4,7 +4,7 @@ import qbs.File
 
 Module {
     property string basePath
-    property string shareDir: project.shareDir
+    property string shareDir: qutim_share_path
 
     Rule {
         inputs: [ "artwork" ]

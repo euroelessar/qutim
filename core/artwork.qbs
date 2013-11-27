@@ -4,8 +4,9 @@ import qbs.File
 import qbs.TextFile
 
 Product {
-    type: "installed_content"
     name: "nameless-artwork"
+
+    type: [" installed_content" ]
 
     property bool installConfig: true
     property bool installSoundTheme: true
@@ -22,7 +23,8 @@ Product {
     Group {  // config files
         condition: installConfig
         fileTags: "install"
-        qbs.installDir: shareDir + "/config"
+        qbs.installDir: project.qutim_share_path + "/config"
+        qbs.install: true
         prefix: {
             if (qbs.targetOS.contains("osx"))
                 return "../config/mac/";
@@ -92,9 +94,11 @@ Product {
     }
 
     Group { // Mac tray icons
+        name: "TrayIcon [osx]"
         condition: installIcons && qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
-        qbs.installDir: shareDir + "/icons/qutim-default/scalable/status/"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/scalable/status/"
         files: "../artwork/icons/tray/MacOS/*.svg"
     }
 
@@ -109,6 +113,7 @@ Product {
     Group { // Ubuntu tray icons
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
+        qbs.install: true
         qbs.installDir: shareDir + "/icons/ubuntu-mono-light/scalable/status/"
         files: "../artwork/icons/tray/ubuntu-mono-light/*.svg"
     }
@@ -117,12 +122,14 @@ Product {
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/ubuntu-mono-dark/scalable/status/"
+        qbs.install: true
         files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
     Group {
         condition: qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
+        qbs.install: true
         qbs.installDir: "bin/qutim.app/Contents/Resources"
         files: ["qutim.icns", "qt.conf"]
     }
@@ -136,6 +143,7 @@ Product {
     Group {
         condition: qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
+        qbs.install: true
         qbs.installDir: "bin/qutim.app/Contents/Resources/qt_menu.nib/"
         prefix: Qt.core.libPath + '/QtGui' + Qt.core.libInfix + '.framework/Versions/' + Qt.core.versionMajor + '/Resources/qt_menu.nib/'
         files: '*.nib'
