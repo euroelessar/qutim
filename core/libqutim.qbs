@@ -72,9 +72,9 @@ Framework {
                 flags = flags.concat("-stdlib=libc++");
             return flags;
         }
-        cpp.linkFlags: {
+        cpp.linkerFlags: {
             var flags = base;
-            if (qbs.toolchain.contains("clang"))
+            if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
                 flags = flags.concat("-stdlib=libc++ -lcxxrt");
             return flags;
         }

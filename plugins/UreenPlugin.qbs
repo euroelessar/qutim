@@ -46,7 +46,7 @@ Product {
     }
 
     type: [ 'dynamiclibrary', 'installed_content' ]
-    name: FileInfo.fileName(sourceDirectory);
+    //name: sourceDirectory
     destinationDirectory: qutim_plugin_path
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=\"" + name + "\""]
     cpp.visibility: 'hidden'
