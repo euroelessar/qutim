@@ -20,7 +20,8 @@ Product {
     
     property string shareDir: artwork.shareDir
 
-    Group {  // config files
+    Group {
+        name: "config files"
         condition: installConfig
         fileTags: "install"
         qbs.installDir: project.qutim_share_path + "/config"
@@ -95,7 +96,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
         qbs.install: true
-        files: "../artwork/icons/humanity"
+        files: "../artwork/icons/humanity/"
     }
 
     Group { // Mac tray icons
