@@ -71,7 +71,7 @@ private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) { priority = unit->property("priority").toInt(); }
 		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) { priority = unit->property("priority").toInt(); }
-		Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) { priority = unit->property("priority").toInt(); }
+		Node(qutim_sdk_0_3::Buddy *u, int p) : title(u->title()), unit(u), priority(p) {}
 		Node() : unit(NULL), priority(0) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
