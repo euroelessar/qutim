@@ -32,19 +32,19 @@
 
 enum ContactItemRole
 {
-	BuddyRole = Qt::UserRole,
-	StatusRole,
-	ContactsCountRole,
-	OnlineContactsCountRole,
-	AvatarRole,
-	ItemTypeRole
+    BuddyRole = Qt::UserRole,
+    StatusRole,
+    ContactsCountRole,
+    OnlineContactsCountRole,
+    AvatarRole,
+    ItemTypeRole
 };
 Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 enum ContactItemType
 {
-	InvalidType = 0,
-	TagType = 100,
-	ContactType = 101
+    InvalidType = 0,
+    TagType = 100,
+    ContactType = 101
 };
 
 namespace Core
@@ -55,40 +55,41 @@ using namespace qutim_sdk_0_3;
 
 class ChatSessionModel : public QAbstractListModel
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit ChatSessionModel(ChatSessionImpl *parent = 0);
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addContact(qutim_sdk_0_3::Buddy *c);
-	void removeContact(qutim_sdk_0_3::Buddy *c);
+    explicit ChatSessionModel(ChatSessionImpl *parent = 0);
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    void addContact(qutim_sdk_0_3::Buddy *c);
+    void removeContact(qutim_sdk_0_3::Buddy *c);
 private slots:
-	void onNameChanged(const QString &title, const QString &oldTitle);
-	void onStatusChanged(const qutim_sdk_0_3::Status &status);
-	void onContactDestroyed(QObject *obj);
-	void onPriorityChanged(const int &oldPriority, const int &newPriority);
+    void onNameChanged(const QString &title, const QString &oldTitle);
+    void onStatusChanged(const qutim_sdk_0_3::Status &status);
+    void onContactDestroyed(QObject *obj);
+    void onPriorityChanged(const int &oldPriority, const int &newPriority);
 private:
-	struct Node {
-		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) { priority = unit->property("priority").toInt(); }
-		Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) { priority = unit->property("priority").toInt(); }
-		Node(qutim_sdk_0_3::Buddy *u, int p) : title(u->title()), unit(u), priority(p) {}
-		Node() : unit(NULL), priority(0) {}
-		QString title;
-		qutim_sdk_0_3::Buddy *unit;
-		int priority;
+    struct Node {
+        Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
+        Node(qutim_sdk_0_3::Buddy *u) : title(u->title()), unit(u) {}
+        Node(qutim_sdk_0_3::Buddy *u, const int &p) : title(u->title()), unit(u), priority(p) {}
+        Node() : unit(NULL) {}
+        QString title;
+        qutim_sdk_0_3::Buddy *unit;
+        int priority = unit->property("priority").toInt();
 
-		bool operator <(const Node &o) const
-		{
-			int cmp = o.priority - priority;
-			if (cmp == 0)
-				cmp = title.compare(o.title, Qt::CaseInsensitive);
-			return cmp < 0 || (cmp == 0 && unit < o.unit);
-		}
-	};
+        bool operator <(const Node &o) const
+        {
+            int cmp = o.priority - priority;
+            if (cmp == 0)
+                cmp = title.compare(o.title, Qt::CaseInsensitive);
+            return cmp < 0 || (cmp == 0 && unit < o.unit);
+        }
+    };
 
-	QList<Node> m_units;
+    QList<Node> m_units;
 };
 }
 }
 #endif // CHATSESSIONMODEL_H
+
 
