@@ -79,6 +79,7 @@ public:
 	};
 	
 	static JPGPSupport *instance();
+	static void drop();
 
 	bool isAvailable();
 	bool canAddKey() const;
@@ -118,6 +119,9 @@ private slots:
 private:
 	JPGPSupport();
 	~JPGPSupport();
+	JPGPSupport(const JPGPSupport &);
+	JPGPSupport& operator=(const JPGPSupport &);
+	static JPGPSupport *m_Instance;
 	void updateEncryptionAction(QObject *obj);
 	QString errorText(QCA::SecureMessage::Error error);
 

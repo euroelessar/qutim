@@ -40,6 +40,7 @@
 #include <QCoreApplication>
 #include <QtDebug>
 #include <QtConcurrentRun>
+#include <QMutex>
 
 Q_DECLARE_METATYPE(Jreen::Presence)
 
@@ -55,6 +56,8 @@ namespace Jabber
 {
 
 using namespace Jreen;
+
+JPGPSupport *JPGPSupport::m_Instance = 0;
 
 AssignPGPKeyActionGenerator::AssignPGPKeyActionGenerator(QObject *obj, const char *slot)
     : ActionGenerator(QIcon(), LocalizedString(), obj, slot)
@@ -118,9 +121,10 @@ public:
 	QHash<QString, QCA::SecureArray> passwords;
 	PasswordDialog *dialog;
 	QList<QPair<int, QCA::Event> > queue;
+	void keyStoreManagerStart();
 };
 
-static void keyStoreManagerStart()
+void JPGPSupportPrivate::keyStoreManagerStart()
 {
 	qDebug() << Q_FUNC_INFO << "begin";
 	QCA::KeyStoreManager::start();
@@ -142,10 +146,10 @@ JPGPSupport::JPGPSupport() : d_ptr(new JPGPSupportPrivate)
 	d->isAvailable = QCA::isSupported("openpgp");
 	
 	connect(&d->keyStoreManager, SIGNAL(busyFinished()),
-	        SLOT(onKeyStoreManagerLoaded()));
+			SLOT(onKeyStoreManagerLoaded()));
 	connect(&d->keyStoreManager, SIGNAL(keyStoreAvailable(QString)),
-	        SLOT(onKeyStoreAvailable(QString)));
-	QtConcurrent::run(keyStoreManagerStart);
+			SLOT(onKeyStoreAvailable(QString)));
+	d_func()->keyStoreManagerStart();
 	d->eventHandler = new QCA::EventHandler(this);
 	connect(d->eventHandler, SIGNAL(eventReady(int,QCA::Event)), SLOT(onEvent(int,QCA::Event)));
     d->eventHandler->start();
@@ -155,10 +159,28 @@ JPGPSupport::~JPGPSupport()
 {
 }
 
+void JPGPSupport::drop()
+{
+	 static QMutex mutex;
+	 mutex.lock();
+	 delete m_Instance;
+	 m_Instance = 0;
+	 mutex.unlock();
+ }
 JPGPSupport *JPGPSupport::instance()
 {
-	static JPGPSupport self;
-	return &self;
+	static QMutex mutex;
+	if (!m_Instance)
+	{
+		mutex.lock();
+
+		if (!m_Instance)
+			m_Instance = new JPGPSupport;
+
+		mutex.unlock();
+	}
+
+	return m_Instance;
 }
 
 bool JPGPSupport::isAvailable()
