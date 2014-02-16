@@ -40,6 +40,8 @@
 #include <QCoreApplication>
 #include <QtDebug>
 #include <QtConcurrentRun>
+#include <QMutex>
+#include <QMutexLocker>
 
 Q_DECLARE_METATYPE(Jreen::Presence)
 
@@ -120,13 +122,6 @@ public:
 	QList<QPair<int, QCA::Event> > queue;
 };
 
-static void keyStoreManagerStart()
-{
-	qDebug() << Q_FUNC_INFO << "begin";
-	QCA::KeyStoreManager::start();
-	qDebug() << Q_FUNC_INFO << "end";
-}
-
 JPGPSupport::JPGPSupport() : d_ptr(new JPGPSupportPrivate)
 {
 	Q_D(JPGPSupport);
@@ -145,7 +140,7 @@ JPGPSupport::JPGPSupport() : d_ptr(new JPGPSupportPrivate)
 	        SLOT(onKeyStoreManagerLoaded()));
 	connect(&d->keyStoreManager, SIGNAL(keyStoreAvailable(QString)),
 	        SLOT(onKeyStoreAvailable(QString)));
-	QtConcurrent::run(keyStoreManagerStart);
+	QCA::KeyStoreManager::start();
 	d->eventHandler = new QCA::EventHandler(this);
 	connect(d->eventHandler, SIGNAL(eventReady(int,QCA::Event)), SLOT(onEvent(int,QCA::Event)));
     d->eventHandler->start();
@@ -155,10 +150,36 @@ JPGPSupport::~JPGPSupport()
 {
 }
 
+namespace JPGPSupportSelf {
+
+static QMutex mutex;
+static JPGPSupport *instance = NULL;
+
+void cleanup()
+{
+	QMutexLocker locker(&mutex);
+	delete instance;
+	instance = NULL;
+}
+
+JPGPSupport *ensure()
+{
+	if (!instance) {
+		QMutexLocker locker(&mutex);
+		if (!instance) {
+			instance = new JPGPSupport;
+			qAddPostRoutine(cleanup);
+		}
+	}
+
+	return instance;
+}
+
+}
+
 JPGPSupport *JPGPSupport::instance()
 {
-	static JPGPSupport self;
-	return &self;
+	return JPGPSupportSelf::ensure();
 }
 
 bool JPGPSupport::isAvailable()
