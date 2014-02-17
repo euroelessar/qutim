@@ -115,7 +115,7 @@ private slots:
 	void onKeyDialogAccepted();
 	void onKeysUpdated();
 
-private:
+protected:
 	JPGPSupport();
 	~JPGPSupport();
 	void updateEncryptionAction(QObject *obj);

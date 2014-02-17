@@ -152,8 +152,15 @@ JPGPSupport::~JPGPSupport()
 
 namespace JPGPSupportSelf {
 
+class JPGPSupportImpl : public JPGPSupport
+{
+public:
+	JPGPSupportImpl() {}
+	~JPGPSupportImpl() {}
+};
+
 static QMutex mutex;
-static JPGPSupport *instance = NULL;
+static JPGPSupportImpl *instance = NULL;
 
 void cleanup()
 {
@@ -167,7 +174,7 @@ JPGPSupport *ensure()
 	if (!instance) {
 		QMutexLocker locker(&mutex);
 		if (!instance) {
-			instance = new JPGPSupport;
+			instance = new JPGPSupportImpl;
 			qAddPostRoutine(cleanup);
 		}
 	}
