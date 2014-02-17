@@ -1,3 +1,17 @@
+Version 0.3.2:
+	* Fixed a LOT of errors
+	* Removed a LOT of memory leaks
+	* Added Yandex Rich Content API support to URL Preview
+	* Added Yandex.Disk support instead of Yandex.Narod
+	* Added AutoPaster plugin
+	* Added sorting of conference participants by their role
+	* Added ability to tune font settings for roster
+	* Added new icons for mostly everything
+	* Added context search in chat window
+	* Added "Nuvo" chat style
+	* Added "QIPish" chat style
+	* Changed chat tabs' highlighting behaviour
+
 Version 0.3.1:
 	* Added PGP support
 	* Added OTR support
