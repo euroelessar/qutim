@@ -4,8 +4,8 @@ Project {
     name: "qutIM"
 
     property string qutim_version_major: '0'
-    property string qutim_version_minor: '3'
-    property string qutim_version_release: '2'
+    property string qutim_version_minor: '4'
+    property string qutim_version_release: '0'
     property string qutim_version_patch: '0'
     property string qutim_version: qutim_version_major + '.' + qutim_version_minor + '.' + qutim_version_release + '.' + qutim_version_patch
     property bool declarativeUi: false
