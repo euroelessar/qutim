@@ -107,13 +107,28 @@ Product {
                 var data = JSON.parse(file.readAll());
                 file = new TextFile(templateFilePath, TextFile.ReadOnly);
                 var template = file.readAll();
+
+                var includeQmlTypes = "";
+                var registerQmlTypes = "";
+
+                if (data.qmlTypes) {
+                    for (var header in data.qmlTypes) {
+                        var source = data.qmlTypes[header];
+
+                        includeQmlTypes += '#include "' + inputFilePath + "/" + header + '"\n'
+                        registerQmlTypes += source + '\n';
+                    }
+                }
+
                 var variables = [
                     { from: "productName", to: productName },
                     { from: "pluginIcon", to: data.pluginIcon },
                     { from: "pluginName", to: data.pluginName },
                     { from: "pluginDescription", to: data.pluginDescription },
                     { from: "extensionHeader", to: inputFilePath + "/" + data.extensionHeader },
-                    { from: "extensionClass", to: data.extensionClass }
+                    { from: "extensionClass", to: data.extensionClass },
+                    { from: "includeQmlTypes", to: includeQmlTypes },
+                    { from: "registerQmlTypes", to: registerQmlTypes },
                 ];
                 for (var i = 0; i < variables.length; ++i) {
                     var from = variables[i].from;

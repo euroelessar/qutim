@@ -29,12 +29,13 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/menucontroller.h>
+#include <qutim/thememanager.h>
 
 namespace Core
 {
 using namespace qutim_sdk_0_3;
 
-SimpleAboutCreator::SimpleAboutCreator()
+SimpleAboutCreator::SimpleAboutCreator() : m_engine(new QQmlEngine(this))
 {
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
 		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),
@@ -54,13 +55,17 @@ SimpleAboutCreator::~SimpleAboutCreator()
 
 void SimpleAboutCreator::showWidget()
 {
-	if (m_widget) {
-		m_widget.data()->show();
-		m_widget.data()->raise();
-		return;
+	if (!m_component) {
+		QString themeName = QStringLiteral("default");
+	    QString themePath = ThemeManager::path(QStringLiteral("qml/simpleabout"), themeName);
+	    QString fileName = themePath + QStringLiteral("/main.qml");
+
+		m_component.reset(new QQmlComponent(m_engine, fileName));
 	}
-	m_widget = new SimpleAboutDialog();
-	m_widget.data()->show();
+
+	if (!m_dialog) {
+		m_dialog = m_component->create();
+	}
 }
 }
 

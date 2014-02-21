@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2014 Ruslan Nigmatullin <euroelessar@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,75 +23,94 @@
 **
 ****************************************************************************/
 
-#include "simpleaboutdialog.h"
-#include "ui_simpleaboutdialog.h"
+#include "aboutinfo.h"
+#include <qqml.h>
 #include <qutim/plugin.h>
-#include <qutim/debug.h>
-#include <QHash>
 #include <QFile>
-#include <QRegExp>
+
+namespace Core {
+namespace SimpleAbout {
 
 using namespace qutim_sdk_0_3;
 
-namespace Core
+AboutInfo::AboutInfo(QObject *parent) :
+    QObject(parent)
 {
-SimpleAboutDialog::SimpleAboutDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::SimpleAboutDialog)
+	QFile licenseFile(QStringLiteral(":/GPL"));
+	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		m_license = QString::fromUtf8(licenseFile.readAll()).toHtmlEscaped();
+		m_license.replace(QStringLiteral("\n\n"), QStringLiteral("<br><br>"));
+	} else {
+		m_license = QStringLiteral("<a href=\"http://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>");
+	}
+}
+
+QString AboutInfo::qutimVersion() const
 {
-	ui->setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose);
-	ui->texteditDevelopers->setHtml(toHtml(PersonInfo::authors(), true));
-	QList<PersonInfo> translators = PersonInfo::translators();
-	if (translators.isEmpty())
-		ui->tabWidget->removeTab(1);
-	else
-		ui->texteditTranslators->setHtml(toHtml(translators, false));
-	ui->labelVersion->setText(QLatin1String(versionString()));
-	ui->labelQtVer ->setText(tr("Based on Qt %1 (%2 bit).")
-	                         .arg(QLatin1String(qVersion()), QString::number(QSysInfo::WordSize)));
-	QFile licenseFile(":/GPL");
+	return QLatin1String(versionString());
+}
+
+QString AboutInfo::qtVersion() const
+{
+	return QLatin1String(qVersion());
+}
+
+int AboutInfo::wordSize() const
+{
+	return QSysInfo::WordSize;
+}
+
+QString AboutInfo::license() const
+{
 	QString license = tr("<div><b>qutIM</b> is licensed under GNU General Public License, version 3"
 								" or (at your option) any later version.</div>"
 								"<div>qutIM resources such as themes, icons, sounds may come along with a "
 								"different license.</div><br><hr><br>");
-	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		license += QString::fromUtf8(licenseFile.readAll()).toHtmlEscaped();
-	} else {
-		license += QLatin1String("<a href=\"http://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>");
-	}
-	license.replace(QLatin1String("\n\n"), "<br><br>");
-	ui->texteditLicense->setHtml(license);
+	return license + m_license;
 }
 
-QString SimpleAboutDialog::toHtml(const QList<PersonInfo> &persons, bool useTask)
+QString AboutInfo::developers() const
+{
+	return toHtml(PersonInfo::authors(), true);
+}
+
+QString AboutInfo::translators() const
+{
+	QString result = toHtml(PersonInfo::translators(), false);
+	if (result.isEmpty())
+		return QStringLiteral("Sorry, it is untranslated version :(");
+	return result;
+}
+
+QString AboutInfo::toHtml(const QList<PersonInfo> &persons, bool useTask) const
 {
 	QString html;
 	for (int i = 0; i < persons.size(); i++) {
 		const PersonInfo &info = persons.at(i);
-		html += QLatin1String("<p><div><b>");
+		html += QStringLiteral("<p><div><b>");
 		html += info.name().toString().toHtmlEscaped();
-		html += QLatin1String("</b>");
+		html += QStringLiteral("</b>");
 		if (useTask) {
-			html += QLatin1String("</div><div>");
+			html += QStringLiteral("</div><div>");
 			html += info.task().toString().toHtmlEscaped();
 		}
-		html += QLatin1String("</div>");
+		html += QStringLiteral("</div>");
 		if (!info.email().isEmpty()) {
-			html += QLatin1String("<div><a href=\"mailto:\"");
+			html += QStringLiteral("<div><a href=\"mailto:\"");
 			html += info.email().toHtmlEscaped();
-			html += QLatin1String("\">");
+			html += QStringLiteral("\">");
 			html += info.email().toHtmlEscaped();
-			html += QLatin1String("</a></div>");
+			html += QStringLiteral("</a></div>");
 		}
-		html += QLatin1String("</p>");
+		html += QStringLiteral("</p>");
 	}
 	return html;
 }
 
-SimpleAboutDialog::~SimpleAboutDialog()
+void registerTypes()
 {
-	delete ui;
-}
+    qmlRegisterType<AboutInfo>("org.qutim.simpleabout", 0, 4, "AboutInfo");
 }
 
+} // namespace SimpleAbout
+} // namespace Core
