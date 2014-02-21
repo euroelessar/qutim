@@ -18,7 +18,8 @@ Application {
     Depends { name: "Qt.declarative"; condition: project.declarativeUi }
 	
     files: [
-        "main.cpp"
+        "main.cpp",
+        "qutim.qrc"
     ]
 
     Group {
