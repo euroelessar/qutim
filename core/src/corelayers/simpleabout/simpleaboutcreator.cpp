@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "simpleaboutcreator.h"
-#include "simpleaboutdialog.h"
 #include <qutim/servicemanager.h>
 #include <qutim/icon.h>
 #include <qutim/debug.h>
