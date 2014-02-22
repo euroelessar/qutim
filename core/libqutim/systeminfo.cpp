@@ -41,10 +41,6 @@
 #include <QDebug>
 #include <QLibrary>
 
-#ifdef Q_OS_SYMBIAN
-#include <QTextCodec>
-#endif
-
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <time.h>
 #include <stdlib.h>
@@ -102,8 +98,6 @@ struct SystemInfoPrivate
 	QString os_version;
 	quint8 os_type_id;
 	quint32 os_version_id;
-	QString timezone_str;
-	int timezone_offset;
 	QVector<QDir> dirs;
 };
 
@@ -304,8 +298,6 @@ SystemInfo::~SystemInfo()
 SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 {
     auto d = this;
-	//		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
-	//		d->timezone_offset = tmp_datetime.utcOffset();
 	// Initialize
 	d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 	d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
@@ -316,8 +308,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 #else
 # error QUTIM_SHARE_DIR undefined!
 #endif
-	d->timezone_offset = 0;
-	d->timezone_str = "N/A";
 	d->os_full = "Unknown";
 #if defined(Q_OS_WINCE)
 	d->os_type_id = SystemInfo::WinCE;
@@ -335,39 +325,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_type_id = '\0';
 #endif
 	d->os_version_id = 0;
-
-	// Detect
-#ifdef Q_OS_UNIX
-	time_t x;
-	time(&x);
-	char str[256];
-	char fmt[32];
-	strcpy(fmt, "%z");
-	strftime(str, 256, fmt, localtime(&x));
-	if(strcmp(fmt, str)) {
-		int offset;
-		QString s = str;
-		if(s.at(0) == '+')
-		{
-			s.remove(0,1);
-			offset = 1;
-		}
-		else if(s.at(0) == '-')
-		{
-			s.remove(0,1);
-			offset = -1;
-		}
-		else
-			offset = 1;
-		int tmp = s.toInt();
-		offset *= (tmp/100)*60 + tmp%100;
-		d->timezone_offset = offset;
-	}
-	strcpy(fmt, "%Z");
-	strftime(str, 256, fmt, localtime(&x));
-	if(strcmp(fmt, str))
-		d->timezone_str = str;
-#endif
 
 #if defined(Q_OS_FREEBSD)
 	QProcess processUname;
@@ -447,22 +404,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 #endif
 
 #if defined(Q_OS_WIN)
-	TIME_ZONE_INFORMATION i;
-	//GetTimeZoneInformation(&i);
-	//d->timezone_offset = (-i.Bias) / 60;
-	memset(&i, 0, sizeof(i));
-	bool inDST = (GetTimeZoneInformation(&i) == TIME_ZONE_ID_DAYLIGHT);
-	int bias = i.Bias;
-	if(inDST)
-		bias += i.DaylightBias;
-	d->timezone_offset = -bias;
-	d->timezone_str = "";
-	for(int n = 0; n < 32; ++n) {
-		int w = inDST ? i.DaylightName[n] : i.StandardName[n];
-		if(w == 0)
-			break;
-		d->timezone_str += QChar(w);
-	}
 	d->os_full = QString();
 	d->os_name = QLatin1String("Windows");
 	OSVERSIONINFOEX osvi;
@@ -650,18 +591,6 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 		str = "Unknown";
 	}
 	return str;
-}
-
-QString SystemInfo::getTimezone()
-{
-	Q_D(SystemInfo);
-	return d->timezone_str;
-}
-
-int SystemInfo::getTimezoneOffset()
-{
-	Q_D(SystemInfo);
-	return d->timezone_offset;
 }
 
 QDir SystemInfo::getDir(DirType type)
