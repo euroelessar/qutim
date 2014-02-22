@@ -31,7 +31,8 @@ import glob
 import re
 import subprocess
 
-def ensure_command(commands):
+
+def ensure_command(*commands):
     for command in commands:
         try:
             subprocess.check_call([command, '--help'])
@@ -41,26 +42,27 @@ def ensure_command(commands):
         except:
             pass
         
-    raise Exception, 'Executable not found'
+    raise RuntimeError('Executables not found: {}'.format(commands))
 
-lupdate = ensure_command(['lupdate-qt5', 'lupdate'])
-lconvert = ensure_command(['lconvert-qt5', 'lconvert'])
-msgmerge = ensure_command(['msgmerge'])
+
+lupdate = ensure_command('lupdate-qt5', 'lupdate')
+lconvert = ensure_command('lconvert-qt5', 'lconvert')
+msgmerge = ensure_command('msgmerge')
 
 modules = [('core', 'core')]
 modules += map(lambda module: ('plugins/' + module, module), os.listdir('plugins'))
 modules += map(lambda module: ('protocols/' + module, module), os.listdir('protocols'))
-modules = filter(lambda module: os.path.isdir(module[0]) & os.path.exists(module[0] + '/' + module[1] + '.qbs'), modules)
+modules = filter(lambda module: os.path.isdir(module[0]) and os.path.exists(os.path.join(module[0], module[1] + '.qbs')), modules)
 
 files_to_remove = set()
 
+
 def write_string(path, context, strings):
-    global files_to_remove
-    
     with open(path, "w") as f:
         files_to_remove.add(path)
-        cpp_strings = map(lambda x: 'Qt::translate("{0}", "{1}");\n'.format(context, x), strings)
-        f.writelines(cpp_strings)
+        for x in strings:
+            f.write('Qt::translate("{0}", "{1}");\n'.format(context, x))
+
 
 strings = set()
 
@@ -71,7 +73,7 @@ for resource in glob.glob("core/share/qutim/webkitstyle/*/Contents/Resources/*.j
                 if 'label' in item:
                     strings.add(item['label'])
         except Exception as e:
-            print '{0}: {1}'.format(resource, e)
+            print '[ERROR] {0}: {1}'.format(resource, e)
         
 write_string('plugins/adiumwebview/__custom_json_from_styles.cpp', 'Style', strings)
 
@@ -130,7 +132,7 @@ for module in modules:
                 if label in data:
                     strings.add(data[label])
                     
-    if len(strings) > 0:
+    if strings:
         write_string(os.path.join(module[0], '__data_from_plugin_json.cpp'), 'Plugin', strings)
         
     module_path = os.path.join('translations/modules', module[1])
@@ -144,7 +146,6 @@ for module in modules:
     subprocess.call([lupdate, '-extensions', 'h,cpp,mm,js,c,ui,qml', '-locations', 'relative', module[0], '-ts', ts_file])
     subprocess.call([lconvert, '-i', ts_file, '-o', pot_file])
     
-    global files_to_remove
     files_to_remove.add(ts_file)
     
     for po_file in glob.glob(os.path.join(module_path, '*.po')):
@@ -154,4 +155,3 @@ for module in modules:
 
 for file in files_to_remove:
     os.remove(file)
-
