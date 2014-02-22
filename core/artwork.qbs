@@ -4,7 +4,7 @@ import qbs.File
 import qbs.TextFile
 
 Product {
-    name: "nameless-artwork"
+    name: "artwork"
 
     type: [" installed_content" ]
 
@@ -16,9 +16,8 @@ Product {
     property string qutim_version: project.qutim_version
 
     Depends { name: "Qt.core" }
-    Depends { name: "artwork" }
     
-    property string shareDir: artwork.shareDir
+    property string shareDir: project.qutim_share_path
 
     Group {
         name: "config files"

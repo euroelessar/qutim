@@ -7,14 +7,12 @@ UreenPlugin {
     Depends { name: "vreenoauth" }
     Depends { name: "Qt.declarative" }
     Depends { name: "Qt.webkit" }
-    Depends { name: "artwork" }
 
     cpp.includePaths: ["src"]
 
     Group {
-        fileTags: [ "artwork" ]
-        artwork.basePath: "share"
-        prefix: "share/vphotoalbum/"
-        files: '**'
+        files: "share/vphotoalbum"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path
     }
 }

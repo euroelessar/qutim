@@ -25,7 +25,7 @@ Project {
     property string qutim_bin_path: "bin"
     property string qutim_lib_path: "lib"
     property string qutim_libexec_path: {
-        if (qbs.targetOS === 'windows')
+        if (qbs.targetOS.contains('windows'))
             return "bin";
         else
             return "lib";
@@ -38,6 +38,10 @@ Project {
         else
             return "share";
     }
+    
+    property string bin_path: qutim_bin_path
+    property string lib_path: qutim_libexec_path
+    property string qml_path: qutim_share_path + '/qml'
 
     property var pluginTags: {
         var tags = [ "desktop", "core" ];
