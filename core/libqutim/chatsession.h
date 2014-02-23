@@ -46,12 +46,13 @@ class LIBQUTIM_EXPORT ChatSession : public QObject
 	Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
 	Q_PROPERTY(QDateTime dateOpened READ dateOpened WRITE setDateOpened NOTIFY dateOpenedChanged)
+	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *unit READ unit WRITE setChatUnit NOTIFY unitChanged)
 public:
 	virtual ~ChatSession();
 	
 	virtual ChatUnit *getUnit() const = 0;
-	Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
-	Q_INVOKABLE virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
+	inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
+	virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
 	Q_INVOKABLE qint64 append(qutim_sdk_0_3::Message &message);
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
@@ -77,6 +78,7 @@ signals:
 	void contactAdded(qutim_sdk_0_3::Buddy *c);
 	void contactRemoved(qutim_sdk_0_3::Buddy *c);
 	void activated(bool active);
+	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
 	void unreadChanged(const qutim_sdk_0_3::MessageList &);
 protected:
 	ChatSession(ChatLayer *chat);

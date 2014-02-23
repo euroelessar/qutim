@@ -29,12 +29,13 @@
 #include <qutim/debug.h>
 #include <qutim/menucontroller.h>
 #include <qutim/thememanager.h>
+#include <qutim/declarativeview.h>
 
 namespace Core
 {
 using namespace qutim_sdk_0_3;
 
-SimpleAboutCreator::SimpleAboutCreator() : m_engine(new QQmlEngine(this))
+SimpleAboutCreator::SimpleAboutCreator() : m_engine(DeclarativeView::globalEngine())
 {
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
 		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),

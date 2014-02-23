@@ -27,6 +27,7 @@
 #define CORE_KINETICPOPUPS_BACKEND_H
 #include <qutim/notification.h>
 #include <QHash>
+#include <QQmlComponent>
 
 namespace qutim_sdk_0_3 {
 class SettingsItem;
@@ -47,13 +48,27 @@ public:
 	Backend();
 	virtual ~Backend();
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
+
+    static Backend *instance();
+
+    void removeNotification(qutim_sdk_0_3::Notification *notification);
+    QList<qutim_sdk_0_3::Notification *> notifications() const;
+
+signals:
+    void notificationAdded(qutim_sdk_0_3::Notification *notification);
+    void notificationRemoved(qutim_sdk_0_3::Notification *notification);
+
+protected:
+    void onNotificationFinished();
+
 protected slots:
-	void onPopupDestroyed(QObject *obj);
-	bool split(qutim_sdk_0_3::Notification *notify);
+	void onSettingsSaved();
+
 private:
-	WidgetPlacer *m_placer;
-	NotificationHash m_activeNotifyHash;
 	qutim_sdk_0_3::SettingsItem *m_item;
+	QQmlComponent m_component;
+	QScopedPointer<QObject> m_logic;
+    QList<qutim_sdk_0_3::Notification *> m_notifications;
 };
 
 } // namespace KineticPopups

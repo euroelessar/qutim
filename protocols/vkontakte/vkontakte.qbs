@@ -5,7 +5,7 @@ UreenPlugin {
 
     Depends { name: "vreen" }
     Depends { name: "vreenoauth" }
-    Depends { name: "Qt.declarative" }
+    Depends { name: "Qt.quick" }
     Depends { name: "Qt.webkit" }
 
     cpp.includePaths: ["src"]
