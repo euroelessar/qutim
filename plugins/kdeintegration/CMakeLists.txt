@@ -8,6 +8,8 @@ endif()
 
 include(KDE4Defaults)
 
+set(CMAKE_AUTOMOC true)
+
 add_definitions( ${KDE4_DEFINITIONS} )
 
 qutim_add_plugin(kdeintegration
