@@ -1,7 +1,7 @@
 import qbs.base 1.0
 
 Project {
-    moduleSearchPaths: [ "modules", "qbs/modules" ]
+    qbsSearchPaths: [ ".", "qbs" ]
 
     references: [
         "plugin.qbs",

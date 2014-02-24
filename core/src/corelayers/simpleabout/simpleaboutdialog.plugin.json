@@ -3,5 +3,8 @@
 	"pluginName": "Simple about dialog",
 	"pluginDescription": "Simple dialog about qutIM and it's authors",
 	"extensionHeader": "simpleaboutcreator.h",
-	"extensionClass": "Core::SimpleAboutCreator"
+	"extensionClass": "Core::SimpleAboutCreator",
+    "qmlTypes": {
+        "aboutinfo.h": "Core::SimpleAbout::registerTypes();"
+    }
 }

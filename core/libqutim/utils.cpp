@@ -32,6 +32,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QUrl>
+#include <QTimeZone>
 
 namespace qutim_sdk_0_3
 {
@@ -75,13 +76,14 @@ namespace qutim_sdk_0_3
 
 #define TRIM_LENGTH(NUM) \
 	while (length > NUM) { \
-	   finishStr(str, week_date, date, time, c, NUM); \
+	   finishStr(str, week_date, date, time, datetime, c, NUM); \
 	   length -= NUM; \
 	}
 
 	// TODO: On MacOS X use native methods
 	// http://unicode.org/reports/tr35/tr35-6.html#Date_Format_Patterns
-	inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date, const QTime &time, QChar c, int length)
+	inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date, const QTime &time,
+	                      const QDateTime &datetime, QChar c, int length)
 	{
 		if (length <= 0)
 			return;
@@ -221,19 +223,28 @@ namespace qutim_sdk_0_3
 		case L'A':
 			appendInt(str, QTime(0, 0).msecsTo(time), length);
 			break;
-		case L'v':
-			// I don't understand the difference
-		case L'z':
+		case L'v': {
+			const QTimeZone timeZone = datetime.timeZone();
+
 			if (length < 4)
-				str += qutim_sdk_0_3::SystemInfo::getTimezone();
+				str += timeZone.displayName(QTimeZone::GenericTime, QTimeZone::ShortName);
 			else
-				// There should be localized name, but I don't know how get it
-				str += qutim_sdk_0_3::SystemInfo::getTimezone();
+				str += timeZone.displayName(QTimeZone::GenericTime, QTimeZone::LongName);
 			break;
+		}
+		case L'z': {
+			const QTimeZone timeZone = datetime.timeZone();
+
+			if (length < 4)
+				str += timeZone.displayName(datetime, QTimeZone::ShortName);
+			else
+				str += timeZone.displayName(datetime, QTimeZone::LongName);
+			break;
+		}
 		case L'Z': {
 				if (length == 4)
-					str += QLatin1String("GMT");
-				int offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
+					str += QStringLiteral("GMT");
+				const int offset = datetime.offsetFromUtc() / 60;
 				if (offset < 0)
 					str += QLatin1Char('+');
 				else
@@ -326,12 +337,13 @@ namespace qutim_sdk_0_3
 					case L'Y':
 						appendInt(str, date.year(), length > 0 ? length : 4);
 						break;
-					case L'Z':
-						// It should be localized, isn't it?..
-						appendStr(str, SystemInfo::getTimezone(), length);
+					case L'Z': {
+						const QTimeZone timeZone = datetime.timeZone();
+						appendStr(str, timeZone.displayName(datetime, QTimeZone::LongName), length);
 						break;
+					}
 					case L'z': {
-						int offset = SystemInfo::getTimezoneOffset();
+						const int offset = datetime.offsetFromUtc() / 60;
 						appendInt(str, (offset/60)*100 + offset%60, length > 0 ? length : 4);
 						break;
 					}
@@ -356,6 +368,7 @@ namespace qutim_sdk_0_3
 			str = QString();
 		}
 		WeekDate week_date(date);
+		QTimeZone timeZone = datetime.timeZone();
 		QChar last;
 		QChar cur;
 		int length = 0;
@@ -369,7 +382,7 @@ namespace qutim_sdk_0_3
 					str += cur;
 				} else {
 					if (!quote)
-						finishStr(str, week_date, date, time, last, length);
+						finishStr(str, week_date, date, time, datetime, last, length);
 					quote = !quote;
 				}
 				length = 0;
@@ -379,7 +392,7 @@ namespace qutim_sdk_0_3
 				if (cur == last) {
 					length++;
 				} else {
-					finishStr(str, week_date, date, time, last, length);
+					finishStr(str, week_date, date, time, datetime, last, length);
 					length = 1;
 				}
 			}

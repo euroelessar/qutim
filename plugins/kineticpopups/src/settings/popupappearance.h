@@ -26,7 +26,6 @@
 #ifndef POPUPAPPEARANCE_H
 #define POPUPAPPEARANCE_H
 #include <QWidget>
-#include "../popupwidgets/quickpopupwidget.h"
 #include <qutim/settingswidget.h>
 
 namespace Ui

@@ -32,7 +32,7 @@
 #include <qutim/thememanager.h>
 #include <qutim/utils.h>
 
-#include <QDeclarativeContext>
+#include <QQmlContext>
 #include <QStringBuilder>
 
 #include <vcontact.h>
@@ -68,12 +68,10 @@ void VPhotoViewer::onViewPhotoTriggered(QObject *obj)
     QString filename =themePath % QLatin1Literal("/main.qml");
 
     view->setSource(QUrl::fromLocalFile(filename));
-    if (!view->status() == DeclarativeView::Ready) {
+    if (view->status() != DeclarativeView::Ready) {
         qWarning() << "Unable to load qml file";
         view->deleteLater();
     } else {
-        centerizeWidget(view);
-        SystemIntegration::show(view);
-        view->setAttribute(Qt::WA_DeleteOnClose);
+		view->show();
     }
 }

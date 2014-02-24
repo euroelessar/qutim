@@ -51,8 +51,6 @@ public:
 	static QString getFullName();
 	static QString getName();
 	static QString getVersion();
-	static QString getTimezone();
-	static int getTimezoneOffset();
 	static QDir getDir(DirType type);
 	static QString getPath(DirType type);
 	static quint32 getSystemVersionID();

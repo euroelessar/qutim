@@ -35,7 +35,11 @@ class JMUCUserPrivate : public JContactResourcePrivate
 {
 public:
 	JMUCUserPrivate(qutim_sdk_0_3::ChatUnit *c) :
-		JContactResourcePrivate(c) {}
+		JContactResourcePrivate(c) 
+	{
+		affiliation = MUCRoom::AffiliationNone;
+        	role = MUCRoom::RoleNone;	
+	}
 	QString avatar;
 	QStringRef hash;
 	MUCRoom::Affiliation affiliation;

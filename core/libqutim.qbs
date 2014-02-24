@@ -6,24 +6,18 @@ import "Framework.qbs" as Framework
 Framework {
     name: "libqutim"
 
-    property string versionMajor: project.qutim_version_major
-    property string versionMinor: project.qutim_version_minor
-    property string versionRelease: project.qutim_version_release
-    property string versionPatch: project.qutim_version_patch
-    property string version: project.qutim_version
-    property string shareDir: project.shareDir
+    property string versionMajor: qutim_version_major
+    property string versionMinor: qutim_version_minor
+    property string versionRelease: qutim_version_release
+    property string versionPatch: qutim_version_patch
+    property string version: qutim_version
+    property string shareDir: qutim_share_path
 
-    //Depends { name: "qutimscope" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
-    //Depends { name: "Qtdwm" }
     Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative', 'widgets' ] }
-
-    //Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
-    //Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
-    //Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets' ] }
 
     cpp.includePaths: [
         "libqutim",
@@ -34,7 +28,7 @@ Framework {
     cpp.staticLibraryPrefix: ""
     cpp.defines: {
         var sharePath = qbs.targetOS.contains("osx") ? "Resources/share"
-                                                     : shareDir;
+                                                     : qutim_share_path;
         var defines = [
                     "LIBQUTIM_LIBRARY",
                     "QUTIM_SHARE_DIR=\"" + sharePath + "\"",
@@ -63,9 +57,8 @@ Framework {
     //    }
 
     Export {
-        property string basePath
-
         Depends { name: "cpp" }
+
         cpp.includePaths: [
             product.buildDirectory + "/GeneratedFiles/libqutim/include",
             product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim",
@@ -79,9 +72,9 @@ Framework {
                 flags = flags.concat("-stdlib=libc++");
             return flags;
         }
-        cpp.linkFlags: {
+        cpp.linkerFlags: {
             var flags = base;
-            if (qbs.toolchain.contains("clang"))
+            if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
                 flags = flags.concat("-stdlib=libc++ -lcxxrt");
             return flags;
         }
@@ -170,7 +163,7 @@ Framework {
                 var inputFile = new TextFile(input.fileName, TextFile.ReadOnly);
                 var file = new TextFile(output.fileName, TextFile.WriteOnly);
                 file.truncate();
-                file.write("#include \"" + input.fileName + "\"\n"); //inputFile.readAll());
+                file.write("#include \"" + input.fileName + "\"\n");
                 file.close();
             }
             cmd.description = "generating " + FileInfo.fileName(output.fileName);

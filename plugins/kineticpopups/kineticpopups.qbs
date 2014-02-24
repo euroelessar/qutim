@@ -3,13 +3,11 @@ import "../UreenPlugin.qbs" as UreenPlugin
 UreenPlugin {
     type: [ "dynamiclibrary", "installed_content" ]
 
-    Depends { name: "Qt.declarative" }
-    Depends { name: "artwork" }
+    Depends { name: "Qt.quick" }
 
     Group {
-        fileTags: [ "artwork" ]
-        artwork.basePath: "src"
-        prefix: "src/quickpopup/"
-        files: "**"
+        files: "src/quickpopup"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path
     }
 }

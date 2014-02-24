@@ -45,16 +45,9 @@ Product {
         return hashCode(name);
     }
 
-    type: 'dynamiclibrary'
-    name: FileInfo.fileName(sourceDirectory);
-    destinationDirectory: {
-        if (qbs.targetOS.contains('osx'))
-            return "bin/qutim.app/Contents/PlugIns";
-        else if (qbs.targetOS.contains('windows'))
-            return "bin/plugins"
-        else
-            return "lib/qutim/plugins";
-    }
+    type: [ 'dynamiclibrary', 'installed_content' ]
+    //name: sourceDirectory
+    destinationDirectory: qutim_plugin_path
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=\"" + name + "\""]
     cpp.visibility: 'hidden'
     cpp.installNamePrefix: "@rpath/plugins/"
@@ -68,12 +61,17 @@ Product {
     Depends { name: "libqutim" }
 
     Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: qutim_plugin_path
+    }
+    Group {
         name: "Source"
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
     }
     Group {
-        name: "Mac-specific"
+        name: "ObjectiveC sources [osx]"
         condition: qbs.targetOS.concat("osx")
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
@@ -109,13 +107,28 @@ Product {
                 var data = JSON.parse(file.readAll());
                 file = new TextFile(templateFilePath, TextFile.ReadOnly);
                 var template = file.readAll();
+
+                var includeQmlTypes = "";
+                var registerQmlTypes = "";
+
+                if (data.qmlTypes) {
+                    for (var header in data.qmlTypes) {
+                        var source = data.qmlTypes[header];
+
+                        includeQmlTypes += '#include "' + inputFilePath + "/" + header + '"\n'
+                        registerQmlTypes += source + '\n';
+                    }
+                }
+
                 var variables = [
                     { from: "productName", to: productName },
                     { from: "pluginIcon", to: data.pluginIcon },
                     { from: "pluginName", to: data.pluginName },
                     { from: "pluginDescription", to: data.pluginDescription },
                     { from: "extensionHeader", to: inputFilePath + "/" + data.extensionHeader },
-                    { from: "extensionClass", to: data.extensionClass }
+                    { from: "extensionClass", to: data.extensionClass },
+                    { from: "includeQmlTypes", to: includeQmlTypes },
+                    { from: "registerQmlTypes", to: registerQmlTypes },
                 ];
                 for (var i = 0; i < variables.length; ++i) {
                     var from = variables[i].from;
