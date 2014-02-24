@@ -40,6 +40,41 @@ static const QString OTR_KEYS_FILE = "otr.keys";
 
 //-----------------------------------------------------------------------------
 
+// libotr 4.0 compat
+otrl_instag_t get_instag(OtrlUserState us, const char *accountname, const char *protocol) {
+    OtrlInsTag* instag_s = otrl_instag_find(us, accountname, protocol);
+    otrl_instag_t instag;
+    if(instag_s != NULL) {
+        instag = instag_s->instag;
+    } else {
+        instag = otrl_instag_get_new();
+        // Add instag
+        instag_s = new OtrlInsTag;
+        size_t len = strlen(accountname);
+        instag_s->accountname = new char[len];
+        strncpy(instag_s->accountname, accountname, len);
+        len = strlen(protocol);
+        instag_s->protocol = new char[len];
+        strncpy(instag_s->protocol, protocol, len);
+        instag_s->instag = instag;
+        instag_s->next = us->instag_root;
+        if(instag_s->next) {
+            instag_s->next->tous = &(instag_s->next);
+        }
+        instag_s->tous = &(us->instag_root);
+        us->instag_root = instag_s;
+    }
+    return instag;
+}
+
+ConnContext* otrl_context_find_v3(OtrlUserState us, const char *user,
+        const char *accountname, const char *protocol,
+        int add_if_missing, int *addedp,
+        void (*add_app_data)(void *data, ConnContext *context), void *data) {
+    otrl_instag_t instag = get_instag(us, accountname, protocol);
+    return otrl_context_find(us, user, accountname, protocol, instag, add_if_missing, addedp, add_app_data, data);
+}
+
 QString OtrInternal::otrlMessageTypeToString(const OtrlMessageType& type)
 {
     if (type == OTRL_MSGTYPE_NOTOTR)
@@ -110,17 +145,17 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
     m_uiOps.create_privkey = (OtrInternal::cb_create_privkey);
     m_uiOps.is_logged_in = (OtrInternal::cb_is_logged_in);
     m_uiOps.inject_message = (OtrInternal::cb_inject_message);
-    m_uiOps.notify = (OtrInternal::cb_notify);
-    m_uiOps.display_otr_message = (OtrInternal::cb_display_otr_message);
-    m_uiOps.update_context_list = (OtrInternal::cb_update_context_list);
-    m_uiOps.protocol_name = (OtrInternal::cb_protocol_name);
-    m_uiOps.protocol_name_free = (OtrInternal::cb_protocol_name_free);
+    //m_uiOps.notify = (OtrInternal::cb_notify);
+    //m_uiOps.display_otr_message = (OtrInternal::cb_display_otr_message);
+    //m_uiOps.update_context_list = (OtrInternal::cb_update_context_list);
+    //m_uiOps.protocol_name = (OtrInternal::cb_protocol_name);
+    //m_uiOps.protocol_name_free = (OtrInternal::cb_protocol_name_free);
     m_uiOps.new_fingerprint = (OtrInternal::cb_new_fingerprint);
     m_uiOps.write_fingerprints = (OtrInternal::cb_write_fingerprints);
     m_uiOps.gone_secure = (OtrInternal::cb_gone_secure);
     m_uiOps.gone_insecure = (OtrInternal::cb_gone_insecure);
     m_uiOps.still_secure = (OtrInternal::cb_still_secure);
-    m_uiOps.log_message = (OtrInternal::cb_log_message);
+    //m_uiOps.log_message = (OtrInternal::cb_log_message);
     m_uiOps.max_message_size = (OtrInternal::cb_max_message_size);
 
 #if not (OTRL_VERSION_MAJOR==3 && OTRL_VERSION_MINOR==0)
@@ -149,11 +184,13 @@ QString OtrInternal::encryptMessage(const QString& from, const QString& to,
     char* encMessage = NULL;
     gcry_error_t err;
 
+    otrl_instag_t instag = get_instag(m_userstate, from.toStdString().c_str(), protocol.toStdString().c_str());
+    ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
     err = otrl_message_sending(m_userstate, &m_uiOps, this,
                                from.toStdString().c_str(), protocol.toStdString().c_str(),
-                               to.toStdString().c_str(),
+                               to.toStdString().c_str(), instag,
                                message.toUtf8().data(),
-                               NULL, &encMessage, NULL, NULL);
+                               NULL, &encMessage, OTRL_FRAGMENT_SEND_ALL, &ctx, NULL, NULL);
     if (err != 0)
     {
         QMessageBox mb(QMessageBox::Critical, tr("qutim-otr"),
@@ -189,15 +226,17 @@ QString OtrInternal::decryptMessage(const QString& from, const QString& to,
     ConnContext *context = 0;
     NextExpectedSMP nextMsg;
 
+    ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
+
     ignoreMessage = otrl_message_receiving(m_userstate, &m_uiOps, this,
                                            to.toStdString().c_str(),
                                            protocol.toStdString().c_str(),
                                            from.toStdString().c_str(),
                                            cryptedMessage.toUtf8().data(),
                                            &newMessage,
-                                           &tlvs, NULL, NULL);
+                                           &tlvs, &ctx, NULL, NULL);
 
-    context = otrl_context_find( m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
+    context = otrl_context_find_v3( m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
 
 //    qDebug() << "[OTR] context fragment: " << QString(context->lastmessage);
 
@@ -504,9 +543,11 @@ void OtrInternal::startSession(const QString& account, const QString& jid, TreeM
 
 void OtrInternal::endSession(const QString& account, const QString& jid, TreeModelItem &item)
 {
+    otrl_instag_t instag = get_instag(m_userstate, account.toStdString().c_str(), item.m_protocol_name.toStdString().c_str());
     otrl_message_disconnect(m_userstate, &m_uiOps, this,
                             account.toStdString().c_str(), item.m_protocol_name.toStdString().c_str(),
-                            jid.toStdString().c_str());
+                            jid.toStdString().c_str(),
+                            instag);
 }
 
 //-----------------------------------------------------------------------------
@@ -515,7 +556,7 @@ OtrSupport::MessageState OtrInternal::getMessageState(const QString& thisJid,
                                                      const QString& remoteJid,
                                                      TreeModelItem &item)
 {
-    ConnContext* context = otrl_context_find(m_userstate,
+    ConnContext* context = otrl_context_find_v3(m_userstate,
                                              remoteJid.toStdString().c_str(),
                                              thisJid.toStdString().c_str(),
                                              item.m_protocol_name.toStdString().c_str(), false, NULL, NULL,
@@ -553,7 +594,7 @@ int OtrInternal::getMessageStateIntCode(const QString& thisJid,
     }
     else if (state == OtrSupport::MessageStateEncrypted)
     {
-        ConnContext* context = otrl_context_find(m_userstate,
+        ConnContext* context = otrl_context_find_v3(m_userstate,
                                                  remoteJid.toStdString().c_str(),
                                                  thisJid.toStdString().c_str(),
                                                  item.m_protocol_name.toStdString().c_str(), false, NULL, NULL,
@@ -583,7 +624,7 @@ QString OtrInternal::getMessageStateString(const QString& thisJid,
     }
     else if (state == OtrSupport::MessageStateEncrypted)
     {
-        ConnContext* context = otrl_context_find(m_userstate,
+        ConnContext* context = otrl_context_find_v3(m_userstate,
                                                  remoteJid.toStdString().c_str(),
                                                  thisJid.toStdString().c_str(),
                                                  item.m_protocol_name.toStdString().c_str(), false, NULL, NULL,
@@ -608,7 +649,7 @@ QString OtrInternal::getSessionId(const QString& thisJid,
                                   TreeModelItem &item)
 {
     ConnContext* context;
-    context = otrl_context_find(m_userstate, remoteJid.toStdString().c_str(),
+    context = otrl_context_find_v3(m_userstate, remoteJid.toStdString().c_str(),
                                 thisJid.toStdString().c_str(), item.m_protocol_name.toStdString().c_str(),
                                 false, NULL, NULL, NULL);
     if (context != NULL)
@@ -864,7 +905,7 @@ void OtrInternal::abortSMP(ConnContext *context, TreeModelItem &item)
 void OtrInternal::respondSMP(ConnContext *context, TreeModelItem &item, const QString &secret, bool initiate)
 {
     if( initiate ){
-            context = otrl_context_find( m_userstate, item.m_item_name.toAscii(), item.m_account_name.toAscii(), item.m_protocol_name.toAscii(), 0, NULL, NULL, NULL);
+           context = otrl_context_find_v3( m_userstate, item.m_item_name.toAscii(), item.m_account_name.toAscii(), item.m_protocol_name.toAscii(), 0, NULL, NULL, NULL);
             otrl_message_initiate_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toAscii().data(), secret.toAscii().count() );
     } else {
             otrl_message_respond_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toAscii().data(), secret.toAscii().count());
@@ -907,7 +948,8 @@ void OtrInternal::requestAuth(TreeModelItem &item, bool agree, QString answer, Q
     }
     if(!found)
         return;
-    ConnContext *context = otrl_context_find(m_userstate,item.m_item_name.toAscii().data(),item.m_account_name.toAscii().data(),item.m_protocol_name.toAscii().data(),0,NULL,NULL,NULL);
+
+    ConnContext *context = otrl_context_find_v3(m_userstate,item.m_item_name.toAscii().data(),item.m_account_name.toAscii().data(),item.m_protocol_name.toAscii().data(),0,NULL,NULL,NULL);
     if(!context)
         return;
     if(!question.isNull())
