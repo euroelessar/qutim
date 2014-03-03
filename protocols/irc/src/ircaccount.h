@@ -80,6 +80,7 @@ public:
 	bool isUserInputtedCommand(const QString &command, bool clearCommand = false);
 	IrcGroupChatManager *groupChatManager();
 	static void registerLogMsgColor(const QString &type, const QString &color);
+	QList<QByteArray> splitMessage(const QString &prefix, const QString &text);
 signals:
 	void avatarChanged(const QString &avatar);
 	void settingsUpdated();

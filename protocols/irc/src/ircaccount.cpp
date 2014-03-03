@@ -33,6 +33,7 @@
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
 #include <QTime>
+#include <QTextCodec>
 
 namespace qutim_sdk_0_3 {
 
@@ -396,6 +397,48 @@ void IrcAccount::onContactNickChanged(const QString &nick, const QString &oldNic
 	d->contacts.remove(oldNick);
 	Q_ASSERT(contact->id() == nick);
 	d->contacts.insert(nick, contact);
+}
+
+QList<QByteArray> IrcAccount::splitMessage(const QString &prefix, const QString &text)
+{
+	const int lineLimit = 307;
+	const QByteArray bprefix = d->conn->codec()->fromUnicode(prefix);
+	QList<QByteArray> commands;
+	foreach (const QString &line, text.split(QLatin1Char('\n'))) {
+		int previousIndex = 0;
+		QScopedPointer<QTextEncoder> encoder(d->conn->codec()->makeEncoder());
+		QByteArray command = bprefix;
+		while (previousIndex < line.size()) {
+			int index = line.indexOf(QLatin1Char(' '), previousIndex + 1);
+			if (index == -1)
+				index = line.size();
+			const bool first = command.size() == bprefix.size();
+			QByteArray suffix;
+			bool overflow = false;
+			for (int i = previousIndex; i < index; ++i) {
+				QByteArray tmp = encoder->fromUnicode(line.constData() + i, 1);
+				if (command.size() + suffix.size() + tmp.size() > lineLimit) {
+					if (first) {
+						command += suffix;
+						previousIndex = i;
+					}
+					commands << command;
+					encoder.reset(d->conn->codec()->makeEncoder());
+					command = bprefix;
+					overflow = true;
+					break;
+				} else {
+					suffix += tmp;
+				}
+			}
+			if (overflow)
+				continue;
+			command += suffix;
+			previousIndex = index;
+		}
+		commands << command;
+	}
+	return commands;
 }
 
 } } // namespace qutim_sdk_0_3::irc

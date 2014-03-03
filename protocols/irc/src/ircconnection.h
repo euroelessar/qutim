@@ -73,6 +73,7 @@ public:
 	bool autoRequestWhois() const { return m_autoRequestWhois; }
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	QStringList supportedCtcpTags() { return m_ctcpHandlers.keys(); }
+	QTextCodec *codec() const { return m_codec; }
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
