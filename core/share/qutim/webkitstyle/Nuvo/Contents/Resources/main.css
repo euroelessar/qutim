@@ -148,3 +148,7 @@ div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDeli
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
+.yandex-rca-image:hover {
+	height: auto;
+	max-width: 100% !important;
+}
