@@ -30,6 +30,8 @@
 #include <qutim/buddy.h>
 #include <qutim/chatsession.h>
 #include <QtConcurrentRun>
+#include <QtDebug>
+#include <QInputDialog>
 
 using namespace qutim_sdk_0_3;
 
@@ -243,7 +245,7 @@ QString OtrInternal::decryptMessage(const QString& from, const QString& to,
     tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
     if( tlv ){
             sendCustomNessage(item,tr("%1 has ended the OTR session. You should do the same.")
-			                  .arg(Qt::escape(item.m_item_name)));
+			                  .arg(item.m_item_name.toHtmlEscaped()));
             gone_insecure(context);
     }
 
@@ -785,7 +787,7 @@ void OtrInternal::inject_message(const char *accountname,
                                  const char *protocol, const char *recipient,
                                  const char *message)
 {
-	debug() << "inject_message" << accountname << protocol << recipient << message;
+	qDebug() << "inject_message" << accountname << protocol << recipient << message;
     TreeModelItem item;
 	item.m_protocol_name = QString::fromUtf8(protocol);
 	item.m_account_name = QString::fromUtf8(accountname);
@@ -882,9 +884,9 @@ void OtrInternal::new_fingerprint(OtrlUserState us, const char *accountname,
     item.m_item_name = QString(username);
     item.m_item_type = 0;
     sendCustomNessage(item,tr("Account %1 has received new fingerprint from %2 :\n %3")
-	                  .arg(Qt::escape(accountname))
-	                  .arg(Qt::escape(username))
-	                  .arg(Qt::escape(fpHuman)));
+	                  .arg(item.m_account_name.toHtmlEscaped())
+	                  .arg(QString(username).toHtmlEscaped())
+	                  .arg(QString(fpHuman).toHtmlEscaped()));
 //    QMessageBox mb(QMessageBox::Information, tr("qutim-otr"),
 //                   tr("Account ") + QString(accountname) + tr(" has received new fingerprint from ")
 //                   + QString(username) + ":\n" + QString(fpHuman),
@@ -905,10 +907,10 @@ void OtrInternal::abortSMP(ConnContext *context, TreeModelItem &item)
 void OtrInternal::respondSMP(ConnContext *context, TreeModelItem &item, const QString &secret, bool initiate)
 {
     if( initiate ){
-           context = otrl_context_find_v3( m_userstate, item.m_item_name.toAscii(), item.m_account_name.toAscii(), item.m_protocol_name.toAscii(), 0, NULL, NULL, NULL);
-            otrl_message_initiate_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toAscii().data(), secret.toAscii().count() );
+           context = otrl_context_find_v3( m_userstate, item.m_item_name.toLatin1(), item.m_account_name.toLatin1(), item.m_protocol_name.toLatin1(), 0, NULL, NULL, NULL);
+            otrl_message_initiate_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toLatin1().data(), secret.toLatin1().count() );
     } else {
-            otrl_message_respond_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toAscii().data(), secret.toAscii().count());
+            otrl_message_respond_smp( m_userstate, &m_uiOps, this, context, (unsigned char*)secret.toLatin1().data(), secret.toLatin1().count());
     }
 
     sendCustomNessage(item,tr("Authenticating contact..."));
@@ -949,16 +951,16 @@ void OtrInternal::requestAuth(TreeModelItem &item, bool agree, QString answer, Q
     if(!found)
         return;
 
-    ConnContext *context = otrl_context_find_v3(m_userstate,item.m_item_name.toAscii().data(),item.m_account_name.toAscii().data(),item.m_protocol_name.toAscii().data(),0,NULL,NULL,NULL);
+    ConnContext *context = otrl_context_find_v3(m_userstate,item.m_item_name.toLatin1().data(),item.m_account_name.toLatin1().data(),item.m_protocol_name.toLatin1().data(),0,NULL,NULL,NULL);
     if(!context)
         return;
     if(!question.isNull())
     {
-        otrl_message_initiate_smp_q( m_userstate,&m_uiOps,this,context,question.toAscii(),(unsigned char *)answer.toAscii().data(),answer.toAscii().count());
+        otrl_message_initiate_smp_q( m_userstate,&m_uiOps,this,context,question.toLatin1(),(unsigned char *)answer.toLatin1().data(),answer.toLatin1().count());
     } else
         if(!answer.isNull())
         {
-        otrl_message_initiate_smp(m_userstate,&m_uiOps,this,context,(unsigned char *)answer.toAscii().data(),answer.toAscii().count());
+        otrl_message_initiate_smp(m_userstate,&m_uiOps,this,context,(unsigned char *)answer.toLatin1().data(),answer.toLatin1().count());
     } else    
 //        if(agree)
         {
@@ -1000,7 +1002,7 @@ void OtrInternal::still_secure(ConnContext *context, int is_reply)
 
 void OtrInternal::log_message(const char *message)
 {
-    debug() << "log_message: " << QString::fromUtf8(message);
+    qDebug() << "log_message: " << QString::fromUtf8(message);
 }
 
 int OtrInternal::max_message_size(ConnContext *context)

@@ -16,6 +16,7 @@
 #include <qutim/config.h>
 #include <qutim/icon.h>
 #include <qutim/contact.h>
+#include <QtDebug>
 
 using namespace qutim_sdk_0_3;
 
@@ -311,12 +312,12 @@ void OTRCrypt::onActionTriggered(QAction *action)
 	QVariant data = action->data();
 	if (data.userType() == qMetaTypeId<OtrPolicyActionInfo>()) {
 		OtrPolicyActionInfo info = data.value<OtrPolicyActionInfo>();
-		debug() << "setting policy:" << info.policy;
+		qDebug() << "setting policy:" << info.policy;
 		OtrClosure *closure = ensureClosure(info.unit);
 		closure->setPolicy(info.policy);
 	} else if (data.userType() == qMetaTypeId<OtrStateActionInfo>()) {
 		OtrStateActionInfo info = data.value<OtrStateActionInfo>();
-		debug() << "setting state:" << info.state;
+		qDebug() << "setting state:" << info.state;
 		OtrClosure *closure = ensureClosure(info.unit);
 	    switch (info.state) {
 	    case StartConversation:
@@ -335,7 +336,7 @@ void OTRCrypt::onActionTriggered(QAction *action)
 	        closure->fingerprint(true);
 	        break;
 	    default:
-	        debug() << "Wow, it is interesting!";
+	        qDebug() << "Wow, it is interesting!";
 	    }
 	}
 }
