@@ -109,3 +109,7 @@ a:active	{text-decoration: none;			color: #C80000;}
 	padding: 3px;
 	border: 1px solid #e6e6e6;
 }
+.yandex-rca-image:hover {
+	height: auto;
+	max-width: 100% !important;
+}
