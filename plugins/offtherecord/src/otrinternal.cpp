@@ -147,17 +147,12 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
     m_uiOps.create_privkey = (OtrInternal::cb_create_privkey);
     m_uiOps.is_logged_in = (OtrInternal::cb_is_logged_in);
     m_uiOps.inject_message = (OtrInternal::cb_inject_message);
-    //m_uiOps.notify = (OtrInternal::cb_notify);
-    //m_uiOps.display_otr_message = (OtrInternal::cb_display_otr_message);
-    //m_uiOps.update_context_list = (OtrInternal::cb_update_context_list);
-    //m_uiOps.protocol_name = (OtrInternal::cb_protocol_name);
-    //m_uiOps.protocol_name_free = (OtrInternal::cb_protocol_name_free);
+    m_uiOps.update_context_list = (OtrInternal::cb_update_context_list);
     m_uiOps.new_fingerprint = (OtrInternal::cb_new_fingerprint);
     m_uiOps.write_fingerprints = (OtrInternal::cb_write_fingerprints);
     m_uiOps.gone_secure = (OtrInternal::cb_gone_secure);
     m_uiOps.gone_insecure = (OtrInternal::cb_gone_insecure);
     m_uiOps.still_secure = (OtrInternal::cb_still_secure);
-    //m_uiOps.log_message = (OtrInternal::cb_log_message);
     m_uiOps.max_message_size = (OtrInternal::cb_max_message_size);
 
 #if not (OTRL_VERSION_MAJOR==3 && OTRL_VERSION_MINOR==0)
@@ -186,13 +181,14 @@ QString OtrInternal::encryptMessage(const QString& from, const QString& to,
     char* encMessage = NULL;
     gcry_error_t err;
 
-    otrl_instag_t instag = get_instag(m_userstate, from.toStdString().c_str(), protocol.toStdString().c_str());
-    ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
+    //otrl_instag_t instag = get_instag(m_userstate, from.toStdString().c_str(), protocol.toStdString().c_str());
+    //ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
+    //ConnContext* ctx = otrl_context_find(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
     err = otrl_message_sending(m_userstate, &m_uiOps, this,
                                from.toStdString().c_str(), protocol.toStdString().c_str(),
-                               to.toStdString().c_str(), instag,
+                               to.toStdString().c_str(), OTRL_INSTAG_BEST,
                                message.toUtf8().data(),
-                               NULL, &encMessage, OTRL_FRAGMENT_SEND_ALL, &ctx, NULL, NULL);
+                               NULL, &encMessage, OTRL_FRAGMENT_SEND_SKIP, NULL, NULL, NULL);
     if (err != 0)
     {
         QMessageBox mb(QMessageBox::Critical, tr("qutim-otr"),
@@ -1051,29 +1047,9 @@ void OtrInternal::cb_inject_message(void *opdata, const char *accountname, const
     static_cast<OtrInternal*>(opdata)->inject_message(accountname, protocol, recipient, message);
 }
 
-void OtrInternal::cb_notify(void *opdata, OtrlNotifyLevel level, const char *accountname, const char *protocol, const char *username, const char *title, const char *primary, const char *secondary) {
-    Q_ASSERT(opdata);
-    static_cast<OtrInternal*>(opdata)->notify(level, accountname, protocol, username, title, primary, secondary);
-}
-
-int OtrInternal::cb_display_otr_message(void *opdata, const char *accountname, const char *protocol, const char *username, const char *msg) {
-    Q_ASSERT(opdata);
-    return static_cast<OtrInternal*>(opdata)->display_otr_message(accountname, protocol, username, msg);
-}
-
 void OtrInternal::cb_update_context_list(void *opdata) {
     Q_ASSERT(opdata);
     static_cast<OtrInternal*>(opdata)->update_context_list();
-}
-
-const char* OtrInternal::cb_protocol_name(void *opdata, const char *protocol) {
-    Q_ASSERT(opdata);
-    return static_cast<OtrInternal*>(opdata)->protocol_name(protocol);
-}
-
-void OtrInternal::cb_protocol_name_free(void *opdata, const char *protocol_name) {
-    Q_ASSERT(opdata);
-    static_cast<OtrInternal*>(opdata)->protocol_name(protocol_name);
 }
 
 void OtrInternal::cb_new_fingerprint(void *opdata, OtrlUserState us, const char *accountname, const char *protocol, const char *username, unsigned char fingerprint[20]) {
@@ -1099,11 +1075,6 @@ void OtrInternal::cb_gone_insecure(void *opdata, ConnContext *context) {
 void OtrInternal::cb_still_secure(void *opdata, ConnContext *context, int is_reply) {
     Q_ASSERT(opdata);
     static_cast<OtrInternal*>(opdata)->still_secure(context, is_reply);
-}
-
-void OtrInternal::cb_log_message(void *opdata, const char *message) {
-    Q_ASSERT(opdata);
-    static_cast<OtrInternal*>(opdata)->log_message(message);
 }
 
 int OtrInternal::cb_max_message_size(void *opdata, ConnContext *context)
