@@ -39,11 +39,13 @@ using namespace qutim_sdk_0_3;
 
 static const QString OTR_FINGERPRINTS_FILE = "otr.fingerprints";
 static const QString OTR_KEYS_FILE = "otr.keys";
+static const QString OTR_INSTAG_FILE = "otr.instance";
 
 //-----------------------------------------------------------------------------
 
 // libotr 4.0 compat
-otrl_instag_t get_instag(OtrlUserState us, const char *accountname, const char *protocol) {
+otrl_instag_t get_instag(OtrlUserState us, const char *accountname, const char *protocol) 
+{
     OtrlInsTag* instag_s = otrl_instag_find(us, accountname, protocol);
     otrl_instag_t instag;
     if(instag_s != NULL) {
@@ -140,11 +142,13 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
 {
 	QDir shareDir = SystemInfo::getDir(SystemInfo::ConfigDir);
 	m_keysFile = shareDir.filePath(OTR_KEYS_FILE);
+	m_instagFile = shareDir.filePath(OTR_INSTAG_FILE);
 	m_fingerprintFile = shareDir.filePath(OTR_FINGERPRINTS_FILE);
     //m_userstate = otrl_userstate_create();
     m_userstate = userstate;
     m_uiOps.policy = (OtrInternal::cb_policy);
     m_uiOps.create_privkey = (OtrInternal::cb_create_privkey);
+    m_uiOps.create_instag = (OtrInternal::cb_create_instag);
     m_uiOps.is_logged_in = (OtrInternal::cb_is_logged_in);
     m_uiOps.inject_message = (OtrInternal::cb_inject_message);
     m_uiOps.update_context_list = (OtrInternal::cb_update_context_list);
@@ -164,6 +168,7 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
     otrl_privkey_read_fingerprints(m_userstate,
                                    m_fingerprintFile.toLocal8Bit().data(),
                                    NULL, NULL);
+    otrl_instag_read(m_userstate, m_keysFile.toLocal8Bit().data());
 }
 
 //-----------------------------------------------------------------------------
@@ -523,6 +528,10 @@ void OtrInternal::startSession(const QString& account, const QString& jid, TreeM
                                   account.toStdString().c_str(),
                                   item.m_protocol_name.toStdString().c_str()))
         return;
+    if(!otrl_instag_find(m_userstate, account.toStdString().c_str(), item.m_protocol_name.toStdString().c_str()))
+    {
+        create_instag(account.toStdString().c_str(), item.m_protocol_name.toStdString().c_str());
+    }
 
     //TODO: make allowed otr versions configureable
     char* msg = otrl_proto_default_query_msg(account.toStdString().c_str(),
@@ -758,6 +767,18 @@ void OtrInternal::create_privkey(const char *accountname,
     }
     infoMb.exec();
 
+}
+
+void OtrInternal::create_instag(const char *accountname,
+                                const char *protocol)
+{
+    Q_ASSERT(m_userstate);
+
+    QByteArray instag_file = m_instagFile.toLocal8Bit();
+    otrl_instag_generate(m_userstate,
+                         instag_file.constData(),
+                         accountname,
+                         protocol);
 }
 
 // ---------------------------------------------------------------------------
@@ -1035,6 +1056,11 @@ OtrlPolicy OtrInternal::cb_policy(void *opdata, ConnContext *context) {
 void OtrInternal::cb_create_privkey(void *opdata, const char *accountname, const char *protocol) {
     Q_ASSERT(opdata);
     static_cast<OtrInternal*>(opdata)->create_privkey(accountname, protocol);
+}
+
+void OtrInternal::cb_create_instag(void *opdata, const char *accountname, const char *protocol) {
+    Q_ASSERT(opdata);
+    static_cast<OtrInternal*>(opdata)->create_instag(accountname, protocol);
 }
 
 int OtrInternal::cb_is_logged_in(void *opdata, const char *accountname, const char *protocol, const char *recipient) {
