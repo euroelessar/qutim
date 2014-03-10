@@ -14,8 +14,15 @@ Project {
         }
     }
 
+    SubProject {
+        filePath: "jabber/jreen/jreen.qbs"
+
+        Properties {
+            name: "jreen-imported"
+        }
+    }
+
     references: [
-        "jabber/jreen/jreen.qbs",
         "jabber/jabber.qbs",
         "oscar/oscar.qbs",
         "irc/irc.qbs",
