@@ -51,22 +51,7 @@ otrl_instag_t get_instag(OtrlUserState us, const char *accountname, const char *
     if(instag_s != NULL) {
         instag = instag_s->instag;
     } else {
-        instag = otrl_instag_get_new();
-        // Add instag
-        instag_s = new OtrlInsTag;
-        size_t len = strlen(accountname);
-        instag_s->accountname = new char[len];
-        strncpy(instag_s->accountname, accountname, len);
-        len = strlen(protocol);
-        instag_s->protocol = new char[len];
-        strncpy(instag_s->protocol, protocol, len);
-        instag_s->instag = instag;
-        instag_s->next = us->instag_root;
-        if(instag_s->next) {
-            instag_s->next->tous = &(instag_s->next);
-        }
-        instag_s->tous = &(us->instag_root);
-        us->instag_root = instag_s;
+        instag = OTRL_INSTAG_BEST;
     }
     return instag;
 }
@@ -75,8 +60,7 @@ ConnContext* otrl_context_find_v3(OtrlUserState us, const char *user,
         const char *accountname, const char *protocol,
         int add_if_missing, int *addedp,
         void (*add_app_data)(void *data, ConnContext *context), void *data) {
-    otrl_instag_t instag = get_instag(us, accountname, protocol);
-    return otrl_context_find(us, user, accountname, protocol, instag, add_if_missing, addedp, add_app_data, data);
+    return otrl_context_find(us, user, accountname, protocol, OTRL_INSTAG_BEST, add_if_missing, addedp, add_app_data, data);
 }
 
 QString OtrInternal::otrlMessageTypeToString(const OtrlMessageType& type)
@@ -168,7 +152,7 @@ OtrInternal::OtrInternal(OtrSupport::Policy &policy,
     otrl_privkey_read_fingerprints(m_userstate,
                                    m_fingerprintFile.toLocal8Bit().data(),
                                    NULL, NULL);
-    otrl_instag_read(m_userstate, m_keysFile.toLocal8Bit().data());
+    otrl_instag_read(m_userstate, m_instagFile.toLocal8Bit().data());
 }
 
 //-----------------------------------------------------------------------------
@@ -186,9 +170,6 @@ QString OtrInternal::encryptMessage(const QString& from, const QString& to,
     char* encMessage = NULL;
     gcry_error_t err;
 
-    //otrl_instag_t instag = get_instag(m_userstate, from.toStdString().c_str(), protocol.toStdString().c_str());
-    //ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
-    //ConnContext* ctx = otrl_context_find(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
     err = otrl_message_sending(m_userstate, &m_uiOps, this,
                                from.toStdString().c_str(), protocol.toStdString().c_str(),
                                to.toStdString().c_str(), OTRL_INSTAG_BEST,
@@ -229,15 +210,13 @@ QString OtrInternal::decryptMessage(const QString& from, const QString& to,
     ConnContext *context = 0;
     NextExpectedSMP nextMsg;
 
-    ConnContext* ctx = otrl_context_find_v3(m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
-
     ignoreMessage = otrl_message_receiving(m_userstate, &m_uiOps, this,
                                            to.toStdString().c_str(),
                                            protocol.toStdString().c_str(),
                                            from.toStdString().c_str(),
                                            cryptedMessage.toUtf8().data(),
                                            &newMessage,
-                                           &tlvs, &ctx, NULL, NULL);
+                                           &tlvs, NULL, NULL, NULL);
 
     context = otrl_context_find_v3( m_userstate, from.toStdString().c_str(), to.toStdString().c_str(), protocol.toStdString().c_str(), 0, NULL, NULL, NULL);
 
