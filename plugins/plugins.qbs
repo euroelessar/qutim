@@ -21,6 +21,7 @@ Project {
         "massmessaging/massmessaging.qbs",
         "unreadmessageskeeper/unreadmessageskeeper.qbs",
         "weather/weather.qbs",
+        "yandexnarod/yandexnarod.qbs",
         "mobility/src/bearermanager/bearermanager.qbs",
         "urlpreview/urlpreview.qbs",
         "kineticpopups/kineticpopups.qbs",
