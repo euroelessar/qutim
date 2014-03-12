@@ -95,7 +95,7 @@ void OtrActionGenerator::createImpl(QAction *action, QObject *obj) const
 		{ OTRCrypt::tr("OTR disabled"),    OTRL_POLICY_NEVER },
 		{ OTRCrypt::tr("Manual"),          OTRL_POLICY_MANUAL },
 		{ OTRCrypt::tr("Auto"),            OTRL_POLICY_OPPORTUNISTIC },
-		{ OTRCrypt::tr("Force OTR"),       OTRL_POLICY_REQUIRE_ENCRYPTION }
+		{ OTRCrypt::tr("Force OTR"),       OTRL_POLICY_ALWAYS }
 	};
 	for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
 		QAction *action = info.group->addAction(types[i].text);
@@ -274,7 +274,7 @@ OtrMessaging *OTRCrypt::connectionForPolicy(int policy)
 		return m_connections[PolicyEnabled];
     case OTRL_POLICY_OPPORTUNISTIC:
 		return m_connections[PolicyAuto];
-    case OTRL_POLICY_REQUIRE_ENCRYPTION:
+    case OTRL_POLICY_ALWAYS:
 		return m_connections[PolicyRequire];
     default:
 		return m_connections.last();
