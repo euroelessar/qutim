@@ -30,31 +30,9 @@
 #include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <qqml.h>
-#include "notification.h"
+#include "systeminfo.h"
 
 namespace qutim_sdk_0_3 {
-
-class IconImageProvider: public QQuickImageProvider
-{
-public:
-	IconImageProvider()
-		: QQuickImageProvider(QQuickImageProvider::Pixmap)
-	{
-	}
-
-	QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
-	{
-		Q_UNUSED(size);
-		int pos = id.lastIndexOf('/');
-		QString iconName = id.right(id.length() - pos);
-		Icon icon = Icon(iconName);
-		if (size)
-			*size = QSize(128, 128);
-
-		int width = requestedSize.width() > 0 ? requestedSize.width() : size->width();
-		return icon.pixmap(width);
-	}
-};
 
 DeclarativeView::DeclarativeView(QWindow *parent) :
 	QQuickView(globalEngine(), parent)
@@ -69,14 +47,10 @@ static QPointer<QQmlEngine> staticGlobalEngine;
 
 QQmlEngine *DeclarativeView::globalEngine()
 {
-	if (!staticGlobalEngine) {
+    if (!staticGlobalEngine) {
 		staticGlobalEngine = new QQmlEngine();
-		staticGlobalEngine->addImageProvider("xdg", new IconImageProvider);
-        
-        qmlRegisterUncreatableType<Notification>("org.qutim", 0, 4,
-                                                 "Notification",
-                                                 QStringLiteral("Unable to create notification inside QtQuick"));
-	}
+        staticGlobalEngine->addImportPath(SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/imports"));
+    }
 
 	return staticGlobalEngine;
 }

@@ -1,0 +1,3 @@
+module org.qutim
+SettingsItem 0.4 SettingsItem.qml
+plugin qutimplugin

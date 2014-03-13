@@ -73,18 +73,21 @@ ApplicationWindow {
             }
             Label {
                 text: "<a href=\"http://qutim.org/\">http://qutim.org</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
             }
             Label {
                 text: qsTr("Source code repository:")
             }
             Label {
                 text: "<a href=\"http://github.com/euroelessar/qutim/\">http://github.com/euroelessar/qutim/</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
             }
             Label {
                 text: qsTr("Bug tracker:")
             }
             Label {
                 text: "<a href=\"http://trac.qutim.org/\">http://trac.qutim.org/</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
             }
         }
 

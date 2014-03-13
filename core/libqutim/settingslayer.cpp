@@ -38,9 +38,11 @@
 #include <QFileDialog>
 #include <QToolButton>
 #include <QSet>
+#include "systeminfo.h"
 #include "icon.h"
 #include "servicemanager.h"
 #include "systemintegration.h"
+#include "qmlsettingswidget_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -499,7 +501,60 @@ int SettingsItem::priority() const
 
 void SettingsItem::setPriority(int priority)
 {
-	d_ptr->priority = priority;
+    d_ptr->priority = priority;
+}
+
+class QmlSettingsGenerator : public ObjectGenerator
+{
+public:
+    QmlSettingsGenerator(const QString &name) : m_name(name)
+    {
+    }
+
+    const QMetaObject *metaObject() const
+    {
+        return &QmlSettingsWidget::staticMetaObject;
+    }
+
+    QList<QByteArray> interfaces() const
+    {
+        return QList<QByteArray>();
+    }
+
+protected:
+    QObject *generateHelper() const
+    {
+        return new QmlSettingsWidget(m_name);
+    }
+
+    void virtual_hook(int id, void *data)
+    {
+        Q_UNUSED(id);
+        Q_UNUSED(data);
+    }
+
+    QString m_name;
+};
+
+QmlSettingsItem::QmlSettingsItem(const QString &name, Settings::Type type, const QIcon &icon, const LocalizedString &text)
+    : SettingsItem(type, icon, text)
+{
+    d_ptr->gen = new QmlSettingsGenerator(name);
+}
+
+QmlSettingsItem::QmlSettingsItem(const QString &name, Settings::Type type, const LocalizedString &text)
+    : SettingsItem(type, text)
+{
+    d_ptr->gen = new QmlSettingsGenerator(name);
+}
+
+QmlSettingsItem::~QmlSettingsItem()
+{
+}
+
+const ObjectGenerator *QmlSettingsItem::generator() const
+{
+    return d_ptr->gen;
 }
 
 

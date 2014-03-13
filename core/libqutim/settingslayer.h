@@ -149,6 +149,18 @@ protected:
 	}
 };
 
+class QmlSettingsItemPrivate;
+class LIBQUTIM_EXPORT QmlSettingsItem : public SettingsItem
+{
+public:
+    QmlSettingsItem(const QString &name, Settings::Type type, const QIcon &icon, const LocalizedString &text);
+    QmlSettingsItem(const QString &name, Settings::Type type, const LocalizedString &text);
+    ~QmlSettingsItem();
+
+protected:
+	virtual const ObjectGenerator *generator() const;
+};
+
 class AutoSettingsItemPrivate;
 class LIBQUTIM_EXPORT AutoSettingsItem : public SettingsItem
 {
