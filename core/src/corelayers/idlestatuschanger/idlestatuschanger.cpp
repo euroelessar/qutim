@@ -24,7 +24,6 @@
 ****************************************************************************/
 #include "idle-global.h"
 #include "idlestatuschanger.h"
-#include "idlestatuswidget.h"
 #include <qutim/protocol.h>
 #include <qutim/config.h>
 #include <qutim/status.h>
@@ -32,8 +31,6 @@
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <QDebug>
-
-Core::IdleStatusChanger* pIdleStatusChanger = 0;
 
 namespace Core
 {
@@ -44,12 +41,13 @@ IdleStatusChanger::IdleStatusChanger() :
 	reloadSettings();
 	m_state = Active;
 	connect(idle, SIGNAL(secondsIdle(int)), this, SLOT(onIdle(int)));
-	SettingsItem* settings = new GeneralSettingsItem<IdleStatusWidget>(
+	SettingsItem *settings = new QmlSettingsItem(
+                QStringLiteral("idlestatuschanger"),
 				Settings::General,
 				Icon("user-away-extended"),
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
+    settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(settings);
-	pIdleStatusChanger = this;
 
 	m_awayStatus.setChangeReason(Status::ByIdle);
 	m_naStatus.setChangeReason(Status::ByIdle);
