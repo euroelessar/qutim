@@ -59,6 +59,7 @@ Project {
     references: [
         "core/3rdparty/3rdparty.qbs",
         "core/core.qbs",
+        "qml/qutimplugin.qbs",
         "core/src/corelayers/corelayers.qbs",
         "plugins/plugins.qbs",
         "protocols/protocols.qbs"

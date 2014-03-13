@@ -7,9 +7,9 @@ Item {
     property bool __loading: true
     
     function __save() {
-        __modified = false;
+        root.save();
         
-        root.load();
+        __modified = false;
     }
     
     function __load() {
