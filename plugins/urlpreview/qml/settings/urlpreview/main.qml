@@ -8,7 +8,7 @@ SettingsItem {
     
     Config {
         id: config
-        path: "urlpreview"
+        group: "urlPreview"
     }
     
     function save() {

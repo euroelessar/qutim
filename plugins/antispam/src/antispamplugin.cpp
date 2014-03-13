@@ -30,7 +30,6 @@
 #include "handler.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
-#include "settingswidget.h"
 
 namespace Antispam
 {
@@ -39,9 +38,11 @@ using namespace qutim_sdk_0_3;
 
 inline SettingsItem *item()
 {
-	static GeneralSettingsItem<SettingsWidget> item(Settings::Plugin,
-													Icon("mail-signature-unknown"),
-													QT_TRANSLATE_NOOP("Antispam", "Antispam"));
+	static QmlSettingsItem item(QStringLiteral("antispam"),
+								Settings::Plugin,
+								QIcon("mail-signature-unknown"),
+								QT_TRANSLATE_NOOP("Antispam", "Antispam"));
+
 	return &item;
 }
 
