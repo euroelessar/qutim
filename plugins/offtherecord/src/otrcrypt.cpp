@@ -16,6 +16,7 @@
 #include <qutim/config.h>
 #include <qutim/icon.h>
 #include <qutim/contact.h>
+#include <QtDebug>
 
 using namespace qutim_sdk_0_3;
 
@@ -94,7 +95,7 @@ void OtrActionGenerator::createImpl(QAction *action, QObject *obj) const
 		{ OTRCrypt::tr("OTR disabled"),    OTRL_POLICY_NEVER },
 		{ OTRCrypt::tr("Manual"),          OTRL_POLICY_MANUAL },
 		{ OTRCrypt::tr("Auto"),            OTRL_POLICY_OPPORTUNISTIC },
-		{ OTRCrypt::tr("Force OTR"),       OTRL_POLICY_REQUIRE_ENCRYPTION }
+		{ OTRCrypt::tr("Force OTR"),       OTRL_POLICY_ALWAYS }
 	};
 	for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
 		QAction *action = info.group->addAction(types[i].text);
@@ -273,7 +274,7 @@ OtrMessaging *OTRCrypt::connectionForPolicy(int policy)
 		return m_connections[PolicyEnabled];
     case OTRL_POLICY_OPPORTUNISTIC:
 		return m_connections[PolicyAuto];
-    case OTRL_POLICY_REQUIRE_ENCRYPTION:
+    case OTRL_POLICY_ALWAYS:
 		return m_connections[PolicyRequire];
     default:
 		return m_connections.last();
@@ -311,12 +312,12 @@ void OTRCrypt::onActionTriggered(QAction *action)
 	QVariant data = action->data();
 	if (data.userType() == qMetaTypeId<OtrPolicyActionInfo>()) {
 		OtrPolicyActionInfo info = data.value<OtrPolicyActionInfo>();
-		debug() << "setting policy:" << info.policy;
+		qDebug() << "setting policy:" << info.policy;
 		OtrClosure *closure = ensureClosure(info.unit);
 		closure->setPolicy(info.policy);
 	} else if (data.userType() == qMetaTypeId<OtrStateActionInfo>()) {
 		OtrStateActionInfo info = data.value<OtrStateActionInfo>();
-		debug() << "setting state:" << info.state;
+		qDebug() << "setting state:" << info.state;
 		OtrClosure *closure = ensureClosure(info.unit);
 	    switch (info.state) {
 	    case StartConversation:
@@ -335,7 +336,7 @@ void OTRCrypt::onActionTriggered(QAction *action)
 	        closure->fingerprint(true);
 	        break;
 	    default:
-	        debug() << "Wow, it is interesting!";
+	        qDebug() << "Wow, it is interesting!";
 	    }
 	}
 }
