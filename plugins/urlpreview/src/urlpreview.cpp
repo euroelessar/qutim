@@ -25,7 +25,6 @@
 ****************************************************************************/
 
 #include "urlpreview.h"
-#include "urlpreviewsettings.h"
 #include <qutim/debug.h>
 #include <qutim/config.h>
 #include <qutim/settingslayer.h>
@@ -49,7 +48,7 @@ void UrlPreviewPlugin::init()
 
 bool UrlPreviewPlugin::load()
 {
-	m_settingsItem = new GeneralSettingsItem<UrlPreviewSettings>(
+    m_settingsItem = new QmlSettingsItem(QStringLiteral("urlpreview"),
 				Settings::Plugin,	QIcon(),
 				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
 	Settings::registerItem(m_settingsItem);
