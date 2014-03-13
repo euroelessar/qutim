@@ -16,8 +16,8 @@ SettingsItem {
         config.setValue("na-enabled", naCheckBox.checked)
         config.setValue("away-secs", awaySpinBox.value * 60)
         config.setValue("na-secs", naSpinBox.value * 60)
-        config.setValue("away-text", "", awayTextBox.text)
-        config.setValue("na-text", "", naTextBox.text)
+        config.setValue("away-text", awayTextBox.text)
+        config.setValue("na-text", naTextBox.text)
     }
     
     function load() {
