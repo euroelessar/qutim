@@ -8,7 +8,7 @@ SettingsItem {
     
     Config {
         id: config
-        path: "autoreply"
+        path: "urlpreview"
     }
     
     function save() {
