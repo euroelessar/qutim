@@ -21,7 +21,7 @@ SettingsItem {
         config.setValue("HTML5Audio", html5AudioEdit.checked);
         config.setValue("HTML5Video", html5VideoEdit.checked);
         config.setValue("yandexRCA", yandexRCAEdit.checked);
-        config.setValue("exceptionList", exceptionListEdit.text);
+        config.setValue("exceptionList", exceptionListEdit.text.split(';'));
     }
     
     function load() {
@@ -33,7 +33,7 @@ SettingsItem {
         html5AudioEdit.checked = config.value("HTML5Audio", true);
         html5VideoEdit.checked = config.value("HTML5Video", true);
         yandexRCAEdit.checked = config.value("yandexRCA", true);
-        exceptionListEdit.text = config.value("exceptionList", "");
+        exceptionListEdit.text = config.value("exceptionList", []).join(';');
     }
     GridLayout {
         anchors.fill: parent
@@ -117,6 +117,9 @@ SettingsItem {
             Layout.columnSpan: 2
             Layout.fillWidth: true
             onTextChanged: root.modify()
+        }
+        Item {
+            Layout.fillHeight: true
         }
     }
 }

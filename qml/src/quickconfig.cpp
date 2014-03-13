@@ -31,6 +31,7 @@ void QuickConfig::setGroup(const QString &group)
         if (!m_group.isEmpty())
             m_config.endGroup();
         
+        m_group = group;
         if (!group.isEmpty())
             m_config.beginGroup(group);
     }
