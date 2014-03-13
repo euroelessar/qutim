@@ -119,8 +119,10 @@ SettingsItem {
                                 
                                 text: message
                                 onTextChanged: {
-                                    messagesModel.setProperty(index, "message", text);
-                                    root.modify()
+                                    if (messagesModel.get(index).message !== text) {
+                                        messagesModel.setProperty(index, "message", text);
+                                        root.modify()
+                                    }
                                 }
                             }
                             Button {

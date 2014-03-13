@@ -7,9 +7,12 @@ Item {
     property bool __loading: true
     
     function __save() {
+        __loading = true;
+        __modified = false;
+        
         root.save();
         
-        __modified = false;
+        __loading = false;
     }
     
     function __load() {
