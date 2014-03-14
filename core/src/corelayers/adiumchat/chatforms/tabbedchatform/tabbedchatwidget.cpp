@@ -459,9 +459,9 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 {
     setUnifiedTitleAndToolBarOnMac(set);
     if (!set)
-		return;
-	m_toolbar->setMovable(false);
-	m_toolbar->setMoveHookEnabled(true);
+        return;
+    m_toolbar->setMovable(false);
+    m_toolbar->setMoveHookEnabled(true);
 
 	connect(m_toolbar, SIGNAL(iconSizeChanged(QSize)), SLOT(ensureToolBar()));
 	connect(m_toolbar, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)), SLOT(ensureToolBar()));
