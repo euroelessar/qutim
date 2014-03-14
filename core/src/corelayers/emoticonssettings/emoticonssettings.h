@@ -38,7 +38,6 @@ namespace Core {
 	public:
 		EmoticonsSettings();
 	};
-
 }
 
 #endif // EMOTICONSSETTINGS_H

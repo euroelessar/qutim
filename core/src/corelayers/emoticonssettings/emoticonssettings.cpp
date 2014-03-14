@@ -25,18 +25,21 @@
 
 #include "emoticonssettings.h"
 #include <qutim/libqutim_global.h>
-#include "emoticonsselector.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 
 namespace Core
 {
+    using namespace qutim_sdk_0_3;
+
 	EmoticonsSettings::EmoticonsSettings()
 	{
-		GeneralSettingsItem<EmoticonsSelector> *item = new GeneralSettingsItem<EmoticonsSelector>(Settings::Appearance, Icon("face-smile"), QT_TRANSLATE_NOOP("Settings","Emoticons"));
+        SettingsItem *item = new QmlSettingsItem(QStringLiteral("emoticonssettings"),
+                                                 Settings::Appearance,
+                                                 Icon("face-smile"),
+                                                 QT_TRANSLATE_NOOP("Settings","Emoticons"));
 		Settings::registerItem(item);
-		deleteLater();
-	}
-
+        deleteLater();
+    }
 }
 

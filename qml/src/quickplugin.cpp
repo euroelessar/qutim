@@ -1,5 +1,7 @@
 #include "quickplugin.h"
 #include "quickconfig.h"
+#include "quickemoticons.h"
+#include "quickemoticonstheme.h"
 #include "quickimageprovider.h"
 #include <qutim/notification.h>
 #include <qqml.h>
@@ -26,5 +28,7 @@ void QuickPlugin::registerTypes(const char *uri)
                 "Notification",
                 QStringLiteral("Unable to create notification inside QtQuick"));
     qmlRegisterType<QuickConfig>("org.qutim", 0, 4, "Config");
+    qmlRegisterType<QuickEmoticons>("org.qutim", 0, 4, "Emoticons");
+    qmlRegisterType<QuickEmoticonsTheme>("org.qutim", 0, 4, "EmoticonsTheme");
 }
 }
