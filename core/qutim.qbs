@@ -6,7 +6,9 @@ Application {
     property bool installSoundTheme: true
 
     destinationDirectory: qutim_bin_path
-    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
+    cpp.rpaths: qbs.targetOS.contains("osx")
+            ? ["@loader_path/..", "@executable_path/.."]
+            : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../lib"]
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]

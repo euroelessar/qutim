@@ -49,13 +49,6 @@ Framework {
         cpp.frameworks: ["Cocoa", "Carbon" ]
     }
 
-    //    Properties {
-    //        condition: project.singleProfile
-    //        cpp.defines: base.concat([
-    //            "QUTIM_SINGLE_PROFILE"
-    //        ])
-    //    }
-
     Export {
         Depends { name: "cpp" }
 
@@ -170,5 +163,11 @@ Framework {
             cmd.highlight = "filegen";
             return cmd;
         }
+    }
+
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: qutim_libexec_path
     }
 }

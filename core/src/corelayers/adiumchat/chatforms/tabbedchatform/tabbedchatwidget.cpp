@@ -53,7 +53,7 @@ namespace AdiumChat
 
 TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	AbstractChatWidget(parent),
-	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
+    m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_actions(ActionContainer::TypeMatch, ActionTypeChatButton),
 	m_chatViewWidget(0),
 	m_tabBar(new TabBar(this)),
@@ -68,12 +68,12 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_view(0),
 	m_hSplitter(0)
 {
-	m_actions.addHandler(this);
-	m_actions.show();
-	setAttribute(Qt::WA_DeleteOnClose);
+    m_actions.addHandler(this);
+    m_actions.show();
+    setAttribute(Qt::WA_DeleteOnClose);
 	setCentralWidget(new QWidget(this));
 	ServicePointer<ChatViewFactory> factory("ChatViewFactory");
-	setView(factory->createViewWidget());
+    setView(factory->createViewWidget());
 
 	m_vSplitter->setObjectName(QLatin1String("vSplitter"));
 	m_vSplitter->addWidget(m_chatInput);
@@ -231,7 +231,7 @@ void TabbedChatWidget::loadSettings()
 
 			QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
 			QMenu *menu = new QMenu(this);
-			foreach(Account *account, Account::all()) {
+            foreach(Account *account, Account::all()) {
 				QMenu *accountMenu = account->menu(false);
 				menu->addMenu(accountMenu);
 			}
@@ -457,7 +457,8 @@ bool TabbedChatWidget::eventFilter(QObject *obj, QEvent *event)
 
 void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 {
-	if(!set)
+    setUnifiedTitleAndToolBarOnMac(set);
+    if (!set)
 		return;
 	m_toolbar->setMovable(false);
 	m_toolbar->setMoveHookEnabled(true);
@@ -468,9 +469,9 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 
 void TabbedChatWidget::ensureToolBar()
 {
-	if (QtWin::isCompositionEnabled() && (m_flags & AdiumToolbar)) {
-		m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
-		centralWidget()->setAutoFillBackground(true);
+    if (QtWin::isCompositionEnabled() && (m_flags & AdiumToolbar)) {
+        m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
+        centralWidget()->setAutoFillBackground(true);
 		QtWin::extendFrameIntoClientArea(this,
 										 0,
 										 0,
@@ -478,7 +479,7 @@ void TabbedChatWidget::ensureToolBar()
 										 0
 										 );
 		setContentsMargins(0, 0, 0, 0);
-	}
+    }
 }
 
 void TabbedChatWidget::activateWindow()
