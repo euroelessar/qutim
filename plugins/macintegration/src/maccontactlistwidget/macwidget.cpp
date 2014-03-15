@@ -120,11 +120,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 	d->view->installEventFilter(this);
 
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
-#ifdef Q_OS_MAC
-    d->menuBar = new QMenuBar(0);
-#else
     d->menuBar = new QMenuBar(this);
-#endif
     addMenu(tr("Accounts"), MacMenuAccounts);
     addMenu(tr("Chats"), MacMenuChats);
 

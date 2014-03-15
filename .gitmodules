@@ -22,3 +22,6 @@
 [submodule "qbs"]
 	path = qbs
 	url = git://github.com/qutIM/qbs-labs
+[submodule "qml/imports/Controls"]
+	path = qml/imports/Controls
+	url = git://github.com/gorthauer/Controls.Experimental.git

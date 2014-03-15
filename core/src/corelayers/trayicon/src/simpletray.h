@@ -86,7 +86,7 @@ private:
 	Notification *currentNotification();
 private:
 	qint64 activationStateChangedTime;
-	QSystemTrayIcon *m_icon;
+    QSystemTrayIcon *m_icon = nullptr;
 	QMap<Account*, ActionGenerator*> m_actions;
 	QList<ProtocolSeparatorActionGenerator*> m_protocolActions;
 	QList<Account*> m_accounts;
@@ -105,7 +105,7 @@ private:
 	QIcon m_birthdayIcon;
 	QIcon m_defaultNotificationIcon;
 	bool m_showGeneratedIcon;
-	SettingsItem *m_settingsItem;
+    SettingsItem *m_settingsItem = nullptr;
 
 	QList<Notification*> m_messageNotifications;
 	QList<Notification*> m_typingNotifications;
