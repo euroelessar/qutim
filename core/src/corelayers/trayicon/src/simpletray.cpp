@@ -56,7 +56,7 @@ private:
     mutable QPointer<QAction> m_action;
 };
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 class ClEventFilter : public QObject
 {
 	SimpleTray *tray_;
@@ -82,7 +82,7 @@ public:
 #endif
 
 SimpleTray::SimpleTray() :
-	NotificationBackend("Tray"), m_icon(NULL), m_settingsItem(NULL)
+    NotificationBackend("Tray")
 {
 	setDescription(QT_TR_NOOP("Blink icon in the tray"));
 
@@ -132,25 +132,23 @@ SimpleTray::SimpleTray() :
 	m_icon->setContextMenu(contextMenu);
 	qApp->setQuitOnLastWindowClosed(false);
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	QWidget *clWindow = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
 	clWindow->installEventFilter(new ClEventFilter(this, clWindow));
 	activationStateChangedTime = QDateTime::currentMSecsSinceEpoch();
 #endif
 
-	m_settingsItem = new GeneralSettingsItem<SimpletraySettings>(
-				Settings::Plugin, Icon("user-desktop"),
-				QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
-	Settings::registerItem(m_settingsItem);
-	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+    m_settingsItem = new QmlSettingsItem(QStringLiteral("trayicon"),
+                Settings::Plugin, Icon("user-desktop"),
+                QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
+    Settings::registerItem(m_settingsItem);
+    m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	reloadSettings();
 }
 
 SimpleTray::~SimpleTray()
 {
 	delete m_icon;
-	Settings::removeItem(m_settingsItem);
-	delete m_settingsItem;
 }
 
 void SimpleTray::clActivationStateChanged(bool activated)
