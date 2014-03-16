@@ -29,6 +29,7 @@
 #include "message.h"
 #include "contact.h"
 #include <QDateTime>
+#include <functional>
 
 class QTextDocument;
 namespace qutim_sdk_0_3
@@ -48,12 +49,15 @@ class LIBQUTIM_EXPORT ChatSession : public QObject
 	Q_PROPERTY(QDateTime dateOpened READ dateOpened WRITE setDateOpened NOTIFY dateOpenedChanged)
 	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *unit READ unit WRITE setChatUnit NOTIFY unitChanged)
 public:
+    typedef std::function<void (quint64, const Message &, const QString &)> AppendHandler;
+    
 	virtual ~ChatSession();
 	
 	virtual ChatUnit *getUnit() const = 0;
 	inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
 	virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
-	Q_INVOKABLE qint64 append(qutim_sdk_0_3::Message &message);
+	Q_INVOKABLE void append(const qutim_sdk_0_3::Message &message);
+    void append(const Message &message, const AppendHandler &handler);
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
@@ -63,11 +67,11 @@ public:
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
-	qint64 appendMessage(qutim_sdk_0_3::Message &message);
+	void appendMessage(const qutim_sdk_0_3::Message &message);
 	void setActive(bool active);
 	inline void activate() { setActive(true); }
-	inline qint64 appendMessage(const QString &text)
-	{ Message msg(text); return appendMessage(msg); }
+	inline void appendMessage(const QString &text)
+	{  appendMessage(Message(text)); }
 protected:
 	virtual void doSetActive(bool active) = 0;
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;

@@ -95,11 +95,13 @@ void UrlHandler::loadSettings()
 	cfg.endGroup();
 }
 
-UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
+void UrlHandler::doHandle(Message &message, const Handler &handler)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-    if (!session || !session->property("supportJavaScript").toBool())
-		return UrlHandler::Accept;
+    if (!session || !session->property("supportJavaScript").toBool()) {
+		handler(Accept, QString());
+        return;
+    }
 
 	const QString originalHtml = message.html();
 	QString html;
@@ -115,7 +117,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		}
 	}
 	message.setHtml(html);
-	return UrlHandler::Accept;
+    handler(Accept, QString());
 }
 
 void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUnit *from, qint64 id)
@@ -339,4 +341,3 @@ void UrlHandler::netmanSslErrors(QNetworkReply *, const QList<QSslError> &)
 }
 
 } // namespace UrlPreview
-

@@ -70,38 +70,39 @@ QList<PasterInterface *> AutoPasterHandler::pasters()
 	return self ? self->m_pasters : QList<PasterInterface*>();
 }
 
-AutoPasterHandler::Result AutoPasterHandler::doHandle(Message &message, QString *reason)
+void AutoPasterHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
 {
 	if (!message.isIncoming()
 			&& !message.property("service", false)
 			&& !message.property("history", false)
 			&& message.text().count('\n') + 1 >= m_lineCount) {
-		AutoPasterDialog dialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
+        AutoPasterDialog *dialog = new AutoPasterDialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
+        QObject::connect(dialog, &QDialog::finished, [dialog, &message, handler] (int result) {
+            dialog->deleteLater();
 
-		if (m_autoSubmit) {
-			QEventLoop loop;
-			QObject::connect(&dialog, SIGNAL(finished(int)), &loop, SLOT(quit()));
-			dialog.accept();
-			loop.exec();
-		} else {
-			dialog.exec();
-		}
+            switch (result) {
+            case AutoPasterDialog::Accepted:
+                message.setText(dialog->url().toString());
+                break;
+            case AutoPasterDialog::Rejected:
+                break;
+            case AutoPasterDialog::Failed:
+                const QString reason = QCoreApplication::translate(
+                              "AutoPaster",
+                              "Failed to send message to paste service, service reported error: %1")
+                          .arg(dialog->errorString());
+                handler(Error, reason);
+            }
 
-		switch (dialog.result()) {
-		case AutoPasterDialog::Accepted:
-			message.setText(dialog.url().toString());
-			break;
-		case AutoPasterDialog::Rejected:
-			break;
-		case AutoPasterDialog::Failed:
-			*reason = QCoreApplication::translate(
-						  "AutoPaster",
-						  "Failed to send message to paste service, service reported error: %1")
-					  .arg(dialog.errorString());
-			return Error;
-		}
+            handler(Accept, QString());
+        });
+
+        if (m_autoSubmit)
+            dialog->accept();
+        else
+            dialog->open();
 	}
-	return Accept;
+    handler(Accept, QString());
 }
 
 void AutoPasterHandler::readSettings()
@@ -110,6 +111,5 @@ void AutoPasterHandler::readSettings()
 	cfg.beginGroup("autoPaster");
 	m_autoSubmit = cfg.value(QLatin1String("autoSubmit"), false);
 	m_defaultLocation = cfg.value(QLatin1String("defaultLocation"), 0);
-	m_lineCount = cfg.value(QLatin1String("lineCount"), 5);
+    m_lineCount = cfg.value(QLatin1String("lineCount"), 5);
 }
-

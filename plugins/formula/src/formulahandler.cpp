@@ -38,9 +38,8 @@ FormulaHandler::FormulaHandler()
 	Q_ASSERT(m_regexp.isValid());
 }
 
-MessageHandler::Result FormulaHandler::doHandle(Message &message, QString *reason)
+void FormulaHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
 {
-	Q_UNUSED(reason);
 	int index = 0;
 	int lastIndex = 0;
 	const QString html = message.html();
@@ -64,5 +63,5 @@ MessageHandler::Result FormulaHandler::doHandle(Message &message, QString *reaso
     }
 	html.midRef(lastIndex, html.size() - lastIndex).appendTo(&newHtml);
 	message.setHtml(newHtml);
-	return Accept;
+	handler(Accept, QString());
 }

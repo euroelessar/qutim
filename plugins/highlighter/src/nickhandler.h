@@ -45,7 +45,7 @@ class NickHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 public:
 	explicit NickHandler();
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+    void doHandle(qutim_sdk_0_3::Message &message, const MessageHandler::Handler &handler) override;
 public slots:
 	void loadSettings();
 private:

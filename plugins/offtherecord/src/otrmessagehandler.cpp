@@ -30,16 +30,19 @@
 
 using namespace qutim_sdk_0_3;
 
-MessageHandler::Result OtrMessagePreHandler::doHandle(Message &message, QString *reason)
+void OtrMessagePreHandler::doHandle(Message &message, const Handler &handler)
 {
-	Q_UNUSED(reason);
-	if (message.property("service", false) || message.property("history", false))
-		return Accept;
+    if (message.property("service", false) || message.property("history", false)) {
+        handler(Accept, QString());
+		return;
+    }
+
 	if (message.isIncoming())
 		decrypt(message);
 	else
 		encrypt(message);
-	return Accept;
+
+    handler(Accept, QString());
 }
 
 void OtrMessagePreHandler::encrypt(Message &message)
@@ -83,7 +86,7 @@ void OtrMessagePreHandler::decrypt(Message &message)
     }
 }
 
-MessageHandler::Result OtrMessagePostHandler::doHandle(Message &message, QString *reason)
+void OtrMessagePostHandler::doHandle(Message &message, const Handler &handler)
 {
 	Q_UNUSED(reason);
 	if (message.isIncoming()) {
@@ -91,11 +94,14 @@ MessageHandler::Result OtrMessagePostHandler::doHandle(Message &message, QString
 			message.setText(message.text().section(QLatin1Char('\n'), 1));
 			message.setProperty("hide", true);
 			message.setProperty("store", false);
-			return Accept;
+            handler(Accept, QString());
+            return;
 		}
 	} else {
-		if (message.property("service", false) || message.property("history", false))
-			return Accept;
+        if (message.property("service", false) || message.property("history", false)) {
+            handler(Accept, QString());
+            return;
+        }
 		QString text = message.property("__otr__text", QString());
 		QString html = message.property("__otr__html", QString());
 		if (!text.isEmpty()) {
@@ -106,6 +112,6 @@ MessageHandler::Result OtrMessagePostHandler::doHandle(Message &message, QString
 			message.setProperty("__otr__html", QVariant());
 		}
 	}
-	return Accept;
-}
 
+    handler(Accept, QString());
+}

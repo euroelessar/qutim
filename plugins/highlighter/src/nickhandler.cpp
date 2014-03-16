@@ -35,9 +35,8 @@ using namespace qutim_sdk_0_3;
 
 NickHandler::NickHandler()
 {
-	loadSettings();
+    loadSettings();
 }
-
 void NickHandler::loadSettings()
 {
 	Config cfg;
@@ -60,17 +59,28 @@ static bool isWord(QChar ch)
 	return ch.isLetterOrNumber() || ch.isMark() || ch == QLatin1Char('_');
 }
 
-NickHandler::Result NickHandler::doHandle(Message &message, QString *)
+struct NickHandlerAccepter
 {
+    ~NickHandlerAccepter()
+    {
+        handler(MessageHandler::Accept, QString());
+    }
+
+    const MessageHandler::Handler &handler;
+};
+
+void NickHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
+{
+    NickHandlerAccepter accepter = { handler };
 
 	if(!message.isIncoming())
-		return NickHandler::Accept;
+		return;
 	Conference *conference = qobject_cast<Conference*>(message.chatUnit());
 	if (!conference)
-		return NickHandler::Accept;
+		return;
 	Buddy *me = conference->me();
 	if (!me)
-		return NickHandler::Accept;
+		return;
 	const QString myNick = me->name();
 
 	if (m_enableAutoHighlights) {
@@ -80,7 +90,7 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 			if ((pos == 0 || !isWord(text.at(pos - 1)))
 					&& (pos + myNick.size() == text.size() || !isWord(text.at(pos + myNick.size())))) {
 				message.setProperty("mention", true);
-				return NickHandler::Accept;
+				return;
 			}
 			++pos;
 		}
@@ -90,12 +100,10 @@ NickHandler::Result NickHandler::doHandle(Message &message, QString *)
 		for (int i = 0; i < m_regexps.size(); ++i) {
 			if (message.text().contains(m_regexps.at(i))) {
 				message.setProperty("mention", true);
-				return NickHandler::Accept;
+				return;
 			}
 		}
 	}
-
-	return NickHandler::Accept;
 }
 
 } // namespace Highlighter

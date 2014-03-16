@@ -41,9 +41,8 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 {
 }
 
-MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Message &message, QString *reason)
+void MetaContactMessageHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
 {
-	Q_UNUSED(reason);
 	if (message.isIncoming() && !qobject_cast<MetaContactImpl*>(message.chatUnit())) {
 		Q_ASSERT(message.chatUnit());
 		if (MetaContactImpl *contact = qobject_cast<MetaContactImpl*>(message.chatUnit()->metaContact())) {
@@ -58,8 +57,7 @@ MessageHandler::Result MetaContactMessageHandler::doHandle(qutim_sdk_0_3::Messag
 				contact->setActiveContact(rawContact);
 		}
 	}
-	return MetaContactMessageHandler::Accept;
-
+    handler(Accept, QString());
 }
 
 }

@@ -81,14 +81,19 @@ void Handler::loadSettings()
 	}
 }
 
-MessageHandler::Result Handler::doHandle(Message &message, QString *reason)
+
+void Handler::doHandle(Message &message, const MessageHandler::Handler &handler)
 {
-	if (!m_enabled || message.property("service", false))
-		return MessageHandler::Accept;
+	if (!m_enabled || message.property("service", false)) {
+        handler(Accept, QString());
+        return;
+    }
 
 	Contact *contact = qobject_cast<Contact*>(message.chatUnit()->buddy());
-	if (!contact || contact->isInList())
-		return MessageHandler::Accept;
+	if (!contact || contact->isInList()) {
+        handler(Accept, QString());
+        return;
+    }
 	
 	Info::Ptr info = contact->property(ANTISPAM_PROPERTY).value<Info::Ptr>();
 	if (info.isNull()) {
@@ -96,13 +101,16 @@ MessageHandler::Result Handler::doHandle(Message &message, QString *reason)
 		contact->setProperty(ANTISPAM_PROPERTY, qVariantFromValue(info));
 	}
 	
-	if (info->trusted)
-		return MessageHandler::Accept;
+	if (info->trusted) {
+        handler(Accept, QString());
+        return;
+    }
 	
 	if (!message.isIncoming()) {
 		if (!message.property("autoreply", false))
 			info->trusted = true;
-		return MessageHandler::Accept;
+        handler(Accept, QString());
+        return;
 	}
 
 	//check message body
@@ -112,22 +120,25 @@ MessageHandler::Result Handler::doHandle(Message &message, QString *reason)
 			message.setChatUnit(contact);
 			contact->sendMessage(message);
 			info->trusted = true;
-			return MessageHandler::Accept;
+            handler(Accept, QString());
+            return;
 		}
 	}
 
 	if (info->lastQuestionTime.isValid()
 	        && qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
-		return MessageHandler::Reject;
+        handler(Reject, QString());
+        return;
 	}
 	Message replyMessage(m_question);
 	replyMessage.setChatUnit(contact);
 	replyMessage.setProperty("autoreply", true);
 	contact->sendMessage(replyMessage);
 	info->lastQuestionTime = QDateTime::currentDateTime();
-	reason->append(tr("Message from %1 blocked on suspicion of spam.").
-				   arg(contact->title()));
-	return MessageHandler::Error;
+	QString reason = tr("Message from %1 blocked on suspicion of spam.").
+				   arg(contact->title());
+
+    handler(Error, reason);
 }
 
 bool Handler::eventFilter(QObject *obj, QEvent *event)
@@ -139,18 +150,24 @@ bool Handler::eventFilter(QObject *obj, QEvent *event)
 			Message pseudoMessage(reply->body());
 			pseudoMessage.setChatUnit(reply->contact());
 			pseudoMessage.setIncoming(false);
-			Result result = doHandle(pseudoMessage, &reason);
-			if (Error == result) {
-				NotificationRequest request(Notification::BlockedMessage);
-				request.setObject(reply->contact());
-				request.setText(reason);
-				request.send();
-			}
-			if (Accept != result)
+
+            bool accepted = true;
+
+            doHandle(pseudoMessage, [&accepted, reply] (Result result, const QString &reason) {
+                if (Error == result) {
+                    NotificationRequest request(Notification::BlockedMessage);
+                    request.setObject(reply->contact());
+                    request.setText(reason);
+                    request.send();
+                }
+                accepted = (result == Accept);
+            });
+
+			if (accepted)
 				return true;
 		}
 	}
-	return QObject::eventFilter(obj, event);
+    return QObject::eventFilter(obj, event);
 }
 
 void Handler::onServiceChanged(const QByteArray &name)
@@ -162,4 +179,3 @@ void Handler::onServiceChanged(const QByteArray &name)
 }
 
 } // namespace Antispam
-

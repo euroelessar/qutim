@@ -27,6 +27,7 @@
 #define MESSAGEHANDLER_H
 
 #include "message.h"
+#include <functional>
 
 namespace qutim_sdk_0_3
 {
@@ -49,6 +50,8 @@ public:
 		HighPriority      = 0x01000000,
 		SenderPriority    = 0x02000000
 	};
+    typedef std::function<void (Result, const QString &error)> Handler;
+    typedef std::function<void (const Message &message, Result result, const QString &error)> FinalHandler;
 
 	virtual ~MessageHandler();
 	
@@ -59,11 +62,13 @@ public:
 	                            int incomingPriority = NormalPriortity,
 	                            int outgoingPriority = NormalPriortity);
 	static void unregisterHandler(MessageHandler *handler);
-	static Result handle(Message &message, QString *reason = 0);
+	static void handle(const Message &message, const FinalHandler &handler);
 	static void traceHandlers();
+    static quint64 originalMessageId();
 	
 protected:
-	virtual Result doHandle(Message &message, QString *reason) = 0;
+    struct StateType;
+	virtual void doHandle(Message &message, const Handler &handler) = 0;
 };
 
 }

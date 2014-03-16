@@ -142,16 +142,24 @@ public:
 		m_focus = widget->hasFocus();
 		m_widget->setDisabled(true);
 	}
+
+    ChatEditLocker(ChatEditLocker &&other) : m_widget(other.m_widget), m_focus(other.m_focus)
+    {
+        other.m_widget.clear();
+    }
+
 	~ChatEditLocker()
 	{
-		m_widget->setDisabled(false);
-		if (m_focus)
-			m_widget->setFocus();
+        if (m_widget) {
+            m_widget->setDisabled(false);
+            if (m_focus)
+                m_widget->setFocus();
+        }
 	}
 
 private:
+    QPointer<QWidget> m_widget;
 	bool m_focus;
-	QWidget *m_widget;
 };
 
 void ChatEdit::send()
@@ -213,19 +221,13 @@ void ChatEdit::send()
 	message.setTime(QDateTime::currentDateTime());
 	MessageHandler::traceHandlers();
 
-	qint64 result = m_session.data()->appendMessage(message);
-	if (MessageHandler::Error != -result)
-		clear();
-//	if (!unit->sendMessage(message)) {
-//		NotificationRequest request(Notification::System);
-//		request.setObject(this);
-//		request.setText(tr("Unable to send message to %1").arg(unit->title()));
-//		request.send();
-//	}
-//	else {
-//		m_session->appendMessage(message);
-//		clear();
-//	}
+    auto lockerPtr = QSharedPointer<ChatEditLocker>::create(std::move(locker));
+    QPointer<ChatEdit> edit(this);
+    m_session->append(message, [edit, lockerPtr] (qint64 result, const Message &, const QString &) mutable {
+        if (MessageHandler::Error != -result && edit)
+            edit->clear();
+        lockerPtr.reset();
+    });
 }
 
 void ChatEdit::onTextChanged()

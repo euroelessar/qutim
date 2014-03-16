@@ -34,7 +34,7 @@ class FormulaHandler : public qutim_sdk_0_3::MessageHandler
 public:
 	FormulaHandler();
 
-	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+    void doHandle(qutim_sdk_0_3::Message &message, const Handler &handler) override;
 private:
 	QRegExp m_regexp;
 };
