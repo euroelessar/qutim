@@ -30,6 +30,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <random>
 
 #ifdef QUTIM_DECLARATIVE_UI
 #include "src/declarative/modulemanagerimpl.h"
@@ -50,6 +51,12 @@ Q_DECL_EXPORT
 #endif
 int main(int argc, char *argv[])
 {
+    {
+        std::random_device rd;
+        srand(rd());
+        qsrand(rd());
+    }
+
 #ifdef MEEGO_EDITION
 	QScopedPointer<QApplication> app(MDeclarativeCache::qApplication(argc, argv));
 #else
@@ -58,9 +65,6 @@ int main(int argc, char *argv[])
 
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
-
-    qsrand(std::time(nullptr));
-    srand(qrand());
 
 	return app->exec();
 }
