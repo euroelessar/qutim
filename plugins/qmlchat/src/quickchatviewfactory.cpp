@@ -23,53 +23,43 @@
 **
 ****************************************************************************/
 
-#include "quickchatviewwidget.h"
+#include "quickchatviewfactory.h"
 #include "quickchatviewcontroller.h"
-#include <qutim/config.h>
-#include <QDeclarativeItem>
-#ifndef QT_NO_OPENGL
-#	include <QtOpenGL/QtOpenGL>
-#endif
+#include "quickchatviewwidget.h"
+#include <QQmlEngine>
+//#include "settings/chatappearance.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Core {
 namespace AdiumChat {
 
 using namespace qutim_sdk_0_3;
 
-QuickChatViewWidget::QuickChatViewWidget(QWidget *parent) :
-    DeclarativeView(parent)
+QuickChatViewFactory::QuickChatViewFactory()
 {
-#ifndef QT_NO_OPENGL
-	if (Config("appearance/qmlChat").value("openGL", false))
-		setViewport(new QGLWidget(QGLFormat(QGLFormat::defaultFormat())));
-#endif
+	m_appearanceSettings = new QmlSettingsItem(QStringLiteral("qmlchat"),
+        Settings::Appearance, Icon("view-choose"),QT_TRANSLATE_NOOP("Settings","Chat"));
+	Settings::registerItem(m_appearanceSettings);
 }
 
-void QuickChatViewWidget::setViewController(QObject* object)
+QObject* QuickChatViewFactory::createViewController()
 {
-	if (m_controller.data() == object)
-		return;
-	if (m_controller)
-		m_controller.data()->disconnect(this);
-	QuickChatController* controller = qobject_cast<QuickChatController*>(object);
-	m_controller = controller;
-	if (controller) {
-		controller->setItemIndexMethod(QGraphicsScene::NoIndex);
-		controller->setStickyFocus(true);  //### needed for correct focus handling
-		setScene(controller);
-		connect(controller, SIGNAL(rootItemChanged(QDeclarativeItem*)),
-				this, SLOT(onRootChanged(QDeclarativeItem*)));
-        setRootObject(controller->rootItem());
-	} else {
-		setScene(new QGraphicsScene(this));
-	}
+    return new QuickChatController();
 }
 
-void QuickChatViewWidget::onRootChanged(QDeclarativeItem *item)
+QWidget* QuickChatViewFactory::createViewWidget()
 {
-    setRootObject(item);
+	return QWidget::createWindowContainer(new QuickChatViewWidget());
 }
 
+QuickChatViewFactory::~QuickChatViewFactory()
+{
+	Settings::removeItem(m_appearanceSettings);
+	delete m_appearanceSettings;
+}
+
+	
 } // namespace AdiumChat
 } // namespace Core
 

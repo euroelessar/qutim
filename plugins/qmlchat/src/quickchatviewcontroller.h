@@ -26,25 +26,20 @@
 #ifndef QUICKCHATVIEWCONTROLLER_H
 #define QUICKCHATVIEWCONTROLLER_H
 
-#include <QGraphicsScene>
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <qutim/chatsession.h>
+#include <QQuickItem>
 #include <QVariant>
-#include <QWeakPointer>
-
-class QDeclarativeEngine;
-class QDeclarativeItem;
-class QDeclarativeContext;
+#include <QPointer>
 
 namespace Core {
 namespace AdiumChat {
 
-class QuickChatController : public QGraphicsScene, public Core::AdiumChat::ChatViewController
+class QuickChatController : public QObject, public Core::AdiumChat::ChatViewController
 {
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
-	Q_PROPERTY(QDeclarativeItem* rootItem READ rootItem NOTIFY rootItemChanged)
 	Q_PROPERTY(QObject* unit READ unit NOTIFY sessionChanged)
 	Q_PROPERTY(QString chatState READ chatState NOTIFY chatStateChanged)
 public:
@@ -54,7 +49,7 @@ public:
 	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
-	QDeclarativeItem *rootItem() const;
+	QQuickItem *rootItem() const;
 	Q_INVOKABLE QString parseEmoticons(const QString &) const;
 	QObject *unit() const;
 	QString chatState() const;
@@ -67,20 +62,16 @@ protected slots:
 	void onChatStateChanged(qutim_sdk_0_3::ChatState state);
 protected:
 	bool eventFilter(QObject *, QEvent *);
-	void setRootItem(QDeclarativeItem *rootItem);
 signals:
 	void messageAppended(const QVariant &message);
 	void messageDelivered(int mid);
 	void clearChatField();
 	void sessionChanged(QObject *);
-	void rootItemChanged(QDeclarativeItem* rootItem);
 	void chatStateChanged(QString state);
 private:
-	QWeakPointer<qutim_sdk_0_3::ChatSession> m_session;
+	QPointer<qutim_sdk_0_3::ChatSession> m_session;
+    QPointer<QQuickItem> m_item;
 	QString m_themeName;
-	QDeclarativeEngine *m_engine;
-	QDeclarativeContext *m_context;
-	QWeakPointer<QDeclarativeItem> m_item;
 };
 
 } // namespace AdiumChat

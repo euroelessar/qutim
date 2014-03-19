@@ -23,41 +23,36 @@
 **
 ****************************************************************************/
 
-#include "quickchatviewfactory.h"
-#include "quickchatviewcontroller.h"
 #include "quickchatviewwidget.h"
-#include <QDeclarativeEngine>
-#include "settings/chatappearance.h"
-#include <qutim/settingslayer.h>
-#include <qutim/icon.h>
+#include "quickchatviewcontroller.h"
+#include <qutim/config.h>
+#include <QQuickItem>
+#include <QApplication>
 
 namespace Core {
 namespace AdiumChat {
 
-QuickChatViewFactory::QuickChatViewFactory()
+using namespace qutim_sdk_0_3;
+
+QuickChatViewWidget::QuickChatViewWidget()
 {
-	m_appearanceSettings = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"),
-																   QT_TRANSLATE_NOOP("Settings","Chat"));
-	Settings::registerItem(m_appearanceSettings);
+    setResizeMode(QQuickView::SizeRootObjectToView);
+    setColor(qApp->palette().window().color());
 }
 
-QObject* QuickChatViewFactory::createViewController()
+void QuickChatViewWidget::setViewController(QObject* object)
 {
-    return new QuickChatController();
+	if (m_controller.data() == object)
+		return;
+	if (m_controller)
+		m_controller.data()->disconnect(this);
+	m_controller = qobject_cast<QuickChatController*>(object);
 }
 
-QWidget* QuickChatViewFactory::createViewWidget()
+void QuickChatViewWidget::onRootChanged(QQuickItem *item)
 {
-	return new QuickChatViewWidget();
 }
 
-QuickChatViewFactory::~QuickChatViewFactory()
-{
-	Settings::removeItem(m_appearanceSettings);
-	delete m_appearanceSettings;
-}
-
-	
 } // namespace AdiumChat
 } // namespace Core
 

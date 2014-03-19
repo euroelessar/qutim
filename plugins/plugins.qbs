@@ -30,6 +30,7 @@ Project {
         "mobility/src/multimediabackend/multimediabackend.qbs",
         "sdlsound/sdlsound.qbs",
         "macintegration/macintegration.qbs",
-        "offtherecord/offtherecord.qbs"
+        "offtherecord/offtherecord.qbs",
+        "qmlchat/qmlchat.qbs"
     ]
 }

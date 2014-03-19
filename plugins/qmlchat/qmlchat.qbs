@@ -2,18 +2,13 @@ import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     type: [ "dynamiclibrary", "installed_content" ]
-    pluginTags: ['experimental']
-    sourcePath: '.'
-
-    Depends { name: "Qt.declarative" }
-    Depends { name: "Qt.opengl" }
-    Depends { name: "adiumchat" }
-    Depends { name: "artwork" }
+    Depends { name: "qutim-adiumchat" }
+    Depends { name: "qutim-adiumwebview" }
 
     Group {
-        fileTags: [ "artwork" ]
-        artwork.basePath: "./"
-        prefix: "qmlchat/"
-        files: "**"
+        name: "QML files"
+        files: "qml"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path
     }
 }

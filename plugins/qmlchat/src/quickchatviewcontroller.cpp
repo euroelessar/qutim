@@ -26,13 +26,14 @@
 #include "quickchatviewcontroller.h"
 #include <qutim/message.h>
 #include <qutim/thememanager.h>
-#include <QDeclarativeComponent>
+#include <QQmlComponent>
 #include <QStringBuilder>
-#include <QDeclarativeItem>
+#include <QQuickItem>
 #include <qutim/debug.h>
 #include <qutim/account.h>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QQmlProperty>
 #include <qutim/conference.h>
 #include <qutim/history.h>
 #include <qutim/emoticons.h>
@@ -127,13 +128,9 @@ static QString chatStateToString(ChatState state)
 }
 
 QuickChatController::QuickChatController(QObject *parent) :
-	QGraphicsScene(parent),
-	m_themeName(QLatin1String("default")),
-	//	m_engine(engine) //TODO use one engine for all controllers
-    m_engine(DeclarativeView::engine())
+	QObject(parent),
+	m_themeName(QLatin1String("default"))
 {
-	m_context = new QDeclarativeContext(m_engine, this);
-	m_context->setContextProperty("controller", this);
 }
 
 QuickChatController::~QuickChatController()
@@ -159,7 +156,7 @@ ChatSession *QuickChatController::getSession() const
 
 void QuickChatController::loadHistory()
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
 	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
@@ -191,7 +188,7 @@ void QuickChatController::setChatSession(ChatSession *session)
 			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
 }
 
-QDeclarativeItem *QuickChatController::rootItem() const
+QQuickItem *QuickChatController::rootItem() const
 {
 	return m_item.data();
 }
@@ -203,13 +200,14 @@ bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
 		emit messageDelivered(msgEvent->id());
 		return true;
 	}
-	return QGraphicsScene::eventFilter(obj, ev);
+	return QObject::eventFilter(obj, ev);
 }
 
 void QuickChatController::loadSettings()
 {
-	ConfigGroup cfg = Config("appearance/quickChat").group("style");
-	loadTheme(cfg.value<QString>("name","default"));
+	Config config("appearance/quickChat");
+    config.beginGroup("style");
+	loadTheme(config.value<QString>("name","default"));
 }
 
 void QuickChatController::loadTheme(const QString &name)
@@ -218,58 +216,24 @@ void QuickChatController::loadTheme(const QString &name)
 	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
 	QString main = path % QLatin1Literal("/main.qml");
 
-	QDeclarativeComponent component (m_engine, main);
-	QObject *obj = component.create(m_context);
+	QQmlComponent component (DeclarativeView::globalEngine(), QUrl::fromLocalFile(main));
+	QObject *obj = component.create();
+    if (!obj) {
+        qDebug() << component.errors();
+        return;
+    }
 
-	setRootItem(qobject_cast<QDeclarativeItem*>(obj));
+	m_item = qobject_cast<QQuickItem*>(obj);
+    QQmlProperty controllerProperty(m_item, QStringLiteral("controller"));
+    controllerProperty.write(QVariant::fromValue(this));
+
 	loadHistory();
-}
-
-void QuickChatController::setRootItem(QDeclarativeItem *rootItem)
-{
-	if (m_item.data() == rootItem)
-		return;
-	if (m_item) {
-		removeItem(m_item.data());
-		m_item.data()->deleteLater();
-	}
-	m_item = rootItem;
-	addItem(m_item.data());
-	emit rootItemChanged(m_item.data());
 }
 
 QString QuickChatController::parseEmoticons(const QString &text) const
 {
 	//TODO Write flexible textfield with animated emoticons, copy/paste and follow links support
-	QString result;
-	QList<EmoticonsTheme::Token> tokens = Emoticons::theme().tokenize(text);
-	for (QList<EmoticonsTheme::Token>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-		switch(it->type) {
-		case EmoticonsTheme::Image: {
-			QImageReader reader(it->imgPath);
-			QSize size = reader.size();
-			if (!size.isValid()) {
-				size = reader.read().size();
-				if (!size.isValid())
-					break;
-			}
-			QString imgHtml = QLatin1Literal("<img src=\"")
-					% it->imgPath
-					% QLatin1Literal("\" width=\"")
-					% QString::number(size.width())
-					% QLatin1Literal("\" height=\"")
-					% QString::number(size.height())
-					% QLatin1Literal("\" alt=\"%4\" title=\"%4\" />");
-			result += imgHtml;
-			break;
-		}
-		case EmoticonsTheme::Text:
-			result += it->text;
-		default:
-			break;
-		}
-	}
-	return result;
+    return Emoticons::theme().parseEmoticons(text);
 }
 
 QObject *QuickChatController::unit() const
@@ -289,8 +253,8 @@ void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
 
 void QuickChatController::appendText(const QString &text)
 {
-	debug() << Q_FUNC_INFO << text << m_session.data();
-	QMetaObject::invokeMethod(m_session.data(),
+	qDebug() << Q_FUNC_INFO << text << m_session.data();
+	QMetaObject::invokeMethod(ChatLayer::instance(),
 	                          "insertText",
 	                          Q_ARG(ChatSession*, m_session.data()),
 	                          Q_ARG(QString, text + QLatin1String(" ")));
