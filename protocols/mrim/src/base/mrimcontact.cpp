@@ -220,25 +220,25 @@ void MrimContact::setStatus(const MrimStatus& status)
 
 void MrimContact::clearComposingState()
 {
-	bool isComposing = chatState() == ChatStateComposing;
+	bool isComposing = chatState() == ChatUnit::ChatStateComposing;
 	p->incomingComposingTimer.stop();
 	if (isComposing)
-		setChatState(ChatStateActive);
+		setChatState(ChatUnit::ChatStateActive);
 }
 
 void MrimContact::updateComposingState()
 {
-	bool isComposing = chatState() == ChatStateComposing;
+	bool isComposing = chatState() == ChatUnit::ChatStateComposing;
 	p->incomingComposingTimer.start(10000, this);
 	if (!isComposing)
-		setChatState(ChatStateComposing);
+		setChatState(ChatUnit::ChatStateComposing);
 }
 
 bool MrimContact::event(QEvent *ev)
 {
 	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-		bool isComposing = chatEvent->chatState() == ChatStateComposing;
+		bool isComposing = chatEvent->chatState() == ChatUnit::ChatStateComposing;
 		if (p->composingTimer.isActive() == isComposing)
 			return true;
 		if (isComposing) {
@@ -268,7 +268,7 @@ void MrimContact::timerEvent(QTimerEvent *event)
 		account()->connection()->messages()->sendComposingNotification(this);
 		return;
 	} else if (p->incomingComposingTimer.timerId() == event->timerId()) {
-		setChatState(ChatStateActive);
+		setChatState(ChatUnit::ChatStateActive);
 		p->incomingComposingTimer.stop();
 		return;
 	}

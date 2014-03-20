@@ -250,9 +250,9 @@ void ChatEdit::onTextChanged()
 
 	QString text = textEditToPlainText();
 	if(!m_session || text.trimmed().isEmpty())
-		m_session.data()->setChatState(ChatStateActive);
+		m_session.data()->setChatState(ChatUnit::ChatStateActive);
 	else
-		m_session.data()->setChatState(ChatStateComposing);
+		m_session.data()->setChatState(ChatUnit::ChatStateComposing);
 }
 
 void ChatEdit::setSendKey(SendMessageKey key)

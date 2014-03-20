@@ -104,27 +104,13 @@ static QVariant messageToVariant(const Message &mes)
 	return map;
 }
 
-static QString chatStateToString(ChatState state)
+static QString chatStateToString(ChatUnit::ChatState state)
 {
-	QString stateStr;
-	switch (state) {
-	case ChatStateActive:
-		stateStr = QLatin1String("ChatStateActive");
-		break;
-	case ChatStateInActive:
-		stateStr = QLatin1String("ChatStateInActive");
-		break;
-	case ChatStateGone:
-		stateStr = QLatin1String("ChatStateGone");
-		break;
-	case ChatStateComposing:
-		stateStr = QLatin1String("ChatStateComposing");
-		break;
-	case ChatStatePaused:
-		stateStr = QLatin1String("ChatStatePaused");
-		break;
-	};
-	return stateStr;
+    const static QMetaObject *meta = &ChatUnit::staticMetaObject;
+    const static int index = meta->indexOfEnumerator("ChatState");
+    const static QMetaEnum enumerator = meta->enumerator(index);
+
+    return QString::fromLatin1(enumerator.valueToKey(state));
 }
 
 QuickChatController::QuickChatController(QObject *parent) :
@@ -184,8 +170,8 @@ void QuickChatController::setChatSession(ChatSession *session)
 	loadSettings();
 	emit sessionChanged(session);
 
-	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState)));
+	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
+			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState)));
 }
 
 QQuickItem *QuickChatController::rootItem() const
@@ -243,10 +229,10 @@ QObject *QuickChatController::unit() const
 
 QString QuickChatController::chatState() const
 {
-	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatStateGone);
+	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatUnit::ChatStateGone);
 }
 
-void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatState state)
+void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState state)
 {
 	emit chatStateChanged(chatStateToString(state));
 }

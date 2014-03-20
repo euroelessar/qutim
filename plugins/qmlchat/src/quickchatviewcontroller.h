@@ -59,7 +59,7 @@ public slots:
 	void appendText(const QString &string);
 protected slots:
 	void loadHistory();
-	void onChatStateChanged(qutim_sdk_0_3::ChatState state);
+	void onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState state);
 protected:
 	bool eventFilter(QObject *, QEvent *);
 signals:

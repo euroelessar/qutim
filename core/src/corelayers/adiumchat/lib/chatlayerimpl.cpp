@@ -123,9 +123,9 @@ ChatLayerImpl::~ChatLayerImpl()
 {
 }
 
-QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
+QIcon ChatLayerImpl::iconForState(ChatUnit::ChatState state, const ChatUnit *unit)
 {
-	if (state != ChatStateComposing) {
+	if (state != ChatUnit::ChatStateComposing) {
 		QVariant status = unit->property("status");
 		if (!status.isNull() && status.canConvert<Status>()) {
 			return status.value<Status>().icon();
@@ -137,19 +137,19 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 	QString iconName;
 	switch (state) {
 	//FIXME icon names
-	case ChatStateActive:
+	case ChatUnit::ChatStateActive:
 		iconName = "im-user"; //TODO find icon
 		break;
-	case ChatStateInActive:
+	case ChatUnit::ChatStateInActive:
 		iconName = "im-user-away";
 		break;
-	case ChatStateGone:
+	case ChatUnit::ChatStateGone:
 		iconName =  "im-user-offline";
 		break;
-	case ChatStateComposing:
+	case ChatUnit::ChatStateComposing:
 		iconName = "im-status-message-edit";
 		break;
-	case ChatStatePaused:
+	case ChatUnit::ChatStatePaused:
 		iconName = "im-user-busy";
 		break;
 	default:
