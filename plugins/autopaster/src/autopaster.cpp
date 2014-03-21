@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "autopaster.h"
+#include <qqml.h>
 #include <qutim/settingslayer.h>
-#include "pastersettings.h"
+#include "pasteritems.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -37,6 +38,7 @@ void AutoPaster::init()
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("trett"));
 	addAuthor(QLatin1String("euroelessar"));
+	qmlRegisterType<PasterItems>("org.qutim.autopaster", 0, 4, "PasterItems");
 }
 
 void AutoPaster::loadSettings()
@@ -52,9 +54,11 @@ bool AutoPaster::load()
 												   qutim_sdk_0_3::MessageHandler::NormalPriortity,
 												   qutim_sdk_0_3::MessageHandler::SenderPriority + 0x2000);
 
-	m_settingsItem = new GeneralSettingsItem<AutoPasterSettings>(
-						 Settings::Plugin,	QIcon(),
-						 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
+	m_settingsItem = new QmlSettingsItem(QStringLiteral("autopaster"),
+										 Settings::Plugin,
+										 QIcon(),
+										 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
+
 	Settings::registerItem(m_settingsItem);
 
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
@@ -72,6 +76,5 @@ bool AutoPaster::unload()
 
 	return true;
 }
-
 
 QUTIM_EXPORT_PLUGIN(AutoPaster)
