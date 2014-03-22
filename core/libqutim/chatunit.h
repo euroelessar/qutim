@@ -42,15 +42,6 @@ class ChatUnitPrivate;
 class Contact;
 typedef QList<ChatUnit *> ChatUnitList;
 
-enum ChatState
-{
-	ChatStateActive = 0,    // User is actively participating in the chat session.
-	ChatStateInActive,      // User has not been actively participating in the chat session.
-	ChatStateGone,          // User has effectively ended their participation in the chat session.
-	ChatStateComposing,     // User is composing a message.
-	ChatStatePaused         // User had been composing but now has stopped.
-};
-
 /**
  * @brief ChatUnit is base class for all chat members
  */
@@ -58,6 +49,7 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 {
 	Q_DECLARE_PRIVATE(ChatUnit)
 	Q_OBJECT
+    Q_ENUMS(ChatState)
 	Q_PROPERTY(QString id READ id CONSTANT)
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
@@ -65,6 +57,14 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
 	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
+    enum ChatState
+    {
+        ChatStateActive = 0,    // User is actively participating in the chat session.
+        ChatStateInActive,      // User has not been actively participating in the chat session.
+        ChatStateGone,          // User has effectively ended their participation in the chat session.
+        ChatStateComposing,     // User is composing a message.
+        ChatStatePaused         // User had been composing but now has stopped.
+    };
 	/**
 	* @brief default ChatUnit's contructor
 	*
@@ -152,8 +152,8 @@ public:
 	*
 	* @param state New ChatState
 	*/
-	void setChatState(qutim_sdk_0_3::ChatState state);
-	qutim_sdk_0_3::ChatState chatState() const;
+	void setChatState(qutim_sdk_0_3::ChatUnit::ChatState state);
+	qutim_sdk_0_3::ChatUnit::ChatState chatState() const;
 public slots:
 	quint64 sendMessage(const QString &text);
 signals:
@@ -166,7 +166,7 @@ signals:
 	Notifies that new lower unit is added.
    */
 	void lowerUnitAdded(ChatUnit *unit);
-	void chatStateChanged(qutim_sdk_0_3::ChatState current,qutim_sdk_0_3::ChatState previous);
+	void chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState current,qutim_sdk_0_3::ChatUnit::ChatState previous);
 	void lastActivityChanged(const QDateTime &current, const QDateTime &previous);
 };
 
@@ -181,13 +181,13 @@ public:
   *
   * @param state ChatState
   */
-	ChatStateEvent(ChatState state);
+	ChatStateEvent(ChatUnit::ChatState state);
 	/**
   * @brief Returns chatState
   *
   * @return ChatState shatState
   */
-	inline ChatState chatState() const { return m_state; }
+	inline ChatUnit::ChatState chatState() const { return m_state; }
 	/**
   * @brief event type
   *
@@ -195,13 +195,13 @@ public:
   */
 	static QEvent::Type eventType();
 protected:
-	ChatState m_state;
+	ChatUnit::ChatState m_state;
 };
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatUnit*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatUnit*>)
-Q_ENUMS(qutim_sdk_0_3::ChatState)
+Q_ENUMS(qutim_sdk_0_3::ChatUnit::ChatState)
 
 #endif // CHATUNIT_H
 

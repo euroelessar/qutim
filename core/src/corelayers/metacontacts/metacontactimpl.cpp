@@ -117,8 +117,8 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 			SLOT(onContactStatusChanged()));
 	connect(contact, SIGNAL(avatarChanged(QString)),
 			SLOT(setAvatar(QString)));
-	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
+			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)));
 	connect(contact, SIGNAL(destroyed(QObject*)),
 	        SLOT(onContactDeath(QObject*)));
 

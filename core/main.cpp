@@ -25,6 +25,7 @@
 ****************************************************************************/
 #include <cstdlib>
 #include <ctime>
+#include <random>
 
 #include <QApplication>
 #include <QTextCodec>
@@ -40,12 +41,15 @@ Q_IMPORT_PLUGIN(qgif)
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    {
+        std::random_device rd;
+        srand(rd());
+        qsrand(rd());
+    }
+	QApplication app(argc, argv);
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
 
-    qsrand(std::time(nullptr));
-    srand(qrand());
-    return app.exec();
+	return app.exec();
 }
 

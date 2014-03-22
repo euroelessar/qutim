@@ -265,8 +265,8 @@ void TabBar::addSession(ChatSessionImpl *session)
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
 			this,SLOT(onTitleChanged(QString)));
-	connect(u, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
-			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+	connect(u, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
+			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)));
 	if (Buddy *buddy = qobject_cast<Buddy*>(u))
 		connect(buddy,
 				SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
@@ -360,7 +360,7 @@ void TabBar::onTitleChanged(const QString &title)
 	setTabText(indexOf(s),title);
 }
 
-void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
+void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState now, qutim_sdk_0_3::ChatUnit::ChatState)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);
@@ -424,7 +424,7 @@ bool TabBar::event(QEvent *event)
 	return QTabBar::event(event);
 }
 
-void TabBar::chatStateChanged(ChatState state, ChatSessionImpl *session)
+void TabBar::chatStateChanged(ChatUnit::ChatState state, ChatSessionImpl *session)
 {
 	if(session->unread().count())
 		return;
@@ -458,7 +458,7 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 	QIcon icon;
 	QString title = session->getUnit()->title();
 	if (unread.isEmpty()) {
-		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
+		ChatUnit::ChatState state = static_cast<ChatUnit::ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 	} else {
 		icon = Icon("mail-unread-new");

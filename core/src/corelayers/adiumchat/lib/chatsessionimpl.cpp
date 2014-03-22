@@ -48,7 +48,7 @@ enum { LastMessagesCount = 5 };
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	hasJavaScript(false),
 	focus(InFocus),
-	myselfChatState(ChatStateInActive),
+	myselfChatState(ChatUnit::ChatStateInActive),
 	m_showReceiverId(false)
 {
 }
@@ -90,7 +90,7 @@ QString ChatSessionImpl::quote()
 ChatSessionImpl::~ChatSessionImpl()
 {
 	Q_D(ChatSessionImpl);
-	setChatState(ChatStateGone);
+	setChatState(ChatUnit::ChatStateGone);
 	if (d->menu)
 		d->menu.data()->deleteLater();
 }
@@ -124,6 +124,9 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		d->unread.append(message);
         emit unreadChanged(d->unread);
 	}
+
+	//if (!message.isIncoming())
+	//	setChatState(ChatUnit::ChatStateActive);
 
 	bool service = message.property("service").isValid();
 	const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
@@ -261,10 +264,10 @@ void ChatSessionImpl::doSetActive(bool active)
 {
 	Q_D(ChatSessionImpl);
 	if (active) {
-		setChatState(ChatStateActive);
+		setChatState(ChatUnit::ChatStateActive);
 		d->focus = ChatSessionImplPrivate::InFocus;
-	} else if (d->myselfChatState != ChatStateGone) {
-		setChatState(ChatStateInActive);
+	} else if (d->myselfChatState != ChatUnit::ChatStateGone) {
+		setChatState(ChatUnit::ChatStateInActive);
 		d->focus = ChatSessionImplPrivate::FirstOutOfFocus;
 	}
 }
@@ -337,24 +340,24 @@ void ChatSessionImplPrivate::onActiveTimeout()
 {
 	Q_Q(ChatSessionImpl);
 	switch(myselfChatState) {
-	case ChatStateComposing:
-		q->setChatState(ChatStatePaused);
+	case ChatUnit::ChatStateComposing:
+		q->setChatState(ChatUnit::ChatStatePaused);
 		break;
-	case ChatStatePaused:
-		q->setChatState(ChatStateActive);
+	case ChatUnit::ChatStatePaused:
+		q->setChatState(ChatUnit::ChatStateActive);
 		break;
-	case ChatStateActive:
-		q->setChatState(ChatStateInActive);
+	case ChatUnit::ChatStateActive:
+		q->setChatState(ChatUnit::ChatStateInActive);
 		break;
-	case ChatStateInActive:
-		q->setChatState(ChatStateGone);
+	case ChatUnit::ChatStateInActive:
+		q->setChatState(ChatUnit::ChatStateGone);
 		break;
 	default:
 		break;
 	}
 }
 
-void ChatSessionImpl::setChatState(ChatState state)
+void ChatSessionImpl::setChatState(ChatUnit::ChatState state)
 {
 	Q_D(ChatSessionImpl);
 	if(d->myselfChatState == state) {
@@ -367,17 +370,17 @@ void ChatSessionImpl::setChatState(ChatState state)
 	}
 	d->myselfChatState = state;
 	switch(state) {
-	case ChatStateComposing:
+	case ChatUnit::ChatStateComposing:
 		// By xep-0085 this time should be 30 secs, but it's too huge
 		d->inactive_timer.setInterval(10000);
 		break;
-	case ChatStatePaused:
+	case ChatUnit::ChatStatePaused:
 		d->inactive_timer.setInterval(30000);
 		break;
-	case ChatStateActive:
+	case ChatUnit::ChatStateActive:
 		d->inactive_timer.setInterval(120000);
 		break;
-	case ChatStateInActive:
+	case ChatUnit::ChatStateInActive:
 		d->inactive_timer.setInterval(600000);
 		break;
 	default:
@@ -495,7 +498,7 @@ QMenu *ChatSessionImpl::menu(bool showReceiverId)
 	return d->menu.data();
 }
 
-ChatState ChatSessionImpl::getChatState() const
+ChatUnit::ChatState ChatSessionImpl::getChatState() const
 {
 	return d_func()->myselfChatState;
 }

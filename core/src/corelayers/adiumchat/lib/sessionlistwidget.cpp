@@ -63,7 +63,7 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 void SessionListWidget::addSession(ChatSessionImpl *session)
 {
 	QListWidgetItem *item = new QListWidgetItem(session->unit()->title(),this);
-	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	QIcon icon = ChatLayerImpl::iconForState(ChatUnit::ChatStateInActive,session->getUnit());
 	if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
 		icon = AvatarFilter::icon(b->avatar(),icon);
 	item->setIcon(icon);
@@ -74,9 +74,9 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 	connect(session->getUnit(),
-			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
 			this,
-			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
+			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)));
 
 	QTimer::singleShot(0, this, SLOT(initScrolling()));
 }
@@ -197,7 +197,7 @@ bool SessionListWidget::event(QEvent *event)
 	return QListWidget::event(event);
 }
 
-void SessionListWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
+void SessionListWidget::chatStateChanged(ChatUnit::ChatState state, ChatSessionImpl *session)
 {
 	if(session->unread().count())
 		return;
@@ -214,7 +214,7 @@ void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread
 	QIcon icon;
 	QString title = session->getUnit()->title();
 	if (unread.isEmpty()) {
-		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
+		ChatUnit::ChatState state = static_cast<ChatUnit::ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 		if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
 			icon = AvatarFilter::icon(b->avatar(),icon);
@@ -228,7 +228,7 @@ void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread
 	i->setText(title);
 }
 
-void SessionListWidget::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
+void SessionListWidget::onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState now, qutim_sdk_0_3::ChatUnit::ChatState)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
 	Q_ASSERT(unit);

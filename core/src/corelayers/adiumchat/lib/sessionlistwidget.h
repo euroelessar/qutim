@@ -58,13 +58,13 @@ signals:
 protected:
 	virtual bool event(QEvent *event);
 	void changeEvent(QEvent *ev);
-	void chatStateChanged(ChatState state,ChatSessionImpl *session);
+	void chatStateChanged(ChatUnit::ChatState state,ChatSessionImpl *session);
 private slots:
 	void onActivated(QListWidgetItem*);
 	void onRemoveSession(QObject *obj);
 	void onTitleChanged(const QString &title);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
-	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
+	void onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState now, qutim_sdk_0_3::ChatUnit::ChatState old);
 	void onCloseSessionTriggered();
 	void initScrolling();
 private:

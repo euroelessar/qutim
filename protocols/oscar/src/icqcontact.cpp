@@ -46,7 +46,7 @@ ChatStateUpdater::ChatStateUpdater()
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendState()));
 }
 
-void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
+void ChatStateUpdater::updateState(IcqContact *contact, ChatUnit::ChatState state)
 {
 	m_states.insert(contact, state);
 	if (!m_timer.isActive())
@@ -55,7 +55,7 @@ void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 
 void ChatStateUpdater::sendState()
 {
-	QMutableHashIterator<QPointer<IcqContact>, ChatState> it(m_states);
+	QMutableHashIterator<QPointer<IcqContact>, ChatUnit::ChatState> it(m_states);
 	while (it.hasNext()) {
 		IcqContact *contact = it.next().key().data();
 		if (!contact) {
@@ -76,16 +76,16 @@ void ChatStateUpdater::sendState()
 		m_timer.stop();
 }
 
-void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
+void ChatStateUpdater::sendState(IcqContact *contact, ChatUnit::ChatState state)
 {
 	MTN type = MtnUnknown;
-	if (state == ChatStatePaused)
+	if (state == ChatUnit::ChatStatePaused)
 		type = MtnTyped;
-	else if (state == ChatStateComposing)
+	else if (state == ChatUnit::ChatStateComposing)
 		type = MtnBegun;
-	else if (state == ChatStateGone)
+	else if (state == ChatUnit::ChatStateGone)
 		type = MtnGone;
-	else if (state == ChatStateInActive || state == ChatStateActive)
+	else if (state == ChatUnit::ChatStateInActive || state == ChatUnit::ChatStateActive)
 		type = MtnFinished;
 	if (type == MtnUnknown)
 		return;
@@ -151,7 +151,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	d->isInList = false;
 	d->status = Status::Offline;
 	d->clearCapabilities();
-	d->state = ChatStateGone;
+	d->state = ChatUnit::ChatStateGone;
 }
 
 IcqContact::~IcqContact()
@@ -348,7 +348,7 @@ void IcqContact::setStatus(const Status &status, bool notification)
 	emit statusChanged(status, previous);
 }
 
-ChatState IcqContact::chatState() const
+ChatUnit::ChatState IcqContact::chatState() const
 {
 	return d_func()->state;
 }

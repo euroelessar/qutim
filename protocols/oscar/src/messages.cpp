@@ -255,19 +255,19 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint16 type = sn.read<quint16>();
 		IcqContact *contact = conn->account()->getContact(uin);
 		if (contact) {
-			ChatState newState = ChatStateActive;
+			ChatUnit::ChatState newState = ChatUnit::ChatStateActive;
 			if (type == MtnFinished) {
-				ChatState old = contact->chatState();
-				if (old == ChatStateActive || old == ChatStateInActive)
-					newState = ChatStateInActive;
+				ChatUnit::ChatState old = contact->chatState();
+				if (old == ChatUnit::ChatStateActive || old == ChatUnit::ChatStateInActive)
+					newState = ChatUnit::ChatStateInActive;
 				else
-					newState = ChatStateActive;
+					newState = ChatUnit::ChatStateActive;
 			} else if (type == MtnTyped) {
-				newState = ChatStatePaused;
+				newState = ChatUnit::ChatStatePaused;
 			} else if (type == MtnBegun) {
-				newState = ChatStateComposing;
+				newState = ChatUnit::ChatStateComposing;
 			} else if (type == MtnGone) {
-				newState = ChatStateGone;
+				newState = ChatUnit::ChatStateGone;
 			} else {
 				qDebug() << "Unknown typing notification from"
 						<< contact->id() << ", type" << type;

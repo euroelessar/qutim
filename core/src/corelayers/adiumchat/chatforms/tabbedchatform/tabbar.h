@@ -69,7 +69,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void leaveEvent(QEvent *event);
 	virtual bool event(QEvent *event);
-	void chatStateChanged(ChatState state, ChatSessionImpl *session);
+	void chatStateChanged(ChatUnit::ChatState state, ChatSessionImpl *session);
 	void statusChanged(const Status &status, ChatSessionImpl *session);
 	void setSessionIcon(ChatSessionImpl *session, const QIcon &icon);
 private slots:
@@ -81,7 +81,7 @@ private slots:
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	void onContextMenu(const QPoint &pos);
 	void onSessionListActionTriggered(QAction *);
-	void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
+	void onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState now, qutim_sdk_0_3::ChatUnit::ChatState old);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onCloseButtonClicked();
 private:

@@ -24,10 +24,12 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKCHATVIEWWIDGET_H
-#define QUICKCHATVIEWWIDGET_H
-#include <qutim/adiumchat/chatviewfactory.h>
+#ifndef ADIUMCHATVIEWWIDGET_H
+#define ADIUMCHATVIEWWIDGET_H
+
 #include <QWebView>
+#include <qutim/adiumchat/chatviewfactory.h>
+#include <qutim/declarativeview.h>
 #include <QPointer>
 #include "yandexdomaindefine.h"
 
@@ -62,5 +64,5 @@ public slots:
 
 } // namespace Adium
 
-#endif // QUICKCHATVIEWWIDGET_H
+#endif // ADIUMCHATVIEWWIDGET_H
 
