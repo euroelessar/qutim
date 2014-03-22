@@ -34,9 +34,6 @@
 #include <QContextMenuEvent>
 #include <QDesktopServices>
 #include <qutim/icon.h>
-#ifdef Q_WS_MAEMO_5
-#include <QMouseEvent>
-#endif
 
 namespace Adium {
 
@@ -49,10 +46,7 @@ WebViewWidget::WebViewWidget(QWidget *parent)
 		QMetaObject::invokeMethod(scroller,
 								  "enableScrolling",
 								  Q_ARG(QObject*, this));
-#ifdef Q_WS_MAEMO_5
-	mousePressed = false;
-	installEventFilter(this);
-#endif
+
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showCustomContextMenu(QPoint)));
 	Config cfg = Config("appearance");
@@ -74,34 +68,11 @@ void WebViewWidget::setViewController(QObject* object)
 
 	WebViewController *controller = qobject_cast<WebViewController*>(object);
 	m_controller = controller;
-	if (controller)
-		setPage(controller);
-	else
-		setPage(new QWebPage(this));
+    if (controller)
+        setPage(controller);
+    else
+        setPage(new QWebPage(this));
 }
-
-#ifdef Q_WS_MAEMO_5
-bool WebViewWidget::eventFilter(QObject *, QEvent *e)
-{
-    switch (e->type()) {
-    case QEvent::MouseButtonPress:
-	if (static_cast<QMouseEvent *>(e)->button() == Qt::LeftButton)
-	    mousePressed = true;
-	break;
-    case QEvent::MouseButtonRelease:
-	if (static_cast<QMouseEvent *>(e)->button() == Qt::LeftButton)
-	    mousePressed = false;
-	break;
-    case QEvent::MouseMove:
-	if (mousePressed)
-	    return true;
-	break;
-    default:
-	break;
-    }
-    return false;
-}
-#endif
 
 void WebViewWidget::showCustomContextMenu(const QPoint &point)
 {

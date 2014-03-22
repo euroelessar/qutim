@@ -23,32 +23,22 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-
-#include <QApplication>
-#include <QTextCodec>
-#include <QWidget>
-
 #include <cstdlib>
 #include <ctime>
 #include <random>
 
-#ifdef QUTIM_DECLARATIVE_UI
-#include "src/declarative/modulemanagerimpl.h"
-#else
-#include "src/widgets/modulemanagerimpl.h"
-#endif
+#include <QApplication>
+#include <QTextCodec>
+#include <QWidget>
 #include <QTime>
+
+#include "src/widgets/modulemanagerimpl.h"
 
 #if defined(STATIC_IMAGE_PLUGINS)
 Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-#ifdef MEEGO_EDITION
-#include <MDeclarativeCache>
-
-Q_DECL_EXPORT
-#endif
 int main(int argc, char *argv[])
 {
     {
@@ -56,16 +46,10 @@ int main(int argc, char *argv[])
         srand(rd());
         qsrand(rd());
     }
-
-#ifdef MEEGO_EDITION
-	QScopedPointer<QApplication> app(MDeclarativeCache::qApplication(argc, argv));
-#else
-	QScopedPointer<QApplication> app(new QApplication(argc, argv));
-#endif
-
+	QApplication app(argc, argv);
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
 
-	return app->exec();
+	return app.exec();
 }
 
