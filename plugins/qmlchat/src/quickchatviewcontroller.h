@@ -40,8 +40,7 @@ class QuickChatController : public QObject, public Core::AdiumChat::ChatViewCont
     Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 	Q_PROPERTY(QObject* session READ getSession NOTIFY sessionChanged)
-	Q_PROPERTY(QObject* unit READ unit NOTIFY sessionChanged)
-	Q_PROPERTY(QString chatState READ chatState NOTIFY chatStateChanged)
+    Q_PROPERTY(QQuickItem* item READ item NOTIFY itemChanged)
 public:
     QuickChatController(QObject *parent = 0);
 	virtual ~QuickChatController();
@@ -49,29 +48,28 @@ public:
 	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void clearChat();
-	QQuickItem *rootItem() const;
-	Q_INVOKABLE QString parseEmoticons(const QString &) const;
-	QObject *unit() const;
-	QString chatState() const;
+    Q_INVOKABLE QString parseEmoticons(const QString &) const;
+    QQuickItem *item() const;
+
 public slots:
 	void loadSettings();
 	void loadTheme(const QString &name);
 	void appendText(const QString &string);
 protected slots:
 	void loadHistory();
-	void onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState state);
 protected:
 	bool eventFilter(QObject *, QEvent *);
 signals:
 	void messageAppended(const QVariant &message);
-	void messageDelivered(int mid);
+	void messageDelivered(quint64 messageId);
 	void clearChatField();
 	void sessionChanged(QObject *);
-	void chatStateChanged(QString state);
+    void chatStateChanged(QString state);
+    void itemChanged(QQuickItem *item);
+
 private:
 	QPointer<qutim_sdk_0_3::ChatSession> m_session;
     QPointer<QQuickItem> m_item;
-	QString m_themeName;
 };
 
 } // namespace AdiumChat

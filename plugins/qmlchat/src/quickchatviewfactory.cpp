@@ -50,7 +50,7 @@ QObject* QuickChatViewFactory::createViewController()
 
 QWidget* QuickChatViewFactory::createViewWidget()
 {
-	return QWidget::createWindowContainer(new QuickChatViewWidget());
+	return new QuickChatViewWidget();
 }
 
 QuickChatViewFactory::~QuickChatViewFactory()

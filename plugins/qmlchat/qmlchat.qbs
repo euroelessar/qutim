@@ -11,4 +11,11 @@ UreenPlugin {
         qbs.install: true
         qbs.installDir: project.qutim_share_path
     }
+
+    Group {
+        name: "QML files"
+        files: "src/qmlchat"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path
+    }
 }

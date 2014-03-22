@@ -54,27 +54,27 @@ static QVariant messageToVariant(const Message &mes)
 {
 	//TODO Optimize if posible
 	QVariantMap map;
-	map.insert(QLatin1String("mid"), mes.id());
-	map.insert(QLatin1String("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
+	map.insert(QStringLiteral("messageId"), mes.id());
+	map.insert(QStringLiteral("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
 	QObject *unit = mes.chatUnit();
 	if (unit) {
-		map.insert(QLatin1String("chatUnit"), qVariantFromValue<QObject*>(unit));
+		map.insert(QStringLiteral("chatUnit"), qVariantFromValue<QObject*>(unit));
 		QObject *account = mes.chatUnit()->account();
-		map.insert(QLatin1String("account"), qVariantFromValue<QObject*>(account));
+		map.insert(QStringLiteral("account"), qVariantFromValue<QObject*>(account));
 	}
-	map.insert(QLatin1String("isIncoming"), mes.isIncoming());
-	map.insert(QLatin1String("isDelivered"), mes.isIncoming());
+	map.insert(QStringLiteral("incoming"), mes.isIncoming());
+	map.insert(QStringLiteral("delivered"), mes.isIncoming());
 
 	//define action and service property if it not defined
-	map.insert(QLatin1String("action"), mes.property("action",false));
-	map.insert(QLatin1String("service"), mes.property("service",false));
+	map.insert(QStringLiteral("action"), mes.property("action",false));
+	map.insert(QStringLiteral("service"), mes.property("service",false));
 
 	//handle /me
-	bool isMe = mes.text().startsWith(QLatin1String("/me "));
+	bool isMe = mes.text().startsWith(QStringLiteral("/me "));
 	QString body = isMe ? mes.text().mid(4) : mes.text();
 	if (isMe)
-		map.insert(QLatin1String("action"), true);
-	map.insert(QLatin1String("body"), UrlParser::parseUrls(body));
+		map.insert(QStringLiteral("action"), true);
+	map.insert(QStringLiteral("body"), UrlParser::parseUrls(body));
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
@@ -82,40 +82,33 @@ static QVariant messageToVariant(const Message &mes)
 	//add correct sender name
 	QString sender = mes.property("senderName", QString());
 	if (sender.isEmpty()) {
-		if (mes.isIncoming())
-			map.insert(QLatin1String("sender"), mes.chatUnit()->title());
-		else {
+        const QString senderLiteral = QStringLiteral("sender");
+
+        if (mes.isIncoming()) {
+			map.insert(senderLiteral, mes.chatUnit()->title());
+		} else {
 			Conference *c = qobject_cast<Conference*>(mes.chatUnit());
 			if (c && c->me())
-				map.insert(QLatin1String("sender"), c->me()->title());
+				map.insert(senderLiteral, c->me()->title());
 			else
-				map.insert(QLatin1String("sender"), mes.chatUnit()->account()->name());
+				map.insert(senderLiteral, mes.chatUnit()->account()->name());
 		}
-	} else
-		map.insert(QLatin1String("sender"), sender);
+	} else {
+		map.insert(QStringLiteral("sender"), sender);
+    }
 	//add correct avatar
 	if (!mes.property("avatar").isValid()) {
 		if (mes.isIncoming()) {
 			if (Buddy *b = qobject_cast<Buddy*>(mes.chatUnit()))
-				map.insert(QLatin1String("avatar"), b->avatar());
+				map.insert(QStringLiteral("avatar"), b->avatar());
 		}
 	}
 
 	return map;
 }
 
-static QString chatStateToString(ChatUnit::ChatState state)
-{
-    const static QMetaObject *meta = &ChatUnit::staticMetaObject;
-    const static int index = meta->indexOfEnumerator("ChatState");
-    const static QMetaEnum enumerator = meta->enumerator(index);
-
-    return QString::fromLatin1(enumerator.valueToKey(state));
-}
-
 QuickChatController::QuickChatController(QObject *parent) :
-	QObject(parent),
-	m_themeName(QLatin1String("default"))
+	QObject(parent)
 {
 }
 
@@ -143,8 +136,8 @@ ChatSession *QuickChatController::getSession() const
 void QuickChatController::loadHistory()
 {
 	qDebug() << Q_FUNC_INFO;
-	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
-	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
+	Config config = Config(QStringLiteral("appearance")).group(QStringLiteral("chat/history"));
+	int max_num = config.value(QStringLiteral("maxDisplayMessages"), 5);
 	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
@@ -169,14 +162,6 @@ void QuickChatController::setChatSession(ChatSession *session)
 	m_session.data()->installEventFilter(this);
 	loadSettings();
 	emit sessionChanged(session);
-
-	connect(session->unit(), SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
-			this, SLOT(onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState)));
-}
-
-QQuickItem *QuickChatController::rootItem() const
-{
-	return m_item.data();
 }
 
 bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
@@ -191,15 +176,16 @@ bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
 
 void QuickChatController::loadSettings()
 {
-	Config config("appearance/quickChat");
-    config.beginGroup("style");
-	loadTheme(config.value<QString>("name","default"));
+	Config config(QStringLiteral("appearance/quickChat"));
+    config.beginGroup(QStringLiteral("style"));
+	loadTheme(config.value(QStringLiteral("name"), QStringLiteral("default")));
 }
 
 void QuickChatController::loadTheme(const QString &name)
 {
-	m_themeName = name;
-	QString path = ThemeManager::path(QLatin1String("qmlchat"), m_themeName);
+    QQuickItem *item = m_item;
+
+	QString path = ThemeManager::path(QStringLiteral("qmlchat"), name);
 	QString main = path % QLatin1Literal("/main.qml");
 
 	QQmlComponent component (DeclarativeView::globalEngine(), QUrl::fromLocalFile(main));
@@ -213,6 +199,10 @@ void QuickChatController::loadTheme(const QString &name)
     QQmlProperty controllerProperty(m_item, QStringLiteral("controller"));
     controllerProperty.write(QVariant::fromValue(this));
 
+    emit itemChanged(m_item);
+
+    delete item;
+
 	loadHistory();
 }
 
@@ -222,28 +212,18 @@ QString QuickChatController::parseEmoticons(const QString &text) const
     return Emoticons::theme().parseEmoticons(text);
 }
 
-QObject *QuickChatController::unit() const
+QQuickItem *QuickChatController::item() const
 {
-	return m_session ? m_session.data()->unit() : 0;
-}
-
-QString QuickChatController::chatState() const
-{
-	return chatStateToString(m_session ? m_session.data()->unit()->chatState() : ChatUnit::ChatStateGone);
-}
-
-void QuickChatController::onChatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState state)
-{
-	emit chatStateChanged(chatStateToString(state));
+    return m_item;
 }
 
 void QuickChatController::appendText(const QString &text)
 {
-	qDebug() << Q_FUNC_INFO << text << m_session.data();
+    qDebug() << Q_FUNC_INFO << text << m_session.data();
 	QMetaObject::invokeMethod(ChatLayer::instance(),
 	                          "insertText",
 	                          Q_ARG(ChatSession*, m_session.data()),
-	                          Q_ARG(QString, text + QLatin1String(" ")));
+	                          Q_ARG(QString, text + QStringLiteral(" ")));
 }
 
 } // namespace AdiumChat

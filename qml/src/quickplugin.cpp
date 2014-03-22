@@ -1,9 +1,12 @@
+#define QUTIM_PLUGIN_NAME "org.qutim"
+
 #include "quickplugin.h"
 #include "quickconfig.h"
 #include "quickemoticons.h"
 #include "quickemoticonstheme.h"
 #include "quickimageprovider.h"
 #include <qutim/notification.h>
+#include <qutim/chatsession.h>
 #include <qqml.h>
 
 namespace qutim_sdk_0_3 {
@@ -30,5 +33,7 @@ void QuickPlugin::registerTypes(const char *uri)
     qmlRegisterType<QuickConfig>("org.qutim", 0, 4, "Config");
     qmlRegisterType<QuickEmoticons>("org.qutim", 0, 4, "Emoticons");
     qmlRegisterType<QuickEmoticonsTheme>("org.qutim", 0, 4, "EmoticonsTheme");
+    qmlRegisterUncreatableType<ChatUnit>("org.qutim", 0, 4, "ChatUnit", "ChatUnit is pure virtual class");
+    qmlRegisterUncreatableType<ChatSession>("org.qutim", 0, 4, "ChatSession", "ChatSession is pure virtual class");
 }
 }

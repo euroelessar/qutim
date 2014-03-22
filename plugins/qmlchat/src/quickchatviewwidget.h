@@ -35,17 +35,20 @@ namespace Core {
 namespace AdiumChat {
 
 class QuickChatController;
-class QuickChatViewWidget : public qutim_sdk_0_3::DeclarativeView, public Core::AdiumChat::ChatViewWidget
+class QuickChatViewWidget : public QWidget, public Core::AdiumChat::ChatViewWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
 	QuickChatViewWidget();
+    ~QuickChatViewWidget();
+
     virtual void setViewController(QObject* controller);
-private slots:
-	void onRootChanged(QQuickItem *root);
 private:
+    qutim_sdk_0_3::DeclarativeView m_view;
+    QWidget *m_container;
 	QPointer<QuickChatController> m_controller;
+    QMetaObject::Connection m_connection;
 };
 
 } // namespace AdiumChat

@@ -1,4 +1,5 @@
-import Qt 4.7
+import QtQuick 2.2
+import org.qutim 0.4
 import "delegate"
 
 Rectangle {
@@ -6,6 +7,10 @@ Rectangle {
 
     width: 300
     height: 200
+    
+    property QtObject controller
+    property QtObject session: controller !== null ? controller.session : null
+    property QtObject unit: session !== null ? session.unit : null
 
 	ListModel {
 		id: messageModel
@@ -106,9 +111,25 @@ Rectangle {
 		Text {
 			id: chatStateText
 
-			text: ""
 			color: "gray"
 			opacity: 1
+            text: {
+                if (main.unit) {
+                    switch (unit.chatState) {
+                    case ChatUnit.ChatStateActive:
+                        return qsTr("is active");
+                    case ChatUnit.ChatStateInActive:
+                        return qsTr("is inactive");
+                    case ChatUnit.ChatStateGone:
+                        return qsTr("is gone");
+                    case ChatUnit.ChatStateComposing:
+                        return qsTr("is composing");
+                    case ChatUnit.ChatStatePaused:
+                        return qsTr("is paused");
+                    }
+                }
+                return "";
+            }
 
 			anchors.bottom: messageView.bottom
 			anchors.left: messageView.left
@@ -158,8 +179,8 @@ Rectangle {
 		}
 		onMessageDelivered: {
             for (var i = messageModel.count-1;i !== -1;i--) {
-                if (messageModel.get(i).mid === mid) {
-					messageModel.setProperty(i, "isDelivered", true);
+                if (messageModel.get(i).messageId === messageId) {
+					messageModel.setProperty(i, "delivered", true);
 					break;
 				}
 			}
@@ -167,39 +188,9 @@ Rectangle {
 	}
 
 	Connections {
-		target:  controller.session
+		target:  session
 		onActivated: {
 			console.log("Activated : " + active);
 		}
 	}
-	Connections {
-		target: controller
-		onChatStateChanged: {
-			var txt;
-			if (state == "ChatStateActive")
-				txt = qsTr("is active");
-			else if (state == "ChatStateInActive")
-				txt = qsTr("is inactive");
-			else if (state == "ChatStateGone")
-				txt = qsTr("is gone");
-			else if (state == "ChatStateComposing")
-				txt = qsTr("is composing");
-			else if (state == "ChatStatePaused")
-				txt = qsTr("is paused");
-
-			//controller.appendText(controller.unit.title + ":");
-
-			chatStateText.text = controller.unit.title + " " + txt;
-
-			chatStateText.opacity = 1;
-			stateTimer.start();
-		}
-	}
-
-	Timer {
-		id: stateTimer
-		interval: 5000
-		onTriggered: chatStateText.opacity = 0;
-	}
-
 }
