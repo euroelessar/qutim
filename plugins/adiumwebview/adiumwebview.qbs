@@ -16,6 +16,7 @@ Project {
     }
 
     references: [
-        "lib/qutim-adiumwebview.qbs"
+        "lib/qutim-adiumwebview.qbs",
+        "plugin/adiumplugin.qbs"
     ]
 }

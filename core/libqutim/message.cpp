@@ -33,6 +33,7 @@
 #include "chatunit.h"
 #include "account.h"
 #include "protocol.h"
+#include "conference.h"
 #include <QDebug>
 
 QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
@@ -222,7 +223,48 @@ void Message::setIncoming(bool input)
 
 ChatUnit* Message::chatUnit() const
 {
-	return p->chatUnit.data();
+    return p->chatUnit.data();
+}
+
+Message::UnitData Message::unitData() const
+{
+    QObject *source = 0;
+	UnitData result;
+	result.id = property("senderId", QString());
+	result.title = property("senderName", QString());
+    result.avatar = property("senderAvatar", QString());
+	if (!result.title.isEmpty()) {
+        if (result.avatar.isEmpty()) {
+            if (!result.id.isEmpty())
+                source = chatUnit()->account()->getUnit(result.id, false);
+            if (source)
+                result.avatar = source->property("avatar").toString();
+        }
+		return result;
+	}
+	if (!source && chatUnit()) {
+		if (!isIncoming()) {
+			const Conference *conf = qobject_cast<const Conference*>(chatUnit());
+			if (conf && conf->me())
+				source = conf->me();
+			else
+				source = chatUnit()->account();
+		} else {
+			source = chatUnit();
+		}
+	}
+	if (!source)
+		return result;
+    if (result.avatar.isEmpty())
+        result.avatar = source->property("avatar").toString();
+	if (ChatUnit *unit = qobject_cast<ChatUnit*>(source)) {
+		result.id = unit->id();
+		result.title = unit->title();
+	} else if (Account *account = qobject_cast<Account*>(source)) {
+		result.id = account->id();
+		result.title = account->name();
+	}
+	return result;
 }
 
 quint64 Message::id() const

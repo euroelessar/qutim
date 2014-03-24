@@ -41,6 +41,13 @@ class MessagePrivate;
 class LIBQUTIM_EXPORT Message
 {
 public:
+    struct UnitData
+    {
+        QString id;
+		QString title;
+		QString avatar;
+    };
+
 	Message();
 	Message(const QString &text);
 	Message(const Message &other);
@@ -57,6 +64,7 @@ public:
 	bool isIncoming() const;
 	void setChatUnit (ChatUnit *chatUnit);
 	ChatUnit *chatUnit() const;
+    UnitData unitData() const;
 	QString unitName() const;
 	QString unitId() const;
 	QString unitAvatar() const;

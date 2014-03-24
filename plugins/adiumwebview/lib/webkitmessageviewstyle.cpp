@@ -843,39 +843,14 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 
 WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qutim_sdk_0_3::Message &message)
 {
-	QObject *source = 0;
-	UnitData result;
-	result.id = message.property("senderId", QString());
-	result.title = message.property("senderName", QString());
-	if (!result.title.isEmpty()) {
-		if (!result.id.isEmpty())
-			source = message.chatUnit()->account()->getUnit(result.id, false);
-		if (source)
-			result.avatar = source->property("avatar").toString();
-		return result;
-	}
-	if (!source && message.chatUnit()) {
-		if (!message.isIncoming()) {
-			const Conference *conf = qobject_cast<const Conference*>(message.chatUnit());
-			if (conf && conf->me())
-				source = conf->me();
-			else
-				source = message.chatUnit()->account();
-		} else {
-			source = message.chatUnit();
-		}
-	}
-	if (!source)
-		return result;
-	result.avatar = source->property("avatar").toString();
-	if (ChatUnit *unit = qobject_cast<ChatUnit*>(source)) {
-		result.id = unit->id();
-		result.title = unit->title();
-	} else if (Account *account = qobject_cast<Account*>(source)) {
-		result.id = account->id();
-		result.title = account->name();
-	}
-	return result;
+    const Message::UnitData data = message.unitData();
+
+    UnitData result;
+    result.id = data.id;
+    result.title = data.title;
+    result.avatar = data.avatar;
+
+    return result;
 }
 
 QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar)

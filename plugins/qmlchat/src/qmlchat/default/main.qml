@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import org.qutim 0.4
 import "delegate"
+import QtQuick.Controls 1.1
 
 Rectangle {
 	id: main
@@ -84,75 +85,67 @@ Rectangle {
 		}
 	}
 
-	ListView {
-		id: messageView
-		anchors.margins: 10
-		model: messageModel
-
-		anchors.fill: parent
-
-		delegate: messageDelegate
-
-		highlight: highlight
-		highlightFollowsCurrentItem: true
-		focus: true
-
-		// Only show the scrollbars when the view is moving.
-		states: State {
-			name: "ShowBars"
-			when: messageView.movingVertically
-			PropertyChanges { target: verticalScrollBar; opacity: 1 }
-		}
-
-		transitions: Transition {
-			NumberAnimation { properties: "opacity"; duration: 400 }
-		}
-
-		Text {
-			id: chatStateText
-
-			color: "gray"
-			opacity: 1
-            text: {
-                if (main.unit) {
-                    switch (unit.chatState) {
-                    case ChatUnit.ChatStateActive:
-                        return qsTr("is active");
-                    case ChatUnit.ChatStateInActive:
-                        return qsTr("is inactive");
-                    case ChatUnit.ChatStateGone:
-                        return qsTr("is gone");
-                    case ChatUnit.ChatStateComposing:
-                        return qsTr("is composing");
-                    case ChatUnit.ChatStatePaused:
-                        return qsTr("is paused");
-                    }
-                }
-                return "";
+    ScrollView {
+        anchors.fill: parent
+        
+        ListView {
+            id: messageView
+            anchors.margins: 10
+            model: messageModel
+    
+            delegate: messageDelegate
+    
+            highlight: highlight
+            highlightFollowsCurrentItem: true
+            focus: true
+    
+            // Only show the scrollbars when the view is moving.
+            states: State {
+                name: "ShowBars"
+                when: messageView.movingVertically
+                PropertyChanges { target: verticalScrollBar; opacity: 1 }
             }
-
-			anchors.bottom: messageView.bottom
-			anchors.left: messageView.left
-			anchors.right: messageView.right
-
-			horizontalAlignment: Text.AlignHCenter
-
-			Behavior on opacity {
-				NumberAnimation { properties: "opacity"; duration: 500 }
-			}
-
-		}
-	}
-
-	ScrollBar {
-		id: verticalScrollBar
-		width: 12; height:  messageView.height-12
-		anchors.right:  messageView.right
-		opacity: 0
-		orientation: Qt.Vertical
-		position: messageView.visibleArea.yPosition
-		pageSize: messageView.visibleArea.heightRatio
-	}
+    
+            transitions: Transition {
+                NumberAnimation { properties: "opacity"; duration: 400 }
+            }
+    
+            Text {
+                id: chatStateText
+    
+                color: "gray"
+                opacity: 1
+                text: {
+                    if (main.unit) {
+                        switch (unit.chatState) {
+                        case ChatUnit.ChatStateActive:
+                            return qsTr("is active");
+                        case ChatUnit.ChatStateInActive:
+                            return qsTr("is inactive");
+                        case ChatUnit.ChatStateGone:
+                            return qsTr("is gone");
+                        case ChatUnit.ChatStateComposing:
+                            return qsTr("is composing");
+                        case ChatUnit.ChatStatePaused:
+                            return qsTr("is paused");
+                        }
+                    }
+                    return "";
+                }
+    
+                anchors.bottom: messageView.bottom
+                anchors.left: messageView.left
+                anchors.right: messageView.right
+    
+                horizontalAlignment: Text.AlignHCenter
+    
+                Behavior on opacity {
+                    NumberAnimation { properties: "opacity"; duration: 500 }
+                }
+    
+            }
+        }
+    }
 
 	Connections {
 		target: controller

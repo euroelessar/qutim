@@ -72,15 +72,17 @@ void QuickChatViewWidget::setViewController(QObject* object)
         QObject::disconnect(m_connection);
 
 	m_controller = qobject_cast<QuickChatController*>(object);
+    auto onItemChanged = [this] (QQuickItem *item) {
+        bool result = QMetaObject::invokeMethod(m_view.rootObject(), "setItem", Q_ARG(QVariant, QVariant::fromValue(item)));
+        (void) result;
+        Q_ASSERT(result);
+    };
 
     if (m_controller) {
-        auto onItemChanged = [this] (QQuickItem *item) {
-            bool result = QMetaObject::invokeMethod(m_view.rootObject(), "setItem", Q_ARG(QVariant, QVariant::fromValue(item)));
-            (void) result;
-            Q_ASSERT(result);
-        };
         onItemChanged(m_controller->item());
         m_connection = connect(m_controller.data(), &QuickChatController::itemChanged, onItemChanged);
+    } else {
+        onItemChanged(NULL);
     }
 }
 

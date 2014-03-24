@@ -5,15 +5,18 @@ Item {
     property Item currentItem
 
     function setItem(item) {
+        console.log('item: ', currentItem, item)
+
         if (currentItem) {
             currentItem.anchors.fill = undefined;
-            currentItem.parent = null;
+            currentItem.visible = false;
         }
 
         currentItem = item;
         if (currentItem) {
             currentItem.parent = root;
             currentItem.anchors.fill = Qt.binding(function () { return root });
+            currentItem.visible = true;
         }
     }
 }

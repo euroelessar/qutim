@@ -54,14 +54,17 @@ static QVariant messageToVariant(const Message &mes)
 {
 	//TODO Optimize if posible
 	QVariantMap map;
+
+    map.insert(QStringLiteral("originalMessage"), QVariant::fromValue(mes));
 	map.insert(QStringLiteral("messageId"), mes.id());
 	map.insert(QStringLiteral("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
-	QObject *unit = mes.chatUnit();
-	if (unit) {
+
+	if (QObject *unit = mes.chatUnit()) {
 		map.insert(QStringLiteral("chatUnit"), qVariantFromValue<QObject*>(unit));
 		QObject *account = mes.chatUnit()->account();
 		map.insert(QStringLiteral("account"), qVariantFromValue<QObject*>(account));
 	}
+
 	map.insert(QStringLiteral("incoming"), mes.isIncoming());
 	map.insert(QStringLiteral("delivered"), mes.isIncoming());
 
@@ -75,34 +78,16 @@ static QVariant messageToVariant(const Message &mes)
 	if (isMe)
 		map.insert(QStringLiteral("action"), true);
 	map.insert(QStringLiteral("body"), UrlParser::parseUrls(body));
+    map.insert(QStringLiteral("text"), mes.text());
+    map.insert(QStringLiteral("html"), mes.html());
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
 
-	//add correct sender name
-	QString sender = mes.property("senderName", QString());
-	if (sender.isEmpty()) {
-        const QString senderLiteral = QStringLiteral("sender");
-
-        if (mes.isIncoming()) {
-			map.insert(senderLiteral, mes.chatUnit()->title());
-		} else {
-			Conference *c = qobject_cast<Conference*>(mes.chatUnit());
-			if (c && c->me())
-				map.insert(senderLiteral, c->me()->title());
-			else
-				map.insert(senderLiteral, mes.chatUnit()->account()->name());
-		}
-	} else {
-		map.insert(QStringLiteral("sender"), sender);
-    }
-	//add correct avatar
-	if (!mes.property("avatar").isValid()) {
-		if (mes.isIncoming()) {
-			if (Buddy *b = qobject_cast<Buddy*>(mes.chatUnit()))
-				map.insert(QStringLiteral("avatar"), b->avatar());
-		}
-	}
+    const Message::UnitData unit = mes.unitData();
+    map.insert(QStringLiteral("senderId"), unit.title);
+    map.insert(QStringLiteral("senderName"), unit.id);
+    map.insert(QStringLiteral("senderAvatar"), unit.avatar);
 
 	return map;
 }
@@ -137,7 +122,7 @@ void QuickChatController::loadHistory()
 {
 	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QStringLiteral("appearance")).group(QStringLiteral("chat/history"));
-	int max_num = config.value(QStringLiteral("maxDisplayMessages"), 5);
+	int max_num = 50 + config.value(QStringLiteral("maxDisplayMessages"), 5);
 	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
@@ -196,6 +181,8 @@ void QuickChatController::loadTheme(const QString &name)
     }
 
 	m_item = qobject_cast<QQuickItem*>(obj);
+    QQmlEngine::setObjectOwnership(m_item, QQmlEngine::CppOwnership);
+
     QQmlProperty controllerProperty(m_item, QStringLiteral("controller"));
     controllerProperty.write(QVariant::fromValue(this));
 
