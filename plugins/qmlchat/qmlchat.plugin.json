@@ -2,6 +2,6 @@
 	"pluginIcon": "",
 	"pluginName": "Qt Quick view (experimental)",
 	"pluginDescription": "Modern chat view based on power of QtQuick",
-	"extensionHeader": "quickchatviewfactory.h",
+	"extensionHeader": "src/quickchatviewfactory.h",
 	"extensionClass": "Core::AdiumChat::QuickChatViewFactory"
 }
