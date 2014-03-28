@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #ifndef MACIDLE_H
-#define MIDLE_H
+#define MACIDLE_H
 
 #include <QObject>
 #include <qutim/protocol.h>
