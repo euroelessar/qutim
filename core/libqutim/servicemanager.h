@@ -74,7 +74,6 @@ signals:
 	/*! Notify a change of service.
 	  */
 	void serviceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
-	void serviceChanged(QObject *newObject, QObject *oldObject);
 	void initedChanged(bool inited = true);
 private:
 	ServiceManager();

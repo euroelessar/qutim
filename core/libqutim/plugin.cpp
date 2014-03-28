@@ -150,8 +150,13 @@ namespace qutim_sdk_0_3
 
 	QString PluginInfo::fileName() const
 	{
-		return d->fileName;
-	}
+        return d->fileName;
+    }
+
+    QString PluginInfo::libraryName() const
+    {
+        return d->libraryName;
+    }
 
 	class CommandArgumentPrivate : public QSharedData
 	{
