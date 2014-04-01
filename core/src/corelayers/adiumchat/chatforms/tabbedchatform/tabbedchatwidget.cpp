@@ -321,7 +321,7 @@ bool TabbedChatWidget::contains(ChatSessionImpl *session) const
     return m_tabBar->contains(session);
 }
 
-void TabbedChatWidget::actionAdded(QAction *action, int index)
+void TabbedChatWidget::handleActionAdded(int index, QAction *action)
 {
     QList<QAction*> actions = m_toolbar->actions();
     int unitIndex = actions.indexOf(m_unitSeparator);
@@ -329,7 +329,7 @@ void TabbedChatWidget::actionAdded(QAction *action, int index)
     m_toolbar->insertAction(actions.at(index), action);
 }
 
-void TabbedChatWidget::actionRemoved(int index)
+void TabbedChatWidget::handleActionRemoved(int index)
 {
     QList<QAction*> actions = m_toolbar->actions();
     int unitIndex = actions.indexOf(m_unitSeparator);
@@ -337,7 +337,7 @@ void TabbedChatWidget::actionRemoved(int index)
     m_toolbar->removeAction(actions.at(index));
 }
 
-void TabbedChatWidget::actionsCleared()
+void TabbedChatWidget::handleActionsCleared()
 {
     QList<QAction*> actions = m_toolbar->actions();
     int from = actions.indexOf(m_actSeparator) + 1;

@@ -211,9 +211,9 @@ class LIBQUTIM_EXPORT ActionHandler
 public:
 	virtual ~ActionHandler();
 	
-	virtual void actionAdded(QAction *action, int index) = 0;
-	virtual void actionRemoved(int index) = 0;
-	virtual void actionsCleared() = 0;
+	virtual void handleActionAdded(int index, QAction *action) = 0;
+	virtual void handleActionRemoved(int index) = 0;
+	virtual void handleActionsCleared() = 0;
 };
 
 class LIBQUTIM_EXPORT ActionContainer

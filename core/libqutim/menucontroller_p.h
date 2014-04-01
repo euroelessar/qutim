@@ -157,9 +157,9 @@ class DynamicMenu : public QObject, public ActionHandler
 public:
 	DynamicMenu(MenuControllerPrivate *p);
 	virtual ~DynamicMenu();
-	virtual void actionAdded(QAction *action, int index);
-	virtual void actionRemoved(int index);
-	virtual void actionsCleared();
+	virtual void handleActionAdded(int index, QAction *action);
+	virtual void handleActionRemoved(int index);
+	virtual void handleActionsCleared();
 	virtual bool eventFilter(QObject *, QEvent *);
 	
 	QMenu *menu() { return m_entry.menu; }

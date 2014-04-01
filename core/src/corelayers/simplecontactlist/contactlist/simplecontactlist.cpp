@@ -73,6 +73,7 @@ struct ModulePrivate
 	ServicePointer<QAbstractItemModel> model;
     QScopedPointer<ActionGenerator> tagsGenerator;
     QList<ActionGenerator*> toolBarButtons;
+    MenuController buttonsController;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -81,6 +82,8 @@ Module::Module() : p(new ModulePrivate)
     Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactListWidget"));
     Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactModel"));
     Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactDelegate"));
+
+    p->buttonsController.setParent(this);
 
     // init shortcuts
     Shortcut::registerSequence("contactListGlobalStatus",
@@ -140,10 +143,17 @@ QWidget *Module::widget()
     return p->widget;
 }
 
+QObject *Module::buttons()
+{
+    return &p->buttonsController;
+}
+
 void Module::addButton(ActionGenerator *generator)
 {
-    if (!p->toolBarButtons.contains(generator))
+    if (!p->toolBarButtons.contains(generator)) {
         p->toolBarButtons << generator;
+        p->buttonsController.addAction(generator);
+    }
     AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
     if (w)
 		w->addButton(generator);
@@ -152,6 +162,8 @@ void Module::addButton(ActionGenerator *generator)
 void Module::removeButton(ActionGenerator *generator)
 {
 	if (p->toolBarButtons.removeOne(generator)) {
+        p->buttonsController.removeAction(generator);
+
 		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
 	    if (w)
 			w->removeButton(generator);

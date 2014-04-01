@@ -31,6 +31,7 @@ Project {
         "sdlsound/sdlsound.qbs",
         "macintegration/macintegration.qbs",
         "offtherecord/offtherecord.qbs",
-        "qmlchat/qmlchat.qbs"
+        "qmlchat/qmlchat.qbs",
+        "quickcontactlist/quickcontactlist.qbs"
     ]
 }

@@ -10,7 +10,7 @@ WebView {
     id: root
     
     property alias session: controller.session
-//    pressDelay: 0
+    pressDelay: 1
 //    interactive: false
 //    pixelAligned: true
 //    contentWidth: parent ? parent.width : undefined

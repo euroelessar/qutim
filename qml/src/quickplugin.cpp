@@ -7,6 +7,7 @@
 #include "quickimageprovider.h"
 #include "quickservice.h"
 #include "quickpluginwrapper.h"
+#include "quickactioncontainer.h"
 #include <qutim/notification.h>
 #include <qutim/chatsession.h>
 #include <qqml.h>
@@ -32,11 +33,17 @@ void QuickPlugin::registerTypes(const char *uri)
                 "org.qutim", 0, 4,
                 "Notification",
                 QStringLiteral("Unable to create notification inside QtQuick"));
+    qmlRegisterUncreatableType<MenuController>(
+                "org.qutim", 0, 4,
+                "MenuController",
+                QStringLiteral("Unable to create notification inside QtQuick"));
     qmlRegisterType<QuickConfig>("org.qutim", 0, 4, "Config");
     qmlRegisterType<QuickEmoticons>("org.qutim", 0, 4, "Emoticons");
     qmlRegisterType<QuickEmoticonsTheme>("org.qutim", 0, 4, "EmoticonsTheme");
     qmlRegisterType<QuickService>("org.qutim", 0, 4, "Service");
     qmlRegisterType<QuickPluginWrapper>("org.qutim", 0, 4, "Plugin");
+    qmlRegisterType<QuickActionContainer>("org.qutim", 0, 4, "ActionContainer");
+    qmlRegisterType<QuickAction>("org.qutim", 0, 4, "Action");
     qmlRegisterUncreatableType<ChatUnit>("org.qutim", 0, 4, "ChatUnit", "ChatUnit is pure virtual class");
     qmlRegisterUncreatableType<ChatSession>("org.qutim", 0, 4, "ChatSession", "ChatSession is pure virtual class");
 }

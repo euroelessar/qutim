@@ -40,7 +40,7 @@ inline SettingsItem *item()
 {
 	static QmlSettingsItem item(QStringLiteral("antispam"),
 								Settings::Plugin,
-								QIcon("mail-signature-unknown"),
+								Icon("mail-signature-unknown"),
 								QT_TRANSLATE_NOOP("Antispam", "Antispam"));
 
 	return &item;

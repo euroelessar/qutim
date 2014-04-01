@@ -71,7 +71,7 @@ void WebViewWidget::setViewController(QObject* object)
     if (controller)
         setPage(controller);
     else
-        setPage(new QWebPage(this));
+        setPage(nullptr);
 }
 
 void WebViewWidget::showCustomContextMenu(const QPoint &point)

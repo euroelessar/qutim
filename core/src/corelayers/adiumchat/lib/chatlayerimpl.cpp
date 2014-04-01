@@ -78,8 +78,8 @@ ChatLayerImpl::ChatLayerImpl()
 {
 	qRegisterMetaType<QWidgetList>("QWidgetList");
 	init();
-	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QObject*,QObject*)),
-			SLOT(onServiceChanged(QObject*)));
+    connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
+	        this, &ChatLayerImpl::onServiceChanged);
 }
 
 
@@ -203,8 +203,10 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 	}
 }
 
-void ChatLayerImpl::onServiceChanged(QObject *now)
+void ChatLayerImpl::onServiceChanged(const QByteArray &name, QObject *now)
 {
+    Q_UNUSED(name);
+
 	if (qobject_cast<ChatViewFactory*>(now)) {
 		foreach (const ChatSessionImpl *session, m_chatSessions)
 			if (session && session->controller()) {

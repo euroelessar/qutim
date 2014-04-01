@@ -85,6 +85,11 @@ void IconLoaderSettings::onCurrentIndexChanged(int index)
 
 IconLoaderImpl::IconLoaderImpl()
 {
+    QStringList themeSearchPaths = QIcon::themeSearchPaths();
+    themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
+    themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
+    QIcon::setThemeSearchPaths(themeSearchPaths);
+
 	onSettingsChanged();
 	m_settings.reset(new GeneralSettingsItem<IconLoaderSettings>(
 						 Settings::Appearance, iconManager->getIcon("preferences-desktop-icons"),

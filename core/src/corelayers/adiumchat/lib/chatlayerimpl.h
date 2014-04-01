@@ -59,7 +59,7 @@ public:
 private slots:
 	void onChatSessionDestroyed(QObject *object);
 	void onChatSessionActivated(bool activated);
-	void onServiceChanged(QObject *now);
+	void onServiceChanged(const QByteArray &name, QObject *now);
 private:
 	ChatSessionHash  m_chatSessions;
 	QPointer<ConfTabCompletion> m_tabCompletion;

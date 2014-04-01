@@ -70,9 +70,9 @@ class TabbedChatWidget : public AbstractChatWidget, public ActionHandler
     Q_OBJECT
 public:
 	TabbedChatWidget(const QString &key = QString(),QWidget *parent = 0);
-	virtual void actionAdded(QAction *action, int index);
-	virtual void actionRemoved(int index);
-	virtual void actionsCleared();
+	virtual void handleActionAdded(int index, QAction *action);
+	virtual void handleActionRemoved(int index);
+	virtual void handleActionsCleared();
 	virtual void addAction(ActionGenerator *gen);
 	virtual QTextEdit *getInputField() const;
 	virtual bool contains(ChatSessionImpl *session) const;

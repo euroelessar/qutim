@@ -277,7 +277,7 @@ DynamicMenu::~DynamicMenu()
 	}
 }
 
-void DynamicMenu::actionAdded(QAction *action, int index)
+void DynamicMenu::handleActionAdded(int index, QAction *action)
 {
 	ActionCollectionPrivate *p = ActionCollectionPrivate::get(d_func()->actions);
 	const ActionInfoV2 &info = p->info(index);
@@ -311,13 +311,13 @@ void DynamicMenu::actionAdded(QAction *action, int index)
 	}
 }
 
-void DynamicMenu::actionRemoved(int index)
+void DynamicMenu::handleActionRemoved(int index)
 {
 	ActionEntry *entry = m_entries.takeAt(index);
 	entry->menu->removeAction(d_func()->actions.action(index));
 }
 
-void DynamicMenu::actionsCleared()
+void DynamicMenu::handleActionsCleared()
 {
 	m_entry.menu->clear();
 	m_entries.clear();
@@ -634,7 +634,7 @@ void ActionCollectionPrivate::setController(MenuController *newController)
 			++j;
 		} else if (actionLessThan(a, b)) {
 			for (int k = 0; k < handlers.size(); ++k)
-				handlers.at(k)->actionRemoved(l);
+				handlers.at(k)->handleActionRemoved(l);
 			actions.removeAt(l);
 		} else {
 			do {
@@ -646,7 +646,7 @@ void ActionCollectionPrivate::setController(MenuController *newController)
 	}
 	for (; i < tmp.size(); ++i) {
 		for (int k = 0; k < handlers.size(); ++k)
-			handlers.at(k)->actionRemoved(l);
+			handlers.at(k)->handleActionRemoved(l);
 		actions.removeAt(l);
 	}
 	for (; j < actionInfos.size(); ++j, ++l) {
@@ -676,7 +676,7 @@ void ActionCollectionPrivate::removeAction(const ActionInfoV2 &info)
 	if (it != actionInfos.constEnd()) {
 		int index = it - actionInfos.constBegin();
 		for (int i = 0; i < handlers.size(); ++i)
-			handlers[i]->actionRemoved(index);
+			handlers[i]->handleActionRemoved(index);
 		actionInfos.removeAt(index);
 		actions.removeAt(index);
 	}
@@ -708,7 +708,7 @@ void ActionCollectionPrivate::insertAction(int index, const ActionInfoV2 &info)
 	actionInfos.insert(index, info);
 	actions.insert(index, action);
 	for (int i = 0; i < handlers.size(); ++i)
-		handlers.at(i)->actionAdded(action->action.data(), index);
+		handlers.at(i)->handleActionAdded(index, action->action.data());
 }
 
 void ActionCollectionPrivate::ensureActionInfos()
@@ -762,7 +762,7 @@ void ActionCollectionPrivate::killActions()
 {
 	if (actionsRef > 0) {
 		for (int i = 0; i < handlers.size(); ++i)
-			handlers[i]->actionsCleared();
+			handlers[i]->handleActionsCleared();
 	}
 	actions.clear();
 	dynamicActions.clear();
@@ -782,9 +782,9 @@ class ActionContainerPrivate : public ActionHandler
 {
 public:
 	ActionContainerPrivate() : filter(ActionContainer::Invalid), currentSize(-1), shown(false) {}
-	void actionAdded(QAction *action, int index);
-	void actionRemoved(int index);
-	void actionsCleared();
+	void handleActionAdded(int index, QAction *action);
+	void handleActionRemoved(int index);
+	void handleActionsCleared();
 	int size() const;
 	int mappedIndex(int index) const;
 	bool isNice(int index) const;
@@ -793,32 +793,32 @@ public:
 	QVariant data;
 	ActionCollection collection;
 	int currentSize : 31;
-	int shown : 1;
+	unsigned shown : 1;
 	QList<ActionHandler*> handlers;
 };
 
-void ActionContainerPrivate::actionAdded(QAction *action, int index)
+void ActionContainerPrivate::handleActionAdded(int index, QAction *action)
 {
 	if (!isNice(index))
 		return;
 	index = mappedIndex(index);
 	for (int i = 0; i < handlers.size(); ++i)
-		handlers.at(i)->actionAdded(action, index);
+		handlers.at(i)->handleActionAdded(index, action);
 }
 
-void ActionContainerPrivate::actionRemoved(int index)
+void ActionContainerPrivate::handleActionRemoved(int index)
 {
 	if (!isNice(index))
 		return;
 	index = mappedIndex(index);
 	for (int i = 0; i < handlers.size(); ++i)
-		handlers.at(i)->actionRemoved(index);
+		handlers.at(i)->handleActionRemoved(index);
 }
 
-void ActionContainerPrivate::actionsCleared()
+void ActionContainerPrivate::handleActionsCleared()
 {
 	for (int i = 0; i < handlers.size(); ++i)
-		handlers.at(i)->actionsCleared();
+		handlers.at(i)->handleActionsCleared();
 }
 
 int ActionContainerPrivate::size() const
@@ -908,16 +908,18 @@ void ActionContainer::setController(MenuController *controller)
 {
 	Q_D(ActionContainer);
 	if (d->collection.isValid()) {
-		d->collection.deref();
+        d->collection.removeHandler(d);
 		if (d->shown)
 			d->collection.showDeref();
+        d->collection.deref();
 	}
 	ActionCollection collection;
 	qSwap(collection, d->collection);
-	d->actionsCleared();
+	d->handleActionsCleared();
 	if (controller) {
 		collection = MenuControllerPrivate::get(controller)->actions;
 		collection.ref();
+        collection.addHandler(d);
 		if (d->shown)
 			collection.showRef();
 	}
@@ -927,7 +929,7 @@ void ActionContainer::setController(MenuController *controller)
 		if (d->isNice(i)) {
 			d->currentSize++;
 			for (int j = 0; j < d->handlers.size(); ++j)
-				d->handlers[j]->actionAdded(d->collection.action(i), d->currentSize - 1);
+				d->handlers[j]->handleActionAdded(d->currentSize - 1, d->collection.action(i));
 		}
 	}
 }
