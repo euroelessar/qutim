@@ -58,7 +58,8 @@ public:
 		ByIdle,
 		ByAuthorizationFailed,
 		ByNetworkError,
-		ByFatalError
+		ByFatalError,
+		ByQuit
 	};
 
 	// TODO: Remove defines, and optimize code, currently I just want plugins to compile
