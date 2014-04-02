@@ -138,6 +138,7 @@ void Account::setStatus(Status status)
 	case Status::ByIdle:
 	case Status::ByNetworkError:
 	case Status::ByFatalError:
+	case Status::ByQuit:
 		break;
 	case Status::ByAuthorizationFailed: {
 		NotificationRequest request(Notification::System);

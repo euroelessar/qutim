@@ -857,6 +857,16 @@ void ModuleManager::initExtensions()
 
 void ModuleManager::onQuit()
 {
+	foreach (Protocol *p, Protocol::all()) {
+		foreach (Account *a, p->accounts()) {
+			Status status = a->status();
+			a->config().setValue("lastStatus", status);
+			status.setType(Status::Offline);
+			status.setChangeReason(Status::ByQuit);
+			a->setStatus(status);
+		}
+	}
+
 	Event("aboutToQuit").send();
     foreach(QPointer<Plugin> plugin, d->plugins) {
         if (!plugin.isNull() && plugin.data()->info().data()->loaded) {
