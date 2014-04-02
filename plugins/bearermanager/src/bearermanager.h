@@ -32,24 +32,27 @@
 #include <QScopedPointer>
 #include <QBasicTimer>
 #include <QDateTime>
+#include <plugin.h>
 
 namespace qutim_sdk_0_3 {
 class Account;
-class SettingsItem;
 }
 
 typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
 
 class ManagerSettings;
 class QNetworkConfigurationManager;
-class BearerManager : public QObject
+class BearerManager : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("Service", "Bearer")
 	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
-	explicit BearerManager(QObject *parent = 0);
-	virtual ~BearerManager();
+	explicit BearerManager();
+	void init();
+	bool load();
+	bool unload();
 
 	void timerEvent(QTimerEvent *event);
 
@@ -70,24 +73,10 @@ private:
 
 	typedef QPair<uint, qutim_sdk_0_3::Account*> ReconnectInfo;
 
-	class ReconnectList : private QList<ReconnectInfo>
-	{
-	public:
-		void remove(qutim_sdk_0_3::Account *account);
-		void insert(qutim_sdk_0_3::Account *account, int timeout);
-
-		QList<qutim_sdk_0_3::Account*> takeNearest();
-		bool isEmpty() const;
-		int secsTo() const;
-		void clear();
-	};
-
 	QBasicTimer m_timer;
 	bool m_isOnline;
 	QNetworkConfigurationManager *m_confManager;
 	StatusHash m_statusHash;
-	ReconnectList m_accountsToConnect;
-	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_item;
 };
 
 #endif // BEARERMANAGER_H

@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2014 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -32,21 +33,30 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/utils.h>
-#include <qutim/settingslayer.h>
-#include "managersettings.h"
 #include <qutim/notification.h>
 
 #include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
-BearerManager::BearerManager(QObject *parent) :
-	QObject(parent),
-	m_confManager(new QNetworkConfigurationManager(this)),
-	m_item(0)
+BearerManager::BearerManager() :
+	m_confManager(new QNetworkConfigurationManager(this))
 {
-	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "BearerManager"));
 
+}
+
+void BearerManager::init()
+{
+	setInfo(QT_TRANSLATE_NOOP("Service", "BearerManager"),
+			QT_TRANSLATE_NOOP("Service", "Connection manager"),
+			PLUGIN_VERSION(0, 0, 1, 0));
+	setCapabilities(Loadable);
+	addAuthor(QLatin1String("Sauron"));
+	addAuthor(QLatin1String("trett"));
+}
+
+bool BearerManager::load()
+{
 	m_isOnline = m_confManager->isOnline();
 
 	foreach (Protocol *p, Protocol::all()) {
@@ -59,11 +69,6 @@ BearerManager::BearerManager(QObject *parent) :
 			onAccountCreated(a);
 	}
 
-	m_item.reset(new GeneralSettingsItem<ManagerSettings>(Settings::Plugin,
-														  Icon("network-wireless"),
-														  QT_TRANSLATE_NOOP("Settings","Connection manager")));
-	Settings::registerItem(m_item.data());
-
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
 
 	QList<QNetworkConfiguration> list = m_confManager->allConfigurations();
@@ -71,7 +76,14 @@ BearerManager::BearerManager(QObject *parent) :
 		Notification::send(tr("Unable to find any network configuration. "
 							  "Perhaps Qt or QtMobility network bearer configured incorrectly. "
 							  "Bearer manager will not work properly, refer to your distribution maintainer."));
+		return false;
 	}
+	return true;
+}
+
+bool BearerManager::unload()
+{
+	return true;
 }
 
 void BearerManager::onOnlineStatusChanged(bool isOnline)
@@ -80,7 +92,6 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 		return;
 	m_isOnline = isOnline;
 	if (!isOnline) {
-		m_accountsToConnect.clear();
 		m_timer.stop();
 	}
 	StatusHash::const_iterator it = m_statusHash.constBegin();
@@ -102,11 +113,7 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	Config config = account->config();
-	bool autoConnect = config.value("autoConnect", true);
 	Status status = config.value("lastStatus", Status(Status::Online));
-
-	if (autoConnect && status != Status::Offline)
-		status = Status(Status::Online);
 	
 	qDebug() << account->id() << "is created with status" << status;
 
@@ -138,9 +145,7 @@ void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
 	}
 	if (!m_confManager->isOnline()) {
 		qDebug() << account->id() << "changed status to" << status << "by network error";
-		int reconnectTimeout = status.property("reconnectTimeout", 60);
-		m_accountsToConnect.insert(account, reconnectTimeout);
-		m_timer.start(m_accountsToConnect.secsTo() * 1000, this);
+		m_timer.start(60000, this);
 	}
 }
 
@@ -158,85 +163,24 @@ void BearerManager::onAccountDestroyed(QObject* obj)
 
 void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 {
-	m_accountsToConnect.remove(account);
-	if (m_accountsToConnect.isEmpty())
-		m_timer.stop();
 	m_statusHash.remove(account);
-}
-
-BearerManager::~BearerManager()
-{
-	Settings::removeItem(m_item.data());
 }
 
 void BearerManager::timerEvent(QTimerEvent *event)
 {
 	if (event->timerId() == m_timer.timerId()) {
-		foreach (Account *account, m_accountsToConnect.takeNearest()) {
-			Status status = m_statusHash.value(account);
-			qDebug() << "change status of" << account->id() << "to" << status << "by timeout";
-			if (status != Status::Offline)
-				account->setStatus(status);
+
+		foreach (Protocol *p, Protocol::all()) {
+			foreach (Account *a, p->accounts()) {
+				Status status = a->config().value("lastStatus", Status(Status::Online));
+				qDebug() << "change status of" << a->id() << "to" << status << "by timeout";
+				if (status != Status::Offline)
+					a->setStatus(status);
+			}
 		}
-		if (!m_accountsToConnect.isEmpty()) {
-			m_timer.start(1000 * m_accountsToConnect.secsTo(), this);
-		} else {
-			m_timer.stop();
-		}
-	} else {
-		QObject::timerEvent(event);
+		m_timer.start(60000, this);
 	}
 }
 
-void BearerManager::ReconnectList::remove(Account *account)
-{
-	for (int i = 0; i < count(); ++i) {
-		if (at(i).second == account) {
-			removeAt(i);
-			--i;
-		}
-	}
-}
-
-void BearerManager::ReconnectList::insert(Account *account, int timeout)
-{
-	remove(account);
-	qDebug() << account->id() << "reconnect timeout is" << timeout;
-	uint time = QDateTime::currentDateTime().addSecs(timeout).toTime_t();
-	BearerManager::ReconnectInfo info = qMakePair(time, account);
-	Iterator it = qLowerBound(begin(), end(), info);
-	QList<BearerManager::ReconnectInfo>::insert(it, info);
-}
-
-QList<Account *> BearerManager::ReconnectList::takeNearest()
-{
-	uint time = QDateTime::currentDateTime().toTime_t();
-	QList<Account*> accounts;
-	for (int i = 0; i < count(); ++i) {
-		if (at(i).first < time + 5) {
-			accounts << at(i).second;
-			removeAt(i);
-			--i;
-		} else {
-			break;
-		}
-	}
-	return accounts;
-}
-
-bool BearerManager::ReconnectList::isEmpty() const
-{
-	return QList<BearerManager::ReconnectInfo>::isEmpty();
-}
-
-int BearerManager::ReconnectList::secsTo() const
-{
-	uint time = QDateTime::currentDateTime().toTime_t();
-	return isEmpty() ? -1 : int(qint64(at(0).first) - qint64(time));
-}
-
-void BearerManager::ReconnectList::clear()
-{
-	QList<BearerManager::ReconnectInfo>::clear();
-}
+QUTIM_EXPORT_PLUGIN(BearerManager)
 
