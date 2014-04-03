@@ -201,12 +201,17 @@ void TabbedChatWidget::loadSettings()
         if(m_flags & TabsOnBottom) {
             m_layout->addWidget(tabBar);
             m_tabBar->setShape(QTabBar::RoundedSouth);
+#ifdef Q_OS_MAC
             m_tabBar->setDocumentMode(false);
             m_tabBar->setDrawBase(false);
+#endif
         } else {
             m_layout->insertWidget(0, tabBar);
+#ifdef Q_OS_MAC
             m_tabBar->setDocumentMode(true);
             m_tabBar->setDrawBase(true);
+            m_layout->setContentsMargins(0, 0, 0, 1);
+#endif
         }
 
         if (m_flags & UseQutimIcon)
