@@ -53,7 +53,7 @@ namespace AdiumChat
 
 TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     AbstractChatWidget(parent),
-    m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
+    m_toolbar(new ActionToolBar(tr("Chat Actions"), this)),
     m_actions(ActionContainer::TypeMatch, ActionTypeChatButton),
     m_chatViewWidget(0),
     m_tabBar(new TabBar(this)),
@@ -86,13 +86,13 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
     m_layout = new QVBoxLayout(centralWidget());
     m_layout->addWidget(m_hSplitter);
 #ifdef Q_OS_MAC
-    m_layout->setMargin(0);
+    m_layout->setMargin(1);
     m_layout->setSpacing(1);
 #endif
 
     m_actSeparator = m_toolbar->addSeparator();
     m_unitSeparator = m_toolbar->addSeparator();
-    m_sessionList = new QAction(Icon("view-list-tree"),tr("Session list"),this);
+    m_sessionList = new QAction(Icon("view-list-tree"), tr("Session list"), this);
     m_sessionList->setMenu(m_tabBar->menu());
     Shortcut *shortcut = new Shortcut(QLatin1String("chatListSession"), this);
     connect(shortcut, SIGNAL(activated()), m_sessionList, SLOT(trigger()));
@@ -201,7 +201,6 @@ void TabbedChatWidget::loadSettings()
         if(m_flags & TabsOnBottom) {
             m_layout->addWidget(tabBar);
             m_tabBar->setShape(QTabBar::RoundedSouth);
-            setContentsMargins(1, 1, 1, 1);
 #ifdef Q_OS_MAC
             m_tabBar->setDocumentMode(false);
             m_tabBar->setDrawBase(false);
@@ -211,7 +210,7 @@ void TabbedChatWidget::loadSettings()
 #ifdef Q_OS_MAC
             m_tabBar->setDocumentMode(true);
             m_tabBar->setDrawBase(true);
-            setContentsMargins(0, 0, 0, 1);
+            m_layout->setContentsMargins(0, 0, 0, 1);
 #endif
         }
 
