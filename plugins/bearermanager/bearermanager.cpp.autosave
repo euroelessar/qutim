@@ -60,8 +60,8 @@ BearerManager::BearerManager(QObject *parent) :
 	}
 
 	m_item.reset(new GeneralSettingsItem<ManagerSettings>(Settings::Plugin,
-	                                                      Icon("network-wireless"),
-	                                                      QT_TRANSLATE_NOOP("Settings","Connection manager")));
+														  Icon("network-wireless"),
+														  QT_TRANSLATE_NOOP("Settings","Connection manager")));
 	Settings::registerItem(m_item.data());
 
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
@@ -95,20 +95,16 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 			account->setStatus(status);
 		}
 	}
-	// It's annoying
-//	Notification::send(isOnline ? tr("Network is available!")
-//								: tr("Network is unreachable!"));
 	emit onlineStateChanged(isOnline);
+
 }
 
 void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	Config config = account->config();
-	bool autoConnect = config.value("autoConnect", true);
-	Status status = autoConnect ?
-	                    config.value("lastStatus", Status(Status::Online))
-	                  : Status(Status::Offline);
-	if (autoConnect && status == Status::Offline)
+	Status status = config.value("lastStatus", Status(Status::Online));
+
+	if (status != Status::Offline)
 		status = Status(Status::Online);
 	
 	qDebug() << account->id() << "is created with status" << status;
@@ -127,7 +123,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
 {
 	Account *account = sender_cast<Account*>(sender());
-	
+
 	if (status == Status::Connecting) {
 		status = status.connectingGoal();
 		qDebug() << account->id() << "is connecting";
@@ -137,23 +133,21 @@ void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
 		qDebug() << account->id() << "changed status to" << status << "by user";
 		m_statusHash.insert(account, status);
 		account->config().setValue("lastStatus", status);
-	} else if (status.changeReason() == Status::ByNetworkError && isNetworkOnline()) {
+		return;
+	}
+	if (!m_confManager->isOnline()) {
 		qDebug() << account->id() << "changed status to" << status << "by network error";
 		int reconnectTimeout = status.property("reconnectTimeout", 60);
 		m_accountsToConnect.insert(account, reconnectTimeout);
 		m_timer.start(m_accountsToConnect.secsTo() * 1000, this);
-	} else if (!isNetworkOnline()) {
-		qDebug() << account->id() << "changed status to" << status << " because inet is down";
-	} else {
-		qDebug() << account->id() << "changed status to" << status << " because" << status.changeReason();
 	}
 }
 
 bool BearerManager::isNetworkOnline() const
 {
 	return m_confManager->isOnline()
-	        // We don't have any bearer backend
-	        || !m_confManager->allConfigurations().count();
+			// We don't have any bearer backend
+			|| !m_confManager->allConfigurations().count();
 }
 
 void BearerManager::onAccountDestroyed(QObject* obj)
@@ -172,16 +166,6 @@ void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 BearerManager::~BearerManager()
 {
 	Settings::removeItem(m_item.data());
-//	StatusHash::const_iterator it = m_statusHash.constBegin();
-//	Config cfg;
-//	cfg.beginGroup("status");
-//	for (; it != m_statusHash.constEnd(); it++) {
-//		Account *account = it.key();
-//		cfg.setValue(account->id(), QVariant::fromValue(it.value()));
-//		qDebug() << account->id() << it.value() << account->status().icon().name();
-//		qDebug() << cfg.value(account->id(), Status()).icon().name();
-//	}
-//	cfg.endGroup();
 }
 
 void BearerManager::timerEvent(QTimerEvent *event)
