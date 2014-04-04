@@ -91,9 +91,7 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 	if (m_isOnline == isOnline)
 		return;
 	m_isOnline = isOnline;
-	if (!isOnline) {
-		m_timer.stop();
-	}
+
 	StatusHash::const_iterator it = m_statusHash.constBegin();
 	for (; it != m_statusHash.constEnd(); it++) {
 		Account *account = it.key();
@@ -169,16 +167,17 @@ void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
 void BearerManager::timerEvent(QTimerEvent *event)
 {
 	if (event->timerId() == m_timer.timerId()) {
-
+	bool anyOfflineAccount = false;
 		foreach (Protocol *p, Protocol::all()) {
 			foreach (Account *a, p->accounts()) {
 				Status status = a->config().value("lastStatus", Status(Status::Online));
-				qDebug() << "change status of" << a->id() << "to" << status << "by timeout";
-				if (status != Status::Offline)
+				if (status != Status::Offline && a->status() == Status::Offline)
 					a->setStatus(status);
+					anyOfflineAccount = true;
 			}
 		}
-		m_timer.start(60000, this);
+		if (!anyOfflineAccount)
+		m_timer.stop();
 	}
 }
 
