@@ -28,7 +28,6 @@
 #ifndef YANDEXNARODPLUGIN_H
 #define YANDEXNARODPLUGIN_H
 
-#include "yandexnarodsettings.h"
 #include "yandexnarodauthorizator.h"
 
 #include <qutim/plugin.h>
@@ -45,15 +44,18 @@ class YandexNarodPlugin : public qutim_sdk_0_3::Plugin
 	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugInfo", "Yandex")
 public:
+    YandexNarodPlugin();
+    ~YandexNarodPlugin();
+
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-
-private:
-	void loadCookies();
-
 private slots:
 	void saveCookies();
+private:
+    void loadCookies();
+
+    QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
 };
 
 class YandexNarodFactory : public qutim_sdk_0_3::FileTransferFactory

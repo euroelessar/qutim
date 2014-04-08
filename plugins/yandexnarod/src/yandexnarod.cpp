@@ -41,139 +41,158 @@ using namespace qutim_sdk_0_3;
 
 struct YandexNarodScope
 {
-	QNetworkAccessManager *networkManager;
-	YandexNarodCookieJar *cookieJar;
-	YandexNarodAuthorizator *authorizator;
-};
+    QNetworkAccessManager *networkManager;
+    YandexNarodCookieJar *cookieJar;
+    YandexNarodAuthorizator *authorizator;
 
-Q_GLOBAL_STATIC(YandexNarodScope, scope)
+    YandexNarodScope() : networkManager(new QNetworkAccessManager),
+        cookieJar(new YandexNarodCookieJar(networkManager)),
+        authorizator(new YandexNarodAuthorizator(networkManager))
+    {}
+
+    ~YandexNarodScope()
+    {
+        networkManager->deleteLater();
+    }
+};
+static QScopedPointer<YandexNarodScope> scope;
+
+YandexNarodPlugin::YandexNarodPlugin()
+{
+
+}
+
+YandexNarodPlugin::~YandexNarodPlugin()
+{
+
+}
 
 void YandexNarodPlugin::init()
 {
-	setInfo(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
-			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
-			PLUGIN_VERSION(0, 2, 1, 0));
-	setCapabilities(Loadable);
-	addAuthor(QLatin1String("sauron"));
-	addAuthor(QLatin1String("euroelessar"));
-	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
-			  QT_TRANSLATE_NOOP("Task", "Author"),
-			  QLatin1String("alexey.prokhin@yandex.ru"));
-	addAuthor(QLatin1String("boiler"));
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
-				 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
-				 new SingletonGenerator<YandexNarodFactory>(),
-				 ExtensionIcon(""));
+    setInfo(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
+            QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
+            PLUGIN_VERSION(0, 2, 1, 0));
+    setCapabilities(Loadable);
+    addAuthor(QLatin1String("sauron"));
+    addAuthor(QLatin1String("euroelessar"));
+    addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+              QT_TRANSLATE_NOOP("Task", "Author"),
+              QLatin1String("alexey.prokhin@yandex.ru"));
+    addAuthor(QLatin1String("boiler"));
+    addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Disk"),
+                 QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Disk"),
+                 new SingletonGenerator<YandexNarodFactory>(),
+                 ExtensionIcon(""));
 }
 
 bool YandexNarodPlugin::load()
 {
-	SettingsItem *settings = new GeneralSettingsItem<YandexNarodSettings>(
-			Settings::Plugin,
-			QIcon(),
-			QT_TRANSLATE_NOOP("Yandex", "Yandex.Disk"));
-//	Settings::registerItem(settings);
-	Q_UNUSED(settings);
-	scope()->networkManager = new QNetworkAccessManager(this);
-	scope()->cookieJar = new YandexNarodCookieJar(scope()->networkManager);
-	scope()->authorizator = new YandexNarodAuthorizator(scope()->networkManager);
-	loadCookies();
-	connect(scope()->authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
-	connect(scope()->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
+    m_settingsItem.reset(new QmlSettingsItem("yandexDisk",
+                                             Settings::Plugin,
+                                             QIcon(),
+                                             QT_TRANSLATE_NOOP("Yandex", "Yandex.Disk")));
+    Settings::registerItem(m_settingsItem.data());
 
-	return true;
+    scope.reset(new YandexNarodScope()); //TODO remove fucking singletone
+    connect(scope->authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
+    connect(scope->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
+
+    return true;
 }
 
 bool YandexNarodPlugin::unload()
 {
-	return false;
+    Settings::removeItem(m_settingsItem.data());
+    m_settingsItem.reset(0);
+    scope.reset();
+    return false;
 }
 
 void YandexNarodPlugin::loadCookies()
 {
-	// Do nothing
+    // Do nothing
 }
 
 void YandexNarodPlugin::saveCookies()
 {
-	Config config;
-	config.beginGroup(QLatin1String("yandex"));
-	config.setValue(QLatin1String("token"), scope()->authorizator->token(), Config::Crypted);
+    Config config;
+    config.beginGroup(QLatin1String("yandex"));
+    config.setValue(QLatin1String("token"), scope->authorizator->token(), Config::Crypted);
 }
 
 YandexNarodFactory::YandexNarodFactory() :
-	FileTransferFactory(tr("Yandex.Narod"), 0)
+    FileTransferFactory(tr("Yandex.Narod"), 0)
 {
-	setIcon(QIcon(":/icons/yandexnarodplugin.png"));
-	foreach (Protocol *protocol, Protocol::all()) {
-		foreach (Account *account, protocol->accounts())
-			onAccountAdded(account);
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
-	}
+    setIcon(QIcon(":/icons/yandexnarodplugin.png"));
+    foreach (Protocol *protocol, Protocol::all()) {
+        foreach (Account *account, protocol->accounts())
+            onAccountAdded(account);
+        connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+                SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+    }
 }
 
 bool YandexNarodFactory::checkAbility(ChatUnit *unit)
 {
-	Q_ASSERT(unit);
-	Status status = unit->account()->status();
-	return status != Status::Offline && status != Status::Connecting;
+    Q_ASSERT(unit);
+    Status status = unit->account()->status();
+    return status != Status::Offline && status != Status::Connecting;
 }
 
 bool YandexNarodFactory::startObserve(ChatUnit *unit)
 {
-	Q_ASSERT(unit);
-	m_observedUnits.insert(unit->account(), unit);
-	return true;
+    Q_ASSERT(unit);
+    m_observedUnits.insert(unit->account(), unit);
+    return true;
 }
 
 bool YandexNarodFactory::stopObserve(ChatUnit *unit)
 {
-	Q_ASSERT(unit);
-	Observers::iterator itr = m_observedUnits.begin();
-	while (itr != m_observedUnits.end()) {
-		if (*itr == unit)
-			itr = m_observedUnits.erase(itr);
-		else
-			++itr;
-	}
-	return true;
+    Q_ASSERT(unit);
+    Observers::iterator itr = m_observedUnits.begin();
+    while (itr != m_observedUnits.end()) {
+        if (*itr == unit)
+            itr = m_observedUnits.erase(itr);
+        else
+            ++itr;
+    }
+    return true;
 }
 
 FileTransferJob *YandexNarodFactory::create(ChatUnit *unit)
 {
-	return new YandexNarodUploadJob(unit, this);
+    return new YandexNarodUploadJob(unit, this);
 }
 
 QNetworkAccessManager *YandexNarodFactory::networkManager()
 {
-	return scope()->networkManager;
+    return scope->networkManager;
 }
 
 YandexNarodAuthorizator *YandexNarodFactory::authorizator()
 {
-	return scope()->authorizator;
+    return scope->authorizator;
 }
 
 void YandexNarodFactory::onAccountAdded(qutim_sdk_0_3::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+    connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+            SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 }
 
 void YandexNarodFactory::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 {
-	bool isOnline = status != Status::Offline && status != Status::Connecting;
-	foreach (ChatUnit *unit, m_observedUnits.values(sender()))
-		changeAvailability(unit, isOnline);
+    bool isOnline = status != Status::Offline && status != Status::Connecting;
+    foreach (ChatUnit *unit, m_observedUnits.values(sender()))
+        changeAvailability(unit, isOnline);
 }
 
 YandexRequest::YandexRequest(const QUrl &url)
-	: QNetworkRequest(url)
+    : QNetworkRequest(url)
 {
-	QByteArray token = scope()->authorizator->token().toLatin1();
-	setRawHeader("Authorization", "OAuth " + token);
-	setRawHeader("Accept", "*/*");
+    QByteArray token = scope->authorizator->token().toLatin1();
+    setRawHeader("Authorization", "OAuth " + token);
+    setRawHeader("Accept", "*/*");
 }
 
 QUTIM_EXPORT_PLUGIN(YandexNarodPlugin)
