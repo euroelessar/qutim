@@ -17,8 +17,8 @@ SettingsItem {
     }
     
     function load() {
-        loginField.text = config.value("login");
-        passwordField.text = config.value("passwd");  ///How i can use the crypted values
+        loginField.text = config.value("login", "");
+        passwordField.text = config.value("passwd", "");  ///How i can use the crypted values
     }
 
     GridLayout {
@@ -26,20 +26,22 @@ SettingsItem {
         columns: 2
 
         Label {
-            text: qsTr("Login")
+            text: qsTr("Login: ")
         }
         TextField {
             id: loginField
         }
 
         Label {
-            text: qsTr("Login")
+            text: qsTr("Password: ")
         }
         TextField {
             id: passwordField
 
             echoMode: TextInput.Password
         }
+
+        Item { Layout.fillHeight: true }
     }
 }
 
