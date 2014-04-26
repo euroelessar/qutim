@@ -126,7 +126,7 @@
      "Popup": "MeegoIntegration::QuickNoficationManager",
      "RosterStorage": "Core::SimpleRosterStorage",
      "SettingsLayer": "MeegoIntegration::QuickSettingsLayer",
-     "Sound": "PhononSoundBackend",
+     "Sound": "Core::MultimediaSoundBackend",
      "Vibration": "Core::VibroBackend"
     }
    }

@@ -32,7 +32,7 @@
 			"SearchForm": "Core::DefaultSearchFormFactory",
 			"SearchLayer": "Core::SearchLayer",
 			"SettingsLayer": "Core::XSettingsLayerImpl",
-			"Sound": "PhononSoundBackend",
+			"Sound": "Core::MultimediaSoundBackend",
 			"SpellChecker": "KdeSpellerLayer",
 			"TrayIcon": "Core::SimpleTray"
 		}
