@@ -70,9 +70,9 @@ public:
 	void handleMessage(IrcAccount *account, const QString &name, const QString &host,
 					   const IrcCommand &cmd, const QStringList &params);
 	const QString &nick() const { return m_nick; }
-	bool autoRequestWhois() const { return m_autoRequestWhois; }
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	QStringList supportedCtcpTags() { return m_ctcpHandlers.keys(); }
+	QTextCodec *codec() const { return m_codec; }
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
@@ -104,7 +104,6 @@ private:
 	QStringList m_lowPriorityMessagesQueue;
 	QTimer m_messagesTimer;
 	uint m_lastMessageTime; // unix time when the last message had been sent
-	bool m_autoRequestWhois;
 	QPointer<PasswordDialog> m_passDialog;
 };
 

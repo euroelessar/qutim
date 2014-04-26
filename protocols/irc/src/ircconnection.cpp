@@ -420,11 +420,6 @@ void IrcConnection::loadSettings()
 	if (!m_codec)
 		m_codec = QTextCodec::codecForName("utf8");
 	Q_ASSERT(m_codec);
-#ifndef QUTIM_MOBILE_UI
-	m_autoRequestWhois = cfg.value("autoRequestWhois", true);
-#else
-	m_autoRequestWhois = cfg.value("autoRequestWhois", false);
-#endif
 }
 
 void IrcConnection::tryConnectToNextServer()

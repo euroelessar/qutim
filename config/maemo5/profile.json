@@ -212,7 +212,7 @@
      "SearchForm": "Core::MobileSearchFormFactory",
      "SearchLayer": "Core::SearchLayer",
      "SettingsLayer": "Core::MobileSettingsLayerImpl",
-     "Sound": "PhononSoundBackend",
+     "Sound": "Core::MultimediaSoundBackend",
      "SpellChecker": "HunSpellChecker",
      "TrayIcon": "Maemo5Tray",
      "Vibration": "Maemo5Vibra"

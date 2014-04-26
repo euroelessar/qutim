@@ -40,7 +40,6 @@ Application {
 //        files: [
 //            "imageformats", "iconengines",
 //            //"crypto",
-//            "phonon_backend",
 //            "bearer", "codecs",
 //            "graphicssystems", "sqldrivers"
 //        ]

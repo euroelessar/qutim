@@ -48,8 +48,6 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &
 	d->nick = nick;
 	setHostMask(host);
 	//IrcAvatar::instance()->requestAvatar(this);
-	if (account->d->conn->autoRequestWhois())
-		account->send("WHOIS :" + nick, false);
 }
 
 IrcContact::~IrcContact()
@@ -86,8 +84,10 @@ bool IrcContact::sendMessage(const Message &message)
 	Status::Type status = account()->status().type();
 	if (status == Status::Connecting || status == Status::Offline)
 		return false;
+	QString prefix = QString(QLatin1String("PRIVMSG %1 :")).arg(d->nick);
 	foreach (const QString &line, message.text().split(QLatin1Char('\n')))
-		account()->send(QString("PRIVMSG %1 :%2").arg(d->nick).arg(line));
+		foreach (const QByteArray &sline, account()->splitMessage(QString(), line))
+				account()->send(QString("%1%2").arg(prefix).arg(QString(sline)), true);
 	return true;
 }
 

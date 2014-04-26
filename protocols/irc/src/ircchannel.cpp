@@ -116,8 +116,10 @@ bool IrcChannel::sendMessage(const Message &message)
 		extParams.insert('n', d->name);
 		account()->send(text.mid(1), true, IrcCommandAlias::Channel, extParams);
 	} else {
+		QString prefix = QString(QLatin1String("PRIVMSG %1 :")).arg(d->name);
 		foreach (const QString &line, text.split(QLatin1Char('\n')))
-			account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(line), true);
+			foreach (const QByteArray &sline, account()->splitMessage(QString(), line))
+				account()->send(QString("%1%2").arg(prefix).arg(QString(sline)), true);
 	}
 	return true;
 }
@@ -260,6 +262,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 {
 	if (nick == account()->name()) { // We have been connected to the channel.
 		setJoined(true);
+		account()->send(QString("WHO %1").arg(d->name));
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
 		connect(user, SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString,QString)));
