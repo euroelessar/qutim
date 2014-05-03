@@ -393,7 +393,7 @@ void WebViewController::onSettingsSaved()
 void WebViewController::loadHistory()
 {
     Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
-    int max_num = config.value(QLatin1String("maxDisplayMessages"), 5) + 5000;
+    int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
     MessageList messages = History::instance()->read(m_session.data()->unit(), max_num);
     foreach (Message mess, messages) {
         mess.setProperty("silent", true);
