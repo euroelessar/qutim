@@ -83,6 +83,17 @@ void WebViewWidget::showCustomContextMenu(const QPoint &point)
 
 	if (linkUnderMouse) {
 		m_urlForOpen = page()->frameAt(point)->hitTestContent(point).linkUrl();
+
+		if(m_urlForOpen.toString().startsWith("mailto:")) { // && endsWith("?message")
+			QAction *xmppChat = new QAction(tr("&Open chat"), this);
+			menu->addAction(xmppChat);
+			connect(xmppChat, SIGNAL(triggered()), SLOT(openChat()));
+
+			QAction *xmppConf = new QAction(tr("&Join conference"), this);
+			menu->addAction(xmppConf);
+			connect(xmppConf, SIGNAL(triggered()), SLOT(openConference()));
+		}
+
 		QAction *openLink = page()->action(QWebPage::OpenLink);
 		openLink->setIcon(qutim_sdk_0_3::Icon("document-open"));
 		QAction *copyLink = page()->action(QWebPage::CopyLinkToClipboard);
@@ -161,5 +172,26 @@ void WebViewWidget::openLinkFromContextMenu()
 	QDesktopServices::openUrl(m_urlForOpen);
 	m_urlForOpen = 0;
 }
+
+void WebViewWidget::openChat()
+{
+	QString url = m_urlForOpen.toString();
+	url.replace("mailto:", "xmpp:");
+	url += "?message";
+	m_urlForOpen.setUrl(url);
+	QDesktopServices::openUrl(m_urlForOpen);
+	m_urlForOpen = 0;
+}
+
+void WebViewWidget::openConference()
+{
+	QString url = m_urlForOpen.toString();
+	url.replace("mailto:", "xmpp:");
+	url += "?join";
+	m_urlForOpen.setUrl(url);
+	QDesktopServices::openUrl(m_urlForOpen);
+	m_urlForOpen = 0;
+}
+
 } // namespace Adium
 
