@@ -98,6 +98,7 @@ Config ProfilePrivate::profileConfig(bool *ok)
 
 Profile::Profile()
 {
+	_customProfilePath = "";
 }
 
 Profile::~Profile()
@@ -173,8 +174,13 @@ QString Profile::configPath(bool *isSystem)
 	dir.mkpath("qutim/profiles");
 	dir.cd("qutim/profiles");
 #endif
-
-	if (!systemProfiles.isEmpty() && !dir.exists("profiles.json")) {
+	if (!_customProfilePath.isEmpty()) {
+		dir = QDir(_customProfilePath);
+		if(!dir.exists())
+			if(!QDir::root().mkpath(_customProfilePath))
+				qFatal("No such profile directory");
+		return dir.filePath("profiles.json");
+	} else if (!systemProfiles.isEmpty() && !dir.exists("profiles.json")) {
 		*isSystem = true;
 		return systemProfiles;
 	} else {
@@ -289,5 +295,20 @@ bool Profile::acceptData(const QVariantMap &data, const QString &password, bool 
 		return false;
 	}
 }
+
+void Profile::setCustomProfilePath(const QString &path)
+{
+	_customProfilePath = path;
 }
 
+QString Profile::getCustomProfilePath()
+{
+	return _customProfilePath;
+}
+
+bool Profile::isCustomProfilePath()
+{
+	return !_customProfilePath.isEmpty();
+}
+
+} // namespace

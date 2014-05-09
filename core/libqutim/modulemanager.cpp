@@ -28,6 +28,7 @@
 #include "plugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
+#include "profile.h"
 #include "notification.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
@@ -56,17 +57,13 @@
 #include <qendian.h>
 #include "objectgenerator.h"
 
-#ifdef NO_SYSTEM_QXT
-# include "../3rdparty/qxt/qxtcommandoptions.h"
-#else
-# include <qxtcommandoptions.h>
-#endif
-
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
 
 #define QUTIM_TEST_PERFOMANCE 1
+
+#include <QCommandLineParser>
 
 //Let's show message box with error
 #if	defined(Q_OS_SYMBIAN)
@@ -332,25 +329,40 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifndef NO_COMMANDS
 	const QStringList args = qApp->arguments();
 
-	QxtCommandOptions parser;
-	parser.add("help", "This help message");
-	parser.alias("help", "?");
-	parser.alias("help", "h");
+	QCommandLineParser parser;
+	QCommandLineOption help(QStringList() << "h" << "?" << "help", "This help message");
+	parser.addOption(help);
 
-	parser.add("version", "Show version information");
-	parser.alias("version", "v");
+	QCommandLineOption version(QStringList() << "v" << "version", "Show version information");
+	parser.addOption(version);
 
-	parser.add("single-instance", "Run single instance", QxtCommandOptions::NoValue, 0x15);
-	parser.add("new-instance", "Run new instance", QxtCommandOptions::NoValue, 0x15);
-	parser.add("open-url", "Open url", QxtCommandOptions::ValueRequired);
+	//parser.addPositionalArgument("url", "Url to open (Like xmpp:rabbit@40k.org?message)");
 
-	parser.parse(args);
-	
+	//parser.add("single-instance", "Run single instance", QxtCommandOptions::NoValue, 0x15);
+	//parser.add("new-instance", "Run new instance", QxtCommandOptions::NoValue, 0x15);
+	QCommandLineOption singleInst("single-instance", "Run single instance");
+	parser.addOption(singleInst);
+
+	QCommandLineOption newInst("new-instance", "Run new instance");
+	parser.addOption(newInst);
+
+	QCommandLineOption openUrl("url", "Url to open (Like xmpp:rabbit@40k.org?message)", "url");
+	parser.addOption(openUrl);
+
+	QCommandLineOption configDir("config", "Custom config directory", "path");
+	parser.addOption(configDir);
+
+	if(!parser.parse(args)) {
+		parser.showHelp(0);
+		exit(0);
+		return;
+	}
+
 	QString messageToServer;
 #if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_WS_MAEMO_5) && !defined(MEEGO_EDITION))
-	bool singleInstance = !parser.count("new-instance");
+	bool singleInstance = !parser.isSet("new-instance");
 #else
-	bool singleInstance = parser.count("single-instance");
+	bool singleInstance = parser.isSet("single-instance");
 #endif
 	
 	if (singleInstance) {
@@ -361,9 +373,9 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 			s << args;
 		}
 		messageToServer += QLatin1String(data.toBase64());
-	} else if (parser.count("open-url")) {
+	} else if (parser.value("url").count()) {
 		messageToServer = QLatin1String("url: ");
-		messageToServer += parser.value("open-url").toString();
+		messageToServer += parser.value("url");
 	} else if (args.count() == 2) {
 		const QString &possibleUrl = args[1];
 		QUrl url = QUrl::fromEncoded(possibleUrl.toUtf8());
@@ -371,28 +383,34 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 			messageToServer = QLatin1String("url: ") + possibleUrl;
 	}
 
+	if(parser.value("config").count()) {
+		Profile::instance()->setCustomProfilePath(parser.value("config"));
+	}
+
 	if (!messageToServer.isEmpty()) {
 		bool shouldExit = false;
 		d->initLocalPeer(messageToServer, &shouldExit);
+
+		if (parser.positionalArguments().isEmpty()) {
+			if (parser.isSet("version")) {
+				printVersion();
+				exit(0);
+				return;
+			}
+
+			if (!parser.unknownOptionNames().isEmpty() || parser.isSet("help")) {
+				parser.showHelp(0);
+				exit(0);
+				return;
+			}
+		}
+
 		if (shouldExit) {
 			exit(0);
 			return;
 		}
 	}
 
-	if (parser.positional().isEmpty()) {
-		if (parser.count("version")) {
-			printVersion();
-			exit(0);
-			return;
-		}
-
-		if (parser.showUnrecognizedWarning()) {
-			parser.showUsage(true);
-			exit(0);
-			return;
-		}
-	}
 #endif
 	
 	// Static plugins

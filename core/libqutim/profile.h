@@ -45,7 +45,10 @@ public:
 	Config config();
 	QVariant value(const QString &key) const;
 	void setValue(const QString &key, const QVariant &value);
-	
+	void setCustomProfilePath(const QString &path);
+	bool isCustomProfilePath();
+	QString getCustomProfilePath();
+
 public slots:
 	QString configPath();
 	QString configPath(bool *isSystem);
@@ -58,6 +61,7 @@ signals:
 private:
     explicit Profile();
 	QScopedPointer<ProfilePrivate> d_ptr;
+	QString _customProfilePath;
 };
 }
 
