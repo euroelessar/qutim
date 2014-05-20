@@ -32,13 +32,16 @@
 class IndicatorPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_CLASSINFO("DebugName", "Indicator")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	explicit IndicatorPlugin ();
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
 private:
-	QWeakPointer<IndicatorService> m_service;
+	QPointer<IndicatorService> m_service;
 };
 
 #endif /* end of include guard: INDICATOR_GS5D2FLA */
