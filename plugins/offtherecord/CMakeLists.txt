@@ -2,7 +2,7 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 find_package( LibOTR )
 
 if( NOT LIBOTR_FOUND )
-	message( "libotr-3.2.0 not found. Can't build Off-the-Record messaging module" )
+        message( "libotr-4.0.0 not found. Can't build Off-the-Record messaging module" )
 	return()
 endif( NOT LIBOTR_FOUND )
 
