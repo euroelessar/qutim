@@ -99,6 +99,7 @@ public:
     /*** otr callback functions ***/
     OtrlPolicy policy(ConnContext *context);
     void create_privkey(const char *accountname, const char *protocol);
+    void create_instag(const char *accountname, const char *protocol);
     int is_logged_in(const char *accountname, const char *protocol,
                      const char *recipient);
     void inject_message(const char *accountname, const char *protocol,
@@ -126,6 +127,8 @@ public:
     /*** static otr callback wrapper-functions ***/
     static OtrlPolicy cb_policy(void *opdata, ConnContext *context);
     static void cb_create_privkey(void *opdata, const char *accountname,
+                                  const char *protocol);
+    static void cb_create_instag(void *opdata, const char *accountname,
                                   const char *protocol);
     static int cb_is_logged_in(void *opdata, const char *accountname,
                                const char *protocol, const char *recipient);
@@ -173,6 +176,11 @@ private:
     * Name of the file storing known fingerprints.
     */
     QString m_fingerprintFile;
+
+    /**
+    * Name of the file storing instances.
+    */
+    QString m_instagFile;
 
     /**
     * Reference to the default OTR policy

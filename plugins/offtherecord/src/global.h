@@ -27,13 +27,13 @@ struct TreeModelItem
 	
 	qutim_sdk_0_3::Buddy *unit()
 	{
-		qutim_sdk_0_3::debug() << "Trying to convert TreeModelItem {"
+		/*qutim_sdk_0_3::debug() << "Trying to convert TreeModelItem {"
 		                       << m_protocol_name
 		                       << ", "
 		                       << m_account_name
 		                       << ", "
 		                       << m_item_name
-		                       << "}";
+		                       << "}";*/
 		qutim_sdk_0_3::Protocol *protocol = qutim_sdk_0_3::Protocol::all().value(m_protocol_name);
 		qutim_sdk_0_3::Account *account = protocol->account(m_account_name);
 		Q_ASSERT(account);
