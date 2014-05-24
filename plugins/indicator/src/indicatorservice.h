@@ -32,7 +32,7 @@
 #define QUTIM_DESKTOP_FILE DESKTOPDIR "/" QUTIM_DESKTOP_BASENAME
 
 #ifdef QUANTAL
-#include <messaging-menu-qt/messaging-menu.hpp>
+#include <messaging-menu-qt.hpp>
 #else /* QUANTAL */
 #include <qindicateindicator.h>
 #include <qindicateserver.h>
