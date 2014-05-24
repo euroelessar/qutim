@@ -1,6 +1,6 @@
 ADD_DEFINITIONS( -DDESKTOPDIR="${CMAKE_INSTALL_PREFIX}/share/applications" )
 FIND_PACKAGE(PkgConfig)
-pkg_check_modules(MMENU libmessaging-menu-qt>=12.10)
+pkg_check_modules(MMENU libmessaging-menu-qt4>=12.10)
 if(NOT MMENU_FOUND)
     pkg_check_modules(INDICATE indicate>=0.2.1)
     pkg_check_modules(INDICATEQT indicate-qt>=0.2.2)
