@@ -1,5 +1,6 @@
 #include "quickactioncontainer.h"
 #include <QAction>
+#include <QCoreApplication>
 
 namespace qutim_sdk_0_3 {
 
@@ -20,7 +21,7 @@ QuickAction *create(QAction *action)
 
     QMetaObject::Connection connection = QObject::connect(action, &QAction::changed, onChanged);
     QObject::connect(result, &QObject::destroyed, [connection] () {
-        QObject::disconnect(connection);
+        qApp->disconnect(connection);
     });
     QObject::connect(result, &QuickAction::triggered, action, &QAction::trigger);
 

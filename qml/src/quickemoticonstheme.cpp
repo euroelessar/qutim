@@ -33,10 +33,10 @@ void QuickEmoticonsTheme::setThemeName(const QString &themeName)
         for (auto it = emoticonsMap.begin(); it != emoticonsMap.end(); ++it) {
             const QString &file = it.key();
             const QStringList &names = it.value();
-            m_emoticons.append(QVariantMap({
+            m_emoticons.append(QVariantMap{
                 { QStringLiteral("url"), QUrl::fromLocalFile(file) },
                 { QStringLiteral("names"), names }
-            }));
+            });
         }
         emit emoticonsChanged(m_emoticons);
     }

@@ -27,7 +27,7 @@
 #include "winint.h"
 #include <QTimer>
 #include <QSysInfo>
-#include <QWindowsVistaStyle>
+#include <QStyle>
 
 #include <qutim/config.h>
 #include <qutim/servicemanager.h>
@@ -48,7 +48,8 @@ WSettingsWidget::WSettingsWidget()
 		ui->tabWidget->removeTab(1); // WARNING: magic numer
 	if (!ServiceManager::getByName("UriHandler"))
 		ui->updateAssocs->setDisabled(true);
-	ui->updateAssocs->setIcon(QWindowsVistaStyle().standardIcon(QStyle::SP_VistaShield));
+	ui->updateAssocs->setIcon(style()->standardIcon(QStyle::SP_VistaShield));
+	ui->updateAssocs->hide();
 	lookForWidgetState(ui->cb_oi_enabled);
 	lookForWidgetState(ui->cb_oi_addNewConfMsgNumber);
 	lookForWidgetState(ui->cb_oi_showNewMsgNumber);

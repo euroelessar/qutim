@@ -31,12 +31,14 @@
 #include "links-openner.h"
 
 const char *const WI_ConfigName = "win-integration";
-
+/*
 #ifdef winint2_EXPORTS
 #	define WININT_EXPORTS Q_DECL_EXPORT
 #else
 #	define WININT_EXPORTS Q_DECL_IMPORT
 #endif
+*/
+#	define WININT_EXPORTS
 
 enum SubPluginsList {
 	WI_Win7Taskbar = 0x0001
@@ -56,6 +58,7 @@ class WININT_EXPORTS WinIntegration : public qutim_sdk_0_3::Plugin
 	Q_CLASSINFO("DebugName", "WinIntegration")
 	Q_CLASSINFO("Uses",      "ChatLayer")
 	Q_CLASSINFO("Uses",      "ContactList")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 
 public:
 	WinIntegration();

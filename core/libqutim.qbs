@@ -24,6 +24,7 @@ Framework {
         product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim"
     ]
 
+    cpp.dynamicLibraries: [ "user32" ]
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
     cpp.defines: {

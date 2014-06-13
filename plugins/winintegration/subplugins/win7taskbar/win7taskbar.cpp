@@ -67,5 +67,4 @@ bool Win7Features::unload()
 	return true;
 }
 
-QUTIM_EXPORT_PLUGIN(Win7Features)
 
