@@ -141,14 +141,15 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber Attention support (XEP-0224)"),
 				 new SingletonGenerator<JAttention, JabberExtension>(),
 				 ExtensionIcon("dialog-warning"));
-#if 0
-#ifdef JABBER_HAVE_MULTIMEDIA
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
-				 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
-				 new GeneralGenerator<JingleSupport, JabberExtension>(),
-				 ExtensionIcon(""));
-#endif
-#endif
+
+	#if 0
+	#ifdef JABBER_HAVE_MULTIMEDIA
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
+					 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
+					 new GeneralGenerator<JingleSupport, JabberExtension>(),
+					 ExtensionIcon(""));
+	#endif
+	#endif
 }
 
 bool JPlugin::load()

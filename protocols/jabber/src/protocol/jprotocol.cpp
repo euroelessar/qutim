@@ -44,6 +44,7 @@
 #include <qutim/datasettingsobject.h>
 #include <qutim/systemintegration.h>
 #include <QApplication>
+#include <QDesktopServices>
 
 namespace Jabber
 {
@@ -162,11 +163,14 @@ JProtocol::JProtocol() : d_ptr(new JProtocolPrivate(this))
 {
 	Q_ASSERT(!self);
 	self = this;
+
+	QDesktopServices::setUrlHandler("xmpp", this, "onUrlOpen");
 }
 
 JProtocol::~JProtocol()
 {
 	self = 0;
+	QDesktopServices::unsetUrlHandler("xmpp");
 }
 
 QList<Account *> JProtocol::accounts() const
@@ -573,6 +577,11 @@ void JProtocol::onAccountDestroyed(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
 	d_ptr->accounts->remove(d_ptr->accounts->key(acc));
+}
+
+void JProtocol::onUrlOpen(const QUrl &url)
+{
+	qDebug() << "Handle url: " << url;
 }
 }
 
