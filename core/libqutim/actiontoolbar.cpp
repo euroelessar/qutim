@@ -273,8 +273,8 @@ void ActionToolBar::mousePressEvent(QMouseEvent *event)
 	Q_D(ActionToolBar);
 	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
 		ReleaseCapture();
-		SendMessage(this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
-		PostMessage(this->window()->winId(),  WM_LBUTTONUP, 0, 0);
+        SendMessage((HWND)this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
+        PostMessage((HWND)this->window()->winId(), WM_LBUTTONUP, 0, 0);
 	}
 #endif
 	QToolBar::mousePressEvent(event);

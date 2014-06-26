@@ -26,6 +26,7 @@
 #include "localizedstring.h"
 #include <QtCore/QCoreApplication>
 #include <QSharedData>
+#include <QDataStream>
 
 namespace qutim_sdk_0_3
 {

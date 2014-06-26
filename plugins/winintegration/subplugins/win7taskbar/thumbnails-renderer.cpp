@@ -122,7 +122,8 @@ void WThumbnailsProvider::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 
 QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 {
-	grView->resize(size);
+	sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatio));
+	grView->resize(sceneBgItem->pixmap().size());
 	//qutimIconItem->setPos(size.width()-ICON_SIZE, size.height()-ICON_SIZE);
 	if (unreadConfs || unreadChats) {
 		textUnreadTitle->setHtml     (tr("<b>You have new messages.</b>"));
@@ -145,8 +146,6 @@ QPixmap WThumbnailsProvider::IconicPreview(unsigned, QWidget *, QSize size)
 		textUnreadAuthorsTitle->setPlainText(QString());
 		textUnreadAuthorsList-> setPlainText(QString());
 	}
-	if (currentBgSize != size)
-		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
 	grView->setBackgroundBrush(QBrush(GetUserSelectedAeroColor()));
 	QTimer::singleShot(0, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);

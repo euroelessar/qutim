@@ -33,6 +33,7 @@ Project {
         "offtherecord/offtherecord.qbs",
         "qmlchat/qmlchat.qbs",
         "quickcontactlist/quickcontactlist.qbs",
-        "indicator/indicator.qbs"
+		"winintegration/winintegration.qbs",
+		"indicator/indicator.qbs"
     ]
 }

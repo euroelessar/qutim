@@ -29,6 +29,7 @@
 #include <QPixmap>
 #include <qt_windows.h>
 #include <QDebug>
+#include <QtWinExtras/QtWinExtras>
 
 #ifndef WM_DWMSENDICONICTHUMBNAIL
 #	define WM_DWMSENDICONICTHUMBNAIL           0x0323
@@ -38,8 +39,6 @@
 #	define WM_DWMSENDICONICLIVEPREVIEWBITMAP   0x0326
 #endif
 
-QCoreApplication::EventFilter Win7EventFilter::replacedFilter = 0;
-
 Win7EventFilter *Win7EventFilter::instance()
 {
 	static Win7EventFilter _instance;
@@ -48,50 +47,50 @@ Win7EventFilter *Win7EventFilter::instance()
 
 Win7EventFilter::Win7EventFilter()
 {
-	this->replacedFilter = qApp->setEventFilter(&Win7EventFilter::eventFilter);
+	qApp->installNativeEventFilter(instance());
 }
 
-bool Win7EventFilter::eventFilter(void *message, long *result)
+bool Win7EventFilter::nativeEventFilter(const QByteArray &, void * message, long * result) 
 {
 	MSG *msg = static_cast<MSG *>(message);
 	//qDebug() << *msg;
 	switch(msg->message)
 	{
 	case WM_DWMSENDICONICTHUMBNAIL : {
-		HBITMAP bmp = TaskbarPreviews::instance()
+		HBITMAP bmp = QtWin::toHBITMAP(TaskbarPreviews::instance()
 						  ->IconicThumbnail(msg->hwnd, QSize(HIWORD(msg->lParam), LOWORD(msg->lParam)))
-						  .toWinHBITMAP(QPixmap::Alpha);
+						  , QtWin::HBitmapAlpha);
 		SetTabIconicPreview(msg->hwnd, bmp);
 		DeleteObject(bmp);
-		*result = 0;
+		if (result)
+			*result = 0;
 		return true;
 	}
 	case WM_DWMSENDICONICLIVEPREVIEWBITMAP : {
-		HBITMAP bmp = TaskbarPreviews::instance()
+		HBITMAP bmp = QtWin::toHBITMAP(TaskbarPreviews::instance()
 						  ->IconicLivePreviewBitmap(msg->hwnd)
-						  .toWinHBITMAP(QPixmap::Alpha);
+						  , QtWin::HBitmapAlpha);
 		SetTabLivePreview(msg->hwnd, bmp);
 		DeleteObject(bmp);
-		*result = 0;
+		if (result)
+			*result = 0;
 		return true;
 	}
 	case WM_ACTIVATE : {
 		if(TaskbarPreviews::instance()->WasTabActivated(msg->hwnd)){
-			*result = 0;
+			if (result)
+				*result = 0;
 			return true;
 		}
 	}
 	case WM_CLOSE : {
 		if(TaskbarPreviews::instance()->WasTabRemoved(msg->hwnd)){
-			*result = 0;
+			if (result)
+				*result = 0;
 			return true;
 		}
 	}
 	}
-
-	if(Win7EventFilter::replacedFilter)
-		return Win7EventFilter::replacedFilter(message, result);
-	else
-		return false;
+	return false;
 }
 

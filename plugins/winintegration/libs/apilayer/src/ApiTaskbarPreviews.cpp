@@ -23,8 +23,10 @@
 **
 ****************************************************************************/
 
+#define _WIN32_WINNT 0x0601
 #include "ApiTaskbarPreviews.h"
 #include "ApiTaskbarPreviewsWAttributes.h"
+#include <qt_windows.h>
 #include "Shobjidl.h"
 #include <dwmapi.h>
 

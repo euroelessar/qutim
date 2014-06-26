@@ -68,7 +68,7 @@ bool IdlePlatform::init()
 {
 	if(d->lib)
 		return true;
-	void *p;
+    QFunctionPointer p;
 
 	// try to find the built-in Windows 2000 function
 	d->lib = new QLibrary("user32");
