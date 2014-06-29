@@ -17,7 +17,7 @@ Framework {
     Depends { name: "qxt" }
     Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets' ] }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets', 'winextras' ] }
 
     cpp.includePaths: [
         "libqutim",

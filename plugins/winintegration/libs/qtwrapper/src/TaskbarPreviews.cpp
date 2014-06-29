@@ -50,22 +50,22 @@ unsigned TaskbarPreviews::addTab(QWidget *tab, QWidget *owner, const QString &ti
 	t.internalTabWidget = new QWidget;
 	t.pp            = pp;
 	t.userTabWidget = tab;
-	t.tabHandle     = t.internalTabWidget->winId();
+	t.tabHandle     = (HWND)t.internalTabWidget->winId();
 	t.userTabOwner  = owner;
 	t.type          = (tab->window() == tab) ? ttWindow : ttWidget;
 	if (!title.isNull())
 		t.internalTabWidget->setWindowTitle(title);
 	else
 		t.internalTabWidget->setWindowTitle(t.userTabOwner->windowTitle());
-	HWND afterHwnd = before ? static_cast<HWND>(m_tabs.internal(before)->winId()) : 0; // will return zero if after == 0 or there's no such tab, in that cases tab will be added to the end
+	HWND afterHwnd = before ? reinterpret_cast<HWND>(m_tabs.internal(before)->winId()) : 0; // will return zero if after == 0 or there's no such tab, in that cases tab will be added to the end
 	if (tab->window() == tab) {
 		if(pp){
-			ForceIconicRepresentation(t.internalTabWidget->winId());
+			ForceIconicRepresentation((HWND)t.internalTabWidget->winId());
 		}
 	} else // tab is not a window so previews must be created by library or user anyway
-		ForceIconicRepresentation(t.internalTabWidget->winId());
+		ForceIconicRepresentation((HWND)t.internalTabWidget->winId());
 	m_tabs.append(t);
-	RegisterTab(t.tabHandle, owner->winId());
+	RegisterTab(t.tabHandle, (HWND)owner->winId());
 	SetTabOrder(t.tabHandle, afterHwnd);
 	return t.id;
 }
@@ -76,17 +76,17 @@ unsigned TaskbarPreviews::addVirtualTab(PreviewProvider *pp, QWidget *owner, con
 	t.internalTabWidget = new QWidget;
 	t.pp            = pp;
 	t.userTabWidget = 0;
-	t.tabHandle     = t.internalTabWidget->winId();
+	t.tabHandle     = (HWND)t.internalTabWidget->winId();
 	t.userTabOwner  = owner;
 	t.type          = ttVirtual;
 	if (!title.isNull())
 		t.internalTabWidget->setWindowTitle(title);
 	else
 		t.internalTabWidget->setWindowTitle(t.userTabOwner->windowTitle());
-	HWND afterHwnd = before ? static_cast<HWND>(m_tabs.internal(before)->winId()) : 0;
-	ForceIconicRepresentation(t.internalTabWidget->winId());
+	HWND afterHwnd = before ? reinterpret_cast<HWND>(m_tabs.internal(before)->winId()) : 0;
+	ForceIconicRepresentation((HWND)t.internalTabWidget->winId());
 	m_tabs.append(t);
-	RegisterTab(t.tabHandle, owner->winId());
+	RegisterTab(t.tabHandle, (HWND)owner->winId());
 	SetTabOrder(t.tabHandle, afterHwnd);
 	return t.id;
 }
@@ -111,7 +111,7 @@ void TaskbarPreviews::removeTab(QWidget *userWidgetTab)
 	while(i < m_tabs.size()){
 		_tab t = m_tabs.at(i);
 		if(t.userTabWidget == userWidgetTab){
-			UnregisterTab(t.internalTabWidget->winId());
+			UnregisterTab((HWND)t.internalTabWidget->winId());
 			t.internalTabWidget->deleteLater();
 			m_tabs.removeAt(i);
 		}else
@@ -125,7 +125,7 @@ void TaskbarPreviews::removeTab(unsigned id)
 	while (i < m_tabs.size()) {
 		_tab t = m_tabs.at(i);
 		if (t.id == id) {
-			UnregisterTab(t.internalTabWidget->winId());
+			UnregisterTab((HWND)t.internalTabWidget->winId());
 			t.internalTabWidget->deleteLater();
 			m_tabs.removeAt(i);
 		} else
@@ -137,14 +137,14 @@ void TaskbarPreviews::activateTab(QWidget *tab)
 {
 	QWidget *internal = m_tabs.internal(tab);
 	if(internal)
-		SetTabActive(internal->winId(), m_tabs.owner(internal->winId())->winId());
+		SetTabActive((HWND)internal->winId(), (HWND)m_tabs.owner((HWND)internal->winId())->winId());
 }
 
 void TaskbarPreviews::activateTab(unsigned id)
 {
 	QWidget *internal = m_tabs.internal(id);
 	if(internal)
-		SetTabActive(internal->winId(), m_tabs.owner(internal->winId())->winId());
+		SetTabActive((HWND)internal->winId(), (HWND)m_tabs.owner((HWND)internal->winId())->winId());
 }
 
 void TaskbarPreviews::changeOrder(QWidget *tab, QWidget *before)
@@ -153,7 +153,7 @@ void TaskbarPreviews::changeOrder(QWidget *tab, QWidget *before)
 	QWidget *intbefore = m_tabs.internal(before);
 	if(!(inttab && intbefore))
 		return;
-	SetTabOrder(inttab->winId(), intbefore->winId());
+	SetTabOrder((HWND)inttab->winId(), (HWND)intbefore->winId());
 }
 
 void TaskbarPreviews::changeOrder(QWidget *tab, unsigned beforeid)
@@ -162,7 +162,7 @@ void TaskbarPreviews::changeOrder(QWidget *tab, unsigned beforeid)
 	QWidget *intbefore = m_tabs.internal(beforeid);
 	if(!(inttab && intbefore))
 		return;
-	SetTabOrder(inttab->winId(), intbefore->winId());
+	SetTabOrder((HWND)inttab->winId(), (HWND)intbefore->winId());
 }
 
 void TaskbarPreviews::changeOrder(unsigned tabid, QWidget *before)
@@ -171,7 +171,7 @@ void TaskbarPreviews::changeOrder(unsigned tabid, QWidget *before)
 	QWidget *intbefore = m_tabs.internal(before);
 	if(!(inttab && intbefore))
 		return;
-	SetTabOrder(inttab->winId(), intbefore->winId());
+	SetTabOrder((HWND)inttab->winId(), (HWND)intbefore->winId());
 }
 
 void TaskbarPreviews::changeOrder(unsigned tabid, unsigned beforeid)
@@ -180,7 +180,7 @@ void TaskbarPreviews::changeOrder(unsigned tabid, unsigned beforeid)
 	QWidget *intbefore = m_tabs.internal(beforeid);
 	if(!(inttab && intbefore))
 		return;
-	SetTabOrder(inttab->winId(), intbefore->winId());
+	SetTabOrder((HWND)inttab->winId(), (HWND)intbefore->winId());
 }
 
 void TaskbarPreviews::widgetDestroyed()
@@ -206,14 +206,14 @@ void TaskbarPreviews::refreshPreviews(QWidget *tab)
 {
 	QWidget *w = m_tabs.internal(tab);
 	if(w)
-		InvalidateBitmaps(w->winId());
+		InvalidateBitmaps((HWND)w->winId());
 }
 
 void TaskbarPreviews::refreshPreviews(unsigned tabid)
 {
 	QWidget *w = m_tabs.internal(tabid);
 	if(w)
-		InvalidateBitmaps(w->winId());
+		InvalidateBitmaps((HWND)w->winId());
 }
 
 // Static functions
@@ -297,7 +297,7 @@ void TaskbarPreviews::setWindowAttributes(QWidget *window, WindowAttributes wa)
 {
 	if (!window)
 		return;
-	SetWindowAttributes(window->winId(), wa);
+	SetWindowAttributes((HWND)window->winId(), wa);
 }
 
 // Functions, used by messages filter.
@@ -351,7 +351,7 @@ bool TaskbarPreviews::WasTabActivated(HWND hwnd)
 	QWidget *internal = m_tabs.internal(hwnd);
 	if (internal) {
 		QWidget *owner = m_tabs.owner(hwnd);
-		SetTabActive(internal->winId(), owner->winId());
+		SetTabActive((HWND)internal->winId(), (HWND)owner->winId());
 		if (owner->isMinimized())
 			owner->showNormal();
 		qApp->setActiveWindow(owner);
@@ -369,7 +369,7 @@ bool TaskbarPreviews::WasTabRemoved(HWND hwnd)
 		bool ignore = false;
 		emit tabAboutToRemove(m_tabs.user(hwnd), &ignore);
 		if (!ignore) {
-			SetNoTabActive(owner->winId());
+			SetNoTabActive((HWND)owner->winId());
 			removeTab(m_tabs.user(hwnd));
 		}
 		return true;
@@ -383,7 +383,7 @@ bool TaskbarPreviews::WasTabRemoved(HWND hwnd)
 QWidget *TaskbarPreviews::TabsList::internal(HWND internalHwnd)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
 			return t.internalTabWidget;
 	}
 	return 0;
@@ -410,7 +410,7 @@ QWidget *TaskbarPreviews::TabsList::internal(unsigned id)
 QWidget *TaskbarPreviews::TabsList::user(HWND internalHwnd)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
 			return t.userTabWidget;
 	}
 	return 0;
@@ -419,7 +419,7 @@ QWidget *TaskbarPreviews::TabsList::user(HWND internalHwnd)
 unsigned TaskbarPreviews::TabsList::id(HWND internalHwnd)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
 			return t.id;
 	}
 	return 0;
@@ -428,7 +428,7 @@ unsigned TaskbarPreviews::TabsList::id(HWND internalHwnd)
 TaskbarPreviews::TabType TaskbarPreviews::TabsList::type(HWND internalHwnd)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHwnd))
 			return t.type;
 	}
 	return ttUnknown;
@@ -437,7 +437,7 @@ TaskbarPreviews::TabType TaskbarPreviews::TabsList::type(HWND internalHwnd)
 QWidget *TaskbarPreviews::TabsList::owner(HWND internalHandle)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHandle))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHandle))
 			return t.userTabOwner;
 	}
 	return 0;
@@ -450,7 +450,7 @@ void TaskbarPreviews::TabsList::insert(QWidget *internal, QWidget *userTab, QWid
 	t.internalTabWidget = internal;
 	t.userTabWidget     = userTab;
 	t.userTabOwner      = tabOwner;
-	t.tabHandle         = static_cast<HWND>(internal->winId());
+	t.tabHandle         = reinterpret_cast<HWND>(internal->winId());
 	t.pp                = pp;
 	QList<_tab>::insert(0, t);
 }
@@ -458,7 +458,7 @@ void TaskbarPreviews::TabsList::insert(QWidget *internal, QWidget *userTab, QWid
 PreviewProvider *TaskbarPreviews::TabsList::previews(HWND internalHandle)
 {
 	foreach(const TaskbarPreviews::_tab &t, *this){
-		if(static_cast<void *>(t.internalTabWidget->winId()) == static_cast<void *>(internalHandle))
+		if(static_cast<void *>((HWND)t.internalTabWidget->winId()) == static_cast<void *>(internalHandle))
 			return t.pp;
 	}
 	return 0;

@@ -33,7 +33,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class ChatSession;
+class ChatSession;
 }
 
 class WThumbnails;

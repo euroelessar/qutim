@@ -43,7 +43,7 @@ QColor GetUserSelectedAeroColor()
 		return defaultColor;
 	bool ok = false;
 	quint32 color = QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\DWM", QSettings::NativeFormat)
-			.value("ColorizationColor").toUInt(&ok);
+					.value("ColorizationColor").toUInt(&ok);
 	return ok ? QColor(color) : defaultColor;
 }
 

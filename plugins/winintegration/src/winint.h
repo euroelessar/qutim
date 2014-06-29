@@ -49,7 +49,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(SubPlugins)
 
 namespace qutim_sdk_0_3
 {
-	class SettingsItem;
+class SettingsItem;
 }
 
 class WININT_EXPORTS WinIntegration : public qutim_sdk_0_3::Plugin

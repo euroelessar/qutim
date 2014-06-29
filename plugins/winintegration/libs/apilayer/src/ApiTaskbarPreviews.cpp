@@ -30,10 +30,6 @@
 #include "Shobjidl.h"
 #include <dwmapi.h>
 
-//#include <comdef.h>
-//#include <iostream>
-//using namespace std;
-
 void RegisterTab(HWND tab, HWND owner)
 {
 	ITaskbarList4 *taskbar;
@@ -135,4 +131,5 @@ void SetWindowAttributes(HWND hwnd, unsigned attr)
 	DwmSetWindowAttribute(hwnd, DWMWA_DISALLOW_PEEK,      TA_Peek_Disallow    & attr ? &t: &f, sizeof(BOOL));
 	DwmSetWindowAttribute(hwnd, DWMWA_EXCLUDED_FROM_PEEK, TA_Peek_ExcludeFrom & attr ? &t: &f, sizeof(BOOL));
 }
+
 

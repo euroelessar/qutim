@@ -162,7 +162,7 @@ void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 		Notification *notif = currentNotification();
 		if (!notif) {
 			if (QObject *obj = ServiceManager::getByName("ContactList")) {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 				if (QDateTime::currentMSecsSinceEpoch() - activationStateChangedTime < 200) { // tested - enough
 					obj->metaObject()->invokeMethod(obj, "changeVisibility");
 					clActivationStateChanged(true);

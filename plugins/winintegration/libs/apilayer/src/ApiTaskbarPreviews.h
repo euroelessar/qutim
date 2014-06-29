@@ -23,17 +23,16 @@
 **
 ****************************************************************************/
 
-#include "apiglobal.h"
 #include <windows.h>
 
-EXPORT void RegisterTab              (HWND tab, HWND owner);
-EXPORT void SetTabActive             (HWND tab, HWND owner);
-EXPORT void SetNoTabActive           (HWND owner); // SetTabActive(0, owner)
-EXPORT void SetTabOrder              (HWND tab, HWND insertBefore);
-EXPORT void UnregisterTab            (HWND tab);
-EXPORT void SetTabIconicPreview      (HWND tab, HBITMAP bitmap);//
-EXPORT void SetTabLivePreview        (HWND tab, HBITMAP bitmap);//
-EXPORT void ForceIconicRepresentation(HWND tab);
-EXPORT void InvalidateBitmaps        (HWND hwnd);
-EXPORT void SetWindowAttributes      (HWND hwnd, unsigned attr);
+void RegisterTab              (HWND tab, HWND owner);
+void SetTabActive             (HWND tab, HWND owner);
+void SetNoTabActive           (HWND owner); // SetTabActive(0, owner)
+void SetTabOrder              (HWND tab, HWND insertBefore);
+void UnregisterTab            (HWND tab);
+void SetTabIconicPreview      (HWND tab, HBITMAP bitmap);//
+void SetTabLivePreview        (HWND tab, HBITMAP bitmap);//
+void ForceIconicRepresentation(HWND tab);
+void InvalidateBitmaps        (HWND hwnd);
+void SetWindowAttributes      (HWND hwnd, unsigned attr);
 

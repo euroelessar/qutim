@@ -109,7 +109,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->mainToolBar->setMovable(false);
 	d->mainToolBar->setMoveHookEnabled(true);
 	d->mainToolBar->setObjectName(QLatin1String("contactListBar"));
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	d->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 

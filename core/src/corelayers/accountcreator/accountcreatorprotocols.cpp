@@ -45,7 +45,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 
 	ItemDelegate *delegate = new ItemDelegate(this);
 	ui->protocolList->setItemDelegate(delegate);
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	delegate->setCommandLinkStyle(true);
 #endif
 	ui->protocolList->setFrameShape(QFrame::NoFrame);

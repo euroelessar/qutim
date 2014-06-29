@@ -24,11 +24,10 @@
 ****************************************************************************/
 
 #include <windows.h>
-#include "apiglobal.h"
 #include "ApiProgressIndicatorStates.h"
 
-EXPORT void SetProgressValEx(HWND hWnd, ULONGLONG Completed, ULONGLONG Total);
-EXPORT void SetProgressVal  (HWND hWnd, int Percents);
-EXPORT void ClearProgress   (HWND hWnd);
-EXPORT void SetProgressState(HWND hWnd, ProgressStates state);
+void SetProgressValEx(HWND hWnd, ULONGLONG Completed, ULONGLONG Total);
+void SetProgressVal  (HWND hWnd, int Percents);
+void ClearProgress   (HWND hWnd);
+void SetProgressState(HWND hWnd, ProgressStates state);
 
