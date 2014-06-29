@@ -36,7 +36,7 @@
 using namespace qutim_sdk_0_3;
 
 LinksOpenner::LinksOpenner(QObject *parent) :
-	 QObject(parent)
+	QObject(parent)
 {
 	CmdServer::instance()->registerHandler("xmpp-proto", this);
 }

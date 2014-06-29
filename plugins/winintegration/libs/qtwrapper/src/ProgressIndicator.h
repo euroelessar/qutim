@@ -23,13 +23,12 @@
 **
 ****************************************************************************/
 
-#include "global.h"
 #include <QObject>
 #include "../../apilayer/src/ApiProgressIndicatorStates.h"
 
 class QWidget;
 
-class WTQTEXPORT ProgressIndicator : public QObject
+class ProgressIndicator : public QObject
 {
 	Q_OBJECT
 

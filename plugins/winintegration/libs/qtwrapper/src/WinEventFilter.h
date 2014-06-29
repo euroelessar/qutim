@@ -25,18 +25,14 @@
 
 #include <QCoreApplication>
 #include <QSize>
+#include <QAbstractNativeEventFilter>
 
-//class QPixmap;
-
-class Win7EventFilter : public QObject
+class Win7EventFilter : public QAbstractNativeEventFilter
 {
-	Q_OBJECT
-
 	Win7EventFilter();
-	static QCoreApplication::EventFilter replacedFilter;
 
 public:
 	static Win7EventFilter *instance();
-	static bool eventFilter(void *message, long *result);
+	bool nativeEventFilter(const QByteArray & eventType, void * message, long * result) override;
 };
 

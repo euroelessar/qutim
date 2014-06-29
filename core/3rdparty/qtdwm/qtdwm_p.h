@@ -28,7 +28,7 @@ class WindowNotifier : public QWidget
 public:
 	WindowNotifier();
 	void addWidget(QWidget *widget, BlurManager *bm);
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	bool winEvent(MSG *message, long *result);
 
 public slots:

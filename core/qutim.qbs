@@ -23,7 +23,7 @@ Application {
         "main.cpp",
         "qutim.qrc"
     ]
-
+    consoleApplication: false
     Group {
         name: "Source"
         prefix: project.declarativeUi ? "src/declarative/" : "src/widgets/"

@@ -110,7 +110,7 @@ static const char* qxt_qt_options[] =
     "dograb",       QT_TRANSLATE_NOOP("QxtCommandOptions", "grab the mouse/keyboard even in a debugger"),
     "sync",         QT_TRANSLATE_NOOP("QxtCommandOptions", "run in synchronous mode for debugging"),
 #endif
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     "direct3d",     QT_TRANSLATE_NOOP("QxtCommandOptions", "use Direct3D by default"),
 #endif
 #ifdef Q_WS_X11

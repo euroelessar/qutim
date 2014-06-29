@@ -27,7 +27,7 @@
 
 #include <QGuiApplication>
 
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 # include <qt_windows.h>
 # ifndef MOD_NOREPEAT
 #  define MOD_NOREPEAT 0x4000
@@ -90,7 +90,7 @@ OSStatus qxt_mac_handle_hot_key( EventHandlerCallRef /* nextHandler */, EventRef
 
 bool dGlobalHotKey::eventFilter( void *e )
 {
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 		MSG *m = ( MSG * ) e;
 
 		if ( m->message == WM_HOTKEY )
@@ -139,7 +139,7 @@ bool dGlobalHotKey::shortcut( const QString &s, bool a )
 	quint32 key, mods;
 	native( s, key, mods );
 
-	#if defined( Q_WS_WIN )
+	#if defined( Q_OS_WIN )
 		if ( a )
 			return RegisterHotKey( 0, mods ^ key, mods | MOD_NOREPEAT, key );
 		else
@@ -229,7 +229,7 @@ quint32 dGlobalHotKey::id( const QString &s )
     return mods ^ key;
 }
 
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
 
 quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
 {

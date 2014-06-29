@@ -112,7 +112,7 @@ SimpleWidget::SimpleWidget() : m_model("ContactModel")
 	m_mainToolBar->setMoveHookEnabled(true);
 	m_mainToolBar->setObjectName(QLatin1String("contactListBar"));
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	m_mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
