@@ -1,6 +1,7 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
+    condition: false
     Group {
         name: "QML files"
         files: "qml"

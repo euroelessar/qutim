@@ -60,6 +60,8 @@ public slots:
 	void searchSelectedText();
 	void openLinkFromContextMenu();
 	void setPrevFocus(QObject *);
+	void openChat();
+	void openConference();
 };
 
 } // namespace Adium

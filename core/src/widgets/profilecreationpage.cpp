@@ -245,7 +245,15 @@ void ProfileCreationPage::rebaseDirs()
 		profiles += QLatin1String("profiles/");
 		profiles += ui->idEdit->text();
 	}
-	if (ui->portableBox->isChecked()) {
+
+
+	if(Profile::instance()->isCustomProfilePath()) {
+		QDir dir = Profile::instance()->getCustomProfilePath();
+		ui->dataEdit->setText(dir.absoluteFilePath("share"));
+		dir = QDir::cleanPath(dir.absolutePath() % "/" % profiles);
+		ui->configEdit->setText(dir.absoluteFilePath("config"));
+		ui->historyEdit->setText(dir.absoluteFilePath("history"));
+	} else if (ui->portableBox->isChecked()) {
 		QDir dir = qApp->applicationDirPath();
 		ui->dataEdit->setText(dir.absoluteFilePath("share"));
 		dir = QDir::cleanPath(dir.absolutePath() % "/" % profiles);

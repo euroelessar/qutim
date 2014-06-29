@@ -70,6 +70,7 @@ private slots:
 	void onSaveRemoveBookmarks(QObject *obj);
 	void onAccountDestroyed(QObject *obj);
 	void onChangeSubscription(QObject *obj);
+	void onUrlOpen(const QUrl &url);
 private:
 	void loadActions();
 	virtual void loadAccounts();
