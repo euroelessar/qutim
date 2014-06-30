@@ -58,7 +58,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	searchList<<"Yandex"<<"Google";
 	ui->searchBox->addItems(searchList);
 
-#if defined(Q_OS_MAC) || defined(Q_WS_WIN)
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 	int row;
 	QFormLayout::ItemRole role;
 	ui->formLayout->getWidgetPosition(ui->menuBox, &row, &role);

@@ -1,7 +1,7 @@
 import "../../../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    condition: false // change on true if need add to build
+    condition: qbs.targetOS.contains("windows")
     sourcePath: '.'
     Depends { name: 'Qt.multimedia' }
 }
