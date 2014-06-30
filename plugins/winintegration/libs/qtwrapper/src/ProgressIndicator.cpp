@@ -40,12 +40,12 @@ void ProgressIndicator::changeWindow(QWidget* w)
 
 void ProgressIndicator::setState(ProgressStates state)
 {
-	SetProgressState(m_window->winId(), state);
+	SetProgressState((HWND)m_window->winId(), state);
 }
 
 void ProgressIndicator::setValue(unsigned val, unsigned max)
 {
-	SetProgressValEx(m_window->winId(), val, max);
+	SetProgressValEx((HWND)m_window->winId(), val, max);
 }
 
 void ProgressIndicator::clear()

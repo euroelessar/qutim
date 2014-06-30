@@ -60,7 +60,7 @@ namespace Core
             s += "Ctrl+";
 #endif
         if (modifier & Qt::META)
-#if defined(Q_WS_WIN)            
+#if defined(Q_OS_WIN)            
             s += "Win+";
 #else
             s += "Meta+";
