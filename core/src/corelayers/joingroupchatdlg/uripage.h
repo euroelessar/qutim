@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,41 +23,40 @@
 **
 ****************************************************************************/
 
-#ifndef JOINCHATMODULE_H
-#define JOINCHATMODULE_H
+#ifndef URIPAGE_H
+#define URIPAGE_H
 
-#include "joinchatdialog.h"
-#include <qutim/actiongenerator.h>
+#include <QScrollArea>
+#include <QPointer>
+#include "groupchatpage.h"
+#include <qutim/dataforms.h>
 
-namespace Core
+class QVBoxLayout;
+class QCheckBox;
+class QLineEdit;
+namespace Core {
+
+class UriPage : public GroupChatPage
 {
-class JoinChatGenerator;
-
-class JoinChatModule : public QObject
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service", "JoinGroupChat")
-	Q_CLASSINFO("Uses", "IconLoader")
-	Q_CLASSINFO("Uses", "ContactList")
+    Q_OBJECT
 public:
-	JoinChatModule();
-	virtual ~JoinChatModule();
-
+	explicit UriPage(QWidget *parent = 0);
+	void setUri(const QUrl &);
+	void setUri(const QString &uri);
 public slots:
-	void onJoinGroupChatTriggered(const QString &url = "");
-
+	void join();
+	void updateDataForm();
+protected:
+	void showEvent(QShowEvent *);
+signals:
+	void joined();
 private:
-	QScopedPointer<JoinChatGenerator> m_action;
-	QPointer<JoinChatDialog> m_dialog;
+	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QAction *m_joinAction;
+	QString m_uri;
 };
 
-class JoinChatGenerator : public qutim_sdk_0_3::ActionGenerator
-{
-public:
-	JoinChatGenerator(QObject *module);
-	void showImpl(QAction *action, QObject *obj);
-};
-}
+} // namespace Core
 
-#endif // JOINCHATMODULE_H
+#endif // URIPAGE_H
 

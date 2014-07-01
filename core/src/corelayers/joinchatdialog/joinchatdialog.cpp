@@ -5,6 +5,7 @@
 ** Copyright © 2008 Denis Daschenko <daschenko@gmail.com>
 ** Copyright © 2008 Rustam Chakin <qutim.develop@gmail.com>
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2014 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -222,7 +223,17 @@ void JoinChatDialog::rebuildItems(int index)
 	int count = m_ui->conferenceListWidget->count();
 	if (count == 0) {
 		QListWidgetItem *item = new QListWidgetItem(tr("New chat"), m_ui->conferenceListWidget);
-		item->setData(Qt::UserRole, qVariantFromValue(manager->fields()));
+
+		DataItem dataitem = manager->fields();
+		if(!m_uri.isEmpty()) {
+			QList<DataItem> items = dataitem.subitems();
+			QList<DataItem>::const_iterator i;
+			for(i = items.constBegin(); i != items.constEnd(); ++i)
+				if((*i).name() == "conference") break;
+			items[i-items.constBegin()] = DataItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), m_uri);
+			dataitem.setSubitems(items);
+		}
+		item->setData(Qt::UserRole, qVariantFromValue(dataitem));
 		++count;
 	}
 	for (int i = count - 1; i >= bookmarks.size() + 1; --i)
@@ -241,6 +252,12 @@ void JoinChatDialog::rebuildItems(int index)
 	} else {
 		m_ui->conferenceListWidget->setCurrentRow(index);
 	}
+}
+
+void JoinChatDialog::setUri(const QString &uri)
+{
+	m_uri = uri;
+	on_accountBox_currentIndexChanged(m_ui->accountBox->currentIndex());
 }
 
 qutim_sdk_0_3::GroupChatManager *JoinChatDialog::groupChatManager()

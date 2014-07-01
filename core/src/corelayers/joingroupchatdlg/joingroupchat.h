@@ -57,6 +57,7 @@ public:
 	explicit JoinGroupChat(QWidget *parent = 0);
 	~JoinGroupChat();
 	virtual void showEvent(QShowEvent* );
+	void setXmppURI(const QString &uri);
 protected:
 	virtual void changeEvent(QEvent* );
 private slots:
@@ -77,6 +78,7 @@ private:
 	QAction *m_backAction;
 	BookmarksModel *m_bookmarksViewModel;
 	BookmarksModel *m_bookmarksBoxModel;
+	QString m_uri;
 };
 
 }

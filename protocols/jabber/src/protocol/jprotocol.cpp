@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2014 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -45,6 +46,8 @@
 #include <qutim/systemintegration.h>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QUrl>
+#include <QUrlQuery>
 
 namespace Jabber
 {
@@ -581,6 +584,14 @@ void JProtocol::onAccountDestroyed(QObject *obj)
 
 void JProtocol::onUrlOpen(const QUrl &url)
 {
+	ServicePointer<QObject> joinGroupChatDlg = ServicePointer<QObject>("JoinGroupChat");
+	if(!joinGroupChatDlg)
+		return;
+
+	if(QUrlQuery(url).hasQueryItem("join"))
+		QMetaObject::invokeMethod(joinGroupChatDlg.data(), "onJoinGroupChatTriggered", Q_ARG(QString, url.path()));
+
+	// TODO: "message" option
 	qDebug() << "Handle url: " << url;
 }
 }
