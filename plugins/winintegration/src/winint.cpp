@@ -30,7 +30,6 @@
 #include <QSysInfo>
 #include <QFileInfo>
 #include <QLibrary>
-#include <QtDeclarative/qdeclarative.h>
 #include <QGraphicsDropShadowEffect>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>

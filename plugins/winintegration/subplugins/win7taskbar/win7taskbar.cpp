@@ -31,6 +31,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/servicemanager.h>
 #include <WinThings/TaskbarPreviews.h>
+#include <QtWin>
 
 using namespace qutim_sdk_0_3;
 
@@ -49,7 +50,11 @@ bool Win7Features::load()
 	overlayIcon = new WOverlayIcon;
 	//connect(WinIntegration::instance(), SIGNAL(reloadSettigs()), thumbnails,  SLOT(reloadSetting())); // no need - loads them once
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), thumbnails, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-	TaskbarPreviews::setWindowAttributes(ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>(), TA_Flip3D_ExcludeBelow | TA_Peek_ExcludeFrom);
+	if (QWidget *widget = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>()) {
+		QWindow *window = widget->windowHandle();
+		QtWin::setWindowFlip3DPolicy(window, QtWin::FlipExcludeBelow);
+		QtWin::setWindowExcludedFromPeek(window, true);
+	}
 	WinIntegration::instance()->enabledPlugin(WI_Win7Taskbar);
 	return true;
 }
@@ -62,7 +67,11 @@ bool Win7Features::unload()
 	delete overlayIcon;
 	thumbnails  = 0;
 	overlayIcon = 0;
-	TaskbarPreviews::setWindowAttributes(ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>(), TA_NoAttributes);
+	if (QWidget *widget = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>()) {
+		QWindow *window = widget->windowHandle();
+		QtWin::setWindowFlip3DPolicy(window, QtWin::FlipDefault);
+		QtWin::setWindowExcludedFromPeek(window, false);
+	}
 	WinIntegration::instance()->disabledPlugin(WI_Win7Taskbar);
 	return true;
 }

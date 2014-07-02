@@ -23,16 +23,60 @@
 **
 ****************************************************************************/
 
-#define _WIN32_WINNT 0x0601
+#ifndef _WIN32_WINNT
+#  define _WIN32_WINNT 0x0601
+#endif
 #include "ApiTaskbarPreviews.h"
 #include "ApiTaskbarPreviewsWAttributes.h"
 #include <qt_windows.h>
-#include "Shobjidl.h"
-#include <dwmapi.h>
+#include <shobjidl.h>
+#include <QLibrary>
 
-//#include <comdef.h>
-//#include <iostream>
-//using namespace std;
+enum qutim_DWMWINDOWATTRIBUTE
+{
+    qutim_DWMWA_NCRENDERING_ENABLED = 1,
+    qutim_DWMWA_NCRENDERING_POLICY,
+    qutim_DWMWA_TRANSITIONS_FORCEDISABLED,
+    qutim_DWMWA_ALLOW_NCPAINT,
+    qutim_DWMWA_CAPTION_BUTTON_BOUNDS,
+    qutim_DWMWA_NONCLIENT_RTL_LAYOUT,
+    qutim_DWMWA_FORCE_ICONIC_REPRESENTATION,
+    qutim_DWMWA_FLIP3D_POLICY,
+    qutim_DWMWA_EXTENDED_FRAME_BOUNDS,
+    qutim_DWMWA_HAS_ICONIC_BITMAP,
+    qutim_DWMWA_DISALLOW_PEEK,
+    qutim_DWMWA_EXCLUDED_FROM_PEEK,
+    qutim_DWMWA_CLOAK,
+    qutim_DWMWA_CLOAKED,
+    qutim_DWMWA_FREEZE_REPRESENTATION,
+    qutim_DWMWA_LAST
+};
+
+typedef HRESULT (STDAPICALLTYPE *DwmSetWindowAttribute_t)(HWND, DWORD, LPCVOID, DWORD);
+static DwmSetWindowAttribute_t qutim_DwmSetWindowAttribute = 0;
+
+typedef HRESULT (STDAPICALLTYPE *DwmSetIconicThumbnail_t)(HWND, HBITMAP, DWORD);
+static DwmSetIconicThumbnail_t qutim_DwmSetIconicThumbnail = 0;
+
+typedef HRESULT (STDAPICALLTYPE *DwmSetIconicLivePreviewBitmap_t)(HWND, HBITMAP, POINT*, DWORD);
+static DwmSetIconicLivePreviewBitmap_t qutim_DwmSetIconicLivePreviewBitmap = 0;
+
+typedef HRESULT (STDAPICALLTYPE *DwmInvalidateIconicBitmaps_t)(HWND);
+static DwmInvalidateIconicBitmaps_t qutim_DwmInvalidateIconicBitmaps = 0;
+
+static void qutim_init_dwm()
+{
+	static bool inited = false;
+	if (inited)
+		return;
+	inited = true;
+
+	QLibrary dwm("dwmapi");
+	qutim_DwmSetWindowAttribute = reinterpret_cast<DwmSetWindowAttribute_t>(dwm.resolve("DwmSetWindowAttribute"));
+	qutim_DwmSetIconicThumbnail = reinterpret_cast<DwmSetIconicThumbnail_t>(dwm.resolve("DwmSetIconicThumbnail"));
+	qutim_DwmSetIconicLivePreviewBitmap = reinterpret_cast<DwmSetIconicLivePreviewBitmap_t>(dwm.resolve("DwmSetIconicLivePreviewBitmap"));
+	qutim_DwmInvalidateIconicBitmaps = reinterpret_cast<DwmInvalidateIconicBitmaps_t>(dwm.resolve("DwmInvalidateIconicBitmaps"));
+}
 
 void RegisterTab(HWND tab, HWND owner)
 {
@@ -85,19 +129,26 @@ void SetTabOrder(HWND tab, HWND insertBefore)
 
 void SetTabIconicPreview(HWND tab, HBITMAP bitmap)
 {
-	DwmSetIconicThumbnail(tab, bitmap, 0);
+	qutim_init_dwm();
+	if (qutim_DwmSetIconicThumbnail)
+		qutim_DwmSetIconicThumbnail(tab, bitmap, 0);
 }
 
 void SetTabLivePreview(HWND tab, HBITMAP bitmap)
 {
-	DwmSetIconicLivePreviewBitmap(tab, bitmap, 0, 0);
+	qutim_init_dwm();
+	if (qutim_DwmSetIconicLivePreviewBitmap)
+		qutim_DwmSetIconicLivePreviewBitmap(tab, bitmap, 0, 0);
 }
 
 void ForceIconicRepresentation(HWND tab)
 {
+	qutim_init_dwm();
 	int param = TRUE;
-	DwmSetWindowAttribute(tab, DWMWA_FORCE_ICONIC_REPRESENTATION, &param, sizeof(param));
-	DwmSetWindowAttribute(tab, DWMWA_HAS_ICONIC_BITMAP,           &param, sizeof(param));
+	if (qutim_DwmSetWindowAttribute && qutim_DwmSetIconicThumbnail) {
+		qutim_DwmSetWindowAttribute(tab, qutim_DWMWA_FORCE_ICONIC_REPRESENTATION, &param, sizeof(param));
+		qutim_DwmSetWindowAttribute(tab, qutim_DWMWA_HAS_ICONIC_BITMAP,           &param, sizeof(param));
+	}
 	// _com_error er1(e1), er2(e2);
 }
 
@@ -117,22 +168,8 @@ void UnregisterTab(HWND tab)
 
 void InvalidateBitmaps(HWND hwnd)
 {
-	DwmInvalidateIconicBitmaps(hwnd);
-}
-
-void SetWindowAttributes(HWND hwnd, unsigned attr)
-{
-	BOOL t = TRUE;
-	BOOL f = FALSE;
-	DWMFLIP3DWINDOWPOLICY policy;
-	if (TA_Flip3D_ExcludeAbove & attr)
-		policy = DWMFLIP3D_EXCLUDEABOVE;
-	else if (TA_Flip3D_ExcludeBelow & attr)
-		policy = DWMFLIP3D_EXCLUDEBELOW;
-	else
-		policy = DWMFLIP3D_DEFAULT;
-	DwmSetWindowAttribute(hwnd, DWMWA_FLIP3D_POLICY,      &policy,                          sizeof(policy));
-	DwmSetWindowAttribute(hwnd, DWMWA_DISALLOW_PEEK,      TA_Peek_Disallow    & attr ? &t: &f, sizeof(BOOL));
-	DwmSetWindowAttribute(hwnd, DWMWA_EXCLUDED_FROM_PEEK, TA_Peek_ExcludeFrom & attr ? &t: &f, sizeof(BOOL));
+	qutim_init_dwm();
+	if (qutim_DwmInvalidateIconicBitmaps)
+		qutim_DwmInvalidateIconicBitmaps(hwnd);
 }
 

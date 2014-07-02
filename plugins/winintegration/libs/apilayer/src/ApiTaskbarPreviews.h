@@ -34,5 +34,4 @@ void SetTabIconicPreview      (HWND tab, HBITMAP bitmap);//
 void SetTabLivePreview        (HWND tab, HBITMAP bitmap);//
 void ForceIconicRepresentation(HWND tab);
 void InvalidateBitmaps        (HWND hwnd);
-void SetWindowAttributes      (HWND hwnd, unsigned attr);
 
