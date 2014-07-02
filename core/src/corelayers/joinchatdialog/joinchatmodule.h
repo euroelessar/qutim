@@ -44,7 +44,7 @@ public:
 	virtual ~JoinChatModule();
 
 public slots:
-	void onJoinGroupChatTriggered(const QString &url = "");
+	void onJoinGroupChatTriggered(const QString &url = QString());
 
 private:
 	QScopedPointer<JoinChatGenerator> m_action;
