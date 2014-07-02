@@ -54,8 +54,8 @@ void BlogImproverHandler::loadSettings()
 	m_juickPost.setPattern("#\\d+\\b(?!/)");
 	m_juickComment.setPattern("#\\d{3,}/\\d+\\b");
 
-	m_pstoPost.setPattern("(#[zothfiseng]+)\\b(?!/)");
-	m_pstoComment.setPattern("(#[zothfiseng]{4,}/\\d+)\\b");
+	m_pstoPost.setPattern("(#[a-z]+)\\b(?!/)");
+	m_pstoComment.setPattern("(#[a-z]{4,}/\\d+)\\b");
 
 	//m_pstoTag.setPattern("[*] ([^*,<]+(, [^*,<]+)*)");
 	m_simplestyle = "color:#007FFF; text-decoration: underline; cursor: pointer;";
@@ -75,7 +75,7 @@ void BlogImproverHandler::doHandle(qutim_sdk_0_3::Message &message, const qutim_
     }
 
 	static QLatin1Literal jids[] = {
-		QLatin1Literal("psto@psto.net"),
+		QLatin1Literal("p@point.im"),
 		QLatin1Literal("6571781"),
 		QLatin1Literal("juick@juick.com"),
 		QLatin1Literal("jubo@nologin.ru"),
@@ -127,7 +127,7 @@ void BlogImproverHandler::handlePsto(Message &message)
 		toReplace += QLatin1Literal(" (")
 				% QString("<span onclick=\"client.appendText('S %1')\" style=\"%2\">S</span> ")
 				  .arg(m_pstoPost.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span> ")
+				% QString("<span onclick=\"client.appendText('%1++')\" style=\"%2\">++</span> ")
 				  .arg(m_pstoPost.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('! %1')\" style=\"%2\">!</span> ")
 				  .arg(m_pstoPost.cap(1), m_simplestyle)
@@ -151,7 +151,7 @@ void BlogImproverHandler::handlePsto(Message &message)
 				  .arg(m_pstoComment.cap(1), m_simplestyle)
 				% QString("<span onclick=\"client.appendText('~ %1')\" style=\"%2\">~</span> ")
 				  .arg(m_pstoComment.cap(1), m_simplestyle)
-				% QString("<span onclick=\"client.appendText('%1+')\" style=\"%2\">+</span>")
+				% QString("<span onclick=\"client.appendText('%1++')\" style=\"%2\">++</span>")
 				  .arg(QString(m_pstoComment.cap(1)).replace(removeLast, ""), m_simplestyle)
 				% QLatin1Literal(")");
 
