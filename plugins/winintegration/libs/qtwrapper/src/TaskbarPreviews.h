@@ -122,7 +122,6 @@ public:
 	static TaskbarPreviews *instance();
 	static unsigned tabAdd    (QWidget *tab, QWidget *owner, const QString &title = "", QWidget *before = 0, PreviewProvider *pp = 0);
 	static unsigned tabAddVirtual(PreviewProvider *pp, QWidget *owner, const QString &title, QWidget *before = 0);
-	static void setWindowAttributes(QWidget *window, WindowAttributes wa);
 	static void tabActivate   (QWidget *tab);
 	static void tabActivate   (unsigned tabid);
 	static void tabOrderChange(QWidget *tab,   QWidget *before);

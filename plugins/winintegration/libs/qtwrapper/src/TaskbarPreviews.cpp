@@ -293,13 +293,6 @@ void TaskbarPreviews::tabSetTitle(unsigned tabid, const QString &title)
 	TaskbarPreviews::instance()->setTabTitle(tabid, title);
 }
 
-void TaskbarPreviews::setWindowAttributes(QWidget *window, WindowAttributes wa)
-{
-	if (!window)
-		return;
-	SetWindowAttributes((HWND)window->winId(), wa);
-}
-
 // Functions, used by messages filter.
 
 QPixmap TaskbarPreviews::IconicThumbnail(HWND hwnd, QSize size)

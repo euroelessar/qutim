@@ -21,7 +21,8 @@ Application {
 	
     files: [
         "main.cpp",
-        "qutim.qrc"
+        "qutim.qrc",
+        "qutim.rc"
     ]
 
     Group {
