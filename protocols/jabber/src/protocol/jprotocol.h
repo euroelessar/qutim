@@ -30,6 +30,7 @@
 #include <qutim/debug.h>
 #include <jreen/presence.h>
 #include <jreen/abstractroster.h>
+#include <qutim/servicemanager.h>
 
 namespace Jabber
 {

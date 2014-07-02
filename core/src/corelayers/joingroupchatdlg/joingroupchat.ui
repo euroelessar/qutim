@@ -70,6 +70,7 @@
      </widget>
      <widget class="Core::JoinPage" name="joinPage"/>
      <widget class="Core::BookmarksPage" name="bookmarksPage"/>
+     <widget class="Core::UriPage" name="uriPage"/>
     </widget>
    </item>
    <item>
@@ -94,6 +95,12 @@
    <class>Core::BookmarksPage</class>
    <extends>QWidget</extends>
    <header>bookmarkspage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Core::UriPage</class>
+   <extends>QWidget</extends>
+   <header>uripage.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

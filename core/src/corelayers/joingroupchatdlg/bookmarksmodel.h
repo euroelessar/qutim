@@ -37,7 +37,8 @@ enum BookmarkType
 	BookmarkItem,
 	BookmarkEmptyItem,
 	BookmarkRecentItem,
-	BookmarkSeparator
+	BookmarkSeparator,
+	BookmarkURI
 };
 
 enum BookmarkRoles

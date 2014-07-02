@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
+** Copyright © 2014 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -42,6 +43,7 @@
 #include <qutim/itemdelegate.h>
 #include "joinpage.h"
 #include <qutim/servicemanager.h>
+#include "uripage.h"
 
 namespace Core
 {
@@ -67,14 +69,15 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 	ui->accountBox->setModel(new AccountsModel(this));
 
 	m_closeAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
-	connect(m_closeAction,SIGNAL(triggered()),SLOT(close()));
+	connect(m_closeAction,SIGNAL(triggered()), SLOT(close()));
 
 	m_backAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Back"),this);
 	ui->actionBox->addAction(m_backAction);
-	connect(m_backAction,SIGNAL(triggered()),SLOT(onBackActionTriggered()));
+	connect(m_backAction, SIGNAL(triggered()), SLOT(onBackActionTriggered()));
 
-	connect(ui->joinPage,SIGNAL(joined()),SLOT(close()));
-	connect(ui->bookmarksPage,SIGNAL(bookmarksChanged()),SLOT(onBookmarksChanged()));
+	connect(ui->joinPage, SIGNAL(joined()), SLOT(close()));
+	connect(ui->uriPage, SIGNAL(joined()), SLOT(close()));
+	connect(ui->bookmarksPage, SIGNAL(bookmarksChanged()), SLOT(onBookmarksChanged()));
 	connect(ui->stackedWidget, SIGNAL(fingerGesture(SlidingStackedWidget::SlideDirection)),
 			this, SLOT(onFingerGesture(SlidingStackedWidget::SlideDirection)));
 
@@ -84,7 +87,7 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 
 void JoinGroupChat::onFingerGesture(SlidingStackedWidget::SlideDirection direction)
 {
-	 if (direction==SlidingStackedWidget::LeftToRight)
+	 if (direction == SlidingStackedWidget::LeftToRight)
 		 onBackActionTriggered();
 }
 
@@ -117,7 +120,7 @@ void JoinGroupChat::onToolBarActTriggered(QAction *act)
 	ui->stackedWidget->setCurrentIndex(index);
 }
 
-void JoinGroupChat::onCurrentChanged( int index)
+void JoinGroupChat::onCurrentChanged(int index)
 {
 	ui->actionBox->clear();
 	if(index)
@@ -141,6 +144,7 @@ void JoinGroupChat::onAccountBoxActivated(int index)
 	}
 	fillBookmarks(account);
 	ui->joinPage->setAccount(account);
+	ui->uriPage->setAccount(account);
 	ui->bookmarksPage->setAccount(account);
 	ui->bookmarksPage->setModel(m_bookmarksBoxModel);
 }
@@ -187,6 +191,16 @@ void JoinGroupChat::fillBookmarks(Account *account)
 	m_bookmarksViewModel->addItem(BookmarkEdit,
 								  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
 								  fields);
+	if(!m_uri.isEmpty()) {
+		fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat",
+													 QString("Join URI right now: %1").arg(m_uri).toUtf8()
+													 ));
+		m_bookmarksViewModel->addItem(BookmarkURI,
+									  QT_TRANSLATE_NOOP("JoinGroupChat",
+														QString("Join %1").arg(m_uri).toUtf8()
+														),
+									  fields);
+	}
 
 	m_bookmarksBoxModel->addItem(BookmarkEmptyItem,QString());
 	//Bookmarks
@@ -223,6 +237,10 @@ void JoinGroupChat::onItemActivated(const QModelIndex &index)
 		ui->stackedWidget->slideInIdx(2);
 		break;
 	}
+	case BookmarkURI: {
+		ui->stackedWidget->slideInIdx(3);
+		break;
+	}
 	default:
 		break;
 	}
@@ -247,6 +265,13 @@ void JoinGroupChat::onBackActionTriggered()
 void JoinGroupChat::onBookmarksChanged()
 {
 	fillBookmarks(currentAccount());
+}
+
+void JoinGroupChat::setXmppURI(const QString &uri)
+{
+	m_uri = uri;
+	ui->uriPage->setUri(uri);
+	onBookmarksChanged();
 }
 
 }

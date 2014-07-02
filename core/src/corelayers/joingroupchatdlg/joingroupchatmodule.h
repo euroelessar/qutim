@@ -43,8 +43,9 @@ class JoinGroupChatModule : public QObject
 public:
     explicit JoinGroupChatModule();
     virtual ~JoinGroupChatModule();
+	void openConference(const QString &uri);
 public slots:
-    void onJoinGroupChatTriggered();
+	void onJoinGroupChatTriggered(const QString &uri = QString());
 private:
     QPointer<JoinGroupChat> m_chat;
     QScopedPointer<ActionGenerator> m_gen;

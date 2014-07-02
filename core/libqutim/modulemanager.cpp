@@ -373,7 +373,9 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 			s << args;
 		}
 		messageToServer += QLatin1String(data.toBase64());
-	} else if (parser.value("url").count()) {
+	}
+
+	if (parser.value("url").count()) {
 		messageToServer = QLatin1String("url: ");
 		messageToServer += parser.value("url");
 	} else if (args.count() == 2) {

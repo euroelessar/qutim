@@ -60,11 +60,14 @@ JoinGroupChatModule::~JoinGroupChatModule()
 		contactList.data()->removeAction(m_gen.data());
 }
 
-void JoinGroupChatModule::onJoinGroupChatTriggered()
+void JoinGroupChatModule::onJoinGroupChatTriggered(const QString &uri)
 {
 	if (!m_chat)
 		m_chat = new JoinGroupChat(qApp->activeWindow());
 	m_chat.data()->setParent(QApplication::activeWindow());
+
+	m_chat.data()->setXmppURI(uri);
+
 #if defined (QUTIM_MOBILE_UI)
 	m_chat.data()->showMaximized();
 #else

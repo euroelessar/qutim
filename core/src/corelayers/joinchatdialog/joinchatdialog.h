@@ -52,6 +52,7 @@ public slots:
 	void on_addConferenceButton_clicked();
 	void on_removeConferenceButton_clicked();
 	void on_accountBox_currentIndexChanged(int index);
+	void setUri(const QString &uri);
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void rebuildItems(int index);
@@ -68,6 +69,7 @@ private slots:
 private:
 	qutim_sdk_0_3::GroupChatManager *groupChatManager();
 
+	QString m_uri;
 	Ui::JoinChat *m_ui;
 	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
 	qutim_sdk_0_3::Account *m_currentAcount;
