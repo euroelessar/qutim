@@ -47,7 +47,7 @@ Win7EventFilter *Win7EventFilter::instance()
 
 Win7EventFilter::Win7EventFilter()
 {
-	qApp->installNativeEventFilter(instance());
+	qApp->installNativeEventFilter(this);
 }
 
 bool Win7EventFilter::nativeEventFilter(const QByteArray &, void * message, long * result) 
