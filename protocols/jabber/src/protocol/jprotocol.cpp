@@ -48,6 +48,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QUrlQuery>
+#include <qutim/chatsession.h>
+#include <QTextDocument>
 
 namespace Jabber
 {
@@ -584,15 +586,30 @@ void JProtocol::onAccountDestroyed(QObject *obj)
 
 void JProtocol::onUrlOpen(const QUrl &url)
 {
+	qDebug() << "Handle url: " << url;
+
 	ServicePointer<QObject> joinGroupChatDlg = ServicePointer<QObject>("JoinGroupChat");
 	if(!joinGroupChatDlg)
 		return;
 
-	if(QUrlQuery(url).hasQueryItem("join"))
+	QUrlQuery q;
+	q.setQueryDelimiters('=', ';');
+	q.setQuery(url.query());
+
+	if(q.hasQueryItem("join"))
+	{
 		QMetaObject::invokeMethod(joinGroupChatDlg.data(), "onJoinGroupChatTriggered", Q_ARG(QString, url.path()));
+		return;
+	}
+
+	qDebug() << q.queryItems();
+	if(q.hasQueryItem("message") && q.hasQueryItem("body"))
+		foreach (ChatSession *session, ChatLayer::instance()->sessions())
+			if(session->isActive() && session->unit()->id().startsWith(url.path()))
+				session->getInputField()->setPlainText(q.queryItemValue("body"));
 
 	// TODO: "message" option
-	qDebug() << "Handle url: " << url;
+
 }
 }
 
