@@ -66,6 +66,7 @@ public:
 	virtual ChatSessionImpl *currentSession() const = 0;
 	static QString titleForSession(ChatSessionImpl *s);
 	virtual void setView(QWidget *) {}
+	Q_INVOKABLE QMenuBar* getMenuBar();
 
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
@@ -80,6 +81,7 @@ signals:
 protected:
 	virtual void setTitle(ChatSessionImpl *s);
 	
+	QMenuBar *m_bar;
 	Attributes m_attributes;
 };
 
