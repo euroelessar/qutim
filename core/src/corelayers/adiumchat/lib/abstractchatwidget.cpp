@@ -31,6 +31,8 @@
 #include "chatsessionimpl.h"
 #include "chatlayerimpl.h"
 
+#include <QMenuBar>
+
 namespace Core
 {
 namespace AdiumChat
@@ -41,6 +43,8 @@ AbstractChatWidget::AbstractChatWidget(QWidget *parent) :
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	m_attributes |= UseCustomIcon;
+
+	m_bar = new QMenuBar(this);
 }
 
 void AbstractChatWidget::addSessions(const ChatSessionList &sessions)
@@ -100,6 +104,11 @@ QString AbstractChatWidget::titleForSession(ChatSessionImpl *s)
 		title = tr("Conference %1 (%2)").arg(c->title(), c->id());
 
 	return title;
+}
+
+QMenuBar* AbstractChatWidget::getMenuBar()
+{
+	return m_bar;
 }
 
 }
