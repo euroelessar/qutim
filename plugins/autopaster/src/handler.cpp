@@ -76,33 +76,34 @@ void AutoPasterHandler::doHandle(Message &message, const MessageHandler::Handler
 			&& !message.property("service", false)
 			&& !message.property("history", false)
 			&& message.text().count('\n') + 1 >= m_lineCount) {
-        AutoPasterDialog *dialog = new AutoPasterDialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
-        QObject::connect(dialog, &QDialog::finished, [dialog, &message, handler] (int result) {
-            dialog->deleteLater();
+		AutoPasterDialog *dialog = new AutoPasterDialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
+		QObject::connect(dialog, &QDialog::finished, [dialog, &message, handler] (int result) {
+			dialog->deleteLater();
 
-            switch (result) {
-            case AutoPasterDialog::Accepted:
-                message.setText(dialog->url().toString());
-                break;
-            case AutoPasterDialog::Rejected:
-                break;
-            case AutoPasterDialog::Failed:
-                const QString reason = QCoreApplication::translate(
-                              "AutoPaster",
-                              "Failed to send message to paste service, service reported error: %1")
-                          .arg(dialog->errorString());
-                handler(Error, reason);
-            }
+			switch (result) {
+			case AutoPasterDialog::Accepted:
+				message.setText(dialog->url().toString());
+				break;
+			case AutoPasterDialog::Rejected:
+				break;
+			case AutoPasterDialog::Failed:
+				const QString reason = QCoreApplication::translate(
+										   "AutoPaster",
+										   "Failed to send message to paste service, service reported error: %1")
+									   .arg(dialog->errorString());
+				handler(Error, reason);
+			}
 
-            handler(Accept, QString());
-        });
+			handler(Accept, QString());
+		});
 
-        if (m_autoSubmit)
-            dialog->accept();
-        else
-            dialog->open();
+		if (m_autoSubmit)
+			dialog->accept();
+		else
+			dialog->open();
+	} else {
+		handler(Accept, QString());
 	}
-    handler(Accept, QString());
 }
 
 void AutoPasterHandler::readSettings()
