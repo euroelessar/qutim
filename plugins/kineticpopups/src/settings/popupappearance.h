@@ -52,7 +52,6 @@ private slots:
 	void onSpinBoxValueChanged(double);
 private:
 	void getThemes();
-	void preview();
 	Ui::AppearanceSettings *ui;
 };
 

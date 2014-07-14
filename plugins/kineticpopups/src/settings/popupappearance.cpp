@@ -70,7 +70,6 @@ void PopupAppearance::loadImpl()
 	ui->comboBox->setCurrentIndex(index);
 	int timeout = static_cast<int>(cfg.value("timeout", 5));
 	ui->doubleSpinBox->setValue(timeout);
-	preview();
 	ui->comboBox->blockSignals(false);
 }
 
@@ -102,7 +101,6 @@ void PopupAppearance::getThemes()
 void PopupAppearance::onCurrentIndexChanged(int)
 {
 	setModified(true);
-	preview();
 }
 
 void PopupAppearance::onTestButtonClicked()
@@ -129,14 +127,9 @@ void PopupAppearance::onTestButtonClicked()
 	cfg.sync();
 }
 
-void PopupAppearance::preview()
-{
-}
-
 void PopupAppearance::onSpinBoxValueChanged(double)
 {
 	setModified(true);
-	preview();
 }
 
 } //namespace KineticPopups

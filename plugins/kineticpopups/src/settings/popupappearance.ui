@@ -20,9 +20,41 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
     <number>0</number>
    </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelSlider">
+     <property name="text">
+      <string>Delay in sec. (0 = infinity): </string>
+     </property>
+     <property name="margin">
+      <number>6</number>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="2">
     <widget class="QPushButton" name="pushButton">
      <property name="sizePolicy">
@@ -36,19 +68,6 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QComboBox" name="comboBox">
      <property name="sizePolicy">
@@ -59,33 +78,13 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="labelSlider">
-     <property name="text">
-      <string>Delay (s): </string>
-     </property>
-     <property name="margin">
-      <number>6</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Preview is unavailable</string>
-     </property>
-     <property name="margin">
-      <number>6</number>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="1">
     <widget class="QDoubleSpinBox" name="doubleSpinBox">
      <property name="minimum">
-      <double>0.100000000000000</double>
+      <double>0.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>60.000000000000000</double>
+      <double>100.000000000000000</double>
      </property>
     </widget>
    </item>

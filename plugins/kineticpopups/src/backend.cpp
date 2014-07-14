@@ -27,6 +27,7 @@
 #include "settings/popupappearance.h"
 #include "notifylist.h"
 #include "notify.h"
+#include "timeout.h"
 
 #include <qutim/declarativeview.h>
 #include <qutim/settingslayer.h>
@@ -60,6 +61,7 @@ Backend::Backend() :
 	                                   "Notify",
 	                                   "Unable to create notify inside QtQuick");
 	qmlRegisterType<NotifyList>("org.qutim.kineticpopups", 0, 4, "NotifyList");
+	qmlRegisterType<Timeout>("org.qutim.kineticpopups", 0, 4, "Timeout");
 
 	onSettingsSaved();
 }
@@ -115,6 +117,7 @@ void Backend::onSettingsSaved()
 	QString themePath = ThemeManager::path(QStringLiteral("quickpopup"), themeName);
 	QString fileName = themePath + QStringLiteral("/main.qml");
 	QUrl themeUrl = QUrl::fromLocalFile(fileName);
+	cfg.endGroup();
 
 	if (themeUrl != m_component.url()) {
 		m_component.loadUrl(themeUrl);
@@ -123,9 +126,8 @@ void Backend::onSettingsSaved()
         if (!m_logic)
             qDebug() << "Failed to load" << themeUrl << m_component.errorString();
 	}
-
-//	m_timeout.setInterval(cfg.value(QStringLiteral("timeout"), 5) * 1000);
 }
+
 
 //bool Backend::split(qutim_sdk_0_3::Notification *notify)
 //{
