@@ -2,7 +2,6 @@ var popups = [];
 
 var MARGIN = 20;
 var DURATION = 600;
-var TIMEOUT = 5000;
 
 function relayoutItems() {
     var x = root.screenWidth;

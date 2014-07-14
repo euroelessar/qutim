@@ -53,6 +53,7 @@ public:
 
     void removeNotification(qutim_sdk_0_3::Notification *notification);
     QList<qutim_sdk_0_3::Notification *> notifications() const;
+	int timer() const;
 
 signals:
     void notificationAdded(qutim_sdk_0_3::Notification *notification);

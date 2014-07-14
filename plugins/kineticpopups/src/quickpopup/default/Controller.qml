@@ -13,7 +13,11 @@ Window {
 
     onScreenHeightChanged: Logic.relayoutItems()
     onScreenWidthChanged: Logic.relayoutItems()
-    
+
+    Timeout {
+        id: timeout
+    }
+
     Component {
         id: animationComponent
         
@@ -99,7 +103,11 @@ Window {
             }
 
             Timer {
-                interval: Logic.TIMEOUT
+                interval: {
+                    if(timeout.timeout > 0)
+                        return timeout.timeout
+                    else stop();
+                }
                 repeat: false
                 running: true
                 onTriggered: Logic.removePopup(popup)
