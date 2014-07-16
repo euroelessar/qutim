@@ -68,10 +68,12 @@ void WebViewWidget::setViewController(QObject* object)
 
 	WebViewController *controller = qobject_cast<WebViewController*>(object);
 	m_controller = controller;
-    if (controller)
-        setPage(controller);
-    else
-        setPage(nullptr);
+	if (controller) {
+		setPage(controller);
+		controller->mainFrame()->setScrollBarValue(Qt::Vertical, controller->mainFrame()->scrollBarMaximum(Qt::Vertical));
+	} else {
+		setPage(nullptr);
+	}
 }
 
 void WebViewWidget::showCustomContextMenu(const QPoint &point)
