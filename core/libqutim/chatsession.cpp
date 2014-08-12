@@ -126,14 +126,14 @@ void ChatSession::append(const Message &originalMessage, const ChatSession::Appe
 
     const quint64 messageId = message.id();
 	messageHookMap()->insert(messageId, this);
-    MessageHandler::handle(message, [messageId, handler] (const Message &message, MessageHandler::Result result, const QString &reason) {
+	MessageHandler::handle(message).connect(this, [messageId, handler] (const Message &message, MessageHandler::Result result, const QString &reason) {
         messageHookMap()->remove(messageId);
         
         if (MessageHandler::Accept != result) {
             NotificationRequest request(Notification::BlockedMessage);
             request.setObject(message.chatUnit());
             request.setText(reason);
-            request.send();
+			request.send();
             if (handler)
                 handler(-result, message, reason);
             return;
