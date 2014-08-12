@@ -113,7 +113,7 @@ struct MessageHandler::StateType : public std::enable_shared_from_this<StateType
         using namespace std::placeholders;
         if (index < list.size()) {
             currentMessageIdHook = messageId;
-            list[index++].handler->doHandle(message, std::bind(&StateType::onResult, shared_from_this(), _1, _2));
+			list[index++].handler->doHandle(message).connect(std::bind(&StateType::onResult, shared_from_this(), _1, _2));
         } else {
 			handler.handle(message, MessageHandler::Accept, QString());
         }

@@ -70,12 +70,16 @@ QList<PasterInterface *> AutoPasterHandler::pasters()
 	return self ? self->m_pasters : QList<PasterInterface*>();
 }
 
-void AutoPasterHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
+MessageHandlerAsyncResult AutoPasterHandler::doHandle(Message &message)
 {
+	qDebug() << m_autoSubmit << message.property("service", false) << message.property("history", false) << message.text().count('\n') << m_lineCount;
+
 	if (!message.isIncoming()
 			&& !message.property("service", false)
 			&& !message.property("history", false)
 			&& message.text().count('\n') + 1 >= m_lineCount) {
+		MessageHandlerAsyncResult::Handler handler;
+
 		AutoPasterDialog *dialog = new AutoPasterDialog(&m_manager, message.text(), m_pasters, m_defaultLocation);
 		QObject::connect(dialog, &QDialog::finished, [dialog, &message, handler] (int result) {
 			dialog->deleteLater();
@@ -83,26 +87,29 @@ void AutoPasterHandler::doHandle(Message &message, const MessageHandler::Handler
 			switch (result) {
 			case AutoPasterDialog::Accepted:
 				message.setText(dialog->url().toString());
+				handler.handle(Accept, QString());
 				break;
+			default:
 			case AutoPasterDialog::Rejected:
+				handler.handle(Accept, QString());
 				break;
 			case AutoPasterDialog::Failed:
 				const QString reason = QCoreApplication::translate(
 										   "AutoPaster",
 										   "Failed to send message to paste service, service reported error: %1")
 									   .arg(dialog->errorString());
-				handler(Error, reason);
+				handler.handle(Error, reason);
 			}
-
-			handler(Accept, QString());
 		});
 
 		if (m_autoSubmit)
 			dialog->accept();
 		else
 			dialog->open();
+
+		return handler.result();
 	} else {
-		handler(Accept, QString());
+		return makeAsyncResult(Accept, QString());
 	}
 }
 

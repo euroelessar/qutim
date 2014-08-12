@@ -13,7 +13,7 @@ public:
 
     static QString fuzzyTimeDelta(const QDateTime &from, const QDateTime &to);
     static void updateText(QString &text, const QDateTime &backTime);
-    void doHandle(qutim_sdk_0_3::Message &message, const Handler &handler) override;
+	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 
 private:
 	struct CacheItem {

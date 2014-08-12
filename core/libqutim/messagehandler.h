@@ -50,7 +50,6 @@ public:
 		HighPriority      = 0x01000000,
 		SenderPriority    = 0x02000000
 	};
-	typedef std::function<void (Result, const QString &error)> Handler;
 
 	virtual ~MessageHandler();
 	
@@ -67,8 +66,10 @@ public:
 	
 protected:
     struct StateType;
-	virtual void doHandle(Message &message, const Handler &handler) = 0;
+	virtual AsyncResult<MessageHandler::Result, QString> doHandle(Message &message) = 0;
 };
+
+typedef AsyncResult<MessageHandler::Result, QString> MessageHandlerAsyncResult;
 
 }
 

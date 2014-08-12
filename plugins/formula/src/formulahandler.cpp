@@ -38,7 +38,7 @@ FormulaHandler::FormulaHandler()
 	Q_ASSERT(m_regexp.isValid());
 }
 
-void FormulaHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
+MessageHandlerAsyncResult FormulaHandler::doHandle(Message &message)
 {
 	int index = 0;
 	int lastIndex = 0;
@@ -63,5 +63,5 @@ void FormulaHandler::doHandle(Message &message, const MessageHandler::Handler &h
     }
 	html.midRef(lastIndex, html.size() - lastIndex).appendTo(&newHtml);
 	message.setHtml(newHtml);
-	handler(Accept, QString());
+	return makeAsyncResult(Accept, QString());
 }

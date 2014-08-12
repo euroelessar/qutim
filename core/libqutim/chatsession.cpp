@@ -51,7 +51,7 @@ public:
 		m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
 	}
 	
-	void doHandle(Message &message, const Handler &handler) override
+	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
 		ChatSession *session = messageHookMap()->value(originalMessageId());
 		if (session) {
@@ -61,7 +61,7 @@ public:
 				History::instance()->store(message);
 			}
 		}
-		handler(Accept, QString());
+		return makeAsyncResult(Accept, QString());
 	}
 	
 private:
@@ -72,18 +72,17 @@ private:
 class ChatUnitSenderMessageHandler : public MessageHandler
 {
 public:
-	void doHandle(Message &message, const Handler &handler) override
+	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
 		if (!message.isIncoming()
 		        && !message.property("service", false)
 		        && !message.property("history", false)
 		        && !message.property("donotsend", false)) {
             if (!message.chatUnit()->send(message)) {
-				handler(Error, QString());
-                return;
+				return makeAsyncResult(Error, QString());
             }
 		}
-		return handler(Accept, QString());
+		return makeAsyncResult(Accept, QString());
 	}
 };
 

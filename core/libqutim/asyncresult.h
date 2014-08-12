@@ -36,7 +36,16 @@ public:
 		if (m_args) {
 			call(function);
 		} else {
-			m_callbacks.emplace_back(Callback { object, std::move(function) });
+			m_callbacks.emplace_back(Callback { true, object, std::move(function) });
+		}
+	}
+
+	void connect(Function &&function)
+	{
+		if (m_args) {
+			call(function);
+		} else {
+			m_callbacks.emplace_back(Callback { false, nullptr, std::move(function) });
 		}
 	}
 
@@ -46,7 +55,7 @@ public:
 
 		std::vector<Callback> callbacks = std::move(m_callbacks);
 		for (Callback &callback : callbacks) {
-			if (callback.object)
+			if (!callback.from_object || callback.object)
 				call(callback.function);
 		}
 	}
@@ -54,6 +63,7 @@ public:
 private:
 	struct Callback
 	{
+		bool from_object;
 		QPointer<QObject> object;
 		Function function;
 	};
@@ -99,6 +109,7 @@ class AsyncResult
 {
 public:
 	typedef AsyncResultData<Args...> Data;
+	typedef AsyncResultHandler<Args...> Handler;
 	typedef typename Data::Function Function;
 
 	AsyncResult() noexcept
@@ -133,6 +144,11 @@ public:
 		m_data->connect(object, std::forward<Function>(function));
 	}
 
+	void connect(Function &&function)
+	{
+		m_data->connect(std::forward<Function>(function));
+	}
+
 private:
 	friend class AsyncResultHandler<Args...>;
 
@@ -162,7 +178,7 @@ public:
 		return result;
 	}
 
-	void handle(Args ...args)
+	void handle(Args ...args) const
 	{
 		m_data->handle(std::forward<Args>(args)...);
 	}

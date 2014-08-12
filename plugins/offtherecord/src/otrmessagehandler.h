@@ -31,7 +31,7 @@
 class OtrMessagePreHandler : public qutim_sdk_0_3::MessageHandler
 {
 public:
-    void doHandle(qutim_sdk_0_3::Message &message, const Handler &handler) override;
+	MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 	
 	void encrypt(qutim_sdk_0_3::Message &message);
 	void decrypt(qutim_sdk_0_3::Message &message);
@@ -40,7 +40,7 @@ public:
 class OtrMessagePostHandler : public qutim_sdk_0_3::MessageHandler
 {
 public:
-    void doHandle(qutim_sdk_0_3::Message &message, const Handler &handler) override;
+	MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 };
 
 #endif // OTRMESSAGEHANDLER_H

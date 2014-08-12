@@ -82,17 +82,15 @@ void Handler::loadSettings()
 }
 
 
-void Handler::doHandle(Message &message, const MessageHandler::Handler &handler)
+MessageHandlerAsyncResult Handler::doHandle(Message &message)
 {
 	if (!m_enabled || message.property("service", false)) {
-        handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
     }
 
 	Contact *contact = qobject_cast<Contact*>(message.chatUnit()->buddy());
 	if (!contact || contact->isInList()) {
-        handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
     }
 	
 	Info::Ptr info = contact->property(ANTISPAM_PROPERTY).value<Info::Ptr>();
@@ -102,15 +100,13 @@ void Handler::doHandle(Message &message, const MessageHandler::Handler &handler)
 	}
 	
 	if (info->trusted) {
-        handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
     }
 	
 	if (!message.isIncoming()) {
 		if (!message.property("autoreply", false))
 			info->trusted = true;
-        handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
 	}
 
 	//check message body
@@ -120,15 +116,13 @@ void Handler::doHandle(Message &message, const MessageHandler::Handler &handler)
 			message.setChatUnit(contact);
 			contact->sendMessage(message);
 			info->trusted = true;
-            handler(Accept, QString());
-            return;
+			return makeAsyncResult(Accept, QString());
 		}
 	}
 
 	if (info->lastQuestionTime.isValid()
 	        && qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
-        handler(Reject, QString());
-        return;
+		return makeAsyncResult(Reject, QString());
 	}
 	Message replyMessage(m_question);
 	replyMessage.setChatUnit(contact);
@@ -138,7 +132,7 @@ void Handler::doHandle(Message &message, const MessageHandler::Handler &handler)
 	QString reason = tr("Message from %1 blocked on suspicion of spam.").
 				   arg(contact->title());
 
-    handler(Error, reason);
+	return makeAsyncResult(Error, reason);
 }
 
 bool Handler::eventFilter(QObject *obj, QEvent *event)
@@ -153,7 +147,7 @@ bool Handler::eventFilter(QObject *obj, QEvent *event)
 
             bool accepted = true;
 
-            doHandle(pseudoMessage, [&accepted, reply] (Result result, const QString &reason) {
+			doHandle(pseudoMessage).connect(this, [&accepted, reply] (Result result, const QString &reason) {
                 if (Error == result) {
                     NotificationRequest request(Notification::BlockedMessage);
                     request.setObject(reply->contact());

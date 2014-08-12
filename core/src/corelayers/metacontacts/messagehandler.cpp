@@ -41,7 +41,7 @@ MetaContactMessageHandler::MetaContactMessageHandler()
 {
 }
 
-void MetaContactMessageHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
+MessageHandlerAsyncResult MetaContactMessageHandler::doHandle(Message &message)
 {
 	if (message.isIncoming() && !qobject_cast<MetaContactImpl*>(message.chatUnit())) {
 		Q_ASSERT(message.chatUnit());
@@ -57,7 +57,8 @@ void MetaContactMessageHandler::doHandle(Message &message, const MessageHandler:
 				contact->setActiveContact(rawContact);
 		}
 	}
-    handler(Accept, QString());
+
+	return makeAsyncResult(Accept, QString());
 }
 
 }
