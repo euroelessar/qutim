@@ -89,6 +89,9 @@ void QmlSettingsWidget::loadImpl()
 void QmlSettingsWidget::saveImpl()
 {
     QMetaObject::invokeMethod(m_object, "__save");
+	for (QObject *config : m_object->findChildren<QObject*>(QStringLiteral("QuickConfig"))) {
+		QMetaObject::invokeMethod(config, "forceSync");
+	}
 }
 
 void QmlSettingsWidget::cancelImpl()

@@ -37,6 +37,9 @@ public slots:
     void beginGroup(const QString &name);
     void endGroup();
 
+private slots:
+	void forceSync();
+
 signals:
     void pathChanged();
     void groupChanged();
