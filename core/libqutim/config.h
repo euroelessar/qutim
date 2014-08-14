@@ -34,93 +34,47 @@
 namespace qutim_sdk_0_3
 {
 #ifndef Q_QDOC
-namespace EnumDetectorHelper
+namespace Detail
 {
-	typedef quint8 Yes;
-	typedef quint16 No;
 
-	// Check if type can be casted to int
-	inline Yes is_int_type(int) { return Yes(); }
-	inline No is_int_type(...) { return No(); }
+template <typename T, bool is_enum>
+struct ConfigValueCasterHelper;
 
-	template <int Defined, int Size>
-			class Helper
+template <typename T>
+struct ConfigValueCasterHelper<T, false>
+{
+	static QVariant toVariant(const T &t)
 	{
-	public:
-		static No value() { return No(); }
-	};
+		return QVariant::fromValue<T>(t);
+	}
 
-	template <>
-			class Helper<0, sizeof(Yes)>
+	static T fromVariant(const QVariant &v)
 	{
-	public:
-		static Yes value() { return Yes(); }
-	};
+		return v.value<T>();
+	}
+};
 
-	template <typename T, int IsEnum>
-			class VariantCastHelper
-	{
-	public:
-		static QVariant convertToVariant(const T &t)
-        { return QVariant::fromValue(t); }
-		static T convertFromVariant(const QVariant &t)
-        { return t.value<T>(); }
-	};
+template <typename T>
+struct ConfigValueCasterHelper<T, true>
+{
+	typedef typename std::underlying_type<T>::type Type;
 
-	template <typename T>
-			class VariantCastHelper <T, sizeof(Yes)>
+	static QVariant toVariant(const T &t)
 	{
-	public:
-		static QVariant convertToVariant(const T &t)
-        { return QVariant::fromValue(int(t)); }
-		static T convertFromVariant(const QVariant &v)
-		{ return static_cast<T>(v.toInt()); }
-	};
+		return QVariant::fromValue<Type>(static_cast<Type>(t));
+	}
 
-	template <typename T, int Defined>
-			class VariantCastHelper3
+	static T fromVariant(const QVariant &v)
 	{
-	public:
-		static QVariant convertToVariant(const T &t)
-		{
-			return VariantCastHelper<T, sizeof(No)>::convertToVariant(t);
-		}
-		static T convertFromVariant(const QVariant &v)
-		{
-			return VariantCastHelper<T, sizeof(No)>::convertFromVariant(v);
-		}
-	};
+		return static_cast<T>(v.value<Type>());
+	}
+};
 
-	// Enums are not registered in Qt meta system and they can be casted to int easily
-	template <typename T>
-			class VariantCastHelper3 <T, 0>
-	{
-	public:
-		static QVariant convertToVariant(const T &t)
-		{
-			return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type(*reinterpret_cast<T*>(0)))>::value())>::convertToVariant(t);
-		}
-		static T convertFromVariant(const QVariant &v)
-		{
-			return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type(*reinterpret_cast<T*>(0)))>::value())>::convertFromVariant(v);
-		}
-	};
+template <typename T>
+struct ConfigValueCaster : public ConfigValueCasterHelper<T, std::is_enum<T>::value>
+{
+};
 
-	// Enums are not registered in Qt meta system, so check it before possibility of cast to int
-	// because QByteArray has "operator int()" in private section
-	template <typename T>
-			class VariantCastHelper2
-	{
-	public:
-		static QVariant convertToVariant(const T &t)
-		{
-			return VariantCastHelper3<T, QMetaTypeId2<T>::Defined>::convertToVariant(t);
-		}
-		static T convertFromVariant(const QVariant &v)
-		{
-			return VariantCastHelper3<T, QMetaTypeId2<T>::Defined>::convertFromVariant(v);
-		}
-	};
 }
 #endif
 class ConfigPrivate;
@@ -237,14 +191,14 @@ private:
 template<typename T>
 Q_INLINE_TEMPLATE T Config::value(const QString &key, const T &def, Config::ValueFlags type) const
 {
-	QVariant defVar = EnumDetectorHelper::VariantCastHelper2<T>::convertToVariant(def);
-	return EnumDetectorHelper::VariantCastHelper2<T>::convertFromVariant(value(key, defVar, type));
+	typedef Detail::ConfigValueCaster<T> Caster;
+	return Caster::fromVariant(value(key, Caster::toVariant(def), type));
 }
 
 template<typename T>
 Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const T &value, Config::ValueFlags type)
 {
-	setValue(key, EnumDetectorHelper::VariantCastHelper2<T>::convertToVariant(value), type);
+	setValue(key, Detail::ConfigValueCaster<T>::toVariant(value), type);
 }
 
 QString Config::value(const QString &key, const QLatin1String &def, ValueFlags type) const
