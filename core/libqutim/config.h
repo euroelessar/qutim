@@ -75,6 +75,23 @@ struct ConfigValueCaster : public ConfigValueCasterHelper<T, std::is_enum<T>::va
 {
 };
 
+template <typename T>
+struct ConfigValueCaster<QFlags<T>>
+{
+	typedef typename std::underlying_type<T>::type Type;
+	typedef ConfigValueCaster<Type> Caster;
+
+	static QVariant toVariant(const QFlags<T> &t)
+	{
+		return Caster::toVariant(static_cast<Type>(t));
+	}
+
+	static QFlags<T> fromVariant(const QVariant &v)
+	{
+		return static_cast<QFlags<T>>(Caster::fromVariant(v));
+	}
+};
+
 }
 #endif
 class ConfigPrivate;
