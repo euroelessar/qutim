@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "QtKeyChain",
+	"pluginDescription": "KeyChain support based on your system's capabilities",
+    "extensionHeader": "src/keychainservice.h",
+	"extensionClass": "KeyChain::Service"
+}

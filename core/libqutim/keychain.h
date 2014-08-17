@@ -1,30 +1,38 @@
 #ifndef QUTIM_SDK_0_3_KEYCHAIN_H
 #define QUTIM_SDK_0_3_KEYCHAIN_H
 
-#include <QObject>
+#include "asyncresult.h"
 
 namespace qutim_sdk_0_3 {
-
-class KeyChainResult : public QObject
-{
-	Q_OBJECT
-public:
-};
 
 class KeyChain : public QObject
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "KeyChain")
 public:
-	enum Flag {
-		AskUser = 0x01,
-		DontStoreResult = 0x02,
+	enum Error
+	{
 	};
-	Q_DECLARE_FLAGS(Flags, Flag)
 
-	explicit KeyChain(QObject *parent = 0);
+	KeyChain();
+	~KeyChain();
 
-	void read(const QString &name, Flags flags, const std::function<void (const QString &value, bool success)> &);
-	void write(const QString &name, const QString &value, const std::function<void (bool success)> &);
+	struct Result
+	{
+		Error error;
+		QString errorString;
+	};
+
+	struct ReadResult : Result
+	{
+		QString textData;
+		QByteArray binaryData;
+	};
+
+	virtual AsyncResult<ReadResult> read(const QString &key) = 0;
+	virtual AsyncResult<Result> write(const QString &key, const QString &value) = 0;
+	virtual AsyncResult<Result> write(const QString &key, const QByteArray &value) = 0;
+	virtual AsyncResult<Result> remove(const QString &key) = 0;
 };
 
 } // namespace qutim_sdk_0_3

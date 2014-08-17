@@ -2,8 +2,11 @@
 
 namespace qutim_sdk_0_3 {
 
-KeyChain::KeyChain(QObject *parent) :
-	QObject(parent)
+KeyChain::KeyChain()
+{
+}
+
+KeyChain::~KeyChain()
 {
 }
 
