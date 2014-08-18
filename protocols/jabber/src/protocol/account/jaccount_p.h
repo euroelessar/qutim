@@ -35,6 +35,8 @@
 #include "../../sdk/jabber.h"
 #include <QSignalMapper>
 #include <QNetworkProxy>
+#include <qutim/servicemanager.h>
+#include <qutim/keychain.h>
 
 namespace Jreen
 {
@@ -49,8 +51,14 @@ class JAccountPrivate
 {
 	Q_DECLARE_PUBLIC(JAccount)
 public:
-	inline JAccountPrivate(JAccount *q) : q_ptr(q), hasChangedParameters(false) {}
+	inline JAccountPrivate(JAccount *q) : q_ptr(q) {}
 	inline ~JAccountPrivate() {}
+
+	QString keyChainId() const
+	{
+		return QStringLiteral("jabber.") + q_func()->id();
+	}
+
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
 	QNetworkProxy proxy;
@@ -65,15 +73,14 @@ public:
 	JAccount *q_ptr;
 	QString nick;
 	QString avatar;
-	QVariantMap parameters;
 //	QString pgpKeyId;
 //	QString currentPGPKeyId;
 	Status status;
-	bool hasChangedParameters;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
 	QPointer<JMUCManager> conferenceManager;
 	QPointer<PasswordDialog> passwordDialog;
+	ServicePointer<KeyChain> keyChain;
 	QSignalMapper signalMapper;
 	int loadedModules;
 	int priority;
@@ -86,6 +93,7 @@ public:
 	void _q_on_module_loaded(int i);
 	void _q_connected();
 	void _q_on_password_finished(int result);
+	void onPasswordReceived(const QString &password, const Status &status);
 
 	//old code
 	Identities identities;

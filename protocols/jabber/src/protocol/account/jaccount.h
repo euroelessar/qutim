@@ -88,9 +88,7 @@ public:
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
-	
-	QStringList updateParameters(const QVariantMap &parameters, bool forced = false);
-	void loadParameters();
+
 	QString pgpKeyId() const;
 	
 protected:

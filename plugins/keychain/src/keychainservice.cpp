@@ -43,14 +43,30 @@ AsyncResult<Result> executeJob1(Job *job, Method method)
 	return handler.result();
 }
 
+static void fillResult(qutim_sdk_0_3::KeyChain::Result &result, Job *job)
+{
+	switch (job->error()) {
+	case NoError:
+		result.error = qutim_sdk_0_3::KeyChain::NoError;
+		break;
+	case EntryNotFound:
+		result.error = qutim_sdk_0_3::KeyChain::EntryNotFound;
+		break;
+	default:
+		result.error = qutim_sdk_0_3::KeyChain::OtherError;
+		break;
+	}
+
+	result.errorString = job->errorString();
+}
+
 template <typename Result, typename Job>
 AsyncResult<Result> executeJob(Job *job)
 {
-	return executeJob1<Result>(job, [] (Job *job) -> Result {
-		return Result {
-			qutim_sdk_0_3::KeyChain::Error(),
-			job->errorString()
-		};
+	return executeJob1<Result>(job, [] (Job *job) {
+		Result result;
+		fillResult(result, job);
+		return result;
 	});
 }
 
@@ -60,7 +76,7 @@ AsyncResult<qutim_sdk_0_3::KeyChain::ReadResult> Service::read(const QString &ke
 
 	return executeJob1<ReadResult>(job, [] (ReadPasswordJob *job) {
 		ReadResult result;
-		result.errorString = job->errorString();
+		fillResult(result, job);
 		result.textData = job->textData();
 		result.binaryData = job->binaryData();
 		return result;

@@ -12,6 +12,9 @@ class KeyChain : public QObject
 public:
 	enum Error
 	{
+		NoError,
+		EntryNotFound,
+		OtherError
 	};
 
 	KeyChain();

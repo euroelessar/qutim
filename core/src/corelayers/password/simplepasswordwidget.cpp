@@ -40,6 +40,9 @@ SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialo
 	connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
 	m_account = account;
 	m_parent = parent;
+
+	showSaveButton(true);
+	showLoginEdit(false);
 }
 
 SimplePasswordWidget::~SimplePasswordWidget()
