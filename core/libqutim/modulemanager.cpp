@@ -745,7 +745,6 @@ void ModuleManager::initExtensions()
         const QHash<QByteArray, ExtensionInfo> &extsHash = d->extensionsHash;
 		ConfigGroup group = Config().group("protocols");
 		QVariantMap selected = group.value("list", QVariantMap());
-		bool changed = false;
 		QVariantMap::const_iterator it = selected.constBegin();
 		QSet<QString> choosedProtocols;
 		for (; it != selected.constEnd(); it++) {
@@ -782,14 +781,11 @@ void ModuleManager::initExtensions()
 			choosedProtocols.insert(name);
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
-			changed = true;
 
             connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 		}
-		if (changed) {
-			group.setValue("list", selected);
-			group.sync();
-		}
+
+		group.setValue("list", selected);
 	}
     d->is_inited = true;
     for (int i = 0; i < d->extensions.size(); i++) {
