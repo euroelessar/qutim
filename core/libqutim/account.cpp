@@ -172,15 +172,6 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 	return argument.reconnectionRequired;
 }
 
-AccountList Account::all()
-{
-	AccountList list;
-	foreach(Protocol *proto, Protocol::all())
-		foreach(Account *account, proto->accounts())
-			list.append(account);
-	return list;
-}
-
 GroupChatManager *Account::groupChatManager()
 {
 	return d_func()->groupChatManager;

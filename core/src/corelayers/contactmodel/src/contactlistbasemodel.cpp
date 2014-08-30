@@ -28,6 +28,7 @@
 #include <qutim/protocol.h>
 #include <qutim/icon.h>
 #include <qutim/event.h>
+#include <qutim/accountmanager.h>
 
 #include <QCoreApplication>
 #include <QStringBuilder>
@@ -56,6 +57,11 @@ ContactListBaseModel::ContactListBaseModel(QObject *parent) :
 
 	m_realAccountRequestId = Event::registerType("real-account-request");
 	m_realUnitRequestId = Event::registerType("real-chatunit-request");
+}
+
+void ContactListBaseModel::initialize()
+{
+	AccountManager *manager = AccountManager::instance();
 }
 
 QModelIndex ContactListBaseModel::index(int row, int column, const QModelIndex &parent) const

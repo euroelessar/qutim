@@ -761,7 +761,7 @@ void ModuleManager::initExtensions()
 					continue;
 				qDebug() << name << meta->className();
 				Protocol *protocol = info.generator()->generate<Protocol>();
-                d->protocols.insert(protocol->id(), protocol);
+				AccountManagerPrivate::getPrivate(&d->accountManager)->addProtocol(protocol);
 				choosedProtocols.insert(it.key());
 				usedExtensions << meta->className();
 
@@ -777,7 +777,7 @@ void ModuleManager::initExtensions()
             if (name.isEmpty() || choosedProtocols.contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
-            d->protocols.insert(protocol->id(), protocol);
+			AccountManagerPrivate::getPrivate(&d->accountManager)->addProtocol(protocol);
 			choosedProtocols.insert(name);
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
@@ -874,14 +874,12 @@ void ModuleManager::initExtensions()
 
 void ModuleManager::onQuit()
 {
-	foreach (Protocol *p, Protocol::all()) {
-		foreach (Account *a, p->accounts()) {
-			Status status = a->status();
-			a->config().setValue("lastStatus", status);
-			status.setType(Status::Offline);
-			status.setChangeReason(Status::ByQuit);
-			a->setStatus(status);
-		}
+	foreach (Account *account, d->accountManager.accounts()) {
+		Status status = account->status();
+		account->config().setValue("lastStatus", status);
+		status.setType(Status::Offline);
+		status.setChangeReason(Status::ByQuit);
+		account->setStatus(status);
 	}
 
 	Event("aboutToQuit").send();

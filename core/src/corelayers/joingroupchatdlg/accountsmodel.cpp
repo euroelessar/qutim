@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "accountsmodel.h"
-#include <qutim/account.h>
-#include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <qutim/groupchatmanager.h>
 #include <algorithm>
 
@@ -34,12 +33,12 @@ namespace Core {
 AccountsModel::AccountsModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
-	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach (Account *account, protocol->accounts())
-			onAccountCreated(account);
-	}
+	AccountManager *manager = AccountManager::instance();
+	connect(manager, &AccountManager::accountAdded, this, &AccountsModel::onAccountCreated);
+	connect(manager, &AccountManager::accountRemoved, this, &AccountsModel::onAccountDestroyed);
+
+	foreach (Account *account, manager->accounts())
+		onAccountCreated(account);
 }
 
 int AccountsModel::rowCount(const QModelIndex &parent) const
@@ -62,23 +61,21 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-void AccountsModel::onAccountCreated(qutim_sdk_0_3::Account *account)
+void AccountsModel::onAccountCreated(Account *account)
 {
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			this, SLOT(onAccountNameChanged()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(destroyed(QObject*)),
-			this, SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
 			this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
 	if (account->groupChatManager())
 		addAccount(account);
 }
 
-void AccountsModel::onAccountDestroyed(QObject *account)
+void AccountsModel::onAccountDestroyed(Account *account)
 {
-	removeAccount(static_cast<Account*>(account), false);
+	removeAccount(account, false);
 }
 
 void AccountsModel::onAccountNameChanged()

@@ -46,8 +46,8 @@ public:
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountDestroyed(QObject *account);
+	void onAccountCreated(Account *account);
+	void onAccountDestroyed(Account *account);
 	void onAccountNameChanged();
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 								const qutim_sdk_0_3::Status &previous);

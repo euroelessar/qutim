@@ -74,6 +74,8 @@ class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::No
 public:
     explicit ContactListBaseModel(QObject *parent = 0);
 
+	void initialize();
+
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
 

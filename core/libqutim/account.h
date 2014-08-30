@@ -156,7 +156,6 @@ public:
 	QVariantMap parameters() const;
 	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
 
-	static AccountList all();
 	/*!
 	  Returns the group chat manager of the account.
 

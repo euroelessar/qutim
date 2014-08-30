@@ -30,6 +30,7 @@
 #include "ui_joinchatdialog.h"
 #include <qutim/icon.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/protocol.h>
 #include <QPushButton>
 #include <QKeyEvent>
@@ -64,12 +65,12 @@ JoinChatDialog::JoinChatDialog(QWidget *parent) :
 	m_ui->removeConferenceButton->setIcon(Icon("list-remove"));
 	m_ui->conferenceListWidget->installEventFilter(this);
 	
-	foreach (Protocol *protocol, Protocol::all()) {
-		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		foreach (Account *account, protocol->accounts())
-			onAccountCreated(account);
-	}
+	AccountManager *manager = AccountManager::instance();
+	connect(manager, &AccountManager::accountAdded, this, &JoinChatDialog::onAccountCreated);
+	connect(manager, &AccountManager::accountRemoved, this, &JoinChatDialog::onAccountDeath);
+
+	foreach (Account *account, manager->accounts())
+		onAccountCreated(account);
 	
 	Config config;
 	config.beginGroup("joinChatDialog");
@@ -103,15 +104,18 @@ void JoinChatDialog::joinBookmark(QListWidgetItem *item)
 		close();
 }
 
-void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account, bool first)
+void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
-    if (first) {
-		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-		        SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
-		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
-		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
-	}
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
+			SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+
+	addAccount(account);
+}
+
+void JoinChatDialog::addAccount(Account *account)
+{
 	if (!account->groupChatManager())
 		return;
 	m_ui->accountBox->addItem(account->status().icon(), account->id(),
@@ -133,12 +137,12 @@ void JoinChatDialog::onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
 	Account *account = qobject_cast<Account*>(sender());
 	int index = m_ui->accountBox->findData(qVariantFromValue(account));
 	if (index < 0 && manager) {
-		onAccountCreated(account, false);
+		addAccount(account);
 	} else if (!manager) {
 		m_ui->accountBox->removeItem(index);
 	} else {
 		m_ui->accountBox->removeItem(index);
-		onAccountCreated(account, false);
+		addAccount(account);
 	}
 }
 

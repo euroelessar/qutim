@@ -36,6 +36,7 @@
 #include <qutim/utils.h>
 #include <qutim/actiontoolbar.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/contact.h>
 #include <qutim/systemintegration.h>
 #include <qutim/simplecontactlist/simplestatusdialog.h>
@@ -295,7 +296,7 @@ void SimpleWidget::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		m_statusBtn->setText(Status(type).name());
 		QString text = m_status_action->data().toString();
-		foreach(Account *account, Account::all()) {
+		foreach (Account *account, AccountManager::instance()->accounts()) {
 			Status status = account->status();
 			status.setType(type);
 			status.setText(text);

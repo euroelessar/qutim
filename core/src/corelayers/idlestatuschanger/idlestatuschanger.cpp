@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "idle-global.h"
 #include "idlestatuschanger.h"
-#include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <qutim/config.h>
 #include <qutim/status.h>
 #include <qutim/settingslayer.h>
@@ -55,17 +55,15 @@ IdleStatusChanger::IdleStatusChanger() :
 
 void IdleStatusChanger::refillAccounts()
 {
-	foreach (Protocol *proto, Protocol::all()) {
-		foreach (Account *acc, proto->accounts()) {
-			if (m_accounts.contains(acc)
-					|| acc->status() == Status::Offline
-					|| acc->status() == Status::Invisible
-					|| acc->status() == Status::DND
-					|| acc->status() == Status::NA)
-				continue;
-			m_accounts.append(acc);
-			m_statuses.append(acc->status());
-		}
+	foreach (Account *account, AccountManager::instance()->accounts()) {
+		if (m_accounts.contains(account)
+				|| account->status() == Status::Offline
+				|| account->status() == Status::Invisible
+				|| account->status() == Status::DND
+				|| account->status() == Status::NA)
+			continue;
+		m_accounts.append(account);
+		m_statuses.append(account->status());
 	}
 }
 

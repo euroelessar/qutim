@@ -25,6 +25,7 @@
 #include "torywidget.h"
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/actiontoolbar.h>
 #include <qutim/config.h>
@@ -297,7 +298,7 @@ void ToryWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	Q_ASSERT(button);
 	button->setIcon(status.icon());
 	bool isOnline = false;
-	foreach(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::Account::all()) {
+	foreach (Account *account, AccountManager::instance()->accounts()) {
 		Status::Type type = account->status().type();
 		if (type != Status::Offline && type != Status::Connecting) {
 			isOnline = true;
