@@ -1,0 +1,4 @@
+#ifndef ACCOUNTMANAGER_P_H
+#define ACCOUNTMANAGER_P_H
+
+#endif // ACCOUNTMANAGER_P_H

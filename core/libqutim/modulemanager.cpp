@@ -319,6 +319,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 ModuleManager::~ModuleManager()
 {
 	managerSelf = 0;
+	delete d;
 }
 
 /**
