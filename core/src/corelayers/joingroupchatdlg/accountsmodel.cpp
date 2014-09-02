@@ -63,12 +63,13 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 
 void AccountsModel::onAccountCreated(Account *account)
 {
-	connect(account, SIGNAL(nameChanged(QString,QString)),
-			this, SLOT(onAccountNameChanged()));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-			this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+	connect(account, &Account::nameChanged, this, &AccountsModel::onAccountNameChanged);
+	connect(account, &Account::statusChanged, this, &AccountsModel::onAccountStatusChanged);
+	connect(account, &Account::interfaceChanged, this, [this] (const QByteArray &name, QObject *interface) {
+		if (name == "GroupChatManager") {
+			onGroupChatManagerChanged(qobject_cast<GroupChatManager *>(interface));
+		}
+	});
 	if (account->groupChatManager())
 		addAccount(account);
 }

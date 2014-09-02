@@ -59,11 +59,6 @@ ContactListBaseModel::ContactListBaseModel(QObject *parent) :
 	m_realUnitRequestId = Event::registerType("real-chatunit-request");
 }
 
-void ContactListBaseModel::initialize()
-{
-	AccountManager *manager = AccountManager::instance();
-}
-
 QModelIndex ContactListBaseModel::index(int row, int column, const QModelIndex &parent) const
 {
 	Q_UNUSED(column);

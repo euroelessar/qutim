@@ -35,8 +35,10 @@ class RosterStoragePrivate;
 class Contact;
 class Account;
 
-class LIBQUTIM_EXPORT ContactsFactory
+class LIBQUTIM_EXPORT ContactsFactory : public QObject
 {
+	Q_OBJECT
+	Q_CLASSINFO("Interface", "ContactsFactory")
 public:
 	virtual ~ContactsFactory();
 

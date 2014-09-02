@@ -55,6 +55,7 @@ namespace Jabber
 
 class JRosterPrivate : public ContactsFactory
 {
+//	Q_OBJECT
 public:
 	JRosterPrivate(JRoster *q) : q_ptr(q) {}
 	Contact *addContact(const QString &id, const QVariantMap &data);

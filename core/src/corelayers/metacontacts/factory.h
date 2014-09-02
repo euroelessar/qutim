@@ -33,6 +33,7 @@ namespace MetaContacts {
 class Manager;
 class Factory : public qutim_sdk_0_3::ContactsFactory
 {
+	Q_OBJECT
 public:
 	Factory(Manager *manager);
 	virtual ~Factory();

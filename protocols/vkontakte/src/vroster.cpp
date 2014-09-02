@@ -41,6 +41,7 @@ using namespace qutim_sdk_0_3;
 
 class VRosterFactory : public ContactsFactory
 {
+//	Q_OBJECT
 public:
 	VRosterFactory(VAccount *account, VRoster *roster) :
 		account(account), roster(roster),

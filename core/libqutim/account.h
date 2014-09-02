@@ -45,30 +45,10 @@ class InfoRequestFactory;
 class Account;
 typedef QList<Account*> AccountList;
 
-#ifndef Q_QDOC
-class AccountHook : public MenuController
-{
-public:
-	virtual const QMetaObject *metaObject() const;
-	virtual void *qt_metacast(const char *);
-	virtual int qt_metacall(QMetaObject::Call, int, void **);
-
-private:
-	AccountHook(AccountPrivate &p, Protocol *protocol);
-	Q_DECLARE_PRIVATE(Account)
-	friend class Account;
-};
-#endif
-
 /*!
   Account is base class for all account entites.
 */
-class LIBQUTIM_EXPORT Account
-#ifndef Q_QDOC
-        : public AccountHook
-#else
-        : public MenuController
-#endif
+class LIBQUTIM_EXPORT Account : public MenuController
 {
 	Q_DECLARE_PRIVATE(Account)
 	Q_OBJECT
@@ -157,20 +137,63 @@ public:
 	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
 
 	/*!
+	 * Returns interface by it's meta class
+	 */
+	QObject *interface(const QMetaObject *meta);
+
+	/*!
+	 * Returns interface for type \a T
+	 *
+	 * It search the correct interface by the class' info "Interface":
+	 * \code
+	 * Q_CLASSINFO("Interface", "GroupChatManager")
+	 * \endcode
+	 *
+	 * \sa setInterface
+	 */
+	template <typename T> inline T *interface()
+	{
+		return qobject_cast<T *>(interface(&T::staticMetaObject));
+	}
+
+	/*!
 	  Returns the group chat manager of the account.
 
 	  \see resetGroupChatManager()
 	*/
 	GroupChatManager *groupChatManager();
 	ContactsFactory *contactsFactory();
-	InfoRequestFactory *infoRequestFactory() const;
+	InfoRequestFactory *infoRequestFactory();
+
 protected:
+	/*!
+	 * Set \a interface by it's type.
+	 *
+	 * Ownership is passed to Account's class, \a interface will be destroyed
+	 * once there will be passed another object by the same type, or at
+	 * account's destruction.
+	 */
+	inline void setInterface(QObject *interface)
+	{
+		setInterface(interface->metaObject(), interface);
+	}
+
+	/*!
+	 * \internal
+	 */
+	void setInterface(const QMetaObject *meta, QObject *interface);
+
+	template <typename T> inline void setInterface(T *interface = nullptr)
+	{
+		setInterface(&T::staticMetaObject, interface);
+	}
+
 	/**
 	  Sets the group chat \a manager to be used by this account.
 
 	  \see groupChatManager()
 	*/
-	void resetGroupChatManager(GroupChatManager *manager = 0);
+	void resetGroupChatManager(GroupChatManager *manager = nullptr);
 	void setContactsFactory(ContactsFactory *factory);
 	void setInfoRequestFactory(InfoRequestFactory *factory);
 signals:
@@ -190,13 +213,15 @@ signals:
 	  Signal is emitted when account's \a status was changed.
 	*/
 	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
-	/*!
-	  Signal is emitted whenever the group chat manager has been reset.
 
-	  \see groupChatManager(), resetGroupChatManager()
-	*/
-	void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
 	void parametersChanged(const QVariantMap &parameters);
+
+	/*!
+	 * Emits when \a interface for \a name was changed.
+	 *
+	 * \a Interface may be zero object if it was just destroyed.
+	 */
+	void interfaceChanged(const QByteArray &name, QObject *interface);
 };
 
 ChatUnit *Account::unit(const QString &unitId, bool create)

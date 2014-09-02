@@ -29,55 +29,25 @@
 #include "debug.h"
 #include "notification.h"
 #include "groupchatmanager.h"
+#include "inforequest.h"
+#include "metaobjectbuilder.h"
 
 namespace qutim_sdk_0_3
 {
-AccountHook::AccountHook(AccountPrivate &p, Protocol *protocol)
-    : MenuController(p, protocol)
-{
-}
-
-const QMetaObject *AccountHook::metaObject() const
-{
-	return &Account::staticMetaObject;
-}
-
-void *AccountHook::qt_metacast(const char *name)
-{
-//	Account * const that = static_cast<Account*>(this);
-//    if (!qstrcmp(name, qobject_interface_iid<GroupChatManager*>()))
-//        return static_cast<void*>(that->groupChatManager());
-//    if (!qstrcmp(name, qobject_interface_iid<ContactsFactory*>()))
-//        return static_cast<void*>(that->contactsFactory());
-//    if (!qstrcmp(name, qobject_interface_iid<InfoRequestFactory*>()))
-//        return static_cast<void*>(that->infoRequestFactory());
-	return MenuController::qt_metacast(name);
-}
-
-int AccountHook::qt_metacall(QMetaObject::Call call, int id, void **data)
-{
-	return MenuController::qt_metacall(call, id, data);
-}
 
 Account::Account(const QString &id, Protocol *protocol)
-    : AccountHook(*new AccountPrivate(this), protocol)
+	: MenuController(*new AccountPrivate(this), protocol)
 {
 	Q_D(Account);
 	d->protocol = protocol;
 	d->id = id;
-	d->groupChatManager = 0;
-	d->contactsFactory = 0;
-	d->infoRequestFactory = 0;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol)
-    : AccountHook(p, protocol)
+	: MenuController(p, protocol)
 {
 	Q_D(Account);
 	d->protocol = protocol;
-	d->groupChatManager = 0;
-	d->contactsFactory = 0;
-	d->infoRequestFactory = 0;
 }
 
 Account::~Account()
@@ -172,45 +142,77 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 	return argument.reconnectionRequired;
 }
 
+QObject *Account::interface(const QMetaObject *meta)
+{
+	Q_D(Account);
+
+	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+
+	if (name.isEmpty()) {
+		qWarning() << "Interface name is missed at class:" << meta->className();
+		return nullptr;
+	}
+
+	auto it = d->interfaces.find(name);
+	if (it != d->interfaces.end()) {
+		const AccountInterface &interface = it->second;
+		return interface.object.get();
+	}
+
+	return nullptr;
+}
+
+void Account::setInterface(const QMetaObject *meta, QObject *interface)
+{
+	Q_D(Account);
+
+	std::unique_ptr<QObject> tmp(interface);
+	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+
+	if (name.isEmpty()) {
+		qWarning() << "Interface name is missed at class:" << meta->className();
+		return;
+	}
+
+	auto it = d->interfaces.find(name);
+	if (it == d->interfaces.end()) {
+		it = d->interfaces.emplace(name, AccountInterface()).first;
+	}
+
+	AccountInterface &current = it->second;
+	std::swap(current.object, tmp);
+
+	emit interfaceChanged(name, current.object.get());
+}
+
 GroupChatManager *Account::groupChatManager()
 {
-	return d_func()->groupChatManager;
+	return interface<GroupChatManager>();
 }
 
 ContactsFactory *Account::contactsFactory()
 {
-	return d_func()->contactsFactory;
+	return interface<ContactsFactory>();
 }
 
-InfoRequestFactory *Account::infoRequestFactory() const
+InfoRequestFactory *Account::infoRequestFactory()
 {
-	return d_func()->infoRequestFactory;
+	return interface<InfoRequestFactory>();
 }
 
 void Account::resetGroupChatManager(GroupChatManager *manager)
 {
-	Q_D(Account);
-	if (manager == d->groupChatManager)
-		return;
-	if (manager && d->groupChatManager)
-		qWarning() << "Account::resetGroupChatManager: the group chat manager is already set";
-	Q_ASSERT((!manager || manager->account() == this) && "trying to set the group manager that was created for another account");
-	if (manager)
-		GroupChatManagersList::instance()->addManager(manager);
-	else if (d->groupChatManager)
-		GroupChatManagersList::instance()->removeManager(d->groupChatManager);
-	d->groupChatManager = manager;
-	emit groupChatManagerChanged(manager);
+	setInterface<GroupChatManager>(manager);
 }
 
 void Account::setContactsFactory(ContactsFactory *factory)
 {
-	d_func()->contactsFactory = factory;
+	setInterface<ContactsFactory>(factory);
 }
 
 void Account::setInfoRequestFactory(InfoRequestFactory *factory)
 {
-	d_func()->infoRequestFactory = factory;
+	setInterface<InfoRequestFactory>(factory);
 }
 
 }

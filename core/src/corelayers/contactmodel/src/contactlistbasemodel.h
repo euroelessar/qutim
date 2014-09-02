@@ -72,9 +72,7 @@ class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::No
 	Q_CLASSINFO("SettingsDescription", "Blank model")
 	Q_PROPERTY(QStringList tags READ tags NOTIFY tagsChanged)
 public:
-    explicit ContactListBaseModel(QObject *parent = 0);
-
-	void initialize();
+	explicit ContactListBaseModel(QObject *parent = 0);
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;

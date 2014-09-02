@@ -100,7 +100,7 @@ static bool isStatusOnline(const Status &status)
 }
 
 VInfoFactory::VInfoFactory(VAccount *account) :
-	QObject(account), m_account(account)
+	m_account(account)
 {
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
 			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)));

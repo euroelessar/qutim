@@ -40,10 +40,10 @@ using namespace qutim_sdk_0_3;
 
 class JInfoRequest;
 
-class JVCardManager : public QObject, public JabberExtension, public InfoRequestFactory
+class JVCardManager : public InfoRequestFactory, public JabberExtension
 {
 	Q_OBJECT
-	Q_INTERFACES(Jabber::JabberExtension qutim_sdk_0_3::InfoRequestFactory)
+	Q_INTERFACES(Jabber::JabberExtension)
 	Q_CLASSINFO("DebugName", "Jabber::VCardManager")
 public:
 	JVCardManager();
