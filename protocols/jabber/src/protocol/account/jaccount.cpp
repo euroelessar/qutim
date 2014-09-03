@@ -265,6 +265,7 @@ JAccount::JAccount(const QString &id) :
 
 	{
 		// Temporary hook
+		// TODO: Remove this hook or make migration more automatic
 		Config config = this->config(QStringLiteral("general"));
 		const QString passwd = QStringLiteral("passwd");
 		if (config.hasChildKey(passwd)) {

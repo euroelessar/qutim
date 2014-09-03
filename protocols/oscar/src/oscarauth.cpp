@@ -28,7 +28,6 @@
 #include "oscarconnection.h"
 #include <qutim/json.h>
 #include <qutim/libqutim_version.h>
-#include <qutim/passworddialog.h>
 #include <QDebug>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -164,6 +163,19 @@ OscarAuth::OscarAuth(IcqAccount *account) :
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
 	connect(account, SIGNAL(proxyUpdated(QNetworkProxy)), SLOT(setProxy(QNetworkProxy)));
+
+	{
+		// Temporary hook
+		// TODO: Remove this hook or make migration more automatic
+		Config cfg = m_account->config(QLatin1String("general"));
+		if (cfg.hasChildGroup(QStringLiteral("token"))) {
+			QVariantMap token = cfg.value(QStringLiteral("token"), QVariantMap(), Config::Crypted);
+			QString data = QString::fromUtf8(Json::generate(token));
+			m_keyChain->write("icq." + account->id(), data);
+			cfg.remove(QStringLiteral("token"));
+		}
+		cfg.remove("passwd");
+	}
 }
 
 OscarAuth::~OscarAuth()
@@ -188,13 +200,27 @@ void OscarAuth::login()
 			return;
 		}
 	}
-	m_password = cfg.value(QLatin1String("passwd"), QString(), Config::Crypted);
-	if (m_password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(m_account);
-		connect(dialog, SIGNAL(finished(int)), SLOT(onPasswordDialogFinished(int)));
+
+	if (m_passwordDialog)
 		return;
-	}
-	clientLogin(true);
+
+	m_keyChain->read("icq." + m_account->id()).connect(this, [this] (const KeyChain::ReadResult &result) {
+		QVariantMap token = Json::parse(result.textData.toUtf8()).toMap();
+		if (!token.isEmpty()) {
+			QByteArray a = token.value(QLatin1String("a")).toByteArray();
+			QDateTime expiresAt = token.value(QLatin1String("expiresAt")).toDateTime();
+			if (expiresAt > QDateTime::currentDateTime()) {
+				startSession(a, token.value(QLatin1String("sessionSecret")).toByteArray());
+				return;
+			}
+		}
+
+		if (m_passwordDialog)
+			return;
+
+		m_passwordDialog = PasswordDialog::request(m_account);
+		connect(m_passwordDialog.data(), SIGNAL(finished(int)), SLOT(onPasswordDialogFinished(int)));
+	});
 }
 
 void OscarAuth::onPasswordDialogFinished(int result)
@@ -203,8 +229,7 @@ void OscarAuth::onPasswordDialogFinished(int result)
 	Q_ASSERT(dialog);
 	dialog->deleteLater();
 	if (result == PasswordDialog::Accepted) {
-		m_password = dialog->password();
-		clientLogin(dialog->remember());
+		clientLogin(dialog->remember(), dialog->password());
 	} else {
 		m_state = AtError;
 		emit stateChanged(m_state);
@@ -218,7 +243,7 @@ static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionS
     return code.result().toBase64();
 }
 
-void OscarAuth::clientLogin(bool longTerm)
+void OscarAuth::clientLogin(bool longTerm, const QString &password)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
     QUrlQuery urlQuery;
@@ -228,7 +253,7 @@ void OscarAuth::clientLogin(bool longTerm)
 	urlQuery.addQueryItem(QLatin1String("language"), generateLanguage());
 	urlQuery.addQueryItem(QLatin1String("tokenType"), QLatin1String(longTerm ? "longterm" : "shortterm"));
 	// FIXME: Sometimes passwords are cp-1251 (or any other windows-scpecific local encoding) encoded
-	urlQuery.addQueryItem("pwd", m_password);
+	urlQuery.addQueryItem("pwd", password);
 	urlQuery.addQueryItem(QLatin1String("idType"), QLatin1String("ICQ"));
 	urlQuery.addQueryItem(QLatin1String("clientName"), getClientName());
 	urlQuery.addQueryItem(QLatin1String("clientVersion"), QString::number(version()));
@@ -238,13 +263,14 @@ void OscarAuth::clientLogin(bool longTerm)
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply *reply = m_manager.post(request, query);
 	m_cleanupHandler.add(reply);
-	connect(reply, SIGNAL(finished()), this, SLOT(onClientLoginFinished()));
+
+	connect(reply, &QNetworkReply::finished, this, [this, reply, password] () {
+		onClientLoginFinished(reply, password);
+	});
 }
 
-void OscarAuth::onClientLoginFinished()
+void OscarAuth::onClientLoginFinished(QNetworkReply *reply, const QString &password)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-	Q_ASSERT(reply);
 	reply->deleteLater();
 	if (reply->error() != QNetworkReply::NoError) {
 		m_errorString = reply->errorString();
@@ -269,7 +295,7 @@ void OscarAuth::onClientLoginFinished()
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
 	int hostTime = data.value(QLatin1String("hostTime"), 0);
 	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
-	sessionSecret = sha256hmac(sessionSecret, m_password.toUtf8());
+	sessionSecret = sha256hmac(sessionSecret, password.toUtf8());
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
 		QVariantMap data;
