@@ -66,45 +66,26 @@ IrcAccount::~IrcAccount()
 		delete object;
 }
 
-void IrcAccount::setStatus(Status status)
+void IrcAccount::doConnectToServer()
 {
-	Status current = this->status();
-	if (status == Status::Connecting)
-		return;
-	// Prepare status.
-	if (current == Status::Connecting && status != Status::Offline) {
-		status.setType(current.text().isEmpty() ? Status::Online : Status::Away);
-		status.setText(current.text());
-	} else if (status == Status::Offline || status == Status::Online) {
-		status.setText(QString());
-	} else if (status == Status::Invisible || status == Status::FreeChat) {
-		status.setType(Status::Online);
-		status.setText(QString());
+	d->conn->connectToNetwork();
+	setState(Disconnected);
+}
+
+void IrcAccount::doDisconnectFromServer()
+{
+	d->conn->disconnectFromHost(false);
+	resetGroupChatManager();
+}
+
+void IrcAccount::doStatusChange(const Status &status)
+{
+	if (status == Status::Away) {
+		d->conn->send(QString("AWAY %1").arg(status.text()));
 	} else {
-		if (status != Status::Away)
-			status.setType(Status::Away);
-		if (status.text().isEmpty())
-			status.setText(tr("Away"));
+		// It is a little weird but the following command sets status to Online.
+		d->conn->send("AWAY");
 	}
-	// Send status.
-	if (status == Status::Offline) {
-		d->conn->disconnectFromHost(false);
-		resetGroupChatManager();
-	} else {
-		if (current == Status::Offline) {
-			status = Status::createConnecting(status, "irc");
-			d->conn->connectToNetwork();
-		} else if (current == Status::Away && status == Status::Online) {
-			// It is a little weird but the following command sets status to Online.
-			d->conn->send("AWAY");
-		}
-		if (status.type() == Status::Away)
-			d->conn->send(QString("AWAY %1").arg(status.text()));
-		if (current == Status::Connecting && status != Status::Offline)
-			resetGroupChatManager(d->groupManager.data());
-	}
-	status.initIcon("irc");
-	Account::setStatus(status);
 }
 
 QString IrcAccount::name() const
@@ -399,4 +380,3 @@ void IrcAccount::onContactNickChanged(const QString &nick, const QString &oldNic
 }
 
 } } // namespace qutim_sdk_0_3::irc
-

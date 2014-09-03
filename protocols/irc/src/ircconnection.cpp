@@ -141,7 +141,8 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 	}
 	if (cmd == 1 || cmd == 2 || cmd == 3 || cmd == 4) { // WELCOME
 		if (status == Status::Connecting) {
-			account->setStatus(Status::Online);
+			account->resetGroupChatManager(account->d->groupManager.data());
+			account->setState(Account::Connected);
 			foreach (IrcChannel *channel, account->d->channels) {
 				if (channel->d->autojoin || channel->d->reconnect) {
 					channel->join();
@@ -234,7 +235,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		request.setObject(m_account);
 		request.setText(params.value(0));
 		request.send();
-		m_account->setStatus(Status(Status::Offline));
+		m_account->disconnectFromServer();
 	} else if (cmd == 332) { // RPL_TOPIC
 		IrcChannel *channel = account->getChannel(params.value(1), false);
 		if (channel)
@@ -439,7 +440,7 @@ void IrcConnection::tryConnectToNextServer()
 		error = tr("Cannot connect to %1 network").arg(m_account->name());
 	if (!error.isEmpty()) {
 		qDebug() << error;
-		m_account->setStatus(Status::Offline);
+		m_account->disconnectFromServer();
 		NotificationRequest request(Notification::System);
 		request.setObject(m_account);
 		request.setText(error);
@@ -624,7 +625,7 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 	} else if (state == QAbstractSocket::UnconnectedState) {
 		if (m_passDialog)
 			m_passDialog.data()->deleteLater();
-		m_account->setStatus(Status::Offline);
+		m_account->disconnectFromServer();
 	}
 }
 
