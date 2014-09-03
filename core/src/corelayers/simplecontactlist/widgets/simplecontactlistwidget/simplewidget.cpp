@@ -302,7 +302,7 @@ void SimpleWidget::onStatusChanged()
 			status.setText(text);
 			status.setChangeReason(Status::ByUser);
 			status.setSubtype(0);
-			account->setStatus(status);
+			account->setUserStatus(status);
 		}
 	}
 }
@@ -327,7 +327,7 @@ void SimpleWidget::changeStatusTextAccepted()
 		foreach(Account *account, proto->accounts()) {
 			Status status = account->status();
 			status.setText(text);
-			account->setStatus(status);
+			account->setUserStatus(status);
 		}
 	}
 	Config config = Config().group("contactList");

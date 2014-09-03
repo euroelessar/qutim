@@ -54,14 +54,24 @@ class LIBQUTIM_EXPORT Account : public MenuController
 	Q_OBJECT
 	Q_PROPERTY(QString id READ id)
 	Q_PROPERTY(qutim_sdk_0_3::Protocol* protocol READ protocol CONSTANT)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
+	Q_PROPERTY(qutim_sdk_0_3::Status status READ status NOTIFY statusChanged)
+	Q_PROPERTY(qutim_sdk_0_3::Status userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
+	Q_PROPERTY(State state READ state NOTIFY stateChanged)
+	Q_ENUMS(State)
 public:
 	enum AccountHookEnum {
 		// all values below are reserved for MenuController
 		ReadParametersHook = 0x100,
 		UpdateParametersHook
+	};
+
+	enum State {
+		Disconnected,
+		Connecting,
+		Connected,
+		Disconnecting
 	};
 	
 	struct UpdateParametersArgument
@@ -111,12 +121,39 @@ public:
 	  Returns pointer to account's \ref Protocol
 	*/
 	const Protocol *protocol() const;
+
+	State state() const;
+
 	/*!
-	  Asks account to change \a status on server. If \a status is not offline and
+	 * Connects to remote server.
+	 *
+	 * If account is currently at Connecting or Connected state nothing happens.
+	 *
+	 * \sa doConnectToServer
+	 */
+	void connectToServer();
+
+	/*!
+	 * Disconnectes from remote server.
+	 *
+	 * If current state is Disconnecting or Disconnected nothing happens.
+	 *
+	 * \sa doDisconnectFromServer
+	 */
+	void disconnectFromServer();
+
+	/*!
+	  Asks account to change \a userStatus on server. If \a userStatus is not offline and
 	  acount hasn't already connected to server it should try to do it, else if
-	  \a status is offline and account is conntected to server it should disconnect.
+	  \a userStatus is offline and account is connected to server it should disconnect.
 	*/
-	virtual void setStatus(Status status);
+	void setUserStatus(const Status &userStatus);
+
+	/*!
+	 * Returns status set by user.
+	 */
+	Status userStatus() const;
+
 	/*!
 	  Method looks for appropriate \ref ChatUnit for conversation with \a unit.
 	  Returns ChatUnit for \ref ChatSession.
@@ -196,6 +233,18 @@ protected:
 	void resetGroupChatManager(GroupChatManager *manager = nullptr);
 	void setContactsFactory(ContactsFactory *factory);
 	void setInfoRequestFactory(InfoRequestFactory *factory);
+
+	/*!
+	 * Implementation of connectToServer method
+	 */
+	virtual void doConnectToServer() = 0;
+
+	/*!
+	 * Implementation of disconnectToServer method
+	 */
+	virtual void doDisconnectFromServer() = 0;
+
+	void setState(State state, Status::ChangeReason reason = Status::ByUnknown);
 signals:
 	/*!
 	  Signal is emitted when new \a contact was created.
@@ -213,6 +262,7 @@ signals:
 	  Signal is emitted when account's \a status was changed.
 	*/
 	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void userStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 
 	void parametersChanged(const QVariantMap &parameters);
 
@@ -222,6 +272,21 @@ signals:
 	 * \a Interface may be zero object if it was just destroyed.
 	 */
 	void interfaceChanged(const QByteArray &name, QObject *interface);
+
+	/*!
+	 * Account moved to new \a state.
+	 */
+	void stateChanged(qutim_sdk_0_3::Account::State state);
+
+	/*!
+	 * Account is connected to remote server
+	 */
+	void connected();
+
+	/*!
+	 * Account is disconnected from remote server by \a reason
+	 */
+	void disconnected(qutim_sdk_0_3::Status::ChangeReason reason);
 };
 
 ChatUnit *Account::unit(const QString &unitId, bool create)

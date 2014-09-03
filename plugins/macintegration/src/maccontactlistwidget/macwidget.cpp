@@ -203,7 +203,7 @@ void MacWidget::changeStatusTextAccepted()
         foreach(Account *account, proto->accounts()) {
             Status status = account->status();
             status.setText(text);
-            account->setStatus(status);
+			account->setUserStatus(status);
         }
     }
     Config config = Config().group("contactList");
@@ -223,7 +223,7 @@ void MacWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
     if (!text.isEmpty()) {
         Status status = account->status();
         status.setText(text);
-        account->setStatus(status);
+		account->setUserStatus(status);
     }
 
     connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),

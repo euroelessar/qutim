@@ -75,7 +75,7 @@ void IdleStatusChanger::onIdle(int secs)
 		refillAccounts();
 		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc.data()->setStatus(m_naStatus);
+				acc.data()->setUserStatus(m_naStatus);
 		}
 		m_state = Inactive;
 	} else if (m_state == Active
@@ -84,13 +84,13 @@ void IdleStatusChanger::onIdle(int secs)
 		refillAccounts();
 		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc.data()->setStatus(m_awayStatus);
+				acc.data()->setUserStatus(m_awayStatus);
 		}
 		m_state = Away;
 	} else if (m_state != Active && secs < m_awaySecs) {
 		for (int i = 0; i < m_accounts.size(); i++) {
 			if (m_accounts.at(i))
-				m_accounts.at(i).data()->setStatus(m_statuses.at(i));
+				m_accounts.at(i).data()->setUserStatus(m_statuses.at(i));
 		}
 		m_accounts.clear();
 		m_statuses.clear();

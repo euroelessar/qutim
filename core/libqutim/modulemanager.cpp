@@ -879,7 +879,7 @@ void ModuleManager::onQuit()
 		account->config().setValue("lastStatus", status);
 		status.setType(Status::Offline);
 		status.setChangeReason(Status::ByQuit);
-		account->setStatus(status);
+		account->setUserStatus(status);
 	}
 
 	Event("aboutToQuit").send();

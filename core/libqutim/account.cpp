@@ -41,6 +41,16 @@ Account::Account(const QString &id, Protocol *protocol)
 	Q_D(Account);
 	d->protocol = protocol;
 	d->id = id;
+
+	// Hack for authorization failed notification,
+	// move once to some plugin
+	connect(this, &Account::disconnected, this, [this] (Status::ChangeReason reason) {
+		if (reason == Status::ByAuthorizationFailed) {
+			NotificationRequest request(Notification::System);
+			request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+			request.send();
+		}
+	});
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol)
@@ -97,30 +107,120 @@ const Protocol *Account::protocol() const
 	return d_func()->protocol.data();
 }
 
-void Account::setStatus(Status status)
+Account::State Account::state() const
+{
+	return d_func()->state;
+}
+
+void Account::connectToServer()
 {
 	Q_D(Account);
 
-	Status::ChangeReason reason = status.changeReason();
-
-	switch(reason) {
-	case Status::ByUser:
-	case Status::ByIdle:
-	case Status::ByNetworkError:
-	case Status::ByFatalError:
-	case Status::ByQuit:
+	switch (d->state) {
+	case Disconnected:
+		setState(Connecting);
+		doConnectToServer();
 		break;
-	case Status::ByAuthorizationFailed: {
-		NotificationRequest request(Notification::System);
-		request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
-		request.send();
+	case Connecting:
+		break;
+	case Connected:
+		break;
+	case Disconnecting:
+		setState(Connecting);
+		doConnectToServer();
 		break;
 	}
+}
+
+void Account::disconnectFromServer()
+{
+	Q_D(Account);
+
+	switch (d->state) {
+	case Disconnected:
+		break;
+	case Connecting:
+		setState(Disconnecting);
+		doDisconnectFromServer();
+		break;
+	case Connected:
+		setState(Disconnecting);
+		doDisconnectFromServer();
+		break;
+	case Disconnecting:
+		break;
+	}
+}
+
+void Account::setState(Account::State state, Status::ChangeReason reason)
+{
+	Q_D(Account);
+
+	if (d->state != state) {
+		d->state = state;
+		emit stateChanged(state);
+
+		if (state == Connected)
+			emit connected();
+		else if (state == Disconnected)
+			emit disconnected(reason);
+
+		d->updateStatus();
+	}
+}
+
+void AccountPrivate::updateStatus()
+{
+	const QByteArray protocol = q_func()->protocol()->id().toLatin1();
+
+	switch (state) {
+	case Account::Connecting:
+		setStatus(Status::createConnecting(userStatus, protocol));
+		break;
+	case Account::Disconnected:
+		setStatus(Status::instance(Status::Offline, protocol));
+		break;
+	case Account::Connected:
+	case Account::Disconnecting:
+		setStatus(userStatus);
+		break;
+	}
+}
+
+void AccountPrivate::setStatus(const Status &newStatus)
+{
+	Status oldStatus = status;
+	status = newStatus;
+	emit q_func()->statusChanged(newStatus, oldStatus);
+}
+
+void Account::setUserStatus(const Status &userStatus)
+{
+	Q_D(Account);
+
+	Status oldUserStatus = d->userStatus;
+	d->userStatus = userStatus;
+	emit userStatusChanged(userStatus, oldUserStatus);
+
+	const bool oldOffline = oldUserStatus == Status::Offline;
+	const bool newOffline = userStatus == Status::Offline;
+
+	if (oldOffline && !newOffline) {
+		// Go online
+		if (state() == Disconnected)
+			connectToServer();
+	} else if (!oldOffline && newOffline) {
+		// Go offline
+		if (state() == Connected || state() == Connecting)
+			disconnectFromServer();
 	}
 
-	Status old = d->status;
-	d->status = status;
-	emit statusChanged(status,old);
+	d->updateStatus();
+}
+
+Status Account::userStatus() const
+{
+	return d_func()->userStatus;
 }
 
 ChatUnit *Account::getUnitForSession(ChatUnit *unit)

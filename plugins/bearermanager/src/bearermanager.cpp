@@ -97,11 +97,11 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 		Account *account = it.key();
 		Status status = it.value();
 		if (isOnline) {
-			account->setStatus(status);
+			account->setUserStatus(status);
 		} else {
 			status.setType(Status::Offline);
 			status.setChangeReason(Status::ByNetworkError);
-			account->setStatus(status);
+			account->setUserStatus(status);
 		}
 	}
 	emit onlineStateChanged(isOnline);
@@ -119,7 +119,7 @@ void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 
 	m_statusHash.insert(account, status);
 	if (isOnline && status != Status::Offline)
-		account->setStatus(status);
+		account->setUserStatus(status);
 
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
@@ -172,7 +172,7 @@ void BearerManager::timerEvent(QTimerEvent *event)
 			foreach (Account *a, p->accounts()) {
 				Status status = a->config().value("lastStatus", Status(Status::Online));
 				if (status != Status::Offline && a->status() == Status::Offline)
-					a->setStatus(status);
+					a->setUserStatus(status);
 					anyOfflineAccount = true;
 			}
 		}

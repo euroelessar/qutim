@@ -47,10 +47,16 @@ class AccountPrivate : public MenuControllerPrivate
 {
 	Q_DECLARE_PUBLIC(Account)
 public:
-	AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
+	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
+
+	void updateStatus();
+	void setStatus(const Status &newStatus);
+
 	QPointer<Protocol> protocol;
 	QString id;
+	Account::State state;
 	Status status;
+	Status userStatus;
 
 	struct hasher
 	{
