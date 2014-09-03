@@ -49,6 +49,19 @@ MetaContactManager::~MetaContactManager()
 {
 }
 
+void MetaContactManager::doConnectToServer()
+{
+}
+
+void MetaContactManager::doDisconnectFromServer()
+{
+}
+
+void MetaContactManager::doStatusChange(const qutim_sdk_0_3::Status &status)
+{
+	Q_UNUSED(status);
+}
+
 MetaContact *MetaContactManager::createContact()
 {
 	QString id = QUuid::createUuid().toString();
@@ -67,4 +80,3 @@ bool MetaContactManager::eventFilter(QObject *obj, QEvent *ev)
 	return Account::eventFilter(obj, ev);
 }
 }
-

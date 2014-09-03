@@ -52,6 +52,10 @@ public:
 protected:
 	virtual void loadContacts() = 0;
 	friend class ModuleManager;
+
+	void doConnectToServer();
+	void doDisconnectFromServer();
+	void doStatusChange(const Status &status);
 };
 }
 

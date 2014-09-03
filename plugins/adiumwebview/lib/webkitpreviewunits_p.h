@@ -60,6 +60,19 @@ public:
 	QString avatar() const;
 	qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = true);
 
+	void doConnectToServer()
+	{
+	}
+
+	void doDisconnectFromServer()
+	{
+	}
+
+	void doStatusChange(const qutim_sdk_0_3::Status &status)
+	{
+		Q_UNUSED(status);
+	}
+
 private:
 	QVariantMap m_data;
 };
