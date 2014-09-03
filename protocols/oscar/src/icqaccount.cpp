@@ -43,39 +43,6 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-PasswordValidator::PasswordValidator(QObject *parent) :
-	QValidator(parent)
-{
-}
-
-PasswordValidator::State PasswordValidator::validate(QString &input, int &pos) const
-{
-	Q_UNUSED(pos);
-	if (input.isEmpty())
-		return Intermediate;
-	return Acceptable;
-}
-
-QString IcqAccountPrivate::password()
-{
-	Q_Q(IcqAccount);
-	QString password;
-	if (!passwd.isEmpty()) {
-		password = passwd;
-		passwd.clear();
-	} else {
-		Config cfg = q->config("general");
-		password = cfg.value("passwd", QString(), Config::Crypted);
-		if (password.isEmpty()) {
-			PasswordDialog *dialog = PasswordDialog::request(q);
-			dialog->setValidator(new PasswordValidator(dialog));
-			QObject::connect(dialog, SIGNAL(entered(QString,bool)), q, SLOT(onPasswordEntered(QString,bool)));
-			QObject::connect(dialog, SIGNAL(rejected()), dialog, SLOT(deleteLater()));
-		}
-	}
-	return password;
-}
-
 void IcqAccountPrivate::loadRoster()
 {
 	Q_Q(IcqAccount);
