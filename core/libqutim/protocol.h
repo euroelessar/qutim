@@ -58,8 +58,7 @@ class LIBQUTIM_EXPORT Protocol : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Protocol)
-    Q_PROPERTY(QString id READ id)
-    Q_PROPERTY(QStringList supportedAccountParameters READ supportedAccountParameters CONSTANT)
+	Q_PROPERTY(QString id READ id CONSTANT)
     //		Q_FLAGS(DataType DataTypes)
     //		Q_FLAGS(RemoveFlag RemoveFlags)
 public:
@@ -70,16 +69,7 @@ public:
     enum RemoveFlag {
         DeleteAccount = 0x01
     };
-    enum ProtocolHook {
-        SupportedAccountParametersHook,
-        CreateAccountHook
-    };
-
-    struct CreateAccountArgument
-    {
-        QString id;
-        QVariantMap parameters;
-        Account *account;
+	enum ProtocolHook {
     };
 
     //		Q_DECLARE_FLAGS(RemoveFlags, RemoveFlag)
@@ -89,9 +79,8 @@ public:
     virtual ~Protocol();
     Config config();
     ConfigGroup config(const QString &group);
-    QString id() const;
-    QStringList supportedAccountParameters() const;
-    Q_INVOKABLE Account *createAccount(const QString &id, const QVariantMap &parameters);
+	QString id() const;
+
     Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
     Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
     virtual QVariant data(DataType type);

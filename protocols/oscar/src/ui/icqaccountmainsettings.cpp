@@ -84,15 +84,11 @@ void IcqAccountMainSettings::reloadSettings()
 		else
 			ui->userNameEdit->clear();
 		cfg.endGroup();
-		cfg.beginGroup("general");
-		ui->passwordEdit->setText(cfg.value("passwd", QString(), Config::Crypted));
-		cfg.endGroup();
 	} else {
 		ui->uinEdit->clear();
 		ui->userNameEdit->clear();
 		ui->portBox->setValue(5190);
 		ui->sslBox->setChecked(false);
-		ui->passwordEdit->clear();
 	}
 
 #ifdef OSCAR_SSL_SUPPORT
@@ -129,11 +125,6 @@ void IcqAccountMainSettings::saveSettings()
 
 	Config cfg = m_account->config();
 	cfg.beginGroup("general");
-	QString newPassword = ui->passwordEdit->text();
-	if (!newPassword.isEmpty())
-		cfg.setValue("passwd", newPassword, Config::Crypted);
-	else
-		cfg.remove("passwd");
 	QString nick = ui->userNameEdit->text();
 	if (!nick.isEmpty())
 		cfg.setValue("nick", ui->userNameEdit->text());

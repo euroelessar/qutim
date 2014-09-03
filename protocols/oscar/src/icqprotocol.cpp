@@ -91,24 +91,6 @@ void IcqProtocol::loadAccounts()
 void IcqProtocol::virtual_hook(int id, void *data)
 {
 	switch (id) {
-	case SupportedAccountParametersHook: {
-		QStringList &properties = *reinterpret_cast<QStringList*>(data);
-		properties << QLatin1String("password");
-		break;
-	}
-	case CreateAccountHook: {
-		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
-		argument.account = new IcqAccount(argument.id);
-		QString password = argument.parameters.value(QLatin1String("password")).toString();
-		Config cfg = argument.account->config();
-		cfg.beginGroup("general");
-		if (!password.isEmpty())
-			cfg.setValue("passwd", password, Config::Crypted);
-		else
-			cfg.remove("passwd");
-		addAccount(static_cast<IcqAccount*>(argument.account));
-		break;
-	}
 	default:
 		Protocol::virtual_hook(id, data);
 	}
