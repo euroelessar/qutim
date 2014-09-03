@@ -58,7 +58,7 @@ public:
 
 	virtual void doConnectToServer() override;
 	virtual void doDisconnectFromServer() override;
-	virtual void doStatusChange(const Status &status) override;
+	virtual void doStatusChange(const qutim_sdk_0_3::Status &status) override;
 
 	int uid() const;
 	QString email() const;

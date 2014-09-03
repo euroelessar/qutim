@@ -76,8 +76,8 @@ QString VAccount::name() const
 
 void VAccount::doConnectToServer()
 {
-	m_client->setInvisible(status == Status::Invisible);
-	m_client->setActivity(status.text());
+	m_client->setInvisible(userStatus() == Status::Invisible);
+	m_client->setActivity(userStatus().text());
 	m_client->connectToHost();
 }
 
@@ -188,7 +188,7 @@ void VAccount::onInvisibleChanged(bool set)
 	if (m_client->connectionState() == Vreen::Client::StateOnline) {
 		Status s = status();
 		s.setType(set ? Status::Invisible : Status::Online);
-		Account::setStatus(s);
+		setEffectiveStatus(s);
 	}
 }
 
