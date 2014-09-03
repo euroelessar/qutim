@@ -136,17 +136,7 @@ Account *VProtocol::doCreateAccount(const QString &email, const QVariantMap &par
 
 void VProtocol::virtual_hook(int id, void *data)
 {
-    switch (id) {
-//    case SupportedAccountParametersHook: {
-//        QStringList &properties = *reinterpret_cast<QStringList*>(data);
-//        properties << QLatin1String("password");
-//        break;
-//    }
-//    case CreateAccountHook: {
-//        CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
-//        argument.account = doCreateAccount(argument.id, argument.parameters);
-//        break;
-//    }
+	switch (id) {
     default:
         Protocol::virtual_hook(id, data);
     }

@@ -210,8 +210,18 @@ void VAccount::setAccessToken(const QByteArray &token, time_t expiresIn)
 
 void VAccount::onError(Vreen::Client::Error error)
 {
-	if (error == Vreen::Client::ErrorAuthorizationFailed)
-		config("general").setValue("passwd", "");
+	switch (error) {
+	case Vreen::Client::ErrorAuthorizationFailed:
+		qWarning() << "authorization failed";
+		setState(Disconnected, Status::ByAuthorizationFailed);
+		break;
+	case Vreen::Client::ErrorToManyRequests:
+		setState(Disconnected, Status::ByRateLimit);
+		break;
+	default:
+		setState(Disconnected, Status::ByUnknown);
+		break;
+	}
 }
 
 void VAccount::onContentDownloaded(const QString &path)
