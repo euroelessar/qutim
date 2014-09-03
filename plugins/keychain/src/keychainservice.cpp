@@ -70,7 +70,7 @@ AsyncResult<Result> executeJob(Job *job)
 	});
 }
 
-AsyncResult<qutim_sdk_0_3::KeyChain::ReadResult> Service::read(const QString &key)
+AsyncResult<qutim_sdk_0_3::KeyChain::ReadResult> Service::doRead(const QString &key)
 {
 	auto job = createJob<ReadPasswordJob>(key, this);
 
@@ -83,21 +83,21 @@ AsyncResult<qutim_sdk_0_3::KeyChain::ReadResult> Service::read(const QString &ke
 	});
 }
 
-AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::write(const QString &key, const QString &value)
+AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::doWrite(const QString &key, const QString &value)
 {
 	auto job = createJob<WritePasswordJob>(key, this);
 	job->setTextData(value);
 	return executeJob<Result>(job);
 }
 
-AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::write(const QString &key, const QByteArray &value)
+AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::doWrite(const QString &key, const QByteArray &value)
 {
 	auto job = createJob<WritePasswordJob>(key, this);
 	job->setBinaryData(value);
 	return executeJob<Result>(job);
 }
 
-AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::remove(const QString &key)
+AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::doRemove(const QString &key)
 {
 	auto job = createJob<ReadPasswordJob>(key, this);
 

@@ -11,10 +11,10 @@ class Service : public qutim_sdk_0_3::KeyChain
 public:
 	explicit Service();
 
-	qutim_sdk_0_3::AsyncResult<ReadResult> read(const QString &key) override;
-	qutim_sdk_0_3::AsyncResult<Result> write(const QString &key, const QString &value) override;
-	qutim_sdk_0_3::AsyncResult<Result> write(const QString &key, const QByteArray &value) override;
-	qutim_sdk_0_3::AsyncResult<Result> remove(const QString &key) override;
+	qutim_sdk_0_3::AsyncResult<ReadResult> doRead(const QString &key) override;
+	qutim_sdk_0_3::AsyncResult<Result> doWrite(const QString &key, const QString &value) override;
+	qutim_sdk_0_3::AsyncResult<Result> doWrite(const QString &key, const QByteArray &value) override;
+	qutim_sdk_0_3::AsyncResult<Result> doRemove(const QString &key) override;
 };
 
 } // namespace KeyChain

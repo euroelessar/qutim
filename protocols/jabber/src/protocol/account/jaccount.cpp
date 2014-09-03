@@ -164,7 +164,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 		break;
 	case Client::AuthorizationError: {
 		statusReason = Status::ByAuthorizationFailed;
-		keyChain->remove(keyChainId());
+		keyChain->remove(q);
 		client->setPassword(QString());
 		break;
 	}
@@ -269,7 +269,7 @@ JAccount::JAccount(const QString &id) :
 		Config config = this->config(QStringLiteral("general"));
 		const QString passwd = QStringLiteral("passwd");
 		if (config.hasChildKey(passwd)) {
-			d->keyChain->write(d->keyChainId(), config.value(passwd, QString(), Config::Crypted));
+			d->keyChain->write(this, config.value(passwd, QString(), Config::Crypted));
 			config.remove(passwd);
 		}
 	}
@@ -343,7 +343,7 @@ void JAccount::loadSettings()
 void JAccount::setPasswd(const QString &passwd)
 {
 	Q_D(JAccount);
-	d->keyChain->write(d->keyChainId(), passwd);
+	d->keyChain->write(this, passwd);
 	d->client->setPassword(passwd);
 }
 
@@ -419,7 +419,7 @@ void JAccount::doConnectToServer()
 	if (d->passwordDialog) {
 		/* nothing */
 	} else if(d->client->password().isEmpty()) {
-		d->keyChain->read(d->keyChainId()).connect(this, [this, d] (const KeyChain::ReadResult &result) {
+		d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
 			if (result.error == KeyChain::NoError) {
 				d->onPasswordReceived(result.textData);
 			} else if (!d->passwordDialog) {
@@ -435,7 +435,7 @@ void JAccount::doConnectToServer()
 					}
 
 					if (d->passwordDialog->remember()) {
-						d->keyChain->write(d->keyChainId(), d->passwordDialog->password());
+						d->keyChain->write(this, d->passwordDialog->password());
 					}
 
 					d->onPasswordReceived(d->passwordDialog->password());

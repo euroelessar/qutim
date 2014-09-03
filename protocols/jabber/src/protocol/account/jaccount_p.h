@@ -54,11 +54,6 @@ public:
 	inline JAccountPrivate(JAccount *q) : q_ptr(q) {}
 	inline ~JAccountPrivate() {}
 
-	QString keyChainId() const
-	{
-		return QStringLiteral("jabber.") + q_func()->id();
-	}
-
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
 	QNetworkProxy proxy;

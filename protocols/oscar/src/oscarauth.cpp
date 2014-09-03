@@ -171,7 +171,7 @@ OscarAuth::OscarAuth(IcqAccount *account) :
 		if (cfg.hasChildGroup(QStringLiteral("token"))) {
 			QVariantMap token = cfg.value(QStringLiteral("token"), QVariantMap(), Config::Crypted);
 			QString data = QString::fromUtf8(Json::generate(token));
-			m_keyChain->write("icq." + account->id(), data);
+			m_keyChain->write(account, data);
 			cfg.remove(QStringLiteral("token"));
 		}
 		cfg.remove("passwd");
@@ -204,7 +204,7 @@ void OscarAuth::login()
 	if (m_passwordDialog)
 		return;
 
-	m_keyChain->read("icq." + m_account->id()).connect(this, [this] (const KeyChain::ReadResult &result) {
+	m_keyChain->read(m_account).connect(this, [this] (const KeyChain::ReadResult &result) {
 		QVariantMap token = Json::parse(result.textData.toUtf8()).toMap();
 		if (!token.isEmpty()) {
 			QByteArray a = token.value(QLatin1String("a")).toByteArray();
@@ -281,6 +281,9 @@ void OscarAuth::onClientLoginFinished(QNetworkReply *reply, const QString &passw
 	OscarResponse response(reply->readAll());
 	DEBUG() << Q_FUNC_INFO << response.rawResult();
 	if (response.result() != OscarResponse::Success) {
+		if (response.result() == OscarResponse::AuthorizationRequired)
+			m_keyChain->remove(m_account);
+
 		m_errorString = response.resultString();
 		emit error(response.error());
 		deleteLater();
