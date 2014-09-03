@@ -29,6 +29,8 @@
 
 #include "vclient.h"
 #include <QPointer>
+#include <qutim/servicemanager.h>
+#include <qutim/keychain.h>
 
 #define VK_PHOTO_SOURCE Vreen::Contact::PhotoSizeMediumRec
 
@@ -53,7 +55,10 @@ public:
 
 	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create);
 	virtual QString name() const;
-	virtual void setStatus(qutim_sdk_0_3::Status status);
+
+	virtual void doConnectToServer() override;
+	virtual void doDisconnectFromServer() override;
+	virtual void doStatusChange(const Status &status) override;
 
 	int uid() const;
 	QString email() const;
@@ -81,6 +86,7 @@ private:
 	VClient *m_client;
 	QPointer<VRoster> m_roster;
 	QPointer<VContact> m_me;
+	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::KeyChain> m_keyChain;
 	QString m_name;
 	QPointer<Vreen::ContentDownloader> m_contentDownloader;
 	QHash<QString, VContact*> m_contentRecieversHash;

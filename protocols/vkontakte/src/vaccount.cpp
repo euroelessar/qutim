@@ -60,7 +60,6 @@ VAccount::VAccount(const QString &email, VProtocol *protocol) :
 
 	setInfoRequestFactory(new VInfoFactory(this));
 	m_roster = new VRoster(this);
-	VAccount::setStatus(Status::instance(Status::Offline, "vkontakte"));
 }
 
 VContact *VAccount::contact(int uid, bool create)
@@ -75,22 +74,23 @@ QString VAccount::name() const
 	return email();
 }
 
-void VAccount::setStatus(Status status)
+void VAccount::doConnectToServer()
 {
+	m_client->setInvisible(status == Status::Invisible);
 	m_client->setActivity(status.text());
-	if (Account::status().type() != status.type()) {
-		switch (status.type()) {
-		case Status::Offline:
-			m_client->disconnectFromHost();
-			saveSettings();
-			break;
-		case Status::Connecting:
-			break;
-		default:
-			m_client->connectToHost();
-			m_client->setInvisible(status == Status::Invisible);
-		};
-	}
+	m_client->connectToHost();
+}
+
+void VAccount::doDisconnectFromServer()
+{
+	m_client->disconnectFromHost();
+	saveSettings();
+}
+
+void VAccount::doStatusChange(const Status &status)
+{
+	m_client->setInvisible(status == Status::Invisible);
+	m_client->setActivity(status.text());
 }
 
 int VAccount::uid() const
@@ -223,21 +223,19 @@ void VAccount::onContentDownloaded(const QString &path)
 
 void VAccount::onClientStateChanged(Vreen::Client::State state)
 {
-	Status s = status();
 	switch (state) {
 	case Vreen::Client::StateOffline:
-		s.setType(Status::Offline);
+		setState(Disconnected);
 		break;
 	case Vreen::Client::StateConnecting:
-		s.setType(Status::Connecting);
+		setState(Connecting);
 		break;
 	case Vreen::Client::StateOnline:
-		s.setType(m_client->isInvisible() ? Status::Invisible : Status::Online);
+		setState(Connected);
 		break;
 	default:
 		break;
 	}
-	Account::setStatus(s);
 
 	if (m_client->isOnline())
 		m_client->roster()->sync();
