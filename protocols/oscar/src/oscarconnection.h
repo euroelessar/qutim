@@ -42,7 +42,6 @@ class IcqAccount;
 class BuddyPicture;
 class Roster;
 class Feedbag;
-class Md5Login;
 
 class OscarConnection: public AbstractConnection
 {
@@ -71,8 +70,7 @@ private:
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
 	bool m_is_idle;
-    QPointer<OscarAuth> m_auth;
-//	QPointer<Md5Login> m_md5login;
+	QPointer<OscarAuth> m_auth;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

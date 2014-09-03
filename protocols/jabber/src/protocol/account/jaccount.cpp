@@ -123,7 +123,7 @@ void JAccountPrivate::_q_connected()
 //		currentPGPKeyId = pgpKeyId;
 //		emit q->pgpKeyIdChanged(currentPGPKeyId);
 //	}
-	applyStatus(q->status());
+	applyStatus(q->userStatus());
 	conferenceManager.data()->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
 	client->setPingInterval(q->config().group("general").value("pingInterval", 30000));

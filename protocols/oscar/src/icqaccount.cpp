@@ -64,20 +64,6 @@ void IcqAccountPrivate::loadRoster()
 	}
 }
 
-void IcqAccount::onPasswordEntered(const QString &password, bool remember)
-{
-	Q_D(IcqAccount);
-	PasswordDialog *dialog = qobject_cast<PasswordDialog*>(sender());
-	if (!dialog)
-		return;
-	if (remember) {
-		Config cfg = config("general");
-		cfg.setValue("passwd", password, Config::Crypted);
-	}
-	dialog->deleteLater();
-	d->passwd = password;
-	setStatus(d->lastStatus);
-}
 
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
@@ -90,24 +76,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->htmlEnabled = cfg.value("htmlEnabled", false);
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
-	{
-		Config statusCfg = cfg.group("lastStatus");
-		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
-		if (type >= Status::Online && type <= Status::Offline) {
-			OscarStatus status(Status::Offline);
-			OscarStatus lastStatus;
-			lastStatus.setType(static_cast<Status::Type>(type));
-			lastStatus.setSubtype(statusCfg.value("subtype", 0));
-			statusCfg.beginGroup("capabilities");
-			foreach (const QString &type, statusCfg.childKeys()) {
-				Capability cap(statusCfg.value("subtype", QString()));
-				lastStatus.setCapability(type, cap);
-			}
-			statusCfg.endGroup();
-			d->lastStatus = lastStatus;
-			Account::setStatus(status);
-		}
-	}
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -140,9 +108,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint32>(SystemInfo::getSystemVersionID());
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
-
-	if (cfg.value("autoconnect", false))
-		setStatus(d->lastStatus);
 }
 
 IcqAccount::~IcqAccount()
@@ -168,101 +133,35 @@ const AbstractConnection *IcqAccount::connection() const
 void IcqAccount::finishLogin()
 {
 	Q_D(IcqAccount);
-	d->conn->sendStatus(d->lastStatus);
-	Account::setStatus(d->lastStatus);
+	d->conn->sendStatus(userStatus());
+	setState(Connected);
 	emit loginFinished();
 }
 
-void IcqAccount::setStatus(Status status_helper)
+void IcqAccount::doConnectToServer()
 {
-	Q_D(IcqAccount);
-	Status status = OscarStatus(status_helper);
-	Status current = this->status();
-	qDebug() << Q_FUNC_INFO << current << "->" << status;
-    if (current.type() == Status::Connecting
-            && status.type() > Status::Offline) {
-		d->lastStatus = status;
-		if (d->conn->state() == QAbstractSocket::UnconnectedState
-		        && status != Status::Connecting) {
-			d->conn->connectToLoginServer(QString());
-		}
-		return;
-	}
-	if (current.type() == status.type() && status.type() == Status::Offline) {
-//		// Disable reconnecting
-//		status.setChangeReason(Status::ByUser);
-		Account::setStatus(status);
-		emit statusChanged(status, current);
-		return;
-	}
-	if (status.type() == Status::Offline) {
-		QAbstractSocket::SocketState state = d->conn->state();
-		if (state != QTcpSocket::UnconnectedState) {
-			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
-//			status.setChangeReason(Status::ByUser);
-			d->lastStatus = status;
-		} else if (d->conn->error() == AbstractConnection::NoError ||
-				   d->conn->error() == AbstractConnection::ReservationLinkError ||
-				   d->conn->error() == AbstractConnection::ReservationMapError ||
-				   d->conn->error() == AbstractConnection::SocketError)
-		{
-			status.setChangeReason(Status::ByNetworkError);
-		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
-			Account::setStatus(status);
-			config().group("general").setValue("passwd", QString(), Config::Crypted);
-			d->lastStatus.setChangeReason(Status::ByAuthorizationFailed);
-			setStatus(d->lastStatus);
-			return;
-		} else if (d->conn->error() == AbstractConnection::RateLimitExceeded) {
-			status.setChangeReason(Status::ByNetworkError);
-			status.setProperty("reconnectTimeout", 1200);
-		} else if (d->conn->error() == AbstractConnection::AnotherClientLogined) {
-			// Disable reconnecting
-			status.setChangeReason(Status::ByUser);
-		} else {
-			status.setChangeReason(Status::ByFatalError);
-		}
-		foreach(IcqContact *contact, d->contacts) {
-			OscarStatus status = contact->status();
-			status.setType(Status::Offline);
-			contact->setStatus(status, false);
-			foreach (RosterPlugin *plugin, d->rosterPlugins)
-				plugin->statusChanged(contact, status, TLVMap());
-		}
-	} else if (status == Status::Connecting) {
-		emit statusChanged(status, current);
-		Account::setStatus(status);
-		return;
-	} else {
-		d->lastStatus = status;
-		if (current == Status::Offline) {
-			status = Status::createConnecting(status, "icq");
-			d->conn->connectToLoginServer(QString());
-		} else {
-			d->conn->sendStatus(status);
-		}
-	}
-    {
-		Config statusCfg = config().group("general/lastStatus");
-		statusCfg.setValue("type", d->lastStatus.type());
-		statusCfg.setValue("subtype", d->lastStatus.subtype());
-		statusCfg.remove("capabilities");
-		statusCfg.beginGroup("capabilities");
-		QHashIterator<QString, Capability> itr(d->lastStatus.capabilities());
-		while (itr.hasNext()) {
-			itr.next();
-			statusCfg.setValue(itr.key(), itr.value().toString());
-		}
-		statusCfg.endGroup();
-	}
-	qDebug() << status << "with" << Status::connectingGoal(status);
-	emit statusChanged(status, current);
-	Account::setStatus(status);
+	d_func()->conn->connectToLoginServer(QString());
 }
 
-void IcqAccount::setStatus(OscarStatusEnum status)
+void IcqAccount::doDisconnectFromServer()
 {
-	setStatus(OscarStatus(status));
+	Q_D(IcqAccount);
+
+	QAbstractSocket::SocketState state = d->conn->state();
+	d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
+
+	foreach (IcqContact *contact, d->contacts) {
+		OscarStatus status = contact->status();
+		status.setType(Status::Offline);
+		contact->setStatus(status, false);
+		foreach (RosterPlugin *plugin, d->rosterPlugins)
+			plugin->statusChanged(contact, status, TLVMap());
+	}
+}
+
+void IcqAccount::doStatusChange(const Status &status)
+{
+	d_func()->conn->sendStatus(status);
 }
 
 QString IcqAccount::name() const
@@ -474,4 +373,3 @@ void IcqAccount::onCookieTimeout()
 }
 
 } } // namespace qutim_sdk_0_3::oscar
-

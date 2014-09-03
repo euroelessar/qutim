@@ -63,7 +63,8 @@ public:
 		ByNetworkError,
 		ByFatalError,
 		ByQuit,
-		ByPasswordUnknown
+		ByPasswordUnknown,
+		ByRateLimit
 	};
 
 	// TODO: Remove defines, and optimize code, currently I just want plugins to compile
