@@ -62,7 +62,6 @@ public:
 	//Jreen
 	QScopedPointer<Jreen::Client> client;
 	QNetworkProxy proxy;
-	Status proposedStatus;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	Jreen::PrivacyManager *privacyManager;
@@ -75,7 +74,6 @@ public:
 	QString avatar;
 //	QString pgpKeyId;
 //	QString currentPGPKeyId;
-	Status status;
 	bool isOnline;
 	QList<JabberExtension *> extensions;
 	QPointer<JMUCManager> conferenceManager;
@@ -92,8 +90,7 @@ public:
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);
 	void _q_connected();
-	void _q_on_password_finished(int result);
-	void onPasswordReceived(const QString &password, const Status &status);
+	void onPasswordReceived(const QString &password);
 
 	//old code
 	Identities identities;

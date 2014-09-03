@@ -244,6 +244,12 @@ protected:
 	 */
 	virtual void doDisconnectFromServer() = 0;
 
+	/*!
+	 * Update current account's status to \a status
+	 */
+	virtual void doStatusChange(const Status &status) = 0;
+
+	void setEffectiveStatus(const Status &status);
 	void setState(State state, Status::ChangeReason reason = Status::ByUnknown);
 signals:
 	/*!

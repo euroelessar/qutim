@@ -41,6 +41,7 @@ Account::Account(const QString &id, Protocol *protocol)
 	Q_D(Account);
 	d->protocol = protocol;
 	d->id = id;
+	d->status = d->userStatus = Status::instance(Status::Offline, protocol->id().toLatin1());
 
 	// Hack for authorization failed notification,
 	// move once to some plugin
@@ -313,6 +314,11 @@ void Account::setContactsFactory(ContactsFactory *factory)
 void Account::setInfoRequestFactory(InfoRequestFactory *factory)
 {
 	setInterface<InfoRequestFactory>(factory);
+}
+
+void Account::setEffectiveStatus(const Status &status)
+{
+	d_func()->setStatus(status);
 }
 
 }
