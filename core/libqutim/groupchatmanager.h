@@ -92,7 +92,5 @@ private:
 
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::GroupChatManager, "org.qutim.core.GroupChatManager");
-
 #endif // GROUPCHATMANAGER_H
 

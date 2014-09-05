@@ -41,7 +41,10 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path
         qbs.install: true
-        files: "share/qutim/"
+        files: [
+            "share/qutim/ca-certs",
+            "share/qutim/webkitstyle"
+        ]
     }
 
     Group {

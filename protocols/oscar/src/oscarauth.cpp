@@ -170,6 +170,8 @@ OscarAuth::OscarAuth(IcqAccount *account) :
 		Config cfg = m_account->config(QLatin1String("general"));
 		if (cfg.hasChildGroup(QStringLiteral("token"))) {
 			QVariantMap token = cfg.value(QStringLiteral("token"), QVariantMap(), Config::Crypted);
+			token["a"] = QString::fromLatin1(token["a"].toByteArray().toHex());
+			token["sessionSecret"] = QString::fromLatin1(token["sessionSecret"].toByteArray().toHex());
 			QString data = QString::fromUtf8(Json::generate(token));
 			m_keyChain->write(account, data);
 			cfg.remove(QStringLiteral("token"));
@@ -190,27 +192,16 @@ void OscarAuth::setProxy(const QNetworkProxy &proxy)
 
 void OscarAuth::login()
 {
-	Config cfg = m_account->config(QLatin1String("general"));
-	QVariantMap token = cfg.value(QLatin1String("token"), QVariantMap(), Config::Crypted);
-	if (!token.isEmpty()) {
-		QByteArray a = token.value(QLatin1String("a")).toByteArray();
-		QDateTime expiresAt = token.value(QLatin1String("expiresAt")).toDateTime();
-		if (expiresAt > QDateTime::currentDateTime()) {
-			startSession(a, token.value(QLatin1String("sessionSecret")).toByteArray());
-			return;
-		}
-	}
-
 	if (m_passwordDialog)
 		return;
 
 	m_keyChain->read(m_account).connect(this, [this] (const KeyChain::ReadResult &result) {
 		QVariantMap token = Json::parse(result.textData.toUtf8()).toMap();
 		if (!token.isEmpty()) {
-			QByteArray a = token.value(QLatin1String("a")).toByteArray();
+			QByteArray a = QByteArray::fromHex(token.value(QLatin1String("a")).toString().toLatin1());
 			QDateTime expiresAt = token.value(QLatin1String("expiresAt")).toDateTime();
 			if (expiresAt > QDateTime::currentDateTime()) {
-				startSession(a, token.value(QLatin1String("sessionSecret")).toByteArray());
+				startSession(a, QByteArray::fromHex(token.value(QLatin1String("sessionSecret")).toString().toLatin1()));
 				return;
 			}
 		}
@@ -289,23 +280,31 @@ void OscarAuth::onClientLoginFinished(QNetworkReply *reply, const QString &passw
 		deleteLater();
 		return;
 	}
+
 	Config data = response.data();
 	data.beginGroup(QLatin1String("token"));
+
 	QByteArray token = data.value(QLatin1String("a"), QByteArray());
 	int expiresIn = data.value(QLatin1String("expiresIn"), 0);
 	QDateTime expiresAt = QDateTime::currentDateTime().addSecs(expiresIn);
+
 	data.endGroup();
+
 	QByteArray sessionSecret = data.value(QLatin1String("sessionSecret"), QByteArray());
 	int hostTime = data.value(QLatin1String("hostTime"), 0);
 	int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
 	sessionSecret = sha256hmac(sessionSecret, password.toUtf8());
+
 	{
 		Config cfg = m_account->config(QLatin1String("general"));
+
 		QVariantMap data;
-		data.insert(QLatin1String("a"), token);
+		data.insert(QLatin1String("a"), QString::fromLatin1(token.toHex()));
 		data.insert(QLatin1String("expiresAt"), expiresAt.toString(Qt::ISODate));
-		data.insert(QLatin1String("sessionSecret"), sessionSecret);
-		cfg.setValue(QLatin1String("token"), data, Config::Crypted);
+		data.insert(QLatin1String("sessionSecret"), QString::fromLatin1(sessionSecret.toHex()));
+
+		m_keyChain->write(m_account, QString::fromUtf8(Json::generate(data)));
+
 		cfg.setValue(QLatin1String("hostTimeDelta"), hostTime - localTime);
 	}
 	startSession(token, sessionSecret);

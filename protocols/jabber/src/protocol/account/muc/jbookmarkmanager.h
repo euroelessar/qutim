@@ -45,7 +45,6 @@ class JAccount;
 class JBookmarkManager : public qutim_sdk_0_3::GroupChatManager
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
 public:
 	JBookmarkManager(JAccount *account);
 	~JBookmarkManager();

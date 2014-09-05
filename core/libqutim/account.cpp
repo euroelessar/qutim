@@ -254,13 +254,17 @@ QObject *Account::interface(const QMetaObject *meta)
 		return nullptr;
 	}
 
+	QObject *result = nullptr;
+
 	auto it = d->interfaces.find(name);
 	if (it != d->interfaces.end()) {
 		const AccountInterface &interface = it->second;
-		return interface.object.get();
+		result = interface.object.get();
 	}
 
-	return nullptr;
+	qDebug() << "Found" << result << "as" << name << "for" << this;
+
+	return result;
 }
 
 void Account::setInterface(const QMetaObject *meta, QObject *interface)
@@ -275,6 +279,8 @@ void Account::setInterface(const QMetaObject *meta, QObject *interface)
 		return;
 	}
 
+	qDebug() << "Setting" << interface << "as" << name << "for" << this;
+
 	auto it = d->interfaces.find(name);
 	if (it == d->interfaces.end()) {
 		it = d->interfaces.emplace(name, AccountInterface()).first;
@@ -282,6 +288,9 @@ void Account::setInterface(const QMetaObject *meta, QObject *interface)
 
 	AccountInterface &current = it->second;
 	std::swap(current.object, tmp);
+
+	// FIXME: Fix memory ownership
+	tmp.release();
 
 	emit interfaceChanged(name, current.object.get());
 }

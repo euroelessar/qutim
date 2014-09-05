@@ -305,6 +305,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	qRegisterMetaType<QAction*>("QAction*");
 	qRegisterMetaTypeStreamOperators<Status>();
     d = new ModuleManagerPrivate;
+	AccountManagerPrivate::self = &d->accountManager;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
 	qApp->setApplicationVersion(versionString());
@@ -319,6 +320,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 ModuleManager::~ModuleManager()
 {
 	managerSelf = 0;
+	AccountManagerPrivate::self = NULL;
 	delete d;
 }
 

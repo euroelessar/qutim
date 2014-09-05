@@ -142,7 +142,5 @@ private:
 
 }
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::InfoRequestFactory, "org.qutim.InfoRequestFactory")
-
 #endif // INFOREQUEST_H
 
