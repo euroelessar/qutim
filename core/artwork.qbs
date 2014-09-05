@@ -162,22 +162,22 @@ Product {
         inputs: [ "infoPlist" ]
         Artifact {
             fileTags: [ "installed_content" ]
-            fileName: "bin/qutim.app/Contents/" + input.fileName
+            filePath: "bin/qutim.app/Contents/" + input.fileName
         }
 
         prepare: {
             var cmd = new JavaScriptCommand();
             cmd.version = product.qutim_version;
             cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName);
+                var file = new TextFile(input.filePath);
                 var content = file.readAll().replace(/VERSION/g, version);
                 file.close();
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
                 file.close();
             }
-            cmd.description = "installing " + FileInfo.fileName(output.fileName);
+            cmd.description = "installing " + FileInfo.fileName(output.filePath);
             cmd.highlight = "linker";
             return cmd;
         }

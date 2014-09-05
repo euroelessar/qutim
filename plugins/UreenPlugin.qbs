@@ -100,16 +100,16 @@ Product {
 
         Artifact {
             fileTags: [ "cpp", "moc_cpp" ]
-            fileName: 'GeneratedFiles/' + product.name + '/' + product.name + "genplugin.cpp"
+            filePath: 'GeneratedFiles/' + product.name + '/' + product.name + "genplugin.cpp"
         }
 
         prepare: {
             var cmd = new JavaScriptCommand();
             cmd.productName = product.name;
             cmd.templateFilePath = product.templateFilePath;
-            cmd.inputFilePath = FileInfo.path(input.fileName);
+            cmd.inputFilePath = FileInfo.path(input.filePath);
             cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName, TextFile.ReadOnly);
+                var file = new TextFile(input.filePath, TextFile.ReadOnly);
                 var data = JSON.parse(file.readAll());
                 file = new TextFile(templateFilePath, TextFile.ReadOnly);
                 var template = file.readAll();
@@ -141,12 +141,12 @@ Product {
                     var to = variables[i].to || "";
                     template = template.replace(new RegExp("\\${" + from + "}", "g"), to);
                 }
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(template);
                 file.close();
             }
-            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.description = "generating " + FileInfo.fileName(output.filePath);
             cmd.highlight = "codegen";
             return cmd;
         }
