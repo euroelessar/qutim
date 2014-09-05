@@ -48,6 +48,11 @@ class AccountPrivate : public MenuControllerPrivate
 	Q_DECLARE_PUBLIC(Account)
 public:
 	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
+	~AccountPrivate()
+	{
+		for (auto &pair : interfaces)
+			pair.second.object.release();
+	}
 
 	void updateStatus();
 	void setStatus(const Status &newStatus);
