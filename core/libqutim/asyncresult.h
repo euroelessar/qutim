@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QMutex>
 #include <tuple>
 #include <memory>
 #include <vector>
@@ -13,60 +14,105 @@ namespace qutim_sdk_0_3 {
 template <typename... Args>
 class AsyncResult;
 
+namespace Detail {
+
+class Callback : public std::function<void ()>
+{
+public:
+	Callback()
+	{
+	}
+
+	Callback(std::function<void ()> other) : std::function<void ()>(std::move(other))
+	{
+	}
+
+	// Otherwise std::function thinks that Callback is generic class with operator()
+	Callback(const Callback &other) : std::function<void ()>(*static_cast<const std::function<void ()> *>(&other))
+	{
+	}
+
+	~Callback()
+	{
+	}
+
+	Callback &operator =(const Callback &other)
+	{
+		std::function<void ()>::operator =(other);
+		return *this;
+	}
+};
+
+class AsyncInvoker : public QObject
+{
+	Q_OBJECT
+public:
+	AsyncInvoker();
+	~AsyncInvoker();
+
+public slots:
+	void invoke(const qutim_sdk_0_3::Detail::Callback &callback);
+};
+
 template <typename... Args>
 class AsyncResultData
 {
 	typedef std::tuple<Args...> Tuple;
+	typedef std::shared_ptr<Tuple> TuplePtr;
 public:
 	typedef std::function<void (const Args &...args)> Function;
 
-	AsyncResultData() noexcept
+	AsyncResultData() : m_invoker(new AsyncInvoker)
 	{
 	}
 
-	AsyncResultData(Args ...args) : m_args(new Tuple(std::forward<Args>(args)...))
+	AsyncResultData(Args ...args) : m_args(new Tuple(std::forward<Args>(args)...)), m_invoker(new AsyncInvoker)
 	{
+	}
+
+	~AsyncResultData()
+	{
+		m_invoker->deleteLater();
 	}
 
 	AsyncResultData(const AsyncResultData &) = delete;
 	AsyncResultData &operator =(const AsyncResultData &) = delete;
 
-	void connect(QObject *object, Function &&function)
+	void connect(QObject *object, Function function)
 	{
-		if (m_args) {
-			call(function);
-		} else {
-			m_callbacks.emplace_back(Callback { true, object, std::move(function) });
-		}
+		QPointer<QObject> context = object;
+		connect_impl([context, function] (const Args &...args) {
+			if (context)
+				function(args...);
+		});
 	}
 
-	void connect(Function &&function)
+	void connect(Function function)
 	{
-		if (m_args) {
-			call(function);
-		} else {
-			m_callbacks.emplace_back(Callback { false, nullptr, std::move(function) });
-		}
+		connect_impl(std::move(function));
 	}
 
 	void handle(Args ...args)
 	{
-		m_args.reset(new Tuple(std::forward<Args>(args)...));
+		QMutexLocker locker(&m_lock);
+		m_args = std::make_shared<Tuple>(std::forward<Args>(args)...);
 
-		std::vector<Callback> callbacks = std::move(m_callbacks);
-		for (Callback &callback : callbacks) {
-			if (!callback.from_object || callback.object)
-				call(callback.function);
+		std::vector<Function> callbacks = std::move(m_callbacks);
+		for (Function &callback : callbacks) {
+			call(std::move(callback));
 		}
 	}
 
 private:
-	struct Callback
+	void connect_impl(Function function)
 	{
-		bool from_object;
-		QPointer<QObject> object;
-		Function function;
-	};
+		QMutexLocker locker(&m_lock);
+		if (m_args) {
+			call(std::move(function));
+		} else {
+			m_callbacks.emplace_back(std::move(function));
+		}
+	}
 
 	template <size_t ...S>
 	struct Sequence
@@ -84,22 +130,32 @@ private:
 		typedef Sequence<S...> type;
 	};
 
-	void call(Function &function)
+	void call(Function function)
 	{
-		call_impl(typename Generator<sizeof...(Args)>::type(), function);
+		TuplePtr args = m_args;
+		Callback callback([args, function] () {
+			AsyncResultData::call(args, typename Generator<sizeof...(Args)>::type(), function);
+		});
+
+		QMetaObject::invokeMethod(m_invoker, "invoke", Qt::QueuedConnection,
+								  Q_ARG(qutim_sdk_0_3::Detail::Callback, callback));
 	}
 
 	template <size_t ...S>
-	void call_impl(Sequence<S...>, Function &function)
+	static void call(TuplePtr args, Sequence<S...>, const Function &function)
 	{
-		function(std::get<S>(*m_args)...);
+		function(std::get<S>(*args)...);
 	}
 
 	friend class AsyncResult<Args...>;
 
-	std::vector<Callback> m_callbacks;
-	std::unique_ptr<Tuple> m_args;
+	QMutex m_lock;
+	std::vector<Function> m_callbacks;
+	std::shared_ptr<Tuple> m_args;
+	AsyncInvoker *m_invoker;
 };
+
+} // namespace Detail
 
 template <typename... Args>
 class AsyncResultHandler;
@@ -108,7 +164,7 @@ template <typename... Args>
 class AsyncResult
 {
 public:
-	typedef AsyncResultData<Args...> Data;
+	typedef Detail::AsyncResultData<Args...> Data;
 	typedef AsyncResultHandler<Args...> Handler;
 	typedef typename Data::Function Function;
 
@@ -165,7 +221,7 @@ template <typename... Args>
 class AsyncResultHandler
 {
 public:
-	typedef AsyncResultData<Args...> Data;
+	typedef Detail::AsyncResultData<Args...> Data;
 
 	AsyncResultHandler() : m_data(std::make_shared<Data>())
 	{
@@ -188,5 +244,7 @@ private:
 };
 
 } // namespace qutim_sdk_0_3
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Detail::Callback)
 
 #endif // QUTIM_SDK_0_3_ASYNCRESULT_H
