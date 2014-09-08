@@ -199,13 +199,24 @@ class LIBOSCAR_EXPORT FeedbagItemHandler
 {
 public:
 	virtual ~FeedbagItemHandler();
+
 	const QSet<quint16> &types() { return m_types; }
-	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 	quint16 priority() { return m_priority; }
+	Feedbag *feedbag() { Q_ASSERT(m_feedbag); return m_feedbag; }
+	IcqAccount *account() { return feedbag()->account(); }
+
+	virtual bool handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
+
 protected:
-	FeedbagItemHandler(quint16 priority = 50);
-	QSet<quint16> m_types;
+	FeedbagItemHandler(std::initializer_list<quint16> types, quint16 priority = 50);
+
 private:
+	void setFeedbag(Feedbag *feedbag);
+
+	friend class Feedbag;
+
+	Feedbag *m_feedbag;
+	QSet<quint16> m_types;
 	quint16 m_priority;
 };
 

@@ -51,7 +51,7 @@ public:
 	static Authorization *instance() { Q_ASSERT(self); return self; }
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	bool handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 private slots:
 	void onSendRequestClicked(QObject *object);
 	void onGrantAuthClicked(QObject *object);

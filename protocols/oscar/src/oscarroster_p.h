@@ -49,7 +49,7 @@ public:
 	QStringList readTags(const FeedbagItem &item);
 	
 protected:
-	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	bool handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item, Feedbag::ModifyType type);
 	void handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item);
 	void removeContact(IcqContact *contact);

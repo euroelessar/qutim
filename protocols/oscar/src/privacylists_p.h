@@ -84,7 +84,7 @@ class PrivacyLists : public QObject, public FeedbagItemHandler
 public:
     PrivacyLists();
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
-	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	bool handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) override;
 	void setVisibility(IcqAccount *account, int visibility);
 	Visibility getCurrentMode(IcqAccount *account, bool invisibleMode);
 protected:
@@ -95,8 +95,8 @@ private slots:
 	void accountAdded(qutim_sdk_0_3::Account *account);
 	void statusChanged(const qutim_sdk_0_3::Status &status, const qutim_sdk_0_3::Status &previous);
 private:
-	bool handleVisibility(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
-	bool handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type);
+	bool handleVisibility(const FeedbagItem &item, Feedbag::ModifyType type);
+	bool handlePrivacyListItem(const FeedbagItem &item, Feedbag::ModifyType type);
 private:
 	static PrivacyLists *self;
 	QHash<quint16, PrivateListActionGenerator::Ptr> contactMenuHash;

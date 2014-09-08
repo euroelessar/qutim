@@ -43,14 +43,13 @@ namespace oscar {
 QByteArray BuddyPicture::emptyHash = QByteArray::fromHex("0201d20472");
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	AbstractConnection(account, parent), m_avatars(false), m_startup(true)
+	AbstractConnection(account, parent), FeedbagItemHandler({ SsiBuddyIcon }), m_avatars(false), m_startup(true)
 {
 	updateSettings();
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
 			<< SNACInfo(ServiceFamily, ServiceServerExtstatus)
 			<< SNACInfo(AvatarFamily, AvatarGetReply)
 			<< SNACInfo(AvatarFamily, AvatarUploadAck);
-	m_types << SsiBuddyIcon;
 	registerHandler(this);
 	socket()->setProxy(account->connection()->socket()->proxy());
 	account->feedbag()->registerHandler(this);
@@ -101,7 +100,7 @@ void BuddyPicture::setAccountAvatar(const QString &avatar)
 	// Md5 hash.
 	m_avatarHash = QCryptographicHash::hash(m_accountAvatar, QCryptographicHash::Md5);
 	// Request for update of avatar.
-	FeedbagItem item = account()->feedbag()->itemByType(SsiBuddyIcon, Feedbag::GenerateId);
+	FeedbagItem item = feedbag()->itemByType(SsiBuddyIcon, Feedbag::GenerateId);
 	TLV data(0x00d5);
 	data.append<quint8>(1);
 	data.append<quint8>(m_avatarHash);
@@ -213,9 +212,8 @@ void BuddyPicture::processCloseConnection()
 	AbstractConnection::processCloseConnection();
 }
 
-bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool BuddyPicture::handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
-	Q_UNUSED(feedbag);
 	Q_ASSERT(item.type() == SsiBuddyIcon);
 	if (error != FeedbagError::NoError || type == Feedbag::Remove)
 		return false;

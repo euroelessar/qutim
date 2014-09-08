@@ -65,12 +65,14 @@ protected:
 	void connectToServ(const QString &addr, quint16 port, const QByteArray &cookie);
 	void processNewConnection();
 	void processCloseConnection();
-	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	virtual bool handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	void onDisconnect();
 private slots:
 	void updateSettings();
 private:
+	IcqAccount *account() { return AbstractConnection::account(); }
+	const IcqAccount *account() const { return AbstractConnection::account(); }
 	inline QString getAvatarDir() const;
 	inline bool setAvatar(QObject *obj, const QByteArray &hash);
 	inline void updateData(QObject *obj, const QByteArray &hash, const QString &path);

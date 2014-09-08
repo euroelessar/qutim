@@ -60,13 +60,12 @@ void AuthorizeActionGenerator::createImpl(QAction *action, QObject *obj) const
 }
 
 Authorization::Authorization() :
-	FeedbagItemHandler(30)
+	FeedbagItemHandler({ SsiBuddy }, 30)
 {
 	Q_ASSERT(!self);
 	self = this;
 	m_infos << SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse);
-	m_types << SsiBuddy;
 
 	m_authActionGen = new AuthorizeActionGenerator;
 	MenuController::addAction<IcqContact>(m_authActionGen);
@@ -116,7 +115,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 }
 
-bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool Authorization::handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_ASSERT(item.type() == SsiBuddy);
 	if (type == Feedbag::Remove)
@@ -130,7 +129,7 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 	} else if (error != FeedbagError::NoError) {
 		return false;
 	}
-	IcqContact *contact = feedbag->account()->getContact(item.name());
+	IcqContact *contact = account()->getContact(item.name());
 	Q_ASSERT(contact);
 	onAuthChanged(contact, !item.containsField(SsiBuddyReqAuth));
 	return false;

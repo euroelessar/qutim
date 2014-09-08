@@ -162,11 +162,10 @@ void PrivacyLists::onModifyPrivacy(QAction *action, QObject *object)
 }
 
 PrivacyLists::PrivacyLists() :
-	FeedbagItemHandler(30)
+	FeedbagItemHandler({ SsiPermit, SsiDeny, SsiIgnore, SsiVisibility }, 30)
 {
 	Q_ASSERT(!self);
 	self = this;
-	m_types << SsiPermit << SsiDeny << SsiIgnore << SsiVisibility;
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), SLOT(accountAdded(qutim_sdk_0_3::Account*)));
@@ -209,44 +208,43 @@ PrivacyLists::PrivacyLists() :
 		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Privacy status");
 }
 
-bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool PrivacyLists::handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
-	Q_UNUSED(feedbag);
 	if (error != FeedbagError::NoError)
 		return false;
 	switch (item.type()) {
 	case SsiVisibility:
-		return handleVisibility(feedbag, item, type);
+		return handleVisibility(item, type);
 	case SsiPermit:
 	case SsiDeny:
 	case SsiIgnore:
-		return handlePrivacyListItem(feedbag, item, type);
+		return handlePrivacyListItem(item, type);
 	default:
 		return false;
 	}
 }
 
-bool PrivacyLists::handleVisibility(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type)
+bool PrivacyLists::handleVisibility(const FeedbagItem &item, Feedbag::ModifyType type)
 {
 	if (type != Feedbag::Remove) {
 		Visibility newVisibility = (Visibility)item.field<quint8>(0x00CA);
 		PrivacyActionGenerator::Ptr actionGen = accountMenuHash.value(newVisibility);
 		if (actionGen) {
-			foreach (QAction *action, actionGen->actions(feedbag->account()))
+			foreach (QAction *action, actionGen->actions(account()))
 				action->setChecked(true);
 		}
 		m_currentVisibility = newVisibility;
 	} else if (m_currentVisibility != NoVisibility) {
 		PrivacyActionGenerator::Ptr actionGen = accountMenuHash.value(m_currentVisibility);
 		Q_ASSERT(actionGen);
-		foreach (QAction *action, actionGen->actions(feedbag->account()))
+		foreach (QAction *action, actionGen->actions(account()))
 			action->setChecked(false);
 		m_currentVisibility = NoVisibility;
 	}
 	return true;
 }
 
-bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type)
+bool PrivacyLists::handlePrivacyListItem(const FeedbagItem &item, Feedbag::ModifyType type)
 {
 	QString name;
 	QString icon;
@@ -285,7 +283,7 @@ bool PrivacyLists::handlePrivacyListItem(Feedbag *feedbag, const FeedbagItem &it
 		return false;
 	}
 	}
-	IcqContact *contact = feedbag->account()->getContact(item.name());
+	IcqContact *contact = account()->getContact(item.name());
 	if (!contact)
 		return true;
 	// Update contact's status
