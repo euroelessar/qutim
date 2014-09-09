@@ -25,27 +25,29 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.1
+import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.1
 import QtQuick.Layouts 1.1
 import org.qutim.simpleabout 0.4
 
-ApplicationWindow {
+Dialog {
     id: root
     width: 450
     height: 400
-    
+
     title: qsTr("About qutIM")
-    
+    standardButtons: StandardButton.Ok
+
     AboutInfo {
         id: info
     }
-    
+
     readonly property string translators: info.translators
-    
+
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 4
-        
+        width: parent ? parent.width : 100
+        height: 480
+
         RowLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignRight | Qt.AlignTop

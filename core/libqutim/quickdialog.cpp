@@ -42,7 +42,7 @@ public:
 	void ensureInitialized()
 	{
 		if (!onVisibleChanged.isValid()) {
-			int index = q_ptr->metaObject()->indexOfSignal("implementationVisibileChanged()");
+			int index = q_ptr->metaObject()->indexOfMethod("implementationVisibileChanged()");
 			Q_ASSERT(index >= 0);
 			onVisibleChanged = q_ptr->metaObject()->method(index);
 		}
