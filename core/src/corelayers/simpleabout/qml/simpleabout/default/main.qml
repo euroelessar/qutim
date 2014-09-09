@@ -35,7 +35,6 @@ ApplicationWindow {
     height: 400
     
     title: qsTr("About qutIM")
-    visible: true
     
     AboutInfo {
         id: info
