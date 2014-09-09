@@ -51,11 +51,11 @@ public:
 			Config config;
 			config.beginGroup(QStringLiteral("qml/themes"));
 			QString themeName = config.value(dialogName, QStringLiteral("default"));
-			QString themePath = ThemeManager::path(QStringLiteral("qml/simpleabout"), themeName);
+			QString themePath = ThemeManager::path(QStringLiteral("qml/") + dialogName, themeName);
 
 			if (themePath.isEmpty()) {
 				qWarning() << "Failed to find theme:" << themeName << "for dialog:" << dialogName;
-				themePath = ThemeManager::path(QStringLiteral("qml/simpleabout"), QStringLiteral("default"));
+				themePath = ThemeManager::path(QStringLiteral("qml/") + dialogName, QStringLiteral("default"));
 				if (themePath.isEmpty()) {
 					qCritical() << "Failed to find default theme for dialog:" << dialogName;
 					return;
