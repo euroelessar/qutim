@@ -42,7 +42,7 @@ namespace oscar {
 
 using namespace Util;
 
-Roster::Roster() : FeedbagItemHandler({ SsiBuddy, SsiGroup })
+Roster::Roster()
 {
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
@@ -53,17 +53,18 @@ Roster::Roster() : FeedbagItemHandler({ SsiBuddy, SsiGroup })
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy);
+	m_types << SsiBuddy << SsiGroup;
 }
 
-bool Roster::handleFeedbagItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	if (error != FeedbagError::NoError)
 		return false;
 	
 	if (type == Feedbag::Remove)
-		handleRemoveCLItem(account(), item);
+		handleRemoveCLItem(feedbag->account(), item);
 	else
-		handleAddModifyCLItem(account(), item, type);
+		handleAddModifyCLItem(feedbag->account(), item, type);
 	return true;
 }
 

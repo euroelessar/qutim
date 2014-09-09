@@ -578,7 +578,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	if (suitableHandlers.count() > 1)
 		qSort(suitableHandlers.begin(), suitableHandlers.end(), &handlerLessThan);
 	foreach (FeedbagItemHandler *handler, suitableHandlers)
-		found |= handler->handleFeedbagItem(item, type, error);
+		found |= handler->handleFeedbagItem(q, item, type, error);
 	if (!found) {
 		if (error == FeedbagError::NoError) {
 			if (type == Feedbag::Remove) {
@@ -995,8 +995,6 @@ quint16 Feedbag::uniqueItemId(quint16 type) const
 
 void Feedbag::registerHandler(FeedbagItemHandler *handler)
 {
-	handler->setFeedbag(this);
-
 	const QSet<quint16> &types = handler->types();
 	foreach (quint16 type, types)
 		d->handlers.insertMulti(type, handler);
@@ -1004,14 +1002,14 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 		foreach (quint16 id, d->itemsByType.value(SsiGroup)) {
 			const FeedbagItem item = d->itemsById.value(qMakePair(quint16(SsiGroup), id));
 			if (types.contains(item.type()))
-				handler->handleFeedbagItem(item, AddModify, FeedbagError::NoError);
+				handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
 		}
 	}
 	for (AllItemsHash::Iterator it = d->itemsById.begin(); it != d->itemsById.end(); ++it) {
 		const quint16 type = it.key().first;
 		if (type != SsiGroup && types.contains(type)) {
 			const FeedbagItem &item = it.value();
-			handler->handleFeedbagItem(item, AddModify, FeedbagError::NoError);
+			handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
 		}
 	}
 }
@@ -1174,13 +1172,8 @@ FeedbagItemHandler::~FeedbagItemHandler()
 {
 }
 
-void FeedbagItemHandler::setFeedbag(Feedbag *feedbag)
-{
-	m_feedbag = feedbag;
-}
-
-FeedbagItemHandler::FeedbagItemHandler(std::initializer_list<quint16> types, quint16 priority) :
-	m_feedbag(nullptr), m_types(types), m_priority(priority)
+FeedbagItemHandler::FeedbagItemHandler(quint16 priority) :
+	m_priority(priority)
 {
 }
 

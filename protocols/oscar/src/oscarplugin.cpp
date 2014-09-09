@@ -67,7 +67,7 @@ void OscarPlugin::init()
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar roster"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar roster"),
-				 new GeneralGenerator<Roster, SNACHandler, FeedbagItemHandler>(),
+				 new SingletonGenerator<Roster, SNACHandler, FeedbagItemHandler>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar messages"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar messages"),
@@ -87,11 +87,11 @@ void OscarPlugin::init()
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
-				 new GeneralGenerator<Authorization, SNACHandler, FeedbagItemHandler>(),
+				 new SingletonGenerator<Authorization, SNACHandler, FeedbagItemHandler>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
-				 new GeneralGenerator<PrivacyLists, FeedbagItemHandler>(),
+				 new SingletonGenerator<PrivacyLists, FeedbagItemHandler>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar contact search"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar contact search implementation"),
