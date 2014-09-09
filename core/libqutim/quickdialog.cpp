@@ -72,7 +72,7 @@ public:
 			visibleProperty = QMetaProperty();
 
 			if (!dialog) {
-				qCritical() << "Failed to create object for component:" << component->url() << "error:" << component->errorString();
+				qCritical() << "Failed to create object for component:" << component->url() << "errors:";
 				for (QQmlError error : component->errors()) {
 					qCritical() << error.toString();
 				}
