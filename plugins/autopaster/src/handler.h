@@ -25,36 +25,57 @@
 #ifndef PASTER_H
 #define PASTER_H
 
-#include <ui_handler.h>
 #include "pasterinterface.h"
 
 #include <qutim/chatsession.h>
 #include <qutim/messagehandler.h>
 #include <qutim/message.h>
+#include <qutim/settingslayer.h>
+#include <qutim/quickdialog.h>
 
-#include <QDialog>
+#include <QQueue>
 #include <QNetworkAccessManager>
 #include <QTextDocumentFragment>
 
-class AutoPasterHandler : public qutim_sdk_0_3::MessageHandler
+class AutoPasterHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 {
+	Q_OBJECT
+	Q_PROPERTY(QStringList pasters READ pasters CONSTANT)
+	Q_PROPERTY(QVariantList syntaxes READ syntaxes CONSTANT)
 public:
 	explicit AutoPasterHandler();
 	~AutoPasterHandler();
 
 	void addPaster(PasterInterface *paster);
 
-	static QList<PasterInterface*> pasters();
+	QStringList pasters();
+	QVariantList syntaxes();
 
 public slots:
 	void readSettings();
+	void upload(const QString &paster, const QString &syntax);
+	void cancel();
 
 protected:
 	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 
+signals:
+	void messageReceived();
+
 private:
+	struct QueueItem
+	{
+		qutim_sdk_0_3::MessageHandlerAsyncResult::Handler handler;
+		qutim_sdk_0_3::Message *message;
+	};
+
+	void upload(QueueItem item, PasterInterface *paster, const QString &syntax);
+
 	QNetworkAccessManager m_manager;
+	qutim_sdk_0_3::QuickDialog m_dialog;
+	qutim_sdk_0_3::QmlSettingsItem m_settings;
 	QList<PasterInterface*> m_pasters;
+	QQueue<QueueItem> m_queue;
 
 	bool m_autoSubmit;
 	int m_lineCount;

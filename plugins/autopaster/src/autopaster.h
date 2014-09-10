@@ -35,17 +35,19 @@ class AutoPaster : public qutim_sdk_0_3::Plugin
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugName","Autopaster")
+	Q_PROPERTY(AutoPasterHandler* handler READ handler NOTIFY handlerChanged)
 public:
 	virtual bool load();
 	virtual bool unload();
 	virtual void init();
 
-protected slots:
-	void loadSettings();
+	AutoPasterHandler *handler();
+
+signals:
+	void handlerChanged(AutoPasterHandler *handler);
 
 private:
 	AutoPasterHandler *m_handler;
-	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 };
 
 #endif // AUTOPASTER_H
