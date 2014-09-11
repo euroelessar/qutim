@@ -42,11 +42,14 @@ class AutoPasterHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 	Q_OBJECT
 	Q_PROPERTY(QStringList pasters READ pasters CONSTANT)
 	Q_PROPERTY(QVariantList syntaxes READ syntaxes CONSTANT)
+	Q_PROPERTY(int currentPasterIndex READ currentPasterIndex NOTIFY currentPasterIndexChanged)
 public:
 	explicit AutoPasterHandler();
 	~AutoPasterHandler();
 
 	void addPaster(PasterInterface *paster);
+
+	int currentPasterIndex();
 
 	QStringList pasters();
 	QVariantList syntaxes();
@@ -61,6 +64,7 @@ protected:
 
 signals:
 	void messageReceived();
+	void currentPasterIndexChanged(int currentPasterIndex);
 
 private:
 	struct QueueItem

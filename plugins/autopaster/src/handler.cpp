@@ -74,6 +74,11 @@ void AutoPasterHandler::addPaster(PasterInterface *paster)
 	m_pasters << paster;
 }
 
+int AutoPasterHandler::currentPasterIndex()
+{
+	return m_defaultLocation;
+}
+
 QStringList AutoPasterHandler::pasters()
 {
 	QStringList result;
@@ -151,6 +156,8 @@ void AutoPasterHandler::readSettings()
 	m_autoSubmit = cfg.value(QLatin1String("autoSubmit"), false);
 	m_defaultLocation = qBound(0, cfg.value(QLatin1String("defaultLocation"), 0), m_pasters.size() - 1);
 	m_lineCount = cfg.value(QLatin1String("lineCount"), 5);
+
+	emit currentPasterIndexChanged(m_defaultLocation);
 }
 
 void AutoPasterHandler::upload(QueueItem item, PasterInterface *paster, const QString &syntax)
@@ -168,6 +175,7 @@ void AutoPasterHandler::upload(QueueItem item, PasterInterface *paster, const QS
 			if (errorString.isEmpty()) {
 				item.message->setText(url);
 				item.handler.handle(Accept, QString());
+				return;
 			}
 		} else {
 			errorString = reply->errorString();
