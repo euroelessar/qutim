@@ -12,26 +12,33 @@ SettingsItem {
         group: "autoPaster"
     }
 
-    PasterItems {
-        id: paster
+    Plugin {
+        id: autopaster
+        name: "autopaster"
     }
 
-    function save() {
+    readonly property QtObject handler: autopaster.object.handler
 
+    function save() {
         config.setValue("autoSubmit", autoSubmitEdit.checked);
         config.setValue("defaultLocation", defaultLocationEdit.currentIndex);
         config.setValue("lineCount", lineCountEdit.value);
     }
 
     function load() {
+        itemsModel.clear();
+
+        var pasters = root.handler.pasters;
+        for (var i = 0; i < pasters.length; ++i) {
+            itemsModel.append({
+                text: pasters[i],
+                value: pasters[i]
+            });
+        }
+
         autoSubmitEdit.checked = config.value("autoSubmit", false);
         defaultLocationEdit.currentIndex = config.value("defaultLocation", 0);
         lineCountEdit.value = config.value("lineCount", 5);
-        itemsModel.clear();
-
-        for (var i = 0; i < paster.items.length; ++i) {
-            itemsModel.append({ items: paster.items[i] });
-        }
     }
 
     ListModel {
@@ -57,6 +64,7 @@ SettingsItem {
         ComboBox {
             id: defaultLocationEdit
             model: itemsModel
+            textRole: "text"
             onCurrentTextChanged: root.modify()
         }
 
