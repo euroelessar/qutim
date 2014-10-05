@@ -1,13 +1,16 @@
 Basic Installation
 ==================
 
-        qutIM uses the cmake build system. The simple instructions for
-building qutIM are these commands:
+        qutIM uses the qbs (Qt Build Suite)[http://qt-project.org/wiki/QBS] build system.
+The simple instructions for building qutIM are these commands:
 
-                        mkdir ../qutim-build && cd ../qutim-build
-                        cmake ../qutim
-                        make
-                        make install
+                        mkdir ../qutim-build
+                        qbs build -d ../qutim-build
+                        qbs install -d ../qutim-build
+
+
+Old (CMake-related) info
+========================
 
         Various components of qutIM have other dependencies as well.
 If these are not met when the 'cmake' command is run, those components
