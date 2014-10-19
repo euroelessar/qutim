@@ -7,4 +7,5 @@ UreenPlugin {
     cpp.frameworks: [ "Cocoa" ]
 
     Depends { name: "qutim-simplecontactlist" }
+    Depends { name: "Qt.macextras" }
 }

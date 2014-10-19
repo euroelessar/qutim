@@ -1,33 +1,46 @@
 #ifndef MACSEARCHFIELD_H
 #define MACSEARCHFIELD_H
 
-#include <QMacCocoaViewContainer>
+#import <Cocoa/Cocoa.h>
+#include <QString>
 
-class MacSearchFieldWidget;
+namespace Core { namespace SimpleContactList {
+class MacWidget;
+} }
 
-class MacSearchField : public QWidget
+@interface CoreMacSearchField : NSSearchField
 {
-	Q_OBJECT
-	Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-public:
-	MacSearchField(QWidget *parent = 0);
-	~MacSearchField();
+@public
+    Core::SimpleContactList::MacWidget *widget;
+    NSString *itemIdentifier;
+}
+@end
 
-	QString text() const;
-	void setText(const QString &text);
+//class MacSearchFieldWidget;
 
-	QSize sizeHint() const;
+//class MacSearchField : public QWidget
+//{
+//	Q_OBJECT
+//	Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
+//public:
+//	MacSearchField(QWidget *parent = 0);
+//	~MacSearchField();
 
-signals:
-	void textChanged(const QString &text);
+//	QString text() const;
+//	void setText(const QString &text);
 
-protected:
-	void resizeEvent(QResizeEvent *);
+//	QSize sizeHint() const;
 
-private:
-	friend class MacSearchFieldWidget;
-	MacSearchFieldWidget *m_widget;
-	QString m_text;
-};
+//signals:
+//	void textChanged(const QString &text);
+
+//protected:
+//	void resizeEvent(QResizeEvent *);
+
+//private:
+//	friend class MacSearchFieldWidget;
+//	MacSearchFieldWidget *m_widget;
+//	QString m_text;
+//};
 
 #endif // MACSEARCHFIELD_H

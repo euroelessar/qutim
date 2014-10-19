@@ -54,7 +54,7 @@ QStringList MacSpellChecker::suggest(const QString &word) const
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSString* mac_word = [[NSString alloc] initWithUTF8String:word.toUtf8().constData()];
-	NSRange range = {0, word.length()};
+    NSRange range = {0, (NSUInteger)word.length()};
 	NSArray* const array = [[NSSpellChecker sharedSpellChecker] guessesForWordRange:range
 		inString:mac_word
 		language:nil

@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
         qsrand(rd());
     }
 	QApplication app(argc, argv);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
 
