@@ -1,3 +1,11 @@
+Version 0.3.3:
+	* Fixed compilation with the newest cmake
+	* Fixed IRC's whois spam and message splitting
+	* Fixed looking up for libmessaging in indicator plugin
+	* Updated OTR plugin support for version 4.0.0
+	* Removed IRC's auto whois
+	* Removed phonon audio plugin
+
 Version 0.3.2:
 	* Fixed a LOT of errors
 	* Removed a LOT of memory leaks
