@@ -20,7 +20,7 @@
    <item row="0" column="0">
     <widget class="QCheckBox" name="enablePstoIntegration">
      <property name="text">
-      <string>Enable Psto integration</string>
+      <string>Enable Point integration</string>
      </property>
      <property name="checked">
       <bool>true</bool>
