@@ -66,13 +66,14 @@ void BlogImproverHandler::loadSettings()
 
 }
 
-void BlogImproverHandler::doHandle(qutim_sdk_0_3::Message &message, const qutim_sdk_0_3::MessageHandler::Handler &handler)
+BlogImproverHandler::Result BlogImproverHandler::doHandle(Message &message, QString *)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-    if (!session || !session->property("supportJavaScript").toBool() || !message.isIncoming()) {
-		handler(Accept, QString());
-        return;
-    }
+	if (!session || !session->property("supportJavaScript").toBool())
+		return BlogImproverHandler::Accept;
+	if (!message.isIncoming())
+		return BlogImproverHandler::Accept;
+
 
 	static QLatin1Literal jids[] = {
 		QLatin1Literal("p@point.im"),
@@ -106,10 +107,10 @@ void BlogImproverHandler::doHandle(qutim_sdk_0_3::Message &message, const qutim_
 		handleBnw(message);
 		break;
 	default:
-        break;
+        return BlogImproverHandler::Accept;
 	}
 
-    handler(Accept, QString());
+    return BlogImproverHandler::Accept;
 }
 
 void BlogImproverHandler::handlePsto(Message &message)
