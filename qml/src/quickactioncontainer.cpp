@@ -114,9 +114,29 @@ int QuickActionContainer::count() const
     return m_actions.size();
 }
 
+QuickActionContainer::ActionType QuickActionContainer::actionType() const
+{
+    return m_actionType;
+}
+
 QuickAction *QuickActionContainer::item(int index)
 {
     return m_actions.at(index);
+}
+
+void QuickActionContainer::setActionType(QuickActionContainer::ActionType actionType)
+{
+    if (m_actionType == actionType)
+        return;
+
+    if (actionType == AllActions) {
+        m_container.setFilter(ActionContainer::Invalid, QVariant());
+    } else {
+        m_container.setFilter(ActionContainer::TypeMatch, QVariant(int(actionType)));
+    }
+
+    m_actionType = actionType;
+    emit actionTypeChanged(actionType);
 }
 
 } // namespace qutim_sdk_0_3

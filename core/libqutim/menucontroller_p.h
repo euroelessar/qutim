@@ -108,6 +108,8 @@ public:
 	ActionCollection &operator =(const ActionCollection &);
 	
 	void setController(MenuController *controller);
+    MenuController *controller() const;
+
 	const ActionInfoV2 &addAction(const ActionGenerator *generator, const QList<QByteArray> &menu);
 	void addAction(const ActionInfoV2 &info);
 	void removeAction(const ActionInfoV2 &info);

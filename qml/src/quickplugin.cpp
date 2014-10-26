@@ -5,6 +5,7 @@
 #include "quickemoticons.h"
 #include "quickemoticonstheme.h"
 #include "quickimageprovider.h"
+#include "quickavatarprovider.h"
 #include "quickservice.h"
 #include "quickpluginwrapper.h"
 #include "quickactioncontainer.h"
@@ -21,8 +22,9 @@ QuickPlugin::QuickPlugin()
 void QuickPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
     Q_ASSERT(QLatin1String(uri) == QStringLiteral("org.qutim"));
-    
+
     engine->addImageProvider("xdg", new QuickImageProvider);
+    engine->addImageProvider("avatar", new QuickAvatarProvider);
 }
 
 void QuickPlugin::registerTypes(const char *uri)

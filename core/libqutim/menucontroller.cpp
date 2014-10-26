@@ -378,7 +378,12 @@ QMenu *MenuController::menu(bool deleteOnClose) const
 
 void MenuController::showMenu(const QPoint &pos)
 {
-	menu(true)->popup(pos);
+    menu(true)->popup(pos);
+}
+
+void MenuController::showMenu()
+{
+    showMenu(QCursor::pos());
 }
 
 void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
@@ -506,7 +511,12 @@ ActionCollection::ActionCollection(const qutim_sdk_0_3::ActionCollection& other)
 
 void ActionCollection::setController(MenuController *controller)
 {
-	d_func()->setController(controller);
+    d_func()->setController(controller);
+}
+
+MenuController *ActionCollection::controller() const
+{
+    return d_func()->controller;
 }
 
 const ActionInfoV2 &ActionCollection::addAction(const ActionGenerator *generator, const QList<QByteArray> &menu)
@@ -884,12 +894,15 @@ ActionContainer::ActionContainer(MenuController *controller, ActionContainer::Fi
 	Q_D(ActionContainer);
 	d->filter = filter;
 	d->data = data;
-	d->collection = MenuControllerPrivate::get(controller)->actions;
-	d->collection.ref();
-	d->collection.addHandler(d);
-	d->currentSize = 0;
-	for (int i = 0; i < d->collection.size(); ++i)
-		d->currentSize += d->isNice(i);
+
+    if (controller) {
+        d->collection = MenuControllerPrivate::get(controller)->actions;
+        d->collection.ref();
+        d->collection.addHandler(d);
+        d->currentSize = 0;
+        for (int i = 0; i < d->collection.size(); ++i)
+            d->currentSize += d->isNice(i);
+    }
 		
 }
 
@@ -901,7 +914,26 @@ ActionContainer::~ActionContainer()
 		if (d->shown)
 			d->collection.showDeref();
 		d->collection.deref();
-	}
+    }
+}
+
+void ActionContainer::setFilter(ActionContainer::Filter filter, const QVariant &data)
+{
+    Q_D(ActionContainer);
+    MenuController *controller = d->collection.controller();
+
+    if (controller) {
+        // Temporary object to keep actions from death
+        ActionContainer container(controller, filter, data);
+
+        setController(nullptr);
+        d->filter = filter;
+        d->data = data;
+        setController(controller);
+    } else {
+        d->filter = filter;
+        d->data = data;
+    }
 }
 
 void ActionContainer::setController(MenuController *controller)

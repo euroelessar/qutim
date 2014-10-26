@@ -82,7 +82,11 @@ public:
 	QVariant getIcon() const { return icon; }
 	void setIcon(const QVariant &val) { icon = val.value<QIcon>(); }
 	QVariant getType() const { return type; }
-	void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
+    void setType(const QVariant &val)
+    {
+        type = static_cast<Status::Type>(val.toInt());
+        Q_ASSERT(type >= Status::Connecting && type <= Status::Offline);
+    }
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
 	QVariant getChangeReason() const { return QVariant::fromValue(changeReason); }
@@ -184,6 +188,7 @@ void StatusPrivate::generateName()
 
 Status::Status(Type type) : d(get_status_private(type))
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 }
 
 Status::Status(const Status &other) : d(other.d)
@@ -198,6 +203,7 @@ Status &Status::operator =(const Status &other)
 
 Status &Status::operator =(Status::Type type)
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 	d = get_status_private(type);
 	return *this;
 }
@@ -248,6 +254,7 @@ Status::Type Status::type() const
 
 void Status::setType(Status::Type type)
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 	d->type = type;
 	d->subtype = 0;
 	QSharedDataPointer<StatusPrivate> p = get_status_private(type);
@@ -441,6 +448,8 @@ QEvent::Type ExtendedInfosEvent::eventType()
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 {
 	switch (status) {
+    case qutim_sdk_0_3::Status::Connecting:
+        return dbg << "Status::Connecting";
 	case qutim_sdk_0_3::Status::Online:
 		return dbg << "Status::Online";
 	case qutim_sdk_0_3::Status::FreeChat:
@@ -455,7 +464,9 @@ QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 		return dbg << "Status::Invisible";
 	case qutim_sdk_0_3::Status::Offline:
 		return dbg << "Status::Offline";
-	default:
+    default:
+        qDebug() << "Invalid status:" << int(status);
+        Q_ASSERT(false);
 		return dbg << "Status::Unknown";
 	}
 }

@@ -29,6 +29,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/debug.h>
 #include <QFormLayout>
+#include <QCoreApplication>
 #include <qutim/icon.h>
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
@@ -71,6 +72,7 @@ void IconLoaderSettings::saveImpl()
 	QString themeId = m_box->itemData(m_box->currentIndex()).toString();
 	Config().group("appearance").setValue("theme", themeId);
 	iconManager()->setCurrentTheme(themeId);
+    QIcon::setThemeName(themeId);
 }
 
 void IconLoaderSettings::cancelImpl()
@@ -86,6 +88,7 @@ void IconLoaderSettings::onCurrentIndexChanged(int index)
 IconLoaderImpl::IconLoaderImpl()
 {
     QStringList themeSearchPaths = QIcon::themeSearchPaths();
+    themeSearchPaths << QCoreApplication::applicationDirPath();
     themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
     themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
     QIcon::setThemeSearchPaths(themeSearchPaths);
@@ -148,6 +151,7 @@ void IconLoaderImpl::onSettingsChanged()
 			theme = iconManager()->themeById(themes.at(qrand() % themes.size()));
 	}
 	iconManager()->setCurrentTheme(theme->id());
+    QIcon::setThemeName(theme->id());
 }
 
 void IconLoaderImpl::initSettings()

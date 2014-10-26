@@ -3,7 +3,6 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,43 +22,45 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#include <cstdlib>
-#include <ctime>
-#include <random>
 
-#include <QApplication>
-#include <QTextCodec>
-#include <QWidget>
-#include <QTime>
-#include <QOpenGLContext>
+#ifndef CHATMESSAGEMODEL_H
+#define CHATMESSAGEMODEL_H
 
-#include "src/widgets/modulemanagerimpl.h"
+#include <QAbstractListModel>
+#include <qutim/message.h>
 
-#if defined(STATIC_IMAGE_PLUGINS)
-Q_IMPORT_PLUGIN(qjpeg)
-Q_IMPORT_PLUGIN(qgif)
-#endif
-
-Q_GUI_EXPORT void qt_gl_set_global_share_context(QOpenGLContext *context);
-
-int main(int argc, char *argv[])
+namespace QuickChat
 {
-    {
-        std::random_device rd;
-        srand(rd());
-        qsrand(rd());
-    }
-	QApplication app(argc, argv);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+class ChatMessageModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    explicit ChatMessageModel(QObject *parent = 0);
 
-    QOpenGLContext context;
-    context.create();
+	void append(qutim_sdk_0_3::Message &msg);
+	bool eventFilter(QObject *, QEvent *);
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QHash<int, QByteArray> roleNames() const;
+	
+signals:
 
-    qt_gl_set_global_share_context(&context);
+public slots:
 
-	Core::ModuleManagerImpl core;
-	Q_UNUSED(core);
+private:
+	QString createSenderName(const qutim_sdk_0_3::Message &msg) const;
+	struct Item
+	{
+		QString plainText;
+		QString richText;
+	};
+	QList<Item> m_items;
 
-	return app.exec();
+	QList<qutim_sdk_0_3::Message> m_messages;
+};
 }
+
+#endif // CHATMESSAGEMODEL_H
 

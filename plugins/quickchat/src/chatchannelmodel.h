@@ -3,7 +3,6 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
-** Copyright © 2011 Aleksey Sidorov <gorthauer87@yandex.ru>
 **
 *****************************************************************************
 **
@@ -23,43 +22,39 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#include <cstdlib>
-#include <ctime>
-#include <random>
 
-#include <QApplication>
-#include <QTextCodec>
-#include <QWidget>
-#include <QTime>
-#include <QOpenGLContext>
+#ifndef CHATCHANNELMODEL_H
+#define CHATCHANNELMODEL_H
 
-#include "src/widgets/modulemanagerimpl.h"
+#include <QAbstractListModel>
+#include <qutim/chatsession.h>
 
-#if defined(STATIC_IMAGE_PLUGINS)
-Q_IMPORT_PLUGIN(qjpeg)
-Q_IMPORT_PLUGIN(qgif)
-#endif
-
-Q_GUI_EXPORT void qt_gl_set_global_share_context(QOpenGLContext *context);
-
-int main(int argc, char *argv[])
+namespace QuickChat
 {
-    {
-        std::random_device rd;
-        srand(rd());
-        qsrand(rd());
-    }
-	QApplication app(argc, argv);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+class ChatChannelModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    explicit ChatChannelModel(QObject *parent = 0);
+	
+	// QAbstractListModel
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QHash<int, QByteArray> roleNames() const;
 
-    QOpenGLContext context;
-    context.create();
+signals:
 
-    qt_gl_set_global_share_context(&context);
+public slots:
 
-	Core::ModuleManagerImpl core;
-	Q_UNUSED(core);
-
-	return app.exec();
+private slots:
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionUnreadChanged();
+	void onSessionDeath(QObject *object);
+	
+private:
+	QList<qutim_sdk_0_3::ChatSession*> m_sessions;
+};
 }
+
+#endif // CHATCHANNELMODEL_H
 

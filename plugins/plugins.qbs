@@ -35,6 +35,7 @@ Project {
         "quickcontactlist/quickcontactlist.qbs",
         "indicator/indicator.qbs",
         "winintegration/winintegration.qbs",
-        "keychain/keychain.qbs"
+        "keychain/keychain.qbs",
+        "quickchat/quickchat.qbs",
     ]
 }

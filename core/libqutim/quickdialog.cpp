@@ -138,7 +138,7 @@ bool QuickDialog::isVisible()
 
 void QuickDialog::show()
 {
-	setVisible(true);
+    setVisible(true);
 }
 
 void QuickDialog::hide()

@@ -412,20 +412,20 @@ Jreen::PubSub::Manager *JAccount::pubSubManager()
 
 void JAccount::doConnectToServer()
 {
-	Q_D(JAccount);
+    Q_D(JAccount);
 
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
 	d->client->setProxy(proxy);
-	if (d->passwordDialog) {
+    if (d->passwordDialog) {
 		/* nothing */
-	} else if(d->client->password().isEmpty()) {
-		d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
-			if (result.error == KeyChain::NoError) {
+    } else if(d->client->password().isEmpty()) {
+        d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
+            if (result.error == KeyChain::NoError) {
 				d->onPasswordReceived(result.textData);
-			} else if (!d->passwordDialog) {
+            } else if (!d->passwordDialog) {
 				d->passwordDialog = PasswordDialog::request(this);
 
-				connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
+                connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
 					Q_ASSERT(sender() == d->passwordDialog.data());
 					d->passwordDialog->deleteLater();
 
@@ -442,7 +442,7 @@ void JAccount::doConnectToServer()
 				});
 			}
 		});
-	} else {
+    } else {
 		d->client->connectToServer();
 	}
 }

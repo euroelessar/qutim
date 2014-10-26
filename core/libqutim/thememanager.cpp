@@ -91,13 +91,7 @@ QStringList ThemeManager::list(const QString &category)
 		theme_list << listThemes(dir, category);
 	foreach (const QDir &dir, data()->categoryPaths.values(category))
 		theme_list << listThemes(dir, category);
-	theme_list.removeDuplicates();
-	qDebug() << "ThemeManager::list, category:" << category
-			 << "themes:" << theme_list
-			 << "dirs:" << convertToPaths(QList<QDir>() << SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir)
-							<< SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir)
-							<< data()->paths
-							<< data()->categoryPaths.values(category));
+    theme_list.removeDuplicates();
 	return theme_list;
 }
 

@@ -1,5 +1,6 @@
 #include "keychainservice.h"
 #include <qt5keychain/keychain.h>
+#include <QThread>
 
 namespace KeyChain {
 

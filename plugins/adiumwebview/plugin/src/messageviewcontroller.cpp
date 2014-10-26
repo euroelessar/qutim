@@ -151,7 +151,7 @@ int MessageViewController::defaultFontSize() const
 
 void MessageViewController::setHtml(const QString &html)
 {
-    emit htmlRequested(html);
+    emit htmlRequested(html, m_style.baseUrl());
 }
 
 //bool MessageViewController::eventFilter(QObject *obj, QEvent *ev)
