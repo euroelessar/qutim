@@ -25,6 +25,8 @@
 ****************************************************************************/
 
 #include "bearermanager.h"
+#include "accountserver.h"
+
 #include <QNetworkConfigurationManager>
 #include <QNetworkConfiguration>
 
@@ -34,40 +36,52 @@
 #include <qutim/debug.h>
 #include <qutim/utils.h>
 #include <qutim/notification.h>
+#include <qutim/accountmanager.h>
 
-#include <QTimer>
+#define BEARER_PROPERTY "qutim_bearer_server"
 
 using namespace qutim_sdk_0_3;
 
 BearerManager::BearerManager() :
-	m_confManager(new QNetworkConfigurationManager(this))
+    m_confManager(new QNetworkConfigurationManager(this)), m_isOnline(false)
 {
-
 }
 
 void BearerManager::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Service", "BearerManager"),
 			QT_TRANSLATE_NOOP("Service", "Connection manager"),
-			PLUGIN_VERSION(0, 0, 1, 0));
+            PLUGIN_VERSION(0, 0, 2, 0));
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("Sauron"));
 	addAuthor(QLatin1String("trett"));
+    addAuthor(QLatin1String("euroelessar"));
 }
 
 bool BearerManager::load()
 {
 	m_isOnline = m_confManager->isOnline();
 
-	foreach (Protocol *p, Protocol::all()) {
-		connect(p, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-		connect(p, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-				this, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+    auto onAccountAdded = [this] (Account *account) {
+        Q_ASSERT(account->property(BEARER_PROPERTY).isNull());
+        Bearer::AccountServer *server = new Bearer::AccountServer(account);
+        connect(this, &BearerManager::onlineStateChanged,
+                server, &Bearer::AccountServer::setOnline);
+        account->setProperty(BEARER_PROPERTY, QVariant::fromValue(server));
+        server->setOnline(isNetworkOnline());
+    };
 
-		foreach (Account *a, p->accounts())
-			onAccountCreated(a);
-	}
+    AccountManager *manager = AccountManager::instance();
+    connect(manager, &AccountManager::accountAdded, this, onAccountAdded);
+    connect(manager, &AccountManager::accountRemoved, this, [this] (Account *account) {
+        auto server = account->property(BEARER_PROPERTY).value<Bearer::AccountServer *>();
+        Q_ASSERT(server);
+        account->setProperty(BEARER_PROPERTY, QVariant());
+        delete server;
+    });
+
+    foreach (Account *account, manager->accounts())
+        onAccountAdded(account);
 
 	connect(m_confManager, SIGNAL(onlineStateChanged(bool)), SLOT(onOnlineStatusChanged(bool)));
 
@@ -75,8 +89,7 @@ bool BearerManager::load()
 	if (!list.count()) {
 		Notification::send(tr("Unable to find any network configuration. "
 							  "Perhaps Qt or QtMobility network bearer configured incorrectly. "
-							  "Bearer manager will not work properly, refer to your distribution maintainer."));
-		return false;
+                              "Bearer manager will not work properly, refer to your distribution maintainer."));
 	}
 	return true;
 }
@@ -90,95 +103,18 @@ void BearerManager::onOnlineStatusChanged(bool isOnline)
 {
 	if (m_isOnline == isOnline)
 		return;
-	m_isOnline = isOnline;
+    m_isOnline = isOnline;
 
-	StatusHash::const_iterator it = m_statusHash.constBegin();
-	for (; it != m_statusHash.constEnd(); it++) {
-		Account *account = it.key();
-		Status status = it.value();
-		if (isOnline) {
-			account->setUserStatus(status);
-		} else {
-			status.setType(Status::Offline);
-			status.setChangeReason(Status::ByNetworkError);
-			account->setUserStatus(status);
-		}
-	}
-	emit onlineStateChanged(isOnline);
+    qDebug() << "onlineStatusChanged, online:" << isOnline << ", network online:" << isNetworkOnline();
 
-}
-
-void BearerManager::onAccountCreated(qutim_sdk_0_3::Account *account)
-{
-	Config config = account->config();
-	Status status = config.value("lastStatus", Status(Status::Online));
-	
-	qDebug() << account->id() << "is created with status" << status;
-
-	bool isOnline = isNetworkOnline();
-
-	m_statusHash.insert(account, status);
-	if (isOnline && status != Status::Offline)
-		account->setUserStatus(status);
-
-	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status, qutim_sdk_0_3::Status)),
-			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-}
-
-void BearerManager::onStatusChanged(qutim_sdk_0_3::Status status)
-{
-	Account *account = sender_cast<Account*>(sender());
-
-	if (status == Status::Connecting) {
-		status = status.connectingGoal();
-		qDebug() << account->id() << "is connecting";
-	}
-	
-	if (status.changeReason() == Status::ByUser) {
-		qDebug() << account->id() << "changed status to" << status << "by user";
-		m_statusHash.insert(account, status);
-		account->config().setValue("lastStatus", status);
-		return;
-	}
-	if (!m_confManager->isOnline()) {
-		qDebug() << account->id() << "changed status to" << status << "by network error";
-		m_timer.start(60000, this);
-	}
+    emit onlineStateChanged(isNetworkOnline());
 }
 
 bool BearerManager::isNetworkOnline() const
 {
 	return m_confManager->isOnline()
 			// We don't have any bearer backend
-			|| !m_confManager->allConfigurations().count();
-}
-
-void BearerManager::onAccountDestroyed(QObject* obj)
-{
-	onAccountRemoved(static_cast<Account*>(obj));
-}
-
-void BearerManager::onAccountRemoved(qutim_sdk_0_3::Account *account)
-{
-	m_statusHash.remove(account);
-}
-
-void BearerManager::timerEvent(QTimerEvent *event)
-{
-	if (event->timerId() == m_timer.timerId()) {
-	bool anyOfflineAccount = false;
-		foreach (Protocol *p, Protocol::all()) {
-			foreach (Account *a, p->accounts()) {
-				Status status = a->config().value("lastStatus", Status(Status::Online));
-				if (status != Status::Offline && a->status() == Status::Offline)
-					a->setUserStatus(status);
-					anyOfflineAccount = true;
-			}
-		}
-		if (!anyOfflineAccount)
-		m_timer.stop();
-	}
+            || m_confManager->allConfigurations().isEmpty();
 }
 
 QUTIM_EXPORT_PLUGIN(BearerManager)

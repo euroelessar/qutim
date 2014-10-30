@@ -29,14 +29,11 @@
 #include <QObject>
 #include <QHash>
 #include <qutim/status.h>
+#include <qutim/account.h>
 #include <QScopedPointer>
 #include <QBasicTimer>
 #include <QDateTime>
 #include <plugin.h>
-
-namespace qutim_sdk_0_3 {
-class Account;
-}
 
 typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
 
@@ -52,31 +49,19 @@ public:
 	explicit BearerManager();
 	void init();
 	bool load();
-	bool unload();
-
-	void timerEvent(QTimerEvent *event);
+    bool unload();
 
 signals:
 	void onlineStateChanged(bool isOnline);
 
 private slots:
-	void onOnlineStatusChanged(bool isOnline);
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onAccountRemoved(qutim_sdk_0_3::Account *account);
-	void onAccountDestroyed(QObject *obj);
-	void onStatusChanged(qutim_sdk_0_3::Status status);
+    void onOnlineStatusChanged(bool isOnline);
 
 private:	
-	bool isNetworkOnline() const;
-	void changeStatus(qutim_sdk_0_3::Account *a,
-					  const qutim_sdk_0_3::Status::Type &status);
+    bool isNetworkOnline() const;
 
-	typedef QPair<uint, qutim_sdk_0_3::Account*> ReconnectInfo;
-
-	QBasicTimer m_timer;
 	bool m_isOnline;
-	QNetworkConfigurationManager *m_confManager;
-	StatusHash m_statusHash;
+    QNetworkConfigurationManager *m_confManager;
 };
 
 #endif // BEARERMANAGER_H
