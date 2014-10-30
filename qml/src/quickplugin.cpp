@@ -9,6 +9,7 @@
 #include "quickservice.h"
 #include "quickpluginwrapper.h"
 #include "quickactioncontainer.h"
+#include "quickactionextender.h"
 #include <qutim/notification.h>
 #include <qutim/chatsession.h>
 #include <qqml.h>
@@ -46,7 +47,9 @@ void QuickPlugin::registerTypes(const char *uri)
     qmlRegisterType<QuickPluginWrapper>("org.qutim", 0, 4, "Plugin");
     qmlRegisterType<QuickActionContainer>("org.qutim", 0, 4, "ActionContainer");
     qmlRegisterType<QuickAction>("org.qutim", 0, 4, "Action");
+    qmlRegisterType<QuickActionExtender>("org.qutim", 0, 4, "ActionListExtender");
     qmlRegisterUncreatableType<ChatUnit>("org.qutim", 0, 4, "ChatUnit", "ChatUnit is pure virtual class");
     qmlRegisterUncreatableType<ChatSession>("org.qutim", 0, 4, "ChatSession", "ChatSession is pure virtual class");
+    qmlRegisterUncreatableType<MenuController>("org.qutim", 0, 4, "MenuController", "MenuController is pure virtual class");
 }
 }

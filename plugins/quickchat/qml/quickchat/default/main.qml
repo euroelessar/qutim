@@ -3,11 +3,11 @@ import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Window 2.1
-import org.qutim 0.4
+import org.qutim 0.4 as Qutim
 import org.qutim.quickchat 0.4
 import 'logic.js' as Logic
 
-ApplicationWindow {
+BaseWindow {
     id: window
 
     height: 600
@@ -19,62 +19,10 @@ ApplicationWindow {
         var tab = tabs.getTab(tabs.currentIndex);
         var model = tab && tab.item && tab.item.model;
         console.log(tabs.currentIndex, tab, tab && tab.item, model);
-        toolBarRepeater.model = model;
+        window.toolBarModel = model;
     }
 
-    Component {
-        id: toolButtonComponent
-
-        ToolButton {
-            id: button
-            checkable: modelAction.checkable
-            checked: modelAction.checked
-            iconName: modelAction.iconName
-            text: modelAction.text
-            tooltip: modelAction.tooltip
-            Connections {
-                target: modelAction
-                onCheckedChanged: button.checked = modelAction.checked
-            }
-            onClicked: modelAction.isCheckable ? modelAction.trigger() : modelAction.trigger()
-        }
-    }
-
-    toolBar: ToolBar {
-        id: toolBar
-
-        RowLayout {
-            anchors.fill: parent
-
-            ToolButton {
-                anchors.verticalCenter: parent.verticalCenter
-                iconName: "insert-text-quote"
-                text: qsTr("Quote")
-                tooltip: qsTr("Quote")
-            }
-
-            ToolButton {
-                iconName: "edit-clear-list"
-                text: qsTr("Clear chat")
-                tooltip: qsTr("Clear chat")
-            }
-
-            RowLayout {
-                Repeater {
-                    id: toolBarRepeater
-                    delegate: toolButtonComponent
-                }
-            }
-
-            Rectangle {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                color: "#ff0000"
-            }
-        }
-    }
-
-    Service {
+    Qutim.Service {
         id: chatLayer
         name: "ChatLayer"
     }

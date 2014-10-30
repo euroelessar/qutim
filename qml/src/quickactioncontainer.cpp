@@ -17,12 +17,10 @@ QuickAction *create(QAction *action)
         result->setChecked(action->isChecked());
         result->setShortcut(action->shortcut());
         result->setVisible(action->isVisible());
+        result->setSeparator(action->isSeparator());
     };
 
-    QMetaObject::Connection connection = QObject::connect(action, &QAction::changed, onChanged);
-    QObject::connect(result, &QObject::destroyed, [connection] () {
-        qApp->disconnect(connection);
-    });
+    QObject::connect(action, &QAction::changed, result, onChanged);
     QObject::connect(result, &QuickAction::triggered, action, &QAction::trigger);
 
     onChanged();

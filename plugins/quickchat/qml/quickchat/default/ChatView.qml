@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.0
-import org.qutim 0.4
+import org.qutim 0.4 as Qutim
 
 SplitView {
     id: root
@@ -9,21 +9,51 @@ SplitView {
     property alias session: messagesView.session
     readonly property ListModel model: actionsModel
 
-    ActionContainer {
+    Qutim.Action {
+        id: quoteAction
+        iconName: "insert-text-quote"
+        text: qsTr("Quote")
+        tooltip: qsTr("Quote")
+    }
+
+    Qutim.Action {
+        id: clearAction
+        iconName: "edit-clear-list"
+        text: qsTr("Clear chat")
+        tooltip: qsTr("Clear chat")
+    }
+
+    Qutim.Action {
+        id: separatorAction
+        separator: true
+    }
+
+    readonly property int actions_count: 3
+
+    Qutim.ActionContainer {
         id: actionContainer
         visible: root.visible
-        actionType: ActionContainer.ChatButton
+        actionType: Qutim.ActionContainer.ChatButton
         controller: session ? session.unit : null
 
         onActionAdded: {
-            console.log('action added', index, action.iconName, action.text, action)
-            actionsModel.insert(index, { modelAction: action })
+            console.log('!!! add', actions_count + index, action.text)
+            actionsModel.insert(actions_count + index, { modelAction: action })
         }
-        onActionRemoved: actionsModel.remove(index)
+        onActionRemoved: {
+            console.log('!!! remove', actions_count + index, action.text)
+            actionsModel.remove(actions_count + index)
+        }
     }
 
     ListModel {
         id: actionsModel
+        Component.onCompleted: {
+            console.log('!!! append 3 items');
+            append({ modelAction: quoteAction });
+            append({ modelAction: clearAction });
+            append({ modelAction: separatorAction });
+        }
     }
 
     Connections {

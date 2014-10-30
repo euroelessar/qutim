@@ -7,5 +7,8 @@ UreenPlugin {
     cpp.frameworks: [ "Cocoa" ]
 
     Depends { name: "qutim-simplecontactlist" }
-    Depends { name: "Qt.macextras" }
+    Depends {
+        condition: qbs.targetOS.contains('osx')
+        name: "Qt.macextras"
+    }
 }

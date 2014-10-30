@@ -4,7 +4,7 @@
 namespace qutim_sdk_0_3 {
 
 QuickAction::QuickAction(QObject *parent) :
-    QObject(parent), m_enabled(true), m_checkable(false), m_checked(false)
+    QObject(parent), m_enabled(true), m_checkable(false), m_checked(false), m_separator(false)
 {
 }
 
@@ -56,6 +56,11 @@ QVariant QuickAction::shortcut() const
 bool QuickAction::isVisible() const
 {
     return m_visible;
+}
+
+bool QuickAction::isSeparator() const
+{
+    return m_separator;
 }
 
 void QuickAction::setText(const QString &arg)
@@ -148,6 +153,15 @@ void QuickAction::setVisible(bool arg)
         m_visible = arg;
         emit visibleChanged(arg);
     }
+}
+
+void QuickAction::setSeparator(bool arg)
+{
+    if (m_separator == arg)
+        return;
+
+    m_separator = arg;
+    emit separatorChanged(arg);
 }
 
 void QuickAction::trigger()

@@ -1,15 +1,12 @@
 import QtQuick 2.0
 import QtWebEngine 1.0
-import QtWebEngine.experimental 1.0
 import org.qutim.quickchat 0.4
 
 WebEngineView {
     id: webEngineView
-    experimental {
-        inspectable: true
-    }
 
     property alias session: controller.session
+    url: 'http://qutim.org/'
 
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
@@ -32,6 +29,12 @@ WebEngineView {
             for (var i = 0; i < scripts.length; ++i) {
                 runJavaScript(scripts[i]);
             }
+        }
+    }
+    onNavigationRequested: {
+        if (request.navigationType === WebEngineView.LinkClickedNavigation) {
+            request.action = WebEngineView.IgnoreRequest;
+            Qt.openUrlExternally(request.url);
         }
     }
     onJavaScriptConsoleMessage: {

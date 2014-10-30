@@ -31,6 +31,7 @@
 #include <qutim/config.h>
 #include <QApplication>
 #include <QLabel>
+#include <qutim/iconloader.h>
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSDockTile.h>
@@ -82,9 +83,9 @@ MacDock::MacDock() : d_ptr(new MacDockPrivate())
 	Q_D(MacDock);
 	d->standartIcon = Icon("qutim-online");
 	d->offlineIcon = Icon("qutim-offline");
-	d->standartTrayIcon = Icon("qutim-online-mono");
-	d->offlineTrayIcon = Icon("qutim-offline-mono");
-	d->mailIcon = Icon("qutim-message-new-mono");
+    d->standartTrayIcon = Icon("qutim-online-mono");
+    d->offlineTrayIcon = Icon("qutim-offline-mono");
+    d->mailIcon = Icon("qutim-message-new-mono");
 	createDockDeps();
 	d->tray = 0;
 	loadSettings();
@@ -328,7 +329,7 @@ void MacDock::setStatusIcon()
 			if (type != globalStatus)
 				isStatusGlobal = false;
 		}
-	}
+    }
 	if (isOnline) {
 		qApp->setWindowIcon(d->standartIcon);
 		if (d->isTrayAvailable) {
@@ -341,7 +342,7 @@ void MacDock::setStatusIcon()
 			d->tray->setIcon(d->offlineTrayIcon);
 			d->currentTrayIcon = &d->offlineTrayIcon;
 		}
-	}
+    }
 	if (isStatusGlobal) {
 		foreach(QAction *action, d->statusGroups.value(d->dockMenu)->actions()) {
 			Status::Type type = static_cast<Status::Type>(action->data().value<int>());

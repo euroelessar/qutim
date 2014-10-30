@@ -73,7 +73,7 @@ Product {
     }
     Group {
         name: "ObjectiveC sources [osx]"
-        condition: qbs.targetOS.concat("osx")
+        condition: qbs.targetOS.contains("osx")
         prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
     }

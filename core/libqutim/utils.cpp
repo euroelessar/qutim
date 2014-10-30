@@ -539,7 +539,7 @@ namespace qutim_sdk_0_3
 	
 	QString UrlParser::parseUrls(const QString &text, Flags flags)
 	{
-		const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
+        const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
 		QString html;
 		foreach (const UrlToken &token, tokenize(text, flags)) {
 			if (token.url.isEmpty()) {

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QQmlParserStatus>
 #include <qutim/menucontroller.h>
-#include "quickaction.h"
+#include <qutim/quickaction.h>
 
 namespace qutim_sdk_0_3 {
 

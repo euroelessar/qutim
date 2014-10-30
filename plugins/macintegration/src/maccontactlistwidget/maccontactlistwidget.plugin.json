@@ -3,5 +3,8 @@
     "pluginName": "Mac Contactlist",
     "pluginDescription": "Mac OS X contactlist",
     "extensionHeader": "macwidget.h",
-    "extensionClass": "Core::SimpleContactList::MacWidget"
+    "extensionClass": "Core::SimpleContactList::MacWidget",
+    "qmlTypes": {
+        "quickmactoolbar.h": "Core::QuickMacToolBar::registerTypes();"
+    }
 }
