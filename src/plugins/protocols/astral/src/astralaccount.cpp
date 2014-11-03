@@ -26,9 +26,9 @@
 #include "astralprotocol.h"
 #include "astralroster.h"
 #include "astralsessionmanager.h"
-#include <TelepathyQt4/Account>
-#include <TelepathyQt4/AccountManager>
-#include <TelepathyQt4/PendingChannel>
+#include <TelepathyQt/Account>
+#include <TelepathyQt/AccountManager>
+#include <TelepathyQt/PendingChannel>
 #include <QDebug>
 
 struct AstralAccountPrivate
@@ -146,14 +146,14 @@ void AstralAccount::onNewChannels(const Tp::ChannelDetailsList &channels)
 	qDebug() << "AstralAccount::onNewChannels";
 	foreach (const Tp::ChannelDetails &details, channels)
 	{
-		QString channelType = details.properties.value(QLatin1String(TELEPATHY_INTERFACE_CHANNEL ".ChannelType")).toString();
-		bool requested = details.properties.value(QLatin1String(TELEPATHY_INTERFACE_CHANNEL ".Requested")).toBool();
+		QString channelType = details.properties.value(TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")).toString();
+		bool requested = details.properties.value(TP_QT_IFACE_CHANNEL + QLatin1String(".Requested")).toBool();
 		qDebug() << " channelType:" << channelType;
 		qDebug() << " requested  :" << requested;
 		qDebug() << " channelPath:" << details.channel.path();
 		qDebug() << " properties :" << details.properties;
 
-		if (channelType == TELEPATHY_INTERFACE_CHANNEL_TYPE_TEXT && !requested)
+		if (channelType == TP_QT_IFACE_CHANNEL_TYPE_TEXT && !requested)
 		{
 			TextChannelPtr channel = TextChannel::create(p->conn,
 														 details.channel.path(),

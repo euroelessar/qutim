@@ -24,9 +24,9 @@
 ****************************************************************************/
 #include "astralplugin.h"
 #include <QtCore/QtDebug>
-#include <TelepathyQt4/Debug>
-#include <TelepathyQt4/Constants>
-#include <TelepathyQt4/Types>
+#include <TelepathyQt/Debug>
+#include <TelepathyQt/Constants>
+#include <TelepathyQt/Types>
 //#include <TelepathyQt4/ConnectionInterfaceAvatarsInterface>
 
 AstralPlugin::AstralPlugin()

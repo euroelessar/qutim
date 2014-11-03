@@ -24,13 +24,13 @@
 ****************************************************************************/
 #include "astralroster.h"
 #include "astralaccount.h"
-#include <TelepathyQt4/Types>
-#include <TelepathyQt4/Contact>
-#include <TelepathyQt4/ContactManager>
-#include <TelepathyQt4/PendingConnection>
-#include <TelepathyQt4/PendingContacts>
-#include <TelepathyQt4/PendingOperation>
-#include <TelepathyQt4/PendingReady>
+#include <TelepathyQt/Types>
+#include <TelepathyQt/Contact>
+#include <TelepathyQt/ContactManager>
+#include <TelepathyQt/PendingConnection>
+#include <TelepathyQt/PendingContacts>
+#include <TelepathyQt/PendingOperation>
+#include <TelepathyQt/PendingReady>
 
 struct AstralRosterPrivate
 {
