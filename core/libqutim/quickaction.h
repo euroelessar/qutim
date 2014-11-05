@@ -6,9 +6,11 @@
 #include <QVariant>
 #include <QUrl>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3 {
 
-class QuickAction : public QObject
+class LIBQUTIM_EXPORT QuickAction : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)

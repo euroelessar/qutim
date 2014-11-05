@@ -65,9 +65,9 @@ void AccountsModel::onAccountCreated(Account *account)
 {
 	connect(account, &Account::nameChanged, this, &AccountsModel::onAccountNameChanged);
 	connect(account, &Account::statusChanged, this, &AccountsModel::onAccountStatusChanged);
-	connect(account, &Account::interfaceChanged, this, [this] (const QByteArray &name, QObject *interface) {
+	connect(account, &Account::featureChanged, this, [this] (const QByteArray &name, QObject *feature) {
 		if (name == "GroupChatManager") {
-			onGroupChatManagerChanged(qobject_cast<GroupChatManager *>(interface));
+			onGroupChatManagerChanged(qobject_cast<GroupChatManager *>(feature));
 		}
 	});
 	if (account->groupChatManager())

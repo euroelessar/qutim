@@ -44,7 +44,7 @@ class Buddy;
 class LIBQUTIM_EXPORT InfoRequestFactory : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Interface", "InfoRequestFactory")
+	Q_CLASSINFO("Feature", "InfoRequestFactory")
 public:
 	enum SupportLevel {
 		NotSupported,

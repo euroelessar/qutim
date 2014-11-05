@@ -38,7 +38,7 @@ class GroupChatManagerPrivate;
 class LIBQUTIM_EXPORT GroupChatManager : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Interface", "GroupChatManager")
+	Q_CLASSINFO("Feature", "GroupChatManager")
 public:
 	/**
 		Constructs a new GroupChatManager with the given \a account.

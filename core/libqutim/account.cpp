@@ -32,6 +32,8 @@
 #include "inforequest.h"
 #include "metaobjectbuilder.h"
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3
 {
 
@@ -242,14 +244,14 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 	return argument.reconnectionRequired;
 }
 
-QObject *Account::interface(const QMetaObject *meta)
+QObject *Account::feature(const QMetaObject *meta)
 {
 	Q_D(Account);
 
-	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+	QByteArray name = MetaObjectBuilder::info(meta, "Feature");
 
 	if (name.isEmpty()) {
-		qWarning() << "Interface name is missed at class:" << meta->className();
+		qWarning() << "Feature name is missed at class:" << meta->className();
 		return nullptr;
 	}
 
@@ -266,19 +268,19 @@ QObject *Account::interface(const QMetaObject *meta)
 	return result;
 }
 
-void Account::setInterface(const QMetaObject *meta, QObject *interface)
+void Account::setFeature(const QMetaObject *meta, QObject *feature)
 {
 	Q_D(Account);
 
-	std::unique_ptr<QObject> tmp(interface);
-	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+	std::unique_ptr<QObject> tmp(feature);
+	QByteArray name = MetaObjectBuilder::info(meta, "Feature");
 
 	if (name.isEmpty()) {
-		qWarning() << "Interface name is missed at class:" << meta->className();
+		qWarning() << "Feature name is missed at class:" << meta->className();
 		return;
 	}
 
-	qDebug() << "Setting" << interface << "as" << name << "for" << this;
+	qDebug() << "Setting" << feature << "as" << name << "for" << this;
 
 	auto it = d->interfaces.find(name);
 	if (it == d->interfaces.end()) {
@@ -291,37 +293,37 @@ void Account::setInterface(const QMetaObject *meta, QObject *interface)
 	// FIXME: Fix memory ownership
 	tmp.release();
 
-	emit interfaceChanged(name, current.object.get());
+	emit featureChanged(name, current.object.get());
 }
 
 GroupChatManager *Account::groupChatManager()
 {
-	return interface<GroupChatManager>();
+	return feature<GroupChatManager>();
 }
 
 ContactsFactory *Account::contactsFactory()
 {
-	return interface<ContactsFactory>();
+	return feature<ContactsFactory>();
 }
 
 InfoRequestFactory *Account::infoRequestFactory()
 {
-	return interface<InfoRequestFactory>();
+	return feature<InfoRequestFactory>();
 }
 
 void Account::resetGroupChatManager(GroupChatManager *manager)
 {
-	setInterface<GroupChatManager>(manager);
+	setFeature<GroupChatManager>(manager);
 }
 
 void Account::setContactsFactory(ContactsFactory *factory)
 {
-	setInterface<ContactsFactory>(factory);
+	setFeature<ContactsFactory>(factory);
 }
 
 void Account::setInfoRequestFactory(InfoRequestFactory *factory)
 {
-	setInterface<InfoRequestFactory>(factory);
+	setFeature<InfoRequestFactory>(factory);
 }
 
 void Account::setEffectiveStatus(const Status &status)

@@ -5,11 +5,13 @@
 #include <QString>
 #include <QScopedPointer>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3 {
 
 class QuickDialogPrivate;
 
-class QuickDialog : public QObject
+class LIBQUTIM_EXPORT QuickDialog : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(QuickDialog)
