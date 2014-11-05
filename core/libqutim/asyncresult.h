@@ -9,6 +9,8 @@
 #include <vector>
 #include <functional>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3 {
 
 template <typename... Args>
@@ -16,7 +18,7 @@ class AsyncResult;
 
 namespace Detail {
 
-class Callback : public std::function<void ()>
+class LIBQUTIM_EXPORT Callback : public std::function<void ()>
 {
 public:
 	Callback()
@@ -43,7 +45,7 @@ public:
 	}
 };
 
-class AsyncInvoker : public QObject
+class LIBQUTIM_EXPORT AsyncInvoker : public QObject
 {
 	Q_OBJECT
 public:
@@ -55,7 +57,7 @@ public slots:
 };
 
 template <typename... Args>
-class AsyncResultData
+class LIBQUTIM_EXPORT AsyncResultData
 {
 	typedef std::tuple<Args...> Tuple;
 	typedef std::shared_ptr<Tuple> TuplePtr;

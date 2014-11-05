@@ -38,7 +38,7 @@ class Account;
 class LIBQUTIM_EXPORT ContactsFactory : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Interface", "ContactsFactory")
+	Q_CLASSINFO("Feature", "ContactsFactory")
 public:
 	ContactsFactory();
 	virtual ~ContactsFactory();

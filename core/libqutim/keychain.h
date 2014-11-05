@@ -7,7 +7,7 @@ namespace qutim_sdk_0_3 {
 
 class Account;
 
-class KeyChain : public QObject
+class LIBQUTIM_EXPORT KeyChain : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "KeyChain")

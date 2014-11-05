@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#pragma once
+
 #include "account.h"
 
 namespace qutim_sdk_0_3
@@ -30,7 +32,7 @@ namespace qutim_sdk_0_3
 
 class AccountManagerPrivate;
 
-class AccountManager : public QObject
+class LIBQUTIM_EXPORT AccountManager : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(AccountManager)
