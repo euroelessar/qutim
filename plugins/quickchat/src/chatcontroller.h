@@ -51,6 +51,7 @@ protected:
 signals:
     void htmlRequested(const QString &html, const QUrl &baseUrl);
     void javaScriptRequested(const QString &script);
+    void menuRequested(QObject *owner);
     void appendNickRequested(const QString &nick);
     void appendTextRequested(const QString &text);
 

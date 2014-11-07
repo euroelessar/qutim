@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.3
+import org.qutim 0.4
 
 TableView {
     id: listView
@@ -12,6 +13,11 @@ TableView {
     }
 
     TableViewColumn {
+    }
+
+    Service {
+        id: chatLayer
+        name: "ChatLayer"
     }
 
     // It's still not possible to specify row's height externally, so hack it a bit
@@ -48,5 +54,25 @@ TableView {
         property string title: model.title
         property string subtitle: model.subtitle
         property QtObject contact: model.contact
+
+        MouseArea {
+            enabled: contact
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+
+            onClicked: {
+                listView.forceActiveFocus();
+                listView.currentRow = styleData.row;
+                listView.selection.clear();
+                listView.selection.select(styleData.row, styleData.row);
+                console.log('onClicked', listView.currentRow, styleData.row);
+                menu.controller = contact;
+                menu.popup();
+            }
+        }
+    }
+
+    ControlledMenu {
+        id: menu
     }
 }

@@ -1,25 +1,32 @@
 import QtQuick 2.0
 import QtWebEngine 1.0
+import QtWebEngine.experimental 1.0
 import org.qutim.quickchat 0.4
 
 WebEngineView {
     id: webEngineView
 
+    WebEngineView {
+        id: linksHandler
+        enabled: false
+        visible: false
+
+        onNavigationRequested: {
+            request.action = WebEngineView.IgnoreRequest;
+            Qt.openUrlExternally(request.url);
+        }
+    }
+
     property alias session: controller.session
-    url: 'http://qutim.org/'
 
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
 
-    onLoadingChanged: {
-        console.log('loading changed',
-                    loadRequest.status,
-                    loadRequest.url,
-                    JSON.stringify(loadRequest.errorString),
-                    loadRequest.errorCode,
-                    loadRequest.errorDomain
-                    );
+    ControlledMenu {
+        id: menu
+    }
 
+    onLoadingChanged: {
         if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
             controller.loading = false;
 
@@ -41,15 +48,19 @@ WebEngineView {
         console.log('WebKit', message, lineNumber, sourceID);
     }
 
+    experimental {
+        onNewViewRequested: request.openIn(linksHandler)
+    }
+
     ChatController {
         id: controller
-        property variant scripts: {[]}
+        property variant scripts: []
         property bool loading: false
 
         onHtmlRequested: {
-            console.log("html load request", baseUrl);
             loading = true;
             webEngineView.loadHtml(html, baseUrl);
+            scripts = [];
         }
         onJavaScriptRequested: {
             if (loading) {
@@ -60,5 +71,9 @@ WebEngineView {
         }
         onAppendTextRequested: webEngineView.appendTextRequested(text)
         onAppendNickRequested: webEngineView.appendNickRequested(nick)
+        onMenuRequested: {
+            menu.controller = owner;
+            menu.popup();
+        }
     }
 }

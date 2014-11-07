@@ -92,7 +92,8 @@ QHash<int, QByteArray> ContactListFrontModel::roleNames() const
 	roleNames.insert(ContactRole, "contact");
 	roleNames.insert(AlphabetRole, "alphabet");
 	roleNames.insert(StatusTextRole, "subtitle");
-	roleNames.insert(AvatarRole, "avatar");
+    roleNames.insert(AvatarRole, "avatar");
+    roleNames.insert(IconSourceRole, "iconSource");
 	return roleNames;
 }
 

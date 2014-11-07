@@ -11,13 +11,6 @@ Rectangle {
     property alias titleColor: titleText.color
     property alias subtitleColor: subtitleText.color
 
-    MouseArea {
-        anchors.fill: parent
-        acceptedButtons: Qt.RightButton
-
-        onClicked: contact.showMenu()
-    }
-
     Image {
         id: avatar
         width: 22

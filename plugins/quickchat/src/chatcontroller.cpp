@@ -162,10 +162,12 @@ void ChatController::appendNick(const QString &nick)
 
 void ChatController::contextMenu(const QString &nick)
 {
+//    emit menuRequested(nick);
     foreach (ChatUnit *unit, m_session->unit()->lowerUnits()) {
         if (Buddy *buddy = qobject_cast<Buddy*>(unit)) {
-            if (buddy->name() == nick)
-                buddy->showMenu(QCursor::pos());
+            if (buddy->name() == nick) {
+                emit menuRequested(buddy);
+            }
         }
     }
 }

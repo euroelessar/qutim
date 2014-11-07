@@ -36,20 +36,13 @@ SplitView {
         actionType: Qutim.ActionContainer.ChatButton
         controller: session ? session.unit : null
 
-        onActionAdded: {
-            console.log('!!! add', actions_count + index, action.text)
-            actionsModel.insert(actions_count + index, { modelAction: action })
-        }
-        onActionRemoved: {
-            console.log('!!! remove', actions_count + index, action.text)
-            actionsModel.remove(actions_count + index)
-        }
+        onActionAdded: actionsModel.insert(actions_count + index, { modelAction: action })
+        onActionRemoved: actionsModel.remove(actions_count + index)
     }
 
     ListModel {
         id: actionsModel
         Component.onCompleted: {
-            console.log('!!! append 3 items');
             append({ modelAction: quoteAction });
             append({ modelAction: clearAction });
             append({ modelAction: separatorAction });

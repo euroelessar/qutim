@@ -29,11 +29,13 @@
 #include "chatcontroller.h"
 #include "scriptclient.h"
 #include "completionmodel.h"
+#include "flatmodel.h"
 
 #include <qutim/thememanager.h>
 
 #include <QQmlEngine>
 #include <qqml.h>
+#include <QTimer>
 
 namespace QuickChat
 {
@@ -44,6 +46,10 @@ Chat::Chat() :
     m_activeSession(0)
 {
     init();
+
+    QTimer::singleShot(0, this, [this] () {
+        m_view.show();
+    });
 }
 
 Chat::~Chat()
@@ -53,6 +59,7 @@ Chat::~Chat()
 void Chat::init()
 {
     qRegisterMetaType<Message>();
+    qmlRegisterType<QAbstractItemModel>();
     qmlRegisterType<ChatLayer>();
     qmlRegisterType<ChatSession>();
     qmlRegisterType<ChatChannel>();
@@ -60,6 +67,7 @@ void Chat::init()
     qmlRegisterType<ChatChannelModel>("org.qutim.quickchat", 0, 4, "ChatChannelModel");
     qmlRegisterType<ChatPreview>("org.qutim.quickchat", 0, 4, "ChatPreview");
     qmlRegisterType<CompletionModel>("org.qutim.quickchat", 0, 4, "CompletionModel");
+    qmlRegisterType<FlatProxyModel>("org.qutim.quickchat", 0, 4, "FlatProxyModel");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
