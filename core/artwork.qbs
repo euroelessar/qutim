@@ -143,13 +143,7 @@ Product {
         fileTags: [ "install" ]
         qbs.install: true
         qbs.installDir: "bin/qutim.app/Contents/Resources"
-        files: ["qutim.icns" /*, "qt.conf"*/]
-    }
-
-    Group {
-        condition: qbs.targetOS.contains("osx")
-        fileTags: [ "infoPlist" ]
-        files: "Info.plist"
+        files: ["qutim.icns"]
     }
 
     Group {
@@ -159,30 +153,5 @@ Product {
         qbs.installDir: "bin/qutim.app/Contents/Resources/qt_menu.nib/"
         prefix: Qt.core.libPath + '/QtGui' + Qt.core.libInfix + '.framework/Versions/' + Qt.core.versionMajor + '/Resources/qt_menu.nib/'
         files: '*.nib'
-    }
-
-    Rule {
-        inputs: [ "infoPlist" ]
-        Artifact {
-            fileTags: [ "installed_content" ]
-            filePath: "bin/qutim.app/Contents/" + input.fileName
-        }
-
-        prepare: {
-            var cmd = new JavaScriptCommand();
-            cmd.version = product.qutim_version;
-            cmd.sourceCode = function() {
-                var file = new TextFile(input.filePath);
-                var content = file.readAll().replace(/VERSION/g, version);
-                file.close();
-                file = new TextFile(output.filePath, TextFile.WriteOnly);
-                file.truncate();
-                file.write(content);
-                file.close();
-            }
-            cmd.description = "installing " + FileInfo.fileName(output.filePath);
-            cmd.highlight = "linker";
-            return cmd;
-        }
     }
 }

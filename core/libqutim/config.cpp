@@ -561,7 +561,7 @@ bool Config::hasChildKey(const QString &name) const
 	return false;
 }
 
-QStringList parseNames(const QString &fullName)
+static QStringList parseNames(const QString &fullName)
 {
 	QStringList names;
 	int first = 0;
@@ -581,7 +581,7 @@ void Config::beginGroup(const QString &fullName)
 	Q_ASSERT(!fullName.isEmpty());
 	const ConfigLevel::Ptr l(new ConfigLevel());
 	QList<ConfigAtom::Ptr> &atoms = d->current()->atoms;
-	QStringList names = parseNames(fullName);
+    const QStringList names = parseNames(fullName);
 	for (int i = 0; i < atoms.size(); i++) {
 		ConfigAtom::Ptr current = atoms.at(i);
 		Q_ASSERT(current->typeMap);

@@ -31,6 +31,7 @@
 #include <qutim/config.h>
 #include <QApplication>
 #include <QLabel>
+#include <QtMac>
 #include <qutim/iconloader.h>
 
 #import <Cocoa/Cocoa.h>
@@ -301,6 +302,12 @@ void MacDock::onAccountCreated(qutim_sdk_0_3::Account *account)
 			this, SLOT(setStatusIcon()));
 }
 
+static void setDockIcon(const QIcon &icon)
+{
+    NSImage *image = QtMac::toNSImage(icon.pixmap(256, 256));
+    [NSApplication sharedApplication].applicationIconImage = image;
+}
+
 void MacDock::setStatusIcon()
 {
 	Q_D(MacDock);
@@ -331,13 +338,13 @@ void MacDock::setStatusIcon()
 		}
     }
 	if (isOnline) {
-		qApp->setWindowIcon(d->standartIcon);
+        setDockIcon(d->standartIcon);
 		if (d->isTrayAvailable) {
 			d->tray->setIcon(d->standartTrayIcon);
 			d->currentTrayIcon = &d->standartTrayIcon;
 		}
 	} else {
-		qApp->setWindowIcon(d->offlineIcon);
+        setDockIcon(d->offlineIcon);
 		if (d->isTrayAvailable) {
 			d->tray->setIcon(d->offlineTrayIcon);
 			d->currentTrayIcon = &d->offlineTrayIcon;
