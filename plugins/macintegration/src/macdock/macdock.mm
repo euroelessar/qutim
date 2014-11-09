@@ -50,6 +50,8 @@ extern void qt_mac_set_dock_menu(QMenu *);
 @implementation DockIconHandler
 - (void)handleDockClickEvent:(NSAppleEventDescriptor*)event withReplyEvent:(NSAppleEventDescriptor*)replyEvent
 {
+    Q_UNUSED(event);
+    Q_UNUSED(replyEvent);
 	if (macDock)
 		macDock->dockIconClickEvent();
 }

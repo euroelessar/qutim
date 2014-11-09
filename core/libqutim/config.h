@@ -100,20 +100,19 @@ class ConfigBackendPrivate;
 
 class LIBQUTIM_EXPORT Config
 {
-	Q_DECLARE_PRIVATE(Config)
+    Q_DECLARE_PRIVATE(Config)
 public:
 	enum ValueFlag { Normal = 0x00, Crypted = 0x01 };
 	Q_DECLARE_FLAGS(ValueFlags, ValueFlag)
 
 	Config(const QVariantList &list);
-	Config(QVariantList *list);
-	Config(const QVariantMap &map);
-	Config(QVariantMap *map);
+    Config(const QVariantMap &map);
 	Config(const QString &path = QString());
 	Config(const QString &path, ConfigBackend *backend);
 	Config(const QStringList &paths);
 	Config(const QString &path, const QVariantList &fallbacks);
 	Config(const QString &path, const QVariant &fallback);
+    Config(const QExplicitlySharedDataPointer<ConfigPrivate> &d);
 	Config(const Config &other);
 	Config &operator =(const Config &other);
 	virtual ~Config();
@@ -250,16 +249,6 @@ Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const char (&value)[
 	setValue(key, QString::fromUtf8(value, N-1), type);
 }
 }
-
-//// Config() is synonym for Config("profile"), so redefine construct method for it
-//template <>
-//Q_INLINE_TEMPLATE void *qMetaTypeConstructHelper<qutim_sdk_0_3::Config>(const qutim_sdk_0_3::Config *t)
-//{
-//if (!t) {
-//    return new qutim_sdk_0_3::Config(QVariantMap());
-//}
-//return new qutim_sdk_0_3::Config(*t);
-//}
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Config)
 
