@@ -253,26 +253,17 @@ QObject *Account::feature(const QMetaObject *meta)
 	if (name.isEmpty()) {
 		qWarning() << "Feature name is missed at class:" << meta->className();
 		return nullptr;
-	}
+    }
 
-	QObject *result = nullptr;
-
-	auto it = d->interfaces.find(name);
-	if (it != d->interfaces.end()) {
-		const AccountInterface &interface = it->second;
-		result = interface.object.get();
-	}
-
-	qDebug() << "Found" << result << "as" << name << "for" << this;
-
-	return result;
+    AccountInterface result = d->interfaces.value(name);
+    qDebug() << "Found" << result.object << "as" << name << "for" << this;
+    return result.object;
 }
 
 void Account::setFeature(const QMetaObject *meta, QObject *feature)
 {
 	Q_D(Account);
 
-	std::unique_ptr<QObject> tmp(feature);
 	QByteArray name = MetaObjectBuilder::info(meta, "Feature");
 
 	if (name.isEmpty()) {
@@ -282,18 +273,10 @@ void Account::setFeature(const QMetaObject *meta, QObject *feature)
 
 	qDebug() << "Setting" << feature << "as" << name << "for" << this;
 
-	auto it = d->interfaces.find(name);
-	if (it == d->interfaces.end()) {
-		it = d->interfaces.emplace(name, AccountInterface()).first;
-	}
+    AccountInterface &current = d->interfaces[name];
+    std::swap(current.object, feature);
 
-	AccountInterface &current = it->second;
-	std::swap(current.object, tmp);
-
-	// FIXME: Fix memory ownership
-	tmp.release();
-
-	emit featureChanged(name, current.object.get());
+    emit featureChanged(name, current.object);
 }
 
 GroupChatManager *Account::groupChatManager()

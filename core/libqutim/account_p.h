@@ -33,14 +33,13 @@
 #include "groupchatmanager_p.h"
 #include "rosterstorage.h"
 
-#include <unordered_map>
-#include <memory>
-
 namespace qutim_sdk_0_3
 {
 struct AccountInterface
 {
-	std::unique_ptr<QObject> object;
+    AccountInterface() : object(nullptr) {}
+
+    QObject *object;
 };
 
 class AccountPrivate : public MenuControllerPrivate
@@ -49,9 +48,7 @@ class AccountPrivate : public MenuControllerPrivate
 public:
 	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
 	~AccountPrivate()
-	{
-		for (auto &pair : interfaces)
-			pair.second.object.release();
+    {
 	}
 
 	void updateStatus();
@@ -63,15 +60,7 @@ public:
 	Status status;
 	Status userStatus;
 
-	struct hasher
-	{
-		size_t operator() (const QByteArray &array) const
-		{
-			return qHash(array);
-		}
-	};
-
-	std::unordered_map<QByteArray, AccountInterface, hasher> interfaces;
+    QMap<QByteArray, AccountInterface> interfaces;
 };
 }
 
