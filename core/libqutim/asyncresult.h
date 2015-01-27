@@ -60,7 +60,7 @@ template <typename... Args>
 class LIBQUTIM_EXPORT AsyncResultData
 {
 	typedef std::tuple<Args...> Tuple;
-	typedef std::shared_ptr<Tuple> TuplePtr;
+    typedef std::shared_ptr<Tuple> TuplePtr;
 public:
 	typedef std::function<void (const Args &...args)> Function;
 
@@ -132,11 +132,13 @@ private:
 		typedef Sequence<S...> type;
 	};
 
+    typedef typename Generator<sizeof...(Args)>::type SequenceType;
+
 	void call(Function function)
 	{
 		TuplePtr args = m_args;
-		Callback callback([args, function] () {
-			AsyncResultData::call(args, typename Generator<sizeof...(Args)>::type(), function);
+        Callback callback([args, function] () {
+            AsyncResultData::call(args, SequenceType(), function);
 		});
 
 		QMetaObject::invokeMethod(m_invoker, "invoke", Qt::QueuedConnection,
