@@ -36,6 +36,7 @@
 #include <QCoreApplication>
 #include <QBasicTimer>
 #include <QSharedPointer>
+#include <QStringBuilder>
 
 #define CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE 1
 
@@ -44,6 +45,51 @@ namespace qutim_sdk_0_3
 Q_GLOBAL_STATIC(QList<ConfigBackend*>, all_config_backends)
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends()
 { return *all_config_backends(); }
+
+class ConfigPath
+{
+public:
+    explicit ConfigPath(const QString &path) : m_valid(true), m_path(path) {}
+    ConfigPath() : m_valid(false) {}
+
+    ConfigPath child(const QString &name)
+    {
+        if (!m_valid)
+            return ConfigPath();
+        return ConfigPath(m_path % QLatin1Char('/') % name);
+    }
+
+private:
+    bool m_valid;
+    QString m_path;
+};
+
+class ConfigAtom;
+
+class ConfigSource
+{
+    Q_DISABLE_COPY(ConfigSource)
+public:
+    typedef QSharedPointer<ConfigSource> Ptr;
+    typedef QWeakPointer<ConfigSource> WeakPtr;
+
+    ConfigSource();
+    ~ConfigSource();
+
+    static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create, ConfigBackend *bcknd = 0);
+    inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
+    bool isValid() {
+        return QFileInfo(fileName).lastModified() == lastModified;
+    }
+    void sync();
+    void makeDirty() { dirty = true; }
+    QString fileName;
+    ConfigBackend *backend;
+    bool dirty;
+    bool isAtLoop;
+    QSharedPointer<ConfigAtom> data;
+    QDateTime lastModified;
+};
 
 class ConfigAtom
 {
@@ -60,7 +106,8 @@ public:
         Null
     };
 
-    ConfigAtom(bool readOnly) : m_type(Null), m_readOnly(readOnly)
+    ConfigAtom(const ConfigSource::WeakPtr &source, bool readOnly)
+        : m_source(source), m_type(Null), m_readOnly(readOnly)
     {
     }
 
@@ -69,9 +116,12 @@ public:
         clear();
     }
 
-    static Ptr fromVariant(const QVariant &variant, bool readOnly)
+    ConfigAtom(const ConfigAtom &other) = delete;
+    ConfigAtom &operator =(const ConfigAtom &other) = delete;
+
+    static Ptr fromVariant(const ConfigSource::WeakPtr &source, const QVariant &variant, bool readOnly)
     {
-        auto result = Ptr::create(readOnly);
+        auto result = Ptr::create(source, readOnly);
 
         // Null value
         if (!variant.isValid())
@@ -82,7 +132,7 @@ public:
             const auto &input = variant.toMap();
             auto &map = result->ensureMap();
             for (auto it = input.begin(); it != input.end(); ++it)
-                map.insert(it.key(), fromVariant(it.value(), readOnly));
+                map.insert(it.key(), fromVariant(source, it.value(), readOnly));
         }
             break;
         case QVariant::List: {
@@ -90,7 +140,7 @@ public:
             auto &list = result->ensureList();
             list.reserve(input.size());
             for (const auto &value : input)
-                list.append(fromVariant(value, readOnly));
+                list.append(fromVariant(source, value, readOnly));
         }
             break;
         default:
@@ -165,7 +215,7 @@ public:
             if (m_readOnly)
                 return Ptr();
 
-            it = map.insert(name, ConfigAtom::Ptr::create(m_readOnly));
+            it = map.insert(name, ConfigAtom::Ptr::create(m_source, m_readOnly));
         }
 
         return it.value();
@@ -180,7 +230,7 @@ public:
             return Ptr();
 
         while (list.size() <= index)
-            list.append(ConfigAtom::Ptr::create(m_readOnly));
+            list.append(ConfigAtom::Ptr::create(m_source, m_readOnly));
 
         return list.at(index);
     }
@@ -214,39 +264,53 @@ public:
             callback(it.key(), it.value());
     }
 
-    bool remove(int index)
+    void remove(int index)
     {
         Q_ASSERT(isList());
         auto &list = asList();
-        if (list.size() <= index)
-            return false;
 
-        list.remove(index);
-        return true;
-    }
-
-    bool remove(const QString &name)
-    {
-        Q_ASSERT(isMap());
-        return asMap().remove(name) > 0;
-    }
-
-    bool replace(const QString &name, const ConfigAtom::Ptr &value)
-    {
-        Q_ASSERT(isMap());
-        bool dirty = false;
-
-        ConfigAtom::ConfigMap &map = asMap();
-        if (!map.contains(name) || map[name]->toVariant() != value->toVariant()) {
-            map[name] = value;
-            dirty = true;
+        if (index < list.size()) {
+            list.remove(index);
+            makeDirty();
         }
+    }
 
-        return dirty;
+    void remove(const QString &name)
+    {
+        Q_ASSERT(isMap());
+        if (asMap().remove(name) > 0)
+            makeDirty();
+    }
+
+    void replace(const QVariant &value)
+    {
+        Q_ASSERT(!m_readOnly);
+
+        if (toVariant() != value) {
+            ConfigAtom::Ptr other = ConfigAtom::fromVariant(m_source, value, m_readOnly);
+
+            switch (other->type()) {
+            case Map:
+                ensureMap() = other->asMap();
+                break;
+            case List:
+                ensureList() = other->asList();
+                break;
+            case Value:
+                ensureValue() = other->asValue();
+                break;
+            case Null:
+                clear();
+                break;
+            }
+
+            makeDirty();
+        }
     }
 
     void convert(Type type)
     {
+        Q_ASSERT(!m_readOnly);
         if (m_type == type)
             return;
 
@@ -267,6 +331,12 @@ public:
     }
 
 private:
+    void makeDirty()
+    {
+        if (auto source = m_source.toStrongRef())
+            source->makeDirty();
+    }
+
     ConfigMap &asMap()
     {
         Q_ASSERT(isMap());
@@ -351,6 +421,7 @@ private:
         return reinterpret_cast<T *>(buffer);
     }
 
+    ConfigSource::WeakPtr m_source;
     union {
         char m_map_buffer[sizeof(ConfigMap)];
         char m_list_buffer[sizeof(ConfigList)];
@@ -359,35 +430,6 @@ private:
     };
     Type m_type;
     const bool m_readOnly;
-};
-
-class ConfigSource
-{
-	Q_DISABLE_COPY(ConfigSource)
-public:
-    typedef QSharedPointer<ConfigSource> Ptr;
-
-    inline ConfigSource() : backend(nullptr), dirty(false), isAtLoop(false)
-	{
-	}
-	inline ~ConfigSource()
-	{
-		if (dirty) sync();
-	}
-
-	static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create, ConfigBackend *bcknd = 0);
-	inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
-	bool isValid() {
-        return QFileInfo(fileName).lastModified() == lastModified;
-	}
-	void sync();
-    void makeDirty() { dirty = true; }
-	QString fileName;
-	ConfigBackend *backend;
-	bool dirty;
-	bool isAtLoop;
-    ConfigAtom::Ptr data;
-	QDateTime lastModified;
 };
 
 class ConfigSourceHash : public QObject
@@ -438,6 +480,16 @@ private:
 };
 
 Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
+
+ConfigSource::ConfigSource() : backend(nullptr), dirty(false), isAtLoop(false)
+{
+}
+
+ConfigSource::~ConfigSource()
+{
+    if (dirty)
+        sync();
+}
 
 ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create, ConfigBackend *backend)
 {
@@ -507,13 +559,13 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 
 	d->update();
     const QVariant value = d->backend->load(d->fileName);
-    d->data = ConfigAtom::fromVariant(value, readOnly);
+    d->data = ConfigAtom::fromVariant(result, value, readOnly);
 
     if (d->data->isValue() || d->data->isNull()) {
         if (!create)
             return ConfigSource::Ptr();
 
-        d->data = ConfigAtom::fromVariant(QVariantMap(), readOnly);
+        d->data = ConfigAtom::fromVariant(result, QVariantMap(), readOnly);
     }
 
 	sourceHash()->insert(fileName, result);
@@ -573,13 +625,10 @@ class ConfigLevel
 public:
     typedef QSharedPointer<ConfigLevel> Ptr;
 
-    inline ConfigLevel() : arrayElement(false)
+    explicit ConfigLevel(const QList<ConfigAtom::Ptr> &atoms) : atoms(atoms), arrayElement(false)
     {
     }
-    inline ConfigLevel(const QList<ConfigAtom::Ptr> &atoms) : atoms(atoms), arrayElement(false)
-    {
-    }
-    inline ~ConfigLevel()
+    ~ConfigLevel()
     {
     }
 
@@ -595,6 +644,7 @@ public:
     ConfigLevel::Ptr convert(ConfigAtom::Type type);
 
     QList<ConfigAtom::Ptr> atoms;
+    ConfigPath path;
     bool arrayElement;
 
 private:
@@ -613,11 +663,14 @@ ConfigLevel::Ptr ConfigLevel::child(int index)
 
 ConfigLevel::Ptr ConfigLevel::child(const QString &name)
 {
-    return map([name] (const ConfigAtom::Ptr &atom, bool readOnly) {
+    auto level = map([name] (const ConfigAtom::Ptr &atom, bool readOnly) {
         if (readOnly && !atom->isMap())
             return ConfigAtom::Ptr();
         return atom->child(name);
     });
+
+    level->path = path.child(name);
+    return level;
 }
 
 ConfigLevel::Ptr ConfigLevel::child(const QList<QString> &names)
@@ -664,9 +717,8 @@ ConfigLevel::Ptr ConfigLevel::convert(ConfigAtom::Type type)
 template <typename Callback>
 ConfigLevel::Ptr ConfigLevel::map(Callback callback)
 {
-    auto level = ConfigLevel::Ptr::create();
     bool first = true;
-    QList<ConfigAtom::Ptr> &results = level->atoms;
+    QList<ConfigAtom::Ptr> results;
 
     for (const ConfigAtom::Ptr &atom : atoms) {
         const bool isReadOnly = atom->isReadOnly() || !first;
@@ -676,7 +728,7 @@ ConfigLevel::Ptr ConfigLevel::map(Callback callback)
             results << result;
     }
 
-    return level;
+    return ConfigLevel::Ptr::create(results);
 }
 
 class ConfigPrivate : public QSharedData
@@ -701,7 +753,7 @@ public:
 
 ConfigPrivate::ConfigPrivate()
 {
-    levels << ConfigLevel::Ptr::create();
+    levels << ConfigLevel::Ptr::create(QList<ConfigAtom::Ptr>());
 }
 
 ConfigPrivate::ConfigPrivate(const QStringList &paths, ConfigBackend *backend)
@@ -712,6 +764,8 @@ ConfigPrivate::ConfigPrivate(const QStringList &paths, ConfigBackend *backend)
 ConfigPrivate::ConfigPrivate(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend)
     : ConfigPrivate()
 {
+    current()->path = ConfigPath(QString());
+
     QSet<QString> opened;
     for (int j = 0; j < 2; j++) {
         for (int i = 0; i < paths.size(); i++) {
@@ -729,7 +783,7 @@ ConfigPrivate::ConfigPrivate(const QStringList &paths, const QVariantList &fallb
     }
     for (int i = 0; i < fallbacks.size(); ++i) {
         const QVariant value = fallbacks.at(i);
-        auto fallback = ConfigAtom::fromVariant(value, true);
+        auto fallback = ConfigAtom::fromVariant(ConfigSource::Ptr(), value, true);
 
         if (fallback->isNull() || fallback->isValue())
             continue;
@@ -770,13 +824,13 @@ QExplicitlySharedDataPointer<ConfigPrivate> ConfigPrivate::clone()
 Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
 {
     Q_D(Config);
-    d->current()->atoms << ConfigAtom::fromVariant(list, false);
+    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), list, false);
 }
 
 Config::Config(const QVariantMap &map) : d_ptr(new ConfigPrivate)
 {
     Q_D(Config);
-    d->current()->atoms << ConfigAtom::fromVariant(map, false);
+    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), map, false);
 }
 
 Config::Config(const QString &path)
@@ -923,9 +977,7 @@ void Config::endGroup()
 void Config::remove(const QString &name)
 {
     Q_D(Config);
-    const ConfigAtom::Ptr atom = d->current()->atoms.value(0);
-    if (atom->remove(name))
-        d->sources.first()->makeDirty();
+    d->current()->atoms.first()->remove(name);
 }
 
 Config Config::arrayElement(int index)
@@ -1001,9 +1053,7 @@ void Config::remove(int index)
     if (d->current()->arrayElement)
         d->levels.takeFirst();
 
-    ConfigAtom::Ptr atom = d->current()->atoms.value(0);
-    if (atom->remove(index))
-        d->sources.first()->makeDirty();
+    d->current()->atoms.first()->remove(index);
 }
 
 QVariant Config::rootValue(const QVariant &def, ValueFlags type) const
@@ -1076,10 +1126,7 @@ void Config::setValue(const QString &key, const QVariant &value, ValueFlags type
 
     ConfigAtom::Ptr atom = d->current()->atoms.first();
     Q_ASSERT(atom->isMap() && !atom->isReadOnly());
-    if (atom->replace(name, ConfigAtom::fromVariant(var, false))) {
-        if (!d->sources.isEmpty())
-            d->sources.first()->makeDirty();
-    }
+    atom->child(name)->replace(var);
 
 	if (slashIndex != -1)
 		endGroup();
