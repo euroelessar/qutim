@@ -43,7 +43,7 @@
 using namespace qutim_sdk_0_3;
 
 BearerManager::BearerManager() :
-    m_confManager(new QNetworkConfigurationManager(this)), m_isOnline(false)
+    m_isOnline(false), m_confManager(new QNetworkConfigurationManager(this))
 {
 }
 

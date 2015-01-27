@@ -29,6 +29,7 @@
 #include "libqutim_global.h"
 #include <QSharedData>
 #include <QVariant>
+#include <QDateTime>
 #include <QEvent>
 
 class QScriptEngine;
@@ -38,8 +39,35 @@ namespace qutim_sdk_0_3
 class ChatUnit;
 class MessagePrivate;
 
+class LIBQUTIM_EXPORT MessageUnitData
+{
+    Q_GADGET
+    Q_PROPERTY(QString id READ id)
+    Q_PROPERTY(QString title READ title)
+    Q_PROPERTY(QString avatar READ avatar)
+public:
+    MessageUnitData(const QString &id, const QString &title, const QString &avatar);
+
+    QString id() const;
+    QString title() const;
+    QString avatar() const;
+
+private:
+    QString m_id;
+    QString m_title;
+    QString m_avatar;
+};
+
 class LIBQUTIM_EXPORT Message
 {
+    Q_GADGET
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString html READ html WRITE setHtml)
+    Q_PROPERTY(QDateTime time READ time WRITE setTime)
+    Q_PROPERTY(bool incoming READ isIncoming WRITE setIncoming)
+    Q_PROPERTY(ChatUnit* chatUnit READ chatUnit WRITE setChatUnit)
+    Q_PROPERTY(quint64 id READ id)
+    Q_PROPERTY(MessageUnitData unitData READ unitData)
 public:
     struct UnitData
     {
@@ -64,16 +92,19 @@ public:
 	bool isIncoming() const;
 	void setChatUnit (ChatUnit *chatUnit);
 	ChatUnit *chatUnit() const;
-    UnitData unitData() const;
-	QString unitName() const;
-	QString unitId() const;
-	QString unitAvatar() const;
+    MessageUnitData unitData() const;
+    QString unitName() const;
+    QString unitId() const;
+    QString unitAvatar() const;
 	quint64 id() const;
 	QVariant property(const char *name, const QVariant &def = QVariant()) const;
 	template<typename T>
     T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 	QList<QByteArray> dynamicPropertyNames() const;
+
+    Q_INVOKABLE QVariant property(const QString &name, const QVariant &def) const;
+    Q_INVOKABLE bool hasProperty(const QString &name) const;
 private:
 	QSharedDataPointer<MessagePrivate> p;
 };

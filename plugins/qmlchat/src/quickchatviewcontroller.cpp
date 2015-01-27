@@ -84,10 +84,10 @@ static QVariant messageToVariant(const Message &mes)
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
 
-    const Message::UnitData unit = mes.unitData();
-    map.insert(QStringLiteral("senderId"), unit.title);
-    map.insert(QStringLiteral("senderName"), unit.id);
-    map.insert(QStringLiteral("senderAvatar"), unit.avatar);
+    const MessageUnitData unit = mes.unitData();
+    map.insert(QStringLiteral("senderId"), unit.title());
+    map.insert(QStringLiteral("senderName"), unit.id());
+    map.insert(QStringLiteral("senderAvatar"), unit.avatar());
 
 	return map;
 }

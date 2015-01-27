@@ -378,14 +378,14 @@ Status Status::createConnecting(const Status &status, const char *proto)
 
 Status Status::connectingGoal(const Status &status)
 {
-	if (status != Status::Connecting)
-		return Status(Status::Offline);
-	return status.property("connectingGoal", Status(Status::Online));
+    if (status != Status::Connecting)
+        return Status(Status::Offline);
+    return status.property("connectingGoal", Status(Status::Online));
 }
 
 Status Status::connectingGoal() const
 {
-	return connectingGoal(*this);
+    return connectingGoal(*this);
 }
 
 void Status::setExtendedInfo(const QString &name, const QVariantHash &status)

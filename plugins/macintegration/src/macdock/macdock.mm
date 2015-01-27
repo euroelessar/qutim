@@ -208,7 +208,7 @@ void MacDock::onStatusChanged()
 				Status status = account->status();
 				status.setType(type);
 				status.setSubtype(0);
-				status.setProperty("changeReason",Status::ByUser);
+                status.setChangeReason(Status::ByUser);
 				account->setUserStatus(status);
 			}
 		}

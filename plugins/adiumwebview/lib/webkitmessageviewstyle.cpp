@@ -525,8 +525,6 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 
 QString &WebKitMessageViewStyle::injectScript(QString &inString, const QString &id, const QString &wsUri)
 {
-    Q_D(WebKitMessageViewStyle);
-
     QDir shareDir = ThemeManager::path(QStringLiteral("data"), QStringLiteral("webview"));
     Q_ASSERT(shareDir.exists(QStringLiteral("qwebchannel.js")));
     Q_ASSERT(shareDir.exists(QStringLiteral("client.js")));
@@ -889,12 +887,12 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 
 WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qutim_sdk_0_3::Message &message)
 {
-    const Message::UnitData data = message.unitData();
+    const MessageUnitData data = message.unitData();
 
     UnitData result;
-    result.id = data.id;
-    result.title = data.title;
-    result.avatar = data.avatar;
+    result.id = data.id();
+    result.title = data.title();
+    result.avatar = data.avatar();
 
     return result;
 }
