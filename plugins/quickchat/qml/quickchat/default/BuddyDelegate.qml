@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import org.qutim 0.4
 
 Rectangle {
     id: item

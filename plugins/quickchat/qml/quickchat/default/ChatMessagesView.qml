@@ -48,9 +48,9 @@ WebEngineView {
         console.log('WebKit', message, lineNumber, sourceID);
     }
 
-    experimental {
-        onNewViewRequested: request.openIn(linksHandler)
-    }
+//    experimental {
+//        onNewViewRequested: request.openIn(linksHandler)
+//    }
 
     ChatController {
         id: controller

@@ -28,11 +28,13 @@ ToolBar {
             iconName: "show-menu"
             text: qsTr("Show menu")
             menu: mainMenu
-            
+
             ControlledMenu {
                 id: mainMenu
                 controller: contactList.object
             }
+
+            onClicked: console.log(mainMenu)
         }
 
         Repeater {

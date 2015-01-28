@@ -4,7 +4,7 @@
 namespace qutim_sdk_0_3 {
 
 QuickAction::QuickAction(QObject *parent) :
-    QObject(parent), m_enabled(true), m_checkable(false), m_checked(false), m_separator(false)
+    QObject(parent), m_enabled(true), m_checkable(false), m_checked(false), m_visible(true), m_separator(false)
 {
 }
 

@@ -41,6 +41,14 @@ void QuickPlugin::registerTypes(const char *uri)
                 "org.qutim", 0, 4,
                 "MenuController",
                 QStringLiteral("Unable to create notification inside QtQuick"));
+    qmlRegisterUncreatableType<Message>(
+                "org.qutim", 0, 4,
+                "Message",
+                QStringLiteral("Unable to create notification inside QtQuick"));
+    qmlRegisterUncreatableType<Status>(
+                "org.qutim", 0, 4,
+                "Status",
+                QStringLiteral("Unable to create notification inside QtQuick"));
     qmlRegisterType<QuickConfig>("org.qutim", 0, 4, "Config");
     qmlRegisterType<QuickEmoticons>("org.qutim", 0, 4, "Emoticons");
     qmlRegisterType<QuickEmoticonsTheme>("org.qutim", 0, 4, "EmoticonsTheme");
