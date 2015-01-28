@@ -33,8 +33,6 @@ ToolBar {
                 id: mainMenu
                 controller: contactList.object
             }
-
-            onClicked: console.log(mainMenu)
         }
 
         Repeater {

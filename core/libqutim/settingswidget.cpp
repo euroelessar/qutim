@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "settingswidget.h"
+#include "qmlsettingswidget_p.h"
 #include <QAbstractButton>
 #include <QAbstractSlider>
 #include <QComboBox>
@@ -35,6 +36,8 @@
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QPointer>
+#include <QPaintEvent>
+#include <QPainter>
 #include <algorithm>
 
 namespace qutim_sdk_0_3
@@ -266,7 +269,19 @@ void SettingsWidget::virtual_hook(int id, void *data)
 
 void SettingsWidget::setController(QObject *controller)
 {
-	Q_UNUSED(controller);
+    Q_UNUSED(controller);
+}
+
+void SettingsWidget::paintEvent(QPaintEvent *event)
+{
+    if (qobject_cast<QmlSettingsWidget *>(this)) {
+        return QWidget::paintEvent(event);
+    }
+
+    QPainter painter(this);
+    painter.setPen(QColor(Qt::red));
+    painter.drawRect(0, 0, width(), height());
+    event->accept();
 }
 
 void SettingsWidget::setModified(bool modified)
