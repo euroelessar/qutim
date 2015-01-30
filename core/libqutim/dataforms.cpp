@@ -365,7 +365,15 @@ QVariant DataItem::property(const char *name, const QVariant &def) const
 
 QList<QByteArray> DataItem::dynamicPropertyNames() const
 {
-	return d ? d->names : QList<QByteArray>();
+    return d ? d->names : QList<QByteArray>();
+}
+
+QVariantList DataItem::qmlSubItmes() const
+{
+    QVariantList result;
+    foreach (const auto &item, subitems())
+        result << QVariant::fromValue(item);
+    return result;
 }
 
 void DataItem::setProperty(const char *name, const QVariant &value)
