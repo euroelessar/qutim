@@ -125,12 +125,6 @@ void JoinGroupChat::onCurrentChanged(int index)
 	ui->actionBox->clear();
 	if(index)
 		ui->actionBox->addAction(m_backAction);
-	else
-	{
-#ifdef Q_OS_SYMBIAN
-		ui->actionBox->addAction(m_closeAction);
-#endif
-	}
 
 	ui->actionBox->addActions(ui->stackedWidget->currentWidget()->actions());
 }

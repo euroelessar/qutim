@@ -70,23 +70,6 @@ static AbstractWidgetInfo * widget_infos[] = {
 	new WidgetMetaInfo<QSpinBox>       ("value",        SIGNAL(valueChanged(int)))
 };
 
-//static struct WidgetMetaInfo
-//{
-//	const QMetaObject *meta;
-//	const char *property;
-//	const char *signal;
-//} widget_infos[] =  {
-//#if	!defined(Q_OS_SYMBIAN)	 //staticMetaObject doesn't link on Symbian platform
-//	{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
-//	{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
-//	{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
-//	{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(QDateTime)) },
-//	{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(QString)) },
-//	{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
-//	{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
-//#endif
-//};
-
 struct WidgetInfo
 {
 	QPointer<QWidget> obj;

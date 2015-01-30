@@ -400,8 +400,6 @@ QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 	const char *value[2] = {
 #if   defined(Q_OS_WIN)
 	    "21000", "QutIM Windows Client"
-#elif defined(Q_OS_SYMBIAN)
-	    "21030", "QutIM Symbian Client"
 #elif defined(Q_WS_HAIKU)
 	    "21031", "QutIM Haiku Client"
 #elif defined(Q_OS_OS2)
