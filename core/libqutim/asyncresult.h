@@ -137,9 +137,10 @@ private:
 	void call(Function function)
 	{
 		TuplePtr args = m_args;
-        Callback callback([args, function] () {
+        auto lambda = [args, function] () {
             AsyncResultData::call(args, SequenceType(), function);
-		});
+        };
+        Callback callback(lambda);
 
 		QMetaObject::invokeMethod(m_invoker, "invoke", Qt::QueuedConnection,
 								  Q_ARG(qutim_sdk_0_3::Detail::Callback, callback));
