@@ -57,7 +57,7 @@ public slots:
 };
 
 template <typename... Args>
-class LIBQUTIM_EXPORT AsyncResultData
+class AsyncResultData
 {
 	typedef std::tuple<Args...> Tuple;
     typedef std::shared_ptr<Tuple> TuplePtr;
