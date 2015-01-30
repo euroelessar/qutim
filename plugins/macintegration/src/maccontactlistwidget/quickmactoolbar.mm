@@ -6,6 +6,38 @@
 
 #import <Cocoa/Cocoa.h>
 
+@interface QuickMacSearchField : NSSearchField
+{
+@public
+    Core::QuickMacToolBar *toolBar;
+    NSString *itemIdentifier;
+}
+@end
+
+@implementation QuickMacSearchField
+
+- (void)dealloc
+{
+    [super dealloc];
+}
+
+- (NSString *)itemIdentifier
+{
+    return self->itemIdentifier;
+}
+
+- (void)textDidChange:(NSNotification *)obj
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSString *nsText = [self stringValue];
+    QString result = QString::fromNSString(nsText);
+    toolBar->onSearchTextChanged(result);
+    [pool release];
+    [super textDidChange: obj];
+}
+
+@end
+
 namespace Core {
 
 using namespace qutim_sdk_0_3;
@@ -17,14 +49,29 @@ QuickMacToolBar::QuickMacToolBar(QObject *parent) :
     [m_toolBar.nativeToolbar() setSizeMode: NSToolbarSizeModeSmall];
     [m_toolBar.nativeToolbar() setAllowsUserCustomization: NO];
 
+    QMacToolBarItem *spaceItem = new QMacToolBarItem(this);
+    spaceItem->setStandardItem(QMacToolBarItem::FlexibleSpace);
+    m_items.append(spaceItem);
+
     // Always keep at least one item in the toolbar to avoid unnescary resizes
     QMacToolBarItem *item = new QMacToolBarItem(this);
     item->setText(QStringLiteral(" "));
     m_items.append(item);
 
+    // Search field
+    QMacToolBarItem *searchItem = new QMacToolBarItem(this);
+    searchItem->setText(QStringLiteral(""));
+    QuickMacSearchField *searchField = [[QuickMacSearchField alloc] init];
+    searchField->itemIdentifier = [searchItem->nativeToolBarItem() itemIdentifier];
+    searchField->toolBar = this;
+    [searchItem->nativeToolBarItem() setView: searchField];
+    m_items.append(searchItem);
+
     reloadItems();
 
+    [m_toolBar.nativeToolbar() insertItemWithItemIdentifier: spaceItem->nativeToolBarItem().itemIdentifier atIndex: 0];
     [m_toolBar.nativeToolbar() insertItemWithItemIdentifier: item->nativeToolBarItem().itemIdentifier atIndex: 0];
+    [m_toolBar.nativeToolbar() insertItemWithItemIdentifier: searchItem->nativeToolBarItem().itemIdentifier atIndex: 0];
 }
 
 void QuickMacToolBar::registerTypes()
@@ -54,13 +101,25 @@ void QuickMacToolBar::setWindow(QWindow *window)
     emit windowChanged(window);
 }
 
+QString QuickMacToolBar::searchText() const
+{
+    return m_searchText;
+}
+
+void QuickMacToolBar::onSearchTextChanged(const QString &searchText)
+{
+    if (m_searchText == searchText)
+        return;
+
+    m_searchText = searchText;
+    emit searchTextChanged(m_searchText);
+}
+
 void QuickMacToolBar::insert(int index, QuickAction *action)
 {
-    Q_ASSERT(action);
-    qDebug() << "|||||| insert" << index << action;
+    fixIndex(index);
 
     QMacToolBarItem *item = new QMacToolBarItem(this);
-
     if (action->isSeparator()) {
         item->setStandardItem(QMacToolBarItem::Space);
     } else {
@@ -77,8 +136,6 @@ void QuickMacToolBar::insert(int index, QuickAction *action)
         connect(item, &QMacToolBarItem::activated, action, &QuickAction::trigger);
     }
 
-    qDebug() << item->icon().name() << item->text();
-
     m_items.insert(index, item);
     reloadItems();
 
@@ -93,14 +150,18 @@ void QuickMacToolBar::replace(int index, QuickAction *action)
 
 void QuickMacToolBar::remove(int index)
 {
-    qDebug() << "|||||| remove" << index;
+    fixIndex(index);
 
     QMacToolBarItem *item = m_items.takeAt(index);
-
     [m_toolBar.nativeToolbar() removeItemAtIndex: index];
 
     reloadItems();
     delete item;
+}
+
+void QuickMacToolBar::fixIndex(int &index)
+{
+    Q_UNUSED(index);
 }
 
 void QuickMacToolBar::reloadItems()

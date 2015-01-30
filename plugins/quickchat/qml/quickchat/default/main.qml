@@ -3,9 +3,12 @@ import QtQuick 2.3
 Item {
     id: root
 
-    ChatWindow {
+    UnitedWindow {
     }
 
-    ContactList {
-    }
+//    ChatWindow {
+//    }
+
+//    ContactList {
+//    }
 }

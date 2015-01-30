@@ -12,6 +12,7 @@ ApplicationWindow {
     }
 
     property var toolBarModel
+    property alias searchText: toolBar.searchText
 
     Repeater {
         model: root.toolBarModel

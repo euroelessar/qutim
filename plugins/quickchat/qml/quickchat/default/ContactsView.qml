@@ -6,9 +6,21 @@ import "constants.js" as Constants
 ListView {
     id: root
 
+    property string searchText
+
     Service {
         id: contactModel
         name: "ContactModel"
+
+        onObjectChanged: {
+            if (contactModel.object)
+                contactModel.object.setFilterFixedString(searchText)
+        }
+    }
+
+    onSearchTextChanged: {
+        if (contactModel.object)
+            contactModel.object.setFilterFixedString(searchText)
     }
 
     Service {

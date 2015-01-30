@@ -5,6 +5,7 @@ ApplicationWindow {
     id: window
 
     property var toolBarModel
+    property string searchText: ''
 
     readonly property int toolBarButtonSize: 26
 
