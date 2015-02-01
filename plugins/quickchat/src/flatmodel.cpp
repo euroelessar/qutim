@@ -140,67 +140,69 @@ void FlatProxyModel::setSourceModel(QAbstractItemModel *model)
 {
     if (sourceModel()) {
         disconnect(sourceModel(), &QAbstractItemModel::dataChanged,
-                this, &FlatProxyModel::onSourceDataChanged,
+                this, &FlatProxyModel::onSourceDataChanged);
 
         disconnect(sourceModel(), &QAbstractItemModel::headerDataChanged,
-                this, &FlatProxyModel::onSourceHeaderDataChanged,
+                this, &FlatProxyModel::onSourceHeaderDataChanged);
 
         disconnect(sourceModel(), &QAbstractItemModel::rowsAboutToBeInserted,
-                this, &FlatProxyModel::onSourceRowsAboutToBeInserted,
+                this, &FlatProxyModel::onSourceRowsAboutToBeInserted);
 
         disconnect(sourceModel(), &QAbstractItemModel::rowsInserted,
-                this, &FlatProxyModel::onSourceRowsInserted,
+                this, &FlatProxyModel::onSourceRowsInserted);
 
         disconnect(sourceModel(), &QAbstractItemModel::rowsAboutToBeRemoved,
-                this, &FlatProxyModel::onSourceRowsAboutToBeRemoved,
+                this, &FlatProxyModel::onSourceRowsAboutToBeRemoved);
 
         disconnect(sourceModel(), &QAbstractItemModel::rowsRemoved,
-                this, &FlatProxyModel::onSourceRowsRemoved,
+                this, &FlatProxyModel::onSourceRowsRemoved);
 
         disconnect(sourceModel(), &QAbstractItemModel::layoutAboutToBeChanged,
-                this, &FlatProxyModel::onSourceLayoutAboutToBeChanged,
+                this, &FlatProxyModel::onSourceLayoutAboutToBeChanged);
 
         disconnect(sourceModel(), &QAbstractItemModel::layoutChanged,
-                this, &FlatProxyModel::onSourceLayoutChanged,
+                this, &FlatProxyModel::onSourceLayoutChanged);
 
-        disconnect(sourceModel(), &QAbstractItemModel::modelReset, &FlatProxyModel::onSourceReset,
+        disconnect(sourceModel(), &QAbstractItemModel::modelReset,
+                this, &FlatProxyModel::onSourceReset);
 
         connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeMoved,
-                this, &FlatProxyModel::onSourceRowsAboutToBeMoved,
+                this, &FlatProxyModel::onSourceRowsAboutToBeMoved);
         connect(sourceModel(), &QAbstractItemModel::rowsMoved,
-                this, &FlatProxyModel::onSourceRowsMoved,
+                this, &FlatProxyModel::onSourceRowsMoved);
     }
     QAbstractProxyModel::setSourceModel(model);
     connect(sourceModel(), &QAbstractItemModel::dataChanged,
-            this, &FlatProxyModel::onSourceDataChanged,
+            this, &FlatProxyModel::onSourceDataChanged);
 
     connect(sourceModel(), &QAbstractItemModel::headerDataChanged,
-            this, &FlatProxyModel::onSourceHeaderDataChanged,
+            this, &FlatProxyModel::onSourceHeaderDataChanged);
 
     connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeInserted,
-            this, &FlatProxyModel::onSourceRowsAboutToBeInserted,
+            this, &FlatProxyModel::onSourceRowsAboutToBeInserted);
 
     connect(sourceModel(), &QAbstractItemModel::rowsInserted,
-            this, &FlatProxyModel::onSourceRowsInserted,
+            this, &FlatProxyModel::onSourceRowsInserted);
 
     connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeRemoved,
-            this, &FlatProxyModel::onSourceRowsAboutToBeRemoved,
+            this, &FlatProxyModel::onSourceRowsAboutToBeRemoved);
 
     connect(sourceModel(), &QAbstractItemModel::rowsRemoved,
-            this, &FlatProxyModel::onSourceRowsRemoved,
+            this, &FlatProxyModel::onSourceRowsRemoved);
 
     connect(sourceModel(), &QAbstractItemModel::layoutAboutToBeChanged,
-            this, &FlatProxyModel::onSourceLayoutAboutToBeChanged,
+            this, &FlatProxyModel::onSourceLayoutAboutToBeChanged);
 
     connect(sourceModel(), &QAbstractItemModel::layoutChanged,
-            this, &FlatProxyModel::onSourceLayoutChanged,
+            this, &FlatProxyModel::onSourceLayoutChanged);
 
-    connect(sourceModel(), &QAbstractItemModel::modelReset, &FlatProxyModel::onSourceReset,
+    connect(sourceModel(), &QAbstractItemModel::modelReset,
+            this, &FlatProxyModel::onSourceReset);
 
     connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeMoved,
-            this, &FlatProxyModel::onSourceRowsAboutToBeMoved,
+            this, &FlatProxyModel::onSourceRowsAboutToBeMoved);
     connect(sourceModel(), &QAbstractItemModel::rowsMoved,
-            this, &FlatProxyModel::onSourceRowsMoved,
+            this, &FlatProxyModel::onSourceRowsMoved);
 
     beginResetModel();
     initiateMaps();
