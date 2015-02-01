@@ -1,4 +1,5 @@
 #include "quickmactoolbar.h"
+#include "quickmacwindowbackgroundblur.h"
 #include <qqml.h>
 #include <QWindow>
 #include <qutim/icon.h>
@@ -77,6 +78,7 @@ QuickMacToolBar::QuickMacToolBar(QObject *parent) :
 void QuickMacToolBar::registerTypes()
 {
     qmlRegisterType<QuickMacToolBar>("org.qutim.mac", 0, 4, "MacToolBar");
+    qmlRegisterType<QuickMacWindowBackgroundBlur>("org.qutim.mac", 0, 4, "WindowBackgroundBlur");
 }
 
 QWindow *QuickMacToolBar::window() const
