@@ -166,9 +166,9 @@ void FlatProxyModel::setSourceModel(QAbstractItemModel *model)
         disconnect(sourceModel(), &QAbstractItemModel::modelReset,
                 this, &FlatProxyModel::onSourceReset);
 
-        connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeMoved,
+        disconnect(sourceModel(), &QAbstractItemModel::rowsAboutToBeMoved,
                 this, &FlatProxyModel::onSourceRowsAboutToBeMoved);
-        connect(sourceModel(), &QAbstractItemModel::rowsMoved,
+        disconnect(sourceModel(), &QAbstractItemModel::rowsMoved,
                 this, &FlatProxyModel::onSourceRowsMoved);
     }
     QAbstractProxyModel::setSourceModel(model);
