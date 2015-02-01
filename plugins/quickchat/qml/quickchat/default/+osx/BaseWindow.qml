@@ -5,14 +5,23 @@ import org.qutim.mac 0.4
 
 ApplicationWindow {
     id: root
+    color: "transparent"
+
+    property var toolBarModel
+    property alias searchText: toolBar.searchText
+    property alias backgroundColor: blur.backgroundColor
 
     MacToolBar {
         id: toolBar
         window: root
     }
 
-    property var toolBarModel
-    property alias searchText: toolBar.searchText
+    WindowBackgroundBlur {
+        id: blur
+        window: root
+        radius: 10
+        backgroundColor: "#8042aaff"
+    }
 
     Repeater {
         model: root.toolBarModel

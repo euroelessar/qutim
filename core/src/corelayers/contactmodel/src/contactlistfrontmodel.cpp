@@ -47,8 +47,41 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	setDynamicSortFilter(true);
 	onServiceChanged(m_model.name(), m_model, NULL);
 	onServiceChanged(m_metaManager.name(), m_metaManager, NULL);
-	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
-			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
+    connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
+            this, &ContactListFrontModel::onServiceChanged);
+
+    auto update = [this] (const QModelIndex &parent, int row, ContactListItemRole role) {
+        QModelIndex item = index(row, 0, parent);
+        emit dataChanged(item, item, QVector<int> { role });
+    };
+
+    auto onInsert = [this, update] (const QModelIndex &parent, int first, int last) {
+        int count = rowCount(parent);
+        if (first == 0 && last + 1 < count)
+            update(parent, last + 1, FirstItemRole);
+        if (last + 1 == count && first > 0)
+            update(parent, first - 1, LastItemRole);
+    };
+    auto onRemove = [this, update] (const QModelIndex &parent, int first, int last) {
+        Q_UNUSED(last);
+        int count = rowCount(parent);
+        if (first == 0 && count > 0)
+            update(parent, 0, FirstItemRole);
+        if (first >= count && first > 0)
+            update(parent, first - 1, LastItemRole);
+    };
+    connect(this, &QAbstractItemModel::rowsInserted, this, onInsert);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, onRemove);
+    connect(this, &QAbstractItemModel::rowsMoved, this, [] () {
+        qDebug() << "moved";
+    });
+    connect(this, &QAbstractItemModel::layoutChanged, this, [] (const QList<QPersistentModelIndex> &parents) {
+        qDebug() << "layout" << parents.size();
+    });
+//            this, [this, onInsert, onRemove] (const QModelIndex &parent, int first, int last, const QModelIndex &destination, int row) {
+//        onRemove(parent, first, last);
+//        onInsert(destination, row, row + last - first);
+//    });
 }
 
 bool ContactListFrontModel::offlineVisibility() const
@@ -94,6 +127,8 @@ QHash<int, QByteArray> ContactListFrontModel::roleNames() const
 	roleNames.insert(StatusTextRole, "subtitle");
     roleNames.insert(AvatarRole, "avatar");
     roleNames.insert(IconSourceRole, "iconSource");
+    roleNames.insert(FirstItemRole, "isFirst");
+    roleNames.insert(LastItemRole, "isLast");
 	return roleNames;
 }
 
@@ -233,7 +268,19 @@ Qt::ItemFlags ContactListFrontModel::flags(const QModelIndex &index) const
 		break;
 	}
 
-	return flags;
+    return flags;
+}
+
+QVariant ContactListFrontModel::data(const QModelIndex &index, int role) const
+{
+    switch (role) {
+    case FirstItemRole:
+        return index.row() == 0;
+    case LastItemRole:
+        return index.row() + 1 == rowCount(parent(index));
+    default:
+        return QSortFilterProxyModel::data(index, role);
+    }
 }
 
 void ContactListFrontModel::setFilterTags(const QStringList &filterTags)
@@ -306,8 +353,11 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 
 bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-	const QRegExp regexp = filterRegExp();
+    const QRegExp regexp = filterRegExp();
+    if (m_filterTags.isEmpty() && m_showOffline && regexp.isEmpty())
+        return true;
+
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 	switch (index.data(ItemTypeRole).toInt()) {
 	case ContactType: {
 		Contact *contact = qobject_cast<Contact*>(index.data(BuddyRole).value<Buddy*>());

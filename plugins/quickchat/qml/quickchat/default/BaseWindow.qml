@@ -6,6 +6,7 @@ ApplicationWindow {
 
     property var toolBarModel
     property string searchText: ''
+    property alias backgroundColor: window.color
 
     readonly property int toolBarButtonSize: 26
 

@@ -54,13 +54,14 @@ public:
 
     QHash<int, QByteArray> roleNames() const;
 
-	virtual QStringList mimeTypes() const;
-	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList mimeTypes() const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column, const QModelIndex &parent);
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::DropActions supportedDragActions() const;
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+                              int row, int column, const QModelIndex &parent) override;
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::DropActions supportedDragActions() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
 
 public slots:
 	void setFilterTags(const QStringList &filterTags);
@@ -87,7 +88,7 @@ protected:
 	QHash<QString, QStringList> m_order;
 	qutim_sdk_0_3::ServicePointer<ContactListBaseModel> m_model;
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MetaContactManager> m_metaManager;
-	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
+    qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
 };
 
 #endif // CONTACTLISTFRONTMODEL_H

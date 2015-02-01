@@ -51,18 +51,11 @@ BaseWindow {
     SplitView {
         anchors.fill: parent
 
-        Rectangle {
+        ContactsView {
             Layout.fillHeight: true
             width: 50
-            color: Qt.white
-
-            ScrollView {
-                anchors.fill: parent
-
-                ContactsView {
-                    searchText: window.searchText
-                }
-            }
+            id: contactsView
+            searchText: window.searchText
         }
 
         TabView {

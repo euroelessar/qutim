@@ -53,6 +53,8 @@ enum ContactListItemRole
 	AlphabetRole,
     IdRole,
     IconSourceRole,
+    FirstItemRole,
+    LastItemRole,
 };
 
 enum ContactListItemType
