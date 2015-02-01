@@ -1,10 +1,10 @@
 /* This file is part of the KDE project
-  Copyright (C) 2010 Dag Andersen <danders@get2net.dk>
+  Copyright(C)2010 Dag Andersen <danders@get2net.dk>
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
   License as published by the Free Software Foundation; either
-  version 2 of the License, or (at your option) any later version.
+  version 2 of the License, or(at your option)any later version.
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -51,26 +51,26 @@ class FlatProxyModel : public QAbstractProxyModel
 public:
     explicit FlatProxyModel(QObject *parent = 0);
 
-    virtual QModelIndex mapFromSource ( const QModelIndex & sourceIndex ) const;
-    virtual QItemSelection mapSelectionFromSource ( const QItemSelection & sourceSelection ) const;
-    virtual QItemSelection mapSelectionToSource ( const QItemSelection & proxySelection ) const;
-    virtual QModelIndex mapToSource ( const QModelIndex & proxyIndex ) const;
-    virtual void setSourceModel ( QAbstractItemModel * sourceModel );
+    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex)const;
+    virtual QItemSelection mapSelectionFromSource(const QItemSelection &sourceSelection)const;
+    virtual QItemSelection mapSelectionToSource(const QItemSelection &proxySelection)const;
+    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex)const;
+    virtual void setSourceModel(QAbstractItemModel * sourceModel);
 
-    QModelIndex index( int row, int column, const QModelIndex &parent = QModelIndex() ) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount( const QModelIndex &parent = QModelIndex() ) const;
-    int columnCount(const QModelIndex &parent  = QModelIndex() ) const;
-    bool hasChildren(const QModelIndex &parent = QModelIndex() ) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole );
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex())const;
+    QModelIndex parent(const QModelIndex &child)const;
+    int rowCount(const QModelIndex &parent = QModelIndex())const;
+    int columnCount(const QModelIndex &parent  = QModelIndex())const;
+    bool hasChildren(const QModelIndex &parent = QModelIndex())const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole)const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::EditRole);
 
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    QStringList mimeTypes() const;
-    Qt::DropActions supportedDropActions() const;
+    QMimeData *mimeData(const QModelIndexList &indexes)const;
+    QStringList mimeTypes()const;
+    Qt::DropActions supportedDropActions()const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent = QModelIndex());
 
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
@@ -78,41 +78,41 @@ public:
 
 
 public slots:
-    void sourceDataChanged(const QModelIndex &source_top_left,
+    void onSourceDataChanged(const QModelIndex &source_top_left,
                            const QModelIndex &source_bottom_right);
-    void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
+    void onSourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
 
-    void sourceReset();
+    void onSourceReset();
 
-    void sourceLayoutAboutToBeChanged();
-    void sourceLayoutChanged();
+    void onSourceLayoutAboutToBeChanged();
+    void onSourceLayoutChanged();
 
-    void sourceRowsAboutToBeInserted(const QModelIndex &source_parent,
+    void onSourceRowsAboutToBeInserted(const QModelIndex &source_parent,
                                         int start, int end);
-    void sourceRowsInserted(const QModelIndex &source_parent,
+    void onSourceRowsInserted(const QModelIndex &source_parent,
                                int start, int end);
-    void sourceRowsAboutToBeRemoved(const QModelIndex &source_parent,
+    void onSourceRowsAboutToBeRemoved(const QModelIndex &source_parent,
                                        int start, int end);
-    void sourceRowsRemoved(const QModelIndex &source_parent,
+    void onSourceRowsRemoved(const QModelIndex &source_parent,
                               int start, int end);
 
-    void sourceRowsAboutToBeMoved( const QModelIndex &source_parent,
-                                  int start, int end, const QModelIndex &destParent, int destStart );
-    void sourceRowsMoved( const QModelIndex &source_parent,
-                                  int start, int end, const QModelIndex &destParent, int destStart );
+    void onSourceRowsAboutToBeMoved(const QModelIndex &source_parent,
+                                  int start, int end, const QModelIndex &destParent, int destStart);
+    void onSourceRowsMoved(const QModelIndex &source_parent,
+                                  int start, int end, const QModelIndex &destParent, int destStart);
 
 protected:
-    int mapFromSourceRow( const QModelIndex & sourceIndex ) const;
-    int mapToSourceRow( const  QModelIndex & sourceIndex ) const;
+    int mapFromSourceRow(const QModelIndex &sourceIndex)const;
+    int mapToSourceRow(const  QModelIndex &sourceIndex)const;
 
 private slots:
-    void initiateMaps( const QModelIndex &sourceParent = QModelIndex() );
-    void sourceModelDestroyed();
+    void initiateMaps(const QModelIndex &sourceParent = QModelIndex());
+    void onSourceModelDestroyed();
 
 private:
     /// List of sourceIndexes
     QList<QPersistentModelIndex> m_sourceIndexList;
-    /// Map of sourceIndexes (parent, index)
+    /// Map of sourceIndexes(parent, index)
     QMultiMap<QPersistentModelIndex, QPersistentModelIndex> m_sourceIndexMap;
 };
 
