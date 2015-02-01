@@ -79,11 +79,17 @@ protected slots:
 	void onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
 
 protected:
+    void connectNotify(const QMetaMethod &signal) override;
+    void updateData(const QModelIndex &parent, int row, ContactListItemRole role);
+    void onRowsInserted(const QModelIndex &parent, int first, int last);
+    void onRowsRemoved(const QModelIndex &parent, int first, int last);
 	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 	virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
-    
-protected:
+
 	bool m_showOffline;
+    bool m_insideConnectNotify = false;
+    QMetaObject::Connection m_rowsInsertedConnection;
+    QMetaObject::Connection m_rowsRemovedConnection;
 	QStringList m_filterTags;
 	QHash<QString, QStringList> m_order;
 	qutim_sdk_0_3::ServicePointer<ContactListBaseModel> m_model;

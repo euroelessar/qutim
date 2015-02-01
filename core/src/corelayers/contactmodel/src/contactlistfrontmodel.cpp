@@ -27,7 +27,8 @@
 #include "contactlistmimedata.h"
 #include <qutim/protocol.h>
 #include <qutim/accountmanager.h>
-#include <QtDebug>
+#include <QDebug>
+#include <QMetaMethod>
 
 using namespace qutim_sdk_0_3;
 
@@ -49,39 +50,6 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	onServiceChanged(m_metaManager.name(), m_metaManager, NULL);
     connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
             this, &ContactListFrontModel::onServiceChanged);
-
-    auto update = [this] (const QModelIndex &parent, int row, ContactListItemRole role) {
-        QModelIndex item = index(row, 0, parent);
-        emit dataChanged(item, item, QVector<int> { role });
-    };
-
-    auto onInsert = [this, update] (const QModelIndex &parent, int first, int last) {
-        int count = rowCount(parent);
-        if (first == 0 && last + 1 < count)
-            update(parent, last + 1, FirstItemRole);
-        if (last + 1 == count && first > 0)
-            update(parent, first - 1, LastItemRole);
-    };
-    auto onRemove = [this, update] (const QModelIndex &parent, int first, int last) {
-        Q_UNUSED(last);
-        int count = rowCount(parent);
-        if (first == 0 && count > 0)
-            update(parent, 0, FirstItemRole);
-        if (first >= count && first > 0)
-            update(parent, first - 1, LastItemRole);
-    };
-    connect(this, &QAbstractItemModel::rowsInserted, this, onInsert);
-    connect(this, &QAbstractItemModel::rowsRemoved, this, onRemove);
-    connect(this, &QAbstractItemModel::rowsMoved, this, [] () {
-        qDebug() << "moved";
-    });
-    connect(this, &QAbstractItemModel::layoutChanged, this, [] (const QList<QPersistentModelIndex> &parents) {
-        qDebug() << "layout" << parents.size();
-    });
-//            this, [this, onInsert, onRemove] (const QModelIndex &parent, int first, int last, const QModelIndex &destination, int row) {
-//        onRemove(parent, first, last);
-//        onInsert(destination, row, row + last - first);
-//    });
 }
 
 bool ContactListFrontModel::offlineVisibility() const
@@ -348,7 +316,52 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 			m_model->onAccountRemoved(oldManager);
 		if (m_metaManager)
 			m_model->onAccountCreated(m_metaManager);
-	}
+    }
+}
+
+void ContactListFrontModel::connectNotify(const QMetaMethod &signal)
+{
+    if (m_insideConnectNotify)
+        return;
+    m_insideConnectNotify = true;
+
+    if (signal == QMetaMethod::fromSignal(&QAbstractItemModel::rowsInserted)) {
+        disconnect(m_rowsInsertedConnection);
+        m_rowsInsertedConnection = connect(this, &QAbstractItemModel::rowsInserted,
+                                           this, &ContactListFrontModel::onRowsInserted);
+    }
+    if (signal == QMetaMethod::fromSignal(&QAbstractItemModel::rowsRemoved)) {
+        disconnect(m_rowsRemovedConnection);
+        m_rowsRemovedConnection = connect(this, &QAbstractItemModel::rowsRemoved,
+                                          this, &ContactListFrontModel::onRowsRemoved);
+    }
+
+    m_insideConnectNotify = false;
+}
+
+void ContactListFrontModel::updateData(const QModelIndex &parent, int row, ContactListItemRole role)
+{
+    QModelIndex item = index(row, 0, parent);
+    emit dataChanged(item, item, QVector<int> { role });
+}
+
+void ContactListFrontModel::onRowsInserted(const QModelIndex &parent, int first, int last)
+{
+    int count = rowCount(parent);
+    if (first == 0 && last + 1 < count)
+        updateData(parent, last + 1, FirstItemRole);
+    if (last + 1 == count && first > 0)
+        updateData(parent, first - 1, LastItemRole);
+}
+
+void ContactListFrontModel::onRowsRemoved(const QModelIndex &parent, int first, int last)
+{
+    Q_UNUSED(last);
+    int count = rowCount(parent);
+    if (first == 0 && count > 0)
+        updateData(parent, 0, FirstItemRole);
+    if (first >= count && first > 0)
+        updateData(parent, first - 1, LastItemRole);
 }
 
 bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
