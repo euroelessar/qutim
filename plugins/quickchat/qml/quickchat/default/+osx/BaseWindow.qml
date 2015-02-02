@@ -19,8 +19,8 @@ ApplicationWindow {
     WindowBackgroundBlur {
         id: blur
         window: root
-        radius: 10
-        backgroundColor: "#8042aaff"
+        radius: 25
+        backgroundColor: "#a0f7fafc"
     }
 
     Repeater {

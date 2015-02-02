@@ -22,6 +22,7 @@
 
 #include <QAbstractProxyModel>
 #include <QStandardItemModel>
+#include <QQmlPropertyMap>
 
 class PersistentModelIndex;
 class QModelIndex;
@@ -30,6 +31,8 @@ class QItemSelection;
 /// The main namespace
 namespace QuickChat
 {
+
+class FlatProxyModelData;
 
 /**
     FlatProxyModel is a proxy model that makes a tree source model flat.
@@ -76,6 +79,7 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
+    Q_INVOKABLE QObject *rowData(int row);
 
 public slots:
     void onSourceDataChanged(const QModelIndex &source_top_left,
@@ -110,10 +114,23 @@ private slots:
     void onSourceModelDestroyed();
 
 private:
+    friend class FlatProxyModelData;
     /// List of sourceIndexes
     QList<QPersistentModelIndex> m_sourceIndexList;
     /// Map of sourceIndexes(parent, index)
     QMultiMap<QPersistentModelIndex, QPersistentModelIndex> m_sourceIndexMap;
+    QHash<int, QByteArray> m_roleNames;
+};
+
+class FlatProxyModelData : public QQmlPropertyMap
+{
+    Q_OBJECT
+public:
+    FlatProxyModelData(int row, FlatProxyModel *model);
+    ~FlatProxyModelData();
+
+private:
+    const QModelIndex m_index;
 };
 
 } //namespace QuickChat

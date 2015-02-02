@@ -23,6 +23,7 @@
 #include <QModelIndex>
 #include <QPersistentModelIndex>
 #include <QItemSelection>
+#include <QQmlProperty>
 
 namespace QuickChat
 {
@@ -190,6 +191,7 @@ void FlatProxyModel::setSourceModel(QAbstractItemModel *model)
                 this, &FlatProxyModel::onSourceRowsAboutToBeMoved);
         connect(sourceModel(), &QAbstractItemModel::rowsMoved,
                 this, &FlatProxyModel::onSourceRowsMoved);
+        m_roleNames = sourceModel()->roleNames();
     }
 
     beginResetModel();
@@ -246,7 +248,7 @@ QVariant FlatProxyModel::data(const QModelIndex &index, int role) const
         //qDebug()<<"proxy column"<<col<<sourceModel()->columnCount();
     }
     if (!source_index.isValid()) {
-        qDebug()<<"index valid but source index not valid:"<<index;
+//        qDebug()<<"index valid but source index not valid:"<<index;
         return QVariant();
     }
     QVariant r;
@@ -369,6 +371,11 @@ bool FlatProxyModel::removeRows(int row, int count, const QModelIndex &parent)
     return false;
 }
 
+QObject *FlatProxyModel::rowData(int row)
+{
+    return new FlatProxyModelData(row, this);
+}
+
 
 /*!
    Returns the source model index corresponding to the given \a
@@ -443,6 +450,50 @@ void FlatProxyModel::initiateMaps(const QModelIndex &sourceParent)
         }
     }
     //qDebug()<<"source index list="<<m_sourceIndexList;
+}
+
+FlatProxyModelData::FlatProxyModelData(int row, FlatProxyModel *model)
+    : QQmlPropertyMap(this, nullptr), m_index(model->index(row, 0))
+{
+    for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it) {
+        QVariant data = m_index.isValid() ? m_index.data(it.key()) : QVariant();
+        insert(it.value(), data);
+    }
+
+    auto update = [this, model] (int role) {
+        const QString name = model->m_roleNames.value(role);
+        if (name.isEmpty())
+            return;
+
+        QVariant data = m_index.isValid() ? m_index.data(role) : QVariant();
+        QQmlProperty property(this, name);
+        bool result = property.write(data);
+        Q_UNUSED(result);
+        Q_ASSERT(result);
+    };
+
+    connect(model, &FlatProxyModel::dataChanged,
+            this, [this, update, model] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
+        if ((topLeft < m_index && m_index < bottomRight) || m_index == topLeft || m_index == bottomRight) {
+            if (roles.isEmpty()) {
+                for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it)
+                    update(it.key());
+            } else {
+                for (int role : roles)
+                    update(role);
+            }
+        }
+    });
+
+    connect(model, &FlatProxyModel::modelReset,
+            this, [this, update, model] () {
+        for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it)
+            update(it.key());
+    });
+}
+
+FlatProxyModelData::~FlatProxyModelData()
+{
 }
 
 

@@ -3,10 +3,15 @@ import QtQuick.Controls 1.0
 import org.qutim 0.4
 import org.qutim.quickchat 0.4
 import "constants.js" as Constants
-import "style"
 
-ScrollView {
+TableView {
     id: root
+
+    headerVisible: false
+    backgroundVisible: false
+    alternatingRowColors: false
+
+    model: flatModel
 
     property string searchText
 
@@ -15,110 +20,108 @@ ScrollView {
             contactModel.object.setFilterFixedString(searchText)
     }
 
-    ListView {
-        id: listView
+    Service {
+        id: chatLayer
+        name: "ChatLayer"
+    }
 
-        Service {
-            id: chatLayer
-            name: "ChatLayer"
+    TableViewColumn {
+    }
+
+    readonly property Style style: styleLoader.item
+
+    Loader {
+        id: styleLoader
+        source: 'style/Style.qml'
+    }
+
+    Service {
+        id: contactModel
+        name: "ContactModel"
+
+        onObjectChanged: {
+            if (contactModel.object)
+                contactModel.object.setFilterFixedString(searchText)
         }
+    }
 
-        Style {
-            id: style
+    function rowByType(type) {
+        if (type === Constants.ACCOUNT)
+            return root.style.rowAccountDelegate;
+        if (type === Constants.GROUP)
+            return root.style.rowGroupDelegate;
+        if (type === Constants.CONTACT)
+            return root.style.rowContactDelegate;
+        return '';
+    }
+
+    function itemByType(type) {
+        if (type === Constants.ACCOUNT)
+            return root.style.itemAccountDelegate;
+        if (type === Constants.GROUP)
+            return root.style.itemGroupDelegate;
+        if (type === Constants.CONTACT)
+            return root.style.itemContactDelegate;
+        return '';
+    }
+
+    FlatProxyModel {
+        id: flatModel
+        sourceModel: contactModel.object
+    }
+
+    itemDelegate: Loader {
+        source: model === null ? '' : itemByType(model.itemType)
+        height: item ? item.height : 16
+
+        readonly property Style viewStyle: root.style
+    }
+    rowDelegate: Loader {
+        source: model === null ? '' : rowByType(model.itemType)
+        height: item ? item.height : 16
+
+        readonly property Style viewStyle: root.style
+        readonly property var model: flatModel.rowData(styleData.row)
+    }
+
+    ControlledMenu {
+        id: menu
+    }
+
+    Rectangle {
+        id: colorRect
+        anchors.fill: parent
+        color: root.style.backgroundColor
+        z: -2
+    }
+
+    onActivated: {
+        var data = flatModel.rowData(row);
+        var contact = data.contact;
+
+        if (contact !== undefined && contact !== null) {
+            chatLayer.object.session(contact, true).activate();
         }
+    }
 
-        Service {
-            id: contactModel
-            name: "ContactModel"
+    MouseArea {
+        id: mousearea
 
-            onObjectChanged: {
-                if (contactModel.object)
-                    contactModel.object.setFilterFixedString(searchText)
-            }
-        }
+        anchors.fill: root
+        acceptedButtons: Qt.RightButton
 
-        function styleByType(type) {
-            if (type === Constants.ACCOUNT)
-                return style.account;
-            if (type === Constants.GROUP)
-                return style.group;
-            if (type === Constants.CONTACT)
-                return style.contact;
-            return undefined;
-        }
+        onClicked: {
+            var row = root.rowAt(mouse.x, mouse.y);
+            if (row < 0)
+                return;
 
-        model: flatModel
+            var data = flatModel.rowData(row);
+            var contact = data.contact;
 
-        FlatProxyModel {
-            id: flatModel
-            sourceModel: contactModel.object
-        }
-
-        delegate: Loader {
-            id: loader
-            source: loader.style.source
-            width: listView.width
-
-            property ItemStyle style: listView.styleByType(itemType)
-            property var itemModel: model
-            property QtObject styleData: QtObject {
-            }
-        }
-
-        ControlledMenu {
-            id: menu
-        }
-
-        Rectangle {
-            id: colorRect
-            anchors.fill: parent
-            color: style.backgroundColor
-            z: -2
-        }
-
-        MouseArea {
-            id: mousearea
-
-            z: -1
-            anchors.fill: listView
-            propagateComposedEvents: true
-
-            function mouseIndex(mouse) {
-                return listView.indexAt(0, mouse.y + listView.contentY);
-            }
-
-            function mouseItem(mouse) {
-                return listView.itemAt(0, mouse.y + listView.contentY);
-            }
-
-            function mouseContact(mouse) {
-                return mouseItem(mouse).itemModel.contact;
-            }
-
-            onClicked: {
-                var index = mouseIndex(mouse);
-                var contact = mouseContact(mouse);
-
-                if (mouse.button === Qt.RightButton && index >= 0 && contact !== undefined && contact !== null) {
-                    listView.currentIndex = index;
-                    menu.controller = contact;
-                    menu.popup();
-                } else if (mouse.button === Qt.LeftButton && index >= 0) {
-                    listView.currentIndex = index;
-                }
-            }
-
-            onDoubleClicked: {
-                var index = mouseIndex(mouse);
-                var contact = mouseContact(mouse);
-
-                if (mouse.button === Qt.LeftButton && index >= 0 && contact !== undefined && contact !== null) {
-                    chatLayer.object.session(contact, true).activate();
-                }
-            }
-
-            onPressed: {
-                root.forceActiveFocus();
+            if (contact !== undefined && contact !== null) {
+                root.currentRow = row;
+                menu.controller = contact;
+                menu.popup();
             }
         }
     }

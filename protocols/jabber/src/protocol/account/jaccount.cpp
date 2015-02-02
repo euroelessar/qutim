@@ -131,8 +131,8 @@ void JAccountPrivate::_q_connected()
 
 void JAccountPrivate::onPasswordReceived(const QString &password)
 {
-	client->setPassword(password);
-	client->connectToServer();
+    client->setPassword(password);
+    client->connectToServer();
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
@@ -157,7 +157,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
 
-	Status::ChangeReason statusReason = Status::ByUnknown;
+    Status::ChangeReason statusReason = Status::ByUnknown;
 
 	switch(reason) {
 	case Client::User:
@@ -165,7 +165,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::AuthorizationError: {
 		statusReason = Status::ByAuthorizationFailed;
 		keyChain->remove(q);
-		client->setPassword(QString());
+        client->setPassword(QString());
 		break;
 	}
 	case Client::HostUnknown:
@@ -443,7 +443,7 @@ void JAccount::doConnectToServer()
 			}
 		});
     } else {
-		d->client->connectToServer();
+        d->client->connectToServer();
 	}
 }
 
