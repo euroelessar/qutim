@@ -73,7 +73,7 @@ AsyncResult<Result> executeJob(Job *job)
 
 AsyncResult<qutim_sdk_0_3::KeyChain::ReadResult> Service::doRead(const QString &key)
 {
-	auto job = createJob<ReadPasswordJob>(key, this);
+    auto job = createJob<ReadPasswordJob>(key, this);
 
 	return executeJob1<ReadResult>(job, [] (ReadPasswordJob *job) {
 		ReadResult result;
@@ -100,7 +100,7 @@ AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::doWrite(const QString &key
 
 AsyncResult<qutim_sdk_0_3::KeyChain::Result> Service::doRemove(const QString &key)
 {
-	auto job = createJob<ReadPasswordJob>(key, this);
+    auto job = createJob<DeletePasswordJob>(key, this);
 
 	return executeJob<Result>(job);
 }
