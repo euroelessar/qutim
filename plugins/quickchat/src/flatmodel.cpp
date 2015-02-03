@@ -24,6 +24,7 @@
 #include <QPersistentModelIndex>
 #include <QItemSelection>
 #include <QQmlProperty>
+#include <QElapsedTimer>
 
 namespace QuickChat
 {
@@ -32,6 +33,8 @@ namespace QuickChat
 FlatProxyModel::FlatProxyModel(QObject *parent)
     : QAbstractProxyModel(parent)
 {
+    for (int i = 0; i < 100; ++i)
+        rowData(i);
 }
 
 void FlatProxyModel::onSourceModelDestroyed()
@@ -54,6 +57,7 @@ void FlatProxyModel::onSourceReset()
     beginResetModel();
     initiateMaps();
     endResetModel();
+    updateData();
 }
 
 void FlatProxyModel::onSourceLayoutAboutToBeChanged()
@@ -65,6 +69,7 @@ void FlatProxyModel::onSourceLayoutChanged()
 {
     initiateMaps();
     emit layoutChanged();
+    updateData();
 }
 
 void FlatProxyModel::onSourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
@@ -72,24 +77,43 @@ void FlatProxyModel::onSourceRowsAboutToBeInserted(const QModelIndex &source_par
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
-    beginResetModel();
 }
 
 void FlatProxyModel::onSourceRowsInserted(const QModelIndex &source_parent, int start, int end)
 {
-    Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
+
+    QVector<QPersistentModelIndex> sourceIndexList = m_sourceIndexList;
     initiateMaps();
-    endResetModel();
+    qSwap(m_sourceIndexList, sourceIndexList);
+
+    auto firstMismatch = std::mismatch(
+        m_sourceIndexList.begin(),
+        m_sourceIndexList.end(),
+        sourceIndexList.begin()
+    ).first;
+    int localStart = firstMismatch - m_sourceIndexList.begin();
+    int localEnd = sourceIndexList.size() - 1;
+    if (firstMismatch != m_sourceIndexList.end()) {
+        localEnd = sourceIndexList.indexOf(*firstMismatch) - 1;
+        Q_ASSERT(localEnd >= 0);
+        Q_ASSERT(localStart <= localEnd);
+    }
+
+    QModelIndex parent = mapFromSource(source_parent);
+    beginInsertRows(parent, localStart, localEnd);
+    m_sourceIndexList = sourceIndexList;
+    endInsertRows();
+    updateData(localStart, localEnd);
 }
 
-void FlatProxyModel::onSourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
+void FlatProxyModel::onSourceRowsAboutToBeRemoved(const QModelIndex &sourceParent, int start, int end)
 {
-    Q_UNUSED(source_parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
-    beginResetModel();
+    QModelIndex startIndex = mapFromSource(sourceModel()->index(start, 0, sourceParent));
+    QModelIndex endIndex = mapFromSource(sourceModel()->index(end, 0, sourceParent));
+
+    beginRemoveRows(mapFromSource(sourceParent), startIndex.row(), endIndex.row());
 }
 
 void FlatProxyModel::onSourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
@@ -99,7 +123,8 @@ void FlatProxyModel::onSourceRowsRemoved(const QModelIndex &source_parent, int s
     Q_UNUSED(end);
 
     initiateMaps();
-    endResetModel();
+    endRemoveRows();
+    updateData();
 }
 
 void FlatProxyModel::onSourceRowsAboutToBeMoved(const QModelIndex &source_parent, int start, int end, const QModelIndex &destParent, int destStart)
@@ -110,6 +135,7 @@ void FlatProxyModel::onSourceRowsAboutToBeMoved(const QModelIndex &source_parent
     Q_UNUSED(destParent);
     Q_UNUSED(destStart);
     beginResetModel();
+    updateData();
 }
 
 void FlatProxyModel::onSourceRowsMoved(const QModelIndex &source_parent, int start, int end, const QModelIndex &destParent, int destStart)
@@ -121,6 +147,18 @@ void FlatProxyModel::onSourceRowsMoved(const QModelIndex &source_parent, int sta
     Q_UNUSED(destStart);
     initiateMaps();
     endResetModel();
+    updateData();
+}
+
+void FlatProxyModel::updateData(int start, int end)
+{
+    for (int i = start; i < end && i < m_data.size(); ++i)
+        m_data[i]->update();
+}
+
+void FlatProxyModel::updateData()
+{
+    updateData(0, m_data.size());
 }
 
 void FlatProxyModel::setSourceModel(QAbstractItemModel *model)
@@ -373,7 +411,15 @@ bool FlatProxyModel::removeRows(int row, int count, const QModelIndex &parent)
 
 QObject *FlatProxyModel::rowData(int row)
 {
-    return new FlatProxyModelData(row, this);
+    if (row < 0)
+        row = 0;
+    if (m_data.size() <= row)
+        m_data.resize(row + 1);
+
+    auto * &data = m_data[row];
+    if (!data)
+        data = new FlatProxyModelData(row, this);
+    return data;
 }
 
 
@@ -427,11 +473,15 @@ QItemSelection FlatProxyModel::mapSelectionFromSource(const QItemSelection &sour
     return QAbstractProxyModel::mapSelectionFromSource(sourceSelection);
 }
 
+void FlatProxyModel::initiateMaps()
+{
+    initiateMaps(QModelIndex());
+}
+
 void FlatProxyModel::initiateMaps(const QModelIndex &sourceParent)
 {
     if (! sourceParent.isValid()) {
         m_sourceIndexList.clear();
-        m_sourceIndexMap.clear();
     }
     QAbstractItemModel *m = sourceModel();
     if (m == 0) {
@@ -444,7 +494,6 @@ void FlatProxyModel::initiateMaps(const QModelIndex &sourceParent)
         //qDebug()<<"map:"<<sourceParent<<row<<idx;
         if (idx.isValid()) { // fail safe
             m_sourceIndexList.append(idx);
-            m_sourceIndexMap.insert(idx.parent(), idx);
 
             initiateMaps(idx);
         }
@@ -453,47 +502,26 @@ void FlatProxyModel::initiateMaps(const QModelIndex &sourceParent)
 }
 
 FlatProxyModelData::FlatProxyModelData(int row, FlatProxyModel *model)
-    : QQmlPropertyMap(this, nullptr), m_index(model->index(row, 0))
+    : QQmlPropertyMap(this, model), m_row(row), m_model(model)
 {
-    for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it) {
-        QVariant data = m_index.isValid() ? m_index.data(it.key()) : QVariant();
-        insert(it.value(), data);
-    }
-
-    auto update = [this, model] (int role) {
-        const QString name = model->m_roleNames.value(role);
-        if (name.isEmpty())
-            return;
-
-        QVariant data = m_index.isValid() ? m_index.data(role) : QVariant();
-        QQmlProperty property(this, name);
-        bool result = property.write(data);
-        Q_UNUSED(result);
-        Q_ASSERT(result);
-    };
-
-    connect(model, &FlatProxyModel::dataChanged,
-            this, [this, update, model] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
-        if ((topLeft < m_index && m_index < bottomRight) || m_index == topLeft || m_index == bottomRight) {
-            if (roles.isEmpty()) {
-                for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it)
-                    update(it.key());
-            } else {
-                for (int role : roles)
-                    update(role);
-            }
-        }
-    });
-
-    connect(model, &FlatProxyModel::modelReset,
-            this, [this, update, model] () {
-        for (auto it = model->m_roleNames.constBegin(); it != model->m_roleNames.constEnd(); ++it)
-            update(it.key());
-    });
 }
 
 FlatProxyModelData::~FlatProxyModelData()
 {
+    qDebug() << Q_FUNC_INFO;
+}
+
+void FlatProxyModelData::update()
+{
+    const QModelIndex index = m_model->index(m_row, 0);
+    const auto &roles = m_model->m_roleNames;
+    for (auto it = roles.constBegin(); it != roles.constEnd(); ++it) {
+        QVariant data = index.data(it.key());
+        QQmlProperty property(this, it.value());
+        bool result = property.write(data);
+        Q_UNUSED(result);
+        Q_ASSERT(result);
+    }
 }
 
 

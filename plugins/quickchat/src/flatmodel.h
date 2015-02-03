@@ -106,20 +106,22 @@ public slots:
                                   int start, int end, const QModelIndex &destParent, int destStart);
 
 protected:
-    int mapFromSourceRow(const QModelIndex &sourceIndex)const;
-    int mapToSourceRow(const  QModelIndex &sourceIndex)const;
+    int mapFromSourceRow(const QModelIndex &sourceIndex) const;
+    int mapToSourceRow(const  QModelIndex &sourceIndex) const;
+    void updateData(int start, int end);
+    void updateData();
 
 private slots:
-    void initiateMaps(const QModelIndex &sourceParent = QModelIndex());
+    void initiateMaps();
+    void initiateMaps(const QModelIndex &sourceParent);
     void onSourceModelDestroyed();
 
 private:
     friend class FlatProxyModelData;
     /// List of sourceIndexes
-    QList<QPersistentModelIndex> m_sourceIndexList;
-    /// Map of sourceIndexes(parent, index)
-    QMultiMap<QPersistentModelIndex, QPersistentModelIndex> m_sourceIndexMap;
+    QVector<QPersistentModelIndex> m_sourceIndexList;
     QHash<int, QByteArray> m_roleNames;
+    QVector<FlatProxyModelData *> m_data;
 };
 
 class FlatProxyModelData : public QQmlPropertyMap
@@ -129,8 +131,11 @@ public:
     FlatProxyModelData(int row, FlatProxyModel *model);
     ~FlatProxyModelData();
 
+    void update();
+
 private:
-    const QModelIndex m_index;
+    const int m_row;
+    FlatProxyModel * const m_model;
 };
 
 } //namespace QuickChat
