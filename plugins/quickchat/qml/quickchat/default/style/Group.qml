@@ -10,7 +10,7 @@ Item {
 
         Loader {
             id: image
-            sourceComponent: viewStyle.groupTriangle
+//            sourceComponent: viewStyle.groupTriangle
             width: height
             anchors {
                 left: root.left

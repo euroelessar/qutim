@@ -33,8 +33,6 @@ namespace QuickChat
 FlatProxyModel::FlatProxyModel(QObject *parent)
     : QAbstractProxyModel(parent)
 {
-    for (int i = 0; i < 100; ++i)
-        rowData(i);
 }
 
 void FlatProxyModel::onSourceModelDestroyed()
@@ -57,7 +55,6 @@ void FlatProxyModel::onSourceReset()
     beginResetModel();
     initiateMaps();
     endResetModel();
-    updateData();
 }
 
 void FlatProxyModel::onSourceLayoutAboutToBeChanged()
@@ -69,7 +66,6 @@ void FlatProxyModel::onSourceLayoutChanged()
 {
     initiateMaps();
     emit layoutChanged();
-    updateData();
 }
 
 void FlatProxyModel::onSourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
@@ -81,6 +77,7 @@ void FlatProxyModel::onSourceRowsAboutToBeInserted(const QModelIndex &source_par
 
 void FlatProxyModel::onSourceRowsInserted(const QModelIndex &source_parent, int start, int end)
 {
+    Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 
@@ -101,19 +98,21 @@ void FlatProxyModel::onSourceRowsInserted(const QModelIndex &source_parent, int 
         Q_ASSERT(localStart <= localEnd);
     }
 
-    QModelIndex parent = mapFromSource(source_parent);
-    beginInsertRows(parent, localStart, localEnd);
+    beginInsertRows(QModelIndex(), localStart, localEnd);
     m_sourceIndexList = sourceIndexList;
     endInsertRows();
-    updateData(localStart, localEnd);
 }
 
 void FlatProxyModel::onSourceRowsAboutToBeRemoved(const QModelIndex &sourceParent, int start, int end)
 {
-    QModelIndex startIndex = mapFromSource(sourceModel()->index(start, 0, sourceParent));
-    QModelIndex endIndex = mapFromSource(sourceModel()->index(end, 0, sourceParent));
+    QModelIndex startIndex = sourceModel()->index(start, 0, sourceParent);
+    QModelIndex endIndex = sourceModel()->index(end, 0, sourceParent);
+    while (sourceModel()->hasChildren(endIndex)) {
+        int count = sourceModel()->rowCount(endIndex);
+        endIndex = sourceModel()->index(count - 1, 0, endIndex);
+    }
 
-    beginRemoveRows(mapFromSource(sourceParent), startIndex.row(), endIndex.row());
+    beginRemoveRows(QModelIndex(), mapFromSource(startIndex).row(), mapFromSource(endIndex).row());
 }
 
 void FlatProxyModel::onSourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
@@ -124,7 +123,6 @@ void FlatProxyModel::onSourceRowsRemoved(const QModelIndex &source_parent, int s
 
     initiateMaps();
     endRemoveRows();
-    updateData();
 }
 
 void FlatProxyModel::onSourceRowsAboutToBeMoved(const QModelIndex &source_parent, int start, int end, const QModelIndex &destParent, int destStart)
@@ -135,7 +133,6 @@ void FlatProxyModel::onSourceRowsAboutToBeMoved(const QModelIndex &source_parent
     Q_UNUSED(destParent);
     Q_UNUSED(destStart);
     beginResetModel();
-    updateData();
 }
 
 void FlatProxyModel::onSourceRowsMoved(const QModelIndex &source_parent, int start, int end, const QModelIndex &destParent, int destStart)
@@ -147,18 +144,6 @@ void FlatProxyModel::onSourceRowsMoved(const QModelIndex &source_parent, int sta
     Q_UNUSED(destStart);
     initiateMaps();
     endResetModel();
-    updateData();
-}
-
-void FlatProxyModel::updateData(int start, int end)
-{
-    for (int i = start; i < end && i < m_data.size(); ++i)
-        m_data[i]->update();
-}
-
-void FlatProxyModel::updateData()
-{
-    updateData(0, m_data.size());
 }
 
 void FlatProxyModel::setSourceModel(QAbstractItemModel *model)
@@ -409,19 +394,18 @@ bool FlatProxyModel::removeRows(int row, int count, const QModelIndex &parent)
     return false;
 }
 
-QObject *FlatProxyModel::rowData(int row)
+QVariantMap FlatProxyModel::rowData(int row)
 {
-    if (row < 0)
-        row = 0;
-    if (m_data.size() <= row)
-        m_data.resize(row + 1);
+    if (row < 0 || row >= m_sourceIndexList.size())
+        return QVariantMap();
 
-    auto * &data = m_data[row];
-    if (!data)
-        data = new FlatProxyModelData(row, this);
+    QVariantMap data;
+    const QModelIndex index = m_sourceIndexList[row];
+    for (auto it = m_roleNames.constBegin(); it != m_roleNames.constEnd(); ++it) {
+        data.insert(it.value(), index.data(it.key()));
+    }
     return data;
 }
-
 
 /*!
    Returns the source model index corresponding to the given \a
@@ -500,29 +484,5 @@ void FlatProxyModel::initiateMaps(const QModelIndex &sourceParent)
     }
     //qDebug()<<"source index list="<<m_sourceIndexList;
 }
-
-FlatProxyModelData::FlatProxyModelData(int row, FlatProxyModel *model)
-    : QQmlPropertyMap(this, model), m_row(row), m_model(model)
-{
-}
-
-FlatProxyModelData::~FlatProxyModelData()
-{
-    qDebug() << Q_FUNC_INFO;
-}
-
-void FlatProxyModelData::update()
-{
-    const QModelIndex index = m_model->index(m_row, 0);
-    const auto &roles = m_model->m_roleNames;
-    for (auto it = roles.constBegin(); it != roles.constEnd(); ++it) {
-        QVariant data = index.data(it.key());
-        QQmlProperty property(this, it.value());
-        bool result = property.write(data);
-        Q_UNUSED(result);
-        Q_ASSERT(result);
-    }
-}
-
 
 } // namespace QuickChat

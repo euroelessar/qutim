@@ -82,7 +82,6 @@ TableView {
         height: item ? item.height : 16
 
         readonly property Style viewStyle: root.style
-        readonly property var model: flatModel.rowData(styleData.row)
     }
 
     ControlledMenu {

@@ -63,7 +63,6 @@ void Chat::init()
     qmlRegisterType<ChatLayer>();
     qmlRegisterType<ChatSession>();
     qmlRegisterType<ChatChannel>();
-    qmlRegisterType<FlatProxyModelData>();
     qmlRegisterType<ChatController>("org.qutim.quickchat", 0, 4, "ChatController");
     qmlRegisterType<ChatChannelModel>("org.qutim.quickchat", 0, 4, "ChatChannelModel");
     qmlRegisterType<ChatPreview>("org.qutim.quickchat", 0, 4, "ChatPreview");
