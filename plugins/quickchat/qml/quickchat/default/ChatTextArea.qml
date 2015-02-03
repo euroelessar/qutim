@@ -8,6 +8,13 @@ TextArea {
     wrapMode: TextEdit.Wrap
     textFormat: TextEdit.PlainText
     implicitHeight: _autoResize ? contentHeight + textMargin * 2 : 0
+    backgroundVisible: false
+
+    Rectangle {
+        anchors.fill: parent
+        color: "#40ffffff"
+        z: -2
+    }
 
     Config {
         id: config

@@ -48,7 +48,7 @@ BaseWindow {
         }
     }
 
-    SplitView {
+    StyledSplitView {
         anchors.fill: parent
 
         ContactsView {

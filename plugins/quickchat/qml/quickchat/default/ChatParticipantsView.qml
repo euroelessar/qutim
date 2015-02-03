@@ -6,6 +6,7 @@ TableView {
     id: listView
     headerVisible: false
     alternatingRowColors: false
+    frameVisible: false
 
     SystemPalette {
         id: palette

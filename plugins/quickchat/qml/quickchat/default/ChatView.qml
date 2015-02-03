@@ -3,7 +3,7 @@ import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.0
 import org.qutim 0.4 as Qutim
 
-SplitView {
+StyledSplitView {
     id: root
     orientation: Qt.Horizontal
     property alias session: messagesView.session
@@ -54,7 +54,7 @@ SplitView {
         onJavaScriptRequest: messagesView.runJavaScript(script)
     }
 
-    SplitView {
+    StyledSplitView {
         orientation: Qt.Vertical
         width: parent.width - 150
         Layout.fillHeight: true
@@ -76,6 +76,7 @@ SplitView {
             focus: true
             completionModel: participantsView.model || null
             session: messagesView.session
+            frameVisible: false
         }
     }
 

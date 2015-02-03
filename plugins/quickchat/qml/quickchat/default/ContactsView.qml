@@ -10,6 +10,7 @@ TableView {
     headerVisible: false
     backgroundVisible: false
     alternatingRowColors: false
+    frameVisible: false
 
     model: flatModel
 
