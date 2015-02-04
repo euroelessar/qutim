@@ -2,7 +2,6 @@ import QtQuick 2.0
 
 QtObject {
     property url source
-    property url rowSource
 
     property color backgroundColor: 'transparent'
     property color selectedColor: 'transparent'

@@ -3,6 +3,7 @@ import QtQuick.Controls 1.0
 import org.qutim 0.4
 import org.qutim.quickchat 0.4
 import "constants.js" as Constants
+import "details" as Details
 
 TableView {
     id: root
@@ -46,24 +47,52 @@ TableView {
         }
     }
 
-    function rowByType(type) {
+    function componentByType(type) {
         if (type === Constants.ACCOUNT)
-            return root.style.rowAccountDelegate;
+            return accountComponent;
         if (type === Constants.GROUP)
-            return root.style.rowGroupDelegate;
+            return groupComponent;
         if (type === Constants.CONTACT)
-            return root.style.rowContactDelegate;
-        return '';
+            return contactComponent;
+        return undefined;
     }
 
-    function itemByType(type) {
+    function stackByType(type) {
         if (type === Constants.ACCOUNT)
-            return root.style.itemAccountDelegate;
+            return root.accountItemsStack;
         if (type === Constants.GROUP)
-            return root.style.itemGroupDelegate;
+            return root.groupItemsStack;
         if (type === Constants.CONTACT)
-            return root.style.itemContactDelegate;
-        return '';
+            return root.contactItemsStack;
+        return undefined;
+    }
+
+    property var contactItemsStack: []
+    property var groupItemsStack: []
+    property var accountItemsStack: []
+
+    Component {
+        id: accountComponent
+
+        Details.ItemProxy {
+            sourceComponent: root.style.accountDelegate
+        }
+    }
+
+    Component {
+        id: groupComponent
+
+        Details.ItemProxy {
+            sourceComponent: root.style.groupDelegate
+        }
+    }
+
+    Component {
+        id: contactComponent
+
+        Details.ItemProxy {
+            sourceComponent: root.style.contactDelegate
+        }
     }
 
     FlatProxyModel {
@@ -71,17 +100,78 @@ TableView {
         sourceModel: contactModel.object
     }
 
-    itemDelegate: Loader {
-        source: model === null ? '' : itemByType(model.itemType)
-        height: item ? item.height : 16
+    itemDelegate: Item {}
+    rowDelegate: Item {
+        id: rowItemContainer
 
-        readonly property Style viewStyle: root.style
-    }
-    rowDelegate: Loader {
-        source: model === null ? '' : rowByType(model.itemType)
-        height: item ? item.height : 16
+        property Item rowItem: null
+        property var itemType: undefined
+        property var modelItemType: model ? model.itemType : null
 
-        readonly property Style viewStyle: root.style
+        function fallbackBindings() {
+            rowItemContainer.height = 16;
+        }
+
+        function setupItem() {
+            if (!model) {
+                fallbackBindings();
+                return;
+            }
+
+            // retrieve row item from cache
+            var stack = stackByType(model.itemType);
+            if (stack === undefined) {
+                fallbackBindings();
+                return;
+            }
+
+            if (stack.length > 0) {
+                rowItem = stack.pop();
+            } else {
+                var component = componentByType(model.itemType);
+                if (component === undefined) {
+                    fallbackBindings();
+                    return;
+                }
+                rowItem = component.createObject(root);
+                if (rowItem === null) {
+                    fallbackBindings();
+                    return;
+                }
+            }
+            itemType = model.itemType;
+
+            // Bind container to item size
+//            rowItemContainer.width = Qt.binding( function() { return rowItem.width });
+            rowItemContainer.height = Qt.binding( function() { return rowItem.height });
+            rowItem.width = Qt.binding( function() { return rowItemContainer.width });
+
+            // Reassign row-specific bindings
+            rowItem.itemStyleData = Qt.binding( function() { return styleData });
+            rowItem.itemModelData = Qt.binding( function() { return modelData });
+            rowItem.itemModel = Qt.binding( function() { return model });
+            rowItem.parent = rowItemContainer;
+            rowItem.visible = true;
+        }
+
+        function clearItem() {
+            if (rowItem) {
+                rowItem.visible = false;
+                rowItem.parent = null;
+                rowItem.width = rowItemContainer.width;
+                stackByType(itemType).push(rowItem);
+            }
+            fallbackBindings();
+            rowItem = null;
+            itemType = undefined;
+        }
+
+        onModelItemTypeChanged: {
+            clearItem();
+            setupItem();
+        }
+        Component.onCompleted: setupItem()
+        Component.onDestruction: clearItem()
     }
 
     ControlledMenu {

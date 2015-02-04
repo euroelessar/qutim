@@ -7,22 +7,22 @@ Parent.Style {
     property color backgroundColor: "transparent"
 
     property ItemStyle account: ItemStyle {
+        id: accountStyle
         source: 'Account.qml'
-        rowSource: 'AccountRow.qml'
         rowHeight: 18
         selectedColor: "#a06495ed"
-        property real fontPointSize: 10
+        fontPointSize: 10
     }
 
     property ItemStyle group: ItemStyle {
+        id: groupStyle
         source: 'Group.qml'
-        rowSource: 'GroupRow.qml'
         rowHeight: 18
         backgroundColor: "white"
         selectedColor: "white"
         textColor: "white"
         highlightColor: "white"
-        property real fontPointSize: 10
+        fontPointSize: 10
         backgroundGradient: Gradient {
             GradientStop { position: 0.0; color: Qt.lighter("#1959d1", 1.2) }
             GradientStop { position: 1.0; color: "#1959d1" }
@@ -34,14 +34,14 @@ Parent.Style {
     }
 
     property ItemStyle contact: ItemStyle {
+        id: contactStyle
         source: 'Contact.qml'
-        rowSource: 'ContactRow.qml'
         rowHeight: 28
         selectedColor: "#a06495ed"
-        property real fontPointSize: 12
+        fontPointSize: 12
     }
 
-    property Component groupTriangle: Canvas {
+    property Component groupCanvasComponent: Canvas {
         id: groupCanvas
 
         readonly property real size: Math.round(height * 0.7)
@@ -69,10 +69,107 @@ Parent.Style {
         }
     }
 
-    rowAccountDelegate: account.rowSource
-    rowGroupDelegate: group.rowSource
-    rowContactDelegate: contact.rowSource
-    itemAccountDelegate: account.source
-    itemGroupDelegate: group.source
-    itemContactDelegate: contact.source
+    accountDelegate: BaseRow {
+        id: accountItem
+        height: itemStyle.rowHeight
+
+        itemStyle: accountStyle
+
+        Item {
+            anchors.fill: parent
+            anchors.margins: accountStyle.rowMargin
+
+            Label {
+                anchors.fill: parent
+                text: model === null ? 'null' : model.title
+                itemStyle: accountStyle
+            }
+        }
+    }
+
+    groupDelegate: BaseRow {
+        id: groupItem
+        height: itemStyle.rowHeight
+
+        itemStyle: groupStyle
+
+        Item {
+            anchors.fill: parent
+            anchors.margins: groupStyle.rowMargin
+
+            Loader {
+                id: image
+    //            sourceComponent: viewStyle.groupTriangle
+                width: height
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                    bottom: parent.bottom
+                    leftMargin: 2
+                }
+            }
+
+            Label {
+                anchors {
+                    left: image.right
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    leftMargin: 4
+                }
+                text: model === null ? 'null' : model.title
+                itemStyle: groupStyle
+            }
+        }
+    }
+
+    contactDelegate: BaseRow {
+        id: contactItem
+        height: itemStyle.rowHeight
+
+        itemStyle: contactStyle
+
+        Item {
+            anchors.fill: parent
+            anchors.margins: itemStyle.rowMargin
+
+            Image {
+                id: avatar
+                width: height
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+                source: model && model.iconSource && height > 0 ? model.iconSource + '&size=' + height : ''
+            }
+
+            Label {
+                id: titleText
+                anchors {
+                    left: avatar.right
+                    right: parent.right
+                    top: subtitleText.visible ? parent.top : undefined
+                    verticalCenter: subtitleText.visible ? undefined : parent.verticalCenter
+                    leftMargin: 4
+                }
+                text: model === null ? 'null' : model.title
+                itemStyle: contactStyle
+            }
+
+            Label {
+                id: subtitleText
+                anchors {
+                    left: avatar.right
+                    right: parent.right
+                    top: titleText.bottom
+                    bottom: parent.bottom
+                    leftMargin: 4
+                }
+                visible: text.length > 0
+                text: model === null || model.contact === undefined ? '' : model.contact.status.text
+                itemStyle: contactStyle
+                font.pointSize: titleText.font.pointSize - 4
+            }
+        }
+    }
 }

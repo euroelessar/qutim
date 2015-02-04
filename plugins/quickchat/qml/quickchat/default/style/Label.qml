@@ -2,8 +2,9 @@ import QtQuick 2.0
 
 Text {
     property ItemStyle itemStyle
+    readonly property bool selected: styleData !== null && styleData.selected
 
-    color: styleData.selected ? itemStyle.highlightColor : itemStyle.textColor
+    color: selected ? itemStyle.highlightColor : itemStyle.textColor
     renderType: Text.NativeRendering
     textFormat: Text.PlainText
     elide: Text.ElideRight

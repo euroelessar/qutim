@@ -16,11 +16,6 @@ TableView {
     TableViewColumn {
     }
 
-    Service {
-        id: chatLayer
-        name: "ChatLayer"
-    }
-
     // It's still not possible to specify row's height externally, so hack it a bit
     rowDelegate: Component {
         Item {
