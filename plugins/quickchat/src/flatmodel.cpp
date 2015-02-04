@@ -40,9 +40,11 @@ void FlatProxyModel::onSourceModelDestroyed()
     m_sourceIndexList.clear();
 }
 
-void FlatProxyModel::onSourceDataChanged(const QModelIndex &source_top_left, const QModelIndex &source_bottom_right)
+void FlatProxyModel::onSourceDataChanged(const QModelIndex &source_top_left,
+                                         const QModelIndex &source_bottom_right,
+                                         const QVector<int> &roles)
 {
-    emit dataChanged(mapFromSource(source_top_left), mapFromSource(source_bottom_right));
+    emit dataChanged(mapFromSource(source_top_left), mapFromSource(source_bottom_right), roles);
 }
 
 void FlatProxyModel::onSourceHeaderDataChanged(Qt::Orientation orientation, int start, int end)
@@ -405,6 +407,18 @@ QVariantMap FlatProxyModel::rowData(int row)
         data.insert(it.value(), index.data(it.key()));
     }
     return data;
+}
+
+void FlatProxyModel::collapse(int row)
+{
+    if (auto model = sourceModel())
+        QMetaObject::invokeMethod(model, "collapse", Q_ARG(QModelIndex, mapToSource(index(row, 0))));
+}
+
+void FlatProxyModel::expand(int row)
+{
+    if (auto model = sourceModel())
+        QMetaObject::invokeMethod(model, "expand", Q_ARG(QModelIndex, mapToSource(index(row, 0))));
 }
 
 /*!

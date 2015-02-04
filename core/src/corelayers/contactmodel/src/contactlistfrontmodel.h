@@ -69,6 +69,8 @@ public slots:
 
 	void addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
+    void collapse(const QModelIndex &index);
+    void expand(const QModelIndex &index);
     
 signals:
 	void offlineVisibilityChanged(bool showOffline);
@@ -83,8 +85,9 @@ protected:
     void updateData(const QModelIndex &parent, int row, ContactListItemRole role);
     void onRowsInserted(const QModelIndex &parent, int first, int last);
     void onRowsRemoved(const QModelIndex &parent, int first, int last);
-	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-	virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    bool filterAcceptsRowImpl(int sourceRow, const QModelIndex &sourceParent, bool checkCollapse) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 	bool m_showOffline;
     bool m_insideConnectNotify = false;

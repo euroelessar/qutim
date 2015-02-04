@@ -78,10 +78,13 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     Q_INVOKABLE QVariantMap rowData(int row);
+    Q_INVOKABLE void collapse(int row);
+    Q_INVOKABLE void expand(int row);
 
 public slots:
     void onSourceDataChanged(const QModelIndex &source_top_left,
-                           const QModelIndex &source_bottom_right);
+                             const QModelIndex &source_bottom_right,
+                             const QVector<int> &roles);
     void onSourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
 
     void onSourceReset();

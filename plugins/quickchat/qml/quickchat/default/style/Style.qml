@@ -4,14 +4,16 @@ import ".." as Parent
 Parent.Style {
     id: style
 
-    property color backgroundColor: "transparent"
+    backgroundColor: "transparent"
 
     property ItemStyle account: ItemStyle {
         id: accountStyle
         source: 'Account.qml'
         rowHeight: 18
         selectedColor: "#a06495ed"
-        fontPointSize: 10
+        font {
+            fontPointSize: 10
+        }
     }
 
     property ItemStyle group: ItemStyle {
@@ -20,9 +22,11 @@ Parent.Style {
         rowHeight: 18
         backgroundColor: "white"
         selectedColor: "white"
-        textColor: "white"
-        highlightColor: "white"
-        fontPointSize: 10
+        font {
+            textColor: "white"
+            highlightColor: "white"
+            fontPointSize: 10
+        }
         backgroundGradient: Gradient {
             GradientStop { position: 0.0; color: Qt.lighter("#1959d1", 1.2) }
             GradientStop { position: 1.0; color: "#1959d1" }
@@ -38,7 +42,14 @@ Parent.Style {
         source: 'Contact.qml'
         rowHeight: 28
         selectedColor: "#a06495ed"
-        fontPointSize: 12
+        alternateColor: "#306495ed"
+        font {
+            fontPointSize: 12
+        }
+
+        property FontStyle subtitleFont: FontStyle {
+            fontPointSize: 8
+        }
     }
 
     property Component groupCanvasComponent: Canvas {
@@ -51,7 +62,7 @@ Parent.Style {
 
             ctx.save();
 
-            ctx.fillStyle = group.textColor;
+            ctx.fillStyle = group.font.textColor;
 
             var middle = Math.round(height / 2);
             var halfSize = Math.round(size / 2);
@@ -81,8 +92,8 @@ Parent.Style {
 
             Label {
                 anchors.fill: parent
-                text: model === null ? 'null' : model.title
-                itemStyle: accountStyle
+                text: model === null ? 'null' : model.id
+                fontStyle: accountStyle.font
             }
         }
     }
@@ -99,7 +110,7 @@ Parent.Style {
 
             Loader {
                 id: image
-    //            sourceComponent: viewStyle.groupTriangle
+                sourceComponent: style.groupCanvasComponent
                 width: height
                 anchors {
                     left: parent.left
@@ -107,6 +118,7 @@ Parent.Style {
                     bottom: parent.bottom
                     leftMargin: 2
                 }
+                rotation: model !== null && model.collapsed ? -90 : 0
             }
 
             Label {
@@ -116,8 +128,8 @@ Parent.Style {
                     verticalCenter: parent.verticalCenter
                     leftMargin: 4
                 }
-                text: model === null ? 'null' : model.title
-                itemStyle: groupStyle
+                text: model !== null ? model.title + ' (' + model.onlineCount + '/' + model.totalCount + ')' : 'null'
+                fontStyle: groupStyle.font
             }
         }
     }
@@ -153,7 +165,7 @@ Parent.Style {
                     leftMargin: 4
                 }
                 text: model === null ? 'null' : model.title
-                itemStyle: contactStyle
+                fontStyle: contactStyle.font
             }
 
             Label {
@@ -167,8 +179,7 @@ Parent.Style {
                 }
                 visible: text.length > 0
                 text: model === null || model.contact === undefined ? '' : model.contact.status.text
-                itemStyle: contactStyle
-                font.pointSize: titleText.font.pointSize - 4
+                fontStyle: contactStyle.subtitleFont
             }
         }
     }

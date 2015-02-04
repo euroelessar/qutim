@@ -97,6 +97,7 @@ QHash<int, QByteArray> ContactListFrontModel::roleNames() const
     roleNames.insert(IconSourceRole, "iconSource");
     roleNames.insert(FirstItemRole, "isFirst");
     roleNames.insert(LastItemRole, "isLast");
+    roleNames.insert(CollapsedRole, "collapsed");
 	return roleNames;
 }
 
@@ -272,7 +273,19 @@ void ContactListFrontModel::addContact(Contact *contact)
 
 void ContactListFrontModel::removeContact(Contact *contact)
 {
-	static_cast<ContactListBaseModel*>(sourceModel())->onContactRemoved(contact);
+    static_cast<ContactListBaseModel*>(sourceModel())->onContactRemoved(contact);
+}
+
+void ContactListFrontModel::collapse(const QModelIndex &index)
+{
+    if (m_model)
+        m_model->collapse(mapToSource(index));
+}
+
+void ContactListFrontModel::expand(const QModelIndex &index)
+{
+    if (m_model)
+        m_model->expand(mapToSource(index));
 }
 
 void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject)
@@ -364,53 +377,65 @@ void ContactListFrontModel::onRowsRemoved(const QModelIndex &parent, int first, 
         updateData(parent, first - 1, LastItemRole);
 }
 
-bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool ContactListFrontModel::filterAcceptsRowImpl(int sourceRow, const QModelIndex &sourceParent, bool checkCollapse) const
 {
     const QRegExp regexp = filterRegExp();
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+
+    if (checkCollapse) {
+        QVariant collapsed = sourceParent.data(CollapsedRole);
+        if (collapsed.isValid() && collapsed.toBool())
+            return false;
+    }
+
     if (m_filterTags.isEmpty() && m_showOffline && regexp.isEmpty())
         return true;
 
-    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-	switch (index.data(ItemTypeRole).toInt()) {
-	case ContactType: {
-		Contact *contact = qobject_cast<Contact*>(index.data(BuddyRole).value<Buddy*>());
-		Q_ASSERT(contact);
-		if (!regexp.isEmpty()) {
-			return contact->id().contains(regexp) || contact->name().contains(regexp);
-		} else {
-			if (index.data(NotificationRole).toInt() >= Notification::IncomingMessage)
-				return true;
-			if (!m_filterTags.isEmpty()) {
-				bool hasAny = false;
-				foreach (const QString &tag, contact->tags()) {
-					hasAny |= bool(m_filterTags.contains(tag));
-					if (hasAny)
-						break;
-				}
-				if (!hasAny)
-					return false;
-			}
-			if (!m_showOffline) {
-				const Status status = index.data(StatusRole).value<Status>();
-				return status != Status::Offline;
-			}
-		}
-		break;
-	}
-	case TagType: {
-		if (!m_filterTags.isEmpty() && !m_filterTags.contains(index.data(TagNameRole).toString()))
-			return false;
-		int count = sourceModel()->rowCount(index);
-		for (int i = 0; i < count; ++i) {
-			if (filterAcceptsRow(i, index))
-				return true;
-		}
-		return false;
-	}
-	default:
-		break;
-	};
-	return true;
+    switch (index.data(ItemTypeRole).toInt()) {
+    case ContactType: {
+        Contact *contact = qobject_cast<Contact*>(index.data(BuddyRole).value<Buddy*>());
+        Q_ASSERT(contact);
+        if (!regexp.isEmpty()) {
+            return contact->id().contains(regexp) || contact->name().contains(regexp);
+        } else {
+            if (index.data(NotificationRole).toInt() >= Notification::IncomingMessage)
+                return true;
+            if (!m_filterTags.isEmpty()) {
+                bool hasAny = false;
+                foreach (const QString &tag, contact->tags()) {
+                    hasAny |= bool(m_filterTags.contains(tag));
+                    if (hasAny)
+                        break;
+                }
+                if (!hasAny)
+                    return false;
+            }
+            if (!m_showOffline) {
+                const Status status = index.data(StatusRole).value<Status>();
+                return status != Status::Offline;
+            }
+        }
+        break;
+    }
+    case TagType: {
+        if (!m_filterTags.isEmpty() && !m_filterTags.contains(index.data(TagNameRole).toString()))
+            return false;
+        int count = sourceModel()->rowCount(index);
+        for (int i = 0; i < count; ++i) {
+            if (filterAcceptsRowImpl(i, index, false))
+                return true;
+        }
+        return false;
+    }
+    default:
+        break;
+    };
+    return true;
+}
+
+bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    return filterAcceptsRowImpl(sourceRow, sourceParent, true);
 }
 
 bool ContactListFrontModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

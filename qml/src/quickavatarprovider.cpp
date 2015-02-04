@@ -41,8 +41,6 @@ QPixmap QuickAvatarProvider::requestPixmap(const QString &id, QSize *size, const
     else
         *size = QSize(128, 128);
 
-    qDebug() << filePath << iconName << iconSize;
-
     QIcon icon = Icon(iconName);
 
     if (filePath.size() > 1)

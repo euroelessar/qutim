@@ -1,18 +1,18 @@
 import QtQuick 2.0
 
 Text {
-    property ItemStyle itemStyle
+    property FontStyle fontStyle
     readonly property bool selected: styleData !== null && styleData.selected
 
-    color: selected ? itemStyle.highlightColor : itemStyle.textColor
+    color: selected ? fontStyle.highlightColor : fontStyle.textColor
     renderType: Text.NativeRendering
     textFormat: Text.PlainText
     elide: Text.ElideRight
     maximumLineCount: 1
     verticalAlignment: Text.AlignVCenter
 
-    font.weight: itemStyle.fontWeight
-    font.family: itemStyle.fontFamily
-    font.italic: itemStyle.fontItalic
-    font.pointSize: itemStyle.fontPointSize
+    font.weight: fontStyle.fontWeight
+    font.family: fontStyle.fontFamily
+    font.italic: fontStyle.fontItalic
+    font.pointSize: fontStyle.fontPointSize
 }

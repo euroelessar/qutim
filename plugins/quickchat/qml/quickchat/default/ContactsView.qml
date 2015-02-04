@@ -193,6 +193,13 @@ TableView {
             chatLayer.object.session(contact, true).activate();
         }
     }
+    onClicked: {
+        var data = flatModel.rowData(row);
+        if (data.collapsed === true)
+            flatModel.expand(row);
+        else if (data.collapsed === false)
+            flatModel.collapse(row);
+    }
 
     MouseArea {
         id: mousearea
