@@ -74,14 +74,6 @@ static inline QStringList listThemes(QDir shareDir, const QString &category)
 		return QStringList();
 }
 
-static QStringList convertToPaths(const QList<QDir> &dirs)
-{
-	QStringList paths;
-	for (const QDir &dir : dirs)
-		paths << dir.absolutePath();
-	return paths;
-}
-
 QStringList ThemeManager::list(const QString &category)
 {
 	QStringList theme_list;
