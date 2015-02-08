@@ -15,6 +15,18 @@ BaseWindow {
     visible: true
     title: "qutIM"
 
+    Qutim.Config {
+        id: config
+        group: "unitedWindow/mainWindow"
+
+        property alias height: window.height
+        property alias width: window.width
+        property alias x: window.x
+        property alias y: window.y
+        property alias contactsViewWidth: contactsView.width
+        property alias tabViewWidth: tabs.width
+    }
+
     function updateToolBar() {
         var tab = tabs.getTab(tabs.currentIndex);
         var model = tab && tab.item && tab.item.model;
@@ -52,9 +64,9 @@ BaseWindow {
         anchors.fill: parent
 
         ContactsView {
+            id: contactsView
             Layout.fillHeight: true
             width: 50
-            id: contactsView
             searchText: window.searchText
         }
 
@@ -63,7 +75,7 @@ BaseWindow {
             tabPosition: Qt.BottomEdge
             frameVisible: false
             Layout.fillHeight: true
-            width: parent.width - 50
+            width: parent.width - contactsView.width
 
             onCurrentIndexChanged: {
                 var tab = tabs.getTab(currentIndex);

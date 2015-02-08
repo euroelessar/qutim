@@ -1,5 +1,3 @@
-#define QUTIM_PLUGIN_NAME "QtQuickPlugin"
-
 #include "quickmenucontainer.h"
 
 namespace qutim_sdk_0_3 {

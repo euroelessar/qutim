@@ -20,6 +20,9 @@ TextArea {
         id: config
         path: "appearance"
         group: "chat/behavior/widget"
+
+        property alias sendKey: chatInput._sendKey
+        property alias autoResize: chatInput._autoResize
     }
 
     CompletionModel {
@@ -29,7 +32,7 @@ TextArea {
     property alias completionModel: completion.model
     property QtObject session
 
-    property int _sendKey: 0
+    property int _sendKey: 1
     property bool _autoResize: false
 
     property int _tabsCount: 0
@@ -57,11 +60,6 @@ TextArea {
     function _send() {
         session.send(text);
         text = '';
-    }
-
-    function _loadSettings() {
-        _sendKey = config.value("sendKey", 1);
-        _autoResize = config.value("autoResize", false);
     }
 
     function _processEnter(event) {
@@ -154,6 +152,4 @@ TextArea {
         _processEnter(event);
         _processTab(event);
     }
-
-    Component.onCompleted: _loadSettings()
 }

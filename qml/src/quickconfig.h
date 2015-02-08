@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQmlParserStatus>
 #include <QPointer>
+#include <QMetaProperty>
 #include "config.h"
 
 namespace qutim_sdk_0_3 {
@@ -51,6 +52,22 @@ private:
     QString m_path;
     QString m_group;
     QPointer<QObject> m_object;
+};
+
+class QuickConfigListener : public QObject
+{
+    Q_OBJECT
+public:
+    QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QuickConfig *parent);
+
+public slots:
+    void onPropertyChanged();
+
+private:
+    QString m_path;
+    QString m_group;
+    QMetaProperty m_property;
+    QuickConfig *m_config;
 };
 
 } // namespace qutim_sdk_0_3

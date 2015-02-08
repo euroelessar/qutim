@@ -127,7 +127,7 @@ public:
 	void remove(const QString &name);
 
 	Config arrayElement(int index) Q_REQUIRED_RESULT;
-	int beginArray(const QString &name);
+    int beginArray(const QString &name);
 	void endArray();
 	int arraySize() const Q_REQUIRED_RESULT;
 	void setArrayIndex(int index);
@@ -150,6 +150,8 @@ public:
 	void setValue(const QString &key, const char (&value)[N], ValueFlags type = Normal);
 
 	void sync();
+
+    void listen(const QString &name, QObject *guard, const std::function<void (const QVariant &)> &callback);
 
 	typedef void (*SaveOperator)(QVariant &, const void *);
 	typedef void (*LoadOperator)(const QVariant &, void *);

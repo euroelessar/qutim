@@ -1,5 +1,3 @@
-#define QUTIM_PLUGIN_NAME "org.qutim"
-
 #include "quickplugin.h"
 #include "quickconfig.h"
 #include "quickemoticons.h"

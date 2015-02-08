@@ -8,7 +8,6 @@ Parent.Style {
 
     property ItemStyle account: ItemStyle {
         id: accountStyle
-        source: 'Account.qml'
         rowHeight: 18
         selectedColor: "#a06495ed"
         font {
@@ -18,7 +17,6 @@ Parent.Style {
 
     property ItemStyle group: ItemStyle {
         id: groupStyle
-        source: 'Group.qml'
         rowHeight: 18
         backgroundColor: "white"
         selectedColor: "white"
@@ -39,7 +37,6 @@ Parent.Style {
 
     property ItemStyle contact: ItemStyle {
         id: contactStyle
-        source: 'Contact.qml'
         rowHeight: 28
         selectedColor: "#a06495ed"
         alternateColor: "#306495ed"

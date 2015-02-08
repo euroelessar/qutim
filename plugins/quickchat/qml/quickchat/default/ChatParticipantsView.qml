@@ -24,8 +24,8 @@ TableView {
             QtObject {
                 id: context
                 readonly property QtObject _styleData: styleData
-                readonly property var _model: model
-                readonly property var _modelData: modelData
+                readonly property var _model: typeof model === "undefined" ? null : model
+                readonly property var _modelData: typeof modelData === "undefined" ? null : modelData
             }
 
             Loader {

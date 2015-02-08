@@ -37,6 +37,8 @@
 #include <QBasicTimer>
 #include <QSharedPointer>
 #include <QStringBuilder>
+#include <QTimer>
+#include <QPointer>
 
 #define CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE 1
 
@@ -49,19 +51,45 @@ LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends()
 class ConfigPath
 {
 public:
-    explicit ConfigPath(const QString &path) : m_valid(true), m_path(path) {}
-    ConfigPath() : m_valid(false) {}
+    enum SpecialValue { Invalid };
 
-    ConfigPath child(const QString &name)
+    ConfigPath(const QString &path, const QString &name) : m_frozen(false), m_path(path), m_name(name) {}
+    ConfigPath(SpecialValue) : m_frozen(true) {}
+    ConfigPath() = delete;
+
+    ConfigPath child(const QString &name) const
     {
-        if (!m_valid)
-            return ConfigPath();
-        return ConfigPath(m_path % QLatin1Char('/') % name);
+        if (m_frozen)
+            return *this;
+        return ConfigPath(m_path, m_name % QLatin1Char('/') % name);
+    }
+
+    ConfigPath freeze() const
+    {
+        ConfigPath result = *this;
+        result.m_frozen = true;
+        return result;
+    }
+
+    bool isFrozen() const
+    {
+        return m_frozen;
+    }
+
+    QString path() const
+    {
+        return m_path;
+    }
+
+    QString name() const
+    {
+        return m_name;
     }
 
 private:
-    bool m_valid;
+    bool m_frozen;
     QString m_path;
+    QString m_name;
 };
 
 class ConfigAtom;
@@ -91,6 +119,48 @@ public:
     QDateTime lastModified;
 };
 
+class ConfigNotifier
+{
+public:
+    void mark(const ConfigPath &path)
+    {
+        m_changedPaths.insert(qMakePair(path.path(), path.name()));
+
+        if (!m_eventSent) {
+            m_eventSent = true;
+            QTimer::singleShot(0, [this] () {
+                if (qApp->closingDown())
+                    return;
+                notify();
+            });
+        }
+    }
+
+    void notify();
+
+    void listen(const ConfigPath &path, QObject *guard, const std::function<void (const QVariant &)> &callback)
+    {
+        Entry entry = {
+            guard,
+            callback
+        };
+        m_callbacks.insert(qMakePair(path.path(), path.name()), entry);
+    }
+
+private:
+    struct Entry
+    {
+        QPointer<QObject> guard;
+        std::function<void (const QVariant &)> callback;
+    };
+
+    QSet<QPair<QString, QString>> m_changedPaths;
+    QMultiHash<QPair<QString, QString>, Entry> m_callbacks;
+    bool m_eventSent = false;
+};
+
+Q_GLOBAL_STATIC(ConfigNotifier, config_notifier)
+
 class ConfigAtom
 {
 public:
@@ -106,8 +176,8 @@ public:
         Null
     };
 
-    ConfigAtom(const ConfigSource::WeakPtr &source, bool readOnly)
-        : m_source(source), m_type(Null), m_readOnly(readOnly)
+    ConfigAtom(const ConfigSource::WeakPtr &source, bool readOnly, const ConfigPath &path)
+        : m_source(source), m_path(path), m_type(Null), m_readOnly(readOnly)
     {
     }
 
@@ -119,9 +189,9 @@ public:
     ConfigAtom(const ConfigAtom &other) = delete;
     ConfigAtom &operator =(const ConfigAtom &other) = delete;
 
-    static Ptr fromVariant(const ConfigSource::WeakPtr &source, const QVariant &variant, bool readOnly)
+    static Ptr fromVariant(const ConfigSource::WeakPtr &source, const QVariant &variant, bool readOnly, const ConfigPath &path)
     {
-        auto result = Ptr::create(source, readOnly);
+        auto result = Ptr::create(source, readOnly, path);
 
         // Null value
         if (!variant.isValid())
@@ -132,7 +202,7 @@ public:
             const auto &input = variant.toMap();
             auto &map = result->ensureMap();
             for (auto it = input.begin(); it != input.end(); ++it)
-                map.insert(it.key(), fromVariant(source, it.value(), readOnly));
+                map.insert(it.key(), fromVariant(source, it.value(), readOnly, path.child(it.key())));
         }
             break;
         case QVariant::List: {
@@ -140,7 +210,7 @@ public:
             auto &list = result->ensureList();
             list.reserve(input.size());
             for (const auto &value : input)
-                list.append(fromVariant(source, value, readOnly));
+                list.append(fromVariant(source, value, readOnly, path.freeze()));
         }
             break;
         default:
@@ -215,7 +285,7 @@ public:
             if (m_readOnly)
                 return Ptr();
 
-            it = map.insert(name, ConfigAtom::Ptr::create(m_source, m_readOnly));
+            it = map.insert(name, Ptr::create(m_source, m_readOnly, m_path.child(name)));
         }
 
         return it.value();
@@ -230,7 +300,7 @@ public:
             return Ptr();
 
         while (list.size() <= index)
-            list.append(ConfigAtom::Ptr::create(m_source, m_readOnly));
+            list.append(Ptr::create(m_source, m_readOnly, m_path.freeze()));
 
         return list.at(index);
     }
@@ -278,8 +348,10 @@ public:
     void remove(const QString &name)
     {
         Q_ASSERT(isMap());
-        if (asMap().remove(name) > 0)
+        if (Ptr atom = asMap().take(name)) {
+            atom->markMeAndChildren();
             makeDirty();
+        }
     }
 
     void replace(const QVariant &value)
@@ -287,7 +359,8 @@ public:
         Q_ASSERT(!m_readOnly);
 
         if (toVariant() != value) {
-            ConfigAtom::Ptr other = ConfigAtom::fromVariant(m_source, value, m_readOnly);
+            ConfigAtom::Ptr other = ConfigAtom::fromVariant(m_source, value, m_readOnly, m_path);
+            markMeAndChildren();
 
             switch (other->type()) {
             case Map:
@@ -330,11 +403,33 @@ public:
         }
     }
 
+    const ConfigPath &path() const
+    {
+        return m_path;
+    }
+
 private:
     void makeDirty()
     {
+        markMeAndChildren();
         if (auto source = m_source.toStrongRef())
             source->makeDirty();
+    }
+
+    void markMeAndChildren()
+    {
+        mark();
+        if (isMap() && !m_path.isFrozen()) {
+            iterateMap([] (const QString &key, const Ptr &child) {
+                Q_UNUSED(key);
+                child->markMeAndChildren();
+            });
+        }
+    }
+
+    void mark() const
+    {
+        config_notifier()->mark(m_path);
     }
 
     ConfigMap &asMap()
@@ -422,6 +517,7 @@ private:
     }
 
     ConfigSource::WeakPtr m_source;
+    ConfigPath m_path;
     union {
         char m_map_buffer[sizeof(ConfigMap)];
         char m_list_buffer[sizeof(ConfigList)];
@@ -481,6 +577,40 @@ private:
 
 Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
 
+void ConfigNotifier::notify()
+{
+    m_eventSent = false;
+    auto changedPaths = m_changedPaths;
+    m_changedPaths.clear();
+    foreach (auto pair, changedPaths) {
+        QString path = pair.second;
+        int index;
+        while ((index = path.lastIndexOf(QLatin1Char('/'))) >= 0) {
+            path.resize(index);
+            changedPaths.insert(qMakePair(pair.first, path));
+        }
+    }
+    auto sortedPaths = changedPaths.toList();
+    typedef const QPair<QString, QString> & Pair;
+    std::sort(sortedPaths.begin(), sortedPaths.end(), [] (Pair first, Pair second) {
+        return std::make_tuple(first.first, -first.second.size(), first.second)
+                < std::make_tuple(second.first, -second.second.size(), second.second);
+    });
+    foreach (Pair path, sortedPaths) {
+        auto it = m_callbacks.find(path);
+        while (it != m_callbacks.end() && it.key() == path) {
+            if (!it.value().guard) {
+                auto it2 = it++;
+                m_callbacks.erase(it2);
+                continue;
+            }
+            QVariant value = Config(path.first).value(path.second);
+            it.value().callback(value);
+            ++it;
+        }
+    }
+}
+
 ConfigSource::ConfigSource() : backend(nullptr), dirty(false), isAtLoop(false)
 {
 }
@@ -497,6 +627,7 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
 	if (fileName.isEmpty())
 		fileName = QLatin1String("profile");
 	QFileInfo info(fileName);
+    QString originalPath = info.filePath();
 	if (!info.isAbsolute()) {
 		SystemInfo::DirType type = systemDir
 				? SystemInfo::SystemConfigDir
@@ -552,20 +683,21 @@ ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool c
     result = ConfigSource::Ptr::create();
 
 	ConfigSource *d = result.data();
-	d->backend = backend;
-	d->fileName = fileName;
+    d->backend = backend;
+    d->fileName = fileName;
 	// QFileInfo says that we can't write to non-exist files but we can
     const bool readOnly = !info.isWritable() && (systemDir || info.exists());
 
 	d->update();
     const QVariant value = d->backend->load(d->fileName);
-    d->data = ConfigAtom::fromVariant(result, value, readOnly);
+    ConfigPath configPath = readOnly ? ConfigPath(ConfigPath::Invalid) : ConfigPath(originalPath, QString());
+    d->data = ConfigAtom::fromVariant(result, value, readOnly, configPath);
 
     if (d->data->isValue() || d->data->isNull()) {
         if (!create)
             return ConfigSource::Ptr();
 
-        d->data = ConfigAtom::fromVariant(result, QVariantMap(), readOnly);
+        d->data = ConfigAtom::fromVariant(result, QVariantMap(), readOnly, configPath);
     }
 
 	sourceHash()->insert(fileName, result);
@@ -625,7 +757,8 @@ class ConfigLevel
 public:
     typedef QSharedPointer<ConfigLevel> Ptr;
 
-    explicit ConfigLevel(const QList<ConfigAtom::Ptr> &atoms) : atoms(atoms), arrayElement(false)
+    explicit ConfigLevel(const QList<ConfigAtom::Ptr> &atoms)
+        : atoms(atoms), arrayElement(false)
     {
     }
     ~ConfigLevel()
@@ -634,7 +767,7 @@ public:
 
     ConfigLevel::Ptr child(int index);
     ConfigLevel::Ptr child(const QString &name);
-    ConfigLevel::Ptr child(const QList<QString> &names);
+    ConfigLevel::Ptr child(const QStringList &names);
 
     template <typename Callback>
     void iterateChildren(Callback callback);
@@ -644,7 +777,6 @@ public:
     ConfigLevel::Ptr convert(ConfigAtom::Type type);
 
     QList<ConfigAtom::Ptr> atoms;
-    ConfigPath path;
     bool arrayElement;
 
 private:
@@ -663,17 +795,14 @@ ConfigLevel::Ptr ConfigLevel::child(int index)
 
 ConfigLevel::Ptr ConfigLevel::child(const QString &name)
 {
-    auto level = map([name] (const ConfigAtom::Ptr &atom, bool readOnly) {
+    return map([name] (const ConfigAtom::Ptr &atom, bool readOnly) {
         if (readOnly && !atom->isMap())
             return ConfigAtom::Ptr();
         return atom->child(name);
     });
-
-    level->path = path.child(name);
-    return level;
 }
 
-ConfigLevel::Ptr ConfigLevel::child(const QList<QString> &names)
+ConfigLevel::Ptr ConfigLevel::child(const QStringList &names)
 {
     Q_ASSERT(!names.isEmpty());
 
@@ -764,8 +893,6 @@ ConfigPrivate::ConfigPrivate(const QStringList &paths, ConfigBackend *backend)
 ConfigPrivate::ConfigPrivate(const QStringList &paths, const QVariantList &fallbacks, ConfigBackend *backend)
     : ConfigPrivate()
 {
-    current()->path = ConfigPath(QString());
-
     QSet<QString> opened;
     for (int j = 0; j < 2; j++) {
         for (int i = 0; i < paths.size(); i++) {
@@ -783,7 +910,7 @@ ConfigPrivate::ConfigPrivate(const QStringList &paths, const QVariantList &fallb
     }
     for (int i = 0; i < fallbacks.size(); ++i) {
         const QVariant value = fallbacks.at(i);
-        auto fallback = ConfigAtom::fromVariant(ConfigSource::Ptr(), value, true);
+        auto fallback = ConfigAtom::fromVariant(ConfigSource::Ptr(), value, true, ConfigPath::Invalid);
 
         if (fallback->isNull() || fallback->isValue())
             continue;
@@ -824,13 +951,13 @@ QExplicitlySharedDataPointer<ConfigPrivate> ConfigPrivate::clone()
 Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
 {
     Q_D(Config);
-    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), list, false);
+    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), list, false, ConfigPath::Invalid);
 }
 
 Config::Config(const QVariantMap &map) : d_ptr(new ConfigPrivate)
 {
     Q_D(Config);
-    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), map, false);
+    d->current()->atoms << ConfigAtom::fromVariant(ConfigSource::Ptr(), map, false, ConfigPath::Invalid);
 }
 
 Config::Config(const QString &path)
@@ -1135,6 +1262,20 @@ void Config::setValue(const QString &key, const QVariant &value, ValueFlags type
 void Config::sync()
 {
 	d_func()->sync();
+}
+
+void Config::listen(const QString &name, QObject *guard, const std::function<void (const QVariant &)> &callback)
+{
+    const QStringList names = parseNames(name);
+    Q_ASSERT(!names.isEmpty());
+    foreach (ConfigAtom::Ptr atom, d_func()->current()->atoms) {
+        if (atom->isReadOnly())
+            continue;
+        ConfigPath path = atom->path();
+        for (int i = 0; i < names.size(); ++i)
+            path = path.child(names[i]);
+        config_notifier()->listen(path, guard, callback);
+    }
 }
 
 void Config::registerType(int type, SaveOperator saveOp, LoadOperator loadOp)

@@ -1,5 +1,3 @@
-#define QUTIM_PLUGIN_NAME "QtQuickPlugin"
-
 #include "quickactioncontainer.h"
 #include <QAction>
 #include <QCoreApplication>

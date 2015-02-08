@@ -100,6 +100,38 @@ void QuickConfig::classBegin()
 
 void QuickConfig::componentComplete()
 {
+    const QMetaObject *base = &staticMetaObject;
+    const QMetaObject *actual = metaObject();
+
+    int propertiesCount = actual->propertyCount();
+    for (int index = base->propertyCount(); index < propertiesCount; ++index) {
+        QMetaProperty property = actual->property(index);
+        QVariant defaultValue = property.read(this);
+        QVariant actualValue = m_config.value(QLatin1String(property.name()), defaultValue);
+        property.write(this, actualValue);
+
+        new QuickConfigListener(m_path, m_group, property, this);
+
+        m_config.listen(property.name(), this, [this, property, defaultValue] (const QVariant &value) {
+            property.write(this, value.isValid() ? value : defaultValue);
+        });
+    }
+}
+
+QuickConfigListener::QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QuickConfig *parent)
+    : QObject(parent), m_path(path), m_group(group), m_property(property), m_config(parent)
+{
+    static int slotIndex = staticMetaObject.indexOfMethod("onPropertyChanged()");
+    QMetaMethod slot = staticMetaObject.method(slotIndex);
+    connect(parent, property.notifySignal(), this, slot);
+}
+
+void QuickConfigListener::onPropertyChanged()
+{
+    QVariant value = m_property.read(m_config);
+    Config config(m_path);
+    config.beginGroup(m_group);
+    config.setValue(QLatin1String(m_property.name()), value);
 }
 
 } // namespace qutim_sdk_0_3

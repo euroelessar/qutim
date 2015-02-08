@@ -117,6 +117,9 @@ QObject *ChatChannel::model() const
 
 void ChatChannel::send(const QString &text)
 {    
+    if (text.trimmed().isEmpty())
+        return;
+
 	Message message(text);
 	message.setIncoming(false);
 	message.setChatUnit(m_unit);

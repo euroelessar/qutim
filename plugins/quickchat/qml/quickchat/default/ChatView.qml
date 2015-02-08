@@ -9,6 +9,16 @@ StyledSplitView {
     property alias session: messagesView.session
     readonly property ListModel model: actionsModel
 
+    Qutim.Config {
+        id: config
+        group: "unitedWindow/chatView"
+
+        property alias splitViewWidth: splitView.width
+        property alias messagesViewHeight: messagesView.height
+        property alias chatInputHeight: chatInput.height
+        property alias participantsViewWidth: participantsView.width
+    }
+
     Qutim.Action {
         id: quoteAction
         iconName: "insert-text-quote"
@@ -55,6 +65,7 @@ StyledSplitView {
     }
 
     StyledSplitView {
+        id: splitView
         orientation: Qt.Vertical
         width: parent.width - 150
         Layout.fillHeight: true
