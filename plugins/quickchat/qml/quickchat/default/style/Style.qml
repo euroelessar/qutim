@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import org.qutim 0.4
 import ".." as Parent
 
 Parent.Style {
@@ -6,8 +7,17 @@ Parent.Style {
 
     backgroundColor: "transparent"
 
+    property Config _config: Config {
+        id: config
+        group: "contactList/style/default"
+
+        property alias backgroundColor: style.backgroundColor
+    }
+
     property ItemStyle account: ItemStyle {
         id: accountStyle
+        group: config.group + "/account"
+
         rowHeight: 18
         selectedColor: "#a06495ed"
         font {
@@ -17,6 +27,8 @@ Parent.Style {
 
     property ItemStyle group: ItemStyle {
         id: groupStyle
+        group: config.group + "/group"
+
         rowHeight: 18
         backgroundColor: "white"
         selectedColor: "white"
@@ -25,18 +37,20 @@ Parent.Style {
             highlightColor: "white"
             fontPointSize: 10
         }
-        backgroundGradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.lighter("#1959d1", 1.2) }
-            GradientStop { position: 1.0; color: "#1959d1" }
-        }
-        selectedGradient: Gradient {
-            GradientStop { position: 0.0; color: "#1959d1" }
-            GradientStop { position: 1.0; color: Qt.darker("#1959d1", 1.2) }
-        }
+        backgroundGradient: [
+            { position: 0.0, color: Qt.lighter("#1959d1", 1.2) },
+            { position: 1.0, color: "#1959d1" }
+        ]
+        selectedGradient: [
+            { position: 0.0, color: "#1959d1" },
+            { position: 1.0, color: Qt.darker("#1959d1", 1.2) }
+        ]
     }
 
     property ItemStyle contact: ItemStyle {
         id: contactStyle
+        group: config.group + "/contact"
+
         rowHeight: 28
         selectedColor: "#a06495ed"
         alternateColor: "#306495ed"

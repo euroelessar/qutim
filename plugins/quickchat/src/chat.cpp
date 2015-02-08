@@ -30,6 +30,7 @@
 #include "scriptclient.h"
 #include "completionmodel.h"
 #include "flatmodel.h"
+#include "gradientcreator.h"
 
 #include <qutim/thememanager.h>
 
@@ -68,6 +69,7 @@ void Chat::init()
     qmlRegisterType<ChatPreview>("org.qutim.quickchat", 0, 4, "ChatPreview");
     qmlRegisterType<CompletionModel>("org.qutim.quickchat", 0, 4, "CompletionModel");
     qmlRegisterType<FlatProxyModel>("org.qutim.quickchat", 0, 4, "FlatProxyModel");
+    qmlRegisterType<GradientCreator>("org.qutim.quickchat", 0, 4, "GradientCreator");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)

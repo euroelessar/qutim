@@ -31,6 +31,8 @@ public:
     void classBegin();
     void componentComplete();
 
+    void syncProperties(QObject *object);
+
 public slots:
     QVariant value(const QString &name, const QVariant &defaultValue);
     void setValue(const QString &name, const QVariant &value);
@@ -58,7 +60,7 @@ class QuickConfigListener : public QObject
 {
     Q_OBJECT
 public:
-    QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QuickConfig *parent);
+    QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent);
 
 public slots:
     void onPropertyChanged();
@@ -67,7 +69,7 @@ private:
     QString m_path;
     QString m_group;
     QMetaProperty m_property;
-    QuickConfig *m_config;
+    QObject *m_object;
 };
 
 } // namespace qutim_sdk_0_3
