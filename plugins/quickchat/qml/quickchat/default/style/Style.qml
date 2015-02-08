@@ -121,7 +121,7 @@ Parent.Style {
 
             Loader {
                 id: image
-                sourceComponent: style.groupCanvasComponent
+//                sourceComponent: style.groupCanvasComponent
                 width: height
                 anchors {
                     left: parent.left

@@ -68,6 +68,8 @@ public:
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
+    void connectNotify(const QMetaMethod &signal);
+    void disconnectNotify(const QMetaMethod &signal);
 	
 signals:
     void javaScriptRequest(const QString &script);
@@ -82,7 +84,8 @@ private:
 	qutim_sdk_0_3::MessageList m_unread;
 	ChatMessageModel *m_model;
 	ChatChannelUsersModel *m_units;
-	QObject *m_page;
+    QObject *m_page;
+    int m_javaScriptListeners = 0;
 };
 }
 

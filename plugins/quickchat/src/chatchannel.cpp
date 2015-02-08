@@ -31,6 +31,7 @@
 #include <qutim/conference.h>
 #include <qutim/notification.h>
 #include <QDateTime>
+#include <QMetaMethod>
 
 namespace QuickChat
 {
@@ -158,7 +159,7 @@ void ChatChannel::setPage(QObject *page)
 
 bool ChatChannel::supportJavaScript() const
 {
-	return true;
+    return m_javaScriptListeners > 0;
 }
 
 QVariant ChatChannel::evaluateJavaScript(const QString &script)
@@ -198,5 +199,18 @@ void ChatChannel::doSetActive(bool active)
 		markRead(Q_UINT64_C(0xffffffffffffffff));
 }
 
+void ChatChannel::connectNotify(const QMetaMethod &signal)
+{
+    ChatSession::connectNotify(signal);
+    if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
+        ++m_javaScriptListeners;
 }
 
+void ChatChannel::disconnectNotify(const QMetaMethod &signal)
+{
+    ChatSession::disconnectNotify(signal);
+    if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
+        --m_javaScriptListeners;
+}
+
+}

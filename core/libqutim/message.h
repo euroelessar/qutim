@@ -46,6 +46,7 @@ class LIBQUTIM_EXPORT MessageUnitData
     Q_PROPERTY(QString title READ title)
     Q_PROPERTY(QString avatar READ avatar)
 public:
+    MessageUnitData();
     MessageUnitData(const QString &id, const QString &title, const QString &avatar);
 
     QString id() const;
@@ -136,7 +137,7 @@ typedef QList<Message> MessageList;
 
 LIBQUTIM_EXPORT QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg);
 
-
+Q_DECLARE_METATYPE(qutim_sdk_0_3::MessageUnitData)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Message)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Message*)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::MessageList)

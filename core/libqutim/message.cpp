@@ -53,6 +53,10 @@ QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
 namespace qutim_sdk_0_3
 {
 
+MessageUnitData::MessageUnitData()
+{
+}
+
 MessageUnitData::MessageUnitData(const QString &id, const QString &title, const QString &avatar)
     : m_id(id), m_title(title), m_avatar(avatar)
 {

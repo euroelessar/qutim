@@ -16,8 +16,6 @@ WebEngineView {
         }
     }
 
-    property alias session: controller.session
-
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
 
@@ -52,6 +50,7 @@ WebEngineView {
         id: controller
         property variant scripts: []
         property bool loading: false
+        session: chatSession
 
         onHtmlRequested: {
             loading = true;
