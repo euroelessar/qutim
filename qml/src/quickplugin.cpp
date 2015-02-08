@@ -39,6 +39,10 @@ void QuickPlugin::registerTypes(const char *uri)
                 "org.qutim", 0, 4,
                 "MenuController",
                 QStringLiteral("Unable to create notification inside QtQuick"));
+    qmlRegisterUncreatableType<MessageUnitData>(
+                "org.qutim", 0, 4,
+                "MessageUnitData",
+                QStringLiteral("Unable to create notification inside QtQuick"));
     qmlRegisterUncreatableType<Message>(
                 "org.qutim", 0, 4,
                 "Message",

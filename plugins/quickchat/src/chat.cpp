@@ -59,8 +59,8 @@ Chat::~Chat()
 
 void Chat::init()
 {
-    qRegisterMetaType<Message>();
-    qRegisterMetaType<MessageUnitData>();
+//    qmlRegisterType<MessageUnitData>();
+//    qmlRegisterType<Message>();
     qmlRegisterType<QAbstractItemModel>();
     qmlRegisterType<ChatLayer>();
     qmlRegisterType<ChatSession>();
