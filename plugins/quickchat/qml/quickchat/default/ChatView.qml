@@ -75,7 +75,7 @@ StyledSplitView {
             Layout.fillWidth: true
             height: parent.height - 50
             source: experiment ? "chatstyle/QuickMessagesView.qml" : "ChatMessagesView.qml"
-            readonly property bool experiment: false
+            readonly property bool experiment: true
 
             readonly property QtObject chatSession: root.session
 

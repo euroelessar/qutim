@@ -64,6 +64,7 @@ public:
     bool supportJavaScript() const;
 	
 	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
+    Q_INVOKABLE QString htmlEscape(const QString &text);
 	
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);

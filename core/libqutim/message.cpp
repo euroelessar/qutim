@@ -243,12 +243,22 @@ const QDateTime &Message::time() const
 
 void Message::setTime(const QDateTime &time)
 {
-	p->time = time;
+    p->time = time;
+}
+
+QString Message::formatTime(const QString &format)
+{
+    return p->time.toString(format);
 }
 
 bool Message::isIncoming() const
 {
-	return p->in;
+    return p->in;
+}
+
+bool Message::isAction() const
+{
+    return html().startsWith(QStringLiteral("/me "));
 }
 
 void Message::setIncoming(bool input)

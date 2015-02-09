@@ -48,6 +48,8 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QHash<int, QByteArray> roleNames() const;
+
+    Q_INVOKABLE QObject *unitById(const QString &id) const;
 	
 signals:
 	void statusPrefixChanged(const QString &prefix);

@@ -168,6 +168,11 @@ QVariant ChatChannel::evaluateJavaScript(const QString &script)
     return QVariant();
 }
 
+QString ChatChannel::htmlEscape(const QString &text)
+{
+    return text.toHtmlEscaped();
+}
+
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())

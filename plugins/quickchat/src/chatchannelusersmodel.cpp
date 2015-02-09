@@ -191,5 +191,15 @@ QHash<int, QByteArray> ChatChannelUsersModel::roleNames() const
     roleNames.insert(AvatarRole, "avatar");
     return roleNames;
 }
+
+QObject *ChatChannelUsersModel::unitById(const QString &id) const
+{
+    for (const Node &unit : m_units) {
+        if (unit.unit->id() == id)
+            return unit.unit;
+    }
+    return nullptr;
+}
+
 }
 

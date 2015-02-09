@@ -66,6 +66,7 @@ class LIBQUTIM_EXPORT Message
     Q_PROPERTY(QString html READ html WRITE setHtml)
     Q_PROPERTY(QDateTime time READ time WRITE setTime)
     Q_PROPERTY(bool incoming READ isIncoming WRITE setIncoming)
+    Q_PROPERTY(bool action READ isAction)
     Q_PROPERTY(qutim_sdk_0_3::ChatUnit* chatUnit READ chatUnit WRITE setChatUnit)
     Q_PROPERTY(quint64 id READ id)
     Q_PROPERTY(qutim_sdk_0_3::MessageUnitData unitData READ unitData)
@@ -89,8 +90,10 @@ public:
 	void setHtml(const QString &html);
 	const QDateTime &time() const;
 	void setTime(const QDateTime &time);
+    Q_INVOKABLE QString formatTime(const QString &format);
 	void setIncoming(bool input);
 	bool isIncoming() const;
+    bool isAction() const;
 	void setChatUnit (ChatUnit *chatUnit);
 	ChatUnit *chatUnit() const;
     MessageUnitData unitData() const;
