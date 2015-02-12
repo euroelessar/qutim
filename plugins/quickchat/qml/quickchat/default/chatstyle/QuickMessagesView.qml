@@ -11,18 +11,12 @@ Rectangle {
     readonly property QtObject session: chatSession
     property string topic: ""
     property var messages: { return {}; }
-    property var allItems: []
 
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
 
-    function addText(text) {
-        allItems.push(text);
-    }
-    function removeText(text) {
-        var index;
-        while ((index = allItems.indexOf(text)) >= 0)
-            allItems.splice(index, 1);
+    function copy() {
+        selectableMouseArea.copy();
     }
 
     Connections {
@@ -80,21 +74,20 @@ Rectangle {
                     renderType: Text.NativeRendering
 //                    visible: !action && !service
 
+                    function click(x, y) {
+                        root.appendNickRequested(message.unitData.title);
+                    }
+
                     MouseArea {
                         anchors.fill: parent
-                        z: 20
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        acceptedButtons: Qt.RightButton
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            if (mouse.button === Qt.LeftButton) {
-                                root.appendNickRequested(message.unitData.title);
-                            } else if (mouse.button === Qt.RightButton) {
-                                var unit = root.session.units.unitById(message.unitData.id);
-                                console.log(unit, message.unitData.id);
-                                if (unit) {
-                                    menu.controller = unit;
-                                    menu.popup();
-                                }
+                            var unit = root.session.units.unitById(message.unitData.id);
+                            console.log(unit, message.unitData.id);
+                            if (unit) {
+                                menu.controller = unit;
+                                menu.popup();
                             }
                         }
                     }

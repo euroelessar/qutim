@@ -19,6 +19,7 @@ public:
 public slots:
     void addItem(QQuickItem *item);
     void removeItem(QQuickItem *item);
+    void copy();
     QString linkAt(qreal x, qreal y);
 
 signals:
@@ -27,6 +28,7 @@ signals:
 protected:
     void startSelection(QMouseEvent *event);
     void continueSelection(QMouseEvent *event);
+    void processClick(QMouseEvent *event);
 
 private:
     struct ItemInfo
@@ -36,6 +38,7 @@ private:
         QMetaMethod deselect;
         QMetaMethod linkAt;
         QMetaMethod positionAt;
+        QMetaMethod click;
         int startPosition = 0;
         int lastPosition = 0;
         bool moved = false;

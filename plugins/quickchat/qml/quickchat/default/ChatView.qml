@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.3
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.0
 import org.qutim 0.4
@@ -60,7 +60,7 @@ StyledSplitView {
     }
 
     Connections {
-        target: messagesView.item ? messagesView.item.hasOwnProperty('runJavaScript') ? root.session : null : null
+        target: messagesView.item && messagesView.item.hasOwnProperty('runJavaScript') ? root.session : null
         onJavaScriptRequest: messagesView.item.runJavaScript(script)
     }
 
@@ -95,6 +95,16 @@ StyledSplitView {
             completionModel: participantsView.model || null
             session: root.session
             frameVisible: false
+
+            Keys.onPressed: {
+                if (event.matches(StandardKey.Copy)) {
+                    if (selectionStart === selectionEnd && messagesView.item
+                            && messagesView.item.hasOwnProperty('copy')) {
+                        messagesView.item.copy();
+                        event.accepted = true;
+                    }
+                }
+            }
         }
     }
 

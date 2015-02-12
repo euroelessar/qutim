@@ -29,9 +29,7 @@ void SelectableMouseArea::mouseReleaseEvent(QMouseEvent *event)
             return;
     }
 
-    QString link = linkAt(event->x(), event->y());
-    if (!link.isEmpty())
-        emit linkActivated(link);
+    processClick(event);
 }
 
 void SelectableMouseArea::startSelection(QMouseEvent *event)
@@ -62,6 +60,24 @@ void SelectableMouseArea::continueSelection(QMouseEvent *event)
     }
 }
 
+void SelectableMouseArea::processClick(QMouseEvent *event)
+{
+    for (ItemInfo &info : m_items) {
+        QPointF pos = mapToItem(info.item, event->pos());
+        if (info.click.isValid() && info.item->contains(pos)) {
+            info.click.invoke(info.item, Q_ARG(QVariant, pos.x()), Q_ARG(QVariant, pos.y()));
+            return;
+        }
+
+        QString link;
+        info.linkAt.invoke(info.item, Q_RETURN_ARG(QString, link), Q_ARG(qreal, pos.x()), Q_ARG(qreal, pos.y()));
+        if (!link.isEmpty()) {
+            emit linkActivated(link);
+            return;
+        }
+    }
+}
+
 static QMetaMethod resolveMethod(QObject *object, const char *name)
 {
     const QMetaObject *meta = object->metaObject();
@@ -80,6 +96,7 @@ void SelectableMouseArea::addItem(QQuickItem *item)
     info.deselect = resolveMethod(item, "deselect()");
     info.linkAt = resolveMethod(item, "linkAt(qreal,qreal)");
     info.positionAt = resolveMethod(item, "positionAt(qreal,qreal)");
+    info.click = resolveMethod(item, "click(QVariant,QVariant)");
     Q_ASSERT(!m_items.contains(info));
     m_items << info;
 }
@@ -91,6 +108,11 @@ void SelectableMouseArea::removeItem(QQuickItem *item)
     info.item = item;
     Q_ASSERT(m_items.count(info) == 1);
     m_items.removeOne(info);
+}
+
+void SelectableMouseArea::copy()
+{
+    qDebug() << "Nico-izo, implement copy!11";
 }
 
 QString SelectableMouseArea::linkAt(qreal x, qreal y)
