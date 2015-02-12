@@ -31,6 +31,7 @@
 #include "completionmodel.h"
 #include "flatmodel.h"
 #include "gradientcreator.h"
+#include "selectablemousearea.h"
 
 #include <qutim/thememanager.h>
 
@@ -71,6 +72,7 @@ void Chat::init()
     qmlRegisterType<CompletionModel>("org.qutim.quickchat", 0, 4, "CompletionModel");
     qmlRegisterType<FlatProxyModel>("org.qutim.quickchat", 0, 4, "FlatProxyModel");
     qmlRegisterType<GradientCreator>("org.qutim.quickchat", 0, 4, "GradientCreator");
+    qmlRegisterType<SelectableMouseArea>("org.qutim.quickchat", 0, 4, "SelectableMouseArea");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)

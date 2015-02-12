@@ -60,7 +60,7 @@ StyledSplitView {
     }
 
     Connections {
-        target: messagesView.item.hasOwnProperty('runJavaScript') ? root.session : null
+        target: messagesView.item ? messagesView.item.hasOwnProperty('runJavaScript') ? root.session : null : null
         onJavaScriptRequest: messagesView.item.runJavaScript(script)
     }
 

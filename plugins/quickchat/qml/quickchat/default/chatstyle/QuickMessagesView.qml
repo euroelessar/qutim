@@ -11,9 +11,19 @@ Rectangle {
     readonly property QtObject session: chatSession
     property string topic: ""
     property var messages: { return {}; }
+    property var allItems: []
 
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
+
+    function addText(text) {
+        allItems.push(text);
+    }
+    function removeText(text) {
+        var index;
+        while ((index = allItems.indexOf(text)) >= 0)
+            allItems.splice(index, 1);
+    }
 
     Connections {
         target: session
@@ -44,6 +54,7 @@ Rectangle {
             model: ListModel {
                 id: listModel
             }
+            cacheBuffer: Math.max(100, height) * 2
 
             delegate: Item {
                 width: listView.width
@@ -54,13 +65,14 @@ Rectangle {
                 readonly property bool history: message.property("history", false)
                 readonly property bool action: message.action
 
-                Text {
+                SelectableText {
                     id: nickItem
                     anchors {
                         top: parent.top
                         left: parent.left
                         margins: 4
                     }
+                    mouseArea: selectableMouseArea
                     textFormat: Text.PlainText
                     font.bold: true
                     text: message.unitData.title
@@ -70,6 +82,7 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
+                        z: 20
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
@@ -87,19 +100,20 @@ Rectangle {
                     }
                 }
 
-                Text {
+                SelectableText {
                     id: timeItem
                     anchors {
                         top: parent.top
                         right: parent.right
                         margins: 4
                     }
+                    mouseArea: selectableMouseArea
                     color: "gray"
                     text: message.formatTime('(hh:mm:ss)')
                     renderType: Text.NativeRendering
                 }
 
-                Text {
+                SelectableText {
                     id: messageItem
                     anchors {
                         left: parent.left
@@ -107,12 +121,19 @@ Rectangle {
                         top: nickItem.bottom
                         margins: 4
                     }
-
+                    mouseArea: selectableMouseArea
                     textFormat: Text.RichText
                     text: message.html
                     renderType: Text.NativeRendering
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
+            }
+
+            SelectableMouseArea {
+                id: selectableMouseArea
+                anchors.fill: listView
+                z: 10
+                onLinkActivated: console.log('link: ', link);
             }
         }
     }
