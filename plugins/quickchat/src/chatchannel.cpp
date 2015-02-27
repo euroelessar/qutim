@@ -30,6 +30,8 @@
 #include <qutim/thememanager.h>
 #include <qutim/conference.h>
 #include <qutim/notification.h>
+#include <qutim/config.h>
+#include <qutim/history.h>
 #include <QDateTime>
 #include <QMetaMethod>
 
@@ -136,7 +138,12 @@ void ChatChannel::showChat()
 void ChatChannel::close()
 {
 	static_cast<Chat*>(Chat::instance())->handleSessionDeath(this);
-	deleteLater();
+    deleteLater();
+}
+
+void ChatChannel::clear()
+{
+    emit clearRequested();
 }
 
 QObject *ChatChannel::units() const
@@ -162,6 +169,15 @@ bool ChatChannel::supportJavaScript() const
     return m_javaScriptListeners > 0;
 }
 
+bool ChatChannel::event(QEvent *ev)
+{
+    if (ev->type() == MessageReceiptEvent::eventType()) {
+        MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+        emit receivedMessageReceipt(msgEvent->id(), msgEvent->success());
+    }
+    return ChatSession::event(ev);
+}
+
 QVariant ChatChannel::evaluateJavaScript(const QString &script)
 {
     emit javaScriptRequest(script);
@@ -171,6 +187,31 @@ QVariant ChatChannel::evaluateJavaScript(const QString &script)
 QString ChatChannel::htmlEscape(const QString &text)
 {
     return text.toHtmlEscaped();
+}
+
+void ChatChannel::appendText(const QString &text)
+{
+    emit appendTextRequested(text);
+}
+
+void ChatChannel::appendNick(const QString &nick)
+{
+    emit appendNickRequested(nick);
+}
+
+void ChatChannel::loadHistory()
+{
+    Config config(QStringLiteral("appearance"));
+    config.beginGroup(QStringLiteral("chat/history"));
+    int maxDisplayCount = config.value(QStringLiteral("maxDisplayMessages"), 5);
+    for (Message &message : History::instance()->read(unit(), maxDisplayCount)) {
+        message.setProperty("silent", true);
+        message.setProperty("store", false);
+        message.setProperty("history", true);
+        if (!message.chatUnit()) //TODO FIXME
+            message.setChatUnit(unit());
+        append(message);
+    }
 }
 
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)

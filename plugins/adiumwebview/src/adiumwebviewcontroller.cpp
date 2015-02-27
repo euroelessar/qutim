@@ -141,18 +141,10 @@ ChatSession *WebViewController::getSession() const
 
 bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 {
-    bool aIsAction = a.html().startsWith(QLatin1String("/me "), Qt::CaseInsensitive);
-    bool bIsAction = b.html().startsWith(QLatin1String("/me "), Qt::CaseInsensitive);
-    if (a.chatUnit() == b.chatUnit()
-            && (!m_style.hasAction() || (!aIsAction && !bIsAction))
-            && a.isIncoming() == b.isIncoming()
-            && a.property("senderName", QString()) == b.property("senderName", QString())
-            && a.property("service", false) == b.property("service", false)
-            && a.property("history", false) == b.property("history", false)
-            && a.property("mention", false) == b.property("mention", false)) {
-        return qAbs(a.time().secsTo(b.time())) < 300;
-    }
-    return false;
+    int flags = 0;
+    if (!m_style.hasAction())
+        flags |= Message::IgnoreActions;
+    return a.isSimiliar(b, flags);
 }
 
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)

@@ -9,8 +9,24 @@ TextEdit {
     selectByKeyboard: false
     activeFocusOnPress: false
 
-    property SelectableMouseArea mouseArea
+    property SelectableMouseArea __selectableMouseArea
 
-    Component.onCompleted: mouseArea.addItem(textEdit)
-    Component.onDestruction: mouseArea.removeItem(textEdit)
+    Component.onCompleted: {
+        var current = parent;
+        while (current) {
+            if (current.__selectableMouseArea !== undefined) {
+                __selectableMouseArea = current.__selectableMouseArea;
+                break;
+            }
+            current = current.parent;
+        }
+
+        if (__selectableMouseArea)
+            __selectableMouseArea.addItem(textEdit);
+    }
+
+    Component.onDestruction: {
+        if (__selectableMouseArea)
+            __selectableMouseArea.removeItem(textEdit);
+    }
 }

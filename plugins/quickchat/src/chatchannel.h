@@ -58,13 +58,19 @@ public:
     Q_INVOKABLE void send(const QString &text);
 	Q_INVOKABLE void showChat();
 	Q_INVOKABLE void close();
+    Q_INVOKABLE void clear();
 	QObject *units() const;
 	QObject *page() const;
 	void setPage(QObject *page);
     bool supportJavaScript() const;
+
+    bool event(QEvent *ev);
 	
 	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
     Q_INVOKABLE QString htmlEscape(const QString &text);
+    Q_INVOKABLE void appendText(const QString &text);
+    Q_INVOKABLE void appendNick(const QString &nick);
+    Q_INVOKABLE void loadHistory();
 	
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
@@ -78,6 +84,10 @@ signals:
 	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
 	void unreadCountChanged(int);
 	void pageChanged(QObject *page);
+    void appendTextRequested(const QString &text);
+    void appendNickRequested(const QString &nick);
+    void receivedMessageReceipt(qint64 id, bool success);
+    void clearRequested();
 	
 private:
     QString m_id;

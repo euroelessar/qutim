@@ -34,6 +34,8 @@
 #include "account.h"
 #include "protocol.h"
 #include "conference.h"
+#include "utils.h"
+#include "emoticons.h"
 #include <QDebug>
 
 QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
@@ -214,6 +216,34 @@ QVariant Message::property(const QString &name, const QVariant &def) const
 bool Message::hasProperty(const QString &name) const
 {
     return dynamicPropertyNames().contains(name.toUtf8().constData());
+}
+
+QString Message::formattedHtml() const
+{
+    QString html = UrlParser::parseUrls(this->html(), UrlParser::Html);
+
+    if (property("topic", false))
+        return html;
+
+    return Emoticons::theme().parseEmoticons(html);
+}
+
+bool Message::isSimiliar(const Message &other, int flags) const
+{
+    const auto &a = *this;
+    const auto &b = other;
+
+    if (a.chatUnit() == b.chatUnit()
+            && ((flags & IgnoreActions) || (!a.isAction() && !b.isAction()))
+            && a.isIncoming() == b.isIncoming()
+            && a.property("senderName", QString()) == b.property("senderName", QString())
+            && a.property("service", false) == b.property("service", false)
+            && a.property("history", false) == b.property("history", false)
+            && a.property("mention", false) == b.property("mention", false)) {
+        // TODO: Make configurable
+        return qAbs(a.time().secsTo(b.time())) < 300;
+    }
+    return false;
 }
 
 const QString &Message::text() const

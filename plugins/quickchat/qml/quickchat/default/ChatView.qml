@@ -31,6 +31,7 @@ StyledSplitView {
         iconName: "edit-clear-list"
         text: qsTr("Clear chat")
         tooltip: qsTr("Clear chat")
+        onTriggered: session.clear()
     }
 
     Action {

@@ -1,7 +1,5 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
-import org.qutim 0.4
-import org.qutim.quickchat 0.4
 import ".." as Base
 
 Rectangle {
@@ -10,18 +8,21 @@ Rectangle {
 
     readonly property QtObject session: chatSession
     property string topic: ""
-    property var messages: { return {}; }
+
+    onSessionChanged: session.loadHistory()
 
     signal appendTextRequested(string text)
     signal appendNickRequested(string nick)
 
     function copy() {
-        selectableMouseArea.copy();
+        layout.copy();
     }
 
     Connections {
         target: session
         onMessageAppended: root.appendMessage(message)
+        onAppendTextRequested: root.appendTextRequested(text)
+        onAppendNickRequested: root.appendNickRequested(nick)
     }
 
     Base.ControlledMenu {
@@ -34,8 +35,12 @@ Rectangle {
             return;
         }
 
-        messages[message.id] = message;
-        listModel.append({ 'messageId': message.id });
+        var keepEnd = flickable.shouldKeepEnd();
+
+        layout.appendMessage(message);
+
+        if (keepEnd)
+            flickable.moveToEnd();
     }
 
     ScrollView {
@@ -43,90 +48,30 @@ Rectangle {
         anchors.fill: parent
         frameVisible: false
 
-        ListView {
-            id: listView
-            model: ListModel {
-                id: listModel
-            }
-            cacheBuffer: Math.max(100, height) * 2
+        Flickable {
+            id: flickable
+            contentWidth: layout.width
+            contentHeight: layout.height
 
-            delegate: Item {
-                width: listView.width
-                height: messageItem.y + messageItem.height
-
-                readonly property var message: root.messages[messageId]
-                readonly property bool service: message.property("service", false)
-                readonly property bool history: message.property("history", false)
-                readonly property bool action: message.action
-
-                SelectableText {
-                    id: nickItem
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        margins: 4
-                    }
-                    mouseArea: selectableMouseArea
-                    textFormat: Text.PlainText
-                    font.bold: true
-                    text: message.unitData.title
-                    color: message.incoming ? "#ff6600" : "#0078ff"
-                    renderType: Text.NativeRendering
-//                    visible: !action && !service
-
-                    function click(x, y) {
-                        root.appendNickRequested(message.unitData.title);
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.RightButton
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            var unit = root.session.units.unitById(message.unitData.id);
-                            console.log(unit, message.unitData.id);
-                            if (unit) {
-                                menu.controller = unit;
-                                menu.popup();
-                            }
-                        }
-                    }
-                }
-
-                SelectableText {
-                    id: timeItem
-                    anchors {
-                        top: parent.top
-                        right: parent.right
-                        margins: 4
-                    }
-                    mouseArea: selectableMouseArea
-                    color: "gray"
-                    text: message.formatTime('(hh:mm:ss)')
-                    renderType: Text.NativeRendering
-                }
-
-                SelectableText {
-                    id: messageItem
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: nickItem.bottom
-                        margins: 4
-                    }
-                    mouseArea: selectableMouseArea
-                    textFormat: Text.RichText
-                    text: message.html
-                    renderType: Text.NativeRendering
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                }
+            function shouldKeepEnd() {
+                return Math.abs((contentY + height - contentHeight) / height) < 0.25;
             }
 
-            SelectableMouseArea {
-                id: selectableMouseArea
-                anchors.fill: listView
-                z: 10
-                onLinkActivated: console.log('link: ', link);
+            function moveToEnd() {
+                var newContentY = Math.max(0, contentHeight - height);
+                if (contentY !== newContentY)
+                    contentY = newContentY;
+            }
+
+            onContentHeightChanged: if (shouldKeepEnd()) moveToEnd()
+            onContentYChanged: layout.updateHover()
+
+            QuickMessagesLayout {
+                id: layout
+                width: scrollView.viewport.width
+                session: root.session
+
+                messageComponent: Message {}
             }
         }
     }

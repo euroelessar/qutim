@@ -78,6 +78,13 @@ public:
 		QString avatar;
     };
 
+    enum SimiliarFlag
+    {
+        NoFlag = 0x00,
+        IgnoreActions = 0x01,
+    };
+    Q_ENUM(SimiliarFlag)
+
 	Message();
 	Message(const QString &text);
 	Message(const Message &other);
@@ -87,7 +94,7 @@ public:
 	const QString &text() const;
 	void setText(const QString &text);
 	QString html() const;
-	void setHtml(const QString &html);
+    void setHtml(const QString &html);
 	const QDateTime &time() const;
 	void setTime(const QDateTime &time);
     Q_INVOKABLE QString formatTime(const QString &format);
@@ -109,6 +116,9 @@ public:
 
     Q_INVOKABLE QVariant property(const QString &name, const QVariant &def) const;
     Q_INVOKABLE bool hasProperty(const QString &name) const;
+    Q_INVOKABLE QString formattedHtml() const;
+    // FIXME: replace int flags by QFlags<SimiliarFlag> once QML would understand that
+    Q_INVOKABLE bool isSimiliar(const qutim_sdk_0_3::Message &other, int flags = 0) const;
 private:
 	QSharedDataPointer<MessagePrivate> p;
 };
