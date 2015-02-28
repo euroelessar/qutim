@@ -33,8 +33,10 @@
 #include <QStringRef>
 #include <QTextDocument>
 #include <QChar>
+#include <QMetaMethod>
 
 #include <qutim/conference.h>
+#include <qutim/chatsession.h>
 
 namespace BlogImprover {
 
@@ -53,10 +55,26 @@ public:
 	};
 
 protected:
-	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
+    qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 public slots:
 	void loadSettings();
 private:
+    class HtmlLinker
+    {
+    public:
+        HtmlLinker(qutim_sdk_0_3::ChatSession *session);
+
+        bool isValid() const;
+
+        QString create(const QString &text, const QString &label) const;
+
+    private:
+        bool m_valid = false;
+        qutim_sdk_0_3::ChatSession *m_session = nullptr;
+        QMetaMethod m_appendTextUrl;
+        QString m_template;
+    };
+
 	bool m_enablePstoIntegration;
 	bool m_enableJuickIntegration;
 	bool m_enableBnwIntegration;
@@ -69,13 +87,9 @@ private:
 	QRegExp m_juickPost;
 	QRegExp m_juickComment;
 
-	QString m_simplestyle;
-	QString m_nickTemplate;
-	QString m_postTemplate;
-	QString m_tagTemplate;
-	void handlePsto(qutim_sdk_0_3::Message &message);
-	void handleJuick(qutim_sdk_0_3::Message &message);
-	void handleBnw(qutim_sdk_0_3::Message &message);
+    void handlePsto(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
+    void handleJuick(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
+    void handleBnw(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
 };
 
 } // namespace BlogImprover
