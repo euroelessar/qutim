@@ -5,6 +5,8 @@ Item {
     id: root
 
     property Component messageComponent
+    property Component actionComponent
+    property Component serviceComponent
     property QtObject session
     property var items: []
     property var itemMessages: []
@@ -62,14 +64,14 @@ Item {
         items.splice(index, 0, undefined);
         itemMessages.splice(index, 0, message);
 
-        if (index > 0 && itemMessages[index - 1].isSimiliar(message)) {
+        if (index > 0 && isContentSimiliar(itemMessages[index - 1], message)) {
             items[index] = items[index - 1];
             insertMessage(items[index], message);
-        } else if (index + 1 < itemMessages.length && message.isSimiliar(itemMessages[index + 1])) {
+        } else if (index + 1 < itemMessages.length && isContentSimiliar(message, itemMessages[index + 1])) {
             items[index] = items[index + 1];
             insertMessage(items[index], message);
         } else {
-            items[index] = createItem([message]);
+            items[index] = createItem(message);
             // TODO: Split messages
         }
 
@@ -96,13 +98,23 @@ Item {
         item.messages = messages;
     }
 
-    function createItem(messages) {
+    function isContentSimiliar(first, second) {
+        return !first.property("service", false)
+            && !second.property("service", false)
+            && first.isSimiliar(second);
+    }
+
+    function createItem(message) {
         var properties = {
-            messages: messages,
+            messages: [message],
             session: Qt.binding(function () { return root.session; }),
             width: Qt.binding(function () { return root.width; }),
         };
         var component = messageComponent;
+        if (message.action && actionComponent)
+            component = actionComponent;
+        if (message.property("service", false) && serviceComponent)
+            component = serviceComponent;
         var item = component.createObject(root, properties);
 
         item.heightChanged.connect(function () {

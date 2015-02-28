@@ -21,6 +21,12 @@ void AnchorsHighlighter::highlightBlock(const QString &text)
         if (anchorHref.isEmpty())
             continue;
 
+        // This is a special case, do not highlight
+        if (anchorHref.startsWith(QStringLiteral("session:"))
+                && anchorHref.endsWith(QStringLiteral("#do-not-style"))) {
+            continue;
+        }
+
         QTextCharFormat format;
         if (position >= range.start && position < range.start + range.length) {
             format.setForeground(QColor(Qt::red));

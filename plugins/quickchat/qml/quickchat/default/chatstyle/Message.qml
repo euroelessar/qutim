@@ -2,25 +2,11 @@ import QtQuick 2.3
 import org.qutim 0.4
 import org.qutim.quickchat 0.4
 
-Item {
+MessageBase {
     id: root
-    width: listView.width
     height: column.y + column.height
 
-    property var messages
-    property var messageReceipts: { return {}; }
-    property QtObject session
     readonly property var message: messages[0]
-    readonly property bool history: message.property("history", false)
-
-    function handleReceipt(id, success) {
-        var newMessageReceipts = {};
-        for (var i in messageReceipts)
-            newMessageReceipts[i] = messageReceipts[i];
-        newMessageReceipts[id] = success;
-
-        messageReceipts = newMessageReceipts;
-    }
 
     SelectableText {
         id: nickItem

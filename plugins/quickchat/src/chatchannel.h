@@ -28,6 +28,7 @@
 
 #include <qutim/chatsession.h>
 #include "chatmessagemodel.h"
+#include <QUrl>
 
 namespace QuickChat
 {
@@ -64,15 +65,22 @@ public:
 	void setPage(QObject *page);
     bool supportJavaScript() const;
 
+    QString id() const;
+
     bool event(QEvent *ev);
-	
-	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
-    Q_INVOKABLE QString htmlEscape(const QString &text);
-    Q_INVOKABLE void appendText(const QString &text);
-    Q_INVOKABLE void appendNick(const QString &nick);
-    Q_INVOKABLE void loadHistory();
+
+public slots:
+    QVariant evaluateJavaScript(const QString &script);
+    QString htmlEscape(const QString &text);
+    void appendText(const QString &text);
+    void appendNick(const QString &nick);
+    void loadHistory();
+
+    QUrl appendTextUrl(const QString &text);
+    QUrl appendNickUrl(const QString &nick);
 	
 protected:
+    QUrl commandUrl(const QString &method, const QString &arg) const;
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
     void connectNotify(const QMetaMethod &signal);

@@ -35,10 +35,13 @@
 #include "anchorshighlighter.h"
 
 #include <qutim/thememanager.h>
+#include <qutim/declarativeview.h>
 
 #include <QQmlEngine>
 #include <qqml.h>
 #include <QTimer>
+#include <QDesktopServices>
+#include <QUrlQuery>
 
 namespace QuickChat
 {
@@ -53,10 +56,13 @@ Chat::Chat() :
     QTimer::singleShot(0, this, [this] () {
         m_view.show();
     });
+
+    QDesktopServices::setUrlHandler(QStringLiteral("session"), this, "onCommandUrl");
 }
 
 Chat::~Chat()
 {
+    QDesktopServices::unsetUrlHandler(QStringLiteral("session"));
 }
 
 void Chat::init()
@@ -183,10 +189,28 @@ void Chat::onSessionDestroyed(QObject *object)
 
 void Chat::forEachChannel(QJSValue callback) const
 {
+    QJSEngine *engine = DeclarativeView::globalEngine();
     for (ChatChannel *channel : m_channels) {
         QJSValueList args;
-        args << callback.engine()->toScriptValue(channel);
+        args << engine->toScriptValue(channel);
         callback.call(args);
+    }
+}
+
+void Chat::onCommandUrl(const QUrl &url)
+{
+    QUrlQuery query(url);
+    QString id = query.queryItemValue(QStringLiteral("id"));
+    QString method = query.queryItemValue(QStringLiteral("method"));
+    QString arg = query.queryItemValue(QStringLiteral("arg"));
+
+    if (method != QStringLiteral("appendText") && method != QStringLiteral("appendNick"))
+        return;
+
+    for (ChatChannel *channel : m_channels) {
+        if (channel->id() != id)
+            continue;
+        QMetaObject::invokeMethod(channel, method.toUtf8(), Q_ARG(QString, arg));
     }
 }
 

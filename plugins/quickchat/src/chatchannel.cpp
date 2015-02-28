@@ -34,6 +34,8 @@
 #include <qutim/history.h>
 #include <QDateTime>
 #include <QMetaMethod>
+#include <QUuid>
+#include <QUrlQuery>
 
 namespace QuickChat
 {
@@ -42,6 +44,7 @@ using namespace qutim_sdk_0_3;
 ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
 	: ChatSession(Chat::instance()), m_unit(unit), m_page(0)
 {
+    m_id = QUuid::createUuid().toString();
 	m_model = new ChatMessageModel(this);
 	m_units = new ChatChannelUsersModel(this);
 	if (Conference *conf = qobject_cast<Conference *>(unit)) {
@@ -169,6 +172,11 @@ bool ChatChannel::supportJavaScript() const
     return m_javaScriptListeners > 0;
 }
 
+QString ChatChannel::id() const
+{
+    return m_id;
+}
+
 bool ChatChannel::event(QEvent *ev)
 {
     if (ev->type() == MessageReceiptEvent::eventType()) {
@@ -212,6 +220,30 @@ void ChatChannel::loadHistory()
             message.setChatUnit(unit());
         append(message);
     }
+}
+
+QUrl ChatChannel::appendTextUrl(const QString &text)
+{
+    return commandUrl(QStringLiteral("appendText"), text);
+}
+
+QUrl ChatChannel::appendNickUrl(const QString &nick)
+{
+    return commandUrl(QStringLiteral("appendNick"), nick);
+}
+
+QUrl ChatChannel::commandUrl(const QString &method, const QString &arg) const
+{
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("id"), id());
+    query.addQueryItem(QStringLiteral("method"), method);
+    query.addQueryItem(QStringLiteral("arg"), arg);
+
+    QUrl url;
+    url.setScheme(QStringLiteral("session"));
+    url.setQuery(query);
+
+    return url;
 }
 
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)

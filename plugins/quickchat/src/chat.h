@@ -56,6 +56,7 @@ public:
 public slots:
     void show();
     void forEachChannel(QJSValue callback) const;
+    void onCommandUrl(const QUrl &url);
 	
 signals:
 	void sessionDestroyed(qutim_sdk_0_3::ChatSession *session);

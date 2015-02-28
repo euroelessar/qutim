@@ -72,6 +72,8 @@ Rectangle {
                 session: root.session
 
                 messageComponent: Message {}
+                actionComponent: ActionMessage {}
+                serviceComponent: ServiceMessage {}
             }
         }
     }
