@@ -30,11 +30,11 @@ TableView {
     TableViewColumn {
     }
 
-    readonly property Style style: styleLoader.item
+    readonly property ContactListStyle style: styleLoader.item
 
-    Loader {
+    ThemedLoader {
         id: styleLoader
-        source: 'style/Style.qml'
+        category: "contactliststyle"
     }
 
     Service {

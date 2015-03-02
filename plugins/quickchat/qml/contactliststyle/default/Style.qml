@@ -1,8 +1,7 @@
 import QtQuick 2.0
 import org.qutim 0.4
-import ".." as Parent
 
-Parent.Style {
+ContactListStyle {
     id: style
 
     backgroundColor: "transparent"

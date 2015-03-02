@@ -1,6 +1,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
-import ".." as Base
+import org.qutim 0.4 as Base
 
 Rectangle {
     id: root

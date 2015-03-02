@@ -71,12 +71,11 @@ StyledSplitView {
         width: parent.width - 150
         Layout.fillHeight: true
 
-        Loader {
+        ThemedLoader {
             id: messagesView
             Layout.fillWidth: true
             height: parent.height - 50
-            source: experiment ? "chatstyle/QuickMessagesView.qml" : "ChatMessagesView.qml"
-            readonly property bool experiment: true
+            category: "chatstyle"
 
             readonly property QtObject chatSession: root.session
 
