@@ -71,8 +71,18 @@ Item {
             items[index] = items[index + 1];
             insertMessage(items[index], message);
         } else {
-            items[index] = createItem(message);
-            // TODO: Split messages
+            items[index] = createItem([message]);
+
+            if (index > 0 && index + 1 < items.length && items[index - 1] === items[index + 1]) {
+                var messages = items[index - 1].messages;
+                var messageIndex = messages.indexOf(itemMessages[index + 1]);
+                var firstMessages = messages.slice(0, messageIndex);
+                var secondMessages = messages.slice(messageIndex);
+                items[index - 1].messages = firstMessages;
+                items[index + 1] = createItem(secondMessages);
+                for (var i = 1; i < secondMessages.length; ++i)
+                    items[index + 1 + i] = items[index + 1];
+            }
         }
 
         itemById[message.id] = items[index];
@@ -104,9 +114,10 @@ Item {
             && first.isSimiliar(second);
     }
 
-    function createItem(message) {
+    function createItem(messages) {
+        var message = messages[0];
         var properties = {
-            messages: [message],
+            messages: messages,
             session: Qt.binding(function () { return root.session; }),
             width: Qt.binding(function () { return root.width; }),
         };
