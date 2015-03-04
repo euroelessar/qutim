@@ -14,6 +14,7 @@ Item {
     property var itemById: { return {}; }
     property SelectableMouseArea __selectableMouseArea: mouseArea
     property bool doNotRelayout: false
+    property bool hoverEnabled: mouseArea.hoverEnabled
 
     function updateHover() {
         mouseArea.updateHover();

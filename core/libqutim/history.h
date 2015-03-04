@@ -27,81 +27,65 @@
 #define HISTORY_H
 
 #include "message.h"
+#include "asyncresult.h"
 #include <QDateTime>
 
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
-	
-#ifdef EXPERIMENTAL_HISTORY_API	
-	class HistoryRequestPrivate;
-	class HistoryReplyPrivate;
-	class HistoryRequest;
-	
-	class HistoryReply : public QObject
-	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(HistoryReply)
-	public:
-		HistoryReply();
-		~HistoryReply();
-		
-		HistoryRequest request() const;
-		MessageList messages() const;
-		int totalCount() const;
-		int firstIndex() const;
-		int lastIndex() const;
-	signals:
-		void ready();
-	protected:
-		void setMessages(const MessageList &messages);
-		void setCount(int count);
-		void setBoundaries(int first, int last);
-	private:
-		QScopedPointer<HistoryReplyPrivate> d_ptr;
-	};
-	
-	class HistoryRequest
-	{
-	public:
-		HistoryRequest(ChatUnit *unit);
-		HistoryRequest(const HistoryRequest &other);
-		~HistoryRequest();
-		HistoryRequest &operator =(const HistoryRequest &other);
-//		enum Type { MessagesCount,  };
-		
-		HistoryReply *send();
-	private:
-		QSharedDataPointer<HistoryRequestPrivate> d_ptr;
-	};
 
-	class LIBQUTIM_EXPORT HistoryEngine : public QObject
-	{
-		Q_OBJECT
-	public:
-		HistoryEngine();
-		virtual ~HistoryEngine();
-		virtual HistoryReply *store(const Message &msg) = 0;
-		virtual HistoryReply *request(const HistoryRequest &rule) = 0;
-	};
-#endif // EXPERIMENTAL_HISTORY_API	
-	
 	class LIBQUTIM_EXPORT History : public QObject
 	{
 		Q_OBJECT
-	public:
-		History();
+        Q_CLASSINFO("Service", "History")
+    public:
 		virtual ~History();
+
 		static History *instance();
-		virtual void store(const Message &message);
-		virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
-		MessageList read(const ChatUnit *unit, const QDateTime &to, int max_num) { return read(unit, QDateTime(), to, max_num); }
-		MessageList read(const ChatUnit *unit, int max_num) { return read(unit, QDateTime(), QDateTime::currentDateTime(), max_num); }
+
+        struct AccountInfo
+        {
+            QString protocol;
+            QString account;
+
+            bool operator ==(const AccountInfo &other) const;
+            bool operator <(const AccountInfo &other) const;
+        };
+
+        struct ContactInfo : AccountInfo
+        {
+            QString contact;
+
+            bool operator ==(const ContactInfo &other) const;
+            bool operator <(const ContactInfo &other) const;
+        };
+
+        virtual void store(const Message &message) = 0;
+        virtual AsyncResult<MessageList> read(const ContactInfo &contact, const QDateTime &from, const QDateTime &to, int max_num) = 0;
+        virtual AsyncResult<QVector<AccountInfo>> accounts() = 0;
+        virtual AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) = 0;
+        virtual AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) = 0;
+        virtual AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) = 0;
+
+        AsyncResult<MessageList> read(const ChatUnit *unit, const QDateTime &to, int max_num);
+        AsyncResult<MessageList> read(const ChatUnit *unit, int max_num);
+
+        MessageList readSync(const ChatUnit *unit, int max_num);
+
+        static ContactInfo info(const ChatUnit *unit);
+
 	public slots:
-		virtual void showHistory(const ChatUnit *unit);
-		virtual void virtual_hook(int id, void *data);
+        virtual void showHistory(const ChatUnit *unit) = 0;
+
+    protected:
+        History();
+
+        virtual void virtual_hook(int id, void *data);
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::History::AccountInfo)
+Q_DECLARE_METATYPE(qutim_sdk_0_3::History::ContactInfo)
 
 #endif // HISTORY_H
 

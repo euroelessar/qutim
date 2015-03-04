@@ -64,7 +64,7 @@ Rectangle {
             }
 
             onContentHeightChanged: if (shouldKeepEnd()) moveToEnd()
-            onContentYChanged: layout.updateHover()
+            onContentYChanged: hoverDelay.restart()
 
             QuickMessagesLayout {
                 id: layout
@@ -74,6 +74,13 @@ Rectangle {
                 messageComponent: Message {}
                 actionComponent: ActionMessage {}
                 serviceComponent: ServiceMessage {}
+            }
+
+            Timer {
+                id: hoverDelay
+                interval: 200
+
+                onTriggered: layout.updateHover()
             }
         }
     }

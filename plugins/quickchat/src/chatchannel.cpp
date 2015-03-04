@@ -212,14 +212,18 @@ void ChatChannel::loadHistory()
     Config config(QStringLiteral("appearance"));
     config.beginGroup(QStringLiteral("chat/history"));
     int maxDisplayCount = config.value(QStringLiteral("maxDisplayMessages"), 5);
-    for (Message &message : History::instance()->read(unit(), maxDisplayCount)) {
-        message.setProperty("silent", true);
-        message.setProperty("store", false);
-        message.setProperty("history", true);
-        if (!message.chatUnit()) //TODO FIXME
-            message.setChatUnit(unit());
-        append(message);
-    }
+
+    auto result = History::instance()->read(unit(), maxDisplayCount);
+    result.connect(this, [this] (MessageList messages) {
+        for (Message &message : messages) {
+            message.setProperty("silent", true);
+            message.setProperty("store", false);
+            message.setProperty("history", true);
+            if (!message.chatUnit()) //TODO FIXME
+                message.setChatUnit(unit());
+            append(message);
+        }
+    });
 }
 
 QUrl ChatChannel::appendTextUrl(const QString &text)
