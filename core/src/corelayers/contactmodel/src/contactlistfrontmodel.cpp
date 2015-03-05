@@ -82,7 +82,7 @@ QStringList ContactListFrontModel::filterTags() const
 QHash<int, QByteArray> ContactListFrontModel::roleNames() const
 {
     QHash<int, QByteArray> roleNames;
-	roleNames.insert(IdRole, "id");
+    roleNames.insert(IdRole, "itemId");
 	roleNames.insert(Qt::DisplayRole, "title");
 	roleNames.insert(StatusIconNameRole, "statusIconName");
 	roleNames.insert(ContactsCountRole, "totalCount");

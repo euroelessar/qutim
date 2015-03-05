@@ -102,7 +102,7 @@ ContactListStyle {
 
             Label {
                 anchors.fill: parent
-                text: model === null ? 'null' : model.id
+                text: model !== null ? model.itemId : 'null'
                 fontStyle: accountStyle.font
             }
         }

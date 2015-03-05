@@ -151,6 +151,8 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return account->id();
         case CollapsedRole:
             return node->collapsed;
+        case IdRole:
+            return account->id();
 		default:
 			return QVariant();
 		}

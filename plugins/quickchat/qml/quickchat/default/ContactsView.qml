@@ -158,6 +158,7 @@ TableView {
             if (rowItem) {
                 rowItem.visible = false;
                 rowItem.parent = null;
+                rowItem.itemModel = null;
                 rowItem.width = rowItemContainer.width;
                 stackByType(itemType).push(rowItem);
             }
