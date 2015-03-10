@@ -186,6 +186,10 @@ public slots:
 	  It's equivalent for \code menu(true)->popup(pos) \endcode
 	*/
 	void showMenu(const QPoint &pos);
+    /*!
+     * Show menu at current cursor position
+     */
+    void showMenu();
 protected:
 	/*!
 	  Add to menu of this object also actions from another \a controller.
@@ -232,6 +236,8 @@ public:
 	ActionContainer(MenuController *controller, Filter filter, const QVariant &data);
 	// Destructor, I think it shouldn't be virtual
 	~ActionContainer();
+
+    void setFilter(Filter filter, const QVariant &data);
 	
 	void setController(MenuController *controller);
 	void show();

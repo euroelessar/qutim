@@ -107,7 +107,7 @@ void JoinChatDialog::joinBookmark(QListWidgetItem *item)
 void JoinChatDialog::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	connect(account, &Account::statusChanged, this, &JoinChatDialog::onAccountStatusChanged);
-	connect(account, &Account::interfaceChanged, this, [this] (const QByteArray &name, QObject *interface) {
+	connect(account, &Account::featureChanged, this, [this] (const QByteArray &name, QObject *interface) {
 		if (name == "GroupChatManager") {
 			onManagerChanged(qobject_cast<GroupChatManager *>(interface));
 		}

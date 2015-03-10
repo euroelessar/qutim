@@ -12,6 +12,12 @@ Application {
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]
+    cpp.infoPlist: {
+        return {
+            CFBundleIconFile: 'qutim.icns',
+            CFBundleGetInfoString: 'Module based instant messenger'
+        };
+    }
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
@@ -35,6 +41,25 @@ Application {
             "*.cpp",
             "*.ui"
         ]
+    }
+
+    Group {
+        name: "OS X files"
+        condition: qbs.targetOS.contains("osx")
+        fileTags: [
+            "icns"
+        ]
+        files: [
+            "qutim.icns"
+        ]
+    }
+
+    Group {
+        fileTagsFilter: [
+            "infoplist"
+        ]
+        qbs.install: true
+        qbs.installDir: qutim_bin_path + "/Contents/Resources/"
     }
 
     Group {

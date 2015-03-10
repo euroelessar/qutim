@@ -27,7 +27,8 @@
 #include "contactlistmimedata.h"
 #include <qutim/protocol.h>
 #include <qutim/accountmanager.h>
-#include <QtDebug>
+#include <QDebug>
+#include <QMetaMethod>
 
 using namespace qutim_sdk_0_3;
 
@@ -47,8 +48,8 @@ ContactListFrontModel::ContactListFrontModel(QObject *parent) :
 	setDynamicSortFilter(true);
 	onServiceChanged(m_model.name(), m_model, NULL);
 	onServiceChanged(m_metaManager.name(), m_metaManager, NULL);
-	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
-			this, SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
+    connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
+            this, &ContactListFrontModel::onServiceChanged);
 }
 
 bool ContactListFrontModel::offlineVisibility() const
@@ -81,7 +82,7 @@ QStringList ContactListFrontModel::filterTags() const
 QHash<int, QByteArray> ContactListFrontModel::roleNames() const
 {
     QHash<int, QByteArray> roleNames;
-	roleNames.insert(IdRole, "id");
+    roleNames.insert(IdRole, "itemId");
 	roleNames.insert(Qt::DisplayRole, "title");
 	roleNames.insert(StatusIconNameRole, "statusIconName");
 	roleNames.insert(ContactsCountRole, "totalCount");
@@ -92,7 +93,11 @@ QHash<int, QByteArray> ContactListFrontModel::roleNames() const
 	roleNames.insert(ContactRole, "contact");
 	roleNames.insert(AlphabetRole, "alphabet");
 	roleNames.insert(StatusTextRole, "subtitle");
-	roleNames.insert(AvatarRole, "avatar");
+    roleNames.insert(AvatarRole, "avatar");
+    roleNames.insert(IconSourceRole, "iconSource");
+    roleNames.insert(FirstItemRole, "isFirst");
+    roleNames.insert(LastItemRole, "isLast");
+    roleNames.insert(CollapsedRole, "collapsed");
 	return roleNames;
 }
 
@@ -232,7 +237,19 @@ Qt::ItemFlags ContactListFrontModel::flags(const QModelIndex &index) const
 		break;
 	}
 
-	return flags;
+    return flags;
+}
+
+QVariant ContactListFrontModel::data(const QModelIndex &index, int role) const
+{
+    switch (role) {
+    case FirstItemRole:
+        return index.row() == 0;
+    case LastItemRole:
+        return index.row() + 1 == rowCount(parent(index));
+    default:
+        return QSortFilterProxyModel::data(index, role);
+    }
 }
 
 void ContactListFrontModel::setFilterTags(const QStringList &filterTags)
@@ -256,7 +273,19 @@ void ContactListFrontModel::addContact(Contact *contact)
 
 void ContactListFrontModel::removeContact(Contact *contact)
 {
-	static_cast<ContactListBaseModel*>(sourceModel())->onContactRemoved(contact);
+    static_cast<ContactListBaseModel*>(sourceModel())->onContactRemoved(contact);
+}
+
+void ContactListFrontModel::collapse(const QModelIndex &index)
+{
+    if (m_model)
+        m_model->collapse(mapToSource(index));
+}
+
+void ContactListFrontModel::expand(const QModelIndex &index)
+{
+    if (m_model)
+        m_model->expand(mapToSource(index));
 }
 
 void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject)
@@ -300,53 +329,113 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 			m_model->onAccountRemoved(oldManager);
 		if (m_metaManager)
 			m_model->onAccountCreated(m_metaManager);
-	}
+    }
+}
+
+void ContactListFrontModel::connectNotify(const QMetaMethod &signal)
+{
+    if (m_insideConnectNotify)
+        return;
+    m_insideConnectNotify = true;
+
+    if (signal == QMetaMethod::fromSignal(&QAbstractItemModel::rowsInserted)) {
+        disconnect(m_rowsInsertedConnection);
+        m_rowsInsertedConnection = connect(this, &QAbstractItemModel::rowsInserted,
+                                           this, &ContactListFrontModel::onRowsInserted);
+    }
+    if (signal == QMetaMethod::fromSignal(&QAbstractItemModel::rowsRemoved)) {
+        disconnect(m_rowsRemovedConnection);
+        m_rowsRemovedConnection = connect(this, &QAbstractItemModel::rowsRemoved,
+                                          this, &ContactListFrontModel::onRowsRemoved);
+    }
+
+    m_insideConnectNotify = false;
+}
+
+void ContactListFrontModel::updateData(const QModelIndex &parent, int row, ContactListItemRole role)
+{
+    QModelIndex item = index(row, 0, parent);
+    emit dataChanged(item, item, QVector<int> { role });
+}
+
+void ContactListFrontModel::onRowsInserted(const QModelIndex &parent, int first, int last)
+{
+    int count = rowCount(parent);
+    if (first == 0 && last + 1 < count)
+        updateData(parent, last + 1, FirstItemRole);
+    if (last + 1 == count && first > 0)
+        updateData(parent, first - 1, LastItemRole);
+}
+
+void ContactListFrontModel::onRowsRemoved(const QModelIndex &parent, int first, int last)
+{
+    Q_UNUSED(last);
+    int count = rowCount(parent);
+    if (first == 0 && count > 0)
+        updateData(parent, 0, FirstItemRole);
+    if (first >= count && first > 0)
+        updateData(parent, first - 1, LastItemRole);
+}
+
+bool ContactListFrontModel::filterAcceptsRowImpl(int sourceRow, const QModelIndex &sourceParent, bool checkCollapse) const
+{
+    const QRegExp regexp = filterRegExp();
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+
+    if (checkCollapse) {
+        QVariant collapsed = sourceParent.data(CollapsedRole);
+        if (collapsed.isValid() && collapsed.toBool())
+            return false;
+    }
+
+    if (m_filterTags.isEmpty() && m_showOffline && regexp.isEmpty())
+        return true;
+
+    switch (index.data(ItemTypeRole).toInt()) {
+    case ContactType: {
+        Contact *contact = qobject_cast<Contact*>(index.data(BuddyRole).value<Buddy*>());
+        Q_ASSERT(contact);
+        if (!regexp.isEmpty()) {
+            return contact->id().contains(regexp) || contact->name().contains(regexp);
+        } else {
+            if (index.data(NotificationRole).toInt() >= Notification::IncomingMessage)
+                return true;
+            if (!m_filterTags.isEmpty()) {
+                bool hasAny = false;
+                foreach (const QString &tag, contact->tags()) {
+                    hasAny |= bool(m_filterTags.contains(tag));
+                    if (hasAny)
+                        break;
+                }
+                if (!hasAny)
+                    return false;
+            }
+            if (!m_showOffline) {
+                const Status status = index.data(StatusRole).value<Status>();
+                return status != Status::Offline;
+            }
+        }
+        break;
+    }
+    case TagType: {
+        if (!m_filterTags.isEmpty() && !m_filterTags.contains(index.data(TagNameRole).toString()))
+            return false;
+        int count = sourceModel()->rowCount(index);
+        for (int i = 0; i < count; ++i) {
+            if (filterAcceptsRowImpl(i, index, false))
+                return true;
+        }
+        return false;
+    }
+    default:
+        break;
+    };
+    return true;
 }
 
 bool ContactListFrontModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-	const QRegExp regexp = filterRegExp();
-	switch (index.data(ItemTypeRole).toInt()) {
-	case ContactType: {
-		Contact *contact = qobject_cast<Contact*>(index.data(BuddyRole).value<Buddy*>());
-		Q_ASSERT(contact);
-		if (!regexp.isEmpty()) {
-			return contact->id().contains(regexp) || contact->name().contains(regexp);
-		} else {
-			if (index.data(NotificationRole).toInt() >= Notification::IncomingMessage)
-				return true;
-			if (!m_filterTags.isEmpty()) {
-				bool hasAny = false;
-				foreach (const QString &tag, contact->tags()) {
-					hasAny |= bool(m_filterTags.contains(tag));
-					if (hasAny)
-						break;
-				}
-				if (!hasAny)
-					return false;
-			}
-			if (!m_showOffline) {
-				const Status status = index.data(StatusRole).value<Status>();
-				return status != Status::Offline;
-			}
-		}
-		break;
-	}
-	case TagType: {
-		if (!m_filterTags.isEmpty() && !m_filterTags.contains(index.data(TagNameRole).toString()))
-			return false;
-		int count = sourceModel()->rowCount(index);
-		for (int i = 0; i < count; ++i) {
-			if (filterAcceptsRow(i, index))
-				return true;
-		}
-		return false;
-	}
-	default:
-		break;
-	};
-	return true;
+    return filterAcceptsRowImpl(sourceRow, sourceParent, true);
 }
 
 bool ContactListFrontModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

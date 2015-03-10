@@ -9,6 +9,8 @@
 #include <vector>
 #include <functional>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3 {
 
 template <typename... Args>
@@ -16,7 +18,7 @@ class AsyncResult;
 
 namespace Detail {
 
-class Callback : public std::function<void ()>
+class LIBQUTIM_EXPORT Callback : public std::function<void ()>
 {
 public:
 	Callback()
@@ -43,7 +45,7 @@ public:
 	}
 };
 
-class AsyncInvoker : public QObject
+class LIBQUTIM_EXPORT AsyncInvoker : public QObject
 {
 	Q_OBJECT
 public:
@@ -58,7 +60,7 @@ template <typename... Args>
 class AsyncResultData
 {
 	typedef std::tuple<Args...> Tuple;
-	typedef std::shared_ptr<Tuple> TuplePtr;
+    typedef std::shared_ptr<Tuple> TuplePtr;
 public:
 	typedef std::function<void (const Args &...args)> Function;
 
@@ -130,12 +132,15 @@ private:
 		typedef Sequence<S...> type;
 	};
 
+    typedef typename Generator<sizeof...(Args)>::type SequenceType;
+
 	void call(Function function)
 	{
 		TuplePtr args = m_args;
-		Callback callback([args, function] () {
-			AsyncResultData::call(args, typename Generator<sizeof...(Args)>::type(), function);
-		});
+        auto lambda = [args, function] () {
+            AsyncResultData::call(args, SequenceType(), function);
+        };
+        Callback callback(lambda);
 
 		QMetaObject::invokeMethod(m_invoker, "invoke", Qt::QueuedConnection,
 								  Q_ARG(qutim_sdk_0_3::Detail::Callback, callback));

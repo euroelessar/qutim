@@ -172,9 +172,7 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
 	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2'></span> ")
-		   .arg(originalLink.toString(), uid);
-
-	qDebug() << "url" << link;
+           .arg(originalLink.toString(), uid);
 }
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
@@ -228,8 +226,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		if (hrx.indexIn(reply->rawHeader(sizeheader))>=0)
 			size = hrx.cap(1).toInt();
 	}
-	
-	qDebug() << url << reply->rawHeaderList() << type;
+
 	if (type.isNull())
 		return;
 
@@ -322,9 +319,7 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % QString(html).replace("\"", "\\\"")
 				 % QLatin1Literal("\";")
 				 % QLatin1Literal("document.body.scrollTop = document.body.offsetHeight;");
-	ChatSession *session = ChatLayer::get(unit);
-
-	qDebug() << unit << uid << js;
+    ChatSession *session = ChatLayer::get(unit);
 
 	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }

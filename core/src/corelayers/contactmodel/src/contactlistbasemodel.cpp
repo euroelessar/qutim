@@ -35,6 +35,7 @@
 #include <QQueue>
 #include <QtAlgorithms>
 #include <QtDebug>
+#include <QUrlQuery>
 
 using namespace qutim_sdk_0_3;
 
@@ -148,6 +149,10 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return node->onlineContacts.size();
 		case TagNameRole:
 			return account->id();
+        case CollapsedRole:
+            return node->collapsed;
+        case IdRole:
+            return account->id();
 		default:
 			return QVariant();
 		}
@@ -165,6 +170,8 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 			return node->onlineContacts.size();
 		case TagNameRole:
 			return node->name;
+        case CollapsedRole:
+            return node->collapsed;
 		default:
 			return QVariant();
 		}
@@ -184,6 +191,20 @@ QVariant ContactListBaseModel::data(const QModelIndex &index, int role) const
 					return findNotificationIcon(notification);
 			}
 			return contact->status().icon();
+        case IconSourceRole: {
+            QString avatar = contact->avatar();
+
+            QUrlQuery query;
+            query.addQueryItem(QStringLiteral("name"), contact->status().icon().name());
+
+            QUrl url;
+            url.setScheme(QStringLiteral("image"));
+            url.setHost(QStringLiteral("avatar"));
+            url.setPath(avatar.isEmpty() ? QStringLiteral("/") : avatar);
+            url.setQuery(query);
+
+            return url.toString();
+        }
 		case ItemTypeRole:
 			return ContactType;
 		case StatusTextRole:
@@ -329,7 +350,31 @@ int ContactListBaseModel::findNotificationPriority(Notification *notification)
 
 QStringList ContactListBaseModel::tags() const
 {
-	return m_tags;
+    return m_tags;
+}
+
+void ContactListBaseModel::collapse(const QModelIndex &index)
+{
+    setCollapsed(index, true);
+}
+
+void ContactListBaseModel::expand(const QModelIndex &index)
+{
+    setCollapsed(index, false);
+}
+
+void ContactListBaseModel::setCollapsed(const QModelIndex &itemIndex, bool collapsed)
+{
+    if (ContactListNode *node = extractNode<ContactListNode>(itemIndex)) {
+        node->collapsed = collapsed;
+        const QVector<int> roles = { CollapsedRole };
+        dataChanged(itemIndex, itemIndex, roles);
+        int count = rowCount(itemIndex);
+        for (int i = 0; i < count; ++i) {
+            QModelIndex childIndex = index(i, 0, itemIndex);
+            dataChanged(childIndex, childIndex, roles);
+        }
+    }
 }
 
 void ContactListBaseModel::updateContactTags(Contact *contact, const QStringList &current, const QStringList &previous)

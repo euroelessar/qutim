@@ -6,9 +6,11 @@
 #include <QVariant>
 #include <QUrl>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3 {
 
-class QuickAction : public QObject
+class LIBQUTIM_EXPORT QuickAction : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
@@ -19,6 +21,7 @@ class QuickAction : public QObject
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable NOTIFY checkableChanged)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked DESIGNABLE isCheckable NOTIFY toggled)
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
+    Q_PROPERTY(bool separator READ isSeparator WRITE setSeparator NOTIFY separatorChanged)
     Q_PROPERTY(QVariant shortcut READ shortcut WRITE setShortcut NOTIFY shortcutChanged)
 public:
     explicit QuickAction(QObject *parent = 0);
@@ -33,6 +36,7 @@ public:
     bool isChecked() const;
     QVariant shortcut() const;
     bool isVisible() const;
+    bool isSeparator() const;
 
     void setText(const QString &arg);
     void setIcon(const QIcon &icon);
@@ -44,6 +48,7 @@ public:
     void setChecked(bool arg);
     void setShortcut(const QVariant &arg);
     void setVisible(bool arg);
+    void setSeparator(bool arg);
 
 public slots:
     void trigger();
@@ -59,6 +64,7 @@ signals:
     void toggled(bool arg);
     void shortcutChanged(QVariant arg);
     void visibleChanged(bool arg);
+    void separatorChanged(bool arg);
 
     void triggered(bool checked);
 
@@ -72,6 +78,7 @@ private:
     bool m_checked;
     QKeySequence m_shortcut;
     bool m_visible;
+    bool m_separator;
 };
 
 } // namespace qutim_sdk_0_3

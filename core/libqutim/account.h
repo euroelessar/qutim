@@ -31,6 +31,8 @@
 #include "status.h"
 #include <QMetaType>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3
 {
 class ChatUnit;
@@ -58,8 +60,7 @@ class LIBQUTIM_EXPORT Account : public MenuController
 	Q_PROPERTY(qutim_sdk_0_3::Status userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
-	Q_PROPERTY(State state READ state NOTIFY stateChanged)
-	Q_ENUMS(State)
+    Q_PROPERTY(State state READ state NOTIFY stateChanged)
 public:
 	enum AccountHookEnum {
 		// all values below are reserved for MenuController
@@ -73,7 +74,8 @@ public:
 		Connected,
 		Disconnecting
 	};
-	
+    Q_ENUM(State)
+
 	struct UpdateParametersArgument
 	{
 		QVariantMap parameters;
@@ -174,23 +176,23 @@ public:
 	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
 
 	/*!
-	 * Returns interface by it's meta class
+	 * Returns feature by it's meta class
 	 */
-	QObject *interface(const QMetaObject *meta);
+	QObject *feature(const QMetaObject *meta);
 
 	/*!
-	 * Returns interface for type \a T
+	 * Returns Feature for type \a T
 	 *
-	 * It search the correct interface by the class' info "Interface":
+	 * It search the correct interface by the class' info "Feature":
 	 * \code
-	 * Q_CLASSINFO("Interface", "GroupChatManager")
+	 * Q_CLASSINFO("Feature", "GroupChatManager")
 	 * \endcode
 	 *
-	 * \sa setInterface
+	 * \sa setFeature
 	 */
-	template <typename T> inline T *interface()
+	template <typename T> inline T *feature()
 	{
-		return qobject_cast<T *>(interface(&T::staticMetaObject));
+		return qobject_cast<T *>(feature(&T::staticMetaObject));
 	}
 
 	/*!
@@ -204,25 +206,25 @@ public:
 
 protected:
 	/*!
-	 * Set \a interface by it's type.
+	 * Set \a feature by it's type.
 	 *
-	 * Ownership is passed to Account's class, \a interface will be destroyed
+	 * Ownership is passed to Account's class, \a feature will be destroyed
 	 * once there will be passed another object by the same type, or at
 	 * account's destruction.
 	 */
-	inline void setInterface(QObject *interface)
+	inline void setFeature(QObject *feature)
 	{
-		setInterface(interface->metaObject(), interface);
+		setFeature(feature->metaObject(), feature);
 	}
 
 	/*!
 	 * \internal
 	 */
-	void setInterface(const QMetaObject *meta, QObject *interface);
+	void setFeature(const QMetaObject *meta, QObject *feature);
 
-	template <typename T> inline void setInterface(T *interface = nullptr)
+	template <typename T> inline void setFeature(T *feature = nullptr)
 	{
-		setInterface(&T::staticMetaObject, interface);
+		setFeature(&T::staticMetaObject, feature);
 	}
 
 	/**
@@ -273,11 +275,11 @@ signals:
 	void parametersChanged(const QVariantMap &parameters);
 
 	/*!
-	 * Emits when \a interface for \a name was changed.
+	 * Emits when \a feature for \a name was changed.
 	 *
-	 * \a Interface may be zero object if it was just destroyed.
+	 * \a Feature may be zero object if it was just destroyed.
 	 */
-	void interfaceChanged(const QByteArray &name, QObject *interface);
+	void featureChanged(const QByteArray &name, QObject *feature);
 
 	/*!
 	 * Account moved to new \a state.

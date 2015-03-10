@@ -47,12 +47,27 @@ Framework {
                 ];
         return defines;
     }
+    cpp.objcxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
     cpp.cxxFlags: {
         var flags = base.concat("-std=c++11");
         if (qbs.toolchain.contains("clang"))
             flags = flags.concat("-stdlib=libc++");
         return flags;
     }
+    cpp.linkerFlags: {
+        var flags = base;
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat(["-stdlib=libc++"])
+        if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
+            flags = flags.concat("-lcxxrt");
+        return flags;
+    }
+    cpp.minimumOsxVersion: "10.8"
 
     Properties {
         condition: qbs.targetOS.contains("osx")
@@ -75,12 +90,21 @@ Framework {
                 flags = flags.concat("-stdlib=libc++");
             return flags;
         }
-        cpp.linkerFlags: {
-            var flags = base;
-            if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
-                flags = flags.concat("-stdlib=libc++ -lcxxrt");
+        cpp.objcxxFlags: {
+            var flags = base.concat("-std=c++11");
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++");
             return flags;
         }
+        cpp.linkerFlags: {
+            var flags = base;
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat(["-stdlib=libc++"])
+            if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
+                flags = flags.concat("-lcxxrt");
+            return flags;
+        }
+        cpp.minimumOsxVersion: "10.8"
 
         Properties {
             condition: project.declarativeUi

@@ -100,6 +100,57 @@ void QuickConfig::classBegin()
 
 void QuickConfig::componentComplete()
 {
+    syncProperties(this);
+}
+
+void QuickConfig::syncProperties(QObject *object)
+{
+    const QMetaObject * const base = object == this ? &staticMetaObject : &QObject::staticMetaObject;
+    const QMetaObject * const actual = object->metaObject();
+
+    int propertiesCount = actual->propertyCount();
+    for (int index = base->propertyCount(); index < propertiesCount; ++index) {
+        QMetaProperty property = actual->property(index);
+        QVariant defaultValue = property.read(object);
+        QMetaType type(property.userType());
+
+        if (type.flags() & QMetaType::PointerToQObject) {
+            QObject *subObject = defaultValue.value<QObject *>();
+            if (!subObject) {
+                qWarning() << "QuickConfig: null value at" << this << ", property:" << property.name();
+                continue;
+            }
+            m_config.beginGroup(QLatin1String(property.name()));
+            syncProperties(subObject);
+            m_config.endGroup();
+            continue;
+        }
+
+        QVariant actualValue = m_config.value(QLatin1String(property.name()), defaultValue);
+        property.write(object, actualValue);
+
+        new QuickConfigListener(m_path, m_group, property, object, this);
+
+        m_config.listen(property.name(), object, [object, property, defaultValue] (const QVariant &value) {
+            property.write(object, value.isValid() ? value : defaultValue);
+        });
+    }
+}
+
+QuickConfigListener::QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent)
+    : QObject(parent), m_path(path), m_group(group), m_property(property), m_object(object)
+{
+    static int slotIndex = staticMetaObject.indexOfMethod("onPropertyChanged()");
+    QMetaMethod slot = staticMetaObject.method(slotIndex);
+    connect(m_object, property.notifySignal(), this, slot);
+}
+
+void QuickConfigListener::onPropertyChanged()
+{
+    QVariant value = m_property.read(m_object);
+    Config config(m_path);
+    config.beginGroup(m_group);
+    config.setValue(QLatin1String(m_property.name()), value);
 }
 
 } // namespace qutim_sdk_0_3

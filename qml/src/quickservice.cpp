@@ -27,6 +27,7 @@ void QuickService::setName(const QString &name)
         m_object = ServiceManager::instance()->getByName(m_utf8Name);
 
         emit nameChanged(name);
+        emit objectChanged(m_object);
     }
 }
 

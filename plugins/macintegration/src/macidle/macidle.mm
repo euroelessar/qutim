@@ -125,7 +125,7 @@ void MacIdle::setIdleOn(MacIdle::Reason reason)
 			status.setType(statusType);
 			status.setSubtype(0);
 			status.setText(d->idleMessages.value(statusType, ""));
-			status.setProperty("changeReason", Status::ByIdle);
+            status.setChangeReason(Status::ByIdle);
 			account->setUserStatus(status);
 		}
 	}

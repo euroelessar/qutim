@@ -27,6 +27,7 @@
 #include "json.h"
 #include "systeminfo.h"
 #include "utils.h"
+#include "message.h"
 #include <QDate>
 #include <QLocale>
 #include <QDesktopWidget>
@@ -520,6 +521,8 @@ namespace qutim_sdk_0_3
 			}
 			tok.text = text.midRef(pos, link.size());
 			pos += link.size();
+            if (flags & Html)
+                link = unescape(link);
 			if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))
 				link.prepend(QLatin1String("http://"));
 			else if(!link.contains(QLatin1String("//")))
@@ -539,7 +542,7 @@ namespace qutim_sdk_0_3
 	
 	QString UrlParser::parseUrls(const QString &text, Flags flags)
 	{
-		const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
+        const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
 		QString html;
 		foreach (const UrlToken &token, tokenize(text, flags)) {
 			if (token.url.isEmpty()) {

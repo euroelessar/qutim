@@ -91,9 +91,7 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	p->actionBox->addAction(p->backAct);
 
 	p->closeAct = new QAction(tr("Close"),this);
-#ifndef Q_OS_SYMBIAN
 	p->closeAct->setVisible(false);
-#endif
 	p->actionBox->addAction(p->closeAct);
 
 	l->addWidget(p->stackedWidget);

@@ -55,6 +55,8 @@ namespace qutim_sdk_0_3
 {
 	class LIBQUTIM_EXPORT LocalizedString
 	{
+        Q_GADGET
+        Q_PROPERTY(QString string READ toString)
 	public:
 		LocalizedString() {}
 		LocalizedString(const char *str) : m_str(str) {}

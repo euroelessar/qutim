@@ -84,6 +84,7 @@ Module::Module() : p(new ModulePrivate)
     Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactDelegate"));
 
     p->buttonsController.setParent(this);
+    p->buttonsController.setObjectName("ContactListButtons");
 
     // init shortcuts
     Shortcut::registerSequence("contactListGlobalStatus",

@@ -48,18 +48,25 @@
 #include <QWidgetAction>
 #include <QTimer>
 #include <QKeyEvent>
-#include "macsearchfield.h"
+#include <QMacToolBar>
+#include <QResizeEvent>
+
+#import "macsearchfield.h"
 
 namespace Core {
 namespace SimpleContactList {
+
+using Protocol = qutim_sdk_0_3::Protocol;
 
 class MacWidgetPrivate
 {
 public:
 	TreeView *view;
-	QAbstractItemModel *model;
-    MacSearchField *searchBar;
-	QToolBar *toolBar;
+    QAbstractItemModel *model;
+    QMacToolBar *toolBar;
+    QMacToolBarItem *searchItem;
+    CoreMacSearchField *searchField;
+    bool toolBarVisible;
     QAction *statusTextAction;
     QVector<MenuController*> controllers;
     QVector<QMenu*> menus;
@@ -82,7 +89,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
 
     QWidget *w = new QWidget(this);
     setCentralWidget(w);
-    setUnifiedTitleAndToolBarOnMac(true);
+//    setUnifiedTitleAndToolBarOnMac(true);
 
     QVBoxLayout *layout = new QVBoxLayout(w);
     layout->setMargin(1);
@@ -98,24 +105,29 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     d->view->setAlternatingRowColors(cfg.value("alternatingRowColors", false));
     d->view->setFrameShape(QFrame::NoFrame);
     d->view->setFrameShadow(QFrame::Plain);
-    d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    d->view->setVerticalScrollMode(TreeView::ScrollPerPixel);
 
-	d->toolBar = addToolBar(tr("Search"));
-	QWidget *toolBarWidget = new QWidget(this);
-	toolBarWidget->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred));
-	QVBoxLayout *toolBarLayout = new QVBoxLayout(toolBarWidget);
-	toolBarLayout->setMargin(0);
-	d->toolBar->addWidget(toolBarWidget);
+    d->toolBarVisible = false;
+    d->toolBar = new QMacToolBar(this);
+    [d->toolBar->nativeToolbar() setDisplayMode: NSToolbarDisplayModeIconOnly];
+    [d->toolBar->nativeToolbar() setAllowsUserCustomization: NO];
+    [d->toolBar->nativeToolbar() setVisible: NO];
 
-	d->searchBar = new MacSearchField(this);
-	toolBarLayout->addWidget(d->searchBar);
+    d->searchItem = d->toolBar->addItem(QIcon(), QString());
 
-	connect(d->searchBar, SIGNAL(textChanged(QString)), d->model, SLOT(setFilterFixedString(QString)));
-	connect(d->searchBar, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
-	d->searchBar->installEventFilter(this);
-	d->searchBar->hide();
-	// TEMP
-	d->toolBar->hide();
+    d->searchField = [[CoreMacSearchField alloc] init];
+    d->searchField->itemIdentifier = [d->searchItem->nativeToolBarItem() itemIdentifier];
+    d->searchField->widget = this;
+    [d->searchItem->nativeToolBarItem() setView: d->searchField];
+
+    NSSize searchItemMinSize = [d->searchField bounds].size;
+    NSSize searchItemMaxSize = [d->searchField bounds].size;
+    searchItemMaxSize.width = 1024 * 1024;
+    [d->searchItem->nativeToolBarItem() setMinSize: searchItemMinSize];
+    [d->searchItem->nativeToolBarItem() setMaxSize: searchItemMaxSize];
+
+    window()->winId();
+    d->toolBar->attachToWindow(window()->windowHandle());
 
 	d->view->installEventFilter(this);
 
@@ -129,6 +141,7 @@ MacWidget::MacWidget() : d_ptr(new MacWidgetPrivate())
     QString lastStatus = Config().group("contactList").value("lastStatus", QString());
     d->statusTextAction->setData(lastStatus);
     d->menus[MacMenuAccounts]->addSeparator();
+
     foreach(Protocol *protocol, Protocol::all())
         connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account *)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account *)));
 
@@ -158,6 +171,13 @@ void MacWidget::addMenu(const QString &title, MacMenuId id)
     connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
     d->menus[id] = menu;
     d->controllers[id] = controller;
+}
+
+void MacWidget::resizeEvent(QResizeEvent *event)
+{
+    Q_D(MacWidget);
+
+    QMainWindow::resizeEvent(event);
 }
 
 void MacWidget::addButton(ActionGenerator *generator)
@@ -290,31 +310,25 @@ bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
     Q_D(MacWidget);
     if (obj == d->view) {
         if (ev->type() == QEvent::KeyPress) {
-			QKeyEvent *event = static_cast<QKeyEvent*>(ev);
+            QKeyEvent *event = static_cast<QKeyEvent*>(ev);
+
 			if (event->key() == Qt::Key_Backspace)
 				d->pressedKeys.chop(1);
 			else if (d->view->hasFocus())
                 d->pressedKeys.append(event->text());
 
 			if (d->pressedKeys.count() > 1) {
-				d->searchBar->show();
-				// TEMP
-				d->toolBar->show();
-				d->searchBar->setFocus();
-                d->searchBar->setText(d->pressedKeys);
+                setSearchText(d->pressedKeys);
 				d->pressedKeys.clear();
 			}
             ev->accept();
-        } else if (ev->type() == QEvent::FocusOut && d->searchBar->isHidden()) {
+        } else if (ev->type() == QEvent::FocusOut && !isToolBarVisible()) {
             d->pressedKeys.clear();
         }
-    } else if (obj == d->searchBar) {
+    } else if (false/*obj == d->searchBar*/) {
 		if (ev->type() == QEvent::FocusOut) {
 			d->pressedKeys.clear();
-			d->searchBar->setText(QString());
-			d->searchBar->hide();
-			// TEMP
-			d->toolBar->hide();
+            setSearchText(QString());
 		} else if (ev->type() == QEvent::FocusIn) {
 			d->pressedKeys.clear();
 		}
@@ -322,11 +336,56 @@ bool MacWidget::eventFilter(QObject *obj, QEvent *ev)
     return QMainWindow::eventFilter(obj, ev);
 }
 
-void MacWidget::onTextChanged(const QString &text)
+void MacWidget::onSearchTextChanged(const QString &text)
 {
-	d_func()->searchBar->setVisible(!text.isEmpty());
-	// TEMP
-	d_func()->toolBar->setVisible(!text.isEmpty());
+    Q_D(MacWidget);
+
+    d->pressedKeys.clear();
+
+    QMetaObject::invokeMethod(d->model, "setFilterFixedString", Q_ARG(QString, text));
+    setToolBarVisible(!text.isEmpty());
+}
+
+bool MacWidget::isToolBarVisible()
+{
+    return d_func()->toolBarVisible;
+}
+
+void MacWidget::setToolBarVisible(bool visible)
+{
+    Q_D(MacWidget);
+
+    if (visible != d->toolBarVisible) {
+        [d->toolBar->nativeToolbar() setVisible: (visible ? YES : NO)];
+        d->toolBarVisible = visible;
+    }
+}
+
+void MacWidget::setSearchText(const QString &text)
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSSearchField *control = d_func()->searchField;
+    NSString *nsOldText = [control stringValue];
+    NSString *nsText = [[NSString alloc] initWithUTF8String: text.toUtf8().constData()];
+    if ([nsText compare: nsOldText] == NSOrderedSame) {
+        [pool release];
+        return;
+    }
+
+    setToolBarVisible(!text.isEmpty());
+
+    if (!text.isEmpty()) {
+        [control becomeFirstResponder];
+    }
+
+    [control setStringValue: nsText];
+
+    NSRange range = [[control currentEditor] selectedRange];
+    range.location += range.length;
+    range.length = 0;
+    [[control currentEditor] setSelectedRange: range];
+
+    [pool release];
 }
 
 } // namespace SimpleContactList

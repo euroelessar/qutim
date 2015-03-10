@@ -27,6 +27,7 @@
 #include "avatariconengine_p.h"
 #include "avatarfilter.h"
 #include <QPainter>
+#include <QApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -48,7 +49,8 @@ void AvatarIconEngine::paint(QPainter *painter, const QRect &rect,
 {
 	Q_UNUSED(mode);
 	Q_UNUSED(state);
-	painter->drawPixmap(rect, pixmap(rect.size(), mode, state));
+    QSize pixmapSize = rect.size() * qApp->devicePixelRatio();
+    painter->drawPixmap(rect, pixmap(pixmapSize, mode, state));
 }
 
 QSize AvatarIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)

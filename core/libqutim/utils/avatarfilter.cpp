@@ -113,8 +113,8 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 	}
 	painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);
 	QSize overlaySize = d->defaultSize/(d->defaultSize.width() <= 16 ? 1.3 : 2);
-	QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
-	overlaySize = overlayPixmap.size();
+    QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
+    overlaySize = overlayPixmap.size() / overlayPixmap.devicePixelRatio();
 	painter->drawPixmap(x + d->defaultSize.width() - overlaySize.width(),
 						y + d->defaultSize.height() - overlaySize.height(),
 						overlayPixmap

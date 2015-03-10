@@ -28,6 +28,7 @@
 #include <QPointer>
 #include <QLayout>
 #include <QQmlEngine>
+#include <QQmlFileSelector>
 #include <QQuickImageProvider>
 #include <qqml.h>
 #include "systeminfo.h"
@@ -50,6 +51,7 @@ QQmlEngine *DeclarativeView::globalEngine()
     if (!staticGlobalEngine) {
 		staticGlobalEngine = new QQmlEngine();
         staticGlobalEngine->addImportPath(SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/imports"));
+        new QQmlFileSelector(staticGlobalEngine, staticGlobalEngine);
     }
 
 	return staticGlobalEngine;

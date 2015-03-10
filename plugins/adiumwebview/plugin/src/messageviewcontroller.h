@@ -36,7 +36,7 @@ public slots:
     
 signals:
     void javaScriptRequest(const QString &script);
-    void htmlRequested(const QString &html);
+    void htmlRequested(const QString &html, const QUrl &baseUrl);
     void topicRequested(const QString &topic);
     void clearFocusRequested();
     void fontRequested(const QString &family, int size);

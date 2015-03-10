@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
+        <!--<key>CFBundleDevelopmentRegion</key>
 	<string>Russian</string>
 	<key>CFBundleExecutable</key>
 	<string>qutim</string>
@@ -31,6 +31,8 @@
 	<key>LSRequiresCarbon</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string></string>
+        <string></string>-->
+        <key>XXXX</key>
+        <string>YYYY</string>
 </dict>
 </plist>

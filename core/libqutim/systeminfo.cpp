@@ -317,8 +317,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_type_id = SystemInfo::Linux;
 #elif defined(Q_OS_MAC)
 	d->os_type_id = SystemInfo::MacOSX;
-#elif defined(Q_OS_SYMBIAN)
-	d->os_type_id = SystemInfo::Symbian;
 #elif defined(Q_OS_UNIX)
 	d->os_type_id = SystemInfo::Unix;
 #else
@@ -401,9 +399,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_full = d->os_name;
 	d->os_full += " ";
 	d->os_full += d->os_version;
-#endif
-
-#if defined(Q_OS_WIN)
+#elif defined(Q_OS_WIN)
 	d->os_full = QString();
 	d->os_name = QLatin1String("Windows");
 	OSVERSIONINFOEX osvi;
@@ -427,39 +423,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 
 	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
 	d->os_version = d->os_full.section(' ', 1);
-#endif
-#ifdef Q_OS_SYMBIAN
-	//		QLibrary hal("hal.dll");
-	//		typedef TInt (halGet_*)(HALData::TAttribute,TInt&);
-	//		halGet_ halGet = (halGet_) QLibrary::resolve("hal.dll", "HAL::Get");
-	//		if (halGet) {
-	//			d->os_version_id = (*halGet)()
-	//		}
-	d->os_name = QLatin1String("Symbian");
-	QFile productFile(QLatin1String("z:/resource/versions/product.txt"));
-	if (productFile.open(QFile::ReadOnly)) {
-		const QTextCodec * const codec = QTextCodec::codecForName("utf-16");
-		QByteArray data = productFile.readAll();
-		QString text = codec->toUnicode(data, data.size());
-		QString manufacturer;
-		QString model;
-		foreach (QString line, text.split(QLatin1Char('\n'))) {
-			if (line.endsWith(QLatin1Char('\r')))
-				line.chop(1);
-			if (line.startsWith(QLatin1String("Manufacturer=")))
-				manufacturer = line.section(QLatin1Char('='), 1);
-			else if (line.startsWith(QLatin1String("Model=")))
-				model = line.section(QLatin1Char('='), 1);
-		}
-		d->os_version = manufacturer;
-		if (!d->os_version.isEmpty())
-			d->os_version += QLatin1String(" ");
-		d->os_version += model;
-	}
-	if (d->os_version.isEmpty())
-		d->os_full = d->os_name;
-	else
-		d->os_full = d->os_name + " (" + d->os_version + ")";
 #endif
 }
 

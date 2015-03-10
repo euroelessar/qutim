@@ -1,0 +1,7 @@
+{
+    "pluginIcon": "",
+    "pluginName": "Qt Quick Chat",
+    "pluginDescription": "Modern Chat based on power of QtQuick",
+    "extensionHeader": "src/chat.h",
+    "extensionClass": "QuickChat::Chat"
+}

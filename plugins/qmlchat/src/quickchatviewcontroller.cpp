@@ -84,10 +84,10 @@ static QVariant messageToVariant(const Message &mes)
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
 
-    const Message::UnitData unit = mes.unitData();
-    map.insert(QStringLiteral("senderId"), unit.title);
-    map.insert(QStringLiteral("senderName"), unit.id);
-    map.insert(QStringLiteral("senderAvatar"), unit.avatar);
+    const MessageUnitData unit = mes.unitData();
+    map.insert(QStringLiteral("senderId"), unit.title());
+    map.insert(QStringLiteral("senderName"), unit.id());
+    map.insert(QStringLiteral("senderAvatar"), unit.avatar());
 
 	return map;
 }
@@ -123,7 +123,7 @@ void QuickChatController::loadHistory()
 	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QStringLiteral("appearance")).group(QStringLiteral("chat/history"));
 	int max_num = 50 + config.value(QStringLiteral("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->read(m_session.data()->getUnit(), max_num);
+    MessageList messages = History::instance()->readSync(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);

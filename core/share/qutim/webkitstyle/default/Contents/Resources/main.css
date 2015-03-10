@@ -23,6 +23,7 @@
 	padding-left: 3pt;
 	vertical-align: bottom;
 	margin-top: 2pt;
+	clear: both;
 }
 
 .statusMessage {

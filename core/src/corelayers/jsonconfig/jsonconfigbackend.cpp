@@ -31,6 +31,7 @@
 #include <qutim/debug.h>
 #include <QRect>
 #include <QStringList>
+#include <QDataStream>
 
 namespace Core
 {

@@ -8,6 +8,15 @@ QuickImageProvider::QuickImageProvider()
 {
 }
 
+/*!
+ * Image {
+ *     source: "image://xdg/icon-name"
+ * }
+ *
+ * Image {
+ *     source: "image://xdg/icon-name?size=64"
+ * }
+ */
 QPixmap QuickImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     QString iconName = id.section('/', 0, 0);

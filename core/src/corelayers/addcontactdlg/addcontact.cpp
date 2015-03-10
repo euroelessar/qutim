@@ -113,9 +113,8 @@ AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_p
 					button->setText(acc->id());
 					QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 					button->setSizePolicy(sizePolicy);
-#if !defined(Q_OS_SYMBIAN)
 					button->setAutoRaise(true);
-#endif
+
 					connect(button, SIGNAL(clicked()), SLOT(setAccount()));
 					d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
 					d->accounts.insert(acc->id(), acc);

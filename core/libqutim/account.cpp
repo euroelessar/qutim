@@ -32,33 +32,34 @@
 #include "inforequest.h"
 #include "metaobjectbuilder.h"
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3
 {
 
 Account::Account(const QString &id, Protocol *protocol)
-	: MenuController(*new AccountPrivate(this), protocol)
+    : Account(*new AccountPrivate(this), protocol)
 {
-	Q_D(Account);
-	d->protocol = protocol;
-	d->id = id;
-	d->status = d->userStatus = Status::instance(Status::Offline, protocol->id().toLatin1());
-
-	// Hack for authorization failed notification,
-	// move once to some plugin
-	connect(this, &Account::disconnected, this, [this] (Status::ChangeReason reason) {
-		if (reason == Status::ByAuthorizationFailed) {
-			NotificationRequest request(Notification::System);
-			request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
-			request.send();
-		}
-	});
+    d_func()->id = id;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol)
 	: MenuController(p, protocol)
 {
-	Q_D(Account);
-	d->protocol = protocol;
+    Q_D(Account);
+    d->protocol = protocol;
+    d->status = Status::instance(Status::Offline, protocol->id().toLatin1());
+    d->userStatus = d->status;
+
+    // Hack for authorization failed notification,
+    // move once to some plugin
+    connect(this, &Account::disconnected, this, [this] (Status::ChangeReason reason) {
+        if (reason == Status::ByAuthorizationFailed) {
+            NotificationRequest request(Notification::System);
+            request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+            request.send();
+        }
+    });
 }
 
 Account::~Account()
@@ -115,18 +116,18 @@ Account::State Account::state() const
 
 void Account::connectToServer()
 {
-	Q_D(Account);
+    Q_D(Account);
 
 	switch (d->state) {
-	case Disconnected:
+    case Disconnected:
 		setState(Connecting);
 		doConnectToServer();
 		break;
-	case Connecting:
+    case Connecting:
 		break;
-	case Connected:
+    case Connected:
 		break;
-	case Disconnecting:
+    case Disconnecting:
 		setState(Connecting);
 		doConnectToServer();
 		break;
@@ -155,7 +156,7 @@ void Account::disconnectFromServer()
 
 void Account::setState(Account::State state, Status::ChangeReason reason)
 {
-	Q_D(Account);
+    Q_D(Account);
 
 	if (d->state != state) {
 		d->state = state;
@@ -197,20 +198,20 @@ void AccountPrivate::setStatus(const Status &newStatus)
 
 void Account::setUserStatus(const Status &userStatus)
 {
-	Q_D(Account);
+    Q_D(Account);
 
 	Status oldUserStatus = d->userStatus;
 	d->userStatus = userStatus;
-	emit userStatusChanged(userStatus, oldUserStatus);
+    emit userStatusChanged(userStatus, oldUserStatus);
 
 	const bool oldOffline = oldUserStatus == Status::Offline;
 	const bool newOffline = userStatus == Status::Offline;
 
-	if (oldOffline && !newOffline) {
+    if (oldOffline && !newOffline) {
 		// Go online
 		if (state() == Disconnected)
 			connectToServer();
-	} else if (!oldOffline && newOffline) {
+    } else if (!oldOffline && newOffline) {
 		// Go offline
 		if (state() == Connected || state() == Connecting)
 			disconnectFromServer();
@@ -243,86 +244,69 @@ QStringList Account::updateParameters(const QVariantMap &parameters)
 	return argument.reconnectionRequired;
 }
 
-QObject *Account::interface(const QMetaObject *meta)
+QObject *Account::feature(const QMetaObject *meta)
 {
 	Q_D(Account);
 
-	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+	QByteArray name = MetaObjectBuilder::info(meta, "Feature");
 
 	if (name.isEmpty()) {
-		qWarning() << "Interface name is missed at class:" << meta->className();
+		qWarning() << "Feature name is missed at class:" << meta->className();
 		return nullptr;
-	}
+    }
 
-	QObject *result = nullptr;
-
-	auto it = d->interfaces.find(name);
-	if (it != d->interfaces.end()) {
-		const AccountInterface &interface = it->second;
-		result = interface.object.get();
-	}
-
-	qDebug() << "Found" << result << "as" << name << "for" << this;
-
-	return result;
+    AccountInterface result = d->interfaces.value(name);
+    qDebug() << "Found" << result.object << "as" << name << "for" << this;
+    return result.object;
 }
 
-void Account::setInterface(const QMetaObject *meta, QObject *interface)
+void Account::setFeature(const QMetaObject *meta, QObject *feature)
 {
 	Q_D(Account);
 
-	std::unique_ptr<QObject> tmp(interface);
-	QByteArray name = MetaObjectBuilder::info(meta, "Interface");
+	QByteArray name = MetaObjectBuilder::info(meta, "Feature");
 
 	if (name.isEmpty()) {
-		qWarning() << "Interface name is missed at class:" << meta->className();
+		qWarning() << "Feature name is missed at class:" << meta->className();
 		return;
 	}
 
-	qDebug() << "Setting" << interface << "as" << name << "for" << this;
+	qDebug() << "Setting" << feature << "as" << name << "for" << this;
 
-	auto it = d->interfaces.find(name);
-	if (it == d->interfaces.end()) {
-		it = d->interfaces.emplace(name, AccountInterface()).first;
-	}
+    AccountInterface &current = d->interfaces[name];
+    std::swap(current.object, feature);
 
-	AccountInterface &current = it->second;
-	std::swap(current.object, tmp);
-
-	// FIXME: Fix memory ownership
-	tmp.release();
-
-	emit interfaceChanged(name, current.object.get());
+    emit featureChanged(name, current.object);
 }
 
 GroupChatManager *Account::groupChatManager()
 {
-	return interface<GroupChatManager>();
+	return feature<GroupChatManager>();
 }
 
 ContactsFactory *Account::contactsFactory()
 {
-	return interface<ContactsFactory>();
+	return feature<ContactsFactory>();
 }
 
 InfoRequestFactory *Account::infoRequestFactory()
 {
-	return interface<InfoRequestFactory>();
+	return feature<InfoRequestFactory>();
 }
 
 void Account::resetGroupChatManager(GroupChatManager *manager)
 {
-	setInterface<GroupChatManager>(manager);
+	setFeature<GroupChatManager>(manager);
 }
 
 void Account::setContactsFactory(ContactsFactory *factory)
 {
-	setInterface<ContactsFactory>(factory);
+	setFeature<ContactsFactory>(factory);
 }
 
 void Account::setInfoRequestFactory(InfoRequestFactory *factory)
 {
-	setInterface<InfoRequestFactory>(factory);
+	setFeature<InfoRequestFactory>(factory);
 }
 
 void Account::setEffectiveStatus(const Status &status)

@@ -65,13 +65,6 @@
 
 #include <QCommandLineParser>
 
-//Let's show message box with error
-#if	defined(Q_OS_SYMBIAN)
-# undef QUTIM_TEST_PERFOMANCE
-# include <QMessageBox>
-# include <QLibraryInfo>
-#endif
-
 //#define NO_COMMANDS 1
 
 namespace qutim_sdk_0_3
@@ -433,25 +426,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	QStringList paths;
     d->extensions << coreExtensions();
 
-#if	defined(Q_OS_SYMBIAN)
-	// simple S60 plugins loader
-	QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
-	paths << pluginsDir.filePath("qutim");
-
-//	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-//		// Create plugin loader
-//		QPluginLoader* loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
-//		// Load plugin
-//		if (!loader->load()) {
-//			QMessageBox msg;
-//			msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
-//			msg.exec();
-//			delete loader;
-//			continue;
-//		}
-//		// init plugin
-//		QObject *object = loader->instance();
-#else // defined(Q_OS_SYMBIAN)
 	paths = additional_paths;
 	QDir root_dir = QApplication::applicationDirPath();
 //	1. Windows, ./plugins
@@ -488,17 +462,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	plugin_path += "PlugIns";
 	paths << plugin_path;
 #endif // Q_OS_MAC
-	
-// 4. Safe way, ~/.local/share/qutim/plugins
-//		plugin_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-//		plugin_path += QDir::separator();
-//		plugin_path += "plugins";
-//		paths << plugin_path;
-//		// 6. From config
-//		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
-//		paths << config_paths;
-	
-#endif // defined(Q_OS_SYMBIAN)
 
 	paths.removeDuplicates();
 	QSet<QString> pluginPathsList;
@@ -514,7 +477,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 				if(pluginPathsList.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
 					continue;
 				pluginPathsList << filename;
-#ifndef Q_OS_SYMBIAN
 				// Just don't load old plugins
 				typedef const char * (*QutimPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
@@ -558,7 +520,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						continue;
 					}
 				}
-#endif // Q_OS_SYMBIAN
 				QPluginLoader *loader = new QPluginLoader(filename);
 				QObject *object = loader->instance();
 #ifdef QUTIM_TEST_PERFOMANCE
@@ -597,11 +558,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						delete object;
 					else {
 						errors.insert(filename, loader->errorString());
-#ifdef Q_OS_SYMBIAN
-						QMessageBox msg;
-						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
-						msg.exec();
-#endif
 					}
 					loader->unload();
 				}

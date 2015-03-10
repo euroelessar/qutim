@@ -38,59 +38,73 @@ using namespace qutim_sdk_0_3;
 namespace Core
 {
 class HistoryWindow;
-class JsonHistoryScope;
-
-class JsonHistoryRunnable : public QRunnable
-{
-public:
-	JsonHistoryRunnable(JsonHistoryScope *scope);
-	virtual void run();
-	
-private:
-	JsonHistoryScope *d;
-};
 
 class JsonHistoryScope
 {
 public:
-	uint findEnd(QFile &file);
-	QString getFileName(const Message &message) const;
-	QDir getAccountDir(const ChatUnit *unit) const;
+    typedef QSharedPointer<JsonHistoryScope> Ptr;
+
+    uint findEnd(QFile &file);
+    QString getFileName(const Message &message) const;
+    QString getFileName(const History::ContactInfo &info, const QDate &time) const;
+    QDir getAccountDir(const History::AccountInfo &info) const;
+
+    struct EndValue
+    {
+        EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
+        QDateTime lastModified;
+        uint end;
+    };
+
+    typedef QHash<QString, EndValue> EndCache;
+    bool hasRunnable;
+    EndCache cache;
+    QLinkedList<QPair<History::ContactInfo, Message>> queue;
+    QMutex mutex;
+};
+
+class JsonHistoryStoreJob : public QRunnable
+{
+public:
+    JsonHistoryStoreJob(JsonHistoryScope::Ptr scope);
+    void run() override;
 	
-	struct EndValue
-	{
-		EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
-		QDateTime lastModified;
-		uint end;
-	};
-	
-	typedef QHash<QString, EndValue> EndCache;
-	bool hasRunnable;
-	EndCache cache;
-	QLinkedList<Message> queue;
-	QMutex mutex;
+private:
+    JsonHistoryScope::Ptr d;
+};
+
+class JsonHistoryJob : public QRunnable
+{
+public:
+    JsonHistoryJob(const std::function<void ()> &handler);
+    void run() override;
+
+private:
+    std::function<void ()> m_handler;
 };
 
 class JsonHistory : public History
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
 	JsonHistory();
-	virtual ~JsonHistory();
-	uint findEnd(QFile &file) { return m_scope.findEnd(file); }
-	virtual void store(const Message &message);
-//		void flushMessages();
-	virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
-	virtual void showHistory(const ChatUnit *unit);
+    virtual ~JsonHistory();
+
+    void store(const Message &message) override;
+    AsyncResult<MessageList> read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num) override;
+    AsyncResult<QVector<AccountInfo>> accounts() override;
+    AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
+    AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) override;
+    AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) override;
+    void showHistory(const ChatUnit *unit) override;
+
 	static QString quote(const QString &str);
 	static QString unquote(const QString &str);
+
 private slots:
 	void onHistoryActionTriggered(QObject *object);
 private:
-	QString getFileName(const Message &message) const { return m_scope.getFileName(message); }
-	QDir getAccountDir(const ChatUnit *unit) const { return m_scope.getAccountDir(unit); }
-	
-	JsonHistoryScope m_scope;
+    JsonHistoryScope::Ptr m_scope;
 	QPointer<HistoryWindow> m_historyWindow;
 };
 }

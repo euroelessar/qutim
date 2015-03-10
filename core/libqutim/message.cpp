@@ -34,6 +34,8 @@
 #include "account.h"
 #include "protocol.h"
 #include "conference.h"
+#include "utils.h"
+#include "emoticons.h"
 #include <QDebug>
 
 QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
@@ -52,6 +54,31 @@ QDebug operator<<(QDebug dbg, const qutim_sdk_0_3::Message &msg)
 
 namespace qutim_sdk_0_3
 {
+
+MessageUnitData::MessageUnitData()
+{
+}
+
+MessageUnitData::MessageUnitData(const QString &id, const QString &title, const QString &avatar)
+    : m_id(id), m_title(title), m_avatar(avatar)
+{
+}
+
+QString MessageUnitData::id() const
+{
+    return m_id;
+}
+
+QString MessageUnitData::title() const
+{
+    return m_title;
+}
+
+QString MessageUnitData::avatar() const
+{
+    return m_avatar;
+}
+
 QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
 {
 	QScriptValue obj = engine->newObject();
@@ -178,7 +205,45 @@ void Message::setProperty(const char *name, const QVariant &value)
 
 QList<QByteArray> Message::dynamicPropertyNames() const
 {
-	return p->names;
+    return p->names;
+}
+
+QVariant Message::property(const QString &name, const QVariant &def) const
+{
+    return property(name.toUtf8().constData(), def);
+}
+
+bool Message::hasProperty(const QString &name) const
+{
+    return dynamicPropertyNames().contains(name.toUtf8().constData());
+}
+
+QString Message::formattedHtml() const
+{
+    QString html = UrlParser::parseUrls(this->html(), UrlParser::Html);
+
+    if (property("topic", false))
+        return html;
+
+    return Emoticons::theme().parseEmoticons(html);
+}
+
+bool Message::isSimiliar(const Message &other, int flags) const
+{
+    const auto &a = *this;
+    const auto &b = other;
+
+    if (a.chatUnit() == b.chatUnit()
+            && ((flags & IgnoreActions) || (!a.isAction() && !b.isAction()))
+            && a.isIncoming() == b.isIncoming()
+            && a.property("senderName", QString()) == b.property("senderName", QString())
+            && a.property("service", false) == b.property("service", false)
+            && a.property("history", false) == b.property("history", false)
+            && a.property("mention", false) == b.property("mention", false)) {
+        // TODO: Make configurable
+        return qAbs(a.time().secsTo(b.time())) < 300;
+    }
+    return false;
 }
 
 const QString &Message::text() const
@@ -208,12 +273,22 @@ const QDateTime &Message::time() const
 
 void Message::setTime(const QDateTime &time)
 {
-	p->time = time;
+    p->time = time;
+}
+
+QString Message::formatTime(const QString &format)
+{
+    return p->time.toString(format);
 }
 
 bool Message::isIncoming() const
 {
-	return p->in;
+    return p->in;
+}
+
+bool Message::isAction() const
+{
+    return html().startsWith(QStringLiteral("/me "));
 }
 
 void Message::setIncoming(bool input)
@@ -226,21 +301,20 @@ ChatUnit* Message::chatUnit() const
     return p->chatUnit.data();
 }
 
-Message::UnitData Message::unitData() const
+MessageUnitData Message::unitData() const
 {
     QObject *source = 0;
-	UnitData result;
-	result.id = property("senderId", QString());
-	result.title = property("senderName", QString());
-    result.avatar = property("senderAvatar", QString());
-	if (!result.title.isEmpty()) {
-        if (result.avatar.isEmpty()) {
-            if (!result.id.isEmpty())
-                source = chatUnit()->account()->getUnit(result.id, false);
+    QString id = property("senderId", QString());
+    QString title = property("senderName", QString());
+    QString avatar = property("senderAvatar", QString());
+    if (!title.isEmpty()) {
+        if (avatar.isEmpty()) {
+            if (!id.isEmpty())
+                source = chatUnit()->account()->getUnit(id, false);
             if (source)
-                result.avatar = source->property("avatar").toString();
+                avatar = source->property("avatar").toString();
         }
-		return result;
+        return MessageUnitData(id, title, avatar);
 	}
 	if (!source && chatUnit()) {
 		if (!isIncoming()) {
@@ -253,18 +327,18 @@ Message::UnitData Message::unitData() const
 			source = chatUnit();
 		}
 	}
-	if (!source)
-		return result;
-    if (result.avatar.isEmpty())
-        result.avatar = source->property("avatar").toString();
+    if (!source)
+        return MessageUnitData(id, title, avatar);
+    if (avatar.isEmpty())
+        avatar = source->property("avatar").toString();
 	if (ChatUnit *unit = qobject_cast<ChatUnit*>(source)) {
-		result.id = unit->id();
-		result.title = unit->title();
+        id = unit->id();
+        title = unit->title();
 	} else if (Account *account = qobject_cast<Account*>(source)) {
-		result.id = account->id();
-		result.title = account->name();
-	}
-	return result;
+        id = account->id();
+        title = account->name();
+    }
+    return MessageUnitData(id, title, avatar);
 }
 
 quint64 Message::id() const
@@ -297,7 +371,8 @@ QString unescape(const QString &html)
 	document()->data()->setHtml(html);
 	QString plainText = document()->data()->toPlainText();
 	document()->data()->clearUndoRedoStacks();
-	return plainText;
+    return plainText;
 }
+
 }
 

@@ -27,67 +27,146 @@
 #include "objectgenerator.h"
 #include "buddy.h"
 #include "metacontact.h"
+#include "account.h"
+#include "protocol.h"
+#include "servicemanager.h"
+#include <QEventLoop>
+#include <QTimer>
+#include <tuple>
 
 namespace qutim_sdk_0_3
 {
-	struct Private
-	{
-		QPointer<History> self;
-	};
-	static Private *p = NULL;
+    class NullHistory : public History
+    {
+    public:
+        void store(const Message &) override
+        {
+        }
 
-	void ensurePrivate_helper()
-	{
-		p = new Private;
-		GeneratorList gens = ObjectGenerator::module<History>();
-		if(!gens.isEmpty())
-		   p->self = gens.first()->generate<History>();
-	}
-	inline void ensurePrivate()
-	{ if(!p) ensurePrivate_helper(); }
+        AsyncResult<MessageList> read(const ContactInfo &, const QDateTime &, const QDateTime &, int) override
+        {
+            return AsyncResult<MessageList>::create(MessageList());
+        }
 
-	History::History()
-	{
-		ensurePrivate();
-	}
+        void showHistory(const ChatUnit *) override
+        {
+        }
 
-	History::~History()
-	{
-	}
+        AsyncResult<QVector<AccountInfo>> accounts() override
+        {
+            return AsyncResult<QVector<AccountInfo>>::create(QVector<AccountInfo>());
+        }
 
-	History *History::instance()
-	{
-		ensurePrivate();
-		if(p->self.isNull() && ObjectGenerator::isInited())
-			p->self = new History();
-		return p->self.data();
-	}
+        AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &) override
+        {
+            return AsyncResult<QVector<ContactInfo>>::create(QVector<ContactInfo>());
+        }
 
-	void History::store(const Message &message)
-	{
-		if(p->self.isNull() || p->self.data() == this)
-			return;
-		p->self.data()->store(message);
-	}
+        AsyncResult<QList<QDate>> months(const ContactInfo &, const QRegularExpression &) override
+        {
+            return AsyncResult<QList<QDate>>::create(QList<QDate>());
+        }
 
-	MessageList History::read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num)
-	{
-		if(p->self.isNull() || p->self.data() == this)
-			return MessageList();
-		return p->self.data()->read(unit, from, to, max_num);
-	}
+        AsyncResult<QList<QDate>> dates(const ContactInfo &, const QDate &, const QRegularExpression &) override
+        {
+            return AsyncResult<QList<QDate>>::create(QList<QDate>());
+        }
+    };
 
-	void History::showHistory(const ChatUnit *unit)
-	{
-		if(p->self.isNull() || p->self.data() == this)
-			return;
-		p->self.data()->showHistory(unit);
-	}
+    struct Private
+    {
+        ServicePointer<History> service;
+        NullHistory null;
+    };
+
+    Q_GLOBAL_STATIC(Private, self)
+
+    bool History::AccountInfo::operator ==(const History::AccountInfo &other) const
+    {
+        return protocol == other.protocol &&
+                account == other.account;
+    }
+
+    bool History::AccountInfo::operator <(const History::AccountInfo &other) const
+    {
+        return std::tie(protocol, account)
+                < std::tie(other.protocol, other.account);
+    }
+
+    bool History::ContactInfo::operator ==(const History::ContactInfo &other) const
+    {
+        return AccountInfo::operator ==(other) &&
+                contact == other.contact;
+    }
+
+    bool History::ContactInfo::operator <(const History::ContactInfo &other) const
+    {
+        return std::tie(protocol, account, contact)
+                < std::tie(other.protocol, other.account, other.contact);
+    }
+
+    History::History()
+    {
+        QMetaType::registerComparators<AccountInfo>();
+        QMetaType::registerComparators<ContactInfo>();
+    }
+
+    History::~History()
+    {
+    }
+
+    History *History::instance()
+    {
+        auto p = self();
+        return p->service ? p->service : &p->null;
+    }
+
+    AsyncResult<MessageList> History::read(const ChatUnit *unit, const QDateTime &to, int max_num)
+    {
+        return read(info(unit), QDateTime(), to, max_num);
+    }
+
+    AsyncResult<MessageList> History::read(const ChatUnit *unit, int max_num)
+    {
+        return read(info(unit), QDateTime(), QDateTime::currentDateTime(), max_num);
+    }
+
+    MessageList History::readSync(const ChatUnit *unit, int max_num)
+    {
+        AsyncResult<MessageList> asyncResult = read(unit, max_num);
+        MessageList result;
+
+        QEventLoop loop;
+
+        QTimer::singleShot(0, this, [this, &loop, &asyncResult, &result] () {
+            asyncResult.connect(this, [this, &loop, &result] (const MessageList &messages) {
+                result = messages;
+                loop.quit();
+            });
+        });
+
+        loop.exec();
+
+        return result;
+    }
+
+    History::ContactInfo History::info(const ChatUnit *unit)
+    {
+        unit = unit->getHistoryUnit();
+        const Account *account = unit->account();
+        const Protocol *protocol = account->protocol();
+
+        ContactInfo info;
+        info.protocol = protocol->id();
+        info.account = account->id();
+        info.contact = unit->id();
+        return info;
+    }
 
 	void History::virtual_hook(int id, void *data)
 	{
 		Q_UNUSED(id);
 		Q_UNUSED(data);
-	}
+    }
 }
 

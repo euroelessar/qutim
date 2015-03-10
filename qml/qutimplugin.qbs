@@ -8,6 +8,9 @@ Product {
 
     cpp.rpaths: ["$ORIGIN/../../../../lib"]
     cpp.createSymlinks: false
+    cpp.defines: [
+        "QUTIM_PLUGIN_NAME=\"" + name + "\""
+    ]
 
     files: [
         "src/**/*.cpp",

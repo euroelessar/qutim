@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "settingswidget.h"
+#include "qmlsettingswidget_p.h"
 #include <QAbstractButton>
 #include <QAbstractSlider>
 #include <QComboBox>
@@ -35,6 +36,8 @@
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QPointer>
+#include <QPaintEvent>
+#include <QPainter>
 #include <algorithm>
 
 namespace qutim_sdk_0_3
@@ -66,23 +69,6 @@ static AbstractWidgetInfo * widget_infos[] = {
 	new WidgetMetaInfo<QListWidget>    ("currentRow",   SIGNAL(currentRowChanged(int))),
 	new WidgetMetaInfo<QSpinBox>       ("value",        SIGNAL(valueChanged(int)))
 };
-
-//static struct WidgetMetaInfo
-//{
-//	const QMetaObject *meta;
-//	const char *property;
-//	const char *signal;
-//} widget_infos[] =  {
-//#if	!defined(Q_OS_SYMBIAN)	 //staticMetaObject doesn't link on Symbian platform
-//	{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
-//	{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
-//	{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
-//	{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(QDateTime)) },
-//	{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(QString)) },
-//	{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
-//	{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
-//#endif
-//};
 
 struct WidgetInfo
 {
@@ -266,7 +252,19 @@ void SettingsWidget::virtual_hook(int id, void *data)
 
 void SettingsWidget::setController(QObject *controller)
 {
-	Q_UNUSED(controller);
+    Q_UNUSED(controller);
+}
+
+void SettingsWidget::paintEvent(QPaintEvent *event)
+{
+    if (qobject_cast<QmlSettingsWidget *>(this)) {
+        return QWidget::paintEvent(event);
+    }
+
+    QPainter painter(this);
+    painter.setPen(QColor(Qt::red));
+    painter.drawRect(0, 0, width(), height());
+    event->accept();
 }
 
 void SettingsWidget::setModified(bool modified)

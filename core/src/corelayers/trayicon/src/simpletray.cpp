@@ -323,13 +323,14 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 
 static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
 {
-	QFont f = QApplication::font();
-	QPixmap px(backing.pixmap(size));
-	QPainter p(&px);
-	f.setPixelSize(px.height()/1.5);
-	p.setFont(f);
-	p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
-	icon.addPixmap(px);
+    QFont font = QApplication::font();
+    QPixmap pixmap = backing.pixmap(size);
+
+    QPainter painter(&pixmap);
+    font.setPixelSize(pixmap.height()/1.5);
+    painter.setFont(font);
+    painter.drawText(pixmap.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+    icon.addPixmap(pixmap);
 	return icon;
 }
 

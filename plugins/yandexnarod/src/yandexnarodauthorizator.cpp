@@ -137,7 +137,7 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 	QVariantMap::Iterator expiresIn = data.find(QLatin1String("expires_in"));
 	if (expiresIn != data.end()) {
 		expiresAt = QDateTime::currentDateTime();
-		expiresAt.addSecs(expiresIn.value().toInt());
+        expiresAt = expiresAt.addSecs(expiresIn.value().toInt());
 	}
 	qDebug() << accessToken << data;
 	m_token = accessToken;

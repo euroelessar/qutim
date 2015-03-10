@@ -31,6 +31,8 @@
 #include <qutim/config.h>
 #include <QApplication>
 #include <QLabel>
+#include <QtMac>
+#include <qutim/iconloader.h>
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSDockTile.h>
@@ -48,6 +50,8 @@ extern void qt_mac_set_dock_menu(QMenu *);
 @implementation DockIconHandler
 - (void)handleDockClickEvent:(NSAppleEventDescriptor*)event withReplyEvent:(NSAppleEventDescriptor*)replyEvent
 {
+    Q_UNUSED(event);
+    Q_UNUSED(replyEvent);
 	if (macDock)
 		macDock->dockIconClickEvent();
 }
@@ -82,9 +86,9 @@ MacDock::MacDock() : d_ptr(new MacDockPrivate())
 	Q_D(MacDock);
 	d->standartIcon = Icon("qutim-online");
 	d->offlineIcon = Icon("qutim-offline");
-	d->standartTrayIcon = Icon("qutim-online-mono");
-	d->offlineTrayIcon = Icon("qutim-offline-mono");
-	d->mailIcon = Icon("qutim-message-new-mono");
+    d->standartTrayIcon = Icon("qutim-online-mono");
+    d->offlineTrayIcon = Icon("qutim-offline-mono");
+    d->mailIcon = Icon("qutim-message-new-mono");
 	createDockDeps();
 	d->tray = 0;
 	loadSettings();
@@ -204,7 +208,7 @@ void MacDock::onStatusChanged()
 				Status status = account->status();
 				status.setType(type);
 				status.setSubtype(0);
-				status.setProperty("changeReason",Status::ByUser);
+                status.setChangeReason(Status::ByUser);
 				account->setUserStatus(status);
 			}
 		}
@@ -300,6 +304,12 @@ void MacDock::onAccountCreated(qutim_sdk_0_3::Account *account)
 			this, SLOT(setStatusIcon()));
 }
 
+static void setDockIcon(const QIcon &icon)
+{
+    NSImage *image = QtMac::toNSImage(icon.pixmap(256, 256));
+    [NSApplication sharedApplication].applicationIconImage = image;
+}
+
 void MacDock::setStatusIcon()
 {
 	Q_D(MacDock);
@@ -328,20 +338,20 @@ void MacDock::setStatusIcon()
 			if (type != globalStatus)
 				isStatusGlobal = false;
 		}
-	}
+    }
 	if (isOnline) {
-		qApp->setWindowIcon(d->standartIcon);
+        setDockIcon(d->standartIcon);
 		if (d->isTrayAvailable) {
 			d->tray->setIcon(d->standartTrayIcon);
 			d->currentTrayIcon = &d->standartTrayIcon;
 		}
 	} else {
-		qApp->setWindowIcon(d->offlineIcon);
+        setDockIcon(d->offlineIcon);
 		if (d->isTrayAvailable) {
 			d->tray->setIcon(d->offlineTrayIcon);
 			d->currentTrayIcon = &d->offlineTrayIcon;
 		}
-	}
+    }
 	if (isStatusGlobal) {
 		foreach(QAction *action, d->statusGroups.value(d->dockMenu)->actions()) {
 			Status::Type type = static_cast<Status::Type>(action->data().value<int>());

@@ -193,7 +193,7 @@ OftSocket::OftSocket(QObject *parent) :
 	init();
 }
 
-OftSocket::OftSocket(int socketDescriptor, QObject *parent) :
+OftSocket::OftSocket(qintptr socketDescriptor, QObject *parent) :
 	QTcpSocket(parent)
 {
 	setSocketDescriptor(socketDescriptor);
@@ -412,7 +412,7 @@ void OftServer::setConnection(OftConnection *conn)
 	m_conn = conn;
 }
 
-void OftServer::incomingConnection(int socketDescriptor)
+void OftServer::incomingConnection(qintptr socketDescriptor)
 {
 	OftSocket *socket = new OftSocket(socketDescriptor);
 	qDebug().nospace() << "Incoming oscar transfer connection from "
@@ -749,7 +749,7 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
 	if (m_stage == 1 && direction() == Incoming && !connClosed) {
 		startNextStage();
-	} else if (m_stage == 2 && !direction() == Outgoing && !connClosed) {
+    } else if (m_stage == 2 && direction() != Outgoing && !connClosed) {
 		startNextStage();
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {

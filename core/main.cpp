@@ -46,7 +46,10 @@ int main(int argc, char *argv[])
         srand(rd());
         qsrand(rd());
     }
-	QApplication app(argc, argv);
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QApplication app(argc, argv);
+
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
 

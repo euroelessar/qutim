@@ -131,8 +131,8 @@ void JAccountPrivate::_q_connected()
 
 void JAccountPrivate::onPasswordReceived(const QString &password)
 {
-	client->setPassword(password);
-	client->connectToServer();
+    client->setPassword(password);
+    client->connectToServer();
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
@@ -157,7 +157,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
 
-	Status::ChangeReason statusReason = Status::ByUnknown;
+    Status::ChangeReason statusReason = Status::ByUnknown;
 
 	switch(reason) {
 	case Client::User:
@@ -165,7 +165,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::AuthorizationError: {
 		statusReason = Status::ByAuthorizationFailed;
 		keyChain->remove(q);
-		client->setPassword(QString());
+        client->setPassword(QString());
 		break;
 	}
 	case Client::HostUnknown:
@@ -412,20 +412,20 @@ Jreen::PubSub::Manager *JAccount::pubSubManager()
 
 void JAccount::doConnectToServer()
 {
-	Q_D(JAccount);
+    Q_D(JAccount);
 
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
 	d->client->setProxy(proxy);
-	if (d->passwordDialog) {
+    if (d->passwordDialog) {
 		/* nothing */
-	} else if(d->client->password().isEmpty()) {
-		d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
-			if (result.error == KeyChain::NoError) {
+    } else if(d->client->password().isEmpty()) {
+        d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
+            if (result.error == KeyChain::NoError) {
 				d->onPasswordReceived(result.textData);
-			} else if (!d->passwordDialog) {
+            } else if (!d->passwordDialog) {
 				d->passwordDialog = PasswordDialog::request(this);
 
-				connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
+                connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
 					Q_ASSERT(sender() == d->passwordDialog.data());
 					d->passwordDialog->deleteLater();
 
@@ -442,8 +442,8 @@ void JAccount::doConnectToServer()
 				});
 			}
 		});
-	} else {
-		d->client->connectToServer();
+    } else {
+        d->client->connectToServer();
 	}
 }
 
