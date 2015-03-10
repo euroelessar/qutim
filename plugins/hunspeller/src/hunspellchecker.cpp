@@ -93,7 +93,7 @@ void HunSpellChecker::storeReplacement(const QString &bad, const QString &good)
 {
 	Q_UNUSED(bad);
 	Q_UNUSED(good);
-	debug() << "HunSpellChecker::storeReplacement not implemented";
+	qDebug() << "HunSpellChecker::storeReplacement not implemented";
 }
 
 QStringList HunSpellChecker::languages() const

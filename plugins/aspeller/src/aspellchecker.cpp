@@ -185,7 +185,7 @@ void ASpellChecker::loadSettings(const QString &lang)
 
 	AspellCanHaveError * possible_err = new_aspell_speller(m_config);
 	if (aspell_error_number(possible_err) != 0) {
-		warning()<< "Error : "<< aspell_error_message(possible_err);
+		qWarning() << "Error : " << aspell_error_message(possible_err);
 	} else {
 		m_speller = to_aspell_speller(possible_err);
 	}
