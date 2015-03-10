@@ -25,7 +25,6 @@
 
 #include "oscarconnection.h"
 #include "util.h"
-#include "md5login.h"
 #include "feedbag.h"
 #include "icqaccount_p.h"
 #include "buddycaps.h"
@@ -67,18 +66,9 @@ void OscarConnection::connectToLoginServer(const QString &password)
 	if (m_auth)
 		m_auth.data()->deleteLater();
 	m_auth = new OscarAuth(m_account);
-//	connect(m_auth.data(), SIGNAL(disconnected()), m_auth.data(), SLOT(deleteLater()));
 	connect(m_auth.data(), SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
 	        SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 	QTimer::singleShot(0, m_auth.data(), SLOT(login()));
-//	if (m_md5login)
-//		delete m_md5login;
-//	m_md5login = new Md5Login(password, account());
-//	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
-//	connect(m_md5login, SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
-//	this, SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
-//	// Start connecting after the status has been updated.
-//	QTimer::singleShot(0, m_md5login, SLOT(login()));
 }
 
 void OscarConnection::disconnectFromHost(bool force)
@@ -175,8 +165,6 @@ QAbstractSocket::SocketState OscarConnection::state() const
 			return QAbstractSocket::UnconnectedState;
 		return QAbstractSocket::ConnectingState;
 	}
-//	if (m_md5login)
-//		return m_md5login->socket()->state();
 	return socket()->state();
 }
 
@@ -200,11 +188,9 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 
 void OscarConnection::onDisconnect()
 {
-	Status status = m_account->status();
-	if (status != Status::Offline) {
-		status.setType(Status::Offline);
-	
+	if (m_account->state() != Account::Disconnected) {
 		Status::ChangeReason reason;
+
 		switch (error()) {
 		case MismatchNickOrPassword:
 			reason = Status::ByAuthorizationFailed;
@@ -215,13 +201,15 @@ void OscarConnection::onDisconnect()
 		case NoError:
 			reason = Status::ByUser;
 			break;
+		case RateLimitExceeded:
+			reason = Status::ByRateLimit;
+			break;
 		default:
 			reason = Status::ByNetworkError;
 			break;
 		}
-		status.setChangeReason(reason);
 
-		m_account->setStatus(status);
+		m_account->setState(Account::Disconnected, reason);
 	}
 	AbstractConnection::onDisconnect();
 }
@@ -248,7 +236,6 @@ void OscarConnection::onError(ConnectionError error)
 void OscarConnection::md5Error(ConnectionError e)
 {
 	setError(e, m_auth.data()->errorString());
-//	setError(e, m_md5login->errorString());
 	onDisconnect();
 }
 

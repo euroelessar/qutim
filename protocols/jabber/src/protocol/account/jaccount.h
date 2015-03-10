@@ -77,8 +77,11 @@ public:
 	Jreen::PrivateXml *privateXml();
 	Jreen::PrivacyManager *privacyManager();
 	Jreen::PubSub::Manager *pubSubManager();
-	virtual void setStatus(Status status);
-	void setAccountStatus(Status status);
+
+	virtual void doConnectToServer() override;
+	virtual void doDisconnectFromServer() override;
+	virtual void doStatusChange(const Status &status) override;
+
 	QString getAvatarPath();
 	void setAvatarHex(const QString &hex);
 	QString avatar();
@@ -88,9 +91,7 @@ public:
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
-	
-	QStringList updateParameters(const QVariantMap &parameters, bool forced = false);
-	void loadParameters();
+
 	QString pgpKeyId() const;
 	
 protected:
@@ -115,7 +116,6 @@ private:
 	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(Jreen::Client::DisconnectReason))
 	Q_PRIVATE_SLOT(d_func(),void _q_init_extensions(const QSet<QString> &features))
 	Q_PRIVATE_SLOT(d_func(),void _q_on_module_loaded(int i))
-	Q_PRIVATE_SLOT(d_func(),void _q_on_password_finished(int))
 };
 } // Jabber namespace
 

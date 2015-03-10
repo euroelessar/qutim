@@ -26,6 +26,7 @@
 #include "contactlistfrontmodel.h"
 #include "contactlistmimedata.h"
 #include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <QtDebug>
 
 using namespace qutim_sdk_0_3;
@@ -270,18 +271,22 @@ void ContactListFrontModel::onServiceChanged(const QByteArray &name, QObject *ne
 		ContactListBaseModel *oldModel = qobject_cast<ContactListBaseModel*>(oldObject);
 		ContactListBaseModel *newModel = qobject_cast<ContactListBaseModel*>(newObject);
 		if (newModel) {
-			connect(newModel, SIGNAL(tagsChanged(QStringList)),
-					this, SIGNAL(tagsChanged(QStringList)));
+			connect(newModel, &ContactListBaseModel::tagsChanged,
+					this, &ContactListFrontModel::tagsChanged);
 			connect(m_comparator, SIGNAL(contactChanged(qutim_sdk_0_3::Contact*)),
 					newModel, SLOT(onContactChanged(qutim_sdk_0_3::Contact*)));
-			foreach(Protocol *proto, Protocol::all()) {
-				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-						newModel, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
-				connect(proto, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-						newModel, SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
-				foreach(Account *account, proto->accounts())
-					newModel->onAccountCreated(account, !oldModel);
-			}
+
+			AccountManager *manager = AccountManager::instance();
+			connect(manager, &AccountManager::accountAdded,
+					newModel, [newModel] (Account *account) {
+				newModel->onAccountCreated(account);
+			});
+			connect(manager, &AccountManager::accountRemoved,
+					newModel, &ContactListBaseModel::onAccountRemoved);
+
+			foreach (Account *account, manager->accounts())
+				newModel->onAccountCreated(account, !oldModel);
+
 			if (oldModel) {
 				QSet<Contact*> contacts;
 				oldModel->findContacts(contacts, oldModel->rootNode());

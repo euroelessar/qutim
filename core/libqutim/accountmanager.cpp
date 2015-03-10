@@ -23,3 +23,48 @@
 **
 ****************************************************************************/
 
+#include "accountmanager_p.h"
+
+namespace qutim_sdk_0_3
+{
+
+AccountManager *AccountManagerPrivate::self = NULL;
+
+void AccountManagerPrivate::addProtocol(Protocol *protocol)
+{
+	Q_Q(AccountManager);
+	protocols.insert(protocol->id(), protocol);
+
+	QObject::connect(protocol, &Protocol::accountCreated, q, [this, q] (Account *account) {
+		Q_ASSERT(accounts.count(account) == 0);
+		accounts.append(account);
+
+		emit q->accountAdded(account);
+	});
+	QObject::connect(protocol, &Protocol::accountRemoved, q, [this, q] (Account *account) {
+		Q_ASSERT(accounts.count(account) == 1);
+		accounts.removeOne(account);
+
+		emit q->accountRemoved(account);
+	});
+}
+
+AccountManager::AccountManager() : d_ptr(new AccountManagerPrivate(this))
+{
+}
+
+AccountManager::~AccountManager()
+{
+}
+
+AccountManager *AccountManager::instance()
+{
+	return AccountManagerPrivate::self;
+}
+
+QList<Account *> AccountManager::accounts() const
+{
+	return d_func()->accounts;
+}
+
+}

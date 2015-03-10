@@ -43,6 +43,7 @@
 #include <QToolButton>
 #include <QMenuBar>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <QSwipeGesture>
 #include <QDockWidget>
 
@@ -230,7 +231,7 @@ void TabbedChatWidget::loadSettings()
 
             QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
             QMenu *menu = new QMenu(this);
-            foreach(Account *account, Account::all()) {
+			foreach(Account *account, AccountManager::instance()->accounts()) {
                 QMenu *accountMenu = account->menu(false);
                 menu->addMenu(accountMenu);
             }

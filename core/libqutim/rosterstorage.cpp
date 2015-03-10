@@ -36,6 +36,10 @@ class RosterStoragePrivate
 public:
 };
 
+ContactsFactory::ContactsFactory()
+{
+}
+
 ContactsFactory::~ContactsFactory()
 {
 }

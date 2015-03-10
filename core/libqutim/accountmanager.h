@@ -23,3 +23,31 @@
 **
 ****************************************************************************/
 
+#include "account.h"
+
+namespace qutim_sdk_0_3
+{
+
+class AccountManagerPrivate;
+
+class AccountManager : public QObject
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(AccountManager)
+public:
+	AccountManager();
+	~AccountManager();
+
+	static AccountManager *instance();
+
+	QList<Account *> accounts() const;
+
+signals:
+	void accountAdded(Account *account);
+	void accountRemoved(Account *account);
+
+private:
+	QScopedPointer<AccountManagerPrivate> d_ptr;
+};
+
+}

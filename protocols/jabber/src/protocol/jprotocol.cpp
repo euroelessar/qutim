@@ -556,23 +556,23 @@ bool JProtocol::event(QEvent *ev)
 void JProtocol::virtual_hook(int id, void *data)
 {
 	switch (id) {
-	case SupportedAccountParametersHook: {
-		QStringList &properties = *reinterpret_cast<QStringList*>(data);
-		properties << QLatin1String("connect-server")
-		           << QLatin1String("port")
-		           << QLatin1String("password")
-		           << QLatin1String("resource")
-		           << QLatin1String("priority")
-		           << QLatin1String("fallback-conference-server")
-		           << QLatin1String("bosh-host")
-		           << QLatin1String("bosh-port");
-		break;
-	}
-	case CreateAccountHook: {
-		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
-		argument.account = doCreateAccount(argument.id, argument.parameters);
-		break;
-	}
+//	case SupportedAccountParametersHook: {
+//		QStringList &properties = *reinterpret_cast<QStringList*>(data);
+//		properties << QLatin1String("connect-server")
+//		           << QLatin1String("port")
+//		           << QLatin1String("password")
+//		           << QLatin1String("resource")
+//		           << QLatin1String("priority")
+//		           << QLatin1String("fallback-conference-server")
+//		           << QLatin1String("bosh-host")
+//		           << QLatin1String("bosh-port");
+//		break;
+//	}
+//	case CreateAccountHook: {
+//		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
+//		argument.account = doCreateAccount(argument.id, argument.parameters);
+//		break;
+//	}
 	default:
 		Protocol::virtual_hook(id, data);
 	}

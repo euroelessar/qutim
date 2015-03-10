@@ -26,6 +26,7 @@
 #include <qutim/icon.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/settingslayer.h>
 #include <qutim/servicemanager.h>
 #include "ui_accountcreatorlist.h"
@@ -76,13 +77,12 @@ AccountCreatorList::AccountCreatorList() :
 	addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
 	addItem->setData(SeparatorRole,true);
 
-	foreach(Protocol *protocol, Protocol::all()) {
-		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
-		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, protocol->accounts())	{
-			addAccount(account);
-		}
-	}
+	AccountManager *manager = AccountManager::instance();
+	connect(manager, &AccountManager::accountAdded, this, &AccountCreatorList::addAccount);
+	connect(manager, &AccountManager::accountRemoved, this, &AccountCreatorList::removeAccount);
+
+	foreach (Account *account, manager->accounts())
+		addAccount(account);
 
 }
 

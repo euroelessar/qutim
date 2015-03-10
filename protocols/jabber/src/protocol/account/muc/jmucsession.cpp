@@ -55,6 +55,7 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QTimer>
+#include <QDialogButtonBox>
 
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
@@ -72,7 +73,7 @@ public:
 	QPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
-	QPointer<QWidget> captchaForm;
+	QPointer<QDialog> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
@@ -554,22 +555,27 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
 		               .arg(d->jid.bare());
 		delete d->captchaForm.data();
-		d->captchaForm = new QWidget;
-		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm.data());
-		QLabel *label = new QLabel(text, d->captchaForm.data());
-		JDataForm *form = new JDataForm(captcha->form(),
-		                                      msg.payloads<BitsOfBinary>(),
-		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
-		                                      d->captchaForm.data());
+		d->captchaForm = new QDialog;
+
+		QLabel *label = new QLabel(text, d->captchaForm);
+		JDataForm *form = new JDataForm(captcha->form(), msg.payloads<BitsOfBinary>(), d->captchaForm);
+		QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, d->captchaForm);
+
+		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm);
 		form->layout()->setMargin(0);
 		layout->addWidget(label);
 		layout->addWidget(form);
-		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
-		connect(form->widget(), SIGNAL(accepted()), d->captchaForm.data(), SLOT(deleteLater()));
-		connect(form->widget(), SIGNAL(rejected()), d->captchaForm.data(), SLOT(deleteLater()));
-		Client *client = d->account.data()->client();
-		connect(client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)), d->captchaForm.data(), SLOT(deleteLater()));
-		d->captchaForm.data()->show();
+		layout->addWidget(buttonBox);
+
+		connect(buttonBox, &QDialogButtonBox::accepted, d->captchaForm.data(), &QDialog::accept);
+		connect(buttonBox, &QDialogButtonBox::rejected, d->captchaForm.data(), &QDialog::reject);
+
+		connect(d->captchaForm.data(), &QDialog::accepted, this, &JMUCSession::onCaptchaFilled);
+		connect(d->captchaForm.data(), &QDialog::accepted, this, &QObject::deleteLater);
+		connect(d->captchaForm.data(), &QDialog::rejected, this, &QObject::deleteLater);
+		connect(d->account->client(), &Client::disconnected, d->captchaForm.data(), &QObject::deleteLater);
+
+		d->captchaForm->show();
 		return;
 	}
 	if (!msg.subject().isEmpty())

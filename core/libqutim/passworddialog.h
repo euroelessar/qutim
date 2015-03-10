@@ -58,9 +58,6 @@ public:
 	void setLoginEditVisible(bool allow);
 
 signals:
-#if !defined(Q_MOC_RUN) && !defined(DOXYGEN_SHOULD_SKIP_THIS) && !defined(IN_IDE_PARSER)
-private: // don't tell moc, doxygen or kdevelop, but those signals are in fact private
-#endif
 	void rejected();
 	void entered(const QString &password, bool remember);
 	void finished(int result);

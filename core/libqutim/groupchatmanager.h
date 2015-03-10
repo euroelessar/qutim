@@ -35,8 +35,10 @@ class Protocol;
 class Account;
 class GroupChatManagerPrivate;
 
-class LIBQUTIM_EXPORT GroupChatManager
+class LIBQUTIM_EXPORT GroupChatManager : public QObject
 {
+	Q_OBJECT
+	Q_CLASSINFO("Interface", "GroupChatManager")
 public:
 	/**
 		Constructs a new GroupChatManager with the given \a account.
@@ -89,8 +91,6 @@ private:
 };
 
 }
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::GroupChatManager, "org.qutim.core.GroupChatManager");
 
 #endif // GROUPCHATMANAGER_H
 

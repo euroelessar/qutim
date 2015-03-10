@@ -28,6 +28,8 @@
 #include "icon.h"
 #include <QDebug>
 
+#include <unordered_map>
+
 typedef QHash<QString, QVariantHash> ExtendedStatus;
 Q_DECLARE_METATYPE(ExtendedStatus)
 
@@ -35,7 +37,7 @@ namespace qutim_sdk_0_3
 {
 struct StatusHashKey
 {
-	const char *name;
+	QByteArray name;
 	int type;
 	int subtype;
 
@@ -48,18 +50,13 @@ struct StatusHashKey
 	}
 };
 
-uint qHash(const qutim_sdk_0_3::StatusHashKey &value, uint seed = 0) Q_DECL_NOTHROW
+struct StatusHashCalc
 {
-	// Simple hash algorithm
-	const uint p = 373;
-	uint h = seed;
-	const char *c = value.name;
-	while (*c)
-		h = h * p + *(c++);
-	h = h * p + value.type;
-	h = h * p + value.subtype;
-	return h;
-}
+	size_t operator() (const qutim_sdk_0_3::StatusHashKey &value) const noexcept
+	{
+		return qHash(qMakePair(value.name, qMakePair(value.type, value.subtype)));
+	}
+};
 
 class StatusPrivate : public DynamicPropertyData
 {
@@ -338,23 +335,27 @@ QString Status::iconName(Type type, const QString &protocol)
 }
 
 
-typedef QHash<StatusHashKey, Status> StatusHash;
+typedef std::unordered_map<StatusHashKey, Status, StatusHashCalc> StatusHash;
 Q_GLOBAL_STATIC(StatusHash, statusHash)
 
 Status Status::instance(Type type, const char *proto, int subtype)
 {
-	StatusHashKey key = { proto, int(type), subtype };
-	return statusHash()->value(key);
+	StatusHashKey key = { QByteArray(proto), int(type), subtype };
+	auto it = statusHash()->find(key);
+	if (it == statusHash()->end()) {
+		Status status(type);
+		status.setSubtype(subtype);
+		status.initIcon(QString::fromLatin1(proto));
+		return status;
+	}
+	return it->second;
 }
 
 bool Status::remember(const Status &status, const char *proto)
 {
 	StatusHashKey key = { proto, int(status.type()), status.subtype() };
-	if (statusHash()->contains(key))
-		return false;
-	key.name = qstrdup(key.name);
-	statusHash()->insert(key, status);
-	return true;
+
+	return statusHash()->emplace(key, status).second;
 }
 
 Status Status::createConnecting(const Status &status, const char *proto)

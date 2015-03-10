@@ -66,12 +66,11 @@ void BlogImproverHandler::loadSettings()
 
 }
 
-void BlogImproverHandler::doHandle(qutim_sdk_0_3::Message &message, const qutim_sdk_0_3::MessageHandler::Handler &handler)
+MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
     if (!session || !session->property("supportJavaScript").toBool() || !message.isIncoming()) {
-		handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
     }
 
 	static QLatin1Literal jids[] = {
@@ -109,7 +108,7 @@ void BlogImproverHandler::doHandle(qutim_sdk_0_3::Message &message, const qutim_
         break;
 	}
 
-    handler(Accept, QString());
+	return makeAsyncResult(Accept, QString());
 }
 
 void BlogImproverHandler::handlePsto(Message &message)

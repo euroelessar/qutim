@@ -37,11 +37,13 @@ class ProxyAccount : public Account
 public:
 	ProxyAccount(Account *account);
 	virtual QString name() const;
-	virtual void setStatus(Status status);
 	virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
-private slots:
-	void onStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+
+	void doConnectToServer();
+	void doDisconnectFromServer();
+	void doStatusChange(const Status &status);
+
 protected:
 	bool event(QEvent *ev);
 private:

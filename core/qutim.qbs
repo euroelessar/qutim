@@ -18,6 +18,8 @@ Application {
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
     Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor === 5 }
     Depends { name: "Qt.declarative"; condition: project.declarativeUi }
+
+    consoleApplication: false
 	
     files: [
         "main.cpp",

@@ -33,18 +33,45 @@
 #include "groupchatmanager_p.h"
 #include "rosterstorage.h"
 
+#include <unordered_map>
+#include <memory>
+
 namespace qutim_sdk_0_3
 {
+struct AccountInterface
+{
+	std::unique_ptr<QObject> object;
+};
+
 class AccountPrivate : public MenuControllerPrivate
 {
+	Q_DECLARE_PUBLIC(Account)
 public:
-	AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
+	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
+	~AccountPrivate()
+	{
+		for (auto &pair : interfaces)
+			pair.second.object.release();
+	}
+
+	void updateStatus();
+	void setStatus(const Status &newStatus);
+
 	QPointer<Protocol> protocol;
 	QString id;
+	Account::State state;
 	Status status;
-	GroupChatManager *groupChatManager;
-	ContactsFactory *contactsFactory;
-	InfoRequestFactory *infoRequestFactory;
+	Status userStatus;
+
+	struct hasher
+	{
+		size_t operator() (const QByteArray &array) const
+		{
+			return qHash(array);
+		}
+	};
+
+	std::unordered_map<QByteArray, AccountInterface, hasher> interfaces;
 };
 }
 

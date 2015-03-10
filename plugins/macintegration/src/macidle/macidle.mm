@@ -126,7 +126,7 @@ void MacIdle::setIdleOn(MacIdle::Reason reason)
 			status.setSubtype(0);
 			status.setText(d->idleMessages.value(statusType, ""));
 			status.setProperty("changeReason", Status::ByIdle);
-			account->setStatus(status);
+			account->setUserStatus(status);
 		}
 	}
 	d->currentReason = reason;
@@ -138,7 +138,7 @@ void MacIdle::setIdleOff()
 	foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			if (d->idleAccounts.contains(account)) {
-				account->setStatus(d->idleAccounts.take(account));
+				account->setUserStatus(d->idleAccounts.take(account));
 			}
 		}
 	}

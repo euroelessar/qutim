@@ -41,8 +41,10 @@ class InfoObserverPrivate;
 class Account;
 class Buddy;
 
-class LIBQUTIM_EXPORT InfoRequestFactory
+class LIBQUTIM_EXPORT InfoRequestFactory : public QObject
 {
+	Q_OBJECT
+	Q_CLASSINFO("Interface", "InfoRequestFactory")
 public:
 	enum SupportLevel {
 		NotSupported,
@@ -139,8 +141,6 @@ private:
 };
 
 }
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::InfoRequestFactory, "org.qutim.InfoRequestFactory")
 
 #endif // INFOREQUEST_H
 

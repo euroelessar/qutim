@@ -34,7 +34,7 @@
 #include <qutim/icon.h>
 #include <qutim/systeminfo.h>
 #include <qutim/protocol.h>
-#include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/chatunit.h>
 #include <QScrollBar>
 #include <qutim/json.h>
@@ -143,12 +143,11 @@ void HistoryWindow::fillAccountComboBox()
 		QString accountId = JsonHistory::unquote(account.section(".",1));
 		Icon protoIcon(QLatin1String("im-") + protoId);
 		QString accountName = accountId;
-		if (Protocol *protocol = Protocol::all().value(protoId)) {
-			if (Account *acc = protocol->account(accountId)) {
-				QString name = acc->name();
-				if (!name.isEmpty() && name != acc->id())
-					accountName += " - " + name;
-			}
+
+		foreach (Account *account, AccountManager::instance()->accounts()) {
+			QString name = account->name();
+			if (!name.isEmpty() && name != account->id())
+				accountName += " - " + name;
 		}
 		ui.accountComboBox->addItem(protoIcon, accountName, account);
 	}

@@ -32,12 +32,12 @@
 
 #include <qutim/icon.h>
 
-Q_DECLARE_METATYPE(QList<QIcon>);
+Q_DECLARE_METATYPE(QList<QIcon>)
 
 namespace Core
 {
 
-DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
+DefaultDataForm::DefaultDataForm(const DataItem &item) :
 	m_widget(0),
 	m_isChanged(false),
 	m_incompleteWidgets(0),
@@ -73,24 +73,6 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			dataLayout->addDataItem(item);
 		if (!dataLayout->isExpandable())
 			dataLayout->addSpacer();
-	}
-	if (standartButtons != NoButton || !buttons.isEmpty()) {
-		m_buttonsBox = new QDialogButtonBox(
-				static_cast<QDialogButtonBox::StandardButton>(static_cast<int>(standartButtons)), Qt::Horizontal, this);
-		int index = 0;
-		foreach (const Button &button, buttons) {
-			QPushButton *btn = m_buttonsBox->addButton(button.name, static_cast<QDialogButtonBox::ButtonRole>(button.role));
-			btn->setProperty("buttonIndex", index++);
-		}
-		connect(m_buttonsBox, SIGNAL(accepted()), SLOT(accept()));
-		connect(m_buttonsBox, SIGNAL(rejected()), SLOT(reject()));
-		connect(m_buttonsBox, SIGNAL(helpRequested()), SIGNAL(helpRequested()));
-		connect(m_buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
-
-		if (dataLayout)
-			dataLayout->addRow(m_buttonsBox);
-		else
-			layout->addWidget(m_buttonsBox);
 	}
 }
 
@@ -151,60 +133,15 @@ void DefaultDataForm::completeChanged(bool complete)
 	}
 }
 
-void DefaultDataForm::onButtonClicked(QAbstractButton *button)
-{
-	StandardButton stdBtn = static_cast<StandardButton>(m_buttonsBox->standardButton(button));
-	if (stdBtn != NoButton) {
-		emit clicked(stdBtn);
-	} else {
-		QVariant buttonIndex = button->property("buttonIndex");
-		if (buttonIndex.canConvert(QVariant::Int))
-			emit clicked(buttonIndex.toInt());
-	}
-}
-
-void DefaultDataForm::keyPressEvent(QKeyEvent *e)
-{
-#ifdef Q_OS_MAC
-	if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period) {
-		e->accept();
-		reject();
-	} else
-#endif
-	if (!e->modifiers() || (e->modifiers() & Qt::KeypadModifier && e->key() == Qt::Key_Enter)) {
-		switch (e->key()) {
-		case Qt::Key_Enter:
-		case Qt::Key_Return: {
-			foreach (QPushButton *btn, findChildren<QPushButton*>()) {
-				if (btn->isDefault() && btn->isVisible()) {
-					if (btn->isEnabled())
-						btn->click();
-					e->accept();
-					break;
-				}
-			}
-			return;
-		}
-		case Qt::Key_Escape:
-			e->accept();
-			reject();
-			break;
-		}
-	}
-	AbstractDataForm::keyPressEvent(e);
-}
-
 DefaultDataFormsBackend::DefaultDataFormsBackend()
 {
 }
 
-AbstractDataForm *DefaultDataFormsBackend::get(const DataItem &item,
-											   AbstractDataForm::StandardButtons standartButtons,
-											   const AbstractDataForm::Buttons &buttons)
+AbstractDataForm *DefaultDataFormsBackend::get(const DataItem &item)
 {
 	if (item.isNull())
 		return 0;
-	return new DefaultDataForm(item, standartButtons, buttons);
+	return new DefaultDataForm(item);
 }
 
 }

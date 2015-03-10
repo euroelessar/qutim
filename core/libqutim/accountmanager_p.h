@@ -23,42 +23,37 @@
 **
 ****************************************************************************/
 
-#ifndef MD5LOGIN_H
-#define MD5LOGIN_H
+#include "accountmanager.h"
+#include "protocol.h"
 
-#include "oscarconnection.h"
-#include <QHostInfo>
+#ifndef ACCOUNTMANAGER_P_H
+#define ACCOUNTMANAGER_P_H
 
-namespace qutim_sdk_0_3 {
-
-namespace oscar {
-
-class Md5Login: public AbstractConnection
+namespace qutim_sdk_0_3
 {
-	Q_OBJECT
+
+class AccountManagerPrivate
+{
+	Q_DECLARE_PUBLIC(AccountManager)
 public:
-	Md5Login(const QString &password, IcqAccount *account);
-	virtual ~Md5Login();
-public slots:
-	void login();
-protected:
-	virtual void processNewConnection();
-	virtual void processCloseConnection();
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-private slots:
-	void hostFound(const QHostInfo &host);
-private:
-	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
-	QString m_host;
-	QString m_addr;
-	quint16 m_port;
-	QByteArray m_cookie;
-	OscarConnection *m_conn;
-	QString m_password;
-	int m_hostReqId;
+	AccountManagerPrivate(AccountManager *q) : q_ptr(q)
+	{
+	}
+
+	AccountManager *q_ptr;
+	QList<Account *> accounts;
+	ProtocolHash protocols;
+
+	void addProtocol(Protocol *protocol);
+
+	static AccountManagerPrivate *getPrivate(AccountManager *manager)
+	{
+		return manager->d_ptr.data();
+	}
+
+	static AccountManager *self;
 };
 
-} } // namespace qutim_sdk_0_3::oscar
+}
 
-#endif // MD5LOGIN_H
-
+#endif // ACCOUNTMANAGER_P_H

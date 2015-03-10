@@ -59,28 +59,19 @@ static bool isWord(QChar ch)
 	return ch.isLetterOrNumber() || ch.isMark() || ch == QLatin1Char('_');
 }
 
-struct NickHandlerAccepter
+MessageHandlerAsyncResult NickHandler::doHandle(Message &message)
 {
-    ~NickHandlerAccepter()
-    {
-        handler(MessageHandler::Accept, QString());
-    }
-
-    const MessageHandler::Handler &handler;
-};
-
-void NickHandler::doHandle(Message &message, const MessageHandler::Handler &handler)
-{
-    NickHandlerAccepter accepter = { handler };
-
 	if(!message.isIncoming())
-		return;
+		return makeAsyncResult(Accept, QString());
+
 	Conference *conference = qobject_cast<Conference*>(message.chatUnit());
 	if (!conference)
-		return;
+		return makeAsyncResult(Accept, QString());
+
 	Buddy *me = conference->me();
 	if (!me)
-		return;
+		return makeAsyncResult(Accept, QString());
+
 	const QString myNick = me->name();
 
 	if (m_enableAutoHighlights) {
@@ -90,7 +81,7 @@ void NickHandler::doHandle(Message &message, const MessageHandler::Handler &hand
 			if ((pos == 0 || !isWord(text.at(pos - 1)))
 					&& (pos + myNick.size() == text.size() || !isWord(text.at(pos + myNick.size())))) {
 				message.setProperty("mention", true);
-				return;
+				return makeAsyncResult(Accept, QString());
 			}
 			++pos;
 		}
@@ -100,10 +91,12 @@ void NickHandler::doHandle(Message &message, const MessageHandler::Handler &hand
 		for (int i = 0; i < m_regexps.size(); ++i) {
 			if (message.text().contains(m_regexps.at(i))) {
 				message.setProperty("mention", true);
-				return;
+				return makeAsyncResult(Accept, QString());
 			}
 		}
 	}
+
+	return makeAsyncResult(Accept, QString());
 }
 
 } // namespace Highlighter

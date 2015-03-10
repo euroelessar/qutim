@@ -28,6 +28,7 @@
 #include <qutim/protocol.h>
 #include <qutim/icon.h>
 #include <qutim/event.h>
+#include <qutim/accountmanager.h>
 
 #include <QCoreApplication>
 #include <QStringBuilder>

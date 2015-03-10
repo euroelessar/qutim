@@ -95,12 +95,11 @@ void UrlHandler::loadSettings()
 	cfg.endGroup();
 }
 
-void UrlHandler::doHandle(Message &message, const Handler &handler)
+MessageHandlerAsyncResult UrlHandler::doHandle(Message &message)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
     if (!session || !session->property("supportJavaScript").toBool()) {
-		handler(Accept, QString());
-        return;
+		return makeAsyncResult(Accept, QString());
     }
 
 	const QString originalHtml = message.html();
@@ -117,7 +116,7 @@ void UrlHandler::doHandle(Message &message, const Handler &handler)
 		}
 	}
 	message.setHtml(html);
-    handler(Accept, QString());
+	return makeAsyncResult(Accept, QString());
 }
 
 void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUnit *from, qint64 id)

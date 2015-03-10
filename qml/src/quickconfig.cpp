@@ -7,6 +7,7 @@ namespace qutim_sdk_0_3 {
 QuickConfig::QuickConfig(QObject *parent) :
     QObject(parent)
 {
+	setObjectName(QStringLiteral("QuickConfig"));
 }
 
 void QuickConfig::setPath(const QString &path)
@@ -85,8 +86,14 @@ void QuickConfig::beginGroup(const QString &name)
 
 void QuickConfig::endGroup()
 {
-    m_config.endGroup();
+	m_config.endGroup();
 }
+
+void QuickConfig::forceSync()
+{
+	m_config.sync();
+}
+
 void QuickConfig::classBegin()
 {
 }

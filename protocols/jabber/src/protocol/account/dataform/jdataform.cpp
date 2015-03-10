@@ -46,49 +46,32 @@ public:
 	~JDataFormPrivate()
 	{
 	}
-	void init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-	          qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons);
+	void init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs);
 	Jreen::DataForm::Ptr form;
 	DataItem item;
 	AbstractDataForm *widget;
 };
 
-void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-                            qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons)
+void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs)
 {
 	this->form = form;
 	
 	DataItem root = JDataForm::convertToDataItem(form, bobs);
 	QGridLayout *layout = new QGridLayout(that);
 	that->setLayout(layout);
-	layout->addWidget(widget = AbstractDataForm::get(root, buttons));
-	QObject::connect(widget, SIGNAL(accepted()), that, SIGNAL(accepted()));
-}
-
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form,
-					 AbstractDataForm::StandardButtons buttons, QWidget *parent)
-	: QWidget(parent), d_ptr(new JDataFormPrivate)
-{
-	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), buttons);
-}
-
-JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-                     AbstractDataForm::StandardButtons buttons, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
-{
-	d_func()->init(this, form, bobs, buttons);
+	layout->addWidget(widget = AbstractDataForm::get(root));
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent)
     : QWidget(parent), d_ptr(new JDataFormPrivate)
 {
-	d_func()->init(this, form, bobs, qutim_sdk_0_3::AbstractDataForm::NoButton);
+	d_func()->init(this, form, bobs);
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent)
     : QWidget(parent), d_ptr(new JDataFormPrivate)
 {
-	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>(), qutim_sdk_0_3::AbstractDataForm::NoButton);
+	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>());
 }
 
 JDataForm::~JDataForm()

@@ -39,6 +39,8 @@ class ExtendedStatusesEventPrivate;
 
 class LIBQUTIM_EXPORT Status
 {
+	Q_GADGET
+	Q_ENUMS(Type ChangeReason)
 public:
 	enum Type
 	{
@@ -54,12 +56,15 @@ public:
 
 	enum ChangeReason
 	{
+		ByUnknown,
 		ByUser,
 		ByIdle,
 		ByAuthorizationFailed,
 		ByNetworkError,
 		ByFatalError,
-		ByQuit
+		ByQuit,
+		ByPasswordUnknown,
+		ByRateLimit
 	};
 
 	// TODO: Remove defines, and optimize code, currently I just want plugins to compile

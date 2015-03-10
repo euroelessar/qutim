@@ -120,7 +120,7 @@ Framework {
     Transformer {
         inputs: [ "libqutim/version.h.cmake" ]
         Artifact {
-            fileName: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
+            filePath: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
             fileTags: [ "hpp" ]
         }
         prepare: {
@@ -134,7 +134,7 @@ Framework {
             cmd.qutim_version_patch = product.versionPatch;
             cmd.onWindows = (product.moduleProperty("qbs", "targetOS") === "windows");
             cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName);
+                var file = new TextFile(input.filePath);
                 var content = file.readAll();
                 // replace Windows line endings
                 if (onWindows)
@@ -144,7 +144,7 @@ Framework {
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_MINOR}/g, qutim_version_minor);
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_SECMINOR}/g, qutim_version_release);
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_PATCH}/g, qutim_version_patch);
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
                 file.close();
@@ -157,19 +157,19 @@ Framework {
         inputs: [ "devheader" ]
         Artifact {
             fileTags: [ "hpp" ]
-            fileName: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
+            filePath: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
         }
 
         prepare: {
             var cmd = new JavaScriptCommand();
             cmd.sourceCode = function() {
-                var inputFile = new TextFile(input.fileName, TextFile.ReadOnly);
-                var file = new TextFile(output.fileName, TextFile.WriteOnly);
+                var inputFile = new TextFile(input.filePath, TextFile.ReadOnly);
+                var file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
-                file.write("#include \"" + input.fileName + "\"\n");
+                file.write("#include \"" + input.filePath + "\"\n");
                 file.close();
             }
-            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.description = "generating " + FileInfo.fileName(output.filePath);
             cmd.highlight = "filegen";
             return cmd;
         }

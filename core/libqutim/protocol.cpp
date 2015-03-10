@@ -89,20 +89,6 @@ QString Protocol::id() const
     return d->id;
 }
 
-QStringList Protocol::supportedAccountParameters() const
-{
-    QStringList properties;
-    const_cast<Protocol*>(this)->virtual_hook(SupportedAccountParametersHook, &properties);
-    return properties;
-}
-
-Account *Protocol::createAccount(const QString &id, const QVariantMap &parameters)
-{
-    CreateAccountArgument argument = { id, parameters, NULL };
-    const_cast<Protocol*>(this)->virtual_hook(CreateAccountHook, &argument);
-    return argument.account;
-}
-
 void Protocol::virtual_hook(int id, void *data)
 {
     Q_UNUSED(id);

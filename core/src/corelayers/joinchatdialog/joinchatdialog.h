@@ -57,7 +57,7 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void rebuildItems(int index);
 private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
 	void onAccountDeath(QObject *object);
@@ -65,6 +65,9 @@ private slots:
 	void onDataChanged();
 	void onSaveButtonClicked();
 	void joinBookmark(QListWidgetItem *item);
+
+private:
+	void addAccount(qutim_sdk_0_3::Account *account);
 
 private:
 	qutim_sdk_0_3::GroupChatManager *groupChatManager();

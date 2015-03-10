@@ -27,6 +27,7 @@
 
 #include "modulemanager.h"
 #include "protocol.h"
+#include "accountmanager_p.h"
 #include "../3rdparty/qtsolutions/qtlocalpeer.h"
 #include <QSet>
 
@@ -59,7 +60,8 @@ class ModuleManagerPrivate
 public:
 	inline ModuleManagerPrivate() :
 			is_inited(false),
-            isServicesInited(false)
+			isServicesInited(false),
+			protocols(AccountManagerPrivate::getPrivate(&accountManager)->protocols)
 	{}
     inline ~ModuleManagerPrivate() {}
 	void initLocalPeer(const QString &message, bool *shouldExit);
@@ -68,7 +70,8 @@ public:
 	QScopedPointer<QtLocalPeer> localPeer;
 	bool is_inited;
 	bool isServicesInited;
-    ProtocolHash protocols;
+	AccountManager accountManager;
+	ProtocolHash &protocols;
     QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 	QHash<QByteArray, QObject *> services;
 	QObjectList serviceOrder;

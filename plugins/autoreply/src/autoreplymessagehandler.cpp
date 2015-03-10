@@ -103,13 +103,12 @@ void AutoReplyMessageHandler::updateText(QString &text, const QDateTime &backTim
 	}
 }
 
-void AutoReplyMessageHandler::doHandle(Message &message, const Handler &handler)
+MessageHandlerAsyncResult AutoReplyMessageHandler::doHandle(Message &message)
 {
 	if (message.property("service", false)
 			|| message.property("autoreply", false)
 			|| qobject_cast<Conference*>(message.chatUnit())) {
-        handler(Accept, QString());
-		return;
+		return makeAsyncResult(Accept, QString());
 	}
 	QMutableListIterator<CacheItem> it(m_cache);
 	while (it.hasNext()) {
@@ -117,8 +116,7 @@ void AutoReplyMessageHandler::doHandle(Message &message, const Handler &handler)
         if (item.time.secsTo(QDateTime::currentDateTime()) > m_plugin->deltaTime()) {
 			it.remove();
 		} else if (item.unit == message.chatUnit()) {
-            handler(Accept, QString());
-            return;
+			return makeAsyncResult(Accept, QString());
         }
 	}
     if (message.isIncoming() && m_plugin->isActive() && !m_plugin->replyText().isEmpty()) {
@@ -132,5 +130,5 @@ void AutoReplyMessageHandler::doHandle(Message &message, const Handler &handler)
 		m_cache << cacheItem;
 		qApp->postEvent(m_plugin, new AutoReplyMessageEvent(replyMessage));
     }
-    handler(Accept, QString());
+	return makeAsyncResult(Accept, QString());
 }

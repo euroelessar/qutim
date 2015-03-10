@@ -44,7 +44,7 @@ public slots:
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
-    void doHandle(qutim_sdk_0_3::Message &message, const MessageHandler::Handler &handler) override;
+	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 
 protected slots:
 	void onServiceChanged(const QByteArray &name);
