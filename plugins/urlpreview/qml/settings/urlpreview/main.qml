@@ -13,7 +13,7 @@ SettingsItem {
     
     function save() {
         
-        config.setValue("maxFileSize", maxFileSizeEdit.checked);
+        config.setValue("maxFileSize", maxFileSizeEdit.value);
         config.setValue("maxWidth", maxWidthEdit.value);
         config.setValue("maxHeight", maxHeightEdit.value);
         config.setValue("youtubePreview", youtubePreviewEdit.checked);
@@ -25,7 +25,7 @@ SettingsItem {
     }
     
     function load() {
-        maxFileSizeEdit.value = config.value("maxFileSize", 100000);
+        maxFileSizeEdit.value = config.value("maxFileSize", 1000000);
         maxWidthEdit.value = config.value("maxWidth", 800);
         maxHeightEdit.value = config.value("maxHeight", 600);
         youtubePreviewEdit.checked = config.value("youtubePreview", true);
@@ -43,10 +43,10 @@ SettingsItem {
         }
         SpinBox {
             id: maxFileSizeEdit
-            suffix: qsTr(" kb.")
-            stepSize: 10
-            minimumValue: 100
-            maximumValue: 1000000
+            suffix: qsTr(" bytes")
+            stepSize: 1000
+            minimumValue: 1000
+            maximumValue: 1000000000
             Layout.fillWidth: true
             enabled: true
             onValueChanged: root.modify()
