@@ -78,6 +78,8 @@ public slots:
 
     QUrl appendTextUrl(const QString &text);
     QUrl appendNickUrl(const QString &nick);
+
+	int hashOf(const QString &nick, int max);
 	
 protected:
     QUrl commandUrl(const QString &method, const QString &arg) const;

@@ -207,6 +207,11 @@ void ChatChannel::appendNick(const QString &nick)
     emit appendNickRequested(nick);
 }
 
+int ChatChannel::hashOf(const QString &nick, int max)
+{
+	return qHash(nick) % max;
+}
+
 void ChatChannel::loadHistory()
 {
     Config config(QStringLiteral("appearance"));
