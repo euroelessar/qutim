@@ -15,12 +15,13 @@ SelectableMouseArea::SelectableMouseArea(QQuickItem *parent) :
     QQuickItem(parent)
 {
     setAcceptedMouseButtons(Qt::LeftButton);
-    setFiltersChildMouseEvents(true);
     setHoverEnabled(true);
 }
 
 void SelectableMouseArea::mousePressEvent(QMouseEvent *event)
 {
+    setKeepMouseGrab(true);
+
     if (event->modifiers() & Qt::ShiftModifier)
         continueSelection(event);
     else
@@ -34,6 +35,8 @@ void SelectableMouseArea::mouseMoveEvent(QMouseEvent *event)
 
 void SelectableMouseArea::mouseReleaseEvent(QMouseEvent *event)
 {
+    setKeepMouseGrab(false);
+
     for (ItemInfo &info : m_items) {
         if (info.moved)
             return;

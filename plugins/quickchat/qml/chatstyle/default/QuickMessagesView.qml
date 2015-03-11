@@ -63,8 +63,8 @@ Rectangle {
                     contentY = newContentY;
             }
 
+            onMovementEnded: hoverDelay.restart()
             onContentHeightChanged: if (shouldKeepEnd()) moveToEnd()
-            onContentYChanged: hoverDelay.restart()
 
             QuickMessagesLayout {
                 id: layout
