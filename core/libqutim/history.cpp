@@ -118,7 +118,7 @@ namespace qutim_sdk_0_3
     History *History::instance()
     {
         auto p = self();
-        return p->service ? p->service : &p->null;
+        return p->service ? p->service.data() : &p->null;
     }
 
     AsyncResult<MessageList> History::read(const ChatUnit *unit, const QDateTime &to, int max_num)
