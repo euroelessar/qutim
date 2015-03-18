@@ -13,6 +13,7 @@ Product {
     property bool installIcons: true
     property bool installOxygenTheme: !qbs.targetOS.contains("linux")
     property bool installUbuntuTheme: qbs.targetOS.contains("linux")
+    property bool installHicolorTheme: !qbs.targetOS.contains("osx") && !qbs.targetOS.contains("windows")
     property string qutim_version: project.qutim_version
 
     Depends { name: "Qt.core" }
@@ -81,6 +82,15 @@ Product {
         qbs.installDir: project.qutim_share_path + "/icons/"
         qbs.install: true
         files: "../artwork/icons/qutim-default"
+    }
+
+    Group {
+        name: "fallback icon theme"
+        condition: installIcons && installHicolorTheme
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.install: true
+        files: "../artwork/icons/qutim/icons/hicolor"
     }
 
     Group {
