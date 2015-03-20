@@ -47,6 +47,7 @@ class Module : public MenuController
 {
 	Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)
+    Q_PROPERTY(QObject* buttons READ buttons CONSTANT)
 	Q_CLASSINFO("Service", "ContactList")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "ContactListWidget")
@@ -56,6 +57,7 @@ public:
 	Q_INVOKABLE void addButton(qutim_sdk_0_3::ActionGenerator *generator);
 	Q_INVOKABLE void removeButton(qutim_sdk_0_3::ActionGenerator *generator);
 	Q_INVOKABLE QWidget *widget();
+    QObject *buttons();
 protected:
 	bool event(QEvent *);
 public slots:

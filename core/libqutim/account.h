@@ -31,6 +31,8 @@
 #include "status.h"
 #include <QMetaType>
 
+#include "libqutim_global.h"
+
 namespace qutim_sdk_0_3
 {
 class ChatUnit;
@@ -45,45 +47,35 @@ class InfoRequestFactory;
 class Account;
 typedef QList<Account*> AccountList;
 
-#ifndef Q_QDOC
-class AccountHook : public MenuController
-{
-public:
-	virtual const QMetaObject *metaObject() const;
-	virtual void *qt_metacast(const char *);
-	virtual int qt_metacall(QMetaObject::Call, int, void **);
-
-private:
-	AccountHook(AccountPrivate &p, Protocol *protocol);
-	Q_DECLARE_PRIVATE(Account)
-	friend class Account;
-};
-#endif
-
 /*!
   Account is base class for all account entites.
 */
-class LIBQUTIM_EXPORT Account
-#ifndef Q_QDOC
-        : public AccountHook
-#else
-        : public MenuController
-#endif
+class LIBQUTIM_EXPORT Account : public MenuController
 {
 	Q_DECLARE_PRIVATE(Account)
 	Q_OBJECT
 	Q_PROPERTY(QString id READ id)
 	Q_PROPERTY(qutim_sdk_0_3::Protocol* protocol READ protocol CONSTANT)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
+	Q_PROPERTY(qutim_sdk_0_3::Status status READ status NOTIFY statusChanged)
+	Q_PROPERTY(qutim_sdk_0_3::Status userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
+    Q_PROPERTY(State state READ state NOTIFY stateChanged)
 public:
 	enum AccountHookEnum {
 		// all values below are reserved for MenuController
 		ReadParametersHook = 0x100,
 		UpdateParametersHook
 	};
-	
+
+	enum State {
+		Disconnected,
+		Connecting,
+		Connected,
+		Disconnecting
+	};
+    Q_ENUM(State)
+
 	struct UpdateParametersArgument
 	{
 		QVariantMap parameters;
@@ -131,12 +123,39 @@ public:
 	  Returns pointer to account's \ref Protocol
 	*/
 	const Protocol *protocol() const;
+
+	State state() const;
+
 	/*!
-	  Asks account to change \a status on server. If \a status is not offline and
+	 * Connects to remote server.
+	 *
+	 * If account is currently at Connecting or Connected state nothing happens.
+	 *
+	 * \sa doConnectToServer
+	 */
+	void connectToServer();
+
+	/*!
+	 * Disconnectes from remote server.
+	 *
+	 * If current state is Disconnecting or Disconnected nothing happens.
+	 *
+	 * \sa doDisconnectFromServer
+	 */
+	void disconnectFromServer();
+
+	/*!
+	  Asks account to change \a userStatus on server. If \a userStatus is not offline and
 	  acount hasn't already connected to server it should try to do it, else if
-	  \a status is offline and account is conntected to server it should disconnect.
+	  \a userStatus is offline and account is connected to server it should disconnect.
 	*/
-	virtual void setStatus(Status status);
+	void setUserStatus(const Status &userStatus);
+
+	/*!
+	 * Returns status set by user.
+	 */
+	Status userStatus() const;
+
 	/*!
 	  Method looks for appropriate \ref ChatUnit for conversation with \a unit.
 	  Returns ChatUnit for \ref ChatSession.
@@ -156,7 +175,26 @@ public:
 	QVariantMap parameters() const;
 	Q_INVOKABLE QStringList updateParameters(const QVariantMap &parameters);
 
-	static AccountList all();
+	/*!
+	 * Returns feature by it's meta class
+	 */
+	QObject *feature(const QMetaObject *meta);
+
+	/*!
+	 * Returns Feature for type \a T
+	 *
+	 * It search the correct interface by the class' info "Feature":
+	 * \code
+	 * Q_CLASSINFO("Feature", "GroupChatManager")
+	 * \endcode
+	 *
+	 * \sa setFeature
+	 */
+	template <typename T> inline T *feature()
+	{
+		return qobject_cast<T *>(feature(&T::staticMetaObject));
+	}
+
 	/*!
 	  Returns the group chat manager of the account.
 
@@ -164,16 +202,57 @@ public:
 	*/
 	GroupChatManager *groupChatManager();
 	ContactsFactory *contactsFactory();
-	InfoRequestFactory *infoRequestFactory() const;
+	InfoRequestFactory *infoRequestFactory();
+
 protected:
+	/*!
+	 * Set \a feature by it's type.
+	 *
+	 * Ownership is passed to Account's class, \a feature will be destroyed
+	 * once there will be passed another object by the same type, or at
+	 * account's destruction.
+	 */
+	inline void setFeature(QObject *feature)
+	{
+		setFeature(feature->metaObject(), feature);
+	}
+
+	/*!
+	 * \internal
+	 */
+	void setFeature(const QMetaObject *meta, QObject *feature);
+
+	template <typename T> inline void setFeature(T *feature = nullptr)
+	{
+		setFeature(&T::staticMetaObject, feature);
+	}
+
 	/**
 	  Sets the group chat \a manager to be used by this account.
 
 	  \see groupChatManager()
 	*/
-	void resetGroupChatManager(GroupChatManager *manager = 0);
+	void resetGroupChatManager(GroupChatManager *manager = nullptr);
 	void setContactsFactory(ContactsFactory *factory);
 	void setInfoRequestFactory(InfoRequestFactory *factory);
+
+	/*!
+	 * Implementation of connectToServer method
+	 */
+	virtual void doConnectToServer() = 0;
+
+	/*!
+	 * Implementation of disconnectToServer method
+	 */
+	virtual void doDisconnectFromServer() = 0;
+
+	/*!
+	 * Update current account's status to \a status
+	 */
+	virtual void doStatusChange(const Status &status) = 0;
+
+	void setEffectiveStatus(const Status &status);
+	void setState(State state, Status::ChangeReason reason = Status::ByUnknown);
 signals:
 	/*!
 	  Signal is emitted when new \a contact was created.
@@ -191,13 +270,31 @@ signals:
 	  Signal is emitted when account's \a status was changed.
 	*/
 	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
-	/*!
-	  Signal is emitted whenever the group chat manager has been reset.
+	void userStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 
-	  \see groupChatManager(), resetGroupChatManager()
-	*/
-	void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
 	void parametersChanged(const QVariantMap &parameters);
+
+	/*!
+	 * Emits when \a feature for \a name was changed.
+	 *
+	 * \a Feature may be zero object if it was just destroyed.
+	 */
+	void featureChanged(const QByteArray &name, QObject *feature);
+
+	/*!
+	 * Account moved to new \a state.
+	 */
+	void stateChanged(qutim_sdk_0_3::Account::State state);
+
+	/*!
+	 * Account is connected to remote server
+	 */
+	void connected();
+
+	/*!
+	 * Account is disconnected from remote server by \a reason
+	 */
+	void disconnected(qutim_sdk_0_3::Status::ChangeReason reason);
 };
 
 ChatUnit *Account::unit(const QString &unitId, bool create)

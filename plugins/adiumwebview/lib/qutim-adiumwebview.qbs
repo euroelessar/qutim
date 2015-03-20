@@ -8,7 +8,7 @@ Framework {
     property string versionRelease: '0'
     property string version: versionMajor+'.'+versionMinor+'.'+versionRelease
    
-    moduleSearchPaths: "../../../qbs/modules"
+    qbsSearchPaths: "../../../qbs"
 
     type: ["dynamiclibrary", "installed_content"]
  

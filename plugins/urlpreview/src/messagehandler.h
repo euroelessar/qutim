@@ -30,6 +30,7 @@
 #include <qutim/messagehandler.h>
 #include <QSslError>
 #include <QSize>
+#include <QStringList>
 
 
 class QNetworkAccessManager;
@@ -53,7 +54,7 @@ public:
 	explicit UrlHandler();
 
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 
 public slots:
 	void loadSettings();
@@ -82,6 +83,7 @@ private:
 	bool m_enableHTML5Audio;
 	bool m_enableHTML5Video;
 	bool m_enableYandexRichContent;
+	QStringList m_exceptionList;
 };
 
 } // namespace UrlPreview

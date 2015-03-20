@@ -1,34 +1,36 @@
 import qbs.base
 
-Product {
+Application {
 	name: "qutim"
 
     property bool installSoundTheme: true
 
-    type: ["application", "installed_content"]
-    destinationDirectory: {
-        if (qbs.targetOS === "mac")
-            return product.name + ".app/Contents/MacOS";
-        else
-            return "bin";
-    }
-    cpp.rpaths: ["$ORIGIN/../lib"] //FIXME find normal way to deployment
-    cpp.cxxFlags: [
-        "-std=c++11"
-    ]
+    destinationDirectory: qutim_bin_path
+    cpp.rpaths: qbs.targetOS.contains("osx")
+            ? ["@loader_path/..", "@executable_path/.."]
+            : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../lib"]
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]
+    cpp.infoPlist: {
+        return {
+            CFBundleIconFile: 'qutim.icns',
+            CFBundleGetInfoString: 'Module based instant messenger'
+        };
+    }
 
 	Depends { name: "cpp" }
     Depends { name: "libqutim" }
-//    Depends { name: "deploy" }
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', "script" ] }
     Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor === 5 }
     Depends { name: "Qt.declarative"; condition: project.declarativeUi }
+
+    consoleApplication: false
 	
     files: [
-        "main.cpp"
+        "main.cpp",
+        "qutim.qrc",
+        "qutim.rc"
     ]
 
     Group {
@@ -42,16 +44,27 @@ Product {
     }
 
     Group {
-        name: "Mac-specific"
-        condition: qbs.targetOS.contains("mac")
-        fileTags: "plugins"
-//        prefix: deploy.pluginPath
-//        files: [
-//            "imageformats", "iconengines",
-//            //"crypto",
-//            "phonon_backend",
-//            "bearer", "codecs",
-//            "graphicssystems", "sqldrivers"
-//        ]
+        name: "OS X files"
+        condition: qbs.targetOS.contains("osx")
+        fileTags: [
+            "icns"
+        ]
+        files: [
+            "qutim.icns"
+        ]
+    }
+
+    Group {
+        fileTagsFilter: [
+            "infoplist"
+        ]
+        qbs.install: true
+        qbs.installDir: qutim_bin_path + "/Contents/Resources/"
+    }
+
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: qutim_bin_path
     }
 }

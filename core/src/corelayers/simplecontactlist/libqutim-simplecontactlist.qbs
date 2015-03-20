@@ -27,23 +27,31 @@ Framework {
         overrideTags: false
     }
 
+    Export {
+        Depends { name: "cpp" }
+
+        cpp.includePaths: [
+            product.buildDirectory + "/GeneratedFiles/libqutim/include"
+        ]
+    }
+
     Rule {
         inputs: [ "devheader" ]
         Artifact {
             fileTags: [ "hpp" ]
-            fileName: "GeneratedFiles/libqutim/include/qutim/simplecontactlist/" + input.fileName
+            filePath: "GeneratedFiles/libqutim/include/qutim/simplecontactlist/" + input.fileName
         }
 
         prepare: {
             var cmd = new JavaScriptCommand();
             cmd.sourceCode = function() {
-                var inputFile = new TextFile(input.fileName, TextFile.ReadOnly);
-                var file = new TextFile(output.fileName, TextFile.WriteOnly);
+                var inputFile = new TextFile(input.filePath, TextFile.ReadOnly);
+                var file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
-                file.write("#include \"" + input.fileName + "\"\n"); //inputFile.readAll());
+                file.write("#include \"" + input.filePath + "\"\n"); //inputFile.readAll());
                 file.close();
             }
-            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.description = "generating " + FileInfo.fileName(output.filePath);
             cmd.highlight = "filegen";
             return cmd;
         }

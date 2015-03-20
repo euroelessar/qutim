@@ -50,7 +50,7 @@ class IrcAccount: public Account
 public:
 	IrcAccount(const QString &network);
 	virtual ~IrcAccount();
-	virtual void setStatus(Status status);
+
 	virtual QString name() const;
 	QString avatar();
 	void setAvatar(const QString &avatar);
@@ -88,6 +88,9 @@ public slots:
 	void showConsole();
 	void showChannelList();
 protected:
+	void doConnectToServer();
+	void doDisconnectFromServer();
+	void doStatusChange(const Status &status);
 	virtual bool event(QEvent *ev);
 private slots:
 	void onContactNickChanged(const QString &nick, const QString &oldNick);

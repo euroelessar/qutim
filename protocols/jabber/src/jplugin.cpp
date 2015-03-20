@@ -85,12 +85,10 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for QIP"),
 				 new GeneralGenerator<QIPAccountWizard>(),
 				 ExtensionIcon("im-qip"));
-#ifndef Q_WS_S60
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
 				 QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
 				 new GeneralGenerator<XmlConsole, JabberExtension>(),
 				 ExtensionIcon("utilities-terminal"));
-#endif
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber AdHoc"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation of Ad-hoc Commands"),
 	//			new GeneralGenerator<JAdHocModule, JabberExtension>(),
@@ -143,14 +141,15 @@ void JPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Jabber Attention support (XEP-0224)"),
 				 new SingletonGenerator<JAttention, JabberExtension>(),
 				 ExtensionIcon("dialog-warning"));
-#if 0
-#ifdef JABBER_HAVE_MULTIMEDIA
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
-				 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
-				 new GeneralGenerator<JingleSupport, JabberExtension>(),
-				 ExtensionIcon(""));
-#endif
-#endif
+
+	#if 0
+	#ifdef JABBER_HAVE_MULTIMEDIA
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
+					 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
+					 new GeneralGenerator<JingleSupport, JabberExtension>(),
+					 ExtensionIcon(""));
+	#endif
+	#endif
 }
 
 bool JPlugin::load()

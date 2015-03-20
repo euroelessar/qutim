@@ -28,6 +28,7 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/systemintegration.h>
+#include <qutim/accountmanager.h>
 #include <QApplication>
 #include <QTimer>
 
@@ -53,14 +54,10 @@ bool AccountCreator::load()
 	item->setPriority(100);
 	Settings::registerItem(item);
 
-	foreach (Protocol *proto,Protocol::all()) {
-		if (!proto->accounts().isEmpty())
-			return true;
+	if (AccountManager::instance()->accounts().isEmpty()) {
+		QTimer::singleShot(0, this, SLOT(showWizard()));
 	}
 
-//#ifdef Q_WS_S60
-	QTimer::singleShot(0, this, SLOT(showWizard()));
-//#endif
 	return true;
 }
 

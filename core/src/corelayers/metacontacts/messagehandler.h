@@ -38,7 +38,7 @@ class MetaContactMessageHandler : public qutim_sdk_0_3::MessageHandler
 public:
 	MetaContactMessageHandler();
 protected:
-	virtual qutim_sdk_0_3::MessageHandler::Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
+	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 };
 
 }

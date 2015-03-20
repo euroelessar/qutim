@@ -32,7 +32,7 @@
 #include <QTimerEvent>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QtConcurrentFilter>
+#include <QtConcurrent/QtConcurrentFilter>
 #include <QCryptographicHash>
 #include <QTimer>
 
@@ -123,7 +123,7 @@ void UpdaterPlugin::onReplyFinished(QNetworkReply *reply)
 		m_watcher->setFuture(QtConcurrent::filtered(fileInfos, &FileInfo::isInvalid));
 	} else {
 		QString filePath = reply->property("filePath").toString();
-		debug() << "Received" << filePath;
+		qDebug() << "Received" << filePath;
 		if (reply->error() == QNetworkReply::NoError) {
 			QFileInfo fileInfo(filePath);
 			QDir().mkpath(fileInfo.absolutePath());
@@ -163,7 +163,7 @@ void UpdaterPlugin::requestNextUrl()
 {
 	if (m_queue.isEmpty())
 		return;
-	debug() << "Request" << m_queue.head().first;
+	qDebug() << "Request" << m_queue.head().first;
 	QNetworkRequest request(m_queue.head().first);
 	m_manager->get(request)->setProperty("filePath", m_queue.head().second);
 	m_queue.dequeue();

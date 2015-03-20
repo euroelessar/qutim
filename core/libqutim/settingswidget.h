@@ -53,6 +53,8 @@ namespace qutim_sdk_0_3
 		virtual ~SettingsWidget();
 		bool isModified() const;
 		virtual void setController(QObject *controller);
+
+        void paintEvent(QPaintEvent *event);
 	public slots:
 		void load();
 		void save();

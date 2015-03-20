@@ -120,9 +120,9 @@ void BuddyPrivate::_q_status_changed(const Status &now, const Status &old)
 {
 	Q_Q(Buddy);
 	if(now.type() != Status::Offline && old.type() == Status::Offline)
-		 q->setChatState(ChatStateInActive);
+		 q->setChatState(ChatUnit::ChatStateInActive);
 	else if(now.type() == Status::Offline)
-		q->setChatState(ChatStateGone);
+		q->setChatState(ChatUnit::ChatStateGone);
 }
 
 //void Buddy::setStatus(const Status &status)

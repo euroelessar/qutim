@@ -76,8 +76,8 @@ public:
 	void doSetActive(bool active = true);
 	void setChatUnit(ChatUnit* unit);
 	QMenu *menu(bool showReceiverId);
-	void setChatState(ChatState state);
-	ChatState getChatState() const;
+	void setChatState(ChatUnit::ChatState state);
+	ChatUnit::ChatState getChatState() const;
 	bool isJavaScriptSupported() const;
 signals:
 	void buddiesChanged();

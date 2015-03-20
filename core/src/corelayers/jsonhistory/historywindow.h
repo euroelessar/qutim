@@ -29,7 +29,9 @@
 
 #include <QWidget>
 #include <QByteArray>
+#include <QRegularExpression>
 #include <qutim/chatunit.h>
+#include <qutim/history.h>
 #include "ui_historywindow.h"
 
 using namespace qutim_sdk_0_3;
@@ -48,7 +50,7 @@ public:
 
 private slots:
 	void fillContactComboBox(int index);
-	void fillDateTreeWidget(int index, const QString &search_word = QString());
+    void fillDateTreeWidget(int index);
 	void fillMonth(QTreeWidgetItem *month);
 	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void on_searchButton_clicked();
@@ -57,9 +59,10 @@ private slots:
 private:
 	void fillAccountComboBox();
 	void setIcons();
-	Ui::HistoryWindowClass ui;
-	const ChatUnit *m_unit;
-    QString m_history_path;
+    Ui::HistoryWindowClass ui;
+    QMetaObject::Connection m_contactConnection;
+    History::ContactInfo m_unitInfo;
+    QRegularExpression m_search;
 	QString m_search_word;
 };
 

@@ -124,10 +124,11 @@ void debugClearConfig()
 	DebugMap::iterator it = debugAreaMap()->begin();
 	DebugMap::iterator end = debugAreaMap()->end();
 	QString levelStr = QLatin1String("level");
+
 	Config config;
-	config.beginGroup(QLatin1String("debug"));
-	debugLevel = DebugData::Default;
-	debugLevel = config.value<DebugData::Level>(levelStr, debugLevel);
+    config.beginGroup(QLatin1String("debug"));
+    debugLevel = config.value(levelStr, DebugData::Default);
+
 	for (; it != end; it++) {
 		DebugData *data = it.value();
 		config.beginGroup(QLatin1String(data->meta->className()));

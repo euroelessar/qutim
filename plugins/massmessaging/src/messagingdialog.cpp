@@ -33,8 +33,6 @@
 #include "manager.h"
 #include <QTime>
 
-namespace MassMessaging
-{
 MessagingDialog::MessagingDialog() : ui(new Ui::Dialog)
 {
 	m_manager = new Manager(this);
@@ -95,7 +93,3 @@ void MessagingDialog::onManagerFinished(bool ok)
 	setWindowTitle(ok ? tr("Finished") : tr("Error"));
 	ui->sendButton->setText(tr("Start"));
 }
-
-
-}
-

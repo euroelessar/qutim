@@ -27,6 +27,7 @@
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include "ui_simpletagseditor.h"
 
 namespace Core {
@@ -78,7 +79,7 @@ void SimpleTagsEditor::load()
 		// tags() method, so we pass all contacts to gather tag list.
 		// It is slow, but it's better than nothing.
 		QSet<QString> tagsSet;
-		foreach (Account *account, Account::all()) {
+		foreach (Account *account, AccountManager::instance()->accounts()) {
 			foreach (Contact *contact, account->findChildren<Contact*>()) {
 				tagsSet += contact->tags().toSet();
 			}

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "birthdayreminder.h"
-#include "birthdayremindersettings.h"
 #include <qutim/debug.h>
 #include <qutim/notification.h>
 #include <qutim/utils.h>
@@ -154,10 +153,9 @@ bool BirthdayReminder::load()
 	connect(&m_notificationTimer, SIGNAL(timeout()), SLOT(onNotificationTimeout()));
 	m_notificationTimer.start();
 	
-	m_settings = new GeneralSettingsItem<BirthdayReminderSettings>(
-					 Settings::Plugin,
-					 Icon(QLatin1String("view-calendar-birthday")),
-					 QT_TRANSLATE_NOOP("Settings", "Birthday reminder"));
+	m_settings = new QmlSettingsItem(QStringLiteral("birthdayreminder"),
+				Settings::Plugin,	QIcon(QLatin1String("view-calendar-birthday")),
+				QT_TRANSLATE_NOOP("Plugin", "BirthdayReminder"));
 	m_settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(m_settings);
 	

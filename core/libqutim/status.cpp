@@ -28,6 +28,8 @@
 #include "icon.h"
 #include <QDebug>
 
+#include <unordered_map>
+
 typedef QHash<QString, QVariantHash> ExtendedStatus;
 Q_DECLARE_METATYPE(ExtendedStatus)
 
@@ -35,7 +37,7 @@ namespace qutim_sdk_0_3
 {
 struct StatusHashKey
 {
-	const char *name;
+	QByteArray name;
 	int type;
 	int subtype;
 
@@ -48,18 +50,13 @@ struct StatusHashKey
 	}
 };
 
-uint qHash(const qutim_sdk_0_3::StatusHashKey &value, uint seed = 0) Q_DECL_NOTHROW
+struct StatusHashCalc
 {
-	// Simple hash algorithm
-	const uint p = 373;
-	uint h = seed;
-	const char *c = value.name;
-	while (*c)
-		h = h * p + *(c++);
-	h = h * p + value.type;
-	h = h * p + value.subtype;
-	return h;
-}
+	size_t operator() (const qutim_sdk_0_3::StatusHashKey &value) const noexcept
+	{
+		return qHash(qMakePair(value.name, qMakePair(value.type, value.subtype)));
+	}
+};
 
 class StatusPrivate : public DynamicPropertyData
 {
@@ -85,7 +82,11 @@ public:
 	QVariant getIcon() const { return icon; }
 	void setIcon(const QVariant &val) { icon = val.value<QIcon>(); }
 	QVariant getType() const { return type; }
-	void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
+    void setType(const QVariant &val)
+    {
+        type = static_cast<Status::Type>(val.toInt());
+        Q_ASSERT(type >= Status::Connecting && type <= Status::Offline);
+    }
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
 	QVariant getChangeReason() const { return QVariant::fromValue(changeReason); }
@@ -187,6 +188,7 @@ void StatusPrivate::generateName()
 
 Status::Status(Type type) : d(get_status_private(type))
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 }
 
 Status::Status(const Status &other) : d(other.d)
@@ -201,6 +203,7 @@ Status &Status::operator =(const Status &other)
 
 Status &Status::operator =(Status::Type type)
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 	d = get_status_private(type);
 	return *this;
 }
@@ -251,6 +254,7 @@ Status::Type Status::type() const
 
 void Status::setType(Status::Type type)
 {
+    Q_ASSERT(type >= Connecting && type <= Offline);
 	d->type = type;
 	d->subtype = 0;
 	QSharedDataPointer<StatusPrivate> p = get_status_private(type);
@@ -338,23 +342,27 @@ QString Status::iconName(Type type, const QString &protocol)
 }
 
 
-typedef QHash<StatusHashKey, Status> StatusHash;
+typedef std::unordered_map<StatusHashKey, Status, StatusHashCalc> StatusHash;
 Q_GLOBAL_STATIC(StatusHash, statusHash)
 
 Status Status::instance(Type type, const char *proto, int subtype)
 {
-	StatusHashKey key = { proto, int(type), subtype };
-	return statusHash()->value(key);
+	StatusHashKey key = { QByteArray(proto), int(type), subtype };
+	auto it = statusHash()->find(key);
+	if (it == statusHash()->end()) {
+		Status status(type);
+		status.setSubtype(subtype);
+		status.initIcon(QString::fromLatin1(proto));
+		return status;
+	}
+	return it->second;
 }
 
 bool Status::remember(const Status &status, const char *proto)
 {
 	StatusHashKey key = { proto, int(status.type()), status.subtype() };
-	if (statusHash()->contains(key))
-		return false;
-	key.name = qstrdup(key.name);
-	statusHash()->insert(key, status);
-	return true;
+
+	return statusHash()->emplace(key, status).second;
 }
 
 Status Status::createConnecting(const Status &status, const char *proto)
@@ -370,14 +378,14 @@ Status Status::createConnecting(const Status &status, const char *proto)
 
 Status Status::connectingGoal(const Status &status)
 {
-	if (status != Status::Connecting)
-		return Status(Status::Offline);
-	return status.property("connectingGoal", Status(Status::Online));
+    if (status != Status::Connecting)
+        return Status(Status::Offline);
+    return status.property("connectingGoal", Status(Status::Online));
 }
 
 Status Status::connectingGoal() const
 {
-	return connectingGoal(*this);
+    return connectingGoal(*this);
 }
 
 void Status::setExtendedInfo(const QString &name, const QVariantHash &status)
@@ -440,6 +448,8 @@ QEvent::Type ExtendedInfosEvent::eventType()
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 {
 	switch (status) {
+    case qutim_sdk_0_3::Status::Connecting:
+        return dbg << "Status::Connecting";
 	case qutim_sdk_0_3::Status::Online:
 		return dbg << "Status::Online";
 	case qutim_sdk_0_3::Status::FreeChat:
@@ -454,7 +464,9 @@ QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 		return dbg << "Status::Invisible";
 	case qutim_sdk_0_3::Status::Offline:
 		return dbg << "Status::Offline";
-	default:
+    default:
+        qDebug() << "Invalid status:" << int(status);
+        Q_ASSERT(false);
 		return dbg << "Status::Unknown";
 	}
 }

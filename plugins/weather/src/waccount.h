@@ -54,7 +54,10 @@ public:
 	QString getThemePath();
 	bool getShowStatusRow();
 
-	void setStatus(Status status);
+	void doConnectToServer() override;
+	void doDisconnectFromServer() override;
+	void doStatusChange(const Status &status) override;
+
 	void update(WContact *contact, bool needMessage);
 	void getForecast(WContact *contact);
 	

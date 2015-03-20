@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <ShObjIdl.h>
+#include <shobjidl.h>
 #include "ApiProgressIndicator.h"
 
 void SetProgressValEx(HWND hWnd, ULONGLONG Completed, ULONGLONG Total)

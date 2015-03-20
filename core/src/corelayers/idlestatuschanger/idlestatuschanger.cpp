@@ -24,16 +24,13 @@
 ****************************************************************************/
 #include "idle-global.h"
 #include "idlestatuschanger.h"
-#include "idlestatuswidget.h"
-#include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <qutim/config.h>
 #include <qutim/status.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <QDebug>
-
-Core::IdleStatusChanger* pIdleStatusChanger = 0;
 
 namespace Core
 {
@@ -44,12 +41,13 @@ IdleStatusChanger::IdleStatusChanger() :
 	reloadSettings();
 	m_state = Active;
 	connect(idle, SIGNAL(secondsIdle(int)), this, SLOT(onIdle(int)));
-	SettingsItem* settings = new GeneralSettingsItem<IdleStatusWidget>(
+	SettingsItem *settings = new QmlSettingsItem(
+                QStringLiteral("idlestatuschanger"),
 				Settings::General,
 				Icon("user-away-extended"),
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
+    settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(settings);
-	pIdleStatusChanger = this;
 
 	m_awayStatus.setChangeReason(Status::ByIdle);
 	m_naStatus.setChangeReason(Status::ByIdle);
@@ -57,17 +55,15 @@ IdleStatusChanger::IdleStatusChanger() :
 
 void IdleStatusChanger::refillAccounts()
 {
-	foreach (Protocol *proto, Protocol::all()) {
-		foreach (Account *acc, proto->accounts()) {
-			if (m_accounts.contains(acc)
-					|| acc->status() == Status::Offline
-					|| acc->status() == Status::Invisible
-					|| acc->status() == Status::DND
-					|| acc->status() == Status::NA)
-				continue;
-			m_accounts.append(acc);
-			m_statuses.append(acc->status());
-		}
+	foreach (Account *account, AccountManager::instance()->accounts()) {
+		if (m_accounts.contains(account)
+				|| account->status() == Status::Offline
+				|| account->status() == Status::Invisible
+				|| account->status() == Status::DND
+				|| account->status() == Status::NA)
+			continue;
+		m_accounts.append(account);
+		m_statuses.append(account->status());
 	}
 }
 
@@ -79,7 +75,7 @@ void IdleStatusChanger::onIdle(int secs)
 		refillAccounts();
 		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc.data()->setStatus(m_naStatus);
+				acc.data()->setUserStatus(m_naStatus);
 		}
 		m_state = Inactive;
 	} else if (m_state == Active
@@ -88,13 +84,13 @@ void IdleStatusChanger::onIdle(int secs)
 		refillAccounts();
 		foreach (const QPointer<Account> &acc, m_accounts) {
 			if (acc)
-				acc.data()->setStatus(m_awayStatus);
+				acc.data()->setUserStatus(m_awayStatus);
 		}
 		m_state = Away;
 	} else if (m_state != Active && secs < m_awaySecs) {
 		for (int i = 0; i < m_accounts.size(); i++) {
 			if (m_accounts.at(i))
-				m_accounts.at(i).data()->setStatus(m_statuses.at(i));
+				m_accounts.at(i).data()->setUserStatus(m_statuses.at(i));
 		}
 		m_accounts.clear();
 		m_statuses.clear();

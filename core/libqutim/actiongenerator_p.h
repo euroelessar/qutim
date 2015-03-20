@@ -44,9 +44,8 @@ struct LegacyActionData
 
 struct ActionData
 {
-	ActionData() : controller(0),menu(0),checkable(0),checked(0) {}
-	MenuController *controller;
-	QMenu *menu;
+	ActionData() : checkable(0), checked(0) {}
+	QPointer<MenuController> controller;
 	bool checkable;
 	bool checked;
 };

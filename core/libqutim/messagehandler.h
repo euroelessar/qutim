@@ -27,6 +27,7 @@
 #define MESSAGEHANDLER_H
 
 #include "message.h"
+#include "asyncresult.h"
 
 namespace qutim_sdk_0_3
 {
@@ -59,12 +60,16 @@ public:
 	                            int incomingPriority = NormalPriortity,
 	                            int outgoingPriority = NormalPriortity);
 	static void unregisterHandler(MessageHandler *handler);
-	static Result handle(Message &message, QString *reason = 0);
+	static AsyncResult<Message, Result, QString> handle(const Message &message);
 	static void traceHandlers();
+    static quint64 originalMessageId();
 	
 protected:
-	virtual Result doHandle(Message &message, QString *reason) = 0;
+    struct StateType;
+	virtual AsyncResult<MessageHandler::Result, QString> doHandle(Message &message) = 0;
 };
+
+typedef AsyncResult<MessageHandler::Result, QString> MessageHandlerAsyncResult;
 
 }
 

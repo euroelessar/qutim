@@ -55,6 +55,7 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QTimer>
+#include <QDialogButtonBox>
 
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
@@ -72,7 +73,7 @@ public:
 	QPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
-	QPointer<QWidget> captchaForm;
+	QPointer<QDialog> captchaForm;
 	Jreen::JID jid;
 	QString title;
 	QString topic;
@@ -190,7 +191,7 @@ qutim_sdk_0_3::Buddy *JMUCSession::me() const
 	return d->users.value(d->room->nick());
 }
 
-ChatUnit *JMUCSession::participant(const QString &nick)
+ChatUnit *JMUCSession::findParticipant(const QString &nick)
 {
 	return d_func()->users.value(nick);
 }
@@ -223,15 +224,15 @@ void JMUCSession::doLeave()
 	if(!isJoined())
 		return;
 	d->room->leave();
-	//remove users
-	const Presence presence(Presence::Unavailable, JID());
-	foreach (JMUCUser *user, d->users) {
-		if (user->presenceType() == Presence::Unavailable)
-			continue;
-		user->setStatus(presence);
-		d->removeUser(this, user);
-	}
-	emit left();
+//	//remove users
+//	const Presence presence(Presence::Unavailable, JID());
+//	foreach (JMUCUser *user, d->users) {
+//		if (user->presenceType() == Presence::Unavailable)
+//			continue;
+//		user->setStatus(presence);
+//		d->removeUser(this, user);
+//	}
+//	emit left();
 }
 
 void JMUCSession::kick(const QString &nick, const QString &reason)
@@ -254,9 +255,19 @@ void JMUCSession::member(const QString &nick, const QString &reason)
 	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationMember, reason);
 }
 
+void JMUCSession::participant(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleParticipant, reason);
+}
+
 void JMUCSession::voice(const QString &nick, const QString &reason)
 {
 	d_func()->room->setRole(nick, MUCRoom::RoleParticipant, reason);
+}
+
+void JMUCSession::unvoice(const QString &nick, const QString &reason)
+{
+	d_func()->room->setRole(nick, MUCRoom::RoleVisitor, reason);
 }
 
 void JMUCSession::moder(const QString &nick, const QString &reason)
@@ -397,8 +408,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 		if (!user && presence.subtype() != Presence::Unavailable) {
 			user = d->addUser(this, nick);
 			user->setStatus(presence);
-			user->setMUCAffiliation(participant->affiliation());
-			user->setMUCRole(participant->role());
+			user->setMUCAffiliationAndRole(participant->affiliation(), participant->role());
 			if (participant->realJID().isValid())
 				user->setRealJid(participant->realJID());
 			text = user->realJid().isEmpty()
@@ -454,8 +464,7 @@ void JMUCSession::onParticipantPresence(const Jreen::Presence &presence,
 			} else if (participant->role() == MUCRoom::RoleVisitor)  {
 				text = text % tr(" visitor");
 			}
-			user->setMUCAffiliation(participant->affiliation());
-			user->setMUCRole(participant->role());
+			user->setMUCAffiliationAndRole(participant->affiliation(), participant->role());
 		}
 	}
 	if (!text.isEmpty() && (isJoined() || participant->isKicked() || participant->isBanned())) {
@@ -518,8 +527,12 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 			if (it != d->messages.end()) {
 				qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
 				d->messages.erase(it);
+                return;
 			}
-			return;
+			coreMsg.setProperty("donotsend", true);
+			
+			// Send "info" that message is received, yeah, that's a hack
+			qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(coreMsg.id(), true), Qt::LowEventPriority);
 		}
 		if (!msg.subject().isEmpty()) {
 			coreMsg.setProperty("topic", true);
@@ -542,22 +555,27 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
 		               .arg(d->jid.bare());
 		delete d->captchaForm.data();
-		d->captchaForm = new QWidget;
-		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm.data());
-		QLabel *label = new QLabel(text, d->captchaForm.data());
-		JDataForm *form = new JDataForm(captcha->form(),
-		                                      msg.payloads<BitsOfBinary>(),
-		                                      AbstractDataForm::Ok | AbstractDataForm::Cancel,
-		                                      d->captchaForm.data());
+		d->captchaForm = new QDialog;
+
+		QLabel *label = new QLabel(text, d->captchaForm);
+		JDataForm *form = new JDataForm(captcha->form(), msg.payloads<BitsOfBinary>(), d->captchaForm);
+		QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, d->captchaForm);
+
+		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm);
 		form->layout()->setMargin(0);
 		layout->addWidget(label);
 		layout->addWidget(form);
-		connect(form, SIGNAL(accepted()), SLOT(onCaptchaFilled()));
-		connect(form->widget(), SIGNAL(accepted()), d->captchaForm.data(), SLOT(deleteLater()));
-		connect(form->widget(), SIGNAL(rejected()), d->captchaForm.data(), SLOT(deleteLater()));
-		Client *client = d->account.data()->client();
-		connect(client, SIGNAL(disconnected(Jreen::Client::DisconnectReason)), d->captchaForm.data(), SLOT(deleteLater()));
-		d->captchaForm.data()->show();
+		layout->addWidget(buttonBox);
+
+		connect(buttonBox, &QDialogButtonBox::accepted, d->captchaForm.data(), &QDialog::accept);
+		connect(buttonBox, &QDialogButtonBox::rejected, d->captchaForm.data(), &QDialog::reject);
+
+		connect(d->captchaForm.data(), &QDialog::accepted, this, &JMUCSession::onCaptchaFilled);
+		connect(d->captchaForm.data(), &QDialog::accepted, this, &QObject::deleteLater);
+		connect(d->captchaForm.data(), &QDialog::rejected, this, &QObject::deleteLater);
+		connect(d->account->client(), &Client::disconnected, d->captchaForm.data(), &QObject::deleteLater);
+
+		d->captchaForm->show();
 		return;
 	}
 	if (!msg.subject().isEmpty())
@@ -720,7 +738,19 @@ void JMUCSession::closeConfigDialog()
 
 void JMUCSession::joinedChanged()
 {
-	setJoined(d_func()->room->isJoined());
+	Q_D(JMUCSession);
+	if (!d->room->isJoined()) {
+		//remove users
+		const Presence presence(Presence::Unavailable, JID());
+		foreach (JMUCUser *user, d->users) {
+			if (user->presenceType() == Presence::Unavailable)
+				continue;
+			user->setStatus(presence);
+			d->removeUser(this, user);
+		}
+	}
+	
+	setJoined(d->room->isJoined());
 }
 
 bool JMUCSession::enabledConfiguring()
@@ -731,8 +761,7 @@ bool JMUCSession::enabledConfiguring()
 		return false;
 
 	MUCRoom::Affiliation affiliation = d->room->affiliation();
-	return affiliation == MUCRoom::AffiliationOwner
-	        || affiliation == MUCRoom::AffiliationAdmin;
+	return affiliation == MUCRoom::AffiliationOwner;
 }
 
 void JMUCSession::loadSettings()

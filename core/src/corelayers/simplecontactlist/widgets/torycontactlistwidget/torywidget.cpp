@@ -25,6 +25,7 @@
 #include "torywidget.h"
 #include <qutim/simplecontactlist/simplestatusdialog.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/actiontoolbar.h>
 #include <qutim/config.h>
@@ -109,7 +110,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 	d->mainToolBar->setMovable(false);
 	d->mainToolBar->setMoveHookEnabled(true);
 	d->mainToolBar->setObjectName(QLatin1String("contactListBar"));
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	d->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 
@@ -241,7 +242,7 @@ void ToryWidget::changeStatusTextAccepted()
 		foreach(Account *account, proto->accounts()) {
 			Status status = account->status();
 			status.setText(text);
-			account->setStatus(status);
+			account->setUserStatus(status);
 		}
 	}
 	Config config = Config().group("contactList");
@@ -284,7 +285,7 @@ void ToryWidget::onAccountCreated(qutim_sdk_0_3::Account *account)
 	if (!text.isEmpty()) {
 		Status status = account->status();
 		status.setText(text);
-		account->setStatus(status);
+		account->setUserStatus(status);
 	}
 }
 
@@ -297,7 +298,7 @@ void ToryWidget::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 	Q_ASSERT(button);
 	button->setIcon(status.icon());
 	bool isOnline = false;
-	foreach(qutim_sdk_0_3::Account *account, qutim_sdk_0_3::Account::all()) {
+	foreach (Account *account, AccountManager::instance()->accounts()) {
 		Status::Type type = account->status().type();
 		if (type != Status::Offline && type != Status::Connecting) {
 			isOnline = true;
@@ -333,7 +334,7 @@ void ToryWidget::onStatusChanged()
 				status.setType(type);
 				status.setSubtype(0);
 				status.setChangeReason(Status::ByUser);
-				account->setStatus(status);
+				account->setUserStatus(status);
 			}
 		}
 	}

@@ -69,19 +69,19 @@ void UrlHandler::loadSettings()
 	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
-	m_imageTemplate = "<img src=\"%URL%\" style=\"display: none;\" "
-								 "onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; "
-								 "if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } "
-								 "this.style.display='';\"><br>";
+	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
+								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px';"
+								 "if (this.height>%MAXH%) { this.style.maxWidth=''; this.style.maxHeight='%MAXH%px'; } "
+								 "this.style.display=''; document.body.scrollTop = document.body.offsetHeight; \"><br>";
 	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
-								   "<img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
+								   "<img onload=\"document.body.scrollTop = document.body.offsetHeight;\" src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
 	m_html5VideoTemplate = "<video controls=\"controls\" preload=\"none\"><source src=\"%VIDEOURL%\" type=\"%VIDEOTYPE%\" />" % tr("Something went wrong.") % "</video>";
-	m_yandexRichContentTemplate = "<div class=\"yandex-rca\">"
-								  "<img align=\"left\" src=\"%IMAGE%\" style=\"max-width: 30%\" class=\"yandex-rca-image\"/>"
+	m_yandexRichContentTemplate = "<div class=\"yandex-rca\" style=\"overflow: hidden;\" >"
+								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left; />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
 								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
@@ -91,14 +91,16 @@ void UrlHandler::loadSettings()
 	m_enableHTML5Audio = cfg.value("HTML5Audio", true);
 	m_enableHTML5Video = cfg.value("HTML5Video", true);
 	m_enableYandexRichContent = cfg.value("yandexRichContent", true);
+	m_exceptionList = cfg.value("exceptionList", QStringList());
 	cfg.endGroup();
 }
 
-UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
+MessageHandlerAsyncResult UrlHandler::doHandle(Message &message)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-    if (!session || !session->property("supportJavaScript").toBool())
-		return UrlHandler::Accept;
+    if (!session || !session->property("supportJavaScript").toBool()) {
+		return makeAsyncResult(Accept, QString());
+    }
 
 	const QString originalHtml = message.html();
 	QString html;
@@ -114,7 +116,7 @@ UrlHandler::Result UrlHandler::doHandle(Message &message, QString *)
 		}
 	}
 	message.setHtml(html);
-	return UrlHandler::Accept;
+	return makeAsyncResult(Accept, QString());
 }
 
 void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUnit *from, qint64 id)
@@ -129,6 +131,10 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 		             Qt::CaseInsensitive);
 	}
 
+	foreach (QString key, m_exceptionList) {
+		if(link.contains(key))
+			return;
+	}
 	const QUrl url = QUrl::fromUserInput(link);
 
 	if (m_flags & PreviewYoutube) {
@@ -166,9 +172,7 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
 	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2'></span> ")
-		   .arg(originalLink.toString(), uid);
-
-	qDebug() << "url" << link;
+           .arg(originalLink.toString(), uid);
 }
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
@@ -222,8 +226,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		if (hrx.indexIn(reply->rawHeader(sizeheader))>=0)
 			size = hrx.cap(1).toInt();
 	}
-	
-	qDebug() << url << reply->rawHeaderList() << type;
+
 	if (type.isNull())
 		return;
 
@@ -314,10 +317,9 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % uid
 				 % QLatin1Literal(".innerHTML = \"")
 				 % QString(html).replace("\"", "\\\"")
-				 % QLatin1Literal("\";");
-	ChatSession *session = ChatLayer::get(unit);
-
-	qDebug() << unit << uid << js;
+				 % QLatin1Literal("\";")
+				 % QLatin1Literal("document.body.scrollTop = document.body.offsetHeight;");
+    ChatSession *session = ChatLayer::get(unit);
 
 	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }
@@ -333,4 +335,3 @@ void UrlHandler::netmanSslErrors(QNetworkReply *, const QList<QSslError> &)
 }
 
 } // namespace UrlPreview
-

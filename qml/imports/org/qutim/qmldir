@@ -1,0 +1,5 @@
+module org.qutim
+SettingsItem 0.4 SettingsItem.qml
+ContactListStyle 0.4 ContactListStyle.qml
+ControlledMenu 0.4 ControlledMenu.qml
+plugin qutimplugin

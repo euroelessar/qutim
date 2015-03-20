@@ -125,7 +125,7 @@ void ChatUnit::setChatState(ChatState state)
         emit chatStateChanged(state, old);
         if (d->composingNotification)
             d->composingNotification.data()->reject();
-        if (state == ChatStateComposing) {
+        if (state == ChatUnit::ChatStateComposing) {
             NotificationRequest request(Notification::UserTyping);
             request.setObject(this);
             d->composingNotification = request.send();
@@ -134,7 +134,7 @@ void ChatUnit::setChatState(ChatState state)
     }
 }
 
-ChatState ChatUnit::chatState() const
+ChatUnit::ChatState ChatUnit::chatState() const
 {
     return d_func()->chatState;
 }
@@ -172,7 +172,7 @@ const ChatUnit* ChatUnit::metaContact() const
 }
 
 
-ChatStateEvent::ChatStateEvent(ChatState state) :
+ChatStateEvent::ChatStateEvent(ChatUnit::ChatState state) :
     QEvent(eventType()), m_state(state)
 {
 

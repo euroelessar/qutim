@@ -39,14 +39,6 @@ namespace oscar {
 
 class OscarConnection;
 
-class PasswordValidator: public QValidator
-{
-	Q_OBJECT
-public:
-	explicit PasswordValidator(QObject *parent = 0);
-	virtual State validate(QString &input, int &pos) const;
-};
-
 struct ConnectingInfo
 {
 	// At the end of connecting the variable contains all removed contacts.
@@ -65,7 +57,7 @@ public:
 	void setCapability(const Capability &capability, const QString &type);
 	bool removeCapability(const Capability &capability);
 	bool removeCapability(const QString &type);
-	QString password();
+
 	IcqAccount *q_ptr;
 	OscarConnection *conn;
 	Feedbag *feedbag;

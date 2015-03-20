@@ -1,3 +1,5 @@
+#import <Cocoa/Cocoa.h>
+
 #include "macidle.h"
 #include "macidle-global.h"
 #include "macidlewidget.h"
@@ -52,8 +54,9 @@ MacIntegration::MacIdle* pIdleStatusChanger = 0;
 
 namespace MacIntegration
 {
-struct MacIdlePrivate
+class MacIdlePrivate
 {
+public:
 	IdleHandler *idleHandler;
 	QTimer *timer;
 	bool isAwayEnabled;
@@ -122,8 +125,8 @@ void MacIdle::setIdleOn(MacIdle::Reason reason)
 			status.setType(statusType);
 			status.setSubtype(0);
 			status.setText(d->idleMessages.value(statusType, ""));
-			status.setProperty("changeReason", Status::ByIdle);
-			account->setStatus(status);
+            status.setChangeReason(Status::ByIdle);
+			account->setUserStatus(status);
 		}
 	}
 	d->currentReason = reason;
@@ -135,7 +138,7 @@ void MacIdle::setIdleOff()
 	foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			if (d->idleAccounts.contains(account)) {
-				account->setStatus(d->idleAccounts.take(account));
+				account->setUserStatus(d->idleAccounts.take(account));
 			}
 		}
 	}

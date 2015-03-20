@@ -48,7 +48,7 @@ struct IrcBookmark
 
 class IrcGroupChatManager : public GroupChatManager
 {
-	Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
+	Q_OBJECT
 public:
 	IrcGroupChatManager(IrcAccount *account);
 	IrcAccount *account() const { return reinterpret_cast<IrcAccount*>(GroupChatManager::account()); }

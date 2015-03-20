@@ -75,6 +75,7 @@ public:
     ExtensionIcon icon() const;
 #ifndef Q_QDOC
     QString fileName() const;
+    QString libraryName() const;
 private:
     QSharedDataPointer<PluginInfoData> d;
 public:

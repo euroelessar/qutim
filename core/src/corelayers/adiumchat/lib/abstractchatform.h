@@ -68,7 +68,7 @@ private slots:
 	void onChatWidgetDestroyed(QObject *object);
 	void onSessionActivated(bool active);
 	void onSettingsChanged();
-	void onServiceChanged(QObject *newObject, QObject *oldObject);
+	void onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
 private:
 	QHash<QString, AbstractChatWidget*> m_chatWidgets;
 	QString getWidgetId(ChatSessionImpl *sess) const;

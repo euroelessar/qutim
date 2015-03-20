@@ -41,10 +41,6 @@
 #include <QDebug>
 #include <QLibrary>
 
-#ifdef Q_OS_SYMBIAN
-#include <QTextCodec>
-#endif
-
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <time.h>
 #include <stdlib.h>
@@ -102,8 +98,6 @@ struct SystemInfoPrivate
 	QString os_version;
 	quint8 os_type_id;
 	quint32 os_version_id;
-	QString timezone_str;
-	int timezone_offset;
 	QVector<QDir> dirs;
 };
 
@@ -304,8 +298,6 @@ SystemInfo::~SystemInfo()
 SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 {
     auto d = this;
-	//		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
-	//		d->timezone_offset = tmp_datetime.utcOffset();
 	// Initialize
 	d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 	d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
@@ -313,14 +305,9 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 #if defined(QUTIM_SHARE_DIR)
 	d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR) % QLatin1Literal("/config");
 	d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../") % QLatin1Literal(QUTIM_SHARE_DIR);
-#elif defined(Q_OS_SYMBIAN)
-	d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String(":/config");
-	d->dirs[SystemInfo::SystemShareDir]    = QLatin1String("e:/system/apps/qutim/share");
 #else
 # error QUTIM_SHARE_DIR undefined!
 #endif
-	d->timezone_offset = 0;
-	d->timezone_str = "N/A";
 	d->os_full = "Unknown";
 #if defined(Q_OS_WINCE)
 	d->os_type_id = SystemInfo::WinCE;
@@ -330,47 +317,12 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_type_id = SystemInfo::Linux;
 #elif defined(Q_OS_MAC)
 	d->os_type_id = SystemInfo::MacOSX;
-#elif defined(Q_OS_SYMBIAN)
-	d->os_type_id = SystemInfo::Symbian;
 #elif defined(Q_OS_UNIX)
 	d->os_type_id = SystemInfo::Unix;
 #else
 	d->os_type_id = '\0';
 #endif
 	d->os_version_id = 0;
-
-	// Detect
-#ifdef Q_OS_UNIX
-	time_t x;
-	time(&x);
-	char str[256];
-	char fmt[32];
-	strcpy(fmt, "%z");
-	strftime(str, 256, fmt, localtime(&x));
-	if(strcmp(fmt, str)) {
-		int offset;
-		QString s = str;
-		if(s.at(0) == '+')
-		{
-			s.remove(0,1);
-			offset = 1;
-		}
-		else if(s.at(0) == '-')
-		{
-			s.remove(0,1);
-			offset = -1;
-		}
-		else
-			offset = 1;
-		int tmp = s.toInt();
-		offset *= (tmp/100)*60 + tmp%100;
-		d->timezone_offset = offset;
-	}
-	strcpy(fmt, "%Z");
-	strftime(str, 256, fmt, localtime(&x));
-	if(strcmp(fmt, str))
-		d->timezone_str = str;
-#endif
 
 #if defined(Q_OS_FREEBSD)
 	QProcess processUname;
@@ -447,25 +399,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	d->os_full = d->os_name;
 	d->os_full += " ";
 	d->os_full += d->os_version;
-#endif
-
-#if defined(Q_OS_WIN)
-	TIME_ZONE_INFORMATION i;
-	//GetTimeZoneInformation(&i);
-	//d->timezone_offset = (-i.Bias) / 60;
-	memset(&i, 0, sizeof(i));
-	bool inDST = (GetTimeZoneInformation(&i) == TIME_ZONE_ID_DAYLIGHT);
-	int bias = i.Bias;
-	if(inDST)
-		bias += i.DaylightBias;
-	d->timezone_offset = -bias;
-	d->timezone_str = "";
-	for(int n = 0; n < 32; ++n) {
-		int w = inDST ? i.DaylightName[n] : i.StandardName[n];
-		if(w == 0)
-			break;
-		d->timezone_str += QChar(w);
-	}
+#elif defined(Q_OS_WIN)
 	d->os_full = QString();
 	d->os_name = QLatin1String("Windows");
 	OSVERSIONINFOEX osvi;
@@ -489,39 +423,6 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 
 	d->os_full = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
 	d->os_version = d->os_full.section(' ', 1);
-#endif
-#ifdef Q_OS_SYMBIAN
-	//		QLibrary hal("hal.dll");
-	//		typedef TInt (halGet_*)(HALData::TAttribute,TInt&);
-	//		halGet_ halGet = (halGet_) QLibrary::resolve("hal.dll", "HAL::Get");
-	//		if (halGet) {
-	//			d->os_version_id = (*halGet)()
-	//		}
-	d->os_name = QLatin1String("Symbian");
-	QFile productFile(QLatin1String("z:/resource/versions/product.txt"));
-	if (productFile.open(QFile::ReadOnly)) {
-		const QTextCodec * const codec = QTextCodec::codecForName("utf-16");
-		QByteArray data = productFile.readAll();
-		QString text = codec->toUnicode(data, data.size());
-		QString manufacturer;
-		QString model;
-		foreach (QString line, text.split(QLatin1Char('\n'))) {
-			if (line.endsWith(QLatin1Char('\r')))
-				line.chop(1);
-			if (line.startsWith(QLatin1String("Manufacturer=")))
-				manufacturer = line.section(QLatin1Char('='), 1);
-			else if (line.startsWith(QLatin1String("Model=")))
-				model = line.section(QLatin1Char('='), 1);
-		}
-		d->os_version = manufacturer;
-		if (!d->os_version.isEmpty())
-			d->os_version += QLatin1String(" ");
-		d->os_version += model;
-	}
-	if (d->os_version.isEmpty())
-		d->os_full = d->os_name;
-	else
-		d->os_full = d->os_name + " (" + d->os_version + ")";
 #endif
 }
 
@@ -653,18 +554,6 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 		str = "Unknown";
 	}
 	return str;
-}
-
-QString SystemInfo::getTimezone()
-{
-	Q_D(SystemInfo);
-	return d->timezone_str;
-}
-
-int SystemInfo::getTimezoneOffset()
-{
-	Q_D(SystemInfo);
-	return d->timezone_offset;
 }
 
 QDir SystemInfo::getDir(DirType type)

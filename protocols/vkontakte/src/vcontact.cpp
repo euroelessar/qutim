@@ -198,9 +198,9 @@ void VContact::setTyping(bool set)
 			connect(m_typingTimer, SIGNAL(timeout()), m_typingTimer, SLOT(deleteLater()));
 		}
 		m_typingTimer->start();
-		setChatState(ChatStateComposing);
+		setChatState(ChatUnit::ChatStateComposing);
 	} else
-		setChatState(ChatStateActive);
+		setChatState(ChatUnit::ChatStateActive);
 }
 
 void VContact::onActivityChanged(const QString &activity)

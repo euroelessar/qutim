@@ -4,29 +4,32 @@ import qbs.File
 import qbs.TextFile
 
 Product {
-    type: "installed_content"
-    name: "nameless-artwork"
+    name: "artwork"
+
+    type: [" installed_content" ]
 
     property bool installConfig: true
     property bool installSoundTheme: true
     property bool installIcons: true
     property bool installOxygenTheme: !qbs.targetOS.contains("linux")
     property bool installUbuntuTheme: qbs.targetOS.contains("linux")
+    property bool installHicolorTheme: !qbs.targetOS.contains("osx") && !qbs.targetOS.contains("windows")
     property string qutim_version: project.qutim_version
 
     Depends { name: "Qt.core" }
-    Depends { name: "artwork" }
     
-    property string shareDir: artwork.shareDir
+    property string shareDir: project.qutim_share_path
 
-    Group {  // config files
+    Group {
+        name: "config files"
         condition: installConfig
         fileTags: "install"
-        qbs.installDir: shareDir + "/config"
+        qbs.installDir: project.qutim_share_path + "/config"
+        qbs.install: true
         prefix: {
-            if (!qbs.targetOS.contains("mac"))
+            if (qbs.targetOS.contains("osx"))
                 return "../config/mac/";
-            else if (!qbs.targetOS.contains("windows"))
+            else if (qbs.targetOS.contains("windows"))
                 return "../config/win/";
             else
                 return "../config/generic/";
@@ -34,135 +37,131 @@ Product {
         files: "*.json"
     }
 
-    Group { // webkitstyle and ca-certs
-        fileTags: [ "artwork" ]
-        artwork.basePath: "share/qutim"
-        prefix: "share/qutim/"
-        files: "**"
-    }
-
-    Group { //sounds
-        condition: installSoundTheme
-        fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
-        prefix: "../artwork/sounds/"
-        files: "**"
-    }
-
-    Group { // desktop file
-        condition: !qbs.targetOS.contains("linux")
+    Group {
+        name: "webkitstyle and ca-certs"
         fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path
+        qbs.install: true
+        files: [
+            "share/qutim/ca-certs",
+            "share/qutim/webkitstyle"
+        ]
+    }
+
+    Group {
+        name: "sounds"
+        condition: installSoundTheme
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path
+        qbs.install: true
+        files: "../artwork/sounds"
+    }
+
+    Group {
+        name: "desktop file"
+        condition: qbs.targetOS.contains("linux")
+        fileTags: [ "install" ]
+        qbs.installDir: "share/applications"
+        qbs.install: true
         prefix: "share/applications/"
         files: "**"
     }
 
-    Group { // qutim.png and default tray icons
-        condition: installIcons && !qbs.targetOS.contains("linux")
-        fileTags: [ "artwork" ]
-        artwork.shareDir: "share"
-        artwork.basePath: "../artwork/icons/qutim"
-        prefix: "../artwork/icons/qutim/"
-        files: "**"
+    Group {
+        name: "default tray icons"
+        condition: installIcons && qbs.targetOS.contains("linux")
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/"
+        files: "../artwork/icons/qutim"
     }
     
-    Group { // default icon theme
+    Group {
+        name: "default icon theme"
         condition: installIcons
-        fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
-        prefix: "../artwork/icons/qutim-default/"
-        files: "**"
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.install: true
+        files: "../artwork/icons/qutim-default"
     }
 
-    Group { // user-status icons
-        condition: installIcons
-        fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork/icons/user-status"
-        qbs.installDir: "icons"
-        prefix: "../artwork/icons/user-status/"
-        files: "**"
+    Group {
+        name: "fallback icon theme"
+        condition: installIcons && installHicolorTheme
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.install: true
+        files: "../artwork/icons/qutim/icons/hicolor"
     }
 
-    Group { // humanity icons
-        condition: installIcons && !qbs.targetOS.contains("linux")
-        fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork/icons/humanity"
-        qbs.installDir: "icons"
-        prefix: "../artwork/icons/humanity/"
-        files: "**"
+    Group {
+        name: "user-status icons"
+        condition: installIcons
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/"
+        qbs.install: true
+        prefix: "../artwork/icons/user-status"
+    }
+
+    Group {
+        name: "Humanity icons"
+        condition: installIcons && qbs.targetOS.contains("linux")
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.install: true
+        files: "../artwork/icons/humanity/"
     }
 
     Group { // Mac tray icons
-        condition: installIcons && !qbs.targetOS.contains("mac")
+        name: "TrayIcon [osx]"
+        condition: installIcons && qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
-        qbs.installDir: shareDir + "/icons/qutim-default/scalable/status/"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/scalable/status/"
         files: "../artwork/icons/tray/MacOS/*.svg"
     }
 
     Group {
+        name: "Oxygen icons"
         condition: installIcons && installOxygenTheme
-        fileTags: [ "artwork" ]
-        artwork.basePath: "../artwork"
-        prefix: "../artwork/icons/oxygen/"
-        files: "**"
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/icons"
+        qbs.install: true
+        files: "../artwork/icons/oxygen"
     }
 
-    Group { // Ubuntu tray icons
+    Group {
+        name: "Ubuntu mono dark icons"
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
+        qbs.install: true
         qbs.installDir: shareDir + "/icons/ubuntu-mono-light/scalable/status/"
         files: "../artwork/icons/tray/ubuntu-mono-light/*.svg"
     }
 
     Group {
+        name: "Ubuntu mono light icons"
         condition: installIcons && installUbuntuTheme
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/ubuntu-mono-dark/scalable/status/"
+        qbs.install: true
         files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
     Group {
-        condition: !qbs.targetOS.contains("mac")
+        name: "Dock icon"
+        condition: qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
-        qbs.installDir: "qutim.app/Contents/Resources"
-        files: ["qutim.icns", "qt.conf"]
+        qbs.install: true
+        qbs.installDir: "bin/qutim.app/Contents/Resources"
+        files: ["qutim.icns"]
     }
 
     Group {
-        condition: !qbs.targetOS.contains("mac")
-        fileTags: [ "infoPlist" ]
-        files: "Info.plist"
-    }
-
-    Group {
-        condition: !qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
-        qbs.installDir: "qutim.app/Contents/Resources/qt_menu.nib/"
+        qbs.install: true
+        qbs.installDir: "bin/qutim.app/Contents/Resources/qt_menu.nib/"
         prefix: Qt.core.libPath + '/QtGui' + Qt.core.libInfix + '.framework/Versions/' + Qt.core.versionMajor + '/Resources/qt_menu.nib/'
         files: '*.nib'
-    }
-
-    Rule {
-        inputs: [ "infoPlist" ]
-        Artifact {
-            fileTags: [ "installed_content" ]
-            fileName: "qutim.app/Contents/" + input.fileName
-        }
-
-        prepare: {
-            var cmd = new JavaScriptCommand();
-            cmd.version = product.qutim_version;
-            cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName);
-                var content = file.readAll().replace(/VERSION/g, version);
-                file.close();
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
-                file.truncate();
-                file.write(content);
-                file.close();
-            }
-            cmd.description = "installing " + FileInfo.fileName(output.fileName);
-            cmd.highlight = "linker";
-            return cmd;
-        }
     }
 }

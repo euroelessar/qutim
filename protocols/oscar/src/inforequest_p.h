@@ -37,7 +37,7 @@ namespace oscar {
 
 class IcqContact;
 
-class IcqInfoRequestFactory : public QObject, public InfoRequestFactory
+class IcqInfoRequestFactory : public InfoRequestFactory
 {
 	Q_OBJECT
 public:

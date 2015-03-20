@@ -35,9 +35,12 @@ class RosterStoragePrivate;
 class Contact;
 class Account;
 
-class LIBQUTIM_EXPORT ContactsFactory
+class LIBQUTIM_EXPORT ContactsFactory : public QObject
 {
+	Q_OBJECT
+	Q_CLASSINFO("Feature", "ContactsFactory")
 public:
+	ContactsFactory();
 	virtual ~ContactsFactory();
 
 	virtual Contact *addContact(const QString &id, const QVariantMap &data) = 0;
@@ -63,8 +66,6 @@ private:
 	QScopedPointer<RosterStoragePrivate> d_ptr;
 };
 }
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::ContactsFactory, "org.qutim.ContactsFactory")
 
 #endif // ROSTERSTORAGE_H
 

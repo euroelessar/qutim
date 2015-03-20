@@ -62,14 +62,6 @@ public:
 	{
 		if (waitingForPrivacyList)
 			return;
-		foreach (JMUCSession *session, rooms) {
-			Jreen::MUCRoom *room = session->room();
-			qDebug() << room->isJoined() << (room->presence() != Presence::Unavailable);
-			if (!room->isJoined() && room->presence() != Presence::Unavailable
-					&& !roomsToConnect.contains(session)) {
-				session->join();
-			}
-		}
 		foreach (const QPointer<JMUCSession> &room, roomsToConnect) {
 			if (room)
 				room.data()->join();
@@ -78,12 +70,6 @@ public:
 	}
 	void leaveAll()
 	{
-		foreach (JMUCSession *room, rooms) {
-			if (room->isJoined()) {
-				room->leave();
-				roomsToConnect << room;
-			}
-		}
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status status)
 	{		
@@ -290,7 +276,7 @@ ChatUnit *JMUCManager::muc(const Jreen::JID &jid)
 		if (jid.isBare())
 			return muc;
 		else
-			return muc->participant(jid.resource());
+			return muc->findParticipant(jid.resource());
 	}
 	return 0;
 }

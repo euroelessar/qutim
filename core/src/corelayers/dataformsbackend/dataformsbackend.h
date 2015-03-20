@@ -40,7 +40,7 @@ class DefaultDataForm : public AbstractDataForm
 {
 	Q_OBJECT
 public:
-	DefaultDataForm(const DataItem &item, StandardButtons standartButtons = NoButton,  const Buttons &buttons = Buttons());
+	DefaultDataForm(const DataItem &item);
 	virtual DataItem item() const;
 	virtual bool isChanged() const;
 	virtual bool isComplete() const;
@@ -53,10 +53,6 @@ public:
 public slots:
 	void dataChanged();
 	void completeChanged(bool complete);
-private slots:
-	void onButtonClicked(QAbstractButton *button);
-protected:
-	void keyPressEvent(QKeyEvent *e);
 private:
 	AbstractDataWidget *m_widget;
 	bool m_isChanged;
@@ -72,9 +68,7 @@ class DefaultDataFormsBackend : public DataFormsBackend
 	Q_CLASSINFO("Service", "DataFormsBackend")
 public:
 	DefaultDataFormsBackend();
-	virtual AbstractDataForm *get(const DataItem &item,
-								  AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
-								  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons());
+	virtual AbstractDataForm *get(const DataItem &item);
 };
 
 }

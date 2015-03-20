@@ -7,17 +7,16 @@ Project {
         Depends { name: "Qt.webkit" }
         Depends { name: "Qt.webkitwidgets" }
         Depends { name: "qutim-adiumwebview" }
-        Depends { name: "artwork" }
 
         Group {
-            fileTags: [ "artwork" ]
-            artwork.basePath: "./"
-            prefix: "data/"
-            files: "**"
+            files: "data"
+            qbs.install: true
+            qbs.installDir: project.qutim_share_path
         }
     }
 
     references: [
-        "lib/qutim-adiumwebview.qbs"
+        "lib/qutim-adiumwebview.qbs",
+        "plugin/adiumplugin.qbs"
     ]
 }

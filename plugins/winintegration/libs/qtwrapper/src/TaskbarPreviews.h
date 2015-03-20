@@ -26,7 +26,6 @@
 #ifndef TASKBARPREVIEWS_H
 #define TASKBARPREVIEWS_H
 
-#include "global.h"
 #include <QWidget>
 #include <QMap>
 #include <QSize>
@@ -37,7 +36,7 @@
 Q_DECLARE_FLAGS(WindowAttributes, WindowAttribute)
 Q_DECLARE_OPERATORS_FOR_FLAGS(WindowAttributes)
 
-class WTQTEXPORT PreviewProvider : public QObject {
+class PreviewProvider : public QObject {
 	Q_OBJECT
 
 public:
@@ -70,7 +69,7 @@ public:
 	}
 };
 
-class WTQTEXPORT TaskbarPreviews : public QObject
+class TaskbarPreviews : public QObject
 {
 	Q_OBJECT
 
@@ -123,7 +122,6 @@ public:
 	static TaskbarPreviews *instance();
 	static unsigned tabAdd    (QWidget *tab, QWidget *owner, const QString &title = "", QWidget *before = 0, PreviewProvider *pp = 0);
 	static unsigned tabAddVirtual(PreviewProvider *pp, QWidget *owner, const QString &title, QWidget *before = 0);
-	static void setWindowAttributes(QWidget *window, WindowAttributes wa);
 	static void tabActivate   (QWidget *tab);
 	static void tabActivate   (unsigned tabid);
 	static void tabOrderChange(QWidget *tab,   QWidget *before);

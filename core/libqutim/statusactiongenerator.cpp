@@ -42,7 +42,7 @@ void StatusActionHandler::changeStatus(QAction *action, QObject *controller)
 		current.setType(origin.type());
 		current.setSubtype(origin.subtype());
 		current.setChangeReason(Status::ByUser);
-		account->setStatus(current);
+		account->setUserStatus(current);
 	}
 }
 

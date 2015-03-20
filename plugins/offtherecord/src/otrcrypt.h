@@ -42,6 +42,7 @@ class OTRCrypt : public qutim_sdk_0_3::Plugin
 {
     Q_OBJECT
 	Q_CLASSINFO("DebugName", "OTR")
+    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	OTRCrypt();
 	~OTRCrypt();

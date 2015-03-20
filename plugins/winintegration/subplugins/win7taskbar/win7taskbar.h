@@ -49,4 +49,3 @@ private:
 };
 
 #endif // WIN7TASKBAR_H
-

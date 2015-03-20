@@ -35,16 +35,32 @@
 
 namespace qutim_sdk_0_3
 {
+struct AccountInterface
+{
+    AccountInterface() : object(nullptr) {}
+
+    QObject *object;
+};
+
 class AccountPrivate : public MenuControllerPrivate
 {
+	Q_DECLARE_PUBLIC(Account)
 public:
-	AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
+	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
+	~AccountPrivate()
+    {
+	}
+
+	void updateStatus();
+	void setStatus(const Status &newStatus);
+
 	QPointer<Protocol> protocol;
 	QString id;
+	Account::State state;
 	Status status;
-	GroupChatManager *groupChatManager;
-	ContactsFactory *contactsFactory;
-	InfoRequestFactory *infoRequestFactory;
+	Status userStatus;
+
+    QMap<QByteArray, AccountInterface> interfaces;
 };
 }
 

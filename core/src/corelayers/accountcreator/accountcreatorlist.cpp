@@ -26,6 +26,7 @@
 #include <qutim/icon.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
+#include <qutim/accountmanager.h>
 #include <qutim/settingslayer.h>
 #include <qutim/servicemanager.h>
 #include "ui_accountcreatorlist.h"
@@ -53,10 +54,10 @@ AccountCreatorList::AccountCreatorList() :
 
 #ifdef Q_WS_S60
 	int width = style()->pixelMetric(QStyle::QStyle::PM_ListViewIconSize);
-#elif defined (Q_WS_WIN32) || defined(Q_WS_MAC)
+#elif defined (Q_OS_WIN32) || defined(Q_OS_MAC)
 	int width = 22;
 #else
-	int width = style()->pixelMetric(QStyle::QStyle::PM_ToolBarIconSize);
+    int width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #endif
 
 	QSize size = QSize(width, width);
@@ -76,13 +77,12 @@ AccountCreatorList::AccountCreatorList() :
 	addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
 	addItem->setData(SeparatorRole,true);
 
-	foreach(Protocol *protocol, Protocol::all()) {
-		connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
-		connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
-		foreach(Account *account, protocol->accounts())	{
-			addAccount(account);
-		}
-	}
+	AccountManager *manager = AccountManager::instance();
+	connect(manager, &AccountManager::accountAdded, this, &AccountCreatorList::addAccount);
+	connect(manager, &AccountManager::accountRemoved, this, &AccountCreatorList::removeAccount);
+
+	foreach (Account *account, manager->accounts())
+		addAccount(account);
 
 }
 

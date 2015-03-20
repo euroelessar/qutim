@@ -1,4 +1,5 @@
 #include "${extensionHeader}"
+${includeQmlTypes}
 #include <qutim/plugin.h>
 
 class ${productName}Plugin : public qutim_sdk_0_3::Plugin
@@ -13,6 +14,7 @@ public:
 		qutim_sdk_0_3::LocalizedString description("Plugin", "${pluginDescription}");
 		setInfo(name, description, QUTIM_VERSION, icon);
 		addExtension<${extensionClass}>(name, description, icon);
+		${registerQmlTypes}
 	}
 	virtual bool load() { return true; }
 	virtual bool unload() { return true; }

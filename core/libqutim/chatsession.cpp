@@ -36,7 +36,7 @@
 
 namespace qutim_sdk_0_3
 {
-typedef QMap<Message*, ChatSession*> MessageHookMap;
+typedef QMap<quint64, ChatSession*> MessageHookMap;
 Q_GLOBAL_STATIC(MessageHookMap, messageHookMap)
 
 class MessageHandlerHook : public MessageHandler
@@ -51,9 +51,9 @@ public:
 		m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
 	}
 	
-	virtual Result doHandle(Message &message, QString *)
+	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
-		ChatSession *session = messageHookMap()->value(&message);
+		ChatSession *session = messageHookMap()->value(originalMessageId());
 		if (session) {
 			session->doAppendMessage(message);
 			if (m_storeMessages && message.property("store", true)
@@ -61,7 +61,7 @@ public:
 				History::instance()->store(message);
 			}
 		}
-		return Accept;
+		return makeAsyncResult(Accept, QString());
 	}
 	
 private:
@@ -72,15 +72,17 @@ private:
 class ChatUnitSenderMessageHandler : public MessageHandler
 {
 public:
-	virtual Result doHandle(Message &message, QString *)
+	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
 		if (!message.isIncoming()
 		        && !message.property("service", false)
-		        && !message.property("history", false)) {
-			if (!message.chatUnit()->send(message))
-				return Error;
+		        && !message.property("history", false)
+		        && !message.property("donotsend", false)) {
+            if (!message.chatUnit()->send(message)) {
+				return makeAsyncResult(Error, QString());
+            }
 		}
-		return Accept;
+		return makeAsyncResult(Accept, QString());
 	}
 };
 
@@ -112,33 +114,45 @@ ChatSession::~ChatSession()
 {
 }
 
-qint64 ChatSession::append(qutim_sdk_0_3::Message &message)
-{
-	return appendMessage(message);
-}
 
-qint64 ChatSession::appendMessage(qutim_sdk_0_3::Message &message)
+void ChatSession::append(const Message &originalMessage, const ChatSession::AppendHandler &handler)
 {
-	if (!message.chatUnit()) {
+    Message message = originalMessage;
+    if (!message.chatUnit()) {
 		qWarning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
-	
-	QString reason;
-	messageHookMap()->insert(&message, this);
-	int result = MessageHandler::handle(message, &reason);
-	if (MessageHandler::Accept != result) {
-		NotificationRequest request(Notification::BlockedMessage);
-		request.setObject(message.chatUnit());
-		request.setText(reason);
-		request.send();
-		messageHookMap()->remove(&message);
-		return -result;
-	}
-	messageHookMap()->remove(&message);
-	if (!message.property("service", false) && !message.property("autoreply", false))
-		message.chatUnit()->setLastActivity(message.time());
-	return message.id();
+
+    const quint64 messageId = message.id();
+	messageHookMap()->insert(messageId, this);
+	MessageHandler::handle(message).connect(this, [messageId, handler] (const Message &message, MessageHandler::Result result, const QString &reason) {
+        messageHookMap()->remove(messageId);
+        
+        if (MessageHandler::Accept != result) {
+            NotificationRequest request(Notification::BlockedMessage);
+            request.setObject(message.chatUnit());
+            request.setText(reason);
+			request.send();
+            if (handler)
+                handler(-result, message, reason);
+            return;
+        }
+        if (!message.property("service", false) && !message.property("autoreply", false))
+            message.chatUnit()->setLastActivity(message.time());
+        
+        if (handler)
+            handler(messageId, message, reason);
+    });
+}
+
+void ChatSession::append(const qutim_sdk_0_3::Message &message)
+{
+    append(message, AppendHandler());
+}
+
+void ChatSession::appendMessage(const qutim_sdk_0_3::Message &message)
+{
+	append(message);
 }
 
 bool ChatSession::isActive()

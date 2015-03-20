@@ -29,9 +29,6 @@
 #include <qutim/protocol.h>
 #include <qutim/history.h>
 
-namespace UnreadMessagesKeeper
-{
-
 void UnreadMessagesKeeper::init()
 {
 	qDebug() << Q_FUNC_INFO;
@@ -65,9 +62,9 @@ bool UnreadMessagesKeeper::load()
 				if(!u)
 					continue;
 				int count = cfg.value(id,0);
-				if(count) {
+                if (count) {
 					ChatSession *s = ChatLayer::get(u,true);
-					MessageList list = History::instance()->read(u,count);
+                    MessageList list = History::instance()->readSync(u, count);
 					foreach(Message m,list) {
 						m.setProperty("store",false);
 						m.setProperty("fake",true); //mega spike
@@ -108,7 +105,5 @@ void UnreadMessagesKeeper::onUnreadChanged(const qutim_sdk_0_3::MessageList &lis
 	cfg.endGroup();
 }
 
-}
-
-QUTIM_EXPORT_PLUGIN(UnreadMessagesKeeper::UnreadMessagesKeeper);
+QUTIM_EXPORT_PLUGIN(UnreadMessagesKeeper)
 

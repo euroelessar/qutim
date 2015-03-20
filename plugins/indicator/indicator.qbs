@@ -1,5 +1,6 @@
 import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
-    Depends { name: "dbusmenu.qt" }
+    cpp.dynamicLibraries: ["messaging-menu-qt5"]
+    condition: qbs.targetOS.contains("linux")
 }

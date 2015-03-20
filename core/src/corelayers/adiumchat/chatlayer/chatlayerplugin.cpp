@@ -141,8 +141,8 @@ bool ChatLayerPlugin::unload()
 
 void ChatLayerPlugin::onClearChat(QObject *controller)
 {
-	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller))
-		chat->currentSession()->clearChat();
+    if (AbstractChatWidget *chat = findParent<AbstractChatWidget*>(controller))
+        chat->currentSession()->clearChat();
 }
 
 void ChatLayerPlugin::onInsertEmoticon(QAction *act,QObject *controller)
@@ -193,6 +193,7 @@ void ChatLayerPlugin::onQuote(const QString &quote, QObject *controller)
 	}
 	text += QLatin1Char('\n');
 	chat->getInputField()->insertPlainText(text);
+	chat->getInputField()->setFocus();
 }
 
 }

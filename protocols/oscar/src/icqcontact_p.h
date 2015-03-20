@@ -62,12 +62,12 @@ class ChatStateUpdater : public QObject
 	Q_OBJECT
 public:
 	ChatStateUpdater();
-	void updateState(IcqContact *contact, ChatState state);
+	void updateState(IcqContact *contact, ChatUnit::ChatState state);
 private slots:
 	void sendState();
 private:
-	void sendState(IcqContact *contact, ChatState state);
-	QHash<QPointer<IcqContact>, ChatState> m_states;
+	void sendState(IcqContact *contact, ChatUnit::ChatState state);
+	QHash<QPointer<IcqContact>, ChatUnit::ChatState> m_states;
 	QTimer m_timer;
 };
 
@@ -93,7 +93,7 @@ public:
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
 	QStringList tags;
-	ChatState state;
+	ChatUnit::ChatState state;
 	QDateTime onlineSince;
 	QDateTime awaySince;
 	QDateTime regTime;

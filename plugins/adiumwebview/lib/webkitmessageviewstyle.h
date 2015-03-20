@@ -31,6 +31,8 @@
 #include <QDateTime>
 #include <QStringList>
 #include <QVariantMap>
+#include <QColor>
+#include <QUrl>
 #include <QCoreApplication>
 
 namespace qutim_sdk_0_3 {
@@ -40,9 +42,11 @@ class Message;
 
 class WebKitMessageViewStylePrivate;
 
-class ADIUMWEBVIEW_EXPORT WebKitMessageViewStyle
+class ADIUMWEBVIEW_EXPORT WebKitMessageViewStyle : public QObject
 {
-	Q_DECLARE_PRIVATE(WebKitMessageViewStyle)
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(WebKitMessageViewStyle)
+    Q_ENUMS(NameFormat WebkitBackgroundType)
 public:
 	enum NameFormat {
 		AIDefaultName = 0,
@@ -62,10 +66,13 @@ public:
 	
     WebKitMessageViewStyle();
     ~WebKitMessageViewStyle();
-	
+
+public slots:
 	void setStylePath(const QString &path);
 	void setCustomStyle(const QString &style);
-	QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session);
+    QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session);
+    QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session, const QString &id, const QString &wsUri);
+    QUrl baseUrl();
 	QString templateForContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
 	QString scriptForChangingVariant();
 	QString scriptForSettingCustomStyle();
@@ -117,6 +124,7 @@ private:
 	void releaseResources();
 	UnitData getSourceData(const qutim_sdk_0_3::Message &message);
 	QString &fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
+    QString &injectScript(QString &inString, const QString &id, const QString &wsUri);
 	QString &fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session);
 	QString stringWithFormat(const QString &str, const QStringList &args);
 	

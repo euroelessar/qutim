@@ -11,3 +11,9 @@ debian_harmattan/qutim
 debian_harmattan/qutim-dbg
 *-debug
 *-release
+
+#ignoring Win#
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

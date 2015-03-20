@@ -54,13 +54,14 @@ public:
 
     QHash<int, QByteArray> roleNames() const;
 
-	virtual QStringList mimeTypes() const;
-	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList mimeTypes() const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column, const QModelIndex &parent);
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::DropActions supportedDragActions() const;
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+                              int row, int column, const QModelIndex &parent) override;
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::DropActions supportedDragActions() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
 
 public slots:
 	void setFilterTags(const QStringList &filterTags);
@@ -68,6 +69,8 @@ public slots:
 
 	void addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
+    void collapse(const QModelIndex &index);
+    void expand(const QModelIndex &index);
     
 signals:
 	void offlineVisibilityChanged(bool showOffline);
@@ -78,16 +81,23 @@ protected slots:
 	void onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject);
 
 protected:
-	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-	virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
-    
-protected:
+    void connectNotify(const QMetaMethod &signal) override;
+    void updateData(const QModelIndex &parent, int row, ContactListItemRole role);
+    void onRowsInserted(const QModelIndex &parent, int first, int last);
+    void onRowsRemoved(const QModelIndex &parent, int first, int last);
+    bool filterAcceptsRowImpl(int sourceRow, const QModelIndex &sourceParent, bool checkCollapse) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+
 	bool m_showOffline;
+    bool m_insideConnectNotify = false;
+    QMetaObject::Connection m_rowsInsertedConnection;
+    QMetaObject::Connection m_rowsRemovedConnection;
 	QStringList m_filterTags;
 	QHash<QString, QStringList> m_order;
 	qutim_sdk_0_3::ServicePointer<ContactListBaseModel> m_model;
 	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::MetaContactManager> m_metaManager;
-	qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
+    qutim_sdk_0_3::ServicePointer<qutim_sdk_0_3::ContactComparator> m_comparator;
 };
 
 #endif // CONTACTLISTFRONTMODEL_H

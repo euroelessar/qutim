@@ -3,7 +3,6 @@
 #include <qutim/contact.h>
 #include "autoreplybuttongenerator.h"
 #include "autoreplydialog.h"
-#include "autoreplysettingswidget.h"
 #include <qutim/contact.h>
 #include <QApplication>
 
@@ -28,10 +27,9 @@ bool AutoReplyPlugin::load()
 	if (!m_handler) {
 		connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 				SLOT(onServiceChanged(QByteArray)));
-		Config config("autoreply");
 		m_handler.reset(new AutoReplyMessageHandler(this));
 		MessageHandler::registerHandler(m_handler.data());
-		m_settingsItem.reset(new GeneralSettingsItem<AutoReplySettingsWidget>(
+        m_settingsItem.reset(new QmlSettingsItem(QStringLiteral("autoreply"),
 								 Settings::Plugin, QIcon(),
 								 QT_TRANSLATE_NOOP("AutoReply", "Auto reply")));
 		m_settingsItem->connect(SIGNAL(saved()), this, SLOT(onSettingsChanged()));

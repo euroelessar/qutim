@@ -29,6 +29,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/debug.h>
 #include <QFormLayout>
+#include <QCoreApplication>
 #include <qutim/icon.h>
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
@@ -71,6 +72,7 @@ void IconLoaderSettings::saveImpl()
 	QString themeId = m_box->itemData(m_box->currentIndex()).toString();
 	Config().group("appearance").setValue("theme", themeId);
 	iconManager()->setCurrentTheme(themeId);
+    QIcon::setThemeName(themeId);
 }
 
 void IconLoaderSettings::cancelImpl()
@@ -85,10 +87,16 @@ void IconLoaderSettings::onCurrentIndexChanged(int index)
 
 IconLoaderImpl::IconLoaderImpl()
 {
+    QStringList themeSearchPaths = QIcon::themeSearchPaths();
+    themeSearchPaths << QCoreApplication::applicationDirPath();
+    themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
+    themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
+    QIcon::setThemeSearchPaths(themeSearchPaths);
+
 	onSettingsChanged();
 	m_settings.reset(new GeneralSettingsItem<IconLoaderSettings>(
-	                     Settings::Appearance, loadIcon("preferences-desktop-icons"),
-	                     QT_TRANSLATE_NOOP("Settings", "Icons theme")));
+						 Settings::Appearance, iconManager->getIcon("preferences-desktop-icons"),
+						 QT_TRANSLATE_NOOP("Settings", "Icons theme")));
 //	item->setConfig(QString(), QLatin1String("appearance"));
 //	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
 //	entry->setName(QLatin1String("theme"));
@@ -143,6 +151,7 @@ void IconLoaderImpl::onSettingsChanged()
 			theme = iconManager()->themeById(themes.at(qrand() % themes.size()));
 	}
 	iconManager()->setCurrentTheme(theme->id());
+    QIcon::setThemeName(theme->id());
 }
 
 void IconLoaderImpl::initSettings()

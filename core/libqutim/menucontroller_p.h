@@ -108,6 +108,8 @@ public:
 	ActionCollection &operator =(const ActionCollection &);
 	
 	void setController(MenuController *controller);
+    MenuController *controller() const;
+
 	const ActionInfoV2 &addAction(const ActionGenerator *generator, const QList<QByteArray> &menu);
 	void addAction(const ActionInfoV2 &info);
 	void removeAction(const ActionInfoV2 &info);
@@ -157,9 +159,9 @@ class DynamicMenu : public QObject, public ActionHandler
 public:
 	DynamicMenu(MenuControllerPrivate *p);
 	virtual ~DynamicMenu();
-	virtual void actionAdded(QAction *action, int index);
-	virtual void actionRemoved(int index);
-	virtual void actionsCleared();
+	virtual void handleActionAdded(int index, QAction *action);
+	virtual void handleActionRemoved(int index);
+	virtual void handleActionsCleared();
 	virtual bool eventFilter(QObject *, QEvent *);
 	
 	QMenu *menu() { return m_entry.menu; }

@@ -51,8 +51,11 @@ class LIBOSCAR_EXPORT IcqAccount: public Account
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
-	virtual void setStatus(Status status);
-	void setStatus(OscarStatusEnum status);
+
+	void doConnectToServer() override;
+	void doDisconnectFromServer() override;
+	void doStatusChange(const Status &status) override;
+
 	virtual QString name() const;
 	void setName(const QString &name);
 	QString avatar() const;
@@ -85,7 +88,6 @@ public slots:
 	void setHtmlEnabled(bool htmlEnabled);
 
 private slots:
-	void onPasswordEntered(const QString &password, bool remember);
 	void onContactRemoved();
 	void onCookieTimeout();
 protected:

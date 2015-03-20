@@ -56,7 +56,7 @@ private:
     mutable QPointer<QAction> m_action;
 };
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 class ClEventFilter : public QObject
 {
 	SimpleTray *tray_;
@@ -82,7 +82,7 @@ public:
 #endif
 
 SimpleTray::SimpleTray() :
-	NotificationBackend("Tray"), m_icon(NULL), m_settingsItem(NULL)
+    NotificationBackend("Tray")
 {
 	setDescription(QT_TR_NOOP("Blink icon in the tray"));
 
@@ -132,25 +132,23 @@ SimpleTray::SimpleTray() :
 	m_icon->setContextMenu(contextMenu);
 	qApp->setQuitOnLastWindowClosed(false);
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	QWidget *clWindow = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
 	clWindow->installEventFilter(new ClEventFilter(this, clWindow));
 	activationStateChangedTime = QDateTime::currentMSecsSinceEpoch();
 #endif
 
-	m_settingsItem = new GeneralSettingsItem<SimpletraySettings>(
-				Settings::Plugin, Icon("user-desktop"),
-				QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
-	Settings::registerItem(m_settingsItem);
-	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+    m_settingsItem = new QmlSettingsItem(QStringLiteral("trayicon"),
+                Settings::Plugin, Icon("user-desktop"),
+                QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
+    Settings::registerItem(m_settingsItem);
+    m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	reloadSettings();
 }
 
 SimpleTray::~SimpleTray()
 {
 	delete m_icon;
-	Settings::removeItem(m_settingsItem);
-	delete m_settingsItem;
 }
 
 void SimpleTray::clActivationStateChanged(bool activated)
@@ -164,7 +162,7 @@ void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
 		Notification *notif = currentNotification();
 		if (!notif) {
 			if (QObject *obj = ServiceManager::getByName("ContactList")) {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 				if (QDateTime::currentMSecsSinceEpoch() - activationStateChangedTime < 200) { // tested - enough
 					obj->metaObject()->invokeMethod(obj, "changeVisibility");
 					clActivationStateChanged(true);
@@ -325,13 +323,14 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 
 static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
 {
-	QFont f = QApplication::font();
-	QPixmap px(backing.pixmap(size));
-	QPainter p(&px);
-	f.setPixelSize(px.height()/1.5);
-	p.setFont(f);
-	p.drawText(px.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
-	icon.addPixmap(px);
+    QFont font = QApplication::font();
+    QPixmap pixmap = backing.pixmap(size);
+
+    QPainter painter(&pixmap);
+    font.setPixelSize(pixmap.height()/1.5);
+    painter.setFont(font);
+    painter.drawText(pixmap.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+    icon.addPixmap(pixmap);
 	return icon;
 }
 
@@ -436,7 +435,7 @@ QObject *ProtocolSeparatorActionGenerator::generateHelper() const
 	QFont font = action->font();
 	font.setBold(true);
 	action->setFont(font);
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 	QToolButton *m_btn = new QToolButton();
 	QWidgetAction *widget = new QWidgetAction(action);
     m_action = widget;

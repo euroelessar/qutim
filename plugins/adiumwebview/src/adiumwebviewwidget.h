@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2012 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2013 Roman Tretyakov <roman@trett.ru>
 **
 *****************************************************************************
 **
@@ -23,11 +24,14 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKCHATVIEWWIDGET_H
-#define QUICKCHATVIEWWIDGET_H
-#include <qutim/adiumchat/chatviewfactory.h>
+#ifndef ADIUMCHATVIEWWIDGET_H
+#define ADIUMCHATVIEWWIDGET_H
+
 #include <QWebView>
+#include <qutim/adiumchat/chatviewfactory.h>
+#include <qutim/declarativeview.h>
 #include <QPointer>
+#include "yandexdomaindefine.h"
 
 class QDeclarativeItem;
 
@@ -43,13 +47,24 @@ public:
     virtual void setViewController(QObject* controller);
 private:
 	QPointer<WebViewController> m_controller;
+	QString m_searcher;
+	YandexDomainDefine m_yandexDomainDefine;
+	QUrl m_urlForOpen;
 #ifdef Q_WS_MAEMO_5
 	bool mousePressed;
 	virtual bool eventFilter(QObject *, QEvent *e);
 #endif
+public slots:
+	void showCustomContextMenu(const QPoint & point);
+	void insertQuoteText();
+	void searchSelectedText();
+	void openLinkFromContextMenu();
+	void setPrevFocus(QObject *);
+	void openChat();
+	void openConference();
 };
 
 } // namespace Adium
 
-#endif // QUICKCHATVIEWWIDGET_H
+#endif // ADIUMCHATVIEWWIDGET_H
 

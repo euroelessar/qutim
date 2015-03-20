@@ -27,9 +27,11 @@
 #include <qutim/jsonfile.h>
 #include <qutim/json.h>
 #include <QFile>
+#include <QSaveFile>
 #include <qutim/debug.h>
 #include <QRect>
 #include <QStringList>
+#include <QDataStream>
 
 namespace Core
 {
@@ -216,13 +218,13 @@ namespace Core
 
 	void JsonConfigBackend::save(const QString &fileName, const QVariant &entry)
 	{
-		QFile file(fileName);
+		QSaveFile file(fileName);
 		if (file.open(QFile::WriteOnly | QIODevice::Text)) {
 			QByteArray data;
 			Json::generate(data, entry, 2, variantGeneratorExt);
 //			qDebug() << QString::fromUtf8(data, data.size());
 			file.write(data);
-			file.close();
+			file.commit();
 		}
 	}
 }

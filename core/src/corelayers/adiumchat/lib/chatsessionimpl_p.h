@@ -83,7 +83,7 @@ public:
 	QTimer inactive_timer;
 	MessageList unread;
 	MessageList lastMessages;
-	ChatState myselfChatState;
+	ChatUnit::ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
 	bool m_showReceiverId;
 public slots:

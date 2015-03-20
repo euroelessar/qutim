@@ -365,7 +365,15 @@ QVariant DataItem::property(const char *name, const QVariant &def) const
 
 QList<QByteArray> DataItem::dynamicPropertyNames() const
 {
-	return d ? d->names : QList<QByteArray>();
+    return d ? d->names : QList<QByteArray>();
+}
+
+QVariantList DataItem::qmlSubItmes() const
+{
+    QVariantList result;
+    foreach (const auto &item, subitems())
+        result << QVariant::fromValue(item);
+    return result;
 }
 
 void DataItem::setProperty(const char *name, const QVariant &value)
@@ -587,25 +595,13 @@ StringDataItem::StringDataItem(const QString &name, const LocalizedString &title
 	setProperty("password", password);
 }
 
-AbstractDataForm *AbstractDataForm::get(const DataItem &item,
-										StandardButtons standartButtons,
-										const AbstractDataForm::Buttons &buttons)
+AbstractDataForm *AbstractDataForm::get(const DataItem &item)
 {
 	DataFormsBackend *b = DataFormsBackend::instance();
 	if (b)
-		return b->get(item, standartButtons, buttons);
+		return b->get(item);
 	else
 		return 0;
-}
-
-void AbstractDataForm::accept()
-{
-	emit accepted();
-}
-
-void AbstractDataForm::reject()
-{
-	emit rejected();
 }
 
 void AbstractDataForm::virtual_hook(int id, void *data)

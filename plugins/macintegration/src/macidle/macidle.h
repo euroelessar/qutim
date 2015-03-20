@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #ifndef MACIDLE_H
-#define MIDLE_H
+#define MACIDLE_H
 
 #include <QObject>
 #include <qutim/protocol.h>
@@ -32,8 +32,7 @@ namespace MacIntegration
 {
 using namespace qutim_sdk_0_3;
 
-struct MacIdlePrivate;
-
+class MacIdlePrivate;
 class MacIdle : public QObject
 {
 	Q_OBJECT

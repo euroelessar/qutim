@@ -28,6 +28,7 @@
 #include "plistconfigbackend.h"
 #include <QDomDocument>
 #include <QFile>
+#include <QSaveFile>
 #include <QTime>
 #include <QTextCodec>
 #include <QRect>
@@ -162,7 +163,7 @@ namespace Core
 		plist.setAttribute("version","1.0");
 		plist.appendChild(generateQDomElement(entry, root));
 		root.appendChild(plist);
-		QFile output (file);
+		QSaveFile output (file);
 		if (!output.open(QIODevice::WriteOnly)) {
 			qWarning() << tr("Cannot write to file %1").arg(file);
 			return;
@@ -172,7 +173,7 @@ namespace Core
 		out.setCodec(utf8);
 		out << QLatin1String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //hack
 		root.save(out, 2, QDomNode::EncodingFromDocument);
-		output.close();
+		output.commit();
 	}
 	
 	QVariant PListConfigBackend::generateConfigEntry(const QDomNode &val)

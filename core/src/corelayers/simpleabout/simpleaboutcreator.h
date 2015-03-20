@@ -27,7 +27,9 @@
 #define SimpleAboutCreator_H
 
 #include <qutim/startupmodule.h>
-#include <QWidget>
+#include <qutim/quickdialog.h>
+#include <QQmlEngine>
+#include <QQmlComponent>
 #include <QPointer>
 
 namespace Core
@@ -43,7 +45,7 @@ public:
 public slots:
 	void showWidget();
 private:
-	QPointer<QWidget> m_widget;
+	qutim_sdk_0_3::QuickDialog m_dialog;
 };
 }
 

@@ -25,6 +25,8 @@
 
 #include "messagehandler.h"
 #include "debug.h"
+#include <memory>
+#include <QThreadStorage>
 
 namespace qutim_sdk_0_3
 {
@@ -91,19 +93,51 @@ void MessageHandler::unregisterHandler(MessageHandler *handler)
 	}
 }
 
-MessageHandler::Result MessageHandler::handle(Message &message, QString *reason)
+static quint64 currentMessageIdHook = -1;
+
+struct MessageHandler::StateType : public std::enable_shared_from_this<StateType>
 {
-	MessageHandlerList &list = (message.isIncoming() ? scope()->incoming : scope()->outgoing);
-	QString tmp;
-	if (!reason)
-		reason = &tmp;
-	for (int i = 0; i < list.size(); ++i) {
-		reason->clear();
-		Result result = list.at(i).handler->doHandle(message, reason);
-		if (result != Accept)
-			return result;
-	}
-	return Accept;
+	StateType(const Message &message, const MessageHandlerList &list)
+		: index(0), message(message), messageId(message.id()), list(list)
+    {
+        this->message.setChatUnit(message.chatUnit());
+    }
+
+    void onResult(MessageHandler::Result result, const QString &error)
+    {
+        if (result != MessageHandler::Accept) {
+			handler.handle(message, result, error);
+            return;
+        }
+
+        using namespace std::placeholders;
+        if (index < list.size()) {
+            currentMessageIdHook = messageId;
+			list[index++].handler->doHandle(message).connect(std::bind(&StateType::onResult, shared_from_this(), _1, _2));
+        } else {
+			handler.handle(message, MessageHandler::Accept, QString());
+        }
+    }
+
+    int index;
+    Message message;
+    quint64 messageId;
+    const MessageHandlerList list;
+	AsyncResultHandler<Message, MessageHandler::Result, QString> handler;
+};
+
+AsyncResult<Message, MessageHandler::Result, QString> MessageHandler::handle(const Message &message)
+{
+    const MessageHandlerList &list = (message.isIncoming() ? scope()->incoming : scope()->outgoing);
+
+    if (list.isEmpty()) {
+		return makeAsyncResult(message, Accept, QString());
+    }
+
+	auto state = std::make_shared<StateType>(message, list);
+    state->onResult(Accept, QString());
+
+	return state->handler.result();
 }
 
 void MessageHandler::traceHandlers()
@@ -121,7 +155,12 @@ void MessageHandler::traceHandlers()
 				dbg << " -> ";
 			dbg << "(0x" << QByteArray::number(info.priority, 16).constData() << ", " << info.name << ")";
 		}
-	}
+    }
+}
+
+quint64 MessageHandler::originalMessageId()
+{
+    return currentMessageIdHook;
 }
 
 }

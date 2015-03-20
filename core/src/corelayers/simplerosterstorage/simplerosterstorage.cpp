@@ -48,15 +48,31 @@ QString SimpleRosterStorage::load(Account *account)
 	AccountContext &context = m_contexts[account];
 	Q_ASSERT(factory);
 	Config cfg = account->config();
-	cfg.beginGroup(QLatin1String("roster"));
-	QString version = cfg.value(QLatin1String("version"), QString());
-	int size = cfg.beginArray(QLatin1String("contacts"));
-	QString idName = QLatin1String("id");
-	QString dataName = QLatin1String("data");
+	cfg.beginGroup(QStringLiteral("roster"));
+	QString version = cfg.value(QStringLiteral("version"), QString());
+
+	const QString contactsName = QStringLiteral("contacts");
+	const QString idName = QStringLiteral("id");
+	const QString dataName = QStringLiteral("data");
+
+	{
+		QVariantList contacts = cfg.value(contactsName, QVariantList());
+
+		contacts.erase(std::remove_if(contacts.begin(), contacts.end(), [&idName] (const QVariant &data) {
+			QVariantMap map = data.toMap();
+			const QString id = map.value(idName).toString();
+			return id.isEmpty();
+		}), contacts.end());
+
+		cfg.setValue(contactsName, contacts);
+	}
+
+	int size = cfg.beginArray(contactsName);
+
 	for (int i = 0; i < size; i++) {
 		cfg.setArrayIndex(i);
-		QString id = cfg.value(idName, QString());
-		QVariantMap data = cfg.value(dataName, QVariantMap());
+		const QString id = cfg.value(idName, QString());
+		const QVariantMap data = cfg.value(dataName, QVariantMap());
 		if (id.isEmpty()) {
 			context.freeIndexes.append(i);
 		} else {

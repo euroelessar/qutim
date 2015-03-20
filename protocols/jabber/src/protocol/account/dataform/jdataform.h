@@ -43,23 +43,15 @@ class JDataForm : public QWidget
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JDataForm)
 public:
-	JDataForm(const Jreen::DataForm::Ptr &form,
-			  qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons = qutim_sdk_0_3::AbstractDataForm::NoButton,
-			  QWidget *parent = 0);
-	JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs,
-			  qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons = qutim_sdk_0_3::AbstractDataForm::NoButton,
-			  QWidget *parent = 0);
-	JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent = 0);
 	JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent = 0);
+	JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent = 0);
 	~JDataForm();
+
 	qutim_sdk_0_3::AbstractDataForm *widget();
 	Jreen::DataForm::Ptr getDataForm();
 	
 	static qutim_sdk_0_3::DataItem convertToDataItem(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs = QList<Jreen::BitsOfBinary::Ptr>());
 	static void convertFromDataItem(const Jreen::DataForm::Ptr &form, const qutim_sdk_0_3::DataItem &item);
-	
-signals:
-	void accepted();
 	
 private:
 	QScopedPointer<JDataFormPrivate> d_ptr;

@@ -28,6 +28,7 @@
 #include <qutim/itemdelegate.h>
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
+#include <qutim/accountmanager.h>
 #include <qutim/account.h>
 #include <qutim/debug.h>
 #include <qutim/avatarfilter.h>
@@ -58,7 +59,7 @@ void Model::searchContacts(const QString& name)
 		return;
 
 	QList<Contact*> contacts = getContacts();
-	foreach (Account *account,Account::all()) {
+	foreach (Account *account, AccountManager::instance()->accounts()) {
 		foreach (Contact *contact, account->findChildren<Contact*>()) {
 			if (!contact->title().contains(name,Qt::CaseInsensitive))
 				continue;

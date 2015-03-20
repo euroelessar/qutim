@@ -34,6 +34,7 @@
 #include <QPixmap>
 #include <QImage>
 #include <QIcon>
+#include <QQmlListProperty>
 
 class QValidator;
 
@@ -215,6 +216,16 @@ class DataItemPrivate;
  */
 class LIBQUTIM_EXPORT DataItem
 {
+    Q_GADGET
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(LocalizedString title READ title WRITE setTitle)
+    Q_PROPERTY(QVariantList subItems READ qmlSubItmes)
+    Q_PROPERTY(QVariant data READ data WRITE setData)
+    Q_PROPERTY(int maxSubitemsCount READ maxSubitemsCount)
+    Q_PROPERTY(bool allowedModifySubitems READ isAllowedModifySubitems)
+    Q_PROPERTY(DataItem defaultSubitem READ defaultSubitem)
+    Q_PROPERTY(bool hasSubitems READ hasSubitems)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
 	/**
 	Constructs a null DataItem.
@@ -295,16 +306,16 @@ public:
 	/**
 	Returns the subitem by its \a name.
   */
-	DataItem subitem(const QString &name, bool recursive = false) const;
+    Q_INVOKABLE DataItem subitem(const QString &name, bool recursive = false) const;
 
-	int removeSubitems(const QString &name, bool recursive = false);
-	bool removeSubitem(const QString &name, bool recursive = false);
-	DataItem takeSubitem(const QString &name, bool recursive = false);
+    Q_INVOKABLE int removeSubitems(const QString &name, bool recursive = false);
+    Q_INVOKABLE bool removeSubitem(const QString &name, bool recursive = false);
+    Q_INVOKABLE DataItem takeSubitem(const QString &name, bool recursive = false);
 	/**
 	Adds new \a subitem to the list of subitems of this data item.
 	\see operator<<()
   */
-	void addSubitem(const DataItem &subitem);
+    Q_INVOKABLE void addSubitem(const DataItem &subitem);
 	/**
 	Returns true if this data item contains at least one subitem; otherwise returns false.
   */
@@ -369,7 +380,7 @@ public:
 	If no such property exists, \a def will be returned.
 	\see setProperty()
   */
-	QVariant property(const char *name, const QVariant &def = QVariant()) const;
+    Q_INVOKABLE QVariant property(const char *name, const QVariant &def = QVariant()) const;
 	/**
 	Returns the \a name property converted to the template type \a T. If the value
 	cannot be converted, \a def will be returned.
@@ -384,6 +395,7 @@ public:
 	void setProperty(const char *name, const QVariant &value);
 	QList<QByteArray> dynamicPropertyNames() const;
 protected:
+    QVariantList qmlSubItmes() const;
 #ifndef Q_QDOC
 	friend class DataItemPrivate;
 	QSharedDataPointer<DataItemPrivate> d;
@@ -516,50 +528,6 @@ class LIBQUTIM_EXPORT AbstractDataForm : public QWidget
 {
 	Q_OBJECT
 public:
-	enum ButtonRole {
-		InvalidRole = -1,
-		AcceptRole,
-		RejectRole,
-		DestructiveRole,
-		ActionRole,
-		HelpRole,
-		YesRole,
-		NoRole,
-		ResetRole,
-		ApplyRole,
-
-		NRoles
-	};
-	Q_DECLARE_FLAGS(ButtonRoles, ButtonRole)
-	enum StandardButton {
-		NoButton           = 0x00000000,
-		Ok                 = 0x00000400,
-		Save               = 0x00000800,
-		SaveAll            = 0x00001000,
-		Open               = 0x00002000,
-		Yes                = 0x00004000,
-		YesToAll           = 0x00008000,
-		No                 = 0x00010000,
-		NoToAll            = 0x00020000,
-		Abort              = 0x00040000,
-		Retry              = 0x00080000,
-		Ignore             = 0x00100000,
-		Close              = 0x00200000,
-		Cancel             = 0x00400000,
-		Discard            = 0x00800000,
-		Help               = 0x01000000,
-		Apply              = 0x02000000,
-		Reset              = 0x04000000,
-		RestoreDefaults    = 0x08000000
-	};
-	Q_DECLARE_FLAGS(StandardButtons, StandardButton)
-	struct Button
-	{
-		LocalizedString name;
-		ButtonRole role;
-	};
-	typedef QList<Button> Buttons;
-public:
 	virtual DataItem item() const = 0;
 	/**
 	Returns true if the state of at least one field was changed.
@@ -587,18 +555,9 @@ public:
 	  it was when the data form was being created.
 	*/
 	virtual void setData(const QString &fieldName, const QVariant &data) = 0;
-	static AbstractDataForm *get(const DataItem &item,
-								 StandardButtons standartButtons = NoButton,
-								 const Buttons &buttons = Buttons());
-public slots:
-	void accept();
-	void reject();
+
+	static AbstractDataForm *get(const DataItem &item);
 signals:
-	void accepted();
-	void rejected();
-	void helpRequested();
-	void clicked(int buttonIndex);
-	void clicked(qutim_sdk_0_3::AbstractDataForm::StandardButton standartButton);
 	/**
 	The signal is emitted when the state of the data form has been changed.
 	\see isChanged()
@@ -619,9 +578,7 @@ class LIBQUTIM_EXPORT DataFormsBackend : public QObject
 {
 	Q_OBJECT
 public:
-	virtual AbstractDataForm *get(const DataItem &item,
-								  AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
-								  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons()) = 0;
+	virtual AbstractDataForm *get(const DataItem &item) = 0;
 	static DataFormsBackend *instance();
 };
 
@@ -632,10 +589,6 @@ T DataItem::data(const T &def) const
 	return d.canConvert<T>() ? d.value<T>() : def;
 }
 
-#ifndef Q_QDOC
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles)
-Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons)
-#endif
 }
 
 #ifndef Q_QDOC

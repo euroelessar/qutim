@@ -73,7 +73,8 @@ public:
 void JAccountPrivate::applyStatus(const Status &status)
 {
 	Q_Q(JAccount);
-	QString invisible = QLatin1String("invisible");
+
+	QString invisible = QStringLiteral("invisible");
 	if (status.type() == Status::Invisible) {
 		if (privacyManager->activeList() != invisible) {
 			if (!privacyManager->lists().contains(invisible)) {
@@ -101,7 +102,8 @@ void JAccountPrivate::applyStatus(const Status &status)
         q->conferenceManager()->setPresenceToRooms(presence);
     }
 //	JPGPSupport::instance()->send(q, status, priority);
-	q->setAccountStatus(status);
+
+	q->setState(Account::Connected);
 }
 
 void JAccountPrivate::setPresence(Jreen::Presence presence)
@@ -109,7 +111,7 @@ void JAccountPrivate::setPresence(Jreen::Presence presence)
 	Q_Q(JAccount);
 	Status now = JStatus::presenceToStatus(presence.subtype());
 	now.setText(presence.status());
-	q->setAccountStatus(now);
+	q->setEffectiveStatus(now);
 	if(presence.subtype() == Jreen::Presence::Unavailable)
 		client->disconnectFromServer(false);
 }
@@ -121,29 +123,16 @@ void JAccountPrivate::_q_connected()
 //		currentPGPKeyId = pgpKeyId;
 //		emit q->pgpKeyIdChanged(currentPGPKeyId);
 //	}
-	applyStatus(status);
+	applyStatus(q->userStatus());
 	conferenceManager.data()->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
 	client->setPingInterval(q->config().group("general").value("pingInterval", 30000));
 }
 
-void JAccountPrivate::_q_on_password_finished(int result)
+void JAccountPrivate::onPasswordReceived(const QString &password)
 {
-	Q_Q(JAccount);
-	Q_ASSERT(q->sender() == passwordDialog.data());
-	passwordDialog.data()->deleteLater();
-	if (result != PasswordDialog::Accepted)
-		return;
-	if (passwordDialog.data()->remember()) {
-		Config cfg = q->config(QLatin1String("general"));
-		cfg.setValue("passwd", passwordDialog.data()->password(), Config::Crypted);
-		parameters.insert(QLatin1String("password"), passwordDialog.data()->password());
-		emit q->parametersChanged(parameters);
-	}
-	status = passwordDialog.data()->property("status").value<Status>();
-	client->setPassword(passwordDialog.data()->password());
-	client->connectToServer();
-	q->setAccountStatus(Status::instance(Status::Connecting, "jabber"));
+    client->setPassword(password);
+    client->connectToServer();
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
@@ -167,15 +156,16 @@ void JAccountPrivate::_q_set_nick(const QString &newNick)
 void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
-	Status s = Status::instance(Status::Offline, "jabber");
+
+    Status::ChangeReason statusReason = Status::ByUnknown;
 
 	switch(reason) {
 	case Client::User:
-		s = proposedStatus;
 		break;
 	case Client::AuthorizationError: {
-		s.setChangeReason(Status::ByAuthorizationFailed);
-		//q->setPasswd(QString());
+		statusReason = Status::ByAuthorizationFailed;
+		keyChain->remove(q);
+        client->setPassword(QString());
 		break;
 	}
 	case Client::HostUnknown:
@@ -185,21 +175,21 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::NoAuthorizationSupport:
 	case Client::NoEncryptionSupport:
 	case Client::NoCompressionSupport:
-		s.setChangeReason(Status::ByFatalError);
+		statusReason = Status::ByFatalError;
 		break;
 	case Client::RemoteStreamError:
 	case Client::RemoteConnectionFailed:
 	case Client::InternalServerError:
 	case Client::Conflict:
 	case Client::Unknown:
-		s.setChangeReason(Status::ByNetworkError);
+		statusReason = Status::ByNetworkError;
 		break;
 	}
 
-	status = s;
-	q->setAccountStatus(s);
 	q->resetGroupChatManager(0);
 	loadedModules = 0;
+
+	q->setState(Account::Disconnected, statusReason);
 }
 
 void JAccountPrivate::_q_init_extensions(const QSet<QString> &features)
@@ -227,7 +217,6 @@ JAccount::JAccount(const QString &id) :
 	connect(d->client.data(), SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			this ,SLOT(_q_init_extensions(QSet<QString>)));
 
-	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 	d->loadedModules = 0;
 	d->privacyManager = new PrivacyManager(d->client.data());
 	d->pubSubManager = new Jreen::PubSub::Manager(d->client.data());
@@ -261,26 +250,27 @@ JAccount::JAccount(const QString &id) :
 	d->signalMapper.setMapping(d->privacyManager, 2);
 	connect(d->client.data(), SIGNAL(connected()), d->privacyManager, SLOT(request()));
 	connect(&d->signalMapper, SIGNAL(mapped(int)), this, SLOT(_q_on_module_loaded(int)));
-	//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
-	//	connect(d->client.data(),SIGNAL(connected()), d, SLOT(onConnected()));
 	
 	d->roster->loadFromStorage();
 
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
-	
-//	d->params.addItem<Jreen::Client>(d->client);
-//	d->params.addItem<Jreen::PubSub::Manager>(d->pubSubManager);
-	//	d->params.addItem<Adhoc>(p->adhoc);
-	//	d->params.addItem<VCardManager>(p->vCardManager->manager());
-	//	d->params.addItem<SIManager>(p->siManager);
-
-	//	d->softwareDetection = new JSoftwareDetection(p->account, p->params);
 
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
 			d->extensions.append(ext);
 			ext->init(this);
+		}
+	}
+
+	{
+		// Temporary hook
+		// TODO: Remove this hook or make migration more automatic
+		Config config = this->config(QStringLiteral("general"));
+		const QString passwd = QStringLiteral("passwd");
+		if (config.hasChildKey(passwd)) {
+			d->keyChain->write(this, config.value(passwd, QString(), Config::Crypted));
+			config.remove(passwd);
 		}
 	}
 //	JPGPSupport::instance()->addAccount(this);
@@ -342,100 +332,19 @@ void JAccount::loadSettings()
 		cfg.endGroup();
 	}
 	d->client->setJID(jid);
-	d->client->setPassword(cfg.value("passwd", QString(), Config::Crypted));
 	if(!cfg.value("autoDetect",true)) {
 		d->client->setPort(cfg.value("port", 5222));
 		d->client->setServer(cfg.value("server",d->client->server()));
 	}
 
 	cfg.endGroup();
-	
-	emit parametersChanged(d->parameters);
 }
 
 void JAccount::setPasswd(const QString &passwd)
 {
 	Q_D(JAccount);
-	config().group("general").setValue("passwd",passwd, Config::Crypted);
+	d->keyChain->write(this, passwd);
 	d->client->setPassword(passwd);
-}
-
-QStringList JAccount::updateParameters(const QVariantMap &parameters, bool forced)
-{
-	Q_D(JAccount);
-	QStringList result;
-	if (!forced && d->parameters == parameters)
-		return result;
-	
-	if (forced)
-		d->hasChangedParameters = false;
-	
-	QString password = parameters.value(QLatin1String("password")).toString();
-	QString server = parameters.value(QLatin1String("connect-server")).toString();
-	int port = parameters.value(QLatin1String("port"), -1).toInt();
-	QString boshServer = parameters.value(QLatin1String("bosh-server")).toString();
-	int boshPort = parameters.value(QLatin1String("bosh-port"), -1).toInt();
-	QString resource = parameters.value(QLatin1String("resource")).toString();
-	int priority = parameters.value(QLatin1String("priority"), 30).toInt();
-	
-	Presence &presence = d->client->presence();
-	presence.setPriority(priority);
-	if (d->client->isConnected()) {
-		d->hasChangedParameters = true;
-		d->client->send(presence);
-		if (d->client->server() != server)
-			result << QLatin1String("connect-server");
-		if (d->client->port() != port)
-			result << QLatin1String("port");
-		if (d->client->jid().resource() != resource)
-			result << QLatin1String("resource");
-	} else {
-		JID jid = d->client->jid();
-		jid.setResource(resource);
-		d->client->setServer(port < 0 ? jid.domain() : server);
-		d->client->setPort(port);
-	}
-	d->client->setPassword(password);
-	
-	if (!forced) {
-		Config config = Account::config();
-		config.setValue(QLatin1String("resource"), resource);
-		config.setValue(QLatin1String("priority"), priority);
-		config.setValue(QLatin1String("autoDetect"), port < 0);
-		config.setValue(QLatin1String("server"), server);
-		config.setValue(QLatin1String("port"), port);
-		config.setValue(QLatin1String("passwd"), password, Config::Crypted);
-		config.beginGroup(QLatin1String("bosh"));
-		config.setValue(QLatin1String("use"), !boshServer.isEmpty());
-		config.setValue(QLatin1String("server"), boshServer);
-		config.setValue(QLatin1String("port"), boshPort);
-		config.endGroup();
-	}
-	
-	d->parameters = parameters;
-	emit parametersChanged(d->parameters);
-	return result;
-}
-
-void JAccount::loadParameters()
-{
-	Q_D(JAccount);
-	Config config = Account::config();
-	d->parameters.clear();
-	d->parameters.insert(QLatin1String("resource"), config.value(QLatin1String("resource"), "qutIM"));
-	d->parameters.insert(QLatin1String("priority"), config.value(QLatin1String("priority")));
-	if (config.value(QLatin1String("autoDetect"), -1) > 0) {
-		d->parameters.insert(QLatin1String("connect-server"), config.value(QLatin1String("server")));
-		d->parameters.insert(QLatin1String("port"), config.value(QLatin1String("port")));
-	}
-	d->parameters.insert(QLatin1String("password"), config.value(QLatin1String("passwd"), Config::Crypted));
-	config.beginGroup(QLatin1String("bosh"));
-	if (config.value(QLatin1String("use"), false)) {
-		d->parameters.insert(QLatin1String("bosh-server"), config.value(QLatin1String("server")));
-		d->parameters.insert(QLatin1String("bosh-port"), config.value(QLatin1String("port")));
-	}
-	updateParameters(d->parameters, true);
-	emit parametersChanged(d->parameters);
 }
 
 //QString JAccount::pgpKeyId() const
@@ -446,16 +355,6 @@ void JAccount::loadParameters()
 void JAccount::virtual_hook(int id, void *data)
 {
 	switch (id) {
-	case ReadParametersHook: {
-		QVariantMap &parameters = *reinterpret_cast<QVariantMap*>(data);
-		parameters = d_func()->parameters;
-		break;
-	}
-	case UpdateParametersHook: {
-		UpdateParametersArgument &argument = *reinterpret_cast<UpdateParametersArgument*>(data);
-		argument.reconnectionRequired = updateParameters(argument.parameters);
-		break;
-	}
 	default:
 		Account::virtual_hook(id, data);
 	}
@@ -511,44 +410,57 @@ Jreen::PubSub::Manager *JAccount::pubSubManager()
 	return d_func()->pubSubManager;
 }
 
-void JAccount::setStatus(Status status)
+void JAccount::doConnectToServer()
 {
-	Q_D(JAccount);
-	Status old = this->status();
+    Q_D(JAccount);
 
-	if(old.type() == Status::Offline && status.type() != Status::Offline) {
-		QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
-		d->client->setProxy(proxy);
-		if (d->passwordDialog) {
-			/* nothing */
-		} else if(d->client->password().isEmpty()) {
-			d->passwordDialog = PasswordDialog::request(this);
-			d->passwordDialog.data()->setProperty("status", qVariantFromValue(status));
-			JPasswordValidator *validator = new JPasswordValidator(d->passwordDialog.data());
-			connect(d->passwordDialog.data(), SIGNAL(finished(int)), SLOT(_q_on_password_finished(int)));
-			d->passwordDialog.data()->setValidator(validator);
-		} else {
-			d->client->connectToServer();
-			d->status = status;
-			setAccountStatus(Status::createConnecting(status, "jabber"));
-		}
-	} else if(status.type() == Status::Offline) {
-		bool force = old.type() == Status::Connecting;
-		Status jabberStatus = Status::instance(Status::Offline, "jabber");
-		status.setIcon(jabberStatus.icon());
-		status.setSubtype(jabberStatus.subtype());
-		d->proposedStatus = status;
-		if (force)
-			setAccountStatus(status);
-		d->client->disconnectFromServer(true);
-	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
-		d->applyStatus(status);
+	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
+	d->client->setProxy(proxy);
+    if (d->passwordDialog) {
+		/* nothing */
+    } else if(d->client->password().isEmpty()) {
+        d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
+            if (result.error == KeyChain::NoError) {
+				d->onPasswordReceived(result.textData);
+            } else if (!d->passwordDialog) {
+				d->passwordDialog = PasswordDialog::request(this);
+
+                connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
+					Q_ASSERT(sender() == d->passwordDialog.data());
+					d->passwordDialog->deleteLater();
+
+					if (result != PasswordDialog::Accepted) {
+						setState(Disconnected, Status::ByPasswordUnknown);
+						return;
+					}
+
+					if (d->passwordDialog->remember()) {
+						d->keyChain->write(this, d->passwordDialog->password());
+					}
+
+					d->onPasswordReceived(d->passwordDialog->password());
+				});
+			}
+		});
+    } else {
+        d->client->connectToServer();
 	}
 }
 
-void JAccount::setAccountStatus(Status status)
+void JAccount::doDisconnectFromServer()
 {
-	Account::setStatus(status);
+	Q_D(JAccount);
+
+	d->client->disconnectFromServer(true);
+
+	setState(Disconnected, Status::ByUser);
+}
+
+void JAccount::doStatusChange(const Status &status)
+{
+	Q_D(JAccount);
+
+	d->applyStatus(status);
 }
 
 QString JAccount::getAvatarPath()

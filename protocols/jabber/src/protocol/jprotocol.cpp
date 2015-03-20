@@ -3,6 +3,7 @@
 ** qutIM - instant messenger
 **
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2014 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -44,6 +45,11 @@
 #include <qutim/datasettingsobject.h>
 #include <qutim/systemintegration.h>
 #include <QApplication>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QUrlQuery>
+#include <qutim/chatsession.h>
+#include <QTextDocument>
 
 namespace Jabber
 {
@@ -103,8 +109,13 @@ public:
 	void checkBookMark(JMUCSession *s, QAction *a)
 	{
 		a->setEnabled(s->account()->status() != Status::Offline);
-		a->setText(!s->bookmark().isValid() ? QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") :
-											 QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+		if (!s->bookmark().isValid()) {
+			a->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
+			a->setIcon(qutim_sdk_0_3::Icon("document-save"));
+		} else {
+			a->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+			a->setIcon(qutim_sdk_0_3::Icon("edit-delete"));
+		}
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status)
 	{
@@ -157,11 +168,14 @@ JProtocol::JProtocol() : d_ptr(new JProtocolPrivate(this))
 {
 	Q_ASSERT(!self);
 	self = this;
+
+	QDesktopServices::setUrlHandler("xmpp", this, "onUrlOpen");
 }
 
 JProtocol::~JProtocol()
 {
 	self = 0;
+	QDesktopServices::unsetUrlHandler("xmpp");
 }
 
 QList<Account *> JProtocol::accounts() const
@@ -542,23 +556,23 @@ bool JProtocol::event(QEvent *ev)
 void JProtocol::virtual_hook(int id, void *data)
 {
 	switch (id) {
-	case SupportedAccountParametersHook: {
-		QStringList &properties = *reinterpret_cast<QStringList*>(data);
-		properties << QLatin1String("connect-server")
-		           << QLatin1String("port")
-		           << QLatin1String("password")
-		           << QLatin1String("resource")
-		           << QLatin1String("priority")
-		           << QLatin1String("fallback-conference-server")
-		           << QLatin1String("bosh-host")
-		           << QLatin1String("bosh-port");
-		break;
-	}
-	case CreateAccountHook: {
-		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
-		argument.account = doCreateAccount(argument.id, argument.parameters);
-		break;
-	}
+//	case SupportedAccountParametersHook: {
+//		QStringList &properties = *reinterpret_cast<QStringList*>(data);
+//		properties << QLatin1String("connect-server")
+//		           << QLatin1String("port")
+//		           << QLatin1String("password")
+//		           << QLatin1String("resource")
+//		           << QLatin1String("priority")
+//		           << QLatin1String("fallback-conference-server")
+//		           << QLatin1String("bosh-host")
+//		           << QLatin1String("bosh-port");
+//		break;
+//	}
+//	case CreateAccountHook: {
+//		CreateAccountArgument &argument = *reinterpret_cast<CreateAccountArgument*>(data);
+//		argument.account = doCreateAccount(argument.id, argument.parameters);
+//		break;
+//	}
 	default:
 		Protocol::virtual_hook(id, data);
 	}
@@ -568,6 +582,34 @@ void JProtocol::onAccountDestroyed(QObject *obj)
 {
 	JAccount *acc = reinterpret_cast<JAccount*>(obj);
 	d_ptr->accounts->remove(d_ptr->accounts->key(acc));
+}
+
+void JProtocol::onUrlOpen(const QUrl &url)
+{
+	qDebug() << "Handle url: " << url;
+
+	ServicePointer<QObject> joinGroupChatDlg = ServicePointer<QObject>("JoinGroupChat");
+	if(!joinGroupChatDlg)
+		return;
+
+	QUrlQuery q;
+	q.setQueryDelimiters('=', ';');
+	q.setQuery(url.query());
+
+	if(q.hasQueryItem("join"))
+	{
+		QMetaObject::invokeMethod(joinGroupChatDlg.data(), "onJoinGroupChatTriggered", Q_ARG(QString, url.path()));
+		return;
+	}
+
+	qDebug() << q.queryItems();
+	if(q.hasQueryItem("message") && q.hasQueryItem("body"))
+		foreach (ChatSession *session, ChatLayer::instance()->sessions())
+			if(session->isActive() && session->unit()->id().startsWith(url.path()))
+				session->getInputField()->setPlainText(q.queryItemValue("body"));
+
+	// TODO: "message" option
+
 }
 }
 

@@ -74,7 +74,15 @@ bool WAccount::getShowStatusRow()
 	return m_showStatusRow;
 }
 
-void WAccount::setStatus(Status status)
+void WAccount::doConnectToServer()
+{
+}
+
+void WAccount::doDisconnectFromServer()
+{
+}
+
+void WAccount::doStatusChange(const Status &status)
 {
 	Q_UNUSED(status);
 }
@@ -279,4 +287,3 @@ void WAccount::loadContacts()
 	qDeleteAll(m_contacts);
 	m_contacts = contacts;
 }
-

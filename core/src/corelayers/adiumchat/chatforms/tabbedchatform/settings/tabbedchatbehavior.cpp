@@ -54,7 +54,11 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->formLayoutBox->addItem(tr("Classic"),false);
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
 
-#if defined(Q_WS_MAC) || defined(Q_WS_WIN)
+	QStringList searchList;
+	searchList<<"Yandex"<<"Google";
+	ui->searchBox->addItems(searchList);
+
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 	int row;
 	QFormLayout::ItemRole role;
 	ui->formLayout->getWidgetPosition(ui->menuBox, &row, &role);
@@ -62,7 +66,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->menuBox->setVisible(false);
 #endif
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	ui->formLayout->getWidgetPosition(ui->formLayoutBox, &row, &role);
 	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::LabelRole));
 	ui->formLayout->removeItem(ui->formLayout->itemAt(row, QFormLayout::FieldRole));
@@ -82,6 +86,8 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	lookForWidgetState(ui->autoresizeBox);
 	lookForWidgetState(ui->rosterBox);
 	lookForWidgetState(ui->receiverIdBox);
+	lookForWidgetState(ui->fontSizeBox);
+	lookForWidgetState(ui->searchBox);
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -129,6 +135,8 @@ void TabbedChatBehavior::loadImpl()
 	ui->receiverIdBox->setChecked(m_flags & ShowReceiverId);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
+	ui->fontSizeBox->setValue(chat.value<int>("chatFontSize", qApp->font().pointSize()));
+	ui->searchBox->setCurrentText(chat.value<QString>("defaultSearch", "Yandex"));
 }
 
 void TabbedChatBehavior::saveImpl()
@@ -154,6 +162,8 @@ void TabbedChatBehavior::saveImpl()
 	history.setValue("maxDisplayMessages",ui->recentBox->value());
 	Config chat = appearance.group("chat");
 	chat.setValue("groupUntil",ui->groupUntil->value());
+	chat.setValue("chatFontSize", ui->fontSizeBox->value());
+	chat.setValue("defaultSearch", ui->searchBox->currentText());
 	appearance.sync();
 }
 

@@ -39,6 +39,12 @@ class ExtendedStatusesEventPrivate;
 
 class LIBQUTIM_EXPORT Status
 {
+	Q_GADGET
+	Q_ENUMS(Type ChangeReason)
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(Type type READ type WRITE setType)
+    Q_PROPERTY(int subtype READ subtype WRITE setSubtype)
+    Q_PROPERTY(ChangeReason changeReason READ changeReason WRITE setChangeReason)
 public:
 	enum Type
 	{
@@ -54,11 +60,15 @@ public:
 
 	enum ChangeReason
 	{
+		ByUnknown,
 		ByUser,
 		ByIdle,
 		ByAuthorizationFailed,
 		ByNetworkError,
-		ByFatalError
+		ByFatalError,
+		ByQuit,
+		ByPasswordUnknown,
+		ByRateLimit
 	};
 
 	// TODO: Remove defines, and optimize code, currently I just want plugins to compile
@@ -99,9 +109,9 @@ public:
 	static QString iconName(Type type, const QString &protocol = QString());
 	static Status instance(Type type, const char *proto, int subtype = 0);
 	static bool remember(const Status &status, const char *proto);
-	static Status createConnecting(const Status &status, const char *proto);
-	static Status connectingGoal(const Status &status);
-	Status connectingGoal() const;
+    static Status createConnecting(const Status &status, const char *proto);
+    static Status connectingGoal(const Status &status);
+    Status connectingGoal() const;
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 	QVariantHash extendedInfo(const QString &name) const;
@@ -142,8 +152,6 @@ LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, const qutim_sdk_0_3::Status &sta
 LIBQUTIM_EXPORT QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::Status &status);
 LIBQUTIM_EXPORT QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::Status &status);
 
-Q_ENUMS(qutim_sdk_0_3::Status::Type)
-Q_ENUMS(qutim_sdk_0_3::Status::ChangeReason)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Status)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Status::ChangeReason)
 

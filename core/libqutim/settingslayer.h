@@ -143,10 +143,22 @@ protected:
 	virtual const ObjectGenerator *generator() const
 	{
 		// T must be based on SettingsWidget
-		register SettingsWidget *widget = reinterpret_cast<T *>(0);
+        SettingsWidget *widget = reinterpret_cast<T *>(0);
 		Q_UNUSED(widget);
 		return new GeneralGenerator<T>();
 	}
+};
+
+class QmlSettingsItemPrivate;
+class LIBQUTIM_EXPORT QmlSettingsItem : public SettingsItem
+{
+public:
+    QmlSettingsItem(const QString &name, Settings::Type type, const QIcon &icon, const LocalizedString &text);
+    QmlSettingsItem(const QString &name, Settings::Type type, const LocalizedString &text);
+    ~QmlSettingsItem();
+
+protected:
+	virtual const ObjectGenerator *generator() const;
 };
 
 class AutoSettingsItemPrivate;
@@ -177,7 +189,7 @@ public:
 	template <typename T>
 	Entry *addEntry(const LocalizedString &text)
 	{
-		register QWidget *widget = reinterpret_cast<T *>(0);
+        QWidget *widget = reinterpret_cast<T *>(0);
 		Q_UNUSED(widget);
 		return addEntry(text, new GeneralGenerator<T>());
 	}

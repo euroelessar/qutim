@@ -62,14 +62,24 @@ void init()
 							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
 							   QKeySequence(QKeySequence::PreviousChild)
 							   );
+	Shortcut::registerSequence("moveTabLeft",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Move Tab Left"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
+							   QKeySequence(Qt::CTRL + Qt::Key_PageUp)
+							   );
+	Shortcut::registerSequence("moveTabRight",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Move Tab Right"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
+							   QKeySequence(Qt::CTRL + Qt::Key_PageDown)
+							   );
 }
 
 ChatLayerImpl::ChatLayerImpl()
 {
 	qRegisterMetaType<QWidgetList>("QWidgetList");
 	init();
-	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QObject*,QObject*)),
-			SLOT(onServiceChanged(QObject*)));
+    connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
+	        this, &ChatLayerImpl::onServiceChanged);
 }
 
 
@@ -113,9 +123,9 @@ ChatLayerImpl::~ChatLayerImpl()
 {
 }
 
-QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
+QIcon ChatLayerImpl::iconForState(ChatUnit::ChatState state, const ChatUnit *unit)
 {
-	if (state != ChatStateComposing) {
+	if (state != ChatUnit::ChatStateComposing) {
 		QVariant status = unit->property("status");
 		if (!status.isNull() && status.canConvert<Status>()) {
 			return status.value<Status>().icon();
@@ -127,19 +137,19 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 	QString iconName;
 	switch (state) {
 	//FIXME icon names
-	case ChatStateActive:
+	case ChatUnit::ChatStateActive:
 		iconName = "im-user"; //TODO find icon
 		break;
-	case ChatStateInActive:
+	case ChatUnit::ChatStateInActive:
 		iconName = "im-user-away";
 		break;
-	case ChatStateGone:
+	case ChatUnit::ChatStateGone:
 		iconName =  "im-user-offline";
 		break;
-	case ChatStateComposing:
+	case ChatUnit::ChatStateComposing:
 		iconName = "im-status-message-edit";
 		break;
-	case ChatStatePaused:
+	case ChatUnit::ChatStatePaused:
 		iconName = "im-user-busy";
 		break;
 	default:
@@ -193,8 +203,10 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 	}
 }
 
-void ChatLayerImpl::onServiceChanged(QObject *now)
+void ChatLayerImpl::onServiceChanged(const QByteArray &name, QObject *now)
 {
+    Q_UNUSED(name);
+
 	if (qobject_cast<ChatViewFactory*>(now)) {
 		foreach (const ChatSessionImpl *session, m_chatSessions)
 			if (session && session->controller()) {

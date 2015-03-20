@@ -6,54 +6,77 @@ import "Framework.qbs" as Framework
 Framework {
     name: "libqutim"
 
-    property string versionMajor: project.qutim_version_major
-    property string versionMinor: project.qutim_version_minor
-    property string versionRelease: project.qutim_version_release
-    property string versionPatch: project.qutim_version_patch
-    property string version: project.qutim_version
-    property string shareDir: project.shareDir
+    property string versionMajor: qutim_version_major
+    property string versionMinor: qutim_version_minor
+    property string versionRelease: qutim_version_release
+    property string versionPatch: qutim_version_patch
+    property string version: qutim_version
+    property string shareDir: qutim_share_path
 
-    //Depends { name: "qutimscope" }
     Depends { name: "k8json" }
     Depends { name: "qxt" }
-    //Depends { name: "Qtdwm" }
     Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'declarative', 'widgets' ] }
-    Depends { name: "carbon"; condition: qbs.targetOS === 'mac' }
-    Depends { name: "cocoa"; condition: qbs.targetOS === 'mac' }
-    //Depends { name: "windows.user32"; condition: qbs.targetOS === 'windows' }
-    //Depends { name: "windows.gdi32"; condition: qbs.targetOS === 'windows' } //in product module it's doesn't work
-    //Depends { name: "x11"; condition: qbs.targetOS === 'linux' }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets' ] }
 
     cpp.includePaths: [
         "libqutim",
         product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim"
     ]
 
+    Properties {
+        condition: qbs.targetOS.contains("linux")
+        cpp.dynamicLibraries: ["Qt5X11Extras", "X11"];
+    }
+
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: [ "user32" ]
+    }
+
     cpp.dynamicLibraryPrefix: ""
     cpp.staticLibraryPrefix: ""
-    cpp.defines: [
-        "LIBQUTIM_LIBRARY",
-        "QUTIM_SHARE_DIR=\"" + shareDir + "\"",
-        "QUTIM_SINGLE_PROFILE",
-        "QUTIM_PLUGIN_NAME=\"libqutim\""
-    ]
-    cpp.cxxFlags: [
-        "-std=c++11"
-    ]
+    cpp.defines: {
+        var sharePath = qbs.targetOS.contains("osx") ? "Resources/share"
+                                                     : qutim_share_path;
+        var defines = [
+                    "LIBQUTIM_LIBRARY",
+                    "QUTIM_SHARE_DIR=\"" + sharePath + "\"",
+                    "QUTIM_SINGLE_PROFILE",
+                    "QUTIM_PLUGIN_NAME=\"libqutim\""
+                ];
+        return defines;
+    }
+    cpp.objcxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
+    cpp.cxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
+    cpp.linkerFlags: {
+        var flags = base;
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat(["-stdlib=libc++"])
+        if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
+            flags = flags.concat("-lcxxrt");
+        return flags;
+    }
+    cpp.minimumOsxVersion: "10.8"
 
-//    Properties {
-//        condition: project.singleProfile
-//        cpp.defines: base.concat([
-//            "QUTIM_SINGLE_PROFILE"
-//        ])
-//    }
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: ["Cocoa", "Carbon" ]
+    }
 
     Export {
-        property string basePath
-
         Depends { name: "cpp" }
+
         cpp.includePaths: [
             product.buildDirectory + "/GeneratedFiles/libqutim/include",
             product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim",
@@ -61,9 +84,28 @@ Framework {
             "3rdparty/flowlayout",
             "3rdparty/"
         ]
-        cpp.cxxFlags: [
-            "-std=c++11"
-        ]
+        cpp.cxxFlags: {
+            var flags = base.concat("-std=c++11");
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++");
+            return flags;
+        }
+        cpp.objcxxFlags: {
+            var flags = base.concat("-std=c++11");
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat("-stdlib=libc++");
+            return flags;
+        }
+        cpp.linkerFlags: {
+            var flags = base;
+            if (qbs.toolchain.contains("clang"))
+                flags = flags.concat(["-stdlib=libc++"])
+            if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
+                flags = flags.concat("-lcxxrt");
+            return flags;
+        }
+        cpp.minimumOsxVersion: "10.8"
+
         Properties {
             condition: project.declarativeUi
             cpp.defines: "QUTIM_DECLARATIVE_UI"
@@ -102,7 +144,7 @@ Framework {
     Transformer {
         inputs: [ "libqutim/version.h.cmake" ]
         Artifact {
-            fileName: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
+            filePath: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
             fileTags: [ "hpp" ]
         }
         prepare: {
@@ -116,7 +158,7 @@ Framework {
             cmd.qutim_version_patch = product.versionPatch;
             cmd.onWindows = (product.moduleProperty("qbs", "targetOS") === "windows");
             cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName);
+                var file = new TextFile(input.filePath);
                 var content = file.readAll();
                 // replace Windows line endings
                 if (onWindows)
@@ -126,7 +168,7 @@ Framework {
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_MINOR}/g, qutim_version_minor);
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_SECMINOR}/g, qutim_version_release);
                 content = content.replace(/\${CMAKE_QUTIM_VERSION_PATCH}/g, qutim_version_patch);
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
                 file.close();
@@ -139,21 +181,27 @@ Framework {
         inputs: [ "devheader" ]
         Artifact {
             fileTags: [ "hpp" ]
-            fileName: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
+            filePath: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
         }
 
         prepare: {
             var cmd = new JavaScriptCommand();
             cmd.sourceCode = function() {
-                var inputFile = new TextFile(input.fileName, TextFile.ReadOnly);
-                var file = new TextFile(output.fileName, TextFile.WriteOnly);
+                var inputFile = new TextFile(input.filePath, TextFile.ReadOnly);
+                var file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
-                file.write("#include \"" + input.fileName + "\"\n"); //inputFile.readAll());
+                file.write("#include \"" + input.filePath + "\"\n");
                 file.close();
             }
-            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.description = "generating " + FileInfo.fileName(output.filePath);
             cmd.highlight = "filegen";
             return cmd;
         }
+    }
+
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: qutim_libexec_path
     }
 }

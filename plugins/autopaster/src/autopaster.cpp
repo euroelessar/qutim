@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "autopaster.h"
+#include <qqml.h>
 #include <qutim/settingslayer.h>
-#include "pastersettings.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -37,41 +37,31 @@ void AutoPaster::init()
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("trett"));
 	addAuthor(QLatin1String("euroelessar"));
+	qmlRegisterUncreatableType<AutoPasterHandler>("org.qutim.autopaster", 0, 4, "Handler", "It's internal type");
 }
 
-void AutoPaster::loadSettings()
+AutoPasterHandler *AutoPaster::handler()
 {
-	m_handler->readSettings();
+	return m_handler;
 }
 
 bool AutoPaster::load()
 {
 	m_handler = new AutoPasterHandler();
-	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler,
-												   QLatin1String("AutoPaster"),
-												   qutim_sdk_0_3::MessageHandler::NormalPriortity,
-												   qutim_sdk_0_3::MessageHandler::SenderPriority + 0x2000);
 
-	m_settingsItem = new GeneralSettingsItem<AutoPasterSettings>(
-						 Settings::Plugin,	QIcon(),
-						 QT_TRANSLATE_NOOP("Plugin", "AutoPaster"));
-	Settings::registerItem(m_settingsItem);
+	emit handlerChanged(m_handler);
 
-	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	return true;
 }
 
 bool AutoPaster::unload()
 {
-	Settings::removeItem(m_settingsItem);
-	delete m_settingsItem;
-	m_settingsItem = 0;
-
 	delete m_handler;
-	m_handler = 0;
+	m_handler = nullptr;
+
+	emit handlerChanged(m_handler);
 
 	return true;
 }
-
 
 QUTIM_EXPORT_PLUGIN(AutoPaster)

@@ -42,10 +42,9 @@ using qutim_sdk_0_3::DataItem;
 struct JBookmarkManagerPrivate;
 class JAccount;
 
-class JBookmarkManager : public QObject, public qutim_sdk_0_3::GroupChatManager
+class JBookmarkManager : public qutim_sdk_0_3::GroupChatManager
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
 public:
 	JBookmarkManager(JAccount *account);
 	~JBookmarkManager();

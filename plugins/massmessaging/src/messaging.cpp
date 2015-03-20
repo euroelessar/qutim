@@ -33,10 +33,7 @@
 #include "messagingdialog.h"
 #include <QApplication>
 
-namespace MassMessaging
-{
-
-void MassMessaging::init()
+void MessagingPlugin::init()
 {
 	qDebug() << Q_FUNC_INFO;
 	addAuthor(QLatin1String("sauron"));
@@ -46,7 +43,7 @@ void MassMessaging::init()
 	setCapabilities(Loadable);
 }
 
-bool MassMessaging::load()
+bool MessagingPlugin::load()
 {
 	ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
 											   QT_TRANSLATE_NOOP("MassMessaging", "&Mass Messaging"),
@@ -60,12 +57,12 @@ bool MassMessaging::load()
 
 	return true;
 }
-bool MassMessaging::unload()
+bool MessagingPlugin::unload()
 {
 	return false;
 }
 
-void MassMessaging::onActionTriggered()
+void MessagingPlugin::onActionTriggered()
 {
 	if (!m_dialog) {
 		m_dialog = new MessagingDialog();
@@ -78,7 +75,6 @@ void MassMessaging::onActionTriggered()
 #endif
 	SystemIntegration::show(m_dialog.data());
 }
-}
 
-QUTIM_EXPORT_PLUGIN(MassMessaging::MassMessaging)
+QUTIM_EXPORT_PLUGIN(MessagingPlugin)
 

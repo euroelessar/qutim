@@ -103,21 +103,21 @@ void AutoReplyMessageHandler::updateText(QString &text, const QDateTime &backTim
 	}
 }
 
-MessageHandler::Result AutoReplyMessageHandler::doHandle(Message &message, QString *reason)
+MessageHandlerAsyncResult AutoReplyMessageHandler::doHandle(Message &message)
 {
-    Q_UNUSED(reason);
 	if (message.property("service", false)
 			|| message.property("autoreply", false)
 			|| qobject_cast<Conference*>(message.chatUnit())) {
-		return Accept;
+		return makeAsyncResult(Accept, QString());
 	}
 	QMutableListIterator<CacheItem> it(m_cache);
 	while (it.hasNext()) {
 		CacheItem &item = it.next();
-		if (item.time.secsTo(QDateTime::currentDateTime()) > m_plugin->deltaTime())
+        if (item.time.secsTo(QDateTime::currentDateTime()) > m_plugin->deltaTime()) {
 			it.remove();
-		else if (item.unit == message.chatUnit())
-			return Accept;
+		} else if (item.unit == message.chatUnit()) {
+			return makeAsyncResult(Accept, QString());
+        }
 	}
     if (message.isIncoming() && m_plugin->isActive() && !m_plugin->replyText().isEmpty()) {
         QString replyText = m_plugin->replyText();
@@ -130,5 +130,5 @@ MessageHandler::Result AutoReplyMessageHandler::doHandle(Message &message, QStri
 		m_cache << cacheItem;
 		qApp->postEvent(m_plugin, new AutoReplyMessageEvent(replyMessage));
     }
-    return Accept;
+	return makeAsyncResult(Accept, QString());
 }

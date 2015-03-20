@@ -22,7 +22,7 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef SESSIOBHELPERSETTINGS_H
+#ifndef SESSIONHELPERSETTINGS_H
 #define SESSIONHELPERSETTINGS_H
 
 #include <QWidget>
@@ -56,5 +56,5 @@ private:
 }
 
 
-#endif // SIMPLECONTACTLISTSETTINGS_H
+#endif // SESSIONHELPERSETTINGS_H
 

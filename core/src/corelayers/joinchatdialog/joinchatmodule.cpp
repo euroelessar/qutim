@@ -59,17 +59,19 @@ JoinChatModule::~JoinChatModule()
 		contactList.data()->removeAction(m_action.data());
 }
 
-void JoinChatModule::onJoinChatTriggered()
+void JoinChatModule::onJoinGroupChatTriggered(const QString &url)
 {
 	if (!m_dialog)
 		m_dialog = new JoinChatDialog(QApplication::activeWindow());
+	if(!url.isEmpty())
+		m_dialog.data()->setUri(url);
 	SystemIntegration::show(m_dialog.data());
 }
 
 JoinChatGenerator::JoinChatGenerator(QObject *module)
     : ActionGenerator(Icon("meeting-attending"),
           QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
-          module, SLOT(onJoinChatTriggered()))
+		  module, SLOT(onJoinGroupChatTriggered()))
 {
 
 }

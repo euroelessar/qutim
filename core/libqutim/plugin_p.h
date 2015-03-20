@@ -59,6 +59,7 @@ namespace qutim_sdk_0_3
 		PluginInfo::Capabilities capabilities;
 		ExtensionIcon icon;
 		QString fileName;
+        QString libraryName;
 	};
 
 	class ExtensionInfoData : public QSharedData

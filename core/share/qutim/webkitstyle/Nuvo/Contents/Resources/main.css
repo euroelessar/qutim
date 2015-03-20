@@ -1,0 +1,154 @@
+body {
+	background-color: #F0F0F0;
+	height: 101%;
+}
+hr {
+    border:0px solid white;
+    border-bottom:1px dotted black;
+}
+
+a:link		{text-decoration: none;			color: #3473e3;}
+a:visited	{text-decoration: none;			color: #3473e3;}
+a:hover		{text-decoration: underline;	color: #d63434;}
+a:active	{text-decoration: none;			color: #d63434;}
+
+.KopeteMessage {
+	margin-top: 4px;
+	border-bottom: 1px solid #e6e6e6;
+	padding-bottom: 4px;
+} 
+div.m_received, div.m_sending, div.m_sent,div.m_info, div.delivered, div.notDelivered, div.m_action, div.m_topic {
+	width: 16px;
+	height: 16px;
+	float: left;
+	margin-right: 4px;
+}
+
+/*ЗАГОЛОВКИ СООБЩЕНИЙ*/
+
+.inContentTime, .inMetaContact {
+	color: #D63434;
+}
+.outContentTime, .outMetaContact {
+	color: #3473E3;
+}
+.inMetaContact, .outMetaContact, .inActionMetacontact, .outActionMetacontact, .InternalDelim, .outContentTime, .inContentTime {
+	font-weight: bold;
+}
+.inMetaContact {
+	cursor: pointer;
+}
+
+.inActionTime, .inActionMetacontact, .inActionMessage,
+.outActionTime, .outActionMetacontact, .outActionMessage {
+	color: green;
+}
+
+.InternalDelim{
+	color: #858585;
+	font-weight: bold;
+}
+.InternalMessage, .InternalTime {
+	color: #858585;
+}
+
+/*ВРЕМЯ СООБЩЕНИЙ*/
+
+.inContentTime, .outContentTime {
+	font-size: 90%;
+}
+
+.action {
+	border-radius: 3px;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	box-shadow:	inset -3px 0px 0px 0px #00a000,
+				inset 3px 0px 0px 0px #00a000,
+				inset 0px -1px 0px 0px #f2f2f2,
+				inset 0px 1px 0px 0px rgba(0,0,0,0.1)
+				;
+}
+
+/*УПОМИНАНИЯ*/
+
+.mention,
+.incoming.mention {
+	border-radius: 3px;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-bottom: 5px;
+	box-shadow:	inset -3px 0px 0px 0px #D63434,
+				inset 3px 0px 0px 0px #D63434,
+				inset 0px -1px 0px 0px #f2f2f2,
+				inset 0px 1px 0px 0px rgba(0,0,0,0.1)
+				;
+}
+
+/*OLDER MESSAGES*/
+
+.history {
+	color: #707070;
+}
+
+/*TOOLTIP*/
+
+.toolTip {
+	padding: 3px;
+	position: absolute;
+	border: solid 1px #e6e6e6;
+	background-color: white;
+	box-sizing: border-box;
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1);
+}
+.toolTip span {
+	float: left;
+	clear: both;
+	/*white-space: nowrap;*/
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+.toolTip img {
+	max-width: 128px;
+	max-height: 128px;
+	display: block;
+	clear: both;
+}
+
+/*QUTIM ZONE. BE AWARE!!!*/
+
+/*URL PREVIEW*/
+
+.urlpreview {
+	color: #707070;
+}
+.urlpreview-image {
+	box-sizing: border-box;
+	height: auto;
+	max-width: 99% !important;
+	padding: 10px;
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+/*YANDEX RCA*/
+
+.yandex-rca {
+	padding: 10px;
+	background: white;
+	border: 1px solid #e6e6e6;
+	box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.1);
+}
+.yandex-rca-content {}
+.yandex-rca-image {
+	box-sizing: border-box;
+	margin-right: 10px;
+	padding: 3px;
+	border: 1px solid #e6e6e6;
+}
+.yandex-rca-image:hover {
+	height: auto;
+	max-width: 100% !important;
+}

@@ -32,6 +32,8 @@
 #include <qutim/debug.h>
 #include <qutim/messagehandler.h>
 #include <QMetaProperty>
+#include <qutim/config.h>
+#include <QApplication>
 
 namespace Core
 {
@@ -88,6 +90,12 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 	m_session = session;
 	setDocument(session->getInputField());
 	setFocus();
+	QFont chatEditFont = qApp->font();
+	Config cfg = Config("appearance");
+	cfg.beginGroup("chat");
+	chatEditFont.setPointSize(cfg.value("chatFontSize", qApp->font().pointSize()));
+	cfg.endGroup();
+	session->getInputField()->setDefaultFont(chatEditFont);
 }
 
 bool ChatEdit::event(QEvent *event)
@@ -134,16 +142,24 @@ public:
 		m_focus = widget->hasFocus();
 		m_widget->setDisabled(true);
 	}
+
+    ChatEditLocker(ChatEditLocker &&other) : m_widget(other.m_widget), m_focus(other.m_focus)
+    {
+        other.m_widget.clear();
+    }
+
 	~ChatEditLocker()
 	{
-		m_widget->setDisabled(false);
-		if (m_focus)
-			m_widget->setFocus();
+        if (m_widget) {
+            m_widget->setDisabled(false);
+            if (m_focus)
+                m_widget->setFocus();
+        }
 	}
 
 private:
+    QPointer<QWidget> m_widget;
 	bool m_focus;
-	QWidget *m_widget;
 };
 
 void ChatEdit::send()
@@ -205,19 +221,13 @@ void ChatEdit::send()
 	message.setTime(QDateTime::currentDateTime());
 	MessageHandler::traceHandlers();
 
-	qint64 result = m_session.data()->appendMessage(message);
-	if (MessageHandler::Error != -result)
-		clear();
-//	if (!unit->sendMessage(message)) {
-//		NotificationRequest request(Notification::System);
-//		request.setObject(this);
-//		request.setText(tr("Unable to send message to %1").arg(unit->title()));
-//		request.send();
-//	}
-//	else {
-//		m_session->appendMessage(message);
-//		clear();
-//	}
+    auto lockerPtr = QSharedPointer<ChatEditLocker>::create(std::move(locker));
+    QPointer<ChatEdit> edit(this);
+    m_session->append(message, [edit, lockerPtr] (qint64 result, const Message &, const QString &) mutable {
+        if (MessageHandler::Error != -result && edit)
+            edit->clear();
+        lockerPtr.reset();
+    });
 }
 
 void ChatEdit::onTextChanged()
@@ -228,7 +238,7 @@ void ChatEdit::onTextChanged()
 		QFontMetrics fontHeight = fontMetrics();
 		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
 		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
-		qDebug() << "New docHeight is: " << docHeight;
+//		qDebug() << "New docHeight is: " << docHeight;
 		if (docHeight == previousTextHeight)
 			return;
 
@@ -240,9 +250,9 @@ void ChatEdit::onTextChanged()
 
 	QString text = textEditToPlainText();
 	if(!m_session || text.trimmed().isEmpty())
-		m_session.data()->setChatState(ChatStateActive);
+		m_session.data()->setChatState(ChatUnit::ChatStateActive);
 	else
-		m_session.data()->setChatState(ChatStateComposing);
+		m_session.data()->setChatState(ChatUnit::ChatStateComposing);
 }
 
 void ChatEdit::setSendKey(SendMessageKey key)

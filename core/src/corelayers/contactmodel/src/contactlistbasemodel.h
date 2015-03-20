@@ -51,7 +51,11 @@ enum ContactListItemRole
 	StatusIconNameRole,
 	ContactRole,
 	AlphabetRole,
-	IdRole
+    IdRole,
+    IconSourceRole,
+    CollapsedRole,
+    FirstItemRole,
+    LastItemRole,
 };
 
 enum ContactListItemType
@@ -72,7 +76,7 @@ class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::No
 	Q_CLASSINFO("SettingsDescription", "Blank model")
 	Q_PROPERTY(QStringList tags READ tags NOTIFY tagsChanged)
 public:
-    explicit ContactListBaseModel(QObject *parent = 0);
+	explicit ContactListBaseModel(QObject *parent = 0);
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
@@ -88,6 +92,9 @@ public:
 	virtual void timerEvent(QTimerEvent *event);
 
 	QStringList tags() const;
+    void collapse(const QModelIndex &index);
+    void expand(const QModelIndex &index);
+    void setCollapsed(const QModelIndex &index, bool collapsed);
 
 	virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
 								   const QStringList &current,
@@ -175,6 +182,7 @@ protected:
 		inline ContactListNode(NodeType type, BaseNode *parent) : BaseNode(type, parent) {}
 
 		QList<ContactNode> contacts;
+        bool collapsed = false;
 		QHash<qutim_sdk_0_3::Contact*, int> onlineContacts;
 		QHash<qutim_sdk_0_3::Contact*, int> totalContacts;
 	};

@@ -4,7 +4,7 @@ Project {
     name: "3rd party"
 
     references: [
-        "k8json/k8json.qbs",
+        //"k8json/k8json.qbs",
         "qxt.qbs",
         "qtsolutions.qbs",
         "qtdwm.qbs",

@@ -38,10 +38,9 @@ class VConnection;
 class VAccount;
 class VContact;
 
-class VInfoFactory : public QObject, public qutim_sdk_0_3::InfoRequestFactory
+class VInfoFactory : public qutim_sdk_0_3::InfoRequestFactory
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::InfoRequestFactory)
 public:
 	VInfoFactory(VAccount *account);
 	virtual SupportLevel supportLevel(QObject *object);

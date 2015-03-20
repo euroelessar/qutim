@@ -67,7 +67,7 @@ public:
 	bool isError();
 	Jreen::MUCRoom *room();
 	qutim_sdk_0_3::Buddy *me() const;
-	Q_INVOKABLE qutim_sdk_0_3::ChatUnit *participant(const QString &nick);
+	Q_INVOKABLE qutim_sdk_0_3::ChatUnit *findParticipant(const QString &nick);
 	QString nick();
 	void setNick(const QString &nick);
 	QString title() const;
@@ -111,8 +111,10 @@ public slots:
 	void admin(const QString &nick, const QString &reason = QString());
 	void owner(const QString &nick, const QString &reason = QString());
 	void voice(const QString &nick, const QString &reason = QString());
+	void unvoice(const QString &nick, const QString &reason = QString());
 	void visitor(const QString &nick, const QString &reason = QString());
 	void member(const QString &nick, const QString &reason = QString());
+	void participant(const QString &nick, const QString &reason = QString());
 	void unban(const QString &jid, const QString &reason = QString());
 	void showConfigDialog();
 private slots:

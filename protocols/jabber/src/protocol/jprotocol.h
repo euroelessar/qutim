@@ -30,6 +30,7 @@
 #include <qutim/debug.h>
 #include <jreen/presence.h>
 #include <jreen/abstractroster.h>
+#include <qutim/servicemanager.h>
 
 namespace Jabber
 {
@@ -70,6 +71,7 @@ private slots:
 	void onSaveRemoveBookmarks(QObject *obj);
 	void onAccountDestroyed(QObject *obj);
 	void onChangeSubscription(QObject *obj);
+	void onUrlOpen(const QUrl &url);
 private:
 	void loadActions();
 	virtual void loadAccounts();

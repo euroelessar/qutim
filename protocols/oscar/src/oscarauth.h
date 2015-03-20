@@ -27,9 +27,13 @@
 #define OSCARAUTH_H
 
 #include <QObject>
+#include <QPointer>
 #include <QNetworkAccessManager>
 #include <QObjectCleanupHandler>
 #include <qutim/networkproxy.h>
+#include <qutim/passworddialog.h>
+#include <qutim/servicemanager.h>
+#include <qutim/keychain.h>
 #include "connection.h"
 
 class QUrl;
@@ -64,7 +68,7 @@ public slots:
 	void login();
 
 protected:
-	void clientLogin(bool longTerm);
+	void clientLogin(bool longTerm, const QString &password);
 	void startSession(const QByteArray &token, const QByteArray &sessionKey);
 	
 signals:
@@ -73,7 +77,7 @@ signals:
 	
 private slots:
 	void onPasswordDialogFinished(int result);
-	void onClientLoginFinished();
+	void onClientLoginFinished(QNetworkReply *reply, const QString &password);
 	void onStartSessionFinished();
     void onSslErrors(const QList<QSslError> &errors);
 
@@ -87,7 +91,8 @@ private:
 	IcqAccount *m_account;
 	State m_state;
 	QNetworkAccessManager m_manager;
-	QString m_password;
+	QPointer<PasswordDialog> m_passwordDialog;
+	ServicePointer<KeyChain> m_keyChain;
 	QString m_errorString;
 	QObjectCleanupHandler m_cleanupHandler;
 };

@@ -81,7 +81,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 	Jreen::ChatState *state = message.payload<Jreen::ChatState>().data();
 	if(state) {
 		if(unit)
-			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
+			unit->setChatState(static_cast<qutim_sdk_0_3::ChatUnit::ChatState>(state->state()));
 	}
 }
 

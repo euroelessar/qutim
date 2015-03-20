@@ -182,7 +182,6 @@ bool ServiceManager::setImplementation(const QByteArray &name, const ExtensionIn
 		d->initializationOrder.removeAt(index);
 	}
 	emit instance()->serviceChanged(name, object, oldObject);
-	emit instance()->serviceChanged(object, oldObject);
 	if (oldObject)
 		oldObject->deleteLater();
 	return true;

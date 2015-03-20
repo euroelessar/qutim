@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BLOGIMRPOVERPLUGIN_H
+#ifndef BLOGIMPROVERPLUGIN_H
 #define BLOGIMPROVERPLUGIN_H
 #include <qutim/plugin.h>
 
@@ -60,4 +60,4 @@ private:
 
 } // namespace BlogImprover
 
-#endif // BLOGIMRPOVERPLUGIN_H
+#endif // BLOGIMPROVERPLUGIN_H

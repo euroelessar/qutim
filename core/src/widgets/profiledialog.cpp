@@ -121,7 +121,7 @@ void ProfileDialog::login(const QString &password)
 	QVariantMap varMap;
 	file.load(var);
 	varMap = var.toMap();
-	Config(&varMap).setValue("current", config.value("id", QString()));
+    varMap["current"] = varMap.value("id").toString();
 	file.save(varMap);
 	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));

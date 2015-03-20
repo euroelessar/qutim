@@ -270,7 +270,7 @@ ActionGenerator *ActionGenerator::setPriority(int priority)
 
 void ActionGenerator::setMenuController(MenuController *controller)
 {
-	Q_UNUSED(controller);
+    d_func()->data->controller = controller;
 }
 
 void ActionGenerator::addHandler(int type, QObject* obj)
@@ -348,18 +348,6 @@ QList<QByteArray> ActionGenerator::interfaces() const
 	return QList<QByteArray>();
 }
 
-MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu) :
-	ActionGenerator(*new ActionGeneratorPrivate)
-{
-	Q_D(ActionGenerator);
-	d->q_ptr = this;
-	d->icon = icon;
-	d->text = text;
-	d->connectionType = ActionConnectionSimple;
-	d->data = new ActionData;
-	d->data->menu = menu;
-}
-
 MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller) :
 	ActionGenerator(*new ActionGeneratorPrivate)
 {
@@ -380,11 +368,10 @@ QObject *MenuActionGenerator::generateHelper() const
 {
 	Q_D(const ActionGenerator);
 	QAction *action = prepareAction(new QAction(NULL));
-	if (d->data->menu) {
-		action->setMenu(d->data->menu);
-	} else if (d->data->controller) {
+	if (d->data->controller) {
 		QMenu *menu = d->data->controller->menu(false);
 		action->setMenu(menu);
+        action->setProperty("conrtoller", QVariant::fromValue(d->data->controller));
 	}
 	//		const ActionGenerator *gen = this;
 	//		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));

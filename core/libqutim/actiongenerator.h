@@ -42,6 +42,7 @@ class ActionCollectionPrivate;
 class ActionValue;
 
 //TBD list of all action roles
+// Keep in sink with QuickActionContainer::ActionType
 enum ActionType
 {
 	ActionTypeContactList = 0x01, //Actions in contactlist
@@ -179,7 +180,6 @@ class LIBQUTIM_EXPORT MenuActionGenerator : public ActionGenerator
 	Q_DECLARE_PRIVATE(ActionGenerator)
 	Q_DISABLE_COPY(MenuActionGenerator)
 public:
-	MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu);
 	MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller);
 	virtual ~MenuActionGenerator();
 protected:

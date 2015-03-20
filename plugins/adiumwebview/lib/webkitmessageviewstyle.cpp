@@ -34,6 +34,7 @@
 #include <QVariantMap>
 #include <QUrl>
 #include <QTextDocument>
+#include <QRegularExpression>
 #include <qutim/config.h>
 #include <qutim/conference.h>
 #include <qutim/chatsession.h>
@@ -413,7 +414,7 @@ void WebKitMessageViewStyle::setStylePath(const QString &path)
 void WebKitMessageViewStyle::setCustomStyle(const QString &style)
 {
 	Q_D(WebKitMessageViewStyle);
-	d->customStyle = style;
+    d->customStyle = style;
 }
 
 QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session)
@@ -447,9 +448,21 @@ QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *
 		                                << activeVariantPath()
 		                                << headerContent
 		                                << d->footerHTML);
-	}
+    }
 
-	return fillKeywordsForBaseTemplate(templateHTML, session);
+    return fillKeywordsForBaseTemplate(templateHTML, session);
+}
+
+QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session, const QString &id, const QString &wsUri)
+{
+    QString html = baseTemplateForChat(session);
+    return injectScript(html, id, wsUri);
+}
+
+QUrl WebKitMessageViewStyle::baseUrl()
+{
+    Q_D(WebKitMessageViewStyle);
+    return QUrl::fromLocalFile(d->stylePath);
 }
 
 QString WebKitMessageViewStyle::scriptForChangingVariant()
@@ -508,6 +521,37 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 	}
 	
 	return script.arg(validateCpp(newHTML));
+}
+
+QString &WebKitMessageViewStyle::injectScript(QString &inString, const QString &id, const QString &wsUri)
+{
+    QDir shareDir = ThemeManager::path(QStringLiteral("data"), QStringLiteral("webview"));
+    Q_ASSERT(shareDir.exists(QStringLiteral("qwebchannel.js")));
+    Q_ASSERT(shareDir.exists(QStringLiteral("client.js")));
+
+    QString idCopy = id;
+    QString wsUriCopy = wsUri;
+
+    QString script = QStringLiteral(
+            "\n" \
+            "<script src=\"%1\"></script>\n" \
+            "<script src=\"%2\"></script>\n" \
+            "<script>client.initQuickChat(\"%3\", \"%4\");</script>\n"
+        ).arg(
+            QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("qwebchannel.js"))).toString(),
+            QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("client.js"))).toString(),
+            validateCpp(idCopy),
+            validateCpp(wsUriCopy)
+        );
+
+    static QRegularExpression regexp("<\\s*head\\s*>");
+    Q_ASSERT(regexp.isValid());
+
+    QRegularExpressionMatchIterator it = regexp.globalMatch(inString);
+    Q_ASSERT(it.hasNext());
+
+    auto match = it.next();
+    return inString.insert(match.capturedEnd(), script);
 }
 
 QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session)
@@ -843,39 +887,14 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 
 WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qutim_sdk_0_3::Message &message)
 {
-	QObject *source = 0;
-	UnitData result;
-	result.id = message.property("senderId", QString());
-	result.title = message.property("senderName", QString());
-	if (!result.title.isEmpty()) {
-		if (!result.id.isEmpty())
-			source = message.chatUnit()->account()->getUnit(result.id, false);
-		if (source)
-			result.avatar = source->property("avatar").toString();
-		return result;
-	}
-	if (!source && message.chatUnit()) {
-		if (!message.isIncoming()) {
-			const Conference *conf = qobject_cast<const Conference*>(message.chatUnit());
-			if (conf && conf->me())
-				source = conf->me();
-			else
-				source = message.chatUnit()->account();
-		} else {
-			source = message.chatUnit();
-		}
-	}
-	if (!source)
-		return result;
-	result.avatar = source->property("avatar").toString();
-	if (ChatUnit *unit = qobject_cast<ChatUnit*>(source)) {
-		result.id = unit->id();
-		result.title = unit->title();
-	} else if (Account *account = qobject_cast<Account*>(source)) {
-		result.id = account->id();
-		result.title = account->name();
-	}
-	return result;
+    const MessageUnitData data = message.unitData();
+
+    UnitData result;
+    result.id = data.id();
+    result.title = data.title();
+    result.avatar = data.avatar();
+
+    return result;
 }
 
 QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar)
@@ -1066,7 +1085,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		inString.replace(QLatin1String("%message%"), replacedStatusPhrase ? QString() : htmlEncodedMessage);
 	}
 
-	return inString;
+    return inString;
 }
 
 QString WebKitMessageViewStyle::pathForResource(const QString &name, const QString &directory)

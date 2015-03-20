@@ -26,7 +26,6 @@
 #ifndef POPUPAPPEARANCE_H
 #define POPUPAPPEARANCE_H
 #include <QWidget>
-#include "../popupwidgets/quickpopupwidget.h"
 #include <qutim/settingswidget.h>
 
 namespace Ui
@@ -50,9 +49,9 @@ public:
 private slots:
 	void onCurrentIndexChanged(int index);
 	void onTestButtonClicked();
+	void onSpinBoxValueChanged(double);
 private:
 	void getThemes();
-	void preview();
 	Ui::AppearanceSettings *ui;
 };
 

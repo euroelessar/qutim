@@ -28,6 +28,7 @@
 #include "plugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
+#include "profile.h"
 #include "notification.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
@@ -56,24 +57,13 @@
 #include <qendian.h>
 #include "objectgenerator.h"
 
-#ifdef NO_SYSTEM_QXT
-# include "../3rdparty/qxt/qxtcommandoptions.h"
-#else
-# include <qxtcommandoptions.h>
-#endif
-
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
 
 #define QUTIM_TEST_PERFOMANCE 1
 
-//Let's show message box with error
-#if	defined(Q_OS_SYMBIAN)
-# undef QUTIM_TEST_PERFOMANCE
-# include <QMessageBox>
-# include <QLibraryInfo>
-#endif
+#include <QCommandLineParser>
 
 //#define NO_COMMANDS 1
 
@@ -308,6 +298,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	qRegisterMetaType<QAction*>("QAction*");
 	qRegisterMetaTypeStreamOperators<Status>();
     d = new ModuleManagerPrivate;
+	AccountManagerPrivate::self = &d->accountManager;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
 	qApp->setApplicationVersion(versionString());
@@ -322,6 +313,8 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 ModuleManager::~ModuleManager()
 {
 	managerSelf = 0;
+	AccountManagerPrivate::self = NULL;
+	delete d;
 }
 
 /**
@@ -332,25 +325,40 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifndef NO_COMMANDS
 	const QStringList args = qApp->arguments();
 
-	QxtCommandOptions parser;
-	parser.add("help", "This help message");
-	parser.alias("help", "?");
-	parser.alias("help", "h");
+	QCommandLineParser parser;
+	QCommandLineOption help(QStringList() << "h" << "?" << "help", "This help message");
+	parser.addOption(help);
 
-	parser.add("version", "Show version information");
-	parser.alias("version", "v");
+	QCommandLineOption version(QStringList() << "v" << "version", "Show version information");
+	parser.addOption(version);
 
-	parser.add("single-instance", "Run single instance", QxtCommandOptions::NoValue, 0x15);
-	parser.add("new-instance", "Run new instance", QxtCommandOptions::NoValue, 0x15);
-	parser.add("open-url", "Open url", QxtCommandOptions::ValueRequired);
+	//parser.addPositionalArgument("url", "Url to open (Like xmpp:rabbit@40k.org?message)");
 
-	parser.parse(args);
-	
+	//parser.add("single-instance", "Run single instance", QxtCommandOptions::NoValue, 0x15);
+	//parser.add("new-instance", "Run new instance", QxtCommandOptions::NoValue, 0x15);
+	QCommandLineOption singleInst("single-instance", "Run single instance");
+	parser.addOption(singleInst);
+
+	QCommandLineOption newInst("new-instance", "Run new instance");
+	parser.addOption(newInst);
+
+	QCommandLineOption openUrl("url", "Url to open (Like xmpp:rabbit@40k.org?message)", "url");
+	parser.addOption(openUrl);
+
+	QCommandLineOption configDir("config", "Custom config directory", "path");
+	parser.addOption(configDir);
+
+	if(!parser.parse(args)) {
+		parser.showHelp(0);
+		exit(0);
+		return;
+	}
+
 	QString messageToServer;
 #if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_WS_MAEMO_5) && !defined(MEEGO_EDITION))
-	bool singleInstance = !parser.count("new-instance");
+	bool singleInstance = !parser.isSet("new-instance");
 #else
-	bool singleInstance = parser.count("single-instance");
+	bool singleInstance = parser.isSet("single-instance");
 #endif
 	
 	if (singleInstance) {
@@ -361,9 +369,11 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 			s << args;
 		}
 		messageToServer += QLatin1String(data.toBase64());
-	} else if (parser.count("open-url")) {
+	}
+
+	if (parser.value("url").count()) {
 		messageToServer = QLatin1String("url: ");
-		messageToServer += parser.value("open-url").toString();
+		messageToServer += parser.value("url");
 	} else if (args.count() == 2) {
 		const QString &possibleUrl = args[1];
 		QUrl url = QUrl::fromEncoded(possibleUrl.toUtf8());
@@ -371,28 +381,34 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 			messageToServer = QLatin1String("url: ") + possibleUrl;
 	}
 
+	if(parser.value("config").count()) {
+		Profile::instance()->setCustomProfilePath(parser.value("config"));
+	}
+
 	if (!messageToServer.isEmpty()) {
 		bool shouldExit = false;
 		d->initLocalPeer(messageToServer, &shouldExit);
+
+		if (parser.positionalArguments().isEmpty()) {
+			if (parser.isSet("version")) {
+				printVersion();
+				exit(0);
+				return;
+			}
+
+			if (!parser.unknownOptionNames().isEmpty() || parser.isSet("help")) {
+				parser.showHelp(0);
+				exit(0);
+				return;
+			}
+		}
+
 		if (shouldExit) {
 			exit(0);
 			return;
 		}
 	}
 
-	if (parser.positional().isEmpty()) {
-		if (parser.count("version")) {
-			printVersion();
-			exit(0);
-			return;
-		}
-
-		if (parser.showUnrecognizedWarning()) {
-			parser.showUsage(true);
-			exit(0);
-			return;
-		}
-	}
 #endif
 	
 	// Static plugins
@@ -410,25 +426,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	QStringList paths;
     d->extensions << coreExtensions();
 
-#if	defined(Q_OS_SYMBIAN)
-	// simple S60 plugins loader
-	QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
-	paths << pluginsDir.filePath("qutim");
-
-//	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-//		// Create plugin loader
-//		QPluginLoader* loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
-//		// Load plugin
-//		if (!loader->load()) {
-//			QMessageBox msg;
-//			msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
-//			msg.exec();
-//			delete loader;
-//			continue;
-//		}
-//		// init plugin
-//		QObject *object = loader->instance();
-#else // defined(Q_OS_SYMBIAN)
 	paths = additional_paths;
 	QDir root_dir = QApplication::applicationDirPath();
 //	1. Windows, ./plugins
@@ -465,17 +462,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	plugin_path += "PlugIns";
 	paths << plugin_path;
 #endif // Q_OS_MAC
-	
-// 4. Safe way, ~/.local/share/qutim/plugins
-//		plugin_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-//		plugin_path += QDir::separator();
-//		plugin_path += "plugins";
-//		paths << plugin_path;
-//		// 6. From config
-//		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
-//		paths << config_paths;
-	
-#endif // defined(Q_OS_SYMBIAN)
 
 	paths.removeDuplicates();
 	QSet<QString> pluginPathsList;
@@ -491,7 +477,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 				if(pluginPathsList.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
 					continue;
 				pluginPathsList << filename;
-#ifndef Q_OS_SYMBIAN
 				// Just don't load old plugins
 				typedef const char * (*QutimPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
@@ -535,7 +520,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						continue;
 					}
 				}
-#endif // Q_OS_SYMBIAN
 				QPluginLoader *loader = new QPluginLoader(filename);
 				QObject *object = loader->instance();
 #ifdef QUTIM_TEST_PERFOMANCE
@@ -553,7 +537,15 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 							<< "ms, instance:" << instanceTime << "ms, init:" << initTime << "ms";
 #endif // QUTIM_TEST_PERFOMANCE
                     if (plugin->p->validate()) {
-                        plugin->p->info.data()->inited = 1;
+                        PluginInfo::Data *info = plugin->p->info.data();
+                        info->inited = 1;
+                        info->fileName = filename;
+                        QFileInfo fileInfo = info->fileName;
+                        QString baseName = fileInfo.baseName();
+                        if (baseName.startsWith(QStringLiteral("lib")))
+                            baseName.remove(0, 3);
+                        info->libraryName = baseName;
+
                         d->plugins.append(plugin);
                         d->extensions << plugin->avaiableExtensions();
 						foreach(ExtensionInfo info, plugin->avaiableExtensions())
@@ -566,11 +558,6 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 						delete object;
 					else {
 						errors.insert(filename, loader->errorString());
-#ifdef Q_OS_SYMBIAN
-						QMessageBox msg;
-						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
-						msg.exec();
-#endif
 					}
 					loader->unload();
 				}
@@ -716,7 +703,6 @@ void ModuleManager::initExtensions()
         const QHash<QByteArray, ExtensionInfo> &extsHash = d->extensionsHash;
 		ConfigGroup group = Config().group("protocols");
 		QVariantMap selected = group.value("list", QVariantMap());
-		bool changed = false;
 		QVariantMap::const_iterator it = selected.constBegin();
 		QSet<QString> choosedProtocols;
 		for (; it != selected.constEnd(); it++) {
@@ -733,7 +719,7 @@ void ModuleManager::initExtensions()
 					continue;
 				qDebug() << name << meta->className();
 				Protocol *protocol = info.generator()->generate<Protocol>();
-                d->protocols.insert(protocol->id(), protocol);
+				AccountManagerPrivate::getPrivate(&d->accountManager)->addProtocol(protocol);
 				choosedProtocols.insert(it.key());
 				usedExtensions << meta->className();
 
@@ -749,18 +735,15 @@ void ModuleManager::initExtensions()
             if (name.isEmpty() || choosedProtocols.contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
-            d->protocols.insert(protocol->id(), protocol);
+			AccountManagerPrivate::getPrivate(&d->accountManager)->addProtocol(protocol);
 			choosedProtocols.insert(name);
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
-			changed = true;
 
             connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 		}
-		if (changed) {
-			group.setValue("list", selected);
-			group.sync();
-		}
+
+		group.setValue("list", selected);
 	}
     d->is_inited = true;
     for (int i = 0; i < d->extensions.size(); i++) {
@@ -849,6 +832,14 @@ void ModuleManager::initExtensions()
 
 void ModuleManager::onQuit()
 {
+	foreach (Account *account, d->accountManager.accounts()) {
+		Status status = account->status();
+		account->config().setValue("lastStatus", status);
+		status.setType(Status::Offline);
+		status.setChangeReason(Status::ByQuit);
+		account->setUserStatus(status);
+	}
+
 	Event("aboutToQuit").send();
     foreach(QPointer<Plugin> plugin, d->plugins) {
         if (!plugin.isNull() && plugin.data()->info().data()->loaded) {

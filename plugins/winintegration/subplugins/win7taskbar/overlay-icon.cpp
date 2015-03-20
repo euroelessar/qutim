@@ -25,11 +25,14 @@
 
 #include "overlay-icon.h"
 #include "../../src/winint.h"
-#include <WinThings/OverlayIcon.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
 #include <QPainter>
 #include <QFont>
+#include <qt_windows.h>
+
+#include <QtWinExtras/QWinTaskbarButton>
+#include <QMessageBox>
 
 using namespace qutim_sdk_0_3;
 
@@ -41,40 +44,50 @@ WOverlayIcon::WOverlayIcon()
 
 void WOverlayIcon::onUnreadChanged(unsigned unreadChats, unsigned unreadConfs)
 {
+	if (!(WinIntegration::oneOfChatWindows()))
+		return;
+	QWinTaskbarButton button;
+	button.setWindow(WinIntegration::oneOfChatWindows()->windowHandle());
 	if (!(unreadChats + unreadConfs)) {
-		OverlayIcon::clear(WinIntegration::oneOfChatWindows());
+		button.clearOverlayIcon();
 		return;
 	}
 	quint32 count = unreadChats + (cfg_addConfs ? unreadConfs : 0);
 	QPixmap icon;
-	if(unreadConfs && !unreadChats)
-		icon = Icon("mail-message")   .pixmap(16, 16);
+	int height = GetSystemMetrics(SM_CXSMICON);
+	if (unreadConfs && !unreadChats)
+		icon = Icon("winoverlay-mail-message")   .pixmap(height, height);
 	else
-		icon = Icon("mail-unread-new").pixmap(16, 16);
+		icon = Icon("winoverlay-mail-unread-new").pixmap(height, height);
+	if (icon.isNull())
+		QMessageBox::information(0, "Nooo", "Invalid icon");
 	QPainter painter(&icon);
-	if(cfg_displayNumber && count){
+	if (cfg_displayNumber && count) {
 		QFont font;
 		font.setWeight(QFont::DemiBold);
 		font.setFamily("Segoe UI");
 		font.setPointSize(7);
 		painter.setFont(font);
 		painter.setPen(Qt::darkBlue);
-		painter.drawText(QRect(0, 1, 15, 15), Qt::AlignCenter, QString::number(count));
+		painter.drawText(QRect(0, 0, 16, 16), Qt::AlignCenter, QString::number(count));
 	}
-	OverlayIcon::set(WinIntegration::oneOfChatWindows(), icon);
+	button.setOverlayIcon(icon);
 }
 
 void WOverlayIcon::reloadSettings()
 {
+	if (!(WinIntegration::oneOfChatWindows()))
+		return;
+	QWinTaskbarButton button;
+	button.setWindow(WinIntegration::oneOfChatWindows()->windowHandle());
 	Config cfg(WI_ConfigName);
 	cfg_addConfs      = cfg.value("oi_addNewConfMsgNumber", false);
 	cfg_displayNumber = cfg.value("oi_showNewMsgNumber",    true);
 	cfg_enabled       = cfg.value("oi_enabled",             true);
 	if (cfg_enabled) {
-		connect   (WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), this, SLOT(onUnreadChanged(uint,uint)), Qt::UniqueConnection);
+		connect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), this, SLOT(onUnreadChanged(uint,uint)), Qt::UniqueConnection);
 	} else {
 		disconnect(WinIntegration::instance(), SIGNAL(unreadChanged(uint,uint)), this, SLOT(onUnreadChanged(uint,uint)));
-		OverlayIcon::clear(WinIntegration::oneOfChatWindows());
+		button.clearOverlayIcon();
 	}
 }
-

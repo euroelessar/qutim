@@ -65,7 +65,7 @@ WebViewAppearance::WebViewAppearance(): ui(new Ui::chatAppearance), m_isFillingS
 	m_preview = WebKitPreviewLoader().loadPreview(shareDir.filePath(QLatin1String("Preview.plist")));
 	m_controller = new WebViewController(true);
 	m_controller->setChatSession(m_preview->session.data());
-	ui->chatPreview->setPage(m_controller);
+    ui->chatPreview->setPage(m_controller);
 	m_style = m_controller->style();
 }
 
