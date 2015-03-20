@@ -72,10 +72,10 @@ void UrlHandler::loadSettings()
 	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
 								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px';"
 								 "if (this.height>%MAXH%) { this.style.maxWidth=''; this.style.maxHeight='%MAXH%px'; } "
-								 "this.style.display=''; document.body.scrollTop = document.body.offsetHeight; \"><br>";
+								 "this.style.display=''; if(nearBottom() || this.parentNode.getAttribute('data-wasnearbottom') == 'true' ){scrollToBottom();} \"><br>";
 	m_youtubeTemplate =	"<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\">"
 								   "<img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\">"
-								   "<img onload=\"document.body.scrollTop = document.body.offsetHeight;\" src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
+								   "<img onload=\"if(nearBottom() || this.parentNode.getAttribute('data-wasnearbottom') == 'true'){scrollToBottom();}\" src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
 	m_html5AudioTemplate = "<audio controls=\"controls\" preload=\"none\"><source src=\"%AUDIOURL%\" type=\"%FILETYPE%\"/>" % tr("Something went wrong.") % "</audio>";
 
@@ -84,7 +84,7 @@ void UrlHandler::loadSettings()
 								  "<img class=\"yandex-rca-image\" src=\"%IMAGE%\" style=\"max-width: 30%; float: left; />"
 								  "<b class=\"yandex-rca-title\">%TITLE%</b>"
 								  "<br/>"
-								  "<span class=\"yandex-rca-content\">%CONTENT%</span>"
+								  "<span class=\"yandex-rca-content\">%CONTENT%</span> <br />"
 								  "</div>";
 	m_enableYoutubePreview = cfg.value("youtubePreview", true);
 	m_enableImagesPreview = cfg.value("imagesPreview", true);
@@ -171,8 +171,14 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	reply->setProperty("uid", uid);
 	reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
 
-	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2'></span> ")
-           .arg(originalLink.toString(), uid);
+	ChatSession *session = ChatLayer::get(from);
+
+	QVariant val;
+	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_RETURN_ARG(QVariant, val), Q_ARG(QString, "nearBottom();"));
+	qDebug() << val;
+
+	link = QString::fromLatin1("%1 <span class='urlpreview' id='urlpreview%2' data-wasnearbottom='%3'></span> ")
+		   .arg(originalLink.toString(), uid, val.toString());
 }
 
 void UrlHandler::netmanFinished(QNetworkReply *reply)
@@ -200,7 +206,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	QByteArray typeheader;
 	QString type;
 	QByteArray sizeheader;
-	quint64 size=0;
+	quint64 size = 0;
 	QRegExp hrx; hrx.setCaseSensitivity(Qt::CaseInsensitive);
 	foreach (QString header, reply->rawHeaderList()) {
 		if (type.isEmpty()) {
@@ -318,8 +324,8 @@ void UrlHandler::updateData(ChatUnit *unit, const QString &uid, const QString &h
 				 % QLatin1Literal(".innerHTML = \"")
 				 % QString(html).replace("\"", "\\\"")
 				 % QLatin1Literal("\";")
-				 % QLatin1Literal("document.body.scrollTop = document.body.offsetHeight;");
-    ChatSession *session = ChatLayer::get(unit);
+				 % QLatin1Literal("if(nearBottom() || urlpreview") % uid % QLatin1Literal(".getAttribute('data-wasnearbottom') == 'true'){scrollToBottom();}");
+	ChatSession *session = ChatLayer::get(unit);
 
 	QMetaObject::invokeMethod(session, "evaluateJavaScript", Q_ARG(QString, js));
 }

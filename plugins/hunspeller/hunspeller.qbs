@@ -2,5 +2,6 @@ import "../UreenPlugin.qbs" as UreenPlugin
 
 UreenPlugin {
     pluginTags: 'linux'
-    Depends { name: "hunspell" }
+    cpp.dynamicLibraries: ["hunspell"]
+    condition: qbs.targetOS.contains("linux")
 }
