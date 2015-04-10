@@ -44,11 +44,7 @@ class MessageHandlerHook : public MessageHandler
 public:
 	MessageHandlerHook()
 	{
-		Config cfg(QLatin1String("appearance"));
-		cfg.beginGroup(QLatin1String("chat"));
-		cfg.beginGroup(QLatin1String("history"));
-		m_storeMessages = cfg.value(QLatin1String("storeMessages"), true);
-		m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
+
 	}
 	
 	MessageHandlerAsyncResult doHandle(Message &message) override
@@ -56,14 +52,34 @@ public:
 		ChatSession *session = messageHookMap()->value(originalMessageId());
 		if (session) {
 			session->doAppendMessage(message);
-			if (m_storeMessages && message.property("store", true)
-					&& (m_storeServiceMessages || !message.property("service", false))) {
-				History::instance()->store(message);
-			}
 		}
 		return makeAsyncResult(Accept, QString());
 	}
-	
+
+};
+
+class HistoryHook : public MessageHandler
+{
+public:
+	HistoryHook()
+	{
+		Config cfg(QLatin1String("appearance"));
+		cfg.beginGroup(QLatin1String("chat"));
+		cfg.beginGroup(QLatin1String("history"));
+		m_storeMessages = cfg.value(QLatin1String("storeMessages"), true);
+		m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
+	}
+
+	MessageHandlerAsyncResult doHandle(Message &message) override
+	{
+
+		if (m_storeMessages && message.property("store", true)
+			&& (m_storeServiceMessages || !message.property("service", false))) {
+			History::instance()->store(message);
+		}
+		return makeAsyncResult(Accept, QString());
+	}
+
 private:
 	bool m_storeMessages;
 	bool m_storeServiceMessages;
@@ -100,6 +116,7 @@ struct ChatLayerData
 	ServicePointer<ChatLayer> self;
 	QScopedPointer<MessageHandlerHook> handlerHook;
 	QScopedPointer<ChatUnitSenderMessageHandler> senderHook;
+	QScopedPointer<HistoryHook> historyHook;
 };
 
 Q_GLOBAL_STATIC(ChatLayerData, p)
@@ -203,6 +220,9 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
+
+	p()->historyHook.reset(new HistoryHook);
+
 	MessageHandler::registerHandler(p()->handlerHook.data(),
 	                                QLatin1String("HandlerHook"),
 	                                MessageHandler::ChatInPriority,
@@ -211,11 +231,18 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	                                QLatin1String("SenderHook"),
 	                                MessageHandler::NormalPriortity,
 	                                MessageHandler::SenderPriority);
+
+	MessageHandler::registerHandler(p()->historyHook.data(),
+									QLatin1String("HistoryHook"),
+									MessageHandler::HighPriority + 100500 - 1,
+									MessageHandler::HighPriority + 100500 - 1);
 }
 
 ChatLayer::~ChatLayer()
 {
 	p()->handlerHook.reset(0);
+
+	p()->historyHook.reset(0);
 }
 
 ChatLayer *ChatLayer::instance()
