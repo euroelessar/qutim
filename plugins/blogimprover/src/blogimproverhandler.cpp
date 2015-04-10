@@ -61,8 +61,7 @@ void BlogImproverHandler::loadSettings()
 
 MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
 {
-	qutim_sdk_0_3::MessageHandler::traceHandlers();
-
+	//qutim_sdk_0_3::MessageHandler::traceHandlers();
 
 	if (!message.isIncoming())
         return makeAsyncResult(Accept, QString());
