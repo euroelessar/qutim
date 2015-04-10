@@ -35,7 +35,6 @@ Project {
         "quickcontactlist/quickcontactlist.qbs",
         "indicator/indicator.qbs",
         "winintegration/winintegration.qbs",
-        "metamenu/metamenu.qbs",
         "aspeller/aspeller.qbs",
         "hunspeller/hunspeller.qbs",
         "keychain/keychain.qbs",
