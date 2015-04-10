@@ -65,27 +65,7 @@ Item {
         items.splice(index, 0, undefined);
         itemMessages.splice(index, 0, message);
 
-       /* if (index > 0 && isContentSimiliar(itemMessages[index - 1], message)) {
-            items[index] = items[index - 1];
-            insertMessage(items[index], message);
-        } else if (index + 1 < itemMessages.length && isContentSimiliar(message, itemMessages[index + 1])) {
-            items[index] = items[index + 1];
-            insertMessage(items[index], message);
-        } else {*/
-        if(true) {
-            items[index] = createItem([message]);
-
-            if (index > 0 && index + 1 < items.length && items[index - 1] === items[index + 1]) {
-                var messages = items[index - 1].messages;
-                var messageIndex = messages.indexOf(itemMessages[index + 1]);
-                var firstMessages = messages.slice(0, messageIndex);
-                var secondMessages = messages.slice(messageIndex);
-                items[index - 1].messages = firstMessages;
-                items[index + 1] = createItem(secondMessages);
-                for (var i = 1; i < secondMessages.length; ++i)
-                    items[index + 1 + i] = items[index + 1];
-            }
-        }
+        items[index] = createItem([message]);
 
         itemById[message.id] = items[index];
 
