@@ -220,7 +220,6 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	qRegisterMetaType<qutim_sdk_0_3::MessageList>("qutim_sdk_0_3::MessageList");
 	p()->handlerHook.reset(new MessageHandlerHook);
 	p()->senderHook.reset(new ChatUnitSenderMessageHandler);
-
 	p()->historyHook.reset(new HistoryHook);
 
 	MessageHandler::registerHandler(p()->handlerHook.data(),
@@ -231,17 +230,15 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	                                QLatin1String("SenderHook"),
 	                                MessageHandler::NormalPriortity,
 	                                MessageHandler::SenderPriority);
-
 	MessageHandler::registerHandler(p()->historyHook.data(),
 									QLatin1String("HistoryHook"),
-									MessageHandler::HighPriority + 100500 - 1,
-									MessageHandler::HighPriority + 100500 - 1);
+									MessageHandler::HistoryPriority,
+									MessageHandler::HistoryPriority);
 }
 
 ChatLayer::~ChatLayer()
 {
 	p()->handlerHook.reset(0);
-
 	p()->historyHook.reset(0);
 }
 
