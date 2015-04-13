@@ -32,7 +32,10 @@ using namespace qutim_sdk_0_3;
 
 class HunSpellPlugin : public Plugin
 {
-Q_OBJECT
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_CLASSINFO("DebugName", "HunSpell")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	explicit HunSpellPlugin();
 	virtual void init();

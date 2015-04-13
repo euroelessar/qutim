@@ -32,7 +32,10 @@ using namespace qutim_sdk_0_3;
 
 class ASpellPlugin : public Plugin
 {
-Q_OBJECT
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_CLASSINFO("DebugName", "ASpell")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	explicit ASpellPlugin();
 	virtual void init();
