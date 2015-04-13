@@ -61,7 +61,9 @@ void BlogImproverHandler::loadSettings()
 
 MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
 {
-    if (message.isIncoming())
+	//qutim_sdk_0_3::MessageHandler::traceHandlers();
+
+	if (!message.isIncoming())
         return makeAsyncResult(Accept, QString());
 
     ChatSession *session = ChatLayer::get(message.chatUnit(), false);
