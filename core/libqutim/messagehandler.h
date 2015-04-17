@@ -48,6 +48,7 @@ public:
 		NormalPriortity   = 0x00010000,
 		ChatOutPriority   = 0x00020000,
 		HighPriority      = 0x01000000,
+		HistoryPriority   = 0x01010000,
 		SenderPriority    = 0x02000000
 	};
 
