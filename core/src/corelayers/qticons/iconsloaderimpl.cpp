@@ -24,13 +24,11 @@
 ****************************************************************************/
 
 #include "iconsloaderimpl.h"
-#include <qutim/configbase.h>
-#include "../../../3rdparty/q-xdg/src/xdgiconmanager.h"
 #include <qutim/systeminfo.h>
 #include <qutim/debug.h>
-#include <QFormLayout>
 #include <QCoreApplication>
-#include <qutim/icon.h>
+#include <QImageWriter>
+#include <QBuffer>
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 #	define QUTIM_DEFAULT_ICON_THEME "qutim-default"
@@ -40,75 +38,27 @@
 
 namespace Core
 {
-Q_GLOBAL_STATIC_WITH_ARGS(XdgIconManager, iconManager,
-						  (QList<QDir>()
-						   << SystemInfo::getDir(SystemInfo::ShareDir)
-						   << SystemInfo::getDir(SystemInfo::SystemShareDir)))
-
-IconLoaderSettings::IconLoaderSettings()
-{
-	m_box = new QComboBox(this);
-	QFormLayout *layout = new QFormLayout(this);
-	layout->addRow(tr("Theme"), m_box);
-	connect(m_box, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
-}
-
-void IconLoaderSettings::loadImpl()
-{
-	m_box->clear();
-	m_index = -1;
-	QString themeId = Config().group("appearance").value("theme", QUTIM_DEFAULT_ICON_THEME);
-	foreach (const QString &id, iconManager()->themeIds(false)) {
-		const XdgIconTheme *theme = iconManager()->themeById(id);
-		m_box->addItem(QIcon(), theme->name(), theme->id());
-		if (themeId == id)
-			m_index = m_box->count() - 1;
-	}
-	m_box->setCurrentIndex(m_index);
-}
-
-void IconLoaderSettings::saveImpl()
-{
-	QString themeId = m_box->itemData(m_box->currentIndex()).toString();
-	Config().group("appearance").setValue("theme", themeId);
-	iconManager()->setCurrentTheme(themeId);
-    QIcon::setThemeName(themeId);
-}
-
-void IconLoaderSettings::cancelImpl()
-{
-	loadImpl();
-}
-
-void IconLoaderSettings::onCurrentIndexChanged(int index)
-{
-	setModified(index != m_index);
-}
 
 IconLoaderImpl::IconLoaderImpl()
 {
     QStringList themeSearchPaths = QIcon::themeSearchPaths();
-    themeSearchPaths << QCoreApplication::applicationDirPath();
+    themeSearchPaths << QCoreApplication::applicationDirPath() + QStringLiteral("/icons");
     themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
     themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
     QIcon::setThemeSearchPaths(themeSearchPaths);
 
-	onSettingsChanged();
-	m_settings.reset(new GeneralSettingsItem<IconLoaderSettings>(
-						 Settings::Appearance, iconManager->getIcon("preferences-desktop-icons"),
-						 QT_TRANSLATE_NOOP("Settings", "Icons theme")));
-//	item->setConfig(QString(), QLatin1String("appearance"));
-//	AutoSettingsItem::Entry *entry = item->addEntry<ThemeBox>(QT_TRANSLATE_NOOP("Settings", "Current theme"));
-//	entry->setName(QLatin1String("theme"));
-//	entry->setProperty("items", iconManager()->themeIds(false));
-//	qDebug() << "ICONS:" << iconManager()->themeIds(true);
-//	qDebug() << "ICONS:" << iconManager()->themeIds(false);
-	Settings::registerItem(m_settings.data());
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+    QIcon::setThemeName(QStringLiteral("qutim-default"));
+#endif
+}
+
+IconLoaderImpl::~IconLoaderImpl()
+{
 }
 
 QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 {
-	return iconManager()->getIcon(name);
+    return QIcon::fromTheme(name);
 }
 
 QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
@@ -119,8 +69,21 @@ QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
 
 QString IconLoaderImpl::doIconPath(const QString &name, uint iconSize)
 {
-	qDebug() << Q_FUNC_INFO << name << iconSize << iconManager()->currentTheme()->getIconPath(name, iconSize);
-	return iconManager()->currentTheme()->getIconPath(name, iconSize);
+    QIcon icon = doLoadIcon(name);
+
+    QByteArray data;
+    QBuffer buffer(&data);
+    buffer.open(QBuffer::WriteOnly);
+
+    QPixmap pixmap = icon.pixmap(iconSize);
+    QImage image = pixmap.toImage();
+
+    QImageWriter writer(&buffer, "png");
+    writer.write(image);
+
+    buffer.close();
+
+    return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(data.toBase64());
 }
 
 QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)
@@ -129,36 +92,6 @@ QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)
 	Q_UNUSED(iconSize);
 	return QString();
 }
-
-void IconLoaderImpl::onSettingsChanged()
-{
-	const XdgIconTheme *defTheme = iconManager()->defaultTheme();
-	QString id = Config().group("appearance").value<QString>("theme", QUTIM_DEFAULT_ICON_THEME);
-	const XdgIconTheme *theme;
-	theme = iconManager()->themeById(id);
-	if (!theme && defTheme && defTheme->id() != "hicolor") {
-		theme = defTheme;
-	} else if (!theme) {
-		theme = iconManager()->themeById(QLatin1String("oxygen"));
-		if (!theme)
-			theme = iconManager()->themeById(QLatin1String("hicolor"));
-	}
-	// We don't want usually to use "hicolor"
-	if (theme->id() == "hicolor") {
-		QStringList themes = iconManager()->themeIds();
-		themes.removeOne("hicolor");
-		if (!themes.isEmpty())
-			theme = iconManager()->themeById(themes.at(qrand() % themes.size()));
-	}
-	iconManager()->setCurrentTheme(theme->id());
-    QIcon::setThemeName(theme->id());
-}
-
-void IconLoaderImpl::initSettings()
-{
-
-}
-
 
 }
 

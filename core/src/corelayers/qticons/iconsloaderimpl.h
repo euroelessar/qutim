@@ -35,40 +35,18 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-class IconLoaderSettings : public SettingsWidget
-{
-	Q_OBJECT
-public:
-	IconLoaderSettings();
-	
-	virtual void loadImpl();
-	virtual void saveImpl();
-	virtual void cancelImpl();
-protected slots:
-	void onCurrentIndexChanged(int index);
-private:
-	QComboBox *m_box;
-	int m_index;
-};
-
 class IconLoaderImpl : public IconLoader
 {
 	Q_OBJECT
 public:
 	IconLoaderImpl();
-
-public slots:
-	void onSettingsChanged();
-	void initSettings();
+    ~IconLoaderImpl();
 
 protected:
 	QIcon doLoadIcon(const QString &name);
 	QMovie *doLoadMovie(const QString &name);
 	QString doIconPath(const QString &name, uint iconSize);
-	QString doMoviePath(const QString &name, uint iconSize);
-
-private:
-	QScopedPointer<SettingsItem> m_settings;
+    QString doMoviePath(const QString &name, uint iconSize);
 };
 }
 

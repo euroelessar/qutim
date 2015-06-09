@@ -1,7 +1,7 @@
 {
 	"pluginIcon": "",
 	"pluginName": "Xdg Icon Loader",
-	"pluginDescription": "Default qutIM icon loader implementation. Based on Q-XDG library",
+    "pluginDescription": "Default qutIM icon loader implementation. Based on QIcon::fromTheme",
 	"extensionHeader": "iconsloaderimpl.h",
 	"extensionClass": "Core::IconLoaderImpl"
 }
