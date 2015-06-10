@@ -288,12 +288,6 @@ void ContactDelegate::paint(QPainter *painter,
 		painter->drawPixmap(option.rect.left() + p->horizontalPadding,
 							option.rect.top() + p->verticalPadding,
 							pixmap);
-//		itemIcon.paint(painter,
-//					   option.rect.left() + p->horizontalPadding,
-//					   option.rect.top() + p->verticalPadding,
-//					   p->statusIconSize,
-//					   p->statusIconSize,
-//					   Qt::AlignTop);
 		break;
 	}
 	default:

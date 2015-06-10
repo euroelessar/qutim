@@ -22,8 +22,8 @@ protected:
 
 private:
     QTimer m_timer;
-    bool m_online;
     qutim_sdk_0_3::Account *m_account;
+    bool m_online;
 };
 
 } // namespace Bearer
