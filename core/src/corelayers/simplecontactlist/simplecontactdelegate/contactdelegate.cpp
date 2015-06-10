@@ -243,13 +243,12 @@ void ContactDelegate::paint(QPainter *painter,
 				}
 
 				icon.paint(painter,
-						   option.rect.left() + p->horizontalPadding,
+						   title_rect.right() - p->extIconSize,
 						   option.rect.top() + p->verticalPadding,
-						   title_rect.right() - p->horizontalPadding,
 						   p->extIconSize,
-						   Qt::AlignBottom |
-						   Qt::AlignRight);
-				title_rect.adjust(0,0,-p->extIconSize-p->horizontalPadding/2,0);
+						   p->extIconSize,
+						   Qt::AlignBottom | Qt::AlignRight);
+				title_rect.adjust(0, 0, -p->extIconSize - p->horizontalPadding / 2, 0);
 			}
 		}
 		title_rect.adjust(p->statusIconSize + p->horizontalPadding,
