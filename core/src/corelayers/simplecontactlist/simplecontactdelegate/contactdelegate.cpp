@@ -208,10 +208,11 @@ void ContactDelegate::paint(QPainter *painter,
 							  txt
 							  );
 		} else {
+			QString txt = QFontMetrics(font).elidedText(name, Qt::ElideMiddle, title_rect.width());
 			// TODO: remove that when AccountType will be properly supported
 			painter->drawText(title_rect,
 							  Qt::AlignVCenter,
-							  name
+							  txt
 							  );
 		}
 		break;
@@ -283,12 +284,16 @@ void ContactDelegate::paint(QPainter *painter,
 			QString avatar = index.data(AvatarRole).toString();
 			itemIcon = AvatarFilter::icon(avatar,itemIcon);
 		}
-		itemIcon.paint(painter,
-					   option.rect.left() + p->horizontalPadding,
-					   option.rect.top() + p->verticalPadding,
-					   p->statusIconSize,
-					   p->statusIconSize,
-					   Qt::AlignTop);
+		QPixmap pixmap = itemIcon.pixmap(p->statusIconSize, p->statusIconSize);
+		painter->drawPixmap(option.rect.left() + p->horizontalPadding,
+							option.rect.top() + p->verticalPadding,
+							pixmap);
+//		itemIcon.paint(painter,
+//					   option.rect.left() + p->horizontalPadding,
+//					   option.rect.top() + p->verticalPadding,
+//					   p->statusIconSize,
+//					   p->statusIconSize,
+//					   Qt::AlignTop);
 		break;
 	}
 	default:
