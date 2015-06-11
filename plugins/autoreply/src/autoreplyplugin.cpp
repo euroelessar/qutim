@@ -28,8 +28,12 @@ bool AutoReplyPlugin::load()
 		connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
 				SLOT(onServiceChanged(QByteArray)));
 		m_handler.reset(new AutoReplyMessageHandler(this));
-		MessageHandler::registerHandler(m_handler.data());
-        m_settingsItem.reset(new QmlSettingsItem(QStringLiteral("autoreply"),
+		MessageHandler::registerHandler(m_handler.data(),
+										QLatin1String("Autoreply"),
+										MessageHandler::NormalPriortity,
+										MessageHandler::NormalPriortity);
+
+		m_settingsItem.reset(new QmlSettingsItem(QStringLiteral("autoreply"),
 								 Settings::Plugin, QIcon(),
 								 QT_TRANSLATE_NOOP("AutoReply", "Auto reply")));
 		m_settingsItem->connect(SIGNAL(saved()), this, SLOT(onSettingsChanged()));
