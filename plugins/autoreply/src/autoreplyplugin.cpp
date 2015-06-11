@@ -34,8 +34,8 @@ bool AutoReplyPlugin::load()
 										MessageHandler::NormalPriortity);
 
 		m_settingsItem.reset(new QmlSettingsItem(QStringLiteral("autoreply"),
-							 Settings::Plugin, QIcon(),
-							 QT_TRANSLATE_NOOP("AutoReply", "Auto reply")));
+												 Settings::Plugin, QIcon(),
+												 QT_TRANSLATE_NOOP("AutoReply", "Auto reply")));
 		m_settingsItem->connect(SIGNAL(saved()), this, SLOT(onSettingsChanged()));
 		Settings::registerItem(m_settingsItem.data());
 		m_active = false;
