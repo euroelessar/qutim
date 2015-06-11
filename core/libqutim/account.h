@@ -74,7 +74,7 @@ public:
 		Connected,
 		Disconnecting
 	};
-    Q_ENUM(State)
+	Q_ENUMS(State)
 
 	struct UpdateParametersArgument
 	{

@@ -83,7 +83,7 @@ public:
         NoFlag = 0x00,
         IgnoreActions = 0x01,
     };
-    Q_ENUM(SimiliarFlag)
+	Q_ENUMS(SimiliarFlag)
 
 	Message();
 	Message(const QString &text);
