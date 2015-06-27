@@ -33,6 +33,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <tuple>
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -131,9 +132,8 @@ namespace qutim_sdk_0_3
 		return read(info(unit), QDateTime(), QDateTime::currentDateTime(), max_num);
 	}
 
-	MessageList History::readSync(const ChatUnit *unit, int max_num)
-	{
-		AsyncResult<MessageList> asyncResult = read(unit, max_num);
+	MessageList History::readSync(const ChatUnit *unit, const QDateTime &to, int max_num) {
+		AsyncResult<MessageList> asyncResult = read(unit, to, max_num);
 		MessageList result;
 
 		QEventLoop loop;
@@ -148,6 +148,11 @@ namespace qutim_sdk_0_3
 		loop.exec();
 
 		return result;
+	}
+
+	MessageList History::readSync(const ChatUnit *unit, int max_num)
+	{
+		return readSync(unit, QDateTime::currentDateTime(), max_num);
 	}
 
 	History::ContactInfo History::info(const ChatUnit *unit)
