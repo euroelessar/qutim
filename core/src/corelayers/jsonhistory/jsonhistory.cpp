@@ -35,117 +35,44 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 //#include <QElapsedTimer>
+#include <QQueue>
 
 namespace Core
 {
-JsonHistoryStoreJob::JsonHistoryStoreJob(JsonHistoryScope::Ptr scope) : d(scope)
-{
-	d->hasRunnable = true;
-	setAutoDelete(true);
-}
 
-void JsonHistoryStoreJob::run()
-{
-	forever {
-		d->mutex.lock();
-		if (d->queue.isEmpty()) {
-			d->hasRunnable = false;
-			d->mutex.unlock();
-			break;
-		}
-		auto it = d->queue.begin();
-		QDate date = it->second.time().date();
-		auto firstContact = it->first;
-		QList<QPair<History::ContactInfo, Message>> queue;
-		while (it != d->queue.end()) {
-			if (firstContact == it->first
-					&& date == it->second.time().date()) {
-				queue << *it;
-				d->queue.erase(it++);
-			} else {
-				++it;
-			}
-		}
-		d->mutex.unlock();
-
-		QString fileName = d->getFileName(firstContact, date);
-		QFile file(fileName);
-		QDateTime lastModified = QFileInfo(fileName).lastModified();
-		bool new_file = !file.exists();
-		if(!file.open(QIODevice::ReadWrite))
-			return;
-		if(new_file) {
-			file.write("[\n");
-		} else {
-			JsonHistoryScope::EndCache::iterator it = d->cache.find(fileName);
-			uint end;
-			if (it != d->cache.end() && it->lastModified == lastModified)
-				end = it->end;
-			else
-				end = d->findEnd(file);
-			file.resize(end);
-			file.seek(end);
-			file.write(",\n");
-		}
-		for (int i = 0; i < queue.size(); ++i) {
-			const Message &message = queue.at(i).second;
-			if (i > 0)
-				file.write(",\n");
-			file.write(" {\n");
-			foreach(const QByteArray &name, message.dynamicPropertyNames()) {
-				QByteArray data;
-				if(!Json::generate(data, message.property(name), 2))
-					continue;
-				file.write("  ");
-				file.write(Json::quote(QString::fromUtf8(name)).toUtf8());
-				file.write(": ");
-				file.write(data);
-				file.write(",\n");
-			}
-			file.write("  \"datetime\": \"");
-			QDateTime time = message.time();
-			if(!time.isValid())
-				time = QDateTime::currentDateTime();
-			file.write(time.toString(Qt::ISODate).toLatin1());
-			file.write("\",\n  \"in\": ");
-			file.write(message.isIncoming() ? "true" : "false");
-			file.write(",\n  \"text\": ");
-			file.write(Json::quote(message.text()).toUtf8());
-			file.write(",\n  \"html\": ");
-			file.write(Json::quote(message.html()).toUtf8());
-			file.write("\n }");
-		}
-		uint end = file.pos();
-		file.write("\n]");
-		file.close();
-		lastModified = QFileInfo(fileName).lastModified();
-		d->cache.insert(fileName, JsonHistoryScope::EndValue(lastModified, end));
-	//	It will produce something like this:
-	//	{
-	//	 "datetime": "2009-06-20T01:42:22",
-	//	 "type": 1,
-	//	 "in": true,
-	//	 "text": "some cool text"
-	//	}
-	}
-}
-
-
-JsonHistoryJob::JsonHistoryJob(const std::function<void ()> &handler)
-	: m_handler(handler)
+JsonHistoryJob::JsonHistoryJob(JsonHistoryScope::Ptr scope)
+	: d(scope)
 {
 }
 
 void JsonHistoryJob::run()
 {
-	m_handler();
+	forever {
+		d->lambdaMutex.lock();
+		if(d->fqueue.isEmpty()) {
+			d->hasJobRunnable = false;
+			d->lambdaMutex.unlock();
+			break;
+		}
+		auto f = d->fqueue.dequeue();
+		d->lambdaMutex.unlock();
+
+		f();
+	}
 }
 
 template <typename Method>
-static void runJob(Method method)
+static void runJob(JsonHistoryScope::Ptr scope, Method method)
 {
-	JsonHistoryJob *job = new JsonHistoryJob(std::move(method));
-	QThreadPool::globalInstance()->start(job);
+	QMutexLocker locker(&scope->lambdaMutex);
+
+	scope->fqueue.enqueue(std::move(method));
+
+	if(!scope->hasJobRunnable) {
+		scope->hasJobRunnable = true;
+		JsonHistoryJob *job = new JsonHistoryJob(scope);
+		QThreadPool::globalInstance()->start(job);
+	}
 }
 
 void init(History *history)
@@ -166,7 +93,8 @@ JsonHistory::JsonHistory() : m_scope(new JsonHistoryScope)
 		inited = true;
 		init(this);
 	}
-	m_scope->hasRunnable = false;
+
+	m_scope->hasJobRunnable = false;
 }
 
 JsonHistory::~JsonHistory()
@@ -251,13 +179,76 @@ QDir JsonHistoryScope::getAccountDir(const History::AccountInfo &info) const
 
 void JsonHistory::store(const Message &message)
 {
+
 	if (!message.chatUnit())
 		return;
 
-	QMutexLocker locker(&m_scope->mutex);
-	m_scope->queue << qMakePair(info(message.chatUnit()), message);
-	if (!m_scope->hasRunnable)
-		QThreadPool::globalInstance()->start(new JsonHistoryStoreJob(m_scope));
+	auto d = m_scope;
+	auto contactInfo = info(message.chatUnit());
+
+	runJob(m_scope, [d, message, contactInfo] () {
+		QDate date = message.time().date();
+
+		QString fileName = d->getFileName(contactInfo, date);
+		QFile file(fileName);
+		QDateTime lastModified = QFileInfo(fileName).lastModified();
+
+		bool new_file = !file.exists();
+		if(!file.open(QIODevice::ReadWrite))
+			return;
+		if(new_file) {
+			file.write("[\n");
+		} else {
+			JsonHistoryScope::EndCache::iterator it = d->cache.find(fileName);
+			uint end;
+			if (it != d->cache.end() && it->lastModified == lastModified)
+				end = it->end;
+			else
+				end = d->findEnd(file);
+			file.resize(end);
+			file.seek(end);
+			file.write(",\n");
+		}
+
+		// So, writing message section
+		file.write(" {\n");
+		foreach(const QByteArray &name, message.dynamicPropertyNames()) {
+			QByteArray data;
+			if(!Json::generate(data, message.property(name), 2))
+				continue;
+			file.write("  ");
+			file.write(Json::quote(QString::fromUtf8(name)).toUtf8());
+			file.write(": ");
+			file.write(data);
+			file.write(",\n");
+		}
+		file.write("  \"datetime\": \"");
+		QDateTime time = message.time();
+		if(!time.isValid())
+			time = QDateTime::currentDateTime();
+		file.write(time.toString(Qt::ISODate).toLatin1());
+		file.write("\",\n  \"in\": ");
+		file.write(message.isIncoming() ? "true" : "false");
+		file.write(",\n  \"text\": ");
+		file.write(Json::quote(message.text()).toUtf8());
+		file.write(",\n  \"html\": ");
+		file.write(Json::quote(message.html()).toUtf8());
+		file.write("\n }");
+		// Writing end
+
+		uint end = file.pos();
+		file.write("\n]");
+		file.close();
+		lastModified = QFileInfo(fileName).lastModified();
+		d->cache.insert(fileName, JsonHistoryScope::EndValue(lastModified, end));
+		//	It will produce something like this:
+		//	{
+		//	 "datetime": "2009-06-20T01:42:22",
+		//	 "type": 1,
+		//	 "in": true,
+		//	 "text": "some cool text"
+		//	}
+	});
 }
 
 AsyncResult<MessageList> JsonHistory::read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num)
@@ -265,7 +256,7 @@ AsyncResult<MessageList> JsonHistory::read(const ContactInfo &info, const QDateT
 	AsyncResultHandler<MessageList> handler;
 	auto scope = m_scope;
 
-	runJob([scope, info, from, to, max_num, handler] () {
+	runJob(m_scope, [scope, info, from, to, max_num, handler] () {
 		QDir dir = scope->getAccountDir(info);
 		QString filter = quote(info.contact);
 		filter += ".*.json";
@@ -353,7 +344,7 @@ AsyncResult<QVector<History::AccountInfo>> JsonHistory::accounts()
 {
 	AsyncResultHandler<QVector<AccountInfo>> handler;
 
-	runJob([handler] () {
+	runJob(m_scope, [handler] () {
 		QVector<AccountInfo> result;
 
 		QDir historyDir = SystemInfo::getDir(SystemInfo::HistoryDir);
@@ -382,7 +373,7 @@ AsyncResult<QVector<History::ContactInfo>> JsonHistory::contacts(const AccountIn
 	AsyncResultHandler<QVector<ContactInfo>> handler;
 
 	auto scope = m_scope;
-	runJob([handler, scope, account] () {
+	runJob(m_scope, [handler, scope, account] () {
 		QVector<ContactInfo> result;
 		QSet<QString> used;
 
@@ -411,7 +402,7 @@ AsyncResult<QList<QDate>> JsonHistory::months(const ContactInfo &contact, const 
 	AsyncResultHandler<QList<QDate>> handler;
 
 	auto scope = m_scope;
-	runJob([handler, scope, contact] () {
+	runJob(m_scope, [handler, scope, contact] () {
 		QList<QDate> result;
 		QSet<QString> used;
 
@@ -444,7 +435,7 @@ AsyncResult<QList<QDate>> JsonHistory::dates(const ContactInfo &contact, const Q
 	AsyncResultHandler<QList<QDate>> handler;
 
 	auto scope = m_scope;
-	runJob([handler, scope, contact, month, regex] () {
+	runJob(m_scope, [handler, scope, contact, month, regex] () {
 		QSet<QDate> result;
 
 		QFile file(scope->getFileName(contact, month));

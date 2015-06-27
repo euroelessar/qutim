@@ -32,6 +32,7 @@
 #include <QLinkedList>
 #include <QPointer>
 #include <QMutex>
+#include <QQueue>
 
 using namespace qutim_sdk_0_3;
 
@@ -57,30 +58,21 @@ public:
 	};
 
 	typedef QHash<QString, EndValue> EndCache;
-	bool hasRunnable;
+	bool hasJobRunnable;
 	EndCache cache;
-	QLinkedList<QPair<History::ContactInfo, Message>> queue;
-	QMutex mutex;
-};
 
-class JsonHistoryStoreJob : public QRunnable
-{
-public:
-	JsonHistoryStoreJob(JsonHistoryScope::Ptr scope);
-	void run() override;
-
-private:
-	JsonHistoryScope::Ptr d;
+	QMutex lambdaMutex;
+	QQueue< std::function<void ()> > fqueue;
 };
 
 class JsonHistoryJob : public QRunnable
 {
 public:
-	JsonHistoryJob(const std::function<void ()> &handler);
+	JsonHistoryJob(JsonHistoryScope::Ptr scope);
 	void run() override;
 
 private:
-	std::function<void ()> m_handler;
+	JsonHistoryScope::Ptr d;
 };
 
 class JsonHistory : public History
