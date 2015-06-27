@@ -64,6 +64,8 @@ public:
 	bool isActive();
 	QDateTime dateOpened() const;
 	void setDateOpened(const QDateTime &date);
+	MessageList messageListOnStart() const;
+	void setMessageListOnStart(const MessageList & messagelist);
 public slots:
 	virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 	virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;

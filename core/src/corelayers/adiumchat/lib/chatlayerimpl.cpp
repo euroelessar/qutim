@@ -37,6 +37,7 @@
 #include <qutim/adiumchat/abstractchatform.h>
 #include <qutim/adiumchat/chatviewfactory.h>
 #include <QPlainTextEdit>
+#include <qutim/history.h>
 
 namespace Core
 {
@@ -94,6 +95,14 @@ ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 	ChatSessionImpl *session = m_chatSessions.value(unit);
 	if(!session && create) {
 		session = new ChatSessionImpl(unit, this);
+
+		Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
+		int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
+
+		MessageList l = qutim_sdk_0_3::History::instance()->readSync(unit, QDateTime::currentDateTime(), max_num);
+
+		session->setMessageListOnStart(l);
+
 		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onChatSessionDestroyed(QObject*)));
 		m_chatSessions.insert(unit,session);
 		emit sessionCreated(session);
